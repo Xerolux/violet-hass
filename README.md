@@ -23,6 +23,7 @@
 * [Getting support for this integration](#getting-support-for-this-integration)
 * [Supporting this integration](#supporting-this-integration)
 * [Contributing](#contributions-are-welcome)
+* [A brief description of the Violet Controller](#a-brief-description-of-the-violet-pool-controller)
 * [Changelog](#changelog)
 * [Credits](#credits)
 
@@ -51,8 +52,6 @@ Optionally, adjust the polling frequency for fetching data. However, remember th
 
 
 
-
-
 ## Common problems/errors and the solution
 
 
@@ -66,7 +65,17 @@ This way others can benefit from the solution, too.
 If you want to contribute to this project please read the [Contribution guidelines](CONTRIBUTING.md).
 
 
+## A brief description of the ProCon.IP pool controller
+
+![picturebuy]
+
+VIOLET ist als smarte Komplettlösung zur Poolsteuerung konzipiert, die sowohl für kleinere Schwimmbad-Installationen z.B. nur die Filter-, Heizungs- / Absorber- und Beleuchtungs-Steuerung (EIN/AUS oder DMX fähig) übernehmen kann, als auch für technisch voll ausgestattete Becken eine ganzheitliche Lösung zur Steuerung aller üblichen, zusätzlichen Komponenten wie Rückspülen, Überlaufbehälter-Steuerung (Rinnenbecken), Wasserstands-Regelung (Skimmer-Becken), Pool-Abdeckung (Cover), zusätzliche Wasserattraktionen und natürlich auch die Dosierung übernimmt. Alle Funktionen greifen dabei, sofern notwendig, intelligent ineinander, um eine sinnvolle und effiziente Steuerung des kompletten Schwimmbades zu ermöglichen. Im Fehlerfall (z.B. Ausfall von Sensoren, Trockenlauf der Filterpumpe, Nachspeiseventil defekt, leer werdenden Stellmittel-Kanistern und vielem mehr) können entsprechende Benachrichtigungen per Email, Push oder HTTP Request versendet werden, um zeitnahes und zielgerichtetes Handeln zu ermöglichen, ohne permanent vor Ort einzelne Geräte oder Füllstände immer wieder kontrollieren zu müssen.
+
+Die Konfiguration und Bedienung von VIOLET erfolgt vollständig browserbasiert (Web-App) und kann mit jedem PC, MAC, Tablet oder Smartphone erfolgen. Integrierte Statistiken (mit Daten-Export für beliebige Zeiträume, in Excel-konformes Format), ein Logfile, das alle Schaltvorgänge und Konfigurationsänderungen protokolliert, Fernzugriffs-Funktion (über die VIOLET von überall auf der Welt erreichbar ist) und viele weitere Features runden den Funktionsumfang ab. Zur einfachen Integration von VIOLET in Hausautomationssysteme / Smart Home (wie ioBroker, Loxone, KNX, FHEM, IP-Symcon), können alle Messwerte / Schaltzustände über eine einfache JSON-API ausgelesen werden.
+
+* [pooldigital.de shop] (https://www.pooldigital.de/poolsteuerungen/violet-poolsteuerung/74/violet-basis-modul-poolsteuerung-smart)
 * [pooldigital.de forum](http://forum.pooldigital.de/)
+
 
 ## Changelog
 
@@ -103,3 +112,5 @@ This project was generated using the [integration blueprint][integration_bluepri
 [issues]: https://github.com/xerolux/violet-hass/issues
 [screens1]: https://github.com/xerolux/violet-hass/raw/main/screenshots/screens1.png
 [screens2]: https://github.com/xerolux/violet-hass/raw/main/screenshots/screens2.png
+[buy]: https://www.pooldigital.de/poolsteuerungen/violet-poolsteuerung/74/violet-basis-modul-poolsteuerung-smart
+[picturebuy]: https://github.com/ylabonte/proconip-hass/raw/main/screenshots/VIOLET_Base-Module.jpg
