@@ -73,7 +73,7 @@ VIOLET ist als smarte Komplettlösung zur Poolsteuerung konzipiert, die sowohl f
 
 Die Konfiguration und Bedienung von VIOLET erfolgt vollständig browserbasiert (Web-App) und kann mit jedem PC, MAC, Tablet oder Smartphone erfolgen. Integrierte Statistiken (mit Daten-Export für beliebige Zeiträume, in Excel-konformes Format), ein Logfile, das alle Schaltvorgänge und Konfigurationsänderungen protokolliert, Fernzugriffs-Funktion (über die VIOLET von überall auf der Welt erreichbar ist) und viele weitere Features runden den Funktionsumfang ab. Zur einfachen Integration von VIOLET in Hausautomationssysteme / Smart Home (wie ioBroker, Loxone, KNX, FHEM, IP-Symcon), können alle Messwerte / Schaltzustände über eine einfache JSON-API ausgelesen werden.
 
-* [pooldigital.de shop] (https://www.pooldigital.de/poolsteuerungen/violet-poolsteuerung/74/violet-basis-modul-poolsteuerung-smart/)
+* [pooldigital.de shop](https://www.pooldigital.de/poolsteuerungen/violet-poolsteuerung/74/violet-basis-modul-poolsteuerung-smart/)
 * [pooldigital.de forum](http://forum.pooldigital.de/)
 
 
