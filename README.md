@@ -81,8 +81,11 @@ The configuration and operation of VIOLET are entirely browser-based (web app) a
 
 ## Changelog
 
+### Version 0.0.2fix2 (2024-09-15)
+### Version 0.0.2fix1 (2024-09-15)
+### Version 0.0.2fix (2024-09-15)
+### Version 0.0.2 (2024-09-15)
 ### Version 0.0.1 (2024-09-14)
-First Release
 
 ## Credits
 This project was generated using the [integration blueprint][integration_blueprint] from [@Ludeeus](https://github.com/ludeeus).
