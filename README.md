@@ -27,6 +27,11 @@
 * [Credits](#credits)
 
 
+## Screenshot
+[screens1]
+[screens2]
+
+
 ## Install 
 
 To install the Violet Pool Controller via HACS, follow these steps:
@@ -97,3 +102,5 @@ This project was generated using the [integration blueprint][integration_bluepri
 [releases]: https://github.com/xerolux/violet-hass/releases
 [user_profile]: https://github.com/xerolux
 [issues]: https://github.com/xerolux/violet-hass/issues
+[screens1]: https://github.com/xerolux/violet-hass/raw/main/Screens1.png
+[screens2]: https://github.com/xerolux/violet-hass/raw/main/Screens2.png
