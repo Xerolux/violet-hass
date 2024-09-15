@@ -1,5 +1,4 @@
 import logging
-
 import aiohttp
 import async_timeout
 import voluptuous as vol
@@ -7,7 +6,6 @@ from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import aiohttp_client
-from homeassistant.helpers.selector import TextSelector
 
 from .const import DOMAIN, CONF_API_URL, CONF_POLLING_INTERVAL
 
@@ -36,7 +34,9 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 async with async_timeout.timeout(10):
                     async with session.get(api_url, ssl=False) as response:
                         response.raise_for_status()
-                        await response.json()
+                        data = await response.json()
+                        firmware_version = data.get('FW', 'Unknown')  # Get firmware from JSON
+
             except aiohttp.ClientError as err:
                 _LOGGER.error("Error connecting to API: %s", err)
                 errors["base"] = "cannot_connect"
