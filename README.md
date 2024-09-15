@@ -67,7 +67,7 @@ If you want to contribute to this project please read the [Contribution guidelin
 
 ## A brief description of the ProCon.IP pool controller
 
-![picturebuy]
+![Violet Home Assistant Integration][[picturebuy]]
 
 VIOLET ist als smarte Komplettlösung zur Poolsteuerung konzipiert, die sowohl für kleinere Schwimmbad-Installationen z.B. nur die Filter-, Heizungs- / Absorber- und Beleuchtungs-Steuerung (EIN/AUS oder DMX fähig) übernehmen kann, als auch für technisch voll ausgestattete Becken eine ganzheitliche Lösung zur Steuerung aller üblichen, zusätzlichen Komponenten wie Rückspülen, Überlaufbehälter-Steuerung (Rinnenbecken), Wasserstands-Regelung (Skimmer-Becken), Pool-Abdeckung (Cover), zusätzliche Wasserattraktionen und natürlich auch die Dosierung übernimmt. Alle Funktionen greifen dabei, sofern notwendig, intelligent ineinander, um eine sinnvolle und effiziente Steuerung des kompletten Schwimmbades zu ermöglichen. Im Fehlerfall (z.B. Ausfall von Sensoren, Trockenlauf der Filterpumpe, Nachspeiseventil defekt, leer werdenden Stellmittel-Kanistern und vielem mehr) können entsprechende Benachrichtigungen per Email, Push oder HTTP Request versendet werden, um zeitnahes und zielgerichtetes Handeln zu ermöglichen, ohne permanent vor Ort einzelne Geräte oder Füllstände immer wieder kontrollieren zu müssen.
 
