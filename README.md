@@ -77,7 +77,7 @@ First Release
 This project was generated using the [integration blueprint][integration_blueprint] from [@Ludeeus](https://github.com/ludeeus).
 
 
-## Screenshot
+## Screenshots
 ![Violet Home Assistant Integration][screens1]
 ![Violet Home Assistant Integration][screens2]
 ---
