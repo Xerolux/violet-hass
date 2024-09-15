@@ -65,7 +65,7 @@ This way others can benefit from the solution, too.
 If you want to contribute to this project please read the [Contribution guidelines](CONTRIBUTING.md).
 
 
-## A brief description of the ProCon.IP pool controller
+## A brief description of the Violet pool controller
 
 ![Violet Home Assistant Integration][pbuy]
 
