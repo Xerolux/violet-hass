@@ -2,7 +2,8 @@
     "config": {
         "step": {
             "user": {
-                "description": "If you need help with the configuration have a look here: https://github.com/Xerolux/violet-hass",
+                "title": "User Configuration",
+                "description": "If you need help with the configuration, have a look here: [Violet Hass Integration](https://github.com/Xerolux/violet-hass)",
                 "data": {
                     "username": "Username",
                     "password": "Password"
@@ -10,9 +11,9 @@
             }
         },
         "error": {
-            "auth": "Username/Password is wrong.",
-            "connection": "Unable to connect to the server.",
-            "unknown": "Unknown error occurred."
+            "invalid_auth": "Username or password is incorrect.",
+            "cannot_connect": "Unable to connect to the server.",
+            "unknown": "An unknown error occurred."
         }
     }
 }
