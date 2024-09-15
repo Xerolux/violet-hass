@@ -27,11 +27,6 @@
 * [Credits](#credits)
 
 
-## Screenshot
-[screens1]
-[screens2]
-
-
 ## Install 
 
 To install the Violet Pool Controller via HACS, follow these steps:
@@ -81,6 +76,10 @@ First Release
 ## Credits
 This project was generated using the [integration blueprint][integration_blueprint] from [@Ludeeus](https://github.com/ludeeus).
 
+
+## Screenshot
+![Violet Home Assistant Integration][screens1]
+![Violet Home Assistant Integration][screens2]
 ---
 
 [integration_blueprint]: https://github.com/ludeeus/integration_blueprint
