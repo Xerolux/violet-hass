@@ -1,8 +1,8 @@
 {
-  "domain": "violet_pool_controller",
+  "domain": "proconip_pool_controller",
   "name": "Violet Pool Controller",
   "codeowners": ["@xerolux"],
-  "version": "0.0.1",
+  "version": "0.0.2fix2",
   "documentation": "https://github.com/Xerolux/violet-hass",
   "issue_tracker": "https://github.com/Xerolux/violet-hass/issues",
   "dependencies": [],
