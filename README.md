@@ -113,4 +113,4 @@ This project was generated using the [integration blueprint][integration_bluepri
 [screens1]: https://github.com/xerolux/violet-hass/raw/main/screenshots/screens1.png
 [screens2]: https://github.com/xerolux/violet-hass/raw/main/screenshots/screens2.png
 [buy]: https://www.pooldigital.de/poolsteuerungen/violet-poolsteuerung/74/violet-basis-modul-poolsteuerung-smart
-[picturebuy]: https://github.com/ylabonte/proconip-hass/raw/main/screenshots/VIOLET_Base-Module.jpg
+[picturebuy]: https://github.com/ylabonte/proconip-hass/raw/main/screenshots/violetbm.jpg
