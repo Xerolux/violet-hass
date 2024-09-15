@@ -23,7 +23,7 @@
 * [Getting support for this integration](#getting-support-for-this-integration)
 * [Supporting this integration](#supporting-this-integration)
 * [Contributing](#contributions-are-welcome)
-* [A brief description of the Violet Controller](#a-brief-description-of-the-violet-pool-controller)
+* [A brief description of the Violet Pool Controller](#a-brief-description-of-the-violet-pool-controller)
 * [Changelog](#changelog)
 * [Credits](#credits)
 
@@ -65,7 +65,7 @@ This way others can benefit from the solution, too.
 If you want to contribute to this project please read the [Contribution guidelines](CONTRIBUTING.md).
 
 
-## A brief description of the Violet pool controller
+## A brief description of the Violet Pool Controller
 
 ![Violet Home Assistant Integration][pbuy]
 
