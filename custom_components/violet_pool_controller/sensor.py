@@ -79,3 +79,57 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
         """Return the state of the sensor."""
         return self.coordinator.data.get(self._key)
 
+    @property
+    def unit_of_measurement(self):
+        """Return the unit of measurement."""
+        units = {
+            "IMP1_value": None,
+            "IMP2_value": None,
+            "pump_rs485_pwr": "W",
+            "SYSTEM_cpu_temperature": "°C",
+            "SYSTEM_carrier_cpu_temperature": "°C",
+            "SYSTEM_memoryusage": "MB",
+            "onewire1_value": "°C",
+            "onewire2_value": "°C",
+            "onewire3_value": "°C",
+            "onewire4_value": "°C",
+            "onewire5_value": "°C",
+            "onewire6_value": "°C",
+            "onewire7_value": "°C",
+            "onewire8_value": "°C",
+            "onewire9_value": "°C",
+            "onewire10_value": "°C",
+            "onewire11_value": "°C",
+            "onewire12_value": "°C",
+            "ADC1_value": "V",
+            "ADC2_value": "V",
+            "ADC3_value": "V",
+            "ADC4_value": "V",
+            "ADC5_value": "V",
+            "ADC6_value": "V",
+            "pH_value": None,  # pH values are unitless
+            "orp_value": "mV",
+            "pot_value": "V",
+            "PUMP_RPM_0": "RPM",
+            "PUMP_RPM_1": "RPM",
+            "PUMP_RPM_2": "RPM",
+            "PUMP_RPM_3": "RPM",
+            "SYSTEM_dosagemodule_cpu_temperature": "°C",
+            "SYSTEM_carrier_alive_count": None,  # Count, unitless
+            "SYSTEM_ext1module_alive_count": None,  # Count, unitless
+            "SYSTEM_dosagemodule_alive_count": None,  # Count, unitless
+            "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": "mL",
+            "DOS_2_ELO_DAILY_DOSING_AMOUNT_ML": "mL",
+            "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML": "mL",
+            "PUMP_RUNTIME": None,  # Time duration format (hh:mm:ss)
+            "SOLAR_RUNTIME": None,  # Time duration format (hh:mm:ss)
+            "HEATER_RUNTIME": None,  # Time duration format (hh:mm:ss)
+            "BACKWASH_RUNTIME": None,  # Time duration format (hh:mm:ss)
+            "OMNI_DC0_RUNTIME": None,  # Time duration format (hh:mm:ss)
+            "OMNI_DC1_RUNTIME": None,  # Time duration format (hh:mm:ss)
+            "CPU_TEMP": "°C",
+            "SYSTEM_MEMORY": "MB",
+            "LOAD_AVG": None,  # Load average is unitless
+        }
+        return units.get(self._key, None)
+
