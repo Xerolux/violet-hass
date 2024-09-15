@@ -1,39 +1,52 @@
 import logging
-import aiohttp
-import async_timeout
 from datetime import timedelta
-from homeassistant.helpers.entity import Entity
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers import aiohttp_client
+from homeassistant.helpers.update_coordinator import (
+    CoordinatorEntity,
+    DataUpdateCoordinator,
+    UpdateFailed,
+)
 
 from .const import DOMAIN, CONF_API_URL, CONF_POLLING_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
 
+
 async def async_setup_entry(hass, config_entry, async_add_entities):
-    """Set up the Violet Device sensors from a config entry."""
+    """Set up Violet Device sensors from a config entry."""
     api_url = config_entry.data.get(CONF_API_URL)
     polling_interval = config_entry.data.get(CONF_POLLING_INTERVAL)
 
-    # Create a coordinator to manage polling and updating sensors
-    coordinator = VioletDataUpdateCoordinator(hass, api_url, polling_interval)
+    # Get the shared aiohttp session
+    session = aiohttp_client.async_get_clientsession(hass)
 
-    # Fetch initial data so we can create sensors dynamically based on the keys
-    await coordinator.async_refresh()
+    # Create a coordinator to manage polling and updating sensors
+    coordinator = VioletDataUpdateCoordinator(
+        hass, api_url, polling_interval, session
+    )
+
+    # Fetch initial data to create sensors dynamically based on the keys
+    await coordinator.async_config_entry_first_refresh()
 
     # Create sensors for each key in the API data
-    sensors = []
-    for key in coordinator.data.keys():
-        sensors.append(VioletDeviceSensor(coordinator, key))
+    sensors = [
+        VioletDeviceSensor(coordinator, key)
+        for key in coordinator.data.keys()
+    ]
 
-    async_add_entities(sensors, True)
+    async_add_entities(sensors)
 
 
 class VioletDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching Violet Device data."""
 
-    def __init__(self, hass, api_url, polling_interval):
+    def __init__(self, hass, api_url, polling_interval, session):
         """Initialize the coordinator."""
         self.api_url = api_url
+        self.session = session
         super().__init__(
             hass,
             _LOGGER,
@@ -44,33 +57,25 @@ class VioletDataUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         """Fetch data from the Violet API."""
         try:
-            async with aiohttp.ClientSession() as session:
-                with async_timeout.timeout(10):
-                    response = await session.get(self.api_url, ssl=False)
-                    return await response.json()
-        except (aiohttp.ClientError, aiohttp.ClientResponseError) as err:
+            async with self.session.get(self.api_url, ssl=False, timeout=10) as response:
+                response.raise_for_status()
+                return await response.json()
+        except Exception as err:
             raise UpdateFailed(f"Error communicating with API: {err}") from err
 
 
-class VioletDeviceSensor(Entity):
+class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
     """Representation of a Violet Device Sensor."""
 
     def __init__(self, coordinator, key):
-        self.coordinator = coordinator
+        """Initialize the sensor."""
+        super().__init__(coordinator)
         self._key = key
-        self._state = None
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return f"Violet {self._key}"
+        self._attr_name = f"Violet {self._key}"
+        self._attr_unique_id = f"{DOMAIN}_{self._key}"
 
     @property
     def state(self):
         """Return the state of the sensor."""
         return self.coordinator.data.get(self._key)
 
-    async def async_update(self):
-        """Fetch new state data for the sensor."""
-        # No need to do anything here; coordinator handles data updates
-        await self.coordinator.async_request_refresh()
