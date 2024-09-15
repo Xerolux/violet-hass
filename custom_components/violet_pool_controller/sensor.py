@@ -2,6 +2,8 @@ import logging
 from datetime import timedelta
 
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.binary_sensor import BinarySensorEntity
+from homeassistant.components.switch import SwitchEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers.update_coordinator import (
@@ -16,28 +18,38 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
-    """Set up Violet Device sensors from a config entry."""
+    """Set up Violet Device sensors, binary sensors, and switches from a config entry."""
     api_url = config_entry.data.get(CONF_API_URL)
     polling_interval = config_entry.data.get(CONF_POLLING_INTERVAL)
 
     # Get the shared aiohttp session
     session = aiohttp_client.async_get_clientsession(hass)
 
-    # Create a coordinator to manage polling and updating sensors
+    # Create a coordinator to manage polling and updating entities
     coordinator = VioletDataUpdateCoordinator(
         hass, api_url, polling_interval, session
     )
 
-    # Fetch initial data to create sensors dynamically based on the keys
+    # Fetch initial data to create entities dynamically based on the keys
     await coordinator.async_config_entry_first_refresh()
 
-    # Create sensors for each key in the API data
+    # Create sensors, binary sensors, and switches for each key in the API data
     sensors = [
-        VioletDeviceSensor(coordinator, key)
-        for key in coordinator.data.keys()
+        VioletDeviceSensor(coordinator, sensor["key"], sensor["icon"], config_entry)
+        for sensor in SENSORS
     ]
 
-    async_add_entities(sensors)
+    binary_sensors = [
+        VioletBinarySensor(coordinator, sensor["key"], sensor["icon"])
+        for sensor in BINARY_SENSORS
+    ]
+
+    switches = [
+        VioletSwitch(coordinator, switch["key"], switch["icon"])
+        for switch in SWITCHES
+    ]
+
+    async_add_entities(sensors + binary_sensors + switches)
 
 
 class VioletDataUpdateCoordinator(DataUpdateCoordinator):
@@ -67,17 +79,35 @@ class VioletDataUpdateCoordinator(DataUpdateCoordinator):
 class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
     """Representation of a Violet Device Sensor."""
 
-    def __init__(self, coordinator, key):
-        """Initialize the sensor."""
+    def __init__(self, coordinator, key, icon, config_entry):
         super().__init__(coordinator)
         self._key = key
+        self._icon = icon
         self._attr_name = f"Violet {self._key}"
         self._attr_unique_id = f"{DOMAIN}_{self._key}"
+        self._config_entry = config_entry
 
     @property
     def state(self):
         """Return the state of the sensor."""
         return self.coordinator.data.get(self._key)
+
+    @property
+    def icon(self):
+        """Return the icon."""
+        return self._icon
+
+    @property
+    def device_info(self):
+        """Return the device information."""
+        return {
+            "identifiers": {(DOMAIN, "violet_pool_controller")},
+            "name": "Violet Pool Controller",
+            "manufacturer": "PoolDigital GmbH & Co. KG",
+            "model": "Violet Model X",
+            "sw_version": self.coordinator.data.get('fw', 'Unknown'),  # Firmware version from JSON
+            "configuration_url": f"http://{self._config_entry.data.get('host', 'Unknown IP')}",  # IP from config entry
+        }
 
     @property
     def unit_of_measurement(self):
@@ -119,8 +149,11 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
             "SYSTEM_ext1module_alive_count": None,  # Count, unitless
             "SYSTEM_dosagemodule_alive_count": None,  # Count, unitless
             "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": "mL",
+            "DOS_1_CL_TOTAL_CAN_AMOUNT_ML": "ml",
             "DOS_2_ELO_DAILY_DOSING_AMOUNT_ML": "mL",
+            "DOS_2_ELO_TOTAL_CAN_AMOUNT_ML": "ml",
             "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML": "mL",
+            "DOS_4_PHM_TOTAL_CAN_AMOUNT_ML": "ml",
             "PUMP_RUNTIME": None,  # Time duration format (hh:mm:ss)
             "SOLAR_RUNTIME": None,  # Time duration format (hh:mm:ss)
             "HEATER_RUNTIME": None,  # Time duration format (hh:mm:ss)
@@ -133,3 +166,94 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
         }
         return units.get(self._key, None)
 
+
+class VioletBinarySensor(CoordinatorEntity, BinarySensorEntity):
+    """Representation of a Violet Device Binary Sensor."""
+
+    def __init__(self, coordinator, key, icon):
+        super().__init__(coordinator)
+        self._key = key
+        self._icon = icon
+        self._attr_name = f"Violet {self._key}"
+        self._attr_unique_id = f"{DOMAIN}_{self._key}"
+
+    @property
+    def is_on(self):
+        """Return true if the binary sensor is on."""
+        return self.coordinator.data.get(self._key) == 1
+
+    @property
+    def icon(self):
+        """Return the icon."""
+        return self._icon
+
+
+class VioletSwitch(CoordinatorEntity, SwitchEntity):
+    """Representation of a Violet Device Switch."""
+
+    def __init__(self, coordinator, key, icon):
+        super().__init__(coordinator)
+        self._key = key
+        self._icon = icon
+        self._attr_name = f"Violet {self._key}"
+        self._attr_unique_id = f"{DOMAIN}_{self._key}"
+
+    @property
+    def is_on(self):
+        """Return true if the switch is on."""
+        return self.coordinator.data.get(self._key) == 1
+
+    async def async_turn_on(self, **kwargs):
+        """Turn the switch on."""
+        # Add the API call to turn the switch on
+        pass
+
+    async def async_turn_off(self, **kwargs):
+        """Turn the switch off."""
+        # Add the API call to turn the switch off
+        pass
+
+    @property
+    def icon(self):
+        """Return the icon."""
+        return self._icon
+
+
+# Define your sensors, binary sensors, and switches with appropriate MDI icons
+SENSORS = [
+    {"name": "System CPU Temperature", "key": "SYSTEM_cpu_temperature", "icon": "mdi:thermometer"},
+    {"name": "System Memory Usage", "key": "SYSTEM_memoryusage", "icon": "mdi:memory"},
+    {"name": "pH Value", "key": "pH_value", "icon": "mdi:flask"},
+    {"name": "ORP Value", "key": "orp_value", "icon": "mdi:chemical-weapon"},
+    {"name": "Potentiometer Value", "key": "pot_value", "icon": "mdi:gauge"},
+    {"name": "OneWire 1 Temperature", "key": "onewire1_value", "icon": "mdi:thermometer"},
+    {"name": "OneWire 2 Temperature", "key": "onewire2_value", "icon": "mdi:thermometer"},
+    {"name": "OneWire 3 Temperature", "key": "onewire3_value", "icon": "mdi:thermometer"},
+    {"name": "OneWire 4 Temperature", "key": "onewire4_value", "icon": "mdi:thermometer"},
+    {"name": "OneWire 5 Temperature", "key": "onewire5_value", "icon": "mdi:thermometer"},
+    {"name": "OneWire 6 Temperature", "key": "onewire6_value", "icon": "mdi:thermometer"},
+    {"name": "ADC1", "key": "ADC1_value", "icon": "mdi:waveform"},
+    {"name": "ADC2", "key": "ADC2_value", "icon": "mdi:waveform"},
+    {"name": "ADC3", "key": "ADC3_value", "icon": "mdi:waveform"},
+    {"name": "ADC4", "key": "ADC4_value", "icon": "mdi:waveform"},
+    {"name": "Pump RPM 0", "key": "PUMP_RPM_0", "icon": "mdi:fan"},
+    {"name": "Pump RPM 1", "key": "PUMP_RPM_1", "icon": "mdi:fan"},
+    {"name": "Pump RPM 2", "key": "PUMP_RPM_2", "icon": "mdi:fan"},
+]
+
+BINARY_SENSORS = [
+    {"name": "Pump State", "key": "PUMP", "icon": "mdi:water-pump"},
+    {"name": "Solar State", "key": "SOLAR", "icon": "mdi:solar-power"},
+    {"name": "Heater State", "key": "HEATER", "icon": "mdi:radiator"},
+    {"name": "Cover State", "key": "COVER_STATE", "icon": "mdi:garage"},
+    {"name": "Refill State", "key": "REFILL_STATE", "icon": "mdi:water-boiler"},
+    {"name": "Light State", "key": "LIGHT", "icon": "mdi:lightbulb"},
+]
+
+SWITCHES = [
+    {"name": "Pump Switch", "key": "PUMP", "icon": "mdi:water-pump"},
+    {"name": "Light Switch", "key": "LIGHT", "icon": "mdi:lightbulb"},
+    {"name": "Eco Mode", "key": "ECO", "icon": "mdi:leaf"},
+    {"name": "DOS CL Switch", "key": "DOS_1_CL", "icon": "mdi:chemical-weapon"},
+    {"name": "DOS PHM Switch", "key": "DOS_4_PHM", "icon": "mdi:chemical-weapon"},
+]
