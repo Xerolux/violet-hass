@@ -1,16 +1,39 @@
-extends: default  # Use default rules, you can extend or customize them.
+---
+yaml-files:
+  - "*.yaml"
+  - "*.yml"
+  - ".yamllint"
 
 rules:
-  line-length: 
-    max: 120  # Set max line length to 120 characters.
-    level: warning
-  indentation: 
-    spaces: 2  # Use 2 spaces for indentation.
-  trailing-spaces: 
-    level: error  # Disallow trailing spaces.
-  document-start: 
-    level: warning  # Require `---` at the beginning of YAML files.
-  truthy:
-    level: error  # Disallow unquoted true/false/null, i.e., force quotes for booleans.
+  line-length:
+    max: 256
+    level: "warning"
+  braces: "enable"
+  brackets: "enable"
+  colons: "enable"
+  commas: "enable"
   comments:
-    level: warning  # Warn if comments are not formatted correctly.
+    level: "warning"
+  comments-indentation:
+    level: "warning"
+  document-end: "disable"
+  document-start:
+    present: true
+  empty-lines: "enable"
+  empty-values: "disable"
+  hyphens: "enable"
+  indentation:
+    spaces: 2
+    indent-sequences: true
+    check-multi-line-strings: false
+  key-duplicates: "enable"
+  key-ordering: "disable"
+  new-line-at-end-of-file: "enable"
+  new-lines: "enable"
+  octal-values: "disable"
+  quoted-strings:
+    quote-type: "double"
+    required: true
+  trailing-spaces: "enable"
+  truthy:
+    allowed-values: ["true", "false", "on", "off"]
