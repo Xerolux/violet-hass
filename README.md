@@ -75,7 +75,7 @@ The configuration and operation of VIOLET are entirely browser-based (web app) a
 
 
 
-* [pooldigital.de shop](https://www.pooldigital.de/poolsteuerungen/violet-poolsteuerung/74/violet-basis-modul-poolsteuerung-smart/)
+* [pooldigital.de shop](https://www.pooldigital.de/poolsteuerungen/violet-poolsteuerung/74/violet-basis-modul-poolsteuerung-smart)
 * [pooldigital.de forum](http://forum.pooldigital.de/)
 
 
