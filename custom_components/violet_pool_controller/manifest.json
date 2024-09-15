@@ -1,5 +1,5 @@
 {
-  "domain": "proconip_pool_controller",
+  "domain": "violet_pool_controller",
   "name": "Violet Pool Controller",
   "codeowners": ["@xerolux"],
   "version": "0.0.2fix2",
