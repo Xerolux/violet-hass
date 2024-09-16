@@ -1,0 +1,33 @@
+[book]
+title = "Violet Pool Controller Documentation"
+author = "Xerolux"
+description = "Comprehensive documentation for the Violet Pool Controller integration and configuration."
+multilingual = false
+
+[build]
+build-dir = "docs"  # Adjusted for typical documentation folder
+create-missing = true
+use-default-preprocessors = true
+
+[output.html]
+theme = "light"
+default-theme = "light"
+no-section-label = false
+additional-css = ["custom.css"]  # Option to add custom CSS for styling
+additional-js = []
+google-analytics = ["UA-XXXXXX-1"]  # Replace with your GA ID if needed
+favicons = [
+    { rel = "icon", href = "favicon.ico" }
+]
+copy-to-root = ["favicon.ico"]
+default-settings = { preferred-dark-theme = "dark", preferred-light-theme = "light" }
+
+[output.html.fold]
+enable = true  # Allows sections to be foldable for easier navigation
+
+[output.html.search]
+enable = true  # Enable search functionality in the generated documentation
+
+# Custom settings for code blocks (optional, but useful for technical documentation)
+[output.html.code]
+copy-button = true  # Adds a copy button to code blocks for ease of use
