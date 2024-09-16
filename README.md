@@ -1,7 +1,3 @@
-# Violet Pool Controller
-
-<a href="https://www.buymeacoffee.com/xerolux" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
-
 [![GitHub Release][releases-shield]][releases]
 [![GitHub Activity][commits-shield]][commits]
 [![License][license-shield]](LICENSE)
@@ -13,8 +9,9 @@
 [![Discord][discord-shield]][discord]
 [![Community Forum][forum-shield]][forum]
 
-![Violet Home Assistant Integration][logo]
+# Violet Pool Controller
 
+![Violet Home Assistant Integration][logo]
 
 
 ## Table of contents
@@ -61,6 +58,11 @@ Optionally, adjust the polling frequency for fetching data. However, remember th
 ## Getting support for this integration
 If you have trouble with this integration and want to get help, please raise an [issue on github][issues].
 This way others can benefit from the solution, too.
+
+## Supporting this integration
+If you want to support this integration or say thank you, you can:
+
+<a href="https://www.buymeacoffee.com/xerolux" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
 
 ## Contributions are welcome!
