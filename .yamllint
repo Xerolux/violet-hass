@@ -16,24 +16,24 @@ rules:
     level: "warning"
   comments-indentation:
     level: "warning"
-  document-end: "disable"
+  document-end: "enable"  # Require a document-end marker
   document-start:
     present: true
   empty-lines: "enable"
-  empty-values: "disable"
+  empty-values: "enable"  # Allow empty values if needed
   hyphens: "enable"
   indentation:
     spaces: 2
     indent-sequences: true
-    check-multi-line-strings: false
+    check-multi-line-strings: true  # Enable multi-line string checks
   key-duplicates: "enable"
-  key-ordering: "disable"
+  key-ordering: "enable"  # Enforce key ordering for consistency
   new-line-at-end-of-file: "enable"
   new-lines: "enable"
   octal-values: "disable"
   quoted-strings:
-    quote-type: "double"
+    quote-type: "any"  # Allow both single and double quotes
     required: true
   trailing-spaces: "enable"
   truthy:
-    allowed-values: ["true", "false", "on", "off"]
+    allowed-values: ["true", "false", "on", "off", "yes", "no"]  # Expanded truthy values

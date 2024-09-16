@@ -1,6 +1,6 @@
 [LOGGING]
-logging-format-style=new
+logging-format-style=new  # Use new-style string formatting for logging (e.g., {} instead of %)
 
 [MESSAGES CONTROL]
 # pylint issue with Python 3.9 https://github.com/PyCQA/pylint/issues/3882
-disable=unsubscriptable-object
+disable=unsubscriptable-object  # Disable unsubscriptable-object errors due to an issue in Python 3.9

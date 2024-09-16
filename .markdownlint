@@ -8,7 +8,7 @@ MD001: false
 MD024:
   allow_different_nesting: true
 
-MD025: false
+MD025: true  # Enforce a single H1 header
 
 MD028: false
 
@@ -25,9 +25,9 @@ ul-style:
 ul-indent:
   indent: 4
 
-no-trailing-spaces: false
+no-trailing-spaces: true  # Enforce no trailing spaces
 
-line-length: false
+line-length: 120  # Enforce a maximum line length of 120 characters
 
 no-duplicate-header:
   allow_different_nesting: true
@@ -38,10 +38,10 @@ no-trailing-punctuation:
 ol-prefix:
   style: "ordered"
 
-no-inline-html: false
+no-inline-html: false  # Allow inline HTML usage
 
 hr-style:
-  style: "---"
+  style: ["---", "***"]  # Allow both "---" and "***" for horizontal rules
 
 no-emphasis-as-heading: false
 
@@ -51,6 +51,8 @@ code-block-style:
   style: ["fenced"]
 
 proper-names:
-  names: []
+  names:
+    - Markdownlint
+    - Home Assistant  # Enforce capitalization for specific proper names
 
 code_blocks: false
