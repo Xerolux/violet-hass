@@ -9,7 +9,7 @@
 [![Discord][discord-shield]][discord]
 [![Community Forum][forum-shield]][forum]
 
-# Violet Pool Controller
+# Violet Pool Controller HACS Home Assistant Addon
 
 ![Violet Home Assistant Integration][logo]
 
