@@ -85,6 +85,7 @@ The configuration and operation of VIOLET are entirely browser-based (web app) a
 
 ## Changelog
 
+### Version 0.0.3 (2024-09-16)
 ### Version 0.0.2fix2 (2024-09-15)
 ### Version 0.0.2fix1 (2024-09-15)
 ### Version 0.0.2fix (2024-09-15)
