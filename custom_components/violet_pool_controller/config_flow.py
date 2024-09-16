@@ -7,10 +7,9 @@ from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import aiohttp_client
 
-from .const import DOMAIN, CONF_API_URL, CONF_POLLING_INTERVAL
+from .const import DOMAIN, CONF_API_URL, CONF_POLLING_INTERVAL, CONF_USE_SSL
 
 _LOGGER = logging.getLogger(__name__)
-
 
 class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Violet Device."""
@@ -23,6 +22,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             api_url = user_input[CONF_API_URL]
+            use_ssl = user_input.get(CONF_USE_SSL, False)  # Get SSL option from user input
 
             # Check for duplicate entries
             await self.async_set_unique_id(api_url)
@@ -32,7 +32,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             session = aiohttp_client.async_get_clientsession(self.hass)
             try:
                 async with async_timeout.timeout(10):
-                    async with session.get(api_url, ssl=False) as response:
+                    async with session.get(api_url, ssl=use_ssl) as response:
                         response.raise_for_status()
                         data = await response.json()
                         firmware_version = data.get('FW', 'Unknown')  # Get firmware from JSON
@@ -51,6 +51,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         data_schema = vol.Schema({
             vol.Required(CONF_API_URL, default="http://192.168.178.55/getReadings?ALL"): str,
             vol.Optional(CONF_POLLING_INTERVAL, default=10): int,
+            vol.Optional(CONF_USE_SSL, default=False): bool,  # Add SSL option to the form
         })
 
         return self.async_show_form(
@@ -58,4 +59,3 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=data_schema,
             errors=errors,
         )
-
