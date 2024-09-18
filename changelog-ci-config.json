@@ -1,0 +1,20 @@
+{
+  "version_prefix": "v",
+  "group_by": {
+    "Features": ["enhancement", "feature"],
+    "Bug Fixes": ["bug", "fix"],
+    "Improvements": ["improvement"],
+    "Documentation": ["docs"],
+    "Others": ["chore", "refactor", "test"]
+  },
+  "title": "Changelog for {version}",
+  "template": {
+    "group": {
+      "header": "## {group_title}\n",
+      "issue": "- [{issue_number}] {issue_title}\n"
+    },
+    "release": {
+      "header": "# {version} - {release_date}\n\n"
+    }
+  }
+}
