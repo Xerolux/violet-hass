@@ -31,10 +31,6 @@ jobs:
           # Use a custom config file for changelog settings
           config_file: changelog-ci-config.json
           
-          # Set the committer details for automatic changelog commits
-          committer_username: 'Violet Pool Bot'
-          committer_email: 'bot@xerolux.de'
-          
           # Pass the release version from the manual trigger input
           release_version: ${{ github.event.inputs.release_version }}
           
