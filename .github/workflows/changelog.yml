@@ -2,9 +2,8 @@ name: Changelog CI
 
 on:
   pull_request:
-    types: [ opened ]
+    types: [opened]
 
-  # Optionally you can use `workflow_dispatch` to run Changelog CI Manually
   workflow_dispatch:
     inputs:
       release_version:
@@ -16,30 +15,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checks-out your repository
-      - uses: actions/checkout@v2
+      # Repository auschecken
+      - uses: actions/checkout@v3
 
       - name: Run Changelog CI
         uses: saadmk11/changelog-ci@v1.1.2
         with:
-          # Optional, you can provide any name for your changelog file,
-          # We currently support Markdown (.md) and reStructuredText (.rst) files
-          # defaults to `CHANGELOG.md` if not provided.
+          # Verwende CHANGELOG.rst als Changelog-Datei
           changelog_filename: CHANGELOG.rst
-          # Optional, only required when you want more customization
-          # e.g: group your changelog by labels with custom titles,
-          # different version prefix, pull request title and version number regex etc.
-          # config file can be in JSON or YAML format.
+          # Verwende eine Konfigurationsdatei für individuelle Anpassungen
           config_file: changelog-ci-config.json
-          # Optional, This will be used to configure git
-          # defaults to `github-actions[bot]` if not provided.
-          committer_username: 'test'
-          committer_email: 'test@test.com'
-          # Optional, only required when you want to run Changelog CI 
-          # on an event other than `pull_request` event.
-          # In this example `release_version` is fetched from `workflow_dispatch` events input.
-          # You can use any other method to fetch the release version
-          # such as environment variable or from output of another action
+          # Git Konfigurationsdetails für den Committer
+          committer_username: 'Violet Pool Bot'
+          committer_email: 'bot@xerolux.de'
+          # Release-Version von workflow_dispatch eingeben
           release_version: ${{ github.event.inputs.release_version }}
-          # Optional
+          # GitHub Token für die Authentifizierung
           github_token: ${{ secrets.GITHUB_TOKEN }}
