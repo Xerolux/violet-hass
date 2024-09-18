@@ -4,17 +4,21 @@ on:
   push:
   pull_request:
   schedule:
-    - cron: "0 0 * * *"
+    - cron: "0 0 * * *"  # Runs the action at midnight every day
 
 jobs:
   hacs:
     name: HACS Action
     runs-on: "ubuntu-latest"
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: HACS Action
-        uses: "hacs/action@main"
+        uses: hacs/action@main
         with:
           category: "integration"
-          
-      - uses: pre-commit-ci/lite-action@v1.0.3
-          if: always()
+
+      - name: Run pre-commit checks
+        uses: pre-commit-ci/lite-action@v1.0.3
+        if: always()  # Ensure it runs even if previous steps fail
