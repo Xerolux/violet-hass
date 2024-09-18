@@ -1,0 +1,3 @@
+- name: TruffleHog OSS
+   uses: trufflesecurity/trufflehog@v3.82.2
+            
