@@ -1,0 +1,30 @@
+# labeler.yml
+
+# Labels for changes in specific folders or files
+frontend:
+  - 'src/frontend/**'
+  - 'public/**'
+
+backend:
+  - 'src/backend/**'
+  - 'api/**'
+
+documentation:
+  - 'docs/**'
+  - '*.md'
+
+tests:
+  - 'tests/**'
+
+# You can specify labels for specific files
+config:
+  - '.github/labeler.yml'
+  - '.github/workflows/**'
+
+# Labels for changes in any JavaScript files
+javascript:
+  - '**/*.js'
+
+# Labels for changes in any Python files
+python:
+  - '**/*.py'
