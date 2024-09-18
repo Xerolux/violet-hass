@@ -83,16 +83,6 @@ The configuration and operation of VIOLET are entirely browser-based (web app) a
 * [pooldigital.de forum](http://forum.pooldigital.de/)
 
 
-## Changelog
-
-### Version 0.0.5 (2024-09-18)
-### Version 0.0.4 (2024-09-18)
-### Version 0.0.3 (2024-09-16)
-### Version 0.0.2fix2 (2024-09-15)
-### Version 0.0.2fix1 (2024-09-15)
-### Version 0.0.2fix (2024-09-15)
-### Version 0.0.2 (2024-09-15)
-### Version 0.0.1 (2024-09-14)
 
 ## Credits
 This project was generated using the [integration blueprint][integration_blueprint] from [@Ludeeus](https://github.com/ludeeus).
