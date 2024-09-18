@@ -3,6 +3,4 @@
   "homeassistant": "2024.6.0",
   "render_readme": true,
   "version": "0.0.5",
-  "description": "Home Assistant integration for controlling Violet Pool.",
-  "domain": "violet_pool_controller"
 }
