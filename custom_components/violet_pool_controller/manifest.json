@@ -1,6 +1,6 @@
 {
+  "name": "Violet Pool Controller",  
   "domain": "violet_pool_controller",
-  "name": "Violet Pool Controller",
   "config_flow": true,
   "documentation": "https://github.com/Xerolux/violet-hass",
   "issue_tracker": "https://github.com/Xerolux/violet-hass/issues",
