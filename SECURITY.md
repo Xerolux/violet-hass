@@ -2,13 +2,9 @@
 
 ## Supported Versions
 
-Always use the most recent release version. 
-There will be no security updates or patches for outdated releases.
+It is recommended to always use the most recent release version of the software.  
+No security updates or patches will be provided for outdated releases.
 
 ## Reporting a Vulnerability
 
-If you identify a vulnerability, please consider that this may affect other
-people/projects as well. This in mind, please email me (Xerolux
-<git@xerolux.de>) first, so I can react and hopefully fix the issue,
-before it is published to the public (e.g. in a github issue) and could be
-misused by a third party.
+If you identify a vulnerability, please keep in mind that it could affect other users or projects. Therefore, before making the vulnerability public (e.g., via a GitHub issue), kindly email me at [Xerolux](mailto:git@xerolux.de) to give me the opportunity to address and fix the issue before it could potentially be misused by a third party.
