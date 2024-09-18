@@ -1,7 +1,7 @@
 {
   "name": "Violet Pool Controller",
-  "domain": "violet_pool_controller"
-  "homeassistant": "2024.6.0",
-  "render_readme": true,
-  "version": "0.0.5",
+  "content_in_root": false,
+  "domains": ["violet_pool_controller"],
+  "iot_class": "local_polling",
+  "render_readme": true
 }
