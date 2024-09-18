@@ -1,3 +1,24 @@
-- name: TruffleHog OSS
-   uses: trufflesecurity/trufflehog@v3.82.2
+name: Secret Scan
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  secret_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@v3.82.2
+        with:
+          scan-repo: true
+          regex: true
+          entropy: true
             
