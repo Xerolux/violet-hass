@@ -1,9 +1,11 @@
 name: Changelog CI
 
 on:
+  # Trigger workflow when a pull request is opened
   pull_request:
     types: [opened]
 
+  # Allow manual triggering of workflow with release version input
   workflow_dispatch:
     inputs:
       release_version:
@@ -15,20 +17,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Repository auschecken
-      - uses: actions/checkout@v3
+      # Step 1: Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
+      # Step 2: Run Changelog CI to update changelog file
       - name: Run Changelog CI
         uses: saadmk11/changelog-ci@v1.1.2
         with:
-          # Verwende CHANGELOG.rst als Changelog-Datei
+          # Specify the changelog file (CHANGELOG.rst)
           changelog_filename: CHANGELOG.rst
-          # Verwende eine Konfigurationsdatei für individuelle Anpassungen
+          
+          # Use a custom config file for changelog settings
           config_file: changelog-ci-config.json
-          # Git Konfigurationsdetails für den Committer
+          
+          # Set the committer details for automatic changelog commits
           committer_username: 'Violet Pool Bot'
           committer_email: 'bot@xerolux.de'
-          # Release-Version von workflow_dispatch eingeben
+          
+          # Pass the release version from the manual trigger input
           release_version: ${{ github.event.inputs.release_version }}
-          # GitHub Token für die Authentifizierung
+          
+          # GitHub token for authentication, required for commits
           github_token: ${{ secrets.GITHUB_TOKEN }}
