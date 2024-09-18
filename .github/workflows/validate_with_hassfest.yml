@@ -35,6 +35,3 @@ jobs:
             category: "integration"
             # Remove this 'ignore' key when you have added brand images for your integration to https://github.com/home-assistant/brands
             ignore: "brands"
-
-pre-commit-ci/lite-action@v1.0.3
-          if: always()
