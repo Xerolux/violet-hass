@@ -1,7 +1,6 @@
 {
   "name": "Violet Pool Controller",
   "content_in_root": false,
-  "domains": ["violet_pool_controller"],
   "iot_class": "local_polling",
   "render_readme": true
 }
