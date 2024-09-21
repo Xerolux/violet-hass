@@ -113,8 +113,8 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
     def unit_of_measurement(self):
         """Return the unit of measurement."""
         units = {
-            "IMP1_value": None,
-            "IMP2_value": None,
+            "IMP1_value": "cm/s",
+            "IMP2_value": "cm/s",
             "pump_rs485_pwr": "W",
             "SYSTEM_cpu_temperature": "°C",
             "SYSTEM_carrier_cpu_temperature": "°C",
@@ -137,9 +137,9 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
             "ADC4_value": "V",
             "ADC5_value": "V",
             "ADC6_value": "V",
-            "pH_value": None,  # pH values are unitless
+            "pH_value": "pH",
             "orp_value": "mV",
-            "pot_value": "V",
+            "pot_value": "mg/l",
             "PUMP_RPM_0": "RPM",
             "PUMP_RPM_1": "RPM",
             "PUMP_RPM_2": "RPM",
@@ -162,7 +162,7 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
             "OMNI_DC1_RUNTIME": None,  # Time duration format (hh:mm:ss)
             "CPU_TEMP": "°C",
             "SYSTEM_MEMORY": "MB",
-            "LOAD_AVG": None,  # Load average is unitless
+            "LOAD_AVG": "%",
         }
         return units.get(self._key, None)
 
@@ -221,10 +221,16 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
 
 # Define your sensors, binary sensors, and switches with appropriate MDI icons
 SENSORS = [
+    {"name": "IMP1 Value", "key": "IMP1_value", "icon": "mdi:flash"},
+    {"name": "IMP2 Value", "key": "IMP2_value", "icon": "mdi:flash"},
+    {"name": "Pump Power", "key": "pump_rs485_pwr", "icon": "mdi:power"},
     {"name": "System CPU Temperature", "key": "SYSTEM_cpu_temperature", "icon": "mdi:thermometer"},
     {"name": "System Memory Usage", "key": "SYSTEM_memoryusage", "icon": "mdi:memory"},
+    {"name": "Carrier CPU Temperature", "key": "SYSTEM_carrier_cpu_temperature", "icon": "mdi:thermometer"},
     {"name": "pH Value", "key": "pH_value", "icon": "mdi:flask"},
+    {"name": "pHM Daily", "key": "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML", "icon": "mdi:flask"},
     {"name": "ORP Value", "key": "orp_value", "icon": "mdi:chemical-weapon"},
+    {"name": "ORP Daily", "key": "DOS_1_CL_DAILY_DOSING_AMOUNT_ML", "icon": "mdi:chemical-weapon"},
     {"name": "Potentiometer Value", "key": "pot_value", "icon": "mdi:gauge"},
     {"name": "OneWire 1 Temperature", "key": "onewire1_value", "icon": "mdi:thermometer"},
     {"name": "OneWire 2 Temperature", "key": "onewire2_value", "icon": "mdi:thermometer"},
@@ -232,13 +238,29 @@ SENSORS = [
     {"name": "OneWire 4 Temperature", "key": "onewire4_value", "icon": "mdi:thermometer"},
     {"name": "OneWire 5 Temperature", "key": "onewire5_value", "icon": "mdi:thermometer"},
     {"name": "OneWire 6 Temperature", "key": "onewire6_value", "icon": "mdi:thermometer"},
+    {"name": "OneWire 7 Temperature", "key": "onewire7_value", "icon": "mdi:thermometer"},
+    {"name": "OneWire 8 Temperature", "key": "onewire8_value", "icon": "mdi:thermometer"},
+    {"name": "OneWire 9 Temperature", "key": "onewire9_value", "icon": "mdi:thermometer"},
+    {"name": "OneWire 10 Temperature", "key": "onewire10_value", "icon": "mdi:thermometer"},
+    {"name": "OneWire 11 Temperature", "key": "onewire11_value", "icon": "mdi:thermometer"},
+    {"name": "OneWire 12 Temperature", "key": "onewire12_value", "icon": "mdi:thermometer"},
     {"name": "ADC1", "key": "ADC1_value", "icon": "mdi:waveform"},
     {"name": "ADC2", "key": "ADC2_value", "icon": "mdi:waveform"},
     {"name": "ADC3", "key": "ADC3_value", "icon": "mdi:waveform"},
     {"name": "ADC4", "key": "ADC4_value", "icon": "mdi:waveform"},
+    {"name": "ADC5", "key": "ADC5_value", "icon": "mdi:waveform"},
+    {"name": "ADC6", "key": "ADC6_value", "icon": "mdi:waveform"},
     {"name": "Pump RPM 0", "key": "PUMP_RPM_0", "icon": "mdi:fan"},
     {"name": "Pump RPM 1", "key": "PUMP_RPM_1", "icon": "mdi:fan"},
     {"name": "Pump RPM 2", "key": "PUMP_RPM_2", "icon": "mdi:fan"},
+    {"name": "Pump RPM 3", "key": "PUMP_RPM_3", "icon": "mdi:fan"},
+    {"name": "Backwash State", "key": "BACKWASH", "icon": "mdi:water-pump"},
+    {"name": "Backwash Rinse State", "key": "BACKWASHRINSE", "icon": "mdi:water-pump"},
+    {"name": "Omni DC0 State", "key": "OMNI_DC0", "icon": "mdi:power-plug"},
+    {"name": "Omni DC1 State", "key": "OMNI_DC1", "icon": "mdi:power-plug"},
+    {"name": "Omni DC2 State", "key": "OMNI_DC2", "icon": "mdi:power-plug"},
+    {"name": "Omni DC3 State", "key": "OMNI_DC3", "icon": "mdi:power-plug"},
+    {"name": "Eco Mode State", "key": "ECO", "icon": "mdi:leaf"}
 ]
 
 BINARY_SENSORS = [
