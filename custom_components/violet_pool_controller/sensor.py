@@ -145,7 +145,6 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
             "PUMP_RPM_1": "RPM",                       # Pump RPM sensor 1
             "PUMP_RPM_2": "RPM",                       # Pump RPM sensor 2
             "PUMP_RPM_3": "RPM",                       # Pump RPM sensor 3
-            "SYSTEM_dosagemodule_cpu_temperature": "°C",  # Dosage module CPU temperature
             "SYSTEM_carrier_alive_count": None,        # Carrier alive count (unitless)
             "SYSTEM_ext1module_alive_count": None,     # External module 1 alive count (unitless)
             "SYSTEM_dosagemodule_alive_count": None,   # Dosage module alive count (unitless)
@@ -362,7 +361,7 @@ SENSORS = [
 ]
 
 BINARY_SENSORS = [
-    {"name": "Pump State", "key": "PUMP", "icon": "mdi:water-pump"},  # Binary sensor for pump state
+    {"name": "Pump State", "key": "PUMP_STATE", "icon": "mdi:water-pump"},  # Binary sensor for pump state
     {"name": "Solar State", "key": "SOLAR", "icon": "mdi:solar-power"},  # Binary sensor for solar state
     {"name": "Heater State", "key": "HEATER", "icon": "mdi:radiator"},  # Binary sensor for heater state
     {"name": "Cover State", "key": "COVER_STATE", "icon": "mdi:garage"},  # Binary sensor for pool cover position
