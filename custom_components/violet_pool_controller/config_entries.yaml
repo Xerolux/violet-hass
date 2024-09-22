@@ -1,0 +1,23 @@
+# config_entries.yaml
+
+flow_title: "Violet Pool Controller"
+
+# Configuration options presented in the setup flow
+options:
+  step:
+    user:
+      data:
+        # API URL field for accessing the device
+        api_url:
+          name: "API URL"
+          description: "Enter the API URL of the Violet Pool Controller."
+          required: true
+          type: string
+        
+        # Customizable device name field
+        device_name:
+          name: "Device Name"
+          description: "Enter a custom name for your Violet Pool Controller device."
+          required: false
+          default: "Violet Pool Controller"
+          type: string
