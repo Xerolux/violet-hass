@@ -1,11 +1,10 @@
-"""Violet Device Integration."""
 import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers import device_registry as dr
 
-from .const import DOMAIN, CONF_API_URL
+from .const import DOMAIN, CONF_API_URL, CONF_DEVICE_NAME  # Import CONF_DEVICE_NAME
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -18,6 +17,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     
     # Get the shared aiohttp session
     session = aiohttp_client.async_get_clientsession(hass)
+    
+    # Get the custom device name or default to 'Violet Pool Controller'
+    device_name = entry.data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
     
     try:
         # Fetch data from the API, including firmware version
@@ -34,13 +36,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 config_entry_id=entry.entry_id,
                 identifiers={(DOMAIN, "violet_pool_controller")},
                 manufacturer="PoolDigital GmbH & Co. KG",
-                name="Violet Pool Controller",
+                name=device_name,  # Use custom device name
                 model="Violet Model X",
                 sw_version=firmware_version,
                 configuration_url=f"http://{ip_address}",  # Store the IP address in the configuration URL
             )
 
-            _LOGGER.info("Device registered successfully.")
+            _LOGGER.info("Device '%s' registered successfully.", device_name)
 
     except Exception as err:
         _LOGGER.error("Failed to register device: %s", err)
