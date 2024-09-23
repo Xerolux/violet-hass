@@ -8,7 +8,6 @@ from .const import DOMAIN, CONF_API_URL, CONF_DEVICE_NAME  # Import CONF_DEVICE_
 
 _LOGGER = logging.getLogger(__name__)
 
-
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Violet Device from a config entry."""
     
@@ -48,16 +47,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         _LOGGER.error("Failed to register device: %s", err)
         return False
 
-    # Forward entry setup to sensor platform
+    # Forward entry setup to sensor platform using the new method
     _LOGGER.info("Forwarding entry setup to sensor platform.")
-    hass.async_create_task(
-        hass.config_entries.async_forward_entry_setup(entry, "sensor")
-    )
+    await hass.config_entries.async_forward_entry_setups(entry, ["sensor"])
 
     return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-    unload_ok = await hass.config_entries.async_forward_entry_unload(entry, "sensor")
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, ["sensor"])
     return unload_ok
