@@ -7,7 +7,7 @@ from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import aiohttp_client
 
-from .const import DOMAIN, CONF_API_URL, CONF_POLLING_INTERVAL, CONF_USE_SSL
+from .const import DOMAIN, CONF_API_URL, CONF_POLLING_INTERVAL, CONF_USE_SSL, CONF_DEVICE_NAME  # Add CONF_DEVICE_NAME
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -23,6 +23,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             api_url = user_input[CONF_API_URL]
             use_ssl = user_input.get(CONF_USE_SSL, False)  # Get SSL option from user input
+            device_name = user_input.get(CONF_DEVICE_NAME, "Violet Pool Controller")  # Get or default device name
 
             # Check for duplicate entries
             await self.async_set_unique_id(api_url)
@@ -44,14 +45,16 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 _LOGGER.error("Unexpected exception: %s", err)
                 errors["base"] = "unknown"
             else:
-                # Input is valid, create the config entry
-                return self.async_create_entry(title="Violet Device", data=user_input)
+                # Input is valid, create the config entry with the custom device name
+                user_input[CONF_DEVICE_NAME] = device_name
+                return self.async_create_entry(title=device_name, data=user_input)
 
         # Show the configuration form with errors (if any)
         data_schema = vol.Schema({
             vol.Required(CONF_API_URL, default="http://192.168.178.55/getReadings?ALL"): str,
             vol.Optional(CONF_POLLING_INTERVAL, default=10): int,
             vol.Optional(CONF_USE_SSL, default=False): bool,  # Add SSL option to the form
+            vol.Optional(CONF_DEVICE_NAME, default="Violet Pool Controller"): str,  # Add device name to the form
         })
 
         return self.async_show_form(
