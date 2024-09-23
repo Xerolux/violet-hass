@@ -1,5 +1,7 @@
 import logging
 from datetime import timedelta
+import aiohttp
+import async_timeout
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.binary_sensor import BinarySensorEntity
@@ -20,7 +22,7 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up Violet Device sensors, binary sensors, and switches from a config entry."""
     api_url = config_entry.data.get(CONF_API_URL)
-    polling_interval = config_entry.data.get(CONF_POLLING_INTERVAL)
+    polling_interval = config_entry.data.get(CONF_POLLING_INTERVAL, 10)  # Default to 10 seconds if not set
 
     # Get the shared aiohttp session
     session = aiohttp_client.async_get_clientsession(hass)
@@ -30,8 +32,12 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         hass, api_url, polling_interval, session
     )
 
-    # Fetch initial data to create entities dynamically based on the keys
-    await coordinator.async_config_entry_first_refresh()
+    try:
+        # Fetch initial data to create entities dynamically based on the keys
+        await coordinator.async_config_entry_first_refresh()
+    except UpdateFailed as err:
+        _LOGGER.error("Error fetching initial data: %s", err)
+        return
 
     # Create sensors, binary sensors, and switches for each key in the API data
     sensors = [
@@ -69,9 +75,12 @@ class VioletDataUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         """Fetch data from the Violet API."""
         try:
-            async with self.session.get(self.api_url, ssl=False, timeout=10) as response:
-                response.raise_for_status()
-                return await response.json()
+            async with async_timeout.timeout(10):
+                async with self.session.get(self.api_url, ssl=False) as response:
+                    response.raise_for_status()
+                    return await response.json()
+        except aiohttp.ClientTimeout as err:
+            raise UpdateFailed(f"Timeout error: {err}") from err
         except Exception as err:
             raise UpdateFailed(f"Error communicating with API: {err}") from err
 
@@ -113,7 +122,7 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
     def unit_of_measurement(self):
         """Return the unit of measurement."""
         units = {
-            "IMP1_value": "cm/s",                      # Flow sensor 1
+"IMP1_value": "cm/s",                      # Flow sensor 1
             "IMP2_value": "cm/s",                      # Flow sensor 2
             "pump_rs485_pwr": "W",                     # Pump power consumption
             "SYSTEM_cpu_temperature": "°C",            # System CPU temperature
@@ -181,7 +190,7 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
             "CHLORINE_LEVEL": "ppm",                   # Chlorine level in the water
             "BROMINE_LEVEL": "ppm",                    # Bromine level in the water
         }
-        return units.get(self._key, None)
+        return units.get(self._key, None)  # Return None if no unit is found
 
 
 class VioletBinarySensor(CoordinatorEntity, BinarySensorEntity):
@@ -222,13 +231,19 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs):
         """Turn the switch on."""
-        # Add the API call to turn the switch on
-        pass
+        try:
+            async with self.coordinator.session.post(f"{self.coordinator.api_url}/turn_on/{self._key}") as response:
+                response.raise_for_status()
+        except Exception as err:
+            _LOGGER.error(f"Error turning on {self._key}: {err}")
 
     async def async_turn_off(self, **kwargs):
         """Turn the switch off."""
-        # Add the API call to turn the switch off
-        pass
+        try:
+            async with self.coordinator.session.post(f"{self.coordinator.api_url}/turn_off/{self._key}") as response:
+                response.raise_for_status()
+        except Exception as err:
+            _LOGGER.error(f"Error turning off {self._key}: {err}")
 
     @property
     def icon(self):
@@ -375,4 +390,5 @@ SWITCHES = [
     {"name": "Eco Mode", "key": "ECO", "icon": "mdi:leaf"},  # Switch for Eco mode
     {"name": "Chlorine Dosing Switch", "key": "DOS_1_CL", "icon": "mdi:chemical-weapon"},  # Chlorine dosing switch
     {"name": "pH-minus Dosing Switch", "key": "DOS_4_PHM", "icon": "mdi:chemical-weapon"},  # pH-minus dosing switch
+
 ]
