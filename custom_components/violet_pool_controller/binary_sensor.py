@@ -130,10 +130,10 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     async_add_entities(binary_sensors)
 
 BINARY_SENSORS = [
-    {"name": "Pump State", "key": "PUMP_STATE", "icon": "mdi:water-pump"},  # Binary sensor for pump state
-    {"name": "Solar State", "key": "SOLARSTATE", "icon": "mdi:solar-power"},  # Binary sensor for solar state
-    {"name": "Heater State", "key": "HEATERSTATE", "icon": "mdi:radiator"},  # Binary sensor for heater state
-    {"name": "Cover State", "key": "COVER_STATE", "icon": "mdi:garage"},  # Binary sensor for pool cover position
-    {"name": "Refill State", "key": "REFILL_STATE", "icon": "mdi:water-boiler"},  # Binary sensor for water refill
-    {"name": "Light State", "key": "LIGHT_STATE", "icon": "mdi:lightbulb"},  # Binary sensor for pool light
+    {"name": "Pump State", "key": "PUMP_STATE", "icon": "mdi:water-pump"},
+    {"name": "Solar State", "key": "SOLARSTATE", "icon": "mdi:solar-power"},
+    {"name": "Heater State", "key": "HEATERSTATE", "icon": "mdi:radiator"},
+    {"name": "Cover State", "key": "COVER_STATE", "icon": "mdi:garage"},
+    {"name": "Refill State", "key": "REFILL_STATE", "icon": "mdi:water-boiler"},
+    {"name": "Light State", "key": "LIGHT_STATE", "icon": "mdi:lightbulb"},
 ]
