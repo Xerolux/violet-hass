@@ -83,4 +83,3 @@ class VioletDataUpdateCoordinator(DataUpdateCoordinator):
                     return await response.json()
         except Exception as err:
             raise UpdateFailed(f"Error fetching data: {err}")
-
