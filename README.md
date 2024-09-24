@@ -12,7 +12,15 @@
 
 # Violet Pool Controller HACS Home Assistant Addon
 
+This custom integration allows you to monitor and control your pool equipment using the Violet Pool Controller in Home Assistant. It includes sensors, binary sensors, and switches to track various pool metrics and perform essential operations.
+
 ![Violet Home Assistant Integration][logo]
+
+Features
+
+    Sensors: Monitor various parameters such as water flow, temperature, pump power, and pH levels.
+    Binary Sensors: Track the status of critical systems like pumps and system connectivity.
+    Switches: Control your pool equipment, such as the pump, lights, eco mode, and dosing systems.
 
 ## Table of Contents
 * [Screenshots](#screenshots)
@@ -48,7 +56,8 @@ To install the Violet Pool Controller via HACS, follow these steps:
 
 ## Common Problems/Errors and Solutions
 
-(Include common issues and their resolutions here...)
+* Too Many Arguments Passed: Ensure that your config_entry and other variables are correctly passed when initializing entities like sensors, switches, or binary sensors.
+* Missing Device Information: Verify that the API URL and authentication details are correct.
 
 ## Getting Support for this Integration
 
