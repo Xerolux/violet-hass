@@ -2,7 +2,7 @@
 Module: strings.py
 
 This module defines user interface strings and error messages for the Violet Pool Controller
-integration in Home Assistant. It includes labels for configuration fields, titles, descriptions, 
+integration in Home Assistant. It includes labels for configuration fields, titles, descriptions,
 and error messages that appear during the configuration and operation of the integration.
 
 Key features:
