@@ -20,7 +20,7 @@ Features
 
     Sensors: Monitor various parameters such as water flow, temperature, pump power, and pH levels.
     Binary Sensors: Track the status of critical systems like pumps and system connectivity.
-    Switches: Control your pool equipment, such as the pump, lights, eco mode, and dosing systems.
+    Switches: Control your pool equipment, such as the pump, lights, eco mode, and dosing systems. -> not aviable now
 
 ## Table of Contents
 * [Screenshots](#screenshots)
@@ -51,8 +51,12 @@ To install the Violet Pool Controller via HACS, follow these steps:
 
 ## Configuration is Done in the UI
 
-1. Configure the IP address to match your pool controller (e.g., `http://192.168.x.xxx/getReadings?ALL`).
-2. Optionally, adjust the polling frequency for fetching data. However, remember that Violet updates data every 10 seconds.
+1. API URL: The base URL of your Violet Pool Controller (e.g., 192.168.1.100).
+2. Username: Your API username for authentication.
+3. Password: Your API password for authentication.
+4. Polling Interval: How often to poll the device (in seconds).
+5. Use SSL: Whether to use HTTPS for secure communication.
+6. Device ID: A number to uniquely identify this Violet device when using multiple devices.
 
 ## Common Problems/Errors and Solutions
 
