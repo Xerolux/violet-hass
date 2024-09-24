@@ -62,7 +62,8 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             raise ValueError("Firmware version not found in API response.")
 
             except aiohttp.ClientError as err:
-                _LOGGER.error(f"Error connecting to API at {auth_url}: {err}")
+                sanitized_auth_url = f"{protocol}://{username}:***@{base_ip}/getReadings?ALL"
+                _LOGGER.error(f"Error connecting to API at {sanitized_auth_url}: {err}")
                 errors["base"] = "cannot_connect"
             except ValueError as err:
                 _LOGGER.error(f"Invalid response received: {err}")
