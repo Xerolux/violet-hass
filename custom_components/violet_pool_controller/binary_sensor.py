@@ -11,10 +11,10 @@ class VioletBinarySensor(CoordinatorEntity, BinarySensorEntity):
     def __init__(self, coordinator, key, icon, config_entry):
         super().__init__(coordinator)
         self._key = key
-        self._icon = icon  # Default icon
+        self._icon = icon
+        self._config_entry = config_entry  # Store config_entry here
         self._attr_name = f"Violet {self._key}"
         self._attr_unique_id = f"{DOMAIN}_{self._key}"
-        self._config_entry = config_entry
 
     def _get_sensor_state(self):
         """Helper method to retrieve the current sensor state from the coordinator."""
@@ -27,18 +27,8 @@ class VioletBinarySensor(CoordinatorEntity, BinarySensorEntity):
 
     @property
     def icon(self):
-        """Return the dynamic icon depending on the sensor state."""
-        if self._key == "PUMP_STATE":
-            return "mdi:water-pump" if self.is_on else "mdi:water-pump-off"
-        elif self._key == "SOLARSTATE":
-            return "mdi:solar-power" if self.is_on else "mdi:solar-power-off"
-        elif self._key == "HEATERSTATE":
-            return "mdi:radiator" if self.is_on else "mdi:radiator-off"
-        elif self._key == "COVER_STATE":
-            return "mdi:garage-open" if self.is_on else "mdi:garage"
-        elif self._key == "LIGHT_STATE":
-            return "mdi:lightbulb-on" if self.is_on else "mdi:lightbulb"
-        return self._icon  # Default icon if no specific dynamic icon is set
+        """Return the icon depending on the sensor state."""
+        return self._icon if self.is_on else f"{self._icon}-off"
 
     @property
     def device_info(self):
@@ -134,7 +124,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up Violet Device binary sensors from a config entry."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
     binary_sensors = [
-        VioletBinarySensor(coordinator, sensor["key"], sensor["icon"], config_entry)
+        VioletBinarySensor(coordinator, sensor["key"], sensor["icon"], config_entry)  # Pass config_entry here
         for sensor in BINARY_SENSORS
     ]
     async_add_entities(binary_sensors)

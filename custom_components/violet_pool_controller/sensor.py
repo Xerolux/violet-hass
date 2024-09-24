@@ -11,10 +11,10 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
     def __init__(self, coordinator, key, icon, config_entry):
         super().__init__(coordinator)
         self._key = key
-        self._icon = icon  # Default icon
+        self._icon = icon
+        self._config_entry = config_entry  # Store config_entry
         self._attr_name = f"Violet {self._key}"
         self._attr_unique_id = f"{DOMAIN}_{self._key}"
-        self._config_entry = config_entry
 
     def _get_sensor_state(self):
         """Helper method to retrieve the current sensor state from the coordinator."""
@@ -128,7 +128,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up Violet Device sensors from a config entry."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
     sensors = [
-        VioletDeviceSensor(coordinator, sensor["key"], sensor["icon"], config_entry)
+        VioletDeviceSensor(coordinator, sensor["key"], sensor["icon"], config_entry)  # Only pass 4 arguments
         for sensor in SENSORS
     ]
     async_add_entities(sensors)

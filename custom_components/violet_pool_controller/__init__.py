@@ -6,18 +6,19 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from datetime import timedelta
 import async_timeout
 
-from .const import DOMAIN, CONF_API_URL, CONF_POLLING_INTERVAL, CONF_DEVICE_NAME, CONF_USE_SSL
+from .const import DOMAIN, CONF_API_URL, CONF_POLLING_INTERVAL, CONF_USE_SSL, CONF_DEVICE_ID
 
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Violet Pool Controller from a config entry."""
     
-    # Fetch API URL, polling interval, and SSL setting from the config entry
+    # Fetch API URL, polling interval, SSL setting, and device ID from the config entry
     api_url = entry.data[CONF_API_URL]
     polling_interval = entry.data.get(CONF_POLLING_INTERVAL, 10)
     use_ssl = entry.data.get(CONF_USE_SSL, False)
-    
+    device_id = entry.data.get(CONF_DEVICE_ID, 1)  # Default to 1 if not set
+
     # Get the shared aiohttp session
     session = aiohttp_client.async_get_clientsession(hass)
     
@@ -27,7 +28,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         api_url=api_url,
         polling_interval=polling_interval,
         session=session,
-        use_ssl=use_ssl,  # Pass the SSL option
+        use_ssl=use_ssl,
+        device_id=device_id,  # Pass the device ID to the coordinator
     )
 
     # Ensure the first data update happens during the setup
@@ -57,15 +59,16 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 class VioletDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching Violet Pool Controller data."""
 
-    def __init__(self, hass, api_url, polling_interval, session, use_ssl):
+    def __init__(self, hass, api_url, polling_interval, session, use_ssl, device_id):
         """Initialize the coordinator."""
         self.api_url = api_url
         self.session = session
         self.use_ssl = use_ssl  # Store the SSL flag
+        self.device_id = device_id  # Store the device ID
         super().__init__(
             hass,
             _LOGGER,
-            name=DOMAIN,
+            name=f"{DOMAIN}_{device_id}",  # Use the device ID in the name to differentiate instances
             update_interval=timedelta(seconds=polling_interval),
         )
 
@@ -78,4 +81,3 @@ class VioletDataUpdateCoordinator(DataUpdateCoordinator):
                     return await response.json()
         except Exception as err:
             raise UpdateFailed(f"Error fetching data: {err}")
-

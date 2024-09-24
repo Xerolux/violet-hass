@@ -5,7 +5,7 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client
-from .const import DOMAIN, CONF_API_URL, CONF_POLLING_INTERVAL, CONF_USE_SSL, CONF_DEVICE_NAME, CONF_USERNAME, CONF_PASSWORD
+from .const import DOMAIN, CONF_API_URL, CONF_POLLING_INTERVAL, CONF_USE_SSL, CONF_DEVICE_NAME, CONF_USERNAME, CONF_PASSWORD, CONF_DEVICE_ID
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,6 +33,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             device_name = user_input.get(CONF_DEVICE_NAME, "Violet Pool Controller")
             username = user_input.get(CONF_USERNAME)
             password = user_input.get(CONF_PASSWORD)
+            device_id = user_input.get(CONF_DEVICE_ID, 1)  # Get the device ID, defaulting to 1
 
             # Check for duplicate entries based on the API URL (unique ID)
             await self.async_set_unique_id(api_url)
@@ -70,12 +71,13 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 _LOGGER.error(f"Unexpected exception: {err}")
                 errors["base"] = "unknown"
             else:
-                # Input is valid, create the config entry with the custom device name
+                # Input is valid, create the config entry with the custom device name and device_id
                 user_input[CONF_API_URL] = api_url  # Store the complete API URL in the config
                 user_input[CONF_DEVICE_NAME] = device_name
                 user_input[CONF_USERNAME] = username
                 user_input[CONF_PASSWORD] = password
-                return self.async_create_entry(title=device_name, data=user_input)
+                user_input[CONF_DEVICE_ID] = device_id  # Store the device ID in the config
+                return self.async_create_entry(title=f"{device_name} (ID {device_id})", data=user_input)
 
         # Show the configuration form with errors (if any)
         data_schema = vol.Schema({
@@ -85,6 +87,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Optional(CONF_POLLING_INTERVAL, default=10): int,
             vol.Optional(CONF_USE_SSL, default=False): bool,
             vol.Optional(CONF_DEVICE_NAME, default="Violet Pool Controller"): str,
+            vol.Required(CONF_DEVICE_ID, default=1): vol.All(vol.Coerce(int), vol.Range(min=1))  # Device ID input
         })
 
         return self.async_show_form(
@@ -124,4 +127,3 @@ class VioletOptionsFlow(config_entries.OptionsFlow):
             step_id="user",
             data_schema=options_schema
         )
-

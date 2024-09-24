@@ -8,13 +8,12 @@ _LOGGER = logging.getLogger(__name__)
 class VioletSwitch(CoordinatorEntity, SwitchEntity):
     """Representation of a Violet Device Switch."""
 
-    def __init__(self, coordinator, key, icon, config_entry):
+    def __init__(self, coordinator, key, icon):
         super().__init__(coordinator)
         self._key = key
         self._icon = icon
         self._attr_name = f"Violet {self._key}"
         self._attr_unique_id = f"{DOMAIN}_{self._key}"
-        self._config_entry = config_entry
 
     def _get_switch_state(self):
         """Helper method to retrieve the current switch state from the coordinator."""
@@ -65,8 +64,8 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
             "manufacturer": "PoolDigital GmbH & Co. KG",
             "model": "Violet Model X",
             "sw_version": self.coordinator.data.get('fw', 'Unknown'),
-            "configuration_url": f"http://{self._config_entry.data.get('host', 'Unknown IP')}",
         }
+
 
 
     @property
@@ -147,11 +146,12 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
         }
         return units.get(self._key, None)
 
+
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up Violet Device switches from a config entry."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
     switches = [
-        VioletSwitch(coordinator, switch["key"], switch["icon"], config_entry)
+        VioletSwitch(coordinator, switch["key"], switch["icon"])
         for switch in SWITCHES
     ]
     async_add_entities(switches)
