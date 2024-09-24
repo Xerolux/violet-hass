@@ -133,11 +133,11 @@ class VioletOptionsFlow(config_entries.OptionsFlow):
 
         options_schema = vol.Schema({
             vol.Optional(
-                CONF_POLLING_INTERVAL, 
+                CONF_POLLING_INTERVAL,
                 default=self.config_entry.options.get(CONF_POLLING_INTERVAL, 10)
             ): int,
             vol.Optional(
-                CONF_USE_SSL, 
+                CONF_USE_SSL,
                 default=self.config_entry.options.get(CONF_USE_SSL, False)
             ): bool,
         })
