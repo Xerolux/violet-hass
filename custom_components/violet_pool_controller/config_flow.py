@@ -6,7 +6,6 @@ from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client
 from .const import (
-    DOMAIN,
     CONF_API_URL,
     CONF_POLLING_INTERVAL,
     CONF_USE_SSL,
@@ -18,7 +17,7 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain="violet_pool_controller"):
     """Handle a config flow for Violet Pool Controller."""
 
     VERSION = 1
@@ -33,7 +32,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             protocol = "https" if use_ssl else "http"
 
             api_url = f"{protocol}://{base_ip}/getReadings?ALL"
-            _LOGGER.debug(f"Constructed API URL: {api_url}")
+            _LOGGER.debug("Constructed API URL: %s", api_url)
 
             device_name = user_input.get(CONF_DEVICE_NAME, "Violet Pool Controller")
             username = user_input.get(CONF_USERNAME)
@@ -53,8 +52,9 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         f"{protocol}://{username}:<password>@{base_ip}/getReadings?ALL"
                     )
                     _LOGGER.debug(
-                        f"Attempting to connect to API at {sanitized_auth_url} with "
-                        f"SSL={use_ssl}"
+                        "Attempting to connect to API at %s with SSL=%s",
+                        sanitized_auth_url,
+                        use_ssl,
                     )
 
                     async with session.get(auth_url, ssl=use_ssl) as response:
@@ -75,13 +75,13 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 sanitized_auth_url = (
                     f"{protocol}://{username}:***@{base_ip}/getReadings?ALL"
                 )
-                _LOGGER.error(f"Error connecting to API at {sanitized_auth_url}: {err}")
+                _LOGGER.error("Error connecting to API at %s: %s", sanitized_auth_url, err)
                 errors["base"] = "cannot_connect"
             except ValueError as err:
-                _LOGGER.error(f"Invalid response received: {err}")
+                _LOGGER.error("Invalid response received: %s", err)
                 errors["base"] = "invalid_response"
             except Exception as err:
-                _LOGGER.error(f"Unexpected exception: {err}")
+                _LOGGER.error("Unexpected exception: %s", err)
                 errors["base"] = "unknown"
             else:
                 user_input[CONF_API_URL] = api_url
