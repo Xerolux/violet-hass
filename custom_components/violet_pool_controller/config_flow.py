@@ -124,3 +124,4 @@ class VioletOptionsFlow(config_entries.OptionsFlow):
             step_id="user",
             data_schema=options_schema
         )
+
