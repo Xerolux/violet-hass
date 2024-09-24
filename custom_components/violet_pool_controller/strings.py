@@ -1,4 +1,3 @@
-# Configuration step strings
 STEP_USER_TITLE = "Configure Violet Device"
 STEP_USER_DESCRIPTION = (
     "Please enter the API URL, credentials for device control, and choose if SSL should be used. "
@@ -22,7 +21,6 @@ ERROR_TIMEOUT = "The connection to the device timed out. Please try again later.
 ERROR_UNKNOWN = (
     "An unknown error occurred. Please try again or check the logs for more details."
 )
-
 {
   "config": {
     "step": {
