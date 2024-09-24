@@ -54,73 +54,71 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
     def _get_unit_for_key(self, key):
         """Helper method to retrieve the unit of measurement based on the sensor key."""
         units = {
-            "IMP1_value": "cm/s",                      # Flow sensor 1
-            "IMP2_value": "cm/s",                      # Flow sensor 2
-            "pump_rs485_pwr": "W",                     # Pump power consumption
-            "SYSTEM_cpu_temperature": "°C",            # System CPU temperature
-            "SYSTEM_carrier_cpu_temperature": "°C",    # Carrier CPU temperature
-            "SYSTEM_dosagemodule_cpu_temperature": "°C",  # Dosage module CPU temperature
-            "SYSTEM_memoryusage": "MB",                # System memory usage
-            "onewire1_value": "°C",                    # 1-Wire sensor 1 temperature
-            "onewire2_value": "°C",                    # 1-Wire sensor 2 temperature
-            "onewire3_value": "°C",                    # 1-Wire sensor 3 temperature
-            "onewire4_value": "°C",                    # 1-Wire sensor 4 temperature
-            "onewire5_value": "°C",                    # 1-Wire sensor 5 temperature
-            "onewire6_value": "°C",                    # 1-Wire sensor 6 temperature
-            "onewire7_value": "°C",                    # 1-Wire sensor 7 temperature
-            "onewire8_value": "°C",                    # 1-Wire sensor 8 temperature
-            "onewire9_value": "°C",                    # 1-Wire sensor 9 temperature
-            "onewire10_value": "°C",                   # 1-Wire sensor 10 temperature
-            "onewire11_value": "°C",                   # 1-Wire sensor 11 temperature
-            "onewire12_value": "°C",                   # 1-Wire sensor 12 temperature
-            "ADC1_value": "bar",                       # Analog sensor 1 (e.g., pressure)
-            "ADC2_value": "cm",                        # Analog sensor 2 (e.g., water level)
-            "ADC3_value": "m³",                        # Analog sensor 3 (e.g., volume flow)
-            "ADC4_value": "V",                         # Analog sensor 4 (e.g., voltage)
-            "ADC5_value": "V",                         # Analog sensor 5 (e.g., voltage)
-            "ADC6_value": "V",                         # Analog sensor 6 (e.g., voltage)
-            "pH_value": "pH",                          # pH sensor value
-            "orp_value": "mV",                         # ORP (Oxidation Reduction Potential) sensor value
-            "pot_value": "mg/l",                       # Potentiometer value (e.g., chlorine level)
-            "PUMP_RPM_0": "RPM",                       # Pump RPM sensor 0
-            "PUMP_RPM_1": "RPM",                       # Pump RPM sensor 1
-            "PUMP_RPM_2": "RPM",                       # Pump RPM sensor 2
-            "PUMP_RPM_3": "RPM",                       # Pump RPM sensor 3
-            "SYSTEM_carrier_alive_count": None,        # Carrier alive count (unitless)
-            "SYSTEM_ext1module_alive_count": None,     # External module 1 alive count (unitless)
-            "SYSTEM_dosagemodule_alive_count": None,   # Dosage module alive count (unitless)
-            "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": "mL",   # Daily chlorine dosing (mL)
-            "DOS_1_CL_TOTAL_CAN_AMOUNT_ML": "mL",      # Total chlorine can amount (mL)
-            "DOS_2_ELO_DAILY_DOSING_AMOUNT_ML": "mL",  # Daily electrolytic dosing (mL)
-            "DOS_2_ELO_TOTAL_CAN_AMOUNT_ML": "mL",     # Total electrolytic can amount (mL)
-            "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML": "mL",  # Daily pH-minus dosing (mL)
-            "DOS_4_PHM_TOTAL_CAN_AMOUNT_ML": "mL",     # Total pH-minus can amount (mL)
-            "PUMP_RUNTIME": None,                      # Pump runtime (hh:mm:ss)
-            "SOLAR_RUNTIME": None,                     # Solar runtime (hh:mm:ss)
-            "HEATER_RUNTIME": None,                    # Heater runtime (hh:mm:ss)
-            "BACKWASH_RUNTIME": None,                  # Backwash runtime (hh:mm:ss)
-            "OMNI_DC0_RUNTIME": None,                  # OMNI DC0 runtime (hh:mm:ss)
-            "OMNI_DC1_RUNTIME": None,                  # OMNI DC1 runtime (hh:mm:ss)
-            "CPU_TEMP": "°C",                          # CPU temperature
-            "SYSTEM_MEMORY": "MB",                     # System memory usage
-            "LOAD_AVG": "%",                           # Load average percentage
-
-            # Erweiterte Sensorwerte:
-            "WATER_TEMPERATURE": "°C",                 # Pool water temperature
-            "AIR_TEMPERATURE": "°C",                   # Ambient air temperature near the pool
-            "HUMIDITY": "%",                           # Humidity level around the pool
-            "SOLAR_PANEL_TEMPERATURE": "°C",           # Temperature of the solar panel
-            "FILTER_PRESSURE": "bar",                  # Pressure in the pool filter
-            "HEATER_TEMPERATURE": "°C",                # Heater output temperature
-            "COVER_POSITION": "%",                     # Position of the pool cover (0-100%)
-            "UV_INTENSITY": "W/m²",                    # UV sensor value (for pool sterilization)
-            "TDS": "ppm",                              # Total dissolved solids in the water
-            "CALCIUM_HARDNESS": "ppm",                 # Calcium hardness in pool water
-            "ALKALINITY": "ppm",                       # Alkalinity level of the water
-            "SALINITY": "ppm",                         # Salinity of the pool water
-            "TURBIDITY": "NTU",                        # Water turbidity (clarity)
-            "CHLORINE_LEVEL": "ppm",                   # Chlorine level in the water
-            "BROMINE_LEVEL": "ppm",                    # Bromine level in the water
+            "IMP1_value": "cm/s",
+            "IMP2_value": "cm/s",
+            "pump_rs485_pwr": "W",
+            "SYSTEM_cpu_temperature": "°C",
+            "SYSTEM_carrier_cpu_temperature": "°C",
+            "SYSTEM_dosagemodule_cpu_temperature": "°C",
+            "SYSTEM_memoryusage": "MB",
+            "onewire1_value": "°C",
+            "onewire2_value": "°C",
+            "onewire3_value": "°C",
+            "onewire4_value": "°C",
+            "onewire5_value": "°C",
+            "onewire6_value": "°C",
+            "onewire7_value": "°C",
+            "onewire8_value": "°C",
+            "onewire9_value": "°C",
+            "onewire10_value": "°C",
+            "onewire11_value": "°C",
+            "onewire12_value": "°C",
+            "ADC1_value": "bar",
+            "ADC2_value": "cm",
+            "ADC3_value": "m³",
+            "ADC4_value": "V",
+            "ADC5_value": "V",
+            "ADC6_value": "V",
+            "pH_value": "pH",
+            "orp_value": "mV",
+            "pot_value": "mg/l",
+            "PUMP_RPM_0": "RPM",
+            "PUMP_RPM_1": "RPM",
+            "PUMP_RPM_2": "RPM",
+            "PUMP_RPM_3": "RPM",
+            "SYSTEM_carrier_alive_count": None,
+            "SYSTEM_ext1module_alive_count": None,
+            "SYSTEM_dosagemodule_alive_count": None,
+            "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": "mL",
+            "DOS_1_CL_TOTAL_CAN_AMOUNT_ML": "mL",
+            "DOS_2_ELO_DAILY_DOSING_AMOUNT_ML": "mL",
+            "DOS_2_ELO_TOTAL_CAN_AMOUNT_ML": "mL",
+            "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML": "mL",
+            "DOS_4_PHM_TOTAL_CAN_AMOUNT_ML": "mL",
+            "PUMP_RUNTIME": None,
+            "SOLAR_RUNTIME": None,
+            "HEATER_RUNTIME": None,
+            "BACKWASH_RUNTIME": None,
+            "OMNI_DC0_RUNTIME": None,
+            "OMNI_DC1_RUNTIME": None,
+            "CPU_TEMP": "°C",
+            "SYSTEM_MEMORY": "MB",
+            "LOAD_AVG": "%",
+            "WATER_TEMPERATURE": "°C",
+            "AIR_TEMPERATURE": "°C",
+            "HUMIDITY": "%",
+            "SOLAR_PANEL_TEMPERATURE": "°C",
+            "FILTER_PRESSURE": "bar",
+            "HEATER_TEMPERATURE": "°C",
+            "COVER_POSITION": "%",
+            "UV_INTENSITY": "W/m²",
+            "TDS": "ppm",
+            "CALCIUM_HARDNESS": "ppm",
+            "ALKALINITY": "ppm",
+            "SALINITY": "ppm",
+            "TURBIDITY": "NTU",
+            "CHLORINE_LEVEL": "ppm",
+            "BROMINE_LEVEL": "ppm",
         }
         return units.get(self._key, None)
 
@@ -143,14 +141,14 @@ SENSORS = [
     {"name": "Carrier CPU Temperature", "key": "SYSTEM_carrier_cpu_temperature", "icon": "mdi:thermometer"},
     {"name": "System Dosage Module CPU Temperature", "key": "SYSTEM_dosagemodule_cpu_temperature", "icon": "mdi:thermometer"},
     {"name": "System Memory Usage", "key": "SYSTEM_memoryusage", "icon": "mdi:memory"},
-    {"name": "CPU Temperature", "key": "CPU_TEMP", "icon": "mdi:thermometer"},  # CPU temperature
-    {"name": "CPU Temperature CARRIER", "key": "CPU_TEMP_CARRIER", "icon": "mdi:thermometer"},  # CPU temperature CARRIER
-    {"name": "System Memory", "key": "SYSTEM_MEMORY", "icon": "mdi:memory"},  # System memory usage
-    {"name": "Load Average", "key": "LOAD_AVG", "icon": "mdi:chart-line"},  # Load average percentage
+    {"name": "CPU Temperature", "key": "CPU_TEMP", "icon": "mdi:thermometer"},
+    {"name": "CPU Temperature CARRIER", "key": "CPU_TEMP_CARRIER", "icon": "mdi:thermometer"},
+    {"name": "System Memory", "key": "SYSTEM_MEMORY", "icon": "mdi:memory"},
+    {"name": "Load Average", "key": "LOAD_AVG", "icon": "mdi:chart-line"},
     
     # Software Version
-    {"name": "Software Violet Application", "key": "SW_VERSEION", "icon": "mdi:update"},  # Software-Version VIOLET application
-    {"name": "Firmware Violet Carrier", "key": "SW_VERSION_CARRIER", "icon": "mdi:update"},  # Firmware-Version VIOLET carrier
+    {"name": "Software Violet Application", "key": "SW_VERSEION", "icon": "mdi:update"},
+    {"name": "Firmware Violet Carrier", "key": "SW_VERSION_CARRIER", "icon": "mdi:update"},
 
     # OneWire Sensors (Temperature, Min/Max Values)
     {"name": "OneWire 1 Temperature", "key": "onewire1_value", "icon": "mdi:thermometer"},
@@ -202,25 +200,25 @@ SENSORS = [
     {"name": "OneWire 12 Max Value", "key": "onewire12_value_max", "icon": "mdi:thermometer-plus"},
 
     # Analog Sensors (ADC)
-    {"name": "Filterdruck", "key": "ADC1_value", "icon": "mdi:waveform"},  # Pressure sensor
-    {"name": "Schwallwasser", "key": "ADC2_value", "icon": "mdi:waveform"},  # Water level sensor
-    {"name": "Durchfluss", "key": "ADC3_value", "icon": "mdi:waveform"},  # Flow sensor
-    {"name": "ADC4", "key": "ADC4_value", "icon": "mdi:waveform"},  # Generic sensor
-    {"name": "ADC5", "key": "ADC5_value", "icon": "mdi:waveform"},  # Generic sensor
-    {"name": "ADC6", "key": "ADC6_value", "icon": "mdi:waveform"},  # Generic sensor
+    {"name": "Filterdruck", "key": "ADC1_value", "icon": "mdi:waveform"},
+    {"name": "Schwallwasser", "key": "ADC2_value", "icon": "mdi:waveform"},
+    {"name": "Durchfluss", "key": "ADC3_value", "icon": "mdi:waveform"},
+    {"name": "ADC4", "key": "ADC4_value", "icon": "mdi:waveform"},
+    {"name": "ADC5", "key": "ADC5_value", "icon": "mdi:waveform"},
+    {"name": "ADC6", "key": "ADC6_value", "icon": "mdi:waveform"},
 
     # pH and ORP Sensors
-    {"name": "pH Value", "key": "pH_value", "icon": "mdi:flask"},  # pH sensor
-    {"name": "pH Min Value", "key": "pH_value_min", "icon": "mdi:water-minus"},  # Minimum pH value
-    {"name": "pH Max Value", "key": "pH_value_max", "icon": "mdi:water-plus"},  # Maximum pH value
+    {"name": "pH Value", "key": "pH_value", "icon": "mdi:flask"},
+    {"name": "pH Min Value", "key": "pH_value_min", "icon": "mdi:water-minus"},
+    {"name": "pH Max Value", "key": "pH_value_max", "icon": "mdi:water-plus"},
 
-    {"name": "ORP Value", "key": "orp_value", "icon": "mdi:chemical-weapon"},  # ORP (Oxidation Reduction Potential) sensor
-    {"name": "ORP Min Value", "key": "orp_value_min", "icon": "mdi:flash-minus"},  # Minimum ORP value
-    {"name": "ORP Max Value", "key": "orp_value_max", "icon": "mdi:flash-plus"},  # Maximum ORP value
+    {"name": "ORP Value", "key": "orp_value", "icon": "mdi:chemical-weapon"},
+    {"name": "ORP Min Value", "key": "orp_value_min", "icon": "mdi:flash-minus"},
+    {"name": "ORP Max Value", "key": "orp_value_max", "icon": "mdi:flash-plus"},
 
-    {"name": "Potentiometer Value", "key": "pot_value", "icon": "mdi:gauge"},  # Potentiometer value
-    {"name": "Potentiometer Min Value", "key": "pot_value_min", "icon": "mdi:gauge-minus"},  # Minimum potentiometer value
-    {"name": "Potentiometer Max Value", "key": "pot_value_max", "icon": "mdi:gauge-plus"},  # Maximum potentiometer value
+    {"name": "Potentiometer Value", "key": "pot_value", "icon": "mdi:gauge"},
+    {"name": "Potentiometer Min Value", "key": "pot_value_min", "icon": "mdi:gauge-minus"},
+    {"name": "Potentiometer Max Value", "key": "pot_value_max", "icon": "mdi:gauge-plus"},
 
     # Dosing amounts (daily and total)
     {"name": "Chlorine Daily Dosing Amount", "key": "DOS_1_CL_DAILY_DOSING_AMOUNT_ML", "icon": "mdi:flask"},
@@ -231,10 +229,10 @@ SENSORS = [
     {"name": "pH-minus Total Can Amount", "key": "DOS_4_PHM_TOTAL_CAN_AMOUNT_ML", "icon": "mdi:flask"},
 
     # Pump RPM sensors
-    {"name": "Pump RPM 0", "key": "PUMP_RPM_0", "icon": "mdi:fan"},  # Pump RPM sensor
-    {"name": "Pump RPM 1", "key": "PUMP_RPM_1", "icon": "mdi:fan"},  # Pump RPM sensor
-    {"name": "Pump RPM 2", "key": "PUMP_RPM_2", "icon": "mdi:fan"},  # Pump RPM sensor
-    {"name": "Pump RPM 3", "key": "PUMP_RPM_3", "icon": "mdi:fan"},  # Pump RPM sensor
+    {"name": "Pump RPM 0", "key": "PUMP_RPM_0", "icon": "mdi:fan"},
+    {"name": "Pump RPM 1", "key": "PUMP_RPM_1", "icon": "mdi:fan"},
+    {"name": "Pump RPM 2", "key": "PUMP_RPM_2", "icon": "mdi:fan"},
+    {"name": "Pump RPM 3", "key": "PUMP_RPM_3", "icon": "mdi:fan"},
 
     # Runtime values (duration format hh:mm:ss)
     {"name": "Pump Runtime", "key": "PUMP_RUNTIME", "icon": "mdi:timer"},
@@ -245,15 +243,15 @@ SENSORS = [
     {"name": "Omni DC1 Runtime", "key": "OMNI_DC1_RUNTIME", "icon": "mdi:timer"},
 
     # System states and other
-    {"name": "System Carrier Alive Count", "key": "SYSTEM_carrier_alive_count", "icon": "mdi:alert-circle"},  # System carrier alive count
-    {"name": "System EXT1 Module Alive Count", "key": "SYSTEM_ext1module_alive_count", "icon": "mdi:alert-circle"},  # External module count
-    {"name": "System Dosage Module Alive Count", "key": "SYSTEM_dosagemodule_alive_count", "icon": "mdi:alert-circle"},  # Dosage module alive count
+    {"name": "System Carrier Alive Count", "key": "SYSTEM_carrier_alive_count", "icon": "mdi:alert-circle"},
+    {"name": "System EXT1 Module Alive Count", "key": "SYSTEM_ext1module_alive_count", "icon": "mdi:alert-circle"},
+    {"name": "System Dosage Module Alive Count", "key": "SYSTEM_dosagemodule_alive_count", "icon": "mdi:alert-circle"},
 
     # Solar and heater timers
-    {"name": "Solar Last On", "key": "SOLAR_LAST_ON", "icon": "mdi:timer"},  # Solar system last on time
-    {"name": "Solar Last Off", "key": "SOLAR_LAST_OFF", "icon": "mdi:timer-off"},  # Solar system last off time
-    {"name": "Heater Last On", "key": "HEATER_LAST_ON", "icon": "mdi:timer"},  # Heater last on time
-    {"name": "Heater Last Off", "key": "HEATER_LAST_OFF", "icon": "mdi:timer-off"},  # Heater last off time
-    {"name": "Backwash Last On", "key": "BACKWASH_LAST_ON", "icon": "mdi:timer"},  # Backwash last on time
-    {"name": "Backwash Last Off", "key": "BACKWASH_LAST_OFF", "icon": "mdi:timer-off"},  # Backwash last off time
+    {"name": "Solar Last On", "key": "SOLAR_LAST_ON", "icon": "mdi:timer"},
+    {"name": "Solar Last Off", "key": "SOLAR_LAST_OFF", "icon": "mdi:timer-off"},
+    {"name": "Heater Last On", "key": "HEATER_LAST_ON", "icon": "mdi:timer"},
+    {"name": "Heater Last Off", "key": "HEATER_LAST_OFF", "icon": "mdi:timer-off"},
+    {"name": "Backwash Last On", "key": "BACKWASH_LAST_ON", "icon": "mdi:timer"},
+    {"name": "Backwash Last Off", "key": "BACKWASH_LAST_OFF", "icon": "mdi:timer-off"},
 ]
