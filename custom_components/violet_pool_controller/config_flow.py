@@ -45,7 +45,8 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 async with async_timeout.timeout(10):
                     # Construct the full authentication URL
                     auth_url = f"{protocol}://{username}:{password}@{base_ip}/getReadings?ALL"
-                    _LOGGER.debug(f"Attempting to connect to API at {auth_url} with SSL={use_ssl}")
+                    sanitized_auth_url = f"{protocol}://{username}:<password>@{base_ip}/getReadings?ALL"
+                    _LOGGER.debug(f"Attempting to connect to API at {sanitized_auth_url} with SSL={use_ssl}")
                     
                     async with session.get(auth_url, ssl=use_ssl) as response:
                         response.raise_for_status()  # Raise error for non-200 status codes
