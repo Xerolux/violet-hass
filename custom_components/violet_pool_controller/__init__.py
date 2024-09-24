@@ -14,10 +14,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Violet Pool Controller from a config entry."""
     
     # Fetch API URL, polling interval, SSL setting, and device ID from the config entry
-    api_url = entry.data[CONF_API_URL]
-    polling_interval = entry.data.get(CONF_POLLING_INTERVAL, 10)
-    use_ssl = entry.data.get(CONF_USE_SSL, False)
-    device_id = entry.data.get(CONF_DEVICE_ID, 1)  # Default to 1 if not set
+    config = {
+        "api_url": entry.data[CONF_API_URL],
+        "polling_interval": entry.data.get(CONF_POLLING_INTERVAL, 10),
+        "use_ssl": entry.data.get(CONF_USE_SSL, False),
+        "device_id": entry.data.get(CONF_DEVICE_ID, 1)
+    }
 
     # Get the shared aiohttp session
     session = aiohttp_client.async_get_clientsession(hass)
@@ -25,11 +27,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Create a coordinator to manage data updates
     coordinator = VioletDataUpdateCoordinator(
         hass,
-        api_url=api_url,
-        polling_interval=polling_interval,
+        config=config,
         session=session,
-        use_ssl=use_ssl,
-        device_id=device_id,  # Pass the device ID to the coordinator
     )
 
     # Ensure the first data update happens during the setup
@@ -47,7 +46,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, ["sensor", "binary_sensor", "switch"])
+    unload_ok = await hass.config_entries.async_unload_platforms(
+        entry, ["sensor", "binary_sensor", "switch"]
+    )
     
     # Remove the coordinator from hass.data
     if unload_ok:
@@ -59,17 +60,18 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 class VioletDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching Violet Pool Controller data."""
 
-    def __init__(self, hass, api_url, polling_interval, session, use_ssl, device_id):
+    def __init__(self, hass, config, session):
         """Initialize the coordinator."""
-        self.api_url = api_url
+        self.api_url = config["api_url"]
         self.session = session
-        self.use_ssl = use_ssl  # Store the SSL flag
-        self.device_id = device_id  # Store the device ID
+        self.use_ssl = config["use_ssl"]
+        self.device_id = config["device_id"]
+
         super().__init__(
             hass,
             _LOGGER,
-            name=f"{DOMAIN}_{device_id}",  # Use the device ID in the name to differentiate instances
-            update_interval=timedelta(seconds=polling_interval),
+            name=f"{DOMAIN}_{self.device_id}",  # Use the device ID to differentiate instances
+            update_interval=timedelta(seconds=config["polling_interval"]),
         )
 
     async def _async_update_data(self):
@@ -81,3 +83,4 @@ class VioletDataUpdateCoordinator(DataUpdateCoordinator):
                     return await response.json()
         except Exception as err:
             raise UpdateFailed(f"Error fetching data: {err}")
+
