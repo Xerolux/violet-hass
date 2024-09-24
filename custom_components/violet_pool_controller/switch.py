@@ -50,9 +50,9 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
         elif self._key == "ECO":
             return "mdi:leaf" if self.is_on else "mdi:leaf-off"
         elif self._key == "DOS_1_CL":
-            return "mdi:chemical-weapon" if self.is_on else "mdi:chemical-weapon-off"
+            return "mdi:flask" if self.is_on else "mdi:atom"
         elif self._key == "DOS_4_PHM":
-            return "mdi:chemical-weapon" if self.is_on else "mdi:chemical-weapon-off"
+            return "mdi:flask" if self.is_on else "mdi:atom"
         return self._icon
 
     @property
@@ -161,6 +161,6 @@ SWITCHES = [
     {"name": "Pump Switch", "key": "PUMP", "icon": "mdi:water-pump"},  # Switch for controlling the pump
     {"name": "Light Switch", "key": "LIGHT", "icon": "mdi:lightbulb"},  # Switch for controlling the pool light
     {"name": "Eco Mode", "key": "ECO", "icon": "mdi:leaf"},  # Switch for Eco mode
-    {"name": "Chlorine Dosing Switch", "key": "DOS_1_CL", "icon": "mdi:chemical-weapon"},  # Chlorine dosing switch
-    {"name": "pH-minus Dosing Switch", "key": "DOS_4_PHM", "icon": "mdi:chemical-weapon"},  # pH-minus dosing switch
+    {"name": "Chlorine Dosing Switch", "key": "DOS_1_CL", "icon": "mdi:flask"},  # Chlorine dosing switch
+    {"name": "pH-minus Dosing Switch", "key": "DOS_4_PHM", "icon": "mdi:flask"},  # pH-minus dosing switch
 ]
