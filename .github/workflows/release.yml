@@ -1,4 +1,4 @@
-name: release
+name: Release
 
 on:
   push:
@@ -9,13 +9,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Release
+      - name: Build release archive
+        run: zip -r violet_pool_controller.zip .
+
+      - name: Create GitHub Release
         uses: docker://antonyurchenko/git-release:latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: |
-            violet_pool_controller.zip
+          args: violet_pool_controller.zip
