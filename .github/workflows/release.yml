@@ -33,7 +33,7 @@ jobs:
           echo "::set-output name=min_ha_version::$min_ha_version"
       - name: 🖊️ Set version number
         run: |
-          sed -i '/INTEGRATION_VERSION = /c\INTEGRATION_VERSION = "${{ steps.version.outputs.version }}"' \
+          sed -i '/INTEGRATION_VERSION = /c\INTEGRATION_VERSION = "V${{ steps.version.outputs.version }}"' \
             "${{ github.workspace }}/custom_components/${{ steps.information.outputs.name }}/const.py"
           jq '.version = "${{ steps.version.outputs.version }}"' \
             "${{ github.workspace }}/custom_components/${{ steps.information.outputs.name }}/manifest.json" > tmp \
