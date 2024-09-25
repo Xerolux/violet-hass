@@ -17,6 +17,11 @@ jobs:
       - name: "Checkout the repository"
         uses: "actions/checkout@v4.1.5"
 
+      - name: "Install yq"
+        run: |
+          sudo wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64 -O /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
+
       - name: "Adjust version number"
         shell: "bash"
         run: |
@@ -27,7 +32,7 @@ jobs:
         shell: "bash"
         run: |
           cd "${{ github.workspace }}/custom_components/violet_pool_controller"
-          zip proconip_pool_controller.zip -r ./
+          zip violet_pool_controller.zip -r ./
 
       - name: "Upload the ZIP file to the release"
         uses: softprops/action-gh-release@v2
