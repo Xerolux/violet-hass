@@ -19,7 +19,7 @@ jobs:
     steps:
       # Step 1: Checkout the repository
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Step 2: Run Changelog CI to update changelog file
       - name: Run Changelog CI
