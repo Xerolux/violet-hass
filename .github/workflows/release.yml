@@ -15,18 +15,7 @@ jobs:
       contents: write
     steps:
       - name: "Checkout the repository"
-        uses: "actions/checkout@v4.1.5"
-
-      - name: "Install yq"
-        run: |
-          sudo wget https://github.com/mikefarah/yq/releases/download/v4.16.1/yq_linux_amd64 -O /usr/bin/yq
-          sudo chmod +x /usr/bin/yq
-
-      - name: "Adjust version number"
-        shell: "bash"
-        run: |
-          yq -i -o json '.version="${{ github.event.release.tag_name }}"' \
-            "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
+        uses: "actions/checkout@v4.1.7"
 
       - name: "ZIP the integration directory"
         shell: "bash"
@@ -35,6 +24,6 @@ jobs:
           zip violet_pool_controller.zip -r ./
 
       - name: "Upload the ZIP file to the release"
-        uses: softprops/action-gh-release@v2
+        uses: "softprops/action-gh-release@v2.0.8"
         with:
           files: ${{ github.workspace }}/custom_components/violet_pool_controller/violet_pool_controller.zip
