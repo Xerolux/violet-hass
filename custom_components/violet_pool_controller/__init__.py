@@ -12,14 +12,15 @@ from .const import (
     CONF_POLLING_INTERVAL, 
     CONF_USE_SSL, 
     CONF_DEVICE_ID,
-    CONF_USERNAME,  # Import the username constant
-    CONF_PASSWORD,  # Import the password constant
+    CONF_USERNAME, 
+    CONF_PASSWORD,
     DEFAULT_POLLING_INTERVAL, 
     DEFAULT_USE_SSL,
     API_READINGS  # Use the correct API endpoint
 )
 
 _LOGGER = logging.getLogger(f"{DOMAIN}_logger")
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Violet Pool Controller from a config entry."""
@@ -34,6 +35,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "password": entry.data.get(CONF_PASSWORD)
     }
 
+    # Log the configuration data
+    _LOGGER.info(f"Setting up Violet Pool Controller with config: {config}")
+
     # Get the shared aiohttp session
     session = aiohttp_client.async_get_clientsession(hass)
     
@@ -44,8 +48,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         session=session,
     )
 
-    # Ensure the first data update happens during the setup
-    await coordinator.async_config_entry_first_refresh()
+    # Log before attempting the first data update
+    _LOGGER.debug("Performing first data refresh for Violet Pool Controller")
+    
+    try:
+        # Ensure the first data update happens during the setup
+        await coordinator.async_config_entry_first_refresh()
+    except Exception as err:
+        _LOGGER.error(f"Initial data refresh failed: {err}")
+        return False
 
     # Store the coordinator in hass.data so it can be accessed by platform files
     hass.data.setdefault(DOMAIN, {})
@@ -54,6 +65,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Forward entry setup to platforms (sensor, binary_sensor, switch)
     await hass.config_entries.async_forward_entry_setups(entry, ["sensor", "binary_sensor", "switch"])
 
+    _LOGGER.info("Violet Pool Controller setup completed successfully")
+    
     return True
 
 
@@ -67,6 +80,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)
 
+    _LOGGER.info(f"Violet Pool Controller (device {entry.entry_id}) unloaded successfully")
     return unload_ok
 
 
@@ -82,13 +96,14 @@ class VioletDataUpdateCoordinator(DataUpdateCoordinator):
         self.use_ssl = config["use_ssl"]
         self.device_id = config["device_id"]
 
+        _LOGGER.info(f"Initializing data coordinator for device {self.device_id} (IP: {self.ip_address}, SSL: {self.use_ssl})")
+
         super().__init__(
             hass,
             _LOGGER,
             name=f"{DOMAIN}_{self.device_id}",
             update_interval=timedelta(seconds=config["polling_interval"]),
         )
-
 
     async def _async_update_data(self):
         """Fetch data from the Violet Pool Controller API."""
