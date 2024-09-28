@@ -16,7 +16,7 @@ CONF_MQTT_BASE_TOPIC = "mqtt_base_topic"
 CONF_DEVICE_ID = "device_id"
 
 # Defaults
-DEFAULT_POLLING_INTERVAL = 30  # Default polling interval in seconds
+DEFAULT_POLLING_INTERVAL = 10  # Default polling interval in seconds
 DEFAULT_USE_SSL = False  # Default SSL setting
 DEFAULT_MQTT_ENABLED = False  # Default MQTT setting
 
