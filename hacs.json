@@ -1,5 +1,7 @@
 {
   "name": "Violet Pool Controller",
+  "filename": "violet_pool_controller.zip",
   "content_in_root": false,
   "render_readme": true
+  "zip_release": true
 }
