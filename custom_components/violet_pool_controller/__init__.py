@@ -6,19 +6,32 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from datetime import timedelta
 import async_timeout
 
-from .const import DOMAIN, CONF_API_URL, CONF_POLLING_INTERVAL, CONF_USE_SSL, CONF_DEVICE_ID
+from .const import (
+    DOMAIN, 
+    CONF_API_URL, 
+    CONF_POLLING_INTERVAL, 
+    CONF_USE_SSL, 
+    CONF_DEVICE_ID,
+    CONF_USERNAME,  # Import the username constant
+    CONF_PASSWORD,  # Import the password constant
+    DEFAULT_POLLING_INTERVAL, 
+    DEFAULT_USE_SSL,
+    API_READINGS  # Use the correct API endpoint
+)
 
-_LOGGER = logging.getLogger(__name__)
+_LOGGER = logging.getLogger(f"{DOMAIN}_logger")
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Violet Pool Controller from a config entry."""
     
-    # Fetch API URL, polling interval, SSL setting, and device ID from the config entry
+    # Fetch IP address, polling interval, SSL setting, device ID, username, and password from the config entry
     config = {
-        "api_url": entry.data[CONF_API_URL],
-        "polling_interval": entry.data.get(CONF_POLLING_INTERVAL, 10),
-        "use_ssl": entry.data.get(CONF_USE_SSL, False),
-        "device_id": entry.data.get(CONF_DEVICE_ID, 1)
+        "ip_address": entry.data[CONF_API_URL],
+        "polling_interval": entry.data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL),
+        "use_ssl": entry.data.get(CONF_USE_SSL, DEFAULT_USE_SSL),
+        "device_id": entry.data.get(CONF_DEVICE_ID, 1),
+        "username": entry.data.get(CONF_USERNAME),
+        "password": entry.data.get(CONF_PASSWORD)
     }
 
     # Get the shared aiohttp session
@@ -62,7 +75,9 @@ class VioletDataUpdateCoordinator(DataUpdateCoordinator):
 
     def __init__(self, hass, config, session):
         """Initialize the coordinator."""
-        self.api_url = config["api_url"]
+        self.ip_address = config["ip_address"]
+        self.username = config["username"]
+        self.password = config["password"]
         self.session = session
         self.use_ssl = config["use_ssl"]
         self.device_id = config["device_id"]
@@ -70,16 +85,24 @@ class VioletDataUpdateCoordinator(DataUpdateCoordinator):
         super().__init__(
             hass,
             _LOGGER,
-            name=f"{DOMAIN}_{self.device_id}",  # Use the device ID to differentiate instances
+            name=f"{DOMAIN}_{self.device_id}",
             update_interval=timedelta(seconds=config["polling_interval"]),
         )
+
 
     async def _async_update_data(self):
         """Fetch data from the Violet Pool Controller API."""
         try:
+            protocol = "https" if self.use_ssl else "http"
+            url = f"{protocol}://{self.ip_address}{API_READINGS}"
+            _LOGGER.debug(f"Fetching data from: {url} (SSL: {self.use_ssl})")
+
             async with async_timeout.timeout(10):
-                async with self.session.get(self.api_url, ssl=self.use_ssl) as response:
+                async with self.session.get(url, ssl=self.use_ssl) as response:
                     response.raise_for_status()
-                    return await response.json()
+                    data = await response.json()
+                    _LOGGER.debug(f"Data received: {data}")
+                    return data
         except Exception as err:
+            _LOGGER.error(f"Error fetching data from {self.ip_address}: {err}")
             raise UpdateFailed(f"Error fetching data: {err}")

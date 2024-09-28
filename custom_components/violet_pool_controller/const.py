@@ -38,3 +38,5 @@ MANUFACTURER = "PoolDigital GmbH & Co. KG"
 # MQTT Default values (adjust these based on typical MQTT configurations)
 DEFAULT_MQTT_PORT = 1883
 DEFAULT_MQTT_BASE_TOPIC = "violet_pool_controller"
+
+CONF_DEVICE_NAME = "Violet Pool Controller"
