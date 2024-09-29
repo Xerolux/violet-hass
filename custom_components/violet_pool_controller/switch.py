@@ -40,8 +40,8 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
     def is_auto(self):
         return self._get_switch_state() == 0  # Hier prüfst du, ob der Zustand "AUTO" ist
 
-    async def _send_command(self, action, duration=0):
-        url = f"http://{self.ip_address}{API_SET_FUNCTION_MANUALLY}?{self._key},{action},{duration},0"
+    async def _send_command(self, action, duration=0, last_value=0):
+        url = f"http://{self.ip_address}{API_SET_FUNCTION_MANUALLY}?{self._key},{action},{duration},{last_value}"
         auth = aiohttp.BasicAuth(self.username, self.password)
 
         try:
@@ -49,9 +49,9 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
                 async with self.session.get(url, auth=auth) as response:
                     response.raise_for_status()
                     response_text = await response.text()
-                    lines = response_text.strip().split('\n')
+                    lines = response_text.strip().split('\\n')
                     if len(lines) >= 3 and lines[0] == "OK" and lines[1] == self._key and lines[2] == f"SWITCHED_TO_{action}":
-                        _LOGGER.debug(f"Erfolgreich {action} Befehl an {self._key} gesendet mit Dauer {duration}")
+                        _LOGGER.debug(f"Erfolgreich {action} Befehl an {self._key} gesendet mit Dauer {duration} und letztem Wert {last_value}")
                         await self.coordinator.async_request_refresh()
                     else:
                         _LOGGER.error(f"Unerwartete Antwort vom Server beim Senden des {action} Befehls an {self._key}: {response_text}")
@@ -65,17 +65,17 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
             _LOGGER.error(f"Unerwarteter Fehler beim Senden des {action} Befehls an {self._key}: {err}")
 
     async def async_turn_on(self, **kwargs):
-        """Schaltet den Schalter ein."""
         duration = kwargs.get("duration", 0)
-        await self._send_command("ON", duration)
+        last_value = kwargs.get("last_value", 0)  # Standardwert 0
+        await self._send_command("ON", duration, last_value)
 
     async def async_turn_off(self, **kwargs):
-        """Schaltet den Schalter aus."""
-        await self._send_command("OFF", 0)
+        last_value = kwargs.get("last_value", 0)  # Standardwert 0
+        await self._send_command("OFF", 0, last_value)
 
     async def async_turn_auto(self, **kwargs):
-        """Schaltet den Schalter auf Auto."""
-        await self._send_command("AUTO", 0)
+        last_value = kwargs.get("last_value", 0)  # Standardwert 0
+        await self._send_command("AUTO", 0, last_value)
 
     @property
     def icon(self):
