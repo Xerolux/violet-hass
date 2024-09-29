@@ -5,10 +5,8 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from datetime import timedelta
-import asyncio
 from .const import (
+    DOMAIN,
     CONF_API_URL,
     CONF_POLLING_INTERVAL,
     CONF_USE_SSL,
@@ -23,7 +21,7 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain="violet_pool_controller"):
+class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Violet Pool Controller."""
 
     VERSION = 1
@@ -52,43 +50,35 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain="violet_pool_cont
             session = aiohttp_client.async_get_clientsession(self.hass)
             try:
                 async with async_timeout.timeout(10):
-                    auth_url = (
-                        f"{protocol}://{username}:{password}@{base_ip}{API_READINGS}"
-                    )
-                    sanitized_auth_url = (
-                        f"{protocol}://{username}:<password>@{base_ip}{API_READINGS}"
-                    )
+                    auth = aiohttp.BasicAuth(username, password)
                     _LOGGER.debug(
-                        "Attempting to connect to API at %s with SSL=%s",
-                        sanitized_auth_url,
+                        "Versuche, eine Verbindung zur API bei %s herzustellen (SSL=%s)",
+                        api_url,
                         use_ssl,
                     )
 
-                    async with session.get(auth_url, ssl=use_ssl) as response:
+                    async with session.get(api_url, auth=auth, ssl=use_ssl) as response:
                         response.raise_for_status()
                         data = await response.json()
 
-                        _LOGGER.debug("API response received: %s", data)
+                        _LOGGER.debug("API-Antwort empfangen: %s", data)
 
                         firmware_version = data.get('fw')
                         if not firmware_version:
                             _LOGGER.error(
-                                "Firmware version not found in API response: %s", data
+                                "Firmware-Version in der API-Antwort nicht gefunden: %s", data
                             )
                             errors["base"] = "firmware_not_found"
-                            raise ValueError("Firmware version not found.")
+                            raise ValueError("Firmware-Version nicht gefunden.")
 
             except aiohttp.ClientError as err:
-                sanitized_auth_url = (
-                    f"{protocol}://{username}:***@{base_ip}{API_READINGS}"
-                )
-                _LOGGER.error("Error connecting to API at %s: %s", sanitized_auth_url, err)
+                _LOGGER.error("Fehler beim Verbinden mit der API bei %s: %s", api_url, err)
                 errors["base"] = "cannot_connect"
             except ValueError as err:
-                _LOGGER.error("Invalid response received: %s", err)
+                _LOGGER.error("Ungültige Antwort erhalten: %s", err)
                 errors["base"] = "invalid_response"
             except Exception as err:
-                _LOGGER.error("Unexpected exception: %s", err)
+                _LOGGER.error("Unerwartete Ausnahme: %s", err)
                 errors["base"] = "unknown"
             else:
                 # Save only the IP address in `CONF_API_URL`
@@ -102,7 +92,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain="violet_pool_cont
                 )
 
         data_schema = vol.Schema({
-            vol.Required(CONF_API_URL, default="192.168.178.55"): str,  # Only IP address
+            vol.Required(CONF_API_URL): str,  # Only IP address
             vol.Required(CONF_USERNAME): str,
             vol.Required(CONF_PASSWORD): str,
             vol.Optional(CONF_POLLING_INTERVAL, default=DEFAULT_POLLING_INTERVAL): int,
@@ -142,19 +132,19 @@ class VioletOptionsFlow(config_entries.OptionsFlow):
         options_schema = vol.Schema({
             vol.Optional(
                 CONF_USERNAME,
-                default=self.config_entry.options.get(CONF_USERNAME, "")
+                default=self.config_entry.data.get(CONF_USERNAME, "")
             ): str,
             vol.Optional(
                 CONF_PASSWORD,
-                default=self.config_entry.options.get(CONF_PASSWORD, "")
+                default=self.config_entry.data.get(CONF_PASSWORD, "")
             ): str,
             vol.Optional(
                 CONF_POLLING_INTERVAL,
-                default=self.config_entry.options.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
+                default=self.config_entry.data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
             ): int,
             vol.Optional(
                 CONF_USE_SSL,
-                default=self.config_entry.options.get(CONF_USE_SSL, DEFAULT_USE_SSL)
+                default=self.config_entry.data.get(CONF_USE_SSL, DEFAULT_USE_SSL)
             ): bool,
         })
 

@@ -5,6 +5,7 @@ from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from datetime import timedelta
 import async_timeout
+import aiohttp
 
 from .const import (
     DOMAIN, 
@@ -16,16 +17,16 @@ from .const import (
     CONF_PASSWORD,
     DEFAULT_POLLING_INTERVAL, 
     DEFAULT_USE_SSL,
-    API_READINGS  # Use the correct API endpoint
+    API_READINGS
 )
 
-_LOGGER = logging.getLogger(f"{DOMAIN}_logger")
+_LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Violet Pool Controller from a config entry."""
-    
-    # Fetch IP address, polling interval, SSL setting, device ID, username, and password from the config entry
+
+    # Konfigurationsdaten aus dem Config Entry abrufen
     config = {
         "ip_address": entry.data[CONF_API_URL],
         "polling_interval": entry.data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL),
@@ -35,60 +36,60 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "password": entry.data.get(CONF_PASSWORD)
     }
 
-    # Log the configuration data
-    _LOGGER.info(f"Setting up Violet Pool Controller with config: {config}")
+    # Konfigurationsdaten protokollieren
+    _LOGGER.info(f"Einrichtung des Violet Pool Controllers mit Konfiguration: {config}")
 
-    # Get the shared aiohttp session
+    # Gemeinsame aiohttp Session erhalten
     session = aiohttp_client.async_get_clientsession(hass)
-    
-    # Create a coordinator to manage data updates
+
+    # Erstellen eines Coordinators für Datenaktualisierungen
     coordinator = VioletDataUpdateCoordinator(
         hass,
         config=config,
         session=session,
     )
 
-    # Log before attempting the first data update
-    _LOGGER.debug("Performing first data refresh for Violet Pool Controller")
-    
+    # Vor dem ersten Datenabruf protokollieren
+    _LOGGER.debug("Erster Datenabruf für Violet Pool Controller wird durchgeführt")
+
     try:
-        # Ensure the first data update happens during the setup
+        # Sicherstellen, dass der erste Datenabruf während der Einrichtung erfolgt
         await coordinator.async_config_entry_first_refresh()
     except Exception as err:
-        _LOGGER.error(f"Initial data refresh failed: {err}")
+        _LOGGER.error(f"Erster Datenabruf fehlgeschlagen: {err}")
         return False
 
-    # Store the coordinator in hass.data so it can be accessed by platform files
+    # Speichern des Coordinators in hass.data für den Zugriff durch Plattformdateien
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
-    # Forward entry setup to platforms (sensor, binary_sensor, switch)
-    await hass.config_entries.async_forward_entry_setups(entry, ["sensor", "binary_sensor", "switch"])
+    # Weiterleitung der Einrichtung an Plattformen (z.B. Schalter)
+    await hass.config_entries.async_forward_entry_setups(entry, ["switch", "sensor", "binary_sensor"])
 
-    _LOGGER.info("Violet Pool Controller setup completed successfully")
-    
+    _LOGGER.info("Einrichtung des Violet Pool Controllers erfolgreich abgeschlossen")
+
     return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload a config entry."""
+    """Entladen eines Config Entries."""
     unload_ok = await hass.config_entries.async_unload_platforms(
-        entry, ["sensor", "binary_sensor", "switch"]
+        entry, ["switch", "sensor", "binary_sensor"]
     )
-    
-    # Remove the coordinator from hass.data
+
+    # Entfernen des Coordinators aus hass.data
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)
 
-    _LOGGER.info(f"Violet Pool Controller (device {entry.entry_id}) unloaded successfully")
+    _LOGGER.info(f"Violet Pool Controller (Gerät {entry.entry_id}) erfolgreich entladen")
     return unload_ok
 
 
 class VioletDataUpdateCoordinator(DataUpdateCoordinator):
-    """Class to manage fetching Violet Pool Controller data."""
+    """Klasse zum Verwalten des Abrufs von Violet Pool Controller Daten."""
 
     def __init__(self, hass, config, session):
-        """Initialize the coordinator."""
+        """Initialisierung des Coordinators."""
         self.ip_address = config["ip_address"]
         self.username = config["username"]
         self.password = config["password"]
@@ -96,7 +97,7 @@ class VioletDataUpdateCoordinator(DataUpdateCoordinator):
         self.use_ssl = config["use_ssl"]
         self.device_id = config["device_id"]
 
-        _LOGGER.info(f"Initializing data coordinator for device {self.device_id} (IP: {self.ip_address}, SSL: {self.use_ssl})")
+        _LOGGER.info(f"Initialisierung des Daten-Coordinators für Gerät {self.device_id} (IP: {self.ip_address}, SSL: {self.use_ssl})")
 
         super().__init__(
             hass,
@@ -106,18 +107,20 @@ class VioletDataUpdateCoordinator(DataUpdateCoordinator):
         )
 
     async def _async_update_data(self):
-        """Fetch data from the Violet Pool Controller API."""
+        """Abrufen von Daten von der Violet Pool Controller API."""
         try:
             protocol = "https" if self.use_ssl else "http"
             url = f"{protocol}://{self.ip_address}{API_READINGS}"
-            _LOGGER.debug(f"Fetching data from: {url} (SSL: {self.use_ssl})")
+            _LOGGER.debug(f"Abrufen von Daten von: {url}")
+
+            auth = aiohttp.BasicAuth(self.username, self.password)
 
             async with async_timeout.timeout(10):
-                async with self.session.get(url, ssl=self.use_ssl) as response:
+                async with self.session.get(url, auth=auth, ssl=self.use_ssl) as response:
                     response.raise_for_status()
                     data = await response.json()
-                    _LOGGER.debug(f"Data received: {data}")
+                    _LOGGER.debug(f"Daten empfangen: {data}")
                     return data
         except Exception as err:
-            _LOGGER.error(f"Error fetching data from {self.ip_address}: {err}")
-            raise UpdateFailed(f"Error fetching data: {err}")
+            _LOGGER.error(f"Fehler beim Abrufen von Daten von {self.ip_address}: {err}")
+            raise UpdateFailed(f"Fehler beim Abrufen von Daten: {err}")
