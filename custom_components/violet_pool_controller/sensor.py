@@ -35,6 +35,11 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
         return self._icon  # Default icon
 
     @property
+    def available(self):
+        """Return True if entity is available."""
+        return self.coordinator.last_update_success
+
+    @property
     def device_info(self):
         """Return the device information."""
         return {
@@ -42,8 +47,8 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
             "name": "Violet Pool Controller",
             "manufacturer": "PoolDigital GmbH & Co. KG",
             "model": "Violet Model X",
-            "sw_version": self.coordinator.data.get('fw', 'Unknown'),
-            "configuration_url": f"http://{self._config_entry.data.get('host', 'Unknown IP')}",
+            "sw_version": self.coordinator.data.get('fw') or self.coordinator.data.get('SW_VERSION', 'Unbekannt'),
+            "configuration_url": f"http://{self._config_entry.data.get('host', 'Unknown IP')}/getReadings?ALL",
         }
 
     @property
@@ -124,9 +129,14 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up Violet Device sensors from a config entry."""
-    coordinator = hass.data[DOMAIN][config_entry.entry_id]
+    try:
+        coordinator = hass.data[DOMAIN][config_entry.entry_id]
+    except KeyError:
+        _LOGGER.error("Unable to retrieve coordinator for Violet Pool Controller.")
+        return
+
     sensors = [
-        VioletDeviceSensor(coordinator, sensor["key"], sensor["icon"], config_entry)  # Only pass 4 arguments
+        VioletDeviceSensor(coordinator, sensor["key"], sensor["icon"], config_entry)
         for sensor in SENSORS
     ]
     async_add_entities(sensors)

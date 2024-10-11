@@ -6,6 +6,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from datetime import timedelta
 import async_timeout
 import aiohttp
+import asyncio
 from typing import Any, Dict
 
 from .const import (
@@ -115,7 +116,10 @@ class VioletDataUpdateCoordinator(DataUpdateCoordinator):
                 url = f"{protocol}://{self.ip_address}{API_READINGS}"
                 _LOGGER.debug(f"Fetching data from: {url}")
 
-                auth = aiohttp.BasicAuth(self.username, self.password)
+                if self.username and self.password:
+                    auth = aiohttp.BasicAuth(self.username, self.password)
+                else:
+                    auth = None
 
                 async with async_timeout.timeout(10):
                     async with self.session.get(url, auth=auth, ssl=self.use_ssl) as response:
@@ -129,13 +133,13 @@ class VioletDataUpdateCoordinator(DataUpdateCoordinator):
             except aiohttp.ClientError as client_err:
                 _LOGGER.warning(f"Attempt {attempt + 1}/{retries} - HTTP error while fetching data: {client_err}")
                 if attempt + 1 == retries:
-                    raise UpdateFailed(f"HTTP error after {retries} attempts: {client_err}")
+                    raise UpdateFailed(f"HTTP error after {retries} attempts (Device ID: {self.device_id}, URL: {url}): {client_err}")
             except asyncio.TimeoutError:
                 _LOGGER.warning(f"Attempt {attempt + 1}/{retries} - Timeout while fetching data from {self.ip_address}")
                 if attempt + 1 == retries:
-                    raise UpdateFailed(f"Timeout after {retries} attempts")
+                    raise UpdateFailed(f"Timeout after {retries} attempts (Device ID: {self.device_id}, IP: {self.ip_address})")
             except Exception as err:
                 _LOGGER.error(f"Unexpected error while fetching data from {self.ip_address}: {err}")
-                raise UpdateFailed(f"Unexpected error: {err}")
+                raise UpdateFailed(f"Unexpected error (Device ID: {self.device_id}, IP: {self.ip_address}): {err}")
 
             await asyncio.sleep(2 ** attempt)  # Exponential backoff on retries

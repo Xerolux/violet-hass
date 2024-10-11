@@ -1,7 +1,7 @@
 import logging
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from .const import DOMAIN
+from .const import DOMAIN, CONF_API_URL
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -15,38 +15,24 @@ class VioletBinarySensor(CoordinatorEntity, BinarySensorEntity):
         self._config_entry = config_entry  # Store config_entry here
         self._attr_name = f"Violet {self._key}"
         self._attr_unique_id = f"{DOMAIN}_{self._key}"
+        self._attr_is_on = self._get_sensor_state() == 1
+        self._attr_icon = self._icon if self._attr_is_on else f"{self._icon}-off"
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, "violet_pool_controller")},
+            "name": "Violet Pool Controller",
+            "manufacturer": "PoolDigital GmbH & Co. KG",
+            "model": "Violet Model X",
+            "sw_version": self.coordinator.data.get('fw') or self.coordinator.data.get('SW_VERSION', 'Unbekannt'),
+            "configuration_url": f"http://{self._config_entry.data.get(CONF_API_URL, 'Unknown IP')}",
+        }
 
     def _get_sensor_state(self):
         """Helper method to retrieve the current sensor state from the coordinator."""
         return self.coordinator.data.get(self._key)
 
     @property
-    def is_on(self):
-        """Return true if the binary sensor is on."""
-        return self._get_sensor_state() == 1
-
-    @property
-    def icon(self):
-        """Return the icon depending on the sensor state."""
-        return self._icon if self.is_on else f"{self._icon}-off"
-
-    @property
-    def device_info(self):
-        """Return the device information."""
-        return {
-            "identifiers": {(DOMAIN, "violet_pool_controller")},
-            "name": "Violet Pool Controller",
-            "manufacturer": "PoolDigital GmbH & Co. KG",
-            "model": "Violet Model X",
-            "sw_version": self.coordinator.data.get('fw', 'Unknown'),
-            "configuration_url": (
-                f"http://{self._config_entry.data.get('host', 'Unknown IP')}"
-            ),
-        }
-
-    @property
     def unit_of_measurement(self):
-        """Return the unit of measurement."""
+        """Return the unit of measurement, if applicable."""
         return self._get_unit_for_key(self._key)
 
     def _get_unit_for_key(self, key):
@@ -84,21 +70,12 @@ class VioletBinarySensor(CoordinatorEntity, BinarySensorEntity):
             "PUMP_RPM_1": "RPM",
             "PUMP_RPM_2": "RPM",
             "PUMP_RPM_3": "RPM",
-            "SYSTEM_carrier_alive_count": None,
-            "SYSTEM_ext1module_alive_count": None,
-            "SYSTEM_dosagemodule_alive_count": None,
             "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": "mL",
             "DOS_1_CL_TOTAL_CAN_AMOUNT_ML": "mL",
             "DOS_2_ELO_DAILY_DOSING_AMOUNT_ML": "mL",
             "DOS_2_ELO_TOTAL_CAN_AMOUNT_ML": "mL",
             "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML": "mL",
             "DOS_4_PHM_TOTAL_CAN_AMOUNT_ML": "mL",
-            "PUMP_RUNTIME": None,
-            "SOLAR_RUNTIME": None,
-            "HEATER_RUNTIME": None,
-            "BACKWASH_RUNTIME": None,
-            "OMNI_DC0_RUNTIME": None,
-            "OMNI_DC1_RUNTIME": None,
             "CPU_TEMP": "°C",
             "SYSTEM_MEMORY": "MB",
             "LOAD_AVG": "%",
@@ -118,7 +95,7 @@ class VioletBinarySensor(CoordinatorEntity, BinarySensorEntity):
             "CHLORINE_LEVEL": "ppm",
             "BROMINE_LEVEL": "ppm",
         }
-        return units.get(self._key, None)
+        return units.get(key, None)
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up Violet Device binary sensors from a config entry."""
@@ -131,8 +108,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
 BINARY_SENSORS = [
     {"name": "Pump State", "key": "PUMP_STATE", "icon": "mdi:water-pump"},
-    {"name": "Solar State", "key": "SOLARSTATE", "icon": "mdi:solar-power"},
-    {"name": "Heater State", "key": "HEATERSTATE", "icon": "mdi:radiator"},
+    {"name": "Solar State", "key": "SOLAR_STATE", "icon": "mdi:solar-power"},
+    {"name": "Heater State", "key": "HEATER_STATE", "icon": "mdi:radiator"},
     {"name": "Cover State", "key": "COVER_STATE", "icon": "mdi:garage"},
     {"name": "Refill State", "key": "REFILL_STATE", "icon": "mdi:water-boiler"},
     {"name": "Light State", "key": "LIGHT_STATE", "icon": "mdi:lightbulb"},

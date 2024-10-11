@@ -1,3 +1,4 @@
+import logging
 from homeassistant.helpers.entity import Entity
 from homeassistant.const import CONF_DEVICE_ID
 from .const import DOMAIN, CONF_DEVICE_NAME, CONF_API_URL, CONF_POLLING_INTERVAL
@@ -15,6 +16,7 @@ class VioletPoolControllerEntity(Entity):
         self._available = True
         self.api_url = config_entry.data.get(CONF_API_URL)
         self.polling_interval = config_entry.data.get(CONF_POLLING_INTERVAL)
+        self._logger = logging.getLogger(f"{DOMAIN}.{self._unique_id}")
 
     @property
     def name(self):
@@ -36,17 +38,26 @@ class VioletPoolControllerEntity(Entity):
         """Return the state of the entity."""
         return self._state
 
-    def update(self):
+    @property
+    def extra_state_attributes(self):
+        """Return extra state attributes."""
+        return {
+            "polling_interval": self.polling_interval,
+            "api_url": self.api_url
+        }
+
+    async def async_update(self):
         """Fetch new state data for the entity from the API."""
         try:
             # Perform API request to get updated data
-            response = self.api_data.get_data()
-            if response:
+            response = await self.api_data.get_data()
+            if response and self.entity_description.key in response:
                 # Process response data and update state
                 self._state = response.get(self.entity_description.key)
+                self._available = True
             else:
                 self._available = False
         except Exception as e:
             self._available = False
             # Log error message if necessary
-            self.hass.logger.error(f"Error updating {self.name}: {str(e)}")
+            self._logger.error(f"Error updating {self.name}: {str(e)}")
