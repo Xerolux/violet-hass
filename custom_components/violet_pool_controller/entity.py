@@ -6,17 +6,20 @@ from .const import DOMAIN, CONF_DEVICE_NAME, CONF_API_URL, CONF_POLLING_INTERVAL
 class VioletPoolControllerEntity(Entity):
     """Base class for a Violet Pool Controller entity."""
 
-    def __init__(self, config_entry, api_data):
+    def __init__(self, config_entry, api_data, entity_description):
         """Initialize the entity."""
         self.config_entry = config_entry
         self.api_data = api_data
-        self._name = f"{config_entry.data.get(CONF_DEVICE_NAME)} {self.entity_description.name}"
-        self._unique_id = f"{config_entry.data.get(CONF_DEVICE_ID)}_{self.entity_description.key}"
+        self.entity_description = entity_description
+        self._name = f"{config_entry.data.get(CONF_DEVICE_NAME)} {entity_description.name}"
+        self._unique_id = f"{config_entry.data.get(CONF_DEVICE_ID)}_{entity_description.key}"
         self._state = None
         self._available = True
         self.api_url = config_entry.data.get(CONF_API_URL)
         self.polling_interval = config_entry.data.get(CONF_POLLING_INTERVAL)
         self._logger = logging.getLogger(f"{DOMAIN}.{self._unique_id}")
+
+        self._logger.info(f"Initialized {self._name} with unique ID: {self._unique_id}")
 
     @property
     def name(self):
@@ -52,12 +55,27 @@ class VioletPoolControllerEntity(Entity):
             # Perform API request to get updated data
             response = await self.api_data.get_data()
             if response and self.entity_description.key in response:
-                # Process response data and update state
-                self._state = response.get(self.entity_description.key)
+                self._update_state(response)
                 self._available = True
+                self._logger.debug(f"Updated {self._name} state: {self._state}")
             else:
                 self._available = False
+                self._logger.warning(f"No data for {self.entity_description.key} in response.")
+        except aiohttp.ClientError as e:
+            self._available = False
+            self._logger.error(f"Client error updating {self.name}: {e}")
+        except KeyError as e:
+            self._available = False
+            self._logger.error(f"Missing key {e} in the API response for {self.name}")
         except Exception as e:
             self._available = False
-            # Log error message if necessary
-            self._logger.error(f"Error updating {self.name}: {str(e)}")
+            self._logger.error(f"Unexpected error updating {self.name}: {e}")
+
+    def _update_state(self, response):
+        """Update the state from the API response."""
+        try:
+            self._state = response.get(self.entity_description.key)
+            self._logger.debug(f"New state for {self.name}: {self._state}")
+        except KeyError:
+            self._logger.error(f"Key {self.entity_description.key} not found in response.")
+            self._available = False
