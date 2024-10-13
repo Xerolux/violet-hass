@@ -1,0 +1,12 @@
+turn_auto:
+  description: "Set the switch to AUTO mode"
+  fields:
+    entity_id:
+      description: "The entity ID of the switch"
+      example: "switch.violet_switch"
+    auto_delay:
+      description: "The delay in seconds before switching to AUTO"
+      example: 60
+    last_value:
+      description: "The last value used for the switch"
+      example: 2

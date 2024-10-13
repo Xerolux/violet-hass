@@ -19,7 +19,8 @@ from .const import (
     CONF_PASSWORD,
     DEFAULT_POLLING_INTERVAL, 
     DEFAULT_USE_SSL,
-    API_READINGS
+    API_READINGS,
+    API_SET_FUNCTION_MANUALLY
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -63,6 +64,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Store the coordinator in hass.data for access by platform files
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator
+
+    # Register the custom service for 'turn_auto'
+    async def handle_turn_auto_service(call):
+        """Handle the custom turn_auto service."""
+        entity_id = call.data.get("entity_id")
+        auto_delay = call.data.get("auto_delay", 0)
+        last_value = call.data.get("last_value", 0)
+
+        _LOGGER.info(f"Setting {entity_id} to AUTO mode with delay {auto_delay} seconds and last value {last_value}")
+
+        await coordinator.turn_auto(auto_delay, last_value)
+
+    # Register the service
+    hass.services.async_register(DOMAIN, "turn_auto", handle_turn_auto_service)
 
     # Forward setup to platforms (e.g., switch, sensor, binary sensor)
     await hass.config_entries.async_forward_entry_setups(entry, ["switch", "sensor", "binary_sensor"])
@@ -143,3 +158,24 @@ class VioletDataUpdateCoordinator(DataUpdateCoordinator):
                 raise UpdateFailed(f"Unexpected error (Device ID: {self.device_id}, IP: {self.ip_address}): {err}")
 
             await asyncio.sleep(2 ** attempt)  # Exponential backoff on retries
+
+    async def turn_auto(self, auto_delay: int, last_value: int):
+        """Send command to set the switch to AUTO mode."""
+        protocol = "https" if self.use_ssl else "http"
+        url = f"{protocol}://{self.ip_address}{API_SET_FUNCTION_MANUALLY}?PUMP,AUTO,{auto_delay},{last_value}"
+
+        auth = aiohttp.BasicAuth(self.username, self.password)
+
+        try:
+            async with async_timeout.timeout(10):
+                async with self.session.get(url, auth=auth, ssl=self.use_ssl) as response:
+                    _LOGGER.debug(f"Status Code: {response.status}")
+                    response.raise_for_status()
+                    _LOGGER.info(f"Switch set to AUTO mode with delay {auto_delay} and last value {last_value}")
+        except aiohttp.ClientError as client_err:
+            _LOGGER.error(f"Error setting switch to AUTO mode: {client_err}")
+        except asyncio.TimeoutError:
+            _LOGGER.error(f"Timeout while setting switch to AUTO mode")
+        except Exception as err:
+            _LOGGER.error(f"Unexpected error while setting switch to AUTO mode: {err}")
+
