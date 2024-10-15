@@ -19,7 +19,8 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
         self._key = key
         self._icon = icon
         self._attr_name = name
-        self._attr_unique_id = f"{DOMAIN}_{self._key}"
+        # Updated unique ID to follow the new naming convention
+        self._attr_unique_id = f"{DOMAIN}.violet.{self._key.lower()}"
         self.ip_address = coordinator.ip_address
         self.username = coordinator.username
         self.password = coordinator.password
@@ -150,6 +151,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     async_add_entities(switches)
 
 SWITCHES = [
-    {"name": "Pump Switch", "key": "PUMP", "icon": "mdi:water-pump"},
-    {"name": "Light Switch", "key": "LIGHT", "icon": "mdi:lightbulb"},
+    {"name": "Violet Pump", "key": "PUMP", "icon": "mdi:water-pump"},
+    {"name": "Violet Light", "key": "LIGHT", "icon": "mdi:lightbulb"},
 ]
