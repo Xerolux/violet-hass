@@ -3,7 +3,7 @@
         "step": {
             "user": {
                 "title": "User Configuration",
-                "description": "If you need help with the configuration, have a look here: [Violet Hass Integration](https://github.com/Xerolux/violet-hass)",
+                "description": "If you need help with configuration, check here: [Violet Hass Integration](https://github.com/Xerolux/violet-hass)",
                 "data": {
                     "username": "Username",
                     "password": "Password"
@@ -11,9 +11,29 @@
             }
         },
         "error": {
-            "invalid_auth": "Username or password is incorrect.",
-            "cannot_connect": "Unable to connect to the server.",
+            "invalid_auth": "Invalid username or password.",
+            "cannot_connect": "Cannot connect to the server.",
             "unknown": "An unknown error occurred."
+        }
+    },
+    "services": {
+        "turn_auto": {
+            "name": "Set to Auto Mode",
+            "description": "Sets the switch to Auto mode with custom delay and last value.",
+            "fields": {
+                "entity_id": {
+                    "name": "Entity ID",
+                    "description": "The ID of the entity to control."
+                },
+                "auto_delay": {
+                    "name": "Auto Delay",
+                    "description": "The delay time for the auto mode."
+                },
+                "last_value": {
+                    "name": "Last Value",
+                    "description": "The last value to set for the switch."
+                }
+            }
         }
     }
 }
