@@ -1,0 +1,39 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Configurazione utente",
+                "description": "Se hai bisogno di aiuto con la configurazione, consulta qui: [Violet Hass Integration](https://github.com/Xerolux/violet-hass)",
+                "data": {
+                    "username": "Nome utente",
+                    "password": "Password"
+                }
+            }
+        },
+        "error": {
+            "invalid_auth": "Nome utente o password non validi.",
+            "cannot_connect": "Impossibile connettersi al server.",
+            "unknown": "Si \u00e8 verificato un errore sconosciuto."
+        }
+    },
+    "services": {
+        "turn_auto": {
+            "name": "Imposta su modalit\u00e0 automatica",
+            "description": "Imposta l'interruttore in modalit\u00e0 automatica con ritardo personalizzato e ultimo valore.",
+            "fields": {
+                "entity_id": {
+                    "name": "ID entit\u00e0",
+                    "description": "L'ID dell'entit\u00e0 da controllare."
+                },
+                "auto_delay": {
+                    "name": "Ritardo automatico",
+                    "description": "Il tempo di ritardo per la modalit\u00e0 automatica."
+                },
+                "last_value": {
+                    "name": "Ultimo valore",
+                    "description": "L'ultimo valore da impostare per l'interruttore."
+                }
+            }
+        }
+    }
+}

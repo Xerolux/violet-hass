@@ -1,0 +1,39 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Configuraci\u00f3n del usuario",
+                "description": "Si necesita ayuda con la configuraci\u00f3n, consulte aqu\u00ed: [Violet Hass Integration](https://github.com/Xerolux/violet-hass)",
+                "data": {
+                    "username": "Nombre de usuario",
+                    "password": "Contrase\u00f1a"
+                }
+            }
+        },
+        "error": {
+            "invalid_auth": "Nombre de usuario o contrase\u00f1a incorrectos.",
+            "cannot_connect": "No se puede conectar al servidor.",
+            "unknown": "Ocurri\u00f3 un error desconocido."
+        }
+    },
+    "services": {
+        "turn_auto": {
+            "name": "Configurar en modo autom\u00e1tico",
+            "description": "Establece el interruptor en modo autom\u00e1tico con un retraso personalizado y el \u00faltimo valor.",
+            "fields": {
+                "entity_id": {
+                    "name": "ID de entidad",
+                    "description": "El ID de la entidad a controlar."
+                },
+                "auto_delay": {
+                    "name": "Retraso autom\u00e1tico",
+                    "description": "El tiempo de retraso para el modo autom\u00e1tico."
+                },
+                "last_value": {
+                    "name": "\u00daltimo valor",
+                    "description": "El \u00faltimo valor para configurar en el interruptor."
+                }
+            }
+        }
+    }
+}

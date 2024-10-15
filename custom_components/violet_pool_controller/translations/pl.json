@@ -1,0 +1,39 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Konfiguracja u\u017cytkownika",
+                "description": "Je\u015bli potrzebujesz pomocy przy konfiguracji, sprawd\u017a tutaj: [Violet Hass Integration](https://github.com/Xerolux/violet-hass)",
+                "data": {
+                    "username": "Nazwa u\u017cytkownika",
+                    "password": "Has\u0142o"
+                }
+            }
+        },
+        "error": {
+            "invalid_auth": "Nieprawid\u0142owa nazwa u\u017cytkownika lub has\u0142o.",
+            "cannot_connect": "Nie mo\u017cna po\u0142\u0105czy\u0107 si\u0119 z serwerem.",
+            "unknown": "Wyst\u0105pi\u0142 nieznany b\u0142\u0105d."
+        }
+    },
+    "services": {
+        "turn_auto": {
+            "name": "Ustaw na tryb automatyczny",
+            "description": "Ustawia prze\u0142\u0105cznik na tryb automatyczny z niestandardowym op\u00f3\u017anieniem i ostatni\u0105 warto\u015bci\u0105.",
+            "fields": {
+                "entity_id": {
+                    "name": "ID encji",
+                    "description": "ID encji do kontrolowania."
+                },
+                "auto_delay": {
+                    "name": "Op\u00f3\u017anienie automatyczne",
+                    "description": "Czas op\u00f3\u017anienia dla trybu automatycznego."
+                },
+                "last_value": {
+                    "name": "Ostatnia warto\u015b\u0107",
+                    "description": "Ostatnia warto\u015b\u0107 ustawiona dla prze\u0142\u0105cznika."
+                }
+            }
+        }
+    }
+}
