@@ -15,5 +15,25 @@
             "cannot_connect": "Verbindung zum Server nicht möglich.",
             "unknown": "Ein unbekannter Fehler ist aufgetreten."
         }
+    },
+    "services": {
+        "turn_auto": {
+            "name": "Auf Auto Modus stellen",
+            "description": "Setzt den Schalter auf den Auto-Modus mit benutzerdefinierter Verzögerung und letztem Wert.",
+            "fields": {
+                "entity_id": {
+                    "name": "Entitäts-ID",
+                    "description": "Die ID der zu steuernden Entität."
+                },
+                "auto_delay": {
+                    "name": "Auto-Verzögerung",
+                    "description": "Die Verzögerungszeit für den Auto-Modus."
+                },
+                "last_value": {
+                    "name": "Letzter Wert",
+                    "description": "Der letzte Wert, der für den Schalter eingestellt werden soll."
+                }
+            }
+        }
     }
 }
