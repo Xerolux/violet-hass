@@ -1,0 +1,39 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Gebruikersconfiguratie",
+                "description": "Als je hulp nodig hebt bij de configuratie, kijk dan hier: [Violet Hass Integration](https://github.com/Xerolux/violet-hass)",
+                "data": {
+                    "username": "Gebruikersnaam",
+                    "password": "Wachtwoord"
+                }
+            }
+        },
+        "error": {
+            "invalid_auth": "Ongeldige gebruikersnaam of wachtwoord.",
+            "cannot_connect": "Kan geen verbinding maken met de server.",
+            "unknown": "Er is een onbekende fout opgetreden."
+        }
+    },
+    "services": {
+        "turn_auto": {
+            "name": "In Automatische modus zetten",
+            "description": "Stelt de schakelaar in op automatische modus met aangepaste vertraging en laatste waarde.",
+            "fields": {
+                "entity_id": {
+                    "name": "Entiteit-ID",
+                    "description": "De ID van de entiteit die moet worden bediend."
+                },
+                "auto_delay": {
+                    "name": "Automatische vertraging",
+                    "description": "De vertragingstijd voor de automatische modus."
+                },
+                "last_value": {
+                    "name": "Laatste waarde",
+                    "description": "De laatste waarde die voor de schakelaar is ingesteld."
+                }
+            }
+        }
+    }
+}
