@@ -3,6 +3,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.entity import Entity
 from datetime import timedelta
 import async_timeout
 import aiohttp
@@ -19,8 +20,7 @@ from .const import (
     CONF_PASSWORD,
     DEFAULT_POLLING_INTERVAL, 
     DEFAULT_USE_SSL,
-    API_READINGS,
-    API_SET_FUNCTION_MANUALLY
+    API_READINGS
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -65,52 +65,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
-    # Register custom services for turning switches on/off/auto
-    async def handle_turn_auto_service(call):
-        """Handle the custom turn_auto service."""
-        entity_id = call.data.get("entity_id")
-        duration = call.data.get("duration", 0)
-        last_value = call.data.get("last_value", 0)
-
-        _LOGGER.info(f"Setting {entity_id} to AUTO mode with duration {duration} seconds and last value {last_value}")
-
-        entity = hass.states.get(entity_id)
-        if entity:
-            await entity.async_turn_auto(duration=duration, last_value=last_value)
-        else:
-            _LOGGER.error(f"Entity {entity_id} not found")
-
-    async def handle_turn_on_service(call):
-        """Handle the custom turn_on service."""
-        entity_id = call.data.get("entity_id")
-        duration = call.data.get("duration", 0)
-        last_value = call.data.get("last_value", 0)
-
-        _LOGGER.info(f"Turning {entity_id} ON with duration {duration} seconds and last value {last_value}")
-
-        entity = hass.states.get(entity_id)
-        if entity:
-            await entity.async_turn_on(duration=duration, last_value=last_value)
-        else:
-            _LOGGER.error(f"Entity {entity_id} not found")
-
-    async def handle_turn_off_service(call):
-        """Handle the custom turn_off service."""
-        entity_id = call.data.get("entity_id")
-
-        _LOGGER.info(f"Turning {entity_id} OFF")
-
-        entity = hass.states.get(entity_id)
-        if entity:
-            await entity.async_turn_off()
-        else:
-            _LOGGER.error(f"Entity {entity_id} not found")
-
-    # Register the services
-    hass.services.async_register(DOMAIN, "turn_auto", handle_turn_auto_service)
-    hass.services.async_register(DOMAIN, "turn_on", handle_turn_on_service)
-    hass.services.async_register(DOMAIN, "turn_off", handle_turn_off_service)
-
     # Forward setup to platforms (e.g., switch, sensor, binary sensor)
     await hass.config_entries.async_forward_entry_setups(entry, ["switch", "sensor", "binary_sensor"])
 
@@ -138,6 +92,7 @@ class VioletDataUpdateCoordinator(DataUpdateCoordinator):
 
     def __init__(self, hass: HomeAssistant, config: Dict[str, Any], session: aiohttp.ClientSession) -> None:
         """Initialize the coordinator."""
+        self.hass = hass
         self.ip_address: str = config["ip_address"]
         self.username: str = config["username"]
         self.password: str = config["password"]
@@ -145,7 +100,7 @@ class VioletDataUpdateCoordinator(DataUpdateCoordinator):
         self.use_ssl: bool = config["use_ssl"]
         self.device_id: int = config["device_id"]
 
-        self._existing_entities: Dict[str, Any] = {}  # Track existing entities and their states
+        self._existing_entities: Dict[str, VioletEntity] = {}  # Track existing entities and their states
 
         _LOGGER.info(f"Initializing data coordinator for device {self.device_id} (IP: {self.ip_address}, SSL: {self.use_ssl})")
 
@@ -165,15 +120,11 @@ class VioletDataUpdateCoordinator(DataUpdateCoordinator):
                 url = f"{protocol}://{self.ip_address}{API_READINGS}"
                 _LOGGER.debug(f"Fetching data from: {url}")
 
-                if self.username and self.password:
-                    auth = aiohttp.BasicAuth(self.username, self.password)
-                else:
-                    auth = None
+                auth = aiohttp.BasicAuth(self.username, self.password) if self.username and self.password else None
 
                 async with async_timeout.timeout(10):
                     async with self.session.get(url, auth=auth, ssl=self.use_ssl) as response:
                         _LOGGER.debug(f"Status Code: {response.status}")
-                        _LOGGER.debug(f"Response Headers: {response.headers}")
                         response.raise_for_status()
                         data = await response.json()
                         _LOGGER.debug(f"Data received: {data}")
@@ -203,31 +154,67 @@ class VioletDataUpdateCoordinator(DataUpdateCoordinator):
         changed_entities = {
             entity: data[entity]
             for entity in self._existing_entities
-            if self._existing_entities[entity] != data[entity]
+            if self._existing_entities[entity].state != data[entity]
         }
 
+        # Create new entities dynamically
         if new_entities:
             _LOGGER.info(f"New entities detected: {new_entities}")
             for entity in new_entities:
                 self._create_new_entity(entity, data[entity])
-            self._existing_entities.update({entity: data[entity] for entity in new_entities})
 
+        # Update the state of existing entities
         if changed_entities:
             _LOGGER.info(f"Changed entities detected: {changed_entities}")
             for entity, new_value in changed_entities.items():
                 self._update_existing_entity(entity, new_value)
-            self._existing_entities.update(changed_entities)
 
     def _create_new_entity(self, entity: str, value: Any) -> None:
         """Create and register a new entity dynamically."""
         _LOGGER.info(f"Creating new entity: {entity} with value: {value}")
-        # Dynamically create new entity and forward to the appropriate platform (e.g., sensor, switch, etc.)
-        # This would involve Home Assistant platform specific logic.
-        # You would register the entity as a new sensor, switch, etc., using hass.helpers.entity_component.async_add_entities
+        
+        # Create a new entity object (for example, a sensor or switch)
+        new_entity = VioletEntity(self, entity, value)
+        
+        # Register the entity with Home Assistant
+        self.hass.helpers.entity_platform.async_add_entities([new_entity], update_before_add=True)
+        
+        # Track the entity
+        self._existing_entities[entity] = new_entity
 
     def _update_existing_entity(self, entity: str, new_value: Any) -> None:
         """Update the state of an existing entity."""
         _LOGGER.info(f"Updating entity: {entity} to new value: {new_value}")
-        # Dynamically update the entity's state in Home Assistant
-        # This could trigger a state update for the entity in Home Assistant
+        
+        existing_entity = self._existing_entities.get(entity)
+        if existing_entity:
+            existing_entity.state = new_value
+            existing_entity.async_write_ha_state()
+        else:
+            _LOGGER.warning(f"Entity {entity} not found for update")
 
+
+class VioletEntity(CoordinatorEntity, Entity):
+    """Representation of a dynamically created entity."""
+    
+    def __init__(self, coordinator: VioletDataUpdateCoordinator, entity_id: str, value: Any):
+        """Initialize the entity."""
+        super().__init__(coordinator)
+        self.entity_id = entity_id
+        self._state = value
+
+    @property
+    def state(self):
+        """Return the state of the entity."""
+        return self._state
+
+    @property
+    def name(self):
+        """Return the name of the entity."""
+        return self.entity_id
+
+    async def async_update(self):
+        """Update the entity state."""
+        # Fetch the latest state and update the entity
+        self._state = self.coordinator.data.get(self.entity_id)
+        self.async_write_ha_state()
