@@ -1,0 +1,39 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Configuration de l'utilisateur",
+                "description": "Si vous avez besoin d'aide pour la configuration, consultez ici : [Violet Hass Integration](https://github.com/Xerolux/violet-hass)",
+                "data": {
+                    "username": "Nom d'utilisateur",
+                    "password": "Mot de passe"
+                }
+            }
+        },
+        "error": {
+            "invalid_auth": "Nom d'utilisateur ou mot de passe incorrect.",
+            "cannot_connect": "Impossible de se connecter au serveur.",
+            "unknown": "Une erreur inconnue est survenue."
+        }
+    },
+    "services": {
+        "turn_auto": {
+            "name": "Passer en mode automatique",
+            "description": "Met le commutateur en mode automatique avec un délai personnalisé et une dernière valeur.",
+            "fields": {
+                "entity_id": {
+                    "name": "ID de l'entité",
+                    "description": "L'ID de l'entité à contrôler."
+                },
+                "auto_delay": {
+                    "name": "Délai automatique",
+                    "description": "Le délai pour le mode automatique."
+                },
+                "last_value": {
+                    "name": "Dernière valeur",
+                    "description": "La dernière valeur à définir pour le commutateur."
+                }
+            }
+        }
+    }
+}
