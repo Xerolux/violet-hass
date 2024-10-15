@@ -5,6 +5,9 @@ from datetime import datetime, timedelta
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 import async_timeout
+import voluptuous as vol
+from homeassistant.helpers import entity_platform
+from homeassistant.helpers import config_validation as cv
 
 from .const import (
     DOMAIN, 
@@ -149,6 +152,36 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         for switch in available_switches
     ]
     async_add_entities(switches)
+
+    # Register entity-specific services using async_register_entity_service
+    platform = entity_platform.async_get_current_platform()
+
+    # Register `turn_auto` service
+    platform.async_register_entity_service(
+        "turn_auto",
+        {
+            vol.Optional("auto_delay", default=0): vol.Coerce(int),
+            vol.Optional("last_value", default=0): vol.Coerce(int),
+        },
+        "async_turn_auto"
+    )
+
+    # Register `turn_on` service
+    platform.async_register_entity_service(
+        "turn_on",
+        {
+            vol.Optional("duration", default=0): vol.Coerce(int),
+            vol.Optional("last_value", default=0): vol.Coerce(int),
+        },
+        "async_turn_on"
+    )
+
+    # Register `turn_off` service
+    platform.async_register_entity_service(
+        "turn_off",
+        {},
+        "async_turn_off"
+    )
 
 SWITCHES = [
     {"name": "Violet Pump", "key": "PUMP", "icon": "mdi:water-pump"},
