@@ -1,0 +1,36 @@
+blueprint:
+  name: Pool Pump Timer
+  description: Automates the pool pump to turn on for a specific duration.
+  domain: automation
+  input:
+    pump_entity:
+      name: Pump Switch
+      description: The pool pump switch entity.
+      selector:
+        entity:
+          domain: switch
+    duration:
+      name: Duration
+      description: How long the pool pump should run (in seconds).
+      default: 1800
+      selector:
+        number:
+          min: 10
+          max: 7200
+          step: 10
+          unit_of_measurement: seconds
+
+trigger:
+  - platform: homeassistant
+    event: start
+
+action:
+  - service: switch.turn_on
+    target:
+      entity_id: !input pump_entity
+    data:
+      duration: !input duration
+
+mode: single
+
+
