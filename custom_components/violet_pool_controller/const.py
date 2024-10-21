@@ -21,7 +21,7 @@ DEFAULT_USE_SSL = False  # Default SSL setting
 DEFAULT_MQTT_ENABLED = False  # Default MQTT setting
 
 # Integration details
-INTEGRATION_VERSION = "0.0.8.2"
+INTEGRATION_VERSION = "0.0.8.6"
 MIN_REQUIRED_HA_VERSION = "2023.9.0"
 
 # Log messages

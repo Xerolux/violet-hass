@@ -5,6 +5,17 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
+# List of sensors that should not have a unit of measurement
+NO_UNIT_SENSORS = [
+    "SOLAR_LAST_OFF",
+    "HEATER_LAST_ON",
+    "HEATER_LAST_OFF",
+    "BACKWASH_LAST_ON",
+    "BACKWASH_LAST_OFF",
+    "PUMP_LAST_ON",
+    "PUMP_LAST_OFF",
+]
+
 class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
     """Representation of a Violet Device Sensor."""
 
@@ -12,18 +23,20 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
         super().__init__(coordinator)
         self._key = key
         self._icon = icon
-        self._config_entry = config_entry  # Store config_entry
+        self._config_entry = config_entry
         self._attr_name = f"Violet {self._key}"
         self._attr_unique_id = f"{DOMAIN}_{self._key}"
-
-    def _get_sensor_state(self):
-        """Helper method to retrieve the current sensor state from the coordinator."""
-        return self.coordinator.data.get(self._key)
+        self._state = None  # Cache the sensor state
+        self._has_logged_none_state = False  # Avoid logging multiple warnings for None states
 
     @property
     def state(self):
         """Return the state of the sensor."""
-        return self._get_sensor_state()
+        self._state = self._get_sensor_state()
+        if self._state is None and not self._has_logged_none_state:
+            _LOGGER.warning(f"Sensor {self._key} returned None as its state.")
+            self._has_logged_none_state = True
+        return self._state
 
     @property
     def icon(self):
@@ -32,7 +45,7 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
             return "mdi:power" if self.state else "mdi:power-off"
         if self._key.startswith("onewire"):
             return "mdi:thermometer" if self.state else "mdi:thermometer-off"
-        return self._icon  # Default icon
+        return self._icon  # Default icon if no special handling is needed
 
     @property
     def available(self):
@@ -47,14 +60,20 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
             "name": "Violet Pool Controller",
             "manufacturer": "PoolDigital GmbH & Co. KG",
             "model": "Violet Model X",
-            "sw_version": self.coordinator.data.get('fw') or self.coordinator.data.get('SW_VERSION', 'Unbekannt'),
+            "sw_version": self.coordinator.data.get('fw') or self.coordinator.data.get('SW_VERSION', 'Unknown'),
             "configuration_url": f"http://{self._config_entry.data.get('host', 'Unknown IP')}/getReadings?ALL",
         }
 
     @property
     def unit_of_measurement(self):
         """Return the unit of measurement."""
+        if self._key in NO_UNIT_SENSORS:
+            return None  # These sensors should not have a unit of measurement
         return self._get_unit_for_key(self._key)
+
+    def _get_sensor_state(self):
+        """Helper method to retrieve the current sensor state from the coordinator."""
+        return self.coordinator.data.get(self._key)
 
     def _get_unit_for_key(self, key):
         """Helper method to retrieve the unit of measurement based on the sensor key."""
@@ -91,21 +110,12 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
             "PUMP_RPM_1": "RPM",
             "PUMP_RPM_2": "RPM",
             "PUMP_RPM_3": "RPM",
-            "SYSTEM_carrier_alive_count": None,
-            "SYSTEM_ext1module_alive_count": None,
-            "SYSTEM_dosagemodule_alive_count": None,
             "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": "mL",
             "DOS_1_CL_TOTAL_CAN_AMOUNT_ML": "mL",
             "DOS_2_ELO_DAILY_DOSING_AMOUNT_ML": "mL",
             "DOS_2_ELO_TOTAL_CAN_AMOUNT_ML": "mL",
             "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML": "mL",
             "DOS_4_PHM_TOTAL_CAN_AMOUNT_ML": "mL",
-            "PUMP_RUNTIME": None,
-            "SOLAR_RUNTIME": None,
-            "HEATER_RUNTIME": None,
-            "BACKWASH_RUNTIME": None,
-            "OMNI_DC0_RUNTIME": None,
-            "OMNI_DC1_RUNTIME": None,
             "CPU_TEMP": "°C",
             "SYSTEM_MEMORY": "MB",
             "LOAD_AVG": "%",
@@ -125,7 +135,7 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
             "CHLORINE_LEVEL": "ppm",
             "BROMINE_LEVEL": "ppm",
         }
-        return units.get(self._key, None)
+        return units.get(key, None)
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up Violet Device sensors from a config entry."""
@@ -157,7 +167,7 @@ SENSORS = [
     {"name": "Load Average", "key": "LOAD_AVG", "icon": "mdi:chart-line"},
     
     # Software Version
-    {"name": "Software Violet Application", "key": "SW_VERSEION", "icon": "mdi:update"},
+    {"name": "Software Violet Application", "key": "SW_VERSION", "icon": "mdi:update"},
     {"name": "Firmware Violet Carrier", "key": "SW_VERSION_CARRIER", "icon": "mdi:update"},
 
     # OneWire Sensors (Temperature, Min/Max Values)

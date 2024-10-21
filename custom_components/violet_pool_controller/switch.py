@@ -9,12 +9,20 @@ import voluptuous as vol
 from homeassistant.helpers import entity_platform
 from homeassistant.helpers import config_validation as cv
 
-from .const import (
-    DOMAIN, 
-    API_SET_FUNCTION_MANUALLY
-)
+from .const import DOMAIN, API_SET_FUNCTION_MANUALLY
 
 _LOGGER = logging.getLogger(__name__)
+
+# Map the API numeric values to ON (True) or OFF (False) states
+STATE_MAP = {
+    0: False,  # AUTO (not on)
+    1: True,   # AUTO (on)
+    2: False,  # OFF by control rule
+    3: True,   # ON by emergency rule
+    4: True,   # MANUAL ON
+    5: False,  # OFF by emergency rule
+    6: False,  # MANUAL OFF
+}
 
 class VioletSwitch(CoordinatorEntity, SwitchEntity):
     def __init__(self, coordinator, key, name, icon):
@@ -22,15 +30,15 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
         self._key = key
         self._icon = icon
         self._attr_name = name
-        # Updated unique ID to follow the new naming convention
         self._attr_unique_id = f"{DOMAIN}.violet.{self._key.lower()}"
         self.ip_address = coordinator.ip_address
         self.username = coordinator.username
         self.password = coordinator.password
         self.session = coordinator.session
-        self.timeout = coordinator.timeout if hasattr(coordinator, 'timeout') else 10  # Customizable timeout
-        self.auto_reset_time = None  # For automatic reset after duration
+        self.timeout = coordinator.timeout if hasattr(coordinator, 'timeout') else 10
+        self.auto_reset_time = None
 
+        # Check for credentials and IP address
         if not all([self.ip_address, self.username, self.password]):
             _LOGGER.error(f"Missing credentials or IP address for switch {self._key}")
         else:
@@ -38,14 +46,16 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
 
     def _get_switch_state(self):
         """Fetches the current state of the switch."""
-        return self.coordinator.data.get(self._key)
+        return self.coordinator.data.get(self._key, None)
 
     @property
     def is_on(self):
-        return self._get_switch_state() in (1, 4)
+        """Determine if the switch is on based on the API state mapped through STATE_MAP."""
+        return STATE_MAP.get(self._get_switch_state(), False)
 
     @property
     def is_auto(self):
+        """Check if the switch is in AUTO mode."""
         return self._get_switch_state() == 0
 
     async def _send_command(self, action, duration=0, last_value=0):
@@ -61,7 +71,8 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
                         response.raise_for_status()
                         response_text = await response.text()
                         lines = response_text.strip().split('\n')
-                        if len(lines) >= 3 and lines[0] == "OK" and lines[1] == self._key and ("SWITCHED_TO" in lines[2] or "ON" in lines[2] or "OFF" in lines[2]):
+                        if len(lines) >= 3 and lines[0] == "OK" and lines[1] == self._key and \
+                                ("SWITCHED_TO" in lines[2] or "ON" in lines[2] or "OFF" in lines[2]):
                             _LOGGER.debug(f"Successfully sent {action} command to {self._key} with duration {duration} and last value {last_value}")
                             await self.coordinator.async_request_refresh()
                             return
@@ -78,31 +89,31 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs):
         """Turn the switch on."""
-        _LOGGER.debug(f"async_turn_on called for {self._key} with arguments: {kwargs}")
+        await self._execute_action("ON", **kwargs)
+
+    async def async_turn_off(self, **kwargs):
+        """Turn the switch off."""
+        await self._send_command("OFF", last_value=kwargs.get("last_value", 0))
+
+    async def async_turn_auto(self, **kwargs):
+        """Set the switch to AUTO mode."""
+        await self._execute_action("AUTO", **kwargs)
+
+    async def _execute_action(self, action, **kwargs):
+        """Helper to handle the ON/AUTO logic with auto reset."""
+        _LOGGER.debug(f"{action} action called for {self._key} with arguments: {kwargs}")
         duration = kwargs.get("duration", 0)
         last_value = kwargs.get("last_value", 0)
-        await self._send_command("ON", duration, last_value)
-        
         auto_delay = kwargs.get("auto_delay", 0)
+
+        await self._send_command(action, duration, last_value)
+
+        # Handle auto reset if auto_delay is provided
         if auto_delay > 0:
             self.auto_reset_time = datetime.now() + timedelta(seconds=auto_delay)
             _LOGGER.debug(f"Auto-reset to AUTO after {auto_delay} seconds for {self._key}")
             await asyncio.sleep(auto_delay)
             await self.async_turn_auto()
-
-    async def async_turn_off(self, **kwargs):
-        """Turn the switch off."""
-        _LOGGER.debug(f"async_turn_off called for {self._key} with arguments: {kwargs}")
-        last_value = kwargs.get("last_value", 0)
-        await self._send_command("OFF", 0, last_value)
-
-    async def async_turn_auto(self, **kwargs):
-        """Set the switch to AUTO mode."""
-        _LOGGER.debug(f"async_turn_auto called for {self._key} with arguments: {kwargs}")
-        auto_delay = kwargs.get("auto_delay", 0)
-        last_value = kwargs.get("last_value", 0)
-        await self._send_command("AUTO", auto_delay, last_value)
-        self.auto_reset_time = None
 
     @property
     def icon(self):
@@ -156,7 +167,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     # Register entity-specific services using async_register_entity_service
     platform = entity_platform.async_get_current_platform()
 
-    # Register `turn_auto` service
     platform.async_register_entity_service(
         "turn_auto",
         {
@@ -166,7 +176,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         "async_turn_auto"
     )
 
-    # Register `turn_on` service
     platform.async_register_entity_service(
         "turn_on",
         {
@@ -176,7 +185,6 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         "async_turn_on"
     )
 
-    # Register `turn_off` service
     platform.async_register_entity_service(
         "turn_off",
         {},
