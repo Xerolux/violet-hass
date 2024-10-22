@@ -147,11 +147,13 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
     def device_info(self):
         """Return device information for the Violet Pool Controller."""
         return {
-            "identifiers": {(DOMAIN, "violet_pool_controller")},
+            "identifiers": {(DOMAIN, f"violet_pool_controller_{self.ip_address}")},
             "name": "Violet Pool Controller",
             "manufacturer": "PoolDigital GmbH & Co. KG",
-            "model": "Violet Model X",
+            "model": self.coordinator.data.get('model', 'Violet Model X'),
             "sw_version": self.coordinator.data.get('fw') or self.coordinator.data.get('SW_VERSION', 'Unknown'),
+            "mac_address": self.coordinator.data.get('mac_address', 'Unknown'),
+            "serial_number": self.coordinator.data.get('serial_number', 'Unknown'),
         }
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
