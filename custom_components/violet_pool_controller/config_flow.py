@@ -38,13 +38,8 @@ async def fetch_api_data(session, api_url, auth, use_ssl, timeout_duration, retr
         try:
             # Set a timeout for the API request to prevent hanging indefinitely
             async with async_timeout.timeout(timeout_duration):
-                _LOGGER.debug(
-                    "Attempting to connect to API at %s (SSL=%s), attempt %d/%d",
-                    api_url,
-                    use_ssl,
-                    attempt + 1,
-                    retry_attempts,
-                )
+                _LOGGER.debug("Attempting to connect to API at %s (SSL=%s), attempt %d/%d", api_url, use_ssl, attempt + 1, retry_attempts)
+                
                 # Make an HTTP GET request to the API
                 async with session.get(api_url, auth=auth, ssl=use_ssl) as response:
                     # Raise an exception if the response status is not 200 OK
@@ -54,21 +49,17 @@ async def fetch_api_data(session, api_url, auth, use_ssl, timeout_duration, retr
                     _LOGGER.debug("API response received: %s", data)
                     return data
         except aiohttp.ClientConnectionError as err:
-            # Log connection errors and retry if attempts remain
             _LOGGER.error("Connection error to API at %s: %s", api_url, err)
             if attempt + 1 == retry_attempts:
                 raise ValueError("Connection error after multiple attempts.")
         except aiohttp.ClientResponseError as err:
-            # Log errors related to the API response, such as 4xx or 5xx status codes
             _LOGGER.error("Invalid API response (Status code: %s): %s", err.status, str(err))
             raise ValueError("Invalid API response.")
         except asyncio.TimeoutError:
-            # Log timeout errors and retry if attempts remain
             _LOGGER.error("Timeout occurred during API request.")
             if attempt + 1 == retry_attempts:
                 raise ValueError("Timeout during API request.")
         except Exception as err:
-            # Log any other unexpected exceptions
             _LOGGER.error("Unexpected exception: %s", err)
             raise ValueError("Unexpected exception.")
 
@@ -86,7 +77,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             # Extract the base IP address provided by the user
-            base_ip = user_input[CONF_API_URL]  # Only the IP address is entered
+            base_ip = user_input[CONF_API_URL]
             use_ssl = user_input.get(CONF_USE_SSL, DEFAULT_USE_SSL)
             protocol = "https" if use_ssl else "http"
 
@@ -101,7 +92,6 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             device_id = user_input.get(CONF_DEVICE_ID, 1)
 
             # Set a unique identifier for this config entry based on the base IP address
-            # Consider using additional information (e.g., port or serial number) to ensure uniqueness
             await self.async_set_unique_id(f"{base_ip}-{device_id}")
             self._abort_if_unique_id_configured()
 
@@ -114,7 +104,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             # Allow retry attempts to be configurable for more flexibility
             retry_attempts = user_input.get("retry_attempts", 3)
-            auth = aiohttp.BasicAuth(username, password)  # Use BasicAuth for authentication
+            auth = aiohttp.BasicAuth(username, password)
 
             try:
                 # Fetch data from the API to verify the connection and configuration
@@ -124,13 +114,11 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 await self._process_firmware_data(data, errors)
 
             except ValueError as err:
-                # Log errors encountered during the API fetch
                 _LOGGER.error("%s", err)
                 errors["base"] = str(err)
 
             if not errors:
                 # If no errors occurred, save the configuration data
-                # Only store the IP address to avoid unnecessary data
                 user_input[CONF_API_URL] = base_ip
                 user_input[CONF_DEVICE_NAME] = device_name
                 user_input[CONF_USERNAME] = username
@@ -144,7 +132,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         # Display the form for the user to enter configuration details
         data_schema = vol.Schema({
-            vol.Required(CONF_API_URL): str,  # Only the IP address is entered
+            vol.Required(CONF_API_URL): str,
             vol.Required(CONF_USERNAME): str,
             vol.Required(CONF_PASSWORD): str,
             vol.Optional(CONF_POLLING_INTERVAL, default=DEFAULT_POLLING_INTERVAL): vol.All(vol.Coerce(int), vol.Range(min=5, max=3600)),
@@ -162,32 +150,22 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def _process_firmware_data(self, data, errors):
         """Process firmware data and validate."""
-        # Extract firmware version from 'fw' or 'SW_VERSION'
         firmware_version = data.get('fw') or data.get('SW_VERSION')
 
-        # Extract additional data from 'SW_VERSION_CARRIER', 'HW_VERSION_CARRIER', 'HW_SERIAL_CARRIER'
-        sw_version_carrier = data.get('SW_VERSION_CARRIER')
-        hw_version_carrier = data.get('HW_VERSION_CARRIER')
-        hw_serial_carrier = data.get('HW_SERIAL_CARRIER')
-
         if not firmware_version:
-            # Log an error if the firmware version is not found in the API response
             _LOGGER.error("Firmware version not found in API response: %s", data)
             errors["base"] = "Firmware version not found. Please check your device configuration."
             raise ValueError("Firmware version not found.")
+        elif not is_valid_firmware(firmware_version):
+            _LOGGER.error("Invalid firmware version received: %s", firmware_version)
+            errors["base"] = "Invalid firmware version format. Please update your device firmware."
         else:
-            # Optionally validate the firmware format using the validation function
-            if is_valid_firmware(firmware_version):
-                _LOGGER.info("Firmware version successfully retrieved: %s", firmware_version)
-            else:
-                # Log an error if the firmware version format is invalid
-                _LOGGER.error("Invalid firmware version received: %s", firmware_version)
-                errors["base"] = "Invalid firmware version format. Please update your device firmware."
+            _LOGGER.info("Firmware version successfully retrieved: %s", firmware_version)
 
-        # Log additional information about SW_VERSION_CARRIER, HW_VERSION_CARRIER, and HW_SERIAL_CARRIER
-        _LOGGER.info("Carrier Software Version (SW_VERSION_CARRIER): %s", sw_version_carrier or "Not available")
-        _LOGGER.info("Carrier Hardware Version (HW_VERSION_CARRIER): %s", hw_version_carrier or "Not available")
-        _LOGGER.info("Carrier Hardware Serial Number (HW_SERIAL_CARRIER): %s", hw_serial_carrier or "Not available")
+        # Additional logging for carrier and hardware versions
+        _LOGGER.info("Carrier Software Version: %s", data.get('SW_VERSION_CARRIER', 'Not available'))
+        _LOGGER.info("Carrier Hardware Version: %s", data.get('HW_VERSION_CARRIER', 'Not available'))
+        _LOGGER.info("Carrier Hardware Serial Number: %s", data.get('HW_SERIAL_CARRIER', 'Not available'))
 
     @staticmethod
     @callback
@@ -212,32 +190,12 @@ class VioletOptionsFlow(config_entries.OptionsFlow):
             # Create a new entry for the provided options
             return self.async_create_entry(title="", data=user_input)
 
-        # Define the schema for the options form
         options_schema = vol.Schema({
-            vol.Optional(
-                CONF_USERNAME,
-                default=self.config_entry.data.get(CONF_USERNAME, "")
-            ): str,
-            vol.Optional(
-                CONF_PASSWORD,
-                default=self.config_entry.data.get(CONF_PASSWORD, "")
-            ): str,
-            vol.Optional(
-                CONF_POLLING_INTERVAL,
-                default=self.config_entry.data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
-            ): vol.All(vol.Coerce(int), vol.Range(min=5, max=3600)),
-            vol.Optional(
-                CONF_USE_SSL,
-                default=self.config_entry.data.get(CONF_USE_SSL, DEFAULT_USE_SSL)
-            ): bool,
-            vol.Optional(
-                "retry_attempts",
-                default=self.config_entry.data.get("retry_attempts", 3)
-            ): vol.All(vol.Coerce(int), vol.Range(min=1, max=10)),
+            vol.Optional(CONF_USERNAME, default=self.config_entry.data.get(CONF_USERNAME, "")): str,
+            vol.Optional(CONF_PASSWORD, default=self.config_entry.data.get(CONF_PASSWORD, "")): str,
+            vol.Optional(CONF_POLLING_INTERVAL, default=self.config_entry.data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)): vol.All(vol.Coerce(int), vol.Range(min=5, max=3600)),
+            vol.Optional(CONF_USE_SSL, default=self.config_entry.data.get(CONF_USE_SSL, DEFAULT_USE_SSL)): bool,
+            vol.Optional("retry_attempts", default=self.config_entry.data.get("retry_attempts", 3)): vol.All(vol.Coerce(int), vol.Range(min=1, max=10)),
         })
 
-        # Display the options form to the user
-        return self.async_show_form(
-            step_id="user",
-            data_schema=options_schema
-        )
+        return self.async_show_form(step_id="user", data_schema=options_schema)
