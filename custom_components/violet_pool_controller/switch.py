@@ -7,7 +7,6 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 import async_timeout
 import voluptuous as vol
 from homeassistant.helpers import entity_platform
-from homeassistant.helpers import config_validation as cv
 
 from .const import DOMAIN, API_SET_FUNCTION_MANUALLY
 
@@ -25,7 +24,7 @@ STATE_MAP = {
 }
 
 class VioletSwitch(CoordinatorEntity, SwitchEntity):
-    def __init__(self, coordinator, key, name, icon):
+    def __init__(self, coordinator, key, name, icon, timeout=None, retry_attempts=None):
         super().__init__(coordinator)
         self._key = key
         self._icon = icon
@@ -35,10 +34,10 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
         self.username = coordinator.username
         self.password = coordinator.password
         self.session = coordinator.session
-        self.timeout = coordinator.timeout if hasattr(coordinator, 'timeout') else 10
+        self.timeout = timeout or 10
+        self.retry_attempts = retry_attempts or 3
         self.auto_reset_time = None
 
-        # Check for credentials and IP address
         if not all([self.ip_address, self.username, self.password]):
             _LOGGER.error(f"Missing credentials or IP address for switch {self._key}")
         else:
@@ -59,12 +58,11 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
         return self._get_switch_state() == 0
 
     async def _send_command(self, action, duration=0, last_value=0):
-        """Sends the control command to the API and handles retries."""
+        """Sends the control command to the API and handles retries with exponential backoff."""
         url = f"http://{self.ip_address}{API_SET_FUNCTION_MANUALLY}?{self._key},{action},{duration},{last_value}"
         auth = aiohttp.BasicAuth(self.username, self.password)
 
-        retry_attempts = 3
-        for attempt in range(retry_attempts):
+        for attempt in range(self.retry_attempts):
             try:
                 async with async_timeout.timeout(self.timeout):
                     async with self.session.get(url, auth=auth) as response:
@@ -83,9 +81,12 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
             except aiohttp.ClientError as err:
                 _LOGGER.error(f"Client error when sending {action} command to {self._key}: {err}")
             except asyncio.TimeoutError:
-                _LOGGER.error(f"Timeout sending {action} command to {self._key}, attempt {attempt + 1} of {retry_attempts}")
+                _LOGGER.error(f"Timeout sending {action} command to {self._key}, attempt {attempt + 1} of {self.retry_attempts}")
             except Exception as err:
                 _LOGGER.error(f"Unexpected error when sending {action} command to {self._key}: {err}")
+
+            # Exponential backoff before retrying
+            await asyncio.sleep(2 ** attempt)
 
     async def async_turn_on(self, **kwargs):
         """Turn the switch on."""
@@ -118,17 +119,14 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
     @property
     def icon(self):
         """Return the icon depending on the switch's state."""
-        if self._key == "PUMP":
-            return "mdi:water-pump" if self.is_on else "mdi:water-pump-off"
-        elif self._key == "LIGHT":
-            return "mdi:lightbulb-on" if self.is_on else "mdi:lightbulb"
-        elif self._key == "ECO":
-            return "mdi:leaf" if self.is_on else "mdi:leaf-off"
-        elif self._key in ["DOS_1_CL", "DOS_4_PHM"]:
-            return "mdi:flask" if self.is_on else "mdi:flask-outline"
-        elif "EXT" in self._key:
-            return "mdi:power-socket" if self.is_on else "mdi:power-socket-off"
-        return self._icon
+        icon_map = {
+            "PUMP": "mdi:water-pump" if self.is_on else "mdi:water-pump-off",
+            "LIGHT": "mdi:lightbulb-on" if self.is_on else "mdi:lightbulb",
+            "ECO": "mdi:leaf" if self.is_on else "mdi:leaf-off",
+            "DOS_1_CL": "mdi:flask" if self.is_on else "mdi:flask-outline",
+            "DOS_4_PHM": "mdi:flask" if self.is_on else "mdi:flask-outline",
+        }
+        return icon_map.get(self._key, self._icon)
 
     @property
     def extra_state_attributes(self):
@@ -159,7 +157,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
     available_switches = [switch for switch in SWITCHES if switch["key"] in coordinator.data]
     switches = [
-        VioletSwitch(coordinator, switch["key"], switch["name"], switch["icon"])
+        VioletSwitch(coordinator, switch["key"], switch["name"], switch["icon"], timeout=10, retry_attempts=3)
         for switch in available_switches
     ]
     async_add_entities(switches)
