@@ -25,9 +25,11 @@ jobs:
 
       - name: "Adjust version number"
         shell: "bash"
+        env:
+          VERSION: "${{ github.event.release.tag_name || github.ref_name }}"
         run: |
-          yq -i -o json '.version="${{ github.event.release.tag_name || github.ref_name }}"' \
-            "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
+          echo "Setting version to: $VERSION"
+          yq -i '.version = env(VERSION)' "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
 
       - name: "Debug manifest.json"
         run: |
@@ -59,5 +61,5 @@ jobs:
       - name: "Upload the ZIP file to the release"
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
-          files: ${{ github.workspace }}/custom_components/violet_pool_controller/violet_pool_controller.zip
+          files: "${{ github.workspace }}/custom_components/violet_pool_controller/violet_pool_controller.zip"
           prerelease: true
