@@ -26,9 +26,12 @@ jobs:
       - name: "Adjust version number"
         shell: "bash"
         run: |
-          echo "Updating version number..."
           yq -i -o json '.version="${{ github.event.release.tag_name || github.ref_name }}"' \
             "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
+
+      - name: "Debug manifest.json"
+        run: |
+          cat "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
 
       - name: "List directory before zipping"
         run: |
@@ -40,7 +43,11 @@ jobs:
           cd "${{ github.workspace }}/custom_components/violet_pool_controller"
           zip violet_pool_controller.zip -r ./
 
-      - name: "Check ZIP file existence"
+      - name: "Check ZIP file details"
+        run: |
+          ls -lh "${{ github.workspace }}/custom_components/violet_pool_controller/violet_pool_controller.zip"
+
+      - name: "Validate ZIP file existence"
         run: |
           if [ -f "${{ github.workspace }}/custom_components/violet_pool_controller/violet_pool_controller.zip" ]; then
             echo "ZIP file exists."
@@ -50,6 +57,7 @@ jobs:
           fi
 
       - name: "Upload the ZIP file to the release"
-        uses: "softprops/action-gh-release@v2.2.0"
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
           files: ${{ github.workspace }}/custom_components/violet_pool_controller/violet_pool_controller.zip
+          prerelease: true
