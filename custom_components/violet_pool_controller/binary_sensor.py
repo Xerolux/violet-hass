@@ -76,4 +76,3 @@ BINARY_SENSORS = [
     {"name": "Heater State", "key": "HEATER", "icon": "mdi:radiator"},
     {"name": "Light State", "key": "LIGHT", "icon": "mdi:lightbulb"},
 ]
-
