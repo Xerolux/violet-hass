@@ -2,18 +2,85 @@
     "config": {
         "step": {
             "user": {
-                "title": "Benutzerkonfiguration",
-                "description": "Wenn Sie Hilfe bei der Konfiguration benötigen, schauen Sie hier: [Violet Hass Integration](https://github.com/Xerolux/violet-hass)",
+                "title": "Violet Pool Controller konfigurieren",
+                "description": "Geben Sie die Verbindungsdetails für Ihren Violet Pool Controller ein. Wenn Sie Hilfe bei der Konfiguration benötigen, schauen Sie hier: [Violet Hass Integration](https://github.com/Xerolux/violet-hass)",
                 "data": {
+                    "api_url": "IP-Adresse oder Hostname",
                     "username": "Benutzername",
-                    "password": "Passwort"
+                    "password": "Passwort",
+                    "polling_interval": "Abrufintervall (Sekunden)",
+                    "use_ssl": "SSL verwenden",
+                    "device_name": "Gerätename",
+                    "device_id": "Geräte-ID",
+                    "retry_attempts": "Wiederholungsversuche"
                 }
             }
         },
         "error": {
             "invalid_auth": "Benutzername oder Passwort ist falsch.",
             "cannot_connect": "Verbindung zum Server nicht möglich.",
-            "unknown": "Ein unbekannter Fehler ist aufgetreten."
+            "unknown": "Ein unbekannter Fehler ist aufgetreten.",
+            "Firmware version not found. Please check your device configuration.": "Firmware-Version nicht gefunden. Bitte überprüfen Sie Ihre Gerätekonfiguration.",
+            "Invalid firmware version format. Please update your device firmware." : "Ungültiges Firmware-Versionsformat. Bitte aktualisieren Sie Ihre Geräte-Firmware."
+
+        }
+    },
+    "options": {
+        "step": {
+            "user": {
+                "title": "Violet Pool Controller Optionen",
+                "description": "Ändern Sie die Einstellungen für Ihren Violet Pool Controller.",
+                "data": {
+                    "username": "Benutzername",
+                    "password": "Passwort",
+                    "polling_interval": "Abrufintervall (Sekunden)",
+                    "use_ssl": "SSL verwenden",
+                    "retry_attempts": "Wiederholungsversuche"
+                }
+            }
+        }
+    },
+    "entity": {
+        "switch": {
+            "violet_pump": {
+                "state": {
+                    "on": "Ein",
+                    "off": "Aus"
+                }
+            },
+            "violet_light": {
+                "state":{
+                    "on": "Ein",
+                    "off": "Aus"
+                }
+            }
+
+        },
+        "binary_sensor":{
+            "violet_pump":{
+                "state":{
+                    "on": "Ein",
+                    "off": "Aus"
+                }
+            },
+            "violet_solar":{
+                "state":{
+                    "on": "Ein",
+                    "off": "Aus"
+                }
+            },
+            "violet_heater":{
+                "state":{
+                    "on": "Ein",
+                    "off": "Aus"
+                }
+            },
+           "violet_light":{
+                "state":{
+                    "on": "Ein",
+                    "off": "Aus"
+                }
+            }
         }
     },
     "services": {
@@ -32,6 +99,34 @@
                 "last_value": {
                     "name": "Letzter Wert",
                     "description": "Der letzte Wert, der für den Schalter eingestellt werden soll."
+                }
+            }
+        },
+        "turn_on":{
+            "name": "Einschalten",
+            "description": "Schaltet den Schalter ein, optional mit einer Dauer.",
+             "fields": {
+                "entity_id": {
+                    "name": "Entitäts-ID",
+                    "description": "Die ID der zu steuernden Entität."
+                },
+                "duration": {
+                    "name": "Dauer",
+                    "description": "Die Einschaltdauer in Sekunden."
+                },
+                "last_value": {
+                    "name": "Letzter Wert",
+                    "description": "Der letzte Wert vor dem Ausschalten."
+                }
+            }
+        },
+        "turn_off":{
+            "name": "Ausschalten",
+            "description": "Schaltet den Schalter aus.",
+            "fields":{
+                "entity_id":{
+                    "name": "Entitäts-ID",
+                    "description": "Die ID der zu steuernden Entität."
                 }
             }
         }
