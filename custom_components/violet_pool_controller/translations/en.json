@@ -2,24 +2,91 @@
     "config": {
         "step": {
             "user": {
-                "title": "User Configuration",
-                "description": "If you need help with configuration, check here: [Violet Hass Integration](https://github.com/Xerolux/violet-hass)",
+                "title": "Configure Violet Pool Controller",
+                "description": "Enter the connection details for your Violet Pool Controller. If you need help with configuration, look here: [Violet Hass Integration](https://github.com/Xerolux/violet-hass)",
                 "data": {
+                    "api_url": "IP Address or Hostname",
                     "username": "Username",
-                    "password": "Password"
+                    "password": "Password",
+                    "polling_interval": "Polling Interval (seconds)",
+                    "use_ssl": "Use SSL",
+                    "device_name": "Device Name",
+                    "device_id": "Device ID",
+                    "retry_attempts": "Retry Attempts"
                 }
             }
         },
         "error": {
-            "invalid_auth": "Invalid username or password.",
-            "cannot_connect": "Cannot connect to the server.",
-            "unknown": "An unknown error occurred."
+            "invalid_auth": "Incorrect username or password.",
+            "cannot_connect": "Unable to connect to the server.",
+            "unknown": "An unknown error occurred.",
+            "Firmware version not found. Please check your device configuration.": "Firmware version not found. Please check your device configuration.",
+            "Invalid firmware version format. Please update your device firmware.": "Invalid firmware version format. Please update your device firmware."
+
+        }
+    },
+    "options": {
+        "step": {
+            "user": {
+                "title": "Violet Pool Controller Options",
+                "description": "Change the settings for your Violet Pool Controller.",
+                "data": {
+                    "username": "Username",
+                    "password": "Password",
+                    "polling_interval": "Polling Interval (seconds)",
+                    "use_ssl": "Use SSL",
+                    "retry_attempts": "Retry Attempts"
+                }
+            }
+        }
+    },
+    "entity": {
+        "switch": {
+            "violet_pump": {
+                "state": {
+                    "on": "On",
+                    "off": "Off"
+                }
+            },
+            "violet_light": {
+                "state":{
+                    "on": "On",
+                    "off": "Off"
+                }
+            }
+
+        },
+        "binary_sensor":{
+            "violet_pump":{
+                "state":{
+                    "on": "On",
+                    "off": "Off"
+                }
+            },
+            "violet_solar":{
+                "state":{
+                    "on": "On",
+                    "off": "Off"
+                }
+            },
+            "violet_heater":{
+                "state":{
+                    "on": "On",
+                    "off": "Off"
+                }
+            },
+           "violet_light":{
+                "state":{
+                    "on": "On",
+                    "off": "Off"
+                }
+            }
         }
     },
     "services": {
         "turn_auto": {
             "name": "Set to Auto Mode",
-            "description": "Sets the switch to Auto mode with custom delay and last value.",
+            "description": "Sets the switch to auto mode with custom delay and last value.",
             "fields": {
                 "entity_id": {
                     "name": "Entity ID",
@@ -27,11 +94,39 @@
                 },
                 "auto_delay": {
                     "name": "Auto Delay",
-                    "description": "The delay time for the auto mode."
+                    "description": "The delay time for auto mode."
                 },
                 "last_value": {
                     "name": "Last Value",
                     "description": "The last value to set for the switch."
+                }
+            }
+        },
+        "turn_on":{
+            "name": "Turn On",
+            "description": "Turns the switch on, optionally with a duration.",
+             "fields": {
+                "entity_id": {
+                    "name": "Entity ID",
+                    "description": "The ID of the entity to control."
+                },
+                "duration": {
+                    "name": "Duration",
+                    "description": "The duration to turn on for in seconds."
+                },
+                "last_value": {
+                    "name": "Last Value",
+                    "description": "The last value before turning off."
+                }
+            }
+        },
+        "turn_off":{
+            "name": "Turn Off",
+            "description": "Turns the switch off.",
+            "fields":{
+                "entity_id":{
+                    "name": "Entity ID",
+                    "description": "The ID of the entity to control."
                 }
             }
         }
