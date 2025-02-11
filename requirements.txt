@@ -1,3 +1,2 @@
-requests==2.32.3
-pyserial==3.5
+
 
