@@ -1,7 +1,7 @@
 import logging
 from homeassistant.components.sensor import SensorEntity, SensorStateClass, SensorDeviceClass
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from .const import DOMAIN
+from .const import DOMAIN, CONF_DEVICE_NAME, CONF_API_URL
 from homeassistant.const import (
     UnitOfTemperature,
     UnitOfTime,
@@ -26,6 +26,9 @@ NO_UNIT_SENSORS = [
     "PUMP_LAST_OFF",
     "SW_VERSION",  # Software versions don't need units
     "SW_VERSION_CARRIER", # Software versions don't need units
+    "SYSTEM_carrier_alive_count",  # No unit for a count
+    "SYSTEM_ext1module_alive_count",  # No unit for a count
+    "SYSTEM_dosagemodule_alive_count",  # No unit for a count
 ]
 
 class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
@@ -45,11 +48,11 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
         # Set device info. Crucially use entry_id.
         self._attr_device_info = {
             "identifiers": {(DOMAIN, config_entry.entry_id)},
-            "name": f"{config_entry.data.get('device_name', 'Violet Pool Controller')} ({config_entry.data.get('host', 'Unknown IP')})",  # Include IP
+            "name": f"{config_entry.data.get(CONF_DEVICE_NAME, 'Violet Pool Controller')} ({config_entry.data.get(CONF_API_URL, 'Unknown IP')})",  # Include IP
             "manufacturer": "PoolDigital GmbH & Co. KG",
             "model": "Violet Model X",  # Consider making this dynamic
             "sw_version": self.coordinator.data.get('fw', 'Unknown'),  # Use consistent key
-            "configuration_url": f"http://{config_entry.data.get('host', 'Unknown IP')}",
+            "configuration_url": f"http://{config_entry.data.get(CONF_API_URL, 'Unknown IP')}",
         }
 
 
@@ -87,11 +90,12 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
     def state_class(self):
         """Return the state class of the sensor."""
         return self._get_state_class_for_key(self._key)
-    
+
     @property
     def device_class(self):
         """Return the device class of the sensor."""
         return self._get_device_class_for_key(self._key)
+
 
     def _get_sensor_state(self):
         """Helper method to retrieve the current sensor state from the coordinator."""
@@ -163,9 +167,7 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
             "BACKWASH_RUNTIME": UnitOfTime.SECONDS,
             "OMNI_DC0_RUNTIME": UnitOfTime.SECONDS,
             "OMNI_DC1_RUNTIME": UnitOfTime.SECONDS,
-            "SYSTEM_carrier_alive_count": None,  # No unit for a count
-            "SYSTEM_ext1module_alive_count": None,  # No unit for a count
-            "SYSTEM_dosagemodule_alive_count": None,  # No unit for a count
+
 
         }
         return units.get(key, None)
@@ -268,6 +270,4 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
             "orp_value_min": SensorStateClass.MEASUREMENT,
             "orp_value_max": SensorStateClass.MEASUREMENT,
             "pot_value_min": SensorStateClass.MEASUREMENT,
-            "pot_value_max": SensorStateClass.MEASUREMENT,
-        }
-        return state_classes.get(key
+            "pot_value_max": SensorStateClass.MEASUREMENT
