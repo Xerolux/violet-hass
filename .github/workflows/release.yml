@@ -31,14 +31,11 @@ jobs:
           VERSION: "${{ github.event.release.tag_name || github.ref_name }}"
         run: |
           echo "Setting version to: $VERSION"
-          
           # Speichere die Version in der .version-Datei im richtigen Verzeichnis
           echo "$VERSION" > "${{ github.workspace }}/custom_components/violet_pool_controller/.version"
-          
           # Debugging: Zeige den Inhalt der .version-Datei
           echo "Contents of .version file:"
           cat "${{ github.workspace }}/custom_components/violet_pool_controller/.version"
-          
           # Exportiere VERSION für nachfolgende Schritte
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
@@ -64,6 +61,15 @@ jobs:
           branch: main
           commit_message: "chore: update .version file to ${{ env.VERSION }}"
           file_pattern: "custom_components/violet_pool_controller/.version"
+
+      - name: "Create git tag from .version"
+        run: |
+          VERSION=$(cat custom_components/violet_pool_controller/.version)
+          echo "Creating tag: $VERSION"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$VERSION" -m "Release $VERSION"
+          git push origin "$VERSION"
 
       - name: "List directory before zipping"
         run: |
