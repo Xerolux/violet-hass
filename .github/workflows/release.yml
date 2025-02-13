@@ -23,14 +23,34 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y yq
 
+      - name: "Determine Version"
+        shell: "bash"
+        env:
+          VERSION: "${{ github.event.release.tag_name || github.ref_name }}"
+        run: |
+          echo "Setting version to: $VERSION"
+          
+          # Speichere die Version in der Datei .version im richtigen Verzeichnis
+          echo "$VERSION" > "${{ github.workspace }}/custom_components/violet_pool_controller/.version"
+          
+          # Debugging
+          echo "Contents of .version file:"
+          cat "${{ github.workspace }}/custom_components/violet_pool_controller/.version"
+
       - name: "Adjust version number in manifest.json"
         run: |
-          yq -i -o=json '.version = "${{ github.event.release.tag_name || github.ref_name }}"' \
-          "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
+          yq -i -o=json -y '.version = env(VERSION)' "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
 
       - name: "Debug manifest.json"
         run: |
           cat "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
+
+      - name: "Commit and Push .version file"
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          branch: main
+          commit_message: "chore: update .version file to ${{ env.VERSION }}"
+          file_pattern: "custom_components/violet_pool_controller/.version"
 
       - name: "List directory before zipping"
         run: |
