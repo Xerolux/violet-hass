@@ -94,3 +94,4 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           files: "${{ github.workspace }}/custom_components/violet_pool_controller.zip"
           prerelease: ${{ github.event.release.prerelease || 'false' }}
+          automatic_release_tag: ${{ github.event.release.tag_name || github.ref_name }}
