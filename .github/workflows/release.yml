@@ -30,7 +30,7 @@ jobs:
           echo "Setting version to: $VERSION"
 
           # Update manifest.json
-          yq -i '.version = env(VERSION)' "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
+          yq -i -o=json '.version = env(VERSION)' "/home/runner/work/violet-hass/violet-hass/custom_components/violet_pool_controller/manifest.json"
 
           # Update const.py mit sed
           sed -i "s/^INTEGRATION_VERSION\s*=.*/INTEGRATION_VERSION = \"$VERSION\"/" "${{ github.workspace }}/custom_components/violet_pool_controller/const.py"
