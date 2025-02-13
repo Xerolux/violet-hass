@@ -23,37 +23,10 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y yq
 
-      - name: "Determine Version & Pre-Release Status"
-        id: version_check
-        shell: "bash"
-        env:
-          VERSION: "${{ github.event.release.tag_name || github.ref_name }}"
-        run: |
-          echo "Original version: $VERSION"
-          
-          # Falls VERSION mit 'V' beginnt, in 'v' umwandeln
-          VERSION=$(echo "$VERSION" | sed -E 's/^V/v/')
-          
-          # Falls VERSION kein 'v' hat, füge es hinzu
-          if [[ ! "$VERSION" =~ ^v ]]; then
-            VERSION="v$VERSION"
-          fi
-
-          echo "Final Version: $VERSION"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-          # Prüfe, ob es sich um ein Pre-Release handelt
-          if [[ "$VERSION" =~ - ]]; then
-            echo "Detected Pre-Release."
-            echo "PRERELEASE=true" >> $GITHUB_ENV
-          else
-            echo "Detected Regular Release."
-            echo "PRERELEASE=false" >> $GITHUB_ENV
-          fi
-
       - name: "Adjust version number in manifest.json"
         run: |
-          yq -i -o=json '.version = env(VERSION)' "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
+          yq -i -o=json '.version = "${{ github.event.release.tag_name || github.ref_name }}"' \
+          "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
 
       - name: "Debug manifest.json"
         run: |
@@ -86,4 +59,4 @@ jobs:
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           files: "${{ github.workspace }}/custom_components/violet_pool_controller.zip"
-          prerelease: ${{ env.PRERELEASE }}
+          prerelease: ${{ github.event.release.prerelease }}
