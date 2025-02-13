@@ -271,3 +271,4 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
             "orp_value_max": SensorStateClass.MEASUREMENT,
             "pot_value_min": SensorStateClass.MEASUREMENT,
             "pot_value_max": SensorStateClass.MEASUREMENT
+        }
