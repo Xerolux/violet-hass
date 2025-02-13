@@ -3,41 +3,39 @@ title = "Violet Pool Controller Documentation"
 author = "Xerolux"
 description = "Comprehensive documentation for the Violet Pool Controller integration and configuration."
 multilingual = false
-src = "src"  # Specify the source directory.  This is VERY important.
+src = "src"  # VERY IMPORTANT: Tell mdbook where your source files are.
 
 [build]
-build-dir = "book"  # Use the default 'book' directory.  This is CRUCIAL.
+build-dir = "book"  # Use the default 'book' directory.
 create-missing = true
 use-default-preprocessors = true
 
 [output.html]
-theme = "light"
-default-theme = "light"
+# theme = "light"  <-- REMOVE THIS LINE. Use default theme.
+# default-theme = "light" <-- REMOVE THIS LINE.  Not needed.
 no-section-label = false
-additional-css = ["custom.css"]  # Option to add custom CSS for styling
+additional-css = ["custom.css"]  # Keep this if you HAVE a custom.css
 additional-js = []
-# google-analytics = ["UA-XXXXXX-1"]  # Replace with your GA ID if needed - commented out
+# google-analytics = ["UA-XXXXXX-1"] # Optional: Add your GA tracking ID
 favicons = [
     { rel = "icon", href = "favicon.ico" }
 ]
-# copy-to-root = ["favicon.ico"] # This is usually not needed, place favicon.ico in src/
 git-repository-url = "https://github.com/Xerolux/violet-hass" # Add a link to your repository
 git-repository-icon = "fa-github"  #  Use a FontAwesome icon
 
 [output.html.fold]
-enable = true  # Allows sections to be foldable for easier navigation
+enable = true
 
 [output.html.search]
-enable = true  # Enable search functionality in the generated documentation
-limit-results = 30  #  Limit search results (optional)
-use-boolean-and = true  # Use AND logic for search terms (optional)
+enable = true
+limit-results = 30
+use-boolean-and = true
 
-# Custom settings for code blocks (optional, but useful for technical documentation)
 [output.html.code]
-copy-button = true  # Adds a copy button to code blocks for ease of use
+copy-button = true
 
 [output.linkcheck]
-warning-is-error = true # Treat warnings as errors
+warning-is-error = true
 
-[preprocessor.index] # Added: Create an index page
+[preprocessor.index]
 command = "mdbook-index"
