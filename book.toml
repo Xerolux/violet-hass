@@ -3,9 +3,10 @@ title = "Violet Pool Controller Documentation"
 author = "Xerolux"
 description = "Comprehensive documentation for the Violet Pool Controller integration and configuration."
 multilingual = false
+src = "src"  # Specify the source directory.  This is VERY important.
 
 [build]
-build-dir = "docs"  # Adjusted for typical documentation folder
+build-dir = "book"  # Use the default 'book' directory.  This is CRUCIAL.
 create-missing = true
 use-default-preprocessors = true
 
@@ -15,19 +16,28 @@ default-theme = "light"
 no-section-label = false
 additional-css = ["custom.css"]  # Option to add custom CSS for styling
 additional-js = []
-google-analytics = ["UA-XXXXXX-1"]  # Replace with your GA ID if needed
+# google-analytics = ["UA-XXXXXX-1"]  # Replace with your GA ID if needed - commented out
 favicons = [
     { rel = "icon", href = "favicon.ico" }
 ]
-copy-to-root = ["favicon.ico"]
-default-settings = { preferred-dark-theme = "dark", preferred-light-theme = "light" }
+# copy-to-root = ["favicon.ico"] # This is usually not needed, place favicon.ico in src/
+git-repository-url = "https://github.com/Xerolux/violet-hass" # Add a link to your repository
+git-repository-icon = "fa-github"  #  Use a FontAwesome icon
 
 [output.html.fold]
 enable = true  # Allows sections to be foldable for easier navigation
 
 [output.html.search]
 enable = true  # Enable search functionality in the generated documentation
+limit-results = 30  #  Limit search results (optional)
+use-boolean-and = true  # Use AND logic for search terms (optional)
 
 # Custom settings for code blocks (optional, but useful for technical documentation)
 [output.html.code]
 copy-button = true  # Adds a copy button to code blocks for ease of use
+
+[output.linkcheck]
+warning-is-error = true # Treat warnings as errors
+
+[preprocessor.index] # Added: Create an index page
+command = "mdbook-index"
