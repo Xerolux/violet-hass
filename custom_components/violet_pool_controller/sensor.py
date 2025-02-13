@@ -1,6 +1,12 @@
 import logging
-from homeassistant.components.sensor import SensorEntity, SensorStateClass, SensorDeviceClass
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from typing import Any, Optional
+from homeassistant.components.sensor import (
+    SensorEntity,
+    SensorStateClass,
+    SensorDeviceClass,
+)
+from homeassistant.helpers.update_coordinator import CoordinatorEntity, DataUpdateCoordinator
+from homeassistant.config_entries import ConfigEntry
 from .const import DOMAIN, CONF_DEVICE_NAME, CONF_API_URL
 from homeassistant.const import (
     UnitOfTemperature,
@@ -15,7 +21,7 @@ from homeassistant.const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-# List of sensors that should not have a unit of measurement
+# Liste der Sensoren, die keine Einheit benötigen
 NO_UNIT_SENSORS = [
     "SOLAR_LAST_OFF",
     "HEATER_LAST_ON",
@@ -24,84 +30,92 @@ NO_UNIT_SENSORS = [
     "BACKWASH_LAST_OFF",
     "PUMP_LAST_ON",
     "PUMP_LAST_OFF",
-    "SW_VERSION",  # Software versions don't need units
-    "SW_VERSION_CARRIER", # Software versions don't need units
-    "SYSTEM_carrier_alive_count",  # No unit for a count
-    "SYSTEM_ext1module_alive_count",  # No unit for a count
-    "SYSTEM_dosagemodule_alive_count",  # No unit for a count
+    "SW_VERSION",  # Software-Versionen benötigen keine Einheit
+    "SW_VERSION_CARRIER",
+    "SYSTEM_carrier_alive_count",
+    "SYSTEM_ext1module_alive_count",
+    "SYSTEM_dosagemodule_alive_count",
 ]
+
 
 class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
     """Representation of a Violet Device Sensor."""
 
-    def __init__(self, coordinator, key, icon, config_entry):
+    def __init__(
+        self,
+        coordinator: DataUpdateCoordinator,
+        key: str,
+        icon: str,
+        config_entry: ConfigEntry,
+    ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator)
-        self._key = key
-        self._icon = icon
-        self._config_entry = config_entry
-        self._attr_name = f"Violet {key}"  # More descriptive name
-        self._attr_unique_id = f"{config_entry.entry_id}_{key}"  # Use entry_id for uniqueness
-        self._state = None  # Cache the sensor state
-        self._has_logged_none_state = False  # Avoid logging multiple warnings for None states
+        self._key: str = key
+        self._icon: str = icon
+        self._config_entry: ConfigEntry = config_entry
+        self._attr_name: str = f"Violet {key}"  # Mehr beschreibender Name
+        self._attr_unique_id: str = f"{config_entry.entry_id}_{key}"  # Eindeutige ID mit entry_id
+        self._state: Any = None  # Cache für den Sensorzustand
+        self._has_logged_none_state: bool = False  # Verhindert mehrfaches Loggen, wenn state None ist
 
-        # Set device info. Crucially use entry_id.
+        # Geräteinformationen setzen – entry_id als eindeutiger Bezeichner
         self._attr_device_info = {
             "identifiers": {(DOMAIN, config_entry.entry_id)},
-            "name": f"{config_entry.data.get(CONF_DEVICE_NAME, 'Violet Pool Controller')} ({config_entry.data.get(CONF_API_URL, 'Unknown IP')})",  # Include IP
+            "name": (
+                f"{config_entry.data.get(CONF_DEVICE_NAME, 'Violet Pool Controller')} "
+                f"({config_entry.data.get(CONF_API_URL, 'Unknown IP')})"
+            ),
             "manufacturer": "PoolDigital GmbH & Co. KG",
-            "model": "Violet Model X",  # Consider making this dynamic
-            "sw_version": self.coordinator.data.get('fw', 'Unknown'),  # Use consistent key
+            "model": "Violet Model X",  # Falls möglich dynamisch abrufbar machen
+            "sw_version": self.coordinator.data.get("fw", "Unknown"),
             "configuration_url": f"http://{config_entry.data.get(CONF_API_URL, 'Unknown IP')}",
         }
 
-
     @property
-    def state(self):
+    def state(self) -> Any:
         """Return the state of the sensor."""
         self._state = self._get_sensor_state()
         if self._state is None and not self._has_logged_none_state:
-            _LOGGER.warning(f"Sensor {self._key} returned None as its state.")
+            _LOGGER.warning("Sensor %s returned None as its state.", self._key)
             self._has_logged_none_state = True
         return self._state
 
     @property
-    def icon(self):
+    def icon(self) -> str:
         """Return the dynamic icon depending on the sensor state, if applicable."""
         if self._key == "pump_rs485_pwr":
-            return "mdi:power" if self.state else "mdi:power-off"  # Example dynamic icon
+            return "mdi:power" if self.state else "mdi:power-off"
         if self._key.startswith("onewire"):
             return "mdi:thermometer" if self.state is not None else "mdi:thermometer-off"
-        return self._icon  # Default icon
+        return self._icon
 
     @property
-    def available(self):
+    def available(self) -> bool:
         """Return True if entity is available."""
         return self.coordinator.last_update_success and self._key in self.coordinator.data
 
     @property
-    def unit_of_measurement(self):
+    def unit_of_measurement(self) -> Optional[str]:
         """Return the unit of measurement."""
         if self._key in NO_UNIT_SENSORS:
-            return None  # These sensors should not have a unit of measurement
+            return None
         return self._get_unit_for_key(self._key)
 
     @property
-    def state_class(self):
+    def state_class(self) -> Optional[str]:
         """Return the state class of the sensor."""
         return self._get_state_class_for_key(self._key)
 
     @property
-    def device_class(self):
+    def device_class(self) -> Optional[str]:
         """Return the device class of the sensor."""
         return self._get_device_class_for_key(self._key)
 
-
-    def _get_sensor_state(self):
+    def _get_sensor_state(self) -> Any:
         """Helper method to retrieve the current sensor state from the coordinator."""
         return self.coordinator.data.get(self._key)
 
-    def _get_unit_for_key(self, key):
+    def _get_unit_for_key(self, key: str) -> Optional[str]:
         """Helper method to retrieve the unit of measurement based on the sensor key."""
         units = {
             "IMP1_value": "cm/s",
@@ -110,7 +124,7 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
             "SYSTEM_cpu_temperature": UnitOfTemperature.CELSIUS,
             "SYSTEM_carrier_cpu_temperature": UnitOfTemperature.CELSIUS,
             "SYSTEM_dosagemodule_cpu_temperature": UnitOfTemperature.CELSIUS,
-            "SYSTEM_memoryusage": "MB",  # Not a standard HA unit, but still valid
+            "SYSTEM_memoryusage": "MB",  # Nicht standard, aber gültig
             "onewire1_value": UnitOfTemperature.CELSIUS,
             "onewire2_value": UnitOfTemperature.CELSIUS,
             "onewire3_value": UnitOfTemperature.CELSIUS,
@@ -124,18 +138,18 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
             "onewire11_value": UnitOfTemperature.CELSIUS,
             "onewire12_value": UnitOfTemperature.CELSIUS,
             "ADC1_value": UnitOfPressure.BAR,
-            "ADC2_value": "cm", # Not a standard HA unit
-            "ADC3_value": "m³",  # Not a standard HA unit, consider UnitOfVolume.CUBIC_METERS
-            "ADC4_value": "V", # Not a standard HA unit
-            "ADC5_value": "V", # Not a standard HA unit
-            "ADC6_value": "V", # Not a standard HA unit
-            "pH_value": "pH",  # Not a standard HA unit
-            "orp_value": "mV",  # Not a standard HA unit, millivolts
+            "ADC2_value": "cm",  # Nicht standard
+            "ADC3_value": "m³",  # Nicht standard; alternativ UnitOfVolume.CUBIC_METERS
+            "ADC4_value": "V",   # Nicht standard
+            "ADC5_value": "V",   # Nicht standard
+            "ADC6_value": "V",   # Nicht standard
+            "pH_value": "pH",    # Nicht standard
+            "orp_value": "mV",   # Nicht standard, Millivolt
             "pot_value": CONCENTRATION_MILLIGRAMS_PER_LITER,
-            "PUMP_RPM_0": "RPM", # Not a standard HA unit
-            "PUMP_RPM_1": "RPM", # Not a standard HA unit
-            "PUMP_RPM_2": "RPM", # Not a standard HA unit
-            "PUMP_RPM_3": "RPM", # Not a standard HA unit
+            "PUMP_RPM_0": "RPM",  # Nicht standard
+            "PUMP_RPM_1": "RPM",  # Nicht standard
+            "PUMP_RPM_2": "RPM",  # Nicht standard
+            "PUMP_RPM_3": "RPM",  # Nicht standard
             "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": UnitOfVolume.MILLILITERS,
             "DOS_1_CL_TOTAL_CAN_AMOUNT_ML": UnitOfVolume.MILLILITERS,
             "DOS_2_ELO_DAILY_DOSING_AMOUNT_ML": UnitOfVolume.MILLILITERS,
@@ -144,7 +158,7 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
             "DOS_4_PHM_TOTAL_CAN_AMOUNT_ML": UnitOfVolume.MILLILITERS,
             "CPU_TEMP": UnitOfTemperature.CELSIUS,
             "CPU_TEMP_CARRIER": UnitOfTemperature.CELSIUS,
-            "SYSTEM_MEMORY": "MB",  # Not a standard HA unit
+            "SYSTEM_MEMORY": "MB",  # Nicht standard
             "LOAD_AVG": PERCENTAGE,
             "WATER_TEMPERATURE": UnitOfTemperature.CELSIUS,
             "AIR_TEMPERATURE": UnitOfTemperature.CELSIUS,
@@ -153,12 +167,12 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
             "FILTER_PRESSURE": UnitOfPressure.BAR,
             "HEATER_TEMPERATURE": UnitOfTemperature.CELSIUS,
             "COVER_POSITION": PERCENTAGE,
-            "UV_INTENSITY": "W/m²",  # Not a standard HA unit, but valid.
+            "UV_INTENSITY": "W/m²",  # Nicht standard, aber gültig
             "TDS": CONCENTRATION_PARTS_PER_MILLION,
             "CALCIUM_HARDNESS": CONCENTRATION_PARTS_PER_MILLION,
             "ALKALINITY": CONCENTRATION_PARTS_PER_MILLION,
             "SALINITY": CONCENTRATION_PARTS_PER_MILLION,
-            "TURBIDITY": "NTU",   # Not a standard HA unit
+            "TURBIDITY": "NTU",  # Nicht standard
             "CHLORINE_LEVEL": CONCENTRATION_PARTS_PER_MILLION,
             "BROMINE_LEVEL": CONCENTRATION_PARTS_PER_MILLION,
             "PUMP_RUNTIME": UnitOfTime.SECONDS,
@@ -167,12 +181,10 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
             "BACKWASH_RUNTIME": UnitOfTime.SECONDS,
             "OMNI_DC0_RUNTIME": UnitOfTime.SECONDS,
             "OMNI_DC1_RUNTIME": UnitOfTime.SECONDS,
-
-
         }
-        return units.get(key, None)
+        return units.get(key)
 
-    def _get_state_class_for_key(self, key):
+    def _get_state_class_for_key(self, key: str) -> Optional[str]:
         """Helper method to retrieve the state class based on the sensor key."""
         state_classes = {
             "IMP1_value": SensorStateClass.MEASUREMENT,
@@ -238,7 +250,7 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
             "BACKWASH_RUNTIME": SensorStateClass.TOTAL_INCREASING,
             "OMNI_DC0_RUNTIME": SensorStateClass.TOTAL_INCREASING,
             "OMNI_DC1_RUNTIME": SensorStateClass.TOTAL_INCREASING,
-            "SYSTEM_carrier_alive_count":  SensorStateClass.TOTAL_INCREASING,
+            "SYSTEM_carrier_alive_count": SensorStateClass.TOTAL_INCREASING,
             "SYSTEM_ext1module_alive_count": SensorStateClass.TOTAL_INCREASING,
             "SYSTEM_dosagemodule_alive_count": SensorStateClass.TOTAL_INCREASING,
             "onewire1_value_min": SensorStateClass.MEASUREMENT,
@@ -270,5 +282,43 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
             "orp_value_min": SensorStateClass.MEASUREMENT,
             "orp_value_max": SensorStateClass.MEASUREMENT,
             "pot_value_min": SensorStateClass.MEASUREMENT,
-            "pot_value_max": SensorStateClass.MEASUREMENT
+            "pot_value_max": SensorStateClass.MEASUREMENT,
         }
+        return state_classes.get(key)
+
+    def _get_device_class_for_key(self, key: str) -> Optional[str]:
+        """Helper method to retrieve the device class based on the sensor key."""
+        device_classes = {
+            "SYSTEM_cpu_temperature": SensorDeviceClass.TEMPERATURE,
+            "SYSTEM_carrier_cpu_temperature": SensorDeviceClass.TEMPERATURE,
+            "SYSTEM_dosagemodule_cpu_temperature": SensorDeviceClass.TEMPERATURE,
+            "onewire1_value": SensorDeviceClass.TEMPERATURE,
+            "onewire2_value": SensorDeviceClass.TEMPERATURE,
+            "onewire3_value": SensorDeviceClass.TEMPERATURE,
+            "onewire4_value": SensorDeviceClass.TEMPERATURE,
+            "onewire5_value": SensorDeviceClass.TEMPERATURE,
+            "onewire6_value": SensorDeviceClass.TEMPERATURE,
+            "onewire7_value": SensorDeviceClass.TEMPERATURE,
+            "onewire8_value": SensorDeviceClass.TEMPERATURE,
+            "onewire9_value": SensorDeviceClass.TEMPERATURE,
+            "onewire10_value": SensorDeviceClass.TEMPERATURE,
+            "onewire11_value": SensorDeviceClass.TEMPERATURE,
+            "onewire12_value": SensorDeviceClass.TEMPERATURE,
+            "CPU_TEMP": SensorDeviceClass.TEMPERATURE,
+            "CPU_TEMP_CARRIER": SensorDeviceClass.TEMPERATURE,
+            "WATER_TEMPERATURE": SensorDeviceClass.TEMPERATURE,
+            "AIR_TEMPERATURE": SensorDeviceClass.TEMPERATURE,
+            "SOLAR_PANEL_TEMPERATURE": SensorDeviceClass.TEMPERATURE,
+            "HEATER_TEMPERATURE": SensorDeviceClass.TEMPERATURE,
+            "HUMIDITY": SensorDeviceClass.HUMIDITY,
+            "FILTER_PRESSURE": SensorDeviceClass.PRESSURE,
+            "UV_INTENSITY": SensorDeviceClass.ILLUMINANCE,
+            "TDS": SensorDeviceClass.CONCENTRATION,
+            "CALCIUM_HARDNESS": SensorDeviceClass.CONCENTRATION,
+            "ALKALINITY": SensorDeviceClass.CONCENTRATION,
+            "SALINITY": SensorDeviceClass.CONCENTRATION,
+            "TURBIDITY": SensorDeviceClass.ILLUMINANCE,
+            "CHLORINE_LEVEL": SensorDeviceClass.CONCENTRATION,
+            "BROMINE_LEVEL": SensorDeviceClass.CONCENTRATION,
+        }
+        return device_classes.get(key)

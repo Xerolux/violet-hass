@@ -1,11 +1,13 @@
 {
   "domain": "violet_pool_controller",
   "name": "Violet Pool Controller",
+  "version": "0.0.9.0",
+  "documentation": "https://github.com/Xerolux/violet-hass",
   "codeowners": ["@xerolux"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/Xerolux/violet-hass",
+  "requirements": [],
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/Xerolux/violet-hass/issues",
-  "version": "0.0.9.0"
+  "homeassistant": "2023.9.0"
 }

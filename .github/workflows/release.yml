@@ -7,8 +7,6 @@ on:
       - prereleased
   workflow_dispatch:
 
-permissions: {}
-
 jobs:
   release:
     name: "Release"
@@ -76,16 +74,19 @@ jobs:
           ls -l "${{ github.workspace }}/custom_components/violet_pool_controller"
 
       - name: "ZIP the integration directory"
+        if: always()
         shell: "bash"
         run: |
           cd "${{ github.workspace }}/custom_components"
           zip -r violet_pool_controller.zip violet_pool_controller
 
       - name: "Check ZIP file details"
+        if: always()
         run: |
           ls -lh "${{ github.workspace }}/custom_components/violet_pool_controller.zip"
 
       - name: "Validate ZIP file existence"
+        if: always()
         run: |
           if [ -f "${{ github.workspace }}/custom_components/violet_pool_controller.zip" ]; then
             echo "ZIP file exists."
@@ -95,6 +96,7 @@ jobs:
           fi
 
       - name: "Upload the ZIP file to the release"
+        if: always()
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
