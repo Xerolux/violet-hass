@@ -4,14 +4,14 @@ on:
   push:
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*  # Matches tags like v1.2.3, v1.2.3-beta, etc.
-  workflow_dispatch: # Allow manual execution
+  workflow_dispatch: # Manuelle Ausführung möglich
 
 jobs:
   release:
     name: "Create Release"
     runs-on: "ubuntu-latest"
     permissions:
-      contents: write  # Required for creating releases and committing to the repo
+      contents: write  # Erforderlich für das Erstellen von Releases und Commits
 
     steps:
       - name: Checkout Code
@@ -19,22 +19,6 @@ jobs:
 
       - name: Install yq
         run: sudo apt-get update && sudo apt-get install -y yq
-
-      - name: Adjust version number
-        shell: "bash"
-        env:
-          VERSION: "${{ github.ref_name }}"
-        run: |
-          # Entferne das "v" aus der Version (falls vorhanden)
-
-          VERSION=$(echo "$VERSION" | sed 's/^v//')
-          echo "Setting version to: $VERSION"
-
-          # Update manifest.json (korrekte JSON-Syntax)
-          yq -i -o=json -y '.version = env(VERSION)' "/home/runner/work/violet-hass/violet-hass/custom_components/violet_pool_controller/manifest.json"
-
-          # Update const.py mit sed
-          sed -i "s/^INTEGRATION_VERSION\s*=.*/INTEGRATION_VERSION = \"$VERSION\"/" "/home/runner/work/violet-hass/violet-hass/custom_components/violet_pool_controller/const.py"
 
       - name: Update CHANGELOG
         id: changelog
@@ -50,13 +34,6 @@ jobs:
           commit_message: 'docs: update CHANGELOG.md for ${{ github.ref_name }} [skip ci]'
           file_pattern: CHANGELOG.md
 
-      - name: Debug manifest.json and const.py
-        run: |
-          echo "=== manifest.json ==="
-          cat "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
-          echo "=== const.py ==="
-          cat "${{ github.workspace }}/custom_components/violet_pool_controller/const.py"
-
       - name: Ensure ZIP creation
         shell: "bash"
         run: |
@@ -70,12 +47,22 @@ jobs:
             exit 1
           fi
 
+      - name: Determine if it's a pre-release
+        id: check_prerelease
+        run: |
+          TAG_NAME="${{ github.ref_name }}"
+          if [[ "$TAG_NAME" =~ - ]]; then
+            echo "PRERELEASE=true" >> $GITHUB_ENV
+          else
+            echo "PRERELEASE=false" >> $GITHUB_ENV
+          fi
+
       - name: "Create GitHub Release"
         uses: "ncipollo/release-action@v1"
         with:
           allowUpdates: true
           draft: false
-          prerelease: false
+          prerelease: ${{ env.PRERELEASE }}  # Automatische Erkennung
           makeLatest: true
           name: ${{ github.ref_name }}
           body: ${{ steps.changelog.outputs.changes }}
