@@ -1,39 +1,51 @@
 name: "Release"
 
 on:
-  release:
-    types:
-      - published
-      - prereleased  # Corrected: Use a list for multiple types
-  workflow_dispatch:
-
-permissions: {}  # Start with no permissions
+  push:
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+*  # Matches tags like v1.2.3, v1.2.3-beta, etc.
+  workflow_dispatch: # Allow manual execution
 
 jobs:
   release:
-    name: "Release"
+    name: "Create Release"
     runs-on: "ubuntu-latest"
     permissions:
-      contents: write  # Need write access to create/modify releases
-    steps:
-      - name: "Checkout the repository"
-        uses: "actions/checkout@v4"
+      contents: write  # Required for creating releases and committing to the repo
 
-      - name: "Install yq"
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install yq
         run: |
           sudo apt-get update && sudo apt-get install -y yq
 
-      - name: "Adjust version number"
+      - name: Adjust version number
         shell: "bash"
         env:
-          VERSION: "${{ github.event.release.tag_name || github.ref_name }}"
+          VERSION: "${{ github.ref_name }}"  # Use github.ref_name directly for tag pushes
         run: |
           # Extract version number, removing 'v' prefix if present
-          VERSION=$(echo "$VERSION" | sed 's/^v//')
+          VERSION=$(echo "$VERSION" | sed 's/^refs\/tags\/v//') # Corrected regex
           echo "Setting version to: $VERSION"
           yq -i '.version = env(VERSION)' "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
           # Also update const.py
           yq -i '.INTEGRATION_VERSION = env(VERSION)' "${{ github.workspace }}/custom_components/violet_pool_controller/const.py"
+
+      - name: Update CHANGELOG
+        id: changelog
+        uses: requarks/changelog-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}  # Use GITHUB_TOKEN
+          tag: ${{ github.ref_name }}
+
+      - name: Commit CHANGELOG.md
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          branch: main  # Commit to the main branch
+          commit_message: 'docs: update CHANGELOG.md for ${{ github.ref_name }} [skip ci]' # Include [skip ci]
+          file_pattern: CHANGELOG.md # Specify the file to commit
 
 
       - name: "Debug manifest.json and const.py"
@@ -43,32 +55,21 @@ jobs:
           echo "const.py:"
           cat "${{ github.workspace }}/custom_components/violet_pool_controller/const.py"
 
-      - name: "List directory before zipping"
-        run: |
-          ls -l "${{ github.workspace }}/custom_components/violet_pool_controller"
-
       - name: "ZIP the integration directory"
         shell: "bash"
         run: |
-          cd "${{ github.workspace }}/custom_components" # Corrected: cd to custom_components
-          zip -r violet_pool_controller.zip violet_pool_controller # Corrected: zip the directory
+          cd "${{ github.workspace }}/custom_components"
+          zip -r violet_pool_controller.zip violet_pool_controller
 
-      - name: "Check ZIP file details"
-        run: |
-          ls -lh "${{ github.workspace }}/custom_components/violet_pool_controller.zip" # Corrected: path to zip
-
-      - name: "Validate ZIP file existence"
-        run: |
-          if [ -f "${{ github.workspace }}/custom_components/violet_pool_controller.zip" ]; then
-            echo "ZIP file exists."
-          else:
-            echo "ZIP file does not exist."
-            exit 1
-          fi
-
-      - name: "Upload the ZIP file to the release"
-        uses: "marvinpinto/action-automatic-releases@latest"
+      - name: "Create GitHub Release"  # Combined Release Creation and Asset Upload
+        uses: "ncipollo/release-action@v1"
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"  # Use GITHUB_TOKEN for authentication
-          files: "${{ github.workspace }}/custom_components/violet_pool_controller.zip" # Corrected path
-          prerelease: ${{ github.event.release.prerelease }}  # Use prerelease flag dynamically
+          allowUpdates: true  # Allow updating existing releases
+          draft: false
+          prerelease: false # Changed: This should be handled by your tagging strategy
+          makeLatest: true
+          name: ${{ github.ref_name }}  # Use the tag name
+          body: ${{ steps.changelog.outputs.changes }}  # Use the generated changelog
+          files: "${{ github.workspace }}/custom_components/violet_pool_controller.zip"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }} # Explicitly specify the tag
