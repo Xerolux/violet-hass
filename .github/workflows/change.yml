@@ -3,12 +3,14 @@ name: Deploy
 on:
   push:
     tags:
-      - v[0-9]+.[0-9]+.[0-9]+
-  workflow_dispatch: # Manuelle Ausführung aktivieren
+      - v[0-9]+.[0-9]+.[0-9]+*  # Matches tags like v1.2.3, v1.2.3-beta, etc.
+  workflow_dispatch: # Allow manual execution
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:  #  Explicitly set permissions.
+      contents: write  # Required for creating releases and committing to the repo
 
     steps:
       - name: Checkout Code
@@ -18,22 +20,36 @@ jobs:
         id: changelog
         uses: requarks/changelog-action@v1
         with:
-          token: ${{ github.token }}
+          token: ${{ secrets.GITHUB_TOKEN }}  # Use GITHUB_TOKEN
           tag: ${{ github.ref_name }}
 
       - name: Create Release
         uses: ncipollo/release-action@v1.15.0
         with:
-          allowUpdates: true
-          draft: false
-          makeLatest: true
-          name: ${{ github.ref_name }}
-          body: ${{ steps.changelog.outputs.changes }}
-          token: ${{ github.token }}
+          allowUpdates: true  # Allow updating existing releases
+          draft: false        # Publish the release immediately
+          makeLatest: true    # Mark this release as the latest
+          name: ${{ github.ref_name }}  # Use the tag name as the release name
+          body: ${{ steps.changelog.outputs.changes }} # Use changelog output
+          token: ${{ secrets.GITHUB_TOKEN }} # Use the GITHUB_TOKEN
 
       - name: Commit CHANGELOG.md
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          branch: main
-          commit_message: 'docs: update CHANGELOG.md for ${{ github.ref_name }} [skip ci]'
-          file_pattern: CHANGELOG.md
+          branch: main  # Commit to the main branch
+          commit_message: 'docs: update CHANGELOG.md for ${{ github.ref_name }} [skip ci]' # Include [skip ci]
+          file_pattern: CHANGELOG.md # Specify the file to commit
+
+      - name: "ZIP the integration directory"  # Added ZIP creation
+        shell: "bash"
+        run: |
+          cd "${{ github.workspace }}/custom_components"
+          zip -r ../../violet_pool_controller.zip violet_pool_controller
+
+      - name: "Upload ZIP to release"  # Added ZIP upload
+        uses: "ncipollo/release-action@v1"  # Reuse the release action
+        with:
+          allowUpdates: true # Allow update the release
+          artifacts: "${{ github.workspace }}/violet_pool_controller.zip"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}  # Make sure we're targeting the correct release!
