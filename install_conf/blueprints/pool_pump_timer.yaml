@@ -1,6 +1,6 @@
 blueprint:
   name: Pool Pump Timer
-  description: Automates the pool pump to turn on for a specific duration.
+  description: Automates the pool pump to turn on for a specific duration, then automatically switches to AUTO mode.
   domain: automation
   input:
     pump_entity:
@@ -16,21 +16,31 @@ blueprint:
       selector:
         number:
           min: 10
-          max: 7200
+          max: 28800  # Increased max to 8 hours (more practical for pool pumps)
           step: 10
+          mode: slider # Added mode: slider for better UI
           unit_of_measurement: seconds
 
 trigger:
   - platform: homeassistant
     event: start
+  - platform: event  # Add event trigger for manual starts
+    event_type: automation_triggered
+    event_data:
+      name: !input pump_entity # Trigger when this automation is triggered manually
 
 action:
   - service: switch.turn_on
     target:
       entity_id: !input pump_entity
     data:
-      duration: !input duration
+      duration: !input duration  # Pass duration to the service call
+
+  - delay:  # Use delay to wait for the specified duration
+      seconds: !input duration
+
+  - service: switch.turn_auto  # Call the turn_auto service after the delay
+    target:
+      entity_id: !input pump_entity
 
 mode: single
-
-
