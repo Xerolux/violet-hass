@@ -18,58 +18,66 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install yq
-        run: |
-          sudo apt-get update && sudo apt-get install -y yq
+        run: sudo apt-get update && sudo apt-get install -y yq
 
       - name: Adjust version number
         shell: "bash"
         env:
-          VERSION: "${{ github.ref_name }}"  # Use github.ref_name directly for tag pushes
+          VERSION: "${{ github.ref_name }}"
         run: |
-          # Extract version number, removing 'v' prefix if present
-          VERSION=$(echo "$VERSION" | sed 's/^refs\/tags\/v//') # Corrected regex
+          # Entferne das "v" aus der Version (falls vorhanden)
+          VERSION=$(echo "$VERSION" | sed 's/^v//')
           echo "Setting version to: $VERSION"
+
+          # Update manifest.json
           yq -i '.version = env(VERSION)' "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
-          # Also update const.py
-          yq -i '.INTEGRATION_VERSION = env(VERSION)' "${{ github.workspace }}/custom_components/violet_pool_controller/const.py"
+
+          # Update const.py mit sed
+          sed -i "s/^INTEGRATION_VERSION\s*=.*/INTEGRATION_VERSION = \"$VERSION\"/" "${{ github.workspace }}/custom_components/violet_pool_controller/const.py"
 
       - name: Update CHANGELOG
         id: changelog
         uses: requarks/changelog-action@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}  # Use GITHUB_TOKEN
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref_name }}
 
       - name: Commit CHANGELOG.md
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          branch: main  # Commit to the main branch
-          commit_message: 'docs: update CHANGELOG.md for ${{ github.ref_name }} [skip ci]' # Include [skip ci]
-          file_pattern: CHANGELOG.md # Specify the file to commit
+          branch: main
+          commit_message: 'docs: update CHANGELOG.md for ${{ github.ref_name }} [skip ci]'
+          file_pattern: CHANGELOG.md
 
-
-      - name: "Debug manifest.json and const.py"
+      - name: Debug manifest.json and const.py
         run: |
-          echo "manifest.json:"
+          echo "=== manifest.json ==="
           cat "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
-          echo "const.py:"
+          echo "=== const.py ==="
           cat "${{ github.workspace }}/custom_components/violet_pool_controller/const.py"
 
-      - name: "ZIP the integration directory"
+      - name: Ensure ZIP creation
         shell: "bash"
         run: |
           cd "${{ github.workspace }}/custom_components"
-          zip -r violet_pool_controller.zip violet_pool_controller
 
-      - name: "Create GitHub Release"  # Combined Release Creation and Asset Upload
+          if [ -d "violet_pool_controller" ]; then
+            echo "Creating ZIP package..."
+            zip -r violet_pool_controller.zip violet_pool_controller
+          else
+            echo "Error: violet_pool_controller directory not found!"
+            exit 1
+          fi
+
+      - name: "Create GitHub Release"
         uses: "ncipollo/release-action@v1"
         with:
-          allowUpdates: true  # Allow updating existing releases
+          allowUpdates: true
           draft: false
-          prerelease: false # Changed: This should be handled by your tagging strategy
+          prerelease: false
           makeLatest: true
-          name: ${{ github.ref_name }}  # Use the tag name
-          body: ${{ steps.changelog.outputs.changes }}  # Use the generated changelog
+          name: ${{ github.ref_name }}
+          body: ${{ steps.changelog.outputs.changes }}
           files: "${{ github.workspace }}/custom_components/violet_pool_controller.zip"
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref_name }} # Explicitly specify the tag
+          tag: ${{ github.ref_name }}
