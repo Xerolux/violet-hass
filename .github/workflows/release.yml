@@ -31,15 +31,16 @@ jobs:
           VERSION: "${{ github.event.release.tag_name || github.ref_name }}"
         run: |
           echo "Setting version to: $VERSION"
-          # Exportiere VERSION für nachfolgende Schritte
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
           
-          # Speichere die Version in der .version-Datei im richtigen Verzeichnis
+          # Speichere die Version in der Datei .version im richtigen Verzeichnis
           echo "$VERSION" > "${{ github.workspace }}/custom_components/violet_pool_controller/.version"
           
           # Debugging: Zeige den Inhalt der .version-Datei
           echo "Contents of .version file:"
           cat "${{ github.workspace }}/custom_components/violet_pool_controller/.version"
+          
+          # Exportiere VERSION für nachfolgende Schritte
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: "Adjust version number in manifest.json"
         run: |
