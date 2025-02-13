@@ -4,17 +4,17 @@ on:
   release:
     types:
       - published
-      - prereleased
+      - prereleased  # Corrected: Use a list for multiple types
   workflow_dispatch:
 
-permissions: {}
+permissions: {}  # Start with no permissions
 
 jobs:
   release:
     name: "Release"
     runs-on: "ubuntu-latest"
     permissions:
-      contents: write
+      contents: write  # Need write access to create/modify releases
     steps:
       - name: "Checkout the repository"
         uses: "actions/checkout@v4"
@@ -28,12 +28,20 @@ jobs:
         env:
           VERSION: "${{ github.event.release.tag_name || github.ref_name }}"
         run: |
+          # Extract version number, removing 'v' prefix if present
+          VERSION=$(echo "$VERSION" | sed 's/^v//')
           echo "Setting version to: $VERSION"
           yq -i '.version = env(VERSION)' "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
+          # Also update const.py
+          yq -i '.INTEGRATION_VERSION = env(VERSION)' "${{ github.workspace }}/custom_components/violet_pool_controller/const.py"
 
-      - name: "Debug manifest.json"
+
+      - name: "Debug manifest.json and const.py"
         run: |
+          echo "manifest.json:"
           cat "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
+          echo "const.py:"
+          cat "${{ github.workspace }}/custom_components/violet_pool_controller/const.py"
 
       - name: "List directory before zipping"
         run: |
@@ -42,18 +50,18 @@ jobs:
       - name: "ZIP the integration directory"
         shell: "bash"
         run: |
-          cd "${{ github.workspace }}/custom_components/violet_pool_controller"
-          zip violet_pool_controller.zip -r ./
+          cd "${{ github.workspace }}/custom_components" # Corrected: cd to custom_components
+          zip -r violet_pool_controller.zip violet_pool_controller # Corrected: zip the directory
 
       - name: "Check ZIP file details"
         run: |
-          ls -lh "${{ github.workspace }}/custom_components/violet_pool_controller/violet_pool_controller.zip"
+          ls -lh "${{ github.workspace }}/custom_components/violet_pool_controller.zip" # Corrected: path to zip
 
       - name: "Validate ZIP file existence"
         run: |
-          if [ -f "${{ github.workspace }}/custom_components/violet_pool_controller/violet_pool_controller.zip" ]; then
+          if [ -f "${{ github.workspace }}/custom_components/violet_pool_controller.zip" ]; then
             echo "ZIP file exists."
-          else
+          else:
             echo "ZIP file does not exist."
             exit 1
           fi
@@ -61,5 +69,6 @@ jobs:
       - name: "Upload the ZIP file to the release"
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
-          files: "${{ github.workspace }}/custom_components/violet_pool_controller/violet_pool_controller.zip"
-          prerelease: true
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"  # Use GITHUB_TOKEN for authentication
+          files: "${{ github.workspace }}/custom_components/violet_pool_controller.zip" # Corrected path
+          prerelease: ${{ github.event.release.prerelease }}  # Use prerelease flag dynamically
