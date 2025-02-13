@@ -23,7 +23,7 @@ DEFAULT_MQTT_ENABLED = False  # Default MQTT setting (disabled by default)
 DEFAULT_DEVICE_NAME = "Violet Pool Controller" # Default device name
 
 # Integration details
-INTEGRATION_VERSION = "0.0.8.9"  # Increased version
+INTEGRATION_VERSION = "0.0.9.0"  # Increased version
 MIN_REQUIRED_HA_VERSION = "2023.9.0"  # Keep the minimum HA version
 
 # Log messages
