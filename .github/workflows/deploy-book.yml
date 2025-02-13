@@ -1,0 +1,56 @@
+name: Deploy mdBook site to Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      MDBOOK_VERSION: 0.4.36  # Or latest stable version
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install mdBook
+        run: |
+          # Install Rust (rustup)
+          curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y
+          source "$HOME/.cargo/env"  # Add Rust to PATH - VERY IMPORTANT
+          rustup update
+          # Install mdBook
+          cargo install --version ${MDBOOK_VERSION} mdbook
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Build with mdBook
+        run: |
+          source "$HOME/.cargo/env"  # VERY IMPORTANT - Add mdbook to PATH
+          mdbook build .  # Build from the root directory where book.toml is
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./book  # Upload the 'book' directory (output of mdbook build)
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
