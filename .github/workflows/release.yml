@@ -26,7 +26,16 @@ jobs:
         id: fix_tag
         run: |
           TAG_NAME="${{ github.ref_name }}"
-          TAG_NAME=$(echo "$TAG_NAME" | sed -E 's/^V|^([0-9])$/v\1/')  # Umwandlung in 'vX.Y.Z.W'
+          
+          # Falls der Workflow manuell gestartet wurde, versuche das Tag aus manifest.json zu holen
+          if [[ "$TAG_NAME" == "main" ]]; then
+            TAG_NAME=$(yq -r '.version' "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json")
+            echo "Detected version from manifest.json: $TAG_NAME"
+          fi
+
+          # Falls das Tag mit "V" beginnt, in "v" umwandeln
+          TAG_NAME=$(echo "$TAG_NAME" | sed -E 's/^V|^([0-9])$/v\1/')  
+          
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
           echo "Final Tag Name: $TAG_NAME"
 
