@@ -31,11 +31,13 @@ jobs:
           VERSION: "${{ github.event.release.tag_name || github.ref_name }}"
         run: |
           echo "Setting version to: $VERSION"
+          # Exportiere VERSION für nachfolgende Schritte
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
           
-          # Speichere die Version in der Datei .version im richtigen Verzeichnis
+          # Speichere die Version in der .version-Datei im richtigen Verzeichnis
           echo "$VERSION" > "${{ github.workspace }}/custom_components/violet_pool_controller/.version"
           
-          # Debugging
+          # Debugging: Zeige den Inhalt der .version-Datei
           echo "Contents of .version file:"
           cat "${{ github.workspace }}/custom_components/violet_pool_controller/.version"
 
@@ -46,6 +48,14 @@ jobs:
       - name: "Debug manifest.json"
         run: |
           cat "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
+
+      - name: "Adjust version number in const.py"
+        run: |
+          sed -i "s/^INTEGRATION_VERSION\s*=.*/INTEGRATION_VERSION = '$VERSION'/" "${{ github.workspace }}/custom_components/violet_pool_controller/const.py"
+          
+      - name: "Debug const.py"
+        run: |
+          cat "${{ github.workspace }}/custom_components/violet_pool_controller/const.py"
 
       - name: "Commit and Push .version file"
         uses: stefanzweifel/git-auto-commit-action@v5
