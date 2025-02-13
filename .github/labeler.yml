@@ -1,30 +1,46 @@
-# labeler.yml
+# .github/labeler.yml
 
-# Labels for changes in specific folders or files
-frontend:
-  - 'src/frontend/**'
-  - 'public/**'
+# Label for changes to Python files
+python:
+  - changed-files:
+      - any-glob-to-any-file: "**/*.py"
 
-backend:
-  - 'src/backend/**'
-  - 'api/**'
-
+# Label for changes to documentation
 documentation:
-  - 'docs/**'
-  - '*.md'
+  - changed-files:
+      - any-glob-to-any-file: "*.md"
+      - any-glob-to-any-file: "docs/**/*"
+
+# Labels for changes in specific folders
+
+custom_components:
+  - changed-files:
+      - any-glob-to-any-file: "custom_components/violet_pool_controller/**/*"
+
+configuration:
+  - changed-files:
+      - any-glob-to-any-file: "*.yaml"
+      - any-glob-to-any-file: "*.yml"
+      - any-glob-to-any-file: "config/**/*"
+
+github_workflows:
+  - changed-files:
+      - any-glob-to-any-file: ".github/workflows/*.yml"
+      - any-glob-to-any-file: ".github/workflows/*.yaml"
 
 tests:
-  - 'tests/**'
+  - changed-files:
+      - any-glob-to-any-file: "tests/**/*"
 
-# You can specify labels for specific files
-config:
-  - '.github/labeler.yml'
-  - '.github/workflows/**'
+dependencies:
+  - head-branch: "dependabot/**"
 
-# Labels for changes in any JavaScript files
-javascript:
-  - '**/*.js'
+# Label for changes to the labeler configuration itself
+labeler_config:
+  - changed-files:
+      - any-glob-to-any-file: ".github/labeler.yml"
 
-# Labels for changes in any Python files
-python:
-  - '**/*.py'
+# Example of ignoring a specific file/folder:
+# ignore:
+#   - changed-files:
+#       - any-glob-to-any-file: "docs/ignore_this_folder/*"
