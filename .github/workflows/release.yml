@@ -19,9 +19,11 @@ jobs:
       - name: "Checkout the repository"
         uses: "actions/checkout@v4"
 
-      - name: "Install yq"
+      - name: "Install correct yq version"
         run: |
-          sudo apt-get update && sudo apt-get install -y yq
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+          yq --version  # Zeigt installierte Version
 
       - name: "Determine Version"
         shell: "bash"
@@ -39,7 +41,7 @@ jobs:
 
       - name: "Adjust version number in manifest.json"
         run: |
-          yq -i -o=json -y '.version = env(VERSION)' "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
+          yq -i '.version = strenv(VERSION)' "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
 
       - name: "Debug manifest.json"
         run: |
