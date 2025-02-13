@@ -2,6 +2,7 @@ name: Restyled
 
 on:
   pull_request:
+    types: [opened, reopened, synchronize]  # Trigger on PR open/update
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -10,27 +11,42 @@ concurrency:
 jobs:
   restyled:
     runs-on: ubuntu-latest
+    permissions: # Add permissions
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0  # Fetch all history, may be needed by some restylers
 
-      - uses: restyled-io/actions/setup@v4
-      - id: restyler
+      - name: Setup Restyled
+        uses: restyled-io/actions/setup@v4
+
+      - name: Run Restyled
+        id: restyler
         uses: restyled-io/actions/run@v4
         with:
+          # Optional, but recommended. Fail if changes are needed.
           fail-on-differences: true
+          # You can specify a config file: (create .restyled.yaml in root)
+          # config-file: .restyled.yaml
 
-      - if: |
-          !cancelled() &&
-          steps.restyler.outputs.success == 'true' &&
-          github.event.pull_request.head.repo.full_name == github.repository
-        uses: peter-evans/create-pull-request@v7
+      - name: Create Pull Request (if needed)
+        if: steps.restyler.outputs.has_changes == 'true' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: peter-evans/create-pull-request@v6  # Updated to v6
         with:
-          base: ${{ steps.restyler.outputs.restyled-base }}
-          branch: ${{ steps.restyler.outputs.restyled-head }}
-          title: ${{ steps.restyler.outputs.restyled-title }}
-          body: ${{ steps.restyler.outputs.restyled-body }}
-          labels: "restyled"
+          token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN
+          commit-message: "style: apply Restyled fixes [skip ci]"
+          committer: "GitHub Actions <actions@github.com>"
+          author: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>" # Better author
+          base: ${{ github.event.pull_request.base.ref }} # Use the PR's base branch
+          branch: restyled/${{ github.head_ref }} # Unique branch name
+          title: "style: apply Restyled fixes"
+          body: |
+            This PR applies code style fixes from [Restyled](https://restyled.io).
+
+            If you'd like to adjust the style, please see the [configuration file](.restyled.yaml).
+          labels: "restyled, automated"  # Add labels
           reviewers: ${{ github.event.pull_request.user.login }}
           delete-branch: true
