@@ -1,18 +1,19 @@
 name: Labeler
 
 on:
-  pull_request_target:  # Automatische Ausführung bei Pull Requests
-  workflow_dispatch:    # Manuelle Ausführung aktivieren
+  pull_request_target:  # Trigger on pull request events targeting the main branch
+  workflow_dispatch:    # Allow manual triggering
 
 jobs:
   label:
-
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      pull-requests: write
+      contents: read       # Needed to fetch repository content
+      pull-requests: write  # Needed to modify pull request labels
 
     steps:
     - uses: actions/labeler@v5
       with:
-        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"  # Use the built-in GITHUB_TOKEN
+        configuration-path: .github/labeler.yml  # Specify the path to the labeler configuration file
+        sync-labels: true   # OPTIONAL:  Keep labels in sync with labeler.yml
