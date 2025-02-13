@@ -1,0 +1,47 @@
+name: Update Release Body
+
+on:
+  release:
+    types: [published, edited]  # Trigger on release publish and edit
+
+jobs:
+  update-body:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Needed to modify releases
+
+    steps:
+      - name: Update Release Body
+        uses: actions/github-script@v7  # Use the github-script action
+        with:
+          script: |
+            const releaseBody = `
+            v${{ github.event.release.tag_name }} – Bug Fixes & Improvements 🎉
+
+            🔧 Bug Fixes:
+
+            🚀 Improvements:
+
+
+            ---
+
+            ❤️ Support My Project:
+
+            [☕ Buy Me a Coffee ☕](https://buymeacoffee.com/xerolux)
+
+            Every contribution, no matter how small, is a huge motivation! Thank you so much for your support! 🙏
+
+            ---
+
+            💬 Feedback & Contributions:
+            I’m always open to feedback, suggestions, or contributions from the community. Feel free to open an issue or submit a pull request.
+
+            Thank you for your support, and enjoy the new version! 🚀
+            `;  // Define the release body as a multi-line string
+
+            github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: context.payload.release.id,
+              body: releaseBody,
+            });
