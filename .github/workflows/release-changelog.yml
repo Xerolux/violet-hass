@@ -28,7 +28,6 @@ jobs:
       - name: "Determine Version"
         shell: bash
         run: |
-          # Prüfen, ob ein Tag angegeben wurde
           if [ -z "${{ github.event.release.tag_name }}" ]; then
             echo "Kein Tag angegeben – lese Version aus der .version Datei"
             if [ -f "${{ github.workspace }}/custom_components/violet_pool_controller/.version" ]; then
@@ -41,7 +40,6 @@ jobs:
             VERSION="${{ github.event.release.tag_name }}"
           fi
           echo "Setze Version auf: $VERSION"
-          # .version-Datei aktualisieren/überschreiben
           echo "$VERSION" > "${{ github.workspace }}/custom_components/violet_pool_controller/.version"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
@@ -76,6 +74,8 @@ jobs:
 
       - name: "Update Release Body"
         uses: actions/github-script@v7
+        env:
+          VERSION: ${{ env.VERSION }}
         with:
           script: |
             const version = process.env.VERSION || context.payload.release.tag_name;
@@ -101,7 +101,7 @@ Every contribution, no matter how small, is a huge motivation! Thank you so much
 I’m always open to feedback, suggestions, or contributions from the community. Feel free to open an issue or submit a pull request.
 
 Thank you for your support, and enjoy the new version! 🚀
-`;
+`.trim();
             await github.rest.repos.updateRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
