@@ -26,14 +26,15 @@ jobs:
           VERSION: "${{ github.ref_name }}"
         run: |
           # Entferne das "v" aus der Version (falls vorhanden)
+
           VERSION=$(echo "$VERSION" | sed 's/^v//')
           echo "Setting version to: $VERSION"
 
-          # Update manifest.json
-          yq -i -o=json '.version = env(VERSION)' "/home/runner/work/violet-hass/violet-hass/custom_components/violet_pool_controller/manifest.json"
+          # Update manifest.json (korrekte JSON-Syntax)
+          yq -i -o=json -y '.version = env(VERSION)' "/home/runner/work/violet-hass/violet-hass/custom_components/violet_pool_controller/manifest.json"
 
           # Update const.py mit sed
-          sed -i "s/^INTEGRATION_VERSION\s*=.*/INTEGRATION_VERSION = \"$VERSION\"/" "${{ github.workspace }}/custom_components/violet_pool_controller/const.py"
+          sed -i "s/^INTEGRATION_VERSION\s*=.*/INTEGRATION_VERSION = \"$VERSION\"/" "/home/runner/work/violet-hass/violet-hass/custom_components/violet_pool_controller/const.py"
 
       - name: Update CHANGELOG
         id: changelog
