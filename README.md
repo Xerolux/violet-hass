@@ -16,94 +16,142 @@ This custom integration allows you to monitor and control your pool equipment us
 
 ![Violet Home Assistant Integration][logo]
 
-**Features**
+## Features
 
-*   **Sensors:** Monitor various parameters such as water flow, temperature, pump power, and pH levels.
-*   **Binary Sensors:** Track the status of critical systems like pumps and system connectivity.
+*   **Sensors:** Monitor various parameters such as water flow, temperature, pump power, pH levels, and more.
+*   **Binary Sensors:** Track the status of critical systems like pumps, solar, heater, and system connectivity.
 *   **Switches:** Control your pool equipment, such as the pump, lights, eco mode, and dosing systems.
 
 ## Table of Contents
 
 *   [Screenshots](#screenshots)
-*   [Install](#install)
+*   [Installation](#installation)
 *   [Configuration](#configuration)
 *   [Common Problems/Errors and Solutions](#common-problemserrors-and-solutions)
-*   [Getting Support for this Integration](#getting-support-for-this-integration)
+*   [Getting Support](#getting-support)
 *   [Supporting this Integration](#supporting-this-integration)
 *   [Contributing](#contributing)
-*   [A Brief Description of the Violet Pool Controller](#a-brief-description-of-the-violet-pool-controller)
+*   [About the Violet Pool Controller](#about-the-violet-pool-controller)
 *   [Changelog](#changelog)
 *   [Credits](#credits)
 
-## Install
+## Installation
 
-To install the Violet Pool Controller via HACS, follow these steps:
+1.  **HACS Installation (Recommended):**
+    *   Open HACS in your Home Assistant interface.
+    *   Click on the three dots in the top-right corner.
+    *   Select "Custom repositories."
+    *   Add `https://github.com/Xerolux/violet-hass.git` as a custom Git repository.
+    *   Choose "Integration" as the category.
+    *   Click "Add".
+    *   Search for "Violet Pool Controller" in the HACS integrations and click "Download".
+    *   Restart Home Assistant.
 
-1.  Open HACS in your Home Assistant interface.
-2.  Click on the three dots in the top-right corner.
-3.  Select "Custom repositories" from the dropdown menu.
-4.  Add the following URL as a custom Git repository:
-    `https://github.com/Xerolux/violet-hass.git`
-5.  Choose "Integration" as the category for the repository.
-6.  Once the repository is added, go to "Integrations" in HACS.
-7.  Search for "Violet Pool Controller" and download the integration.
-8.  Restart Home Assistant to apply the changes.
-9.  After restarting, navigate to **Settings > Integrations** and add the "Violet Pool Controller" integration.
+2.  **Manual Installation (Advanced Users):**
+    *   Copy the `violet_pool_controller` folder from this repository into your Home Assistant's `custom_components` directory.
+    *   Restart Home Assistant.
 
 ## Configuration
 
-Configuration is done entirely through the Home Assistant UI.  After adding the integration, you will be prompted to enter the following settings:
+Configuration is done entirely through the Home Assistant UI.  After installation:
 
-*   **API URL:** The base URL (IP address or hostname) of your Violet Pool Controller (e.g., `192.168.1.100`).
-*   **Username:** Your API username for authentication.
-*   **Password:** Your API password for authentication.
-*   **Polling Interval:** How often to poll the device (in seconds).  The default is 10 seconds.
-*   **Use SSL:** Whether to use HTTPS for secure communication (recommended if your device supports it).
-*   **Device ID:** A number to uniquely identify this Violet device (useful when using multiple devices).
-* **Retry Attempts** The number of times to retry.
-* **Timeout** The timeout for each requests.
+1.  Go to **Settings > Devices & Services > Integrations**.
+2.  Click "+ Add Integration".
+3.  Search for "Violet Pool Controller" and select it.
+4.  A configuration dialog will appear.  Enter the following information:
 
-You can later adjust the polling interval, retry attempts and timeout via the integration's options flow (accessible from the Integrations page).
+    *   **Host:** The IP address or hostname of your Violet Pool Controller (e.g., `192.168.1.100`).  *Do not* include `http://` or `https://`.
+    *   **Username:** Your Violet Pool Controller username (if authentication is enabled).  Leave blank if not required.
+    *   **Password:** Your Violet Pool Controller password (if authentication is enabled).  Leave blank if not required.
+    *   **Polling Interval (seconds):** How often Home Assistant should fetch data from the controller (default: 10 seconds).  Adjust this based on your needs and network performance.
+    *   **Use SSL:** Check this box if your Violet Pool Controller uses HTTPS (SSL/TLS) for secure communication.  Leave unchecked for HTTP.
+    *   **Device ID:**  A unique numeric identifier for this controller (default: 1).  Use different IDs if you have multiple Violet Pool Controllers.
+    *    **Device Name:** Give your Violet Pool Controller a descriptive name.
+    *   **Retry Attempts:** Number of times to retry connecting to the device on failure (default: 3).
+
+5.  Click "Submit".  If the connection is successful, the integration will be set up, and your pool controller's entities will appear in Home Assistant.
 
 ## Common Problems/Errors and Solutions
 
-*   **Too Many Arguments Passed:** Ensure that your `config_entry` and other variables are correctly passed when initializing entities (sensors, switches, or binary sensors).
-*   **Missing Device Information:** Verify that the API URL and authentication details are correct.
-*   **Connection Errors:** Check your network connection and ensure that your Violet Pool Controller is accessible from your Home Assistant instance.
+*   **Connection Errors:**
+    *   Double-check the IP address/hostname, username, and password.
+    *   Ensure your Home Assistant instance can reach the Violet Pool Controller on your network.  Try pinging the controller from the machine running Home Assistant.
+    *   Verify that the `use_ssl` setting is correct.
+    *   Temporarily disable any firewalls on your Home Assistant machine or the Violet Pool Controller to rule out firewall issues.
+    *  Increase the timeout or retry attempts in the configuration options.
 
-## Getting Support for this Integration
+*   **"Unexpected response structure" or "Firmware version not found" Errors:**
+    * These usually indicate an issue with the API response from the Violet Pool Controller.
+    * Ensure your controller's firmware is up-to-date.  Check the PoolDigital website or forums for firmware updates.
+    * Verify the IP address entered.
 
-If you encounter any issues or need help, please raise an [issue on GitHub][issues]. This ensures that others can benefit from the solution too.
+*   **Entities Not Updating:**
+    *   Check the Home Assistant logs (Settings > System > Logs) for any errors related to `violet_pool_controller`.
+    *   Try restarting Home Assistant.
+    *   Ensure the polling interval is not set too low (a very low polling interval can overload the controller).
+    *   Verify that your Data Update Coordinator is set up.
+
+*  **Entities Not Showing**
+    *   Check the naming of the sensors and that the coordinator contains data.
+
+## Getting Support
+
+If you encounter any problems or have questions, please:
+
+1.  **Check the Home Assistant Logs:**  Look for error messages related to `violet_pool_controller`.  This often provides valuable clues.
+2.  **Consult this README:**  Review the troubleshooting steps above.
+3.  **Create an Issue:** If you can't resolve the issue, open an issue on the [GitHub repository][issues].  Provide as much detail as possible, including:
+    *   Home Assistant version.
+    *   Integration version (from `manifest.json`).
+    *   Relevant log entries (from Settings > System > Logs).
+    *   Steps to reproduce the problem.
+    *   Screenshots, if applicable.
+4.  **PoolDigital Forum:** For questions specifically about the Violet Pool Controller *hardware or firmware*, the [PoolDigital forum](http://forum.pooldigital.de/) is a good resource.
 
 ## Supporting this Integration
 
-If you'd like to support this integration or show your appreciation, you can:
+If you find this integration useful, consider supporting its development:
 
 <a href="https://www.buymeacoffee.com/xerolux" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
 ## Contributing
 
-Contributions are always welcome! If you'd like to contribute, please read the [Contribution Guidelines](CONTRIBUTING.md).
+Contributions are welcome!  If you want to contribute, please:
 
-## A Brief Description of the Violet Pool Controller
+1.  **Fork the repository.**
+2.  **Create a new branch** for your feature or bug fix.
+3.  **Make your changes.**
+4.  **Submit a pull request.**
 
-![Violet Home Assistant Integration][pbuy]
+Please follow the coding style and conventions used in the existing code.
 
-VIOLET is designed as a smart all-in-one solution for pool control, capable of managing small to fully equipped pool installations. It controls filtration, heating/solar heating, lighting (ON/OFF or DMX-enabled), backwashing, overflow tank control, water level regulation, pool cover, additional water features, and dosing.
+## About the Violet Pool Controller
 
-In case of errors (e.g., sensor failure, pump running dry, faulty refill valve, etc.), notifications can be sent via email, push, or HTTP request. The configuration and operation of VIOLET are entirely browser-based, accessible via any device. Integrated statistics, log files, remote access, and a simple JSON API enable easy integration with smart home systems.
+![Violet Pool Controller][pbuy]
 
-*   [pooldigital.de shop](https://www.pooldigital.de/poolsteuerungen/violet-poolsteuerung/74/violet-basis-modul-poolsteuerung-smart)
-*   [pooldigital.de forum](http://forum.pooldigital.de/)
+VIOLET is a smart all-in-one pool control system from PoolDigital.  It's designed to manage various aspects of pool operation, including:
+
+*   Filtration
+*   Heating/Solar Heating
+*   Lighting (ON/OFF and DMX)
+*   Backwashing
+*   Overflow Tank Control
+*   Water Level Regulation
+*   Pool Cover Control
+*   Additional Water Features
+*   Dosing
+
+VIOLET provides notifications (email, push, HTTP request) for errors, and its browser-based interface allows access from any device.  It also offers integrated statistics, log files, remote access, and a JSON API for integration with smart home systems.
+
+*   **Shop:** [pooldigital.de shop](https://www.pooldigital.de/poolsteuerungen/violet-poolsteuerung/74/violet-basis-modul-poolsteuerung-smart)
+*   **Forum:** [pooldigital.de forum](http://forum.pooldigital.de/)
+
+## Changelog
+A Changelog will be created when the project is officially published.
 
 ## Credits
 
-This project was generated using the [integration blueprint][integration_blueprint] from [@Ludeeus](https://github.com/ludeeus).
-
-## Screenshots
-
-![Violet Home Assistant Integration][screens1]
-![Violet Home Assistant Integration][screens2]
+This project was generated using the [integration blueprint][integration_blueprint] from [@Ludeeus](https://github.com/ludeeus).  Thanks to the Home Assistant community for providing a great platform and resources for developers!
 
 ---
 
@@ -115,9 +163,9 @@ This project was generated using the [integration blueprint][integration_bluepri
 [hacs]: https://hacs.xyz
 [hacs-badge]: https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge
 [discord]: https://discord.gg/Qa5fW2R
-[discord-shield]: https://img.shields.io/badge/discord-join-blue?style=for-the-badge&logo=discord&logoColor=white
-[logo]: https://github.com/Xerolux/violet-hass/raw/main/logo.png
-[picture]: https://github.com/Xerolux/violet-hass/raw/main/picture.png
+[discord-shield]: https://img.shields.io/discord/330944238910963714.svg?style=for-the-badge
+[logo]: https://github.com/xerolux/violet-hass/raw/main/logo.png
+[picture]: https://github.com/xerolux/violet-hass/raw/main/picture.png
 [forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge
 [forum]: https://community.home-assistant.io/
 [license-shield]: https://img.shields.io/github/license/xerolux/violet-hass.svg?style=for-the-badge
@@ -129,5 +177,5 @@ This project was generated using the [integration blueprint][integration_bluepri
 [screens1]: https://github.com/xerolux/violet-hass/raw/main/screenshots/overview.png
 [screens2]: https://github.com/xerolux/violet-hass/raw/main/screenshots/screens2.png
 [buy]: https://www.pooldigital.de/poolsteuerungen/violet-poolsteuerung/74/violet-basis-modul-poolsteuerung-smart
-[pbuy]: https://github.com/Xerolux/violet-hass/raw/main/screenshots/violet_bm.jpg
+[pbuy]: https://github.com/xerolux/violet-hass/raw/main/screenshots/violetbm.jpg
 [downloads-shield]: https://img.shields.io/github/downloads/xerolux/violet-hass/latest/total.svg?style=for-the-badge
