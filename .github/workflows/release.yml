@@ -53,7 +53,7 @@ jobs:
 
       - name: "Adjust version number in manifest.json"
         run: |
-          yq -i '.version = env(VERSION)' "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
+          yq -i -o=json '.version = env(VERSION)' "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
 
       - name: "Debug manifest.json"
         run: |
