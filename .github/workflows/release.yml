@@ -1,97 +1,89 @@
 name: "Release"
 
 on:
-  push:
-    tags:
-      - "V[0-9]+.[0-9]+.[0-9]+.[0-9]+"  # Matches tags like V1.2.3.4
-      - "v[0-9]+.[0-9]+.[0-9]+.[0-9]+"  # Matches tags like v1.2.3.4
-      - "[0-9]+.[0-9]+.[0-9]+.[0-9]+"   # Matches tags like 1.2.3.4
-  workflow_dispatch: # Manuelle Ausführung möglich
+  release:
+    types:
+      - published
+      - prereleased
+  workflow_dispatch:
+
+permissions: {}
 
 jobs:
   release:
-    name: "Create Release"
+    name: "Release"
     runs-on: "ubuntu-latest"
     permissions:
-      contents: write  # Erforderlich für das Erstellen von Releases und Commits
-
+      contents: write
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - name: "Checkout the repository"
+        uses: "actions/checkout@v4"
 
-      - name: Install yq
-        run: sudo apt-get update && sudo apt-get install -y yq
-
-      - name: Ensure correct tag format
-        id: fix_tag
+      - name: "Install yq"
         run: |
-          TAG_NAME="${{ github.ref_name }}"
-          
-          # Falls der Workflow manuell gestartet wurde, versuche das Tag aus manifest.json zu holen
-          if [[ "$TAG_NAME" == "main" ]]; then
-            TAG_NAME=$(yq -r '.version' "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json")
-            echo "Detected version from manifest.json: $TAG_NAME"
-          fi
+          sudo apt-get update && sudo apt-get install -y yq
 
-          # Falls das Tag mit "V" beginnt, in "v" umwandeln
-          TAG_NAME=$(echo "$TAG_NAME" | sed -E 's/^V|^([0-9])$/v\1/')  
-          
-          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
-          echo "Final Tag Name: $TAG_NAME"
-
-      - name: Update CHANGELOG
-        id: changelog
-        uses: requarks/changelog-action@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ env.TAG_NAME }}  # Korrigiertes Tag verwenden
-          excludeTypes: build,docs,other,style
-          writeToFile: true
-          changelogFilePath: CHANGELOG.md
-          includeRefIssues: true
-          useGitmojis: true
-          includeInvalidCommits: false
-          reverseOrder: false
-
-      - name: Commit CHANGELOG.md
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          branch: main
-          commit_message: 'docs: update CHANGELOG.md for ${{ env.TAG_NAME }} [skip ci]'
-          file_pattern: CHANGELOG.md
-
-      - name: Ensure ZIP creation
+      - name: "Determine Version & Pre-Release Status"
+        id: version_check
         shell: "bash"
+        env:
+          VERSION: "${{ github.event.release.tag_name || github.ref_name }}"
         run: |
-          cd "${{ github.workspace }}/custom_components"
-
-          if [ -d "violet_pool_controller" ]; then
-            echo "Creating ZIP package..."
-            zip -r violet_pool_controller.zip violet_pool_controller
-          else
-            echo "Error: violet_pool_controller directory not found!"
-            exit 1
+          echo "Original version: $VERSION"
+          
+          # Falls VERSION mit 'V' beginnt, in 'v' umwandeln
+          VERSION=$(echo "$VERSION" | sed -E 's/^V/v/')
+          
+          # Falls VERSION kein 'v' hat, füge es hinzu
+          if [[ ! "$VERSION" =~ ^v ]]; then
+            VERSION="v$VERSION"
           fi
 
-      - name: Determine if it's a pre-release
-        id: check_prerelease
-        run: |
-          TAG_NAME="${{ env.TAG_NAME }}"
-          if [[ "$TAG_NAME" =~ - ]]; then
+          echo "Final Version: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+          # Prüfe, ob es sich um ein Pre-Release handelt
+          if [[ "$VERSION" =~ - ]]; then
+            echo "Detected Pre-Release."
             echo "PRERELEASE=true" >> $GITHUB_ENV
           else
+            echo "Detected Regular Release."
             echo "PRERELEASE=false" >> $GITHUB_ENV
           fi
 
-      - name: "Create GitHub Release"
-        uses: "ncipollo/release-action@v1"
+      - name: "Adjust version number in manifest.json"
+        run: |
+          yq -i '.version = env(VERSION)' "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
+
+      - name: "Debug manifest.json"
+        run: |
+          cat "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
+
+      - name: "List directory before zipping"
+        run: |
+          ls -l "${{ github.workspace }}/custom_components/violet_pool_controller"
+
+      - name: "ZIP the integration directory"
+        shell: "bash"
+        run: |
+          cd "${{ github.workspace }}/custom_components"
+          zip -r violet_pool_controller.zip violet_pool_controller
+
+      - name: "Check ZIP file details"
+        run: |
+          ls -lh "${{ github.workspace }}/custom_components/violet_pool_controller.zip"
+
+      - name: "Validate ZIP file existence"
+        run: |
+          if [ -f "${{ github.workspace }}/custom_components/violet_pool_controller.zip" ]; then
+            echo "ZIP file exists."
+          else
+            echo "ZIP file does not exist."
+            exit 1
+          fi
+
+      - name: "Upload the ZIP file to the release"
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
-          allowUpdates: true
-          draft: false
-          prerelease: ${{ env.PRERELEASE }}  # Automatische Erkennung
-          makeLatest: true
-          name: ${{ env.TAG_NAME }}
-          body: ${{ steps.changelog.outputs.changes }}
           files: "${{ github.workspace }}/custom_components/violet_pool_controller.zip"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ env.TAG_NAME }}
+          prerelease: ${{ env.PRERELEASE }}
