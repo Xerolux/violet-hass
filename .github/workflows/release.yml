@@ -72,13 +72,13 @@ jobs:
       - name: "List directory before zipping"
         run: |
           ls -l "${{ github.workspace }}/custom_components/violet_pool_controller"
-
-      - name: "ZIP the integration directory"
+          
+      - name: "ZIP the integration directory properly"
         if: always()
         shell: "bash"
         run: |
-          cd "${{ github.workspace }}/custom_components"
-          zip -r violet_pool_controller.zip violet_pool_controller
+          cd "${{ github.workspace }}/custom_components/violet_pool_controller"
+          zip -r ../violet_pool_controller.zip .
 
       - name: "Check ZIP file details"
         if: always()
