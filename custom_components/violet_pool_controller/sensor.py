@@ -19,6 +19,9 @@ from homeassistant.const import (
     CONCENTRATION_MILLIGRAMS_PER_LITER,
 )
 
+# Fehlende Konstante ersetzen
+CONCENTRATION_MILLIGRAMS_PER_LITER = "mg/L"
+
 _LOGGER = logging.getLogger(__name__)
 
 # Liste der Sensoren, die keine Einheit benötigen

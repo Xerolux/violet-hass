@@ -188,7 +188,7 @@ class VioletOptionsFlow(config_entries.OptionsFlow):
     """Options Flow für Violet-Gerät."""
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        self.config_entry = config_entry
+        self.hass.config_entries.async_update_entry(config_entry, options=config_entry.options)
 
     async def async_step_init(self, user_input: dict | None = None):
         """Initialer Schritt im Options Flow."""
