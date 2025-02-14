@@ -64,7 +64,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
     # Weiterleiten der Einrichtung an die definierten Plattformen (z.B. switch, sensor, binary_sensor)
-    await hass.config_entries.async_forward_entry_setups(entry, ["switch", "sensor", "binary_sensor"])
+    hass.async_create_task(
+    hass.config_entries.async_forward_entry_setups(entry, ["switch", "sensor", "binary_sensor"])
+)
 
     _LOGGER.info("Violet Pool Controller setup completed successfully")
     return True  # Setup erfolgreich abgeschlossen
