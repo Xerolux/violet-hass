@@ -2,17 +2,17 @@ name: Update Release Body
 
 on:
   release:
-    types: [published, edited]  # Trigger on release publish and edit
+    types: [published, edited, prereleased]  # Jetzt auch für prereleases!
 
 jobs:
   update-body:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # Needed to modify releases
+      contents: write  # Berechtigung, um Releases zu ändern
 
     steps:
       - name: Update Release Body
-        uses: actions/github-script@v7  # Use the github-script action
+        uses: actions/github-script@v7
         with:
           script: |
             const releaseBody = `
@@ -37,7 +37,7 @@ jobs:
             I’m always open to feedback, suggestions, or contributions from the community. Feel free to open an issue or submit a pull request.
 
             Thank you for your support, and enjoy the new version! 🚀
-            `;  // Define the release body as a multi-line string
+            `;
 
             github.rest.repos.updateRelease({
               owner: context.repo.owner,
