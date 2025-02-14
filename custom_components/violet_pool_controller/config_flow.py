@@ -1,14 +1,16 @@
 import logging
+import re
+import asyncio
+
 import aiohttp
 import async_timeout
 import voluptuous as vol
-import re
-import asyncio
 
 from homeassistant import config_entries
 from homeassistant.core import callback, HomeAssistant
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers.typing import ConfigType
+
 from .const import (
     DOMAIN,
     CONF_API_URL,
@@ -33,7 +35,8 @@ _LOGGER = logging.getLogger(__name__)
 
 def is_valid_firmware(firmware_version: str) -> bool:
     """Validiere, ob die Firmware-Version im korrekten Format vorliegt (z.B. 1.1.4)."""
-    return bool(re.match(r'^[1-9]\d*\.\d+\.\d+$', firmware_version))
+    return bool(re.match(r"^[1-9]\d*\.\d+\.\d+$", firmware_version))
+
 
 async def fetch_api_data(
     session: aiohttp.ClientSession,
@@ -59,12 +62,20 @@ async def fetch_api_data(
                     data = await response.json()
                     _LOGGER.debug("API-Antwort erhalten: %s", data)
                     return data
-        except (aiohttp.ClientConnectionError, aiohttp.ClientResponseError, asyncio.TimeoutError) as err:
+        except (
+            aiohttp.ClientConnectionError,
+            aiohttp.ClientResponseError,
+            asyncio.TimeoutError,
+        ) as err:
             _LOGGER.error("API-Fehler: %s", err)
             if attempt + 1 == retry_attempts:
-                raise ValueError(f"API-Anfrage nach {retry_attempts} Versuchen fehlgeschlagen.") from err
+                raise ValueError(
+                    f"API-Anfrage nach {retry_attempts} Versuchen fehlgeschlagen."
+                ) from err
         await asyncio.sleep(2**attempt)
+
     raise ValueError("Fehler beim Abrufen der API-Daten nach allen Versuchen.")
+
 
 class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Config Flow für den Violet Pool Controller."""
@@ -75,28 +86,32 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            base_ip = user_input[CONF_API_URL]
-            use_ssl = user_input.get(CONF_USE_SSL, DEFAULT_USE_SSL)
-            protocol = "https" if use_ssl else "http"
-            api_url = f"{protocol}://{base_ip}{API_READINGS}"
+            # Konfigurationswerte als Dictionary speichern, um Variablen zu reduzieren
+            config_data = {
+                "base_ip": user_input[CONF_API_URL],
+                "use_ssl": user_input.get(CONF_USE_SSL, DEFAULT_USE_SSL),
+                "device_name": user_input.get(CONF_DEVICE_NAME, "Violet Pool Controller"),
+                "username": user_input.get(CONF_USERNAME),
+                "password": user_input.get(CONF_PASSWORD),
+                "device_id": user_input.get(CONF_DEVICE_ID, 1),
+                "timeout_duration": int(user_input.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)),
+                "retry_attempts": int(user_input.get("retry_attempts", 3)),
+            }
 
-            device_name = user_input.get(CONF_DEVICE_NAME, "Violet Pool Controller")
-            username = user_input.get(CONF_USERNAME)
-            password = user_input.get(CONF_PASSWORD)
-            device_id = user_input.get(CONF_DEVICE_ID, 1)
+            # Protokoll-URL zusammenbauen
+            protocol = "https" if config_data["use_ssl"] else "http"
+            api_url = f"{protocol}://{config_data['base_ip']}{API_READINGS}"
 
-            await self.async_set_unique_id(f"{base_ip}-{device_id}")
+            await self.async_set_unique_id(f"{config_data['base_ip']}-{config_data['device_id']}")
             self._abort_if_unique_id_configured()
 
             session = aiohttp_client.async_get_clientsession(self.hass)
-
-            timeout_duration = int(user_input.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL))
-            retry_attempts = int(user_input.get("retry_attempts", 3))
-
-            auth = aiohttp.BasicAuth(username, password) if username and password else None
+            auth = aiohttp.BasicAuth(config_data["username"], config_data["password"]) if config_data["username"] else None
 
             try:
-                data = await fetch_api_data(session, api_url, auth, use_ssl, timeout_duration, retry_attempts)
+                data = await fetch_api_data(
+                    session, api_url, auth, config_data["use_ssl"], config_data["timeout_duration"], config_data["retry_attempts"]
+                )
                 await self._process_firmware_data(data, errors)
             except ValueError as err:
                 _LOGGER.error("Fehler beim Abrufen oder Verarbeiten der Daten: %s", err)
@@ -104,17 +119,8 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             if not errors:
                 return self.async_create_entry(
-                    title=f"{device_name} (ID {device_id})",
-                    data={
-                        CONF_API_URL: base_ip,
-                        CONF_DEVICE_NAME: device_name,
-                        CONF_USERNAME: username,
-                        CONF_PASSWORD: password,
-                        CONF_DEVICE_ID: device_id,
-                        CONF_USE_SSL: use_ssl,
-                        CONF_POLLING_INTERVAL: timeout_duration,
-                        "retry_attempts": retry_attempts,
-                    },
+                    title=f"{config_data['device_name']} (ID {config_data['device_id']})",
+                    data=config_data,
                 )
 
         data_schema = vol.Schema(
@@ -134,7 +140,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def _process_firmware_data(self, data: dict, errors: dict) -> None:
         """Überprüft die Firmware-Version und fügt Fehler hinzu, falls ungültig."""
         firmware_version = data.get("fw")
-        
+
         if not firmware_version:
             errors["base"] = "Firmware-Daten fehlen in der API-Antwort."
             return
