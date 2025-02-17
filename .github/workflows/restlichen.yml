@@ -34,7 +34,7 @@ jobs:
 
       - name: Create Pull Request (if needed)
         if: steps.restyler.outputs.has_changes == 'true' && github.event.pull_request.head.repo.full_name == github.repository
-        uses: peter-evans/create-pull-request@v6  # Updated to v6
+        uses: peter-evans/create-pull-request@v7  # Updated to v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }} # Use GITHUB_TOKEN
           commit-message: "style: apply Restyled fixes [skip ci]"
