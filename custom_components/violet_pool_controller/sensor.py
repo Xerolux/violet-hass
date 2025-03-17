@@ -1,57 +1,172 @@
 import logging
+import asyncio
+from typing import Any, Dict
 from homeassistant.components.sensor import SensorEntity
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-# List of sensors that should not have a unit of measurement
+# Bestimmte Sensoren, die keine Einheit haben sollen
 NO_UNIT_SENSORS = {
     "SOLAR_LAST_OFF", "HEATER_LAST_ON", "HEATER_LAST_OFF",
     "BACKWASH_LAST_ON", "BACKWASH_LAST_OFF", "PUMP_LAST_ON", "PUMP_LAST_OFF"
 }
 
+# Mapping einiger Keys zu Einheiten
+UNIT_MAP = {
+    "IMP1_value": "cm/s",
+    "IMP2_value": "cm/s",
+    "pump_rs485_pwr": "W",
+    "SYSTEM_cpu_temperature": "°C",
+    "SYSTEM_carrier_cpu_temperature": "°C",
+    "SYSTEM_dosagemodule_cpu_temperature": "°C",
+    "SYSTEM_memoryusage": "MB",
+    "pH_value": "pH",
+    "orp_value": "mV",
+    "pot_value": "mg/l",
+    "PUMP_RPM_0": "RPM",
+    "PUMP_RPM_1": "RPM",
+    "PUMP_RPM_2": "RPM",
+    "PUMP_RPM_3": "RPM",
+    "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": "mL",
+    "DOS_1_CL_TOTAL_CAN_AMOUNT_ML": "mL",
+    "ADC1_value": "bar",
+    "ADC2_value": "cm",
+    "ADC3_value": "m³",
+    "ADC4_value": "V",
+    "ADC5_value": "V",
+    "ADC6_value": "V",
+    "WATER_TEMPERATURE": "°C",
+    "AIR_TEMPERATURE": "°C",
+    "HUMIDITY": "%",
+    "FILTER_PRESSURE": "bar",
+    "HEATER_TEMPERATURE": "°C",
+    "COVER_POSITION": "%",
+    "UV_INTENSITY": "W/m²",
+    "TDS": "ppm",
+    "CHLORINE_LEVEL": "ppm",
+    "BROMINE_LEVEL": "ppm",
+    "TURBIDITY": "NTU",
+}
+
+def guess_name_from_key(key: str) -> str:
+    """
+    Erzeuge einen halbwegs lesbaren Namen aus dem Key.
+    Beispiel: "SYSTEM_cpu_temperature" -> "System Cpu Temperature"
+    """
+    # Sonderfall: Versuche, underscores durch Leerzeichen zu ersetzen
+    # und die Einzelteile zu kapitalisieren.
+    # Man kann das beliebig anpassen (z.B. "CPU" groß lassen, etc.).
+    return " ".join(part.capitalize() for part in key.split("_"))
+
+def guess_icon_from_key(key: str) -> str:
+    """
+    Ordne basierend auf dem Key einen MDI-Icon zu.
+    Das hier ist nur eine einfache Heuristik. 
+    Du kannst nach Belieben weiter verfeinern.
+    """
+    klower = key.lower()
+
+    # Ein paar Beispiel-Regeln:
+    if "temp" in klower or "therm" in klower:
+        return "mdi:thermometer"
+    if "pump" in klower:
+        return "mdi:water-pump"
+    if "orp" in klower:
+        return "mdi:flash"
+    if "ph" in klower:
+        return "mdi:flask"
+    if "pressure" in klower or "adc" in klower:
+        return "mdi:gauge"
+    if "memory" in klower:
+        return "mdi:memory"
+    if "rpm" in klower:
+        return "mdi:fan"
+    if "version" in klower or "fw" in klower:
+        return "mdi:update"
+    if "last_on" in klower:
+        return "mdi:timer"
+    if "last_off" in klower:
+        return "mdi:timer-off"
+    if "onewire" in klower:
+        return "mdi:thermometer"
+
+    # Falls nichts passt, nimm ein generisches Icon.
+    return "mdi:information"
+
 class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
     """Representation of a Violet Device Sensor."""
 
-    def __init__(self, coordinator, key, icon, config_entry):
+    def __init__(
+        self,
+        coordinator,
+        key: str,
+        config_entry: ConfigEntry,
+        name: str | None = None,
+        icon: str | None = None
+    ):
+        """
+        :param coordinator: Dein DataUpdateCoordinator
+        :param key: Der Key, wie er in coordinator.data auftaucht
+        :param config_entry: Die ConfigEntry
+        :param name: Anzeige-Name; wenn None, bauen wir einen aus dem key
+        :param icon: MDI-Icon; wenn None, wird eines automatisch ermittelt
+        """
         super().__init__(coordinator)
         self._key = key
-        self._icon = icon
         self._config_entry = config_entry
-        self._attr_name = f"Violet {self._key}"
-        self._attr_unique_id = f"{DOMAIN}_{self._key}"
-        self._attr_native_value = None  # Cache the sensor state
-        self._has_logged_none_state = False  # Avoid repeated logging of None states
+
+        # Namen und Icon automatisch generieren oder übernehmen
+        if name:
+            self._attr_name = name
+        else:
+            self._attr_name = f"Violet {guess_name_from_key(key)}"
+
+        if icon:
+            self._icon = icon
+        else:
+            self._icon = guess_icon_from_key(key)
+
+        # Unique ID für HA
+        self._attr_unique_id = f"{DOMAIN}_{config_entry.entry_id}_{key}"
+
+        # Ggf. Einheit
+        self._unit = UNIT_MAP.get(key)
+
+        # Vermeide mehrfaches Loggen bei None-States
+        self._has_logged_none_state = False
 
     @property
-    def native_value(self):
-        """Return the state of the sensor."""
-        self._attr_native_value = self.coordinator.data.get(self._key)
-        if self._attr_native_value is None and not self._has_logged_none_state:
-            _LOGGER.warning("Sensor %s returned None as its state.", self._key)
-            self._has_logged_none_state = True
-        return self._attr_native_value
+    def native_value(self) -> Any:
+        """Return the current value of this sensor."""
+        value = self.coordinator.data.get(self._key)
+        if value is None:
+            if not self._has_logged_none_state:
+                _LOGGER.warning("Sensor '%s' returned None as its state.", self._key)
+                self._has_logged_none_state = True
+        return value
 
     @property
-    def icon(self):
-        """Return the dynamic icon depending on the sensor state, if applicable."""
-        if self._key == "pump_rs485_pwr":
-            return "mdi:power" if self.native_value else "mdi:power-off"
-        if self._key.startswith("onewire"):
-            return "mdi:thermometer" if self.native_value else "mdi:thermometer-off"
+    def icon(self) -> str:
+        """Return the dynamic icon (falls du es anpassen willst)."""
+        # Du könntest hier noch zusätzliche Logik machen, je nach self.native_value
         return self._icon
 
     @property
-    def available(self):
+    def available(self) -> bool:
         """Return True if entity is available."""
         return self.coordinator.last_update_success
 
     @property
-    def device_info(self):
+    def device_info(self) -> Dict[str, Any]:
         """Return the device information."""
         return {
-            "identifiers": {(DOMAIN, "violet_pool_controller")},
+            "identifiers": {(DOMAIN, self._config_entry.entry_id)},
             "name": "Violet Pool Controller",
             "manufacturer": "PoolDigital GmbH & Co. KG",
             "model": "Violet Model X",
@@ -60,159 +175,42 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
         }
 
     @property
-    def native_unit_of_measurement(self):
+    def native_unit_of_measurement(self) -> str | None:
         """Return the unit of measurement."""
         if self._key in NO_UNIT_SENSORS:
             return None
-        return UNIT_MAP.get(self._key)
+        return self._unit
 
-UNIT_MAP = {
-    "IMP1_value": "cm/s", "IMP2_value": "cm/s", "pump_rs485_pwr": "W",
-    "SYSTEM_cpu_temperature": "°C", "SYSTEM_carrier_cpu_temperature": "°C",
-    "SYSTEM_dosagemodule_cpu_temperature": "°C", "SYSTEM_memoryusage": "MB",
-    "pH_value": "pH", "orp_value": "mV", "pot_value": "mg/l",
-    "PUMP_RPM_0": "RPM", "PUMP_RPM_1": "RPM", "PUMP_RPM_2": "RPM",
-    "PUMP_RPM_3": "RPM", "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": "mL",
-    "DOS_1_CL_TOTAL_CAN_AMOUNT_ML": "mL", "ADC1_value": "bar",
-    "ADC2_value": "cm", "ADC3_value": "m³", "ADC4_value": "V",
-    "ADC5_value": "V", "ADC6_value": "V", "WATER_TEMPERATURE": "°C",
-    "AIR_TEMPERATURE": "°C", "HUMIDITY": "%", "FILTER_PRESSURE": "bar",
-    "HEATER_TEMPERATURE": "°C", "COVER_POSITION": "%",
-    "UV_INTENSITY": "W/m²", "TDS": "ppm", "CHLORINE_LEVEL": "ppm",
-    "BROMINE_LEVEL": "ppm", "TURBIDITY": "NTU"
-}
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+async def async_setup_entry(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback
+) -> None:
     """Set up Violet Device sensors from a config entry."""
     coordinator = hass.data.get(DOMAIN, {}).get(config_entry.entry_id)
     if not coordinator:
-        _LOGGER.error("Unable to retrieve coordinator for Violet Pool Controller.")
+        _LOGGER.error("Unable to retrieve coordinator for Violet Pool Controller (entry_id: %s).", config_entry.entry_id)
         return
 
-    sensors = [VioletDeviceSensor(coordinator, sensor["key"], sensor["icon"], config_entry) for sensor in SENSORS]
-    async_add_entities(sensors)
+    # Wir lesen jetzt ALLE Keys aus, die in coordinator.data liegen.
+    # Daraus bauen wir dynamisch Entities.
+    data_keys = list(coordinator.data.keys())
 
-SENSORS = [
-    {"name": "Messwasserüberwachung", "key": "IMP1_value", "icon": "mdi:flash"},
-    {"name": "IMP2 Value", "key": "IMP2_value", "icon": "mdi:flash"},
+    sensor_entities = []
+    for key in data_keys:
+        # Du könntest hier filtern, wenn gewisse Keys keinen Sensor ergeben sollen
+        # if not is_relevant_sensor(key):
+        #    continue
 
-    # Power and Temperature
-    {"name": "Pump Power", "key": "pump_rs485_pwr", "icon": "mdi:power"},
-    {"name": "System CPU Temperature", "key": "SYSTEM_cpu_temperature", "icon": "mdi:thermometer"},
-    {"name": "Carrier CPU Temperature", "key": "SYSTEM_carrier_cpu_temperature", "icon": "mdi:thermometer"},
-    {"name": "System Dosage Module CPU Temperature", "key": "SYSTEM_dosagemodule_cpu_temperature", "icon": "mdi:thermometer"},
-    {"name": "System Memory Usage", "key": "SYSTEM_memoryusage", "icon": "mdi:memory"},
-    {"name": "CPU Temperature", "key": "CPU_TEMP", "icon": "mdi:thermometer"},
-    {"name": "CPU Temperature CARRIER", "key": "CPU_TEMP_CARRIER", "icon": "mdi:thermometer"},
-    {"name": "System Memory", "key": "SYSTEM_MEMORY", "icon": "mdi:memory"},
-    {"name": "Load Average", "key": "LOAD_AVG", "icon": "mdi:chart-line"},
-    
-    # Software Version
-    {"name": "Software Violet Application", "key": "SW_VERSION", "icon": "mdi:update"},
-    {"name": "Firmware Violet Carrier", "key": "SW_VERSION_CARRIER", "icon": "mdi:update"},
+        sensor_entities.append(
+            VioletDeviceSensor(
+                coordinator=coordinator,
+                key=key,
+                config_entry=config_entry
+            )
+        )
 
-    # OneWire Sensors (Temperature, Min/Max Values)
-    {"name": "OneWire 1 Temperature", "key": "onewire1_value", "icon": "mdi:thermometer"},
-    {"name": "OneWire 1 Min Value", "key": "onewire1_value_min", "icon": "mdi:thermometer-minus"},
-    {"name": "OneWire 1 Max Value", "key": "onewire1_value_max", "icon": "mdi:thermometer-plus"},
+    _LOGGER.debug("Erzeuge %d Sensor-Entitäten für Keys: %s", len(sensor_entities), data_keys)
 
-    {"name": "OneWire 2 Temperature", "key": "onewire2_value", "icon": "mdi:thermometer"},
-    {"name": "OneWire 2 Min Value", "key": "onewire2_value_min", "icon": "mdi:thermometer-minus"},
-    {"name": "OneWire 2 Max Value", "key": "onewire2_value_max", "icon": "mdi:thermometer-plus"},
-
-    {"name": "OneWire 3 Temperature", "key": "onewire3_value", "icon": "mdi:thermometer"},
-    {"name": "OneWire 3 Min Value", "key": "onewire3_value_min", "icon": "mdi:thermometer-minus"},
-    {"name": "OneWire 3 Max Value", "key": "onewire3_value_max", "icon": "mdi:thermometer-plus"},
-
-    {"name": "OneWire 4 Temperature", "key": "onewire4_value", "icon": "mdi:thermometer"},
-    {"name": "OneWire 4 Min Value", "key": "onewire4_value_min", "icon": "mdi:thermometer-minus"},
-    {"name": "OneWire 4 Max Value", "key": "onewire4_value_max", "icon": "mdi:thermometer-plus"},
-
-    {"name": "OneWire 5 Temperature", "key": "onewire5_value", "icon": "mdi:thermometer"},
-    {"name": "OneWire 5 Min Value", "key": "onewire5_value_min", "icon": "mdi:thermometer-minus"},
-    {"name": "OneWire 5 Max Value", "key": "onewire5_value_max", "icon": "mdi:thermometer-plus"},
-
-    {"name": "OneWire 6 Temperature", "key": "onewire6_value", "icon": "mdi:thermometer"},
-    {"name": "OneWire 6 Min Value", "key": "onewire6_value_min", "icon": "mdi:thermometer-minus"},
-    {"name": "OneWire 6 Max Value", "key": "onewire6_value_max", "icon": "mdi:thermometer-plus"},
-
-    {"name": "OneWire 7 Temperature", "key": "onewire7_value", "icon": "mdi:thermometer"},
-    {"name": "OneWire 7 Min Value", "key": "onewire7_value_min", "icon": "mdi:thermometer-minus"},
-    {"name": "OneWire 7 Max Value", "key": "onewire7_value_max", "icon": "mdi:thermometer-plus"},
-
-    {"name": "OneWire 8 Temperature", "key": "onewire8_value", "icon": "mdi:thermometer"},
-    {"name": "OneWire 8 Min Value", "key": "onewire8_value_min", "icon": "mdi:thermometer-minus"},
-    {"name": "OneWire 8 Max Value", "key": "onewire8_value_max", "icon": "mdi:thermometer-plus"},
-
-    {"name": "OneWire 9 Temperature", "key": "onewire9_value", "icon": "mdi:thermometer"},
-    {"name": "OneWire 9 Min Value", "key": "onewire9_value_min", "icon": "mdi:thermometer-minus"},
-    {"name": "OneWire 9 Max Value", "key": "onewire9_value_max", "icon": "mdi:thermometer-plus"},
-
-    {"name": "OneWire 10 Temperature", "key": "onewire10_value", "icon": "mdi:thermometer"},
-    {"name": "OneWire 10 Min Value", "key": "onewire10_value_min", "icon": "mdi:thermometer-minus"},
-    {"name": "OneWire 10 Max Value", "key": "onewire10_value_max", "icon": "mdi:thermometer-plus"},
-
-    {"name": "OneWire 11 Temperature", "key": "onewire11_value", "icon": "mdi:thermometer"},
-    {"name": "OneWire 11 Min Value", "key": "onewire11_value_min", "icon": "mdi:thermometer-minus"},
-    {"name": "OneWire 11 Max Value", "key": "onewire11_value_max", "icon": "mdi:thermometer-plus"},
-
-    {"name": "OneWire 12 Temperature", "key": "onewire12_value", "icon": "mdi:thermometer"},
-    {"name": "OneWire 12 Min Value", "key": "onewire12_value_min", "icon": "mdi:thermometer-minus"},
-    {"name": "OneWire 12 Max Value", "key": "onewire12_value_max", "icon": "mdi:thermometer-plus"},
-
-    # Analog Sensors (ADC)
-    {"name": "Filterdruck", "key": "ADC1_value", "icon": "mdi:waveform"},
-    {"name": "Schwallwasser", "key": "ADC2_value", "icon": "mdi:waveform"},
-    {"name": "Durchfluss", "key": "ADC3_value", "icon": "mdi:waveform"},
-    {"name": "ADC4", "key": "ADC4_value", "icon": "mdi:waveform"},
-    {"name": "ADC5", "key": "ADC5_value", "icon": "mdi:waveform"},
-    {"name": "ADC6", "key": "ADC6_value", "icon": "mdi:waveform"},
-
-    # pH and ORP Sensors
-    {"name": "pH Value", "key": "pH_value", "icon": "mdi:flask"},
-    {"name": "pH Min Value", "key": "pH_value_min", "icon": "mdi:water-minus"},
-    {"name": "pH Max Value", "key": "pH_value_max", "icon": "mdi:water-plus"},
-
-    {"name": "ORP Value", "key": "orp_value", "icon": "mdi:chemical-weapon"},
-    {"name": "ORP Min Value", "key": "orp_value_min", "icon": "mdi:flash-minus"},
-    {"name": "ORP Max Value", "key": "orp_value_max", "icon": "mdi:flash-plus"},
-
-    {"name": "Potentiometer Value", "key": "pot_value", "icon": "mdi:gauge"},
-    {"name": "Potentiometer Min Value", "key": "pot_value_min", "icon": "mdi:gauge-minus"},
-    {"name": "Potentiometer Max Value", "key": "pot_value_max", "icon": "mdi:gauge-plus"},
-
-    # Dosing amounts (daily and total)
-    {"name": "Chlorine Daily Dosing Amount", "key": "DOS_1_CL_DAILY_DOSING_AMOUNT_ML", "icon": "mdi:flask"},
-    {"name": "Chlorine Total Can Amount", "key": "DOS_1_CL_TOTAL_CAN_AMOUNT_ML", "icon": "mdi:flask"},
-    {"name": "ELO Daily Dosing Amount", "key": "DOS_2_ELO_DAILY_DOSING_AMOUNT_ML", "icon": "mdi:flask"},
-    {"name": "ELO Total Can Amount", "key": "DOS_2_ELO_TOTAL_CAN_AMOUNT_ML", "icon": "mdi:flask"},
-    {"name": "pH-minus Daily Dosing Amount", "key": "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML", "icon": "mdi:flask"},
-    {"name": "pH-minus Total Can Amount", "key": "DOS_4_PHM_TOTAL_CAN_AMOUNT_ML", "icon": "mdi:flask"},
-
-    # Pump RPM sensors
-    {"name": "Pump RPM 0", "key": "PUMP_RPM_0", "icon": "mdi:fan"},
-    {"name": "Pump RPM 1", "key": "PUMP_RPM_1", "icon": "mdi:fan"},
-    {"name": "Pump RPM 2", "key": "PUMP_RPM_2", "icon": "mdi:fan"},
-    {"name": "Pump RPM 3", "key": "PUMP_RPM_3", "icon": "mdi:fan"},
-
-    # Runtime values (duration format hh:mm:ss)
-    {"name": "Pump Runtime", "key": "PUMP_RUNTIME", "icon": "mdi:timer"},
-    {"name": "Solar Runtime", "key": "SOLAR_RUNTIME", "icon": "mdi:timer"},
-    {"name": "Heater Runtime", "key": "HEATER_RUNTIME", "icon": "mdi:timer"},
-    {"name": "Backwash Runtime", "key": "BACKWASH_RUNTIME", "icon": "mdi:timer"},
-    {"name": "Omni DC0 Runtime", "key": "OMNI_DC0_RUNTIME", "icon": "mdi:timer"},
-    {"name": "Omni DC1 Runtime", "key": "OMNI_DC1_RUNTIME", "icon": "mdi:timer"},
-
-    # System states and other
-    {"name": "System Carrier Alive Count", "key": "SYSTEM_carrier_alive_count", "icon": "mdi:alert-circle"},
-    {"name": "System EXT1 Module Alive Count", "key": "SYSTEM_ext1module_alive_count", "icon": "mdi:alert-circle"},
-    {"name": "System Dosage Module Alive Count", "key": "SYSTEM_dosagemodule_alive_count", "icon": "mdi:alert-circle"},
-
-    # Solar and heater timers
-    {"name": "Solar Last On", "key": "SOLAR_LAST_ON", "icon": "mdi:timer"},
-    {"name": "Solar Last Off", "key": "SOLAR_LAST_OFF", "icon": "mdi:timer-off"},
-    {"name": "Heater Last On", "key": "HEATER_LAST_ON", "icon": "mdi:timer"},
-    {"name": "Heater Last Off", "key": "HEATER_LAST_OFF", "icon": "mdi:timer-off"},
-    {"name": "Backwash Last On", "key": "BACKWASH_LAST_ON", "icon": "mdi:timer"},
-    {"name": "Backwash Last Off", "key": "BACKWASH_LAST_OFF", "icon": "mdi:timer-off"},
-]
+    async_add_entities(sensor_entities)
