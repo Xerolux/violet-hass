@@ -1,3 +1,9 @@
+"""
+Beispielhafter config_flow.py für den Violet Pool Controller.
+Enthält ein SemVer-ähnliches Firmware-Regex, separate Felder für
+Polling, Timeout, Retry und einen OptionsFlow zur nachträglichen Änderung.
+"""
+
 import logging
 import re
 import asyncio
@@ -11,33 +17,45 @@ from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers.typing import ConfigType, HomeAssistantType
 
+# WICHTIG: Passe diese Importe an dein eigenes Projekt an:
 from .const import (
     DOMAIN,
+    API_READINGS,  # z.B. "/api/readings"
     CONF_API_URL,
     CONF_USE_SSL,
     CONF_DEVICE_NAME,
     CONF_USERNAME,
     CONF_PASSWORD,
     CONF_DEVICE_ID,
-    API_READINGS,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
-# Neue Konstanten für Polling, Timeout, Retry
+# Neue Keys für die erweiterte Abfrage:
 CONF_POLLING_INTERVAL = "polling_interval"
 CONF_TIMEOUT_DURATION = "timeout_duration"
 CONF_RETRY_ATTEMPTS = "retry_attempts"
 
-DEFAULT_POLLING_INTERVAL = 60  # z.B. alle 60 Sekunden aktualisieren
-DEFAULT_TIMEOUT_DURATION = 10   # z.B. 10 Sekunden Request-Timeout
-DEFAULT_RETRY_ATTEMPTS = 3      # z.B. 3 Versuche beim Abrufen
+# Standardwerte
+DEFAULT_POLLING_INTERVAL = 60
+DEFAULT_TIMEOUT_DURATION = 10
+DEFAULT_RETRY_ATTEMPTS = 3
 
-# Regex für Firmware-Versionen: Erlaubt 3 oder 4 Segmente, z.B. 0.9.1 oder 0.9.1.2, 1.2.3, 1.2.3.4
-FIRMWARE_REGEX = r"^\d+(\.\d+){2,3}$"
+# SemVer-ähnliches Regex, das auch Unterstriche zulässt, z.B. 1.2.3-beta_1+build_test.2
+# -> MAJOR.MINOR.PATCH[-PRERELEASE][+BUILDMETADATA]
+#   - MAJOR, MINOR, PATCH: jeweils 0 oder eine ganze Zahl ohne leading zeros (außer "0")
+#   - PRERELEASE: optional, fängt mit '-', kann mehrere Teilsegmente (z.B. rc.1) beinhalten
+#   - BUILD: optional, fängt mit '+', kann mehrere Teilsegmente (z.B. build.123) beinhalten
+FIRMWARE_REGEX = (
+    r"^(0|[1-9]\d*)\."                  # MAJOR
+    r"(0|[1-9]\d*)\."                   # MINOR
+    r"(0|[1-9]\d*)"                     # PATCH
+    r"(?:-[0-9A-Za-z-_]+(?:\.[0-9A-Za-z-_]+)*)?"  # optionaler PRERELEASE
+    r"(?:\+[0-9A-Za-z-_]+(?:\.[0-9A-Za-z-_]+)*)?$" # optionales BUILD
+)
 
 def is_valid_firmware(firmware_version: str) -> bool:
-    """Validiere, ob die Firmware-Version 0.X.Y oder 0.X.Y.Z usw. sein kann."""
+    """Validiere SemVer-ähnliche Firmware-Version: MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]."""
     return bool(re.match(FIRMWARE_REGEX, firmware_version))
 
 async def fetch_api_data(
@@ -50,7 +68,7 @@ async def fetch_api_data(
 ) -> dict:
     """
     Hole Daten von der API mit Retry-Logik und exponentiellem Backoff.
-    Separates Timeout und Retry – unabhängig vom Polling-Intervall.
+    Hier nutzen wir 'timeout_duration' anstelle von 'polling_interval'.
     """
     for attempt in range(retry_attempts):
         try:
@@ -96,7 +114,6 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             # Konfigurationsdaten aus dem Formular übernehmen
             config_data = {
-                # IP-Adresse / Host des Geräts
                 "base_ip": user_input[CONF_API_URL],
                 "use_ssl": user_input.get(CONF_USE_SSL, True),
                 "device_name": user_input.get(CONF_DEVICE_NAME, "Violet Pool Controller"),
@@ -114,7 +131,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             protocol = "https" if config_data["use_ssl"] else "http"
             api_url = f"{protocol}://{config_data['base_ip']}{API_READINGS}"
 
-            # Eindeutige ID: combination aus IP und device_id
+            # Eindeutige ID: Kombination aus IP und device_id
             await self.async_set_unique_id(f"{config_data['base_ip']}-{config_data['device_id']}")
             self._abort_if_unique_id_configured()
 
@@ -184,7 +201,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class VioletOptionsFlowHandler(config_entries.OptionsFlow):
-    """OptionsFlow, um nachträglich Polling, Timeout, Retry, etc. einzustellen."""
+    """OptionsFlow, um nachträglich Polling, Timeout, Retry usw. zu ändern."""
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Speichere das ConfigEntry."""
@@ -196,7 +213,7 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
             # Speichere die neuen Options
             return self.async_create_entry(title="", data=user_input)
 
-        # Bestehende Werte aus config_entry (oder defaults)
+        # Bestehende Options oder Defaults lesen
         current_options = dict(self.config_entry.options)
         polling = str(current_options.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL))
         timeout = str(current_options.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION))
