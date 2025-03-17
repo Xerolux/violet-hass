@@ -7,47 +7,82 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import aiohttp_client
 
 # Home Assistant-Typen und Funktionen
-from .const import (
-    DOMAIN,
-    CONF_API_URL,
-    CONF_POLLING_INTERVAL,
-    CONF_USE_SSL,
-    CONF_DEVICE_ID,
-    CONF_USERNAME,
-    CONF_PASSWORD,
-    DEFAULT_POLLING_INTERVAL,
-    DEFAULT_USE_SSL,
-)
-
-# Unsere eigenen Module
-from .api import VioletPoolAPI
+from .const import DOMAIN
 from .coordinator import VioletDataUpdateCoordinator
+from .api import VioletPoolAPI
 
-_LOGGER = logging.getLogger(__name__)
+# Diese Keys kommen aus unserem config_flow / OptionsFlow
+CONF_API_URL = "base_ip"         # IP / Host
+CONF_USE_SSL = "use_ssl"
+CONF_DEVICE_ID = "device_id"
+CONF_USERNAME = "username"
+CONF_PASSWORD = "password"
+CONF_DEVICE_NAME = "device_name"
+
+CONF_POLLING_INTERVAL = "polling_interval"
+CONF_TIMEOUT_DURATION = "timeout_duration"
+CONF_RETRY_ATTEMPTS = "retry_attempts"
+
+DEFAULT_POLLING_INTERVAL = 60
+DEFAULT_TIMEOUT_DURATION = 10
+DEFAULT_RETRY_ATTEMPTS = 3
 
 PLATFORMS = ["sensor", "switch", "binary_sensor"]
 
+_LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Setze einen Violet Pool Controller via Config Entry auf."""
-    _LOGGER.info("Setting up Violet Pool Controller integration")
+    _LOGGER.info("Setting up Violet Pool Controller integration (entry_id=%s)", entry.entry_id)
 
-    # Konfiguration aus ConfigEntry auslesen
+    # 1) Zuerst alle relevanten Felder holen:
+    #
+    #    - IP, SSL, Username, Password, Device-ID, Device-Name
+    #      kommen laut unserem Beispiel aus `entry.data`.
+    #    - polling_interval, timeout_duration, retry_attempts
+    #      können nachträglich über das OptionsFlow geändert werden => zuerst in `entry.options` gucken.
+
+    # Basis-Infos (immer in entry.data, laut config_flow)
+    ip_address = entry.data.get(CONF_API_URL, "127.0.0.1")
+    use_ssl = entry.data.get(CONF_USE_SSL, True)
+    device_id = entry.data.get(CONF_DEVICE_ID, 1)
+    username = entry.data.get(CONF_USERNAME) or ""
+    password = entry.data.get(CONF_PASSWORD) or ""
+    device_name = entry.data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
+
+    # Options mit Fallback zu data
+    polling_interval = int(
+        entry.options.get(CONF_POLLING_INTERVAL, entry.data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL))
+    )
+    timeout_duration = int(
+        entry.options.get(CONF_TIMEOUT_DURATION, entry.data.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION))
+    )
+    retry_attempts = int(
+        entry.options.get(CONF_RETRY_ATTEMPTS, entry.data.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS))
+    )
+
+    # 2) Erstelle ein Dictionary, das alle nötigen Werte bündelt
     config: Dict[str, Any] = {
-        "ip_address": entry.data[CONF_API_URL],
-        "polling_interval": entry.data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL),
-        "use_ssl": entry.data.get(CONF_USE_SSL, DEFAULT_USE_SSL),
-        "device_id": entry.data.get(CONF_DEVICE_ID, 1),
-        "username": entry.data.get(CONF_USERNAME),
-        "password": entry.data.get(CONF_PASSWORD),
-        "timeout": entry.options.get("timeout", 10),
-        "retries": entry.options.get("retries", 3),
+        "ip_address": ip_address,
+        "use_ssl": use_ssl,
+        "device_id": device_id,
+        "username": username,
+        "password": password,
+        "device_name": device_name,
+        "polling_interval": polling_interval,
+        "timeout": timeout_duration,
+        "retries": retry_attempts,
     }
 
-    # Aiohttp-Session von Home Assistant besorgen
+    _LOGGER.debug(
+        "Final config (entry_id=%s) => %s",
+        entry.entry_id,
+        config,
+    )
+
+    # 3) API und Coordinator erstellen
     session = aiohttp_client.async_get_clientsession(hass)
 
-    # API-Objekt erzeugen, das nur HTTP-Anfragen kapselt
     api = VioletPoolAPI(
         host=config["ip_address"],
         username=config["username"],
@@ -55,45 +90,46 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         use_ssl=config["use_ssl"],
         timeout=config["timeout"],
     )
-    # Session von außen setzen
     api.session = session
 
-    # DataUpdateCoordinator anlegen, der regelmäßig die Daten über die API holt
-    coordinator = VioletDataUpdateCoordinator(hass=hass, config=config, api=api)
+    coordinator = VioletDataUpdateCoordinator(
+        hass=hass,
+        config=config,
+        api=api
+    )
 
+    # 4) Erster Datenabruf
     try:
-        # Erster Datenabruf (kann fehlschlagen, deshalb Exception-Handling)
         await coordinator.async_config_entry_first_refresh()
     except Exception as err:
         _LOGGER.error("Erster Datenabruf fehlgeschlagen: %s", err)
         return False
 
-    # Integration im globalen hass.data speichern
+    # 5) Integration-Objekt in hass.data speichern
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
-    # Plattformen (sensor, switch, binary_sensor) asynchron initialisieren
+    # 6) Plattformen initialisieren
     hass.async_create_task(
         hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     )
 
-    # Beispiel-Service registrieren, mit dem du z.B. die Pumpe schalten könntest
-    # (falls du in api.py `set_pump_state` angelegt hast).
+    # 7) Beispiel-Service registrieren, z.B. Pumpe schalten
     async def async_handle_set_pump_state(call):
         """Service-Handler, um die Pumpe ein- oder auszuschalten."""
         pump_on = call.data.get("pump_on", True)
         try:
             await api.set_pump_state(pump_on)
-            # Optional ein Refresh auslösen, damit neue Daten gleich sichtbar werden
+            # Anschließend manuell refreshen
             await coordinator.async_request_refresh()
-        except Exception as err:
-            _LOGGER.error("Fehler beim Setzen des Pumpen-Status: %s", err)
+        except Exception as e:
+            _LOGGER.error("Fehler beim Setzen des Pumpen-Status: %s", e)
 
     hass.services.async_register(
         DOMAIN, "set_pump_state", async_handle_set_pump_state
     )
 
-    _LOGGER.info("Violet Pool Controller Setup abgeschlossen")
+    _LOGGER.info("Violet Pool Controller Setup für '%s' (entry_id=%s) abgeschlossen", device_name, entry.entry_id)
     return True
 
 
