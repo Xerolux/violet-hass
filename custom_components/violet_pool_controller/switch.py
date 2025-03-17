@@ -1,15 +1,23 @@
 import logging
-import aiohttp
 import asyncio
 from datetime import datetime, timedelta
-from homeassistant.components.switch import SwitchEntity
-from homeassistant.helpers.update_coordinator import CoordinatorEntity, DataUpdateCoordinator
-import async_timeout
-import voluptuous as vol
-from homeassistant.helpers import entity_platform
-from homeassistant.config_entries import ConfigEntry
+from typing import Any
 
-from .const import DOMAIN, API_SET_FUNCTION_MANUALLY, CONF_API_URL, CONF_DEVICE_NAME
+import voluptuous as vol
+from homeassistant.components.switch import SwitchEntity
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_platform
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
+from .const import (
+    DOMAIN,
+    CONF_API_URL,
+    CONF_DEVICE_NAME,
+)
+# Wichtig: Nur falls du in diesem Modul direkt API-Strings brauchst.
+# Falls du hier "API_SET_FUNCTION_MANUALLY" usw. nicht nutzt, musst du es nicht importieren.
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -24,170 +32,74 @@ STATE_MAP = {
     6: False,  # MANUAL OFF
 }
 
+# Liste möglicher Switches (Beispiel)
+SWITCHES = [
+    {"name": "Pump", "key": "PUMP", "icon": "mdi:water-pump"},
+    {"name": "Light", "key": "LIGHT", "icon": "mdi:lightbulb"},
+    {"name": "Eco", "key": "ECO", "icon": "mdi:leaf"},
+    {"name": "Dos 1 CL", "key": "DOS_1_CL", "icon": "mdi:flask"},
+    {"name": "Dos 4 PHM", "key": "DOS_4_PHM", "icon": "mdi:flask"},
+]
+
 
 class VioletSwitch(CoordinatorEntity, SwitchEntity):
     """Representation of a Violet Device Switch."""
 
     def __init__(
         self,
-        coordinator: DataUpdateCoordinator,
+        coordinator: CoordinatorEntity,
         key: str,
         name: str,
         icon: str,
         config_entry: ConfigEntry,
-        timeout: int = 10,
-        retry_attempts: int = 3,
+        auto_reset_time: float = 0
     ) -> None:
-        """Initialize the switch."""
+        """Initialize the switch entity."""
         super().__init__(coordinator)
         self._key = key
         self._icon = icon
         self._config_entry = config_entry
-
         device_name = config_entry.data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
         self._attr_name = f"{device_name} {name}"
         self._attr_unique_id = f"{config_entry.entry_id}_{key.lower()}"
-        self.ip_address: str = config_entry.data.get(CONF_API_URL)
-        # Assuming the coordinator provides username, password and session attributes
-        self.username: str = getattr(coordinator, "username", "")
-        self.password: str = getattr(coordinator, "password", "")
-        self.session: aiohttp.ClientSession = getattr(coordinator, "session", None)
-        self.timeout = timeout
-        self.retry_attempts = retry_attempts
-        self.auto_reset_time: datetime | None = None
+        self.ip_address: str = config_entry.data.get(CONF_API_URL, "Unknown IP")
+        self.auto_reset_deadline: datetime | None = None
 
+        # Device Info
         self._attr_device_info = {
             "identifiers": {(DOMAIN, config_entry.entry_id)},
-            "name": f"{device_name} ({config_entry.data.get(CONF_API_URL, 'Unknown IP')})",
+            "name": f"{device_name} ({self.ip_address})",
             "manufacturer": "PoolDigital GmbH & Co. KG",
-            "model": "Violet Model X",  # Dynamisch abrufbar machen, falls möglich
+            "model": "Violet Model X",  # wenn du später dynamisch abrufen willst, kannst du das anpassen
             "sw_version": self.coordinator.data.get("fw", "Unknown"),
-            "configuration_url": f"http://{config_entry.data.get(CONF_API_URL)}",
+            "configuration_url": f"http://{self.ip_address}",
         }
 
-        if not all([self.ip_address, self.username, self.password, self.session]):
-            _LOGGER.error("Missing credentials or IP address for switch %s", self._key)
-        else:
-            _LOGGER.info("VioletSwitch for %s initialized with IP %s", self._key, self.ip_address)
+        _LOGGER.debug("VioletSwitch (%s) init: IP=%s, key=%s", device_name, self.ip_address, key)
 
     def _get_switch_state(self) -> int | None:
-        """Fetch the current state of the switch from the coordinator."""
-        return self.coordinator.data.get(self._key, None)
+        """Fetch the current raw state of this switch from the coordinator data."""
+        return self.coordinator.data.get(self._key)
 
     @property
     def is_on(self) -> bool:
-        """Determine if the switch is on based on the API state."""
-        return STATE_MAP.get(self._get_switch_state(), False)
+        """Return True if the switch is on, based on the mapped API state."""
+        raw_state = self._get_switch_state()
+        return STATE_MAP.get(raw_state, False)
 
     @property
     def is_auto(self) -> bool:
-        """Check if the switch is in AUTO mode (state 0)."""
+        """Check if the switch is in AUTO mode (raw_state = 0)."""
         return self._get_switch_state() == 0
 
     @property
     def available(self) -> bool:
-        """Return True if the switch is available."""
-        return self.coordinator.last_update_success and self._key in self.coordinator.data
-
-    async def _send_command(self, action: str, duration: int = 0, last_value: int = 0) -> None:
-        """Send the control command to the API."""
-        use_ssl = self._config_entry.data.get("use_ssl", False)
-        protocol = "https" if use_ssl else "http"
-        url = f"{protocol}://{self.ip_address}{API_SET_FUNCTION_MANUALLY}?{self._key},{action},{duration},{last_value}"
-        _LOGGER.debug("Sending command to URL: %s", url)
-        auth = aiohttp.BasicAuth(self.username, self.password)
-
-        for attempt in range(self.retry_attempts):
-            try:
-                async with async_timeout.timeout(self.timeout):
-                    async with self.session.get(url, auth=auth, ssl=use_ssl) as response:
-                        response.raise_for_status()
-                        response_text = await response.text()
-                        lines = response_text.strip().split("\n")
-                        # Check for a valid response structure.
-                        if (
-                            len(lines) >= 3
-                            and lines[0] == "OK"
-                            and lines[1] == self._key
-                            and ("SWITCHED_TO" in lines[2] or "ON" in lines[2] or "OFF" in lines[2])
-                        ):
-                            _LOGGER.debug(
-                                "Successfully sent %s command to %s (duration: %d, last_value: %d)",
-                                action,
-                                self._key,
-                                duration,
-                                last_value,
-                            )
-                            await self.coordinator.async_request_refresh()
-                            return  # Command successful, exit retry loop
-                        else:
-                            _LOGGER.error(
-                                "Unexpected response from server when sending %s command to %s: %s",
-                                action,
-                                self._key,
-                                response_text,
-                            )
-            except aiohttp.ClientResponseError as resp_err:
-                _LOGGER.error(
-                    "Response error when sending %s command to %s: %s %s",
-                    action,
-                    self._key,
-                    resp_err.status,
-                    resp_err.message,
-                )
-            except aiohttp.ClientError as err:
-                _LOGGER.error("Client error when sending %s command to %s: %s", action, self._key, err)
-            except asyncio.TimeoutError:
-                _LOGGER.error(
-                    "Timeout sending %s command to %s, attempt %d of %d",
-                    action,
-                    self._key,
-                    attempt + 1,
-                    self.retry_attempts,
-                )
-            except Exception as err:
-                _LOGGER.error("Unexpected error when sending %s command to %s: %s", action, self._key, err)
-
-            # Exponential backoff before retrying.
-            await asyncio.sleep(2 ** attempt)
-
-        _LOGGER.error("Failed to send command %s to %s after %d attempts", action, self._key, self.retry_attempts)
-
-    async def async_turn_on(self, **kwargs) -> None:
-        """Turn the switch on."""
-        await self._execute_action("ON", **kwargs)
-
-    async def async_turn_off(self, **kwargs) -> None:
-        """Turn the switch off."""
-        await self._send_command("OFF", last_value=kwargs.get("last_value", 0))
-
-    async def async_turn_auto(self, **kwargs) -> None:
-        """Set the switch to AUTO mode."""
-        await self._execute_action("AUTO", **kwargs)
-
-    async def _execute_action(self, action: str, **kwargs) -> None:
-        """Helper to handle the ON/AUTO logic with auto reset."""
-        _LOGGER.debug("%s action called for %s with arguments: %s", action, self._key, kwargs)
-        duration: int = kwargs.get("duration", 0)
-        last_value: int = kwargs.get("last_value", 0)
-        auto_delay: int = kwargs.get("auto_delay", 0)
-
-        await self._send_command(action, duration, last_value)
-
-        # Handle auto reset if auto_delay is provided.
-        if auto_delay > 0:
-            self.auto_reset_time = datetime.now() + timedelta(seconds=auto_delay)
-            _LOGGER.debug("Auto-reset to AUTO after %d seconds for %s", auto_delay, self._key)
-            await asyncio.sleep(auto_delay)
-            # Check if it's time to auto-reset.
-            if self.auto_reset_time and datetime.now() >= self.auto_reset_time:
-                await self.async_turn_auto()
-            else:
-                _LOGGER.debug("Auto-reset to AUTO cancelled for %s", self._key)
+        """Return True if the switch data is available."""
+        return self.coordinator.last_update_success and (self._key in self.coordinator.data)
 
     @property
     def icon(self) -> str:
-        """Return the icon to use, dynamically if possible."""
+        """Return a dynamic icon based on the current state."""
         icon_map = {
             "PUMP": "mdi:water-pump" if self.is_on else "mdi:water-pump-off",
             "LIGHT": "mdi:lightbulb-on" if self.is_on else "mdi:lightbulb",
@@ -199,30 +111,122 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
 
     @property
     def extra_state_attributes(self) -> dict:
-        """Return the extra state attributes for the switch."""
+        """Return extra attributes for the switch."""
         attributes = super().extra_state_attributes or {}
         attributes["status_detail"] = "AUTO" if self.is_auto else "MANUAL"
-        attributes["duration_remaining"] = self._get_switch_state() if not self.is_auto else "N/A"
-        if self.auto_reset_time:
-            remaining_time = (self.auto_reset_time - datetime.now()).total_seconds()
-            attributes["auto_reset_in"] = max(0, remaining_time)
+        raw_state = self._get_switch_state()
+        if not self.is_auto:
+            attributes["duration_remaining"] = raw_state
+        else:
+            attributes["duration_remaining"] = "N/A"
+
+        if self.auto_reset_deadline:
+            remaining = (self.auto_reset_deadline - datetime.now()).total_seconds()
+            attributes["auto_reset_in"] = max(0, remaining)
         else:
             attributes["auto_reset_in"] = "N/A"
+
         return attributes
 
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        """Turn the switch on."""
+        duration = kwargs.get("duration", 0)
+        last_value = kwargs.get("last_value", 0)
+        await self._send_command("ON", duration, last_value)
 
-async def async_setup_entry(hass, config_entry, async_add_entities) -> None:
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        """Turn the switch off."""
+        last_value = kwargs.get("last_value", 0)
+        await self._send_command("OFF", 0, last_value)
+
+    async def async_turn_auto(self, **kwargs: Any) -> None:
+        """Set the switch to AUTO mode (or auto-delay)."""
+        auto_delay = kwargs.get("auto_delay", 0)
+        last_value = kwargs.get("last_value", 0)
+        await self._send_command("AUTO", auto_delay, last_value)
+
+        # Optional: Wenn du mit auto_delay meinst, dass nach X Sekunden wieder auf AUTO gestellt wird,
+        # könntest du das so lösen (wie in deinem Beispielcode):
+        if auto_delay > 0:
+            self.auto_reset_deadline = datetime.now() + timedelta(seconds=auto_delay)
+            _LOGGER.debug("Auto-reset on %s in %s seconds", self._key, auto_delay)
+            await asyncio.sleep(auto_delay)
+            if self.auto_reset_deadline and datetime.now() >= self.auto_reset_deadline:
+                # Nochmal "AUTO" schicken
+                await self._send_command("AUTO", 0, last_value)
+            else:
+                _LOGGER.debug("Auto-reset canceled for %s", self._key)
+        else:
+            self.auto_reset_deadline = None
+
+    async def _send_command(self, action: str, duration: int = 0, last_value: int = 0) -> None:
+        """Send a command via the coordinator's API."""
+        if not hasattr(self.coordinator, "api") or not self.coordinator.api:
+            _LOGGER.error("Coordinator hat kein API-Objekt! Abbruch.")
+            return
+
+        _LOGGER.debug(
+            "_send_command -> %s: key=%s, duration=%d, last_value=%d",
+            action,
+            self._key,
+            duration,
+            last_value,
+        )
+
+        try:
+            response_text = await self.coordinator.api.set_switch_state(
+                key=self._key,
+                action=action,
+                duration=duration,
+                last_value=last_value
+            )
+            _LOGGER.debug("Antwort vom Server (%s): %s", self._key, response_text)
+
+            # Beispiel: Prüfe, ob "OK" drinsteht oder "SWITCHED_TO"
+            lines = response_text.strip().split("\n")
+            if (
+                len(lines) >= 2
+                and lines[0] == "OK"
+                and lines[1] == self._key
+            ):
+                _LOGGER.debug("Kommando erfolgreich: action=%s, key=%s", action, self._key)
+            else:
+                _LOGGER.warning("Unerwartete Antwort für %s: %s", self._key, response_text)
+
+            # Anschließend Daten neu abfragen
+            await self.coordinator.async_request_refresh()
+
+        except Exception as err:
+            _LOGGER.error("Fehler bei _send_command %s für %s: %s", action, self._key, err)
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback
+) -> None:
     """Set up the Violet switches based on config entry."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
-    # Create switch entities only for switches that exist in the coordinator's data.
-    available_switches = [switch for switch in SWITCHES if switch["key"] in coordinator.data]
+
+    # Sammle nur die Switches, die tatsächlich in coordinator.data vorhanden sind (optional)
+    available_switches = [
+        sw for sw in SWITCHES if sw["key"] in coordinator.data
+    ]
+
     switches = [
-        VioletSwitch(coordinator, switch["key"], switch["name"], switch["icon"], config_entry, timeout=10, retry_attempts=3)
+        VioletSwitch(
+            coordinator,
+            key=switch["key"],
+            name=switch["name"],
+            icon=switch["icon"],
+            config_entry=config_entry
+        )
         for switch in available_switches
     ]
+
     async_add_entities(switches)
 
-    # Register entity-specific services.
+    # Entity-spezifische Services definieren
     platform = entity_platform.async_get_current_platform()
 
     platform.async_register_entity_service(
@@ -250,13 +254,3 @@ async def async_setup_entry(hass, config_entry, async_add_entities) -> None:
         },
         "async_turn_off",
     )
-
-
-# Define the available switches.
-SWITCHES = [
-    {"name": "Pump", "key": "PUMP", "icon": "mdi:water-pump"},
-    {"name": "Light", "key": "LIGHT", "icon": "mdi:lightbulb"},
-    {"name": "Eco", "key": "ECO", "icon": "mdi:leaf"},
-    {"name": "Dos 1 CL", "key": "DOS_1_CL", "icon": "mdi:flask"},
-    {"name": "Dos 4 PHM", "key": "DOS_4_PHM", "icon": "mdi:flask"},
-]
