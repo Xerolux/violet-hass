@@ -74,10 +74,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "retries": retry_attempts,
     }
 
+    sanitized_config = config.copy()
+    sanitized_config["password"] = "****"
     _LOGGER.debug(
         "Final config (entry_id=%s) => %s",
         entry.entry_id,
-        config,
+        sanitized_config,
     )
 
     # 3) API und Coordinator erstellen
