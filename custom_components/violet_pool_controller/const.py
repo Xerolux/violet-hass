@@ -17,7 +17,7 @@ DEFAULT_MQTT_ENABLED = False  # MQTT standardmäßig deaktiviert
 DEFAULT_DEVICE_NAME = "Violet Pool Controller"  # Standard-Gerätename
 
 # Integrationsdetails
-INTEGRATION_VERSION = "0.0.9.3"  # Erhöhte Version
+INTEGRATION_VERSION = "0.0.9.4"  # Erhöhte Version
 
 # Logger-Name
 LOGGER_NAME = f"{DOMAIN}_logger"  # Einheitlich mit den anderen Dateien
