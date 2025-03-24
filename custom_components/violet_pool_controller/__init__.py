@@ -27,7 +27,7 @@ DEFAULT_POLLING_INTERVAL = 60
 DEFAULT_TIMEOUT_DURATION = 10
 DEFAULT_RETRY_ATTEMPTS = 3
 
-PLATFORMS = ["sensor", "switch", "binary_sensor"]
+PLATFORMS = ["sensor", "switch", "binary_sensor", "cover"]
 
 _LOGGER = logging.getLogger(__name__)
 

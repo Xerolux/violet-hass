@@ -6,6 +6,7 @@ from typing import Any
 import voluptuous as vol
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.components.binary_sensor import BinarySensorEntity
+from homeassistant.components.cover import CoverEntity, CoverDeviceClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_platform
@@ -55,6 +56,14 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
         self._attr_unique_id = f"{config_entry.entry_id}_{key.lower()}"
         self.ip_address = config_entry.data.get(CONF_API_URL, "Unknown IP")
 
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, config_entry.entry_id)},
+            "name": f"{device_name} ({self.ip_address})",
+            "manufacturer": "PoolDigital GmbH & Co. KG",
+            "model": "Violet Model X",
+            "configuration_url": f"http://{self.ip_address}",
+        }
+
     def _get_switch_state(self):
         return self.coordinator.data.get(self._key)
 
@@ -86,6 +95,14 @@ class VioletCoverSensor(CoordinatorEntity, BinarySensorEntity):
         self._attr_unique_id = f"{config_entry.entry_id}_cover_state"
         self.ip_address = config_entry.data.get(CONF_API_URL, "Unknown IP")
 
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, config_entry.entry_id)},
+            "name": f"{config_entry.data.get(CONF_DEVICE_NAME)} ({self.ip_address})",
+            "manufacturer": "PoolDigital GmbH & Co. KG",
+            "model": "Violet Model X",
+            "configuration_url": f"http://{self.ip_address}",
+        }
+
     @property
     def is_on(self):
         return self.coordinator.data.get("COVER_STATE") == "OPEN"
@@ -94,7 +111,49 @@ class VioletCoverSensor(CoordinatorEntity, BinarySensorEntity):
     def icon(self):
         return "mdi:window-shutter-open" if self.is_on else "mdi:window-shutter"
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
+class VioletCover(CoordinatorEntity, CoverEntity):
+    _attr_device_class = CoverDeviceClass.SHUTTER
+
+    def __init__(self, coordinator, config_entry):
+        super().__init__(coordinator)
+        self._config_entry = config_entry
+        device_name = config_entry.data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
+        self._attr_name = f"{device_name} Cover"
+        self._attr_unique_id = f"{config_entry.entry_id}_cover"
+        self.ip_address = config_entry.data.get(CONF_API_URL, "Unknown IP")
+
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, config_entry.entry_id)},
+            "name": f"{device_name} ({self.ip_address})",
+            "manufacturer": "PoolDigital GmbH & Co. KG",
+            "model": "Violet Model X",
+            "configuration_url": f"http://{self.ip_address}",
+        }
+
+    @property
+    def is_closed(self):
+        state = self.coordinator.data.get("COVER_STATE")
+        return state == "CLOSED"
+
+    async def async_open_cover(self, **kwargs):
+        await self._send_cover_command("OPEN")
+
+    async def async_close_cover(self, **kwargs):
+        await self._send_cover_command("CLOSE")
+
+    async def async_stop_cover(self, **kwargs):
+        await self._send_cover_command("STOP")
+
+    async def _send_cover_command(self, action):
+        try:
+            await self.coordinator.api.set_cover_state(action=action)
+            await self.coordinator.async_request_refresh()
+            _LOGGER.debug("Cover-Befehl gesendet: %s", action)
+        except Exception as err:
+            _LOGGER.error("Fehler bei Cover-Befehl %s: %s", action, err)
+
+
+async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities):
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
 
     available_switches = [sw for sw in SWITCHES if sw["key"] in coordinator.data]
@@ -104,7 +163,10 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     async_add_entities(switches)
 
     if "COVER_STATE" in coordinator.data:
-        async_add_entities([VioletCoverSensor(coordinator, config_entry)])
+        async_add_entities([
+            VioletCoverSensor(coordinator, config_entry),
+            VioletCover(coordinator, config_entry)
+        ])
 
     platform = entity_platform.async_get_current_platform()
 
