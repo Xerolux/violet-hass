@@ -1,1 +1,139 @@
+# Dienste für die Violet Pool Controller Integration
+turn_auto:
+  name: In AUTO-Modus schalten
+  description: Schaltet einen Violet Pool Controller Schalter in den AUTO-Modus.
+  target:
+    entity:
+      integration: violet_pool_controller
+      domain: switch
+  fields:
+    auto_delay:
+      name: Verzögerung
+      description: Optional - Verzögerung in Sekunden.
+      example: 0
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 86400
+          unit_of_measurement: Sekunden
 
+set_pv_surplus:
+  name: PV-Überschuss mit Pumpendrehzahl
+  description: Aktiviert den PV-Überschussmodus mit einer bestimmten Pumpendrehzahl.
+  target:
+    entity:
+      integration: violet_pool_controller
+      domain: switch
+      device_class: switch
+  fields:
+    pump_speed:
+      name: Pumpendrehzahl
+      description: Die Drehzahlstufe der Filterpumpe (1-3).
+      example: 2
+      default: 2
+      selector:
+        number:
+          min: 1
+          max: 3
+          mode: slider
+          step: 1
+
+manual_dosing:
+  name: Manuelle Dosierung
+  description: Löst eine manuelle Dosierung für den angegebenen Zeitraum aus.
+  target:
+    entity:
+      integration: violet_pool_controller
+      domain: switch
+  fields:
+    duration_seconds:
+      name: Dauer in Sekunden
+      description: Wie lange die Dosierung aktiv sein soll.
+      example: 60
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 3600
+          unit_of_measurement: Sekunden
+
+set_temperature_target:
+  name: Solltemperatur einstellen
+  description: Stellt die Zieltemperatur für Heizung oder Solarabsorber ein.
+  target:
+    entity:
+      integration: violet_pool_controller
+      domain: climate
+  fields:
+    temperature:
+      name: Temperatur
+      description: Die gewünschte Zieltemperatur.
+      example: 28
+      required: true
+      selector:
+        number:
+          min: 20
+          max: 35
+          step: 0.5
+          unit_of_measurement: °C
+
+set_ph_target:
+  name: pH-Sollwert einstellen
+  description: Stellt den pH-Sollwert für die Dosierung ein.
+  fields:
+    entity_id:
+      name: Entity
+      description: Die Entity der pH-Dosierung.
+      required: true
+      selector:
+        entity:
+          integration: violet_pool_controller
+          domain: number
+    target_value:
+      name: Sollwert
+      description: Der neue pH-Sollwert.
+      example: 7.2
+      required: true
+      selector:
+        number:
+          min: 6.8
+          max: 7.8
+          step: 0.1
+
+set_chlorine_target:
+  name: Chlor-Sollwert einstellen
+  description: Stellt den Chlor-Sollwert (als Redox-Wert) für die Dosierung ein.
+  fields:
+    entity_id:
+      name: Entity
+      description: Die Entity der Chlor-Dosierung.
+      required: true
+      selector:
+        entity:
+          integration: violet_pool_controller
+          domain: number
+    target_value:
+      name: Sollwert
+      description: Der neue Redox-Sollwert in mV.
+      example: 750
+      required: true
+      selector:
+        number:
+          min: 600
+          max: 850
+          step: 10
+          unit_of_measurement: mV
+
+trigger_backwash:
+  name: Rückspülung auslösen
+  description: Löst einen manuellen Rückspülvorgang aus.
+  fields:
+    entity_id:
+      name: Entity
+      description: Die Entity der Rückspülsteuerung.
+      required: true
+      selector:
+        entity:
+          integration: violet_pool_controller
+          domain: switch
