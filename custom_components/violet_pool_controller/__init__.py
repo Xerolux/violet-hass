@@ -3,7 +3,7 @@ import logging
 from typing import Any, Dict
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import aiohttp_client
 
 # Home Assistant-Typen und Funktionen
@@ -27,9 +27,11 @@ DEFAULT_POLLING_INTERVAL = 60
 DEFAULT_TIMEOUT_DURATION = 10
 DEFAULT_RETRY_ATTEMPTS = 3
 
-PLATFORMS = ["sensor", "switch", "binary_sensor", "cover"]
+# Plattformen, die diese Integration unterstützt
+PLATFORMS = ["sensor", "switch", "binary_sensor", "cover", "number", "climate"]
 
 _LOGGER = logging.getLogger(__name__)
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Setze einen Violet Pool Controller via Config Entry auf."""
@@ -116,20 +118,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     )
 
-    # 7) Beispiel-Service registrieren, z.B. Pumpe schalten
-    async def async_handle_set_pump_state(call):
-        """Service-Handler, um die Pumpe ein- oder auszuschalten."""
-        pump_on = call.data.get("pump_on", True)
-        try:
-            await api.set_pump_state(pump_on)
-            # Anschließend manuell refreshen
-            await coordinator.async_request_refresh()
-        except Exception as e:
-            _LOGGER.error("Fehler beim Setzen des Pumpen-Status: %s", e)
-
-    hass.services.async_register(
-        DOMAIN, "set_pump_state", async_handle_set_pump_state
-    )
+    # 7) Services registrieren
+    register_services(hass)
 
     _LOGGER.info("Violet Pool Controller Setup für '%s' (entry_id=%s) abgeschlossen", device_name, entry.entry_id)
     return True
@@ -142,3 +132,80 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN].pop(entry.entry_id, None)
         _LOGGER.info("Violet Pool Controller (Gerät %s) erfolgreich entladen", entry.entry_id)
     return unload_ok
+
+
+def register_services(hass: HomeAssistant) -> None:
+    """Registriere zusätzliche Services für die Integration."""
+    
+    # Service zum Einstellen der Solltemperatur
+    async def async_handle_set_temperature_target(call: ServiceCall) -> None:
+        """Service-Handler zum Einstellen der Solltemperatur."""
+        entity_id = call.data.get("entity_id")
+        temperature = call.data.get("temperature")
+        
+        # Suche nach der Entity
+        entity = hass.states.get(entity_id)
+        if not entity:
+            _LOGGER.error("Entity nicht gefunden: %s", entity_id)
+            return
+            
+        # Rufe die set_temperature-Methode der Entity auf
+        await hass.services.async_call(
+            "climate", "set_temperature",
+            {"entity_id": entity_id, "temperature": temperature},
+            blocking=True
+        )
+    
+    # Service zum Einstellen des pH-Sollwerts
+    async def async_handle_set_ph_target(call: ServiceCall) -> None:
+        """Service-Handler zum Einstellen des pH-Sollwerts."""
+        entity_id = call.data.get("entity_id")
+        target_value = call.data.get("target_value")
+        
+        # Suche nach der Entity
+        entity = hass.states.get(entity_id)
+        if not entity:
+            _LOGGER.error("Entity nicht gefunden: %s", entity_id)
+            return
+            
+        # Rufe die set_value-Methode der Entity auf
+        await hass.services.async_call(
+            "number", "set_value",
+            {"entity_id": entity_id, "value": target_value},
+            blocking=True
+        )
+    
+    # Service zum Auslösen einer Rückspülung
+    async def async_handle_trigger_backwash(call: ServiceCall) -> None:
+        """Service-Handler zum Auslösen einer Rückspülung."""
+        entity_id = call.data.get("entity_id")
+        
+        # Suche nach der Entity
+        entity = hass.states.get(entity_id)
+        if not entity:
+            _LOGGER.error("Entity nicht gefunden: %s", entity_id)
+            return
+            
+        # Rufe die turn_on-Methode der Entity auf
+        await hass.services.async_call(
+            "switch", "turn_on",
+            {"entity_id": entity_id},
+            blocking=True
+        )
+    
+    # Services registrieren
+    hass.services.async_register(
+        DOMAIN, "set_temperature_target", async_handle_set_temperature_target
+    )
+    
+    hass.services.async_register(
+        DOMAIN, "set_ph_target", async_handle_set_ph_target
+    )
+    
+    hass.services.async_register(
+        DOMAIN, "set_chlorine_target", async_handle_set_ph_target
+    )
+    
+    hass.services.async_register(
+        DOMAIN, "trigger_backwash", async_handle_trigger_backwash
+    )
