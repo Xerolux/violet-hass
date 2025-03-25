@@ -149,4 +149,66 @@ class VioletNumberEntity(CoordinatorEntity, NumberEntity):
         return self._attr_native_min_value
 
     async def async_set_native_value(self, value: float) -> None:
-        """Setze den neuen Wert im Gerät
+        """Setze den neuen Wert im Gerät."""
+        try:
+            # API-Aufruf zum Setzen des Sollwerts
+            # Hier muss die Logik für die API-Calls angepasst werden
+            # Da die API für Sollwerte nicht direkt dokumentiert ist, ist dies ein Platzhalter
+            
+            api_key = self._definition.get("api_key")
+            parameter = self._definition.get("parameter")
+            
+            if not api_key or not parameter:
+                _LOGGER.error("Fehler: API-Key oder Parameter nicht definiert")
+                return
+                
+            _LOGGER.debug(
+                "Setze Sollwert für %s (%s): %s = %f",
+                self.name,
+                api_key,
+                parameter,
+                value
+            )
+            
+            # Auskommentierte API-Funktion, die implementiert werden müsste
+            # await self.coordinator.api.set_dosing_parameters(
+            #     dosing_type=api_key,
+            #     parameter_name=parameter,
+            #     value=value
+            # )
+            
+            # Aktualisiere den lokalen Wert ohne auf den Coordinator zu warten
+            self._attr_native_value = value
+            self.async_write_ha_state()
+            
+            # Aktualisiere die Daten vom Gerät
+            await self.coordinator.async_request_refresh()
+        except Exception as err:
+            _LOGGER.error("Fehler beim Setzen des Sollwerts: %s", err)
+
+
+async def async_setup_entry(
+    hass: HomeAssistant, 
+    config_entry: ConfigEntry, 
+    async_add_entities: AddEntitiesCallback
+):
+    """Richte Number-Entities basierend auf dem Config-Entry ein."""
+    coordinator = hass.data[DOMAIN][config_entry.entry_id]
+    
+    # Überprüfe, ob die API Dosierungsfunktionen unterstützt
+    # Dies ist eine vereinfachte Prüfung, in der realen Implementierung 
+    # würde man spezifische API-Keys prüfen
+    has_dosing = any(key in coordinator.data for key in ["DOS_1_CL", "DOS_4_PHM", "DOS_5_PHP"])
+    
+    if not has_dosing:
+        _LOGGER.info("Keine Dosierungsfunktionen in den API-Daten gefunden, Number-Entities werden nicht hinzugefügt")
+        return
+    
+    # Erstelle Number-Entities für alle Definitionen
+    entities = []
+    for definition in SETPOINT_DEFINITIONS:
+        # Hier könnte man prüfen, ob die spezifische Funktion (pH-, Chlor, etc.) 
+        # in der API verfügbar ist, bevor die Entity erstellt wird
+        entities.append(VioletNumberEntity(coordinator, config_entry, definition))
+    
+    async_add_entities(entities)
