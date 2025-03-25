@@ -1,12 +1,8 @@
-"""
-Beispielhafter config_flow.py für den Violet Pool Controller.
-Enthält ein SemVer-ähnliches Firmware-Regex, separate Felder für
-Polling, Timeout, Retry und einen OptionsFlow zur nachträglichen Änderung.
-"""
-
 import logging
 import re
 import asyncio
+import ipaddress
+from typing import Dict, Optional, Union, Any
 
 import aiohttp
 import async_timeout
@@ -21,7 +17,7 @@ from homeassistant.core import HomeAssistant
 # WICHTIG: Passe diese Importe an dein eigenes Projekt an:
 from .const import (
     DOMAIN,
-    API_READINGS,  # z.B. "/api/readings"
+    API_READINGS,
     CONF_API_URL,
     CONF_USE_SSL,
     CONF_DEVICE_NAME,
@@ -42,11 +38,7 @@ DEFAULT_POLLING_INTERVAL = 60
 DEFAULT_TIMEOUT_DURATION = 10
 DEFAULT_RETRY_ATTEMPTS = 3
 
-# SemVer-ähnliches Regex, das auch Unterstriche zulässt, z.B. 1.2.3-beta_1+build_test.2
-# -> MAJOR.MINOR.PATCH[-PRERELEASE][+BUILDMETADATA]
-#   - MAJOR, MINOR, PATCH: jeweils 0 oder eine ganze Zahl ohne leading zeros (außer "0")
-#   - PRERELEASE: optional, fängt mit '-', kann mehrere Teilsegmente (z.B. rc.1) beinhalten
-#   - BUILD: optional, fängt mit '+', kann mehrere Teilsegmente (z.B. build.123) beinhalten
+# SemVer-ähnliches Regex, das auch Unterstriche zulässt
 FIRMWARE_REGEX = (
     r"^(0|[1-9]\d*)\."                  # MAJOR
     r"(0|[1-9]\d*)\."                   # MINOR
@@ -55,21 +47,47 @@ FIRMWARE_REGEX = (
     r"(?:\+[0-9A-Za-z-_]+(?:\.[0-9A-Za-z-_]+)*)?$" # optionales BUILD
 )
 
-def is_valid_firmware(firmware_version: str) -> bool:
-    """Validiere SemVer-ähnliche Firmware-Version: MAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]."""
-    return bool(re.match(FIRMWARE_REGEX, firmware_version))
+def validate_ip_address(ip: str) -> bool:
+    """Validiere IP-Adresse."""
+    try:
+        ipaddress.ip_address(ip)
+        return True
+    except ValueError:
+        return False
+
+def parse_firmware_version(firmware_version: str) -> Optional[Dict[str, Any]]:
+    """Zerlege Firmware-Version in ihre Komponenten."""
+    match = re.match(FIRMWARE_REGEX, firmware_version)
+    if not match:
+        return None
+    
+    return {
+        "major": int(match.group(1)),
+        "minor": int(match.group(2)),
+        "patch": int(match.group(3)),
+        "prerelease": match.group(4)[1:] if match.group(4) else None,
+        "build": match.group(5)[1:] if match.group(5) else None
+    }
+
+def _format_error_message(err: Exception) -> str:
+    """Formatiere Fehlermeldungen benutzerfreundlich."""
+    error_map = {
+        asyncio.TimeoutError: "Zeitüberschreitung bei der Verbindung",
+        aiohttp.ClientConnectionError: "Verbindungsfehler",
+        ValueError: "Ungültige Konfiguration"
+    }
+    return error_map.get(type(err), str(err))
 
 async def fetch_api_data(
     session: aiohttp.ClientSession,
     api_url: str,
-    auth: aiohttp.BasicAuth | None,
+    auth: Optional[aiohttp.BasicAuth],
     use_ssl: bool,
     timeout_duration: int,
     retry_attempts: int,
-) -> dict:
+) -> Dict[str, Any]:
     """
     Hole Daten von der API mit Retry-Logik und exponentiellem Backoff.
-    Hier nutzen wir 'timeout_duration' anstelle von 'polling_interval'.
     """
     for attempt in range(retry_attempts):
         try:
@@ -108,11 +126,26 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Config Flow für den Violet Pool Controller."""
     VERSION = 1
 
-    async def async_step_user(self, user_input: dict | None = None) -> config_entries.FlowResult:
+    async def async_step_user(
+        self, 
+        user_input: Optional[Dict[str, Union[str, bool, int]]] = None
+    ) -> config_entries.FlowResult:
         """Erster Schritt (benutzerinitiierte Eingabe) für das Setup."""
-        errors = {}
+        errors: Dict[str, str] = {}
 
         if user_input is not None:
+            # Validiere IP-Adresse
+            if not validate_ip_address(str(user_input[CONF_API_URL])):
+                errors[CONF_API_URL] = "Ungültige IP-Adresse"
+
+            # Validiere numerische Eingaben
+            try:
+                polling_interval = int(user_input.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL))
+                timeout_duration = int(user_input.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION))
+                retry_attempts = int(user_input.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS))
+            except ValueError:
+                errors["base"] = "Ungültige numerische Werte für Konfigurationsparameter"
+
             # Konfigurationsdaten aus dem Formular übernehmen
             config_data = {
                 "base_ip": user_input[CONF_API_URL],
@@ -121,11 +154,9 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 "username": user_input.get(CONF_USERNAME),
                 "password": user_input.get(CONF_PASSWORD),
                 "device_id": user_input.get(CONF_DEVICE_ID, 1),
-
-                # Hier nun separat Polling-Interval, Timeout und Retry
-                "polling_interval": int(user_input[CONF_POLLING_INTERVAL]),
-                "timeout_duration": int(user_input[CONF_TIMEOUT_DURATION]),
-                "retry_attempts": int(user_input[CONF_RETRY_ATTEMPTS]),
+                "polling_interval": polling_interval,
+                "timeout_duration": timeout_duration,
+                "retry_attempts": retry_attempts,
             }
 
             # Protokoll-URL zusammenbauen
@@ -154,9 +185,9 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                 await self._process_firmware_data(data, errors)
 
-            except ValueError as err:
+            except Exception as err:
                 _LOGGER.error("Fehler beim Abrufen/Verarbeiten der Daten: %s", err)
-                errors["base"] = str(err)
+                errors["base"] = _format_error_message(err)
 
             if not errors:
                 # Wenn alles okay ist, Integration anlegen
@@ -165,7 +196,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     data=config_data,
                 )
 
-        # Hier definieren wir das Formular-Schema
+        # Formular-Schema mit verbesserten Validierungen
         data_schema = vol.Schema(
             {
                 vol.Required(CONF_API_URL, default="192.168.1.100"): str,
@@ -174,10 +205,21 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_USE_SSL, default=True): bool,
                 vol.Required(CONF_DEVICE_ID, default=1): vol.All(vol.Coerce(int), vol.Range(min=1)),
 
-                # Polling, Timeout und Retry separat
-                vol.Required(CONF_POLLING_INTERVAL, default=str(DEFAULT_POLLING_INTERVAL)): str,
-                vol.Required(CONF_TIMEOUT_DURATION, default=str(DEFAULT_TIMEOUT_DURATION)): str,
-                vol.Required(CONF_RETRY_ATTEMPTS, default=str(DEFAULT_RETRY_ATTEMPTS)): str,
+                # Polling, Timeout und Retry separat mit verbesserten Validierungen
+                vol.Required(
+                    CONF_POLLING_INTERVAL, 
+                    default=str(DEFAULT_POLLING_INTERVAL)
+                ): vol.All(str, vol.Coerce(int), vol.Range(min=10, max=3600)),
+                
+                vol.Required(
+                    CONF_TIMEOUT_DURATION, 
+                    default=str(DEFAULT_TIMEOUT_DURATION)
+                ): vol.All(str, vol.Coerce(int), vol.Range(min=1, max=60)),
+                
+                vol.Required(
+                    CONF_RETRY_ATTEMPTS, 
+                    default=str(DEFAULT_RETRY_ATTEMPTS)
+                ): vol.All(str, vol.Coerce(int), vol.Range(min=1, max=10)),
 
                 vol.Optional(CONF_DEVICE_NAME, default="Violet Pool Controller"): str,
             }
@@ -185,7 +227,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(step_id="user", data_schema=data_schema, errors=errors)
 
-    async def _process_firmware_data(self, data: dict, errors: dict) -> None:
+    async def _process_firmware_data(self, data: Dict[str, Any], errors: Dict[str, str]) -> None:
         """Prüft die Firmware-Version in den API-Daten und fügt ggf. Fehler hinzu."""
         firmware_version = data.get("fw")
 
@@ -193,7 +235,8 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors["base"] = "Firmware-Daten fehlen in der API-Antwort."
             return
 
-        if not is_valid_firmware(firmware_version):
+        parsed_firmware = parse_firmware_version(firmware_version)
+        if not parsed_firmware:
             errors["base"] = f"Ungültige Firmware-Version: {firmware_version}"
 
     @staticmethod
@@ -222,9 +265,20 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
 
         options_schema = vol.Schema(
             {
-                vol.Required(CONF_POLLING_INTERVAL, default=polling): str,
-                vol.Required(CONF_TIMEOUT_DURATION, default=timeout): str,
-                vol.Required(CONF_RETRY_ATTEMPTS, default=retries): str,
+                vol.Required(
+                    CONF_POLLING_INTERVAL, 
+                    default=polling
+                ): vol.All(str, vol.Coerce(int), vol.Range(min=10, max=3600)),
+                
+                vol.Required(
+                    CONF_TIMEOUT_DURATION, 
+                    default=timeout
+                ): vol.All(str, vol.Coerce(int), vol.Range(min=1, max=60)),
+                
+                vol.Required(
+                    CONF_RETRY_ATTEMPTS, 
+                    default=retries
+                ): vol.All(str, vol.Coerce(int), vol.Range(min=1, max=10)),
             }
         )
         return self.async_show_form(step_id="init", data_schema=options_schema)
