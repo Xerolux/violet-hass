@@ -198,7 +198,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     def async_get_options_flow(config_entry):
-        return VioletOptionsFlowHandler(config_entry)ntry)
+        return VioletOptionsFlowHandler(config_entry)
 
 
 class VioletOptionsFlowHandler(config_entries.OptionsFlow):
