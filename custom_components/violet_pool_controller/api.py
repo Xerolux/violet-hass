@@ -7,6 +7,8 @@ from typing import Any, Dict, Optional, List, Union, Tuple
 from .const import (
     API_READINGS,
     API_SET_FUNCTION_MANUALLY,
+    API_SET_DOSING_PARAMETERS,
+    API_SET_TARGET_VALUES,
     SWITCH_FUNCTIONS,
     COVER_FUNCTIONS,
     DOSING_FUNCTIONS,
@@ -178,9 +180,6 @@ class VioletPoolAPI:
         """
         Setzt Dosierungsparameter wie Sollwerte.
         
-        HINWEIS: Dieser Endpunkt ist in der API nicht explizit dokumentiert,
-        daher ist die Implementierung theoretisch.
-        
         Args:
             dosing_type: z.B. "pH-", "pH+", "Chlor", "Flockmittel"
             parameter_name: Name des Parameters
@@ -189,10 +188,35 @@ class VioletPoolAPI:
         Returns:
             Der Text der Antwort vom Gerät
         """
-        # Da die API dies möglicherweise nicht direkt unterstützt, müssten wir
-        # hier einen spezifischen Endpunkt verwenden oder die POST /setConfig API
-        _LOGGER.warning("Funktion set_dosing_parameters ist nicht implementiert")
-        return "ERROR: Funktion nicht implementiert"
+        protocol = "https" if self.use_ssl else "http"
+        url = f"{protocol}://{self.host}{API_SET_DOSING_PARAMETERS}?{dosing_type},{parameter_name},{value}"
+        
+        _LOGGER.debug(
+            "set_dosing_parameters -> Sende Kommando: type=%s, parameter=%s, value=%s, URL=%s",
+            dosing_type,
+            parameter_name,
+            value,
+            url,
+        )
+        
+        auth = (
+            aiohttp.BasicAuth(self.username, self.password)
+            if self.username and self.password
+            else None
+        )
+        
+        if not self.session:
+            raise RuntimeError("Keine ClientSession gesetzt in VioletPoolAPI.")
+            
+        try:
+            async with asyncio.timeout(self.timeout):
+                async with self.session.get(url, auth=auth, ssl=self.use_ssl) as response:
+                    response.raise_for_status()
+                    response_text = await response.text()
+                    return response_text
+        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+            _LOGGER.error("Fehler beim Setzen der Dosierungsparameter: %s", err)
+            raise ConnectionError(f"Fehler beim Setzen der Dosierungsparameter: {err}") from err
     
     async def manual_dosing(self, dosing_type: str, duration_seconds: int) -> str:
         """
@@ -211,3 +235,177 @@ class VioletPoolAPI:
             return "ERROR: Ungültiger Dosierungstyp"
             
         return await self.set_switch_state(dosing_key, "MAN", duration_seconds, 0)
+        
+    async def set_target_value(
+        self,
+        target_type: str,
+        value: Union[float, int]
+    ) -> str:
+        """
+        Setzt einen Sollwert wie z.B. pH-Sollwert oder Redox.
+        
+        Args:
+            target_type: Typ des Sollwerts ("pH", "ORP", "MinChlorine", etc.)
+            value: Neuer Wert
+            
+        Returns:
+            Der Text der Antwort vom Gerät
+        """
+        protocol = "https" if self.use_ssl else "http"
+        url = f"{protocol}://{self.host}{API_SET_TARGET_VALUES}?{target_type},{value}"
+        
+        _LOGGER.debug(
+            "set_target_value -> Sende Kommando: type=%s, value=%s, URL=%s",
+            target_type,
+            value,
+            url,
+        )
+        
+        auth = (
+            aiohttp.BasicAuth(self.username, self.password)
+            if self.username and self.password
+            else None
+        )
+        
+        if not self.session:
+            raise RuntimeError("Keine ClientSession gesetzt in VioletPoolAPI.")
+            
+        try:
+            async with asyncio.timeout(self.timeout):
+                async with self.session.get(url, auth=auth, ssl=self.use_ssl) as response:
+                    response.raise_for_status()
+                    response_text = await response.text()
+                    return response_text
+        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+            _LOGGER.error("Fehler beim Setzen des Sollwerts: %s", err)
+            raise ConnectionError(f"Fehler beim Setzen des Sollwerts: {err}") from err
+    
+    async def set_ph_target(self, value: float) -> str:
+        """
+        Setzt den pH-Sollwert.
+        
+        Args:
+            value: Neuer pH-Sollwert
+            
+        Returns:
+            Der Text der Antwort vom Gerät
+        """
+        return await self.set_target_value("pH", value)
+    
+    async def set_orp_target(self, value: int) -> str:
+        """
+        Setzt den Redox-Sollwert (ORP).
+        
+        Args:
+            value: Neuer Redox-Sollwert in mV
+            
+        Returns:
+            Der Text der Antwort vom Gerät
+        """
+        return await self.set_target_value("ORP", value)
+    
+    async def set_min_chlorine_level(self, value: float) -> str:
+        """
+        Setzt den minimalen Chlorgehalt.
+        
+        Args:
+            value: Neuer minimaler Chlorgehalt in mg/l
+            
+        Returns:
+            Der Text der Antwort vom Gerät
+        """
+        return await self.set_target_value("MinChlorine", value)
+    
+    async def set_max_chlorine_level_day(self, value: float) -> str:
+        """
+        Setzt den maximalen Chlorgehalt tagsüber.
+        
+        Args:
+            value: Neuer maximaler Chlorgehalt tagsüber in mg/l
+            
+        Returns:
+            Der Text der Antwort vom Gerät
+        """
+        return await self.set_target_value("MaxChlorineDay", value)
+    
+    async def set_max_chlorine_level_night(self, value: float) -> str:
+        """
+        Setzt den maximalen Chlorgehalt nachts.
+        
+        Args:
+            value: Neuer maximaler Chlorgehalt nachts in mg/l
+            
+        Returns:
+            Der Text der Antwort vom Gerät
+        """
+        return await self.set_target_value("MaxChlorineNight", value)
+    
+    async def set_maintenance_mode(self, enabled: bool) -> str:
+        """
+        Aktiviert oder deaktiviert den Wartungsmodus.
+        
+        Args:
+            enabled: True für aktivieren, False für deaktivieren
+            
+        Returns:
+            Der Text der Antwort vom Gerät
+        """
+        action = "ON" if enabled else "OFF"
+        return await self.set_switch_state("MAINTENANCE", action)
+    
+    async def start_water_analysis(self) -> str:
+        """
+        Startet eine Wasseranalyse.
+        
+        Returns:
+            Der Text der Antwort vom Gerät
+        """
+        protocol = "https" if self.use_ssl else "http"
+        url = f"{protocol}://{self.host}/startWaterAnalysis"
+        
+        auth = (
+            aiohttp.BasicAuth(self.username, self.password)
+            if self.username and self.password
+            else None
+        )
+        
+        if not self.session:
+            raise RuntimeError("Keine ClientSession gesetzt in VioletPoolAPI.")
+            
+        try:
+            async with asyncio.timeout(self.timeout):
+                async with self.session.get(url, auth=auth, ssl=self.use_ssl) as response:
+                    response.raise_for_status()
+                    response_text = await response.text()
+                    return response_text
+        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+            _LOGGER.error("Fehler beim Starten der Wasseranalyse: %s", err)
+            raise ConnectionError(f"Fehler beim Starten der Wasseranalyse: {err}") from err
+    
+    async def get_dosing_stats(self) -> Dict[str, Any]:
+        """
+        Gibt Statistiken zur Dosierung zurück.
+        
+        Returns:
+            Dictionary mit Dosierungsstatistiken
+        """
+        protocol = "https" if self.use_ssl else "http"
+        url = f"{protocol}://{self.host}/getDosingStats"
+        
+        auth = (
+            aiohttp.BasicAuth(self.username, self.password)
+            if self.username and self.password
+            else None
+        )
+        
+        if not self.session:
+            raise RuntimeError("Keine ClientSession gesetzt in VioletPoolAPI.")
+            
+        try:
+            async with asyncio.timeout(self.timeout):
+                async with self.session.get(url, auth=auth, ssl=self.use_ssl) as response:
+                    response.raise_for_status()
+                    return await response.json()
+        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+            _LOGGER.error("Fehler beim Abrufen der Dosierungsstatistiken: %s", err)
+            raise ConnectionError(f"Fehler beim Abrufen der Dosierungsstatistiken: {err}") from err
