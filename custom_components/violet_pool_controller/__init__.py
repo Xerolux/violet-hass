@@ -179,6 +179,7 @@ def register_services(hass: HomeAssistant) -> None:
     async def async_handle_trigger_backwash(call: ServiceCall) -> None:
         """Service-Handler zum Auslösen einer Rückspülung."""
         entity_id = call.data.get("entity_id")
+        duration = call.data.get("duration", 0)  # Optional: Dauer in Sekunden
         
         # Suche nach der Entity
         entity = hass.states.get(entity_id)
@@ -192,20 +193,97 @@ def register_services(hass: HomeAssistant) -> None:
             {"entity_id": entity_id},
             blocking=True
         )
+        
+        # Wenn eine Dauer angegeben wurde, plane automatische Abschaltung
+        if duration > 0:
+            _LOGGER.info("Plane automatische Abschaltung nach %d Sekunden", duration)
+            coordinator = None
+            
+            # Finde den richtigen Coordinator für die Entity
+            for entry_id, coord in hass.data[DOMAIN].items():
+                # Prüfe, ob die Entity zu diesem Coordinator gehört
+                if entity_id.startswith(f"switch.{entry_id}") or entity_id.endswith(f"_{entry_id}"):
+                    coordinator = coord
+                    break
+            
+            if coordinator:
+                import asyncio
+                # Warte die angegebene Zeit
+                await asyncio.sleep(duration)
+                # Schalte die Entity aus
+                await hass.services.async_call(
+                    "switch", "turn_off",
+                    {"entity_id": entity_id},
+                    blocking=True
+                )
     
-    # Services registrieren
-    hass.services.async_register(
-        DOMAIN, "set_temperature_target", async_handle_set_temperature_target
-    )
+    # Neuer Service: Wasseranalyse-Modus starten
+    async def async_handle_start_water_analysis(call: ServiceCall) -> None:
+        """Service-Handler zum Starten des Wasseranalyse-Modus."""
+        entity_id = call.data.get("entity_id")  # Optional: Spezifische Entity für die Wasseranalyse
+        
+        # Finde den richtigen Coordinator
+        coordinator = None
+        for entry_id, coord in hass.data[DOMAIN].items():
+            if entity_id:
+                # Wenn entity_id angegeben, suche den passenden Coordinator
+                if entity_id.startswith(f"sensor.{entry_id}") or entity_id.endswith(f"_{entry_id}"):
+                    coordinator = coord
+                    break
+            else:
+                # Wenn keine entity_id angegeben, verwende den ersten Coordinator
+                coordinator = coord
+                break
+        
+        if not coordinator:
+            _LOGGER.error("Kein passender Coordinator gefunden")
+            return
+        
+        try:
+            # Starte den Wasseranalyse-Modus über die API
+            # Da dieser API-Endpunkt möglicherweise nicht dokumentiert ist, ist dies ein Beispiel
+            protocol = "https" if coordinator.api.use_ssl else "http"
+            url = f"{protocol}://{coordinator.api.host}/startWaterAnalysis"
+            
+            auth = None
+            if coordinator.api.username and coordinator.api.password:
+                from aiohttp import BasicAuth
+                auth = BasicAuth(coordinator.api.username, coordinator.api.password)
+            
+            async with coordinator.api.session.get(url, auth=auth, ssl=coordinator.api.use_ssl) as response:
+                response.raise_for_status()
+                response_text = await response.text()
+                _LOGGER.info("Wasseranalyse gestartet. Antwort: %s", response_text)
+                
+            # Daten aktualisieren
+            await coordinator.async_request_refresh()
+        except Exception as err:
+            _LOGGER.error("Fehler beim Starten der Wasseranalyse: %s", err)
     
-    hass.services.async_register(
-        DOMAIN, "set_ph_target", async_handle_set_ph_target
-    )
-    
-    hass.services.async_register(
-        DOMAIN, "set_chlorine_target", async_handle_set_ph_target
-    )
-    
-    hass.services.async_register(
-        DOMAIN, "trigger_backwash", async_handle_trigger_backwash
-    )
+    # Neuer Service: Wartungsmodus ein-/ausschalten
+    async def async_handle_set_maintenance_mode(call: ServiceCall) -> None:
+        """Service-Handler zum Ein-/Ausschalten des Wartungsmodus."""
+        entity_id = call.data.get("entity_id")  # Optional: Spezifische Entity
+        enable = call.data.get("enable", True)  # True = aktivieren, False = deaktivieren
+        
+        # Finde den richtigen Coordinator
+        coordinator = None
+        for entry_id, coord in hass.data[DOMAIN].items():
+            if entity_id:
+                # Wenn entity_id angegeben, suche den passenden Coordinator
+                if entity_id.startswith(f"switch.{entry_id}") or entity_id.endswith(f"_{entry_id}"):
+                    coordinator = coord
+                    break
+            else:
+                # Wenn keine entity_id angegeben, verwende den ersten Coordinator
+                coordinator = coord
+                break
+        
+        if not coordinator:
+            _LOGGER.error("Kein passender Coordinator gefunden")
+            return
+        
+        try:
+            # Setze den Wartungsmodus über die API
+            action = "ON" if enable else "OFF"
+            await coordinator.api.set_switch_state
