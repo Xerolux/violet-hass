@@ -241,3 +241,303 @@ action:
 mode: restart
 max_exceeded: silent
 icon: mdi:pool
+
+
+Gerne! Ich habe den Blueprint mit einigen zusätzlichen Funktionen erweitert:
+
+blueprint:
+  name: Enhanced Violet Pool Pump Controller
+  description: Advanced automation for Violet Pool Controller with scheduling, temperature control, energy saving features and alerts.
+  domain: automation
+  source_url: https://github.com/xerolux/violet-hass
+  input:
+    pump_entity:
+      name: Pump Switch
+      description: The Violet pool pump switch entity.
+      selector:
+        entity:
+          domain: switch
+          integration: violet_pool_controller
+    temperature_sensor:
+      name: Water Temperature Sensor
+      description: (Optional) Water temperature sensor for temperature-based control.
+      default: 
+      selector:
+        entity:
+          domain: sensor
+          device_class: temperature
+    energy_price_sensor:
+      name: Energy Price Sensor
+      description: (Optional) Energy price sensor for cost-efficient operation.
+      default:
+      selector:
+        entity:
+          domain: sensor
+    solar_production_sensor:
+      name: Solar Production Sensor
+      description: (Optional) Solar production sensor for PV-surplus based operation.
+      default:
+      selector:
+        entity:
+          domain: sensor
+          device_class: power
+    min_runtime:
+      name: Minimum Runtime
+      description: Minimum daily runtime in minutes (to ensure adequate filtration).
+      default: 180
+      selector:
+        number:
+          min: 10
+          max: 1440
+          step: 5
+          unit_of_measurement: minutes
+    scheduled_start_time:
+      name: Scheduled Start Time
+      description: Daily scheduled start time (leave empty to disable).
+      default: 
+      selector:
+        time:
+    scheduled_duration:
+      name: Scheduled Duration
+      description: Duration for scheduled operations (in minutes).
+      default: 180
+      selector:
+        number:
+          min: 10
+          max: 720
+          step: 5
+          unit_of_measurement: minutes
+    low_energy_price_threshold:
+      name: Low Energy Price Threshold
+      description: (Optional) Threshold for low energy price to activate pump.
+      default: 0.15
+      selector:
+        number:
+          min: 0
+          max: 1
+          step: 0.01
+          unit_of_measurement: €/kWh
+    min_solar_production:
+      name: Minimum Solar Production
+      description: (Optional) Minimum solar production to activate pump (W).
+      default: 1500
+      selector:
+        number:
+          min: 0
+          max: 10000
+          step: 100
+          unit_of_measurement: W
+    enable_notifications:
+      name: Enable Notifications
+      description: Send notifications about pump operation.
+      default: false
+      selector:
+        boolean:
+    notification_service:
+      name: Notification Service
+      description: Service to use for notifications.
+      default: persistent_notification.create
+      selector:
+        text:
+    summer_mode:
+      name: Summer Mode
+      description: Enable extended operation during summer months (May-Sep).
+      default: true
+      selector:
+        boolean:
+    auto_after:
+      name: Switch to AUTO Mode After
+      description: Whether to switch to AUTO mode after the duration.
+      default: true
+      selector:
+        boolean:
+
+# Multiple trigger options for flexible control
+trigger:
+  # Manual activation
+  - platform: state
+    entity_id: !input pump_entity
+    to: "on"
+    id: "manual_activation"
+  
+  # Scheduled daily operation
+  - platform: time
+    at: !input scheduled_start_time
+    id: "scheduled_start"
+    enabled: "{{ scheduled_start_time != '' }}"
+  
+  # Low energy price trigger
+  - platform: numeric_state
+    entity_id: !input energy_price_sensor
+    below: !input low_energy_price_threshold
+    id: "low_energy_price"
+    enabled: "{{ energy_price_sensor != '' }}"
+  
+  # Solar surplus trigger
+  - platform: numeric_state
+    entity_id: !input solar_production_sensor
+    above: !input min_solar_production
+    id: "solar_surplus"
+    enabled: "{{ solar_production_sensor != '' }}"
+  
+  # Temperature based activation (e.g., for higher temps)
+  - platform: numeric_state
+    entity_id: !input temperature_sensor
+    above: 25
+    id: "high_temp"
+    enabled: "{{ temperature_sensor != '' }}"
+
+variables:
+  # Calculate runtime based on various factors
+  pump_entity: !input pump_entity
+  temp_sensor: !input temperature_sensor
+  energy_sensor: !input energy_price_sensor
+  solar_sensor: !input solar_production_sensor
+  scheduled_duration: !input scheduled_duration
+  min_runtime: !input min_runtime
+  auto_after: !input auto_after
+  enable_notifications: !input enable_notifications
+  notification_service: !input notification_service
+  
+  # Check if it's summer (May-Sep)
+  current_month: "{{ now().month }}"
+  is_summer: "{{ now().month >= 5 and now().month <= 9 and (summer_mode | default(true)) }}"
+  
+  # Calculate optimal runtime based on temperature if sensor available
+  water_temp: "{{ states(temp_sensor) if temp_sensor != '' else 20 | float }}"
+  temp_runtime_factor: "{{ 1.0 + ((water_temp - 20) / 10) if water_temp | float > 20 else 1.0 }}"
+  
+  # Calculate runtime
+  base_duration: "{{ scheduled_duration | int if trigger.id == 'scheduled_start' else 
+                     (min_runtime | int) }}"
+  
+  # Add extra runtime in summer or for high temperatures
+  adjusted_duration: "{{ (base_duration | int * 1.5) if is_summer else 
+                         (base_duration | int * temp_runtime_factor) if water_temp | float > 25 else 
+                         base_duration | int }}"
+  
+  # Convert to seconds for delay
+  duration_seconds: "{{ (adjusted_duration | int) * 60 }}"
+  
+  # Trigger type for notification
+  trigger_type: "{{ trigger.id }}"
+
+action:
+  # 1. Send notification about activation if enabled
+  - if:
+      - condition: template
+        value_template: "{{ enable_notifications }}"
+    then:
+      - service: "{{ notification_service }}"
+        data:
+          title: "Pool Pump Activated"
+          message: >
+            Pool pump activated via {{ trigger_type }} trigger.
+            Running for {{ adjusted_duration }} minutes.
+            {% if temp_sensor != '' %}Water temperature: {{ water_temp }}°C.{% endif %}
+  
+  # 2. Turn on the pump
+  - service: switch.turn_on
+    target:
+      entity_id: !input pump_entity
+    metadata:
+      description: "Turn on the pool pump"
+  
+  # 3. Wait for the calculated duration
+  - delay:
+      seconds: "{{ duration_seconds }}"
+    metadata:
+      description: "Run for the calculated duration"
+  
+  # 4. Check current state before turning off (might have been manually changed)
+  - if:
+      - condition: state
+        entity_id: !input pump_entity
+        state: "on"
+    then:
+      - if:
+          - condition: template
+            value_template: "{{ auto_after }}"
+        then:
+          - service: violet_pool_controller.set_mode
+            target:
+              entity_id: !input pump_entity
+            data:
+              mode: "auto"
+            metadata:
+              description: "Set pump back to AUTO mode"
+        else:
+          - service: switch.turn_off
+            target:
+              entity_id: !input pump_entity
+            metadata:
+              description: "Turn off the pool pump"
+      
+      # 5. Send notification about deactivation if enabled
+      - if:
+          - condition: template
+            value_template: "{{ enable_notifications }}"
+        then:
+          - service: "{{ notification_service }}"
+            data:
+              title: "Pool Pump Deactivated"
+              message: >
+                Pool pump has completed its {{ adjusted_duration }} minute cycle
+                and has been set to {% if auto_after %}AUTO mode{% else %}OFF{% endif %}.
+
+mode: restart
+max_exceeded: silent
+icon: mdi:pool
+
+Ich habe einen erweiterten Blueprint für deine Violet Pool Controller Integration erstellt. Diese Version bietet deutlich mehr Funktionen:
+
+### Neue Funktionen:
+
+1. **Intelligente Zeitplanung**
+   - Geplante tägliche Laufzeiten mit einstellbarer Dauer
+   - Automatische Anpassung der Laufzeit basierend auf der Saison
+
+2. **Temperaturbasierte Steuerung**
+   - Längere Laufzeiten bei höheren Wassertemperaturen
+   - Automatische Aktivierung bei hohen Temperaturen
+
+3. **Energiesparfunktionen**
+   - Integration mit Strompreissensoren für kostengünstigen Betrieb
+   - PV-Überschuss-Erkennung für solaroptimierte Laufzeiten
+
+4. **Saisonale Anpassungen**
+   - Erkennung von Sommermonaten (Mai-September)
+   - Automatische Erhöhung der Laufzeit in Sommermonaten
+
+5. **Benachrichtigungen**
+   - Konfigurierbare Benachrichtigungen bei Pumpenstart und -ende
+   - Anpassbare Benachrichtigungsdienste
+
+6. **Verbesserte Steuerungslogik**
+   - Überprüfung des aktuellen Zustands vor dem Ausschalten
+   - Mehrere Trigger-Optionen für flexible Steuerung
+
+### Integration in deine README
+
+Du könntest einen neuen Abschnitt in deiner README hinzufügen, der diese Blueprint-Funktion erklärt:
+
+```markdown
+## Automation Blueprint
+
+Diese Integration enthält einen fortschrittlichen Automation Blueprint, der die folgenden Funktionen bietet:
+- Intelligente Zeitplanung für routinemäßige Filtration
+- Temperaturbasierte Steuerungsanpassungen
+- Energiespar-Modi für PV-Überschuss und günstige Strompreise
+- Saisonale Anpassungen
+- Benachrichtigungen
+
+### Installation des Blueprints
+
+1. Gehe zu **Einstellungen > Automatisierung & Szenen**
+2. Klicke auf "Blueprints"
+3. Klicke auf "Blueprint importieren"
+4. Füge die URL ein: `https://github.com/xerolux/violet-hass/blob/main/blueprints/automation/violet_pool_controller/enhanced_pump_control.yaml`
+5. Klicke auf "Vorschau" und dann auf "Importieren"
+```
+
+Möchtest du noch weitere spezifische Funktionen hinzufügen oder Anpassungen vornehmen?
