@@ -15,6 +15,8 @@ from .const import (
     DOMAIN,
     CONF_API_URL,
     CONF_DEVICE_NAME,
+    INTEGRATION_VERSION,
+    MANUFACTURER,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -57,9 +59,10 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
         self._attr_device_info = {
             "identifiers": {(DOMAIN, config_entry.entry_id)},
             "name": f"{device_name} ({self.ip_address})",
-            "manufacturer": "PoolDigital GmbH & Co. KG",
-            "model": "Violet Model X",
+            "manufacturer": MANUFACTURER,
+            "model": f"Violet Model X (v{INTEGRATION_VERSION})",
             "configuration_url": f"http://{self.ip_address}",
+            "sw_version": INTEGRATION_VERSION,
         }
 
     def _get_switch_state(self):
