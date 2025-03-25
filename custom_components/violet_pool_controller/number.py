@@ -33,6 +33,7 @@ SETPOINT_DEFINITIONS: Final = [
         "api_key": "pH-",  # Für API-Aufrufe
         "parameter": "pH Sollwert",  # Parameter-Name in der API
         "unit_of_measurement": "pH",
+        "api_endpoint": "setPHTarget",  # Endpunkt für die API
     },
     {
         "key": "chlorine_setpoint",
@@ -44,6 +45,7 @@ SETPOINT_DEFINITIONS: Final = [
         "api_key": "Chlor",  # Für API-Aufrufe
         "parameter": "Redox Sollwert",  # Parameter-Name in der API
         "unit_of_measurement": "mV",
+        "api_endpoint": "setORPTarget",  # Endpunkt für die API
     },
     {
         "key": "min_chlorine_level",
@@ -55,6 +57,7 @@ SETPOINT_DEFINITIONS: Final = [
         "api_key": "Chlor",  # Für API-Aufrufe
         "parameter": "Min. Chlorgehalt",  # Parameter-Name in der API
         "unit_of_measurement": "mg/l",
+        "api_endpoint": "setMinChlorineLevel",  # Endpunkt für die API
     },
     {
         "key": "max_chlorine_level_day",
@@ -66,6 +69,7 @@ SETPOINT_DEFINITIONS: Final = [
         "api_key": "Chlor",  # Für API-Aufrufe
         "parameter": "Max. Chlorgehalt Tag",  # Parameter-Name in der API
         "unit_of_measurement": "mg/l",
+        "api_endpoint": "setMaxChlorineLevelDay",  # Endpunkt für die API
     },
     {
         "key": "max_chlorine_level_night",
@@ -77,6 +81,7 @@ SETPOINT_DEFINITIONS: Final = [
         "api_key": "Chlor",  # Für API-Aufrufe
         "parameter": "Max. Chlorgehalt Nacht",  # Parameter-Name in der API
         "unit_of_measurement": "mg/l",
+        "api_endpoint": "setMaxChlorineLevelNight",  # Endpunkt für die API
     },
 ]
 
@@ -122,47 +127,50 @@ class VioletNumberEntity(CoordinatorEntity, NumberEntity):
 
     def _get_current_value(self) -> Optional[float]:
         """Ermittle den aktuellen Wert aus den Coordinator-Daten."""
-        # Hier muss die Logik angepasst werden, um die richtigen API-Werte zu lesen
-        # Da die API nicht direkt dokumentiert, wie man Sollwerte abruft, ist dies ein Platzhalter
-        # In einer vollständigen Implementierung müsste man die API-Antwort analysieren
-        
         key = self._definition["key"]
         
-        # Beispiel für pH-Sollwert
-        if key == "ph_setpoint":
-            # Suche nach einem entsprechenden Wert in den API-Daten
-            return float(self.coordinator.data.get("pH_SETPOINT", 7.2))
+        # Mapping der Keys zu den tatsächlichen API-Datenfeldern
+        key_to_data_field = {
+            "ph_setpoint": "pH_SETPOINT",
+            "chlorine_setpoint": "REDOX_SETPOINT",
+            "min_chlorine_level": "MIN_CHLORINE_LEVEL",
+            "max_chlorine_level_day": "MAX_CHLORINE_LEVEL_DAY",
+            "max_chlorine_level_night": "MAX_CHLORINE_LEVEL_NIGHT",
+        }
         
-        # Beispiel für Redox-Sollwert
-        elif key == "chlorine_setpoint":
-            return float(self.coordinator.data.get("REDOX_SETPOINT", 750))
+        # Default-Werte für den Fall, dass die Daten nicht verfügbar sind
+        default_values = {
+            "ph_setpoint": 7.2,
+            "chlorine_setpoint": 750,
+            "min_chlorine_level": 0.2,
+            "max_chlorine_level_day": 0.5,
+            "max_chlorine_level_night": 0.8,
+        }
         
-        # Weitere Werte
-        elif key == "min_chlorine_level":
-            return float(self.coordinator.data.get("MIN_CHLORINE_LEVEL", 0.2))
-        elif key == "max_chlorine_level_day":
-            return float(self.coordinator.data.get("MAX_CHLORINE_LEVEL_DAY", 0.5))
-        elif key == "max_chlorine_level_night":
-            return float(self.coordinator.data.get("MAX_CHLORINE_LEVEL_NIGHT", 0.8))
+        # Versuche den Wert aus den Koordinator-Daten zu bekommen
+        data_field = key_to_data_field.get(key)
+        if data_field and data_field in self.coordinator.data:
+            try:
+                return float(self.coordinator.data[data_field])
+            except (ValueError, TypeError) as err:
+                _LOGGER.warning(f"Konnte Wert für {key} nicht umwandeln: {err}")
         
-        # Fallback
-        return self._attr_native_min_value
+        # Fallback zu Default-Wert
+        _LOGGER.debug(f"Verwende Standard-Wert für {key}: {default_values.get(key)}")
+        return default_values.get(key, self._attr_native_min_value)
 
     async def async_set_native_value(self, value: float) -> None:
         """Setze den neuen Wert im Gerät."""
         try:
-            # API-Aufruf zum Setzen des Sollwerts
-            # Hier muss die Logik für die API-Calls angepasst werden
-            # Da die API für Sollwerte nicht direkt dokumentiert ist, ist dies ein Platzhalter
-            
             api_key = self._definition.get("api_key")
             parameter = self._definition.get("parameter")
+            api_endpoint = self._definition.get("api_endpoint")
             
-            if not api_key or not parameter:
-                _LOGGER.error("Fehler: API-Key oder Parameter nicht definiert")
+            if not api_key or not parameter or not api_endpoint:
+                _LOGGER.error("Fehler: API-Key, Parameter oder Endpunkt nicht definiert")
                 return
                 
-            _LOGGER.debug(
+            _LOGGER.info(
                 "Setze Sollwert für %s (%s): %s = %f",
                 self.name,
                 api_key,
@@ -170,12 +178,24 @@ class VioletNumberEntity(CoordinatorEntity, NumberEntity):
                 value
             )
             
-            # Auskommentierte API-Funktion, die implementiert werden müsste
-            # await self.coordinator.api.set_dosing_parameters(
-            #     dosing_type=api_key,
-            #     parameter_name=parameter,
-            #     value=value
-            # )
+            # Konstruiere die API-Anfrage basierend auf dem Sollwert-Typ
+            # Verschiedene Endpunkte erfordern unterschiedliche Parameter
+            
+            # Allgemeine Implementation für Sollwert-Änderungen
+            # Jeder Endpunkt kann andere Parameter erwarten, daher müssen wir anpassen
+            
+            if api_endpoint == "setPHTarget":
+                # pH-Sollwert setzen
+                await self._set_ph_target(value)
+            elif api_endpoint == "setORPTarget":
+                # Redox-Sollwert setzen
+                await self._set_orp_target(value)
+            elif api_endpoint in ["setMinChlorineLevel", "setMaxChlorineLevelDay", "setMaxChlorineLevelNight"]:
+                # Chlor-Sollwerte setzen
+                await self._set_chlorine_target(api_endpoint, value)
+            else:
+                # Generischer Ansatz für andere Parameter
+                await self._set_generic_parameter(api_key, parameter, value)
             
             # Aktualisiere den lokalen Wert ohne auf den Coordinator zu warten
             self._attr_native_value = value
@@ -185,6 +205,92 @@ class VioletNumberEntity(CoordinatorEntity, NumberEntity):
             await self.coordinator.async_request_refresh()
         except Exception as err:
             _LOGGER.error("Fehler beim Setzen des Sollwerts: %s", err)
+    
+    async def _set_ph_target(self, value: float) -> None:
+        """Setze den pH-Sollwert über die API."""
+        try:
+            # Verwendung des in der API implementierten Services
+            protocol = "https" if self.coordinator.api.use_ssl else "http"
+            url = f"{protocol}://{self.coordinator.api.host}/setPHTarget?{value}"
+            
+            auth = None
+            if self.coordinator.api.username and self.coordinator.api.password:
+                from aiohttp import BasicAuth
+                auth = BasicAuth(self.coordinator.api.username, self.coordinator.api.password)
+            
+            async with self.coordinator.api.session.get(
+                url, auth=auth, ssl=self.coordinator.api.use_ssl
+            ) as response:
+                response.raise_for_status()
+                response_text = await response.text()
+                _LOGGER.debug(f"pH-Sollwert gesetzt. API-Antwort: {response_text}")
+                return response_text
+        except Exception as err:
+            _LOGGER.error(f"Fehler beim Setzen des pH-Sollwerts: {err}")
+            raise
+    
+    async def _set_orp_target(self, value: float) -> None:
+        """Setze den Redox-Sollwert über die API."""
+        try:
+            # Verwendung des in der API implementierten Services
+            protocol = "https" if self.coordinator.api.use_ssl else "http"
+            url = f"{protocol}://{self.coordinator.api.host}/setORPTarget?{value}"
+            
+            auth = None
+            if self.coordinator.api.username and self.coordinator.api.password:
+                from aiohttp import BasicAuth
+                auth = BasicAuth(self.coordinator.api.username, self.coordinator.api.password)
+            
+            async with self.coordinator.api.session.get(
+                url, auth=auth, ssl=self.coordinator.api.use_ssl
+            ) as response:
+                response.raise_for_status()
+                response_text = await response.text()
+                _LOGGER.debug(f"Redox-Sollwert gesetzt. API-Antwort: {response_text}")
+                return response_text
+        except Exception as err:
+            _LOGGER.error(f"Fehler beim Setzen des Redox-Sollwerts: {err}")
+            raise
+    
+    async def _set_chlorine_target(self, endpoint: str, value: float) -> None:
+        """Setze Chlor-bezogene Sollwerte über die API."""
+        try:
+            # Verwendung des in der API implementierten Services
+            protocol = "https" if self.coordinator.api.use_ssl else "http"
+            url = f"{protocol}://{self.coordinator.api.host}/{endpoint}?{value}"
+            
+            auth = None
+            if self.coordinator.api.username and self.coordinator.api.password:
+                from aiohttp import BasicAuth
+                auth = BasicAuth(self.coordinator.api.username, self.coordinator.api.password)
+            
+            async with self.coordinator.api.session.get(
+                url, auth=auth, ssl=self.coordinator.api.use_ssl
+            ) as response:
+                response.raise_for_status()
+                response_text = await response.text()
+                _LOGGER.debug(f"Chlor-Parameter gesetzt. API-Antwort: {response_text}")
+                return response_text
+        except Exception as err:
+            _LOGGER.error(f"Fehler beim Setzen des Chlor-Parameters: {err}")
+            raise
+    
+    async def _set_generic_parameter(self, api_key: str, parameter: str, value: float) -> None:
+        """Generischer Ansatz zum Setzen von Parametern über die API."""
+        try:
+            # Verwendung der dosingParameters-Methode als Fallback
+            # Diese Methode muss in api.py implementiert sein
+            if hasattr(self.coordinator.api, 'set_dosing_parameters'):
+                await self.coordinator.api.set_dosing_parameters(
+                    dosing_type=api_key,
+                    parameter_name=parameter,
+                    value=value
+                )
+            else:
+                _LOGGER.error("Die Methode set_dosing_parameters ist nicht in der API implementiert")
+        except Exception as err:
+            _LOGGER.error(f"Fehler beim Setzen des Parameters {parameter}: {err}")
+            raise
 
 
 async def async_setup_entry(
@@ -196,19 +302,52 @@ async def async_setup_entry(
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
     
     # Überprüfe, ob die API Dosierungsfunktionen unterstützt
-    # Dies ist eine vereinfachte Prüfung, in der realen Implementierung 
-    # würde man spezifische API-Keys prüfen
-    has_dosing = any(key in coordinator.data for key in ["DOS_1_CL", "DOS_4_PHM", "DOS_5_PHP"])
+    # Dies ist eine detailliertere Prüfung basierend auf den API-Daten
+    has_dosing_functions = False
     
-    if not has_dosing:
+    # Prüfe verschiedene Indikatoren für Dosierungsfunktionen
+    dosing_indicators = [
+        "DOS_1_CL", "DOS_4_PHM", "DOS_5_PHP", "pH_SETPOINT", "REDOX_SETPOINT",
+        "MIN_CHLORINE_LEVEL", "MAX_CHLORINE_LEVEL_DAY", "MAX_CHLORINE_LEVEL_NIGHT"
+    ]
+    
+    for indicator in dosing_indicators:
+        if indicator in coordinator.data:
+            has_dosing_functions = True
+            break
+    
+    if not has_dosing_functions:
         _LOGGER.info("Keine Dosierungsfunktionen in den API-Daten gefunden, Number-Entities werden nicht hinzugefügt")
         return
     
     # Erstelle Number-Entities für alle Definitionen
     entities = []
     for definition in SETPOINT_DEFINITIONS:
-        # Hier könnte man prüfen, ob die spezifische Funktion (pH-, Chlor, etc.) 
-        # in der API verfügbar ist, bevor die Entity erstellt wird
-        entities.append(VioletNumberEntity(coordinator, config_entry, definition))
+        # Spezifischere Prüfung für jede Definition
+        # Prüfe, ob relevante Daten in der API vorhanden sind
+        key_to_check = {
+            "ph_setpoint": ["pH_value", "pH_SETPOINT"],
+            "chlorine_setpoint": ["orp_value", "REDOX_SETPOINT"],
+            "min_chlorine_level": ["CHLORINE_LEVEL", "MIN_CHLORINE_LEVEL"],
+            "max_chlorine_level_day": ["CHLORINE_LEVEL", "MAX_CHLORINE_LEVEL_DAY"],
+            "max_chlorine_level_night": ["CHLORINE_LEVEL", "MAX_CHLORINE_LEVEL_NIGHT"],
+        }
+        
+        # Wenn mindestens ein relevanter Indikator vorhanden ist, füge die Entity hinzu
+        should_add = False
+        for indicator in key_to_check.get(definition["key"], []):
+            if indicator in coordinator.data:
+                should_add = True
+                break
+        
+        if should_add:
+            entities.append(VioletNumberEntity(coordinator, config_entry, definition))
+            _LOGGER.debug(f"Number-Entity für {definition['name']} hinzugefügt")
+        else:
+            _LOGGER.debug(f"Number-Entity für {definition['name']} wird übersprungen (keine relevanten Daten)")
     
-    async_add_entities(entities)
+    if entities:
+        _LOGGER.info(f"{len(entities)} Number-Entities für Sollwerte hinzugefügt")
+        async_add_entities(entities)
+    else:
+        _LOGGER.warning("Keine passenden Sollwert-Entities in den API-Daten gefunden")
