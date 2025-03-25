@@ -1,23 +1,31 @@
+"""Sensor Integration für den Violet Pool Controller."""
 import logging
-import asyncio
-from typing import Any, Dict
-from homeassistant.components.sensor import SensorEntity
+from typing import Any, Dict, Optional, Union
+
+from homeassistant.components.sensor import (
+    SensorEntity,
+    SensorDeviceClass,
+    SensorStateClass,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN
+from .const import (
+    DOMAIN,
+    CONF_API_URL,
+    CONF_DEVICE_NAME,
+    MANUFACTURER,
+    INTEGRATION_VERSION,
+    TEMP_SENSORS,
+    WATER_CHEM_SENSORS,
+    ANALOG_SENSORS,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
-# Bestimmte Sensoren, die keine Einheit haben sollen
-NO_UNIT_SENSORS = {
-    "SOLAR_LAST_OFF", "HEATER_LAST_ON", "HEATER_LAST_OFF",
-    "BACKWASH_LAST_ON", "BACKWASH_LAST_OFF", "PUMP_LAST_ON", "PUMP_LAST_OFF"
-}
-
-# Mapping einiger Keys zu Einheiten
+# Einheiten für verschiedene Sensortypen (nicht in const.py, da spezifisch für sensor.py)
 UNIT_MAP = {
     "IMP1_value": "cm/s",
     "IMP2_value": "cm/s",
@@ -54,95 +62,61 @@ UNIT_MAP = {
     "TURBIDITY": "NTU",
 }
 
-def guess_name_from_key(key: str) -> str:
-    """
-    Erzeuge einen halbwegs lesbaren Namen aus dem Key.
-    Beispiel: "SYSTEM_cpu_temperature" -> "System Cpu Temperature"
-    """
-    # Sonderfall: Versuche, underscores durch Leerzeichen zu ersetzen
-    # und die Einzelteile zu kapitalisieren.
-    # Man kann das beliebig anpassen (z.B. "CPU" groß lassen, etc.).
-    return " ".join(part.capitalize() for part in key.split("_"))
+# Sensortypen ohne Einheiten
+NO_UNIT_SENSORS = {
+    "SOLAR_LAST_OFF", "HEATER_LAST_ON", "HEATER_LAST_OFF",
+    "BACKWASH_LAST_ON", "BACKWASH_LAST_OFF", "PUMP_LAST_ON", "PUMP_LAST_OFF"
+}
 
-def guess_icon_from_key(key: str) -> str:
-    """
-    Ordne basierend auf dem Key einen MDI-Icon zu.
-    Das hier ist nur eine einfache Heuristik. 
-    Du kannst nach Belieben weiter verfeinern.
-    """
-    klower = key.lower()
 
-    # Ein paar Beispiel-Regeln:
-    if "temp" in klower or "therm" in klower:
-        return "mdi:thermometer"
-    if "pump" in klower:
-        return "mdi:water-pump"
-    if "orp" in klower:
-        return "mdi:flash"
-    if "ph" in klower:
-        return "mdi:flask"
-    if "pressure" in klower or "adc" in klower:
-        return "mdi:gauge"
-    if "memory" in klower:
-        return "mdi:memory"
-    if "rpm" in klower:
-        return "mdi:fan"
-    if "version" in klower or "fw" in klower:
-        return "mdi:update"
-    if "last_on" in klower:
-        return "mdi:timer"
-    if "last_off" in klower:
-        return "mdi:timer-off"
-    if "onewire" in klower:
-        return "mdi:thermometer"
-
-    # Falls nichts passt, nimm ein generisches Icon.
-    return "mdi:information"
-
-class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
-    """Representation of a Violet Device Sensor."""
+class VioletSensor(CoordinatorEntity, SensorEntity):
+    """Representation of a Violet Pool Controller Sensor."""
 
     def __init__(
         self,
         coordinator,
         key: str,
+        name: str,
         config_entry: ConfigEntry,
-        name: str | None = None,
-        icon: str | None = None
+        device_class: Optional[str] = None,
+        state_class: Optional[str] = None,
+        unit: Optional[str] = None,
+        icon: Optional[str] = None,
     ):
-        """
-        :param coordinator: Dein DataUpdateCoordinator
-        :param key: Der Key, wie er in coordinator.data auftaucht
-        :param config_entry: Die ConfigEntry
-        :param name: Anzeige-Name; wenn None, bauen wir einen aus dem key
-        :param icon: MDI-Icon; wenn None, wird eines automatisch ermittelt
-        """
+        """Initialize the sensor."""
         super().__init__(coordinator)
         self._key = key
         self._config_entry = config_entry
-
-        # Namen und Icon automatisch generieren oder übernehmen
-        if name:
-            self._attr_name = name
-        else:
-            self._attr_name = f"Violet {guess_name_from_key(key)}"
-
+        device_name = config_entry.data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
+        self._attr_name = f"{device_name} {name}"
+        self._attr_unique_id = f"{config_entry.entry_id}_{key.lower()}"
+        
+        if device_class:
+            self._attr_device_class = device_class
+            
+        if state_class:
+            self._attr_state_class = state_class
+            
+        if unit:
+            self._attr_native_unit_of_measurement = unit
+            
         if icon:
-            self._icon = icon
-        else:
-            self._icon = guess_icon_from_key(key)
-
-        # Unique ID für HA
-        self._attr_unique_id = f"{DOMAIN}_{config_entry.entry_id}_{key}"
-
-        # Ggf. Einheit
-        self._unit = UNIT_MAP.get(key)
-
-        # Vermeide mehrfaches Loggen bei None-States
-        self._has_logged_none_state = False
+            self._attr_icon = icon
+            
+        self.ip_address = config_entry.data.get(CONF_API_URL, "Unknown IP")
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, config_entry.entry_id)},
+            "name": f"{device_name} ({self.ip_address})",
+            "manufacturer": MANUFACTURER,
+            "model": f"Violet Model X (v{INTEGRATION_VERSION})",
+            "sw_version": coordinator.data.get("fw", INTEGRATION_VERSION),
+            "configuration_url": f"http://{self.ip_address}",
+        }
+        
+        self._has_logged_none_state = False  # Verhindert wiederholte Logs bei None-Zustand
 
     @property
-    def native_value(self) -> Any:
+    def native_value(self) -> Union[float, int, str, None]:
         """Return the current value of this sensor."""
         value = self.coordinator.data.get(self._key)
         if value is None:
@@ -152,34 +126,90 @@ class VioletDeviceSensor(CoordinatorEntity, SensorEntity):
         return value
 
     @property
-    def icon(self) -> str:
-        """Return the dynamic icon (falls du es anpassen willst)."""
-        # Du könntest hier noch zusätzliche Logik machen, je nach self.native_value
-        return self._icon
-
-    @property
     def available(self) -> bool:
         """Return True if entity is available."""
         return self.coordinator.last_update_success
 
-    @property
-    def device_info(self) -> Dict[str, Any]:
-        """Return the device information."""
-        return {
-            "identifiers": {(DOMAIN, self._config_entry.entry_id)},
-            "name": "Violet Pool Controller",
-            "manufacturer": "PoolDigital GmbH & Co. KG",
-            "model": "Violet Model X",
-            "sw_version": self.coordinator.data.get("fw", self.coordinator.data.get("SW_VERSION", "Unknown")),
-            "configuration_url": f"http://{self._config_entry.data.get('host', 'Unknown IP')}/getReadings?ALL",
-        }
 
-    @property
-    def native_unit_of_measurement(self) -> str | None:
-        """Return the unit of measurement."""
-        if self._key in NO_UNIT_SENSORS:
-            return None
-        return self._unit
+def guess_device_class(key: str) -> Optional[str]:
+    """Bestimme die Device Class basierend auf dem Key."""
+    klower = key.lower()
+    
+    if "temp" in klower or "therm" in klower or "onewire" in klower:
+        return SensorDeviceClass.TEMPERATURE
+    
+    if "humidity" in klower:
+        return SensorDeviceClass.HUMIDITY
+        
+    if "pressure" in klower or "adc1" in klower:
+        return SensorDeviceClass.PRESSURE
+        
+    if "energy" in klower or "power" in klower:
+        return SensorDeviceClass.POWER
+        
+    if "ph_value" in klower:
+        return SensorDeviceClass.PH
+        
+    if "voltage" in klower:
+        return SensorDeviceClass.VOLTAGE
+        
+    # Weitere Device Classes können nach Bedarf hinzugefügt werden
+    
+    return None
+
+
+def guess_state_class(key: str) -> Optional[str]:
+    """Bestimme die State Class basierend auf dem Key."""
+    klower = key.lower()
+    
+    if "daily" in klower or "_daily_" in klower:
+        return SensorStateClass.TOTAL
+        
+    if "last_on" in klower or "last_off" in klower:
+        return SensorStateClass.TIMESTAMP
+        
+    # Standard für Messwerte
+    return SensorStateClass.MEASUREMENT
+
+
+def guess_icon(key: str) -> str:
+    """Bestimme ein Icon basierend auf dem Key."""
+    klower = key.lower()
+
+    # Temperatur-Icons
+    if "temp" in klower or "therm" in klower:
+        return "mdi:thermometer"
+        
+    # Pump-Icons
+    if "pump" in klower:
+        return "mdi:water-pump"
+        
+    # Chemie-Icons
+    if "orp" in klower:
+        return "mdi:flash"
+    if "ph" in klower:
+        return "mdi:flask"
+        
+    # Druck-Icons
+    if "pressure" in klower or "adc" in klower:
+        return "mdi:gauge"
+        
+    # System-Icons
+    if "memory" in klower:
+        return "mdi:memory"
+    if "rpm" in klower:
+        return "mdi:fan"
+    if "version" in klower or "fw" in klower:
+        return "mdi:update"
+        
+    # Zeit-Icons
+    if "last_on" in klower:
+        return "mdi:timer"
+    if "last_off" in klower:
+        return "mdi:timer-off"
+        
+    # Fallback
+    return "mdi:information"
 
 
 async def async_setup_entry(
@@ -188,29 +218,129 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback
 ) -> None:
     """Set up Violet Device sensors from a config entry."""
-    coordinator = hass.data.get(DOMAIN, {}).get(config_entry.entry_id)
-    if not coordinator:
-        _LOGGER.error("Unable to retrieve coordinator for Violet Pool Controller (entry_id: %s).", config_entry.entry_id)
-        return
-
-    # Wir lesen jetzt ALLE Keys aus, die in coordinator.data liegen.
-    # Daraus bauen wir dynamisch Entities.
-    data_keys = list(coordinator.data.keys())
-
-    sensor_entities = []
-    for key in data_keys:
-        # Du könntest hier filtern, wenn gewisse Keys keinen Sensor ergeben sollen
-        # if not is_relevant_sensor(key):
-        #    continue
-
-        sensor_entities.append(
-            VioletDeviceSensor(
+    coordinator = hass.data[DOMAIN][config_entry.entry_id]
+    
+    # Verfügbare Daten aus der API
+    available_data_keys = set(coordinator.data.keys())
+    
+    # Liste für alle zu erstellenden Sensors
+    sensors = []
+    
+    # 1. Temperatursensoren hinzufügen
+    for key, sensor_info in TEMP_SENSORS.items():
+        if key in available_data_keys:
+            sensors.append(
+                VioletSensor(
+                    coordinator=coordinator,
+                    key=key,
+                    name=sensor_info["name"],
+                    config_entry=config_entry,
+                    device_class=SensorDeviceClass.TEMPERATURE,
+                    state_class=SensorStateClass.MEASUREMENT,
+                    unit="°C",
+                    icon=sensor_info["icon"]
+                )
+            )
+    
+    # 2. Wasserchemie-Sensoren hinzufügen
+    for key, sensor_info in WATER_CHEM_SENSORS.items():
+        if key in available_data_keys:
+            sensors.append(
+                VioletSensor(
+                    coordinator=coordinator,
+                    key=key,
+                    name=sensor_info["name"],
+                    config_entry=config_entry,
+                    device_class=guess_device_class(key),
+                    state_class=SensorStateClass.MEASUREMENT,
+                    unit=sensor_info["unit"],
+                    icon=sensor_info["icon"]
+                )
+            )
+    
+    # 3. Analog-Sensoren hinzufügen
+    for key, sensor_info in ANALOG_SENSORS.items():
+        if key in available_data_keys:
+            sensors.append(
+                VioletSensor(
+                    coordinator=coordinator,
+                    key=key,
+                    name=sensor_info["name"],
+                    config_entry=config_entry,
+                    device_class=guess_device_class(key),
+                    state_class=SensorStateClass.MEASUREMENT,
+                    unit=sensor_info["unit"],
+                    icon=sensor_info["icon"]
+                )
+            )
+    
+    # 4. Alle anderen Sensoren hinzufügen (dynamisch)
+    # Wir wollen mit einigen Keys vorsichtig sein, die keine echten Sensordaten enthalten
+    excluded_keys = {
+        "fw", "date", "time", "CURRENT_TIME_UNIX",  # Systeminformationen
+        # Binäre Zustände, die bereits als binary_sensor erfasst werden
+        "PUMP", "SOLAR", "HEATER", "LIGHT", "ECO", "BACKWASH", "BACKWASHRINSE",
+        "DOS_1_CL", "DOS_4_PHM", "DOS_5_PHP", "DOS_6_FLOC",
+        "REFILL", "PVSURPLUS"
+    }
+    
+    for key in available_data_keys:
+        # Überspringe bereits definierte Sensoren und ausgeschlossene Keys
+        if (key in TEMP_SENSORS or key in WATER_CHEM_SENSORS or 
+            key in ANALOG_SENSORS or key in excluded_keys):
+            continue
+            
+        # Bestimme Name, Einheit, Device Class usw. für diesen Sensor
+        name = key.replace('_', ' ').title()
+        unit = UNIT_MAP.get(key)
+        
+        # Überspringe Keys, die keinen Wert haben sollten
+        if key in NO_UNIT_SENSORS:
+            unit = None
+            
+        device_class = guess_device_class(key)
+        state_class = guess_state_class(key)
+        icon = guess_icon(key)
+        
+        # Erstelle den Sensor
+        sensors.append(
+            VioletSensor(
                 coordinator=coordinator,
                 key=key,
-                config_entry=config_entry
+                name=name,
+                config_entry=config_entry,
+                device_class=device_class,
+                state_class=state_class,
+                unit=unit,
+                icon=icon
             )
         )
-
-    _LOGGER.debug("Erzeuge %d Sensor-Entitäten für Keys: %s", len(sensor_entities), data_keys)
-
-    async_add_entities(sensor_entities)
+    
+    # 5. Spezielle Dosierungs-Sensoren hinzufügen
+    dosing_keys = {
+        "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": "Chlor Tagesdosierung",
+        "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML": "pH- Tagesdosierung",
+        "DOS_5_PHP_DAILY_DOSING_AMOUNT_ML": "pH+ Tagesdosierung",
+        "DOS_6_FLOC_DAILY_DOSING_AMOUNT_ML": "Flockmittel Tagesdosierung",
+    }
+    
+    for key, name in dosing_keys.items():
+        if key in available_data_keys:
+            sensors.append(
+                VioletSensor(
+                    coordinator=coordinator,
+                    key=key,
+                    name=name,
+                    config_entry=config_entry,
+                    state_class=SensorStateClass.TOTAL,
+                    unit="mL",
+                    icon="mdi:water"
+                )
+            )
+    
+    # Entitäten hinzufügen
+    if sensors:
+        _LOGGER.info(f"{len(sensors)} Sensoren gefunden und hinzugefügt.")
+        async_add_entities(sensors)
+    else:
+        _LOGGER.warning("Keine passenden Sensoren in den API-Daten gefunden.")
