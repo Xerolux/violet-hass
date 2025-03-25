@@ -153,7 +153,7 @@ class VioletCover(CoordinatorEntity, CoverEntity):
             _LOGGER.error("Fehler bei Cover-Befehl %s: %s", action, err)
 
 
-async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities):
+async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities: AddEntitiesCallback):
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
 
     available_switches = [sw for sw in SWITCHES if sw["key"] in coordinator.data]
