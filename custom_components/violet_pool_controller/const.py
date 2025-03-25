@@ -10,11 +10,20 @@ CONF_USE_SSL = "use_ssl"
 CONF_DEVICE_ID = "device_id"
 CONF_DEVICE_NAME = "device_name"  # Device-Name hinzufügen
 
+# Neue Konfigurationsschlüssel für erweiterte Features
+CONF_POOL_SIZE = "pool_size"  # in m³
+CONF_POOL_TYPE = "pool_type"
+CONF_DISINFECTION_METHOD = "disinfection_method"
+CONF_ACTIVE_FEATURES = "active_features"
+
 # Standardwerte
 DEFAULT_POLLING_INTERVAL = 10  # Standard-Pollingintervall in Sekunden
 DEFAULT_USE_SSL = False  # Standard-SSL-Einstellung
 DEFAULT_MQTT_ENABLED = False  # MQTT standardmäßig deaktiviert
 DEFAULT_DEVICE_NAME = "Violet Pool Controller"  # Standard-Gerätename
+DEFAULT_POOL_SIZE = 50  # m³
+DEFAULT_POOL_TYPE = "outdoor"
+DEFAULT_DISINFECTION_METHOD = "chlorine"
 
 # Integrationsdetails
 INTEGRATION_VERSION = "0.1.0"  # Erhöhte Version für die überarbeitete Integration
@@ -25,6 +34,8 @@ LOGGER_NAME = f"{DOMAIN}_logger"  # Einheitlich mit den anderen Dateien
 # API-Endpunkte (Pfad-Erweiterungen)
 API_READINGS = "/getReadings"
 API_SET_FUNCTION_MANUALLY = "/setFunctionManually"
+API_SET_DOSING_PARAMETERS = "/setDosingParameters"  # Neuer Endpunkt für Dosierungsparameter
+API_SET_TARGET_VALUES = "/setTargetValues"  # Neuer Endpunkt für Sollwerte
 
 # Herstellerinformationen
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
