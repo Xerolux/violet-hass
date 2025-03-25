@@ -196,9 +196,9 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if not is_valid_firmware(firmware_version):
             errors["base"] = f"Ungültige Firmware-Version: {firmware_version}"
 
-    async def async_get_options_flow(self, config_entry: config_entries.ConfigEntry):
-        """Erzeugt den OptionsFlow, damit man später Parameter ändern kann."""
-        return VioletOptionsFlowHandler(config_entry)
+    @staticmethod
+    def async_get_options_flow(config_entry):
+        return VioletOptionsFlowHandler(config_entry)ntry)
 
 
 class VioletOptionsFlowHandler(config_entries.OptionsFlow):
