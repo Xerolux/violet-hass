@@ -352,6 +352,11 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if not errors:
                 # Speichere Pool-Einstellungen
                 self._config_data.update({
+                    CONF_POOL_SIZE: pool
+
+    if not errors:
+                # Speichere Pool-Einstellungen
+                self._config_data.update({
                     CONF_POOL_SIZE: pool_size,
                     CONF_POOL_TYPE: user_input.get(CONF_POOL_TYPE, DEFAULT_POOL_TYPE),
                     CONF_DISINFECTION_METHOD: user_input.get(CONF_DISINFECTION_METHOD, DEFAULT_DISINFECTION_METHOD),
@@ -537,4 +542,54 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         )
         return self.async_show_form(step_id="init", data_schema=options_schema)
 
-    async def async_step_features(self, user_in
+    async def async_step_features(self, user_input=None):
+        """Erlaubt die Auswahl von Features für die Integration."""
+        errors = {}
+        
+        if user_input is not None:
+            # Speichere die ausgewählten Features
+            active_features = []
+            
+            # Hole die aktiven Features aus den API-Daten
+            available_features = self._determine_available_features()
+            
+            # Verarbeite die Auswahl des Benutzers
+            for feature in available_features:
+                if user_input.get(feature["id"], feature["default"]):
+                    active_features.append(feature["id"])
+            
+            # Aktualisiere die Options
+            current_options = dict(self.config_entry.options)
+            current_options[CONF_ACTIVE_FEATURES] = active_features
+            
+            # Erstelle einen aktualisierten Config-Entry
+            return self.async_create_entry(title="", data=current_options)
+        
+        # Bestimme die verfügbaren Features
+        available_features = self._determine_available_features()
+        
+        # Erstelle das Formular für die Feature-Auswahl
+        schema_dict = {}
+        for feature in available_features:
+            schema_dict[vol.Optional(
+                feature["id"], 
+                default=feature["default"]
+            )] = bool
+        
+        options_schema = vol.Schema(schema_dict)
+        
+        # Zeige das Formular
+        return self.async_show_form(
+            step_id="features", 
+            data_schema=options_schema, 
+            errors=errors,
+            description_placeholders={
+                "device_name": self.config_entry.data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
+            }
+        )
+        
+    def _determine_available_features(self) -> List[Dict[str, Any]]:
+        """Bestimmt verfügbare Features."""
+        # Hier könnte man die API erneut abfragen, um aktualisierte Daten zu bekommen.
+        # Für jetzt verwenden wir einfach die Standard-Features
+        return AVAILABLE_FEATURES
