@@ -333,7 +333,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(step_id="user", data_schema=data_schema, errors=errors)
 
-    async def async_step_pool_setup(
+   async def async_step_pool_setup(
     self, 
     user_input: Optional[Dict[str, Any]] = None
 ) -> config_entries.FlowResult:
@@ -392,101 +392,101 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         },
     )
 
-    async def async_step_feature_selection(
-        self, 
-        user_input: Optional[Dict[str, bool]] = None
-    ) -> config_entries.FlowResult:
-        """Dritter Schritt: Feature-Auswahl."""
-        errors: Dict[str, str] = {}
+async def async_step_feature_selection(
+    self, 
+    user_input: Optional[Dict[str, bool]] = None
+) -> config_entries.FlowResult:
+    """Dritter Schritt: Feature-Auswahl."""
+    errors: Dict[str, str] = {}
 
-        # Bestimme verfügbare Features basierend auf API-Daten
-        available_features = self._determine_available_features()
+    # Bestimme verfügbare Features basierend auf API-Daten
+    available_features = self._determine_available_features()
 
-        if user_input is not None:
-            # Speichere aktivierte Features
-            active_features = []
-            for feature in available_features:
-                if user_input.get(feature["id"], feature["default"]):
-                    active_features.append(feature["id"])
-            
-            self._config_data[CONF_ACTIVE_FEATURES] = active_features
-            
-            # Integration anlegen
-            return self.async_create_entry(
-                title=f"{self._config_data['device_name']} (ID {self._config_data['device_id']})",
-                data=self._config_data,
-            )
-
-        # Erstelle Schema für Feature-Auswahl
-        schema_dict = {}
+    if user_input is not None:
+        # Speichere aktivierte Features
+        active_features = []
         for feature in available_features:
-            schema_dict[vol.Required(feature["id"], default=feature["default"])] = bool
+            if user_input.get(feature["id"], feature["default"]):
+                active_features.append(feature["id"])
         
-        data_schema = vol.Schema(schema_dict)
-
-        return self.async_show_form(
-            step_id="feature_selection", 
-            data_schema=data_schema,
-            errors=errors,
-            description_placeholders={
-                "device_name": self._config_data.get("device_name", "Violet Pool Controller")
-            },
+        self._config_data[CONF_ACTIVE_FEATURES] = active_features
+        
+        # Integration anlegen
+        return self.async_create_entry(
+            title=f"{self._config_data['device_name']} (ID {self._config_data['device_id']})",
+            data=self._config_data,
         )
 
-    def _determine_available_features(self) -> List[Dict[str, Any]]:
-        """Bestimmt verfügbare Features basierend auf API-Daten."""
-        # Wenn keine API-Daten verfügbar sind, alle Features zeigen
-        if not self._api_data:
-            return AVAILABLE_FEATURES
+    # Erstelle Schema für Feature-Auswahl
+    schema_dict = {}
+    for feature in available_features:
+        schema_dict[vol.Required(feature["id"], default=feature["default"])] = bool
+    
+    data_schema = vol.Schema(schema_dict)
+
+    return self.async_show_form(
+        step_id="feature_selection", 
+        data_schema=data_schema,
+        errors=errors,
+        description_placeholders={
+            "device_name": self._config_data.get("device_name", "Violet Pool Controller")
+        },
+    )
+
+def _determine_available_features(self) -> List[Dict[str, Any]]:
+    """Bestimmt verfügbare Features basierend auf API-Daten."""
+    # Wenn keine API-Daten verfügbar sind, alle Features zeigen
+    if not self._api_data:
+        return AVAILABLE_FEATURES
+    
+    # Sonst API-Daten prüfen und nur unterstützte Features zeigen
+    api_data_keys = set(self._api_data.keys())
+    available_features = []
+    
+    # Feature-Erkennungsliste
+    feature_detection = {
+        "heating": ["HEATER", "onewire5_value"],
+        "solar": ["SOLAR", "onewire3_value"],
+        "ph_control": ["pH_value", "DOS_4_PHM", "DOS_5_PHP"],
+        "chlorine_control": ["orp_value", "pot_value", "DOS_1_CL"],
+        "cover_control": ["COVER_STATE", "COVER_OPEN", "COVER_CLOSE"],
+        "backwash": ["BACKWASH", "BACKWASHRINSE"],
+        "pv_surplus": ["PVSURPLUS"],
+        "water_level": ["ADC2_value", "REFILL"],
+        "water_refill": ["REFILL"],
+        "led_lighting": ["LIGHT", "DMX_SCENE1"]
+    }
+    
+    for feature in AVAILABLE_FEATURES:
+        feature_id = feature["id"]
+        # Prüfe, ob mindestens ein Indikator für dieses Feature in den API-Daten vorhanden ist
+        if feature_id in feature_detection:
+            detection_keys = feature_detection[feature_id]
+            if any(key in api_data_keys for key in detection_keys):
+                available_features.append(feature)
+                continue
         
-        # Sonst API-Daten prüfen und nur unterstützte Features zeigen
-        api_data_keys = set(self._api_data.keys())
-        available_features = []
+        # Wenn kein spezifischer Indikator gefunden, Funktion trotzdem hinzufügen
+        # (könnte in zukünftigen Firmware-Updates hinzugefügt werden)
+        available_features.append(feature)
         
-        # Feature-Erkennungsliste
-        feature_detection = {
-            "heating": ["HEATER", "onewire5_value"],
-            "solar": ["SOLAR", "onewire3_value"],
-            "ph_control": ["pH_value", "DOS_4_PHM", "DOS_5_PHP"],
-            "chlorine_control": ["orp_value", "pot_value", "DOS_1_CL"],
-            "cover_control": ["COVER_STATE", "COVER_OPEN", "COVER_CLOSE"],
-            "backwash": ["BACKWASH", "BACKWASHRINSE"],
-            "pv_surplus": ["PVSURPLUS"],
-            "water_level": ["ADC2_value", "REFILL"],
-            "water_refill": ["REFILL"],
-            "led_lighting": ["LIGHT", "DMX_SCENE1"]
-        }
-        
-        for feature in AVAILABLE_FEATURES:
-            feature_id = feature["id"]
-            # Prüfe, ob mindestens ein Indikator für dieses Feature in den API-Daten vorhanden ist
-            if feature_id in feature_detection:
-                detection_keys = feature_detection[feature_id]
-                if any(key in api_data_keys for key in detection_keys):
-                    available_features.append(feature)
-                    continue
-            
-            # Wenn kein spezifischer Indikator gefunden, Funktion trotzdem hinzufügen
-            # (könnte in zukünftigen Firmware-Updates hinzugefügt werden)
-            available_features.append(feature)
-            
-        return available_features
+    return available_features
 
-    async def _process_firmware_data(self, data: Dict[str, Any], errors: Dict[str, str]) -> None:
-        """Prüft die Firmware-Version in den API-Daten und fügt ggf. Fehler hinzu."""
-        firmware_version = data.get("fw")
+async def _process_firmware_data(self, data: Dict[str, Any], errors: Dict[str, str]) -> None:
+    """Prüft die Firmware-Version in den API-Daten und fügt ggf. Fehler hinzu."""
+    firmware_version = data.get("fw")
 
-        if not firmware_version:
-            errors["base"] = "Firmware-Daten fehlen in der API-Antwort."
-            return
+    if not firmware_version:
+        errors["base"] = "Firmware-Daten fehlen in der API-Antwort."
+        return
 
-        parsed_firmware = parse_firmware_version(firmware_version)
-        if not parsed_firmware:
-            errors["base"] = f"Ungültige Firmware-Version: {firmware_version}"
+    parsed_firmware = parse_firmware_version(firmware_version)
+    if not parsed_firmware:
+        errors["base"] = f"Ungültige Firmware-Version: {firmware_version}"
 
-    @staticmethod
-    def async_get_options_flow(config_entry):
-        return VioletOptionsFlowHandler(config_entry)
+@staticmethod
+def async_get_options_flow(config_entry):
+    return VioletOptionsFlowHandler(config_entry)
 
 
 class VioletOptionsFlowHandler(config_entries.OptionsFlow):
@@ -587,4 +587,5 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         """Bestimmt verfügbare Features."""
         # Hier könnte man die API erneut abfragen, um aktualisierte Daten zu bekommen.
         # Für jetzt verwenden wir einfach die Standard-Features
-        return AVAILABLE_FEATURES
+        return AVAILABLE_FEATURES 
+        
