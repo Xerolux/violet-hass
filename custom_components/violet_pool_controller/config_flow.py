@@ -333,7 +333,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(step_id="user", data_schema=data_schema, errors=errors)
 
-   async def async_step_pool_setup(
+     async def async_step_pool_setup(
     self, 
     user_input: Optional[Dict[str, Any]] = None
 ) -> config_entries.FlowResult:
@@ -587,5 +587,4 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         """Bestimmt verfügbare Features."""
         # Hier könnte man die API erneut abfragen, um aktualisierte Daten zu bekommen.
         # Für jetzt verwenden wir einfach die Standard-Features
-        return AVAILABLE_FEATURES 
-        
+        return AVAILABLE_FEATURES
