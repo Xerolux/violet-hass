@@ -20,6 +20,7 @@ from .const import (
     MANUFACTURER,
     SWITCHES,
     STATE_MAP,
+    DOSING_FUNCTIONS,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -108,6 +109,58 @@ class VioletSwitch(CoordinatorEntity, SwitchEntity):
             await self.coordinator.async_request_refresh()
         except Exception as err:
             _LOGGER.error("Fehler bei Send_Command %s für %s: %s", action, self._key, err)
+            
+    async def _manual_dosing(self, duration_seconds: int) -> None:
+        """Führt eine manuelle Dosierung für die angegebene Dauer aus."""
+        try:
+            # Überprüfe, ob es sich um einen Dosierungs-Switch handelt
+            dosing_type = None
+            for key, value in DOSING_FUNCTIONS.items():
+                if value == self._key:
+                    dosing_type = key
+                    break
+
+            if not dosing_type:
+                _LOGGER.error("Der Switch %s ist kein Dosierungs-Switch", self._key)
+                return
+
+            # Führe die manuelle Dosierung aus
+            await self.coordinator.api.manual_dosing(
+                dosing_type=dosing_type,
+                duration_seconds=duration_seconds
+            )
+            
+            _LOGGER.info(
+                "Manuelle Dosierung für %s für %d Sekunden gestartet",
+                dosing_type,
+                duration_seconds
+            )
+            
+            # Aktualisiere die Daten vom Gerät
+            await self.coordinator.async_request_refresh()
+        except Exception as err:
+            _LOGGER.error("Fehler bei der manuellen Dosierung: %s", err)
+
+    async def _send_with_pump_speed(self, pump_speed: int) -> None:
+        """Aktiviert den PV-Überschussmodus mit einer bestimmten Pumpendrehzahl."""
+        try:
+            # Sicherstellen, dass wir einen PV-Surplus-Switch haben
+            if self._key != "PVSURPLUS":
+                _LOGGER.error("Der Switch %s ist kein PV-Überschuss-Switch", self._key)
+                return
+                
+            # Setze den PV-Überschussmodus
+            await self.coordinator.api.set_pv_surplus(True, pump_speed)
+            
+            _LOGGER.info(
+                "PV-Überschussmodus aktiviert mit Pumpenstufe: %d",
+                pump_speed
+            )
+            
+            # Aktualisiere die Daten vom Gerät
+            await self.coordinator.async_request_refresh()
+        except Exception as err:
+            _LOGGER.error("Fehler beim Aktivieren des PV-Überschussmodus: %s", err)
 
 
 class VioletPVSurplusSwitch(VioletSwitch):
