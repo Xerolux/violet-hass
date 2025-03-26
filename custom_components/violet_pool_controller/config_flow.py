@@ -334,63 +334,63 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(step_id="user", data_schema=data_schema, errors=errors)
 
     async def async_step_pool_setup(
-        self, 
-        user_input: Optional[Dict[str, Any]] = None
-    ) -> config_entries.FlowResult:
-        """Zweiter Schritt: Pool-Grundeinstellungen."""
-        errors: Dict[str, str] = {}
+    self, 
+    user_input: Optional[Dict[str, Any]] = None
+) -> config_entries.FlowResult:
+    """Zweiter Schritt: Pool-Grundeinstellungen."""
+    errors: Dict[str, str] = {}
 
-        if user_input is not None:
-            # Validiere Eingaben
-            try:
-                pool_size = float(user_input.get(CONF_POOL_SIZE, DEFAULT_POOL_SIZE))
-                if pool_size <= 0:
-                    errors[CONF_POOL_SIZE] = "Ungültige Poolgröße"
-            except ValueError:
+    if user_input is not None:
+        # Validiere Eingaben
+        try:
+            pool_size = float(user_input.get(CONF_POOL_SIZE, DEFAULT_POOL_SIZE))
+            if pool_size <= 0:
                 errors[CONF_POOL_SIZE] = "Ungültige Poolgröße"
+        except ValueError:
+            errors[CONF_POOL_SIZE] = "Ungültige Poolgröße"
 
-if not errors:
-    # Speichere Pool-Einstellungen
-    self._config_data.update({
-        CONF_POOL_SIZE: pool_size,
-        CONF_POOL_TYPE: user_input.get(CONF_POOL_TYPE, DEFAULT_POOL_TYPE),
-        CONF_DISINFECTION_METHOD: user_input.get(CONF_DISINFECTION_METHOD, DEFAULT_DISINFECTION_METHOD),
-    })
+        if not errors:
+            # Speichere Pool-Einstellungen
+            self._config_data.update({
+                CONF_POOL_SIZE: pool_size,
+                CONF_POOL_TYPE: user_input.get(CONF_POOL_TYPE, DEFAULT_POOL_TYPE),
+                CONF_DISINFECTION_METHOD: user_input.get(CONF_DISINFECTION_METHOD, DEFAULT_DISINFECTION_METHOD),
+            })
+            
+            # Weiter zum Feature-Auswahlschritt
+            return await self.async_step_feature_selection()
+                
+    # Formular für Pool-Einstellungen
+    pool_type_options = {t: t.capitalize() for t in POOL_TYPES}
+    disinfection_options = {m: m.capitalize().replace("_", " ") for m in DISINFECTION_METHODS}
     
-    # Weiter zum Feature-Auswahlschritt
-    return await self.async_step_feature_selection()
-                
-        # Formular für Pool-Einstellungen
-        pool_type_options = {t: t.capitalize() for t in POOL_TYPES}
-        disinfection_options = {m: m.capitalize().replace("_", " ") for m in DISINFECTION_METHODS}
-        
-        data_schema = vol.Schema(
-            {
-                vol.Required(
-                    CONF_POOL_SIZE, 
-                    default=DEFAULT_POOL_SIZE
-                ): vol.All(vol.Coerce(float), vol.Range(min=0.1)),
-                
-                vol.Required(
-                    CONF_POOL_TYPE, 
-                    default=DEFAULT_POOL_TYPE
-                ): vol.In(pool_type_options),
-                
-                vol.Required(
-                    CONF_DISINFECTION_METHOD, 
-                    default=DEFAULT_DISINFECTION_METHOD
-                ): vol.In(disinfection_options),
-            }
-        )
+    data_schema = vol.Schema(
+        {
+            vol.Required(
+                CONF_POOL_SIZE, 
+                default=DEFAULT_POOL_SIZE
+            ): vol.All(vol.Coerce(float), vol.Range(min=0.1)),
+            
+            vol.Required(
+                CONF_POOL_TYPE, 
+                default=DEFAULT_POOL_TYPE
+            ): vol.In(pool_type_options),
+            
+            vol.Required(
+                CONF_DISINFECTION_METHOD, 
+                default=DEFAULT_DISINFECTION_METHOD
+            ): vol.In(disinfection_options),
+        }
+    )
 
-        return self.async_show_form(
-            step_id="pool_setup", 
-            data_schema=data_schema,
-            errors=errors,
-            description_placeholders={
-                "device_name": self._config_data.get("device_name", "Violet Pool Controller")
-            },
-        )
+    return self.async_show_form(
+        step_id="pool_setup", 
+        data_schema=data_schema,
+        errors=errors,
+        description_placeholders={
+            "device_name": self._config_data.get("device_name", "Violet Pool Controller")
+        },
+    )
 
     async def async_step_feature_selection(
         self, 
