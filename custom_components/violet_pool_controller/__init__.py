@@ -241,22 +241,11 @@ def register_services(hass: HomeAssistant) -> None:
         
         try:
             # Starte den Wasseranalyse-Modus über die API
-            # Da dieser API-Endpunkt möglicherweise nicht dokumentiert ist, ist dies ein Beispiel
-            protocol = "https" if coordinator.api.use_ssl else "http"
-            url = f"{protocol}://{coordinator.api.host}/startWaterAnalysis"
+            await coordinator.api.start_water_analysis()
             
-            auth = None
-            if coordinator.api.username and coordinator.api.password:
-                from aiohttp import BasicAuth
-                auth = BasicAuth(coordinator.api.username, coordinator.api.password)
-            
-            async with coordinator.api.session.get(url, auth=auth, ssl=coordinator.api.use_ssl) as response:
-                response.raise_for_status()
-                response_text = await response.text()
-                _LOGGER.info("Wasseranalyse gestartet. Antwort: %s", response_text)
-                
             # Daten aktualisieren
             await coordinator.async_request_refresh()
+            _LOGGER.info("Wasseranalyse gestartet.")
         except Exception as err:
             _LOGGER.error("Fehler beim Starten der Wasseranalyse: %s", err)
     
@@ -285,5 +274,49 @@ def register_services(hass: HomeAssistant) -> None:
         
         try:
             # Setze den Wartungsmodus über die API
-            action = "ON" if enable else "OFF"
-            await coordinator.api.set_switch_state
+            await coordinator.api.set_maintenance_mode(enable)
+            
+            # Daten aktualisieren
+            await coordinator.async_request_refresh()
+            _LOGGER.info("Wartungsmodus auf %s gesetzt", "EIN" if enable else "AUS")
+        except Exception as err:
+            _LOGGER.error("Fehler beim Setzen des Wartungsmodus: %s", err)
+    
+    # Service zum Einstellen des Chlor-Sollwerts
+    async def async_handle_set_chlorine_target(call: ServiceCall) -> None:
+        """Service-Handler zum Einstellen des Chlor-Sollwerts."""
+        entity_id = call.data.get("entity_id")
+        target_value = call.data.get("target_value")
+        
+        # Suche nach der Entity
+        entity = hass.states.get(entity_id)
+        if not entity:
+            _LOGGER.error("Entity nicht gefunden: %s", entity_id)
+            return
+            
+        # Rufe die set_value-Methode der Entity auf
+        await hass.services.async_call(
+            "number", "set_value",
+            {"entity_id": entity_id, "value": target_value},
+            blocking=True
+        )
+    
+    # Registriere die Services
+    hass.services.async_register(
+        DOMAIN, "set_temperature_target", async_handle_set_temperature_target
+    )
+    hass.services.async_register(
+        DOMAIN, "set_ph_target", async_handle_set_ph_target
+    )
+    hass.services.async_register(
+        DOMAIN, "set_chlorine_target", async_handle_set_chlorine_target
+    )
+    hass.services.async_register(
+        DOMAIN, "trigger_backwash", async_handle_trigger_backwash
+    )
+    hass.services.async_register(
+        DOMAIN, "start_water_analysis", async_handle_start_water_analysis
+    )
+    hass.services.async_register(
+        DOMAIN, "set_maintenance_mode", async_handle_set_maintenance_mode
+    )
