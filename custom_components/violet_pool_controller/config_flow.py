@@ -349,11 +349,6 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except ValueError:
                 errors[CONF_POOL_SIZE] = "Ungültige Poolgröße"
 
-            if not errors:
-                # Speichere Pool-Einstellungen
-                self._config_data.update({
-                    CONF_POOL_SIZE: pool
-
 if not errors:
     # Speichere Pool-Einstellungen
     self._config_data.update({
