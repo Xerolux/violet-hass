@@ -354,17 +354,17 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self._config_data.update({
                     CONF_POOL_SIZE: pool
 
-    if not errors:
-                # Speichere Pool-Einstellungen
-                self._config_data.update({
-                    CONF_POOL_SIZE: pool_size,
-                    CONF_POOL_TYPE: user_input.get(CONF_POOL_TYPE, DEFAULT_POOL_TYPE),
-                    CONF_DISINFECTION_METHOD: user_input.get(CONF_DISINFECTION_METHOD, DEFAULT_DISINFECTION_METHOD),
-                })
+if not errors:
+    # Speichere Pool-Einstellungen
+    self._config_data.update({
+        CONF_POOL_SIZE: pool_size,
+        CONF_POOL_TYPE: user_input.get(CONF_POOL_TYPE, DEFAULT_POOL_TYPE),
+        CONF_DISINFECTION_METHOD: user_input.get(CONF_DISINFECTION_METHOD, DEFAULT_DISINFECTION_METHOD),
+    })
+    
+    # Weiter zum Feature-Auswahlschritt
+    return await self.async_step_feature_selection()
                 
-                # Weiter zum Feature-Auswahlschritt
-                return await self.async_step_feature_selection()
-
         # Formular für Pool-Einstellungen
         pool_type_options = {t: t.capitalize() for t in POOL_TYPES}
         disinfection_options = {m: m.capitalize().replace("_", " ") for m in DISINFECTION_METHODS}
