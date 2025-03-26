@@ -12,15 +12,18 @@
 
 # Violet Pool Controller for Home Assistant
 
-This custom integration allows you to monitor and control your pool equipment using the Violet Pool Controller in Home Assistant. It includes sensors, binary sensors, and switches to track various pool metrics and perform essential operations.
+This custom integration allows you to monitor and control your pool equipment using the Violet Pool Controller in Home Assistant. It includes sensors, binary sensors, switches, climate controls, and cover entities to track various pool metrics and perform essential operations.
 
 ![Violet Home Assistant Integration][logo]
 
 ## Features
 
-* **Sensors:** Monitor various parameters such as water flow, temperature, pump power, pH levels, and more
+* **Sensors:** Monitor various parameters such as water temperature, pH levels, redox potential, chlorine levels, filter pressure, and more
 * **Binary Sensors:** Track the status of critical systems like pumps, solar, heater, and system connectivity
-* **Switches:** Control your pool equipment, such as the pump, lights, eco mode, and dosing systems
+* **Switches:** Control your pool equipment, such as the pump, lights, eco mode, dosing systems, and backwash function
+* **Climate Controls:** Manage pool heating and solar absorber temperature
+* **Cover Controls:** Operate your pool cover directly from Home Assistant
+* **Number Entities:** Set target values for pH, redox, and chlorine levels
 
 ## Table of Contents
 
@@ -71,17 +74,26 @@ Configuration is done entirely through the Home Assistant UI. After installation
    * **Host:** The IP address or hostname of your Violet Pool Controller (e.g., `192.168.1.100`). *Do not* include `http://` or `https://`
    * **Username:** Your Violet Pool Controller username (if authentication is enabled). Leave blank if not required
    * **Password:** Your Violet Pool Controller password (if authentication is enabled). Leave blank if not required
-   * **Polling Interval (seconds):** How often Home Assistant should fetch data from the controller (default: 10 seconds). Adjust this based on your needs and network performance
    * **Use SSL:** Check this box if your Violet Pool Controller uses HTTPS (SSL/TLS) for secure communication. Leave unchecked for HTTP
    * **Device ID:** A unique numeric identifier for this controller (default: 1). Use different IDs if you have multiple Violet Pool Controllers
    * **Device Name:** Give your Violet Pool Controller a descriptive name
+   * **Polling Interval (seconds):** How often Home Assistant should fetch data from the controller (default: 60 seconds). Adjust this based on your needs and network performance
+   * **Timeout Duration (seconds):** Maximum time to wait for API responses (default: 10 seconds)
    * **Retry Attempts:** Number of times to retry connecting to the device on failure (default: 3)
 
-5. Click "Submit". If the connection is successful, the integration will be set up, and your pool controller's entities will appear in Home Assistant
+5. Click "Submit". If the connection is successful, you'll proceed to the pool setup step
+6. Configure your pool settings:
+   * **Pool Size:** Enter your pool volume in cubic meters
+   * **Pool Type:** Select your pool type (outdoor, indoor, whirlpool, natural, combination)
+   * **Disinfection Method:** Choose your disinfection method (chlorine, salt, bromine, active oxygen, UV, ozone)
+
+7. Click "Submit" to proceed to the feature selection step
+8. Select which features you want to enable for your pool controller
+9. Click "Submit" to complete the setup. Your pool controller's entities will appear in Home Assistant
 
 ## 🧩 Entities
 
-The integration dynamically creates entities depending on the available API data.
+The integration dynamically creates entities depending on the available API data and your selected features.
 
 ### 🔍 Sensors
 - Water Temperature  
@@ -113,40 +125,80 @@ The integration dynamically creates entities depending on the available API data
 - Redox Target Value  
 - Chlorine Target Values (Min/Max)
 
----
-
 ## ⚙️ Services
 
 The integration provides the following custom services:
 
-### `turn_auto`
+### `violet_pool_controller.turn_auto`
 Set a Violet Pool Controller switch to AUTO mode.
 
-### `set_pv_surplus`
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| entity_id | string | Entity ID of the switch |
+| auto_delay | integer | Optional: Auto delay in seconds (0-3600) |
+
+### `violet_pool_controller.set_pv_surplus`
 Enable PV surplus mode with a specific pump speed.
 
-### `manual_dosing`
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| entity_id | string | Entity ID of the PV surplus switch |
+| pump_speed | integer | Pump speed (1-3) |
+
+### `violet_pool_controller.manual_dosing`
 Trigger manual dosing for a specified duration.
 
-### `set_temperature_target`
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| entity_id | string | Entity ID of the dosing switch |
+| duration_seconds | integer | Duration in seconds (1-3600) |
+
+### `violet_pool_controller.set_temperature_target`
 Set the target temperature for heating or solar absorber.
 
-### `set_ph_target`
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| entity_id | string | Entity ID of the climate entity |
+| temperature | float | Target temperature (20-40°C) |
+
+### `violet_pool_controller.set_ph_target`
 Set the pH target value for dosing.
 
-### `set_chlorine_target`
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| entity_id | string | Entity ID of the pH number entity |
+| target_value | float | Target pH value (6.8-7.8) |
+
+### `violet_pool_controller.set_chlorine_target`
 Set the chlorine target value (as redox value) for dosing.
 
-### `trigger_backwash`
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| entity_id | string | Entity ID of the chlorine number entity |
+| target_value | float | Target chlorine level (0.1-3.0 mg/l) |
+
+### `violet_pool_controller.trigger_backwash`
 Manually start a backwash process.
 
-### `start_water_analysis`
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| entity_id | string | Entity ID of the backwash switch |
+| duration | integer | Optional: Duration in seconds (0-900) |
+
+### `violet_pool_controller.start_water_analysis`
 Initiate a water analysis process.
 
-### `set_maintenance_mode`
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| entity_id | string | Optional: Entity ID to identify the device |
+
+### `violet_pool_controller.set_maintenance_mode`
 Enable or disable maintenance mode.
 
----
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| entity_id | string | Optional: Entity ID to identify the device |
+| enable | boolean | Whether to enable (True) or disable (False) maintenance mode |
 
 ## 🛠️ Developer Notes
 
@@ -157,10 +209,7 @@ Data is retrieved via the Violet Pool Controller API using a coordinated update 
 Comprehensive error handling with exponential backoff is implemented for improved reliability.
 
 ### 🧱 Entity Structure
-Entities are modular and dynamically created based on available data.
-
----
-
+Entities are modular and dynamically created based on available data and selected features.
 
 ## Common Problems and Solutions
 
@@ -187,7 +236,9 @@ Entities are modular and dynamically created based on available data.
 
 ### Entities Not Showing
 
-* Check the naming of the sensors and that the coordinator contains data
+* Check that you have enabled the relevant features in the integration settings
+* Verify that your controller supports the features you're trying to use
+* Check the Home Assistant logs for any errors related to entity initialization
 
 ## Getting Support
 
@@ -243,7 +294,7 @@ VIOLET provides notifications (email, push, HTTP request) for errors, and its br
 
 ## Changelog
 
-A Changelog will be created when the project is officially published.
+A detailed changelog will be created when the project is officially published.
 
 ## Credits
 
