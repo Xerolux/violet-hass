@@ -77,6 +77,96 @@ Configuration is done entirely through the Home Assistant UI. After installation
 
 5. Click "Submit". If the connection is successful, the integration will be set up, and your pool controller's entities will appear in Home Assistant
 
+## 🧩 Entities
+
+The integration dynamically creates entities depending on the available API data.
+
+### 🔍 Sensors
+- Water Temperature  
+- pH Level  
+- Redox Potential  
+- Chlorine Level  
+- Filter Pressure  
+- Water Level  
+- Additional sensors (if provided by the API)
+
+### 💡 Switches
+- Pump  
+- Lighting  
+- Heating  
+- Dosing (Chlorine, pH+, pH-)  
+- Backwash  
+- PV Surplus  
+- Additional switches based on API data
+
+### 🌡️ Climate Entities
+- Heater  
+- Solar Absorber
+
+### 🛡️ Cover Entities
+- Pool Cover
+
+### 🔢 Number Entities
+- pH Target Value  
+- Redox Target Value  
+- Chlorine Target Values (Min/Max)
+
+---
+
+## ⚙️ Services
+
+The integration provides the following custom services:
+
+### `turn_auto`
+Set a Violet Pool Controller switch to AUTO mode.
+
+### `set_pv_surplus`
+Enable PV surplus mode with a specific pump speed.
+
+### `manual_dosing`
+Trigger manual dosing for a specified duration.
+
+### `set_temperature_target`
+Set the target temperature for heating or solar absorber.
+
+### `set_ph_target`
+Set the pH target value for dosing.
+
+### `set_chlorine_target`
+Set the chlorine target value (as redox value) for dosing.
+
+### `trigger_backwash`
+Manually start a backwash process.
+
+### `start_water_analysis`
+Initiate a water analysis process.
+
+### `set_maintenance_mode`
+Enable or disable maintenance mode.
+
+---
+
+## 🛠️ Developer Notes
+
+### 🔄 Data Retrieval
+Data is retrieved via the Violet Pool Controller API using a coordinated update mechanism to avoid excessive API requests.
+
+### 🚨 Error Handling
+Comprehensive error handling with exponential backoff is implemented for improved reliability.
+
+### 🧱 Entity Structure
+Entities are modular and dynamically created based on available data.
+
+---
+
+## 🚀 Future Development
+
+- MQTT Support  
+- Additional Charts & Statistics  
+- Automation Templates
+
+---
+
 ## Common Problems and Solutions
 
 ### Connection Errors
