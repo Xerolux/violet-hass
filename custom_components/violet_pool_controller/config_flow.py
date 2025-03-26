@@ -147,8 +147,8 @@ FIRMWARE_REGEX = (
     r"^(0|[1-9]\d*)\."                  # MAJOR
     r"(0|[1-9]\d*)\."                   # MINOR
     r"(0|[1-9]\d*)"                     # PATCH
-    r"(?:-[0-9A-Za-z-_]+(?:\.[0-9A-Za-z-_]+)*)?"  # optionaler PRERELEASE
-    r"(?:\+[0-9A-Za-z-_]+(?:\.[0-9A-Za-z-_]+)*)?$" # optionales BUILD
+    r"(?:-((?:[0-9A-Za-z-_]+)(?:\.[0-9A-Za-z-_]+)*))?"  # optionaler PRERELEASE
+    r"(?:\+((?:[0-9A-Za-z-_]+)(?:\.[0-9A-Za-z-_]+)*))?"  # optionales BUILD
 )
 
 def validate_ip_address(ip: str) -> bool:
@@ -169,8 +169,8 @@ def parse_firmware_version(firmware_version: str) -> Optional[Dict[str, Any]]:
         "major": int(match.group(1)),
         "minor": int(match.group(2)),
         "patch": int(match.group(3)),
-        "prerelease": match.group(4)[1:] if match.group(4) else None,
-        "build": match.group(5)[1:] if match.group(5) else None
+        "prerelease": match.group(4) if match.group(4) else None,
+        "build": match.group(5) if match.group(5) else None
     }
 
 def _format_error_message(err: Exception) -> str:
@@ -178,6 +178,7 @@ def _format_error_message(err: Exception) -> str:
     error_map = {
         asyncio.TimeoutError: "Zeitüberschreitung bei der Verbindung",
         aiohttp.ClientConnectionError: "Verbindungsfehler",
+        aiohttp.ClientResponseError: "Fehler in der API-Antwort",
         ValueError: "Ungültige Konfiguration"
     }
     return error_map.get(type(err), str(err))
@@ -204,7 +205,22 @@ async def fetch_api_data(
                     retry_attempts,
                 )
                 async with session.get(api_url, auth=auth, ssl=use_ssl) as response:
-                    response.raise_for_status()
+                    if response.status >= 400:
+                        error_msg = f"HTTP-Fehler {response.status}: {response.reason}"
+                        _LOGGER.error(error_msg)
+                        if response.status == 401:
+                            raise ValueError("Authentifizierungsfehler. Bitte Benutzername und Passwort prüfen.")
+                        elif response.status == 404:
+                            raise ValueError("API-Endpunkt nicht gefunden. Bitte URL prüfen.")
+                        else:
+                            raise aiohttp.ClientResponseError(
+                                request_info=response.request_info, 
+                                history=response.history, 
+                                status=response.status,
+                                message=error_msg,
+                                headers=response.headers
+                            )
+                    
                     data = await response.json()
                     _LOGGER.debug("API-Antwort erhalten: %s", data)
                     return data
@@ -217,7 +233,7 @@ async def fetch_api_data(
             _LOGGER.error("API-Fehler: %s (Versuch %d/%d)", err, attempt + 1, retry_attempts)
             if attempt + 1 == retry_attempts:
                 raise ValueError(
-                    f"API-Anfrage nach {retry_attempts} Versuchen fehlgeschlagen."
+                    f"API-Anfrage nach {retry_attempts} Versuchen fehlgeschlagen: {_format_error_message(err)}"
                 ) from err
 
         # Exponentielles Backoff: Warte 2^attempt Sekunden
@@ -243,46 +259,46 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: Dict[str, str] = {}
 
         if user_input is not None:
-            # Validiere IP-Adresse
-            if not validate_ip_address(str(user_input[CONF_API_URL])):
-                errors[CONF_API_URL] = "Ungültige IP-Adresse"
-
-            # Validiere numerische Eingaben
             try:
+                # Validiere IP-Adresse
+                if not validate_ip_address(user_input[CONF_API_URL]):
+                    errors[CONF_API_URL] = "Ungültige IP-Adresse"
+
+                # Validiere numerische Eingaben
                 polling_interval = int(user_input.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL))
                 timeout_duration = int(user_input.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION))
                 retry_attempts = int(user_input.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS))
-            except ValueError:
-                errors["base"] = "Ungültige numerische Werte für Konfigurationsparameter"
 
-            # Konfigurationsdaten aus dem Formular übernehmen
-            self._config_data = {
-                "base_ip": user_input[CONF_API_URL],
-                "use_ssl": user_input.get(CONF_USE_SSL, True),
-                "device_name": user_input.get(CONF_DEVICE_NAME, "Violet Pool Controller"),
-                "username": user_input.get(CONF_USERNAME),
-                "password": user_input.get(CONF_PASSWORD),
-                "device_id": user_input.get(CONF_DEVICE_ID, 1),
-                "polling_interval": polling_interval,
-                "timeout_duration": timeout_duration,
-                "retry_attempts": retry_attempts,
-            }
+                # Konfigurationsdaten aus dem Formular übernehmen
+                self._config_data = {
+                    "base_ip": user_input[CONF_API_URL],
+                    "use_ssl": user_input.get(CONF_USE_SSL, True),
+                    "device_name": user_input.get(CONF_DEVICE_NAME, "Violet Pool Controller"),
+                    "username": user_input.get(CONF_USERNAME),
+                    "password": user_input.get(CONF_PASSWORD),
+                    "device_id": user_input.get(CONF_DEVICE_ID, 1),
+                    "polling_interval": polling_interval,
+                    "timeout_duration": timeout_duration,
+                    "retry_attempts": retry_attempts,
+                }
 
-            # Protokoll-URL zusammenbauen
-            protocol = "https" if self._config_data["use_ssl"] else "http"
-            api_url = f"{protocol}://{self._config_data['base_ip']}{API_READINGS}"
+                # Protokoll-URL zusammenbauen
+                protocol = "https" if self._config_data["use_ssl"] else "http"
+                api_url = f"{protocol}://{self._config_data['base_ip']}{API_READINGS}"
 
-            # Eindeutige ID: Kombination aus IP und device_id
-            await self.async_set_unique_id(f"{self._config_data['base_ip']}-{self._config_data['device_id']}")
-            self._abort_if_unique_id_configured()
+                # Eindeutige ID: Kombination aus IP und device_id
+                await self.async_set_unique_id(f"{self._config_data['base_ip']}-{self._config_data['device_id']}")
+                self._abort_if_unique_id_configured()
 
-            # Versuche Daten von der API zu holen
-            session = aiohttp_client.async_get_clientsession(self.hass)
-            auth = None
-            if self._config_data["username"]:
-                auth = aiohttp.BasicAuth(self._config_data["username"], self._config_data["password"] or "")
+                # Versuche Daten von der API zu holen
+                session = aiohttp_client.async_get_clientsession(self.hass)
+                auth = None
+                if self._config_data["username"]:
+                    auth = aiohttp.BasicAuth(
+                        login=self._config_data["username"], 
+                        password=self._config_data.get("password", "")
+                    )
 
-            try:
                 self._api_data = await fetch_api_data(
                     session=session,
                     api_url=api_url,
@@ -298,8 +314,8 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 _LOGGER.error("Fehler beim Abrufen/Verarbeiten der Daten: %s", err)
                 errors["base"] = _format_error_message(err)
 
+            # Wenn keine Fehler aufgetreten sind, gehe zum nächsten Schritt
             if not errors:
-                # Wenn Verbindungsdaten korrekt sind, zum nächsten Schritt (Pool-Setup)
                 return await self.async_step_pool_setup()
 
         # Formular-Schema mit verbesserten Validierungen
@@ -333,160 +349,170 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(step_id="user", data_schema=data_schema, errors=errors)
 
-     async def async_step_pool_setup(
-    self, 
-    user_input: Optional[Dict[str, Any]] = None
-) -> config_entries.FlowResult:
-    """Zweiter Schritt: Pool-Grundeinstellungen."""
-    errors: Dict[str, str] = {}
+    async def async_step_pool_setup(
+        self, 
+        user_input: Optional[Dict[str, Any]] = None
+    ) -> config_entries.FlowResult:
+        """Zweiter Schritt: Pool-Grundeinstellungen."""
+        errors: Dict[str, str] = {}
 
-    if user_input is not None:
-        # Validiere Eingaben
-        try:
-            pool_size = float(user_input.get(CONF_POOL_SIZE, DEFAULT_POOL_SIZE))
-            if pool_size <= 0:
+        if user_input is not None:
+            # Validiere Eingaben
+            try:
+                pool_size = float(user_input.get(CONF_POOL_SIZE, DEFAULT_POOL_SIZE))
+                if pool_size <= 0:
+                    errors[CONF_POOL_SIZE] = "Ungültige Poolgröße"
+            except ValueError:
                 errors[CONF_POOL_SIZE] = "Ungültige Poolgröße"
-        except ValueError:
-            errors[CONF_POOL_SIZE] = "Ungültige Poolgröße"
 
-        if not errors:
-            # Speichere Pool-Einstellungen
-            self._config_data.update({
-                CONF_POOL_SIZE: pool_size,
-                CONF_POOL_TYPE: user_input.get(CONF_POOL_TYPE, DEFAULT_POOL_TYPE),
-                CONF_DISINFECTION_METHOD: user_input.get(CONF_DISINFECTION_METHOD, DEFAULT_DISINFECTION_METHOD),
-            })
-            
-            # Weiter zum Feature-Auswahlschritt
-            return await self.async_step_feature_selection()
+            if not errors:
+                # Speichere Pool-Einstellungen
+                self._config_data.update({
+                    CONF_POOL_SIZE: pool_size,
+                    CONF_POOL_TYPE: user_input.get(CONF_POOL_TYPE, DEFAULT_POOL_TYPE),
+                    CONF_DISINFECTION_METHOD: user_input.get(CONF_DISINFECTION_METHOD, DEFAULT_DISINFECTION_METHOD),
+                })
                 
-    # Formular für Pool-Einstellungen
-    pool_type_options = {t: t.capitalize() for t in POOL_TYPES}
-    disinfection_options = {m: m.capitalize().replace("_", " ") for m in DISINFECTION_METHODS}
-    
-    data_schema = vol.Schema(
-        {
-            vol.Required(
-                CONF_POOL_SIZE, 
-                default=DEFAULT_POOL_SIZE
-            ): vol.All(vol.Coerce(float), vol.Range(min=0.1)),
-            
-            vol.Required(
-                CONF_POOL_TYPE, 
-                default=DEFAULT_POOL_TYPE
-            ): vol.In(pool_type_options),
-            
-            vol.Required(
-                CONF_DISINFECTION_METHOD, 
-                default=DEFAULT_DISINFECTION_METHOD
-            ): vol.In(disinfection_options),
-        }
-    )
-
-    return self.async_show_form(
-        step_id="pool_setup", 
-        data_schema=data_schema,
-        errors=errors,
-        description_placeholders={
-            "device_name": self._config_data.get("device_name", "Violet Pool Controller")
-        },
-    )
-
-async def async_step_feature_selection(
-    self, 
-    user_input: Optional[Dict[str, bool]] = None
-) -> config_entries.FlowResult:
-    """Dritter Schritt: Feature-Auswahl."""
-    errors: Dict[str, str] = {}
-
-    # Bestimme verfügbare Features basierend auf API-Daten
-    available_features = self._determine_available_features()
-
-    if user_input is not None:
-        # Speichere aktivierte Features
-        active_features = []
-        for feature in available_features:
-            if user_input.get(feature["id"], feature["default"]):
-                active_features.append(feature["id"])
+                # Weiter zum Feature-Auswahlschritt
+                return await self.async_step_feature_selection()
+                    
+        # Formular für Pool-Einstellungen
+        pool_type_options = {t: t.capitalize() for t in POOL_TYPES}
+        disinfection_options = {m: m.capitalize().replace("_", " ") for m in DISINFECTION_METHODS}
         
-        self._config_data[CONF_ACTIVE_FEATURES] = active_features
-        
-        # Integration anlegen
-        return self.async_create_entry(
-            title=f"{self._config_data['device_name']} (ID {self._config_data['device_id']})",
-            data=self._config_data,
+        data_schema = vol.Schema(
+            {
+                vol.Required(
+                    CONF_POOL_SIZE, 
+                    default=DEFAULT_POOL_SIZE
+                ): vol.All(vol.Coerce(float), vol.Range(min=0.1)),
+                
+                vol.Required(
+                    CONF_POOL_TYPE, 
+                    default=DEFAULT_POOL_TYPE
+                ): vol.In(pool_type_options),
+                
+                vol.Required(
+                    CONF_DISINFECTION_METHOD, 
+                    default=DEFAULT_DISINFECTION_METHOD
+                ): vol.In(disinfection_options),
+            }
         )
 
-    # Erstelle Schema für Feature-Auswahl
-    schema_dict = {}
-    for feature in available_features:
-        schema_dict[vol.Required(feature["id"], default=feature["default"])] = bool
-    
-    data_schema = vol.Schema(schema_dict)
+        return self.async_show_form(
+            step_id="pool_setup", 
+            data_schema=data_schema,
+            errors=errors,
+            description_placeholders={
+                "device_name": self._config_data.get("device_name", "Violet Pool Controller")
+            },
+        )
 
-    return self.async_show_form(
-        step_id="feature_selection", 
-        data_schema=data_schema,
-        errors=errors,
-        description_placeholders={
-            "device_name": self._config_data.get("device_name", "Violet Pool Controller")
-        },
-    )
+    async def async_step_feature_selection(
+        self, 
+        user_input: Optional[Dict[str, bool]] = None
+    ) -> config_entries.FlowResult:
+        """Dritter Schritt: Feature-Auswahl."""
+        errors: Dict[str, str] = {}
 
-def _determine_available_features(self) -> List[Dict[str, Any]]:
-    """Bestimmt verfügbare Features basierend auf API-Daten."""
-    # Wenn keine API-Daten verfügbar sind, alle Features zeigen
-    if not self._api_data:
-        return AVAILABLE_FEATURES
-    
-    # Sonst API-Daten prüfen und nur unterstützte Features zeigen
-    api_data_keys = set(self._api_data.keys())
-    available_features = []
-    
-    # Feature-Erkennungsliste
-    feature_detection = {
-        "heating": ["HEATER", "onewire5_value"],
-        "solar": ["SOLAR", "onewire3_value"],
-        "ph_control": ["pH_value", "DOS_4_PHM", "DOS_5_PHP"],
-        "chlorine_control": ["orp_value", "pot_value", "DOS_1_CL"],
-        "cover_control": ["COVER_STATE", "COVER_OPEN", "COVER_CLOSE"],
-        "backwash": ["BACKWASH", "BACKWASHRINSE"],
-        "pv_surplus": ["PVSURPLUS"],
-        "water_level": ["ADC2_value", "REFILL"],
-        "water_refill": ["REFILL"],
-        "led_lighting": ["LIGHT", "DMX_SCENE1"]
-    }
-    
-    for feature in AVAILABLE_FEATURES:
-        feature_id = feature["id"]
-        # Prüfe, ob mindestens ein Indikator für dieses Feature in den API-Daten vorhanden ist
-        if feature_id in feature_detection:
-            detection_keys = feature_detection[feature_id]
+        # Bestimme verfügbare Features basierend auf API-Daten
+        available_features = self._determine_available_features()
+
+        if user_input is not None:
+            # Speichere aktivierte Features
+            active_features = []
+            for feature in available_features:
+                if user_input.get(feature["id"], feature["default"]):
+                    active_features.append(feature["id"])
+            
+            self._config_data[CONF_ACTIVE_FEATURES] = active_features
+            
+            # Integration anlegen
+            return self.async_create_entry(
+                title=f"{self._config_data['device_name']} (ID {self._config_data['device_id']})",
+                data=self._config_data,
+            )
+
+        # Erstelle Schema für Feature-Auswahl
+        schema_dict = {}
+        for feature in available_features:
+            schema_dict[vol.Required(feature["id"], default=feature["default"])] = bool
+        
+        data_schema = vol.Schema(schema_dict)
+
+        return self.async_show_form(
+            step_id="feature_selection", 
+            data_schema=data_schema,
+            errors=errors,
+            description_placeholders={
+                "device_name": self._config_data.get("device_name", "Violet Pool Controller")
+            },
+        )
+
+    def _determine_available_features(self) -> List[Dict[str, Any]]:
+        """Bestimmt verfügbare Features basierend auf API-Daten."""
+        # Wenn keine API-Daten verfügbar sind, alle Features zeigen
+        if not self._api_data:
+            return AVAILABLE_FEATURES
+        
+        # Sonst API-Daten prüfen und nur unterstützte Features zeigen
+        api_data_keys = set(self._api_data.keys())
+        available_features = []
+        
+        # Feature-Erkennungsliste
+        feature_detection = {
+            "heating": ["HEATER", "onewire5_value"],
+            "solar": ["SOLAR", "onewire3_value"],
+            "ph_control": ["pH_value", "DOS_4_PHM", "DOS_5_PHP"],
+            "chlorine_control": ["orp_value", "pot_value", "DOS_1_CL"],
+            "cover_control": ["COVER_STATE", "COVER_OPEN", "COVER_CLOSE"],
+            "backwash": ["BACKWASH", "BACKWASHRINSE"],
+            "pv_surplus": ["PVSURPLUS"],
+            "water_level": ["ADC2_value", "REFILL"],
+            "water_refill": ["REFILL"],
+            "led_lighting": ["LIGHT", "DMX_SCENE1"]
+        }
+        
+        # Alle Standard-Features vorbereiten
+        feature_map = {feature["id"]: feature for feature in AVAILABLE_FEATURES}
+        detected_features = set()
+        
+        # Erkenne Features basierend auf API-Daten
+        for feature_id, detection_keys in feature_detection.items():
             if any(key in api_data_keys for key in detection_keys):
+                detected_features.add(feature_id)
+        
+        # Füge erkannte Features hinzu
+        for feature_id in list(feature_map.keys()):
+            if feature_id in detected_features:
+                available_features.append(feature_map[feature_id])
+            else:
+                # Füge nicht-erkannte Features als optional hinzu (standard auf False)
+                feature = feature_map[feature_id].copy()
+                feature["default"] = False
                 available_features.append(feature)
-                continue
-        
-        # Wenn kein spezifischer Indikator gefunden, Funktion trotzdem hinzufügen
-        # (könnte in zukünftigen Firmware-Updates hinzugefügt werden)
-        available_features.append(feature)
-        
-    return available_features
+                
+        return available_features
 
-async def _process_firmware_data(self, data: Dict[str, Any], errors: Dict[str, str]) -> None:
-    """Prüft die Firmware-Version in den API-Daten und fügt ggf. Fehler hinzu."""
-    firmware_version = data.get("fw")
+    async def _process_firmware_data(self, data: Dict[str, Any], errors: Dict[str, str]) -> None:
+        """Prüft die Firmware-Version in den API-Daten und fügt ggf. Fehler hinzu."""
+        firmware_version = data.get("fw")
 
-    if not firmware_version:
-        errors["base"] = "Firmware-Daten fehlen in der API-Antwort."
-        return
+        if not firmware_version:
+            errors["base"] = "Firmware-Daten fehlen in der API-Antwort."
+            return
 
-    parsed_firmware = parse_firmware_version(firmware_version)
-    if not parsed_firmware:
-        errors["base"] = f"Ungültige Firmware-Version: {firmware_version}"
+        parsed_firmware = parse_firmware_version(firmware_version)
+        if not parsed_firmware:
+            errors["base"] = f"Ungültige Firmware-Version: {firmware_version}"
+            return
+            
+        # Hier könnten weitere Firmware-Prüfungen stattfinden, z.B. Mindestversion
 
-@staticmethod
-def async_get_options_flow(config_entry):
-    return VioletOptionsFlowHandler(config_entry)
+    @staticmethod
+    def async_get_options_flow(config_entry):
+        """Gibt den Options Flow zurück."""
+        return VioletOptionsFlowHandler(config_entry)
 
 
 class VioletOptionsFlowHandler(config_entries.OptionsFlow):
@@ -504,30 +530,33 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
             if user_input.get("go_to_features", False):
                 # Wenn "Weiter zu Features" gewählt wurde, zum Feature-Schritt gehen
                 return await self.async_step_features()
-            return self.async_create_entry(title="", data=user_input)
+                
+            # Nur die relevanten Optionen speichern (ohne "go_to_features")
+            options = {k: v for k, v in user_input.items() if k != "go_to_features"}
+            return self.async_create_entry(title="", data=options)
 
         # Bestehende Options oder Defaults lesen
         current_options = dict(self.config_entry.options)
-        polling = str(current_options.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL))
-        timeout = str(current_options.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION))
-        retries = str(current_options.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS))
+        polling = current_options.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
+        timeout = current_options.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)
+        retries = current_options.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)
 
         options_schema = vol.Schema(
             {
                 vol.Required(
                     CONF_POLLING_INTERVAL, 
                     default=polling
-                ): vol.All(str, vol.Coerce(int), vol.Range(min=10, max=3600)),
+                ): vol.All(vol.Coerce(int), vol.Range(min=10, max=3600)),
                 
                 vol.Required(
                     CONF_TIMEOUT_DURATION, 
                     default=timeout
-                ): vol.All(str, vol.Coerce(int), vol.Range(min=1, max=60)),
+                ): vol.All(vol.Coerce(int), vol.Range(min=1, max=60)),
                 
                 vol.Required(
                     CONF_RETRY_ATTEMPTS, 
                     default=retries
-                ): vol.All(str, vol.Coerce(int), vol.Range(min=1, max=10)),
+                ): vol.All(vol.Coerce(int), vol.Range(min=1, max=10)),
                 
                 vol.Required(
                     "go_to_features",
@@ -542,34 +571,39 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         errors = {}
         
         if user_input is not None:
-            # Speichere die ausgewählten Features
-            active_features = []
-            
-            # Hole die aktiven Features aus den API-Daten
-            available_features = self._determine_available_features()
-            
-            # Verarbeite die Auswahl des Benutzers
-            for feature in available_features:
-                if user_input.get(feature["id"], feature["default"]):
-                    active_features.append(feature["id"])
-            
-            # Aktualisiere die Options
-            current_options = dict(self.config_entry.options)
-            current_options[CONF_ACTIVE_FEATURES] = active_features
-            
-            # Erstelle einen aktualisierten Config-Entry
-            return self.async_create_entry(title="", data=current_options)
+            try:
+                # Speichere die ausgewählten Features
+                active_features = []
+                
+                # Hole die aktiven Features aus den API-Daten
+                available_features = self._determine_available_features()
+                
+                # Verarbeite die Auswahl des Benutzers
+                for feature in available_features:
+                    if user_input.get(feature["id"], feature["default"]):
+                        active_features.append(feature["id"])
+                
+                # Aktualisiere die Options
+                current_options = dict(self.config_entry.options)
+                current_options[CONF_ACTIVE_FEATURES] = active_features
+                
+                # Erstelle einen aktualisierten Config-Entry
+                return self.async_create_entry(title="", data=current_options)
+            except Exception as err:
+                _LOGGER.error("Fehler beim Speichern der Features: %s", err)
+                errors["base"] = f"Fehler: {err}"
         
         # Bestimme die verfügbaren Features
         available_features = self._determine_available_features()
         
+        # Aktuelle Auswahl berücksichtigen
+        current_features = self.config_entry.options.get(CONF_ACTIVE_FEATURES, [])
+        
         # Erstelle das Formular für die Feature-Auswahl
         schema_dict = {}
         for feature in available_features:
-            schema_dict[vol.Optional(
-                feature["id"], 
-                default=feature["default"]
-            )] = bool
+            default = feature["id"] in current_features if current_features else feature["default"]
+            schema_dict[vol.Optional(feature["id"], default=default)] = bool
         
         options_schema = vol.Schema(schema_dict)
         
@@ -584,7 +618,87 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         )
         
     def _determine_available_features(self) -> List[Dict[str, Any]]:
-        """Bestimmt verfügbare Features."""
-        # Hier könnte man die API erneut abfragen, um aktualisierte Daten zu bekommen.
-        # Für jetzt verwenden wir einfach die Standard-Features
+        """Bestimmt verfügbare Features basierend auf API-Daten oder vorhandenen Einstellungen."""
+        # Wenn API-Daten verfügbar sind, diese verwenden
+        if self._api_data:
+            # Hier könnte die gleiche Logik wie in VioletDeviceConfigFlow._determine_available_features verwendet werden
+            api_data_keys = set(self._api_data.keys())
+            available_features = []
+            
+            # Feature-Erkennungsliste
+            feature_detection = {
+                "heating": ["HEATER", "onewire5_value"],
+                "solar": ["SOLAR", "onewire3_value"],
+                "ph_control": ["pH_value", "DOS_4_PHM", "DOS_5_PHP"],
+                "chlorine_control": ["orp_value", "pot_value", "DOS_1_CL"],
+                "cover_control": ["COVER_STATE", "COVER_OPEN", "COVER_CLOSE"],
+                "backwash": ["BACKWASH", "BACKWASHRINSE"],
+                "pv_surplus": ["PVSURPLUS"],
+                "water_level": ["ADC2_value", "REFILL"],
+                "water_refill": ["REFILL"],
+                "led_lighting": ["LIGHT", "DMX_SCENE1"]
+            }
+            
+            # Alle Standard-Features vorbereiten
+            feature_map = {feature["id"]: feature for feature in AVAILABLE_FEATURES}
+            detected_features = set()
+            
+            # Erkenne Features basierend auf API-Daten
+            for feature_id, detection_keys in feature_detection.items():
+                if any(key in api_data_keys for key in detection_keys):
+                    detected_features.add(feature_id)
+            
+            # Füge erkannte Features hinzu
+            for feature_id in list(feature_map.keys()):
+                if feature_id in detected_features:
+                    available_features.append(feature_map[feature_id])
+                else:
+                    # Füge nicht-erkannte Features als optional hinzu (standard auf False)
+                    feature = feature_map[feature_id].copy()
+                    feature["default"] = False
+                    available_features.append(feature)
+                    
+            return available_features
+            
+        # Wenn keine API-Daten, verwende aktuelle Config oder Standardwerte
+        current_features = self.config_entry.options.get(CONF_ACTIVE_FEATURES, [])
+        if current_features:
+            # Setze Features basierend auf aktueller Konfiguration
+            features = []
+            for feature in AVAILABLE_FEATURES:
+                new_feature = feature.copy()
+                new_feature["default"] = feature["id"] in current_features
+                features.append(new_feature)
+            return features
+        
+        # Fallback: Standardfeatures
         return AVAILABLE_FEATURES
+
+    async def _fetch_api_data(self) -> None:
+        """Holt aktuelle API-Daten für Feature-Erkennung."""
+        try:
+            config_data = dict(self.config_entry.data)
+            
+            protocol = "https" if config_data.get("use_ssl", True) else "http"
+            api_url = f"{protocol}://{config_data['base_ip']}{API_READINGS}"
+            
+            session = aiohttp_client.async_get_clientsession(self.hass)
+            auth = None
+            
+            if config_data.get("username"):
+                auth = aiohttp.BasicAuth(
+                    login=config_data["username"], 
+                    password=config_data.get("password", "")
+                )
+                
+            self._api_data = await fetch_api_data(
+                session=session,
+                api_url=api_url,
+                auth=auth,
+                use_ssl=config_data.get("use_ssl", True),
+                timeout_duration=config_data.get("timeout_duration", DEFAULT_TIMEOUT_DURATION),
+                retry_attempts=config_data.get("retry_attempts", DEFAULT_RETRY_ATTEMPTS),
+            )
+        except Exception as err:
+            _LOGGER.error("Fehler beim Abrufen der API-Daten für Options: %s", err)
+            self._api_data = None
