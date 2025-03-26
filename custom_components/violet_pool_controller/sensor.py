@@ -1,6 +1,6 @@
 """Sensor Integration für den Violet Pool Controller."""
 import logging
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Union, List, cast
 
 from homeassistant.components.sensor import (
     SensorEntity,
@@ -10,18 +10,17 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.helpers.entity import EntityCategory, EntityDescription
 
 from .const import (
     DOMAIN,
-    CONF_API_URL,
-    CONF_DEVICE_NAME,
-    MANUFACTURER,
-    INTEGRATION_VERSION,
     TEMP_SENSORS,
     WATER_CHEM_SENSORS,
     ANALOG_SENSORS,
+    CONF_ACTIVE_FEATURES,
 )
+from .entity import VioletPoolControllerEntity
+from .device import VioletPoolDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -68,67 +67,129 @@ NO_UNIT_SENSORS = {
     "BACKWASH_LAST_ON", "BACKWASH_LAST_OFF", "PUMP_LAST_ON", "PUMP_LAST_OFF"
 }
 
+# Mapping von Sensor-Keys zu Feature-IDs
+SENSOR_FEATURE_MAP = {
+    # Temperatur-Sensoren
+    "onewire1_value": "heating",
+    "onewire2_value": "heating",
+    "onewire3_value": "solar",
+    "onewire4_value": "heating",
+    "onewire5_value": "heating",
+    
+    # Wasserchemie-Sensoren
+    "pH_value": "ph_control",
+    "orp_value": "chlorine_control",
+    "pot_value": "chlorine_control",
+    
+    # Dosierung
+    "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": "chlorine_control",
+    "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML": "ph_control",
+    "DOS_5_PHP_DAILY_DOSING_AMOUNT_ML": "ph_control",
+    "DOS_6_FLOC_DAILY_DOSING_AMOUNT_ML": "chlorine_control",
+    
+    # Wasserstand
+    "ADC2_value": "water_level",
+    
+    # Filter/Pumpe
+    "FILTER_PRESSURE": "filter_control",
+    "PUMP_RPM_0": "filter_control",
+    "PUMP_RPM_1": "filter_control",
+    "PUMP_RPM_2": "filter_control",
+    "PUMP_RPM_3": "filter_control",
+    
+    # Heizung
+    "HEATER_TEMPERATURE": "heating",
+    
+    # Abdeckung
+    "COVER_POSITION": "cover_control",
+}
 
-class VioletSensor(CoordinatorEntity, SensorEntity):
+
+class VioletSensor(VioletPoolControllerEntity, SensorEntity):
     """Representation of a Violet Pool Controller Sensor."""
 
     def __init__(
         self,
-        coordinator,
-        key: str,
-        name: str,
+        coordinator: VioletPoolDataUpdateCoordinator,
         config_entry: ConfigEntry,
-        device_class: Optional[str] = None,
-        state_class: Optional[str] = None,
-        unit: Optional[str] = None,
-        icon: Optional[str] = None,
+        description: EntityDescription,
+        feature_id: Optional[str] = None,
     ):
-        """Initialize the sensor."""
-        super().__init__(coordinator)
-        self._key = key
-        self._config_entry = config_entry
-        device_name = config_entry.data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
-        self._attr_name = f"{device_name} {name}"
-        self._attr_unique_id = f"{config_entry.entry_id}_{key.lower()}"
+        """Initialize the sensor.
         
-        if device_class:
-            self._attr_device_class = device_class
+        Args:
+            coordinator: Der Daten-Koordinator
+            config_entry: Die Config Entry des Geräts
+            description: Die Beschreibung der Entität
+            feature_id: Optional feature ID to check availability
+        """
+        # Füge feature_id zur EntityDescription hinzu wenn vorhanden
+        if feature_id:
+            setattr(description, "feature_id", feature_id)
             
-        if state_class:
-            self._attr_state_class = state_class
-            
-        if unit:
-            self._attr_native_unit_of_measurement = unit
-            
-        if icon:
-            self._attr_icon = icon
-            
-        self.ip_address = config_entry.data.get(CONF_API_URL, "Unknown IP")
-        self._attr_device_info = {
-            "identifiers": {(DOMAIN, config_entry.entry_id)},
-            "name": f"{device_name} ({self.ip_address})",
-            "manufacturer": MANUFACTURER,
-            "model": f"Violet Model X (v{INTEGRATION_VERSION})",
-            "sw_version": coordinator.data.get("fw", INTEGRATION_VERSION),
-            "configuration_url": f"http://{self.ip_address}",
-        }
+        # Initialisiere die Basisklasse
+        super().__init__(
+            coordinator=coordinator,
+            config_entry=config_entry,
+            entity_description=description,
+        )
         
-        self._has_logged_none_state = False  # Verhindert wiederholte Logs bei None-Zustand
-
+        # Tracking für Logging
+        self._has_logged_none_state = False
+        
     @property
     def native_value(self) -> Union[float, int, str, None]:
         """Return the current value of this sensor."""
-        value = self.coordinator.data.get(self._key)
+        key = self.entity_description.key
+        
+        # Sensorwerte basierend auf Typ und DeviceClass abrufen
+        if hasattr(self.entity_description, "device_class"):
+            device_class = self.entity_description.device_class
+            
+            if device_class == SensorDeviceClass.TEMPERATURE:
+                return self.get_float_value(key)
+                
+            if device_class == SensorDeviceClass.PRESSURE:
+                return self.get_float_value(key)
+                
+            if device_class == SensorDeviceClass.PH:
+                return self.get_float_value(key)
+                
+            if device_class == SensorDeviceClass.POWER:
+                return self.get_float_value(key)
+                
+            if device_class == SensorDeviceClass.VOLTAGE:
+                return self.get_float_value(key)
+        
+        # Prüfe, ob es sich um einen Timestamp-Sensor handelt
+        if hasattr(self.entity_description, "state_class") and self.entity_description.state_class == SensorStateClass.TIMESTAMP:
+            return self.get_str_value(key)
+            
+        # Standardverhalten: Versuche, den Wert als Float zu interpretieren, mit Fallback auf String
+        value = self.coordinator.data.get(key)
         if value is None:
             if not self._has_logged_none_state:
-                _LOGGER.warning("Sensor '%s' returned None as its state.", self._key)
+                self._logger.warning("Sensor '%s' returned None as its state.", key)
                 self._has_logged_none_state = True
-        return value
+            return None
+            
+        # Versuche Konvertierung zu Float, falls möglich
+        try:
+            if isinstance(value, (int, float)):
+                return value
+            elif isinstance(value, str) and value.replace(".", "", 1).isdigit():
+                return float(value)
+            return value
+        except ValueError:
+            return value
 
-    @property
-    def available(self) -> bool:
-        """Return True if entity is available."""
-        return self.coordinator.last_update_success
+    def _update_from_coordinator(self) -> None:
+        """Aktualisiert den Zustand des Sensors anhand der Coordinator-Daten."""
+        # Die native_value-Property wird aufgerufen, wenn Home Assistant
+        # den Zustand des Sensors abfragt, daher brauchen wir hier nichts
+        # Besonderes zu tun. Wir überschreiben diese Methode nur, um die
+        # Basisimplementierung zu überschreiben.
+        pass
 
 
 def guess_device_class(key: str) -> Optional[str]:
@@ -212,6 +273,28 @@ def guess_icon(key: str) -> str:
     return "mdi:information"
 
 
+def guess_entity_category(key: str) -> Optional[str]:
+    """Bestimmt die EntityCategory basierend auf dem Key."""
+    klower = key.lower()
+    
+    # Diagnostische Sensoren
+    if (
+        "system" in klower or 
+        "cpu" in klower or 
+        "memory" in klower or 
+        "fw" in klower or 
+        "version" in klower
+    ):
+        return EntityCategory.DIAGNOSTIC
+        
+    # Konfigurationssensoren
+    if "setpoint" in klower or "target" in klower:
+        return EntityCategory.CONFIG
+        
+    # Standardmäßig keine Kategorie
+    return None
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: ConfigEntry,
@@ -220,59 +303,123 @@ async def async_setup_entry(
     """Set up Violet Device sensors from a config entry."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
     
+    # Hole aktive Features
+    active_features = config_entry.options.get(
+        CONF_ACTIVE_FEATURES, 
+        config_entry.data.get(CONF_ACTIVE_FEATURES, [])
+    )
+    
     # Verfügbare Daten aus der API
     available_data_keys = set(coordinator.data.keys())
     
     # Liste für alle zu erstellenden Sensors
-    sensors = []
+    sensors: List[VioletSensor] = []
     
     # 1. Temperatursensoren hinzufügen
     for key, sensor_info in TEMP_SENSORS.items():
-        if key in available_data_keys:
-            sensors.append(
-                VioletSensor(
-                    coordinator=coordinator,
-                    key=key,
-                    name=sensor_info["name"],
-                    config_entry=config_entry,
-                    device_class=SensorDeviceClass.TEMPERATURE,
-                    state_class=SensorStateClass.MEASUREMENT,
-                    unit="°C",
-                    icon=sensor_info["icon"]
-                )
+        # Überprüfe, ob der Sensor verfügbar ist und das zugehörige Feature aktiv ist
+        if key not in available_data_keys:
+            continue
+            
+        # Prüfe, ob das Feature aktiv ist
+        feature_id = SENSOR_FEATURE_MAP.get(key)
+        if feature_id and feature_id not in active_features:
+            _LOGGER.debug(
+                "Sensor %s wird übersprungen, da Feature %s nicht aktiv ist",
+                key,
+                feature_id
             )
+            continue
+            
+        # Erstelle EntityDescription
+        description = EntityDescription(
+            key=key,
+            name=sensor_info["name"],
+            icon=sensor_info["icon"],
+            device_class=SensorDeviceClass.TEMPERATURE,
+            state_class=SensorStateClass.MEASUREMENT,
+            native_unit_of_measurement="°C",
+        )
+            
+        # Sensor erstellen
+        sensors.append(
+            VioletSensor(
+                coordinator=coordinator,
+                config_entry=config_entry,
+                description=description,
+                feature_id=feature_id,
+            )
+        )
     
     # 2. Wasserchemie-Sensoren hinzufügen
     for key, sensor_info in WATER_CHEM_SENSORS.items():
-        if key in available_data_keys:
-            sensors.append(
-                VioletSensor(
-                    coordinator=coordinator,
-                    key=key,
-                    name=sensor_info["name"],
-                    config_entry=config_entry,
-                    device_class=guess_device_class(key),
-                    state_class=SensorStateClass.MEASUREMENT,
-                    unit=sensor_info["unit"],
-                    icon=sensor_info["icon"]
-                )
+        if key not in available_data_keys:
+            continue
+            
+        # Prüfe, ob das Feature aktiv ist
+        feature_id = SENSOR_FEATURE_MAP.get(key)
+        if feature_id and feature_id not in active_features:
+            _LOGGER.debug(
+                "Sensor %s wird übersprungen, da Feature %s nicht aktiv ist",
+                key,
+                feature_id
             )
+            continue
+            
+        # Erstelle EntityDescription
+        description = EntityDescription(
+            key=key,
+            name=sensor_info["name"],
+            icon=sensor_info["icon"],
+            device_class=guess_device_class(key),
+            state_class=SensorStateClass.MEASUREMENT,
+            native_unit_of_measurement=sensor_info["unit"],
+        )
+            
+        # Sensor erstellen
+        sensors.append(
+            VioletSensor(
+                coordinator=coordinator,
+                config_entry=config_entry,
+                description=description,
+                feature_id=feature_id,
+            )
+        )
     
     # 3. Analog-Sensoren hinzufügen
     for key, sensor_info in ANALOG_SENSORS.items():
-        if key in available_data_keys:
-            sensors.append(
-                VioletSensor(
-                    coordinator=coordinator,
-                    key=key,
-                    name=sensor_info["name"],
-                    config_entry=config_entry,
-                    device_class=guess_device_class(key),
-                    state_class=SensorStateClass.MEASUREMENT,
-                    unit=sensor_info["unit"],
-                    icon=sensor_info["icon"]
-                )
+        if key not in available_data_keys:
+            continue
+            
+        # Prüfe, ob das Feature aktiv ist
+        feature_id = SENSOR_FEATURE_MAP.get(key)
+        if feature_id and feature_id not in active_features:
+            _LOGGER.debug(
+                "Sensor %s wird übersprungen, da Feature %s nicht aktiv ist",
+                key,
+                feature_id
             )
+            continue
+            
+        # Erstelle EntityDescription
+        description = EntityDescription(
+            key=key,
+            name=sensor_info["name"],
+            icon=sensor_info["icon"],
+            device_class=guess_device_class(key),
+            state_class=SensorStateClass.MEASUREMENT,
+            native_unit_of_measurement=sensor_info["unit"],
+        )
+            
+        # Sensor erstellen
+        sensors.append(
+            VioletSensor(
+                coordinator=coordinator,
+                config_entry=config_entry,
+                description=description,
+                feature_id=feature_id,
+            )
+        )
     
     # 4. Alle anderen Sensoren hinzufügen (dynamisch)
     # Wir wollen mit einigen Keys vorsichtig sein, die keine echten Sensordaten enthalten
@@ -290,6 +437,16 @@ async def async_setup_entry(
             key in ANALOG_SENSORS or key in excluded_keys):
             continue
             
+        # Prüfe, ob das Feature aktiv ist
+        feature_id = SENSOR_FEATURE_MAP.get(key)
+        if feature_id and feature_id not in active_features:
+            _LOGGER.debug(
+                "Sensor %s wird übersprungen, da Feature %s nicht aktiv ist",
+                key,
+                feature_id
+            )
+            continue
+            
         # Bestimme Name, Einheit, Device Class usw. für diesen Sensor
         name = key.replace('_', ' ').title()
         unit = UNIT_MAP.get(key)
@@ -301,18 +458,26 @@ async def async_setup_entry(
         device_class = guess_device_class(key)
         state_class = guess_state_class(key)
         icon = guess_icon(key)
+        entity_category = guess_entity_category(key)
         
-        # Erstelle den Sensor
+        # Erstelle EntityDescription
+        description = EntityDescription(
+            key=key,
+            name=name,
+            icon=icon,
+            device_class=device_class,
+            state_class=state_class,
+            native_unit_of_measurement=unit,
+            entity_category=EntityCategory(entity_category) if entity_category else None,
+        )
+        
+        # Sensor erstellen
         sensors.append(
             VioletSensor(
                 coordinator=coordinator,
-                key=key,
-                name=name,
                 config_entry=config_entry,
-                device_class=device_class,
-                state_class=state_class,
-                unit=unit,
-                icon=icon
+                description=description,
+                feature_id=feature_id,
             )
         )
     
@@ -325,18 +490,37 @@ async def async_setup_entry(
     }
     
     for key, name in dosing_keys.items():
-        if key in available_data_keys:
-            sensors.append(
-                VioletSensor(
-                    coordinator=coordinator,
-                    key=key,
-                    name=name,
-                    config_entry=config_entry,
-                    state_class=SensorStateClass.TOTAL,
-                    unit="mL",
-                    icon="mdi:water"
-                )
+        if key not in available_data_keys:
+            continue
+            
+        # Prüfe, ob das Feature aktiv ist
+        feature_id = SENSOR_FEATURE_MAP.get(key)
+        if feature_id and feature_id not in active_features:
+            _LOGGER.debug(
+                "Sensor %s wird übersprungen, da Feature %s nicht aktiv ist",
+                key,
+                feature_id
             )
+            continue
+            
+        # Erstelle EntityDescription
+        description = EntityDescription(
+            key=key,
+            name=name,
+            icon="mdi:water",
+            state_class=SensorStateClass.TOTAL,
+            native_unit_of_measurement="mL",
+        )
+            
+        # Sensor erstellen
+        sensors.append(
+            VioletSensor(
+                coordinator=coordinator,
+                config_entry=config_entry,
+                description=description,
+                feature_id=feature_id,
+            )
+        )
     
     # Entitäten hinzufügen
     if sensors:
