@@ -26,7 +26,7 @@ DEFAULT_POOL_TYPE = "outdoor"
 DEFAULT_DISINFECTION_METHOD = "chlorine"
 
 # Integrationsdetails
-INTEGRATION_VERSION = "0.1.0"  # Erhöhte Version für die überarbeitete Integration
+INTEGRATION_VERSION = "0.0.9.5"  # Erhöhte Version für die überarbeitete Integration
 
 # Logger-Name
 LOGGER_NAME = f"{DOMAIN}_logger"  # Einheitlich mit den anderen Dateien
