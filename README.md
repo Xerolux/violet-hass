@@ -27,6 +27,8 @@ This custom integration allows you to monitor and control your pool equipment us
 * [Screenshots](#screenshots)
 * [Installation](#installation)
 * [Configuration](#configuration)
+* [Entities](#entities)
+* [Services](#services)
 * [Common Problems and Solutions](#common-problems-and-solutions)
 * [Getting Support](#getting-support)
 * [Supporting this Integration](#supporting-this-integration)
@@ -159,13 +161,6 @@ Entities are modular and dynamically created based on available data.
 
 ---
 
-## 🚀 Future Development
-
-- MQTT Support  
-- Additional Charts & Statistics  
-- Automation Templates
-
----
 
 ## Common Problems and Solutions
 
