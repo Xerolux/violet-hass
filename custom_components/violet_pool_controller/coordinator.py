@@ -2,84 +2,105 @@
 import asyncio
 import logging
 from datetime import timedelta
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List, Set, Union
 
+import async_timeout
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.exceptions import ConfigEntryNotReady
 
-from .api import VioletPoolAPI
-from .const import DOMAIN
+from .api import VioletPoolAPI, VioletPoolAPIError, VioletPoolConnectionError
+from .const import (
+    DOMAIN,
+    DEFAULT_POLLING_INTERVAL,
+    DEFAULT_TIMEOUT_DURATION,
+    DEFAULT_RETRY_ATTEMPTS,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class VioletDataUpdateCoordinator(DataUpdateCoordinator):
+class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
     """Koordiniert das zyklische Abrufen der Daten vom Violet Pool Controller."""
 
-    def __init__(self, hass: HomeAssistant, config: Dict[str, Any], api: VioletPoolAPI) -> None:
-        """Initialisieren."""
+    def __init__(
+        self, 
+        hass: HomeAssistant, 
+        device: Any,
+        name: str,
+        polling_interval: int = DEFAULT_POLLING_INTERVAL
+    ) -> None:
+        """Initialisiert den Coordinator.
+        
+        Args:
+            hass: Home Assistant-Instanz
+            device: Die Pool Controller Geräteinstanz
+            name: Ein eindeutiger Name für den Coordinator
+            polling_interval: Abfrageintervall in Sekunden
+        """
         super().__init__(
             hass,
             _LOGGER,
-            name=f"{DOMAIN}_{config['device_id']}",
-            update_interval=timedelta(seconds=config["polling_interval"]),
+            name=name,
+            update_interval=timedelta(seconds=polling_interval),
         )
-        self.config = config
-        self.api = api
-        self.retries = config.get("retries", 3)
-        self.device_id = config.get("device_id", 1)
-        self.device_name = config.get("device_name", "Violet Pool Controller")
+        
+        self.device = device
+        self.last_exception: Optional[Exception] = None
+        self.last_failure_time: Optional[float] = None
+        
+        _LOGGER.debug(
+            "VioletPoolDataUpdateCoordinator für %s initialisiert (Interval: %d s)",
+            name,
+            polling_interval
+        )
 
     async def _async_update_data(self) -> Dict[str, Any]:
-        """Methode zum Abruf der Daten (wird durch den Coordinator automatisch aufgerufen)."""
-        # Hier kannst du deinen Retry-Mechanismus einbauen:
-        for attempt in range(self.retries):
-            try:
-                # Hole alle Daten vom Pool-Controller
-                data = await self.api.get_readings()
-
-                # Beispielhafter Check, ob die nötigen Keys vorhanden sind
-                if not isinstance(data, dict):
-                    raise UpdateFailed(f"Unerwartetes Antwortformat: {data}")
-
-                # Validiere einige wichtige Daten für Diagnosezwecke
-                self._validate_data(data)
-
-                # Bei Erfolg returnst du sofort die Daten
-                return data
-
-            except (ConnectionError, ValueError) as err:
-                _LOGGER.error(
-                    "Versuch %s/%s schlug fehl - Fehler beim Abruf der Daten: %s",
-                    attempt + 1,
-                    self.retries,
-                    err,
-                )
-                if attempt + 1 == self.retries:
-                    # Alle Versuche aufgebraucht => UpdateFailed werfen
-                    raise UpdateFailed(f"Abbruch nach {self.retries} Versuchen: {err}")
-
-                # Exponentielles Backoff oder feste Wartezeit
-                await asyncio.sleep(2 ** attempt)
-
-        # Theoretisch kommst du hier gar nicht mehr hin,
-        # weil du bei Fehlern in der letzten Schleife 'raise' machst.
-        raise UpdateFailed("Datenaktualisierung nicht möglich (unbekannter Fehler).")
-
-    def _validate_data(self, data: Dict[str, Any]) -> None:
-        """Validiere die empfangenen Daten auf wichtige Felder."""
-        # Firmware-Version sollte vorhanden sein
-        if "fw" not in data:
-            _LOGGER.warning("Firmware-Version nicht in API-Antwort gefunden")
-
-        # Überprüfe, ob mindestens einige grundlegende Werte vorhanden sind
-        # Dies hilft bei der Diagnose von API-Änderungen oder Problemen
-        essential_fields = [
-            "PUMP",  # Filterpumpe
-            "pH_value",  # pH-Wert
-            "onewire1_value"  # Wassertemperatur
-        ]
+        """Holt Daten vom Gerät ab.
         
-        missing = [field for field in essential_fields if field not in data]
-        if missing:
-            _LOGGER.warning("Fehlende Werte in API-Antwort: %s", ", ".join(missing))
+        Diese Methode wird vom Coordinator automatisch aufgerufen.
+        
+        Returns:
+            Dict[str, Any]: Die aktuellen Gerätedaten
+            
+        Raises:
+            UpdateFailed: Wenn Daten nicht abgerufen werden konnten
+        """
+        try:
+            # Holt die Daten direkt vom Gerät ab
+            return await self.device.async_update()
+                
+        except VioletPoolConnectionError as err:
+            # Verbindungsprobleme speziell behandeln
+            self.last_exception = err
+            error_msg = f"Verbindungsfehler: {err}"
+            _LOGGER.error(error_msg)
+            raise UpdateFailed(error_msg) from err
+            
+        except VioletPoolAPIError as err:
+            # API-Fehler speziell behandeln
+            self.last_exception = err
+            error_msg = f"API-Fehler: {err}"
+            _LOGGER.error(error_msg)
+            raise UpdateFailed(error_msg) from err
+            
+        except Exception as err:
+            # Sonstige Fehler
+            self.last_exception = err
+            error_msg = f"Unerwarteter Fehler bei Datenaktualisierung: {err}"
+            _LOGGER.exception(error_msg)
+            raise UpdateFailed(error_msg) from err
+
+    def get_device_status(self) -> Dict[str, Any]:
+        """Gibt den aktuellen Status des Geräts zurück.
+        
+        Returns:
+            Dict[str, Any]: Statusinformationen zum Gerät
+        """
+        return {
+            "available": self.device.available,
+            "last_update_success": self.last_update_success,
+            "last_update_time": self.last_update_success_time,
+            "last_exception": str(self.last_exception) if self.last_exception else None,
+            "firmware_version": self.device.firmware_version,
+        }
