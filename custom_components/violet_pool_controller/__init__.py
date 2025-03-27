@@ -88,7 +88,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # 1) Hole alle relevanten Konfigurationsfelder
 
     # Basis-Infos (immer in entry.data, laut config_flow)
-    ip_address = entry.data.get(CONF_API_URL, "127.0.0.1")
+    ip_address = entry.data.get(CONF_API_URL, entry.data.get("base_ip", "127.0.0.1"))
     use_ssl = entry.data.get(CONF_USE_SSL, True)
     device_id = entry.data.get(CONF_DEVICE_ID, 1)
     username = entry.data.get(CONF_USERNAME) or ""
