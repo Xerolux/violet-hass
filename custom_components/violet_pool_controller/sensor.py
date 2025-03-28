@@ -1,16 +1,18 @@
 """Sensor Integration für den Violet Pool Controller."""
 import logging
 from typing import Any, Dict, Optional, Union, List, cast
+from dataclasses import dataclass
 
 from homeassistant.components.sensor import (
     SensorEntity,
     SensorDeviceClass,
     SensorStateClass,
+    SensorEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.entity import EntityCategory, EntityDescription
+from homeassistant.helpers.entity import EntityCategory
 
 from .const import (
     DOMAIN,
@@ -105,15 +107,23 @@ SENSOR_FEATURE_MAP = {
 }
 
 
+@dataclass
+class VioletSensorEntityDescription(SensorEntityDescription):
+    """Class describing Violet Pool sensor entities."""
+
+    feature_id: Optional[str] = None
+
+
 class VioletSensor(VioletPoolControllerEntity, SensorEntity):
     """Representation of a Violet Pool Controller Sensor."""
+
+    entity_description: VioletSensorEntityDescription
 
     def __init__(
         self,
         coordinator: VioletPoolDataUpdateCoordinator,
         config_entry: ConfigEntry,
-        description: EntityDescription,
-        feature_id: Optional[str] = None,
+        description: VioletSensorEntityDescription,
     ):
         """Initialize the sensor.
         
@@ -121,12 +131,7 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
             coordinator: Der Daten-Koordinator
             config_entry: Die Config Entry des Geräts
             description: Die Beschreibung der Entität
-            feature_id: Optional feature ID to check availability
         """
-        # Füge feature_id zur EntityDescription hinzu wenn vorhanden
-        if feature_id:
-            setattr(description, "feature_id", feature_id)
-            
         # Initialisiere die Basisklasse
         super().__init__(
             coordinator=coordinator,
@@ -332,13 +337,14 @@ async def async_setup_entry(
             continue
             
         # Erstelle EntityDescription
-        description = EntityDescription(
+        description = VioletSensorEntityDescription(
             key=key,
             name=sensor_info["name"],
             icon=sensor_info["icon"],
             device_class=SensorDeviceClass.TEMPERATURE,
             state_class=SensorStateClass.MEASUREMENT,
             native_unit_of_measurement="°C",
+            feature_id=feature_id,
         )
             
         # Sensor erstellen
@@ -347,7 +353,6 @@ async def async_setup_entry(
                 coordinator=coordinator,
                 config_entry=config_entry,
                 description=description,
-                feature_id=feature_id,
             )
         )
     
@@ -367,13 +372,14 @@ async def async_setup_entry(
             continue
             
         # Erstelle EntityDescription
-        description = EntityDescription(
+        description = VioletSensorEntityDescription(
             key=key,
             name=sensor_info["name"],
             icon=sensor_info["icon"],
             device_class=guess_device_class(key),
             state_class=SensorStateClass.MEASUREMENT,
             native_unit_of_measurement=sensor_info["unit"],
+            feature_id=feature_id,
         )
             
         # Sensor erstellen
@@ -382,7 +388,6 @@ async def async_setup_entry(
                 coordinator=coordinator,
                 config_entry=config_entry,
                 description=description,
-                feature_id=feature_id,
             )
         )
     
@@ -402,13 +407,14 @@ async def async_setup_entry(
             continue
             
         # Erstelle EntityDescription
-        description = EntityDescription(
+        description = VioletSensorEntityDescription(
             key=key,
             name=sensor_info["name"],
             icon=sensor_info["icon"],
             device_class=guess_device_class(key),
             state_class=SensorStateClass.MEASUREMENT,
             native_unit_of_measurement=sensor_info["unit"],
+            feature_id=feature_id,
         )
             
         # Sensor erstellen
@@ -417,7 +423,6 @@ async def async_setup_entry(
                 coordinator=coordinator,
                 config_entry=config_entry,
                 description=description,
-                feature_id=feature_id,
             )
         )
     
@@ -461,7 +466,7 @@ async def async_setup_entry(
         entity_category = guess_entity_category(key)
         
         # Erstelle EntityDescription
-        description = EntityDescription(
+        description = VioletSensorEntityDescription(
             key=key,
             name=name,
             icon=icon,
@@ -469,6 +474,7 @@ async def async_setup_entry(
             state_class=state_class,
             native_unit_of_measurement=unit,
             entity_category=EntityCategory(entity_category) if entity_category else None,
+            feature_id=feature_id,
         )
         
         # Sensor erstellen
@@ -477,7 +483,6 @@ async def async_setup_entry(
                 coordinator=coordinator,
                 config_entry=config_entry,
                 description=description,
-                feature_id=feature_id,
             )
         )
     
@@ -504,12 +509,13 @@ async def async_setup_entry(
             continue
             
         # Erstelle EntityDescription
-        description = EntityDescription(
+        description = VioletSensorEntityDescription(
             key=key,
             name=name,
             icon="mdi:water",
             state_class=SensorStateClass.TOTAL,
             native_unit_of_measurement="mL",
+            feature_id=feature_id,
         )
             
         # Sensor erstellen
@@ -518,7 +524,6 @@ async def async_setup_entry(
                 coordinator=coordinator,
                 config_entry=config_entry,
                 description=description,
-                feature_id=feature_id,
             )
         )
     

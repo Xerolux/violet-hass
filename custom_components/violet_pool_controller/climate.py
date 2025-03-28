@@ -1,12 +1,14 @@
 """Climate Integration für den Violet Pool Controller."""
 import logging
 from typing import Any, Dict, List, Optional, Set, Final, ClassVar, cast
+from dataclasses import dataclass
 
 from homeassistant.components.climate import (
     ClimateEntity,
     ClimateEntityFeature,
     HVACMode,
     HVACAction,
+    ClimateEntityDescription,
 )
 from homeassistant.components.climate.const import (
     ATTR_HVAC_MODE,
@@ -67,6 +69,13 @@ WATER_TEMP_SENSORS: Final[List[str]] = [
 ]
 
 
+@dataclass
+class VioletClimateEntityDescription(ClimateEntityDescription):
+    """Class describing Violet Pool climate entities."""
+
+    feature_id: Optional[str] = None
+
+
 class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
     """Repräsentiert die Heizungs- oder Absorbersteuerung des Violet Pool Controllers."""
 
@@ -77,6 +86,8 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
     _attr_min_temp: ClassVar[float] = 20.0
     _attr_max_temp: ClassVar[float] = 35.0
     _attr_target_temperature_step: ClassVar[float] = 0.5
+
+    entity_description: VioletClimateEntityDescription
 
     def __init__(
         self,
@@ -91,9 +102,6 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             config_entry: Die Config Entry des Geräts
             climate_type: Art der Heizung ("HEATER" oder "SOLAR")
         """
-        # Erstelle eine EntityDescription für diese Climate-Entity
-        from homeassistant.helpers.entity import EntityDescription
-        
         # Name und Icon bestimmen
         if climate_type == "HEATER":
             name = "Heizung"
@@ -102,18 +110,17 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             name = "Solarabsorber"
             icon = "mdi:solar-power"
         
+        # Feature-ID bestimmen
+        feature_id = CLIMATE_FEATURE_MAP.get(climate_type)
+        
         # EntityDescription erstellen
-        entity_description = EntityDescription(
+        entity_description = VioletClimateEntityDescription(
             key=climate_type,
             name=name,
             icon=icon,
+            feature_id=feature_id,
         )
         
-        # Feature-ID hinzufügen, falls vorhanden
-        feature_id = CLIMATE_FEATURE_MAP.get(climate_type)
-        if feature_id:
-            setattr(entity_description, "feature_id", feature_id)
-            
         # Initialisiere die Basisklasse
         super().__init__(
             coordinator=coordinator,

@@ -1,3 +1,4 @@
+"""Config Flow for Violet Pool Controller integration."""
 import logging
 import re
 import asyncio
@@ -24,25 +25,22 @@ from .const import (
     CONF_USERNAME,
     CONF_PASSWORD,
     CONF_DEVICE_ID,
+    CONF_POLLING_INTERVAL,
+    CONF_TIMEOUT_DURATION,
+    CONF_RETRY_ATTEMPTS,
+    CONF_ACTIVE_FEATURES,
+    DEFAULT_USE_SSL,
+    DEFAULT_POLLING_INTERVAL,
+    DEFAULT_TIMEOUT_DURATION,
+    DEFAULT_RETRY_ATTEMPTS,
 )
 
 _LOGGER = logging.getLogger(__name__)
-
-# Neue Keys für die erweiterte Abfrage:
-CONF_POLLING_INTERVAL = "polling_interval"
-CONF_TIMEOUT_DURATION = "timeout_duration"
-CONF_RETRY_ATTEMPTS = "retry_attempts"
-
-# Standardwerte
-DEFAULT_POLLING_INTERVAL = 60
-DEFAULT_TIMEOUT_DURATION = 10
-DEFAULT_RETRY_ATTEMPTS = 3
 
 # Neue Keys für Pool-Features und -Einstellungen
 CONF_POOL_SIZE = "pool_size"  # in m³
 CONF_POOL_TYPE = "pool_type"
 CONF_DISINFECTION_METHOD = "disinfection_method"
-CONF_ACTIVE_FEATURES = "active_features"
 
 # Standardwerte für neue Konfigurationen
 DEFAULT_POOL_SIZE = 50  # m³
@@ -272,7 +270,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 # Konfigurationsdaten aus dem Formular übernehmen
                 self._config_data = {
                     "base_ip": user_input[CONF_API_URL],
-                    "use_ssl": user_input.get(CONF_USE_SSL, True),
+                    "use_ssl": user_input.get(CONF_USE_SSL, DEFAULT_USE_SSL),
                     "device_name": user_input.get(CONF_DEVICE_NAME, "Violet Pool Controller"),
                     "username": user_input.get(CONF_USERNAME),
                     "password": user_input.get(CONF_PASSWORD),
@@ -284,7 +282,8 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                 # Protokoll-URL zusammenbauen
                 protocol = "https" if self._config_data["use_ssl"] else "http"
-                api_url = f"{protocol}://{self._config_data['base_ip']}{API_READINGS}"
+                # Füge den "?ALL" Query-Parameter hinzu
+                api_url = f"{protocol}://{self._config_data['base_ip']}{API_READINGS}?ALL"
 
                 # Eindeutige ID: Kombination aus IP und device_id
                 await self.async_set_unique_id(f"{self._config_data['base_ip']}-{self._config_data['device_id']}")
@@ -324,7 +323,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_API_URL, default="192.168.1.100"): str,
                 vol.Optional(CONF_USERNAME): str,
                 vol.Optional(CONF_PASSWORD): str,
-                vol.Required(CONF_USE_SSL, default=True): bool,
+                vol.Required(CONF_USE_SSL, default=DEFAULT_USE_SSL): bool,
                 vol.Required(CONF_DEVICE_ID, default=1): vol.All(vol.Coerce(int), vol.Range(min=1)),
 
                 # Polling, Timeout und Retry separat mit verbesserten Validierungen
@@ -680,7 +679,7 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
             config_data = dict(self.config_entry.data)
             
             protocol = "https" if config_data.get("use_ssl", True) else "http"
-            api_url = f"{protocol}://{config_data['base_ip']}{API_READINGS}"
+            api_url = f"{protocol}://{config_data['base_ip']}{API_READINGS}?ALL"
             
             session = aiohttp_client.async_get_clientsession(self.hass)
             auth = None

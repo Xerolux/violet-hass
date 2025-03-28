@@ -6,6 +6,8 @@ CONF_API_URL = "host"  # Umbenannt zu 'host' – standardgemäß in Home Assista
 CONF_USERNAME = "username"
 CONF_PASSWORD = "password"
 CONF_POLLING_INTERVAL = "polling_interval"
+CONF_TIMEOUT_DURATION = "timeout_duration"  # Added missing constant
+CONF_RETRY_ATTEMPTS = "retry_attempts"      # Added missing constant
 CONF_USE_SSL = "use_ssl"
 CONF_DEVICE_ID = "device_id"
 CONF_DEVICE_NAME = "device_name"  # Device-Name hinzufügen
@@ -18,6 +20,8 @@ CONF_ACTIVE_FEATURES = "active_features"
 
 # Standardwerte
 DEFAULT_POLLING_INTERVAL = 10  # Standard-Pollingintervall in Sekunden
+DEFAULT_TIMEOUT_DURATION = 10  # Added default value
+DEFAULT_RETRY_ATTEMPTS = 3     # Added default value
 DEFAULT_USE_SSL = False  # Standard-SSL-Einstellung
 DEFAULT_MQTT_ENABLED = False  # MQTT standardmäßig deaktiviert
 DEFAULT_DEVICE_NAME = "Violet Pool Controller"  # Standard-Gerätename

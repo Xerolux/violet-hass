@@ -1,16 +1,17 @@
 """Cover Integration für den Violet Pool Controller."""
 import logging
 from typing import Any, Dict, Optional, List, Final, ClassVar, cast
+from dataclasses import dataclass
 
 from homeassistant.components.cover import (
     CoverEntity,
     CoverDeviceClass,
     CoverEntityFeature,
+    CoverEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.entity import EntityDescription
 
 from .const import (
     DOMAIN, 
@@ -38,6 +39,13 @@ COVER_STATE_MAP: Final[Dict[str, str]] = {
 }
 
 
+@dataclass
+class VioletCoverEntityDescription(CoverEntityDescription):
+    """Class describing Violet Pool cover entities."""
+
+    feature_id: Optional[str] = None
+
+
 class VioletCover(VioletPoolControllerEntity, CoverEntity):
     """Repräsentation der Pool-Abdeckung (Cover)."""
 
@@ -46,6 +54,8 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
     _attr_supported_features: ClassVar[int] = (
         CoverEntityFeature.OPEN | CoverEntityFeature.CLOSE | CoverEntityFeature.STOP
     )
+
+    entity_description: VioletCoverEntityDescription
 
     def __init__(
         self, 
@@ -59,15 +69,13 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
             config_entry: Die Config Entry des Geräts
         """
         # Erstelle eine EntityDescription für diese Cover-Entity
-        entity_description = EntityDescription(
+        entity_description = VioletCoverEntityDescription(
             key="COVER_STATE",
             name="Cover",
             icon="mdi:window-shutter",
+            feature_id="cover_control",
         )
         
-        # Feature-ID hinzufügen
-        setattr(entity_description, "feature_id", "cover_control")
-            
         # Initialisiere die Basisklasse
         super().__init__(
             coordinator=coordinator,

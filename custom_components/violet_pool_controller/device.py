@@ -59,7 +59,10 @@ class VioletPoolControllerDevice:
         
         # Konfigurationsdaten extrahieren
         self.entry_data = config_entry.data
-        self.api_url = self.entry_data.get(CONF_API_URL)
+        
+        # FIXED: Use "base_ip" instead of CONF_API_URL to match config_flow.py
+        self.api_url = self.entry_data.get("base_ip")
+        
         self.use_ssl = self.entry_data.get(CONF_USE_SSL, True)
         self.device_id = self.entry_data.get(CONF_DEVICE_ID, 1)
         self.device_name = self.entry_data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
@@ -88,7 +91,7 @@ class VioletPoolControllerDevice:
         # Vollständige API URL zusammenbauen
         protocol = "https" if self.use_ssl else "http"
         self.api_base_url = f"{protocol}://{self.api_url}"
-        self.api_readings_url = f"{self.api_base_url}{API_READINGS}"
+        self.api_readings_url = f"{self.api_base_url}{API_READINGS}?ALL"
         
         # Authentifizierung konfigurieren, falls vorhanden
         self.auth = None

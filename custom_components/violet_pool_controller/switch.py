@@ -1,9 +1,10 @@
 """Switch-Integration für den Violet Pool Controller."""
 import logging
 from typing import Any, Dict, Optional, Callable, List, cast
+from dataclasses import dataclass
 
 import voluptuous as vol
-from homeassistant.components.switch import SwitchEntity, SwitchDeviceClass
+from homeassistant.components.switch import SwitchEntity, SwitchDeviceClass, SwitchEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_platform
@@ -25,62 +26,40 @@ from .device import VioletPoolDataUpdateCoordinator
 _LOGGER = logging.getLogger(__name__)
 
 
+@dataclass
+class VioletSwitchEntityDescription(SwitchEntityDescription):
+    """Class describing Violet Pool switch entities."""
+
+    feature_id: Optional[str] = None
+
+
 class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
     """Representation of a Violet Pool Controller Switch."""
+
+    entity_description: VioletSwitchEntityDescription
 
     def __init__(
         self, 
         coordinator: VioletPoolDataUpdateCoordinator, 
         config_entry: ConfigEntry,
-        key: str, 
-        name: str, 
-        icon: str,
-        feature_id: Optional[str] = None,
-        device_class: Optional[str] = None,
-        entity_category: Optional[str] = None,
+        description: VioletSwitchEntityDescription,
     ):
         """Initialize the switch.
         
         Args:
             coordinator: The data update coordinator
             config_entry: The config entry
-            key: The key in the API data
-            name: The name of the switch
-            icon: The icon to use
-            feature_id: Optional feature ID to check availability
-            device_class: Optional device class
-            entity_category: Optional entity category
+            description: The entity description
         """
-        # Erstelle eine angepasste EntityDescription
-        from homeassistant.helpers.entity import EntityDescription
-        
-        entity_description = EntityDescription(
-            key=key,
-            name=name,
-            icon=icon,
-        )
-        
-        # Füge feature_id zur EntityDescription hinzu wenn vorhanden
-        if feature_id:
-            setattr(entity_description, "feature_id", feature_id)
-            
         # Initialisiere die Basisklasse
         super().__init__(
             coordinator=coordinator,
             config_entry=config_entry,
-            entity_description=entity_description,
+            entity_description=description,
         )
         
-        # Setze Geräteklasse falls angegeben
-        if device_class:
-            self._attr_device_class = device_class
-            
-        # Setze Entity-Kategorie falls angegeben
-        if entity_category:
-            self._attr_entity_category = EntityCategory(entity_category)
-            
         # Icon-Eigenschaften
-        self._icon_base = icon
+        self._icon_base = description.icon
         
         # Tracking für Logging
         self._has_logged_none_state = False
@@ -248,14 +227,18 @@ class VioletPVSurplusSwitch(VioletSwitch):
     
     def __init__(self, coordinator: VioletPoolDataUpdateCoordinator, config_entry: ConfigEntry):
         """Initialize the PV Surplus switch."""
-        super().__init__(
-            coordinator=coordinator,
-            config_entry=config_entry,
+        description = VioletSwitchEntityDescription(
             key="PVSURPLUS",
             name="PV-Überschuss",
             icon="mdi:solar-power",
+            device_class=SwitchDeviceClass.SWITCH,
             feature_id="pv_surplus",
-            device_class=SwitchDeviceClass.SWITCH
+        )
+        
+        super().__init__(
+            coordinator=coordinator,
+            config_entry=config_entry,
+            description=description,
         )
         
     def _get_switch_state(self) -> bool:
@@ -357,16 +340,21 @@ async def async_setup_entry(
         if key.startswith("DOS_"):
             entity_category = EntityCategory.CONFIG
         
+        # Erstelle die Entity-Beschreibung
+        description = VioletSwitchEntityDescription(
+            key=key,
+            name=sw["name"],
+            icon=sw["icon"],
+            feature_id=feature_id,
+            entity_category=entity_category if entity_category else None,
+        )
+        
         # Erstelle den Switch
         switches.append(
             VioletSwitch(
                 coordinator=coordinator, 
                 config_entry=config_entry,
-                key=key, 
-                name=sw["name"], 
-                icon=sw["icon"],
-                feature_id=feature_id,
-                entity_category=entity_category
+                description=description,
             )
         )
     

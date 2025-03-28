@@ -1,11 +1,13 @@
 """Number Integration für den Violet Pool Controller."""
 import logging
 from typing import Any, Dict, Optional, Final, List, cast
+from dataclasses import dataclass
 
 from homeassistant.components.number import (
     NumberEntity,
     NumberMode,
     NumberDeviceClass,
+    NumberEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -115,8 +117,20 @@ DEFAULT_VALUES: Final[Dict[str, float]] = {
 }
 
 
+@dataclass
+class VioletNumberEntityDescription(NumberEntityDescription):
+    """Class describing Violet Pool number entities."""
+
+    api_key: Optional[str] = None
+    api_endpoint: Optional[str] = None
+    parameter: Optional[str] = None
+    feature_id: Optional[str] = None
+
+
 class VioletNumberEntity(VioletPoolControllerEntity, NumberEntity):
     """Repräsentiert einen Sollwert im Violet Pool Controller."""
+
+    entity_description: VioletNumberEntityDescription
 
     def __init__(
         self,
@@ -131,30 +145,25 @@ class VioletNumberEntity(VioletPoolControllerEntity, NumberEntity):
             config_entry: Die Config Entry des Geräts
             definition: Die Definition des Sollwerts
         """
-        # Erstelle eine angepasste EntityDescription
-        from homeassistant.helpers.entity import EntityDescription
-        
-        # EntityDescription erstellen
-        entity_description = EntityDescription(
+        # Erstelle eine angepasste EntityDescription mit allen benötigten Feldern
+        description = VioletNumberEntityDescription(
             key=definition["key"],
             name=definition["name"],
             icon=definition.get("icon"),
+            device_class=definition.get("device_class"),
+            native_unit_of_measurement=definition.get("unit_of_measurement"),
+            entity_category=definition.get("entity_category"),
+            api_key=definition.get("api_key"),
+            api_endpoint=definition.get("api_endpoint"),
+            parameter=definition.get("parameter"),
+            feature_id=definition.get("feature_id"),
         )
         
-        # Feature-ID hinzufügen, falls vorhanden
-        if "feature_id" in definition:
-            setattr(entity_description, "feature_id", definition["feature_id"])
-            
-        # EntityCategory hinzufügen, falls vorhanden
-        entity_category = definition.get("entity_category")
-        if entity_category:
-            setattr(entity_description, "entity_category", entity_category)
-            
         # Initialisiere die Basisklasse
         super().__init__(
             coordinator=coordinator,
             config_entry=config_entry,
-            entity_description=entity_description,
+            entity_description=description,
         )
         
         # Number-spezifische Attribute
@@ -164,15 +173,6 @@ class VioletNumberEntity(VioletPoolControllerEntity, NumberEntity):
         self._attr_native_step = definition.get("step")
         self._attr_mode = NumberMode.AUTO
         
-        # Device Class setzen, falls vorhanden
-        device_class = definition.get("device_class")
-        if device_class:
-            self._attr_device_class = device_class
-        
-        # Einheit setzen, falls vorhanden
-        if "unit_of_measurement" in definition:
-            self._attr_native_unit_of_measurement = definition["unit_of_measurement"]
-            
         # Initialen Wert setzen
         self._attr_native_value = self._get_current_value()
         
@@ -237,8 +237,8 @@ class VioletNumberEntity(VioletPoolControllerEntity, NumberEntity):
             value: Der neue Wert
         """
         try:
-            api_key = self._definition.get("api_key")
-            api_endpoint = self._definition.get("api_endpoint")
+            api_key = self.entity_description.api_key
+            api_endpoint = self.entity_description.api_endpoint
             
             if not api_key or not api_endpoint:
                 self._logger.error(

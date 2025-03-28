@@ -1,6 +1,7 @@
 """Binary Sensor Integration für den Violet Pool Controller."""
 import logging
 from typing import Any, Dict, List, Optional, cast
+from dataclasses import dataclass
 
 from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
@@ -43,16 +44,23 @@ BINARY_SENSOR_FEATURE_MAP = {
     "PVSURPLUS": "pv_surplus",
 }
 
+@dataclass
+class VioletBinarySensorEntityDescription(BinarySensorEntityDescription):
+    """Class describing Violet Pool binary sensor entities."""
+
+    feature_id: Optional[str] = None
+
 
 class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
     """Representation of a Violet Device Binary Sensor."""
+
+    entity_description: VioletBinarySensorEntityDescription
 
     def __init__(
         self, 
         coordinator: VioletPoolDataUpdateCoordinator, 
         config_entry: ConfigEntry,
-        description: BinarySensorEntityDescription,
-        feature_id: Optional[str] = None,
+        description: VioletBinarySensorEntityDescription,
         transform_fn: Optional[callable] = None,
     ) -> None:
         """Initialize the binary sensor.
@@ -61,13 +69,8 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
             coordinator: Der Daten-Koordinator
             config_entry: Die Config Entry des Geräts
             description: Die Beschreibung der Entität
-            feature_id: Optional feature ID to check availability
             transform_fn: Optionale Funktion zur Transformation des Zustands
         """
-        # Füge feature_id zur EntityDescription hinzu wenn vorhanden
-        if feature_id:
-            setattr(description, "feature_id", feature_id)
-            
         # Initialisiere die Basisklasse
         super().__init__(
             coordinator=coordinator,
@@ -199,12 +202,13 @@ async def async_setup_entry(
             entity_category = EntityCategory.DIAGNOSTIC
             
         # Erstelle EntityDescription
-        description = BinarySensorEntityDescription(
+        description = VioletBinarySensorEntityDescription(
             key=key,
             name=sensor["name"],
             icon=sensor["icon"],
             device_class=device_class,
             entity_category=EntityCategory(entity_category) if entity_category else None,
+            feature_id=feature_id,
         )
         
         # Sensor erstellen
@@ -213,7 +217,6 @@ async def async_setup_entry(
                 coordinator=coordinator, 
                 config_entry=config_entry,
                 description=description,
-                feature_id=feature_id,
             )
         )
     
@@ -222,11 +225,12 @@ async def async_setup_entry(
     # Cover Status (Kombination aus mehreren Zuständen)
     cover_keys = ["COVER_STATE", "COVER_OPEN", "COVER_CLOSE"]
     if any(key in available_data_keys for key in cover_keys) and "cover_control" in active_features:
-        description = BinarySensorEntityDescription(
+        description = VioletBinarySensorEntityDescription(
             key="COVER_IS_CLOSED",  # Dies ist ein spezieller Key für die Logik
             name="Cover Geschlossen",
             icon="mdi:window-shutter",
             device_class=BinarySensorDeviceClass.DOOR,
+            feature_id="cover_control",
         )
         
         binary_sensors.append(
@@ -234,17 +238,17 @@ async def async_setup_entry(
                 coordinator=coordinator, 
                 config_entry=config_entry,
                 description=description,
-                feature_id="cover_control",
                 transform_fn=cover_is_closed,
             )
         )
     
     # PV Überschuss Status
     if "PVSURPLUS" in available_data_keys and "pv_surplus" in active_features:
-        description = BinarySensorEntityDescription(
+        description = VioletBinarySensorEntityDescription(
             key="PVSURPLUS",
             name="PV Überschuss Aktiv",
             icon="mdi:solar-power",
+            feature_id="pv_surplus",
         )
         
         binary_sensors.append(
@@ -252,7 +256,6 @@ async def async_setup_entry(
                 coordinator=coordinator, 
                 config_entry=config_entry,
                 description=description,
-                feature_id="pv_surplus",
             )
         )
     
