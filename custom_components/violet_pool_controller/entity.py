@@ -187,12 +187,16 @@ class VioletPoolControllerEntity(CoordinatorEntity):
                             self._attr_available = True
                             return
                 
+                # Liste der bekannten virtuellen Schlüssel, die durch Transformationsfunktionen berechnet werden
+                virtual_keys = ["COVER_IS_CLOSED"]
+                
                 # Kein passender Schlüssel gefunden
-                self._logger.warning(
-                    "Schlüssel %s nicht in den Daten gefunden: %s",
-                    key,
-                    list(data.keys())
-                )
+                if key not in virtual_keys:
+                    self._logger.warning(
+                        "Schlüssel %s nicht in den Daten gefunden: %s",
+                        key,
+                        list(data.keys())
+                    )
                 self._attr_available = False
         except Exception as err:
             self._logger.error(
@@ -354,6 +358,16 @@ class VioletPoolControllerEntity(CoordinatorEntity):
                     value = alt_value
                     break
                     
+            # Liste der bekannten virtuellen Schlüssel, die durch Transformationsfunktionen berechnet werden
+            virtual_keys = ["COVER_IS_CLOSED"]
+            
+            if value is None and key not in virtual_keys:
+                self._logger.warning(
+                    "Schlüssel %s nicht in den Daten gefunden: %s",
+                    key,
+                    list(self.coordinator.data.keys())
+                )
+                
         if value is None:
             return default
             
