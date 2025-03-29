@@ -140,9 +140,13 @@ def cover_is_closed(data: Dict[str, Any]) -> bool:
     if cover_state in ["CLOSED", "2", 2]:
         return True
         
-    # Alternativer Pfad: COVER_OPEN / COVER_CLOSE Status
-    if data.get("COVER_OPEN") in ["OFF", "0", 0, False] and data.get("COVER_CLOSE") in ["ON", "1", 1, True]:
-        return True
+    # Alternativer Pfad: COVER_OPEN / COVER_CLOSE Status - nur wenn die Daten vorhanden sind
+    if "COVER_OPEN" in data and "COVER_CLOSE" in data:
+        cover_open = data.get("COVER_OPEN")
+        cover_close = data.get("COVER_CLOSE")
+        
+        if cover_open in ["OFF", "0", 0, False] and cover_close in ["ON", "1", 1, True]:
+            return True
         
     return False
 
@@ -222,11 +226,10 @@ async def async_setup_entry(
     
     # Zusätzlich: Spezifische Sensoren basierend auf API-Daten hinzufügen
     
-    # Cover Status (Kombination aus mehreren Zuständen)
-    cover_keys = ["COVER_STATE", "COVER_OPEN", "COVER_CLOSE"]
-    if any(key in available_data_keys for key in cover_keys) and "cover_control" in active_features:
+    # Cover Status (aus COVER_STATE abgeleitet)
+    if "COVER_STATE" in available_data_keys and "cover_control" in active_features:
         description = VioletBinarySensorEntityDescription(
-            key="COVER_IS_CLOSED",  # Dies ist ein spezieller Key für die Logik
+            key="COVER_IS_CLOSED",  # Berechneter Wert
             name="Cover Geschlossen",
             icon="mdi:window-shutter",
             device_class=BinarySensorDeviceClass.DOOR,

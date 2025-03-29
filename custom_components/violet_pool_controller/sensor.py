@@ -152,41 +152,39 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
             return self.get_str_value(key)
             
         # Sensorwerte basierend auf Typ und DeviceClass abrufen
-        if hasattr(self.entity_description, "device_class"):
-            device_class = self.entity_description.device_class
-            
-            if device_class == SensorDeviceClass.TEMPERATURE:
-                return self.get_float_value(key)
+        if self.entity_description.device_class == SensorDeviceClass.TEMPERATURE:
+            return self.get_float_value(key)
                 
-            if device_class == SensorDeviceClass.PRESSURE:
-                return self.get_float_value(key)
+        if self.entity_description.device_class == SensorDeviceClass.PRESSURE:
+            return self.get_float_value(key)
                 
-            if device_class == SensorDeviceClass.PH:
-                return self.get_float_value(key)
+        if self.entity_description.device_class == SensorDeviceClass.PH:
+            return self.get_float_value(key)
                 
-            if device_class == SensorDeviceClass.POWER:
-                return self.get_float_value(key)
+        if self.entity_description.device_class == SensorDeviceClass.POWER:
+            return self.get_float_value(key)
                 
-            if device_class == SensorDeviceClass.VOLTAGE:
-                return self.get_float_value(key)
+        if self.entity_description.device_class == SensorDeviceClass.VOLTAGE:
+            return self.get_float_value(key)
         
         # Standardverhalten: Versuche, den Wert als Float zu interpretieren, mit Fallback auf String
-        value = self.coordinator.data.get(key)
-        if value is None:
-            if not self._has_logged_none_state:
-                self._logger.warning("Sensor '%s' returned None as its state.", key)
-                self._has_logged_none_state = True
-            return None
-            
-        # Versuche Konvertierung zu Float, falls möglich
         try:
+            value = self.coordinator.data.get(key)
+            if value is None:
+                if not self._has_logged_none_state:
+                    self._logger.warning("Sensor '%s' returned None as its state.", key)
+                    self._has_logged_none_state = True
+                return None
+                
+            # Versuche Konvertierung zu Float, falls möglich
             if isinstance(value, (int, float)):
                 return value
             elif isinstance(value, str) and value.replace(".", "", 1).isdigit():
                 return float(value)
             return value
-        except ValueError:
-            return value
+        except Exception as err:
+            self._logger.error(f"Error retrieving value for {key}: {err}")
+            return None
 
     def _update_from_coordinator(self) -> None:
         """Aktualisiert den Zustand des Sensors anhand der Coordinator-Daten."""

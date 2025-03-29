@@ -19,6 +19,7 @@ from .const import (
     STATE_MAP,
     DOSING_FUNCTIONS,
     CONF_ACTIVE_FEATURES,
+    API_SET_FUNCTION_MANUALLY,
 )
 from .entity import VioletPoolControllerEntity
 from .device import VioletPoolDataUpdateCoordinator
@@ -115,22 +116,27 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             value: Optional value for the command (e.g., delay)
         """
         try:
+            # Der korrekte Endpunkt ist "/setFunctionManually" aus der API-Doku
+            endpoint = API_SET_FUNCTION_MANUALLY
+            
+            # Erstelle das Kommando als Rohformat, wie in der API erwartet
+            key = self.entity_description.key
+            raw_query = f"{key},{action},{value},0"
+            
+            self._logger.debug("Sende Raw-Command: %s", raw_query)
+            
             # Nutze die zentrale Befehlsmethode des Geräts
-            success = await self.device.async_send_command(
-                endpoint="/set_switch",
-                command={
-                    "id": self.entity_description.key,
-                    "action": action,
-                    "value": value
-                }
+            result = await self.device.api.api_request(
+                endpoint=endpoint,
+                raw_query=raw_query
             )
             
             self._logger.debug(
-                "Command sent to %s: %s (value: %s), Success: %s",
-                self.entity_description.key,
+                "Command sent to %s: %s (value: %s), Response: %s",
+                key,
                 action,
                 value,
-                success
+                result
             )
             
             # Aktualisiere die Daten
@@ -165,19 +171,20 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 )
                 return
 
-            # Führe die manuelle Dosierung aus
-            await self.device.async_send_command(
-                endpoint="/manual_dosing",
-                command={
-                    "type": dosing_type,
-                    "duration": duration_seconds
-                }
+            # Führe die manuelle Dosierung aus als Raw Query
+            endpoint = API_SET_FUNCTION_MANUALLY
+            raw_query = f"{self.entity_description.key},MAN,{duration_seconds},0"
+            
+            result = await self.device.api.api_request(
+                endpoint=endpoint,
+                raw_query=raw_query
             )
             
             self._logger.info(
-                "Manuelle Dosierung für %s für %d Sekunden gestartet",
+                "Manuelle Dosierung für %s für %d Sekunden gestartet: %s",
                 dosing_type,
-                duration_seconds
+                duration_seconds,
+                result
             )
             
             # Aktualisiere die Daten vom Gerät
@@ -200,19 +207,20 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                     self.entity_description.key
                 )
                 return
-                
-            # Setze den PV-Überschussmodus
-            await self.device.async_send_command(
-                endpoint="/set_pv_surplus",
-                command={
-                    "active": True,
-                    "speed": pump_speed
-                }
+            
+            # Setze den PV-Überschussmodus als Raw Query
+            endpoint = API_SET_FUNCTION_MANUALLY
+            raw_query = f"PVSURPLUS,ON,{pump_speed},0"
+            
+            result = await self.device.api.api_request(
+                endpoint=endpoint,
+                raw_query=raw_query
             )
             
             self._logger.info(
-                "PV-Überschussmodus aktiviert mit Pumpenstufe: %d",
-                pump_speed
+                "PV-Überschussmodus aktiviert mit Pumpenstufe %d: %s",
+                pump_speed,
+                result
             )
             
             # Aktualisiere die Daten vom Gerät
@@ -251,15 +259,22 @@ class VioletPVSurplusSwitch(VioletSwitch):
     async def async_turn_on(self, **kwargs) -> None:
         """Turn on PV surplus mode."""
         try:
-            # Drehzahlstufe aus den Attributen holen oder Standard verwenden
-            pump_speed = kwargs.get("pump_speed", 2)
+            # Standard-Pumpendrehzahl verwenden
+            pump_speed = 2
             
-            await self.device.async_send_command(
-                endpoint="/set_pv_surplus",
-                command={
-                    "active": True,
-                    "speed": pump_speed
-                }
+            # Direkt das Raw-Query Format verwenden
+            endpoint = API_SET_FUNCTION_MANUALLY
+            raw_query = f"PVSURPLUS,ON,{pump_speed},0"
+            
+            result = await self.device.api.api_request(
+                endpoint=endpoint,
+                raw_query=raw_query
+            )
+            
+            self._logger.info(
+                "PV-Überschussmodus aktiviert mit Stufe %d: %s",
+                pump_speed,
+                result
             )
             
             await self.coordinator.async_request_refresh()
@@ -270,11 +285,18 @@ class VioletPVSurplusSwitch(VioletSwitch):
     async def async_turn_off(self, **kwargs) -> None:
         """Turn off PV surplus mode."""
         try:
-            await self.device.async_send_command(
-                endpoint="/set_pv_surplus",
-                command={
-                    "active": False
-                }
+            # Direkt das Raw-Query Format verwenden
+            endpoint = API_SET_FUNCTION_MANUALLY
+            raw_query = "PVSURPLUS,OFF,0,0"
+            
+            result = await self.device.api.api_request(
+                endpoint=endpoint,
+                raw_query=raw_query
+            )
+            
+            self._logger.info(
+                "PV-Überschussmodus deaktiviert: %s",
+                result
             )
             
             await self.coordinator.async_request_refresh()

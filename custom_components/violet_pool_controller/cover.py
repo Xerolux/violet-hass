@@ -88,7 +88,7 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
         self._last_response = None
 
     def _update_from_coordinator(self) -> None:
-        """Aktualisiere den Zustand der Cover-Entity anhand der Coordinator-Daten."""
+        """Aktualisiert den Zustand der Cover-Entity anhand der Coordinator-Daten."""
         # Die Cover-Entity hat keine spezifischen State-Eigenschaften, die gesetzt werden müssen
         # Stattdessen werden die Eigenschaften is_closed, is_opening, etc. dynamisch berechnet
         pass
@@ -104,25 +104,8 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
         raw_state = self.get_str_value("COVER_STATE", "")
         state = COVER_STATE_MAP.get(raw_state, "")
         
-        # Alternative Datenquellen prüfen, wenn kein direkter Status gefunden
-        if not state and "COVER_IS_CLOSED" in self.coordinator.data:
-            return self.get_bool_value("COVER_IS_CLOSED", False)
-            
-        # Alternative Datenquellen prüfen basierend auf COVER_OPEN/COVER_CLOSE
-        if not state:
-            cover_open = self.get_bool_value("COVER_OPEN", None)
-            cover_close = self.get_bool_value("COVER_CLOSE", None)
-            
-            if cover_open is not None and cover_close is not None:
-                # Wenn COVER_OPEN aus und COVER_CLOSE an, dann ist es geschlossen
-                if not cover_open and cover_close:
-                    return True
-                # Wenn COVER_OPEN an und COVER_CLOSE aus, dann ist es offen
-                if cover_open and not cover_close:
-                    return False
-        
-        # Standard-Zustandsprüfung
-        return state == "closed"
+        # Direkte Prüfung basierend auf COVER_STATE
+        return state == "closed" or raw_state in ["CLOSED", "2", 2]
 
     @property
     def is_opening(self) -> bool:
@@ -136,7 +119,7 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
         state = COVER_STATE_MAP.get(raw_state, "")
         
         # Prüfe, ob direkter Status "opening" ist
-        if state == "opening":
+        if state == "opening" or raw_state in ["OPENING", "1", 1]:
             return True
             
         # Alternative über Bewegungsrichtung prüfen
@@ -161,7 +144,7 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
         state = COVER_STATE_MAP.get(raw_state, "")
         
         # Prüfe, ob direkter Status "closing" ist
-        if state == "closing":
+        if state == "closing" or raw_state in ["CLOSING", "3", 3]:
             return True
             
         # Alternative über Bewegungsrichtung prüfen
@@ -185,18 +168,8 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
         raw_state = self.get_str_value("COVER_STATE", "")
         state = COVER_STATE_MAP.get(raw_state, "")
         
-        # Alternative Datenquellen prüfen basierend auf COVER_OPEN/COVER_CLOSE
-        if not state:
-            cover_open = self.get_bool_value("COVER_OPEN", None)
-            cover_close = self.get_bool_value("COVER_CLOSE", None)
-            
-            if cover_open is not None and cover_close is not None:
-                # Wenn COVER_OPEN an und COVER_CLOSE aus, dann ist es offen
-                if cover_open and not cover_close:
-                    return True
-        
-        # Standard-Zustandsprüfung
-        return state == "open"
+        # Direkte Prüfung basierend auf COVER_STATE
+        return state == "open" or raw_state in ["OPEN", "0", 0]
 
     async def async_open_cover(self, **kwargs: Any) -> None:
         """Open the cover.
@@ -301,7 +274,7 @@ async def async_setup_entry(
     )
     
     # Cover-Typ bestimmen: Direkt über Status oder über OPEN/CLOSE Switches
-    has_cover = any(key in coordinator.data for key in ["COVER_STATE", "COVER_OPEN", "COVER_CLOSE"])
+    has_cover = "COVER_STATE" in coordinator.data
     
     # Überprüfe, ob die erforderlichen Daten für das Cover vorhanden sind und Feature aktiv ist
     if has_cover and "cover_control" in active_features:
