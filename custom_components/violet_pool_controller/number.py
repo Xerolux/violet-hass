@@ -176,11 +176,14 @@ class VioletNumberEntity(VioletPoolControllerEntity, NumberEntity):
         # Initialen Wert setzen
         self._attr_native_value = self._get_current_value()
         
+        # Get the unit of measurement from entity_description
+        unit = self.entity_description.native_unit_of_measurement if hasattr(self.entity_description, "native_unit_of_measurement") else ""
+        
         self._logger.debug(
             "Number-Entity für %s initialisiert mit Wert: %s %s", 
             definition["name"],
             self._attr_native_value,
-            self._attr_native_unit_of_measurement or ""
+            unit
         )
 
     def _update_from_coordinator(self) -> None:
@@ -253,13 +256,16 @@ class VioletNumberEntity(VioletPoolControllerEntity, NumberEntity):
                 # Für Werte mit Dezimalstellen: auf 2 Dezimalstellen runden
                 if self._attr_native_step < 1:
                     value = round(value, 2)
+            
+            # Get the unit of measurement from entity_description
+            unit = self.entity_description.native_unit_of_measurement if hasattr(self.entity_description, "native_unit_of_measurement") else ""
                     
             self._logger.info(
                 "Setze Sollwert für %s: %s = %s %s",
                 self.name,
                 api_key,
                 value,
-                self._attr_native_unit_of_measurement or ""
+                unit
             )
             
             # Bereite das Kommando vor
