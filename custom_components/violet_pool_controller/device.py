@@ -88,6 +88,13 @@ class VioletPoolControllerDevice:
             self.entry_data.get(CONF_ACTIVE_FEATURES, [])
         )
         
+        # Log aktive Features
+        _LOGGER.info(
+            "Aktive Features für %s: %s",
+            self.device_name,
+            self.active_features
+        )
+        
         # Vollständige API URL zusammenbauen
         protocol = "https" if self.use_ssl else "http"
         self.api_base_url = f"{protocol}://{self.api_url}"
@@ -448,7 +455,17 @@ class VioletPoolControllerDevice:
         Returns:
             bool: True, wenn das Feature aktiv ist, sonst False
         """
-        return feature_id in self.active_features
+        is_active = feature_id in self.active_features
+        
+        # DEBUG: Logging für Feature-Aktivierung
+        _LOGGER.debug(
+            "Prüfe Feature-Aktivierung für %s: %s (Aktive Features: %s)",
+            feature_id,
+            is_active,
+            self.active_features
+        )
+        
+        return is_active
 
 
 class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
