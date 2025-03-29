@@ -358,8 +358,11 @@ async def async_setup_entry(
             )
         )
     
+    # Prüfen, ob bereits ein PV-Surplus-Switch existiert
+    pv_switch_exists = any(switch.entity_description.key == "PVSURPLUS" for switch in switches)
+
     # Speziellen PV Surplus Switch hinzufügen, wenn in den Daten vorhanden und Feature aktiv
-    if "PVSURPLUS" in available_data_keys and "pv_surplus" in active_features:
+    if "PVSURPLUS" in available_data_keys and "pv_surplus" in active_features and not pv_switch_exists:
         switches.append(VioletPVSurplusSwitch(coordinator, config_entry))
 
     # Füge alle Switches hinzu

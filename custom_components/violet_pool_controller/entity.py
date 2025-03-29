@@ -92,24 +92,24 @@ class VioletPoolControllerEntity(CoordinatorEntity):
             feature_available
         )
 
-    @property
-    def extra_state_attributes(self) -> Dict[str, Any]:
-        """Gibt zusätzliche Zustandsattribute zurück.
+@property
+def extra_state_attributes(self) -> Dict[str, Any]:
+    """Gibt zusätzliche Zustandsattribute zurück.
+    
+    Returns:
+        Dict[str, Any]: Die zusätzlichen Attribute
+    """
+    attributes = {
+        "polling_interval": self.polling_interval,
+        "api_url": self.api_url,
+        "last_updated": self.coordinator.last_update_success,  # Korrigiert von last_update_success_time
+    }
+    
+    # Füge feature_id hinzu, falls vorhanden
+    if hasattr(self.entity_description, "feature_id"):
+        attributes["feature_id"] = getattr(self.entity_description, "feature_id")
         
-        Returns:
-            Dict[str, Any]: Die zusätzlichen Attribute
-        """
-        attributes = {
-            "polling_interval": self.polling_interval,
-            "api_url": self.api_url,
-            "last_updated": self.coordinator.last_update_success_time,
-        }
-        
-        # Füge feature_id hinzu, falls vorhanden
-        if hasattr(self.entity_description, "feature_id"):
-            attributes["feature_id"] = getattr(self.entity_description, "feature_id")
-            
-        return attributes
+    return attributes
 
     @callback
     def _handle_coordinator_update(self) -> None:

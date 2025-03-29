@@ -147,6 +147,10 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
         """Return the current value of this sensor."""
         key = self.entity_description.key
         
+        # Prüfe auf Zeitstempel-Sensoren anhand des Namens statt der nicht mehr vorhandenen Klasse
+        if key.lower().endswith("_last_on") or key.lower().endswith("_last_off"):
+            return self.get_str_value(key)
+            
         # Sensorwerte basierend auf Typ und DeviceClass abrufen
         if hasattr(self.entity_description, "device_class"):
             device_class = self.entity_description.device_class
@@ -166,10 +170,6 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
             if device_class == SensorDeviceClass.VOLTAGE:
                 return self.get_float_value(key)
         
-        # Prüfe, ob es sich um einen Timestamp-Sensor handelt
-        if hasattr(self.entity_description, "state_class") and self.entity_description.state_class == SensorStateClass.TIMESTAMP:
-            return self.get_str_value(key)
-            
         # Standardverhalten: Versuche, den Wert als Float zu interpretieren, mit Fallback auf String
         value = self.coordinator.data.get(key)
         if value is None:
@@ -232,7 +232,8 @@ def guess_state_class(key: str) -> Optional[str]:
         return SensorStateClass.TOTAL
         
     if "last_on" in klower or "last_off" in klower:
-        return SensorStateClass.TIMESTAMP
+        # SensorStateClass.TIMESTAMP existiert nicht mehr in HA
+        return None
         
     # Standard für Messwerte
     return SensorStateClass.MEASUREMENT
@@ -371,14 +372,20 @@ async def async_setup_entry(
             )
             continue
             
+        # Device Class bestimmen
+        device_class = guess_device_class(key)
+        
+        # Einheit anpassen - für pH keine Einheit verwenden
+        unit = None if device_class == SensorDeviceClass.PH else sensor_info["unit"]
+        
         # Erstelle EntityDescription
         description = VioletSensorEntityDescription(
             key=key,
             name=sensor_info["name"],
             icon=sensor_info["icon"],
-            device_class=guess_device_class(key),
+            device_class=device_class,
             state_class=SensorStateClass.MEASUREMENT,
-            native_unit_of_measurement=sensor_info["unit"],
+            native_unit_of_measurement=unit,
             feature_id=feature_id,
         )
             
@@ -494,7 +501,18 @@ async def async_setup_entry(
         "DOS_6_FLOC_DAILY_DOSING_AMOUNT_ML": "Flockmittel Tagesdosierung",
     }
     
+    # Erstelle ein Set, um bereits erstellte Sensor-Keys zu verfolgen
+    created_sensor_keys = {sensor.entity_description.key for sensor in sensors}
+    
     for key, name in dosing_keys.items():
+        # Überspringe, wenn der Sensor bereits existiert
+        if key in created_sensor_keys:
+            _LOGGER.debug(
+                "Überspringe doppelten Dosierungs-Sensor %s, da er bereits hinzugefügt wurde",
+                key
+            )
+            continue
+            
         if key not in available_data_keys:
             continue
             
