@@ -35,6 +35,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
             config_entry: Die Config Entry des Geräts
             entity_description: Die Beschreibung der Entität
         """
+        # Initialisiere CoordinatorEntity mit dem richtigen Koordinator
         super().__init__(coordinator)
         
         # Grundlegende Entitätsinformationen
@@ -66,6 +67,17 @@ class VioletPoolControllerEntity(CoordinatorEntity):
 
         # Geräteinformationen vom Geräteobjekt übernehmen
         self._attr_device_info = self.device.device_info
+        
+        # WICHTIG: Wir entfernen den Aufruf von self._update_from_coordinator() hier,
+        # da er zu früh kommt und zu Fehlern führen kann, wenn Attribute noch nicht
+        # in den Unterklassen gesetzt wurden.
+
+    async def async_added_to_hass(self) -> None:
+        """Handle when entity is added to Home Assistant."""
+        await super().async_added_to_hass()
+        
+        # Jetzt können wir sicher sein, dass alle Attribute in den Unterklassen initialisiert wurden
+        self._update_from_coordinator()
 
     @property
     def available(self) -> bool:
@@ -192,12 +204,15 @@ class VioletPoolControllerEntity(CoordinatorEntity):
                 
                 # Kein passender Schlüssel gefunden
                 if key not in virtual_keys:
-                    self._logger.warning(
+                    self._logger.debug(
                         "Schlüssel %s nicht in den Daten gefunden: %s",
                         key,
                         list(data.keys())
                     )
-                self._attr_available = False
+                    self._attr_available = False
+                else:
+                    # Für virtuelle Schlüssel keine Verfügbarkeit ändern, da diese durch Transformation berechnet werden
+                    pass
         except Exception as err:
             self._logger.error(
                 "Fehler beim Aktualisieren von %s mit Schlüssel %s: %s",
@@ -362,7 +377,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
             virtual_keys = ["COVER_IS_CLOSED"]
             
             if value is None and key not in virtual_keys:
-                self._logger.warning(
+                self._logger.debug(
                     "Schlüssel %s nicht in den Daten gefunden: %s",
                     key,
                     list(self.coordinator.data.keys())

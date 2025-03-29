@@ -1,11 +1,13 @@
 """Violet Pool Controller Device Module."""
 import logging
 import asyncio
+import time
+import json
 from datetime import timedelta
 from typing import Any, Dict, List, Optional, Callable, Union
-import async_timeout
 
 import aiohttp
+import async_timeout
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -455,7 +457,7 @@ class VioletPoolControllerDevice:
         Returns:
             bool: True, wenn das Feature aktiv ist, sonst False
         """
-        is_active = feature_id in self.active_features
+        is_active = feature_id in self.active_features if feature_id else False
         
         # DEBUG: Logging für Feature-Aktivierung
         _LOGGER.debug(
@@ -512,8 +514,22 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
             UpdateFailed: Bei einem Fehler während der Aktualisierung
         """
         try:
-            return await self.device.async_update()
+            start_time = time.time()
+            data = await self.device.async_update()
+            elapsed = time.time() - start_time
+            
+            _LOGGER.debug(
+                "Finished fetching %s data in %.3f seconds (success: %s)",
+                self.name,
+                elapsed,
+                True
+            )
+            
+            # Stellen wir sicher, dass alle Listener informiert werden
+            return data
         except Exception as e:
+            self._available = False
+            self.device._available = False
             _LOGGER.error("Fehler bei der Datenaktualisierung: %s", e)
             raise UpdateFailed(f"Fehler: {e}")
 
@@ -544,9 +560,11 @@ async def async_setup_device(
                 f"Gerät {device.device_name} ist nicht bereit: {device.last_error}"
             )
         
-        # Coordinator erstellen und initialen Abruf durchführen
+        # Coordinator erstellen
         coordinator = VioletPoolDataUpdateCoordinator(hass, device, config_entry)
-        await coordinator.async_refresh()
+        
+        # Initialen Abruf erzwingen
+        await coordinator.async_config_entry_first_refresh()
         
         if not coordinator.last_update_success:
             raise ConfigEntryNotReady(

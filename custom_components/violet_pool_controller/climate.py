@@ -102,6 +102,9 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             config_entry: Die Config Entry des Geräts
             climate_type: Art der Heizung ("HEATER" oder "SOLAR")
         """
+        # Wichtig: climate_type vor dem super().__init__ setzen
+        self.climate_type = climate_type
+        
         # Name und Icon bestimmen
         if climate_type == "HEATER":
             name = "Heizung"
@@ -127,9 +130,6 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             config_entry=config_entry,
             entity_description=entity_description,
         )
-        
-        # Climate-spezifische Attribute
-        self.climate_type = climate_type
         
         # Initialer Zustand
         self._attr_target_temperature = self._get_target_temperature()

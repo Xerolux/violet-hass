@@ -145,6 +145,9 @@ class VioletNumberEntity(VioletPoolControllerEntity, NumberEntity):
             config_entry: Die Config Entry des Geräts
             definition: Die Definition des Sollwerts
         """
+        # Speichere Definition vor der Initialisierung der Basisklasse
+        self._definition = definition
+        
         # Erstelle eine angepasste EntityDescription mit allen benötigten Feldern
         description = VioletNumberEntityDescription(
             key=definition["key"],
@@ -167,7 +170,6 @@ class VioletNumberEntity(VioletPoolControllerEntity, NumberEntity):
         )
         
         # Number-spezifische Attribute
-        self._definition = definition
         self._attr_native_min_value = definition.get("min_value")
         self._attr_native_max_value = definition.get("max_value")
         self._attr_native_step = definition.get("step")
