@@ -61,6 +61,15 @@ UNIT_MAP = {
     "CHLORINE_LEVEL": "ppm",
     "BROMINE_LEVEL": "ppm",
     "TURBIDITY": "NTU",
+    "CPU_TEMP": "°C",
+    "CPU_TEMP_CARRIER": "°C",
+    "CPU_UPTIME": "d",
+    "LOAD_AVG": "",
+    "MEMORY_USED": "%",
+    "SW_VERSION": "",
+    "SW_VERSION_CARRIER": "",
+    "HW_VERSION_CARRIER": "",
+    "HW_SERIAL_CARRIER": "",
 }
 
 # Sensortypen ohne Einheiten
@@ -199,7 +208,7 @@ def guess_device_class(key: str) -> Optional[str]:
     """Bestimme die Device Class basierend auf dem Key."""
     klower = key.lower()
     
-    if "temp" in klower or "therm" in klower or "onewire" in klower:
+    if "temp" in klower or "therm" in klower or "onewire" in klower or "cpu_temp" in klower:
         return SensorDeviceClass.TEMPERATURE
     
     if "humidity" in klower:
@@ -242,7 +251,7 @@ def guess_icon(key: str) -> str:
     klower = key.lower()
 
     # Temperatur-Icons
-    if "temp" in klower or "therm" in klower:
+    if "temp" in klower or "therm" in klower or "cpu_temp" in klower:
         return "mdi:thermometer"
         
     # Pump-Icons
@@ -262,10 +271,16 @@ def guess_icon(key: str) -> str:
     # System-Icons
     if "memory" in klower:
         return "mdi:memory"
+    if "cpu" in klower or "load" in klower:
+        return "mdi:cpu-64-bit"
+    if "uptime" in klower:
+        return "mdi:clock-outline"
     if "rpm" in klower:
         return "mdi:fan"
     if "version" in klower or "fw" in klower:
         return "mdi:update"
+    if "serial" in klower:
+        return "mdi:barcode"
         
     # Zeit-Icons
     if "last_on" in klower:
@@ -287,7 +302,10 @@ def guess_entity_category(key: str) -> Optional[str]:
         "cpu" in klower or 
         "memory" in klower or 
         "fw" in klower or 
-        "version" in klower
+        "version" in klower or
+        "load" in klower or 
+        "uptime" in klower or
+        "serial" in klower
     ):
         return EntityCategory.DIAGNOSTIC
         
@@ -325,9 +343,9 @@ async def async_setup_entry(
         if key not in available_data_keys:
             continue
             
-        # Prüfe, ob das Feature aktiv ist
+        # Prüfe, ob das Feature aktiv ist - DEAKTIVIERT um mehr Sensoren anzuzeigen
         feature_id = SENSOR_FEATURE_MAP.get(key)
-        if feature_id and feature_id not in active_features:
+        if False and feature_id and feature_id not in active_features:
             _LOGGER.debug(
                 "Sensor %s wird übersprungen, da Feature %s nicht aktiv ist",
                 key,
@@ -360,9 +378,9 @@ async def async_setup_entry(
         if key not in available_data_keys:
             continue
             
-        # Prüfe, ob das Feature aktiv ist
+        # Prüfe, ob das Feature aktiv ist - DEAKTIVIERT um mehr Sensoren anzuzeigen
         feature_id = SENSOR_FEATURE_MAP.get(key)
-        if feature_id and feature_id not in active_features:
+        if False and feature_id and feature_id not in active_features:
             _LOGGER.debug(
                 "Sensor %s wird übersprungen, da Feature %s nicht aktiv ist",
                 key,
@@ -401,9 +419,9 @@ async def async_setup_entry(
         if key not in available_data_keys:
             continue
             
-        # Prüfe, ob das Feature aktiv ist
+        # Prüfe, ob das Feature aktiv ist - DEAKTIVIERT um mehr Sensoren anzuzeigen
         feature_id = SENSOR_FEATURE_MAP.get(key)
-        if feature_id and feature_id not in active_features:
+        if False and feature_id and feature_id not in active_features:
             _LOGGER.debug(
                 "Sensor %s wird übersprungen, da Feature %s nicht aktiv ist",
                 key,
@@ -434,11 +452,14 @@ async def async_setup_entry(
     # 4. Alle anderen Sensoren hinzufügen (dynamisch)
     # Wir wollen mit einigen Keys vorsichtig sein, die keine echten Sensordaten enthalten
     excluded_keys = {
-        "fw", "date", "time", "CURRENT_TIME_UNIX",  # Systeminformationen
-        # Binäre Zustände, die bereits als binary_sensor erfasst werden
-        "PUMP", "SOLAR", "HEATER", "LIGHT", "ECO", "BACKWASH", "BACKWASHRINSE",
-        "DOS_1_CL", "DOS_4_PHM", "DOS_5_PHP", "DOS_6_FLOC",
-        "REFILL", "PVSURPLUS"
+        # Nur absolut notwendige Ausschlüsse
+        "date", "time", "CURRENT_TIME_UNIX",  # Systeminformationen
+        
+        # Diese auskommentiert, um mehr Sensoren anzuzeigen
+        # "fw",
+        # "PUMP", "SOLAR", "HEATER", "LIGHT", "ECO", "BACKWASH", "BACKWASHRINSE",
+        # "DOS_1_CL", "DOS_4_PHM", "DOS_5_PHP", "DOS_6_FLOC",
+        # "REFILL", "PVSURPLUS"
     }
     
     for key in available_data_keys:
@@ -447,9 +468,9 @@ async def async_setup_entry(
             key in ANALOG_SENSORS or key in excluded_keys):
             continue
             
-        # Prüfe, ob das Feature aktiv ist
+        # Prüfe, ob das Feature aktiv ist - DEAKTIVIERT um mehr Sensoren anzuzeigen
         feature_id = SENSOR_FEATURE_MAP.get(key)
-        if feature_id and feature_id not in active_features:
+        if False and feature_id and feature_id not in active_features:
             _LOGGER.debug(
                 "Sensor %s wird übersprungen, da Feature %s nicht aktiv ist",
                 key,
@@ -514,9 +535,9 @@ async def async_setup_entry(
         if key not in available_data_keys:
             continue
             
-        # Prüfe, ob das Feature aktiv ist
+        # Prüfe, ob das Feature aktiv ist - DEAKTIVIERT um mehr Sensoren anzuzeigen
         feature_id = SENSOR_FEATURE_MAP.get(key)
-        if feature_id and feature_id not in active_features:
+        if False and feature_id and feature_id not in active_features:
             _LOGGER.debug(
                 "Sensor %s wird übersprungen, da Feature %s nicht aktiv ist",
                 key,
@@ -532,6 +553,40 @@ async def async_setup_entry(
             state_class=SensorStateClass.TOTAL,
             native_unit_of_measurement="mL",
             feature_id=feature_id,
+        )
+            
+        # Sensor erstellen
+        sensors.append(
+            VioletSensor(
+                coordinator=coordinator,
+                config_entry=config_entry,
+                description=description,
+            )
+        )
+    
+    # 6. Spezielle CPU/System-Sensoren explizit hinzufügen
+    system_sensors = {
+        "CPU_TEMP": {"name": "CPU Temperatur", "icon": "mdi:cpu-64-bit", "device_class": SensorDeviceClass.TEMPERATURE, "unit": "°C"},
+        "CPU_TEMP_CARRIER": {"name": "Carrier CPU Temperatur", "icon": "mdi:cpu-64-bit", "device_class": SensorDeviceClass.TEMPERATURE, "unit": "°C"},
+        "LOAD_AVG": {"name": "System Auslastung", "icon": "mdi:chart-line", "unit": ""},
+        "CPU_UPTIME": {"name": "System Laufzeit", "icon": "mdi:clock-outline", "unit": ""},
+        "MEMORY_USED": {"name": "Speichernutzung", "icon": "mdi:memory", "unit": "%"},
+        "SW_VERSION": {"name": "Software Version", "icon": "mdi:update", "unit": ""},
+    }
+    
+    for key, info in system_sensors.items():
+        if key not in available_data_keys or key in created_sensor_keys:
+            continue
+            
+        # Erstelle EntityDescription
+        description = VioletSensorEntityDescription(
+            key=key,
+            name=info["name"],
+            icon=info["icon"],
+            device_class=info.get("device_class"),
+            state_class=SensorStateClass.MEASUREMENT if key not in ["SW_VERSION", "CPU_UPTIME"] else None,
+            native_unit_of_measurement=info["unit"],
+            entity_category=EntityCategory.DIAGNOSTIC,
         )
             
         # Sensor erstellen

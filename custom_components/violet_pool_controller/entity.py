@@ -13,6 +13,7 @@ from .const import (
     CONF_API_URL,
     CONF_POLLING_INTERVAL,
     CONF_ACTIVE_FEATURES,
+    CONF_DEVICE_ID,
 )
 from .device import VioletPoolDataUpdateCoordinator, VioletPoolControllerDevice
 
@@ -47,7 +48,14 @@ class VioletPoolControllerEntity(CoordinatorEntity):
         # Name und ID
         self._attr_has_entity_name = True  # Nutze HA's Entity-Namenskonvention
         self._attr_name = entity_description.name
-        self._attr_unique_id = f"{config_entry.entry_id}_{entity_description.key}"
+        
+        # Geänderte Erstellung der unique_id
+        device_name = config_entry.data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
+        device_id = config_entry.data.get(CONF_DEVICE_ID, 1)
+        # Create a slug-friendly version of the device name
+        device_name_slug = device_name.lower().replace(" ", "_")
+        # Form the unique_id using device name and device ID
+        self._attr_unique_id = f"{device_name_slug}_{device_id}_{entity_description.key}"
         
         # Zustand und Verfügbarkeit
         self._attr_state = None
