@@ -418,10 +418,6 @@ class VioletPoolControllerDevice:
         Returns:
             bool: True bei Erfolg, False bei Fehlern
         """
-        if "heating" not in self.active_features:
-            _LOGGER.warning("Heizungsfunktion ist nicht aktiv")
-            return False
-            
         try:
             command = {"temperature": float(temperature)}
             result = await self.async_send_command("/set_temperature", command)
@@ -457,17 +453,18 @@ class VioletPoolControllerDevice:
         Returns:
             bool: True, wenn das Feature aktiv ist, sonst False
         """
-        is_active = feature_id in self.active_features if feature_id else False
+        # GEÄNDERT: Feature-Aktivierung deaktiviert - immer True zurückgeben für die Fehlersuche
+        return True  # Immer True, Features deaktiviert
         
-        # DEBUG: Logging für Feature-Aktivierung
-        _LOGGER.debug(
-            "Prüfe Feature-Aktivierung für %s: %s (Aktive Features: %s)",
-            feature_id,
-            is_active,
-            self.active_features
-        )
-        
-        return is_active
+        # Originale Implementierung:
+        # is_active = feature_id in self.active_features if feature_id else False
+        # _LOGGER.debug(
+        #     "Prüfe Feature-Aktivierung für %s: %s (Aktive Features: %s)",
+        #     feature_id,
+        #     is_active,
+        #     self.active_features
+        # )
+        # return is_active
 
 
 class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
