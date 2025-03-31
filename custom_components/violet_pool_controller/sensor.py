@@ -63,7 +63,8 @@ UNIT_MAP = {
     "TURBIDITY": "NTU",
     "CPU_TEMP": "°C",
     "CPU_TEMP_CARRIER": "°C",
-    "CPU_UPTIME": "d",
+    # Removing unit for CPU_UPTIME to prevent it from being treated as numeric
+    # "CPU_UPTIME": "d",
     "LOAD_AVG": "",
     "MEMORY_USED": "%",
     "SW_VERSION": "",
@@ -75,7 +76,10 @@ UNIT_MAP = {
 # Sensortypen ohne Einheiten
 NO_UNIT_SENSORS = {
     "SOLAR_LAST_OFF", "HEATER_LAST_ON", "HEATER_LAST_OFF",
-    "BACKWASH_LAST_ON", "BACKWASH_LAST_OFF", "PUMP_LAST_ON", "PUMP_LAST_OFF"
+    "BACKWASH_LAST_ON", "BACKWASH_LAST_OFF", "PUMP_LAST_ON", "PUMP_LAST_OFF",
+    # Adding all the sensors that had issues
+    "CPU_UPTIME", "CPU_GOV", "SW_VERSION", "SW_VERSION_CARRIER", "HW_VERSION_CARRIER",
+    "BACKWASH_OMNI_MOVING", "BACKWASH_DELAY_RUNNING"
 }
 
 # Sensors with status or text values (not numeric)
@@ -114,9 +118,19 @@ TEXT_VALUE_SENSORS = {
     # Time settings
     "HEATER_POSTRUN_TIME", "SOLAR_POSTRUN_TIME", "REFILL_TIMEOUT",
     "CPU_UPTIME", "DEVICE_UPTIME", "RUNTIME", "POSTRUN_TIME",
+    "CPU_GOV",
     
     # Special sensors that should be treated as text
-    "HW_SERIAL_CARRIER", "SERIAL_NUMBER", "MAC_ADDRESS", "IP_ADDRESS"
+    "HW_SERIAL_CARRIER", "SERIAL_NUMBER", "MAC_ADDRESS", "IP_ADDRESS",
+    
+    # Fixed: Remaining range values which are text (like "53d")
+    "DOS_1_CL_REMAINING_RANGE", "DOS_4_PHM_REMAINING_RANGE", 
+    "DOS_5_PHP_REMAINING_RANGE", "DOS_6_FLOC_REMAINING_RANGE",
+    
+    # Additional sensors that caused issues
+    "BACKWASH_OMNI_MOVING", "BACKWASH_DELAY_RUNNING", "BACKWASH_STATE",
+    "REFILL_STATE", "BATHING_AI_SURVEILLANCE_STATE", "BATHING_AI_PUMP_STATE",
+    "OVERFLOW_REFILL_STATE", "OVERFLOW_DRYRUN_STATE", "OVERFLOW_OVERFILL_STATE",
 }
 
 # Non-temperature sensors that might have "temp" or "onewire" in their name
@@ -242,14 +256,18 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
                 self._has_logged_none_state = True
             return None
         
-        # Check for version format strings (x.y.z)
+        # Check for string values with special patterns
         if isinstance(raw_value, str):
-            # Version strings typically have multiple dots
-            if raw_value.count('.') >= 1 and any(c.isalpha() for c in raw_value):
+            # Check if the value contains non-numeric characters (like "53d" for days)
+            if any(c.isalpha() for c in raw_value):
                 return raw_value
                 
-            # Time formats
-            if ('h ' in raw_value or 'm ' in raw_value or 's' in raw_value):
+            # Check if value contains time formats with "h", "m", "s", or "d"
+            if any(unit in raw_value for unit in ["h ", "m ", "s", "d "]):
+                return raw_value
+                
+            # Version strings typically have multiple dots
+            if raw_value.count('.') >= 1 and any(c.isalpha() for c in raw_value):
                 return raw_value
                 
             # IP addresses
@@ -298,7 +316,7 @@ def guess_device_class(key: str) -> Optional[str]:
     
     # Skip device class for known text-based sensors
     if (key_upper in TEXT_VALUE_SENSORS or 
-        any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW"])):
+        any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW", "MOVING", "RUNNING"])):
         return None
         
     # Skip temperature device class for non-temperature sensors that have "temp" or "onewire" in name
@@ -341,7 +359,11 @@ def guess_state_class(key: str) -> Optional[str]:
     
     # Skip state class for known text-based sensors
     if (key_upper in TEXT_VALUE_SENSORS or 
-        any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW"])):
+        any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW", "MOVING", "RUNNING"])):
+        return None
+        
+    # Check for remaining range values which are text (like "53d")
+    if "_REMAINING_RANGE" in key_upper:
         return None
         
     klower = key.lower()
@@ -357,7 +379,7 @@ def guess_state_class(key: str) -> Optional[str]:
     if ("runtime" in klower or "state" in klower or "_status" in klower or 
         "rcode" in klower or "romcode" in klower or "mode" in klower or
         "version" in klower or "time" in klower or "direction" in klower or
-        "fw" in klower):
+        "fw" in klower or "moving" in klower or "running" in klower):
         return None
         
     # Standard für Messwerte
@@ -433,6 +455,18 @@ def guess_icon(key: str) -> str:
     # ROM code or ROM ID icons
     if "rcode" in klower or "romcode" in klower:
         return "mdi:identifier"
+        
+    # Remaining range icons
+    if "_remaining_range" in klower:
+        return "mdi:calendar-clock"
+        
+    # Moving icons
+    if "moving" in klower:
+        return "mdi:motion"
+        
+    # Running icons
+    if "running" in klower:
+        return "mdi:run"
         
     # Fallback
     return "mdi:information"
@@ -550,7 +584,8 @@ async def async_setup_entry(
         key_upper = key.upper()
         is_numeric = (
             key_upper not in TEXT_VALUE_SENSORS and 
-            not any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW"])
+            not any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW", "MOVING", "RUNNING"]) and
+            not "_REMAINING_RANGE" in key_upper
         )
         
         # Determine state class based on whether it's numeric
@@ -596,7 +631,8 @@ async def async_setup_entry(
         key_upper = key.upper()
         is_numeric = (
             key_upper not in TEXT_VALUE_SENSORS and 
-            not any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW"])
+            not any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW", "MOVING", "RUNNING"]) and
+            not "_REMAINING_RANGE" in key_upper
         )
         
         # Determine state class based on whether it's numeric
@@ -654,18 +690,23 @@ async def async_setup_entry(
             
         # Bestimme Name, Einheit, Device Class usw. für diesen Sensor
         name = key.replace('_', ' ').title()
-        unit = UNIT_MAP.get(key)
         
-        # Überspringe Keys, die keinen Wert haben sollten
-        if key in NO_UNIT_SENSORS:
-            unit = None
+        # Check if this sensor should be treated as a text sensor
+        key_upper = key.upper()
+        is_text_sensor = (
+            key_upper in TEXT_VALUE_SENSORS or
+            any(pattern in key_upper for pattern in [
+                "RUNTIME", "STATE", "MODE", "VERSION", "TIME", 
+                "DIRECTION", "FW", "MOVING", "RUNNING", "_OMNI_", "DELAY_"
+            ]) or
+            "_REMAINING_RANGE" in key_upper
+        )
+        
+        # Set unit to None for text sensors
+        unit = None if (is_text_sensor or key in NO_UNIT_SENSORS) else UNIT_MAP.get(key)
         
         # Determine if numeric - check for specific patterns in key name
-        key_upper = key.upper()
-        is_numeric = (
-            key_upper not in TEXT_VALUE_SENSORS and 
-            not any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW"])
-        )
+        is_numeric = not is_text_sensor
             
         device_class = guess_device_class(key)
         
@@ -736,7 +777,8 @@ async def async_setup_entry(
         key_upper = key.upper()
         is_numeric = (
             key_upper not in TEXT_VALUE_SENSORS and 
-            not any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW"])
+            not any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW", "MOVING", "RUNNING"]) and
+            not "_REMAINING_RANGE" in key_upper
         )
             
         # Erstelle EntityDescription
@@ -764,9 +806,14 @@ async def async_setup_entry(
         "CPU_TEMP": {"name": "CPU Temperatur", "icon": "mdi:cpu-64-bit", "device_class": SensorDeviceClass.TEMPERATURE, "unit": "°C"},
         "CPU_TEMP_CARRIER": {"name": "Carrier CPU Temperatur", "icon": "mdi:cpu-64-bit", "device_class": SensorDeviceClass.TEMPERATURE, "unit": "°C"},
         "LOAD_AVG": {"name": "System Auslastung", "icon": "mdi:chart-line", "unit": ""},
-        "CPU_UPTIME": {"name": "System Laufzeit", "icon": "mdi:clock-outline", "unit": ""},
+        "CPU_UPTIME": {"name": "System Laufzeit", "icon": "mdi:clock-outline", "unit": None},
+        "CPU_GOV": {"name": "CPU Governor", "icon": "mdi:cpu-64-bit", "unit": None},
         "MEMORY_USED": {"name": "Speichernutzung", "icon": "mdi:memory", "unit": "%"},
-        "SW_VERSION": {"name": "Software Version", "icon": "mdi:update", "unit": ""},
+        "SW_VERSION": {"name": "Software Version", "icon": "mdi:update", "unit": None},
+        "SW_VERSION_CARRIER": {"name": "Carrier SW Version", "icon": "mdi:update", "unit": None},
+        "HW_VERSION_CARRIER": {"name": "Carrier HW Version", "icon": "mdi:chip", "unit": None},
+        "BACKWASH_OMNI_MOVING": {"name": "Backwash Moving", "icon": "mdi:motion", "unit": None},
+        "BACKWASH_DELAY_RUNNING": {"name": "Backwash Delay Running", "icon": "mdi:timer-sand", "unit": None},
     }
     
     for key, info in system_sensors.items():
@@ -777,7 +824,10 @@ async def async_setup_entry(
         key_upper = key.upper()
         is_text_sensor = (
             key_upper in TEXT_VALUE_SENSORS or 
-            any(pattern in key_upper for pattern in ["VERSION", "TIME", "UPTIME"])
+            any(pattern in key_upper for pattern in [
+                "VERSION", "TIME", "UPTIME", "GOV", "MOVING", "RUNNING", "DELAY", "OMNI"
+            ]) or
+            "_REMAINING_RANGE" in key_upper
         )
         
         # Set is_numeric opposite to is_text_sensor
@@ -789,7 +839,7 @@ async def async_setup_entry(
             name=info["name"],
             icon=info["icon"],
             device_class=info.get("device_class"),
-            state_class=SensorStateClass.MEASUREMENT if is_numeric and key not in ["SW_VERSION", "CPU_UPTIME"] else None,
+            state_class=None,  # Force no state_class for all system sensors
             native_unit_of_measurement=info["unit"],
             entity_category=EntityCategory.DIAGNOSTIC,
             is_numeric=is_numeric,
