@@ -1,397 +1,354 @@
-"""Violet Pool Controller Entity Module."""
+"""Climate Integration für den Violet Pool Controller."""
 import logging
-from typing import Any, Dict, Optional, Union, Callable, List, cast
+from typing import Any, Dict, List, Optional, Set, Final, ClassVar, cast
+from dataclasses import dataclass
 
+from homeassistant.components.climate import (
+    ClimateEntity,
+    ClimateEntityFeature,
+    HVACMode,
+    HVACAction,
+    ClimateEntityDescription,
+)
+from homeassistant.components.climate.const import (
+    ATTR_HVAC_MODE,
+    ATTR_PRESET_MODE,
+)
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from homeassistant.helpers.entity import EntityDescription
-from homeassistant.core import callback
+from homeassistant.const import (
+    ATTR_TEMPERATURE,
+    UnitOfTemperature,
+)
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity import EntityCategory
 
 from .const import (
     DOMAIN,
-    CONF_DEVICE_NAME,
-    CONF_API_URL,
-    CONF_POLLING_INTERVAL,
     CONF_ACTIVE_FEATURES,
-    CONF_DEVICE_ID,
 )
-from .device import VioletPoolDataUpdateCoordinator, VioletPoolControllerDevice
+from .entity import VioletPoolControllerEntity
+from .device import VioletPoolDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
+# HVAC-Modus-Mapping für verschiedene API-Zustände
+HEATER_HVAC_MODES: Final[Dict[int, str]] = {
+    0: HVACMode.AUTO,  # AUTO (nicht an)
+    1: HVACMode.AUTO,  # AUTO (an)
+    2: HVACMode.AUTO,  # AUS durch Regelregel
+    3: HVACMode.AUTO,  # EIN durch Notfallregel
+    4: HVACMode.HEAT,  # MANUAL ON
+    5: HVACMode.AUTO,  # AUS durch Notfallregel
+    6: HVACMode.OFF,   # MANUAL OFF
+}
 
-class VioletPoolControllerEntity(CoordinatorEntity):
-    """Basisklasse für eine Violet Pool Controller Entität."""
+# HVAC-Aktion-Mapping für verschiedene API-Zustände
+HEATER_HVAC_ACTIONS: Final[Dict[int, str]] = {
+    0: HVACAction.IDLE,     # AUTO (nicht an)
+    1: HVACAction.HEATING,  # AUTO (an)
+    2: HVACAction.IDLE,     # AUS durch Regelregel
+    3: HVACAction.HEATING,  # EIN durch Notfallregel
+    4: HVACAction.HEATING,  # MANUAL ON
+    5: HVACAction.IDLE,     # AUS durch Notfallregel
+    6: HVACAction.OFF,      # MANUAL OFF
+}
+
+# Feature-IDs für die verschiedenen Climate-Typen
+CLIMATE_FEATURE_MAP: Final[Dict[str, str]] = {
+    "HEATER": "heating",
+    "SOLAR": "solar",
+}
+
+# Sensorkeys für die Wassertemperatur
+WATER_TEMP_SENSORS: Final[List[str]] = [
+    "onewire1_value",    # Standardsensor
+    "water_temp",        # Alternative
+    "WATER_TEMPERATURE", # Alternative
+    "temp_value",        # Alternative
+]
+
+
+@dataclass
+class VioletClimateEntityDescription(ClimateEntityDescription):
+    """Class describing Violet Pool climate entities."""
+
+    feature_id: Optional[str] = None
+
+
+class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
+    """Repräsentiert die Heizungs- oder Absorbersteuerung des Violet Pool Controllers."""
+
+    # Klassen-Attribute für Climate-Features
+    _attr_temperature_unit: ClassVar[str] = UnitOfTemperature.CELSIUS
+    _attr_supported_features: ClassVar[int] = ClimateEntityFeature.TARGET_TEMPERATURE
+    _attr_hvac_modes: ClassVar[List[str]] = [HVACMode.OFF, HVACMode.HEAT, HVACMode.AUTO]
+    _attr_min_temp: ClassVar[float] = 20.0
+    _attr_max_temp: ClassVar[float] = 35.0
+    _attr_target_temperature_step: ClassVar[float] = 0.5
+
+    entity_description: VioletClimateEntityDescription
 
     def __init__(
         self,
         coordinator: VioletPoolDataUpdateCoordinator,
         config_entry: ConfigEntry,
-        entity_description: EntityDescription,
-    ) -> None:
-        """Initialisiere die Entität.
+        climate_type: str,  # "HEATER" oder "SOLAR"
+    ):
+        """Initialisiere die Climate-Entity.
         
         Args:
             coordinator: Der Daten-Koordinator
             config_entry: Die Config Entry des Geräts
-            entity_description: Die Beschreibung der Entität
+            climate_type: Art der Heizung ("HEATER" oder "SOLAR")
         """
-        # Initialisiere CoordinatorEntity mit dem richtigen Koordinator
-        super().__init__(coordinator)
+        # Wichtig: climate_type vor dem super().__init__ setzen
+        self.climate_type = climate_type
         
-        # Grundlegende Entitätsinformationen
-        self.config_entry = config_entry
-        self.entity_description = entity_description
-        self.coordinator = coordinator  # Typisierter Zugriff auf den Coordinator
-        self.device: VioletPoolControllerDevice = coordinator.device  # Zugriff auf Gerät
+        # Name und Icon bestimmen
+        if climate_type == "HEATER":
+            name = "Heizung"
+            icon = "mdi:radiator"
+        else:  # SOLAR
+            name = "Solarabsorber"
+            icon = "mdi:solar-power"
         
-        # Name und ID
-        self._attr_has_entity_name = True  # Nutze HA's Entity-Namenskonvention
-        self._attr_name = entity_description.name
+        # Feature-ID bestimmen
+        feature_id = CLIMATE_FEATURE_MAP.get(climate_type)
         
-        # Geänderte Erstellung der unique_id
-        device_name = config_entry.data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
-        device_id = config_entry.data.get(CONF_DEVICE_ID, 1)
-        # Create a slug-friendly version of the device name
-        device_name_slug = device_name.lower().replace(" ", "_")
-        # Form the unique_id using device name and device ID
-        self._attr_unique_id = f"{device_name_slug}_{device_id}_{entity_description.key}"
-        
-        # Zustand und Verfügbarkeit
-        self._attr_state = None
-        self._attr_available = True  # Initial als verfügbar annehmen
-        
-        # Konfigurationsdaten für einfachen Zugriff
-        self.api_url = config_entry.data.get(CONF_API_URL)
-        self.polling_interval = config_entry.data.get(CONF_POLLING_INTERVAL)
-        self.active_features = config_entry.options.get(
-            CONF_ACTIVE_FEATURES, 
-            config_entry.data.get(CONF_ACTIVE_FEATURES, [])
+        # EntityDescription erstellen
+        entity_description = VioletClimateEntityDescription(
+            key=climate_type,
+            name=name,
+            icon=icon,
+            feature_id=feature_id,
         )
         
-        # Eigener Logger für diese Entität
-        self._logger = logging.getLogger(f"{DOMAIN}.{self._attr_unique_id}")
-        self._logger.info("Initialisiere Entität: %s", self.entity_id)
-
-        # Geräteinformationen vom Geräteobjekt übernehmen
-        self._attr_device_info = self.device.device_info
+        # Initialisiere die Basisklasse
+        super().__init__(
+            coordinator=coordinator,
+            config_entry=config_entry,
+            entity_description=entity_description,
+        )
         
-        # WICHTIG: Wir entfernen den Aufruf von self._update_from_coordinator() hier,
-        # da er zu früh kommt und zu Fehlern führen kann, wenn Attribute noch nicht
-        # in den Unterklassen gesetzt wurden.
-
-    async def async_added_to_hass(self) -> None:
-        """Handle when entity is added to Home Assistant."""
-        await super().async_added_to_hass()
+        # Initialer Zustand
+        self._attr_target_temperature = self._get_target_temperature()
+        self._attr_hvac_mode = self._get_hvac_mode()
         
-        # Jetzt können wir sicher sein, dass alle Attribute in den Unterklassen initialisiert wurden
-        self._update_from_coordinator()
-
-    @property
-    def available(self) -> bool:
-        """Gibt an, ob die Entität verfügbar ist.
-        
-        Prüft drei Bedingungen:
-        1. Die Entität selbst ist verfügbar
-        2. Der Coordinator hat erfolgreiche Aktualisierungen
-        3. Das entsprechende Feature ist aktiv (falls zutreffend)
-        
-        Returns:
-            bool: True, wenn die Entität verfügbar ist, sonst False
-        """
-        feature_available = True
-        
-        # Prüfe, ob diese Entität ein Feature benötigt
-        if hasattr(self.entity_description, "feature_id"):
-            feature_id = getattr(self.entity_description, "feature_id")
-            feature_available = self.device.is_feature_active(feature_id)
-            
-        return (
-            self._attr_available and 
-            self.coordinator.last_update_success and
-            feature_available
+        self._logger.debug(
+            "Climate-Entität für %s initialisiert mit Target: %.1f°C, Modus: %s",
+            self.climate_type,
+            self._attr_target_temperature,
+            self._attr_hvac_mode
         )
 
-    @property
-    def extra_state_attributes(self) -> Dict[str, Any]:
-        """Gibt zusätzliche Zustandsattribute zurück.
+    def _get_target_temperature(self) -> float:
+        """Hole die Zieltemperatur aus den Coordinator-Daten.
         
         Returns:
-            Dict[str, Any]: Die zusätzlichen Attribute
+            float: Die Zieltemperatur in °C
         """
-        attributes = {
-            "polling_interval": self.polling_interval,
-            "api_url": self.api_url,
-            "last_updated": self.coordinator.last_update_success,
-        }
-        
-        # Füge feature_id hinzu, falls vorhanden
-        if hasattr(self.entity_description, "feature_id"):
-            attributes["feature_id"] = getattr(self.entity_description, "feature_id")
-            
-        return attributes
+        if self.climate_type == "HEATER":
+            # Heizungs-Solltemperatur aus API-Daten
+            return self.get_float_value("HEATER_TARGET_TEMP", 28.0)
+        else:  # SOLAR
+            # Solar-Solltemperatur aus API-Daten
+            return self.get_float_value("SOLAR_TARGET_TEMP", 28.0)
 
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        """Handle updated data from the coordinator.
+    def _get_hvac_mode(self) -> str:
+        """Ermittle den aktuellen HVAC-Modus.
         
-        Diese Methode wird automatisch aufgerufen, wenn der Coordinator
-        neue Daten hat.
+        Returns:
+            str: Der aktuelle HVAC-Modus (HVACMode.OFF, HVACMode.HEAT, HVACMode.AUTO)
         """
-        try:
-            if self.coordinator.data:
-                self._update_from_coordinator()
-                self._attr_available = True
-                self._logger.debug(
-                    "Aktualisiert %s, neuer Zustand: %s", 
-                    self.entity_id, 
-                    self._attr_state
-                )
-            else:
-                self._attr_available = False
-                self._logger.warning(
-                    "Keine Daten vom Coordinator für %s verfügbar.", 
-                    self.entity_id
-                )
-        except Exception as err:
-            self._attr_available = False
-            self._logger.error(
-                "Fehler bei der Aktualisierung von %s: %s", 
-                self.entity_id, 
-                err
-            )
-            
-        # Aktualisiere die Entität in Home Assistant
-        self.async_write_ha_state()
+        # Hole den Status aus den API-Daten
+        state = self.get_int_value(self.climate_type, 0)
+        
+        # Konvertiere Status in HVAC-Modus
+        return HEATER_HVAC_MODES.get(state, HVACMode.OFF)
 
     def _update_from_coordinator(self) -> None:
-        """Aktualisiert den Zustand der Entität anhand der Coordinator-Daten.
+        """Aktualisiere den Zustand der Climate-Entity anhand der Coordinator-Daten."""
+        # Aktualisiere Zieltemperatur und HVAC-Modus
+        self._attr_target_temperature = self._get_target_temperature()
+        self._attr_hvac_mode = self._get_hvac_mode()
+    
+    @property
+    def hvac_action(self) -> Optional[str]:
+        """Gib die aktuelle HVAC-Aktion zurück.
         
-        Diese Methode kann in Unterklassen überschrieben werden, um
-        spezifischere Aktualisierungslogik zu implementieren.
+        Returns:
+            Optional[str]: Die aktuelle HVAC-Aktion
         """
-        self._update_state_from_key(self.entity_description.key)
+        # Hole den Status aus den API-Daten
+        state = self.get_int_value(self.climate_type, 0)
+        
+        # Konvertiere Status in HVAC-Aktion
+        return HEATER_HVAC_ACTIONS.get(state, HVACAction.IDLE)
 
-    def _update_state_from_key(self, key: str) -> None:
-        """Aktualisiert den Zustand der Entität anhand eines Schlüssels.
+    @property
+    def current_temperature(self) -> Optional[float]:
+        """Gib die aktuelle Wassertemperatur zurück.
+        
+        Returns:
+            Optional[float]: Die aktuelle Wassertemperatur in °C
+        """
+        # Versuche, die Wassertemperatur aus verschiedenen möglichen Sensorkeys zu lesen
+        for sensor_key in WATER_TEMP_SENSORS:
+            value = self.get_float_value(sensor_key, None)
+            if value is not None:
+                return value
+                
+        # Falls keine Temperatur gefunden wurde
+        return None
+
+    async def async_set_temperature(self, **kwargs) -> None:
+        """Setze die Zieltemperatur.
         
         Args:
-            key: Der Schlüssel in den Coordinator-Daten
+            **kwargs: Keyword-Argumente, insbesondere ATTR_TEMPERATURE
         """
-        if not self.coordinator.data:
-            self._attr_available = False
+        temperature = kwargs.get(ATTR_TEMPERATURE)
+        if temperature is None:
             return
             
-        data = self.coordinator.data
-        
+        # Temperatur validieren
+        if temperature < self.min_temp or temperature > self.max_temp:
+            self._logger.warning(
+                "Angeforderte Temperatur %.1f liegt außerhalb des zulässigen Bereichs (%.1f-%.1f)",
+                temperature, self.min_temp, self.max_temp
+            )
+            return
+            
         try:
-            if key in data:
-                new_value = data[key]
-                if new_value is not None:
-                    # Aktualisiere den Zustand
-                    self._attr_state = new_value
-                    self._attr_available = True
-                else:
-                    self._logger.warning(
-                        "Schlüssel %s hat einen None-Wert in den Daten.", 
-                        key
-                    )
-                    self._attr_available = False
+            # Temperatur auf eine Dezimalstelle runden
+            temperature = round(temperature, 1)
+            
+            self._logger.info(
+                "Setze %s Zieltemperatur auf %.1f°C",
+                "Heizung" if self.climate_type == "HEATER" else "Solar",
+                temperature
+            )
+            
+            # Bestimme den API-Endpunkt
+            endpoint = "/set_temperature"
+            
+            # Bereite die Kommandodaten vor
+            command = {
+                "type": self.climate_type,
+                "temperature": temperature
+            }
+            
+            # Sende das Kommando über die Device-API
+            result = await self.device.async_send_command(endpoint, command)
+            
+            # Prüfe das Ergebnis
+            if isinstance(result, dict) and result.get("success", False):
+                # Lokal aktualisieren ohne auf API-Refresh zu warten
+                self._attr_target_temperature = temperature
+                self.async_write_ha_state()
+                
+                # Daten vom Gerät neu laden
+                await self.coordinator.async_request_refresh()
             else:
-                # Schlüssel nicht gefunden, spezielle Behandlung für zusammengesetzte Schlüssel
-                composite_keys = self._get_composite_keys(key)
-                if composite_keys:
-                    for composite_key in composite_keys:
-                        if composite_key in data:
-                            self._attr_state = data[composite_key]
-                            self._attr_available = True
-                            return
-                
-                # Liste der bekannten virtuellen Schlüssel, die durch Transformationsfunktionen berechnet werden
-                virtual_keys = ["COVER_IS_CLOSED"]
-                
-                # Kein passender Schlüssel gefunden
-                if key not in virtual_keys:
-                    self._logger.debug(
-                        "Schlüssel %s nicht in den Daten gefunden: %s",
-                        key,
-                        list(data.keys())
-                    )
-                    self._attr_available = False
-                else:
-                    # Für virtuelle Schlüssel keine Verfügbarkeit ändern, da diese durch Transformation berechnet werden
-                    pass
-        except Exception as err:
-            self._logger.error(
-                "Fehler beim Aktualisieren von %s mit Schlüssel %s: %s",
-                self.entity_id,
-                key,
-                err
-            )
-            self._attr_available = False
-
-    def _get_composite_keys(self, key: str) -> List[str]:
-        """Erstellt eine Liste alternativer Schlüsselnamen für einen Schlüssel.
-        
-        Manche Werte können unter verschiedenen Namen in der API vorkommen.
-        Diese Methode gibt alternative Schlüssel zurück, nach denen gesucht werden kann.
-        
-        Args:
-            key: Der Primärschlüssel
-            
-        Returns:
-            List[str]: Liste alternativer Schlüsselnamen
-        """
-        # Mapping von primären zu alternativen Schlüsseln
-        key_mappings = {
-            "ph_value": ["ph_current", "ph", "ph_level"],
-            "orp_value": ["orp_current", "orp", "redox"],
-            "temp_value": ["temp_current", "temperature", "water_temp"],
-            "water_temp": ["onewire1_value", "temp_value", "temperature"],
-            "air_temp": ["onewire2_value", "ambient_temp", "ambient_temperature"],
-            "filter_state": ["FILTER_STATE", "FILTER", "filter"],
-            "heater_state": ["HEATER_STATE", "HEATER", "heater"],
-            "solar_state": ["SOLAR_STATE", "SOLAR", "solar"],
-            "cover_state": ["COVER_STATE", "COVER", "cover"],
-        }
-        
-        return key_mappings.get(key, [])
-        
-    def get_float_value(self, key: str, default: float = 0.0) -> float:
-        """Gibt einen Wert als Float zurück.
-        
-        Args:
-            key: Der Schlüssel in den Daten
-            default: Der Standardwert, falls der Schlüssel nicht existiert
-            
-        Returns:
-            float: Der Wert als Float oder der Standardwert
-        """
-        if not self.coordinator.data:
-            return default
-            
-        try:
-            value = self.coordinator.data.get(key)
-            if value is None:
-                # Versuche es mit alternativen Schlüsseln
-                for alt_key in self._get_composite_keys(key):
-                    alt_value = self.coordinator.data.get(alt_key)
-                    if alt_value is not None:
-                        value = alt_value
-                        break
-                        
-            if value is None:
-                return default
-                
-            return float(value)
-        except (ValueError, TypeError):
-            self._logger.warning(
-                "Konnte Wert %s nicht in Float umwandeln", 
-                value
-            )
-            return default
-
-    def get_bool_value(self, key: str, default: bool = False) -> bool:
-        """Gibt einen Wert als Boolean zurück.
-        
-        Args:
-            key: Der Schlüssel in den Daten
-            default: Der Standardwert, falls der Schlüssel nicht existiert
-            
-        Returns:
-            bool: Der Wert als Boolean oder der Standardwert
-        """
-        if not self.coordinator.data:
-            return default
-            
-        value = self.coordinator.data.get(key)
-        if value is None:
-            # Versuche es mit alternativen Schlüsseln
-            for alt_key in self._get_composite_keys(key):
-                alt_value = self.coordinator.data.get(alt_key)
-                if alt_value is not None:
-                    value = alt_value
-                    break
-                    
-        if value is None:
-            return default
-            
-        if isinstance(value, bool):
-            return value
-        if isinstance(value, (int, float)):
-            return bool(value)
-        if isinstance(value, str):
-            return value.lower() in ["true", "1", "on", "yes", "active", "an", "ein"]
-            
-        return default
-
-    def get_int_value(self, key: str, default: int = 0) -> int:
-        """Gibt einen Wert als Integer zurück.
-        
-        Args:
-            key: Der Schlüssel in den Daten
-            default: Der Standardwert, falls der Schlüssel nicht existiert
-            
-        Returns:
-            int: Der Wert als Integer oder der Standardwert
-        """
-        if not self.coordinator.data:
-            return default
-            
-        try:
-            value = self.coordinator.data.get(key)
-            if value is None:
-                # Versuche es mit alternativen Schlüsseln
-                for alt_key in self._get_composite_keys(key):
-                    alt_value = self.coordinator.data.get(alt_key)
-                    if alt_value is not None:
-                        value = alt_value
-                        break
-                        
-            if value is None:
-                return default
-                
-            return int(float(value))
-        except (ValueError, TypeError):
-            self._logger.warning(
-                "Konnte Wert %s nicht in Integer umwandeln", 
-                value
-            )
-            return default
-
-    def get_str_value(self, key: str, default: str = "") -> str:
-        """Gibt einen Wert als String zurück.
-        
-        Args:
-            key: Der Schlüssel in den Daten
-            default: Der Standardwert, falls der Schlüssel nicht existiert
-            
-        Returns:
-            str: Der Wert als String oder der Standardwert
-        """
-        if not self.coordinator.data:
-            return default
-            
-        value = self.coordinator.data.get(key)
-        if value is None:
-            # Versuche es mit alternativen Schlüsseln
-            for alt_key in self._get_composite_keys(key):
-                alt_value = self.coordinator.data.get(alt_key)
-                if alt_value is not None:
-                    value = alt_value
-                    break
-                    
-            # Liste der bekannten virtuellen Schlüssel, die durch Transformationsfunktionen berechnet werden
-            virtual_keys = ["COVER_IS_CLOSED"]
-            
-            if value is None and key not in virtual_keys:
-                self._logger.debug(
-                    "Schlüssel %s nicht in den Daten gefunden: %s",
-                    key,
-                    list(self.coordinator.data.keys())
+                self._logger.error(
+                    "Fehler beim Setzen der Temperatur: Ungültige Antwort: %s",
+                    result
                 )
                 
-        if value is None:
-            return default
+        except Exception as err:
+            self._logger.error("Fehler beim Setzen der Temperatur: %s", err)
+
+    async def async_set_hvac_mode(self, hvac_mode: str) -> None:
+        """Setze den HVAC-Modus (OFF, HEAT, AUTO).
+        
+        Args:
+            hvac_mode: Der zu setzende HVAC-Modus
+        """
+        try:
+            # API-Key und Aktion bestimmen
+            api_key = self.climate_type
+            action = None
             
-        return str(value)
+            if hvac_mode == HVACMode.HEAT:
+                action = "ON"  # MANUAL ON
+            elif hvac_mode == HVACMode.OFF:
+                action = "OFF"  # MANUAL OFF
+            elif hvac_mode == HVACMode.AUTO:
+                action = "AUTO"  # AUTO mode
+            else:
+                self._logger.warning("Nicht unterstützter HVAC-Modus: %s", hvac_mode)
+                return
+                
+            self._logger.info(
+                "Setze %s-Modus auf %s",
+                "Heizung" if self.climate_type == "HEATER" else "Solar",
+                action
+            )
+            
+            # Bereite das Kommando vor
+            command = {
+                "id": api_key,
+                "action": action,
+                "duration": 0  # permanent
+            }
+            
+            # Sende das Kommando über die Device-API
+            result = await self.device.async_send_command("/set_switch", command)
+            
+            # Prüfe das Ergebnis
+            if isinstance(result, dict) and result.get("success", False):
+                # Lokal aktualisieren ohne auf API-Refresh zu warten
+                self._attr_hvac_mode = hvac_mode
+                self.async_write_ha_state()
+                
+                # Daten vom Gerät neu laden
+                await self.coordinator.async_request_refresh()
+            else:
+                self._logger.error(
+                    "Fehler beim Setzen des HVAC-Modus: Ungültige Antwort: %s",
+                    result
+                )
+                
+        except Exception as err:
+            self._logger.error("Fehler beim Setzen des HVAC-Modus: %s", err)
+
+
+async def async_setup_entry(
+    hass: HomeAssistant, 
+    config_entry: ConfigEntry, 
+    async_add_entities: AddEntitiesCallback
+) -> None:
+    """Richte Climate-Entities basierend auf dem Config-Entry ein.
+    
+    Args:
+        hass: Home Assistant Instanz
+        config_entry: Die Config Entry
+        async_add_entities: Callback zum Hinzufügen der Entities
+    """
+    coordinator = hass.data[DOMAIN][config_entry.entry_id]
+    
+    # Hole aktive Features
+    active_features = config_entry.options.get(
+        CONF_ACTIVE_FEATURES, 
+        config_entry.data.get(CONF_ACTIVE_FEATURES, [])
+    )
+    
+    entities = []
+    
+    # Prüfe, ob Heizung vorhanden ist (Feature-Check deaktiviert)
+    if "HEATER" in coordinator.data:
+        entities.append(VioletClimateEntity(coordinator, config_entry, "HEATER"))
+    
+    # Prüfe, ob Solarabsorber vorhanden ist (Feature-Check deaktiviert)
+    if "SOLAR" in coordinator.data:
+        entities.append(VioletClimateEntity(coordinator, config_entry, "SOLAR"))
+    
+    if entities:
+        async_add_entities(entities)
+        _LOGGER.info("%d Climate-Entities hinzugefügt", len(entities))
+    else:
+        _LOGGER.info(
+            "Keine Heizungs- oder Solarabsorber-Daten gefunden, " 
+            "Climate-Entities werden nicht hinzugefügt"
+        )
