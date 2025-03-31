@@ -118,21 +118,26 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         try:
             # Der korrekte Endpunkt ist "/setFunctionManually" aus der API-Doku
             endpoint = API_SET_FUNCTION_MANUALLY
-            
-            # Erstelle das Kommando als Rohformat, wie in der API erwartet
             key = self.entity_description.key
-            raw_query = f"{key},{action},{value},0"
             
-            self._logger.debug("Sende Raw-Command: %s", raw_query)
+            # Verbesserte Methode: async_send_command vom Gerät verwenden
+            command = {
+                "id": key,
+                "action": action,
+                "duration": value,
+                "value": 0
+            }
+            
+            self._logger.debug("Sende Befehl an %s: %s (Wert: %s)", key, action, value)
             
             # Nutze die zentrale Befehlsmethode des Geräts
-            result = await self.device.api.api_request(
+            result = await self.device.async_send_command(
                 endpoint=endpoint,
-                raw_query=raw_query
+                command=command
             )
             
             self._logger.debug(
-                "Command sent to %s: %s (value: %s), Response: %s",
+                "Befehl an %s gesendet: %s (Wert: %s), Antwort: %s",
                 key,
                 action,
                 value,
@@ -171,13 +176,18 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 )
                 return
 
-            # Führe die manuelle Dosierung aus als Raw Query
+            # Verbesserte Methode: async_send_command vom Gerät verwenden
             endpoint = API_SET_FUNCTION_MANUALLY
-            raw_query = f"{self.entity_description.key},MAN,{duration_seconds},0"
+            command = {
+                "id": self.entity_description.key,
+                "action": "MAN",
+                "duration": duration_seconds,
+                "value": 0
+            }
             
-            result = await self.device.api.api_request(
+            result = await self.device.async_send_command(
                 endpoint=endpoint,
-                raw_query=raw_query
+                command=command
             )
             
             self._logger.info(
@@ -208,13 +218,18 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 )
                 return
             
-            # Setze den PV-Überschussmodus als Raw Query
+            # Verbesserte Methode: async_send_command vom Gerät verwenden
             endpoint = API_SET_FUNCTION_MANUALLY
-            raw_query = f"PVSURPLUS,ON,{pump_speed},0"
+            command = {
+                "id": "PVSURPLUS",
+                "action": "ON",
+                "duration": pump_speed,
+                "value": 0
+            }
             
-            result = await self.device.api.api_request(
+            result = await self.device.async_send_command(
                 endpoint=endpoint,
-                raw_query=raw_query
+                command=command
             )
             
             self._logger.info(
@@ -262,13 +277,18 @@ class VioletPVSurplusSwitch(VioletSwitch):
             # Standard-Pumpendrehzahl verwenden
             pump_speed = 2
             
-            # Direkt das Raw-Query Format verwenden
+            # Verbesserte Methode: async_send_command vom Gerät verwenden
             endpoint = API_SET_FUNCTION_MANUALLY
-            raw_query = f"PVSURPLUS,ON,{pump_speed},0"
+            command = {
+                "id": "PVSURPLUS",
+                "action": "ON",
+                "duration": pump_speed,
+                "value": 0
+            }
             
-            result = await self.device.api.api_request(
+            result = await self.device.async_send_command(
                 endpoint=endpoint,
-                raw_query=raw_query
+                command=command
             )
             
             self._logger.info(
@@ -285,13 +305,18 @@ class VioletPVSurplusSwitch(VioletSwitch):
     async def async_turn_off(self, **kwargs) -> None:
         """Turn off PV surplus mode."""
         try:
-            # Direkt das Raw-Query Format verwenden
+            # Verbesserte Methode: async_send_command vom Gerät verwenden
             endpoint = API_SET_FUNCTION_MANUALLY
-            raw_query = "PVSURPLUS,OFF,0,0"
+            command = {
+                "id": "PVSURPLUS",
+                "action": "OFF",
+                "duration": 0,
+                "value": 0
+            }
             
-            result = await self.device.api.api_request(
+            result = await self.device.async_send_command(
                 endpoint=endpoint,
-                raw_query=raw_query
+                command=command
             )
             
             self._logger.info(
@@ -347,9 +372,9 @@ async def async_setup_entry(
         if key not in available_data_keys:
             continue
             
-        # Prüfe, ob das zugehörige Feature aktiv ist
+        # Prüfe, ob das zugehörige Feature aktiv ist (DEAKTIVIERT)
         feature_id = feature_map.get(key)
-        if feature_id and feature_id not in active_features:
+        if False and feature_id and feature_id not in active_features:
             _LOGGER.debug(
                 "Switch %s wird übersprungen, da Feature %s nicht aktiv ist",
                 key,
@@ -383,8 +408,8 @@ async def async_setup_entry(
     # Prüfen, ob bereits ein PV-Surplus-Switch existiert
     pv_switch_exists = any(switch.entity_description.key == "PVSURPLUS" for switch in switches)
 
-    # Speziellen PV Surplus Switch hinzufügen, wenn in den Daten vorhanden und Feature aktiv
-    if "PVSURPLUS" in available_data_keys and "pv_surplus" in active_features and not pv_switch_exists:
+    # Speziellen PV Surplus Switch hinzufügen, wenn in den Daten vorhanden (Feature-Check deaktiviert)
+    if "PVSURPLUS" in available_data_keys and not pv_switch_exists:
         switches.append(VioletPVSurplusSwitch(coordinator, config_entry))
 
     # Füge alle Switches hinzu
