@@ -276,12 +276,11 @@ async def async_setup_entry(
     # Cover-Typ bestimmen: Direkt über Status oder über OPEN/CLOSE Switches
     has_cover = "COVER_STATE" in coordinator.data
     
-    # Überprüfe, ob die erforderlichen Daten für das Cover vorhanden sind und Feature aktiv ist
-    if has_cover and "cover_control" in active_features:
+    # Überprüfe, ob die erforderlichen Daten für das Cover vorhanden sind (Feature-Check deaktiviert)
+    if has_cover:
         async_add_entities([VioletCover(coordinator, config_entry)])
         _LOGGER.info("Pool-Abdeckungssteuerung hinzugefügt")
     else:
         _LOGGER.info(
-            "Kein Cover-Feature aktiv oder keine Cover-Daten gefunden, "
-            "Cover wird nicht hinzugefügt"
+            "Keine Cover-Daten gefunden, Cover wird nicht hinzugefügt"
         )
