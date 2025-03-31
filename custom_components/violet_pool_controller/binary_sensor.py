@@ -164,9 +164,8 @@ class CoverIsClosedBinarySensor(CoordinatorEntity, BinarySensorEntity):
     @property
     def available(self) -> bool:
         """Gibt an, ob die Entität verfügbar ist."""
-        # Wir sind verfügbar, solange der Coordinator funktioniert und "cover_control" aktiv ist
-        feature_active = self.coordinator.device.is_feature_active("cover_control")
-        return self.coordinator.last_update_success and feature_active
+        # GEÄNDERT: Feature-Aktivierung deaktiviert - Immer verfügbar machen, wenn Coordinator funktioniert
+        return self.coordinator.last_update_success
 
     @property
     def is_on(self) -> bool:
@@ -269,9 +268,9 @@ async def async_setup_entry(
             _LOGGER.debug("Binary Sensor %s nicht in API-Daten gefunden, wird übersprungen", key)
             continue
             
-        # Prüfe, ob das zugehörige Feature aktiv ist
+        # Prüfe, ob das zugehörige Feature aktiv ist (DEAKTIVIERT)
         feature_id = BINARY_SENSOR_FEATURE_MAP.get(key)
-        if feature_id and feature_id not in active_features:
+        if False and feature_id and feature_id not in active_features:
             _LOGGER.debug(
                 "Binary Sensor %s wird übersprungen, da Feature %s nicht aktiv ist",
                 key,
@@ -317,8 +316,8 @@ async def async_setup_entry(
         )
     
     # Spezialbehandlung: Cover-geschlossen Sensor
-    if "COVER_STATE" in available_data_keys and "cover_control" in active_features:
-        _LOGGER.debug("Cover-Geschlossen Sensor wird erstellt (Feature cover_control)")
+    if "COVER_STATE" in available_data_keys:
+        _LOGGER.debug("Cover-Geschlossen Sensor wird erstellt")
         # Verwende hier den komplett eigenständigen Sensor
         binary_sensors.append(
             CoverIsClosedBinarySensor(
@@ -328,14 +327,13 @@ async def async_setup_entry(
         )
     else:
         _LOGGER.warning(
-            "Cover-Geschlossen Sensor NICHT erstellt. COVER_STATE in Daten: %s, cover_control aktiv: %s",
-            "COVER_STATE" in available_data_keys,
-            "cover_control" in active_features
+            "Cover-Geschlossen Sensor NICHT erstellt. COVER_STATE in Daten: %s",
+            "COVER_STATE" in available_data_keys
         )
     
     # PV Überschuss Status
-    if "PVSURPLUS" in available_data_keys and "pv_surplus" in active_features:
-        _LOGGER.debug("PV-Überschuss Sensor wird erstellt (Feature pv_surplus)")
+    if "PVSURPLUS" in available_data_keys:
+        _LOGGER.debug("PV-Überschuss Sensor wird erstellt")
         description = VioletBinarySensorEntityDescription(
             key="PVSURPLUS",
             name="PV Überschuss Aktiv",
