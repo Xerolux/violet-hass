@@ -105,20 +105,22 @@ class VioletPoolAPI:
             url = f"{url}?{raw_query}"
             
         _LOGGER.debug(
-            "%s request to %s (params=%s, data=%s)",
+            "%s request to %s (params=%s, data=%s, raw_query=%s)",
             method,
             url,
             params,
             data,
+            raw_query
         )
             
         try:
             async with async_timeout.timeout(self.timeout):
+                # Verwende GET für alle Anfragen, auch für Befehle
+                # Die API erwartet Befehle in der Form /setFunctionManually?PUMP,ON,0,0
                 async with self.session.request(
                     method=method,
                     url=url,
                     params=params,
-                    json=data,
                     auth=self.auth,
                     ssl=self.use_ssl
                 ) as response:
@@ -137,7 +139,14 @@ class VioletPoolAPI:
                     else:
                         text = await response.text()
                         _LOGGER.debug("API-Text-Antwort: %s", text)
-                        return text
+                        # Versuche, Textantwort als JSON zu parsen (falls Content-Type falsch gesetzt)
+                        try:
+                            result = json.loads(text)
+                            _LOGGER.debug("Text als JSON geparst: %s", result)
+                            return result
+                        except json.JSONDecodeError:
+                            # Wenn es kein JSON ist, gib den Rohtext zurück
+                            return text
                     
         except asyncio.TimeoutError as err:
             error_msg = f"Timeout bei Verbindung zu {self.host}: {err}"
@@ -170,7 +179,6 @@ class VioletPoolAPI:
         """
         result = await self.api_request(
             endpoint=API_READINGS,
-            params={"query": query} if query != "ALL" else None,
             raw_query=query if query != "ALL" else None,
         )
         
@@ -210,6 +218,7 @@ class VioletPoolAPI:
             _LOGGER.warning(error_msg)
             raise VioletPoolCommandError(error_msg)
             
+        # WICHTIG: Die API erwartet das Format "key,action,duration,last_value" als Query-Parameter
         raw_query = f"{key},{action},{duration},{last_value}"
         
         _LOGGER.debug(
@@ -223,6 +232,7 @@ class VioletPoolAPI:
         result = await self.api_request(
             endpoint=API_SET_FUNCTION_MANUALLY,
             raw_query=raw_query,
+            method="GET",  # Explizit GET verwenden
         )
         
         # Normalisiere das Ergebnis zu einem Dictionary
@@ -307,6 +317,7 @@ class VioletPoolAPI:
             VioletPoolConnectionError: Bei Verbindungsproblemen
             VioletPoolCommandError: Bei Fehlern bei der Befehlsausführung
         """
+        # WICHTIG: Die API erwartet das Format "dosing_type,parameter_name,value" als Query-Parameter
         raw_query = f"{dosing_type},{parameter_name},{value}"
         
         _LOGGER.debug(
@@ -319,6 +330,7 @@ class VioletPoolAPI:
         result = await self.api_request(
             endpoint=API_SET_DOSING_PARAMETERS,
             raw_query=raw_query,
+            method="GET",  # Explizit GET verwenden
         )
         
         # Normalisiere das Ergebnis
@@ -384,6 +396,7 @@ class VioletPoolAPI:
                 value
             )
             
+        # WICHTIG: Die API erwartet das Format "target_type,value" als Query-Parameter
         raw_query = f"{target_type},{value}"
         
         _LOGGER.debug(
@@ -395,6 +408,7 @@ class VioletPoolAPI:
         result = await self.api_request(
             endpoint=API_SET_TARGET_VALUES,
             raw_query=raw_query,
+            method="GET",  # Explizit GET verwenden
         )
         
         # Normalisiere das Ergebnis
@@ -483,62 +497,6 @@ class VioletPoolAPI:
             
         return await self.set_target_value("MinChlorine", value)
     
-    async def set_max_chlorine_level_day(self, value: float) -> Dict[str, Any]:
-        """Setzt den maximalen Chlorgehalt tagsüber.
-        
-        Args:
-            value: Neuer maximaler Chlorgehalt tagsüber in mg/l
-            
-        Returns:
-            Dict mit der Antwort vom Gerät
-            
-        Raises:
-            VioletPoolConnectionError: Bei Verbindungsproblemen
-            VioletPoolCommandError: Bei Fehlern bei der Befehlsausführung
-        """
-        # Validiere Chlorwert
-        value = float(value)
-        
-        # Normaler Chlorbereich ist ca. 0.3 bis 1.5 mg/l
-        if value < 0.5 or value > 3.0:
-            _LOGGER.warning(
-                "Chlorgehalt (Tag) %f außerhalb des üblichen Bereichs (0.5-3.0 mg/l)",
-                value
-            )
-            
-        # Rundung auf 1 Dezimalstelle
-        value = round(value, 1)
-            
-        return await self.set_target_value("MaxChlorineDay", value)
-    
-    async def set_max_chlorine_level_night(self, value: float) -> Dict[str, Any]:
-        """Setzt den maximalen Chlorgehalt nachts.
-        
-        Args:
-            value: Neuer maximaler Chlorgehalt nachts in mg/l
-            
-        Returns:
-            Dict mit der Antwort vom Gerät
-            
-        Raises:
-            VioletPoolConnectionError: Bei Verbindungsproblemen
-            VioletPoolCommandError: Bei Fehlern bei der Befehlsausführung
-        """
-        # Validiere Chlorwert
-        value = float(value)
-        
-        # Normaler Chlorbereich ist ca. 0.3 bis 1.5 mg/l
-        if value < 0.5 or value > 3.0:
-            _LOGGER.warning(
-                "Chlorgehalt (Nacht) %f außerhalb des üblichen Bereichs (0.5-3.0 mg/l)",
-                value
-            )
-            
-        # Rundung auf 1 Dezimalstelle
-        value = round(value, 1)
-            
-        return await self.set_target_value("MaxChlorineNight", value)
-    
     async def set_maintenance_mode(self, enabled: bool) -> Dict[str, Any]:
         """Aktiviert oder deaktiviert den Wartungsmodus.
         
@@ -570,46 +528,4 @@ class VioletPoolAPI:
         # Normalisiere das Ergebnis
         if isinstance(result, str):
             return {"response": result, "success": "OK" in result or "SUCCESS" in result}
-        return result
-    
-    async def get_dosing_stats(self) -> Dict[str, Any]:
-        """Gibt Statistiken zur Dosierung zurück.
-        
-        Returns:
-            Dictionary mit Dosierungsstatistiken
-            
-        Raises:
-            VioletPoolConnectionError: Bei Verbindungsproblemen
-            VioletPoolCommandError: Bei Fehlern bei der Befehlsausführung
-        """
-        result = await self.api_request(endpoint="/getDosingStats")
-        
-        # Falls das Ergebnis ein String ist, versuche es als JSON zu parsen
-        if isinstance(result, str):
-            try:
-                return json.loads(result)
-            except json.JSONDecodeError:
-                return {"raw_response": result}
-                
-        return result
-        
-    async def get_system_info(self) -> Dict[str, Any]:
-        """Ruft Systeminformationen ab.
-        
-        Returns:
-            Dictionary mit Systeminformationen
-            
-        Raises:
-            VioletPoolConnectionError: Bei Verbindungsproblemen
-            VioletPoolCommandError: Bei Fehlern bei der Befehlsausführung
-        """
-        result = await self.api_request(endpoint="/getSystemInfo")
-        
-        # Falls das Ergebnis ein String ist, versuche es als JSON zu parsen
-        if isinstance(result, str):
-            try:
-                return json.loads(result)
-            except json.JSONDecodeError:
-                return {"raw_response": result}
-                
         return result
