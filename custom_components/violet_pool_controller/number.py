@@ -327,9 +327,9 @@ async def async_setup_entry(
     entities: List[VioletNumberEntity] = []
     
     for definition in SETPOINT_DEFINITIONS:
-        # Prüfe, ob das Feature aktiv ist
+        # Prüfe, ob das Feature aktiv ist (DEAKTIVIERT)
         feature_id = definition.get("feature_id")
-        if feature_id and feature_id not in active_features:
+        if False and feature_id and feature_id not in active_features:
             _LOGGER.debug(
                 "Number-Entity für %s wird übersprungen, da Feature %s nicht aktiv ist",
                 definition["name"],
