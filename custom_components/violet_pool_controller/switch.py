@@ -112,15 +112,15 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         """Send command to the device.
         
         Args:
-            action: The action to perform (ON, OFF, AUTO)
-            value: Optional value for the command (e.g., delay)
+            action: Die Aktion für den Schalter (ON, OFF, AUTO)
+            value: Optionaler Wert für den Befehl (z.B. Verzögerung)
         """
         try:
             # Der korrekte Endpunkt ist "/setFunctionManually" aus der API-Doku
             endpoint = API_SET_FUNCTION_MANUALLY
             key = self.entity_description.key
             
-            # Verbesserte Methode: async_send_command vom Gerät verwenden
+            # Bereite das Kommando mit den korrekten Parametern vor
             command = {
                 "id": key,
                 "action": action,
@@ -130,7 +130,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             
             self._logger.debug("Sende Befehl an %s: %s (Wert: %s)", key, action, value)
             
-            # Nutze die zentrale Befehlsmethode des Geräts
+            # Dies verwendet nun die korrigierte async_send_command-Methode, die GET mit Query-Parametern verwendet
             result = await self.device.async_send_command(
                 endpoint=endpoint,
                 command=command
@@ -176,8 +176,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 )
                 return
 
-            # Verbesserte Methode: async_send_command vom Gerät verwenden
-            endpoint = API_SET_FUNCTION_MANUALLY
+            # Bereite das Kommando mit den korrekten Parametern vor
             command = {
                 "id": self.entity_description.key,
                 "action": "MAN",
@@ -185,8 +184,9 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 "value": 0
             }
             
+            # Dies verwendet nun die korrigierte async_send_command-Methode
             result = await self.device.async_send_command(
-                endpoint=endpoint,
+                endpoint=API_SET_FUNCTION_MANUALLY,
                 command=command
             )
             
@@ -218,17 +218,17 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 )
                 return
             
-            # Verbesserte Methode: async_send_command vom Gerät verwenden
-            endpoint = API_SET_FUNCTION_MANUALLY
+            # Bereite das Kommando mit den korrekten Parametern vor
             command = {
                 "id": "PVSURPLUS",
                 "action": "ON",
-                "duration": pump_speed,
+                "duration": pump_speed,  # Pumpendrehzahl im duration-Parameter
                 "value": 0
             }
             
+            # Dies verwendet nun die korrigierte async_send_command-Methode
             result = await self.device.async_send_command(
-                endpoint=endpoint,
+                endpoint=API_SET_FUNCTION_MANUALLY,
                 command=command
             )
             
@@ -277,8 +277,7 @@ class VioletPVSurplusSwitch(VioletSwitch):
             # Standard-Pumpendrehzahl verwenden
             pump_speed = 2
             
-            # Verbesserte Methode: async_send_command vom Gerät verwenden
-            endpoint = API_SET_FUNCTION_MANUALLY
+            # Bereite das Kommando mit den korrekten Parametern vor
             command = {
                 "id": "PVSURPLUS",
                 "action": "ON",
@@ -286,8 +285,9 @@ class VioletPVSurplusSwitch(VioletSwitch):
                 "value": 0
             }
             
+            # Dies verwendet nun die korrigierte async_send_command-Methode
             result = await self.device.async_send_command(
-                endpoint=endpoint,
+                endpoint=API_SET_FUNCTION_MANUALLY,
                 command=command
             )
             
@@ -305,8 +305,7 @@ class VioletPVSurplusSwitch(VioletSwitch):
     async def async_turn_off(self, **kwargs) -> None:
         """Turn off PV surplus mode."""
         try:
-            # Verbesserte Methode: async_send_command vom Gerät verwenden
-            endpoint = API_SET_FUNCTION_MANUALLY
+            # Bereite das Kommando mit den korrekten Parametern vor
             command = {
                 "id": "PVSURPLUS",
                 "action": "OFF",
@@ -314,8 +313,9 @@ class VioletPVSurplusSwitch(VioletSwitch):
                 "value": 0
             }
             
+            # Dies verwendet nun die korrigierte async_send_command-Methode
             result = await self.device.async_send_command(
-                endpoint=endpoint,
+                endpoint=API_SET_FUNCTION_MANUALLY,
                 command=command
             )
             
