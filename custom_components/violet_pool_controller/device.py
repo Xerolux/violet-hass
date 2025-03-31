@@ -29,6 +29,9 @@ from .const import (
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_TIMEOUT_DURATION,
     DEFAULT_RETRY_ATTEMPTS,
+    API_SET_FUNCTION_MANUALLY,
+    API_SET_DOSING_PARAMETERS,
+    API_SET_TARGET_VALUES,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -263,7 +266,19 @@ class VioletPoolControllerDevice:
                                     headers=response.headers
                                 )
                         
-                        data = await response.json()
+                        # Überprüfe Content-Type
+                        content_type = response.headers.get("Content-Type", "")
+                        
+                        if "application/json" in content_type:
+                            data = await response.json()
+                        else:
+                            # Text-Antwort versuchen als JSON zu parsen
+                            text = await response.text()
+                            try:
+                                data = json.loads(text)
+                            except json.JSONDecodeError:
+                                data = {"raw_response": text}
+                        
                         _LOGGER.debug("API-Antwort: %s", data)
                         return data
                         
@@ -366,27 +381,80 @@ class VioletPoolControllerDevice:
         Raises:
             Exception: Bei Kommunikationsfehlern
         """
+        # Erstelle die Basis-URL
         url = f"{self.api_base_url}{endpoint}"
+        
+        # Bereite den raw_query basierend auf dem Befehl und Endpunkt vor
+        raw_query = None
+        
+        # Behandle verschiedene Endpunkte
+        if endpoint == "/setFunctionManually" or endpoint == API_SET_FUNCTION_MANUALLY:
+            # Format: id,action,duration,value
+            raw_query = f"{command.get('id', '')},{command.get('action', '')},{command.get('duration', 0)},{command.get('value', 0)}"
+        elif endpoint == "/set_switch" or endpoint == "/setSwitch":
+            # Format: id,action,duration,value
+            raw_query = f"{command.get('id', '')},{command.get('action', '')},{command.get('duration', 0)},{command.get('value', 0)}"
+        elif endpoint == "/set_temperature" or endpoint == "/setTemperature":
+            # Format für Temperatur-Endpunkt
+            raw_query = f"{command.get('type', '')},{command.get('temperature', 0)}"
+        elif endpoint == "/set_target_value" or endpoint == "/setTargetValues" or endpoint == API_SET_TARGET_VALUES:
+            # Format: target_type,value
+            raw_query = f"{command.get('target_type', '')},{command.get('value', 0)}"
+        elif endpoint == "/set_cover" or endpoint == "/setCover":
+            # Format für Cover-Steuerung
+            raw_query = f"{command.get('action', '')}"
+        elif endpoint == "/setDosingParameters" or endpoint == API_SET_DOSING_PARAMETERS:
+            # Format: dosing_type,parameter_name,value
+            raw_query = f"{command.get('dosing_type', '')},{command.get('parameter_name', '')},{command.get('value', '')}"
+        elif endpoint == "/startWaterAnalysis":
+            # Dieser Endpunkt benötigt möglicherweise keine Parameter
+            raw_query = ""
+            
+        # Wenn wir einen raw_query erstellt haben, füge ihn an die URL an
+        if raw_query is not None:
+            url = f"{url}?{raw_query}"
+        
+        _LOGGER.debug(
+            "Sende Befehl an URL: %s",
+            url
+        )
         
         for attempt in range(retries):
             try:
                 async with async_timeout.timeout(self.timeout_duration):
                     _LOGGER.debug(
-                        "Sende Befehl an %s: %s (Versuch %d/%d)",
-                        url,
-                        command,
+                        "Versuch %d/%d: Sende Befehl an %s",
                         attempt + 1,
                         retries,
+                        url,
                     )
                     
-                    async with self._session.post(
+                    # Wichtig: Wir verwenden GET statt POST und senden keine JSON-Daten
+                    async with self._session.get(
                         url, 
-                        json=command, 
                         auth=self.auth, 
                         ssl=self.use_ssl
                     ) as response:
                         response.raise_for_status()
-                        result = await response.json()
+                        
+                        # Prüfe, ob die Antwort JSON ist
+                        content_type = response.headers.get("Content-Type", "")
+                        
+                        if "application/json" in content_type:
+                            result = await response.json()
+                        else:
+                            # Behandle Text-Antworten
+                            text = await response.text()
+                            # Versuche als JSON zu parsen, selbst wenn Content-Type nicht korrekt gesetzt ist
+                            try:
+                                result = json.loads(text)
+                            except json.JSONDecodeError:
+                                # Erstelle ein Result-Dictionary für Text-Antworten
+                                result = {
+                                    "success": "OK" in text.upper() or "SUCCESS" in text.upper(),
+                                    "raw_response": text
+                                }
+                        
                         _LOGGER.debug("Befehlsantwort: %s", result)
                         return result
                         
@@ -419,7 +487,10 @@ class VioletPoolControllerDevice:
             bool: True bei Erfolg, False bei Fehlern
         """
         try:
-            command = {"temperature": float(temperature)}
+            command = {
+                "type": "HEATER",
+                "temperature": float(temperature)
+            }
             result = await self.async_send_command("/set_temperature", command)
             return result.get("success", False)
         except Exception as err:
@@ -437,7 +508,13 @@ class VioletPoolControllerDevice:
             bool: True bei Erfolg, False bei Fehlern
         """
         try:
-            command = {"id": switch_id, "state": state}
+            action = "ON" if state else "OFF"
+            command = {
+                "id": switch_id,
+                "action": action,
+                "duration": 0,
+                "value": 0
+            }
             result = await self.async_send_command("/set_switch", command)
             return result.get("success", False)
         except Exception as err:
@@ -455,16 +532,6 @@ class VioletPoolControllerDevice:
         """
         # GEÄNDERT: Feature-Aktivierung deaktiviert - immer True zurückgeben für die Fehlersuche
         return True  # Immer True, Features deaktiviert
-        
-        # Originale Implementierung:
-        # is_active = feature_id in self.active_features if feature_id else False
-        # _LOGGER.debug(
-        #     "Prüfe Feature-Aktivierung für %s: %s (Aktive Features: %s)",
-        #     feature_id,
-        #     is_active,
-        #     self.active_features
-        # )
-        # return is_active
 
 
 class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
