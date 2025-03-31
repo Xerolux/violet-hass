@@ -519,7 +519,11 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Speichere das ConfigEntry."""
-        self.config_entry = config_entry
+        # Store a reference to the entry_id instead of the config_entry itself
+        self.entry_id = config_entry.entry_id
+        # Keep a reference to the entry data and existing options for use in the flow
+        self.entry_data = dict(config_entry.data)
+        self.entry_options = dict(config_entry.options)
         self._api_data = None
 
     async def async_step_init(self, user_input=None):
@@ -535,10 +539,9 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
             return self.async_create_entry(title="", data=options)
 
         # Bestehende Options oder Defaults lesen
-        current_options = dict(self.config_entry.options)
-        polling = current_options.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
-        timeout = current_options.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)
-        retries = current_options.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)
+        polling = self.entry_options.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
+        timeout = self.entry_options.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)
+        retries = self.entry_options.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)
 
         options_schema = vol.Schema(
             {
@@ -583,11 +586,11 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
                         active_features.append(feature["id"])
                 
                 # Aktualisiere die Options
-                current_options = dict(self.config_entry.options)
-                current_options[CONF_ACTIVE_FEATURES] = active_features
+                options = dict(self.entry_options)
+                options[CONF_ACTIVE_FEATURES] = active_features
                 
                 # Erstelle einen aktualisierten Config-Entry
-                return self.async_create_entry(title="", data=current_options)
+                return self.async_create_entry(title="", data=options)
             except Exception as err:
                 _LOGGER.error("Fehler beim Speichern der Features: %s", err)
                 errors["base"] = f"Fehler: {err}"
@@ -596,7 +599,7 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         available_features = self._determine_available_features()
         
         # Aktuelle Auswahl berücksichtigen
-        current_features = self.config_entry.options.get(CONF_ACTIVE_FEATURES, [])
+        current_features = self.entry_options.get(CONF_ACTIVE_FEATURES, [])
         
         # Erstelle das Formular für die Feature-Auswahl
         schema_dict = {}
@@ -606,13 +609,16 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         
         options_schema = vol.Schema(schema_dict)
         
+        # Find device_name from the integration's data since we don't have direct config_entry access
+        device_name = self.entry_data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
+        
         # Zeige das Formular
         return self.async_show_form(
             step_id="features", 
             data_schema=options_schema, 
             errors=errors,
             description_placeholders={
-                "device_name": self.config_entry.data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
+                "device_name": device_name
             }
         )
         
@@ -660,7 +666,7 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
             return available_features
             
         # Wenn keine API-Daten, verwende aktuelle Config oder Standardwerte
-        current_features = self.config_entry.options.get(CONF_ACTIVE_FEATURES, [])
+        current_features = self.entry_options.get(CONF_ACTIVE_FEATURES, [])
         if current_features:
             # Setze Features basierend auf aktueller Konfiguration
             features = []
@@ -676,27 +682,33 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
     async def _fetch_api_data(self) -> None:
         """Holt aktuelle API-Daten für Feature-Erkennung."""
         try:
-            config_data = dict(self.config_entry.data)
+            # Here we need to get these values from the stored data rather than from config_entry
+            base_ip = self.entry_data.get('base_ip')
+            use_ssl = self.entry_data.get('use_ssl', True)
+            username = self.entry_data.get('username')
+            password = self.entry_data.get('password', '')
+            timeout_duration = self.entry_data.get('timeout_duration', DEFAULT_TIMEOUT_DURATION)
+            retry_attempts = self.entry_data.get('retry_attempts', DEFAULT_RETRY_ATTEMPTS)
             
-            protocol = "https" if config_data.get("use_ssl", True) else "http"
-            api_url = f"{protocol}://{config_data['base_ip']}{API_READINGS}?ALL"
+            protocol = "https" if use_ssl else "http"
+            api_url = f"{protocol}://{base_ip}{API_READINGS}?ALL"
             
             session = aiohttp_client.async_get_clientsession(self.hass)
             auth = None
             
-            if config_data.get("username"):
+            if username:
                 auth = aiohttp.BasicAuth(
-                    login=config_data["username"], 
-                    password=config_data.get("password", "")
+                    login=username, 
+                    password=password
                 )
                 
             self._api_data = await fetch_api_data(
                 session=session,
                 api_url=api_url,
                 auth=auth,
-                use_ssl=config_data.get("use_ssl", True),
-                timeout_duration=config_data.get("timeout_duration", DEFAULT_TIMEOUT_DURATION),
-                retry_attempts=config_data.get("retry_attempts", DEFAULT_RETRY_ATTEMPTS),
+                use_ssl=use_ssl,
+                timeout_duration=timeout_duration,
+                retry_attempts=retry_attempts,
             )
         except Exception as err:
             _LOGGER.error("Fehler beim Abrufen der API-Daten für Options: %s", err)

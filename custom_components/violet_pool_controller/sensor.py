@@ -78,6 +78,56 @@ NO_UNIT_SENSORS = {
     "BACKWASH_LAST_ON", "BACKWASH_LAST_OFF", "PUMP_LAST_ON", "PUMP_LAST_OFF"
 }
 
+# Sensors with status or text values (not numeric)
+TEXT_VALUE_SENSORS = {
+    # States and status sensors
+    "DOS_1_CL_STATE", "DOS_4_PHM_STATE", "DOS_5_PHP_STATE", 
+    "HEATERSTATE", "SOLARSTATE", "PUMPSTATE", "BACKWASHSTATE",
+    "OMNI_STATE", "BACKWASH_OMNI_STATE", "SOLAR_STATE", 
+    "HEATER_STATE", "PUMP_STATE", "FILTER_STATE",
+    
+    # Runtime sensors (typically in format "00h 00m 00s")
+    "ECO_RUNTIME", "LIGHT_RUNTIME", "PUMP_RUNTIME",
+    "BACKWASH_RUNTIME", "SOLAR_RUNTIME", "HEATER_RUNTIME",
+    "EXT1_1_RUNTIME", "EXT1_2_RUNTIME", "EXT1_3_RUNTIME", 
+    "EXT1_4_RUNTIME", "EXT1_5_RUNTIME", "EXT1_6_RUNTIME",
+    "EXT1_7_RUNTIME", "EXT1_8_RUNTIME", "EXT2_1_RUNTIME", 
+    "EXT2_2_RUNTIME", "EXT2_3_RUNTIME", "EXT2_4_RUNTIME",
+    "EXT2_5_RUNTIME", "EXT2_6_RUNTIME", "EXT2_7_RUNTIME",
+    "EXT2_8_RUNTIME", "DOS_1_CL_RUNTIME", "DOS_4_PHM_RUNTIME",
+    "DOS_5_PHP_RUNTIME", "DOS_6_FLOC_RUNTIME", "OMNI_DC1_RUNTIME",
+    "OMNI_DC2_RUNTIME",
+    
+    # Mode and information sensors
+    "OMNI_MODE", "FILTER_MODE", "SOLAR_MODE", "HEATER_MODE",
+    "DISPLAY_MODE", "OPERATING_MODE", "MAINTENANCE_MODE",
+    "ERROR_CODE", "LAST_ERROR", "VERSION_CODE", "CHECKSUM",
+    "RULE_RESULT",
+    
+    # Direction and movement sensors
+    "LAST_MOVING_DIRECTION", "COVER_DIRECTION",
+    
+    # Version sensors
+    "SW_VERSION", "SW_VERSION_CARRIER", "HW_VERSION_CARRIER", 
+    "FW", "VERSION", "VERSION_INFO", "HARDWARE_VERSION",
+    
+    # Time settings
+    "HEATER_POSTRUN_TIME", "SOLAR_POSTRUN_TIME", "REFILL_TIMEOUT",
+    "CPU_UPTIME", "DEVICE_UPTIME", "RUNTIME", "POSTRUN_TIME",
+    
+    # Special sensors that should be treated as text
+    "HW_SERIAL_CARRIER", "SERIAL_NUMBER", "MAC_ADDRESS", "IP_ADDRESS"
+}
+
+# Non-temperature sensors that might have "temp" or "onewire" in their name
+NON_TEMPERATURE_SENSORS = {
+    "onewire1_rcode", "onewire2_rcode", "onewire3_rcode", "onewire4_rcode", 
+    "onewire5_rcode", "onewire6_rcode", "onewire1romcode", "onewire2romcode", 
+    "onewire3romcode", "onewire4romcode", "onewire5romcode", "onewire6romcode",
+    "onewire1_state", "onewire2_state", "onewire3_state", "onewire4_state",
+    "onewire5_state", "onewire6_state"
+}
+
 # Mapping von Sensor-Keys zu Feature-IDs
 SENSOR_FEATURE_MAP = {
     # Temperatur-Sensoren
@@ -121,6 +171,7 @@ class VioletSensorEntityDescription(SensorEntityDescription):
     """Class describing Violet Pool sensor entities."""
 
     feature_id: Optional[str] = None
+    is_numeric: bool = True
 
 
 class VioletSensor(VioletPoolControllerEntity, SensorEntity):
@@ -145,7 +196,7 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
         super().__init__(
             coordinator=coordinator,
             config_entry=config_entry,
-            entity_description=description,
+            entity_description=description,  # Now it matches the base class parameter name
         )
         
         # Tracking für Logging
@@ -156,9 +207,54 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
         """Return the current value of this sensor."""
         key = self.entity_description.key
         
+        # Check if sensor key (or its uppercase version) is in TEXT_VALUE_SENSORS
+        key_upper = key.upper()
+        is_text_sensor = (
+            key_upper in TEXT_VALUE_SENSORS or 
+            any(runtime in key_upper for runtime in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW"]) or
+            not getattr(self.entity_description, "is_numeric", True)
+        )
+        
+        # For text sensors, just get the string value directly
+        if is_text_sensor:
+            return self.get_str_value(key)
+        
         # Prüfe auf Zeitstempel-Sensoren anhand des Namens statt der nicht mehr vorhandenen Klasse
         if key.lower().endswith("_last_on") or key.lower().endswith("_last_off"):
             return self.get_str_value(key)
+        
+        # Get raw value from coordinator data
+        raw_value = self.coordinator.data.get(key) if self.coordinator.data else None
+        
+        # Handle list values for status sensors - convert to string
+        if isinstance(raw_value, list):
+            if len(raw_value) == 0:
+                return None
+            elif len(raw_value) == 1:
+                raw_value = raw_value[0]  # Use the single value
+            else:
+                return ", ".join(str(item) for item in raw_value)  # Join multiple values
+                
+        # Handle None values
+        if raw_value is None:
+            if not self._has_logged_none_state:
+                self._logger.warning("Sensor '%s' returned None as its state.", key)
+                self._has_logged_none_state = True
+            return None
+        
+        # Check for version format strings (x.y.z)
+        if isinstance(raw_value, str):
+            # Version strings typically have multiple dots
+            if raw_value.count('.') >= 1 and any(c.isalpha() for c in raw_value):
+                return raw_value
+                
+            # Time formats
+            if ('h ' in raw_value or 'm ' in raw_value or 's' in raw_value):
+                return raw_value
+                
+            # IP addresses
+            if raw_value.count('.') == 3 and all(part.isdigit() for part in raw_value.split('.')):
+                return raw_value
             
         # Sensorwerte basierend auf Typ und DeviceClass abrufen
         if self.entity_description.device_class == SensorDeviceClass.TEMPERATURE:
@@ -178,19 +274,11 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
         
         # Standardverhalten: Versuche, den Wert als Float zu interpretieren, mit Fallback auf String
         try:
-            value = self.coordinator.data.get(key)
-            if value is None:
-                if not self._has_logged_none_state:
-                    self._logger.warning("Sensor '%s' returned None as its state.", key)
-                    self._has_logged_none_state = True
-                return None
-                
-            # Versuche Konvertierung zu Float, falls möglich
-            if isinstance(value, (int, float)):
-                return value
-            elif isinstance(value, str) and value.replace(".", "", 1).isdigit():
-                return float(value)
-            return value
+            if isinstance(raw_value, (int, float)):
+                return raw_value
+            elif isinstance(raw_value, str) and raw_value.replace(".", "", 1).isdigit():
+                return float(raw_value)
+            return raw_value
         except Exception as err:
             self._logger.error(f"Error retrieving value for {key}: {err}")
             return None
@@ -206,9 +294,25 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
 
 def guess_device_class(key: str) -> Optional[str]:
     """Bestimme die Device Class basierend auf dem Key."""
+    key_upper = key.upper()
+    
+    # Skip device class for known text-based sensors
+    if (key_upper in TEXT_VALUE_SENSORS or 
+        any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW"])):
+        return None
+        
+    # Skip temperature device class for non-temperature sensors that have "temp" or "onewire" in name
+    if key.lower() in NON_TEMPERATURE_SENSORS:
+        return None
+        
     klower = key.lower()
     
-    if "temp" in klower or "therm" in klower or "onewire" in klower or "cpu_temp" in klower:
+    # Only assign temperature device class to actual temperature readings
+    if (
+        ("temp" in klower and not klower.endswith("_state")) or 
+        ("onewire" in klower and klower.endswith("_value")) or
+        ("cpu_temp" in klower)
+    ):
         return SensorDeviceClass.TEMPERATURE
     
     if "humidity" in klower:
@@ -233,6 +337,13 @@ def guess_device_class(key: str) -> Optional[str]:
 
 def guess_state_class(key: str) -> Optional[str]:
     """Bestimme die State Class basierend auf dem Key."""
+    key_upper = key.upper()
+    
+    # Skip state class for known text-based sensors
+    if (key_upper in TEXT_VALUE_SENSORS or 
+        any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW"])):
+        return None
+        
     klower = key.lower()
     
     if "daily" in klower or "_daily_" in klower:
@@ -240,6 +351,13 @@ def guess_state_class(key: str) -> Optional[str]:
         
     if "last_on" in klower or "last_off" in klower:
         # SensorStateClass.TIMESTAMP existiert nicht mehr in HA
+        return None
+        
+    # Don't use measurement state class for runtime or state sensors
+    if ("runtime" in klower or "state" in klower or "_status" in klower or 
+        "rcode" in klower or "romcode" in klower or "mode" in klower or
+        "version" in klower or "time" in klower or "direction" in klower or
+        "fw" in klower):
         return None
         
     # Standard für Messwerte
@@ -282,11 +400,39 @@ def guess_icon(key: str) -> str:
     if "serial" in klower:
         return "mdi:barcode"
         
+    # Runtime icons
+    if "runtime" in klower:
+        return "mdi:clock-time-four-outline"
+        
+    # State icons
+    if "state" in klower:
+        return "mdi:state-machine"
+        
+    # Direction icons
+    if "direction" in klower:
+        return "mdi:arrow-decision"
+        
+    # Time icons
+    if "time" in klower:
+        return "mdi:timer-outline"
+        
+    # Mode icons  
+    if "mode" in klower:
+        return "mdi:tune"
+        
     # Zeit-Icons
     if "last_on" in klower:
         return "mdi:timer"
     if "last_off" in klower:
         return "mdi:timer-off"
+        
+    # Status Icons
+    if "status" in klower:
+        return "mdi:information-outline"
+        
+    # ROM code or ROM ID icons
+    if "rcode" in klower or "romcode" in klower:
+        return "mdi:identifier"
         
     # Fallback
     return "mdi:information"
@@ -305,7 +451,12 @@ def guess_entity_category(key: str) -> Optional[str]:
         "version" in klower or
         "load" in klower or 
         "uptime" in klower or
-        "serial" in klower
+        "serial" in klower or
+        "rcode" in klower or
+        "romcode" in klower or
+        "runtime" in klower or  # Runtime sensors are diagnostic
+        "time" in klower or     # Time settings are diagnostic
+        "hw_" in klower         # Hardware info is diagnostic
     ):
         return EntityCategory.DIAGNOSTIC
         
@@ -362,6 +513,7 @@ async def async_setup_entry(
             state_class=SensorStateClass.MEASUREMENT,
             native_unit_of_measurement="°C",
             feature_id=feature_id,
+            is_numeric=True,
         )
             
         # Sensor erstellen
@@ -394,15 +546,26 @@ async def async_setup_entry(
         # Einheit anpassen - für pH keine Einheit verwenden
         unit = None if device_class == SensorDeviceClass.PH else sensor_info["unit"]
         
+        # Determine if numeric - check both key and uppercase key
+        key_upper = key.upper()
+        is_numeric = (
+            key_upper not in TEXT_VALUE_SENSORS and 
+            not any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW"])
+        )
+        
+        # Determine state class based on whether it's numeric
+        state_class = guess_state_class(key) if is_numeric else None
+        
         # Erstelle EntityDescription
         description = VioletSensorEntityDescription(
             key=key,
             name=sensor_info["name"],
             icon=sensor_info["icon"],
             device_class=device_class,
-            state_class=SensorStateClass.MEASUREMENT,
+            state_class=state_class,
             native_unit_of_measurement=unit,
             feature_id=feature_id,
+            is_numeric=is_numeric,
         )
             
         # Sensor erstellen
@@ -429,15 +592,26 @@ async def async_setup_entry(
             )
             continue
             
+        # Determine if numeric - check both key and uppercase key
+        key_upper = key.upper()
+        is_numeric = (
+            key_upper not in TEXT_VALUE_SENSORS and 
+            not any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW"])
+        )
+        
+        # Determine state class based on whether it's numeric
+        state_class = guess_state_class(key) if is_numeric else None
+        
         # Erstelle EntityDescription
         description = VioletSensorEntityDescription(
             key=key,
             name=sensor_info["name"],
             icon=sensor_info["icon"],
             device_class=guess_device_class(key),
-            state_class=SensorStateClass.MEASUREMENT,
+            state_class=state_class,
             native_unit_of_measurement=sensor_info["unit"],
             feature_id=feature_id,
+            is_numeric=is_numeric,
         )
             
         # Sensor erstellen
@@ -485,9 +659,21 @@ async def async_setup_entry(
         # Überspringe Keys, die keinen Wert haben sollten
         if key in NO_UNIT_SENSORS:
             unit = None
+        
+        # Determine if numeric - check for specific patterns in key name
+        key_upper = key.upper()
+        is_numeric = (
+            key_upper not in TEXT_VALUE_SENSORS and 
+            not any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW"])
+        )
             
         device_class = guess_device_class(key)
-        state_class = guess_state_class(key)
+        
+        # Make sure temperature sensors have a unit
+        if device_class == SensorDeviceClass.TEMPERATURE and not unit:
+            unit = "°C"
+            
+        state_class = guess_state_class(key) if is_numeric else None
         icon = guess_icon(key)
         entity_category = guess_entity_category(key)
         
@@ -501,6 +687,7 @@ async def async_setup_entry(
             native_unit_of_measurement=unit,
             entity_category=EntityCategory(entity_category) if entity_category else None,
             feature_id=feature_id,
+            is_numeric=is_numeric,
         )
         
         # Sensor erstellen
@@ -544,15 +731,23 @@ async def async_setup_entry(
                 feature_id
             )
             continue
+        
+        # Determine if numeric - check both key and uppercase key
+        key_upper = key.upper()
+        is_numeric = (
+            key_upper not in TEXT_VALUE_SENSORS and 
+            not any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW"])
+        )
             
         # Erstelle EntityDescription
         description = VioletSensorEntityDescription(
             key=key,
             name=name,
             icon="mdi:water",
-            state_class=SensorStateClass.TOTAL,
+            state_class=SensorStateClass.TOTAL if is_numeric else None,
             native_unit_of_measurement="mL",
             feature_id=feature_id,
+            is_numeric=is_numeric,
         )
             
         # Sensor erstellen
@@ -577,6 +772,16 @@ async def async_setup_entry(
     for key, info in system_sensors.items():
         if key not in available_data_keys or key in created_sensor_keys:
             continue
+        
+        # Check if this is a version, time, or other text sensor
+        key_upper = key.upper()
+        is_text_sensor = (
+            key_upper in TEXT_VALUE_SENSORS or 
+            any(pattern in key_upper for pattern in ["VERSION", "TIME", "UPTIME"])
+        )
+        
+        # Set is_numeric opposite to is_text_sensor
+        is_numeric = not is_text_sensor
             
         # Erstelle EntityDescription
         description = VioletSensorEntityDescription(
@@ -584,9 +789,10 @@ async def async_setup_entry(
             name=info["name"],
             icon=info["icon"],
             device_class=info.get("device_class"),
-            state_class=SensorStateClass.MEASUREMENT if key not in ["SW_VERSION", "CPU_UPTIME"] else None,
+            state_class=SensorStateClass.MEASUREMENT if is_numeric and key not in ["SW_VERSION", "CPU_UPTIME"] else None,
             native_unit_of_measurement=info["unit"],
             entity_category=EntityCategory.DIAGNOSTIC,
+            is_numeric=is_numeric,
         )
             
         # Sensor erstellen
