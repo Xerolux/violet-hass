@@ -336,12 +336,12 @@ async def async_setup_entry(
     
     entities = []
     
-    # Prüfe, ob Heizung vorhanden und aktiv ist
-    if "HEATER" in coordinator.data and "heating" in active_features:
+    # Prüfe, ob Heizung vorhanden ist (Feature-Check deaktiviert)
+    if "HEATER" in coordinator.data:
         entities.append(VioletClimateEntity(coordinator, config_entry, "HEATER"))
     
-    # Prüfe, ob Solarabsorber vorhanden und aktiv ist
-    if "SOLAR" in coordinator.data and "solar" in active_features:
+    # Prüfe, ob Solarabsorber vorhanden ist (Feature-Check deaktiviert)
+    if "SOLAR" in coordinator.data:
         entities.append(VioletClimateEntity(coordinator, config_entry, "SOLAR"))
     
     if entities:
@@ -349,6 +349,6 @@ async def async_setup_entry(
         _LOGGER.info("%d Climate-Entities hinzugefügt", len(entities))
     else:
         _LOGGER.info(
-            "Keine aktiven Heizungs- oder Solarabsorber-Features gefunden, " 
+            "Keine Heizungs- oder Solarabsorber-Daten gefunden, " 
             "Climate-Entities werden nicht hinzugefügt"
         )
