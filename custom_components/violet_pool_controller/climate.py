@@ -1,6 +1,6 @@
 """Climate Integration für den Violet Pool Controller."""
 import logging
-from typing import Any, Dict, List, Optional, Set, Final, ClassVar, cast
+from typing import Any, Dict, List, Optional, Final, ClassVar
 from dataclasses import dataclass
 
 from homeassistant.components.climate import (
@@ -10,10 +10,6 @@ from homeassistant.components.climate import (
     HVACAction,
     ClimateEntityDescription,
 )
-from homeassistant.components.climate.const import (
-    ATTR_HVAC_MODE,
-    ATTR_PRESET_MODE,
-)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     ATTR_TEMPERATURE,
@@ -21,7 +17,6 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.entity import EntityCategory
 
 from .const import (
     DOMAIN,
@@ -68,13 +63,10 @@ WATER_TEMP_SENSORS: Final[List[str]] = [
     "temp_value",        # Alternative
 ]
 
-
 @dataclass
 class VioletClimateEntityDescription(ClimateEntityDescription):
-    """Class describing Violet Pool climate entities."""
-
+    """Beschreibung der Violet Pool Climate-Entities."""
     feature_id: Optional[str] = None
-
 
 class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
     """Repräsentiert die Heizungs- oder Absorbersteuerung des Violet Pool Controllers."""
@@ -95,47 +87,36 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         config_entry: ConfigEntry,
         climate_type: str,  # "HEATER" oder "SOLAR"
     ):
-        """Initialisiere die Climate-Entity.
-        
-        Args:
-            coordinator: Der Daten-Koordinator
-            config_entry: Die Config Entry des Geräts
-            climate_type: Art der Heizung ("HEATER" oder "SOLAR")
-        """
-        # Wichtig: climate_type vor dem super().__init__ setzen
+        """Initialisiere die Climate-Entity."""
         self.climate_type = climate_type
         
-        # Name und Icon bestimmen
-        if climate_type == "HEATER":
-            name = "Heizung"
-            icon = "mdi:radiator"
-        else:  # SOLAR
-            name = "Solarabsorber"
-            icon = "mdi:solar-power"
+        # Name und Icon basierend auf climate_type festlegen
+        name = "Heizung" if climate_type == "HEATER" else "Solarabsorber"
+        icon = "mdi:radiator" if climate_type == "HEATER" else "mdi:solar-power"
         
-        # Feature-ID bestimmen
+        # Feature-ID aus Mapping holen
         feature_id = CLIMATE_FEATURE_MAP.get(climate_type)
         
         # EntityDescription erstellen
-        entity_description = VioletClimateEntityDescription(
+        self.entity_description = VioletClimateEntityDescription(
             key=climate_type,
             name=name,
             icon=icon,
             feature_id=feature_id,
         )
         
-        # Initialisiere die Basisklasse
+        # Basisklasse initialisieren
         super().__init__(
             coordinator=coordinator,
             config_entry=config_entry,
-            entity_description=entity_description,
+            entity_description=self.entity_description,
         )
         
-        # Initialer Zustand
+        # Initialen Zustand setzen
         self._attr_target_temperature = self._get_target_temperature()
         self._attr_hvac_mode = self._get_hvac_mode()
         
-        self._logger.debug(
+        _LOGGER.debug(
             "Climate-Entität für %s initialisiert mit Target: %.1f°C, Modus: %s",
             self.climate_type,
             self._attr_target_temperature,
@@ -143,212 +124,115 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         )
 
     def _get_target_temperature(self) -> float:
-        """Hole die Zieltemperatur aus den Coordinator-Daten.
-        
-        Returns:
-            float: Die Zieltemperatur in °C
-        """
-        if self.climate_type == "HEATER":
-            # Heizungs-Solltemperatur aus API-Daten
-            return self.get_float_value("HEATER_TARGET_TEMP", 28.0)
-        else:  # SOLAR
-            # Solar-Solltemperatur aus API-Daten
-            return self.get_float_value("SOLAR_TARGET_TEMP", 28.0)
+        """Hole die Zieltemperatur aus den Coordinator-Daten."""
+        key = "HEATER_TARGET_TEMP" if self.climate_type == "HEATER" else "SOLAR_TARGET_TEMP"
+        return self.get_float_value(key, 28.0)
 
     def _get_hvac_mode(self) -> str:
-        """Ermittle den aktuellen HVAC-Modus.
-        
-        Returns:
-            str: Der aktuelle HVAC-Modus (HVACMode.OFF, HVACMode.HEAT, HVACMode.AUTO)
-        """
-        # Hole den Status aus den API-Daten
+        """Ermittle den aktuellen HVAC-Modus."""
         state = self.get_int_value(self.climate_type, 0)
-        
-        # Konvertiere Status in HVAC-Modus
         return HEATER_HVAC_MODES.get(state, HVACMode.OFF)
 
     def _update_from_coordinator(self) -> None:
-        """Aktualisiere den Zustand der Climate-Entity anhand der Coordinator-Daten."""
-        # Aktualisiere Zieltemperatur und HVAC-Modus
+        """Aktualisiere den Zustand der Climate-Entity."""
         self._attr_target_temperature = self._get_target_temperature()
         self._attr_hvac_mode = self._get_hvac_mode()
-    
+
     @property
     def hvac_action(self) -> Optional[str]:
-        """Gib die aktuelle HVAC-Aktion zurück.
-        
-        Returns:
-            Optional[str]: Die aktuelle HVAC-Aktion
-        """
-        # Hole den Status aus den API-Daten
+        """Gib die aktuelle HVAC-Aktion zurück."""
         state = self.get_int_value(self.climate_type, 0)
-        
-        # Konvertiere Status in HVAC-Aktion
         return HEATER_HVAC_ACTIONS.get(state, HVACAction.IDLE)
 
     @property
     def current_temperature(self) -> Optional[float]:
-        """Gib die aktuelle Wassertemperatur zurück.
-        
-        Returns:
-            Optional[float]: Die aktuelle Wassertemperatur in °C
-        """
-        # Versuche, die Wassertemperatur aus verschiedenen möglichen Sensorkeys zu lesen
+        """Gib die aktuelle Wassertemperatur zurück."""
         for sensor_key in WATER_TEMP_SENSORS:
             value = self.get_float_value(sensor_key, None)
             if value is not None:
                 return value
-                
-        # Falls keine Temperatur gefunden wurde
         return None
 
     async def async_set_temperature(self, **kwargs) -> None:
-        """Setze die Zieltemperatur.
-        
-        Args:
-            **kwargs: Keyword-Argumente, insbesondere ATTR_TEMPERATURE
-        """
+        """Setze die Zieltemperatur."""
         temperature = kwargs.get(ATTR_TEMPERATURE)
         if temperature is None:
             return
-            
-        # Temperatur validieren
-        if temperature < self.min_temp or temperature > self.max_temp:
-            self._logger.warning(
-                "Angeforderte Temperatur %.1f liegt außerhalb des zulässigen Bereichs (%.1f-%.1f)",
+
+        if not (self.min_temp <= temperature <= self.max_temp):
+            _LOGGER.warning(
+                "Angeforderte Temperatur %.1f außerhalb des Bereichs (%.1f-%.1f)",
                 temperature, self.min_temp, self.max_temp
             )
             return
-            
+
         try:
-            # Temperatur auf eine Dezimalstelle runden
             temperature = round(temperature, 1)
-            
-            self._logger.info(
+            _LOGGER.info(
                 "Setze %s Zieltemperatur auf %.1f°C",
                 "Heizung" if self.climate_type == "HEATER" else "Solar",
                 temperature
             )
             
-            # Bestimme den API-Endpunkt
-            endpoint = "/set_temperature"
+            command = {"type": self.climate_type, "temperature": temperature}
+            result = await self.device.async_send_command("/set_temperature", command)
             
-            # Bereite die Kommandodaten vor
-            command = {
-                "type": self.climate_type,
-                "temperature": temperature
-            }
-            
-            # Sende das Kommando über die Device-API
-            result = await self.device.async_send_command(endpoint, command)
-            
-            # Prüfe das Ergebnis
             if isinstance(result, dict) and result.get("success", False):
-                # Lokal aktualisieren ohne auf API-Refresh zu warten
                 self._attr_target_temperature = temperature
                 self.async_write_ha_state()
-                
-                # Daten vom Gerät neu laden
                 await self.coordinator.async_request_refresh()
             else:
-                self._logger.error(
-                    "Fehler beim Setzen der Temperatur: Ungültige Antwort: %s",
-                    result
-                )
-                
+                _LOGGER.error("Fehler beim Setzen der Temperatur: %s", result)
         except Exception as err:
-            self._logger.error("Fehler beim Setzen der Temperatur: %s", err)
+            _LOGGER.error("Fehler beim Setzen der Temperatur: %s", err)
 
     async def async_set_hvac_mode(self, hvac_mode: str) -> None:
-        """Setze den HVAC-Modus (OFF, HEAT, AUTO).
-        
-        Args:
-            hvac_mode: Der zu setzende HVAC-Modus
-        """
+        """Setze den HVAC-Modus (OFF, HEAT, AUTO)."""
         try:
-            # API-Key und Aktion bestimmen
-            api_key = self.climate_type
-            action = None
-            
-            if hvac_mode == HVACMode.HEAT:
-                action = "ON"  # MANUAL ON
-            elif hvac_mode == HVACMode.OFF:
-                action = "OFF"  # MANUAL OFF
-            elif hvac_mode == HVACMode.AUTO:
-                action = "AUTO"  # AUTO mode
-            else:
-                self._logger.warning("Nicht unterstützter HVAC-Modus: %s", hvac_mode)
+            action = {
+                HVACMode.HEAT: "ON",
+                HVACMode.OFF: "OFF",
+                HVACMode.AUTO: "AUTO"
+            }.get(hvac_mode)
+
+            if action is None:
+                _LOGGER.warning("Nicht unterstützter HVAC-Modus: %s", hvac_mode)
                 return
-                
-            self._logger.info(
+
+            _LOGGER.info(
                 "Setze %s-Modus auf %s",
                 "Heizung" if self.climate_type == "HEATER" else "Solar",
                 action
             )
             
-            # Bereite das Kommando vor
-            command = {
-                "id": api_key,
-                "action": action,
-                "duration": 0  # permanent
-            }
-            
-            # Sende das Kommando über die Device-API
+            command = {"id": self.climate_type, "action": action, "duration": 0}
             result = await self.device.async_send_command("/set_switch", command)
             
-            # Prüfe das Ergebnis
             if isinstance(result, dict) and result.get("success", False):
-                # Lokal aktualisieren ohne auf API-Refresh zu warten
                 self._attr_hvac_mode = hvac_mode
                 self.async_write_ha_state()
-                
-                # Daten vom Gerät neu laden
                 await self.coordinator.async_request_refresh()
             else:
-                self._logger.error(
-                    "Fehler beim Setzen des HVAC-Modus: Ungültige Antwort: %s",
-                    result
-                )
-                
+                _LOGGER.error("Fehler beim Setzen des HVAC-Modus: %s", result)
         except Exception as err:
-            self._logger.error("Fehler beim Setzen des HVAC-Modus: %s", err)
-
+            _LOGGER.error("Fehler beim Setzen des HVAC-Modus: %s", err)
 
 async def async_setup_entry(
-    hass: HomeAssistant, 
-    config_entry: ConfigEntry, 
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback
 ) -> None:
-    """Richte Climate-Entities basierend auf dem Config-Entry ein.
-    
-    Args:
-        hass: Home Assistant Instanz
-        config_entry: Die Config Entry
-        async_add_entities: Callback zum Hinzufügen der Entities
-    """
+    """Richte Climate-Entities basierend auf dem Config-Entry ein."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
-    
-    # Hole aktive Features
-    active_features = config_entry.options.get(
-        CONF_ACTIVE_FEATURES, 
-        config_entry.data.get(CONF_ACTIVE_FEATURES, [])
-    )
-    
     entities = []
-    
-    # Prüfe, ob Heizung vorhanden ist (Feature-Check deaktiviert)
+
     if "HEATER" in coordinator.data:
         entities.append(VioletClimateEntity(coordinator, config_entry, "HEATER"))
-    
-    # Prüfe, ob Solarabsorber vorhanden ist (Feature-Check deaktiviert)
     if "SOLAR" in coordinator.data:
         entities.append(VioletClimateEntity(coordinator, config_entry, "SOLAR"))
-    
+
     if entities:
         async_add_entities(entities)
         _LOGGER.info("%d Climate-Entities hinzugefügt", len(entities))
     else:
-        _LOGGER.info(
-            "Keine Heizungs- oder Solarabsorber-Daten gefunden, " 
-            "Climate-Entities werden nicht hinzugefügt"
-        )
+        _LOGGER.info("Keine Heizungs- oder Solarabsorber-Daten gefunden")
