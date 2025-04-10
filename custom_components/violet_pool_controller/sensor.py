@@ -273,7 +273,7 @@ def guess_state_class(key: str) -> Optional[str]:
         return None
     return SensorStateClass.MEASUREMENT
 
-def guess_icon(key: str) -> str]:
+def guess_icon(key: str) -> str:
     """Bestimmt ein Icon basierend auf dem Sensor-Key."""
     klower = key.lower()
     if "temp" in klower or "therm" in klower or "cpu_temp" in klower:
