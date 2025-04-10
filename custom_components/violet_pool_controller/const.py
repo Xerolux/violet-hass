@@ -1,48 +1,46 @@
+"""Konstanten für die Violet Pool Controller Integration in Home Assistant."""
+
 # Domain der Integration
 DOMAIN = "violet_pool_controller"
 
+# Integrationsdetails
+INTEGRATION_VERSION = "0.0.9.6"  # Version der Integration
+MANUFACTURER = "PoolDigital GmbH & Co. KG"
+
+# Logger-Name
+LOGGER_NAME = f"{DOMAIN}_logger"
+
 # Konfigurationsschlüssel
-CONF_API_URL = "host"  # Umbenannt zu 'host' – standardgemäß in Home Assistant
+CONF_API_URL = "host"  # Standardmäßig in Home Assistant als 'host' verwendet
 CONF_USERNAME = "username"
 CONF_PASSWORD = "password"
 CONF_POLLING_INTERVAL = "polling_interval"
-CONF_TIMEOUT_DURATION = "timeout_duration"  # Added missing constant
-CONF_RETRY_ATTEMPTS = "retry_attempts"      # Added missing constant
+CONF_TIMEOUT_DURATION = "timeout_duration"
+CONF_RETRY_ATTEMPTS = "retry_attempts"
 CONF_USE_SSL = "use_ssl"
 CONF_DEVICE_ID = "device_id"
-CONF_DEVICE_NAME = "device_name"  # Device-Name hinzufügen
-
-# Neue Konfigurationsschlüssel für erweiterte Features
+CONF_DEVICE_NAME = "device_name"
+# Erweiterte Konfigurationsoptionen
 CONF_POOL_SIZE = "pool_size"  # in m³
 CONF_POOL_TYPE = "pool_type"
 CONF_DISINFECTION_METHOD = "disinfection_method"
 CONF_ACTIVE_FEATURES = "active_features"
 
 # Standardwerte
-DEFAULT_POLLING_INTERVAL = 10  # Standard-Pollingintervall in Sekunden
-DEFAULT_TIMEOUT_DURATION = 10  # Added default value
-DEFAULT_RETRY_ATTEMPTS = 3     # Added default value
-DEFAULT_USE_SSL = False  # Standard-SSL-Einstellung
-DEFAULT_MQTT_ENABLED = False  # MQTT standardmäßig deaktiviert
-DEFAULT_DEVICE_NAME = "Violet Pool Controller"  # Standard-Gerätename
+DEFAULT_POLLING_INTERVAL = 10  # Sekunden
+DEFAULT_TIMEOUT_DURATION = 10  # Sekunden
+DEFAULT_RETRY_ATTEMPTS = 3
+DEFAULT_USE_SSL = False
+DEFAULT_DEVICE_NAME = "Violet Pool Controller"
 DEFAULT_POOL_SIZE = 50  # m³
 DEFAULT_POOL_TYPE = "outdoor"
 DEFAULT_DISINFECTION_METHOD = "chlorine"
 
-# Integrationsdetails
-INTEGRATION_VERSION = "0.0.9.6"  # Erhöhte Version für die überarbeitete Integration
-
-# Logger-Name
-LOGGER_NAME = f"{DOMAIN}_logger"  # Einheitlich mit den anderen Dateien
-
 # API-Endpunkte (Pfad-Erweiterungen)
 API_READINGS = "/getReadings"
 API_SET_FUNCTION_MANUALLY = "/setFunctionManually"
-API_SET_DOSING_PARAMETERS = "/setDosingParameters"  # Neuer Endpunkt für Dosierungsparameter
-API_SET_TARGET_VALUES = "/setTargetValues"  # Neuer Endpunkt für Sollwerte
-
-# Herstellerinformationen
-MANUFACTURER = "PoolDigital GmbH & Co. KG"
+API_SET_DOSING_PARAMETERS = "/setDosingParameters"
+API_SET_TARGET_VALUES = "/setTargetValues"
 
 # Verfügbare Switch-Funktionen
 SWITCH_FUNCTIONS = {
@@ -94,8 +92,8 @@ SWITCH_FUNCTIONS = {
 
 # Verfügbare Cover-Funktionen
 COVER_FUNCTIONS = {
-    "OPEN": "COVER_OPEN",   # Diese Werte müssen gemäß der API angepasst werden
-    "CLOSE": "COVER_CLOSE", # Falls das Cover über direkte Befehle gesteuert wird
+    "OPEN": "COVER_OPEN",
+    "CLOSE": "COVER_CLOSE",
     "STOP": "COVER_STOP",
 }
 
@@ -119,7 +117,7 @@ STATE_MAP = {
     6: False,  # MANUAL OFF
 }
 
-# Temperatur- und andere Sensor-Mapping
+# Sensor-Mapping
 TEMP_SENSORS = {
     "onewire1_value": {"name": "Beckenwasser", "icon": "mdi:pool", "unit": "°C"},
     "onewire2_value": {"name": "Außentemperatur", "icon": "mdi:thermometer", "unit": "°C"},
@@ -127,17 +125,14 @@ TEMP_SENSORS = {
     "onewire4_value": {"name": "Absorber-Rücklauf", "icon": "mdi:pipe", "unit": "°C"},
     "onewire5_value": {"name": "Wärmetauscher", "icon": "mdi:radiator", "unit": "°C"},
     "onewire6_value": {"name": "Heizungs-Speicher", "icon": "mdi:water-boiler", "unit": "°C"},
-    # Weitere Temperatursensoren können nach Bedarf hinzugefügt werden
 }
 
-# Wasserchemiesensoren
 WATER_CHEM_SENSORS = {
     "pH_value": {"name": "pH-Wert", "icon": "mdi:flask", "unit": "pH"},
     "orp_value": {"name": "Redoxpotential", "icon": "mdi:flash", "unit": "mV"},
     "pot_value": {"name": "Chlorgehalt", "icon": "mdi:test-tube", "unit": "mg/l"},
 }
 
-# Weitere Sensortypen können nach Bedarf hinzugefügt werden
 ANALOG_SENSORS = {
     "ADC1_value": {"name": "Filterdruck", "icon": "mdi:gauge", "unit": "bar"},
     "ADC2_value": {"name": "Füllstand", "icon": "mdi:water-percent", "unit": "cm"},
@@ -145,7 +140,6 @@ ANALOG_SENSORS = {
     "IMP2_value": {"name": "Förderleistung", "icon": "mdi:pump", "unit": "m³/h"},
 }
 
-# Liste der Sensoren, die als binary_sensor dargestellt werden sollen
 BINARY_SENSORS = [
     {"name": "Pump State", "key": "PUMP", "icon": "mdi:water-pump"},
     {"name": "Solar State", "key": "SOLAR", "icon": "mdi:solar-power"},
@@ -154,10 +148,8 @@ BINARY_SENSORS = [
     {"name": "Backwash State", "key": "BACKWASH", "icon": "mdi:valve"},
     {"name": "Refill State", "key": "REFILL", "icon": "mdi:water"},
     {"name": "ECO Mode", "key": "ECO", "icon": "mdi:leaf"},
-    # Weitere binäre Sensoren können nach Bedarf hinzugefügt werden
 ]
 
-# Liste der Schalter die als Switch dargestellt werden
 SWITCHES = [
     {"name": "Pumpe", "key": "PUMP", "icon": "mdi:water-pump"},
     {"name": "Absorber", "key": "SOLAR", "icon": "mdi:solar-power"},
@@ -171,5 +163,4 @@ SWITCHES = [
     {"name": "Dosierung pH+", "key": "DOS_5_PHP", "icon": "mdi:flask"},
     {"name": "Flockmittel", "key": "DOS_6_FLOC", "icon": "mdi:flask"},
     {"name": "PV-Überschuss", "key": "PVSURPLUS", "icon": "mdi:solar-power"},
-    # Weitere Schalter können nach Bedarf hinzugefügt werden
 ]
