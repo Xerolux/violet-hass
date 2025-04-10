@@ -4,7 +4,7 @@ import asyncio
 import time
 import json
 from datetime import timedelta
-from typing import Any, Dict, List, Optional, Callable, Union
+from typing import Any, Dict, Optional
 
 import aiohttp
 import async_timeout
@@ -13,12 +13,11 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.const import CONF_HOST, CONF_USERNAME, CONF_PASSWORD, CONF_SCAN_INTERVAL
+from homeassistant.const import CONF_USERNAME, CONF_PASSWORD
 
 from .const import (
     DOMAIN,
     API_READINGS,
-    CONF_API_URL,
     CONF_USE_SSL,
     CONF_DEVICE_NAME,
     CONF_DEVICE_ID,
@@ -36,89 +35,51 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-
 class VioletPoolControllerDevice:
     """Repräsentiert ein Violet Pool Controller Gerät."""
 
-    def __init__(
-        self, 
-        hass: HomeAssistant, 
-        config_entry: ConfigEntry,
-    ) -> None:
-        """Initialisieren der Geräteinstanz.
-        
+    def __init__(self, hass: HomeAssistant, config_entry: ConfigEntry) -> None:
+        """Initialisiere die Geräteinstanz.
+
         Args:
-            hass: Home Assistant-Instanz
-            config_entry: Die Config Entry des Geräts
+            hass: Home Assistant Instanz.
+            config_entry: Konfigurationseintrag des Geräts.
         """
         self.hass = hass
         self.config_entry = config_entry
         self._available = False
         self._session = async_get_clientsession(hass)
         self._data: Dict[str, Any] = {}
-        self._status_data: Dict[str, Any] = {}
         self._device_info: Dict[str, Any] = {}
         self._firmware_version: Optional[str] = None
         self._last_error: Optional[str] = None
-        self._api_lock = asyncio.Lock()  # Verhindert gleichzeitige API-Zugriffe
-        
-        # Konfigurationsdaten extrahieren
+        self._api_lock = asyncio.Lock()
+
+        # Konfigurationsdaten laden
         self.entry_data = config_entry.data
-        
-        # FIXED: Use "base_ip" instead of CONF_API_URL to match config_flow.py
         self.api_url = self.entry_data.get("base_ip")
-        
         self.use_ssl = self.entry_data.get(CONF_USE_SSL, True)
         self.device_id = self.entry_data.get(CONF_DEVICE_ID, 1)
         self.device_name = self.entry_data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
         self.username = self.entry_data.get(CONF_USERNAME)
         self.password = self.entry_data.get(CONF_PASSWORD)
-        
-        # Werte aus Options oder Defaults
+
+        # Optionen oder Standardwerte
         options = config_entry.options
-        self.polling_interval = int(options.get(
-            CONF_POLLING_INTERVAL, 
-            self.entry_data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
-        ))
-        self.timeout_duration = int(options.get(
-            CONF_TIMEOUT_DURATION, 
-            self.entry_data.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)
-        ))
-        self.retry_attempts = int(options.get(
-            CONF_RETRY_ATTEMPTS, 
-            self.entry_data.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)
-        ))
-        self.active_features = options.get(
-            CONF_ACTIVE_FEATURES, 
-            self.entry_data.get(CONF_ACTIVE_FEATURES, [])
-        )
-        
-        # Log aktive Features
-        _LOGGER.info(
-            "Aktive Features für %s: %s",
-            self.device_name,
-            self.active_features
-        )
-        
-        # Vollständige API URL zusammenbauen
+        self.polling_interval = int(options.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL))
+        self.timeout_duration = int(options.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION))
+        self.retry_attempts = int(options.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS))
+        self.active_features = options.get(CONF_ACTIVE_FEATURES, [])
+
+        # API-URL zusammenstellen
         protocol = "https" if self.use_ssl else "http"
         self.api_base_url = f"{protocol}://{self.api_url}"
         self.api_readings_url = f"{self.api_base_url}{API_READINGS}?ALL"
-        
-        # Authentifizierung konfigurieren, falls vorhanden
-        self.auth = None
-        if self.username:
-            self.auth = aiohttp.BasicAuth(
-                login=self.username, 
-                password=self.password or ""
-            )
 
-        _LOGGER.info(
-            "Initialisiere Violet Pool Controller: %s an %s (ID: %s)",
-            self.device_name,
-            self.api_url,
-            self.device_id
-        )
+        # Authentifizierung
+        self.auth = aiohttp.BasicAuth(self.username, self.password or "") if self.username else None
+
+        _LOGGER.info("Initialisiere %s an %s (ID: %s)", self.device_name, self.api_url, self.device_id)
 
     @property
     def available(self) -> bool:
@@ -127,516 +88,189 @@ class VioletPoolControllerDevice:
 
     @property
     def firmware_version(self) -> Optional[str]:
-        """Gibt die Firmwareversion des Geräts zurück."""
+        """Gibt die Firmware-Version zurück."""
         return self._firmware_version
 
     @property
     def device_info(self) -> Dict[str, Any]:
-        """Gibt die Geräteinformationen für die Geräteeintrag zurück."""
+        """Gibt Geräteinformationen zurück."""
         return {
             "identifiers": {(DOMAIN, self.config_entry.entry_id)},
             "name": f"{self.device_name} ({self.api_url})",
             "manufacturer": "PoolDigital GmbH & Co. KG",
             "model": self._device_info.get("model", "Violet Pool Controller"),
             "sw_version": self._firmware_version or "Unbekannt",
-            "configuration_url": f"{self.api_base_url}",
+            "configuration_url": self.api_base_url,
         }
 
     @property
     def last_error(self) -> Optional[str]:
-        """Gibt den letzten aufgetretenen Fehler zurück."""
+        """Gibt den letzten Fehler zurück."""
         return self._last_error
 
     async def async_setup(self) -> bool:
-        """Führt das Setup des Geräts durch.
-        
-        Returns:
-            bool: True, wenn das Setup erfolgreich war, sonst False.
-        """
+        """Richtet das Gerät ein."""
         try:
-            # Initialen Abruf durchführen, um die Verbindung zu testen
             await self.async_update()
             self._available = True
             return True
         except Exception as e:
             self._last_error = str(e)
             self._available = False
-            _LOGGER.error("Fehler beim Setup von %s: %s", self.device_name, e)
+            _LOGGER.error("Setup-Fehler für %s: %s", self.device_name, e)
             return False
 
     async def async_update(self) -> Dict[str, Any]:
-        """Aktualisiert die Gerätedaten.
-        
-        Returns:
-            Dict[str, Any]: Die aktuellen Gerätedaten.
-            
-        Raises:
-            UpdateFailed: Bei einem Fehler während der Aktualisierung.
-        """
-        try:
-            # Verwende Lock, um gleichzeitige API-Zugriffe zu vermeiden
-            async with self._api_lock:
-                # Lese Daten vom API-Endpoint
-                api_data = await self._fetch_api_data(
-                    self.api_readings_url, 
-                    retries=self.retry_attempts
-                )
-                
+        """Aktualisiert die Gerätedaten."""
+        async with self._api_lock:
+            try:
+                api_data = await self._fetch_api_data(self.api_readings_url, self.retry_attempts)
                 if not api_data:
-                    raise UpdateFailed(f"Keine Daten von {self.api_readings_url} erhalten")
-                
-                # Firmwareversion speichern, falls vorhanden
-                if "fw" in api_data:
-                    self._firmware_version = api_data["fw"]
-                
-                # Daten vorverarbeiten und strukturieren
+                    raise UpdateFailed(f"Keine Daten von {self.api_readings_url}")
+                self._firmware_version = api_data.get("fw")
                 self._data = self._process_api_data(api_data)
                 self._available = True
-                
                 return self._data
-                
-        except asyncio.TimeoutError:
-            self._available = False
-            self._last_error = f"Zeitüberschreitung beim Verbinden mit {self.api_url}"
-            raise UpdateFailed(self._last_error)
-        except aiohttp.ClientError as err:
-            self._available = False
-            self._last_error = f"Verbindungsfehler mit {self.api_url}: {err}"
-            raise UpdateFailed(self._last_error)
-        except Exception as err:
-            self._available = False
-            self._last_error = f"Unerwarteter Fehler: {err}"
-            _LOGGER.exception("Fehler beim Abrufen der Daten")
-            raise UpdateFailed(self._last_error)
+            except Exception as e:
+                self._available = False
+                self._last_error = str(e)
+                _LOGGER.error("Update-Fehler: %s", e)
+                raise UpdateFailed(str(e))
 
-    async def _fetch_api_data(
-        self, 
-        url: str, 
-        retries: int = 3
-    ) -> Dict[str, Any]:
-        """Daten von einer API-URL abrufen mit Retry-Logik.
-        
-        Args:
-            url: Die API-URL
-            retries: Anzahl der Wiederholungsversuche
-            
-        Returns:
-            Dict[str, Any]: Die API-Antwortdaten
-            
-        Raises:
-            Exception: Bei Fehlern in der API-Kommunikation
-        """
+    async def _fetch_api_data(self, url: str, retries: int) -> Dict[str, Any]:
+        """Ruft API-Daten mit Wiederholungen ab."""
         for attempt in range(retries):
             try:
                 async with async_timeout.timeout(self.timeout_duration):
-                    _LOGGER.debug(
-                        "Abruf von %s, Versuch %d/%d",
-                        url,
-                        attempt + 1,
-                        retries,
-                    )
-                    
                     async with self._session.get(url, auth=self.auth, ssl=self.use_ssl) as response:
-                        if response.status >= 400:
-                            error_text = await response.text()
-                            error_msg = f"HTTP {response.status}: {response.reason}"
-                            
-                            if response.status == 401:
-                                raise aiohttp.ClientResponseError(
-                                    request_info=response.request_info,
-                                    history=response.history,
-                                    status=response.status,
-                                    message="Authentifizierungsfehler. Bitte Benutzername und Passwort prüfen.",
-                                    headers=response.headers
-                                )
-                            elif response.status == 404:
-                                raise aiohttp.ClientResponseError(
-                                    request_info=response.request_info,
-                                    history=response.history,
-                                    status=response.status,
-                                    message="API-Endpunkt nicht gefunden. Bitte URL prüfen.",
-                                    headers=response.headers
-                                )
-                            else:
-                                raise aiohttp.ClientResponseError(
-                                    request_info=response.request_info,
-                                    history=response.history,
-                                    status=response.status,
-                                    message=error_msg,
-                                    headers=response.headers
-                                )
-                        
-                        # Überprüfe Content-Type
+                        response.raise_for_status()
                         content_type = response.headers.get("Content-Type", "")
-                        
                         if "application/json" in content_type:
-                            data = await response.json()
-                        else:
-                            # Text-Antwort versuchen als JSON zu parsen
-                            text = await response.text()
-                            try:
-                                data = json.loads(text)
-                            except json.JSONDecodeError:
-                                data = {"raw_response": text}
-                        
-                        _LOGGER.debug("API-Antwort: %s", data)
-                        return data
-                        
-            except (asyncio.TimeoutError, aiohttp.ClientError) as err:
-                _LOGGER.warning(
-                    "Fehler beim Abruf von %s: %s (Versuch %d/%d)",
-                    url,
-                    err,
-                    attempt + 1,
-                    retries,
-                )
-                
+                            return await response.json()
+                        text = await response.text()
+                        try:
+                            return json.loads(text)
+                        except json.JSONDecodeError:
+                            return {"raw_response": text}
+            except Exception as e:
+                _LOGGER.warning("Fehler bei %s, Versuch %d/%d: %s", url, attempt + 1, retries, e)
                 if attempt + 1 == retries:
-                    # Letzter Versuch fehlgeschlagen
-                    _LOGGER.error(
-                        "Alle %d Versuche zum Abruf von %s fehlgeschlagen", 
-                        retries, 
-                        url
-                    )
                     raise
-                    
-                # Exponentielles Backoff für Wiederholungsversuche
                 await asyncio.sleep(2 ** attempt)
-                
-        # Diese Zeile sollte nie erreicht werden, da wir bei Fehler oben rausspringen
-        raise RuntimeError(f"Unerwartetes Ende der _fetch_api_data für {url}")
+        raise RuntimeError(f"Fehler bei _fetch_api_data für {url}")
 
     def _process_api_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Verarbeitet die API-Daten für die spätere Verwendung.
-        
-        Args:
-            data: Die Rohdaten von der API
-            
-        Returns:
-            Dict[str, Any]: Die verarbeiteten Daten
-        """
+        """Verarbeitet API-Daten."""
         if not data:
             return {}
-            
-        processed_data = dict(data)  # Kopie erstellen
-        
-        # Datentyp- und Format-Anpassungen vornehmen
-        for key, value in processed_data.items():
-            # Zahlenformatierungen: z.B. "25.4" -> 25.4
-            if isinstance(value, str) and value.replace(".", "", 1).isdigit():
-                try:
-                    processed_data[key] = float(value)
-                    # Ganzzahlen als int speichern
-                    if processed_data[key].is_integer():
-                        processed_data[key] = int(processed_data[key])
-                except ValueError:
-                    # Bei Fehler Originalwert behalten
-                    pass
-            
-            # Boolesche Werte verarbeiten
-            elif isinstance(value, str) and value.lower() in ["true", "false", "on", "off", "1", "0"]:
-                processed_data[key] = value.lower() in ["true", "on", "1"]
-        
-        # Spezielle Schlüssel verarbeiten und vereinheitlichen
+        processed = dict(data)
+        for key, value in processed.items():
+            if isinstance(value, str):
+                if value.replace(".", "", 1).isdigit():
+                    processed[key] = float(value) if "." in value else int(value)
+                elif value.lower() in ["true", "false", "on", "off", "1", "0"]:
+                    processed[key] = value.lower() in ["true", "on", "1"]
         key_mappings = {
-            # Beispiel: "ph_current" -> "ph_value" falls der erste Schlüssel existiert
             "ph_current": "ph_value",
             "orp_current": "orp_value",
             "temp_current": "temp_value",
             "onewire1_value": "water_temp",
             "onewire2_value": "air_temp",
         }
-        
-        # Abgeleitete Werte berechnen und hinzufügen
-        if "ph_value" in processed_data:
-            # pH-Wert auf zwei Dezimalstellen formatieren
-            try:
-                processed_data["ph_value"] = round(float(processed_data["ph_value"]), 2)
-            except (ValueError, TypeError):
-                pass
-                
-        # Mappings anwenden
-        for old_key, new_key in key_mappings.items():
-            if old_key in processed_data and new_key not in processed_data:
-                processed_data[new_key] = processed_data[old_key]
-        
-        return processed_data
-        
-    async def async_send_command(
-        self, 
-        endpoint: str, 
-        command: Dict[str, Any], 
-        retries: int = 3
-    ) -> Dict[str, Any]:
-        """Sendet einen Befehl an das Gerät.
-        
-        Args:
-            endpoint: Der API-Endpunkt (ohne Basis-URL)
-            command: Der zu sendende Befehl als Dictionary
-            retries: Anzahl der Wiederholungsversuche
-            
-        Returns:
-            Dict[str, Any]: Die Antwort des Geräts
-            
-        Raises:
-            Exception: Bei Kommunikationsfehlern
-        """
-        # Erstelle die Basis-URL
+        for old, new in key_mappings.items():
+            if old in processed and new not in processed:
+                processed[new] = processed[old]
+        if "ph_value" in processed:
+            processed["ph_value"] = round(float(processed["ph_value"]), 2)
+        return processed
+
+    async def async_send_command(self, endpoint: str, command: Dict[str, Any], retries: int = 3) -> Dict[str, Any]:
+        """Sendet einen Befehl an das Gerät."""
         url = f"{self.api_base_url}{endpoint}"
-        
-        # Bereite den raw_query basierend auf dem Befehl und Endpunkt vor
-        raw_query = None
-        
-        # Behandle verschiedene Endpunkte
-        if endpoint == "/setFunctionManually" or endpoint == API_SET_FUNCTION_MANUALLY:
-            # Format: id,action,duration,value
-            raw_query = f"{command.get('id', '')},{command.get('action', '')},{command.get('duration', 0)},{command.get('value', 0)}"
-        elif endpoint == "/set_switch" or endpoint == "/setSwitch":
-            # Format: id,action,duration,value
-            raw_query = f"{command.get('id', '')},{command.get('action', '')},{command.get('duration', 0)},{command.get('value', 0)}"
-        elif endpoint == "/set_temperature" or endpoint == "/setTemperature":
-            # Format für Temperatur-Endpunkt
-            raw_query = f"{command.get('type', '')},{command.get('temperature', 0)}"
-        elif endpoint == "/set_target_value" or endpoint == "/setTargetValues" or endpoint == API_SET_TARGET_VALUES:
-            # Format: target_type,value
-            raw_query = f"{command.get('target_type', '')},{command.get('value', 0)}"
-        elif endpoint == "/set_cover" or endpoint == "/setCover":
-            # Format für Cover-Steuerung
-            raw_query = f"{command.get('action', '')}"
-        elif endpoint == "/setDosingParameters" or endpoint == API_SET_DOSING_PARAMETERS:
-            # Format: dosing_type,parameter_name,value
-            raw_query = f"{command.get('dosing_type', '')},{command.get('parameter_name', '')},{command.get('value', '')}"
-        elif endpoint == "/startWaterAnalysis":
-            # Dieser Endpunkt benötigt möglicherweise keine Parameter
-            raw_query = ""
-            
-        # Wenn wir einen raw_query erstellt haben, füge ihn an die URL an
+        raw_query = {
+            API_SET_FUNCTION_MANUALLY: f"{command.get('id', '')},{command.get('action', '')},{command.get('duration', 0)},{command.get('value', 0)}",
+            "/set_switch": f"{command.get('id', '')},{command.get('action', '')},{command.get('duration', 0)},{command.get('value', 0)}",
+            "/set_temperature": f"{command.get('type', '')},{command.get('temperature', 0)}",
+            API_SET_TARGET_VALUES: f"{command.get('target_type', '')},{command.get('value', 0)}",
+            "/set_cover": f"{command.get('action', '')}",
+            API_SET_DOSING_PARAMETERS: f"{command.get('dosing_type', '')},{command.get('parameter_name', '')},{command.get('value', '')}",
+            "/startWaterAnalysis": ""
+        }.get(endpoint)
         if raw_query is not None:
-            url = f"{url}?{raw_query}"
-        
-        _LOGGER.debug(
-            "Sende Befehl an URL: %s",
-            url
-        )
-        
+            url += f"?{raw_query}"
+
         for attempt in range(retries):
             try:
                 async with async_timeout.timeout(self.timeout_duration):
-                    _LOGGER.debug(
-                        "Versuch %d/%d: Sende Befehl an %s",
-                        attempt + 1,
-                        retries,
-                        url,
-                    )
-                    
-                    # Wichtig: Wir verwenden GET statt POST und senden keine JSON-Daten
-                    async with self._session.get(
-                        url, 
-                        auth=self.auth, 
-                        ssl=self.use_ssl
-                    ) as response:
+                    async with self._session.get(url, auth=self.auth, ssl=self.use_ssl) as response:
                         response.raise_for_status()
-                        
-                        # Prüfe, ob die Antwort JSON ist
                         content_type = response.headers.get("Content-Type", "")
-                        
                         if "application/json" in content_type:
-                            result = await response.json()
-                        else:
-                            # Behandle Text-Antworten
-                            text = await response.text()
-                            # Versuche als JSON zu parsen, selbst wenn Content-Type nicht korrekt gesetzt ist
-                            try:
-                                result = json.loads(text)
-                            except json.JSONDecodeError:
-                                # Erstelle ein Result-Dictionary für Text-Antworten
-                                result = {
-                                    "success": "OK" in text.upper() or "SUCCESS" in text.upper(),
-                                    "raw_response": text
-                                }
-                        
-                        _LOGGER.debug("Befehlsantwort: %s", result)
-                        return result
-                        
-            except (asyncio.TimeoutError, aiohttp.ClientError) as err:
-                _LOGGER.warning(
-                    "Fehler beim Senden des Befehls an %s: %s (Versuch %d/%d)",
-                    url,
-                    err,
-                    attempt + 1,
-                    retries,
-                )
-                
+                            return await response.json()
+                        text = await response.text()
+                        try:
+                            return json.loads(text)
+                        except json.JSONDecodeError:
+                            return {"success": "OK" in text.upper() or "SUCCESS" in text.upper(), "raw_response": text}
+            except Exception as e:
                 if attempt + 1 == retries:
-                    # Letzter Versuch fehlgeschlagen
                     raise
-                    
-                # Exponentielles Backoff
                 await asyncio.sleep(2 ** attempt)
-                
-        # Diese Zeile sollte nie erreicht werden
-        raise RuntimeError(f"Unerwartetes Ende der async_send_command für {url}")
+        raise RuntimeError(f"Fehler bei async_send_command für {url}")
 
     async def async_set_swimming_pool_temperature(self, temperature: float) -> bool:
-        """Setzt die Zieltemperatur für den Pool.
-        
-        Args:
-            temperature: Die gewünschte Temperatur in °C
-            
-        Returns:
-            bool: True bei Erfolg, False bei Fehlern
-        """
+        """Setzt die Pool-Temperatur."""
         try:
-            command = {
-                "type": "HEATER",
-                "temperature": float(temperature)
-            }
+            command = {"type": "HEATER", "temperature": float(temperature)}
             result = await self.async_send_command("/set_temperature", command)
             return result.get("success", False)
-        except Exception as err:
-            _LOGGER.error("Fehler beim Setzen der Temperatur: %s", err)
+        except Exception as e:
+            _LOGGER.error("Temperatur setzen fehlgeschlagen: %s", e)
             return False
-            
+
     async def async_set_switch_state(self, switch_id: str, state: bool) -> bool:
-        """Setzt den Zustand eines Schalters.
-        
-        Args:
-            switch_id: Die ID des Schalters
-            state: Der gewünschte Zustand (True=Ein, False=Aus)
-            
-        Returns:
-            bool: True bei Erfolg, False bei Fehlern
-        """
+        """Setzt den Schalterzustand."""
         try:
             action = "ON" if state else "OFF"
-            command = {
-                "id": switch_id,
-                "action": action,
-                "duration": 0,
-                "value": 0
-            }
+            command = {"id": switch_id, "action": action, "duration": 0, "value": 0}
             result = await self.async_send_command("/set_switch", command)
             return result.get("success", False)
-        except Exception as err:
-            _LOGGER.error("Fehler beim Setzen des Schalters %s: %s", switch_id, err)
+        except Exception as e:
+            _LOGGER.error("Schalter %s setzen fehlgeschlagen: %s", switch_id, e)
             return False
 
     def is_feature_active(self, feature_id: str) -> bool:
-        """Prüft, ob ein bestimmtes Feature aktiv ist.
-        
-        Args:
-            feature_id: Die ID des Features
-            
-        Returns:
-            bool: True, wenn das Feature aktiv ist, sonst False
-        """
-        # GEÄNDERT: Feature-Aktivierung deaktiviert - immer True zurückgeben für die Fehlersuche
-        return True  # Immer True, Features deaktiviert
-
+        """Prüft, ob ein Feature aktiv ist."""
+        return feature_id in self.active_features
 
 class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
-    """Koordinator zum Abrufen von Daten vom Violet Pool Controller."""
+    """Koordinator für Datenaktualisierungen."""
 
-    def __init__(
-        self, 
-        hass: HomeAssistant, 
-        device: VioletPoolControllerDevice,
-        config_entry: ConfigEntry,
-    ) -> None:
-        """Initialisiert den Koordinator.
-        
-        Args:
-            hass: Home Assistant-Instanz
-            device: Die Pool Controller Geräteinstanz
-            config_entry: Die Config Entry des Geräts
-        """
+    def __init__(self, hass: HomeAssistant, device: VioletPoolControllerDevice, config_entry: ConfigEntry) -> None:
+        """Initialisiert den Koordinator."""
         self.device = device
-        self.config_entry = config_entry
-        
-        update_interval = timedelta(seconds=device.polling_interval)
-        
         super().__init__(
             hass,
             _LOGGER,
             name=f"{DOMAIN}_{device.device_id}",
-            update_interval=update_interval,
-        )
-        
-        _LOGGER.info(
-            "DataUpdateCoordinator für %s initialisiert (Interval: %s)",
-            device.device_name,
-            update_interval
+            update_interval=timedelta(seconds=device.polling_interval),
         )
 
     async def _async_update_data(self) -> Dict[str, Any]:
-        """Implementierung der Datenaktualisierungsmethode.
-        
-        Returns:
-            Dict[str, Any]: Aktualisierte Daten
-            
-        Raises:
-            UpdateFailed: Bei einem Fehler während der Aktualisierung
-        """
+        """Aktualisiert die Daten."""
         try:
-            start_time = time.time()
-            data = await self.device.async_update()
-            elapsed = time.time() - start_time
-            
-            _LOGGER.debug(
-                "Finished fetching %s data in %.3f seconds (success: %s)",
-                self.name,
-                elapsed,
-                True
-            )
-            
-            # Stellen wir sicher, dass alle Listener informiert werden
-            return data
+            return await self.device.async_update()
         except Exception as e:
-            self._available = False
             self.device._available = False
-            _LOGGER.error("Fehler bei der Datenaktualisierung: %s", e)
-            raise UpdateFailed(f"Fehler: {e}")
+            raise UpdateFailed(str(e))
 
-
-async def async_setup_device(
-    hass: HomeAssistant, 
-    config_entry: ConfigEntry
-) -> Optional[VioletPoolDataUpdateCoordinator]:
-    """Richtet ein Violet Pool Controller Gerät ein.
-    
-    Args:
-        hass: Home Assistant-Instanz
-        config_entry: Die Config Entry des Geräts
-        
-    Returns:
-        Optional[VioletPoolDataUpdateCoordinator]: Der Daten-Koordinator oder None bei Fehlern
-        
-    Raises:
-        ConfigEntryNotReady: Wenn das Gerät nicht bereit ist
-    """
-    try:
-        # Gerät initialisieren
-        device = VioletPoolControllerDevice(hass, config_entry)
-        
-        # Gerät einrichten
-        if not await device.async_setup():
-            raise ConfigEntryNotReady(
-                f"Gerät {device.device_name} ist nicht bereit: {device.last_error}"
-            )
-        
-        # Coordinator erstellen
-        coordinator = VioletPoolDataUpdateCoordinator(hass, device, config_entry)
-        
-        # Initialen Abruf erzwingen
-        await coordinator.async_config_entry_first_refresh()
-        
-        if not coordinator.last_update_success:
-            raise ConfigEntryNotReady(
-                f"Initialer Datenabruf für {device.device_name} fehlgeschlagen"
-            )
-            
-        return coordinator
-        
-    except Exception as err:
-        _LOGGER.exception("Fehler beim Einrichten des Violet Pool Controllers: %s", err)
-        raise ConfigEntryNotReady(f"Einrichtungsfehler: {err}")
+async def async_setup_device(hass: HomeAssistant, config_entry: ConfigEntry) -> Optional[VioletPoolDataUpdateCoordinator]:
+    """Richtet das Gerät ein."""
+    device = VioletPoolControllerDevice(hass, config_entry)
+    if not await device.async_setup():
+        raise ConfigEntryNotReady(f"Setup fehlgeschlagen: {device.last_error}")
+    coordinator = VioletPoolDataUpdateCoordinator(hass, device, config_entry)
+    await coordinator.async_config_entry_first_refresh()
+    if not coordinator.last_update_success:
+        raise ConfigEntryNotReady("Initialer Datenabruf fehlgeschlagen")
+    return coordinator
