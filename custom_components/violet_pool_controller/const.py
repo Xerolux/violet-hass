@@ -4,7 +4,7 @@
 DOMAIN = "violet_pool_controller"
 
 # Integrationsdetails
-INTEGRATION_VERSION = "0.0.9.6"  # Version der Integration
+INTEGRATION_VERSION = "0.0.9.7"  # Version der Integration
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 
 # Logger-Name
