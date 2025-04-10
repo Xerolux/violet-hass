@@ -1,6 +1,6 @@
 """Binary Sensor Integration für den Violet Pool Controller."""
 import logging
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 
 from homeassistant.components.binary_sensor import (
@@ -14,12 +14,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import (
-    DOMAIN, 
-    BINARY_SENSORS, 
-    STATE_MAP,
-    CONF_ACTIVE_FEATURES,
-)
+from .const import DOMAIN, BINARY_SENSORS, STATE_MAP, CONF_ACTIVE_FEATURES
 from .entity import VioletPoolControllerEntity
 from .device import VioletPoolDataUpdateCoordinator
 
@@ -46,42 +41,23 @@ BINARY_SENSOR_FEATURE_MAP = {
 
 @dataclass
 class VioletBinarySensorEntityDescription(BinarySensorEntityDescription):
-    """Class describing Violet Pool binary sensor entities."""
-
+    """Beschreibung der Violet Pool Binary Sensor-Entities."""
     feature_id: Optional[str] = None
 
-
 class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
-    """Representation of a Violet Device Binary Sensor."""
-
+    """Repräsentation eines Violet Pool Binary Sensors."""
     entity_description: VioletBinarySensorEntityDescription
 
     def __init__(
-        self, 
-        coordinator: VioletPoolDataUpdateCoordinator, 
+        self,
+        coordinator: VioletPoolDataUpdateCoordinator,
         config_entry: ConfigEntry,
         description: VioletBinarySensorEntityDescription,
     ) -> None:
-        """Initialize the binary sensor.
-        
-        Args:
-            coordinator: Der Daten-Koordinator
-            config_entry: Die Config Entry des Geräts
-            description: Die Beschreibung der Entität
-        """
-        # Initialisiere die Basisklasse
-        super().__init__(
-            coordinator=coordinator,
-            config_entry=config_entry,
-            entity_description=description,
-        )
-        
-        # Icon-Basis für Zustandsänderungen
+        """Initialisiert den Binary Sensor."""
+        super().__init__(coordinator, config_entry, description)
         self._icon_base = description.icon
-        
-        # Tracking für Logging
         self._has_logged_none_state = False
-        
         _LOGGER.debug(
             "Initialisiere Binary Sensor: %s (unique_id=%s, feature_id=%s)",
             self.entity_id,
@@ -91,92 +67,72 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
 
     @property
     def is_on(self) -> bool:
-        """Return True if the binary sensor is on."""
+        """Gibt True zurück, wenn der Binary Sensor eingeschaltet ist."""
         result = self._get_sensor_state()
         _LOGGER.debug("Binary Sensor %s is_on=%s", self.entity_id, result)
         return result
 
     @property
     def icon(self) -> str:
-        """Return the icon for the binary sensor, changing based on state."""
-        return self._icon_base if self.is_on else f"{self._icon_base}-off"
+        """Gibt das Icon basierend auf dem Zustand zurück."""
+        return f"{self._icon_base}-off" if not self.is_on else self._icon_base
 
     def _get_sensor_state(self) -> bool:
-        """Hilfsmethode zum Abrufen und Mappen des aktuellen Sensorzustands von der API."""
+        """Ruft den aktuellen Sensorzustand von der API ab."""
         key = self.entity_description.key
-            
-        # Standardverhalten: Verwende die get_bool_value-Methode aus der Basis-Entity
         raw_state = self.get_str_value(key, "")
         _LOGGER.debug("Binary Sensor %s raw_state=%s", self.entity_id, raw_state)
-        
+
         if not raw_state:
             if not self._has_logged_none_state:
                 self._logger.debug(
-                    "Binary Sensor '%s' returned None/empty as its state. Defaulting to 'OFF'.",
+                    "Binary Sensor '%s' hat None/leeren Zustand. Standard: OFF.",
                     key
                 )
                 self._has_logged_none_state = True
             return False
-            
-        # Konvertiere den Wert mit der STATE_MAP
+
         if raw_state.upper() in STATE_MAP:
             mapped_state = STATE_MAP[raw_state.upper()]
             _LOGGER.debug("Binary Sensor %s mapped_state=%s", self.entity_id, mapped_state)
             return mapped_state
-            
-        # Versuche direkte Boolsche Konvertierung als Fallback
+
         bool_state = self.get_bool_value(key, False)
         _LOGGER.debug("Binary Sensor %s bool_state=%s", self.entity_id, bool_state)
         return bool_state
 
-
-# Eine völlig eigenständige Implementierung für den Cover-Closed Sensor
 class CoverIsClosedBinarySensor(CoordinatorEntity, BinarySensorEntity):
-    """Spezieller eigenständiger Sensor für den Cover-Geschlossen-Status."""
+    """Eigenständiger Sensor für den Cover-Geschlossen-Status."""
 
     def __init__(
-        self, 
-        coordinator: VioletPoolDataUpdateCoordinator, 
+        self,
+        coordinator: VioletPoolDataUpdateCoordinator,
         config_entry: ConfigEntry,
     ) -> None:
-        """Initialize the cover closed sensor.
-        
-        Args:
-            coordinator: Der Daten-Koordinator
-            config_entry: Die Config Entry des Geräts
-        """
+        """Initialisiert den Cover-Geschlossen-Sensor."""
         super().__init__(coordinator)
-        
-        # Entity-Attribute
         self._attr_has_entity_name = True
         self._attr_name = "Cover Geschlossen"
         self._attr_unique_id = f"{config_entry.entry_id}_cover_is_closed"
         self._attr_device_class = BinarySensorDeviceClass.DOOR
         self._attr_icon = "mdi:window-shutter"
-        
-        # Geräteinformationen vom Geräteobjekt übernehmen
         self._attr_device_info = coordinator.device.device_info
-        
-        # Logger
         self._logger = logging.getLogger(f"{DOMAIN}.{self._attr_unique_id}")
         self._logger.info("Initialisiere Cover-Geschlossen Sensor: %s", self._attr_unique_id)
 
     @property
     def available(self) -> bool:
         """Gibt an, ob die Entität verfügbar ist."""
-        # GEÄNDERT: Feature-Aktivierung deaktiviert - Immer verfügbar machen, wenn Coordinator funktioniert
         return self.coordinator.last_update_success
 
     @property
     def is_on(self) -> bool:
-        """Return True if the cover is closed."""
+        """Gibt True zurück, wenn die Abdeckung geschlossen ist."""
         if not self.coordinator.data:
             _LOGGER.debug("Cover-Geschlossen Sensor: Keine Daten verfügbar")
             return False
-            
+
         data = self.coordinator.data
-        
-        # Für Debugging: Alle relevanten Daten ausgeben
         debug_data = {
             "COVER_STATE": data.get("COVER_STATE"),
             "COVER_OPEN": data.get("COVER_OPEN"),
@@ -184,34 +140,29 @@ class CoverIsClosedBinarySensor(CoordinatorEntity, BinarySensorEntity):
             "LAST_MOVING_DIRECTION": data.get("LAST_MOVING_DIRECTION")
         }
         _LOGGER.debug("Cover-Geschlossen Sensor Debug-Daten: %s", debug_data)
-        
-        # Es gibt verschiedene Möglichkeiten, wie der Abdeckungsstatus repräsentiert werden kann
+
         cover_state = data.get("COVER_STATE")
         if cover_state in ["CLOSED", "2", 2]:
             _LOGGER.debug("Cover-Geschlossen Sensor: Status CLOSED erkannt")
             return True
-        
-        # Alternativer Pfad: COVER_OPEN / COVER_CLOSE Status - nur wenn die Daten vorhanden sind
+
         if "COVER_OPEN" in data and "COVER_CLOSE" in data:
             cover_open = data.get("COVER_OPEN")
             cover_close = data.get("COVER_CLOSE")
-            
             if cover_open in ["OFF", "0", 0, False] and cover_close in ["ON", "1", 1, True]:
                 _LOGGER.debug("Cover-Geschlossen Sensor: COVER_OPEN=OFF und COVER_CLOSE=ON erkannt")
                 return True
-            
+
         _LOGGER.debug("Cover-Geschlossen Sensor: Abdeckung ist NICHT geschlossen")
         return False
 
-    @property 
+    @property
     def extra_state_attributes(self) -> Dict[str, Any]:
         """Gibt zusätzliche Zustandsattribute zurück."""
         attributes = {
             "feature_id": "cover_control",
             "last_updated": self.coordinator.last_update_success,
         }
-        
-        # Füge Rohwerte hinzu, wenn vorhanden
         if self.coordinator.data:
             data = self.coordinator.data
             if "COVER_STATE" in data:
@@ -222,63 +173,51 @@ class CoverIsClosedBinarySensor(CoordinatorEntity, BinarySensorEntity):
                 attributes["cover_close"] = data["COVER_CLOSE"]
             if "LAST_MOVING_DIRECTION" in data:
                 attributes["last_moving_direction"] = data["LAST_MOVING_DIRECTION"]
-                
         return attributes
 
-
 async def async_setup_entry(
-    hass: HomeAssistant, 
-    config_entry: ConfigEntry, 
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback
 ) -> None:
-    """Set up Violet Device binary sensors from a config entry."""
+    """Richtet Binary Sensoren basierend auf der Config Entry ein."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
-    
-    # Debug: Ausgabe des Coordinator-Status
     _LOGGER.debug(
-        "Binary Sensor Setup: Coordinator Status - available=%s, last_update_success=%s",
+        "Binary Sensor Setup: Coordinator - available=%s, last_update_success=%s",
         coordinator.device.available,
         coordinator.last_update_success,
     )
-    
-    # Hole aktive Features
+
     active_features = config_entry.options.get(
-        CONF_ACTIVE_FEATURES, 
-        config_entry.data.get(CONF_ACTIVE_FEATURES, [])
+        CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
     )
     _LOGGER.debug("Binary Sensor Setup: Aktive Features=%s", active_features)
 
-    # Verfügbare Daten aus der API
     available_data_keys = set(coordinator.data.keys())
     _LOGGER.debug(
         "Binary Sensor Setup: %d verfügbare API-Daten-Keys (erste 10): %s",
         len(available_data_keys),
         list(available_data_keys)[:10]
     )
-    
-    # Liste für alle zu erstellenden Binary Sensors
+
     binary_sensors: List[BinarySensorEntity] = []
-    
-    # Erzeugen regulärer Binary Sensors basierend auf der Definition
+
     for sensor in BINARY_SENSORS:
         key = sensor["key"]
-        
-        # Prüfe, ob der Sensor in den API-Daten vorhanden ist
         if key not in available_data_keys:
-            _LOGGER.debug("Binary Sensor %s nicht in API-Daten gefunden, wird übersprungen", key)
+            _LOGGER.debug("Binary Sensor %s nicht in API-Daten, übersprungen", key)
             continue
-            
-        # Prüfe, ob das zugehörige Feature aktiv ist (DEAKTIVIERT)
+
         feature_id = BINARY_SENSOR_FEATURE_MAP.get(key)
+        # Feature-Check ist für Debugging deaktiviert; entferne 'False' zum Aktivieren
         if False and feature_id and feature_id not in active_features:
             _LOGGER.debug(
-                "Binary Sensor %s wird übersprungen, da Feature %s nicht aktiv ist",
+                "Binary Sensor %s übersprungen: Feature %s inaktiv",
                 key,
                 feature_id
             )
             continue
-            
-        # Bestimme die richtige device_class basierend auf dem Sensor-Typ
+
         device_class = None
         if key in ["PUMP", "SOLAR", "HEATER"]:
             device_class = BinarySensorDeviceClass.RUNNING
@@ -288,50 +227,29 @@ async def async_setup_entry(
             device_class = BinarySensorDeviceClass.OPENING
         elif key in ["REFILL"]:
             device_class = BinarySensorDeviceClass.MOISTURE
-        
-        # Bestimme die Entity Category basierend auf dem Sensor-Typ
-        entity_category = None
-        if key.startswith("DOS_"):
-            entity_category = EntityCategory.DIAGNOSTIC
-            
-        # Erstelle EntityDescription
+
+        entity_category = EntityCategory.DIAGNOSTIC if key.startswith("DOS_") else None
+
         description = VioletBinarySensorEntityDescription(
             key=key,
             name=sensor["name"],
             icon=sensor["icon"],
             device_class=device_class,
-            entity_category=EntityCategory(entity_category) if entity_category else None,
+            entity_category=entity_category,
             feature_id=feature_id,
         )
-        
         _LOGGER.debug("Binary Sensor %s erstellen (Feature %s)", key, feature_id)
-        
-        # Sensor erstellen
-        binary_sensors.append(
-            VioletBinarySensor(
-                coordinator=coordinator, 
-                config_entry=config_entry,
-                description=description,
-            )
-        )
-    
-    # Spezialbehandlung: Cover-geschlossen Sensor
+        binary_sensors.append(VioletBinarySensor(coordinator, config_entry, description))
+
     if "COVER_STATE" in available_data_keys:
         _LOGGER.debug("Cover-Geschlossen Sensor wird erstellt")
-        # Verwende hier den komplett eigenständigen Sensor
-        binary_sensors.append(
-            CoverIsClosedBinarySensor(
-                coordinator=coordinator, 
-                config_entry=config_entry,
-            )
-        )
+        binary_sensors.append(CoverIsClosedBinarySensor(coordinator, config_entry))
     else:
         _LOGGER.warning(
             "Cover-Geschlossen Sensor NICHT erstellt. COVER_STATE in Daten: %s",
             "COVER_STATE" in available_data_keys
         )
-    
-    # PV Überschuss Status
+
     if "PVSURPLUS" in available_data_keys:
         _LOGGER.debug("PV-Überschuss Sensor wird erstellt")
         description = VioletBinarySensorEntityDescription(
@@ -340,22 +258,14 @@ async def async_setup_entry(
             icon="mdi:solar-power",
             feature_id="pv_surplus",
         )
-        
-        binary_sensors.append(
-            VioletBinarySensor(
-                coordinator=coordinator, 
-                config_entry=config_entry,
-                description=description,
-            )
-        )
-    
-    # Zur Meldung der Anzahl an hinzugefügten Sensoren    
+        binary_sensors.append(VioletBinarySensor(coordinator, config_entry, description))
+
     if binary_sensors:
         _LOGGER.info(
-            "%d Binary Sensoren gefunden und werden hinzugefügt: %s", 
+            "%d Binary Sensoren hinzugefügt: %s",
             len(binary_sensors),
             [sensor.entity_id if hasattr(sensor, 'entity_id') else sensor._attr_name for sensor in binary_sensors]
         )
         async_add_entities(binary_sensors)
     else:
-        _LOGGER.warning("Keine passenden Binary Sensoren in den API-Daten gefunden.")
+        _LOGGER.warning("Keine passenden Binary Sensoren gefunden.")
