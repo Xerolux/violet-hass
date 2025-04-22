@@ -258,7 +258,11 @@ If you encounter any problems or have questions, please:
 
 If you find this integration useful, consider supporting its development:
 
-<a href="https://www.buymeacoffee.com/xerolux" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;"></a>
+[![GitHub Sponsor](https://img.shields.io/github/sponsors/xerolux?logo=github&style=flat-square&color=blue)](https://github.com/sponsors/xerolux)
+[![Ko-Fi](https://img.shields.io/badge/Ko--fi-xerolux-blue?logo=ko-fi&style=flat-square)](https://ko-fi.com/xerolux)
+[![Patreon](https://img.shields.io/badge/Patreon-Xerolux-red?logo=patreon&style=flat-square)](https://patreon.com/Xerolux)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-xerolux-yellow?logo=buy-me-a-coffee&style=flat-square)](https://www.buymeacoffee.com/xerolux)
+[![Tesla Referral](https://img.shields.io/badge/Tesla%20Referral-Sebastian-FF0000?logo=tesla&style=flat-square)](https://ts.la/sebastian564489)
 
 ## Contributing
 
