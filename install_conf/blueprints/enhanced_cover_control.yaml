@@ -1,0 +1,255 @@
+blueprint:
+  name: Enhanced Violet Pool Cover Controller
+  description: Advanced automation for Violet Pool Cover with scheduling, weather-based control, safety checks, and notifications.
+  domain: automation
+  source_url: https://github.com/xerolux/violet-hass
+  input:
+    cover_entity:
+      name: Cover Entity
+      description: The Violet pool cover entity.
+      selector:
+        entity:
+          domain: cover
+    rain_sensor:
+      name: Rain Sensor
+      description: (Optional) Binary sensor for rain detection.
+      default:
+      selector:
+        entity:
+          domain: binary_sensor
+    temperature_sensor:
+      name: Temperature Sensor
+      description: (Optional) Temperature sensor for weather-based control.
+      default:
+      selector:
+        entity:
+          domain: sensor
+          device_class: temperature
+    wind_speed_sensor:
+      name: Wind Speed Sensor
+      description: (Optional) Wind speed sensor to prevent opening in high winds.
+      default:
+      selector:
+        entity:
+          domain: sensor
+          device_class: wind_speed
+    max_wind_speed:
+      name: Maximum Wind Speed
+      description: Maximum wind speed to allow cover opening (in km/h).
+      default: 20
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 1
+          unit_of_measurement: km/h
+    min_temp:
+      name: Minimum Temperature
+      description: Minimum temperature to keep the cover closed (in °C).
+      default: 10
+      selector:
+        number:
+          min: -10
+          max: 30
+          step: 1
+          unit_of_measurement: °C
+    safety_switch:
+      name: Safety Switch
+      description: (Optional) A binary sensor that prevents the cover from moving when on.
+      default:
+      selector:
+        entity:
+          domain: binary_sensor
+    pump_entity:
+      name: Pump Entity
+      description: (Optional) The pool pump entity to integrate with.
+      default:
+      selector:
+        entity:
+          domain: switch
+    pump_integration:
+      name: Pump Integration
+      description: How to integrate the pump state into the cover control.
+      default: ignore
+      selector:
+        select:
+          options:
+            - ignore
+            - prevent_close_when_on
+            - prevent_open_when_on
+            - only_close_when_off
+    weekday_open_time:
+      name: Weekday Open Time
+      description: Time to open the cover on weekdays.
+      default:
+      selector:
+        time:
+    weekday_close_time:
+      name: Weekday Close Time
+      description: Time to close the cover on weekdays.
+      default:
+      selector:
+        time:
+    weekend_open_time:
+      name: Weekend Open Time
+      description: Time to open the cover on weekends.
+      default:
+      selector:
+        time:
+    weekend_close_time:
+      name: Weekend Close Time
+      description: Time to close the cover on weekends.
+      default:
+      selector:
+        time:
+    enable_notifications:
+      name: Enable Notifications
+      description: Send notifications about cover operations.
+      default: false
+      selector:
+        boolean:
+    notification_service:
+      name: Notification Service
+      description: Service to use for notifications (e.g., notify.mobile_app, persistent_notification.create).
+      default: persistent_notification.create
+      selector:
+        text:
+    notification_message_open:
+      name: Notification Message (Open)
+      description: Message to send when the cover is opened.
+      default: "Pool cover has been opened."
+      selector:
+        text:
+    notification_message_close:
+      name: Notification Message (Close)
+      description: Message to send when the cover is closed.
+      default: "Pool cover has been closed."
+      selector:
+        text:
+
+trigger:
+  - platform: time
+    at: !input weekday_open_time
+    id: "weekday_open"
+    enabled: "{{ weekday_open_time != '' and now().weekday() < 5 }}"
+  - platform: time
+    at: !input weekday_close_time
+    id: "weekday_close"
+    enabled: "{{ weekday_close_time != '' and now().weekday() < 5 }}"
+  - platform: time
+    at: !input weekend_open_time
+    id: "weekend_open"
+    enabled: "{{ weekend_open_time != '' and now().weekday() >= 5 }}"
+  - platform: time
+    at: !input weekend_close_time
+    id: "weekend_close"
+    enabled: "{{ weekend_close_time != '' and now().weekday() >= 5 }}"
+  - platform: state
+    entity_id: !input rain_sensor
+    to: "on"
+    id: "rain_detected"
+    enabled: "{{ rain_sensor != '' }}"
+  - platform: numeric_state
+    entity_id: !input temperature_sensor
+    below: !input min_temp
+    id: "low_temp"
+    enabled: "{{ temperature_sensor != '' }}"
+
+condition:
+  - condition: state
+    entity_id: !input safety_switch
+    state: "off"
+    enabled: "{{ safety_switch != '' }}"
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ pump_integration == 'prevent_close_when_on' and trigger.id in ['weekday_close', 'weekend_close', 'rain_detected', 'low_temp'] }}"
+        sequence:
+          - condition: state
+            entity_id: !input pump_entity
+            state: "off"
+      - conditions:
+          - condition: template
+            value_template: "{{ pump_integration == 'prevent_open_when_on' and trigger.id in ['weekday_open', 'weekend_open'] }}"
+        sequence:
+          - condition: state
+            entity_id: !input pump_entity
+            state: "off"
+      - conditions:
+          - condition: template
+            value_template: "{{ pump_integration == 'only_close_when_off' and trigger.id in ['weekday_close', 'weekend_close', 'rain_detected', 'low_temp'] }}"
+        sequence:
+          - condition: state
+            entity_id: !input pump_entity
+            state: "off"
+  - if:
+      - condition: template
+        value_template: "{{ trigger.id in ['weekday_open', 'weekend_open'] }}"
+    then:
+      - condition: numeric_state
+        entity_id: !input wind_speed_sensor
+        below: !input max_wind_speed
+        enabled: "{{ wind_speed_sensor != '' }}"
+
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: ["weekday_open", "weekend_open"]
+        sequence:
+          - service: cover.open_cover
+            target:
+              entity_id: !input cover_entity
+          - wait_for_trigger:
+              - platform: state
+                entity_id: !input cover_entity
+                to: "open"
+                for:
+                  seconds: 60
+          - if:
+              - condition: state
+                entity_id: !input cover_entity
+                state: "open"
+            then:
+              - if:
+                  - condition: template
+                    value_template: "{{ enable_notifications }}"
+                then:
+                  - service: "{{ notification_service }}"
+                    data:
+                      message: "{{ notification_message_open }}"
+            else:
+              - service: "{{ notification_service }}"
+                data:
+                  message: "Failed to open pool cover."
+      - conditions:
+          - condition: trigger
+            id: ["weekday_close", "weekend_close", "rain_detected", "low_temp"]
+        sequence:
+          - service: cover.close_cover
+            target:
+              entity_id: !input cover_entity
+          - wait_for_trigger:
+              - platform: state
+                entity_id: !input cover_entity
+                to: "closed"
+                for:
+                  seconds: 60
+          - if:
+              - condition: state
+                entity_id: !input cover_entity
+                state: "closed"
+            then:
+              - if:
+                  - condition: template
+                    value_template: "{{ enable_notifications }}"
+                then:
+                  - service: "{{ notification_service }}"
+                    data:
+                      message: "{{ notification_message_close }}"
+            else:
+              - service: "{{ notification_service }}"
+                data:
+                  message: "Failed to close pool cover."
+
+mode: single

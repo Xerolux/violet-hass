@@ -1,0 +1,103 @@
+blueprint:
+  name: Pool System Monitoring
+  description: Monitors pool system diagnostics and sends alerts for critical conditions or maintenance needs.
+  domain: automation
+  input:
+    filter_pressure_sensor:
+      name: Filter Pressure Sensor
+      description: Sensor for filter pressure.
+      selector:
+        entity:
+          domain: sensor
+    water_level_sensor:
+      name: Water Level Sensor
+      description: Sensor for water level.
+      selector:
+        entity:
+          domain: sensor
+    max_filter_pressure:
+      name: Maximum Filter Pressure
+      description: Maximum acceptable filter pressure.
+      default: 1.5
+      selector:
+        number:
+          min: 0
+          max: 5
+          step: 0.1
+          unit_of_measurement: bar
+    min_water_level:
+      name: Minimum Water Level
+      description: Minimum acceptable water level.
+      default: 50
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 1
+          unit_of_measurement: cm
+    maintenance_reminder_days:
+      name: Maintenance Reminder Days
+      description: Number of days between maintenance reminders.
+      default: 30
+      selector:
+        number:
+          min: 1
+          max: 365
+          step: 1
+          unit_of_measurement: days
+    notification_service:
+      name: Notification Service
+      description: Service to use for notifications.
+      default: persistent_notification.create
+      selector:
+        text:
+
+trigger:
+  - platform: numeric_state
+    entity_id: !input filter_pressure_sensor
+    above: !input max_filter_pressure
+    id: "high_pressure"
+  - platform: numeric_state
+    entity_id: !input water_level_sensor
+    below: !input min_water_level
+    id: "low_water_level"
+  - platform: time
+    at: "00:00:00"
+    id: "daily_check"
+
+condition:
+  - condition: trigger
+    id: ["high_pressure", "low_water_level", "daily_check"]
+
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: "high_pressure"
+        sequence:
+          - service: "{{ notification_service }}"
+            data:
+              title: "High Filter Pressure Alert"
+              message: "Filter pressure is above {{ max_filter_pressure }} bar. Check the filter."
+      - conditions:
+          - condition: trigger
+            id: "low_water_level"
+        sequence:
+          - service: "{{ notification_service }}"
+            data:
+              title: "Low Water Level Alert"
+              message: "Water level is below {{ min_water_level }} cm. Refill the pool."
+      - conditions:
+          - condition: trigger
+            id: "daily_check"
+        sequence:
+          - if:
+              - condition: template
+                value_template: "{{ (now() - states.last_updated) | int > maintenance_reminder_days * 86400 }}"
+            then:
+              - service: "{{ notification_service }}"
+                data:
+                  title: "Maintenance Reminder"
+                  message: "It's time to perform maintenance on the pool system."
+
+mode: single

@@ -26,7 +26,6 @@ from .device import VioletPoolDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-# Einheiten für verschiedene Sensortypen
 UNIT_MAP = {
     "IMP1_value": "cm/s",
     "IMP2_value": "cm/s",
@@ -71,7 +70,6 @@ UNIT_MAP = {
     "HW_SERIAL_CARRIER": "",
 }
 
-# Sensortypen ohne Einheiten
 NO_UNIT_SENSORS = {
     "SOLAR_LAST_OFF", "HEATER_LAST_ON", "HEATER_LAST_OFF",
     "BACKWASH_LAST_ON", "BACKWASH_LAST_OFF", "PUMP_LAST_ON", "PUMP_LAST_OFF",
@@ -79,7 +77,6 @@ NO_UNIT_SENSORS = {
     "BACKWASH_OMNI_MOVING", "BACKWASH_DELAY_RUNNING"
 }
 
-# Sensoren mit Textwerten (nicht numerisch)
 TEXT_VALUE_SENSORS = {
     "DOS_1_CL_STATE", "DOS_4_PHM_STATE", "DOS_5_PHP_STATE",
     "HEATERSTATE", "SOLARSTATE", "PUMPSTATE", "BACKWASHSTATE",
@@ -110,7 +107,6 @@ TEXT_VALUE_SENSORS = {
     "OVERFLOW_REFILL_STATE", "OVERFLOW_DRYRUN_STATE", "OVERFLOW_OVERFILL_STATE",
 }
 
-# Nicht-Temperatur-Sensoren mit "temp" oder "onewire" im Namen
 NON_TEMPERATURE_SENSORS = {
     "onewire1_rcode", "onewire2_rcode", "onewire3_rcode", "onewire4_rcode",
     "onewire5_rcode", "onewire6_rcode", "onewire1romcode", "onewire2romcode",
@@ -119,7 +115,6 @@ NON_TEMPERATURE_SENSORS = {
     "onewire5_state", "onewire6_state"
 }
 
-# Mapping von Sensor-Keys zu Feature-IDs
 SENSOR_FEATURE_MAP = {
     "onewire1_value": "heating",
     "onewire2_value": "heating",
@@ -158,36 +153,26 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
         coordinator: VioletPoolDataUpdateCoordinator,
         config_entry: ConfigEntry,
         description: VioletSensorEntityDescription,
-    ):
-        """Initialisiert den Sensor."""
+    ) -> None:
+        """Initialisiere den Sensor."""
         super().__init__(coordinator, config_entry, description)
         self._has_logged_none_state = False
 
     @property
     def native_value(self) -> Union[float, int, str, None]:
-        """Gibt den aktuellen Wert des Sensors zurück."""
+        """Gib den aktuellen Sensorwert zurück."""
         key = self.entity_description.key
         key_upper = key.upper()
-
-        # Prüfe, ob es sich um einen Text-Sensor handelt
         is_text_sensor = (
             key_upper in TEXT_VALUE_SENSORS or
             any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW", "MOVING", "RUNNING"]) or
             not self.entity_description.is_numeric
         )
 
-        # Text-Sensoren direkt als String zurückgeben
-        if is_text_sensor:
+        if is_text_sensor or key.lower().endswith(("_last_on", "_last_off")):
             return self.get_str_value(key)
 
-        # Zeitstempel-Sensoren (z. B. "last_on", "last_off")
-        if key.lower().endswith(("_last_on", "_last_off")):
-            return self.get_str_value(key)
-
-        # Rohwert aus Coordinator-Daten holen
         raw_value = self.coordinator.data.get(key) if self.coordinator.data else None
-
-        # Listenwerte für Status-Sensoren
         if isinstance(raw_value, list):
             if not raw_value:
                 return None
@@ -196,14 +181,12 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
             else:
                 return ", ".join(str(item) for item in raw_value)
 
-        # None-Werte behandeln
         if raw_value is None:
             if not self._has_logged_none_state:
                 _LOGGER.warning(f"Sensor '{key}' hat None als Zustand zurückgegeben.")
                 self._has_logged_none_state = True
             return None
 
-        # Spezielle String-Muster prüfen (z. B. "53d", "00h 00m 00s")
         if isinstance(raw_value, str):
             if any(c.isalpha() for c in raw_value) or any(unit in raw_value for unit in ["h ", "m ", "s", "d "]):
                 return raw_value
@@ -212,14 +195,12 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
             if raw_value.count('.') == 3 and all(part.isdigit() for part in raw_value.split('.')):
                 return raw_value
 
-        # Wert basierend auf Device Class abrufen
         device_class = self.entity_description.device_class
         if device_class in (SensorDeviceClass.TEMPERATURE, SensorDeviceClass.PRESSURE,
                            SensorDeviceClass.PH, SensorDeviceClass.POWER,
                            SensorDeviceClass.VOLTAGE):
             return self.get_float_value(key)
 
-        # Standard: Float-Interpretation mit Fallback auf String
         try:
             if isinstance(raw_value, (int, float)):
                 return raw_value
@@ -230,13 +211,8 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
             _LOGGER.error(f"Fehler beim Abrufen des Werts für {key}: {err}")
             return None
 
-    def _update_from_coordinator(self) -> None:
-        """Aktualisiert den Sensorzustand aus den Coordinator-Daten."""
-        pass  # Keine zusätzlichen Updates nötig
-
-# Hilfsfunktionen
 def guess_device_class(key: str) -> Optional[str]:
-    """Bestimmt die Device Class basierend auf dem Sensor-Key."""
+    """Bestimme die Device Class."""
     key_upper = key.upper()
     if key_upper in TEXT_VALUE_SENSORS or any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW", "MOVING", "RUNNING"]):
         return None
@@ -258,7 +234,7 @@ def guess_device_class(key: str) -> Optional[str]:
     return None
 
 def guess_state_class(key: str) -> Optional[str]:
-    """Bestimmt die State Class basierend auf dem Sensor-Key."""
+    """Bestimme die State Class."""
     key_upper = key.upper()
     if key_upper in TEXT_VALUE_SENSORS or any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW", "MOVING", "RUNNING"]):
         return None
@@ -274,7 +250,7 @@ def guess_state_class(key: str) -> Optional[str]:
     return SensorStateClass.MEASUREMENT
 
 def guess_icon(key: str) -> str:
-    """Bestimmt ein Icon basierend auf dem Sensor-Key."""
+    """Bestimme ein Icon."""
     klower = key.lower()
     if "temp" in klower or "therm" in klower or "cpu_temp" in klower:
         return "mdi:thermometer"
@@ -325,7 +301,7 @@ def guess_icon(key: str) -> str:
     return "mdi:information"
 
 def guess_entity_category(key: str) -> Optional[str]:
-    """Bestimmt die Entity-Kategorie basierend auf dem Sensor-Key."""
+    """Bestimme die Entity-Kategorie."""
     klower = key.lower()
     if any(x in klower for x in ["system", "cpu", "memory", "fw", "version", "load", "uptime", "serial", "rcode", "romcode", "runtime", "time", "hw_"]):
         return EntityCategory.DIAGNOSTIC
@@ -338,13 +314,12 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback
 ) -> None:
-    """Richtet Violet Pool Sensoren aus einer Config Entry ein."""
+    """Richte Sensoren ein."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
     active_features = config_entry.options.get(CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, []))
     available_data_keys = set(coordinator.data.keys())
     sensors: List[VioletSensor] = []
 
-    # 1. Temperatur-Sensoren
     for key, sensor_info in TEMP_SENSORS.items():
         if key not in available_data_keys:
             continue
@@ -364,7 +339,6 @@ async def async_setup_entry(
         )
         sensors.append(VioletSensor(coordinator, config_entry, description))
 
-    # 2. Wasserchemie-Sensoren
     for key, sensor_info in WATER_CHEM_SENSORS.items():
         if key not in available_data_keys:
             continue
@@ -374,8 +348,7 @@ async def async_setup_entry(
             continue
         device_class = guess_device_class(key)
         unit = None if device_class == SensorDeviceClass.PH else sensor_info["unit"]
-        key_upper = key.upper()
-        is_numeric = key_upper not in TEXT_VALUE_SENSORS and not any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW", "MOVING", "RUNNING"]) and "_REMAINING_RANGE" not in key_upper
+        is_numeric = key.upper() not in TEXT_VALUE_SENSORS
         description = VioletSensorEntityDescription(
             key=key,
             name=sensor_info["name"],
@@ -388,7 +361,6 @@ async def async_setup_entry(
         )
         sensors.append(VioletSensor(coordinator, config_entry, description))
 
-    # 3. Analog-Sensoren
     for key, sensor_info in ANALOG_SENSORS.items():
         if key not in available_data_keys:
             continue
@@ -396,8 +368,7 @@ async def async_setup_entry(
         if feature_id and feature_id not in active_features:
             _LOGGER.debug(f"Sensor {key} übersprungen, da Feature {feature_id} inaktiv.")
             continue
-        key_upper = key.upper()
-        is_numeric = key_upper not in TEXT_VALUE_SENSORS and not any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW", "MOVING", "RUNNING"]) and "_REMAINING_RANGE" not in keyframes_upper
+        is_numeric = key.upper() not in TEXT_VALUE_SENSORS
         description = VioletSensorEntityDescription(
             key=key,
             name=sensor_info["name"],
@@ -410,7 +381,6 @@ async def async_setup_entry(
         )
         sensors.append(VioletSensor(coordinator, config_entry, description))
 
-    # 4. Dynamische Sensoren
     excluded_keys = {"date", "time", "CURRENT_TIME_UNIX"}
     for key in available_data_keys:
         if key in TEMP_SENSORS or key in WATER_CHEM_SENSORS or key in ANALOG_SENSORS or key in excluded_keys:
@@ -421,7 +391,7 @@ async def async_setup_entry(
             continue
         name = key.replace('_', ' ').title()
         key_upper = key.upper()
-        is_text_sensor = key_upper in TEXT_VALUE_SENSORS or any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW", "MOVING", "RUNNING", "_OMNI_", "DELAY_"]) or "_REMAINING_RANGE" in key_upper
+        is_text_sensor = key_upper in TEXT_VALUE_SENSORS
         unit = None if (is_text_sensor or key in NO_UNIT_SENSORS) else UNIT_MAP.get(key)
         if guess_device_class(key) == SensorDeviceClass.TEMPERATURE and not unit:
             unit = "°C"
@@ -438,7 +408,6 @@ async def async_setup_entry(
         )
         sensors.append(VioletSensor(coordinator, config_entry, description))
 
-    # 5. Dosierungs-Sensoren
     dosing_keys = {
         "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": "Chlor Tagesdosierung",
         "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML": "pH- Tagesdosierung",
@@ -453,8 +422,7 @@ async def async_setup_entry(
         if feature_id and feature_id not in active_features:
             _LOGGER.debug(f"Sensor {key} übersprungen, da Feature {feature_id} inaktiv.")
             continue
-        key_upper = key.upper()
-        is_numeric = key_upper not in TEXT_VALUE_SENSORS and not any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW", "MOVING", "RUNNING"]) and "_REMAINING_RANGE" not in key_upper
+        is_numeric = key.upper() not in TEXT_VALUE_SENSORS
         description = VioletSensorEntityDescription(
             key=key,
             name=name,
@@ -466,7 +434,6 @@ async def async_setup_entry(
         )
         sensors.append(VioletSensor(coordinator, config_entry, description))
 
-    # 6. System-Sensoren
     system_sensors = {
         "CPU_TEMP": {"name": "CPU Temperatur", "icon": "mdi:cpu-64-bit", "device_class": SensorDeviceClass.TEMPERATURE, "unit": "°C"},
         "CPU_TEMP_CARRIER": {"name": "Carrier CPU Temperatur", "icon": "mdi:cpu-64-bit", "device_class": SensorDeviceClass.TEMPERATURE, "unit": "°C"},
@@ -483,8 +450,7 @@ async def async_setup_entry(
     for key, info in system_sensors.items():
         if key not in available_data_keys or key in created_sensor_keys:
             continue
-        key_upper = key.upper()
-        is_text_sensor = key_upper in TEXT_VALUE_SENSORS or any(pattern in key_upper for pattern in ["VERSION", "TIME", "UPTIME", "GOV", "MOVING", "RUNNING", "DELAY", "OMNI"]) or "_REMAINING_RANGE" in key_upper
+        is_text_sensor = key.upper() in TEXT_VALUE_SENSORS
         description = VioletSensorEntityDescription(
             key=key,
             name=info["name"],

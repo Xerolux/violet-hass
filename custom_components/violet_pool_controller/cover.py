@@ -23,7 +23,6 @@ from .device import VioletPoolDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-# Status-Mapping für verschiedene API-Werte
 COVER_STATE_MAP: Final[Dict[str, str]] = {
     "CLOSED": "closed",
     "OPEN": "open",
@@ -55,12 +54,7 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
         coordinator: VioletPoolDataUpdateCoordinator,
         config_entry: ConfigEntry
     ):
-        """Initialisiert die Cover-Entity.
-
-        Args:
-            coordinator: Der Daten-Koordinator
-            config_entry: Die Config Entry des Geräts
-        """
+        """Initialisiert die Cover-Entity."""
         entity_description = VioletCoverEntityDescription(
             key="COVER_STATE",
             name="Cover",
@@ -70,10 +64,6 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
         super().__init__(coordinator, config_entry, entity_description)
         self._last_action = None
         self._last_response = None
-
-    def _update_from_coordinator(self) -> None:
-        """Aktualisiert den Zustand der Cover-Entity anhand der Coordinator-Daten."""
-        pass  # Dynamische Berechnung in Properties
 
     @property
     def is_closed(self) -> bool:
@@ -126,11 +116,7 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
         await self._send_cover_command("STOP")
 
     async def _send_cover_command(self, action: str) -> None:
-        """Sendet einen Befehl an das Cover.
-
-        Args:
-            action: Die Aktion für das Cover: "OPEN", "CLOSE" oder "STOP"
-        """
+        """Sendet einen Befehl an das Cover."""
         try:
             self._logger.debug("Sende Cover-Befehl: %s", action)
             self._last_action = action
@@ -165,19 +151,13 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback
 ) -> None:
-    """Richtet die Cover-Entity basierend auf der Config Entry ein.
-
-    Args:
-        hass: Home Assistant Instanz
-        config_entry: Die Config Entry
-        async_add_entities: Callback zum Hinzufügen der Entities
-    """
+    """Richtet die Cover-Entity basierend auf der Config Entry ein."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
     active_features = config_entry.options.get(
         CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
     )
-    if "COVER_STATE" in coordinator.data:
+    if "cover_control" in active_features and "COVER_STATE" in coordinator.data:
         async_add_entities([VioletCover(coordinator, config_entry)])
         _LOGGER.info("Pool-Abdeckungssteuerung hinzugefügt")
     else:
-        _LOGGER.info("Keine Cover-Daten gefunden, Cover wird nicht hinzugefügt")
+        _LOGGER.info("Cover-Control-Feature nicht aktiviert oder keine Cover-Daten gefunden")

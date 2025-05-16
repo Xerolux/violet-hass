@@ -13,8 +13,6 @@ from homeassistant.helpers.entity import EntityCategory
 
 from .const import (
     DOMAIN,
-    INTEGRATION_VERSION,
-    MANUFACTURER,
     SWITCHES,
     STATE_MAP,
     DOSING_FUNCTIONS,
@@ -26,13 +24,11 @@ from .device import VioletPoolDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-# Benutzerdefinierte Switch-Beschreibung
 @dataclass
 class VioletSwitchEntityDescription(SwitchEntityDescription):
     """Beschreibt die Violet Pool Switch-Entitäten."""
     feature_id: Optional[str] = None
 
-# Haupt-Switch-Klasse
 class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
     """Repräsentation eines Violet Pool Controller Switches."""
     entity_description: VioletSwitchEntityDescription
@@ -84,7 +80,6 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         """Sendet einen Befehl an das Gerät im ursprünglichen Format."""
         try:
             key = self.entity_description.key
-            # Ursprüngliches Command-Format: "key,action,duration,last_value"
             command_str = f"{key},{action},{value},0"
             result = await self.device.async_send_command(
                 endpoint=API_SET_FUNCTION_MANUALLY,
@@ -95,26 +90,6 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         except Exception as err:
             _LOGGER.error(f"Fehler beim Senden von {action} für {key}: {err}")
 
-    async def _manual_dosing(self, duration_seconds: int) -> None:
-        """Führt eine manuelle Dosierung aus."""
-        try:
-            dosing_type = next(
-                (k for k, v in DOSING_FUNCTIONS.items() if v == self.entity_description.key), None
-            )
-            if not dosing_type:
-                _LOGGER.error(f"Switch {self.entity_description.key} ist kein Dosierungs-Switch.")
-                return
-            command_str = f"{self.entity_description.key},MAN,{duration_seconds},0"
-            result = await self.device.async_send_command(
-                endpoint=API_SET_FUNCTION_MANUALLY,
-                command=command_str
-            )
-            _LOGGER.info(f"Manuelle Dosierung für {dosing_type} ({duration_seconds}s): {result}")
-            await self.coordinator.async_request_refresh()
-        except Exception as err:
-            _LOGGER.error(f"Fehler bei der manuellen Dosierung: {err}")
-
-# Spezielle Klasse für PV-Überschuss
 class VioletPVSurplusSwitch(VioletSwitch):
     """Spezial-Switch für PV-Überschuss-Funktionalität."""
 
@@ -135,18 +110,13 @@ class VioletPVSurplusSwitch(VioletSwitch):
 
     async def async_turn_on(self, **kwargs) -> None:
         """Aktiviert den PV-Überschussmodus."""
-        pump_speed = kwargs.get("pump_speed", 2)  # Standardwert 2
+        pump_speed = kwargs.get("pump_speed", 2)
         await self._send_command("ON", pump_speed)
 
     async def async_turn_off(self, **kwargs) -> None:
         """Deaktiviert den PV-Überschussmodus."""
         await self._send_command("OFF")
 
-    async def _send_with_pump_speed(self, pump_speed: int) -> None:
-        """Aktiviert den PV-Überschussmodus mit einer bestimmten Pumpendrehzahl."""
-        await self.async_turn_on(pump_speed=pump_speed)
-
-# Setup-Funktion
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: ConfigEntry,
@@ -155,50 +125,32 @@ async def async_setup_entry(
     """Richtet die Switches basierend auf der Config-Entry ein."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
     available_data_keys = set(coordinator.data.keys())
+    active_features = config_entry.options.get(
+        CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
+    )
     switches: List[VioletSwitch] = []
 
-    # Standard-Switches erstellen (Feature-Check deaktiviert)
     for sw in SWITCHES:
         key = sw["key"]
         if key not in available_data_keys:
+            continue
+        feature_id = sw.get("feature_id")
+        if feature_id and feature_id not in active_features:
             continue
         entity_category = EntityCategory.CONFIG if key.startswith("DOS_") else None
         description = VioletSwitchEntityDescription(
             key=key,
             name=sw["name"],
             icon=sw["icon"],
-            feature_id=None,  # Feature-ID nicht verwendet
+            feature_id=feature_id,
             entity_category=entity_category,
         )
         switches.append(VioletSwitch(coordinator, config_entry, description))
 
-    # PV-Surplus-Switch hinzufügen, wenn in den Daten vorhanden (Feature-Check deaktiviert)
-    if "PVSURPLUS" in available_data_keys:
+    if "pv_surplus" in active_features and "PVSURPLUS" in available_data_keys:
         switches.append(VioletPVSurplusSwitch(coordinator, config_entry))
 
     if switches:
         async_add_entities(switches)
-        platform = entity_platform.async_get_current_platform()
-
-        # Service für AUTO-Modus
-        platform.async_register_entity_service(
-            "turn_auto",
-            {vol.Optional("auto_delay", default=0): vol.All(vol.Coerce(int), vol.Range(min=0, max=3600))},
-            "async_turn_auto",
-        )
-
-        # Service für PV-Überschuss mit Pumpendrehzahl
-        platform.async_register_entity_service(
-            "set_pv_surplus",
-            {vol.Required("pump_speed"): vol.All(vol.Coerce(int), vol.Range(min=1, max=3))},
-            "_send_with_pump_speed",
-        )
-
-        # Service für manuelle Dosierung
-        platform.async_register_entity_service(
-            "manual_dosing",
-            {vol.Required("duration_seconds"): vol.All(vol.Coerce(int), vol.Range(min=1, max=3600))},
-            "_manual_dosing",
-        )
     else:
         _LOGGER.info("Keine Switches gefunden oder keine aktiven Switch-Features konfiguriert.")

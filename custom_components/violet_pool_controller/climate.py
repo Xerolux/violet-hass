@@ -11,56 +11,46 @@ from homeassistant.components.climate import (
     ClimateEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (
-    ATTR_TEMPERATURE,
-    UnitOfTemperature,
-)
+from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import (
-    DOMAIN,
-    CONF_ACTIVE_FEATURES,
-)
+from .const import DOMAIN, CONF_ACTIVE_FEATURES
 from .entity import VioletPoolControllerEntity
 from .device import VioletPoolDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-# HVAC-Modus-Mapping für verschiedene API-Zustände
 HEATER_HVAC_MODES: Final[Dict[int, str]] = {
-    0: HVACMode.AUTO,  # AUTO (nicht an)
-    1: HVACMode.AUTO,  # AUTO (an)
-    2: HVACMode.AUTO,  # AUS durch Regelregel
-    3: HVACMode.AUTO,  # EIN durch Notfallregel
-    4: HVACMode.HEAT,  # MANUAL ON
-    5: HVACMode.AUTO,  # AUS durch Notfallregel
-    6: HVACMode.OFF,   # MANUAL OFF
+    0: HVACMode.AUTO,
+    1: HVACMode.AUTO,
+    2: HVACMode.AUTO,
+    3: HVACMode.AUTO,
+    4: HVACMode.HEAT,
+    5: HVACMode.AUTO,
+    6: HVACMode.OFF,
 }
 
-# HVAC-Aktion-Mapping für verschiedene API-Zustände
 HEATER_HVAC_ACTIONS: Final[Dict[int, str]] = {
-    0: HVACAction.IDLE,     # AUTO (nicht an)
-    1: HVACAction.HEATING,  # AUTO (an)
-    2: HVACAction.IDLE,     # AUS durch Regelregel
-    3: HVACAction.HEATING,  # EIN durch Notfallregel
-    4: HVACAction.HEATING,  # MANUAL ON
-    5: HVACAction.IDLE,     # AUS durch Notfallregel
-    6: HVACAction.OFF,      # MANUAL OFF
+    0: HVACAction.IDLE,
+    1: HVACAction.HEATING,
+    2: HVACAction.IDLE,
+    3: HVACAction.HEATING,
+    4: HVACAction.HEATING,
+    5: HVACAction.IDLE,
+    6: HVACAction.OFF,
 }
 
-# Feature-IDs für die verschiedenen Climate-Typen
 CLIMATE_FEATURE_MAP: Final[Dict[str, str]] = {
     "HEATER": "heating",
     "SOLAR": "solar",
 }
 
-# Sensorkeys für die Wassertemperatur
 WATER_TEMP_SENSORS: Final[List[str]] = [
-    "onewire1_value",    # Standardsensor
-    "water_temp",        # Alternative
-    "WATER_TEMPERATURE", # Alternative
-    "temp_value",        # Alternative
+    "onewire1_value",
+    "water_temp",
+    "WATER_TEMPERATURE",
+    "temp_value",
 ]
 
 @dataclass
@@ -70,8 +60,6 @@ class VioletClimateEntityDescription(ClimateEntityDescription):
 
 class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
     """Repräsentiert die Heizungs- oder Absorbersteuerung des Violet Pool Controllers."""
-
-    # Klassen-Attribute für Climate-Features
     _attr_temperature_unit: ClassVar[str] = UnitOfTemperature.CELSIUS
     _attr_supported_features: ClassVar[int] = ClimateEntityFeature.TARGET_TEMPERATURE
     _attr_hvac_modes: ClassVar[List[str]] = [HVACMode.OFF, HVACMode.HEAT, HVACMode.AUTO]
@@ -85,37 +73,29 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         self,
         coordinator: VioletPoolDataUpdateCoordinator,
         config_entry: ConfigEntry,
-        climate_type: str,  # "HEATER" oder "SOLAR"
-    ):
-        """Initialisiere die Climate-Entity."""
+        climate_type: str,
+    ) -> None:
+        """Initialisiere die Climate-Entity.
+
+        Args:
+            coordinator: Daten-Koordinator.
+            config_entry: Config Entry.
+            climate_type: "HEATER" oder "SOLAR".
+        """
         self.climate_type = climate_type
-        
-        # Name und Icon basierend auf climate_type festlegen
         name = "Heizung" if climate_type == "HEATER" else "Solarabsorber"
         icon = "mdi:radiator" if climate_type == "HEATER" else "mdi:solar-power"
-        
-        # Feature-ID aus Mapping holen
         feature_id = CLIMATE_FEATURE_MAP.get(climate_type)
-        
-        # EntityDescription erstellen
+
         self.entity_description = VioletClimateEntityDescription(
             key=climate_type,
             name=name,
             icon=icon,
             feature_id=feature_id,
         )
-        
-        # Basisklasse initialisieren
-        super().__init__(
-            coordinator=coordinator,
-            config_entry=config_entry,
-            entity_description=self.entity_description,
-        )
-        
-        # Initialen Zustand setzen
+        super().__init__(coordinator=coordinator, config_entry=config_entry, entity_description=self.entity_description)
         self._attr_target_temperature = self._get_target_temperature()
         self._attr_hvac_mode = self._get_hvac_mode()
-        
         _LOGGER.debug(
             "Climate-Entität für %s initialisiert mit Target: %.1f°C, Modus: %s",
             self.climate_type,
@@ -151,10 +131,15 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             value = self.get_float_value(sensor_key, None)
             if value is not None:
                 return value
+        _LOGGER.debug("Keine Wassertemperatur gefunden in %s", WATER_TEMP_SENSORS)
         return None
 
-    async def async_set_temperature(self, **kwargs) -> None:
-        """Setze die Zieltemperatur."""
+    async def async_set_temperature(self, **kwargs: Any) -> None:
+        """Setze die Zieltemperatur.
+
+        Args:
+            **kwargs: Enthält ATTR_TEMPERATURE.
+        """
         temperature = kwargs.get(ATTR_TEMPERATURE)
         if temperature is None:
             return
@@ -167,16 +152,14 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             return
 
         try:
-            temperature = round(temperature, 1)
+            # Kein Runden, um genaue Werte zu übernehmen
             _LOGGER.info(
                 "Setze %s Zieltemperatur auf %.1f°C",
                 "Heizung" if self.climate_type == "HEATER" else "Solar",
                 temperature
             )
-            
             command = {"type": self.climate_type, "temperature": temperature}
             result = await self.device.async_send_command("/set_temperature", command)
-            
             if isinstance(result, dict) and result.get("success", False):
                 self._attr_target_temperature = temperature
                 self.async_write_ha_state()
@@ -187,7 +170,11 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             _LOGGER.error("Fehler beim Setzen der Temperatur: %s", err)
 
     async def async_set_hvac_mode(self, hvac_mode: str) -> None:
-        """Setze den HVAC-Modus (OFF, HEAT, AUTO)."""
+        """Setze den HVAC-Modus.
+
+        Args:
+            hvac_mode: "OFF", "HEAT" oder "AUTO".
+        """
         try:
             action = {
                 HVACMode.HEAT: "ON",
@@ -204,10 +191,8 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                 "Heizung" if self.climate_type == "HEATER" else "Solar",
                 action
             )
-            
             command = {"id": self.climate_type, "action": action, "duration": 0}
             result = await self.device.async_send_command("/set_switch", command)
-            
             if isinstance(result, dict) and result.get("success", False):
                 self._attr_hvac_mode = hvac_mode
                 self.async_write_ha_state()
@@ -222,7 +207,13 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback
 ) -> None:
-    """Richte Climate-Entities basierend auf dem Config-Entry ein."""
+    """Richte Climate-Entities ein.
+
+    Args:
+        hass: Home Assistant Instanz.
+        config_entry: Config Entry.
+        async_add_entities: Callback zum Hinzufügen von Entities.
+    """
     coordinator = hass.data[DOMAIN][config_entry.entry_id]
     entities = []
 

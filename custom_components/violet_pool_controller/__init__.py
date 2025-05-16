@@ -1,12 +1,12 @@
 """Initialisierung der Violet Pool Controller Integration."""
 import logging
 import asyncio
-from typing import Any, Dict, List, Set, Final, Optional, cast
+from typing import Any, Dict, List, Set, Final, Optional
 
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, ServiceCall, callback
+from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import aiohttp_client, entity_registry
 from homeassistant.helpers.typing import ConfigType
 import homeassistant.helpers.config_validation as cv
@@ -44,53 +44,57 @@ PLATFORMS: Final[List[str]] = [
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Richte die Violet Pool Controller Integration ein (YAML-Konfiguration)."""
+    """Richte die Integration via YAML ein (veraltet).
+
+    Args:
+        hass: Home Assistant Instanz.
+        config: Konfigurationsdaten aus YAML.
+
+    Returns:
+        bool: True bei Erfolg, False sonst.
+    """
     if DOMAIN in config:
         _LOGGER.warning(
             "Die YAML-Konfiguration für %s ist nicht unterstützt. "
-            "Bitte nutze stattdessen die UI-Konfiguration (Einstellungen -> Integrationen).",
+            "Bitte nutze die UI-Konfiguration (Einstellungen -> Integrationen).",
             DOMAIN
         )
     hass.data.setdefault(DOMAIN, {})
     return True
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Setze einen Violet Pool Controller via Config Entry auf."""
+    """Setze die Integration via Config Entry auf.
+
+    Args:
+        hass: Home Assistant Instanz.
+        entry: Config Entry mit Gerätekonfiguration.
+
+    Returns:
+        bool: True bei Erfolg, False sonst.
+
+    Raises:
+        HomeAssistantError: Bei Setup-Fehlern.
+    """
     _LOGGER.info("Setting up Violet Pool Controller integration (entry_id=%s)", entry.entry_id)
 
-    # Hole Konfigurationsfelder
     ip_address = entry.data.get(CONF_API_URL, entry.data.get("base_ip", "127.0.0.1"))
     use_ssl = entry.data.get(CONF_USE_SSL, True)
     device_id = entry.data.get(CONF_DEVICE_ID, 1)
-    username = entry.data.get(CONF_USERNAME) or ""
-    password = entry.data.get(CONF_PASSWORD) or ""
+    username = entry.data.get(CONF_USERNAME, "")
+    password = entry.data.get(CONF_PASSWORD, "")
     device_name = entry.data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
 
-    # Options mit Fallback zu data
     polling_interval = int(
-        entry.options.get(
-            CONF_POLLING_INTERVAL, 
-            entry.data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
-        )
+        entry.options.get(CONF_POLLING_INTERVAL, entry.data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL))
     )
     timeout_duration = int(
-        entry.options.get(
-            CONF_TIMEOUT_DURATION, 
-            entry.data.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)
-        )
+        entry.options.get(CONF_TIMEOUT_DURATION, entry.data.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION))
     )
     retry_attempts = int(
-        entry.options.get(
-            CONF_RETRY_ATTEMPTS, 
-            entry.data.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)
-        )
+        entry.options.get(CONF_RETRY_ATTEMPTS, entry.data.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS))
     )
-    active_features = entry.options.get(
-        CONF_ACTIVE_FEATURES, 
-        entry.data.get(CONF_ACTIVE_FEATURES, [])
-    )
+    active_features = entry.options.get(CONF_ACTIVE_FEATURES, entry.data.get(CONF_ACTIVE_FEATURES, []))
 
-    # Logging-Konfiguration (ohne sensible Daten)
     sanitized_config = {
         "ip_address": ip_address,
         "use_ssl": use_ssl,
@@ -103,7 +107,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "retry_attempts": retry_attempts,
         "active_features": active_features,
     }
-    _LOGGER.debug("Final config (entry_id=%s) => %s", entry.entry_id, sanitized_config)
+    _LOGGER.info("Final config (entry_id=%s) => %s", entry.entry_id, sanitized_config)
 
     try:
         session = aiohttp_client.async_get_clientsession(hass)
@@ -130,7 +134,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         raise HomeAssistantError(f"Fehler beim Einrichten des Violet Pool Controllers: {err}") from err
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Entferne einen Violet Pool Controller Config Entry."""
+    """Entferne die Integration.
+
+    Args:
+        hass: Home Assistant Instanz.
+        entry: Config Entry zum Entladen.
+
+    Returns:
+        bool: True bei Erfolg, False sonst.
+    """
     try:
         unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
         if unload_ok and DOMAIN in hass.data and entry.entry_id in hass.data[DOMAIN]:
@@ -142,12 +154,15 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         return False
 
 def register_services(hass: HomeAssistant) -> None:
-    """Registriere zusätzliche Services für die Integration."""
+    """Registriere Services für die Integration.
+
+    Args:
+        hass: Home Assistant Instanz.
+    """
     if hass.services.has_service(DOMAIN, "set_temperature_target"):
         _LOGGER.debug("Services für %s sind bereits registriert", DOMAIN)
         return
 
-    # Aktualisierte Service-Schemas mit entity_ids als Liste
     SET_TEMPERATURE_TARGET_SCHEMA = vol.Schema({
         vol.Required("entity_ids"): cv.entity_ids,
         vol.Required("temperature"): vol.All(vol.Coerce(float), vol.Range(min=20, max=40)),
@@ -178,7 +193,11 @@ def register_services(hass: HomeAssistant) -> None:
     })
 
     async def async_handle_set_temperature_target(call: ServiceCall) -> None:
-        """Service-Handler zum Einstellen der Solltemperatur für mehrere Entitäten."""
+        """Setze die Zieltemperatur für mehrere Entitäten.
+
+        Args:
+            call: ServiceCall mit entity_ids und temperature.
+        """
         entity_ids = call.data.get("entity_ids", [])
         temperature = call.data.get("temperature")
 
@@ -196,9 +215,14 @@ def register_services(hass: HomeAssistant) -> None:
                 _LOGGER.info("Zieltemperatur für %s auf %.1f°C gesetzt", entity_id, temperature)
             except Exception as err:
                 _LOGGER.error("Fehler beim Setzen der Zieltemperatur für %s: %s", entity_id, err)
+                raise HomeAssistantError(f"Fehler beim Setzen der Zieltemperatur für {entity_id}: {err}")
 
     async def async_handle_set_ph_target(call: ServiceCall) -> None:
-        """Service-Handler zum Einstellen des pH-Sollwerts für mehrere Entitäten."""
+        """Setze den pH-Sollwert für mehrere Entitäten.
+
+        Args:
+            call: ServiceCall mit entity_ids und target_value.
+        """
         entity_ids = call.data.get("entity_ids", [])
         target_value = call.data.get("target_value")
 
@@ -216,9 +240,14 @@ def register_services(hass: HomeAssistant) -> None:
                 _LOGGER.info("pH-Sollwert für %s auf %.1f gesetzt", entity_id, target_value)
             except Exception as err:
                 _LOGGER.error("Fehler beim Setzen des pH-Sollwerts für %s: %s", entity_id, err)
+                raise HomeAssistantError(f"Fehler beim Setzen des pH-Sollwerts für {entity_id}: {err}")
 
     async def async_handle_set_chlorine_target(call: ServiceCall) -> None:
-        """Service-Handler zum Einstellen des Chlor-Sollwerts für mehrere Entitäten."""
+        """Setze den Chlor-Sollwert für mehrere Entitäten.
+
+        Args:
+            call: ServiceCall mit entity_ids und target_value.
+        """
         entity_ids = call.data.get("entity_ids", [])
         target_value = call.data.get("target_value")
 
@@ -236,9 +265,14 @@ def register_services(hass: HomeAssistant) -> None:
                 _LOGGER.info("Chlor-Sollwert für %s auf %.1f mg/l gesetzt", entity_id, target_value)
             except Exception as err:
                 _LOGGER.error("Fehler beim Setzen des Chlor-Sollwerts für %s: %s", entity_id, err)
+                raise HomeAssistantError(f"Fehler beim Setzen des Chlor-Sollwerts für {entity_id}: {err}")
 
     async def async_handle_trigger_backwash(call: ServiceCall) -> None:
-        """Service-Handler zum Auslösen einer Rückspülung für mehrere Entitäten."""
+        """Löse eine Rückspülung für mehrere Entitäten aus.
+
+        Args:
+            call: ServiceCall mit entity_ids und optional duration.
+        """
         entity_ids = call.data.get("entity_ids", [])
         duration = call.data.get("duration", 0)
 
@@ -259,9 +293,15 @@ def register_services(hass: HomeAssistant) -> None:
                     hass.async_create_task(delayed_turn_off(entity_id, duration))
             except Exception as err:
                 _LOGGER.error("Fehler beim Starten der Rückspülung für %s: %s", entity_id, err)
+                raise HomeAssistantError(f"Fehler beim Starten der Rückspülung für {entity_id}: {err}")
 
     async def delayed_turn_off(entity_id: str, duration: int) -> None:
-        """Verzögerte Ausschaltung eines Switches."""
+        """Schalte einen Switch nach Verzögerung aus.
+
+        Args:
+            entity_id: ID der Entität.
+            duration: Verzögerung in Sekunden.
+        """
         try:
             await asyncio.sleep(duration)
             await hass.services.async_call(
@@ -275,11 +315,15 @@ def register_services(hass: HomeAssistant) -> None:
             _LOGGER.error("Fehler bei automatischer Abschaltung von %s: %s", entity_id, err)
 
     async def async_handle_start_water_analysis(call: ServiceCall) -> None:
-        """Service-Handler zum Starten des Wasseranalyse-Modus für mehrere Geräte."""
+        """Starte die Wasseranalyse für mehrere Geräte.
+
+        Args:
+            call: ServiceCall mit entity_ids.
+        """
         entity_ids = call.data.get("entity_ids", [])
         if not entity_ids:
             _LOGGER.error("Keine entity_ids angegeben")
-            return
+            raise HomeAssistantError("Keine entity_ids angegeben")
 
         registry = entity_registry.async_get(hass)
         coordinators = set()
@@ -302,14 +346,19 @@ def register_services(hass: HomeAssistant) -> None:
                 await coordinator.async_request_refresh()
             except Exception as err:
                 _LOGGER.error("Fehler beim Starten der Wasseranalyse für %s: %s", coordinator.device.name, err)
+                raise HomeAssistantError(f"Fehler beim Starten der Wasseranalyse für {coordinator.device.name}: {err}")
 
     async def async_handle_set_maintenance_mode(call: ServiceCall) -> None:
-        """Service-Handler zum Ein-/Ausschalten des Wartungsmodus für mehrere Geräte."""
+        """Setze den Wartungsmodus für mehrere Geräte.
+
+        Args:
+            call: ServiceCall mit entity_ids und enable.
+        """
         entity_ids = call.data.get("entity_ids", [])
         enable = call.data.get("enable", True)
         if not entity_ids:
             _LOGGER.error("Keine entity_ids angegeben")
-            return
+            raise HomeAssistantError("Keine entity_ids angegeben")
 
         registry = entity_registry.async_get(hass)
         coordinators = set()
@@ -337,43 +386,25 @@ def register_services(hass: HomeAssistant) -> None:
                 await coordinator.async_request_refresh()
             except Exception as err:
                 _LOGGER.error("Fehler beim Setzen des Wartungsmodus für %s: %s", coordinator.device.name, err)
+                raise HomeAssistantError(f"Fehler beim Setzen des Wartungsmodus für {coordinator.device.name}: {err}")
 
-    # Registriere die Services
     hass.services.async_register(
-        DOMAIN,
-        "set_temperature_target",
-        async_handle_set_temperature_target,
-        schema=SET_TEMPERATURE_TARGET_SCHEMA,
+        DOMAIN, "set_temperature_target", async_handle_set_temperature_target, schema=SET_TEMPERATURE_TARGET_SCHEMA
     )
     hass.services.async_register(
-        DOMAIN,
-        "set_ph_target",
-        async_handle_set_ph_target,
-        schema=SET_PH_TARGET_SCHEMA,
+        DOMAIN, "set_ph_target", async_handle_set_ph_target, schema=SET_PH_TARGET_SCHEMA
     )
     hass.services.async_register(
-        DOMAIN,
-        "set_chlorine_target",
-        async_handle_set_chlorine_target,
-        schema=SET_CHLORINE_TARGET_SCHEMA,
+        DOMAIN, "set_chlorine_target", async_handle_set_chlorine_target, schema=SET_CHLORINE_TARGET_SCHEMA
     )
     hass.services.async_register(
-        DOMAIN,
-        "trigger_backwash",
-        async_handle_trigger_backwash,
-        schema=TRIGGER_BACKWASH_SCHEMA,
+        DOMAIN, "trigger_backwash", async_handle_trigger_backwash, schema=TRIGGER_BACKWASH_SCHEMA
     )
     hass.services.async_register(
-        DOMAIN,
-        "start_water_analysis",
-        async_handle_start_water_analysis,
-        schema=START_WATER_ANALYSIS_SCHEMA,
+        DOMAIN, "start_water_analysis", async_handle_start_water_analysis, schema=START_WATER_ANALYSIS_SCHEMA
     )
     hass.services.async_register(
-        DOMAIN,
-        "set_maintenance_mode",
-        async_handle_set_maintenance_mode,
-        schema=SET_MAINTENANCE_MODE_SCHEMA,
+        DOMAIN, "set_maintenance_mode", async_handle_set_maintenance_mode, schema=SET_MAINTENANCE_MODE_SCHEMA
     )
 
     _LOGGER.info("Services für %s registriert", DOMAIN)

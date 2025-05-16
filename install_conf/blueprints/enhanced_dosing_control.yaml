@@ -1,0 +1,136 @@
+blueprint:
+  name: Automatic Dosing Based on Water Quality
+  description: Monitors water quality and activates dosing if values are out of range.
+  domain: automation
+  input:
+    ph_sensor:
+      name: pH Sensor
+      description: Sensor for pH value.
+      selector:
+        entity:
+          domain: sensor
+    chlorine_sensor:
+      name: Chlorine Sensor
+      description: Sensor for chlorine level.
+      selector:
+        entity:
+          domain: sensor
+    redox_sensor:
+      name: Redox Sensor
+      description: Sensor for redox potential.
+      selector:
+        entity:
+          domain: sensor
+    dosing_switch:
+      name: Dosing Switch
+      description: Switch to activate dosing.
+      selector:
+        entity:
+          domain: switch
+    ph_min:
+      name: Minimum pH Value
+      description: Minimum acceptable pH value.
+      default: 7.0
+      selector:
+        number:
+          min: 0
+          max: 14
+          step: 0.1
+    ph_max:
+      name: Maximum pH Value
+      description: Maximum acceptable pH value.
+      default: 7.4
+      selector:
+        number:
+          min: 0
+          max: 14
+          step: 0.1
+    chlorine_min:
+      name: Minimum Chlorine Level
+      description: Minimum acceptable chlorine level (mg/l).
+      default: 0.5
+      selector:
+        number:
+          min: 0
+          max: 10
+          step: 0.1
+    chlorine_max:
+      name: Maximum Chlorine Level
+      description: Maximum acceptable chlorine level (mg/l).
+      default: 1.5
+      selector:
+        number:
+          min: 0
+          max: 10
+          step: 0.1
+    redox_min:
+      name: Minimum Redox Potential
+      description: Minimum acceptable redox potential (mV).
+      default: 650
+      selector:
+        number:
+          min: 0
+          max: 1000
+          step: 10
+    redox_max:
+      name: Maximum Redox Potential
+      description: Maximum acceptable redox potential (mV).
+      default: 750
+      selector:
+        number:
+          min: 0
+          max: 1000
+          step: 10
+    enable_notifications:
+      name: Enable Notifications
+      description: Send notifications when dosing is activated or values are critical.
+      default: false
+      selector:
+        boolean:
+    notification_service:
+      name: Notification Service
+      description: Service to use for notifications.
+      default: persistent_notification.create
+      selector:
+        text:
+
+trigger:
+  - platform: numeric_state
+    entity_id: !input ph_sensor
+    below: !input ph_min
+    id: "ph_low"
+  - platform: numeric_state
+    entity_id: !input ph_sensor
+    above: !input ph_max
+    id: "ph_high"
+  - platform: numeric_state
+    entity_id: !input chlorine_sensor
+    below: !input chlorine_min
+    id: "chlorine_low"
+  - platform: numeric_state
+    entity_id: !input chlorine_sensor
+    above: !input chlorine_max
+    id: "chlorine_high"
+  - platform: numeric_state
+    entity_id: !input redox_sensor
+    below: !input redox_min
+    id: "redox_low"
+  - platform: numeric_state
+    entity_id: !input redox_sensor
+    above: !input redox_max
+    id: "redox_high"
+
+action:
+  - service: switch.turn_on
+    target:
+      entity_id: !input dosing_switch
+  - if:
+      - condition: template
+        value_template: "{{ enable_notifications }}"
+    then:
+      - service: "{{ notification_service }}"
+        data:
+          title: "Dosing Activated"
+          message: "Dosing activated due to {{ trigger.id }}."
+
+mode: single

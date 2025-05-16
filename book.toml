@@ -3,25 +3,22 @@ title = "Violet Pool Controller Documentation"
 author = "Xerolux"
 description = "Comprehensive documentation for the Violet Pool Controller integration and configuration."
 multilingual = false
-src = "src"  # VERY IMPORTANT: Tell mdbook where your source files are.
+src = "src"  # Source directory for documentation files
 
 [build]
-build-dir = "book"  # Use the default 'book' directory.
+build-dir = "book"  # Output directory for the built book
 create-missing = true
 use-default-preprocessors = true
 
 [output.html]
-# theme = "light"  <-- REMOVE THIS LINE. Use default theme.
-# default-theme = "light" <-- REMOVE THIS LINE.  Not needed.
 no-section-label = false
-additional-css = []  # Keep this if you HAVE a custom.css
-additional-js = []
-# google-analytics = ["UA-XXXXXX-1"] # Optional: Add your GA tracking ID
+additional-css = []  # Include custom CSS files here if needed
+additional-js = []   # Include custom JS files here if needed
 favicons = [
     { rel = "icon", href = "favicon.ico" }
 ]
-git-repository-url = "https://github.com/Xerolux/violet-hass" # Add a link to your repository
-git-repository-icon = "fa-github"  #  Use a FontAwesome icon
+git-repository-url = "https://github.com/Xerolux/violet-hass"  # Link to the GitHub repository
+git-repository-icon = "fa-github"  # FontAwesome icon for GitHub
 
 [output.html.fold]
 enable = true

@@ -9,33 +9,82 @@
                     "username": "Username",
                     "password": "Password",
                     "polling_interval": "Polling Interval (seconds)",
+                    "timeout_duration": "Timeout Duration (seconds)",
+                    "retry_attempts": "Retry Attempts",
                     "use_ssl": "Use SSL",
                     "device_name": "Device Name",
-                    "device_id": "Device ID",
-                    "retry_attempts": "Retry Attempts"
+                    "device_id": "Device ID"
+                }
+            },
+            "pool_setup": {
+                "title": "Configure Pool Settings",
+                "description": "Configure the basic settings for your pool with {device_name}",
+                "data": {
+                    "pool_size": "Pool Size (m³)",
+                    "pool_type": "Pool Type",
+                    "disinfection_method": "Disinfection Method"
+                }
+            },
+            "feature_selection": {
+                "title": "Select Features",
+                "description": "Select the features you want to use with {device_name}",
+                "data": {
+                    "heating": "Heating",
+                    "solar": "Solar Absorber",
+                    "ph_control": "pH Control",
+                    "chlorine_control": "Chlorine Control",
+                    "cover_control": "Cover Control",
+                    "backwash": "Backwash",
+                    "pv_surplus": "PV Surplus",
+                    "water_level": "Water Level",
+                    "water_refill": "Water Refill",
+                    "led_lighting": "LED Lighting"
                 }
             }
         },
         "error": {
-            "invalid_auth": "Incorrect username or password.",
+            "invalid_auth": "Invalid username or password.",
             "cannot_connect": "Unable to connect to the server.",
             "unknown": "An unknown error occurred.",
-            "Firmware version not found. Please check your device configuration.": "Firmware version not found. Please check your device configuration.",
-            "Invalid firmware version format. Please update your device firmware.": "Invalid firmware version format. Please update your device firmware."
-
+            "base": "Configuration error, please check your inputs.",
+            "Invalid IP address": "The entered IP address is invalid.",
+            "Firmware data missing in API response.": "Firmware data missing in API response.",
+            "Invalid firmware version": "Invalid firmware version format. Please update your device firmware.",
+            "Timeout during connection": "Timeout during connection to the device.",
+            "Connection error": "Could not establish connection to the controller.",
+            "Error in API response": "Invalid response from the controller.",
+            "Invalid configuration": "The configuration is invalid.",
+            "Authentication error. Please check username and password.": "Authentication error. Please check username and password.",
+            "API endpoint not found. Please check the URL.": "API endpoint not found. Please check the URL.",
+            "Invalid pool size": "The entered pool size is invalid."
         }
     },
     "options": {
         "step": {
-            "user": {
+            "init": {
                 "title": "Violet Pool Controller Options",
                 "description": "Change the settings for your Violet Pool Controller.",
                 "data": {
-                    "username": "Username",
-                    "password": "Password",
                     "polling_interval": "Polling Interval (seconds)",
-                    "use_ssl": "Use SSL",
-                    "retry_attempts": "Retry Attempts"
+                    "timeout_duration": "Timeout Duration (seconds)",
+                    "retry_attempts": "Retry Attempts",
+                    "go_to_features": "Go to Features"
+                }
+            },
+            "features": {
+                "title": "Manage Features",
+                "description": "Enable or disable features for {device_name}",
+                "data": {
+                    "heating": "Heating",
+                    "solar": "Solar Absorber",
+                    "ph_control": "pH Control",
+                    "chlorine_control": "Chlorine Control",
+                    "cover_control": "Cover Control",
+                    "backwash": "Backwash",
+                    "pv_surplus": "PV Surplus",
+                    "water_level": "Water Level",
+                    "water_refill": "Water Refill",
+                    "led_lighting": "LED Lighting"
                 }
             }
         }
@@ -49,44 +98,141 @@
                 }
             },
             "violet_light": {
-                "state":{
+                "state": {
+                    "on": "On",
+                    "off": "Off"
+                }
+            },
+            "violet_heater": {
+                "state": {
+                    "on": "On",
+                    "off": "Off"
+                }
+            },
+            "violet_solar": {
+                "state": {
+                    "on": "On",
+                    "off": "Off"
+                }
+            },
+            "violet_backwash": {
+                "state": {
+                    "on": "On",
+                    "off": "Off"
+                }
+            },
+            "violet_dos_1_cl": {
+                "state": {
+                    "on": "On",
+                    "off": "Off"
+                }
+            },
+            "violet_dos_4_phm": {
+                "state": {
+                    "on": "On",
+                    "off": "Off"
+                }
+            },
+            "violet_dos_5_php": {
+                "state": {
+                    "on": "On",
+                    "off": "Off"
+                }
+            },
+            "violet_pvsurplus": {
+                "state": {
                     "on": "On",
                     "off": "Off"
                 }
             }
-
         },
-        "binary_sensor":{
-            "violet_pump":{
-                "state":{
+        "binary_sensor": {
+            "violet_pump": {
+                "state": {
                     "on": "On",
                     "off": "Off"
                 }
             },
-            "violet_solar":{
-                "state":{
+            "violet_solar": {
+                "state": {
                     "on": "On",
                     "off": "Off"
                 }
             },
-            "violet_heater":{
-                "state":{
+            "violet_heater": {
+                "state": {
                     "on": "On",
                     "off": "Off"
                 }
             },
-           "violet_light":{
-                "state":{
+            "violet_light": {
+                "state": {
                     "on": "On",
                     "off": "Off"
                 }
+            },
+            "violet_cover_is_closed": {
+                "state": {
+                    "on": "Closed",
+                    "off": "Open"
+                }
+            },
+            "violet_pvsurplus": {
+                "state": {
+                    "on": "Active",
+                    "off": "Inactive"
+                }
+            }
+        },
+        "cover": {
+            "violet_cover": {
+                "state": {
+                    "open": "Open",
+                    "opening": "Opening",
+                    "closed": "Closed",
+                    "closing": "Closing",
+                    "stopped": "Stopped"
+                }
+            }
+        },
+        "climate": {
+            "violet_heater": {
+                "state": {
+                    "heat": "Heating",
+                    "off": "Off",
+                    "auto": "Auto"
+                }
+            },
+            "violet_solar": {
+                "state": {
+                    "heat": "Heating",
+                    "off": "Off",
+                    "auto": "Auto"
+                }
+            }
+        },
+        "number": {
+            "violet_ph_setpoint": {
+                "name": "pH Setpoint"
+            },
+            "violet_chlorine_setpoint": {
+                "name": "Redox Setpoint"
+            },
+            "violet_min_chlorine_level": {
+                "name": "Min Chlorine Level"
+            },
+            "violet_max_chlorine_level_day": {
+                "name": "Max Chlorine Level Day"
+            },
+            "violet_max_chlorine_level_night": {
+                "name": "Max Chlorine Level Night"
             }
         }
     },
     "services": {
         "turn_auto": {
             "name": "Set to Auto Mode",
-            "description": "Sets the switch to auto mode with custom delay and last value.",
+            "description": "Sets a switch to auto mode.",
             "fields": {
                 "entity_id": {
                     "name": "Entity ID",
@@ -94,40 +240,137 @@
                 },
                 "auto_delay": {
                     "name": "Auto Delay",
-                    "description": "The delay time for auto mode."
-                },
-                "last_value": {
-                    "name": "Last Value",
-                    "description": "The last value to set for the switch."
+                    "description": "The delay time for auto mode in seconds (0-3600)."
                 }
             }
         },
-        "turn_on":{
-            "name": "Turn On",
-            "description": "Turns the switch on, optionally with a duration.",
-             "fields": {
+        "set_pv_surplus": {
+            "name": "Set PV Surplus",
+            "description": "Activates the PV surplus mode with a specific pump speed.",
+            "fields": {
                 "entity_id": {
                     "name": "Entity ID",
-                    "description": "The ID of the entity to control."
+                    "description": "The ID of the PV surplus switch."
+                },
+                "pump_speed": {
+                    "name": "Pump Speed",
+                    "description": "The speed level of the pump (1-3)."
+                }
+            }
+        },
+        "manual_dosing": {
+            "name": "Manual Dosing",
+            "description": "Performs a manual dosing for the specified duration.",
+            "fields": {
+                "entity_id": {
+                    "name": "Entity ID",
+                    "description": "The ID of the dosing switch."
+                },
+                "duration_seconds": {
+                    "name": "Duration in Seconds",
+                    "description": "The duration of the dosing in seconds (1-3600)."
+                }
+            }
+        },
+        "set_temperature_target": {
+            "name": "Set Target Temperature",
+            "description": "Sets the target temperature for heating or solar absorber.",
+            "fields": {
+                "entity_id": {
+                    "name": "Entity ID",
+                    "description": "The ID of the climate entity."
+                },
+                "temperature": {
+                    "name": "Temperature",
+                    "description": "The target temperature in °C (20-40)."
+                }
+            }
+        },
+        "set_ph_target": {
+            "name": "Set pH Target",
+            "description": "Sets the pH target for dosing.",
+            "fields": {
+                "entity_id": {
+                    "name": "Entity ID",
+                    "description": "The ID of the pH target entity."
+                },
+                "target_value": {
+                    "name": "Target Value",
+                    "description": "The desired pH target value (6.8-7.8)."
+                }
+            }
+        },
+        "set_chlorine_target": {
+            "name": "Set Chlorine Target",
+            "description": "Sets the chlorine target (as redox value) for dosing.",
+            "fields": {
+                "entity_id": {
+                    "name": "Entity ID",
+                    "description": "The ID of the chlorine target entity."
+                },
+                "target_value": {
+                    "name": "Target Value",
+                    "description": "The desired chlorine target value in mg/l (0.1-3.0)."
+                }
+            }
+        },
+        "trigger_backwash": {
+            "name": "Trigger Backwash",
+            "description": "Starts a manual backwash process.",
+            "fields": {
+                "entity_id": {
+                    "name": "Entity ID",
+                    "description": "The ID of the backwash switch."
                 },
                 "duration": {
                     "name": "Duration",
-                    "description": "The duration to turn on for in seconds."
-                },
-                "last_value": {
-                    "name": "Last Value",
-                    "description": "The last value before turning off."
+                    "description": "The duration of the backwash in seconds (0-900). Use 0 to end manually."
                 }
             }
         },
-        "turn_off":{
-            "name": "Turn Off",
-            "description": "Turns the switch off.",
-            "fields":{
-                "entity_id":{
+        "start_water_analysis": {
+            "name": "Start Water Analysis",
+            "description": "Starts a water analysis process.",
+            "fields": {
+                "entity_id": {
                     "name": "Entity ID",
-                    "description": "The ID of the entity to control."
+                    "description": "Optional: The ID of an entity to identify the device."
                 }
+            }
+        },
+        "set_maintenance_mode": {
+            "name": "Set Maintenance Mode",
+            "description": "Enables or disables maintenance mode.",
+            "fields": {
+                "entity_id": {
+                    "name": "Entity ID",
+                    "description": "Optional: The ID of an entity to identify the device."
+                },
+                "enable": {
+                    "name": "Enable",
+                    "description": "Whether to enable (true) or disable (false) maintenance mode."
+                }
+            }
+        }
+    },
+    "selector": {
+        "pool_type": {
+            "options": {
+                "outdoor": "Outdoor Pool",
+                "indoor": "Indoor Pool",
+                "whirlpool": "Whirlpool",
+                "natural": "Natural Pool",
+                "combination": "Combination"
+            }
+        },
+        "disinfection_method": {
+            "options": {
+                "chlorine": "Chlorine",
+                "salt": "Salt Electrolysis",
+                "bromine": "Bromine",
+                "active_oxygen": "Active Oxygen",
+                "uv": "UV Disinfection",
+                "ozone": "Ozone Disinfection"
             }
         }
     }

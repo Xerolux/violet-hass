@@ -71,7 +71,7 @@ Configuration is done entirely through the Home Assistant UI. After installation
 3. Search for "Violet Pool Controller" and select it
 4. A configuration dialog will appear. Enter the following information:
 
-   * **Host:** The IP address or hostname of your Violet Pool Controller (e.g., `192.168.1.100`). *Do not* include `http://` or `https://`
+   * **Host:** The IP address or hostname of your Violet Pool Controller (e.g., `192.168.1.100`). ***Do not include `http://` or `https://`***
    * **Username:** Your Violet Pool Controller username (if authentication is enabled). Leave blank if not required
    * **Password:** Your Violet Pool Controller password (if authentication is enabled). Leave blank if not required
    * **Use SSL:** Check this box if your Violet Pool Controller uses HTTPS (SSL/TLS) for secure communication. Leave unchecked for HTTP
@@ -298,7 +298,7 @@ VIOLET provides notifications (email, push, HTTP request) for errors, and its br
 
 ## Changelog
 
-A detailed changelog will be created when the project is officially published.
+A detailed changelog will be created upon official release. For now, refer to the [GitHub releases page][releases] for version history and updates.
 
 ## Credits
 

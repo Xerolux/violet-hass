@@ -91,6 +91,24 @@ views:
                 from: 3
                 to: 5
                 
+          - type: custom:mushroom-gauge-card
+            entity: sensor.pool_redox
+            name: Redox
+            icon: mdi:flash
+            layout: vertical
+            max: 1000
+            min: 0
+            segments:
+              - color: '#f44336'
+                from: 0
+                to: 600
+              - color: '#4caf50'
+                from: 600
+                to: 850
+              - color: '#f44336'
+                from: 850
+                to: 1000
+                
       # Historische Daten für Wasserqualität
       - type: custom:mushroom-template-card
         primary: Wasserqualität Historie
@@ -120,6 +138,11 @@ views:
             color: '#f44336'
             stroke_width: 2
             y_axis_id: chlorine
+          - entity: sensor.pool_redox
+            name: Redox
+            color: '#ffa726'
+            stroke_width: 2
+            y_axis_id: redox
         yaxis:
           - id: default
             min: 15
@@ -141,6 +164,13 @@ views:
             apex_config:
               title:
                 text: "ppm"
+          - id: redox
+            min: 0
+            max: 1000
+            opposite: true
+            apex_config:
+              title:
+                text: "mV"
       
       # Pumpe, Beleuchtung und Heizung
       - type: horizontal-stack
@@ -168,7 +198,15 @@ views:
             layout: vertical
             tap_action:
               action: toggle
-      
+              
+          - type: custom:mushroom-entity-card
+            entity: cover.pool_cover
+            name: Abdeckung
+            icon: mdi:window-shutter
+            layout: vertical
+            tap_action:
+              action: toggle
+              
       # Aktionen und Automatisierungen
       - type: vertical-stack
         cards:
@@ -201,6 +239,37 @@ views:
               service: script.turn_on
               service_data:
                 entity_id: script.pool_shock_treatment
+                
+          - type: custom:button-card
+            name: Wasseranalyse
+            icon: mdi:water-check
+            color: auto
+            styles:
+              card:
+                - border-radius: 12px
+                - padding: 12px
+                - "--ha-card-background": "rgba(76, 175, 80, 0.1)"
+            tap_action:
+              action: call-service
+              service: violet_pool_controller.start_water_analysis
+              service_data:
+                entity_id: sensor.pool_ph
+          
+          - type: custom:button-card
+            name: Wartungsmodus
+            icon: mdi:tools
+            color: auto
+            styles:
+              card:
+                - border-radius: 12px
+                - padding: 12px
+                - "--ha-card-background": "rgba(255, 193, 7, 0.1)"
+            tap_action:
+              action: call-service
+              service: violet_pool_controller.set_maintenance_mode
+              service_data:
+                entity_id: switch.pool_pump
+                enable: true
                 
       # Zeitpläne
       - type: entities
@@ -302,6 +371,16 @@ views:
               - max
             period: month
             
+          - type: statistics-graph
+            title: Langzeittrends Redox-Potential
+            entities:
+              - sensor.pool_redox
+            stat_types:
+              - min
+              - mean
+              - max
+            period: month
+            
           - type: horizontal-stack
             cards:
               - type: custom:mini-graph-card
@@ -347,6 +426,7 @@ views:
           - input_number.pool_target_temperature
           - input_number.pool_target_ph
           - input_number.pool_target_chlorine
+          - input_number.pool_target_redox
           
       - type: entities
         title: Benachrichtigungen
@@ -362,6 +442,8 @@ views:
           - automation.pool_heater_control
           - automation.pool_chemical_alert
           - automation.pool_weather_based_adjustment
+          - automation.pool_cover_rain_protection
+          - automation.pool_dosing_based_on_values
           
       - type: entities
         title: Sensorkalibrierung
@@ -369,6 +451,7 @@ views:
           - input_number.pool_temp_calibration
           - input_number.pool_ph_calibration
           - input_number.pool_chlorine_calibration
+          - input_number.pool_redox_calibration
         footer:
           type: buttons
           entities:
