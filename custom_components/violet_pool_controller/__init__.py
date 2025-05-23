@@ -7,10 +7,11 @@ import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
-from homeassistant.helpers import aiohttp_client, entity_registry
+from homeassistant.helpers import aiohttp_client, entity_registry, service
 from homeassistant.helpers.typing import ConfigType
 import homeassistant.helpers.config_validation as cv
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.const import DOMAIN_SWITCH # Added for turn_auto
 
 from .const import (
     DOMAIN,
@@ -405,6 +406,153 @@ def register_services(hass: HomeAssistant) -> None:
     )
     hass.services.async_register(
         DOMAIN, "set_maintenance_mode", async_handle_set_maintenance_mode, schema=SET_MAINTENANCE_MODE_SCHEMA
+    )
+
+    TURN_AUTO_SCHEMA = vol.Schema({
+        vol.Optional("auto_delay", default=0): vol.All(vol.Coerce(int), vol.Range(min=0, max=86400)),
+    })
+
+    async def async_handle_turn_auto(call: ServiceCall) -> None:
+        """Schalte einen Switch in den Automatikmodus mit optionaler Verzögerung für manuellen Override.
+
+        Args:
+            call: ServiceCall mit entity_ids (via target) und optional auto_delay.
+        """
+        auto_delay = call.data.get("auto_delay", 0)
+        # entity_ids are extracted based on the 'target' field in services.yaml
+        target_entity_ids = await service.extract_entity_ids(hass, call)
+
+        switch_platform = hass.data.get(DOMAIN_SWITCH)
+        if not switch_platform:
+            _LOGGER.error("Switch platform not loaded, cannot handle turn_auto service.")
+            return
+
+        for entity_id in target_entity_ids:
+            entity_object = next((e for e in switch_platform.entities if e.entity_id == entity_id), None)
+
+            if entity_object and hasattr(entity_object, 'async_turn_auto'):
+                try:
+                    _LOGGER.debug(f"Calling async_turn_auto for {entity_id} with delay {auto_delay}s")
+                    await entity_object.async_turn_auto(auto_delay=auto_delay)
+                    _LOGGER.info(f"Successfully called turn_auto for {entity_id} with delay {auto_delay}s")
+                except Exception as e:
+                    _LOGGER.error(f"Error calling async_turn_auto for {entity_id}: {e}", exc_info=True)
+            elif not entity_object:
+                _LOGGER.warning(f"Could not find switch entity with ID {entity_id} to call turn_auto.")
+            else: # Entity found, but no async_turn_auto method
+                _LOGGER.warning(f"Switch entity {entity_id} does not have an async_turn_auto method.")
+    
+    hass.services.async_register(
+        DOMAIN, "turn_auto", async_handle_turn_auto, schema=TURN_AUTO_SCHEMA
+    )
+
+    SET_PV_SURPLUS_SCHEMA = vol.Schema({
+        vol.Required("pump_speed"): vol.All(vol.Coerce(int), vol.Range(min=1, max=3)),
+    })
+
+    async def async_handle_set_pv_surplus(call: ServiceCall) -> None:
+        """Aktiviere den PV-Überschussmodus für einen Switch und setze die Pumpengeschwindigkeit.
+
+        Args:
+            call: ServiceCall mit entity_ids (via target) und pump_speed.
+        """
+        pump_speed = call.data["pump_speed"] # Schema makes it required
+        target_entity_ids = await service.extract_entity_ids(hass, call)
+
+        switch_platform = hass.data.get(DOMAIN_SWITCH)
+        if not switch_platform:
+            _LOGGER.error("Switch platform not loaded, cannot handle set_pv_surplus service.")
+            return
+
+        for entity_id in target_entity_ids:
+            entity_object = next((e for e in switch_platform.entities if e.entity_id == entity_id), None)
+
+            if entity_object and hasattr(entity_object, 'entity_description') and hasattr(entity_object, 'async_turn_on'):
+                # Check if this is the PVSURPLUS switch by its entity_description key
+                if getattr(entity_object.entity_description, 'key', None) == "PVSURPLUS":
+                    try:
+                        _LOGGER.debug(f"Calling async_turn_on for PV Surplus switch {entity_id} with pump_speed {pump_speed}")
+                        # The async_turn_on method of VioletPVSurplusSwitch should handle the pump_speed
+                        await entity_object.async_turn_on(pump_speed=pump_speed) 
+                        _LOGGER.info(f"Successfully set PV surplus for {entity_id} with pump_speed {pump_speed}")
+                    except Exception as e:
+                        _LOGGER.error(f"Error calling async_turn_on for PV surplus switch {entity_id}: {e}", exc_info=True)
+                else:
+                    _LOGGER.warning(f"Entity {entity_id} is not the PV Surplus switch. Ignoring for set_pv_surplus.")
+            elif not entity_object:
+                _LOGGER.warning(f"Could not find switch entity with ID {entity_id} to call set_pv_surplus.")
+            elif not hasattr(entity_object, 'entity_description'):
+                _LOGGER.warning(f"Switch entity {entity_id} does not have an entity_description. Cannot verify if it's PV Surplus switch.")
+            else: # Entity found, but no async_turn_on method
+                _LOGGER.warning(f"Switch entity {entity_id} (PVSURPLUS) does not have an async_turn_on method.")
+
+    hass.services.async_register(
+        DOMAIN, "set_pv_surplus", async_handle_set_pv_surplus, schema=SET_PV_SURPLUS_SCHEMA
+    )
+
+    MANUAL_DOSING_SCHEMA = vol.Schema({
+        vol.Required("duration_seconds"): vol.All(vol.Coerce(int), vol.Range(min=1, max=3600)),
+    })
+
+    async def async_handle_manual_dosing(call: ServiceCall) -> None:
+        """Löse eine manuelle Dosierung für eine bestimmte Dosiereinheit aus.
+
+        Args:
+            call: ServiceCall mit entity_ids (via target) und duration_seconds.
+        """
+        duration_seconds = call.data["duration_seconds"] # Schema makes it required
+        target_entity_ids = await service.extract_entity_ids(hass, call)
+        
+        ent_reg = entity_registry.async_get(hass)
+        switch_platform = hass.data.get(DOMAIN_SWITCH)
+
+        if not switch_platform:
+            _LOGGER.error("Switch platform not loaded, cannot handle manual_dosing service.")
+            return
+
+        for entity_id in target_entity_ids:
+            entity_object = next((e for e in switch_platform.entities if e.entity_id == entity_id), None)
+            
+            if not entity_object:
+                _LOGGER.warning(f"Could not find switch entity with ID {entity_id} for manual_dosing.")
+                continue
+
+            if not hasattr(entity_object, 'entity_description') or not hasattr(entity_object.entity_description, 'key'):
+                _LOGGER.warning(f"Switch entity {entity_id} does not have a valid entity_description.key for manual_dosing.")
+                continue
+            
+            dosing_key = entity_object.entity_description.key
+
+            entity_entry = ent_reg.async_get(entity_id)
+            if not entity_entry:
+                _LOGGER.warning(f"Could not find entity registry entry for {entity_id}.")
+                continue
+            
+            config_entry_id = entity_entry.config_entry_id
+            if not config_entry_id or config_entry_id not in hass.data[DOMAIN]:
+                _LOGGER.warning(f"Could not find config entry ID or coordinator for {entity_id}.")
+                continue
+                
+            coordinator = hass.data[DOMAIN][config_entry_id]
+            device = coordinator.device
+
+            if device and hasattr(device, 'async_manual_dosing'):
+                try:
+                    _LOGGER.debug(f"Calling async_manual_dosing for {dosing_key} (entity: {entity_id}) for {duration_seconds}s on device {device.device_name}")
+                    success = await device.async_manual_dosing(dosing_key=dosing_key, duration_seconds=duration_seconds)
+                    if success:
+                        _LOGGER.info(f"Manual dosing for {dosing_key} (entity: {entity_id}) for {duration_seconds}s successfully triggered.")
+                    else:
+                        _LOGGER.error(f"Manual dosing for {dosing_key} (entity: {entity_id}) for {duration_seconds}s failed. Check device logs.")
+                except Exception as e:
+                    _LOGGER.error(f"Error calling async_manual_dosing for {dosing_key} (entity: {entity_id}): {e}", exc_info=True)
+            elif not device:
+                 _LOGGER.warning(f"Device not found for entity {entity_id} (coordinator: {coordinator.name}).")
+            else: # device found, but no async_manual_dosing method
+                _LOGGER.warning(f"Device {device.device_name} for entity {entity_id} does not have an async_manual_dosing method.")
+
+    hass.services.async_register(
+        DOMAIN, "manual_dosing", async_handle_manual_dosing, schema=MANUAL_DOSING_SCHEMA
     )
 
     _LOGGER.info("Services für %s registriert", DOMAIN)

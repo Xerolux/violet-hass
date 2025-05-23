@@ -130,7 +130,7 @@ class VioletPoolAPI:
             _LOGGER.error("Verbindungsfehler zu %s: %s", self.host, err)
             raise VioletPoolConnectionError(f"Verbindungsfehler zu {self.host}: {err}") from err
         except Exception as err:
-            _LOGGER.error("Unerwarteter Fehler bei API-Anfrage: %s", err)
+            _LOGGER.exception("Unerwarteter Fehler bei API-Anfrage:")
             raise VioletPoolAPIError(f"Unerwarteter Fehler: {err}") from err
 
     async def get_readings(self, query: str = "ALL") -> Dict[str, Any]:
