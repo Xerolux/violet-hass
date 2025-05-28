@@ -27,47 +27,52 @@ from .const import (
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_TIMEOUT_DURATION,
     DEFAULT_RETRY_ATTEMPTS,
-    API_SET_FUNCTION_MANUALLY,
-    API_SET_DOSING_PARAMETERS,
-    API_SET_TARGET_VALUES,
+    # API_SET_FUNCTION_MANUALLY, # No longer used directly by device.py for commands
+    # API_SET_DOSING_PARAMETERS, # No longer used directly by device.py for commands
+    # API_SET_TARGET_VALUES, # No longer used directly by device.py for commands
 )
+from .api import VioletPoolAPI # Import VioletPoolAPI
 
 _LOGGER = logging.getLogger(__name__)
 
 class VioletPoolControllerDevice:
     """Repräsentiert ein Violet Pool Controller Gerät."""
 
-    def __init__(self, hass: HomeAssistant, config_entry: ConfigEntry) -> None:
+    def __init__(self, hass: HomeAssistant, config_entry: ConfigEntry, api: VioletPoolAPI) -> None:
         """Initialisiere die Geräteinstanz.
 
         Args:
             hass: Home Assistant Instanz.
             config_entry: Konfigurationseintrag.
+            api: Instanz der VioletPoolAPI für die Befehlskommunikation.
         """
         self.hass = hass
         self.config_entry = config_entry
+        self.api = api  # Store the API instance
         self._available = False
+        # _session is still needed for _fetch_api_data (updates)
         self._session = async_get_clientsession(hass)
         self._data: Dict[str, Any] = {}
         self._device_info: Dict[str, Any] = {}
         self._firmware_version: Optional[str] = None
         self._last_error: Optional[str] = None
-        self._api_lock = asyncio.Lock()
+        self._api_lock = asyncio.Lock() # This lock is for _fetch_api_data
 
         self.entry_data = config_entry.data
-        self.api_url = self.entry_data.get("base_ip")
-        self.use_ssl = self.entry_data.get(CONF_USE_SSL, True)
+        self.api_url = self.entry_data.get("base_ip") # Still needed for display and potentially _fetch_api_data
+        self.use_ssl = self.entry_data.get(CONF_USE_SSL, True) # Still needed for _fetch_api_data
         self.device_id = self.entry_data.get(CONF_DEVICE_ID, 1)
         self.device_name = self.entry_data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
-        self.username = self.entry_data.get(CONF_USERNAME)
-        self.password = self.entry_data.get(CONF_PASSWORD)
+        self.username = self.entry_data.get(CONF_USERNAME) # Still needed for _fetch_api_data
+        self.password = self.entry_data.get(CONF_PASSWORD) # Still needed for _fetch_api_data
 
         options = config_entry.options
         self.polling_interval = int(options.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL))
-        self.timeout_duration = int(options.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION))
-        self.retry_attempts = int(options.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS))
+        self.timeout_duration = int(options.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)) # Used by _fetch_api_data
+        self.retry_attempts = int(options.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)) # Used by _fetch_api_data
         self.active_features = options.get(CONF_ACTIVE_FEATURES, [])
 
+        # api_base_url, api_readings_url, and auth are still needed for _fetch_api_data
         protocol = "https" if self.use_ssl else "http"
         self.api_base_url = f"{protocol}://{self.api_url}"
         self.api_readings_url = f"{self.api_base_url}{API_READINGS}?ALL"
@@ -187,66 +192,9 @@ class VioletPoolControllerDevice:
             processed["ph_value"] = round(float(processed["ph_value"]), 2)
         return processed
 
-    async def async_send_command(self, endpoint: str, command: Dict[str, Any], retries: int = 3) -> Dict[str, Any]:
-        """Sende einen Befehl an das Gerät.
-
-        Args:
-            endpoint: API-Endpunkt.
-            command: Befehlsdaten.
-            retries: Wiederholungen.
-        """
-        url = f"{self.api_base_url}{endpoint}"
-        raw_query = {
-            API_SET_FUNCTION_MANUALLY: f"{command.get('id', '')},{command.get('action', '')},{command.get('duration', 0)},{command.get('value', 0)}",
-            "/set_switch": f"{command.get('id', '')},{command.get('action', '')},{command.get('duration', 0)},{command.get('value', 0)}",
-            "/set_temperature": f"{command.get('type', '')},{command.get('temperature', 0)}",
-            API_SET_TARGET_VALUES: f"{command.get('target_type', '')},{command.get('value', 0)}",
-            "/set_cover": f"{command.get('action', '')}",
-            API_SET_DOSING_PARAMETERS: f"{command.get('dosing_type', '')},{command.get('parameter_name', '')},{command.get('value', '')}",
-            "/startWaterAnalysis": ""
-        }.get(endpoint)
-        if raw_query is not None:
-            url += f"?{raw_query}"
-
-        for attempt in range(retries):
-            try:
-                async with async_timeout.timeout(self.timeout_duration):
-                    async with self._session.get(url, auth=self.auth, ssl=self.use_ssl) as response:
-                        response.raise_for_status()
-                        content_type = response.headers.get("Content-Type", "")
-                        if "application/json" in content_type:
-                            return await response.json()
-                        text = await response.text()
-                        try:
-                            return json.loads(text)
-                        except json.JSONDecodeError:
-                            return {"success": "OK" in text.upper() or "SUCCESS" in text.upper(), "raw_response": text}
-            except Exception as e:
-                if attempt + 1 == retries:
-                    raise
-                await asyncio.sleep(2 ** attempt)
-        raise RuntimeError(f"Fehler bei async_send_command für {url}")
-
-    async def async_set_swimming_pool_temperature(self, temperature: float) -> bool:
-        """Setze die Pool-Temperatur."""
-        try:
-            command = {"type": "HEATER", "temperature": float(temperature)}
-            result = await self.async_send_command("/set_temperature", command)
-            return result.get("success", False)
-        except Exception as e:
-            _LOGGER.error("Temperatur setzen fehlgeschlagen: %s", e)
-            return False
-
-    async def async_set_switch_state(self, switch_id: str, state: bool) -> bool:
-        """Setze den Schalterzustand."""
-        try:
-            action = "ON" if state else "OFF"
-            command = {"id": switch_id, "action": action, "duration": 0, "value": 0}
-            result = await self.async_send_command("/set_switch", command)
-            return result.get("success", False)
-        except Exception as e:
-            _LOGGER.error("Schalter %s setzen fehlgeschlagen: %s", switch_id, e)
-            return False
+    # Removed async_send_command
+    # Removed async_set_swimming_pool_temperature
+    # Removed async_set_switch_state
 
     def is_feature_active(self, feature_id: str) -> bool:
         """Prüfe, ob ein Feature aktiv ist."""
@@ -268,16 +216,20 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self) -> Dict[str, Any]:
         """Aktualisiere die Daten."""
         try:
+            # This calls self.device.async_update() which uses the device's own _fetch_api_data
             return await self.device.async_update()
         except Exception as e:
-            self.device._available = False
-            raise UpdateFailed(str(e))
+            # self.device._available is set within self.device.async_update() on error
+            _LOGGER.error("Fehler beim Aktualisieren der Daten für %s: %s", self.device.name, e)
+            raise UpdateFailed(f"Fehler beim Aktualisieren der Daten für {self.device.name}: {e}")
 
-async def async_setup_device(hass: HomeAssistant, config_entry: ConfigEntry) -> Optional[VioletPoolDataUpdateCoordinator]:
-    """Richte das Gerät ein."""
-    device = VioletPoolControllerDevice(hass, config_entry)
-    if not await device.async_setup():
-        raise ConfigEntryNotReady(f"Setup fehlgeschlagen: {device.last_error}")
+
+async def async_setup_device(hass: HomeAssistant, config_entry: ConfigEntry, api: VioletPoolAPI) -> Optional[VioletPoolDataUpdateCoordinator]:
+    """Richte das Gerät ein und erstelle den Koordinator."""
+    device = VioletPoolControllerDevice(hass, config_entry, api) # Pass API instance
+    if not await device.async_setup(): # This calls device.async_update()
+        raise ConfigEntryNotReady(f"Setup für {device.device_name} fehlgeschlagen: {device.last_error}")
+
     coordinator = VioletPoolDataUpdateCoordinator(hass, device, config_entry)
     await coordinator.async_config_entry_first_refresh()
     if not coordinator.last_update_success:

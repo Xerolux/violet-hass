@@ -13,8 +13,10 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import EntityCategory
+from homeassistant.exceptions import HomeAssistantError # Import HomeAssistantError
 
-from .const import DOMAIN, CONF_ACTIVE_FEATURES
+from .const import DOMAIN, CONF_ACTIVE_FEATURES, API_SET_TARGET_VALUES, API_SET_DOSING_PARAMETERS # Import API endpoint constants
+from .api import VioletPoolAPIError, VioletPoolConnectionError, VioletPoolCommandError # Import API errors
 from .entity import VioletPoolControllerEntity
 from .device import VioletPoolDataUpdateCoordinator
 
@@ -45,10 +47,11 @@ SETPOINT_DEFINITIONS: Final = [
 @dataclass
 class VioletNumberEntityDescription(NumberEntityDescription):
     """Beschreibung der Violet Pool Number-Entities."""
-    api_key: Optional[str] = None
-    api_endpoint: Optional[str] = None
-    parameter: Optional[str] = None
+    api_key: Optional[str] = None # This is the target_type or parameter_name for the API
+    api_endpoint: Optional[str] = None # e.g. API_SET_TARGET_VALUES or API_SET_DOSING_PARAMETERS
+    parameter: Optional[str] = None # Original field, seems redundant if api_key is used as API parameter name
     feature_id: Optional[str] = None
+    dosing_type: Optional[str] = None # For API_SET_DOSING_PARAMETERS
 
 class VioletNumberEntity(VioletPoolControllerEntity, NumberEntity):
     """Repräsentiert einen Sollwert im Violet Pool Controller."""
@@ -69,10 +72,11 @@ class VioletNumberEntity(VioletPoolControllerEntity, NumberEntity):
             device_class=definition.get("device_class"),
             native_unit_of_measurement=definition.get("unit_of_measurement"),
             entity_category=definition.get("entity_category"),
-            api_key=definition.get("api_key"),
+            api_key=definition.get("api_key"), # This will be the target_type or parameter_name
             api_endpoint=definition.get("api_endpoint"),
-            parameter=definition.get("parameter"),
+            parameter=definition.get("parameter"), # Potentially for display name or context, if different from api_key
             feature_id=definition.get("feature_id"),
+            dosing_type=definition.get("dosing_type"), # Get dosing_type
         )
         super().__init__(coordinator, config_entry, description)
         self._attr_native_min_value = definition["min_value"]
@@ -100,6 +104,8 @@ class VioletNumberEntity(VioletPoolControllerEntity, NumberEntity):
                 self._attr_native_value
             )
 
+    # Removed _update_from_coordinator method
+
     def _get_current_value(self) -> Optional[float]:
         """Ermittle den aktuellen Wert aus den Coordinator-Daten."""
         setpoint_fields = self._definition.get("setpoint_fields", [])
@@ -114,37 +120,73 @@ class VioletNumberEntity(VioletPoolControllerEntity, NumberEntity):
     async def async_set_native_value(self, value: float) -> None:
         """Setze den neuen Wert im Gerät."""
         try:
-            api_key = self.entity_description.api_key
-            api_endpoint = self.entity_description.api_endpoint
-            if not api_key or not api_endpoint:
-                _LOGGER.error(
-                    "API-Key oder Endpunkt fehlt für %s",
-                    self.entity_id
-                )
+            api_key_for_call = self.entity_description.api_key or self.entity_description.key # Fallback to key if api_key is not set
+            current_api_endpoint = self.entity_description.api_endpoint
+
+            if not api_key_for_call:
+                _LOGGER.error("API-Key (target_type/parameter_name) fehlt für Number-Entity %s", self.entity_id)
                 return
+            if not current_api_endpoint:
+                _LOGGER.error("API-Endpunkt fehlt für Number-Entity %s", self.entity_id)
+                return
+
+            # Round value according to step
             if self._attr_native_step and self._attr_native_step > 0:
                 value = round(value / self._attr_native_step) * self._attr_native_step
-                if self._attr_native_step < 1:
-                    value = round(value, 2)
-            unit = self.entity_description.native_unit_of_measurement or ""
+                # Ensure precision for float steps (e.g. 0.1)
+                if isinstance(self._attr_native_step, float):
+                    num_decimals = str(self._attr_native_step)[::-1].find('.')
+                    if num_decimals > 0 : # Check if decimal part exists
+                         value = round(value, num_decimals)
+
+
             _LOGGER.info(
-                "Setze Sollwert für %s: %s = %s %s",
-                self.name,
-                api_key,
-                value,
-                unit
+                "Setze Wert für %s (API Key: %s) auf %s%s via Endpoint %s",
+                self.name, api_key_for_call, value,
+                self.entity_description.native_unit_of_measurement or "",
+                current_api_endpoint
             )
-            command = {"target_type": api_key, "value": value}
-            result = await self.device.async_send_command(api_endpoint, command)
-            if isinstance(result, dict) and result.get("success", False):
-                _LOGGER.debug("Sollwert erfolgreich gesetzt: %s = %s", api_key, value)
+
+            result: Optional[Dict[str, Any]] = None
+            if current_api_endpoint == API_SET_TARGET_VALUES:
+                result = await self.device.api.set_target_value(
+                    target_type=api_key_for_call, # api_key from description is used as target_type
+                    value=value
+                )
+            elif current_api_endpoint == API_SET_DOSING_PARAMETERS:
+                dosing_type = self.entity_description.dosing_type
+                if not dosing_type:
+                    _LOGGER.error(
+                        "Dosing_type fehlt in der Entity-Beschreibung für %s bei Verwendung von API_SET_DOSING_PARAMETERS.",
+                        self.entity_id
+                    )
+                    return
+                result = await self.device.api.set_dosing_parameters(
+                    dosing_type=dosing_type,
+                    parameter_name=api_key_for_call, # api_key from description is used as parameter_name
+                    value=value
+                )
             else:
-                _LOGGER.warning("Sollwert setzen möglicherweise fehlgeschlagen: %s", result)
-            self._attr_native_value = value
+                _LOGGER.error(
+                    "Nicht unterstützter API-Endpunkt '%s' für Number-Entity %s",
+                    current_api_endpoint, self.entity_id
+                )
+                return
+
+            if result and result.get("success", True): # Assume success if not explicitly false
+                _LOGGER.debug("Wert erfolgreich gesetzt für %s: %s = %s", self.name, api_key_for_call, value)
+            else:
+                _LOGGER.warning("Wert setzen für %s (%s) möglicherweise fehlgeschlagen: %s", self.name, api_key_for_call, result.get("response", result) if result else "Keine Antwort")
+            
+            self._attr_native_value = value # Optimistic update
             self.async_write_ha_state()
             await self.coordinator.async_request_refresh()
-        except Exception as err:
-            _LOGGER.error("Fehler beim Setzen des Sollwerts: %s", err)
+        except (VioletPoolConnectionError, VioletPoolCommandError) as err:
+            _LOGGER.error(f"API-Fehler beim Setzen des Werts für {self.name} ({api_key_for_call}): {err}")
+            raise HomeAssistantError(f"Setzen des Werts für {self.name} fehlgeschlagen: {err}") from err
+        except Exception as err: # Catch any other unexpected errors
+            _LOGGER.exception(f"Unerwarteter Fehler beim Setzen des Werts für {self.name} ({api_key_for_call}): {err}")
+            raise HomeAssistantError(f"Unerwarteter Fehler beim Setzen des Werts für {self.name}: {err}") from err
 
 async def async_setup_entry(
     hass: HomeAssistant,

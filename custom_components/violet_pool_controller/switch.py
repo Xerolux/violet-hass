@@ -17,8 +17,12 @@ from .const import (
     STATE_MAP,
     DOSING_FUNCTIONS,
     CONF_ACTIVE_FEATURES,
-    API_SET_FUNCTION_MANUALLY,
 )
+from .api import (
+    ACTION_ON, ACTION_OFF, ACTION_AUTO,
+    VioletPoolAPIError, VioletPoolConnectionError, VioletPoolCommandError
+)
+from homeassistant.exceptions import HomeAssistantError
 from .entity import VioletPoolControllerEntity
 from .device import VioletPoolDataUpdateCoordinator
 
@@ -66,29 +70,47 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs) -> None:
         """Schaltet den Switch ein."""
-        await self._send_command("ON")
+        await self._send_command(ACTION_ON)
 
     async def async_turn_off(self, **kwargs) -> None:
         """Schaltet den Switch aus."""
-        await self._send_command("OFF")
+        await self._send_command(ACTION_OFF)
 
     async def async_turn_auto(self, auto_delay: int = 0) -> None:
         """Setzt den Switch in den AUTO-Modus."""
-        await self._send_command("AUTO", auto_delay)
+        # This method provides 'AUTO' functionality. For HA UI interaction, a custom service may need to be defined.
+        await self._send_command(ACTION_AUTO, auto_delay)
 
-    async def _send_command(self, action: str, value: int = 0) -> None:
-        """Sendet einen Befehl an das Gerät im ursprünglichen Format."""
+    async def _send_command(self, api_action: str, value: int = 0) -> None:
+        """Sendet einen Befehl an das Gerät über die VioletPoolAPI."""
         try:
             key = self.entity_description.key
-            command_str = f"{key},{action},{value},0"
-            result = await self.device.async_send_command(
-                endpoint=API_SET_FUNCTION_MANUALLY,
-                command=command_str
+            # action_map = {
+            #     "ON": ACTION_ON,
+            #     "OFF": ACTION_OFF,
+            #     "AUTO": ACTION_AUTO,
+            # }
+            # api_action = action_map.get(action_str.upper())
+            # if api_action is None:
+            #     _LOGGER.error(f"Unbekannte Aktion '{action_str}' für Switch {key}")
+            #     return
+
+            # The 'value' parameter from _send_command is used as 'duration' in set_switch_state
+            # last_value defaults to 0 as per original command_str format
+            result = await self.device.api.set_switch_state(
+                key=key,
+                action=api_action,
+                duration=value,
+                last_value=0
             )
-            _LOGGER.debug(f"Befehl an {key} gesendet: {command_str}, Antwort: {result}")
+            _LOGGER.debug(f"Befehl an {key} gesendet: action={api_action}, duration={value}, Antwort: {result}")
             await self.coordinator.async_request_refresh()
-        except Exception as err:
-            _LOGGER.error(f"Fehler beim Senden von {action} für {key}: {err}")
+        except (VioletPoolConnectionError, VioletPoolCommandError) as err:
+            _LOGGER.error(f"API-Fehler beim Senden von {api_action} für {key}: {err}")
+            raise HomeAssistantError(f"Aktion '{api_action}' für Switch {key} fehlgeschlagen: {err}") from err
+        except Exception as err: # Catch any other unexpected errors
+            _LOGGER.exception(f"Unerwarteter Fehler beim Senden von {api_action} für {key}: {err}")
+            raise HomeAssistantError(f"Unerwarteter Fehler bei Aktion '{api_action}' für Switch {key}: {err}") from err
 
 class VioletPVSurplusSwitch(VioletSwitch):
     """Spezial-Switch für PV-Überschuss-Funktionalität."""
@@ -106,16 +128,37 @@ class VioletPVSurplusSwitch(VioletSwitch):
     def _get_switch_state(self) -> bool:
         """Ruft den aktuellen Status des PV-Überschuss-Switches ab."""
         state = self.get_int_value(self.entity_description.key, 0)
-        return state in (1, 2)
+        return state in (1, 2) # 1=ON, 2=ON (variable speed), 0=OFF
 
-    async def async_turn_on(self, **kwargs) -> None:
+    async def async_turn_on(self, **kwargs: Any) -> None:
         """Aktiviert den PV-Überschussmodus."""
-        pump_speed = kwargs.get("pump_speed", 2)
-        await self._send_command("ON", pump_speed)
+        pump_speed = kwargs.get("pump_speed", 2) # Default to speed 2 if not provided
+        try:
+            await self.device.api.set_pv_surplus(active=True, pump_speed=pump_speed)
+            await self.coordinator.async_request_refresh()
+        except (VioletPoolConnectionError, VioletPoolCommandError) as err:
+            _LOGGER.error(f"API-Fehler beim Einschalten des PV-Überschuss: {err}")
+            raise HomeAssistantError(f"PV-Überschuss einschalten fehlgeschlagen: {err}") from err
+        except Exception as err:
+            _LOGGER.exception(f"Unerwarteter Fehler beim Einschalten des PV-Überschuss: {err}")
+            raise HomeAssistantError(f"Unerwarteter Fehler beim Einschalten des PV-Überschuss: {err}") from err
 
-    async def async_turn_off(self, **kwargs) -> None:
+    async def async_turn_off(self, **kwargs: Any) -> None:
         """Deaktiviert den PV-Überschussmodus."""
-        await self._send_command("OFF")
+        try:
+            await self.device.api.set_pv_surplus(active=False)
+            await self.coordinator.async_request_refresh()
+        except (VioletPoolConnectionError, VioletPoolCommandError) as err:
+            _LOGGER.error(f"API-Fehler beim Ausschalten des PV-Überschuss: {err}")
+            raise HomeAssistantError(f"PV-Überschuss ausschalten fehlgeschlagen: {err}") from err
+        except Exception as err:
+            _LOGGER.exception(f"Unerwarteter Fehler beim Ausschalten des PV-Überschuss: {err}")
+            raise HomeAssistantError(f"Unerwarteter Fehler beim Ausschalten des PV-Überschuss: {err}") from err
+
+    # _send_command is inherited from VioletSwitch but not used by VioletPVSurplusSwitch directly
+    # if overrides are removed. If it's not needed at all, it can be removed or VioletPVSurplusSwitch
+    # might not need to inherit _send_command if all its actions are custom.
+    # For now, we assume it's okay to have it inherited. The direct calls to self.device.api are preferred.
 
 async def async_setup_entry(
     hass: HomeAssistant,

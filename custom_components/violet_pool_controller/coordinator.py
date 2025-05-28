@@ -10,6 +10,8 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from homeassistant.exceptions import ConfigEntryNotReady
 
 from .api import VioletPoolAPI, VioletPoolAPIError, VioletPoolConnectionError
+# Import VioletPoolControllerDevice for type hinting
+from .device import VioletPoolControllerDevice
 from .const import (
     DOMAIN,
     DEFAULT_POLLING_INTERVAL,
@@ -21,9 +23,9 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
     """Koordiniert das zyklische Abrufen der Daten vom Violet Pool Controller."""
 
     def __init__(
-        self, 
-        hass: HomeAssistant, 
-        device: Any,
+        self,
+        hass: HomeAssistant,
+        device: VioletPoolControllerDevice, # Updated type hint
         name: str,
         polling_interval: int = DEFAULT_POLLING_INTERVAL
     ) -> None:
@@ -36,6 +38,11 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
         )
         self.device = device
         self.last_exception: Optional[Exception] = None
+        _LOGGER.debug(
+            "VioletPoolDataUpdateCoordinator initialized for %s with polling interval %s seconds",
+            self.name,
+            self.update_interval.total_seconds()
+        )
 
     async def _async_update_data(self) -> Dict[str, Any]:
         """Holt Daten vom Gerät ab."""

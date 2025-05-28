@@ -2,6 +2,7 @@
 import logging
 from typing import Any, Dict, Optional, Union, List
 from dataclasses import dataclass
+from datetime import datetime, timezone
 
 from homeassistant.components.sensor import (
     SensorEntity,
@@ -71,11 +72,29 @@ UNIT_MAP = {
 }
 
 NO_UNIT_SENSORS = {
-    "SOLAR_LAST_OFF", "HEATER_LAST_ON", "HEATER_LAST_OFF",
-    "BACKWASH_LAST_ON", "BACKWASH_LAST_OFF", "PUMP_LAST_ON", "PUMP_LAST_OFF",
     "CPU_UPTIME", "CPU_GOV", "SW_VERSION", "SW_VERSION_CARRIER", "HW_VERSION_CARRIER",
     "BACKWASH_OMNI_MOVING", "BACKWASH_DELAY_RUNNING"
+    # Timestamp keys will also have no unit, handled by device_class check
 }
+
+# Keys that represent Unix timestamps
+_BASE_TIMESTAMP_KEYS = {
+    "CURRENT_TIME_UNIX",
+}
+_TIMESTAMP_SUFFIXES = (
+    "_LAST_ON", "_LAST_OFF", "_LAST_AUTO_RUN", "_LAST_MANUAL_RUN",
+    "_LAST_CAN_RESET", "_TIMESTAMP"
+)
+
+def is_timestamp_key(key: str) -> bool:
+    """Check if a key is likely a timestamp based on name."""
+    key_upper = key.upper()
+    if key_upper in _BASE_TIMESTAMP_KEYS:
+        return True
+    for suffix in _TIMESTAMP_SUFFIXES:
+        if key_upper.endswith(suffix):
+            return True
+    return False
 
 TEXT_VALUE_SENSORS = {
     "DOS_1_CL_STATE", "DOS_4_PHM_STATE", "DOS_5_PHP_STATE",
@@ -106,6 +125,14 @@ TEXT_VALUE_SENSORS = {
     "REFILL_STATE", "BATHING_AI_SURVEILLANCE_STATE", "BATHING_AI_PUMP_STATE",
     "OVERFLOW_REFILL_STATE", "OVERFLOW_DRYRUN_STATE", "OVERFLOW_OVERFILL_STATE",
 }
+# Remove timestamp keys from TEXT_VALUE_SENSORS
+_keys_to_remove_from_text_sensors = set()
+for text_key in list(TEXT_VALUE_SENSORS): # Iterate over a copy for safe removal
+    if is_timestamp_key(text_key):
+        _keys_to_remove_from_text_sensors.add(text_key)
+for k_to_remove in _keys_to_remove_from_text_sensors:
+    TEXT_VALUE_SENSORS.discard(k_to_remove)
+    NO_UNIT_SENSORS.discard(k_to_remove) # Also ensure they don't get units from NO_UNIT_SENSORS if listed there
 
 NON_TEMPERATURE_SENSORS = {
     "onewire1_rcode", "onewire2_rcode", "onewire3_rcode", "onewire4_rcode",
@@ -116,33 +143,24 @@ NON_TEMPERATURE_SENSORS = {
 }
 
 SENSOR_FEATURE_MAP = {
-    "onewire1_value": "heating",
-    "onewire2_value": "heating",
-    "onewire3_value": "solar",
-    "onewire4_value": "heating",
-    "onewire5_value": "heating",
-    "pH_value": "ph_control",
-    "orp_value": "chlorine_control",
-    "pot_value": "chlorine_control",
+    "onewire1_value": "heating", "onewire2_value": "heating", "onewire3_value": "solar",
+    "onewire4_value": "heating", "onewire5_value": "heating", "pH_value": "ph_control",
+    "orp_value": "chlorine_control", "pot_value": "chlorine_control",
     "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": "chlorine_control",
     "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML": "ph_control",
     "DOS_5_PHP_DAILY_DOSING_AMOUNT_ML": "ph_control",
     "DOS_6_FLOC_DAILY_DOSING_AMOUNT_ML": "chlorine_control",
-    "ADC2_value": "water_level",
-    "FILTER_PRESSURE": "filter_control",
-    "PUMP_RPM_0": "filter_control",
-    "PUMP_RPM_1": "filter_control",
-    "PUMP_RPM_2": "filter_control",
-    "PUMP_RPM_3": "filter_control",
-    "HEATER_TEMPERATURE": "heating",
-    "COVER_POSITION": "cover_control",
+    "ADC2_value": "water_level", "FILTER_PRESSURE": "filter_control",
+    "PUMP_RPM_0": "filter_control", "PUMP_RPM_1": "filter_control",
+    "PUMP_RPM_2": "filter_control", "PUMP_RPM_3": "filter_control",
+    "HEATER_TEMPERATURE": "heating", "COVER_POSITION": "cover_control",
 }
 
 @dataclass
 class VioletSensorEntityDescription(SensorEntityDescription):
     """Beschreibung von Violet Pool Sensorentitäten."""
     feature_id: Optional[str] = None
-    is_numeric: bool = True
+    is_numeric: bool = True # Default to True, override for text/timestamp sensors
 
 class VioletSensor(VioletPoolControllerEntity, SensorEntity):
     """Repräsentation eines Violet Pool Controller Sensors."""
@@ -159,152 +177,135 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
         self._has_logged_none_state = False
 
     @property
-    def native_value(self) -> Union[float, int, str, None]:
+    def native_value(self) -> Union[datetime, float, int, str, None]:
         """Gib den aktuellen Sensorwert zurück."""
         key = self.entity_description.key
-        key_upper = key.upper()
-        is_text_sensor = (
-            key_upper in TEXT_VALUE_SENSORS or
-            any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW", "MOVING", "RUNNING"]) or
-            not self.entity_description.is_numeric
-        )
-
-        if is_text_sensor or key.lower().endswith(("_last_on", "_last_off")):
-            return self.get_str_value(key)
-
-        raw_value = self.coordinator.data.get(key) if self.coordinator.data else None
-        if isinstance(raw_value, list):
-            if not raw_value:
-                return None
-            elif len(raw_value) == 1:
-                raw_value = raw_value[0]
-            else:
-                return ", ".join(str(item) for item in raw_value)
+        raw_value = self.coordinator.data.get(key)
 
         if raw_value is None:
             if not self._has_logged_none_state:
-                _LOGGER.warning(f"Sensor '{key}' hat None als Zustand zurückgegeben.")
+                _LOGGER.debug(f"Sensor '{key}' received None state.")
                 self._has_logged_none_state = True
             return None
+        self._has_logged_none_state = False
 
-        if isinstance(raw_value, str):
-            if any(c.isalpha() for c in raw_value) or any(unit in raw_value for unit in ["h ", "m ", "s", "d "]):
-                return raw_value
-            if raw_value.count('.') >= 1 and any(c.isalpha() for c in raw_value):
-                return raw_value
-            if raw_value.count('.') == 3 and all(part.isdigit() for part in raw_value.split('.')):
-                return raw_value
+        if isinstance(raw_value, list):
+            return ", ".join(str(item) for item in raw_value) if raw_value else None
 
-        device_class = self.entity_description.device_class
-        if device_class in (SensorDeviceClass.TEMPERATURE, SensorDeviceClass.PRESSURE,
-                           SensorDeviceClass.PH, SensorDeviceClass.POWER,
-                           SensorDeviceClass.VOLTAGE):
-            return self.get_float_value(key)
-
-        try:
+        if self.entity_description.device_class == SensorDeviceClass.TIMESTAMP:
             if isinstance(raw_value, (int, float)):
-                return raw_value
-            elif isinstance(raw_value, str) and raw_value.replace(".", "", 1).isdigit():
-                return float(raw_value)
-            return raw_value
-        except Exception as err:
-            _LOGGER.error(f"Fehler beim Abrufen des Werts für {key}: {err}")
+                try:
+                    return datetime.fromtimestamp(raw_value, tz=timezone.utc)
+                except (OSError, TypeError, ValueError) as e:
+                    _LOGGER.warning(f"Sensor '{key}' (Timestamp) invalid numeric value '{raw_value}': {e}")
+                    return None
+            elif isinstance(raw_value, str) and raw_value.isdigit():
+                try:
+                    return datetime.fromtimestamp(int(raw_value), tz=timezone.utc)
+                except (OSError, TypeError, ValueError) as e:
+                    _LOGGER.warning(f"Sensor '{key}' (Timestamp) invalid string value '{raw_value}': {e}")
+                    return None
+            _LOGGER.warning(
+                f"Sensor '{key}' (Timestamp) value '{raw_value}' (type: {type(raw_value)}) is not a valid Unix timestamp."
+            )
             return None
 
-def guess_device_class(key: str) -> Optional[str]:
+        if self.entity_description.is_numeric: # is_numeric is False for timestamps
+            if isinstance(raw_value, (int, float)):
+                return raw_value
+            _LOGGER.warning(
+                f"Sensor '{key}' is_numeric=True, but value '{raw_value}' (type: {type(raw_value)}) from coordinator is not int/float. "
+                "This might indicate an issue with _process_api_data or an unexpected string value."
+            )
+            # Attempt to return string if not numeric, or None if it's some other type
+            return str(raw_value) if isinstance(raw_value, str) else None
+
+        return str(raw_value)
+
+
+def guess_device_class(key: str, is_ts_key: bool) -> Optional[SensorDeviceClass]:
     """Bestimme die Device Class."""
+    if is_ts_key:
+        return SensorDeviceClass.TIMESTAMP
+
     key_upper = key.upper()
-    if key_upper in TEXT_VALUE_SENSORS or any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW", "MOVING", "RUNNING"]):
+    if key_upper in TEXT_VALUE_SENSORS: return None
+    if any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "DIRECTION", "FW", "MOVING", "RUNNING", "_INFO", "_STATUS", "_MESSAGE", "_TEXT", "_RCODE", "_ROMCODE", "_GOV", "_SERIAL", "_ADDRESS"]):
         return None
-    if key.lower() in NON_TEMPERATURE_SENSORS:
-        return None
+    if key.lower() in NON_TEMPERATURE_SENSORS: return None
+
     klower = key.lower()
-    if "temp" in klower and not klower.endswith("_state") or "onewire" in klower and klower.endswith("_value") or "cpu_temp" in klower:
+    if "temp" in klower and not klower.endswith(("_state", "_mode", "_status")):
         return SensorDeviceClass.TEMPERATURE
-    if "humidity" in klower:
-        return SensorDeviceClass.HUMIDITY
-    if "pressure" in klower or "adc1" in klower:
-        return SensorDeviceClass.PRESSURE
-    if "energy" in klower or "power" in klower:
-        return SensorDeviceClass.POWER
-    if "ph_value" in klower:
-        return SensorDeviceClass.PH
-    if "voltage" in klower:
+    if "onewire" in klower and klower.endswith("_value"):
+        if klower not in NON_TEMPERATURE_SENSORS:
+            return SensorDeviceClass.TEMPERATURE
+    if "humidity" in klower: return SensorDeviceClass.HUMIDITY
+    if "pressure" in klower or "adc1_value" == klower: return SensorDeviceClass.PRESSURE
+    if "energy" in klower or "power" in klower or key_upper == "PUMP_RS485_PWR": return SensorDeviceClass.POWER
+    if "ph_value" == klower: return SensorDeviceClass.PH
+    if "voltage" in klower or (klower.startswith("adc") and klower.endswith("_value") and "adc1_value" not in klower):
         return SensorDeviceClass.VOLTAGE
+    if "orp_value" == klower or "pot_value" == klower: return None
     return None
 
-def guess_state_class(key: str) -> Optional[str]:
+
+def guess_state_class(key: str, device_class: Optional[SensorDeviceClass]) -> Optional[SensorStateClass]:
     """Bestimme die State Class."""
+    if device_class == SensorDeviceClass.TIMESTAMP: return None
+
     key_upper = key.upper()
-    if key_upper in TEXT_VALUE_SENSORS or any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "TIME", "DIRECTION", "FW", "MOVING", "RUNNING"]):
+    if key_upper in TEXT_VALUE_SENSORS or \
+       any(pattern in key_upper for pattern in ["RUNTIME", "STATE", "MODE", "VERSION", "DIRECTION", "FW", "MOVING", "RUNNING", "_INFO", "_STATUS", "_MESSAGE", "_TEXT", "_RCODE", "_ROMCODE", "_GOV", "_SERIAL", "_ADDRESS", "_REMAINING_RANGE"]):
         return None
-    if "_REMAINING_RANGE" in key_upper:
-        return None
+
     klower = key.lower()
-    if "daily" in klower or "_daily_" in klower:
+    if "daily" in klower or "_daily_" in klower or key_upper.endswith("_TOTAL_CAN_AMOUNT_ML"):
         return SensorStateClass.TOTAL
-    if "last_on" in klower or "last_off" in klower:
-        return None
-    if any(x in klower for x in ["runtime", "state", "_status", "rcode", "romcode", "mode", "version", "time", "direction", "fw", "moving", "running"]):
-        return None
-    return SensorStateClass.MEASUREMENT
+
+    if device_class is not None and device_class != SensorDeviceClass.ENUM :
+        return SensorStateClass.MEASUREMENT
+    return None
 
 def guess_icon(key: str) -> str:
     """Bestimme ein Icon."""
     klower = key.lower()
-    if "temp" in klower or "therm" in klower or "cpu_temp" in klower:
-        return "mdi:thermometer"
-    if "pump" in klower:
-        return "mdi:water-pump"
-    if "orp" in klower:
-        return "mdi:flash"
-    if "ph" in klower:
-        return "mdi:flask"
-    if "pressure" in klower or "adc" in klower:
-        return "mdi:gauge"
-    if "memory" in klower:
-        return "mdi:memory"
-    if "cpu" in klower or "load" in klower:
-        return "mdi:cpu-64-bit"
-    if "uptime" in klower:
-        return "mdi:clock-outline"
-    if "rpm" in klower:
-        return "mdi:fan"
-    if "version" in klower or "fw" in klower:
-        return "mdi:update"
-    if "serial" in klower:
-        return "mdi:barcode"
-    if "runtime" in klower:
-        return "mdi:clock-time-four-outline"
-    if "state" in klower:
-        return "mdi:state-machine"
-    if "direction" in klower:
-        return "mdi:arrow-decision"
-    if "time" in klower:
-        return "mdi:timer-outline"
-    if "mode" in klower:
-        return "mdi:tune"
-    if "last_on" in klower:
-        return "mdi:timer"
-    if "last_off" in klower:
-        return "mdi:timer-off"
-    if "status" in klower:
-        return "mdi:information-outline"
-    if "rcode" in klower or "romcode" in klower:
-        return "mdi:identifier"
-    if "_remaining_range" in klower:
-        return "mdi:calendar-clock"
-    if "moving" in klower:
-        return "mdi:motion"
-    if "running" in klower:
-        return "mdi:run"
+    if is_timestamp_key(key): return "mdi:clock-time-four-outline" # Specific icon for timestamps
+    if "temp" in klower or "therm" in klower or "cpu_temp" in klower: return "mdi:thermometer"
+    if "pump" in klower: return "mdi:water-pump"
+    if "orp" in klower: return "mdi:flash"
+    if "ph" in klower: return "mdi:flask"
+    if "pressure" in klower or "adc" in klower: return "mdi:gauge"
+    if "memory" in klower: return "mdi:memory"
+    if "cpu" in klower or "load" in klower: return "mdi:cpu-64-bit"
+    if "uptime" in klower: return "mdi:clock-outline" # Could be text or numeric (seconds)
+    if "rpm" in klower: return "mdi:fan"
+    if "version" in klower or "fw" in klower: return "mdi:update"
+    if "serial" in klower: return "mdi:barcode"
+    if "runtime" in klower: return "mdi:clock-time-four-outline"
+    if "state" in klower: return "mdi:state-machine"
+    if "direction" in klower: return "mdi:arrow-decision"
+    # "time" was too generic, now handled by is_timestamp_key for icon
+    if "mode" in klower: return "mdi:tune"
+    if "status" in klower: return "mdi:information-outline"
+    if "rcode" in klower or "romcode" in klower: return "mdi:identifier"
+    if "_remaining_range" in klower: return "mdi:calendar-clock"
+    if "moving" in klower: return "mdi:motion"
+    if "running" in klower: return "mdi:run"
     return "mdi:information"
 
 def guess_entity_category(key: str) -> Optional[str]:
     """Bestimme die Entity-Kategorie."""
     klower = key.lower()
-    if any(x in klower for x in ["system", "cpu", "memory", "fw", "version", "load", "uptime", "serial", "rcode", "romcode", "runtime", "time", "hw_"]):
-        return EntityCategory.DIAGNOSTIC
+    if any(x in klower for x in ["system", "cpu", "memory", "fw", "version", "load", "uptime", "serial", "rcode", "romcode", "hw_"]) or is_timestamp_key(key): # Added is_timestamp_key for CURRENT_TIME_UNIX
+        # Runtime keys are often diagnostic
+        if "runtime" in klower : return EntityCategory.DIAGNOSTIC
+        # Explicitly check if it's not a timestamp for other runtime/time like keys that are not purely diagnostic
+        if not is_timestamp_key(key) and ("runtime" in klower or "time" in klower):
+             pass # Let them be None if not fitting other specific categories
+        else:
+            return EntityCategory.DIAGNOSTIC
+
     if "setpoint" in klower or "target" in klower:
         return EntityCategory.CONFIG
     return None
@@ -315,130 +316,122 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback
 ) -> None:
     """Richte Sensoren ein."""
-    coordinator = hass.data[DOMAIN][config_entry.entry_id]
+    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     active_features = config_entry.options.get(CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, []))
     available_data_keys = set(coordinator.data.keys())
     sensors: List[VioletSensor] = []
 
-    for key, sensor_info in TEMP_SENSORS.items():
-        if key not in available_data_keys:
-            continue
-        feature_id = SENSOR_FEATURE_MAP.get(key)
-        if feature_id and feature_id not in active_features:
-            _LOGGER.debug(f"Sensor {key} übersprungen, da Feature {feature_id} inaktiv.")
-            continue
-        description = VioletSensorEntityDescription(
-            key=key,
-            name=sensor_info["name"],
-            icon=sensor_info["icon"],
-            device_class=SensorDeviceClass.TEMPERATURE,
-            state_class=SensorStateClass.MEASUREMENT,
-            native_unit_of_measurement="°C",
-            feature_id=feature_id,
-            is_numeric=True,
-        )
-        sensors.append(VioletSensor(coordinator, config_entry, description))
+    # Predefined sensors (TEMP_SENSORS, WATER_CHEM_SENSORS, ANALOG_SENSORS)
+    for predefined_group in [TEMP_SENSORS, WATER_CHEM_SENSORS, ANALOG_SENSORS]:
+        for key, sensor_info in predefined_group.items():
+            if key not in available_data_keys:
+                continue
+            feature_id = SENSOR_FEATURE_MAP.get(key)
+            if feature_id and feature_id not in active_features:
+                _LOGGER.debug(f"Sensor {key} (predefined) übersprungen, da Feature {feature_id} inaktiv.")
+                continue
 
-    for key, sensor_info in WATER_CHEM_SENSORS.items():
-        if key not in available_data_keys:
-            continue
-        feature_id = SENSOR_FEATURE_MAP.get(key)
-        if feature_id and feature_id not in active_features:
-            _LOGGER.debug(f"Sensor {key} übersprungen, da Feature {feature_id} inaktiv.")
-            continue
-        device_class = guess_device_class(key)
-        unit = None if device_class == SensorDeviceClass.PH else sensor_info["unit"]
-        is_numeric = key.upper() not in TEXT_VALUE_SENSORS
-        description = VioletSensorEntityDescription(
-            key=key,
-            name=sensor_info["name"],
-            icon=sensor_info["icon"],
-            device_class=device_class,
-            state_class=guess_state_class(key) if is_numeric else None,
-            native_unit_of_measurement=unit,
-            feature_id=feature_id,
-            is_numeric=is_numeric,
-        )
-        sensors.append(VioletSensor(coordinator, config_entry, description))
+            is_ts = is_timestamp_key(key) # Should be False for these typically
+            current_device_class = sensor_info.get("device_class") or guess_device_class(key, is_ts)
+            current_state_class = sensor_info.get("state_class") or guess_state_class(key, current_device_class)
+            unit = sensor_info.get("unit")
+            
+            # is_numeric should be True if not text and not timestamp
+            is_numeric_for_description = not is_ts and not (key.upper() in TEXT_VALUE_SENSORS)
+            if current_device_class == SensorDeviceClass.PH: # pH is numeric but unitless for HA
+                 unit = None
+            elif current_device_class == SensorDeviceClass.TEMPERATURE and not unit:
+                 unit = "°C"
 
-    for key, sensor_info in ANALOG_SENSORS.items():
-        if key not in available_data_keys:
-            continue
-        feature_id = SENSOR_FEATURE_MAP.get(key)
-        if feature_id and feature_id not in active_features:
-            _LOGGER.debug(f"Sensor {key} übersprungen, da Feature {feature_id} inaktiv.")
-            continue
-        is_numeric = key.upper() not in TEXT_VALUE_SENSORS
-        description = VioletSensorEntityDescription(
-            key=key,
-            name=sensor_info["name"],
-            icon=sensor_info["icon"],
-            device_class=guess_device_class(key),
-            state_class=guess_state_class(key) if is_numeric else None,
-            native_unit_of_measurement=sensor_info["unit"],
-            feature_id=feature_id,
-            is_numeric=is_numeric,
-        )
-        sensors.append(VioletSensor(coordinator, config_entry, description))
 
-    excluded_keys = {"date", "time", "CURRENT_TIME_UNIX"}
-    for key in available_data_keys:
-        if key in TEMP_SENSORS or key in WATER_CHEM_SENSORS or key in ANALOG_SENSORS or key in excluded_keys:
+            description = VioletSensorEntityDescription(
+                key=key,
+                name=sensor_info["name"],
+                icon=sensor_info["icon"],
+                device_class=current_device_class,
+                state_class=current_state_class,
+                native_unit_of_measurement=unit,
+                feature_id=feature_id,
+                is_numeric=is_numeric_for_description,
+            )
+            sensors.append(VioletSensor(coordinator, config_entry, description))
+            available_data_keys.discard(key) # Remove key to avoid re-processing
+
+    # Dynamically created sensors
+    excluded_keys = {"date", "time"} # CURRENT_TIME_UNIX handled by is_timestamp_key
+    for key in list(available_data_keys): # Iterate over copy as we might modify original set
+        if key in excluded_keys:
+            available_data_keys.discard(key)
             continue
+
         feature_id = SENSOR_FEATURE_MAP.get(key)
         if feature_id and feature_id not in active_features:
-            _LOGGER.debug(f"Sensor {key} übersprungen, da Feature {feature_id} inaktiv.")
+            _LOGGER.debug(f"Sensor {key} (dynamic) übersprungen, da Feature {feature_id} inaktiv.")
+            available_data_keys.discard(key)
             continue
+
         name = key.replace('_', ' ').title()
-        key_upper = key.upper()
-        is_text_sensor = key_upper in TEXT_VALUE_SENSORS
-        unit = None if (is_text_sensor or key in NO_UNIT_SENSORS) else UNIT_MAP.get(key)
-        if guess_device_class(key) == SensorDeviceClass.TEMPERATURE and not unit:
-            unit = "°C"
+        is_ts = is_timestamp_key(key)
+        current_device_class = guess_device_class(key, is_ts)
+        current_state_class = guess_state_class(key, current_device_class)
+        
+        is_numeric_for_description = not is_ts and not (key.upper() in TEXT_VALUE_SENSORS)
+        val_from_coord = coordinator.data.get(key)
+        if current_device_class is None and not is_ts and not (key.upper() in TEXT_VALUE_SENSORS):
+            if isinstance(val_from_coord, str) and not val_from_coord.replace(".", "", 1).isdigit():
+                 is_numeric_for_description = False
+        
+        unit = None
+        if current_device_class != SensorDeviceClass.TIMESTAMP:
+            if not (key.upper() in TEXT_VALUE_SENSORS and UNIT_MAP.get(key) is None):
+                 if key not in NO_UNIT_SENSORS :
+                    unit = UNIT_MAP.get(key)
+            if current_device_class == SensorDeviceClass.TEMPERATURE and not unit:
+                unit = "°C"
+        
         description = VioletSensorEntityDescription(
-            key=key,
-            name=name,
-            icon=guess_icon(key),
-            device_class=guess_device_class(key),
-            state_class=guess_state_class(key) if not is_text_sensor else None,
+            key=key, name=name, icon=guess_icon(key),
+            device_class=current_device_class, state_class=current_state_class,
             native_unit_of_measurement=unit,
-            entity_category=EntityCategory(guess_entity_category(key)) if guess_entity_category(key) else None,
-            feature_id=feature_id,
-            is_numeric=not is_text_sensor,
+            entity_category=guess_entity_category(key), # Removed EntityCategory() wrapping
+            feature_id=feature_id, is_numeric=is_numeric_for_description,
         )
         sensors.append(VioletSensor(coordinator, config_entry, description))
+        available_data_keys.discard(key)
 
-    dosing_keys = {
+
+    # Dosing keys (ensure they are not processed above if already in available_data_keys)
+    dosing_keys_desc = {
         "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": "Chlor Tagesdosierung",
         "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML": "pH- Tagesdosierung",
         "DOS_5_PHP_DAILY_DOSING_AMOUNT_ML": "pH+ Tagesdosierung",
         "DOS_6_FLOC_DAILY_DOSING_AMOUNT_ML": "Flockmittel Tagesdosierung",
     }
-    created_sensor_keys = {sensor.entity_description.key for sensor in sensors}
-    for key, name in dosing_keys.items():
-        if key in created_sensor_keys or key not in available_data_keys:
-            continue
+    for key, name in dosing_keys_desc.items():
+        if key not in coordinator.data: continue # Ensure key is in coordinator data
+        if any(s.entity_description.key == key for s in sensors): continue # Skip if already created
+
         feature_id = SENSOR_FEATURE_MAP.get(key)
         if feature_id and feature_id not in active_features:
-            _LOGGER.debug(f"Sensor {key} übersprungen, da Feature {feature_id} inaktiv.")
+            _LOGGER.debug(f"Sensor {key} (dosing) übersprungen, da Feature {feature_id} inaktiv.")
             continue
-        is_numeric = key.upper() not in TEXT_VALUE_SENSORS
+        
+        is_numeric_for_description = not (key.upper() in TEXT_VALUE_SENSORS) # Timestamps not expected here
+        current_state_class = SensorStateClass.TOTAL if is_numeric_for_description else None
+
         description = VioletSensorEntityDescription(
-            key=key,
-            name=name,
-            icon="mdi:water",
-            state_class=SensorStateClass.TOTAL if is_numeric else None,
-            native_unit_of_measurement="mL",
-            feature_id=feature_id,
-            is_numeric=is_numeric,
+            key=key, name=name, icon="mdi:water",
+            state_class=current_state_class, native_unit_of_measurement="mL",
+            feature_id=feature_id, is_numeric=is_numeric_for_description,
         )
         sensors.append(VioletSensor(coordinator, config_entry, description))
 
-    system_sensors = {
+    # System sensors (ensure they are not processed above)
+    system_sensors_desc = {
         "CPU_TEMP": {"name": "CPU Temperatur", "icon": "mdi:cpu-64-bit", "device_class": SensorDeviceClass.TEMPERATURE, "unit": "°C"},
         "CPU_TEMP_CARRIER": {"name": "Carrier CPU Temperatur", "icon": "mdi:cpu-64-bit", "device_class": SensorDeviceClass.TEMPERATURE, "unit": "°C"},
         "LOAD_AVG": {"name": "System Auslastung", "icon": "mdi:chart-line", "unit": ""},
-        "CPU_UPTIME": {"name": "System Laufzeit", "icon": "mdi:clock-outline", "unit": None},
+        "CPU_UPTIME": {"name": "System Laufzeit", "icon": "mdi:clock-outline", "unit": None}, # Could be text or timestamp if numeric
         "CPU_GOV": {"name": "CPU Governor", "icon": "mdi:cpu-64-bit", "unit": None},
         "MEMORY_USED": {"name": "Speichernutzung", "icon": "mdi:memory", "unit": "%"},
         "SW_VERSION": {"name": "Software Version", "icon": "mdi:update", "unit": None},
@@ -447,19 +440,23 @@ async def async_setup_entry(
         "BACKWASH_OMNI_MOVING": {"name": "Backwash Moving", "icon": "mdi:motion", "unit": None},
         "BACKWASH_DELAY_RUNNING": {"name": "Backwash Delay Running", "icon": "mdi:timer-sand", "unit": None},
     }
-    for key, info in system_sensors.items():
-        if key not in available_data_keys or key in created_sensor_keys:
-            continue
-        is_text_sensor = key.upper() in TEXT_VALUE_SENSORS
+    for key, info in system_sensors_desc.items():
+        if key not in coordinator.data: continue
+        if any(s.entity_description.key == key for s in sensors): continue
+
+        is_ts = is_timestamp_key(key) # e.g. if CPU_UPTIME is a numeric timestamp
+        current_device_class = info.get("device_class") or guess_device_class(key, is_ts)
+        current_state_class = guess_state_class(key, current_device_class) if not (key.upper() in TEXT_VALUE_SENSORS) else None
+        is_numeric_for_description = not is_ts and not (key.upper() in TEXT_VALUE_SENSORS)
+        if is_ts : is_numeric_for_description = False # Timestamps are not numeric for HA state
+
         description = VioletSensorEntityDescription(
-            key=key,
-            name=info["name"],
-            icon=info["icon"],
-            device_class=info.get("device_class"),
-            state_class=None,
+            key=key, name=info["name"], icon=info["icon"],
+            device_class=current_device_class,
+            state_class=current_state_class,
             native_unit_of_measurement=info["unit"],
             entity_category=EntityCategory.DIAGNOSTIC,
-            is_numeric=not is_text_sensor,
+            is_numeric=is_numeric_for_description,
         )
         sensors.append(VioletSensor(coordinator, config_entry, description))
 

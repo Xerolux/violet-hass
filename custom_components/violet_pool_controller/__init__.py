@@ -28,8 +28,9 @@ from .const import (
     DEFAULT_TIMEOUT_DURATION,
     DEFAULT_RETRY_ATTEMPTS,
 )
-from .api import VioletPoolAPI
+from .api import VioletPoolAPI, ACTION_ALLON, ACTION_ALLAUTO, ACTION_ALLOFF # Import DMX action constants
 from .device import async_setup_device, VioletPoolDataUpdateCoordinator
+from homeassistant.const import ATTR_DEVICE_ID # Import ATTR_DEVICE_ID
 
 # Plattformen, die diese Integration unterstützt
 PLATFORMS: Final[List[str]] = [
@@ -119,7 +120,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             use_ssl=use_ssl,
             timeout=timeout_duration,
         )
-        coordinator = await async_setup_device(hass, entry)
+        # Pass the api instance to async_setup_device
+        coordinator = await async_setup_device(hass, entry, api)
         if not coordinator:
             _LOGGER.error("Fehler beim Einrichten des Coordinators")
             return False
@@ -335,14 +337,17 @@ def register_services(hass: HomeAssistant) -> None:
 
         for coordinator in coordinators:
             try:
-                result = await coordinator.device.async_send_command(
-                    endpoint="/startWaterAnalysis",
-                    command={},
-                )
-                if isinstance(result, dict) and result.get("success", False):
-                    _LOGGER.info("Wasseranalyse für %s erfolgreich gestartet", coordinator.device.name)
+                # Use the API method on the device's api instance
+                result = await coordinator.device.api.start_water_analysis()
+                # The result structure from VioletPoolAPI methods is already a dict or raises an error.
+                # We can assume success if no exception is raised, or check specific content if necessary.
+                # For now, let's assume methods in VioletPoolAPI return a dict that might include a success indicator
+                # or rely on them raising exceptions for failures.
+                # The _normalize_response in api.py tries to add "success" for string responses.
+                if result.get("success", True): # Assume success if not explicitly false
+                    _LOGGER.info("Wasseranalyse für %s erfolgreich gestartet.", coordinator.device.name)
                 else:
-                    _LOGGER.warning("Wasseranalyse für %s möglicherweise nicht erfolgreich: %s", coordinator.device.name, result)
+                    _LOGGER.warning("Wasseranalyse für %s möglicherweise nicht erfolgreich: %s", coordinator.device.name, result.get("response", result))
                 await coordinator.async_request_refresh()
             except Exception as err:
                 _LOGGER.error("Fehler beim Starten der Wasseranalyse für %s: %s", coordinator.device.name, err)
@@ -370,19 +375,13 @@ def register_services(hass: HomeAssistant) -> None:
 
         for coordinator in coordinators:
             try:
-                result = await coordinator.device.async_send_command(
-                    endpoint="/set_switch",
-                    command={
-                        "id": "MAINTENANCE",
-                        "action": "ON" if enable else "OFF",
-                        "duration": 0,
-                        "value": 0,
-                    },
-                )
-                if isinstance(result, dict) and result.get("success", False):
-                    _LOGGER.info("Wartungsmodus für %s auf %s gesetzt", coordinator.device.name, "EIN" if enable else "AUS")
+                # Use the API method on the device's api instance
+                result = await coordinator.device.api.set_maintenance_mode(enabled=enable)
+                # Similar to start_water_analysis, check success.
+                if result.get("success", True): # Assume success if not explicitly false
+                    _LOGGER.info("Wartungsmodus für %s auf %s gesetzt.", coordinator.device.name, "EIN" if enable else "AUS")
                 else:
-                    _LOGGER.warning("Wartungsmodus für %s möglicherweise nicht gesetzt: %s", coordinator.device.name, result)
+                    _LOGGER.warning("Wartungsmodus für %s möglicherweise nicht erfolgreich gesetzt: %s", coordinator.device.name, result.get("response", result))
                 await coordinator.async_request_refresh()
             except Exception as err:
                 _LOGGER.error("Fehler beim Setzen des Wartungsmodus für %s: %s", coordinator.device.name, err)
@@ -405,6 +404,74 @@ def register_services(hass: HomeAssistant) -> None:
     )
     hass.services.async_register(
         DOMAIN, "set_maintenance_mode", async_handle_set_maintenance_mode, schema=SET_MAINTENANCE_MODE_SCHEMA
+    )
+
+    # Schema for set_all_dmx_scenes_mode
+    SET_ALL_DMX_SCENES_MODE_SCHEMA = vol.Schema({
+        vol.Required(ATTR_DEVICE_ID): cv.string,
+        vol.Required("dmx_mode"): vol.In([ACTION_ALLON, ACTION_ALLAUTO, ACTION_ALLOFF]),
+    })
+
+    async def async_handle_set_all_dmx_scenes_mode(call: ServiceCall) -> None:
+        """Handle the set_all_dmx_scenes_mode service call."""
+        device_id = call.data.get(ATTR_DEVICE_ID)
+        dmx_mode = call.data.get("dmx_mode")
+        
+        coordinator: Optional[VioletPoolDataUpdateCoordinator] = hass.data[DOMAIN].get(device_id)
+
+        if not coordinator or not hasattr(coordinator, 'device') or not hasattr(coordinator.device, 'api'):
+            _LOGGER.error("DMX Scenes: Device %s nicht gefunden oder API nicht verfügbar.", device_id)
+            raise HomeAssistantError(f"Violet Pool Controller Gerät {device_id} nicht gefunden.")
+
+        try:
+            _LOGGER.info("Setze alle DMX Szenen für %s auf Modus %s", coordinator.device.name, dmx_mode)
+            result = await coordinator.device.api.set_all_dmx_scenes(action=dmx_mode)
+            if isinstance(result, dict) and result.get("success", True): 
+                _LOGGER.info("Alle DMX Szenen für %s erfolgreich auf %s gesetzt.", coordinator.device.name, dmx_mode)
+            else:
+                _LOGGER.warning("Setzen aller DMX Szenen für %s auf %s möglicherweise nicht erfolgreich: %s", coordinator.device.name, dmx_mode, result.get("response", result))
+            await coordinator.async_request_refresh()
+        except Exception as err:
+            _LOGGER.error("Fehler beim Setzen aller DMX Szenen für %s: %s", coordinator.device.name, err)
+            raise HomeAssistantError(f"Fehler beim Setzen aller DMX Szenen für {coordinator.device.name}: {err}")
+
+    hass.services.async_register(
+        DOMAIN, "set_all_dmx_scenes_mode", async_handle_set_all_dmx_scenes_mode, schema=SET_ALL_DMX_SCENES_MODE_SCHEMA
+    )
+
+    # Schema for set_digital_input_rule_lock_state
+    SET_DIGITAL_INPUT_RULE_LOCK_STATE_SCHEMA = vol.Schema({
+        vol.Required(ATTR_DEVICE_ID): cv.string,
+        vol.Required("rule_key"): cv.string,
+        vol.Required("lock_state"): cv.boolean,
+    })
+
+    async def async_handle_set_digital_input_rule_lock_state(call: ServiceCall) -> None:
+        """Handle the set_digital_input_rule_lock_state service call."""
+        device_id = call.data.get(ATTR_DEVICE_ID)
+        rule_key = call.data.get("rule_key")
+        lock_state = call.data.get("lock_state")
+
+        coordinator: Optional[VioletPoolDataUpdateCoordinator] = hass.data[DOMAIN].get(device_id)
+
+        if not coordinator or not hasattr(coordinator, 'device') or not hasattr(coordinator.device, 'api'):
+            _LOGGER.error("DIRULE Lock: Device %s nicht gefunden oder API nicht verfügbar.", device_id)
+            raise HomeAssistantError(f"Violet Pool Controller Gerät {device_id} nicht gefunden.")
+
+        try:
+            _LOGGER.info("Setze Lock-Status für DIRULE %s auf %s für Gerät %s", rule_key, lock_state, coordinator.device.name)
+            result = await coordinator.device.api.set_digital_input_rule_lock(rule_key=rule_key, lock=lock_state)
+            if isinstance(result, dict) and result.get("success", True):
+                _LOGGER.info("Lock-Status für DIRULE %s auf %s für Gerät %s erfolgreich gesetzt.", rule_key, lock_state, coordinator.device.name)
+            else:
+                _LOGGER.warning("Setzen des Lock-Status für DIRULE %s auf %s für Gerät %s möglicherweise nicht erfolgreich: %s", rule_key, lock_state, coordinator.device.name, result.get("response", result))
+            await coordinator.async_request_refresh()
+        except Exception as err:
+            _LOGGER.error("Fehler beim Setzen des Lock-Status für DIRULE %s für Gerät %s: %s", rule_key, coordinator.device.name, err)
+            raise HomeAssistantError(f"Fehler beim Setzen des Lock-Status für DIRULE {rule_key} für Gerät {coordinator.device.name}: {err}")
+            
+    hass.services.async_register(
+        DOMAIN, "set_digital_input_rule_lock_state", async_handle_set_digital_input_rule_lock_state, schema=SET_DIGITAL_INPUT_RULE_LOCK_STATE_SCHEMA
     )
 
     _LOGGER.info("Services für %s registriert", DOMAIN)
