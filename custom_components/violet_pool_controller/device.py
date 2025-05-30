@@ -17,6 +17,7 @@ from homeassistant.const import CONF_USERNAME, CONF_PASSWORD
 from .const import (
     DOMAIN,
     API_READINGS,
+    CONF_API_URL,
     CONF_USE_SSL,
     CONF_DEVICE_NAME,
     CONF_DEVICE_ID,
@@ -27,11 +28,8 @@ from .const import (
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_TIMEOUT_DURATION,
     DEFAULT_RETRY_ATTEMPTS,
-    # API_SET_FUNCTION_MANUALLY, # No longer used directly by device.py for commands
-    # API_SET_DOSING_PARAMETERS, # No longer used directly by device.py for commands
-    # API_SET_TARGET_VALUES, # No longer used directly by device.py for commands
 )
-from .api import VioletPoolAPI # Import VioletPoolAPI
+from .api import VioletPoolAPI
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -48,31 +46,33 @@ class VioletPoolControllerDevice:
         """
         self.hass = hass
         self.config_entry = config_entry
-        self.api = api  # Store the API instance
+        self.api = api
         self._available = False
-        # _session is still needed for _fetch_api_data (updates)
         self._session = async_get_clientsession(hass)
         self._data: Dict[str, Any] = {}
         self._device_info: Dict[str, Any] = {}
         self._firmware_version: Optional[str] = None
         self._last_error: Optional[str] = None
-        self._api_lock = asyncio.Lock() # This lock is for _fetch_api_data
+        self._api_lock = asyncio.Lock()
 
         self.entry_data = config_entry.data
-        self.api_url = self.entry_data.get("base_ip") # Still needed for display and potentially _fetch_api_data
-        self.use_ssl = self.entry_data.get(CONF_USE_SSL, True) # Still needed for _fetch_api_data
+        # Korrigierte IP-Adresse Extraktion
+        self.api_url = self.entry_data.get(CONF_API_URL) or self.entry_data.get("host") or self.entry_data.get("base_ip")
+        if not self.api_url:
+            raise ValueError("Keine gültige API-URL in der Konfiguration gefunden")
+        
+        self.use_ssl = self.entry_data.get(CONF_USE_SSL, True)
         self.device_id = self.entry_data.get(CONF_DEVICE_ID, 1)
         self.device_name = self.entry_data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
-        self.username = self.entry_data.get(CONF_USERNAME) # Still needed for _fetch_api_data
-        self.password = self.entry_data.get(CONF_PASSWORD) # Still needed for _fetch_api_data
+        self.username = self.entry_data.get(CONF_USERNAME)
+        self.password = self.entry_data.get(CONF_PASSWORD)
 
         options = config_entry.options
         self.polling_interval = int(options.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL))
-        self.timeout_duration = int(options.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)) # Used by _fetch_api_data
-        self.retry_attempts = int(options.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)) # Used by _fetch_api_data
+        self.timeout_duration = int(options.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION))
+        self.retry_attempts = int(options.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS))
         self.active_features = options.get(CONF_ACTIVE_FEATURES, [])
 
-        # api_base_url, api_readings_url, and auth are still needed for _fetch_api_data
         protocol = "https" if self.use_ssl else "http"
         self.api_base_url = f"{protocol}://{self.api_url}"
         self.api_readings_url = f"{self.api_base_url}{API_READINGS}?ALL"
@@ -89,6 +89,11 @@ class VioletPoolControllerDevice:
     def firmware_version(self) -> Optional[str]:
         """Gibt die Firmware-Version zurück."""
         return self._firmware_version
+
+    @property
+    def name(self) -> str:
+        """Gibt den Gerätenamen zurück."""
+        return self.device_name
 
     @property
     def device_info(self) -> Dict[str, Any]:
@@ -192,10 +197,6 @@ class VioletPoolControllerDevice:
             processed["ph_value"] = round(float(processed["ph_value"]), 2)
         return processed
 
-    # Removed async_send_command
-    # Removed async_set_swimming_pool_temperature
-    # Removed async_set_switch_state
-
     def is_feature_active(self, feature_id: str) -> bool:
         """Prüfe, ob ein Feature aktiv ist."""
         return feature_id in self.active_features
@@ -216,18 +217,16 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self) -> Dict[str, Any]:
         """Aktualisiere die Daten."""
         try:
-            # This calls self.device.async_update() which uses the device's own _fetch_api_data
             return await self.device.async_update()
         except Exception as e:
-            # self.device._available is set within self.device.async_update() on error
             _LOGGER.error("Fehler beim Aktualisieren der Daten für %s: %s", self.device.name, e)
             raise UpdateFailed(f"Fehler beim Aktualisieren der Daten für {self.device.name}: {e}")
 
 
 async def async_setup_device(hass: HomeAssistant, config_entry: ConfigEntry, api: VioletPoolAPI) -> Optional[VioletPoolDataUpdateCoordinator]:
     """Richte das Gerät ein und erstelle den Koordinator."""
-    device = VioletPoolControllerDevice(hass, config_entry, api) # Pass API instance
-    if not await device.async_setup(): # This calls device.async_update()
+    device = VioletPoolControllerDevice(hass, config_entry, api)
+    if not await device.async_setup():
         raise ConfigEntryNotReady(f"Setup für {device.device_name} fehlgeschlagen: {device.last_error}")
 
     coordinator = VioletPoolDataUpdateCoordinator(hass, device, config_entry)

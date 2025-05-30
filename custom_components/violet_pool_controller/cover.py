@@ -18,7 +18,7 @@ from .const import (
     CONF_ACTIVE_FEATURES,
     COVER_FUNCTIONS, 
 )
-from ..api import (
+from .api import (
     ACTION_PUSH,
     VioletPoolAPIError, VioletPoolConnectionError, VioletPoolCommandError
 )

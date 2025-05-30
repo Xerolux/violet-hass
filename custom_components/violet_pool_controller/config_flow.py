@@ -32,7 +32,6 @@ from .const import (
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_TIMEOUT_DURATION,
     DEFAULT_RETRY_ATTEMPTS,
-    # Import moved definitions
     CONF_POOL_SIZE,
     CONF_POOL_TYPE,
     CONF_DISINFECTION_METHOD,
@@ -45,13 +44,6 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
-
-# Definitions for CONF_POOL_SIZE, CONF_POOL_TYPE, CONF_DISINFECTION_METHOD,
-# DEFAULT_POOL_SIZE, DEFAULT_POOL_TYPE, DEFAULT_DISINFECTION_METHOD,
-# POOL_TYPES, DISINFECTION_METHODS, AVAILABLE_FEATURES
-# have been moved to const.py and are now imported.
-
-# FIRMWARE_REGEX was here, removed as unused.
 
 def validate_ip_address(ip: str) -> bool:
     """Validierung der IP-Adresse."""
@@ -105,14 +97,14 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             if not validate_ip_address(user_input[CONF_API_URL]):
-                errors[CONF_API_URL] = "Ungültige IP-Adresse"
+                errors[CONF_API_URL] = "invalid_ip_address"
             else:
                 self._config_data = {
                     CONF_API_URL: user_input[CONF_API_URL],
                     CONF_USE_SSL: user_input.get(CONF_USE_SSL, DEFAULT_USE_SSL),
                     CONF_DEVICE_NAME: user_input.get(CONF_DEVICE_NAME, "Violet Pool Controller"),
-                    CONF_USERNAME: user_input.get(CONF_USERNAME),
-                    CONF_PASSWORD: user_input.get(CONF_PASSWORD),
+                    CONF_USERNAME: user_input.get(CONF_USERNAME, ""),
+                    CONF_PASSWORD: user_input.get(CONF_PASSWORD, ""),
                     CONF_DEVICE_ID: int(user_input.get(CONF_DEVICE_ID, 1)),
                     CONF_POLLING_INTERVAL: int(user_input.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)),
                     CONF_TIMEOUT_DURATION: int(user_input.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)),
@@ -133,12 +125,12 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     )
                     return await self.async_step_pool_setup()
                 except ValueError as err:
-                    errors["base"] = str(err)
+                    errors["base"] = "cannot_connect"
 
         data_schema = vol.Schema({
             vol.Required(CONF_API_URL, default="192.168.1.100"): str,
-            vol.Optional(CONF_USERNAME): str,
-            vol.Optional(CONF_PASSWORD): str,
+            vol.Optional(CONF_USERNAME, default=""): str,
+            vol.Optional(CONF_PASSWORD, default=""): str,
             vol.Required(CONF_USE_SSL, default=DEFAULT_USE_SSL): bool,
             vol.Required(CONF_DEVICE_ID, default=1): vol.All(vol.Coerce(int), vol.Range(min=1)),
             vol.Required(CONF_POLLING_INTERVAL, default=DEFAULT_POLLING_INTERVAL): vol.All(vol.Coerce(int), vol.Range(min=10, max=3600)),
@@ -154,16 +146,12 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            # pool_size validation is handled by vol.Range in the schema
             self._config_data.update({
-                CONF_POOL_SIZE: float(user_input[CONF_POOL_SIZE]), # Ensure it's float
+                CONF_POOL_SIZE: float(user_input[CONF_POOL_SIZE]),
                 CONF_POOL_TYPE: user_input[CONF_POOL_TYPE],
                 CONF_DISINFECTION_METHOD: user_input[CONF_DISINFECTION_METHOD],
             })
             return await self.async_step_feature_selection()
-            # Removed manual pool_size validation as vol.Range handles it.
-            # Error handling for try-except ValueError around float conversion
-            # is also implicitly handled by voluptuous if Coerce(float) is used correctly.
 
         data_schema = vol.Schema({
             vol.Required(CONF_POOL_SIZE, default=DEFAULT_POOL_SIZE): vol.All(vol.Coerce(float), vol.Range(min=0.1, max=1000)),
@@ -171,7 +159,16 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Required(CONF_DISINFECTION_METHOD, default=DEFAULT_DISINFECTION_METHOD): vol.In(DISINFECTION_METHODS),
         })
 
-        return self.async_show_form(step_id="pool_setup", data_schema=data_schema, errors=errors)
+        # Provide device_name context for translation
+        device_name = self._config_data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
+        placeholders = {"device_name": device_name}
+
+        return self.async_show_form(
+            step_id="pool_setup", 
+            data_schema=data_schema, 
+            errors=errors,
+            description_placeholders=placeholders
+        )
 
     async def async_step_feature_selection(self, user_input: Optional[Dict[str, bool]] = None) -> config_entries.FlowResult:
         """Schritt 3: Feature-Auswahl."""
@@ -180,15 +177,30 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             active_features = [f["id"] for f in AVAILABLE_FEATURES if user_input.get(f["id"], f["default"])]
             self._config_data[CONF_ACTIVE_FEATURES] = active_features
+            
+            # Dynamische Titel-Erstellung
+            device_name = self._config_data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
+            device_id = self._config_data.get(CONF_DEVICE_ID, 1)
+            title = f"{device_name} (ID {device_id})"
+            
             return self.async_create_entry(
-                title=f"{self._config_data[CONF_DEVICE_NAME]} (ID {self._config_data[CONF_DEVICE_ID]})",
+                title=title,
                 data=self._config_data,
             )
 
         schema_dict = {vol.Required(f["id"], default=f["default"]): bool for f in AVAILABLE_FEATURES}
         data_schema = vol.Schema(schema_dict)
 
-        return self.async_show_form(step_id="feature_selection", data_schema=data_schema, errors=errors)
+        # Provide device_name context for translation
+        device_name = self._config_data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
+        placeholders = {"device_name": device_name}
+
+        return self.async_show_form(
+            step_id="feature_selection", 
+            data_schema=data_schema, 
+            errors=errors,
+            description_placeholders=placeholders
+        )
 
 
 class VioletOptionsFlowHandler(config_entries.OptionsFlow):
@@ -196,25 +208,18 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""
-        self.config_entry = config_entry
-        # Combine data and options for defaulting, options take precedence
+        super().__init__()
         self.current_config = {**config_entry.data, **config_entry.options}
-
 
     async def async_step_init(self, user_input: Optional[Dict[str, Any]] = None) -> config_entries.FlowResult:
         """Manage the options."""
         if user_input is not None:
-            # Process active features
             active_features = [
                 feature["id"] for feature in AVAILABLE_FEATURES if user_input.pop(f"feature_{feature['id']}", False)
             ]
-            # Update user_input with the processed list of active features
             user_input[CONF_ACTIVE_FEATURES] = active_features
             return self.async_create_entry(title="", data=user_input)
 
-        # Get current active features for defaults
-        current_active_features = self.current_config.get(CONF_ACTIVE_FEATURES, [])
-        
         options_schema_dict = {
             vol.Optional(
                 CONF_POLLING_INTERVAL,
@@ -242,7 +247,6 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
             ): vol.In(DISINFECTION_METHODS),
         }
 
-        # Add feature toggles
         for feature in AVAILABLE_FEATURES:
             options_schema_dict[vol.Optional(
                 f"feature_{feature['id']}",

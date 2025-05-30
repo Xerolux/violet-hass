@@ -28,9 +28,9 @@ from .const import (
     DEFAULT_TIMEOUT_DURATION,
     DEFAULT_RETRY_ATTEMPTS,
 )
-from .api import VioletPoolAPI, ACTION_ALLON, ACTION_ALLAUTO, ACTION_ALLOFF # Import DMX action constants
+from .api import VioletPoolAPI, ACTION_ALLON, ACTION_ALLAUTO, ACTION_ALLOFF
 from .device import async_setup_device, VioletPoolDataUpdateCoordinator
-from homeassistant.const import ATTR_DEVICE_ID # Import ATTR_DEVICE_ID
+from homeassistant.const import ATTR_DEVICE_ID
 
 # Plattformen, die diese Integration unterstützt
 PLATFORMS: Final[List[str]] = [
@@ -78,7 +78,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """
     _LOGGER.info("Setting up Violet Pool Controller integration (entry_id=%s)", entry.entry_id)
 
-    ip_address = entry.data.get(CONF_API_URL, entry.data.get("base_ip", "127.0.0.1"))
+    # Korrigierte IP-Adresse Extraktion - mehrere mögliche Schlüssel berücksichtigen
+    ip_address = (
+        entry.data.get(CONF_API_URL) or 
+        entry.data.get("host") or 
+        entry.data.get("base_ip") or 
+        "127.0.0.1"
+    )
+    
     use_ssl = entry.data.get(CONF_USE_SSL, True)
     device_id = entry.data.get(CONF_DEVICE_ID, 1)
     username = entry.data.get(CONF_USERNAME, "")
@@ -120,7 +127,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             use_ssl=use_ssl,
             timeout=timeout_duration,
         )
-        # Pass the api instance to async_setup_device
         coordinator = await async_setup_device(hass, entry, api)
         if not coordinator:
             _LOGGER.error("Fehler beim Einrichten des Coordinators")
@@ -337,14 +343,8 @@ def register_services(hass: HomeAssistant) -> None:
 
         for coordinator in coordinators:
             try:
-                # Use the API method on the device's api instance
                 result = await coordinator.device.api.start_water_analysis()
-                # The result structure from VioletPoolAPI methods is already a dict or raises an error.
-                # We can assume success if no exception is raised, or check specific content if necessary.
-                # For now, let's assume methods in VioletPoolAPI return a dict that might include a success indicator
-                # or rely on them raising exceptions for failures.
-                # The _normalize_response in api.py tries to add "success" for string responses.
-                if result.get("success", True): # Assume success if not explicitly false
+                if result.get("success", True):
                     _LOGGER.info("Wasseranalyse für %s erfolgreich gestartet.", coordinator.device.name)
                 else:
                     _LOGGER.warning("Wasseranalyse für %s möglicherweise nicht erfolgreich: %s", coordinator.device.name, result.get("response", result))
@@ -375,10 +375,8 @@ def register_services(hass: HomeAssistant) -> None:
 
         for coordinator in coordinators:
             try:
-                # Use the API method on the device's api instance
                 result = await coordinator.device.api.set_maintenance_mode(enabled=enable)
-                # Similar to start_water_analysis, check success.
-                if result.get("success", True): # Assume success if not explicitly false
+                if result.get("success", True):
                     _LOGGER.info("Wartungsmodus für %s auf %s gesetzt.", coordinator.device.name, "EIN" if enable else "AUS")
                 else:
                     _LOGGER.warning("Wartungsmodus für %s möglicherweise nicht erfolgreich gesetzt: %s", coordinator.device.name, result.get("response", result))

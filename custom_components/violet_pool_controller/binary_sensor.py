@@ -223,7 +223,6 @@ async def async_setup_entry(
         elif key in ["COVER_OPEN", "COVER_CLOSE"]:
             device_class = BinarySensorDeviceClass.OPENING
         elif key == "REFILL":
-            # REFILL: 1 is assumed to mean "refilling is currently active"
             device_class = BinarySensorDeviceClass.RUNNING
         
         entity_category = EntityCategory.DIAGNOSTIC if key.startswith("DOS_") else None
@@ -242,25 +241,21 @@ async def async_setup_entry(
     # Dynamically add Digital Input sensors (INPUT1-INPUT12, INPUTz1z2)
     for i in range(1, 13):
         key = f"INPUT{i}"
-        if key in available_data_keys and not any(d.key == key for d in binary_sensors):
+        if key in available_data_keys and not any(bs.entity_description.key == key for bs in binary_sensors):
             feature_id = f"digital_input_{i}"
-            # Check if feature is active if a more granular feature management is introduced later
-            # if feature_id and feature_id not in active_features:
-            #     _LOGGER.debug(f"Binary Sensor {key} übersprungen: Feature {feature_id} inaktiv")
-            #     continue
             _LOGGER.debug(f"Digital Input Sensor {key} erstellen")
             description = VioletBinarySensorEntityDescription(
                 key=key,
                 name=f"Digital Input {i}",
-                icon="mdi:electric-switch", # Default icon for inputs
-                device_class=BinarySensorDeviceClass.GENERIC, # Or POWER, CONNECTIVITY if more specific
+                icon="mdi:electric-switch",
+                device_class=BinarySensorDeviceClass.GENERIC,
                 entity_category=EntityCategory.DIAGNOSTIC,
                 feature_id=feature_id,
             )
             binary_sensors.append(VioletBinarySensor(coordinator, config_entry, description))
 
     key_input_z1z2 = "INPUTz1z2"
-    if key_input_z1z2 in available_data_keys and not any(d.key == key_input_z1z2 for d in binary_sensors):
+    if key_input_z1z2 in available_data_keys and not any(bs.entity_description.key == key_input_z1z2 for bs in binary_sensors):
         _LOGGER.debug(f"Digital Input Sensor {key_input_z1z2} erstellen")
         description = VioletBinarySensorEntityDescription(
             key=key_input_z1z2,
@@ -275,7 +270,7 @@ async def async_setup_entry(
     # Dynamically add Digital Input CE sensors (INPUT_CE1-INPUT_CE4)
     for i in range(1, 5):
         key = f"INPUT_CE{i}"
-        if key in available_data_keys and not any(d.key == key for d in binary_sensors):
+        if key in available_data_keys and not any(bs.entity_description.key == key for bs in binary_sensors):
             feature_id = f"digital_input_ce_{i}"
             _LOGGER.debug(f"Digital Input CE Sensor {key} erstellen")
             description = VioletBinarySensorEntityDescription(
@@ -295,19 +290,15 @@ async def async_setup_entry(
         "CLOSE_CONTACT": {"name": "Cover Close Contact", "device_class": BinarySensorDeviceClass.WINDOW, "icon": "mdi:window-closed-variant"},
     }
     for key, info in cover_contact_sensors_map.items():
-        if key in available_data_keys and not any(d.key == key for d in binary_sensors):
+        if key in available_data_keys and not any(bs.entity_description.key == key for bs in binary_sensors):
             feature_id = f"cover_contact_{key.lower()}"
-            # if feature_id and feature_id not in active_features: # Assuming 'cover_control' feature might gate these
-            #     if "cover_control" not in active_features:
-            #          _LOGGER.debug(f"Binary Sensor {key} übersprungen: Feature cover_control inaktiv")
-            #          continue
             _LOGGER.debug(f"Cover Contact Sensor {key} erstellen")
             description = VioletBinarySensorEntityDescription(
                 key=key,
                 name=info["name"],
                 icon=info["icon"],
                 device_class=info["device_class"],
-                entity_category=EntityCategory.DIAGNOSTIC, # Contacts are diagnostic
+                entity_category=EntityCategory.DIAGNOSTIC,
                 feature_id=feature_id,
             )
             binary_sensors.append(VioletBinarySensor(coordinator, config_entry, description))
@@ -316,7 +307,7 @@ async def async_setup_entry(
         _LOGGER.debug("Cover-Geschlossen Sensor wird erstellt")
         binary_sensors.append(CoverIsClosedBinarySensor(coordinator, config_entry))
 
-    if "PVSURPLUS" in available_data_keys and not any(d.key == "PVSURPLUS" for d in binary_sensors):
+    if "PVSURPLUS" in available_data_keys and not any(bs.entity_description.key == "PVSURPLUS" for bs in binary_sensors):
         _LOGGER.debug("PV-Überschuss Sensor wird erstellt")
         description = VioletBinarySensorEntityDescription(
             key="PVSURPLUS",
