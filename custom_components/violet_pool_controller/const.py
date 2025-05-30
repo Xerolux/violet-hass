@@ -5,7 +5,7 @@ from typing import Final, List, Dict, Any
 DOMAIN: Final[str] = "violet_pool_controller"
 
 # Integrationsdetails
-INTEGRATION_VERSION: Final[str] = "0.0.9.7"
+INTEGRATION_VERSION: Final[str] = "0.1.0.1"
 MANUFACTURER: Final[str] = "PoolDigital GmbH & Co. KG"
 
 # Logger-Name

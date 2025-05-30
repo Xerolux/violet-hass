@@ -209,6 +209,7 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""
         super().__init__()
+        self.config_entry = config_entry
         self.current_config = {**config_entry.data, **config_entry.options}
 
     async def async_step_init(self, user_input: Optional[Dict[str, Any]] = None) -> config_entries.FlowResult:
@@ -219,6 +220,8 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
             ]
             user_input[CONF_ACTIVE_FEATURES] = active_features
             return self.async_create_entry(title="", data=user_input)
+
+        current_active_features = self.current_config.get(CONF_ACTIVE_FEATURES, [])
 
         options_schema_dict = {
             vol.Optional(
