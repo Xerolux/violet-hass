@@ -38,7 +38,9 @@
                     "pv_surplus": "PV-Überschuss",
                     "water_level": "Wasserstand",
                     "water_refill": "Wassernachfüllung",
-                    "led_lighting": "LED-Beleuchtung"
+                    "led_lighting": "LED-Beleuchtung",
+                    "digital_inputs": "Digital Inputs",
+                    "extension_outputs": "Extension Outputs"
                 }
             }
         },
@@ -84,7 +86,9 @@
                     "pv_surplus": "PV-Überschuss",
                     "water_level": "Wasserstand",
                     "water_refill": "Wassernachfüllung",
-                    "led_lighting": "LED-Beleuchtung"
+                    "led_lighting": "LED-Beleuchtung",
+                    "digital_inputs": "Digital Inputs",
+                    "extension_outputs": "Extension Outputs"
                 }
             }
         }
@@ -349,6 +353,52 @@
                 "enable": {
                     "name": "Aktivieren",
                     "description": "Ob der Wartungsmodus aktiviert (true) oder deaktiviert (false) werden soll."
+                }
+            }
+        },
+        "trigger_digital_input_rule": {
+            "name": "Trigger Digital Input Rule",
+            "description": "Triggers a configured Digital Input Rule on the Violet Pool Controller.",
+            "fields": {
+                "device_id": {
+                    "name": "Device",
+                    "description": "The Violet Pool Controller device to target."
+                },
+                "rule_key": {
+                    "name": "Rule Key",
+                    "description": "The key of the Digital Input Rule to trigger (e.g., DIRULE_1, DIRULE_2, etc., up to DIRULE_7)."
+                }
+            }
+        },
+        "set_all_dmx_scenes_mode": {
+            "name": "Set All DMX Scenes Mode",
+            "description": "Sets all DMX scenes to ON, OFF, or AUTO mode.",
+            "fields": {
+                "device_id": {
+                    "name": "Device",
+                    "description": "The Violet Pool Controller device to target."
+                },
+                "dmx_mode": {
+                    "name": "DMX Mode",
+                    "description": "The mode to set for all DMX scenes ('ALLON', 'ALLAUTO', 'ALLOFF')."
+                }
+            }
+        },
+        "set_digital_input_rule_lock_state": {
+            "name": "Set Digital Input Rule Lock State",
+            "description": "Locks or unlocks a specific Digital Input Rule.",
+            "fields": {
+                "device_id": {
+                    "name": "Device",
+                    "description": "The Violet Pool Controller device to target."
+                },
+                "rule_key": {
+                    "name": "Rule Key",
+                    "description": "The key of the Digital Input Rule (e.g., DIRULE_1)."
+                },
+                "lock_state": {
+                    "name": "Lock State",
+                    "description": "Whether to lock (true) or unlock (false) the rule."
                 }
             }
         }

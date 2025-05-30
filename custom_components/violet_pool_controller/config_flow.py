@@ -32,40 +32,26 @@ from .const import (
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_TIMEOUT_DURATION,
     DEFAULT_RETRY_ATTEMPTS,
+    # Import moved definitions
+    CONF_POOL_SIZE,
+    CONF_POOL_TYPE,
+    CONF_DISINFECTION_METHOD,
+    DEFAULT_POOL_SIZE,
+    DEFAULT_POOL_TYPE,
+    DEFAULT_DISINFECTION_METHOD,
+    POOL_TYPES,
+    DISINFECTION_METHODS,
+    AVAILABLE_FEATURES,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
-# Neue Konfigurationsschlüssel
-CONF_POOL_SIZE = "pool_size"  # in m³
-CONF_POOL_TYPE = "pool_type"
-CONF_DISINFECTION_METHOD = "disinfection_method"
+# Definitions for CONF_POOL_SIZE, CONF_POOL_TYPE, CONF_DISINFECTION_METHOD,
+# DEFAULT_POOL_SIZE, DEFAULT_POOL_TYPE, DEFAULT_DISINFECTION_METHOD,
+# POOL_TYPES, DISINFECTION_METHODS, AVAILABLE_FEATURES
+# have been moved to const.py and are now imported.
 
-# Standardwerte
-DEFAULT_POOL_SIZE = 50  # m³
-DEFAULT_POOL_TYPE = "outdoor"
-DEFAULT_DISINFECTION_METHOD = "chlorine"
-
-# Optionen für Pool-Typen und Desinfektionsmethoden
-POOL_TYPES = ["outdoor", "indoor", "whirlpool", "natural", "combination"]
-DISINFECTION_METHODS = ["chlorine", "salt", "bromine", "active_oxygen", "uv", "ozone"]
-
-# Verfügbare Features
-AVAILABLE_FEATURES = [
-    {"id": "heating", "name": "Heizung", "default": True, "platforms": ["climate"]},
-    {"id": "solar", "name": "Solarabsorber", "default": True, "platforms": ["climate"]},
-    {"id": "ph_control", "name": "pH-Kontrolle", "default": True, "platforms": ["number", "sensor"]},
-    {"id": "chlorine_control", "name": "Chlor-Kontrolle", "default": True, "platforms": ["number", "sensor"]},
-    {"id": "cover_control", "name": "Abdeckungssteuerung", "default": True, "platforms": ["cover"]},
-    {"id": "backwash", "name": "Rückspülung", "default": True, "platforms": ["switch"]},
-    {"id": "pv_surplus", "name": "PV-Überschuss", "default": True, "platforms": ["switch"]},
-    {"id": "water_level", "name": "Wasserstand", "default": False, "platforms": ["sensor", "switch"]},
-    {"id": "water_refill", "name": "Wassernachfüllung", "default": False, "platforms": ["switch"]},
-    {"id": "led_lighting", "name": "LED-Beleuchtung", "default": True, "platforms": ["switch"]},
-]
-
-# Regex für Firmware-Versionen
-FIRMWARE_REGEX = r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:[0-9A-Za-z-_]+)(?:\.[0-9A-Za-z-_]+)*))?(?:\+((?:[0-9A-Za-z-_]+)(?:\.[0-9A-Za-z-_]+)*))?"
+# FIRMWARE_REGEX was here, removed as unused.
 
 def validate_ip_address(ip: str) -> bool:
     """Validierung der IP-Adresse."""
@@ -101,6 +87,13 @@ async def fetch_api_data(
 class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Config Flow für Violet Pool Controller."""
     VERSION = 1
+    CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> "VioletOptionsFlowHandler":
+        """Get the options flow for this handler."""
+        return VioletOptionsFlowHandler(config_entry)
 
     def __init__(self):
         self._config_data = {}
@@ -161,19 +154,16 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            try:
-                pool_size = float(user_input[CONF_POOL_SIZE])
-                if pool_size <= 0 or pool_size > 1000:
-                    errors[CONF_POOL_SIZE] = "Poolgröße muss zwischen 0.1 und 1000 m³ liegen."
-                else:
-                    self._config_data.update({
-                        CONF_POOL_SIZE: pool_size,
-                        CONF_POOL_TYPE: user_input[CONF_POOL_TYPE],
-                        CONF_DISINFECTION_METHOD: user_input[CONF_DISINFECTION_METHOD],
-                    })
-                    return await self.async_step_feature_selection()
-            except ValueError:
-                errors[CONF_POOL_SIZE] = "Ungültige Poolgröße"
+            # pool_size validation is handled by vol.Range in the schema
+            self._config_data.update({
+                CONF_POOL_SIZE: float(user_input[CONF_POOL_SIZE]), # Ensure it's float
+                CONF_POOL_TYPE: user_input[CONF_POOL_TYPE],
+                CONF_DISINFECTION_METHOD: user_input[CONF_DISINFECTION_METHOD],
+            })
+            return await self.async_step_feature_selection()
+            # Removed manual pool_size validation as vol.Range handles it.
+            # Error handling for try-except ValueError around float conversion
+            # is also implicitly handled by voluptuous if Coerce(float) is used correctly.
 
         data_schema = vol.Schema({
             vol.Required(CONF_POOL_SIZE, default=DEFAULT_POOL_SIZE): vol.All(vol.Coerce(float), vol.Range(min=0.1, max=1000)),
@@ -199,3 +189,67 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         data_schema = vol.Schema(schema_dict)
 
         return self.async_show_form(step_id="feature_selection", data_schema=data_schema, errors=errors)
+
+
+class VioletOptionsFlowHandler(config_entries.OptionsFlow):
+    """Handle Violet Pool Controller options."""
+
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        """Initialize options flow."""
+        self.config_entry = config_entry
+        # Combine data and options for defaulting, options take precedence
+        self.current_config = {**config_entry.data, **config_entry.options}
+
+
+    async def async_step_init(self, user_input: Optional[Dict[str, Any]] = None) -> config_entries.FlowResult:
+        """Manage the options."""
+        if user_input is not None:
+            # Process active features
+            active_features = [
+                feature["id"] for feature in AVAILABLE_FEATURES if user_input.pop(f"feature_{feature['id']}", False)
+            ]
+            # Update user_input with the processed list of active features
+            user_input[CONF_ACTIVE_FEATURES] = active_features
+            return self.async_create_entry(title="", data=user_input)
+
+        # Get current active features for defaults
+        current_active_features = self.current_config.get(CONF_ACTIVE_FEATURES, [])
+        
+        options_schema_dict = {
+            vol.Optional(
+                CONF_POLLING_INTERVAL,
+                default=self.current_config.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
+            ): vol.All(vol.Coerce(int), vol.Range(min=10, max=3600)),
+            vol.Optional(
+                CONF_TIMEOUT_DURATION,
+                default=self.current_config.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)
+            ): vol.All(vol.Coerce(int), vol.Range(min=1, max=60)),
+            vol.Optional(
+                CONF_RETRY_ATTEMPTS,
+                default=self.current_config.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)
+            ): vol.All(vol.Coerce(int), vol.Range(min=1, max=10)),
+            vol.Optional(
+                CONF_POOL_SIZE,
+                default=self.current_config.get(CONF_POOL_SIZE, DEFAULT_POOL_SIZE)
+            ): vol.All(vol.Coerce(float), vol.Range(min=0.1, max=1000)),
+            vol.Optional(
+                CONF_POOL_TYPE,
+                default=self.current_config.get(CONF_POOL_TYPE, DEFAULT_POOL_TYPE)
+            ): vol.In(POOL_TYPES),
+            vol.Optional(
+                CONF_DISINFECTION_METHOD,
+                default=self.current_config.get(CONF_DISINFECTION_METHOD, DEFAULT_DISINFECTION_METHOD)
+            ): vol.In(DISINFECTION_METHODS),
+        }
+
+        # Add feature toggles
+        for feature in AVAILABLE_FEATURES:
+            options_schema_dict[vol.Optional(
+                f"feature_{feature['id']}",
+                default=feature["id"] in current_active_features
+            )] = bool
+        
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(options_schema_dict)
+        )

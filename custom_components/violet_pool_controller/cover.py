@@ -16,8 +16,13 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import (
     DOMAIN,
     CONF_ACTIVE_FEATURES,
-    COVER_FUNCTIONS,
+    COVER_FUNCTIONS, 
 )
+from ..api import (
+    ACTION_PUSH,
+    VioletPoolAPIError, VioletPoolConnectionError, VioletPoolCommandError
+)
+from homeassistant.exceptions import HomeAssistantError # Import HomeAssistantError
 from .entity import VioletPoolControllerEntity
 from .device import VioletPoolDataUpdateCoordinator
 
@@ -75,24 +80,30 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
     @property
     def is_opening(self) -> bool:
         """Gibt True zurück, wenn das Cover gerade öffnet."""
+        # This logic uses COVER_STATE and LAST_MOVING_DIRECTION from the device,
+        # and self._last_action for optimistic immediate feedback after a command.
         raw_state = self.get_str_value("COVER_STATE", "")
         state = COVER_STATE_MAP.get(raw_state, "")
         if state == "opening" or raw_state in ["OPENING", "1", 1]:
             return True
         direction = self.get_str_value("LAST_MOVING_DIRECTION", "")
-        if not self.is_open and self._last_action == "OPEN":
+        # Optimistic check based on last action, useful if state update is delayed
+        if not self.is_open and self._last_action == "OPEN": # OPEN is the HA service call action
             return True
         return direction == "OPEN" and not self.is_closed and not self.is_open
 
     @property
     def is_closing(self) -> bool:
         """Gibt True zurück, wenn das Cover gerade schließt."""
+        # This logic uses COVER_STATE and LAST_MOVING_DIRECTION from the device,
+        # and self._last_action for optimistic immediate feedback after a command.
         raw_state = self.get_str_value("COVER_STATE", "")
         state = COVER_STATE_MAP.get(raw_state, "")
         if state == "closing" or raw_state in ["CLOSING", "3", 3]:
             return True
         direction = self.get_str_value("LAST_MOVING_DIRECTION", "")
-        if not self.is_closed and self._last_action == "CLOSE":
+        # Optimistic check based on last action
+        if not self.is_closed and self._last_action == "CLOSE": # CLOSE is the HA service call action
             return True
         return direction == "CLOSE" and not self.is_closed and not self.is_open
 
@@ -116,35 +127,45 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
         await self._send_cover_command("STOP")
 
     async def _send_cover_command(self, action: str) -> None:
-        """Sendet einen Befehl an das Cover."""
+        """Sendet einen Befehl an das Cover über die VioletPoolAPI."""
+        # 'action' here refers to "OPEN", "CLOSE", "STOP" from Home Assistant services.
+        self._last_action = action # For optimistic state updates
+        
+        cover_api_key = COVER_FUNCTIONS.get(action.upper()) # Ensure action is uppercase for dict lookup
+        
+        if not cover_api_key:
+            self._logger.error(f"Ungültige Cover-Aktion '{action}'. Nicht in COVER_FUNCTIONS gefunden.")
+            return
+
         try:
-            self._logger.debug("Sende Cover-Befehl: %s", action)
-            self._last_action = action
-            endpoint = "/set_cover"
-            command = {"action": action}
-            cover_key = COVER_FUNCTIONS.get(action)
-            if cover_key:
-                command = {
-                    "id": cover_key,
-                    "action": "PUSH",
-                    "duration": 0,
-                    "value": 0
-                }
-                endpoint = "/set_switch"
-            result = await self.device.async_send_command(endpoint, command)
-            self._last_response = result
-            if isinstance(result, dict) and result.get("success", False):
-                self._logger.info("Cover-Befehl %s erfolgreich gesendet", action)
+            self._logger.debug(f"Sende Cover-Befehl: Aktion='{action}', API-Key='{cover_api_key}', API-Aktion='{ACTION_PUSH}'")
+            
+            result = await self.device.api.set_switch_state(
+                key=cover_api_key,
+                action=ACTION_PUSH, # All cover actions use PUSH
+                duration=0,
+                last_value=0
+            )
+            self._last_response = result # Store for debugging or other purposes if needed
+
+            if result.get("success", True): # Assume success if not explicitly false
+                self._logger.info("Cover-Befehl '%s' (API-Key: %s) erfolgreich gesendet.", action, cover_api_key)
             else:
                 self._logger.warning(
-                    "Cover-Befehl %s möglicherweise fehlgeschlagen: %s",
+                    "Cover-Befehl '%s' (API-Key: %s) möglicherweise fehlgeschlagen: %s",
                     action,
-                    result
+                    cover_api_key,
+                    result.get("response", result)
                 )
             await self.coordinator.async_request_refresh()
-        except Exception as err:
-            self._logger.error("Fehler bei Cover-Befehl %s: %s", action, err)
-            self._last_action = None
+        except (VioletPoolConnectionError, VioletPoolCommandError) as err:
+            self._logger.error(f"API-Fehler bei Cover-Befehl '{action}' (API-Key: {cover_api_key}): {err}")
+            # self._last_action = None # Consider if resetting _last_action on error is desired
+            raise HomeAssistantError(f"Cover-Aktion '{action}' fehlgeschlagen: {err}") from err
+        except Exception as err: # Catch any other unexpected errors
+            self._logger.exception(f"Unerwarteter Fehler bei Cover-Befehl '{action}' (API-Key: {cover_api_key}): {err}")
+            # self._last_action = None
+            raise HomeAssistantError(f"Unerwarteter Fehler bei Cover-Aktion '{action}': {err}") from err
 
 async def async_setup_entry(
     hass: HomeAssistant,
