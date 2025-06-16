@@ -25,7 +25,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}  # Use the GITHUB_TOKEN
 
       - name: Commit changes (if any)
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v6
         with:
           branch: ${{ github.head_ref }}  # Commit to the PR branch
           commit_message: 'docs: update CHANGELOG.md [skip ci]'

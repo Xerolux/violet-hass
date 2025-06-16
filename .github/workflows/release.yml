@@ -54,7 +54,7 @@ jobs:
           cat "${{ github.workspace }}/custom_components/violet_pool_controller/const.py"
 
       - name: "Commit and Push .version file"
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v6
         with:
           branch: main
           commit_message: "chore: update .version file to ${{ env.VERSION }}"
