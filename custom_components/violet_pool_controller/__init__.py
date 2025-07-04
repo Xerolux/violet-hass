@@ -44,6 +44,29 @@ PLATFORMS: Final[List[str]] = [
 
 _LOGGER = logging.getLogger(__name__)
 
+async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
+    """Migrate old entry."""
+    _LOGGER.debug("Migrating configuration from version %s", config_entry.version)
+    
+    if config_entry.version == 1:
+        # Version 1 is current, no migration needed
+        return True
+    
+    # Future migrations would go here
+    # if config_entry.version == 1:
+    #     # Migrate from version 1 to version 2
+    #     new_data = {**config_entry.data}
+    #     new_options = {**config_entry.options}
+    #     
+    #     # Add migration logic here
+    #     
+    #     hass.config_entries.async_update_entry(
+    #         config_entry, data=new_data, options=new_options, version=2
+    #     )
+    
+    _LOGGER.info("Migration to version %s successful", config_entry.version)
+    return True
+
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Richte die Integration via YAML ein (veraltet).
 
@@ -470,6 +493,39 @@ def register_services(hass: HomeAssistant) -> None:
             
     hass.services.async_register(
         DOMAIN, "set_digital_input_rule_lock_state", async_handle_set_digital_input_rule_lock_state, schema=SET_DIGITAL_INPUT_RULE_LOCK_STATE_SCHEMA
+    )
+
+    # Schema for trigger_digital_input_rule
+    TRIGGER_DIGITAL_INPUT_RULE_SCHEMA = vol.Schema({
+        vol.Required(ATTR_DEVICE_ID): cv.string,
+        vol.Required("rule_key"): cv.string,
+    })
+
+    async def async_handle_trigger_digital_input_rule(call: ServiceCall) -> None:
+        """Handle the trigger_digital_input_rule service call."""
+        device_id = call.data.get(ATTR_DEVICE_ID)
+        rule_key = call.data.get("rule_key")
+
+        coordinator: Optional[VioletPoolDataUpdateCoordinator] = hass.data[DOMAIN].get(device_id)
+
+        if not coordinator or not hasattr(coordinator, 'device') or not hasattr(coordinator.device, 'api'):
+            _LOGGER.error("DIRULE Trigger: Device %s nicht gefunden oder API nicht verfügbar.", device_id)
+            raise HomeAssistantError(f"Violet Pool Controller Gerät {device_id} nicht gefunden.")
+
+        try:
+            _LOGGER.info("Triggere DIRULE %s für Gerät %s", rule_key, coordinator.device.name)
+            result = await coordinator.device.api.trigger_digital_input_rule(rule_key=rule_key)
+            if isinstance(result, dict) and result.get("success", True):
+                _LOGGER.info("DIRULE %s für Gerät %s erfolgreich getriggert.", rule_key, coordinator.device.name)
+            else:
+                _LOGGER.warning("Triggern der DIRULE %s für Gerät %s möglicherweise nicht erfolgreich: %s", rule_key, coordinator.device.name, result.get("response", result))
+            await coordinator.async_request_refresh()
+        except Exception as err:
+            _LOGGER.error("Fehler beim Triggern der DIRULE %s für Gerät %s: %s", rule_key, coordinator.device.name, err)
+            raise HomeAssistantError(f"Fehler beim Triggern der DIRULE {rule_key} für Gerät {coordinator.device.name}: {err}")
+
+    hass.services.async_register(
+        DOMAIN, "trigger_digital_input_rule", async_handle_trigger_digital_input_rule, schema=TRIGGER_DIGITAL_INPUT_RULE_SCHEMA
     )
 
     _LOGGER.info("Services für %s registriert", DOMAIN)

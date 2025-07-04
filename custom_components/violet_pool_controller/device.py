@@ -6,7 +6,6 @@ from datetime import timedelta
 from typing import Any, Dict, Optional
 
 import aiohttp
-import async_timeout
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -153,7 +152,7 @@ class VioletPoolControllerDevice:
         """
         for attempt in range(retries):
             try:
-                async with async_timeout.timeout(self.timeout_duration):
+                async with asyncio.timeout(self.timeout_duration):
                     async with self._session.get(url, auth=self.auth, ssl=self.use_ssl) as response:
                         response.raise_for_status()
                         content_type = response.headers.get("Content-Type", "")
@@ -207,6 +206,7 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
     def __init__(self, hass: HomeAssistant, device: VioletPoolControllerDevice, config_entry: ConfigEntry) -> None:
         """Initialisiere den Koordinator."""
         self.device = device
+        self.config_entry = config_entry  # Add this for access to config entry
         super().__init__(
             hass,
             _LOGGER,

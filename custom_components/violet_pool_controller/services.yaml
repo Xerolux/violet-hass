@@ -5,7 +5,8 @@ turn_auto:
   target:
     entity:
       integration: violet_pool_controller
-      domain: switch
+      domain: 
+        - switch
   fields:
     auto_delay:
       name: Verzögerung
@@ -24,7 +25,8 @@ set_pv_surplus:
   target:
     entity:
       integration: violet_pool_controller
-      domain: switch
+      domain: 
+        - switch
       device_class: switch
   fields:
     pump_speed:
@@ -45,7 +47,8 @@ manual_dosing:
   target:
     entity:
       integration: violet_pool_controller
-      domain: switch
+      domain: 
+        - switch
   fields:
     duration_seconds:
       name: Dauer in Sekunden
@@ -64,7 +67,8 @@ set_temperature_target:
   target:
     entity:
       integration: violet_pool_controller
-      domain: climate
+      domain: 
+        - climate
   fields:
     temperature:
       name: Temperatur
@@ -89,96 +93,8 @@ set_ph_target:
       selector:
         entity:
           integration: violet_pool_controller
-          domain: number
+          domain: 
+            - number
     target_value:
       name: Sollwert
-      description: Der neue pH-Sollwert.
-      example: 7.2
-      required: true
-      selector:
-        number:
-          min: 6.8
-          max: 7.8
-          step: 0.1
-
-set_chlorine_target:
-  name: Chlor-Sollwert einstellen
-  description: Stellt den Chlor-Sollwert (als Redox-Wert) für die Dosierung ein.
-  fields:
-    entity_id:
-      name: Entity
-      description: Die Entity der Chlor-Dosierung.
-      required: true
-      selector:
-        entity:
-          integration: violet_pool_controller
-          domain: number
-    target_value:
-      name: Sollwert
-      description: Der neue Redox-Sollwert in mV.
-      example: 750
-      required: true
-      selector:
-        number:
-          min: 600
-          max: 850
-          step: 10
-          unit_of_measurement: mV
-
-trigger_backwash:
-  name: Rückspülung auslösen
-  description: Löst einen manuellen Rückspülvorgang aus.
-  fields:
-    entity_id:
-      name: Entity
-      description: Die Entity der Rückspülsteuerung.
-      required: true
-      selector:
-        entity:
-          integration: violet_pool_controller
-          domain: switch
-    duration:
-      name: Dauer
-      description: Optional - Automatische Abschaltung nach Ablauf der Dauer (in Sekunden).
-      example: 120
-      default: 0
-      selector:
-        number:
-          min: 0
-          max: 600
-          unit_of_measurement: Sekunden
-
-start_water_analysis:
-  name: Wasseranalyse starten
-  description: Startet eine Wasseranalyse für den Violet Pool Controller.
-  fields:
-    entity_id:
-      name: Entity
-      description: Optional - Eine spezifische Entity, von der die Wasseranalyse gestartet werden soll. Ohne Angabe wird der erste verfügbare Controller verwendet.
-      example: "sensor.pool_controller_ph_wert"
-      required: false
-      selector:
-        entity:
-          integration: violet_pool_controller
-          domain: sensor
-
-set_maintenance_mode:
-  name: Wartungsmodus einstellen
-  description: Aktiviert oder deaktiviert den Wartungsmodus des Violet Pool Controllers.
-  fields:
-    entity_id:
-      name: Entity
-      description: Optional - Eine spezifische Entity, für die der Wartungsmodus geändert werden soll. Ohne Angabe wird der erste verfügbare Controller verwendet.
-      example: "switch.pool_controller_pumpe"
-      required: false
-      selector:
-        entity:
-          integration: violet_pool_controller
-          domain: switch
-    enable:
-      name: Aktivieren
-      description: True für Wartungsmodus aktivieren, False für deaktivieren.
-      example: true
-      default: true
-      selector:
-        boolean: {}
+      description: Der neue pH-Sollw

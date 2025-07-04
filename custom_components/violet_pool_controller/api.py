@@ -5,7 +5,6 @@ import json
 from typing import Any, Dict, Optional, Union
 
 import aiohttp
-import async_timeout
 
 from .const import (
     API_READINGS,
@@ -128,7 +127,7 @@ class VioletPoolAPI:
         )
 
         try:
-            async with async_timeout.timeout(self.timeout):
+            async with asyncio.timeout(self.timeout):
                 async with self.session.request(
                     method=method,
                     url=url,
