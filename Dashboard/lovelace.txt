@@ -1,280 +1,246 @@
-title: Pool Steuerung
+title: Pool-Steuerung
 views:
   - path: pool
     title: Pool
     icon: mdi:pool
     cards:
-      # Headerbereich mit Übersicht
+      # Übersicht
       - type: custom:mushroom-title-card
         title: Pool Dashboard
-        subtitle: Echtzeit-Überwachung und Steuerung
-        
-      # Hauptstatusanzeige
-      - type: vertical-stack
-        cards:
-          - type: custom:mushroom-template-card
-            primary: Aktueller Poolstatus
-            secondary: >
-              {% if is_state('binary_sensor.pool_pump', 'on') %}
-                System aktiv seit {{ relative_time(states.binary_sensor.pool_pump.last_changed) }}
-              {% else %}
-                System inaktiv seit {{ relative_time(states.binary_sensor.pool_pump.last_changed) }}
-              {% endif %}
-            icon: mdi:pool-thermometer
-            icon_color: >
-              {% if is_state('binary_sensor.pool_pump', 'on') and states('sensor.pool_temperature') | float > 24 %}
-                green
-              {% elif is_state('binary_sensor.pool_pump', 'on') %}
-                blue
-              {% else %}
-                grey
-              {% endif %}
-            layout: vertical
-            tap_action:
-              action: more-info
-              entity: binary_sensor.pool_pump
-              
-      # Wasserqualität und Temperatur
+        subtitle: Echtzeit-Überwachung
+
+      # Hauptstatus
+      - type: custom:mushroom-template-card
+        primary: Poolstatus
+        secondary: >
+          {% if is_state('binary_sensor.pool_pump', 'on') %}
+            Aktiv seit {{ relative_time(states.binary_sensor.pool_pump.last_changed) }}
+          {% else %}
+            Inaktiv seit {{ relative_time(states.binary_sensor.pool_pump.last_changed) }}
+          {% endif %}
+        icon: mdi:pool-thermometer
+        icon_color: >
+          {% if is_state('binary_sensor.pool_pump', 'on') %}
+            {{ 'green' if states('sensor.pool_temperature') | float(0) > 24 else 'blue' }}
+          {% else %}
+            grey
+          {% endif %}
+        tap_action:
+          action: more-info
+          entity: binary_sensor.pool_pump
+
+      # Wasserqualität
       - type: horizontal-stack
         cards:
           - type: custom:mushroom-gauge-card
             entity: sensor.pool_temperature
             name: Temperatur
             icon: mdi:thermometer-water
-            layout: vertical
             max: 40
             min: 10
             segments:
-              - color: '#03a9f4'
-                from: 10
+              - from: 10
                 to: 20
-              - color: '#4caf50'
-                from: 20
+                color: "#03a9f4"
+              - from: 20
                 to: 28
-              - color: '#f44336'
-                from: 28
+                color: "#4caf50"
+              - from: 28
                 to: 40
-            
+                color: "#f44336"
           - type: custom:mushroom-gauge-card
             entity: sensor.pool_ph
             name: pH-Wert
             icon: mdi:test-tube
-            layout: vertical
             max: 9
             min: 5
             segments:
-              - color: '#f44336'
-                from: 5
+              - from: 5
                 to: 6.8
-              - color: '#4caf50'
-                from: 6.8
+                color: "#f44336"
+              - from: 6.8
                 to: 7.8
-              - color: '#f44336'
-                from: 7.8
+                color: "#4caf50"
+              - from: 7.8
                 to: 9
-                
+                color: "#f44336"
           - type: custom:mushroom-gauge-card
             entity: sensor.pool_chlorine
             name: Chlor
             icon: mdi:water-percent
-            layout: vertical
             max: 5
             min: 0
             segments:
-              - color: '#f44336'
-                from: 0
+              - from: 0
                 to: 0.5
-              - color: '#4caf50'
-                from: 0.5
+                color: "#f44336"
+              - from: 0.5
                 to: 3
-              - color: '#f44336'
-                from: 3
+                color: "#4caf50"
+              - from: 3
                 to: 5
-                
+                color: "#f44336"
           - type: custom:mushroom-gauge-card
             entity: sensor.pool_redox
             name: Redox
             icon: mdi:flash
-            layout: vertical
             max: 1000
             min: 0
             segments:
-              - color: '#f44336'
-                from: 0
+              - from: 0
                 to: 600
-              - color: '#4caf50'
-                from: 600
+                color: "#f44336"
+              - from: 600
                 to: 850
-              - color: '#f44336'
-                from: 850
+                color: "#4caf50"
+              - from: 850
                 to: 1000
-                
-      # Historische Daten für Wasserqualität
+                color: "#f44336"
+
+      # Historische Daten
       - type: custom:mushroom-template-card
-        primary: Wasserqualität Historie
+        primary: Wasserqualität-Historie
         icon: mdi:chart-line
-        layout: horizontal
         tap_action:
           action: navigate
-          navigation_path: /lovelace/pool-history
-          
+          navigation_path: /lovelace/pool-details
+
       - type: custom:apexcharts-card
         header:
           show: true
           title: Wasserwerte (24h)
           show_states: true
-        series:
-          - entity: sensor.pool_temperature
-            name: Temperatur
-            color: '#03a9f4'
-            stroke_width: 2
-          - entity: sensor.pool_ph
-            name: pH-Wert
-            color: '#4caf50'
-            stroke_width: 2
-            y_axis_id: ph
-          - entity: sensor.pool_chlorine
-            name: Chlor
-            color: '#f44336'
-            stroke_width: 2
-            y_axis_id: chlorine
-          - entity: sensor.pool_redox
-            name: Redox
-            color: '#ffa726'
-            stroke_width: 2
-            y_axis_id: redox
         yaxis:
-          - id: default
+          - id: temp
             min: 15
             max: 35
             apex_config:
-              title:
-                text: "°C"
+              title: °C
           - id: ph
             min: 6
             max: 9
             opposite: true
             apex_config:
-              title:
-                text: "pH"
+              title: pH
           - id: chlorine
             min: 0
             max: 5
             opposite: true
             apex_config:
-              title:
-                text: "ppm"
+              title: ppm
           - id: redox
             min: 0
             max: 1000
             opposite: true
             apex_config:
-              title:
-                text: "mV"
-      
-      # Pumpe, Beleuchtung und Heizung
+              title: mV
+        series:
+          - entity: sensor.pool_temperature
+            name: Temperatur
+            color: "#03a9f4"
+            y_axis_id: temp
+          - entity: sensor.pool_ph
+            name: pH-Wert
+            color: "#4caf50"
+            y_axis_id: ph
+          - entity: sensor.pool_chlorine
+            name: Chlor
+            color: "#f44336"
+            y_axis_id: chlorine
+          - entity: sensor.pool_redox
+            name: Redox
+            color: "#ffa726"
+            y_axis_id: redox
+
+      # Steuerung
       - type: horizontal-stack
         cards:
           - type: custom:mushroom-entity-card
             entity: switch.pool_pump
             name: Pumpe
             icon: mdi:pump
-            layout: vertical
             tap_action:
               action: toggle
-              
           - type: custom:mushroom-entity-card
             entity: switch.pool_light
             name: Beleuchtung
             icon: mdi:lightbulb
-            layout: vertical
             tap_action:
               action: toggle
-              
           - type: custom:mushroom-entity-card
             entity: switch.pool_heater
             name: Heizung
             icon: mdi:radiator
-            layout: vertical
             tap_action:
               action: toggle
-              
           - type: custom:mushroom-entity-card
             entity: cover.pool_cover
             name: Abdeckung
             icon: mdi:window-shutter
-            layout: vertical
             tap_action:
               action: toggle
-              
-      # Aktionen und Automatisierungen
-      - type: vertical-stack
+
+      # Aktionen
+      - type: horizontal-stack
         cards:
           - type: custom:button-card
             name: Filterreinigung
             icon: mdi:air-filter
-            color: auto
             styles:
               card:
                 - border-radius: 12px
                 - padding: 12px
-                - "--ha-card-background": "rgba(0, 100, 255, 0.1)"
+                - background-color: "rgba(0, 100, 255, 0.1)"
             tap_action:
               action: call-service
               service: script.turn_on
               service_data:
                 entity_id: script.pool_filter_cleaning
-                
           - type: custom:button-card
-            name: Pool schockbehandlung
+            name: Schockbehandlung
             icon: mdi:chemical-weapon
-            color: auto
             styles:
               card:
                 - border-radius: 12px
                 - padding: 12px
-                - "--ha-card-background": "rgba(255, 87, 34, 0.1)"
+                - background-color: "rgba(255, 87, 34, 0.1)"
             tap_action:
               action: call-service
               service: script.turn_on
               service_data:
                 entity_id: script.pool_shock_treatment
-                
           - type: custom:button-card
             name: Wasseranalyse
             icon: mdi:water-check
-            color: auto
             styles:
               card:
                 - border-radius: 12px
                 - padding: 12px
-                - "--ha-card-background": "rgba(76, 175, 80, 0.1)"
+                - background-color: "rgba(76, 175, 80, 0.1)"
             tap_action:
               action: call-service
               service: violet_pool_controller.start_water_analysis
-              service_data:
+              data:
                 entity_id: sensor.pool_ph
-          
           - type: custom:button-card
             name: Wartungsmodus
             icon: mdi:tools
-            color: auto
             styles:
               card:
                 - border-radius: 12px
                 - padding: 12px
-                - "--ha-card-background": "rgba(255, 193, 7, 0.1)"
+                - background-color: "rgba(255, 193, 7, 0.1)"
             tap_action:
               action: call-service
               service: violet_pool_controller.set_maintenance_mode
-              service_data:
+              data:
                 entity_id: switch.pool_pump
                 enable: true
-                
+
       # Zeitpläne
       - type: entities
         title: Zeitpläne
-        icon: mdi:clock-time-four
+        icon: mdi:clock
         entities:
           - input_boolean.pool_schedule_enabled
           - input_datetime.pool_schedule_start
@@ -285,32 +251,22 @@ views:
           entities:
             - entity: script.apply_pool_schedule
               name: Zeitplan anwenden
-              
+
       # Energieverbrauch
-      - type: vertical-stack
-        cards:
-          - type: custom:mushroom-template-card
-            primary: Energieverbrauch
-            icon: mdi:flash
-            layout: horizontal
-            tap_action:
-              action: navigate
-              navigation_path: /lovelace/pool-energy
-              
-          - type: custom:mini-graph-card
-            entities:
-              - entity: sensor.pool_pump_power
-                name: Pumpenleistung
-              - entity: sensor.pool_heater_power
-                name: Heizungsleistung
-            hours_to_show: 24
-            points_per_hour: 2
-            line_width: 2
-            lower_bound: 0
-            aggregate_func: avg
-            group_by: hour
-            
-      # Wetterinformationen für Poolnutzung
+      - type: custom:mini-graph-card
+        title: Energieverbrauch (24h)
+        icon: mdi:flash
+        hours_to_show: 24
+        points_per_hour: 2
+        group_by: hour
+        aggregate_func: avg
+        entities:
+          - entity: sensor.pool_pump_power
+            name: Pumpe
+          - entity: sensor.pool_heater_power
+            name: Heizung
+
+      # Wetter
       - type: custom:mushroom-chips-card
         alignment: center
         chips:
@@ -324,12 +280,12 @@ views:
           - type: entity
             entity: sensor.openweathermap_forecast_temperature
             icon: mdi:thermometer
-            
-      # Wartungsübersicht
+
+      # Wartung
       - type: custom:auto-entities
         card:
           type: entities
-          title: Wartungsinformationen
+          title: Wartung
           icon: mdi:tools
         filter:
           include:
@@ -337,85 +293,65 @@ views:
             - entity_id: sensor.pool_chemical_level*
             - entity_id: sensor.pool_next_maintenance
             - entity_id: sensor.pool_water_level
-        
-  # Zweite Ansicht für detaillierte Statistiken
+
   - path: pool-details
-    title: Pool Details
+    title: Details
     icon: mdi:chart-areaspline
     cards:
-      - type: vertical-stack
+      - type: markdown
+        content: >
+          ## Pool-Statistiken
+          Detaillierte Leistungs- und Verlaufsdaten.
+      - type: statistics-graph
+        title: Wassertemperatur (Monat)
+        entities:
+          - sensor.pool_temperature
+        stat_types: [min, mean, max]
+        period: month
+      - type: statistics-graph
+        title: pH-Wert (Monat)
+        entities:
+          - sensor.pool_ph
+        stat_types: [min, mean, max]
+        period: month
+      - type: statistics-graph
+        title: Redox-Potential (Monat)
+        entities:
+          - sensor.pool_redox
+        stat_types: [min, mean, max]
+        period: month
+      - type: horizontal-stack
         cards:
-          - type: markdown
-            content: >
-              ## Pool Statistiken
-              
-              Hier finden Sie detaillierte Informationen über die Leistung und Geschichte Ihres Pools.
-              
-          - type: statistics-graph
-            title: Langzeittrends Wassertemperatur
+          - type: custom:mini-graph-card
+            title: Pumpenlaufzeit (Woche)
             entities:
-              - sensor.pool_temperature
-            stat_types:
-              - min
-              - mean
-              - max
-            period: month
-            
-          - type: statistics-graph
-            title: Langzeittrends pH-Wert
+              - entity: sensor.pool_pump_runtime_daily
+                name: Laufzeit (h)
+            hours_to_show: 168
+            group_by: date
+            aggregate_func: first
+          - type: custom:mini-graph-card
+            title: Energieverbrauch (Woche)
             entities:
-              - sensor.pool_ph
-            stat_types:
-              - min
-              - mean
-              - max
-            period: month
-            
-          - type: statistics-graph
-            title: Langzeittrends Redox-Potential
-            entities:
-              - sensor.pool_redox
-            stat_types:
-              - min
-              - mean
-              - max
-            period: month
-            
-          - type: horizontal-stack
-            cards:
-              - type: custom:mini-graph-card
-                entities:
-                  - entity: sensor.pool_pump_runtime_daily
-                    name: Laufzeit (Stunden)
-                hours_to_show: 168
-                group_by: date
-                aggregate_func: first
-                name: Pumpenlaufzeit Letzte Woche
-                
-              - type: custom:mini-graph-card
-                entities:
-                  - entity: sensor.pool_energy_consumption_daily
-                    name: Energieverbrauch (kWh)
-                hours_to_show: 168
-                group_by: date
-                aggregate_func: first
-                name: Energieverbrauch Letzte Woche
-                
+              - entity: sensor.pool_energy_consumption_daily
+                name: Verbrauch (kWh)
+            hours_to_show: 168
+            group_by: date
+            aggregate_func: first
       - type: custom:apexcharts-card
         header:
           show: true
-          title: Chemikalienverbrauch pro Monat
-        series:
-          - entity: sensor.pool_chlorine_added_monthly
-            name: Chlor hinzugefügt
-          - entity: sensor.pool_ph_minus_added_monthly
-            name: pH-Minus hinzugefügt
-          - entity: sensor.pool_ph_plus_added_monthly
-            name: pH-Plus hinzugefügt
+          title: Chemikalienverbrauch (Monat)
         chart_type: bar
         period: month
-        
-  # Dritte Ansicht für Konfigurationen
+        series:
+          - entity: sensor.pool_chlorine_added_monthly
+            name: Chlor
+          - entity: sensor.pool_ph_minus_added_monthly
+            name: pH-Minus
+          - entity: sensor.pool_ph_plus_added_monthly
+            name: pH-Plus
+
   - path: pool-config
     title: Konfiguration
     icon: mdi:cog
@@ -427,14 +363,12 @@ views:
           - input_number.pool_target_ph
           - input_number.pool_target_chlorine
           - input_number.pool_target_redox
-          
       - type: entities
         title: Benachrichtigungen
         entities:
           - input_boolean.pool_notifications_enabled
           - input_boolean.pool_critical_alerts_only
           - input_boolean.pool_daily_report
-          
       - type: entities
         title: Automatisierungen
         entities:
@@ -444,7 +378,6 @@ views:
           - automation.pool_weather_based_adjustment
           - automation.pool_cover_rain_protection
           - automation.pool_dosing_based_on_values
-          
       - type: entities
         title: Sensorkalibrierung
         entities:
@@ -456,13 +389,11 @@ views:
           type: buttons
           entities:
             - entity: script.calibrate_pool_sensors
-              name: Sensoren kalibrieren
-              
+              name: Kalibrieren
       - type: markdown
         content: >
-          ### Wartungsdetails
-          
-          * Filterwechsel alle 6 Monate empfohlen
-          * pH-Wert sollte zwischen 7,2 und 7,6 liegen
-          * Chlorgehalt idealerweise zwischen 1,0 und 3,0 ppm
-          * Überprüfen Sie den Skimmer wöchentlich
+          ### Wartungshinweise
+          - Filterwechsel alle 6 Monate
+          - pH-Wert: 7.2–7.6
+          - Chlor: 1.0–3.0 ppm
+          - Wöchentliche Skimmer-Kontrolle
