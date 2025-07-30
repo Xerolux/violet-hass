@@ -2,25 +2,23 @@ name: Validate Integration
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   validate:
     runs-on: ubuntu-latest
     name: Validate Integration
-    
     strategy:
       matrix:
         python-version: ["3.11", "3.12"]
-        home-assistant-version: ["2024.1.0", "2024.12.0"]
-    
+        home-assistant-version: ["2024.7.0", "2025.7.0"]
     steps:
       - name: 📋 Checkout
         uses: actions/checkout@v4
 
-      - name: 🐍 Set up Python ${{ matrix.python-version }}
+      - name: 🐍 Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
@@ -28,17 +26,12 @@ jobs:
       - name: 📦 Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install homeassistant==${{ matrix.home-assistant-version }}
-          pip install pytest pytest-homeassistant-custom-component
-          pip install -r requirements_test.txt
+          pip install homeassistant==${{ matrix.home-assistant-version }} pytest pytest-homeassistant-custom-component -r requirements_test.txt
 
-      - name: 🧹 Lint with flake8
+      - name: 🧹 Lint with Ruff
         run: |
-          pip install flake8
-          # stop the build if there are Python syntax errors or undefined names
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          pip install ruff
+          ruff check . --max-line-length=127
 
       - name: 🏠 Validate with hassfest
         uses: home-assistant/actions/hassfest@master
@@ -48,9 +41,8 @@ jobs:
         with:
           category: integration
 
-      - name: 🧪 Test with pytest
-        run: |
-          pytest tests/ -v --tb=short
+      - name: 🧪 Run tests
+        run: pytest tests/ -v --tb=short
 
       - name: 📝 Type check with mypy
         run: |
@@ -60,7 +52,6 @@ jobs:
   hacs-validation:
     runs-on: ubuntu-latest
     name: HACS Validation
-    
     steps:
       - name: 📋 Checkout
         uses: actions/checkout@v4
@@ -75,7 +66,6 @@ jobs:
     needs: [validate, hacs-validation]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
     steps:
       - name: 📋 Checkout
         uses: actions/checkout@v4
@@ -84,17 +74,15 @@ jobs:
 
       - name: 🏷️ Get version
         id: version
-        run: |
-          VERSION=$(grep '"version"' custom_components/violet_pool_controller/manifest.json | cut -d'"' -f4)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+        run: echo "version=$(jq -r .version custom_components/violet_pool_controller/manifest.json)" >> $GITHUB_OUTPUT
 
       - name: 📦 Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.version }}
-          release_name: Release v${{ steps.version.outputs.version }}
+          name: Release v${{ steps.version.outputs.version }}
+          body_path: CHANGELOG.md
           draft: false
           prerelease: false
-          body_path: CHANGELOG.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
