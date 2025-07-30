@@ -2,31 +2,25 @@ name: Changelog CI
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize]  # Trigger on PR open, reopen, and updates
-  workflow_dispatch:  # Allow manual triggering
+    types: [opened, reopened, synchronize]
+  workflow_dispatch:
 
 jobs:
-  changelog:  # Renamed job to 'changelog' for clarity
+  changelog:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # Required to modify the CHANGELOG.md file
-      pull-requests: write # Required to comment on the PR if there's an issue.
-
+      contents: write
+      pull-requests: write
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history to generate changelog accurately
-
-      - name: Run Changelog CI
-        uses: Release-Tooling/changelog-ci@v1.1.2  # Use a forked, maintained version
+          fetch-depth: 0
+      - uses: Release-Tooling/changelog-ci@v1.1.2
         with:
-          configFile: .github/changelog-ci-config.json  # Use a config file (RECOMMENDED)
-          token: ${{ secrets.GITHUB_TOKEN }}  # Use the GITHUB_TOKEN
-
-      - name: Commit changes (if any)
-        uses: stefanzweifel/git-auto-commit-action@v6
+          config_file: .github/changelog-ci-config.json
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: stefanzweifel/git-auto-commit-action@v6
         with:
-          branch: ${{ github.head_ref }}  # Commit to the PR branch
-          commit_message: 'docs: update CHANGELOG.md [skip ci]'
+          branch: ${{ github.head_ref }}
+          commit_message: "docs: update CHANGELOG.md [skip ci]"
           file_pattern: CHANGELOG.md
