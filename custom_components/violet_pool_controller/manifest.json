@@ -1,15 +1,13 @@
 {
   "domain": "violet_pool_controller",
   "name": "Violet Pool Controller",
-  "codeowners": [
-    "@xerolux"
-  ],
+  "codeowners": ["@xerolux"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/Xerolux/violet-hass",
+  "documentation": "https://github.com/xerolux/violet-hass",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/Xerolux/violet-hass/issues",
-  "requirements": [],
+  "issue_tracker": "https://github.com/xerolux/violet-hass/issues",
+  "requirements": ["aiohttp>=3.8.0"],
   "version": "0.1.0.1",
   "integration_type": "device"
 }
