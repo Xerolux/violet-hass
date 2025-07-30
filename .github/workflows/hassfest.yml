@@ -2,27 +2,22 @@ name: Validate with hassfest
 
 on:
   push:
-    branches:
-      - main  # Run on pushes to the main branch
+    branches: [main]
     paths:
-      - 'custom_components/violet_pool_controller/**'
-      - '.github/workflows/hassfest.yml'  # Trigger if this workflow file changes
+      - custom_components/violet_pool_controller/**
+      - .github/workflows/hassfest.yml
   pull_request:
-    branches:
-      - main
+    branches: [main]
     paths:
-      - 'custom_components/violet_pool_controller/**'
-      - '.github/workflows/hassfest.yml'
+      - custom_components/violet_pool_controller/**
+      - .github/workflows/hassfest.yml
   schedule:
-    - cron: "0 0 * * *"  # Run daily at midnight UTC
-  workflow_dispatch:  # Allow manual runs
+    - cron: "0 0 * * *"
+  workflow_dispatch:
 
 jobs:
   validate:
-    runs-on: "ubuntu-latest"
+    runs-on: ubuntu-latest
     steps:
-      - uses: "actions/checkout@v4"
-        with:
-          fetch-depth: 0 # Fetch all history, sometimes needed for comparisons
-
+      - uses: actions/checkout@v4
       - uses: home-assistant/actions/hassfest@master
