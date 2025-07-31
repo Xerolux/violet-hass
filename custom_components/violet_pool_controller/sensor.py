@@ -69,7 +69,7 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
         """Gib nativen Wert zurück."""
         key = self.entity_description.key
         raw_value = self.coordinator.data.get(key)
-        if raw_value is None or (isinstance(raw_value, str) and raw_value.strip() in ("[]", "{}", "")):
+        if raw_value is None:
             return None
         if key in _TIMESTAMP_KEYS:
             try:
@@ -79,18 +79,14 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
         if key in TEXT_VALUE_SENSORS:
             return str(raw_value)
         try:
-            if isinstance(raw_value, str):
-                if "." in raw_value and raw_value.replace(".", "").replace("-", "").isdigit():
-                    return float(raw_value)
-                elif raw_value.isdigit():
-                    return int(raw_value)
-            return str(raw_value)
+            f = float(raw_value)
+            return int(f) if f.is_integer() else f
         except (ValueError, TypeError):
             return str(raw_value)
 
 def determine_device_class(key: str, unit: str | None) -> SensorDeviceClass | None:
     """Bestimme Device-Klasse."""
-    if key in RUNTIME_SENSORS or key in TEXT_VALUE_SENSORS or key in _TIMESTAMP_KEYS:
+    if key in RUNTIME_SENSORS or key in TEXT_VALUE_SENSORS:
         return None
     key_lower = key.lower()
     if unit == "°C" or "temp" in key_lower or key in {"SYSTEM_cpu_temperature", "SYSTEM_carrier_cpu_temperature"}:
@@ -115,17 +111,46 @@ def determine_state_class(key: str, unit: str | None) -> SensorStateClass | None
         return None
     if unit in {"°C", "bar", "mV", "V", "W", "mg/l", "ppm", "%", "RPM"}:
         return SensorStateClass.MEASUREMENT
-    if "total" in key.lower() or "daily" in key_lower:
+    key_lower = key.lower()
+    if "total" in key_lower or "daily" in key_lower:
         return SensorStateClass.TOTAL_INCREASING
     return None
 
+def get_icon(unit: str | None, key: str) -> str:
+    """Bestimme Icon basierend auf Unit und Key."""
+    if unit == "°C":
+        return "mdi:thermometer"
+    elif unit in {"bar", "Pa"}:
+        return "mdi:gauge"
+    elif unit in {"mV", "V"}:
+        return "mdi:flash"
+    elif unit == "W":
+        return "mdi:lightning-bolt"
+    elif unit in {"mg/l", "ppm"}:
+        return "mdi:test-tube"
+    elif unit == "RPM":
+        return "mdi:speedometer"
+    elif key in _TIMESTAMP_KEYS:
+        return "mdi:clock"
+    elif key in TEXT_VALUE_SENSORS:
+        return "mdi:text"
+    return "mdi:information"
+
 def should_skip_sensor(key: str, raw_value) -> bool:
     """Prüfe, ob Sensor übersprungen werden soll."""
-    return (
-        isinstance(raw_value, str) and raw_value.strip() in ("[]", "{}", "") or
-        (key in RUNTIME_SENSORS and (":" in str(raw_value) or any(s in str(raw_value).lower() for s in ("h", "m", "s"))) or
-        key in NON_TEMPERATURE_SENSORS or key.startswith("_")
-    )
+    if raw_value is None:
+        return True
+    raw_str = str(raw_value).strip()
+    if raw_str in ("[]", "{}", ""):
+        return True
+    if key in RUNTIME_SENSORS:
+        if ":" in raw_str or any(s in raw_str.lower() for s in ("h", "m", "s")):
+            return True
+    if key in NON_TEMPERATURE_SENSORS:
+        return True
+    if key.startswith("_"):
+        return True
+    return False
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
     """Richte Sensoren ein."""
@@ -136,10 +161,17 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
     all_predefined_sensors = {**TEMP_SENSORS, **WATER_CHEM_SENSORS, **ANALOG_SENSORS}
 
     for key, info in all_predefined_sensors.items():
-        if key not in data_keys or should_skip_sensor(key, coordinator.data.get(key)) or (feature_id := SENSOR_FEATURE_MAP.get(key)) and feature_id not in active_features:
+        if key not in data_keys:
+            continue
+        if should_skip_sensor(key, coordinator.data.get(key)):
+            continue
+        feature_id = SENSOR_FEATURE_MAP.get(key)
+        if feature_id and feature_id not in active_features:
             continue
         sensors.append(VioletSensor(coordinator, config_entry, VioletSensorEntityDescription(
-            key=key, name=info["name"], icon=info.get("icon"),
+            key=key,
+            name=info["name"],
+            icon=info.get("icon"),
             native_unit_of_measurement=info.get("unit"),
             device_class=determine_device_class(key, info.get("unit")),
             state_class=determine_state_class(key, info.get("unit")),
@@ -148,22 +180,16 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
 
     for key in data_keys - set(all_predefined_sensors):
         raw_value = coordinator.data.get(key)
-        if should_skip_sensor(key, raw_value) or (feature_id := SENSOR_FEATURE_MAP.get(key)) and feature_id not in active_features:
+        if should_skip_sensor(key, raw_value):
+            continue
+        feature_id = SENSOR_FEATURE_MAP.get(key)
+        if feature_id and feature_id not in active_features:
             continue
         unit = None if key in NO_UNIT_SENSORS else UNIT_MAP.get(key)
         sensors.append(VioletSensor(coordinator, config_entry, VioletSensorEntityDescription(
-            key=key, name=key.replace("_", " ").title(),
-            icon=(
-                "mdi:thermometer" if unit == "°C" else
-                "mdi:gauge" if unit in {"bar", "Pa"} else
-                "mdi:flash" if unit in {"mV", "V"} else
-                "mdi:lightning-bolt" if unit == "W" else
-                "mdi:test-tube" if unit in {"mg/l", "ppm"} else
-                "mdi:speedometer" if unit == "RPM" else
-                "mdi:clock" if key in _TIMESTAMP_KEYS else
-                "mdi:text" if key in TEXT_VALUE_SENSORS else
-                "mdi:information"
-            ),
+            key=key,
+            name=key.replace("_", " ").title(),
+            icon=get_icon(unit, key),
             native_unit_of_measurement=unit,
             device_class=determine_device_class(key, unit),
             state_class=determine_state_class(key, unit),
