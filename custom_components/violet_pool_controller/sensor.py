@@ -84,9 +84,7 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
                     return float(raw_value)
                 elif raw_value.isdigit():
                     return int(raw_value)
-                else:
-                    return str(raw_value)
-            return raw_value
+            return str(raw_value)
         except (ValueError, TypeError):
             return str(raw_value)
 
