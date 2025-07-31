@@ -79,13 +79,14 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
         if key in TEXT_VALUE_SENSORS:
             return str(raw_value)
         try:
-            # Prüfe, ob der Wert in einen Float oder Integer konvertiert werden kann
             if isinstance(raw_value, str):
                 if "." in raw_value and raw_value.replace(".", "").replace("-", "").isdigit():
                     return float(raw_value)
-                if raw_value.isdigit():
+                elif raw_value.isdigit():
                     return int(raw_value)
-            return str(raw_value)
+                else:
+                    return str(raw_value)
+            return raw_value
         except (ValueError, TypeError):
             return str(raw_value)
 
