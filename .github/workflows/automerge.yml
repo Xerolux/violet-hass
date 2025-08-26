@@ -1,51 +1,52 @@
-name: "Auto-Merge Dependabot PRs"
+name: Auto-Merge Dependabot
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize]  # Trigger on PR open/update
-    branches:
-      - "main"
+    types: [opened, reopened, synchronize]
+    branches: [main]
 
 permissions:
-  contents: write      # Needed to merge the PR
-  pull-requests: write  # Needed to approve and comment on the PR
+  contents: write
+  pull-requests: write
 
 jobs:
   automerge:
-    name: "Auto-approve and merge Dependabot PR"
     runs-on: ubuntu-latest
-    # Only run if the PR is from Dependabot or a specified user (e.g., yourself)
-    if: github.actor == 'dependabot[bot]' || github.actor == 'xerolux'
-
+    if: github.actor == 'dependabot[bot]'
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4  # Checkout the code (may be needed for metadata)
-
+      - uses: actions/checkout@v4
+      
       - name: Dependabot metadata
         id: metadata
-        uses: dependabot/fetch-metadata@v2.4.0 # Use a specific, supported version
+        uses: dependabot/fetch-metadata@v2
         with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "Approve PR (if minor or patch update)"
-        if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor'
+      - name: Auto-approve minor/patch updates
+        if: |
+          steps.metadata.outputs.update-type == 'version-update:semver-patch' || 
+          steps.metadata.outputs.update-type == 'version-update:semver-minor'
         run: gh pr review --approve "$PR_URL"
         env:
-          PR_URL: ${{github.event.pull_request.html_url}}
-          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "Auto-merge PR (if approved)"
-        if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor'
-        run: gh pr merge --auto --merge "$PR_URL"  # Use --auto and --merge flags
+      - name: Auto-merge approved updates
+        if: |
+          steps.metadata.outputs.update-type == 'version-update:semver-patch' || 
+          steps.metadata.outputs.update-type == 'version-update:semver-minor'
+        run: gh pr merge --auto --squash "$PR_URL"
         env:
-          PR_URL: ${{github.event.pull_request.html_url}}
-          GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "Add comment if major update"
+      - name: Comment on major updates
         if: steps.metadata.outputs.update-type == 'version-update:semver-major'
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            :warning: This PR is a **major** version update and requires manual review and merging.  Auto-merge is disabled for major updates.
+            ⚠️ **Major Version Update**
+            This PR contains a major version update and requires manual review.
+            Auto-merge is disabled for major updates.
           reactions: eyes
