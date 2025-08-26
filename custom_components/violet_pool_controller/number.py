@@ -1,213 +1,176 @@
-"""Sensor Integration für den Violet Pool Controller."""
+"""Number Integration für den Violet Pool Controller."""
 import logging
 from dataclasses import dataclass
-from typing import Any
 
-from homeassistant.components.sensor import SensorEntity, SensorDeviceClass, SensorStateClass
+from homeassistant.components.number import NumberEntity, NumberDeviceClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import EntityCategory
-from homeassistant.const import UnitOfTemperature, UnitOfPressure, UnitOfLength, UnitOfVolumeFlowRate
+from homeassistant.exceptions import HomeAssistantError
 
-from .const import (
-    DOMAIN, TEMP_SENSORS, WATER_CHEM_SENSORS, ANALOG_SENSORS, CONF_ACTIVE_FEATURES
-)
+from .const import DOMAIN, SETPOINT_DEFINITIONS, CONF_ACTIVE_FEATURES
+from .api import VioletPoolAPIError
 from .entity import VioletPoolControllerEntity
 from .device import VioletPoolDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-# Feature mapping for sensors
-SENSOR_FEATURE_MAP = {
-    # Temperature sensors
-    "onewire1_value": None,  # Always show water temperature
-    "onewire2_value": None,  # Always show air temperature
-    "onewire3_value": "solar",
-    "onewire4_value": "solar",
-    "onewire5_value": "heating",
-    "onewire6_value": "heating",
-    # Water chemistry
-    "pH_value": "ph_control",
-    "orp_value": "chlorine_control",
-    "pot_value": "chlorine_control",
-    # Analog sensors
-    "ADC1_value": "filter_control",
-    "ADC2_value": "water_level",
-    "IMP1_value": "filter_control",
-    "IMP2_value": "filter_control",
-}
-
 @dataclass
-class VioletSensorEntityDescription:
-    """Beschreibung der Violet Pool Sensor-Entities."""
+class VioletNumberEntityDescription:
+    """Beschreibung der Violet Pool Number-Entities."""
     key: str
     name: str
+    min_value: float
+    max_value: float
+    step: float
     icon: str | None = None
     unit_of_measurement: str | None = None
-    device_class: SensorDeviceClass | None = None
-    state_class: SensorStateClass | None = None
+    device_class: NumberDeviceClass | None = None
     entity_category: EntityCategory | None = None
     feature_id: str | None = None
-    suggested_display_precision: int | None = None
+    api_key: str | None = None
+    setpoint_fields: list[str] | None = None
+    indicator_fields: list[str] | None = None
+    default_value: float | None = None
 
-class VioletSensor(VioletPoolControllerEntity, SensorEntity):
-    """Repräsentation eines Violet Pool Sensors."""
-    entity_description: VioletSensorEntityDescription
+class VioletNumber(VioletPoolControllerEntity, NumberEntity):
+    """Repräsentation einer Violet Pool Number-Entity (Sollwert)."""
+    entity_description: VioletNumberEntityDescription
 
     def __init__(
         self, coordinator: VioletPoolDataUpdateCoordinator, config_entry: ConfigEntry,
-        description: VioletSensorEntityDescription
+        description: VioletNumberEntityDescription
     ) -> None:
-        """Initialisiere den Sensor."""
+        """Initialisiere die Number-Entity."""
         super().__init__(coordinator, config_entry, description)
         self._attr_icon = description.icon
+        self._attr_native_min_value = description.min_value
+        self._attr_native_max_value = description.max_value
+        self._attr_native_step = description.step
         self._attr_native_unit_of_measurement = description.unit_of_measurement
         self._attr_device_class = description.device_class
-        self._attr_state_class = description.state_class
         self._attr_entity_category = description.entity_category
-        self._attr_suggested_display_precision = description.suggested_display_precision
-        _LOGGER.debug("Initialisiere Sensor: %s (unique_id=%s)", self.entity_id, self._attr_unique_id)
+        _LOGGER.debug("Initialisiere Number: %s (unique_id=%s)", self.entity_id, self._attr_unique_id)
 
     @property
-    def native_value(self) -> float | int | str | None:
-        """Gibt den nativen Wert des Sensors zurück."""
-        key = self.entity_description.key
-        value = self.get_value(key)
+    def native_value(self) -> float | None:
+        """Gibt den aktuellen Sollwert zurück."""
+        # Try to find the setpoint value in the coordinator data
+        if self.entity_description.setpoint_fields:
+            for field in self.entity_description.setpoint_fields:
+                value = self.get_float_value(field)
+                if value is not None:
+                    return value
         
-        if value is None:
-            return None
-            
-        # For numeric sensors, try to convert to appropriate type
-        if self.entity_description.unit_of_measurement:
-            try:
-                # Convert to float for numeric values
-                numeric_value = float(value)
-                
-                # Round based on precision requirements
-                if self.entity_description.suggested_display_precision is not None:
-                    return round(numeric_value, self.entity_description.suggested_display_precision)
-                elif self.entity_description.key == "pH_value":
-                    return round(numeric_value, 2)
-                elif "temp" in key.lower() or "onewire" in key.lower():
-                    return round(numeric_value, 1)
-                else:
-                    return numeric_value
-                    
-            except (ValueError, TypeError):
-                return str(value)
-        
-        return value
+        # Fallback to default value if no setpoint found
+        return self.entity_description.default_value
 
-def _create_sensor_descriptions() -> list[VioletSensorEntityDescription]:
-    """Create sensor entity descriptions from sensor constants."""
+    @property
+    def available(self) -> bool:
+        """Return if entity is available."""
+        # Check if any of the indicator fields are available
+        if self.entity_description.indicator_fields:
+            for field in self.entity_description.indicator_fields:
+                if field in self.coordinator.data:
+                    return super().available
+        
+        return super().available
+
+    async def async_set_native_value(self, value: float) -> None:
+        """Setze einen neuen Sollwert."""
+        if not self.entity_description.api_key:
+            _LOGGER.error("Kein API-Key für %s definiert", self.entity_description.name)
+            return
+
+        try:
+            _LOGGER.info("Setze %s auf %.2f %s", 
+                        self.entity_description.name, value, 
+                        self.entity_description.unit_of_measurement or "")
+            
+            # Use the appropriate API method based on the setpoint type
+            api_key = self.entity_description.api_key
+            
+            if api_key == "pH":
+                result = await self.device.api.set_ph_target(value)
+            elif api_key == "ORP":
+                result = await self.device.api.set_orp_target(int(value))
+            elif api_key == "MinChlorine":
+                result = await self.device.api.set_min_chlorine_level(value)
+            else:
+                result = await self.device.api.set_target_value(api_key, value)
+            
+            if result.get("success", True):
+                _LOGGER.info("%s erfolgreich auf %.2f gesetzt", self.entity_description.name, value)
+                
+                # Optimistically update the value in coordinator data
+                if self.entity_description.setpoint_fields:
+                    for field in self.entity_description.setpoint_fields:
+                        self.coordinator.data[field] = value
+                
+                self.async_write_ha_state()
+                await self.coordinator.async_request_refresh()
+            else:
+                _LOGGER.warning("%s setzen möglicherweise fehlgeschlagen: %s", 
+                              self.entity_description.name, result.get("response", result))
+                raise HomeAssistantError(f"Sollwert setzen fehlgeschlagen: {result.get('response', result)}")
+                
+        except VioletPoolAPIError as err:
+            _LOGGER.error("API-Fehler beim Setzen von %s: %s", self.entity_description.name, err)
+            raise HomeAssistantError(f"Sollwert setzen fehlgeschlagen: {err}") from err
+
+def _create_number_descriptions() -> list[VioletNumberEntityDescription]:
+    """Create number entity descriptions from SETPOINT_DEFINITIONS constant."""
     descriptions = []
     
-    # Temperature sensors
-    for key, config in TEMP_SENSORS.items():
-        descriptions.append(VioletSensorEntityDescription(
-            key=key,
-            name=config["name"],
-            icon=config["icon"],
-            unit_of_measurement=UnitOfTemperature.CELSIUS,
-            device_class=SensorDeviceClass.TEMPERATURE,
-            state_class=SensorStateClass.MEASUREMENT,
-            feature_id=SENSOR_FEATURE_MAP.get(key),
-            suggested_display_precision=1
+    for setpoint_config in SETPOINT_DEFINITIONS:
+        descriptions.append(VioletNumberEntityDescription(
+            key=setpoint_config["key"],
+            name=setpoint_config["name"],
+            min_value=setpoint_config["min_value"],
+            max_value=setpoint_config["max_value"],
+            step=setpoint_config["step"],
+            icon=setpoint_config["icon"],
+            api_key=setpoint_config["api_key"],
+            feature_id=setpoint_config["feature_id"],
+            unit_of_measurement=setpoint_config["unit_of_measurement"],
+            device_class=setpoint_config["device_class"],
+            entity_category=setpoint_config["entity_category"],
+            setpoint_fields=setpoint_config["setpoint_fields"],
+            indicator_fields=setpoint_config["indicator_fields"],
+            default_value=setpoint_config["default_value"]
         ))
-    
-    # Water chemistry sensors
-    for key, config in WATER_CHEM_SENSORS.items():
-        device_class = None
-        if key == "pH_value":
-            device_class = SensorDeviceClass.PH
-        
-        descriptions.append(VioletSensorEntityDescription(
-            key=key,
-            name=config["name"],
-            icon=config["icon"],
-            unit_of_measurement=config["unit"],
-            device_class=device_class,
-            state_class=SensorStateClass.MEASUREMENT,
-            feature_id=SENSOR_FEATURE_MAP.get(key),
-            suggested_display_precision=2 if key == "pH_value" else 0
-        ))
-    
-    # Analog sensors
-    for key, config in ANALOG_SENSORS.items():
-        device_class = None
-        state_class = SensorStateClass.MEASUREMENT
-        
-        if "druck" in config["name"].lower() or config["unit"] == "bar":
-            device_class = SensorDeviceClass.PRESSURE
-        elif "füllstand" in config["name"].lower() or config["unit"] == "cm":
-            device_class = SensorDeviceClass.DISTANCE
-        elif "durchfluss" in config["name"].lower() or "förderleistung" in config["name"].lower():
-            device_class = SensorDeviceClass.VOLUME_FLOW_RATE
-            
-        descriptions.append(VioletSensorEntityDescription(
-            key=key,
-            name=config["name"],
-            icon=config["icon"],
-            unit_of_measurement=config["unit"],
-            device_class=device_class,
-            state_class=state_class,
-            feature_id=SENSOR_FEATURE_MAP.get(key),
-            suggested_display_precision=1
-        ))
-    
-    # Additional diagnostic sensors
-    descriptions.extend([
-        VioletSensorEntityDescription(
-            key="fw",
-            name="Firmware Version",
-            icon="mdi:information",
-            entity_category=EntityCategory.DIAGNOSTIC
-        ),
-        VioletSensorEntityDescription(
-            key="uptime",
-            name="Uptime",
-            icon="mdi:clock",
-            unit_of_measurement="s",
-            device_class=SensorDeviceClass.DURATION,
-            entity_category=EntityCategory.DIAGNOSTIC
-        ),
-    ])
     
     return descriptions
 
 async def async_setup_entry(
     hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
-    """Richte Sensors für die Config Entry ein."""
+    """Richte Number-Entities für die Config Entry ein."""
     coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     active_features = config_entry.options.get(CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, []))
-    entities: list[SensorEntity] = []
+    entities: list[NumberEntity] = []
 
-    # Create sensor descriptions
-    sensor_descriptions = _create_sensor_descriptions()
+    # Create number descriptions
+    number_descriptions = _create_number_descriptions()
 
-    for description in sensor_descriptions:
-        # Check if feature is active (if feature_id is specified)
+    for description in number_descriptions:
+        # Check if feature is active
         if description.feature_id and description.feature_id not in active_features:
-            _LOGGER.debug("Überspringe Sensor %s: Feature %s nicht aktiv", description.key, description.feature_id)
+            _LOGGER.debug("Überspringe Number %s: Feature %s nicht aktiv", description.key, description.feature_id)
             continue
             
-        # Check if data is available for this sensor
-        if description.key not in coordinator.data:
-            _LOGGER.debug("Überspringe Sensor %s: Keine Daten verfügbar", description.key)
-            continue
+        # Check if any indicator fields are available (shows that this setpoint is relevant)
+        if description.indicator_fields:
+            has_indicators = any(field in coordinator.data for field in description.indicator_fields)
+            if not has_indicators:
+                _LOGGER.debug("Überspringe Number %s: Keine Indikator-Felder verfügbar", description.key)
+                continue
             
-        # Skip sensors with None/empty values (except diagnostic sensors)
-        value = coordinator.data.get(description.key)
-        if value is None or value == "" and description.entity_category != EntityCategory.DIAGNOSTIC:
-            _LOGGER.debug("Überspringe Sensor %s: Leerer Wert", description.key)
-            continue
-            
-        entities.append(VioletSensor(coordinator, config_entry, description))
+        entities.append(VioletNumber(coordinator, config_entry, description))
 
     if entities:
         async_add_entities(entities)
-        _LOGGER.info("Sensors eingerichtet: %s", [e.entity_id for e in entities])
+        _LOGGER.info("Number-Entities eingerichtet: %s", [e.entity_id for e in entities])
     else:
-        _LOGGER.info("Keine Sensors eingerichtet")
+        _LOGGER.info("Keine Number-Entities eingerichtet")
