@@ -1,0 +1,298 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Configure Violet Pool Controller",
+                "description": "Enter the connection details for your Violet Pool Controller. Need help? Visit: [Violet Home Assistant Integration](https://github.com/xerolux/violet-hass)",
+                "data": {
+                    "host": "IP Address or Hostname",
+                    "username": "Username (optional)",
+                    "password": "Password (optional)",
+                    "use_ssl": "Use SSL/HTTPS",
+                    "device_name": "Device Name",
+                    "device_id": "Device ID",
+                    "polling_interval": "Polling Interval (seconds)",
+                    "timeout_duration": "Timeout Duration (seconds)",
+                    "retry_attempts": "Retry Attempts"
+                }
+            },
+            "pool_setup": {
+                "title": "Configure Pool Settings",
+                "description": "Configure pool-specific settings for {device_name}.",
+                "data": {
+                    "pool_size": "Pool Size (m³)",
+                    "pool_type": "Pool Type",
+                    "disinfection_method": "Disinfection Method"
+                }
+            },
+            "feature_selection": {
+                "title": "Select Features",
+                "description": "Select the features you want to enable for {device_name}.",
+                "data": {
+                    "heating": "Heating",
+                    "solar": "Solar Absorber",
+                    "ph_control": "pH Control",
+                    "chlorine_control": "Chlorine/Redox Control",
+                    "cover_control": "Cover Control",
+                    "backwash": "Backwash",
+                    "pv_surplus": "PV Surplus",
+                    "filter_control": "Filter Pump",
+                    "water_level": "Water Level",
+                    "water_refill": "Water Refill",
+                    "led_lighting": "LED Lighting",
+                    "digital_inputs": "Digital Inputs",
+                    "extension_outputs": "Extension Outputs"
+                }
+            }
+        },
+        "error": {
+            "invalid_ip_address": "Invalid IP address or hostname.",
+            "cannot_connect": "Unable to connect to device. Check IP address and network connection.",
+            "invalid_auth": "Invalid credentials. Please check username and password.",
+            "timeout_connection": "Connection timeout. Device may be unreachable.",
+            "authentication_error": "Authentication failed. Please verify credentials.",
+            "api_endpoint_not_found": "API endpoint not found. Check URL and firmware version.",
+            "invalid_pool_size": "Invalid pool size. Value must be between 0.1 and 1000 m³.",
+            "invalid_configuration": "Invalid configuration. Please check all inputs.",
+            "api_response_error": "Invalid API response from controller.",
+            "firmware_data_missing": "Firmware information missing from API response.",
+            "invalid_firmware_version": "Invalid firmware format. Please update controller firmware.",
+            "connection_error": "Network error during connection attempt.",
+            "already_configured": "A device with this IP address is already configured.",
+            "unknown": "An unknown error occurred."
+        },
+        "abort": {
+            "already_configured": "Device is already configured",
+            "cannot_connect": "Connection failed",
+            "invalid_auth": "Invalid authentication",
+            "unknown": "Unknown error"
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Violet Pool Controller Options",
+                "description": "Adjust advanced settings for the Violet Pool Controller.",
+                "data": {
+                    "polling_interval": "Polling Interval (seconds)",
+                    "timeout_duration": "Timeout Duration (seconds)",
+                    "retry_attempts": "Retry Attempts",
+                    "pool_size": "Pool Size (m³)",
+                    "pool_type": "Pool Type",
+                    "disinfection_method": "Disinfection Method",
+                    "feature_heating": "Enable Heating",
+                    "feature_solar": "Enable Solar Absorber",
+                    "feature_ph_control": "Enable pH Control",
+                    "feature_chlorine_control": "Enable Chlorine Control",
+                    "feature_cover_control": "Enable Cover Control",
+                    "feature_backwash": "Enable Backwash",
+                    "feature_pv_surplus": "Enable PV Surplus",
+                    "feature_filter_control": "Enable Filter Pump",
+                    "feature_water_level": "Enable Water Level",
+                    "feature_water_refill": "Enable Water Refill",
+                    "feature_led_lighting": "Enable LED Lighting",
+                    "feature_digital_inputs": "Enable Digital Inputs",
+                    "feature_extension_outputs": "Enable Extension Outputs"
+                }
+            }
+        }
+    },
+    "services": {
+        "turn_auto": {
+            "name": "Set to Auto Mode",
+            "description": "Sets a switch to automatic mode operation.",
+            "fields": {
+                "entity_id": {
+                    "name": "Entity ID",
+                    "description": "Entity ID of the switch to control."
+                },
+                "auto_delay": {
+                    "name": "Auto Delay",
+                    "description": "Delay in seconds before activating auto mode (0-86400)."
+                }
+            }
+        },
+        "set_pv_surplus": {
+            "name": "Set PV Surplus",
+            "description": "Activates PV surplus mode with specified pump speed.",
+            "fields": {
+                "entity_id": {
+                    "name": "Entity ID",
+                    "description": "Entity ID of the PV surplus switch."
+                },
+                "pump_speed": {
+                    "name": "Pump Speed",
+                    "description": "Pump speed level (1=low, 2=medium, 3=high)."
+                }
+            }
+        },
+        "manual_dosing": {
+            "name": "Manual Dosing",
+            "description": "Performs manual dosing for the specified duration.",
+            "fields": {
+                "entity_id": {
+                    "name": "Entity ID",
+                    "description": "Entity ID of the dosing switch."
+                },
+                "duration_seconds": {
+                    "name": "Duration",
+                    "description": "Dosing duration in seconds (1-3600)."
+                }
+            }
+        },
+        "set_temperature_target": {
+            "name": "Set Target Temperature",
+            "description": "Sets the desired target temperature for heating or solar.",
+            "fields": {
+                "entity_ids": {
+                    "name": "Entity IDs",
+                    "description": "List of climate entities (heating/solar)."
+                },
+                "temperature": {
+                    "name": "Temperature",
+                    "description": "Desired target temperature in °C (20-40)."
+                }
+            }
+        },
+        "set_ph_target": {
+            "name": "Set pH Target",
+            "description": "Sets the pH target value for automatic dosing.",
+            "fields": {
+                "entity_ids": {
+                    "name": "Entity IDs",
+                    "description": "List of pH target entities."
+                },
+                "target_value": {
+                    "name": "pH Target",
+                    "description": "Desired pH target value (6.8-7.8)."
+                }
+            }
+        },
+        "set_chlorine_target": {
+            "name": "Set Chlorine Target",
+            "description": "Sets the chlorine/redox target value for automatic dosing.",
+            "fields": {
+                "entity_ids": {
+                    "name": "Entity IDs",
+                    "description": "List of chlorine target entities."
+                },
+                "target_value": {
+                    "name": "Chlorine Target",
+                    "description": "Desired chlorine level in mg/l (0.1-3.0)."
+                }
+            }
+        },
+        "trigger_backwash": {
+            "name": "Trigger Backwash",
+            "description": "Starts a backwash cycle with optional automatic termination.",
+            "fields": {
+                "entity_ids": {
+                    "name": "Entity IDs",
+                    "description": "List of backwash entities."
+                },
+                "duration": {
+                    "name": "Duration",
+                    "description": "Backwash duration in seconds (0-900). Use 0 for manual end."
+                }
+            }
+        },
+        "start_water_analysis": {
+            "name": "Start Water Analysis",
+            "description": "Starts an automatic water analysis to determine water parameters.",
+            "fields": {
+                "entity_ids": {
+                    "name": "Entity IDs",
+                    "description": "List of entities for device identification."
+                }
+            }
+        },
+        "set_maintenance_mode": {
+            "name": "Set Maintenance Mode",
+            "description": "Enables or disables maintenance mode of the pool controller.",
+            "fields": {
+                "entity_ids": {
+                    "name": "Entity IDs",
+                    "description": "List of entities for device identification."
+                },
+                "enable": {
+                    "name": "Enable",
+                    "description": "Enable (true) or disable (false) maintenance mode."
+                }
+            }
+        },
+        "set_all_dmx_scenes_mode": {
+            "name": "Set All DMX Scenes Mode",
+            "description": "Sets all DMX lighting scenes simultaneously to one mode.",
+            "fields": {
+                "device_id": {
+                    "name": "Device",
+                    "description": "Violet Pool Controller device."
+                },
+                "dmx_mode": {
+                    "name": "DMX Mode",
+                    "description": "Mode for all DMX scenes."
+                }
+            }
+        },
+        "set_digital_input_rule_lock_state": {
+            "name": "Lock Digital Input Rule",
+            "description": "Locks or unlocks a configured digital input rule.",
+            "fields": {
+                "device_id": {
+                    "name": "Device",
+                    "description": "Violet Pool Controller device."
+                },
+                "rule_key": {
+                    "name": "Rule Key",
+                    "description": "Digital rule key (e.g., DIRULE_1 through DIRULE_7)."
+                },
+                "lock_state": {
+                    "name": "Lock State",
+                    "description": "Lock (true) or unlock (false) the rule."
+                }
+            }
+        },
+        "trigger_digital_input_rule": {
+            "name": "Trigger Digital Input Rule",
+            "description": "Manually triggers a configured digital input rule.",
+            "fields": {
+                "device_id": {
+                    "name": "Device",
+                    "description": "Violet Pool Controller device."
+                },
+                "rule_key": {
+                    "name": "Rule Key",
+                    "description": "Key of the rule to trigger (e.g., DIRULE_1 through DIRULE_7)."
+                }
+            }
+        }
+    },
+    "selector": {
+        "pool_type": {
+            "options": {
+                "outdoor": "Outdoor Pool",
+                "indoor": "Indoor Pool",
+                "whirlpool": "Whirlpool/Spa",
+                "natural": "Natural Pool/Pond",
+                "combination": "Combination"
+            }
+        },
+        "disinfection_method": {
+            "options": {
+                "chlorine": "Chlorine (liquid/tablets)",
+                "salt": "Salt Water Electrolysis",
+                "bromine": "Bromine",
+                "active_oxygen": "Active Oxygen/Hydrogen Peroxide",
+                "uv": "UV Disinfection",
+                "ozone": "Ozone Disinfection"
+            }
+        },
+        "dmx_mode": {
+            "options": {
+                "ALLON": "All On",
+                "ALLOFF": "All Off", 
+                "ALLAUTO": "All Auto"
+            }
+        }
+    }
+}
