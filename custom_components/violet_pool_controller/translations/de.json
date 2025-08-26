@@ -1,24 +1,25 @@
+// custom_components/violet_pool_controller/translations/de.json - Verbesserte Version
 {
     "config": {
         "step": {
             "user": {
                 "title": "Violet Pool Controller konfigurieren",
-                "description": "Geben Sie die Verbindungsdetails für Ihren Violet Pool Controller ein. Hilfe unter: [Violet Hass Integration](https://github.com/xerolux/violet-hass)",
+                "description": "Geben Sie die Verbindungsdetails für Ihren Violet Pool Controller ein. Hilfe unter: [Violet Home Assistant Integration](https://github.com/xerolux/violet-hass)",
                 "data": {
-                    "api_url": "IP-Adresse/Hostname",
+                    "host": "IP-Adresse/Hostname",
                     "username": "Benutzername (optional)",
                     "password": "Passwort (optional)",
-                    "use_ssl": "SSL verwenden",
+                    "use_ssl": "SSL/HTTPS verwenden",
                     "device_name": "Gerätename",
                     "device_id": "Geräte-ID",
-                    "polling_interval": "Abrufintervall (s)",
-                    "timeout_duration": "Timeout (s)",
+                    "polling_interval": "Abrufintervall (Sekunden)",
+                    "timeout_duration": "Timeout (Sekunden)",
                     "retry_attempts": "Wiederholungsversuche"
                 }
             },
             "pool_setup": {
                 "title": "Pool-Einstellungen",
-                "description": "Konfigurieren Sie Pool-Einstellungen für {device_name}.",
+                "description": "Konfigurieren Sie Pool-spezifische Einstellungen für {device_name}.",
                 "data": {
                     "pool_size": "Poolgröße (m³)",
                     "pool_type": "Pool-Typ",
@@ -27,15 +28,16 @@
             },
             "feature_selection": {
                 "title": "Features auswählen",
-                "description": "Wählen Sie Features für {device_name} aus.",
+                "description": "Wählen Sie die gewünschten Features für {device_name} aus.",
                 "data": {
                     "heating": "Heizung",
                     "solar": "Solarabsorber",
                     "ph_control": "pH-Kontrolle",
-                    "chlorine_control": "Chlor-Kontrolle",
+                    "chlorine_control": "Chlor-/Redox-Kontrolle",
                     "cover_control": "Abdeckungssteuerung",
                     "backwash": "Rückspülung",
                     "pv_surplus": "PV-Überschuss",
+                    "filter_control": "Filterpumpe",
                     "water_level": "Wasserstand",
                     "water_refill": "Wassernachfüllung",
                     "led_lighting": "LED-Beleuchtung",
@@ -45,174 +47,183 @@
             }
         },
         "error": {
-            "invalid_ip_address": "Ungültige IP-Adresse.",
-            "cannot_connect": "Verbindung zum Gerät fehlgeschlagen.",
-            "invalid_auth": "Falscher Benutzername oder Passwort.",
-            "timeout_connection": "Zeitüberschreitung bei Verbindung.",
-            "authentication_error": "Authentifizierungsfehler.",
-            "api_endpoint_not_found": "API-Endpunkt nicht gefunden.",
-            "invalid_pool_size": "Ungültige Poolgröße.",
-            "invalid_configuration": "Ungültige Konfiguration.",
-            "api_response_error": "Ungültige API-Antwort.",
-            "firmware_data_missing": "Firmware-Daten fehlen.",
-            "invalid_firmware_version": "Ungültiges Firmware-Format.",
-            "unknown": "Unbekannter Fehler."
+            "invalid_ip_address": "Ungültige IP-Adresse oder Hostname.",
+            "cannot_connect": "Verbindung zum Gerät fehlgeschlagen. Überprüfen Sie IP-Adresse und Netzwerkverbindung.",
+            "invalid_auth": "Ungültige Anmeldedaten. Bitte prüfen Sie Benutzername und Passwort.",
+            "timeout_connection": "Zeitüberschreitung bei der Verbindung zum Gerät.",
+            "authentication_error": "Authentifizierungsfehler. Bitte Anmeldedaten überprüfen.",
+            "api_endpoint_not_found": "API-Endpunkt nicht gefunden. Bitte URL und Firmware-Version prüfen.",
+            "invalid_pool_size": "Ungültige Poolgröße. Wert muss zwischen 0.1 und 1000 m³ liegen.",
+            "invalid_configuration": "Ungültige Konfiguration. Bitte alle Eingaben überprüfen.",
+            "api_response_error": "Ungültige API-Antwort vom Controller.",
+            "firmware_data_missing": "Firmware-Informationen fehlen in der API-Antwort.",
+            "invalid_firmware_version": "Ungültiges Firmware-Format. Bitte Controller-Firmware aktualisieren.",
+            "connection_error": "Netzwerkfehler beim Verbindungsaufbau.",
+            "already_configured": "Ein Gerät mit dieser IP-Adresse ist bereits konfiguriert.",
+            "unknown": "Unbekannter Fehler aufgetreten."
+        },
+        "abort": {
+            "already_configured": "Gerät ist bereits konfiguriert",
+            "cannot_connect": "Verbindung fehlgeschlagen",
+            "invalid_auth": "Ungültige Authentifizierung",
+            "unknown": "Unbekannter Fehler"
         }
     },
     "options": {
         "step": {
             "init": {
-                "title": "Optionen anpassen",
-                "description": "Einstellungen für den Violet Pool Controller anpassen.",
+                "title": "Violet Pool Controller Optionen",
+                "description": "Erweiterte Einstellungen für den Violet Pool Controller anpassen.",
                 "data": {
-                    "polling_interval": "Abrufintervall (s)",
-                    "timeout_duration": "Timeout (s)",
+                    "polling_interval": "Abrufintervall (Sekunden)",
+                    "timeout_duration": "Timeout (Sekunden)", 
                     "retry_attempts": "Wiederholungsversuche",
                     "pool_size": "Poolgröße (m³)",
                     "pool_type": "Pool-Typ",
                     "disinfection_method": "Desinfektionsmethode",
-                    "feature_heating": "Heizung",
-                    "feature_solar": "Solarabsorber",
-                    "feature_ph_control": "pH-Kontrolle",
-                    "feature_chlorine_control": "Chlor-Kontrolle",
-                    "feature_cover_control": "Abdeckungssteuerung",
-                    "feature_backwash": "Rückspülung",
-                    "feature_pv_surplus": "PV-Überschuss",
-                    "feature_water_level": "Wasserstand",
-                    "feature_water_refill": "Wassernachfüllung",
-                    "feature_led_lighting": "LED-Beleuchtung",
-                    "feature_digital_inputs": "Digitale Eingänge",
-                    "feature_extension_outputs": "Erweiterungsausgänge"
+                    "feature_heating": "Heizung aktivieren",
+                    "feature_solar": "Solarabsorber aktivieren",
+                    "feature_ph_control": "pH-Kontrolle aktivieren",
+                    "feature_chlorine_control": "Chlor-Kontrolle aktivieren",
+                    "feature_cover_control": "Abdeckungssteuerung aktivieren",
+                    "feature_backwash": "Rückspülung aktivieren",
+                    "feature_pv_surplus": "PV-Überschuss aktivieren",
+                    "feature_filter_control": "Filterpumpe aktivieren",
+                    "feature_water_level": "Wasserstand aktivieren",
+                    "feature_water_refill": "Wassernachfüllung aktivieren",
+                    "feature_led_lighting": "LED-Beleuchtung aktivieren",
+                    "feature_digital_inputs": "Digitale Eingänge aktivieren",
+                    "feature_extension_outputs": "Erweiterungsausgänge aktivieren"
                 }
             }
         }
     },
     "services": {
         "turn_auto": {
-            "name": "Auf AUTO setzen",
-            "description": "Schaltet einen Schalter in den AUTO-Modus.",
+            "name": "AUTO-Modus aktivieren",
+            "description": "Schaltet einen Schalter in den automatischen Modus.",
             "fields": {
                 "entity_id": {
                     "name": "Entität",
-                    "description": "ID der Schalter-Entität."
+                    "description": "Entitäts-ID des zu steuernden Schalters."
                 },
                 "auto_delay": {
                     "name": "Verzögerung",
-                    "description": "Verzögerung in Sekunden (0-3600)."
+                    "description": "Verzögerung in Sekunden bevor AUTO-Modus aktiviert wird (0-86400)."
                 }
             }
         },
         "set_pv_surplus": {
             "name": "PV-Überschuss aktivieren",
-            "description": "Aktiviert PV-Überschuss mit Pumpendrehzahl.",
+            "description": "Aktiviert den PV-Überschussmodus mit angegebener Pumpendrehzahl.",
             "fields": {
                 "entity_id": {
                     "name": "Entität",
-                    "description": "ID des PV-Überschussschalters."
+                    "description": "Entitäts-ID des PV-Überschussschalters."
                 },
                 "pump_speed": {
                     "name": "Pumpendrehzahl",
-                    "description": "Drehzahlstufe (1-3)."
+                    "description": "Drehzahlstufe der Pumpe (1=niedrig, 2=mittel, 3=hoch)."
                 }
             }
         },
         "manual_dosing": {
             "name": "Manuelle Dosierung",
-            "description": "Startet manuelle Dosierung für eine Dauer.",
+            "description": "Startet eine manuelle Dosierung für die angegebene Dauer.",
             "fields": {
                 "entity_id": {
                     "name": "Entität",
-                    "description": "ID des Dosierungsschalters."
+                    "description": "Entitäts-ID des Dosierungsschalters."
                 },
                 "duration_seconds": {
                     "name": "Dauer",
-                    "description": "Dauer in Sekunden (1-3600)."
+                    "description": "Dosierdauer in Sekunden (1-3600)."
                 }
             }
         },
         "set_temperature_target": {
-            "name": "Zieltemperatur setzen",
-            "description": "Stellt die Zieltemperatur ein.",
+            "name": "Zieltemperatur setzen", 
+            "description": "Stellt die gewünschte Zieltemperatur für Heizung oder Solar ein.",
             "fields": {
-                "entity_id": {
-                    "name": "Entität",
-                    "description": "ID der Klima-Entität."
+                "entity_ids": {
+                    "name": "Entitäten",
+                    "description": "Liste der Klima-Entitäten (Heizung/Solar)."
                 },
                 "temperature": {
                     "name": "Temperatur",
-                    "description": "Zieltemperatur in °C (20-35)."
+                    "description": "Gewünschte Zieltemperatur in °C (20-40)."
                 }
             }
         },
         "set_ph_target": {
             "name": "pH-Sollwert setzen",
-            "description": "Stellt den pH-Sollwert ein.",
+            "description": "Stellt den pH-Sollwert für die automatische Dosierung ein.",
             "fields": {
-                "entity_id": {
-                    "name": "Entität",
-                    "description": "ID der pH-Sollwert-Entität."
+                "entity_ids": {
+                    "name": "Entitäten", 
+                    "description": "Liste der pH-Sollwert-Entitäten."
                 },
                 "target_value": {
-                    "name": "pH-Wert",
-                    "description": "pH-Sollwert (6.8-7.8)."
+                    "name": "pH-Sollwert",
+                    "description": "Gewünschter pH-Sollwert (6.8-7.8)."
                 }
             }
         },
         "set_chlorine_target": {
             "name": "Chlor-Sollwert setzen",
-            "description": "Stellt den Chlor-Sollwert ein.",
+            "description": "Stellt den Chlor-/Redox-Sollwert für die automatische Dosierung ein.",
             "fields": {
-                "entity_id": {
-                    "name": "Entität",
-                    "description": "ID der Chlor-Sollwert-Entität."
+                "entity_ids": {
+                    "name": "Entitäten",
+                    "description": "Liste der Chlor-Sollwert-Entitäten."
                 },
                 "target_value": {
-                    "name": "Chlor-Wert",
-                    "description": "Chlor-Sollwert in mg/l (0.1-3.0)."
+                    "name": "Chlor-Sollwert", 
+                    "description": "Gewünschter Chlorgehalt in mg/l (0.1-3.0)."
                 }
             }
         },
         "trigger_backwash": {
             "name": "Rückspülung starten",
-            "description": "Startet eine Rückspülung.",
+            "description": "Startet eine Rückspülung mit optionaler automatischer Beendigung.",
             "fields": {
-                "entity_id": {
-                    "name": "Entität",
-                    "description": "ID des Rückspülschalters."
+                "entity_ids": {
+                    "name": "Entitäten",
+                    "description": "Liste der Rückspülungs-Entitäten."
                 },
                 "duration": {
                     "name": "Dauer",
-                    "description": "Dauer in Sekunden (0-900, 0 für manuelles Ende)."
+                    "description": "Rückspüldauer in Sekunden (0-900). Bei 0 manuelles Ende."
                 }
             }
         },
         "start_water_analysis": {
             "name": "Wasseranalyse starten",
-            "description": "Startet eine Wasseranalyse.",
+            "description": "Startet eine automatische Wasseranalyse zur Ermittlung der Wasserwerte.",
             "fields": {
-                "entity_id": {
-                    "name": "Entität",
-                    "description": "ID zur Geräteidentifikation (optional)."
+                "entity_ids": {
+                    "name": "Entitäten",
+                    "description": "Liste der Entitäten zur Geräteidentifikation."
                 }
             }
         },
         "set_maintenance_mode": {
-            "name": "Wartungsmodus setzen",
-            "description": "Aktiviert/Deaktiviert den Wartungsmodus.",
+            "name": "Wartungsmodus",
+            "description": "Aktiviert oder deaktiviert den Wartungsmodus des Pool-Controllers.",
             "fields": {
-                "entity_id": {
-                    "name": "Entität",
-                    "description": "ID zur Geräteidentifikation (optional)."
+                "entity_ids": {
+                    "name": "Entitäten", 
+                    "description": "Liste der Entitäten zur Geräteidentifikation."
                 },
                 "enable": {
                     "name": "Aktivieren",
-                    "description": "Wartungsmodus ein (true) oder aus (false)."
+                    "description": "Wartungsmodus aktivieren (true) oder deaktivieren (false)."
                 }
             }
         },
         "set_all_dmx_scenes_mode": {
             "name": "DMX-Szenen-Modus setzen",
-            "description": "Setzt alle DMX-Szenen auf ON, OFF oder AUTO.",
+            "description": "Setzt alle DMX-Lichtszenen gleichzeitig auf einen Modus.",
             "fields": {
                 "device_id": {
                     "name": "Gerät",
@@ -220,13 +231,13 @@
                 },
                 "dmx_mode": {
                     "name": "DMX-Modus",
-                    "description": "Modus für DMX-Szenen ('ALLON', 'ALLAUTO', 'ALLOFF')."
+                    "description": "Modus für alle DMX-Szenen."
                 }
             }
         },
         "set_digital_input_rule_lock_state": {
             "name": "Digitale Regel sperren",
-            "description": "Sperrt/Entsperrt eine digitale Eingaberegel.",
+            "description": "Sperrt oder entsperrt eine konfigurierte digitale Eingaberegel.",
             "fields": {
                 "device_id": {
                     "name": "Gerät",
@@ -234,7 +245,7 @@
                 },
                 "rule_key": {
                     "name": "Regel-Schlüssel",
-                    "description": "Schlüssel der Regel (z.B. DIRULE_1)."
+                    "description": "Schlüssel der digitalen Regel (z.B. DIRULE_1 bis DIRULE_7)."
                 },
                 "lock_state": {
                     "name": "Sperrstatus",
@@ -244,15 +255,15 @@
         },
         "trigger_digital_input_rule": {
             "name": "Digitale Regel auslösen",
-            "description": "Löst eine digitale Eingaberegel aus.",
+            "description": "Löst eine konfigurierte digitale Eingaberegel manuell aus.",
             "fields": {
                 "device_id": {
                     "name": "Gerät",
                     "description": "Violet Pool Controller Gerät."
                 },
                 "rule_key": {
-                    "name": "Regel-Schlüssel",
-                    "description": "Schlüssel der Regel (z.B. DIRULE_1)."
+                    "name": "Regel-Schlüssel", 
+                    "description": "Schlüssel der auszulösenden Regel (z.B. DIRULE_1 bis DIRULE_7)."
                 }
             }
         }
@@ -261,20 +272,85 @@
         "pool_type": {
             "options": {
                 "outdoor": "Freibad",
-                "indoor": "Hallenbad",
-                "whirlpool": "Whirlpool",
-                "natural": "Naturpool",
+                "indoor": "Hallenbad", 
+                "whirlpool": "Whirlpool/Spa",
+                "natural": "Naturpool/Schwimmteich",
                 "combination": "Kombination"
             }
         },
         "disinfection_method": {
             "options": {
-                "chlorine": "Chlor",
-                "salt": "Salzelektrolyse",
+                "chlorine": "Chlor (flüssig/Tabletten)",
+                "salt": "Salzelektrolyse", 
                 "bromine": "Brom",
-                "active_oxygen": "Aktivsauerstoff",
+                "active_oxygen": "Aktivsauerstoff/Wasserstoffperoxid",
                 "uv": "UV-Desinfektion",
-                "ozone": "Ozon"
+                "ozone": "Ozon-Desinfektion"
+            }
+        },
+        "dmx_mode": {
+            "options": {
+                "ALLON": "Alle einschalten",
+                "ALLOFF": "Alle ausschalten", 
+                "ALLAUTO": "Alle auf automatisch"
+            }
+        }
+    },
+    "entity": {
+        "sensor": {
+            "ph_value": {
+                "name": "pH-Wert"
+            },
+            "orp_value": {
+                "name": "Redoxpotential"
+            },
+            "pot_value": {
+                "name": "Chlorgehalt"
+            },
+            "onewire1_value": {
+                "name": "Wassertemperatur"
+            },
+            "onewire2_value": {
+                "name": "Außentemperatur"
+            },
+            "firmware_version": {
+                "name": "Firmware-Version"
+            }
+        },
+        "binary_sensor": {
+            "pump_state": {
+                "name": "Pumpenstatus"
+            },
+            "heater_state": {
+                "name": "Heizungsstatus"
+            },
+            "solar_state": {
+                "name": "Solarstatus"
+            },
+            "cover_is_closed": {
+                "name": "Abdeckung geschlossen"
+            }
+        },
+        "switch": {
+            "pump": {
+                "name": "Filterpumpe"
+            },
+            "heater": {
+                "name": "Heizung"
+            },
+            "solar": {
+                "name": "Solarabsorber"
+            },
+            "light": {
+                "name": "Beleuchtung"
+            }
+        },
+        "climate": {
+            "heater": {
+                "name": "Pool-Heizung"
+            },
+            "solar": {
+                "name": "Solarheizung"
             }
         }
     }
