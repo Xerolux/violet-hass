@@ -3,8 +3,10 @@
 ## 📋 Übersicht
 Die Blueprints bieten vorgefertigte Automatisierungen für die Violet Pool Controller Integration:
 
-- **Temperatursteuerung**: Intelligente Heizungs- und Solarsteuerung
-- **pH-Kontrolle**: Automatische pH-Wert Korrektur mit Dosierung
+- **🌡️ Temperatursteuerung**: Intelligente Heizungs- und Solarsteuerung
+- **🧪 pH-Kontrolle**: Automatische pH-Wert Korrektur mit Dosierung
+- **🏊 Abdeckungssteuerung**: Wetterbasierte Cover-Automatik
+- **🔄 Rückspülungssteuerung**: Automatische Filter-Reinigung
 
 ## 📥 Installation der Blueprints
 
@@ -19,6 +21,8 @@ Die Blueprints bieten vorgefertigte Automatisierungen für die Violet Pool Contr
    ```
    Temperatur: https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_temperature_control.yaml
    pH-Kontrolle: https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_ph_control.yaml
+   Abdeckung: https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_cover_control.yaml
+   Rückspülung: https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_backwash_control.yaml
    ```
 
 ### Methode 2: Manuelle Installation
@@ -36,6 +40,8 @@ Die Blueprints bieten vorgefertigte Automatisierungen für die Violet Pool Contr
    # Blueprints herunterladen
    wget https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_temperature_control.yaml
    wget https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_ph_control.yaml
+   wget https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_cover_control.yaml
+   wget https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_backwash_control.yaml
    ```
 
 3. **Home Assistant neustarten**
@@ -69,70 +75,133 @@ Die Blueprints bieten vorgefertigte Automatisierungen für die Violet Pool Contr
    Energiesparmodus: Ein
    ```
 
-3. **Erweiterte Optionen:**
-   ```yaml
-   Außentemperatursensor: sensor.openweather_temperature
-   Solarleistungssensor: sensor.solar_power
-   Minimale Solarleistung: 1000W
-   Max. Temperaturdifferenz: 2.0°C
-   ```
-
 ## 🧪 pH-Kontrolle Blueprint
 
-### Benötigte Entities:
-- ✅ **pH-Sensor** (sensor.violet_ph_value)
-- ✅ **pH-Sollwert** (number.violet_ph_setpoint)
-- ✅ **pH-Minus Dosierung** (switch.violet_dos_4_phm)
-- ✅ **pH-Plus Dosierung** (switch.violet_dos_5_php)
-
-### Voraussetzungen - Input Number Helper erstellen:
-
-1. **Helper erstellen:**
+### Benötigte Helper:
+1. **Input Number für Dosier-Counter:**
    ```
    Settings → Devices & Services → Helpers → Create Helper → Number
-   ```
-
-2. **Konfiguration:**
-   ```yaml
    Name: Pool pH Dosing Counter
    Entity ID: input_number.pool_ph_dosing_counter
-   Minimum: 0
-   Maximum: 50
-   Step: 1
-   Initial Value: 0
-   Unit: Dosierungen
+   Min: 0, Max: 50, Step: 1, Initial: 0
    ```
+
+### Setup-Schritte:
+```yaml
+pH-Sensor: sensor.violet_ph_value
+pH-Sollwert: number.violet_ph_setpoint
+pH- Dosierung: switch.violet_dos_4_phm
+pH+ Dosierung: switch.violet_dos_5_php
+pH-Toleranz: ±0.2
+Max. Dosierungen pro Tag: 10
+```
+
+## 🏊 Abdeckungssteuerung Blueprint
+
+### Benötigte Entities:
+- ✅ **Pool-Abdeckung** (cover.violet_cover)
+- ✅ **Pool-Temperatursensor** (sensor.violet_onewire1_value)
+- ✅ **Außentemperatursensor** (sensor.openweather_temperature)
+- ✅ **Wetter-Entity** (weather.openweathermap)
+- 🔧 **Pumpen-Entity** (switch.violet_pump) - Optional
 
 ### Setup-Schritte:
 
 1. **Blueprint erstellen:**
-   ```
-   Settings → Automations & Scenes → Blueprints
-   → "Violet Pool - Intelligente pH-Kontrolle" → Use This Blueprint
+   ```yaml
+   Pool-Abdeckung: cover.violet_cover
+   Pool-Temperatursensor: sensor.violet_onewire1_value
+   Außentemperatursensor: sensor.openweather_temperature
+   Wetter-Entity: weather.openweathermap
    ```
 
-2. **Basis-Konfiguration:**
+2. **Zeitsteuerung:**
    ```yaml
-   pH-Sensor: sensor.violet_ph_value
-   pH-Sollwert: number.violet_ph_setpoint
-   pH- Dosierung: switch.violet_dos_4_phm
-   pH+ Dosierung: switch.violet_dos_5_php
-   pH-Toleranz: ±0.2
+   Automatisches Öffnen: 08:00
+   Öffnungszeit Wochenende: 10:00
+   Automatisches Schließen: 22:00
    ```
 
-3. **Sicherheitseinstellungen:**
+3. **Wettersteuerung:**
    ```yaml
-   Dosierdauer pH-: 30s
-   Dosierdauer pH+: 30s
-   Max. Dosierungen pro Tag: 10
-   Wartezeit zwischen Dosierungen: 60min
+   Wetterbasierte Steuerung: Ein
+   Regenschwelle: 70%
+   Windschwelle: 25 km/h
    ```
 
-4. **Pumpen-Integration:**
+4. **Temperatursteuerung:**
    ```yaml
-   Pumpen-Check aktivieren: Ein
-   Filterpumpe: binary_sensor.violet_pump_state
+   Temperaturbasierte Steuerung: Ein
+   Minimale Außentemperatur: 5°C
+   Max. Temperaturdifferenz: 15°C
    ```
+
+### Features:
+- ✅ **Automatisches Öffnen/Schließen** nach Zeitplan
+- ✅ **Wetterschutz** bei Regen/Wind/Sturm
+- ✅ **Temperaturschutz** bei niedrigen Temperaturen
+- ✅ **Pumpen-Verriegelung** (kein Schließen bei laufender Pumpe)
+- ✅ **Wochenend-Modus** (späteres Öffnen)
+- ✅ **Manuelle Übersteuerung** mit Pause-Funktion
+
+## 🔄 Rückspülungssteuerung Blueprint
+
+### Benötigte Entities:
+- ✅ **Rückspül-Switch** (switch.violet_backwash)
+- ✅ **Pumpen-Switch** (switch.violet_pump)
+- 🔧 **Nachspül-Switch** (switch.violet_backwashrinse) - Optional
+- 🔧 **Filterdruck-Sensor** (sensor.violet_adc1_value) - Optional
+
+### Benötigte Helper:
+1. **Input Datetime für letzte Rückspülung:**
+   ```
+   Settings → Helpers → Create Helper → Date and/or time
+   Name: Pool Last Backwash
+   Entity ID: input_datetime.pool_last_backwash
+   Has date: ✓, Has time: ✓
+   ```
+
+2. **Input Number für Pumpenlaufzeit (optional):**
+   ```
+   Name: Pool Pump Runtime Hours
+   Entity ID: input_number.pool_pump_runtime_hours
+   Min: 0, Max: 500, Step: 0.1, Unit: h
+   ```
+
+### Setup-Schritte:
+
+1. **Basis-Konfiguration:**
+   ```yaml
+   Rückspül-Switch: switch.violet_backwash
+   Pumpen-Switch: switch.violet_pump
+   Nachspül-Switch: switch.violet_backwashrinse
+   Filterdruck-Sensor: sensor.violet_adc1_value
+   ```
+
+2. **Automatisierung:**
+   ```yaml
+   Druckbasierte Rückspülung: Ein
+   Maximaler Filterdruck: 1.5 bar
+   Geplante Rückspülung: Ein
+   Rückspül-Intervall: 7 Tage
+   Rückspül-Uhrzeit: 03:00
+   ```
+
+3. **Parameter:**
+   ```yaml
+   Rückspül-Dauer: 120s
+   Nachspül-Dauer: 30s
+   Pumpen-Stopp vor Rückspülung: 30s
+   Pumpen-Start nach Rückspülung: 60s
+   ```
+
+### Features:
+- ✅ **Druckbasierte Auslösung** bei hohem Filterdruck
+- ✅ **Zeitbasierte Rückspülung** nach Intervallen
+- ✅ **Laufzeitbasierte Auslösung** nach Pumpenstunden
+- ✅ **Automatischer Nachspül-Zyklus**
+- ✅ **Wasserstands-Prüfung** vor Rückspülung
+- ✅ **Sichere Pumpensteuerung** mit Wartezeiten
 
 ## 📱 Benachrichtigungen einrichten
 
@@ -149,41 +218,84 @@ Die Blueprints bieten vorgefertigte Automatisierungen für die Violet Pool Contr
    Benachrichtigungs-Service: notify.mobile_app_iphone
    ```
 
-### Beispiel Telegram/Discord:
+### Telegram/Discord/Slack:
 ```
 notify.telegram_bot
-notify.discord_webhook
+notify.discord_webhook  
+notify.slack_webhook
 ```
 
-## ⚙️ Erweiterte Konfiguration
+## 💡 Beispiel-Benachrichtigungen
 
-### Anpassung der Trigger:
-```yaml
-# Temperatur-Blueprint
-- Überprüfung alle 30 Minuten
-- Bei Temperaturänderung (5min Verzögerung)
-- Bei Solar-Änderung (2min Verzögerung)
+### Temperatursteuerung:
+- 🌅 "Pool-Temperatur: Tagestemperatur auf 26°C gesetzt"
+- ☀️ "Solar-Heizung aktiviert (1500W), Ziel: 26°C"
+- 🔥 "Pool-Heizung aktiviert: 23.5°C → 26°C (Δ2.5°C)"
 
-# pH-Blueprint  
-- Überprüfung alle 15 Minuten
-- Bei pH-Änderung (10min Verzögerung)
-- Bei Pumpen-Start (5min Verzögerung)
-```
+### pH-Kontrolle:
+- 🔻 "pH-Korrektur: 7.6 → 7.2, pH-Minus für 30s dosiert"
+- ⚠️ "pH-Dosierung gestoppt: Max. 10 Dosierungen erreicht"
 
-### Sicherheitsfeatures:
-- ✅ **Tägliche Dosier-Limits**
-- ✅ **Mindest-Wartezeiten**
-- ✅ **Pumpen-Abhängigkeit**
-- ✅ **Sensor-Verfügbarkeits-Check**
-- ✅ **Automatischer Counter-Reset**
+### Abdeckungssteuerung:
+- 🌧️ "Wetter-Schutz: Abdeckung wegen Regen geschlossen"
+- 🌡️ "Temperatur-Schutz: Außen 3°C, Abdeckung geschlossen"
+
+### Rückspülung:
+- 🔄 "Automatische Rückspülung: Filterdruck 1.8 bar (Max: 1.5)"
+- ✅ "Rückspülung abgeschlossen: 120s Backwash + 30s Rinse"
 
 ## 🚨 Troubleshooting
 
-### Häufige Probleme:
-
-**Blueprint nicht sichtbar:**
+### Blueprint nicht sichtbar:
 ```bash
-# Home Assistant Logs prüfen:
+# Logs prüfen:
 tail -f config/home-assistant.log | grep blueprint
 
-#
+# Dateiberechtigungen:
+chmod 644 config/blueprints/automation/violet_pool_controller/*.yaml
+
+# HA neustarten
+```
+
+### Entities nicht gefunden:
+- Integration korrekt installiert?
+- Entities in Developer Tools sichtbar?
+- Feature in Integration aktiviert?
+
+### Benachrichtigungen funktionieren nicht:
+- Service-Name korrekt? (mit notify. Prefix)
+- Mobile App installiert und angemeldet?
+- Test über Developer Tools → Services
+
+### Automatisierung läuft nicht:
+- Trigger-Conditions erfüllt?
+- Entities verfügbar (nicht "unavailable")?
+- Mode: single - nur eine Ausführung gleichzeitig
+
+## 🔧 Anpassungen
+
+### Eigene Trigger hinzufügen:
+```yaml
+# In Blueprint YAML ergänzen:
+- platform: state
+  entity_id: input_boolean.my_custom_trigger
+  to: 'on'
+  id: custom_trigger
+```
+
+### Zeiten anpassen:
+```yaml
+# Andere Überprüfungsintervalle:
+- platform: time_pattern
+  minutes: /15  # Alle 15 Minuten statt 30
+```
+
+### Zusätzliche Bedingungen:
+```yaml
+# Z.B. nur bei Anwesenheit:
+- condition: state
+  entity_id: person.homeowner
+  state: 'home'
+```
+
+Die Blueprints sind modular aufgebaut und können individuell angepasst werden!
