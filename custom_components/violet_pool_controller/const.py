@@ -180,6 +180,81 @@ SETPOINT_DEFINITIONS = [
     },
 ]
 
+# Unit mappings für dynamische Sensoren
+UNIT_MAP = {
+    # Temperature sensors
+    **{f"onewire{i}_value": "°C" for i in range(1, 13)},
+    "water_temp": "°C", "air_temp": "°C", "temp_value": "°C",
+    "SYSTEM_cpu_temperature": "°C", "SYSTEM_carrier_cpu_temperature": "°C",
+    # Water chemistry
+    "pH_value": "pH", "orp_value": "mV", "pot_value": "mg/l",
+    # Analog values
+    "ADC1_value": "bar", "ADC2_value": "cm", "IMP1_value": "cm/s", "IMP2_value": "m³/h",
+    # System values
+    "CPU_UPTIME": "s", "DEVICE_UPTIME": "s", "RUNTIME": "s",
+    # Pump values
+    **{f"PUMP_RPM_{i}": "RPM" for i in range(4)},
+    **{f"PUMP_RPM_{i}_VALUE": "RPM" for i in range(4)},
+}
+
+# Sensors without units
+NO_UNIT_SENSORS = {
+    "FW", "SW_VERSION", "HW_VERSION", "SERIAL_NUMBER", "MAC_ADDRESS", "IP_ADDRESS",
+    "VERSION", "VERSION_INFO", "HARDWARE_VERSION", "CPU_GOV", "HW_SERIAL_CARRIER",
+    "SW_VERSION_CARRIER", "HW_VERSION_CARRIER", "ERROR_CODE", "LAST_ERROR",
+    "CHECKSUM", "RULE_RESULT", "DISPLAY_MODE", "OPERATING_MODE", "MAINTENANCE_MODE",
+    **{f"DOS_{i}_CL_STATE" for i in range(1, 7)},
+    **{f"DOS_{i}_PHM_STATE" for i in range(1, 7)},
+    **{f"DOS_{i}_PHP_STATE" for i in range(1, 7)},
+    "HEATERSTATE", "SOLARSTATE", "PUMPSTATE", "BACKWASHSTATE", "OMNI_STATE",
+    "BACKWASH_OMNI_STATE", "SOLAR_STATE", "HEATER_STATE", "PUMP_STATE", "FILTER_STATE",
+    "OMNI_MODE", "FILTER_MODE", "SOLAR_MODE", "HEATER_MODE", "LAST_MOVING_DIRECTION",
+    "COVER_DIRECTION", "BATHING_AI_SURVEILLANCE_STATE", "BATHING_AI_PUMP_STATE",
+    "OVERFLOW_REFILL_STATE", "OVERFLOW_DRYRUN_STATE", "OVERFLOW_OVERFILL_STATE",
+    "BACKWASH_OMNI_MOVING", "BACKWASH_DELAY_RUNNING", "BACKWASH_STATE", "REFILL_STATE",
+    **{f"DOS_{i}_CL_REMAINING_RANGE" for i in range(1, 7)},
+    **{f"DOS_{i}_PHM_REMAINING_RANGE" for i in range(1, 7)},
+    **{f"DOS_{i}_PHP_REMAINING_RANGE" for i in range(1, 7)},
+    **{f"DOS_{i}_FLOC_REMAINING_RANGE" for i in range(1, 7)},
+    "time", "TIME", "CURRENT_TIME"
+}
+
+# Sensor feature mapping erweitert
+SENSOR_FEATURE_MAP = {
+    # Temperature sensors
+    "onewire1_value": None,  # Always show water temperature
+    "onewire2_value": None,  # Always show air temperature  
+    "onewire3_value": "solar",
+    "onewire4_value": "solar",
+    "onewire5_value": "heating",
+    "onewire6_value": "heating",
+    # Water chemistry
+    "pH_value": "ph_control",
+    "orp_value": "chlorine_control", 
+    "pot_value": "chlorine_control",
+    # Analog sensors
+    "ADC1_value": "filter_control",
+    "ADC2_value": "water_level",
+    "IMP1_value": "filter_control",
+    "IMP2_value": "filter_control",
+    # Dosing states
+    **{f"DOS_{i}_CL_STATE": "chlorine_control" for i in range(1, 7)},
+    **{f"DOS_{i}_PHM_STATE": "ph_control" for i in range(1, 7)},
+    **{f"DOS_{i}_PHP_STATE": "ph_control" for i in range(1, 7)},
+    # Runtime sensors
+    "PUMP_RUNTIME": "filter_control",
+    "SOLAR_RUNTIME": "solar",
+    "HEATER_RUNTIME": "heating",
+    "LIGHT_RUNTIME": "led_lighting",
+    "BACKWASH_RUNTIME": "backwash",
+    **{f"DOS_{i}_CL_RUNTIME": "chlorine_control" for i in range(1, 7)},
+    **{f"DOS_{i}_PHM_RUNTIME": "ph_control" for i in range(1, 7)},
+    **{f"DOS_{i}_PHP_RUNTIME": "ph_control" for i in range(1, 7)},
+    **{f"EXT1_{i}_RUNTIME": "extension_outputs" for i in range(1, 9)},
+    **{f"EXT2_{i}_RUNTIME": "extension_outputs" for i in range(1, 9)},
+    **{f"OMNI_DC{i}_RUNTIME": "extension_outputs" for i in range(1, 6)},
+}
+
 # API-Aktionen
 ACTION_ON = "ON"
 ACTION_OFF = "OFF"
