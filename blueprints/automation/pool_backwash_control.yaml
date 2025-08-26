@@ -382,3 +382,57 @@ action:
       - if:
           - condition: template
             value_template: "{{ rinse_entity != '' }}"
+        then:
+          - service: switch.turn_on
+            target:
+              entity_id: "{{ rinse_entity }}"
+          - delay:
+              seconds: !input rinse_duration
+          - service: switch.turn_off
+            target:
+              entity_id: "{{ rinse_entity }}"
+
+      # 5. Wartezeit vor Pumpen-Neustart
+      - delay:
+          seconds: !input post_backwash_pump_start_delay
+
+      # 6. Pumpe wieder einschalten
+      - service: switch.turn_on
+        target:
+          entity_id: !input pump_switch
+
+      # 7. Letzte Rückspülung Zeit aktualisieren
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.pool_last_backwash
+        data:
+          datetime: "{{ now().isoformat() }}"
+
+      # 8. Pump Runtime Counter zurücksetzen (falls vorhanden)
+      - if:
+          - condition: template
+            value_template: "{{ enable_runtime_control }}"
+        then:
+          - service: input_number.set_value
+            target:
+              entity_id: input_number.pool_pump_runtime_hours
+            data:
+              value: 0
+
+      # 9. Abschluss-Benachrichtigung
+      - if:
+          - condition: template
+            value_template: "{{ notify_service != '' and notify_after_backwash }}"
+        then:
+          - service: "{{ notify_service }}"
+            data:
+              title: "✅ Rückspülung abgeschlossen"
+              message: >
+                Rückspülung erfolgreich beendet:
+                • Rückspüldauer: {{ backwash_duration }}s
+                • Nachspüldauer: {{ rinse_duration if rinse_entity != '' else 'Keine' }}s
+                • Filterdruck vorher: {{ current_pressure }} bar
+                • Pumpe läuft wieder normal
+
+mode: single
+max_exceeded: silent
