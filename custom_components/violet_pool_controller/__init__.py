@@ -1,5 +1,6 @@
 """Violet Pool Controller Integration."""
 import logging
+import asyncio
 from typing import Any, Dict
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
@@ -15,7 +16,7 @@ from .const import (
     ACTION_ALLON, ACTION_ALLAUTO, ACTION_ALLOFF
 )
 from .api import VioletPoolAPI
-from .device import async_setup_device, VioletPoolDataUpdateCoordinator
+from .device import async_setup_device
 
 _LOGGER = logging.getLogger(__name__)
 PLATFORMS = [Platform.SENSOR, Platform.BINARY_SENSOR, Platform.SWITCH, Platform.CLIMATE, Platform.COVER, Platform.NUMBER]
@@ -136,6 +137,7 @@ async def register_services(hass: HomeAssistant) -> None:
             entity_entry = registry.async_get(entity_id)
             if entity_entry and entity_entry.config_entry_id in hass.data[DOMAIN]:
                 coordinators.add(hass.data[DOMAIN][entity_entry.config_entry_id])
+        
         for coordinator in coordinators:
             try:
                 result = await getattr(coordinator.device.api, action)(**params)
@@ -223,13 +225,51 @@ async def register_services(hass: HomeAssistant) -> None:
         except Exception as err:
             _LOGGER.error("Error stopping backwash for %s: %s", entity_id, err)
 
-    hass.services.async_register(DOMAIN, "set_temperature_target", async_handle_set_temperature_target, schema=SERVICE_SCHEMAS["set_temperature_target"])
-    hass.services.async_register(DOMAIN, "set_ph_target", async_handle_set_ph_target, schema=SERVICE_SCHEMAS["set_ph_target"])
-    hass.services.async_register(DOMAIN, "set_chlorine_target", async_handle_set_chlorine_target, schema=SERVICE_SCHEMAS["set_chlorine_target"])
-    hass.services.async_register(DOMAIN, "trigger_backwash", async_handle_trigger_backwash, schema=SERVICE_SCHEMAS["trigger_backwash"])
-    hass.services.async_register(DOMAIN, "start_water_analysis", lambda call: handle_service(call, "Water analysis", "start_water_analysis", {}), schema=SERVICE_SCHEMAS["start_water_analysis"])
-    hass.services.async_register(DOMAIN, "set_maintenance_mode", lambda call: handle_service(call, "Maintenance mode", "set_maintenance_mode", {"enabled": call.data["enable"]}), schema=SERVICE_SCHEMAS["set_maintenance_mode"])
-    hass.services.async_register(DOMAIN, "set_all_dmx_scenes_mode", lambda call: handle_service(call, "DMX scenes mode", "set_all_dmx_scenes", {"action": call.data["dmx_mode"]}), schema=SERVICE_SCHEMAS["set_all_dmx_scenes_mode"])
-    hass.services.async_register(DOMAIN, "set_digital_input_rule_lock_state", lambda call: handle_service(call, "DIRULE lock state", "set_digital_input_rule_lock", {"rule_key": call.data["rule_key"], "lock": call.data["lock_state"]}), schema=SERVICE_SCHEMAS["set_digital_input_rule_lock_state"])
-    hass.services.async_register(DOMAIN, "trigger_digital_input_rule", lambda call: handle_service(call, "DIRULE trigger", "trigger_digital_input_rule", {"rule_key": call.data["rule_key"]}), schema=SERVICE_SCHEMAS["trigger_digital_input_rule"])
+    # Service registrations with proper handlers
+    hass.services.async_register(
+        DOMAIN, "set_temperature_target", 
+        async_handle_set_temperature_target, 
+        schema=SERVICE_SCHEMAS["set_temperature_target"]
+    )
+    hass.services.async_register(
+        DOMAIN, "set_ph_target", 
+        async_handle_set_ph_target, 
+        schema=SERVICE_SCHEMAS["set_ph_target"]
+    )
+    hass.services.async_register(
+        DOMAIN, "set_chlorine_target", 
+        async_handle_set_chlorine_target, 
+        schema=SERVICE_SCHEMAS["set_chlorine_target"]
+    )
+    hass.services.async_register(
+        DOMAIN, "trigger_backwash", 
+        async_handle_trigger_backwash, 
+        schema=SERVICE_SCHEMAS["trigger_backwash"]
+    )
+    hass.services.async_register(
+        DOMAIN, "start_water_analysis",
+        lambda call: handle_service(call, "Water analysis", "start_water_analysis", {}),
+        schema=SERVICE_SCHEMAS["start_water_analysis"]
+    )
+    hass.services.async_register(
+        DOMAIN, "set_maintenance_mode",
+        lambda call: handle_service(call, "Maintenance mode", "set_maintenance_mode", {"enabled": call.data["enable"]}),
+        schema=SERVICE_SCHEMAS["set_maintenance_mode"]
+    )
+    hass.services.async_register(
+        DOMAIN, "set_all_dmx_scenes_mode",
+        lambda call: handle_service(call, "DMX scenes mode", "set_all_dmx_scenes", {"action": call.data["dmx_mode"]}),
+        schema=SERVICE_SCHEMAS["set_all_dmx_scenes_mode"]
+    )
+    hass.services.async_register(
+        DOMAIN, "set_digital_input_rule_lock_state",
+        lambda call: handle_service(call, "DIRULE lock state", "set_digital_input_rule_lock", {"rule_key": call.data["rule_key"], "lock": call.data["lock_state"]}),
+        schema=SERVICE_SCHEMAS["set_digital_input_rule_lock_state"]
+    )
+    hass.services.async_register(
+        DOMAIN, "trigger_digital_input_rule",
+        lambda call: handle_service(call, "DIRULE trigger", "trigger_digital_input_rule", {"rule_key": call.data["rule_key"]}),
+        schema=SERVICE_SCHEMAS["trigger_digital_input_rule"]
+    )
+    
     _LOGGER.info("Services for %s registered", DOMAIN)
