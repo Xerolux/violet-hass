@@ -1,35 +1,43 @@
 blueprint:
   name: Violet Pool - Intelligente Temperatursteuerung
-  description: Automatische Pooltemperatursteuerung basierend auf Tageszeit, Wetter und Solarenergie. Unterstützt Heizung und Solarabsorber.
+  description: |
+    Automatische Pooltemperatursteuerung basierend auf Tageszeit, Wetter und Solarenergie. 
+    Unterstützt sowohl Heizung als auch Solarabsorber mit intelligentem Energiemanagement.
   domain: automation
   source_url: https://github.com/xerolux/violet-hass/blob/main/blueprints/automation/pool_temperature_control.yaml
+  homeassistant:
+    min_version: "2024.6.0"
   input:
     pool_temperature_sensor:
       name: Pool-Temperatursensor
-      description: Sensor für aktuelle Pooltemperatur.
+      description: Sensor für die aktuelle Pooltemperatur
       selector:
         entity:
-          integration: violet_pool_controller
-          domain: sensor
-          device_class: temperature
+          filter:
+            - integration: violet_pool_controller
+            - domain: sensor
+            - device_class: temperature
     pool_heater:
       name: Pool-Heizung
-      description: Klima-Entität für Poolheizung.
+      description: Klima-Entität für die Poolheizung
       selector:
         entity:
-          integration: violet_pool_controller
-          domain: climate
+          filter:
+            - integration: violet_pool_controller
+            - domain: climate
     pool_solar:
-      name: Solarabsorber
-      description: Klima-Entität für Solarabsorber (optional).
-      default: []
+      name: Solarabsorber (Optional)
+      description: Klima-Entität für den Solarabsorber
+      default: ""
       selector:
         entity:
-          integration: violet_pool_controller
-          domain: climate
+          filter:
+            - integration: violet_pool_controller
+            - domain: climate
+          multiple: false
     target_temp_day:
       name: Zieltemperatur Tag
-      description: Temperatur tagsüber.
+      description: Gewünschte Temperatur während des Tages
       default: 26
       selector:
         number:
@@ -37,9 +45,10 @@ blueprint:
           max: 35
           step: 0.5
           unit_of_measurement: °C
+          mode: slider
     target_temp_night:
       name: Zieltemperatur Nacht
-      description: Temperatur nachts.
+      description: Gewünschte Temperatur während der Nacht
       default: 24
       selector:
         number:
@@ -47,37 +56,42 @@ blueprint:
           max: 30
           step: 0.5
           unit_of_measurement: °C
+          mode: slider
     day_start_time:
       name: Tagesbeginn
-      description: Uhrzeit für Tagestemperatur.
+      description: Uhrzeit ab der die Tagestemperatur aktiviert wird
       default: "07:00"
       selector:
         time:
     night_start_time:
       name: Nachtbeginn
-      description: Uhrzeit für Nachttemperatur.
+      description: Uhrzeit ab der die Nachttemperatur aktiviert wird
       default: "22:00"
       selector:
         time:
     outside_temp_sensor:
-      name: Außentemperatursensor
-      description: Sensor für Außentemperatur (optional).
-      default: []
+      name: Außentemperatursensor (Optional)
+      description: Sensor für die Außentemperatur zur intelligenten Steuerung
+      default: ""
       selector:
         entity:
-          domain: sensor
-          device_class: temperature
+          filter:
+            - domain: sensor
+            - device_class: temperature
+          multiple: false
     solar_power_sensor:
-      name: Solarleistungssensor
-      description: Sensor für Solarleistung (optional).
-      default: []
+      name: Solarleistungssensor (Optional)
+      description: Sensor für die aktuelle Solarleistung
+      default: ""
       selector:
         entity:
-          domain: sensor
-          device_class: power
+          filter:
+            - domain: sensor
+            - device_class: power
+          multiple: false
     min_solar_power:
       name: Minimale Solarleistung
-      description: Mindestleistung für Solarheizung.
+      description: Mindestleistung in Watt für effektive Solarheizung
       default: 1000
       selector:
         number:
@@ -85,15 +99,16 @@ blueprint:
           max: 5000
           step: 100
           unit_of_measurement: W
+          mode: box
     energy_saving_mode:
       name: Energiesparmodus
-      description: Aktiviere energieeffiziente Heizstrategie.
+      description: Aktiviert intelligente Energiesparfunktionen
       default: true
       selector:
         boolean:
     max_temp_difference:
-      name: Max. Temperaturdifferenz
-      description: Max. Unterschied zur Zieltemperatur vor Aktivierung.
+      name: Maximale Temperaturdifferenz
+      description: Maximaler Unterschied zur Zieltemperatur bevor Heizung aktiviert wird
       default: 2.0
       selector:
         number:
@@ -101,13 +116,13 @@ blueprint:
           max: 5.0
           step: 0.5
           unit_of_measurement: °C
-    notification_device:
-      name: Benachrichtigungsgerät
-      description: Gerät für Benachrichtigungen (optional).
-      default: []
+          mode: slider
+    notification_entity:
+      name: Benachrichtigungs-Service (Optional)
+      description: Service für Benachrichtigungen (z.B. notify.mobile_app_phone)
+      default: ""
       selector:
-        device:
-          integration: mobile_app
+        text:
 
 variables:
   pool_temp_sensor: !input pool_temperature_sensor
@@ -120,14 +135,28 @@ variables:
   min_solar: !input min_solar_power
   energy_saving: !input energy_saving_mode
   max_diff: !input max_temp_difference
-  notify_device: !input notification_device
-  is_day: "{{ now().time() >= time(!input day_start_time) and now().time() < time(!input night_start_time) }}"
+  notify_service: !input notification_entity
+  
+  # Zeit-basierte Variablen
+  is_day: >
+    {{ now().time() >= (day_start_time | as_datetime).time() and 
+       now().time() < (night_start_time | as_datetime).time() }}
   target_temp: "{{ target_day if is_day else target_night }}"
+  
+  # Temperatur-Variablen
   current_temp: "{{ states(pool_temp_sensor) | float(0) }}"
   temp_diff: "{{ target_temp - current_temp }}"
-  outside_temp: "{{ states(outside_sensor) | float(20) if outside_sensor else 20 }}"
-  solar_power: "{{ states(solar_sensor) | float(0) if solar_sensor else 0 }}"
-  solar_available: "{{ solar_power > min_solar and outside_temp > 15 }}"
+  
+  # Externe Sensoren
+  outside_temp: >
+    {{ states(outside_sensor) | float(20) if outside_sensor and outside_sensor != "" else 20 }}
+  solar_power: >
+    {{ states(solar_sensor) | float(0) if solar_sensor and solar_sensor != "" else 0 }}
+  
+  # Solar-Verfügbarkeit
+  solar_available: >
+    {{ solar_power > min_solar and outside_temp > 15 and 
+       solar_entity and solar_entity != "" }}
 
 trigger:
   - platform: time
@@ -146,16 +175,21 @@ trigger:
     for:
       minutes: 2
     id: solar_change
+    not_to:
+      - "unavailable"
+      - "unknown"
   - platform: time_pattern
     minutes: /30
     id: periodic_check
 
 condition:
-  - "{{ states(heater_entity) in ['heat', 'auto', 'off'] }}"
+  - condition: template
+    value_template: >
+      {{ states(heater_entity) not in ['unavailable', 'unknown'] }}
 
 action:
   - choose:
-      # Tagesbeginn: Tagestemperatur setzen
+      # === Tagesbeginn: Tagestemperatur setzen ===
       - conditions:
           - condition: trigger
             id: day_start
@@ -164,17 +198,17 @@ action:
             target:
               entity_id: !input pool_heater
             data:
-              temperature: !input target_temp_day
-          - condition: template
-            value_template: "{{ notify_device != [] }}"
-            sequence:
-              - device_id: !input notification_device
-                domain: mobile_app
-                type: notify
-                title: Pool-Heizung
-                message: "Tagestemperatur auf {{ target_day }}°C gesetzt"
+              temperature: "{{ target_day }}"
+          - if: 
+              - condition: template
+                value_template: "{{ notify_service != '' }}"
+            then:
+              - service: "{{ notify_service }}"
+                data:
+                  title: "🌅 Pool-Temperatur"
+                  message: "Tagestemperatur auf {{ target_day }}°C gesetzt"
 
-      # Nachtbeginn: Nachttemperatur setzen
+      # === Nachtbeginn: Nachttemperatur setzen ===
       - conditions:
           - condition: trigger
             id: night_start
@@ -183,77 +217,85 @@ action:
             target:
               entity_id: !input pool_heater
             data:
-              temperature: !input target_temp_night
-          - condition: template
-            value_template: "{{ notify_device != [] }}"
-            sequence:
-              - device_id: !input notification_device
-                domain: mobile_app
-                type: notify
-                title: Pool-Heizung
-                message: "Nachttemperatur auf {{ target_night }}°C gesetzt"
+              temperature: "{{ target_night }}"
+          - if:
+              - condition: template
+                value_template: "{{ notify_service != '' }}"
+            then:
+              - service: "{{ notify_service }}"
+                data:
+                  title: "🌙 Pool-Temperatur"
+                  message: "Nachttemperatur auf {{ target_night }}°C gesetzt"
 
-      # Temperatur zu niedrig: Heizung aktivieren
+      # === Temperatur zu niedrig: Heizung aktivieren ===
       - conditions:
-          - "{{ temp_diff > max_diff }}"
+          - condition: template
+            value_template: "{{ temp_diff > max_diff }}"
           - condition: or
             conditions:
               - condition: trigger
                 id: temp_change
               - condition: trigger
                 id: periodic_check
+              - condition: trigger
+                id: solar_change
         sequence:
           - choose:
-              # Solar verfügbar: Solar bevorzugen
-              - conditions: "{{ solar_available and solar_entity != [] }}"
+              # Solar verfügbar und ausreichend: Solar bevorzugen
+              - conditions:
+                  - condition: template
+                    value_template: "{{ solar_available }}"
                 sequence:
                   - service: climate.set_hvac_mode
                     target:
-                      entity_id: !input pool_solar
+                      entity_id: "{{ solar_entity }}"
                     data:
                       hvac_mode: heat
                   - service: climate.set_temperature
                     target:
-                      entity_id: !input pool_solar
+                      entity_id: "{{ solar_entity }}"
                     data:
                       temperature: "{{ target_temp }}"
-                  - if: "{{ energy_saving }}"
+                  # Heizung auf Auto oder aus, je nach Energiesparmodus
+                  - service: climate.set_hvac_mode
+                    target:
+                      entity_id: !input pool_heater
+                    data:
+                      hvac_mode: "{{ 'auto' if energy_saving else 'heat' }}"
+                  - if:
+                      - condition: template
+                        value_template: "{{ notify_service != '' }}"
                     then:
-                      - service: climate.set_hvac_mode
-                        target:
-                          entity_id: !input pool_heater
+                      - service: "{{ notify_service }}"
                         data:
-                          hvac_mode: auto
-                    else:
-                      - service: climate.set_hvac_mode
-                        target:
-                          entity_id: !input pool_heater
-                        data:
-                          hvac_mode: heat
-              # Kein Solar: Heizung nutzen
-              default:
-                - service: climate.set_hvac_mode
-                  target:
-                    entity_id: !input pool_heater
-                  data:
-                    hvac_mode: heat
-                - service: climate.set_temperature
-                  target:
-                    entity_id: !input pool_heater
-                  data:
-                    temperature: "{{ target_temp }}"
-          - condition: template
-            value_template: "{{ notify_device != [] and temp_diff > (max_diff * 1.5) }}"
-            sequence:
-              - device_id: !input notification_device
-                domain: mobile_app
-                type: notify
-                title: Pool-Temperatur niedrig
-                message: "Aktuell: {{ current_temp }}°C, Ziel: {{ target_temp }}°C, Heizung aktiviert."
+                          title: "☀️ Solar-Heizung"
+                          message: "Solar aktiviert ({{ solar_power }}W), Ziel: {{ target_temp }}°C"
+            # Kein Solar verfügbar: Normale Heizung nutzen
+            default:
+              - service: climate.set_hvac_mode
+                target:
+                  entity_id: !input pool_heater
+                data:
+                  hvac_mode: heat
+              - service: climate.set_temperature
+                target:
+                  entity_id: !input pool_heater
+                data:
+                  temperature: "{{ target_temp }}"
+              # Große Temperaturdifferenz: Warnung
+              - if:
+                  - condition: template
+                    value_template: "{{ notify_service != '' and temp_diff > (max_diff * 1.5) }}"
+                then:
+                  - service: "{{ notify_service }}"
+                    data:
+                      title: "🔥 Pool-Heizung aktiviert"
+                      message: "Temperatur: {{ current_temp }}°C → {{ target_temp }}°C (Δ{{ '%.1f' | format(temp_diff) }}°C)"
 
-      # Temperatur erreicht: Energiesparmodus
+      # === Zieltemperatur erreicht: Energiesparmodus ===
       - conditions:
-          - "{{ temp_diff <= 0.5 and energy_saving }}"
+          - condition: template
+            value_template: "{{ temp_diff <= 0.5 and energy_saving }}"
           - condition: or
             conditions:
               - condition: trigger
@@ -266,13 +308,23 @@ action:
               entity_id: !input pool_heater
             data:
               hvac_mode: auto
-          - if: "{{ solar_entity != [] }}"
+          - if:
+              - condition: template
+                value_template: "{{ solar_entity and solar_entity != '' }}"
             then:
               - service: climate.set_hvac_mode
                 target:
-                  entity_id: !input pool_solar
+                  entity_id: "{{ solar_entity }}"
                 data:
                   hvac_mode: auto
+          - if:
+              - condition: template
+                value_template: "{{ notify_service != '' }}"
+            then:
+              - service: "{{ notify_service }}"
+                data:
+                  title: "✅ Pool-Temperatur erreicht"
+                  message: "Zieltemperatur {{ target_temp }}°C erreicht, Energiesparmodus aktiviert"
 
 mode: single
 max_exceeded: silent
