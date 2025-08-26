@@ -1,5 +1,6 @@
 """Konstanten für die Violet Pool Controller Integration."""
 from homeassistant.components.number import NumberDeviceClass
+from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.helpers.entity import EntityCategory
 
 # Integration
@@ -52,6 +53,7 @@ AVAILABLE_FEATURES = [
     {"id": "cover_control", "name": "Abdeckungssteuerung", "default": True, "platforms": ["cover"]},
     {"id": "backwash", "name": "Rückspülung", "default": True, "platforms": ["switch"]},
     {"id": "pv_surplus", "name": "PV-Überschuss", "default": True, "platforms": ["switch"]},
+    {"id": "filter_control", "name": "Filterpumpe", "default": True, "platforms": ["switch", "binary_sensor"]},
     {"id": "water_level", "name": "Wasserstand", "default": False, "platforms": ["sensor", "switch"]},
     {"id": "water_refill", "name": "Wassernachfüllung", "default": False, "platforms": ["switch", "binary_sensor"]},
     {"id": "led_lighting", "name": "LED-Beleuchtung", "default": True, "platforms": ["switch"]},
@@ -83,9 +85,12 @@ DOSING_FUNCTIONS = {
 
 # Zustandsmapping
 STATE_MAP = {
+    # Numeric states
     **{i: bool(i in {1, 3, 4}) for i in range(7)},
     **{str(i): bool(i in {"1", "3", "4"}) for i in range(7)},
+    # String states
     "ON": True, "OFF": False, "AUTO": False, "TRUE": True, "FALSE": False,
+    "OPEN": True, "CLOSED": False, "OPENING": True, "CLOSING": True, "STOPPED": False,
 }
 
 # Sensoren
@@ -111,21 +116,24 @@ ANALOG_SENSORS = {
     "IMP2_value": {"name": "Förderleistung", "icon": "mdi:pump", "unit": "m³/h"},
 }
 
-# Binary Sensoren
+# Binary Sensoren - Dictionary Format für einfachere Verwendung
 BINARY_SENSORS = [
-    {"name": "Pump State", "key": "PUMP", "icon": "mdi:water-pump", "feature_id": "filter_control"},
-    {"name": "Solar State", "key": "SOLAR", "icon": "mdi:solar-power", "feature_id": "solar"},
-    {"name": "Heater State", "key": "HEATER", "icon": "mdi:radiator", "feature_id": "heating"},
+    {"name": "Pump State", "key": "PUMP", "icon": "mdi:water-pump", "feature_id": "filter_control", "device_class": BinarySensorDeviceClass.RUNNING},
+    {"name": "Solar State", "key": "SOLAR", "icon": "mdi:solar-power", "feature_id": "solar", "device_class": BinarySensorDeviceClass.RUNNING},
+    {"name": "Heater State", "key": "HEATER", "icon": "mdi:radiator", "feature_id": "heating", "device_class": BinarySensorDeviceClass.RUNNING},
     {"name": "Light State", "key": "LIGHT", "icon": "mdi:lightbulb", "feature_id": "led_lighting"},
-    {"name": "Backwash State", "key": "BACKWASH", "icon": "mdi:valve", "feature_id": "backwash"},
-    {"name": "Refill State", "key": "REFILL", "icon": "mdi:water", "feature_id": "water_refill"},
+    {"name": "Backwash State", "key": "BACKWASH", "icon": "mdi:valve", "feature_id": "backwash", "device_class": BinarySensorDeviceClass.RUNNING},
+    {"name": "Refill State", "key": "REFILL", "icon": "mdi:water", "feature_id": "water_refill", "device_class": BinarySensorDeviceClass.RUNNING},
     {"name": "ECO Mode", "key": "ECO", "icon": "mdi:leaf"},
-    *[{"name": f"Digital Input {i}", "key": f"INPUT{i}", "icon": "mdi:electric-switch", "feature_id": "digital_inputs"} for i in range(1, 13)],
-    {"name": "Digital Input Z1Z2", "key": "INPUTz1z2", "icon": "mdi:electric-switch", "feature_id": "digital_inputs"},
-    *[{"name": f"Digital Input CE{i}", "key": f"INPUT_CE{i}", "icon": "mdi:electric-switch", "feature_id": "digital_inputs"} for i in range(1, 5)],
-    {"name": "Cover Open Contact", "key": "OPEN_CONTACT", "icon": "mdi:window-open-variant", "feature_id": "cover_control"},
+    {"name": "PV Surplus", "key": "PVSURPLUS", "icon": "mdi:solar-power-variant", "feature_id": "pv_surplus"},
+    # Digital Inputs
+    *[{"name": f"Digital Input {i}", "key": f"INPUT{i}", "icon": "mdi:electric-switch", "feature_id": "digital_inputs", "entity_category": EntityCategory.DIAGNOSTIC} for i in range(1, 13)],
+    {"name": "Digital Input Z1Z2", "key": "INPUTz1z2", "icon": "mdi:electric-switch", "feature_id": "digital_inputs", "entity_category": EntityCategory.DIAGNOSTIC},
+    *[{"name": f"Digital Input CE{i}", "key": f"INPUT_CE{i}", "icon": "mdi:electric-switch", "feature_id": "digital_inputs", "entity_category": EntityCategory.DIAGNOSTIC} for i in range(1, 5)],
+    # Cover Controls
+    {"name": "Cover Open Contact", "key": "OPEN_CONTACT", "icon": "mdi:window-open-variant", "feature_id": "cover_control", "device_class": BinarySensorDeviceClass.OPENING},
     {"name": "Cover Stop Contact", "key": "STOP_CONTACT", "icon": "mdi:stop-circle-outline", "feature_id": "cover_control"},
-    {"name": "Cover Close Contact", "key": "CLOSE_CONTACT", "icon": "mdi:window-closed-variant", "feature_id": "cover_control"},
+    {"name": "Cover Close Contact", "key": "CLOSE_CONTACT", "icon": "mdi:window-closed-variant", "feature_id": "cover_control", "device_class": BinarySensorDeviceClass.OPENING},
 ]
 
 # Switches
@@ -141,6 +149,7 @@ SWITCHES = [
     {"name": "Nachspülung", "key": "BACKWASHRINSE", "icon": "mdi:water-sync", "feature_id": "backwash"},
     {"name": "Dosierung pH+", "key": "DOS_5_PHP", "icon": "mdi:flask", "feature_id": "ph_control"},
     {"name": "Flockmittel", "key": "DOS_6_FLOC", "icon": "mdi:flask", "feature_id": "chlorine_control"},
+    {"name": "PV-Überschuss", "key": "PVSURPLUS", "icon": "mdi:solar-power-variant", "feature_id": "pv_surplus"},
     *[{"name": f"Extension 1.{i}", "key": f"EXT1_{i}", "icon": "mdi:toggle-switch-outline", "feature_id": "extension_outputs"} for i in range(1, 9)],
     *[{"name": f"Extension 2.{i}", "key": f"EXT2_{i}", "icon": "mdi:toggle-switch-outline", "feature_id": "extension_outputs"} for i in range(1, 9)],
     *[{"name": f"Omni DC{i} Output", "key": f"OMNI_DC{i}", "icon": "mdi:electric-switch", "feature_id": "extension_outputs"} for i in range(6)],
