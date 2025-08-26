@@ -1,0 +1,451 @@
+blueprint:
+  name: Violet Pool - Intelligente Abdeckungssteuerung
+  description: |
+    Automatische Pool-Abdeckungssteuerung basierend auf Wetter, Temperatur, Zeit und Pool-Status.
+    Schützt vor Regen, spart Energie und hält das Wasser sauber.
+  domain: automation
+  source_url: https://github.com/xerolux/violet-hass/blob/main/blueprints/automation/pool_cover_control.yaml
+  homeassistant:
+    min_version: "2024.6.0"
+  input:
+    pool_cover:
+      name: Pool-Abdeckung
+      description: Cover-Entity der Pool-Abdeckung
+      selector:
+        entity:
+          filter:
+            - integration: violet_pool_controller
+            - domain: cover
+    pool_temperature_sensor:
+      name: Pool-Temperatursensor
+      description: Sensor für die Wassertemperatur
+      selector:
+        entity:
+          filter:
+            - integration: violet_pool_controller
+            - domain: sensor
+            - device_class: temperature
+    outside_temp_sensor:
+      name: Außentemperatursensor
+      description: Sensor für die Außentemperatur
+      selector:
+        entity:
+          filter:
+            - domain: sensor
+            - device_class: temperature
+    weather_entity:
+      name: Wetter-Entity
+      description: Wetter-Integration für Regenvorhersage
+      selector:
+        entity:
+          filter:
+            - domain: weather
+    pump_entity:
+      name: Pool-Pumpe (Optional)
+      description: Pumpen-Status für intelligente Steuerung
+      default: ""
+      selector:
+        entity:
+          filter:
+            - integration: violet_pool_controller
+            - domain: 
+                - switch
+                - binary_sensor
+          multiple: false
+    
+    # === Zeitsteuerung ===
+    auto_close_time:
+      name: Automatisches Schließen
+      description: Uhrzeit für automatisches Schließen der Abdeckung
+      default: "22:00"
+      selector:
+        time:
+    auto_open_time:
+      name: Automatisches Öffnen
+      description: Uhrzeit für automatisches Öffnen der Abdeckung
+      default: "08:00"
+      selector:
+        time:
+    weekend_open_time:
+      name: Öffnungszeit Wochenende
+      description: Spätere Öffnungszeit am Wochenende
+      default: "10:00"
+      selector:
+        time:
+    
+    # === Wetterbasierte Steuerung ===
+    enable_weather_control:
+      name: Wetterbasierte Steuerung
+      description: Abdeckung automatisch bei schlechtem Wetter schließen
+      default: true
+      selector:
+        boolean:
+    rain_threshold:
+      name: Regenschwelle
+      description: Regenwahrscheinlichkeit für automatisches Schließen (%)
+      default: 70
+      selector:
+        number:
+          min: 30
+          max: 100
+          step: 10
+          unit_of_measurement: "%"
+          mode: slider
+    wind_speed_threshold:
+      name: Windschwelle
+      description: Windgeschwindigkeit für automatisches Schließen
+      default: 25
+      selector:
+        number:
+          min: 10
+          max: 50
+          step: 5
+          unit_of_measurement: "km/h"
+          mode: slider
+    
+    # === Temperaturbasierte Steuerung ===
+    enable_temp_control:
+      name: Temperaturbasierte Steuerung
+      description: Abdeckung bei niedrigen Temperaturen automatisch schließen
+      default: true
+      selector:
+        boolean:
+    min_outside_temp:
+      name: Minimale Außentemperatur
+      description: Außentemperatur unter der automatisch geschlossen wird
+      default: 5
+      selector:
+        number:
+          min: -5
+          max: 15
+          step: 1
+          unit_of_measurement: "°C"
+          mode: slider
+    max_temp_difference:
+      name: Max. Temperaturdifferenz
+      description: Max. Unterschied zwischen Pool- und Außentemperatur für Schließung
+      default: 15
+      selector:
+        number:
+          min: 5
+          max: 25
+          step: 1
+          unit_of_measurement: "°C"
+          mode: slider
+    
+    # === Sicherheit & Komfort ===
+    enable_pump_interlock:
+      name: Pumpen-Verriegelung
+      description: Abdeckung nicht schließen bei laufender Pumpe
+      default: true
+      selector:
+        boolean:
+    enable_manual_override:
+      name: Manuelle Übersteuerung
+      description: Automatik nach manueller Bedienung pausieren
+      default: true
+      selector:
+        boolean:
+    manual_override_duration:
+      name: Übersteuerungs-Dauer
+      description: Dauer der Automatik-Pause nach manueller Bedienung
+      default: 120
+      selector:
+        number:
+          min: 30
+          max: 480
+          step: 30
+          unit_of_measurement: "min"
+          mode: box
+    
+    # === Benachrichtigungen ===
+    notification_entity:
+      name: Benachrichtigungs-Service (Optional)
+      description: Service für Status-Benachrichtigungen
+      default: ""
+      selector:
+        text:
+    notify_on_weather_close:
+      name: Wetter-Benachrichtigungen
+      description: Benachrichtigung bei wetterbedingtem Schließen
+      default: true
+      selector:
+        boolean:
+    notify_on_temp_close:
+      name: Temperatur-Benachrichtigungen
+      description: Benachrichtigung bei temperaturbedingtem Schließen
+      default: true
+      selector:
+        boolean:
+
+variables:
+  cover_entity: !input pool_cover
+  pool_temp_sensor: !input pool_temperature_sensor
+  outside_temp_sensor: !input outside_temp_sensor
+  weather_entity: !input weather_entity
+  pump_sensor: !input pump_entity
+  notify_service: !input notification_entity
+  
+  # Zeitvariablen
+  is_weekend: "{{ now().weekday() in [5, 6] }}"  # Samstag, Sonntag
+  open_time: >
+    {% if is_weekend %}
+      {{ (weekend_open_time | as_datetime).time() }}
+    {% else %}
+      {{ (auto_open_time | as_datetime).time() }}
+    {% endif %}
+  close_time: "{{ (auto_close_time | as_datetime).time() }}"
+  is_day_time: >
+    {{ now().time() >= open_time and now().time() < close_time }}
+  
+  # Temperaturvariablen
+  pool_temp: "{{ states(pool_temp_sensor) | float(20) }}"
+  outside_temp: "{{ states(outside_temp_sensor) | float(20) }}"
+  temp_diff: "{{ pool_temp - outside_temp }}"
+  
+  # Wettervariablen
+  weather_condition: "{{ states(weather_entity) }}"
+  weather_attrs: "{{ state_attr(weather_entity, '') }}"
+  rain_probability: "{{ state_attr(weather_entity, 'forecast')[0].precipitation_probability | default(0) }}"
+  wind_speed: "{{ state_attr(weather_entity, 'wind_speed') | default(0) }}"
+  
+  # Status-Variablen
+  cover_state: "{{ states(cover_entity) }}"
+  is_cover_open: "{{ cover_state == 'open' }}"
+  is_cover_closed: "{{ cover_state == 'closed' }}"
+  is_cover_moving: "{{ cover_state in ['opening', 'closing'] }}"
+  
+  # Pumpen-Status
+  pump_running: >
+    {% if pump_sensor == "" %}
+      false
+    {% else %}
+      {{ is_state(pump_sensor, 'on') }}
+    {% endif %}
+  
+  # Entscheidungslogik
+  should_close_weather: >
+    {{ enable_weather_control and (
+       weather_condition in ['rainy', 'snowy', 'hail'] or
+       rain_probability > rain_threshold or
+       wind_speed > wind_speed_threshold
+    ) }}
+  
+  should_close_temp: >
+    {{ enable_temp_control and (
+       outside_temp < min_outside_temp or
+       temp_diff > max_temp_difference
+    ) }}
+  
+  should_close_time: "{{ not is_day_time }}"
+  should_open_time: "{{ is_day_time }}"
+  
+  can_move_cover: >
+    {{ not is_cover_moving and 
+       (not enable_pump_interlock or not pump_running) }}
+
+trigger:
+  # Zeitbasierte Trigger
+  - platform: time
+    at: !input auto_open_time
+    id: time_open_weekday
+  - platform: time
+    at: !input weekend_open_time
+    id: time_open_weekend
+  - platform: time
+    at: !input auto_close_time
+    id: time_close
+  
+  # Wetterbasierte Trigger
+  - platform: state
+    entity_id: !input weather_entity
+    for:
+      minutes: 5
+    id: weather_changed
+  - platform: numeric_state
+    entity_id: !input weather_entity
+    attribute: wind_speed
+    above: !input wind_speed_threshold
+    for:
+      minutes: 10
+    id: high_wind
+  
+  # Temperaturbasierte Trigger
+  - platform: numeric_state
+    entity_id: !input outside_temp_sensor
+    below: !input min_outside_temp
+    for:
+      minutes: 15
+    id: temp_too_low
+  - platform: template
+    value_template: >
+      {{ (states(pool_temp_sensor) | float(20)) - (states(outside_temp_sensor) | float(20)) > max_temp_difference }}
+    for:
+      minutes: 20
+    id: temp_diff_high
+  
+  # Pumpen-Status Trigger
+  - platform: state
+    entity_id: !input pump_entity
+    to: "off"
+    for:
+      minutes: 5
+    id: pump_stopped
+  
+  # Periodische Überprüfung
+  - platform: time_pattern
+    minutes: /30
+    id: periodic_check
+
+condition:
+  - condition: template
+    value_template: >
+      {{ states(cover_entity) not in ['unavailable', 'unknown'] }}
+
+action:
+  - choose:
+      # === Automatisches Öffnen zur festgelegten Zeit ===
+      - conditions:
+          - condition: or
+            conditions:
+              - condition: trigger
+                id: time_open_weekday
+              - condition: trigger
+                id: time_open_weekend
+          - condition: template
+            value_template: "{{ can_move_cover and is_cover_closed }}"
+          - condition: template
+            value_template: "{{ not (should_close_weather or should_close_temp) }}"
+        sequence:
+          - service: cover.open_cover
+            target:
+              entity_id: !input pool_cover
+          - if:
+              - condition: template
+                value_template: "{{ notify_service != '' }}"
+            then:
+              - service: "{{ notify_service }}"
+                data:
+                  title: "🌅 Pool-Abdeckung geöffnet"
+                  message: >
+                    Abdeckung automatisch zur Tageszeit geöffnet
+                    ({{ open_time.strftime('%H:%M') }})
+
+      # === Automatisches Schließen zur Nachtzeit ===
+      - conditions:
+          - condition: trigger
+            id: time_close
+          - condition: template
+            value_template: "{{ can_move_cover and is_cover_open }}"
+        sequence:
+          - service: cover.close_cover
+            target:
+              entity_id: !input pool_cover
+          - if:
+              - condition: template
+                value_template: "{{ notify_service != '' }}"
+            then:
+              - service: "{{ notify_service }}"
+                data:
+                  title: "🌙 Pool-Abdeckung geschlossen"
+                  message: >
+                    Abdeckung automatisch zur Nachtzeit geschlossen
+                    ({{ close_time.strftime('%H:%M') }})
+
+      # === Wetterbedingtes Schließen ===
+      - conditions:
+          - condition: template
+            value_template: "{{ should_close_weather and can_move_cover and is_cover_open }}"
+          - condition: or
+            conditions:
+              - condition: trigger
+                id: weather_changed
+              - condition: trigger
+                id: high_wind
+              - condition: trigger
+                id: periodic_check
+        sequence:
+          - service: cover.close_cover
+            target:
+              entity_id: !input pool_cover
+          - if:
+              - condition: template
+                value_template: "{{ notify_service != '' and notify_on_weather_close }}"
+            then:
+              - service: "{{ notify_service }}"
+                data:
+                  title: "🌧️ Wetter-Schutz aktiviert"
+                  message: >
+                    Abdeckung wegen schlechtem Wetter geschlossen
+                    Bedingung: {{ weather_condition }}, Regen: {{ rain_probability }}%, Wind: {{ wind_speed }} km/h
+
+      # === Temperaturbedingtes Schließen ===
+      - conditions:
+          - condition: template
+            value_template: "{{ should_close_temp and can_move_cover and is_cover_open }}"
+          - condition: or
+            conditions:
+              - condition: trigger
+                id: temp_too_low
+              - condition: trigger
+                id: temp_diff_high
+              - condition: trigger
+                id: periodic_check
+        sequence:
+          - service: cover.close_cover
+            target:
+              entity_id: !input pool_cover
+          - if:
+              - condition: template
+                value_template: "{{ notify_service != '' and notify_on_temp_close }}"
+            then:
+              - service: "{{ notify_service }}"
+                data:
+                  title: "🌡️ Temperatur-Schutz aktiviert"
+                  message: >
+                    Abdeckung wegen niedrigen Temperaturen geschlossen
+                    Außen: {{ outside_temp }}°C, Pool: {{ pool_temp }}°C, Differenz: {{ temp_diff }}°C
+
+      # === Öffnen nach Pumpen-Stop (falls vorher blockiert) ===
+      - conditions:
+          - condition: trigger
+            id: pump_stopped
+          - condition: template
+            value_template: "{{ should_open_time and is_cover_closed and enable_pump_interlock }}"
+          - condition: template
+            value_template: "{{ not (should_close_weather or should_close_temp) }}"
+        sequence:
+          - delay:
+              minutes: 2  # Kurze Wartezeit nach Pumpen-Stop
+          - service: cover.open_cover
+            target:
+              entity_id: !input pool_cover
+          - if:
+              - condition: template
+                value_template: "{{ notify_service != '' }}"
+            then:
+              - service: "{{ notify_service }}"
+                data:
+                  title: "💡 Abdeckung nach Pumpen-Stop geöffnet"
+                  message: "Abdeckung geöffnet nach Ende des Pumpbetriebs"
+
+      # === Warnung bei blockierter Bewegung ===
+      - conditions:
+          - condition: template
+            value_template: "{{ enable_pump_interlock and pump_running and (should_close_weather or should_close_temp) }}"
+          - condition: trigger
+            id: periodic_check
+        sequence:
+          - if:
+              - condition: template
+                value_template: "{{ notify_service != '' }}"
+            then:
+              - service: "{{ notify_service }}"
+                data:
+                  title: "⚠️ Abdeckung blockiert"
+                  message: >
+                    Abdeckung sollte geschlossen werden, aber Pumpe läuft noch.
+                    Bitte Pumpe manuell stoppen oder Verriegelung deaktivieren.
+
+mode: single
+max_exceeded: silent
