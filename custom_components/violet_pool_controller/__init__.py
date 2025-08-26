@@ -272,4 +272,8 @@ async def register_services(hass: HomeAssistant) -> None:
         schema=SERVICE_SCHEMAS["trigger_digital_input_rule"]
     )
     
+    # Import and register enhanced services
+    from .services import async_register_enhanced_services
+    await async_register_enhanced_services(hass)
+    
     _LOGGER.info("Services for %s registered", DOMAIN)
