@@ -6,7 +6,6 @@
 [![hacs][hacs-badge]][hacs]
 [![Project Maintenance][maintenance-shield]][user_profile]
 [![BuyMeCoffee][buymeacoffee-badge]][buymeacoffee]
-Use my Tesla referral link: [Referral Link](https://ts.la/sebastian564489)
 
 [![Discord][discord-shield]][discord]
 [![Community Forum][forum-shield]][forum]
