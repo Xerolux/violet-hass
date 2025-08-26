@@ -1,288 +1,300 @@
 blueprint:
-  name: Violet Pool - Intelligente Temperatursteuerung
-  description: Automatische Pooltemperatursteuerung basierend auf Tageszeit, Wetter und Solarenergie. Unterstützt Heizung und Solarabsorber.
+  name: Violet Pool - Intelligente pH-Kontrolle
+  description: |
+    Automatische pH-Wert Kontrolle mit intelligenter Dosierung von pH+ und pH-.
+    Überwacht pH-Werte und dosiert automatisch bei Abweichungen vom Sollbereich.
   domain: automation
-  source_url: https://github.com/xerolux/violet-hass/blob/main/blueprints/automation/pool_temperature_control.yaml
+  source_url: https://github.com/xerolux/violet-hass/blob/main/blueprints/automation/pool_ph_control.yaml
+  homeassistant:
+    min_version: "2024.6.0"
   input:
-    pool_temperature_sensor:
-      name: Pool-Temperatursensor
-      description: Sensor für aktuelle Pooltemperatur.
+    ph_sensor:
+      name: pH-Sensor
+      description: Sensor für den aktuellen pH-Wert des Pools
       selector:
         entity:
-          integration: violet_pool_controller
-          domain: sensor
-          device_class: temperature
-    pool_heater:
-      name: Pool-Heizung
-      description: Klima-Entität für Poolheizung.
+          filter:
+            - integration: violet_pool_controller
+            - domain: sensor
+            - device_class: ph
+    ph_setpoint_entity:
+      name: pH-Sollwert
+      description: Number-Entity für den pH-Sollwert
       selector:
         entity:
-          integration: violet_pool_controller
-          domain: climate
-    pool_solar:
-      name: Solarabsorber
-      description: Klima-Entität für Solarabsorber (optional).
-      default: []
+          filter:
+            - integration: violet_pool_controller
+            - domain: number
+    ph_minus_switch:
+      name: pH- Dosierung
+      description: Switch für pH-Minus Dosierung
       selector:
         entity:
-          integration: violet_pool_controller
-          domain: climate
-          multiple: false
-    target_temp_day:
-      name: Zieltemperatur Tag
-      description: Temperatur während des Tages.
-      default: 26
+          filter:
+            - integration: violet_pool_controller
+            - domain: switch
+    ph_plus_switch:
+      name: pH+ Dosierung
+      description: Switch für pH-Plus Dosierung
+      selector:
+        entity:
+          filter:
+            - integration: violet_pool_controller
+            - domain: switch
+    ph_tolerance:
+      name: pH-Toleranz
+      description: Toleranzbereich um den Sollwert (±)
+      default: 0.2
       selector:
         number:
-          min: 20
-          max: 35
-          step: 0.5
-          unit_of_measurement: °C
-    target_temp_night:
-      name: Zieltemperatur Nacht
-      description: Temperatur während der Nacht.
-      default: 24
+          min: 0.05
+          max: 0.5
+          step: 0.05
+          unit_of_measurement: pH
+          mode: slider
+    dosing_duration_ph_minus:
+      name: Dosierdauer pH-
+      description: Dauer der pH-Minus Dosierung in Sekunden
+      default: 30
       selector:
         number:
-          min: 18
-          max: 30
-          step: 0.5
-          unit_of_measurement: °C
-    day_start_time:
-      name: Tagesbeginn
-      description: Uhrzeit für Tagestemperatur.
-      default: "07:00"
-      selector:
-        time:
-    night_start_time:
-      name: Nachtbeginn
-      description: Uhrzeit für Nachttemperatur.
-      default: "22:00"
-      selector:
-        time:
-    outside_temp_sensor:
-      name: Außentemperatursensor
-      description: Sensor für Außentemperatur (optional).
-      default: []
-      selector:
-        entity:
-          domain: sensor
-          device_class: temperature
-          multiple: false
-    solar_power_sensor:
-      name: Solarleistungssensor
-      description: Sensor für Solarleistung (optional).
-      default: []
-      selector:
-        entity:
-          domain: sensor
-          device_class: power
-          multiple: false
-    min_solar_power:
-      name: Minimale Solarleistung
-      description: Mindestleistung für Solarheizung.
-      default: 1000
+          min: 10
+          max: 300
+          step: 5
+          unit_of_measurement: s
+          mode: box
+    dosing_duration_ph_plus:
+      name: Dosierdauer pH+
+      description: Dauer der pH-Plus Dosierung in Sekunden
+      default: 30
       selector:
         number:
-          min: 500
-          max: 5000
-          step: 100
-          unit_of_measurement: W
-    energy_saving_mode:
-      name: Energiesparmodus
-      description: Aktiviere energieeffiziente Heizstrategie.
+          min: 10
+          max: 300
+          step: 5
+          unit_of_measurement: s
+          mode: box
+    max_dosing_per_day:
+      name: Max. Dosierungen pro Tag
+      description: Maximale Anzahl Dosierungen pro 24h als Sicherheit
+      default: 10
+      selector:
+        number:
+          min: 3
+          max: 20
+          step: 1
+          mode: box
+    min_wait_between_dosing:
+      name: Wartezeit zwischen Dosierungen
+      description: Mindestwartezeit zwischen Dosierungen in Minuten
+      default: 60
+      selector:
+        number:
+          min: 30
+          max: 240
+          step: 15
+          unit_of_measurement: min
+          mode: box
+    enable_pump_check:
+      name: Pumpen-Check aktivieren
+      description: Dosierung nur bei laufender Filterpumpe
       default: true
       selector:
         boolean:
-    max_temp_difference:
-      name: Max. Temperaturdifferenz
-      description: Max. Unterschied zur Zieltemperatur vor Aktivierung.
-      default: 2.0
+    pump_entity:
+      name: Filterpumpe (Optional)
+      description: Binary Sensor oder Switch der Filterpumpe
+      default: ""
       selector:
-        number:
-          min: 0.5
-          max: 5.0
-          step: 0.5
-          unit_of_measurement: °C
-    notification_device:
-      name: Benachrichtigungsgerät
-      description: Gerät für Benachrichtigungen (optional).
-      default: []
-      selector:
-        device:
-          integration: mobile_app
+        entity:
+          filter:
+            - integration: violet_pool_controller
+            - domain: 
+                - binary_sensor
+                - switch
           multiple: false
+    notification_entity:
+      name: Benachrichtigungs-Service (Optional)
+      description: Service für Benachrichtigungen
+      default: ""
+      selector:
+        text:
 
 variables:
-  pool_temp_sensor: !input pool_temperature_sensor
-  heater_entity: !input pool_heater
-  solar_entity: !input pool_solar
-  target_day: !input target_temp_day
-  target_night: !input target_temp_night
-  outside_sensor: !input outside_temp_sensor
-  solar_sensor: !input solar_power_sensor
-  min_solar: !input min_solar_power
-  energy_saving: !input energy_saving_mode
-  max_diff: !input max_temp_difference
-  notify_device: !input notification_device
-  is_day: "{{ now().time() >= time(!input day_start_time) and now().time() < time(!input night_start_time) }}"
-  target_temp: "{{ target_day if is_day else target_night }}"
-  current_temp: "{{ states(pool_temp_sensor) | float(0) }}"
-  temp_diff: "{{ target_temp - current_temp }}"
-  outside_temp: "{{ states(outside_sensor) | float(20) if outside_sensor else 20 }}"
-  solar_power: "{{ states(solar_sensor) | float(0) if solar_sensor else 0 }}"
-  solar_available: "{{ solar_power > min_solar and outside_temp > 15 }}"
+  ph_current_sensor: !input ph_sensor
+  ph_target_entity: !input ph_setpoint_entity
+  ph_minus_entity: !input ph_minus_switch
+  ph_plus_entity: !input ph_plus_switch
+  tolerance: !input ph_tolerance
+  dosing_duration_minus: !input dosing_duration_ph_minus
+  dosing_duration_plus: !input dosing_duration_ph_plus
+  max_daily_dosing: !input max_dosing_per_day
+  min_wait_minutes: !input min_wait_between_dosing
+  pump_check_enabled: !input enable_pump_check
+  pump_sensor: !input pump_entity
+  notify_service: !input notification_entity
+  
+  # pH-Werte
+  current_ph: "{{ states(ph_current_sensor) | float(7.2) }}"
+  target_ph: "{{ states(ph_target_entity) | float(7.2) }}"
+  ph_diff: "{{ current_ph - target_ph }}"
+  
+  # Bereiche
+  ph_too_high: "{{ ph_diff > tolerance }}"
+  ph_too_low: "{{ ph_diff < -tolerance }}"
+  ph_ok: "{{ abs(ph_diff) <= tolerance }}"
+  
+  # Pumpen-Status
+  pump_running: >
+    {% if not pump_check_enabled or pump_sensor == "" %}
+      true
+    {% else %}
+      {{ is_state(pump_sensor, 'on') }}
+    {% endif %}
+  
+  # Dosier-Counter (über Input Number Helper)
+  dosing_counter_today: >
+    {{ states('input_number.pool_ph_dosing_counter') | int(0) }}
 
 trigger:
-  - platform: time
-    at: !input day_start_time
-    id: day_start
-  - platform: time
-    at: !input night_start_time
-    id: night_start
   - platform: numeric_state
-    entity_id: !input pool_temperature_sensor
+    entity_id: !input ph_sensor
+    for:
+      minutes: 10
+    id: ph_changed
+  - platform: time_pattern
+    minutes: /15
+    id: periodic_check
+  - platform: state
+    entity_id: !input pump_entity
+    to: "on"
     for:
       minutes: 5
-    id: temp_change
-  - platform: state
-    entity_id: !input solar_power_sensor
-    for:
-      minutes: 2
-    id: solar_change
-  - platform: time_pattern
-    minutes: /30
-    id: periodic_check
+    id: pump_started
 
 condition:
-  - condition: state
-    entity_id: !input pool_heater
-    state: ["heat", "auto", "off"]
+  - condition: template
+    value_template: >
+      {{ states(ph_current_sensor) not in ['unavailable', 'unknown'] and
+         states(ph_target_entity) not in ['unavailable', 'unknown'] }}
 
 action:
   - choose:
-      # Tagesbeginn: Tagestemperatur setzen
+      # === pH zu hoch: pH-Minus dosieren ===
       - conditions:
-          - condition: trigger
-            id: day_start
+          - condition: template
+            value_template: "{{ ph_too_high and pump_running }}"
+          - condition: template
+            value_template: "{{ dosing_counter_today < max_daily_dosing }}"
+          - condition: template
+            value_template: >
+              {{ (now() - states.automation.pool_ph_control.attributes.last_triggered | default(now() - timedelta(hours=1))) > 
+                 timedelta(minutes=min_wait_minutes) }}
         sequence:
-          - service: climate.set_temperature
+          - service: violet_pool_controller.manual_dosing
             target:
-              entity_id: !input pool_heater
+              entity_id: "{{ ph_minus_entity }}"
             data:
-              temperature: !input target_temp_day
-          - condition: template
-            value_template: "{{ notify_device != [] }}"
-            sequence:
-              - device_id: !input notification_device
-                domain: mobile_app
-                type: notify
-                title: Pool-Heizung
-                message: "Tagestemperatur auf {{ target_day }}°C gesetzt"
-
-      # Nachtbeginn: Nachttemperatur setzen
-      - conditions:
-          - condition: trigger
-            id: night_start
-        sequence:
-          - service: climate.set_temperature
+              duration_seconds: "{{ dosing_duration_minus }}"
+          
+          # Counter erhöhen
+          - service: input_number.set_value
             target:
-              entity_id: !input pool_heater
+              entity_id: input_number.pool_ph_dosing_counter
             data:
-              temperature: !input target_temp_night
-          - condition: template
-            value_template: "{{ notify_device != [] }}"
-            sequence:
-              - device_id: !input notification_device
-                domain: mobile_app
-                type: notify
-                title: Pool-Heizung
-                message: "Nachttemperatur auf {{ target_night }}°C gesetzt"
-
-      # Temperatur zu niedrig: Heizung aktivieren
-      - conditions:
-          - condition: template
-            value_template: "{{ temp_diff > max_diff }}"
-          - condition: or
-            conditions:
-              - condition: trigger
-                id: temp_change
-              - condition: trigger
-                id: periodic_check
-        sequence:
-          - choose:
-              # Solar verfügbar: Solar bevorzugen
-              - conditions:
-                  - condition: template
-                    value_template: "{{ solar_available and solar_entity != [] }}"
-                sequence:
-                  - service: climate.set_hvac_mode
-                    target:
-                      entity_id: !input pool_solar
-                    data:
-                      hvac_mode: heat
-                  - service: climate.set_temperature
-                    target:
-                      entity_id: !input pool_solar
-                    data:
-                      temperature: "{{ target_temp }}"
-                  - if: "{{ energy_saving }}"
-                    then:
-                      - service: climate.set_hvac_mode
-                        target:
-                          entity_id: !input pool_heater
-                        data:
-                          hvac_mode: auto
-                    else:
-                      - service: climate.set_hvac_mode
-                        target:
-                          entity_id: !input pool_heater
-                        data:
-                          hvac_mode: heat
-              # Kein Solar: Heizung nutzen
-              default:
-                - service: climate.set_hvac_mode
-                  target:
-                    entity_id: !input pool_heater
-                  data:
-                    hvac_mode: heat
-                - service: climate.set_temperature
-                  target:
-                    entity_id: !input pool_heater
-                  data:
-                    temperature: "{{ target_temp }}"
-          - condition: template
-            value_template: "{{ notify_device != [] and temp_diff > (max_diff * 1.5) }}"
-            sequence:
-              - device_id: !input notification_device
-                domain: mobile_app
-                type: notify
-                title: Pool-Temperatur niedrig
-                message: "Aktuelle Temperatur: {{ current_temp }}°C, Ziel: {{ target_temp }}°C, Heizung aktiviert."
-
-      # Temperatur erreicht: Energiesparmodus
-      - conditions:
-          - condition: template
-            value_template: "{{ temp_diff <= 0.5 and energy_saving }}"
-          - condition: or
-            conditions:
-              - condition: trigger
-                id: temp_change
-              - condition: trigger
-                id: periodic_check
-        sequence:
-          - service: climate.set_hvac_mode
-            target:
-              entity_id: !input pool_heater
-            data:
-              hvac_mode: auto
-          - if: "{{ solar_entity != [] }}"
+              value: "{{ dosing_counter_today + 1 }}"
+          
+          # Benachrichtigung
+          - if:
+              - condition: template
+                value_template: "{{ notify_service != '' }}"
             then:
-              - service: climate.set_hvac_mode
-                target:
-                  entity_id: !input pool_solar
+              - service: "{{ notify_service }}"
                 data:
-                  hvac_mode: auto
+                  title: "🔻 pH-Korrektur"
+                  message: >
+                    pH zu hoch: {{ '%.2f' | format(current_ph) }} → {{ '%.2f' | format(target_ph) }}
+                    pH-Minus für {{ dosing_duration_minus }}s dosiert
+
+      # === pH zu niedrig: pH-Plus dosieren ===
+      - conditions:
+          - condition: template
+            value_template: "{{ ph_too_low and pump_running }}"
+          - condition: template
+            value_template: "{{ dosing_counter_today < max_daily_dosing }}"
+          - condition: template
+            value_template: >
+              {{ (now() - states.automation.pool_ph_control.attributes.last_triggered | default(now() - timedelta(hours=1))) > 
+                 timedelta(minutes=min_wait_minutes) }}
+        sequence:
+          - service: violet_pool_controller.manual_dosing
+            target:
+              entity_id: "{{ ph_plus_entity }}"
+            data:
+              duration_seconds: "{{ dosing_duration_plus }}"
+          
+          # Counter erhöhen
+          - service: input_number.set_value
+            target:
+              entity_id: input_number.pool_ph_dosing_counter
+            data:
+              value: "{{ dosing_counter_today + 1 }}"
+          
+          # Benachrichtigung
+          - if:
+              - condition: template
+                value_template: "{{ notify_service != '' }}"
+            then:
+              - service: "{{ notify_service }}"
+                data:
+                  title: "🔺 pH-Korrektur"
+                  message: >
+                    pH zu niedrig: {{ '%.2f' | format(current_ph) }} → {{ '%.2f' | format(target_ph) }}
+                    pH-Plus für {{ dosing_duration_plus }}s dosiert
+
+      # === Maximale Dosierungen erreicht ===
+      - conditions:
+          - condition: template
+            value_template: "{{ not ph_ok and dosing_counter_today >= max_daily_dosing }}"
+        sequence:
+          - if:
+              - condition: template
+                value_template: "{{ notify_service != '' }}"
+            then:
+              - service: "{{ notify_service }}"
+                data:
+                  title: "⚠️ pH-Dosierung gestoppt"
+                  message: >
+                    Maximale Dosierungen ({{ max_daily_dosing }}) für heute erreicht.
+                    pH: {{ '%.2f' | format(current_ph) }}, Ziel: {{ '%.2f' | format(target_ph) }}
+                    Manuelle Überprüfung erforderlich!
+
+      # === pH im Sollbereich ===
+      - conditions:
+          - condition: template
+            value_template: "{{ ph_ok }}"
+          - condition: trigger
+            id: ph_changed
+        sequence:
+          - if:
+              - condition: template
+                value_template: "{{ notify_service != '' }}"
+            then:
+              - service: "{{ notify_service }}"
+                data:
+                  title: "✅ pH-Wert optimal"
+                  message: "pH-Wert im Sollbereich: {{ '%.2f' | format(current_ph) }} (Ziel: {{ '%.2f' | format(target_ph) }})"
+
+  # Counter um Mitternacht zurücksetzen
+  - if:
+      - condition: template
+        value_template: "{{ now().hour == 0 and now().minute == 0 }}"
+    then:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.pool_ph_dosing_counter
+        data:
+          value: 0
 
 mode: single
 max_exceeded: silent
