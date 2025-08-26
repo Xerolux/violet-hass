@@ -1,16 +1,16 @@
-"""Switch-Integration für den Violet Pool Controller."""
+"""Switch Integration für den Violet Pool Controller."""
 import logging
 from dataclasses import dataclass
+from typing import Any
 
-from homeassistant.components.switch import SwitchEntity, SwitchDeviceClass
+from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.entity import EntityCategory
 from homeassistant.exceptions import HomeAssistantError
 
-from .const import DOMAIN, SWITCHES, STATE_MAP, CONF_ACTIVE_FEATURES
-from .api import ACTION_ON, ACTION_OFF, ACTION_AUTO, VioletPoolAPIError
+from .const import DOMAIN, SWITCHES, CONF_ACTIVE_FEATURES, ACTION_ON, ACTION_OFF, STATE_MAP
+from .api import VioletPoolAPIError
 from .entity import VioletPoolControllerEntity
 from .device import VioletPoolDataUpdateCoordinator
 
@@ -18,109 +18,119 @@ _LOGGER = logging.getLogger(__name__)
 
 @dataclass
 class VioletSwitchEntityDescription:
-    """Beschreibt Switch-Entitäten."""
+    """Beschreibung der Violet Pool Switch-Entities."""
     key: str
     name: str
     icon: str | None = None
     feature_id: str | None = None
-    entity_category: EntityCategory | None = None
 
 class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
-    """Repräsentation eines Switches."""
+    """Repräsentation eines Violet Pool Switches."""
     entity_description: VioletSwitchEntityDescription
 
-    def __init__(self, coordinator: VioletPoolDataUpdateCoordinator, config_entry: ConfigEntry, description: VioletSwitchEntityDescription) -> None:
-        """Initialisiert den Switch."""
+    def __init__(
+        self, coordinator: VioletPoolDataUpdateCoordinator, config_entry: ConfigEntry,
+        description: VioletSwitchEntityDescription
+    ) -> None:
+        """Initialisiere den Switch."""
         super().__init__(coordinator, config_entry, description)
         self._attr_icon = description.icon
+        _LOGGER.debug("Initialisiere Switch: %s (unique_id=%s)", self.entity_id, self._attr_unique_id)
 
     @property
     def is_on(self) -> bool:
         """Gibt True zurück, wenn der Switch eingeschaltet ist."""
-        state = self.get_str_value(self.entity_description.key, "").upper()
-        if not state:
-            _LOGGER.debug_once("Switch %s hat leeren Status. Standard: OFF", self.entity_description.key)
-            return False
-        return STATE_MAP.get(state, False)
-
-    async def async_turn_on(self, **kwargs) -> None:
-        """Schaltet den Switch ein."""
-        await self._send_command(ACTION_ON)
-
-    async def async_turn_off(self, **kwargs) -> None:
-        """Schaltet den Switch aus."""
-        await self._send_command(ACTION_OFF)
-
-    async def async_turn_auto(self, auto_delay: int = 0) -> None:
-        """Setzt AUTO-Modus."""
-        await self._send_command(ACTION_AUTO, auto_delay)
-
-    async def _send_command(self, api_action: str, duration: int = 0) -> None:
-        """Sendet Befehl an Gerät."""
-        key = self.entity_description.key
-        try:
-            result = await self.device.api.set_switch_state(key, api_action, duration)
-            if result.get("success", True):
-                _LOGGER.debug("Befehl %s für %s gesendet", api_action, key)
-            else:
-                _LOGGER.warning("Befehl %s für %s möglicherweise fehlgeschlagen: %s", api_action, key, result.get("response", result))
-            await self.coordinator.async_request_refresh()
-        except VioletPoolAPIError as err:
-            _LOGGER.error("API-Fehler bei %s für %s: %s", api_action, key, err)
-            raise HomeAssistantError(f"Aktion {api_action} für {key} fehlgeschlagen: {err}") from err
-
-class VioletPVSurplusSwitch(VioletSwitch):
-    """Spezial-Switch für PV-Überschuss."""
-
-    def __init__(self, coordinator: VioletPoolDataUpdateCoordinator, config_entry: ConfigEntry) -> None:
-        """Initialisiert PV-Überschuss-Switch."""
-        description = VioletSwitchEntityDescription(
-            key="PVSURPLUS", name="PV-Überschuss", icon="mdi:solar-power",
-            feature_id="pv_surplus", device_class=SwitchDeviceClass.SWITCH
-        )
-        super().__init__(coordinator, config_entry, description)
+        return self._get_switch_state()
 
     def _get_switch_state(self) -> bool:
-        """Ruft PV-Überschuss-Status ab."""
-        return self.get_int_value(self.entity_description.key, 0) in (1, 2)
+        """Rufe den aktuellen Switch-Zustand ab."""
+        key = self.entity_description.key
+        raw_state = self.get_str_value(key, "")
+        
+        if not raw_state:
+            _LOGGER.debug("Switch '%s' hat leeren Zustand. Standard: OFF.", key)
+            return False
 
-    async def async_turn_on(self, **kwargs) -> None:
-        """Aktiviert PV-Überschuss."""
+        # Check state mapping first
+        upper_state = raw_state.upper()
+        if upper_state in STATE_MAP:
+            return STATE_MAP[upper_state]
+            
+        # Fallback to boolean conversion
+        return self.get_bool_value(key, False)
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        """Schalte den Switch ein."""
+        await self._set_switch_state(ACTION_ON)
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        """Schalte den Switch aus."""
+        await self._set_switch_state(ACTION_OFF)
+
+    async def _set_switch_state(self, action: str) -> None:
+        """Setze den Switch-Zustand."""
         try:
-            await self.device.api.set_pv_surplus(active=True, pump_speed=kwargs.get("pump_speed", 2))
+            key = self.entity_description.key
+            _LOGGER.debug("Setze Switch %s auf %s", key, action)
+            
+            result = await self.device.api.set_switch_state(key=key, action=action)
+            
+            if result.get("success", True):
+                _LOGGER.info("Switch %s auf %s gesetzt", key, action)
+                # Update state optimistically
+                if action == ACTION_ON:
+                    self.coordinator.data[key] = True
+                else:
+                    self.coordinator.data[key] = False
+                self.async_write_ha_state()
+            else:
+                _LOGGER.warning("Switch %s Aktion %s möglicherweise fehlgeschlagen: %s", 
+                              key, action, result.get("response", result))
+            
+            # Request refresh to get actual state
             await self.coordinator.async_request_refresh()
+            
         except VioletPoolAPIError as err:
-            _LOGGER.error("API-Fehler beim Einschalten von PV-Überschuss: %s", err)
-            raise HomeAssistantError(f"PV-Überschuss einschalten fehlgeschlagen: {err}") from err
+            _LOGGER.error("API-Fehler beim Setzen von Switch %s: %s", self.entity_description.key, err)
+            raise HomeAssistantError(f"Switch-Aktion fehlgeschlagen: {err}") from err
 
-    async def async_turn_off(self, **kwargs) -> None:
-        """Deaktiviert PV-Überschuss."""
-        try:
-            await self.device.api.set_pv_surplus(active=False)
-            await self.coordinator.async_request_refresh()
-        except VioletPoolAPIError as err:
-            _LOGGER.error("API-Fehler beim Ausschalten von PV-Überschuss: %s", err)
-            raise HomeAssistantError(f"PV-Überschuss ausschalten fehlgeschlagen: {err}") from err
+def _create_switch_descriptions() -> list[VioletSwitchEntityDescription]:
+    """Create switch entity descriptions from SWITCHES constant."""
+    descriptions = []
+    
+    for switch_config in SWITCHES:
+        descriptions.append(VioletSwitchEntityDescription(
+            key=switch_config["key"],
+            name=switch_config["name"],
+            icon=switch_config.get("icon"),
+            feature_id=switch_config.get("feature_id")
+        ))
+    
+    return descriptions
 
-async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
-    """Richtet Switches ein."""
+async def async_setup_entry(
+    hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities: AddEntitiesCallback
+) -> None:
+    """Richte Switches für die Config Entry ein."""
     coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     active_features = config_entry.options.get(CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, []))
-    switches = []
+    entities: list[SwitchEntity] = []
 
-    for sw in SWITCHES:
-        if sw["key"] not in coordinator.data or (sw.get("feature_id") and sw["feature_id"] not in active_features):
+    # Create switch descriptions
+    switch_descriptions = _create_switch_descriptions()
+
+    for description in switch_descriptions:
+        # Check if feature is active (if feature_id is specified)
+        if description.feature_id and description.feature_id not in active_features:
+            _LOGGER.debug("Überspringe Switch %s: Feature %s nicht aktiv", description.key, description.feature_id)
             continue
-        switches.append(VioletSwitch(coordinator, config_entry, VioletSwitchEntityDescription(
-            key=sw["key"], name=sw["name"], icon=sw["icon"],
-            feature_id=sw.get("feature_id"), entity_category=EntityCategory.CONFIG if sw["key"].startswith("DOS_") else None
-        )))
+            
+        # Check if data is available for this switch (optional, some switches might not have state feedback)
+        # We'll create the switch anyway since it might be controllable even without state feedback
+        entities.append(VioletSwitch(coordinator, config_entry, description))
 
-    if "pv_surplus" in active_features and "PVSURPLUS" in coordinator.data:
-        switches.append(VioletPVSurplusSwitch(coordinator, config_entry))
-
-    if switches:
-        async_add_entities(switches)
-        _LOGGER.info("%d Switches hinzugefügt", len(switches))
+    if entities:
+        async_add_entities(entities)
+        _LOGGER.info("Switches eingerichtet: %s", [e.entity_id for e in entities])
     else:
-        _LOGGER.info("Keine Switches hinzugefügt")
+        _LOGGER.info("Keine Switches eingerichtet")
