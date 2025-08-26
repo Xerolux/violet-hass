@@ -2,6 +2,7 @@
 import logging
 import asyncio
 import json
+import aiohttp
 from datetime import timedelta
 
 from homeassistant.core import HomeAssistant
@@ -16,7 +17,7 @@ from .const import (
     CONF_POLLING_INTERVAL, CONF_TIMEOUT_DURATION, CONF_RETRY_ATTEMPTS, CONF_ACTIVE_FEATURES,
     DEFAULT_POLLING_INTERVAL, DEFAULT_TIMEOUT_DURATION, DEFAULT_RETRY_ATTEMPTS
 )
-from .api import VioletPoolAPI
+from .api import VioletPoolAPI, VioletPoolAPIError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -44,7 +45,12 @@ class VioletPoolControllerDevice:
         self.use_ssl = entry_data.get(CONF_USE_SSL, True)
         self.device_id = entry_data.get(CONF_DEVICE_ID, 1)
         self.device_name = entry_data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
-        self.auth = aiohttp.BasicAuth(entry_data[CONF_USERNAME], entry_data.get(CONF_PASSWORD, "")) if entry_data.get(CONF_USERNAME) else None
+        
+        # Fix: Korrektur für aiohttp.BasicAuth
+        username = entry_data.get(CONF_USERNAME)
+        password = entry_data.get(CONF_PASSWORD, "")
+        self.auth = aiohttp.BasicAuth(username, password) if username else None
+        
         self.polling_interval = int(config_entry.options.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL))
         self.timeout_duration = int(config_entry.options.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION))
         self.retry_attempts = int(config_entry.options.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS))
@@ -102,52 +108,69 @@ class VioletPoolControllerDevice:
         """Aktualisiere Gerätedaten."""
         async with self._api_lock:
             try:
-                data = await self._fetch_api_data(self.api_readings_url, self.retry_attempts)
+                # Use the API instance for data fetching
+                data = await self.api.get_readings("ALL")
                 if not data:
-                    raise UpdateFailed("Keine Daten empfangen")
-                self._firmware_version = data.get("fw")
+                    raise VioletPoolAPIError("Keine Daten empfangen")
+                
+                self._firmware_version = data.get("fw") or data.get("firmware_version")
                 self._data = self._process_api_data(data)
                 self._available = True
+                self._last_error = None
                 return self._data
+                
+            except VioletPoolAPIError as e:
+                self._available = False
+                self._last_error = str(e)
+                _LOGGER.error("API-Update-Fehler: %s", e)
+                raise UpdateFailed(str(e))
             except Exception as e:
                 self._available = False
                 self._last_error = str(e)
                 _LOGGER.error("Update-Fehler: %s", e)
                 raise UpdateFailed(str(e))
 
-    async def _fetch_api_data(self, url: str, retries: int) -> dict:
-        """Rufe API-Daten ab."""
-        for attempt in range(retries):
-            try:
-                async with asyncio.timeout(self.timeout_duration):
-                    async with self._session.get(url, auth=self.auth, ssl=self.use_ssl) as response:
-                        response.raise_for_status()
-                        if "application/json" in response.headers.get("Content-Type", "").lower():
-                            return await response.json()
-                        return json.loads(await response.text())
-            except (asyncio.TimeoutError, aiohttp.ClientError, json.JSONDecodeError) as e:
-                if attempt + 1 == retries:
-                    raise UpdateFailed(f"Fehler nach {retries} Versuchen: {e}")
-                _LOGGER.warning("Fehler bei %s, Versuch %d/%d: %s", url, attempt + 1, retries, e)
-                await asyncio.sleep(2 ** attempt)
-        raise UpdateFailed("Fehler bei API-Datenabruf")
-
     def _process_api_data(self, data: dict) -> dict:
         """Verarbeite API-Daten."""
+        if not isinstance(data, dict):
+            _LOGGER.warning("API-Daten sind kein Dictionary: %s", type(data))
+            return {}
+            
         processed = dict(data)
+        
+        # Convert string values to appropriate types
         for key, value in processed.items():
             if isinstance(value, str):
-                if value.replace(".", "", 1).isdigit():
-                    processed[key] = float(value) if "." in value else int(value)
+                # Try to convert numeric strings
+                if value.replace(".", "", 1).replace("-", "", 1).isdigit():
+                    try:
+                        processed[key] = float(value) if "." in value else int(value)
+                    except ValueError:
+                        pass  # Keep as string if conversion fails
+                # Convert boolean-like strings
                 elif value.lower() in ("true", "false", "on", "off", "1", "0"):
                     processed[key] = value.lower() in ("true", "on", "1")
+        
+        # Key mappings for backward compatibility
         key_mappings = {
-            "ph_current": "ph_value", "orp_current": "orp_value", "temp_current": "temp_value",
-            "onewire1_value": "water_temp", "onewire2_value": "air_temp"
+            "ph_current": "ph_value", 
+            "orp_current": "orp_value", 
+            "temp_current": "temp_value",
+            "onewire1_value": "water_temp", 
+            "onewire2_value": "air_temp"
         }
-        processed.update({new: processed[old] for old, new in key_mappings.items() if old in processed and new not in processed})
+        
+        for old_key, new_key in key_mappings.items():
+            if old_key in processed and new_key not in processed:
+                processed[new_key] = processed[old_key]
+        
+        # Round pH values for precision
         if "ph_value" in processed:
-            processed["ph_value"] = round(float(processed["ph_value"]), 2)
+            try:
+                processed["ph_value"] = round(float(processed["ph_value"]), 2)
+            except (ValueError, TypeError):
+                pass
+                
         return processed
 
     def is_feature_active(self, feature_id: str) -> bool:
@@ -160,7 +183,12 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
     def __init__(self, hass: HomeAssistant, device: VioletPoolControllerDevice, config_entry: ConfigEntry) -> None:
         """Initialisiere Koordinator."""
         self.device = device
-        super().__init__(hass, _LOGGER, name=f"{DOMAIN}_{device.device_id}", update_interval=timedelta(seconds=device.polling_interval))
+        super().__init__(
+            hass, 
+            _LOGGER, 
+            name=f"{DOMAIN}_{device.device_id}", 
+            update_interval=timedelta(seconds=device.polling_interval)
+        )
 
     async def _async_update_data(self) -> dict:
         """Aktualisiere Daten."""
@@ -172,12 +200,21 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
 
 async def async_setup_device(hass: HomeAssistant, config_entry: ConfigEntry, api: VioletPoolAPI) -> VioletPoolDataUpdateCoordinator | None:
     """Richte Gerät und Koordinator ein."""
-    device = VioletPoolControllerDevice(hass, config_entry, api)
-    if not await device.async_setup():
-        raise ConfigEntryNotReady(f"Setup für {device.name} fehlgeschlagen: {device.last_error}")
+    try:
+        device = VioletPoolControllerDevice(hass, config_entry, api)
+        
+        if not await device.async_setup():
+            raise ConfigEntryNotReady(f"Setup für {device.name} fehlgeschlagen: {device.last_error}")
 
-    coordinator = VioletPoolDataUpdateCoordinator(hass, device, config_entry)
-    await coordinator.async_config_entry_first_refresh()
-    if not coordinator.last_update_success:
-        raise ConfigEntryNotReady("Initialer Datenabruf fehlgeschlagen")
-    return coordinator
+        coordinator = VioletPoolDataUpdateCoordinator(hass, device, config_entry)
+        
+        # Initial refresh with error handling
+        await coordinator.async_config_entry_first_refresh()
+        if not coordinator.last_update_success:
+            raise ConfigEntryNotReady("Initialer Datenabruf fehlgeschlagen")
+            
+        return coordinator
+        
+    except Exception as e:
+        _LOGGER.error("Fehler beim Setup von Gerät und Koordinator: %s", e)
+        raise ConfigEntryNotReady(str(e))
