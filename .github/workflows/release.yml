@@ -1,105 +1,40 @@
-name: "Release"
+name: Release
 
 on:
   release:
-    types:
-      - published
-      - prereleased
+    types: [published]
   workflow_dispatch:
 
 jobs:
   release:
-    name: "Release"
-    runs-on: "ubuntu-latest"
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - name: "Checkout the repository"
-        uses: "actions/checkout@v4"
-
-      - name: "Install correct yq version"
+      - uses: actions/checkout@v4
+      
+      - name: Get version
+        id: version
         run: |
-          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-          sudo chmod +x /usr/local/bin/yq
-          yq --version  # Zeigt installierte Version
-
-      - name: "Determine Version"
-        shell: "bash"
-        env:
-          VERSION: "${{ github.event.release.tag_name || github.ref_name }}"
-        run: |
-          echo "Setting version to: $VERSION"
-          # Speichere die Version in der .version-Datei im richtigen Verzeichnis
-          echo "$VERSION" > "${{ github.workspace }}/custom_components/violet_pool_controller/.version"
-          # Debugging: Zeige den Inhalt der .version-Datei
-          echo "Contents of .version file:"
-          cat "${{ github.workspace }}/custom_components/violet_pool_controller/.version"
-          # Exportiere VERSION für nachfolgende Schritte
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-      - name: "Adjust version number in manifest.json"
-        run: |
-          yq -i '.version = strenv(VERSION)' "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
-
-      - name: "Debug manifest.json"
-        run: |
-          cat "${{ github.workspace }}/custom_components/violet_pool_controller/manifest.json"
-
-      - name: "Adjust version number in const.py"
-        run: |
-          sed -i "s/^INTEGRATION_VERSION\s*=.*/INTEGRATION_VERSION = '$VERSION'/" "${{ github.workspace }}/custom_components/violet_pool_controller/const.py"
+          VERSION="${{ github.event.release.tag_name || github.ref_name }}"
+          VERSION="${VERSION#v}" # Remove 'v' prefix if present
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
           
-      - name: "Debug const.py"
+      - name: Update version in files
         run: |
-          cat "${{ github.workspace }}/custom_components/violet_pool_controller/const.py"
-
-      - name: "Commit and Push .version file"
-        uses: stefanzweifel/git-auto-commit-action@v6
-        with:
-          branch: main
-          commit_message: "chore: update .version file to ${{ env.VERSION }}"
-          file_pattern: "custom_components/violet_pool_controller/.version"
-
-      - name: "Create git tag from .version"
-        run: |
-          VERSION=$(cat custom_components/violet_pool_controller/.version)
-          echo "Creating tag: $VERSION"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -a "$VERSION" -m "Release $VERSION"
-          git push origin "$VERSION"
-
-      - name: "List directory before zipping"
-        run: |
-          ls -l "${{ github.workspace }}/custom_components/violet_pool_controller"
+          VERSION="${{ steps.version.outputs.version }}"
+          # Update manifest.json
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" custom_components/violet_pool_controller/manifest.json
+          # Update const.py
+          sed -i "s/^INTEGRATION_VERSION = .*/INTEGRATION_VERSION = \"$VERSION\"/" custom_components/violet_pool_controller/const.py
           
-      - name: "ZIP the integration directory properly"
-        if: always()
-        shell: "bash"
+      - name: Create ZIP
         run: |
-          cd "${{ github.workspace }}/custom_components/violet_pool_controller"
-          zip -r ../violet_pool_controller.zip .
-
-      - name: "Check ZIP file details"
-        if: always()
-        run: |
-          ls -lh "${{ github.workspace }}/custom_components/violet_pool_controller.zip"
-
-      - name: "Validate ZIP file existence"
-        if: always()
-        run: |
-          if [ -f "${{ github.workspace }}/custom_components/violet_pool_controller.zip" ]; then
-            echo "ZIP file exists."
-          else
-            echo "ZIP file does not exist."
-            exit 1
-          fi
-
-      - name: "Upload the ZIP file to the release"
-        if: always()
-        uses: "marvinpinto/action-automatic-releases@latest"
+          cd custom_components/violet_pool_controller
+          zip -r ../../violet_pool_controller.zip .
+          
+      - name: Upload ZIP to release
+        uses: softprops/action-gh-release@v2
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          files: "${{ github.workspace }}/custom_components/violet_pool_controller.zip"
-          prerelease: ${{ github.event.release.prerelease || 'false' }}
-          automatic_release_tag: ${{ github.event.release.tag_name || github.ref_name }}
+          files: violet_pool_controller.zip
+          tag_name: ${{ github.event.release.tag_name }}
