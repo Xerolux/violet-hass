@@ -62,17 +62,31 @@ AVAILABLE_FEATURES = [
 ]
 
 # API-Schlüssel
+# API-Schlüssel - Python 3.13 kompatibel
+_EXT1_RELAYS = {f"EXT1_{i}": f"Relais 1-{i}" for i in range(1, 9)}
+_EXT2_RELAYS = {f"EXT2_{i}": f"Relais 2-{i}" for i in range(1, 9)}
+_DMX_SCENES = {f"DMX_SCENE{i}": f"DMX Szene {i}" for i in range(1, 13)}
+_DIRULES = {f"DIRULE_{i}": f"Schaltregel {i}" for i in range(1, 8)}
+_OMNI_DCS = {f"OMNI_DC{i}": f"Omni DC{i}" for i in range(6)}
+
 SWITCH_FUNCTIONS = {
-    "PUMP": "Pumpe", "SOLAR": "Absorber", "HEATER": "Heizung", "LIGHT": "Licht",
-    "ECO": "Eco-Modus", "BACKWASH": "Rückspülung", "BACKWASHRINSE": "Nachspülung",
-    **{f"EXT1_{i}": f"Relais 1-{i}" for i in range(1, 9)},
-    **{f"EXT2_{i}": f"Relais 2-{i}" for i in range(1, 9)},
-    **{f"DMX_SCENE{i}": f"DMX Szene {i}" for i in range(1, 13)},
+    "PUMP": "Pumpe", 
+    "SOLAR": "Absorber", 
+    "HEATER": "Heizung", 
+    "LIGHT": "Licht",
+    "ECO": "Eco-Modus", 
+    "BACKWASH": "Rückspülung", 
+    "BACKWASHRINSE": "Nachspülung",
     "REFILL": "Nachfüllen",
-    **{f"DIRULE_{i}": f"Schaltregel {i}" for i in range(1, 8)},
     "PVSURPLUS": "PV-Überschuss",
-    **{f"OMNI_DC{i}": f"Omni DC{i}" for i in range(6)},
 }
+
+# Add generated mappings
+SWITCH_FUNCTIONS.update(_EXT1_RELAYS)
+SWITCH_FUNCTIONS.update(_EXT2_RELAYS) 
+SWITCH_FUNCTIONS.update(_DMX_SCENES)
+SWITCH_FUNCTIONS.update(_DIRULES)
+SWITCH_FUNCTIONS.update(_OMNI_DCS)
 
 COVER_FUNCTIONS = {
     "OPEN": "COVER_OPEN", "CLOSE": "COVER_CLOSE", "STOP": "COVER_STOP",
@@ -117,6 +131,9 @@ ANALOG_SENSORS = {
 }
 
 # Binary Sensoren - Dictionary Format für einfachere Verwendung
+_DIGITAL_INPUTS = [{"name": f"Digital Input {i}", "key": f"INPUT{i}", "icon": "mdi:electric-switch", "feature_id": "digital_inputs", "entity_category": EntityCategory.DIAGNOSTIC} for i in range(1, 13)]
+_DIGITAL_CE_INPUTS = [{"name": f"Digital Input CE{i}", "key": f"INPUT_CE{i}", "icon": "mdi:electric-switch", "feature_id": "digital_inputs", "entity_category": EntityCategory.DIAGNOSTIC} for i in range(1, 5)]
+
 BINARY_SENSORS = [
     {"name": "Pump State", "key": "PUMP", "icon": "mdi:water-pump", "feature_id": "filter_control", "device_class": BinarySensorDeviceClass.RUNNING},
     {"name": "Solar State", "key": "SOLAR", "icon": "mdi:solar-power", "feature_id": "solar", "device_class": BinarySensorDeviceClass.RUNNING},
@@ -126,17 +143,22 @@ BINARY_SENSORS = [
     {"name": "Refill State", "key": "REFILL", "icon": "mdi:water", "feature_id": "water_refill", "device_class": BinarySensorDeviceClass.RUNNING},
     {"name": "ECO Mode", "key": "ECO", "icon": "mdi:leaf"},
     {"name": "PV Surplus", "key": "PVSURPLUS", "icon": "mdi:solar-power-variant", "feature_id": "pv_surplus"},
-    # Digital Inputs
-    *[{"name": f"Digital Input {i}", "key": f"INPUT{i}", "icon": "mdi:electric-switch", "feature_id": "digital_inputs", "entity_category": EntityCategory.DIAGNOSTIC} for i in range(1, 13)],
     {"name": "Digital Input Z1Z2", "key": "INPUTz1z2", "icon": "mdi:electric-switch", "feature_id": "digital_inputs", "entity_category": EntityCategory.DIAGNOSTIC},
-    *[{"name": f"Digital Input CE{i}", "key": f"INPUT_CE{i}", "icon": "mdi:electric-switch", "feature_id": "digital_inputs", "entity_category": EntityCategory.DIAGNOSTIC} for i in range(1, 5)],
     # Cover Controls
     {"name": "Cover Open Contact", "key": "OPEN_CONTACT", "icon": "mdi:window-open-variant", "feature_id": "cover_control", "device_class": BinarySensorDeviceClass.OPENING},
     {"name": "Cover Stop Contact", "key": "STOP_CONTACT", "icon": "mdi:stop-circle-outline", "feature_id": "cover_control"},
     {"name": "Cover Close Contact", "key": "CLOSE_CONTACT", "icon": "mdi:window-closed-variant", "feature_id": "cover_control", "device_class": BinarySensorDeviceClass.OPENING},
 ]
 
-# Switches
+# Add generated digital inputs
+BINARY_SENSORS.extend(_DIGITAL_INPUTS)
+BINARY_SENSORS.extend(_DIGITAL_CE_INPUTS)
+
+# Switches - Python 3.13 kompatibel
+_EXT1_SWITCHES = [{"name": f"Extension 1.{i}", "key": f"EXT1_{i}", "icon": "mdi:toggle-switch-outline", "feature_id": "extension_outputs"} for i in range(1, 9)]
+_EXT2_SWITCHES = [{"name": f"Extension 2.{i}", "key": f"EXT2_{i}", "icon": "mdi:toggle-switch-outline", "feature_id": "extension_outputs"} for i in range(1, 9)]
+_OMNI_SWITCHES = [{"name": f"Omni DC{i} Output", "key": f"OMNI_DC{i}", "icon": "mdi:electric-switch", "feature_id": "extension_outputs"} for i in range(6)]
+
 SWITCHES = [
     {"name": "Pumpe", "key": "PUMP", "icon": "mdi:water-pump", "feature_id": "filter_control"},
     {"name": "Absorber", "key": "SOLAR", "icon": "mdi:solar-power", "feature_id": "solar"},
@@ -150,10 +172,12 @@ SWITCHES = [
     {"name": "Dosierung pH+", "key": "DOS_5_PHP", "icon": "mdi:flask", "feature_id": "ph_control"},
     {"name": "Flockmittel", "key": "DOS_6_FLOC", "icon": "mdi:flask", "feature_id": "chlorine_control"},
     {"name": "PV-Überschuss", "key": "PVSURPLUS", "icon": "mdi:solar-power-variant", "feature_id": "pv_surplus"},
-    *[{"name": f"Extension 1.{i}", "key": f"EXT1_{i}", "icon": "mdi:toggle-switch-outline", "feature_id": "extension_outputs"} for i in range(1, 9)],
-    *[{"name": f"Extension 2.{i}", "key": f"EXT2_{i}", "icon": "mdi:toggle-switch-outline", "feature_id": "extension_outputs"} for i in range(1, 9)],
-    *[{"name": f"Omni DC{i} Output", "key": f"OMNI_DC{i}", "icon": "mdi:electric-switch", "feature_id": "extension_outputs"} for i in range(6)],
 ]
+
+# Add generated switches
+SWITCHES.extend(_EXT1_SWITCHES)
+SWITCHES.extend(_EXT2_SWITCHES)
+SWITCHES.extend(_OMNI_SWITCHES)
 
 # Setpoint-Definitionen
 SETPOINT_DEFINITIONS = [
@@ -180,46 +204,72 @@ SETPOINT_DEFINITIONS = [
     },
 ]
 
-# Unit mappings für dynamische Sensoren
+# Unit mappings für dynamische Sensoren - Kompatibel mit Python 3.13
+_ONEWIRE_TEMPS = {f"onewire{i}_value": "°C" for i in range(1, 13)}
+_PUMP_RPMS = {f"PUMP_RPM_{i}": "RPM" for i in range(4)}
+_PUMP_RPM_VALUES = {f"PUMP_RPM_{i}_VALUE": "RPM" for i in range(4)}
+
 UNIT_MAP = {
     # Temperature sensors
-    **{f"onewire{i}_value": "°C" for i in range(1, 13)},
-    "water_temp": "°C", "air_temp": "°C", "temp_value": "°C",
-    "SYSTEM_cpu_temperature": "°C", "SYSTEM_carrier_cpu_temperature": "°C",
+    "water_temp": "°C", 
+    "air_temp": "°C", 
+    "temp_value": "°C",
+    "SYSTEM_cpu_temperature": "°C", 
+    "SYSTEM_carrier_cpu_temperature": "°C",
     # Water chemistry
-    "pH_value": "pH", "orp_value": "mV", "pot_value": "mg/l",
+    "pH_value": "pH", 
+    "orp_value": "mV", 
+    "pot_value": "mg/l",
     # Analog values
-    "ADC1_value": "bar", "ADC2_value": "cm", "IMP1_value": "cm/s", "IMP2_value": "m³/h",
+    "ADC1_value": "bar", 
+    "ADC2_value": "cm", 
+    "IMP1_value": "cm/s", 
+    "IMP2_value": "m³/h",
     # System values
-    "CPU_UPTIME": "s", "DEVICE_UPTIME": "s", "RUNTIME": "s",
-    # Pump values
-    **{f"PUMP_RPM_{i}": "RPM" for i in range(4)},
-    **{f"PUMP_RPM_{i}_VALUE": "RPM" for i in range(4)},
+    "CPU_UPTIME": "s", 
+    "DEVICE_UPTIME": "s", 
+    "RUNTIME": "s",
 }
 
+# Add generated mappings
+UNIT_MAP.update(_ONEWIRE_TEMPS)
+UNIT_MAP.update(_PUMP_RPMS)
+UNIT_MAP.update(_PUMP_RPM_VALUES)
+
 # Sensors without units
+_DOS_CL_STATES = {f"DOS_{i}_CL_STATE" for i in range(1, 7)}
+_DOS_PHM_STATES = {f"DOS_{i}_PHM_STATE" for i in range(1, 7)}
+_DOS_PHP_STATES = {f"DOS_{i}_PHP_STATE" for i in range(1, 7)}
+_DOS_CL_RANGES = {f"DOS_{i}_CL_REMAINING_RANGE" for i in range(1, 7)}
+_DOS_PHM_RANGES = {f"DOS_{i}_PHM_REMAINING_RANGE" for i in range(1, 7)}
+_DOS_PHP_RANGES = {f"DOS_{i}_PHP_REMAINING_RANGE" for i in range(1, 7)}
+_DOS_FLOC_RANGES = {f"DOS_{i}_FLOC_REMAINING_RANGE" for i in range(1, 7)}
+
 NO_UNIT_SENSORS = {
     "FW", "SW_VERSION", "HW_VERSION", "SERIAL_NUMBER", "MAC_ADDRESS", "IP_ADDRESS",
     "VERSION", "VERSION_INFO", "HARDWARE_VERSION", "CPU_GOV", "HW_SERIAL_CARRIER",
     "SW_VERSION_CARRIER", "HW_VERSION_CARRIER", "ERROR_CODE", "LAST_ERROR",
     "CHECKSUM", "RULE_RESULT", "DISPLAY_MODE", "OPERATING_MODE", "MAINTENANCE_MODE",
-    **{f"DOS_{i}_CL_STATE" for i in range(1, 7)},
-    **{f"DOS_{i}_PHM_STATE" for i in range(1, 7)},
-    **{f"DOS_{i}_PHP_STATE" for i in range(1, 7)},
     "HEATERSTATE", "SOLARSTATE", "PUMPSTATE", "BACKWASHSTATE", "OMNI_STATE",
     "BACKWASH_OMNI_STATE", "SOLAR_STATE", "HEATER_STATE", "PUMP_STATE", "FILTER_STATE",
     "OMNI_MODE", "FILTER_MODE", "SOLAR_MODE", "HEATER_MODE", "LAST_MOVING_DIRECTION",
     "COVER_DIRECTION", "BATHING_AI_SURVEILLANCE_STATE", "BATHING_AI_PUMP_STATE",
     "OVERFLOW_REFILL_STATE", "OVERFLOW_DRYRUN_STATE", "OVERFLOW_OVERFILL_STATE",
     "BACKWASH_OMNI_MOVING", "BACKWASH_DELAY_RUNNING", "BACKWASH_STATE", "REFILL_STATE",
-    **{f"DOS_{i}_CL_REMAINING_RANGE" for i in range(1, 7)},
-    **{f"DOS_{i}_PHM_REMAINING_RANGE" for i in range(1, 7)},
-    **{f"DOS_{i}_PHP_REMAINING_RANGE" for i in range(1, 7)},
-    **{f"DOS_{i}_FLOC_REMAINING_RANGE" for i in range(1, 7)},
     "time", "TIME", "CURRENT_TIME"
-}
+} | _DOS_CL_STATES | _DOS_PHM_STATES | _DOS_PHP_STATES | _DOS_CL_RANGES | _DOS_PHM_RANGES | _DOS_PHP_RANGES | _DOS_FLOC_RANGES
 
-# Sensor feature mapping erweitert
+# Sensor feature mapping erweitert - Python 3.13 kompatibel
+_DOS_CL_FEATURE_MAP = {f"DOS_{i}_CL_STATE": "chlorine_control" for i in range(1, 7)}
+_DOS_PHM_FEATURE_MAP = {f"DOS_{i}_PHM_STATE": "ph_control" for i in range(1, 7)}
+_DOS_PHP_FEATURE_MAP = {f"DOS_{i}_PHP_STATE": "ph_control" for i in range(1, 7)}
+_DOS_CL_RUNTIME_MAP = {f"DOS_{i}_CL_RUNTIME": "chlorine_control" for i in range(1, 7)}
+_DOS_PHM_RUNTIME_MAP = {f"DOS_{i}_PHM_RUNTIME": "ph_control" for i in range(1, 7)}
+_DOS_PHP_RUNTIME_MAP = {f"DOS_{i}_PHP_RUNTIME": "ph_control" for i in range(1, 7)}
+_EXT1_RUNTIME_MAP = {f"EXT1_{i}_RUNTIME": "extension_outputs" for i in range(1, 9)}
+_EXT2_RUNTIME_MAP = {f"EXT2_{i}_RUNTIME": "extension_outputs" for i in range(1, 9)}
+_OMNI_RUNTIME_MAP = {f"OMNI_DC{i}_RUNTIME": "extension_outputs" for i in range(1, 6)}
+
 SENSOR_FEATURE_MAP = {
     # Temperature sensors
     "onewire1_value": None,  # Always show water temperature
@@ -237,23 +287,24 @@ SENSOR_FEATURE_MAP = {
     "ADC2_value": "water_level",
     "IMP1_value": "filter_control",
     "IMP2_value": "filter_control",
-    # Dosing states
-    **{f"DOS_{i}_CL_STATE": "chlorine_control" for i in range(1, 7)},
-    **{f"DOS_{i}_PHM_STATE": "ph_control" for i in range(1, 7)},
-    **{f"DOS_{i}_PHP_STATE": "ph_control" for i in range(1, 7)},
     # Runtime sensors
     "PUMP_RUNTIME": "filter_control",
     "SOLAR_RUNTIME": "solar",
     "HEATER_RUNTIME": "heating",
     "LIGHT_RUNTIME": "led_lighting",
     "BACKWASH_RUNTIME": "backwash",
-    **{f"DOS_{i}_CL_RUNTIME": "chlorine_control" for i in range(1, 7)},
-    **{f"DOS_{i}_PHM_RUNTIME": "ph_control" for i in range(1, 7)},
-    **{f"DOS_{i}_PHP_RUNTIME": "ph_control" for i in range(1, 7)},
-    **{f"EXT1_{i}_RUNTIME": "extension_outputs" for i in range(1, 9)},
-    **{f"EXT2_{i}_RUNTIME": "extension_outputs" for i in range(1, 9)},
-    **{f"OMNI_DC{i}_RUNTIME": "extension_outputs" for i in range(1, 6)},
 }
+
+# Add generated mappings
+SENSOR_FEATURE_MAP.update(_DOS_CL_FEATURE_MAP)
+SENSOR_FEATURE_MAP.update(_DOS_PHM_FEATURE_MAP)
+SENSOR_FEATURE_MAP.update(_DOS_PHP_FEATURE_MAP)
+SENSOR_FEATURE_MAP.update(_DOS_CL_RUNTIME_MAP)
+SENSOR_FEATURE_MAP.update(_DOS_PHM_RUNTIME_MAP)
+SENSOR_FEATURE_MAP.update(_DOS_PHP_RUNTIME_MAP)
+SENSOR_FEATURE_MAP.update(_EXT1_RUNTIME_MAP)
+SENSOR_FEATURE_MAP.update(_EXT2_RUNTIME_MAP)
+SENSOR_FEATURE_MAP.update(_OMNI_RUNTIME_MAP)
 
 # API-Aktionen
 ACTION_ON = "ON"
