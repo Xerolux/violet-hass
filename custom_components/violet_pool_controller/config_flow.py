@@ -1,4 +1,4 @@
-"""Config Flow für Violet Pool Controller."""
+"""Config Flow für Violet Pool Controller - Fixed Version."""
 import logging
 import ipaddress
 import asyncio
@@ -64,11 +64,22 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Schritt 1: Grundkonfiguration."""
         errors = {}
         if user_input:
-            if not validate_ip_address(user_input[CONF_API_URL]):
+            ip_address = user_input[CONF_API_URL]
+            
+            # Prüfung auf doppelte IP-Adressen
+            for entry in self._async_current_entries():
+                existing_ip = entry.data.get(CONF_API_URL) or entry.data.get("host") or entry.data.get("base_ip")
+                if existing_ip == ip_address:
+                    errors["base"] = "already_configured"
+                    _LOGGER.warning("IP-Adresse %s bereits konfiguriert", ip_address)
+                    break
+            
+            if not errors and not validate_ip_address(ip_address):
                 errors[CONF_API_URL] = "invalid_ip_address"
-            else:
+            
+            if not errors:
                 self._config_data = {
-                    CONF_API_URL: user_input[CONF_API_URL],
+                    CONF_API_URL: ip_address,
                     CONF_USE_SSL: user_input.get(CONF_USE_SSL, DEFAULT_USE_SSL),
                     CONF_DEVICE_NAME: user_input.get(CONF_DEVICE_NAME, "Violet Pool Controller"),
                     CONF_USERNAME: user_input.get(CONF_USERNAME, ""),
@@ -78,8 +89,11 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_TIMEOUT_DURATION: int(user_input.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)),
                     CONF_RETRY_ATTEMPTS: int(user_input.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)),
                 }
+                
                 protocol = "https" if self._config_data[CONF_USE_SSL] else "http"
                 api_url = f"{protocol}://{self._config_data[CONF_API_URL]}{API_READINGS}?ALL"
+                
+                # Unique ID setzen für Duplikats-Schutz
                 await self.async_set_unique_id(f"{self._config_data[CONF_API_URL]}-{self._config_data[CONF_DEVICE_ID]}")
                 self._abort_if_unique_id_configured()
 
@@ -145,29 +159,51 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
 class VioletOptionsFlowHandler(config_entries.OptionsFlow):
-    """Handle Violet Pool Controller options."""
+    """Handle Violet Pool Controller options - FIXED VERSION."""
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialisiere Options Flow."""
-        self.config_entry = config_entry
+        # FIXED: Verwende self._config_entry statt self.config_entry
+        self._config_entry = config_entry
         self.current_config = {**config_entry.data, **config_entry.options}
 
     async def async_step_init(self, user_input: dict | None = None) -> config_entries.FlowResult:
         """Verwalte Optionen."""
         if user_input:
-            active_features = [feature["id"] for feature in AVAILABLE_FEATURES if user_input.pop(f"feature_{feature['id']}", False)]
+            # Feature-Checkboxen verarbeiten
+            active_features = []
+            for feature in AVAILABLE_FEATURES:
+                checkbox_key = f"feature_{feature['id']}"
+                if user_input.pop(checkbox_key, False):
+                    active_features.append(feature["id"])
+            
             user_input[CONF_ACTIVE_FEATURES] = active_features
             return self.async_create_entry(title="", data=user_input)
 
+        # Schema für Optionen-Dialog
+        schema_dict = {
+            vol.Optional(CONF_POLLING_INTERVAL, default=self.current_config.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)): 
+                vol.All(vol.Coerce(int), vol.Range(min=10, max=3600)),
+            vol.Optional(CONF_TIMEOUT_DURATION, default=self.current_config.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)): 
+                vol.All(vol.Coerce(int), vol.Range(min=1, max=60)),
+            vol.Optional(CONF_RETRY_ATTEMPTS, default=self.current_config.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)): 
+                vol.All(vol.Coerce(int), vol.Range(min=1, max=10)),
+            vol.Optional(CONF_POOL_SIZE, default=self.current_config.get(CONF_POOL_SIZE, DEFAULT_POOL_SIZE)): 
+                vol.All(vol.Coerce(float), vol.Range(min=0.1, max=1000)),
+            vol.Optional(CONF_POOL_TYPE, default=self.current_config.get(CONF_POOL_TYPE, DEFAULT_POOL_TYPE)): 
+                vol.In(POOL_TYPES),
+            vol.Optional(CONF_DISINFECTION_METHOD, default=self.current_config.get(CONF_DISINFECTION_METHOD, DEFAULT_DISINFECTION_METHOD)): 
+                vol.In(DISINFECTION_METHODS),
+        }
+
+        # Feature-Checkboxen hinzufügen
+        current_features = self.current_config.get(CONF_ACTIVE_FEATURES, [])
+        for feature in AVAILABLE_FEATURES:
+            checkbox_key = f"feature_{feature['id']}"
+            default_value = feature["id"] in current_features
+            schema_dict[vol.Optional(checkbox_key, default=default_value)] = bool
+
         return self.async_show_form(
             step_id="init",
-            data_schema=vol.Schema({
-                vol.Optional(CONF_POLLING_INTERVAL, default=self.current_config.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)): vol.All(vol.Coerce(int), vol.Range(min=10, max=3600)),
-                vol.Optional(CONF_TIMEOUT_DURATION, default=self.current_config.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)): vol.All(vol.Coerce(int), vol.Range(min=1, max=60)),
-                vol.Optional(CONF_RETRY_ATTEMPTS, default=self.current_config.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)): vol.All(vol.Coerce(int), vol.Range(min=1, max=10)),
-                vol.Optional(CONF_POOL_SIZE, default=self.current_config.get(CONF_POOL_SIZE, DEFAULT_POOL_SIZE)): vol.All(vol.Coerce(float), vol.Range(min=0.1, max=1000)),
-                vol.Optional(CONF_POOL_TYPE, default=self.current_config.get(CONF_POOL_TYPE, DEFAULT_POOL_TYPE)): vol.In(POOL_TYPES),
-                vol.Optional(CONF_DISINFECTION_METHOD, default=self.current_config.get(CONF_DISINFECTION_METHOD, DEFAULT_DISINFECTION_METHOD)): vol.In(DISINFECTION_METHODS),
-                **{vol.Optional(f"feature_{f['id']}", default=f["id"] in self.current_config.get(CONF_ACTIVE_FEATURES, [])): bool for f in AVAILABLE_FEATURES}
-            })
+            data_schema=vol.Schema(schema_dict)
         )
