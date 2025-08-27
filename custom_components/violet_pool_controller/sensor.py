@@ -1,9 +1,8 @@
-"""Sensor Integration für den Violet Pool Controller."""
+"""Sensor Integration für den Violet Pool Controller - FINAL COMPLETE FIX."""
 import logging
-from dataclasses import dataclass
 from datetime import datetime, timezone
 
-from homeassistant.components.sensor import SensorEntity, SensorDeviceClass, SensorStateClass
+from homeassistant.components.sensor import SensorEntity, SensorDeviceClass, SensorStateClass, SensorEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -45,7 +44,10 @@ RUNTIME_SENSORS = {
     "DOS_1_CL_RUNTIME", "DOS_4_PHM_RUNTIME", "DOS_5_PHP_RUNTIME", "DOS_6_FLOC_RUNTIME",
     *{f"OMNI_DC{i}_RUNTIME" for i in range(1, 6)}, "HEATER_POSTRUN_TIME", "SOLAR_POSTRUN_TIME",
     "REFILL_TIMEOUT", "CPU_UPTIME", "DEVICE_UPTIME", "RUNTIME", "POSTRUN_TIME",
-    *{f"PUMP_RPM_{i}_RUNTIME" for i in range(4)}
+    *{f"PUMP_RPM_{i}_RUNTIME" for i in range(4)},
+    # FIXED: Add PUMP_RPM_X_LAST_ON/OFF as text sensors
+    *{f"PUMP_RPM_{i}_LAST_ON" for i in range(4)},
+    *{f"PUMP_RPM_{i}_LAST_OFF" for i in range(4)},
 }
 
 # Non-temperature onewire sensors (status info)
@@ -56,30 +58,20 @@ NON_TEMPERATURE_SENSORS = {
 # Combine text sensors
 TEXT_VALUE_SENSORS.update(RUNTIME_SENSORS)
 
-@dataclass
-class VioletSensorEntityDescription:
-    """Beschreibt Sensor-Entitäten."""
-    key: str
-    name: str
-    icon: str | None = None
-    native_unit_of_measurement: str | None = None
-    device_class: SensorDeviceClass | None = None
-    state_class: SensorStateClass | None = None
-    feature_id: str | None = None
-    entity_category: EntityCategory | None = None
+# Time-formatted sensors that should be treated as text
+TIME_FORMAT_SENSORS = {
+    *{f"PUMP_RPM_{i}_LAST_ON" for i in range(4)},
+    *{f"PUMP_RPM_{i}_LAST_OFF" for i in range(4)},
+    "HEATER_POSTRUN_TIME", "SOLAR_POSTRUN_TIME", "CPU_UPTIME", "DEVICE_UPTIME",
+}
 
 class VioletSensor(VioletPoolControllerEntity, SensorEntity):
     """Repräsentation eines Sensors."""
-    entity_description: VioletSensorEntityDescription
+    entity_description: SensorEntityDescription
 
-    def __init__(self, coordinator: VioletPoolDataUpdateCoordinator, config_entry: ConfigEntry, description: VioletSensorEntityDescription) -> None:
+    def __init__(self, coordinator: VioletPoolDataUpdateCoordinator, config_entry: ConfigEntry, description: SensorEntityDescription) -> None:
         """Initialisiere Sensor."""
         super().__init__(coordinator, config_entry, description)
-        self._attr_icon = description.icon
-        self._attr_native_unit_of_measurement = description.native_unit_of_measurement
-        self._attr_device_class = description.device_class
-        self._attr_state_class = description.state_class
-        self._attr_entity_category = description.entity_category
         self._logger = logging.getLogger(f"{DOMAIN}.{self._attr_unique_id}")
 
     @property
@@ -91,15 +83,15 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
         if raw_value is None:
             return None
             
-        # Handle timestamp values
-        if key in _TIMESTAMP_KEYS:
+        # Handle timestamp values (UNIX timestamps)
+        if key in _TIMESTAMP_KEYS and key not in TIME_FORMAT_SENSORS:
             try:
                 return datetime.fromtimestamp(float(raw_value), tz=timezone.utc) if raw_value else None
             except (ValueError, TypeError):
                 return None
                 
-        # Handle text values
-        if key in TEXT_VALUE_SENSORS:
+        # Handle text values and time-formatted strings
+        if key in TEXT_VALUE_SENSORS or key in TIME_FORMAT_SENSORS:
             return str(raw_value)
             
         # Try to convert to numeric value
@@ -118,8 +110,8 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
             return str(raw_value)
 
 def determine_device_class(key: str, unit: str | None) -> SensorDeviceClass | None:
-    """Bestimme Device-Klasse."""
-    if key in RUNTIME_SENSORS or key in TEXT_VALUE_SENSORS:
+    """Bestimme Device-Klasse - FIXED."""
+    if key in RUNTIME_SENSORS or key in TEXT_VALUE_SENSORS or key in TIME_FORMAT_SENSORS:
         return None
         
     key_lower = key.lower()
@@ -136,16 +128,17 @@ def determine_device_class(key: str, unit: str | None) -> SensorDeviceClass | No
         return SensorDeviceClass.VOLTAGE
     elif unit == "W" or "power" in key_lower:
         return SensorDeviceClass.POWER
-    elif unit == "RPM" or "rpm" in key_lower:
-        return SensorDeviceClass.FREQUENCY
-    elif key in _TIMESTAMP_KEYS:
+    elif key in _TIMESTAMP_KEYS and key not in TIME_FORMAT_SENSORS:
         return SensorDeviceClass.TIMESTAMP
+    # REMOVED: RPM frequency classification to avoid unit mismatch
         
     return None
 
 def determine_state_class(key: str, unit: str | None) -> SensorStateClass | None:
-    """Bestimme State-Klasse."""
-    if key in TEXT_VALUE_SENSORS or key in _TIMESTAMP_KEYS or key in NO_UNIT_SENSORS or key in RUNTIME_SENSORS:
+    """Bestimme State-Klasse - FIXED."""
+    if (key in TEXT_VALUE_SENSORS or key in _TIMESTAMP_KEYS or 
+        key in NO_UNIT_SENSORS or key in RUNTIME_SENSORS or 
+        key in TIME_FORMAT_SENSORS):
         return None
         
     if unit in {"°C", "bar", "mV", "V", "W", "mg/l", "ppm", "%", "RPM", "pH"}:
@@ -175,7 +168,7 @@ def get_icon(unit: str | None, key: str) -> str:
         return "mdi:speedometer"
     elif key in _TIMESTAMP_KEYS:
         return "mdi:clock"
-    elif key in TEXT_VALUE_SENSORS:
+    elif key in TEXT_VALUE_SENSORS or key in TIME_FORMAT_SENSORS:
         return "mdi:text"
     elif key in RUNTIME_SENSORS:
         return "mdi:timer"
@@ -190,9 +183,9 @@ def should_skip_sensor(key: str, raw_value) -> bool:
     if raw_str in ("[]", "{}", ""):
         return True
         
-    # Skip runtime sensors with time formatting
-    if key in RUNTIME_SENSORS:
-        if ":" in raw_str or any(s in raw_str.lower() for s in ("h", "m", "s")) and not raw_str.replace(".", "").isdigit():
+    # Skip runtime sensors with time formatting if they contain invalid time formats
+    if key in RUNTIME_SENSORS and key not in TIME_FORMAT_SENSORS:
+        if ":" in raw_str and any(s in raw_str.lower() for s in ("h", "m", "s")) and not raw_str.replace(".", "").isdigit():
             return True
             
     # Skip non-temperature onewire sensors
@@ -212,6 +205,19 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
     sensors = []
     data_keys = set(coordinator.data.keys())
     
+    # Fix CPU temperature units before processing
+    cpu_temp_fixes = {
+        "SYSTEM_cpu_temperature": "°C",
+        "SYSTEM_carrier_cpu_temperature": "°C", 
+        "CPU_TEMP": "°C",
+        "CPU_TEMP_CARRIER": "°C",
+    }
+    
+    # Apply unit fixes to UNIT_MAP
+    for key, unit in cpu_temp_fixes.items():
+        if key in data_keys:
+            UNIT_MAP[key] = unit
+    
     # Combine all predefined sensors
     all_predefined_sensors = {**TEMP_SENSORS, **WATER_CHEM_SENSORS, **ANALOG_SENSORS}
 
@@ -226,14 +232,15 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
         if feature_id and feature_id not in active_features:
             continue
             
-        sensors.append(VioletSensor(coordinator, config_entry, VioletSensorEntityDescription(
+        # Use proper SensorEntityDescription
+        sensors.append(VioletSensor(coordinator, config_entry, SensorEntityDescription(
             key=key,
             name=info["name"],
             icon=info.get("icon"),
             native_unit_of_measurement=info.get("unit"),
             device_class=determine_device_class(key, info.get("unit")),
             state_class=determine_state_class(key, info.get("unit")),
-            feature_id=feature_id
+            entity_category=EntityCategory.DIAGNOSTIC if key.startswith(("SYSTEM_", "CPU_")) else None,
         )))
 
     # Add dynamic sensors from coordinator data
@@ -252,15 +259,15 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
         # Create nice name from key
         name = key.replace("_", " ").title()
         
-        sensors.append(VioletSensor(coordinator, config_entry, VioletSensorEntityDescription(
+        # Use proper SensorEntityDescription
+        sensors.append(VioletSensor(coordinator, config_entry, SensorEntityDescription(
             key=key,
             name=name,
             icon=get_icon(unit, key),
             native_unit_of_measurement=unit,
             device_class=determine_device_class(key, unit),
             state_class=determine_state_class(key, unit),
-            feature_id=feature_id,
-            entity_category=EntityCategory.DIAGNOSTIC if key.startswith(("SYSTEM_", "CPU_")) or key in TEXT_VALUE_SENSORS else None
+            entity_category=EntityCategory.DIAGNOSTIC if key.startswith(("SYSTEM_", "CPU_")) or key in TEXT_VALUE_SENSORS else None,
         )))
 
     if sensors:

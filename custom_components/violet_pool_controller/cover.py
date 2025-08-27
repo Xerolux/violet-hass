@@ -1,8 +1,7 @@
-"""Cover Integration für den Violet Pool Controller."""
+"""Cover Integration für den Violet Pool Controller - COMPLETE FIX."""
 import logging
-from dataclasses import dataclass
 
-from homeassistant.components.cover import CoverEntity, CoverDeviceClass, CoverEntityFeature
+from homeassistant.components.cover import CoverEntity, CoverDeviceClass, CoverEntityFeature, CoverEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -20,14 +19,6 @@ COVER_STATE_MAP = {
     "STOPPED": "stopped", "0": "open", "1": "opening", "2": "closed", "3": "closing", "4": "stopped"
 }
 
-@dataclass
-class VioletCoverEntityDescription:
-    """Beschreibung der Violet Pool Cover-Entities."""
-    key: str
-    name: str
-    icon: str
-    feature_id: str | None = None
-
 class VioletCover(VioletPoolControllerEntity, CoverEntity):
     """Repräsentation der Pool-Abdeckung."""
     _attr_device_class = CoverDeviceClass.SHUTTER
@@ -35,8 +26,10 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
 
     def __init__(self, coordinator: VioletPoolDataUpdateCoordinator, config_entry: ConfigEntry) -> None:
         """Initialisiert die Cover-Entity."""
-        entity_description = VioletCoverEntityDescription(
-            key="COVER_STATE", name="Cover", icon="mdi:window-shutter", feature_id="cover_control"
+        entity_description = CoverEntityDescription(
+            key="COVER_STATE",
+            name="Cover",
+            icon="mdi:window-shutter",
         )
         super().__init__(coordinator, config_entry, entity_description)
         self._last_action: str | None = None

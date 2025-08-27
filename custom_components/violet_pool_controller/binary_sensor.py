@@ -1,8 +1,7 @@
-"""Binary Sensor Integration für den Violet Pool Controller."""
+"""Binary Sensor Integration für den Violet Pool Controller - COMPLETE FIX."""
 import logging
-from dataclasses import dataclass
 
-from homeassistant.components.binary_sensor import BinarySensorEntity, BinarySensorDeviceClass
+from homeassistant.components.binary_sensor import BinarySensorEntity, BinarySensorDeviceClass, BinarySensorEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -33,29 +32,16 @@ BINARY_SENSOR_FEATURE_MAP = {
     "PVSURPLUS": "pv_surplus",
 }
 
-@dataclass
-class VioletBinarySensorEntityDescription:
-    """Beschreibung der Violet Pool Binary Sensor-Entities."""
-    key: str
-    name: str
-    device_class: BinarySensorDeviceClass | None = None
-    icon: str | None = None
-    entity_category: EntityCategory | None = None
-    feature_id: str | None = None
-
 class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
     """Repräsentation eines Violet Pool Binary Sensors."""
-    entity_description: VioletBinarySensorEntityDescription
+    entity_description: BinarySensorEntityDescription
 
     def __init__(
         self, coordinator: VioletPoolDataUpdateCoordinator, config_entry: ConfigEntry,
-        description: VioletBinarySensorEntityDescription
+        description: BinarySensorEntityDescription
     ) -> None:
         """Initialisiere den Binary Sensor."""
         super().__init__(coordinator, config_entry, description)
-        self._attr_icon = description.icon
-        self._attr_device_class = description.device_class
-        self._attr_entity_category = description.entity_category
         _LOGGER.debug("Initialisiere Binary Sensor: %s (unique_id=%s)", self.entity_id, self._attr_unique_id)
 
     @property
@@ -68,7 +54,7 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
     @property
     def icon(self) -> str | None:
         """Gibt das Icon basierend auf dem Zustand zurück."""
-        base_icon = self._attr_icon
+        base_icon = self.entity_description.icon
         if base_icon and base_icon.endswith("-outline"):
             return base_icon.replace("-outline", "") if self.is_on else base_icon
         elif base_icon and not self.is_on:
@@ -129,26 +115,6 @@ class CoverIsClosedBinarySensor(CoordinatorEntity, BinarySensorEntity):
             
         return False
 
-def _create_binary_sensor_descriptions() -> list[VioletBinarySensorEntityDescription]:
-    """Create binary sensor entity descriptions from BINARY_SENSORS constant."""
-    descriptions = []
-    
-    for sensor_config in BINARY_SENSORS:
-        # Handle both dict and dataclass formats
-        if isinstance(sensor_config, dict):
-            descriptions.append(VioletBinarySensorEntityDescription(
-                key=sensor_config["key"],
-                name=sensor_config["name"],
-                icon=sensor_config.get("icon"),
-                feature_id=sensor_config.get("feature_id"),
-                device_class=sensor_config.get("device_class"),
-                entity_category=sensor_config.get("entity_category")
-            ))
-        else:
-            descriptions.append(sensor_config)
-    
-    return descriptions
-
 async def async_setup_entry(
     hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
@@ -157,23 +123,31 @@ async def async_setup_entry(
     active_features = config_entry.options.get(CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, []))
     entities: list[BinarySensorEntity] = []
 
-    # Create binary sensor descriptions
-    binary_sensor_descriptions = _create_binary_sensor_descriptions()
-
-    for description in binary_sensor_descriptions:
-        feature_id = BINARY_SENSOR_FEATURE_MAP.get(description.key)
-        
-        # Check if feature is active (if feature_id is specified)
-        if feature_id and feature_id not in active_features:
-            _LOGGER.debug("Überspringe Binary Sensor %s: Feature %s nicht aktiv", description.key, feature_id)
-            continue
+    # Create binary sensor descriptions from BINARY_SENSORS constant
+    for sensor_config in BINARY_SENSORS:
+        if isinstance(sensor_config, dict):
+            # Use proper BinarySensorEntityDescription
+            description = BinarySensorEntityDescription(
+                key=sensor_config["key"],
+                name=sensor_config["name"],
+                icon=sensor_config.get("icon"),
+                device_class=sensor_config.get("device_class"),
+                entity_category=sensor_config.get("entity_category"),
+            )
             
-        # Check if data is available for this sensor
-        if description.key not in coordinator.data and not description.key.startswith("INPUT"):
-            _LOGGER.debug("Überspringe Binary Sensor %s: Keine Daten verfügbar", description.key)
-            continue
+            feature_id = BINARY_SENSOR_FEATURE_MAP.get(description.key)
             
-        entities.append(VioletBinarySensor(coordinator, config_entry, description))
+            # Check if feature is active (if feature_id is specified)
+            if feature_id and feature_id not in active_features:
+                _LOGGER.debug("Überspringe Binary Sensor %s: Feature %s nicht aktiv", description.key, feature_id)
+                continue
+                
+            # Check if data is available for this sensor
+            if description.key not in coordinator.data and not description.key.startswith("INPUT"):
+                _LOGGER.debug("Überspringe Binary Sensor %s: Keine Daten verfügbar", description.key)
+                continue
+                
+            entities.append(VioletBinarySensor(coordinator, config_entry, description))
 
     # Add cover closed sensor if cover control is active
     if "cover_control" in active_features:

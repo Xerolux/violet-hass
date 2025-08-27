@@ -1,9 +1,8 @@
-"""Switch Integration für den Violet Pool Controller."""
+"""Switch Integration für den Violet Pool Controller - COMPLETE FIX."""
 import logging
-from dataclasses import dataclass
 from typing import Any
 
-from homeassistant.components.switch import SwitchEntity
+from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -16,25 +15,16 @@ from .device import VioletPoolDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-@dataclass
-class VioletSwitchEntityDescription:
-    """Beschreibung der Violet Pool Switch-Entities."""
-    key: str
-    name: str
-    icon: str | None = None
-    feature_id: str | None = None
-
 class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
     """Repräsentation eines Violet Pool Switches."""
-    entity_description: VioletSwitchEntityDescription
+    entity_description: SwitchEntityDescription
 
     def __init__(
         self, coordinator: VioletPoolDataUpdateCoordinator, config_entry: ConfigEntry,
-        description: VioletSwitchEntityDescription
+        description: SwitchEntityDescription
     ) -> None:
         """Initialisiere den Switch."""
         super().__init__(coordinator, config_entry, description)
-        self._attr_icon = description.icon
         _LOGGER.debug("Initialisiere Switch: %s (unique_id=%s)", self.entity_id, self._attr_unique_id)
 
     @property
@@ -94,20 +84,6 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             _LOGGER.error("API-Fehler beim Setzen von Switch %s: %s", self.entity_description.key, err)
             raise HomeAssistantError(f"Switch-Aktion fehlgeschlagen: {err}") from err
 
-def _create_switch_descriptions() -> list[VioletSwitchEntityDescription]:
-    """Create switch entity descriptions from SWITCHES constant."""
-    descriptions = []
-    
-    for switch_config in SWITCHES:
-        descriptions.append(VioletSwitchEntityDescription(
-            key=switch_config["key"],
-            name=switch_config["name"],
-            icon=switch_config.get("icon"),
-            feature_id=switch_config.get("feature_id")
-        ))
-    
-    return descriptions
-
 async def async_setup_entry(
     hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
@@ -116,13 +92,21 @@ async def async_setup_entry(
     active_features = config_entry.options.get(CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, []))
     entities: list[SwitchEntity] = []
 
-    # Create switch descriptions
-    switch_descriptions = _create_switch_descriptions()
-
-    for description in switch_descriptions:
+    # Create switch descriptions from SWITCHES constant
+    for switch_config in SWITCHES:
+        # Use proper SwitchEntityDescription
+        description = SwitchEntityDescription(
+            key=switch_config["key"],
+            name=switch_config["name"],
+            icon=switch_config.get("icon"),
+        )
+        
+        # Get feature_id from the original SWITCHES config
+        feature_id = switch_config.get("feature_id")
+        
         # Check if feature is active (if feature_id is specified)
-        if description.feature_id and description.feature_id not in active_features:
-            _LOGGER.debug("Überspringe Switch %s: Feature %s nicht aktiv", description.key, description.feature_id)
+        if feature_id and feature_id not in active_features:
+            _LOGGER.debug("Überspringe Switch %s: Feature %s nicht aktiv", description.key, feature_id)
             continue
             
         # Check if data is available for this switch (optional, some switches might not have state feedback)

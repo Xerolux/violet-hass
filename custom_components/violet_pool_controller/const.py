@@ -5,7 +5,7 @@ from homeassistant.helpers.entity import EntityCategory
 
 # Integration
 DOMAIN = "violet_pool_controller"
-INTEGRATION_VERSION = "0.1.0.1"
+INTEGRATION_VERSION = "0.1.0.3"
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 LOGGER_NAME = f"{DOMAIN}_logger"
 

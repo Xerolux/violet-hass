@@ -1,4 +1,4 @@
-"""Base entity class for Violet Pool Controller entities."""
+"""Base entity class for Violet Pool Controller entities - FIXED."""
 import logging
 from typing import Any, Optional
 
@@ -10,7 +10,7 @@ from .device import VioletPoolDataUpdateCoordinator
 _LOGGER = logging.getLogger(__name__)
 
 class VioletPoolControllerEntity(CoordinatorEntity):
-    """Basis-Entity-Klasse für Violet Pool Controller."""
+    """Basis-Entity-Klasse für Violet Pool Controller - FIXED."""
 
     def __init__(self, coordinator: VioletPoolDataUpdateCoordinator, config_entry: ConfigEntry, entity_description) -> None:
         """Initialisiere die Entity."""
