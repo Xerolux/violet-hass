@@ -1,3 +1,5 @@
+# 🏊 Violet Pool Controller für Home Assistant / for Home Assistant
+
 [![GitHub Release][releases-shield]][releases]
 [![downloads][downloads-shield]][releases]
 [![GitHub Activity][commits-shield]][commits]
@@ -10,11 +12,259 @@
 [![Discord][discord-shield]][discord]
 [![Community Forum][forum-shield]][forum]
 
-# 🏊 Violet Pool Controller for Home Assistant
+## 🌍 Language / Sprache
 
-Transform your pool into a smart pool! This comprehensive Home Assistant integration provides complete control and monitoring of your **Violet Pool Controller**, bringing intelligent pool automation directly to your smart home ecosystem.
+**[🇩🇪 Deutsche Version](#-violet-pool-controller-für-home-assistant)** | **[🇺🇸 English Version](#-violet-pool-controller-for-home-assistant-1)**
+
+---
+
+# 🇩🇪 Violet Pool Controller für Home Assistant
+
+Verwandle deinen Pool in einen Smart Pool! Diese umfassende Home Assistant Integration bietet vollständige Kontrolle und Überwachung deines **Violet Pool Controllers** und bringt intelligente Pool-Automatisierung direkt in dein Smart Home Ökosystem.
 
 ![Violet Home Assistant Integration][logo]
+
+## ✨ Was macht diese Integration besonders?
+
+🎯 **Komplette Pool-Automatisierung** - Überwache und steuere jeden Aspekt deines Pools  
+🌡️ **Intelligente Klimasteuerung** - Smarte Heizungs- und Solar-Verwaltung  
+🧪 **Chemisches Gleichgewicht** - Automatische pH- und Chlor-Überwachung/Dosierung  
+🏊 **Abdeckungsmanagement** - Wetterabhängige automatische Abdeckungssteuerung  
+💧 **Filter-Wartung** - Automatische Rückspülplanung  
+📱 **Mobile-Ready** - Vollständige Kontrolle von überall über die Home Assistant App  
+🔧 **Keine Cloud erforderlich** - 100% lokale Steuerung und Privatsphäre  
+
+## 📊 Feature-Übersicht
+
+### 🔍 **Umfassende Überwachung**
+- **Wasserchemie:** pH, Redox (ORP), Chlorgehalt mit Trend-Tracking
+- **Temperatursensoren:** Poolwasser, Umgebungsluft, Solar-Kollektor-Temperaturen  
+- **System-Status:** Pumpenbetrieb, Heizungsstatus, Filterdruck, Wasserstände
+- **Anlagen-Gesundheit:** Laufzeit-Verfolgung, Fehlererkennung, Wartungsalarme
+
+### 🎛️ **Intelligente Steuerung**
+- **Klima-Management:** Dual-Zone-Heizung (Heizung + Solar) mit Zeitplanung
+- **Chemische Dosierung:** Automatische pH+/pH- und Chlor-Dosierung mit Sicherheitsgrenzen
+- **Pumpensteuerung:** Variable Geschwindigkeitssteuerung, energieeffiziente Planung
+- **Beleuchtung:** Vollständige RGB/DMX-Lichtsteuerung mit Szenen und Automatisierung
+- **Abdeckungsbetrieb:** Wetterabhängige automatische Abdeckungssteuerung
+- **Filtration:** Intelligente Rückspülzyklen basierend auf Druck und Laufzeit
+
+### 🤖 **Smart-Automatisierungs-Features**
+- **Energie-Optimierung:** PV-Überschussmodus für solargetriebene Heizung
+- **Wetter-Integration:** Automatische Reaktionen auf Regen, Wind, Temperatur
+- **Wartungsplanung:** Automatisierte Rückspülung, Wassertests, Anlagenzyklen
+- **Sicherheitssysteme:** Notabschaltungen, Überlaufschutz, Chemikalien-Grenzwerte
+- **Benutzerdefinierte Szenen:** Pool-Party-Modus, Eco-Modus, Winter-Modus, Urlaubs-Modus
+
+## 📦 Installation
+
+### 🚀 HACS Installation (Empfohlen)
+
+Die Integration ist über HACS (Home Assistant Community Store) verfügbar:
+
+1. **HACS installieren** falls noch nicht vorhanden ([HACS Installationsanleitung](https://hacs.xyz/docs/setup/download))
+2. **HACS öffnen** in deiner Home Assistant Oberfläche
+3. **Custom Repository hinzufügen:**
+   - Klicke auf die drei Punkte (⋮) in der oberen rechten Ecke
+   - Wähle "Benutzerdefinierte Repositorys"
+   - Hinzufügen: `https://github.com/xerolux/violet-hass`
+   - Kategorie: "Integration"
+   - Klicke "Hinzufügen"
+4. **Integration installieren:**
+   - Suche nach "Violet Pool Controller"
+   - Klicke "Herunterladen"
+   - Starte Home Assistant neu
+
+### 🔧 Manuelle Installation (Erweiterte Benutzer)
+
+Für Entwickler oder erweiterte Benutzer, die die manuelle Installation bevorzugen:
+
+```bash
+# Methode 1: Git Clone
+cd /config/custom_components/
+git clone https://github.com/xerolux/violet-hass.git violet_pool_controller
+
+# Methode 2: Download und Entpacken
+wget https://github.com/xerolux/violet-hass/archive/main.zip
+unzip main.zip
+mv violet-hass-main/custom_components/violet_pool_controller /config/custom_components/
+```
+
+**Dann starte Home Assistant neu**
+
+## ⚙️ Konfiguration
+
+Die Konfiguration erfolgt vollständig über die Home Assistant UI - keine YAML-Bearbeitung erforderlich!
+
+### 🚀 Schnell-Setup
+
+1. **Integration hinzufügen:**
+   ```
+   Einstellungen → Geräte & Dienste → Integration hinzufügen → "Violet Pool Controller"
+   ```
+
+2. **Verbindungseinstellungen:**
+   ```yaml
+   Host: 192.168.1.100          # IP deines Controllers
+   Username: admin               # Falls Authentifizierung aktiviert
+   Password: dein-passwort       # Falls Authentifizierung aktiviert
+   SSL verwenden: ☐/☑           # Ankreuzen bei HTTPS-Nutzung
+   Gerätename: Pool Controller   # Anzeigename
+   Abfrageintervall: 30s         # Wie oft aktualisiert wird (10-300s)
+   ```
+
+3. **Pool-Konfiguration:**
+   ```yaml
+   Pool-Größe: 50 m³            # Dein Pool-Volumen
+   Pool-Typ: Freibad            # Innen-/Außenpool/Whirlpool/etc.
+   Desinfektion: Chlor          # Deine Desinfektionsmethode
+   ```
+
+4. **Feature-Auswahl:**
+   Wähle welche Komponenten du aktivieren möchtest:
+   - ✅ Heizungssteuerung
+   - ✅ Solar-Management  
+   - ✅ pH-Steuerung
+   - ✅ Chlor-Steuerung
+   - ✅ Abdeckungssteuerung
+   - ✅ Rückspülsystem
+   - ✅ LED-Beleuchtung
+   - ✅ PV-Überschuss-Modus
+   - ☐ Erweiterungsausgänge (falls zutreffend)
+   - ☐ Digitale Eingänge (falls zutreffend)
+
+## 🧩 Verfügbare Entitäten
+
+Die Integration erstellt Entitäten dynamisch basierend auf den Fähigkeiten deines Controllers und ausgewählten Features:
+
+### 🌡️ **Klima-Entitäten**
+```yaml
+climate.pool_heater          # Haupt-Poolheizung Steuerung
+climate.pool_solar           # Solar-Kollektor Management  
+```
+
+### 🔍 **Sensoren**
+```yaml
+sensor.pool_temperature      # Aktuelle Wassertemperatur
+sensor.pool_ph_value         # Aktueller pH-Wert (6.0-8.5)
+sensor.pool_orp_value        # Redoxpotential (mV)
+sensor.pool_chlorine_level   # Freies Chlor (mg/l)
+sensor.filter_pressure       # Filtersystem-Druck
+sensor.water_level          # Pool-Wasserstand
+# ... und viele mehr basierend auf deiner Einrichtung
+```
+
+### 💡 **Schalter**
+```yaml
+switch.pool_pump            # Hauptfilterpumpe
+switch.pool_heater          # Poolheizung ein/aus
+switch.pool_solar           # Solar-Zirkulation  
+switch.pool_lighting        # Pool-Beleuchtung
+switch.backwash             # Filter-Rückspülzyklus
+switch.ph_dosing_minus      # pH- Dosierpumpe
+switch.ph_dosing_plus       # pH+ Dosierpumpe  
+switch.chlorine_dosing      # Chlor-Dosiersystem
+# ... plus alle konfigurierten Erweiterungsausgänge
+```
+
+## 🔧 Benutzerdefinierte Services
+
+Die Integration bietet spezialisierte Services für erweiterte Automatisierung:
+
+### 🎯 **Kern-Steuerungs-Services**
+
+#### `violet_pool_controller.turn_auto`
+Schalte jedes steuerbare Gerät in den Automatikmodus:
+```yaml
+service: violet_pool_controller.turn_auto
+target:
+  entity_id: switch.pool_pump
+data:
+  auto_delay: 30  # Optional: Verzögerung in Sekunden
+```
+
+#### `violet_pool_controller.set_pv_surplus`
+Aktiviere Solar-Energie-Überschuss-Modus:
+```yaml
+service: violet_pool_controller.set_pv_surplus  
+target:
+  entity_id: switch.pv_surplus_mode
+data:
+  pump_speed: 2   # Geschwindigkeitsstufe 1-3
+```
+
+### 🧪 **Chemikalien-Management-Services**
+
+#### `violet_pool_controller.manual_dosing`
+Löse manuelle chemische Dosierung aus:
+```yaml
+service: violet_pool_controller.manual_dosing
+target:
+  entity_id: switch.ph_dosing_minus
+data:
+  duration_seconds: 30  # Dosierdauer
+```
+
+## 🤖 Automatisierungs-Blueprints
+
+Starte schnell mit unseren vorgefertigten Automatisierungs-Blueprints:
+
+### 📥 **Installation**
+Importiere Blueprints direkt in Home Assistant:
+```
+Einstellungen → Automatisierungen & Szenen → Blueprints → Blueprint importieren
+```
+
+### 🌡️ **Intelligente Temperatursteuerung**
+- **Tag/Nacht-Planung:** Verschiedene Temperaturen für aktive und ruhige Stunden
+- **Solar-Priorität:** Automatische Nutzung der Solarheizung wenn verfügbar
+- **Wetter-Integration:** Heizungsanpassung basierend auf Wettervorhersagen
+- **Energie-Optimierung:** PV-Überschuss-Modus für maximale Effizienz
+
+## 🚨 Fehlerbehebung
+
+### ⚡ **Schnelle Lösungen**
+
+**Verbindungsprobleme:**
+```bash
+# Konnektivität testen
+ping 192.168.1.100
+
+# HA-Logs prüfen
+tail -f /config/home-assistant.log | grep violet_pool_controller
+
+# Controller-API verifizieren
+curl http://192.168.1.100/getReadings?ALL
+```
+
+**Häufige Lösungen:**
+- ✅ **Falsche IP-Adresse:** Controller-IP in Router-Einstellungen verifizieren
+- ✅ **SSL-Mismatch:** Stelle sicher dass "SSL verwenden" der Controller-Konfiguration entspricht
+- ✅ **Firewall-Blockierung:** Firewall temporär zum Testen deaktivieren
+- ✅ **Veraltete Firmware:** Controller-Firmware über PoolDigital aktualisieren
+- ✅ **Netzwerk-Probleme:** VLAN/Subnetz-Konfiguration prüfen
+
+## 💝 Dieses Projekt unterstützen
+
+Diese Integration wird in meiner Freizeit entwickelt und gepflegt. Wenn sie deinem Smart Pool Setup einen Mehrwert bietet, zeige etwas Liebe:
+
+[![GitHub Sponsor](https://img.shields.io/github/sponsors/xerolux?logo=github&style=for-the-badge&color=blue)](https://github.com/sponsors/xerolux)
+[![Ko-Fi](https://img.shields.io/badge/Ko--fi-xerolux-blue?logo=ko-fi&style=for-the-badge)](https://ko-fi.com/xerolux)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-xerolux-yellow?logo=buy-me-a-coffee&style=for-the-badge)](https://www.buymeacoffee.com/xerolux)
+
+**Andere Unterstützungsmöglichkeiten:**
+- ⭐ **Gib diesem Repository einen Stern** auf GitHub
+- 🐛 **Melde Bugs** und schlage Verbesserungen vor
+- 📢 **Teile** mit anderen Pool-Besitzern
+- 📝 **Trage bei** mit Code oder Dokumentation
+- 💬 **Hilf anderen** in den Community-Foren
+
+---
+
+# 🇺🇸 Violet Pool Controller for Home Assistant
+
+Transform your pool into a smart pool! This comprehensive Home Assistant integration provides complete control and monitoring of your **Violet Pool Controller**, bringing intelligent pool automation directly to your smart home ecosystem.
 
 ## ✨ What Makes This Special?
 
@@ -48,11 +298,6 @@ Transform your pool into a smart pool! This comprehensive Home Assistant integra
 - **Maintenance Scheduling:** Automated backwash, water testing, equipment cycles
 - **Safety Systems:** Emergency shutdowns, overflow protection, chemical limits
 - **Custom Scenes:** Pool party mode, eco mode, winter mode, vacation mode
-
-## 📱 Screenshots
-
-<!-- Coming Soon: Pool Dashboard, Climate Control, Chemical Management -->
-*Screenshots will be added in the next release*
 
 ## 📦 Installation
 
@@ -131,23 +376,6 @@ Configuration is done entirely through the Home Assistant UI - no YAML editing r
    - ☐ Extension Outputs (if applicable)
    - ☐ Digital Inputs (if applicable)
 
-### 🔧 Advanced Configuration
-
-Access advanced options through:
-```
-Settings → Devices & Services → Violet Pool Controller → Configure
-```
-
-**Performance Tuning:**
-- **Polling Interval:** 10-60s (balance between responsiveness and system load)
-- **Timeout Duration:** 5-30s (increase for slower networks)
-- **Retry Attempts:** 1-5 (increase for unstable connections)
-
-**Feature Management:**
-- Enable/disable specific features as needed
-- Customize entity names and icons
-- Set up notification preferences
-
 ## 🧩 Available Entities
 
 The integration creates entities dynamically based on your controller's capabilities and selected features:
@@ -157,7 +385,6 @@ The integration creates entities dynamically based on your controller's capabili
 climate.pool_heater          # Main pool heater control
 climate.pool_solar           # Solar collector management  
 ```
-**Features:** Temperature setting, mode control (heat/auto/off), scheduling integration
 
 ### 🔍 **Sensors**
 ```yaml
@@ -167,8 +394,6 @@ sensor.pool_orp_value        # Redox potential (mV)
 sensor.pool_chlorine_level   # Free chlorine (mg/l)
 sensor.filter_pressure       # Filter system pressure
 sensor.water_level          # Pool water level
-sensor.outside_temperature   # Ambient air temperature
-sensor.solar_collector_temp  # Solar heating temperature
 # ... and many more based on your setup
 ```
 
@@ -182,30 +407,7 @@ switch.backwash             # Filter backwash cycle
 switch.ph_dosing_minus      # pH- dosing pump
 switch.ph_dosing_plus       # pH+ dosing pump  
 switch.chlorine_dosing      # Chlorine dosing system
-switch.pv_surplus_mode      # Solar excess utilization
 # ... plus any configured extension outputs
-```
-
-### 🛡️ **Binary Sensors**
-```yaml
-binary_sensor.pump_running     # Pump operation status
-binary_sensor.heater_active    # Heater operation status  
-binary_sensor.cover_closed     # Cover position sensor
-binary_sensor.maintenance_mode # Maintenance mode indicator
-# ... plus digital input sensors if configured
-```
-
-### 🏊 **Cover**
-```yaml
-cover.pool_cover            # Automatic pool cover control
-```
-**Features:** Open/close/stop, position feedback, weather integration
-
-### 🔢 **Number Entities (Setpoints)**
-```yaml
-number.ph_setpoint          # Target pH value (6.8-7.8)
-number.orp_setpoint         # Target redox value (600-800 mV)  
-number.chlorine_setpoint    # Target chlorine level (0.2-2.0 mg/l)
 ```
 
 ## 🔧 Custom Services
@@ -246,56 +448,6 @@ data:
   duration_seconds: 30  # Dosing duration
 ```
 
-#### `violet_pool_controller.set_ph_target`
-Set pH target value:
-```yaml
-service: violet_pool_controller.set_ph_target
-target:
-  entity_id: number.ph_setpoint
-data:
-  target_value: 7.2
-```
-
-#### `violet_pool_controller.set_chlorine_target`
-Set chlorine target level:
-```yaml
-service: violet_pool_controller.set_chlorine_target
-target:
-  entity_id: number.chlorine_setpoint  
-data:
-  target_value: 1.0  # mg/l
-```
-
-### 🔄 **Maintenance Services**
-
-#### `violet_pool_controller.trigger_backwash`
-Start filter backwash cycle:
-```yaml
-service: violet_pool_controller.trigger_backwash
-target:
-  entity_id: switch.backwash
-data:
-  duration: 120  # Optional: duration in seconds
-```
-
-#### `violet_pool_controller.start_water_analysis`
-Initiate comprehensive water testing:
-```yaml
-service: violet_pool_controller.start_water_analysis
-target:
-  entity_id: sensor.pool_ph_value  # Any pool entity for device identification
-```
-
-#### `violet_pool_controller.set_maintenance_mode`
-Enable/disable maintenance mode:
-```yaml
-service: violet_pool_controller.set_maintenance_mode
-target:
-  entity_id: binary_sensor.maintenance_mode
-data:
-  enable: true  # true to enable, false to disable
-```
-
 ## 🤖 Automation Blueprints
 
 Get started quickly with our pre-built automation blueprints:
@@ -304,14 +456,6 @@ Get started quickly with our pre-built automation blueprints:
 Import blueprints directly in Home Assistant:
 ```
 Settings → Automations & Scenes → Blueprints → Import Blueprint
-```
-
-**Blueprint URLs:**
-```
-Temperature Control: https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_temperature_control.yaml
-pH Management: https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_ph_control.yaml
-Cover Control: https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_cover_control.yaml
-Backwash Automation: https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_backwash_control.yaml
 ```
 
 ### 🌡️ **Smart Temperature Control**
@@ -325,88 +469,6 @@ Backwash Automation: https://github.com/xerolux/violet-hass/raw/main/blueprints/
 - **Safety Limits:** Maximum dosing limits to prevent over-treatment
 - **Pump Integration:** Only dose when filtration is active
 - **Smart Scheduling:** Avoid dosing during high-usage periods
-
-### 🏊 **Weather-Aware Cover Control**
-- **Time-Based Operation:** Automatic open/close based on schedule
-- **Weather Protection:** Close automatically for rain, wind, storms
-- **Temperature Management:** Close when too cold to retain heat
-- **Pump Integration:** Safety interlocks prevent conflicts
-
-### 🔄 **Predictive Backwash System**
-- **Pressure-Based:** Automatic backwash when filter pressure is high
-- **Time-Based:** Scheduled backwash cycles for optimal filtration
-- **Runtime-Based:** Backwash after specific pump operating hours
-- **Safety Features:** Water level checks and pump sequencing
-
-### 🛠️ **Required Helpers for Blueprints**
-Some blueprints need helper entities - create these first:
-
-```yaml
-# For pH Control Blueprint
-input_number.pool_ph_dosing_counter:
-  min: 0
-  max: 50
-  step: 1
-  initial: 0
-  unit_of_measurement: "doses"
-
-# For Backwash Blueprint  
-input_datetime.pool_last_backwash:
-  has_date: true
-  has_time: true
-
-input_number.pool_pump_runtime_hours:
-  min: 0
-  max: 500
-  step: 0.1
-  unit_of_measurement: "h"
-```
-
-Create these in: `Settings → Devices & Services → Helpers → Create Helper`
-
-## 📊 Dashboard Examples
-
-### 🎛️ **Pool Control Dashboard**
-```yaml
-type: vertical-stack
-cards:
-  - type: thermostat
-    entity: climate.pool_heater
-    name: Pool Temperature
-  - type: entities
-    entities:
-      - entity: sensor.pool_ph_value
-        name: pH Level
-      - entity: sensor.pool_chlorine_level  
-        name: Chlorine
-      - entity: sensor.filter_pressure
-        name: Filter Pressure
-  - type: horizontal-stack
-    cards:
-      - type: button
-        entity: switch.pool_pump
-        name: Pump
-      - type: button  
-        entity: switch.pool_lighting
-        name: Lights
-      - type: button
-        entity: cover.pool_cover
-        name: Cover
-```
-
-### 📈 **Chemical Monitoring Card**
-```yaml
-type: history-graph
-entities:
-  - entity: sensor.pool_ph_value
-    name: pH Level
-  - entity: sensor.pool_chlorine_level
-    name: Chlorine (mg/l)
-  - entity: sensor.pool_orp_value
-    name: Redox (mV)
-hours_to_show: 168  # 1 week
-refresh_interval: 30
-```
 
 ## 🚨 Troubleshooting
 
@@ -431,74 +493,24 @@ curl http://192.168.1.100/getReadings?ALL
 - ✅ **Outdated Firmware:** Update controller firmware via PoolDigital
 - ✅ **Network Issues:** Check VLAN/subnet configuration
 
-### 🔍 **Detailed Diagnostics**
+## 🏊 About the Violet Pool Controller
 
-**Enable Debug Logging:**
-```yaml
-# Add to configuration.yaml
-logger:
-  default: warning
-  logs:
-    custom_components.violet_pool_controller: debug
-```
+![Violet Pool Controller][pbuy]
 
-**Entity Issues:**
-- **Missing Entities:** Check feature selection in integration settings
-- **Not Updating:** Verify polling interval and controller responsiveness
-- **Wrong Values:** Confirm sensor calibration on controller
+The **VIOLET Pool Controller** by [PoolDigital GmbH & Co. KG](https://www.pooldigital.de/) is a premium, German-engineered smart pool automation system. It's designed for pool owners who want professional-grade control and monitoring without the complexity.
 
-**Performance Issues:**
-- **Slow Updates:** Increase polling interval (30-60 seconds)
-- **High CPU Usage:** Reduce number of enabled features
-- **Memory Issues:** Check Home Assistant system resources
+**Key Capabilities:**
+- 🔧 **Complete Pool Management:** Filtration, heating, lighting, chemical dosing
+- 📱 **Remote Access:** Control from anywhere via web interface or API
+- 🌐 **Smart Home Ready:** JSON API for seamless integration
+- 🛡️ **Safety First:** Multiple protection systems and monitoring
+- 📊 **Advanced Analytics:** Detailed logging and performance tracking
+- ⚡ **Energy Efficient:** Smart scheduling and PV integration
 
-### 📞 **Getting Help**
-
-1. **Check Logs First:** Most issues show up in Home Assistant logs
-2. **Update Everything:** Ensure latest versions of HA and integration
-3. **Test Basic Connectivity:** Verify network connection to controller
-4. **GitHub Issues:** Report bugs with full details and logs
-5. **Community Forum:** Ask questions and share experiences
-6. **PoolDigital Forum:** Hardware-specific questions
-
-## 🎓 **Advanced Usage**
-
-### 🔗 **Integration with Other Systems**
-
-**Grafana Monitoring:**
-```yaml
-# Long-term data storage and analysis
-# Connect HA database to Grafana for professional dashboards
-```
-
-**Node-RED Automation:**
-```yaml
-# Complex automation flows
-# Advanced conditional logic and external service integration  
-```
-
-**Telegram/Discord Notifications:**
-```yaml
-# Pool status alerts and maintenance reminders
-# Custom notification rules and escalation
-```
-
-### 🏗️ **Custom Development**
-
-**REST API Integration:**
-```python
-# Access controller data directly
-import aiohttp
-async with aiohttp.ClientSession() as session:
-    async with session.get('http://192.168.1.100/getReadings?ALL') as resp:
-        data = await resp.json()
-```
-
-**MQTT Bridge:**
-```yaml
-# Publish pool data to MQTT for integration with other systems
-# Useful for industrial monitoring or custom applications
-```
+**Where to Get One:**
+- **Official Shop:** [pooldigital.de](https://www.pooldigital.de/poolsteuerungen/violet-poolsteuerung/74/violet-basis-modul-poolsteuerung-smart)
+- **Community Support:** [PoolDigital Forum](http://forum.pooldigital.de/)
+- **Technical Docs:** Available with purchase
 
 ## 💝 Supporting This Project
 
@@ -535,27 +547,6 @@ We welcome contributions from the community! Whether it's:
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
-## 🏊 About the Violet Pool Controller
-
-![Violet Pool Controller][pbuy]
-
-The **VIOLET Pool Controller** by [PoolDigital GmbH & Co. KG](https://www.pooldigital.de/) is a premium, German-engineered smart pool automation system. It's designed for pool owners who want professional-grade control and monitoring without the complexity.
-
-**Key Capabilities:**
-- 🔧 **Complete Pool Management:** Filtration, heating, lighting, chemical dosing
-- 📱 **Remote Access:** Control from anywhere via web interface or API
-- 🌐 **Smart Home Ready:** JSON API for seamless integration
-- 🛡️ **Safety First:** Multiple protection systems and monitoring
-- 📊 **Advanced Analytics:** Detailed logging and performance tracking
-- ⚡ **Energy Efficient:** Smart scheduling and PV integration
-
-**Where to Get One:**
-- **Official Shop:** [pooldigital.de](https://www.pooldigital.de/poolsteuerungen/violet-poolsteuerung/74/violet-basis-modul-poolsteuerung-smart)
-- **Community Support:** [PoolDigital Forum](http://forum.pooldigital.de/)
-- **Technical Docs:** Available with purchase
-
-*This integration is community-developed and not officially endorsed by PoolDigital, but it's designed to work seamlessly with their excellent hardware.*
-
 ## 📋 Changelog
 
 ### Version 0.1.0 (Current Development)
@@ -569,24 +560,6 @@ The **VIOLET Pool Controller** by [PoolDigital GmbH & Co. KG](https://www.pooldi
 - 🌍 Multi-language support (EN/DE)
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
-
-## 🎖️ Credits & Acknowledgments
-
-**Special Thanks:**
-- 🏗️ **[@Ludeeus](https://github.com/ludeeus)** - Integration Blueprint template
-- 🏠 **Home Assistant Team** - Amazing platform and developer tools
-- 🏊 **PoolDigital** - Excellent controller hardware and API
-- 🌍 **Community Contributors** - Testing, feedback, and improvements
-- ☕ **Coffee Supporters** - Fuel for late-night coding sessions
-
-**Built With:**
-- 🐍 **Python 3.11+** - Core integration language
-- 🏠 **Home Assistant 2024.6+** - Smart home platform
-- 📡 **aiohttp** - Async HTTP client for API communication
-- 🧪 **pytest** - Testing framework
-- 🔧 **VS Code + Dev Containers** - Development environment
-
----
 
 ## 📞 Connect & Support
 
@@ -627,4 +600,3 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 [github-shield]: https://img.shields.io/badge/GitHub-xerolux/violet--hass-blue?style=for-the-badge&logo=github
 [pbuy]: https://github.com/xerolux/violet-hass/raw/main/screenshots/violetbm.jpg
 [downloads-shield]: https://img.shields.io/github/downloads/xerolux/violet-hass/latest/total.svg?style=for-the-badge
-Use my Tesla referral link: [Referral Link](https://ts.la/sebastian564489)
