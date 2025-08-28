@@ -600,3 +600,4 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 [github-shield]: https://img.shields.io/badge/GitHub-xerolux/violet--hass-blue?style=for-the-badge&logo=github
 [pbuy]: https://github.com/xerolux/violet-hass/raw/main/screenshots/violetbm.jpg
 [downloads-shield]: https://img.shields.io/github/downloads/xerolux/violet-hass/latest/total.svg?style=for-the-badge
+Use my Tesla referral link: [Referral Link](https://ts.la/sebastian564489)
