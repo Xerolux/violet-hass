@@ -1,0 +1,88 @@
+name: Update Release Notes and Post to X
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update-release-notes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get release version and date
+        id: get_version
+        run: |
+          echo "VERSION=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
+          echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+
+      - name: Validate tag format
+        run: |
+          if [[ ! "${{ env.VERSION }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$ ]]; then
+            echo "Invalid tag format: ${{ env.VERSION }}"
+            exit 1
+          fi
+
+      - name: Create RELEASE_NOTES.md if not exists
+        run: |
+          if [ ! -f RELEASE_NOTES.md ]; then
+            touch RELEASE_NOTES.md
+          fi
+
+      - name: Update release notes
+        run: |
+          RELEASE_NOTES="${{ env.VERSION }} – ${{ env.DATE }} – Bug Fixes & Improvements 🎉
+          🔧 Bug Fixes:
+          🚀 Improvements:
+          ✨ New Features:
+          ---
+          ❤️ Support My Project:
+          [☕ Buy Me a Coffee ☕][buymecoffee]
+          ${{ env.BUY_ME_COFFEE_LINK }}
+          Use my Tesla referral link: [Referral Link](${ env.TESLA_REFERRAL_LINK })
+          Every contribution, no matter how small, is a huge motivation! Thank you so much for your support! 🙏
+          ---
+          💬 Feedback & Contributions:
+          I’m always open to feedback, suggestions, or contributions from the community. Feel free to open an issue or submit a pull request.
+          Thank you for your support, and enjoy the new version! 🚀
+          \n\n$(cat RELEASE_NOTES.md)"
+
+          echo -e "$RELEASE_NOTES" > RELEASE_NOTES.md
+        env:
+          BUY_ME_COFFEE_LINK: https://buymeacoffee.com/xerolux
+          TESLA_REFERRAL_LINK: https://ts.la/sebastian564489
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git add RELEASE_NOTES.md
+          git commit -m "Update release notes for ${{ env.VERSION }}" || exit 1
+          git push || exit 1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  post-release-to-x:
+    runs-on: ubuntu-latest
+    needs: update-release-notes
+    steps:
+      - name: Post to X
+        uses: xai/x-post-action@v1
+        with:
+          message: |
+            New release ${{ github.event.release.tag_name }} is out! 🎉
+            🔧 Bug Fixes:
+            🚀 Improvements:
+            ✨ New Features:
+            ---
+            ❤️ Support My Project:
+            ☕ Buy Me a Coffee: ${{ env.BUY_ME_COFFEE_LINK }}
+            🚗 Tesla Referral: ${{ env.TESLA_REFERRAL_LINK }}
+            🙏 Every contribution motivates me!
+            ---
+            💬 Open to feedback & contributions! Check it out: ${{ github.event.release.html_url }}
+        env:
+          X_API_TOKEN: ${{ secrets.X_API_TOKEN }}
+          BUY_ME_COFFEE_LINK: https://buymeacoffee.com/xerolux
+          TESLA_REFERRAL_LINK: https://ts.la/sebastian564489
