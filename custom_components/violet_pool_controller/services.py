@@ -1624,4 +1624,251 @@ class VioletLegacyServiceHandlers:
                     else:
                         _LOGGER.warning("Force off for %s possibly failed: %s", device_key, result.get("response", result))
                         
-                except V
+                except VioletPoolAPIError as err:
+                    _LOGGER.error("Error forcing device off: %s", err)
+                    raise HomeAssistantError(f"Force off failed: {err}") from err
+            
+            await coordinator.async_request_refresh()
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SERVICE REGISTRATION AND CLEANUP
+# ═══════════════════════════════════════════════════════════════════════════════
+
+async def async_unregister_services(hass: HomeAssistant) -> None:
+    """Unregister all Violet Pool Controller services."""
+    services_to_remove = list(ALL_SERVICE_SCHEMAS.keys())
+    
+    for service_name in services_to_remove:
+        if hass.services.has_service(DOMAIN, service_name):
+            hass.services.async_remove(DOMAIN, service_name)
+            _LOGGER.debug("Service %s unregistered", service_name)
+    
+    _LOGGER.info("All Violet Pool Controller services unregistered")
+
+def get_service_call_validation_errors(call: ServiceCall, schema: vol.Schema) -> List[str]:
+    """Validate service call and return list of errors."""
+    errors = []
+    
+    try:
+        schema(call.data)
+    except vol.Invalid as err:
+        if hasattr(err, 'error_message'):
+            errors.append(str(err.error_message))
+        else:
+            errors.append(str(err))
+    except Exception as err:
+        errors.append(f"Validation error: {err}")
+    
+    return errors
+
+def is_service_available(hass: HomeAssistant, service_name: str) -> bool:
+    """Check if a specific service is available."""
+    return hass.services.has_service(DOMAIN, service_name)
+
+def get_available_services(hass: HomeAssistant) -> Dict[str, List[str]]:
+    """Get list of available services grouped by category."""
+    available = {"enhanced": [], "legacy": [], "smart": []}
+    
+    for service_name in ENHANCED_SERVICE_SCHEMAS:
+        if hass.services.has_service(DOMAIN, service_name):
+            available["enhanced"].append(service_name)
+    
+    for service_name in LEGACY_SERVICE_SCHEMAS:
+        if hass.services.has_service(DOMAIN, service_name):
+            available["legacy"].append(service_name)
+    
+    for service_name in SMART_SERVICE_SCHEMAS:
+        if hass.services.has_service(DOMAIN, service_name):
+            available["smart"].append(service_name)
+    
+    return available
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ERROR HANDLING AND LOGGING
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def log_service_execution(service_name: str, entity_ids: List[str], parameters: Dict[str, Any]) -> None:
+    """Log service execution for debugging."""
+    _LOGGER.debug(
+        "Executing service %s for entities %s with parameters: %s",
+        service_name,
+        ', '.join(entity_ids),
+        {k: v for k, v in parameters.items() if k not in ['entity_id']}
+    )
+
+def handle_service_error(service_name: str, error: Exception, entity_id: str = None) -> None:
+    """Handle and log service errors uniformly."""
+    error_msg = f"Service {service_name} failed"
+    if entity_id:
+        error_msg += f" for entity {entity_id}"
+    error_msg += f": {error}"
+    
+    if isinstance(error, VioletPoolAPIError):
+        _LOGGER.error("%s (API Error)", error_msg)
+    elif isinstance(error, HomeAssistantError):
+        _LOGGER.error("%s (HA Error)", error_msg)
+    else:
+        _LOGGER.error("%s (Unexpected Error)", error_msg)
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SERVICE DOCUMENTATION AND METADATA
+# ═══════════════════════════════════════════════════════════════════════════════
+
+SERVICE_DESCRIPTIONS = {
+    # Enhanced Services
+    "set_device_mode": "Advanced device mode control with 3-state support (auto, manual_on, manual_off, force_off)",
+    "control_pump_advanced": "Intelligent pump control with speed management and eco/boost modes",
+    "smart_dosing": "Enhanced dosing control with safety features and auto-calibration",
+    "manage_pv_surplus": "Advanced PV surplus management with weather integration",
+    "control_extension_relay": "Extension relay timer control with pulse and scheduling features",
+    "manage_digital_rules": "Digital input rule management with scheduling and locking",
+    "control_dmx_scenes": "Advanced DMX scene control with sequences and party modes",
+    "manage_temperature": "Temperature control with comfort profiles and scheduling",
+    "advanced_water_analysis": "Comprehensive water analysis with trend monitoring",
+    "system_maintenance": "System maintenance, diagnostics, and configuration backup",
+    
+    # Legacy Services
+    "turn_auto": "Turn device to AUTO mode (legacy compatibility)",
+    "set_pv_surplus": "Set PV surplus mode (legacy compatibility)",
+    "manual_dosing": "Manual chemical dosing (legacy compatibility)",
+    "set_light_color_pulse": "Light color pulse control (legacy compatibility)",
+    "set_extension_timer": "Extension relay timer (legacy compatibility)",
+    "force_device_off": "Force device off with safety lock (legacy compatibility)",
+    
+    # Smart Services
+    "smart_pool_optimization": "AI-powered pool optimization for energy and water quality",
+    "adaptive_chemical_balancing": "Adaptive chemical balancing with intelligent adjustments",
+    "seasonal_pool_preparation": "Seasonal pool preparation and maintenance automation"
+}
+
+def get_service_info(service_name: str) -> Dict[str, Any]:
+    """Get comprehensive information about a service."""
+    if service_name not in ALL_SERVICE_SCHEMAS:
+        return {"error": f"Service {service_name} not found"}
+    
+    schema = ALL_SERVICE_SCHEMAS[service_name]
+    description = SERVICE_DESCRIPTIONS.get(service_name, "No description available")
+    
+    # Determine category
+    category = "unknown"
+    if service_name in ENHANCED_SERVICE_SCHEMAS:
+        category = "enhanced"
+    elif service_name in LEGACY_SERVICE_SCHEMAS:
+        category = "legacy"
+    elif service_name in SMART_SERVICE_SCHEMAS:
+        category = "smart"
+    
+    # Extract required and optional fields from schema
+    required_fields = []
+    optional_fields = []
+    
+    if hasattr(schema, 'schema'):
+        for field, validator in schema.schema.items():
+            field_name = str(field).replace('Required(', '').replace('Optional(', '').replace(')', '').strip("'\"")
+            if 'Required(' in str(field):
+                required_fields.append(field_name)
+            else:
+                optional_fields.append(field_name)
+    
+    return {
+        "name": service_name,
+        "description": description,
+        "category": category,
+        "required_fields": required_fields,
+        "optional_fields": optional_fields,
+        "schema": schema
+    }
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PERFORMANCE MONITORING
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class ServicePerformanceMonitor:
+    """Monitor service performance and execution times."""
+    
+    def __init__(self):
+        self._execution_times: Dict[str, List[float]] = {}
+        self._error_counts: Dict[str, int] = {}
+        self._success_counts: Dict[str, int] = {}
+    
+    def record_execution(self, service_name: str, execution_time: float, success: bool = True):
+        """Record service execution time and result."""
+        if service_name not in self._execution_times:
+            self._execution_times[service_name] = []
+        
+        self._execution_times[service_name].append(execution_time)
+        
+        # Keep only last 100 executions
+        if len(self._execution_times[service_name]) > 100:
+            self._execution_times[service_name] = self._execution_times[service_name][-100:]
+        
+        if success:
+            self._success_counts[service_name] = self._success_counts.get(service_name, 0) + 1
+        else:
+            self._error_counts[service_name] = self._error_counts.get(service_name, 0) + 1
+    
+    def get_performance_stats(self, service_name: str = None) -> Dict[str, Any]:
+        """Get performance statistics for service(s)."""
+        if service_name:
+            if service_name not in self._execution_times:
+                return {"error": f"No data for service {service_name}"}
+            
+            times = self._execution_times[service_name]
+            return {
+                "service": service_name,
+                "avg_execution_time": sum(times) / len(times) if times else 0,
+                "min_execution_time": min(times) if times else 0,
+                "max_execution_time": max(times) if times else 0,
+                "total_executions": len(times),
+                "success_count": self._success_counts.get(service_name, 0),
+                "error_count": self._error_counts.get(service_name, 0)
+            }
+        else:
+            # Return stats for all services
+            all_stats = {}
+            for svc_name in self._execution_times.keys():
+                all_stats[svc_name] = self.get_performance_stats(svc_name)
+            return all_stats
+
+# Global performance monitor instance
+_performance_monitor = ServicePerformanceMonitor()
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# FINAL EXPORTS AND MODULE COMPLETION
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Export all public classes, functions and constants
+__all__ = [
+    # Core Classes
+    "VioletServiceManager",
+    "VioletEnhancedServiceHandlers",
+    "VioletLegacyServiceHandlers", 
+    "VioletSmartServiceHandlers",
+    "ServicePerformanceMonitor",
+    
+    # Registration Functions
+    "async_register_enhanced_services",
+    "async_unregister_services",
+    
+    # Schema Collections
+    "ALL_SERVICE_SCHEMAS",
+    "ENHANCED_SERVICE_SCHEMAS",
+    "LEGACY_SERVICE_SCHEMAS",
+    "SMART_SERVICE_SCHEMAS",
+    
+    # Utility Functions
+    "validate_service_call",
+    "get_service_statistics",
+    "get_service_call_validation_errors",
+    "is_service_available",
+    "get_available_services",
+    "get_service_info",
+    "log_service_execution",
+    "handle_service_error",
+    
+    # Constants
+    "SERVICE_DESCRIPTIONS"
+]
+
+# Module completion log
+_LOGGER.info("Violet Pool Controller Services module loaded successfully - %d total services available", len(ALL_SERVICE_SCHEMAS))
