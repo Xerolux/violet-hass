@@ -78,7 +78,7 @@ jobs:
             ---
             ❤️ Support My Project:
             ☕ Buy Me a Coffee: ${{ env.BUY_ME_COFFEE_LINK }}
-            🚗 Tesla Referral: ${{ env.TESLA_REFERRAL_LINK }}
+            🚗 Use my Tesla referral link: [Referral Link](https://ts.la/sebastian564489)
             🙏 Every contribution motivates me!
             ---
             💬 Open to feedback & contributions! Check it out: ${{ github.event.release.html_url }}
