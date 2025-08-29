@@ -368,10 +368,628 @@ class VioletEnhancedServiceHandlers:
                                     device_key, mode, result.get("response", result))
                         
                 except VioletPoolAPIError as err:
-                    _LOGGER.error("Error forcing device off: %s", err)
-                    raise HomeAssistantError(f"Force off failed: {err}") from err
+                    _LOGGER.error("API error setting device mode for %s: %s", device_key, err)
+                    raise HomeAssistantError(f"Device mode change failed: {err}") from err
             
             await coordinator.async_request_refresh()
+    
+    async def handle_control_pump_advanced(self, call: ServiceCall) -> None:
+        """Advanced pump control with speed management."""
+        coordinators = await self.manager.get_coordinators_for_entities(call.data["entity_id"])
+        action = call.data["action"]
+        speed = call.data.get("speed", 2)
+        duration = call.data.get("duration", 0)
+        force_off_duration = call.data.get("force_off_duration", 600)
+        
+        for coordinator in coordinators:
+            for entity_id in call.data["entity_id"]:
+                device_key = self.manager.extract_device_key_from_entity_id(entity_id)
+                
+                if device_key != "PUMP":
+                    _LOGGER.warning("Entity %s is not a pump device", entity_id)
+                    continue
+                
+                try:
+                    if action == "speed_control":
+                        result = await coordinator.device.api.set_switch_state(
+                            key="PUMP", action=ACTION_ON, duration=duration, last_value=speed
+                        )
+                    elif action == "force_off":
+                        result = await coordinator.device.api.set_switch_state(
+                            key="PUMP", action=ACTION_OFF, duration=force_off_duration
+                        )
+                        self.manager.set_safety_lock("PUMP", force_off_duration)
+                    elif action == "eco_mode":
+                        result = await coordinator.device.api.set_switch_state(
+                            key="PUMP", action=ACTION_ON, duration=duration, last_value=1
+                        )
+                    elif action == "boost_mode":
+                        result = await coordinator.device.api.set_switch_state(
+                            key="PUMP", action=ACTION_ON, duration=duration or 3600, last_value=3
+                        )
+                    elif action == "auto_schedule":
+                        result = await coordinator.device.api.set_switch_state(
+                            key="PUMP", action=ACTION_AUTO
+                        )
+                    
+                    if result.get("success", True):
+                        _LOGGER.info("Pump action %s executed successfully", action)
+                    else:
+                        _LOGGER.error("Pump action %s failed: %s", action, result.get("response", result))
+                        
+                except VioletPoolAPIError as err:
+                    _LOGGER.error("API error in pump control: %s", err)
+                    raise HomeAssistantError(f"Pump control failed: {err}") from err
+            
+            await coordinator.async_request_refresh()
+    
+    async def handle_smart_dosing(self, call: ServiceCall) -> None:
+        """Smart dosing control with safety features."""
+        coordinators = await self.manager.get_coordinators_for_entities(call.data["entity_id"])
+        dosing_type = call.data["dosing_type"]
+        action = call.data["action"]
+        duration = call.data.get("duration", 30)
+        safety_override = call.data.get("safety_override", False)
+        target_value = call.data.get("target_value")
+        
+        dosing_key_map = {
+            "pH-": "DOS_4_PHM", "pH+": "DOS_5_PHP", 
+            "Chlor": "DOS_1_CL", "Flockmittel": "DOS_6_FLOC"
+        }
+        device_key = dosing_key_map.get(dosing_type)
+        
+        if not device_key:
+            raise HomeAssistantError(f"Unknown dosing type: {dosing_type}")
+        
+        for coordinator in coordinators:
+            try:
+                if not safety_override:
+                    safety_check = await self.manager.validate_dosing_safety(coordinator, device_key, duration)
+                    if not safety_check["valid"]:
+                        _LOGGER.error("Dosing safety check failed: %s", safety_check["error"])
+                        raise HomeAssistantError(f"Dosing safety check failed: {safety_check['error']}")
+                
+                if action == "manual_dose":
+                    result = await coordinator.device.api.set_switch_state(
+                        key=device_key, action=ACTION_MAN, duration=duration
+                    )
+                    if not safety_override and "safety_interval" in safety_check:
+                        self.manager.set_safety_lock(device_key, safety_check["safety_interval"])
+                        
+                elif action == "auto_calibrate":
+                    result = await coordinator.device.api.set_switch_state(
+                        key=device_key, action=ACTION_AUTO
+                    )
+                    
+                elif action == "safety_stop":
+                    result = await coordinator.device.api.set_switch_state(
+                        key=device_key, action=ACTION_OFF
+                    )
+                    
+                elif action == "schedule":
+                    result = await coordinator.device.api.set_switch_state(
+                        key=device_key, action=ACTION_AUTO
+                    )
+                
+                if result.get("success", True):
+                    _LOGGER.info("Smart dosing %s action %s executed", dosing_type, action)
+                else:
+                    _LOGGER.error("Smart dosing failed: %s", result.get("response", result))
+                    
+                await coordinator.async_request_refresh()
+            except VioletPoolAPIError as err:
+                _LOGGER.error("API error in smart dosing: %s", err)
+                raise HomeAssistantError(f"Smart dosing failed: {err}") from err
+    
+    async def handle_manage_pv_surplus(self, call: ServiceCall) -> None:
+        """Advanced PV surplus management."""
+        coordinators = await self.manager.get_coordinators_for_entities(call.data["entity_id"])
+        mode = call.data["mode"]
+        pump_speed = call.data.get("pump_speed", 2)
+        priority_override = call.data.get("priority_override", False)
+        weather_dependent = call.data.get("weather_dependent", True)
+        
+        for coordinator in coordinators:
+            try:
+                if mode == "activate":
+                    result = await coordinator.device.api.set_pv_surplus(
+                        active=True, pump_speed=pump_speed
+                    )
+                elif mode == "deactivate":
+                    result = await coordinator.device.api.set_pv_surplus(active=False)
+                elif mode == "smart_control":
+                    current_pump_state = coordinator.data.get("PUMP", "")
+                    pump_state_info = get_device_state_info(current_pump_state, "PUMP")
+                    
+                    if pump_state_info.get("mode") == "auto":
+                        result = await coordinator.device.api.set_pv_surplus(
+                            active=True, pump_speed=pump_speed
+                        )
+                    else:
+                        result = {"success": True, "response": "PV surplus not activated - pump not in auto mode"}
+                elif mode == "schedule":
+                    result = await coordinator.device.api.set_switch_state(
+                        key="PVSURPLUS", action=ACTION_AUTO
+                    )
+                
+                if result.get("success", True):
+                    _LOGGER.info("PV surplus mode %s executed", mode)
+                else:
+                    _LOGGER.error("PV surplus management failed: %s", result.get("response", result))
+                    
+                await coordinator.async_request_refresh()
+            except VioletPoolAPIError as err:
+                _LOGGER.error("API error in PV surplus management: %s", err)
+                raise HomeAssistantError(f"PV surplus management failed: {err}") from err
+    
+    async def handle_control_extension_relay(self, call: ServiceCall) -> None:
+        """Control extension relays with timer functionality."""
+        coordinators = await self.manager.get_coordinators_for_entities(call.data["entity_id"])
+        action = call.data["action"]
+        duration = call.data.get("duration", 3600)
+        pulse_duration = call.data.get("pulse_duration", 1)
+        repeat_count = call.data.get("repeat_count", 1)
+        
+        for coordinator in coordinators:
+            for entity_id in call.data["entity_id"]:
+                device_key = self.manager.extract_device_key_from_entity_id(entity_id)
+                
+                if not (device_key.startswith("EXT1_") or device_key.startswith("EXT2_") or device_key.startswith("OMNI_DC")):
+                    _LOGGER.warning("Entity %s is not an extension relay", entity_id)
+                    continue
+                
+                try:
+                    if action == "timer_on":
+                        result = await coordinator.device.api.set_switch_state(
+                            key=device_key, action=ACTION_ON, duration=duration
+                        )
+                    elif action == "timer_off":
+                        result = await coordinator.device.api.set_switch_state(
+                            key=device_key, action=ACTION_OFF, duration=duration
+                        )
+                    elif action == "pulse":
+                        for i in range(repeat_count):
+                            await coordinator.device.api.set_switch_state(
+                                key=device_key, action=ACTION_ON, duration=pulse_duration
+                            )
+                            await asyncio.sleep(pulse_duration + 1)
+                            await coordinator.device.api.set_switch_state(
+                                key=device_key, action=ACTION_OFF, duration=pulse_duration
+                            )
+                            if i < repeat_count - 1:
+                                await asyncio.sleep(pulse_duration + 1)
+                        result = {"success": True, "response": f"Pulse sequence completed {repeat_count} times"}
+                    elif action == "schedule":
+                        result = await coordinator.device.api.set_switch_state(
+                            key=device_key, action=ACTION_AUTO
+                        )
+                    
+                    if result.get("success", True):
+                        _LOGGER.info("Extension relay %s action %s executed", device_key, action)
+                    else:
+                        _LOGGER.error("Extension relay control failed: %s", result.get("response", result))
+                        
+                except VioletPoolAPIError as err:
+                    _LOGGER.error("API error in extension relay control: %s", err)
+                    raise HomeAssistantError(f"Extension relay control failed: {err}") from err
+            
+            await coordinator.async_request_refresh()
+    
+    async def handle_manage_digital_rules(self, call: ServiceCall) -> None:
+        """Manage digital input rules."""
+        device_id = call.data["device_id"]
+        rule_key = call.data["rule_key"]
+        action = call.data["action"]
+        delay = call.data.get("delay", 0)
+        
+        coordinator = await self.manager.get_coordinator_for_device(device_id)
+        if not coordinator:
+            raise HomeAssistantError(f"Device not found: {device_id}")
+        
+        try:
+            if action == "trigger":
+                result = await coordinator.device.api.trigger_digital_input_rule(rule_key)
+            elif action == "lock":
+                result = await coordinator.device.api.set_digital_input_rule_lock(rule_key, True)
+            elif action == "unlock":
+                result = await coordinator.device.api.set_digital_input_rule_lock(rule_key, False)
+            elif action == "schedule":
+                if delay > 0:
+                    self.hass.async_create_task(self._delayed_rule_trigger(coordinator, rule_key, delay))
+                    result = {"success": True, "response": f"Rule {rule_key} scheduled for {delay}s"}
+                else:
+                    result = await coordinator.device.api.trigger_digital_input_rule(rule_key)
+            elif action == "disable":
+                result = await coordinator.device.api.set_digital_input_rule_lock(rule_key, True)
+            
+            if result.get("success", True):
+                _LOGGER.info("Digital rule %s action %s executed", rule_key, action)
+            else:
+                _LOGGER.error("Digital rule management failed: %s", result.get("response", result))
+                
+            await coordinator.async_request_refresh()
+        except VioletPoolAPIError as err:
+            _LOGGER.error("API error in digital rule management: %s", err)
+            raise HomeAssistantError(f"Digital rule management failed: {err}") from err
+    
+    async def _delayed_rule_trigger(self, coordinator: VioletPoolDataUpdateCoordinator, 
+                                  rule_key: str, delay_seconds: int) -> None:
+        """Execute delayed digital rule trigger."""
+        await asyncio.sleep(delay_seconds)
+        try:
+            result = await coordinator.device.api.trigger_digital_input_rule(rule_key)
+            if result.get("success", True):
+                _LOGGER.info("Delayed trigger executed for rule %s", rule_key)
+            await coordinator.async_request_refresh()
+        except Exception as err:
+            _LOGGER.error("Error in delayed rule trigger for %s: %s", rule_key, err)
+    
+    async def handle_control_dmx_scenes(self, call: ServiceCall) -> None:
+        """Advanced DMX scene control."""
+        device_id = call.data["device_id"]
+        action = call.data["action"]
+        scene_selection = call.data.get("scene_selection", [])
+        sequence_delay = call.data.get("sequence_delay", 2)
+        
+        coordinator = await self.manager.get_coordinator_for_device(device_id)
+        if not coordinator:
+            raise HomeAssistantError(f"Device not found: {device_id}")
+        
+        try:
+            if action == "all_on":
+                result = await coordinator.device.api.set_all_dmx_scenes(ACTION_ALLON)
+            elif action == "all_off":
+                result = await coordinator.device.api.set_all_dmx_scenes(ACTION_ALLOFF)
+            elif action == "all_auto":
+                result = await coordinator.device.api.set_all_dmx_scenes(ACTION_ALLAUTO)
+            elif action == "sequence":
+                if not scene_selection:
+                    scene_selection = [f"DMX_SCENE{i}" for i in range(1, 13)]
+                
+                for scene in scene_selection:
+                    await coordinator.device.api.set_switch_state(scene, ACTION_ON)
+                    await asyncio.sleep(sequence_delay)
+                    await coordinator.device.api.set_switch_state(scene, ACTION_OFF)
+                    
+                result = {"success": True, "response": f"Scene sequence completed with {len(scene_selection)} scenes"}
+            elif action == "random":
+                import random
+                all_scenes = [f"DMX_SCENE{i}" for i in range(1, 13)]
+                random_scenes = random.sample(all_scenes, min(5, len(all_scenes)))
+                
+                for scene in random_scenes:
+                    await coordinator.device.api.set_switch_state(scene, ACTION_ON)
+                    
+                result = {"success": True, "response": f"Random scenes activated: {', '.join(random_scenes)}"}
+            elif action == "party_mode":
+                await coordinator.device.api.set_all_dmx_scenes(ACTION_ALLON)
+                await coordinator.device.api.set_light_color_pulse()
+                result = {"success": True, "response": "Party mode activated"}
+            
+            if result.get("success", True):
+                _LOGGER.info("DMX scene action %s executed", action)
+            else:
+                _LOGGER.error("DMX scene control failed: %s", result.get("response", result))
+                
+            await coordinator.async_request_refresh()
+        except VioletPoolAPIError as err:
+            _LOGGER.error("API error in DMX scene control: %s", err)
+            raise HomeAssistantError(f"DMX scene control failed: {err}") from err
+    
+    async def handle_manage_temperature(self, call: ServiceCall) -> None:
+        """Temperature management with profiles."""
+        coordinators = await self.manager.get_coordinators_for_entities(call.data["entity_id"])
+        action = call.data["action"]
+        temperature = call.data.get("temperature")
+        profile_duration = call.data.get("profile_duration", 0)
+        
+        temp_profiles = {
+            "eco_profile": 26.0,
+            "comfort_profile": 28.0,
+            "party_profile": 30.0,
+            "night_profile": 24.0
+        }
+        
+        for coordinator in coordinators:
+            for entity_id in call.data["entity_id"]:
+                device_key = self.manager.extract_device_key_from_entity_id(entity_id)
+                
+                if device_key not in ["HEATER", "SOLAR"]:
+                    _LOGGER.warning("Entity %s is not a temperature control device", entity_id)
+                    continue
+                
+                try:
+                    if action == "set_target" and temperature:
+                        result = await coordinator.device.api.set_device_temperature(device_key, temperature)
+                    elif action in temp_profiles:
+                        profile_temp = temp_profiles[action]
+                        result = await coordinator.device.api.set_device_temperature(device_key, profile_temp)
+                        
+                        if profile_duration > 0:
+                            original_temp = coordinator.data.get(f"{device_key}_TARGET_TEMP", 28.0)
+                            self.hass.async_create_task(
+                                self._restore_temperature_profile(coordinator, device_key, original_temp, profile_duration)
+                            )
+                    
+                    if result.get("success", True):
+                        _LOGGER.info("Temperature management %s executed for %s", action, device_key)
+                    else:
+                        _LOGGER.error("Temperature management failed: %s", result.get("response", result))
+                        
+                except VioletPoolAPIError as err:
+                    _LOGGER.error("API error in temperature management: %s", err)
+                    raise HomeAssistantError(f"Temperature management failed: {err}") from err
+            
+            await coordinator.async_request_refresh()
+    
+    async def _restore_temperature_profile(self, coordinator: VioletPoolDataUpdateCoordinator,
+                                         device_key: str, original_temp: float, delay_seconds: int) -> None:
+        """Restore temperature after profile duration."""
+        await asyncio.sleep(delay_seconds)
+        try:
+            result = await coordinator.device.api.set_device_temperature(device_key, original_temp)
+            if result.get("success", True):
+                _LOGGER.info("Temperature restored for %s to %.1f°C", device_key, original_temp)
+            await coordinator.async_request_refresh()
+        except Exception as err:
+            _LOGGER.error("Error restoring temperature for %s: %s", device_key, err)
+    
+    async def handle_advanced_water_analysis(self, call: ServiceCall) -> None:
+        """Advanced water analysis and testing."""
+        coordinators = await self.manager.get_coordinators_for_entities(call.data["entity_id"])
+        analysis_type = call.data["analysis_type"]
+        include_sensors = call.data.get("include_sensors", [])
+        save_results = call.data.get("save_results", True)
+        
+        for coordinator in coordinators:
+            try:
+                if analysis_type == "quick_test":
+                    result = await coordinator.device.api.start_water_analysis()
+                elif analysis_type == "full_analysis":
+                    result = await coordinator.device.api.start_water_analysis()
+                    await coordinator.async_request_refresh()
+                elif analysis_type == "calibration":
+                    result = await coordinator.device.api.start_water_analysis()
+                    await asyncio.sleep(30)
+                    await coordinator.async_request_refresh()
+                elif analysis_type == "trend_analysis":
+                    current_data = coordinator.data
+                    analysis_result = self._analyze_water_trends(current_data)
+                    result = {"success": True, "response": f"Trend analysis completed: {analysis_result}"}
+                
+                if result.get("success", True):
+                    _LOGGER.info("Water analysis %s completed", analysis_type)
+                    
+                    if save_results:
+                        self._save_analysis_results(coordinator, analysis_type, result)
+                else:
+                    _LOGGER.error("Water analysis failed: %s", result.get("response", result))
+                    
+                await coordinator.async_request_refresh()
+            except VioletPoolAPIError as err:
+                _LOGGER.error("API error in water analysis: %s", err)
+                raise HomeAssistantError(f"Water analysis failed: {err}") from err
+    
+    def _analyze_water_trends(self, current_data: Dict) -> str:
+        """Analyze water quality trends."""
+        trends = []
+        
+        ph_value = current_data.get("pH_value")
+        if ph_value:
+            if ph_value < 7.0:
+                trends.append("pH trending acidic")
+            elif ph_value > 7.4:
+                trends.append("pH trending basic")
+            else:
+                trends.append("pH stable")
+        
+        orp_value = current_data.get("orp_value")
+        if orp_value:
+            if orp_value < 650:
+                trends.append("ORP low - increase chlorination")
+            elif orp_value > 750:
+                trends.append("ORP high - reduce chlorination")
+            else:
+                trends.append("ORP optimal")
+        
+        chlorine_value = current_data.get("pot_value")
+        if chlorine_value:
+            if chlorine_value < 0.5:
+                trends.append("Chlorine low")
+            elif chlorine_value > 1.5:
+                trends.append("Chlorine high")
+            else:
+                trends.append("Chlorine optimal")
+        
+        return "; ".join(trends) if trends else "All parameters stable"
+    
+    def _save_analysis_results(self, coordinator: VioletPoolDataUpdateCoordinator, 
+                             analysis_type: str, result: Dict) -> None:
+        """Save analysis results for future reference."""
+        if not hasattr(coordinator.device, '_analysis_history'):
+            coordinator.device._analysis_history = []
+        
+        analysis_record = {
+            "timestamp": datetime.now().isoformat(),
+            "type": analysis_type,
+            "result": result,
+            "water_params": {
+                "pH": coordinator.data.get("pH_value"),
+                "orp": coordinator.data.get("orp_value"), 
+                "chlorine": coordinator.data.get("pot_value"),
+                "temperature": coordinator.data.get("onewire1_value")
+            }
+        }
+        
+        coordinator.device._analysis_history.append(analysis_record)
+        
+        if len(coordinator.device._analysis_history) > 50:
+            coordinator.device._analysis_history = coordinator.device._analysis_history[-50:]
+        
+        _LOGGER.debug("Analysis results saved: %s", analysis_type)
+    
+    async def handle_system_maintenance(self, call: ServiceCall) -> None:
+        """System maintenance and diagnostics."""
+        device_id = call.data["device_id"]
+        maintenance_type = call.data["maintenance_type"]
+        diagnostic_level = call.data.get("diagnostic_level", "basic")
+        reset_scope = call.data.get("reset_scope", "errors_only")
+        
+        coordinator = await self.manager.get_coordinator_for_device(device_id)
+        if not coordinator:
+            raise HomeAssistantError(f"Device not found: {device_id}")
+        
+        try:
+            if maintenance_type == "enable":
+                result = await coordinator.device.api.set_maintenance_mode(True)
+            elif maintenance_type == "disable":
+                result = await coordinator.device.api.set_maintenance_mode(False)
+            elif maintenance_type == "diagnostic":
+                result = await self._execute_diagnostics(coordinator, diagnostic_level)
+            elif maintenance_type == "reset_errors":
+                result = await self._reset_device_errors(coordinator, reset_scope)
+            elif maintenance_type == "backup_config":
+                result = await self._backup_device_config(coordinator)
+            
+            if result.get("success", True):
+                _LOGGER.info("System maintenance %s completed", maintenance_type)
+            else:
+                _LOGGER.error("System maintenance failed: %s", result.get("response", result))
+                
+            await coordinator.async_request_refresh()
+        except VioletPoolAPIError as err:
+            _LOGGER.error("API error in system maintenance: %s", err)
+            raise HomeAssistantError(f"System maintenance failed: {err}") from err
+    
+    async def _execute_diagnostics(self, coordinator: VioletPoolDataUpdateCoordinator, level: str) -> Dict:
+        """Execute diagnostic tests."""
+        diagnostics = {"success": True, "diagnostics": {}}
+        
+        if level in ["basic", "extended", "full"]:
+            diagnostics["diagnostics"]["sensors"] = self._check_sensor_health(coordinator.data)
+        
+        if level in ["extended", "full"]:
+            diagnostics["diagnostics"]["devices"] = self._check_device_health(coordinator.data)
+        
+        if level == "full":
+            try:
+                test_result = await coordinator.device.api.get_readings("ALL")
+                diagnostics["diagnostics"]["api_connectivity"] = "OK" if test_result else "FAILED"
+            except Exception:
+                diagnostics["diagnostics"]["api_connectivity"] = "FAILED"
+        
+        return diagnostics
+    
+    def _check_sensor_health(self, data: Dict) -> Dict:
+        """Check sensor health status."""
+        sensor_health = {}
+        
+        temp_sensors = ["onewire1_value", "onewire2_value", "onewire3_value", "onewire4_value", "onewire5_value"]
+        for sensor in temp_sensors:
+            value = data.get(sensor)
+            if value is not None:
+                try:
+                    temp_val = float(value)
+                    if -20 <= temp_val <= 60:
+                        sensor_health[sensor] = "OK"
+                    else:
+                        sensor_health[sensor] = f"OUT_OF_RANGE ({temp_val}°C)"
+                except (ValueError, TypeError):
+                    sensor_health[sensor] = "INVALID_VALUE"
+            else:
+                sensor_health[sensor] = "NO_DATA"
+        
+        chem_sensors = {"pH_value": (6.0, 8.5), "orp_value": (400, 1000), "pot_value": (0, 5)}
+        for sensor, (min_val, max_val) in chem_sensors.items():
+            value = data.get(sensor)
+            if value is not None:
+                try:
+                    chem_val = float(value)
+                    if min_val <= chem_val <= max_val:
+                        sensor_health[sensor] = "OK"
+                    else:
+                        sensor_health[sensor] = f"OUT_OF_RANGE ({chem_val})"
+                except (ValueError, TypeError):
+                    sensor_health[sensor] = "INVALID_VALUE"
+            else:
+                sensor_health[sensor] = "NO_DATA"
+        
+        return sensor_health
+    
+    def _check_device_health(self, data: Dict) -> Dict:
+        """Check device operational health."""
+        device_health = {}
+        
+        main_devices = ["PUMP", "HEATER", "SOLAR", "DOS_1_CL", "DOS_4_PHM", "DOS_5_PHP"]
+        for device in main_devices:
+            state = data.get(device, "")
+            state_info = get_device_state_info(state, device)
+            
+            if state_info.get("mode") == "error":
+                device_health[device] = "ERROR"
+            elif state_info.get("mode") == "maintenance":
+                device_health[device] = "MAINTENANCE"
+            else:
+                device_health[device] = "OK"
+        
+        return device_health
+    
+    async def _reset_device_errors(self, coordinator: VioletPoolDataUpdateCoordinator, scope: str) -> Dict:
+        """Reset device error states."""
+        reset_actions = []
+        
+        if scope in ["errors_only", "all_data"]:
+            main_devices = ["PUMP", "HEATER", "SOLAR", "DOS_1_CL", "DOS_4_PHM", "DOS_5_PHP"]
+            for device in main_devices:
+                state = coordinator.data.get(device, "")
+                state_info = get_device_state_info(state, device)
+                
+                if state_info.get("mode") == "error":
+                    try:
+                        await coordinator.device.api.set_switch_state(device, ACTION_AUTO)
+                        reset_actions.append(f"{device} reset to AUTO")
+                    except Exception as err:
+                        reset_actions.append(f"{device} reset FAILED: {err}")
+        
+        return {"success": True, "response": f"Reset completed: {'; '.join(reset_actions)}"}
+    
+    async def _backup_device_config(self, coordinator: VioletPoolDataUpdateCoordinator) -> Dict:
+        """Backup device configuration."""
+        try:
+            config_data = await coordinator.device.api.get_readings("ALL")
+            
+            if not hasattr(coordinator.device, '_config_backups'):
+                coordinator.device._config_backups = []
+            
+            backup_record = {
+                "timestamp": datetime.now().isoformat(),
+                "config_data": config_data,
+                "active_features": coordinator.device.active_features
+            }
+            
+            coordinator.device._config_backups.append(backup_record)
+            
+            if len(coordinator.device._config_backups) > 10:
+                coordinator.device._config_backups = coordinator.device._config_backups[-10:]
+            
+            return {"success": True, "response": "Configuration backup created successfully"}
+            
+        except Exception as err:
+            return {"success": False, "response": f"Backup failed: {err}"}
+    
+    async def _schedule_mode_restoration(self, coordinator: VioletPoolDataUpdateCoordinator, 
+                                       device_key: str, delay_seconds: int) -> None:
+        """Schedule automatic mode restoration."""
+        await asyncio.sleep(delay_seconds)
+        try:
+            result = await coordinator.device.api.set_switch_state(
+                key=device_key, action=ACTION_AUTO
+            )
+            if result.get("success", True):
+                _LOGGER.info("Restored device %s to AUTO mode after %d seconds", device_key, delay_seconds)
+            await coordinator.async_request_refresh()
+        except Exception as err:
+            _LOGGER.error("Error restoring device %s to AUTO: %s", device_key, err)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # SMART SERVICE HANDLERS - 3 AI-POWERED SERVICES
@@ -444,11 +1062,10 @@ class VioletSmartServiceHandlers:
             
             _LOGGER.info("Smart pool optimization %s completed", optimization_mode)
             
+            await coordinator.async_request_refresh()
         except VioletPoolAPIError as err:
             _LOGGER.error("API error in smart pool optimization: %s", err)
             raise HomeAssistantError(f"Smart pool optimization failed: {err}") from err
-        
-        await coordinator.async_request_refresh()
     
     def _generate_optimization_plan(self, data: Dict, mode: str, preferences: Dict) -> Dict:
         """Generate optimization plan based on current conditions and mode."""
@@ -575,11 +1192,10 @@ class VioletSmartServiceHandlers:
             
             _LOGGER.info("Adaptive chemical balancing %s completed", target_profile)
             
+            await coordinator.async_request_refresh()
         except VioletPoolAPIError as err:
             _LOGGER.error("API error in adaptive chemical balancing: %s", err)
             raise HomeAssistantError(f"Chemical balancing failed: {err}") from err
-        
-        await coordinator.async_request_refresh()
     
     async def handle_seasonal_pool_preparation(self, call: ServiceCall) -> None:
         """Seasonal pool preparation and maintenance."""
@@ -650,801 +1266,10 @@ class VioletSmartServiceHandlers:
             
             _LOGGER.info("Seasonal pool preparation %s completed", season_mode)
             
+            await coordinator.async_request_refresh()
         except VioletPoolAPIError as err:
             _LOGGER.error("API error in seasonal preparation: %s", err)
             raise HomeAssistantError(f"Seasonal preparation failed: {err}") from err
-        
-        await coordinator.async_request_refresh()
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# SERVICE REGISTRATION FUNCTION
-# ═══════════════════════════════════════════════════════════════════════════════
-
-async def async_register_enhanced_services(hass: HomeAssistant) -> None:
-    """Register all enhanced services for Violet Pool Controller."""
-    if hass.services.has_service(DOMAIN, "set_device_mode"):
-        _LOGGER.debug("Enhanced services already registered")
-        return
-    
-    # Initialize service manager and handlers
-    service_manager = VioletServiceManager(hass)
-    enhanced_handlers = VioletEnhancedServiceHandlers(service_manager)
-    legacy_handlers = VioletLegacyServiceHandlers(service_manager)
-    smart_handlers = VioletSmartServiceHandlers(service_manager)
-    
-    # Register Enhanced Services (10 services)
-    hass.services.async_register(
-        DOMAIN, "set_device_mode", enhanced_handlers.handle_set_device_mode,
-        schema=ENHANCED_SERVICE_SCHEMAS["set_device_mode"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN, "control_pump_advanced", enhanced_handlers.handle_control_pump_advanced,
-        schema=ENHANCED_SERVICE_SCHEMAS["control_pump_advanced"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN, "smart_dosing", enhanced_handlers.handle_smart_dosing,
-        schema=ENHANCED_SERVICE_SCHEMAS["smart_dosing"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN, "manage_pv_surplus", enhanced_handlers.handle_manage_pv_surplus,
-        schema=ENHANCED_SERVICE_SCHEMAS["manage_pv_surplus"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN, "control_extension_relay", enhanced_handlers.handle_control_extension_relay,
-        schema=ENHANCED_SERVICE_SCHEMAS["control_extension_relay"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN, "manage_digital_rules", enhanced_handlers.handle_manage_digital_rules,
-        schema=ENHANCED_SERVICE_SCHEMAS["manage_digital_rules"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN, "control_dmx_scenes", enhanced_handlers.handle_control_dmx_scenes,
-        schema=ENHANCED_SERVICE_SCHEMAS["control_dmx_scenes"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN, "manage_temperature", enhanced_handlers.handle_manage_temperature,
-        schema=ENHANCED_SERVICE_SCHEMAS["manage_temperature"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN, "advanced_water_analysis", enhanced_handlers.handle_advanced_water_analysis,
-        schema=ENHANCED_SERVICE_SCHEMAS["advanced_water_analysis"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN, "system_maintenance", enhanced_handlers.handle_system_maintenance,
-        schema=ENHANCED_SERVICE_SCHEMAS["system_maintenance"]
-    )
-    
-    # Register Legacy Services (6 services)
-    hass.services.async_register(
-        DOMAIN, "turn_auto", legacy_handlers.handle_turn_auto,
-        schema=LEGACY_SERVICE_SCHEMAS["turn_auto"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN, "set_pv_surplus", legacy_handlers.handle_set_pv_surplus,
-        schema=LEGACY_SERVICE_SCHEMAS["set_pv_surplus"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN, "manual_dosing", legacy_handlers.handle_manual_dosing,
-        schema=LEGACY_SERVICE_SCHEMAS["manual_dosing"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN, "set_light_color_pulse", legacy_handlers.handle_set_light_color_pulse,
-        schema=LEGACY_SERVICE_SCHEMAS["set_light_color_pulse"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN, "set_extension_timer", legacy_handlers.handle_set_extension_timer,
-        schema=LEGACY_SERVICE_SCHEMAS["set_extension_timer"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN, "force_device_off", legacy_handlers.handle_force_device_off,
-        schema=LEGACY_SERVICE_SCHEMAS["force_device_off"]
-    )
-    
-    # Register Smart Services (3 services)
-    hass.services.async_register(
-        DOMAIN, "smart_pool_optimization", smart_handlers.handle_smart_pool_optimization,
-        schema=SMART_SERVICE_SCHEMAS["smart_pool_optimization"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN, "adaptive_chemical_balancing", smart_handlers.handle_adaptive_chemical_balancing,
-        schema=SMART_SERVICE_SCHEMAS["adaptive_chemical_balancing"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN, "seasonal_pool_preparation", smart_handlers.handle_seasonal_pool_preparation,
-        schema=SMART_SERVICE_SCHEMAS["seasonal_pool_preparation"]
-    )
-    
-    _LOGGER.info("Enhanced services registered successfully: %d enhanced + %d legacy + %d smart services", 
-                len(ENHANCED_SERVICE_SCHEMAS), len(LEGACY_SERVICE_SCHEMAS), len(SMART_SERVICE_SCHEMAS))
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# UTILITY FUNCTIONS
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def validate_service_call(call: ServiceCall, required_fields: List[str]) -> bool:
-    """Validate service call parameters."""
-    for field in required_fields:
-        if field not in call.data:
-            _LOGGER.error("Required field '%s' missing in service call", field)
-            return False
-    return True
-
-def get_service_statistics() -> Dict[str, Any]:
-    """Get statistics about registered services."""
-    return {
-        "total_services": len(ALL_SERVICE_SCHEMAS),
-        "enhanced_services": len(ENHANCED_SERVICE_SCHEMAS),
-        "legacy_services": len(LEGACY_SERVICE_SCHEMAS),
-        "smart_services": len(SMART_SERVICE_SCHEMAS),
-        "service_categories": {
-            "device_control": 4,
-            "dosing_management": 2,
-            "lighting_control": 2,
-            "temperature_control": 2,
-            "maintenance": 3,
-            "optimization": 3,
-            "legacy_compatibility": 6
-        }
-    }
-
-# Export main classes and functions
-__all__ = [
-    "VioletServiceManager",
-    "VioletEnhancedServiceHandlers", 
-    "VioletLegacyServiceHandlers",
-    "VioletSmartServiceHandlers",
-    "async_register_enhanced_services",
-    "ALL_SERVICE_SCHEMAS",
-    "ENHANCED_SERVICE_SCHEMAS",
-    "LEGACY_SERVICE_SCHEMAS", 
-    "SMART_SERVICE_SCHEMAS",
-    "validate_service_call",
-    "get_service_statistics"
-]ioletPoolAPIError as err:
-                    _LOGGER.error("API error setting device mode for %s: %s", device_key, err)
-                    raise HomeAssistantError(f"Device mode change failed: {err}") from err
-            
-            await coordinator.async_request_refresh()
-    
-    async def handle_control_pump_advanced(self, call: ServiceCall) -> None:
-        """Advanced pump control with speed management."""
-        coordinators = await self.manager.get_coordinators_for_entities(call.data["entity_id"])
-        action = call.data["action"]
-        speed = call.data.get("speed", 2)
-        duration = call.data.get("duration", 0)
-        force_off_duration = call.data.get("force_off_duration", 600)
-        
-        for coordinator in coordinators:
-            for entity_id in call.data["entity_id"]:
-                device_key = self.manager.extract_device_key_from_entity_id(entity_id)
-                
-                if device_key != "PUMP":
-                    _LOGGER.warning("Entity %s is not a pump device", entity_id)
-                    continue
-                
-                try:
-                    if action == "speed_control":
-                        result = await coordinator.device.api.set_switch_state(
-                            key="PUMP", action=ACTION_ON, duration=duration, last_value=speed
-                        )
-                    elif action == "force_off":
-                        result = await coordinator.device.api.set_switch_state(
-                            key="PUMP", action=ACTION_OFF, duration=force_off_duration
-                        )
-                        self.manager.set_safety_lock("PUMP", force_off_duration)
-                    elif action == "eco_mode":
-                        result = await coordinator.device.api.set_switch_state(
-                            key="PUMP", action=ACTION_ON, duration=duration, last_value=1
-                        )
-                    elif action == "boost_mode":
-                        result = await coordinator.device.api.set_switch_state(
-                            key="PUMP", action=ACTION_ON, duration=duration or 3600, last_value=3
-                        )
-                    elif action == "auto_schedule":
-                        result = await coordinator.device.api.set_switch_state(
-                            key="PUMP", action=ACTION_AUTO
-                        )
-                    
-                    if result.get("success", True):
-                        _LOGGER.info("Pump action %s executed successfully", action)
-                    else:
-                        _LOGGER.error("Pump action %s failed: %s", action, result.get("response", result))
-                        
-                except VioletPoolAPIError as err:
-                    _LOGGER.error("API error in pump control: %s", err)
-                    raise HomeAssistantError(f"Pump control failed: {err}") from err
-            
-            await coordinator.async_request_refresh()
-    
-    async def handle_smart_dosing(self, call: ServiceCall) -> None:
-        """Smart dosing control with safety features."""
-        coordinators = await self.manager.get_coordinators_for_entities(call.data["entity_id"])
-        dosing_type = call.data["dosing_type"]
-        action = call.data["action"]
-        duration = call.data.get("duration", 30)
-        safety_override = call.data.get("safety_override", False)
-        target_value = call.data.get("target_value")
-        
-        dosing_key_map = {
-            "pH-": "DOS_4_PHM", "pH+": "DOS_5_PHP", 
-            "Chlor": "DOS_1_CL", "Flockmittel": "DOS_6_FLOC"
-        }
-        device_key = dosing_key_map.get(dosing_type)
-        
-        if not device_key:
-            raise HomeAssistantError(f"Unknown dosing type: {dosing_type}")
-        
-        for coordinator in coordinators:
-            try:
-                if not safety_override:
-                    safety_check = await self.manager.validate_dosing_safety(coordinator, device_key, duration)
-                    if not safety_check["valid"]:
-                        _LOGGER.error("Dosing safety check failed: %s", safety_check["error"])
-                        raise HomeAssistantError(f"Dosing safety check failed: {safety_check['error']}")
-                
-                if action == "manual_dose":
-                    result = await coordinator.device.api.set_switch_state(
-                        key=device_key, action=ACTION_MAN, duration=duration
-                    )
-                    if not safety_override and "safety_interval" in safety_check:
-                        self.manager.set_safety_lock(device_key, safety_check["safety_interval"])
-                        
-                elif action == "auto_calibrate":
-                    result = await coordinator.device.api.set_switch_state(
-                        key=device_key, action=ACTION_AUTO
-                    )
-                    
-                elif action == "safety_stop":
-                    result = await coordinator.device.api.set_switch_state(
-                        key=device_key, action=ACTION_OFF
-                    )
-                    
-                elif action == "schedule":
-                    result = await coordinator.device.api.set_switch_state(
-                        key=device_key, action=ACTION_AUTO
-                    )
-                
-                if result.get("success", True):
-                    _LOGGER.info("Smart dosing %s action %s executed", dosing_type, action)
-                else:
-                    _LOGGER.error("Smart dosing failed: %s", result.get("response", result))
-                    
-            except VioletPoolAPIError as err:
-                _LOGGER.error("API error in smart dosing: %s", err)
-                raise HomeAssistantError(f"Smart dosing failed: {err}") from err
-            
-            await coordinator.async_request_refresh()
-    
-    async def handle_manage_pv_surplus(self, call: ServiceCall) -> None:
-        """Advanced PV surplus management."""
-        coordinators = await self.manager.get_coordinators_for_entities(call.data["entity_id"])
-        mode = call.data["mode"]
-        pump_speed = call.data.get("pump_speed", 2)
-        priority_override = call.data.get("priority_override", False)
-        weather_dependent = call.data.get("weather_dependent", True)
-        
-        for coordinator in coordinators:
-            try:
-                if mode == "activate":
-                    result = await coordinator.device.api.set_pv_surplus(
-                        active=True, pump_speed=pump_speed
-                    )
-                elif mode == "deactivate":
-                    result = await coordinator.device.api.set_pv_surplus(active=False)
-                elif mode == "smart_control":
-                    current_pump_state = coordinator.data.get("PUMP", "")
-                    pump_state_info = get_device_state_info(current_pump_state, "PUMP")
-                    
-                    if pump_state_info.get("mode") == "auto":
-                        result = await coordinator.device.api.set_pv_surplus(
-                            active=True, pump_speed=pump_speed
-                        )
-                    else:
-                        result = {"success": True, "response": "PV surplus not activated - pump not in auto mode"}
-                elif mode == "schedule":
-                    result = await coordinator.device.api.set_switch_state(
-                        key="PVSURPLUS", action=ACTION_AUTO
-                    )
-                
-                if result.get("success", True):
-                    _LOGGER.info("PV surplus mode %s executed", mode)
-                else:
-                    _LOGGER.error("PV surplus management failed: %s", result.get("response", result))
-                    
-            except VioletPoolAPIError as err:
-                _LOGGER.error("API error in PV surplus management: %s", err)
-                raise HomeAssistantError(f"PV surplus management failed: {err}") from err
-            
-            await coordinator.async_request_refresh()
-    
-    async def handle_control_extension_relay(self, call: ServiceCall) -> None:
-        """Control extension relays with timer functionality."""
-        coordinators = await self.manager.get_coordinators_for_entities(call.data["entity_id"])
-        action = call.data["action"]
-        duration = call.data.get("duration", 3600)
-        pulse_duration = call.data.get("pulse_duration", 1)
-        repeat_count = call.data.get("repeat_count", 1)
-        
-        for coordinator in coordinators:
-            for entity_id in call.data["entity_id"]:
-                device_key = self.manager.extract_device_key_from_entity_id(entity_id)
-                
-                if not (device_key.startswith("EXT1_") or device_key.startswith("EXT2_") or device_key.startswith("OMNI_DC")):
-                    _LOGGER.warning("Entity %s is not an extension relay", entity_id)
-                    continue
-                
-                try:
-                    if action == "timer_on":
-                        result = await coordinator.device.api.set_switch_state(
-                            key=device_key, action=ACTION_ON, duration=duration
-                        )
-                    elif action == "timer_off":
-                        result = await coordinator.device.api.set_switch_state(
-                            key=device_key, action=ACTION_OFF, duration=duration
-                        )
-                    elif action == "pulse":
-                        for i in range(repeat_count):
-                            await coordinator.device.api.set_switch_state(
-                                key=device_key, action=ACTION_ON, duration=pulse_duration
-                            )
-                            await asyncio.sleep(pulse_duration + 1)
-                            await coordinator.device.api.set_switch_state(
-                                key=device_key, action=ACTION_OFF, duration=pulse_duration
-                            )
-                            if i < repeat_count - 1:
-                                await asyncio.sleep(pulse_duration + 1)
-                        result = {"success": True, "response": f"Pulse sequence completed {repeat_count} times"}
-                    elif action == "schedule":
-                        result = await coordinator.device.api.set_switch_state(
-                            key=device_key, action=ACTION_AUTO
-                        )
-                    
-                    if result.get("success", True):
-                        _LOGGER.info("Extension relay %s action %s executed", device_key, action)
-                    else:
-                        _LOGGER.error("Extension relay control failed: %s", result.get("response", result))
-                        
-                except VioletPoolAPIError as err:
-                    _LOGGER.error("API error in extension relay control: %s", err)
-                    raise HomeAssistantError(f"Extension relay control failed: {err}") from err
-            
-            await coordinator.async_request_refresh()
-    
-    async def handle_manage_digital_rules(self, call: ServiceCall) -> None:
-        """Manage digital input rules."""
-        device_id = call.data["device_id"]
-        rule_key = call.data["rule_key"]
-        action = call.data["action"]
-        delay = call.data.get("delay", 0)
-        
-        coordinator = await self.manager.get_coordinator_for_device(device_id)
-        if not coordinator:
-            raise HomeAssistantError(f"Device not found: {device_id}")
-        
-        try:
-            if action == "trigger":
-                result = await coordinator.device.api.trigger_digital_input_rule(rule_key)
-            elif action == "lock":
-                result = await coordinator.device.api.set_digital_input_rule_lock(rule_key, True)
-            elif action == "unlock":
-                result = await coordinator.device.api.set_digital_input_rule_lock(rule_key, False)
-            elif action == "schedule":
-                if delay > 0:
-                    self.hass.async_create_task(self._delayed_rule_trigger(coordinator, rule_key, delay))
-                    result = {"success": True, "response": f"Rule {rule_key} scheduled for {delay}s"}
-                else:
-                    result = await coordinator.device.api.trigger_digital_input_rule(rule_key)
-            elif action == "disable":
-                result = await coordinator.device.api.set_digital_input_rule_lock(rule_key, True)
-            
-            if result.get("success", True):
-                _LOGGER.info("Digital rule %s action %s executed", rule_key, action)
-            else:
-                _LOGGER.error("Digital rule management failed: %s", result.get("response", result))
-                
-        except VioletPoolAPIError as err:
-            _LOGGER.error("API error in digital rule management: %s", err)
-            raise HomeAssistantError(f"Digital rule management failed: {err}") from err
-        
-        await coordinator.async_request_refresh()
-    
-    async def _delayed_rule_trigger(self, coordinator: VioletPoolDataUpdateCoordinator, 
-                                  rule_key: str, delay_seconds: int) -> None:
-        """Execute delayed digital rule trigger."""
-        await asyncio.sleep(delay_seconds)
-        try:
-            result = await coordinator.device.api.trigger_digital_input_rule(rule_key)
-            if result.get("success", True):
-                _LOGGER.info("Delayed trigger executed for rule %s", rule_key)
-            await coordinator.async_request_refresh()
-        except Exception as err:
-            _LOGGER.error("Error in delayed rule trigger for %s: %s", rule_key, err)
-    
-    async def handle_control_dmx_scenes(self, call: ServiceCall) -> None:
-        """Advanced DMX scene control."""
-        device_id = call.data["device_id"]
-        action = call.data["action"]
-        scene_selection = call.data.get("scene_selection", [])
-        sequence_delay = call.data.get("sequence_delay", 2)
-        
-        coordinator = await self.manager.get_coordinator_for_device(device_id)
-        if not coordinator:
-            raise HomeAssistantError(f"Device not found: {device_id}")
-        
-        try:
-            if action == "all_on":
-                result = await coordinator.device.api.set_all_dmx_scenes(ACTION_ALLON)
-            elif action == "all_off":
-                result = await coordinator.device.api.set_all_dmx_scenes(ACTION_ALLOFF)
-            elif action == "all_auto":
-                result = await coordinator.device.api.set_all_dmx_scenes(ACTION_ALLAUTO)
-            elif action == "sequence":
-                if not scene_selection:
-                    scene_selection = [f"DMX_SCENE{i}" for i in range(1, 13)]
-                
-                for scene in scene_selection:
-                    await coordinator.device.api.set_switch_state(scene, ACTION_ON)
-                    await asyncio.sleep(sequence_delay)
-                    await coordinator.device.api.set_switch_state(scene, ACTION_OFF)
-                    
-                result = {"success": True, "response": f"Scene sequence completed with {len(scene_selection)} scenes"}
-            elif action == "random":
-                import random
-                all_scenes = [f"DMX_SCENE{i}" for i in range(1, 13)]
-                random_scenes = random.sample(all_scenes, min(5, len(all_scenes)))
-                
-                for scene in random_scenes:
-                    await coordinator.device.api.set_switch_state(scene, ACTION_ON)
-                    
-                result = {"success": True, "response": f"Random scenes activated: {', '.join(random_scenes)}"}
-            elif action == "party_mode":
-                await coordinator.device.api.set_all_dmx_scenes(ACTION_ALLON)
-                await coordinator.device.api.set_light_color_pulse()
-                result = {"success": True, "response": "Party mode activated"}
-            
-            if result.get("success", True):
-                _LOGGER.info("DMX scene action %s executed", action)
-            else:
-                _LOGGER.error("DMX scene control failed: %s", result.get("response", result))
-                
-        except VioletPoolAPIError as err:
-            _LOGGER.error("API error in DMX scene control: %s", err)
-            raise HomeAssistantError(f"DMX scene control failed: {err}") from err
-        
-        await coordinator.async_request_refresh()
-    
-    async def handle_manage_temperature(self, call: ServiceCall) -> None:
-        """Temperature management with profiles."""
-        coordinators = await self.manager.get_coordinators_for_entities(call.data["entity_id"])
-        action = call.data["action"]
-        temperature = call.data.get("temperature")
-        profile_duration = call.data.get("profile_duration", 0)
-        
-        temp_profiles = {
-            "eco_profile": 26.0,
-            "comfort_profile": 28.0,
-            "party_profile": 30.0,
-            "night_profile": 24.0
-        }
-        
-        for coordinator in coordinators:
-            for entity_id in call.data["entity_id"]:
-                device_key = self.manager.extract_device_key_from_entity_id(entity_id)
-                
-                if device_key not in ["HEATER", "SOLAR"]:
-                    _LOGGER.warning("Entity %s is not a temperature control device", entity_id)
-                    continue
-                
-                try:
-                    if action == "set_target" and temperature:
-                        result = await coordinator.device.api.set_device_temperature(device_key, temperature)
-                    elif action in temp_profiles:
-                        profile_temp = temp_profiles[action]
-                        result = await coordinator.device.api.set_device_temperature(device_key, profile_temp)
-                        
-                        if profile_duration > 0:
-                            original_temp = coordinator.data.get(f"{device_key}_TARGET_TEMP", 28.0)
-                            self.hass.async_create_task(
-                                self._restore_temperature_profile(coordinator, device_key, original_temp, profile_duration)
-                            )
-                    
-                    if result.get("success", True):
-                        _LOGGER.info("Temperature management %s executed for %s", action, device_key)
-                    else:
-                        _LOGGER.error("Temperature management failed: %s", result.get("response", result))
-                        
-                except VioletPoolAPIError as err:
-                    _LOGGER.error("API error in temperature management: %s", err)
-                    raise HomeAssistantError(f"Temperature management failed: {err}") from err
-            
-            await coordinator.async_request_refresh()
-    
-    async def _restore_temperature_profile(self, coordinator: VioletPoolDataUpdateCoordinator,
-                                         device_key: str, original_temp: float, delay_seconds: int) -> None:
-        """Restore temperature after profile duration."""
-        await asyncio.sleep(delay_seconds)
-        try:
-            result = await coordinator.device.api.set_device_temperature(device_key, original_temp)
-            if result.get("success", True):
-                _LOGGER.info("Temperature restored for %s to %.1f°C", device_key, original_temp)
-            await coordinator.async_request_refresh()
-        except Exception as err:
-            _LOGGER.error("Error restoring temperature for %s: %s", device_key, err)
-    
-    async def handle_advanced_water_analysis(self, call: ServiceCall) -> None:
-        """Advanced water analysis and testing."""
-        coordinators = await self.manager.get_coordinators_for_entities(call.data["entity_id"])
-        analysis_type = call.data["analysis_type"]
-        include_sensors = call.data.get("include_sensors", [])
-        save_results = call.data.get("save_results", True)
-        
-        for coordinator in coordinators:
-            try:
-                if analysis_type == "quick_test":
-                    result = await coordinator.device.api.start_water_analysis()
-                elif analysis_type == "full_analysis":
-                    result = await coordinator.device.api.start_water_analysis()
-                    await coordinator.async_request_refresh()
-                elif analysis_type == "calibration":
-                    result = await coordinator.device.api.start_water_analysis()
-                    await asyncio.sleep(30)
-                    await coordinator.async_request_refresh()
-                elif analysis_type == "trend_analysis":
-                    current_data = coordinator.data
-                    analysis_result = self._analyze_water_trends(current_data)
-                    result = {"success": True, "response": f"Trend analysis completed: {analysis_result}"}
-                
-                if result.get("success", True):
-                    _LOGGER.info("Water analysis %s completed", analysis_type)
-                    
-                    if save_results:
-                        self._save_analysis_results(coordinator, analysis_type, result)
-                else:
-                    _LOGGER.error("Water analysis failed: %s", result.get("response", result))
-                    
-            except VioletPoolAPIError as err:
-                _LOGGER.error("API error in water analysis: %s", err)
-                raise HomeAssistantError(f"Water analysis failed: {err}") from err
-            
-            await coordinator.async_request_refresh()
-    
-    def _analyze_water_trends(self, current_data: Dict) -> str:
-        """Analyze water quality trends."""
-        trends = []
-        
-        ph_value = current_data.get("pH_value")
-        if ph_value:
-            if ph_value < 7.0:
-                trends.append("pH trending acidic")
-            elif ph_value > 7.4:
-                trends.append("pH trending basic")
-            else:
-                trends.append("pH stable")
-        
-        orp_value = current_data.get("orp_value")
-        if orp_value:
-            if orp_value < 650:
-                trends.append("ORP low - increase chlorination")
-            elif orp_value > 750:
-                trends.append("ORP high - reduce chlorination")
-            else:
-                trends.append("ORP optimal")
-        
-        chlorine_value = current_data.get("pot_value")
-        if chlorine_value:
-            if chlorine_value < 0.5:
-                trends.append("Chlorine low")
-            elif chlorine_value > 1.5:
-                trends.append("Chlorine high")
-            else:
-                trends.append("Chlorine optimal")
-        
-        return "; ".join(trends) if trends else "All parameters stable"
-    
-    def _save_analysis_results(self, coordinator: VioletPoolDataUpdateCoordinator, 
-                             analysis_type: str, result: Dict) -> None:
-        """Save analysis results for future reference."""
-        if not hasattr(coordinator.device, '_analysis_history'):
-            coordinator.device._analysis_history = []
-        
-        analysis_record = {
-            "timestamp": datetime.now().isoformat(),
-            "type": analysis_type,
-            "result": result,
-            "water_params": {
-                "pH": coordinator.data.get("pH_value"),
-                "orp": coordinator.data.get("orp_value"), 
-                "chlorine": coordinator.data.get("pot_value"),
-                "temperature": coordinator.data.get("onewire1_value")
-            }
-        }
-        
-        coordinator.device._analysis_history.append(analysis_record)
-        
-        if len(coordinator.device._analysis_history) > 50:
-            coordinator.device._analysis_history = coordinator.device._analysis_history[-50:]
-        
-        _LOGGER.debug("Analysis results saved: %s", analysis_type)
-    
-    async def handle_system_maintenance(self, call: ServiceCall) -> None:
-        """System maintenance and diagnostics."""
-        device_id = call.data["device_id"]
-        maintenance_type = call.data["maintenance_type"]
-        diagnostic_level = call.data.get("diagnostic_level", "basic")
-        reset_scope = call.data.get("reset_scope", "errors_only")
-        
-        coordinator = await self.manager.get_coordinator_for_device(device_id)
-        if not coordinator:
-            raise HomeAssistantError(f"Device not found: {device_id}")
-        
-        try:
-            if maintenance_type == "enable":
-                result = await coordinator.device.api.set_maintenance_mode(True)
-            elif maintenance_type == "disable":
-                result = await coordinator.device.api.set_maintenance_mode(False)
-            elif maintenance_type == "diagnostic":
-                result = await self._execute_diagnostics(coordinator, diagnostic_level)
-            elif maintenance_type == "reset_errors":
-                result = await self._reset_device_errors(coordinator, reset_scope)
-            elif maintenance_type == "backup_config":
-                result = await self._backup_device_config(coordinator)
-            
-            if result.get("success", True):
-                _LOGGER.info("System maintenance %s completed", maintenance_type)
-            else:
-                _LOGGER.error("System maintenance failed: %s", result.get("response", result))
-                
-        except VioletPoolAPIError as err:
-            _LOGGER.error("API error in system maintenance: %s", err)
-            raise HomeAssistantError(f"System maintenance failed: {err}") from err
-        
-        await coordinator.async_request_refresh()
-    
-    async def _execute_diagnostics(self, coordinator: VioletPoolDataUpdateCoordinator, level: str) -> Dict:
-        """Execute diagnostic tests."""
-        diagnostics = {"success": True, "diagnostics": {}}
-        
-        if level in ["basic", "extended", "full"]:
-            diagnostics["diagnostics"]["sensors"] = self._check_sensor_health(coordinator.data)
-        
-        if level in ["extended", "full"]:
-            diagnostics["diagnostics"]["devices"] = self._check_device_health(coordinator.data)
-        
-        if level == "full":
-            try:
-                test_result = await coordinator.device.api.get_readings("ALL")
-                diagnostics["diagnostics"]["api_connectivity"] = "OK" if test_result else "FAILED"
-            except Exception:
-                diagnostics["diagnostics"]["api_connectivity"] = "FAILED"
-        
-        return diagnostics
-    
-    def _check_sensor_health(self, data: Dict) -> Dict:
-        """Check sensor health status."""
-        sensor_health = {}
-        
-        temp_sensors = ["onewire1_value", "onewire2_value", "onewire3_value", "onewire4_value", "onewire5_value"]
-        for sensor in temp_sensors:
-            value = data.get(sensor)
-            if value is not None:
-                try:
-                    temp_val = float(value)
-                    if -20 <= temp_val <= 60:
-                        sensor_health[sensor] = "OK"
-                    else:
-                        sensor_health[sensor] = f"OUT_OF_RANGE ({temp_val}°C)"
-                except (ValueError, TypeError):
-                    sensor_health[sensor] = "INVALID_VALUE"
-            else:
-                sensor_health[sensor] = "NO_DATA"
-        
-        chem_sensors = {"pH_value": (6.0, 8.5), "orp_value": (400, 1000), "pot_value": (0, 5)}
-        for sensor, (min_val, max_val) in chem_sensors.items():
-            value = data.get(sensor)
-            if value is not None:
-                try:
-                    chem_val = float(value)
-                    if min_val <= chem_val <= max_val:
-                        sensor_health[sensor] = "OK"
-                    else:
-                        sensor_health[sensor] = f"OUT_OF_RANGE ({chem_val})"
-                except (ValueError, TypeError):
-                    sensor_health[sensor] = "INVALID_VALUE"
-            else:
-                sensor_health[sensor] = "NO_DATA"
-        
-        return sensor_health
-    
-    def _check_device_health(self, data: Dict) -> Dict:
-        """Check device operational health."""
-        device_health = {}
-        
-        main_devices = ["PUMP", "HEATER", "SOLAR", "DOS_1_CL", "DOS_4_PHM", "DOS_5_PHP"]
-        for device in main_devices:
-            state = data.get(device, "")
-            state_info = get_device_state_info(state, device)
-            
-            if state_info.get("mode") == "error":
-                device_health[device] = "ERROR"
-            elif state_info.get("mode") == "maintenance":
-                device_health[device] = "MAINTENANCE"
-            else:
-                device_health[device] = "OK"
-        
-        return device_health
-    
-    async def _reset_device_errors(self, coordinator: VioletPoolDataUpdateCoordinator, scope: str) -> Dict:
-        """Reset device error states."""
-        reset_actions = []
-        
-        if scope in ["errors_only", "all_data"]:
-            main_devices = ["PUMP", "HEATER", "SOLAR", "DOS_1_CL", "DOS_4_PHM", "DOS_5_PHP"]
-            for device in main_devices:
-                state = coordinator.data.get(device, "")
-                state_info = get_device_state_info(state, device)
-                
-                if state_info.get("mode") == "error":
-                    try:
-                        await coordinator.device.api.set_switch_state(device, ACTION_AUTO)
-                        reset_actions.append(f"{device} reset to AUTO")
-                    except Exception as err:
-                        reset_actions.append(f"{device} reset FAILED: {err}")
-        
-        return {"success": True, "response": f"Reset completed: {'; '.join(reset_actions)}"}
-    
-    async def _backup_device_config(self, coordinator: VioletPoolDataUpdateCoordinator) -> Dict:
-        """Backup device configuration."""
-        try:
-            config_data = await coordinator.device.api.get_readings("ALL")
-            
-            if not hasattr(coordinator.device, '_config_backups'):
-                coordinator.device._config_backups = []
-            
-            backup_record = {
-                "timestamp": datetime.now().isoformat(),
-                "config_data": config_data,
-                "active_features": coordinator.device.active_features
-            }
-            
-            coordinator.device._config_backups.append(backup_record)
-            
-            if len(coordinator.device._config_backups) > 10:
-                coordinator.device._config_backups = coordinator.device._config_backups[-10:]
-            
-            return {"success": True, "response": "Configuration backup created successfully"}
-            
-        except Exception as err:
-            return {"success": False, "response": f"Backup failed: {err}"}
-
-    async def _schedule_mode_restoration(self, coordinator: VioletPoolDataUpdateCoordinator, 
-                                       device_key: str, delay_seconds: int) -> None:
-        """Schedule automatic mode restoration."""
-        await asyncio.sleep(delay_seconds)
-        try:
-            result = await coordinator.device.api.set_switch_state(
-                key=device_key, action=ACTION_AUTO
-            )
-            if result.get("success", True):
-                _LOGGER.info("Restored device %s to AUTO mode after %d seconds", device_key, delay_seconds)
-            await coordinator.async_request_refresh()
-        except Exception as err:
-            _LOGGER.error("Error restoring device %s to AUTO: %s", device_key, err)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # LEGACY SERVICE HANDLERS - 6 SERVICES
@@ -1629,6 +1454,124 @@ class VioletLegacyServiceHandlers:
                     raise HomeAssistantError(f"Force off failed: {err}") from err
             
             await coordinator.async_request_refresh()
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SERVICE REGISTRATION FUNCTION
+# ═══════════════════════════════════════════════════════════════════════════════
+
+async def async_register_enhanced_services(hass: HomeAssistant) -> None:
+    """Register all enhanced services for Violet Pool Controller."""
+    if hass.services.has_service(DOMAIN, "set_device_mode"):
+        _LOGGER.debug("Enhanced services already registered")
+        return
+    
+    # Initialize service manager and handlers
+    service_manager = VioletServiceManager(hass)
+    enhanced_handlers = VioletEnhancedServiceHandlers(service_manager)
+    legacy_handlers = VioletLegacyServiceHandlers(service_manager)
+    smart_handlers = VioletSmartServiceHandlers(service_manager)
+    
+    # Register Enhanced Services (10 services)
+    hass.services.async_register(
+        DOMAIN, "set_device_mode", enhanced_handlers.handle_set_device_mode,
+        schema=ENHANCED_SERVICE_SCHEMAS["set_device_mode"]
+    )
+    
+    hass.services.async_register(
+        DOMAIN, "control_pump_advanced", enhanced_handlers.handle_control_pump_advanced,
+        schema=ENHANCED_SERVICE_SCHEMAS["control_pump_advanced"]
+    )
+    
+    hass.services.async_register(
+        DOMAIN, "smart_dosing", enhanced_handlers.handle_smart_dosing,
+        schema=ENHANCED_SERVICE_SCHEMAS["smart_dosing"]
+    )
+    
+    hass.services.async_register(
+        DOMAIN, "manage_pv_surplus", enhanced_handlers.handle_manage_pv_surplus,
+        schema=ENHANCED_SERVICE_SCHEMAS["manage_pv_surplus"]
+    )
+    
+    hass.services.async_register(
+        DOMAIN, "control_extension_relay", enhanced_handlers.handle_control_extension_relay,
+        schema=ENHANCED_SERVICE_SCHEMAS["control_extension_relay"]
+    )
+    
+    hass.services.async_register(
+        DOMAIN, "manage_digital_rules", enhanced_handlers.handle_manage_digital_rules,
+        schema=ENHANCED_SERVICE_SCHEMAS["manage_digital_rules"]
+    )
+    
+    hass.services.async_register(
+        DOMAIN, "control_dmx_scenes", enhanced_handlers.handle_control_dmx_scenes,
+        schema=ENHANCED_SERVICE_SCHEMAS["control_dmx_scenes"]
+    )
+    
+    hass.services.async_register(
+        DOMAIN, "manage_temperature", enhanced_handlers.handle_manage_temperature,
+        schema=ENHANCED_SERVICE_SCHEMAS["manage_temperature"]
+    )
+    
+    hass.services.async_register(
+        DOMAIN, "advanced_water_analysis", enhanced_handlers.handle_advanced_water_analysis,
+        schema=ENHANCED_SERVICE_SCHEMAS["advanced_water_analysis"]
+    )
+    
+    hass.services.async_register(
+        DOMAIN, "system_maintenance", enhanced_handlers.handle_system_maintenance,
+        schema=ENHANCED_SERVICE_SCHEMAS["system_maintenance"]
+    )
+    
+    # Register Legacy Services (6 services)
+    hass.services.async_register(
+        DOMAIN, "turn_auto", legacy_handlers.handle_turn_auto,
+        schema=LEGACY_SERVICE_SCHEMAS["turn_auto"]
+    )
+    
+    hass.services.async_register(
+        DOMAIN, "set_pv_surplus", legacy_handlers.handle_set_pv_surplus,
+        schema=LEGACY_SERVICE_SCHEMAS["set_pv_surplus"]
+    )
+    
+    hass.services.async_register(
+        DOMAIN, "manual_dosing", legacy_handlers.handle_manual_dosing,
+        schema=LEGACY_SERVICE_SCHEMAS["manual_dosing"]
+    )
+    
+    hass.services.async_register(
+        DOMAIN, "set_light_color_pulse", legacy_handlers.handle_set_light_color_pulse,
+        schema=LEGACY_SERVICE_SCHEMAS["set_light_color_pulse"]
+    )
+    
+    hass.services.async_register(
+        DOMAIN, "set_extension_timer", legacy_handlers.handle_set_extension_timer,
+        schema=LEGACY_SERVICE_SCHEMAS["set_extension_timer"]
+    )
+    
+    hass.services.async_register(
+        DOMAIN, "force_device_off", legacy_handlers.handle_force_device_off,
+        schema=LEGACY_SERVICE_SCHEMAS["force_device_off"]
+    )
+    
+    # Register Smart Services (3 services)
+    hass.services.async_register(
+        DOMAIN, "smart_pool_optimization", smart_handlers.handle_smart_pool_optimization,
+        schema=SMART_SERVICE_SCHEMAS["smart_pool_optimization"]
+    )
+    
+    hass.services.async_register(
+        DOMAIN, "adaptive_chemical_balancing", smart_handlers.handle_adaptive_chemical_balancing,
+        schema=SMART_SERVICE_SCHEMAS["adaptive_chemical_balancing"]
+    )
+    
+    hass.services.async_register(
+        DOMAIN, "seasonal_pool_preparation", smart_handlers.handle_seasonal_pool_preparation,
+        schema=SMART_SERVICE_SCHEMAS["seasonal_pool_preparation"]
+    )
+    
+    _LOGGER.info("Enhanced services registered successfully: %d enhanced + %d legacy + %d smart services", 
+                len(ENHANCED_SERVICE_SCHEMAS), len(LEGACY_SERVICE_SCHEMAS), len(SMART_SERVICE_SCHEMAS))
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # SERVICE REGISTRATION AND CLEANUP

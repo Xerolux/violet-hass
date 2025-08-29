@@ -2097,57 +2097,32 @@ quick_deep_clean:
   target:
     device:
       integration: violet_pool_controller
-  
-    mode:
-      name: "Operating Mode"
-      description: "Device operating mode"
-      required: true
+  fields:
+    clean_intensity:
+      name: "Cleaning Intensity"
+      description: "Intensity of the deep cleaning cycle"
+      default: "normal"
       selector:
         select:
           options:
-            - value: "auto"
-              label: "🤖 AUTO Mode"
-            - value: "manual_on" 
-              label: "🟢 Manual ON"
-            - value: "manual_off"
-              label: "🔴 Manual OFF"
-            - value: "force_off"
-              label: "⛔ Force OFF (Safety Lock)"
-    duration:
-      name: "Duration"
-      description: "Duration in seconds (0 = permanent)"
-      default: 0
+            - value: "light"
+              label: "🌊 Light Clean (2h)"
+            - value: "normal"
+              label: "💪 Normal Clean (4h)"
+            - value: "intensive"
+              label: "🌪️ Intensive Clean (6h)"
+    include_backwash:
+      name: "Include Backwash"
+      description: "Perform backwash as part of cleaning cycle"
+      default: true
       selector:
-        number:
-          min: 0
-          max: 86400
-          step: 60
-          unit_of_measurement: "seconds"
-          mode: box
-    speed:
-      name: "Pump Speed"
-      description: "Speed level for pump devices (1=Eco, 2=Normal, 3=Boost)"
-      default: 2
+        boolean:
+    chemical_boost:
+      name: "Chemical Boost"
+      description: "Add extra chemical dosing during cleaning"
+      default: false
       selector:
-        select:
-          options:
-            - value: "1"
-              label: "🌱 Eco (Low)"
-            - value: "2"
-              label: "⚡ Normal"
-            - value: "3"
-              label: "🚀 Boost (High)"
-    restore_after:
-      name: "Auto-Restore After"
-      description: "Automatically restore to AUTO mode after X seconds (0 = disabled)"
-      default: 0
-      selector:
-        number:
-          min: 0
-          max: 86400
-          step: 300
-          unit_of_measurement: "seconds"
-          mode: box
+        boolean:
 
 # 💧 2. Intelligent Pump Control
 control_pump_advanced:

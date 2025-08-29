@@ -1,0 +1,153 @@
+# Input Helper für Pool-Steuerung
+# In configuration.yaml oder über UI erstellen
+
+input_select:
+  # Pumpengeschwindigkeit wählen
+  pump_speed:
+    name: Pumpengeschwindigkeit
+    options:
+      - "1 - Eco (Niedrig)"
+      - "2 - Normal (Mittel)"
+      - "3 - Boost (Hoch)"
+    initial: "2 - Normal (Mittel)"
+    icon: mdi:speedometer
+
+  # Dosierungstyp wählen
+  dosing_type:
+    name: Dosierungstyp
+    options:
+      - "Chlor"
+      - "pH-"
+      - "pH+"
+      - "Flockmittel"
+    initial: "Chlor"
+    icon: mdi:flask
+
+input_number:
+  # Pumpen-Timer
+  pump_duration:
+    name: Pumpen-Laufzeit
+    min: 0
+    max: 86400
+    step: 300
+    unit_of_measurement: "s"
+    mode: box
+    icon: mdi:timer
+
+  # Dosierungs-Timer
+  dosing_duration:
+    name: Dosierungsdauer
+    min: 5
+    max: 300
+    step: 5
+    unit_of_measurement: "s"
+    mode: slider
+    icon: mdi:timer-sand
+
+  # Rückspül-Timer
+  backwash_duration:
+    name: Rückspüldauer
+    min: 60
+    max: 900
+    step: 30
+    unit_of_measurement: "s"
+    mode: slider
+    icon: mdi:timer-cog
+
+  # Erweiterungsrelais-Timer
+  extension_timer:
+    name: Relais-Laufzeit
+    min: 60
+    max: 86400
+    step: 60
+    unit_of_measurement: "s"
+    mode: box
+    icon: mdi:timer-outline
+
+input_boolean:
+  # Sicherheits-Override
+  dosing_safety_override:
+    name: Dosierung Sicherheitsintervall überschreiben
+    icon: mdi:shield-alert
+
+  # Auto-Wiederherstellung
+  auto_restore_mode:
+    name: Automatische Wiederherstellung nach Timer
+    icon: mdi:restore
+
+input_datetime:
+  # Geplante Rückspülung
+  backwash_schedule:
+    name: Nächste Rückspülung
+    has_date: true
+    has_time: true
+
+  # Wartungsmodus Ende
+  maintenance_end:
+    name: Wartungsmodus Ende
+    has_date: true
+    has_time: true
+
+---
+
+# SCRIPT FÜR ERWEITERTE STEUERUNG:
+
+script:
+  # Pumpe mit UI-Parametern starten
+  start_pump_with_params:
+    alias: "Pumpe mit Parametern starten"
+    sequence:
+      - service: violet_pool_controller.set_pump_speed
+        data:
+          entity_id: switch.violet_pool_controller_pump
+          speed: |
+            {% set speed_text = states('input_select.pump_speed') %}
+            {% if '1 -' in speed_text %}1
+            {% elif '2 -' in speed_text %}2
+            {% elif '3 -' in speed_text %}3
+            {% else %}2{% endif %}
+          duration: "{{ states('input_number.pump_duration') | int }}"
+
+  # Dosierung mit UI-Parametern
+  dose_with_params:
+    alias: "Dosierung mit Parametern"
+    sequence:
+      - service: violet_pool_controller.manual_dosing
+        data:
+          entity_id: |
+            {% set type = states('input_select.dosing_type') %}
+            {% if type == 'Chlor' %}switch.violet_pool_controller_dos_1_cl
+            {% elif type == 'pH-' %}switch.violet_pool_controller_dos_4_phm
+            {% elif type == 'pH+' %}switch.violet_pool_controller_dos_5_php
+            {% elif type == 'Flockmittel' %}switch.violet_pool_controller_dos_6_floc
+            {% else %}switch.violet_pool_controller_dos_1_cl{% endif %}
+          duration: "{{ states('input_number.dosing_duration') | int }}"
+          safety_override: "{{ is_state('input_boolean.dosing_safety_override', 'on') }}"
+
+  # Rückspülung mit Parametern
+  backwash_with_params:
+    alias: "Rückspülung mit Parametern"
+    sequence:
+      - service: violet_pool_controller.trigger_backwash
+        data:
+          entity_ids:
+            - switch.violet_pool_controller_backwash
+          duration: "{{ states('input_number.backwash_duration') | int }}"
+
+  # Alle Geräte auf AUTO mit Timer
+  set_all_auto_with_timer:
+    alias: "Alle auf AUTO (mit Timer)"
+    sequence:
+      - service: violet_pool_controller.set_auto_mode
+        data:
+          entity_id:
+            - switch.violet_pool_controller_pump
+            - switch.violet_pool_controller_heater
+            - switch.violet_pool_controller_solar
+            - switch.violet_pool_controller_dos_1_cl
+            - switch.violet_pool_controller_dos_4_phm
+            - switch.violet_pool_controller_dos_5_php
+          restore_after: |
+            {% if is_state('input_boolean.auto_restore_mode', 'on') %}
+              {{ states('input_number.pump_duration') | int }}
+            {% else %}0{% endif %}

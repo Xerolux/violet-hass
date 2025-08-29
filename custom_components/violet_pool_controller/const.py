@@ -1524,26 +1524,26 @@ __all__ = [
 
 DEBUG_INFO = {
     "integration_version": "0.2.0.0",
-    "total_switches": 50+,                    # Alle Haupt- und Erweiterungsschalter
-    "total_binary_sensors": 25+,              # Mit digitalen Eingängen
-    "total_device_parameters": 70+,           # Alle Geräte-Konfigurationen
+    "total_switches": 50,                    # Alle Haupt- und Erweiterungsschalter
+    "total_binary_sensors": 25,              # Mit digitalen Eingängen
+    "total_device_parameters": 70,           # Alle Geräte-Konfigurationen
     "total_state_mappings": 15,               # 3-State-Mappings
     "supported_features": 13,                 # Pool-Features
     "enhanced_services": 9,                   # Erweiterte Services
-    "3_state_devices": 30+,                   # Geräte mit 3-State-Support
-    "api_templates": 60+,                     # API-Request-Templates
+    "3_state_devices": 30,                   # Geräte mit 3-State-Support
+    "api_templates": 60,                     # API-Request-Templates
     "temperature_sensors": 6,                 # OneWire-Basis-Sensoren
     "water_chemistry_sensors": 3,             # pH, ORP, Chlor
     "analog_sensors": 4,                      # ADC/IMP-Sensoren
     "setpoint_definitions": 4,                # Sollwert-Definitionen
-    "unit_mappings": 50+,                     # Unit-Zuordnungen
-    "no_unit_sensors": 100+,                  # Text/Status-Sensoren
-    "sensor_feature_mappings": 80+,           # Feature-Zuordnungen
-    "state_icons": 40+,                       # Icon-Variationen
+    "unit_mappings": 50,                     # Unit-Zuordnungen
+    "no_unit_sensors": 100,                  # Text/Status-Sensoren
+    "sensor_feature_mappings": 80,           # Feature-Zuordnungen
+    "state_icons": 40,                       # Icon-Variationen
     "validation_rules": 5,                    # Validierungsregeln
-    "error_codes": 15+,                       # Fehlercode-Definitionen
+    "error_codes": 15,                       # Fehlercode-Definitionen
     "extension_relais": 16,                   # EXT1_1-8 + EXT2_1-8
     "dmx_scenes": 12,                         # DMX_SCENE1-12
     "digital_rules": 7,                       # DIRULE_1-7
-    "api_request_templates": 15+              # Template-Variationen
+    "api_request_templates": 15              # Template-Variationen
 }
