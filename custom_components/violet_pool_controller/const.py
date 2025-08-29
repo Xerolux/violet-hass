@@ -390,7 +390,8 @@ TEMP_SENSORS = {
 }
 
 WATER_CHEM_SENSORS = {
-    "pH_value": {"name": "pH-Wert", "icon": "mdi:flask", "unit": "pH"},
+    # FIXME: pH sensor darf KEINE unit haben (Home Assistant Spec)
+    "pH_value": {"name": "pH-Wert", "icon": "mdi:flask", "unit": None},
     "orp_value": {"name": "Redoxpotential", "icon": "mdi:flash", "unit": "mV"},
     "pot_value": {"name": "Chlorgehalt", "icon": "mdi:test-tube", "unit": "mg/l"},
 }
@@ -533,15 +534,27 @@ _PUMP_RPMS = {f"PUMP_RPM_{i}": "RPM" for i in range(4)}
 _PUMP_RPM_VALUES = {f"PUMP_RPM_{i}_VALUE": "RPM" for i in range(4)}
 
 UNIT_MAP = {
-    # Temperature sensors
+    # Temperature sensors (korrekt)
     "water_temp": "°C", "air_temp": "°C", "temp_value": "°C",
-    "SYSTEM_cpu_temperature": "°C", "SYSTEM_carrier_cpu_temperature": "°C",
-    # Water chemistry
-    "pH_value": "pH", "orp_value": "mV", "pot_value": "mg/l",
+    "SYSTEM_cpu_temperature": "°C",
+    "SYSTEM_carrier_cpu_temperature": "°C", 
+    "SYSTEM_DosageModule_cpu_temperature": "°C",  # ← Das ist der fehlende!
+    "SYSTEM_dosagemodule_cpu_temperature": "°C",  # ← Eventuell lowercase
+    "CPU_TEMP": "°C",
+    "CPU_TEMP_CARRIER": "°C",
+    "CPU_TEMPERATURE": "°C",
+    
+    # Water chemistry (pH OHNE unit!)
+    "orp_value": "mV", "pot_value": "mg/l",
+    # pH_value hat absichtlich KEINE unit mehr!
+    
     # Analog values
     "ADC1_value": "bar", "ADC2_value": "cm", "IMP1_value": "cm/s", "IMP2_value": "m³/h",
     # System values
-    "CPU_UPTIME": "s", "DEVICE_UPTIME": "s", "RUNTIME": "s",
+    # CPU_UPTIME wird als TEXT behandelt, daher keine Unit
+    **{f"onewire{i}_value": "°C" for i in range(1, 13)},
+    **{f"PUMP_RPM_{i}": "RPM" for i in range(4)},
+    **{f"PUMP_RPM_{i}_VALUE": "RPM" for i in range(4)},
 }
 
 # Generierte Mappings hinzufügen

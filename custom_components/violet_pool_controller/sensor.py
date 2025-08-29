@@ -1,4 +1,4 @@
-"""Sensor Integration für den Violet Pool Controller - FINAL COMPLETE FIX."""
+"""Sensor Integration für den Violet Pool Controller - COMPLETE UNIT AND VALUE FIX."""
 import logging
 from datetime import datetime, timezone
 
@@ -45,7 +45,7 @@ RUNTIME_SENSORS = {
     *{f"OMNI_DC{i}_RUNTIME" for i in range(1, 6)}, "HEATER_POSTRUN_TIME", "SOLAR_POSTRUN_TIME",
     "REFILL_TIMEOUT", "CPU_UPTIME", "DEVICE_UPTIME", "RUNTIME", "POSTRUN_TIME",
     *{f"PUMP_RPM_{i}_RUNTIME" for i in range(4)},
-    # FIXED: Add PUMP_RPM_X_LAST_ON/OFF as text sensors
+    # Add PUMP_RPM_X_LAST_ON/OFF as text sensors
     *{f"PUMP_RPM_{i}_LAST_ON" for i in range(4)},
     *{f"PUMP_RPM_{i}_LAST_OFF" for i in range(4)},
 }
@@ -110,16 +110,24 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
             return str(raw_value)
 
 def determine_device_class(key: str, unit: str | None) -> SensorDeviceClass | None:
-    """Bestimme Device-Klasse - FIXED."""
+    """Bestimme Device-Klasse mit korrekter Unit-Validierung."""
+    # FIXME 1: pH sensor sollte keine unit haben
+    if key == "pH_value":
+        return SensorDeviceClass.PH
+    
+    # FIXME 2: CPU temperature sensors sollten °C haben
+    if key in {"SYSTEM_cpu_temperature", "SYSTEM_carrier_cpu_temperature", "SYSTEM_DosageModule_cpu_temperature"}:
+        return SensorDeviceClass.TEMPERATURE
+    
+    # Text/Runtime sensors ohne device class
     if key in RUNTIME_SENSORS or key in TEXT_VALUE_SENSORS or key in TIME_FORMAT_SENSORS:
         return None
         
     key_lower = key.lower()
     
-    if unit == "°C" or "temp" in key_lower or key in {"SYSTEM_cpu_temperature", "SYSTEM_carrier_cpu_temperature"}:
+    # Normale Temperatursensoren
+    if unit == "°C" or "temp" in key_lower:
         return SensorDeviceClass.TEMPERATURE
-    elif key == "pH_value":
-        return SensorDeviceClass.PH
     elif unit == "%" and "humidity" in key_lower:
         return SensorDeviceClass.HUMIDITY
     elif unit == "bar" or "pressure" in key_lower:
@@ -130,18 +138,21 @@ def determine_device_class(key: str, unit: str | None) -> SensorDeviceClass | No
         return SensorDeviceClass.POWER
     elif key in _TIMESTAMP_KEYS and key not in TIME_FORMAT_SENSORS:
         return SensorDeviceClass.TIMESTAMP
-    # REMOVED: RPM frequency classification to avoid unit mismatch
         
     return None
 
 def determine_state_class(key: str, unit: str | None) -> SensorStateClass | None:
-    """Bestimme State-Klasse - FIXED."""
+    """Bestimme State-Klasse."""
     if (key in TEXT_VALUE_SENSORS or key in _TIMESTAMP_KEYS or 
         key in NO_UNIT_SENSORS or key in RUNTIME_SENSORS or 
         key in TIME_FORMAT_SENSORS):
         return None
         
-    if unit in {"°C", "bar", "mV", "V", "W", "mg/l", "ppm", "%", "RPM", "pH"}:
+    if unit in {"°C", "bar", "mV", "V", "W", "mg/l", "ppm", "%", "RPM"}:
+        return SensorStateClass.MEASUREMENT
+        
+    # pH hat keine Unit mehr, aber ist trotzdem measurement
+    if key == "pH_value":
         return SensorStateClass.MEASUREMENT
         
     key_lower = key.lower()
@@ -152,7 +163,9 @@ def determine_state_class(key: str, unit: str | None) -> SensorStateClass | None
 
 def get_icon(unit: str | None, key: str) -> str:
     """Bestimme Icon basierend auf Unit und Key."""
-    if unit == "°C":
+    if key == "pH_value":
+        return "mdi:flask"
+    elif unit == "°C":
         return "mdi:thermometer"
     elif unit in {"bar", "Pa"}:
         return "mdi:gauge"
@@ -162,8 +175,6 @@ def get_icon(unit: str | None, key: str) -> str:
         return "mdi:lightning-bolt"
     elif unit in {"mg/l", "ppm"}:
         return "mdi:test-tube"
-    elif unit == "pH":
-        return "mdi:flask"
     elif unit == "RPM":
         return "mdi:speedometer"
     elif key in _TIMESTAMP_KEYS:
@@ -183,11 +194,6 @@ def should_skip_sensor(key: str, raw_value) -> bool:
     if raw_str in ("[]", "{}", ""):
         return True
         
-    # Skip runtime sensors with time formatting if they contain invalid time formats
-    if key in RUNTIME_SENSORS and key not in TIME_FORMAT_SENSORS:
-        if ":" in raw_str and any(s in raw_str.lower() for s in ("h", "m", "s")) and not raw_str.replace(".", "").isdigit():
-            return True
-            
     # Skip non-temperature onewire sensors
     if key in NON_TEMPERATURE_SENSORS:
         return True
@@ -199,24 +205,33 @@ def should_skip_sensor(key: str, raw_value) -> bool:
     return False
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
-    """Richte Sensoren ein."""
+    """Richte Sensoren ein mit korrekten Units."""
     coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     active_features = config_entry.options.get(CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, []))
     sensors = []
     data_keys = set(coordinator.data.keys())
     
-    # Fix CPU temperature units before processing
-    cpu_temp_fixes = {
+    # UNIT FIXES
+    unit_fixes = {
+        # FIXME 1: pH sensor sollte keine unit haben (per Home Assistant Spec)
+        "pH_value": None,
+        
+        # FIXME 2: CPU temperature sensors müssen °C haben
         "SYSTEM_cpu_temperature": "°C",
         "SYSTEM_carrier_cpu_temperature": "°C", 
+        "SYSTEM_DosageModule_cpu_temperature": "°C",
         "CPU_TEMP": "°C",
         "CPU_TEMP_CARRIER": "°C",
     }
     
     # Apply unit fixes to UNIT_MAP
-    for key, unit in cpu_temp_fixes.items():
+    for key, unit in unit_fixes.items():
         if key in data_keys:
-            UNIT_MAP[key] = unit
+            if unit is None and key in UNIT_MAP:
+                # Remove unit for pH
+                del UNIT_MAP[key]
+            else:
+                UNIT_MAP[key] = unit
     
     # Combine all predefined sensors
     all_predefined_sensors = {**TEMP_SENSORS, **WATER_CHEM_SENSORS, **ANALOG_SENSORS}
@@ -231,15 +246,20 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
         feature_id = SENSOR_FEATURE_MAP.get(key)
         if feature_id and feature_id not in active_features:
             continue
+        
+        # Apply unit fixes
+        unit = info.get("unit")
+        if key in unit_fixes:
+            unit = unit_fixes[key]
             
         # Use proper SensorEntityDescription
         sensors.append(VioletSensor(coordinator, config_entry, SensorEntityDescription(
             key=key,
             name=info["name"],
             icon=info.get("icon"),
-            native_unit_of_measurement=info.get("unit"),
-            device_class=determine_device_class(key, info.get("unit")),
-            state_class=determine_state_class(key, info.get("unit")),
+            native_unit_of_measurement=unit,
+            device_class=determine_device_class(key, unit),
+            state_class=determine_state_class(key, unit),
             entity_category=EntityCategory.DIAGNOSTIC if key.startswith(("SYSTEM_", "CPU_")) else None,
         )))
 
@@ -252,9 +272,13 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
         feature_id = SENSOR_FEATURE_MAP.get(key)
         if feature_id and feature_id not in active_features:
             continue
-            
-        # Determine unit from mapping or none
-        unit = None if key in NO_UNIT_SENSORS else UNIT_MAP.get(key)
+        
+        # Determine unit from mapping or none, with fixes applied
+        unit = None
+        if key not in NO_UNIT_SENSORS:
+            unit = UNIT_MAP.get(key)
+            if key in unit_fixes:
+                unit = unit_fixes[key]
         
         # Create nice name from key
         name = key.replace("_", " ").title()
@@ -272,6 +296,6 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
 
     if sensors:
         async_add_entities(sensors)
-        _LOGGER.info("%d Sensoren hinzugefügt", len(sensors))
+        _LOGGER.info("%d Sensoren hinzugefügt (mit Unit-Fixes)", len(sensors))
     else:
         _LOGGER.warning("Keine Sensoren hinzugefügt")
