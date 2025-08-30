@@ -118,12 +118,13 @@
                     "feature_cover_control": "🪟 Abdeckungssteuerung",
                     "feature_backwash": "🔄 Rückspül-Automatik",
                     "feature_pv_surplus": "🔋 PV-Überschuss",
-                    "feature_filter_control": "🌊 Filterpumpe",
-                    "feature_water_level": "📏 Füllstand-Monitor", 
-                    "feature_water_refill": "🚰 Auto-Nachfüllung",
-                    "feature_led_lighting": "💡 LED-Beleuchtung",
-                    "feature_digital_inputs": "🔌 Digitale Eingänge",
-                    "feature_extension_outputs": "🔗 Erweiterungsmodule"
+                    "feature_filter_control": "🌊 Filterpumpe
+```json
+                "feature_water_level": "📏 Füllstand-Monitor", 
+                "feature_water_refill": "🚰 Auto-Nachfüllung",
+                "feature_led_lighting": "💡 LED-Beleuchtung",
+                "feature_digital_inputs": "🔌 Digitale Eingänge",
+                "feature_extension_outputs": "🔗 Erweiterungsmodule"
                 },
                 "data_description": {
                     "polling_interval": "Alle X Sekunden Daten abrufen (10-60s empfohlen)",
@@ -139,11 +140,12 @@
                     "feature_cover_control": "Abdeckung zeitgesteuert bewegen",
                     "feature_backwash": "Filter zur optimalen Zeit reinigen",
                     "feature_pv_surplus": "Solarstrom-Überschuss verwerten",
-                    "feature_filter_control": "Pumpe bedarfsgerecht betreiben",
+                    "feature_filter_control": "Pumpe bedទ
+System: bedarfsgerecht steuern",
                     "feature_water_level": "Wasserstand überwachen",
                     "feature_water_refill": "Bei Bedarf automatisch nachfüllen",
                     "feature_led_lighting": "Stimmungsvolle Poolbeleuchtung",
-                    "feature_digital_inputs": "Externe Sensoren integrieren",
+                    "feature_digital_inputs": "Externe Sensoren integrier",
                     "feature_extension_outputs": "Zusätzliche Geräte ansteuern"
                 }
             }
@@ -185,6 +187,7 @@
                 "entity_id": {
                     "name": "🎯 Dosierungssystem",
                     "description": "Wähle das Dosierungssystem (pH+, pH-, Chlor, etc.)."
+ imagery
                 },
                 "duration_seconds": {
                     "name": "⏰ Dosierdauer (Sekunden)",
@@ -197,7 +200,8 @@
             "description": "Stellt die **gewünschte Pooltemperatur** ein.\n\n🏊 Der Controller heizt automatisch auf diese Temperatur und hält sie konstant.",
             "fields": {
                 "entity_ids": {
-                    "name": "🎯 Heizungssysteme",
+                    "name": "� ♥
+System: ot; Heizungssysteme",
                     "description": "Wähle Heizung und/oder Solarabsorber aus."
                 },
                 "temperature": {
@@ -341,9 +345,9 @@
         },
         "dmx_mode": {
             "options": {
-                "ALLON": "💡 Alle Lichter einschalten",
-                "ALLOFF": "🌙 Alle Lichter ausschalten",
-                "ALLAUTO": "🤖 Alle Lichter auf Automatik"
+                "allon": "💡 Alle Lichter einschalten",
+                "alloff": "🌙 Alle Lichter ausschalten",
+                "allauto": "🤖 Alle Lichter auf Automatik"
             }
         }
     },

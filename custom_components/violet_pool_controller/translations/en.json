@@ -61,7 +61,7 @@
             "already_configured": "A device with this IP address is already configured.",
             "unknown": "An unknown error occurred."
         },
-        "abort": {
+        "abort: {
             "already_configured": "Device is already configured",
             "cannot_connect": "Connection failed", 
             "invalid_auth": "Invalid authentication",
@@ -289,9 +289,9 @@
         },
         "dmx_mode": {
             "options": {
-                "ALLON": "All On",
-                "ALLOFF": "All Off",
-                "ALLAUTO": "All Auto"
+                "all_on": "All On",
+                "all_off": "All Off",
+                "all_auto": "All Auto"
             }
         }
     },
