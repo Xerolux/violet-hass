@@ -1,9 +1,9 @@
-"""Climate Integration für den Violet Pool Controller."""
+"""Climate Integration für den Violet Pool Controller - FIXED VERSION."""
 import logging
-from dataclasses import dataclass
+from typing import Optional
 
 from homeassistant.components.climate import (
-    ClimateEntity, ClimateEntityFeature, HVACMode, HVACAction
+    ClimateEntity, ClimateEntityFeature, HVACMode, HVACAction, ClimateEntityDescription
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfTemperature
@@ -32,16 +32,8 @@ CLIMATE_FEATURE_MAP = {"HEATER": "heating", "SOLAR": "solar"}
 
 WATER_TEMP_SENSORS = ["onewire1_value", "water_temp", "WATER_TEMPERATURE", "temp_value"]
 
-@dataclass
-class VioletClimateEntityDescription:
-    """Beschreibung der Violet Pool Climate-Entities."""
-    key: str
-    name: str
-    icon: str
-    feature_id: str | None = None
-
 class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
-    """Repräsentiert Heizungs- oder Solarsteuerung."""
+    """Repräsentiert Heizungs- oder Solarsteuerung - FIXED VERSION."""
     _attr_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_supported_features = ClimateEntityFeature.TARGET_TEMPERATURE
     _attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT, HVACMode.AUTO]
@@ -50,13 +42,18 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
     _attr_target_temperature_step = 0.5
 
     def __init__(self, coordinator: VioletPoolDataUpdateCoordinator, config_entry: ConfigEntry, climate_type: str) -> None:
-        """Initialisiere Climate-Entity."""
+        """Initialisiere Climate-Entity - FIXED VERSION."""
         name = "Heizung" if climate_type == "HEATER" else "Solarabsorber"
         icon = "mdi:radiator" if climate_type == "HEATER" else "mdi:solar-power"
-        self.entity_description = VioletClimateEntityDescription(
-            key=climate_type, name=name, icon=icon, feature_id=CLIMATE_FEATURE_MAP.get(climate_type)
+        
+        # FIXED: Use proper ClimateEntityDescription with all required attributes
+        climate_description = ClimateEntityDescription(
+            key=climate_type,
+            name=name,
+            icon=icon,
         )
-        super().__init__(coordinator, config_entry, self.entity_description)
+        
+        super().__init__(coordinator, config_entry, climate_description)
         self.climate_type = climate_type
         self._attr_target_temperature = self._get_target_temperature()
         self._attr_hvac_mode = self._get_hvac_mode()
@@ -72,12 +69,12 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         return HEATER_HVAC_MODES.get(self.get_int_value(self.climate_type, 0), HVACMode.OFF)
 
     @property
-    def hvac_action(self) -> str | None:
+    def hvac_action(self) -> Optional[str]:
         """Gib HVAC-Aktion zurück."""
         return HEATER_HVAC_ACTIONS.get(self.get_int_value(self.climate_type, 0), HVACAction.IDLE)
 
     @property
-    def current_temperature(self) -> float | None:
+    def current_temperature(self) -> Optional[float]:
         """Gib Wassertemperatur zurück."""
         for sensor_key in WATER_TEMP_SENSORS:
             if value := self.get_float_value(sensor_key, None):
@@ -128,7 +125,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             raise HomeAssistantError(f"HVAC-Modus setzen fehlgeschlagen: {err}") from err
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
-    """Richte Climate-Entities ein."""
+    """Richte Climate-Entities ein - FIXED VERSION."""
     coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     active_features = config_entry.options.get(CONF_ACTIVE_FEATURES, [])
     entities = []

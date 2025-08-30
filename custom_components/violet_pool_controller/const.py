@@ -5,7 +5,7 @@ from homeassistant.helpers.entity import EntityCategory
 
 # Integration
 DOMAIN = "violet_pool_controller"
-INTEGRATION_VERSION = "0.2.0.0"  # Updated for 3-state support
+INTEGRATION_VERSION = "v0.1.0-6"  # Updated for 3-state support
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 LOGGER_NAME = f"{DOMAIN}_logger"
 
@@ -49,6 +49,7 @@ DISINFECTION_METHODS = ["chlorine", "salt", "bromine", "active_oxygen", "uv", "o
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Basierend auf API-Dokumentation Kapitel 26.2.1: Filterpumpe States 0-6
+# DEVICE_STATE_MAPPING - Ihre Vorhandene Struktur (korrekt)
 DEVICE_STATE_MAPPING = {
     # String-basierte Zustände (häufigste Form)
     "ON": {"mode": "manual", "active": True, "priority": 80},
@@ -344,13 +345,140 @@ DOSING_FUNCTIONS = {
 
 # Legacy State Map (für Rückwärtskompatibilität)
 STATE_MAP = {
-    # Numeric states
-    **{i: bool(i in {1, 3, 4}) for i in range(7)},
-    **{str(i): bool(i in {"1", "3", "4"}) for i in range(7)},
-    # String states
-    "ON": True, "OFF": False, "AUTO": False, "TRUE": True, "FALSE": False,
-    "OPEN": True, "CLOSED": False, "OPENING": True, "CLOSING": True, "STOPPED": False,
+    # *** CRITICAL FIX: Numeric states mit Integer UND String keys ***
+    # Numeric states als Integer (direkte API-Werte)
+    0: False,    # AUTO-Standby (OFF)
+    1: True,     # Manuell EIN
+    2: True,     # AUTO-Aktiv (ON)
+    3: True,     # AUTO-Zeitsteuerung (ON)
+    4: True,     # Manuell forciert EIN (ON) ← DAS WAR DER HAUPTFEHLER!
+    5: False,    # AUTO-Wartend (OFF)
+    6: False,    # Manuell AUS
+    
+    # Numeric states als String (falls API als String liefert)
+    "0": False,  # AUTO-Standby (OFF)
+    "1": True,   # Manuell EIN
+    "2": True,   # AUTO-Aktiv (ON)
+    "3": True,   # AUTO-Zeitsteuerung (ON)
+    "4": True,   # Manuell forciert EIN (ON) ← DAS WAR DER HAUPTFEHLER!
+    "5": False,  # AUTO-Wartend (OFF)
+    "6": False,  # Manuell AUS
+    
+    # String-basierte States (bestehend, korrekt)
+    "ON": True, 
+    "OFF": False, 
+    "AUTO": False,  # AUTO ohne Aktivität = OFF anzeige
+    "TRUE": True, 
+    "FALSE": False,
+    "OPEN": True, 
+    "CLOSED": False, 
+    "OPENING": True, 
+    "CLOSING": True, 
+    "STOPPED": False,
+    "MAN": True,      # Manual mode = ON
+    "MANUAL": True,   # Manual mode = ON
+    "ACTIVE": True,
+    "RUNNING": True,
+    "IDLE": False,
 }
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# HELPER FUNCTIONS für State-Interpretation
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def get_device_state_info(raw_state: str, device_key: str = None) -> dict:
+    """
+    Ermittle erweiterte Zustandsinformationen für ein Gerät.
+    
+    Args:
+        raw_state: Roher Zustandswert aus API
+        device_key: Geräteschlüssel für spezifische Behandlung
+        
+    Returns:
+        Dict mit mode, active, priority, description
+    """
+    if not raw_state:
+        return {"mode": "auto", "active": False, "priority": 50, "desc": "Unknown"}
+        
+    upper_state = str(raw_state).upper().strip()
+    
+    # Prüfe Device-State-Mapping
+    if upper_state in DEVICE_STATE_MAPPING:
+        return DEVICE_STATE_MAPPING[upper_state]
+    
+    # Fallback für unbekannte Zustände
+    return {"mode": "auto", "active": None, "priority": 10, "desc": f"Unknown state: {raw_state}"}
+
+def legacy_is_on_state(raw_state: str) -> bool:
+    """
+    Legacy-Funktion für einfache On/Off-Prüfung.
+    Für Rückwärtskompatibilität mit bestehenden Binary Sensors.
+    
+    Args:
+        raw_state: Roher Zustandswert
+        
+    Returns:
+        bool: True wenn "eingeschaltet"
+    """
+    if not raw_state:
+        return False
+        
+    # Teste zuerst Integer-Werte direkt
+    try:
+        int_state = int(raw_state) if isinstance(raw_state, (int, float)) else int(str(raw_state))
+        if int_state in STATE_MAP:
+            return STATE_MAP[int_state]
+    except (ValueError, TypeError):
+        pass
+    
+    # Dann String-Werte
+    upper_state = str(raw_state).upper().strip()
+    if upper_state in STATE_MAP:
+        return STATE_MAP[upper_state]
+    
+    # Fallback zu erweiterten Zustandsinformationen
+    state_info = get_device_state_info(raw_state)
+    if state_info.get("active") is not None:
+        return state_info.get("active")
+    
+    # Letzter Fallback: False
+    return False
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STATE DEBUGGING HELPER
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def debug_state_mapping(raw_state, device_key=None):
+    """Debug helper to understand how states are mapped."""
+    print(f"🔍 DEBUG State Mapping für {device_key or 'UNKNOWN'}:")
+    print(f"  Raw state: {raw_state} (type: {type(raw_state)})")
+    
+    # Test Integer mapping
+    try:
+        int_val = int(raw_state) if isinstance(raw_state, (int, float)) else int(str(raw_state))
+        if int_val in STATE_MAP:
+            print(f"  ✅ Integer mapping: {int_val} → {STATE_MAP[int_val]}")
+        else:
+            print(f"  ❌ Integer {int_val} not in STATE_MAP")
+    except (ValueError, TypeError):
+        print(f"  ❌ Cannot convert to integer")
+    
+    # Test String mapping
+    str_val = str(raw_state).upper().strip()
+    if str_val in STATE_MAP:
+        print(f"  ✅ String mapping: '{str_val}' → {STATE_MAP[str_val]}")
+    else:
+        print(f"  ❌ String '{str_val}' not in STATE_MAP")
+    
+    # Test Legacy function
+    result = legacy_is_on_state(raw_state)
+    print(f"  🎯 Final result: {result}")
+    
+    return result
+
+# Beispiel-Verwendung für Debugging:
+# debug_state_mapping(4, "PUMP")  → sollte True ergeben
+# debug_state_mapping("4", "PUMP") → sollte True ergeben
 
 # Erweiterte State-to-Mode Mappings für 3-State-Unterstützung
 def get_device_state_info(raw_state: str, device_key: str = None) -> dict:
