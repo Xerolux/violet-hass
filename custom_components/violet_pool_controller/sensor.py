@@ -1,4 +1,4 @@
-"""Sensor Integration für den Violet Pool Controller - COMPLETE UNIT AND VALUE FIX."""
+"""Sensor Integration für den Violet Pool Controller - COMPLETE AI3 FIX VERSION."""
 import logging
 from datetime import datetime, timezone
 
@@ -109,6 +109,76 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
         except (ValueError, TypeError):
             return str(raw_value)
 
+class VioletFlowRateSensor(VioletPoolControllerEntity, SensorEntity):
+    """Spezieller Förderleistungs-Sensor mit AI3/IMP2 Priorität - COMPLETE FIX."""
+
+    def __init__(self, coordinator: VioletPoolDataUpdateCoordinator, config_entry: ConfigEntry) -> None:
+        """Initialisiere Förderleistungs-Sensor."""
+        description = SensorEntityDescription(
+            key="flow_rate_ai3_priority",
+            name="Förderleistung",
+            icon="mdi:pump",
+            native_unit_of_measurement="m³/h",
+            device_class=SensorDeviceClass.VOLUME_FLOW_RATE,
+            state_class=SensorStateClass.MEASUREMENT,
+        )
+        super().__init__(coordinator, config_entry, description)
+        _LOGGER.info("🔧 Förderleistungs-Sensor mit AI3-Priorität initialisiert")
+
+    @property
+    def native_value(self) -> float | None:
+        """Priorisiere AI3_value über IMP2_value für Förderleistung."""
+        # Prüfe AI3_value zuerst (höchste Priorität)
+        ai3_value = self.coordinator.data.get("AI3_value")
+        if ai3_value is not None:
+            try:
+                value = round(float(ai3_value), 2)
+                _LOGGER.debug("✅ Förderleistung von AI3: %.2f m³/h", value)
+                return value
+            except (ValueError, TypeError):
+                _LOGGER.warning("⚠️ AI3_value kann nicht zu Float konvertiert werden: %s", ai3_value)
+
+        # Fallback auf IMP2_value
+        imp2_value = self.coordinator.data.get("IMP2_value")
+        if imp2_value is not None:
+            try:
+                value = round(float(imp2_value), 2)
+                _LOGGER.debug("✅ Förderleistung von IMP2 (Fallback): %.2f m³/h", value)
+                return value
+            except (ValueError, TypeError):
+                _LOGGER.warning("⚠️ IMP2_value kann nicht zu Float konvertiert werden: %s", imp2_value)
+
+        _LOGGER.debug("❌ Keine Förderleistungsdaten verfügbar (AI3/IMP2)")
+        return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, str]:
+        """Zusätzliche Attribute für Debugging und Transparenz."""
+        ai3_value = self.coordinator.data.get("AI3_value")
+        imp2_value = self.coordinator.data.get("IMP2_value")
+        
+        source = "None"
+        if ai3_value is not None:
+            source = "AI3"
+        elif imp2_value is not None:
+            source = "IMP2"
+
+        return {
+            "ai3_raw_value": str(ai3_value) if ai3_value is not None else "Nicht verfügbar",
+            "imp2_raw_value": str(imp2_value) if imp2_value is not None else "Nicht verfügbar", 
+            "data_source": source,
+            "sensor_priority": "AI3 > IMP2",
+            "unit": "m³/h",
+            "description": "Förderleistung der Filterpumpe"
+        }
+
+    @property
+    def available(self) -> bool:
+        """Sensor ist verfügbar wenn mindestens eine Quelle verfügbar ist."""
+        ai3_available = self.coordinator.data.get("AI3_value") is not None
+        imp2_available = self.coordinator.data.get("IMP2_value") is not None
+        return super().available and (ai3_available or imp2_available)
+
 def determine_device_class(key: str, unit: str | None) -> SensorDeviceClass | None:
     """Bestimme Device-Klasse mit korrekter Unit-Validierung."""
     # FIXME 1: pH sensor sollte keine unit haben
@@ -118,6 +188,10 @@ def determine_device_class(key: str, unit: str | None) -> SensorDeviceClass | No
     # FIXME 2: CPU temperature sensors sollten °C haben
     if key in {"SYSTEM_cpu_temperature", "SYSTEM_carrier_cpu_temperature", "SYSTEM_DosageModule_cpu_temperature"}:
         return SensorDeviceClass.TEMPERATURE
+    
+    # Flow rate sensors
+    if key in {"AI3_value", "IMP2_value", "flow_rate_ai3_priority"} or "flow" in key.lower():
+        return SensorDeviceClass.VOLUME_FLOW_RATE
     
     # Text/Runtime sensors ohne device class
     if key in RUNTIME_SENSORS or key in TEXT_VALUE_SENSORS or key in TIME_FORMAT_SENSORS:
@@ -148,7 +222,7 @@ def determine_state_class(key: str, unit: str | None) -> SensorStateClass | None
         key in TIME_FORMAT_SENSORS):
         return None
         
-    if unit in {"°C", "bar", "mV", "V", "W", "mg/l", "ppm", "%", "RPM"}:
+    if unit in {"°C", "bar", "mV", "V", "W", "mg/l", "ppm", "%", "RPM", "m³/h", "cm/s"}:
         return SensorStateClass.MEASUREMENT
         
     # pH hat keine Unit mehr, aber ist trotzdem measurement
@@ -165,6 +239,8 @@ def get_icon(unit: str | None, key: str) -> str:
     """Bestimme Icon basierend auf Unit und Key."""
     if key == "pH_value":
         return "mdi:flask"
+    elif key in {"AI3_value", "IMP2_value", "flow_rate_ai3_priority"} or "flow" in key.lower():
+        return "mdi:pump"
     elif unit == "°C":
         return "mdi:thermometer"
     elif unit in {"bar", "Pa"}:
@@ -177,6 +253,10 @@ def get_icon(unit: str | None, key: str) -> str:
         return "mdi:test-tube"
     elif unit == "RPM":
         return "mdi:speedometer"
+    elif unit == "m³/h":
+        return "mdi:pump"
+    elif unit == "cm/s":
+        return "mdi:water-pump"
     elif key in _TIMESTAMP_KEYS:
         return "mdi:clock"
     elif key in TEXT_VALUE_SENSORS or key in TIME_FORMAT_SENSORS:
@@ -204,11 +284,46 @@ def should_skip_sensor(key: str, raw_value) -> bool:
         
     return False
 
+def apply_ai3_imp2_mapping(coordinator_data: dict) -> None:
+    """Wende AI3/IMP2 Mapping für Förderleistung an - COMPLETE FIX."""
+    if not coordinator_data:
+        return
+        
+    ai3_value = coordinator_data.get("AI3_value")
+    imp2_value = coordinator_data.get("IMP2_value")
+    
+    _LOGGER.info("🔍 AI3/IMP2 FÖRDERLEISTUNG MAPPING:")
+    _LOGGER.info("  AI3_value: %s", ai3_value)
+    _LOGGER.info("  IMP2_value: %s", imp2_value)
+    
+    # Priorisiere AI3_value über IMP2_value
+    if ai3_value is not None:
+        # Sichere originalen IMP2 Wert falls vorhanden
+        if imp2_value is not None:
+            coordinator_data["IMP2_value_original"] = imp2_value
+            
+        # Ersetze IMP2_value durch AI3_value für bestehende Sensoren
+        coordinator_data["IMP2_value"] = ai3_value
+        _LOGGER.info("  ✅ AI3_value (%s) mapped zu IMP2_value für Kompatibilität", ai3_value)
+        
+        # Behalte AI3_value für speziellen Sensor
+        coordinator_data["AI3_value_reference"] = ai3_value
+        _LOGGER.info("  ✅ AI3_value als Referenz beibehalten")
+        
+    elif imp2_value is not None:
+        _LOGGER.info("  ✅ Verwende originalen IMP2_value (%s)", imp2_value)
+    else:
+        _LOGGER.warning("  ⚠️ Weder AI3_value noch IMP2_value verfügbar")
+
 async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
-    """Richte Sensoren ein mit korrekten Units."""
+    """Richte Sensoren ein mit AI3/IMP2 Fix und korrekten Units - COMPLETE VERSION."""
     coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     active_features = config_entry.options.get(CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, []))
     sensors = []
+    
+    # *** AI3/IMP2 FÖRDERLEISTUNG MAPPING ANWENDEN ***
+    apply_ai3_imp2_mapping(coordinator.data)
+    
     data_keys = set(coordinator.data.keys())
     
     # UNIT FIXES
@@ -222,6 +337,11 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
         "SYSTEM_DosageModule_cpu_temperature": "°C",
         "CPU_TEMP": "°C",
         "CPU_TEMP_CARRIER": "°C",
+        
+        # FIXME 3: Flow rate sensors einheitlich
+        "AI3_value": "m³/h",
+        "IMP2_value": "m³/h",
+        "AI3_value_reference": "m³/h",
     }
     
     # Apply unit fixes to UNIT_MAP
@@ -232,7 +352,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
                 del UNIT_MAP[key]
             else:
                 UNIT_MAP[key] = unit
-    
+
     # Combine all predefined sensors
     all_predefined_sensors = {**TEMP_SENSORS, **WATER_CHEM_SENSORS, **ANALOG_SENSORS}
 
@@ -263,10 +383,19 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
             entity_category=EntityCategory.DIAGNOSTIC if key.startswith(("SYSTEM_", "CPU_")) else None,
         )))
 
+    # *** SPEZIELLER FÖRDERLEISTUNGS-SENSOR MIT AI3-PRIORITÄT ***
+    if any(key in coordinator.data for key in ["AI3_value", "IMP2_value"]):
+        sensors.append(VioletFlowRateSensor(coordinator, config_entry))
+        _LOGGER.info("✅ Förderleistungs-Sensor mit AI3-Priorität hinzugefügt")
+
     # Add dynamic sensors from coordinator data
     for key in data_keys - set(all_predefined_sensors):
         raw_value = coordinator.data.get(key)
         if should_skip_sensor(key, raw_value):
+            continue
+            
+        # Skip already handled special sensors
+        if key in {"AI3_value_reference", "IMP2_value_original"}:
             continue
             
         feature_id = SENSOR_FEATURE_MAP.get(key)
@@ -296,6 +425,15 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
 
     if sensors:
         async_add_entities(sensors)
-        _LOGGER.info("%d Sensoren hinzugefügt (mit Unit-Fixes)", len(sensors))
+        _LOGGER.info("✅ %d Sensoren hinzugefügt (mit AI3/IMP2-Fix und Unit-Fixes)", len(sensors))
+        
+        # Final debug info
+        if any(key in coordinator.data for key in ["AI3_value", "IMP2_value"]):
+            ai3 = coordinator.data.get("AI3_value")
+            imp2 = coordinator.data.get("IMP2_value")
+            _LOGGER.info("🎯 FINAL FÖRDERLEISTUNG STATUS:")
+            _LOGGER.info("  AI3_value: %s", ai3)
+            _LOGGER.info("  IMP2_value: %s (möglicherweise von AI3 überschrieben)", imp2)
+            _LOGGER.info("  Spezieller Förderleistungs-Sensor: AKTIV")
     else:
-        _LOGGER.warning("Keine Sensoren hinzugefügt")
+        _LOGGER.warning("❌ Keine Sensoren hinzugefügt")
