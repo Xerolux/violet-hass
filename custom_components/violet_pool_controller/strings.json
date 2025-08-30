@@ -1,6 +1,16 @@
 {
     "config": {
         "step": {
+            "disclaimer": {
+                "title": "⚠️ Rechtlicher Disclaimer",
+                "description": "**WICHTIGER RECHTLICHER HHint: HINWEIS - VOLLSTÄNDIGER HAFTUNGSAUSSCHLUSS**\n\n🔴 **DIESE SOFTWARE STEUERT KRITISCHE POOLSYSTEME UND CHEMIKALIENDOSIERUNG!**\n\n**NUTZUNG AUF EIGENE GEFAHR:**\n• **EIGENVERANTWORTUNG**: Vollständige Nutzung auf eigenes Risiko\n• **CHEMISCHE GEFAHREN**: Falsche Dosierung kann zu Gesundheitsschäden führen\n• **TECHNISCHE RISIKEN**: Fehlfunktionen können Sach- und Wasserschäden verursachen\n• **SICHERHEITSÜBERSTEUERUNG**: Software kann Sicherheitsmechanismen deaktivieren\n• **FERNSTEUERUNG**: Kritische Systeme ohne lokale Aufsicht steuerbar\n\n**⚖️ HAFTUNGSAUSSCHLUSS:**\nDer Entwickler übernimmt **KEINERLEI HAFTUNG** für:\n• Personen- oder Sachschäden jeder Art\n• Gesundheitsschäden durch falsche Wasserchemie\n• Umweltschäden oder Gewässerverunreinigung\n• Geräteschäden, Betriebsausfälle, finanzielle Verluste\n• Datenschutz- oder Sicherheitsverletzungen\n\n**🔧 FUNKTIONSUMFANG (RISIKEN):**\n• Automatische Steuerung von Pumpen, Heizungen, Elektrogeräten\n• Chemikaliendosierung (pH-Regulatoren, Chlor, Flockmittel)\n• Übersteuerung von Sicherheitsintervallen und Grenzwerten\n• Manipulation von Temperatur-, Druck-, Füllstandsregelungen\n• Steuerung von Abdeckungen (Verletzungsgefahr durch bewegliche Teile)\n\n**🚨 VORAUSSETZUNGEN & EMPFEHLUNGEN:**\n• Installation nur durch Fachpersonal oder mit entsprechenden Kenntnissen\n• Regelmäßige manuelle Kontrolle aller automatisierten Funktionen\n• Manuelle Wassertests trotz Automatisierung weiterhin erforderlich\n• Einhaltung örtlicher Vorschriften und Sicherheitsbestimmungen\n• Immer manuellen Zugang zu allen Systemen sicherstellen\n• Bei Störungen sofort alle automatischen Funktionen deaktivieren\n\n**📋 RECHTLICHE BEDINGUNGEN:**\n• Software wird \"AS IS\" ohne Gewährleistung bereitgestellt\n• Kein Anspruch auf Support, Updates oder Fehlerbehebung\n• Bei kommerziellem Einsatz gelten erhöhte Sorgfaltspflichten\n• Compliance mit DSGVO/Datenschutz liegt in Ihrer Verantwortung\n• Diese Integration unterliegt deutschem Recht\n\n**Durch Akzeptieren bestätigen Sie:**\n✅ Diesen Disclaimer vollständig gelesen und verstanden zu haben\n✅ Alle Risiken zu akzeptieren und volle Verantwortung zu übernehmen\n✅ Den Entwickler von jeder Haftung freizustellen\n✅ Die Software auf eigene Gefahr und eigenes Risiko zu verwenden\n✅ Für alle Schäden und Folgen selbst aufzukommen\n\n**⛔ Bei Unsicherheit oder Unverständnis: INSTALLATION ABBRECHEN!**",
+                "data": {
+                    "agreement": "⚠️ Ich habe den Disclaimer gelesen, verstanden und stimme allen Bedingungen zu. Ich übernehme die volle Verantwortung und stelle den Entwickler von jeder Haftung frei."
+                },
+                "data_description": {
+                    "agreement": "WICHTIG: Nur aktivieren wenn Sie alle Risiken verstehen und akzeptieren. Bei Ablehnung wird die Installation abgebrochen."
+                }
+            },
             "user": {
                 "title": "🌐 Controller-Verbindung",
                 "description": "Verbinde deinen **Violet Pool Controller** mit Home Assistant\n\n💡 **Tipp:** Stelle sicher, dass sich der Controller im gleichen Netzwerk befindet.\n\n📖 Hilfe benötigt? → [Violet Integration Guide](https://github.com/xerolux/violet-hass)",
@@ -48,13 +58,13 @@
                     "enable_heating": "🔥 Heizungssteuerung",
                     "enable_solar": "☀️ Solarabsorber",
                     "enable_ph_control": "🧪 pH-Automatik",
-                    "enable_chlorine_control": "💧 Chlor-Management", 
+                    "enable_chlorine_control": "💧 Chlor-Management",
                     "enable_cover_control": "🪟 Abdeckungssteuerung",
                     "enable_backwash": "🔄 Rückspül-Automatik",
                     "enable_pv_surplus": "🔋 PV-Überschuss",
                     "enable_filter_control": "🌊 Filterpumpe",
                     "enable_water_level": "📏 Füllstand-Monitor",
-                    "enable_water_refill": "🚰 Auto-Nachfüllung", 
+                    "enable_water_refill": "🚰 Auto-Nachfüllung",
                     "enable_led_lighting": "💡 LED-Beleuchtung",
                     "enable_digital_inputs": "🔌 Digitale Eingänge",
                     "enable_extension_outputs": "🔗 Erweiterungsmodule"
@@ -94,7 +104,7 @@
         },
         "abort": {
             "already_configured": "♻️ Controller bereits eingerichtet",
-            "cannot_connect": "🔌 Verbindung fehlgeschlagen", 
+            "cannot_connect": "🔌 Verbindung fehlgeschlagen",
             "invalid_auth": "🔐 Ungültige Anmeldedaten",
             "unknown": "❓ Unbekannter Fehler"
         }
@@ -106,7 +116,7 @@
                 "description": "**Optimiere deine Pool-Automatisierung**\n\n⚙️ Hier kannst du alle Einstellungen nach deinen Wünschen anpassen.\n\n💡 **Tipp:** Teste verschiedene Intervalle um die perfekte Balance zwischen Aktualität und Systemlast zu finden.",
                 "data": {
                     "polling_interval": "⏱️ Datenabfrage-Intervall",
-                    "timeout_duration": "⏰ Verbindungs-Timeout", 
+                    "timeout_duration": "⏰ Verbindungs-Timeout",
                     "retry_attempts": "🔄 Wiederholungsversuche",
                     "pool_size": "📏 Pool-Volumen",
                     "pool_type": "🏊 Pool-Typ",
@@ -118,13 +128,12 @@
                     "feature_cover_control": "🪟 Abdeckungssteuerung",
                     "feature_backwash": "🔄 Rückspül-Automatik",
                     "feature_pv_surplus": "🔋 PV-Überschuss",
-                    "feature_filter_control": "🌊 Filterpumpe
-```json
-                "feature_water_level": "📏 Füllstand-Monitor", 
-                "feature_water_refill": "🚰 Auto-Nachfüllung",
-                "feature_led_lighting": "💡 LED-Beleuchtung",
-                "feature_digital_inputs": "🔌 Digitale Eingänge",
-                "feature_extension_outputs": "🔗 Erweiterungsmodule"
+                    "feature_filter_control": "🌊 Filterpumpe",
+                    "feature_water_level": "📏 Füllstand-Monitor",
+                    "feature_water_refill": "🚰 Auto-Nachfüllung",
+                    "feature_led_lighting": "💡 LED-Beleuchtung",
+                    "feature_digital_inputs": "🔌 Digitale Eingänge",
+                    "feature_extension_outputs": "🔗 Erweiterungsmodule"
                 },
                 "data_description": {
                     "polling_interval": "Alle X Sekunden Daten abrufen (10-60s empfohlen)",
@@ -140,12 +149,11 @@
                     "feature_cover_control": "Abdeckung zeitgesteuert bewegen",
                     "feature_backwash": "Filter zur optimalen Zeit reinigen",
                     "feature_pv_surplus": "Solarstrom-Überschuss verwerten",
-                    "feature_filter_control": "Pumpe bedទ
-System: bedarfsgerecht steuern",
+                    "feature_filter_control": "Pumpe bedarfsgerecht steuern",
                     "feature_water_level": "Wasserstand überwachen",
                     "feature_water_refill": "Bei Bedarf automatisch nachfüllen",
                     "feature_led_lighting": "Stimmungsvolle Poolbeleuchtung",
-                    "feature_digital_inputs": "Externe Sensoren integrier",
+                    "feature_digital_inputs": "Externe Sensoren integrieren",
                     "feature_extension_outputs": "Zusätzliche Geräte ansteuern"
                 }
             }
@@ -187,7 +195,6 @@ System: bedarfsgerecht steuern",
                 "entity_id": {
                     "name": "🎯 Dosierungssystem",
                     "description": "Wähle das Dosierungssystem (pH+, pH-, Chlor, etc.)."
- imagery
                 },
                 "duration_seconds": {
                     "name": "⏰ Dosierdauer (Sekunden)",
@@ -200,8 +207,7 @@ System: bedarfsgerecht steuern",
             "description": "Stellt die **gewünschte Pooltemperatur** ein.\n\n🏊 Der Controller heizt automatisch auf diese Temperatur und hält sie konstant.",
             "fields": {
                 "entity_ids": {
-                    "name": "� ♥
-System: ot; Heizungssysteme",
+                    "name": "🎯 Heizungssysteme",
                     "description": "Wähle Heizung und/oder Solarabsorber aus."
                 },
                 "temperature": {
@@ -211,7 +217,7 @@ System: ot; Heizungssysteme",
             }
         },
         "set_ph_target": {
-            "name": "🧪 pH-Sollwert einstellen", 
+            "name": "🧪 pH-Sollwert einstellen",
             "description": "Definiert den **idealen pH-Wert** für automatische Dosierung.\n\n⚖️ Empfohlener Bereich: 7.0-7.4 für optimale Wasserqualität und Hautverträglichkeit.",
             "fields": {
                 "entity_ids": {
@@ -229,7 +235,7 @@ System: ot; Heizungssysteme",
             "description": "Bestimmt den **Ziel-Chlorgehalt** für sichere Desinfektion.\n\n🦠 Ausreichend Chlor eliminiert Bakterien, zu viel reizt Haut und Augen.",
             "fields": {
                 "entity_ids": {
-                    "name": "🎯 Chlor-Dosierungssystem", 
+                    "name": "🎯 Chlor-Dosierungssystem",
                     "description": "Chlordosierung oder Elektrolyse-Anlage."
                 },
                 "target_value": {
@@ -295,7 +301,7 @@ System: ot; Heizungssysteme",
             "description": "Sperrt oder entsperrt **digitale Schaltregeln**.\n\n🛡️ Verhindert unerwünschte Auslösung bei Wartungsarbeiten oder Störungen.",
             "fields": {
                 "device_id": {
-                    "name": "🎯 Pool Controller", 
+                    "name": "🎯 Pool Controller",
                     "description": "Violet Pool Controller mit digitalen Regeln."
                 },
                 "rule_key": {
@@ -317,7 +323,7 @@ System: ot; Heizungssysteme",
                     "description": "Violet Pool Controller mit den Regeln."
                 },
                 "rule_key": {
-                    "name": "🔑 Regel-Nummer", 
+                    "name": "🔑 Regel-Nummer",
                     "description": "Welche Regel auslösen? (DIRULE_1 bis DIRULE_7)"
                 }
             }
@@ -327,7 +333,7 @@ System: ot; Heizungssysteme",
         "pool_type": {
             "options": {
                 "outdoor": "🏖️ Freibad (Outdoor)",
-                "indoor": "🏠 Hallenbad (Indoor)", 
+                "indoor": "🏠 Hallenbad (Indoor)",
                 "whirlpool": "🛁 Whirlpool/Spa",
                 "natural": "🌿 Naturpool/Schwimmteich",
                 "combination": "🔄 Kombination/Hybrid"
@@ -339,7 +345,7 @@ System: ot; Heizungssysteme",
                 "salt": "🧂 Salzelektrolyse",
                 "bromine": "⚗️ Brom-Desinfektion",
                 "active_oxygen": "💧 Aktivsauerstoff/H₂O₂",
-                "uv": "💡 UV-C Desinfektion", 
+                "uv": "💡 UV-C Desinfektion",
                 "ozone": "🌀 Ozon-Behandlung"
             }
         },

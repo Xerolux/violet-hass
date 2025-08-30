@@ -5,7 +5,7 @@ from homeassistant.helpers.entity import EntityCategory
 
 # Integration
 DOMAIN = "violet_pool_controller"
-INTEGRATION_VERSION = "v0.1.0-6"  # Updated for 3-state support
+INTEGRATION_VERSION = "0.2.0.0"  # Updated for 3-state support
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 LOGGER_NAME = f"{DOMAIN}_logger"
 
@@ -527,6 +527,7 @@ WATER_CHEM_SENSORS = {
 ANALOG_SENSORS = {
     "ADC1_value": {"name": "Filterdruck", "icon": "mdi:gauge", "unit": "bar"},
     "ADC2_value": {"name": "Füllstand", "icon": "mdi:water-percent", "unit": "cm"},
+    "ADC3_value": {"name": "Förderleistung", "icon": "mdi:pump", "unit": "m³/h"},
     "IMP1_value": {"name": "Messwasser-Durchfluss", "icon": "mdi:water-pump", "unit": "cm/s"},
     "IMP2_value": {"name": "Förderleistung", "icon": "mdi:pump", "unit": "m³/h"},
 }
