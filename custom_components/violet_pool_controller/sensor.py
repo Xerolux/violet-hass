@@ -55,14 +55,28 @@ NON_TEMPERATURE_SENSORS = {
     *{f"onewire{i}_{suffix}" for i in range(1, 13) for suffix in ("rcode", "romcode", "state")},
 }
 
+# Boolean sensors that contain True/False values
+BOOLEAN_VALUE_SENSORS = {
+    "OVERFLOW_REFILL_STATE", "OVERFLOW_DRYRUN_STATE", "OVERFLOW_OVERFILL_STATE",
+    "BACKWASH_OMNI_MOVING", "BACKWASH_DELAY_RUNNING", "BATHING_AI_SURVEILLANCE_STATE",
+    "BATHING_AI_PUMP_STATE", *{f"onewire{i}_state" for i in range(1, 13)},
+    # Add any other sensors that might contain boolean values
+}
+
 # Combine text sensors
 TEXT_VALUE_SENSORS.update(RUNTIME_SENSORS)
+TEXT_VALUE_SENSORS.update(BOOLEAN_VALUE_SENSORS)
 
 # Time-formatted sensors that should be treated as text
 TIME_FORMAT_SENSORS = {
     *{f"PUMP_RPM_{i}_LAST_ON" for i in range(4)},
     *{f"PUMP_RPM_{i}_LAST_OFF" for i in range(4)},
     "HEATER_POSTRUN_TIME", "SOLAR_POSTRUN_TIME", "CPU_UPTIME", "DEVICE_UPTIME",
+}
+
+# Flow rate sensors - these should have numeric values
+FLOW_RATE_SENSORS = {
+    "ADC3_value", "IMP2_value", "flow_rate_adc3_priority"
 }
 
 class VioletSensor(VioletPoolControllerEntity, SensorEntity):
@@ -90,8 +104,8 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
             except (ValueError, TypeError):
                 return None
                 
-        # Handle text values and time-formatted strings
-        if key in TEXT_VALUE_SENSORS or key in TIME_FORMAT_SENSORS:
+        # Handle text values, time-formatted strings, and boolean values
+        if key in TEXT_VALUE_SENSORS or key in TIME_FORMAT_SENSORS or key in BOOLEAN_VALUE_SENSORS:
             return str(raw_value)
             
         # Try to convert to numeric value
@@ -179,8 +193,19 @@ class VioletFlowRateSensor(VioletPoolControllerEntity, SensorEntity):
         imp2_available = self.coordinator.data.get("IMP2_value") is not None
         return super().available and (adc3_available or imp2_available)
 
-def determine_device_class(key: str, unit: str | None) -> SensorDeviceClass | None:
-    """Bestimme Device-Klasse mit korrekter Unit-Validierung."""
+def is_boolean_value(value) -> bool:
+    """Prüfe ob ein Wert ein Boolean-String ist."""
+    if not isinstance(value, (str, bool)):
+        return False
+    str_value = str(value).lower().strip()
+    return str_value in ('true', 'false', '1', '0', 'on', 'off', 'yes', 'no')
+
+def determine_device_class(key: str, unit: str | None, raw_value=None) -> SensorDeviceClass | None:
+    """Bestimme Device-Klasse mit korrekter Unit-Validierung und Boolean-Erkennung."""
+    # Check if this is a boolean value sensor - NO device class for boolean sensors
+    if key in BOOLEAN_VALUE_SENSORS or (raw_value is not None and is_boolean_value(raw_value)):
+        return None
+    
     # FIXME 1: pH sensor sollte keine unit haben
     if key == "pH_value":
         return SensorDeviceClass.PH
@@ -189,8 +214,8 @@ def determine_device_class(key: str, unit: str | None) -> SensorDeviceClass | No
     if key in {"SYSTEM_cpu_temperature", "SYSTEM_carrier_cpu_temperature", "SYSTEM_DosageModule_cpu_temperature"}:
         return SensorDeviceClass.TEMPERATURE
     
-    # Flow rate sensors
-    if key in {"ADC3_value", "IMP2_value", "flow_rate_adc3_priority"} or "flow" in key.lower():
+    # Flow rate sensors - only if they are not boolean values
+    if key in FLOW_RATE_SENSORS and not (raw_value is not None and is_boolean_value(raw_value)):
         return SensorDeviceClass.VOLUME_FLOW_RATE
     
     # Text/Runtime sensors ohne device class
@@ -215,8 +240,12 @@ def determine_device_class(key: str, unit: str | None) -> SensorDeviceClass | No
         
     return None
 
-def determine_state_class(key: str, unit: str | None) -> SensorStateClass | None:
+def determine_state_class(key: str, unit: str | None, raw_value=None) -> SensorStateClass | None:
     """Bestimme State-Klasse."""
+    # Boolean value sensors should not have a state class
+    if key in BOOLEAN_VALUE_SENSORS or (raw_value is not None and is_boolean_value(raw_value)):
+        return None
+        
     if (key in TEXT_VALUE_SENSORS or key in _TIMESTAMP_KEYS or 
         key in NO_UNIT_SENSORS or key in RUNTIME_SENSORS or 
         key in TIME_FORMAT_SENSORS):
@@ -235,11 +264,15 @@ def determine_state_class(key: str, unit: str | None) -> SensorStateClass | None
         
     return None
 
-def get_icon(unit: str | None, key: str) -> str:
+def get_icon(unit: str | None, key: str, raw_value=None) -> str:
     """Bestimme Icon basierend auf Unit und Key."""
+    # Boolean value sensors get a toggle icon
+    if key in BOOLEAN_VALUE_SENSORS or (raw_value is not None and is_boolean_value(raw_value)):
+        return "mdi:toggle-switch"
+        
     if key == "pH_value":
         return "mdi:flask"
-    elif key in {"ADC3_value", "IMP2_value", "flow_rate_adc3_priority"} or "flow" in key.lower():
+    elif key in FLOW_RATE_SENSORS or "flow" in key.lower():
         return "mdi:pump"
     elif unit == "°C":
         return "mdi:thermometer"
@@ -342,13 +375,16 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
         "ADC3_value": "m³/h",
         "IMP2_value": "m³/h",
         "ADC3_value_reference": "m³/h",
+        
+        # FIXME 4: Boolean sensors should not have units
+        **{key: None for key in BOOLEAN_VALUE_SENSORS},
     }
     
     # Apply unit fixes to UNIT_MAP
     for key, unit in unit_fixes.items():
         if key in data_keys:
             if unit is None and key in UNIT_MAP:
-                # Remove unit for pH
+                # Remove unit for pH and boolean sensors
                 del UNIT_MAP[key]
             else:
                 UNIT_MAP[key] = unit
@@ -367,6 +403,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
         if feature_id and feature_id not in active_features:
             continue
         
+        raw_value = coordinator.data.get(key)
+        
         # Apply unit fixes
         unit = info.get("unit")
         if key in unit_fixes:
@@ -376,17 +414,21 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
         sensors.append(VioletSensor(coordinator, config_entry, SensorEntityDescription(
             key=key,
             name=info["name"],
-            icon=info.get("icon"),
+            icon=info.get("icon") or get_icon(unit, key, raw_value),
             native_unit_of_measurement=unit,
-            device_class=determine_device_class(key, unit),
-            state_class=determine_state_class(key, unit),
+            device_class=determine_device_class(key, unit, raw_value),
+            state_class=determine_state_class(key, unit, raw_value),
             entity_category=EntityCategory.DIAGNOSTIC if key.startswith(("SYSTEM_", "CPU_")) else None,
         )))
 
     # *** SPEZIELLER FÖRDERLEISTUNGS-SENSOR MIT ADC3-PRIORITÄT ***
     if any(key in coordinator.data for key in ["ADC3_value", "IMP2_value"]):
-        sensors.append(VioletFlowRateSensor(coordinator, config_entry))
-        _LOGGER.info("✅ Förderleistungs-Sensor mit ADC3-Priorität hinzugefügt")
+        # Only add if the values are not boolean
+        adc3_val = coordinator.data.get("ADC3_value")
+        imp2_val = coordinator.data.get("IMP2_value")
+        if not (is_boolean_value(adc3_val) or is_boolean_value(imp2_val)):
+            sensors.append(VioletFlowRateSensor(coordinator, config_entry))
+            _LOGGER.info("✅ Förderleistungs-Sensor mit ADC3-Priorität hinzugefügt")
 
     # Add dynamic sensors from coordinator data
     for key in data_keys - set(all_predefined_sensors):
@@ -409,6 +451,10 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
             if key in unit_fixes:
                 unit = unit_fixes[key]
         
+        # Boolean sensors should not have units
+        if is_boolean_value(raw_value):
+            unit = None
+        
         # Create nice name from key
         name = key.replace("_", " ").title()
         
@@ -416,16 +462,16 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
         sensors.append(VioletSensor(coordinator, config_entry, SensorEntityDescription(
             key=key,
             name=name,
-            icon=get_icon(unit, key),
+            icon=get_icon(unit, key, raw_value),
             native_unit_of_measurement=unit,
-            device_class=determine_device_class(key, unit),
-            state_class=determine_state_class(key, unit),
+            device_class=determine_device_class(key, unit, raw_value),
+            state_class=determine_state_class(key, unit, raw_value),
             entity_category=EntityCategory.DIAGNOSTIC if key.startswith(("SYSTEM_", "CPU_")) or key in TEXT_VALUE_SENSORS else None,
         )))
 
     if sensors:
         async_add_entities(sensors)
-        _LOGGER.info("✅ %d Sensoren hinzugefügt (mit ADC3/IMP2-Fix und Unit-Fixes)", len(sensors))
+        _LOGGER.info("✅ %d Sensoren hinzugefügt (mit ADC3/IMP2-Fix, Unit-Fixes und Boolean-Fix)", len(sensors))
         
         # Final debug info
         if any(key in coordinator.data for key in ["ADC3_value", "IMP2_value"]):

@@ -68,78 +68,66 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_disclaimer(self, user_input: dict | None = None) -> FlowResult:
         """⚠️ Disclaimer und Nutzungsbedingungen für Violet Pool Controller Integration."""
         errors = {}
+        
         if user_input:
             agreement = user_input.get("agreement", False)
             if agreement:
                 return await self.async_step_connection()
             else:
                 return self.async_abort(reason="agreement_declined")
-        return self.async_show_form(
-            step_id="disclaimer",
-            data_schema=vol.Schema({
-                vol.Required("agreement", default=False, description="⚠️ Ich stimme den Nutzungsbedingungen zu und übernehme die volle Verantwortung"): bool,
-            }),
-            errors=errors,
-            description_placeholders={
-                "step_icon": "⚠️",
-                "step_title": "Rechtlicher Disclaimer",
-                "step_description": "Bitte lesen Sie die folgenden Nutzungsbedingungen sorgfältig durch",
-                "warning_title": "WICHTIGER RECHTLICHER HINWEIS",
-                "disclaimer_text": """
-**NUTZUNG AUF EIGENE GEFAHR - VOLLSTÄNDIGER HAFTUNGSAUSSCHLUSS**
-⚠️ **ACHTUNG: Diese Integration steuert kritische Poolsysteme und Chemikaliendosierung!**
-**🔴 SICHERHEITSHINWEISE UND HAFTUNGSAUSSCHLUSS:**
-• **EIGENVERANTWORTUNG**: Sie nutzen diese Software vollständig auf eigene Verantwortung und eigenes Risiko
-• **CHEMISCHE GEFAHREN**: Falsche Dosierung kann zu Gesundheitsschäden, Verätzungen oder Vergiftungen führen
-• **TECHNISCHE RISIKEN**: Fehlfunktionen können Sachschäden, Überschwemmungen oder Geräteschäden verursachen
-• **SICHERHEITSÜBERSTEUERUNG**: Diese Software kann Sicherheitsmechanismen übersteuern oder deaktivieren
-• **WARTUNGSRISIKEN**: Unsachgemäße Nutzung kann teure Reparaturen oder Totalausfälle verursachen
-**🔧 FUNKTIONSUMFANG UND RISIKEN:**
+        
+        # Disclaimer-Text direkt als Teil der Schema-Description
+        disclaimer_text = """
+⚠️ WICHTIGER RECHTLICHER HINWEIS ⚠️
+
+NUTZUNG AUF EIGENE GEFAHR - VOLLSTÄNDIGER HAFTUNGSAUSSCHLUSS
+
+🔴 ACHTUNG: Diese Integration steuert kritische Poolsysteme und Chemikaliendosierung!
+
+SICHERHEITSHINWEISE UND HAFTUNGSAUSSCHLUSS:
+• EIGENVERANTWORTUNG: Sie nutzen diese Software vollständig auf eigene Verantwortung
+• CHEMISCHE GEFAHREN: Falsche Dosierung kann zu Gesundheitsschäden führen
+• TECHNISCHE RISIKEN: Fehlfunktionen können Sachschäden verursachen
+• SICHERHEITSÜBERSTEUERUNG: Diese Software kann Sicherheitsmechanismen übersteuern
+
+FUNKTIONSUMFANG UND RISIKEN:
 • Automatische Steuerung von Pumpen, Heizungen und elektrischen Geräten
 • Dosierung von Chemikalien (pH-Regulatoren, Chlor, Flockmittel)
-• Übersteuerung von Sicherheitsintervallen und Grenzwerten
 • Fernsteuerung kritischer Poolsysteme ohne lokale Aufsicht
-• Manipulation von Temperatur-, Druck- und Füllstandsregelungen
-• Steuerung von Abdeckungen und beweglichen Teilen (Verletzungsgefahr)
-**⚖️ RECHTLICHER HAFTUNGSAUSSCHLUSS:**
-Der Entwickler/Programmierer übernimmt **KEINERLEI HAFTUNG** für:
+• Steuerung von Abdeckungen und beweglichen Teilen
+
+RECHTLICHER HAFTUNGSAUSSCHLUSS:
+Der Entwickler übernimmt KEINERLEI HAFTUNG für:
 • Personen- oder Sachschäden jeder Art
 • Gesundheitsschäden durch falsche Wasserchemie
-• Umweltschäden oder Gewässerverunreinigung
 • Geräteschäden oder Betriebsausfälle
 • Finanzielle Verluste oder Folgeschäden
-• Datenschutz- oder Sicherheitsverletzungen
-**👨‍🔧 FACHKUNDIGE INSTALLATION ERFORDERLICH:**
-• Installation nur durch Fachpersonal oder mit entsprechenden Kenntnissen
-• Regelmäßige Kontrolle aller automatisierten Funktionen erforderlich
-• Manuelle Wassertests trotz Automatisierung weiterhin notwendig
-• Einhaltung örtlicher Vorschriften und Sicherheitsbestimmungen
-**🚨 NOTFALL-VERHALTEN:**
+
+NOTFALL-VERHALTEN:
 • Immer manuellen Zugang zu allen Systemen sicherstellen
 • Bei Störungen sofort alle automatischen Funktionen deaktivieren
-• Chemische Notfallmaßnahmen gemäß Sicherheitsdatenblättern
-• Örtliche Notdienste für Pool- und Elektrotechnik bereithalten
-**📋 ZUSÄTZLICHE BESTIMMUNGEN:**
-• Software wird "AS IS" ohne Gewährleistung bereitgestellt
-• Kein Anspruch auf Support, Updates oder Fehlerbehebung
-• Verwendung erfolgt ohne Garantie für Funktionsfähigkeit
-• Bei kommerziellem Einsatz gelten erhöhte Sorgfaltspflichten
-• Compliance mit DSGVO/Datenschutz liegt in Ihrer Verantwortung
-**💡 EMPFEHLUNG:**
-Nutzen Sie diese Integration nur, wenn Sie:
-✅ Über ausreichende Fachkenntnisse verfügen
-✅ Die Risiken vollständig verstehen und akzeptieren
-✅ Regelmäßige manuelle Kontrollen durchführen können
-✅ Für alle Folgen die volle Verantwortung übernehmen
-**Durch das Akzeptieren bestätigen Sie, dass Sie:**
+• Chemische Notfallmaßnahmen bereithalten
+
+Durch das Akzeptieren bestätigen Sie, dass Sie:
 1. Diesen Disclaimer vollständig gelesen und verstanden haben
 2. Alle Risiken akzeptieren und die volle Verantwortung übernehmen
 3. Den Entwickler von jeder Haftung freistellen
-4. Die Software auf eigene Gefahr und eigenes Risiko verwenden
-5. Für alle Schäden und Folgen selbst aufkommen
-**Bei Unsicherheit oder Unverständnis: INSTALLATION ABBRECHEN!**
-                """,
-                "legal_note": "Diese Integration unterliegt deutschem Recht. Bei rechtlichen Fragen kontaktieren Sie einen Anwalt."
+4. Die Software auf eigene Gefahr verwenden
+
+Bei Unsicherheit: INSTALLATION ABBRECHEN!
+        """
+        
+        return self.async_show_form(
+            step_id="disclaimer",
+            data_schema=vol.Schema({
+                vol.Required("agreement", default=False): bool,
+            }),
+            errors=errors,
+            description_placeholders={
+                "title": "⚠️ Rechtlicher Disclaimer - Violet Pool Controller",
+                "subtitle": "Bitte lesen Sie die Nutzungsbedingungen sorgfältig durch",
+                "disclaimer_text": disclaimer_text,
+                "agreement_text": "✅ Ich habe den Disclaimer gelesen und stimme allen Bedingungen zu"
             }
         )
 
@@ -185,21 +173,30 @@ Nutzen Sie diese Integration nur, wenn Sie:
         return self.async_show_form(
             step_id="connection",
             data_schema=vol.Schema({
-                vol.Required(CONF_API_URL, default="192.168.1.100", description="🌐 Controller IP-Adresse"): str,
-                vol.Optional(CONF_USERNAME, default="", description="👤 Benutzername (optional)"): str,
-                vol.Optional(CONF_PASSWORD, default="", description="🔐 Passwort (optional)"): str,
-                vol.Required(CONF_USE_SSL, default=DEFAULT_USE_SSL, description="🔒 SSL/HTTPS verwenden"): bool,
-                vol.Required(CONF_DEVICE_ID, default=1, description="🏷️ Geräte-ID"): vol.All(vol.Coerce(int), vol.Range(min=1)),
-                vol.Required(CONF_POLLING_INTERVAL, default=DEFAULT_POLLING_INTERVAL, description="⏱️ Abrufintervall (Sekunden)"): vol.All(vol.Coerce(int), vol.Range(min=10, max=3600)),
-                vol.Required(CONF_TIMEOUT_DURATION, default=DEFAULT_TIMEOUT_DURATION, description="⏰ Timeout (Sekunden)"): vol.All(vol.Coerce(int), vol.Range(min=1, max=60)),
-                vol.Required(CONF_RETRY_ATTEMPTS, default=DEFAULT_RETRY_ATTEMPTS, description="🔄 Wiederholungsversuche"): vol.All(vol.Coerce(int), vol.Range(min=1, max=10)),
-                vol.Optional(CONF_DEVICE_NAME, default="🌊 Violet Pool Controller", description="📝 Gerätename"): str,
+                vol.Required(CONF_API_URL, default="192.168.1.100"): str,
+                vol.Optional(CONF_USERNAME, default=""): str,
+                vol.Optional(CONF_PASSWORD, default=""): str,
+                vol.Required(CONF_USE_SSL, default=DEFAULT_USE_SSL): bool,
+                vol.Required(CONF_DEVICE_ID, default=1): vol.All(vol.Coerce(int), vol.Range(min=1)),
+                vol.Required(CONF_POLLING_INTERVAL, default=DEFAULT_POLLING_INTERVAL): vol.All(vol.Coerce(int), vol.Range(min=10, max=3600)),
+                vol.Required(CONF_TIMEOUT_DURATION, default=DEFAULT_TIMEOUT_DURATION): vol.All(vol.Coerce(int), vol.Range(min=1, max=60)),
+                vol.Required(CONF_RETRY_ATTEMPTS, default=DEFAULT_RETRY_ATTEMPTS): vol.All(vol.Coerce(int), vol.Range(min=1, max=10)),
+                vol.Optional(CONF_DEVICE_NAME, default="🌊 Violet Pool Controller"): str,
             }),
             errors=errors,
             description_placeholders={
                 "step_icon": "🌐",
                 "step_title": "Controller-Verbindung",
-                "step_description": "Konfiguriere die Verbindung zu deinem Violet Pool Controller"
+                "step_description": "Konfiguriere die Verbindung zu deinem Violet Pool Controller",
+                "api_url_desc": "🌐 Controller IP-Adresse",
+                "username_desc": "👤 Benutzername (optional)",
+                "password_desc": "🔐 Passwort (optional)", 
+                "use_ssl_desc": "🔒 SSL/HTTPS verwenden",
+                "device_id_desc": "🏷️ Geräte-ID",
+                "polling_desc": "⏱️ Abrufintervall (Sekunden)",
+                "timeout_desc": "⏰ Timeout (Sekunden)",
+                "retry_desc": "🔄 Wiederholungsversuche",
+                "device_name_desc": "📝 Gerätename"
             }
         )
 
@@ -230,15 +227,18 @@ Nutzen Sie diese Integration nur, wenn Sie:
         return self.async_show_form(
             step_id="pool_setup",
             data_schema=vol.Schema({
-                vol.Required(CONF_POOL_SIZE, default=DEFAULT_POOL_SIZE, description="📏 Pool-Volumen in m³"): vol.All(vol.Coerce(float), vol.Range(min=0.1, max=1000)),
-                vol.Required(CONF_POOL_TYPE, default=DEFAULT_POOL_TYPE, description="🏊 Pool-Typ"): vol.In(pool_type_options),
-                vol.Required(CONF_DISINFECTION_METHOD, default=DEFAULT_DISINFECTION_METHOD, description="🧼 Desinfektionsmethode"): vol.In(disinfection_options),
+                vol.Required(CONF_POOL_SIZE, default=DEFAULT_POOL_SIZE): vol.All(vol.Coerce(float), vol.Range(min=0.1, max=1000)),
+                vol.Required(CONF_POOL_TYPE, default=DEFAULT_POOL_TYPE): vol.In(pool_type_options),
+                vol.Required(CONF_DISINFECTION_METHOD, default=DEFAULT_DISINFECTION_METHOD): vol.In(disinfection_options),
             }),
             description_placeholders={
                 "device_name": self._config_data.get(CONF_DEVICE_NAME, "🌊 Violet Pool Controller"),
                 "step_icon": "🏊",
                 "step_title": "Pool-Konfiguration",
-                "step_description": f"Konfiguriere die Eigenschaften deines Pools für {self._config_data.get(CONF_DEVICE_NAME, 'den Controller')}"
+                "step_description": f"Konfiguriere die Eigenschaften deines Pools für {self._config_data.get(CONF_DEVICE_NAME, 'den Controller')}",
+                "pool_size_desc": "📏 Pool-Volumen in m³",
+                "pool_type_desc": "🏊 Pool-Typ",
+                "disinfection_desc": "🧼 Desinfektionsmethode"
             }
         )
 
@@ -275,8 +275,7 @@ Nutzen Sie diese Integration nur, wenn Sie:
         for feature in AVAILABLE_FEATURES:
             feature_info = enhanced_features.get(feature["id"], {"icon": "⚙️", "name": feature["name"], "desc": ""})
             checkbox_key = f"enable_{feature['id']}"
-            description = f"{feature_info['icon']} {feature_info['name']} - {feature_info['desc']}"
-            schema_dict[vol.Optional(checkbox_key, default=feature["default"], description=description)] = bool
+            schema_dict[vol.Optional(checkbox_key, default=feature["default"])] = bool
         return self.async_show_form(
             step_id="feature_selection",
             data_schema=vol.Schema(schema_dict),
@@ -285,7 +284,8 @@ Nutzen Sie diese Integration nur, wenn Sie:
                 "pool_size": str(self._config_data.get(CONF_POOL_SIZE, DEFAULT_POOL_SIZE)),
                 "step_icon": "⚙️",
                 "step_title": "Smart-Features aktivieren",
-                "step_description": f"Wähle die gewünschten Automatisierungsfunktionen für deinen {self._config_data.get(CONF_POOL_SIZE, DEFAULT_POOL_SIZE)}m³ Pool"
+                "step_description": f"Wähle die gewünschten Automatisierungsfunktionen für deinen {self._config_data.get(CONF_POOL_SIZE, DEFAULT_POOL_SIZE)}m³ Pool",
+                "features_info": enhanced_features
             }
         )
 
@@ -322,17 +322,17 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
             "ozone": "🌀 Ozon-Desinfektion"
         }
         schema_dict = {
-            vol.Optional(CONF_POLLING_INTERVAL, default=self.current_config.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL), description="⏱️ Datenabfrage alle X Sekunden"):
+            vol.Optional(CONF_POLLING_INTERVAL, default=self.current_config.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)):
                 vol.All(vol.Coerce(int), vol.Range(min=10, max=3600)),
-            vol.Optional(CONF_TIMEOUT_DURATION, default=self.current_config.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION), description="⏰ Verbindungs-Timeout"):
+            vol.Optional(CONF_TIMEOUT_DURATION, default=self.current_config.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)):
                 vol.All(vol.Coerce(int), vol.Range(min=1, max=60)),
-            vol.Optional(CONF_RETRY_ATTEMPTS, default=self.current_config.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS), description="🔄 Wiederholungsversuche bei Fehlern"):
+            vol.Optional(CONF_RETRY_ATTEMPTS, default=self.current_config.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)):
                 vol.All(vol.Coerce(int), vol.Range(min=1, max=10)),
-            vol.Optional(CONF_POOL_SIZE, default=self.current_config.get(CONF_POOL_SIZE, DEFAULT_POOL_SIZE), description="📏 Pool-Volumen in m³"):
+            vol.Optional(CONF_POOL_SIZE, default=self.current_config.get(CONF_POOL_SIZE, DEFAULT_POOL_SIZE)):
                 vol.All(vol.Coerce(float), vol.Range(min=0.1, max=1000)),
-            vol.Optional(CONF_POOL_TYPE, default=self.current_config.get(CONF_POOL_TYPE, DEFAULT_POOL_TYPE), description="🏊 Pool-Typ"):
+            vol.Optional(CONF_POOL_TYPE, default=self.current_config.get(CONF_POOL_TYPE, DEFAULT_POOL_TYPE)):
                 vol.In(pool_type_options),
-            vol.Optional(CONF_DISINFECTION_METHOD, default=self.current_config.get(CONF_DISINFECTION_METHOD, DEFAULT_DISINFECTION_METHOD), description="🧼 Desinfektionsmethode"):
+            vol.Optional(CONF_DISINFECTION_METHOD, default=self.current_config.get(CONF_DISINFECTION_METHOD, DEFAULT_DISINFECTION_METHOD)):
                 vol.In(disinfection_options),
         }
         enhanced_features = {
@@ -354,8 +354,7 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         for feature in AVAILABLE_FEATURES:
             checkbox_key = f"feature_{feature['id']}"
             default_value = feature["id"] in current_features
-            feature_name = enhanced_features.get(feature["id"], f"⚙️ {feature['name']}")
-            schema_dict[vol.Optional(checkbox_key, default=default_value, description=feature_name)] = bool
+            schema_dict[vol.Optional(checkbox_key, default=default_value)] = bool
         device_name = self._config_entry.data.get(CONF_DEVICE_NAME, "🌊 Violet Pool Controller")
         return self.async_show_form(
             step_id="init",
@@ -364,6 +363,13 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
                 "device_name": device_name,
                 "step_icon": "🔧",
                 "step_title": "Erweiterte Konfiguration",
-                "step_description": f"Optimiere die Einstellungen für {device_name}"
+                "step_description": f"Optimiere die Einstellungen für {device_name}",
+                "polling_desc": "⏱️ Datenabfrage alle X Sekunden",
+                "timeout_desc": "⏰ Verbindungs-Timeout",
+                "retry_desc": "🔄 Wiederholungsversuche bei Fehlern",
+                "pool_size_desc": "📏 Pool-Volumen in m³",
+                "pool_type_desc": "🏊 Pool-Typ",
+                "disinfection_desc": "🧼 Desinfektionsmethode",
+                "features_info": enhanced_features
             }
         )
