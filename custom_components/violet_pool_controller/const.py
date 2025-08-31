@@ -1,11 +1,11 @@
-"""Erweiterte Konstanten für die Violet Pool Controller Integration - 3-STATE SUPPORT."""
+"""Erweiterte Konstanten für die Violet Pool Controller Integration - VOLLSTÄNDIGE VERSION MIT ALLEN FIXES."""
 from homeassistant.components.number import NumberDeviceClass
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.helpers.entity import EntityCategory
 
 # Integration
 DOMAIN = "violet_pool_controller"
-INTEGRATION_VERSION = "0.2.0.0"  # Updated for 3-state support
+INTEGRATION_VERSION = "0.2.1.0"  # Updated with all fixes
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 LOGGER_NAME = f"{DOMAIN}_logger"
 
@@ -48,13 +48,12 @@ DISINFECTION_METHODS = ["chlorine", "salt", "bromine", "active_oxygen", "uv", "o
 # 3-STATE SUPPORT - ERWEITERTE ZUSTANDSMAPPINGS
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# Basierend auf API-Dokumentation Kapitel 26.2.1: Filterpumpe States 0-6
-# DEVICE_STATE_MAPPING - Ihre Vorhandene Struktur (korrekt)
+# DEVICE_STATE_MAPPING - Erweiterte State-Mappings mit State 4
 DEVICE_STATE_MAPPING = {
     # String-basierte Zustände (häufigste Form)
     "ON": {"mode": "manual", "active": True, "priority": 80},
     "OFF": {"mode": "manual", "active": False, "priority": 70},
-    "AUTO": {"mode": "auto", "active": None, "priority": 60},  # None = abhängig von Bedingungen
+    "AUTO": {"mode": "auto", "active": None, "priority": 60},
     "MAN": {"mode": "manual", "active": True, "priority": 80},
     "MANUAL": {"mode": "manual", "active": True, "priority": 80},
     
@@ -73,7 +72,62 @@ DEVICE_STATE_MAPPING = {
     "MAINTENANCE": {"mode": "maintenance", "active": False, "priority": 90},
 }
 
-# Gerätespezifische Parameter basierend auf API-Dokumentation
+# ⭐ KRITISCHER FIX: STATE_MAP mit State 4
+STATE_MAP = {
+    # Numeric states als Integer (direkte API-Werte)
+    0: False,    # AUTO-Standby (OFF)
+    1: True,     # Manuell EIN
+    2: True,     # AUTO-Aktiv (ON)
+    3: True,     # AUTO-Zeitsteuerung (ON)
+    4: True,     # ⭐ Manuell forciert EIN (ON) - KRITISCHER FIX!
+    5: False,    # AUTO-Wartend (OFF)
+    6: False,    # Manuell AUS
+    
+    # Numeric states als String (falls API als String liefert)
+    "0": False,
+    "1": True,
+    "2": True,
+    "3": True,
+    "4": True,   # ⭐ KRITISCHER FIX!
+    "5": False,
+    "6": False,
+    
+    # String-basierte States
+    "ON": True, 
+    "OFF": False, 
+    "AUTO": False,
+    "TRUE": True, 
+    "FALSE": False,
+    "OPEN": True, 
+    "CLOSED": False, 
+    "OPENING": True, 
+    "CLOSING": True, 
+    "STOPPED": False,
+    "MAN": True,
+    "MANUAL": True,
+    "ACTIVE": True,
+    "RUNNING": True,
+    "IDLE": False,
+}
+
+# ⭐ FIX: COVER_STATE_MAP mit String-States
+COVER_STATE_MAP = {
+    # Numerische States
+    "0": "open", 
+    "1": "opening", 
+    "2": "closed", 
+    "3": "closing", 
+    "4": "stopped",
+    
+    # ⭐ String-States hinzufügen (aus API erkannt)
+    "OPEN": "open", 
+    "CLOSED": "closed", 
+    "OPENING": "opening", 
+    "CLOSING": "closing",
+    "STOPPED": "stopped"
+}
+
+# Gerätespezifische Parameter
 DEVICE_PARAMETERS = {
     "PUMP": {
         "supports_speed": True,
@@ -81,29 +135,29 @@ DEVICE_PARAMETERS = {
         "supports_force_off": True,
         "speeds": {1: "Eco (Niedrig)", 2: "Normal (Mittel)", 3: "Boost (Hoch)"},
         "default_on_speed": 2,
-        "force_off_duration": 600,  # 10 Minuten wie in Doku
+        "force_off_duration": 600,
         "activity_sensors": ["PUMP_RPM_1_VALUE", "PUMP_RUNTIME"],
-        "activity_threshold": {"PUMP_RPM_1_VALUE": 100},  # Minimum RPM für "aktiv"
+        "activity_threshold": {"PUMP_RPM_1_VALUE": 100},
         "api_template": "PUMP,{action},{duration},{speed}"
     },
     "HEATER": {
         "supports_timer": True,
         "supports_temperature": True,
-        "default_on_duration": 0,  # Permanent
+        "default_on_duration": 0,
         "activity_sensors": ["onewire5_value", "onewire1_value", "HEATER_RUNTIME"],
-        "activity_threshold": {"temp_diff": 2.0},  # 2°C Differenz = aktiv
+        "activity_threshold": {"temp_diff": 2.0},
         "api_template": "HEATER,{action},{duration},0"
     },
     "SOLAR": {
         "supports_timer": True,
-        "default_on_duration": 0,  # Permanent
+        "default_on_duration": 0,
         "activity_sensors": ["onewire3_value", "onewire1_value", "SOLAR_RUNTIME"],
-        "activity_threshold": {"temp_diff": 5.0},  # 5°C Differenz = aktiv
+        "activity_threshold": {"temp_diff": 5.0},
         "api_template": "SOLAR,{action},{duration},0"
     },
     "LIGHT": {
         "supports_color_pulse": True,
-        "color_pulse_duration": 150,  # 150ms wie in Doku
+        "color_pulse_duration": 150,
         "api_template": "LIGHT,{action},0,0",
         "color_pulse_template": "LIGHT,COLOR,0,0"
     },
@@ -112,7 +166,7 @@ DEVICE_PARAMETERS = {
         "dosing_type": "Chlor",
         "default_dosing_duration": 30,
         "max_dosing_duration": 300,
-        "safety_interval": 300,  # 5 Minuten Pause zwischen Dosierungen
+        "safety_interval": 300,
         "activity_sensors": ["DOS_1_CL_RUNTIME", "DOS_1_CL_STATE"],
         "api_template": "DOS_1_CL,{action},{duration},0"
     },
@@ -145,43 +199,52 @@ DEVICE_PARAMETERS = {
     },
     "BACKWASH": {
         "supports_timer": True,
-        "default_duration": 180,  # 3 Minuten Standard-Rückspülung
+        "default_duration": 180,
         "max_duration": 900,
         "activity_sensors": ["BACKWASH_RUNTIME", "BACKWASHSTATE"],
         "api_template": "BACKWASH,{action},{duration},0"
     },
     "BACKWASHRINSE": {
         "supports_timer": True,
-        "default_duration": 60,  # 1 Minute Standard-Nachspülung
+        "default_duration": 60,
         "max_duration": 300,
         "activity_sensors": ["BACKWASH_RUNTIME"],
         "api_template": "BACKWASHRINSE,{action},{duration},0"
     },
+    # ⭐ FIX: PVSURPLUS hinzugefügt
+    "PVSURPLUS": {
+        "supports_speed": True,
+        "speeds": {1: "Eco", 2: "Normal", 3: "Boost"},
+        "default_speed": 2,
+        "activity_sensors": ["PVSURPLUS"],
+        "activity_threshold": {"PVSURPLUS": 1},
+        "api_template": "PVSURPLUS,{action},{speed},0"
+    }
 }
 
-# Erweiterungsrelais: EXT1_1 bis EXT1_8, EXT2_1 bis EXT2_8
+# Erweiterungsrelais mit Runtime-Sensoren
 for ext_bank in [1, 2]:
     for relay_num in range(1, 9):
         key = f"EXT{ext_bank}_{relay_num}"
         DEVICE_PARAMETERS[key] = {
             "supports_timer": True,
-            "default_on_duration": 3600,  # 1 Stunde wie in Doku
+            "default_on_duration": 3600,
             "max_duration": 86400,
             "activity_sensors": [f"EXT{ext_bank}_{relay_num}_RUNTIME"],
             "api_template": f"EXT{ext_bank}_{relay_num},{{action}},{{duration}},0"
         }
 
-# Digital Rules: DIRULE_1 bis DIRULE_7
+# Digital Rules
 for rule_num in range(1, 8):
     key = f"DIRULE_{rule_num}"
     DEVICE_PARAMETERS[key] = {
         "supports_lock": True,
         "action_type": "PUSH",
-        "pulse_duration": 500,  # 500ms wie in Doku
+        "pulse_duration": 500,
         "api_template": f"DIRULE_{rule_num},{{action}},0,0"
     }
 
-# DMX Scenes: DMX_SCENE1 bis DMX_SCENE12
+# DMX Scenes
 for scene_num in range(1, 13):
     key = f"DMX_SCENE{scene_num}"
     DEVICE_PARAMETERS[key] = {
@@ -189,14 +252,6 @@ for scene_num in range(1, 13):
         "group_actions": ["ALLON", "ALLOFF", "ALLAUTO"],
         "api_template": f"DMX_SCENE{scene_num},{{action}},0,0"
     }
-
-# PV-Überschuss (Kapitel 26.3)
-DEVICE_PARAMETERS["PVSURPLUS"] = {
-    "supports_speed": True,
-    "speeds": {1: "Eco", 2: "Normal", 3: "Boost"},
-    "default_speed": 2,
-    "api_template": "PVSURPLUS,{action},{speed},0"
-}
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # ERWEITERTE ICON-MAPPINGS FÜR 3-STATE VISUALIZATION
@@ -265,14 +320,13 @@ STATE_ICONS = {
     }
 }
 
-# Farb-Codes für UI-Anzeige
 STATE_COLORS = {
-    "auto_active": "#4CAF50",     # Grün - Automatik aktiv
-    "auto_inactive": "#2196F3",   # Blau - Automatik bereit
-    "manual_on": "#FF9800",       # Orange - Manuell ein
-    "manual_off": "#F44336",      # Rot - Manuell/Forciert aus
-    "error": "#9C27B0",           # Lila - Fehler
-    "maintenance": "#607D8B"      # Grau - Wartung
+    "auto_active": "#4CAF50",     # Grün
+    "auto_inactive": "#2196F3",   # Blau
+    "manual_on": "#FF9800",       # Orange
+    "manual_off": "#F44336",      # Rot
+    "error": "#9C27B0",           # Lila
+    "maintenance": "#607D8B"      # Grau
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -299,13 +353,7 @@ AVAILABLE_FEATURES = [
 # API-SCHLÜSSEL UND FUNKTIONEN
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# Dynamische Generierung von Mappings (Python 3.13 kompatibel)
-_EXT1_RELAYS = {f"EXT1_{i}": f"Relais 1-{i}" for i in range(1, 9)}
-_EXT2_RELAYS = {f"EXT2_{i}": f"Relais 2-{i}" for i in range(1, 9)}
-_DMX_SCENES = {f"DMX_SCENE{i}": f"DMX Szene {i}" for i in range(1, 13)}
-_DIRULES = {f"DIRULE_{i}": f"Schaltregel {i}" for i in range(1, 8)}
-_OMNI_DCS = {f"OMNI_DC{i}": f"Omni DC{i}" for i in range(6)}
-
+# Basis Switch-Funktionen
 SWITCH_FUNCTIONS = {
     "PUMP": "Filterpumpe",
     "SOLAR": "Solarabsorber",
@@ -315,15 +363,25 @@ SWITCH_FUNCTIONS = {
     "BACKWASH": "Rückspülung",
     "BACKWASHRINSE": "Nachspülung",
     "REFILL": "Wassernachfüllung",
-    "PVSURPLUS": "PV-Überschuss",
+    "PVSURPLUS": "PV-Überschuss",  # ⭐ FIX: PVSURPLUS hinzugefügt
 }
 
-# Generierte Mappings hinzufügen
-SWITCH_FUNCTIONS.update(_EXT1_RELAYS)
-SWITCH_FUNCTIONS.update(_EXT2_RELAYS)
-SWITCH_FUNCTIONS.update(_DMX_SCENES)
-SWITCH_FUNCTIONS.update(_DIRULES)
-SWITCH_FUNCTIONS.update(_OMNI_DCS)
+# Erweiterungsrelais hinzufügen
+for ext_bank in [1, 2]:
+    for relay_num in range(1, 9):
+        SWITCH_FUNCTIONS[f"EXT{ext_bank}_{relay_num}"] = f"Erweiterung {ext_bank}.{relay_num}"
+
+# DMX-Szenen hinzufügen
+for scene_num in range(1, 13):
+    SWITCH_FUNCTIONS[f"DMX_SCENE{scene_num}"] = f"DMX Szene {scene_num}"
+
+# Digitale Regeln hinzufügen
+for rule_num in range(1, 8):
+    SWITCH_FUNCTIONS[f"DIRULE_{rule_num}"] = f"Schaltregel {rule_num}"
+
+# Omni DCs hinzufügen
+for dc_num in range(6):
+    SWITCH_FUNCTIONS[f"OMNI_DC{dc_num}"] = f"Omni DC{dc_num}"
 
 COVER_FUNCTIONS = {
     "OPEN": "COVER_OPEN",
@@ -340,212 +398,96 @@ DOSING_FUNCTIONS = {
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# ERWEITERTE ZUSTANDSMAPPINGS
+# SENSOREN - ERWEITERT
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# Legacy State Map (für Rückwärtskompatibilität)
-STATE_MAP = {
-    # *** CRITICAL FIX: Numeric states mit Integer UND String keys ***
-    # Numeric states als Integer (direkte API-Werte)
-    0: False,    # AUTO-Standby (OFF)
-    1: True,     # Manuell EIN
-    2: True,     # AUTO-Aktiv (ON)
-    3: True,     # AUTO-Zeitsteuerung (ON)
-    4: True,     # Manuell forciert EIN (ON) ← DAS WAR DER HAUPTFEHLER!
-    5: False,    # AUTO-Wartend (OFF)
-    6: False,    # Manuell AUS
-    
-    # Numeric states als String (falls API als String liefert)
-    "0": False,  # AUTO-Standby (OFF)
-    "1": True,   # Manuell EIN
-    "2": True,   # AUTO-Aktiv (ON)
-    "3": True,   # AUTO-Zeitsteuerung (ON)
-    "4": True,   # Manuell forciert EIN (ON) ← DAS WAR DER HAUPTFEHLER!
-    "5": False,  # AUTO-Wartend (OFF)
-    "6": False,  # Manuell AUS
-    
-    # String-basierte States (bestehend, korrekt)
-    "ON": True, 
-    "OFF": False, 
-    "AUTO": False,  # AUTO ohne Aktivität = OFF anzeige
-    "TRUE": True, 
-    "FALSE": False,
-    "OPEN": True, 
-    "CLOSED": False, 
-    "OPENING": True, 
-    "CLOSING": True, 
-    "STOPPED": False,
-    "MAN": True,      # Manual mode = ON
-    "MANUAL": True,   # Manual mode = ON
-    "ACTIVE": True,
-    "RUNNING": True,
-    "IDLE": False,
-}
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# HELPER FUNCTIONS für State-Interpretation
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def get_device_state_info(raw_state: str, device_key: str = None) -> dict:
-    """
-    Ermittle erweiterte Zustandsinformationen für ein Gerät.
-    
-    Args:
-        raw_state: Roher Zustandswert aus API
-        device_key: Geräteschlüssel für spezifische Behandlung
-        
-    Returns:
-        Dict mit mode, active, priority, description
-    """
-    if not raw_state:
-        return {"mode": "auto", "active": False, "priority": 50, "desc": "Unknown"}
-        
-    upper_state = str(raw_state).upper().strip()
-    
-    # Prüfe Device-State-Mapping
-    if upper_state in DEVICE_STATE_MAPPING:
-        return DEVICE_STATE_MAPPING[upper_state]
-    
-    # Fallback für unbekannte Zustände
-    return {"mode": "auto", "active": None, "priority": 10, "desc": f"Unknown state: {raw_state}"}
-
-def legacy_is_on_state(raw_state: str) -> bool:
-    """
-    Legacy-Funktion für einfache On/Off-Prüfung.
-    Für Rückwärtskompatibilität mit bestehenden Binary Sensors.
-    
-    Args:
-        raw_state: Roher Zustandswert
-        
-    Returns:
-        bool: True wenn "eingeschaltet"
-    """
-    if not raw_state:
-        return False
-        
-    # Teste zuerst Integer-Werte direkt
-    try:
-        int_state = int(raw_state) if isinstance(raw_state, (int, float)) else int(str(raw_state))
-        if int_state in STATE_MAP:
-            return STATE_MAP[int_state]
-    except (ValueError, TypeError):
-        pass
-    
-    # Dann String-Werte
-    upper_state = str(raw_state).upper().strip()
-    if upper_state in STATE_MAP:
-        return STATE_MAP[upper_state]
-    
-    # Fallback zu erweiterten Zustandsinformationen
-    state_info = get_device_state_info(raw_state)
-    if state_info.get("active") is not None:
-        return state_info.get("active")
-    
-    # Letzter Fallback: False
-    return False
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# STATE DEBUGGING HELPER
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def debug_state_mapping(raw_state, device_key=None):
-    """Debug helper to understand how states are mapped."""
-    print(f"🔍 DEBUG State Mapping für {device_key or 'UNKNOWN'}:")
-    print(f"  Raw state: {raw_state} (type: {type(raw_state)})")
-    
-    # Test Integer mapping
-    try:
-        int_val = int(raw_state) if isinstance(raw_state, (int, float)) else int(str(raw_state))
-        if int_val in STATE_MAP:
-            print(f"  ✅ Integer mapping: {int_val} → {STATE_MAP[int_val]}")
-        else:
-            print(f"  ❌ Integer {int_val} not in STATE_MAP")
-    except (ValueError, TypeError):
-        print(f"  ❌ Cannot convert to integer")
-    
-    # Test String mapping
-    str_val = str(raw_state).upper().strip()
-    if str_val in STATE_MAP:
-        print(f"  ✅ String mapping: '{str_val}' → {STATE_MAP[str_val]}")
-    else:
-        print(f"  ❌ String '{str_val}' not in STATE_MAP")
-    
-    # Test Legacy function
-    result = legacy_is_on_state(raw_state)
-    print(f"  🎯 Final result: {result}")
-    
-    return result
-
-# Beispiel-Verwendung für Debugging:
-# debug_state_mapping(4, "PUMP")  → sollte True ergeben
-# debug_state_mapping("4", "PUMP") → sollte True ergeben
-
-# Erweiterte State-to-Mode Mappings für 3-State-Unterstützung
-def get_device_state_info(raw_state: str, device_key: str = None) -> dict:
-    """
-    Ermittle erweiterte Zustandsinformationen für ein Gerät.
-    
-    Args:
-        raw_state: Roher Zustandswert aus API
-        device_key: Geräteschlüssel für spezifische Behandlung
-        
-    Returns:
-        Dict mit mode, active, priority, description
-    """
-    if not raw_state:
-        return {"mode": "auto", "active": False, "priority": 50, "desc": "Unknown"}
-        
-    upper_state = str(raw_state).upper().strip()
-    
-    # Prüfe Device-State-Mapping
-    if upper_state in DEVICE_STATE_MAPPING:
-        return DEVICE_STATE_MAPPING[upper_state]
-    
-    # Fallback für unbekannte Zustände
-    return {"mode": "auto", "active": None, "priority": 10, "desc": f"Unknown state: {raw_state}"}
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# SENSOREN
-# ═══════════════════════════════════════════════════════════════════════════════
-
+# ⭐ Erweiterte Temperatur-Sensoren
 TEMP_SENSORS = {
     "onewire1_value": {"name": "Beckenwasser", "icon": "mdi:pool", "unit": "°C"},
     "onewire2_value": {"name": "Außentemperatur", "icon": "mdi:thermometer", "unit": "°C"},
-    "onewire3_value": {"name": "Absorber", "icon": "mdi:solar-power", "unit": "°C"},
+    "onewire3_value": {"name": "Solarabsorber", "icon": "mdi:solar-power", "unit": "°C"},
     "onewire4_value": {"name": "Absorber-Rücklauf", "icon": "mdi:pipe", "unit": "°C"},
     "onewire5_value": {"name": "Wärmetauscher", "icon": "mdi:radiator", "unit": "°C"},
     "onewire6_value": {"name": "Heizungs-Speicher", "icon": "mdi:water-boiler", "unit": "°C"},
 }
 
 WATER_CHEM_SENSORS = {
-    # FIXME: pH sensor darf KEINE unit haben (Home Assistant Spec)
-    "pH_value": {"name": "pH-Wert", "icon": "mdi:flask", "unit": None},
+    "pH_value": {"name": "pH-Wert", "icon": "mdi:flask", "unit": None},  # pH ohne unit
     "orp_value": {"name": "Redoxpotential", "icon": "mdi:flash", "unit": "mV"},
     "pot_value": {"name": "Chlorgehalt", "icon": "mdi:test-tube", "unit": "mg/l"},
 }
 
+# ⭐ Erweiterte Analog-Sensoren
 ANALOG_SENSORS = {
     "ADC1_value": {"name": "Filterdruck", "icon": "mdi:gauge", "unit": "bar"},
-    "ADC2_value": {"name": "Füllstand", "icon": "mdi:water-percent", "unit": "cm"},
-    "ADC3_value": {"name": "Förderleistung", "icon": "mdi:pump", "unit": "m³/h"},
-    "IMP1_value": {"name": "Messwasser-Durchfluss", "icon": "mdi:water-pump", "unit": "cm/s"},
-    "IMP2_value": {"name": "Förderleistung", "icon": "mdi:pump", "unit": "m³/h"},
+    "ADC2_value": {"name": "Überlaufbehälter", "icon": "mdi:water-percent", "unit": "cm"},
+    "ADC3_value": {"name": "Durchflussmesser (4-20mA)", "icon": "mdi:pump", "unit": "m³/h"},
+    "ADC4_value": {"name": "Analogsensor 4 (4-20mA)", "icon": "mdi:gauge", "unit": None},
+    "ADC5_value": {"name": "Analogsensor 5 (0-10V)", "icon": "mdi:gauge", "unit": "V"},
+    "IMP1_value": {"name": "Flow-Switch", "icon": "mdi:water-pump", "unit": "cm/s"},
+    "IMP2_value": {"name": "Pumpen-Durchfluss", "icon": "mdi:pump", "unit": "m³/h"},
+}
+
+# ⭐ System-Sensoren
+SYSTEM_SENSORS = {
+    "CPU_TEMP": {"name": "CPU Temperatur", "icon": "mdi:chip", "unit": "°C"},
+    "CPU_TEMP_CARRIER": {"name": "Carrier Board", "icon": "mdi:expansion-card", "unit": "°C"},
+    "CPU_UPTIME": {"name": "System Uptime", "icon": "mdi:clock", "unit": None},
+}
+
+# ⭐ Backwash-Sensoren
+BACKWASH_SENSORS = {
+    "BACKWASH_STATE": {"name": "Rückspül-Status", "icon": "mdi:valve"},
+    "BACKWASH_STEP": {"name": "Rückspül-Schritt", "icon": "mdi:step-forward"},
+    "BACKWASH_DELAY_RUNNING": {"name": "Rückspülung verzögert", "icon": "mdi:timer-sand"},
+    "BACKWASH_OMNI_STATE": {"name": "Omni-Ventil Status", "icon": "mdi:valve-open"},
+    "BACKWASH_OMNI_MOVING": {"name": "Omni-Ventil bewegt sich", "icon": "mdi:rotate-right"},
+}
+
+# ⭐ Erweiterte Dosierungs-Sensoren
+DOSING_SENSORS = {
+    # States
+    "DOS_1_CL": "Chlor-Dosierung Status",
+    "DOS_4_PHM": "pH-Minus Status",
+    "DOS_5_PHP": "pH-Plus Status",
+    "DOS_6_FLOC": "Flockmittel Status",
+    
+    # Tägliche Mengen
+    "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": {"name": "Chlor Tagesmenge", "unit": "ml"},
+    "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML": {"name": "pH-Minus Tagesmenge", "unit": "ml"},
+    "DOS_5_PHP_DAILY_DOSING_AMOUNT_ML": {"name": "pH-Plus Tagesmenge", "unit": "ml"},
+    "DOS_6_FLOC_DAILY_DOSING_AMOUNT_ML": {"name": "Flockmittel Tagesmenge", "unit": "ml"},
+    
+    # Can-Empty Kontakte
+    "INPUT_CE1": {"name": "Kanister 1 leer", "icon": "mdi:cup-off-outline"},
+    "INPUT_CE2": {"name": "Kanister 2 leer", "icon": "mdi:cup-off-outline"},
+    "INPUT_CE3": {"name": "Kanister 3 leer", "icon": "mdi:cup-off-outline"},
+    "INPUT_CE4": {"name": "Kanister 4 leer", "icon": "mdi:cup-off-outline"},
+}
+
+# ⭐ Overflow-Sensoren
+OVERFLOW_SENSORS = {
+    "OVERFLOW_DRYRUN_STATE": {"name": "Trockenlauf-Schutz", "icon": "mdi:water-alert"},
+    "OVERFLOW_OVERFILL_STATE": {"name": "Überfüll-Schutz", "icon": "mdi:water-plus"},
+    "OVERFLOW_REFILL_STATE": {"name": "Nachfüll-Status", "icon": "mdi:water"},
+    "ADC2_value": {"name": "Überlaufbehälter Füllstand", "unit": "cm", "icon": "mdi:water-percent"},
+}
+
+# ⭐ Pumpen-Sensoren
+PUMP_SENSORS = {
+    "PUMP": {"name": "Filterpumpe Status", "supports_3_state": True},
+    "PUMP_RPM_0": {"name": "Pumpe STOP", "icon": "mdi:stop"},
+    "PUMP_RPM_1": {"name": "Pumpe Stufe 1 (Eco)", "icon": "mdi:speedometer-slow"},
+    "PUMP_RPM_2": {"name": "Pumpe Stufe 2 (Normal)", "icon": "mdi:speedometer-medium"},
+    "PUMP_RPM_3": {"name": "Pumpe Stufe 3 (Boost)", "icon": "mdi:speedometer"},
+    "PUMP_RUNTIME": {"name": "Pumpe Laufzeit täglich", "unit": None},
+    "PUMP_LAST_ON": {"name": "Pumpe letzte Einschaltung", "device_class": "timestamp"},
+    "PUMP_LAST_OFF": {"name": "Pumpe letzte Ausschaltung", "device_class": "timestamp"},
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # BINARY SENSOREN MIT 3-STATE UNTERSTÜTZUNG
 # ═══════════════════════════════════════════════════════════════════════════════
-
-_DIGITAL_INPUTS = [
-    {"name": f"Digital Input {i}", "key": f"INPUT{i}", "icon": "mdi:electric-switch", 
-     "feature_id": "digital_inputs", "entity_category": EntityCategory.DIAGNOSTIC} 
-    for i in range(1, 13)
-]
-_DIGITAL_CE_INPUTS = [
-    {"name": f"Digital Input CE{i}", "key": f"INPUT_CE{i}", "icon": "mdi:electric-switch",
-     "feature_id": "digital_inputs", "entity_category": EntityCategory.DIAGNOSTIC}
-    for i in range(1, 5)
-]
 
 BINARY_SENSORS = [
     {"name": "Pump State", "key": "PUMP", "icon": "mdi:water-pump", 
@@ -567,9 +509,6 @@ BINARY_SENSORS = [
     {"name": "ECO Mode", "key": "ECO", "icon": "mdi:leaf"},
     {"name": "PV Surplus", "key": "PVSURPLUS", "icon": "mdi:solar-power-variant", 
      "feature_id": "pv_surplus", "supports_3_state": True},
-    {"name": "Digital Input Z1Z2", "key": "INPUTz1z2", "icon": "mdi:electric-switch", 
-     "feature_id": "digital_inputs", "entity_category": EntityCategory.DIAGNOSTIC},
-    # Cover Controls
     {"name": "Cover Open Contact", "key": "OPEN_CONTACT", "icon": "mdi:window-open-variant", 
      "feature_id": "cover_control", "device_class": BinarySensorDeviceClass.OPENING},
     {"name": "Cover Stop Contact", "key": "STOP_CONTACT", "icon": "mdi:stop-circle-outline", 
@@ -578,29 +517,29 @@ BINARY_SENSORS = [
      "feature_id": "cover_control", "device_class": BinarySensorDeviceClass.OPENING},
 ]
 
-# Generierte Digital Inputs hinzufügen
-BINARY_SENSORS.extend(_DIGITAL_INPUTS)
-BINARY_SENSORS.extend(_DIGITAL_CE_INPUTS)
+# Digital Inputs hinzufügen
+for i in range(1, 13):
+    BINARY_SENSORS.append({
+        "name": f"Digital Input {i}", 
+        "key": f"INPUT{i}", 
+        "icon": "mdi:electric-switch",
+        "feature_id": "digital_inputs", 
+        "entity_category": EntityCategory.DIAGNOSTIC
+    })
+
+# Digital CE Inputs hinzufügen
+for i in range(1, 5):
+    BINARY_SENSORS.append({
+        "name": f"Digital Input CE{i}", 
+        "key": f"INPUT_CE{i}", 
+        "icon": "mdi:electric-switch",
+        "feature_id": "digital_inputs", 
+        "entity_category": EntityCategory.DIAGNOSTIC
+    })
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # SWITCHES MIT 3-STATE UNTERSTÜTZUNG
 # ═══════════════════════════════════════════════════════════════════════════════
-
-_EXT1_SWITCHES = [
-    {"name": f"Extension 1.{i}", "key": f"EXT1_{i}", "icon": "mdi:toggle-switch-outline", 
-     "feature_id": "extension_outputs", "supports_3_state": True} 
-    for i in range(1, 9)
-]
-_EXT2_SWITCHES = [
-    {"name": f"Extension 2.{i}", "key": f"EXT2_{i}", "icon": "mdi:toggle-switch-outline", 
-     "feature_id": "extension_outputs", "supports_3_state": True}
-    for i in range(1, 9)
-]
-_OMNI_SWITCHES = [
-    {"name": f"Omni DC{i} Output", "key": f"OMNI_DC{i}", "icon": "mdi:electric-switch", 
-     "feature_id": "extension_outputs", "supports_3_state": True}
-    for i in range(6)
-]
 
 SWITCHES = [
     {"name": "Filterpumpe", "key": "PUMP", "icon": "mdi:water-pump", 
@@ -613,16 +552,123 @@ SWITCHES = [
      "feature_id": "led_lighting", "supports_3_state": True, "supports_color_pulse": True},
     {"name": "Dosierung pH+", "key": "DOS_5_PHP", "icon": "mdi:flask-plus", 
      "feature_id": "ph_control", "supports_3_state": True, "supports_timer": True},
+    {"name": "Dosierung pH-", "key": "DOS_4_PHM", "icon": "mdi:flask-minus", 
+     "feature_id": "ph_control", "supports_3_state": True, "supports_timer": True},
+    {"name": "Chlor-Dosierung", "key": "DOS_1_CL", "icon": "mdi:flask", 
+     "feature_id": "chlorine_control", "supports_3_state": True, "supports_timer": True},
     {"name": "Flockmittel", "key": "DOS_6_FLOC", "icon": "mdi:flask", 
      "feature_id": "chlorine_control", "supports_3_state": True, "supports_timer": True},
     {"name": "PV-Überschuss", "key": "PVSURPLUS", "icon": "mdi:solar-power-variant", 
      "feature_id": "pv_surplus", "supports_3_state": True, "supports_speed": True},
+    {"name": "Rückspülung", "key": "BACKWASH", "icon": "mdi:valve", 
+     "feature_id": "backwash", "supports_3_state": True},
+    {"name": "Nachspülung", "key": "BACKWASHRINSE", "icon": "mdi:valve", 
+     "feature_id": "backwash", "supports_3_state": True},
 ]
 
-# Generierte Switches hinzufügen
-SWITCHES.extend(_EXT1_SWITCHES)
-SWITCHES.extend(_EXT2_SWITCHES)
-SWITCHES.extend(_OMNI_SWITCHES)
+# Extension 1 Switches hinzufügen
+for i in range(1, 9):
+    SWITCHES.append({
+        "name": f"Extension 1.{i}", 
+        "key": f"EXT1_{i}", 
+        "icon": "mdi:toggle-switch-outline",
+        "feature_id": "extension_outputs", 
+        "supports_3_state": True
+    })
+
+# Extension 2 Switches hinzufügen
+for i in range(1, 9):
+    SWITCHES.append({
+        "name": f"Extension 2.{i}", 
+        "key": f"EXT2_{i}", 
+        "icon": "mdi:toggle-switch-outline",
+        "feature_id": "extension_outputs", 
+        "supports_3_state": True
+    })
+
+# Omni DC Switches hinzufügen
+for i in range(6):
+    SWITCHES.append({
+        "name": f"Omni DC{i} Output", 
+        "key": f"OMNI_DC{i}", 
+        "icon": "mdi:electric-switch",
+        "feature_id": "extension_outputs", 
+        "supports_3_state": True
+    })
+
+# DMX Scenes hinzufügen
+for scene_num in range(1, 13):
+    SWITCHES.append({
+        "name": f"DMX Szene {scene_num}", 
+        "key": f"DMX_SCENE{scene_num}", 
+        "icon": "mdi:lightbulb-multiple",
+        "feature_id": "led_lighting", 
+        "supports_3_state": True
+    })
+
+# Digital Rules hinzufügen
+for rule_num in range(1, 8):
+    SWITCHES.append({
+        "name": f"Schaltregel {rule_num}", 
+        "key": f"DIRULE_{rule_num}", 
+        "icon": "mdi:script-text",
+        "feature_id": "digital_inputs", 
+        "supports_3_state": True
+    })
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# RUNTIME UND TIMESTAMP SENSOREN
+# ═══════════════════════════════════════════════════════════════════════════════
+
+RUNTIME_SENSORS = {
+    "PUMP_RUNTIME": {"name": "Pumpe Laufzeit", "icon": "mdi:timer", "unit": None},
+    "SOLAR_RUNTIME": {"name": "Solar Laufzeit", "icon": "mdi:timer", "unit": None},
+    "HEATER_RUNTIME": {"name": "Heizung Laufzeit", "icon": "mdi:timer", "unit": None},
+    "LIGHT_RUNTIME": {"name": "Beleuchtung Laufzeit", "icon": "mdi:timer", "unit": None},
+    "BACKWASH_RUNTIME": {"name": "Rückspülung Laufzeit", "icon": "mdi:timer", "unit": None},
+}
+
+# Runtime für Dosierungen
+for i in [1, 4, 5, 6]:
+    if i == 1:
+        RUNTIME_SENSORS[f"DOS_{i}_CL_RUNTIME"] = {"name": f"Chlor Laufzeit", "icon": "mdi:timer", "unit": None}
+    elif i == 4:
+        RUNTIME_SENSORS[f"DOS_{i}_PHM_RUNTIME"] = {"name": f"pH-Minus Laufzeit", "icon": "mdi:timer", "unit": None}
+    elif i == 5:
+        RUNTIME_SENSORS[f"DOS_{i}_PHP_RUNTIME"] = {"name": f"pH-Plus Laufzeit", "icon": "mdi:timer", "unit": None}
+    elif i == 6:
+        RUNTIME_SENSORS[f"DOS_{i}_FLOC_RUNTIME"] = {"name": f"Flockmittel Laufzeit", "icon": "mdi:timer", "unit": None}
+
+# Runtime für Erweiterungen
+for ext_bank in [1, 2]:
+    for relay_num in range(1, 9):
+        key = f"EXT{ext_bank}_{relay_num}_RUNTIME"
+        RUNTIME_SENSORS[key] = {
+            "name": f"Ext {ext_bank}.{relay_num} Laufzeit",
+            "icon": "mdi:timer",
+            "unit": None
+        }
+
+TIMESTAMP_SENSORS = {
+    "PUMP_LAST_ON": {"name": "Pumpe letzte Einschaltung"},
+    "PUMP_LAST_OFF": {"name": "Pumpe letzte Ausschaltung"},
+    "BACKWASH_LAST_AUTO_RUN": {"name": "Letzte automatische Rückspülung"},
+    "BACKWASH_LAST_MANUAL_RUN": {"name": "Letzte manuelle Rückspülung"},
+    "DOS_1_CL_LAST_CAN_RESET": {"name": "Chlor-Kanister letzter Reset"},
+    "DOS_4_PHM_LAST_CAN_RESET": {"name": "pH-Minus-Kanister letzter Reset"},
+    "DOS_5_PHP_LAST_CAN_RESET": {"name": "pH-Plus-Kanister letzter Reset"},
+    "DOS_6_FLOC_LAST_CAN_RESET": {"name": "Flockmittel-Kanister letzter Reset"},
+}
+
+# Timestamps für Erweiterungen
+for ext_bank in [1, 2]:
+    for relay_num in range(1, 9):
+        TIMESTAMP_SENSORS[f"EXT{ext_bank}_{relay_num}_LAST_ON"] = {
+            "name": f"Ext {ext_bank}.{relay_num} letzte Einschaltung"
+        }
+        TIMESTAMP_SENSORS[f"EXT{ext_bank}_{relay_num}_LAST_OFF"] = {
+            "name": f"Ext {ext_bank}.{relay_num} letzte Ausschaltung"
+        }
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # SETPOINT-DEFINITIONEN MIT ERWEITERTER VALIDIERUNG
@@ -657,49 +703,50 @@ SETPOINT_DEFINITIONS = [
 # UNIT MAPPINGS UND SENSOREN
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# Dynamische Unit-Mappings (Python 3.13 kompatibel)
-_ONEWIRE_TEMPS = {f"onewire{i}_value": "°C" for i in range(1, 13)}
-_PUMP_RPMS = {f"PUMP_RPM_{i}": "RPM" for i in range(4)}
-_PUMP_RPM_VALUES = {f"PUMP_RPM_{i}_VALUE": "RPM" for i in range(4)}
-
 UNIT_MAP = {
-    # Temperature sensors (korrekt)
-    "water_temp": "°C", "air_temp": "°C", "temp_value": "°C",
+    # Temperature sensors
+    "water_temp": "°C", 
+    "air_temp": "°C", 
+    "temp_value": "°C",
     "SYSTEM_cpu_temperature": "°C",
-    "SYSTEM_carrier_cpu_temperature": "°C", 
-    "SYSTEM_DosageModule_cpu_temperature": "°C",  # ← Das ist der fehlende!
-    "SYSTEM_dosagemodule_cpu_temperature": "°C",  # ← Eventuell lowercase
+    "SYSTEM_carrier_cpu_temperature": "°C",
+    "SYSTEM_DosageModule_cpu_temperature": "°C",
+    "SYSTEM_dosagemodule_cpu_temperature": "°C",
     "CPU_TEMP": "°C",
     "CPU_TEMP_CARRIER": "°C",
     "CPU_TEMPERATURE": "°C",
     
     # Water chemistry (pH OHNE unit!)
-    "orp_value": "mV", "pot_value": "mg/l",
-    # pH_value hat absichtlich KEINE unit mehr!
+    "orp_value": "mV", 
+    "pot_value": "mg/l",
+    # pH_value hat absichtlich KEINE unit!
     
     # Analog values
-    "ADC1_value": "bar", "ADC2_value": "cm", "IMP1_value": "cm/s", "IMP2_value": "m³/h",
-    # System values
-    # CPU_UPTIME wird als TEXT behandelt, daher keine Unit
-    **{f"onewire{i}_value": "°C" for i in range(1, 13)},
-    **{f"PUMP_RPM_{i}": "RPM" for i in range(4)},
-    **{f"PUMP_RPM_{i}_VALUE": "RPM" for i in range(4)},
+    "ADC1_value": "bar", 
+    "ADC2_value": "cm",
+    "ADC3_value": "m³/h",
+    "ADC4_value": None,  # 4-20mA generic
+    "ADC5_value": "V",   # 0-10V
+    "IMP1_value": "cm/s", 
+    "IMP2_value": "m³/h",
+    
+    # Dosing amounts
+    "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": "ml",
+    "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML": "ml",
+    "DOS_5_PHP_DAILY_DOSING_AMOUNT_ML": "ml",
+    "DOS_6_FLOC_DAILY_DOSING_AMOUNT_ML": "ml",
 }
 
-# Generierte Mappings hinzufügen
-UNIT_MAP.update(_ONEWIRE_TEMPS)
-UNIT_MAP.update(_PUMP_RPMS)
-UNIT_MAP.update(_PUMP_RPM_VALUES)
+# OneWire Temperaturen hinzufügen
+for i in range(1, 13):
+    UNIT_MAP[f"onewire{i}_value"] = "°C"
+
+# Pump RPMs hinzufügen
+for i in range(4):
+    UNIT_MAP[f"PUMP_RPM_{i}"] = "RPM"
+    UNIT_MAP[f"PUMP_RPM_{i}_VALUE"] = "RPM"
 
 # Sensoren ohne Einheiten
-_DOS_CL_STATES = {f"DOS_{i}_CL_STATE" for i in range(1, 7)}
-_DOS_PHM_STATES = {f"DOS_{i}_PHM_STATE" for i in range(1, 7)}
-_DOS_PHP_STATES = {f"DOS_{i}_PHP_STATE" for i in range(1, 7)}
-_DOS_CL_RANGES = {f"DOS_{i}_CL_REMAINING_RANGE" for i in range(1, 7)}
-_DOS_PHM_RANGES = {f"DOS_{i}_PHM_REMAINING_RANGE" for i in range(1, 7)}
-_DOS_PHP_RANGES = {f"DOS_{i}_PHP_REMAINING_RANGE" for i in range(1, 7)}
-_DOS_FLOC_RANGES = {f"DOS_{i}_FLOC_REMAINING_RANGE" for i in range(1, 7)}
-
 NO_UNIT_SENSORS = {
     "FW", "SW_VERSION", "HW_VERSION", "SERIAL_NUMBER", "MAC_ADDRESS", "IP_ADDRESS",
     "VERSION", "VERSION_INFO", "HARDWARE_VERSION", "CPU_GOV", "HW_SERIAL_CARRIER",
@@ -711,58 +758,145 @@ NO_UNIT_SENSORS = {
     "COVER_DIRECTION", "BATHING_AI_SURVEILLANCE_STATE", "BATHING_AI_PUMP_STATE",
     "OVERFLOW_REFILL_STATE", "OVERFLOW_DRYRUN_STATE", "OVERFLOW_OVERFILL_STATE",
     "BACKWASH_OMNI_MOVING", "BACKWASH_DELAY_RUNNING", "BACKWASH_STATE", "REFILL_STATE",
-    "time", "TIME", "CURRENT_TIME"
-} | _DOS_CL_STATES | _DOS_PHM_STATES | _DOS_PHP_STATES | _DOS_CL_RANGES | _DOS_PHM_RANGES | _DOS_PHP_RANGES | _DOS_FLOC_RANGES
+    "time", "TIME", "CURRENT_TIME", "CPU_UPTIME",
+    "BACKWASH_STEP", "DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_1",
+    "DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_2",
+    "DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_3",
+    "DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_4",
+    "DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_5",
+    "DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_6",
+    "DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_7",
+}
 
-# Feature-Mapping für Sensoren (erweitert)
-_DOS_CL_FEATURE_MAP = {f"DOS_{i}_CL_STATE": "chlorine_control" for i in range(1, 7)}
-_DOS_PHM_FEATURE_MAP = {f"DOS_{i}_PHM_STATE": "ph_control" for i in range(1, 7)}
-_DOS_PHP_FEATURE_MAP = {f"DOS_{i}_PHP_STATE": "ph_control" for i in range(1, 7)}
-_DOS_CL_RUNTIME_MAP = {f"DOS_{i}_CL_RUNTIME": "chlorine_control" for i in range(1, 7)}
-_DOS_PHM_RUNTIME_MAP = {f"DOS_{i}_PHM_RUNTIME": "ph_control" for i in range(1, 7)}
-_DOS_PHP_RUNTIME_MAP = {f"DOS_{i}_PHP_RUNTIME": "ph_control" for i in range(1, 7)}
-_EXT1_RUNTIME_MAP = {f"EXT1_{i}_RUNTIME": "extension_outputs" for i in range(1, 9)}
-_EXT2_RUNTIME_MAP = {f"EXT2_{i}_RUNTIME": "extension_outputs" for i in range(1, 9)}
-_OMNI_RUNTIME_MAP = {f"OMNI_DC{i}_RUNTIME": "extension_outputs" for i in range(1, 6)}
+# DOS States hinzufügen
+for i in range(1, 7):
+    NO_UNIT_SENSORS.add(f"DOS_{i}_CL_STATE")
+    NO_UNIT_SENSORS.add(f"DOS_{i}_PHM_STATE")
+    NO_UNIT_SENSORS.add(f"DOS_{i}_PHP_STATE")
+    NO_UNIT_SENSORS.add(f"DOS_{i}_FLOC_STATE")
+    NO_UNIT_SENSORS.add(f"DOS_{i}_CL_REMAINING_RANGE")
+    NO_UNIT_SENSORS.add(f"DOS_{i}_PHM_REMAINING_RANGE")
+    NO_UNIT_SENSORS.add(f"DOS_{i}_PHP_REMAINING_RANGE")
+    NO_UNIT_SENSORS.add(f"DOS_{i}_FLOC_REMAINING_RANGE")
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# FEATURE MAPPINGS
+# ═══════════════════════════════════════════════════════════════════════════════
 
 SENSOR_FEATURE_MAP = {
     # Temperature sensors
     "onewire1_value": None,  # Always show water temperature
-    "onewire2_value": None,  # Always show air temperature  
+    "onewire2_value": None,  # Always show air temperature
     "onewire3_value": "solar",
     "onewire4_value": "solar",
     "onewire5_value": "heating",
     "onewire6_value": "heating",
+    
     # Water chemistry
     "pH_value": "ph_control",
-    "orp_value": "chlorine_control", 
+    "orp_value": "chlorine_control",
     "pot_value": "chlorine_control",
+    
     # Analog sensors
     "ADC1_value": "filter_control",
     "ADC2_value": "water_level",
+    "ADC3_value": "filter_control",
+    "ADC4_value": None,
+    "ADC5_value": None,
     "IMP1_value": "filter_control",
     "IMP2_value": "filter_control",
+    
     # Runtime sensors
     "PUMP_RUNTIME": "filter_control",
     "SOLAR_RUNTIME": "solar",
     "HEATER_RUNTIME": "heating",
     "LIGHT_RUNTIME": "led_lighting",
     "BACKWASH_RUNTIME": "backwash",
+    
+    # System sensors
+    "CPU_TEMP": None,
+    "CPU_TEMP_CARRIER": None,
+    "CPU_UPTIME": None,
 }
 
-# Generierte Mappings hinzufügen
-SENSOR_FEATURE_MAP.update(_DOS_CL_FEATURE_MAP)
-SENSOR_FEATURE_MAP.update(_DOS_PHM_FEATURE_MAP)
-SENSOR_FEATURE_MAP.update(_DOS_PHP_FEATURE_MAP)
-SENSOR_FEATURE_MAP.update(_DOS_CL_RUNTIME_MAP)
-SENSOR_FEATURE_MAP.update(_DOS_PHM_RUNTIME_MAP)
-SENSOR_FEATURE_MAP.update(_DOS_PHP_RUNTIME_MAP)
-SENSOR_FEATURE_MAP.update(_EXT1_RUNTIME_MAP)
-SENSOR_FEATURE_MAP.update(_EXT2_RUNTIME_MAP)
-SENSOR_FEATURE_MAP.update(_OMNI_RUNTIME_MAP)
+# Dosing feature mappings
+for i in range(1, 7):
+    SENSOR_FEATURE_MAP[f"DOS_{i}_CL_STATE"] = "chlorine_control"
+    SENSOR_FEATURE_MAP[f"DOS_{i}_CL_RUNTIME"] = "chlorine_control"
+    SENSOR_FEATURE_MAP[f"DOS_{i}_PHM_STATE"] = "ph_control"
+    SENSOR_FEATURE_MAP[f"DOS_{i}_PHM_RUNTIME"] = "ph_control"
+    SENSOR_FEATURE_MAP[f"DOS_{i}_PHP_STATE"] = "ph_control"
+    SENSOR_FEATURE_MAP[f"DOS_{i}_PHP_RUNTIME"] = "ph_control"
+    SENSOR_FEATURE_MAP[f"DOS_{i}_FLOC_STATE"] = "chlorine_control"
+    SENSOR_FEATURE_MAP[f"DOS_{i}_FLOC_RUNTIME"] = "chlorine_control"
+
+# Extension runtime mappings
+for ext_bank in [1, 2]:
+    for relay_num in range(1, 9):
+        SENSOR_FEATURE_MAP[f"EXT{ext_bank}_{relay_num}_RUNTIME"] = "extension_outputs"
+
+# Omni runtime mappings
+for i in range(6):
+    SENSOR_FEATURE_MAP[f"OMNI_DC{i}_RUNTIME"] = "extension_outputs"
+
+SWITCH_FEATURE_MAP = {
+    "PUMP": "filter_control",
+    "SOLAR": "solar",
+    "HEATER": "heating",
+    "LIGHT": "led_lighting",
+    "DOS_1_CL": "chlorine_control",
+    "DOS_4_PHM": "ph_control",
+    "DOS_5_PHP": "ph_control",
+    "DOS_6_FLOC": "chlorine_control",
+    "BACKWASH": "backwash",
+    "BACKWASHRINSE": "backwash",
+    "PVSURPLUS": "pv_surplus",
+    "REFILL": "water_refill",
+}
+
+# Extensions
+for i in range(1, 9):
+    SWITCH_FEATURE_MAP[f"EXT1_{i}"] = "extension_outputs"
+    SWITCH_FEATURE_MAP[f"EXT2_{i}"] = "extension_outputs"
+
+# DMX Scenes
+for i in range(1, 13):
+    SWITCH_FEATURE_MAP[f"DMX_SCENE{i}"] = "led_lighting"
+
+# Digital Rules
+for i in range(1, 8):
+    SWITCH_FEATURE_MAP[f"DIRULE_{i}"] = "digital_inputs"
+
+# Omni DCs
+for i in range(6):
+    SWITCH_FEATURE_MAP[f"OMNI_DC{i}"] = "extension_outputs"
+
+BINARY_SENSOR_FEATURE_MAP = {
+    "PUMP": "filter_control",
+    "HEATER": "heating",
+    "SOLAR": "solar",
+    "LIGHT": "led_lighting",
+    "BACKWASH": "backwash",
+    "BACKWASHRINSE": "backwash",
+    "DOS_1_CL": "chlorine_control",
+    "DOS_4_PHM": "ph_control",
+    "DOS_5_PHP": "ph_control",
+    "DOS_6_FLOC": "chlorine_control",
+    "COVER_OPEN": "cover_control",
+    "COVER_CLOSE": "cover_control",
+    "COVER_STATE": "cover_control",
+    "REFILL": "water_refill",
+    "PVSURPLUS": "pv_surplus",
+}
+
+# Digital Inputs
+for i in range(1, 13):
+    BINARY_SENSOR_FEATURE_MAP[f"INPUT{i}"] = "digital_inputs"
+for i in range(1, 5):
+    BINARY_SENSOR_FEATURE_MAP[f"INPUT_CE{i}"] = "digital_inputs"
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# API-AKTIONEN UND ERWEITERTE SERVICE-DEFINITIONEN
+# API-AKTIONEN UND SERVICE-DEFINITIONEN
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # API-Aktionen
@@ -786,10 +920,10 @@ TARGET_MIN_CHLORINE = "MinChlorine"
 KEY_MAINTENANCE = "MAINTENANCE"
 KEY_PVSURPLUS = "PVSURPLUS"
 
-# API-Request-Templates basierend auf Dokumentation
+# API-Request-Templates
 API_REQUEST_TEMPLATES = {
     "pump_speed": "PUMP,{action},{duration},{speed}",
-    "pump_force_off": "PUMP,OFF,{duration},0", 
+    "pump_force_off": "PUMP,OFF,{duration},0",
     "pump_auto": "PUMP,AUTO,0,0",
     "dosing_manual": "{key},MAN,{duration},0",
     "extension_timed": "{key},ON,{duration},0",
@@ -802,7 +936,7 @@ API_REQUEST_TEMPLATES = {
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# ERWEITERTE SERVICE-DEFINITIONEN FÜR 3-STATE SUPPORT
+# ERWEITERTE SERVICE-DEFINITIONEN
 # ═══════════════════════════════════════════════════════════════════════════════
 
 ENHANCED_SERVICES = {
@@ -855,222 +989,63 @@ ENHANCED_SERVICES = {
             }
         }
     },
-    "set_extension_timer": {
-        "name": "Erweiterungsrelais-Timer",
-        "description": "Aktiviert Erweiterungsrelais für bestimmte Zeit",
-        "target": "entity",
-        "fields": {
-            "duration": {
-                "selector": {"number": {"min": 60, "max": 86400, "unit_of_measurement": "seconds"}},
-                "required": True,
-                "description": "Aktivierungsdauer in Sekunden"
-            }
-        }
-    },
-    "force_off": {
-        "name": "Zwangsabschaltung",
-        "description": "Schaltet Gerät zwangsweise aus mit Sperrzeit",
-        "target": "entity",
-        "fields": {
-            "lock_duration": {
-                "selector": {"number": {"min": 60, "max": 3600, "unit_of_measurement": "seconds"}},
-                "required": True,
-                "description": "Sperrdauer in Sekunden"
-            }
-        }
-    },
-    "trigger_light_color_pulse": {
-        "name": "Licht-Farbpuls",
-        "description": "Löst Farbwechsel-Puls für einfache LED-Leuchten aus",
-        "target": "entity",
-        "fields": {}
-    },
-    "control_all_dmx_scenes": {
-        "name": "Alle DMX-Szenen steuern",
-        "description": "Steuert alle DMX-Lichtszenen gleichzeitig",
+    "mobile_emergency_stop": {
+        "name": "🚨 NOTAUS (Mobile)",
+        "description": "Sofortiger Stopp aller kritischen Systeme",
         "target": "device",
         "fields": {
-            "action": {
-                "selector": {"select": {"options": ["ALLON", "ALLOFF", "ALLAUTO"]}},
+            "stop_reason": {
+                "selector": {"select": {"options": ["leak", "equipment_fault", "maintenance"]}},
                 "required": True,
-                "description": "Aktion für alle DMX-Szenen"
-            }
-        }
-    },
-    "manage_digital_rule": {
-        "name": "Digitale Regel verwalten",
-        "description": "Sperrt/entsperrt oder löst digitale Eingaberegeln aus",
-        "target": "device",
-        "fields": {
-            "rule": {
-                "selector": {"select": {"options": [f"DIRULE_{i}" for i in range(1, 8)]}},
-                "required": True,
-                "description": "Zu verwaltende digitale Eingaberegel"
-            },
-            "action": {
-                "selector": {"select": {"options": ["TRIGGER", "LOCK", "UNLOCK"]}},
-                "required": True,
-                "description": "Auszuführende Aktion"
+                "description": "Grund für Notaus"
             }
         }
     }
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# COVER-KONFIGURATION
+# HELPER FUNCTIONS
 # ═══════════════════════════════════════════════════════════════════════════════
 
-COVER_CONFIG = {
-    "states": {
-        "CLOSED": {"numeric": "2", "position": 0, "description": "Vollständig geschlossen"},
-        "OPEN": {"numeric": "0", "position": 100, "description": "Vollständig geöffnet"},
-        "OPENING": {"numeric": "1", "position": None, "description": "Öffnet sich"},
-        "CLOSING": {"numeric": "3", "position": None, "description": "Schließt sich"},
-        "STOPPED": {"numeric": "4", "position": None, "description": "Angehalten"}
-    },
-    "movement_timeout": 120,  # Maximum Zeit für Öffnen/Schließen in Sekunden
-    "position_update_interval": 5  # Aktualisierungsintervall während Bewegung
-}
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# PV-ÜBERSCHUSS KONFIGURATION (KAPITEL 26.3)
-# ═══════════════════════════════════════════════════════════════════════════════
-
-PV_SURPLUS_CONFIG = {
-    "activation_modes": {
-        "digital_input": 1,  # Aktiviert durch Digital-Input
-        "http_request": 2    # Aktiviert durch HTTP-Request
-    },
-    "pump_speeds": {
-        1: {"name": "Eco", "description": "Minimale Drehzahl für PV-Überschuss"},
-        2: {"name": "Normal", "description": "Standard-Drehzahl für PV-Überschuss"}, 
-        3: {"name": "Boost", "description": "Maximale Drehzahl für PV-Überschuss"}
-    },
-    "default_speed": 2,
-    "api_template": "PVSURPLUS,{state},{speed},0"
-}
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# VALIDIERUNG UND MONITORING
-# ═══════════════════════════════════════════════════════════════════════════════
-
-# Gerätespezifische Validierungsregeln
-DEVICE_VALIDATION_RULES = {
-    "PUMP": {
-        "min_speed": 1, "max_speed": 3, 
-        "min_off_duration": 60, "max_off_duration": 3600,
-        "rpm_thresholds": {"min_active": 100, "max_normal": 3000}
-    },
-    "HEATER": {
-        "min_temp": 20.0, "max_temp": 40.0, "temp_step": 0.5,
-        "max_temp_diff": 50.0  # Maximum erlaubte Temperaturdifferenz
-    },
-    "DOS_1_CL": {
-        "min_dosing": 5, "max_dosing": 300,
-        "safety_interval": 300, "max_daily_runtime": 1800
-    },
-    "DOS_4_PHM": {
-        "min_dosing": 5, "max_dosing": 300,
-        "safety_interval": 300, "max_daily_runtime": 1800
-    },
-    "DOS_5_PHP": {
-        "min_dosing": 5, "max_dosing": 300,
-        "safety_interval": 300, "max_daily_runtime": 1800
-    }
-}
-
-# Erweiterte Monitoring-Konfiguration
-MONITORING_CONFIG = {
-    "critical_devices": ["PUMP", "HEATER", "DOS_1_CL", "DOS_4_PHM", "DOS_5_PHP"],
-    "monitoring_intervals": {
-        "critical": 10,    # Sekunden - Pumpe, Heizung, Dosierungen
-        "normal": 30,      # Sekunden - Solar, Licht, Standard-Funktionen
-        "background": 120  # Sekunden - Erweiterungen, System-Sensoren
-    },
-    "alert_thresholds": {
-        "pump_rpm_min": 100,           # Minimum RPM für laufende Pumpe
-        "temp_diff_max": 50,           # Maximum Temperaturdifferenz in °C
-        "dosing_runtime_max": 300,     # Maximum Dosierungszeit in Sekunden
-        "ph_deviation_max": 0.5,       # Maximum pH-Abweichung vom Sollwert
-        "orp_deviation_max": 100,      # Maximum Redox-Abweichung in mV
-        "pressure_max": 2.5,           # Maximum Filterdruck in bar
-        "temp_sensor_timeout": 300     # Timeout für Temperatursensoren in Sekunden
-    },
-    "error_recovery": {
-        "max_retries": 3,
-        "retry_delay": 5,  # Sekunden
-        "fallback_to_auto": True
-    }
-}
-
-# Fehlercodes und -behandlung
-ERROR_CODES = {
-    # API-Antwort-Codes
-    "OK": {"severity": "info", "message": "Operation successful", "action": "none"},
-    "ERROR": {"severity": "error", "message": "General error occurred", "action": "retry"},
+def get_device_state_info(raw_state: str, device_key: str = None) -> dict:
+    """Ermittle erweiterte Zustandsinformationen für ein Gerät."""
+    if not raw_state:
+        return {"mode": "auto", "active": False, "priority": 50, "desc": "Unknown"}
     
-    # HTTP-spezifische Fehler
-    "HTTP_401": {"severity": "error", "message": "Authentication required - check credentials", "action": "check_auth"},
-    "HTTP_404": {"severity": "error", "message": "API endpoint not found", "action": "check_url"},
-    "HTTP_500": {"severity": "error", "message": "Controller overloaded", "action": "wait_retry"},
-    "HTTP_TIMEOUT": {"severity": "warning", "message": "Request timeout", "action": "retry"},
+    upper_state = str(raw_state).upper().strip()
     
-    # Validierungsfehler
-    "INVALID_SPEED": {"severity": "error", "message": "Pump speed must be 1-3", "action": "validate_input"},
-    "INVALID_DURATION": {"severity": "error", "message": "Duration outside valid range", "action": "validate_input"},
-    "DOSING_SAFETY": {"severity": "warning", "message": "Dosing safety interval not met", "action": "enforce_delay"},
-    "DEVICE_LOCKED": {"severity": "warning", "message": "Device in maintenance mode", "action": "wait_maintenance"},
-    "TEMP_SENSOR_FAULT": {"severity": "error", "message": "Temperature sensor malfunction", "action": "disable_temp_control"}
-}
+    if upper_state in DEVICE_STATE_MAPPING:
+        return DEVICE_STATE_MAPPING[upper_state]
+    
+    return {"mode": "auto", "active": None, "priority": 10, "desc": f"Unknown state: {raw_state}"}
 
-# Status-Prioritäten für Anzeige-Logik
-STATUS_PRIORITIES = {
-    "error": 100,
-    "maintenance": 90,
-    "manual_on": 80,
-    "manual_off": 70,
-    "auto_active": 60,
-    "auto_inactive": 50,
-    "unknown": 10
-}
-
-# Lokalisierung für Zustandsanzeigen
-STATE_TRANSLATIONS = {
-    "de": {
-        "auto_active": "Automatik (Aktiv)",
-        "auto_inactive": "Automatik (Bereit)", 
-        "manual_on": "Manuell Ein",
-        "manual_off": "Manuell Aus",
-        "error": "Fehler",
-        "maintenance": "Wartung",
-        "unknown": "Unbekannt"
-    },
-    "en": {
-        "auto_active": "Auto (Active)",
-        "auto_inactive": "Auto (Ready)",
-        "manual_on": "Manual On", 
-        "manual_off": "Manual Off",
-        "error": "Error",
-        "maintenance": "Maintenance",
-        "unknown": "Unknown"
-    }
-}
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# UTILITY FUNCTIONS FOR 3-STATE SUPPORT
-# ═══════════════════════════════════════════════════════════════════════════════
+def legacy_is_on_state(raw_state: str) -> bool:
+    """Legacy-Funktion für einfache On/Off-Prüfung."""
+    if not raw_state:
+        return False
+    
+    # Teste zuerst Integer-Werte direkt
+    try:
+        int_state = int(raw_state) if isinstance(raw_state, (int, float)) else int(str(raw_state))
+        if int_state in STATE_MAP:
+            return STATE_MAP[int_state]
+    except (ValueError, TypeError):
+        pass
+    
+    # Dann String-Werte
+    upper_state = str(raw_state).upper().strip()
+    if upper_state in STATE_MAP:
+        return STATE_MAP[upper_state]
+    
+    # Fallback zu erweiterten Zustandsinformationen
+    state_info = get_device_state_info(raw_state)
+    if state_info.get("active") is not None:
+        return state_info.get("active")
+    
+    return False
 
 def get_device_mode_from_state(raw_state: str, device_key: str = None) -> str:
-    """
-    Ermittle den Gerätemodus aus dem rohen Zustandswert.
-    
-    Args:
-        raw_state: Roher Zustandswert aus der API
-        device_key: Geräteschlüssel für gerätespezifische Behandlung
-        
-    Returns:
-        String: auto, manual_on, manual_off, error, maintenance, unknown
-    """
+    """Ermittle den Gerätemodus aus dem rohen Zustandswert."""
     state_info = get_device_state_info(raw_state, device_key)
     mode = state_info.get("mode", "auto")
     active = state_info.get("active")
@@ -1080,23 +1055,13 @@ def get_device_mode_from_state(raw_state: str, device_key: str = None) -> str:
     elif mode == "auto":
         return "auto_active" if active else "auto_inactive"
     else:
-        return mode  # error, maintenance, etc.
+        return mode
 
 def get_device_icon(device_key: str, mode: str) -> str:
-    """
-    Ermittle das passende Icon für ein Gerät basierend auf Modus.
-    
-    Args:
-        device_key: Geräteschlüssel (z.B. PUMP, HEATER)
-        mode: Gerätemodus (auto_active, manual_on, etc.)
-        
-    Returns:
-        String: MDI-Icon-Name
-    """
+    """Ermittle das passende Icon für ein Gerät basierend auf Modus."""
     if device_key in STATE_ICONS:
         return STATE_ICONS[device_key].get(mode, STATE_ICONS[device_key].get("auto_inactive", "mdi:help"))
     
-    # Fallback-Icons
     fallback_icons = {
         "auto_active": "mdi:auto-mode",
         "auto_inactive": "mdi:auto-mode-outline",
@@ -1109,29 +1074,11 @@ def get_device_icon(device_key: str, mode: str) -> str:
     return fallback_icons.get(mode, "mdi:help")
 
 def get_device_color(mode: str) -> str:
-    """
-    Ermittle die Anzeigefarbe für einen Gerätemodus.
-    
-    Args:
-        mode: Gerätemodus
-        
-    Returns:
-        String: Hex-Farbcode
-    """
-    return STATE_COLORS.get(mode, "#9E9E9E")  # Grau als Fallback
+    """Ermittle die Anzeigefarbe für einen Gerätemodus."""
+    return STATE_COLORS.get(mode, "#9E9E9E")
 
 def validate_device_parameter(device_key: str, parameter: str, value: any) -> tuple[bool, str]:
-    """
-    Validiere einen Geräteparameter.
-    
-    Args:
-        device_key: Geräteschlüssel
-        parameter: Parameter-Name (speed, duration, etc.)
-        value: Zu validierender Wert
-        
-    Returns:
-        Tuple: (is_valid: bool, error_message: str)
-    """
+    """Validiere einen Geräteparameter."""
     if device_key not in DEVICE_VALIDATION_RULES:
         return True, ""
     
@@ -1150,19 +1097,8 @@ def validate_device_parameter(device_key: str, parameter: str, value: any) -> tu
     return True, ""
 
 def build_api_request(device_key: str, action: str, **params) -> str:
-    """
-    Erstelle API-Request-String basierend auf Geräteparametern.
-    
-    Args:
-        device_key: Geräteschlüssel
-        action: API-Aktion (ON, OFF, AUTO, etc.)
-        **params: Zusätzliche Parameter (duration, speed, etc.)
-        
-    Returns:
-        String: Formatierter API-Request
-    """
+    """Erstelle API-Request-String basierend auf Geräteparametern."""
     if device_key not in DEVICE_PARAMETERS:
-        # Fallback für unbekannte Geräte
         duration = params.get("duration", 0)
         value = params.get("value", 0)
         return f"{device_key},{action},{duration},{value}"
@@ -1170,7 +1106,6 @@ def build_api_request(device_key: str, action: str, **params) -> str:
     device_config = DEVICE_PARAMETERS[device_key]
     template = device_config.get("api_template", "{key},{action},0,0")
     
-    # Parameter für Template vorbereiten
     template_params = {
         "key": device_key,
         "action": action,
@@ -1182,16 +1117,7 @@ def build_api_request(device_key: str, action: str, **params) -> str:
     return template.format(**template_params)
 
 def is_device_activity_detected(device_key: str, coordinator_data: dict) -> bool:
-    """
-    Prüfe, ob ein Gerät tatsächlich aktiv ist (für AUTO-Modus).
-    
-    Args:
-        device_key: Geräteschlüssel
-        coordinator_data: Daten vom Koordinator
-        
-    Returns:
-        bool: True wenn Gerät aktiv läuft
-    """
+    """Prüfe, ob ein Gerät tatsächlich aktiv ist (für AUTO-Modus)."""
     if device_key not in DEVICE_PARAMETERS:
         return False
     
@@ -1199,7 +1125,6 @@ def is_device_activity_detected(device_key: str, coordinator_data: dict) -> bool
     activity_sensors = device_config.get("activity_sensors", [])
     thresholds = device_config.get("activity_threshold", {})
     
-    # Gerätespezifische Aktivitätserkennung
     if device_key == "PUMP":
         rpm = coordinator_data.get("PUMP_RPM_1_VALUE", 0)
         try:
@@ -1208,13 +1133,12 @@ def is_device_activity_detected(device_key: str, coordinator_data: dict) -> bool
             return False
             
     elif device_key in ["HEATER", "SOLAR"]:
-        # Temperaturdifferenz prüfen
         if device_key == "HEATER":
-            device_temp = coordinator_data.get("onewire5_value")  # Heizer-Temperatur
+            device_temp = coordinator_data.get("onewire5_value")
         else:
-            device_temp = coordinator_data.get("onewire3_value")  # Absorber-Temperatur
+            device_temp = coordinator_data.get("onewire3_value")
             
-        water_temp = coordinator_data.get("onewire1_value")  # Wasser-Temperatur
+        water_temp = coordinator_data.get("onewire1_value")
         
         if device_temp is not None and water_temp is not None:
             try:
@@ -1225,29 +1149,24 @@ def is_device_activity_detected(device_key: str, coordinator_data: dict) -> bool
                 return False
                 
     elif device_key.startswith("DOS_"):
-        # Dosierung: Prüfe Runtime
         runtime = coordinator_data.get(f"{device_key}_RUNTIME", "")
         if isinstance(runtime, str) and ":" in runtime:
             return runtime != "00:00:00"
             
-        # Alternativ: Prüfe State
         state = coordinator_data.get(f"{device_key}_STATE", "")
         return str(state).upper() in ["ON", "ACTIVE", "DOSING", "1"]
         
     elif device_key.startswith("EXT"):
-        # Erweiterungsrelais: Prüfe Runtime
         runtime = coordinator_data.get(f"{device_key}_RUNTIME", "")
         if isinstance(runtime, str) and ":" in runtime:
             return runtime != "00:00:00"
             
     elif device_key == "LIGHT":
-        # Licht: Prüfe Runtime oder State
         runtime = coordinator_data.get("LIGHT_RUNTIME", "")
         if isinstance(runtime, str) and ":" in runtime:
             return runtime != "00:00:00"
             
     elif device_key == "BACKWASH":
-        # Rückspülung: Prüfe State oder Runtime
         state = coordinator_data.get("BACKWASHSTATE", "")
         runtime = coordinator_data.get("BACKWASH_RUNTIME", "")
         
@@ -1256,7 +1175,6 @@ def is_device_activity_detected(device_key: str, coordinator_data: dict) -> bool
         if isinstance(runtime, str) and ":" in runtime:
             return runtime != "00:00:00"
     
-    # Fallback: Prüfe alle activity_sensors
     for sensor_key in activity_sensors:
         value = coordinator_data.get(sensor_key)
         if value is not None:
@@ -1271,16 +1189,7 @@ def is_device_activity_detected(device_key: str, coordinator_data: dict) -> bool
     return False
 
 def get_enhanced_switch_attributes(device_key: str, coordinator_data: dict) -> dict:
-    """
-    Erstelle erweiterte Attribute für einen 3-State-Switch.
-    
-    Args:
-        device_key: Geräteschlüssel
-        coordinator_data: Daten vom Koordinator
-        
-    Returns:
-        dict: Erweiterte Attribute
-    """
+    """Erstelle erweiterte Attribute für einen 3-State-Switch."""
     raw_state = coordinator_data.get(device_key, "")
     state_info = get_device_state_info(raw_state, device_key)
     mode = get_device_mode_from_state(raw_state, device_key)
@@ -1295,7 +1204,6 @@ def get_enhanced_switch_attributes(device_key: str, coordinator_data: dict) -> d
         "supports_3_state": True
     }
     
-    # Gerätespezifische Attribute hinzufügen
     if device_key == "PUMP":
         rpm = coordinator_data.get("PUMP_RPM_1_VALUE")
         if rpm is not None:
@@ -1308,14 +1216,12 @@ def get_enhanced_switch_attributes(device_key: str, coordinator_data: dict) -> d
         if runtime:
             attributes["runtime"] = runtime
             
-        # Verfügbare Geschwindigkeiten
         if device_key in DEVICE_PARAMETERS:
             speeds = DEVICE_PARAMETERS[device_key].get("speeds", {})
             attributes["available_speeds"] = list(speeds.keys())
             attributes["speed_names"] = speeds
             
     elif device_key.startswith("DOS_"):
-        # Dosierungs-spezifische Attribute
         runtime = coordinator_data.get(f"{device_key}_RUNTIME")
         if runtime:
             attributes["runtime"] = runtime
@@ -1328,7 +1234,6 @@ def get_enhanced_switch_attributes(device_key: str, coordinator_data: dict) -> d
         if state:
             attributes["dosing_state"] = state
             
-        # Dosierungsparameter
         if device_key in DEVICE_PARAMETERS:
             dosing_config = DEVICE_PARAMETERS[device_key]
             attributes["dosing_type"] = dosing_config.get("dosing_type", "")
@@ -1336,7 +1241,6 @@ def get_enhanced_switch_attributes(device_key: str, coordinator_data: dict) -> d
             attributes["safety_interval"] = dosing_config.get("safety_interval", 300)
             
     elif device_key in ["HEATER", "SOLAR"]:
-        # Temperatur-spezifische Attribute
         if device_key == "HEATER":
             temp_sensor = "onewire5_value"
         else:
@@ -1369,12 +1273,10 @@ def get_enhanced_switch_attributes(device_key: str, coordinator_data: dict) -> d
             attributes["runtime"] = runtime
             
     elif device_key.startswith("EXT"):
-        # Erweiterungsrelais-Attribute
         runtime = coordinator_data.get(f"{device_key}_RUNTIME")
         if runtime:
             attributes["runtime"] = runtime
             
-        # Timer-Informationen
         if device_key in DEVICE_PARAMETERS:
             ext_config = DEVICE_PARAMETERS[device_key]
             attributes["default_duration"] = ext_config.get("default_on_duration", 3600)
@@ -1385,14 +1287,12 @@ def get_enhanced_switch_attributes(device_key: str, coordinator_data: dict) -> d
         if runtime:
             attributes["runtime"] = runtime
             
-        # Licht-spezifische Funktionen
         if device_key in DEVICE_PARAMETERS:
             light_config = DEVICE_PARAMETERS[device_key]
             attributes["supports_color_pulse"] = light_config.get("supports_color_pulse", False)
             attributes["color_pulse_duration"] = light_config.get("color_pulse_duration", 150)
             
     elif device_key == "PVSURPLUS":
-        # PV-Überschuss Attribute
         pv_status = coordinator_data.get("PVSURPLUS")
         if pv_status is not None:
             try:
@@ -1408,13 +1308,11 @@ def get_enhanced_switch_attributes(device_key: str, coordinator_data: dict) -> d
             except (ValueError, TypeError):
                 pass
                 
-        # Verfügbare Geschwindigkeiten
         if device_key in DEVICE_PARAMETERS:
             speeds = DEVICE_PARAMETERS[device_key].get("speeds", {})
             attributes["available_speeds"] = list(speeds.keys())
             attributes["speed_names"] = speeds
     
-    # Unterstützte Aktionen basierend auf Gerätekonfiguration
     if device_key in DEVICE_PARAMETERS:
         device_config = DEVICE_PARAMETERS[device_key]
         supported_actions = ["ON", "OFF", "AUTO"]
@@ -1435,51 +1333,137 @@ def get_enhanced_switch_attributes(device_key: str, coordinator_data: dict) -> d
     return attributes
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# FEATURE-ZU-SWITCH MAPPINGS FÜR UI-ORGANIZATION
+# VALIDIERUNG UND MONITORING
 # ═══════════════════════════════════════════════════════════════════════════════
 
-SWITCH_FEATURE_MAP = {
-    "PUMP": "filter_control",
-    "SOLAR": "solar", 
-    "HEATER": "heating",
-    "LIGHT": "led_lighting",
-    "DOS_1_CL": "chlorine_control",
-    "DOS_4_PHM": "ph_control",
-    "DOS_5_PHP": "ph_control",
-    "DOS_6_FLOC": "chlorine_control",
-    "BACKWASH": "backwash",
-    "BACKWASHRINSE": "backwash",
-    "PVSURPLUS": "pv_surplus",
-    "REFILL": "water_refill",
-    **{f"EXT1_{i}": "extension_outputs" for i in range(1, 9)},
-    **{f"EXT2_{i}": "extension_outputs" for i in range(1, 9)},
-    **{f"DMX_SCENE{i}": "led_lighting" for i in range(1, 13)},
-    **{f"DIRULE_{i}": "digital_inputs" for i in range(1, 8)},
-    **{f"OMNI_DC{i}": "extension_outputs" for i in range(6)},
+DEVICE_VALIDATION_RULES = {
+    "PUMP": {
+        "min_speed": 1, "max_speed": 3,
+        "min_off_duration": 60, "max_off_duration": 3600,
+        "rpm_thresholds": {"min_active": 100, "max_normal": 3000}
+    },
+    "HEATER": {
+        "min_temp": 20.0, "max_temp": 40.0, "temp_step": 0.5,
+        "max_temp_diff": 50.0
+    },
+    "DOS_1_CL": {
+        "min_dosing": 5, "max_dosing": 300,
+        "safety_interval": 300, "max_daily_runtime": 1800
+    },
+    "DOS_4_PHM": {
+        "min_dosing": 5, "max_dosing": 300,
+        "safety_interval": 300, "max_daily_runtime": 1800
+    },
+    "DOS_5_PHP": {
+        "min_dosing": 5, "max_dosing": 300,
+        "safety_interval": 300, "max_daily_runtime": 1800
+    }
 }
 
-BINARY_SENSOR_FEATURE_MAP = {
-    "PUMP": "filter_control",
-    "HEATER": "heating",
-    "SOLAR": "solar",
-    "LIGHT": "led_lighting",
-    "BACKWASH": "backwash",
-    "BACKWASHRINSE": "backwash", 
-    "DOS_1_CL": "chlorine_control",
-    "DOS_4_PHM": "ph_control",
-    "DOS_5_PHP": "ph_control",
-    "DOS_6_FLOC": "chlorine_control",
-    "COVER_OPEN": "cover_control",
-    "COVER_CLOSE": "cover_control",
-    "COVER_STATE": "cover_control",
-    "REFILL": "water_refill",
-    "PVSURPLUS": "pv_surplus",
-    **{f"INPUT{i}": "digital_inputs" for i in range(1, 13)},
-    **{f"INPUT_CE{i}": "digital_inputs" for i in range(1, 5)},
+MONITORING_CONFIG = {
+    "critical_devices": ["PUMP", "HEATER", "DOS_1_CL", "DOS_4_PHM", "DOS_5_PHP"],
+    "monitoring_intervals": {
+        "critical": 10,
+        "normal": 30,
+        "background": 120
+    },
+    "alert_thresholds": {
+        "pump_rpm_min": 100,
+        "temp_diff_max": 50,
+        "dosing_runtime_max": 300,
+        "ph_deviation_max": 0.5,
+        "orp_deviation_max": 100,
+        "pressure_max": 2.5,
+        "temp_sensor_timeout": 300
+    },
+    "error_recovery": {
+        "max_retries": 3,
+        "retry_delay": 5,
+        "fallback_to_auto": True
+    }
+}
+
+ERROR_CODES = {
+    "OK": {"severity": "info", "message": "Operation successful", "action": "none"},
+    "ERROR": {"severity": "error", "message": "General error occurred", "action": "retry"},
+    "HTTP_401": {"severity": "error", "message": "Authentication required - check credentials", "action": "check_auth"},
+    "HTTP_404": {"severity": "error", "message": "API endpoint not found", "action": "check_url"},
+    "HTTP_500": {"severity": "error", "message": "Controller overloaded", "action": "wait_retry"},
+    "HTTP_TIMEOUT": {"severity": "warning", "message": "Request timeout", "action": "retry"},
+    "INVALID_SPEED": {"severity": "error", "message": "Pump speed must be 1-3", "action": "validate_input"},
+    "INVALID_DURATION": {"severity": "error", "message": "Duration outside valid range", "action": "validate_input"},
+    "DOSING_SAFETY": {"severity": "warning", "message": "Dosing safety interval not met", "action": "enforce_delay"},
+    "DEVICE_LOCKED": {"severity": "warning", "message": "Device in maintenance mode", "action": "wait_maintenance"},
+    "TEMP_SENSOR_FAULT": {"severity": "error", "message": "Temperature sensor malfunction", "action": "disable_temp_control"}
+}
+
+STATUS_PRIORITIES = {
+    "error": 100,
+    "maintenance": 90,
+    "manual_on": 80,
+    "manual_off": 70,
+    "auto_active": 60,
+    "auto_inactive": 50,
+    "unknown": 10
+}
+
+STATE_TRANSLATIONS = {
+    "de": {
+        "auto_active": "Automatik (Aktiv)",
+        "auto_inactive": "Automatik (Bereit)",
+        "manual_on": "Manuell Ein",
+        "manual_off": "Manuell Aus",
+        "error": "Fehler",
+        "maintenance": "Wartung",
+        "unknown": "Unbekannt"
+    },
+    "en": {
+        "auto_active": "Auto (Active)",
+        "auto_inactive": "Auto (Ready)",
+        "manual_on": "Manual On",
+        "manual_off": "Manual Off",
+        "error": "Error",
+        "maintenance": "Maintenance",
+        "unknown": "Unknown"
+    }
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# ENHANCED ERROR HANDLING UND LOGGING
+# COVER-KONFIGURATION
+# ═══════════════════════════════════════════════════════════════════════════════
+
+COVER_CONFIG = {
+    "states": {
+        "CLOSED": {"numeric": "2", "position": 0, "description": "Vollständig geschlossen"},
+        "OPEN": {"numeric": "0", "position": 100, "description": "Vollständig geöffnet"},
+        "OPENING": {"numeric": "1", "position": None, "description": "Öffnet sich"},
+        "CLOSING": {"numeric": "3", "position": None, "description": "Schließt sich"},
+        "STOPPED": {"numeric": "4", "position": None, "description": "Angehalten"}
+    },
+    "movement_timeout": 120,
+    "position_update_interval": 5
+}
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PV-ÜBERSCHUSS KONFIGURATION
+# ═══════════════════════════════════════════════════════════════════════════════
+
+PV_SURPLUS_CONFIG = {
+    "activation_modes": {
+        "digital_input": 1,
+        "http_request": 2
+    },
+    "pump_speeds": {
+        1: {"name": "Eco", "description": "Minimale Drehzahl für PV-Überschuss"},
+        2: {"name": "Normal", "description": "Standard-Drehzahl für PV-Überschuss"},
+        3: {"name": "Boost", "description": "Maximale Drehzahl für PV-Überschuss"}
+    },
+    "default_speed": 2,
+    "api_template": "PVSURPLUS,{state},{speed},0"
+}
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# VIOLET STATE CLASS
 # ═══════════════════════════════════════════════════════════════════════════════
 
 class VioletState:
@@ -1547,145 +1531,62 @@ class VioletState:
         return f"VioletState(raw_state='{self.raw_state}', device_key='{self.device_key}', mode='{self.mode}', active={self.is_active})"
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# BACKWARD COMPATIBILITY LAYER
+# VERSION INFO UND EXPORTS
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def legacy_is_on_state(raw_state: str) -> bool:
-    """
-    Legacy-Funktion für einfache On/Off-Prüfung.
-    Für Rückwärtskompatibilität mit bestehenden Binary Sensors.
-    
-    Args:
-        raw_state: Roher Zustandswert
-        
-    Returns:
-        bool: True wenn "eingeschaltet"
-    """
-    if not raw_state:
-        return False
-        
-    upper_state = str(raw_state).upper().strip()
-    
-    # Nutze erweiterte Zustandsinformationen
-    state_info = get_device_state_info(raw_state)
-    
-    # Wenn explizit aktiv/inaktiv definiert
-    if state_info.get("active") is not None:
-        return state_info.get("active")
-    
-    # Fallback zu Legacy-Mapping
-    return STATE_MAP.get(upper_state, False)
-
-# Rückwärtskompatible Funktionen
-def get_legacy_icon(device_key: str, is_on: bool) -> str:
-    """Legacy Icon-Funktion."""
-    if device_key in STATE_ICONS:
-        return STATE_ICONS[device_key].get("manual_on" if is_on else "manual_off", "mdi:help")
-    return "mdi:power" if is_on else "mdi:power-off"
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# KONFIGURATIONSDEFINITIONEN FÜR CONFIG FLOW
-# ═══════════════════════════════════════════════════════════════════════════════
-
-CONFIG_FLOW_SCHEMAS = {
-    "user": {
-        "required": [CONF_API_URL],
-        "optional": [
-            CONF_USERNAME, CONF_PASSWORD, CONF_USE_SSL, CONF_DEVICE_ID,
-            CONF_POLLING_INTERVAL, CONF_TIMEOUT_DURATION, CONF_RETRY_ATTEMPTS, CONF_DEVICE_NAME
-        ]
-    },
-    "pool_setup": {
-        "required": [CONF_POOL_SIZE, CONF_POOL_TYPE, CONF_DISINFECTION_METHOD],
-        "optional": []
-    },
-    "feature_selection": {
-        "features": AVAILABLE_FEATURES
-    }
-}
-
-OPTIONS_FLOW_SCHEMA = {
-    "advanced": [
-        CONF_POLLING_INTERVAL, CONF_TIMEOUT_DURATION, CONF_RETRY_ATTEMPTS,
-        CONF_POOL_SIZE, CONF_POOL_TYPE, CONF_DISINFECTION_METHOD
-    ],
-    "features": AVAILABLE_FEATURES
-}
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# FINAL EXPORTS UND VERSION INFO
-# ═══════════════════════════════════════════════════════════════════════════════
-
-# Version und Changelog
 VERSION_INFO = {
     "version": INTEGRATION_VERSION,
-    "release_date": "2024-12-19",
+    "release_date": "2024-12-20",
     "major_features": [
-        "3-State Switch Support (AUTO/MANUAL ON/MANUAL OFF)",
-        "Enhanced Device Parameter Control",
-        "Improved Visual State Representation", 
-        "Extended API Parameter Support",
-        "Advanced Error Handling and Validation"
+        "Complete 3-State Switch Support with State 4 Fix",
+        "PVSURPLUS Parameter Support",
+        "Cover String-State Handling",
+        "Extended Sensor Coverage (147 API Parameters)",
+        "Enhanced DMX Scene Control (12 Scenes)",
+        "Complete Extension Relay Support (EXT1/EXT2)",
+        "Advanced Dosing Sensors with Daily Amounts",
+        "System Temperature Monitoring",
+        "Overflow Protection Sensors",
+        "Complete Backwash State Tracking"
     ],
-    "breaking_changes": [
-        "Switch entities now support 3-state mode",
-        "New attribute structure for enhanced devices",
-        "Modified service call parameters for better API alignment"
-    ],
-    "migration_notes": [
-        "Existing automations may need attribute name updates",
-        "New service parameters available for advanced control",
-        "Legacy binary switch behavior preserved for compatibility"
+    "critical_fixes": [
+        "STATE_MAP now includes State 4 (Manual Forced ON)",
+        "PVSURPLUS added to SWITCH_FUNCTIONS",
+        "COVER_STATE_MAP supports string states",
+        "All 147 API parameters accessible"
     ]
 }
 
-# Exportierte Hauptkonstanten (für __init__.py imports)
+# Hauptexporte
 __all__ = [
-    # Core constants
+    # Core
     "DOMAIN", "INTEGRATION_VERSION", "MANUFACTURER",
     
     # Configuration
     "CONF_API_URL", "CONF_USERNAME", "CONF_PASSWORD", "CONF_ACTIVE_FEATURES",
-    "DEFAULT_POLLING_INTERVAL", "DEFAULT_TIMEOUT_DURATION", "DEFAULT_RETRY_ATTEMPTS",
+    "DEFAULT_POLLING_INTERVAL", "DEFAULT_TIMEOUT_DURATION",
     
     # API
     "API_READINGS", "API_SET_FUNCTION_MANUALLY", "ACTION_ON", "ACTION_OFF", "ACTION_AUTO",
     
-    # 3-State Support  
-    "DEVICE_STATE_MAPPING", "STATE_ICONS", "STATE_COLORS", "get_device_state_info",
-    "get_device_mode_from_state", "is_device_activity_detected", "VioletState",
+    # State Support
+    "DEVICE_STATE_MAPPING", "STATE_MAP", "COVER_STATE_MAP", "STATE_ICONS", "STATE_COLORS",
+    "get_device_state_info", "get_device_mode_from_state", "is_device_activity_detected",
+    "VioletState", "legacy_is_on_state",
     
-    # Device Configuration
-    "DEVICE_PARAMETERS", "SWITCHES", "BINARY_SENSORS", "AVAILABLE_FEATURES",
-    "SWITCH_FUNCTIONS", "ENHANCED_SERVICES",
+    # Devices
+    "DEVICE_PARAMETERS", "SWITCHES", "BINARY_SENSORS", "SWITCH_FUNCTIONS",
+    "AVAILABLE_FEATURES", "ENHANCED_SERVICES",
+    
+    # Sensors
+    "TEMP_SENSORS", "WATER_CHEM_SENSORS", "ANALOG_SENSORS", "SYSTEM_SENSORS",
+    "BACKWASH_SENSORS", "DOSING_SENSORS", "OVERFLOW_SENSORS", "PUMP_SENSORS",
+    "RUNTIME_SENSORS", "TIMESTAMP_SENSORS",
     
     # Utilities
     "validate_device_parameter", "build_api_request", "get_enhanced_switch_attributes",
-    "legacy_is_on_state", "VERSION_INFO"
+    "UNIT_MAP", "NO_UNIT_SENSORS", "SENSOR_FEATURE_MAP", "SWITCH_FEATURE_MAP",
+    
+    # Version
+    "VERSION_INFO"
 ]
-
-DEBUG_INFO = {
-    "integration_version": "0.2.0.0",
-    "total_switches": 50,                    # Alle Haupt- und Erweiterungsschalter
-    "total_binary_sensors": 25,              # Mit digitalen Eingängen
-    "total_device_parameters": 70,           # Alle Geräte-Konfigurationen
-    "total_state_mappings": 15,               # 3-State-Mappings
-    "supported_features": 13,                 # Pool-Features
-    "enhanced_services": 9,                   # Erweiterte Services
-    "3_state_devices": 30,                   # Geräte mit 3-State-Support
-    "api_templates": 60,                     # API-Request-Templates
-    "temperature_sensors": 6,                 # OneWire-Basis-Sensoren
-    "water_chemistry_sensors": 3,             # pH, ORP, Chlor
-    "analog_sensors": 4,                      # ADC/IMP-Sensoren
-    "setpoint_definitions": 4,                # Sollwert-Definitionen
-    "unit_mappings": 50,                     # Unit-Zuordnungen
-    "no_unit_sensors": 100,                  # Text/Status-Sensoren
-    "sensor_feature_mappings": 80,           # Feature-Zuordnungen
-    "state_icons": 40,                       # Icon-Variationen
-    "validation_rules": 5,                    # Validierungsregeln
-    "error_codes": 15,                       # Fehlercode-Definitionen
-    "extension_relais": 16,                   # EXT1_1-8 + EXT2_1-8
-    "dmx_scenes": 12,                         # DMX_SCENE1-12
-    "digital_rules": 7,                       # DIRULE_1-7
-    "api_request_templates": 15              # Template-Variationen
-}
