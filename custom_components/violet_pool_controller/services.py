@@ -35,6 +35,111 @@ from .device import VioletPoolDataUpdateCoordinator
 _LOGGER = logging.getLogger(__name__)
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# EXTENDED RULE AND DIAGNOSTIC SENSOR DEFINITIONS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Rule-State and Rule-Timer Sensors
+RULE_SENSORS = {}
+for rule_num in range(1, 8):
+    rule_key = f"DIRULE_{rule_num}"
+    
+    # ⭐ Rule-State Sensoren (aus Excel verfügbar)
+    RULE_SENSORS[f"DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_{rule_num}"] = {
+        "name": f"Schaltregel {rule_num} Status",
+        "icon": "mdi:electric-switch",
+        "device_class": None,
+        "state_class": None
+    }
+    
+    # ⭐ Rule-Timer Sensoren
+    RULE_SENSORS[f"DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_STOPWATCH{rule_num}"] = {
+        "name": f"Schaltregel {rule_num} Timer",
+        "icon": "mdi:timer",
+        "unit": "s",
+        "device_class": "duration",
+        "state_class": "measurement"
+    }
+
+# Diagnostic Sensors for System Health and Maintenance
+DIAGNOSTIC_SENSORS = {
+    # ⭐ System-Gesundheit (aus Excel verfügbar)
+    "CPU_TEMP": {
+        "name": "CPU Temperatur",
+        "critical_max": 85, 
+        "warning_max": 75,
+        "unit": "°C",
+        "device_class": "temperature",
+        "icon": "mdi:thermometer"
+    },
+    "CPU_TEMP_CARRIER": {
+        "name": "Trägerplatine CPU Temperatur",
+        "critical_max": 85, 
+        "warning_max": 75,
+        "unit": "°C",
+        "device_class": "temperature",
+        "icon": "mdi:thermometer"
+    },
+    "CPU_UPTIME": {
+        "name": "System Laufzeit",
+        "format": "DD HH MM", 
+        "description": "System Laufzeit",
+        "icon": "mdi:clock-outline",
+        "device_class": "duration"
+    },
+    
+    # ⭐ Timestamps für Wartungsplanung
+    "BACKWASH_LAST_AUTO_RUN": {
+        "name": "Letzte automatische Rückspülung",
+        "device_class": "timestamp",
+        "icon": "mdi:history"
+    },
+    "BACKWASH_LAST_MANUAL_RUN": {
+        "name": "Letzte manuelle Rückspülung",
+        "device_class": "timestamp",
+        "icon": "mdi:history"
+    },
+    
+    # ⭐ Dosierungs-Kanister Überwachung
+    "DOS_1_CL_LAST_CAN_RESET": {
+        "name": "Chlor-Kanister letzter Reset",
+        "device_class": "timestamp",
+        "icon": "mdi:bottle-tonic"
+    },
+    "DOS_4_PHM_LAST_CAN_RESET": {
+        "name": "pH-Minus Kanister letzter Reset",
+        "device_class": "timestamp",
+        "icon": "mdi:bottle-tonic"
+    },
+    "DOS_5_PHP_LAST_CAN_RESET": {
+        "name": "pH-Plus Kanister letzter Reset",
+        "device_class": "timestamp",
+        "icon": "mdi:bottle-tonic"
+    },
+    "DOS_6_FLOC_LAST_CAN_RESET": {
+        "name": "Flockmittel Kanister letzter Reset",
+        "device_class": "timestamp",
+        "icon": "mdi:bottle-tonic"
+    },
+    
+    # ⭐ Erweiterte Systemdiagnose
+    "SYSTEM_ERROR_COUNT": {
+        "name": "System Fehlerzähler",
+        "icon": "mdi:alert-circle",
+        "state_class": "total_increasing"
+    },
+    "LAST_SYSTEM_ERROR": {
+        "name": "Letzter Systemfehler",
+        "icon": "mdi:alert",
+        "device_class": "timestamp"
+    },
+    "MAINTENANCE_MODE_ACTIVE": {
+        "name": "Wartungsmodus aktiv",
+        "icon": "mdi:wrench",
+        "device_class": "binary_sensor"
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # SERVICE SCHEMAS - COMPLETE DEFINITIONS
 # ═══════════════════════════════════════════════════════════════════════════════
 
