@@ -153,3 +153,25 @@ known_devices.yaml
 config/
 logs/
 test_config/
+
+# Am Ende noch ergänzen:
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Home Assistant Backups
+backups/
+*.tar
+*.gz
+
+# SSL/TLS certificates (falls verwendet)
+*.pem
+*.key
+*.crt
+*.csr
+
+# Node.js (falls du Frontend-Entwicklung machst)
+node_modules/
+package-lock.json
