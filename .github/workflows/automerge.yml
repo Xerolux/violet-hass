@@ -8,6 +8,8 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: read
+  checks: read
 
 jobs:
   automerge:
@@ -22,11 +24,23 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Wait for CI checks
+        if: |
+          steps.metadata.outputs.update-type == 'version-update:semver-patch' || 
+          steps.metadata.outputs.update-type == 'version-update:semver-minor'
+        uses: fountainhead/action-wait-for-check@v1.2.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: 'validate'
+          ref: ${{ github.event.pull_request.head.sha }}
+          timeoutSeconds: 600
+
       - name: Auto-approve minor/patch updates
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-patch' || 
           steps.metadata.outputs.update-type == 'version-update:semver-minor'
-        run: gh pr review --approve "$PR_URL"
+        run: |
+          gh pr review --approve "$PR_URL" --body "✅ Auto-approving ${{ steps.metadata.outputs.update-type }} dependency update from ${{ steps.metadata.outputs.previous-version }} to ${{ steps.metadata.outputs.new-version }}"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -35,7 +49,9 @@ jobs:
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-patch' || 
           steps.metadata.outputs.update-type == 'version-update:semver-minor'
-        run: gh pr merge --auto --squash "$PR_URL"
+        run: |
+          gh pr merge --auto --squash "$PR_URL"
+          echo "🤖 Auto-merged ${{ steps.metadata.outputs.dependency-names }} update" >> $GITHUB_STEP_SUMMARY
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -47,6 +63,28 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             ⚠️ **Major Version Update**
-            This PR contains a major version update and requires manual review.
-            Auto-merge is disabled for major updates.
+            
+            This PR contains a major version update for `${{ steps.metadata.outputs.dependency-names }}`:
+            - **From:** `${{ steps.metadata.outputs.previous-version }}`
+            - **To:** `${{ steps.metadata.outputs.new-version }}`
+            
+            Auto-merge is disabled for major updates. Please review the changelog and test thoroughly before merging.
+            
+            📖 [View Changelog](${{ steps.metadata.outputs.changelog-url }})
           reactions: eyes
+
+      - name: Label PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const updateType = '${{ steps.metadata.outputs.update-type }}';
+            const label = updateType.includes('major') ? 'dependencies-major' : 
+                         updateType.includes('minor') ? 'dependencies-minor' : 
+                         'dependencies-patch';
+            
+            github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: [label, 'dependencies']
+            });
