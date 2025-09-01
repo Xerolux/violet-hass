@@ -113,6 +113,33 @@ mobile_quick_dose:
             - value: "large"
               label: "Large (60s)"
 
+mobile_emergency_stop:
+  name: "🚨 NOTAUS (Mobile)"
+  description: "Sofortiger Stopp aller kritischen Systeme"
+  target:
+    device:
+      integration: violet_pool_controller
+  fields:
+    stop_reason:
+      name: "Grund"
+      required: true
+      selector:
+        select:
+          options:
+            - value: "leak"
+              label: "💧 Leck entdeckt"
+            - value: "equipment_fault" 
+              label: "⚙️ Gerätefehler"
+            - value: "maintenance"
+              label: "🔧 Wartung"
+
+mobile_pool_status:
+  name: "📊 Pool Status (Mobile)"
+  description: "Schneller Überblick aller wichtigen Werte"
+  target:
+    device:
+      integration: violet_pool_controller
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # 🔧 MAINTENANCE & DIAGNOSTIC SERVICES
 # ═══════════════════════════════════════════════════════════════════════════════
