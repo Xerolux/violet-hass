@@ -15,8 +15,14 @@ from .device import VioletPoolDataUpdateCoordinator
 _LOGGER = logging.getLogger(__name__)
 
 COVER_STATE_MAP = {
-    "CLOSED": "closed", "OPEN": "open", "CLOSING": "closing", "OPENING": "opening",
-    "STOPPED": "stopped", "0": "open", "1": "opening", "2": "closed", "3": "closing", "4": "stopped"
+    # Numerische States
+    "0": "open", "1": "opening", "2": "closed", 
+    "3": "closing", "4": "stopped",
+    
+    # ⭐ String-States hinzufügen (aus API erkannt)
+    "OPEN": "open", "CLOSED": "closed", 
+    "OPENING": "opening", "CLOSING": "closing",
+    "STOPPED": "stopped"
 }
 
 class VioletCover(VioletPoolControllerEntity, CoverEntity):
