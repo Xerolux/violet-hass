@@ -728,7 +728,11 @@ class VioletSmartServiceHandlers:
 
 async def async_register_enhanced_services(hass: HomeAssistant) -> None:
     """Register all enhanced services for Violet Pool Controller."""
-    if hass.services.has_service(DOMAIN, "set_device_mode"):
+    registered_services = [
+        hass.services.has_service(DOMAIN, svc)
+        for svc in ["set_device_mode", "turn_auto", "smart_pool_optimization"]
+    ]
+    if all(registered_services):
         _LOGGER.debug("Enhanced services already registered")
         return
     
