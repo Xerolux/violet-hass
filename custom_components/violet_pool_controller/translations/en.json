@@ -61,7 +61,7 @@
             "already_configured": "A device with this IP address is already configured.",
             "unknown": "An unknown error occurred."
         },
-        "abort: {
+        "abort": {
             "already_configured": "Device is already configured",
             "cannot_connect": "Connection failed", 
             "invalid_auth": "Invalid authentication",
@@ -217,6 +217,28 @@
                 "enable": {
                     "name": "Enable",
                     "description": "Enable (true) or disable (false) maintenance mode."
+                }
+            }
+        },
+        "deep_clean_cycle": {
+            "name": "Deep Clean Cycle",
+            "description": "Starts an intensive deep cleaning cycle for the pool.",
+            "fields": {
+                "entity_ids": {
+                    "name": "Entity IDs",
+                    "description": "List of entities for device identification."
+                },
+                "clean_intensity": {
+                    "name": "Cleaning Intensity",
+                    "description": "Intensity of the deep cleaning cycle"
+                },
+                "chemical_boost": {
+                    "name": "Chemical Boost",
+                    "description": "Add extra chemical dosing during cleaning"
+                },
+                "include_backwash": {
+                    "name": "Include Backwash",
+                    "description": "Perform backwash as part of cleaning cycle"
                 }
             }
         },
