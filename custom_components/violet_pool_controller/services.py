@@ -364,6 +364,14 @@ async def async_register_services(hass: HomeAssistant) -> None:
         except ImportError:
             _LOGGER.debug("Smart Services nicht verfügbar")
         
+        # Optional: DMX & Cover Services laden
+        try:
+            from .services_dmx_cover import async_register_dmx_cover_services
+            await async_register_dmx_cover_services(hass, service_manager)
+            _LOGGER.info("✅ DMX & Cover Services geladen")
+        except ImportError:
+            _LOGGER.debug("DMX & Cover Services nicht verfügbar")
+        
     except Exception as err:
         _LOGGER.error("Service-Registrierung fehlgeschlagen: %s", err)
         raise
