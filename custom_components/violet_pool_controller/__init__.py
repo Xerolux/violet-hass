@@ -114,8 +114,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         register_services(hass)
         
         # Enhanced services registrieren (diese Funktion ist async)
-        from .services import async_register_enhanced_services
-        await async_register_enhanced_services(hass)
+        from .services import async_register_services
+        await async_register_services(hass)
         
         _LOGGER.info(
             "Setup completed successfully for '%s' (entry_id=%s)",
