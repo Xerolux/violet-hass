@@ -220,6 +220,28 @@
                 }
             }
         },
+        "deep_clean_cycle": {
+            "name": "🧹 Intensiv-Reinigung",
+            "description": "Startet einen **intensiven Tiefenreinigungs-Zyklus** für kristallklares Wasser.\n\n✨ Perfekt für Frühjahrsputz oder nach starker Poolnutzung!",
+            "fields": {
+                "entity_ids": {
+                    "name": "🎯 Controller",
+                    "description": "Violet Pool Controller für die Reinigung."
+                },
+                "clean_intensity": {
+                    "name": "💪 Reinigungsintensität",
+                    "description": "Intensität des Reinigungszyklus wählen"
+                },
+                "chemical_boost": {
+                    "name": "🧪 Chemie-Boost",
+                    "description": "Zusätzliche Dosierung während der Reinigung"
+                },
+                "include_backwash": {
+                    "name": "🔄 Rückspülung inkludieren",
+                    "description": "Filter-Rückspülung als Teil des Reinigungszyklus durchführen"
+                }
+            }
+        },
         "set_all_dmx_scenes_mode": {
             "name": "💡 DMX-Beleuchtung steuern",
             "description": "Steuert **alle DMX-Lichtszenen** gleichzeitig.\n\n🌈 Perfekt für einheitliche Lichteffekte oder komplettes Ein/Ausschalten.",
