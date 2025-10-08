@@ -89,7 +89,7 @@ class VioletPoolAPI:
         self.session = session
         self.username = username
         # FIX: Sicherstellen dass password niemals None ist
-        self.password = password if password is not None else ""
+        self.password = password or ""  # Einfacher und sicherer
         self.base_url = f"{'https' if use_ssl else 'http'}://{self.host}"
         self.timeout = max(5, timeout)  # Minimum 5 Sekunden
         self.max_retries = max(1, max_retries)
@@ -109,7 +109,6 @@ class VioletPoolAPI:
                 raise VioletPoolCommandError(
                     "Authentifizierung erforderlich, aber kein Username konfiguriert"
                 )
-            # FIX: password ist jetzt garantiert ein String (nie None)
             return aiohttp.BasicAuth(self.username, self.password)
         return None
 

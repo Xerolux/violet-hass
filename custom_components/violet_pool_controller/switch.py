@@ -39,11 +39,11 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         raw_state = self.get_value(key, "")
         
         # DETAILED DEBUG LOGGING
-        _LOGGER.info("🔍 SWITCH STATE DEBUG für '%s':", key)
-        _LOGGER.info("  Raw state: %s (type: %s)", raw_state, type(raw_state))
+        _LOGGER.debug("SWITCH STATE fuer %s:", key), key)
+        _LOGGER.debug("  Raw state: %s (type: %s)", raw_state, type(raw_state))
         
         if raw_state is None:
-            _LOGGER.info("  ❌ State ist None → OFF")
+            _LOGGER.debug("State ist None - OFF")
             return False
         
         # Konvertiere zu verschiedenen Formaten für Tests
@@ -55,14 +55,14 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         except (ValueError, TypeError):
             state_int = None
         
-        _LOGGER.info("  String format: '%s'", state_str)
-        _LOGGER.info("  Integer format: %s", state_int)
+        _LOGGER.debug("  String format: '%s'", state_str)
+        _LOGGER.debug("  Integer format: %s", state_int)
         
         # Test 1: Direct integer mapping (most reliable)
         if state_int is not None:
             if state_int in STATE_MAP:
                 result = STATE_MAP[state_int]
-                _LOGGER.info("  ✅ Integer mapping: %d → %s", state_int, result)
+                _LOGGER.debug("Integer mapping: %d → %s", state_int, result)
                 return result
             else:
                 # Fallback für unbekannte Integer-Werte
@@ -74,17 +74,17 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         # Test 2: String mapping in STATE_MAP
         if state_str in STATE_MAP:
             result = STATE_MAP[state_str]
-            _LOGGER.info("  ✅ String mapping: '%s' → %s", state_str, result)
+            _LOGGER.debug("String mapping: '%s' → %s", state_str, result)
             return result
         
         # Test 3: Known boolean strings
         boolean_on_states = ["TRUE", "ON", "1", "ACTIVE", "RUNNING", "MANUAL", "MAN"]
         if state_str in boolean_on_states:
-            _LOGGER.info("  ✅ Boolean string: '%s' → True", state_str)
+            _LOGGER.debug("Boolean string: '%s' → True", state_str)
             return True
         
         # Test 4: Default für unbekannte States
-        _LOGGER.info("  ⚠️ Unbekannter State '%s' → False (default)", state_str)
+        _LOGGER.debug("Unbekannter State '%s' → False (default)", state_str)
         return False
 
     @property
