@@ -23,8 +23,10 @@ def validate_ip_address(ip: str) -> bool:
     """Validiere IP-Adresse."""
     try:
         ipaddress.ip_address(ip)
+        _LOGGER.debug("IP-Adresse %s ist gültig", ip)
         return True
     except ValueError:
+        _LOGGER.warning("Ungültige IP-Adresse: %s", ip)
         return False
 
 async def fetch_api_data(
@@ -32,16 +34,23 @@ async def fetch_api_data(
     use_ssl: bool, timeout: int, retries: int
 ) -> dict:
     """API-Daten mit Retry-Logik abrufen."""
+    _LOGGER.debug("Rufe API-Daten ab von %s (SSL: %s, Timeout: %ds, Retries: %d)", 
+                  api_url, use_ssl, timeout, retries)
+    
     for attempt in range(retries):
         try:
             async with async_timeout.timeout(timeout):
                 async with session.get(api_url, auth=auth, ssl=use_ssl) as response:
                     response.raise_for_status()
-                    return await response.json()
+                    data = await response.json()
+                    _LOGGER.debug("API-Daten erfolgreich abgerufen (Versuch %d/%d)", attempt + 1, retries)
+                    return data
         except (aiohttp.ClientError, asyncio.TimeoutError) as err:
             if attempt + 1 == retries:
                 _LOGGER.error("API-Fehler nach %d Versuchen: %s", retries, err)
                 raise ValueError(f"API-Anfrage fehlgeschlagen: {err}")
+            _LOGGER.warning("API-Versuch %d/%d fehlgeschlagen, wiederhole in %ds: %s", 
+                          attempt + 1, retries, 2 ** attempt, err)
             await asyncio.sleep(2 ** attempt)
     raise ValueError("Fehler nach allen Versuchen")
 
@@ -58,6 +67,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def __init__(self) -> None:
         self._config_data: dict = {}
+        _LOGGER.info("Violet Pool Controller Setup gestartet")
 
     async def async_step_user(self, user_input: dict | None = None) -> FlowResult:
         """⚠️ Schritt 1: Rechtlicher Disclaimer und Nutzungsbedingungen."""
@@ -72,49 +82,38 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input:
             agreement = user_input.get("agreement", False)
             if agreement:
+                _LOGGER.info("Nutzer hat Disclaimer akzeptiert")
                 return await self.async_step_connection()
             else:
+                _LOGGER.info("Nutzer hat Disclaimer abgelehnt - Setup abgebrochen")
                 return self.async_abort(reason="agreement_declined")
         
-        # Disclaimer-Text direkt als Teil der Schema-Description
+        # Kompakter, freundlicher Disclaimer
         disclaimer_text = """
-⚠️ WICHTIGER RECHTLICHER HINWEIS ⚠️
+⚠️ WICHTIGE SICHERHEITSHINWEISE
 
-NUTZUNG AUF EIGENE GEFAHR - VOLLSTÄNDIGER HAFTUNGSAUSSCHLUSS
+Diese Integration steuert Pool-Hardware und Chemikaliendosierung.
 
-🔴 ACHTUNG: Diese Integration steuert kritische Poolsysteme und Chemikaliendosierung!
+🔴 HAUPTRISIKEN:
+• Automatische Steuerung von Pumpen, Heizungen und Chemikaliendosierung
+• Fernzugriff ohne lokale Überwachung möglich
+• Fehlfunktionen können Sach- und Gesundheitsschäden verursachen
 
-SICHERHEITSHINWEISE UND HAFTUNGSAUSSCHLUSS:
-• EIGENVERANTWORTUNG: Sie nutzen diese Software vollständig auf eigene Verantwortung
-• CHEMISCHE GEFAHREN: Falsche Dosierung kann zu Gesundheitsschäden führen
-• TECHNISCHE RISIKEN: Fehlfunktionen können Sachschäden verursachen
-• SICHERHEITSÜBERSTEUERUNG: Diese Software kann Sicherheitsmechanismen übersteuern
+✅ IHRE VERANTWORTUNG:
+• Regelmäßige manuelle Kontrolle der Wasserwerte
+• Notfall-Zugang zu allen Systemen sicherstellen
+• Bei Störungen: Automatik sofort deaktivieren
 
-FUNKTIONSUMFANG UND RISIKEN:
-• Automatische Steuerung von Pumpen, Heizungen und elektrischen Geräten
-• Dosierung von Chemikalien (pH-Regulatoren, Chlor, Flockmittel)
-• Fernsteuerung kritischer Poolsysteme ohne lokale Aufsicht
-• Steuerung von Abdeckungen und beweglichen Teilen
+⚖️ HAFTUNGSAUSSCHLUSS:
+Der Entwickler übernimmt keine Haftung für Schäden jeglicher Art durch die 
+Nutzung dieser Software. Sie verwenden die Integration auf eigene Gefahr.
 
-RECHTLICHER HAFTUNGSAUSSCHLUSS:
-Der Entwickler übernimmt KEINERLEI HAFTUNG für:
-• Personen- oder Sachschäden jeder Art
-• Gesundheitsschäden durch falsche Wasserchemie
-• Geräteschäden oder Betriebsausfälle
-• Finanzielle Verluste oder Folgeschäden
+📚 Vollständige Nutzungsbedingungen: https://github.com/Xerolux/violet-hass
 
-NOTFALL-VERHALTEN:
-• Immer manuellen Zugang zu allen Systemen sicherstellen
-• Bei Störungen sofort alle automatischen Funktionen deaktivieren
-• Chemische Notfallmaßnahmen bereithalten
-
-Durch das Akzeptieren bestätigen Sie, dass Sie:
-1. Diesen Disclaimer vollständig gelesen und verstanden haben
-2. Alle Risiken akzeptieren und die volle Verantwortung übernehmen
-3. Den Entwickler von jeder Haftung freistellen
-4. Die Software auf eigene Gefahr verwenden
-
-Bei Unsicherheit: INSTALLATION ABBRECHEN!
+Durch Akzeptieren bestätigen Sie:
+✓ Die Risiken verstanden zu haben
+✓ Die volle Verantwortung zu übernehmen
+✓ Den Entwickler von jeder Haftung freizustellen
         """
         
         return self.async_show_form(
@@ -124,26 +123,29 @@ Bei Unsicherheit: INSTALLATION ABBRECHEN!
             }),
             errors=errors,
             description_placeholders={
-                "title": "⚠️ Rechtlicher Disclaimer - Violet Pool Controller",
-                "subtitle": "Bitte lesen Sie die Nutzungsbedingungen sorgfältig durch",
                 "disclaimer_text": disclaimer_text,
-                "agreement_text": "✅ Ich habe den Disclaimer gelesen und stimme allen Bedingungen zu"
             }
         )
 
     async def async_step_connection(self, user_input: dict | None = None) -> FlowResult:
         """🌐 Schritt 2: Controller-Verbindung konfigurieren."""
         errors = {}
+        
         if user_input:
             ip_address = user_input[CONF_API_URL]
+            
+            # Prüfe auf Duplikate
             for entry in self._async_current_entries():
                 existing_ip = entry.data.get(CONF_API_URL) or entry.data.get("host") or entry.data.get("base_ip")
                 if existing_ip == ip_address:
                     errors["base"] = "already_configured"
                     _LOGGER.warning("IP-Adresse %s bereits konfiguriert", ip_address)
                     break
+            
+            # Validiere IP-Adresse
             if not errors and not validate_ip_address(ip_address):
                 errors[CONF_API_URL] = "invalid_ip_address"
+            
             if not errors:
                 self._config_data = {
                     CONF_API_URL: ip_address,
@@ -156,24 +158,35 @@ Bei Unsicherheit: INSTALLATION ABBRECHEN!
                     CONF_TIMEOUT_DURATION: int(user_input.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)),
                     CONF_RETRY_ATTEMPTS: int(user_input.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)),
                 }
+                
                 protocol = "https" if self._config_data[CONF_USE_SSL] else "http"
                 api_url = f"{protocol}://{self._config_data[CONF_API_URL]}{API_READINGS}?ALL"
+                
                 await self.async_set_unique_id(f"{self._config_data[CONF_API_URL]}-{self._config_data[CONF_DEVICE_ID]}")
                 self._abort_if_unique_id_configured()
+                
+                # Teste API-Verbindung
                 try:
+                    _LOGGER.info("Teste Verbindung zu %s", api_url)
                     session = aiohttp_client.async_get_clientsession(self.hass)
                     auth = aiohttp.BasicAuth(self._config_data[CONF_USERNAME], self._config_data[CONF_PASSWORD]) if self._config_data[CONF_USERNAME] else None
+                    
                     await fetch_api_data(
                         session, api_url, auth, self._config_data[CONF_USE_SSL],
                         self._config_data[CONF_TIMEOUT_DURATION], self._config_data[CONF_RETRY_ATTEMPTS]
                     )
+                    
+                    _LOGGER.info("Verbindung erfolgreich, fahre mit Pool-Setup fort")
                     return await self.async_step_pool_setup()
-                except ValueError:
+                    
+                except ValueError as err:
+                    _LOGGER.error("Verbindungstest fehlgeschlagen: %s", err)
                     errors["base"] = "cannot_connect"
+        
         return self.async_show_form(
             step_id="connection",
             data_schema=vol.Schema({
-                vol.Required(CONF_API_URL, default="192.168.1.100"): str,
+                vol.Required(CONF_API_URL, default="192.168.178.55"): str,
                 vol.Optional(CONF_USERNAME, default=""): str,
                 vol.Optional(CONF_PASSWORD, default=""): str,
                 vol.Required(CONF_USE_SSL, default=DEFAULT_USE_SSL): bool,
@@ -188,15 +201,6 @@ Bei Unsicherheit: INSTALLATION ABBRECHEN!
                 "step_icon": "🌐",
                 "step_title": "Controller-Verbindung",
                 "step_description": "Konfiguriere die Verbindung zu deinem Violet Pool Controller",
-                "api_url_desc": "🌐 Controller IP-Adresse",
-                "username_desc": "👤 Benutzername (optional)",
-                "password_desc": "🔐 Passwort (optional)", 
-                "use_ssl_desc": "🔒 SSL/HTTPS verwenden",
-                "device_id_desc": "🏷️ Geräte-ID",
-                "polling_desc": "⏱️ Abrufintervall (Sekunden)",
-                "timeout_desc": "⏰ Timeout (Sekunden)",
-                "retry_desc": "🔄 Wiederholungsversuche",
-                "device_name_desc": "📝 Gerätename"
             }
         )
 
@@ -208,7 +212,12 @@ Bei Unsicherheit: INSTALLATION ABBRECHEN!
                 CONF_POOL_TYPE: user_input[CONF_POOL_TYPE],
                 CONF_DISINFECTION_METHOD: user_input[CONF_DISINFECTION_METHOD],
             })
+            _LOGGER.info("Pool konfiguriert: %sm³, Typ: %s, Desinfektion: %s",
+                        self._config_data[CONF_POOL_SIZE],
+                        self._config_data[CONF_POOL_TYPE],
+                        self._config_data[CONF_DISINFECTION_METHOD])
             return await self.async_step_feature_selection()
+        
         pool_type_options = {
             "outdoor": "🏖️ Freibad",
             "indoor": "🏠 Hallenbad",
@@ -216,6 +225,7 @@ Bei Unsicherheit: INSTALLATION ABBRECHEN!
             "natural": "🌿 Naturpool/Schwimmteich",
             "combination": "🔄 Kombination"
         }
+        
         disinfection_options = {
             "chlorine": "🧪 Chlor (Flüssig/Tabletten)",
             "salt": "🧂 Salzelektrolyse",
@@ -224,6 +234,7 @@ Bei Unsicherheit: INSTALLATION ABBRECHEN!
             "uv": "💡 UV-Desinfektion",
             "ozone": "🌀 Ozon-Desinfektion"
         }
+        
         return self.async_show_form(
             step_id="pool_setup",
             data_schema=vol.Schema({
@@ -236,9 +247,6 @@ Bei Unsicherheit: INSTALLATION ABBRECHEN!
                 "step_icon": "🏊",
                 "step_title": "Pool-Konfiguration",
                 "step_description": f"Konfiguriere die Eigenschaften deines Pools für {self._config_data.get(CONF_DEVICE_NAME, 'den Controller')}",
-                "pool_size_desc": "📏 Pool-Volumen in m³",
-                "pool_type_desc": "🏊 Pool-Typ",
-                "disinfection_desc": "🧼 Desinfektionsmethode"
             }
         )
 
@@ -250,12 +258,19 @@ Bei Unsicherheit: INSTALLATION ABBRECHEN!
                 checkbox_key = f"enable_{feature['id']}"
                 if user_input.get(checkbox_key, feature["default"]):
                     active_features.append(feature["id"])
+            
             self._config_data[CONF_ACTIVE_FEATURES] = active_features
+            
+            _LOGGER.info("Features aktiviert: %s", ", ".join(active_features))
+            
             device_name = self._config_data.get(CONF_DEVICE_NAME, "🌊 Violet Pool Controller")
             device_id = self._config_data.get(CONF_DEVICE_ID, 1)
             pool_size = self._config_data.get(CONF_POOL_SIZE, DEFAULT_POOL_SIZE)
             title = f"{device_name} (ID {device_id}) • {pool_size}m³"
+            
+            _LOGGER.info("Integration erfolgreich eingerichtet: %s", title)
             return self.async_create_entry(title=title, data=self._config_data)
+        
         enhanced_features = {
             "heating": {"icon": "🔥", "name": "Heizungssteuerung", "desc": "Poolheizung automatisch steuern"},
             "solar": {"icon": "☀️", "name": "Solarabsorber", "desc": "Kostenlose Sonnenenergie nutzen"},
@@ -271,11 +286,13 @@ Bei Unsicherheit: INSTALLATION ABBRECHEN!
             "digital_inputs": {"icon": "🔌", "name": "Digitale Eingänge", "desc": "Externe Sensoren integrieren"},
             "extension_outputs": {"icon": "🔗", "name": "Erweiterungsmodule", "desc": "Zusätzliche Geräte anschließen"},
         }
+        
         schema_dict = {}
         for feature in AVAILABLE_FEATURES:
             feature_info = enhanced_features.get(feature["id"], {"icon": "⚙️", "name": feature["name"], "desc": ""})
             checkbox_key = f"enable_{feature['id']}"
             schema_dict[vol.Optional(checkbox_key, default=feature["default"])] = bool
+        
         return self.async_show_form(
             step_id="feature_selection",
             data_schema=vol.Schema(schema_dict),
@@ -289,12 +306,15 @@ Bei Unsicherheit: INSTALLATION ABBRECHEN!
             }
         )
 
+
 class VioletOptionsFlowHandler(config_entries.OptionsFlow):
     """Enhanced Options Flow mit modernem UI Design."""
+    
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialisiere Enhanced Options Flow."""
         self._config_entry = config_entry
         self.current_config = {**config_entry.data, **config_entry.options}
+        _LOGGER.debug("Options Flow gestartet für %s", config_entry.title)
 
     async def async_step_init(self, user_input: dict | None = None) -> FlowResult:
         """🔧 Erweiterte Einstellungen verwalten."""
@@ -304,8 +324,14 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
                 checkbox_key = f"feature_{feature['id']}"
                 if user_input.pop(checkbox_key, False):
                     active_features.append(feature["id"])
+            
             user_input[CONF_ACTIVE_FEATURES] = active_features
+            
+            _LOGGER.info("Konfiguration aktualisiert für %s - Features: %s",
+                        self._config_entry.title, ", ".join(active_features))
+            
             return self.async_create_entry(title="", data=user_input)
+        
         pool_type_options = {
             "outdoor": "🏖️ Freibad",
             "indoor": "🏠 Hallenbad",
@@ -313,6 +339,7 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
             "natural": "🌿 Naturpool/Schwimmteich",
             "combination": "🔄 Kombination"
         }
+        
         disinfection_options = {
             "chlorine": "🧪 Chlor (Flüssig/Tabletten)",
             "salt": "🧂 Salzelektrolyse",
@@ -321,6 +348,7 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
             "uv": "💡 UV-Desinfektion",
             "ozone": "🌀 Ozon-Desinfektion"
         }
+        
         schema_dict = {
             vol.Optional(CONF_POLLING_INTERVAL, default=self.current_config.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)):
                 vol.All(vol.Coerce(int), vol.Range(min=10, max=3600)),
@@ -335,6 +363,7 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
             vol.Optional(CONF_DISINFECTION_METHOD, default=self.current_config.get(CONF_DISINFECTION_METHOD, DEFAULT_DISINFECTION_METHOD)):
                 vol.In(disinfection_options),
         }
+        
         enhanced_features = {
             "heating": "🔥 Heizungssteuerung",
             "solar": "☀️ Solarabsorber",
@@ -350,12 +379,15 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
             "digital_inputs": "🔌 Digitale Eingänge",
             "extension_outputs": "🔗 Erweiterungsmodule",
         }
+        
         current_features = self.current_config.get(CONF_ACTIVE_FEATURES, [])
         for feature in AVAILABLE_FEATURES:
             checkbox_key = f"feature_{feature['id']}"
             default_value = feature["id"] in current_features
             schema_dict[vol.Optional(checkbox_key, default=default_value)] = bool
+        
         device_name = self._config_entry.data.get(CONF_DEVICE_NAME, "🌊 Violet Pool Controller")
+        
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(schema_dict),
@@ -364,12 +396,6 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
                 "step_icon": "🔧",
                 "step_title": "Erweiterte Konfiguration",
                 "step_description": f"Optimiere die Einstellungen für {device_name}",
-                "polling_desc": "⏱️ Datenabfrage alle X Sekunden",
-                "timeout_desc": "⏰ Verbindungs-Timeout",
-                "retry_desc": "🔄 Wiederholungsversuche bei Fehlern",
-                "pool_size_desc": "📏 Pool-Volumen in m³",
-                "pool_type_desc": "🏊 Pool-Typ",
-                "disinfection_desc": "🧼 Desinfektionsmethode",
                 "features_info": enhanced_features
             }
         )

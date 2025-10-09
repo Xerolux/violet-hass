@@ -17,8 +17,6 @@ from .const import (
     CONF_ACTIVE_FEATURES, DEFAULT_POLLING_INTERVAL, DEFAULT_TIMEOUT_DURATION, 
     DEFAULT_RETRY_ATTEMPTS, ACTION_ALLON, ACTION_ALLAUTO, ACTION_ALLOFF
 )
-from .api import VioletPoolAPI
-from .device import async_setup_device
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -49,7 +47,7 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) ->
         _LOGGER.debug("Config entry already at version 1, no migration needed")
         return True
     
-    # Zuk체nftige Migrationen hier hinzuf체gen
+    # Zukuenftige Migrationen hier hinzufuegen
     _LOGGER.warning("Unknown config entry version: %s", config_entry.version)
     return False
 
@@ -76,6 +74,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         entry.entry_id,
         entry.data.get(CONF_DEVICE_NAME, "Unknown")
     )
+
+    # Lazy imports to avoid blocking the event loop
+    from .api import VioletPoolAPI
+    from .device import async_setup_device
 
     # Extrahiere Konfiguration
     config = _extract_config(entry)
@@ -106,16 +108,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # Coordinator in hass.data speichern
         hass.data[DOMAIN][entry.entry_id] = coordinator
         
-        # Platforms laden
+        # Platforms laden - Alternative Methode um Blocking-Warning zu vermeiden
+        # Methode 1: Standard (empfohlen fuer neuere HA Versionen)
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
         
-        # Services registrieren (nur einmal f체r die Integration)
-        # WICHTIG: register_services ist NICHT async, kein await!
-        register_services(hass)
+        # Methode 2: Falls Blocking-Warnings weiterhin auftreten, diese verwenden:
+        # for platform in PLATFORMS:
+        #     hass.async_create_task(
+        #         hass.config_entries.async_forward_entry_setup(entry, platform)
+        #     )
+        # await asyncio.sleep(0)  # Kurze Pause damit Tasks starten koennen
         
-        # Enhanced services registrieren (diese Funktion ist async)
-        from .services import async_register_services
-        await async_register_services(hass)
+        # Services registrieren
+        await async_register_all_services(hass)
         
         _LOGGER.info(
             "Setup completed successfully for '%s' (entry_id=%s)",
@@ -233,20 +238,17 @@ def _validate_config(config: Dict[str, Any]) -> bool:
 
 
 # =============================================================================
-# SERVICE REGISTRATION (BASIC SERVICES)
+# SERVICE REGISTRATION - VEREINFACHTE VERSION
 # =============================================================================
 
-def register_services(hass: HomeAssistant) -> None:
-    """Register basic integration services - IMPROVED VERSION.
-    
-    WICHTIG: Diese Funktion ist NICHT async!
-    """
-    # Pr체fe ob Services bereits registriert sind
+async def async_register_all_services(hass: HomeAssistant) -> None:
+    """Register all integration services - ASYNC VERSION."""
+    # Pruefe ob Services bereits registriert sind
     if hass.services.has_service(DOMAIN, "set_temperature_target"):
-        _LOGGER.debug("Basic services already registered, skipping")
+        _LOGGER.debug("Services already registered, skipping")
         return
     
-    _LOGGER.info("Registering basic services for %s", DOMAIN)
+    _LOGGER.info("Registering services for %s", DOMAIN)
     
     # Service-Schemas definieren
     SERVICE_SCHEMAS = {
@@ -304,255 +306,217 @@ def register_services(hass: HomeAssistant) -> None:
     hass.services.async_register(
         DOMAIN,
         "set_temperature_target",
-        _create_temperature_handler(hass),
+        _async_handle_set_temperature_target,
         schema=SERVICE_SCHEMAS["set_temperature_target"]
     )
     
     hass.services.async_register(
         DOMAIN,
         "set_ph_target",
-        _create_ph_handler(hass),
+        _async_handle_set_ph_target,
         schema=SERVICE_SCHEMAS["set_ph_target"]
     )
     
     hass.services.async_register(
         DOMAIN,
         "set_chlorine_target",
-        _create_chlorine_handler(hass),
+        _async_handle_set_chlorine_target,
         schema=SERVICE_SCHEMAS["set_chlorine_target"]
     )
     
     hass.services.async_register(
         DOMAIN,
         "trigger_backwash",
-        _create_backwash_handler(hass),
+        _async_handle_trigger_backwash,
         schema=SERVICE_SCHEMAS["trigger_backwash"]
     )
     
     hass.services.async_register(
         DOMAIN,
         "start_water_analysis",
-        _create_generic_handler(hass, "Water analysis", "start_water_analysis", {}),
+        _async_handle_start_water_analysis,
         schema=SERVICE_SCHEMAS["start_water_analysis"]
     )
     
     hass.services.async_register(
         DOMAIN,
         "set_maintenance_mode",
-        _create_maintenance_handler(hass),
+        _async_handle_set_maintenance_mode,
         schema=SERVICE_SCHEMAS["set_maintenance_mode"]
     )
     
     hass.services.async_register(
         DOMAIN,
         "set_all_dmx_scenes_mode",
-        _create_dmx_handler(hass),
+        _async_handle_set_dmx_scenes_mode,
         schema=SERVICE_SCHEMAS["set_all_dmx_scenes_mode"]
     )
     
     hass.services.async_register(
         DOMAIN,
         "set_digital_input_rule_lock_state",
-        _create_dirule_lock_handler(hass),
+        _async_handle_dirule_lock,
         schema=SERVICE_SCHEMAS["set_digital_input_rule_lock_state"]
     )
     
     hass.services.async_register(
         DOMAIN,
         "trigger_digital_input_rule",
-        _create_dirule_trigger_handler(hass),
+        _async_handle_dirule_trigger,
         schema=SERVICE_SCHEMAS["trigger_digital_input_rule"]
     )
+    
+    # Versuche zusaetzliche erweiterte Services zu laden (falls vorhanden)
+    try:
+        from .services import async_register_services
+        await async_register_services(hass)
+    except ImportError:
+        _LOGGER.debug("No additional services module found")
     
     _LOGGER.info("Successfully registered %d basic services", len(SERVICE_SCHEMAS))
 
 
 # =============================================================================
-# SERVICE HANDLER FACTORIES
+# SERVICE HANDLERS - DIREKT ALS ASYNC FUNKTIONEN
 # =============================================================================
 
-def _create_temperature_handler(hass: HomeAssistant):
-    """Create temperature target handler - NEW."""
-    async def async_handle_set_temperature_target(call: ServiceCall) -> None:
-        """Handle set temperature target service."""
-        entity_ids = call.data[ATTR_ENTITY_ID]
-        temperature = call.data["temperature"]
-        
-        _LOGGER.info("Setting temperature target to %.1f째C for: %s", temperature, entity_ids)
-        
-        for entity_id in entity_ids:
-            try:
-                await hass.services.async_call(
-                    "climate",
-                    "set_temperature",
-                    {ATTR_ENTITY_ID: entity_id, "temperature": temperature},
-                    blocking=True
-                )
-            except Exception as err:
-                _LOGGER.error("Failed to set temperature for %s: %s", entity_id, err)
+async def _async_handle_set_temperature_target(call: ServiceCall) -> None:
+    """Handle set temperature target service."""
+    hass = call.hass
+    entity_ids = call.data[ATTR_ENTITY_ID]
+    temperature = call.data["temperature"]
     
-    return async_handle_set_temperature_target
-
-
-def _create_ph_handler(hass: HomeAssistant):
-    """Create pH target handler - NEW."""
-    async def async_handle_set_ph_target(call: ServiceCall) -> None:
-        """Handle set pH target service."""
-        entity_ids = call.data[ATTR_ENTITY_ID]
-        target_value = call.data["target_value"]
-        
-        _LOGGER.info("Setting pH target to %.2f for: %s", target_value, entity_ids)
-        
-        for entity_id in entity_ids:
-            try:
-                await hass.services.async_call(
-                    "number",
-                    "set_value",
-                    {ATTR_ENTITY_ID: entity_id, "value": target_value},
-                    blocking=True
-                )
-            except Exception as err:
-                _LOGGER.error("Failed to set pH for %s: %s", entity_id, err)
+    _LOGGER.info("Setting temperature target to %.1f캜 for: %s", temperature, entity_ids)
     
-    return async_handle_set_ph_target
+    for entity_id in entity_ids:
+        try:
+            await hass.services.async_call(
+                "climate",
+                "set_temperature",
+                {ATTR_ENTITY_ID: entity_id, "temperature": temperature},
+                blocking=True
+            )
+        except Exception as err:
+            _LOGGER.error("Failed to set temperature for %s: %s", entity_id, err)
 
 
-def _create_chlorine_handler(hass: HomeAssistant):
-    """Create chlorine target handler - NEW."""
-    async def async_handle_set_chlorine_target(call: ServiceCall) -> None:
-        """Handle set chlorine target service."""
-        entity_ids = call.data[ATTR_ENTITY_ID]
-        target_value = call.data["target_value"]
-        
-        _LOGGER.info("Setting chlorine target to %.2f mg/l for: %s", target_value, entity_ids)
-        
-        for entity_id in entity_ids:
-            try:
-                await hass.services.async_call(
-                    "number",
-                    "set_value",
-                    {ATTR_ENTITY_ID: entity_id, "value": target_value},
-                    blocking=True
-                )
-            except Exception as err:
-                _LOGGER.error("Failed to set chlorine for %s: %s", entity_id, err)
+async def _async_handle_set_ph_target(call: ServiceCall) -> None:
+    """Handle set pH target service."""
+    hass = call.hass
+    entity_ids = call.data[ATTR_ENTITY_ID]
+    target_value = call.data["target_value"]
     
-    return async_handle_set_chlorine_target
+    _LOGGER.info("Setting pH target to %.2f for: %s", target_value, entity_ids)
+    
+    for entity_id in entity_ids:
+        try:
+            await hass.services.async_call(
+                "number",
+                "set_value",
+                {ATTR_ENTITY_ID: entity_id, "value": target_value},
+                blocking=True
+            )
+        except Exception as err:
+            _LOGGER.error("Failed to set pH for %s: %s", entity_id, err)
 
 
-def _create_backwash_handler(hass: HomeAssistant):
-    """Create backwash handler - NEW."""
-    async def async_handle_trigger_backwash(call: ServiceCall) -> None:
-        """Handle trigger backwash service."""
-        entity_ids = call.data[ATTR_ENTITY_ID]
-        duration = call.data.get("duration", 0)
-        
-        _LOGGER.info("Triggering backwash for: %s (duration: %ds)", entity_ids, duration)
-        
-        for entity_id in entity_ids:
-            try:
-                # Backwash einschalten
+async def _async_handle_set_chlorine_target(call: ServiceCall) -> None:
+    """Handle set chlorine target service."""
+    hass = call.hass
+    entity_ids = call.data[ATTR_ENTITY_ID]
+    target_value = call.data["target_value"]
+    
+    _LOGGER.info("Setting chlorine target to %.2f mg/l for: %s", target_value, entity_ids)
+    
+    for entity_id in entity_ids:
+        try:
+            await hass.services.async_call(
+                "number",
+                "set_value",
+                {ATTR_ENTITY_ID: entity_id, "value": target_value},
+                blocking=True
+            )
+        except Exception as err:
+            _LOGGER.error("Failed to set chlorine for %s: %s", entity_id, err)
+
+
+async def _async_handle_trigger_backwash(call: ServiceCall) -> None:
+    """Handle trigger backwash service."""
+    hass = call.hass
+    entity_ids = call.data[ATTR_ENTITY_ID]
+    duration = call.data.get("duration", 0)
+    
+    _LOGGER.info("Triggering backwash for: %s (duration: %ds)", entity_ids, duration)
+    
+    for entity_id in entity_ids:
+        try:
+            # Backwash einschalten
+            await hass.services.async_call(
+                "switch",
+                "turn_on",
+                {ATTR_ENTITY_ID: entity_id},
+                blocking=True
+            )
+            
+            _LOGGER.info("Backwash started for %s", entity_id)
+            
+            # Wenn Duration gesetzt, automatisch wieder ausschalten
+            if duration > 0:
+                await asyncio.sleep(duration)
+                
                 await hass.services.async_call(
                     "switch",
-                    "turn_on",
+                    "turn_off",
                     {ATTR_ENTITY_ID: entity_id},
                     blocking=True
                 )
                 
-                _LOGGER.info("Backwash started for %s", entity_id)
+                _LOGGER.info("Backwash stopped for %s after %ds", entity_id, duration)
                 
-                # Wenn Duration gesetzt, automatisch wieder ausschalten
-                if duration > 0:
-                    await asyncio.sleep(duration)
-                    
-                    await hass.services.async_call(
-                        "switch",
-                        "turn_off",
-                        {ATTR_ENTITY_ID: entity_id},
-                        blocking=True
-                    )
-                    
-                    _LOGGER.info("Backwash stopped for %s after %ds", entity_id, duration)
-                    
-            except Exception as err:
-                _LOGGER.error("Failed to trigger backwash for %s: %s", entity_id, err)
+        except Exception as err:
+            _LOGGER.error("Failed to trigger backwash for %s: %s", entity_id, err)
+
+
+async def _async_handle_start_water_analysis(call: ServiceCall) -> None:
+    """Handle start water analysis service."""
+    _LOGGER.info("Starting water analysis")
+    _LOGGER.warning("Water analysis service not fully implemented yet")
+
+
+async def _async_handle_set_maintenance_mode(call: ServiceCall) -> None:
+    """Handle set maintenance mode service."""
+    entity_ids = call.data[ATTR_ENTITY_ID]
+    enable = call.data.get("enable", True)
     
-    return async_handle_trigger_backwash
+    action = "enable" if enable else "disable"
+    _LOGGER.info("Maintenance mode %s for: %s", action, entity_ids)
+    _LOGGER.warning("Maintenance mode service not fully implemented yet")
 
 
-def _create_maintenance_handler(hass: HomeAssistant):
-    """Create maintenance mode handler - NEW."""
-    async def async_handle_set_maintenance_mode(call: ServiceCall) -> None:
-        """Handle set maintenance mode service."""
-        entity_ids = call.data[ATTR_ENTITY_ID]
-        enable = call.data.get("enable", True)
-        
-        action = "enable" if enable else "disable"
-        _LOGGER.info("Maintenance mode %s for: %s", action, entity_ids)
-        
-        # Implementierung abh채ngig von deiner API
-        _LOGGER.warning("Maintenance mode service not fully implemented yet")
+async def _async_handle_set_dmx_scenes_mode(call: ServiceCall) -> None:
+    """Handle set DMX scenes mode service."""
+    device_id = call.data[ATTR_DEVICE_ID]
+    dmx_mode = call.data["dmx_mode"]
     
-    return async_handle_set_maintenance_mode
+    _LOGGER.info("Setting DMX scenes mode to %s for device %s", dmx_mode, device_id)
+    _LOGGER.warning("DMX scenes service not fully implemented yet")
 
 
-def _create_dmx_handler(hass: HomeAssistant):
-    """Create DMX scenes handler - NEW."""
-    async def async_handle_set_dmx_scenes_mode(call: ServiceCall) -> None:
-        """Handle set DMX scenes mode service."""
-        device_id = call.data[ATTR_DEVICE_ID]
-        dmx_mode = call.data["dmx_mode"]
-        
-        _LOGGER.info("Setting DMX scenes mode to %s for device %s", dmx_mode, device_id)
-        
-        # Implementierung abh채ngig von deiner API
-        _LOGGER.warning("DMX scenes service not fully implemented yet")
+async def _async_handle_dirule_lock(call: ServiceCall) -> None:
+    """Handle digital input rule lock state service."""
+    device_id = call.data[ATTR_DEVICE_ID]
+    rule_key = call.data["rule_key"]
+    lock_state = call.data["lock_state"]
     
-    return async_handle_set_dmx_scenes_mode
+    action = "lock" if lock_state else "unlock"
+    _LOGGER.info("Digital input rule %s %s for device %s", rule_key, action, device_id)
+    _LOGGER.warning("DIRULE lock service not fully implemented yet")
 
 
-def _create_dirule_lock_handler(hass: HomeAssistant):
-    """Create digital input rule lock handler - NEW."""
-    async def async_handle_dirule_lock(call: ServiceCall) -> None:
-        """Handle digital input rule lock state service."""
-        device_id = call.data[ATTR_DEVICE_ID]
-        rule_key = call.data["rule_key"]
-        lock_state = call.data["lock_state"]
-        
-        action = "lock" if lock_state else "unlock"
-        _LOGGER.info("Digital input rule %s %s for device %s", rule_key, action, device_id)
-        
-        # Implementierung abh채ngig von deiner API
-        _LOGGER.warning("DIRULE lock service not fully implemented yet")
+async def _async_handle_dirule_trigger(call: ServiceCall) -> None:
+    """Handle trigger digital input rule service."""
+    device_id = call.data[ATTR_DEVICE_ID]
+    rule_key = call.data["rule_key"]
     
-    return async_handle_dirule_lock
-
-
-def _create_dirule_trigger_handler(hass: HomeAssistant):
-    """Create digital input rule trigger handler - NEW."""
-    async def async_handle_dirule_trigger(call: ServiceCall) -> None:
-        """Handle trigger digital input rule service."""
-        device_id = call.data[ATTR_DEVICE_ID]
-        rule_key = call.data["rule_key"]
-        
-        _LOGGER.info("Triggering digital input rule %s for device %s", rule_key, device_id)
-        
-        # Implementierung abh채ngig von deiner API
-        _LOGGER.warning("DIRULE trigger service not fully implemented yet")
-    
-    return async_handle_dirule_trigger
-
-
-def _create_generic_handler(
-    hass: HomeAssistant,
-    service_name: str,
-    action: str,
-    params: Dict[str, Any]
-):
-    """Create generic service handler - NEW."""
-    async def async_handle_generic_service(call: ServiceCall) -> None:
-        """Handle generic service."""
-        _LOGGER.info("Handling %s service", service_name)
-        _LOGGER.warning("Service %s not fully implemented yet", action)
-    
-    return async_handle_generic_service
+    _LOGGER.info("Triggering digital input rule %s for device %s", rule_key, device_id)
+    _LOGGER.warning("DIRULE trigger service not fully implemented yet")
