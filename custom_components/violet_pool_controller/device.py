@@ -1,8 +1,6 @@
-"""Violet Pool Controller Device Module - IMPROVED VERSION."""
+"""Violet Pool Controller Device Module - CORRECTED VERSION."""
 import logging
 import asyncio
-import json
-import aiohttp
 from datetime import timedelta
 from typing import Dict, Any, Optional
 
@@ -24,7 +22,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class VioletPoolControllerDevice:
-    """ReprÃ¤sentiert ein Violet Pool Controller GerÃ¤t - IMPROVED."""
+    """ReprÃ¤sentiert ein Violet Pool Controller GerÃ¤t - CORRECTED."""
 
     def __init__(
         self, 
@@ -53,27 +51,25 @@ class VioletPoolControllerDevice:
         self.device_id = entry_data.get(CONF_DEVICE_ID, 1)
         self.device_name = entry_data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
         
-    return coordinator
-
-        # Username kann leer sein, aber sollte nicht None sein für API-Initialisierung
-        username = entry.data.get(CONF_USERNAME, "")
-        password = entry.data.get(CONF_PASSWORD, "")
+        # Username kann leer sein, aber sollte nicht None sein
+        username = entry_data.get(CONF_USERNAME, "")
+        password = entry_data.get(CONF_PASSWORD, "")
         
         _LOGGER.info(
-            "Initialisiere VioletPoolAPI: host=%s, ssl=%s, timeout=%ds",
-            self.api_url, self.use_ssl, self.timeout
+            "Device initialisiert: %s (URL: %s, SSL: %s)",
+            self.device_name, self.api_url, self.use_ssl
         )
 
     async def async_update(self) -> Dict[str, Any]:
-        """Update-Methode für Coordinator - IMPROVED."""
+        """Update-Methode fÃ¼r Coordinator."""
         try:
             async with self._api_lock:
-                _LOGGER.debug("Starte API-Update für %s", self.device_name)
+                _LOGGER.debug("Starte API-Update fÃ¼r %s", self.device_name)
                 
                 data = await self.api.get_readings()
                 
                 if not data or not isinstance(data, dict):
-                    _LOGGER.warning("Leere oder ungültige Daten vom Controller")
+                    _LOGGER.warning("Leere oder ungÃ¼ltige Daten vom Controller")
                     self._consecutive_failures += 1
                     if self._consecutive_failures >= self._max_consecutive_failures:
                         self._available = False
@@ -97,7 +93,12 @@ class VioletPoolControllerDevice:
         except VioletPoolAPIError as err:
             self._last_error = str(err)
             self._consecutive_failures += 1
-            _LOGGER.error("API-Fehler bei Update (%d/%d): %s", self._consecutive_failures, self._max_consecutive_failures, err)
+            _LOGGER.error(
+                "API-Fehler bei Update (%d/%d): %s", 
+                self._consecutive_failures, 
+                self._max_consecutive_failures, 
+                err
+            )
             
             if self._consecutive_failures >= self._max_consecutive_failures:
                 self._available = False
@@ -108,7 +109,12 @@ class VioletPoolControllerDevice:
         except Exception as err:
             self._last_error = str(err)
             self._consecutive_failures += 1
-            _LOGGER.exception("Unerwarteter Fehler bei Update (%d/%d): %s", self._consecutive_failures, self._max_consecutive_failures, err)
+            _LOGGER.exception(
+                "Unerwarteter Fehler bei Update (%d/%d): %s", 
+                self._consecutive_failures, 
+                self._max_consecutive_failures, 
+                err
+            )
             
             if self._consecutive_failures >= self._max_consecutive_failures:
                 self._available = False
@@ -118,18 +124,22 @@ class VioletPoolControllerDevice:
 
     @property
     def available(self) -> bool:
+        """Gibt den VerfÃ¼gbarkeitsstatus zurÃ¼ck."""
         return self._available
 
     @property
     def firmware_version(self) -> Optional[str]:
+        """Gibt die Firmware-Version zurÃ¼ck."""
         return self._firmware_version
 
     @property
     def data(self) -> Dict[str, Any]:
+        """Gibt die aktuellen Daten zurÃ¼ck."""
         return self._data
 
     @property
     def device_info(self) -> Dict[str, Any]:
+        """Gibt die GerÃ¤teinformationen zurÃ¼ck."""
         if not self._device_info:
             self._device_info = {
                 "identifiers": {(DOMAIN, f"{self.api_url}_{self.device_id}")},
@@ -141,6 +151,7 @@ class VioletPoolControllerDevice:
         return self._device_info
 
     def _extract_api_url(self, entry_data: Dict) -> str:
+        """Extrahiert die API-URL aus den Config-Daten."""
         url = (
             entry_data.get(CONF_API_URL) or
             entry_data.get("host") or
@@ -154,12 +165,31 @@ class VioletPoolControllerDevice:
 
 
 class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
-    def __init__(self, hass: HomeAssistant, device: VioletPoolControllerDevice, name: str, polling_interval: int = DEFAULT_POLLING_INTERVAL) -> None:
-        super().__init__(hass, logging.getLogger(__name__), name=name, update_interval=timedelta(seconds=polling_interval))
+    """Data Update Coordinator fÃ¼r Violet Pool Controller."""
+    
+    def __init__(
+        self, 
+        hass: HomeAssistant, 
+        device: VioletPoolControllerDevice, 
+        name: str, 
+        polling_interval: int = DEFAULT_POLLING_INTERVAL
+    ) -> None:
+        """Initialisiere den Coordinator."""
+        super().__init__(
+            hass, 
+            logging.getLogger(__name__), 
+            name=name, 
+            update_interval=timedelta(seconds=polling_interval)
+        )
         self.device = device
-        _LOGGER.debug("Coordinator initialisiert für %s (Intervall: %ds)", name, polling_interval)
+        _LOGGER.debug(
+            "Coordinator initialisiert fÃ¼r %s (Intervall: %ds)", 
+            name, 
+            polling_interval
+        )
 
     async def _async_update_data(self) -> Dict[str, Any]:
+        """Aktualisiere die Daten vom Device."""
         try:
             return await self.device.async_update()
         except VioletPoolAPIError as err:
@@ -167,155 +197,44 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
             raise UpdateFailed(f"Fehler: {err}") from err
 
 
-async def async_setup_device(hass: HomeAssistant, config_entry: ConfigEntry, api: VioletPoolAPI) -> VioletPoolDataUpdateCoordinator:
+async def async_setup_device(
+    hass: HomeAssistant, 
+    config_entry: ConfigEntry, 
+    api: VioletPoolAPI
+) -> VioletPoolDataUpdateCoordinator:
+    """Setup des Violet Pool Controller Devices."""
     try:
+        # Device erstellen
         device = VioletPoolControllerDevice(hass, config_entry, api)
+        
+        # Ersten Update durchfÃ¼hren
         await device.async_update()
         
         if not device.available:
             raise ConfigEntryNotReady("Controller nicht erreichbar bei Setup")
         
-        polling_interval = config_entry.options.get(CONF_POLLING_INTERVAL, config_entry.data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL))
+        # Polling-Intervall aus Options oder Data holen
+        polling_interval = config_entry.options.get(
+            CONF_POLLING_INTERVAL, 
+            config_entry.data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
+        )
         
-        coordinator = VioletPoolDataUpdateCoordinator(hass, device, config_entry.data.get(CONF_DEVICE_NAME, "Violet Pool Controller"), polling_interval)
+        # Coordinator erstellen
+        coordinator = VioletPoolDataUpdateCoordinator(
+            hass, 
+            device, 
+            config_entry.data.get(CONF_DEVICE_NAME, "Violet Pool Controller"), 
+            polling_interval
+        )
         
+        # Ersten Refresh durchfÃ¼hren
         await coordinator.async_config_entry_first_refresh()
-        
-        _LOGGER.info("Device Setup erfolgreich: %s (FW: %s)", device.device_name, device.firmware_version or "unknown")
-        
-        return coordinator
-        
-    except Exception as err:
-        _LOGGER.error("Device Setup fehlgeschlagen: %s", err)
-        raise ConfigEntryNotReady(f"Setup-Fehler: {err}") from err
-
-        # Username kann leer sein, aber sollte nicht None sein für API-Initialisierung
-        username = entry.data.get(CONF_USERNAME, "")
-        password = entry.data.get(CONF_PASSWORD, "")
         
         _LOGGER.info(
-            "Initialisiere VioletPoolAPI: host=%s, ssl=%s, timeout=%ds",
-            self.api_url, self.use_ssl, self.timeout
+            "Device Setup erfolgreich: %s (FW: %s)", 
+            device.device_name, 
+            device.firmware_version or "unknown"
         )
-
-    async def async_update(self) -> Dict[str, Any]:
-        """Update-Methode für Coordinator - IMPROVED."""
-        try:
-            async with self._api_lock:
-                _LOGGER.debug("Starte API-Update für %s", self.device_name)
-                
-                data = await self.api.get_readings()
-                
-                if not data or not isinstance(data, dict):
-                    _LOGGER.warning("Leere oder ungültige Daten vom Controller")
-                    self._consecutive_failures += 1
-                    if self._consecutive_failures >= self._max_consecutive_failures:
-                        self._available = False
-                        raise UpdateFailed(
-                            f"Controller antwortet nicht ({self._consecutive_failures} Fehler)"
-                        )
-                    return self._data
-                
-                self._data = data
-                self._available = True
-                self._consecutive_failures = 0
-                self._last_error = None
-                
-                if "FW" in data or "fw" in data:
-                    self._firmware_version = data.get("FW") or data.get("fw")
-                
-                _LOGGER.debug("Update erfolgreich: %d Datenpunkte empfangen", len(data))
-                
-                return data
-                
-        except VioletPoolAPIError as err:
-            self._last_error = str(err)
-            self._consecutive_failures += 1
-            _LOGGER.error("API-Fehler bei Update (%d/%d): %s", self._consecutive_failures, self._max_consecutive_failures, err)
-            
-            if self._consecutive_failures >= self._max_consecutive_failures:
-                self._available = False
-                raise UpdateFailed(f"Controller nicht erreichbar: {err}") from err
-            
-            return self._data
-            
-        except Exception as err:
-            self._last_error = str(err)
-            self._consecutive_failures += 1
-            _LOGGER.exception("Unerwarteter Fehler bei Update (%d/%d): %s", self._consecutive_failures, self._max_consecutive_failures, err)
-            
-            if self._consecutive_failures >= self._max_consecutive_failures:
-                self._available = False
-                raise UpdateFailed(f"Update-Fehler: {err}") from err
-            
-            return self._data
-
-    @property
-    def available(self) -> bool:
-        return self._available
-
-    @property
-    def firmware_version(self) -> Optional[str]:
-        return self._firmware_version
-
-    @property
-    def data(self) -> Dict[str, Any]:
-        return self._data
-
-    @property
-    def device_info(self) -> Dict[str, Any]:
-        if not self._device_info:
-            self._device_info = {
-                "identifiers": {(DOMAIN, f"{self.api_url}_{self.device_id}")},
-                "name": self.device_name,
-                "manufacturer": "PoolDigital GmbH & Co. KG",
-                "model": "Violet Pool Controller",
-                "sw_version": self._firmware_version or "unknown",
-            }
-        return self._device_info
-
-    def _extract_api_url(self, entry_data: Dict) -> str:
-        url = (
-            entry_data.get(CONF_API_URL) or
-            entry_data.get("host") or
-            entry_data.get("base_ip")
-        )
-        
-        if not url:
-            raise ValueError("Keine IP-Adresse in Config Entry gefunden")
-        
-        return url.strip()
-
-
-class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
-    def __init__(self, hass: HomeAssistant, device: VioletPoolControllerDevice, name: str, polling_interval: int = DEFAULT_POLLING_INTERVAL) -> None:
-        super().__init__(hass, logging.getLogger(__name__), name=name, update_interval=timedelta(seconds=polling_interval))
-        self.device = device
-        _LOGGER.debug("Coordinator initialisiert für %s (Intervall: %ds)", name, polling_interval)
-
-    async def _async_update_data(self) -> Dict[str, Any]:
-        try:
-            return await self.device.async_update()
-        except VioletPoolAPIError as err:
-            _LOGGER.error("Fehler beim Datenabruf: %s", err)
-            raise UpdateFailed(f"Fehler: {err}") from err
-
-
-async def async_setup_device(hass: HomeAssistant, config_entry: ConfigEntry, api: VioletPoolAPI) -> VioletPoolDataUpdateCoordinator:
-    try:
-        device = VioletPoolControllerDevice(hass, config_entry, api)
-        await device.async_update()
-        
-        if not device.available:
-            raise ConfigEntryNotReady("Controller nicht erreichbar bei Setup")
-        
-        polling_interval = config_entry.options.get(CONF_POLLING_INTERVAL, config_entry.data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL))
-        
-        coordinator = VioletPoolDataUpdateCoordinator(hass, device, config_entry.data.get(CONF_DEVICE_NAME, "Violet Pool Controller"), polling_interval)
-        
-        await coordinator.async_config_entry_first_refresh()
-        
-        _LOGGER.info("Device Setup erfolgreich: %s (FW: %s)", device.device_name, device.firmware_version or "unknown")
         
         return coordinator
         
