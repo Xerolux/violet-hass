@@ -7,23 +7,13 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.exceptions import HomeAssistantError
 
-from .const import DOMAIN, CONF_ACTIVE_FEATURES, COVER_FUNCTIONS
+from .const import DOMAIN, CONF_ACTIVE_FEATURES, COVER_FUNCTIONS, COVER_STATE_MAP, COVER_STATE_MAP
 from .api import ACTION_PUSH, VioletPoolAPIError
 from .entity import VioletPoolControllerEntity
 from .device import VioletPoolDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-COVER_STATE_MAP = {
-    # Numerische States
-    "0": "open", "1": "opening", "2": "closed", 
-    "3": "closing", "4": "stopped",
-    
-    # ⭐ String-States hinzufügen (aus API erkannt)
-    "OPEN": "open", "CLOSED": "closed", 
-    "OPENING": "opening", "CLOSING": "closing",
-    "STOPPED": "stopped"
-}
 
 class VioletCover(VioletPoolControllerEntity, CoverEntity):
     """Repräsentation der Pool-Abdeckung."""

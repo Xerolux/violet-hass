@@ -651,3 +651,187 @@ async def test_api_connection(api: VioletPoolAPI) -> Dict[str, Any]:
                 "Netzwerk-Firewall Ã¼berprÃ¼fen"
             ]
         }
+
+    # =========================================================================
+    # MISSING API METHODS - ADDED FOR FULL FUNCTIONALITY
+    # =========================================================================
+
+    async def set_device_temperature(self, device_key: str, temperature: float) -> Dict[str, Any]:
+        """Setze Zieltemperatur für Heizung oder Solar."""
+        if not 20.0 <= temperature <= 40.0:
+            raise VioletPoolValidationError(f"Temperatur {temperature}°C außerhalb gültigen Bereichs (20-40°C)")
+        
+        target_key = f"{device_key}_TARGET_TEMP"
+        _LOGGER.info("Setze %s auf %.1f°C", device_key, temperature)
+        
+        result = await self.api_request(
+            endpoint=API_SET_TARGET_VALUES,
+            method="POST",
+            raw_query=f"{target_key},{temperature}",
+            require_auth=True,
+            expected_format=ResponseFormat.AUTO
+        )
+        return self._normalize_response(result)
+
+    async def set_ph_target(self, value: float) -> Dict[str, Any]:
+        """Setze pH-Sollwert."""
+        return await self.set_target_value(TARGET_PH, value)
+
+    async def set_orp_target(self, value: int) -> Dict[str, Any]:
+        """Setze ORP/Redox-Sollwert."""
+        return await self.set_target_value(TARGET_ORP, value)
+
+    async def set_min_chlorine_level(self, value: float) -> Dict[str, Any]:
+        """Setze Mindest-Chlor-Level."""
+        return await self.set_target_value(TARGET_MIN_CHLORINE, value)
+
+    async def manual_dosing(self, dosing_type: str, duration: int) -> Dict[str, Any]:
+        """Führe manuelle Dosierung durch."""
+        device_mapping = {
+            "pH-": "DOS_4_PHM",
+            "pH+": "DOS_5_PHP",
+            "Chlor": "DOS_1_CL",
+            "Flockmittel": "DOS_6_FLOC"
+        }
+        
+        device_key = device_mapping.get(dosing_type)
+        if not device_key:
+            raise VioletPoolCommandError(f"Unbekannter Dosiertyp: {dosing_type}")
+        
+        if not 5 <= duration <= 300:
+            raise VioletPoolValidationError(f"Dosierdauer {duration}s außerhalb gültigen Bereichs (5-300s)")
+        
+        _LOGGER.info("Manuelle Dosierung %s für %ds", dosing_type, duration)
+        
+        return await self.set_switch_state(key=device_key, action=ACTION_MAN, duration=duration)
+
+    async def set_pv_surplus(self, active: bool, pump_speed: int = 2) -> Dict[str, Any]:
+        """Setze PV-Überschuss Modus."""
+        action = ACTION_ON if active else ACTION_OFF
+        _LOGGER.info("PV-Überschuss %s (Speed %d)", action, pump_speed)
+        return await self.set_switch_state(key="PVSURPLUS", action=action, last_value=pump_speed)
+
+    async def set_all_dmx_scenes(self, dmx_action: str) -> Dict[str, Any]:
+        """Setze alle DMX-Szenen gleichzeitig."""
+        valid_actions = [ACTION_ALLON, ACTION_ALLOFF, ACTION_ALLAUTO]
+        if dmx_action not in valid_actions:
+            raise VioletPoolCommandError(f"Ungültige DMX-Aktion: {dmx_action}")
+        
+        _LOGGER.info("Setze alle DMX-Szenen auf %s", dmx_action)
+        return await self.set_switch_state(key="DMX_SCENE1", action=dmx_action)
+
+    async def trigger_digital_input_rule(self, rule_key: str) -> Dict[str, Any]:
+        """Löse digitale Schaltregel aus."""
+        valid_rules = [f"DIRULE_{i}" for i in range(1, 8)]
+        if rule_key not in valid_rules:
+            raise VioletPoolCommandError(f"Ungültige Regel: {rule_key}")
+        
+        _LOGGER.info("Triggere Regel %s", rule_key)
+        return await self.set_switch_state(key=rule_key, action=ACTION_PUSH)
+
+    async def set_digital_input_rule_lock(self, rule_key: str, lock_state: bool) -> Dict[str, Any]:
+        """Sperre oder entsperre digitale Schaltregel."""
+        valid_rules = [f"DIRULE_{i}" for i in range(1, 8)]
+        if rule_key not in valid_rules:
+            raise VioletPoolCommandError(f"Ungültige Regel: {rule_key}")
+        
+        action = ACTION_LOCK if lock_state else ACTION_UNLOCK
+        _LOGGER.info("%s Regel %s", action, rule_key)
+        return await self.set_switch_state(key=rule_key, action=action)
+
+    async def set_light_color_pulse(self) -> Dict[str, Any]:
+        """Sende Farbpuls an Beleuchtung."""
+        _LOGGER.info("Sende Licht-Farbpuls")
+        return await self.set_switch_state(key="LIGHT", action=ACTION_COLOR)
+
+    # =========================================================================
+    # MISSING API METHODS - ADDED FOR FULL FUNCTIONALITY
+    # =========================================================================
+
+    async def set_device_temperature(self, device_key: str, temperature: float) -> Dict[str, Any]:
+        """Setze Zieltemperatur für Heizung oder Solar."""
+        if not 20.0 <= temperature <= 40.0:
+            raise VioletPoolValidationError(f"Temperatur {temperature}°C außerhalb gültigen Bereichs (20-40°C)")
+        
+        target_key = f"{device_key}_TARGET_TEMP"
+        _LOGGER.info("Setze %s auf %.1f°C", device_key, temperature)
+        
+        result = await self.api_request(
+            endpoint=API_SET_TARGET_VALUES,
+            method="POST",
+            raw_query=f"{target_key},{temperature}",
+            require_auth=True,
+            expected_format=ResponseFormat.AUTO
+        )
+        return self._normalize_response(result)
+
+    async def set_ph_target(self, value: float) -> Dict[str, Any]:
+        """Setze pH-Sollwert."""
+        return await self.set_target_value(TARGET_PH, value)
+
+    async def set_orp_target(self, value: int) -> Dict[str, Any]:
+        """Setze ORP/Redox-Sollwert."""
+        return await self.set_target_value(TARGET_ORP, value)
+
+    async def set_min_chlorine_level(self, value: float) -> Dict[str, Any]:
+        """Setze Mindest-Chlor-Level."""
+        return await self.set_target_value(TARGET_MIN_CHLORINE, value)
+
+    async def manual_dosing(self, dosing_type: str, duration: int) -> Dict[str, Any]:
+        """Führe manuelle Dosierung durch."""
+        device_mapping = {
+            "pH-": "DOS_4_PHM",
+            "pH+": "DOS_5_PHP",
+            "Chlor": "DOS_1_CL",
+            "Flockmittel": "DOS_6_FLOC"
+        }
+        
+        device_key = device_mapping.get(dosing_type)
+        if not device_key:
+            raise VioletPoolCommandError(f"Unbekannter Dosiertyp: {dosing_type}")
+        
+        if not 5 <= duration <= 300:
+            raise VioletPoolValidationError(f"Dosierdauer {duration}s außerhalb gültigen Bereichs (5-300s)")
+        
+        _LOGGER.info("Manuelle Dosierung %s für %ds", dosing_type, duration)
+        
+        return await self.set_switch_state(key=device_key, action=ACTION_MAN, duration=duration)
+
+    async def set_pv_surplus(self, active: bool, pump_speed: int = 2) -> Dict[str, Any]:
+        """Setze PV-Überschuss Modus."""
+        action = ACTION_ON if active else ACTION_OFF
+        _LOGGER.info("PV-Überschuss %s (Speed %d)", action, pump_speed)
+        return await self.set_switch_state(key="PVSURPLUS", action=action, last_value=pump_speed)
+
+    async def set_all_dmx_scenes(self, dmx_action: str) -> Dict[str, Any]:
+        """Setze alle DMX-Szenen gleichzeitig."""
+        valid_actions = [ACTION_ALLON, ACTION_ALLOFF, ACTION_ALLAUTO]
+        if dmx_action not in valid_actions:
+            raise VioletPoolCommandError(f"Ungültige DMX-Aktion: {dmx_action}")
+        
+        _LOGGER.info("Setze alle DMX-Szenen auf %s", dmx_action)
+        return await self.set_switch_state(key="DMX_SCENE1", action=dmx_action)
+
+    async def trigger_digital_input_rule(self, rule_key: str) -> Dict[str, Any]:
+        """Löse digitale Schaltregel aus."""
+        valid_rules = [f"DIRULE_{i}" for i in range(1, 8)]
+        if rule_key not in valid_rules:
+            raise VioletPoolCommandError(f"Ungültige Regel: {rule_key}")
+        
+        _LOGGER.info("Triggere Regel %s", rule_key)
+        return await self.set_switch_state(key=rule_key, action=ACTION_PUSH)
+
+    async def set_digital_input_rule_lock(self, rule_key: str, lock_state: bool) -> Dict[str, Any]:
+        """Sperre oder entsperre digitale Schaltregel."""
+        valid_rules = [f"DIRULE_{i}" for i in range(1, 8)]
+        if rule_key not in valid_rules:
+            raise VioletPoolCommandError(f"Ungültige Regel: {rule_key}")
+        
+        action = ACTION_LOCK if lock_state else ACTION_UNLOCK
+        _LOGGER.info("%s Regel %s", action, rule_key)
+        return await self.set_switch_state(key=rule_key, action=action)
+
+    async def set_light_color_pulse(self) -> Dict[str, Any]:
+        """Sende Farbpuls an Beleuchtung."""
+        _LOGGER.info("Sende Licht-Farbpuls")
+        return await self.set_switch_state(key="LIGHT", action=ACTION_COLOR)
