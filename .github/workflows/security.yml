@@ -56,12 +56,12 @@ jobs:
           head: ${{ github.event.pull_request.head.sha }}
           extra_args: --only-verified
           
-      - name: TruffleHog OSS (Push)
+      - name: TruffleHog OSS (Push to main)
         if: github.event_name == 'push'
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
-          extra_args: --only-verified --since-commit HEAD~1
+          extra_args: --only-verified --max-depth=10
           
       - name: TruffleHog OSS (Scheduled/Manual)
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'

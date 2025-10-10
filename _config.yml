@@ -1,0 +1,62 @@
+# _config.yml - Jekyll Configuration
+title: Violet Pool Controller
+description: Home Assistant integration for Violet Pool Controller
+theme: jekyll-theme-primer
+
+# Exclude folders that should not be processed by Jekyll
+exclude:
+  - node_modules/
+  - vendor/
+  - .github/
+  - custom_components/
+  - blueprints/
+  - tests/
+  - __pycache__/
+  - "*.pyc"
+  - requirements*.txt
+  - setup.py
+  - setup.cfg
+  - pyproject.toml
+  - tox.ini
+  - .pytest_cache/
+  - .mypy_cache/
+  - .ruff_cache/
+  - .venv/
+  - venv/
+
+# Include specific markdown files for documentation
+include:
+  - README.md
+  - CHANGELOG.md
+  - SECURITY.md
+  - CONTRIBUTING.md
+  - LICENSE
+
+# Markdown settings
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  
+# Plugin settings
+plugins:
+  - jekyll-relative-links
+  - jekyll-optional-front-matter
+  - jekyll-readme-index
+  - jekyll-titles-from-headings
+  - jekyll-github-metadata
+
+# Relative links
+relative_links:
+  enabled: true
+  collections: false
+
+# Optional front matter
+optional_front_matter:
+  remove_originals: false
+
+# Titles from headings
+titles_from_headings:
+  enabled: true
+  strip_title: false
+  collections: false
