@@ -1,4 +1,4 @@
-"""Violet Pool Controller Integration - IMPROVED VERSION."""
+ """Violet Pool Controller Integration - IMPROVED VERSION."""
 import logging
 import asyncio
 from typing import Any, Dict, List
@@ -367,11 +367,8 @@ async def async_register_all_services(hass: HomeAssistant) -> None:
     )
     
     # Versuche zusaetzliche erweiterte Services zu laden (falls vorhanden)
-    try:
-        from .services import async_register_services
-        await async_register_services(hass)
-    except ImportError:
-        _LOGGER.debug("No additional services module found")
+    from .services import async_register_services
+    await async_register_services(hass)
     
     _LOGGER.info("Successfully registered %d basic services", len(SERVICE_SCHEMAS))
 
@@ -386,7 +383,7 @@ async def _async_handle_set_temperature_target(call: ServiceCall) -> None:
     entity_ids = call.data[ATTR_ENTITY_ID]
     temperature = call.data["temperature"]
     
-    _LOGGER.info("Setting temperature target to %.1f°C for: %s", temperature, entity_ids)
+    _LOGGER.info("Setting temperature target to %.1fÂ°C for: %s", temperature, entity_ids)
     
     for entity_id in entity_ids:
         try:
