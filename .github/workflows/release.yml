@@ -1,40 +1,232 @@
-name: Release
+name: Release Management
 
 on:
   release:
     types: [published]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  release:
+  prepare-release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      release-notes: ${{ steps.generate.outputs.release-notes }}
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       
       - name: Get version
         id: version
         run: |
           VERSION="${{ github.event.release.tag_name || github.ref_name }}"
-          VERSION="${VERSION#v}" # Remove 'v' prefix if present
+          VERSION="${VERSION#v}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      - name: Validate tag format
+        run: |
+          if [[ ! "${{ github.event.release.tag_name }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$ ]]; then
+            echo "❌ Invalid tag format: ${{ github.event.release.tag_name }}"
+            echo "Expected format: v1.2.3 or v1.2.3-beta"
+            exit 1
+          fi
           
       - name: Update version in files
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          # Update manifest.json
           sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" custom_components/violet_pool_controller/manifest.json
-          # Update const.py
           sed -i "s/^INTEGRATION_VERSION = .*/INTEGRATION_VERSION = \"$VERSION\"/" custom_components/violet_pool_controller/const.py
+          echo "✅ Updated version to $VERSION"
           
+      - name: Parse commits since last release
+        id: commits
+        run: |
+          PREV_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+' | sed -n '2p')
+          
+          if [ -z "$PREV_TAG" ]; then
+            echo "📝 No previous release found, using all commits"
+            COMMITS=$(git log --oneline --pretty=format:"- %s" | head -20)
+          else
+            echo "📝 Getting commits since $PREV_TAG"
+            COMMITS=$(git log ${PREV_TAG}..${{ github.event.release.tag_name }} --oneline --pretty=format:"- %s")
+          fi
+          
+          # Categorize commits
+          BUG_FIXES=$(echo "$COMMITS" | grep -iE "(fix|bug|patch)" | head -5 || echo "")
+          IMPROVEMENTS=$(echo "$COMMITS" | grep -iE "(improve|enhance|update|refactor)" | head -5 || echo "")
+          NEW_FEATURES=$(echo "$COMMITS" | grep -iE "(add|feat|feature|new)" | head -5 || echo "")
+          
+          echo "bug-fixes<<EOF" >> $GITHUB_OUTPUT
+          echo "$BUG_FIXES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          echo "improvements<<EOF" >> $GITHUB_OUTPUT
+          echo "$IMPROVEMENTS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          echo "new-features<<EOF" >> $GITHUB_OUTPUT
+          echo "$NEW_FEATURES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Generate release notes
+        id: generate
+        run: |
+          cat > temp_release_notes.md << 'EOL'
+          # ${{ github.event.release.tag_name }} – ${{ steps.version.outputs.date }}
+
+          ## 🔧 Bug Fixes
+          ${{ steps.commits.outputs.bug-fixes }}
+          ${{ steps.commits.outputs.bug-fixes == '' && '- Minor bug fixes and stability improvements' || '' }}
+
+          ## 🚀 Improvements
+          ${{ steps.commits.outputs.improvements }}
+          ${{ steps.commits.outputs.improvements == '' && '- Performance optimizations and code improvements' || '' }}
+
+          ## ✨ New Features
+          ${{ steps.commits.outputs.new-features }}
+          ${{ steps.commits.outputs.new-features == '' && '- Enhanced pool controller functionality' || '' }}
+
+          ---
+          
+          ## 📦 Installation
+          
+          **HACS (Recommended):**
+          1. Open HACS → Integrations
+          2. Search for "Violet Pool Controller"
+          3. Click Install
+          
+          **Manual:**
+          Download [violet_pool_controller.zip](${{ github.event.release.html_url }}/download/violet_pool_controller.zip) and extract to `custom_components/`
+          
+          ---
+          
+          ## ❤️ Support This Project
+          
+          If you find this integration useful, consider supporting its development:
+          - ☕ [Buy Me a Coffee](https://buymeacoffee.com/xerolux)
+          - 🚗 [Use my Tesla referral link](https://ts.la/sebastian564489)
+          
+          Every contribution helps keep this project alive! Thank you! 🙏
+          
+          ---
+          
+          ## 💬 Feedback & Contributions
+          
+          - 🐛 [Report a Bug](https://github.com/xerolux/violet-hass/issues/new?template=bug_report.md)
+          - ✨ [Request a Feature](https://github.com/xerolux/violet-hass/issues/new?template=feature_request.md)
+          - 🤝 [Contribute](https://github.com/xerolux/violet-hass/blob/main/CONTRIBUTING.md)
+          
+          Thank you for your support! 🚀
+          EOL
+          
+          echo "release-notes<<EOFNOTES" >> $GITHUB_OUTPUT
+          cat temp_release_notes.md >> $GITHUB_OUTPUT
+          echo "EOFNOTES" >> $GITHUB_OUTPUT
+
       - name: Create ZIP
         run: |
           cd custom_components/violet_pool_controller
-          zip -r ../../violet_pool_controller.zip .
+          zip -r ../../violet_pool_controller.zip . \
+            -x "*.pyc" -x "__pycache__/*" -x "*.git*" -x "test_*.py"
+          cd ../..
+          echo "📦 Created violet_pool_controller.zip ($(du -h violet_pool_controller.zip | cut -f1))"
           
       - name: Upload ZIP to release
         uses: softprops/action-gh-release@v2
         with:
           files: violet_pool_controller.zip
           tag_name: ${{ github.event.release.tag_name }}
+          body: ${{ steps.generate.outputs.release-notes }}
+
+  update-release-notes:
+    needs: prepare-release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create RELEASE_NOTES.md if not exists
+        run: |
+          if [ ! -f RELEASE_NOTES.md ]; then
+            touch RELEASE_NOTES.md
+          fi
+
+      - name: Update release notes file
+        run: |
+          cat > temp_combined.md << 'EOFCOMBINED'
+          ${{ needs.prepare-release.outputs.release-notes }}
+
+          EOFCOMBINED
+          
+          if [ -s RELEASE_NOTES.md ]; then
+            echo "" >> temp_combined.md
+            echo "---" >> temp_combined.md
+            echo "" >> temp_combined.md
+            cat RELEASE_NOTES.md >> temp_combined.md
+          fi
+          
+          mv temp_combined.md RELEASE_NOTES.md
+          echo "✅ Updated RELEASE_NOTES.md"
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add RELEASE_NOTES.md
+          if git diff --cached --quiet; then
+            echo "ℹ️ No changes to commit"
+            exit 0
+          fi
+          git commit -m "📝 Update release notes for v${{ needs.prepare-release.outputs.version }}"
+          git push
+          echo "✅ Pushed release notes update"
+
+  post-to-x:
+    needs: [prepare-release, update-release-notes]
+    runs-on: ubuntu-latest
+    if: success() && github.event_name == 'release'
+    steps:
+      - name: Parse release info for X post
+        id: parse
+        run: |
+          VERSION="${{ needs.prepare-release.outputs.version }}"
+          
+          X_MESSAGE="🎉 Violet Pool Controller v$VERSION is out!
+
+          🔧 Bug fixes & stability improvements
+          🚀 Enhanced pool automation features  
+          ✨ Better Home Assistant integration
+
+          Download: ${{ github.event.release.html_url }}
+
+          ❤️ Support: https://buymeacoffee.com/xerolux
+          🚗 Tesla: https://ts.la/sebastian564489
+          
+          #HomeAssistant #PoolAutomation #SmartHome #OpenSource"
+          
+          echo "message<<EOFMSG" >> $GITHUB_OUTPUT
+          echo "$X_MESSAGE" >> $GITHUB_OUTPUT
+          echo "EOFMSG" >> $GITHUB_OUTPUT
+
+      - name: Post to X (Twitter)
+        uses: ethomson/send-tweet-action@v1
+        continue-on-error: true
+        with:
+          status: ${{ steps.parse.outputs.message }}
+          consumer-key: ${{ secrets.TWITTER_CONSUMER_API_KEY }}
+          consumer-secret: ${{ secrets.TWITTER_CONSUMER_API_SECRET }}
+          access-token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          access-token-secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+
+      - name: Create summary
+        run: |
+          echo "## 🎉 Release Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** v${{ needs.prepare-release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Release:** ${{ github.event.release.html_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Announcement:** Posted to X (Twitter) ✅" >> $GITHUB_STEP_SUMMARY

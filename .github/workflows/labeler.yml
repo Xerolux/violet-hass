@@ -1,0 +1,51 @@
+# Component Areas
+'integration':
+  - 'custom_components/violet_pool_controller/**/*.py'
+
+'documentation':
+  - '*.md'
+  - 'docs/**'
+  - 'custom_components/violet_pool_controller/strings.json'
+
+'github-actions':
+  - '.github/workflows/**'
+  - '.github/**/*.yml'
+
+'dependencies':
+  - 'requirements*.txt'
+  - 'custom_components/violet_pool_controller/manifest.json'
+
+'tests':
+  - 'tests/**'
+  - '**/test_*.py'
+
+# Platforms
+'platform: sensor':
+  - 'custom_components/violet_pool_controller/sensor.py'
+
+'platform: switch':
+  - 'custom_components/violet_pool_controller/switch.py'
+
+'platform: climate':
+  - 'custom_components/violet_pool_controller/climate.py'
+
+'platform: cover':
+  - 'custom_components/violet_pool_controller/cover.py'
+
+'platform: binary_sensor':
+  - 'custom_components/violet_pool_controller/binary_sensor.py'
+
+'platform: number':
+  - 'custom_components/violet_pool_controller/number.py'
+
+# Core Components
+'core: api':
+  - 'custom_components/violet_pool_controller/api.py'
+
+'core: config':
+  - 'custom_components/violet_pool_controller/config_flow.py'
+  - 'custom_components/violet_pool_controller/const.py'
+
+'core: device':
+  - 'custom_components/violet_pool_controller/device.py'
+  - 'custom_components/violet_pool_controller/coordinator.py'

@@ -1,4 +1,4 @@
- """Violet Pool Controller Integration - IMPROVED VERSION."""
+"""Violet Pool Controller Integration - IMPROVED VERSION."""
 import logging
 import asyncio
 from typing import Any, Dict, List
