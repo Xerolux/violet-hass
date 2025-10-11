@@ -226,13 +226,15 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                     self.async_write_ha_state()
                 
                 # Asynchroner Refresh ohne Blockierung
-                asyncio.create_task(self._delayed_refresh(key))
+                task = asyncio.create_task(self._delayed_refresh(key))
+                task.add_done_callback(lambda t: self._handle_refresh_error(t, key))
             else:
                 error_msg = result.get("response", "Unbekannter Fehler")
                 _LOGGER.warning("Switch %s Aktion %s möglicherweise fehlgeschlagen: %s", 
                               key, action, error_msg)
                 # Trotzdem Refresh anfordern, um tatsächlichen State zu holen
-                asyncio.create_task(self._delayed_refresh(key))
+                task = asyncio.create_task(self._delayed_refresh(key))
+                task.add_done_callback(lambda t: self._handle_refresh_error(t, key))
             
         except VioletPoolAPIError as err:
             _LOGGER.error("API-Fehler beim Setzen von Switch %s auf %s: %s", key, action, err)
@@ -254,6 +256,20 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 _LOGGER.debug("State nach Refresh: %s = %s", key, new_state)
         except Exception as err:
             _LOGGER.error("Fehler beim verzögerten Refresh: %s", err)
+
+
+    def _handle_refresh_error(self, task: asyncio.Task, key: str) -> None:
+        """Handle errors in refresh task without crashing."""
+        try:
+            if not task.cancelled() and (exc := task.exception()):
+                _LOGGER.error(
+                    "Refresh task failed for switch %s (key: %s): %s",
+                    self.entity_id,
+                    key,
+                    exc
+                )
+        except Exception as err:
+            _LOGGER.error("Error handling refresh task exception: %s", err)
 
     def _validate_speed(self, speed: Any) -> int:
         """Validiere und normalisiere Speed-Parameter."""

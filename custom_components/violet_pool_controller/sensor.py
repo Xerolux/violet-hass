@@ -331,7 +331,8 @@ class VioletFlowRateSensor(VioletPoolControllerEntity, SensorEntity):
         
         return is_available
 
-    def is_boolean_value(value) -> bool:
+def __is_boolean_value(value: Any) -> bool:
+    """Check if value represents a boolean."""
     if not isinstance(value, (str, bool)):
         return False
     
@@ -356,7 +357,7 @@ def determine_device_class(
         Passende SensorDeviceClass oder None
     """
     # Boolean sensors sollten keine device class haben
-    if key in BOOLEAN_VALUE_SENSORS or (raw_value is not None and is_boolean_value(raw_value)):
+    if key in BOOLEAN_VALUE_SENSORS or (raw_value is not None and _is_boolean_value(raw_value)):
         return None
     
     # pH sensor bekommt pH device class
@@ -372,7 +373,7 @@ def determine_device_class(
         return SensorDeviceClass.TEMPERATURE
     
     # Flow rate sensors - nur wenn nicht boolean
-    if key in FLOW_RATE_SENSORS and not (raw_value is not None and is_boolean_value(raw_value)):
+    if key in FLOW_RATE_SENSORS and not (raw_value is not None and _is_boolean_value(raw_value)):
         return SensorDeviceClass.VOLUME_FLOW_RATE
     
     # Text/Runtime sensors ohne device class
@@ -415,7 +416,7 @@ def determine_state_class(
         Passende SensorStateClass oder None
     """
     # Boolean value sensors sollten keine state class haben
-    if key in BOOLEAN_VALUE_SENSORS or (raw_value is not None and is_boolean_value(raw_value)):
+    if key in BOOLEAN_VALUE_SENSORS or (raw_value is not None and _is_boolean_value(raw_value)):
         return None
     
     # Text/Timestamp/Runtime sensors haben keine state class
@@ -455,7 +456,7 @@ def get_icon(unit: str | None, key: str, raw_value=None) -> str:
         MDI Icon-String
     """
     # Boolean value sensors bekommen toggle icon
-    if key in BOOLEAN_VALUE_SENSORS or (raw_value is not None and is_boolean_value(raw_value)):
+    if key in BOOLEAN_VALUE_SENSORS or (raw_value is not None and _is_boolean_value(raw_value)):
         return "mdi:toggle-switch"
     
     # Spezielle Icons für bekannte Keys
@@ -520,9 +521,12 @@ def should_skip_sensor(key: str, raw_value) -> bool:
 
 def apply_adc3_imp2_mapping(coordinator_data: dict) -> None:
     """
-    Wendet ADC3/IMP2 Mapping für Förderleistung an.
+    Logs ADC3/IMP2 flow rate priority without mutating data.
     
-    Priorisiert ADC3_value über IMP2_value für bessere Genauigkeit.
+    CRITICAL FIX: This function now only LOGS the available sensors.
+    It does NOT mutate coordinator_data anymore to prevent confusion.
+    
+    The actual prioritization happens in VioletFlowRateSensor.native_value.
     
     Args:
         coordinator_data: Dictionary mit Controller-Daten
@@ -533,31 +537,25 @@ def apply_adc3_imp2_mapping(coordinator_data: dict) -> None:
     adc3_value = coordinator_data.get("ADC3_value")
     imp2_value = coordinator_data.get("IMP2_value")
     
-    _LOGGER.debug("ADC3/IMP2 Förderleistung Mapping:")
+    _LOGGER.debug("ADC3/IMP2 Flow Rate Sensor Discovery:")
     _LOGGER.debug("  ADC3_value: %s", adc3_value)
     _LOGGER.debug("  IMP2_value: %s", imp2_value)
     
-    # Priorisiere ADC3_value über IMP2_value
     if adc3_value is not None:
-        # Sichere originalen IMP2 Wert falls vorhanden
-        if imp2_value is not None:
-            coordinator_data["IMP2_value_original"] = imp2_value
-        
-        # Ersetze IMP2_value durch ADC3_value für Kompatibilität
-        coordinator_data["IMP2_value"] = adc3_value
         _LOGGER.info(
-            "ADC3_value (%s) mapped zu IMP2_value für Kompatibilität",
+            "Flow rate: ADC3_value available (%s m³/h) - will be prioritized",
             adc3_value
         )
-        
-        # Behalte ADC3_value als Referenz
-        coordinator_data["ADC3_value_reference"] = adc3_value
-        _LOGGER.debug("ADC3_value als Referenz beibehalten")
-        
     elif imp2_value is not None:
-        _LOGGER.info("Verwende originalen IMP2_value (%s)", imp2_value)
+        _LOGGER.info(
+            "Flow rate: Using IMP2_value (%s m³/h) - ADC3 not available",
+            imp2_value
+        )
     else:
-        _LOGGER.warning("Weder ADC3_value noch IMP2_value verfügbar")
+        _LOGGER.debug("Flow rate: Neither ADC3_value nor IMP2_value available")
+    
+    # Note: VioletFlowRateSensor handles the actual prioritization
+    # This approach keeps raw data intact for debugging and transparency
 
 
 async def async_setup_entry(
@@ -681,7 +679,7 @@ async def async_setup_entry(
         imp2_val = coordinator.data.get("IMP2_value")
         
         # Nur hinzufügen wenn Werte nicht boolean sind
-        if not (is_boolean_value(adc3_val) or is_boolean_value(imp2_val)):
+        if not (_is_boolean_value(adc3_val) or _is_boolean_value(imp2_val)):
             sensors.append(VioletFlowRateSensor(coordinator, config_entry))
             _LOGGER.info("Förderleistungs-Sensor mit ADC3-Priorität hinzugefügt")
 
@@ -709,7 +707,7 @@ async def async_setup_entry(
                 unit = unit_fixes[key]
         
         # Boolean sensors sollten keine units haben
-        if is_boolean_value(raw_value):
+        if _is_boolean_value(raw_value):
             unit = None
         
         # Create nice name from key

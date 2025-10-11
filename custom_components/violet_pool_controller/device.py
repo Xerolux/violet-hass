@@ -2,7 +2,7 @@
 import logging
 import asyncio
 from datetime import timedelta
-from typing import Dict, Any, Optional
+from typing import Any, Optional
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -36,8 +36,8 @@ class VioletPoolControllerDevice:
         self.api = api
         self._available = False
         self._session = async_get_clientsession(hass)
-        self._data: Dict[str, Any] = {}
-        self._device_info: Dict[str, Any] = {}
+        self._data: dict[str, Any] = {}
+        self._device_info: dict[str, Any] = {}
         self._firmware_version: Optional[str] = None
         self._last_error: Optional[str] = None
         self._api_lock = asyncio.Lock()
@@ -60,7 +60,7 @@ class VioletPoolControllerDevice:
             self.device_name, self.api_url, self.use_ssl, self.device_id
         )
 
-    async def async_update(self) -> Dict[str, Any]:
+    async def async_update(self) -> dict[str, Any]:
         """
         Aktualisiert Gerätedaten vom Controller.
         
@@ -149,7 +149,7 @@ class VioletPoolControllerDevice:
             # Nach zu vielen Fehlern: Exception werfen
             if self._consecutive_failures >= self._max_consecutive_failures:
                 self._available = False
-                raise UpdateFailed(f"Update-Fehler: {err}") from err
+                raise UpdateFailed("Update error: %s" % err) from err
             
             # Gebe alte Daten zurück bei temporären Fehlern
             return self._data
@@ -165,7 +165,7 @@ class VioletPoolControllerDevice:
         return self._firmware_version
 
     @property
-    def data(self) -> Dict[str, Any]:
+    def data(self) -> dict[str, Any]:
         """Gibt die aktuellen Daten zurück."""
         return self._data
 
@@ -180,7 +180,7 @@ class VioletPoolControllerDevice:
         return self._consecutive_failures
 
     @property
-    def device_info(self) -> Dict[str, Any]:
+    def device_info(self) -> dict[str, Any]:
         """Gibt die Geräteinformationen für Home Assistant zurück."""
         if not self._device_info:
             self._device_info = {
@@ -244,7 +244,7 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
             polling_interval
         )
 
-    async def _async_update_data(self) -> Dict[str, Any]:
+    async def _async_update_data(self) -> dict[str, Any]:
         """
         Aktualisiere die Daten vom Device.
         
@@ -258,7 +258,7 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
             return await self.device.async_update()
         except VioletPoolAPIError as err:
             _LOGGER.error("Fehler beim Datenabruf: %s", err)
-            raise UpdateFailed(f"API-Fehler: {err}") from err
+            raise UpdateFailed("API error: %s" % err) from err
 
 
 async def async_setup_device(

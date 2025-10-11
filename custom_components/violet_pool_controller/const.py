@@ -465,6 +465,10 @@ TEMP_SENSORS = {
 }
 
 WATER_CHEM_SENSORS = {
+    # IMPORTANT: pH sensor has NO unit per Home Assistant specification
+    # This is intentional and correct behavior:
+    # - pH Sensor (this): No unit - displays raw measurement value
+    # - pH Number (setpoint): Has "pH" unit - for user input/setpoints
     "pH_value": {"name": "pH-Wert", "icon": "mdi:flask", "unit": None},  # pH ohne unit
     "orp_value": {"name": "Redoxpotential", "icon": "mdi:flash", "unit": "mV"},
     "pot_value": {"name": "Chlorgehalt", "icon": "mdi:test-tube", "unit": "mg/l"},

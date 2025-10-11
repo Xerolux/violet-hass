@@ -119,8 +119,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         #     )
         # await asyncio.sleep(0)  # Kurze Pause damit Tasks starten koennen
         
-        # Services registrieren
-        await async_register_all_services(hass)
+        # Services registrieren (nur einmal für die gesamte Integration)
+        from .services import async_register_services
+        await async_register_services(hass)
         
         _LOGGER.info(
             "Setup completed successfully for '%s' (entry_id=%s)",
@@ -238,143 +239,12 @@ def _validate_config(config: Dict[str, Any]) -> bool:
 
 
 # =============================================================================
-# SERVICE REGISTRATION - VEREINFACHTE VERSION
+# SERVICES REMOVED - NOW IN services.py
 # =============================================================================
-
-async def async_register_all_services(hass: HomeAssistant) -> None:
-    """Register all integration services - ASYNC VERSION."""
-    # Pruefe ob Services bereits registriert sind
-    if hass.services.has_service(DOMAIN, "set_temperature_target"):
-        _LOGGER.debug("Services already registered, skipping")
-        return
-    
-    _LOGGER.info("Registering services for %s", DOMAIN)
-    
-    # Service-Schemas definieren
-    SERVICE_SCHEMAS = {
-        "set_temperature_target": vol.Schema({
-            vol.Required(ATTR_ENTITY_ID): cv.entity_ids,
-            vol.Required("temperature"): vol.All(
-                vol.Coerce(float),
-                vol.Range(min=20, max=40)
-            ),
-        }),
-        "set_ph_target": vol.Schema({
-            vol.Required(ATTR_ENTITY_ID): cv.entity_ids,
-            vol.Required("target_value"): vol.All(
-                vol.Coerce(float),
-                vol.Range(min=6.8, max=7.8)
-            ),
-        }),
-        "set_chlorine_target": vol.Schema({
-            vol.Required(ATTR_ENTITY_ID): cv.entity_ids,
-            vol.Required("target_value"): vol.All(
-                vol.Coerce(float),
-                vol.Range(min=0.1, max=3.0)
-            ),
-        }),
-        "trigger_backwash": vol.Schema({
-            vol.Required(ATTR_ENTITY_ID): cv.entity_ids,
-            vol.Optional("duration", default=0): vol.All(
-                vol.Coerce(int),
-                vol.Range(min=0, max=900)
-            ),
-        }),
-        "start_water_analysis": vol.Schema({
-            vol.Required(ATTR_ENTITY_ID): cv.entity_ids,
-        }),
-        "set_maintenance_mode": vol.Schema({
-            vol.Required(ATTR_ENTITY_ID): cv.entity_ids,
-            vol.Optional("enable", default=True): cv.boolean,
-        }),
-        "set_all_dmx_scenes_mode": vol.Schema({
-            vol.Required(ATTR_DEVICE_ID): cv.string,
-            vol.Required("dmx_mode"): vol.In([ACTION_ALLON, ACTION_ALLAUTO, ACTION_ALLOFF]),
-        }),
-        "set_digital_input_rule_lock_state": vol.Schema({
-            vol.Required(ATTR_DEVICE_ID): cv.string,
-            vol.Required("rule_key"): cv.string,
-            vol.Required("lock_state"): cv.boolean,
-        }),
-        "trigger_digital_input_rule": vol.Schema({
-            vol.Required(ATTR_DEVICE_ID): cv.string,
-            vol.Required("rule_key"): cv.string,
-        }),
-    }
-    
-    # Service-Handler registrieren
-    hass.services.async_register(
-        DOMAIN,
-        "set_temperature_target",
-        _async_handle_set_temperature_target,
-        schema=SERVICE_SCHEMAS["set_temperature_target"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN,
-        "set_ph_target",
-        _async_handle_set_ph_target,
-        schema=SERVICE_SCHEMAS["set_ph_target"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN,
-        "set_chlorine_target",
-        _async_handle_set_chlorine_target,
-        schema=SERVICE_SCHEMAS["set_chlorine_target"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN,
-        "trigger_backwash",
-        _async_handle_trigger_backwash,
-        schema=SERVICE_SCHEMAS["trigger_backwash"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN,
-        "start_water_analysis",
-        _async_handle_start_water_analysis,
-        schema=SERVICE_SCHEMAS["start_water_analysis"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN,
-        "set_maintenance_mode",
-        _async_handle_set_maintenance_mode,
-        schema=SERVICE_SCHEMAS["set_maintenance_mode"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN,
-        "set_all_dmx_scenes_mode",
-        _async_handle_set_dmx_scenes_mode,
-        schema=SERVICE_SCHEMAS["set_all_dmx_scenes_mode"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN,
-        "set_digital_input_rule_lock_state",
-        _async_handle_dirule_lock,
-        schema=SERVICE_SCHEMAS["set_digital_input_rule_lock_state"]
-    )
-    
-    hass.services.async_register(
-        DOMAIN,
-        "trigger_digital_input_rule",
-        _async_handle_dirule_trigger,
-        schema=SERVICE_SCHEMAS["trigger_digital_input_rule"]
-    )
-    
-    # Versuche zusaetzliche erweiterte Services zu laden (falls vorhanden)
-    from .services import async_register_services
-    await async_register_services(hass)
-    
-    _LOGGER.info("Successfully registered %d basic services", len(SERVICE_SCHEMAS))
+# All service registration has been moved to services.py for better maintainability
+# and to prevent duplication. Services are registered once during integration setup.
 
 
-# =============================================================================
-# SERVICE HANDLERS - DIREKT ALS ASYNC FUNKTIONEN
 # =============================================================================
 
 async def _async_handle_set_temperature_target(call: ServiceCall) -> None:
