@@ -1,52 +1,78 @@
-# _config.yml - Jekyll Configuration
+# _config.yml - Jekyll Configuration for Violet Pool Controller
 title: Violet Pool Controller
 description: Home Assistant integration for Violet Pool Controller
 theme: jekyll-theme-primer
 
-# Exclude folders that should not be processed by Jekyll
+# Exclude patterns - be very explicit
 exclude:
-  - node_modules/
-  - vendor/
-  - .github/
-  - custom_components/
-  - blueprints/
-  - tests/
-  - __pycache__/
+  # Development files
   - "*.pyc"
-  - requirements*.txt
-  - setup.py
-  - setup.cfg
-  - pyproject.toml
-  - tox.ini
-  - .pytest_cache/
-  - .mypy_cache/
-  - .ruff_cache/
-  - .venv/
-  - venv/
+  - "*.pyo"
+  - "*.egg-info"
+  - "__pycache__"
+  - ".pytest_cache"
+  - ".mypy_cache"
+  - ".ruff_cache"
+  - ".venv"
+  - "venv"
+  - "env"
+  
+  # Project files
+  - "requirements.txt"
+  - "requirements-dev.txt"
+  - "setup.py"
+  - "setup.cfg"
+  - "pyproject.toml"
+  - "tox.ini"
+  
+  # Directories - use wildcards to exclude ALL content
+  - "blueprints/**"
+  - "blueprints/*"
+  - "blueprints"
+  - "custom_components/**"
+  - "custom_components/*"
+  - "custom_components"
+  - "tests/**"
+  - "tests"
+  - ".github/**"
+  - ".github"
+  - "node_modules/**"
+  - "vendor/**"
+  - "src/**"
+  - "src"
+  
+  # Specific files in blueprints that cause issues
+  - "blueprints/README.md"
+  - "blueprints/*.md"
 
-# Include specific markdown files for documentation
+# Only include these specific files
 include:
-  - README.md
-  - CHANGELOG.md
-  - SECURITY.md
-  - CONTRIBUTING.md
-  - LICENSE
+  - "README.md"
+  - "CHANGELOG.md"
+  - "SECURITY.md"
+  - "CONTRIBUTING.md"
+  - "LICENSE"
+  - ".nojekyll"
 
-# Markdown settings
+# Markdown processor
 markdown: kramdown
 kramdown:
   input: GFM
   syntax_highlighter: rouge
+  hard_wrap: false
   
+# Collections (none for this project)
+collections: {}
+
 # Plugin settings
 plugins:
+  - jekyll-github-metadata
   - jekyll-relative-links
   - jekyll-optional-front-matter
   - jekyll-readme-index
   - jekyll-titles-from-headings
-  - jekyll-github-metadata
 
-# Relative links
+# Relative links configuration
 relative_links:
   enabled: true
   collections: false
