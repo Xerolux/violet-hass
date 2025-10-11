@@ -744,6 +744,8 @@ SETPOINT_DEFINITIONS = [
         "device_class": NumberDeviceClass.PH,
         "entity_category": EntityCategory.CONFIG,
         "default_value": 7.2,
+        "setpoint_fields": ["pH_setpoint", "pH_target", "pH"],
+        "indicator_fields": ["pH_value", "ph_value"],
     },
     {
         "key": "orp_setpoint",
@@ -757,6 +759,8 @@ SETPOINT_DEFINITIONS = [
         "unit_of_measurement": "mV",
         "entity_category": EntityCategory.CONFIG,
         "default_value": 700,
+        "setpoint_fields": ["ORP_setpoint", "ORP_target", "ORP"],
+        "indicator_fields": ["orp_value", "ORP_value"],
     },
     {
         "key": "chlorine_setpoint",
@@ -770,6 +774,8 @@ SETPOINT_DEFINITIONS = [
         "unit_of_measurement": "mg/l",
         "entity_category": EntityCategory.CONFIG,
         "default_value": 0.6,
+        "setpoint_fields": ["MinChlorine", "chlorine_target", "chlorine_setpoint"],
+        "indicator_fields": ["pot_value", "chlorine_value"],
     },
 ]
 
