@@ -1,0 +1,52 @@
+name: Spellcheck
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.md'
+      - '**.py'
+      - 'custom_components/violet_pool_controller/strings.json'
+      - 'custom_components/violet_pool_controller/translations/*.json'
+      - '.github/workflows/spellcheck.yml'
+      - '.cspell.json'
+  pull_request:
+    branches: [main]
+    paths:
+      - '**.md'
+      - '**.py'
+      - 'custom_components/violet_pool_controller/strings.json'
+      - 'custom_components/violet_pool_controller/translations/*.json'
+      - '.github/workflows/spellcheck.yml'
+      - '.cspell.json'
+  workflow_dispatch:
+
+jobs:
+  spellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      
+      - name: Run Spellcheck
+        uses: streetsidesoftware/cspell-action@v6
+        with:
+          config: '.cspell.json'
+          files: |
+            **/*.md
+            **/*.py
+            custom_components/violet_pool_controller/strings.json
+            custom_components/violet_pool_controller/translations/*.json
+          incremental_files_only: false
+          inline: warning
+          
+      - name: Spellcheck Summary
+        if: always()
+        run: |
+          echo "## 📝 Spellcheck Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Checked files for spelling errors in:" >> $GITHUB_STEP_SUMMARY
+          echo "- Markdown documentation (*.md)" >> $GITHUB_STEP_SUMMARY
+          echo "- Python code comments (*.py)" >> $GITHUB_STEP_SUMMARY
+          echo "- Translation files (strings.json)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "If you see warnings above, please fix typos or add technical terms to .cspell.json" >> $GITHUB_STEP_SUMMARY
