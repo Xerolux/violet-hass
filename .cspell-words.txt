@@ -1,0 +1,16 @@
+# Custom words for Violet Pool Controller
+# Add your project-specific technical terms here, one per line
+
+# Pool Controller specific terms
+chlorinator
+dosing
+redox
+filterpump
+poolpump
+backwash
+
+# Device/Hardware brands (add your specific brands)
+# Example: hayward
+# Example: pentair
+
+# Add more technical terms as needed
