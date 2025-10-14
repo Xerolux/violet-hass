@@ -1,0 +1,162 @@
+# Services for Violet Pool Controller
+control_pump:
+  name: Pump Control
+  description: Control the pool pump with advanced options
+  fields:
+    action:
+      description: Control action
+      required: true
+      selector:
+        select:
+          options:
+            - speed_control
+            - force_off
+            - eco_mode
+            - boost_mode
+            - auto
+    speed:
+      description: Pump speed (1-3)
+      default: 2
+      selector:
+        number:
+          min: 1
+          max: 3
+          mode: slider
+    duration:
+      description: Duration in seconds
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 86400
+          unit_of_measurement: s
+
+smart_dosing:
+  name: Smart Dosing
+  description: Manual or automatic dosing control
+  fields:
+    dosing_type:
+      description: Type of dosing
+      required: true
+      selector:
+        select:
+          options:
+            - pH-
+            - pH+
+            - Chlor
+            - Flockmittel
+    action:
+      description: Dosing action
+      required: true
+      selector:
+        select:
+          options:
+            - manual_dose
+            - auto
+            - stop
+    duration:
+      description: Dosing duration in seconds
+      default: 30
+      selector:
+        number:
+          min: 5
+          max: 300
+          unit_of_measurement: s
+    safety_override:
+      description: Override safety interval
+      default: false
+      selector:
+        boolean:
+
+manage_pv_surplus:
+  name: PV Surplus Management
+  description: Control PV surplus mode
+  fields:
+    mode:
+      description: PV surplus mode
+      required: true
+      selector:
+        select:
+          options:
+            - activate
+            - deactivate
+            - auto
+    pump_speed:
+      description: Pump speed for PV mode (1-3)
+      default: 2
+      selector:
+        number:
+          min: 1
+          max: 3
+          mode: slider
+
+control_dmx_scenes:
+  name: DMX Scene Control
+  description: Control DMX lighting scenes
+  fields:
+    action:
+      description: DMX action
+      required: true
+      selector:
+        select:
+          options:
+            - all_on
+            - all_off
+            - all_auto
+            - sequence
+            - party_mode
+    sequence_delay:
+      description: Delay between scenes in sequence mode
+      default: 2
+      selector:
+        number:
+          min: 1
+          max: 60
+          unit_of_measurement: s
+
+set_light_color_pulse:
+  name: Light Color Pulse
+  description: Send color pulse to pool lighting
+  fields:
+    pulse_count:
+      description: Number of color pulses
+      default: 1
+      selector:
+        number:
+          min: 1
+          max: 10
+    pulse_interval:
+      description: Interval between pulses in milliseconds
+      default: 500
+      selector:
+        number:
+          min: 100
+          max: 2000
+          unit_of_measurement: ms
+
+manage_digital_rules:
+  name: Digital Rules Management
+  description: Manage digital input rules
+  fields:
+    rule_key:
+      description: Rule to manage
+      required: true
+      selector:
+        select:
+          options:
+            - DIRULE_1
+            - DIRULE_2
+            - DIRULE_3
+            - DIRULE_4
+            - DIRULE_5
+            - DIRULE_6
+            - DIRULE_7
+    action:
+      description: Rule action
+      required: true
+      selector:
+        select:
+          options:
+            - trigger
+            - lock
+            - unlock
