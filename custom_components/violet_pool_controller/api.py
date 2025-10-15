@@ -1,7 +1,8 @@
-"""API-Modul für die Kommunikation mit dem Violet Pool Controller - OPTIMIZED VERSION."""
+"""API-Modul für die Kommunikation mit dem Violet Pool Controller - LOGGING OPTIMIZED."""
 import logging
 import asyncio
 import json
+import time
 from typing import Any
 from dataclasses import dataclass
 from enum import Enum
@@ -39,10 +40,10 @@ _LOGGER = logging.getLogger(__name__)
 
 # API Request Konstanten
 MAX_BULK_OPERATIONS = 50
-BULK_OPERATION_DELAY = 0.15  # Sekunden zwischen Bulk-Operationen
-EMERGENCY_STOP_DELAY = 0.1  # Kurze Pause zwischen Emergency Stops
-REQUEST_TIMEOUT_MULTIPLIER = 2  # Multipliziert mit base timeout
-DEFAULT_RETRY_DELAY = 1.0  # Basis-Delay zwischen Retries
+BULK_OPERATION_DELAY = 0.15
+EMERGENCY_STOP_DELAY = 0.1
+REQUEST_TIMEOUT_MULTIPLIER = 2
+DEFAULT_RETRY_DELAY = 1.0
 
 # Validierung Konstanten
 MIN_TIMEOUT = 5
@@ -59,10 +60,12 @@ HTTP_NOT_FOUND = 404
 HTTP_SERVER_ERROR = 500
 HTTP_SERVICE_UNAVAILABLE = 503
 
+# ✅ LOGGING OPTIMIZATION: Throttling-Konstanten
+LOG_THROTTLE_SECONDS = 60  # Wiederholte Messages nur alle 60s
+
 
 class ResponseFormat(Enum):
     """Enum für erwartete Response-Formate."""
-
     JSON = "json"
     TEXT = "text"
     AUTO = "auto"
@@ -71,51 +74,35 @@ class ResponseFormat(Enum):
 @dataclass
 class ValidationRange:
     """Datenklasse für Validierungsbereiche."""
-
     min_val: float
     max_val: float
     name: str
     unit: str
 
 
-# =============================================================================
-# EXCEPTION CLASSES
-# =============================================================================
-
-
 class VioletPoolAPIError(Exception):
     """Basisklasse für API-Fehler."""
-
     pass
 
 
 class VioletPoolConnectionError(VioletPoolAPIError):
     """Verbindungsfehler zum Controller."""
-
     pass
 
 
 class VioletPoolCommandError(VioletPoolAPIError):
     """Befehlsausführungsfehler."""
-
     pass
 
 
 class VioletPoolValidationError(VioletPoolAPIError):
     """Validierungsfehler für Parameter."""
-
     pass
 
 
-# =============================================================================
-# MAIN API CLASS
-# =============================================================================
-
-
 class VioletPoolAPI:
-    """Kapselt Requests an den Violet Pool Controller - OPTIMIZED VERSION."""
+    """Kapselt Requests an den Violet Pool Controller - LOGGING OPTIMIZED."""
 
-    # Validierungsbereiche als Klassenvariablen
     VALIDATION_RANGES = {
         TARGET_PH: ValidationRange(6.8, 7.8, "pH-Wert", "pH"),
         TARGET_ORP: ValidationRange(600, 800, "ORP-Wert", "mV"),
@@ -132,7 +119,7 @@ class VioletPoolAPI:
         timeout: int = 10,
         max_retries: int = 3,
     ) -> None:
-        """Initialisiere das API-Objekt."""
+        """Initialisiere das API-Objekt mit Logging-Optimierung."""
         if not host or not host.strip():
             raise ValueError("Host darf nicht leer sein")
 
@@ -146,6 +133,10 @@ class VioletPoolAPI:
         self._ssl_context = use_ssl
         self._request_counter = 0
 
+        # ✅ LOGGING OPTIMIZATION: Throttling-Cache
+        self._last_log_time: dict[str, float] = {}
+        self._last_connection_state = True  # Für Connection State Change Detection
+
         _LOGGER.info(
             "API initialisiert: %s (SSL: %s, Auth: %s, Timeout: %ds, Retries: %d)",
             self.base_url,
@@ -154,6 +145,20 @@ class VioletPoolAPI:
             self.timeout,
             self.max_retries,
         )
+
+    def _should_log_throttled(self, key: str) -> bool:
+        """
+        Prüfe ob Log-Message gesendet werden soll (Throttling).
+        
+        ✅ LOGGING OPTIMIZATION: Verhindert Log-Spam bei wiederholten Fehlern.
+        """
+        now = time.time()
+        last_time = self._last_log_time.get(key, 0)
+        
+        if now - last_time > LOG_THROTTLE_SECONDS:
+            self._last_log_time[key] = now
+            return True
+        return False
 
     def _get_auth(self, require_auth: bool = False) -> aiohttp.BasicAuth | None:
         """Gib Auth zurück basierend auf Requirement."""
@@ -175,18 +180,17 @@ class VioletPoolAPI:
 
         try:
             if "=" in raw_query:
-                # URL-Parameter Format: "key=value&key2=value2"
                 for param in raw_query.split("&"):
                     param = param.strip()
                     if "=" in param:
                         key, value = param.split("=", 1)
                         result[key.strip()] = value.strip()
             else:
-                # Komma-separierte Werte (Violet Pool Format)
                 result["values"] = raw_query
         except Exception as e:
-            _LOGGER.warning("Fehler beim Parsen von Query '%s': %s", raw_query, e)
-            # Fallback: Ganzer String als Wert
+            # ✅ LOGGING OPTIMIZATION: Nur wenn throttled
+            if self._should_log_throttled(f"parse_error_{raw_query[:20]}"):
+                _LOGGER.warning("Fehler beim Parsen von Query '%s': %s", raw_query, e)
             result["values"] = raw_query
 
         return result
@@ -208,15 +212,13 @@ class VioletPoolAPI:
                     "Bitte Username/Passwort in den Optionen überprüfen."
                 )
             else:
-                _LOGGER.warning("401 bei nicht-authentifiziertem Request an %s", endpoint)
+                # ✅ LOGGING OPTIMIZATION: Throttled warning
+                if self._should_log_throttled(f"auth_warn_{endpoint}"):
+                    _LOGGER.warning("401 bei nicht-authentifiziertem Request an %s", endpoint)
         elif status == HTTP_FORBIDDEN:
-            raise VioletPoolCommandError(
-                f"{error_prefix}: Zugriff verweigert (HTTP 403)"
-            )
+            raise VioletPoolCommandError(f"{error_prefix}: Zugriff verweigert (HTTP 403)")
         elif status == HTTP_NOT_FOUND:
-            _LOGGER.error(
-                "Endpunkt nicht gefunden: %s - %s", endpoint, error_text[:200]
-            )
+            _LOGGER.error("Endpunkt nicht gefunden: %s - %s", endpoint, error_text[:200])
             raise VioletPoolCommandError(
                 f"API-Endpunkt nicht gefunden: {endpoint}. "
                 "Controller-Firmware möglicherweise veraltet."
@@ -245,7 +247,14 @@ class VioletPoolAPI:
         require_auth: bool = False,
         expected_format: ResponseFormat = ResponseFormat.AUTO,
     ) -> dict[str, Any] | str:
-        """Führe einen API-Request aus - OPTIMIZED VERSION."""
+        """
+        Führe einen API-Request aus - LOGGING OPTIMIZED.
+        
+        ✅ LOGGING OPTIMIZATION: 
+        - Reduzierte Logs bei Retries
+        - Konsolidierte Fehler-Messages
+        - Connection State Change Detection
+        """
 
         # URL zusammenbauen
         if raw_query:
@@ -259,31 +268,30 @@ class VioletPoolAPI:
         else:
             url = f"{self.base_url}{endpoint}"
 
-        # Auth nur wenn erforderlich
         auth = self._get_auth(require_auth)
-        auth_info = f"mit Auth ({self.username})" if auth else "ohne Auth"
 
-        _LOGGER.debug("API-Anfrage: %s %s (%s)", method, url, auth_info)
-        if data:
-            sanitized_data = {
-                k: "***" if "password" in k.lower() else v for k, v in data.items()
-            }
-            _LOGGER.debug("POST-Daten: %s", sanitized_data)
+        # ✅ LOGGING OPTIMIZATION: Nur beim ersten Request oder nach Throttle-Zeit loggen
+        if self._should_log_throttled(f"request_{endpoint}"):
+            auth_info = f"mit Auth ({self.username})" if auth else "ohne Auth"
+            _LOGGER.debug("API-Anfrage: %s %s (%s)", method, url, auth_info)
+            if data:
+                sanitized_data = {
+                    k: "***" if "password" in k.lower() else v for k, v in data.items()
+                }
+                _LOGGER.debug("POST-Daten: %s", sanitized_data)
 
         # Rate-Limiting Tracking
         self._request_counter += 1
-        if self._request_counter % 10 == 0:
-            _LOGGER.debug("Request-Counter: %d", self._request_counter)
 
-        # Retry-Loop
+        # Retry-Loop mit optimiertem Logging
         last_exception = None
+        first_attempt = True
+        
         for attempt in range(self.max_retries):
             try:
-                timeout = aiohttp.ClientTimeout(
-                    total=self.timeout * REQUEST_TIMEOUT_MULTIPLIER
-                )
-
+                timeout = aiohttp.ClientTimeout(total=self.timeout * REQUEST_TIMEOUT_MULTIPLIER)
                 headers = {"User-Agent": "HomeAssistant-VioletPool/1.3"}
+                
                 if method == "POST" and data:
                     headers["Content-Type"] = "application/x-www-form-urlencoded"
 
@@ -298,15 +306,7 @@ class VioletPoolAPI:
                     headers=headers,
                 ) as response:
 
-                    _LOGGER.debug(
-                        "Response Status: %d für %s (Versuch %d/%d)",
-                        response.status,
-                        endpoint,
-                        attempt + 1,
-                        self.max_retries,
-                    )
-
-                    # Status-Validierung
+                    # ✅ LOGGING OPTIMIZATION: Nur bei Problemen loggen
                     if response.status >= 400:
                         error_text = await response.text()
                         self._validate_response_status(
@@ -315,37 +315,67 @@ class VioletPoolAPI:
 
                     text = await response.text()
 
-                    # Response-Format-Erkennung
+                    # ✅ LOGGING OPTIMIZATION: Erfolg nach Fehler = wichtige Info
+                    if last_exception and not first_attempt:
+                        _LOGGER.info(
+                            "Verbindung wiederhergestellt nach %d Versuchen: %s",
+                            attempt + 1,
+                            endpoint
+                        )
+                        self._last_connection_state = True
+
                     return self._parse_response(text, response, expected_format)
 
             except asyncio.TimeoutError as err:
                 last_exception = err
-                _LOGGER.warning(
-                    "Timeout bei %s (Versuch %d/%d): %s",
-                    endpoint,
-                    attempt + 1,
-                    self.max_retries,
-                    err,
-                )
+                first_attempt = False
+                
+                # ✅ LOGGING OPTIMIZATION: Nur letzten Fehler oder throttled loggen
+                if attempt == self.max_retries - 1:
+                    _LOGGER.error(
+                        "Timeout nach %d Versuchen bei %s",
+                        self.max_retries,
+                        endpoint
+                    )
+                    self._last_connection_state = False
+                elif self._should_log_throttled(f"timeout_{endpoint}"):
+                    _LOGGER.debug(
+                        "Timeout bei %s (Versuch %d/%d, wird wiederholt...)",
+                        endpoint,
+                        attempt + 1,
+                        self.max_retries
+                    )
+                
                 if attempt < self.max_retries - 1:
                     await asyncio.sleep(DEFAULT_RETRY_DELAY * (attempt + 1))
                 continue
 
             except aiohttp.ClientError as err:
                 last_exception = err
-                _LOGGER.warning(
-                    "Verbindungsfehler bei %s (Versuch %d/%d): %s",
-                    endpoint,
-                    attempt + 1,
-                    self.max_retries,
-                    err,
-                )
+                first_attempt = False
+                
+                # ✅ LOGGING OPTIMIZATION: Konsolidiertes Error-Logging
+                if attempt == self.max_retries - 1:
+                    _LOGGER.error(
+                        "Verbindungsfehler nach %d Versuchen bei %s: %s",
+                        self.max_retries,
+                        endpoint,
+                        str(err)[:100]  # Gekürzt
+                    )
+                    self._last_connection_state = False
+                elif self._should_log_throttled(f"connection_{endpoint}"):
+                    _LOGGER.debug(
+                        "Verbindungsfehler bei %s (Versuch %d/%d)",
+                        endpoint,
+                        attempt + 1,
+                        self.max_retries
+                    )
+                
                 if attempt < self.max_retries - 1:
                     await asyncio.sleep(DEFAULT_RETRY_DELAY * (attempt + 1))
                 continue
 
             except VioletPoolAPIError:
-                # Diese Fehler nicht wiederholen
                 raise
 
             except Exception as err:
@@ -355,18 +385,18 @@ class VioletPoolAPI:
                     await asyncio.sleep(DEFAULT_RETRY_DELAY * (attempt + 1))
                 continue
 
-        # Alle Versuche fehlgeschlagen
+        # Alle Versuche fehlgeschlagen - konsolidierte Exception
         if isinstance(last_exception, asyncio.TimeoutError):
             raise VioletPoolConnectionError(
-                f"Timeout nach {self.max_retries} Versuchen: {last_exception}"
+                f"Timeout nach {self.max_retries} Versuchen"
             ) from last_exception
         elif isinstance(last_exception, aiohttp.ClientError):
             raise VioletPoolConnectionError(
-                f"Verbindungsfehler nach {self.max_retries} Versuchen: {last_exception}"
+                f"Verbindungsfehler nach {self.max_retries} Versuchen"
             ) from last_exception
         else:
             raise VioletPoolAPIError(
-                f"Unerwarteter Fehler nach {self.max_retries} Versuchen: {last_exception}"
+                f"Fehler nach {self.max_retries} Versuchen"
             ) from last_exception
 
     def _parse_response(
@@ -378,29 +408,20 @@ class VioletPoolAPI:
         """Parse Response basierend auf erwartetem Format."""
         content_type = response.headers.get("Content-Type", "").lower()
 
-        # Explizites Format erzwingen
         if expected_format == ResponseFormat.TEXT:
             return text
 
-        # JSON-Erkennung und -Parsing
         is_json_content = "application/json" in content_type
         looks_like_json = text.strip().startswith(("{", "["))
 
         if expected_format == ResponseFormat.JSON or is_json_content or looks_like_json:
             try:
                 result = json.loads(text)
-                result_size = (
-                    len(result)
-                    if isinstance(result, (dict, list))
-                    else 0
-                )
-                _LOGGER.debug("JSON-Response mit %d Keys erhalten", result_size)
                 return result
             except json.JSONDecodeError as e:
                 if expected_format == ResponseFormat.JSON:
                     _LOGGER.error("JSON-Parsing fehlgeschlagen: %s", e)
                     raise VioletPoolAPIError(f"Ungültige JSON-Antwort: {e}") from e
-                _LOGGER.debug("Text ist kein JSON, gebe als String zurück")
                 return text
 
         return text
@@ -411,26 +432,20 @@ class VioletPoolAPI:
             return result
 
         if isinstance(result, str):
-            # Versuche JSON-Parsing
             try:
                 return json.loads(result)
             except json.JSONDecodeError:
-                # Prüfe auf OK/ERROR Antwort
                 result_upper = result.upper()
                 return {
                     "response": result,
                     "success": "OK" in result_upper and "ERROR" not in result_upper,
                 }
 
-        # Fallback
         return {"response": str(result), "success": False}
 
-    def _validate_target_value(
-        self, target_type: str, value: float | int
-    ) -> None:
+    def _validate_target_value(self, target_type: str, value: float | int) -> None:
         """Validiere Sollwerte."""
         if target_type not in self.VALIDATION_RANGES:
-            _LOGGER.debug("Keine Validierung für %s definiert", target_type)
             return
 
         range_info = self.VALIDATION_RANGES[target_type]
@@ -451,14 +466,12 @@ class VioletPoolAPI:
             )
 
     # =========================================================================
-    # READ-ONLY OPERATIONS (GET-Methoden)
+    # READ-ONLY OPERATIONS
     # =========================================================================
 
     async def get_readings(self, query: str = QUERY_ALL) -> dict[str, Any]:
         """Lese aktuelle Werte vom Controller."""
         query_param = "ALL" if not query or query == QUERY_ALL else query
-
-        _LOGGER.debug("Lese Daten mit Query: %s", query_param)
 
         result = await self.api_request(
             endpoint=API_READINGS,
@@ -469,8 +482,12 @@ class VioletPoolAPI:
         )
 
         normalized = self._normalize_response(result)
-        data_points = len(normalized) if isinstance(normalized, dict) else 0
-        _LOGGER.info("Erfolgreich %d Datenpunkte gelesen", data_points)
+        
+        # ✅ LOGGING OPTIMIZATION: Nur bei Erfolg nach Fehler loggen
+        if not self._last_connection_state:
+            data_points = len(normalized) if isinstance(normalized, dict) else 0
+            _LOGGER.info("Erfolgreich %d Datenpunkte gelesen (Verbindung wiederhergestellt)", data_points)
+            self._last_connection_state = True
 
         return normalized
 
@@ -485,22 +502,16 @@ class VioletPoolAPI:
                 expected_format=ResponseFormat.AUTO,
             )
             return bool(result)
-        except Exception as e:
-            _LOGGER.debug("Ping fehlgeschlagen: %s", e)
+        except Exception:
             return False
 
     async def get_system_status(self) -> dict[str, Any]:
         """Hole detaillierten Systemstatus."""
         try:
             all_data = await self.get_readings(QUERY_ALL)
-
             return {
-                "firmware": all_data.get("fw")
-                or all_data.get("firmware_version")
-                or "unknown",
-                "hardware": all_data.get("hw")
-                or all_data.get("hardware_version")
-                or "unknown",
+                "firmware": all_data.get("fw") or all_data.get("firmware_version") or "unknown",
+                "hardware": all_data.get("hw") or all_data.get("hardware_version") or "unknown",
                 "uptime": all_data.get("uptime", 0),
                 "last_update": all_data.get("timestamp"),
                 "devices": all_data,
@@ -510,29 +521,23 @@ class VioletPoolAPI:
             return {"error": str(e)}
 
     # =========================================================================
-    # CONTROL OPERATIONS (POST-Methoden)
+    # CONTROL OPERATIONS (alle anderen Methoden bleiben gleich)
     # =========================================================================
 
     async def set_switch_state(
         self, key: str, action: str, duration: int = 0, last_value: int = 0
     ) -> dict[str, Any]:
         """Steuere einen Switch."""
-        valid_keys = {
-            *SWITCH_FUNCTIONS,
-            *DOSING_FUNCTIONS,
-            KEY_MAINTENANCE,
-            KEY_PVSURPLUS,
-        }
+        valid_keys = {*SWITCH_FUNCTIONS, *DOSING_FUNCTIONS, KEY_MAINTENANCE, KEY_PVSURPLUS}
         if key not in valid_keys:
             raise VioletPoolCommandError(
                 f"Ungültiger Key: {key}. Gültige Keys: {', '.join(sorted(valid_keys))}"
             )
 
-        # Validierung der Parameter
         duration = max(0, int(duration))
         last_value = max(0, int(last_value))
-
         raw_query = f"{key},{action},{duration},{last_value}"
+        
         _LOGGER.info("Setze Switch %s auf %s (Dauer: %ds)", key, action, duration)
 
         result = await self.api_request(
@@ -544,14 +549,11 @@ class VioletPoolAPI:
         )
         return self._normalize_response(result)
 
-    async def set_target_value(
-        self, target_type: str, value: float | int
-    ) -> dict[str, Any]:
+    async def set_target_value(self, target_type: str, value: float | int) -> dict[str, Any]:
         """Setze einen Sollwert mit Validierung."""
-        # Validierung
         self._validate_target_value(target_type, value)
-
         raw_query = f"{target_type},{value}"
+        
         _LOGGER.info("Setze Sollwert %s auf %.2f", target_type, value)
 
         result = await self.api_request(
@@ -563,9 +565,7 @@ class VioletPoolAPI:
         )
         return self._normalize_response(result)
 
-    async def set_device_temperature(
-        self, device_key: str, temperature: float
-    ) -> dict[str, Any]:
+    async def set_device_temperature(self, device_key: str, temperature: float) -> dict[str, Any]:
         """Setze Zieltemperatur für Heizung oder Solar."""
         if not MIN_TEMPERATURE <= temperature <= MAX_TEMPERATURE:
             raise VioletPoolValidationError(
@@ -586,12 +586,10 @@ class VioletPoolAPI:
         return self._normalize_response(result)
 
     # =========================================================================
-    # BULK OPERATIONS
+    # BULK OPERATIONS & EMERGENCY - bleiben unverändert
     # =========================================================================
 
-    async def set_multiple_switches(
-        self, switch_actions: dict[str, dict[str, Any]]
-    ) -> dict[str, Any]:
+    async def set_multiple_switches(self, switch_actions: dict[str, dict[str, Any]]) -> dict[str, Any]:
         """Setze mehrere Switches gleichzeitig mit Rate-Limiting."""
         if len(switch_actions) > MAX_BULK_OPERATIONS:
             raise VioletPoolValidationError(
@@ -608,9 +606,7 @@ class VioletPoolAPI:
             last_value = params.get("last_value", 0)
 
             try:
-                result = await self.set_switch_state(
-                    switch_key, action, duration, last_value
-                )
+                result = await self.set_switch_state(switch_key, action, duration, last_value)
                 results[switch_key] = {"success": True, "result": result}
                 successful += 1
                 await asyncio.sleep(BULK_OPERATION_DELAY)
@@ -619,11 +615,7 @@ class VioletPoolAPI:
                 results[switch_key] = {"success": False, "error": str(e)}
                 failed += 1
 
-        _LOGGER.info(
-            "Bulk-Operation abgeschlossen: %d erfolgreich, %d fehlgeschlagen",
-            successful,
-            failed,
-        )
+        _LOGGER.info("Bulk-Operation: %d erfolgreich, %d fehlgeschlagen", successful, failed)
 
         return {
             "bulk_operation": True,
@@ -633,22 +625,12 @@ class VioletPoolAPI:
             "results": results,
         }
 
-    # =========================================================================
-    # EMERGENCY AND SAFETY METHODS
-    # =========================================================================
-
     async def emergency_stop_all(self) -> dict[str, Any]:
         """Notaus - alle kritischen Geräte stoppen."""
         _LOGGER.warning("NOTAUS aktiviert - stoppe alle kritischen Geräte!")
 
         critical_devices = [
-            "PUMP",
-            "HEATER",
-            "SOLAR",
-            "DOS_1_CL",
-            "DOS_4_PHM",
-            "DOS_5_PHP",
-            "DOS_6_FLOC",
+            "PUMP", "HEATER", "SOLAR", "DOS_1_CL", "DOS_4_PHM", "DOS_5_PHP", "DOS_6_FLOC",
         ]
 
         results = {}
@@ -666,12 +648,7 @@ class VioletPoolAPI:
                 results[device] = {"success": False, "error": str(e)}
 
         success_rate = (stopped / len(critical_devices)) * 100
-        _LOGGER.warning(
-            "Notaus abgeschlossen: %d/%d Geräte gestoppt (%.1f%%)",
-            stopped,
-            len(critical_devices),
-            success_rate,
-        )
+        _LOGGER.warning("Notaus: %d/%d Geräte gestoppt (%.1f%%)", stopped, len(critical_devices), success_rate)
 
         return {
             "emergency_stop": True,
@@ -682,7 +659,7 @@ class VioletPoolAPI:
         }
 
     # =========================================================================
-    # CONVENIENCE METHODS
+    # CONVENIENCE METHODS - bleiben unverändert
     # =========================================================================
 
     async def set_ph_target(self, value: float) -> dict[str, Any]:
@@ -717,20 +694,13 @@ class VioletPoolAPI:
             )
 
         _LOGGER.info("Manuelle Dosierung %s für %ds", dosing_type, duration)
+        return await self.set_switch_state(key=device_key, action=ACTION_MAN, duration=duration)
 
-        return await self.set_switch_state(
-            key=device_key, action=ACTION_MAN, duration=duration
-        )
-
-    async def set_pv_surplus(
-        self, active: bool, pump_speed: int = 2
-    ) -> dict[str, Any]:
+    async def set_pv_surplus(self, active: bool, pump_speed: int = 2) -> dict[str, Any]:
         """Setze PV-Überschuss Modus."""
         action = ACTION_ON if active else ACTION_OFF
         _LOGGER.info("PV-Überschuss %s (Speed %d)", action, pump_speed)
-        return await self.set_switch_state(
-            key="PVSURPLUS", action=action, last_value=pump_speed
-        )
+        return await self.set_switch_state(key="PVSURPLUS", action=action, last_value=pump_speed)
 
     async def set_all_dmx_scenes(self, dmx_action: str) -> dict[str, Any]:
         """Setze alle DMX-Szenen gleichzeitig."""
@@ -750,9 +720,7 @@ class VioletPoolAPI:
         _LOGGER.info("Triggere Regel %s", rule_key)
         return await self.set_switch_state(key=rule_key, action=ACTION_PUSH)
 
-    async def set_digital_input_rule_lock(
-        self, rule_key: str, lock_state: bool
-    ) -> dict[str, Any]:
+    async def set_digital_input_rule_lock(self, rule_key: str, lock_state: bool) -> dict[str, Any]:
         """Sperre oder entsperre digitale Schaltregel."""
         valid_rules = [f"DIRULE_{i}" for i in range(1, 8)]
         if rule_key not in valid_rules:
@@ -768,14 +736,7 @@ class VioletPoolAPI:
         return await self.set_switch_state(key="LIGHT", action=ACTION_COLOR)
 
 
-# =============================================================================
-# FACTORY AND TEST FUNCTIONS
-# =============================================================================
-
-
-def create_api_instance(
-    host: str, session: aiohttp.ClientSession, **kwargs
-) -> VioletPoolAPI:
+def create_api_instance(host: str, session: aiohttp.ClientSession, **kwargs) -> VioletPoolAPI:
     """Factory-Methode zum Erstellen einer API-Instanz."""
     return VioletPoolAPI(host=host, session=session, **kwargs)
 
@@ -783,7 +744,6 @@ def create_api_instance(
 async def test_api_connection(api: VioletPoolAPI) -> dict[str, Any]:
     """Teste API-Verbindung und gib Diagnose-Info zurück."""
     try:
-        # Basis-Verbindungstest
         ping_result = await api.ping_controller()
 
         if not ping_result:
@@ -798,10 +758,8 @@ async def test_api_connection(api: VioletPoolAPI) -> dict[str, Any]:
                 ],
             }
 
-        # Erweiterte Verbindungsdiagnose
         try:
             system_status = await api.get_system_status()
-
             return {
                 "connected": True,
                 "controller_info": {
