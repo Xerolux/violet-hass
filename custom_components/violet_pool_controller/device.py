@@ -1,6 +1,7 @@
-"""Violet Pool Controller Device Module."""
+"""Violet Pool Controller Device Module - SMART FAILURE LOGGING."""
 import logging
 import asyncio
+import time
 from datetime import timedelta
 from typing import Any, Optional
 
@@ -20,9 +21,12 @@ from .api import VioletPoolAPI, VioletPoolAPIError
 
 _LOGGER = logging.getLogger(__name__)
 
+# ✅ LOGGING OPTIMIZATION: Throttling-Konstanten
+FAILURE_LOG_INTERVAL = 300  # Nur alle 5 Minuten bei wiederholten Fehlern
+
 
 class VioletPoolControllerDevice:
-    """Repräsentiert ein Violet Pool Controller Gerät."""
+    """Repräsentiert ein Violet Pool Controller Gerät - SMART FAILURE LOGGING."""
 
     def __init__(
         self, 
@@ -30,7 +34,7 @@ class VioletPoolControllerDevice:
         config_entry: ConfigEntry, 
         api: VioletPoolAPI
     ) -> None:
-        """Initialisiere die Geräteinstanz."""
+        """Initialisiere die Geräteinstanz mit Smart Logging."""
         self.hass = hass
         self.config_entry = config_entry
         self.api = api
@@ -44,6 +48,11 @@ class VioletPoolControllerDevice:
         self._consecutive_failures = 0
         self._max_consecutive_failures = 5
 
+        # ✅ LOGGING OPTIMIZATION: Smart Failure Tracking
+        self._last_failure_log = 0.0  # Timestamp für Throttling
+        self._first_failure_logged = False  # Flag für erste Warnung
+        self._recovery_logged = False  # Flag für Recovery-Message
+
         # Konfiguration extrahieren
         entry_data = config_entry.data
         self.api_url = self._extract_api_url(entry_data)
@@ -51,7 +60,6 @@ class VioletPoolControllerDevice:
         self.device_id = entry_data.get(CONF_DEVICE_ID, 1)
         self.device_name = entry_data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
         
-        # Username und Password (können leer sein)
         username = entry_data.get(CONF_USERNAME, "")
         password = entry_data.get(CONF_PASSWORD, "")
         
@@ -60,39 +68,84 @@ class VioletPoolControllerDevice:
             self.device_name, self.api_url, self.use_ssl, self.device_id
         )
 
+    def _should_log_failure(self) -> bool:
+        """
+        Prüfe ob Failure geloggt werden soll (Throttling).
+        
+        ✅ LOGGING OPTIMIZATION: Verhindert Log-Spam bei anhaltenden Problemen.
+        """
+        now = time.time()
+        
+        if now - self._last_failure_log > FAILURE_LOG_INTERVAL:
+            self._last_failure_log = now
+            return True
+        return False
+
     async def async_update(self) -> dict[str, Any]:
         """
-        Aktualisiert Gerätedaten vom Controller.
+        Aktualisiert Gerätedaten vom Controller - SMART FAILURE LOGGING.
         
-        Returns:
-            Dict mit aktuellen Gerätedaten
-            
-        Raises:
-            UpdateFailed: Nach zu vielen aufeinanderfolgenden Fehlern
+        ✅ LOGGING OPTIMIZATION:
+        - Erste Warnung sofort
+        - Zwischenwarnungen nur alle 5 Minuten
+        - Kritischer Fehler bei Max-Failures
+        - Recovery-Info nach Wiederherstellung
         """
         try:
             async with self._api_lock:
-                _LOGGER.debug("Starte API-Update für '%s'", self.device_name)
-                
                 data = await self.api.get_readings()
                 
                 # Validiere Daten
                 if not data or not isinstance(data, dict):
-                    _LOGGER.warning(
-                        "Leere oder ungültige Daten vom Controller (Versuch %d/%d)",
-                        self._consecutive_failures + 1,
-                        self._max_consecutive_failures
-                    )
                     self._consecutive_failures += 1
                     
-                    if self._consecutive_failures >= self._max_consecutive_failures:
+                    # ✅ LOGGING OPTIMIZATION: Intelligentes Failure-Logging
+                    if self._consecutive_failures == 1:
+                        # Erste Warnung IMMER loggen
+                        _LOGGER.warning(
+                            "Controller '%s' antwortet nicht (erste Warnung)",
+                            self.device_name
+                        )
+                        self._first_failure_logged = True
+                        self._recovery_logged = False
+                        
+                    elif self._consecutive_failures >= self._max_consecutive_failures:
+                        # Kritisch: Wird unavailable - IMMER loggen
+                        _LOGGER.error(
+                            "Controller '%s' nach %d aufeinanderfolgenden Fehlern als "
+                            "unavailable markiert. Bitte Verbindung prüfen!",
+                            self.device_name,
+                            self._consecutive_failures
+                        )
                         self._available = False
                         raise UpdateFailed(
-                            f"Controller antwortet nicht ({self._consecutive_failures} Fehler)"
+                            f"Controller '{self.device_name}' nicht erreichbar "
+                            f"({self._consecutive_failures} Fehler)"
+                        )
+                        
+                    elif self._should_log_failure():
+                        # Zwischenwarnungen nur throttled
+                        _LOGGER.warning(
+                            "Controller '%s' weiterhin nicht erreichbar "
+                            "(%d/%d aufeinanderfolgende Fehler)",
+                            self.device_name,
+                            self._consecutive_failures,
+                            self._max_consecutive_failures
                         )
                     
                     # Gebe alte Daten zurück bei temporären Problemen
                     return self._data
+                
+                # ✅ LOGGING OPTIMIZATION: Erfolg nach Fehlern = wichtige Info
+                if self._consecutive_failures > 0 and not self._recovery_logged:
+                    _LOGGER.info(
+                        "✓ Controller '%s' wieder erreichbar (nach %d Fehler%s)",
+                        self.device_name,
+                        self._consecutive_failures,
+                        "n" if self._consecutive_failures > 1 else ""
+                    )
+                    self._recovery_logged = True
+                    self._first_failure_logged = False
                 
                 # Update erfolgreich
                 self._data = data
@@ -103,12 +156,6 @@ class VioletPoolControllerDevice:
                 # Firmware-Version extrahieren
                 if "FW" in data or "fw" in data:
                     self._firmware_version = data.get("FW") or data.get("fw")
-                    _LOGGER.debug("Firmware-Version: %s", self._firmware_version)
-                
-                _LOGGER.debug(
-                    "Update erfolgreich: %d Datenpunkte empfangen", 
-                    len(data)
-                )
                 
                 return data
                 
@@ -116,20 +163,28 @@ class VioletPoolControllerDevice:
             self._last_error = str(err)
             self._consecutive_failures += 1
             
-            _LOGGER.error(
-                "API-Fehler bei Update von '%s' (%d/%d): %s", 
-                self.device_name,
-                self._consecutive_failures, 
-                self._max_consecutive_failures, 
-                err
-            )
-            
-            # Nach zu vielen Fehlern: Gerät als nicht verfügbar markieren
-            if self._consecutive_failures >= self._max_consecutive_failures:
+            # ✅ LOGGING OPTIMIZATION: Konsolidiertes Error-Logging
+            if self._consecutive_failures == 1:
+                _LOGGER.error(
+                    "API-Fehler bei Update von '%s': %s",
+                    self.device_name,
+                    str(err)[:200]  # Gekürzt auf 200 Zeichen
+                )
+            elif self._consecutive_failures >= self._max_consecutive_failures:
+                _LOGGER.error(
+                    "Controller '%s' nach %d API-Fehlern nicht mehr verfügbar",
+                    self.device_name,
+                    self._consecutive_failures
+                )
                 self._available = False
-                raise UpdateFailed(
-                    f"Controller nicht erreichbar: {err}"
-                ) from err
+                raise UpdateFailed(f"Controller nicht erreichbar: {err}") from err
+            elif self._should_log_failure():
+                _LOGGER.warning(
+                    "Anhaltende API-Probleme bei '%s' (%d/%d Fehler)",
+                    self.device_name,
+                    self._consecutive_failures,
+                    self._max_consecutive_failures
+                )
             
             # Gebe alte Daten zurück bei temporären Fehlern
             return self._data
@@ -138,20 +193,29 @@ class VioletPoolControllerDevice:
             self._last_error = str(err)
             self._consecutive_failures += 1
             
-            _LOGGER.exception(
-                "Unerwarteter Fehler bei Update von '%s' (%d/%d): %s", 
-                self.device_name,
-                self._consecutive_failures, 
-                self._max_consecutive_failures, 
-                err
-            )
-            
-            # Nach zu vielen Fehlern: Exception werfen
-            if self._consecutive_failures >= self._max_consecutive_failures:
+            # ✅ LOGGING OPTIMIZATION: Unerwartete Fehler = immer loggen (aber nur Exception-Typ)
+            if self._consecutive_failures == 1:
+                _LOGGER.exception(
+                    "Unerwarteter Fehler bei Update von '%s'",
+                    self.device_name
+                )
+            elif self._consecutive_failures >= self._max_consecutive_failures:
+                _LOGGER.error(
+                    "Controller '%s' nach %d unerwarteten Fehlern nicht verfügbar",
+                    self.device_name,
+                    self._consecutive_failures
+                )
                 self._available = False
-                raise UpdateFailed("Update error: %s" % err) from err
+                raise UpdateFailed(f"Update error: {err}") from err
+            elif self._should_log_failure():
+                _LOGGER.warning(
+                    "Anhaltende Probleme bei '%s': %s (%d/%d Fehler)",
+                    self.device_name,
+                    type(err).__name__,  # Nur Exception-Typ, nicht full trace
+                    self._consecutive_failures,
+                    self._max_consecutive_failures
+                )
             
-            # Gebe alte Daten zurück bei temporären Fehlern
             return self._data
 
     @property
@@ -192,21 +256,8 @@ class VioletPoolControllerDevice:
             }
         return self._device_info
 
-    def _extract_api_url(self, entry_data: Dict) -> str:
-        """
-        Extrahiert die API-URL aus den Config-Daten.
-        
-        Unterstützt verschiedene Schlüssel für Abwärtskompatibilität.
-        
-        Args:
-            entry_data: Config Entry Daten
-            
-        Returns:
-            Bereinigte IP-Adresse/URL
-            
-        Raises:
-            ValueError: Wenn keine IP-Adresse gefunden wurde
-        """
+    def _extract_api_url(self, entry_data: dict) -> str:
+        """Extrahiert die API-URL aus den Config-Daten."""
         url = (
             entry_data.get(CONF_API_URL) or
             entry_data.get("host") or
@@ -220,7 +271,7 @@ class VioletPoolControllerDevice:
 
 
 class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
-    """Data Update Coordinator für Violet Pool Controller."""
+    """Data Update Coordinator - SMART FAILURE LOGGING."""
     
     def __init__(
         self, 
@@ -229,7 +280,7 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
         name: str, 
         polling_interval: int = DEFAULT_POLLING_INTERVAL
     ) -> None:
-        """Initialisiere den Coordinator."""
+        """Initialisiere den Coordinator mit Smart Logging."""
         super().__init__(
             hass, 
             _LOGGER,
@@ -248,17 +299,15 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
         """
         Aktualisiere die Daten vom Device.
         
-        Returns:
-            Dict mit aktuellen Daten
-            
-        Raises:
-            UpdateFailed: Bei Kommunikationsfehlern
+        ✅ LOGGING OPTIMIZATION: 
+        - Fehler werden bereits im Device smart geloggt
+        - Hier nur minimal loggen
         """
         try:
             return await self.device.async_update()
         except VioletPoolAPIError as err:
-            _LOGGER.error("Fehler beim Datenabruf: %s", err)
-            raise UpdateFailed("API error: %s" % err) from err
+            # ✅ Bereits im Device geloggt, hier nur Exception propagieren
+            raise UpdateFailed(f"API error: {err}") from err
 
 
 async def async_setup_device(
@@ -267,31 +316,22 @@ async def async_setup_device(
     api: VioletPoolAPI
 ) -> VioletPoolDataUpdateCoordinator:
     """
-    Setup des Violet Pool Controller Devices.
+    Setup des Violet Pool Controller Devices - SMART FAILURE LOGGING.
     
-    Args:
-        hass: Home Assistant Instanz
-        config_entry: Config Entry
-        api: API-Instanz
-        
-    Returns:
-        Initialisierter Coordinator
-        
-    Raises:
-        ConfigEntryNotReady: Bei Setup-Fehlern
+    ✅ LOGGING OPTIMIZATION: Fokus auf Setup-Erfolg/Fehler, nicht auf Details.
     """
     try:
         # Device erstellen
         device = VioletPoolControllerDevice(hass, config_entry, api)
         
-        _LOGGER.debug("Führe ersten Update durch...")
-        
         # Ersten Update durchführen (Verfügbarkeit prüfen)
         await device.async_update()
         
         if not device.available:
+            # ✅ Klare Setup-Fehlermeldung
             raise ConfigEntryNotReady(
-                f"Controller '{device.device_name}' nicht erreichbar bei Setup"
+                f"Controller '{device.device_name}' nicht erreichbar bei Setup. "
+                "Bitte Verbindung und Controller-Status prüfen."
             )
         
         # Polling-Intervall aus Options oder Data holen
@@ -309,14 +349,14 @@ async def async_setup_device(
         )
         
         # Ersten Refresh durchführen
-        _LOGGER.debug("Führe ersten Coordinator Refresh durch...")
         await coordinator.async_config_entry_first_refresh()
         
+        # ✅ Erfolgreicher Setup = wichtige Info
         _LOGGER.info(
-            "Device Setup erfolgreich: '%s' (FW: %s, %d Datenpunkte)", 
+            "✓ Device Setup erfolgreich: '%s' (FW: %s, %d Datenpunkte)", 
             device.device_name, 
             device.firmware_version or "Unbekannt",
-            len(device.data)
+            len(device.data) if device.data else 0
         )
         
         return coordinator
@@ -326,5 +366,6 @@ async def async_setup_device(
         raise
         
     except Exception as err:
+        # ✅ Setup-Fehler immer loggen (kritisch)
         _LOGGER.exception("Device Setup fehlgeschlagen: %s", err)
         raise ConfigEntryNotReady(f"Setup-Fehler: {err}") from err
