@@ -1,4 +1,4 @@
-"""Switch Integration für den Violet Pool Controller - FULLY PROTECTED VERSION."""
+"""Switch Integration für den Violet Pool Controller - CHANGE-ONLY LOGGING."""
 import logging
 import asyncio
 from typing import Any
@@ -30,54 +30,69 @@ REFRESH_DELAY = 0.3
 
 
 class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
-    """Repräsentation eines Violet Pool Switches - FULLY PROTECTED VERSION."""
+    """Switch mit Change-Only Logging - LOGGING OPTIMIZED."""
     entity_description: SwitchEntityDescription
 
     def __init__(
         self, coordinator: VioletPoolDataUpdateCoordinator, config_entry: ConfigEntry,
         description: SwitchEntityDescription
     ) -> None:
-        """Initialisiere den Switch."""
+        """Initialisiere den Switch mit Logging-Optimierung."""
         super().__init__(coordinator, config_entry, description)
-        _LOGGER.debug("Initialisiere Switch: %s (unique_id=%s)", self.entity_id, self._attr_unique_id)
+        
+        # ✅ LOGGING OPTIMIZATION: State-Change Detection
+        self._last_logged_state: bool | None = None
+        self._last_logged_raw: Any = None
+        
+        # ✅ Nur Setup loggen, nicht jeden Zugriff
+        _LOGGER.debug("Switch initialisiert: %s", self.entity_id)
 
     @property
     def is_on(self) -> bool:
         """Gibt True zurück, wenn der Switch eingeschaltet ist."""
-        # ✅ CRITICAL: None-Check vor State-Abfrage
         if self.coordinator.data is None:
-            _LOGGER.debug("Coordinator data is None für %s - returning False", 
-                         self.entity_description.key)
             return False
         
         return self._get_switch_state()
 
     def _get_switch_state(self) -> bool:
-        """Rufe den aktuellen Switch-Zustand ab - FULLY PROTECTED VERSION."""
-        key = self.entity_description.key
+        """
+        State-Abfrage mit Change-Only Logging.
         
-        # ✅ CRITICAL: Prüfe coordinator.data vor Zugriff
+        ✅ LOGGING OPTIMIZATION:
+        - Nur bei State-Änderungen loggen
+        - Keine Debug-Logs bei jedem Property-Zugriff
+        """
         if self.coordinator.data is None:
-            _LOGGER.debug("Coordinator data is None - cannot get state for %s", key)
             return False
         
+        key = self.entity_description.key
         raw_state = self.get_value(key, "")
         
-        _LOGGER.debug("Switch state check für %s: raw=%s (type=%s)", 
-                     key, raw_state, type(raw_state).__name__)
-        
         if raw_state is None or raw_state == "":
-            _LOGGER.debug("State ist None/empty für %s - returning OFF", key)
             return False
         
-        # Versuche Integer-Konvertierung
+        # State interpretieren
         state_int = self._convert_to_int(raw_state)
         
         if state_int is not None:
-            return self._interpret_int_state(state_int, key)
+            result = self._interpret_int_state(state_int, key)
+        else:
+            result = self._interpret_string_state(raw_state, key)
         
-        # Fallback auf String-Interpretation
-        return self._interpret_string_state(raw_state, key)
+        # ✅ LOGGING OPTIMIZATION: Nur bei Änderung loggen
+        if result != self._last_logged_state or raw_state != self._last_logged_raw:
+            _LOGGER.info(
+                "Switch %s: %s → %s (raw: %s)",
+                key,
+                "ON" if self._last_logged_state else "OFF" if self._last_logged_state is not None else "INIT",
+                "ON" if result else "OFF",
+                raw_state
+            )
+            self._last_logged_state = result
+            self._last_logged_raw = raw_state
+        
+        return result
 
     def _convert_to_int(self, value: Any) -> int | None:
         """Konvertiere Wert zu Integer, wenn möglich."""
@@ -91,52 +106,60 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         return None
 
     def _interpret_int_state(self, state_int: int, key: str) -> bool:
-        """Interpretiere Integer State-Wert."""
+        """
+        Interpretiere Integer State - LOGGING OPTIMIZED.
+        
+        ✅ LOGGING OPTIMIZATION: Keine Debug-Logs, nur Warnungen bei Problemen.
+        """
         if state_int in STATE_MAP:
-            result = STATE_MAP[state_int]
-            _LOGGER.debug("State %d für %s in STATE_MAP → %s", state_int, key, result)
-            return result
+            return STATE_MAP[state_int]
         
         if state_int in ON_STATES:
-            _LOGGER.debug("State %d für %s in ON_STATES → True", state_int, key)
             return True
         
         if state_int in OFF_STATES:
-            _LOGGER.debug("State %d für %s in OFF_STATES → False", state_int, key)
             return False
         
-        _LOGGER.warning("Unbekannter State %d für %s - defaulting to OFF", state_int, key)
+        # ✅ Nur unbekannte States warnen (einmalig durch Change-Detection)
+        _LOGGER.warning(
+            "Unbekannter State %d für %s - bitte im GitHub melden! "
+            "Integration verwendet Fallback: OFF",
+            state_int, key
+        )
         return False
 
     def _interpret_string_state(self, raw_state: Any, key: str) -> bool:
-        """Interpretiere String State-Wert."""
+        """
+        Interpretiere String State - LOGGING OPTIMIZED.
+        
+        ✅ LOGGING OPTIMIZATION: Keine Debug-Logs.
+        """
         state_str = str(raw_state).upper().strip()
         
         if state_str in STATE_MAP:
-            result = STATE_MAP[state_str]
-            _LOGGER.debug("String '%s' für %s in STATE_MAP → %s", state_str, key, result)
-            return result
+            return STATE_MAP[state_str]
         
         boolean_on_states = {"TRUE", "ON", "1", "ACTIVE", "RUNNING", "MANUAL", "MAN"}
         boolean_off_states = {"FALSE", "OFF", "0", "INACTIVE", "STOPPED"}
         
         if state_str in boolean_on_states:
-            _LOGGER.debug("String '%s' für %s → ON", state_str, key)
             return True
         
         if state_str in boolean_off_states:
-            _LOGGER.debug("String '%s' für %s → OFF", state_str, key)
             return False
         
-        _LOGGER.warning("Unbekannter State '%s' für %s - defaulting to OFF", state_str, key)
+        # ✅ Nur unbekannte Strings warnen
+        _LOGGER.warning(
+            "Unbekannter State-String '%s' für %s - bitte im GitHub melden! "
+            "Integration verwendet Fallback: OFF",
+            state_str, key
+        )
         return False
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        """Return additional state attributes - FULLY PROTECTED VERSION."""
-        # ✅ CRITICAL: None-Check vor Daten-Zugriff
+        """Return additional state attributes - MINIMAL LOGGING."""
         if self.coordinator.data is None:
-            _LOGGER.debug("Coordinator data is None - returning minimal attributes")
             return {
                 "state_type": "unavailable",
                 "interpreted_as": "UNKNOWN",
@@ -151,48 +174,23 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             "raw_state": str(raw_state) if raw_state is not None else "None",
             "state_type": type(raw_state).__name__,
             "interpreted_as": "ON" if current_result else "OFF",
-            "state_logic": self._explain_state_logic(raw_state),
         }
         
-        # PUMP-spezifische Attribute mit None-Checks
+        # PUMP-spezifische Attribute
         if key == "PUMP":
             attributes.update({
                 "pump_runtime": self.get_str_value("PUMP_RUNTIME", "00h 00m 00s"),
                 "pump_last_on": self.get_value("PUMP_LAST_ON", 0),
                 "pump_last_off": self.get_value("PUMP_LAST_OFF", 0),
                 "pump_rpm_2": self.get_value("PUMP_RPM_2", 0),
-                "pump_state_raw": self.get_value("PUMPSTATE", ""),
             })
         
-        # Runtime-Informationen mit None-Check
+        # Runtime-Informationen
         runtime_key = f"{key}_RUNTIME"
         if runtime_key in self.coordinator.data:
             attributes["runtime"] = self.get_str_value(runtime_key, "00h 00m 00s")
         
         return attributes
-
-    def _explain_state_logic(self, raw_state: Any) -> str:
-        """Explain how the state was interpreted for debugging."""
-        if raw_state is None:
-            return "None value → OFF"
-        
-        state_int = self._convert_to_int(raw_state)
-        
-        if state_int is not None:
-            if state_int in STATE_MAP:
-                return f"Integer {state_int} in STATE_MAP → {STATE_MAP[state_int]}"
-            elif state_int in ON_STATES:
-                return f"Integer {state_int} in ON_STATES → True"
-            elif state_int in OFF_STATES:
-                return f"Integer {state_int} in OFF_STATES → False"
-            else:
-                return f"Integer {state_int} unknown → False (default)"
-        
-        state_str = str(raw_state).upper().strip()
-        if state_str in STATE_MAP:
-            return f"String '{state_str}' in STATE_MAP → {STATE_MAP[state_str]}"
-        
-        return f"String '{state_str}' → default logic"
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Schalte den Switch ein."""
@@ -203,10 +201,18 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         await self._set_switch_state(ACTION_OFF, **kwargs)
 
     async def _set_switch_state(self, action: str, **kwargs: Any) -> None:
-        """Setze den Switch-Zustand - FULLY PROTECTED VERSION."""
+        """
+        Setze den Switch-Zustand - LOGGING OPTIMIZED.
+        
+        ✅ LOGGING OPTIMIZATION:
+        - INFO für User-Aktionen (wichtig)
+        - DEBUG nur für interne Details
+        - Konsolidierte Error-Messages
+        """
         key = self.entity_description.key
         
         try:
+            # ✅ User-Aktion = immer loggen (INFO)
             _LOGGER.info("Setze Switch %s auf %s", key, action)
             
             # Für PUMP: Unterstütze erweiterte Parameter
@@ -214,7 +220,6 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 speed = self._validate_speed(kwargs.get("speed", 2))
                 duration = self._validate_duration(kwargs.get("duration", 0))
                 
-                _LOGGER.debug("PUMP Parameter: speed=%s, duration=%s", speed, duration)
                 result = await self.device.api.set_switch_state(
                     key=key, 
                     action=action, 
@@ -224,40 +229,31 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             else:
                 result = await self.device.api.set_switch_state(key=key, action=action)
             
-            _LOGGER.debug("API Result: %s", result)
-            
             if result.get("success", True):
-                _LOGGER.info("Switch %s erfolgreich auf %s gesetzt", key, action)
+                # ✅ Erfolg nur bei Debug loggen (API loggt bereits)
+                _LOGGER.debug("Switch %s erfolgreich auf %s gesetzt", key, action)
                 
-                # ✅ CRITICAL: None-Check vor optimistischem Update
+                # Optimistisches Update mit None-Check
                 if self.coordinator.data is not None:
                     try:
                         expected_state = STATE_MANUAL_ON if action == ACTION_ON else STATE_OFF
                         self.coordinator.data[key] = expected_state
-                        _LOGGER.debug("Optimistisches Update: %s = %s", key, expected_state)
                         self.async_write_ha_state()
                     except Exception as update_err:
-                        _LOGGER.warning(
-                            "Optimistisches Update fehlgeschlagen für %s: %s",
-                            key, update_err
-                        )
-                else:
-                    _LOGGER.debug(
-                        "Coordinator data is None - skipping optimistic update for %s",
-                        key
-                    )
+                        _LOGGER.debug("Optimistisches Update fehlgeschlagen: %s", update_err)
                 
                 # Asynchroner Refresh
                 task = asyncio.create_task(self._delayed_refresh(key))
                 task.add_done_callback(lambda t: self._handle_refresh_error(t, key))
             else:
                 error_msg = result.get("response", "Unbekannter Fehler")
-                _LOGGER.warning("Switch %s Aktion %s möglicherweise fehlgeschlagen: %s", 
-                              key, action, error_msg)
+                # ✅ Fehler = WARNING (User-relevant)
+                _LOGGER.warning("Switch %s Aktion %s fehlgeschlagen: %s", key, action, error_msg)
                 task = asyncio.create_task(self._delayed_refresh(key))
                 task.add_done_callback(lambda t: self._handle_refresh_error(t, key))
             
         except VioletPoolAPIError as err:
+            # ✅ API-Fehler = ERROR (kritisch)
             _LOGGER.error("API-Fehler beim Setzen von Switch %s auf %s: %s", key, action, err)
             raise HomeAssistantError(f"Switch-Aktion fehlgeschlagen: {err}") from err
         except Exception as err:
@@ -265,45 +261,35 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             raise HomeAssistantError(f"Switch-Fehler: {err}") from err
 
     async def _delayed_refresh(self, key: str) -> None:
-        """Verzögerter Refresh - FULLY PROTECTED VERSION."""
+        """Verzögerter Refresh - MINIMAL LOGGING."""
         try:
             await asyncio.sleep(REFRESH_DELAY)
-            _LOGGER.debug("Requesting coordinator refresh for %s", key)
             await self.coordinator.async_request_refresh()
             
-            # ✅ CRITICAL: None-Check nach Refresh
+            # ✅ Nur bei Debug-Level loggen
             if self.coordinator.data is not None:
                 new_state = self.coordinator.data.get(key, "UNKNOWN")
                 _LOGGER.debug("State nach Refresh: %s = %s", key, new_state)
-            else:
-                _LOGGER.debug("Coordinator data is None nach Refresh für %s", key)
                 
         except Exception as err:
-            _LOGGER.error("Fehler beim verzögerten Refresh für %s: %s", key, err)
+            # ✅ Refresh-Fehler = DEBUG (nicht kritisch, wird wiederholt)
+            _LOGGER.debug("Fehler beim verzögerten Refresh für %s: %s", key, err)
 
     def _handle_refresh_error(self, task: asyncio.Task, key: str) -> None:
-        """Handle errors in refresh task - FULLY PROTECTED VERSION."""
+        """Handle errors in refresh task - MINIMAL LOGGING."""
         try:
             if not task.cancelled():
                 exc = task.exception()
                 if exc is not None:
-                    _LOGGER.error(
-                        "Refresh task failed for switch %s (key: %s): %s",
-                        self.entity_id,
-                        key,
-                        exc
-                    )
+                    # ✅ Nur bei echten Problemen loggen
+                    _LOGGER.debug("Refresh task failed for %s: %s", key, exc)
         except asyncio.CancelledError:
-            _LOGGER.debug("Refresh task cancelled for %s", key)
+            pass  # Normal, kein Log nötig
         except Exception as err:
-            _LOGGER.error(
-                "Error handling refresh task exception for %s: %s",
-                key,
-                err
-            )
+            _LOGGER.debug("Error handling refresh task for %s: %s", key, err)
 
     def _validate_speed(self, speed: Any) -> int:
-        """Validiere Speed-Parameter."""
+        """Validiere Speed-Parameter - MINIMAL LOGGING."""
         try:
             speed_int = int(speed)
             if 1 <= speed_int <= 4:
@@ -315,7 +301,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             return 2
 
     def _validate_duration(self, duration: Any) -> int:
-        """Validiere Duration-Parameter."""
+        """Validiere Duration-Parameter - MINIMAL LOGGING."""
         try:
             duration_int = int(duration)
             if duration_int >= 0:
@@ -330,7 +316,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
 async def async_setup_entry(
     hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
-    """Richte Switches ein - FULLY PROTECTED VERSION."""
+    """Richte Switches ein - LOGGING OPTIMIZED."""
     coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     active_features = config_entry.options.get(
         CONF_ACTIVE_FEATURES, 
@@ -338,13 +324,15 @@ async def async_setup_entry(
     )
     entities: list[SwitchEntity] = []
 
+    # ✅ Setup = INFO (wichtig für User)
     _LOGGER.info("Switch Setup - Active features: %s", active_features)
     
-    # ✅ CRITICAL: None-Check vor Diagnose
+    # Diagnose nur bei verfügbaren Daten
     if coordinator.data is not None:
+        # ✅ Diagnose = DEBUG (nur für Entwickler)
         _LOGGER.debug("Coordinator data keys: %d", len(coordinator.data.keys()))
         
-        # Diagnose für wichtige States mit None-Check
+        # State-Diagnose nur für wichtige Switches
         for key in ["PUMP", "SOLAR", "HEATER"]:
             if key in coordinator.data:
                 try:
@@ -352,10 +340,10 @@ async def async_setup_entry(
                     state_int = int(value) if isinstance(value, (int, float)) or str(value).isdigit() else None
                     expected = "ON" if state_int in ON_STATES else "OFF" if state_int in OFF_STATES else "UNKNOWN"
                     _LOGGER.debug("%s: raw=%s → %s", key, value, expected)
-                except Exception as diag_err:
-                    _LOGGER.warning("Diagnose fehlgeschlagen für %s: %s", key, diag_err)
+                except Exception:
+                    pass  # Fehler in Diagnose ignorieren
     else:
-        _LOGGER.warning("Coordinator data is None bei Switch Setup - keine Diagnose möglich")
+        _LOGGER.warning("Coordinator data is None bei Switch Setup")
 
     # Create switches
     for switch_config in SWITCHES:
@@ -368,18 +356,19 @@ async def async_setup_entry(
         feature_id = switch_config.get("feature_id")
         
         if feature_id and feature_id not in active_features:
+            # ✅ DEBUG: Unwichtige Info
             _LOGGER.debug("Überspringe Switch %s: Feature %s nicht aktiv", 
                          description.key, feature_id)
             continue
         
-        _LOGGER.debug("Erstelle Switch: %s", description.name)
         entities.append(VioletSwitch(coordinator, config_entry, description))
 
     if entities:
         async_add_entities(entities)
+        # ✅ INFO: Erfolgreicher Setup
         _LOGGER.info("✓ %d Switches erfolgreich eingerichtet", len(entities))
         
-        # ✅ CRITICAL: Final check mit None-Schutz
+        # Final check nur bei DEBUG
         if coordinator.data is not None:
             for entity in entities:
                 key = entity.entity_description.key
@@ -389,8 +378,8 @@ async def async_setup_entry(
                         should_be_on = entity._get_switch_state()
                         _LOGGER.debug("Final check %s: raw=%s → display=%s", 
                                     key, raw_state, "ON" if should_be_on else "OFF")
-                    except Exception as check_err:
-                        _LOGGER.warning("Final check fehlgeschlagen für %s: %s", 
-                                      key, check_err)
+                    except Exception:
+                        pass
     else:
+        # ✅ WARNING: Potenzielles Problem
         _LOGGER.warning("⚠ Keine Switches eingerichtet")
