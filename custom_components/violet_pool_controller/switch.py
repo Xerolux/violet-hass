@@ -1,4 +1,4 @@
-"""Switch Integration für den Violet Pool Controller - CHANGE-ONLY LOGGING."""
+"""Switch Integration für den Violet Pool Controller - CHANGE-ONLY LOGGING & THREAD-SAFE."""
 import logging
 import asyncio
 from typing import Any
@@ -30,19 +30,22 @@ REFRESH_DELAY = 0.3
 
 
 class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
-    """Switch mit Change-Only Logging - LOGGING OPTIMIZED."""
+    """Switch mit Change-Only Logging & Thread-Safe - LOGGING OPTIMIZED & THREAD-SAFE."""
     entity_description: SwitchEntityDescription
 
     def __init__(
         self, coordinator: VioletPoolDataUpdateCoordinator, config_entry: ConfigEntry,
         description: SwitchEntityDescription
     ) -> None:
-        """Initialisiere den Switch mit Logging-Optimierung."""
+        """Initialisiere den Switch mit Logging-Optimierung & Thread-Safety."""
         super().__init__(coordinator, config_entry, description)
         
         # ✅ LOGGING OPTIMIZATION: State-Change Detection
         self._last_logged_state: bool | None = None
         self._last_logged_raw: Any = None
+        
+        # ✅ FIXED: Lokale Cache-Variable für optimistisches Update
+        self._optimistic_state: bool | None = None
         
         # ✅ Nur Setup loggen, nicht jeden Zugriff
         _LOGGER.debug("Switch initialisiert: %s", self.entity_id)
@@ -57,12 +60,18 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
 
     def _get_switch_state(self) -> bool:
         """
-        State-Abfrage mit Change-Only Logging.
+        State-Abfrage mit Change-Only Logging & optimistischem Cache.
         
         ✅ LOGGING OPTIMIZATION:
         - Nur bei State-Änderungen loggen
         - Keine Debug-Logs bei jedem Property-Zugriff
+        
+        ✅ FIXED: Prüft zuerst optimistischen Cache
         """
+        # ✅ FIXED: Prüfe zuerst optimistischen Cache
+        if self._optimistic_state is not None:
+            return self._optimistic_state
+        
         if self.coordinator.data is None:
             return False
         
@@ -176,6 +185,11 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             "interpreted_as": "ON" if current_result else "OFF",
         }
         
+        # ✅ FIXED: Zeige optimistischen Cache-Status
+        if self._optimistic_state is not None:
+            attributes["optimistic_state"] = "ON" if self._optimistic_state else "OFF"
+            attributes["pending_update"] = True
+        
         # PUMP-spezifische Attribute
         if key == "PUMP":
             attributes.update({
@@ -202,12 +216,14 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
 
     async def _set_switch_state(self, action: str, **kwargs: Any) -> None:
         """
-        Setze den Switch-Zustand - LOGGING OPTIMIZED.
+        Setze den Switch-Zustand - LOGGING OPTIMIZED & THREAD-SAFE.
         
         ✅ LOGGING OPTIMIZATION:
         - INFO für User-Aktionen (wichtig)
         - DEBUG nur für interne Details
         - Konsolidierte Error-Messages
+        
+        ✅ FIXED: Keine coordinator.data Mutation mehr!
         """
         key = self.entity_description.key
         
@@ -233,16 +249,17 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 # ✅ Erfolg nur bei Debug loggen (API loggt bereits)
                 _LOGGER.debug("Switch %s erfolgreich auf %s gesetzt", key, action)
                 
-                # Optimistisches Update mit None-Check
-                if self.coordinator.data is not None:
-                    try:
-                        expected_state = STATE_MANUAL_ON if action == ACTION_ON else STATE_OFF
-                        self.coordinator.data[key] = expected_state
-                        self.async_write_ha_state()
-                    except Exception as update_err:
-                        _LOGGER.debug("Optimistisches Update fehlgeschlagen: %s", update_err)
+                # ✅ FIXED: NUR lokale Variable setzen, KEINE coordinator.data Mutation!
+                self._optimistic_state = (action == ACTION_ON)
+                self.async_write_ha_state()
                 
-                # Asynchroner Refresh
+                _LOGGER.debug(
+                    "Optimistisches Update: %s = %s (lokaler Cache, kein coordinator.data mutiert)",
+                    key,
+                    "ON" if self._optimistic_state else "OFF"
+                )
+                
+                # Asynchroner Refresh holt echte Daten und resettet Cache
                 task = asyncio.create_task(self._delayed_refresh(key))
                 task.add_done_callback(lambda t: self._handle_refresh_error(t, key))
             else:
@@ -255,25 +272,49 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         except VioletPoolAPIError as err:
             # ✅ API-Fehler = ERROR (kritisch)
             _LOGGER.error("API-Fehler beim Setzen von Switch %s auf %s: %s", key, action, err)
+            # Bei Fehler Cache löschen
+            self._optimistic_state = None
             raise HomeAssistantError(f"Switch-Aktion fehlgeschlagen: {err}") from err
         except Exception as err:
             _LOGGER.error("Unerwarteter Fehler beim Setzen von Switch %s: %s", key, err)
+            # Bei Fehler Cache löschen
+            self._optimistic_state = None
             raise HomeAssistantError(f"Switch-Fehler: {err}") from err
 
     async def _delayed_refresh(self, key: str) -> None:
-        """Verzögerter Refresh - MINIMAL LOGGING."""
+        """
+        Verzögerter Refresh - MINIMAL LOGGING & THREAD-SAFE.
+        
+        ✅ FIXED: Resettet optimistischen Cache nach erfolgreichem Refresh.
+        """
         try:
             await asyncio.sleep(REFRESH_DELAY)
             await self.coordinator.async_request_refresh()
+            
+            # ✅ FIXED: Reset optimistischen Cache nach Refresh
+            if self.coordinator.last_update_success:
+                old_optimistic = self._optimistic_state
+                self._optimistic_state = None
+                
+                if old_optimistic is not None:
+                    _LOGGER.debug(
+                        "Optimistischer Cache nach Refresh gelöscht für %s (war: %s)",
+                        key,
+                        "ON" if old_optimistic else "OFF"
+                    )
             
             # ✅ Nur bei Debug-Level loggen
             if self.coordinator.data is not None:
                 new_state = self.coordinator.data.get(key, "UNKNOWN")
                 _LOGGER.debug("State nach Refresh: %s = %s", key, new_state)
+            else:
+                _LOGGER.debug("Coordinator data is None nach Refresh für %s", key)
                 
         except Exception as err:
             # ✅ Refresh-Fehler = DEBUG (nicht kritisch, wird wiederholt)
             _LOGGER.debug("Fehler beim verzögerten Refresh für %s: %s", key, err)
+            # Bei Fehler auch Cache löschen
+            self._optimistic_state = None
 
     def _handle_refresh_error(self, task: asyncio.Task, key: str) -> None:
         """Handle errors in refresh task - MINIMAL LOGGING."""
