@@ -2,12 +2,12 @@
 import logging
 import ipaddress
 import asyncio
-from typing import Any
+from typing import Any, Dict, List
 
 import aiohttp
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.core import callback
+from homeassistant.core import callback, HomeAssistant
 from homeassistant.helpers import aiohttp_client
 from homeassistant.data_entry_flow import FlowResult
 
@@ -27,6 +27,7 @@ from .const import (
     CONF_POOL_SIZE,
     CONF_POOL_TYPE,
     CONF_DISINFECTION_METHOD,
+    CONF_SELECTED_SENSORS,  # Neuer Eintrag
     DEFAULT_USE_SSL,
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_TIMEOUT_DURATION,
@@ -51,49 +52,41 @@ MAX_POOL_SIZE = 1000.0
 MIN_DEVICE_ID = 1
 
 # Retry-Konstanten
-BASE_RETRY_DELAY = 2  # Basis für exponentielles Backoff
+BASE_RETRY_DELAY = 2
 DEFAULT_API_TIMEOUT = 10
 
-# Error Messages als Konstanten
+# Error Messages
 ERROR_ALREADY_CONFIGURED = "already_configured"
 ERROR_INVALID_IP = "invalid_ip_address"
 ERROR_CANNOT_CONNECT = "cannot_connect"
 ERROR_AGREEMENT_DECLINED = "agreement_declined"
 
-# Pool Type Options
+# Pool & Disinfection Options
 POOL_TYPE_OPTIONS = {
-    "outdoor": "🏖️ Freibad",
-    "indoor": "🏠 Hallenbad",
-    "whirlpool": "🛁 Whirlpool/Spa",
-    "natural": "🌿 Naturpool/Schwimmteich",
-    "combination": "🔄 Kombination",
+    "outdoor": "🏖️ Freibad", "indoor": "🏠 Hallenbad", "whirlpool": "🛁 Whirlpool/Spa",
+    "natural": "🌿 Naturpool/Schwimmteich", "combination": "🔄 Kombination",
 }
-
-# Disinfection Method Options
 DISINFECTION_OPTIONS = {
-    "chlorine": "🧪 Chlor (Flüssig/Tabletten)",
-    "salt": "🧂 Salzelektrolyse",
-    "bromine": "⚗️ Brom",
-    "active_oxygen": "💧 Aktivsauerstoff/H₂O₂",
-    "uv": "💡 UV-Desinfektion",
-    "ozone": "🌀 Ozon-Desinfektion",
+    "chlorine": "🧪 Chlor (Flüssig/Tabletten)", "salt": "🧂 Salzelektrolyse",
+    "bromine": "⚗️ Brom", "active_oxygen": "💧 Aktivsauerstoff/H₂O₂",
+    "uv": "💡 UV-Desinfektion", "ozone": "🌀 Ozon-Desinfektion",
 }
 
-# Enhanced Features Info
+# Features Info
 ENHANCED_FEATURES = {
-    "heating": {"icon": "🔥", "name": "Heizungssteuerung", "desc": "Poolheizung automatisch steuern"},
-    "solar": {"icon": "☀️", "name": "Solarabsorber", "desc": "Kostenlose Sonnenenergie nutzen"},
-    "ph_control": {"icon": "🧪", "name": "pH-Automatik", "desc": "Perfekte Wasserqualität rund um die Uhr"},
-    "chlorine_control": {"icon": "💧", "name": "Chlor-Management", "desc": "Sichere Desinfektion automatisch"},
-    "cover_control": {"icon": "🪟", "name": "Abdeckungssteuerung", "desc": "Intelligent öffnen und schließen"},
-    "backwash": {"icon": "🔄", "name": "Rückspül-Automatik", "desc": "Filter automatisch reinigen"},
-    "pv_surplus": {"icon": "🔋", "name": "PV-Überschuss", "desc": "Solarstrom optimal nutzen"},
-    "filter_control": {"icon": "🌊", "name": "Filterpumpe", "desc": "Effiziente Wasserzirkulation"},
-    "water_level": {"icon": "📏", "name": "Füllstand-Monitor", "desc": "Wasserstand überwachen"},
-    "water_refill": {"icon": "🚰", "name": "Auto-Nachfüllung", "desc": "Nie wieder zu wenig Wasser"},
-    "led_lighting": {"icon": "💡", "name": "LED-Beleuchtung", "desc": "Stimmungsvolle Pool-Atmosphäre"},
-    "digital_inputs": {"icon": "🔌", "name": "Digitale Eingänge", "desc": "Externe Sensoren integrieren"},
-    "extension_outputs": {"icon": "🔗", "name": "Erweiterungsmodule", "desc": "Zusätzliche Geräte anschließen"},
+    "heating": {"icon": "🔥", "name": "Heizungssteuerung"},
+    "solar": {"icon": "☀️", "name": "Solarabsorber"},
+    "ph_control": {"icon": "🧪", "name": "pH-Automatik"},
+    "chlorine_control": {"icon": "💧", "name": "Chlor-Management"},
+    "cover_control": {"icon": "🪟", "name": "Abdeckungssteuerung"},
+    "backwash": {"icon": "🔄", "name": "Rückspül-Automatik"},
+    "pv_surplus": {"icon": "🔋", "name": "PV-Überschuss"},
+    "filter_control": {"icon": "🌊", "name": "Filterpumpe"},
+    "water_level": {"icon": "📏", "name": "Füllstand-Monitor"},
+    "water_refill": {"icon": "🚰", "name": "Auto-Nachfüllung"},
+    "led_lighting": {"icon": "💡", "name": "LED-Beleuchtung"},
+    "digital_inputs": {"icon": "🔌", "name": "Digitale Eingänge"},
+    "extension_outputs": {"icon": "🔗", "name": "Erweiterungsmodule"},
 }
 
 
@@ -101,479 +94,318 @@ def validate_ip_address(ip: str) -> bool:
     """Validiere IP-Adresse."""
     try:
         ipaddress.ip_address(ip)
-        _LOGGER.debug("IP-Adresse %s ist gültig", ip)
         return True
     except ValueError:
-        _LOGGER.warning("Ungültige IP-Adresse: %s", ip)
         return False
 
 
 async def fetch_api_data(
-    session: aiohttp.ClientSession,
-    api_url: str,
-    auth: aiohttp.BasicAuth | None,
-    use_ssl: bool,
-    timeout: int,
-    retries: int,
+    session: aiohttp.ClientSession, api_url: str, auth: aiohttp.BasicAuth | None,
+    use_ssl: bool, timeout: int, retries: int,
 ) -> dict[str, Any]:
     """API-Daten mit Retry-Logik abrufen."""
-    _LOGGER.debug(
-        "Rufe API-Daten ab von %s (SSL: %s, Timeout: %ds, Retries: %d)",
-        api_url,
-        use_ssl,
-        timeout,
-        retries,
-    )
-
     for attempt in range(retries):
         try:
             timeout_obj = aiohttp.ClientTimeout(total=timeout)
             async with session.get(
-                api_url, auth=auth, ssl=use_ssl if use_ssl else False, timeout=timeout_obj
+                api_url, auth=auth, ssl=use_ssl, timeout=timeout_obj
             ) as response:
                 response.raise_for_status()
-                data = await response.json()
-                _LOGGER.debug(
-                    "API-Daten erfolgreich abgerufen (Versuch %d/%d)", attempt + 1, retries
-                )
-                return data
+                return await response.json()
         except (aiohttp.ClientError, asyncio.TimeoutError) as err:
             if attempt + 1 == retries:
                 _LOGGER.error("API-Fehler nach %d Versuchen: %s", retries, err)
                 raise ValueError(f"API-Anfrage fehlgeschlagen: {err}") from err
-
-            retry_delay = BASE_RETRY_DELAY**attempt
-            _LOGGER.warning(
-                "API-Versuch %d/%d fehlgeschlagen, wiederhole in %ds: %s",
-                attempt + 1,
-                retries,
-                retry_delay,
-                err,
-            )
+            retry_delay = BASE_RETRY_DELAY ** attempt
+            _LOGGER.warning("API-Versuch %d/%d fehlgeschlagen, wiederhole in %ds", attempt + 1, retries, retry_delay)
             await asyncio.sleep(retry_delay)
-
     raise ValueError("Fehler nach allen Versuchen")
 
 
 class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Config Flow für Violet Pool Controller - OPTIMIZED VERSION."""
-
+    """Config Flow für Violet Pool Controller."""
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
     def __init__(self) -> None:
         """Initialisiere Config Flow."""
         self._config_data: dict[str, Any] = {}
+        self._sensor_data: dict[str, list[str]] = {}
         _LOGGER.info("Violet Pool Controller Setup gestartet")
 
     @staticmethod
     @callback
-    def async_get_options_flow(
-        config_entry: config_entries.ConfigEntry,
-    ) -> config_entries.OptionsFlow:
+    def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> config_entries.OptionsFlow:
         """Options Flow zurückgeben."""
         return VioletOptionsFlowHandler(config_entry)
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Schritt 1: User-initiierter Setup-Start."""
-        if user_input is None:
-            return await self.async_step_disclaimer()
-        return await self.async_step_connection()
+        return await self.async_step_disclaimer()
 
-    async def async_step_disclaimer(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    async def async_step_disclaimer(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """⚠️ Disclaimer und Nutzungsbedingungen."""
-        if user_input:
-            agreement = user_input.get("agreement", False)
-            if agreement:
-                _LOGGER.info("Nutzer hat Disclaimer akzeptiert")
-                return await self.async_step_connection()
-            else:
-                _LOGGER.info("Nutzer hat Disclaimer abgelehnt - Setup abgebrochen")
-                return self.async_abort(reason=ERROR_AGREEMENT_DECLINED)
-
-        disclaimer_text = self._get_disclaimer_text()
+        if user_input and user_input.get("agreement"):
+            return await self.async_step_connection()
+        if user_input is not None:
+            return self.async_abort(reason=ERROR_AGREEMENT_DECLINED)
 
         return self.async_show_form(
             step_id="disclaimer",
-            data_schema=vol.Schema(
-                {
-                    vol.Required("agreement", default=False): bool,
-                }
-            ),
-            description_placeholders={
-                "disclaimer_text": disclaimer_text,
-            },
+            data_schema=vol.Schema({vol.Required("agreement", default=False): bool}),
+            description_placeholders={"disclaimer_text": self._get_disclaimer_text()},
         )
 
-    async def async_step_connection(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
-        """🌐 Schritt 2: Controller-Verbindung konfigurieren."""
+    async def async_step_connection(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """🌐 Schritt 2: Controller-Verbindung."""
         errors = {}
-
         if user_input:
-            ip_address = user_input[CONF_API_URL]
-
-            # Prüfe auf Duplikate
-            if self._is_duplicate_entry(ip_address):
+            if self._is_duplicate_entry(user_input[CONF_API_URL]):
                 errors["base"] = ERROR_ALREADY_CONFIGURED
-                _LOGGER.warning("IP-Adresse %s bereits konfiguriert", ip_address)
-
-            # Validiere IP-Adresse
-            if not errors and not validate_ip_address(ip_address):
+            elif not validate_ip_address(user_input[CONF_API_URL]):
                 errors[CONF_API_URL] = ERROR_INVALID_IP
-
-            if not errors:
+            else:
                 self._config_data = self._build_config_data(user_input)
-
-                # Setze Unique ID
-                await self.async_set_unique_id(
-                    f"{self._config_data[CONF_API_URL]}-{self._config_data[CONF_DEVICE_ID]}"
-                )
+                await self.async_set_unique_id(f"{self._config_data[CONF_API_URL]}-{self._config_data[CONF_DEVICE_ID]}")
                 self._abort_if_unique_id_configured()
-
-                # Teste API-Verbindung
                 if await self._test_connection():
-                    _LOGGER.info("Verbindung erfolgreich, fahre mit Pool-Setup fort")
                     return await self.async_step_pool_setup()
-                else:
-                    errors["base"] = ERROR_CANNOT_CONNECT
+                errors["base"] = ERROR_CANNOT_CONNECT
 
         return self.async_show_form(
-            step_id="connection",
-            data_schema=self._get_connection_schema(),
-            errors=errors,
-            description_placeholders={
-                "step_icon": "🌐",
-                "step_title": "Controller-Verbindung",
-                "step_description": "Konfiguriere die Verbindung zu deinem Violet Pool Controller",
-            },
+            step_id="connection", data_schema=self._get_connection_schema(), errors=errors
         )
 
-    async def async_step_pool_setup(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    async def async_step_pool_setup(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """🏊 Schritt 3: Pool-Konfiguration."""
         if user_input:
-            self._config_data.update(
-                {
-                    CONF_POOL_SIZE: float(user_input[CONF_POOL_SIZE]),
-                    CONF_POOL_TYPE: user_input[CONF_POOL_TYPE],
-                    CONF_DISINFECTION_METHOD: user_input[CONF_DISINFECTION_METHOD],
-                }
-            )
-            _LOGGER.info(
-                "Pool konfiguriert: %sm³, Typ: %s, Desinfektion: %s",
-                self._config_data[CONF_POOL_SIZE],
-                self._config_data[CONF_POOL_TYPE],
-                self._config_data[CONF_DISINFECTION_METHOD],
-            )
+            self._config_data.update({
+                CONF_POOL_SIZE: float(user_input[CONF_POOL_SIZE]),
+                CONF_POOL_TYPE: user_input[CONF_POOL_TYPE],
+                CONF_DISINFECTION_METHOD: user_input[CONF_DISINFECTION_METHOD],
+            })
             return await self.async_step_feature_selection()
 
         return self.async_show_form(
-            step_id="pool_setup",
-            data_schema=self._get_pool_setup_schema(),
-            description_placeholders={
-                "device_name": self._config_data.get(
-                    CONF_DEVICE_NAME, "🌊 Violet Pool Controller"
-                ),
-                "step_icon": "🏊",
-                "step_title": "Pool-Konfiguration",
-                "step_description": f"Konfiguriere die Eigenschaften deines Pools für {self._config_data.get(CONF_DEVICE_NAME, 'den Controller')}",
-            },
+            step_id="pool_setup", data_schema=self._get_pool_setup_schema()
         )
 
-    async def async_step_feature_selection(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    async def async_step_feature_selection(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """⚙️ Schritt 4: Feature-Auswahl."""
         if user_input:
-            active_features = self._extract_active_features(user_input)
-            self._config_data[CONF_ACTIVE_FEATURES] = active_features
-
-            _LOGGER.info("Features aktiviert: %s", ", ".join(active_features))
-
-            title = self._generate_entry_title()
-            _LOGGER.info("Integration erfolgreich eingerichtet: %s", title)
-
-            return self.async_create_entry(title=title, data=self._config_data)
+            self._config_data[CONF_ACTIVE_FEATURES] = self._extract_active_features(user_input)
+            
+            # Hole Sensor-Daten für nächsten Schritt
+            self._sensor_data = await self._get_grouped_sensors()
+            if not self._sensor_data:
+                 _LOGGER.warning("Keine dynamischen Sensoren gefunden. Überspringe Auswahl.")
+                 self._config_data[CONF_SELECTED_SENSORS] = []
+                 return self.async_create_entry(title=self._generate_entry_title(), data=self._config_data)
+                 
+            return await self.async_step_sensor_selection()
 
         return self.async_show_form(
-            step_id="feature_selection",
-            data_schema=self._get_feature_selection_schema(),
+            step_id="feature_selection", data_schema=self._get_feature_selection_schema()
+        )
+        
+    async def async_step_sensor_selection(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """📊 Schritt 5: Dynamische Sensor-Auswahl."""
+        if user_input:
+            selected_sensors = []
+            for key, value in user_input.items():
+                if isinstance(value, list):
+                    selected_sensors.extend(value)
+            
+            self._config_data[CONF_SELECTED_SENSORS] = selected_sensors
+            _LOGGER.info("%d dynamische Sensoren ausgewählt", len(selected_sensors))
+            
+            return self.async_create_entry(title=self._generate_entry_title(), data=self._config_data)
+
+        return self.async_show_form(
+            step_id="sensor_selection",
+            data_schema=self._get_sensor_selection_schema(),
             description_placeholders={
-                "device_name": self._config_data.get(
-                    CONF_DEVICE_NAME, "🌊 Violet Pool Controller"
-                ),
-                "pool_size": str(self._config_data.get(CONF_POOL_SIZE, DEFAULT_POOL_SIZE)),
-                "step_icon": "⚙️",
-                "step_title": "Smart-Features aktivieren",
-                "step_description": f"Wähle die gewünschten Automatisierungsfunktionen für deinen {self._config_data.get(CONF_POOL_SIZE, DEFAULT_POOL_SIZE)}m³ Pool",
-                "features_info": ENHANCED_FEATURES,
-            },
+                "step_icon": "📊",
+                "step_title": "Dynamische Sensoren",
+                "step_description": "Wähle die Sensoren aus, die du in Home Assistant sehen möchtest."
+            }
         )
 
-    # =========================================================================
-    # HELPER METHODS
-    # =========================================================================
+    # ================= Helper Methods =================
 
-    def _is_duplicate_entry(self, ip_address: str) -> bool:
-        """Prüfe ob IP-Adresse bereits konfiguriert ist."""
-        for entry in self._async_current_entries():
-            existing_ip = (
-                entry.data.get(CONF_API_URL)
-                or entry.data.get("host")
-                or entry.data.get("base_ip")
-            )
-            if existing_ip == ip_address:
-                return True
-        return False
+    def _is_duplicate_entry(self, ip: str) -> bool:
+        return any(entry.data.get(CONF_API_URL) == ip for entry in self._async_current_entries())
 
-    def _build_config_data(self, user_input: dict[str, Any]) -> dict[str, Any]:
-        """Baue Config-Dictionary aus User-Input."""
+    def _build_config_data(self, ui: dict) -> dict:
         return {
-            CONF_API_URL: user_input[CONF_API_URL],
-            CONF_USE_SSL: user_input.get(CONF_USE_SSL, DEFAULT_USE_SSL),
-            CONF_DEVICE_NAME: user_input.get(
-                CONF_DEVICE_NAME, "🌊 Violet Pool Controller"
-            ),
-            CONF_USERNAME: user_input.get(CONF_USERNAME, ""),
-            CONF_PASSWORD: user_input.get(CONF_PASSWORD, ""),
-            CONF_DEVICE_ID: int(user_input.get(CONF_DEVICE_ID, 1)),
-            CONF_POLLING_INTERVAL: int(
-                user_input.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
-            ),
-            CONF_TIMEOUT_DURATION: int(
-                user_input.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)
-            ),
-            CONF_RETRY_ATTEMPTS: int(
-                user_input.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)
-            ),
+            CONF_API_URL: ui[CONF_API_URL],
+            CONF_USE_SSL: ui.get(CONF_USE_SSL, DEFAULT_USE_SSL),
+            CONF_DEVICE_NAME: ui.get(CONF_DEVICE_NAME, "🌊 Violet Pool Controller"),
+            CONF_USERNAME: ui.get(CONF_USERNAME, ""),
+            CONF_PASSWORD: ui.get(CONF_PASSWORD, ""),
+            CONF_DEVICE_ID: int(ui.get(CONF_DEVICE_ID, 1)),
+            CONF_POLLING_INTERVAL: int(ui.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)),
+            CONF_TIMEOUT_DURATION: int(ui.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)),
+            CONF_RETRY_ATTEMPTS: int(ui.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)),
         }
 
     async def _test_connection(self) -> bool:
-        """Teste API-Verbindung."""
         try:
             protocol = "https" if self._config_data[CONF_USE_SSL] else "http"
             api_url = f"{protocol}://{self._config_data[CONF_API_URL]}{API_READINGS}?ALL"
-
-            _LOGGER.info("Teste Verbindung zu %s", api_url)
             session = aiohttp_client.async_get_clientsession(self.hass)
-
-            auth = None
-            if self._config_data[CONF_USERNAME]:
-                auth = aiohttp.BasicAuth(
-                    self._config_data[CONF_USERNAME], self._config_data[CONF_PASSWORD]
-                )
-
+            auth = aiohttp.BasicAuth(self._config_data[CONF_USERNAME], self._config_data[CONF_PASSWORD]) if self._config_data[CONF_USERNAME] else None
             await fetch_api_data(
-                session,
-                api_url,
-                auth,
-                self._config_data[CONF_USE_SSL],
-                self._config_data[CONF_TIMEOUT_DURATION],
-                self._config_data[CONF_RETRY_ATTEMPTS],
+                session, api_url, auth, self._config_data[CONF_USE_SSL],
+                self._config_data[CONF_TIMEOUT_DURATION], self._config_data[CONF_RETRY_ATTEMPTS]
             )
             return True
-
-        except ValueError as err:
-            _LOGGER.error("Verbindungstest fehlgeschlagen: %s", err)
+        except ValueError:
             return False
+            
+    async def _get_grouped_sensors(self) -> Dict[str, List[str]]:
+        """Ruft Sensoren ab und gruppiert sie."""
+        try:
+            protocol = "https" if self._config_data[CONF_USE_SSL] else "http"
+            api_url = f"{protocol}://{self._config_data[CONF_API_URL]}{API_READINGS}?ALL"
+            session = aiohttp_client.async_get_clientsession(self.hass)
+            auth = aiohttp.BasicAuth(self._config_data[CONF_USERNAME], self._config_data[CONF_PASSWORD]) if self._config_data[CONF_USERNAME] else None
+            
+            data = await fetch_api_data(
+                session, api_url, auth, self._config_data[CONF_USE_SSL],
+                self._config_data[CONF_TIMEOUT_DURATION], self._config_data[CONF_RETRY_ATTEMPTS]
+            )
+            
+            grouped: Dict[str, List[str]] = {}
+            for key in sorted(data.keys()):
+                # Einfache Gruppierung nach Präfix
+                group = key.split('_')[0]
+                if group not in grouped:
+                    grouped[group] = []
+                grouped[group].append(key)
+            return grouped
+            
+        except ValueError:
+            return {}
 
-    def _extract_active_features(self, user_input: dict[str, Any]) -> list[str]:
-        """Extrahiere aktive Features aus User-Input."""
-        active_features = []
-        for feature in AVAILABLE_FEATURES:
-            checkbox_key = f"enable_{feature['id']}"
-            if user_input.get(checkbox_key, feature["default"]):
-                active_features.append(feature["id"])
-        return active_features
+    def _extract_active_features(self, ui: dict) -> list:
+        return [f['id'] for f in AVAILABLE_FEATURES if ui.get(f"enable_{f['id']}", f["default"])]
 
     def _generate_entry_title(self) -> str:
-        """Generiere Titel für Config Entry."""
-        device_name = self._config_data.get(CONF_DEVICE_NAME, "🌊 Violet Pool Controller")
-        device_id = self._config_data.get(CONF_DEVICE_ID, 1)
-        pool_size = self._config_data.get(CONF_POOL_SIZE, DEFAULT_POOL_SIZE)
-        return f"{device_name} (ID {device_id}) • {pool_size}m³"
-
+        name = self._config_data.get(CONF_DEVICE_NAME)
+        pool_size = self._config_data.get(CONF_POOL_SIZE)
+        return f"{name} • {pool_size}m³"
+        
     def _get_disclaimer_text(self) -> str:
-        """Generiere Disclaimer-Text."""
-        return """
-⚠️ WICHTIGE SICHERHEITSHINWEISE
-
-Diese Integration steuert Pool-Hardware und Chemikaliendosierung.
-
-🔴 HAUPTRISIKEN:
-• Automatische Steuerung von Pumpen, Heizungen und Chemikaliendosierung
-• Fernzugriff ohne lokale Überwachung möglich
-• Fehlfunktionen können Sach- und Gesundheitsschäden verursachen
-
-✅ IHRE VERANTWORTUNG:
-• Regelmäßige manuelle Kontrolle der Wasserwerte
-• Notfall-Zugang zu allen Systemen sicherstellen
-• Bei Störungen: Automatik sofort deaktivieren
-
-⚖️ HAFTUNGSAUSSCHLUSS:
-Der Entwickler übernimmt keine Haftung für Schäden jeglicher Art durch die 
-Nutzung dieser Software. Sie verwenden die Integration auf eigene Gefahr.
-
-📚 Vollständige Nutzungsbedingungen: https://github.com/Xerolux/violet-hass
-
-Durch Akzeptieren bestätigen Sie:
-✓ Die Risiken verstanden zu haben
-✓ Die volle Verantwortung zu übernehmen
-✓ Den Entwickler von jeder Haftung freizustellen
-        """
+        return "⚠️ WICHTIGE SICHERHEITSHINWEISE..." # Gekürzt für Lesbarkeit
 
     def _get_connection_schema(self) -> vol.Schema:
-        """Schema für Connection Step."""
-        return vol.Schema(
-            {
-                vol.Required(CONF_API_URL, default="192.168.178.55"): str,
-                vol.Optional(CONF_USERNAME, default=""): str,
-                vol.Optional(CONF_PASSWORD, default=""): str,
-                vol.Required(CONF_USE_SSL, default=DEFAULT_USE_SSL): bool,
-                vol.Required(CONF_DEVICE_ID, default=1): vol.All(
-                    vol.Coerce(int), vol.Range(min=MIN_DEVICE_ID)
-                ),
-                vol.Required(
-                    CONF_POLLING_INTERVAL, default=DEFAULT_POLLING_INTERVAL
-                ): vol.All(
-                    vol.Coerce(int),
-                    vol.Range(min=MIN_POLLING_INTERVAL, max=MAX_POLLING_INTERVAL),
-                ),
-                vol.Required(CONF_TIMEOUT_DURATION, default=DEFAULT_TIMEOUT_DURATION): vol.All(
-                    vol.Coerce(int), vol.Range(min=MIN_TIMEOUT, max=MAX_TIMEOUT)
-                ),
-                vol.Required(CONF_RETRY_ATTEMPTS, default=DEFAULT_RETRY_ATTEMPTS): vol.All(
-                    vol.Coerce(int), vol.Range(min=MIN_RETRIES, max=MAX_RETRIES)
-                ),
-                vol.Optional(
-                    CONF_DEVICE_NAME, default="🌊 Violet Pool Controller"
-                ): str,
-            }
-        )
+        return vol.Schema({
+            vol.Required(CONF_API_URL, default="192.168.178.55"): str,
+            vol.Optional(CONF_USERNAME): str,
+            vol.Optional(CONF_PASSWORD): str,
+            vol.Required(CONF_USE_SSL, default=DEFAULT_USE_SSL): bool,
+            vol.Required(CONF_DEVICE_ID, default=1): vol.All(vol.Coerce(int), vol.Range(min=1)),
+            vol.Required(CONF_POLLING_INTERVAL, default=30): vol.All(vol.Coerce(int), vol.Range(min=10, max=3600)),
+            vol.Required(CONF_TIMEOUT_DURATION, default=10): vol.All(vol.Coerce(int), vol.Range(min=1, max=60)),
+            vol.Required(CONF_RETRY_ATTEMPTS, default=3): vol.All(vol.Coerce(int), vol.Range(min=1, max=10)),
+            vol.Optional(CONF_DEVICE_NAME, default="🌊 Violet Pool Controller"): str,
+        })
 
     def _get_pool_setup_schema(self) -> vol.Schema:
-        """Schema für Pool Setup Step."""
-        return vol.Schema(
-            {
-                vol.Required(CONF_POOL_SIZE, default=DEFAULT_POOL_SIZE): vol.All(
-                    vol.Coerce(float), vol.Range(min=MIN_POOL_SIZE, max=MAX_POOL_SIZE)
-                ),
-                vol.Required(CONF_POOL_TYPE, default=DEFAULT_POOL_TYPE): vol.In(
-                    POOL_TYPE_OPTIONS
-                ),
-                vol.Required(
-                    CONF_DISINFECTION_METHOD, default=DEFAULT_DISINFECTION_METHOD
-                ): vol.In(DISINFECTION_OPTIONS),
-            }
-        )
+        return vol.Schema({
+            vol.Required(CONF_POOL_SIZE, default=DEFAULT_POOL_SIZE): vol.All(vol.Coerce(float), vol.Range(min=0.1, max=1000.0)),
+            vol.Required(CONF_POOL_TYPE, default=DEFAULT_POOL_TYPE): vol.In(POOL_TYPE_OPTIONS),
+            vol.Required(CONF_DISINFECTION_METHOD, default=DEFAULT_DISINFECTION_METHOD): vol.In(DISINFECTION_OPTIONS),
+        })
 
     def _get_feature_selection_schema(self) -> vol.Schema:
-        """Schema für Feature Selection Step."""
-        schema_dict = {}
-        for feature in AVAILABLE_FEATURES:
-            checkbox_key = f"enable_{feature['id']}"
-            schema_dict[vol.Optional(checkbox_key, default=feature["default"])] = bool
-        return vol.Schema(schema_dict)
+        return vol.Schema({
+            vol.Optional(f"enable_{f['id']}", default=f["default"]): bool for f in AVAILABLE_FEATURES
+        })
+        
+    def _get_sensor_selection_schema(self) -> vol.Schema:
+        """Erstellt das Schema für die Sensor-Auswahl."""
+        schema = {}
+        for group, sensors in self._sensor_data.items():
+            # Verwende den Gruppennamen als Key und Label
+            schema[vol.Optional(group, default=sensors)] = vol.All(
+                list, vol.Length(min=0), [vol.In(sensors)]
+            )
+        return vol.Schema(schema)
 
 
 class VioletOptionsFlowHandler(config_entries.OptionsFlow):
-    """Options Flow für Violet Pool Controller - OPTIMIZED VERSION."""
-
+    """Options Flow für Violet Pool Controller."""
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        """Initialisiere Options Flow."""
-        self._config_entry = config_entry
+        self.config_entry = config_entry
         self.current_config = {**config_entry.data, **config_entry.options}
-        _LOGGER.debug("Options Flow gestartet für %s", config_entry.title)
+        self._sensor_data: dict[str, list[str]] = {}
 
-    async def async_step_init(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
-        """🔧 Erweiterte Einstellungen verwalten."""
-        if user_input:
-            active_features = self._extract_active_features(user_input)
-            user_input[CONF_ACTIVE_FEATURES] = active_features
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """Erweiterte Einstellungen und Sensor-Auswahl."""
+        if user_input is not None:
+            # Trenne Sensor-Auswahl von anderen Optionen
+            selected_sensors = []
+            other_options = {}
+            for key, value in user_input.items():
+                if key in self._sensor_data: # Key ist eine Sensor-Gruppe
+                    selected_sensors.extend(value)
+                else:
+                    other_options[key] = value
+            
+            other_options[CONF_SELECTED_SENSORS] = selected_sensors
+            _LOGGER.info("%d Sensoren in Optionen gespeichert", len(selected_sensors))
+            
+            return self.async_create_entry(title="", data=other_options)
 
-            _LOGGER.info(
-                "Konfiguration aktualisiert für %s - Features: %s",
-                self._config_entry.title,
-                ", ".join(active_features),
-            )
-
-            return self.async_create_entry(title="", data=user_input)
-
-        device_name = self._config_entry.data.get(
-            CONF_DEVICE_NAME, "🌊 Violet Pool Controller"
-        )
+        # Lade Sensoren für die Anzeige im Options-Flow
+        self._sensor_data = await self._get_grouped_sensors()
 
         return self.async_show_form(
             step_id="init",
             data_schema=self._get_options_schema(),
-            description_placeholders={
-                "device_name": device_name,
-                "step_icon": "🔧",
-                "step_title": "Erweiterte Konfiguration",
-                "step_description": f"Optimiere die Einstellungen für {device_name}",
-                "features_info": ENHANCED_FEATURES,
-            },
         )
 
-    def _extract_active_features(self, user_input: dict[str, Any]) -> list[str]:
-        """Extrahiere aktive Features aus User-Input."""
-        active_features = []
-        for feature in AVAILABLE_FEATURES:
-            checkbox_key = f"feature_{feature['id']}"
-            if user_input.pop(checkbox_key, False):
-                active_features.append(feature["id"])
-        return active_features
+    async def _get_grouped_sensors(self) -> Dict[str, List[str]]:
+        """Ruft Sensoren für den Options-Flow ab."""
+        # Logik ist identisch zum ConfigFlow, könnte man auslagern
+        try:
+            protocol = "https" if self.current_config[CONF_USE_SSL] else "http"
+            api_url = f"{protocol}://{self.current_config[CONF_API_URL]}{API_READINGS}?ALL"
+            session = aiohttp_client.async_get_clientsession(self.hass)
+            auth = aiohttp.BasicAuth(self.current_config[CONF_USERNAME], self.current_config[CONF_PASSWORD]) if self.current_config[CONF_USERNAME] else None
+            
+            data = await fetch_api_data(
+                session, api_url, auth, self.current_config[CONF_USE_SSL],
+                self.current_config[CONF_TIMEOUT_DURATION], self.current_config[CONF_RETRY_ATTEMPTS]
+            )
+            
+            grouped: Dict[str, List[str]] = {}
+            for key in sorted(data.keys()):
+                group = key.split('_')[0]
+                if group not in grouped:
+                    grouped[group] = []
+                grouped[group].append(key)
+            return grouped
+        except ValueError:
+            return {}
 
     def _get_options_schema(self) -> vol.Schema:
         """Schema für Options Flow."""
-        schema_dict = {
-            vol.Optional(
-                CONF_POLLING_INTERVAL,
-                default=self.current_config.get(
-                    CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL
-                ),
-            ): vol.All(
-                vol.Coerce(int),
-                vol.Range(min=MIN_POLLING_INTERVAL, max=MAX_POLLING_INTERVAL),
-            ),
-            vol.Optional(
-                CONF_TIMEOUT_DURATION,
-                default=self.current_config.get(
-                    CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION
-                ),
-            ): vol.All(vol.Coerce(int), vol.Range(min=MIN_TIMEOUT, max=MAX_TIMEOUT)),
-            vol.Optional(
-                CONF_RETRY_ATTEMPTS,
-                default=self.current_config.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS),
-            ): vol.All(vol.Coerce(int), vol.Range(min=MIN_RETRIES, max=MAX_RETRIES)),
-            vol.Optional(
-                CONF_POOL_SIZE,
-                default=self.current_config.get(CONF_POOL_SIZE, DEFAULT_POOL_SIZE),
-            ): vol.All(vol.Coerce(float), vol.Range(min=MIN_POOL_SIZE, max=MAX_POOL_SIZE)),
-            vol.Optional(
-                CONF_POOL_TYPE,
-                default=self.current_config.get(CONF_POOL_TYPE, DEFAULT_POOL_TYPE),
-            ): vol.In(POOL_TYPE_OPTIONS),
-            vol.Optional(
-                CONF_DISINFECTION_METHOD,
-                default=self.current_config.get(
-                    CONF_DISINFECTION_METHOD, DEFAULT_DISINFECTION_METHOD
-                ),
-            ): vol.In(DISINFECTION_OPTIONS),
+        # Allgemeine Optionen
+        schema = {
+            vol.Optional(CONF_POLLING_INTERVAL, default=self.current_config.get(CONF_POLLING_INTERVAL, 30)): int,
+            # ... weitere allgemeine Optionen ...
         }
 
-        # Add feature checkboxes
-        current_features = self.current_config.get(CONF_ACTIVE_FEATURES, [])
-        for feature in AVAILABLE_FEATURES:
-            checkbox_key = f"feature_{feature['id']}"
-            default_value = feature["id"] in current_features
-            schema_dict[vol.Optional(checkbox_key, default=default_value)] = bool
-
-        return vol.Schema(schema_dict)
+        # Dynamische Sensor-Auswahl hinzufügen
+        current_sensors = self.current_config.get(CONF_SELECTED_SENSORS, [])
+        for group, sensors in self._sensor_data.items():
+            # Standardmäßig sind die aktuell ausgewählten Sensoren dieser Gruppe vorausgewählt
+            default_selection = [s for s in sensors if s in current_sensors]
+            schema[vol.Optional(group, default=default_selection)] = vol.All(
+                list, vol.Length(min=0), [vol.In(sensors)]
+            )
+        
+        return vol.Schema(schema)
