@@ -1,30 +1,28 @@
-"""
-Violet Pool Controller - Unified Services
-Konsolidierte Service-Definitionen mit optimierter Struktur
-"""
-import logging
+"""Service handlers for the Violet Pool Controller integration."""
+
 import asyncio
+import logging
 from typing import Any
 
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
+from homeassistant.const import ATTR_DEVICE_ID, ATTR_ENTITY_ID
 from homeassistant.core import HomeAssistant, ServiceCall
-from homeassistant.const import ATTR_ENTITY_ID, ATTR_DEVICE_ID
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import entity_registry as er
 
+from .api import VioletPoolAPIError
 from .const import (
-    DOMAIN,
-    ACTION_ON,
-    ACTION_OFF,
+    ACTION_ALLAUTO,
+    ACTION_ALLOFF,
+    ACTION_ALLON,
     ACTION_AUTO,
     ACTION_MAN,
-    ACTION_ALLON,
-    ACTION_ALLOFF,
-    ACTION_ALLAUTO,
+    ACTION_OFF,
+    ACTION_ON,
     DEVICE_PARAMETERS,
+    DOMAIN,
 )
-from .api import VioletPoolAPIError
 
 _LOGGER = logging.getLogger(__name__)
 
