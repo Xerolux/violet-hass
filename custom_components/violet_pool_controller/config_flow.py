@@ -1,7 +1,7 @@
 """Config Flow für Violet Pool Controller Integration - OPTIMIZED VERSION."""
-import logging
-import ipaddress
 import asyncio
+import ipaddress
+import logging
 from typing import Any, Dict, List
 
 import aiohttp
@@ -27,7 +27,7 @@ from .const import (
     CONF_POOL_SIZE,
     CONF_POOL_TYPE,
     CONF_DISINFECTION_METHOD,
-    CONF_SELECTED_SENSORS,  # Neuer Eintrag
+    CONF_SELECTED_SENSORS,
     DEFAULT_USE_SSL,
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_TIMEOUT_DURATION,
@@ -198,9 +198,12 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             # Hole Sensor-Daten für nächsten Schritt
             self._sensor_data = await self._get_grouped_sensors()
             if not self._sensor_data:
-                 _LOGGER.warning("Keine dynamischen Sensoren gefunden. Überspringe Auswahl.")
-                 self._config_data[CONF_SELECTED_SENSORS] = []
-                 return self.async_create_entry(title=self._generate_entry_title(), data=self._config_data)
+                _LOGGER.warning("Keine dynamischen Sensoren gefunden. Überspringe Auswahl.")
+                self._config_data[CONF_SELECTED_SENSORS] = []
+                return self.async_create_entry(
+                    title=self._generate_entry_title(),
+                    data=self._config_data,
+                )
                  
             return await self.async_step_sensor_selection()
 
@@ -254,7 +257,14 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             protocol = "https" if self._config_data[CONF_USE_SSL] else "http"
             api_url = f"{protocol}://{self._config_data[CONF_API_URL]}{API_READINGS}?ALL"
             session = aiohttp_client.async_get_clientsession(self.hass)
-            auth = aiohttp.BasicAuth(self._config_data[CONF_USERNAME], self._config_data[CONF_PASSWORD]) if self._config_data[CONF_USERNAME] else None
+            auth = (
+                aiohttp.BasicAuth(
+                    self._config_data[CONF_USERNAME],
+                    self._config_data[CONF_PASSWORD],
+                )
+                if self._config_data[CONF_USERNAME]
+                else None
+            )
             await fetch_api_data(
                 session, api_url, auth, self._config_data[CONF_USE_SSL],
                 self._config_data[CONF_TIMEOUT_DURATION], self._config_data[CONF_RETRY_ATTEMPTS]
@@ -269,7 +279,14 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             protocol = "https" if self._config_data[CONF_USE_SSL] else "http"
             api_url = f"{protocol}://{self._config_data[CONF_API_URL]}{API_READINGS}?ALL"
             session = aiohttp_client.async_get_clientsession(self.hass)
-            auth = aiohttp.BasicAuth(self._config_data[CONF_USERNAME], self._config_data[CONF_PASSWORD]) if self._config_data[CONF_USERNAME] else None
+            auth = (
+                aiohttp.BasicAuth(
+                    self._config_data[CONF_USERNAME],
+                    self._config_data[CONF_PASSWORD],
+                )
+                if self._config_data[CONF_USERNAME]
+                else None
+            )
             
             data = await fetch_api_data(
                 session, api_url, auth, self._config_data[CONF_USE_SSL],

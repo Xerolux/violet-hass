@@ -222,5 +222,5 @@ class VioletPoolControllerEntity(CoordinatorEntity):
         """
         if not self.coordinator.data:
             return False
-        
+
         return key in self.coordinator.data

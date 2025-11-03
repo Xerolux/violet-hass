@@ -118,7 +118,7 @@ mv violet-hass-main/custom_components/violet_pool_controller /config/custom_comp
 
 ### 🎯 **Basis-Setup**
 
-Die Konfiguration erfolgt komplett über die UI - kein YAML nötig!
+Die Konfiguration erfolgt komplett über die UI – kein YAML nötig!
 
 **Integration hinzufügen:**
 ```
@@ -130,23 +130,48 @@ Einstellungen → Geräte & Dienste → Integration hinzufügen → "Violet Pool
 | Einstellung | Beispiel | Beschreibung |
 |-------------|----------|--------------|
 | **Host** | `192.168.1.100` | IP-Adresse des Controllers |
-| **Username** | `admin` | Falls Authentifizierung aktiviert |
-| **Password** | `•••••••••` | Controller-Passwort |
-| **SSL verwenden** | ☐/☑ | Bei HTTPS-Nutzung aktivieren |
-| **Abfrageintervall** | `30s` | Update-Frequenz (10-300s) |
+| **Username/Password** | `admin` / `••••` | Optional für Basic Auth |
+| **SSL verwenden** | ☑ | Bei HTTPS-Nutzung aktivieren |
+| **Abfrageintervall** | `30s` | Update-Frequenz (10–300 s) |
 | **Pool-Größe** | `50 m³` | Für Dosierungsberechnungen |
+| **Pool-Typ & Desinfektion** | `outdoor`, `chlorine` | Optimiert Default-Werte |
 
-### 🎛️ **Feature-Auswahl**
+### 🎛️ **Feature- & Sensor-Auswahl**
 
-Wähle die Komponenten, die du aktivieren möchtest:
+Der Einrichtungsassistent führt dich durch zwei Auswahllisten:
 
-```
-✅ Heizungssteuerung        ✅ Solar-Management
-✅ pH-Steuerung            ✅ Chlor-Steuerung  
-✅ Abdeckungssteuerung     ✅ Rückspülsystem
-✅ LED-Beleuchtung         ✅ PV-Überschuss-Modus
-☐ Erweiterungsausgänge     ☐ Digitale Eingänge
-```
+1. **Aktive Features** – nur Komponenten aktivieren, die auch verkabelt sind (z. B. Heizung, Solar, PV-Überschuss, digitale Eingänge).
+2. **Dynamische Sensoren** – beim ersten Start werden alle Sensoren des Controllers gelesen und gruppiert. Du kannst per Mehrfachauswahl entscheiden, welche Werte in Home Assistant landen sollen.
+
+> 💡 Keine Auswahl getroffen? Dann erstellt die Integration automatisch alle verfügbaren Sensoren (voll kompatibel zu bestehenden Installationen).
+
+### 🧰 Erweiterte Optionen
+
+Über *Einstellungen → Geräte & Dienste → Violet Pool Controller → Konfigurieren* kannst du jederzeit nachjustieren:
+
+- Abfrageintervall, Timeout und Retry-Limits
+- Aktive Features (z. B. PV-Überschuss nur im Sommer)
+- Sensor-Gruppen (praktisch, wenn du die Anzeige auf die wichtigsten Werte reduzieren willst)
+
+Alle Änderungen werden ohne Neustart übernommen.
+
+---
+
+## 🖥️ Lovelace Dashboard
+
+Damit du sofort loslegen kannst, liegt ein fertiges Dashboard bei:
+
+- YAML-Datei: [`Dashboard/pool-dashboard.yaml`](Dashboard/pool-dashboard.yaml)
+- Vorschau-Bild: ![Pool Dashboard Vorschau](screenshots/pool-dashboard.svg)
+
+**Installation:**
+
+1. Datei `Dashboard/pool-dashboard.yaml` nach `/config/` kopieren.
+2. Optional: `screenshots/pool-dashboard.svg` nach `/config/www/violet-hass/` legen, damit das Dashboard das Vorschaubild findet.
+3. In Home Assistant → *Einstellungen → Dashboards* → ⋮ → *Dashboard aus YAML importieren*.
+4. Falls deine Entitäten anders heißen (z. B. wegen mehrerer Controller), per Suchen/Ersetzen in der YAML-Datei anpassen.
+
+Das Dashboard nutzt ausschließlich Standard-Karten – keine zusätzlichen Custom-Cards nötig.
 
 ---
 

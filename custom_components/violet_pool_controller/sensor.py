@@ -317,11 +317,16 @@ async def async_setup_entry(
 
     # Hole Konfiguration aus Options (primär) oder Data (Fallback)
     active_features = config_entry.options.get(CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, []))
-    selected_sensors = config_entry.options.get(CONF_SELECTED_SENSORS, config_entry.data.get(CONF_SELECTED_SENSORS))
+    selected_sensors_raw = config_entry.options.get(
+        CONF_SELECTED_SENSORS,
+        config_entry.data.get(CONF_SELECTED_SENSORS),
+    )
+    selected_sensors = list(selected_sensors_raw or [])
+    selected_sensor_set = set(selected_sensors)
 
     # WICHTIG: Wenn selected_sensors None ist (alte Konfig), erstellen wir alle Sensoren.
     # Ein leeres Array [] bedeutet, der User hat explizit keine Sensoren ausgewählt.
-    create_all_sensors = selected_sensors is None
+    create_all_sensors = selected_sensors_raw is None
 
     if create_all_sensors:
         _LOGGER.warning("Keine Sensor-Auswahl gefunden. Erstelle ALLE verfügbaren Sensoren (Abwärtskompatibilität).")
@@ -335,7 +340,7 @@ async def async_setup_entry(
     # Erstelle nur den speziellen Flow-Sensor, wenn er ausgewählt wurde (oder alle erstellt werden)
     # und die benötigten Daten vorhanden sind.
     flow_sensor_keys_present = any(key in data_keys for key in FLOW_RATE_SENSORS)
-    flow_sensor_selected = create_all_sensors or "flow_rate_adc3_priority" in selected_sensors
+    flow_sensor_selected = create_all_sensors or "flow_rate_adc3_priority" in selected_sensor_set
 
     if flow_sensor_keys_present and flow_sensor_selected:
         sensors.append(VioletFlowRateSensor(coordinator, config_entry))
@@ -348,7 +353,7 @@ async def async_setup_entry(
         # Logik zum Überspringen von irrelevanten Sensoren
         if should_skip_sensor(key, raw_value):
             continue
-            
+
         feature_id = SENSOR_FEATURE_MAP.get(key)
         if feature_id and feature_id not in active_features:
             _LOGGER.debug("Überspringe Sensor %s (Feature '%s' nicht aktiv)", key, feature_id)
@@ -357,13 +362,16 @@ async def async_setup_entry(
         # ===============================================================
         # NEUE FILTERLOGIK: Prüfe, ob der Sensor ausgewählt wurde
         # ===============================================================
-        if not create_all_sensors and key not in selected_sensors:
+        if not create_all_sensors and key not in selected_sensor_set:
             # Ausnahme: Wenn der Flow-Sensor ausgewählt wurde, müssen seine
             # Quell-Sensoren (ADC3, IMP2) nicht extra ausgewählt werden.
             if key in FLOW_RATE_SENSORS and flow_sensor_selected:
-                 _LOGGER.debug("Ignoriere Quell-Sensor %s, da der priorisierte Flow-Sensor aktiv ist.", key)
-                 continue
-                 
+                _LOGGER.debug(
+                    "Ignoriere Quell-Sensor %s, da der priorisierte Flow-Sensor aktiv ist.",
+                    key,
+                )
+                continue
+
             _LOGGER.debug("Überspringe Sensor %s (nicht ausgewählt)", key)
             continue
         # ===============================================================
