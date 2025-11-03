@@ -1,126 +1,335 @@
-"""API für die Kommunikation mit dem Violet Pool Controller."""
+"""HTTP client utilities for the Violet Pool Controller."""
+
+from __future__ import annotations
+
 import asyncio
+import json
 import logging
-from typing import Any, Dict
+from typing import Any, Mapping
+from urllib.parse import quote
 
 import aiohttp
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .const import API_READINGS, API_PARAMETERS, CONF_API_URL, CONF_USE_SSL
+from .const import (
+    ACTION_ALLAUTO,
+    ACTION_ALLOFF,
+    ACTION_ALLON,
+    ACTION_AUTO,
+    ACTION_COLOR,
+    ACTION_LOCK,
+    ACTION_OFF,
+    ACTION_ON,
+    ACTION_PUSH,
+    ACTION_UNLOCK,
+    API_READINGS,
+    API_SET_DOSING_PARAMETERS,
+    API_SET_FUNCTION_MANUALLY,
+    API_SET_TARGET_VALUES,
+    DEFAULT_RETRY_ATTEMPTS,
+    DEFAULT_TIMEOUT_DURATION,
+    DEVICE_PARAMETERS,
+    TARGET_MIN_CHLORINE,
+    TARGET_ORP,
+    TARGET_PH,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
-DEFAULT_TIMEOUT = 10
-ERROR_THRESHOLD = 5  # Log error every 5 failed attempts
-THROTTLE_PERIOD = 300  # Reset error count after 5 minutes of success
+
+class VioletPoolAPIError(Exception):
+    """Raised when the Violet Pool Controller API returns an error."""
 
 
-class VioletPoolControllerAPI:
-    """Klasse für die API-Kommunikation."""
+class VioletPoolAPI:
+    """Tiny HTTP client used by the integration to talk to the controller."""
+
+    _DOSING_TYPE_TO_KEY = {
+        "pH-": "DOS_4_PHM",
+        "pH+": "DOS_5_PHP",
+        "Chlor": "DOS_1_CL",
+        "Flockmittel": "DOS_6_FLOC",
+    }
 
     def __init__(
         self,
-        hass: HomeAssistant,
+        *,
         host: str,
+        session: aiohttp.ClientSession,
+        username: str | None = None,
+        password: str | None = None,
         use_ssl: bool = False,
-        session: aiohttp.ClientSession | None = None,
+        timeout: int = DEFAULT_TIMEOUT_DURATION,
+        max_retries: int = DEFAULT_RETRY_ATTEMPTS,
     ) -> None:
-        """Initialisiere die API."""
-        self.hass = hass
-        self._host = host
-        self._use_ssl = use_ssl
-        self._protocol = "https" if use_ssl else "http"
-        self._base_url = f"{self._protocol}://{self._host}"
-        
-        # Session Management
-        self._session = session or async_get_clientsession(hass)
-        
-        # Throttled Logging
-        self._error_count = 0
-        self._last_error_log_time = 0.0
+        """Initialise the API helper."""
 
-    # =================================================================
-    # NEUE ZENTRALISIERTE URL-HELPER METHODE
-    # =================================================================
+        if session is None:
+            raise ValueError("A valid aiohttp session must be provided")
+
+        protocol = "https" if use_ssl else "http"
+        if host.startswith("http://") or host.startswith("https://"):
+            base = host
+        else:
+            base = f"{protocol}://{host}"
+        self._base_url = base.rstrip("/")
+
+        self._session = session
+        self._timeout = aiohttp.ClientTimeout(total=max(float(timeout), 1.0))
+        self._max_retries = max(1, int(max_retries))
+        self._auth = None
+        if username:
+            self._auth = aiohttp.BasicAuth(username, password or "")
+
+    # ---------------------------------------------------------------------
+    # Generic helpers
+    # ---------------------------------------------------------------------
+
     def _build_url(self, endpoint: str) -> str:
-        """
-        Baut die vollständige API-URL für einen gegebenen Endpunkt.
-        
-        Args:
-            endpoint: Der API-Endpunkt (z.B. "/getReadings").
-            
-        Returns:
-            Die vollständige URL als String.
-        """
+        endpoint = endpoint if endpoint.startswith("/") else f"/{endpoint}"
         return f"{self._base_url}{endpoint}"
 
-    def _throttled_log_error(self, error_message: str) -> None:
-        """
-        Protokolliert Fehler nur gelegentlich, um Log-Spam zu vermeiden.
-        """
-        self._error_count += 1
-        current_time = asyncio.get_event_loop().time()
-        
-        if self._error_count >= ERROR_THRESHOLD and (current_time - self._last_error_log_time > THROTTLE_PERIOD):
-            _LOGGER.error(
-                "Wiederholter API-Fehler: %s (Diese Meldung wird für %d Sekunden unterdrückt)",
-                error_message,
-                THROTTLE_PERIOD,
-            )
-            self._last_error_log_time = current_time
-            self._error_count = 0  # Reset after logging
-        else:
-            _LOGGER.debug("API-Fehler (unterdrückt): %s", error_message)
+    async def _request(
+        self,
+        endpoint: str,
+        *,
+        method: str = "GET",
+        params: Mapping[str, Any] | None = None,
+        query: str | None = None,
+        json_payload: Any | None = None,
+        expect_json: bool = False,
+    ) -> Any:
+        """Perform a request and handle retries as well as error reporting."""
 
-    async def _request(self, method: str, url: str, **kwargs) -> aiohttp.ClientResponse:
-        """Führt eine API-Anfrage aus und behandelt Fehler."""
+        if params and query:
+            raise ValueError("'params' and 'query' are mutually exclusive")
+
+        url = self._build_url(endpoint)
+        if query:
+            url = f"{url}?{query}"
+
+        last_error: VioletPoolAPIError | None = None
+
+        for attempt in range(1, self._max_retries + 1):
+            try:
+                async with self._session.request(
+                    method,
+                    url,
+                    params=params,
+                    json=json_payload,
+                    auth=self._auth,
+                    timeout=self._timeout,
+                ) as response:
+                    if response.status >= 400:
+                        body = await response.text()
+                        raise VioletPoolAPIError(
+                            f"HTTP {response.status} for {endpoint}: {body.strip()}"
+                        )
+
+                    if expect_json:
+                        try:
+                            return await response.json(content_type=None)
+                        except (aiohttp.ContentTypeError, json.JSONDecodeError) as err:
+                            body = await response.text()
+                            raise VioletPoolAPIError(
+                                f"Invalid JSON payload for {endpoint}: {body.strip()}"
+                            ) from err
+
+                    return await response.text()
+
+            except (aiohttp.ClientError, asyncio.TimeoutError) as err:  # pragma: no cover - network failure
+                last_error = VioletPoolAPIError(
+                    f"Error communicating with Violet controller: {err}"
+                )
+                _LOGGER.debug("Attempt %d for %s failed: %s", attempt, endpoint, err)
+                if attempt == self._max_retries:
+                    raise last_error
+                await asyncio.sleep(min(1.0, 0.2 * attempt))
+
+        if last_error:
+            raise last_error
+        raise VioletPoolAPIError("Request failed without raising an error")
+
+    @staticmethod
+    def _command_result(body: str) -> dict[str, Any]:
+        """Normalise the controller response for command style requests."""
+
+        text = (body or "").strip()
+        success = not text or "error" not in text.lower()
+        return {"success": success, "response": text}
+
+    def _build_manual_command(
+        self,
+        key: str,
+        action: str,
+        *,
+        duration: int | float | None = None,
+        last_value: int | float | None = None,
+    ) -> str:
+        """Render the command payload according to the device parameter template."""
+
+        template = DEVICE_PARAMETERS.get(key, {}).get(
+            "api_template", f"{key},{{action}},{{duration}},{{value}}"
+        )
+        payload_data = {
+            "action": action,
+            "duration": int(duration or 0),
+            "speed": int(last_value or 0),
+            "value": int(last_value or 0),
+        }
         try:
-            response = await self._session.request(
-                method, url, timeout=aiohttp.ClientTimeout(total=DEFAULT_TIMEOUT), **kwargs
-            )
-            response.raise_for_status()
-            
-            # Reset error count on success
-            if self._error_count > 0:
-                _LOGGER.info("API-Verbindung zu %s wiederhergestellt.", self._host)
-                self._error_count = 0
+            return template.format_map(payload_data)
+        except KeyError as err:  # pragma: no cover - template misconfiguration
+            raise VioletPoolAPIError(
+                f"Template for {key} requires missing field: {err.args[0]}"
+            ) from err
 
-            return response
-            
-        except asyncio.TimeoutError:
-            error_msg = f"Timeout bei der Verbindung zu {self._host}"
-            self._throttled_log_error(error_msg)
-            raise ConnectionError(error_msg) from asyncio.TimeoutError
-            
-        except aiohttp.ClientError as err:
-            error_msg = f"Netzwerkfehler bei der Verbindung zu {self._host}: {err}"
-            self._throttled_log_error(error_msg)
-            raise ConnectionError(error_msg) from err
+    # ---------------------------------------------------------------------
+    # Public API surface
+    # ---------------------------------------------------------------------
 
-    async def async_get_readings(self) -> Dict[str, Any]:
-        """Ruft alle Messwerte vom Controller ab."""
-        # URL wird jetzt mit der Helper-Methode erstellt
-        url = self._build_url(API_READINGS)
-        params = {"ALL": ""}
-        
-        _LOGGER.debug("Rufe Messwerte ab von: %s", url)
-        response = await self._request("get", url, params=params)
-        return await response.json()
+    async def get_readings(self) -> dict[str, Any]:
+        """Return the complete data set from the controller."""
 
-    async def async_set_parameters(self, params: Dict[str, Any]) -> Dict[str, Any]:
-        """Sendet Parameter an den Controller."""
-        # URL wird jetzt mit der Helper-Methode erstellt
-        url = self._build_url(API_PARAMETERS)
-        
-        _LOGGER.debug("Sende Parameter an %s: %s", url, params)
-        response = await self._request("get", url, params=params)
-        return await response.json()
+        response = await self._request(
+            API_READINGS,
+            params={"ALL": ""},
+            expect_json=True,
+        )
+        if not isinstance(response, dict):
+            raise VioletPoolAPIError("Unexpected payload returned from getReadings")
+        return response
 
-    async def async_test_connection(self) -> bool:
-        """Testet die Verbindung zum Controller."""
-        try:
-            await self.async_get_readings()
-            return True
-        except ConnectionError:
-            return False
+    async def set_switch_state(
+        self,
+        key: str,
+        action: str,
+        *,
+        duration: int | float | None = None,
+        last_value: int | float | None = None,
+    ) -> dict[str, Any]:
+        """Control a function output via /setFunctionManually."""
+
+        payload = self._build_manual_command(
+            key,
+            action,
+            duration=duration,
+            last_value=last_value,
+        )
+        query = quote(payload, safe=",")
+        body = await self._request(
+            API_SET_FUNCTION_MANUALLY,
+            query=query,
+        )
+        return self._command_result(body)
+
+    async def manual_dosing(self, dosing_type: str, duration: int) -> dict[str, Any]:
+        """Trigger a dosing run using the manual function endpoint."""
+
+        device_key = self._DOSING_TYPE_TO_KEY.get(dosing_type)
+        if not device_key:
+            raise VioletPoolAPIError(f"Unknown dosing type: {dosing_type}")
+
+        return await self.set_switch_state(
+            device_key,
+            ACTION_ON,
+            duration=duration,
+        )
+
+    async def set_pv_surplus(
+        self,
+        *,
+        active: bool,
+        pump_speed: int | None = None,
+    ) -> dict[str, Any]:
+        """Enable or disable PV surplus mode."""
+
+        return await self.set_switch_state(
+            "PVSURPLUS",
+            ACTION_ON if active else ACTION_OFF,
+            last_value=pump_speed,
+        )
+
+    async def set_all_dmx_scenes(self, action: str) -> dict[str, Any]:
+        """Send the same command to all DMX scenes."""
+
+        if action not in {ACTION_ALLON, ACTION_ALLOFF, ACTION_ALLAUTO}:
+            raise VioletPoolAPIError(f"Unsupported DMX action: {action}")
+
+        results = []
+        for scene in range(1, 13):
+            key = f"DMX_SCENE{scene}"
+            results.append(await self.set_switch_state(key, action))
+
+        success = all(result.get("success", True) for result in results)
+        response = ", ".join(result.get("response", "") for result in results if result.get("response"))
+        return {"success": success, "response": response}
+
+    async def set_light_color_pulse(self) -> dict[str, Any]:
+        """Trigger the colour pulse animation for the pool light."""
+
+        return await self.set_switch_state("LIGHT", ACTION_COLOR)
+
+    async def trigger_digital_input_rule(self, rule_key: str) -> dict[str, Any]:
+        """Trigger a digital input rule via PUSH action."""
+
+        return await self.set_switch_state(rule_key, ACTION_PUSH)
+
+    async def set_digital_input_rule_lock(
+        self,
+        rule_key: str,
+        locked: bool,
+    ) -> dict[str, Any]:
+        """Lock or unlock a digital input rule."""
+
+        return await self.set_switch_state(
+            rule_key,
+            ACTION_LOCK if locked else ACTION_UNLOCK,
+        )
+
+    async def set_device_temperature(
+        self,
+        climate_key: str,
+        temperature: float,
+    ) -> dict[str, Any]:
+        """Set the target temperature for heater or solar circuits."""
+
+        target_key = f"{climate_key}_TARGET_TEMP"
+        return await self.set_target_value(target_key, float(temperature))
+
+    async def set_ph_target(self, value: float) -> dict[str, Any]:
+        """Update the pH set point."""
+
+        return await self.set_target_value(TARGET_PH, float(value))
+
+    async def set_orp_target(self, value: int) -> dict[str, Any]:
+        """Update the ORP set point."""
+
+        return await self.set_target_value(TARGET_ORP, int(value))
+
+    async def set_min_chlorine_level(self, value: float) -> dict[str, Any]:
+        """Update the minimum chlorine level."""
+
+        return await self.set_target_value(TARGET_MIN_CHLORINE, float(value))
+
+    async def set_target_value(self, key: str, value: float | int) -> dict[str, Any]:
+        """Send a generic target value update to the controller."""
+
+        params = {"target": key, "value": value}
+        body = await self._request(
+            API_SET_TARGET_VALUES,
+            params=params,
+        )
+        return self._command_result(body)
+
+    async def set_dosing_parameters(
+        self,
+        parameters: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Update dosing parameters via the dedicated endpoint."""
+
+        body = await self._request(
+            API_SET_DOSING_PARAMETERS,
+            method="POST",
+            json_payload=dict(parameters),
+        )
+        return self._command_result(body)
