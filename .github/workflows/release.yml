@@ -46,7 +46,7 @@ jobs:
         id: commits
         run: |
           PREV_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+' | sed -n '2p')
-          
+
           if [ -z "$PREV_TAG" ]; then
             echo "📝 No previous release found, using all commits"
             COMMITS=$(git log --oneline --pretty=format:"- %s" | head -20)
@@ -54,16 +54,17 @@ jobs:
             echo "📝 Getting commits since $PREV_TAG"
             COMMITS=$(git log ${PREV_TAG}..${{ github.event.release.tag_name }} --oneline --pretty=format:"- %s")
           fi
-          
+
           # Categorize commits
           BUG_FIXES=$(echo "$COMMITS" | grep -iE "(fix|bug|patch)" | head -5 || echo "")
           IMPROVEMENTS=$(echo "$COMMITS" | grep -iE "(improve|enhance|update|refactor)" | head -5 || echo "")
           NEW_FEATURES=$(echo "$COMMITS" | grep -iE "(add|feat|feature|new)" | head -5 || echo "")
-          
+
+          echo "previous-tag=$PREV_TAG" >> $GITHUB_OUTPUT
           echo "bug-fixes<<EOF" >> $GITHUB_OUTPUT
           echo "$BUG_FIXES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-          
+
           echo "improvements<<EOF" >> $GITHUB_OUTPUT
           echo "$IMPROVEMENTS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -75,54 +76,62 @@ jobs:
       - name: Generate release notes
         id: generate
         run: |
-          cat > temp_release_notes.md << 'EOL'
-          # ${{ github.event.release.tag_name }} – ${{ steps.version.outputs.date }}
+          BUG_FIXES="${{ steps.commits.outputs.bug-fixes }}"
+          if [ -z "$BUG_FIXES" ]; then
+            BUG_FIXES="- Minor bug fixes and stability improvements / Kleinere Fehlerbehebungen und Stabilitätsverbesserungen"
+          fi
 
-          ## 🔧 Bug Fixes
-          ${{ steps.commits.outputs.bug-fixes }}
-          ${{ steps.commits.outputs.bug-fixes == '' && '- Minor bug fixes and stability improvements' || '' }}
+          IMPROVEMENTS="${{ steps.commits.outputs.improvements }}"
+          if [ -z "$IMPROVEMENTS" ]; then
+            IMPROVEMENTS="- Performance improvements and polish / Leistungsverbesserungen und Feinschliff"
+          fi
 
-          ## 🚀 Improvements
-          ${{ steps.commits.outputs.improvements }}
-          ${{ steps.commits.outputs.improvements == '' && '- Performance optimizations and code improvements' || '' }}
+          NEW_FEATURES="${{ steps.commits.outputs.new-features }}"
+          if [ -z "$NEW_FEATURES" ]; then
+            NEW_FEATURES="- Enhanced Violet Pool Controller experience / Verbesserte Funktionen des Violet Pool Controllers"
+          fi
 
-          ## ✨ New Features
-          ${{ steps.commits.outputs.new-features }}
-          ${{ steps.commits.outputs.new-features == '' && '- Enhanced pool controller functionality' || '' }}
+          PREVIOUS_TAG="${{ steps.commits.outputs.previous-tag }}"
+          if [ -z "$PREVIOUS_TAG" ]; then
+            CHANGELOG_EN="Full Changelog: Initial release – no previous version available."
+            CHANGELOG_DE="Vollständiges Änderungsprotokoll: Erstveröffentlichung – keine vorherige Version verfügbar."
+            CHANGELOG_LINK=""
+          else
+            CHANGELOG_RANGE="$PREVIOUS_TAG...${{ github.event.release.tag_name }}"
+            CHANGELOG_URL="${{ github.server_url }}/${{ github.repository }}/compare/$CHANGELOG_RANGE"
+            CHANGELOG_EN="Full Changelog: $CHANGELOG_RANGE"
+            CHANGELOG_DE="Vollständiges Änderungsprotokoll: $CHANGELOG_RANGE"
+            CHANGELOG_LINK="🔗 $CHANGELOG_URL"
+          fi
 
-          ---
-          
-          ## 📦 Installation
-          
-          **HACS (Recommended):**
-          1. Open HACS → Integrations
-          2. Search for "Violet Pool Controller"
-          3. Click Install
-          
-          **Manual:**
-          Download [violet_pool_controller.zip](${{ github.event.release.html_url }}/download/violet_pool_controller.zip) and extract to `custom_components/`
-          
-          ---
-          
-          ## ❤️ Support This Project
-          
-          If you find this integration useful, consider supporting its development:
-          - ☕ [Buy Me a Coffee](https://buymeacoffee.com/xerolux)
-          - 🚗 [Use my Tesla referral link](https://ts.la/sebastian564489)
-          
-          Every contribution helps keep this project alive! Thank you! 🙏
-          
-          ---
-          
-          ## 💬 Feedback & Contributions
-          
-          - 🐛 [Report a Bug](https://github.com/xerolux/violet-hass/issues/new?template=bug_report.md)
-          - ✨ [Request a Feature](https://github.com/xerolux/violet-hass/issues/new?template=feature_request.md)
-          - 🤝 [Contribute](https://github.com/xerolux/violet-hass/blob/main/CONTRIBUTING.md)
-          
-          Thank you for your support! 🚀
-          EOL
-          
+          cat <<EOL > temp_release_notes.md
+${{ github.event.release.tag_name }} – Bug Fixes & Improvements 🎉
+${{ github.event.release.tag_name }} – Fehlerbehebungen & Verbesserungen 🎉
+
+🔧 Bug Fixes | Fehlerbehebungen
+$BUG_FIXES
+
+🚀 Improvements | Verbesserungen
+$IMPROVEMENTS
+
+✨ New Features | Neue Funktionen
+$NEW_FEATURES
+
+📄 $CHANGELOG_EN
+📄 $CHANGELOG_DE
+${CHANGELOG_LINK:+$CHANGELOG_LINK}
+
+❤️ Support My Project | Unterstütze mein Projekt
+- ☕ Buy Me a Coffee: https://buymeacoffee.com/xerolux
+- 🚗 Tesla referral: https://ts.la/sebastian564489
+- Every contribution, no matter how small, is a huge motivation! Thank you so much for your support! 🙏
+- Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank für deine Unterstützung! 🙏
+
+💬 Feedback & Contributions | Feedback & Beiträge
+- I’m always open to feedback, suggestions, or contributions from the community. Feel free to open an issue or submit a pull request.
+- Ich freue mich über Feedback, Vorschläge oder Beiträge aus der Community. Erstelle gerne ein Issue oder sende einen Pull Request.
+EOL
+
           echo "release-notes<<EOFNOTES" >> $GITHUB_OUTPUT
           cat temp_release_notes.md >> $GITHUB_OUTPUT
           echo "EOFNOTES" >> $GITHUB_OUTPUT
@@ -230,3 +239,4 @@ jobs:
           echo "**Version:** v${{ needs.prepare-release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "**Release:** ${{ github.event.release.html_url }}" >> $GITHUB_STEP_SUMMARY
           echo "**Announcement:** Posted to X (Twitter) ✅" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
