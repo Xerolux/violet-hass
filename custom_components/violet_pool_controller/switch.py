@@ -424,3 +424,4 @@ async def async_setup_entry(
     else:
         # ✅ WARNING: Potenzielles Problem
         _LOGGER.warning("⚠ Keine Switches eingerichtet")
+
