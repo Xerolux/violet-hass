@@ -1,0 +1,1003 @@
+[
+  {
+    "group": "SYSTEM INFORMATIONS",
+    "key": "date",
+    "description": "System-date (incl. time-zone offsets)",
+    "format": "TT.MM.YYYY",
+    "details": null
+  },
+  {
+    "group": "SYSTEM INFORMATIONS",
+    "key": "time",
+    "description": "System-time (incl. time-zone offsets)",
+    "format": "HH:MM:SS",
+    "details": null
+  },
+  {
+    "group": "SYSTEM INFORMATIONS",
+    "key": "CPU_TEMP",
+    "description": "CPU-Temperature, system (°C)",
+    "format": "FLOAT",
+    "details": null
+  },
+  {
+    "group": "SYSTEM INFORMATIONS",
+    "key": "CPU_TEMP_CARRIER",
+    "description": "CPU-Temperature, Carrier-Board (°C)",
+    "format": "FLOAT",
+    "details": null
+  },
+  {
+    "group": "SYSTEM INFORMATIONS",
+    "key": "CPU_UPTIME",
+    "description": "System uptime since last boot",
+    "format": "DD HH MM",
+    "details": null
+  },
+  {
+    "group": "SYSTEM INFORMATIONS",
+    "key": "SYSTEM_MEMORY",
+    "description": "Overall System-memory used (mb)",
+    "format": "FLOAT",
+    "details": null
+  },
+  {
+    "group": "SYSTEM INFORMATIONS",
+    "key": "SYSTEM_memoryusage",
+    "description": "System-memory used by App (mb)",
+    "format": "FLOAT",
+    "details": null
+  },
+  {
+    "group": "SYSTEM INFORMATIONS",
+    "key": "SYSTEM_dosagemodule_cpu_temperature",
+    "description": "CPU-Temperature, Dosing-Module (°C)",
+    "format": "FLOAT",
+    "details": null
+  },
+  {
+    "group": "SYSTEM INFORMATIONS",
+    "key": "SW_VERSION",
+    "description": "Software-Version VIOLET application",
+    "format": "STRING (X.X.X)",
+    "details": null
+  },
+  {
+    "group": "SYSTEM INFORMATIONS",
+    "key": "SW_VERSION_CARRIER",
+    "description": "Firmware-Version VIOLET carrier",
+    "format": "STRING (X.X.X)",
+    "details": null
+  },
+  {
+    "group": "ANALOG SESNORS",
+    "key": "ADC1_value",
+    "description": "Reading of AnalogSensor_1 (preassure)",
+    "format": "FLOAT",
+    "details": "delivered with the number of decimals as configured in GUI"
+  },
+  {
+    "group": "ANALOG SESNORS",
+    "key": "ADC2_value",
+    "description": "Reading of AnalogSensor_2 (overflow vessel level)",
+    "format": "FLOAT",
+    "details": "see above"
+  },
+  {
+    "group": "ANALOG SESNORS",
+    "key": "ADC3_value",
+    "description": "Reading of AnalogSensor_3 (4..20mA)",
+    "format": "FLOAT",
+    "details": "see above"
+  },
+  {
+    "group": "ANALOG SESNORS",
+    "key": "ADC4_value",
+    "description": "Reading of AnalogSensor_4 (4..20mA)",
+    "format": "FLOAT",
+    "details": "see above"
+  },
+  {
+    "group": "ANALOG SESNORS",
+    "key": "ADC5_value",
+    "description": "Reading of AnalogSensor_5 (0-10V)",
+    "format": "FLOAT",
+    "details": "see above"
+  },
+  {
+    "group": "IMPULS INPUTS",
+    "key": "IMP1_value",
+    "description": "Reading of Impuls_Input 1 (Flow switch)",
+    "format": "FLOAT",
+    "details": "if \"Echo sensor\" is configured, it's the meassured value in cm/sec.\nif \"Proximity switch\" is configured it's 0.0 (sensor open) or 1.0 (sensor closed)"
+  },
+  {
+    "group": "IMPULS INPUTS",
+    "key": "IMP2_value",
+    "description": "Reading of Impuls_Input 2 (Flow Pump)",
+    "format": "FLOAT",
+    "details": "delivered as configured in GUI"
+  },
+  {
+    "group": "TEMPERATRUE SENSORS",
+    "key": "onewire1_state",
+    "description": "Fault state of this 1wire sensor",
+    "format": "STRING",
+    "details": "possible states are\nOK - Sensor is OK, reading and protocol is valid\nCRC_FAULT - protocol failure\nDATA_MISSMATCH - protocol failure\nNOT_CONNECTED - sensor is configured, but not connected to the 1wire bus.\nNO_SENSOR_CONFIGURED - no sensor is configured for this item"
+  },
+  {
+    "group": "TEMPERATRUE SENSORS",
+    "key": "onewire1_rcode",
+    "description": "ROM-Code of this 1wire sensor",
+    "format": "STRING",
+    "details": null
+  },
+  {
+    "group": "TEMPERATRUE SENSORS",
+    "key": "onewire1_value",
+    "description": "Current reading of this 1wire sensor (°C)",
+    "format": "FLOAT",
+    "details": "one decimal or a \"0\" if no sensor is configured"
+  },
+  {
+    "group": "TEMPERATRUE SENSORS",
+    "key": "onewire1_value_max",
+    "description": "Todays max. value of this sensor (resetted every night at 00:00)",
+    "format": "FLOAT",
+    "details": "one decimal"
+  },
+  {
+    "group": "TEMPERATRUE SENSORS",
+    "key": "onewire1_value_min",
+    "description": "Todays min. value of this sensor (resetted every night at 00:00)",
+    "format": "FLOAT",
+    "details": "one decimal"
+  },
+  {
+    "group": "TEMPERATRUE SENSORS",
+    "key": "…",
+    "description": "all 1wire sensors (1-12) are handled the same ",
+    "format": null,
+    "details": null
+  },
+  {
+    "group": "TEMPERATRUE SENSORS",
+    "key": "onewire12_state",
+    "description": "Fault state of this 1wire sensor",
+    "format": "see above",
+    "details": null
+  },
+  {
+    "group": "TEMPERATRUE SENSORS",
+    "key": "onewire12_rcode",
+    "description": "ROM-Code of this 1wire sensor",
+    "format": null,
+    "details": null
+  },
+  {
+    "group": "TEMPERATRUE SENSORS",
+    "key": "onewire12_value",
+    "description": "Current reading of this 1wire sensor (°C)",
+    "format": null,
+    "details": null
+  },
+  {
+    "group": "TEMPERATRUE SENSORS",
+    "key": "onewire12_value_max",
+    "description": "Todays max. value of this sensor (resetted every night at 00:00)",
+    "format": null,
+    "details": null
+  },
+  {
+    "group": "TEMPERATRUE SENSORS",
+    "key": "onewire12_value_min",
+    "description": "Todays min. value of this sensor (resetted every night at 00:00)",
+    "format": null,
+    "details": null
+  },
+  {
+    "group": "WATER PARAMETERS",
+    "key": "orp_value",
+    "description": "Current ORP reading (in mV)",
+    "format": "FLOAT",
+    "details": "1 decimal"
+  },
+  {
+    "group": "WATER PARAMETERS",
+    "key": "orp_value_max",
+    "description": "min. ORP reading of this day (resetted every night at 00:00)",
+    "format": "FLOAT",
+    "details": null
+  },
+  {
+    "group": "WATER PARAMETERS",
+    "key": "orp_value_min",
+    "description": "max. ORP reading of this day (resetted every night at 00:00)",
+    "format": "FLOAT",
+    "details": null
+  },
+  {
+    "group": "WATER PARAMETERS",
+    "key": "pH_value",
+    "description": "Current pH reading",
+    "format": "FLOAT",
+    "details": "2 decimals"
+  },
+  {
+    "group": "WATER PARAMETERS",
+    "key": "pH_value_max",
+    "description": "min. pH reading of this day (resetted every night at 00:00)",
+    "format": "FLOAT",
+    "details": null
+  },
+  {
+    "group": "WATER PARAMETERS",
+    "key": "pH_value_min",
+    "description": "max. pH reading of this day (resetted every night at 00:00)",
+    "format": "FLOAT",
+    "details": null
+  },
+  {
+    "group": "WATER PARAMETERS",
+    "key": "pot_value",
+    "description": "Current chlorine reading (in mg/l … ppm)",
+    "format": "FLOAT",
+    "details": "2 decimals"
+  },
+  {
+    "group": "WATER PARAMETERS",
+    "key": "pot_value_max",
+    "description": "min. Cl reading of this day (resetted every night at 00:00)",
+    "format": "FLOAT",
+    "details": null
+  },
+  {
+    "group": "WATER PARAMETERS",
+    "key": "pot_value_min",
+    "description": "max. Cl reading of this day (resetted every night at 00:00)",
+    "format": "FLOAT",
+    "details": null
+  },
+  {
+    "group": "DOSING OPTIONS / AMOUNTS",
+    "key": "DOS_1_CL",
+    "description": "Current state of OUTPUT: CL-DOSING",
+    "format": "INTEGER",
+    "details": "0 - AUTO (not on)\n1 - AUTO (on)\n2 - AUTO (prio OFF by control rule)\n3 - AUTO (prio ON by emergencyRule)\n4 - MANUAL (ON)\n5 - OFF by emergencyRule\n6 - MANUAL (OFF)"
+  },
+  {
+    "group": "DOSING OPTIONS / AMOUNTS",
+    "key": "DOS_1_CL_DAILY_DOSING_AMOUNT_ML",
+    "description": "Todays dosing amount in ml (resetted to \"0\" at 00:00 every night)",
+    "format": "INTEGER",
+    "details": null
+  },
+  {
+    "group": "DOSING OPTIONS / AMOUNTS",
+    "key": "DOS_1_CL_LAST_CAN_RESET",
+    "description": "Unix Epoch of last Can_Reset",
+    "format": "Unix epoch (milliseconds)",
+    "details": null
+  },
+  {
+    "group": "DOSING OPTIONS / AMOUNTS",
+    "key": "DOS_1_CL_LAST_OFF",
+    "description": "Epoch of last OFF-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "DOSING OPTIONS / AMOUNTS",
+    "key": "DOS_1_CL_LAST_ON",
+    "description": "Epoch of last ON-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "DOSING OPTIONS / AMOUNTS",
+    "key": "DOS_1_CL_RUNTIME",
+    "description": "Daily runtime of CL_DOSING output",
+    "format": "HH:MM:SS",
+    "details": null
+  },
+  {
+    "group": "DOSING OPTIONS / AMOUNTS",
+    "key": "DOS_1_CL_STATE",
+    "description": "Array of possible blockings",
+    "format": "LIST, STRING",
+    "details": "\"BLOCKED_BY_OMNI_POS\",\n\"BLOCKED_BY_MAX_AMOUNT\",\n …"
+  },
+  {
+    "group": "DOSING OPTIONS / AMOUNTS",
+    "key": "DOS_1_CL_TOTAL_CAN_AMOUNT_ML",
+    "description": "Remaining can amount in ml",
+    "format": "INTEGER",
+    "details": null
+  },
+  {
+    "group": "DOSING OPTIONS / AMOUNTS",
+    "key": "DOS_1_CL_TYPE",
+    "description": "Indicates if the dosing controller is based on ORP only or ORP and Chlorine values",
+    "format": "INTEGER",
+    "details": "0 - ORP only\n1 - ORP and Cl based"
+  },
+  {
+    "group": "DOSING OPTIONS / AMOUNTS",
+    "key": "DOS_1_CL_USE",
+    "description": "Indicates if this Dosing option is activated in overall system-config or not",
+    "format": "INTEGER",
+    "details": "0 - not configured for this system\n1 - configured"
+  },
+  {
+    "group": "DOSING OPTIONS / AMOUNTS",
+    "key": "DOS_2_ELO",
+    "description": "Current state of OUTPUT: ELO-DOSING (relay-extension)",
+    "format": "see above",
+    "details": null
+  },
+  {
+    "group": "DOSING OPTIONS / AMOUNTS",
+    "key": "…",
+    "description": "all other \"DOS_2_ELO\" options are the same as DOS_1_CL ",
+    "format": null,
+    "details": null
+  },
+  {
+    "group": "DOSING OPTIONS / AMOUNTS",
+    "key": "DOS_4_PHM",
+    "description": "Current state of OUTPUT: pH- DOSING ",
+    "format": "see above",
+    "details": null
+  },
+  {
+    "group": "DOSING OPTIONS / AMOUNTS",
+    "key": "…",
+    "description": "all other \"DOS_4_PHM\" options are the same as DOS_1_CL ",
+    "format": null,
+    "details": null
+  },
+  {
+    "group": "DOSING OPTIONS / AMOUNTS",
+    "key": "DOS_5_PHP",
+    "description": "Current state of OUTPUT: pH+ DOSING ",
+    "format": "see above",
+    "details": null
+  },
+  {
+    "group": "DOSING OPTIONS / AMOUNTS",
+    "key": "…",
+    "description": "all other \"DOS_5_PHP\" options are the same as DOS_1_CL ",
+    "format": null,
+    "details": null
+  },
+  {
+    "group": "DOSING OPTIONS / AMOUNTS",
+    "key": "DOS_6_FLOC",
+    "description": "Current state of OUTPUT: FLOC DOSING ",
+    "format": "see above",
+    "details": null
+  },
+  {
+    "group": "DOSING OPTIONS / AMOUNTS",
+    "key": "…",
+    "description": "all other \"DOS_6_FLOC\" options are the same as DOS_1_CL ",
+    "format": null,
+    "details": null
+  },
+  {
+    "group": "DIGITAL INPUTS",
+    "key": "INPUT1",
+    "description": "Current state of this Digital-Input",
+    "format": "INTEGER",
+    "details": "0 | 1  (OPEN or CLOSED)"
+  },
+  {
+    "group": "DIGITAL INPUTS",
+    "key": "…",
+    "description": "all Inputs (1-12) are handled the same ",
+    "format": null,
+    "details": null
+  },
+  {
+    "group": "DIGITAL INPUTS",
+    "key": "INPUT12",
+    "description": "Current state of this Digital-Input",
+    "format": "INTEGER",
+    "details": "0 | 1  (OPEN or CLOSED)"
+  },
+  {
+    "group": "DIGITAL INPUTS",
+    "key": "INPUT_CE1",
+    "description": "Current state of can empty-switch contact",
+    "format": "INTEGER",
+    "details": "0 | 1  (OPEN or CLOSED)"
+  },
+  {
+    "group": "DIGITAL INPUTS",
+    "key": "INPUT_CE2",
+    "description": "Current state of can empty-switch contact",
+    "format": "INTEGER",
+    "details": "0 | 1  (OPEN or CLOSED)"
+  },
+  {
+    "group": "DIGITAL INPUTS",
+    "key": "INPUT_CE3",
+    "description": "Current state of can empty-switch contact",
+    "format": "INTEGER",
+    "details": "0 | 1  (OPEN or CLOSED)"
+  },
+  {
+    "group": "DIGITAL INPUTS",
+    "key": "INPUT_CE4",
+    "description": "Current state of can empty-switch contact",
+    "format": "INTEGER",
+    "details": "0 | 1  (OPEN or CLOSED)"
+  },
+  {
+    "group": "STATES OF SWITCHING RULES",
+    "key": "DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_1",
+    "description": "State of Switching-rule 1",
+    "format": "INTEGER",
+    "details": "0 - inactive\n1 - active\n5 - blocked (by rule)\n6 - blocked (manually)"
+  },
+  {
+    "group": "STATES OF SWITCHING RULES",
+    "key": "…",
+    "description": "every rule (1-7) is handled the same",
+    "format": null,
+    "details": null
+  },
+  {
+    "group": "STATES OF SWITCHING RULES",
+    "key": "DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_7",
+    "description": "State of Switching-rule 7",
+    "format": "INTEGER",
+    "details": "see above"
+  },
+  {
+    "group": "STATES OF SWITCHING RULES",
+    "key": "DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_STOPWATCH1",
+    "description": "If rule is active and has a timer: remaining runtime in secods till it gets stopped",
+    "format": "FLOAT",
+    "details": "negative value if runtime is up"
+  },
+  {
+    "group": "STATES OF SWITCHING RULES",
+    "key": "…",
+    "description": "every rule (1-7) is handled the same",
+    "format": null,
+    "details": null
+  },
+  {
+    "group": "STATES OF SWITCHING RULES",
+    "key": "DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_STOPWATCH7",
+    "description": "If rule is active and has a timer: remaining runtime in secods till it gets stopped",
+    "format": "FLOAT",
+    "details": "negative value if runtime is up"
+  },
+  {
+    "group": "STATES OF DMX LIGHT-SZENES",
+    "key": "DMX_SCENE1",
+    "description": "State of DMX-LIGHTSZENE 1",
+    "format": "INTEGER",
+    "details": "0 - AUTO (not on)\n1 - AUTO (on)\n4 - MANUAL (on)\n6 - MANUAL (off)"
+  },
+  {
+    "group": "STATES OF DMX LIGHT-SZENES",
+    "key": "…",
+    "description": "every scene (1-12) is handled the same",
+    "format": null,
+    "details": null
+  },
+  {
+    "group": "STATES OF DMX LIGHT-SZENES",
+    "key": "DMX_SCENE12",
+    "description": "State of DMX-LIGHTSZENE 12",
+    "format": "INTEGER",
+    "details": "see above"
+  },
+  {
+    "group": "STATES / RUNTIMES OF OUTPUTS",
+    "key": "PUMP",
+    "description": "Current state of PUMP output",
+    "format": "INTEGER",
+    "details": "0 - AUTO (not on)\n1 - AUTO (on)\n2 - AUTO (prio OFF by control rule)\n3 - AUTO (prio ON by emergencyRule)\n4 - MANUAL (ON)\n5 - OFF (by emergencyRule)\n6 - MANUAL (OFF)"
+  },
+  {
+    "group": "STATES / RUNTIMES OF OUTPUTS",
+    "key": "PUMP_LAST_OFF",
+    "description": "Epoch of last OFF-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "STATES / RUNTIMES OF OUTPUTS",
+    "key": "PUMP_LAST_ON",
+    "description": "Epoch of last ON-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "STATES / RUNTIMES OF OUTPUTS",
+    "key": "PUMP_RUNTIME",
+    "description": "Daily runtime of this output",
+    "format": "HH MM SS",
+    "details": "i.e. delivered as \"04h 33m 12s\""
+  },
+  {
+    "group": "STATES / RUNTIMES OF OUTPUTS",
+    "key": "PUMP_RPM_0",
+    "description": "Current state of PUMP_STOP output",
+    "format": "INTEGER",
+    "details": "see above"
+  },
+  {
+    "group": "STATES / RUNTIMES OF OUTPUTS",
+    "key": "PUMP_RPM_0_LAST_OFF",
+    "description": "Values are present but not used. They will always have 00:00:00 as value",
+    "format": null,
+    "details": null
+  },
+  {
+    "group": "\"PUMP_RPM_0_LAST_ON\"",
+    "key": "PUMP_RPM_0_RUNTIME",
+    "description": "Daily runtime of this output",
+    "format": "HH MM SS",
+    "details": "i.e. delivered as \"04h 33m 12s\""
+  },
+  {
+    "group": "\"PUMP_RPM_0_LAST_ON\"",
+    "key": "PUMP_RPM_1",
+    "description": "Current state of PUMP_RPM_1 (Speed 1) output",
+    "format": "INTEGER",
+    "details": "see above"
+  },
+  {
+    "group": "\"PUMP_RPM_0_LAST_ON\"",
+    "key": "PUMP_RPM_1_LAST_OFF",
+    "description": "Values are present but not used. They will always have 00:00:00 as value",
+    "format": null,
+    "details": null
+  },
+  {
+    "group": "\"PUMP_RPM_1_LAST_ON\"",
+    "key": "PUMP_RPM_1_RUNTIME",
+    "description": "Daily runtime of this output",
+    "format": "HH MM SS",
+    "details": "i.e. delivered as \"04h 33m 12s\""
+  },
+  {
+    "group": "\"PUMP_RPM_1_LAST_ON\"",
+    "key": "PUMP_RPM_2",
+    "description": "Current state of PUMP_RPM_2 (Speed 2) output",
+    "format": "INTEGER",
+    "details": "see above"
+  },
+  {
+    "group": "\"PUMP_RPM_1_LAST_ON\"",
+    "key": "PUMP_RPM_2_LAST_OFF",
+    "description": "Values are present but not used. They will always have 00:00:00 as value",
+    "format": null,
+    "details": null
+  },
+  {
+    "group": "\"PUMP_RPM_2_LAST_ON\"",
+    "key": "PUMP_RPM_2_RUNTIME",
+    "description": "Daily runtime of this output",
+    "format": "HH MM SS",
+    "details": "i.e. delivered as \"04h 33m 12s\""
+  },
+  {
+    "group": "\"PUMP_RPM_2_LAST_ON\"",
+    "key": "PUMP_RPM_3",
+    "description": "Current state of PUMP_RPM_3 (Speed 3) output",
+    "format": "INTEGER",
+    "details": "see above"
+  },
+  {
+    "group": "\"PUMP_RPM_2_LAST_ON\"",
+    "key": "PUMP_RPM_3_LAST_OFF",
+    "description": "Values are present but not used. They will always have 00:00:00 as value",
+    "format": null,
+    "details": null
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "PUMP_RPM_3_RUNTIME",
+    "description": "Daily runtime of this output",
+    "format": "HH MM SS",
+    "details": "i.e. delivered as \"04h 33m 12s\""
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "SOLAR",
+    "description": "Current state of SOLAR output",
+    "format": "INTEGER",
+    "details": "see above"
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "SOLAR_LAST_OFF",
+    "description": "Epoch of last OFF-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "SOLAR_LAST_ON",
+    "description": "Epoch of last ON-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "SOLAR_RUNTIME",
+    "description": "Daily runtime of this output",
+    "format": "HH MM SS",
+    "details": "i.e. delivered as \"04h 33m 12s\""
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "HEATER",
+    "description": "Current state of HEATER output",
+    "format": "INTEGER",
+    "details": "see above"
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "HEATER_LAST_OFF",
+    "description": "Epoch of last OFF-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "HEATER_LAST_ON",
+    "description": "Epoch of last ON-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "HEATER_RUNTIME",
+    "description": "Daily runtime of this output",
+    "format": "HH MM SS",
+    "details": "i.e. delivered as \"04h 33m 12s\""
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "HEATER_POSTRUN_TIME",
+    "description": "Remaining time (in seconds) for possibly running HEATER-Postrun timer. ",
+    "format": "FLOAT",
+    "details": "Time in seconds or \"NONE\" if timer is up"
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "LIGHT",
+    "description": "Current state of LIGHT output",
+    "format": "INTEGER",
+    "details": "see above"
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "LIGHT_LAST_OFF",
+    "description": "Epoch of last OFF-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "LIGHT_LAST_ON",
+    "description": "Epoch of last ON-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "LIGHT_RUNTIME",
+    "description": "Daily runtime of this output",
+    "format": "HH MM SS",
+    "details": "i.e. delivered as \"04h 33m 12s\""
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "REFILL",
+    "description": "Current state of REFILL output",
+    "format": "INTEGER",
+    "details": "see above"
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "REFILL_LAST_OFF",
+    "description": "Epoch of last OFF-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "REFILL_LAST_ON",
+    "description": "Epoch of last ON-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "REFILL_RUNTIME",
+    "description": "Daily runtime of this output",
+    "format": "HH MM SS",
+    "details": "i.e. delivered as \"04h 33m 12s\""
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "ECO",
+    "description": "Current state of ECO-MODE output",
+    "format": "INTEGER",
+    "details": "see above"
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "ECO_LAST_OFF",
+    "description": "Epoch of last OFF-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "ECO_LAST_ON",
+    "description": "Epoch of last ON-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "ECO_RUNTIME",
+    "description": "Daily runtime of this output",
+    "format": "HH MM SS",
+    "details": "i.e. delivered as \"04h 33m 12s\""
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "BACKWASH",
+    "description": "State of BACKWASH output",
+    "format": "INTEGER",
+    "details": "see above"
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "BACKWASH_LAST_OFF",
+    "description": "Time of last OFF-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "BACKWASH_LAST_ON",
+    "description": "Time of last ON-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "BACKWASH_RUNTIME",
+    "description": "Daily runtime of BACKWASH output",
+    "format": "HH MM SS",
+    "details": "i.e. delivered as \"04h 33m 12s\""
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "BACKWASHRINSE",
+    "description": "State of BACKWASH-RINSE output",
+    "format": "INTEGER",
+    "details": "see above"
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "BACKWASHRINSE_LAST_OFF",
+    "description": "Time of last OFF-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "BACKWASHRINSE_LAST_ON",
+    "description": "Time of last ON-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "\"PUMP_RPM_3_LAST_ON\"",
+    "key": "BACKWASHRINSE_RUNTIME",
+    "description": "Daily runtime of BACKWASHRINSE output",
+    "format": "HH MM SS",
+    "details": "i.e. delivered as \"04h 33m 12s\""
+  },
+  {
+    "group": "COVER STATE",
+    "key": "COVER_STATE",
+    "description": "Current state of the Cover (as plain text)",
+    "format": "STRING",
+    "details": "States are:\nOPEN - cover is open\nCLOSED - cover is closed\nOPENING - cover is moving to OPEN position\nCLOSING -  cover is moving to CLOSED position\nSTOPPED - cover is stopped"
+  },
+  {
+    "group": "STATES / RUNTIMES OF OUTPUTS ON RELAY-EXTENSION",
+    "key": "EXT1_1",
+    "description": "Current state of EXT1_1 output (1st Relay on relay-extension)",
+    "format": "INTEGER",
+    "details": "0 - AUTO (not on)\n1 - AUTO (on)\n2 - AUTO (prio OFF by control rule)\n3 - AUTO (prio ON by emergencyRule)\n4 - MANUAL (ON)\n5 - OFF by emergencyRule\n6 - MANUAL (OFF)"
+  },
+  {
+    "group": "STATES / RUNTIMES OF OUTPUTS ON RELAY-EXTENSION",
+    "key": "EXT1_1_LAST_OFF",
+    "description": "Epoch of last OFF-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "STATES / RUNTIMES OF OUTPUTS ON RELAY-EXTENSION",
+    "key": "EXT1_1_LAST_ON",
+    "description": "Epoch of last ON-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "STATES / RUNTIMES OF OUTPUTS ON RELAY-EXTENSION",
+    "key": "EXT1_1_RUNTIME",
+    "description": "Daily runtime of this output",
+    "format": "HH MM SS",
+    "details": "i.e. delivered as \"04h 33m 12s\""
+  },
+  {
+    "group": "STATES / RUNTIMES OF OUTPUTS ON RELAY-EXTENSION",
+    "key": "…",
+    "description": "all outputs (EXT1_1 - EXT1_8) are hadled the same",
+    "format": null,
+    "details": null
+  },
+  {
+    "group": "STATES / RUNTIMES OF OUTPUTS ON RELAY-EXTENSION",
+    "key": "EXT1_8",
+    "description": "Current state of EXT1_8 output (8th Relay on relay-extension)",
+    "format": "INTEGER",
+    "details": "see above"
+  },
+  {
+    "group": "STATES / RUNTIMES OF OUTPUTS ON RELAY-EXTENSION",
+    "key": "EXT1_8_LAST_OFF",
+    "description": "Epoch of last OFF-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "STATES / RUNTIMES OF OUTPUTS ON RELAY-EXTENSION",
+    "key": "EXT1_8_LAST_ON",
+    "description": "Epoch of last ON-switching",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "STATES / RUNTIMES OF OUTPUTS ON RELAY-EXTENSION",
+    "key": "EXT1_8_RUNTIME",
+    "description": "Daily runtime of this output",
+    "format": "HH MM SS",
+    "details": "i.e. delivered as \"04h 33m 12s\""
+  },
+  {
+    "group": "SOME OTHER STATES",
+    "key": "OVERFLOW_DRYRUN_STATE",
+    "description": "Indicates a triggered dryrun (PUMP STOPPED) from Overflow vessel control",
+    "format": "STRING",
+    "details": "ON | OFF"
+  },
+  {
+    "group": "SOME OTHER STATES",
+    "key": "OVERFLOW_OVERFILL_STATE",
+    "description": "Indicates a triggered overfill (PUMP TURNED ON) from Overflow vessel control",
+    "format": "STRING",
+    "details": "ON | OFF"
+  },
+  {
+    "group": "SOME OTHER STATES",
+    "key": "OVERFLOW_REFILL_STATE",
+    "description": "Indicates a triggered refill from Overflow vessel control",
+    "format": "STRING",
+    "details": "ON | OFF"
+  },
+  {
+    "group": "SOME OTHER STATES",
+    "key": "BACKWASH_DELAY_RUNNING",
+    "description": "Indicates if backwash should run, but can not be done (i.e. because of manual pump switching)",
+    "format": "STRING",
+    "details": "NO - no delay\nYES - backwash is delayed"
+  },
+  {
+    "group": "SOME OTHER STATES",
+    "key": "BACKWASH_DELAY_TIMESTAMP",
+    "description": "Starttime (timestamp) since when backwash is delayed",
+    "format": "Unix epoch (seconds)",
+    "details": "or 0 if no delay-timer is running"
+  },
+  {
+    "group": "SOME OTHER STATES",
+    "key": "BACKWASH_LAST_AUTO_RUN",
+    "description": "Epoch of last automatic BACKWASH",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "SOME OTHER STATES",
+    "key": "BACKWASH_LAST_MANUAL_RUN",
+    "description": "Epoch of last manual BACKWASH",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "SOME OTHER STATES",
+    "key": "BACKWASH_OMNI_MOVING",
+    "description": "Inidcates a moviong OMNI",
+    "format": "STRING",
+    "details": "YES | NO"
+  },
+  {
+    "group": "SOME OTHER STATES",
+    "key": "BACKWASH_OMNI_STATE",
+    "description": "Possibly fault-state of an OMNI",
+    "format": "STRING",
+    "details": "OK | BLOCKED_BY_Z1Z2"
+  },
+  {
+    "group": "SOME OTHER STATES",
+    "key": "BACKWASH_STEP",
+    "description": "Current step the whole backwash process is in",
+    "format": "INTEGER",
+    "details": "States are 0 - 6, not important for you"
+  },
+  {
+    "group": "SOME OTHER STATES",
+    "key": "BACKWASH_STATE",
+    "description": "indicates current state of a backwash process",
+    "format": "STRING",
+    "details": "something like:\nNEXT_BW_IN 2                                        - remianing days to next backwash\nBW_DELAYED_SINCE 00h 01m 05s        - backwash is delayed since\nBW_RUNNING                                         - backwash process started\nBW_RUNNING_SINCE 123                      - includes the time in seconds, the backwash is currently running (PUMP ON)\nBWR_RUNNING_SINCE 34                      - includes the time in seconds, the rinse is currently running (PUMP ON)\nBW_DONE                                                - backwash is done"
+  },
+  {
+    "group": "SOME OTHER STATES",
+    "key": "BATHING_AI_SURVEILLANCE_STATE",
+    "description": "Indicates if bathing-surveillance has detected a level change in the overflow vessel",
+    "format": "STRING",
+    "details": "YES - surveillance is checking for the configured level-change / time in the vessel\nNO - surveillance is resetted because water-level is not changing "
+  },
+  {
+    "group": "SOME OTHER STATES",
+    "key": "BATHING_AI_START_LEVEL",
+    "description": "if surveillance is running, this is the start water-level to compare against ",
+    "format": "FLOAT",
+    "details": null
+  },
+  {
+    "group": "SOME OTHER STATES",
+    "key": "BATHING_AI_LAST_LEVEL",
+    "description": "the current water-level in the overflow vessel",
+    "format": "FLOAT",
+    "details": null
+  },
+  {
+    "group": "SOME OTHER STATES",
+    "key": "BATHING_AI_PUMP_STATE",
+    "description": "Indicates if bathing surveillance switched the pump on or not",
+    "format": "STRING",
+    "details": "ON | OFF"
+  },
+  {
+    "group": "SOME OTHER STATES",
+    "key": "BATHING_AI_PUMP_TIMESTAMP",
+    "description": "Indicates at what time bathing surveillance switched the pump on",
+    "format": "Unix epoch (seconds)",
+    "details": null
+  },
+  {
+    "group": "SOME OTHER STATES",
+    "key": "PVSURPLUS",
+    "description": "Indicates if the PV-Surplus function was triggered and how it was triggered",
+    "format": "INTEGER",
+    "details": "States are\n0 - PV-SURPLUS IS OFF (not riggered)\n1 - PV-SURPLUS IS ON (triggered by Digital-Input switch)\n2 - PV-SURPLUS IS ON (triggered by HTTP Request)"
+  }
+]

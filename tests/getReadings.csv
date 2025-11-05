@@ -1,0 +1,256 @@
+VALUE NAME,DESCRIPTION,FORMAT,DETAILS
+,,,Revision date: 14-07-2024
+SYSTEM INFORMATIONS,,,
+"   ""date""",System-date (incl. time-zone offsets),TT.MM.YYYY,
+"   ""time""",System-time (incl. time-zone offsets),HH:MM:SS,
+"   ""CPU_TEMP""","CPU-Temperature, system (°C)",FLOAT,
+"   ""CPU_TEMP_CARRIER""","CPU-Temperature, Carrier-Board (°C)",FLOAT,
+"   ""CPU_UPTIME""",System uptime since last boot,DD HH MM,
+"   ""SYSTEM_MEMORY""",Overall System-memory used (mb),FLOAT,
+"   ""SYSTEM_memoryusage""",System-memory used by App (mb),FLOAT,
+"   ""SYSTEM_dosagemodule_cpu_temperature""","CPU-Temperature, Dosing-Module (°C)",FLOAT,
+"   ""SW_VERSION""",Software-Version VIOLET application,STRING (X.X.X),
+"   ""SW_VERSION_CARRIER""",Firmware-Version VIOLET carrier,STRING (X.X.X),
+,,,
+,,,
+ANALOG SESNORS,,,
+"   ""ADC1_value""",Reading of AnalogSensor_1 (preassure),FLOAT,delivered with the number of decimals as configured in GUI
+"   ""ADC2_value""",Reading of AnalogSensor_2 (overflow vessel level),FLOAT,see above
+"   ""ADC3_value""",Reading of AnalogSensor_3 (4..20mA),FLOAT,see above
+"   ""ADC4_value""",Reading of AnalogSensor_4 (4..20mA),FLOAT,see above
+"   ""ADC5_value""",Reading of AnalogSensor_5 (0-10V),FLOAT,see above
+,,,
+,,,
+IMPULS INPUTS,,,
+"   ""IMP1_value""",Reading of Impuls_Input 1 (Flow switch),FLOAT,"if ""Echo sensor"" is configured, it's the meassured value in cm/sec.
+if ""Proximity switch"" is configured it's 0.0 (sensor open) or 1.0 (sensor closed)"
+"   ""IMP2_value""",Reading of Impuls_Input 2 (Flow Pump),FLOAT,delivered as configured in GUI
+,,,
+,,,
+TEMPERATRUE SENSORS,,,
+"   ""onewire1_state""",Fault state of this 1wire sensor,STRING,"possible states are
+OK - Sensor is OK, reading and protocol is valid
+CRC_FAULT - protocol failure
+DATA_MISSMATCH - protocol failure
+NOT_CONNECTED - sensor is configured, but not connected to the 1wire bus.
+NO_SENSOR_CONFIGURED - no sensor is configured for this item"
+"   ""onewire1_rcode""",ROM-Code of this 1wire sensor,STRING,
+"   ""onewire1_value""",Current reading of this 1wire sensor (°C),FLOAT,"one decimal or a ""0"" if no sensor is configured"
+"   ""onewire1_value_max""",Todays max. value of this sensor (resetted every night at 00:00),FLOAT,one decimal
+"   ""onewire1_value_min""",Todays min. value of this sensor (resetted every night at 00:00),FLOAT,one decimal
+     …,all 1wire sensors (1-12) are handled the same ,,
+"   ""onewire12_state""",Fault state of this 1wire sensor,see above,
+"   ""onewire12_rcode""",ROM-Code of this 1wire sensor,,
+"   ""onewire12_value""",Current reading of this 1wire sensor (°C),,
+"   ""onewire12_value_max""",Todays max. value of this sensor (resetted every night at 00:00),,
+"   ""onewire12_value_min""",Todays min. value of this sensor (resetted every night at 00:00),,
+,,,
+,,,
+WATER PARAMETERS,,,
+"   ""orp_value""",Current ORP reading (in mV),FLOAT,1 decimal
+"   ""orp_value_max""",min. ORP reading of this day (resetted every night at 00:00),FLOAT,
+"   ""orp_value_min""",max. ORP reading of this day (resetted every night at 00:00),FLOAT,
+"   ""pH_value""",Current pH reading,FLOAT,2 decimals
+"   ""pH_value_max""",min. pH reading of this day (resetted every night at 00:00),FLOAT,
+"   ""pH_value_min""",max. pH reading of this day (resetted every night at 00:00),FLOAT,
+"   ""pot_value""",Current chlorine reading (in mg/l … ppm),FLOAT,2 decimals
+"   ""pot_value_max""",min. Cl reading of this day (resetted every night at 00:00),FLOAT,
+"   ""pot_value_min""",max. Cl reading of this day (resetted every night at 00:00),FLOAT,
+,,,
+,,,
+DOSING OPTIONS / AMOUNTS,,,
+"   ""DOS_1_CL""",Current state of OUTPUT: CL-DOSING,INTEGER,"0 - AUTO (not on)
+1 - AUTO (on)
+2 - AUTO (prio OFF by control rule)
+3 - AUTO (prio ON by emergencyRule)
+4 - MANUAL (ON)
+5 - OFF by emergencyRule
+6 - MANUAL (OFF)"
+"   ""DOS_1_CL_DAILY_DOSING_AMOUNT_ML""","Todays dosing amount in ml (resetted to ""0"" at 00:00 every night)",INTEGER,
+"   ""DOS_1_CL_LAST_CAN_RESET""",Unix Epoch of last Can_Reset,Unix epoch (milliseconds),
+"   ""DOS_1_CL_LAST_OFF""",Epoch of last OFF-switching,Unix epoch (seconds),
+"   ""DOS_1_CL_LAST_ON""",Epoch of last ON-switching,Unix epoch (seconds),
+"   ""DOS_1_CL_RUNTIME""",Daily runtime of CL_DOSING output,HH:MM:SS,
+"   ""DOS_1_CL_STATE""",Array of possible blockings,"LIST, STRING","""BLOCKED_BY_OMNI_POS"",
+""BLOCKED_BY_MAX_AMOUNT"",
+ …"
+"   ""DOS_1_CL_TOTAL_CAN_AMOUNT_ML""",Remaining can amount in ml,INTEGER,
+"   ""DOS_1_CL_TYPE""",Indicates if the dosing controller is based on ORP only or ORP and Chlorine values,INTEGER,"0 - ORP only
+1 - ORP and Cl based"
+"   ""DOS_1_CL_USE""",Indicates if this Dosing option is activated in overall system-config or not,INTEGER,"0 - not configured for this system
+1 - configured"
+,,,
+"   ""DOS_2_ELO""",Current state of OUTPUT: ELO-DOSING (relay-extension),see above,
+     …,"all other ""DOS_2_ELO"" options are the same as DOS_1_CL ",,
+,,,
+"   ""DOS_4_PHM""",Current state of OUTPUT: pH- DOSING ,see above,
+     …,"all other ""DOS_4_PHM"" options are the same as DOS_1_CL ",,
+,,,
+"   ""DOS_5_PHP""",Current state of OUTPUT: pH+ DOSING ,see above,
+     …,"all other ""DOS_5_PHP"" options are the same as DOS_1_CL ",,
+,,,
+"   ""DOS_6_FLOC""",Current state of OUTPUT: FLOC DOSING ,see above,
+     …,"all other ""DOS_6_FLOC"" options are the same as DOS_1_CL ",,
+,,,
+,,,
+DIGITAL INPUTS,,,
+"   ""INPUT1""",Current state of this Digital-Input,INTEGER,0 | 1  (OPEN or CLOSED)
+     …,all Inputs (1-12) are handled the same ,,
+"   ""INPUT12""",Current state of this Digital-Input,INTEGER,0 | 1  (OPEN or CLOSED)
+,,,
+"   ""INPUT_CE1""",Current state of can empty-switch contact,INTEGER,0 | 1  (OPEN or CLOSED)
+"   ""INPUT_CE2""",Current state of can empty-switch contact,INTEGER,0 | 1  (OPEN or CLOSED)
+"   ""INPUT_CE3""",Current state of can empty-switch contact,INTEGER,0 | 1  (OPEN or CLOSED)
+"   ""INPUT_CE4""",Current state of can empty-switch contact,INTEGER,0 | 1  (OPEN or CLOSED)
+,,,
+,,,
+STATES OF SWITCHING RULES,,,
+"   ""DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_1""",State of Switching-rule 1,INTEGER,"0 - inactive
+1 - active
+5 - blocked (by rule)
+6 - blocked (manually)"
+     …,every rule (1-7) is handled the same,,
+"   ""DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_7""",State of Switching-rule 7,INTEGER,see above
+"   ""DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_STOPWATCH1""",If rule is active and has a timer: remaining runtime in secods till it gets stopped,FLOAT,negative value if runtime is up
+     …,every rule (1-7) is handled the same,,
+"   ""DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_STOPWATCH7""",If rule is active and has a timer: remaining runtime in secods till it gets stopped,FLOAT,negative value if runtime is up
+,,,
+,,,
+STATES OF DMX LIGHT-SZENES,,,
+"   ""DMX_SCENE1""",State of DMX-LIGHTSZENE 1,INTEGER,"0 - AUTO (not on)
+1 - AUTO (on)
+4 - MANUAL (on)
+6 - MANUAL (off)"
+     …,every scene (1-12) is handled the same,,
+"   ""DMX_SCENE12""",State of DMX-LIGHTSZENE 12,INTEGER,see above
+,,,
+,,,
+STATES / RUNTIMES OF OUTPUTS,,,
+"   ""PUMP""",Current state of PUMP output,INTEGER,"0 - AUTO (not on)
+1 - AUTO (on)
+2 - AUTO (prio OFF by control rule)
+3 - AUTO (prio ON by emergencyRule)
+4 - MANUAL (ON)
+5 - OFF (by emergencyRule)
+6 - MANUAL (OFF)"
+"   ""PUMP_LAST_OFF""",Epoch of last OFF-switching,Unix epoch (seconds),
+"   ""PUMP_LAST_ON""",Epoch of last ON-switching,Unix epoch (seconds),
+"   ""PUMP_RUNTIME""",Daily runtime of this output,HH MM SS,"i.e. delivered as ""04h 33m 12s"""
+,,,
+"   ""PUMP_RPM_0""",Current state of PUMP_STOP output,INTEGER,see above
+"   ""PUMP_RPM_0_LAST_OFF""",Values are present but not used. They will always have 00:00:00 as value,,
+"   ""PUMP_RPM_0_LAST_ON""",,,
+"   ""PUMP_RPM_0_RUNTIME""",Daily runtime of this output,HH MM SS,"i.e. delivered as ""04h 33m 12s"""
+,,,
+"   ""PUMP_RPM_1""",Current state of PUMP_RPM_1 (Speed 1) output,INTEGER,see above
+"   ""PUMP_RPM_1_LAST_OFF""",Values are present but not used. They will always have 00:00:00 as value,,
+"   ""PUMP_RPM_1_LAST_ON""",,,
+"   ""PUMP_RPM_1_RUNTIME""",Daily runtime of this output,HH MM SS,"i.e. delivered as ""04h 33m 12s"""
+,,,
+"   ""PUMP_RPM_2""",Current state of PUMP_RPM_2 (Speed 2) output,INTEGER,see above
+"   ""PUMP_RPM_2_LAST_OFF""",Values are present but not used. They will always have 00:00:00 as value,,
+"   ""PUMP_RPM_2_LAST_ON""",,,
+"   ""PUMP_RPM_2_RUNTIME""",Daily runtime of this output,HH MM SS,"i.e. delivered as ""04h 33m 12s"""
+,,,
+"   ""PUMP_RPM_3""",Current state of PUMP_RPM_3 (Speed 3) output,INTEGER,see above
+"   ""PUMP_RPM_3_LAST_OFF""",Values are present but not used. They will always have 00:00:00 as value,,
+"   ""PUMP_RPM_3_LAST_ON""",,,
+"   ""PUMP_RPM_3_RUNTIME""",Daily runtime of this output,HH MM SS,"i.e. delivered as ""04h 33m 12s"""
+,,,
+"   ""SOLAR""",Current state of SOLAR output,INTEGER,see above
+"   ""SOLAR_LAST_OFF""",Epoch of last OFF-switching,Unix epoch (seconds),
+"   ""SOLAR_LAST_ON""",Epoch of last ON-switching,Unix epoch (seconds),
+"   ""SOLAR_RUNTIME""",Daily runtime of this output,HH MM SS,"i.e. delivered as ""04h 33m 12s"""
+,,,
+"   ""HEATER""",Current state of HEATER output,INTEGER,see above
+"   ""HEATER_LAST_OFF""",Epoch of last OFF-switching,Unix epoch (seconds),
+"   ""HEATER_LAST_ON""",Epoch of last ON-switching,Unix epoch (seconds),
+"   ""HEATER_RUNTIME""",Daily runtime of this output,HH MM SS,"i.e. delivered as ""04h 33m 12s"""
+"   ""HEATER_POSTRUN_TIME""",Remaining time (in seconds) for possibly running HEATER-Postrun timer. ,FLOAT,"Time in seconds or ""NONE"" if timer is up"
+,,,
+"   ""LIGHT""",Current state of LIGHT output,INTEGER,see above
+"   ""LIGHT_LAST_OFF""",Epoch of last OFF-switching,Unix epoch (seconds),
+"   ""LIGHT_LAST_ON""",Epoch of last ON-switching,Unix epoch (seconds),
+"   ""LIGHT_RUNTIME""",Daily runtime of this output,HH MM SS,"i.e. delivered as ""04h 33m 12s"""
+,,,
+"   ""REFILL""",Current state of REFILL output,INTEGER,see above
+"   ""REFILL_LAST_OFF""",Epoch of last OFF-switching,Unix epoch (seconds),
+"   ""REFILL_LAST_ON""",Epoch of last ON-switching,Unix epoch (seconds),
+"   ""REFILL_RUNTIME""",Daily runtime of this output,HH MM SS,"i.e. delivered as ""04h 33m 12s"""
+,,,
+"   ""ECO""",Current state of ECO-MODE output,INTEGER,see above
+"   ""ECO_LAST_OFF""",Epoch of last OFF-switching,Unix epoch (seconds),
+"   ""ECO_LAST_ON""",Epoch of last ON-switching,Unix epoch (seconds),
+"   ""ECO_RUNTIME""",Daily runtime of this output,HH MM SS,"i.e. delivered as ""04h 33m 12s"""
+,,,
+"   ""BACKWASH""",State of BACKWASH output,INTEGER,see above
+"   ""BACKWASH_LAST_OFF""",Time of last OFF-switching,Unix epoch (seconds),
+"   ""BACKWASH_LAST_ON""",Time of last ON-switching,Unix epoch (seconds),
+"   ""BACKWASH_RUNTIME""",Daily runtime of BACKWASH output,HH MM SS,"i.e. delivered as ""04h 33m 12s"""
+,,,
+"   ""BACKWASHRINSE""",State of BACKWASH-RINSE output,INTEGER,see above
+"   ""BACKWASHRINSE_LAST_OFF""",Time of last OFF-switching,Unix epoch (seconds),
+"   ""BACKWASHRINSE_LAST_ON""",Time of last ON-switching,Unix epoch (seconds),
+"   ""BACKWASHRINSE_RUNTIME""",Daily runtime of BACKWASHRINSE output,HH MM SS,"i.e. delivered as ""04h 33m 12s"""
+,,,
+COVER STATE,,,
+"   ""COVER_STATE""",Current state of the Cover (as plain text),STRING,"States are:
+OPEN - cover is open
+CLOSED - cover is closed
+OPENING - cover is moving to OPEN position
+CLOSING -  cover is moving to CLOSED position
+STOPPED - cover is stopped"
+,,,
+,,,
+STATES / RUNTIMES OF OUTPUTS ON RELAY-EXTENSION,,,
+"   ""EXT1_1""",Current state of EXT1_1 output (1st Relay on relay-extension),INTEGER,"0 - AUTO (not on)
+1 - AUTO (on)
+2 - AUTO (prio OFF by control rule)
+3 - AUTO (prio ON by emergencyRule)
+4 - MANUAL (ON)
+5 - OFF by emergencyRule
+6 - MANUAL (OFF)"
+"   ""EXT1_1_LAST_OFF""",Epoch of last OFF-switching,Unix epoch (seconds),
+"   ""EXT1_1_LAST_ON""",Epoch of last ON-switching,Unix epoch (seconds),
+"   ""EXT1_1_RUNTIME""",Daily runtime of this output,HH MM SS,"i.e. delivered as ""04h 33m 12s"""
+     …,all outputs (EXT1_1 - EXT1_8) are hadled the same,,
+"   ""EXT1_8""",Current state of EXT1_8 output (8th Relay on relay-extension),INTEGER,see above
+"   ""EXT1_8_LAST_OFF""",Epoch of last OFF-switching,Unix epoch (seconds),
+"   ""EXT1_8_LAST_ON""",Epoch of last ON-switching,Unix epoch (seconds),
+"   ""EXT1_8_RUNTIME""",Daily runtime of this output,HH MM SS,"i.e. delivered as ""04h 33m 12s"""
+,,,
+,,,
+SOME OTHER STATES,,,
+"   ""OVERFLOW_DRYRUN_STATE""",Indicates a triggered dryrun (PUMP STOPPED) from Overflow vessel control,STRING,ON | OFF
+"   ""OVERFLOW_OVERFILL_STATE""",Indicates a triggered overfill (PUMP TURNED ON) from Overflow vessel control,STRING,ON | OFF
+"   ""OVERFLOW_REFILL_STATE""",Indicates a triggered refill from Overflow vessel control,STRING,ON | OFF
+,,,
+,,,
+"   ""BACKWASH_DELAY_RUNNING""","Indicates if backwash should run, but can not be done (i.e. because of manual pump switching)",STRING,"NO - no delay
+YES - backwash is delayed"
+"   ""BACKWASH_DELAY_TIMESTAMP""",Starttime (timestamp) since when backwash is delayed,Unix epoch (seconds),or 0 if no delay-timer is running
+"   ""BACKWASH_LAST_AUTO_RUN""",Epoch of last automatic BACKWASH,Unix epoch (seconds),
+"   ""BACKWASH_LAST_MANUAL_RUN""",Epoch of last manual BACKWASH,Unix epoch (seconds),
+"   ""BACKWASH_OMNI_MOVING""",Inidcates a moviong OMNI,STRING,YES | NO
+"   ""BACKWASH_OMNI_STATE""",Possibly fault-state of an OMNI,STRING,OK | BLOCKED_BY_Z1Z2
+"   ""BACKWASH_STEP""",Current step the whole backwash process is in,INTEGER,"States are 0 - 6, not important for you"
+"   ""BACKWASH_STATE""",indicates current state of a backwash process,STRING,"something like:
+NEXT_BW_IN 2                                        - remianing days to next backwash
+BW_DELAYED_SINCE 00h 01m 05s        - backwash is delayed since
+BW_RUNNING                                         - backwash process started
+BW_RUNNING_SINCE 123                      - includes the time in seconds, the backwash is currently running (PUMP ON)
+BWR_RUNNING_SINCE 34                      - includes the time in seconds, the rinse is currently running (PUMP ON)
+BW_DONE                                                - backwash is done"
+,,,
+,,,
+"   ""BATHING_AI_SURVEILLANCE_STATE""",Indicates if bathing-surveillance has detected a level change in the overflow vessel,STRING,"YES - surveillance is checking for the configured level-change / time in the vessel
+NO - surveillance is resetted because water-level is not changing "
+"   ""BATHING_AI_START_LEVEL""","if surveillance is running, this is the start water-level to compare against ",FLOAT,
+"   ""BATHING_AI_LAST_LEVEL""",the current water-level in the overflow vessel,FLOAT,
+"   ""BATHING_AI_PUMP_STATE""",Indicates if bathing surveillance switched the pump on or not,STRING,ON | OFF
+"   ""BATHING_AI_PUMP_TIMESTAMP""",Indicates at what time bathing surveillance switched the pump on,Unix epoch (seconds),
+,,,
+"   ""PVSURPLUS""",Indicates if the PV-Surplus function was triggered and how it was triggered,INTEGER,"States are
+0 - PV-SURPLUS IS OFF (not riggered)
+1 - PV-SURPLUS IS ON (triggered by Digital-Input switch)
+2 - PV-SURPLUS IS ON (triggered by HTTP Request)"
