@@ -25,6 +25,7 @@ from .const import (
     NO_UNIT_SENSORS,
     SENSOR_FEATURE_MAP
 )
+from .error_codes import get_error_info
 from .entity import VioletPoolControllerEntity
 from .device import VioletPoolDataUpdateCoordinator
 
@@ -195,6 +196,52 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
             return str(raw_value)
 
 
+class VioletErrorCodeSensor(VioletSensor):
+    """Specialised sensor that resolves error codes to descriptive text."""
+
+    def __init__(
+        self,
+        coordinator: VioletPoolDataUpdateCoordinator,
+        config_entry: ConfigEntry,
+        value_key: str,
+    ) -> None:
+        description = SensorEntityDescription(
+            key=value_key,
+            name="Letzter Fehlercode",
+            icon="mdi:alert-circle",
+            entity_category=EntityCategory.DIAGNOSTIC,
+        )
+        super().__init__(coordinator, config_entry, description)
+        self._value_key = value_key
+
+    def _get_error_code(self) -> str | None:
+        value = self.get_value(self._value_key)
+        if value is None:
+            return None
+        code = str(value).strip()
+        return code or None
+
+    @property
+    def native_value(self) -> str | None:
+        code = self._get_error_code()
+        if code is None:
+            return None
+        return get_error_info(code)["subject"]
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        code = self._get_error_code()
+        if code is None:
+            return {}
+        info = get_error_info(code)
+        return {
+            "code": code,
+            "type": info.get("type"),
+            "severity": info.get("severity"),
+            "description": info.get("description"),
+        }
+
+
 class VioletFlowRateSensor(VioletPoolControllerEntity, SensorEntity):
     """Spezieller Förderleistungs-Sensor mit ADC3/IMP2 Priorität."""
 
@@ -337,6 +384,17 @@ async def async_setup_entry(
     data_keys = set(coordinator.data.keys())
     all_predefined_sensors = {**TEMP_SENSORS, **WATER_CHEM_SENSORS, **ANALOG_SENSORS}
 
+    handled_special_keys: set[str] = set()
+
+    for error_key in ("LAST_ERROR_CODE", "ERROR_CODE", "LAST_ERROR"):
+        if error_key not in data_keys:
+            continue
+        if not create_all_sensors and error_key not in selected_sensor_set:
+            continue
+        sensors.append(VioletErrorCodeSensor(coordinator, config_entry, error_key))
+        handled_special_keys.add(error_key)
+        _LOGGER.info("Fehlercode-Sensor für %s hinzugefügt", error_key)
+
     # Erstelle nur den speziellen Flow-Sensor, wenn er ausgewählt wurde (oder alle erstellt werden)
     # und die benötigten Daten vorhanden sind.
     flow_sensor_keys_present = any(key in data_keys for key in FLOW_RATE_SENSORS)
@@ -349,6 +407,10 @@ async def async_setup_entry(
     # Alle anderen Sensoren durchlaufen
     for key in sorted(list(data_keys)): # Sortiert für konsistente Reihenfolge
         raw_value = coordinator.data.get(key)
+
+        if key in handled_special_keys:
+            _LOGGER.debug("Überspringe Standard-Sensor für %s (spezielle Behandlung)", key)
+            continue
 
         # Logik zum Überspringen von irrelevanten Sensoren
         if should_skip_sensor(key, raw_value):

@@ -346,7 +346,11 @@ class VioletServiceHandlers:
             call.data[ATTR_ENTITY_ID]
         )
         mode = call.data["mode"]
-        pump_speed = call.data.get("pump_speed", 2)
+        try:
+            pump_speed = int(call.data.get("pump_speed", 2))
+        except (TypeError, ValueError):
+            pump_speed = 2
+        pump_speed = min(3, max(1, pump_speed))
 
         for coordinator in coordinators:
             try:

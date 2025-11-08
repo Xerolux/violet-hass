@@ -54,6 +54,10 @@ API_GET_CALIB_RAW_VALUES = "/getCalibRawValues"
 API_GET_CALIB_HISTORY = "/getCalibHistory"
 API_RESTORE_CALIBRATION = "/restoreOldCalib"
 API_SET_OUTPUT_TESTMODE = "/setOutputTestmode"
+API_GET_HISTORY = "/getHistory"
+API_GET_WEATHER_DATA = "/getWeatherdata"
+API_GET_OVERALL_DOSING = "/getOverallDosing"
+API_GET_OUTPUT_STATES = "/getOutputstates"
 
 # Default reading optimisation settings
 SPECIFIC_READING_GROUPS = (
@@ -571,6 +575,34 @@ BINARY_SENSORS = [
         "icon": "mdi:solar-power-variant",
         "feature_id": "pv_surplus",
         "supports_3_state": True,
+    },
+    {
+        "name": "Circulation Issue",
+        "key": "CIRCULATION_STATE",
+        "icon": "mdi:water-alert",
+        "device_class": BinarySensorDeviceClass.PROBLEM,
+        "entity_category": EntityCategory.DIAGNOSTIC,
+    },
+    {
+        "name": "Electrode Flow Issue",
+        "key": "ELECTRODE_FLOW_STATE",
+        "icon": "mdi:water-check",
+        "device_class": BinarySensorDeviceClass.PROBLEM,
+        "entity_category": EntityCategory.DIAGNOSTIC,
+    },
+    {
+        "name": "Pressure Issue",
+        "key": "PRESSURE_STATE",
+        "icon": "mdi:gauge",
+        "device_class": BinarySensorDeviceClass.PROBLEM,
+        "entity_category": EntityCategory.DIAGNOSTIC,
+    },
+    {
+        "name": "Can Range Issue",
+        "key": "CAN_RANGE_STATE",
+        "icon": "mdi:bottle-tonic",
+        "device_class": BinarySensorDeviceClass.PROBLEM,
+        "entity_category": EntityCategory.DIAGNOSTIC,
     },
 ]
 
@@ -1091,6 +1123,10 @@ __all__ = [
     # API
     "API_READINGS",
     "API_SET_FUNCTION_MANUALLY",
+    "API_GET_HISTORY",
+    "API_GET_WEATHER_DATA",
+    "API_GET_OVERALL_DOSING",
+    "API_GET_OUTPUT_STATES",
     "ACTION_ON",
     "ACTION_OFF",
     "ACTION_AUTO",
