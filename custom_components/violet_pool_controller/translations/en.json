@@ -336,6 +336,15 @@
             },
             "firmware_version": {
                 "name": "Firmware Version"
+            },
+            "dosage_state": {
+                "name": "Dosing State"
+            },
+            "daily_runtime": {
+                "name": "Daily Runtime"
+            },
+            "electrode_flow": {
+                "name": "Probe Flow"
             }
         },
         "binary_sensor": {

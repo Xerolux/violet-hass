@@ -336,6 +336,15 @@
             },
             "firmware_version": {
                 "name": "📦 Firmware-Version"
+            },
+            "dosage_state": {
+                "name": "💧 Dosierstatus"
+            },
+            "daily_runtime": {
+                "name": "🕒 Tägliche Laufzeit"
+            },
+            "electrode_flow": {
+                "name": "🌊 Sonden-Anströmung"
             }
         },
         "binary_sensor": {

@@ -129,6 +129,16 @@ def get_service_schemas() -> dict[str, vol.Schema]:
                 vol.Required("action"): vol.In(["trigger", "lock", "unlock"]),
             }
         ),
+        "test_output": vol.Schema(
+            {
+                vol.Required(ATTR_DEVICE_ID): cv.string,
+                vol.Required("output"): cv.string,
+                vol.Optional("mode", default="SWITCH"): vol.In(["SWITCH", "ON", "OFF"]),
+                vol.Optional("duration", default=120): vol.All(
+                    vol.Coerce(int), vol.Range(min=1, max=900)
+                ),
+            }
+        ),
     }
 
 
@@ -500,6 +510,41 @@ class VioletServiceHandlers:
 
         await coordinator.async_request_refresh()
 
+    async def handle_test_output(self, call: ServiceCall) -> None:
+        """Handle the output test service."""
+
+        device_id = call.data[ATTR_DEVICE_ID]
+        output = call.data["output"]
+        mode = call.data.get("mode", "SWITCH")
+        duration = call.data.get("duration", 120)
+
+        coordinator = await self.manager.get_coordinator_for_device(device_id)
+        if not coordinator:
+            raise HomeAssistantError(f"Device not found: {device_id}")
+
+        try:
+            result = await coordinator.device.api.set_output_test_mode(
+                output=output,
+                mode=mode,
+                duration=int(duration),
+            )
+            _LOGGER.info(
+                "Test-Modus für %s aktiviert (%ds, Modus %s)",
+                output,
+                duration,
+                mode,
+            )
+            if not result.get("success", True):
+                _LOGGER.warning(
+                    "Test-Modus konnte nicht aktiviert werden: %s",
+                    result.get("response", result),
+                )
+        except VioletPoolAPIError as err:
+            _LOGGER.error("Test mode error: %s", err)
+            raise HomeAssistantError(f"Test mode failed: {err}") from err
+
+        await coordinator.async_request_refresh()
+
 
 # =============================================================================
 # REGISTRATION
@@ -530,6 +575,7 @@ async def async_register_services(hass: HomeAssistant) -> None:
         "control_dmx_scenes": handlers.handle_control_dmx_scenes,
         "set_light_color_pulse": handlers.handle_set_light_color_pulse,
         "manage_digital_rules": handlers.handle_manage_digital_rules,
+        "test_output": handlers.handle_test_output,
     }
 
     for service_name, handler in service_map.items():

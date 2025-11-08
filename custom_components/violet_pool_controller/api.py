@@ -21,9 +21,15 @@ from .const import (
     ACTION_ON,
     ACTION_PUSH,
     ACTION_UNLOCK,
+    API_GET_CALIB_HISTORY,
+    API_GET_CALIB_RAW_VALUES,
+    API_GET_CONFIG,
     API_READINGS,
+    API_RESTORE_CALIBRATION,
+    API_SET_CONFIG,
     API_SET_DOSING_PARAMETERS,
     API_SET_FUNCTION_MANUALLY,
+    API_SET_OUTPUT_TESTMODE,
     API_SET_TARGET_VALUES,
     DEFAULT_RETRY_ATTEMPTS,
     DEFAULT_TIMEOUT_DURATION,
@@ -198,6 +204,126 @@ class VioletPoolAPI:
         if not isinstance(response, dict):
             raise VioletPoolAPIError("Unexpected payload returned from getReadings")
         return response
+
+    async def get_specific_readings(self, categories: list[str] | tuple[str, ...]) -> dict[str, Any]:
+        """Return a reduced data set for the provided categories."""
+
+        if not categories:
+            raise VioletPoolAPIError("At least one category must be provided")
+
+        query = ",".join(category.strip() for category in categories if category)
+        if not query:
+            raise VioletPoolAPIError("No valid categories provided")
+
+        response = await self._request(
+            API_READINGS,
+            query=query,
+            expect_json=True,
+        )
+        if not isinstance(response, dict):
+            raise VioletPoolAPIError("Unexpected payload returned from getReadings")
+        return response
+
+    async def get_config(self, parameters: list[str] | tuple[str, ...]) -> dict[str, Any]:
+        """Fetch controller configuration values for the provided keys."""
+
+        if not parameters:
+            raise VioletPoolAPIError("At least one configuration key is required")
+
+        query = ",".join(param.strip() for param in parameters if param)
+        if not query:
+            raise VioletPoolAPIError("No valid configuration keys provided")
+
+        response = await self._request(
+            API_GET_CONFIG,
+            query=query,
+            expect_json=True,
+        )
+        if not isinstance(response, dict):
+            raise VioletPoolAPIError("Unexpected payload returned from getConfig")
+        return response
+
+    async def set_config(self, config: Mapping[str, Any]) -> dict[str, Any]:
+        """Update controller configuration values."""
+
+        if not config:
+            raise VioletPoolAPIError("Configuration payload must not be empty")
+
+        body = await self._request(
+            API_SET_CONFIG,
+            method="POST",
+            json_payload=dict(config),
+        )
+        return self._command_result(body)
+
+    async def get_calibration_raw_values(self) -> dict[str, Any]:
+        """Return current raw values for all calibration sensors."""
+
+        response = await self._request(
+            API_GET_CALIB_RAW_VALUES,
+            expect_json=True,
+        )
+        if not isinstance(response, dict):
+            raise VioletPoolAPIError("Unexpected payload returned from getCalibRawValues")
+        return response
+
+    async def get_calibration_history(self, sensor: str) -> list[dict[str, str]]:
+        """Return the calibration history for the provided sensor."""
+
+        if not sensor:
+            raise VioletPoolAPIError("Sensor name required for calibration history")
+
+        response = await self._request(
+            API_GET_CALIB_HISTORY,
+            query=sensor,
+            expect_json=False,
+        )
+
+        entries: list[dict[str, str]] = []
+        for line in (response or "").strip().splitlines():
+            parts = [part.strip() for part in line.split("|") if part.strip()]
+            if len(parts) >= 3:
+                entries.append(
+                    {
+                        "timestamp": parts[0],
+                        "value": parts[1],
+                        "type": parts[2],
+                    }
+                )
+        return entries
+
+    async def restore_calibration(self, sensor: str, timestamp: str) -> dict[str, Any]:
+        """Restore a previous calibration entry for the given sensor."""
+
+        if not sensor or not timestamp:
+            raise VioletPoolAPIError("Sensor and timestamp are required for calibration restore")
+
+        body = await self._request(
+            API_RESTORE_CALIBRATION,
+            method="POST",
+            json_payload={"sensor": sensor, "timestamp": timestamp},
+        )
+        return self._command_result(body)
+
+    async def set_output_test_mode(
+        self,
+        *,
+        output: str,
+        mode: str = "SWITCH",
+        duration: int = 120,
+    ) -> dict[str, Any]:
+        """Activate the controller output test mode."""
+
+        if not output:
+            raise VioletPoolAPIError("Output identifier is required")
+
+        duration_ms = max(0, int(duration)) * 1000
+        payload = f"{output},{mode},{duration_ms}"
+        body = await self._request(
+            API_SET_OUTPUT_TESTMODE,
+            query=payload,
+        )
+        return self._command_result(body)
 
     async def set_switch_state(
         self,

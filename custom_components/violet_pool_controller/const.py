@@ -48,6 +48,29 @@ API_READINGS = "/getReadings"
 API_SET_FUNCTION_MANUALLY = "/setFunctionManually"
 API_SET_DOSING_PARAMETERS = "/setDosingParameters"
 API_SET_TARGET_VALUES = "/setTargetValues"
+API_GET_CONFIG = "/getConfig"
+API_SET_CONFIG = "/setConfig"
+API_GET_CALIB_RAW_VALUES = "/getCalibRawValues"
+API_GET_CALIB_HISTORY = "/getCalibHistory"
+API_RESTORE_CALIBRATION = "/restoreOldCalib"
+API_SET_OUTPUT_TESTMODE = "/setOutputTestmode"
+
+# Default reading optimisation settings
+SPECIFIC_READING_GROUPS = (
+    "ADC",
+    "DOSAGE",
+    "RUNTIMES",
+    "PUMPPRIOSTATE",
+    "BACKWASH",
+    "SYSTEM",
+    "INPUT1",
+    "INPUT2",
+    "INPUT3",
+    "INPUT4",
+    "date",
+    "time",
+)
+SPECIFIC_FULL_REFRESH_INTERVAL = 10
 
 # =============================================================================
 # POOL CONFIGURATION
