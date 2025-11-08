@@ -3,7 +3,7 @@ import logging
 import asyncio
 import time
 from datetime import timedelta
-from typing import Any, Optional
+from typing import Any, Optional, Mapping
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -13,9 +13,15 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.const import CONF_USERNAME, CONF_PASSWORD
 
 from .const import (
-    DOMAIN, API_READINGS, CONF_API_URL, CONF_USE_SSL, CONF_DEVICE_NAME, CONF_DEVICE_ID,
-    CONF_POLLING_INTERVAL, CONF_TIMEOUT_DURATION, CONF_RETRY_ATTEMPTS, CONF_ACTIVE_FEATURES,
-    DEFAULT_POLLING_INTERVAL, DEFAULT_TIMEOUT_DURATION, DEFAULT_RETRY_ATTEMPTS
+    DOMAIN,
+    CONF_API_URL,
+    CONF_USE_SSL,
+    CONF_DEVICE_NAME,
+    CONF_DEVICE_ID,
+    CONF_POLLING_INTERVAL,
+    DEFAULT_POLLING_INTERVAL,
+    SPECIFIC_READING_GROUPS,
+    SPECIFIC_FULL_REFRESH_INTERVAL,
 )
 from .api import VioletPoolAPI, VioletPoolAPIError
 
@@ -47,6 +53,10 @@ class VioletPoolControllerDevice:
         self._api_lock = asyncio.Lock()
         self._consecutive_failures = 0
         self._max_consecutive_failures = 5
+        self._update_counter = 0
+        self._full_refresh_interval = max(1, SPECIFIC_FULL_REFRESH_INTERVAL)
+        self._specific_categories: list[str] = list(SPECIFIC_READING_GROUPS)
+        self._supports_specific_updates = True
 
         # ✅ LOGGING OPTIMIZATION: Smart Failure Tracking
         self._last_failure_log = 0.0  # Timestamp für Throttling
@@ -93,7 +103,7 @@ class VioletPoolControllerDevice:
         """
         try:
             async with self._api_lock:
-                data = await self.api.get_readings()
+                data = await self._fetch_controller_data()
                 
                 # Validiere Daten
                 if not data or not isinstance(data, dict):
@@ -156,9 +166,9 @@ class VioletPoolControllerDevice:
                 # Firmware-Version extrahieren
                 if "FW" in data or "fw" in data:
                     self._firmware_version = data.get("FW") or data.get("fw")
-                
+
                 return data
-                
+
         except VioletPoolAPIError as err:
             self._last_error = str(err)
             self._consecutive_failures += 1
@@ -215,8 +225,59 @@ class VioletPoolControllerDevice:
                     self._consecutive_failures,
                     self._max_consecutive_failures
                 )
-            
+
             return self._data
+
+    async def _fetch_controller_data(self) -> dict[str, Any]:
+        """Fetch controller data with support for partial refreshes."""
+
+        self._update_counter += 1
+
+        full_refresh_due = (
+            self._update_counter == 1
+            or (self._full_refresh_interval and self._update_counter % self._full_refresh_interval == 0)
+            or not self._supports_specific_updates
+        )
+
+        if full_refresh_due:
+            data = await self.api.get_readings()
+            self._specific_categories = self._derive_specific_categories(data)
+            self._supports_specific_updates = True
+            return data
+
+        categories = self._specific_categories or list(SPECIFIC_READING_GROUPS)
+
+        try:
+            return await self.api.get_specific_readings(categories)
+        except VioletPoolAPIError as err:
+            _LOGGER.debug(
+                "Spezifischer Datenabruf fehlgeschlagen (%s). Fallback auf Vollabruf.",
+                err,
+            )
+            self._supports_specific_updates = False
+            return await self.api.get_readings()
+
+    def _derive_specific_categories(self, data: Mapping[str, Any]) -> list[str]:
+        """Build a list of categories used for specific reading refreshes."""
+
+        categories: set[str] = set(SPECIFIC_READING_GROUPS)
+
+        for key in data.keys():
+            if not isinstance(key, str) or not key:
+                continue
+            prefix = key.split("_")[0]
+            if not prefix:
+                continue
+            if prefix.lower() in {"date", "time"}:
+                categories.add(prefix.lower())
+            else:
+                categories.add(prefix.upper())
+
+        ordered = sorted(categories)
+        # Limit the number of categories to keep the query string reasonable
+        if len(ordered) > 30:
+            ordered = ordered[:30]
+        return ordered
 
     @property
     def available(self) -> bool:

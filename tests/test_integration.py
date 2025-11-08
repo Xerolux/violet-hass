@@ -504,6 +504,7 @@ def test_service_registration_registers_expected_services(hass: Any) -> None:
         "control_dmx_scenes",
         "set_light_color_pulse",
         "manage_digital_rules",
+        "test_output",
     }
 
 
