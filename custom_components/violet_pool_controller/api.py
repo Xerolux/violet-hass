@@ -21,6 +21,10 @@ from .const import (
     ACTION_ON,
     ACTION_PUSH,
     ACTION_UNLOCK,
+    API_GET_HISTORY,
+    API_GET_OUTPUT_STATES,
+    API_GET_OVERALL_DOSING,
+    API_GET_WEATHER_DATA,
     API_GET_CALIB_HISTORY,
     API_GET_CALIB_RAW_VALUES,
     API_GET_CONFIG,
@@ -222,6 +226,53 @@ class VioletPoolAPI:
         )
         if not isinstance(response, dict):
             raise VioletPoolAPIError("Unexpected payload returned from getReadings")
+        return response
+
+    async def get_history(self, *, hours: int = 24, sensor: str = "ALL") -> dict[str, Any]:
+        """Fetch historical readings from the controller."""
+
+        safe_hours = max(1, int(hours))
+        params = {"hours": safe_hours, "sensor": sensor or "ALL"}
+        response = await self._request(
+            API_GET_HISTORY,
+            params=params,
+            expect_json=True,
+        )
+        if not isinstance(response, dict):
+            raise VioletPoolAPIError("Unexpected payload returned from getHistory")
+        return response
+
+    async def get_weather_data(self) -> dict[str, Any]:
+        """Return the current weather information used by the controller."""
+
+        response = await self._request(
+            API_GET_WEATHER_DATA,
+            expect_json=True,
+        )
+        if not isinstance(response, dict):
+            raise VioletPoolAPIError("Unexpected payload returned from getWeatherdata")
+        return response
+
+    async def get_overall_dosing(self) -> dict[str, Any]:
+        """Return aggregated dosing statistics."""
+
+        response = await self._request(
+            API_GET_OVERALL_DOSING,
+            expect_json=True,
+        )
+        if not isinstance(response, dict):
+            raise VioletPoolAPIError("Unexpected payload returned from getOverallDosing")
+        return response
+
+    async def get_output_states(self) -> dict[str, Any]:
+        """Return detailed information about output states."""
+
+        response = await self._request(
+            API_GET_OUTPUT_STATES,
+            expect_json=True,
+        )
+        if not isinstance(response, dict):
+            raise VioletPoolAPIError("Unexpected payload returned from getOutputstates")
         return response
 
     async def get_config(self, parameters: list[str] | tuple[str, ...]) -> dict[str, Any]:

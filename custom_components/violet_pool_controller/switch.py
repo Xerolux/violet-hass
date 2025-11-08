@@ -235,12 +235,20 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             if key == "PUMP" and action == ACTION_ON:
                 speed = self._validate_speed(kwargs.get("speed", 2))
                 duration = self._validate_duration(kwargs.get("duration", 0))
-                
+
                 result = await self.device.api.set_switch_state(
-                    key=key, 
-                    action=action, 
+                    key=key,
+                    action=action,
                     duration=duration,
                     last_value=speed
+                )
+            elif key == "PVSURPLUS" and action == ACTION_ON:
+                rpm = self._validate_pv_rpm(kwargs.get("rpm"))
+
+                result = await self.device.api.set_switch_state(
+                    key=key,
+                    action=action,
+                    last_value=rpm,
                 )
             else:
                 result = await self.device.api.set_switch_state(key=key, action=action)
@@ -352,6 +360,23 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         except (ValueError, TypeError):
             _LOGGER.warning("Ungültiger Duration-Typ %s, verwende 0", type(duration))
             return 0
+
+    def _validate_pv_rpm(self, rpm: Any | None) -> int:
+        """Validiere den PV-Überschuss RPM Parameter."""
+
+        if rpm is None:
+            return 2
+        try:
+            rpm_int = int(rpm)
+        except (TypeError, ValueError):
+            _LOGGER.debug("Ungültiger PV Surplus RPM %s, verwende Default 2", rpm)
+            return 2
+
+        if 1 <= rpm_int <= 3:
+            return rpm_int
+
+        _LOGGER.debug("PV Surplus RPM %s außerhalb des gültigen Bereichs, verwende Default 2", rpm)
+        return 2
 
 
 async def async_setup_entry(
