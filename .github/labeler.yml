@@ -33,7 +33,7 @@ tests:
       - any-glob-to-any-file: "tests/**/*"
 
 dependencies:
-  - head-branch: "dependabot/**"
+  - head-branch: "dependabot/.*"
 
 # Label for changes to the labeler configuration itself
 labeler_config:

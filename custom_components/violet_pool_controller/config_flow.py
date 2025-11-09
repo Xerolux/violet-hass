@@ -8,7 +8,7 @@ import aiohttp
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback, HomeAssistant
-from homeassistant.helpers import aiohttp_client
+from homeassistant.helpers import aiohttp_client, selector
 from homeassistant.data_entry_flow import FlowResult
 
 from .const import (
@@ -89,6 +89,14 @@ ENHANCED_FEATURES = {
     "extension_outputs": {"icon": "🔗", "name": "Erweiterungsmodule"},
 }
 
+GITHUB_BASE_URL = "https://github.com/xerolux/violet-hass"
+HELP_DOC_DE_URL = f"{GITHUB_BASE_URL}/blob/main/docs/help/configuration-guide.de.md"
+HELP_DOC_EN_URL = f"{GITHUB_BASE_URL}/blob/main/docs/help/configuration-guide.en.md"
+SUPPORT_URL = f"{GITHUB_BASE_URL}/issues"
+
+MENU_ACTION_START = "start_setup"
+MENU_ACTION_HELP = "open_help"
+
 
 def validate_ip_address(ip: str) -> bool:
     """Validiere IP-Adresse."""
@@ -141,7 +149,17 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Schritt 1: User-initiierter Setup-Start."""
-        return await self.async_step_disclaimer()
+        if user_input:
+            action = user_input.get("action", MENU_ACTION_START)
+            if action == MENU_ACTION_HELP:
+                return await self.async_step_help()
+            return await self.async_step_disclaimer()
+
+        return self.async_show_form(
+            step_id="welcome",
+            data_schema=self._get_main_menu_schema(),
+            description_placeholders=self._get_help_links(),
+        )
 
     async def async_step_disclaimer(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """⚠️ Disclaimer und Nutzungsbedingungen."""
@@ -153,7 +171,21 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="disclaimer",
             data_schema=vol.Schema({vol.Required("agreement", default=False): bool}),
-            description_placeholders={"disclaimer_text": self._get_disclaimer_text()},
+            description_placeholders={
+                "disclaimer_text": self._get_disclaimer_text(),
+                **self._get_help_links(),
+            },
+        )
+
+    async def async_step_help(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+        """📘 Zusätzliche Hilfe anzeigen."""
+        if user_input is not None:
+            return await self.async_step_user()
+
+        return self.async_show_form(
+            step_id="help",
+            data_schema=vol.Schema({}),
+            description_placeholders=self._get_help_links(),
         )
 
     async def async_step_connection(self, user_input: dict[str, Any] | None = None) -> FlowResult:
@@ -173,7 +205,10 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = ERROR_CANNOT_CONNECT
 
         return self.async_show_form(
-            step_id="connection", data_schema=self._get_connection_schema(), errors=errors
+            step_id="connection",
+            data_schema=self._get_connection_schema(),
+            errors=errors,
+            description_placeholders=self._get_help_links(),
         )
 
     async def async_step_pool_setup(self, user_input: dict[str, Any] | None = None) -> FlowResult:
@@ -312,9 +347,48 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         name = self._config_data.get(CONF_DEVICE_NAME)
         pool_size = self._config_data.get(CONF_POOL_SIZE)
         return f"{name} • {pool_size}m³"
-        
+
     def _get_disclaimer_text(self) -> str:
-        return "⚠️ WICHTIGE SICHERHEITSHINWEISE..." # Gekürzt für Lesbarkeit
+        template = (
+            "⚠️ **Sicherheitswarnung / Safety Warning**\n\n"
+            "**DE:** Diese Integration kann Pumpen, Heizungen, Beleuchtung und Dosieranlagen deines Pools fernsteuern. "
+            "Falsche Einstellungen können zu Sachschäden, Verletzungen oder Überdosierungen führen. Stelle sicher, dass du "
+            "alle Schutzmechanismen verstehst und jederzeit manuell eingreifen kannst. Lies vor der Nutzung unbedingt die "
+            "Hinweise in der Konfigurationshilfe ({docs_de}).\n\n"
+            "**EN:** This integration provides remote control for pumps, heaters, lights and dosing systems. Incorrect "
+            "configuration may cause equipment damage, personal injury or chemical overdosing. Make sure you understand all "
+            "safety features and keep manual overrides accessible. Please review the configuration guide ({docs_en}) before "
+            "you continue."
+        )
+        return template.format(**self._get_help_links())
+
+    def _get_help_links(self) -> dict[str, str]:
+        return {
+            "docs_de": HELP_DOC_DE_URL,
+            "docs_en": HELP_DOC_EN_URL,
+            "github_url": GITHUB_BASE_URL,
+            "issues_url": SUPPORT_URL,
+        }
+
+    def _get_main_menu_schema(self) -> vol.Schema:
+        return vol.Schema(
+            {
+                vol.Required("action", default=MENU_ACTION_START): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=[
+                            selector.SelectOptionDict(
+                                value=MENU_ACTION_START,
+                                label="⚙️ Setup starten / Start setup",
+                            ),
+                            selector.SelectOptionDict(
+                                value=MENU_ACTION_HELP,
+                                label="📘 Hilfe & Dokumentation / Help & docs",
+                            ),
+                        ]
+                    )
+                )
+            }
+        )
 
     def _get_connection_schema(self) -> vol.Schema:
         return vol.Schema({
@@ -323,9 +397,15 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Optional(CONF_PASSWORD): str,
             vol.Required(CONF_USE_SSL, default=DEFAULT_USE_SSL): bool,
             vol.Required(CONF_DEVICE_ID, default=1): vol.All(vol.Coerce(int), vol.Range(min=1)),
-            vol.Required(CONF_POLLING_INTERVAL, default=30): vol.All(vol.Coerce(int), vol.Range(min=10, max=3600)),
-            vol.Required(CONF_TIMEOUT_DURATION, default=10): vol.All(vol.Coerce(int), vol.Range(min=1, max=60)),
-            vol.Required(CONF_RETRY_ATTEMPTS, default=3): vol.All(vol.Coerce(int), vol.Range(min=1, max=10)),
+            vol.Required(CONF_POLLING_INTERVAL, default=DEFAULT_POLLING_INTERVAL): vol.All(
+                vol.Coerce(int), vol.Range(min=MIN_POLLING_INTERVAL, max=MAX_POLLING_INTERVAL)
+            ),
+            vol.Required(CONF_TIMEOUT_DURATION, default=DEFAULT_TIMEOUT_DURATION): vol.All(
+                vol.Coerce(int), vol.Range(min=MIN_TIMEOUT, max=MAX_TIMEOUT)
+            ),
+            vol.Required(CONF_RETRY_ATTEMPTS, default=DEFAULT_RETRY_ATTEMPTS): vol.All(
+                vol.Coerce(int), vol.Range(min=MIN_RETRIES, max=MAX_RETRIES)
+            ),
             vol.Optional(CONF_DEVICE_NAME, default="🌊 Violet Pool Controller"): str,
         })
 
