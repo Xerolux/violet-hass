@@ -313,8 +313,16 @@ Einstellungen → Geräte & Dienste → Violet Pool Controller → ⋮ → Neu l
 ### 📞 **Support erhalten**
 
 - 🐛 **Bug Reports:** [GitHub Issues][issues]
-- 💬 **Community:** [Discord][discord] | [Forum][forum]  
+- 💬 **Community:** [Discord][discord] | [Forum][forum]
 - 📧 **Direkt:** [git@xerolux.de](mailto:git@xerolux.de)
+
+---
+
+## 📚 Entwicklerressourcen & Dokumentation
+
+- 📘 **API-Referenz:** Details zum `/getReadings`-Endpunkt findest du in der kompakten Dokumentation unter [`docs/api/get_readings.md`](docs/api/get_readings.md).
+- 🧾 **JSON-Schema:** Das strukturierte Schema für alle Felder steht unter [`docs/api/get_readings.schema.json`](docs/api/get_readings.schema.json) bereit.
+- 📄 **Gerätehandbuch:** Das originale Violet-Controller-Handbuch findest du unter [`docs/manuals/violet_pool_controller_manual.pdf`](docs/manuals/violet_pool_controller_manual.pdf).
 
 ---
 
