@@ -2,7 +2,7 @@
 
 import asyncio
 import logging
-from typing import Any
+from typing import Any, Iterable
 
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
@@ -29,6 +29,18 @@ _LOGGER = logging.getLogger(__name__)
 # =============================================================================
 # CONSTANTS
 # =============================================================================
+
+# Common validators
+def _as_device_id_list(value: Any) -> list[str]:
+    """Normalize raw device id input into a list of strings."""
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, Iterable) and not isinstance(value, (bytes, bytearray)):
+        return [str(item) for item in value]
+    return [str(value)]
+
+
+DEVICE_ID_SELECTOR = vol.All(_as_device_id_list, [cv.string])
 
 # Dosing Mappings
 DOSING_TYPE_MAPPING = {
@@ -98,7 +110,7 @@ def get_service_schemas() -> dict[str, vol.Schema]:
         # DMX Control
         "control_dmx_scenes": vol.Schema(
             {
-                vol.Required(ATTR_DEVICE_ID): cv.string,
+                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
                 vol.Required("action"): vol.In(
                     ["all_on", "all_off", "all_auto", "sequence", "party_mode"]
                 ),
@@ -122,7 +134,7 @@ def get_service_schemas() -> dict[str, vol.Schema]:
         # Digital Rules
         "manage_digital_rules": vol.Schema(
             {
-                vol.Required(ATTR_DEVICE_ID): cv.string,
+                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
                 vol.Required("rule_key"): vol.In(
                     [f"DIRULE_{i}" for i in range(1, 8)]
                 ),
@@ -131,7 +143,7 @@ def get_service_schemas() -> dict[str, vol.Schema]:
         ),
         "test_output": vol.Schema(
             {
-                vol.Required(ATTR_DEVICE_ID): cv.string,
+                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
                 vol.Required("output"): cv.string,
                 vol.Optional("mode", default="SWITCH"): vol.In(["SWITCH", "ON", "OFF"]),
                 vol.Optional("duration", default=120): vol.All(
@@ -224,6 +236,15 @@ class VioletServiceHandlers:
     def __init__(self, manager: VioletServiceManager):
         self.manager = manager
         self.hass = manager.hass
+
+    @staticmethod
+    def _normalize_device_ids(raw: Any) -> list[str]:
+        """Normalize a raw device id payload to a list of ids."""
+        if isinstance(raw, str):
+            return [raw]
+        if isinstance(raw, Iterable):
+            return [str(device) for device in raw]
+        return [str(raw)]
 
     async def handle_control_pump(self, call: ServiceCall) -> None:
         """Handle pump control service."""
@@ -385,56 +406,66 @@ class VioletServiceHandlers:
 
     async def handle_control_dmx_scenes(self, call: ServiceCall) -> None:
         """Handle DMX scene control service."""
-        device_id = call.data["device_id"]
+        device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
         action = call.data["action"]
         sequence_delay = call.data.get("sequence_delay", 2)
 
-        coordinator = await self.manager.get_coordinator_for_device(device_id)
-        if not coordinator:
-            raise HomeAssistantError(f"Device not found: {device_id}")
+        for device_id in device_ids:
+            coordinator = await self.manager.get_coordinator_for_device(device_id)
+            if not coordinator:
+                raise HomeAssistantError(f"Device not found: {device_id}")
 
-        try:
-            if action == "all_on":
-                result = await coordinator.device.api.set_all_dmx_scenes(ACTION_ALLON)
-                _LOGGER.info("All DMX scenes ON")
+            try:
+                if action == "all_on":
+                    result = await coordinator.device.api.set_all_dmx_scenes(ACTION_ALLON)
+                    _LOGGER.info("All DMX scenes ON (device %s)", device_id)
 
-            elif action == "all_off":
-                result = await coordinator.device.api.set_all_dmx_scenes(ACTION_ALLOFF)
-                _LOGGER.info("All DMX scenes OFF")
+                elif action == "all_off":
+                    result = await coordinator.device.api.set_all_dmx_scenes(ACTION_ALLOFF)
+                    _LOGGER.info("All DMX scenes OFF (device %s)", device_id)
 
-            elif action == "all_auto":
-                result = await coordinator.device.api.set_all_dmx_scenes(
-                    ACTION_ALLAUTO
-                )
-                _LOGGER.info("All DMX scenes AUTO")
+                elif action == "all_auto":
+                    result = await coordinator.device.api.set_all_dmx_scenes(
+                        ACTION_ALLAUTO
+                    )
+                    _LOGGER.info("All DMX scenes AUTO (device %s)", device_id)
 
-            elif action == "sequence":
-                scenes = [f"DMX_SCENE{i}" for i in range(1, 13)]
-                _LOGGER.info("Starting DMX sequence: %d scenes", len(scenes))
+                elif action == "sequence":
+                    scenes = [f"DMX_SCENE{i}" for i in range(1, 13)]
+                    _LOGGER.info(
+                        "Starting DMX sequence: %d scenes (device %s)",
+                        len(scenes),
+                        device_id,
+                    )
 
-                for scene in scenes:
-                    await coordinator.device.api.set_switch_state(scene, ACTION_ON)
-                    await asyncio.sleep(sequence_delay)
-                    await coordinator.device.api.set_switch_state(scene, ACTION_OFF)
+                    for scene in scenes:
+                        await coordinator.device.api.set_switch_state(scene, ACTION_ON)
+                        await asyncio.sleep(sequence_delay)
+                        await coordinator.device.api.set_switch_state(scene, ACTION_OFF)
 
-                result = {"success": True, "response": f"Sequence completed"}
+                    result = {"success": True, "response": "Sequence completed"}
 
-            elif action == "party_mode":
-                _LOGGER.info("Party mode activated!")
-                await coordinator.device.api.set_all_dmx_scenes(ACTION_ALLON)
-                await coordinator.device.api.set_light_color_pulse()
-                result = {"success": True, "response": "Party mode activated"}
+                elif action == "party_mode":
+                    _LOGGER.info("Party mode activated! (device %s)", device_id)
+                    await coordinator.device.api.set_all_dmx_scenes(ACTION_ALLON)
+                    await coordinator.device.api.set_light_color_pulse()
+                    result = {"success": True, "response": "Party mode activated"}
 
-            if not result.get("success", True):
-                _LOGGER.warning(
-                    "DMX action failed: %s", result.get("response", result)
-                )
+                else:
+                    raise HomeAssistantError(f"Unsupported DMX action: {action}")
 
-        except VioletPoolAPIError as err:
-            _LOGGER.error("DMX control error: %s", err)
-            raise HomeAssistantError(f"DMX control failed: {err}") from err
+                if not result.get("success", True):
+                    _LOGGER.warning(
+                        "DMX action failed for %s: %s",
+                        device_id,
+                        result.get("response", result),
+                    )
 
-        await coordinator.async_request_refresh()
+            except VioletPoolAPIError as err:
+                _LOGGER.error("DMX control error (%s): %s", device_id, err)
+                raise HomeAssistantError(f"DMX control failed: {err}") from err
+
+            await coordinator.async_request_refresh()
 
     async def handle_set_light_color_pulse(self, call: ServiceCall) -> None:
         """Handle light color pulse service."""
@@ -476,78 +507,87 @@ class VioletServiceHandlers:
 
     async def handle_manage_digital_rules(self, call: ServiceCall) -> None:
         """Handle digital rules management service."""
-        device_id = call.data["device_id"]
+        device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
         rule_key = call.data["rule_key"]
         action = call.data["action"]
 
-        coordinator = await self.manager.get_coordinator_for_device(device_id)
-        if not coordinator:
-            raise HomeAssistantError(f"Device not found: {device_id}")
+        for device_id in device_ids:
+            coordinator = await self.manager.get_coordinator_for_device(device_id)
+            if not coordinator:
+                raise HomeAssistantError(f"Device not found: {device_id}")
 
-        try:
-            if action == "trigger":
-                result = await coordinator.device.api.trigger_digital_input_rule(
-                    rule_key
-                )
-                _LOGGER.info("Rule %s triggered", rule_key)
+            try:
+                if action == "trigger":
+                    result = await coordinator.device.api.trigger_digital_input_rule(
+                        rule_key
+                    )
+                    _LOGGER.info("Rule %s triggered (device %s)", rule_key, device_id)
 
-            elif action == "lock":
-                result = await coordinator.device.api.set_digital_input_rule_lock(
-                    rule_key, True
-                )
-                _LOGGER.info("Rule %s locked", rule_key)
+                elif action == "lock":
+                    result = await coordinator.device.api.set_digital_input_rule_lock(
+                        rule_key, True
+                    )
+                    _LOGGER.info("Rule %s locked (device %s)", rule_key, device_id)
 
-            elif action == "unlock":
-                result = await coordinator.device.api.set_digital_input_rule_lock(
-                    rule_key, False
-                )
-                _LOGGER.info("Rule %s unlocked", rule_key)
+                elif action == "unlock":
+                    result = await coordinator.device.api.set_digital_input_rule_lock(
+                        rule_key, False
+                    )
+                    _LOGGER.info("Rule %s unlocked (device %s)", rule_key, device_id)
 
-            if not result.get("success", True):
-                _LOGGER.warning(
-                    "Digital rule action failed: %s", result.get("response", result)
-                )
+                else:
+                    raise HomeAssistantError(f"Unsupported digital rule action: {action}")
 
-        except VioletPoolAPIError as err:
-            _LOGGER.error("Digital rule error: %s", err)
-            raise HomeAssistantError(f"Digital rule failed: {err}") from err
+                if not result.get("success", True):
+                    _LOGGER.warning(
+                        "Digital rule action failed for %s: %s",
+                        device_id,
+                        result.get("response", result),
+                    )
 
-        await coordinator.async_request_refresh()
+            except VioletPoolAPIError as err:
+                _LOGGER.error("Digital rule error (%s): %s", device_id, err)
+                raise HomeAssistantError(f"Digital rule failed: {err}") from err
+
+            await coordinator.async_request_refresh()
 
     async def handle_test_output(self, call: ServiceCall) -> None:
         """Handle the output test service."""
 
-        device_id = call.data[ATTR_DEVICE_ID]
+        device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
         output = call.data["output"]
         mode = call.data.get("mode", "SWITCH")
         duration = call.data.get("duration", 120)
 
-        coordinator = await self.manager.get_coordinator_for_device(device_id)
-        if not coordinator:
-            raise HomeAssistantError(f"Device not found: {device_id}")
+        for device_id in device_ids:
+            coordinator = await self.manager.get_coordinator_for_device(device_id)
+            if not coordinator:
+                raise HomeAssistantError(f"Device not found: {device_id}")
 
-        try:
-            result = await coordinator.device.api.set_output_test_mode(
-                output=output,
-                mode=mode,
-                duration=int(duration),
-            )
-            _LOGGER.info(
-                "Test-Modus für %s aktiviert (%ds, Modus %s)",
-                output,
-                duration,
-                mode,
-            )
-            if not result.get("success", True):
-                _LOGGER.warning(
-                    "Test-Modus konnte nicht aktiviert werden: %s",
-                    result.get("response", result),
+            try:
+                result = await coordinator.device.api.set_output_test_mode(
+                    output=output,
+                    mode=mode,
+                    duration=int(duration),
                 )
-        except VioletPoolAPIError as err:
-            _LOGGER.error("Test mode error: %s", err)
-            raise HomeAssistantError(f"Test mode failed: {err}") from err
+                _LOGGER.info(
+                    "Test mode for %s activated (%ds, mode %s, device %s)",
+                    output,
+                    duration,
+                    mode,
+                    device_id,
+                )
+                if not result.get("success", True):
+                    _LOGGER.warning(
+                        "Test mode could not be activated for %s: %s",
+                        device_id,
+                        result.get("response", result),
+                    )
+            except VioletPoolAPIError as err:
+                _LOGGER.error("Test mode error (%s): %s", device_id, err)
+                raise HomeAssistantError(f"Test mode failed: {err}") from err
 
-        await coordinator.async_request_refresh()
+            await coordinator.async_request_refresh()
 
 
 # =============================================================================

@@ -164,6 +164,9 @@ manage_digital_rules:
 test_output:
   name: Output Test Mode
   description: Temporarily activate a controller output for diagnostics
+  target:
+    device:
+      integration: violet_pool_controller
   fields:
     output:
       description: Output identifier (e.g. PUMP, HEATER, SOLAR)
@@ -177,8 +180,8 @@ test_output:
         select:
           options:
             - SWITCH
-            - ON
-            - OFF
+            - 'ON'
+            - 'OFF'
     duration:
       description: Test duration in seconds
       default: 120

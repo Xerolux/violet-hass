@@ -1,16 +1,30 @@
 {
     "config": {
         "step": {
-            "disclaimer": {
-                "title": "⚠️ Legal Disclaimer",
-                "description": "**IMPORTANT LEGAL NOTICE**\n\n**USE AT YOUR OWN RISK - COMPLETE LIABILITY DISCLAIMER**\n\n⚠️ **WARNING: This integration controls critical pool systems and chemical dosing!**\n\n**🔴 SAFETY NOTICES AND LIABILITY DISCLAIMER:**\n• **PERSONAL RESPONSIBILITY**: You use this software entirely at your own responsibility and risk\n• **CHEMICAL HAZARDS**: Incorrect dosing can lead to health damage, chemical burns or poisoning\n• **TECHNICAL RISKS**: Malfunctions can cause property damage, flooding or equipment damage\n• **SAFETY OVERRIDE**: This software can override or disable safety mechanisms\n\n**🔧 FUNCTIONALITY AND RISKS:**\n• Automatic control of pumps, heaters and electrical devices\n• Dosing of chemicals (pH regulators, chlorine, flocculants)\n• Override of safety intervals and limit values\n• Remote control of critical pool systems without local supervision\n• Manipulation of temperature, pressure and level controls\n• Control of covers and moving parts (risk of injury)\n\n**⚖️ LEGAL LIABILITY DISCLAIMER:**\nThe developer assumes **NO LIABILITY** for:\n• Personal injury or property damage of any kind\n• Health damage from incorrect water chemistry\n• Environmental damage or water pollution\n• Equipment damage or operational failures\n• Financial losses or consequential damages\n\n**🚨 EMERGENCY BEHAVIOR:**\n• Always ensure manual access to all systems\n• Immediately deactivate all automatic functions in case of malfunctions\n• Have chemical emergency measures ready according to safety data sheets\n\n**By accepting, you confirm that you:**\n1. Have read and understood this disclaimer completely\n2. Accept all risks and assume full responsibility\n3. Release the developer from any liability\n4. Use the software at your own risk\n\n**If uncertain: ABORT INSTALLATION!**",
+            "welcome": {
+                "title": "🚀 Violet Pool Setup-Assistent",
+                "description": "**Willkommen!**\n\n**DE:** Wähle aus, ob du direkt mit der Einrichtung starten möchtest oder zuerst die ausführliche Dokumentation lesen willst.\n**EN:** Choose whether you want to start the configuration wizard immediately or open the detailed documentation first.\n\n📘 **Dokumentation / Documentation**\n• [Konfigurationshilfe (DE)]({docs_de})\n• [Configuration Guide (EN)]({docs_en})\n\n🛟 Support & Feedback: {issues_url}",
                 "data": {
-                    "agreement": "✅ I have read and understood the disclaimer completely and agree to all conditions. I assume full responsibility for all risks."
+                    "action": "Aktion auswählen / Select action"
+                },
+                "data_description": {
+                    "action": "Öffne die Dokumentation oder starte direkt mit dem Setup."
                 }
             },
-            "user": {
+            "disclaimer": {
+                "title": "⚠️ Sicherheits- und Haftungshinweise",
+                "description": "{disclaimer_text}\n\n📘 **Mehr erfahren / Learn more**\n• [Konfigurationshilfe (DE)]({docs_de})\n• [Configuration Guide (EN)]({docs_en})",
+                "data": {
+                    "agreement": "✅ Ich akzeptiere alle Risiken und habe die Hinweise vollständig gelesen. / I accept all risks and read the full disclaimer."
+                }
+            },
+            "help": {
+                "title": "📘 Hilfe & Dokumentation",
+                "description": "**DE:**\n• Lies die [Konfigurationshilfe (DE)]({docs_de}) für Schritt-für-Schritt-Anleitungen, Sicherheits-Checklisten und Funktionsübersichten.\n• Unterstützung oder Ideen? Erstelle ein Ticket unter {issues_url}.\n\n**EN:**\n• Read the [Configuration Guide (EN)]({docs_en}) for step-by-step instructions, safety notes and feature explanations.\n• Need assistance or want to share feedback? Open an issue at {issues_url}.\n\n🔗 Projekt-Repository: {github_url}\n\n➡️ Klicke auf **Weiter**, um zum Hauptmenü zurückzukehren. / Click **Next** to return to the main menu."
+            },
+            "connection": {
                 "title": "🌐 Controller-Verbindung",
-                "description": "Verbinde deinen **Violet Pool Controller** mit Home Assistant\n\n💡 **Tipp:** Stelle sicher, dass sich der Controller im gleichen Netzwerk befindet.\n\n📖 Hilfe benötigt? → [Violet Integration Guide](https://github.com/xerolux/violet-hass)",
+                "description": "**DE:** Verbinde deinen Violet Pool Controller mit Home Assistant. Stelle sicher, dass sich der Controller im selben Netzwerk befindet und die API erreichbar ist.\n**EN:** Connect your Violet Pool Controller to Home Assistant. Ensure the controller shares the same network and the API is reachable.\n\n📘 Weitere Hinweise / Additional docs: [DE]({docs_de}) · [EN]({docs_en})",
                 "data": {
                     "host": "🌐 IP-Adresse oder Hostname",
                     "username": "👤 Benutzername (optional)",
@@ -23,34 +37,34 @@
                     "retry_attempts": "🔄 Wiederholungsversuche"
                 },
                 "data_description": {
-                    "host": "Die IP-Adresse deines Pool Controllers (z.B. 192.168.1.100)",
-                    "username": "Optional: Benutzername falls Authentifizierung aktiviert",
-                    "password": "Optional: Passwort für geschützte Controller",
-                    "use_ssl": "HTTPS verwenden (meist nicht erforderlich)",
-                    "device_name": "Ein Name für deinen Pool Controller",
-                    "device_id": "Eindeutige ID falls mehrere Controller vorhanden",
-                    "polling_interval": "Wie oft Daten abgerufen werden (empfohlen: 10-30s)",
-                    "timeout_duration": "Maximale Wartezeit für Anfragen",
-                    "retry_attempts": "Wiederholungen bei Verbindungsproblemen"
+                    "host": "DE: IP oder DNS-Name des Controllers · EN: Controller IP or DNS name",
+                    "username": "DE: Nur falls Authentifizierung aktiv · EN: Optional username if authentication is enabled",
+                    "password": "DE: Passwort eingeben, falls benötigt · EN: Password if required",
+                    "use_ssl": "DE: HTTPS aktivieren, falls konfiguriert · EN: Enable HTTPS when supported",
+                    "device_name": "DE: Anzeigename in Home Assistant · EN: Friendly name shown in Home Assistant",
+                    "device_id": "DE: Eindeutige ID bei mehreren Controllern · EN: Unique ID if multiple controllers exist",
+                    "polling_interval": "DE: Intervall für Datenabrufe (10-3600s) · EN: Data polling interval (10-3600s)",
+                    "timeout_duration": "DE: Maximale Wartezeit pro Anfrage · EN: Maximum wait time per request",
+                    "retry_attempts": "DE: Anzahl Wiederholungsversuche · EN: Number of retry attempts"
                 }
             },
             "pool_setup": {
                 "title": "🏊 Pool-Konfiguration",
-                "description": "Konfiguriere die **Eigenschaften deines Pools** für optimale Automatisierung\n\n🎯 Diese Einstellungen helfen bei der korrekten Berechnung von Laufzeiten und Dosierungen.",
+                "description": "**DE:** Lege Pool-Größe, Typ und Desinfektionsmethode fest. Diese Werte werden für Laufzeiten, Energieoptimierung und Dosierberechnungen genutzt.\n**EN:** Provide pool size, type and disinfection method. These values are used for runtime optimisation, energy management and dosing calculations.",
                 "data": {
                     "pool_size": "📏 Pool-Größe (m³)",
                     "pool_type": "🏊 Pool-Typ",
                     "disinfection_method": "🧼 Desinfektionsmethode"
                 },
                 "data_description": {
-                    "pool_size": "Wasservolumen in Kubikmetern für korrekte Dosierberechnungen",
-                    "pool_type": "Art des Pools (beeinflusst Heizstrategie und Laufzeiten)",
-                    "disinfection_method": "Hauptmethode zur Wasserpflege"
+                    "pool_size": "DE: Wasservolumen in m³ · EN: Water volume in cubic metres",
+                    "pool_type": "DE: Beeinflusst Strategien für Heizung & Solar · EN: Influences heating and solar behaviour",
+                    "disinfection_method": "DE: Hauptmethode der Wasserpflege · EN: Primary water treatment method"
                 }
             },
             "feature_selection": {
                 "title": "⚙️ Smart-Features aktivieren",
-                "description": "Wähle die **gewünschten Funktionen** für deinen Pool aus\n\n✨ Du kannst diese später jederzeit in den Optionen ändern.\n\n💡 **Empfehlung:** Aktiviere nur die Features, die du tatsächlich verwendest.",
+                "description": "**DE:** Aktiviere nur die Funktionen, die dein Pool-Setup wirklich benötigt. Das reduziert Ressourcenverbrauch und hält die Oberfläche übersichtlich.\n**EN:** Enable only the features your pool installation actually uses. This keeps resource usage low and the UI tidy. Du kannst die Auswahl jederzeit in den Optionen anpassen.",
                 "data": {
                     "enable_heating": "🔥 Heizungssteuerung",
                     "enable_solar": "☀️ Solarabsorber",
@@ -67,19 +81,19 @@
                     "enable_extension_outputs": "🔗 Erweiterungsmodule"
                 },
                 "data_description": {
-                    "enable_heating": "Poolheizung automatisch steuern und überwachen",
-                    "enable_solar": "Kostenlose Sonnenenergie optimal nutzen",
-                    "enable_ph_control": "pH-Wert automatisch im Idealbereich halten",
-                    "enable_chlorine_control": "Sichere Desinfektion rund um die Uhr",
-                    "enable_cover_control": "Abdeckung intelligent öffnen und schließen",
-                    "enable_backwash": "Filter automatisch zur optimalen Zeit reinigen",
-                    "enable_pv_surplus": "Überschüssigen Solarstrom für Pool nutzen",
-                    "enable_filter_control": "Pumpe effizient und bedarfsgerecht steuern",
-                    "enable_water_level": "Wasserstand kontinuierlich überwachen",
-                    "enable_water_refill": "Automatisch nachfüllen bei niedrigem Stand",
-                    "enable_led_lighting": "Stimmungsvolle Poolbeleuchtung steuern",
-                    "enable_digital_inputs": "Externe Sensoren und Schalter einbinden",
-                    "enable_extension_outputs": "Zusätzliche Geräte und Module anschließen"
+                    "enable_heating": "DE: Automatische Heizungslogik · EN: Automated heating control",
+                    "enable_solar": "DE: Solarabsorber intelligent nutzen · EN: Smart solar absorber control",
+                    "enable_ph_control": "DE: pH-Regelung und Überwachung · EN: Automated pH control",
+                    "enable_chlorine_control": "DE: Chlor-/Redox-Management · EN: Chlorine/redox management",
+                    "enable_cover_control": "DE: Poolabdeckung steuern · EN: Control the pool cover",
+                    "enable_backwash": "DE: Automatische Rückspülprogramme · EN: Automated backwash cycles",
+                    "enable_pv_surplus": "DE: PV-Überschuss intelligent nutzen · EN: Use photovoltaic surplus intelligently",
+                    "enable_filter_control": "DE: Filterpumpe bedarfsgerecht steuern · EN: Control the filter pump on demand",
+                    "enable_water_level": "DE: Wasserstand überwachen · EN: Monitor water level",
+                    "enable_water_refill": "DE: Automatisches Nachfüllen · EN: Automatic water refill",
+                    "enable_led_lighting": "DE: LED-Lichtshows & Szenen · EN: LED lighting scenes",
+                    "enable_digital_inputs": "DE: Externe Sensoren/Schalter integrieren · EN: Integrate external sensors and switches",
+                    "enable_extension_outputs": "DE: Erweiterungsmodule nutzen · EN: Use extension modules"
                 }
             }
         },
@@ -196,6 +210,24 @@
                 "duration_seconds": {
                     "name": "⏰ Dosierdauer (Sekunden)",
                     "description": "Wie lange soll dosiert werden? (1-3600s, Start mit kurzen Zeiten!)"
+                }
+            }
+        },
+        "test_output": {
+            "name": "🧪 Ausgangstest-Modus",
+            "description": "**DE:** Aktiviert einen Ausgang des Controllers testweise für einen begrenzten Zeitraum. Achte darauf, dass keine Personen oder Geräte gefährdet werden.\n**EN:** Temporarily activates a controller output for diagnostics. Make sure no people or equipment are at risk while the output is forced.",
+            "fields": {
+                "output": {
+                    "name": "🎯 Ausgangskennung",
+                    "description": "DE: Bezeichner wie PUMP, HEATER oder SOLAR · EN: Identifier such as PUMP, HEATER or SOLAR"
+                },
+                "mode": {
+                    "name": "⚙️ Testmodus",
+                    "description": "DE: SWITCH=toggle, ON=erzwingen, OFF=abschalten · EN: SWITCH=toggle, ON=force on, OFF=force off"
+                },
+                "duration": {
+                    "name": "⏱️ Testdauer (Sekunden)",
+                    "description": "DE: Dauer zwischen 1 und 900 Sekunden · EN: Duration between 1 and 900 seconds"
                 }
             }
         },
