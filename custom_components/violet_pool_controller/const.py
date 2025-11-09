@@ -26,6 +26,7 @@ CONF_USE_SSL = "use_ssl"
 CONF_DEVICE_ID = "device_id"
 CONF_DEVICE_NAME = "device_name"
 CONF_ACTIVE_FEATURES = "active_features"
+CONF_SELECTED_SENSORS = "selected_sensors"
 CONF_POOL_SIZE = "pool_size"
 CONF_POOL_TYPE = "pool_type"
 CONF_DISINFECTION_METHOD = "disinfection_method"
@@ -1118,6 +1119,7 @@ __all__ = [
     "CONF_USERNAME",
     "CONF_PASSWORD",
     "CONF_ACTIVE_FEATURES",
+    "CONF_SELECTED_SENSORS",
     "DEFAULT_POLLING_INTERVAL",
     "DEFAULT_TIMEOUT_DURATION",
     # API
