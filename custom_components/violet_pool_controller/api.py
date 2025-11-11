@@ -153,7 +153,9 @@ class VioletPoolAPI:
                 _LOGGER.debug("Attempt %d for %s failed: %s", attempt, endpoint, err)
                 if attempt == self._max_retries:
                     raise last_error
-                await asyncio.sleep(min(1.0, 0.2 * attempt))
+                # ✅ PERFORMANCE: Exponential backoff with jitter (0.2s, 0.4s, 0.8s, 1.6s, max 2.0s)
+                delay = min(2.0, 0.2 * (2 ** (attempt - 1)))
+                await asyncio.sleep(delay)
 
         if last_error:
             raise last_error

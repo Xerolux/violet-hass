@@ -22,19 +22,19 @@ _LOGGER = logging.getLogger(__name__)
 
 class VioletNumber(VioletPoolControllerEntity, NumberEntity):
     """Repräsentation einer Violet Pool Number-Entity (Sollwert)."""
-    
+
     entity_description: NumberEntityDescription
 
     def __init__(
-        self, 
-        coordinator: VioletPoolDataUpdateCoordinator, 
+        self,
+        coordinator: VioletPoolDataUpdateCoordinator,
         config_entry: ConfigEntry,
-        description: NumberEntityDescription, 
+        description: NumberEntityDescription,
         setpoint_config: dict
     ) -> None:
         """
         Initialisiere die Number-Entity.
-        
+
         Args:
             coordinator: Update Coordinator
             config_entry: Config Entry
@@ -42,18 +42,21 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
             setpoint_config: Sollwert-Konfiguration
         """
         super().__init__(coordinator, config_entry, description)
-        
+
         # Min/Max/Step Werte setzen
         self._attr_native_min_value = setpoint_config["min_value"]
         self._attr_native_max_value = setpoint_config["max_value"]
         self._attr_native_step = setpoint_config["step"]
-        
+
         # Zusätzliche Attribute speichern
         self._setpoint_fields = setpoint_config["setpoint_fields"]
         self._indicator_fields = setpoint_config["indicator_fields"]
         self._default_value = setpoint_config["default_value"]
         self._api_key = setpoint_config["api_key"]
-        
+
+        # ✅ FIXED: Lokale Cache-Variable für thread-sichere optimistische Updates
+        self._optimistic_value: float | None = None
+
         _LOGGER.info(
             "Number-Entity initialisiert: %s (Range: %.1f-%.1f, Step: %.1f, API-Key: %s)",
             description.name,
@@ -67,13 +70,17 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
     def native_value(self) -> float | None:
         """
         Gibt den aktuellen Sollwert zurück.
-        
+
         Versucht den Wert aus verschiedenen möglichen Feldern zu lesen.
         Falls kein Wert gefunden wird, wird der Standardwert zurückgegeben.
-        
+
         Returns:
             Aktueller Sollwert oder default_value
         """
+        # ✅ FIXED: Prüfe zuerst optimistischen Cache
+        if self._optimistic_value is not None:
+            return self._optimistic_value
+
         # Versuche Sollwert aus den konfigurierten Feldern zu lesen
         if self._setpoint_fields:
             for field in self._setpoint_fields:
@@ -86,7 +93,7 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                         value
                     )
                     return value
-        
+
         # Fallback auf Standardwert
         _LOGGER.debug(
             "Kein Sollwert gefunden für %s, verwende default: %.2f",
@@ -194,18 +201,20 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                     value,
                     unit
                 )
-                
-                # Optimistisches Update: Setze Wert sofort in den Coordinator-Daten
-                if self._setpoint_fields:
-                    for field in self._setpoint_fields:
-                        self.coordinator.data[field] = value
-                        _LOGGER.debug("Feld '%s' optimistisch auf %.2f gesetzt", field, value)
-                
+
+                # ✅ FIXED: Optimistisches Update mit lokalem Cache (thread-safe)
+                self._optimistic_value = value
+                _LOGGER.debug("Optimistischer Cache für '%s' auf %.2f gesetzt", self.entity_description.name, value)
+
                 # State sofort aktualisieren
                 self.async_write_ha_state()
-                
-                # Daten vom Controller neu abrufen
+
+                # Daten vom Controller neu abrufen und dann Cache zurücksetzen
                 await self.coordinator.async_request_refresh()
+
+                # ✅ FIXED: Cache nach erfolgreichem Refresh zurücksetzen
+                self._optimistic_value = None
+                _LOGGER.debug("Optimistischer Cache für '%s' zurückgesetzt", self.entity_description.name)
             else:
                 error_msg = result.get("response", result)
                 _LOGGER.warning(
