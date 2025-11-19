@@ -2,8 +2,13 @@ name: Release Management
 
 on:
   release:
-    types: [published]
+    types: [published, prereleased, released]
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name for the release (e.g., v0.1.0-8)'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -22,18 +27,22 @@ jobs:
       - name: Get version
         id: version
         run: |
-          VERSION="${{ github.event.release.tag_name || github.ref_name }}"
-          VERSION="${VERSION#v}"
+          TAG="${{ github.event.release.tag_name || inputs.tag_name || github.ref_name }}"
+          VERSION="${TAG#v}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
           echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+          echo "📌 Release version: $VERSION (tag: $TAG)"
 
       - name: Validate tag format
         run: |
-          if [[ ! "${{ github.event.release.tag_name }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$ ]]; then
-            echo "❌ Invalid tag format: ${{ github.event.release.tag_name }}"
-            echo "Expected format: v1.2.3 or v1.2.3-beta"
+          TAG="${{ github.event.release.tag_name || inputs.tag_name || github.ref_name }}"
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$ ]]; then
+            echo "❌ Invalid tag format: $TAG"
+            echo "Expected format: v1.2.3, v1.2.3-beta, v1.2.3-8, or v1.2.3-test.1"
             exit 1
           fi
+          echo "✅ Valid tag format: $TAG"
           
       - name: Update version in files
         run: |
@@ -45,14 +54,15 @@ jobs:
       - name: Parse commits since last release
         id: commits
         run: |
-          PREV_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+' | sed -n '2p')
+          CURRENT_TAG="${{ steps.version.outputs.tag }}"
+          PREV_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+' | grep -v "$CURRENT_TAG" | head -1)
 
           if [ -z "$PREV_TAG" ]; then
             echo "📝 No previous release found, using all commits"
             COMMITS=$(git log --oneline --pretty=format:"- %s" | head -20)
           else
-            echo "📝 Getting commits since $PREV_TAG"
-            COMMITS=$(git log ${PREV_TAG}..${{ github.event.release.tag_name }} --oneline --pretty=format:"- %s")
+            echo "📝 Getting commits since $PREV_TAG to $CURRENT_TAG"
+            COMMITS=$(git log ${PREV_TAG}..${CURRENT_TAG} --oneline --pretty=format:"- %s" 2>/dev/null || git log --oneline --pretty=format:"- %s" | head -20)
           fi
 
           # Categorize commits
@@ -92,12 +102,13 @@ jobs:
           fi
 
           PREVIOUS_TAG="${{ steps.commits.outputs.previous-tag }}"
+          CURRENT_TAG="${{ steps.version.outputs.tag }}"
           if [ -z "$PREVIOUS_TAG" ]; then
             CHANGELOG_EN="Full Changelog: Initial release – no previous version available."
             CHANGELOG_DE="Vollständiges Änderungsprotokoll: Erstveröffentlichung – keine vorherige Version verfügbar."
             CHANGELOG_LINK=""
           else
-            CHANGELOG_RANGE="$PREVIOUS_TAG...${{ github.event.release.tag_name }}"
+            CHANGELOG_RANGE="$PREVIOUS_TAG...$CURRENT_TAG"
             CHANGELOG_URL="${{ github.server_url }}/${{ github.repository }}/compare/$CHANGELOG_RANGE"
             CHANGELOG_EN="Full Changelog: $CHANGELOG_RANGE"
             CHANGELOG_DE="Vollständiges Änderungsprotokoll: $CHANGELOG_RANGE"
@@ -105,8 +116,8 @@ jobs:
           fi
 
           cat <<EOL > temp_release_notes.md
-${{ github.event.release.tag_name }} – Bug Fixes & Improvements 🎉
-${{ github.event.release.tag_name }} – Fehlerbehebungen & Verbesserungen 🎉
+$CURRENT_TAG – Bug Fixes & Improvements 🎉
+$CURRENT_TAG – Fehlerbehebungen & Verbesserungen 🎉
 
 🔧 Bug Fixes | Fehlerbehebungen
 $BUG_FIXES
@@ -148,8 +159,9 @@ EOL
         uses: softprops/action-gh-release@v2
         with:
           files: violet_pool_controller.zip
-          tag_name: ${{ github.event.release.tag_name }}
+          tag_name: ${{ steps.version.outputs.tag }}
           body: ${{ steps.generate.outputs.release-notes }}
+          prerelease: ${{ contains(steps.version.outputs.tag, '-') }}
 
   update-release-notes:
     needs: prepare-release
@@ -205,13 +217,15 @@ EOL
         run: |
           VERSION="${{ needs.prepare-release.outputs.version }}"
           
+          RELEASE_URL="${{ github.event.release.html_url || format('{0}/{1}/releases/tag/{2}', github.server_url, github.repository, needs.prepare-release.outputs.version) }}"
+
           X_MESSAGE="🎉 Violet Pool Controller v$VERSION is out!
 
           🔧 Bug fixes & stability improvements
-          🚀 Enhanced pool automation features  
+          🚀 Enhanced pool automation features
           ✨ Better Home Assistant integration
 
-          Download: ${{ github.event.release.html_url }}
+          Download: $RELEASE_URL
 
           ❤️ Support: https://buymeacoffee.com/xerolux
           🚗 Tesla: https://ts.la/sebastian564489
