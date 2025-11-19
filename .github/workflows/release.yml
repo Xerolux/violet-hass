@@ -47,9 +47,34 @@ jobs:
       - name: Update version in files
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" custom_components/violet_pool_controller/manifest.json
-          sed -i "s/^INTEGRATION_VERSION = .*/INTEGRATION_VERSION = \"$VERSION\"/" custom_components/violet_pool_controller/const.py
-          echo "✅ Updated version to $VERSION"
+          MANIFEST_FILE="custom_components/violet_pool_controller/manifest.json"
+          CONST_FILE="custom_components/violet_pool_controller/const.py"
+
+          # Check files exist
+          if [ ! -f "$MANIFEST_FILE" ]; then
+            echo "❌ File not found: $MANIFEST_FILE"
+            exit 1
+          fi
+          if [ ! -f "$CONST_FILE" ]; then
+            echo "❌ File not found: $CONST_FILE"
+            exit 1
+          fi
+
+          # Update versions using | delimiter to avoid issues with special characters
+          sed -i "s|\"version\": \"[^\"]*\"|\"version\": \"$VERSION\"|" "$MANIFEST_FILE"
+          sed -i "s|^INTEGRATION_VERSION = .*|INTEGRATION_VERSION = \"$VERSION\"|" "$CONST_FILE"
+
+          # Verify changes were applied
+          if ! grep -q "\"version\": \"$VERSION\"" "$MANIFEST_FILE"; then
+            echo "❌ Failed to update version in $MANIFEST_FILE"
+            exit 1
+          fi
+          if ! grep -q "INTEGRATION_VERSION = \"$VERSION\"" "$CONST_FILE"; then
+            echo "❌ Failed to update version in $CONST_FILE"
+            exit 1
+          fi
+
+          echo "✅ Updated version to $VERSION in manifest.json and const.py"
           
       - name: Parse commits since last release
         id: commits
@@ -180,15 +205,41 @@ jobs:
       - name: Update version in files
         run: |
           VERSION="${{ needs.prepare-release.outputs.version }}"
-          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" custom_components/violet_pool_controller/manifest.json
-          sed -i "s/^INTEGRATION_VERSION = .*/INTEGRATION_VERSION = \"$VERSION\"/" custom_components/violet_pool_controller/const.py
+          MANIFEST_FILE="custom_components/violet_pool_controller/manifest.json"
+          CONST_FILE="custom_components/violet_pool_controller/const.py"
+
+          # Check files exist
+          if [ ! -f "$MANIFEST_FILE" ]; then
+            echo "❌ File not found: $MANIFEST_FILE"
+            exit 1
+          fi
+          if [ ! -f "$CONST_FILE" ]; then
+            echo "❌ File not found: $CONST_FILE"
+            exit 1
+          fi
+
+          # Update versions using | delimiter to avoid issues with special characters
+          sed -i "s|\"version\": \"[^\"]*\"|\"version\": \"$VERSION\"|" "$MANIFEST_FILE"
+          sed -i "s|^INTEGRATION_VERSION = .*|INTEGRATION_VERSION = \"$VERSION\"|" "$CONST_FILE"
+
+          # Verify changes were applied
+          if ! grep -q "\"version\": \"$VERSION\"" "$MANIFEST_FILE"; then
+            echo "❌ Failed to update version in $MANIFEST_FILE"
+            exit 1
+          fi
+          if ! grep -q "INTEGRATION_VERSION = \"$VERSION\"" "$CONST_FILE"; then
+            echo "❌ Failed to update version in $CONST_FILE"
+            exit 1
+          fi
+
           echo "✅ Updated version to $VERSION in manifest.json and const.py"
 
       - name: Update release notes file
+        env:
+          RELEASE_NOTES: ${{ needs.prepare-release.outputs.release-notes }}
         run: |
-          cat << 'RELEASE_EOF' > temp_combined.md
-          ${{ needs.prepare-release.outputs.release-notes }}
-          RELEASE_EOF
+          # Use environment variable to avoid HEREDOC indentation issues
+          echo "$RELEASE_NOTES" > temp_combined.md
 
           if [ -s RELEASE_NOTES.md ]; then
             echo "" >> temp_combined.md
@@ -198,7 +249,7 @@ jobs:
           fi
 
           mv temp_combined.md RELEASE_NOTES.md
-          echo "✅ Updated RELEASE_NOTES.md"
+          echo "✅ Updated RELEASE_NOTES.md with v${{ needs.prepare-release.outputs.version }}"
 
       - name: Commit and push changes
         run: |
