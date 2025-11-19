@@ -188,9 +188,12 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
 
         try:
             f = float(raw_value)
-            if key == "pH_value": return round(f, 2)
-            if "temp" in key.lower() or "onewire" in key.lower(): return round(f, 1)
-            if f.is_integer(): return int(f)
+            if key == "pH_value":
+                return round(f, 2)
+            if "temp" in key.lower() or "onewire" in key.lower():
+                return round(f, 1)
+            if f.is_integer():
+                return int(f)
             return f
         except (ValueError, TypeError):
             return str(raw_value)
@@ -302,30 +305,44 @@ class VioletFlowRateSensor(VioletPoolControllerEntity, SensorEntity):
 
 def _is_boolean_value(value: Any) -> bool:
     """Check if value represents a boolean."""
-    if not isinstance(value, (str, bool)): return False
+    if not isinstance(value, (str, bool)):
+        return False
     return str(value).lower().strip() in ('true', 'false', '1', '0', 'on', 'off', 'yes', 'no')
 
 
 def determine_device_class(key: str, unit: str | None, raw_value=None) -> SensorDeviceClass | None:
     """Bestimmt Device-Klasse."""
-    if key in BOOLEAN_VALUE_SENSORS or (raw_value is not None and _is_boolean_value(raw_value)): return None
-    if key == "pH_value": return SensorDeviceClass.PH
-    if "temp" in key.lower(): return SensorDeviceClass.TEMPERATURE
-    if unit == "°C": return SensorDeviceClass.TEMPERATURE
-    if unit == "%": return SensorDeviceClass.HUMIDITY
-    if unit == "bar": return SensorDeviceClass.PRESSURE
-    if unit in {"mV", "V"}: return SensorDeviceClass.VOLTAGE
-    if unit == "W": return SensorDeviceClass.POWER
-    if key in _TIMESTAMP_KEYS and key not in TIME_FORMAT_SENSORS: return SensorDeviceClass.TIMESTAMP
+    if key in BOOLEAN_VALUE_SENSORS or (raw_value is not None and _is_boolean_value(raw_value)):
+        return None
+    if key == "pH_value":
+        return SensorDeviceClass.PH
+    if "temp" in key.lower():
+        return SensorDeviceClass.TEMPERATURE
+    if unit == "°C":
+        return SensorDeviceClass.TEMPERATURE
+    if unit == "%":
+        return SensorDeviceClass.HUMIDITY
+    if unit == "bar":
+        return SensorDeviceClass.PRESSURE
+    if unit in {"mV", "V"}:
+        return SensorDeviceClass.VOLTAGE
+    if unit == "W":
+        return SensorDeviceClass.POWER
+    if key in _TIMESTAMP_KEYS and key not in TIME_FORMAT_SENSORS:
+        return SensorDeviceClass.TIMESTAMP
     return None
 
 
 def determine_state_class(key: str, unit: str | None, raw_value=None) -> SensorStateClass | None:
     """Bestimmt State-Klasse."""
-    if key in BOOLEAN_VALUE_SENSORS or (raw_value is not None and _is_boolean_value(raw_value)): return None
-    if any(k in key for k in TEXT_VALUE_SENSORS | _TIMESTAMP_KEYS | NO_UNIT_SENSORS | RUNTIME_SENSORS): return None
-    if "total" in key.lower() or "daily" in key.lower(): return SensorStateClass.TOTAL_INCREASING
-    if unit is not None: return SensorStateClass.MEASUREMENT
+    if key in BOOLEAN_VALUE_SENSORS or (raw_value is not None and _is_boolean_value(raw_value)):
+        return None
+    if any(k in key for k in TEXT_VALUE_SENSORS | _TIMESTAMP_KEYS | NO_UNIT_SENSORS | RUNTIME_SENSORS):
+        return None
+    if "total" in key.lower() or "daily" in key.lower():
+        return SensorStateClass.TOTAL_INCREASING
+    if unit is not None:
+        return SensorStateClass.MEASUREMENT
     return None
 
 
@@ -334,22 +351,32 @@ def get_icon(unit: str | None, key: str, raw_value=None) -> str:
     is_bool = raw_value is not None and _is_boolean_value(raw_value)
     if key in BOOLEAN_VALUE_SENSORS or is_bool:
         return "mdi:toggle-switch"
-    if key == "pH_value": return "mdi:flask"
-    if "flow" in key.lower(): return "mdi:pump"
-    if unit == "°C": return "mdi:thermometer"
-    if unit == "bar": return "mdi:gauge"
-    if unit in {"mV", "V"}: return "mdi:flash"
-    if key in _TIMESTAMP_KEYS: return "mdi:clock"
+    if key == "pH_value":
+        return "mdi:flask"
+    if "flow" in key.lower():
+        return "mdi:pump"
+    if unit == "°C":
+        return "mdi:thermometer"
+    if unit == "bar":
+        return "mdi:gauge"
+    if unit in {"mV", "V"}:
+        return "mdi:flash"
+    if key in _TIMESTAMP_KEYS:
+        return "mdi:clock"
     return "mdi:information"
 
 
 def should_skip_sensor(key: str, raw_value) -> bool:
     """Prüft, ob Sensor übersprungen werden soll."""
-    if raw_value is None: return True
+    if raw_value is None:
+        return True
     raw_str = str(raw_value).strip()
-    if raw_str in ("[]", "{}", ""): return True
-    if key in NON_TEMPERATURE_SENSORS: return True
-    if key.startswith("_"): return True
+    if raw_str in ("[]", "{}", ""):
+        return True
+    if key in NON_TEMPERATURE_SENSORS:
+        return True
+    if key.startswith("_"):
+        return True
     return False
 
 # ==========================================================================================
@@ -450,7 +477,8 @@ async def async_setup_entry(
             icon = None
 
         unit = UNIT_MAP.get(key) if key not in NO_UNIT_SENSORS else None
-        if _is_boolean_value(raw_value): unit = None # Booleans haben keine Einheit
+        if _is_boolean_value(raw_value):
+            unit = None  # Booleans haben keine Einheit
 
         description = SensorEntityDescription(
             key=key,

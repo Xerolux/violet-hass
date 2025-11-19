@@ -14,7 +14,6 @@ from .const import (
     ACTION_ALLAUTO,
     ACTION_ALLOFF,
     ACTION_ALLON,
-    ACTION_AUTO,
     ACTION_COLOR,
     ACTION_LOCK,
     ACTION_OFF,
