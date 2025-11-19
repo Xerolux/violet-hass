@@ -1,6 +1,6 @@
 """Violet Pool Controller Integration - IMPROVED VERSION."""
 import logging
-from typing import Any, Dict, List
+from typing import Any
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant.config_entries import ConfigEntry
@@ -19,7 +19,7 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 # Platforms die geladen werden sollen
-PLATFORMS: List[Platform] = [
+PLATFORMS: list[Platform] = [
     Platform.SENSOR,
     Platform.BINARY_SENSOR,
     Platform.SWITCH,
@@ -50,7 +50,7 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) ->
     return False
 
 
-async def async_setup(hass: HomeAssistant, config: Dict[str, Any]) -> bool:
+async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
     """Set up integration via YAML (deprecated)."""
     if DOMAIN in config:
         _LOGGER.warning(
@@ -165,7 +165,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 # HELPER FUNCTIONS
 # =============================================================================
 
-def _extract_config(entry: ConfigEntry) -> Dict[str, Any]:
+def _extract_config(entry: ConfigEntry) -> dict[str, Any]:
     """Extract configuration from config entry - NEW."""
     # IP-Adresse mit Fallbacks extrahieren
     ip_address = (
@@ -203,7 +203,7 @@ def _extract_config(entry: ConfigEntry) -> Dict[str, Any]:
     }
 
 
-def _validate_config(config: Dict[str, Any]) -> bool:
+def _validate_config(config: dict[str, Any]) -> bool:
     """Validate extracted configuration - NEW."""
     required_keys = ["ip_address", "device_name"]
     

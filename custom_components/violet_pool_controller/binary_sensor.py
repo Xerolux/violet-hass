@@ -13,17 +13,13 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN, BINARY_SENSORS, STATE_MAP, CONF_ACTIVE_FEATURES
-from .entity import VioletPoolControllerEntity
+from .entity import VioletPoolControllerEntity, convert_to_int, interpret_state_as_bool
 from .device import VioletPoolDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
 # Cover State Constants
 COVER_STATE_CLOSED = 2
-COVER_STATE_OPEN = 1
-COVER_STATE_OPENING = 3
-COVER_STATE_CLOSING = 4
-COVER_STATE_UNKNOWN = 0
 
 # String representations of cover states
 COVER_CLOSED_STRINGS = {"CLOSED", "2", "GESCHLOSSEN"}
@@ -93,98 +89,18 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
         return base_icon
 
     def _get_sensor_state(self) -> bool:
-        """Rufe den aktuellen Sensorzustand ab - OPTIMIZED VERSION."""
+        """Rufe den aktuellen Sensorzustand ab - SIMPLIFIED VERSION."""
         key = self.entity_description.key
         raw_state = self.get_value(key, "")
-        
+
         _LOGGER.debug(
             "Binary Sensor state check für %s: raw=%s (type=%s)",
             key,
             raw_state,
             type(raw_state).__name__,
         )
-        
-        if raw_state is None or raw_state == "":
-            _LOGGER.debug("Binary Sensor '%s' hat leeren/None Zustand - returning False", key)
-            return False
-        
-        # Try integer interpretation first
-        state_int = self._convert_to_int(raw_state)
-        if state_int is not None:
-            return self._interpret_int_state(state_int, key)
-        
-        # String interpretation
-        return self._interpret_string_state(raw_state, key)
 
-    def _convert_to_int(self, value: Any) -> int | None:
-        """Konvertiere Wert zu Integer, wenn möglich."""
-        try:
-            if isinstance(value, (int, float)):
-                return int(value)
-            if isinstance(value, str) and value.strip().isdigit():
-                return int(value.strip())
-        except (ValueError, TypeError):
-            pass
-        return None
-
-    def _interpret_int_state(self, state_int: int, key: str) -> bool:
-        """Interpretiere Integer State-Wert."""
-        # Check STATE_MAP first
-        if state_int in STATE_MAP:
-            result = STATE_MAP[state_int]
-            _LOGGER.debug("State %d für %s in STATE_MAP → %s", state_int, key, result)
-            return result
-        
-        # Generic interpretation: 0 = False, non-zero = True
-        result = state_int != 0
-        _LOGGER.debug("State %d für %s → %s (generic int logic)", state_int, key, result)
-        return result
-
-    def _interpret_string_state(self, raw_state: Any, key: str) -> bool:
-        """Interpretiere String State-Wert."""
-        state_str = str(raw_state).upper().strip()
-        
-        # Check STATE_MAP
-        if state_str in STATE_MAP:
-            result = STATE_MAP[state_str]
-            _LOGGER.debug("String '%s' für %s in STATE_MAP → %s", state_str, key, result)
-            return result
-        
-        # Known boolean strings
-        true_values = {
-            "TRUE",
-            "ON",
-            "1",
-            "YES",
-            "ACTIVE",
-            "RUNNING",
-            "ENABLED",
-            "OPEN",
-            "HIGH",
-        }
-        false_values = {
-            "FALSE",
-            "OFF",
-            "0",
-            "NO",
-            "INACTIVE",
-            "STOPPED",
-            "DISABLED",
-            "CLOSED",
-            "LOW",
-        }
-        
-        if state_str in true_values:
-            _LOGGER.debug("String '%s' für %s → True", state_str, key)
-            return True
-        
-        if state_str in false_values:
-            _LOGGER.debug("String '%s' für %s → False", state_str, key)
-            return False
-        
-        # Default: unknown states are False
-        _LOGGER.debug("Unbekannter State '%s' für %s → False (default)", state_str, key)
-        return False
+        return interpret_state_as_bool(raw_state, key)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:

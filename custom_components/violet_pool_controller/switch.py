@@ -11,7 +11,7 @@ from homeassistant.exceptions import HomeAssistantError
 
 from .const import DOMAIN, SWITCHES, CONF_ACTIVE_FEATURES, ACTION_ON, ACTION_OFF, STATE_MAP
 from .api import VioletPoolAPIError
-from .entity import VioletPoolControllerEntity
+from .entity import VioletPoolControllerEntity, interpret_state_as_bool
 from .device import VioletPoolDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -60,36 +60,24 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
 
     def _get_switch_state(self) -> bool:
         """
-        State-Abfrage mit Change-Only Logging & optimistischem Cache.
-        
-        ✅ LOGGING OPTIMIZATION:
-        - Nur bei State-Änderungen loggen
-        - Keine Debug-Logs bei jedem Property-Zugriff
-        
-        ✅ FIXED: Prüft zuerst optimistischen Cache
+        State-Abfrage mit Change-Only Logging & optimistischem Cache - SIMPLIFIED.
+
+        Uses shared interpret_state_as_bool() from entity.py.
         """
-        # ✅ FIXED: Prüfe zuerst optimistischen Cache
+        # Prüfe zuerst optimistischen Cache
         if self._optimistic_state is not None:
             return self._optimistic_state
-        
+
         if self.coordinator.data is None:
             return False
-        
+
         key = self.entity_description.key
         raw_state = self.get_value(key, "")
-        
-        if raw_state is None or raw_state == "":
-            return False
-        
-        # State interpretieren
-        state_int = self._convert_to_int(raw_state)
-        
-        if state_int is not None:
-            result = self._interpret_int_state(state_int, key)
-        else:
-            result = self._interpret_string_state(raw_state, key)
-        
-        # ✅ LOGGING OPTIMIZATION: Nur bei Änderung loggen
+
+        # Use shared utility function
+        result = interpret_state_as_bool(raw_state, key)
+
+        # Change-Only Logging
         if result != self._last_logged_state or raw_state != self._last_logged_raw:
             _LOGGER.info(
                 "Switch %s: %s → %s (raw: %s)",
@@ -100,70 +88,8 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             )
             self._last_logged_state = result
             self._last_logged_raw = raw_state
-        
+
         return result
-
-    def _convert_to_int(self, value: Any) -> int | None:
-        """Konvertiere Wert zu Integer, wenn möglich."""
-        try:
-            if isinstance(value, (int, float)):
-                return int(value)
-            if isinstance(value, str) and value.isdigit():
-                return int(value)
-        except (ValueError, TypeError):
-            pass
-        return None
-
-    def _interpret_int_state(self, state_int: int, key: str) -> bool:
-        """
-        Interpretiere Integer State - LOGGING OPTIMIZED.
-        
-        ✅ LOGGING OPTIMIZATION: Keine Debug-Logs, nur Warnungen bei Problemen.
-        """
-        if state_int in STATE_MAP:
-            return STATE_MAP[state_int]
-        
-        if state_int in ON_STATES:
-            return True
-        
-        if state_int in OFF_STATES:
-            return False
-        
-        # ✅ Nur unbekannte States warnen (einmalig durch Change-Detection)
-        _LOGGER.warning(
-            "Unbekannter State %d für %s - bitte im GitHub melden! "
-            "Integration verwendet Fallback: OFF",
-            state_int, key
-        )
-        return False
-
-    def _interpret_string_state(self, raw_state: Any, key: str) -> bool:
-        """
-        Interpretiere String State - LOGGING OPTIMIZED.
-        
-        ✅ LOGGING OPTIMIZATION: Keine Debug-Logs.
-        """
-        state_str = str(raw_state).upper().strip()
-        
-        if state_str in STATE_MAP:
-            return STATE_MAP[state_str]
-        
-        boolean_on_states = {"TRUE", "ON", "1", "ACTIVE", "RUNNING", "MANUAL", "MAN"}
-        boolean_off_states = {"FALSE", "OFF", "0", "INACTIVE", "STOPPED"}
-        
-        if state_str in boolean_on_states:
-            return True
-        
-        if state_str in boolean_off_states:
-            return False
-        
-        # ✅ Nur unbekannte Strings warnen
-        _LOGGER.warning(
-            "Unbekannter State-String '%s' für %s - bitte im GitHub melden! "
-            "Integration verwendet Fallback: OFF",
-            state_str, key
-        )
-        return False
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
