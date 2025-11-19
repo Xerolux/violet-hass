@@ -116,8 +116,7 @@ jobs:
           fi
 
           {
-            echo "$CURRENT_TAG – Bug Fixes & Improvements 🎉"
-            echo "$CURRENT_TAG – Fehlerbehebungen & Verbesserungen 🎉"
+            echo "$CURRENT_TAG – Bug Fixes & Improvements / Fehlerbehebungen & Verbesserungen 🎉"
             echo ""
             echo "🔧 Bug Fixes | Fehlerbehebungen"
             echo "$BUG_FIXES"
@@ -128,8 +127,7 @@ jobs:
             echo "✨ New Features | Neue Funktionen"
             echo "$NEW_FEATURES"
             echo ""
-            echo "📄 $CHANGELOG_EN"
-            echo "📄 $CHANGELOG_DE"
+            echo "📄 $CHANGELOG_EN / $CHANGELOG_DE"
             if [ -n "$CHANGELOG_LINK" ]; then
               echo "$CHANGELOG_LINK"
             fi
@@ -179,9 +177,18 @@ jobs:
             touch RELEASE_NOTES.md
           fi
 
+      - name: Update version in files
+        run: |
+          VERSION="${{ needs.prepare-release.outputs.version }}"
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" custom_components/violet_pool_controller/manifest.json
+          sed -i "s/^INTEGRATION_VERSION = .*/INTEGRATION_VERSION = \"$VERSION\"/" custom_components/violet_pool_controller/const.py
+          echo "✅ Updated version to $VERSION in manifest.json and const.py"
+
       - name: Update release notes file
         run: |
-          printf '%s\n' '${{ needs.prepare-release.outputs.release-notes }}' > temp_combined.md
+          cat << 'RELEASE_EOF' > temp_combined.md
+          ${{ needs.prepare-release.outputs.release-notes }}
+          RELEASE_EOF
 
           if [ -s RELEASE_NOTES.md ]; then
             echo "" >> temp_combined.md
@@ -189,7 +196,7 @@ jobs:
             echo "" >> temp_combined.md
             cat RELEASE_NOTES.md >> temp_combined.md
           fi
-          
+
           mv temp_combined.md RELEASE_NOTES.md
           echo "✅ Updated RELEASE_NOTES.md"
 
@@ -197,14 +204,14 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add RELEASE_NOTES.md
+          git add RELEASE_NOTES.md custom_components/violet_pool_controller/manifest.json custom_components/violet_pool_controller/const.py
           if git diff --cached --quiet; then
             echo "ℹ️ No changes to commit"
             exit 0
           fi
-          git commit -m "📝 Update release notes for v${{ needs.prepare-release.outputs.version }}"
+          git commit -m "📝 Update version to v${{ needs.prepare-release.outputs.version }} and release notes"
           git push
-          echo "✅ Pushed release notes update"
+          echo "✅ Pushed version and release notes update"
 
   post-to-x:
     needs: [prepare-release, update-release-notes]
