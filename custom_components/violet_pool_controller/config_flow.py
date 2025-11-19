@@ -351,14 +351,17 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def _get_disclaimer_text(self) -> str:
         template = (
             "⚠️ **Sicherheitswarnung / Safety Warning**\n\n"
-            "**DE:** Diese Integration kann Pumpen, Heizungen, Beleuchtung und Dosieranlagen deines Pools fernsteuern. "
-            "Falsche Einstellungen können zu Sachschäden, Verletzungen oder Überdosierungen führen. Stelle sicher, dass du "
-            "alle Schutzmechanismen verstehst und jederzeit manuell eingreifen kannst. Lies vor der Nutzung unbedingt die "
-            "Hinweise in der Konfigurationshilfe ({docs_de}).\n\n"
-            "**EN:** This integration provides remote control for pumps, heaters, lights and dosing systems. Incorrect "
-            "configuration may cause equipment damage, personal injury or chemical overdosing. Make sure you understand all "
-            "safety features and keep manual overrides accessible. Please review the configuration guide ({docs_en}) before "
-            "you continue."
+            "**DE:** Diese Integration kann Pumpen, Heizungen, Beleuchtung und "
+            "Dosieranlagen deines Pools fernsteuern. Falsche Einstellungen können "
+            "zu Sachschäden, Verletzungen oder Überdosierungen führen. Stelle sicher, "
+            "dass du alle Schutzmechanismen verstehst und jederzeit manuell eingreifen "
+            "kannst. Lies vor der Nutzung unbedingt die Hinweise in der "
+            "Konfigurationshilfe ({docs_de}).\n\n"
+            "**EN:** This integration provides remote control for pumps, heaters, "
+            "lights and dosing systems. Incorrect configuration may cause equipment "
+            "damage, personal injury or chemical overdosing. Make sure you understand "
+            "all safety features and keep manual overrides accessible. Please review "
+            "the configuration guide ({docs_en}) before you continue."
         )
         return template.format(**self._get_help_links())
 
@@ -411,9 +414,15 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def _get_pool_setup_schema(self) -> vol.Schema:
         return vol.Schema({
-            vol.Required(CONF_POOL_SIZE, default=DEFAULT_POOL_SIZE): vol.All(vol.Coerce(float), vol.Range(min=0.1, max=1000.0)),
-            vol.Required(CONF_POOL_TYPE, default=DEFAULT_POOL_TYPE): vol.In(POOL_TYPE_OPTIONS),
-            vol.Required(CONF_DISINFECTION_METHOD, default=DEFAULT_DISINFECTION_METHOD): vol.In(DISINFECTION_OPTIONS),
+            vol.Required(CONF_POOL_SIZE, default=DEFAULT_POOL_SIZE): vol.All(
+                vol.Coerce(float), vol.Range(min=0.1, max=1000.0)
+            ),
+            vol.Required(CONF_POOL_TYPE, default=DEFAULT_POOL_TYPE): vol.In(
+                POOL_TYPE_OPTIONS
+            ),
+            vol.Required(CONF_DISINFECTION_METHOD, default=DEFAULT_DISINFECTION_METHOD): vol.In(
+                DISINFECTION_OPTIONS
+            ),
         })
 
     def _get_feature_selection_schema(self) -> vol.Schema:
@@ -471,7 +480,12 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
             protocol = "https" if self.current_config[CONF_USE_SSL] else "http"
             api_url = f"{protocol}://{self.current_config[CONF_API_URL]}{API_READINGS}?ALL"
             session = aiohttp_client.async_get_clientsession(self.hass)
-            auth = aiohttp.BasicAuth(self.current_config[CONF_USERNAME], self.current_config[CONF_PASSWORD]) if self.current_config[CONF_USERNAME] else None
+            auth = None
+            if self.current_config[CONF_USERNAME]:
+                auth = aiohttp.BasicAuth(
+                    self.current_config[CONF_USERNAME],
+                    self.current_config[CONF_PASSWORD]
+                )
             
             data = await fetch_api_data(
                 session, api_url, auth, self.current_config[CONF_USE_SSL],

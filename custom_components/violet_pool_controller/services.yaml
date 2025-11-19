@@ -164,10 +164,13 @@ manage_digital_rules:
 test_output:
   name: Output Test Mode
   description: Temporarily activate a controller output for diagnostics
-  target:
-    device:
-      integration: violet_pool_controller
   fields:
+    device_id:
+      description: Target device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
     output:
       description: Output identifier (e.g. PUMP, HEATER, SOLAR)
       required: true

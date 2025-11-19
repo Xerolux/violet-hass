@@ -257,6 +257,8 @@ class VioletServiceHandlers:
 
         for coordinator in coordinators:
             try:
+                result = {"success": True}  # Default result
+
                 if action == "speed_control":
                     result = await coordinator.device.api.set_switch_state(
                         key="PUMP",
@@ -325,6 +327,8 @@ class VioletServiceHandlers:
                             f"Safety interval active: {remaining}s remaining"
                         )
 
+                result = {"success": True}  # Default result
+
                 if action == "manual_dose":
                     result = await coordinator.device.api.manual_dosing(
                         dosing_type, duration
@@ -375,6 +379,8 @@ class VioletServiceHandlers:
 
         for coordinator in coordinators:
             try:
+                result = {"success": True}  # Default result
+
                 if mode == "activate":
                     result = await coordinator.device.api.set_pv_surplus(
                         active=True, pump_speed=pump_speed
