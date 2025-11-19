@@ -1,21 +1,19 @@
 """Violet Pool Controller Integration - IMPROVED VERSION."""
 import logging
-import asyncio
 from typing import Any, Dict, List
 
-import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, ServiceCall
-from homeassistant.const import Platform, ATTR_DEVICE_ID, ATTR_ENTITY_ID
+from homeassistant.core import HomeAssistant
+from homeassistant.const import Platform
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers import aiohttp_client, entity_registry as er
+from homeassistant.helpers import aiohttp_client
 
 from .const import (
     DOMAIN, CONF_API_URL, CONF_USE_SSL, CONF_DEVICE_ID, CONF_USERNAME, CONF_PASSWORD,
     CONF_DEVICE_NAME, CONF_POLLING_INTERVAL, CONF_TIMEOUT_DURATION, CONF_RETRY_ATTEMPTS,
-    CONF_ACTIVE_FEATURES, DEFAULT_POLLING_INTERVAL, DEFAULT_TIMEOUT_DURATION, 
-    DEFAULT_RETRY_ATTEMPTS, ACTION_ALLON, ACTION_ALLAUTO, ACTION_ALLOFF
+    CONF_ACTIVE_FEATURES, DEFAULT_POLLING_INTERVAL, DEFAULT_TIMEOUT_DURATION,
+    DEFAULT_RETRY_ATTEMPTS
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -144,7 +142,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if unload_ok:
             # Coordinator aus hass.data entfernen
             if entry.entry_id in hass.data.get(DOMAIN, {}):
-                coordinator = hass.data[DOMAIN].pop(entry.entry_id)
+                hass.data[DOMAIN].pop(entry.entry_id)
                 _LOGGER.debug("Coordinator removed for entry_id=%s", entry.entry_id)
             
             _LOGGER.info("Successfully unloaded '%s' (entry_id=%s)", device_name, entry.entry_id)
