@@ -271,7 +271,10 @@ AVAILABLE_FEATURES = [
     {"id": "cover_control", "name": "Abdeckungssteuerung", "default": True, "platforms": ["cover", "binary_sensor"]},
     {"id": "backwash", "name": "Rückspülung", "default": True, "platforms": ["switch", "binary_sensor"]},
     {"id": "pv_surplus", "name": "PV-Überschuss", "default": True, "platforms": ["switch", "binary_sensor"]},
-    {"id": "filter_control", "name": "Filterpumpe", "default": True, "platforms": ["switch", "binary_sensor", "sensor"]},
+    {
+        "id": "filter_control", "name": "Filterpumpe", "default": True,
+        "platforms": ["switch", "binary_sensor", "sensor"]
+    },
     {"id": "water_level", "name": "Wasserstand", "default": False, "platforms": ["sensor", "switch"]},
     {"id": "water_refill", "name": "Wassernachfüllung", "default": False, "platforms": ["switch", "binary_sensor"]},
     {"id": "led_lighting", "name": "LED-Beleuchtung", "default": True, "platforms": ["switch"]},
@@ -762,8 +765,16 @@ RUNTIME_SENSORS = {
 }
 
 # Runtime for dosing
-for dos_key, name in [("DOS_1_CL", "Chlor"), ("DOS_4_PHM", "pH-Minus"), ("DOS_5_PHP", "pH-Plus"), ("DOS_6_FLOC", "Flockmittel")]:
-    RUNTIME_SENSORS[f"{dos_key}_RUNTIME"] = {"name": f"{name} Laufzeit", "icon": "mdi:timer", "unit": None}
+DOSING_RUNTIME_KEYS = [
+    ("DOS_1_CL", "Chlor"),
+    ("DOS_4_PHM", "pH-Minus"),
+    ("DOS_5_PHP", "pH-Plus"),
+    ("DOS_6_FLOC", "Flockmittel")
+]
+for dos_key, name in DOSING_RUNTIME_KEYS:
+    RUNTIME_SENSORS[f"{dos_key}_RUNTIME"] = {
+        "name": f"{name} Laufzeit", "icon": "mdi:timer", "unit": None
+    }
 
 # Runtime for extensions
 for ext_bank in [1, 2]:
@@ -1083,7 +1094,11 @@ class VioletState:
         return f"VioletState({self.device_key}): {self.display_mode} ({self.raw_state})"
 
     def __repr__(self) -> str:
-        return f"VioletState(raw_state='{self.raw_state}', device_key='{self.device_key}', mode='{self.mode}', active={self.is_active})"
+        return (
+            f"VioletState(raw_state='{self.raw_state}', "
+            f"device_key='{self.device_key}', mode='{self.mode}', "
+            f"active={self.is_active})"
+        )
 
 
 # =============================================================================

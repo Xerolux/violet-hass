@@ -331,7 +331,9 @@ def determine_state_class(key: str, unit: str | None, raw_value=None) -> SensorS
 
 def get_icon(unit: str | None, key: str, raw_value=None) -> str:
     """Bestimmt Icon."""
-    if key in BOOLEAN_VALUE_SENSORS or (raw_value is not None and _is_boolean_value(raw_value)): return "mdi:toggle-switch"
+    is_bool = raw_value is not None and _is_boolean_value(raw_value)
+    if key in BOOLEAN_VALUE_SENSORS or is_bool:
+        return "mdi:toggle-switch"
     if key == "pH_value": return "mdi:flask"
     if "flow" in key.lower(): return "mdi:pump"
     if unit == "°C": return "mdi:thermometer"
@@ -465,4 +467,8 @@ async def async_setup_entry(
         async_add_entities(sensors)
         _LOGGER.info("%d Sensoren für '%s' hinzugefügt.", len(sensors), config_entry.title)
     else:
-        _LOGGER.warning("Keine Sensoren für '%s' hinzugefügt. Überprüfe die Auswahl im Konfigurationsmenü.", config_entry.title)
+        _LOGGER.warning(
+            "Keine Sensoren für '%s' hinzugefügt. "
+            "Überprüfe die Auswahl im Konfigurationsmenü.",
+            config_entry.title
+        )
