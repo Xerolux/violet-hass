@@ -12,8 +12,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, BINARY_SENSORS, STATE_MAP, CONF_ACTIVE_FEATURES
-from .entity import VioletPoolControllerEntity, convert_to_int, interpret_state_as_bool
+from .const import DOMAIN, BINARY_SENSORS, CONF_ACTIVE_FEATURES
+from .entity import VioletPoolControllerEntity, interpret_state_as_bool
 from .device import VioletPoolDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)

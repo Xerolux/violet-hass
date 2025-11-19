@@ -2,14 +2,12 @@
 import logging
 
 from homeassistant.components.number import (
-    NumberEntity, 
-    NumberDeviceClass, 
+    NumberEntity,
     NumberEntityDescription
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.entity import EntityCategory
 from homeassistant.exceptions import HomeAssistantError
 
 from .const import DOMAIN, SETPOINT_DEFINITIONS, CONF_ACTIVE_FEATURES

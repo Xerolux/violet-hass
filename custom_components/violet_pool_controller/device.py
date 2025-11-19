@@ -10,7 +10,6 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.const import CONF_USERNAME, CONF_PASSWORD
 
 from .const import (
     DOMAIN,
@@ -69,10 +68,7 @@ class VioletPoolControllerDevice:
         self.use_ssl = entry_data.get(CONF_USE_SSL, True)
         self.device_id = entry_data.get(CONF_DEVICE_ID, 1)
         self.device_name = entry_data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
-        
-        username = entry_data.get(CONF_USERNAME, "")
-        password = entry_data.get(CONF_PASSWORD, "")
-        
+
         _LOGGER.info(
             "Device initialisiert: '%s' (URL: %s, SSL: %s, Device-ID: %d)",
             self.device_name, self.api_url, self.use_ssl, self.device_id

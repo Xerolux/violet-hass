@@ -17,7 +17,6 @@ from .const import (
     ACTION_ALLOFF,
     ACTION_ALLON,
     ACTION_AUTO,
-    ACTION_MAN,
     ACTION_OFF,
     ACTION_ON,
     DEVICE_PARAMETERS,

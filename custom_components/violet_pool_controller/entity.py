@@ -6,7 +6,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.helpers.entity import EntityDescription
 from homeassistant.config_entries import ConfigEntry
 
-from .const import DOMAIN, STATE_MAP
+from .const import STATE_MAP
 from .device import VioletPoolDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
