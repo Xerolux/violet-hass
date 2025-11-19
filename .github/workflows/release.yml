@@ -115,33 +115,35 @@ jobs:
             CHANGELOG_LINK="🔗 $CHANGELOG_URL"
           fi
 
-          cat <<EOL > temp_release_notes.md
-$CURRENT_TAG – Bug Fixes & Improvements 🎉
-$CURRENT_TAG – Fehlerbehebungen & Verbesserungen 🎉
-
-🔧 Bug Fixes | Fehlerbehebungen
-$BUG_FIXES
-
-🚀 Improvements | Verbesserungen
-$IMPROVEMENTS
-
-✨ New Features | Neue Funktionen
-$NEW_FEATURES
-
-📄 $CHANGELOG_EN
-📄 $CHANGELOG_DE
-${CHANGELOG_LINK:+$CHANGELOG_LINK}
-
-❤️ Support My Project | Unterstütze mein Projekt
-- ☕ Buy Me a Coffee: https://buymeacoffee.com/xerolux
-- 🚗 Tesla referral: https://ts.la/sebastian564489
-- Every contribution, no matter how small, is a huge motivation! Thank you so much for your support! 🙏
-- Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank für deine Unterstützung! 🙏
-
-💬 Feedback & Contributions | Feedback & Beiträge
-- I’m always open to feedback, suggestions, or contributions from the community. Feel free to open an issue or submit a pull request.
-- Ich freue mich über Feedback, Vorschläge oder Beiträge aus der Community. Erstelle gerne ein Issue oder sende einen Pull Request.
-EOL
+          {
+            echo "$CURRENT_TAG – Bug Fixes & Improvements 🎉"
+            echo "$CURRENT_TAG – Fehlerbehebungen & Verbesserungen 🎉"
+            echo ""
+            echo "🔧 Bug Fixes | Fehlerbehebungen"
+            echo "$BUG_FIXES"
+            echo ""
+            echo "🚀 Improvements | Verbesserungen"
+            echo "$IMPROVEMENTS"
+            echo ""
+            echo "✨ New Features | Neue Funktionen"
+            echo "$NEW_FEATURES"
+            echo ""
+            echo "📄 $CHANGELOG_EN"
+            echo "📄 $CHANGELOG_DE"
+            if [ -n "$CHANGELOG_LINK" ]; then
+              echo "$CHANGELOG_LINK"
+            fi
+            echo ""
+            echo "❤️ Support My Project | Unterstütze mein Projekt"
+            echo "- ☕ Buy Me a Coffee: https://buymeacoffee.com/xerolux"
+            echo "- 🚗 Tesla referral: https://ts.la/sebastian564489"
+            echo "- Every contribution, no matter how small, is a huge motivation! Thank you so much for your support! 🙏"
+            echo "- Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank für deine Unterstützung! 🙏"
+            echo ""
+            echo "💬 Feedback & Contributions | Feedback & Beiträge"
+            echo "- I'm always open to feedback, suggestions, or contributions from the community. Feel free to open an issue or submit a pull request."
+            echo "- Ich freue mich über Feedback, Vorschläge oder Beiträge aus der Community. Erstelle gerne ein Issue oder sende einen Pull Request."
+          } > temp_release_notes.md
 
           echo "release-notes<<EOFNOTES" >> $GITHUB_OUTPUT
           cat temp_release_notes.md >> $GITHUB_OUTPUT
@@ -179,11 +181,8 @@ EOL
 
       - name: Update release notes file
         run: |
-          cat > temp_combined.md << 'EOFCOMBINED'
-          ${{ needs.prepare-release.outputs.release-notes }}
+          printf '%s\n' '${{ needs.prepare-release.outputs.release-notes }}' > temp_combined.md
 
-          EOFCOMBINED
-          
           if [ -s RELEASE_NOTES.md ]; then
             echo "" >> temp_combined.md
             echo "---" >> temp_combined.md
