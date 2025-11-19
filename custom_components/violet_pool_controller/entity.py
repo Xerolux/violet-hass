@@ -6,10 +6,87 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.helpers.entity import EntityDescription
 from homeassistant.config_entries import ConfigEntry
 
-from .const import DOMAIN
+from .const import DOMAIN, STATE_MAP
 from .device import VioletPoolDataUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
+
+
+# =============================================================================
+# SHARED UTILITY FUNCTIONS
+# =============================================================================
+
+def convert_to_int(value: Any) -> int | None:
+    """Convert value to integer if possible.
+
+    Args:
+        value: Value to convert
+
+    Returns:
+        Integer value or None if conversion fails
+    """
+    try:
+        if isinstance(value, (int, float)):
+            return int(value)
+        if isinstance(value, str) and value.strip().isdigit():
+            return int(value.strip())
+    except (ValueError, TypeError):
+        pass
+    return None
+
+
+def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool:
+    """Interpret raw state value as boolean.
+
+    Supports:
+    - Integer states (via STATE_MAP)
+    - String states (ON/OFF, TRUE/FALSE, etc.)
+
+    Args:
+        raw_state: Raw state value from API
+        key: Entity key for logging
+
+    Returns:
+        Boolean interpretation of the state
+    """
+    if raw_state is None or raw_state == "":
+        return False
+
+    # Try integer interpretation first
+    state_int = convert_to_int(raw_state)
+    if state_int is not None:
+        # Check STATE_MAP first
+        if state_int in STATE_MAP:
+            return STATE_MAP[state_int]
+        # Generic interpretation: 0 = False, non-zero = True
+        return state_int != 0
+
+    # String interpretation
+    state_str = str(raw_state).upper().strip()
+
+    # Check STATE_MAP for string states
+    if state_str in STATE_MAP:
+        return STATE_MAP[state_str]
+
+    # Known boolean strings
+    true_values = {
+        "TRUE", "ON", "1", "YES", "ACTIVE", "RUNNING",
+        "ENABLED", "OPEN", "HIGH", "MANUAL", "MAN"
+    }
+    false_values = {
+        "FALSE", "OFF", "0", "NO", "INACTIVE", "STOPPED",
+        "DISABLED", "CLOSED", "LOW"
+    }
+
+    if state_str in true_values:
+        return True
+
+    if state_str in false_values:
+        return False
+
+    # Default: unknown states are False
+    _LOGGER.debug("Unknown state '%s' for %s -> False (default)", state_str, key)
+    return False
 
 
 class VioletPoolControllerEntity(CoordinatorEntity):

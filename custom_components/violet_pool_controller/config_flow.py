@@ -2,7 +2,7 @@
 import asyncio
 import ipaddress
 import logging
-from typing import Any, Dict, List
+from typing import Any
 
 import aiohttp
 import voluptuous as vol
@@ -128,6 +128,43 @@ async def fetch_api_data(
             _LOGGER.warning("API-Versuch %d/%d fehlgeschlagen, wiederhole in %ds", attempt + 1, retries, retry_delay)
             await asyncio.sleep(retry_delay)
     raise ValueError("Fehler nach allen Versuchen")
+
+
+async def get_grouped_sensors(
+    hass: HomeAssistant,
+    config_data: dict[str, Any],
+) -> dict[str, list[str]]:
+    """Ruft Sensoren ab und gruppiert sie - Shared helper function."""
+    try:
+        protocol = "https" if config_data[CONF_USE_SSL] else "http"
+        api_url = f"{protocol}://{config_data[CONF_API_URL]}{API_READINGS}?ALL"
+        session = aiohttp_client.async_get_clientsession(hass)
+        auth = (
+            aiohttp.BasicAuth(
+                config_data[CONF_USERNAME],
+                config_data[CONF_PASSWORD],
+            )
+            if config_data.get(CONF_USERNAME)
+            else None
+        )
+
+        data = await fetch_api_data(
+            session, api_url, auth, config_data[CONF_USE_SSL],
+            config_data.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION),
+            config_data.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)
+        )
+
+        grouped: dict[str, list[str]] = {}
+        for key in sorted(data.keys()):
+            # Einfache Gruppierung nach Präfix
+            group = key.split('_')[0]
+            if group not in grouped:
+                grouped[group] = []
+            grouped[group].append(key)
+        return grouped
+
+    except ValueError:
+        return {}
 
 
 class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -308,37 +345,9 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         except ValueError:
             return False
             
-    async def _get_grouped_sensors(self) -> Dict[str, List[str]]:
+    async def _get_grouped_sensors(self) -> dict[str, list[str]]:
         """Ruft Sensoren ab und gruppiert sie."""
-        try:
-            protocol = "https" if self._config_data[CONF_USE_SSL] else "http"
-            api_url = f"{protocol}://{self._config_data[CONF_API_URL]}{API_READINGS}?ALL"
-            session = aiohttp_client.async_get_clientsession(self.hass)
-            auth = (
-                aiohttp.BasicAuth(
-                    self._config_data[CONF_USERNAME],
-                    self._config_data[CONF_PASSWORD],
-                )
-                if self._config_data[CONF_USERNAME]
-                else None
-            )
-            
-            data = await fetch_api_data(
-                session, api_url, auth, self._config_data[CONF_USE_SSL],
-                self._config_data[CONF_TIMEOUT_DURATION], self._config_data[CONF_RETRY_ATTEMPTS]
-            )
-            
-            grouped: Dict[str, List[str]] = {}
-            for key in sorted(data.keys()):
-                # Einfache Gruppierung nach Präfix
-                group = key.split('_')[0]
-                if group not in grouped:
-                    grouped[group] = []
-                grouped[group].append(key)
-            return grouped
-            
-        except ValueError:
-            return {}
+        return await get_grouped_sensors(self.hass, self._config_data)
 
     def _extract_active_features(self, ui: dict) -> list:
         return [f['id'] for f in AVAILABLE_FEATURES if ui.get(f"enable_{f['id']}", f["default"])]
@@ -473,34 +482,9 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
             data_schema=self._get_options_schema(),
         )
 
-    async def _get_grouped_sensors(self) -> Dict[str, List[str]]:
+    async def _get_grouped_sensors(self) -> dict[str, list[str]]:
         """Ruft Sensoren für den Options-Flow ab."""
-        # Logik ist identisch zum ConfigFlow, könnte man auslagern
-        try:
-            protocol = "https" if self.current_config[CONF_USE_SSL] else "http"
-            api_url = f"{protocol}://{self.current_config[CONF_API_URL]}{API_READINGS}?ALL"
-            session = aiohttp_client.async_get_clientsession(self.hass)
-            auth = None
-            if self.current_config[CONF_USERNAME]:
-                auth = aiohttp.BasicAuth(
-                    self.current_config[CONF_USERNAME],
-                    self.current_config[CONF_PASSWORD]
-                )
-            
-            data = await fetch_api_data(
-                session, api_url, auth, self.current_config[CONF_USE_SSL],
-                self.current_config[CONF_TIMEOUT_DURATION], self.current_config[CONF_RETRY_ATTEMPTS]
-            )
-            
-            grouped: Dict[str, List[str]] = {}
-            for key in sorted(data.keys()):
-                group = key.split('_')[0]
-                if group not in grouped:
-                    grouped[group] = []
-                grouped[group].append(key)
-            return grouped
-        except ValueError:
-            return {}
+        return await get_grouped_sensors(self.hass, self.current_config)
 
     def _get_options_schema(self) -> vol.Schema:
         """Schema für Options Flow."""
