@@ -11,9 +11,9 @@ from homeassistant.helpers import aiohttp_client
 
 from .const import (
     DOMAIN, CONF_API_URL, CONF_USE_SSL, CONF_DEVICE_ID, CONF_USERNAME, CONF_PASSWORD,
-    CONF_DEVICE_NAME, CONF_POLLING_INTERVAL, CONF_TIMEOUT_DURATION, CONF_RETRY_ATTEMPTS,
-    CONF_ACTIVE_FEATURES, DEFAULT_POLLING_INTERVAL, DEFAULT_TIMEOUT_DURATION,
-    DEFAULT_RETRY_ATTEMPTS
+    CONF_DEVICE_NAME, CONF_CONTROLLER_NAME, CONF_POLLING_INTERVAL, CONF_TIMEOUT_DURATION,
+    CONF_RETRY_ATTEMPTS, CONF_ACTIVE_FEATURES, DEFAULT_POLLING_INTERVAL, DEFAULT_TIMEOUT_DURATION,
+    DEFAULT_RETRY_ATTEMPTS, DEFAULT_CONTROLLER_NAME
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -173,10 +173,10 @@ def _extract_config(entry: ConfigEntry) -> dict[str, Any]:
         entry.data.get("host") or
         entry.data.get("base_ip")
     )
-    
+
     if not ip_address:
         raise HomeAssistantError("No IP address found in config entry")
-    
+
     return {
         "ip_address": ip_address.strip(),
         "use_ssl": entry.data.get(CONF_USE_SSL, True),
@@ -184,6 +184,7 @@ def _extract_config(entry: ConfigEntry) -> dict[str, Any]:
         "username": entry.data.get(CONF_USERNAME, ""),
         "password": entry.data.get(CONF_PASSWORD, ""),
         "device_name": entry.data.get(CONF_DEVICE_NAME, "Violet Pool Controller"),
+        "controller_name": entry.data.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME),
         "polling_interval": entry.options.get(
             CONF_POLLING_INTERVAL,
             entry.data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)

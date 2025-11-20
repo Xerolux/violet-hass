@@ -17,6 +17,7 @@ from .const import (
     CONF_API_URL,
     CONF_USE_SSL,
     CONF_DEVICE_NAME,
+    CONF_CONTROLLER_NAME,
     CONF_USERNAME,
     CONF_PASSWORD,
     CONF_DEVICE_ID,
@@ -35,6 +36,7 @@ from .const import (
     DEFAULT_POOL_SIZE,
     DEFAULT_POOL_TYPE,
     DEFAULT_DISINFECTION_METHOD,
+    DEFAULT_CONTROLLER_NAME,
     AVAILABLE_FEATURES,
 )
 
@@ -316,6 +318,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             CONF_API_URL: ui[CONF_API_URL],
             CONF_USE_SSL: ui.get(CONF_USE_SSL, DEFAULT_USE_SSL),
             CONF_DEVICE_NAME: ui.get(CONF_DEVICE_NAME, "🌊 Violet Pool Controller"),
+            CONF_CONTROLLER_NAME: ui.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME),
             CONF_USERNAME: ui.get(CONF_USERNAME, ""),
             CONF_PASSWORD: ui.get(CONF_PASSWORD, ""),
             CONF_DEVICE_ID: int(ui.get(CONF_DEVICE_ID, 1)),
@@ -353,9 +356,9 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return [f['id'] for f in AVAILABLE_FEATURES if ui.get(f"enable_{f['id']}", f["default"])]
 
     def _generate_entry_title(self) -> str:
-        name = self._config_data.get(CONF_DEVICE_NAME)
+        controller_name = self._config_data.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME)
         pool_size = self._config_data.get(CONF_POOL_SIZE)
-        return f"{name} • {pool_size}m³"
+        return f"{controller_name} • {pool_size}m³"
 
     def _get_disclaimer_text(self) -> str:
         template = (
@@ -419,6 +422,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Coerce(int), vol.Range(min=MIN_RETRIES, max=MAX_RETRIES)
             ),
             vol.Optional(CONF_DEVICE_NAME, default="🌊 Violet Pool Controller"): str,
+            vol.Optional(CONF_CONTROLLER_NAME, default=DEFAULT_CONTROLLER_NAME): str,
         })
 
     def _get_pool_setup_schema(self) -> vol.Schema:

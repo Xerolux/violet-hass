@@ -30,6 +30,7 @@ CONF_RETRY_ATTEMPTS = "retry_attempts"
 CONF_USE_SSL = "use_ssl"
 CONF_DEVICE_ID = "device_id"
 CONF_DEVICE_NAME = "device_name"
+CONF_CONTROLLER_NAME = "controller_name"  # NEW: For Multi-Controller Support
 CONF_ACTIVE_FEATURES = "active_features"
 CONF_SELECTED_SENSORS = "selected_sensors"
 CONF_POOL_SIZE = "pool_size"
@@ -42,6 +43,7 @@ DEFAULT_TIMEOUT_DURATION = 10  # Sekunden
 DEFAULT_RETRY_ATTEMPTS = 3
 DEFAULT_USE_SSL = False
 DEFAULT_DEVICE_NAME = "Violet Pool Controller"
+DEFAULT_CONTROLLER_NAME = "Violet Pool Controller"  # NEW: Multi-Controller Support
 DEFAULT_POOL_SIZE = 50  # m³
 DEFAULT_POOL_TYPE = "outdoor"
 DEFAULT_DISINFECTION_METHOD = "chlorine"
@@ -189,6 +191,7 @@ __all__ = [
     "CONF_USE_SSL",
     "CONF_DEVICE_ID",
     "CONF_DEVICE_NAME",
+    "CONF_CONTROLLER_NAME",
     "CONF_POOL_SIZE",
     "CONF_POOL_TYPE",
     "CONF_DISINFECTION_METHOD",
@@ -197,6 +200,7 @@ __all__ = [
     "DEFAULT_RETRY_ATTEMPTS",
     "DEFAULT_USE_SSL",
     "DEFAULT_DEVICE_NAME",
+    "DEFAULT_CONTROLLER_NAME",
     "DEFAULT_POOL_SIZE",
     "DEFAULT_POOL_TYPE",
     "DEFAULT_DISINFECTION_METHOD",
