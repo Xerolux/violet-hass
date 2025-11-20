@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Tag name for the release (e.g., v0.1.0-8)'
+        description: 'Tag name for the release (e.g., v0.2.0, v0.2.1, v1.0.0)'
         required: false
         type: string
 
@@ -39,7 +39,8 @@ jobs:
           TAG="${{ github.event.release.tag_name || inputs.tag_name || github.ref_name }}"
           if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$ ]]; then
             echo "❌ Invalid tag format: $TAG"
-            echo "Expected format: v1.2.3, v1.2.3-beta, v1.2.3-8, or v1.2.3-test.1"
+            echo "Expected format: v0.2.0, v0.2.1, v1.0.0 (Semantic Versioning 2.0.0)"
+            echo "Pre-release tags (optional): v0.3.0-beta.1, v1.0.0-rc.1"
             exit 1
           fi
           echo "✅ Valid tag format: $TAG"

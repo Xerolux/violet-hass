@@ -7,11 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- Complete Home Assistant integration for Violet Pool Controller
-- Multi-language support (German/English)
-- Comprehensive automation blueprints
-- Advanced service implementations
+## [0.2.0] - 2025-11-20
+
+### 🎉 Semantic Versioning Adoption
+
+This release marks the transition to clean Semantic Versioning (SemVer 2.0.0) for better version clarity and HACS compatibility.
+
+#### ✨ Added
+- **Semantic Versioning:** Migrated from `0.1.0-8` to `0.2.0` (SemVer 2.0.0 compliant)
+- **Complete 3-State Switch Support:** Enhanced state handling with State 4 (Manual Forced ON)
+- **PVSURPLUS Parameter Support:** Full integration of PV surplus functionality
+- **Enhanced DMX Scene Control:** Support for 12 DMX lighting scenes
+- **Extended Sensor Coverage:** 147 API parameters fully mapped
+- **Complete Extension Relay Support:** EXT1/EXT2 relay banks
+- **Multi-language support:** German/English translations
+- **Comprehensive automation blueprints:** Ready-to-use automations
+- **Advanced service implementations:** 7+ custom services
+
+#### 🔧 Fixed
+- **STATE_MAP:** Now includes State 4 (Manual Forced ON)
+- **PVSURPLUS:** Added to SWITCH_FUNCTIONS mapping
+- **COVER_STATE_MAP:** Supports both string and numeric states
+- **Thread Safety:** Optimistic updates use local cache variables
+- **Logging Optimization:** Smart failure logging prevents log spam
+
+#### 🚀 Improved
+- **Release Workflow:** Updated for clean SemVer tags (v0.2.0, v0.2.1, etc.)
+- **Version Management:** Centralized version info with automatic updates
+- **Documentation:** Updated examples to use SemVer format
 
 ## [0.1.0] - 2024-XX-XX
 
