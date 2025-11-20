@@ -231,7 +231,10 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """🌐 Schritt 2: Controller-Verbindung."""
         errors = {}
         if user_input:
-            if self._is_duplicate_entry(user_input[CONF_API_URL]):
+            if self._is_duplicate_entry(
+                user_input[CONF_API_URL],
+                int(user_input.get(CONF_DEVICE_ID, 1))
+            ):
                 errors["base"] = ERROR_ALREADY_CONFIGURED
             elif not validate_ip_address(user_input[CONF_API_URL]):
                 errors[CONF_API_URL] = ERROR_INVALID_IP
@@ -310,8 +313,25 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     # ================= Helper Methods =================
 
-    def _is_duplicate_entry(self, ip: str) -> bool:
-        return any(entry.data.get(CONF_API_URL) == ip for entry in self._async_current_entries())
+    def _is_duplicate_entry(self, ip: str, device_id: int = 1) -> bool:
+        """
+        Prüfe ob IP + Device-ID Kombination bereits existiert.
+
+        ✅ MULTI-CONTROLLER FIX: Erlaubt mehrere Controller mit gleicher IP
+        aber unterschiedlichen Device-IDs (z.B. auf verschiedenen Ports).
+
+        Args:
+            ip: IP-Adresse des Controllers
+            device_id: Device-ID (Standard: 1)
+
+        Returns:
+            True wenn exakt diese Kombination bereits konfiguriert ist
+        """
+        return any(
+            entry.data.get(CONF_API_URL) == ip and
+            entry.data.get(CONF_DEVICE_ID, 1) == device_id
+            for entry in self._async_current_entries()
+        )
 
     def _build_config_data(self, ui: dict) -> dict:
         return {
