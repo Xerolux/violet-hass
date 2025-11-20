@@ -16,9 +16,11 @@ from .const import (
     CONF_API_URL,
     CONF_USE_SSL,
     CONF_DEVICE_NAME,
+    CONF_CONTROLLER_NAME,
     CONF_DEVICE_ID,
     CONF_POLLING_INTERVAL,
     DEFAULT_POLLING_INTERVAL,
+    DEFAULT_CONTROLLER_NAME,
     SPECIFIC_READING_GROUPS,
     SPECIFIC_FULL_REFRESH_INTERVAL,
 )
@@ -79,10 +81,11 @@ class VioletPoolControllerDevice:
         self.use_ssl = entry_data.get(CONF_USE_SSL, True)
         self.device_id = entry_data.get(CONF_DEVICE_ID, 1)
         self.device_name = entry_data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
+        self.controller_name = entry_data.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME)
 
         _LOGGER.info(
-            "Device initialisiert: '%s' (URL: %s, SSL: %s, Device-ID: %d)",
-            self.device_name, self.api_url, self.use_ssl, self.device_id
+            "Device initialisiert: '%s' (Controller: %s, URL: %s, SSL: %s, Device-ID: %d)",
+            self.device_name, self.controller_name, self.api_url, self.use_ssl, self.device_id
         )
 
     def _should_log_failure(self) -> bool:
@@ -317,14 +320,21 @@ class VioletPoolControllerDevice:
 
     @property
     def device_info(self) -> dict[str, Any]:
-        """Gibt die Geräteinformationen für Home Assistant zurück."""
+        """
+        Gibt die Geräteinformationen für Home Assistant zurück.
+
+        ✅ MULTI-CONTROLLER SUPPORT:
+        - Verwendet controller_name für visuelle Unterscheidung
+        - suggested_area ermöglicht automatische Bereichszuweisung
+        """
         if not self._device_info:
             self._device_info = {
                 "identifiers": {(DOMAIN, f"{self.api_url}_{self.device_id}")},
-                "name": self.device_name,
+                "name": self.controller_name,  # ✅ Verwendet Controller-Name statt Device-Name
                 "manufacturer": "PoolDigital GmbH & Co. KG",
                 "model": "Violet Pool Controller",
                 "sw_version": self._firmware_version or "Unbekannt",
+                "suggested_area": self.controller_name,  # ✅ Auto-Area für Multi-Controller
             }
         return self._device_info
 
