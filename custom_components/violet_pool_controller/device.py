@@ -53,7 +53,6 @@ class VioletPoolControllerDevice:
         self._available = False
         self._session = async_get_clientsession(hass)
         self._data: dict[str, Any] = {}
-        self._device_info: dict[str, Any] = {}
         self._firmware_version: Optional[str] = None
         self._last_error: Optional[str] = None
         self._api_lock = asyncio.Lock()
@@ -75,13 +74,18 @@ class VioletPoolControllerDevice:
         self._last_recovery_attempt = 0.0  # Timestamp letzter Recovery-Versuch
         self._recovery_task: Optional[asyncio.Task] = None  # Recovery-Task
 
-        # Konfiguration extrahieren
+        # Konfiguration extrahieren (mit Options-Support)
         entry_data = config_entry.data
+        entry_options = config_entry.options
         self.api_url = self._extract_api_url(entry_data)
         self.use_ssl = entry_data.get(CONF_USE_SSL, True)
         self.device_id = entry_data.get(CONF_DEVICE_ID, 1)
         self.device_name = entry_data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
-        self.controller_name = entry_data.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME)
+        # ✅ MULTI-CONTROLLER: Priorisiere Options (nachträgliche Änderungen), dann Data
+        self.controller_name = entry_options.get(
+            CONF_CONTROLLER_NAME,
+            entry_data.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME)
+        )
 
         _LOGGER.info(
             "Device initialisiert: '%s' (Controller: %s, URL: %s, SSL: %s, Device-ID: %d)",
@@ -326,17 +330,16 @@ class VioletPoolControllerDevice:
         ✅ MULTI-CONTROLLER SUPPORT:
         - Verwendet controller_name für visuelle Unterscheidung
         - suggested_area ermöglicht automatische Bereichszuweisung
+        - Kein Caching, damit Options-Änderungen sofort wirksam werden
         """
-        if not self._device_info:
-            self._device_info = {
-                "identifiers": {(DOMAIN, f"{self.api_url}_{self.device_id}")},
-                "name": self.controller_name,  # ✅ Verwendet Controller-Name statt Device-Name
-                "manufacturer": "PoolDigital GmbH & Co. KG",
-                "model": "Violet Pool Controller",
-                "sw_version": self._firmware_version or "Unbekannt",
-                "suggested_area": self.controller_name,  # ✅ Auto-Area für Multi-Controller
-            }
-        return self._device_info
+        return {
+            "identifiers": {(DOMAIN, f"{self.api_url}_{self.device_id}")},
+            "name": self.controller_name,  # ✅ Verwendet Controller-Name statt Device-Name
+            "manufacturer": "PoolDigital GmbH & Co. KG",
+            "model": "Violet Pool Controller",
+            "sw_version": self._firmware_version or "Unbekannt",
+            "suggested_area": self.controller_name,  # ✅ Auto-Area für Multi-Controller
+        }
 
     async def _attempt_recovery(self) -> bool:
         """

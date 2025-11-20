@@ -68,9 +68,9 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Violet Pool Controller from a config entry - IMPROVED VERSION."""
     _LOGGER.info(
-        "Setting up Violet Pool Controller (entry_id=%s, device=%s)",
+        "Setting up Violet Pool Controller (entry_id=%s, controller=%s)",
         entry.entry_id,
-        entry.data.get(CONF_DEVICE_NAME, "Unknown")
+        entry.data.get(CONF_CONTROLLER_NAME, entry.data.get(CONF_DEVICE_NAME, "Unknown"))
     )
 
     # Lazy imports to avoid blocking the event loop
