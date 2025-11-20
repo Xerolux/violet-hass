@@ -40,7 +40,11 @@ from .const import (
     TARGET_MIN_CHLORINE,
     TARGET_ORP,
     TARGET_PH,
+    API_PRIORITY_NORMAL,
+    API_PRIORITY_HIGH,
+    API_PRIORITY_CRITICAL,
 )
+from .utils_rate_limiter import get_global_rate_limiter
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -89,6 +93,10 @@ class VioletPoolAPI:
         if username:
             self._auth = aiohttp.BasicAuth(username, password or "")
 
+        # ✅ RATE LIMITING: Schützt Controller vor Überlastung
+        self._rate_limiter = get_global_rate_limiter()
+        _LOGGER.debug("API initialized with rate limiting enabled")
+
     # ---------------------------------------------------------------------
     # Generic helpers
     # ---------------------------------------------------------------------
@@ -106,11 +114,41 @@ class VioletPoolAPI:
         query: str | None = None,
         json_payload: Any | None = None,
         expect_json: bool = False,
+        priority: int = API_PRIORITY_NORMAL,
     ) -> Any:
-        """Perform a request and handle retries as well as error reporting."""
+        """
+        Perform a request and handle retries as well as error reporting.
+
+        ✅ RATE LIMITING: Wartet automatisch wenn Request-Limit erreicht ist.
+
+        Args:
+            endpoint: API-Endpoint
+            method: HTTP-Methode
+            params: URL-Parameter
+            query: Query-String
+            json_payload: JSON-Payload
+            expect_json: Erwarte JSON-Response
+            priority: Request-Priorität (1=critical, 2=high, 3=normal, 4=low)
+
+        Returns:
+            API-Response (JSON oder Text)
+
+        Raises:
+            VioletPoolAPIError: Bei API-Fehlern
+        """
 
         if params and query:
             raise ValueError("'params' and 'query' are mutually exclusive")
+
+        # ✅ RATE LIMITING: Warte wenn nötig (max 10s timeout)
+        try:
+            await self._rate_limiter.wait_if_needed(priority=priority, timeout=10.0)
+        except asyncio.TimeoutError:
+            _LOGGER.warning(
+                "Rate limiter timeout für %s (priority: %d) - fahre fort",
+                endpoint,
+                priority
+            )
 
         url = self._build_url(endpoint)
         if query:

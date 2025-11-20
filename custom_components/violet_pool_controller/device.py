@@ -73,6 +73,7 @@ class VioletPoolControllerDevice:
         self._in_recovery_mode = False  # Flag für Recovery-Modus
         self._last_recovery_attempt = 0.0  # Timestamp letzter Recovery-Versuch
         self._recovery_task: Optional[asyncio.Task] = None  # Recovery-Task
+        self._recovery_lock = asyncio.Lock()  # ✅ Lock für thread-safe Recovery
 
         # Konfiguration extrahieren (mit Options-Support)
         entry_data = config_entry.data
@@ -345,17 +346,20 @@ class VioletPoolControllerDevice:
         """
         Versuche automatische Wiederherstellung der Verbindung.
 
-        ✅ RECOVERY OPTIMIZATION: Exponential Backoff für Recovery-Versuche.
+        ✅ RECOVERY OPTIMIZATION:
+        - Exponential Backoff für Recovery-Versuche
+        - Thread-safe mit asyncio.Lock (Race Condition Fix)
 
         Returns:
             True wenn Recovery erfolgreich, False sonst
         """
-        if self._in_recovery_mode:
-            _LOGGER.debug("Recovery bereits im Gange, überspringe")
-            return False
-
-        self._in_recovery_mode = True
-        self._recovery_attempts += 1
+        # ✅ RACE CONDITION FIX: Atomic check-and-set mit Lock
+        async with self._recovery_lock:
+            if self._in_recovery_mode:
+                _LOGGER.debug("Recovery bereits im Gange, überspringe")
+                return False
+            self._in_recovery_mode = True
+            self._recovery_attempts += 1
 
         # Berechne Exponential Backoff Delay
         delay = min(

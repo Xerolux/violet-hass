@@ -1,0 +1,159 @@
+"""Tests for Violet Pool Controller Device with Auto-Recovery."""
+import asyncio
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
+from homeassistant.config_entries import ConfigEntry
+
+from custom_components.violet_pool_controller.const import (
+    CONF_API_URL,
+    CONF_CONTROLLER_NAME,
+    CONF_DEVICE_ID,
+    CONF_DEVICE_NAME,
+    CONF_USE_SSL,
+    DOMAIN,
+)
+from custom_components.violet_pool_controller.device import VioletPoolControllerDevice
+
+
+class TestVioletPoolControllerDevice:
+    """Test VioletPoolControllerDevice with Recovery."""
+
+    @pytest.fixture
+    def mock_hass(self):
+        """Create mock Home Assistant instance."""
+        hass = MagicMock()
+        return hass
+
+    @pytest.fixture
+    def mock_api(self):
+        """Create mock API instance."""
+        api = MagicMock()
+        return api
+
+    @pytest.fixture
+    def config_entry(self):
+        """Create mock config entry."""
+        return ConfigEntry(
+            version=1,
+            domain=DOMAIN,
+            title="Test Pool",
+            data={
+                CONF_API_URL: "192.168.178.55",
+                CONF_USE_SSL: False,
+                CONF_DEVICE_ID: 1,
+                CONF_DEVICE_NAME: "Test Pool Controller",
+                CONF_CONTROLLER_NAME: "Test Pool",
+            },
+            source="user",
+        )
+
+    @pytest.fixture
+    def device(self, mock_hass, config_entry, mock_api):
+        """Create device instance."""
+        return VioletPoolControllerDevice(
+            hass=mock_hass,
+            config_entry=config_entry,
+            api=mock_api,
+        )
+
+    async def test_recovery_lock_initialized(self, device):
+        """Test dass Recovery-Lock korrekt initialisiert wird."""
+        assert device._recovery_lock is not None, "Recovery-Lock sollte initialisiert sein"
+        assert isinstance(device._recovery_lock, asyncio.Lock), "Sollte asyncio.Lock sein"
+
+    async def test_recovery_race_condition_prevented(self, device):
+        """Test dass Race Condition bei Recovery verhindert wird."""
+        # Mock _fetch_controller_data
+        device._fetch_controller_data = AsyncMock(return_value={"test": "data"})
+
+        # Starte zwei Recovery-Versuche parallel
+        task1 = asyncio.create_task(device._attempt_recovery())
+        task2 = asyncio.create_task(device._attempt_recovery())
+
+        # Beide Tasks ausführen
+        results = await asyncio.gather(task1, task2)
+
+        # Nur einer sollte erfolgreich sein, der andere sollte False zurückgeben
+        # (weil bereits im Recovery-Modus)
+        assert results.count(True) == 1, "Nur ein Recovery-Versuch sollte erfolgreich sein"
+        assert results.count(False) == 1, "Ein Recovery-Versuch sollte abgelehnt werden"
+
+    async def test_recovery_exponential_backoff(self, device):
+        """Test dass Exponential Backoff korrekt berechnet wird."""
+        device._fetch_controller_data = AsyncMock(return_value={"test": "data"})
+
+        # Erster Versuch
+        device._recovery_attempts = 0
+        with patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep:
+            await device._attempt_recovery()
+            # Erster Versuch: 10s * 2^0 = 10s
+            mock_sleep.assert_called_once()
+            assert mock_sleep.call_args[0][0] == 10.0
+
+        # Zweiter Versuch
+        device._in_recovery_mode = False
+        device._recovery_attempts = 1
+        with patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep:
+            await device._attempt_recovery()
+            # Zweiter Versuch: 10s * 2^1 = 20s
+            assert mock_sleep.call_args[0][0] == 20.0
+
+        # Fünfter Versuch
+        device._in_recovery_mode = False
+        device._recovery_attempts = 4
+        with patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep:
+            await device._attempt_recovery()
+            # Fünfter Versuch: 10s * 2^4 = 160s
+            assert mock_sleep.call_args[0][0] == 160.0
+
+    async def test_recovery_max_delay_cap(self, device):
+        """Test dass Recovery Delay bei 300s gekappt wird."""
+        device._fetch_controller_data = AsyncMock(return_value={"test": "data"})
+
+        # Sehr hoher Versuch (sollte 10 * 2^10 = 10240s ergeben, aber bei 300s gekappt werden)
+        device._in_recovery_mode = False
+        device._recovery_attempts = 10
+
+        with patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep:
+            await device._attempt_recovery()
+            # Sollte bei 300s (RECOVERY_MAX_DELAY) gekappt sein
+            assert mock_sleep.call_args[0][0] == 300.0
+
+    async def test_controller_name_in_device_info(self, device):
+        """Test dass Controller-Name in device_info verwendet wird."""
+        device_info = device.device_info
+
+        assert device_info["name"] == "Test Pool", "device_info sollte Controller-Name verwenden"
+        assert device_info["suggested_area"] == "Test Pool", "suggested_area sollte Controller-Name sein"
+
+    async def test_device_info_dynamic_updates(self, device):
+        """Test dass device_info bei Options-Änderung aktualisiert wird."""
+        # Initial
+        initial_info = device.device_info
+        assert initial_info["name"] == "Test Pool"
+
+        # Simuliere Options-Änderung
+        device.controller_name = "Neuer Pool Name"
+
+        # Device-Info sollte sofort neuen Namen zeigen (kein Caching!)
+        updated_info = device.device_info
+        assert updated_info["name"] == "Neuer Pool Name"
+        assert updated_info["suggested_area"] == "Neuer Pool Name"
+
+    async def test_recovery_success_resets_counters(self, device):
+        """Test dass erfolgreiche Recovery Zähler zurücksetzt."""
+        device._fetch_controller_data = AsyncMock(return_value={"test": "data"})
+        device._consecutive_failures = 5
+        device._recovery_attempts = 3
+
+        # Recovery durchführen
+        result = await device._attempt_recovery()
+
+        # Sollte erfolgreich sein
+        assert result is True
+
+        # Zähler sollten zurückgesetzt sein
+        assert device._consecutive_failures == 0
+        assert device._recovery_attempts == 0
+        assert device._available is True
