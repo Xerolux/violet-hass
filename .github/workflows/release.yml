@@ -164,7 +164,7 @@ jobs:
             echo "- Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank für deine Unterstützung! 🙏"
             echo ""
             echo "💬 Feedback & Contributions | Feedback & Beiträge"
-            echo "- I'm always open to feedback, suggestions, or contributions from the community. Feel free to open an issue or submit a pull request."
+            echo "- Always open to feedback, suggestions, or contributions from the community. Feel free to open an issue or submit a pull request."
             echo "- Ich freue mich über Feedback, Vorschläge oder Beiträge aus der Community. Erstelle gerne ein Issue oder sende einen Pull Request."
           } > temp_release_notes.md
 
@@ -273,25 +273,25 @@ jobs:
         id: parse
         run: |
           VERSION="${{ needs.prepare-release.outputs.version }}"
-          
+
           RELEASE_URL="${{ github.event.release.html_url || format('{0}/{1}/releases/tag/{2}', github.server_url, github.repository, needs.prepare-release.outputs.version) }}"
 
-          X_MESSAGE="🎉 Violet Pool Controller v$VERSION is out!
-
-          🔧 Bug fixes & stability improvements
-          🚀 Enhanced pool automation features
-          ✨ Better Home Assistant integration
-
-          Download: $RELEASE_URL
-
-          ❤️ Support: https://buymeacoffee.com/xerolux
-          🚗 Tesla: https://ts.la/sebastian564489
-          
-          #HomeAssistant #PoolAutomation #SmartHome #OpenSource"
-          
-          echo "message<<EOFMSG" >> $GITHUB_OUTPUT
-          echo "$X_MESSAGE" >> $GITHUB_OUTPUT
-          echo "EOFMSG" >> $GITHUB_OUTPUT
+          {
+            echo "message<<EOFMSG"
+            echo "🎉 Violet Pool Controller v$VERSION is out!"
+            echo ""
+            echo "🔧 Bug fixes & stability improvements"
+            echo "🚀 Enhanced pool automation features"
+            echo "✨ Better Home Assistant integration"
+            echo ""
+            echo "Download: $RELEASE_URL"
+            echo ""
+            echo "❤️ Support: https://buymeacoffee.com/xerolux"
+            echo "🚗 Tesla: https://ts.la/sebastian564489"
+            echo ""
+            echo "#HomeAssistant #PoolAutomation #SmartHome #OpenSource"
+            echo "EOFMSG"
+          } >> $GITHUB_OUTPUT
 
       - name: Post to X (Twitter)
         uses: ethomson/send-tweet-action@v1
