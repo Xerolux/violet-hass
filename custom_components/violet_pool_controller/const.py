@@ -8,7 +8,7 @@ from homeassistant.helpers.entity import EntityCategory
 # =============================================================================
 
 DOMAIN = "violet_pool_controller"
-INTEGRATION_VERSION = "0.1.0-8"
+INTEGRATION_VERSION = "0.2.0"
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 
 # =============================================================================
@@ -1106,7 +1106,7 @@ class VioletState:
 
 VERSION_INFO = {
     "version": INTEGRATION_VERSION,
-    "release_date": "2024-12-20",
+    "release_date": "2025-11-20",
     "major_features": [
         "Complete 3-State Switch Support with State 4 Fix",
         "PVSURPLUS Parameter Support",
@@ -1114,11 +1114,13 @@ VERSION_INFO = {
         "Extended Sensor Coverage (147 API Parameters)",
         "Enhanced DMX Scene Control (12 Scenes)",
         "Complete Extension Relay Support (EXT1/EXT2)",
+        "Semantic Versioning Adoption (SemVer 2.0.0)",
     ],
     "critical_fixes": [
         "STATE_MAP now includes State 4 (Manual Forced ON)",
         "PVSURPLUS added to SWITCH_FUNCTIONS",
         "COVER_STATE_MAP supports string states",
+        "Migrated to clean Semantic Versioning",
     ],
 }
 

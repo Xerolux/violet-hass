@@ -370,10 +370,22 @@ Siehe [CONTRIBUTING.md](CONTRIBUTING.md) für Details.
 
 ## 📋 Changelog
 
-### **v0.1.0** (In Entwicklung)
+Für die vollständige Changelog siehe [CHANGELOG.md](CHANGELOG.md).
+
+### **v0.2.0** (2025-11-20) - Semantic Versioning Adoption
+- 🎯 Migration zu sauberem Semantic Versioning (SemVer 2.0.0)
+- ✨ Complete 3-State Switch Support mit State 4 Fix
+- ☀️ PVSURPLUS Parameter Support
+- 💡 Enhanced DMX Scene Control (12 Szenen)
+- 📊 Extended Sensor Coverage (147 API-Parameter)
+- 🔧 Complete Extension Relay Support (EXT1/EXT2)
+- 🛡️ Thread-Safety Verbesserungen mit lokalen Cache-Variablen
+- 📝 Smart Logging (verhindert Log-Spam)
+
+### **v0.1.0** (2024-XX-XX) - Initial Release
 - ✨ Erste Veröffentlichung mit umfassender Pool-Steuerung
 - 🌡️ Klimasteuerung für Heizung & Solar
-- 🧪 Chemie-Überwachung & automatisierte Dosierung  
+- 🧪 Chemie-Überwachung & automatisierte Dosierung
 - 🏊 Pool-Abdeckungs-Integration mit Wetter-Automatisierung
 - 🔄 Intelligente Rückspül-Automatisierung
 - 📱 Vollständige Home Assistant UI-Integration
