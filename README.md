@@ -5,6 +5,7 @@
 [![GitHub Activity][commits-shield]][commits]
 [![License][license-shield]](LICENSE)
 [![HACS][hacs-badge]][hacs]
+[![Release Management](https://github.com/Xerolux/violet-hass/actions/workflows/release.yml/badge.svg)](https://github.com/Xerolux/violet-hass/actions/workflows/release.yml)
 
 [![Discord][discord-shield]][discord]
 [![Community Forum][forum-shield]][forum]
