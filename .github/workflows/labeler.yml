@@ -1,51 +1,19 @@
-# Component Areas
-'integration':
-  - 'custom_components/violet_pool_controller/**/*.py'
+name: "Pull Request Labeler"
 
-'documentation':
-  - '*.md'
-  - 'docs/**'
-  - 'custom_components/violet_pool_controller/strings.json'
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
 
-'github-actions':
-  - '.github/workflows/**'
-  - '.github/**/*.yml'
+permissions:
+  contents: read
+  pull-requests: write
 
-'dependencies':
-  - 'requirements*.txt'
-  - 'custom_components/violet_pool_controller/manifest.json'
-
-'tests':
-  - 'tests/**'
-  - '**/test_*.py'
-
-# Platforms
-'platform: sensor':
-  - 'custom_components/violet_pool_controller/sensor.py'
-
-'platform: switch':
-  - 'custom_components/violet_pool_controller/switch.py'
-
-'platform: climate':
-  - 'custom_components/violet_pool_controller/climate.py'
-
-'platform: cover':
-  - 'custom_components/violet_pool_controller/cover.py'
-
-'platform: binary_sensor':
-  - 'custom_components/violet_pool_controller/binary_sensor.py'
-
-'platform: number':
-  - 'custom_components/violet_pool_controller/number.py'
-
-# Core Components
-'core: api':
-  - 'custom_components/violet_pool_controller/api.py'
-
-'core: config':
-  - 'custom_components/violet_pool_controller/config_flow.py'
-  - 'custom_components/violet_pool_controller/const.py'
-
-'core: device':
-  - 'custom_components/violet_pool_controller/device.py'
-  - 'custom_components/violet_pool_controller/coordinator.py'
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@v5
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          configuration-path: .github/labeler.yml
+          sync-labels: true
