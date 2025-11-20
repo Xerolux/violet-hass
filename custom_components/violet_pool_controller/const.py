@@ -8,7 +8,7 @@ from homeassistant.helpers.entity import EntityCategory
 # =============================================================================
 
 DOMAIN = "violet_pool_controller"
-INTEGRATION_VERSION = "0.2.0"
+INTEGRATION_VERSION = "0.2.0-beta.1"
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 
 # =============================================================================
