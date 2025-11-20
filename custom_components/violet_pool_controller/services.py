@@ -1,4 +1,4 @@
-"""Service handlers for the Violet Pool Controller integration."""
+"""Service handlers for the Violet Pool Controller integration - WITH INPUT SANITIZATION."""
 
 import asyncio
 import logging
@@ -22,6 +22,7 @@ from .const import (
     DEVICE_PARAMETERS,
     DOMAIN,
 )
+from .utils_sanitizer import InputSanitizer
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -246,13 +247,23 @@ class VioletServiceHandlers:
         return [str(raw)]
 
     async def handle_control_pump(self, call: ServiceCall) -> None:
-        """Handle pump control service."""
+        """Handle pump control service - WITH INPUT SANITIZATION."""
         coordinators = await self.manager.get_coordinators_for_entities(
             call.data[ATTR_ENTITY_ID]
         )
         action = call.data["action"]
-        speed = call.data.get("speed", 2)
-        duration = call.data.get("duration", 0)
+
+        # ✅ INPUT SANITIZATION: Validiere speed und duration
+        speed_raw = call.data.get("speed", 2)
+        duration_raw = call.data.get("duration", 0)
+
+        speed = InputSanitizer.validate_speed(speed_raw, min_speed=1, max_speed=3)
+        duration = InputSanitizer.validate_duration(duration_raw, min_sec=0, max_sec=86400)
+
+        _LOGGER.debug(
+            "Pump control: action=%s, speed=%d (raw: %s), duration=%d (raw: %s)",
+            action, speed, speed_raw, duration, duration_raw
+        )
 
         for coordinator in coordinators:
             try:
@@ -265,25 +276,26 @@ class VioletServiceHandlers:
                         duration=duration,
                         last_value=speed,
                     )
-                    _LOGGER.info("Pump speed set to %d", speed)
+                    _LOGGER.info("Pump speed set to %d (sanitized)", speed)
 
                 elif action == "force_off":
+                    safe_duration = duration or 600
                     result = await coordinator.device.api.set_switch_state(
-                        key="PUMP", action=ACTION_OFF, duration=duration or 600
+                        key="PUMP", action=ACTION_OFF, duration=safe_duration
                     )
-                    _LOGGER.info("Pump forced OFF for %ds", duration or 600)
+                    _LOGGER.info("Pump forced OFF for %ds (sanitized)", safe_duration)
 
                 elif action == "eco_mode":
                     result = await coordinator.device.api.set_switch_state(
                         key="PUMP", action=ACTION_ON, duration=duration, last_value=1
                     )
-                    _LOGGER.info("Pump ECO mode activated")
+                    _LOGGER.info("Pump ECO mode activated (duration: %ds)", duration)
 
                 elif action == "boost_mode":
                     result = await coordinator.device.api.set_switch_state(
                         key="PUMP", action=ACTION_ON, duration=duration, last_value=3
                     )
-                    _LOGGER.info("Pump BOOST mode activated")
+                    _LOGGER.info("Pump BOOST mode activated (duration: %ds)", duration)
 
                 elif action == "auto":
                     result = await coordinator.device.api.set_switch_state(
@@ -303,14 +315,23 @@ class VioletServiceHandlers:
             await coordinator.async_request_refresh()
 
     async def handle_smart_dosing(self, call: ServiceCall) -> None:
-        """Handle smart dosing service."""
+        """Handle smart dosing service - WITH INPUT SANITIZATION."""
         coordinators = await self.manager.get_coordinators_for_entities(
             call.data[ATTR_ENTITY_ID]
         )
         dosing_type = call.data["dosing_type"]
         action = call.data["action"]
-        duration = call.data.get("duration", 30)
+
+        # ✅ INPUT SANITIZATION: Validiere duration (max 300s für Dosierung)
+        duration_raw = call.data.get("duration", 30)
+        duration = InputSanitizer.validate_duration(duration_raw, min_sec=5, max_sec=300)
+
         safety_override = call.data.get("safety_override", False)
+
+        _LOGGER.debug(
+            "Smart dosing: type=%s, action=%s, duration=%d (raw: %s), safety_override=%s",
+            dosing_type, action, duration, duration_raw, safety_override
+        )
 
         device_key = DOSING_TYPE_MAPPING.get(dosing_type)
         if not device_key:
@@ -332,7 +353,7 @@ class VioletServiceHandlers:
                     result = await coordinator.device.api.manual_dosing(
                         dosing_type, duration
                     )
-                    _LOGGER.info("Manual dosing %s for %ds", dosing_type, duration)
+                    _LOGGER.info("Manual dosing %s for %ds (sanitized)", dosing_type, duration)
 
                     # Set safety lock
                     if not safety_override:

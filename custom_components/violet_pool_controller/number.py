@@ -1,4 +1,4 @@
-"""Number Integration für den Violet Pool Controller."""
+"""Number Integration für den Violet Pool Controller - WITH INPUT SANITIZATION."""
 import logging
 
 from homeassistant.components.number import (
@@ -14,6 +14,7 @@ from .const import DOMAIN, SETPOINT_DEFINITIONS, CONF_ACTIVE_FEATURES
 from .api import VioletPoolAPIError
 from .entity import VioletPoolControllerEntity
 from .device import VioletPoolDataUpdateCoordinator
+from .utils_sanitizer import InputSanitizer
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -131,13 +132,13 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """
-        Setzt einen neuen Sollwert.
-        
+        Setzt einen neuen Sollwert - WITH INPUT SANITIZATION.
+
         Verwendet die entsprechende API-Methode basierend auf dem Sollwert-Typ.
-        
+
         Args:
             value: Neuer Sollwert
-            
+
         Raises:
             HomeAssistantError: Bei API-Fehlern
         """
@@ -150,46 +151,72 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                 f"Kein API-Key für {self.entity_description.name} definiert"
             )
 
-        # Validiere Wertebereich
-        if value < self._attr_native_min_value or value > self._attr_native_max_value:
+        # ✅ INPUT SANITIZATION: Validiere und sanitize den Wert basierend auf Typ
+        try:
+            if self._api_key == "pH":
+                sanitized_value = InputSanitizer.validate_ph_value(value)
+            elif self._api_key == "ORP":
+                sanitized_value = float(InputSanitizer.validate_orp_value(value))
+            elif self._api_key == "MinChlorine":
+                sanitized_value = InputSanitizer.validate_chlorine_level(value)
+            else:
+                # Generic float validation mit Range
+                sanitized_value = InputSanitizer.sanitize_float(
+                    value,
+                    min_value=self._attr_native_min_value,
+                    max_value=self._attr_native_max_value,
+                    precision=1 if self._attr_native_step >= 0.1 else 2,
+                )
+        except (ValueError, TypeError) as err:
+            _LOGGER.error(
+                "Input Sanitization fehlgeschlagen für %s (Wert: %s): %s",
+                self.entity_description.name,
+                value,
+                err,
+            )
+            raise HomeAssistantError(f"Ungültiger Wert: {err}") from err
+
+        # Validiere finalen Wertebereich (zusätzliche Sicherheit)
+        if sanitized_value < self._attr_native_min_value or sanitized_value > self._attr_native_max_value:
             _LOGGER.error(
                 "Wert %.2f außerhalb des gültigen Bereichs (%.1f-%.1f) für %s",
-                value,
+                sanitized_value,
                 self._attr_native_min_value,
                 self._attr_native_max_value,
                 self.entity_description.name
             )
             raise HomeAssistantError(
-                f"Wert {value} außerhalb des gültigen Bereichs "
+                f"Wert {sanitized_value} außerhalb des gültigen Bereichs "
                 f"({self._attr_native_min_value}-{self._attr_native_max_value})"
             )
 
         try:
             unit = self.entity_description.native_unit_of_measurement or ""
             _LOGGER.info(
-                "Setze %s auf %.2f%s (vorher: %.2f%s)",
+                "Setze %s auf %.2f%s (vorher: %.2f%s) [sanitized: %.2f]",
                 self.entity_description.name,
                 value,
                 unit,
                 self.native_value or 0,
-                unit
+                unit,
+                sanitized_value,
             )
-            
+
             # Wähle die passende API-Methode basierend auf dem API-Key
             api_key = self._api_key
-            
+
             if api_key == "pH":
-                _LOGGER.debug("Verwende set_ph_target für pH-Wert")
-                result = await self.device.api.set_ph_target(value)
+                _LOGGER.debug("Verwende set_ph_target für pH-Wert (sanitized: %.2f)", sanitized_value)
+                result = await self.device.api.set_ph_target(sanitized_value)
             elif api_key == "ORP":
-                _LOGGER.debug("Verwende set_orp_target für ORP-Wert")
-                result = await self.device.api.set_orp_target(int(value))
+                _LOGGER.debug("Verwende set_orp_target für ORP-Wert (sanitized: %d)", int(sanitized_value))
+                result = await self.device.api.set_orp_target(int(sanitized_value))
             elif api_key == "MinChlorine":
-                _LOGGER.debug("Verwende set_min_chlorine_level für Chlor-Wert")
-                result = await self.device.api.set_min_chlorine_level(value)
+                _LOGGER.debug("Verwende set_min_chlorine_level für Chlor-Wert (sanitized: %.2f)", sanitized_value)
+                result = await self.device.api.set_min_chlorine_level(sanitized_value)
             else:
-                _LOGGER.debug("Verwende set_target_value für %s", api_key)
-                result = await self.device.api.set_target_value(api_key, value)
+                _LOGGER.debug("Verwende set_target_value für %s (sanitized: %.2f)", api_key, sanitized_value)
+                result = await self.device.api.set_target_value(api_key, sanitized_value)
             
             # Prüfe Ergebnis
             if result.get("success", True):

@@ -1,4 +1,4 @@
-"""Violet Pool Controller Device Module - SMART FAILURE LOGGING."""
+"""Violet Pool Controller Device Module - SMART FAILURE LOGGING + AUTO RECOVERY."""
 import logging
 import asyncio
 import time
@@ -29,17 +29,22 @@ _LOGGER = logging.getLogger(__name__)
 # ✅ LOGGING OPTIMIZATION: Throttling-Konstanten
 FAILURE_LOG_INTERVAL = 300  # Nur alle 5 Minuten bei wiederholten Fehlern
 
+# ✅ RECOVERY OPTIMIZATION: Auto-Recovery-Konstanten
+RECOVERY_MAX_ATTEMPTS = 10  # Maximale Recovery-Versuche
+RECOVERY_BASE_DELAY = 10.0  # Basis-Delay für Exponential Backoff (10s)
+RECOVERY_MAX_DELAY = 300.0  # Maximaler Delay zwischen Versuchen (5 Min)
+
 
 class VioletPoolControllerDevice:
-    """Repräsentiert ein Violet Pool Controller Gerät - SMART FAILURE LOGGING."""
+    """Repräsentiert ein Violet Pool Controller Gerät - SMART FAILURE LOGGING + AUTO RECOVERY."""
 
     def __init__(
-        self, 
-        hass: HomeAssistant, 
-        config_entry: ConfigEntry, 
+        self,
+        hass: HomeAssistant,
+        config_entry: ConfigEntry,
         api: VioletPoolAPI
     ) -> None:
-        """Initialisiere die Geräteinstanz mit Smart Logging."""
+        """Initialisiere die Geräteinstanz mit Smart Logging und Auto-Recovery."""
         self.hass = hass
         self.config_entry = config_entry
         self.api = api
@@ -61,6 +66,12 @@ class VioletPoolControllerDevice:
         self._last_failure_log = 0.0  # Timestamp für Throttling
         self._first_failure_logged = False  # Flag für erste Warnung
         self._recovery_logged = False  # Flag für Recovery-Message
+
+        # ✅ RECOVERY OPTIMIZATION: Auto-Recovery Tracking
+        self._recovery_attempts = 0  # Zähler für Recovery-Versuche
+        self._in_recovery_mode = False  # Flag für Recovery-Modus
+        self._last_recovery_attempt = 0.0  # Timestamp letzter Recovery-Versuch
+        self._recovery_task: Optional[asyncio.Task] = None  # Recovery-Task
 
         # Konfiguration extrahieren
         entry_data = config_entry.data
@@ -119,14 +130,18 @@ class VioletPoolControllerDevice:
                         # Kritisch: Wird unavailable - IMMER loggen
                         _LOGGER.error(
                             "Controller '%s' nach %d aufeinanderfolgenden Fehlern als "
-                            "unavailable markiert. Bitte Verbindung prüfen!",
+                            "unavailable markiert. Starte Auto-Recovery...",
                             self.device_name,
                             self._consecutive_failures
                         )
                         self._available = False
+
+                        # ✅ RECOVERY OPTIMIZATION: Starte automatischen Recovery-Versuch
+                        await self._start_recovery_background_task()
+
                         raise UpdateFailed(
                             f"Controller '{self.device_name}' nicht erreichbar "
-                            f"({self._consecutive_failures} Fehler)"
+                            f"({self._consecutive_failures} Fehler), Recovery gestartet"
                         )
                         
                     elif self._should_log_failure():
@@ -313,6 +328,118 @@ class VioletPoolControllerDevice:
             }
         return self._device_info
 
+    async def _attempt_recovery(self) -> bool:
+        """
+        Versuche automatische Wiederherstellung der Verbindung.
+
+        ✅ RECOVERY OPTIMIZATION: Exponential Backoff für Recovery-Versuche.
+
+        Returns:
+            True wenn Recovery erfolgreich, False sonst
+        """
+        if self._in_recovery_mode:
+            _LOGGER.debug("Recovery bereits im Gange, überspringe")
+            return False
+
+        self._in_recovery_mode = True
+        self._recovery_attempts += 1
+
+        # Berechne Exponential Backoff Delay
+        delay = min(
+            RECOVERY_MAX_DELAY,
+            RECOVERY_BASE_DELAY * (2 ** (self._recovery_attempts - 1))
+        )
+
+        _LOGGER.info(
+            "🔄 Recovery-Versuch %d/%d für '%s' (Delay: %.1fs)",
+            self._recovery_attempts,
+            RECOVERY_MAX_ATTEMPTS,
+            self.device_name,
+            delay,
+        )
+
+        try:
+            # Warte mit Exponential Backoff
+            await asyncio.sleep(delay)
+
+            # Versuche Daten abzurufen
+            data = await self._fetch_controller_data()
+
+            if data and isinstance(data, dict):
+                # ✅ RECOVERY ERFOLGREICH!
+                _LOGGER.info(
+                    "✅ Recovery erfolgreich für '%s' nach %d Versuch%s",
+                    self.device_name,
+                    self._recovery_attempts,
+                    "en" if self._recovery_attempts > 1 else "",
+                )
+
+                # Reset Recovery-Status
+                self._consecutive_failures = 0
+                self._recovery_attempts = 0
+                self._available = True
+                self._in_recovery_mode = False
+                self._recovery_logged = True
+
+                return True
+
+            return False
+
+        except Exception as err:
+            _LOGGER.debug(
+                "Recovery-Versuch %d fehlgeschlagen: %s",
+                self._recovery_attempts,
+                err,
+            )
+            return False
+        finally:
+            self._in_recovery_mode = False
+            self._last_recovery_attempt = time.time()
+
+    async def _start_recovery_background_task(self) -> None:
+        """
+        Starte Recovery im Hintergrund.
+
+        ✅ RECOVERY OPTIMIZATION: Verhindert Blockierung des normalen Updates.
+        """
+        if self._recovery_task and not self._recovery_task.done():
+            _LOGGER.debug("Recovery-Task läuft bereits")
+            return
+
+        if self._recovery_attempts >= RECOVERY_MAX_ATTEMPTS:
+            _LOGGER.warning(
+                "⚠️ Maximale Recovery-Versuche (%d) erreicht für '%s'. "
+                "Manuelle Intervention erforderlich.",
+                RECOVERY_MAX_ATTEMPTS,
+                self.device_name,
+            )
+            return
+
+        async def recovery_loop():
+            """Recovery-Loop im Hintergrund."""
+            while self._recovery_attempts < RECOVERY_MAX_ATTEMPTS:
+                if await self._attempt_recovery():
+                    _LOGGER.info(
+                        "✅ Background Recovery erfolgreich für '%s'",
+                        self.device_name,
+                    )
+                    return
+
+                # Warte vor nächstem Versuch
+                await asyncio.sleep(5)
+
+            _LOGGER.error(
+                "❌ Background Recovery fehlgeschlagen für '%s' nach %d Versuchen",
+                self.device_name,
+                RECOVERY_MAX_ATTEMPTS,
+            )
+
+        self._recovery_task = asyncio.create_task(recovery_loop())
+        _LOGGER.info(
+            "🔄 Background Recovery gestartet für '%s'",
+            self.device_name,
+        )
+
     def _extract_api_url(self, entry_data: dict) -> str:
         """Extrahiert die API-URL aus den Config-Daten."""
         url = (
@@ -320,10 +447,10 @@ class VioletPoolControllerDevice:
             entry_data.get("host") or
             entry_data.get("base_ip")
         )
-        
+
         if not url:
             raise ValueError("Keine IP-Adresse in Config Entry gefunden")
-        
+
         return url.strip()
 
 
