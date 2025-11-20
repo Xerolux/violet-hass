@@ -492,8 +492,12 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
 
     def _get_options_schema(self) -> vol.Schema:
         """Schema für Options Flow."""
-        # Allgemeine Optionen
+        # Allgemeine Optionen inkl. Controller-Name
         schema = {
+            vol.Optional(
+                CONF_CONTROLLER_NAME,
+                default=self.current_config.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME)
+            ): str,
             vol.Optional(CONF_POLLING_INTERVAL, default=self.current_config.get(CONF_POLLING_INTERVAL, 30)): int,
             # ... weitere allgemeine Optionen ...
         }
@@ -506,5 +510,5 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
             schema[vol.Optional(group, default=default_selection)] = vol.All(
                 list, vol.Length(min=0), [vol.In(sensors)]
             )
-        
+
         return vol.Schema(schema)
