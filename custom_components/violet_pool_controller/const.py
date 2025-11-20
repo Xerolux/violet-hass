@@ -14,7 +14,7 @@ Die Konstanten sind jetzt in mehrere Dateien aufgeteilt für bessere Wartbarkeit
 # =============================================================================
 
 DOMAIN = "violet_pool_controller"
-INTEGRATION_VERSION = "0.2.0-beta.1"
+INTEGRATION_VERSION = "0.2.0-beta.2"
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 
 # =============================================================================
