@@ -5,12 +5,15 @@
 [![GitHub Activity][commits-shield]][commits]
 [![License][license-shield]](LICENSE)
 [![HACS][hacs-badge]][hacs]
-[![Release Management](https://github.com/Xerolux/violet-hass/actions/workflows/release.yml/badge.svg)](https://github.com/Xerolux/violet-hass/actions/workflows/release.yml)
 
 [![Discord][discord-shield]][discord]
 [![Community Forum][forum-shield]][forum]
 [![Buy Me A Coffee][buymeacoffee-badge]][buymeacoffee]
 [![Tesla](https://img.shields.io/badge/Tesla-Referral-red?style=for-the-badge&logo=tesla)](https://ts.la/sebastian564489)
+
+
+[![Release Management](https://github.com/Xerolux/violet-hass/actions/workflows/release.yml/badge.svg)](https://github.com/Xerolux/violet-hass/actions/workflows/release.yml)
+
 
 > **Verwandle deinen Pool in einen Smart Pool!** Diese umfassende Home Assistant Integration bietet vollständige Kontrolle und Überwachung deines Violet Pool Controllers.
 
