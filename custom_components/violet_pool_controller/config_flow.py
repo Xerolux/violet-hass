@@ -464,12 +464,12 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def _get_feature_selection_schema(self) -> vol.Schema:
         """Erstellt das Schema für die Feature-Auswahl."""
-        schema_dict = {}
-        for feature in AVAILABLE_FEATURES:
-            key = f"enable_{feature['id']}"
-            default_value = feature.get("default", False)
-            schema_dict[vol.Optional(key, default=default_value)] = bool
-        return vol.Schema(schema_dict)
+        # Schema muss inline mit dict comprehension erstellt werden,
+        # da vol.Optional als dict key nicht funktioniert wenn vorher erstellt
+        return vol.Schema({
+            vol.Optional(f"enable_{f['id']}", default=f.get("default", False)): bool
+            for f in AVAILABLE_FEATURES
+        })
         
     def _get_sensor_selection_schema(self) -> vol.Schema:
         """Erstellt das Schema für die Sensor-Auswahl."""
