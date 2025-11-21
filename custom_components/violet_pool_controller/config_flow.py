@@ -5,10 +5,9 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant import config_entries
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, CONF_TIMEOUT
+from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
-from homeassistant.exceptions import ConfigEntryNotReady
 
 from .api import VioletPoolAPI, VioletPoolAPIError
 from .const import (
@@ -30,15 +29,29 @@ from .const import (
     AVAILABLE_FEATURES,
     AVAILABLE_SENSORS,
     DEVICE_MODEL_NAME,
-    DEVICE_MANUFACTURER,
     ERROR_INVALID_AUTH,
     ERROR_CANNOT_CONNECT,
     ERROR_UNKNOWN,
 )
-from .device import async_setup_device
 from .error_codes import async_get_error_message
 
 _LOGGER = logging.getLogger(__name__)
+
+
+# =============================================================================
+# HELPER FUNCTIONS
+# =============================================================================
+
+
+async def _async_get_sensor_data() -> dict[str, list[str]]:
+    """Fetch available sensor keys from the controller (simulated via AVAILABLE_SENSORS)."""
+    _LOGGER.debug("Fetching available sensor keys from AVAILABLE_SENSORS...")
+
+    sensor_data: dict[str, list[str]] = {}
+    for group, sensors in AVAILABLE_SENSORS.items():
+        sensor_data[group] = [s["key"] for s in sensors]
+
+    return sensor_data
 
 
 # =============================================================================
@@ -77,10 +90,10 @@ class VioletPoolControllerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
-    def __init__(self):
-        """Initialisiere den Flow."""
+    def __init__(self) -> None:
+        """Initialize the flow."""
         self.config_data: dict[str, Any] = {}
-        self._sensor_data: dict[str, Any] = {}  # Wird im Sensor-Schritt gesetzt
+        self._sensor_data: dict[str, Any] = {}
 
     # --------------------------------------------------------------------------
     # Step 1: User Input (Connection Details)
@@ -103,7 +116,7 @@ class VioletPoolControllerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self.config_data = {**user_input}
             self.config_data[CONF_API_URL] = f"{'https' if use_ssl else 'http'}://{host}"
 
-            # Prüfe Verbindung zur API
+            # Check connection to the API
             try:
                 await self._async_test_connection(
                     host=host,
@@ -121,12 +134,12 @@ class VioletPoolControllerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     errors["base"] = ERROR_CANNOT_CONNECT
                 else:
                     errors["base"] = ERROR_UNKNOWN
-            except Exception as e:  # Fange unerwartete Fehler ab
+            except Exception as e:  # Catch unexpected errors
                 _LOGGER.exception("Unexpected error during connection test: %s", e)
                 errors["base"] = ERROR_UNKNOWN
 
             if not errors:
-                # Verbindung erfolgreich, gehe zum nächsten Schritt (Features)
+                # Connection successful, proceed to feature selection
                 return await self.async_step_features()
 
         return self.async_show_form(
@@ -140,24 +153,22 @@ class VioletPoolControllerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_features(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Schritt zur Auswahl der aktiven Features (Switches, Climate, Cover)."""
-        errors: dict[str, str] = {}
-
+        """Step for selecting active features (switches, climate, cover, etc.)."""
         if user_input is not None:
-            # Filtere die "enable_"-Felder, um CONF_ACTIVE_FEATURES zu erstellen
+            # Filter "enable_" fields to build CONF_ACTIVE_FEATURES
             active_features = [
                 feature_id
                 for key, enabled in user_input.items()
                 if key.startswith("enable_") and enabled
-                for feature_id in [key[7:]]  # Entferne "enable_" Präfix
+                for feature_id in [key[7:]]  # Remove "enable_" prefix
             ]
 
             self.config_data[CONF_ACTIVE_FEATURES] = active_features
 
-            # Gehe zum nächsten Schritt (Sensoren)
+            # Proceed to sensor selection
             return await self.async_step_sensors()
 
-        # Zeige das Formular für die Feature-Auswahl
+        # Show form for feature selection
         return self.async_show_form(
             step_id="features", data_schema=self._get_feature_selection_schema()
         )
@@ -169,16 +180,16 @@ class VioletPoolControllerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_sensors(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Schritt zur Auswahl der anzuzeigenden Sensoren."""
+        """Step for selecting which sensors to show."""
         errors: dict[str, str] = {}
 
         if not self._sensor_data:
-            # Rufe verfügbare Sensoren und deren aktuelle Werte ab
+            # Fetch available sensors and their keys
             try:
-                self._sensor_data = await self._async_get_sensor_data()
+                self._sensor_data = await _async_get_sensor_data()
             except VioletPoolAPIError as e:
                 errors["base"] = async_get_error_message(e.error_code)
-                # Bei API-Fehler zurück zu Schritt 1 (vermutlich Auth-Problem)
+                # On API error, return to the user step (likely auth issue)
                 return self.async_show_form(
                     step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
                 )
@@ -189,18 +200,18 @@ class VioletPoolControllerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 )
 
         if user_input is not None:
-            # user_input enthält die ausgewählten Sensor-Keys in Gruppen
-            selected_sensors = []
+            # user_input contains selected sensor keys grouped by group name
+            selected_sensors: list[str] = []
             for group, keys in user_input.items():
                 selected_sensors.extend(keys)
 
-            # Die finale Liste aller Sensor-Keys in die Konfiguration speichern
+            # Store final list of all sensor keys in the configuration
             self.config_data["selected_sensors"] = selected_sensors
 
-            # Gehe zum Abschluss-Schritt
+            # Proceed to finish step
             return self.async_step_finish()
 
-        # Zeige das Formular für die Sensor-Auswahl
+        # Show form for sensor selection
         return self.async_show_form(
             step_id="sensors", data_schema=self._get_sensor_selection_schema()
         )
@@ -212,39 +223,28 @@ class VioletPoolControllerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_finish(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Schritt zur Eingabe des finalen Gerätenamens und Fertigstellung."""
-        
-        # Generiere einen standardisierten Gerätenamen
-        default_name = (
-            f"{DEVICE_MODEL_NAME} {self.config_data.get(CONF_DEVICE_ID, '1')}"
-        )
-        
+        """Step for entering the final device name and completing the flow."""
+
+        # Generate a standardized default device name
+        default_name = f"{DEVICE_MODEL_NAME} {self.config_data.get(CONF_DEVICE_ID, '1')}"
+
         finish_schema = vol.Schema(
             {
-                # Der CONF_CONTROLLER_NAME wird für die UI-Anzeige verwendet
-                vol.Required(
-                    CONF_CONTROLLER_NAME, default=default_name
-                ): str,
-                # Setze den tatsächlichen, unveränderlichen Gerätenamen (z.B. für Logs)
-                vol.Optional(
-                    CONF_DEVICE_NAME, default=default_name
-                ): str,
+                # CONF_CONTROLLER_NAME is used for UI display
+                vol.Required(CONF_CONTROLLER_NAME, default=default_name): str,
+                # CONF_DEVICE_NAME is the underlying device name (e.g. for logs)
+                vol.Optional(CONF_DEVICE_NAME, default=default_name): str,
             }
         )
 
         if user_input is not None:
-            # Füge die finalen Namen zur Konfiguration hinzu
+            # Merge final names into configuration
             self.config_data.update(user_input)
 
-            # Markiere den Controller als eindeutig
-            await self.async_set_unique_id(
-                f"{self.config_data[CONF_HOST]}_{self.config_data.get(CONF_DEVICE_ID, 1)}"
-            )
-            self._abort_if_unique_id_configured()
-
-            # Erstelle den Config Entry
+            # Config entry is created; unique_id was already set in _async_test_connection
             return self.async_create_entry(
-                title=self.config_data[CONF_CONTROLLER_NAME], data=self.config_data
+                title=self.config_data[CONF_CONTROLLER_NAME],
+                data=self.config_data,
             )
 
         return self.async_show_form(step_id="finish", data_schema=finish_schema)
@@ -254,58 +254,41 @@ class VioletPoolControllerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     # --------------------------------------------------------------------------
 
     def _get_feature_selection_schema(self) -> vol.Schema:
-        """Erstellt das Schema für die Feature-Auswahl. (FEHLERBEHOBENE VERSION)"""
-        feature_schema = {}
-        
-        # FIX: Ersetzt fehlerhafte Dictionary Comprehension durch eine explizite Zuweisungsschleife.
-        # Dies stellt sicher, dass Voluptuous die dynamischen Keys korrekt registriert,
-        # was den Fehler "extra keys not allowed" behebt.
+        """Create the schema for feature selection (fixed version)."""
+        feature_schema: dict[Any, Any] = {}
+
+        # Use explicit loop so voluptuous correctly registers dynamic keys
         for f in AVAILABLE_FEATURES:
             key_name = f"enable_{f['id']}"
             default_value = f.get("default", False)
-            
-            # Die korrekte Voluptuous-Syntax: vol.Optional wird als Key verwendet.
+
             feature_schema[vol.Optional(key_name, default=default_value)] = bool
 
         return vol.Schema(feature_schema)
 
     def _get_sensor_selection_schema(self) -> vol.Schema:
-        """Erstellt das Schema für die Sensor-Auswahl. (FEHLERBEHOBENE VERSION)"""
-        schema = {}
+        """Create the schema for sensor selection (fixed version)."""
+        schema: dict[Any, Any] = {}
+
         for group, sensors in self._sensor_data.items():
-            # Verwende den Gruppennamen als Key und Label
-            
-            # FIX: Entfernt vol.All(...) und vereinfacht zu [vol.In(...)].
-            # Dies behebt den Fehler "ValueError: Unable to convert schema: <class 'list'>",
-            # da es die einfachste Form zur Definition eines Multi-Select-List-Schemas ist, 
-            # die Voluptuous-Serialize in Home Assistant korrekt verarbeiten kann.
+            # Each group is a multi-select over its sensor keys.
+            # Using [vol.In(...)] is the simplest multi-select list schema
+            # that HA's voluptuous-serialize can handle.
             schema[vol.Optional(group, default=sensors)] = [vol.In(sensors)]
-        
+
         return vol.Schema(schema)
 
-    async def _async_get_sensor_data(self) -> dict[str, list[str]]:
-        """Ruft die verfügbaren Sensor-Keys vom Controller ab (simuliert)."""
-        _LOGGER.debug("Simuliere Abruf der verfügbaren Sensor-Keys...")
-        
-        # Simuliere API-Aufruf
-        # In der echten Implementierung müsste hier api.get_available_sensors() stehen.
-        # Für den Konfigurations-Flow werden alle bekannten Sensoren als verfügbar angenommen.
-        
-        # Grouping basierend auf const_sensors.py (angenommene Struktur)
-        sensor_data: dict[str, list[str]] = {}
-        
-        for group, sensors in AVAILABLE_SENSORS.items():
-            sensor_data[group] = [s["key"] for s in sensors]
-            
-        return sensor_data
-
-
     async def _async_test_connection(
-        self, host: str, username: str, password: str, use_ssl: bool, timeout: int, retries: int
+        self,
+        host: str,
+        username: str,
+        password: str,
+        use_ssl: bool,
+        timeout: int,
+        retries: int,
     ) -> None:
-        """Teste die Verbindung zur API und rufe Gerätedetails ab."""
-        
-        # Wir benötigen hier nur eine minimale API-Instanz zum Testen
+        """Test the connection to the API and fetch device details."""
+
         test_api = VioletPoolAPI(
             host=host,
             session=self.hass.helpers.aiohttp_client.async_get_clientsession(self.hass),
@@ -313,36 +296,36 @@ class VioletPoolControllerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             password=password,
             use_ssl=use_ssl,
             timeout=timeout,
-            max_retries=retries
+            max_retries=retries,
         )
 
         try:
-            # Rufe eine einfache, authentifizierte Endpunkt-Antwort ab, um Auth/Verbindung zu prüfen
+            # Call a simple authenticated endpoint to verify auth/connection
             device_info = await test_api.get_device_info()
-            
-            # Speichere die im Test ermittelten Daten für den Konfigurations-Entry
-            self.config_data[CONF_DEVICE_ID] = device_info.get("device_id", 1)
-            self.config_data[CONF_DEVICE_NAME] = device_info.get("device_name", "Violet Pool Controller")
 
-            # Überprüfe die Eindeutigkeit der ID (HOST + DEVICE_ID)
+            # Store data discovered during the test for the config entry
+            self.config_data[CONF_DEVICE_ID] = device_info.get("device_id", 1)
+            self.config_data[CONF_DEVICE_NAME] = device_info.get(
+                "device_name", "Violet Pool Controller"
+            )
+
+            # Ensure uniqueness based on HOST + DEVICE_ID
             unique_id = f"{host}_{self.config_data[CONF_DEVICE_ID]}"
             await self.async_set_unique_id(unique_id)
             self._abort_if_unique_id_configured()
-            
+
             _LOGGER.info(
-                "Verbindung erfolgreich. Gefundene Geräte-ID: %s, Name: %s",
+                "Connection successful. Detected device ID: %s, name: %s",
                 self.config_data[CONF_DEVICE_ID],
-                self.config_data[CONF_DEVICE_NAME]
+                self.config_data[CONF_DEVICE_NAME],
             )
 
         except VioletPoolAPIError as e:
-            _LOGGER.error("API-Test fehlgeschlagen: %s", e)
+            _LOGGER.error("API connection test failed: %s", e)
             raise
         except Exception as e:
-            _LOGGER.exception("Unerwarteter Fehler während des Verbindungstests")
-            raise VioletPoolAPIError(
-                f"Unerwarteter Fehler: {e}", "unexpected_error"
-            )
+            _LOGGER.exception("Unexpected error during connection test")
+            raise VioletPoolAPIError(f"Unexpected error: {e}", "unexpected_error")
 
     # =============================================================================
     # OPTIONS FLOW
@@ -350,16 +333,16 @@ class VioletPoolControllerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry):
-        """Erstelle den Options-Flow."""
+    def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> config_entries.OptionsFlow:
+        """Create the options flow."""
         return VioletPoolControllerOptionsFlow(config_entry)
 
 
 class VioletPoolControllerOptionsFlow(config_entries.OptionsFlow):
     """Handle options flow for Violet Pool Controller."""
 
-    def __init__(self, config_entry: config_entries.ConfigEntry):
-        """Initialisiere den Options-Flow."""
+    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
+        """Initialize the options flow."""
         self.config_entry = config_entry
         self.options = dict(config_entry.options)
         self.config = dict(config_entry.data)
@@ -369,14 +352,16 @@ class VioletPoolControllerOptionsFlow(config_entries.OptionsFlow):
     # Step 1: Options (Polling, Timeout, Retries)
     # --------------------------------------------------------------------------
 
-    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
         """Handle the initial options step."""
         errors: dict[str, str] = {}
 
         if user_input is not None:
             self.options.update(user_input)
-            
-            # Gehe zum nächsten Schritt (Feature-Auswahl)
+
+            # Proceed to feature selection options
             return await self.async_step_options_features()
 
         options_schema = vol.Schema(
@@ -385,27 +370,33 @@ class VioletPoolControllerOptionsFlow(config_entries.OptionsFlow):
                     CONF_POLLING_INTERVAL,
                     default=self.options.get(
                         CONF_POLLING_INTERVAL,
-                        self.config.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL),
+                        self.config.get(
+                            CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL
+                        ),
                     ),
                 ): vol.All(vol.Coerce(int), vol.Range(min=10, max=3600)),
                 vol.Optional(
                     CONF_TIMEOUT_DURATION,
                     default=self.options.get(
                         CONF_TIMEOUT_DURATION,
-                        self.config.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION),
+                        self.config.get(
+                            CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION
+                        ),
                     ),
                 ): vol.All(vol.Coerce(int), vol.Range(min=5, max=60)),
                 vol.Optional(
                     CONF_RETRY_ATTEMPTS,
                     default=self.options.get(
                         CONF_RETRY_ATTEMPTS,
-                        self.config.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS),
+                        self.config.get(
+                            CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS
+                        ),
                     ),
                 ): vol.All(vol.Coerce(int), vol.Range(min=1, max=10)),
             }
         )
-        
-        # Zeige das Options-Formular
+
+        # Show the options form
         return self.async_show_form(
             step_id="init", data_schema=options_schema, errors=errors
         )
@@ -417,8 +408,8 @@ class VioletPoolControllerOptionsFlow(config_entries.OptionsFlow):
     async def async_step_options_features(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Options-Schritt zur Auswahl der Features."""
-        
+        """Options step for selecting active features."""
+
         if user_input is not None:
             active_features = [
                 feature_id
@@ -428,16 +419,17 @@ class VioletPoolControllerOptionsFlow(config_entries.OptionsFlow):
             ]
 
             self.options[CONF_ACTIVE_FEATURES] = active_features
-            
-            # Gehe zum nächsten Schritt (Sensor-Auswahl)
+
+            # Proceed to sensor selection options
             return await self.async_step_options_sensors()
 
-        # Erstelle das Feature-Schema basierend auf aktuellen Optionen/Daten
         current_active_features = self.options.get(
             CONF_ACTIVE_FEATURES, self.config.get(CONF_ACTIVE_FEATURES, [])
         )
-        
-        options_schema = self._get_options_feature_selection_schema(current_active_features)
+
+        options_schema = self._get_options_feature_selection_schema(
+            current_active_features
+        )
 
         return self.async_show_form(
             step_id="options_features", data_schema=options_schema
@@ -450,29 +442,29 @@ class VioletPoolControllerOptionsFlow(config_entries.OptionsFlow):
     async def async_step_options_sensors(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Options-Schritt zur Auswahl der Sensoren."""
+        """Options step for selecting sensors."""
 
         if not self._sensor_data:
-            # Wiederverwendung der Funktion zur Ermittlung der Sensordaten
-            flow = VioletPoolControllerConfigFlow()
-            self._sensor_data = await flow._async_get_sensor_data()
+            # Reuse the shared helper to determine sensor data
+            self._sensor_data = await _async_get_sensor_data()
 
         if user_input is not None:
-            selected_sensors = []
+            selected_sensors: list[str] = []
             for group, keys in user_input.items():
                 selected_sensors.extend(keys)
 
             self.options["selected_sensors"] = selected_sensors
-            
-            # Options-Entry erstellen und beenden
+
+            # Create options entry and finish
             return self.async_create_entry(title="", data=self.options)
 
-        # Hole aktuelle Sensor-Auswahl für die Defaults
         current_selected_sensors = self.options.get(
             "selected_sensors", self.config.get("selected_sensors", [])
         )
-        
-        options_schema = self._get_options_sensor_selection_schema(current_selected_sensors)
+
+        options_schema = self._get_options_sensor_selection_schema(
+            current_selected_sensors
+        )
 
         return self.async_show_form(
             step_id="options_sensors", data_schema=options_schema
@@ -481,37 +473,41 @@ class VioletPoolControllerOptionsFlow(config_entries.OptionsFlow):
     # --------------------------------------------------------------------------
     # Options Helpers
     # --------------------------------------------------------------------------
-    
-    def _get_options_feature_selection_schema(self, current_active_features: list[str]) -> vol.Schema:
-        """Erstellt das Schema für die Feature-Auswahl (Options-Flow)."""
-        feature_schema = {}
+
+    def _get_options_feature_selection_schema(
+        self, current_active_features: list[str]
+    ) -> vol.Schema:
+        """Create the schema for feature selection (options flow)."""
+        feature_schema: dict[Any, Any] = {}
+
         for f in AVAILABLE_FEATURES:
             key_name = f"enable_{f['id']}"
-            is_active = f['id'] in current_active_features
-            # Verwende die im Config-Entry oder Options-Flow gespeicherten Werte als Default
+            is_active = f["id"] in current_active_features
             feature_schema[vol.Optional(key_name, default=is_active)] = bool
 
         return vol.Schema(feature_schema)
 
-    def _get_options_sensor_selection_schema(self, current_selected_sensors: list[str]) -> vol.Schema:
-        """Erstellt das Schema für die Sensor-Auswahl (Options-Flow)."""
-        schema = {}
-        
-        # Gehe die Gruppen durch, um Defaults zu setzen
+    def _get_options_sensor_selection_schema(
+        self, current_selected_sensors: list[str]
+    ) -> vol.Schema:
+        """Create the schema for sensor selection (options flow)."""
+        schema: dict[Any, Any] = {}
+
         for group, available_sensors in self._sensor_data.items():
-            # Filtert die Liste der verfügbaren Sensoren, um nur die aktuell
-            # ausgewählten als Standard zu markieren (zur Vereinfachung).
+            # Preselect currently selected sensors in this group
             default_selection = [
                 key for key in available_sensors if key in current_selected_sensors
             ]
-            
-            # Wenn keine Sensoren vorausgewählt sind, wähle alle verfügbaren
-            if not default_selection:
-                 default_selection = available_sensors
 
-            # Verwende die korrigierte Schema-Definition
-            schema[vol.Optional(group, default=default_selection)] = [vol.In(available_sensors)]
-        
+            # If none selected, default to all available
+            if not default_selection:
+                default_selection = available_sensors
+
+            schema[vol.Optional(group, default=default_selection)] = [
+                vol.In(available_sensors)
+            ]
+
         return vol.Schema(schema)
+
 
 # EOF
