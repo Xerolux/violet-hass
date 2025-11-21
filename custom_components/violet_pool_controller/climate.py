@@ -468,4 +468,4 @@ async def async_setup_entry(
             [e.name for e in entities],
         )
     else:
-        _LOGGER.warning("⚠ Keine Climate-Entities eingerichtet")
+        _LOGGER.debug("Keine Climate-Entities eingerichtet (keine Features aktiviert oder keine Daten)")

@@ -206,8 +206,9 @@ async def async_setup_entry(
             async_add_entities([VioletCover(coordinator, config_entry)])
             _LOGGER.info("Cover-Entity für '%s' hinzugefügt", config_entry.title)
         else:
-            _LOGGER.warning(
-                "Cover-Control aktiviert, aber keine COVER_STATE Daten vom Controller"
+            _LOGGER.info(
+                "Cover-Control aktiviert, aber Controller liefert keine COVER_STATE Daten. "
+                "Dies ist normal wenn keine Abdeckung konfiguriert ist."
             )
     else:
         _LOGGER.debug("Cover-Control nicht aktiviert")
