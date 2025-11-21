@@ -271,7 +271,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """⚙️ Schritt 4: Feature-Auswahl."""
         if user_input:
             self._config_data[CONF_ACTIVE_FEATURES] = self._extract_active_features(user_input)
-            
+
             # Hole Sensor-Daten für nächsten Schritt
             self._sensor_data = await self._get_grouped_sensors()
             if not self._sensor_data:
@@ -281,11 +281,15 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     title=self._generate_entry_title(),
                     data=self._config_data,
                 )
-                 
+
             return await self.async_step_sensor_selection()
 
         return self.async_show_form(
-            step_id="feature_selection", data_schema=self._get_feature_selection_schema()
+            step_id="feature_selection",
+            data_schema=self._get_feature_selection_schema(),
+            description_placeholders={
+                "device_name": self._config_data.get(CONF_DEVICE_NAME, "Violet Pool Controller"),
+            },
         )
         
     async def async_step_sensor_selection(self, user_input: dict[str, Any] | None = None) -> FlowResult:
@@ -459,9 +463,13 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         })
 
     def _get_feature_selection_schema(self) -> vol.Schema:
-        return vol.Schema({
-            vol.Optional(f"enable_{f['id']}", default=f["default"]): bool for f in AVAILABLE_FEATURES
-        })
+        """Erstellt das Schema für die Feature-Auswahl."""
+        schema_dict = {}
+        for feature in AVAILABLE_FEATURES:
+            key = f"enable_{feature['id']}"
+            default_value = feature.get("default", False)
+            schema_dict[vol.Optional(key, default=default_value)] = bool
+        return vol.Schema(schema_dict)
         
     def _get_sensor_selection_schema(self) -> vol.Schema:
         """Erstellt das Schema für die Sensor-Auswahl."""
