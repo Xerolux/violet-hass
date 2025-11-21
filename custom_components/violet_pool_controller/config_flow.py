@@ -17,25 +17,33 @@ from .const import (
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
     CONF_CONTROLLER_NAME,
-    CONF_POOL_VOLUME,
+    CONF_POOL_SIZE,
     CONF_POLLING_INTERVAL,
     CONF_RETRY_ATTEMPTS,
     CONF_TIMEOUT_DURATION,
     CONF_ACTIVE_FEATURES,
     DEFAULT_TIMEOUT_DURATION,
     DEFAULT_RETRY_ATTEMPTS,
-    DEFAULT_POOL_VOLUME,
+    DEFAULT_POOL_SIZE,
     DEFAULT_POLLING_INTERVAL,
     AVAILABLE_FEATURES,
-    AVAILABLE_SENSORS,
-    DEVICE_MODEL_NAME,
-    ERROR_INVALID_AUTH,
-    ERROR_CANNOT_CONNECT,
-    ERROR_UNKNOWN,
 )
 from .error_codes import async_get_error_message
+from .const_sensors import (
+    ANALOG_SENSORS,
+    RUNTIME_SENSORS,
+    SYSTEM_SENSORS,
+    TEMP_SENSORS,
+    TIMESTAMP_SENSORS,
+    WATER_CHEM_SENSORS,
+)
 
 _LOGGER = logging.getLogger(__name__)
+
+DEVICE_MODEL_NAME = "Violet Pool Controller"
+ERROR_INVALID_AUTH = "invalid_auth"
+ERROR_CANNOT_CONNECT = "cannot_connect"
+ERROR_UNKNOWN = "unknown"
 
 
 # =============================================================================
@@ -44,14 +52,16 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def _async_get_sensor_data() -> dict[str, list[str]]:
-    """Fetch available sensor keys from the controller (simulated via AVAILABLE_SENSORS)."""
-    _LOGGER.debug("Fetching available sensor keys from AVAILABLE_SENSORS...")
+    """Fetch available sensor keys grouped by category."""
 
-    sensor_data: dict[str, list[str]] = {}
-    for group, sensors in AVAILABLE_SENSORS.items():
-        sensor_data[group] = [s["key"] for s in sensors]
-
-    return sensor_data
+    return {
+        "temperature_sensors": list(TEMP_SENSORS.keys()),
+        "water_chemistry": list(WATER_CHEM_SENSORS.keys()),
+        "analog_sensors": list(ANALOG_SENSORS.keys()),
+        "system_sensors": list(SYSTEM_SENSORS.keys()),
+        "runtime_sensors": list(RUNTIME_SENSORS.keys()),
+        "timestamp_sensors": list(TIMESTAMP_SENSORS.keys()),
+    }
 
 
 # =============================================================================
@@ -70,7 +80,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
         vol.Optional(CONF_RETRY_ATTEMPTS, default=DEFAULT_RETRY_ATTEMPTS): vol.All(
             vol.Coerce(int), vol.Range(min=1, max=10)
         ),
-        vol.Optional(CONF_POOL_VOLUME, default=DEFAULT_POOL_VOLUME): vol.All(
+        vol.Optional(CONF_POOL_SIZE, default=DEFAULT_POOL_SIZE): vol.All(
             vol.Coerce(float), vol.Range(min=0.1, max=1000.0)
         ),
         vol.Optional(
