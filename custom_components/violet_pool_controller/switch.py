@@ -13,6 +13,7 @@ from .const import DOMAIN, SWITCHES, CONF_ACTIVE_FEATURES, ACTION_ON, ACTION_OFF
 from .api import VioletPoolAPIError
 from .entity import VioletPoolControllerEntity, interpret_state_as_bool
 from .device import VioletPoolDataUpdateCoordinator
+from .utils_sanitizer import InputSanitizer
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -159,8 +160,8 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             
             # Für PUMP: Unterstütze erweiterte Parameter
             if key == "PUMP" and action == ACTION_ON:
-                speed = self._validate_speed(kwargs.get("speed", 2))
-                duration = self._validate_duration(kwargs.get("duration", 0))
+                speed = InputSanitizer.validate_speed(kwargs.get("speed", 2))
+                duration = InputSanitizer.validate_duration(kwargs.get("duration", 0))
 
                 result = await self.device.api.set_switch_state(
                     key=key,
@@ -169,7 +170,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                     last_value=speed
                 )
             elif key == "PVSURPLUS" and action == ACTION_ON:
-                rpm = self._validate_pv_rpm(kwargs.get("rpm"))
+                rpm = InputSanitizer.validate_speed(kwargs.get("rpm", 2), min_speed=1, max_speed=4)
 
                 result = await self.device.api.set_switch_state(
                     key=key,
@@ -263,46 +264,6 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         except Exception as err:
             _LOGGER.debug("Error handling refresh task for %s: %s", key, err)
 
-    def _validate_speed(self, speed: Any) -> int:
-        """Validiere Speed-Parameter - MINIMAL LOGGING."""
-        try:
-            speed_int = int(speed)
-            if 1 <= speed_int <= 4:
-                return speed_int
-            _LOGGER.warning("Ungültiger Speed-Wert %s, verwende Default 2", speed)
-            return 2
-        except (ValueError, TypeError):
-            _LOGGER.warning("Ungültiger Speed-Typ %s, verwende Default 2", type(speed))
-            return 2
-
-    def _validate_duration(self, duration: Any) -> int:
-        """Validiere Duration-Parameter - MINIMAL LOGGING."""
-        try:
-            duration_int = int(duration)
-            if duration_int >= 0:
-                return duration_int
-            _LOGGER.warning("Negative Duration %s, verwende 0", duration)
-            return 0
-        except (ValueError, TypeError):
-            _LOGGER.warning("Ungültiger Duration-Typ %s, verwende 0", type(duration))
-            return 0
-
-    def _validate_pv_rpm(self, rpm: Any | None) -> int:
-        """Validiere den PV-Überschuss RPM Parameter."""
-
-        if rpm is None:
-            return 2
-        try:
-            rpm_int = int(rpm)
-        except (TypeError, ValueError):
-            _LOGGER.debug("Ungültiger PV Surplus RPM %s, verwende Default 2", rpm)
-            return 2
-
-        if 1 <= rpm_int <= 3:
-            return rpm_int
-
-        _LOGGER.debug("PV Surplus RPM %s außerhalb des gültigen Bereichs, verwende Default 2", rpm)
-        return 2
 
 
 async def async_setup_entry(
