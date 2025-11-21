@@ -293,12 +293,12 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input:
             selected_sensors = []
             for key, value in user_input.items():
-                if isinstance(value, list):
+                if isinstance(value, list) and value:  # Prüfe ob Liste und nicht leer
                     selected_sensors.extend(value)
-            
+
             self._config_data[CONF_SELECTED_SENSORS] = selected_sensors
             _LOGGER.info("%d dynamische Sensoren ausgewählt", len(selected_sensors))
-            
+
             return self.async_create_entry(title=self._generate_entry_title(), data=self._config_data)
 
         return self.async_show_form(
@@ -467,9 +467,13 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Erstellt das Schema für die Sensor-Auswahl."""
         schema = {}
         for group, sensors in self._sensor_data.items():
-            # Verwende den Gruppennamen als Key und Label
-            schema[vol.Optional(group, default=sensors)] = vol.All(
-                list, vol.Length(min=0), [vol.In(sensors)]
+            # Verwende selector.SelectSelector mit multiple=True für Mehrfachauswahl
+            schema[vol.Optional(group, default=[])] = selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=sensors,
+                    multiple=True,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
             )
         return vol.Schema(schema)
 
@@ -489,13 +493,14 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
             other_options = {}
             for key, value in user_input.items():
                 if key in self._sensor_data: # Key ist eine Sensor-Gruppe
-                    selected_sensors.extend(value)
+                    if isinstance(value, list) and value:  # Prüfe ob Liste und nicht leer
+                        selected_sensors.extend(value)
                 else:
                     other_options[key] = value
-            
+
             other_options[CONF_SELECTED_SENSORS] = selected_sensors
             _LOGGER.info("%d Sensoren in Optionen gespeichert", len(selected_sensors))
-            
+
             return self.async_create_entry(title="", data=other_options)
 
         # Lade Sensoren für die Anzeige im Options-Flow
@@ -527,8 +532,12 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         for group, sensors in self._sensor_data.items():
             # Standardmäßig sind die aktuell ausgewählten Sensoren dieser Gruppe vorausgewählt
             default_selection = [s for s in sensors if s in current_sensors]
-            schema[vol.Optional(group, default=default_selection)] = vol.All(
-                list, vol.Length(min=0), [vol.In(sensors)]
+            schema[vol.Optional(group, default=default_selection)] = selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=sensors,
+                    multiple=True,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
             )
 
         return vol.Schema(schema)
