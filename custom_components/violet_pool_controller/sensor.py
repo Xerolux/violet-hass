@@ -19,6 +19,7 @@ from .const import (
     TEMP_SENSORS,
     WATER_CHEM_SENSORS,
     ANALOG_SENSORS,
+    STATUS_SENSORS,
     CONF_ACTIVE_FEATURES,
     CONF_SELECTED_SENSORS,  # WICHTIG: Neuer Import für die Sensor-Auswahl
     UNIT_MAP,
@@ -405,13 +406,13 @@ async def async_setup_entry(
     create_all_sensors = selected_sensors_raw is None
 
     if create_all_sensors:
-        _LOGGER.warning("Keine Sensor-Auswahl gefunden. Erstelle ALLE verfügbaren Sensoren (Abwärtskompatibilität).")
+        _LOGGER.info("Keine Sensor-Auswahl gefunden. Erstelle ALLE verfügbaren Sensoren (Abwärtskompatibilität).")
     else:
         _LOGGER.info("Erstelle %d ausgewählte Sensoren.", len(selected_sensors))
 
     sensors = []
     data_keys = set(coordinator.data.keys())
-    all_predefined_sensors = {**TEMP_SENSORS, **WATER_CHEM_SENSORS, **ANALOG_SENSORS}
+    all_predefined_sensors = {**TEMP_SENSORS, **WATER_CHEM_SENSORS, **ANALOG_SENSORS, **STATUS_SENSORS}
 
     handled_special_keys: set[str] = set()
 
@@ -479,6 +480,12 @@ async def async_setup_entry(
         unit = UNIT_MAP.get(key) if key not in NO_UNIT_SENSORS else None
         if _is_boolean_value(raw_value):
             unit = None  # Booleans haben keine Einheit
+
+        # ✅ FIX: Automatische Einheiten-Zuweisung für Temperatur-Sensoren
+        # Wenn kein Unit definiert ist, aber der Key auf Temperatur hindeutet, verwende °C
+        if unit is None and "temp" in key.lower() and not _is_boolean_value(raw_value):
+            unit = "°C"
+            _LOGGER.debug("Auto-assigned °C unit to temperature sensor: %s", key)
 
         description = SensorEntityDescription(
             key=key,
