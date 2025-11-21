@@ -37,6 +37,23 @@ SYSTEM_SENSORS = {
     "CPU_TEMP": {"name": "CPU Temperatur", "icon": "mdi:chip", "unit": "°C"},
     "CPU_TEMP_CARRIER": {"name": "Carrier Board", "icon": "mdi:expansion-card", "unit": "°C"},
     "CPU_UPTIME": {"name": "System Uptime", "icon": "mdi:clock", "unit": None},
+    # ✅ FIX: Zusätzliche SYSTEM_*_TEMPERATURE Keys für verschiedene Controller-Typen
+    "SYSTEM_CPU_TEMPERATURE": {"name": "System CPU Temperatur", "icon": "mdi:chip", "unit": "°C"},
+    "SYSTEM_CARRIER_CPU_TEMPERATURE": {"name": "Carrier CPU Temperatur", "icon": "mdi:expansion-card", "unit": "°C"},
+    "SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE": {"name": "Dosiermodul CPU Temperatur", "icon": "mdi:chip", "unit": "°C"},
+}
+
+# Status sensors for pumps, heaters, solar, etc.
+STATUS_SENSORS = {
+    "PUMPSTATE": {"name": "Pumpen-Status", "icon": "mdi:pump", "unit": None},
+    "PUMP_STATE": {"name": "Pumpen-Status", "icon": "mdi:pump", "unit": None},
+    "HEATERSTATE": {"name": "Heizungs-Status", "icon": "mdi:radiator", "unit": None},
+    "HEATER_STATE": {"name": "Heizungs-Status", "icon": "mdi:radiator", "unit": None},
+    "SOLARSTATE": {"name": "Solar-Status", "icon": "mdi:solar-power", "unit": None},
+    "SOLAR_STATE": {"name": "Solar-Status", "icon": "mdi:solar-power", "unit": None},
+    "BACKWASHSTATE": {"name": "Rückspül-Status", "icon": "mdi:refresh", "unit": None},
+    "BACKWASH_STATE": {"name": "Rückspül-Status", "icon": "mdi:refresh", "unit": None},
+    "FILTER_STATE": {"name": "Filter-Status", "icon": "mdi:air-filter", "unit": None},
 }
 
 # =============================================================================
@@ -91,6 +108,10 @@ UNIT_MAP = {
     "temp_value": "°C",
     "CPU_TEMP": "°C",
     "CPU_TEMP_CARRIER": "°C",
+    # ✅ FIX: Zusätzliche SYSTEM_*_TEMPERATURE Keys
+    "SYSTEM_CPU_TEMPERATURE": "°C",
+    "SYSTEM_CARRIER_CPU_TEMPERATURE": "°C",
+    "SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE": "°C",
     # Water chemistry (pH WITHOUT unit!)
     "orp_value": "mV",
     "pot_value": "mg/l",
@@ -146,6 +167,7 @@ __all__ = [
     "WATER_CHEM_SENSORS",
     "ANALOG_SENSORS",
     "SYSTEM_SENSORS",
+    "STATUS_SENSORS",
     "RUNTIME_SENSORS",
     "TIMESTAMP_SENSORS",
     "UNIT_MAP",

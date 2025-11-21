@@ -190,12 +190,24 @@ class VioletPoolControllerDevice:
                 self._last_error = None
                 
                 # Firmware-Version extrahieren (mehrere Fallbacks)
+                # ✅ FIX: Erweiterte Firmware-Extraktion mit mehr Fallback-Optionen
                 self._firmware_version = (
                     data.get("FW") or
                     data.get("fw") or
                     data.get("SW_VERSION") or
+                    data.get("sw_version") or
+                    data.get("VERSION") or
+                    data.get("version") or
+                    data.get("SW_VERSION_CARRIER") or
+                    data.get("FIRMWARE_VERSION") or
+                    data.get("firmware_version") or
                     self._firmware_version  # Behalte alten Wert wenn nichts gefunden
                 )
+
+                # Debug-Log nur wenn Firmware gefunden wurde und sich geändert hat
+                if self._firmware_version and not hasattr(self, '_fw_logged'):
+                    _LOGGER.debug("Firmware-Version erkannt: %s", self._firmware_version)
+                    self._fw_logged = True
 
                 return data
 
