@@ -13,7 +13,7 @@ from .const import DOMAIN, SWITCHES, CONF_ACTIVE_FEATURES, ACTION_ON, ACTION_OFF
 from .api import VioletPoolAPIError
 from .entity import VioletPoolControllerEntity, interpret_state_as_bool
 from .device import VioletPoolDataUpdateCoordinator
-from .utils_sanitizer import InputSanitizer
+from .utils_sanitizer import InputSanitizer # NEUER IMPORT
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -160,7 +160,8 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             
             # Für PUMP: Unterstütze erweiterte Parameter
             if key == "PUMP" and action == ACTION_ON:
-                speed = InputSanitizer.validate_speed(kwargs.get("speed", 2))
+                # REFACTOR: Nutze InputSanitizer für Validierung
+                speed = InputSanitizer.validate_speed(kwargs.get("speed", 2), min_speed=1, max_speed=3)
                 duration = InputSanitizer.validate_duration(kwargs.get("duration", 0))
 
                 result = await self.device.api.set_switch_state(
@@ -170,7 +171,8 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                     last_value=speed
                 )
             elif key == "PVSURPLUS" and action == ACTION_ON:
-                rpm = InputSanitizer.validate_speed(kwargs.get("rpm", 2), min_speed=1, max_speed=4)
+                # REFACTOR: Nutze InputSanitizer für Validierung
+                rpm = InputSanitizer.validate_speed(kwargs.get("rpm"), min_speed=1, max_speed=3)
 
                 result = await self.device.api.set_switch_state(
                     key=key,
@@ -264,6 +266,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         except Exception as err:
             _LOGGER.debug("Error handling refresh task for %s: %s", key, err)
 
+# *** ENTFERNTE REDUNDANTE VALIDIERUNGSMETHODEN ***
 
 
 async def async_setup_entry(
@@ -336,4 +339,3 @@ async def async_setup_entry(
     else:
         # ✅ WARNING: Potenzielles Problem
         _LOGGER.warning("⚠ Keine Switches eingerichtet")
-

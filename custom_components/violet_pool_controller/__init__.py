@@ -220,8 +220,9 @@ def _validate_config(config: dict[str, Any]) -> bool:
             return False
     
     # Validiere numerische Werte
-    if not 10 <= config["polling_interval"] <= 3600:
-        _LOGGER.error("Invalid polling_interval: %s (must be 10-3600)", config["polling_interval"])
+    # FIX: Erlaubt bis zu 3600 Sekunden (wie im Config Flow)
+    if not 5 <= config["polling_interval"] <= 3600:
+        _LOGGER.error("Invalid polling_interval: %s (must be 5-3600)", config["polling_interval"])
         return False
     
     if not 5 <= config["timeout_duration"] <= 60:
