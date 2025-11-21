@@ -76,11 +76,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Lazy imports to avoid blocking the event loop
     from .api import VioletPoolAPI
     from .device import async_setup_device
-    from homeassistant.exceptions import ConfigEntryNotReady
 
     # Extrahiere Konfiguration
     config = _extract_config(entry)
-
+    
     # Validiere Konfiguration
     if not _validate_config(config):
         raise HomeAssistantError("Invalid configuration")
@@ -96,37 +95,32 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             timeout=config["timeout_duration"],
             max_retries=config["retry_attempts"]
         )
-
+        
         # Device und Coordinator einrichten
         coordinator = await async_setup_device(hass, entry, api)
-
+        
+        if not coordinator:
+            _LOGGER.error("Failed to set up coordinator for %s", config["device_name"])
+            raise HomeAssistantError("Coordinator setup failed")
+        
         # Coordinator in hass.data speichern
         hass.data[DOMAIN][entry.entry_id] = coordinator
-
+        
         # Platforms laden
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
+        
         # Services registrieren (nur einmal für die gesamte Integration)
         from .services import async_register_services
         await async_register_services(hass)
-
+        
         _LOGGER.info(
             "Setup completed successfully for '%s' (entry_id=%s)",
             config["device_name"],
             entry.entry_id
         )
-
+        
         return True
-
-    except ConfigEntryNotReady:
-        # ✅ ConfigEntryNotReady muss durchgereicht werden, damit Home Assistant
-        # die automatische Retry-Logik verwenden kann
-        _LOGGER.warning(
-            "Controller '%s' nicht bereit, Home Assistant wird Setup später wiederholen",
-            config.get("device_name", "Unknown")
-        )
-        raise
-
+        
     except Exception as err:
         _LOGGER.exception(
             "Unexpected error during setup (entry_id=%s): %s",
@@ -220,9 +214,8 @@ def _validate_config(config: dict[str, Any]) -> bool:
             return False
     
     # Validiere numerische Werte
-    # FIX: Erlaubt bis zu 3600 Sekunden (wie im Config Flow)
-    if not 5 <= config["polling_interval"] <= 3600:
-        _LOGGER.error("Invalid polling_interval: %s (must be 5-3600)", config["polling_interval"])
+    if not 5 <= config["polling_interval"] <= 300:
+        _LOGGER.error("Invalid polling_interval: %s (must be 5-300)", config["polling_interval"])
         return False
     
     if not 5 <= config["timeout_duration"] <= 60:

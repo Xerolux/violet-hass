@@ -52,12 +52,6 @@ _LOGGER = logging.getLogger(__name__)
 class VioletPoolAPIError(Exception):
     """Raised when the Violet Pool Controller API returns an error."""
 
-    def __init__(self, message: str, error_code: str | None = None) -> None:
-        """Store a message and an optional machine-readable error code."""
-
-        super().__init__(message)
-        self.error_code = (error_code or "unknown").lower()
-
 
 class VioletPoolAPI:
     """Tiny HTTP client used by the integration to talk to the controller."""
@@ -253,38 +247,6 @@ class VioletPoolAPI:
         if not isinstance(response, dict):
             raise VioletPoolAPIError("Unexpected payload returned from getReadings")
         return response
-
-    async def get_device_info(self) -> dict[str, Any]:
-        """Fetch basic device metadata to verify connectivity."""
-
-        data = await self.get_readings()
-
-        def _lookup(keys: tuple[str, ...]) -> Any:
-            """Search common sections for the first matching key."""
-
-            sections: tuple[Mapping[str, Any] | Any, ...] = (
-                data,
-                data.get("DEVICE", {}),
-                data.get("SYSTEM", {}),
-                data.get("NETWORK", {}),
-            )
-
-            for key in keys:
-                for section in sections:
-                    if isinstance(section, Mapping) and key in section:
-                        return section[key]
-            return None
-
-        raw_device_id = _lookup(("device_id", "DEVICE_ID", "deviceId", "SERIAL_NUMBER", "serial"))
-        try:
-            device_id = int(str(raw_device_id).strip()) if raw_device_id is not None else 1
-        except (ValueError, TypeError):
-            device_id = 1
-
-        raw_name = _lookup(("device_name", "DEVICE_NAME", "name", "controller_name"))
-        device_name = str(raw_name).strip() if raw_name else "Violet Pool Controller"
-
-        return {"device_id": device_id, "device_name": device_name}
 
     async def get_specific_readings(self, categories: list[str] | tuple[str, ...]) -> dict[str, Any]:
         """Return a reduced data set for the provided categories."""

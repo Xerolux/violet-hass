@@ -1,7 +1,7 @@
 {
     "config": {
         "step": {
-            "user": {
+            "welcome": {
                 "title": "🚀 Violet Pool Setup-Assistent",
                 "description": "**Willkommen!**\n\n**DE:** Wähle aus, ob du direkt mit der Einrichtung starten möchtest oder zuerst die ausführliche Dokumentation lesen willst.\n**EN:** Choose whether you want to start the configuration wizard immediately or open the detailed documentation first.\n\n📘 **Dokumentation / Documentation**\n• [Konfigurationshilfe (DE)]({docs_de})\n• [Configuration Guide (EN)]({docs_en})\n\n🛟 Support & Feedback: {issues_url}",
                 "data": {
@@ -31,8 +31,7 @@
                     "password": "🔐 Passwort (optional)",
                     "use_ssl": "🔒 SSL/HTTPS verwenden",
                     "device_name": "📝 Gerätename",
-                    "controller_name": "🏷️ Controller-Name",
-                    "device_id": "🔢 Geräte-ID",
+                    "device_id": "🏷️ Geräte-ID",
                     "polling_interval": "⏱️ Abrufintervall (Sekunden)",
                     "timeout_duration": "⏰ Timeout (Sekunden)",
                     "retry_attempts": "🔄 Wiederholungsversuche"
@@ -43,7 +42,6 @@
                     "password": "DE: Passwort eingeben, falls benötigt · EN: Password if required",
                     "use_ssl": "DE: HTTPS aktivieren, falls konfiguriert · EN: Enable HTTPS when supported",
                     "device_name": "DE: Anzeigename in Home Assistant · EN: Friendly name shown in Home Assistant",
-                    "controller_name": "DE: Name für Multi-Controller Setup · EN: Name for multi-controller setup",
                     "device_id": "DE: Eindeutige ID bei mehreren Controllern · EN: Unique ID if multiple controllers exist",
                     "polling_interval": "DE: Intervall für Datenabrufe (10-3600s) · EN: Data polling interval (10-3600s)",
                     "timeout_duration": "DE: Maximale Wartezeit pro Anfrage · EN: Maximum wait time per request",
@@ -66,7 +64,7 @@
             },
             "feature_selection": {
                 "title": "⚙️ Smart-Features aktivieren",
-                "description": "**Welche Funktionen soll dein intelligenter Pool {device_name} haben?** 🤖\n\n⭐ **Empfehlung für Einsteiger:** Heizung, pH-Control und Filterpumpe reichen für den Start!\n\n🎯 **Profi-Tipp:** Du kannst jederzeit weitere Features aktivieren.\n\n**DE:** Aktiviere nur die Funktionen, die dein Pool-Setup wirklich benötigt.\n**EN:** Enable only the features your pool installation actually uses.",
+                "description": "**DE:** Aktiviere nur die Funktionen, die dein Pool-Setup wirklich benötigt. Das reduziert Ressourcenverbrauch und hält die Oberfläche übersichtlich.\n**EN:** Enable only the features your pool installation actually uses. This keeps resource usage low and the UI tidy. Du kannst die Auswahl jederzeit in den Optionen anpassen.",
                 "data": {
                     "enable_heating": "🔥 Heizungssteuerung",
                     "enable_solar": "☀️ Solarabsorber",
