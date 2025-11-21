@@ -8,6 +8,7 @@ from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import VioletPoolAPI, VioletPoolAPIError
 from .const import (
@@ -301,7 +302,7 @@ class VioletPoolControllerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         test_api = VioletPoolAPI(
             host=host,
-            session=self.hass.helpers.aiohttp_client.async_get_clientsession(self.hass),
+            session=async_get_clientsession(self.hass),
             username=username,
             password=password,
             use_ssl=use_ssl,
