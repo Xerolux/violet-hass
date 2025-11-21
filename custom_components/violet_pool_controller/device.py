@@ -189,9 +189,13 @@ class VioletPoolControllerDevice:
                 self._consecutive_failures = 0
                 self._last_error = None
                 
-                # Firmware-Version extrahieren
-                if "FW" in data or "fw" in data:
-                    self._firmware_version = data.get("FW") or data.get("fw")
+                # Firmware-Version extrahieren (mehrere Fallbacks)
+                self._firmware_version = (
+                    data.get("FW") or
+                    data.get("fw") or
+                    data.get("SW_VERSION") or
+                    self._firmware_version  # Behalte alten Wert wenn nichts gefunden
+                )
 
                 return data
 
