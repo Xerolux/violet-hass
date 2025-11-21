@@ -41,6 +41,24 @@ SYSTEM_SENSORS = {
     "SYSTEM_CPU_TEMPERATURE": {"name": "System CPU Temperatur", "icon": "mdi:chip", "unit": "°C"},
     "SYSTEM_CARRIER_CPU_TEMPERATURE": {"name": "Carrier CPU Temperatur", "icon": "mdi:expansion-card", "unit": "°C"},
     "SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE": {"name": "Dosiermodul CPU Temperatur", "icon": "mdi:chip", "unit": "°C"},
+    # ✅ FIX: Mixed-Case Varianten (vom Controller verwendet)
+    "SYSTEM_cpu_temperature": {"name": "System CPU Temperatur", "icon": "mdi:chip", "unit": "°C"},
+    "SYSTEM_carrier_cpu_temperature": {"name": "Carrier CPU Temperatur", "icon": "mdi:expansion-card", "unit": "°C"},
+    "SYSTEM_dosagemodule_cpu_temperature": {"name": "Dosiermodul CPU Temperatur", "icon": "mdi:chip", "unit": "°C"},
+    "SYSTEM_memoryusage": {"name": "System Memory Usage", "icon": "mdi:memory", "unit": "MB"},
+    "SYSTEM_MEMORY": {"name": "System Memory Total", "icon": "mdi:memory", "unit": "MB"},
+    "MEMORY_USED": {"name": "Memory Used", "icon": "mdi:memory", "unit": "%"},
+    "LOAD_AVG": {"name": "System Load Average", "icon": "mdi:gauge", "unit": None},
+    "CPU_GOV": {"name": "CPU Governor", "icon": "mdi:chip", "unit": None},
+    # ✅ Carrier/Module Alive Counts
+    "SYSTEM_carrier_alive_count": {"name": "Carrier Alive Count", "icon": "mdi:counter", "unit": None},
+    "SYSTEM_carrier_alive_faultcount": {"name": "Carrier Fault Count", "icon": "mdi:alert", "unit": None},
+    "SYSTEM_dosagemodule_alive_count": {"name": "Dosiermodul Alive Count", "icon": "mdi:counter", "unit": None},
+    "SYSTEM_dosagemodule_alive_faultcount": {"name": "Dosiermodul Fault Count", "icon": "mdi:alert", "unit": None},
+    "SYSTEM_ext1module_alive_count": {"name": "Ext1 Modul Alive Count", "icon": "mdi:counter", "unit": None},
+    "SYSTEM_ext1module_alive_faultcount": {"name": "Ext1 Modul Fault Count", "icon": "mdi:alert", "unit": None},
+    # ✅ Pump RS485 Power
+    "pump_rs485_pwr": {"name": "Pumpe RS485 Power", "icon": "mdi:flash", "unit": None},
 }
 
 # Status sensors for pumps, heaters, solar, etc.
@@ -108,10 +126,18 @@ UNIT_MAP = {
     "temp_value": "°C",
     "CPU_TEMP": "°C",
     "CPU_TEMP_CARRIER": "°C",
-    # ✅ FIX: Zusätzliche SYSTEM_*_TEMPERATURE Keys
+    # ✅ FIX: Zusätzliche SYSTEM_*_TEMPERATURE Keys (Uppercase)
     "SYSTEM_CPU_TEMPERATURE": "°C",
     "SYSTEM_CARRIER_CPU_TEMPERATURE": "°C",
     "SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE": "°C",
+    # ✅ FIX: Mixed-Case Varianten (vom Controller verwendet)
+    "SYSTEM_cpu_temperature": "°C",
+    "SYSTEM_carrier_cpu_temperature": "°C",
+    "SYSTEM_dosagemodule_cpu_temperature": "°C",
+    # System memory and performance
+    "SYSTEM_memoryusage": "MB",
+    "SYSTEM_MEMORY": "MB",
+    "MEMORY_USED": "%",
     # Water chemistry (pH WITHOUT unit!)
     "orp_value": "mV",
     "pot_value": "mg/l",
@@ -138,6 +164,10 @@ NO_UNIT_SENSORS = {
     "FW", "SW_VERSION", "HW_VERSION", "SERIAL_NUMBER", "MAC_ADDRESS", "IP_ADDRESS",
     "VERSION", "CPU_UPTIME", "BACKWASH_STATE", "PUMP_STATE", "HEATER_STATE",
     "SOLAR_STATE", "LIGHT_STATE", "time", "TIME", "CURRENT_TIME",
+    "LOAD_AVG", "CPU_GOV", "fw", "pump_rs485_pwr",
+    "SYSTEM_carrier_alive_count", "SYSTEM_carrier_alive_faultcount",
+    "SYSTEM_dosagemodule_alive_count", "SYSTEM_dosagemodule_alive_faultcount",
+    "SYSTEM_ext1module_alive_count", "SYSTEM_ext1module_alive_faultcount",
 }
 
 # =============================================================================

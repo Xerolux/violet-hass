@@ -56,7 +56,7 @@ TEXT_VALUE_SENSORS = {
     "LAST_ERROR", "VERSION_CODE", "CHECKSUM",
     "RULE_RESULT", "LAST_MOVING_DIRECTION", "COVER_DIRECTION",
     "SW_VERSION", "SW_VERSION_CARRIER",
-    "HW_VERSION_CARRIER", "FW", "VERSION", "VERSION_INFO",
+    "HW_VERSION_CARRIER", "FW", "fw", "VERSION", "VERSION_INFO",
     "HARDWARE_VERSION", "CPU_GOV",
     "HW_SERIAL_CARRIER", "SERIAL_NUMBER", "MAC_ADDRESS", "IP_ADDRESS",
     "DOS_1_CL_REMAINING_RANGE", "DOS_4_PHM_REMAINING_RANGE",
@@ -67,7 +67,12 @@ TEXT_VALUE_SENSORS = {
     "BATHING_AI_PUMP_STATE",
     "OVERFLOW_REFILL_STATE", "OVERFLOW_DRYRUN_STATE",
     "OVERFLOW_OVERFILL_STATE",
-    "time", "TIME", "CURRENT_TIME"
+    "time", "TIME", "CURRENT_TIME",
+    # ✅ Neue System-Status-Sensoren
+    "LOAD_AVG", "pump_rs485_pwr",
+    "SYSTEM_carrier_alive_count", "SYSTEM_carrier_alive_faultcount",
+    "SYSTEM_dosagemodule_alive_count", "SYSTEM_dosagemodule_alive_faultcount",
+    "SYSTEM_ext1module_alive_count", "SYSTEM_ext1module_alive_faultcount",
 }
 
 # Runtime sensors - usually formatted time strings
