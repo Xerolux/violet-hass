@@ -9,6 +9,7 @@ from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+import homeassistant.helpers.config_validation as cv
 
 from .api import VioletPoolAPI, VioletPoolAPIError
 from .const import (
@@ -283,9 +284,9 @@ class VioletPoolControllerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         for group, sensors in self._sensor_data.items():
             # Each group is a multi-select over its sensor keys.
-            # Using [vol.In(...)] is the simplest multi-select list schema
-            # that HA's voluptuous-serialize can handle.
-            schema[vol.Optional(group, default=sensors)] = [vol.In(sensors)]
+            # Using cv.multi_select so voluptuous-serialize can build the UI
+            # representation without raising conversion errors.
+            schema[vol.Optional(group, default=sensors)] = cv.multi_select(sensors)
 
         return vol.Schema(schema)
 
@@ -514,9 +515,9 @@ class VioletPoolControllerOptionsFlow(config_entries.OptionsFlow):
             if not default_selection:
                 default_selection = available_sensors
 
-            schema[vol.Optional(group, default=default_selection)] = [
-                vol.In(available_sensors)
-            ]
+            schema[vol.Optional(group, default=default_selection)] = cv.multi_select(
+                available_sensors
+            )
 
         return vol.Schema(schema)
 
