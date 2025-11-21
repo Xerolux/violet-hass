@@ -221,7 +221,7 @@ class VioletPoolControllerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self.config_data["selected_sensors"] = selected_sensors
 
             # Proceed to finish step
-            return self.async_step_finish()
+            return await self.async_step_finish()
 
         # Show form for sensor selection
         return self.async_show_form(
