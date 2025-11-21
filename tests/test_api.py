@@ -137,3 +137,26 @@ class TestVioletPoolAPI:
             # Sollte VioletPoolAPIError werfen
             with pytest.raises(VioletPoolAPIError, match="Invalid JSON"):
                 await api._request("/test", expect_json=True)
+
+    async def test_get_device_info_with_values(self, api):
+        """Test that device info is extracted when values are present."""
+
+        mock_payload = {
+            "DEVICE": {"DEVICE_ID": "42", "DEVICE_NAME": "Pool Alpha"},
+            "SYSTEM": {"FW": "1.2.3"},
+        }
+
+        with patch.object(api, "get_readings", AsyncMock(return_value=mock_payload)):
+            info = await api.get_device_info()
+
+        assert info["device_id"] == 42
+        assert info["device_name"] == "Pool Alpha"
+
+    async def test_get_device_info_defaults(self, api):
+        """Test that sensible defaults are returned when data is missing."""
+
+        with patch.object(api, "get_readings", AsyncMock(return_value={"SYSTEM": {}})):
+            info = await api.get_device_info()
+
+        assert info["device_id"] == 1
+        assert info["device_name"] == "Violet Pool Controller"
