@@ -52,6 +52,12 @@ _LOGGER = logging.getLogger(__name__)
 class VioletPoolAPIError(Exception):
     """Raised when the Violet Pool Controller API returns an error."""
 
+    def __init__(self, message: str, error_code: str | None = None) -> None:
+        """Store a message and an optional machine-readable error code."""
+
+        super().__init__(message)
+        self.error_code = (error_code or "unknown").lower()
+
 
 class VioletPoolAPI:
     """Tiny HTTP client used by the integration to talk to the controller."""

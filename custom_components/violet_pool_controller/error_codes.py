@@ -4,6 +4,24 @@ from __future__ import annotations
 
 from typing import Dict, List
 
+ERROR_MESSAGE_MAP: Dict[str, str] = {
+    "invalid_ip_address": "invalid_ip_address",
+    "invalid_ip": "invalid_ip_address",
+    "invalid_auth": "invalid_auth",
+    "cannot_connect": "cannot_connect",
+    "timeout": "timeout_connection",
+    "timeout_connection": "timeout_connection",
+    "authentication_error": "authentication_error",
+    "api_endpoint_not_found": "api_endpoint_not_found",
+    "invalid_pool_size": "invalid_pool_size",
+    "invalid_configuration": "invalid_configuration",
+    "api_response_error": "api_response_error",
+    "firmware_data_missing": "firmware_data_missing",
+    "invalid_firmware_version": "invalid_firmware_version",
+    "connection_error": "connection_error",
+    "already_configured": "already_configured",
+}
+
 # The dictionary below is intentionally focused on the most common error codes
 # observed in production systems.  Unknown codes fall back to a generic
 # response so the integration remains robust even when the controller ships a
@@ -693,3 +711,13 @@ def get_errors_by_severity(severity: str) -> List[str]:
 
     lower_severity = severity.lower()
     return [code for code, data in ERROR_CODES.items() if data.get("severity", "").lower() == lower_severity]
+
+
+def async_get_error_message(error_code: str | None) -> str:
+    """Map API error codes to config flow error keys."""
+
+    if not error_code:
+        return "unknown"
+
+    normalized_code = str(error_code).strip().lower()
+    return ERROR_MESSAGE_MAP.get(normalized_code, "unknown")
