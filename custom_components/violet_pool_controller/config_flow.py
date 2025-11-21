@@ -296,8 +296,16 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if isinstance(value, list) and value:  # Prüfe ob Liste und nicht leer
                     selected_sensors.extend(value)
 
-            self._config_data[CONF_SELECTED_SENSORS] = selected_sensors
-            _LOGGER.info("%d dynamische Sensoren ausgewählt", len(selected_sensors))
+            # ✅ FIX: Wenn keine Sensoren ausgewählt, speichere None statt []
+            # None = Alle Sensoren erstellen (Abwärtskompatibilität)
+            # [] = Explizit keine Sensoren ausgewählt
+            # Für bessere UX: Wenn leer, erstelle alle
+            self._config_data[CONF_SELECTED_SENSORS] = selected_sensors if selected_sensors else None
+
+            if selected_sensors:
+                _LOGGER.info("%d dynamische Sensoren ausgewählt", len(selected_sensors))
+            else:
+                _LOGGER.info("Keine spezifischen Sensoren ausgewählt - alle verfügbaren Sensoren werden erstellt")
 
             return self.async_create_entry(title=self._generate_entry_title(), data=self._config_data)
 
@@ -498,8 +506,15 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
                 else:
                     other_options[key] = value
 
-            other_options[CONF_SELECTED_SENSORS] = selected_sensors
-            _LOGGER.info("%d Sensoren in Optionen gespeichert", len(selected_sensors))
+            # ✅ FIX: Wenn keine Sensoren ausgewählt, speichere None statt []
+            # None = Alle Sensoren erstellen, [] = Keine Sensoren
+            # Für bessere UX: Wenn leer, erstelle alle
+            other_options[CONF_SELECTED_SENSORS] = selected_sensors if selected_sensors else None
+
+            if selected_sensors:
+                _LOGGER.info("%d Sensoren in Optionen gespeichert", len(selected_sensors))
+            else:
+                _LOGGER.info("Keine spezifischen Sensoren in Optionen - alle verfügbaren Sensoren werden erstellt")
 
             return self.async_create_entry(title="", data=other_options)
 
