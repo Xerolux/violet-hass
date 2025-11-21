@@ -6,7 +6,7 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.const import Platform
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
 from homeassistant.helpers import aiohttp_client
 
 from .const import (
@@ -95,39 +95,47 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             timeout=config["timeout_duration"],
             max_retries=config["retry_attempts"]
         )
-        
+
         # Device und Coordinator einrichten
         coordinator = await async_setup_device(hass, entry, api)
-        
+
         if not coordinator:
             _LOGGER.error("Failed to set up coordinator for %s", config["device_name"])
-            raise HomeAssistantError("Coordinator setup failed")
-        
+            raise ConfigEntryNotReady("Coordinator setup failed")
+
         # Coordinator in hass.data speichern
         hass.data[DOMAIN][entry.entry_id] = coordinator
-        
+
         # Platforms laden
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-        
+
         # Services registrieren (nur einmal für die gesamte Integration)
         from .services import async_register_services
         await async_register_services(hass)
-        
+
         _LOGGER.info(
             "Setup completed successfully for '%s' (entry_id=%s)",
             config["device_name"],
             entry.entry_id
         )
-        
+
         return True
-        
+
+    except ConfigEntryNotReady:
+        # ConfigEntryNotReady durchreichen damit HA automatische Retries macht
+        _LOGGER.warning(
+            "Setup für '%s' noch nicht bereit, wird automatisch wiederholt",
+            config["device_name"]
+        )
+        raise
+
     except Exception as err:
         _LOGGER.exception(
             "Unexpected error during setup (entry_id=%s): %s",
             entry.entry_id,
             err
         )
-        raise HomeAssistantError(f"Setup error: {err}") from err
+        raise ConfigEntryNotReady(f"Setup error: {err}") from err
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

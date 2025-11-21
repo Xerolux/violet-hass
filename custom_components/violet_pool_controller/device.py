@@ -123,16 +123,23 @@ class VioletPoolControllerDevice:
                 # Validiere Daten
                 if not data or not isinstance(data, dict):
                     self._consecutive_failures += 1
-                    
+
                     # ✅ LOGGING OPTIMIZATION: Intelligentes Failure-Logging
                     if self._consecutive_failures == 1:
-                        # Erste Warnung IMMER loggen
-                        _LOGGER.warning(
-                            "Controller '%s' antwortet nicht (erste Warnung)",
-                            self.device_name
-                        )
-                        self._first_failure_logged = True
-                        self._recovery_logged = False
+                        # Erste Warnung nur wenn schon mal verfügbar war (nicht beim ersten Setup)
+                        if self._available or len(self._data) > 0:
+                            _LOGGER.warning(
+                                "Controller '%s' antwortet nicht (erste Warnung)",
+                                self.device_name
+                            )
+                            self._first_failure_logged = True
+                            self._recovery_logged = False
+                        else:
+                            # Beim ersten Setup nur Debug-Level
+                            _LOGGER.debug(
+                                "Controller '%s' antwortet nicht (Setup-Phase)",
+                                self.device_name
+                            )
                         
                     elif self._consecutive_failures >= self._max_consecutive_failures:
                         # Kritisch: Wird unavailable - IMMER loggen
@@ -191,14 +198,22 @@ class VioletPoolControllerDevice:
         except VioletPoolAPIError as err:
             self._last_error = str(err)
             self._consecutive_failures += 1
-            
+
             # ✅ LOGGING OPTIMIZATION: Konsolidiertes Error-Logging
             if self._consecutive_failures == 1:
-                _LOGGER.error(
-                    "API-Fehler bei Update von '%s': %s",
-                    self.device_name,
-                    str(err)[:200]  # Gekürzt auf 200 Zeichen
-                )
+                # Beim ersten Setup nur Debug, sonst Error
+                if not self._available and len(self._data) == 0:
+                    _LOGGER.debug(
+                        "API-Fehler bei Setup von '%s': %s",
+                        self.device_name,
+                        str(err)[:200]
+                    )
+                else:
+                    _LOGGER.error(
+                        "API-Fehler bei Update von '%s': %s",
+                        self.device_name,
+                        str(err)[:200]  # Gekürzt auf 200 Zeichen
+                    )
             elif self._consecutive_failures >= self._max_consecutive_failures:
                 _LOGGER.error(
                     "Controller '%s' nach %d API-Fehlern nicht mehr verfügbar",
@@ -221,13 +236,21 @@ class VioletPoolControllerDevice:
         except Exception as err:
             self._last_error = str(err)
             self._consecutive_failures += 1
-            
+
             # ✅ LOGGING OPTIMIZATION: Unerwartete Fehler = immer loggen (aber nur Exception-Typ)
             if self._consecutive_failures == 1:
-                _LOGGER.exception(
-                    "Unerwarteter Fehler bei Update von '%s'",
-                    self.device_name
-                )
+                # Beim ersten Setup nur Debug, sonst volle Exception
+                if not self._available and len(self._data) == 0:
+                    _LOGGER.debug(
+                        "Fehler bei Setup von '%s': %s",
+                        self.device_name,
+                        err
+                    )
+                else:
+                    _LOGGER.exception(
+                        "Unerwarteter Fehler bei Update von '%s'",
+                        self.device_name
+                    )
             elif self._consecutive_failures >= self._max_consecutive_failures:
                 _LOGGER.error(
                     "Controller '%s' nach %d unerwarteten Fehlern nicht verfügbar",
@@ -512,60 +535,93 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
 
 
 async def async_setup_device(
-    hass: HomeAssistant, 
-    config_entry: ConfigEntry, 
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
     api: VioletPoolAPI
 ) -> VioletPoolDataUpdateCoordinator:
     """
-    Setup des Violet Pool Controller Devices - SMART FAILURE LOGGING.
-    
+    Setup des Violet Pool Controller Devices - SMART FAILURE LOGGING + RETRY LOGIC.
+
     ✅ LOGGING OPTIMIZATION: Fokus auf Setup-Erfolg/Fehler, nicht auf Details.
+    ✅ RETRY LOGIC: Mehrere Versuche beim ersten Setup für bessere Zuverlässigkeit.
     """
     try:
         # Device erstellen
         device = VioletPoolControllerDevice(hass, config_entry, api)
-        
-        # Ersten Update durchführen (Verfügbarkeit prüfen)
-        await device.async_update()
-        
+
+        # Ersten Update durchführen mit Retry-Logik (max 3 Versuche)
+        max_retries = 3
+        last_error = None
+
+        for attempt in range(1, max_retries + 1):
+            try:
+                _LOGGER.debug(
+                    "Setup-Versuch %d/%d für '%s'",
+                    attempt,
+                    max_retries,
+                    device.device_name
+                )
+
+                await device.async_update()
+
+                if device.available:
+                    _LOGGER.debug("Setup-Versuch %d erfolgreich", attempt)
+                    break
+
+            except Exception as err:
+                last_error = err
+                _LOGGER.debug(
+                    "Setup-Versuch %d fehlgeschlagen: %s",
+                    attempt,
+                    err
+                )
+
+            # Warte zwischen Versuchen (außer beim letzten)
+            if attempt < max_retries:
+                await asyncio.sleep(2)
+
         if not device.available:
-            # ✅ Klare Setup-Fehlermeldung
-            raise ConfigEntryNotReady(
-                f"Controller '{device.device_name}' nicht erreichbar bei Setup. "
-                "Bitte Verbindung und Controller-Status prüfen."
+            # ✅ Klare Setup-Fehlermeldung nach allen Versuchen
+            error_msg = (
+                f"Controller '{device.device_name}' nicht erreichbar nach {max_retries} Versuchen. "
+                f"Bitte Verbindung und Controller-Status prüfen."
             )
-        
+            if last_error:
+                error_msg += f" Letzter Fehler: {last_error}"
+
+            raise ConfigEntryNotReady(error_msg)
+
         # Polling-Intervall aus Options oder Data holen
         polling_interval = config_entry.options.get(
-            CONF_POLLING_INTERVAL, 
+            CONF_POLLING_INTERVAL,
             config_entry.data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
         )
-        
+
         # Coordinator erstellen
         coordinator = VioletPoolDataUpdateCoordinator(
-            hass, 
-            device, 
-            config_entry.data.get(CONF_DEVICE_NAME, "Violet Pool Controller"), 
+            hass,
+            device,
+            config_entry.data.get(CONF_DEVICE_NAME, "Violet Pool Controller"),
             polling_interval
         )
-        
+
         # Ersten Refresh durchführen
         await coordinator.async_config_entry_first_refresh()
-        
+
         # ✅ Erfolgreicher Setup = wichtige Info
         _LOGGER.info(
-            "✓ Device Setup erfolgreich: '%s' (FW: %s, %d Datenpunkte)", 
-            device.device_name, 
+            "✓ Device Setup erfolgreich: '%s' (FW: %s, %d Datenpunkte)",
+            device.device_name,
             device.firmware_version or "Unbekannt",
             len(device.data) if device.data else 0
         )
-        
+
         return coordinator
-        
+
     except ConfigEntryNotReady:
         # Bereits korrekt formatierte Exception durchreichen
         raise
-        
+
     except Exception as err:
         # ✅ Setup-Fehler immer loggen (kritisch)
         _LOGGER.exception("Device Setup fehlgeschlagen: %s", err)
