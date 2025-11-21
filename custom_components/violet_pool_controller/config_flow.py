@@ -355,7 +355,7 @@ class VioletPoolControllerOptionsFlow(config_entries.OptionsFlow):
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize the options flow."""
-        self.config_entry = config_entry
+        super().__init__(config_entry)
         self.options = dict(config_entry.options)
         self.config = dict(config_entry.data)
         self._sensor_data: dict[str, Any] = {}
