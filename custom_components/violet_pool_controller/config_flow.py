@@ -195,7 +195,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return await self.async_step_disclaimer()
 
         return self.async_show_form(
-            step_id="welcome",
+            step_id="user",
             data_schema=self._get_main_menu_schema(),
             description_placeholders=self._get_help_links(),
         )
