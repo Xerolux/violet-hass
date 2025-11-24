@@ -37,17 +37,18 @@ SYSTEM_SENSORS = {
     "CPU_TEMP": {"name": "CPU Temperatur", "icon": "mdi:chip", "unit": "°C"},
     "CPU_TEMP_CARRIER": {"name": "Carrier Board", "icon": "mdi:expansion-card", "unit": "°C"},
     "CPU_UPTIME": {"name": "System Uptime", "icon": "mdi:clock", "unit": None},
-    # ✅ FIX: Zusätzliche SYSTEM_*_TEMPERATURE Keys für verschiedene Controller-Typen
-    "SYSTEM_CPU_TEMPERATURE": {"name": "System CPU Temperatur", "icon": "mdi:chip", "unit": "°C"},
-    "SYSTEM_CARRIER_CPU_TEMPERATURE": {"name": "Carrier CPU Temperatur", "icon": "mdi:expansion-card", "unit": "°C"},
-    "SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE": {"name": "Dosiermodul CPU Temperatur", "icon": "mdi:chip", "unit": "°C"},
-    # ✅ FIX: Mixed-Case Varianten (vom Controller verwendet)
-    "SYSTEM_cpu_temperature": {"name": "System CPU Temperatur", "icon": "mdi:chip", "unit": "°C"},
-    "SYSTEM_carrier_cpu_temperature": {"name": "Carrier CPU Temperatur", "icon": "mdi:expansion-card", "unit": "°C"},
-    "SYSTEM_dosagemodule_cpu_temperature": {"name": "Dosiermodul CPU Temperatur", "icon": "mdi:chip", "unit": "°C"},
-    "SYSTEM_memoryusage": {"name": "System Memory Usage", "icon": "mdi:memory", "unit": "MB"},
-    "SYSTEM_MEMORY": {"name": "System Memory Total", "icon": "mdi:memory", "unit": "MB"},
-    "MEMORY_USED": {"name": "Memory Used", "icon": "mdi:memory", "unit": "%"},
+    # SYSTEM_*_TEMPERATURE and memory sensors: unit=None for backwards compatibility
+    # with existing Home Assistant statistics (changing from None to a unit breaks statistics)
+    "SYSTEM_CPU_TEMPERATURE": {"name": "System CPU Temperatur", "icon": "mdi:chip", "unit": None},
+    "SYSTEM_CARRIER_CPU_TEMPERATURE": {"name": "Carrier CPU Temperatur", "icon": "mdi:expansion-card", "unit": None},
+    "SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE": {"name": "Dosiermodul CPU Temperatur", "icon": "mdi:chip", "unit": None},
+    # Mixed-Case Varianten (vom Controller verwendet)
+    "SYSTEM_cpu_temperature": {"name": "System CPU Temperatur", "icon": "mdi:chip", "unit": None},
+    "SYSTEM_carrier_cpu_temperature": {"name": "Carrier CPU Temperatur", "icon": "mdi:expansion-card", "unit": None},
+    "SYSTEM_dosagemodule_cpu_temperature": {"name": "Dosiermodul CPU Temperatur", "icon": "mdi:chip", "unit": None},
+    "SYSTEM_memoryusage": {"name": "System Memory Usage", "icon": "mdi:memory", "unit": None},
+    "SYSTEM_MEMORY": {"name": "System Memory Total", "icon": "mdi:memory", "unit": None},
+    "MEMORY_USED": {"name": "Memory Used", "icon": "mdi:memory", "unit": None},
     "LOAD_AVG": {"name": "System Load Average", "icon": "mdi:gauge", "unit": None},
     "CPU_GOV": {"name": "CPU Governor", "icon": "mdi:chip", "unit": None},
     # ✅ Carrier/Module Alive Counts
@@ -126,18 +127,9 @@ UNIT_MAP = {
     "temp_value": "°C",
     "CPU_TEMP": "°C",
     "CPU_TEMP_CARRIER": "°C",
-    # ✅ FIX: Zusätzliche SYSTEM_*_TEMPERATURE Keys (Uppercase)
-    "SYSTEM_CPU_TEMPERATURE": "°C",
-    "SYSTEM_CARRIER_CPU_TEMPERATURE": "°C",
-    "SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE": "°C",
-    # ✅ FIX: Mixed-Case Varianten (vom Controller verwendet)
-    "SYSTEM_cpu_temperature": "°C",
-    "SYSTEM_carrier_cpu_temperature": "°C",
-    "SYSTEM_dosagemodule_cpu_temperature": "°C",
-    # System memory and performance
-    "SYSTEM_memoryusage": "MB",
-    "SYSTEM_MEMORY": "MB",
-    "MEMORY_USED": "%",
+    # NOTE: SYSTEM_*_TEMPERATURE and SYSTEM_memory* sensors are in NO_UNIT_SENSORS
+    # for backwards compatibility with existing Home Assistant statistics.
+    # Do not add them to UNIT_MAP.
     # Water chemistry (pH WITHOUT unit!)
     "orp_value": "mV",
     "pot_value": "mg/l",
@@ -160,6 +152,9 @@ for i in range(4):
     UNIT_MAP[f"PUMP_RPM_{i}_VALUE"] = "RPM"
 
 # Sensors without units
+# NOTE: System diagnostic sensors are excluded from units to maintain backwards
+# compatibility with existing Home Assistant statistics. Adding units to sensors
+# that previously had None breaks long-term statistics generation.
 NO_UNIT_SENSORS = {
     "FW", "SW_VERSION", "HW_VERSION", "SERIAL_NUMBER", "MAC_ADDRESS", "IP_ADDRESS",
     "VERSION", "CPU_UPTIME", "BACKWASH_STATE", "PUMP_STATE", "HEATER_STATE",
@@ -168,6 +163,10 @@ NO_UNIT_SENSORS = {
     "SYSTEM_carrier_alive_count", "SYSTEM_carrier_alive_faultcount",
     "SYSTEM_dosagemodule_alive_count", "SYSTEM_dosagemodule_alive_faultcount",
     "SYSTEM_ext1module_alive_count", "SYSTEM_ext1module_alive_faultcount",
+    # System diagnostic sensors - keep without units for statistics compatibility
+    "SYSTEM_CPU_TEMPERATURE", "SYSTEM_CARRIER_CPU_TEMPERATURE", "SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE",
+    "SYSTEM_cpu_temperature", "SYSTEM_carrier_cpu_temperature", "SYSTEM_dosagemodule_cpu_temperature",
+    "SYSTEM_memoryusage", "SYSTEM_MEMORY", "MEMORY_USED",
 }
 
 # =============================================================================
