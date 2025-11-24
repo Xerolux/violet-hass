@@ -322,9 +322,14 @@ def determine_device_class(key: str, unit: str | None, raw_value=None) -> Sensor
         return None
     if key == "pH_value":
         return SensorDeviceClass.PH
-    if "temp" in key.lower():
-        return SensorDeviceClass.TEMPERATURE
     if unit == "°C":
+        return SensorDeviceClass.TEMPERATURE
+    # Temperature device class requires a valid temperature unit. Keep diagnostic
+    # sensors without units (e.g. SYSTEM_*_cpu_temperature) unitless for
+    # backwards-compatible statistics while avoiding Home Assistant warnings.
+    if unit is None:
+        return None
+    if "temp" in key.lower():
         return SensorDeviceClass.TEMPERATURE
     if unit == "%":
         return SensorDeviceClass.HUMIDITY
