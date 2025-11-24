@@ -66,13 +66,21 @@ SYSTEM_SENSORS = {
 STATUS_SENSORS = {
     "PUMPSTATE": {"name": "Pumpen-Status", "icon": "mdi:pump", "unit": None},
     "PUMP_STATE": {"name": "Pumpen-Status", "icon": "mdi:pump", "unit": None},
+    "PUMP": {"name": "Pumpen-Status", "icon": "mdi:pump", "unit": None},  # ✅ Added PUMP
     "HEATERSTATE": {"name": "Heizungs-Status", "icon": "mdi:radiator", "unit": None},
     "HEATER_STATE": {"name": "Heizungs-Status", "icon": "mdi:radiator", "unit": None},
+    "HEATER": {"name": "Heizungs-Status", "icon": "mdi:radiator", "unit": None},  # ✅ Added HEATER
     "SOLARSTATE": {"name": "Solar-Status", "icon": "mdi:solar-power", "unit": None},
     "SOLAR_STATE": {"name": "Solar-Status", "icon": "mdi:solar-power", "unit": None},
+    "SOLAR": {"name": "Solar-Status", "icon": "mdi:solar-power", "unit": None},  # ✅ Added SOLAR
     "BACKWASHSTATE": {"name": "Rückspül-Status", "icon": "mdi:refresh", "unit": None},
     "BACKWASH_STATE": {"name": "Rückspül-Status", "icon": "mdi:refresh", "unit": None},
+    "BACKWASH": {"name": "Rückspül-Status", "icon": "mdi:refresh", "unit": None},  # ✅ Added BACKWASH
     "FILTER_STATE": {"name": "Filter-Status", "icon": "mdi:air-filter", "unit": None},
+    "LIGHT": {"name": "Beleuchtung Status", "icon": "mdi:lightbulb", "unit": None},  # ✅ Added LIGHT
+    "PVSURPLUS": {"name": "PV-Überschuss Status", "icon": "mdi:solar-power-variant", "unit": None},  # ✅ Added PVSURPLUS
+    "fw": {"name": "Firmware Version", "icon": "mdi:package-up", "unit": None},  # ✅ Added fw
+    "FW": {"name": "Firmware Version", "icon": "mdi:package-up", "unit": None},  # ✅ Added FW
 }
 
 # =============================================================================

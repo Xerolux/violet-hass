@@ -2,6 +2,7 @@
 import asyncio
 import ipaddress
 import logging
+import re
 from typing import Any
 
 import aiohttp
@@ -101,12 +102,15 @@ MENU_ACTION_HELP = "open_help"
 
 
 def validate_ip_address(ip: str) -> bool:
-    """Validiere IP-Adresse."""
+    """Validiere IP-Adresse oder Hostname."""
+    if not ip:
+        return False
     try:
         ipaddress.ip_address(ip)
         return True
     except ValueError:
-        return False
+        # Erlaube Hostnamen (Buchstaben, Zahlen, Punkte, Bindestriche)
+        return bool(re.match(r"^[a-zA-Z0-9\-\.]+$", ip))
 
 
 async def fetch_api_data(
