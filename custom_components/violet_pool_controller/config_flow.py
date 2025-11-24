@@ -184,7 +184,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @callback
     def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> config_entries.OptionsFlow:
         """Options Flow zurückgeben."""
-        return VioletOptionsFlowHandler(config_entry)
+        return VioletOptionsFlowHandler()
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Schritt 1: User-initiierter Setup-Start."""
@@ -488,10 +488,15 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 class VioletOptionsFlowHandler(config_entries.OptionsFlow):
     """Options Flow für Violet Pool Controller."""
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        self.config_entry = config_entry
-        self.current_config = {**config_entry.data, **config_entry.options}
+
+    def __init__(self) -> None:
+        """Initialize options flow."""
         self._sensor_data: dict[str, list[str]] = {}
+
+    @property
+    def current_config(self) -> dict[str, Any]:
+        """Get current configuration merged from data and options."""
+        return {**self.config_entry.data, **self.config_entry.options}
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Erweiterte Einstellungen und Sensor-Auswahl."""
@@ -543,7 +548,8 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         }
 
         # Dynamische Sensor-Auswahl hinzufügen
-        current_sensors = self.current_config.get(CONF_SELECTED_SENSORS, [])
+        # Use 'or []' to handle None values (None means "all sensors")
+        current_sensors = self.current_config.get(CONF_SELECTED_SENSORS) or []
         for group, sensors in self._sensor_data.items():
             # Standardmäßig sind die aktuell ausgewählten Sensoren dieser Gruppe vorausgewählt
             default_selection = [s for s in sensors if s in current_sensors]
