@@ -106,7 +106,7 @@ class TestInputSanitizer:
     def test_sanitize_string_html_escape(self):
         """Test dass HTML-Zeichen escaped werden."""
         dangerous = "<script>alert('xss')</script>"
-        safe = InputSanitizer.sanitize_string(dangerous, escape_html=True)
+        safe = InputSanitizer.sanitize_string(dangerous, escape_html=True, allow_special_chars=True)
         assert "<script>" not in safe
         assert "&lt;script&gt;" in safe
 

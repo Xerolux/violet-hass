@@ -2,6 +2,7 @@
 import pytest
 from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResultType
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.violet_pool_controller.const import (
     CONF_API_URL,
@@ -20,31 +21,26 @@ class TestConfigFlow:
     async def test_duplicate_check_different_device_ids(self, hass):
         """Test dass mehrere Controller mit gleicher IP aber unterschiedlichen Device-IDs erlaubt sind."""
         # Setup: Erstelle ersten Controller
-        entry1_data = {
-            CONF_API_URL: "192.168.178.55",
-            CONF_DEVICE_ID: 1,
-            CONF_CONTROLLER_NAME: "Pool 1",
-            CONF_DEVICE_NAME: "Violet Pool Controller",
-            CONF_POOL_SIZE: 50,
-            CONF_POOL_TYPE: "outdoor",
-        }
-
-        entry1 = config_entries.ConfigEntry(
-            version=1,
+        entry1 = MockConfigEntry(
             domain=DOMAIN,
             title="Pool 1 • 50m³",
-            data=entry1_data,
-            source=config_entries.SOURCE_USER,
+            data={
+                CONF_API_URL: "192.168.178.55",
+                CONF_DEVICE_ID: 1,
+                CONF_CONTROLLER_NAME: "Pool 1",
+                CONF_DEVICE_NAME: "Violet Pool Controller",
+                CONF_POOL_SIZE: 50,
+                CONF_POOL_TYPE: "outdoor",
+            },
         )
-
-        # Simuliere dass Entry 1 bereits existiert
-        hass.config_entries._entries = {entry1.entry_id: entry1}
+        entry1.add_to_hass(hass)
 
         # Test: Zweiter Controller mit gleicher IP aber Device-ID 2
         from custom_components.violet_pool_controller.config_flow import VioletDeviceConfigFlow
 
         flow = VioletDeviceConfigFlow()
         flow.hass = hass
+        flow.handler = DOMAIN # Set handler (domain) so _async_current_entries works
 
         # Sollte NICHT als Duplikat erkannt werden
         is_duplicate = flow._is_duplicate_entry("192.168.178.55", device_id=2)
@@ -58,26 +54,22 @@ class TestConfigFlow:
     async def test_duplicate_check_different_ips(self, hass):
         """Test dass Controller mit unterschiedlichen IPs immer erlaubt sind."""
         # Setup: Erstelle ersten Controller
-        entry1_data = {
-            CONF_API_URL: "192.168.178.55",
-            CONF_DEVICE_ID: 1,
-            CONF_CONTROLLER_NAME: "Pool 1",
-        }
-
-        entry1 = config_entries.ConfigEntry(
-            version=1,
+        entry1 = MockConfigEntry(
             domain=DOMAIN,
             title="Pool 1",
-            data=entry1_data,
-            source=config_entries.SOURCE_USER,
+            data={
+                CONF_API_URL: "192.168.178.55",
+                CONF_DEVICE_ID: 1,
+                CONF_CONTROLLER_NAME: "Pool 1",
+            },
         )
-
-        hass.config_entries._entries = {entry1.entry_id: entry1}
+        entry1.add_to_hass(hass)
 
         from custom_components.violet_pool_controller.config_flow import VioletDeviceConfigFlow
 
         flow = VioletDeviceConfigFlow()
         flow.hass = hass
+        flow.handler = DOMAIN
 
         # Sollte NICHT als Duplikat erkannt werden (unterschiedliche IP)
         is_duplicate = flow._is_duplicate_entry("192.168.178.56", device_id=1)
@@ -86,12 +78,13 @@ class TestConfigFlow:
 
     async def test_duplicate_check_empty_entries(self, hass):
         """Test dass Duplicate-Check mit leeren Entries funktioniert."""
-        hass.config_entries._entries = {}
+        # Keine Entries hinzufügen
 
         from custom_components.violet_pool_controller.config_flow import VioletDeviceConfigFlow
 
         flow = VioletDeviceConfigFlow()
         flow.hass = hass
+        flow.handler = DOMAIN
 
         # Sollte nie als Duplikat erkannt werden wenn keine Entries existieren
         is_duplicate = flow._is_duplicate_entry("192.168.178.55", device_id=1)

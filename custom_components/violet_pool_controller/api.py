@@ -41,8 +41,6 @@ from .const import (
     TARGET_ORP,
     TARGET_PH,
     API_PRIORITY_NORMAL,
-    API_PRIORITY_HIGH,
-    API_PRIORITY_CRITICAL,
 )
 from .utils_rate_limiter import get_global_rate_limiter
 

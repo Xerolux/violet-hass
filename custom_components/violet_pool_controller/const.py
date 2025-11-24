@@ -10,52 +10,6 @@ Die Konstanten sind jetzt in mehrere Dateien aufgeteilt für bessere Wartbarkeit
 """
 
 # =============================================================================
-# INTEGRATION INFO
-# =============================================================================
-
-DOMAIN = "violet_pool_controller"
-INTEGRATION_VERSION = "0.2.0-beta.3"
-MANUFACTURER = "PoolDigital GmbH & Co. KG"
-
-# =============================================================================
-# CONFIGURATION KEYS
-# =============================================================================
-
-CONF_API_URL = "host"
-CONF_USERNAME = "username"
-CONF_PASSWORD = "password"
-CONF_POLLING_INTERVAL = "polling_interval"
-CONF_TIMEOUT_DURATION = "timeout_duration"
-CONF_RETRY_ATTEMPTS = "retry_attempts"
-CONF_USE_SSL = "use_ssl"
-CONF_DEVICE_ID = "device_id"
-CONF_DEVICE_NAME = "device_name"
-CONF_CONTROLLER_NAME = "controller_name"  # NEW: For Multi-Controller Support
-CONF_ACTIVE_FEATURES = "active_features"
-CONF_SELECTED_SENSORS = "selected_sensors"
-CONF_POOL_SIZE = "pool_size"
-CONF_POOL_TYPE = "pool_type"
-CONF_DISINFECTION_METHOD = "disinfection_method"
-
-# Default Values
-DEFAULT_POLLING_INTERVAL = 10  # Sekunden
-DEFAULT_TIMEOUT_DURATION = 10  # Sekunden
-DEFAULT_RETRY_ATTEMPTS = 3
-DEFAULT_USE_SSL = False
-DEFAULT_DEVICE_NAME = "Violet Pool Controller"
-DEFAULT_CONTROLLER_NAME = "Violet Pool Controller"  # NEW: Multi-Controller Support
-DEFAULT_POOL_SIZE = 50  # m³
-DEFAULT_POOL_TYPE = "outdoor"
-DEFAULT_DISINFECTION_METHOD = "chlorine"
-
-# =============================================================================
-# POOL CONFIGURATION
-# =============================================================================
-
-POOL_TYPES = ["outdoor", "indoor", "whirlpool", "natural", "combination"]
-DISINFECTION_METHODS = ["chlorine", "salt", "bromine", "active_oxygen", "uv", "ozone"]
-
-# =============================================================================
 # IMPORT FROM SUBMODULES
 # =============================================================================
 
@@ -146,6 +100,52 @@ from .const_features import (
     SWITCHES,
     SETPOINT_DEFINITIONS,
 )
+
+# =============================================================================
+# INTEGRATION INFO
+# =============================================================================
+
+DOMAIN = "violet_pool_controller"
+INTEGRATION_VERSION = "0.2.0-beta.3"
+MANUFACTURER = "PoolDigital GmbH & Co. KG"
+
+# =============================================================================
+# CONFIGURATION KEYS
+# =============================================================================
+
+CONF_API_URL = "host"
+CONF_USERNAME = "username"
+CONF_PASSWORD = "password"
+CONF_POLLING_INTERVAL = "polling_interval"
+CONF_TIMEOUT_DURATION = "timeout_duration"
+CONF_RETRY_ATTEMPTS = "retry_attempts"
+CONF_USE_SSL = "use_ssl"
+CONF_DEVICE_ID = "device_id"
+CONF_DEVICE_NAME = "device_name"
+CONF_CONTROLLER_NAME = "controller_name"  # NEW: For Multi-Controller Support
+CONF_ACTIVE_FEATURES = "active_features"
+CONF_SELECTED_SENSORS = "selected_sensors"
+CONF_POOL_SIZE = "pool_size"
+CONF_POOL_TYPE = "pool_type"
+CONF_DISINFECTION_METHOD = "disinfection_method"
+
+# Default Values
+DEFAULT_POLLING_INTERVAL = 10  # Sekunden
+DEFAULT_TIMEOUT_DURATION = 10  # Sekunden
+DEFAULT_RETRY_ATTEMPTS = 3
+DEFAULT_USE_SSL = False
+DEFAULT_DEVICE_NAME = "Violet Pool Controller"
+DEFAULT_CONTROLLER_NAME = "Violet Pool Controller"  # NEW: Multi-Controller Support
+DEFAULT_POOL_SIZE = 50  # m³
+DEFAULT_POOL_TYPE = "outdoor"
+DEFAULT_DISINFECTION_METHOD = "chlorine"
+
+# =============================================================================
+# POOL CONFIGURATION
+# =============================================================================
+
+POOL_TYPES = ["outdoor", "indoor", "whirlpool", "natural", "combination"]
+DISINFECTION_METHODS = ["chlorine", "salt", "bromine", "active_oxygen", "uv", "ozone"]
 
 # =============================================================================
 # VERSION INFO AND EXPORTS

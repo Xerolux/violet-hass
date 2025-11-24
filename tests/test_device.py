@@ -3,7 +3,7 @@ import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from homeassistant.config_entries import ConfigEntry
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.violet_pool_controller.const import (
     CONF_API_URL,
@@ -23,19 +23,21 @@ class TestVioletPoolControllerDevice:
     def mock_hass(self):
         """Create mock Home Assistant instance."""
         hass = MagicMock()
+        hass.data = {}
         return hass
 
     @pytest.fixture
     def mock_api(self):
         """Create mock API instance."""
         api = MagicMock()
+        api.get_readings = AsyncMock(return_value={"test": "data"})
+        api.get_specific_readings = AsyncMock(return_value={"test": "data"})
         return api
 
     @pytest.fixture
     def config_entry(self):
         """Create mock config entry."""
-        return ConfigEntry(
-            version=1,
+        return MockConfigEntry(
             domain=DOMAIN,
             title="Test Pool",
             data={
@@ -45,17 +47,18 @@ class TestVioletPoolControllerDevice:
                 CONF_DEVICE_NAME: "Test Pool Controller",
                 CONF_CONTROLLER_NAME: "Test Pool",
             },
-            source="user",
         )
 
     @pytest.fixture
     def device(self, mock_hass, config_entry, mock_api):
         """Create device instance."""
-        return VioletPoolControllerDevice(
-            hass=mock_hass,
-            config_entry=config_entry,
-            api=mock_api,
-        )
+        with patch("custom_components.violet_pool_controller.device.async_get_clientsession", return_value=MagicMock()):
+            device = VioletPoolControllerDevice(
+                hass=mock_hass,
+                config_entry=config_entry,
+                api=mock_api,
+            )
+            return device
 
     async def test_recovery_lock_initialized(self, device):
         """Test dass Recovery-Lock korrekt initialisiert wird."""
@@ -66,29 +69,58 @@ class TestVioletPoolControllerDevice:
         """Test dass Race Condition bei Recovery verhindert wird."""
         # Mock _fetch_controller_data
         device._fetch_controller_data = AsyncMock(return_value={"test": "data"})
+        device._in_recovery_mode = False # Ensure false start
 
         # Starte zwei Recovery-Versuche parallel
+        # Wir müssen sicherstellen, dass sie "gleichzeitig" den Lock erreichen
+        # Aber asyncio ist single threaded.
+        # Wir können prüfen, ob der zweite sofort returned.
+
+        # Da wir im Test sind, rufen wir _attempt_recovery direkt auf.
+
         task1 = asyncio.create_task(device._attempt_recovery())
         task2 = asyncio.create_task(device._attempt_recovery())
 
         # Beide Tasks ausführen
         results = await asyncio.gather(task1, task2)
 
-        # Nur einer sollte erfolgreich sein, der andere sollte False zurückgeben
-        # (weil bereits im Recovery-Modus)
-        assert results.count(True) == 1, "Nur ein Recovery-Versuch sollte erfolgreich sein"
+        # Nur einer sollte erfolgreich sein (True), der andere sollte False zurückgeben
+        # (weil bereits im Recovery-Modus oder Lock gehalten)
+        # Wait, if both succeed (because data fetch works), one might return True and other False?
+        # If lock works:
+        # T1 gets lock. Sets in_recovery_mode = True. Releases lock (wait, no).
+        # T1 holds lock, checks in_recovery.
+        # T1 sets in_recovery = True.
+        # T1 releases lock? No, `async with self._recovery_lock:` scope.
+        # The logic in `_attempt_recovery`:
+        # async with self._recovery_lock:
+        #    if self._in_recovery_mode: return False
+        #    self._in_recovery_mode = True
+        # ... do stuff ...
+        # finally: self._in_recovery_mode = False
+
+        # So T1 enters lock, sets flag, EXITS lock.
+        # T2 enters lock, sees flag, returns False.
+        # T1 continues recovery.
+
+        # So yes, one should be True (the one that proceeded), one False.
+
+        assert results.count(True) == 1, f"Nur ein Recovery-Versuch sollte erfolgreich sein, got {results}"
         assert results.count(False) == 1, "Ein Recovery-Versuch sollte abgelehnt werden"
 
     async def test_recovery_exponential_backoff(self, device):
         """Test dass Exponential Backoff korrekt berechnet wird."""
         device._fetch_controller_data = AsyncMock(return_value={"test": "data"})
+        # We need to ensure we don't actually sleep for real time
 
         # Erster Versuch
         device._recovery_attempts = 0
+        device._in_recovery_mode = False
         with patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep:
             await device._attempt_recovery()
             # Erster Versuch: 10s * 2^0 = 10s
             mock_sleep.assert_called_once()
+            # call_args[0][0] is the first positional arg
             assert mock_sleep.call_args[0][0] == 10.0
 
         # Zweiter Versuch
@@ -146,9 +178,12 @@ class TestVioletPoolControllerDevice:
         device._fetch_controller_data = AsyncMock(return_value={"test": "data"})
         device._consecutive_failures = 5
         device._recovery_attempts = 3
+        device._in_recovery_mode = False
 
         # Recovery durchführen
-        result = await device._attempt_recovery()
+        # We need to mock sleep to avoid waiting
+        with patch("asyncio.sleep", new_callable=AsyncMock):
+            result = await device._attempt_recovery()
 
         # Sollte erfolgreich sein
         assert result is True
