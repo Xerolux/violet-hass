@@ -28,7 +28,7 @@ jobs:
       version: ${{ steps.version.outputs.version }}
       release-notes: ${{ steps.generate.outputs.release-notes }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       
@@ -201,7 +201,7 @@ jobs:
     needs: prepare-release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
