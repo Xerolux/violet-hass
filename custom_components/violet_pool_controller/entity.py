@@ -1,5 +1,6 @@
 """Base entity class for Violet Pool Controller entities."""
 import logging
+import re
 from typing import Any, Optional
 
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -54,6 +55,12 @@ def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool:
 
     # Try integer interpretation first
     state_int = convert_to_int(raw_state)
+
+    # ✅ Robust handling for composite strings like "3|PUMP_ANTI_FREEZE"
+    if state_int is None and isinstance(raw_state, str):
+        numeric_prefix = re.match(r"\s*(-?\d+)", raw_state)
+        if numeric_prefix:
+            state_int = int(numeric_prefix.group(1))
     if state_int is not None:
         # Check STATE_MAP first
         if state_int in STATE_MAP:
