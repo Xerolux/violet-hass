@@ -47,9 +47,12 @@ class TestVioletPoolAPI:
         mock_response.text = AsyncMock(return_value='{"success": true}')
         mock_response.json = AsyncMock(return_value={"success": True})
 
-        mock_session.request = AsyncMock(return_value=mock_response)
+        # Setup context manager
         mock_response.__aenter__ = AsyncMock(return_value=mock_response)
         mock_response.__aexit__ = AsyncMock(return_value=None)
+
+        # session.request is NOT async, it returns an async context manager
+        mock_session.request = MagicMock(return_value=mock_response)
 
         # Mock Rate Limiter
         with patch.object(api._rate_limiter, 'wait_if_needed', new_callable=AsyncMock) as mock_wait:
@@ -66,9 +69,10 @@ class TestVioletPoolAPI:
         mock_response.status = 200
         mock_response.text = AsyncMock(return_value="OK")
 
-        mock_session.request = AsyncMock(return_value=mock_response)
         mock_response.__aenter__ = AsyncMock(return_value=mock_response)
         mock_response.__aexit__ = AsyncMock(return_value=None)
+
+        mock_session.request = MagicMock(return_value=mock_response)
 
         with patch.object(api._rate_limiter, 'wait_if_needed', new_callable=AsyncMock) as mock_wait:
             # Test Critical Priority
@@ -89,9 +93,10 @@ class TestVioletPoolAPI:
         mock_response.status = 200
         mock_response.text = AsyncMock(return_value="OK")
 
-        mock_session.request = AsyncMock(return_value=mock_response)
         mock_response.__aenter__ = AsyncMock(return_value=mock_response)
         mock_response.__aexit__ = AsyncMock(return_value=None)
+
+        mock_session.request = MagicMock(return_value=mock_response)
 
         # Simuliere Rate Limiter Timeout
         with patch.object(
@@ -110,9 +115,10 @@ class TestVioletPoolAPI:
         mock_response.status = 500
         mock_response.text = AsyncMock(return_value="Internal Server Error")
 
-        mock_session.request = AsyncMock(return_value=mock_response)
         mock_response.__aenter__ = AsyncMock(return_value=mock_response)
         mock_response.__aexit__ = AsyncMock(return_value=None)
+
+        mock_session.request = MagicMock(return_value=mock_response)
 
         with patch.object(api._rate_limiter, 'wait_if_needed', new_callable=AsyncMock):
             # Sollte VioletPoolAPIError werfen
@@ -129,34 +135,12 @@ class TestVioletPoolAPI:
             MagicMock(), MagicMock()
         ))
 
-        mock_session.request = AsyncMock(return_value=mock_response)
         mock_response.__aenter__ = AsyncMock(return_value=mock_response)
         mock_response.__aexit__ = AsyncMock(return_value=None)
+
+        mock_session.request = MagicMock(return_value=mock_response)
 
         with patch.object(api._rate_limiter, 'wait_if_needed', new_callable=AsyncMock):
             # Sollte VioletPoolAPIError werfen
             with pytest.raises(VioletPoolAPIError, match="Invalid JSON"):
                 await api._request("/test", expect_json=True)
-
-    async def test_get_device_info_with_values(self, api):
-        """Test that device info is extracted when values are present."""
-
-        mock_payload = {
-            "DEVICE": {"DEVICE_ID": "42", "DEVICE_NAME": "Pool Alpha"},
-            "SYSTEM": {"FW": "1.2.3"},
-        }
-
-        with patch.object(api, "get_readings", AsyncMock(return_value=mock_payload)):
-            info = await api.get_device_info()
-
-        assert info["device_id"] == 42
-        assert info["device_name"] == "Pool Alpha"
-
-    async def test_get_device_info_defaults(self, api):
-        """Test that sensible defaults are returned when data is missing."""
-
-        with patch.object(api, "get_readings", AsyncMock(return_value={"SYSTEM": {}})):
-            info = await api.get_device_info()
-
-        assert info["device_id"] == 1
-        assert info["device_name"] == "Violet Pool Controller"

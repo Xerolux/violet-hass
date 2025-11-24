@@ -547,8 +547,24 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
                 CONF_CONTROLLER_NAME,
                 default=self.current_config.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME)
             ): str,
-            vol.Optional(CONF_POLLING_INTERVAL, default=self.current_config.get(CONF_POLLING_INTERVAL, 30)): int,
-            # ... weitere allgemeine Optionen ...
+            vol.Optional(
+                CONF_POLLING_INTERVAL,
+                default=self.current_config.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
+            ): vol.All(
+                vol.Coerce(int), vol.Range(min=MIN_POLLING_INTERVAL, max=MAX_POLLING_INTERVAL)
+            ),
+            vol.Optional(
+                CONF_TIMEOUT_DURATION,
+                default=self.current_config.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)
+            ): vol.All(
+                vol.Coerce(int), vol.Range(min=MIN_TIMEOUT, max=MAX_TIMEOUT)
+            ),
+            vol.Optional(
+                CONF_RETRY_ATTEMPTS,
+                default=self.current_config.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)
+            ): vol.All(
+                vol.Coerce(int), vol.Range(min=MIN_RETRIES, max=MAX_RETRIES)
+            ),
         }
 
         # Dynamische Sensor-Auswahl hinzufügen

@@ -2,7 +2,7 @@
 
 import re
 import logging
-from typing import Any, Union
+from typing import Any
 from html import escape
 
 _LOGGER = logging.getLogger(__name__)
@@ -71,22 +71,23 @@ class InputSanitizer:
             )
             str_value = str_value[:max_length]
 
-        # HTML-Escape
+        # Wenn keine Sonderzeichen erlaubt sind, entfernen wir sie ZUERST.
+        if not allow_special_chars:
+             # Entferne gefährliche Zeichen
+            original = str_value
+            str_value = re.sub(r'[^a-zA-Z0-9_-]', '', str_value)
+            if str_value != original:
+                _LOGGER.warning(
+                    "Gefährliche Zeichen entfernt: '%s' → '%s'",
+                    original,
+                    str_value,
+                )
+
+        # HTML-Escape (macht nur Sinn wenn Sonderzeichen erlaubt sind oder nach der Bereinigung noch welche übrig sein könnten -
+        # aber wenn allow_special_chars False ist, sind < und > eh weg.
+        # Falls wir aber allow_special_chars=True haben, wollen wir evtl escapen.)
         if escape_html:
             str_value = escape(str_value)
-
-        # Zeichen-Validierung
-        if not allow_special_chars:
-            if not InputSanitizer.ALPHANUMERIC_DASH_UNDERSCORE.match(str_value):
-                # Entferne gefährliche Zeichen
-                original = str_value
-                str_value = re.sub(r'[^a-zA-Z0-9_-]', '', str_value)
-                if str_value != original:
-                    _LOGGER.warning(
-                        "Gefährliche Zeichen entfernt: '%s' → '%s'",
-                        original,
-                        str_value,
-                    )
 
         return str_value
 
@@ -243,9 +244,11 @@ class InputSanitizer:
             raise ValueError("Device-Key darf nicht leer sein")
 
         # Nur Großbuchstaben, Zahlen und Underscore erlaubt
-        sanitized = re.sub(r'[^A-Z0-9_]', '', key.upper())
+        # Wir erlauben auch Bindestriche und konvertieren sie zu Underscores
+        key = key.upper().replace('-', '_')
+        sanitized = re.sub(r'[^A-Z0-9_]', '', key)
 
-        if sanitized != key.upper():
+        if sanitized != key:
             _LOGGER.warning(
                 "Device-Key enthielt ungültige Zeichen: '%s' → '%s'",
                 key,
@@ -269,10 +272,14 @@ class InputSanitizer:
             Validierter Parameter
 
         Raises:
-            ValueError: Bei ungültigem Parameter
+            ValueError: Bei ungültigem Parameter oder Path Traversal
         """
         if not param:
             raise ValueError("API-Parameter darf nicht leer sein")
+
+        # Prüfe auf Path Traversal VOR der Bereinigung
+        if InputSanitizer.PATH_TRAVERSAL.search(param):
+            raise ValueError(f"Path Traversal erkannt in Parameter: {param}")
 
         # Entferne gefährliche Zeichen
         sanitized = re.sub(r'[^a-zA-Z0-9_-]', '', param)
@@ -283,10 +290,6 @@ class InputSanitizer:
                 param,
                 sanitized,
             )
-
-        # Prüfe auf Path Traversal
-        if InputSanitizer.PATH_TRAVERSAL.search(sanitized):
-            raise ValueError(f"Path Traversal erkannt in Parameter: {sanitized}")
 
         if len(sanitized) > 100:
             raise ValueError(f"API-Parameter zu lang: {len(sanitized)} > 100")
@@ -320,7 +323,7 @@ class InputSanitizer:
         return duration_int
 
     @staticmethod
-    def validate_speed(speed: Any, min_speed: int = 1, max_speed: int = 4) -> int:
+    def validate_speed(speed: Any, min_speed: int = 1, max_speed: int = 4, default: int = 2) -> int:
         """
         Validiere einen Speed-Wert (z.B. Pumpengeschwindigkeit).
 
@@ -328,6 +331,7 @@ class InputSanitizer:
             speed: Speed-Wert
             min_speed: Minimale Speed (Standard: 1)
             max_speed: Maximale Speed (Standard: 4)
+            default: Default Speed (Standard: 2)
 
         Returns:
             Validierte Speed
@@ -336,7 +340,7 @@ class InputSanitizer:
             speed,
             min_value=min_speed,
             max_value=max_speed,
-            default=2,
+            default=default,
         )
 
     @staticmethod
