@@ -24,7 +24,8 @@ from .const import (
     CONF_SELECTED_SENSORS,  # WICHTIG: Neuer Import für die Sensor-Auswahl
     UNIT_MAP,
     NO_UNIT_SENSORS,
-    SENSOR_FEATURE_MAP
+    SENSOR_FEATURE_MAP,
+    VioletState
 )
 from .error_codes import get_error_info
 from .entity import VioletPoolControllerEntity
@@ -203,6 +204,30 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
             return f
         except (ValueError, TypeError):
             return str(raw_value)
+
+
+class VioletStatusSensor(VioletSensor):
+    """Sensor for Status values using VioletState (e.g. Pump Auto/Manual)."""
+
+    @property
+    def native_value(self) -> str | None:
+        key = self.entity_description.key
+        raw_value = self.coordinator.data.get(key)
+        if raw_value is None:
+            return None
+
+        # Use VioletState to get display string (e.g. "Auto (Active)")
+        state = VioletState(raw_value, key)
+        return state.display_mode
+
+    @property
+    def icon(self) -> str:
+        key = self.entity_description.key
+        raw_value = self.coordinator.data.get(key)
+        if raw_value is None:
+            return super().icon
+        state = VioletState(raw_value, key)
+        return state.icon
 
 
 class VioletErrorCodeSensor(VioletSensor):
@@ -478,7 +503,7 @@ async def async_setup_entry(
             continue
         # ===============================================================
 
-        # Sensor-Erstellung (wie in deinem Original-Code)
+        # Sensor-Erstellung
         predefined_info = all_predefined_sensors.get(key)
         if predefined_info:
             name = predefined_info["name"]
@@ -491,12 +516,21 @@ async def async_setup_entry(
         if _is_boolean_value(raw_value):
             unit = None  # Booleans haben keine Einheit
 
-        # ✅ FIX: Automatische Einheiten-Zuweisung für Temperatur-Sensoren
-        # Wenn kein Unit definiert ist, aber der Key auf Temperatur hindeutet, verwende °C
-        # Respektiere NO_UNIT_SENSORS für Rückwärtskompatibilität mit bestehenden Statistiken
-        if unit is None and "temp" in key.lower() and not _is_boolean_value(raw_value) and key not in NO_UNIT_SENSORS:
-            unit = "°C"
-            _LOGGER.debug("Auto-assigned °C unit to temperature sensor: %s", key)
+        # ✅ FIX: Automatische Einheiten-Zuweisung für Temperatur-Sensoren und abhängige Werte
+        if unit is None and key not in NO_UNIT_SENSORS and not _is_boolean_value(raw_value):
+            # 1. Prüfe auf Suffixe und erbe Einheit vom Basis-Key
+            for suffix in ["_min", "_max", "_setpoint", "_target", "_faultcount", "_freezecount"]:
+                if key.endswith(suffix):
+                    base_key = key[:-len(suffix)]
+                    unit = UNIT_MAP.get(base_key)
+                    if unit:
+                        _LOGGER.debug("Unit %s for %s inherited from %s", unit, key, base_key)
+                    break
+
+            # 2. Wenn immer noch keine Unit, prüfe auf "temp" oder "onewire"
+            if unit is None and ("temp" in key.lower() or "onewire" in key.lower()):
+                 unit = "°C"
+                 _LOGGER.debug("Auto-assigned °C unit to sensor: %s", key)
 
         description = SensorEntityDescription(
             key=key,
@@ -507,7 +541,12 @@ async def async_setup_entry(
             state_class=determine_state_class(key, unit, raw_value),
             entity_category=EntityCategory.DIAGNOSTIC if key.startswith("SYSTEM_") else None,
         )
-        sensors.append(VioletSensor(coordinator, config_entry, description))
+
+        # Verwende VioletStatusSensor für Status-Sensoren (aber nicht für Firmware)
+        if key in STATUS_SENSORS and key not in ["fw", "FW"]:
+             sensors.append(VioletStatusSensor(coordinator, config_entry, description))
+        else:
+             sensors.append(VioletSensor(coordinator, config_entry, description))
 
     if sensors:
         async_add_entities(sensors)
