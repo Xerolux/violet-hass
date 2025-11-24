@@ -488,7 +488,8 @@ async def async_setup_entry(
 
         # ✅ FIX: Automatische Einheiten-Zuweisung für Temperatur-Sensoren
         # Wenn kein Unit definiert ist, aber der Key auf Temperatur hindeutet, verwende °C
-        if unit is None and "temp" in key.lower() and not _is_boolean_value(raw_value):
+        # Respektiere NO_UNIT_SENSORS für Rückwärtskompatibilität mit bestehenden Statistiken
+        if unit is None and "temp" in key.lower() and not _is_boolean_value(raw_value) and key not in NO_UNIT_SENSORS:
             unit = "°C"
             _LOGGER.debug("Auto-assigned °C unit to temperature sensor: %s", key)
 
