@@ -81,20 +81,24 @@ class RateLimiter:
             # Prüfe ob Token verfügbar
             if self.tokens >= 1:
                 self.tokens -= 1
-                self.request_history.append({
-                    "time": current_time,
-                    "priority": priority,
-                    "blocked": False,
-                })
+                self.request_history.append(
+                    {
+                        "time": current_time,
+                        "priority": priority,
+                        "blocked": False,
+                    }
+                )
                 return True
 
             # Rate Limit erreicht
             self.blocked_requests += 1
-            self.request_history.append({
-                "time": current_time,
-                "priority": priority,
-                "blocked": True,
-            })
+            self.request_history.append(
+                {
+                    "time": current_time,
+                    "priority": priority,
+                    "blocked": True,
+                }
+            )
 
             _LOGGER.debug(
                 "Rate Limit erreicht: %d/%d tokens (priority: %d, blocked: %d)",
@@ -126,9 +130,7 @@ class RateLimiter:
             # Timeout-Prüfung
             elapsed = time.time() - start_time
             if elapsed >= timeout:
-                raise asyncio.TimeoutError(
-                    f"Rate Limiter timeout nach {elapsed:.1f}s"
-                )
+                raise asyncio.TimeoutError(f"Rate Limiter timeout nach {elapsed:.1f}s")
 
             # Warte auf Token-Refill
             await asyncio.sleep(self.retry_after)
@@ -142,10 +144,7 @@ class RateLimiter:
             refill_rate = self.max_requests / self.time_window
             new_tokens = time_passed * refill_rate
 
-            self.tokens = min(
-                self.max_tokens,
-                self.tokens + new_tokens
-            )
+            self.tokens = min(self.max_tokens, self.tokens + new_tokens)
             self.last_refill = current_time
 
             _LOGGER.debug(
@@ -160,8 +159,7 @@ class RateLimiter:
 
         # Berechne Requests in letzter Minute
         recent_requests = [
-            r for r in self.request_history
-            if current_time - r["time"] <= 60
+            r for r in self.request_history if current_time - r["time"] <= 60
         ]
         recent_blocked = sum(1 for r in recent_requests if r["blocked"])
 
@@ -204,6 +202,7 @@ def get_global_rate_limiter() -> RateLimiter:
             API_RATE_LIMIT_BURST,
             API_RATE_LIMIT_RETRY_AFTER,
         )
+
         _global_rate_limiter = RateLimiter(
             max_requests=API_RATE_LIMIT_REQUESTS,
             time_window=API_RATE_LIMIT_WINDOW,

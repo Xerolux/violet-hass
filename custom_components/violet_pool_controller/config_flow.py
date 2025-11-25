@@ -1,4 +1,5 @@
 """Config Flow für Violet Pool Controller Integration - OPTIMIZED VERSION."""
+
 import asyncio
 import ipaddress
 import logging
@@ -66,13 +67,19 @@ ERROR_AGREEMENT_DECLINED = "agreement_declined"
 
 # Pool & Disinfection Options
 POOL_TYPE_OPTIONS = {
-    "outdoor": "🏖️ Freibad", "indoor": "🏠 Hallenbad", "whirlpool": "🛁 Whirlpool/Spa",
-    "natural": "🌿 Naturpool/Schwimmteich", "combination": "🔄 Kombination",
+    "outdoor": "🏖️ Freibad",
+    "indoor": "🏠 Hallenbad",
+    "whirlpool": "🛁 Whirlpool/Spa",
+    "natural": "🌿 Naturpool/Schwimmteich",
+    "combination": "🔄 Kombination",
 }
 DISINFECTION_OPTIONS = {
-    "chlorine": "🧪 Chlor (Flüssig/Tabletten)", "salt": "🧂 Salzelektrolyse",
-    "bromine": "⚗️ Brom", "active_oxygen": "💧 Aktivsauerstoff/H₂O₂",
-    "uv": "💡 UV-Desinfektion", "ozone": "🌀 Ozon-Desinfektion",
+    "chlorine": "🧪 Chlor (Flüssig/Tabletten)",
+    "salt": "🧂 Salzelektrolyse",
+    "bromine": "⚗️ Brom",
+    "active_oxygen": "💧 Aktivsauerstoff/H₂O₂",
+    "uv": "💡 UV-Desinfektion",
+    "ozone": "🌀 Ozon-Desinfektion",
 }
 
 # Features Info
@@ -122,8 +129,12 @@ def validate_ip_address(ip: str) -> bool:
 
 
 async def fetch_api_data(
-    session: aiohttp.ClientSession, api_url: str, auth: aiohttp.BasicAuth | None,
-    use_ssl: bool, timeout: int, retries: int,
+    session: aiohttp.ClientSession,
+    api_url: str,
+    auth: aiohttp.BasicAuth | None,
+    use_ssl: bool,
+    timeout: int,
+    retries: int,
 ) -> dict[str, Any]:
     """
     Fetch API data with retry logic.
@@ -154,8 +165,13 @@ async def fetch_api_data(
             if attempt + 1 == retries:
                 _LOGGER.error("API-Fehler nach %d Versuchen: %s", retries, err)
                 raise ValueError(f"API-Anfrage fehlgeschlagen: {err}") from err
-            retry_delay = BASE_RETRY_DELAY ** attempt
-            _LOGGER.warning("API-Versuch %d/%d fehlgeschlagen, wiederhole in %ds", attempt + 1, retries, retry_delay)
+            retry_delay = BASE_RETRY_DELAY**attempt
+            _LOGGER.warning(
+                "API-Versuch %d/%d fehlgeschlagen, wiederhole in %ds",
+                attempt + 1,
+                retries,
+                retry_delay,
+            )
             await asyncio.sleep(retry_delay)
     raise ValueError("Fehler nach allen Versuchen")
 
@@ -188,15 +204,18 @@ async def get_grouped_sensors(
         )
 
         data = await fetch_api_data(
-            session, api_url, auth, config_data[CONF_USE_SSL],
+            session,
+            api_url,
+            auth,
+            config_data[CONF_USE_SSL],
             config_data.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION),
-            config_data.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)
+            config_data.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS),
         )
 
         grouped: dict[str, list[str]] = {}
         for key in sorted(data.keys()):
             # Einfache Gruppierung nach Präfix
-            group = key.split('_')[0]
+            group = key.split("_")[0]
             if group not in grouped:
                 grouped[group] = []
             grouped[group].append(key)
@@ -208,6 +227,7 @@ async def get_grouped_sensors(
 
 class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Config Flow für Violet Pool Controller."""
+
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
@@ -219,11 +239,15 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry: config_entries.ConfigEntry) -> config_entries.OptionsFlow:
+    def async_get_options_flow(
+        config_entry: config_entries.ConfigEntry,
+    ) -> config_entries.OptionsFlow:
         """Options Flow zurückgeben."""
         return VioletOptionsFlowHandler()
 
-    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+    async def async_step_user(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
         """
         Handle the user-initiated setup start step.
 
@@ -245,7 +269,9 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             description_placeholders=self._get_help_links(),
         )
 
-    async def async_step_disclaimer(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+    async def async_step_disclaimer(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
         """
         Handle the disclaimer and terms of use step.
 
@@ -269,7 +295,9 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             },
         )
 
-    async def async_step_help(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+    async def async_step_help(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
         """
         Display additional help.
 
@@ -288,7 +316,9 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             description_placeholders=self._get_help_links(),
         )
 
-    async def async_step_connection(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+    async def async_step_connection(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
         """
         Handle the controller connection step.
 
@@ -301,15 +331,16 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
         if user_input:
             if self._is_duplicate_entry(
-                user_input[CONF_API_URL],
-                int(user_input.get(CONF_DEVICE_ID, 1))
+                user_input[CONF_API_URL], int(user_input.get(CONF_DEVICE_ID, 1))
             ):
                 errors["base"] = ERROR_ALREADY_CONFIGURED
             elif not validate_ip_address(user_input[CONF_API_URL]):
                 errors[CONF_API_URL] = ERROR_INVALID_IP
             else:
                 self._config_data = self._build_config_data(user_input)
-                await self.async_set_unique_id(f"{self._config_data[CONF_API_URL]}-{self._config_data[CONF_DEVICE_ID]}")
+                await self.async_set_unique_id(
+                    f"{self._config_data[CONF_API_URL]}-{self._config_data[CONF_DEVICE_ID]}"
+                )
                 self._abort_if_unique_id_configured()
                 if await self._test_connection():
                     return await self.async_step_pool_setup()
@@ -322,7 +353,9 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             description_placeholders=self._get_help_links(),
         )
 
-    async def async_step_pool_setup(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+    async def async_step_pool_setup(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
         """
         Handle the pool configuration step.
 
@@ -333,18 +366,22 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             The flow result.
         """
         if user_input:
-            self._config_data.update({
-                CONF_POOL_SIZE: float(user_input[CONF_POOL_SIZE]),
-                CONF_POOL_TYPE: user_input[CONF_POOL_TYPE],
-                CONF_DISINFECTION_METHOD: user_input[CONF_DISINFECTION_METHOD],
-            })
+            self._config_data.update(
+                {
+                    CONF_POOL_SIZE: float(user_input[CONF_POOL_SIZE]),
+                    CONF_POOL_TYPE: user_input[CONF_POOL_TYPE],
+                    CONF_DISINFECTION_METHOD: user_input[CONF_DISINFECTION_METHOD],
+                }
+            )
             return await self.async_step_feature_selection()
 
         return self.async_show_form(
             step_id="pool_setup", data_schema=self._get_pool_setup_schema()
         )
 
-    async def async_step_feature_selection(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+    async def async_step_feature_selection(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
         """
         Handle the feature selection step.
 
@@ -355,25 +392,32 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             The flow result.
         """
         if user_input:
-            self._config_data[CONF_ACTIVE_FEATURES] = self._extract_active_features(user_input)
-            
+            self._config_data[CONF_ACTIVE_FEATURES] = self._extract_active_features(
+                user_input
+            )
+
             # Hole Sensor-Daten für nächsten Schritt
             self._sensor_data = await self._get_grouped_sensors()
             if not self._sensor_data:
-                _LOGGER.warning("Keine dynamischen Sensoren gefunden. Überspringe Auswahl.")
+                _LOGGER.warning(
+                    "Keine dynamischen Sensoren gefunden. Überspringe Auswahl."
+                )
                 self._config_data[CONF_SELECTED_SENSORS] = []
                 return self.async_create_entry(
                     title=self._generate_entry_title(),
                     data=self._config_data,
                 )
-                 
+
             return await self.async_step_sensor_selection()
 
         return self.async_show_form(
-            step_id="feature_selection", data_schema=self._get_feature_selection_schema()
+            step_id="feature_selection",
+            data_schema=self._get_feature_selection_schema(),
         )
-        
-    async def async_step_sensor_selection(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+
+    async def async_step_sensor_selection(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
         """
         Handle the dynamic sensor selection step.
 
@@ -393,14 +437,20 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             # None = Alle Sensoren erstellen (Abwärtskompatibilität)
             # [] = Explizit keine Sensoren ausgewählt
             # Für bessere UX: Wenn leer, erstelle alle
-            self._config_data[CONF_SELECTED_SENSORS] = selected_sensors if selected_sensors else None
+            self._config_data[CONF_SELECTED_SENSORS] = (
+                selected_sensors if selected_sensors else None
+            )
 
             if selected_sensors:
                 _LOGGER.info("%d dynamische Sensoren ausgewählt", len(selected_sensors))
             else:
-                _LOGGER.info("Keine spezifischen Sensoren ausgewählt - alle verfügbaren Sensoren werden erstellt")
+                _LOGGER.info(
+                    "Keine spezifischen Sensoren ausgewählt - alle verfügbaren Sensoren werden erstellt"
+                )
 
-            return self.async_create_entry(title=self._generate_entry_title(), data=self._config_data)
+            return self.async_create_entry(
+                title=self._generate_entry_title(), data=self._config_data
+            )
 
         return self.async_show_form(
             step_id="sensor_selection",
@@ -408,8 +458,8 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             description_placeholders={
                 "step_icon": "📊",
                 "step_title": "Dynamische Sensoren",
-                "step_description": "Wähle die Sensoren aus, die du in Home Assistant sehen möchtest."
-            }
+                "step_description": "Wähle die Sensoren aus, die du in Home Assistant sehen möchtest.",
+            },
         )
 
     # ================= Helper Methods =================
@@ -429,8 +479,8 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             True if this combination is already configured, False otherwise.
         """
         return any(
-            entry.data.get(CONF_API_URL) == ip and
-            entry.data.get(CONF_DEVICE_ID, 1) == device_id
+            entry.data.get(CONF_API_URL) == ip
+            and entry.data.get(CONF_DEVICE_ID, 1) == device_id
             for entry in self._async_current_entries()
         )
 
@@ -452,9 +502,15 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             CONF_USERNAME: ui.get(CONF_USERNAME, ""),
             CONF_PASSWORD: ui.get(CONF_PASSWORD, ""),
             CONF_DEVICE_ID: int(ui.get(CONF_DEVICE_ID, 1)),
-            CONF_POLLING_INTERVAL: int(ui.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)),
-            CONF_TIMEOUT_DURATION: int(ui.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)),
-            CONF_RETRY_ATTEMPTS: int(ui.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)),
+            CONF_POLLING_INTERVAL: int(
+                ui.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
+            ),
+            CONF_TIMEOUT_DURATION: int(
+                ui.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)
+            ),
+            CONF_RETRY_ATTEMPTS: int(
+                ui.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)
+            ),
         }
 
     async def _test_connection(self) -> bool:
@@ -466,7 +522,9 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """
         try:
             protocol = "https" if self._config_data[CONF_USE_SSL] else "http"
-            api_url = f"{protocol}://{self._config_data[CONF_API_URL]}{API_READINGS}?ALL"
+            api_url = (
+                f"{protocol}://{self._config_data[CONF_API_URL]}{API_READINGS}?ALL"
+            )
             session = aiohttp_client.async_get_clientsession(self.hass)
             auth = (
                 aiohttp.BasicAuth(
@@ -477,13 +535,17 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 else None
             )
             await fetch_api_data(
-                session, api_url, auth, self._config_data[CONF_USE_SSL],
-                self._config_data[CONF_TIMEOUT_DURATION], self._config_data[CONF_RETRY_ATTEMPTS]
+                session,
+                api_url,
+                auth,
+                self._config_data[CONF_USE_SSL],
+                self._config_data[CONF_TIMEOUT_DURATION],
+                self._config_data[CONF_RETRY_ATTEMPTS],
             )
             return True
         except ValueError:
             return False
-            
+
     async def _get_grouped_sensors(self) -> dict[str, list[str]]:
         """
         Fetch and group sensors.
@@ -503,7 +565,11 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         Returns:
             A list of active feature IDs.
         """
-        return [f['id'] for f in AVAILABLE_FEATURES if ui.get(f"enable_{f['id']}", f["default"])]
+        return [
+            f["id"]
+            for f in AVAILABLE_FEATURES
+            if ui.get(f"enable_{f['id']}", f["default"])
+        ]
 
     def _generate_entry_title(self) -> str:
         """
@@ -512,7 +578,9 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         Returns:
             The config entry title.
         """
-        controller_name = self._config_data.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME)
+        controller_name = self._config_data.get(
+            CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME
+        )
         pool_size = self._config_data.get(CONF_POOL_SIZE)
         return f"{controller_name} • {pool_size}m³"
 
@@ -562,7 +630,9 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """
         return vol.Schema(
             {
-                vol.Required("action", default=MENU_ACTION_START): selector.SelectSelector(
+                vol.Required(
+                    "action", default=MENU_ACTION_START
+                ): selector.SelectSelector(
                     selector.SelectSelectorConfig(
                         options=[
                             selector.SelectOptionDict(
@@ -586,24 +656,39 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         Returns:
             The voluptuous schema.
         """
-        return vol.Schema({
-            vol.Required(CONF_API_URL, default="192.168.178.55"): str,
-            vol.Optional(CONF_USERNAME): str,
-            vol.Optional(CONF_PASSWORD): str,
-            vol.Required(CONF_USE_SSL, default=DEFAULT_USE_SSL): bool,
-            vol.Required(CONF_DEVICE_ID, default=1): vol.All(vol.Coerce(int), vol.Range(min=1)),
-            vol.Required(CONF_POLLING_INTERVAL, default=DEFAULT_POLLING_INTERVAL): vol.All(
-                vol.Coerce(int), vol.Range(min=MIN_POLLING_INTERVAL, max=MAX_POLLING_INTERVAL)
-            ),
-            vol.Required(CONF_TIMEOUT_DURATION, default=DEFAULT_TIMEOUT_DURATION): vol.All(
-                vol.Coerce(int), vol.Range(min=MIN_TIMEOUT, max=MAX_TIMEOUT)
-            ),
-            vol.Required(CONF_RETRY_ATTEMPTS, default=DEFAULT_RETRY_ATTEMPTS): vol.All(
-                vol.Coerce(int), vol.Range(min=MIN_RETRIES, max=MAX_RETRIES)
-            ),
-            vol.Optional(CONF_DEVICE_NAME, default="🌊 Violet Pool Controller"): str,
-            vol.Optional(CONF_CONTROLLER_NAME, default=DEFAULT_CONTROLLER_NAME): str,
-        })
+        return vol.Schema(
+            {
+                vol.Required(CONF_API_URL, default="192.168.178.55"): str,
+                vol.Optional(CONF_USERNAME): str,
+                vol.Optional(CONF_PASSWORD): str,
+                vol.Required(CONF_USE_SSL, default=DEFAULT_USE_SSL): bool,
+                vol.Required(CONF_DEVICE_ID, default=1): vol.All(
+                    vol.Coerce(int), vol.Range(min=1)
+                ),
+                vol.Required(
+                    CONF_POLLING_INTERVAL, default=DEFAULT_POLLING_INTERVAL
+                ): vol.All(
+                    vol.Coerce(int),
+                    vol.Range(min=MIN_POLLING_INTERVAL, max=MAX_POLLING_INTERVAL),
+                ),
+                vol.Required(
+                    CONF_TIMEOUT_DURATION, default=DEFAULT_TIMEOUT_DURATION
+                ): vol.All(
+                    vol.Coerce(int), vol.Range(min=MIN_TIMEOUT, max=MAX_TIMEOUT)
+                ),
+                vol.Required(
+                    CONF_RETRY_ATTEMPTS, default=DEFAULT_RETRY_ATTEMPTS
+                ): vol.All(
+                    vol.Coerce(int), vol.Range(min=MIN_RETRIES, max=MAX_RETRIES)
+                ),
+                vol.Optional(
+                    CONF_DEVICE_NAME, default="🌊 Violet Pool Controller"
+                ): str,
+                vol.Optional(
+                    CONF_CONTROLLER_NAME, default=DEFAULT_CONTROLLER_NAME
+                ): str,
+            }
+        )
 
     def _get_pool_setup_schema(self) -> vol.Schema:
         """
@@ -612,17 +697,19 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         Returns:
             The voluptuous schema.
         """
-        return vol.Schema({
-            vol.Required(CONF_POOL_SIZE, default=DEFAULT_POOL_SIZE): vol.All(
-                vol.Coerce(float), vol.Range(min=0.1, max=1000.0)
-            ),
-            vol.Required(CONF_POOL_TYPE, default=DEFAULT_POOL_TYPE): vol.In(
-                POOL_TYPE_OPTIONS
-            ),
-            vol.Required(CONF_DISINFECTION_METHOD, default=DEFAULT_DISINFECTION_METHOD): vol.In(
-                DISINFECTION_OPTIONS
-            ),
-        })
+        return vol.Schema(
+            {
+                vol.Required(CONF_POOL_SIZE, default=DEFAULT_POOL_SIZE): vol.All(
+                    vol.Coerce(float), vol.Range(min=0.1, max=1000.0)
+                ),
+                vol.Required(CONF_POOL_TYPE, default=DEFAULT_POOL_TYPE): vol.In(
+                    POOL_TYPE_OPTIONS
+                ),
+                vol.Required(
+                    CONF_DISINFECTION_METHOD, default=DEFAULT_DISINFECTION_METHOD
+                ): vol.In(DISINFECTION_OPTIONS),
+            }
+        )
 
     def _get_feature_selection_schema(self) -> vol.Schema:
         """
@@ -631,10 +718,13 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         Returns:
             The voluptuous schema.
         """
-        return vol.Schema({
-            vol.Optional(f"enable_{f['id']}", default=f["default"]): bool for f in AVAILABLE_FEATURES
-        })
-        
+        return vol.Schema(
+            {
+                vol.Optional(f"enable_{f['id']}", default=f["default"]): bool
+                for f in AVAILABLE_FEATURES
+            }
+        )
+
     def _get_sensor_selection_schema(self) -> vol.Schema:
         """
         Create the sensor selection schema.
@@ -667,7 +757,9 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         """Get current configuration merged from data and options."""
         return {**self.config_entry.data, **self.config_entry.options}
 
-    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
         """
         Handle the advanced settings and sensor selection step.
 
@@ -682,8 +774,10 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
             selected_sensors = []
             other_options = {}
             for key, value in user_input.items():
-                if key in self._sensor_data: # Key ist eine Sensor-Gruppe
-                    if isinstance(value, list) and value:  # Prüfe ob Liste und nicht leer
+                if key in self._sensor_data:  # Key ist eine Sensor-Gruppe
+                    if (
+                        isinstance(value, list) and value
+                    ):  # Prüfe ob Liste und nicht leer
                         selected_sensors.extend(value)
                 else:
                     other_options[key] = value
@@ -691,12 +785,18 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
             # ✅ FIX: Wenn keine Sensoren ausgewählt, speichere None statt []
             # None = Alle Sensoren erstellen, [] = Keine Sensoren
             # Für bessere UX: Wenn leer, erstelle alle
-            other_options[CONF_SELECTED_SENSORS] = selected_sensors if selected_sensors else None
+            other_options[CONF_SELECTED_SENSORS] = (
+                selected_sensors if selected_sensors else None
+            )
 
             if selected_sensors:
-                _LOGGER.info("%d Sensoren in Optionen gespeichert", len(selected_sensors))
+                _LOGGER.info(
+                    "%d Sensoren in Optionen gespeichert", len(selected_sensors)
+                )
             else:
-                _LOGGER.info("Keine spezifischen Sensoren in Optionen - alle verfügbaren Sensoren werden erstellt")
+                _LOGGER.info(
+                    "Keine spezifischen Sensoren in Optionen - alle verfügbaren Sensoren werden erstellt"
+                )
 
             return self.async_create_entry(title="", data=other_options)
 
@@ -728,26 +828,31 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         schema = {
             vol.Optional(
                 CONF_CONTROLLER_NAME,
-                default=self.current_config.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME)
+                default=self.current_config.get(
+                    CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME
+                ),
             ): str,
             vol.Optional(
                 CONF_POLLING_INTERVAL,
-                default=self.current_config.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
+                default=self.current_config.get(
+                    CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL
+                ),
             ): vol.All(
-                vol.Coerce(int), vol.Range(min=MIN_POLLING_INTERVAL, max=MAX_POLLING_INTERVAL)
+                vol.Coerce(int),
+                vol.Range(min=MIN_POLLING_INTERVAL, max=MAX_POLLING_INTERVAL),
             ),
             vol.Optional(
                 CONF_TIMEOUT_DURATION,
-                default=self.current_config.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)
-            ): vol.All(
-                vol.Coerce(int), vol.Range(min=MIN_TIMEOUT, max=MAX_TIMEOUT)
-            ),
+                default=self.current_config.get(
+                    CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION
+                ),
+            ): vol.All(vol.Coerce(int), vol.Range(min=MIN_TIMEOUT, max=MAX_TIMEOUT)),
             vol.Optional(
                 CONF_RETRY_ATTEMPTS,
-                default=self.current_config.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)
-            ): vol.All(
-                vol.Coerce(int), vol.Range(min=MIN_RETRIES, max=MAX_RETRIES)
-            ),
+                default=self.current_config.get(
+                    CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS
+                ),
+            ): vol.All(vol.Coerce(int), vol.Range(min=MIN_RETRIES, max=MAX_RETRIES)),
         }
 
         # Dynamische Sensor-Auswahl hinzufügen
@@ -756,11 +861,13 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         for group, sensors in self._sensor_data.items():
             # Standardmäßig sind die aktuell ausgewählten Sensoren dieser Gruppe vorausgewählt
             default_selection = [s for s in sensors if s in current_sensors]
-            schema[vol.Optional(group, default=default_selection)] = selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=sensors,
-                    multiple=True,
-                    mode=selector.SelectSelectorMode.DROPDOWN,
+            schema[vol.Optional(group, default=default_selection)] = (
+                selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=sensors,
+                        multiple=True,
+                        mode=selector.SelectSelectorMode.DROPDOWN,
+                    )
                 )
             )
 

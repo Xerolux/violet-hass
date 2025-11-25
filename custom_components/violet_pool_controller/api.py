@@ -52,7 +52,12 @@ class VioletPoolAPIError(Exception):
 
 
 class VioletPoolAPI:
-    """Tiny HTTP client used by the integration to talk to the controller."""
+    """A small HTTP client for interacting with the Violet Pool Controller.
+
+    This class handles API requests, including authentication, rate limiting,
+    and error handling. It provides methods for accessing various controller
+    endpoints.
+    """
 
     _DOSING_TYPE_TO_KEY = {
         "pH-": "DOS_4_PHM",
@@ -72,8 +77,17 @@ class VioletPoolAPI:
         timeout: int = DEFAULT_TIMEOUT_DURATION,
         max_retries: int = DEFAULT_RETRY_ATTEMPTS,
     ) -> None:
-        """Initialise the API helper."""
+        """Initializes the API helper.
 
+        Args:
+            host: The hostname or IP address of the controller.
+            session: The aiohttp client session.
+            username: The username for authentication.
+            password: The password for authentication.
+            use_ssl: Whether to use SSL for the connection.
+            timeout: The request timeout in seconds.
+            max_retries: The maximum number of retries for failed requests.
+        """
         if session is None:
             raise ValueError("A valid aiohttp session must be provided")
 
@@ -91,7 +105,7 @@ class VioletPoolAPI:
         if username:
             self._auth = aiohttp.BasicAuth(username, password or "")
 
-        # ✅ RATE LIMITING: Schützt Controller vor Überlastung
+        # Rate limiting to protect the controller from being overloaded
         self._rate_limiter = get_global_rate_limiter()
         _LOGGER.debug("API initialized with rate limiting enabled")
 
@@ -100,8 +114,7 @@ class VioletPoolAPI:
     # ---------------------------------------------------------------------
 
     def _build_url(self, endpoint: str) -> str:
-        """
-        Construct the full URL for an endpoint.
+        """Constructs the full URL for a given endpoint.
 
         Args:
             endpoint: The API endpoint.
@@ -123,38 +136,36 @@ class VioletPoolAPI:
         expect_json: bool = False,
         priority: int = API_PRIORITY_NORMAL,
     ) -> Any:
-        """
-        Perform a request and handle retries as well as error reporting.
+        """Performs a request with rate limiting, retries, and error handling.
 
-        ✅ RATE LIMITING: Wartet automatisch wenn Request-Limit erreicht ist.
+        This method automatically waits if the request limit is reached.
 
         Args:
-            endpoint: API-Endpoint
-            method: HTTP-Methode
-            params: URL-Parameter
-            query: Query-String
-            json_payload: JSON-Payload
-            expect_json: Erwarte JSON-Response
-            priority: Request-Priorität (1=critical, 2=high, 3=normal, 4=low)
+            endpoint: The API endpoint to request.
+            method: The HTTP method to use.
+            params: A mapping of URL parameters.
+            query: A raw query string.
+            json_payload: The JSON payload for POST requests.
+            expect_json: Whether to expect a JSON response.
+            priority: The request priority for rate limiting.
 
         Returns:
-            API-Response (JSON oder Text)
+            The API response, either as JSON or text.
 
         Raises:
-            VioletPoolAPIError: Bei API-Fehlern
+            VioletPoolAPIError: If the API returns an error or the request fails.
         """
-
         if params and query:
             raise ValueError("'params' and 'query' are mutually exclusive")
 
-        # ✅ RATE LIMITING: Warte wenn nötig (max 10s timeout)
+        # Wait if the rate limit is reached
         try:
             await self._rate_limiter.wait_if_needed(priority=priority, timeout=10.0)
         except asyncio.TimeoutError:
             _LOGGER.warning(
-                "Rate limiter timeout für %s (priority: %d) - fahre fort",
+                "Rate limiter timeout for %s (priority: %d) - continuing",
                 endpoint,
-                priority
+                priority,
             )
 
         url = self._build_url(endpoint)
@@ -190,14 +201,14 @@ class VioletPoolAPI:
 
                     return await response.text()
 
-            except (aiohttp.ClientError, asyncio.TimeoutError) as err:  # pragma: no cover - network failure
+            except (aiohttp.ClientError, asyncio.TimeoutError) as err:
                 last_error = VioletPoolAPIError(
                     f"Error communicating with Violet controller: {err}"
                 )
                 _LOGGER.debug("Attempt %d for %s failed: %s", attempt, endpoint, err)
                 if attempt == self._max_retries:
                     raise last_error
-                # ✅ PERFORMANCE: Exponential backoff with jitter (0.2s, 0.4s, 0.8s, 1.6s, max 2.0s)
+                # Exponential backoff with jitter
                 delay = min(2.0, 0.2 * (2 ** (attempt - 1)))
                 await asyncio.sleep(delay)
 
@@ -207,8 +218,14 @@ class VioletPoolAPI:
 
     @staticmethod
     def _command_result(body: str) -> dict[str, Any]:
-        """Normalise the controller response for command style requests."""
+        """Normalizes the controller's response for command-style requests.
 
+        Args:
+            body: The raw response body.
+
+        Returns:
+            A dictionary indicating success and the response text.
+        """
         text = (body or "").strip()
         success = not text or "error" not in text.lower()
         return {"success": success, "response": text}
@@ -221,8 +238,20 @@ class VioletPoolAPI:
         duration: int | float | None = None,
         last_value: int | float | None = None,
     ) -> str:
-        """Render the command payload according to the device parameter template."""
+        """Renders the command payload based on the device parameter template.
 
+        Args:
+            key: The device key.
+            action: The action to perform (e.g., ON, OFF).
+            duration: The duration for the action.
+            last_value: The last value (e.g., speed).
+
+        Returns:
+            The formatted command payload.
+
+        Raises:
+            VioletPoolAPIError: If the template is misconfigured.
+        """
         template = DEVICE_PARAMETERS.get(key, {}).get(
             "api_template", f"{key},{{action}},{{duration}},{{value}}"
         )
@@ -234,7 +263,7 @@ class VioletPoolAPI:
         }
         try:
             return template.format_map(payload_data)
-        except KeyError as err:  # pragma: no cover - template misconfiguration
+        except KeyError as err:
             raise VioletPoolAPIError(
                 f"Template for {key} requires missing field: {err.args[0]}"
             ) from err
@@ -244,8 +273,7 @@ class VioletPoolAPI:
     # ---------------------------------------------------------------------
 
     async def get_readings(self) -> dict[str, Any]:
-        """
-        Return the complete data set from the controller.
+        """Returns the complete dataset from the controller.
 
         Returns:
             A dictionary containing all readings.
@@ -262,9 +290,10 @@ class VioletPoolAPI:
             raise VioletPoolAPIError("Unexpected payload returned from getReadings")
         return response
 
-    async def get_specific_readings(self, categories: list[str] | tuple[str, ...]) -> dict[str, Any]:
-        """
-        Return a reduced data set for the provided categories.
+    async def get_specific_readings(
+        self, categories: list[str] | tuple[str, ...]
+    ) -> dict[str, Any]:
+        """Returns a reduced dataset for the provided categories.
 
         Args:
             categories: A list or tuple of category strings to fetch.
@@ -273,7 +302,7 @@ class VioletPoolAPI:
             A dictionary containing the requested readings.
 
         Raises:
-            VioletPoolAPIError: If no categories are provided or payload is unexpected.
+            VioletPoolAPIError: If no categories are provided or the payload is unexpected.
         """
         if not categories:
             raise VioletPoolAPIError("At least one category must be provided")
@@ -291,13 +320,14 @@ class VioletPoolAPI:
             raise VioletPoolAPIError("Unexpected payload returned from getReadings")
         return response
 
-    async def get_history(self, *, hours: int = 24, sensor: str = "ALL") -> dict[str, Any]:
-        """
-        Fetch historical readings from the controller.
+    async def get_history(
+        self, *, hours: int = 24, sensor: str = "ALL"
+    ) -> dict[str, Any]:
+        """Fetches historical readings from the controller.
 
         Args:
-            hours: Number of hours to fetch history for (default 24).
-            sensor: Specific sensor to fetch history for, or "ALL" (default "ALL").
+            hours: The number of hours of history to fetch.
+            sensor: The specific sensor to fetch history for, or "ALL".
 
         Returns:
             A dictionary containing the history data.
@@ -317,8 +347,7 @@ class VioletPoolAPI:
         return response
 
     async def get_weather_data(self) -> dict[str, Any]:
-        """
-        Return the current weather information used by the controller.
+        """Returns the current weather information used by the controller.
 
         Returns:
             A dictionary containing weather data.
@@ -335,8 +364,7 @@ class VioletPoolAPI:
         return response
 
     async def get_overall_dosing(self) -> dict[str, Any]:
-        """
-        Return aggregated dosing statistics.
+        """Returns aggregated dosing statistics.
 
         Returns:
             A dictionary containing overall dosing statistics.
@@ -349,12 +377,13 @@ class VioletPoolAPI:
             expect_json=True,
         )
         if not isinstance(response, dict):
-            raise VioletPoolAPIError("Unexpected payload returned from getOverallDosing")
+            raise VioletPoolAPIError(
+                "Unexpected payload returned from getOverallDosing"
+            )
         return response
 
     async def get_output_states(self) -> dict[str, Any]:
-        """
-        Return detailed information about output states.
+        """Returns detailed information about output states.
 
         Returns:
             A dictionary containing output states.
@@ -370,9 +399,10 @@ class VioletPoolAPI:
             raise VioletPoolAPIError("Unexpected payload returned from getOutputstates")
         return response
 
-    async def get_config(self, parameters: list[str] | tuple[str, ...]) -> dict[str, Any]:
-        """
-        Fetch controller configuration values for the provided keys.
+    async def get_config(
+        self, parameters: list[str] | tuple[str, ...]
+    ) -> dict[str, Any]:
+        """Fetches controller configuration values for the provided keys.
 
         Args:
             parameters: A list or tuple of configuration keys to fetch.
@@ -381,7 +411,7 @@ class VioletPoolAPI:
             A dictionary containing the configuration values.
 
         Raises:
-            VioletPoolAPIError: If no keys are provided or payload is unexpected.
+            VioletPoolAPIError: If no keys are provided or the payload is unexpected.
         """
         if not parameters:
             raise VioletPoolAPIError("At least one configuration key is required")
@@ -400,8 +430,7 @@ class VioletPoolAPI:
         return response
 
     async def set_config(self, config: Mapping[str, Any]) -> dict[str, Any]:
-        """
-        Update controller configuration values.
+        """Updates controller configuration values.
 
         Args:
             config: A mapping of configuration keys and values to update.
@@ -423,8 +452,7 @@ class VioletPoolAPI:
         return self._command_result(body)
 
     async def get_calibration_raw_values(self) -> dict[str, Any]:
-        """
-        Return current raw values for all calibration sensors.
+        """Returns the current raw values for all calibration sensors.
 
         Returns:
             A dictionary containing raw calibration values.
@@ -437,18 +465,19 @@ class VioletPoolAPI:
             expect_json=True,
         )
         if not isinstance(response, dict):
-            raise VioletPoolAPIError("Unexpected payload returned from getCalibRawValues")
+            raise VioletPoolAPIError(
+                "Unexpected payload returned from getCalibRawValues"
+            )
         return response
 
     async def get_calibration_history(self, sensor: str) -> list[dict[str, str]]:
-        """
-        Return the calibration history for the provided sensor.
+        """Returns the calibration history for the provided sensor.
 
         Args:
-            sensor: The sensor name.
+            sensor: The name of the sensor.
 
         Returns:
-            A list of dictionaries representing history entries.
+            A list of dictionaries representing the history entries.
 
         Raises:
             VioletPoolAPIError: If the sensor name is missing.
@@ -476,21 +505,22 @@ class VioletPoolAPI:
         return entries
 
     async def restore_calibration(self, sensor: str, timestamp: str) -> dict[str, Any]:
-        """
-        Restore a previous calibration entry for the given sensor.
+        """Restores a previous calibration entry for the given sensor.
 
         Args:
-            sensor: The sensor name.
+            sensor: The name of the sensor.
             timestamp: The timestamp of the calibration to restore.
 
         Returns:
             A dictionary with the command result.
 
         Raises:
-            VioletPoolAPIError: If sensor or timestamp is missing.
+            VioletPoolAPIError: If the sensor or timestamp is missing.
         """
         if not sensor or not timestamp:
-            raise VioletPoolAPIError("Sensor and timestamp are required for calibration restore")
+            raise VioletPoolAPIError(
+                "Sensor and timestamp are required for calibration restore"
+            )
 
         body = await self._request(
             API_RESTORE_CALIBRATION,
@@ -506,19 +536,18 @@ class VioletPoolAPI:
         mode: str = "SWITCH",
         duration: int = 120,
     ) -> dict[str, Any]:
-        """
-        Activate the controller output test mode.
+        """Activates the controller's output test mode.
 
         Args:
-            output: The output identifier.
-            mode: The test mode (default "SWITCH").
-            duration: Duration in seconds (default 120).
+            output: The identifier of the output.
+            mode: The test mode (default is "SWITCH").
+            duration: The duration in seconds (default is 120).
 
         Returns:
             A dictionary with the command result.
 
         Raises:
-            VioletPoolAPIError: If output is missing.
+            VioletPoolAPIError: If the output is missing.
         """
         if not output:
             raise VioletPoolAPIError("Output identifier is required")
@@ -539,14 +568,13 @@ class VioletPoolAPI:
         duration: int | float | None = None,
         last_value: int | float | None = None,
     ) -> dict[str, Any]:
-        """
-        Control a function output via /setFunctionManually.
+        """Controls a function output via /setFunctionManually.
 
         Args:
             key: The device key.
             action: The action to perform (e.g., ON, OFF, AUTO).
-            duration: Optional duration for the action.
-            last_value: Optional last value (e.g. speed).
+            duration: An optional duration for the action.
+            last_value: An optional last value (e.g., speed).
 
         Returns:
             A dictionary with the command result.
@@ -565,12 +593,11 @@ class VioletPoolAPI:
         return self._command_result(body)
 
     async def manual_dosing(self, dosing_type: str, duration: int) -> dict[str, Any]:
-        """
-        Trigger a dosing run using the manual function endpoint.
+        """Triggers a dosing run using the manual function endpoint.
 
         Args:
-            dosing_type: The type of dosing (e.g. "Chlor").
-            duration: Duration in seconds.
+            dosing_type: The type of dosing (e.g., "Chlor").
+            duration: The duration in seconds.
 
         Returns:
             A dictionary with the command result.
@@ -594,12 +621,11 @@ class VioletPoolAPI:
         active: bool,
         pump_speed: int | None = None,
     ) -> dict[str, Any]:
-        """
-        Enable or disable PV surplus mode.
+        """Enables or disables PV surplus mode.
 
         Args:
             active: Whether to activate PV surplus mode.
-            pump_speed: Optional pump speed.
+            pump_speed: An optional pump speed.
 
         Returns:
             A dictionary with the command result.
@@ -611,8 +637,7 @@ class VioletPoolAPI:
         )
 
     async def set_all_dmx_scenes(self, action: str) -> dict[str, Any]:
-        """
-        Send the same command to all DMX scenes.
+        """Sends the same command to all DMX scenes.
 
         Args:
             action: The action to perform (ALLON, ALLOFF, ALLAUTO).
@@ -635,12 +660,13 @@ class VioletPoolAPI:
                 results.append({"success": False, "response": str(e)})
 
         success = all(result.get("success", True) for result in results)
-        response = ", ".join(result.get("response", "") for result in results if result.get("response"))
+        response = ", ".join(
+            result.get("response", "") for result in results if result.get("response")
+        )
         return {"success": success, "response": response}
 
     async def set_light_color_pulse(self) -> dict[str, Any]:
-        """
-        Trigger the colour pulse animation for the pool light.
+        """Triggers the color pulse animation for the pool light.
 
         Returns:
             A dictionary with the command result.
@@ -648,11 +674,10 @@ class VioletPoolAPI:
         return await self.set_switch_state("LIGHT", ACTION_COLOR)
 
     async def trigger_digital_input_rule(self, rule_key: str) -> dict[str, Any]:
-        """
-        Trigger a digital input rule via PUSH action.
+        """Triggers a digital input rule via a PUSH action.
 
         Args:
-            rule_key: The rule key (e.g. DIRULE_1).
+            rule_key: The rule key (e.g., DIRULE_1).
 
         Returns:
             A dictionary with the command result.
@@ -664,8 +689,7 @@ class VioletPoolAPI:
         rule_key: str,
         locked: bool,
     ) -> dict[str, Any]:
-        """
-        Lock or unlock a digital input rule.
+        """Locks or unlocks a digital input rule.
 
         Args:
             rule_key: The rule key.
@@ -684,8 +708,7 @@ class VioletPoolAPI:
         climate_key: str,
         temperature: float,
     ) -> dict[str, Any]:
-        """
-        Set the target temperature for heater or solar circuits.
+        """Sets the target temperature for heater or solar circuits.
 
         Args:
             climate_key: The climate key (HEATER or SOLAR).
@@ -698,8 +721,7 @@ class VioletPoolAPI:
         return await self.set_target_value(target_key, float(temperature))
 
     async def set_ph_target(self, value: float) -> dict[str, Any]:
-        """
-        Update the pH set point.
+        """Updates the pH setpoint.
 
         Args:
             value: The new pH target value.
@@ -710,8 +732,7 @@ class VioletPoolAPI:
         return await self.set_target_value(TARGET_PH, float(value))
 
     async def set_orp_target(self, value: int) -> dict[str, Any]:
-        """
-        Update the ORP set point.
+        """Updates the ORP setpoint.
 
         Args:
             value: The new ORP target value.
@@ -722,8 +743,7 @@ class VioletPoolAPI:
         return await self.set_target_value(TARGET_ORP, int(value))
 
     async def set_min_chlorine_level(self, value: float) -> dict[str, Any]:
-        """
-        Update the minimum chlorine level.
+        """Updates the minimum chlorine level.
 
         Args:
             value: The new minimum chlorine level.
@@ -734,8 +754,7 @@ class VioletPoolAPI:
         return await self.set_target_value(TARGET_MIN_CHLORINE, float(value))
 
     async def set_target_value(self, key: str, value: float | int) -> dict[str, Any]:
-        """
-        Send a generic target value update to the controller.
+        """Sends a generic target value update to the controller.
 
         Args:
             key: The target key.
@@ -755,8 +774,7 @@ class VioletPoolAPI:
         self,
         parameters: Mapping[str, Any],
     ) -> dict[str, Any]:
-        """
-        Update dosing parameters via the dedicated endpoint.
+        """Updates dosing parameters via the dedicated endpoint.
 
         Args:
             parameters: A mapping of dosing parameters.

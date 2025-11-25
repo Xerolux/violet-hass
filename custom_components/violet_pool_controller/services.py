@@ -30,6 +30,7 @@ _LOGGER = logging.getLogger(__name__)
 # CONSTANTS
 # =============================================================================
 
+
 # Common validators
 def _as_device_id_list(value: Any) -> list[str]:
     """
@@ -148,9 +149,7 @@ def get_service_schemas() -> dict[str, vol.Schema]:
         "manage_digital_rules": vol.Schema(
             {
                 vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
-                vol.Required("rule_key"): vol.In(
-                    [f"DIRULE_{i}" for i in range(1, 8)]
-                ),
+                vol.Required("rule_key"): vol.In([f"DIRULE_{i}" for i in range(1, 8)]),
                 vol.Required("action"): vol.In(["trigger", "lock", "unlock"]),
             }
         ),
@@ -202,9 +201,7 @@ class VioletServiceManager:
                     return coordinator
         return None
 
-    async def get_coordinators_for_entities(
-        self, entity_ids: list[str]
-    ) -> list[Any]:
+    async def get_coordinators_for_entities(self, entity_ids: list[str]) -> list[Any]:
         """
         Get coordinators for entity IDs.
 
@@ -345,11 +342,17 @@ class VioletServiceHandlers:
         duration_raw = call.data.get("duration", 0)
 
         speed = InputSanitizer.validate_speed(speed_raw, min_speed=1, max_speed=3)
-        duration = InputSanitizer.validate_duration(duration_raw, min_sec=0, max_sec=86400)
+        duration = InputSanitizer.validate_duration(
+            duration_raw, min_sec=0, max_sec=86400
+        )
 
         _LOGGER.debug(
             "Pump control: action=%s, speed=%d (raw: %s), duration=%d (raw: %s)",
-            action, speed, speed_raw, duration, duration_raw
+            action,
+            speed,
+            speed_raw,
+            duration,
+            duration_raw,
         )
 
         for coordinator in coordinators:
@@ -419,13 +422,19 @@ class VioletServiceHandlers:
 
         # ✅ INPUT SANITIZATION: Validiere duration (max 300s für Dosierung)
         duration_raw = call.data.get("duration", 30)
-        duration = InputSanitizer.validate_duration(duration_raw, min_sec=5, max_sec=300)
+        duration = InputSanitizer.validate_duration(
+            duration_raw, min_sec=5, max_sec=300
+        )
 
         safety_override = call.data.get("safety_override", False)
 
         _LOGGER.debug(
             "Smart dosing: type=%s, action=%s, duration=%d (raw: %s), safety_override=%s",
-            dosing_type, action, duration, duration_raw, safety_override
+            dosing_type,
+            action,
+            duration,
+            duration_raw,
+            safety_override,
         )
 
         device_key = DOSING_TYPE_MAPPING.get(dosing_type)
@@ -448,7 +457,9 @@ class VioletServiceHandlers:
                     result = await coordinator.device.api.manual_dosing(
                         dosing_type, duration
                     )
-                    _LOGGER.info("Manual dosing %s for %ds (sanitized)", dosing_type, duration)
+                    _LOGGER.info(
+                        "Manual dosing %s for %ds (sanitized)", dosing_type, duration
+                    )
 
                     # Set safety lock
                     if not safety_override:
@@ -554,11 +565,15 @@ class VioletServiceHandlers:
 
             try:
                 if action == "all_on":
-                    result = await coordinator.device.api.set_all_dmx_scenes(ACTION_ALLON)
+                    result = await coordinator.device.api.set_all_dmx_scenes(
+                        ACTION_ALLON
+                    )
                     _LOGGER.info("All DMX scenes ON (device %s)", device_id)
 
                 elif action == "all_off":
-                    result = await coordinator.device.api.set_all_dmx_scenes(ACTION_ALLOFF)
+                    result = await coordinator.device.api.set_all_dmx_scenes(
+                        ACTION_ALLOFF
+                    )
                     _LOGGER.info("All DMX scenes OFF (device %s)", device_id)
 
                 elif action == "all_auto":
@@ -689,7 +704,9 @@ class VioletServiceHandlers:
                     _LOGGER.info("Rule %s unlocked (device %s)", rule_key, device_id)
 
                 else:
-                    raise HomeAssistantError(f"Unsupported digital rule action: {action}")
+                    raise HomeAssistantError(
+                        f"Unsupported digital rule action: {action}"
+                    )
 
                 if not result.get("success", True):
                     _LOGGER.warning(

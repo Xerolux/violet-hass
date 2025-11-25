@@ -21,17 +21,17 @@ class InputSanitizer:
     """
 
     # Erlaubte Zeichen-Patterns
-    ALPHANUMERIC = re.compile(r'^[a-zA-Z0-9]+$')
-    ALPHANUMERIC_UNDERSCORE = re.compile(r'^[a-zA-Z0-9_]+$')
-    ALPHANUMERIC_DASH_UNDERSCORE = re.compile(r'^[a-zA-Z0-9_-]+$')
-    NUMERIC = re.compile(r'^-?[0-9]+(\.[0-9]+)?$')
-    INTEGER = re.compile(r'^-?[0-9]+$')
-    FLOAT = re.compile(r'^-?[0-9]+\.[0-9]+$')
+    ALPHANUMERIC = re.compile(r"^[a-zA-Z0-9]+$")
+    ALPHANUMERIC_UNDERSCORE = re.compile(r"^[a-zA-Z0-9_]+$")
+    ALPHANUMERIC_DASH_UNDERSCORE = re.compile(r"^[a-zA-Z0-9_-]+$")
+    NUMERIC = re.compile(r"^-?[0-9]+(\.[0-9]+)?$")
+    INTEGER = re.compile(r"^-?[0-9]+$")
+    FLOAT = re.compile(r"^-?[0-9]+\.[0-9]+$")
 
     # Gefährliche Patterns
     DANGEROUS_CHARS = re.compile(r'[<>&"\';\\]')
-    PATH_TRAVERSAL = re.compile(r'\.\.|/|\\')
-    COMMAND_INJECTION = re.compile(r'[;&|`$(){}[\]]')
+    PATH_TRAVERSAL = re.compile(r"\.\.|/|\\")
+    COMMAND_INJECTION = re.compile(r"[;&|`$(){}[\]]")
 
     @staticmethod
     def sanitize_string(
@@ -73,9 +73,9 @@ class InputSanitizer:
 
         # Wenn keine Sonderzeichen erlaubt sind, entfernen wir sie ZUERST.
         if not allow_special_chars:
-             # Entferne gefährliche Zeichen
+            # Entferne gefährliche Zeichen
             original = str_value
-            str_value = re.sub(r'[^a-zA-Z0-9_-]', '', str_value)
+            str_value = re.sub(r"[^a-zA-Z0-9_-]", "", str_value)
             if str_value != original:
                 _LOGGER.warning(
                     "Gefährliche Zeichen entfernt: '%s' → '%s'",
@@ -245,8 +245,8 @@ class InputSanitizer:
 
         # Nur Großbuchstaben, Zahlen und Underscore erlaubt
         # Wir erlauben auch Bindestriche und konvertieren sie zu Underscores
-        key = key.upper().replace('-', '_')
-        sanitized = re.sub(r'[^A-Z0-9_]', '', key)
+        key = key.upper().replace("-", "_")
+        sanitized = re.sub(r"[^A-Z0-9_]", "", key)
 
         if sanitized != key:
             _LOGGER.warning(
@@ -282,7 +282,7 @@ class InputSanitizer:
             raise ValueError(f"Path Traversal erkannt in Parameter: {param}")
 
         # Entferne gefährliche Zeichen
-        sanitized = re.sub(r'[^a-zA-Z0-9_-]', '', param)
+        sanitized = re.sub(r"[^a-zA-Z0-9_-]", "", param)
 
         if sanitized != param:
             _LOGGER.warning(
@@ -323,7 +323,9 @@ class InputSanitizer:
         return duration_int
 
     @staticmethod
-    def validate_speed(speed: Any, min_speed: int = 1, max_speed: int = 4, default: int = 2) -> int:
+    def validate_speed(
+        speed: Any, min_speed: int = 1, max_speed: int = 4, default: int = 2
+    ) -> int:
         """
         Validiere einen Speed-Wert (z.B. Pumpengeschwindigkeit).
 
