@@ -18,13 +18,14 @@ _LOGGER = logging.getLogger(__name__)
 # =============================================================================
 
 def convert_to_int(value: Any) -> int | None:
-    """Convert value to integer if possible.
+    """
+    Convert value to integer if possible.
 
     Args:
-        value: Value to convert
+        value: Value to convert.
 
     Returns:
-        Integer value or None if conversion fails
+        Integer value or None if conversion fails.
     """
     try:
         if isinstance(value, (int, float)):
@@ -37,18 +38,19 @@ def convert_to_int(value: Any) -> int | None:
 
 
 def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool:
-    """Interpret raw state value as boolean.
+    """
+    Interpret raw state value as boolean.
 
     Supports:
     - Integer states (via STATE_MAP)
     - String states (ON/OFF, TRUE/FALSE, etc.)
 
     Args:
-        raw_state: Raw state value from API
-        key: Entity key for logging
+        raw_state: Raw state value from API.
+        key: Entity key for logging.
 
     Returns:
-        Boolean interpretation of the state
+        Boolean interpretation of the state.
     """
     if raw_state is None or raw_state == "":
         return False
@@ -106,12 +108,12 @@ class VioletPoolControllerEntity(CoordinatorEntity):
         entity_description: EntityDescription
     ) -> None:
         """
-        Initialisiere die Entity.
+        Initialize the entity.
         
         Args:
-            coordinator: Update Coordinator
-            config_entry: Config Entry
-            entity_description: Entity Description
+            coordinator: The update coordinator.
+            config_entry: The config entry.
+            entity_description: The entity description.
         """
         super().__init__(coordinator)
         
@@ -133,17 +135,20 @@ class VioletPoolControllerEntity(CoordinatorEntity):
 
     @property
     def device(self) -> Any:
-        """Gibt die Device-Instanz zurück."""
+        """Return the device instance."""
         return self.coordinator.device
 
     @property
     def available(self) -> bool:
         """
-        Gibt zurück ob die Entity verfügbar ist.
+        Return whether the entity is available.
         
-        Entity ist verfügbar wenn:
-        - Das letzte Coordinator-Update erfolgreich war UND
-        - Das Device selbst verfügbar ist
+        Entity is available if:
+        - The last coordinator update was successful AND
+        - The device itself is available.
+
+        Returns:
+            True if available, False otherwise.
         """
         is_available = (
             self.coordinator.last_update_success and 
@@ -162,14 +167,14 @@ class VioletPoolControllerEntity(CoordinatorEntity):
 
     def get_value(self, key: str, default: Any = None) -> Any:
         """
-        Holt einen Wert aus den Coordinator-Daten.
+        Get a value from coordinator data.
         
         Args:
-            key: Datenschlüssel
-            default: Standardwert falls Key nicht existiert
+            key: The data key.
+            default: Default value if key does not exist.
             
         Returns:
-            Wert oder default
+            The value or the default.
         """
         if not self.coordinator.data:
             _LOGGER.debug("Keine Coordinator-Daten verfügbar für Key '%s'", key)
@@ -188,14 +193,14 @@ class VioletPoolControllerEntity(CoordinatorEntity):
 
     def get_str_value(self, key: str, default: str = "") -> str:
         """
-        Holt einen String-Wert aus den Coordinator-Daten.
+        Get a string value from coordinator data.
         
         Args:
-            key: Datenschlüssel
-            default: Standardwert falls Key nicht existiert
+            key: The data key.
+            default: Default value if key does not exist.
             
         Returns:
-            String-Wert oder default
+            String value or default.
         """
         value = self.get_value(key, default)
         
@@ -206,14 +211,14 @@ class VioletPoolControllerEntity(CoordinatorEntity):
 
     def get_int_value(self, key: str, default: int = 0) -> int:
         """
-        Holt einen Integer-Wert aus den Coordinator-Daten.
+        Get an integer value from coordinator data.
         
         Args:
-            key: Datenschlüssel
-            default: Standardwert falls Key nicht existiert oder Konvertierung fehlschlägt
+            key: The data key.
+            default: Default value if key does not exist or conversion fails.
             
         Returns:
-            Integer-Wert oder default
+            Integer value or default.
         """
         value = self.get_value(key, default)
         
@@ -232,14 +237,14 @@ class VioletPoolControllerEntity(CoordinatorEntity):
 
     def get_float_value(self, key: str, default: Optional[float] = None) -> Optional[float]:
         """
-        Holt einen Float-Wert aus den Coordinator-Daten.
+        Get a float value from coordinator data.
         
         Args:
-            key: Datenschlüssel
-            default: Standardwert falls Key nicht existiert oder Konvertierung fehlschlägt
+            key: The data key.
+            default: Default value if key does not exist or conversion fails.
             
         Returns:
-            Float-Wert oder default
+            Float value or default.
         """
         value = self.get_value(key, default)
         
@@ -257,19 +262,19 @@ class VioletPoolControllerEntity(CoordinatorEntity):
 
     def get_bool_value(self, key: str, default: bool = False) -> bool:
         """
-        Holt einen Boolean-Wert aus den Coordinator-Daten.
+        Get a boolean value from coordinator data.
         
-        Unterstützt verschiedene Formate:
+        Supports various formats:
         - Boolean: True/False
         - String: "TRUE", "ON", "1", "YES" (case-insensitive)
-        - Integer: 0 = False, alles andere = True
+        - Integer: 0 = False, anything else = True
         
         Args:
-            key: Datenschlüssel
-            default: Standardwert falls Key nicht existiert oder Konvertierung fehlschlägt
+            key: The data key.
+            default: Default value if key does not exist or conversion fails.
             
         Returns:
-            Boolean-Wert oder default
+            Boolean value or default.
         """
         value = self.get_value(key, default)
         
@@ -296,13 +301,13 @@ class VioletPoolControllerEntity(CoordinatorEntity):
 
     def has_value(self, key: str) -> bool:
         """
-        Prüft ob ein Schlüssel in den Coordinator-Daten existiert.
+        Check if a key exists in coordinator data.
         
         Args:
-            key: Datenschlüssel
+            key: The data key.
             
         Returns:
-            True wenn der Key existiert
+            True if the key exists, False otherwise.
         """
         if not self.coordinator.data:
             return False

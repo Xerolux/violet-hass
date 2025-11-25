@@ -32,7 +32,15 @@ _LOGGER = logging.getLogger(__name__)
 
 # Common validators
 def _as_device_id_list(value: Any) -> list[str]:
-    """Normalize raw device id input into a list of strings."""
+    """
+    Normalize raw device id input into a list of strings.
+
+    Args:
+        value: The raw device ID input (string or list).
+
+    Returns:
+        A list of device ID strings.
+    """
     if isinstance(value, str):
         return [value]
     if isinstance(value, Iterable) and not isinstance(value, (bytes, bytearray)):
@@ -67,7 +75,12 @@ DEFAULT_SAFETY_INTERVAL = 300
 
 
 def get_service_schemas() -> dict[str, vol.Schema]:
-    """Get all service schemas."""
+    """
+    Get all service schemas.
+
+    Returns:
+        A dictionary mapping service names to schemas.
+    """
     return {
         # Pump Control
         "control_pump": vol.Schema(
@@ -163,11 +176,25 @@ class VioletServiceManager:
     """Manages all Violet Pool Controller services."""
 
     def __init__(self, hass: HomeAssistant):
+        """
+        Initialize the service manager.
+
+        Args:
+            hass: The Home Assistant instance.
+        """
         self.hass = hass
         self._safety_locks: dict[str, float] = {}
 
     async def get_coordinator_for_device(self, device_id: str):
-        """Get coordinator for device ID."""
+        """
+        Get coordinator for device ID.
+
+        Args:
+            device_id: The device ID.
+
+        Returns:
+            The coordinator instance or None.
+        """
         domain_data = self.hass.data.get(DOMAIN, {})
         for coordinator in domain_data.values():
             if hasattr(coordinator, "device") and coordinator.device:
@@ -178,7 +205,15 @@ class VioletServiceManager:
     async def get_coordinators_for_entities(
         self, entity_ids: list[str]
     ) -> list[Any]:
-        """Get coordinators for entity IDs."""
+        """
+        Get coordinators for entity IDs.
+
+        Args:
+            entity_ids: A list of entity IDs.
+
+        Returns:
+            A list of coordinator instances.
+        """
         coordinators = []
         entity_reg = er.async_get(self.hass)
 
@@ -193,7 +228,15 @@ class VioletServiceManager:
         return coordinators
 
     def extract_device_key(self, entity_id: str) -> str:
-        """Extract device key from entity ID."""
+        """
+        Extract device key from entity ID.
+
+        Args:
+            entity_id: The entity ID.
+
+        Returns:
+            The device key.
+        """
         # switch.violet_pool_pump -> PUMP
         parts = entity_id.split(".")[-1].split("_")
         if "violet" in parts:
@@ -203,7 +246,15 @@ class VioletServiceManager:
         return "_".join(parts).upper()
 
     def check_safety_lock(self, device_key: str) -> bool:
-        """Check if device has active safety lock."""
+        """
+        Check if device has active safety lock.
+
+        Args:
+            device_key: The device key.
+
+        Returns:
+            True if locked, False otherwise.
+        """
         if device_key not in self._safety_locks:
             return False
         import time
@@ -211,13 +262,27 @@ class VioletServiceManager:
         return time.time() < self._safety_locks[device_key]
 
     def set_safety_lock(self, device_key: str, duration: int) -> None:
-        """Set safety lock for device."""
+        """
+        Set safety lock for device.
+
+        Args:
+            device_key: The device key.
+            duration: The duration in seconds.
+        """
         import time
 
         self._safety_locks[device_key] = time.time() + duration
 
     def get_remaining_lock_time(self, device_key: str) -> int:
-        """Get remaining lock time in seconds."""
+        """
+        Get remaining lock time in seconds.
+
+        Args:
+            device_key: The device key.
+
+        Returns:
+            Remaining time in seconds.
+        """
         if not self.check_safety_lock(device_key):
             return 0
         import time
@@ -234,12 +299,26 @@ class VioletServiceHandlers:
     """Handles all service calls."""
 
     def __init__(self, manager: VioletServiceManager):
+        """
+        Initialize service handlers.
+
+        Args:
+            manager: The service manager instance.
+        """
         self.manager = manager
         self.hass = manager.hass
 
     @staticmethod
     def _normalize_device_ids(raw: Any) -> list[str]:
-        """Normalize a raw device id payload to a list of ids."""
+        """
+        Normalize a raw device id payload to a list of ids.
+
+        Args:
+            raw: The raw device ID input.
+
+        Returns:
+            A list of device IDs.
+        """
         if isinstance(raw, str):
             return [raw]
         if isinstance(raw, Iterable):
@@ -247,7 +326,15 @@ class VioletServiceHandlers:
         return [str(raw)]
 
     async def handle_control_pump(self, call: ServiceCall) -> None:
-        """Handle pump control service - WITH INPUT SANITIZATION."""
+        """
+        Handle pump control service.
+
+        Args:
+            call: The service call object.
+
+        Raises:
+            HomeAssistantError: If the action fails.
+        """
         coordinators = await self.manager.get_coordinators_for_entities(
             call.data[ATTR_ENTITY_ID]
         )
@@ -315,7 +402,15 @@ class VioletServiceHandlers:
             await coordinator.async_request_refresh()
 
     async def handle_smart_dosing(self, call: ServiceCall) -> None:
-        """Handle smart dosing service - WITH INPUT SANITIZATION."""
+        """
+        Handle smart dosing service.
+
+        Args:
+            call: The service call object.
+
+        Raises:
+            HomeAssistantError: If the action fails or type is unknown.
+        """
         coordinators = await self.manager.get_coordinators_for_entities(
             call.data[ATTR_ENTITY_ID]
         )
@@ -386,7 +481,15 @@ class VioletServiceHandlers:
             await coordinator.async_request_refresh()
 
     async def handle_manage_pv_surplus(self, call: ServiceCall) -> None:
-        """Handle PV surplus management service."""
+        """
+        Handle PV surplus management service.
+
+        Args:
+            call: The service call object.
+
+        Raises:
+            HomeAssistantError: If the action fails.
+        """
         coordinators = await self.manager.get_coordinators_for_entities(
             call.data[ATTR_ENTITY_ID]
         )
@@ -431,7 +534,15 @@ class VioletServiceHandlers:
             await coordinator.async_request_refresh()
 
     async def handle_control_dmx_scenes(self, call: ServiceCall) -> None:
-        """Handle DMX scene control service."""
+        """
+        Handle DMX scene control service.
+
+        Args:
+            call: The service call object.
+
+        Raises:
+            HomeAssistantError: If the action fails or is unsupported.
+        """
         device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
         action = call.data["action"]
         sequence_delay = call.data.get("sequence_delay", 2)
@@ -494,7 +605,15 @@ class VioletServiceHandlers:
             await coordinator.async_request_refresh()
 
     async def handle_set_light_color_pulse(self, call: ServiceCall) -> None:
-        """Handle light color pulse service."""
+        """
+        Handle light color pulse service.
+
+        Args:
+            call: The service call object.
+
+        Raises:
+            HomeAssistantError: If the action fails.
+        """
         coordinators = await self.manager.get_coordinators_for_entities(
             call.data[ATTR_ENTITY_ID]
         )
@@ -532,7 +651,15 @@ class VioletServiceHandlers:
             await coordinator.async_request_refresh()
 
     async def handle_manage_digital_rules(self, call: ServiceCall) -> None:
-        """Handle digital rules management service."""
+        """
+        Handle digital rules management service.
+
+        Args:
+            call: The service call object.
+
+        Raises:
+            HomeAssistantError: If the action fails or is unsupported.
+        """
         device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
         rule_key = call.data["rule_key"]
         action = call.data["action"]
@@ -578,7 +705,15 @@ class VioletServiceHandlers:
             await coordinator.async_request_refresh()
 
     async def handle_test_output(self, call: ServiceCall) -> None:
-        """Handle the output test service."""
+        """
+        Handle the output test service.
+
+        Args:
+            call: The service call object.
+
+        Raises:
+            HomeAssistantError: If the action fails.
+        """
 
         device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
         output = call.data["output"]
@@ -622,7 +757,12 @@ class VioletServiceHandlers:
 
 
 async def async_register_services(hass: HomeAssistant) -> None:
-    """Register all Violet Pool services."""
+    """
+    Register all Violet Pool services.
+
+    Args:
+        hass: The Home Assistant instance.
+    """
     # Check if services already registered
     if hass.services.has_service(DOMAIN, "control_pump"):
         _LOGGER.debug("Services already registered")

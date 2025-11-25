@@ -30,14 +30,21 @@ REFRESH_DELAY = 0.3
 
 
 class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
-    """Switch mit Change-Only Logging & Thread-Safe - LOGGING OPTIMIZED & THREAD-SAFE."""
+    """Switch with change-only logging and thread safety."""
     entity_description: SwitchEntityDescription
 
     def __init__(
         self, coordinator: VioletPoolDataUpdateCoordinator, config_entry: ConfigEntry,
         description: SwitchEntityDescription
     ) -> None:
-        """Initialisiere den Switch mit Logging-Optimierung & Thread-Safety."""
+        """
+        Initialize the switch.
+
+        Args:
+            coordinator: The update coordinator.
+            config_entry: The config entry.
+            description: The switch entity description.
+        """
         super().__init__(coordinator, config_entry, description)
         
         # ✅ LOGGING OPTIMIZATION: State-Change Detection
@@ -52,7 +59,12 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
 
     @property
     def is_on(self) -> bool:
-        """Gibt True zurück, wenn der Switch eingeschaltet ist."""
+        """
+        Return True if the switch is on.
+
+        Returns:
+            True if on, False otherwise.
+        """
         if self.coordinator.data is None:
             return False
         
@@ -60,9 +72,10 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
 
     def _get_switch_state(self) -> bool:
         """
-        State-Abfrage mit Change-Only Logging & optimistischem Cache - SIMPLIFIED.
+        Get the switch state with change-only logging and optimistic cache.
 
-        Uses shared interpret_state_as_bool() from entity.py.
+        Returns:
+            The boolean state of the switch.
         """
         # Prüfe zuerst optimistischen Cache
         if self._optimistic_state is not None:
@@ -93,7 +106,12 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        """Return additional state attributes - MINIMAL LOGGING."""
+        """
+        Return additional state attributes.
+
+        Returns:
+            A dictionary of attributes.
+        """
         if self.coordinator.data is None:
             return {
                 "state_type": "unavailable",
@@ -133,23 +151,33 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         return attributes
 
     async def async_turn_on(self, **kwargs: Any) -> None:
-        """Schalte den Switch ein."""
+        """
+        Turn the switch on.
+
+        Args:
+            **kwargs: Additional arguments.
+        """
         await self._set_switch_state(ACTION_ON, **kwargs)
 
     async def async_turn_off(self, **kwargs: Any) -> None:
-        """Schalte den Switch aus."""
+        """
+        Turn the switch off.
+
+        Args:
+            **kwargs: Additional arguments.
+        """
         await self._set_switch_state(ACTION_OFF, **kwargs)
 
     async def _set_switch_state(self, action: str, **kwargs: Any) -> None:
         """
-        Setze den Switch-Zustand - LOGGING OPTIMIZED & THREAD-SAFE.
-        
-        ✅ LOGGING OPTIMIZATION:
-        - INFO für User-Aktionen (wichtig)
-        - DEBUG nur für interne Details
-        - Konsolidierte Error-Messages
-        
-        ✅ FIXED: Keine coordinator.data Mutation mehr!
+        Set the switch state.
+
+        Args:
+            action: The action to perform (e.g., ACTION_ON, ACTION_OFF).
+            **kwargs: Additional arguments.
+
+        Raises:
+            HomeAssistantError: If the action fails.
         """
         key = self.entity_description.key
         
@@ -217,9 +245,10 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
 
     async def _delayed_refresh(self, key: str) -> None:
         """
-        Verzögerter Refresh - MINIMAL LOGGING & THREAD-SAFE.
-        
-        ✅ FIXED: Resettet optimistischen Cache nach erfolgreichem Refresh.
+        Perform a delayed refresh.
+
+        Args:
+            key: The switch key.
         """
         try:
             await asyncio.sleep(REFRESH_DELAY)
@@ -251,7 +280,13 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             self._optimistic_state = None
 
     def _handle_refresh_error(self, task: asyncio.Task, key: str) -> None:
-        """Handle errors in refresh task - MINIMAL LOGGING."""
+        """
+        Handle errors in the refresh task.
+
+        Args:
+            task: The task object.
+            key: The switch key.
+        """
         try:
             if not task.cancelled():
                 exc = task.exception()
@@ -264,7 +299,15 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             _LOGGER.debug("Error handling refresh task for %s: %s", key, err)
 
     def _validate_speed(self, speed: Any) -> int:
-        """Validiere Speed-Parameter - MINIMAL LOGGING."""
+        """
+        Validate the speed parameter.
+
+        Args:
+            speed: The speed value.
+
+        Returns:
+            The validated speed integer.
+        """
         try:
             speed_int = int(speed)
             if 1 <= speed_int <= 4:
@@ -276,7 +319,15 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             return 2
 
     def _validate_duration(self, duration: Any) -> int:
-        """Validiere Duration-Parameter - MINIMAL LOGGING."""
+        """
+        Validate the duration parameter.
+
+        Args:
+            duration: The duration value.
+
+        Returns:
+            The validated duration integer.
+        """
         try:
             duration_int = int(duration)
             if duration_int >= 0:
@@ -288,8 +339,15 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             return 0
 
     def _validate_pv_rpm(self, rpm: Any | None) -> int:
-        """Validiere den PV-Überschuss RPM Parameter."""
+        """
+        Validate the PV surplus RPM parameter.
 
+        Args:
+            rpm: The RPM value.
+
+        Returns:
+            The validated RPM integer.
+        """
         if rpm is None:
             return 2
         try:
@@ -308,7 +366,14 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
 async def async_setup_entry(
     hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
-    """Richte Switches ein - LOGGING OPTIMIZED."""
+    """
+    Set up switches for the config entry.
+
+    Args:
+        hass: The Home Assistant instance.
+        config_entry: The config entry.
+        async_add_entities: Callback to add entities.
+    """
     coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     active_features = config_entry.options.get(
         CONF_ACTIVE_FEATURES, 

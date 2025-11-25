@@ -46,7 +46,7 @@ BINARY_SENSOR_FEATURE_MAP = {
 
 
 class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
-    """Repräsentation eines Violet Pool Binary Sensors - OPTIMIZED VERSION."""
+    """Representation of a Violet Pool binary sensor."""
     entity_description: BinarySensorEntityDescription
 
     def __init__(
@@ -55,24 +55,41 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
         config_entry: ConfigEntry,
         description: BinarySensorEntityDescription,
     ) -> None:
-        """Initialisiere den Binary Sensor."""
+        """
+        Initialize the binary sensor.
+
+        Args:
+            coordinator: The update coordinator.
+            config_entry: The config entry.
+            description: The binary sensor entity description.
+        """
         super().__init__(coordinator, config_entry, description)
         _LOGGER.debug(
-            "Initialisiere Binary Sensor: %s (unique_id=%s)",
+            "Initializing Binary Sensor: %s (unique_id=%s)",
             self.entity_id,
             self._attr_unique_id,
         )
 
     @property
     def is_on(self) -> bool:
-        """Gibt True zurück, wenn der Sensor eingeschaltet ist."""
+        """
+        Return True if the sensor is on.
+
+        Returns:
+            True if on, False otherwise.
+        """
         state = self._get_sensor_state()
         _LOGGER.debug("Binary Sensor %s state: %s", self.entity_description.key, state)
         return state
 
     @property
     def icon(self) -> str | None:
-        """Gibt das Icon basierend auf dem Zustand zurück."""
+        """
+        Return the icon based on state.
+
+        Returns:
+            The icon string.
+        """
         base_icon = self.entity_description.icon
         
         if not base_icon:
@@ -89,7 +106,12 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
         return base_icon
 
     def _get_sensor_state(self) -> bool:
-        """Rufe den aktuellen Sensorzustand ab - SIMPLIFIED VERSION."""
+        """
+        Get the current sensor state.
+
+        Returns:
+            The boolean state of the sensor.
+        """
         key = self.entity_description.key
         raw_state = self.get_value(key, "")
 
@@ -104,7 +126,12 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        """Return additional state attributes for debugging."""
+        """
+        Return additional state attributes for debugging.
+
+        Returns:
+            A dictionary of attributes.
+        """
         key = self.entity_description.key
         raw_state = self.get_value(key, "")
         
@@ -116,14 +143,20 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
 
 
 class CoverIsClosedBinarySensor(CoordinatorEntity, BinarySensorEntity):
-    """Sensor für den Cover-Geschlossen-Status - OPTIMIZED VERSION."""
+    """Sensor indicating if the cover is closed."""
 
     def __init__(
         self,
         coordinator: VioletPoolDataUpdateCoordinator,
         config_entry: ConfigEntry,
     ) -> None:
-        """Initialisiere den Cover-Geschlossen-Sensor."""
+        """
+        Initialize the cover closed sensor.
+
+        Args:
+            coordinator: The update coordinator.
+            config_entry: The config entry.
+        """
         super().__init__(coordinator)
         self._attr_has_entity_name = True
         self._attr_name = "Cover Geschlossen"
@@ -135,12 +168,22 @@ class CoverIsClosedBinarySensor(CoordinatorEntity, BinarySensorEntity):
 
     @property
     def available(self) -> bool:
-        """Gibt an, ob die Entität verfügbar ist."""
+        """
+        Return whether the entity is available.
+
+        Returns:
+            True if available, False otherwise.
+        """
         return self.coordinator.last_update_success
 
     @property
     def is_on(self) -> bool:
-        """Gibt True zurück, wenn die Abdeckung geschlossen ist."""
+        """
+        Return True if the cover is closed.
+
+        Returns:
+            True if closed, False otherwise.
+        """
         if not self.coordinator.data:
             _LOGGER.debug("Cover-Geschlossen Sensor: Keine Daten verfügbar")
             return False
@@ -155,7 +198,15 @@ class CoverIsClosedBinarySensor(CoordinatorEntity, BinarySensorEntity):
         return self._is_cover_closed(cover_state)
 
     def _is_cover_closed(self, cover_state: Any) -> bool:
-        """Prüfe ob Cover geschlossen ist - mit Konstanten."""
+        """
+        Check if the cover is closed.
+
+        Args:
+            cover_state: The raw cover state.
+
+        Returns:
+            True if closed, False otherwise.
+        """
         if cover_state is None:
             return False
         
@@ -184,12 +235,22 @@ class CoverIsClosedBinarySensor(CoordinatorEntity, BinarySensorEntity):
 
     @property
     def icon(self) -> str:
-        """Return icon based on cover state."""
+        """
+        Return icon based on cover state.
+
+        Returns:
+            The icon string.
+        """
         return "mdi:window-shutter" if self.is_on else "mdi:window-shutter-open"
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        """Return additional state attributes."""
+        """
+        Return additional state attributes.
+
+        Returns:
+            A dictionary of attributes.
+        """
         if not self.coordinator.data:
             return {}
         
@@ -206,7 +267,14 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Richte Binary Sensors für die Config Entry ein - OPTIMIZED VERSION."""
+    """
+    Set up binary sensors for the config entry.
+
+    Args:
+        hass: The Home Assistant instance.
+        config_entry: The config entry.
+        async_add_entities: Callback to add entities.
+    """
     coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][
         config_entry.entry_id
     ]

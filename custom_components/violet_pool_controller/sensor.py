@@ -144,7 +144,7 @@ FLOW_RATE_SENSORS = {
 
 
 class VioletSensor(VioletPoolControllerEntity, SensorEntity):
-    """Repräsentation eines Sensors."""
+    """Representation of a Violet Pool sensor."""
 
     entity_description: SensorEntityDescription
 
@@ -154,12 +154,19 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
         config_entry: ConfigEntry,
         description: SensorEntityDescription
     ) -> None:
-        """Initialisiere Sensor."""
+        """
+        Initialize the sensor.
+
+        Args:
+            coordinator: The update coordinator.
+            config_entry: The config entry.
+            description: The sensor entity description.
+        """
         super().__init__(coordinator, config_entry, description)
         self._logger = logging.getLogger(f"{DOMAIN}.sensor.{description.key}")
 
         _LOGGER.debug(
-            "Sensor initialisiert: %s (Key: %s, Klasse: %s)",
+            "Sensor initialized: %s (Key: %s, Class: %s)",
             description.name,
             description.key,
             description.device_class
@@ -168,11 +175,15 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
     @property
     def native_value(self) -> str | int | float | datetime | None:
         """
-        Gibt nativen Wert zurück.
-        Wandelt Werte je nach Sensor-Typ um:
-        - Timestamps → datetime Objekte
-        - Text/Runtime → Strings
-        - Numeric → float/int
+        Return the native value of the sensor.
+
+        Converts values based on sensor type:
+        - Timestamps -> datetime objects
+        - Text/Runtime -> Strings
+        - Numeric -> float/int
+
+        Returns:
+            The native value or None.
         """
         key = self.entity_description.key
         raw_value = self.coordinator.data.get(key)
@@ -207,10 +218,16 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
 
 
 class VioletStatusSensor(VioletSensor):
-    """Sensor for Status values using VioletState (e.g. Pump Auto/Manual)."""
+    """Sensor for status values using VioletState (e.g. Pump Auto/Manual)."""
 
     @property
     def native_value(self) -> str | None:
+        """
+        Return the native value for the status sensor.
+
+        Returns:
+            The display string for the status.
+        """
         key = self.entity_description.key
         raw_value = self.coordinator.data.get(key)
         if raw_value is None:
@@ -222,6 +239,12 @@ class VioletStatusSensor(VioletSensor):
 
     @property
     def icon(self) -> str:
+        """
+        Return the icon for the status sensor.
+
+        Returns:
+            The icon string.
+        """
         key = self.entity_description.key
         raw_value = self.coordinator.data.get(key)
         if raw_value is None:
@@ -231,7 +254,7 @@ class VioletStatusSensor(VioletSensor):
 
 
 class VioletErrorCodeSensor(VioletSensor):
-    """Specialised sensor that resolves error codes to descriptive text."""
+    """Specialized sensor that resolves error codes to descriptive text."""
 
     def __init__(
         self,
@@ -239,9 +262,17 @@ class VioletErrorCodeSensor(VioletSensor):
         config_entry: ConfigEntry,
         value_key: str,
     ) -> None:
+        """
+        Initialize the error code sensor.
+
+        Args:
+            coordinator: The update coordinator.
+            config_entry: The config entry.
+            value_key: The key containing the error code.
+        """
         description = SensorEntityDescription(
             key=value_key,
-            name="Letzter Fehlercode",
+            name="Last Error Code",
             icon="mdi:alert-circle",
             entity_category=EntityCategory.DIAGNOSTIC,
         )
@@ -249,6 +280,7 @@ class VioletErrorCodeSensor(VioletSensor):
         self._value_key = value_key
 
     def _get_error_code(self) -> str | None:
+        """Get the raw error code."""
         value = self.get_value(self._value_key)
         if value is None:
             return None
@@ -257,6 +289,12 @@ class VioletErrorCodeSensor(VioletSensor):
 
     @property
     def native_value(self) -> str | None:
+        """
+        Return the error code description.
+
+        Returns:
+            The error code subject or None.
+        """
         code = self._get_error_code()
         if code is None:
             return None
@@ -264,6 +302,12 @@ class VioletErrorCodeSensor(VioletSensor):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
+        """
+        Return additional attributes for the error code.
+
+        Returns:
+            A dictionary of attributes.
+        """
         code = self._get_error_code()
         if code is None:
             return {}
@@ -277,17 +321,23 @@ class VioletErrorCodeSensor(VioletSensor):
 
 
 class VioletFlowRateSensor(VioletPoolControllerEntity, SensorEntity):
-    """Spezieller Förderleistungs-Sensor mit ADC3/IMP2 Priorität."""
+    """Special flow rate sensor prioritizing ADC3 over IMP2."""
 
     def __init__(
         self,
         coordinator: VioletPoolDataUpdateCoordinator,
         config_entry: ConfigEntry
     ) -> None:
-        """Initialisiere Förderleistungs-Sensor."""
+        """
+        Initialize the flow rate sensor.
+
+        Args:
+            coordinator: The update coordinator.
+            config_entry: The config entry.
+        """
         description = SensorEntityDescription(
             key="flow_rate_adc3_priority",
-            name="Förderleistung",
+            name="Flow Rate",
             icon="mdi:pump",
             native_unit_of_measurement="m³/h",
             device_class=SensorDeviceClass.VOLUME_FLOW_RATE,
@@ -297,7 +347,14 @@ class VioletFlowRateSensor(VioletPoolControllerEntity, SensorEntity):
 
     @property
     def native_value(self) -> float | None:
-        """Priorisiert ADC3_value über IMP2_value."""
+        """
+        Return the flow rate value.
+
+        Prioritizes ADC3_value over IMP2_value.
+
+        Returns:
+            The flow rate value or None.
+        """
         adc3_value = self.coordinator.data.get("ADC3_value")
         if adc3_value is not None:
             try:
@@ -315,7 +372,12 @@ class VioletFlowRateSensor(VioletPoolControllerEntity, SensorEntity):
 
     @property
     def extra_state_attributes(self) -> dict[str, str]:
-        """Zusätzliche Attribute für Debugging."""
+        """
+        Return additional attributes for debugging.
+
+        Returns:
+            A dictionary of debug attributes.
+        """
         adc3 = self.coordinator.data.get("ADC3_value")
         imp2 = self.coordinator.data.get("IMP2_value")
         source = "ADC3" if adc3 is not None else "IMP2" if imp2 is not None else "None"
@@ -327,7 +389,14 @@ class VioletFlowRateSensor(VioletPoolControllerEntity, SensorEntity):
 
     @property
     def available(self) -> bool:
-        """Sensor ist verfügbar wenn eine Quelle verfügbar ist."""
+        """
+        Check if the sensor is available.
+
+        Available if a source is available.
+
+        Returns:
+            True if available, False otherwise.
+        """
         return super().available and (
             self.coordinator.data.get("ADC3_value") is not None or
             self.coordinator.data.get("IMP2_value") is not None
@@ -342,7 +411,17 @@ def _is_boolean_value(value: Any) -> bool:
 
 
 def determine_device_class(key: str, unit: str | None, raw_value=None) -> SensorDeviceClass | None:
-    """Bestimmt Device-Klasse."""
+    """
+    Determine the device class for a sensor.
+
+    Args:
+        key: The sensor key.
+        unit: The unit of measurement.
+        raw_value: The raw value.
+
+    Returns:
+        The device class or None.
+    """
     if key in BOOLEAN_VALUE_SENSORS or (raw_value is not None and _is_boolean_value(raw_value)):
         return None
     if key == "pH_value":
@@ -370,7 +449,17 @@ def determine_device_class(key: str, unit: str | None, raw_value=None) -> Sensor
 
 
 def determine_state_class(key: str, unit: str | None, raw_value=None) -> SensorStateClass | None:
-    """Bestimmt State-Klasse."""
+    """
+    Determine the state class for a sensor.
+
+    Args:
+        key: The sensor key.
+        unit: The unit of measurement.
+        raw_value: The raw value.
+
+    Returns:
+        The state class or None.
+    """
     if key in BOOLEAN_VALUE_SENSORS or (raw_value is not None and _is_boolean_value(raw_value)):
         return None
     if any(k in key for k in TEXT_VALUE_SENSORS | _TIMESTAMP_KEYS | NO_UNIT_SENSORS | RUNTIME_SENSORS):
@@ -383,7 +472,17 @@ def determine_state_class(key: str, unit: str | None, raw_value=None) -> SensorS
 
 
 def get_icon(unit: str | None, key: str, raw_value=None) -> str:
-    """Bestimmt Icon."""
+    """
+    Determine the icon for a sensor.
+
+    Args:
+        unit: The unit of measurement.
+        key: The sensor key.
+        raw_value: The raw value.
+
+    Returns:
+        The icon string.
+    """
     is_bool = raw_value is not None and _is_boolean_value(raw_value)
     if key in BOOLEAN_VALUE_SENSORS or is_bool:
         return "mdi:toggle-switch"
@@ -403,7 +502,16 @@ def get_icon(unit: str | None, key: str, raw_value=None) -> str:
 
 
 def should_skip_sensor(key: str, raw_value) -> bool:
-    """Prüft, ob Sensor übersprungen werden soll."""
+    """
+    Check if a sensor should be skipped.
+
+    Args:
+        key: The sensor key.
+        raw_value: The raw value.
+
+    Returns:
+        True if the sensor should be skipped, False otherwise.
+    """
     if raw_value is None:
         return True
     raw_str = str(raw_value).strip()
@@ -424,7 +532,14 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback
 ) -> None:
-    """Richtet Sensoren basierend auf der Konfiguration ein."""
+    """
+    Set up sensors based on configuration.
+
+    Args:
+        hass: The Home Assistant instance.
+        config_entry: The config entry.
+        async_add_entities: Callback to add entities.
+    """
     coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
 
     # Hole Konfiguration aus Options (primär) oder Data (Fallback)

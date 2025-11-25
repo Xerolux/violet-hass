@@ -102,14 +102,22 @@ MENU_ACTION_HELP = "open_help"
 
 
 def validate_ip_address(ip: str) -> bool:
-    """Validiere IP-Adresse oder Hostname."""
+    """
+    Validate IP address or hostname.
+
+    Args:
+        ip: The IP address or hostname to validate.
+
+    Returns:
+        True if valid, False otherwise.
+    """
     if not ip:
         return False
     try:
         ipaddress.ip_address(ip)
         return True
     except ValueError:
-        # Erlaube Hostnamen (Buchstaben, Zahlen, Punkte, Bindestriche)
+        # Allow hostnames (letters, numbers, dots, dashes)
         return bool(re.match(r"^[a-zA-Z0-9\-\.]+$", ip))
 
 
@@ -117,7 +125,23 @@ async def fetch_api_data(
     session: aiohttp.ClientSession, api_url: str, auth: aiohttp.BasicAuth | None,
     use_ssl: bool, timeout: int, retries: int,
 ) -> dict[str, Any]:
-    """API-Daten mit Retry-Logik abrufen."""
+    """
+    Fetch API data with retry logic.
+
+    Args:
+        session: The aiohttp client session.
+        api_url: The API URL.
+        auth: The authentication object.
+        use_ssl: Whether to use SSL.
+        timeout: The timeout in seconds.
+        retries: The number of retries.
+
+    Returns:
+        A dictionary containing the API data.
+
+    Raises:
+        ValueError: If the API request fails.
+    """
     for attempt in range(retries):
         try:
             timeout_obj = aiohttp.ClientTimeout(total=timeout)
@@ -140,7 +164,16 @@ async def get_grouped_sensors(
     hass: HomeAssistant,
     config_data: dict[str, Any],
 ) -> dict[str, list[str]]:
-    """Ruft Sensoren ab und gruppiert sie - Shared helper function."""
+    """
+    Fetch sensors and group them.
+
+    Args:
+        hass: The Home Assistant instance.
+        config_data: The configuration data.
+
+    Returns:
+        A dictionary mapping groups to lists of sensor keys.
+    """
     try:
         protocol = "https" if config_data[CONF_USE_SSL] else "http"
         api_url = f"{protocol}://{config_data[CONF_API_URL]}{API_READINGS}?ALL"
@@ -191,7 +224,15 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return VioletOptionsFlowHandler()
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
-        """Schritt 1: User-initiierter Setup-Start."""
+        """
+        Handle the user-initiated setup start step.
+
+        Args:
+            user_input: The user input dictionary.
+
+        Returns:
+            The flow result.
+        """
         if user_input:
             action = user_input.get("action", MENU_ACTION_START)
             if action == MENU_ACTION_HELP:
@@ -205,7 +246,15 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_disclaimer(self, user_input: dict[str, Any] | None = None) -> FlowResult:
-        """⚠️ Disclaimer und Nutzungsbedingungen."""
+        """
+        Handle the disclaimer and terms of use step.
+
+        Args:
+            user_input: The user input dictionary.
+
+        Returns:
+            The flow result.
+        """
         if user_input and user_input.get("agreement"):
             return await self.async_step_connection()
         if user_input is not None:
@@ -221,7 +270,15 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_help(self, user_input: dict[str, Any] | None = None) -> FlowResult:
-        """📘 Zusätzliche Hilfe anzeigen."""
+        """
+        Display additional help.
+
+        Args:
+            user_input: The user input dictionary.
+
+        Returns:
+            The flow result.
+        """
         if user_input is not None:
             return await self.async_step_user()
 
@@ -232,7 +289,15 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_connection(self, user_input: dict[str, Any] | None = None) -> FlowResult:
-        """🌐 Schritt 2: Controller-Verbindung."""
+        """
+        Handle the controller connection step.
+
+        Args:
+            user_input: The user input dictionary.
+
+        Returns:
+            The flow result.
+        """
         errors = {}
         if user_input:
             if self._is_duplicate_entry(
@@ -258,7 +323,15 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_pool_setup(self, user_input: dict[str, Any] | None = None) -> FlowResult:
-        """🏊 Schritt 3: Pool-Konfiguration."""
+        """
+        Handle the pool configuration step.
+
+        Args:
+            user_input: The user input dictionary.
+
+        Returns:
+            The flow result.
+        """
         if user_input:
             self._config_data.update({
                 CONF_POOL_SIZE: float(user_input[CONF_POOL_SIZE]),
@@ -272,7 +345,15 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_feature_selection(self, user_input: dict[str, Any] | None = None) -> FlowResult:
-        """⚙️ Schritt 4: Feature-Auswahl."""
+        """
+        Handle the feature selection step.
+
+        Args:
+            user_input: The user input dictionary.
+
+        Returns:
+            The flow result.
+        """
         if user_input:
             self._config_data[CONF_ACTIVE_FEATURES] = self._extract_active_features(user_input)
             
@@ -293,7 +374,15 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
         
     async def async_step_sensor_selection(self, user_input: dict[str, Any] | None = None) -> FlowResult:
-        """📊 Schritt 5: Dynamische Sensor-Auswahl."""
+        """
+        Handle the dynamic sensor selection step.
+
+        Args:
+            user_input: The user input dictionary.
+
+        Returns:
+            The flow result.
+        """
         if user_input:
             selected_sensors = []
             for key, value in user_input.items():
@@ -327,17 +416,17 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     def _is_duplicate_entry(self, ip: str, device_id: int = 1) -> bool:
         """
-        Prüfe ob IP + Device-ID Kombination bereits existiert.
+        Check if the IP + Device ID combination already exists.
 
-        ✅ MULTI-CONTROLLER FIX: Erlaubt mehrere Controller mit gleicher IP
-        aber unterschiedlichen Device-IDs (z.B. auf verschiedenen Ports).
+        ✅ MULTI-CONTROLLER FIX: Allows multiple controllers with the same IP
+        but different Device IDs (e.g., on different ports).
 
         Args:
-            ip: IP-Adresse des Controllers
-            device_id: Device-ID (Standard: 1)
+            ip: Controller IP address.
+            device_id: Device ID (default: 1).
 
         Returns:
-            True wenn exakt diese Kombination bereits konfiguriert ist
+            True if this combination is already configured, False otherwise.
         """
         return any(
             entry.data.get(CONF_API_URL) == ip and
@@ -346,6 +435,15 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     def _build_config_data(self, ui: dict) -> dict:
+        """
+        Build the configuration data dictionary.
+
+        Args:
+            ui: The user input dictionary.
+
+        Returns:
+            The configuration data dictionary.
+        """
         return {
             CONF_API_URL: ui[CONF_API_URL],
             CONF_USE_SSL: ui.get(CONF_USE_SSL, DEFAULT_USE_SSL),
@@ -360,6 +458,12 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         }
 
     async def _test_connection(self) -> bool:
+        """
+        Test the connection to the controller.
+
+        Returns:
+            True if successful, False otherwise.
+        """
         try:
             protocol = "https" if self._config_data[CONF_USE_SSL] else "http"
             api_url = f"{protocol}://{self._config_data[CONF_API_URL]}{API_READINGS}?ALL"
@@ -381,18 +485,44 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return False
             
     async def _get_grouped_sensors(self) -> dict[str, list[str]]:
-        """Ruft Sensoren ab und gruppiert sie."""
+        """
+        Fetch and group sensors.
+
+        Returns:
+            A dictionary mapping groups to lists of sensor keys.
+        """
         return await get_grouped_sensors(self.hass, self._config_data)
 
     def _extract_active_features(self, ui: dict) -> list:
+        """
+        Extract active features from user input.
+
+        Args:
+            ui: The user input dictionary.
+
+        Returns:
+            A list of active feature IDs.
+        """
         return [f['id'] for f in AVAILABLE_FEATURES if ui.get(f"enable_{f['id']}", f["default"])]
 
     def _generate_entry_title(self) -> str:
+        """
+        Generate the title for the config entry.
+
+        Returns:
+            The config entry title.
+        """
         controller_name = self._config_data.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME)
         pool_size = self._config_data.get(CONF_POOL_SIZE)
         return f"{controller_name} • {pool_size}m³"
 
     def _get_disclaimer_text(self) -> str:
+        """
+        Get the disclaimer text.
+
+        Returns:
+            The disclaimer text.
+        """
         template = (
             "⚠️ **Sicherheitswarnung / Safety Warning**\n\n"
             "**DE:** Diese Integration kann Pumpen, Heizungen, Beleuchtung und "
@@ -410,6 +540,12 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return template.format(**self._get_help_links())
 
     def _get_help_links(self) -> dict[str, str]:
+        """
+        Get helper links.
+
+        Returns:
+            A dictionary of help links.
+        """
         return {
             "docs_de": HELP_DOC_DE_URL,
             "docs_en": HELP_DOC_EN_URL,
@@ -418,6 +554,12 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         }
 
     def _get_main_menu_schema(self) -> vol.Schema:
+        """
+        Get the main menu schema.
+
+        Returns:
+            The voluptuous schema.
+        """
         return vol.Schema(
             {
                 vol.Required("action", default=MENU_ACTION_START): selector.SelectSelector(
@@ -438,6 +580,12 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     def _get_connection_schema(self) -> vol.Schema:
+        """
+        Get the connection schema.
+
+        Returns:
+            The voluptuous schema.
+        """
         return vol.Schema({
             vol.Required(CONF_API_URL, default="192.168.178.55"): str,
             vol.Optional(CONF_USERNAME): str,
@@ -458,6 +606,12 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         })
 
     def _get_pool_setup_schema(self) -> vol.Schema:
+        """
+        Get the pool setup schema.
+
+        Returns:
+            The voluptuous schema.
+        """
         return vol.Schema({
             vol.Required(CONF_POOL_SIZE, default=DEFAULT_POOL_SIZE): vol.All(
                 vol.Coerce(float), vol.Range(min=0.1, max=1000.0)
@@ -471,12 +625,23 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         })
 
     def _get_feature_selection_schema(self) -> vol.Schema:
+        """
+        Get the feature selection schema.
+
+        Returns:
+            The voluptuous schema.
+        """
         return vol.Schema({
             vol.Optional(f"enable_{f['id']}", default=f["default"]): bool for f in AVAILABLE_FEATURES
         })
         
     def _get_sensor_selection_schema(self) -> vol.Schema:
-        """Erstellt das Schema für die Sensor-Auswahl."""
+        """
+        Create the sensor selection schema.
+
+        Returns:
+            The voluptuous schema.
+        """
         schema = {}
         for group, sensors in self._sensor_data.items():
             # Verwende selector.SelectSelector mit multiple=True für Mehrfachauswahl
@@ -503,7 +668,15 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         return {**self.config_entry.data, **self.config_entry.options}
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
-        """Erweiterte Einstellungen und Sensor-Auswahl."""
+        """
+        Handle the advanced settings and sensor selection step.
+
+        Args:
+            user_input: The user input dictionary.
+
+        Returns:
+            The flow result.
+        """
         if user_input is not None:
             # Trenne Sensor-Auswahl von anderen Optionen
             selected_sensors = []
@@ -536,11 +709,21 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         )
 
     async def _get_grouped_sensors(self) -> dict[str, list[str]]:
-        """Ruft Sensoren für den Options-Flow ab."""
+        """
+        Fetch sensors for the options flow.
+
+        Returns:
+            A dictionary mapping groups to lists of sensor keys.
+        """
         return await get_grouped_sensors(self.hass, self.current_config)
 
     def _get_options_schema(self) -> vol.Schema:
-        """Schema für Options Flow."""
+        """
+        Get the schema for the options flow.
+
+        Returns:
+            The voluptuous schema.
+        """
         # Allgemeine Optionen inkl. Controller-Name
         schema = {
             vol.Optional(

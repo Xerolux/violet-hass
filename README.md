@@ -370,6 +370,29 @@ Beiträge sind herzlich willkommen! Ob Bug-Fixes, neue Features, Dokumentation o
 
 Siehe [CONTRIBUTING.md](CONTRIBUTING.md) für Details.
 
+### 🛠️ Entwicklungsumgebung einrichten
+
+1. **Repository klonen:**
+   ```bash
+   git clone https://github.com/xerolux/violet-hass.git
+   cd violet-hass
+   ```
+
+2. **Dev Container nutzen (Empfohlen):**
+   Das Projekt enthält eine `.devcontainer` Konfiguration für VS Code. Einfach das Projekt im Container öffnen, und alle Abhängigkeiten werden automatisch installiert.
+
+3. **Manuelle Einrichtung:**
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements-dev.txt
+   ```
+
+4. **Tests ausführen:**
+   ```bash
+   pytest
+   ```
+
 ---
 
 ## 📋 Changelog
