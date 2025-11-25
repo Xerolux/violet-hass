@@ -629,7 +629,10 @@ class VioletPoolAPI:
         results = []
         for scene in range(1, 13):
             key = f"DMX_SCENE{scene}"
-            results.append(await self.set_switch_state(key, action))
+            try:
+                results.append(await self.set_switch_state(key, action))
+            except VioletPoolAPIError as e:
+                results.append({"success": False, "response": str(e)})
 
         success = all(result.get("success", True) for result in results)
         response = ", ".join(result.get("response", "") for result in results if result.get("response"))
