@@ -20,7 +20,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class VioletNumber(VioletPoolControllerEntity, NumberEntity):
-    """Repräsentation einer Violet Pool Number-Entity (Sollwert)."""
+    """Representation of a Violet Pool number entity (setpoint)."""
 
     entity_description: NumberEntityDescription
 
@@ -32,13 +32,13 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
         setpoint_config: dict
     ) -> None:
         """
-        Initialisiere die Number-Entity.
+        Initialize the number entity.
 
         Args:
-            coordinator: Update Coordinator
-            config_entry: Config Entry
-            description: Entity Description
-            setpoint_config: Sollwert-Konfiguration
+            coordinator: The update coordinator.
+            config_entry: The config entry.
+            description: The entity description.
+            setpoint_config: The setpoint configuration.
         """
         super().__init__(coordinator, config_entry, description)
 
@@ -68,13 +68,13 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
     @property
     def native_value(self) -> float | None:
         """
-        Gibt den aktuellen Sollwert zurück.
+        Return the current setpoint value.
 
-        Versucht den Wert aus verschiedenen möglichen Feldern zu lesen.
-        Falls kein Wert gefunden wird, wird der Standardwert zurückgegeben.
+        Tries to read the value from various possible fields.
+        If no value is found, returns the default value.
 
         Returns:
-            Aktueller Sollwert oder default_value
+            The current setpoint or default value.
         """
         # ✅ FIXED: Prüfe zuerst optimistischen Cache
         if self._optimistic_value is not None:
@@ -104,13 +104,13 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
     @property
     def available(self) -> bool:
         """
-        Prüft ob die Entity verfügbar ist.
+        Check if the entity is available.
         
-        Entity ist verfügbar wenn mindestens ein Indikator-Feld
-        in den Coordinator-Daten vorhanden ist.
+        Entity is available if at least one indicator field
+        is present in the coordinator data.
         
         Returns:
-            True wenn verfügbar
+            True if available, False otherwise.
         """
         # Prüfe ob Indikator-Felder verfügbar sind
         if self._indicator_fields:
@@ -132,15 +132,15 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """
-        Setzt einen neuen Sollwert - WITH INPUT SANITIZATION.
+        Set a new setpoint value.
 
-        Verwendet die entsprechende API-Methode basierend auf dem Sollwert-Typ.
+        Uses the corresponding API method based on the setpoint type.
 
         Args:
-            value: Neuer Sollwert
+            value: The new setpoint value.
 
         Raises:
-            HomeAssistantError: Bei API-Fehlern
+            HomeAssistantError: If the API call fails.
         """
         if not self._api_key:
             _LOGGER.error(
@@ -280,16 +280,15 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback
 ) -> None:
     """
-    Richtet Number-Entities für die Config Entry ein.
+    Set up number entities for the config entry.
     
-    Erstellt Number-Entities für alle konfigurierten Sollwerte,
-    die in den aktiven Features enthalten sind und deren
-    Indikator-Felder verfügbar sind.
+    Creates number entities for all configured setpoints that are
+    included in the active features and whose indicator fields are available.
     
     Args:
-        hass: Home Assistant Instanz
-        config_entry: Config Entry
-        async_add_entities: Callback zum Hinzufügen von Entities
+        hass: The Home Assistant instance.
+        config_entry: The config entry.
+        async_add_entities: Callback to add entities.
     """
     coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     

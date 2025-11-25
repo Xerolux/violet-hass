@@ -37,7 +37,16 @@ CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 # =============================================================================
 
 async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
-    """Migrate old config entry."""
+    """
+    Migrate old config entry.
+
+    Args:
+        hass: The Home Assistant instance.
+        config_entry: The config entry to migrate.
+
+    Returns:
+        True if migration was successful, False otherwise.
+    """
     _LOGGER.debug("Migrating config entry from version %s", config_entry.version)
     
     if config_entry.version == 1:
@@ -51,7 +60,16 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) ->
 
 
 async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
-    """Set up integration via YAML (deprecated)."""
+    """
+    Set up integration via YAML (deprecated).
+
+    Args:
+        hass: The Home Assistant instance.
+        config: The configuration dictionary.
+
+    Returns:
+        True.
+    """
     if DOMAIN in config:
         _LOGGER.warning(
             "YAML configuration for %s is deprecated and will be removed in a future version. "
@@ -66,7 +84,20 @@ async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Violet Pool Controller from a config entry - IMPROVED VERSION."""
+    """
+    Set up Violet Pool Controller from a config entry.
+
+    Args:
+        hass: The Home Assistant instance.
+        entry: The config entry.
+
+    Returns:
+        True if setup was successful.
+
+    Raises:
+        ConfigEntryNotReady: If the controller is not ready.
+        HomeAssistantError: If the configuration is invalid.
+    """
     _LOGGER.info(
         "Setting up Violet Pool Controller (entry_id=%s, controller=%s)",
         entry.entry_id,
@@ -139,7 +170,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload a config entry - IMPROVED VERSION."""
+    """
+    Unload a config entry.
+
+    Args:
+        hass: The Home Assistant instance.
+        entry: The config entry to unload.
+
+    Returns:
+        True if unload was successful, False otherwise.
+    """
     device_name = entry.data.get(CONF_DEVICE_NAME, "Unknown")
     _LOGGER.info("Unloading '%s' (entry_id=%s)", device_name, entry.entry_id)
     
@@ -174,7 +214,18 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 # =============================================================================
 
 def _extract_config(entry: ConfigEntry) -> dict[str, Any]:
-    """Extract configuration from config entry - NEW."""
+    """
+    Extract configuration from config entry.
+
+    Args:
+        entry: The config entry.
+
+    Returns:
+        A dictionary containing the extracted configuration.
+
+    Raises:
+        HomeAssistantError: If no IP address is found.
+    """
     # IP-Adresse mit Fallbacks extrahieren
     ip_address = (
         entry.data.get(CONF_API_URL) or
@@ -213,7 +264,15 @@ def _extract_config(entry: ConfigEntry) -> dict[str, Any]:
 
 
 def _validate_config(config: dict[str, Any]) -> bool:
-    """Validate extracted configuration - NEW."""
+    """
+    Validate extracted configuration.
+
+    Args:
+        config: The configuration dictionary.
+
+    Returns:
+        True if valid, False otherwise.
+    """
     required_keys = ["ip_address", "device_name"]
     
     for key in required_keys:

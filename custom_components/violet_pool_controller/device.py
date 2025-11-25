@@ -95,9 +95,12 @@ class VioletPoolControllerDevice:
 
     def _should_log_failure(self) -> bool:
         """
-        Prüfe ob Failure geloggt werden soll (Throttling).
-        
-        ✅ LOGGING OPTIMIZATION: Verhindert Log-Spam bei anhaltenden Problemen.
+        Check if failure should be logged (throttling).
+
+        ✅ LOGGING OPTIMIZATION: Prevents log spam for persistent issues.
+
+        Returns:
+            True if failure should be logged, False otherwise.
         """
         now = time.time()
         
@@ -383,14 +386,14 @@ class VioletPoolControllerDevice:
 
     async def _attempt_recovery(self) -> bool:
         """
-        Versuche automatische Wiederherstellung der Verbindung.
+        Attempt automatic connection recovery.
 
         ✅ RECOVERY OPTIMIZATION:
-        - Exponential Backoff für Recovery-Versuche
-        - Thread-safe mit asyncio.Lock (Race Condition Fix)
+        - Exponential backoff for recovery attempts.
+        - Thread-safe with asyncio.Lock (Race Condition Fix).
 
         Returns:
-            True wenn Recovery erfolgreich, False sonst
+            True if recovery was successful, False otherwise.
         """
         # ✅ RACE CONDITION FIX: Atomic check-and-set mit Lock
         async with self._recovery_lock:
@@ -454,9 +457,9 @@ class VioletPoolControllerDevice:
 
     async def _start_recovery_background_task(self) -> None:
         """
-        Starte Recovery im Hintergrund.
+        Start recovery in the background.
 
-        ✅ RECOVERY OPTIMIZATION: Verhindert Blockierung des normalen Updates.
+        ✅ RECOVERY OPTIMIZATION: Prevents blocking normal updates.
         """
         if self._recovery_task and not self._recovery_task.done():
             _LOGGER.debug("Recovery-Task läuft bereits")
@@ -497,7 +500,18 @@ class VioletPoolControllerDevice:
         )
 
     def _extract_api_url(self, entry_data: dict) -> str:
-        """Extrahiert die API-URL aus den Config-Daten."""
+        """
+        Extract the API URL from config data.
+
+        Args:
+            entry_data: The configuration data dictionary.
+
+        Returns:
+            The API URL.
+
+        Raises:
+            ValueError: If no API URL is found.
+        """
         url = (
             entry_data.get(CONF_API_URL) or
             entry_data.get("host") or
@@ -537,11 +551,17 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
 
     async def _async_update_data(self) -> dict[str, Any]:
         """
-        Aktualisiere die Daten vom Device.
-        
-        ✅ LOGGING OPTIMIZATION: 
-        - Fehler werden bereits im Device smart geloggt
-        - Hier nur minimal loggen
+        Update data from the device.
+
+        ✅ LOGGING OPTIMIZATION:
+        - Errors are already smartly logged in the device.
+        - Minimal logging here.
+
+        Returns:
+            A dictionary containing the updated data.
+
+        Raises:
+            UpdateFailed: If the update fails.
         """
         try:
             return await self.device.async_update()
