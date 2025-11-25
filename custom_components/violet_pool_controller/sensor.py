@@ -1,150 +1,185 @@
-"""Sensor Integration für den Violet Pool Controller."""
+"""Sensor integration for the Violet Pool Controller.
+
+This module defines the sensor entities for the integration, including
+generic sensors, status sensors, and specialized sensors for error codes and
+flow rates. It also handles the logic for creating and configuring these
+sensors based on the user's settings.
+"""
+
 import logging
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from homeassistant.components.sensor import (
-    SensorEntity,
     SensorDeviceClass,
+    SensorEntity,
+    SensorEntityDescription,
     SensorStateClass,
-    SensorEntityDescription
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import EntityCategory
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import (
-    DOMAIN,
-    TEMP_SENSORS,
-    WATER_CHEM_SENSORS,
     ANALOG_SENSORS,
-    STATUS_SENSORS,
     CONF_ACTIVE_FEATURES,
-    CONF_SELECTED_SENSORS,  # WICHTIG: Neuer Import für die Sensor-Auswahl
-    UNIT_MAP,
+    CONF_SELECTED_SENSORS,
+    DOMAIN,
     NO_UNIT_SENSORS,
     SENSOR_FEATURE_MAP,
-    VioletState
+    STATUS_SENSORS,
+    TEMP_SENSORS,
+    UNIT_MAP,
+    WATER_CHEM_SENSORS,
+    VioletState,
 )
-from .error_codes import get_error_info
-from .entity import VioletPoolControllerEntity
 from .device import VioletPoolDataUpdateCoordinator
+from .entity import VioletPoolControllerEntity
+from .error_codes import get_error_info
 
 _LOGGER = logging.getLogger(__name__)
 
-# Timestamp detection
+# --- Sensor Categorization ---
+
 _TIMESTAMP_SUFFIXES = (
-    "_LAST_ON", "_LAST_OFF", "_LAST_AUTO_RUN", "_LAST_MANUAL_RUN",
-    "_LAST_CAN_RESET", "_TIMESTAMP"
+    "_LAST_ON",
+    "_LAST_OFF",
+    "_LAST_AUTO_RUN",
+    "_LAST_MANUAL_RUN",
+    "_LAST_CAN_RESET",
+    "_TIMESTAMP",
 )
-_TIMESTAMP_KEYS = {
-    "CURRENT_TIME_UNIX"
-} | {
-    key for key in UNIT_MAP
+_TIMESTAMP_KEYS = {"CURRENT_TIME_UNIX"} | {
+    key
+    for key in UNIT_MAP
     if any(key.upper().endswith(suffix) for suffix in _TIMESTAMP_SUFFIXES)
 }
 
-# Text value sensors that should remain as strings
-TEXT_VALUE_SENSORS = {
-    "DOS_1_CL_STATE", "DOS_4_PHM_STATE", "DOS_5_PHP_STATE",
-    "HEATERSTATE", "SOLARSTATE", "PUMPSTATE",
-    "BACKWASHSTATE", "OMNI_STATE", "BACKWASH_OMNI_STATE",
-    "SOLAR_STATE", "HEATER_STATE", "PUMP_STATE",
-    "FILTER_STATE", "OMNI_MODE", "FILTER_MODE", "SOLAR_MODE",
-    "HEATER_MODE", "DISPLAY_MODE",
-    "OPERATING_MODE", "MAINTENANCE_MODE", "ERROR_CODE",
-    "LAST_ERROR", "VERSION_CODE", "CHECKSUM",
-    "RULE_RESULT", "LAST_MOVING_DIRECTION", "COVER_DIRECTION",
-    "SW_VERSION", "SW_VERSION_CARRIER",
-    "HW_VERSION_CARRIER", "FW", "fw", "VERSION", "VERSION_INFO",
-    "HARDWARE_VERSION", "CPU_GOV",
-    "HW_SERIAL_CARRIER", "SERIAL_NUMBER", "MAC_ADDRESS", "IP_ADDRESS",
-    "DOS_1_CL_REMAINING_RANGE", "DOS_4_PHM_REMAINING_RANGE",
-    "DOS_5_PHP_REMAINING_RANGE",
-    "DOS_6_FLOC_REMAINING_RANGE", "BACKWASH_OMNI_MOVING",
-    "BACKWASH_DELAY_RUNNING",
-    "BACKWASH_STATE", "REFILL_STATE", "BATHING_AI_SURVEILLANCE_STATE",
-    "BATHING_AI_PUMP_STATE",
-    "OVERFLOW_REFILL_STATE", "OVERFLOW_DRYRUN_STATE",
+_BOOLEAN_VALUE_KEYS = {
+    "OVERFLOW_REFILL_STATE",
+    "OVERFLOW_DRYRUN_STATE",
     "OVERFLOW_OVERFILL_STATE",
-    "time", "TIME", "CURRENT_TIME",
-    # ✅ Neue System-Status-Sensoren
-    "LOAD_AVG", "pump_rs485_pwr",
-    "SYSTEM_carrier_alive_count", "SYSTEM_carrier_alive_faultcount",
-    "SYSTEM_dosagemodule_alive_count", "SYSTEM_dosagemodule_alive_faultcount",
-    "SYSTEM_ext1module_alive_count", "SYSTEM_ext1module_alive_faultcount",
+    "BACKWASH_OMNI_MOVING",
+    "BACKWASH_DELAY_RUNNING",
+    "BATHING_AI_SURVEILLANCE_STATE",
+    "BATHING_AI_PUMP_STATE",
+} | {f"onewire{i}_state" for i in range(1, 13)}
+
+_RUNTIME_KEYS = (
+    {
+        "ECO_RUNTIME",
+        "LIGHT_RUNTIME",
+        "PUMP_RUNTIME",
+        "BACKWASH_RUNTIME",
+        "SOLAR_RUNTIME",
+        "HEATER_RUNTIME",
+        "DOS_1_CL_RUNTIME",
+        "DOS_4_PHM_RUNTIME",
+        "DOS_5_PHP_RUNTIME",
+        "DOS_6_FLOC_RUNTIME",
+        "REFILL_TIMEOUT",
+        "RUNTIME",
+        "POSTRUN_TIME",
+    }
+    | {f"EXT{i}_{j}_RUNTIME" for i in (1, 2) for j in range(1, 9)}
+    | {f"OMNI_DC{i}_RUNTIME" for i in range(1, 6)}
+    | {f"PUMP_RPM_{i}_RUNTIME" for i in range(4)}
+)
+
+_TIME_FORMAT_KEYS = (
+    {
+        "HEATER_POSTRUN_TIME",
+        "SOLAR_POSTRUN_TIME",
+        "CPU_UPTIME",
+        "DEVICE_UPTIME",
+    }
+    | {f"PUMP_RPM_{i}_LAST_ON" for i in range(4)}
+    | {f"PUMP_RPM_{i}_LAST_OFF" for i in range(4)}
+)
+
+_TEXT_VALUE_KEYS = {
+    "DOS_1_CL_STATE",
+    "DOS_4_PHM_STATE",
+    "DOS_5_PHP_STATE",
+    "HEATERSTATE",
+    "SOLARSTATE",
+    "PUMPSTATE",
+    "BACKWASHSTATE",
+    "OMNI_STATE",
+    "BACKWASH_OMNI_STATE",
+    "SOLAR_STATE",
+    "HEATER_STATE",
+    "PUMP_STATE",
+    "FILTER_STATE",
+    "OMNI_MODE",
+    "FILTER_MODE",
+    "SOLAR_MODE",
+    "HEATER_MODE",
+    "DISPLAY_MODE",
+    "OPERATING_MODE",
+    "MAINTENANCE_MODE",
+    "ERROR_CODE",
+    "LAST_ERROR",
+    "VERSION_CODE",
+    "CHECKSUM",
+    "RULE_RESULT",
+    "LAST_MOVING_DIRECTION",
+    "COVER_DIRECTION",
+    "SW_VERSION",
+    "SW_VERSION_CARRIER",
+    "HW_VERSION_CARRIER",
+    "FW",
+    "fw",
+    "VERSION",
+    "VERSION_INFO",
+    "HARDWARE_VERSION",
+    "CPU_GOV",
+    "HW_SERIAL_CARRIER",
+    "SERIAL_NUMBER",
+    "MAC_ADDRESS",
+    "IP_ADDRESS",
+    "DOS_1_CL_REMAINING_RANGE",
+    "DOS_4_PHM_REMAINING_RANGE",
+    "DOS_5_PHP_REMAINING_RANGE",
+    "DOS_6_FLOC_REMAINING_RANGE",
+    "BACKWASH_OMNI_MOVING",
+    "BACKWASH_DELAY_RUNNING",
+    "BACKWASH_STATE",
+    "REFILL_STATE",
+    "BATHING_AI_SURVEILLANCE_STATE",
+    "BATHING_AI_PUMP_STATE",
+    "OVERFLOW_REFILL_STATE",
+    "OVERFLOW_DRYRUN_STATE",
+    "OVERFLOW_OVERFILL_STATE",
+    "time",
+    "TIME",
+    "CURRENT_TIME",
+    "LOAD_AVG",
+    "pump_rs485_pwr",
+    "SYSTEM_carrier_alive_count",
+    "SYSTEM_carrier_alive_faultcount",
+    "SYSTEM_dosagemodule_alive_count",
+    "SYSTEM_dosagemodule_alive_faultcount",
+    "SYSTEM_ext1module_alive_count",
+    "SYSTEM_ext1module_alive_faultcount",
 }
 
-# Runtime sensors - usually formatted time strings
-RUNTIME_SENSORS = {
-    "ECO_RUNTIME", "LIGHT_RUNTIME", "PUMP_RUNTIME", "BACKWASH_RUNTIME",
-    "SOLAR_RUNTIME", "HEATER_RUNTIME",
-    "DOS_1_CL_RUNTIME", "DOS_4_PHM_RUNTIME", "DOS_5_PHP_RUNTIME",
-    "DOS_6_FLOC_RUNTIME",
-    "HEATER_POSTRUN_TIME", "SOLAR_POSTRUN_TIME",
-    "REFILL_TIMEOUT", "CPU_UPTIME", "DEVICE_UPTIME", "RUNTIME",
-    "POSTRUN_TIME",
-}
+_ALL_TEXT_SENSORS = (
+    _TEXT_VALUE_KEYS | _RUNTIME_KEYS | _BOOLEAN_VALUE_KEYS | _TIME_FORMAT_KEYS
+)
 
-# Add extension and OMNI runtime sensors
-RUNTIME_SENSORS.update({
-    f"EXT{i}_{j}_RUNTIME" for i in (1, 2) for j in range(1, 9)
-})
-RUNTIME_SENSORS.update({
-    f"OMNI_DC{i}_RUNTIME" for i in range(1, 6)
-})
-RUNTIME_SENSORS.update({
-    f"PUMP_RPM_{i}_RUNTIME" for i in range(4)
-})
-RUNTIME_SENSORS.update({
-    f"PUMP_RPM_{i}_LAST_ON" for i in range(4)
-})
-RUNTIME_SENSORS.update({
-    f"PUMP_RPM_{i}_LAST_OFF" for i in range(4)
-})
-
-# Non-temperature onewire sensors (status info)
-NON_TEMPERATURE_SENSORS = {
+_NON_TEMPERATURE_ONEWIRE_KEYS = {
     f"onewire{i}_{suffix}"
     for i in range(1, 13)
     for suffix in ("rcode", "romcode", "state")
 }
-
-# Boolean sensors that contain True/False values
-BOOLEAN_VALUE_SENSORS = {
-    "OVERFLOW_REFILL_STATE", "OVERFLOW_DRYRUN_STATE", "OVERFLOW_OVERFILL_STATE",
-    "BACKWASH_OMNI_MOVING", "BACKWASH_DELAY_RUNNING",
-    "BATHING_AI_SURVEILLANCE_STATE",
-    "BATHING_AI_PUMP_STATE",
-}
-BOOLEAN_VALUE_SENSORS.update({
-    f"onewire{i}_state" for i in range(1, 13)
-})
-
-# Combine text sensors
-TEXT_VALUE_SENSORS.update(RUNTIME_SENSORS)
-TEXT_VALUE_SENSORS.update(BOOLEAN_VALUE_SENSORS)
-
-# Time-formatted sensors that should be treated as text
-TIME_FORMAT_SENSORS = {
-    "HEATER_POSTRUN_TIME", "SOLAR_POSTRUN_TIME", "CPU_UPTIME", "DEVICE_UPTIME",
-}
-TIME_FORMAT_SENSORS.update({
-    f"PUMP_RPM_{i}_LAST_ON" for i in range(4)
-})
-TIME_FORMAT_SENSORS.update({
-    f"PUMP_RPM_{i}_LAST_OFF" for i in range(4)
-})
-
-# Flow rate sensors - these should have numeric values
-FLOW_RATE_SENSORS = {
-    "ADC3_value", "IMP2_value", "flow_rate_adc3_priority"
-}
+_FLOW_RATE_SOURCE_KEYS = {"ADC3_value", "IMP2_value"}
+_ERROR_CODE_KEYS = {"LAST_ERROR_CODE", "ERROR_CODE", "LAST_ERROR"}
 
 
 class VioletSensor(VioletPoolControllerEntity, SensorEntity):
-    """Representation of a Violet Pool sensor."""
+    """Represents a generic Violet Pool Controller sensor."""
 
     entity_description: SensorEntityDescription
 
@@ -152,109 +187,83 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
         self,
         coordinator: VioletPoolDataUpdateCoordinator,
         config_entry: ConfigEntry,
-        description: SensorEntityDescription
+        description: SensorEntityDescription,
     ) -> None:
-        """
-        Initialize the sensor.
+        """Initializes the sensor.
 
         Args:
-            coordinator: The update coordinator.
-            config_entry: The config entry.
-            description: The sensor entity description.
+            coordinator: The data update coordinator.
+            config_entry: The configuration entry.
+            description: The entity description for the sensor.
         """
         super().__init__(coordinator, config_entry, description)
         self._logger = logging.getLogger(f"{DOMAIN}.sensor.{description.key}")
-
         _LOGGER.debug(
             "Sensor initialized: %s (Key: %s, Class: %s)",
             description.name,
             description.key,
-            description.device_class
+            description.device_class,
         )
 
     @property
     def native_value(self) -> str | int | float | datetime | None:
-        """
-        Return the native value of the sensor.
-
-        Converts values based on sensor type:
-        - Timestamps -> datetime objects
-        - Text/Runtime -> Strings
-        - Numeric -> float/int
-
-        Returns:
-            The native value or None.
-        """
+        """Returns the native value of the sensor, formatted for Home Assistant."""
         key = self.entity_description.key
         raw_value = self.coordinator.data.get(key)
 
         if raw_value is None:
-            self._logger.debug("Kein Wert verfügbar für %s", key)
             return None
 
-        if key in _TIMESTAMP_KEYS and key not in TIME_FORMAT_SENSORS:
+        if key in _TIMESTAMP_KEYS and key not in _TIME_FORMAT_KEYS:
             try:
-                timestamp = float(raw_value)
-                dt = datetime.fromtimestamp(timestamp, tz=timezone.utc)
-                return dt
+                return datetime.fromtimestamp(float(raw_value), tz=timezone.utc)
             except (ValueError, TypeError) as err:
-                self._logger.warning("Timestamp-Konvertierung fehlgeschlagen für %s: %s (%s)", key, raw_value, err)
+                self._logger.warning(
+                    "Timestamp conversion failed for %s with value '%s': %s",
+                    key,
+                    raw_value,
+                    err,
+                )
                 return None
 
-        if (key in TEXT_VALUE_SENSORS or key in TIME_FORMAT_SENSORS or key in BOOLEAN_VALUE_SENSORS):
+        if key in _ALL_TEXT_SENSORS:
             return str(raw_value)
 
         try:
-            f = float(raw_value)
+            num_value = float(raw_value)
             if key == "pH_value":
-                return round(f, 2)
+                return round(num_value, 2)
             if "temp" in key.lower() or "onewire" in key.lower():
-                return round(f, 1)
-            if f.is_integer():
-                return int(f)
-            return f
+                return round(num_value, 1)
+            return int(num_value) if num_value.is_integer() else num_value
         except (ValueError, TypeError):
             return str(raw_value)
 
 
 class VioletStatusSensor(VioletSensor):
-    """Sensor for status values using VioletState (e.g. Pump Auto/Manual)."""
+    """Represents a sensor for status values that use VioletState."""
 
     @property
-    def native_value(self) -> str | None:
-        """
-        Return the native value for the status sensor.
-
-        Returns:
-            The display string for the status.
-        """
-        key = self.entity_description.key
-        raw_value = self.coordinator.data.get(key)
-        if raw_value is None:
-            return None
-
-        # Use VioletState to get display string (e.g. "Auto (Active)")
-        state = VioletState(raw_value, key)
-        return state.display_mode
+    def native_value(self) -> Optional[str]:
+        """Return the display string for the status."""
+        raw_value = self.coordinator.data.get(self.entity_description.key)
+        return (
+            VioletState(raw_value, self.entity_description.key).display_mode
+            if raw_value is not None
+            else None
+        )
 
     @property
     def icon(self) -> str:
-        """
-        Return the icon for the status sensor.
-
-        Returns:
-            The icon string.
-        """
-        key = self.entity_description.key
-        raw_value = self.coordinator.data.get(key)
+        """Return the icon corresponding to the current status."""
+        raw_value = self.coordinator.data.get(self.entity_description.key)
         if raw_value is None:
             return super().icon
-        state = VioletState(raw_value, key)
-        return state.icon
+        return VioletState(raw_value, self.entity_description.key).icon
 
 
 class VioletErrorCodeSensor(VioletSensor):
-    """Specialized sensor that resolves error codes to descriptive text."""
+    """A specialized sensor that resolves error codes to descriptive text."""
 
     def __init__(
         self,
@@ -262,13 +271,12 @@ class VioletErrorCodeSensor(VioletSensor):
         config_entry: ConfigEntry,
         value_key: str,
     ) -> None:
-        """
-        Initialize the error code sensor.
+        """Initializes the error code sensor.
 
         Args:
-            coordinator: The update coordinator.
-            config_entry: The config entry.
-            value_key: The key containing the error code.
+            coordinator: The data update coordinator.
+            config_entry: The configuration entry.
+            value_key: The key in the coordinator data that holds the error code.
         """
         description = SensorEntityDescription(
             key=value_key,
@@ -277,39 +285,18 @@ class VioletErrorCodeSensor(VioletSensor):
             entity_category=EntityCategory.DIAGNOSTIC,
         )
         super().__init__(coordinator, config_entry, description)
-        self._value_key = value_key
-
-    def _get_error_code(self) -> str | None:
-        """Get the raw error code."""
-        value = self.get_value(self._value_key)
-        if value is None:
-            return None
-        code = str(value).strip()
-        return code or None
 
     @property
-    def native_value(self) -> str | None:
-        """
-        Return the error code description.
-
-        Returns:
-            The error code subject or None.
-        """
-        code = self._get_error_code()
-        if code is None:
-            return None
-        return get_error_info(code)["subject"]
+    def native_value(self) -> Optional[str]:
+        """Return the descriptive subject of the error code."""
+        code = str(self.coordinator.data.get(self.entity_description.key, "")).strip()
+        return get_error_info(code)["subject"] if code else None
 
     @property
-    def extra_state_attributes(self) -> dict[str, Any]:
-        """
-        Return additional attributes for the error code.
-
-        Returns:
-            A dictionary of attributes.
-        """
-        code = self._get_error_code()
-        if code is None:
+    def extra_state_attributes(self) -> Dict[str, Any]:
+        """Return detailed information about the error code as attributes."""
+        code = str(self.coordinator.data.get(self.entity_description.key, "")).strip()
+        if not code:
             return {}
         info = get_error_info(code)
         return {
@@ -321,20 +308,14 @@ class VioletErrorCodeSensor(VioletSensor):
 
 
 class VioletFlowRateSensor(VioletPoolControllerEntity, SensorEntity):
-    """Special flow rate sensor prioritizing ADC3 over IMP2."""
+    """A specialized sensor for flow rate that prioritizes ADC3 over IMP2."""
 
     def __init__(
         self,
         coordinator: VioletPoolDataUpdateCoordinator,
-        config_entry: ConfigEntry
+        config_entry: ConfigEntry,
     ) -> None:
-        """
-        Initialize the flow rate sensor.
-
-        Args:
-            coordinator: The update coordinator.
-            config_entry: The config entry.
-        """
+        """Initializes the flow rate sensor."""
         description = SensorEntityDescription(
             key="flow_rate_adc3_priority",
             name="Flow Rate",
@@ -346,94 +327,60 @@ class VioletFlowRateSensor(VioletPoolControllerEntity, SensorEntity):
         super().__init__(coordinator, config_entry, description)
 
     @property
-    def native_value(self) -> float | None:
-        """
-        Return the flow rate value.
-
-        Prioritizes ADC3_value over IMP2_value.
-
-        Returns:
-            The flow rate value or None.
-        """
-        adc3_value = self.coordinator.data.get("ADC3_value")
-        if adc3_value is not None:
-            try:
-                return round(float(adc3_value), 2)
-            except (ValueError, TypeError):
-                pass
-
-        imp2_value = self.coordinator.data.get("IMP2_value")
-        if imp2_value is not None:
-            try:
-                return round(float(imp2_value), 2)
-            except (ValueError, TypeError):
-                pass
+    def native_value(self) -> Optional[float]:
+        """Return the flow rate, prioritizing the ADC3 value."""
+        for key in ["ADC3_value", "IMP2_value"]:
+            raw_value = self.coordinator.data.get(key)
+            if raw_value is not None:
+                try:
+                    return round(float(raw_value), 2)
+                except (ValueError, TypeError):
+                    continue
         return None
 
     @property
-    def extra_state_attributes(self) -> dict[str, str]:
-        """
-        Return additional attributes for debugging.
-
-        Returns:
-            A dictionary of debug attributes.
-        """
-        adc3 = self.coordinator.data.get("ADC3_value")
-        imp2 = self.coordinator.data.get("IMP2_value")
-        source = "ADC3" if adc3 is not None else "IMP2" if imp2 is not None else "None"
+    def extra_state_attributes(self) -> Dict[str, str]:
+        """Return the raw source values for debugging purposes."""
+        adc3 = self.coordinator.data.get("ADC3_value", "N/A")
+        imp2 = self.coordinator.data.get("IMP2_value", "N/A")
+        source = "ADC3" if adc3 != "N/A" else "IMP2" if imp2 != "N/A" else "None"
         return {
-            "adc3_raw_value": str(adc3) if adc3 is not None else "N/A",
-            "imp2_raw_value": str(imp2) if imp2 is not None else "N/A",
+            "adc3_raw_value": str(adc3),
+            "imp2_raw_value": str(imp2),
             "data_source": source,
         }
 
     @property
     def available(self) -> bool:
-        """
-        Check if the sensor is available.
-
-        Available if a source is available.
-
-        Returns:
-            True if available, False otherwise.
-        """
-        return super().available and (
-            self.coordinator.data.get("ADC3_value") is not None or
-            self.coordinator.data.get("IMP2_value") is not None
+        """The sensor is available if either of its data sources is present."""
+        return super().available and any(
+            self.coordinator.data.get(key) is not None for key in _FLOW_RATE_SOURCE_KEYS
         )
 
 
 def _is_boolean_value(value: Any) -> bool:
-    """Check if value represents a boolean."""
-    if not isinstance(value, (str, bool)):
-        return False
-    return str(value).lower().strip() in ('true', 'false', '1', '0', 'on', 'off', 'yes', 'no')
+    """Checks if a value can be interpreted as a boolean."""
+    return str(value).lower().strip() in (
+        "true",
+        "false",
+        "1",
+        "0",
+        "on",
+        "off",
+        "yes",
+        "no",
+    )
 
 
-def determine_device_class(key: str, unit: str | None, raw_value=None) -> SensorDeviceClass | None:
-    """
-    Determine the device class for a sensor.
-
-    Args:
-        key: The sensor key.
-        unit: The unit of measurement.
-        raw_value: The raw value.
-
-    Returns:
-        The device class or None.
-    """
-    if key in BOOLEAN_VALUE_SENSORS or (raw_value is not None and _is_boolean_value(raw_value)):
+def determine_device_class(
+    key: str, unit: Optional[str], raw_value: Any
+) -> Optional[SensorDeviceClass]:
+    """Determines the appropriate device class for a sensor."""
+    if key in _BOOLEAN_VALUE_KEYS or _is_boolean_value(raw_value):
         return None
     if key == "pH_value":
         return SensorDeviceClass.PH
-    if unit == "°C":
-        return SensorDeviceClass.TEMPERATURE
-    # Temperature device class requires a valid temperature unit. Keep diagnostic
-    # sensors without units (e.g. SYSTEM_*_cpu_temperature) unitless for
-    # backwards-compatible statistics while avoiding Home Assistant warnings.
-    if unit is None:
-        return None
-    if "temp" in key.lower():
+    if unit == "°C" or ("temp" in key.lower() and unit is not None):
         return SensorDeviceClass.TEMPERATURE
     if unit == "%":
         return SensorDeviceClass.HUMIDITY
@@ -443,48 +390,23 @@ def determine_device_class(key: str, unit: str | None, raw_value=None) -> Sensor
         return SensorDeviceClass.VOLTAGE
     if unit == "W":
         return SensorDeviceClass.POWER
-    if key in _TIMESTAMP_KEYS and key not in TIME_FORMAT_SENSORS:
+    if key in _TIMESTAMP_KEYS and key not in _TIME_FORMAT_KEYS:
         return SensorDeviceClass.TIMESTAMP
     return None
 
 
-def determine_state_class(key: str, unit: str | None, raw_value=None) -> SensorStateClass | None:
-    """
-    Determine the state class for a sensor.
-
-    Args:
-        key: The sensor key.
-        unit: The unit of measurement.
-        raw_value: The raw value.
-
-    Returns:
-        The state class or None.
-    """
-    if key in BOOLEAN_VALUE_SENSORS or (raw_value is not None and _is_boolean_value(raw_value)):
-        return None
-    if any(k in key for k in TEXT_VALUE_SENSORS | _TIMESTAMP_KEYS | NO_UNIT_SENSORS | RUNTIME_SENSORS):
+def determine_state_class(key: str) -> Optional[SensorStateClass]:
+    """Determines the appropriate state class for a sensor."""
+    if key in _ALL_TEXT_SENSORS or key in _TIMESTAMP_KEYS or key in NO_UNIT_SENSORS:
         return None
     if "total" in key.lower() or "daily" in key.lower():
         return SensorStateClass.TOTAL_INCREASING
-    if unit is not None:
-        return SensorStateClass.MEASUREMENT
-    return None
+    return SensorStateClass.MEASUREMENT
 
 
-def get_icon(unit: str | None, key: str, raw_value=None) -> str:
-    """
-    Determine the icon for a sensor.
-
-    Args:
-        unit: The unit of measurement.
-        key: The sensor key.
-        raw_value: The raw value.
-
-    Returns:
-        The icon string.
-    """
-    is_bool = raw_value is not None and _is_boolean_value(raw_value)
-    if key in BOOLEAN_VALUE_SENSORS or is_bool:
+def get_icon(key: str, unit: Optional[str], raw_value: Any) -> str:
+    """Determin a sensor."""
+    if key in _BOOLEAN_VALUE_KEYS or _is_boolean_value(raw_value):
         return "mdi:toggle-switch"
     if key == "pH_value":
         return "mdi:flask"
@@ -501,174 +423,181 @@ def get_icon(unit: str | None, key: str, raw_value=None) -> str:
     return "mdi:information"
 
 
-def should_skip_sensor(key: str, raw_value) -> bool:
-    """
-    Check if a sensor should be skipped.
+def should_skip_sensor(key: str, raw_value: Any) -> bool:
+    """Determines if a sensor should be skipped and not created."""
+    return (
+        raw_value is None
+        or str(raw_value).strip() in ("[]", "{}", "")
+        or key in _NON_TEMPERATURE_ONEWIRE_KEYS
+        or key.startswith("_")
+    )
 
-    Args:
-        key: The sensor key.
-        raw_value: The raw value.
-
-    Returns:
-        True if the sensor should be skipped, False otherwise.
-    """
-    if raw_value is None:
-        return True
-    raw_str = str(raw_value).strip()
-    if raw_str in ("[]", "{}", ""):
-        return True
-    if key in NON_TEMPERATURE_SENSORS:
-        return True
-    if key.startswith("_"):
-        return True
-    return False
-
-# ==========================================================================================
-# ======================== NEUE SETUP FUNKTION STARTET HIER ================================
-# ==========================================================================================
 
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """
-    Set up sensors based on configuration.
+    """Sets up the Violet Pool Controller sensors from a config entry."""
+    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][
+        config_entry.entry_id
+    ]
+    config = _get_sensor_config(config_entry)
 
-    Args:
-        hass: The Home Assistant instance.
-        config_entry: The config entry.
-        async_add_entities: Callback to add entities.
-    """
-    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
+    sensors: List[SensorEntity] = []
+    handled_keys: Set[str] = set()
 
-    # Hole Konfiguration aus Options (primär) oder Data (Fallback)
-    active_features = config_entry.options.get(CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, []))
-    selected_sensors_raw = config_entry.options.get(
-        CONF_SELECTED_SENSORS,
-        config_entry.data.get(CONF_SELECTED_SENSORS),
+    special_sensors, special_keys = _create_special_sensors(
+        coordinator, config_entry, config
     )
-    selected_sensors = list(selected_sensors_raw or [])
-    selected_sensor_set = set(selected_sensors)
+    sensors.extend(special_sensors)
+    handled_keys.update(special_keys)
 
-    # WICHTIG: Wenn selected_sensors None ist (alte Konfig), erstellen wir alle Sensoren.
-    # Ein leeres Array [] bedeutet, der User hat explizit keine Sensoren ausgewählt.
-    create_all_sensors = selected_sensors_raw is None
-
-    if create_all_sensors:
-        _LOGGER.info("Keine Sensor-Auswahl gefunden. Erstelle ALLE verfügbaren Sensoren (Abwärtskompatibilität).")
-    else:
-        _LOGGER.info("Erstelle %d ausgewählte Sensoren.", len(selected_sensors))
-
-    sensors = []
-    data_keys = set(coordinator.data.keys())
-    all_predefined_sensors = {**TEMP_SENSORS, **WATER_CHEM_SENSORS, **ANALOG_SENSORS, **STATUS_SENSORS}
-
-    handled_special_keys: set[str] = set()
-
-    for error_key in ("LAST_ERROR_CODE", "ERROR_CODE", "LAST_ERROR"):
-        if error_key not in data_keys:
-            continue
-        if not create_all_sensors and error_key not in selected_sensor_set:
-            continue
-        sensors.append(VioletErrorCodeSensor(coordinator, config_entry, error_key))
-        handled_special_keys.add(error_key)
-        _LOGGER.info("Fehlercode-Sensor für %s hinzugefügt", error_key)
-
-    # Erstelle nur den speziellen Flow-Sensor, wenn er ausgewählt wurde (oder alle erstellt werden)
-    # und die benötigten Daten vorhanden sind.
-    flow_sensor_keys_present = any(key in data_keys for key in FLOW_RATE_SENSORS)
-    flow_sensor_selected = create_all_sensors or "flow_rate_adc3_priority" in selected_sensor_set
-
-    if flow_sensor_keys_present and flow_sensor_selected:
-        sensors.append(VioletFlowRateSensor(coordinator, config_entry))
-        _LOGGER.info("Förderleistungs-Sensor mit ADC3-Priorität hinzugefügt.")
-
-    # Alle anderen Sensoren durchlaufen
-    for key in sorted(list(data_keys)): # Sortiert für konsistente Reihenfolge
-        raw_value = coordinator.data.get(key)
-
-        if key in handled_special_keys:
-            _LOGGER.debug("Überspringe Standard-Sensor für %s (spezielle Behandlung)", key)
-            continue
-
-        # Logik zum Überspringen von irrelevanten Sensoren
-        if should_skip_sensor(key, raw_value):
-            continue
-
-        feature_id = SENSOR_FEATURE_MAP.get(key)
-        if feature_id and feature_id not in active_features:
-            _LOGGER.debug("Überspringe Sensor %s (Feature '%s' nicht aktiv)", key, feature_id)
-            continue
-
-        # ===============================================================
-        # NEUE FILTERLOGIK: Prüfe, ob der Sensor ausgewählt wurde
-        # ===============================================================
-        if not create_all_sensors and key not in selected_sensor_set:
-            # Ausnahme: Wenn der Flow-Sensor ausgewählt wurde, müssen seine
-            # Quell-Sensoren (ADC3, IMP2) nicht extra ausgewählt werden.
-            if key in FLOW_RATE_SENSORS and flow_sensor_selected:
-                _LOGGER.debug(
-                    "Ignoriere Quell-Sensor %s, da der priorisierte Flow-Sensor aktiv ist.",
-                    key,
-                )
-                continue
-
-            _LOGGER.debug("Überspringe Sensor %s (nicht ausgewählt)", key)
-            continue
-        # ===============================================================
-
-        # Sensor-Erstellung
-        predefined_info = all_predefined_sensors.get(key)
-        if predefined_info:
-            name = predefined_info["name"]
-            icon = predefined_info.get("icon")
-        else:
-            name = key.replace("_", " ").title()
-            icon = None
-
-        unit = UNIT_MAP.get(key) if key not in NO_UNIT_SENSORS else None
-        if _is_boolean_value(raw_value):
-            unit = None  # Booleans haben keine Einheit
-
-        # ✅ FIX: Automatische Einheiten-Zuweisung für Temperatur-Sensoren und abhängige Werte
-        if unit is None and key not in NO_UNIT_SENSORS and not _is_boolean_value(raw_value):
-            # 1. Prüfe auf Suffixe und erbe Einheit vom Basis-Key
-            for suffix in ["_min", "_max", "_setpoint", "_target", "_faultcount", "_freezecount"]:
-                if key.endswith(suffix):
-                    base_key = key[:-len(suffix)]
-                    unit = UNIT_MAP.get(base_key)
-                    if unit:
-                        _LOGGER.debug("Unit %s for %s inherited from %s", unit, key, base_key)
-                    break
-
-            # 2. Wenn immer noch keine Unit, prüfe auf "temp" oder "onewire"
-            if unit is None and ("temp" in key.lower() or "onewire" in key.lower()):
-                 unit = "°C"
-                 _LOGGER.debug("Auto-assigned °C unit to sensor: %s", key)
-
-        description = SensorEntityDescription(
-            key=key,
-            name=name,
-            icon=icon or get_icon(unit, key, raw_value),
-            native_unit_of_measurement=unit,
-            device_class=determine_device_class(key, unit, raw_value),
-            state_class=determine_state_class(key, unit, raw_value),
-            entity_category=EntityCategory.DIAGNOSTIC if key.startswith("SYSTEM_") else None,
-        )
-
-        # Verwende VioletStatusSensor für Status-Sensoren (aber nicht für Firmware)
-        if key in STATUS_SENSORS and key not in ["fw", "FW"]:
-             sensors.append(VioletStatusSensor(coordinator, config_entry, description))
-        else:
-             sensors.append(VioletSensor(coordinator, config_entry, description))
+    standard_sensors = _create_standard_sensors(
+        coordinator, config_entry, config, handled_keys
+    )
+    sensors.extend(standard_sensors)
 
     if sensors:
         async_add_entities(sensors)
-        _LOGGER.info("%d Sensoren für '%s' hinzugefügt.", len(sensors), config_entry.title)
+        _LOGGER.info("%d sensors added for '%s'", len(sensors), config_entry.title)
     else:
         _LOGGER.warning(
-            "Keine Sensoren für '%s' hinzugefügt. "
-            "Überprüfe die Auswahl im Konfigurationsmenü.",
-            config_entry.title
+            "No sensors were added for '%s'. Check the sensor selection in the configuration menu.",
+            config_entry.title,
         )
+
+
+def _get_sensor_config(config_entry: ConfigEntry) -> Dict[str, Any]:
+    """Extracts sensor-specific configuration from the config entry."""
+    active_features = config_entry.options.get(
+        CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
+    )
+    selected_sensors_raw = config_entry.options.get(
+        CONF_SELECTED_SENSORS, config_entry.data.get(CONF_SELECTED_SENSORS)
+    )
+    create_all = selected_sensors_raw is None
+
+    if create_all:
+        _LOGGER.info(
+            "No sensor selection found (legacy config). Creating all available sensors."
+        )
+    else:
+        _LOGGER.info("Creating %d selected sensors.", len(selected_sensors_raw or []))
+
+    return {
+        "active_features": set(active_features),
+        "selected_sensors": set(selected_sensors_raw or []),
+        "create_all": create_all,
+    }
+
+
+def _create_special_sensors(
+    coordinator: VioletPoolDataUpdateCoordinator,
+    config_entry: ConfigEntry,
+    config: Dict[str, Any],
+) -> Tuple[List[SensorEntity], Set[str]]:
+    """Creates specialized sensors like error codes and flow rate."""
+    sensors: List[SensorEntity] = []
+    handled_keys: Set[str] = set()
+
+    for key in _ERROR_CODE_KEYS:
+        if key in coordinator.data and (
+            config["create_all"] or key in config["selected_sensors"]
+        ):
+            sensors.append(VioletErrorCodeSensor(coordinator, config_entry, key))
+            handled_keys.add(key)
+            _LOGGER.debug("Error code sensor created for %s", key)
+
+    flow_keys_present = any(key in coordinator.data for key in _FLOW_RATE_SOURCE_KEYS)
+    flow_selected = (
+        config["create_all"] or "flow_rate_adc3_priority" in config["selected_sensors"]
+    )
+    if flow_keys_present and flow_selected:
+        sensors.append(VioletFlowRateSensor(coordinator, config_entry))
+        handled_keys.update(_FLOW_RATE_SOURCE_KEYS)
+        _LOGGER.debug("Priority flow rate sensor created.")
+
+    return sensors, handled_keys
+
+
+def _create_standard_sensors(
+    coordinator: VioletPoolDataUpdateCoordinator,
+    config_entry: ConfigEntry,
+    config: Dict[str, Any],
+    handled_keys: Set[str],
+) -> List[SensorEntity]:
+    """Creates all standard sensors based on coordinator data and user configuration."""
+    sensors: List[SensorEntity] = []
+    all_predefined = {
+        **TEMP_SENSORS,
+        **WATER_CHEM_SENSORS,
+        **ANALOG_SENSORS,
+        **STATUS_SENSORS,
+    }
+
+    for key in sorted(coordinator.data.keys()):
+        if key in handled_keys or should_skip_sensor(key, coordinator.data.get(key)):
+            continue
+
+        feature_id = SENSOR_FEATURE_MAP.get(key)
+        if feature_id and feature_id not in config["active_features"]:
+            continue
+
+        if not config["create_all"] and key not in config["selected_sensors"]:
+            continue
+
+        description = _build_sensor_description(
+            key, coordinator.data.get(key), all_predefined
+        )
+
+        SensorClass = (
+            VioletStatusSensor
+            if key in STATUS_SENSORS and key not in ["fw", "FW"]
+            else VioletSensor
+        )
+        sensors.append(SensorClass(coordinator, config_entry, description))
+
+    return sensors
+
+
+def _build_sensor_description(
+    key: str, raw_value: Any, predefined: Dict[str, Any]
+) -> SensorEntityDescription:
+    """Builds a SensorEntityDescription for a given sensor key."""
+    predefined_info = predefined.get(key)
+    name = predefined_info["name"] if predefined_info else key.replace("_", " ").title()
+    icon = predefined_info.get("icon")
+
+    unit = UNIT_MAP.get(key) if key not in NO_UNIT_SENSORS else None
+    if _is_boolean_value(raw_value):
+        unit = None  # Booleans should not have a unit
+
+    if unit is None and key not in NO_UNIT_SENSORS and not _is_boolean_value(raw_value):
+        for suffix in [
+            "_min",
+            "_max",
+            "_setpoint",
+            "_target",
+            "_faultcount",
+            "_freezecount",
+        ]:
+            if key.endswith(suffix):
+                base_key = key[: -len(suffix)]
+                if UNIT_MAP.get(base_key):
+                    unit = UNIT_MAP[base_key]
+                    break
+        if unit is None and ("temp" in key.lower() or "onewire" in key.lower()):
+            unit = "°C"
+
+    return SensorEntityDescription(
+        key=key,
+        name=name,
+        icon=icon or get_icon(key, unit, raw_value),
+        native_unit_of_measurement=unit,
+        device_class=determine_device_class(key, unit, raw_value),
+        state_class=determine_state_class(key),
+        entity_category=EntityCategory.DIAGNOSTIC
+        if key.startswith("SYSTEM_")
+        else None,
+    )

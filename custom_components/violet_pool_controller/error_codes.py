@@ -685,11 +685,17 @@ def get_errors_by_type(error_type: str) -> List[str]:
     """Return all error codes of a specific type."""
 
     upper_type = error_type.upper()
-    return [code for code, data in ERROR_CODES.items() if data.get("type") == upper_type]
+    return [
+        code for code, data in ERROR_CODES.items() if data.get("type") == upper_type
+    ]
 
 
 def get_errors_by_severity(severity: str) -> List[str]:
     """Return all error codes with a specific severity."""
 
     lower_severity = severity.lower()
-    return [code for code, data in ERROR_CODES.items() if data.get("severity", "").lower() == lower_severity]
+    return [
+        code
+        for code, data in ERROR_CODES.items()
+        if data.get("severity", "").lower() == lower_severity
+    ]

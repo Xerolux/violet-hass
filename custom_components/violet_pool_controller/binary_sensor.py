@@ -1,4 +1,5 @@
 """Binary Sensor Integration für den Violet Pool Controller - OPTIMIZED VERSION."""
+
 import logging
 from typing import Any
 
@@ -47,6 +48,7 @@ BINARY_SENSOR_FEATURE_MAP = {
 
 class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
     """Representation of a Violet Pool binary sensor."""
+
     entity_description: BinarySensorEntityDescription
 
     def __init__(
@@ -91,18 +93,18 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
             The icon string.
         """
         base_icon = self.entity_description.icon
-        
+
         if not base_icon:
             return None
-        
+
         # Handle outline icons
         if base_icon.endswith("-outline"):
             return base_icon.replace("-outline", "") if self.is_on else base_icon
-        
+
         # Add -off suffix for inactive state
         if not self.is_on and not base_icon.endswith("-off"):
             return f"{base_icon}-off"
-        
+
         return base_icon
 
     def _get_sensor_state(self) -> bool:
@@ -134,7 +136,7 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
         """
         key = self.entity_description.key
         raw_state = self.get_value(key, "")
-        
+
         return {
             "raw_state": str(raw_state),
             "state_type": type(raw_state).__name__,
@@ -164,7 +166,9 @@ class CoverIsClosedBinarySensor(CoordinatorEntity, BinarySensorEntity):
         self._attr_device_class = BinarySensorDeviceClass.DOOR
         self._attr_icon = "mdi:window-shutter"
         self._attr_device_info = coordinator.device.device_info
-        _LOGGER.debug("Initialisiere Cover-Geschlossen Sensor: %s", self._attr_unique_id)
+        _LOGGER.debug(
+            "Initialisiere Cover-Geschlossen Sensor: %s", self._attr_unique_id
+        )
 
     @property
     def available(self) -> bool:
@@ -194,7 +198,7 @@ class CoverIsClosedBinarySensor(CoordinatorEntity, BinarySensorEntity):
             cover_state,
             type(cover_state).__name__,
         )
-        
+
         return self._is_cover_closed(cover_state)
 
     def _is_cover_closed(self, cover_state: Any) -> bool:
@@ -209,25 +213,27 @@ class CoverIsClosedBinarySensor(CoordinatorEntity, BinarySensorEntity):
         """
         if cover_state is None:
             return False
-        
+
         # Integer check
         if isinstance(cover_state, int):
             is_closed = cover_state == COVER_STATE_CLOSED
             _LOGGER.debug("Cover state integer %d → closed=%s", cover_state, is_closed)
             return is_closed
-        
+
         # String check
         if isinstance(cover_state, str):
             state_upper = cover_state.upper().strip()
             is_closed = state_upper in COVER_CLOSED_STRINGS
             _LOGGER.debug("Cover state string '%s' → closed=%s", state_upper, is_closed)
             return is_closed
-        
+
         # Try conversion
         try:
             state_int = int(cover_state)
             is_closed = state_int == COVER_STATE_CLOSED
-            _LOGGER.debug("Cover state converted to int %d → closed=%s", state_int, is_closed)
+            _LOGGER.debug(
+                "Cover state converted to int %d → closed=%s", state_int, is_closed
+            )
             return is_closed
         except (ValueError, TypeError):
             _LOGGER.warning("Unbekannter Cover State Type: %s", type(cover_state))
@@ -253,7 +259,7 @@ class CoverIsClosedBinarySensor(CoordinatorEntity, BinarySensorEntity):
         """
         if not self.coordinator.data:
             return {}
-        
+
         cover_state = self.coordinator.data.get("COVER_STATE")
         return {
             "raw_state": str(cover_state),

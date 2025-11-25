@@ -1,7 +1,13 @@
-"""Feature- und Entity-bezogene Konstanten für die Violet Pool Controller Integration."""
+"""This module defines the features and entities available in the integration.
 
-from homeassistant.components.number import NumberDeviceClass
+It includes a list of all toggleable features that can be configured by the user,
+as well as detailed definitions for binary sensors, switches, and number entities
+(setpoints). These definitions are used to dynamically create the correct entities
+based on the user's enabled features and the data available from the controller.
+"""
+
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
+from homeassistant.components.number import NumberDeviceClass
 from homeassistant.helpers.entity import EntityCategory
 
 # =============================================================================
@@ -9,311 +15,276 @@ from homeassistant.helpers.entity import EntityCategory
 # =============================================================================
 
 AVAILABLE_FEATURES = [
-    {"id": "heating", "name": "Heizung", "default": True, "platforms": ["climate", "switch", "binary_sensor"]},
-    {"id": "solar", "name": "Solarabsorber", "default": True, "platforms": ["climate", "switch", "binary_sensor"]},
-    {"id": "ph_control", "name": "pH-Kontrolle", "default": True, "platforms": ["number", "sensor", "switch"]},
-    {"id": "chlorine_control", "name": "Chlor-Kontrolle", "default": True, "platforms": ["number", "sensor", "switch"]},
-    {"id": "cover_control", "name": "Abdeckungssteuerung", "default": True, "platforms": ["cover", "binary_sensor"]},
-    {"id": "backwash", "name": "Rückspülung", "default": True, "platforms": ["switch", "binary_sensor"]},
-    {"id": "pv_surplus", "name": "PV-Überschuss", "default": True, "platforms": ["switch", "binary_sensor"]},
-    {
-        "id": "filter_control", "name": "Filterpumpe", "default": True,
-        "platforms": ["switch", "binary_sensor", "sensor"]
-    },
-    {"id": "water_level", "name": "Wasserstand", "default": False, "platforms": ["sensor", "switch"]},
-    {"id": "water_refill", "name": "Wassernachfüllung", "default": False, "platforms": ["switch", "binary_sensor"]},
-    {"id": "led_lighting", "name": "LED-Beleuchtung", "default": True, "platforms": ["switch"]},
-    {"id": "digital_inputs", "name": "Digitale Eingänge", "default": False, "platforms": ["binary_sensor", "switch"]},
-    {"id": "extension_outputs", "name": "Erweiterungsausgänge", "default": False, "platforms": ["switch"]},
+    {"id": "heating", "name": "Heizung", "default": True},
+    {"id": "solar", "name": "Solarabsorber", "default": True},
+    {"id": "ph_control", "name": "pH-Kontrolle", "default": True},
+    {"id": "chlorine_control", "name": "Chlor-Kontrolle", "default": True},
+    {"id": "cover_control", "name": "Abdeckungssteuerung", "default": True},
+    {"id": "backwash", "name": "Rückspülung", "default": True},
+    {"id": "pv_surplus", "name": "PV-Überschuss", "default": True},
+    {"id": "filter_control", "name": "Filterpumpe", "default": True},
+    {"id": "water_level", "name": "Wasserstand", "default": False},
+    {"id": "water_refill", "name": "Wassernachfüllung", "default": False},
+    {"id": "led_lighting", "name": "LED-Beleuchtung", "default": True},
+    {"id": "digital_inputs", "name": "Digitale Eingänge", "default": False},
+    {"id": "extension_outputs", "name": "Erweiterungsausgänge", "default": False},
 ]
 
 # =============================================================================
-# BINARY SENSORS with 3-STATE SUPPORT
+# BINARY SENSORS
 # =============================================================================
 
 BINARY_SENSORS = [
+    # Core operational states
     {
-        "name": "Pump State",
         "key": "PUMP",
+        "name": "Pump State",
         "icon": "mdi:water-pump",
+        "device_class": BinarySensorDeviceClass.RUNNING,
         "feature_id": "filter_control",
-        "device_class": BinarySensorDeviceClass.RUNNING,
-        "supports_3_state": True,
     },
     {
-        "name": "Solar State",
         "key": "SOLAR",
+        "name": "Solar State",
         "icon": "mdi:solar-power",
+        "device_class": BinarySensorDeviceClass.RUNNING,
         "feature_id": "solar",
-        "device_class": BinarySensorDeviceClass.RUNNING,
-        "supports_3_state": True,
     },
     {
-        "name": "Heater State",
         "key": "HEATER",
+        "name": "Heater State",
         "icon": "mdi:radiator",
-        "feature_id": "heating",
         "device_class": BinarySensorDeviceClass.RUNNING,
-        "supports_3_state": True,
+        "feature_id": "heating",
     },
     {
-        "name": "Light State",
         "key": "LIGHT",
+        "name": "Light State",
         "icon": "mdi:lightbulb",
         "feature_id": "led_lighting",
-        "supports_3_state": True,
     },
     {
-        "name": "Backwash State",
         "key": "BACKWASH",
+        "name": "Backwash State",
         "icon": "mdi:valve",
+        "device_class": BinarySensorDeviceClass.RUNNING,
         "feature_id": "backwash",
-        "device_class": BinarySensorDeviceClass.RUNNING,
-        "supports_3_state": True,
     },
     {
-        "name": "Refill State",
         "key": "REFILL",
+        "name": "Refill State",
         "icon": "mdi:water",
-        "feature_id": "water_refill",
         "device_class": BinarySensorDeviceClass.RUNNING,
+        "feature_id": "water_refill",
     },
-    {"name": "ECO Mode", "key": "ECO", "icon": "mdi:leaf"},
+    {"key": "ECO", "name": "ECO Mode", "icon": "mdi:leaf"},
     {
-        "name": "PV Surplus",
         "key": "PVSURPLUS",
+        "name": "PV Surplus",
         "icon": "mdi:solar-power-variant",
         "feature_id": "pv_surplus",
-        "supports_3_state": True,
     },
+    # Diagnostic problem sensors
     {
-        "name": "Circulation Issue",
         "key": "CIRCULATION_STATE",
+        "name": "Circulation Issue",
         "icon": "mdi:water-alert",
         "device_class": BinarySensorDeviceClass.PROBLEM,
         "entity_category": EntityCategory.DIAGNOSTIC,
     },
     {
-        "name": "Electrode Flow Issue",
         "key": "ELECTRODE_FLOW_STATE",
+        "name": "Electrode Flow Issue",
         "icon": "mdi:water-check",
         "device_class": BinarySensorDeviceClass.PROBLEM,
         "entity_category": EntityCategory.DIAGNOSTIC,
     },
     {
-        "name": "Pressure Issue",
         "key": "PRESSURE_STATE",
+        "name": "Pressure Issue",
         "icon": "mdi:gauge",
         "device_class": BinarySensorDeviceClass.PROBLEM,
         "entity_category": EntityCategory.DIAGNOSTIC,
     },
     {
-        "name": "Can Range Issue",
         "key": "CAN_RANGE_STATE",
+        "name": "Can Range Issue",
         "icon": "mdi:bottle-tonic",
         "device_class": BinarySensorDeviceClass.PROBLEM,
         "entity_category": EntityCategory.DIAGNOSTIC,
     },
 ]
 
-# Add digital inputs
+# Dynamically add digital inputs
 for i in range(1, 13):
-    BINARY_SENSORS.append({
-        "name": f"Digital Input {i}",
-        "key": f"INPUT{i}",
-        "icon": "mdi:electric-switch",
-        "feature_id": "digital_inputs",
-        "entity_category": EntityCategory.DIAGNOSTIC,
-    })
-
-# Add digital CE inputs
+    BINARY_SENSORS.append(
+        {
+            "key": f"INPUT{i}",
+            "name": f"Digital Input {i}",
+            "icon": "mdi:electric-switch",
+            "feature_id": "digital_inputs",
+            "entity_category": EntityCategory.DIAGNOSTIC,
+        }
+    )
 for i in range(1, 5):
-    BINARY_SENSORS.append({
-        "name": f"Digital Input CE{i}",
-        "key": f"INPUT_CE{i}",
-        "icon": "mdi:electric-switch",
-        "feature_id": "digital_inputs",
-        "entity_category": EntityCategory.DIAGNOSTIC,
-    })
+    BINARY_SENSORS.append(
+        {
+            "key": f"INPUT_CE{i}",
+            "name": f"Digital Input CE{i}",
+            "icon": "mdi:electric-switch",
+            "feature_id": "digital_inputs",
+            "entity_category": EntityCategory.DIAGNOSTIC,
+        }
+    )
 
 # =============================================================================
-# SWITCHES with 3-STATE SUPPORT
+# SWITCHES
 # =============================================================================
 
 SWITCHES = [
     {
-        "name": "Filterpumpe",
         "key": "PUMP",
+        "name": "Filterpumpe",
         "icon": "mdi:water-pump",
         "feature_id": "filter_control",
-        "supports_3_state": True,
-        "supports_speed": True,
     },
     {
-        "name": "Solarabsorber",
         "key": "SOLAR",
+        "name": "Solarabsorber",
         "icon": "mdi:solar-power",
         "feature_id": "solar",
-        "supports_3_state": True,
     },
     {
-        "name": "Heizung",
         "key": "HEATER",
+        "name": "Heizung",
         "icon": "mdi:radiator",
         "feature_id": "heating",
-        "supports_3_state": True,
     },
     {
-        "name": "Beleuchtung",
         "key": "LIGHT",
+        "name": "Beleuchtung",
         "icon": "mdi:lightbulb",
         "feature_id": "led_lighting",
-        "supports_3_state": True,
-        "supports_color_pulse": True,
     },
     {
-        "name": "Dosierung pH+",
         "key": "DOS_5_PHP",
+        "name": "Dosierung pH+",
         "icon": "mdi:flask-plus",
         "feature_id": "ph_control",
-        "supports_3_state": True,
-        "supports_timer": True,
     },
     {
-        "name": "Dosierung pH-",
         "key": "DOS_4_PHM",
+        "name": "Dosierung pH-",
         "icon": "mdi:flask-minus",
         "feature_id": "ph_control",
-        "supports_3_state": True,
-        "supports_timer": True,
     },
     {
-        "name": "Chlor-Dosierung",
         "key": "DOS_1_CL",
+        "name": "Chlor-Dosierung",
         "icon": "mdi:flask",
         "feature_id": "chlorine_control",
-        "supports_3_state": True,
-        "supports_timer": True,
     },
     {
-        "name": "Flockmittel",
         "key": "DOS_6_FLOC",
+        "name": "Flockmittel",
         "icon": "mdi:flask",
         "feature_id": "chlorine_control",
-        "supports_3_state": True,
-        "supports_timer": True,
     },
     {
-        "name": "PV-Überschuss",
         "key": "PVSURPLUS",
+        "name": "PV-Überschuss",
         "icon": "mdi:solar-power-variant",
         "feature_id": "pv_surplus",
-        "supports_3_state": True,
-        "supports_speed": True,
     },
     {
-        "name": "Rückspülung",
         "key": "BACKWASH",
+        "name": "Rückspülung",
         "icon": "mdi:valve",
         "feature_id": "backwash",
-        "supports_3_state": True,
     },
     {
-        "name": "Nachspülung",
         "key": "BACKWASHRINSE",
+        "name": "Nachspülung",
         "icon": "mdi:valve",
         "feature_id": "backwash",
-        "supports_3_state": True,
     },
 ]
 
-# Add extension switches
+# Dynamically add extension switches
 for ext_bank in [1, 2]:
     for i in range(1, 9):
-        SWITCHES.append({
-            "name": f"Extension {ext_bank}.{i}",
-            "key": f"EXT{ext_bank}_{i}",
-            "icon": "mdi:toggle-switch-outline",
-            "feature_id": "extension_outputs",
-            "supports_3_state": True,
-        })
-
-# Add DMX scenes
-for scene_num in range(1, 13):
-    SWITCHES.append({
-        "name": f"DMX Szene {scene_num}",
-        "key": f"DMX_SCENE{scene_num}",
-        "icon": "mdi:lightbulb-multiple",
-        "feature_id": "led_lighting",
-        "supports_3_state": True,
-    })
-
-# Add digital rules
-for rule_num in range(1, 8):
-    SWITCHES.append({
-        "name": f"Schaltregel {rule_num}",
-        "key": f"DIRULE_{rule_num}",
-        "icon": "mdi:script-text",
-        "feature_id": "digital_inputs",
-        "supports_3_state": True,
-    })
+        SWITCHES.append(
+            {
+                "key": f"EXT{ext_bank}_{i}",
+                "name": f"Extension {ext_bank}.{i}",
+                "icon": "mdi:toggle-switch-outline",
+                "feature_id": "extension_outputs",
+            }
+        )
+# Dynamically add DMX scenes
+for i in range(1, 13):
+    SWITCHES.append(
+        {
+            "key": f"DMX_SCENE{i}",
+            "name": f"DMX Szene {i}",
+            "icon": "mdi:lightbulb-multiple",
+            "feature_id": "led_lighting",
+        }
+    )
+# Dynamically add digital rules
+for i in range(1, 8):
+    SWITCHES.append(
+        {
+            "key": f"DIRULE_{i}",
+            "name": f"Schaltregel {i}",
+            "icon": "mdi:script-text",
+            "feature_id": "digital_inputs",
+        }
+    )
 
 # =============================================================================
-# SETPOINT DEFINITIONS
+# NUMBER ENTITIES (SETPOINTS)
 # =============================================================================
 
 SETPOINT_DEFINITIONS = [
     {
         "key": "ph_setpoint",
         "name": "pH Sollwert",
+        "api_key": "pH",
         "min_value": 6.8,
         "max_value": 7.8,
         "step": 0.1,
+        "default_value": 7.2,
         "icon": "mdi:flask",
-        "api_key": "pH",
-        "feature_id": "ph_control",
         "unit_of_measurement": "pH",
         "device_class": NumberDeviceClass.PH,
+        "feature_id": "ph_control",
         "entity_category": EntityCategory.CONFIG,
-        "default_value": 7.2,
-        "setpoint_fields": ["pH_setpoint", "pH_target", "pH"],
-        "indicator_fields": ["pH_value", "ph_value"],
     },
     {
         "key": "orp_setpoint",
         "name": "Redox Sollwert",
+        "api_key": "ORP",
         "min_value": 600,
         "max_value": 800,
         "step": 10,
-        "icon": "mdi:flash",
-        "api_key": "ORP",
-        "feature_id": "chlorine_control",
-        "unit_of_measurement": "mV",
-        "entity_category": EntityCategory.CONFIG,
         "default_value": 700,
-        "setpoint_fields": ["ORP_setpoint", "ORP_target", "ORP"],
-        "indicator_fields": ["orp_value", "ORP_value"],
+        "icon": "mdi:flash",
+        "unit_of_measurement": "mV",
+        "feature_id": "chlorine_control",
+        "entity_category": EntityCategory.CONFIG,
     },
     {
         "key": "chlorine_setpoint",
         "name": "Chlor Sollwert",
+        "api_key": "MinChlorine",
         "min_value": 0.2,
         "max_value": 2.0,
         "step": 0.1,
-        "icon": "mdi:test-tube",
-        "api_key": "MinChlorine",
-        "feature_id": "chlorine_control",
-        "unit_of_measurement": "mg/l",
-        "entity_category": EntityCategory.CONFIG,
         "default_value": 0.6,
-        "setpoint_fields": ["MinChlorine", "chlorine_target", "chlorine_setpoint"],
-        "indicator_fields": ["pot_value", "chlorine_value"],
+        "icon": "mdi:test-tube",
+        "unit_of_measurement": "mg/l",
+        "feature_id": "chlorine_control",
+        "entity_category": EntityCategory.CONFIG,
     },
-]
-
-__all__ = [
-    "AVAILABLE_FEATURES",
-    "BINARY_SENSORS",
-    "SWITCHES",
-    "SETPOINT_DEFINITIONS",
 ]
