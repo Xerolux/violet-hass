@@ -291,6 +291,15 @@ async def async_setup_entry(
 
     _LOGGER.info("Binary Sensor Setup - Active features: %s", active_features)
 
+    # None-Check für coordinator.data
+    if coordinator.data is None:
+        _LOGGER.warning(
+            "Coordinator-Daten sind None für '%s'. "
+            "Binary Sensors werden nicht erstellt.",
+            config_entry.title,
+        )
+        return
+
     # Diagnose für verfügbare Daten
     if coordinator.data:
         _LOGGER.debug(

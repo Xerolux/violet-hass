@@ -208,6 +208,9 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
     @property
     def native_value(self) -> str | int | float | datetime | None:
         """Returns the native value of the sensor, formatted for Home Assistant."""
+        if self.coordinator.data is None:
+            return None
+
         key = self.entity_description.key
         raw_value = self.coordinator.data.get(key)
 
@@ -246,6 +249,9 @@ class VioletStatusSensor(VioletSensor):
     @property
     def native_value(self) -> Optional[str]:
         """Return the display string for the status."""
+        if self.coordinator.data is None:
+            return None
+
         raw_value = self.coordinator.data.get(self.entity_description.key)
         return (
             VioletState(raw_value, self.entity_description.key).display_mode
@@ -256,6 +262,9 @@ class VioletStatusSensor(VioletSensor):
     @property
     def icon(self) -> str:
         """Return the icon corresponding to the current status."""
+        if self.coordinator.data is None:
+            return super().icon
+
         raw_value = self.coordinator.data.get(self.entity_description.key)
         if raw_value is None:
             return super().icon
@@ -289,12 +298,18 @@ class VioletErrorCodeSensor(VioletSensor):
     @property
     def native_value(self) -> Optional[str]:
         """Return the descriptive subject of the error code."""
+        if self.coordinator.data is None:
+            return None
+
         code = str(self.coordinator.data.get(self.entity_description.key, "")).strip()
         return get_error_info(code)["subject"] if code else None
 
     @property
     def extra_state_attributes(self) -> Dict[str, Any]:
         """Return detailed information about the error code as attributes."""
+        if self.coordinator.data is None:
+            return {}
+
         code = str(self.coordinator.data.get(self.entity_description.key, "")).strip()
         if not code:
             return {}
@@ -329,6 +344,9 @@ class VioletFlowRateSensor(VioletPoolControllerEntity, SensorEntity):
     @property
     def native_value(self) -> Optional[float]:
         """Return the flow rate, prioritizing the ADC3 value."""
+        if self.coordinator.data is None:
+            return None
+
         for key in ["ADC3_value", "IMP2_value"]:
             raw_value = self.coordinator.data.get(key)
             if raw_value is not None:
@@ -341,6 +359,9 @@ class VioletFlowRateSensor(VioletPoolControllerEntity, SensorEntity):
     @property
     def extra_state_attributes(self) -> Dict[str, str]:
         """Return the raw source values for debugging purposes."""
+        if self.coordinator.data is None:
+            return {"data_source": "None"}
+
         adc3 = self.coordinator.data.get("ADC3_value", "N/A")
         imp2 = self.coordinator.data.get("IMP2_value", "N/A")
         source = "ADC3" if adc3 != "N/A" else "IMP2" if imp2 != "N/A" else "None"
@@ -353,6 +374,9 @@ class VioletFlowRateSensor(VioletPoolControllerEntity, SensorEntity):
     @property
     def available(self) -> bool:
         """The sensor is available if either of its data sources is present."""
+        if self.coordinator.data is None:
+            return False
+
         return super().available and any(
             self.coordinator.data.get(key) is not None for key in _FLOW_RATE_SOURCE_KEYS
         )
@@ -442,6 +466,16 @@ async def async_setup_entry(
     coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][
         config_entry.entry_id
     ]
+
+    # None-Check für coordinator.data
+    if coordinator.data is None:
+        _LOGGER.warning(
+            "Coordinator-Daten sind None für '%s'. "
+            "Sensoren werden nicht erstellt.",
+            config_entry.title,
+        )
+        return
+
     config = _get_sensor_config(config_entry)
 
     sensors: List[SensorEntity] = []

@@ -788,3 +788,50 @@ class VioletPoolAPI:
             json_payload=dict(parameters),
         )
         return self._command_result(body)
+
+    async def set_pump_speed(
+        self,
+        speed: int,
+        duration: int = 0,
+    ) -> dict[str, Any]:
+        """Sets the pump speed.
+
+        Args:
+            speed: The pump speed (1-3, where 1=ECO, 2=Normal, 3=Boost).
+            duration: Optional duration in seconds (0 = permanent).
+
+        Returns:
+            A dictionary with the command result.
+        """
+        safe_speed = max(1, min(3, int(speed)))
+        safe_duration = max(0, int(duration))
+
+        return await self.set_switch_state(
+            key="PUMP",
+            action=ACTION_ON,
+            duration=safe_duration,
+            last_value=safe_speed,
+        )
+
+    async def control_pump(
+        self,
+        action: str,
+        speed: int | None = None,
+        duration: int = 0,
+    ) -> dict[str, Any]:
+        """Controls the pump with optional speed and duration.
+
+        Args:
+            action: The action to perform (ON, OFF, AUTO).
+            speed: Optional pump speed (1-3).
+            duration: Optional duration in seconds.
+
+        Returns:
+            A dictionary with the command result.
+        """
+        return await self.set_switch_state(
+            key="PUMP",
+            action=action,
+            duration=duration,
+            last_value=speed,
+        )

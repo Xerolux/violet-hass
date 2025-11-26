@@ -110,6 +110,10 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
         Returns:
             True if available, False otherwise.
         """
+        # None-Check für coordinator.data
+        if self.coordinator.data is None:
+            return False
+
         # Prüfe ob Indikator-Felder verfügbar sind
         if self._indicator_fields:
             for field in self._indicator_fields:
@@ -224,6 +228,22 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                     sanitized_value,
                 )
                 result = await self.device.api.set_min_chlorine_level(sanitized_value)
+            elif api_key == "PUMP_SPEED":
+                _LOGGER.debug(
+                    "Verwende set_pump_speed für Pumpengeschwindigkeit (sanitized: %d)",
+                    int(sanitized_value),
+                )
+                result = await self.device.api.set_pump_speed(int(sanitized_value))
+            elif api_key in ("HEATER_TARGET_TEMP", "SOLAR_TARGET_TEMP"):
+                _LOGGER.debug(
+                    "Verwende set_device_temperature für %s (sanitized: %.1f)",
+                    api_key.replace("_TARGET_TEMP", ""),
+                    sanitized_value,
+                )
+                climate_key = api_key.replace("_TARGET_TEMP", "")
+                result = await self.device.api.set_device_temperature(
+                    climate_key, sanitized_value
+                )
             else:
                 _LOGGER.debug(
                     "Verwende set_target_value für %s (sanitized: %.2f)",
@@ -322,6 +342,15 @@ async def async_setup_entry(
         ", ".join(active_features),
     )
 
+    # None-Check für coordinator.data
+    if coordinator.data is None:
+        _LOGGER.warning(
+            "Coordinator-Daten sind None für '%s'. "
+            "Number-Entities werden nicht erstellt.",
+            config_entry.title,
+        )
+        return
+
     entities: list[NumberEntity] = []
 
     for setpoint_config in SETPOINT_DEFINITIONS:
@@ -340,17 +369,18 @@ async def async_setup_entry(
 
         # Prüfe ob Indikator-Felder verfügbar sind
         # (zeigt an, dass dieser Sollwert relevant ist)
-        if setpoint_config["indicator_fields"]:
+        indicator_fields = setpoint_config.get("indicator_fields", [])
+        if indicator_fields:
             has_indicators = any(
                 field in coordinator.data
-                for field in setpoint_config["indicator_fields"]
+                for field in indicator_fields
             )
 
             if not has_indicators:
                 _LOGGER.debug(
                     "Überspringe Number '%s': Keine Indikator-Felder verfügbar (%s)",
                     setpoint_name,
-                    ", ".join(setpoint_config["indicator_fields"]),
+                    ", ".join(indicator_fields),
                 )
                 continue
 

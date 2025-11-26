@@ -201,6 +201,14 @@ async def async_setup_entry(
 
     # Prüfe ob Cover-Control aktiviert ist und Daten verfügbar sind
     if "cover_control" in active_features:
+        # None-Check für coordinator.data
+        if coordinator.data is None:
+            _LOGGER.warning(
+                "Cover-Control aktiviert, aber Coordinator-Daten sind None. "
+                "Cover wird nicht erstellt."
+            )
+            return
+
         if "COVER_STATE" in coordinator.data:
             async_add_entities([VioletCover(coordinator, config_entry)])
             _LOGGER.info("Cover-Entity für '%s' hinzugefügt", config_entry.title)
