@@ -463,8 +463,12 @@ class VioletServiceHandlers:
 
                     # Set safety lock
                     if not safety_override:
-                        safety_interval = DEVICE_PARAMETERS.get(device_key, {}).get(
-                            "safety_interval", DEFAULT_SAFETY_INTERVAL
+                        from typing import cast
+                        safety_interval = cast(
+                            int,
+                            DEVICE_PARAMETERS.get(device_key, {}).get(
+                                "safety_interval", DEFAULT_SAFETY_INTERVAL
+                            ),
                         )
                         self.manager.set_safety_lock(device_key, safety_interval)
 

@@ -2,7 +2,7 @@
 
 import re
 import logging
-from typing import Any
+from typing import Any, Optional
 from html import escape
 
 _LOGGER = logging.getLogger(__name__)
@@ -94,8 +94,8 @@ class InputSanitizer:
     @staticmethod
     def sanitize_integer(
         value: Any,
-        min_value: int = None,
-        max_value: int = None,
+        min_value: Optional[int] = None,
+        max_value: Optional[int] = None,
         default: int = 0,
     ) -> int:
         """
@@ -144,8 +144,8 @@ class InputSanitizer:
     @staticmethod
     def sanitize_float(
         value: Any,
-        min_value: float = None,
-        max_value: float = None,
+        min_value: Optional[float] = None,
+        max_value: Optional[float] = None,
         precision: int = 2,
         default: float = 0.0,
     ) -> float:
