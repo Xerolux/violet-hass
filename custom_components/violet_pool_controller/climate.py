@@ -134,6 +134,8 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
 
         key = f"{self.climate_type}_TARGET_TEMP"
         target = self.get_float_value(key, DEFAULT_TARGET_TEMP)
+        # get_float_value with a non-None default will always return a float
+        assert target is not None
 
         # Validiere Temperatur
         if not self.min_temp <= target <= self.max_temp:

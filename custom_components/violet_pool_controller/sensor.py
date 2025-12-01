@@ -601,7 +601,7 @@ def _build_sensor_description(
     """Builds a SensorEntityDescription for a given sensor key."""
     predefined_info = predefined.get(key)
     name = predefined_info["name"] if predefined_info else key.replace("_", " ").title()
-    icon = predefined_info.get("icon")
+    icon = predefined_info.get("icon") if predefined_info else None
 
     unit = UNIT_MAP.get(key) if key not in NO_UNIT_SENSORS else None
     if _is_boolean_value(raw_value):

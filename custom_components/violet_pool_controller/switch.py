@@ -131,7 +131,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         raw_state = self.get_value(key, "")
         current_result = self._get_switch_state()
 
-        attributes = {
+        attributes: dict[str, Any] = {
             "raw_state": str(raw_state) if raw_state is not None else "None",
             "state_type": type(raw_state).__name__,
             "interpreted_as": "ON" if current_result else "OFF",

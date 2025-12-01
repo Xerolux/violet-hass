@@ -6,7 +6,7 @@ and colors. The module also provides helper functions and a `VioletState` class 
 consistently interpret and manage device states throughout the integration.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 # =============================================================================
 # DEVICE PARAMETERS - Extended Configuration
@@ -203,8 +203,11 @@ STATE_TRANSLATIONS = {
 def get_device_state_info(raw_state: Any) -> Dict[str, Any]:
     """Get extended state information for a given raw state."""
     state_str = str(raw_state).upper().strip()
-    return DEVICE_STATE_MAPPING.get(
-        state_str, {"mode": "unknown", "active": None, "desc": f"Unknown: {raw_state}"}
+    return cast(
+        Dict[str, Any],
+        DEVICE_STATE_MAPPING.get(
+            state_str, {"mode": "unknown", "active": None, "desc": f"Unknown: {raw_state}"}
+        ),
     )
 
 

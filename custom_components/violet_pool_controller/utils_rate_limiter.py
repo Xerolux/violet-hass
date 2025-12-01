@@ -42,7 +42,7 @@ class RateLimiter:
         self.retry_after = retry_after
 
         # Token Bucket
-        self.tokens = max_requests + burst_size
+        self.tokens = float(max_requests + burst_size)
         self.max_tokens = max_requests + burst_size
         self.last_refill = time.time()
 
@@ -179,7 +179,7 @@ class RateLimiter:
 
     def reset(self) -> None:
         """Setze Rate Limiter zurück."""
-        self.tokens = self.max_tokens
+        self.tokens = float(self.max_tokens)
         self.last_refill = time.time()
         self.blocked_requests = 0
         self.total_requests = 0

@@ -252,8 +252,12 @@ class VioletPoolAPI:
         Raises:
             VioletPoolAPIError: If the template is misconfigured.
         """
-        template = DEVICE_PARAMETERS.get(key, {}).get(
-            "api_template", f"{key},{{action}},{{duration}},{{value}}"
+        from typing import cast
+        template = cast(
+            str,
+            DEVICE_PARAMETERS.get(key, {}).get(
+                "api_template", f"{key},{{action}},{{duration}},{{value}}"
+            ),
         )
         payload_data = {
             "action": action,
