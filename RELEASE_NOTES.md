@@ -1,3 +1,39 @@
+v0.2.0-beta.4 – Bug Fixes & Improvements / Fehlerbehebungen & Verbesserungen 🎉
+
+🔧 Bug Fixes | Fehlerbehebungen
+- Merge pull request #157 from Xerolux/claude/check-fix-errors-01WwCxsoB299aFxjZPHHpvyU
+- test: Fix thread assertion error and add comprehensive testing infrastructure
+- fix: Resolve all mypy type errors
+- fix
+- Merge pull request #155 from Xerolux/fix/dmx-scene-error-handling
+
+🚀 Improvements | Verbesserungen
+- chore: Update .gitignore to exclude test virtual environments
+- Merge pull request #156 from Xerolux/refactor/code-quality-improvements
+- refactor: Improve code quality and documentation
+- feat: Make DMX scene updates fault-tolerant
+- Fix calibration history parsing bug and improve documentation
+
+✨ New Features | Neue Funktionen
+- test: Fix thread assertion error and add comprehensive testing infrastructure
+- docs: Add comprehensive testing checklist for manual HA testing
+- feat: Make DMX scene updates fault-tolerant
+
+📄 Full Changelog: v0.2.0-beta.3...v0.2.0-beta.4 / Vollständiges Änderungsprotokoll: v0.2.0-beta.3...v0.2.0-beta.4
+🔗 https://github.com/Xerolux/violet-hass/compare/v0.2.0-beta.3...v0.2.0-beta.4
+
+❤️ Support My Project | Unterstütze mein Projekt
+- ☕ Buy Me a Coffee: https://buymeacoffee.com/xerolux
+- 🚗 Tesla referral: https://ts.la/sebastian564489
+- Every contribution, no matter how small, is a huge motivation! Thank you so much for your support! 🙏
+- Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank für deine Unterstützung! 🙏
+
+💬 Feedback & Contributions | Feedback & Beiträge
+- Always open to feedback, suggestions, or contributions from the community. Feel free to open an issue or submit a pull request.
+- Ich freue mich über Feedback, Vorschläge oder Beiträge aus der Community. Erstelle gerne ein Issue oder sende einen Pull Request.
+
+---
+
 v0.2.0-beta.3 – Bug Fixes & Improvements / Fehlerbehebungen & Verbesserungen 🎉
 
 🔧 Bug Fixes | Fehlerbehebungen
