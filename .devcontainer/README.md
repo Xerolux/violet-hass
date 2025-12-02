@@ -40,18 +40,32 @@ When a new Codespace or Dev Container is created:
    - Installs pytest and test dependencies
    - Installs development tools (ruff, mypy)
 
-## Prebuilds
+## Prebuilds (Optional)
 
 GitHub Codespaces Prebuilds speed up environment creation significantly:
 
 - **Without prebuild**: 3-5 minutes to create a new Codespace
 - **With prebuild**: 10-30 seconds to create a new Codespace
 
-Prebuilds are automatically triggered:
-- When `.devcontainer/` files change
-- When `requirements*.txt` files change
-- When setup scripts change
-- Weekly on Sundays to keep the environment fresh
+### How to Enable Prebuilds
+
+Prebuilds must be configured in GitHub repository settings:
+
+1. Go to your repository on GitHub
+2. Navigate to **Settings** → **Codespaces**
+3. Under "Prebuild configuration", click **Set up prebuild**
+4. Configure the prebuild:
+   - **Configuration**: Select `.devcontainer/devcontainer.json`
+   - **Region**: Choose regions where you use Codespaces
+   - **Trigger**: Select when to run prebuilds (recommended: on push to main)
+   - **Schedule**: Optionally enable weekly updates
+5. Click **Create**
+
+Once configured, prebuilds will automatically update when:
+- You push changes to the main branch
+- `.devcontainer/` files change
+- `requirements*.txt` files change
+- On your configured schedule (if enabled)
 
 ## Development Workflow
 
@@ -104,7 +118,10 @@ bash scripts/setup-test-env.sh
 
 ### Prebuild not working
 
-Check the [Codespaces Prebuild workflow](../.github/workflows/codespaces-prebuild.yml) status in GitHub Actions.
+1. Check if prebuilds are enabled in **Settings** → **Codespaces** → **Prebuild configuration**
+2. Verify prebuild status by clicking on the prebuild configuration
+3. Check recent prebuild runs for errors
+4. Ensure you're creating Codespaces from a branch with available prebuilds (usually `main`)
 
 ## Learn More
 
