@@ -61,7 +61,7 @@
 ## ⚡ Schnellstart
 
 ### 1. Vorbereitung
-- ✅ Home Assistant 2023.1+ installiert
+- ✅ Home Assistant 2024.6+ installiert (getestet mit 2024.12.0 und 2025.1.4)
 - ✅ HACS installiert ([Anleitung](https://hacs.xyz/docs/setup/download))
 - ✅ Violet Pool Controller im Netzwerk erreichbar
 - ✅ Controller-IP-Adresse bekannt (z.B. 192.168.1.100)
@@ -399,6 +399,14 @@ Siehe [CONTRIBUTING.md](CONTRIBUTING.md) für Details.
 
 Für die vollständige Changelog siehe [CHANGELOG.md](CHANGELOG.md).
 
+### **v0.2.0-beta.4** (2025-12-02) - Bug Fixes & Improvements
+- 🔧 Fix thread assertion error mit umfassender Test-Infrastruktur
+- 🛡️ Alle mypy Type-Errors behoben
+- 💡 Fehlertolerante DMX-Szenen-Updates
+- 📝 Verbesserte Code-Qualität und Dokumentation
+- 🧪 Fix Kalibrierungs-Historie-Parsing
+- ✨ Umfassendes manuelles Testing-Checkliste
+
 ### **v0.2.0** (2025-11-20) - Semantic Versioning Adoption
 - 🎯 Migration zu sauberem Semantic Versioning (SemVer 2.0.0)
 - ✨ Complete 3-State Switch Support mit State 4 Fix
@@ -408,6 +416,9 @@ Für die vollständige Changelog siehe [CHANGELOG.md](CHANGELOG.md).
 - 🔧 Complete Extension Relay Support (EXT1/EXT2)
 - 🛡️ Thread-Safety Verbesserungen mit lokalen Cache-Variablen
 - 📝 Smart Logging (verhindert Log-Spam)
+- 🔄 Auto-Recovery für Controller-Verbindungen
+- 🔒 Enhanced Input Sanitization für mehr Sicherheit
+- 🏗️ Modulare Code-Struktur (const_*.py Organisation)
 
 ### **v0.1.0** (2024-XX-XX) - Initial Release
 - ✨ Erste Veröffentlichung mit umfassender Pool-Steuerung
