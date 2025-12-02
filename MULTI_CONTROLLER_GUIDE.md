@@ -177,6 +177,7 @@ Für einen neuen Bereich: Integration entfernen und neu hinzufügen.
 
 ### Automatisierungen
 
+{% raw %}
 ```yaml
 # Beispiel: Synchronisiere pH-Werte aller Pools
 automation:
@@ -190,6 +191,7 @@ automation:
         data:
           message: "Außenpool pH zu niedrig! Whirlpool: {{ states('sensor.whirlpool_ph_value') }}"
 ```
+{% endraw %}
 
 ### Dashboard mit Tabs
 

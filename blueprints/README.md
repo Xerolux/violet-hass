@@ -97,6 +97,7 @@ Die Blueprints benötigen spezielle **Helper-Entities** um Zähler und Zeitstemp
 
 Für erfahrene Nutzer - diese Konfiguration in `configuration.yaml` einfügen:
 
+{% raw %}
 ```yaml
 # Pool Helper Entities
 input_number:
@@ -108,7 +109,7 @@ input_number:
     initial: 0
     unit_of_measurement: "Dosierungen"
     icon: mdi:counter
-    
+
   pool_pump_runtime_hours:
     name: "Pool Pump Runtime Hours"
     min: 0
@@ -125,6 +126,7 @@ input_datetime:
     has_time: true
     icon: mdi:calendar-clock
 ```
+{% endraw %}
 
 Nach dem Hinzufügen: **Home Assistant neustarten**
 
@@ -155,6 +157,7 @@ show_header_toggle: false
 
 Wenn du die Pumpenlaufzeit automatisch zählen möchtest:
 
+{% raw %}
 ```yaml
 # Automation für Pump Runtime Counter
 automation:
@@ -180,6 +183,7 @@ automation:
             {% set duration = (now() - last_on).total_seconds() / 3600 %}
             {{ runtime + duration }}
 ```
+{% endraw %}
 
 ### Täglicher Reset der pH-Dosierungen:
 
