@@ -41,6 +41,7 @@ from .const import (
     TARGET_ORP,
     TARGET_PH,
     API_PRIORITY_NORMAL,
+    DOSING_FUNCTIONS,
 )
 from .utils_rate_limiter import get_global_rate_limiter
 
@@ -58,13 +59,6 @@ class VioletPoolAPI:
     and error handling. It provides methods for accessing various controller
     endpoints.
     """
-
-    _DOSING_TYPE_TO_KEY = {
-        "pH-": "DOS_4_PHM",
-        "pH+": "DOS_5_PHP",
-        "Chlor": "DOS_1_CL",
-        "Flockmittel": "DOS_6_FLOC",
-    }
 
     def __init__(
         self,
@@ -609,7 +603,7 @@ class VioletPoolAPI:
         Raises:
             VioletPoolAPIError: If the dosing type is unknown.
         """
-        device_key = self._DOSING_TYPE_TO_KEY.get(dosing_type)
+        device_key = DOSING_FUNCTIONS.get(dosing_type)
         if not device_key:
             raise VioletPoolAPIError(f"Unknown dosing type: {dosing_type}")
 
