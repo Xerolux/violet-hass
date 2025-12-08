@@ -54,6 +54,7 @@ MAX_RETRIES = 10
 MIN_POOL_SIZE = 0.1
 MAX_POOL_SIZE = 1000.0
 MIN_DEVICE_ID = 1
+MAX_DEVICE_ID = 99
 
 # Retry-Konstanten
 BASE_RETRY_DELAY = 2
@@ -662,24 +663,43 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Optional(CONF_USERNAME): str,
                 vol.Optional(CONF_PASSWORD): str,
                 vol.Required(CONF_USE_SSL, default=DEFAULT_USE_SSL): bool,
-                vol.Required(CONF_DEVICE_ID, default=1): vol.All(
-                    vol.Coerce(int), vol.Range(min=1)
+                vol.Required(CONF_DEVICE_ID, default=1): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=MIN_DEVICE_ID,
+                        max=MAX_DEVICE_ID,
+                        step=1,
+                        mode=selector.NumberSelectorMode.BOX,
+                    )
                 ),
                 vol.Required(
                     CONF_POLLING_INTERVAL, default=DEFAULT_POLLING_INTERVAL
-                ): vol.All(
-                    vol.Coerce(int),
-                    vol.Range(min=MIN_POLLING_INTERVAL, max=MAX_POLLING_INTERVAL),
+                ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=MIN_POLLING_INTERVAL,
+                        max=MAX_POLLING_INTERVAL,
+                        step=1,
+                        mode=selector.NumberSelectorMode.BOX,
+                    )
                 ),
                 vol.Required(
                     CONF_TIMEOUT_DURATION, default=DEFAULT_TIMEOUT_DURATION
-                ): vol.All(
-                    vol.Coerce(int), vol.Range(min=MIN_TIMEOUT, max=MAX_TIMEOUT)
+                ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=MIN_TIMEOUT,
+                        max=MAX_TIMEOUT,
+                        step=1,
+                        mode=selector.NumberSelectorMode.BOX,
+                    )
                 ),
                 vol.Required(
                     CONF_RETRY_ATTEMPTS, default=DEFAULT_RETRY_ATTEMPTS
-                ): vol.All(
-                    vol.Coerce(int), vol.Range(min=MIN_RETRIES, max=MAX_RETRIES)
+                ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=MIN_RETRIES,
+                        max=MAX_RETRIES,
+                        step=1,
+                        mode=selector.NumberSelectorMode.BOX,
+                    )
                 ),
                 vol.Optional(
                     CONF_DEVICE_NAME, default="🌊 Violet Pool Controller"
@@ -837,22 +857,40 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
                 default=self.current_config.get(
                     CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL
                 ),
-            ): vol.All(
-                vol.Coerce(int),
-                vol.Range(min=MIN_POLLING_INTERVAL, max=MAX_POLLING_INTERVAL),
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=MIN_POLLING_INTERVAL,
+                    max=MAX_POLLING_INTERVAL,
+                    step=1,
+                    mode=selector.NumberSelectorMode.BOX,
+                )
             ),
             vol.Optional(
                 CONF_TIMEOUT_DURATION,
                 default=self.current_config.get(
                     CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION
                 ),
-            ): vol.All(vol.Coerce(int), vol.Range(min=MIN_TIMEOUT, max=MAX_TIMEOUT)),
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=MIN_TIMEOUT,
+                    max=MAX_TIMEOUT,
+                    step=1,
+                    mode=selector.NumberSelectorMode.BOX,
+                )
+            ),
             vol.Optional(
                 CONF_RETRY_ATTEMPTS,
                 default=self.current_config.get(
                     CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS
                 ),
-            ): vol.All(vol.Coerce(int), vol.Range(min=MIN_RETRIES, max=MAX_RETRIES)),
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=MIN_RETRIES,
+                    max=MAX_RETRIES,
+                    step=1,
+                    mode=selector.NumberSelectorMode.BOX,
+                )
+            ),
         }
 
         # Dynamische Sensor-Auswahl hinzufügen

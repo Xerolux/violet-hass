@@ -1,4 +1,11 @@
-"""Service handlers for the Violet Pool Controller integration - WITH INPUT SANITIZATION."""
+"""Service handlers for the Violet Pool Controller integration - WITH INPUT SANITIZATION.
+
+Note on Validation:
+    Service schemas use `vol.Coerce(int)` combined with `vol.Range()` for numeric inputs.
+    This ensures that values passed from automations (which might be strings) are correctly
+    converted to integers before use. This differs from the config flow, which uses
+    `selector.NumberSelector` to provide a rich UI, as service calls are often programmatic.
+"""
 
 import asyncio
 import logging
