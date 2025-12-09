@@ -1,0 +1,48 @@
+# =============================================================================
+# Violet Pool Controller - Kompakte Dashboard-Karte
+# =============================================================================
+#
+# Diese Konfiguration erstellt eine kompakte Dashboard-Karte mit den
+# wichtigsten Steuerungselementen für Ihren Pool.
+#
+# PERFEKT FÜR: Mobile Geräte, Übersichtsseiten, Tablets
+# =============================================================================
+
+type: entities
+title: 🏊 Pool-Controller
+show_header_toggle: false
+state_color: true
+entities:
+  # Schnellsteuerung
+  - type: section
+    label: Steuerung
+  - entity: select.violet_pool_controller_pump_mode
+    name: Pumpe
+    icon: mdi:water-pump
+  - entity: number.violet_pool_controller_pump_speed
+    name: Geschwindigkeit
+  - entity: select.violet_pool_controller_heater_mode
+    name: Heizung
+    icon: mdi:radiator
+  - entity: number.violet_pool_controller_heater_target_temp
+    name: Zieltemp.
+
+  # Wasserqualität
+  - type: section
+    label: Wasserqualität
+  - entity: sensor.violet_pool_controller_ph_value
+    name: pH
+    icon: mdi:flask
+  - entity: sensor.violet_pool_controller_orp_value
+    name: Redox
+    icon: mdi:flash
+  - entity: sensor.violet_pool_controller_pool_temperature
+    name: Temperatur
+    icon: mdi:thermometer-water
+
+  # Status
+  - type: section
+    label: Status
+  - entity: binary_sensor.violet_pool_controller_connection
+    name: Verbindung
+    icon: mdi:lan-connect

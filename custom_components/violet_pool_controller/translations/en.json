@@ -382,6 +382,72 @@
             "solar": {
                 "name": "Solar Heater"
             }
+        },
+        "select": {
+            "pump_mode": {
+                "name": "Pump Mode",
+                "state": {
+                    "off": "Off",
+                    "on": "On",
+                    "auto": "Auto"
+                }
+            },
+            "heater_mode": {
+                "name": "Heater Mode",
+                "state": {
+                    "off": "Off",
+                    "on": "On",
+                    "auto": "Auto"
+                }
+            },
+            "solar_mode": {
+                "name": "Solar Mode",
+                "state": {
+                    "off": "Off",
+                    "on": "On",
+                    "auto": "Auto"
+                }
+            },
+            "light_mode": {
+                "name": "Light Mode",
+                "state": {
+                    "off": "Off",
+                    "on": "On",
+                    "auto": "Auto"
+                }
+            },
+            "dos_cl_mode": {
+                "name": "Chlorine Dosing Mode",
+                "state": {
+                    "off": "Off",
+                    "on": "On",
+                    "auto": "Auto"
+                }
+            },
+            "dos_phm_mode": {
+                "name": "pH- Dosing Mode",
+                "state": {
+                    "off": "Off",
+                    "on": "On",
+                    "auto": "Auto"
+                }
+            },
+            "dos_php_mode": {
+                "name": "pH+ Dosing Mode",
+                "state": {
+                    "off": "Off",
+                    "on": "On",
+                    "auto": "Auto"
+                }
+            },
+            "pvsurplus_mode": {
+                "name": "PV Surplus Mode",
+                "state": {
+                    "off": "Off",
+                    "on": "On",
+                    "auto": "Auto"
+                }
+            }
         }
     }
 }
