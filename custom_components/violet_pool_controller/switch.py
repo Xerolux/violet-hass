@@ -1,30 +1,43 @@
 """Switch Integration für den Violet Pool Controller - CHANGE-ONLY LOGGING & THREAD-SAFE."""
 
-import logging
 import asyncio
+import logging
 from typing import Any
 
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers.entity import EntityCategory
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, SWITCHES, CONF_ACTIVE_FEATURES, ACTION_ON, ACTION_OFF
 from .api import VioletPoolAPIError
-from .entity import VioletPoolControllerEntity, interpret_state_as_bool
+from .const import ACTION_OFF, ACTION_ON, CONF_ACTIVE_FEATURES, DOMAIN, SWITCHES
 from .device import VioletPoolDataUpdateCoordinator
+from .entity import VioletPoolControllerEntity, interpret_state_as_bool
 
 _LOGGER = logging.getLogger(__name__)
 
 # State Constants
+# Der Violet Pool Controller verwendet verschiedene Zustände für Geräte:
+# - 0: AUTO_OFF - Automatik-Modus, Gerät ist aus
+# - 1: AUTO_ON - Automatik-Modus, Gerät ist an (z.B. nach Zeitplan)
+# - 2-3: Weitere AUTO-Zustände (z.B. Aufwärmen, Vorbereiten)
+# - 4: MANUAL_ON - Manueller Modus, Gerät ist eingeschaltet
+# - 5: AUTO_OFF - Alternative AUTO-OFF Darstellung
+# - 6: MANUAL_OFF - Manueller Modus, Gerät ist ausgeschaltet
+#
+# WICHTIG: State "4" wird als ON behandelt, nicht als ERROR/UNDEFINED.
+# Dies ist ein normaler Zustand für manuell eingeschaltete Geräte.
 STATE_OFF = 0
 STATE_AUTO_ON = 1
 STATE_MANUAL_ON = 4
 STATE_AUTO_OFF = 5
 STATE_MANUAL_OFF = 6
 
+# ON_STATES: Alle Zustände, bei denen das Gerät aktiv ist (1-4)
 ON_STATES = {1, 2, 3, 4}
+# OFF_STATES: Alle Zustände, bei denen das Gerät inaktiv ist (0, 5, 6)
 OFF_STATES = {0, 5, 6}
 
 REFRESH_DELAY = 0.3
@@ -430,10 +443,20 @@ async def async_setup_entry(
 
     # Create switches
     for switch_config in SWITCHES:
+        # Map entity_category string to EntityCategory enum
+        entity_category = None
+        if "entity_category" in switch_config:
+            category_str = switch_config["entity_category"]
+            if category_str == "diagnostic":
+                entity_category = EntityCategory.DIAGNOSTIC
+            elif category_str == "config":
+                entity_category = EntityCategory.CONFIG
+
         description = SwitchEntityDescription(
             key=switch_config["key"],
             name=switch_config["name"],
             icon=switch_config.get("icon"),
+            entity_category=entity_category,
         )
 
         feature_id = switch_config.get("feature_id")

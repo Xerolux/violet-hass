@@ -1,26 +1,26 @@
 """Climate Integration für den Violet Pool Controller - FULLY PROTECTED & THREAD-SAFE VERSION."""
 
-import logging
 import asyncio
+import logging
 from typing import Any
 
 from homeassistant.components.climate import (
     ClimateEntity,
-    ClimateEntityFeature,
-    HVACMode,
-    HVACAction,
     ClimateEntityDescription,
+    ClimateEntityFeature,
+    HVACAction,
+    HVACMode,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfTemperature
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .api import VioletPoolAPIError
 from .const import ACTION_AUTO, ACTION_OFF, ACTION_ON, CONF_ACTIVE_FEATURES, DOMAIN
-from .entity import VioletPoolControllerEntity
 from .device import VioletPoolDataUpdateCoordinator
+from .entity import VioletPoolControllerEntity
 
 _LOGGER = logging.getLogger(__name__)
 

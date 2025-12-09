@@ -4,8 +4,8 @@ import logging
 from typing import Any
 
 from homeassistant.components.binary_sensor import (
-    BinarySensorEntity,
     BinarySensorDeviceClass,
+    BinarySensorEntity,
     BinarySensorEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
@@ -13,9 +13,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, BINARY_SENSORS, CONF_ACTIVE_FEATURES
-from .entity import VioletPoolControllerEntity, interpret_state_as_bool
+from .const import BINARY_SENSORS, CONF_ACTIVE_FEATURES, DOMAIN
 from .device import VioletPoolDataUpdateCoordinator
+from .entity import VioletPoolControllerEntity, interpret_state_as_bool
 
 _LOGGER = logging.getLogger(__name__)
 

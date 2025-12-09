@@ -219,6 +219,7 @@ for ext_bank in [1, 2]:
                 "name": f"Extension {ext_bank}.{i}",
                 "icon": "mdi:toggle-switch-outline",
                 "feature_id": "extension_outputs",
+                "entity_category": "diagnostic",  # Erweiterte Hardware-Ausgänge
             }
         )
 # Dynamically add DMX scenes
@@ -229,6 +230,7 @@ for i in range(1, 13):
             "name": f"DMX Szene {i}",
             "icon": "mdi:lightbulb-multiple",
             "feature_id": "led_lighting",
+            "entity_category": "config",  # Konfigurierbare Lichtszenen
         }
     )
 # Dynamically add digital rules
@@ -239,6 +241,7 @@ for i in range(1, 8):
             "name": f"Schaltregel {i}",
             "icon": "mdi:script-text",
             "feature_id": "digital_inputs",
+            "entity_category": "config",  # Konfigurierbare Schaltregeln
         }
     )
 

@@ -3,16 +3,17 @@
 import logging
 
 from homeassistant.components.cover import (
-    CoverEntity,
     CoverDeviceClass,
-    CoverEntityFeature,
+    CoverEntity,
     CoverEntityDescription,
+    CoverEntityFeature,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from .api import VioletPoolAPIError
 from .const import (
     ACTION_PUSH,
     CONF_ACTIVE_FEATURES,
@@ -20,9 +21,8 @@ from .const import (
     COVER_STATE_MAP,
     DOMAIN,
 )
-from .api import VioletPoolAPIError
-from .entity import VioletPoolControllerEntity
 from .device import VioletPoolDataUpdateCoordinator
+from .entity import VioletPoolControllerEntity
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -1,31 +1,31 @@
 """Violet Pool Controller Device Module - SMART FAILURE LOGGING + AUTO RECOVERY."""
 
-import logging
 import asyncio
+import logging
 import time
 from datetime import timedelta
-from typing import Any, Optional, Mapping
+from typing import Any, Mapping, Optional
 
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.exceptions import ConfigEntryNotReady
 
+from .api import VioletPoolAPI, VioletPoolAPIError
 from .const import (
-    DOMAIN,
     CONF_API_URL,
-    CONF_USE_SSL,
-    CONF_DEVICE_NAME,
     CONF_CONTROLLER_NAME,
     CONF_DEVICE_ID,
+    CONF_DEVICE_NAME,
     CONF_POLLING_INTERVAL,
-    DEFAULT_POLLING_INTERVAL,
+    CONF_USE_SSL,
     DEFAULT_CONTROLLER_NAME,
-    SPECIFIC_READING_GROUPS,
+    DEFAULT_POLLING_INTERVAL,
+    DOMAIN,
     SPECIFIC_FULL_REFRESH_INTERVAL,
+    SPECIFIC_READING_GROUPS,
 )
-from .api import VioletPoolAPI, VioletPoolAPIError
 
 _LOGGER = logging.getLogger(__name__)
 
