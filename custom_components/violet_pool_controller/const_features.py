@@ -347,3 +347,74 @@ SETPOINT_DEFINITIONS = [
         "indicator_fields": ["PUMP", "PUMP_RPM_2", "PUMP_RPM_2_VALUE"],
     },
 ]
+
+# =============================================================================
+# SELECT CONTROLS - ON/OFF/AUTO Steuerung
+# =============================================================================
+
+SELECT_CONTROLS = [
+    {
+        "key": "pump_mode",
+        "name": "Pumpen-Modus",
+        "device_key": "PUMP",
+        "icon": "mdi:water-pump",
+        "feature_id": "filter_control",
+        "entity_category": "config",
+    },
+    {
+        "key": "heater_mode",
+        "name": "Heizungs-Modus",
+        "device_key": "HEATER",
+        "icon": "mdi:radiator",
+        "feature_id": "heating",
+        "entity_category": "config",
+    },
+    {
+        "key": "solar_mode",
+        "name": "Solar-Modus",
+        "device_key": "SOLAR",
+        "icon": "mdi:solar-power",
+        "feature_id": "solar",
+        "entity_category": "config",
+    },
+    {
+        "key": "light_mode",
+        "name": "Licht-Modus",
+        "device_key": "LIGHT",
+        "icon": "mdi:lightbulb",
+        "feature_id": "led_lighting",
+        "entity_category": "config",
+    },
+    {
+        "key": "dos_cl_mode",
+        "name": "Chlor-Dosierung Modus",
+        "device_key": "DOS_1_CL",
+        "icon": "mdi:test-tube",
+        "feature_id": "chlorine_control",
+        "entity_category": "config",
+    },
+    {
+        "key": "dos_phm_mode",
+        "name": "pH- Dosierung Modus",
+        "device_key": "DOS_4_PHM",
+        "icon": "mdi:flask-minus",
+        "feature_id": "ph_control",
+        "entity_category": "config",
+    },
+    {
+        "key": "dos_php_mode",
+        "name": "pH+ Dosierung Modus",
+        "device_key": "DOS_5_PHP",
+        "icon": "mdi:flask-plus",
+        "feature_id": "ph_control",
+        "entity_category": "config",
+    },
+    {
+        "key": "pvsurplus_mode",
+        "name": "PV-Überschuss Modus",
+        "device_key": "PVSURPLUS",
+        "icon": "mdi:solar-power-variant",
+        "feature_id": "pv_surplus",
+        "entity_category": "config",
+    },
+]

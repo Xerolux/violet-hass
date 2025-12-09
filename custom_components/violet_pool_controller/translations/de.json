@@ -382,6 +382,72 @@
             "solar": {
                 "name": "☀️ Solarheizung"
             }
+        },
+        "select": {
+            "pump_mode": {
+                "name": "🌊 Pumpen-Modus",
+                "state": {
+                    "off": "Aus",
+                    "on": "Ein",
+                    "auto": "Automatik"
+                }
+            },
+            "heater_mode": {
+                "name": "🔥 Heizungs-Modus",
+                "state": {
+                    "off": "Aus",
+                    "on": "Ein",
+                    "auto": "Automatik"
+                }
+            },
+            "solar_mode": {
+                "name": "☀️ Solar-Modus",
+                "state": {
+                    "off": "Aus",
+                    "on": "Ein",
+                    "auto": "Automatik"
+                }
+            },
+            "light_mode": {
+                "name": "💡 Licht-Modus",
+                "state": {
+                    "off": "Aus",
+                    "on": "Ein",
+                    "auto": "Automatik"
+                }
+            },
+            "dos_cl_mode": {
+                "name": "🧪 Chlor-Dosierung Modus",
+                "state": {
+                    "off": "Aus",
+                    "on": "Ein",
+                    "auto": "Automatik"
+                }
+            },
+            "dos_phm_mode": {
+                "name": "🧪 pH- Dosierung Modus",
+                "state": {
+                    "off": "Aus",
+                    "on": "Ein",
+                    "auto": "Automatik"
+                }
+            },
+            "dos_php_mode": {
+                "name": "🧪 pH+ Dosierung Modus",
+                "state": {
+                    "off": "Aus",
+                    "on": "Ein",
+                    "auto": "Automatik"
+                }
+            },
+            "pvsurplus_mode": {
+                "name": "⚡ PV-Überschuss Modus",
+                "state": {
+                    "off": "Aus",
+                    "on": "Ein",
+                    "auto": "Automatik"
+                }
+            }
         }
     },
     "entity_component": {
