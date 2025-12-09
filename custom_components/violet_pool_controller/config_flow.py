@@ -54,6 +54,7 @@ MAX_RETRIES = 10
 MIN_POOL_SIZE = 0.1
 MAX_POOL_SIZE = 1000.0
 MIN_DEVICE_ID = 1
+MAX_DEVICE_ID = 99
 
 # Retry-Konstanten
 BASE_RETRY_DELAY = 2
@@ -664,7 +665,10 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_USE_SSL, default=DEFAULT_USE_SSL): bool,
                 vol.Required(CONF_DEVICE_ID, default=1): selector.NumberSelector(
                     selector.NumberSelectorConfig(
-                        min=MIN_DEVICE_ID, mode=selector.NumberSelectorMode.BOX
+                        min=MIN_DEVICE_ID,
+                        max=MAX_DEVICE_ID,
+                        step=1,
+                        mode=selector.NumberSelectorMode.BOX,
                     )
                 ),
                 vol.Required(
@@ -673,6 +677,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     selector.NumberSelectorConfig(
                         min=MIN_POLLING_INTERVAL,
                         max=MAX_POLLING_INTERVAL,
+                        step=1,
                         mode=selector.NumberSelectorMode.BOX,
                     )
                 ),
@@ -682,6 +687,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     selector.NumberSelectorConfig(
                         min=MIN_TIMEOUT,
                         max=MAX_TIMEOUT,
+                        step=1,
                         mode=selector.NumberSelectorMode.BOX,
                     )
                 ),
@@ -691,6 +697,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     selector.NumberSelectorConfig(
                         min=MIN_RETRIES,
                         max=MAX_RETRIES,
+                        step=1,
                         mode=selector.NumberSelectorMode.BOX,
                     )
                 ),
@@ -860,6 +867,7 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
                 selector.NumberSelectorConfig(
                     min=MIN_POLLING_INTERVAL,
                     max=MAX_POLLING_INTERVAL,
+                    step=1,
                     mode=selector.NumberSelectorMode.BOX,
                 )
             ),
@@ -872,6 +880,7 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
                 selector.NumberSelectorConfig(
                     min=MIN_TIMEOUT,
                     max=MAX_TIMEOUT,
+                    step=1,
                     mode=selector.NumberSelectorMode.BOX,
                 )
             ),
@@ -884,6 +893,7 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
                 selector.NumberSelectorConfig(
                     min=MIN_RETRIES,
                     max=MAX_RETRIES,
+                    step=1,
                     mode=selector.NumberSelectorMode.BOX,
                 )
             ),
