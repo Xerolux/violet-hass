@@ -5,28 +5,28 @@ from typing import Any
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
 from homeassistant.const import Platform
+from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
 from homeassistant.helpers import aiohttp_client
 
 from .const import (
-    DOMAIN,
-    CONF_API_URL,
-    CONF_USE_SSL,
-    CONF_DEVICE_ID,
-    CONF_USERNAME,
-    CONF_PASSWORD,
-    CONF_DEVICE_NAME,
-    CONF_CONTROLLER_NAME,
-    CONF_POLLING_INTERVAL,
-    CONF_TIMEOUT_DURATION,
-    CONF_RETRY_ATTEMPTS,
     CONF_ACTIVE_FEATURES,
-    DEFAULT_POLLING_INTERVAL,
-    DEFAULT_TIMEOUT_DURATION,
-    DEFAULT_RETRY_ATTEMPTS,
+    CONF_API_URL,
+    CONF_CONTROLLER_NAME,
+    CONF_DEVICE_ID,
+    CONF_DEVICE_NAME,
+    CONF_PASSWORD,
+    CONF_POLLING_INTERVAL,
+    CONF_RETRY_ATTEMPTS,
+    CONF_TIMEOUT_DURATION,
+    CONF_USE_SSL,
+    CONF_USERNAME,
     DEFAULT_CONTROLLER_NAME,
+    DEFAULT_POLLING_INTERVAL,
+    DEFAULT_RETRY_ATTEMPTS,
+    DEFAULT_TIMEOUT_DURATION,
+    DOMAIN,
 )
 
 _LOGGER = logging.getLogger(__name__)

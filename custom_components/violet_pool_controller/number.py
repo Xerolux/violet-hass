@@ -5,13 +5,13 @@ import logging
 from homeassistant.components.number import NumberEntity, NumberEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import DOMAIN, SETPOINT_DEFINITIONS, CONF_ACTIVE_FEATURES
 from .api import VioletPoolAPIError
-from .entity import VioletPoolControllerEntity
+from .const import CONF_ACTIVE_FEATURES, DOMAIN, SETPOINT_DEFINITIONS
 from .device import VioletPoolDataUpdateCoordinator
+from .entity import VioletPoolControllerEntity
 from .utils_sanitizer import InputSanitizer
 
 _LOGGER = logging.getLogger(__name__)

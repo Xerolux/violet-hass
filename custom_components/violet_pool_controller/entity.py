@@ -4,9 +4,9 @@ import logging
 import re
 from typing import Any, Optional
 
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from homeassistant.helpers.entity import EntityDescription
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.helpers.entity import EntityDescription
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import STATE_MAP
 from .device import VioletPoolDataUpdateCoordinator
@@ -45,7 +45,11 @@ def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool:
 
     Supports:
     - Integer states (via STATE_MAP)
+      - 0, 5, 6: OFF (Automatik aus, Manuell aus)
+      - 1, 2, 3, 4: ON (Automatik an, Manuell an)
+      - WICHTIG: State 4 ist MANUAL_ON, nicht ERROR/UNDEFINED!
     - String states (ON/OFF, TRUE/FALSE, etc.)
+    - Composite strings (e.g., "3|PUMP_ANTI_FREEZE")
 
     Args:
         raw_state: Raw state value from API.

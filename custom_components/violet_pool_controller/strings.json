@@ -123,8 +123,8 @@
     "options": {
         "step": {
             "init": {
-                "title": "🔧 Erweiterte Pool-Einstellungen",
-                "description": "**Optimiere deine Pool-Automatisierung**\n\n⚙️ Hier kannst du alle Einstellungen nach deinen Wünschen anpassen.\n\n💡 **Tipp:** Teste verschiedene Intervalle um die perfekte Balance zwischen Aktualität und Systemlast zu finden.",
+                "title": "🔧 Pool-Einstellungen anpassen",
+                "description": "**Was möchtest du konfigurieren?**\n\n🎛️ Features aktivieren/deaktivieren\n📊 Sensoren auswählen\n⚙️ Einstellungen ändern\n\n💡 **Tipp:** Du kannst jederzeit zurück zu dieser Auswahl kommen.",
                 "data": {
                     "polling_interval": "⏱️ Datenabfrage-Intervall",
                     "timeout_duration": "⏰ Verbindungs-Timeout",
@@ -167,6 +167,18 @@
                     "feature_digital_inputs": "Externe Sensoren integrieren",
                     "feature_extension_outputs": "Zusätzliche Geräte ansteuern"
                 }
+            },
+            "features": {
+                "title": "🎛️ Features aktivieren/deaktivieren",
+                "description": "**Wähle die Features, die du nutzen möchtest**\n\n✅ Aktivierte Features werden in Home Assistant angezeigt\n❌ Deaktivierte Features werden ausgeblendet\n\n💡 **Tipp:** Aktiviere nur, was du wirklich brauchst - das hält die Oberfläche übersichtlich!"
+            },
+            "sensors": {
+                "title": "📊 Sensoren auswählen",
+                "description": "**Wähle die Sensoren, die angezeigt werden sollen**\n\n📈 Nur ausgewählte Sensoren werden in Home Assistant angezeigt\n🔄 Änderungen werden sofort übernommen\n\n💡 **Tipp:** Wähle nur die Sensoren aus, die du wirklich überwachen möchtest!"
+            },
+            "settings": {
+                "title": "⚙️ Allgemeine Einstellungen",
+                "description": "**Passe die technischen Parameter an**\n\n⏱️ Polling-Intervall: Wie oft Daten abgerufen werden\n⏰ Timeout: Maximale Wartezeit für Antworten\n🔄 Wiederholungen: Anzahl Retry-Versuche\n\n💡 **Tipp:** Standard-Werte funktionieren für die meisten Setups!"
             }
         }
     },

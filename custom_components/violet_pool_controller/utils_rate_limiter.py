@@ -1,10 +1,10 @@
 """Rate Limiter für API-Requests - Token Bucket Algorithm."""
 
 import asyncio
-import time
 import logging
-from typing import Optional
+import time
 from collections import deque
+from typing import Optional
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -197,10 +197,10 @@ def get_global_rate_limiter() -> RateLimiter:
     if _global_rate_limiter is None:
         # Default-Werte aus const_api
         from .const import (
-            API_RATE_LIMIT_REQUESTS,
-            API_RATE_LIMIT_WINDOW,
             API_RATE_LIMIT_BURST,
+            API_RATE_LIMIT_REQUESTS,
             API_RATE_LIMIT_RETRY_AFTER,
+            API_RATE_LIMIT_WINDOW,
         )
 
         _global_rate_limiter = RateLimiter(

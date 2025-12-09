@@ -9,44 +9,44 @@ from typing import Any
 import aiohttp
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.core import callback, HomeAssistant
-from homeassistant.helpers import aiohttp_client, selector
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowResult
+from homeassistant.helpers import aiohttp_client, selector
 
 from .const import (
-    DOMAIN,
     API_READINGS,
-    CONF_API_URL,
-    CONF_USE_SSL,
-    CONF_DEVICE_NAME,
-    CONF_CONTROLLER_NAME,
-    CONF_USERNAME,
-    CONF_PASSWORD,
-    CONF_DEVICE_ID,
-    CONF_POLLING_INTERVAL,
-    CONF_TIMEOUT_DURATION,
-    CONF_RETRY_ATTEMPTS,
+    AVAILABLE_FEATURES,
     CONF_ACTIVE_FEATURES,
+    CONF_API_URL,
+    CONF_CONTROLLER_NAME,
+    CONF_DEVICE_ID,
+    CONF_DEVICE_NAME,
+    CONF_DISINFECTION_METHOD,
+    CONF_PASSWORD,
+    CONF_POLLING_INTERVAL,
     CONF_POOL_SIZE,
     CONF_POOL_TYPE,
-    CONF_DISINFECTION_METHOD,
+    CONF_RETRY_ATTEMPTS,
     CONF_SELECTED_SENSORS,
-    DEFAULT_USE_SSL,
+    CONF_TIMEOUT_DURATION,
+    CONF_USE_SSL,
+    CONF_USERNAME,
+    DEFAULT_CONTROLLER_NAME,
+    DEFAULT_DISINFECTION_METHOD,
     DEFAULT_POLLING_INTERVAL,
-    DEFAULT_TIMEOUT_DURATION,
-    DEFAULT_RETRY_ATTEMPTS,
     DEFAULT_POOL_SIZE,
     DEFAULT_POOL_TYPE,
-    DEFAULT_DISINFECTION_METHOD,
-    DEFAULT_CONTROLLER_NAME,
-    AVAILABLE_FEATURES,
+    DEFAULT_RETRY_ATTEMPTS,
+    DEFAULT_TIMEOUT_DURATION,
+    DEFAULT_USE_SSL,
+    DOMAIN,
 )
 from .const_sensors import (
+    ANALOG_SENSORS,
+    STATUS_SENSORS,
+    SYSTEM_SENSORS,
     TEMP_SENSORS,
     WATER_CHEM_SENSORS,
-    ANALOG_SENSORS,
-    SYSTEM_SENSORS,
-    STATUS_SENSORS,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -811,6 +811,7 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
     def __init__(self) -> None:
         """Initialize options flow."""
         self._sensor_data: dict[str, list[str]] = {}
+        self._updated_options: dict[str, Any] = {}
 
     @property
     def current_config(self) -> dict[str, Any]:
@@ -821,7 +822,116 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """
-        Handle the advanced settings and sensor selection step.
+        Handle the initial options menu - let user choose what to configure.
+
+        Args:
+            user_input: The user input dictionary.
+
+        Returns:
+            The flow result.
+        """
+        if user_input is not None:
+            choice = user_input.get("config_option", "settings")
+
+            if choice == "features":
+                return await self.async_step_features()
+            elif choice == "sensors":
+                return await self.async_step_sensors()
+            else:  # settings
+                return await self.async_step_settings()
+
+        # Show menu with configuration options
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema({
+                vol.Required("config_option", default="settings"): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=[
+                            selector.SelectOptionDict(
+                                value="features",
+                                label="🎛️ Features aktivieren/deaktivieren"
+                            ),
+                            selector.SelectOptionDict(
+                                value="sensors",
+                                label="📊 Sensoren auswählen"
+                            ),
+                            selector.SelectOptionDict(
+                                value="settings",
+                                label="⚙️ Einstellungen ändern"
+                            ),
+                        ],
+                        mode=selector.SelectSelectorMode.LIST,
+                    )
+                ),
+            }),
+        )
+
+    async def async_step_features(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """
+        Handle feature selection in options flow.
+
+        Args:
+            user_input: The user input dictionary.
+
+        Returns:
+            The flow result.
+        """
+        if user_input is not None:
+            # Store selected features
+            selected_features = user_input.get(CONF_ACTIVE_FEATURES, [])
+            self._updated_options[CONF_ACTIVE_FEATURES] = selected_features
+
+            _LOGGER.info(
+                "Features in Optionen aktualisiert: %s", ", ".join(selected_features)
+            )
+
+            # Merge with existing options and create entry
+            final_options = {**self.current_config, **self._updated_options}
+            return self.async_create_entry(title="", data=final_options)
+
+        # Get currently active features
+        current_features = self.current_config.get(CONF_ACTIVE_FEATURES, [])
+
+        # Build feature options with enhanced display
+        feature_options = []
+        for feature_key in AVAILABLE_FEATURES:
+            if feature_key in ENHANCED_FEATURES:
+                info = ENHANCED_FEATURES[feature_key]
+                label = f"{info['icon']} {info['name']}"
+            else:
+                label = feature_key.replace("_", " ").title()
+
+            feature_options.append(
+                selector.SelectOptionDict(value=feature_key, label=label)
+            )
+
+        return self.async_show_form(
+            step_id="features",
+            data_schema=vol.Schema({
+                vol.Required(
+                    CONF_ACTIVE_FEATURES,
+                    default=current_features,
+                ): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=feature_options,
+                        multiple=True,
+                        mode=selector.SelectSelectorMode.LIST,
+                    )
+                ),
+            }),
+            description_placeholders={
+                "info": "Wählen Sie die Features, die Sie nutzen möchten. "
+                        "Deaktivierte Features werden ausgeblendet."
+            },
+        )
+
+    async def async_step_sensors(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """
+        Handle sensor selection in options flow.
 
         Args:
             user_input: The user input dictionary.
@@ -832,19 +942,15 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         if user_input is not None:
             # Trenne Sensor-Auswahl von anderen Optionen
             selected_sensors = []
-            other_options = {}
             for key, value in user_input.items():
                 if key in self._sensor_data:  # Key ist eine Sensor-Gruppe
                     if (
                         isinstance(value, list) and value
                     ):  # Prüfe ob Liste und nicht leer
                         selected_sensors.extend(value)
-                else:
-                    other_options[key] = value
 
-            # ✅ FIX: Speichere Auswahl direkt.
-            # Wir verwenden None nur für Legacy-Konfigs, wo es "Alle" bedeutet.
-            other_options[CONF_SELECTED_SENSORS] = selected_sensors
+            # Store selected sensors
+            self._updated_options[CONF_SELECTED_SENSORS] = selected_sensors
 
             if selected_sensors:
                 _LOGGER.info(
@@ -853,14 +959,41 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
             else:
                 _LOGGER.info("Keine Sensoren in Optionen ausgewählt.")
 
-            return self.async_create_entry(title="", data=other_options)
+            # Merge with existing options and create entry
+            final_options = {**self.current_config, **self._updated_options}
+            return self.async_create_entry(title="", data=final_options)
 
         # Lade Sensoren für die Anzeige im Options-Flow
         self._sensor_data = await self._get_grouped_sensors()
 
         return self.async_show_form(
-            step_id="init",
-            data_schema=self._get_options_schema(),
+            step_id="sensors",
+            data_schema=self._get_sensor_schema(),
+        )
+
+    async def async_step_settings(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """
+        Handle general settings in options flow.
+
+        Args:
+            user_input: The user input dictionary.
+
+        Returns:
+            The flow result.
+        """
+        if user_input is not None:
+            # Store settings
+            self._updated_options.update(user_input)
+
+            # Merge with existing options and create entry
+            final_options = {**self.current_config, **self._updated_options}
+            return self.async_create_entry(title="", data=final_options)
+
+        return self.async_show_form(
+            step_id="settings",
+            data_schema=self._get_settings_schema(),
         )
 
     async def _get_grouped_sensors(self) -> dict[str, list[str]]:
@@ -872,15 +1005,14 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         """
         return await get_grouped_sensors(self.hass, self.current_config)
 
-    def _get_options_schema(self) -> vol.Schema:
+    def _get_settings_schema(self) -> vol.Schema:
         """
-        Get the schema for the options flow.
+        Get the schema for general settings.
 
         Returns:
             The voluptuous schema.
         """
-        # Allgemeine Optionen inkl. Controller-Name
-        schema = {
+        return vol.Schema({
             vol.Optional(
                 CONF_CONTROLLER_NAME,
                 default=self.current_config.get(
@@ -926,7 +1058,16 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
                     mode=selector.NumberSelectorMode.BOX,
                 )
             ),
-        }
+        })
+
+    def _get_sensor_schema(self) -> vol.Schema:
+        """
+        Get the schema for sensor selection.
+
+        Returns:
+            The voluptuous schema.
+        """
+        schema = {}
 
         # Dynamische Sensor-Auswahl hinzufügen
         # None (Legacy) bedeutet ALLE Sensoren sind ausgewählt.
