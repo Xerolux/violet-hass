@@ -7,6 +7,23 @@ Die Blueprints bieten vorgefertigte Automatisierungen für die Violet Pool Contr
 - **🧪 pH-Kontrolle**: Automatische pH-Wert Korrektur mit Dosierung
 - **🏊 Abdeckungssteuerung**: Wetterbasierte Cover-Automatik
 - **🔄 Rückspülungssteuerung**: Automatische Filter-Reinigung
+- **🔔 Modus-Benachrichtigungen**: Überwachung und Alerts für ON/OFF/AUTO Modi
+
+## ⚡ Schnell-Installation (One-Click)
+
+**Klicken Sie auf die Buttons unten für automatische Installation:**
+
+| Blueprint | Beschreibung | Installation |
+|-----------|--------------|--------------|
+| **🌡️ Temperatur** | Intelligente Heizungs- und Solarsteuerung | [![Zu My Home Assistant öffnen](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://raw.githubusercontent.com/Xerolux/violet-hass/main/blueprints/automation/pool_temperature_control.yaml) |
+| **🧪 pH-Kontrolle** | Automatische pH-Wert Korrektur | [![Zu My Home Assistant öffnen](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://raw.githubusercontent.com/Xerolux/violet-hass/main/blueprints/automation/pool_ph_control.yaml) |
+| **🏊 Abdeckung** | Wetterbasierte Cover-Automatik | [![Zu My Home Assistant öffnen](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://raw.githubusercontent.com/Xerolux/violet-hass/main/blueprints/automation/pool_cover_control.yaml) |
+| **🔄 Rückspülung** | Automatische Filter-Reinigung | [![Zu My Home Assistant öffnen](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://raw.githubusercontent.com/Xerolux/violet-hass/main/blueprints/automation/pool_backwash_control.yaml) |
+| **🔔 Modus-Benachrichtigungen** | Überwachung der ON/OFF/AUTO Modi | [![Zu My Home Assistant öffnen](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://raw.githubusercontent.com/Xerolux/violet-hass/main/blueprints/automation/pool_mode_notifications.yaml) |
+
+> **💡 Hinweis:** Die Buttons öffnen direkt Ihre Home Assistant Instanz und importieren den Blueprint automatisch!
+
+---
 
 ## 📥 Installation der Blueprints
 

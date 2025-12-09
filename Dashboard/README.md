@@ -2,6 +2,27 @@
 
 Dieses Verzeichnis enthält vorgefertigte Dashboard-Konfigurationen für eine intuitive und übersichtliche Steuerung Ihres Violet Pool Controllers in Home Assistant.
 
+## ⚡ Schnell-Installation
+
+### 🔗 Direkt-Links zu den Dashboard-Vorlagen
+
+Klicken Sie auf die Links unten, um die YAML-Dateien direkt zu öffnen und zu kopieren:
+
+| Dashboard | Beschreibung | Link |
+|-----------|--------------|------|
+| **Vollständig** | Desktop/Tablet, alle Features | [📋 YAML kopieren](https://raw.githubusercontent.com/Xerolux/violet-hass/main/Dashboard/pool_control_card.yaml) |
+| **Kompakt** | Mobile, Schnellzugriff | [📋 YAML kopieren](https://raw.githubusercontent.com/Xerolux/violet-hass/main/Dashboard/pool_control_compact.yaml) |
+
+### 📱 Schnellstart (3 Schritte)
+
+1. **Klicken Sie auf den Link** oben → YAML-Datei öffnet sich
+2. **Kopieren Sie alles** (Strg+A, Strg+C)
+3. **Einfügen** in Home Assistant → Dashboard → "Neue Karte" → "Code-Editor"
+
+**Fertig!** 🎉 (Entity-IDs ggf. anpassen)
+
+---
+
 ## 📁 Verfügbare Dashboards
 
 ### 1. `pool_control_card.yaml` - Vollständige Steuerung

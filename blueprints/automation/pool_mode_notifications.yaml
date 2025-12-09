@@ -1,0 +1,171 @@
+blueprint:
+  name: 🔔 Violet Pool - Modus-Benachrichtigungen
+  description: |
+    Erhalte Benachrichtigungen über Modus-Änderungen deiner Pool-Geräte.
+
+    **Features:**
+    - 📢 Benachrichtigung bei Wechsel zwischen OFF/ON/AUTO
+    - ⚠️ Warnung wenn Gerät zu lange im manuellen Modus bleibt
+    - 🔄 Optional: Automatischer Rückfall auf AUTO nach X Stunden
+    - 📊 Übersicht über alle Modus-Änderungen
+
+    **Perfekt für:**
+    - Überwachung unerwarteter Modus-Änderungen
+    - Vermeidung von manuell festgefahrenen Geräten
+    - Energieeffizienz durch AUTO-Modus
+  domain: automation
+
+  input:
+    device_select:
+      name: Pool-Gerät (Select-Entity)
+      description: Wähle die Select-Entity des zu überwachenden Geräts
+      selector:
+        entity:
+          domain: select
+          integration: violet_pool_controller
+
+    notify_service:
+      name: Benachrichtigungs-Dienst
+      description: Der zu verwendende Benachrichtigungsdienst (z.B. notify.mobile_app_iphone)
+      selector:
+        text:
+      default: notify.notify
+
+    enable_mode_change_notifications:
+      name: Modus-Änderungen benachrichtigen
+      description: Benachrichtigung bei jeder Modus-Änderung senden
+      selector:
+        boolean:
+      default: true
+
+    enable_manual_mode_warning:
+      name: Warnung bei langem Manual-Modus
+      description: Warnung wenn Gerät zu lange im manuellen Modus bleibt
+      selector:
+        boolean:
+      default: true
+
+    manual_mode_timeout:
+      name: Manual-Modus Timeout (Stunden)
+      description: Nach wie vielen Stunden im Manual-Modus soll gewarnt werden?
+      selector:
+        number:
+          min: 1
+          max: 72
+          step: 1
+          unit_of_measurement: h
+      default: 6
+
+    auto_return_to_auto:
+      name: Automatisch zu AUTO zurückkehren
+      description: Gerät nach Timeout automatisch auf AUTO setzen
+      selector:
+        boolean:
+      default: false
+
+mode: restart
+max_exceeded: silent
+
+variables:
+  device_select_entity: !input device_select
+  notify_service: !input notify_service
+  enable_mode_change: !input enable_mode_change_notifications
+  enable_manual_warning: !input enable_manual_mode_warning
+  manual_timeout_hours: !input manual_mode_timeout
+  auto_return: !input auto_return_to_auto
+
+trigger:
+  # Trigger 1: Modus wurde geändert
+  - platform: state
+    entity_id: !input device_select
+    id: mode_changed
+
+  # Trigger 2: Gerät ist schon lange im Manual-Modus (on)
+  - platform: state
+    entity_id: !input device_select
+    to: "on"
+    for:
+      hours: !input manual_mode_timeout
+    id: manual_timeout
+
+condition: []
+
+action:
+  - choose:
+      # ========================================
+      # AKTION 1: Modus wurde geändert
+      # ========================================
+      - conditions:
+          - condition: trigger
+            id: mode_changed
+          - condition: template
+            value_template: "{{ enable_mode_change }}"
+        sequence:
+          - service: "{{ notify_service }}"
+            data:
+              title: "🏊 Pool-Modus geändert"
+              message: >
+                {{ state_attr(device_select_entity, 'friendly_name') }}:
+                {{ trigger.from_state.state | upper }} → {{ trigger.to_state.state | upper }}
+
+                {% if trigger.to_state.state == 'auto' %}
+                ✅ Gerät ist jetzt im Automatik-Modus
+                {% elif trigger.to_state.state == 'on' %}
+                🔴 Gerät läuft manuell (wird nicht automatisch ausgeschaltet)
+                {% else %}
+                ⚫ Gerät ist ausgeschaltet
+                {% endif %}
+              data:
+                push:
+                  sound: default
+                  interruption-level: active
+
+      # ========================================
+      # AKTION 2: Manual-Modus Timeout
+      # ========================================
+      - conditions:
+          - condition: trigger
+            id: manual_timeout
+          - condition: template
+            value_template: "{{ enable_manual_warning }}"
+        sequence:
+          # Warnung senden
+          - service: "{{ notify_service }}"
+            data:
+              title: "⚠️ Pool-Gerät im Manual-Modus"
+              message: >
+                {{ state_attr(device_select_entity, 'friendly_name') }}
+                läuft seit {{ manual_timeout_hours }} Stunden im manuellen Modus!
+
+                💡 Tipp: Stelle auf AUTO für automatische Steuerung.
+
+                {% if auto_return %}
+                ℹ️ Gerät wird automatisch auf AUTO umgestellt.
+                {% endif %}
+              data:
+                push:
+                  sound: default
+                  interruption-level: time-sensitive
+
+          # Optional: Automatisch auf AUTO zurücksetzen
+          - condition: template
+            value_template: "{{ auto_return }}"
+
+          - delay:
+              seconds: 5
+
+          - service: select.select_option
+            target:
+              entity_id: !input device_select
+            data:
+              option: "auto"
+
+          - service: "{{ notify_service }}"
+            data:
+              title: "✅ Pool-Gerät auf AUTO"
+              message: >
+                {{ state_attr(device_select_entity, 'friendly_name') }}
+                wurde automatisch auf AUTO-Modus umgestellt.
+              data:
+                push:
+                  sound: default

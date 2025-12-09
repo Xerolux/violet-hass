@@ -22,7 +22,8 @@
 ## 📋 Inhaltsverzeichnis
 
 - [🌟 Features](#-features)
-- [⚡ Schnellstart](#-schnellstart) 
+- [⚡ Schnellstart](#-schnellstart)
+- [🎨 Dashboard & Blueprints](#-dashboard--blueprints)
 - [📦 Installation](#-installation)
 - [⚙️ Konfiguration](#️-konfiguration)
 - [🧩 Verfügbare Entitäten](#-verfügbare-entitäten)
@@ -80,6 +81,43 @@ Host eingeben → Features auswählen → Fertig!
 ```
 
 **🎉 Geschafft!** Dein Pool ist jetzt smart und bereit für Automatisierungen.
+
+---
+
+## 🎨 Dashboard & Blueprints
+
+### 📱 **Vorgefertigte Dashboard-Vorlagen**
+
+Nutze unsere professionellen Dashboard-Karten für eine intuitive Bedienung:
+
+| Dashboard | Beschreibung | Quick-Link |
+|-----------|--------------|------------|
+| **🖥️ Vollständig** | Desktop/Tablet mit allen Features | [📋 YAML kopieren](https://raw.githubusercontent.com/Xerolux/violet-hass/main/Dashboard/pool_control_card.yaml) |
+| **📱 Kompakt** | Mobile-optimiert, Schnellzugriff | [📋 YAML kopieren](https://raw.githubusercontent.com/Xerolux/violet-hass/main/Dashboard/pool_control_compact.yaml) |
+
+**Features der Dashboards:**
+- ✅ ON/OFF/AUTO Modus-Steuerung mit Select-Entities
+- ✅ Pumpengeschwindigkeit direkt neben Steuerung
+- ✅ Temperatur-Gauges für Pool, Solar, Außen
+- ✅ Wasserchemie-Übersicht (pH, Chlor, Redox)
+- ✅ 24h-History-Graphen
+- ✅ System-Status-Monitoring
+
+📖 **[Vollständige Anleitung](Dashboard/README.md)**
+
+### 🤖 **Automation Blueprints (One-Click Install)**
+
+Klicke auf die Buttons für automatische Installation der Blueprints:
+
+| Blueprint | Beschreibung | Installation |
+|-----------|--------------|--------------|
+| **🌡️ Temperatur** | Intelligente Heizungs- und Solarsteuerung | [![Öffnen](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://raw.githubusercontent.com/Xerolux/violet-hass/main/blueprints/automation/pool_temperature_control.yaml) |
+| **🧪 pH-Kontrolle** | Automatische pH-Wert Korrektur | [![Öffnen](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://raw.githubusercontent.com/Xerolux/violet-hass/main/blueprints/automation/pool_ph_control.yaml) |
+| **🏊 Abdeckung** | Wetterbasierte Cover-Automatik | [![Öffnen](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://raw.githubusercontent.com/Xerolux/violet-hass/main/blueprints/automation/pool_cover_control.yaml) |
+| **🔄 Rückspülung** | Automatische Filter-Reinigung | [![Öffnen](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://raw.githubusercontent.com/Xerolux/violet-hass/main/blueprints/automation/pool_backwash_control.yaml) |
+| **🔔 Modus-Benachrichtigungen** | Überwachung der ON/OFF/AUTO Modi | [![Öffnen](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://raw.githubusercontent.com/Xerolux/violet-hass/main/blueprints/automation/pool_mode_notifications.yaml) |
+
+📖 **[Blueprint-Dokumentation](blueprints/automation/README.md)**
 
 ---
 
