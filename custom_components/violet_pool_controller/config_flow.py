@@ -41,6 +41,13 @@ from .const import (
     DEFAULT_CONTROLLER_NAME,
     AVAILABLE_FEATURES,
 )
+from .const_sensors import (
+    TEMP_SENSORS,
+    WATER_CHEM_SENSORS,
+    ANALOG_SENSORS,
+    SYSTEM_SENSORS,
+    STATUS_SENSORS,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -127,6 +134,28 @@ def validate_ip_address(ip: str) -> bool:
     except ValueError:
         # Allow hostnames (letters, numbers, dots, dashes)
         return bool(re.match(r"^[a-zA-Z0-9\-\.]+$", ip))
+
+
+def get_sensor_label(key: str) -> str:
+    """
+    Get the friendly name for a sensor key.
+
+    Args:
+        key: The sensor key.
+
+    Returns:
+        The friendly name with key.
+    """
+    all_sensors = {
+        **TEMP_SENSORS,
+        **WATER_CHEM_SENSORS,
+        **ANALOG_SENSORS,
+        **SYSTEM_SENSORS,
+        **STATUS_SENSORS,
+    }
+    if key in all_sensors:
+        return f"{all_sensors[key]['name']} ({key})"
+    return key
 
 
 async def fetch_api_data(
@@ -434,20 +463,15 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if isinstance(value, list) and value:  # Prüfe ob Liste und nicht leer
                     selected_sensors.extend(value)
 
-            # ✅ FIX: Wenn keine Sensoren ausgewählt, speichere None statt []
-            # None = Alle Sensoren erstellen (Abwärtskompatibilität)
-            # [] = Explizit keine Sensoren ausgewählt
-            # Für bessere UX: Wenn leer, erstelle alle
-            self._config_data[CONF_SELECTED_SENSORS] = (
-                selected_sensors if selected_sensors else None
-            )
+            # ✅ FIX: Speichere Auswahl direkt. Leere Liste = keine Sensoren.
+            # Wir verwenden None nur für Legacy-Konfigs, wo es "Alle" bedeutet.
+            # Hier hat der User explizit gewählt (oder abgewählt).
+            self._config_data[CONF_SELECTED_SENSORS] = selected_sensors
 
             if selected_sensors:
                 _LOGGER.info("%d dynamische Sensoren ausgewählt", len(selected_sensors))
             else:
-                _LOGGER.info(
-                    "Keine spezifischen Sensoren ausgewählt - alle verfügbaren Sensoren werden erstellt"
-                )
+                _LOGGER.info("Keine dynamischen Sensoren ausgewählt.")
 
             return self.async_create_entry(
                 title=self._generate_entry_title(), data=self._config_data
@@ -760,10 +784,20 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """
         schema = {}
         for group, sensors in self._sensor_data.items():
-            # Verwende selector.SelectSelector mit multiple=True für Mehrfachauswahl
-            schema[vol.Optional(group, default=[])] = selector.SelectSelector(
+            # Erstelle Optionen mit freundlichen Namen
+            options = [
+                selector.SelectOptionDict(
+                    value=sensor,
+                    label=get_sensor_label(sensor),
+                )
+                for sensor in sensors
+            ]
+
+            # Standardmäßig ALLE auswählen, damit der User sieht was er bekommt
+            # und explizit abwählen muss. Das verhindert Verwirrung.
+            schema[vol.Optional(group, default=sensors)] = selector.SelectSelector(
                 selector.SelectSelectorConfig(
-                    options=sensors,
+                    options=options,
                     multiple=True,
                     mode=selector.SelectSelectorMode.DROPDOWN,
                 )
@@ -808,21 +842,16 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
                 else:
                     other_options[key] = value
 
-            # ✅ FIX: Wenn keine Sensoren ausgewählt, speichere None statt []
-            # None = Alle Sensoren erstellen, [] = Keine Sensoren
-            # Für bessere UX: Wenn leer, erstelle alle
-            other_options[CONF_SELECTED_SENSORS] = (
-                selected_sensors if selected_sensors else None
-            )
+            # ✅ FIX: Speichere Auswahl direkt.
+            # Wir verwenden None nur für Legacy-Konfigs, wo es "Alle" bedeutet.
+            other_options[CONF_SELECTED_SENSORS] = selected_sensors
 
             if selected_sensors:
                 _LOGGER.info(
                     "%d Sensoren in Optionen gespeichert", len(selected_sensors)
                 )
             else:
-                _LOGGER.info(
-                    "Keine spezifischen Sensoren in Optionen - alle verfügbaren Sensoren werden erstellt"
-                )
+                _LOGGER.info("Keine Sensoren in Optionen ausgewählt.")
 
             return self.async_create_entry(title="", data=other_options)
 
@@ -900,15 +929,31 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         }
 
         # Dynamische Sensor-Auswahl hinzufügen
-        # Use 'or []' to handle None values (None means "all sensors")
-        current_sensors = self.current_config.get(CONF_SELECTED_SENSORS) or []
+        # None (Legacy) bedeutet ALLE Sensoren sind ausgewählt.
+        stored_sensors = self.current_config.get(CONF_SELECTED_SENSORS)
+        is_all_selected = stored_sensors is None
+
         for group, sensors in self._sensor_data.items():
-            # Standardmäßig sind die aktuell ausgewählten Sensoren dieser Gruppe vorausgewählt
-            default_selection = [s for s in sensors if s in current_sensors]
+            # Erstelle Optionen mit freundlichen Namen
+            options = [
+                selector.SelectOptionDict(
+                    value=sensor,
+                    label=get_sensor_label(sensor),
+                )
+                for sensor in sensors
+            ]
+
+            # Wenn ALLE ausgewählt (None), dann wähle alle in dieser Gruppe.
+            # Ansonsten nimm die gespeicherte Liste.
+            if is_all_selected:
+                default_selection = sensors
+            else:
+                default_selection = [s for s in sensors if s in stored_sensors]
+
             schema[vol.Optional(group, default=default_selection)] = (
                 selector.SelectSelector(
                     selector.SelectSelectorConfig(
-                        options=sensors,
+                        options=options,
                         multiple=True,
                         mode=selector.SelectSelectorMode.DROPDOWN,
                     )
