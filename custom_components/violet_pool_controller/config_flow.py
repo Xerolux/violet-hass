@@ -896,15 +896,16 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
 
         # Build feature options with enhanced display
         feature_options = []
-        for feature_key in AVAILABLE_FEATURES:
-            if feature_key in ENHANCED_FEATURES:
-                info = ENHANCED_FEATURES[feature_key]
+        for feature in AVAILABLE_FEATURES:
+            feature_id = feature["id"]
+            if feature_id in ENHANCED_FEATURES:
+                info = ENHANCED_FEATURES[feature_id]
                 label = f"{info['icon']} {info['name']}"
             else:
-                label = feature_key.replace("_", " ").title()
+                label = feature["name"]
 
             feature_options.append(
-                selector.SelectOptionDict(value=feature_key, label=label)
+                selector.SelectOptionDict(value=feature_id, label=label)
             )
 
         return self.async_show_form(
