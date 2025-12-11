@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Dict
 
 # The dictionary below is intentionally focused on the most common error codes
 # observed in production systems.  Unknown codes fall back to a generic
