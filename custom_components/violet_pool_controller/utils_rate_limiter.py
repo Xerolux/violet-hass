@@ -4,7 +4,6 @@ import asyncio
 import logging
 import time
 from collections import deque
-from typing import Optional
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -188,7 +187,7 @@ class RateLimiter:
 
 
 # Global Rate Limiter-Instanz (kann pro API-Instanz auch separat erstellt werden)
-_global_rate_limiter: Optional[RateLimiter] = None
+_global_rate_limiter: RateLimiter | None = None
 
 
 def get_global_rate_limiter() -> RateLimiter:

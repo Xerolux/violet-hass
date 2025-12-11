@@ -6,7 +6,7 @@ and colors. The module also provides helper functions and a `VioletState` class 
 consistently interpret and manage device states throughout the integration.
 """
 
-from typing import Any, Dict, Optional, cast
+from typing import Any, cast
 
 # =============================================================================
 # DEVICE PARAMETERS - Extended Configuration
@@ -200,11 +200,11 @@ STATE_TRANSLATIONS = {
 # =============================================================================
 
 
-def get_device_state_info(raw_state: Any) -> Dict[str, Any]:
+def get_device_state_info(raw_state: Any) -> dict[str, Any]:
     """Get extended state information for a given raw state."""
     state_str = str(raw_state).upper().strip()
     return cast(
-        Dict[str, Any],
+        dict[str, Any],
         DEVICE_STATE_MAPPING.get(
             state_str, {"mode": "unknown", "active": None, "desc": f"Unknown: {raw_state}"}
         ),
@@ -235,7 +235,7 @@ class VioletState:
         device_key (Optional[str]): The unique key of the device.
     """
 
-    def __init__(self, raw_state: Any, device_key: Optional[str] = None):
+    def __init__(self, raw_state: Any, device_key: str | None = None):
         self.raw_state = str(raw_state).strip()
         self.device_key = device_key
         self._info = get_device_state_info(self.raw_state)
@@ -246,7 +246,7 @@ class VioletState:
         return self._info["mode"]
 
     @property
-    def is_active(self) -> Optional[bool]:
+    def is_active(self) -> bool | None:
         """Whether the device is currently active (running)."""
         return self._info["active"]
 

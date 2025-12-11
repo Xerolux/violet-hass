@@ -2,7 +2,7 @@
 
 import logging
 import re
-from typing import Any, Optional
+from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity import EntityDescription
@@ -255,8 +255,8 @@ class VioletPoolControllerEntity(CoordinatorEntity):
             return default
 
     def get_float_value(
-        self, key: str, default: Optional[float] = None
-    ) -> Optional[float]:
+        self, key: str, default: float | None = None
+    ) -> float | None:
         """
         Get a float value from coordinator data.
 

@@ -8,7 +8,7 @@ sensors based on the user's settings.
 
 import logging
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -247,7 +247,7 @@ class VioletStatusSensor(VioletSensor):
     """Represents a sensor for status values that use VioletState."""
 
     @property
-    def native_value(self) -> Optional[str]:
+    def native_value(self) -> str | None:
         """Return the display string for the status."""
         if self.coordinator.data is None:
             return None
@@ -296,7 +296,7 @@ class VioletErrorCodeSensor(VioletSensor):
         super().__init__(coordinator, config_entry, description)
 
     @property
-    def native_value(self) -> Optional[str]:
+    def native_value(self) -> str | None:
         """Return the descriptive subject of the error code."""
         if self.coordinator.data is None:
             return None
@@ -305,7 +305,7 @@ class VioletErrorCodeSensor(VioletSensor):
         return get_error_info(code)["subject"] if code else None
 
     @property
-    def extra_state_attributes(self) -> Dict[str, Any]:
+    def extra_state_attributes(self) -> dict[str, Any]:
         """Return detailed information about the error code as attributes."""
         if self.coordinator.data is None:
             return {}
@@ -342,7 +342,7 @@ class VioletFlowRateSensor(VioletPoolControllerEntity, SensorEntity):
         super().__init__(coordinator, config_entry, description)
 
     @property
-    def native_value(self) -> Optional[float]:
+    def native_value(self) -> float | None:
         """Return the flow rate, prioritizing the ADC3 value."""
         if self.coordinator.data is None:
             return None
@@ -357,7 +357,7 @@ class VioletFlowRateSensor(VioletPoolControllerEntity, SensorEntity):
         return None
 
     @property
-    def extra_state_attributes(self) -> Dict[str, str]:
+    def extra_state_attributes(self) -> dict[str, str]:
         """Return the raw source values for debugging purposes."""
         if self.coordinator.data is None:
             return {"data_source": "None"}
@@ -397,8 +397,8 @@ def _is_boolean_value(value: Any) -> bool:
 
 
 def determine_device_class(
-    key: str, unit: Optional[str], raw_value: Any
-) -> Optional[SensorDeviceClass]:
+    key: str, unit: str | None, raw_value: Any
+) -> SensorDeviceClass | None:
     """Determines the appropriate device class for a sensor."""
     if key in _BOOLEAN_VALUE_KEYS or _is_boolean_value(raw_value):
         return None
@@ -419,7 +419,7 @@ def determine_device_class(
     return None
 
 
-def determine_state_class(key: str) -> Optional[SensorStateClass]:
+def determine_state_class(key: str) -> SensorStateClass | None:
     """Determines the appropriate state class for a sensor."""
     if key in _ALL_TEXT_SENSORS or key in _TIMESTAMP_KEYS or key in NO_UNIT_SENSORS:
         return None
@@ -428,7 +428,7 @@ def determine_state_class(key: str) -> Optional[SensorStateClass]:
     return SensorStateClass.MEASUREMENT
 
 
-def get_icon(key: str, unit: Optional[str], raw_value: Any) -> str:
+def get_icon(key: str, unit: str | None, raw_value: Any) -> str:
     """Determin a sensor."""
     if key in _BOOLEAN_VALUE_KEYS or _is_boolean_value(raw_value):
         return "mdi:toggle-switch"
@@ -478,8 +478,8 @@ async def async_setup_entry(
 
     config = _get_sensor_config(config_entry)
 
-    sensors: List[SensorEntity] = []
-    handled_keys: Set[str] = set()
+    sensors: list[SensorEntity] = []
+    handled_keys: set[str] = set()
 
     special_sensors, special_keys = _create_special_sensors(
         coordinator, config_entry, config
@@ -502,7 +502,7 @@ async def async_setup_entry(
         )
 
 
-def _get_sensor_config(config_entry: ConfigEntry) -> Dict[str, Any]:
+def _get_sensor_config(config_entry: ConfigEntry) -> dict[str, Any]:
     """Extracts sensor-specific configuration from the config entry."""
     active_features = config_entry.options.get(
         CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
@@ -529,11 +529,11 @@ def _get_sensor_config(config_entry: ConfigEntry) -> Dict[str, Any]:
 def _create_special_sensors(
     coordinator: VioletPoolDataUpdateCoordinator,
     config_entry: ConfigEntry,
-    config: Dict[str, Any],
-) -> Tuple[List[SensorEntity], Set[str]]:
+    config: dict[str, Any],
+) -> tuple[list[SensorEntity], set[str]]:
     """Creates specialized sensors like error codes and flow rate."""
-    sensors: List[SensorEntity] = []
-    handled_keys: Set[str] = set()
+    sensors: list[SensorEntity] = []
+    handled_keys: set[str] = set()
 
     for key in _ERROR_CODE_KEYS:
         if key in coordinator.data and (
@@ -558,11 +558,11 @@ def _create_special_sensors(
 def _create_standard_sensors(
     coordinator: VioletPoolDataUpdateCoordinator,
     config_entry: ConfigEntry,
-    config: Dict[str, Any],
-    handled_keys: Set[str],
-) -> List[SensorEntity]:
+    config: dict[str, Any],
+    handled_keys: set[str],
+) -> list[SensorEntity]:
     """Creates all standard sensors based on coordinator data and user configuration."""
-    sensors: List[SensorEntity] = []
+    sensors: list[SensorEntity] = []
     all_predefined = {
         **TEMP_SENSORS,
         **WATER_CHEM_SENSORS,
@@ -596,7 +596,7 @@ def _create_standard_sensors(
 
 
 def _build_sensor_description(
-    key: str, raw_value: Any, predefined: Dict[str, Any]
+    key: str, raw_value: Any, predefined: dict[str, Any]
 ) -> SensorEntityDescription:
     """Builds a SensorEntityDescription for a given sensor key."""
     predefined_info = predefined.get(key)
