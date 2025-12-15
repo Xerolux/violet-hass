@@ -484,7 +484,8 @@ async def async_setup_entry(
                 if key in ["PUMP", "SOLAR", "HEATER"] and key in coordinator.data:
                     try:
                         raw_state = coordinator.data[key]
-                        should_be_on = entity._get_switch_state()
+                        # Type cast to access specific method
+                        should_be_on = entity._get_switch_state()  # type: ignore[attr-defined]
                         _LOGGER.debug(
                             "Final check %s: raw=%s → display=%s",
                             key,

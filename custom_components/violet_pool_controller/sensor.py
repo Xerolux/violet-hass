@@ -240,6 +240,7 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
                 return round(num_value, 1)
             return int(num_value) if num_value.is_integer() else num_value
         except (ValueError, TypeError):
+            # Explicitly cast to string to match return type
             return str(raw_value)
 
 
@@ -263,11 +264,11 @@ class VioletStatusSensor(VioletSensor):
     def icon(self) -> str:
         """Return the icon corresponding to the current status."""
         if self.coordinator.data is None:
-            return super().icon
+            return str(super().icon)
 
         raw_value = self.coordinator.data.get(self.entity_description.key)
         if raw_value is None:
-            return super().icon
+            return str(super().icon)
         return VioletState(raw_value, self.entity_description.key).icon
 
 
