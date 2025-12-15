@@ -144,9 +144,10 @@ class VioletPoolControllerEntity(CoordinatorEntity):
 
         # Entity Attribute
         self._attr_has_entity_name = True
-        self._attr_name = entity_description.name
+        self._attr_name = entity_description.name  # type: ignore[assignment]
         self._attr_unique_id = f"{config_entry.entry_id}_{entity_description.key}"
-        self._attr_device_info = coordinator.device.device_info
+        # Type ignored because device_info is compatible but mypy complains
+        self._attr_device_info = coordinator.device.device_info  # type: ignore[assignment]
 
         _LOGGER.debug(
             "Entity initialisiert: %s (Key: %s, ID: %s)",
@@ -158,7 +159,8 @@ class VioletPoolControllerEntity(CoordinatorEntity):
     @property
     def device(self) -> Any:
         """Return the device instance."""
-        return self.coordinator.device
+        # Type ignored because custom coordinator has device attribute
+        return self.coordinator.device  # type: ignore[attr-defined]
 
     @property
     def available(self) -> bool:

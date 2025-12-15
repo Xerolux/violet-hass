@@ -9,8 +9,8 @@ from typing import Any
 import aiohttp
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import aiohttp_client, selector
 
 from .const import (
@@ -277,7 +277,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """
         Handle the user-initiated setup start step.
 
@@ -301,7 +301,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_disclaimer(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """
         Handle the disclaimer and terms of use step.
 
@@ -327,7 +327,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_help(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """
         Display additional help.
 
@@ -348,7 +348,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_connection(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """
         Handle the controller connection step.
 
@@ -385,7 +385,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_pool_setup(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """
         Handle the pool configuration step.
 
@@ -411,7 +411,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_feature_selection(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """
         Handle the feature selection step.
 
@@ -447,7 +447,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_sensor_selection(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """
         Handle the dynamic sensor selection step.
 
@@ -820,7 +820,7 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """
         Handle the initial options menu - let user choose what to configure.
 
@@ -868,7 +868,7 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
 
     async def async_step_features(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """
         Handle feature selection in options flow.
 
@@ -897,12 +897,12 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         # Build feature options with enhanced display
         feature_options = []
         for feature in AVAILABLE_FEATURES:
-            feature_id = feature["id"]
+            feature_id = str(feature["id"])
             if feature_id in ENHANCED_FEATURES:
                 info = ENHANCED_FEATURES[feature_id]
                 label = f"{info['icon']} {info['name']}"
             else:
-                label = feature["name"]
+                label = str(feature["name"])
 
             feature_options.append(
                 selector.SelectOptionDict(value=feature_id, label=label)
@@ -930,7 +930,7 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
 
     async def async_step_sensors(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """
         Handle sensor selection in options flow.
 
@@ -974,7 +974,7 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
 
     async def async_step_settings(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> ConfigFlowResult:
         """
         Handle general settings in options flow.
 
@@ -1090,7 +1090,9 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
             if is_all_selected:
                 default_selection = sensors
             else:
-                default_selection = [s for s in sensors if s in stored_sensors]
+                default_selection = [
+                    s for s in sensors if stored_sensors and s in stored_sensors
+                ]
 
             schema[vol.Optional(group, default=default_selection)] = (
                 selector.SelectSelector(

@@ -150,11 +150,12 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
 
         return target
 
-    def _get_hvac_mode(self) -> str:
+    def _get_hvac_mode(self) -> HVACMode:
         """Ermittle HVAC-Modus - FULLY PROTECTED VERSION."""
         # ✅ FIXED: Prüfe zuerst optimistischen Cache
         if self._optimistic_hvac_mode is not None:
-            return self._optimistic_hvac_mode
+            # We assume optimistic_hvac_mode is always a valid HVACMode
+            return HVACMode(self._optimistic_hvac_mode)
 
         # ✅ CRITICAL: None-Check
         if self.coordinator.data is None:
@@ -168,12 +169,12 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         return mode
 
     @property
-    def hvac_mode(self) -> str:
+    def hvac_mode(self) -> HVACMode:
         """Return current HVAC mode."""
         return self._get_hvac_mode()
 
     @property
-    def hvac_action(self) -> str | None:
+    def hvac_action(self) -> HVACAction | None:
         """Gib aktuelle HVAC-Aktion zurück - FULLY PROTECTED VERSION."""
         # ✅ CRITICAL: None-Check
         if self.coordinator.data is None:
@@ -292,7 +293,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             _LOGGER.error("Unerwarteter Fehler: %s", err)
             raise HomeAssistantError(f"Temperaturfehler: {err}") from err
 
-    async def async_set_hvac_mode(self, hvac_mode: str) -> None:
+    async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Setze HVAC-Modus - FULLY PROTECTED & THREAD-SAFE VERSION."""
         mode_action_map = {
             HVACMode.HEAT: ACTION_ON,

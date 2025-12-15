@@ -161,11 +161,11 @@ class CoverIsClosedBinarySensor(CoordinatorEntity, BinarySensorEntity):
         """
         super().__init__(coordinator)
         self._attr_has_entity_name = True
-        self._attr_name = "Cover Geschlossen"
+        self._attr_name = "Cover Geschlossen"  # type: ignore[assignment]
         self._attr_unique_id = f"{config_entry.entry_id}_cover_is_closed"
         self._attr_device_class = BinarySensorDeviceClass.DOOR
         self._attr_icon = "mdi:window-shutter"
-        self._attr_device_info = coordinator.device.device_info
+        self._attr_device_info = coordinator.device.device_info  # type: ignore[assignment]
         _LOGGER.debug(
             "Initialisiere Cover-Geschlossen Sensor: %s", self._attr_unique_id
         )
@@ -318,9 +318,9 @@ async def async_setup_entry(
         description = BinarySensorEntityDescription(
             key=sensor_config["key"],
             name=sensor_config["name"],
-            icon=sensor_config.get("icon"),
-            device_class=sensor_config.get("device_class"),
-            entity_category=sensor_config.get("entity_category"),
+            icon=sensor_config.get("icon"),  # type: ignore[arg-type]
+            device_class=sensor_config.get("device_class"),  # type: ignore[arg-type]
+            entity_category=sensor_config.get("entity_category"),  # type: ignore[arg-type]
         )
 
         feature_id = BINARY_SENSOR_FEATURE_MAP.get(description.key)

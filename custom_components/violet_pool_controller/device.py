@@ -503,7 +503,7 @@ class VioletPoolControllerDevice:
             self.device_name,
         )
 
-    def _extract_api_url(self, entry_data: dict) -> str:
+    def _extract_api_url(self, entry_data: Mapping[str, Any]) -> str:
         """
         Extract the API URL from config data.
 
@@ -524,6 +524,9 @@ class VioletPoolControllerDevice:
 
         if not url:
             raise ValueError("Keine IP-Adresse in Config Entry gefunden")
+
+        if not isinstance(url, str):
+            raise ValueError("API URL ist kein String")
 
         return url.strip()
 

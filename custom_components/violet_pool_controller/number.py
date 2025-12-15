@@ -354,8 +354,8 @@ async def async_setup_entry(
     entities: list[NumberEntity] = []
 
     for setpoint_config in SETPOINT_DEFINITIONS:
-        setpoint_name = setpoint_config["name"]
-        setpoint_key = setpoint_config["key"]
+        setpoint_name = str(setpoint_config["name"])
+        setpoint_key = str(setpoint_config["key"])
         feature_id = setpoint_config["feature_id"]
 
         # Prüfe ob Feature aktiviert ist
@@ -370,7 +370,7 @@ async def async_setup_entry(
         # Prüfe ob Indikator-Felder verfügbar sind
         # (zeigt an, dass dieser Sollwert relevant ist)
         indicator_fields = setpoint_config.get("indicator_fields", [])
-        if indicator_fields:
+        if isinstance(indicator_fields, list):
             has_indicators = any(
                 field in coordinator.data
                 for field in indicator_fields
@@ -380,7 +380,7 @@ async def async_setup_entry(
                 _LOGGER.debug(
                     "Überspringe Number '%s': Keine Indikator-Felder verfügbar (%s)",
                     setpoint_name,
-                    ", ".join(indicator_fields),
+                    ", ".join(str(f) for f in indicator_fields),
                 )
                 continue
 
@@ -388,10 +388,10 @@ async def async_setup_entry(
         description = NumberEntityDescription(
             key=setpoint_key,
             name=setpoint_name,
-            icon=setpoint_config["icon"],
-            native_unit_of_measurement=setpoint_config["unit_of_measurement"],
-            device_class=setpoint_config["device_class"],
-            entity_category=setpoint_config["entity_category"],
+            icon=setpoint_config.get("icon"),  # type: ignore[arg-type]
+            native_unit_of_measurement=setpoint_config.get("unit_of_measurement"),  # type: ignore[arg-type]
+            device_class=setpoint_config.get("device_class"),  # type: ignore[arg-type]
+            entity_category=setpoint_config.get("entity_category"),  # type: ignore[arg-type]
         )
 
         _LOGGER.debug(
@@ -405,7 +405,9 @@ async def async_setup_entry(
     # Entities hinzufügen
     if entities:
         async_add_entities(entities)
-        entity_names = [e.entity_description.name for e in entities]
+        # Type ignore: we know that entity_description.name is a string or None, and we handle None via str() if needed.
+        # But actually NumberEntityDescription name is expected to be str | None.
+        entity_names = [str(e.entity_description.name) for e in entities]
         _LOGGER.info(
             "%d Number-Entities für '%s' eingerichtet: %s",
             len(entities),
