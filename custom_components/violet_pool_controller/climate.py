@@ -262,7 +262,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                 self.climate_type, temperature
             )
 
-            if result.get("success", True):
+            if result.get("success") is True:
                 _LOGGER.debug("Temperatur erfolgreich gesetzt: %s", result)
 
                 # ✅ FIXED: NUR lokale Variablen setzen, KEINE coordinator.data Mutation!
@@ -276,7 +276,8 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                 )
 
                 # Asynchroner Refresh holt echte Daten und resettet Cache
-                asyncio.create_task(self._delayed_refresh())
+                task = asyncio.create_task(self._delayed_refresh())
+                task.add_done_callback(self._handle_refresh_error)
             else:
                 error_msg = result.get("response", "Unbekannter Fehler")
                 _LOGGER.warning("Temperatur setzen fehlgeschlagen: %s", error_msg)
@@ -318,7 +319,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                 self.climate_type, api_action
             )
 
-            if result.get("success", True):
+            if result.get("success") is True:
                 _LOGGER.debug("HVAC-Modus erfolgreich gesetzt: %s", result)
 
                 # ✅ FIXED: NUR lokale Variablen setzen, KEINE coordinator.data Mutation!
@@ -332,7 +333,8 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                 )
 
                 # Asynchroner Refresh holt echte Daten und resettet Cache
-                asyncio.create_task(self._delayed_refresh())
+                task = asyncio.create_task(self._delayed_refresh())
+                task.add_done_callback(self._handle_refresh_error)
             else:
                 error_msg = result.get("response", "Unbekannter Fehler")
                 _LOGGER.warning("HVAC-Modus setzen fehlgeschlagen: %s", error_msg)
@@ -418,6 +420,22 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             # Bei Fehler auch Cache löschen
             self._optimistic_target_temp = None
             self._optimistic_hvac_mode = None
+
+    def _handle_refresh_error(self, task: asyncio.Task) -> None:
+        """
+        Handle errors in the refresh task.
+
+        Args:
+            task: The task object.
+        """
+        try:
+            if not task.cancelled():
+                exc = task.exception()
+                if exc is not None:
+                    # ✅ Nur bei echten Problemen loggen
+                    _LOGGER.debug("Refresh task failed for %s: %s", self.climate_type, exc)
+        except asyncio.CancelledError:
+            pass  # Normal, kein Log nötig
 
 
 async def async_setup_entry(

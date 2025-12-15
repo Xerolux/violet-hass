@@ -1,7 +1,7 @@
 {
     "config": {
         "step": {
-            "welcome": {
+            "user": {
                 "title": "🚀 Violet Pool Setup-Assistent",
                 "description": "**Willkommen!**\n\n**DE:** Wähle aus, ob du direkt mit der Einrichtung starten möchtest oder zuerst die ausführliche Dokumentation lesen willst.\n**EN:** Choose whether you want to start the configuration wizard immediately or open the detailed documentation first.\n\n📘 **Dokumentation / Documentation**\n• [Konfigurationshilfe (DE)]({docs_de})\n• [Configuration Guide (EN)]({docs_en})\n\n🛟 Support & Feedback: {issues_url}",
                 "data": {
@@ -31,7 +31,8 @@
                     "password": "🔐 Passwort (optional)",
                     "use_ssl": "🔒 SSL/HTTPS verwenden",
                     "device_name": "📝 Gerätename",
-                    "device_id": "🏷️ Geräte-ID",
+                    "controller_name": "🏷️ Controller-Name",
+                    "device_id": "🔢 Geräte-ID",
                     "polling_interval": "⏱️ Abrufintervall (Sekunden)",
                     "timeout_duration": "⏰ Timeout (Sekunden)",
                     "retry_attempts": "🔄 Wiederholungsversuche"
@@ -42,6 +43,7 @@
                     "password": "DE: Passwort eingeben, falls benötigt · EN: Password if required",
                     "use_ssl": "DE: HTTPS aktivieren, falls konfiguriert · EN: Enable HTTPS when supported",
                     "device_name": "DE: Anzeigename in Home Assistant · EN: Friendly name shown in Home Assistant",
+                    "controller_name": "DE: Name des Controllers für die Anzeige · EN: Controller display name",
                     "device_id": "DE: Eindeutige ID bei mehreren Controllern · EN: Unique ID if multiple controllers exist",
                     "polling_interval": "DE: Intervall für Datenabrufe (10-3600s) · EN: Data polling interval (10-3600s)",
                     "timeout_duration": "DE: Maximale Wartezeit pro Anfrage · EN: Maximum wait time per request",
@@ -95,6 +97,13 @@
                     "enable_digital_inputs": "DE: Externe Sensoren/Schalter integrieren · EN: Integrate external sensors and switches",
                     "enable_extension_outputs": "DE: Erweiterungsmodule nutzen · EN: Use extension modules"
                 }
+            },
+            "sensor_selection": {
+                "title": "📊 Sensoren auswählen",
+                "description": "**DE:** Wähle die Sensoren aus, die du in Home Assistant sehen möchtest. Du kannst einzelne Sensoren aktivieren oder deaktivieren, um die Übersicht zu verbessern.\n**EN:** Choose which sensors you want to see in Home Assistant. Enable or disable individual sensors to keep your dashboard clean and focused.\n\n💡 **Tipp:** Standardmäßig sind alle verfügbaren Sensoren ausgewählt. Du kannst diese Auswahl jederzeit in den Optionen anpassen.",
+                "data_description": {
+                    "sensor_groups": "DE: Sensoren nach Gruppen organisiert · EN: Sensors organized by groups"
+                }
             }
         },
         "error": {
@@ -111,12 +120,14 @@
             "invalid_firmware_version": "📦 **Firmware-Problem**\n\nController-Firmware scheint veraltet. Bitte aktualisieren.",
             "connection_error": "🌐 **Netzwerkfehler**\n\nAllgemeiner Verbindungsfehler. Netzwerk-Einstellungen prüfen.",
             "already_configured": "♻️ **Bereits konfiguriert**\n\nEin Controller mit dieser IP-Adresse ist bereits eingerichtet.",
+            "agreement_declined": "⚠️ **Setup abgebrochen**\n\nDie Einrichtung wurde abgebrochen, da die Sicherheitshinweise nicht akzeptiert wurden.",
             "unknown": "❓ **Unbekannter Fehler**\n\nEin unerwartetes Problem ist aufgetreten. Bei Wiederholung Support kontaktieren."
         },
         "abort": {
             "already_configured": "♻️ Controller bereits eingerichtet",
             "cannot_connect": "🔌 Verbindung fehlgeschlagen",
             "invalid_auth": "🔐 Ungültige Anmeldedaten",
+            "agreement_declined": "⚠️ Sicherheitshinweise nicht akzeptiert",
             "unknown": "❓ Unbekannter Fehler"
         }
     },

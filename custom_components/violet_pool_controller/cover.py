@@ -156,7 +156,7 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
                 key=cover_api_key, action=ACTION_PUSH
             )
 
-            if result.get("success", True):
+            if result.get("success") is True:
                 _LOGGER.info("Cover-Befehl '%s' erfolgreich gesendet", action)
             else:
                 error_msg = result.get("response", result)

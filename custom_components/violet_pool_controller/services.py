@@ -400,7 +400,7 @@ class VioletServiceHandlers:
                     )
                     _LOGGER.info("Pump set to AUTO")
 
-                if not result.get("success", True):
+                if result.get("success") is not True:
                     _LOGGER.warning(
                         "Pump action failed: %s", result.get("response", result)
                     )
@@ -491,7 +491,7 @@ class VioletServiceHandlers:
                     )
                     _LOGGER.info("Dosing %s stopped", dosing_type)
 
-                if not result.get("success", True):
+                if result.get("success") is not True:
                     _LOGGER.warning(
                         "Dosing action failed: %s", result.get("response", result)
                     )
@@ -544,7 +544,7 @@ class VioletServiceHandlers:
                     )
                     _LOGGER.info("PV surplus set to AUTO")
 
-                if not result.get("success", True):
+                if result.get("success") is not True:
                     _LOGGER.warning(
                         "PV surplus action failed: %s", result.get("response", result)
                     )
@@ -617,7 +617,7 @@ class VioletServiceHandlers:
                 else:
                     raise HomeAssistantError(f"Unsupported DMX action: {action}")
 
-                if not result.get("success", True):
+                if result.get("success") is not True:
                     _LOGGER.warning(
                         "DMX action failed for %s: %s",
                         device_id,
@@ -657,7 +657,7 @@ class VioletServiceHandlers:
                 for i in range(pulse_count):
                     result = await coordinator.device.api.set_light_color_pulse()
 
-                    if not result.get("success", True):
+                    if result.get("success") is not True:
                         _LOGGER.warning(
                             "Pulse %d/%d failed: %s",
                             i + 1,
@@ -719,7 +719,7 @@ class VioletServiceHandlers:
                         f"Unsupported digital rule action: {action}"
                     )
 
-                if not result.get("success", True):
+                if result.get("success") is not True:
                     _LOGGER.warning(
                         "Digital rule action failed for %s: %s",
                         device_id,
@@ -766,7 +766,7 @@ class VioletServiceHandlers:
                     mode,
                     device_id,
                 )
-                if not result.get("success", True):
+                if result.get("success") is not True:
                     _LOGGER.warning(
                         "Test mode could not be activated for %s: %s",
                         device_id,

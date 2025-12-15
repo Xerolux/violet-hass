@@ -227,7 +227,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             else:
                 result = await self.device.api.set_switch_state(key=key, action=action)
 
-            if result.get("success", True):
+            if result.get("success") is True:
                 # ✅ Erfolg nur bei Debug loggen (API loggt bereits)
                 _LOGGER.debug("Switch %s erfolgreich auf %s gesetzt", key, action)
 
@@ -436,8 +436,8 @@ async def async_setup_entry(
                         else "UNKNOWN"
                     )
                     _LOGGER.debug("%s: raw=%s → %s", key, value, expected)
-                except Exception:
-                    pass  # Fehler in Diagnose ignorieren
+                except (ValueError, KeyError, TypeError) as err:
+                    _LOGGER.debug("Diagnose-Fehler für %s: %s", key, err)
     else:
         _LOGGER.warning("Coordinator data is None bei Switch Setup")
 
@@ -492,8 +492,8 @@ async def async_setup_entry(
                             raw_state,
                             "ON" if should_be_on else "OFF",
                         )
-                    except Exception:
-                        pass
+                    except (ValueError, KeyError, TypeError, AttributeError) as err:
+                        _LOGGER.debug("Final-Check-Fehler für %s: %s", key, err)
     else:
         # ✅ WARNING: Potenzielles Problem
         _LOGGER.warning("⚠ Keine Switches eingerichtet")
