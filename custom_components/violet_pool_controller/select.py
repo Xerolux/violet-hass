@@ -210,7 +210,7 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
             # API call
             result = await self.device.api.set_switch_state(key=self._device_key, action=action)
 
-            if result.get("success", True):
+            if result.get("success") is True:
                 _LOGGER.debug("%s erfolgreich auf Modus '%s' gesetzt", self._device_key, option)
 
                 # Optimistic update

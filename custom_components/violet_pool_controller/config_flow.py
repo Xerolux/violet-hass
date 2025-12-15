@@ -255,9 +255,10 @@ async def get_grouped_sensors(
         return {}
 
 
-class VioletDeviceConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class VioletDeviceConfigFlow(config_entries.ConfigFlow):
     """Config Flow für Violet Pool Controller."""
 
+    domain = DOMAIN
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 

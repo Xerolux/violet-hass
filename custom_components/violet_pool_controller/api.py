@@ -657,7 +657,7 @@ class VioletPoolAPI:
             except VioletPoolAPIError as e:
                 results.append({"success": False, "response": str(e)})
 
-        success = all(result.get("success", True) for result in results)
+        success = all(result.get("success") is True for result in results)
         response = ", ".join(
             result.get("response", "") for result in results if result.get("response")
         )

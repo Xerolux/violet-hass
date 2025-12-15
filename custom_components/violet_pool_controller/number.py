@@ -255,7 +255,7 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                 )
 
             # Prüfe Ergebnis
-            if result.get("success", True):
+            if result.get("success") is True:
                 _LOGGER.info(
                     "%s erfolgreich auf %.2f%s gesetzt",
                     self.entity_description.name,
