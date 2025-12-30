@@ -1,5 +1,7 @@
 """Switch Integration für den Violet Pool Controller - CHANGE-ONLY LOGGING & THREAD-SAFE."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
 from typing import Any
@@ -455,6 +457,7 @@ async def async_setup_entry(
         description = SwitchEntityDescription(
             key=switch_config["key"],
             name=switch_config["name"],
+            # translation_key=switch_config["key"].lower(), # I will enable this later if I update strings.json for all switches
             icon=switch_config.get("icon"),
             entity_category=entity_category,
         )

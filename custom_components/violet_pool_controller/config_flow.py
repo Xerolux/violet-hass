@@ -1,5 +1,7 @@
 """Config Flow für Violet Pool Controller Integration - OPTIMIZED VERSION."""
 
+from __future__ import annotations
+
 import asyncio
 import ipaddress
 import logging
@@ -744,7 +746,9 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow):
         """
         return vol.Schema(
             {
-                vol.Required(CONF_POOL_SIZE, default=DEFAULT_POOL_SIZE): selector.NumberSelector(
+                vol.Required(
+                    CONF_POOL_SIZE, default=DEFAULT_POOL_SIZE
+                ): selector.NumberSelector(
                     selector.NumberSelectorConfig(
                         min=MIN_POOL_SIZE,
                         max=MAX_POOL_SIZE,
@@ -844,27 +848,29 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         # Show menu with configuration options
         return self.async_show_form(
             step_id="init",
-            data_schema=vol.Schema({
-                vol.Required("config_option", default="settings"): selector.SelectSelector(
-                    selector.SelectSelectorConfig(
-                        options=[
-                            selector.SelectOptionDict(
-                                value="features",
-                                label="🎛️ Features aktivieren/deaktivieren"
-                            ),
-                            selector.SelectOptionDict(
-                                value="sensors",
-                                label="📊 Sensoren auswählen"
-                            ),
-                            selector.SelectOptionDict(
-                                value="settings",
-                                label="⚙️ Einstellungen ändern"
-                            ),
-                        ],
-                        mode=selector.SelectSelectorMode.LIST,
-                    )
-                ),
-            }),
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        "config_option", default="settings"
+                    ): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=[
+                                selector.SelectOptionDict(
+                                    value="features",
+                                    label="🎛️ Features aktivieren/deaktivieren",
+                                ),
+                                selector.SelectOptionDict(
+                                    value="sensors", label="📊 Sensoren auswählen"
+                                ),
+                                selector.SelectOptionDict(
+                                    value="settings", label="⚙️ Einstellungen ändern"
+                                ),
+                            ],
+                            mode=selector.SelectSelectorMode.LIST,
+                        )
+                    ),
+                }
+            ),
         )
 
     async def async_step_features(
@@ -911,21 +917,23 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
 
         return self.async_show_form(
             step_id="features",
-            data_schema=vol.Schema({
-                vol.Required(
-                    CONF_ACTIVE_FEATURES,
-                    default=current_features,
-                ): selector.SelectSelector(
-                    selector.SelectSelectorConfig(
-                        options=feature_options,
-                        multiple=True,
-                        mode=selector.SelectSelectorMode.LIST,
-                    )
-                ),
-            }),
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_ACTIVE_FEATURES,
+                        default=current_features,
+                    ): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=feature_options,
+                            multiple=True,
+                            mode=selector.SelectSelectorMode.LIST,
+                        )
+                    ),
+                }
+            ),
             description_placeholders={
                 "info": "Wählen Sie die Features, die Sie nutzen möchten. "
-                        "Deaktivierte Features werden ausgeblendet."
+                "Deaktivierte Features werden ausgeblendet."
             },
         )
 
@@ -1014,53 +1022,55 @@ class VioletOptionsFlowHandler(config_entries.OptionsFlow):
         Returns:
             The voluptuous schema.
         """
-        return vol.Schema({
-            vol.Optional(
-                CONF_CONTROLLER_NAME,
-                default=self.current_config.get(
-                    CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME
+        return vol.Schema(
+            {
+                vol.Optional(
+                    CONF_CONTROLLER_NAME,
+                    default=self.current_config.get(
+                        CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME
+                    ),
+                ): str,
+                vol.Optional(
+                    CONF_POLLING_INTERVAL,
+                    default=self.current_config.get(
+                        CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL
+                    ),
+                ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=MIN_POLLING_INTERVAL,
+                        max=MAX_POLLING_INTERVAL,
+                        step=1,
+                        mode=selector.NumberSelectorMode.BOX,
+                    )
                 ),
-            ): str,
-            vol.Optional(
-                CONF_POLLING_INTERVAL,
-                default=self.current_config.get(
-                    CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL
+                vol.Optional(
+                    CONF_TIMEOUT_DURATION,
+                    default=self.current_config.get(
+                        CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION
+                    ),
+                ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=MIN_TIMEOUT,
+                        max=MAX_TIMEOUT,
+                        step=1,
+                        mode=selector.NumberSelectorMode.BOX,
+                    )
                 ),
-            ): selector.NumberSelector(
-                selector.NumberSelectorConfig(
-                    min=MIN_POLLING_INTERVAL,
-                    max=MAX_POLLING_INTERVAL,
-                    step=1,
-                    mode=selector.NumberSelectorMode.BOX,
-                )
-            ),
-            vol.Optional(
-                CONF_TIMEOUT_DURATION,
-                default=self.current_config.get(
-                    CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION
+                vol.Optional(
+                    CONF_RETRY_ATTEMPTS,
+                    default=self.current_config.get(
+                        CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS
+                    ),
+                ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=MIN_RETRIES,
+                        max=MAX_RETRIES,
+                        step=1,
+                        mode=selector.NumberSelectorMode.BOX,
+                    )
                 ),
-            ): selector.NumberSelector(
-                selector.NumberSelectorConfig(
-                    min=MIN_TIMEOUT,
-                    max=MAX_TIMEOUT,
-                    step=1,
-                    mode=selector.NumberSelectorMode.BOX,
-                )
-            ),
-            vol.Optional(
-                CONF_RETRY_ATTEMPTS,
-                default=self.current_config.get(
-                    CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS
-                ),
-            ): selector.NumberSelector(
-                selector.NumberSelectorConfig(
-                    min=MIN_RETRIES,
-                    max=MAX_RETRIES,
-                    step=1,
-                    mode=selector.NumberSelectorMode.BOX,
-                )
-            ),
-        })
+            }
+        )
 
     def _get_sensor_schema(self) -> vol.Schema:
         """

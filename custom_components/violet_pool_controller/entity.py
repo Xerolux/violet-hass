@@ -1,8 +1,10 @@
 """Base entity class for Violet Pool Controller entities."""
 
+from __future__ import annotations
+
 import logging
 import re
-from typing import Any, Optional
+from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity import EntityDescription
@@ -120,7 +122,7 @@ def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool:
     return False
 
 
-class VioletPoolControllerEntity(CoordinatorEntity):
+class VioletPoolControllerEntity(CoordinatorEntity[VioletPoolDataUpdateCoordinator]):
     """Basis-Entity-Klasse für alle Violet Pool Controller Entities."""
 
     def __init__(
@@ -144,14 +146,19 @@ class VioletPoolControllerEntity(CoordinatorEntity):
 
         # Entity Attribute
         self._attr_has_entity_name = True
-        self._attr_name = entity_description.name  # type: ignore[assignment]
+        # If translation_key is set, name should be None to let HA handle it.
+        # But if it is not set, we use the name from description.
+        if entity_description.translation_key:
+            self._attr_name = None
+        else:
+            self._attr_name = entity_description.name
+
         self._attr_unique_id = f"{config_entry.entry_id}_{entity_description.key}"
-        # Type ignored because device_info is compatible but mypy complains
-        self._attr_device_info = coordinator.device.device_info  # type: ignore[assignment]
+        self._attr_device_info = coordinator.device.device_info
 
         _LOGGER.debug(
             "Entity initialisiert: %s (Key: %s, ID: %s)",
-            entity_description.name,
+            entity_description.name or entity_description.translation_key,
             entity_description.key,
             self._attr_unique_id,
         )
@@ -159,8 +166,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
     @property
     def device(self) -> Any:
         """Return the device instance."""
-        # Type ignored because custom coordinator has device attribute
-        return self.coordinator.device  # type: ignore[attr-defined]
+        return self.coordinator.device
 
     @property
     def available(self) -> bool:
@@ -179,7 +185,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
         if not is_available:
             _LOGGER.debug(
                 "Entity '%s' nicht verfügbar (coordinator_success: %s, device_available: %s)",
-                self.name,
+                self.name or self.entity_description.key,
                 self.coordinator.last_update_success,
                 self.device.available,
             )
@@ -256,9 +262,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
             )
             return default
 
-    def get_float_value(
-        self, key: str, default: Optional[float] = None
-    ) -> Optional[float]:
+    def get_float_value(self, key: str, default: float | None = None) -> float | None:
         """
         Get a float value from coordinator data.
 

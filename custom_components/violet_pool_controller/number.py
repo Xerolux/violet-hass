@@ -372,8 +372,7 @@ async def async_setup_entry(
         indicator_fields = setpoint_config.get("indicator_fields", [])
         if isinstance(indicator_fields, list):
             has_indicators = any(
-                field in coordinator.data
-                for field in indicator_fields
+                field in coordinator.data for field in indicator_fields
             )
 
             if not has_indicators:

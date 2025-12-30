@@ -205,13 +205,19 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
         action = MODE_TO_ACTION[option]
 
         try:
-            _LOGGER.info("Setze %s auf Modus '%s' (Action: %s)", self._device_key, option, action)
+            _LOGGER.info(
+                "Setze %s auf Modus '%s' (Action: %s)", self._device_key, option, action
+            )
 
             # API call
-            result = await self.device.api.set_switch_state(key=self._device_key, action=action)
+            result = await self.device.api.set_switch_state(
+                key=self._device_key, action=action
+            )
 
             if result.get("success") is True:
-                _LOGGER.debug("%s erfolgreich auf Modus '%s' gesetzt", self._device_key, option)
+                _LOGGER.debug(
+                    "%s erfolgreich auf Modus '%s' gesetzt", self._device_key, option
+                )
 
                 # Optimistic update
                 self._optimistic_mode = option
@@ -269,7 +275,9 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
                     )
 
         except Exception as err:
-            _LOGGER.debug("Fehler beim verzögerten Refresh für %s: %s", self._device_key, err)
+            _LOGGER.debug(
+                "Fehler beim verzögerten Refresh für %s: %s", self._device_key, err
+            )
             self._optimistic_mode = None
 
     def _handle_refresh_error(self, task: asyncio.Task) -> None:
@@ -283,11 +291,15 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
             if not task.cancelled():
                 exc = task.exception()
                 if exc is not None:
-                    _LOGGER.debug("Refresh task failed for %s: %s", self._device_key, exc)
+                    _LOGGER.debug(
+                        "Refresh task failed for %s: %s", self._device_key, exc
+                    )
         except asyncio.CancelledError:
             pass
         except Exception as err:
-            _LOGGER.debug("Error handling refresh task for %s: %s", self._device_key, err)
+            _LOGGER.debug(
+                "Error handling refresh task for %s: %s", self._device_key, err
+            )
 
 
 async def async_setup_entry(
@@ -303,7 +315,9 @@ async def async_setup_entry(
         config_entry: The config entry.
         async_add_entities: Callback to add entities.
     """
-    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
+    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][
+        config_entry.entry_id
+    ]
     active_features = config_entry.options.get(
         CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
     )

@@ -428,6 +428,12 @@
             },
             "firmware_version": {
                 "name": "📦 Firmware-Version"
+            },
+            "last_error_code": {
+                "name": "Letzter Fehlercode"
+            },
+            "flow_rate": {
+                "name": "Durchflussmenge"
             }
         },
         "binary_sensor": {
