@@ -1,4 +1,5 @@
 # requirements.txt
-homeassistant>=2024.12.0
-aiohttp>=3.8.0
-voluptuous>=0.13
+# Updated for Home Assistant 2026 compatibility baseline
+homeassistant>=2024.12.3
+aiohttp>=3.9.5
+voluptuous>=0.14.2

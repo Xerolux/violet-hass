@@ -83,6 +83,7 @@ def _install_homeassistant_stubs() -> None:
         CLIMATE = "climate"
         COVER = "cover"
         NUMBER = "number"
+        SELECT = "select"
 
     const_module.Platform = Platform
 
