@@ -247,6 +247,7 @@ class VioletPoolAPI:
             VioletPoolAPIError: If the template is misconfigured.
         """
         from typing import cast
+
         template = cast(
             str,
             DEVICE_PARAMETERS.get(key, {}).get(

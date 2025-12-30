@@ -206,7 +206,8 @@ def get_device_state_info(raw_state: Any) -> Dict[str, Any]:
     return cast(
         Dict[str, Any],
         DEVICE_STATE_MAPPING.get(
-            state_str, {"mode": "unknown", "active": None, "desc": f"Unknown: {raw_state}"}
+            state_str,
+            {"mode": "unknown", "active": None, "desc": f"Unknown: {raw_state}"},
         ),
     )
 

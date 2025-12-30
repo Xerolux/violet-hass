@@ -1,10 +1,12 @@
 """Violet Pool Controller Device Module - SMART FAILURE LOGGING + AUTO RECOVERY."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
 import time
 from datetime import timedelta
-from typing import Any, Mapping, Optional
+from typing import Any, Mapping
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -51,8 +53,8 @@ class VioletPoolControllerDevice:
         self._available = False
         self._session = async_get_clientsession(hass)
         self._data: dict[str, Any] = {}
-        self._firmware_version: Optional[str] = None
-        self._last_error: Optional[str] = None
+        self._firmware_version: str | None = None
+        self._last_error: str | None = None
         self._api_lock = asyncio.Lock()
         self._consecutive_failures = 0
         self._max_consecutive_failures = 5
@@ -70,7 +72,7 @@ class VioletPoolControllerDevice:
         self._recovery_attempts = 0  # Zähler für Recovery-Versuche
         self._in_recovery_mode = False  # Flag für Recovery-Modus
         self._last_recovery_attempt = 0.0  # Timestamp letzter Recovery-Versuch
-        self._recovery_task: Optional[asyncio.Task] = None  # Recovery-Task
+        self._recovery_task: asyncio.Task | None = None  # Recovery-Task
         self._recovery_lock = asyncio.Lock()  # ✅ Lock für thread-safe Recovery
 
         # Konfiguration extrahieren (mit Options-Support)
@@ -350,7 +352,7 @@ class VioletPoolControllerDevice:
         return self._available
 
     @property
-    def firmware_version(self) -> Optional[str]:
+    def firmware_version(self) -> str | None:
         """Gibt die Firmware-Version zurück."""
         return self._firmware_version
 
@@ -360,7 +362,7 @@ class VioletPoolControllerDevice:
         return self._data
 
     @property
-    def last_error(self) -> Optional[str]:
+    def last_error(self) -> str | None:
         """Gibt den letzten Fehler zurück."""
         return self._last_error
 
@@ -531,7 +533,7 @@ class VioletPoolControllerDevice:
         return url.strip()
 
 
-class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
+class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     """Data Update Coordinator - SMART FAILURE LOGGING."""
 
     def __init__(

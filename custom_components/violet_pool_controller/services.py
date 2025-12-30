@@ -7,8 +7,11 @@ Note on Validation:
     `selector.NumberSelector` to provide a rich UI, as service calls are often programmatic.
 """
 
+from __future__ import annotations
+
 import asyncio
 import logging
+import time
 from typing import Any, Iterable
 
 import homeassistant.helpers.config_validation as cv
@@ -261,7 +264,6 @@ class VioletServiceManager:
         """
         if device_key not in self._safety_locks:
             return False
-        import time
 
         return time.time() < self._safety_locks[device_key]
 
@@ -273,8 +275,6 @@ class VioletServiceManager:
             device_key: The device key.
             duration: The duration in seconds.
         """
-        import time
-
         self._safety_locks[device_key] = time.time() + duration
 
     def get_remaining_lock_time(self, device_key: str) -> int:
@@ -289,7 +289,6 @@ class VioletServiceManager:
         """
         if not self.check_safety_lock(device_key):
             return 0
-        import time
 
         return int(self._safety_locks[device_key] - time.time())
 
@@ -471,6 +470,7 @@ class VioletServiceHandlers:
                     # Set safety lock
                     if not safety_override:
                         from typing import cast
+
                         safety_interval = cast(
                             int,
                             DEVICE_PARAMETERS.get(device_key, {}).get(

@@ -433,7 +433,9 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                 exc = task.exception()
                 if exc is not None:
                     # ✅ Nur bei echten Problemen loggen
-                    _LOGGER.debug("Refresh task failed for %s: %s", self.climate_type, exc)
+                    _LOGGER.debug(
+                        "Refresh task failed for %s: %s", self.climate_type, exc
+                    )
         except asyncio.CancelledError:
             pass  # Normal, kein Log nötig
 
