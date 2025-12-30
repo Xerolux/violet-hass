@@ -5,10 +5,10 @@
   "config_flow": true,
   "dependencies": [],
   "documentation": "https://github.com/xerolux/violet-hass",
-  "homeassistant": "2024.4.0",
+  "homeassistant": "2024.12.3",
   "integration_type": "device",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/xerolux/violet-hass/issues",
-  "requirements": ["aiohttp>=3.8.0"],
+  "requirements": ["aiohttp>=3.9.5"],
   "version": "0.2.0-beta.4"
 }
