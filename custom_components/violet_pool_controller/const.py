@@ -44,12 +44,6 @@ CONF_SELECTED_SENSORS = "selected_sensors"
 CONF_POOL_SIZE = "pool_size"
 CONF_POOL_TYPE = "pool_type"
 CONF_DISINFECTION_METHOD = "disinfection_method"
-CONF_CONTROLLER_TYPE = "controller_type"
-CONF_ERROR_TOLERANCE = "error_tolerance"
-
-# Controller Types
-CONTROLLER_TYPE_VIOLET = "violet"
-CONTROLLER_TYPE_PROCONIP = "proconip"
 
 # Default Values
 DEFAULT_POLLING_INTERVAL = 10
@@ -61,8 +55,6 @@ DEFAULT_CONTROLLER_NAME = "Violet Pool Controller"
 DEFAULT_POOL_SIZE = 50
 DEFAULT_POOL_TYPE = "outdoor"
 DEFAULT_DISINFECTION_METHOD = "chlorine"
-DEFAULT_CONTROLLER_TYPE = CONTROLLER_TYPE_VIOLET
-DEFAULT_ERROR_TOLERANCE = 2
 
 # =============================================================================
 # POOL CONFIGURATION
