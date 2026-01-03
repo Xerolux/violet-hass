@@ -104,6 +104,9 @@ DEVICE_STATE_MAPPING = {
     "4": {"mode": "manual", "active": True, "desc": "Manual ON (Forced)"},
     "5": {"mode": "auto", "active": False, "desc": "Auto - Waiting"},
     "6": {"mode": "manual", "active": False, "desc": "Manual OFF"},
+    # Special protection modes (from PUMPSTATE field with pipe separator)
+    "3|PUMP_ANTI_FREEZE": {"mode": "frost_protection", "active": True, "desc": "Frost Protection Active"},
+    "PUMP_ANTI_FREEZE": {"mode": "frost_protection", "active": True, "desc": "Frost Protection Active"},
     # Generic operational states
     "STOPPED": {"mode": "manual", "active": False, "desc": "Stopped"},
     "ERROR": {"mode": "error", "active": False, "desc": "Error State"},
@@ -161,6 +164,7 @@ STATE_ICONS = {
     "auto_inactive": "mdi:autorenew-off",
     "manual_on": "mdi:power-plug",
     "manual_off": "mdi:power-plug-off",
+    "frost_protection": "mdi:snowflake-alert",
     "error": "mdi:alert-circle",
     "maintenance": "mdi:wrench",
 }
@@ -170,6 +174,7 @@ STATE_COLORS = {
     "auto_inactive": "#2196F3",  # Blue
     "manual_on": "#FF9800",  # Orange
     "manual_off": "#F44336",  # Red
+    "frost_protection": "#00BCD4",  # Cyan (frost/ice color)
     "error": "#9C27B0",  # Purple
     "maintenance": "#607D8B",  # Blue Grey
 }
@@ -180,6 +185,7 @@ STATE_TRANSLATIONS = {
         "auto_inactive": "Auto (Ready)",
         "manual_on": "Manual On",
         "manual_off": "Manual Off",
+        "frost_protection": "Frost Protection",
         "error": "Error",
         "maintenance": "Maintenance",
         "unknown": "Unknown",
@@ -189,6 +195,7 @@ STATE_TRANSLATIONS = {
         "auto_inactive": "Automatik (Bereit)",
         "manual_on": "Manuell Ein",
         "manual_off": "Manuell Aus",
+        "frost_protection": "Frostschutz",
         "error": "Fehler",
         "maintenance": "Wartung",
         "unknown": "Unbekannt",

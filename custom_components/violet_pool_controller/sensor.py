@@ -108,6 +108,14 @@ _TEXT_VALUE_KEYS = {
     "SOLARSTATE",
     "PUMPSTATE",
     "BACKWASHSTATE",
+    # STATUS_SENSORS - these return text values like "Automatik (Bereit)", "Ein", "Aus"
+    "BACKWASH",
+    "PUMP",
+    "HEATER",
+    "SOLAR",
+    "LIGHT",
+    "PVSURPLUS",
+    # Other STATE sensors
     "OMNI_STATE",
     "BACKWASH_OMNI_STATE",
     "SOLAR_STATE",
@@ -148,6 +156,7 @@ _TEXT_VALUE_KEYS = {
     "BACKWASH_OMNI_MOVING",
     "BACKWASH_DELAY_RUNNING",
     "BACKWASH_STATE",
+    "BACKWASHRINSE_RUNTIME",  # Text-based runtime status, not numeric
     "REFILL_STATE",
     "BATHING_AI_SURVEILLANCE_STATE",
     "BATHING_AI_PUMP_STATE",
@@ -157,6 +166,7 @@ _TEXT_VALUE_KEYS = {
     "time",
     "TIME",
     "CURRENT_TIME",
+    "date",  # Date value, not numeric
     "LOAD_AVG",
     "pump_rs485_pwr",
     "SYSTEM_carrier_alive_count",
@@ -255,9 +265,19 @@ class VioletStatusSensor(VioletSensor):
         if self.coordinator.data is None:
             return None
 
-        raw_value = self.coordinator.data.get(self.entity_description.key)
+        # Try to get detailed state first (e.g., PUMPSTATE instead of PUMP)
+        # PUMPSTATE contains detailed info like "3|PUMP_ANTI_FREEZE"
+        key = self.entity_description.key
+        state_key = f"{key}STATE"
+
+        # Prefer *STATE field if available (contains detailed status info)
+        raw_value = self.coordinator.data.get(state_key)
+        if raw_value is None:
+            # Fallback to basic key if *STATE doesn't exist
+            raw_value = self.coordinator.data.get(key)
+
         return (
-            VioletState(raw_value, self.entity_description.key).display_mode
+            VioletState(raw_value, key).display_mode
             if raw_value is not None
             else None
         )
@@ -268,10 +288,17 @@ class VioletStatusSensor(VioletSensor):
         if self.coordinator.data is None:
             return super().icon
 
-        raw_value = self.coordinator.data.get(self.entity_description.key)
+        # Same logic as native_value - prefer *STATE field
+        key = self.entity_description.key
+        state_key = f"{key}STATE"
+
+        raw_value = self.coordinator.data.get(state_key)
+        if raw_value is None:
+            raw_value = self.coordinator.data.get(key)
+
         if raw_value is None:
             return super().icon
-        return VioletState(raw_value, self.entity_description.key).icon
+        return VioletState(raw_value, key).icon
 
 
 class VioletErrorCodeSensor(VioletSensor):

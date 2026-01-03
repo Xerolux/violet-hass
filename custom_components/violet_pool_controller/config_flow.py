@@ -257,12 +257,10 @@ async def get_grouped_sensors(
         return {}
 
 
-class VioletDeviceConfigFlow(config_entries.ConfigFlow):
+class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Config Flow für Violet Pool Controller."""
 
-    domain = DOMAIN
     VERSION = 1
-    CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
     def __init__(self) -> None:
         """Initialisiere Config Flow."""
@@ -277,7 +275,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow):
         config_entry: config_entries.ConfigEntry,
     ) -> config_entries.OptionsFlow:
         """Options Flow zurückgeben."""
-        return VioletOptionsFlowHandler()
+        return OptionsFlowHandler()
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -1051,7 +1049,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow):
         return vol.Schema(schema)
 
 
-class VioletOptionsFlowHandler(config_entries.OptionsFlow):
+class OptionsFlowHandler(config_entries.OptionsFlow):
     """Options Flow für Violet Pool Controller."""
 
     def __init__(self) -> None:
