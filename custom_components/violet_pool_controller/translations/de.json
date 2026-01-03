@@ -128,7 +128,39 @@
             "cannot_connect": "Verbindung fehlgeschlagen",
             "invalid_auth": "Ungültige Anmeldedaten",
             "agreement_declined": "Sicherheitshinweise nicht akzeptiert",
+            "reauth_successful": "Reauthentifizierung erfolgreich",
+            "reconfigure_successful": "Neukonfiguration erfolgreich",
             "unknown": "Unbekannter Fehler"
+        },
+        "reauth_confirm": {
+            "title": "Controller erneut authentifizieren",
+            "description": "Die Anmeldedaten des Controllers müssen aktualisiert werden. Bitte gib deinen neuen Benutzernamen und dein neues Passwort ein.\n\nController: **{controller_name}**\nIP-Adresse: **{api_url}**",
+            "data": {
+                "username": "Benutzername",
+                "password": "Passwort"
+            },
+            "data_description": {
+                "username": "Neuer Benutzername für die Authentifizierung",
+                "password": "Neues Passwort für die Authentifizierung"
+            }
+        },
+        "reconfigure": {
+            "title": "Verbindung neu konfigurieren",
+            "description": "Aktualisiere die Verbindungseinstellungen für deinen Controller. Dies ist nützlich, wenn sich die IP-Adresse oder die Netzwerkeinstellungen des Controllers geändert haben.\n\nController: **{controller_name}**",
+            "data": {
+                "host": "IP-Adresse oder Hostname",
+                "use_ssl": "SSL/HTTPS verwenden",
+                "polling_interval": "Abrufintervall (Sekunden)",
+                "timeout_duration": "Timeout (Sekunden)",
+                "retry_attempts": "Wiederholungsversuche"
+            },
+            "data_description": {
+                "host": "Neue Controller-IP oder DNS-Name",
+                "use_ssl": "HTTPS aktivieren, falls unterstützt",
+                "polling_interval": "Datenabruf-Intervall (10-3600s)",
+                "timeout_duration": "Maximale Wartezeit pro Anfrage",
+                "retry_attempts": "Anzahl Wiederholungsversuche"
+            }
         }
     },
     "options": {
@@ -428,6 +460,15 @@
             },
             "firmware_version": {
                 "name": "Firmware-Version"
+            },
+            "system_health": {
+                "name": "Systemgesundheit"
+            },
+            "connection_latency": {
+                "name": "Verbindungslatenz"
+            },
+            "last_event_age": {
+                "name": "Letztes Event-Alter"
             }
         },
         "binary_sensor": {
