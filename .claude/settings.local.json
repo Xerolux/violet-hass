@@ -6,7 +6,8 @@
       "Bash(pytest:*)",
       "Bash(python -m pytest:*)",
       "Bash(python:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

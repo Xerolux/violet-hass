@@ -1,6 +1,12 @@
 name: Release Management
 
 on:
+  push:
+    tags:
+      - 'v*.*.*'
+      - 'v*.*.*-alpha.*'
+      - 'v*.*.*-beta.*'
+      - 'v*.*.*-rc.*'
   release:
     types: [published, prereleased, released]
   workflow_dispatch:
@@ -8,15 +14,25 @@ on:
       tag_name:
         description: |
           Tag name for the release (Semantic Versioning 2.0.0)
-          Stable releases: v0.2.0, v0.2.1, v1.0.0
-          Pre-releases (auto-detected by "-"): v0.3.0-beta.1, v1.0.0-rc.1
-        required: false
+          Stable: v0.2.0, v1.0.0
+          Pre-releases: v0.3.0-alpha.1, v0.3.0-beta.1, v1.0.0-rc.1
+        required: true
         type: string
-      mark_as_prerelease:
-        description: 'Force mark as pre-release (overrides auto-detection)'
+      release_type:
+        description: 'Release type'
+        required: true
+        type: choice
+        options:
+          - stable
+          - beta
+          - alpha
+          - draft
+        default: 'stable'
+      make_latest:
+        description: 'Mark as latest release'
         required: false
         type: boolean
-        default: false
+        default: true
 
 permissions:
   contents: write
@@ -26,33 +42,82 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+      is_prerelease: ${{ steps.version.outputs.is_prerelease }}
+      is_draft: ${{ steps.version.outputs.is_draft }}
+      release_type: ${{ steps.version.outputs.release_type }}
       release-notes: ${{ steps.generate.outputs.release-notes }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
-      - name: Get version
+
+      - name: Get version and detect release type
         id: version
         run: |
           TAG="${{ github.event.release.tag_name || inputs.tag_name || github.ref_name }}"
           VERSION="${TAG#v}"
+
+          # Auto-detect release type from tag
+          if [[ "$TAG" =~ -alpha ]]; then
+            RELEASE_TYPE="alpha"
+            IS_PRERELEASE=true
+            IS_DRAFT=false
+          elif [[ "$TAG" =~ -beta ]]; then
+            RELEASE_TYPE="beta"
+            IS_PRERELEASE=true
+            IS_DRAFT=false
+          elif [[ "$TAG" =~ -rc ]]; then
+            RELEASE_TYPE="rc"
+            IS_PRERELEASE=true
+            IS_DRAFT=false
+          else
+            RELEASE_TYPE="stable"
+            IS_PRERELEASE=false
+            IS_DRAFT=false
+          fi
+
+          # Override with manual input if provided
+          if [ "${{ inputs.release_type }}" = "draft" ]; then
+            IS_DRAFT=true
+            IS_PRERELEASE=false
+            RELEASE_TYPE="draft"
+          elif [ "${{ inputs.release_type }}" = "alpha" ]; then
+            IS_PRERELEASE=true
+            RELEASE_TYPE="alpha"
+          elif [ "${{ inputs.release_type }}" = "beta" ]; then
+            IS_PRERELEASE=true
+            RELEASE_TYPE="beta"
+          elif [ "${{ inputs.release_type }}" = "stable" ]; then
+            IS_PRERELEASE=false
+            RELEASE_TYPE="stable"
+          fi
+
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
-          echo "📌 Release version: $VERSION (tag: $TAG)"
+          echo "is_prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
+          echo "is_draft=$IS_DRAFT" >> $GITHUB_OUTPUT
+          echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
+
+          echo "📌 Release Info:"
+          echo "  Version: $VERSION"
+          echo "  Tag: $TAG"
+          echo "  Type: $RELEASE_TYPE"
+          echo "  Pre-release: $IS_PRERELEASE"
+          echo "  Draft: $IS_DRAFT"
 
       - name: Validate tag format
         run: |
-          TAG="${{ github.event.release.tag_name || inputs.tag_name || github.ref_name }}"
+          TAG="${{ steps.version.outputs.tag }}"
           if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$ ]]; then
             echo "❌ Invalid tag format: $TAG"
             echo "Expected format: v0.2.0, v0.2.1, v1.0.0 (Semantic Versioning 2.0.0)"
-            echo "Pre-release tags (optional): v0.3.0-beta.1, v1.0.0-rc.1"
+            echo "Pre-release tags: v0.3.0-alpha.1, v0.3.0-beta.1, v1.0.0-rc.1"
             exit 1
           fi
           echo "✅ Valid tag format: $TAG"
-          
+
       - name: Update version in files
         run: |
           VERSION="${{ steps.version.outputs.version }}"
@@ -69,11 +134,11 @@ jobs:
             exit 1
           fi
 
-          # Update versions using | delimiter to avoid issues with special characters
+          # Update versions
           sed -i "s|\"version\": \"[^\"]*\"|\"version\": \"$VERSION\"|" "$MANIFEST_FILE"
           sed -i "s|^INTEGRATION_VERSION = .*|INTEGRATION_VERSION = \"$VERSION\"|" "$CONST_FILE"
 
-          # Verify changes were applied
+          # Verify changes
           if ! grep -q "\"version\": \"$VERSION\"" "$MANIFEST_FILE"; then
             echo "❌ Failed to update version in $MANIFEST_FILE"
             exit 1
@@ -84,27 +149,32 @@ jobs:
           fi
 
           echo "✅ Updated version to $VERSION in manifest.json and const.py"
-          
+
       - name: Parse commits since last release
         id: commits
         run: |
           CURRENT_TAG="${{ steps.version.outputs.tag }}"
-          PREV_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+' | grep -v "$CURRENT_TAG" | head -1)
+
+          # Find previous stable release (exclude pre-releases)
+          PREV_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | grep -v "$CURRENT_TAG" | head -1)
 
           if [ -z "$PREV_TAG" ]; then
-            echo "📝 No previous release found, using all commits"
-            COMMITS=$(git log --oneline --pretty=format:"- %s" | head -20)
+            echo "📝 No previous stable release found, using all commits"
+            COMMITS=$(git log --oneline --pretty=format:"- %s (%h)" | head -30)
           else
             echo "📝 Getting commits since $PREV_TAG to $CURRENT_TAG"
-            COMMITS=$(git log ${PREV_TAG}..${CURRENT_TAG} --oneline --pretty=format:"- %s" 2>/dev/null || git log --oneline --pretty=format:"- %s" | head -20)
+            COMMITS=$(git log ${PREV_TAG}..HEAD --oneline --pretty=format:"- %s (%h)" 2>/dev/null || git log --oneline --pretty=format:"- %s (%h)" | head -30)
           fi
 
-          # Categorize commits
-          BUG_FIXES=$(echo "$COMMITS" | grep -iE "(fix|bug|patch)" | head -5 || echo "")
-          IMPROVEMENTS=$(echo "$COMMITS" | grep -iE "(improve|enhance|update|refactor)" | head -5 || echo "")
-          NEW_FEATURES=$(echo "$COMMITS" | grep -iE "(add|feat|feature|new)" | head -5 || echo "")
+          # Categorize commits with better patterns
+          BUG_FIXES=$(echo "$COMMITS" | grep -iE "(\bfix\b|\bbug\b|\bpatch\b|hotfix|bugfix)" || echo "")
+          IMPROVEMENTS=$(echo "$COMMITS" | grep -iE "(\bimprove\b|\benhance\b|\bupdate\b|\brefactor\b|\boptimize\b)" || echo "")
+          NEW_FEATURES=$(echo "$COMMITS" | grep -iE "(\badd\b|\bfeat\b|\bfeature\b|\bnew\b)" || echo "")
+          DOCS=$(echo "$COMMITS" | grep -iE "(\bdoc\b|\bdocs\b|documentation|\breadme\b)" || echo "")
+          TESTS=$(echo "$COMMITS" | grep -iE "(\btest\b|\btests\b|\btesting\b)" || echo "")
 
           echo "previous-tag=$PREV_TAG" >> $GITHUB_OUTPUT
+
           echo "bug-fixes<<EOF" >> $GITHUB_OUTPUT
           echo "$BUG_FIXES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -112,104 +182,218 @@ jobs:
           echo "improvements<<EOF" >> $GITHUB_OUTPUT
           echo "$IMPROVEMENTS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-          
+
           echo "new-features<<EOF" >> $GITHUB_OUTPUT
           echo "$NEW_FEATURES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "docs<<EOF" >> $GITHUB_OUTPUT
+          echo "$DOCS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "tests<<EOF" >> $GITHUB_OUTPUT
+          echo "$TESTS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Generate release notes
         id: generate
         run: |
+          RELEASE_TYPE="${{ steps.version.outputs.release_type }}"
+          VERSION="${{ steps.version.outputs.version }}"
+          TAG="${{ steps.version.outputs.tag }}"
+
+          # Release type badge
+          case "$RELEASE_TYPE" in
+            alpha)
+              TYPE_BADGE="🔴 **ALPHA RELEASE** - Experimental features, use with caution!"
+              TYPE_BADGE_DE="🔴 **ALPHA VERSION** - Experimentelle Funktionen, mit Vorsicht verwenden!"
+              ;;
+            beta)
+              TYPE_BADGE="🟡 **BETA RELEASE** - Testing phase, may contain bugs"
+              TYPE_BADGE_DE="🟡 **BETA VERSION** - Testphase, kann Fehler enthalten"
+              ;;
+            rc)
+              TYPE_BADGE="🟢 **RELEASE CANDIDATE** - Feature complete, final testing"
+              TYPE_BADGE_DE="🟢 **RELEASE CANDIDATE** - Feature-komplett, finale Tests"
+              ;;
+            draft)
+              TYPE_BADGE="📝 **DRAFT RELEASE** - Work in progress"
+              TYPE_BADGE_DE="📝 **ENTWURF** - In Arbeit"
+              ;;
+            *)
+              TYPE_BADGE="✅ **STABLE RELEASE**"
+              TYPE_BADGE_DE="✅ **STABILE VERSION**"
+              ;;
+          esac
+
+          # Get categorized commits
           BUG_FIXES="${{ steps.commits.outputs.bug-fixes }}"
           if [ -z "$BUG_FIXES" ]; then
-            BUG_FIXES="- Minor bug fixes and stability improvements / Kleinere Fehlerbehebungen und Stabilitätsverbesserungen"
+            BUG_FIXES="- Minor bug fixes and stability improvements"
           fi
 
           IMPROVEMENTS="${{ steps.commits.outputs.improvements }}"
           if [ -z "$IMPROVEMENTS" ]; then
-            IMPROVEMENTS="- Performance improvements and polish / Leistungsverbesserungen und Feinschliff"
+            IMPROVEMENTS="- Performance improvements and code optimizations"
           fi
 
           NEW_FEATURES="${{ steps.commits.outputs.new-features }}"
           if [ -z "$NEW_FEATURES" ]; then
-            NEW_FEATURES="- Enhanced Violet Pool Controller experience / Verbesserte Funktionen des Violet Pool Controllers"
+            NEW_FEATURES="- Enhanced Violet Pool Controller functionality"
           fi
 
+          DOCS="${{ steps.commits.outputs.docs }}"
+          TESTS="${{ steps.commits.outputs.tests }}"
+
+          # Generate changelog link
           PREVIOUS_TAG="${{ steps.commits.outputs.previous-tag }}"
-          CURRENT_TAG="${{ steps.version.outputs.tag }}"
           if [ -z "$PREVIOUS_TAG" ]; then
-            CHANGELOG_EN="Full Changelog: Initial release – no previous version available."
-            CHANGELOG_DE="Vollständiges Änderungsprotokoll: Erstveröffentlichung – keine vorherige Version verfügbar."
-            CHANGELOG_LINK=""
+            CHANGELOG_LINK="📋 Full changelog: Initial release"
           else
-            CHANGELOG_RANGE="$PREVIOUS_TAG...$CURRENT_TAG"
-            CHANGELOG_URL="${{ github.server_url }}/${{ github.repository }}/compare/$CHANGELOG_RANGE"
-            CHANGELOG_EN="Full Changelog: $CHANGELOG_RANGE"
-            CHANGELOG_DE="Vollständiges Änderungsprotokoll: $CHANGELOG_RANGE"
-            CHANGELOG_LINK="🔗 $CHANGELOG_URL"
+            CHANGELOG_URL="${{ github.server_url }}/${{ github.repository }}/compare/$PREVIOUS_TAG...$TAG"
+            CHANGELOG_LINK="📋 [Full changelog: $PREVIOUS_TAG...$TAG]($CHANGELOG_URL)"
           fi
 
+          # Build release notes
           {
-            echo "$CURRENT_TAG – Bug Fixes & Improvements / Fehlerbehebungen & Verbesserungen 🎉"
+            echo "## $TAG – Violet Pool Controller"
             echo ""
-            echo "🔧 Bug Fixes | Fehlerbehebungen"
-            echo "$BUG_FIXES"
+            echo "$TYPE_BADGE"
             echo ""
-            echo "🚀 Improvements | Verbesserungen"
-            echo "$IMPROVEMENTS"
-            echo ""
-            echo "✨ New Features | Neue Funktionen"
-            echo "$NEW_FEATURES"
-            echo ""
-            echo "📄 $CHANGELOG_EN / $CHANGELOG_DE"
-            if [ -n "$CHANGELOG_LINK" ]; then
-              echo "$CHANGELOG_LINK"
+            if [ "$RELEASE_TYPE" != "stable" ]; then
+              echo "---"
+              echo ""
             fi
+
+            if [ -n "$NEW_FEATURES" ]; then
+              echo "### ✨ New Features | Neue Funktionen"
+              echo ""
+              echo "$NEW_FEATURES"
+              echo ""
+            fi
+
+            if [ -n "$IMPROVEMENTS" ]; then
+              echo "### 🚀 Improvements | Verbesserungen"
+              echo ""
+              echo "$IMPROVEMENTS"
+              echo ""
+            fi
+
+            if [ -n "$BUG_FIXES" ]; then
+              echo "### 🔧 Bug Fixes | Fehlerbehebungen"
+              echo ""
+              echo "$BUG_FIXES"
+              echo ""
+            fi
+
+            if [ -n "$DOCS" ]; then
+              echo "### 📚 Documentation | Dokumentation"
+              echo ""
+              echo "$DOCS"
+              echo ""
+            fi
+
+            if [ -n "$TESTS" ]; then
+              echo "### 🧪 Tests"
+              echo ""
+              echo "$TESTS"
+              echo ""
+            fi
+
+            echo "---"
             echo ""
-            echo "❤️ Support My Project | Unterstütze mein Projekt"
-            echo "- ☕ Buy Me a Coffee: https://buymeacoffee.com/xerolux"
-            echo "- 🚗 Tesla referral: https://ts.la/sebastian564489"
-            echo "- Every contribution, no matter how small, is a huge motivation! Thank you so much for your support! 🙏"
-            echo "- Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank für deine Unterstützung! 🙏"
+            echo "### 📦 Installation"
             echo ""
-            echo "💬 Feedback & Contributions | Feedback & Beiträge"
-            echo "- Always open to feedback, suggestions, or contributions from the community. Feel free to open an issue or submit a pull request."
-            echo "- Ich freue mich über Feedback, Vorschläge oder Beiträge aus der Community. Erstelle gerne ein Issue oder sende einen Pull Request."
+            echo "**HACS (Recommended):**"
+            echo "1. Add custom repository: \`${{ github.repository }}\`"
+            echo "2. Search for \"Violet Pool Controller\""
+            echo "3. Click Install"
+            echo ""
+            echo "**Manual:**"
+            echo "1. Download \`violet_pool_controller.zip\`"
+            echo "2. Extract to \`custom_components/violet_pool_controller\`"
+            echo "3. Restart Home Assistant"
+            echo ""
+            echo "---"
+            echo ""
+            echo "$CHANGELOG_LINK"
+            echo ""
+            echo "---"
+            echo ""
+            echo "### ❤️ Support | Unterstützung"
+            echo ""
+            echo "If you find this integration useful, consider supporting the developer:"
+            echo ""
+            echo "- ☕ **[Buy Me a Coffee](https://buymeacoffee.com/xerolux)**"
+            echo "- 🚗 **[Tesla Referral Code](https://ts.la/sebastian564489)**"
+            echo "- ⭐ **Star this repository**"
+            echo ""
+            echo "Every contribution, no matter how small, is a huge motivation! Thank you! 🙏"
+            echo ""
+            echo "Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏"
+            echo ""
+            echo "---"
+            echo ""
+            echo "### 💬 Feedback & Contributions"
+            echo ""
+            echo "- 🐛 **[Report a bug](https://github.com/${{ github.repository }}/issues/new?template=bug_report.md)**"
+            echo "- 💡 **[Request a feature](https://github.com/${{ github.repository }}/issues/new?template=feature_request.md)**"
+            echo "- 🤝 **[Contribute](https://github.com/${{ github.repository }}/blob/main/CONTRIBUTING.md)**"
+            echo ""
+            echo "---"
+            echo ""
+            echo "### 📄 Credits"
+            echo ""
+            echo "**Developed by:** [Xerolux](https://github.com/Xerolux)"
+            echo "**Integration for:** Violet Pool Controller by PoolDigital GmbH & Co. KG"
+            echo "**License:** MIT"
+            echo ""
+            echo "---"
+            echo ""
+            echo "_Generated automatically by GitHub Actions on $(date +'%Y-%m-%d %H:%M:%S UTC')_"
           } > temp_release_notes.md
 
           echo "release-notes<<EOFNOTES" >> $GITHUB_OUTPUT
           cat temp_release_notes.md >> $GITHUB_OUTPUT
           echo "EOFNOTES" >> $GITHUB_OUTPUT
 
-      - name: Create ZIP
+          cat temp_release_notes.md
+
+      - name: Create ZIP artifact
         run: |
           cd custom_components/violet_pool_controller
           zip -r ../../violet_pool_controller.zip . \
-            -x "*.pyc" -x "__pycache__/*" -x "*.git*" -x "test_*.py"
+            -x "*.pyc" -x "__pycache__/*" -x "*.git*" -x "test_*.py" -x ".DS_Store"
           cd ../..
-          echo "📦 Created violet_pool_controller.zip ($(du -h violet_pool_controller.zip | cut -f1))"
-          
+
+          SIZE=$(du -h violet_pool_controller.zip | cut -f1)
+          echo "📦 Created violet_pool_controller.zip ($SIZE)"
+
+          # Create checksum
+          sha256sum violet_pool_controller.zip > violet_pool_controller.zip.sha256
+          echo "✅ SHA256: $(cat violet_pool_controller.zip.sha256)"
+
       - name: Upload ZIP to release
         uses: softprops/action-gh-release@v2
         with:
-          files: violet_pool_controller.zip
+          files: |
+            violet_pool_controller.zip
+            violet_pool_controller.zip.sha256
           tag_name: ${{ steps.version.outputs.tag }}
           body: ${{ steps.generate.outputs.release-notes }}
-          prerelease: ${{ inputs.mark_as_prerelease || contains(steps.version.outputs.tag, '-') }}
+          draft: ${{ steps.version.outputs.is_draft == 'true' }}
+          prerelease: ${{ steps.version.outputs.is_prerelease == 'true' }}
+          make_latest: ${{ inputs.make_latest != false && steps.version.outputs.release_type == 'stable' }}
 
-  update-release-notes:
+  update-changelog:
     needs: prepare-release
     runs-on: ubuntu-latest
+    if: needs.prepare-release.outputs.is_draft != 'true'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create RELEASE_NOTES.md if not exists
-        run: |
-          if [ ! -f RELEASE_NOTES.md ]; then
-            touch RELEASE_NOTES.md
-          fi
+          fetch-depth: 0
 
       - name: Update version in files
         run: |
@@ -217,88 +401,96 @@ jobs:
           MANIFEST_FILE="custom_components/violet_pool_controller/manifest.json"
           CONST_FILE="custom_components/violet_pool_controller/const.py"
 
-          # Check files exist
-          if [ ! -f "$MANIFEST_FILE" ]; then
-            echo "❌ File not found: $MANIFEST_FILE"
-            exit 1
-          fi
-          if [ ! -f "$CONST_FILE" ]; then
-            echo "❌ File not found: $CONST_FILE"
-            exit 1
-          fi
-
-          # Update versions using | delimiter to avoid issues with special characters
           sed -i "s|\"version\": \"[^\"]*\"|\"version\": \"$VERSION\"|" "$MANIFEST_FILE"
           sed -i "s|^INTEGRATION_VERSION = .*|INTEGRATION_VERSION = \"$VERSION\"|" "$CONST_FILE"
 
-          # Verify changes were applied
-          if ! grep -q "\"version\": \"$VERSION\"" "$MANIFEST_FILE"; then
-            echo "❌ Failed to update version in $MANIFEST_FILE"
-            exit 1
-          fi
-          if ! grep -q "INTEGRATION_VERSION = \"$VERSION\"" "$CONST_FILE"; then
-            echo "❌ Failed to update version in $CONST_FILE"
-            exit 1
+          echo "✅ Updated version files"
+
+      - name: Update CHANGELOG.md
+        env:
+          RELEASE_NOTES: ${{ needs.prepare-release.outputs.release-notes }}
+          VERSION: ${{ needs.prepare-release.outputs.version }}
+          TAG: ${{ needs.prepare-release.outputs.tag }}
+        run: |
+          if [ ! -f CHANGELOG.md ]; then
+            echo "# Changelog" > CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            echo "All notable changes to this project will be documented in this file." >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
           fi
 
-          echo "✅ Updated version to $VERSION in manifest.json and const.py"
+          # Prepare entry
+          {
+            echo "## [$VERSION] - $(date +'%Y-%m-%d')"
+            echo ""
+            echo "$RELEASE_NOTES"
+            echo ""
+            echo "---"
+            echo ""
+          } > temp_changelog_entry.md
 
-      - name: Update release notes file
+          # Insert after header
+          sed -i '/^All notable changes/r temp_changelog_entry.md' CHANGELOG.md
+
+          rm temp_changelog_entry.md
+          echo "✅ Updated CHANGELOG.md"
+
+      - name: Update RELEASE_NOTES.md
         env:
           RELEASE_NOTES: ${{ needs.prepare-release.outputs.release-notes }}
         run: |
-          # Use environment variable to avoid HEREDOC indentation issues
-          echo "$RELEASE_NOTES" > temp_combined.md
-
-          if [ -s RELEASE_NOTES.md ]; then
-            echo "" >> temp_combined.md
-            echo "---" >> temp_combined.md
-            echo "" >> temp_combined.md
-            cat RELEASE_NOTES.md >> temp_combined.md
-          fi
-
-          mv temp_combined.md RELEASE_NOTES.md
-          echo "✅ Updated RELEASE_NOTES.md with v${{ needs.prepare-release.outputs.version }}"
+          # This file contains ONLY the latest release
+          echo "$RELEASE_NOTES" > RELEASE_NOTES.md
+          echo "✅ Updated RELEASE_NOTES.md with latest release"
 
       - name: Commit and push changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add RELEASE_NOTES.md custom_components/violet_pool_controller/manifest.json custom_components/violet_pool_controller/const.py
+
+          git add CHANGELOG.md RELEASE_NOTES.md \
+            custom_components/violet_pool_controller/manifest.json \
+            custom_components/violet_pool_controller/const.py
+
           if git diff --cached --quiet; then
             echo "ℹ️ No changes to commit"
             exit 0
           fi
-          git commit -m "📝 Update version to v${{ needs.prepare-release.outputs.version }} and release notes"
+
+          git commit -m "📝 Release v${{ needs.prepare-release.outputs.version }} - Update changelog and version files"
           git push
-          echo "✅ Pushed version and release notes update"
+          echo "✅ Pushed changelog and version updates"
 
   post-to-x:
-    needs: [prepare-release, update-release-notes]
+    needs: [prepare-release, update-changelog]
     runs-on: ubuntu-latest
-    if: success() && github.event_name == 'release'
+    if: |
+      success() &&
+      needs.prepare-release.outputs.is_draft != 'true' &&
+      needs.prepare-release.outputs.release_type == 'stable'
     steps:
-      - name: Parse release info for X post
-        id: parse
+      - name: Generate X post
+        id: xpost
         run: |
           VERSION="${{ needs.prepare-release.outputs.version }}"
-
-          RELEASE_URL="${{ github.event.release.html_url || format('{0}/{1}/releases/tag/{2}', github.server_url, github.repository, needs.prepare-release.outputs.version) }}"
+          TAG="${{ needs.prepare-release.outputs.tag }}"
+          RELEASE_URL="https://github.com/${{ github.repository }}/releases/tag/$TAG"
 
           {
             echo "message<<EOFMSG"
-            echo "🎉 Violet Pool Controller v$VERSION is out!"
+            echo "🎉 Violet Pool Controller v$VERSION Released!"
             echo ""
-            echo "🔧 Bug fixes & stability improvements"
-            echo "🚀 Enhanced pool automation features"
-            echo "✨ Better Home Assistant integration"
+            echo "✨ New features & improvements"
+            echo "🔧 Bug fixes & stability"
+            echo "📚 Better documentation"
             echo ""
-            echo "Download: $RELEASE_URL"
+            echo "🔗 Download: $RELEASE_URL"
             echo ""
-            echo "❤️ Support: https://buymeacoffee.com/xerolux"
-            echo "🚗 Tesla: https://ts.la/sebastian564489"
+            echo "❤️ Support:"
+            echo "☕ https://buymeacoffee.com/xerolux"
+            echo "🚗 https://ts.la/sebastian564489"
             echo ""
-            echo "#HomeAssistant #PoolAutomation #SmartHome #OpenSource"
+            echo "#HomeAssistant #PoolAutomation #VioletPool #SmartHome #OpenSource"
             echo "EOFMSG"
           } >> $GITHUB_OUTPUT
 
@@ -306,17 +498,52 @@ jobs:
         uses: ethomson/send-tweet-action@v1
         continue-on-error: true
         with:
-          status: ${{ steps.parse.outputs.message }}
+          status: ${{ steps.xpost.outputs.message }}
           consumer-key: ${{ secrets.TWITTER_CONSUMER_API_KEY }}
           consumer-secret: ${{ secrets.TWITTER_CONSUMER_API_SECRET }}
           access-token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
           access-token-secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
 
-      - name: Create summary
+  create-summary:
+    needs: [prepare-release, update-changelog]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Create job summary
         run: |
-          echo "## 🎉 Release Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Version:** v${{ needs.prepare-release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Release:** ${{ github.event.release.html_url }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Announcement:** Posted to X (Twitter) ✅" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          VERSION="${{ needs.prepare-release.outputs.version }}"
+          TAG="${{ needs.prepare-release.outputs.tag }}"
+          TYPE="${{ needs.prepare-release.outputs.release_type }}"
+          IS_DRAFT="${{ needs.prepare-release.outputs.is_draft }}"
+
+          {
+            echo "## 🎉 Release Summary"
+            echo ""
+            echo "| Property | Value |"
+            echo "|----------|-------|"
+            echo "| **Version** | \`$VERSION\` |"
+            echo "| **Tag** | \`$TAG\` |"
+            echo "| **Type** | \`$TYPE\` |"
+            echo "| **Draft** | $IS_DRAFT |"
+            echo "| **Release** | [View Release](https://github.com/${{ github.repository }}/releases/tag/$TAG) |"
+            echo ""
+
+            if [ "$IS_DRAFT" = "true" ]; then
+              echo "⚠️ **This is a DRAFT release** - Review before publishing!"
+            elif [ "$TYPE" = "alpha" ] || [ "$TYPE" = "beta" ]; then
+              echo "⚠️ **This is a PRE-RELEASE** - Not for production use!"
+            else
+              echo "✅ **Stable release published successfully!**"
+            fi
+
+            echo ""
+            echo "### 📦 Artifacts"
+            echo "- \`violet_pool_controller.zip\` - Integration package"
+            echo "- \`violet_pool_controller.zip.sha256\` - Checksum file"
+            echo ""
+            echo "### 📝 Documentation Updated"
+            echo "- ✅ CHANGELOG.md"
+            echo "- ✅ RELEASE_NOTES.md"
+            echo "- ✅ manifest.json"
+            echo "- ✅ const.py"
+          } >> $GITHUB_STEP_SUMMARY
