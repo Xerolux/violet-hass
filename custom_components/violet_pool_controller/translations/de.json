@@ -22,6 +22,52 @@
                 "title": "Hilfe & Dokumentation",
                 "description": "Lies die [Konfigurationshilfe](https://github.com/xerolux/violet-hass/blob/main/docs/help/configuration-guide.de.md) für Schritt-für-Schritt-Anleitungen, Sicherheits-Checklisten und Funktionsübersichten.\n\nUnterstützung oder Ideen? Erstelle ein Ticket unter https://github.com/xerolux/violet-hass/issues.\n\nProjekt-Repository: https://github.com/xerolux/violet-hass\n\nKlicke auf **Weiter**, um zum Hauptmenü zurückzukehren."
             },
+            "controller_type": {
+                "title": "Controller-Typ wählen",
+                "description": "Wähle deinen Pool-Controller-Typ:\n\n**🌊 Violet Pool Controller (Modern)**\n{violet_info}\n\n**🏊 ProCon.IP Pool Controller (Legacy)**\n{proconip_info}\n\nWeitere Hinweise: [Konfigurationshilfe](https://github.com/xerolux/violet-hass/blob/main/docs/help/configuration-guide.de.md)",
+                "data": {
+                    "controller_type": "Controller-Typ"
+                },
+                "data_description": {
+                    "controller_type": "Wähle aus, welchen Pool-Controller du installiert hast"
+                }
+            },
+            "proconip_connection": {
+                "title": "ProCon.IP Verbindung",
+                "description": "Verbinde deinen ProCon.IP Pool Controller. Gib die vollständige URL inklusive http:// ein (z.B. http://192.168.1.100).\n\nStandard-Zugangsdaten: admin/admin\n\n**Hinweis:** ProCon.IP nutzt eine CSV-basierte API über den GetState.csv Endpunkt.\n\nWeitere Hinweise: [Konfigurationshilfe](https://github.com/xerolux/violet-hass/blob/main/docs/help/configuration-guide.de.md)",
+                "data": {
+                    "host": "Controller-URL",
+                    "username": "Benutzername",
+                    "password": "Passwort",
+                    "controller_name": "Controller-Name",
+                    "polling_interval": "Abrufintervall (Sekunden)",
+                    "timeout_duration": "Timeout (Sekunden)",
+                    "error_tolerance": "Fehlertoleranz"
+                },
+                "data_description": {
+                    "host": "Vollständige URL mit Protokoll (z.B. http://192.168.1.100)",
+                    "username": "ProCon.IP Benutzername (Standard: admin)",
+                    "password": "ProCon.IP Passwort (Standard: admin)",
+                    "controller_name": "Anzeigename für diesen Controller",
+                    "polling_interval": "Wie oft Daten abgerufen werden (10-3600s)",
+                    "timeout_duration": "Maximale Wartezeit pro Anfrage",
+                    "error_tolerance": "Anzahl aufeinanderfolgender Fehler, die toleriert werden"
+                }
+            },
+            "proconip_features": {
+                "title": "ProCon.IP Pool-Konfiguration",
+                "description": "Gib grundlegende Pool-Informationen für optimale Überwachung und Steuerung an.\n\nProCon.IP Controller unterstützen wesentliche Pool-Automatisierungsfunktionen einschließlich Relais, Sensoren und grundlegender Chemikaliendosierung.",
+                "data": {
+                    "pool_size": "Pool-Größe (m³)",
+                    "pool_type": "Pool-Typ",
+                    "disinfection_method": "Desinfektionsmethode"
+                },
+                "data_description": {
+                    "pool_size": "Wasservolumen in Kubikmetern",
+                    "pool_type": "Beeinflusst Heizverhalten",
+                    "disinfection_method": "Hauptmethode der Wasserpflege"
+                }
+            },
             "connection": {
                 "title": "Controller-Verbindung",
                 "description": "Verbinde deinen Violet Pool Controller mit Home Assistant. Stelle sicher, dass sich der Controller im selben Netzwerk befindet und die API erreichbar ist.\n\nWeitere Hinweise: [Konfigurationshilfe](https://github.com/xerolux/violet-hass/blob/main/docs/help/configuration-guide.de.md)",
