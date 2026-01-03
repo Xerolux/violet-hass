@@ -123,6 +123,7 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           MANIFEST_FILE="custom_components/violet_pool_controller/manifest.json"
           CONST_FILE="custom_components/violet_pool_controller/const.py"
+          CLAUDE_FILE="CLAUDE.md"
 
           # Check files exist
           if [ ! -f "$MANIFEST_FILE" ]; then
@@ -138,6 +139,12 @@ jobs:
           sed -i "s|\"version\": \"[^\"]*\"|\"version\": \"$VERSION\"|" "$MANIFEST_FILE"
           sed -i "s|^INTEGRATION_VERSION = .*|INTEGRATION_VERSION = \"$VERSION\"|" "$CONST_FILE"
 
+          # Update CLAUDE.md if it exists
+          if [ -f "$CLAUDE_FILE" ]; then
+            sed -i "s|**Current Version**: \`[^*]*\`|**Current Version**: \`$VERSION\`|" "$CLAUDE_FILE"
+            echo "✅ Updated CLAUDE.md"
+          fi
+
           # Verify changes
           if ! grep -q "\"version\": \"$VERSION\"" "$MANIFEST_FILE"; then
             echo "❌ Failed to update version in $MANIFEST_FILE"
@@ -148,7 +155,7 @@ jobs:
             exit 1
           fi
 
-          echo "✅ Updated version to $VERSION in manifest.json and const.py"
+          echo "✅ Updated version to $VERSION in manifest.json, const.py and CLAUDE.md"
 
       - name: Parse commits since last release
         id: commits
@@ -400,9 +407,17 @@ jobs:
           VERSION="${{ needs.prepare-release.outputs.version }}"
           MANIFEST_FILE="custom_components/violet_pool_controller/manifest.json"
           CONST_FILE="custom_components/violet_pool_controller/const.py"
+          CLAUDE_FILE="CLAUDE.md"
 
+          # Update manifest.json and const.py
           sed -i "s|\"version\": \"[^\"]*\"|\"version\": \"$VERSION\"|" "$MANIFEST_FILE"
           sed -i "s|^INTEGRATION_VERSION = .*|INTEGRATION_VERSION = \"$VERSION\"|" "$CONST_FILE"
+
+          # Update CLAUDE.md if it exists
+          if [ -f "$CLAUDE_FILE" ]; then
+            sed -i "s|**Current Version**: \`[^*]*\`|**Current Version**: \`$VERSION\`|" "$CLAUDE_FILE"
+            echo "✅ Updated CLAUDE.md"
+          fi
 
           echo "✅ Updated version files"
 
@@ -448,7 +463,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add CHANGELOG.md RELEASE_NOTES.md \
+          git add CHANGELOG.md RELEASE_NOTES.md CLAUDE.md \
             custom_components/violet_pool_controller/manifest.json \
             custom_components/violet_pool_controller/const.py
 
@@ -542,8 +557,9 @@ jobs:
             echo "- \`violet_pool_controller.zip.sha256\` - Checksum file"
             echo ""
             echo "### 📝 Documentation Updated"
-            echo "- ✅ CHANGELOG.md"
-            echo "- ✅ RELEASE_NOTES.md"
-            echo "- ✅ manifest.json"
-            echo "- ✅ const.py"
+            echo "- ✅ CHANGELOG.md (cumulative history)"
+            echo "- ✅ RELEASE_NOTES.md (latest only)"
+            echo "- ✅ CLAUDE.md (developer docs)"
+            echo "- ✅ manifest.json (integration version)"
+            echo "- ✅ const.py (integration version)"
           } >> $GITHUB_STEP_SUMMARY
