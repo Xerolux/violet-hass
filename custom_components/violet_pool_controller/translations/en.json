@@ -128,7 +128,39 @@
             "cannot_connect": "Connection failed",
             "invalid_auth": "Invalid credentials",
             "agreement_declined": "Safety disclaimer not accepted",
+            "reauth_successful": "Reauthentication successful",
+            "reconfigure_successful": "Reconfiguration successful",
             "unknown": "Unknown error"
+        },
+        "reauth_confirm": {
+            "title": "Reauthenticate Controller",
+            "description": "The controller credentials need to be updated. Please enter your new username and password.\n\nController: **{controller_name}**\nIP Address: **{api_url}**",
+            "data": {
+                "username": "Username",
+                "password": "Password"
+            },
+            "data_description": {
+                "username": "New username for authentication",
+                "password": "New password for authentication"
+            }
+        },
+        "reconfigure": {
+            "title": "Reconfigure Connection",
+            "description": "Update the connection settings for your controller. This is useful when the controller IP address or network settings have changed.\n\nController: **{controller_name}**",
+            "data": {
+                "host": "IP Address or Hostname",
+                "use_ssl": "Use SSL/HTTPS",
+                "polling_interval": "Polling Interval (seconds)",
+                "timeout_duration": "Timeout (seconds)",
+                "retry_attempts": "Retry Attempts"
+            },
+            "data_description": {
+                "host": "New controller IP or DNS name",
+                "use_ssl": "Enable HTTPS when supported",
+                "polling_interval": "Data polling interval (10-3600s)",
+                "timeout_duration": "Maximum wait time per request",
+                "retry_attempts": "Number of retry attempts"
+            }
         }
     },
     "options": {
@@ -428,6 +460,15 @@
             },
             "firmware_version": {
                 "name": "Firmware Version"
+            },
+            "system_health": {
+                "name": "System Health"
+            },
+            "connection_latency": {
+                "name": "Connection Latency"
+            },
+            "last_event_age": {
+                "name": "Last Event Age"
             }
         },
         "binary_sensor": {

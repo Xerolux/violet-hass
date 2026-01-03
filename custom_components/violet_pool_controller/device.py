@@ -41,7 +41,7 @@ RECOVERY_MAX_DELAY = 300.0  # Maximaler Delay zwischen Versuchen (5 Min)
 
 
 class VioletPoolControllerDevice:
-    """Repräsentiert ein Violet Pool Controller Gerät - SMART FAILURE LOGGING + AUTO RECOVERY."""
+    """Violet Pool Controller Device - SMART LOGGING + AUTO RECOVERY."""
 
     def __init__(
         self, hass: HomeAssistant, config_entry: ConfigEntry, api: VioletPoolAPI
@@ -75,6 +75,11 @@ class VioletPoolControllerDevice:
         self._recovery_task: asyncio.Task | None = None  # Recovery-Task
         self._recovery_lock = asyncio.Lock()  # ✅ Lock für thread-safe Recovery
 
+        # ✅ DIAGNOSTIC SENSORS: Connection health monitoring
+        self._last_update_time = 0.0  # Timestamp of last successful update
+        self._connection_latency = 0.0  # Last connection latency in milliseconds
+        self._system_health = 100.0  # System health percentage (0-100)
+
         # Konfiguration extrahieren (mit Options-Support)
         entry_data = config_entry.data
         entry_options = config_entry.options
@@ -89,7 +94,8 @@ class VioletPoolControllerDevice:
         )
 
         _LOGGER.info(
-            "Device initialisiert: '%s' (Controller: %s, URL: %s, SSL: %s, Device-ID: %d)",
+            "Device initialized: '%s' (Controller: %s, URL: %s, SSL: %s, "
+            "Device-ID: %d)",
             self.device_name,
             self.controller_name,
             self.api_url,
@@ -125,7 +131,11 @@ class VioletPoolControllerDevice:
         """
         try:
             async with self._api_lock:
+                # ✅ DIAGNOSTIC: Measure connection latency
+                start_time = time.time()
                 data = await self._fetch_controller_data()
+                # Convert to milliseconds
+                self._connection_latency = (time.time() - start_time) * 1000
 
                 # Validiere Daten
                 if not data or not isinstance(data, dict):
@@ -133,7 +143,7 @@ class VioletPoolControllerDevice:
 
                     # ✅ LOGGING OPTIMIZATION: Intelligentes Failure-Logging
                     if self._consecutive_failures == 1:
-                        # Erste Warnung nur wenn schon mal verfügbar war (nicht beim ersten Setup)
+                        # First warning only if was available (not first setup)
                         if self._available or len(self._data) > 0:
                             _LOGGER.warning(
                                 "Controller '%s' antwortet nicht (erste Warnung)",
@@ -158,7 +168,7 @@ class VioletPoolControllerDevice:
                         )
                         self._available = False
 
-                        # ✅ RECOVERY OPTIMIZATION: Starte automatischen Recovery-Versuch
+                        # ✅ RECOVERY: Start automatic recovery
                         await self._start_recovery_background_task()
 
                         raise UpdateFailed(
@@ -175,6 +185,11 @@ class VioletPoolControllerDevice:
                             self._consecutive_failures,
                             self._max_consecutive_failures,
                         )
+
+                    # ✅ DIAGNOSTIC: Degrade system health based on failures
+                    self._system_health = max(
+                        0.0, 100.0 - (self._consecutive_failures * 20.0)
+                    )
 
                     # Gebe alte Daten zurück bei temporären Problemen
                     return self._data
@@ -195,6 +210,10 @@ class VioletPoolControllerDevice:
                 self._available = True
                 self._consecutive_failures = 0
                 self._last_error = None
+
+                # ✅ DIAGNOSTIC: Update health metrics
+                self._last_update_time = time.time()
+                self._system_health = 100.0  # Perfect health
 
                 # Firmware-Version extrahieren (mehrere Fallbacks)
                 # ✅ FIX: Erweiterte Firmware-Extraktion mit mehr Fallback-Optionen
@@ -262,7 +281,7 @@ class VioletPoolControllerDevice:
             self._last_error = str(err)
             self._consecutive_failures += 1
 
-            # ✅ LOGGING OPTIMIZATION: Unerwartete Fehler = immer loggen (aber nur Exception-Typ)
+            # ✅ LOGGING: Unexpected errors always logged
             if self._consecutive_failures == 1:
                 # Beim ersten Setup nur Debug, sonst volle Exception
                 if not self._available and len(self._data) == 0:
@@ -383,12 +402,42 @@ class VioletPoolControllerDevice:
         """
         return {
             "identifiers": {(DOMAIN, f"{self.api_url}_{self.device_id}")},
-            "name": self.controller_name,  # ✅ Verwendet Controller-Name statt Device-Name
+            # ✅ Uses Controller-Name instead of Device-Name
+            "name": self.controller_name,
             "manufacturer": "PoolDigital GmbH & Co. KG",
             "model": "Violet Pool Controller",
             "sw_version": self._firmware_version or "Unbekannt",
             "suggested_area": self.controller_name,  # ✅ Auto-Area für Multi-Controller
         }
+
+    @property
+    def system_health(self) -> float:
+        """
+        Return the system health percentage (0-100).
+
+        ✅ DIAGNOSTIC SENSOR: Overall connection health.
+        """
+        return self._system_health
+
+    @property
+    def connection_latency(self) -> float:
+        """
+        Return the last connection latency in milliseconds.
+
+        ✅ DIAGNOSTIC SENSOR: Connection response time.
+        """
+        return self._connection_latency
+
+    @property
+    def last_event_age(self) -> float:
+        """
+        Return seconds since the last successful update.
+
+        ✅ DIAGNOSTIC SENSOR: Data freshness indicator.
+        """
+        if self._last_update_time == 0.0:
+            return 0.0
+        return time.time() - self._last_update_time
 
     async def _attempt_recovery(self) -> bool:
         """
@@ -620,9 +669,10 @@ async def async_setup_device(
                 await asyncio.sleep(2)
 
         if not device.available:
-            # ✅ Klare Setup-Fehlermeldung nach allen Versuchen
+            # ✅ Clear setup error message after all attempts
             error_msg = (
-                f"Controller '{device.device_name}' nicht erreichbar nach {max_retries} Versuchen. "
+                f"Controller '{device.device_name}' nicht erreichbar nach "
+                f"{max_retries} Versuchen. "
                 f"Bitte Verbindung und Controller-Status prüfen."
             )
             if last_error:

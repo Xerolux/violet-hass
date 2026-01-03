@@ -6,7 +6,7 @@ import asyncio
 import ipaddress
 import logging
 import re
-from typing import Any
+from typing import Any, Mapping
 
 import aiohttp
 import voluptuous as vol
@@ -268,6 +268,7 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow):
         """Initialisiere Config Flow."""
         self._config_data: dict[str, Any] = {}
         self._sensor_data: dict[str, list[str]] = {}
+        self._reauth_entry: config_entries.ConfigEntry | None = None
         _LOGGER.info("Violet Pool Controller Setup gestartet")
 
     @staticmethod
@@ -362,13 +363,23 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow):
             The flow result.
         """
         errors = {}
+        error_hints = {}
+
         if user_input:
             if self._is_duplicate_entry(
                 user_input[CONF_API_URL], int(user_input.get(CONF_DEVICE_ID, 1))
             ):
                 errors["base"] = ERROR_ALREADY_CONFIGURED
+                error_hints["base"] = (
+                    "This controller is already configured. "
+                    "Please check your integrations list."
+                )
             elif not validate_ip_address(user_input[CONF_API_URL]):
                 errors[CONF_API_URL] = ERROR_INVALID_IP
+                error_hints[CONF_API_URL] = (
+                    "Please enter a valid IP address "
+                    "(e.g., 192.168.1.100) or hostname."
+                )
             else:
                 self._config_data = self._build_config_data(user_input)
                 await self.async_set_unique_id(
@@ -378,12 +389,29 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow):
                 if await self._test_connection():
                     return await self.async_step_pool_setup()
                 errors["base"] = ERROR_CANNOT_CONNECT
+                error_hints["base"] = (
+                    "Cannot connect to the controller. Please check:\n"
+                    "• Is the controller powered on and connected?\n"
+                    "• Is the IP address correct?\n"
+                    "• Are username/password correct (if auth enabled)?\n"
+                    "• Can you ping the controller from this device?"
+                )
+
+        placeholders = {
+            **self._get_help_links(),
+            "step_progress": "Step 1 of 4",
+            "step_title": "Connection Settings",
+        }
+
+        # Add error hints to placeholders if present
+        if error_hints:
+            placeholders["error_hint"] = "\n".join(error_hints.values())
 
         return self.async_show_form(
             step_id="connection",
             data_schema=self._get_connection_schema(),
             errors=errors,
-            description_placeholders=self._get_help_links(),
+            description_placeholders=placeholders,
         )
 
     async def async_step_pool_setup(
@@ -409,7 +437,12 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow):
             return await self.async_step_feature_selection()
 
         return self.async_show_form(
-            step_id="pool_setup", data_schema=self._get_pool_setup_schema()
+            step_id="pool_setup",
+            data_schema=self._get_pool_setup_schema(),
+            description_placeholders={
+                "step_progress": "Step 2 of 4",
+                "step_title": "Pool Configuration",
+            },
         )
 
     async def async_step_feature_selection(
@@ -446,6 +479,10 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow):
         return self.async_show_form(
             step_id="feature_selection",
             data_schema=self._get_feature_selection_schema(),
+            description_placeholders={
+                "step_progress": "Step 3 of 4",
+                "step_title": "Feature Selection",
+            },
         )
 
     async def async_step_sensor_selection(
@@ -484,9 +521,213 @@ class VioletDeviceConfigFlow(config_entries.ConfigFlow):
             step_id="sensor_selection",
             data_schema=self._get_sensor_selection_schema(),
             description_placeholders={
+                "step_progress": "Step 4 of 4",
                 "step_icon": "📊",
-                "step_title": "Dynamische Sensoren",
-                "step_description": "Wähle die Sensoren aus, die du in Home Assistant sehen möchtest.",
+                "step_title": "Dynamic Sensors",
+                "step_description": (
+                    "Select the sensors you want to see in Home Assistant."
+                ),
+            },
+        )
+
+    async def async_step_reauth(
+        self, entry_data: Mapping[str, Any]
+    ) -> ConfigFlowResult:
+        """
+        Handle reauthentication when credentials have changed or expired.
+
+        Args:
+            entry_data: The existing config entry data.
+
+        Returns:
+            The flow result.
+        """
+        # Store the existing entry for updating
+        self._reauth_entry = self.hass.config_entries.async_get_entry(
+            self.context["entry_id"]
+        )
+        return await self.async_step_reauth_confirm()
+
+    async def async_step_reauth_confirm(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """
+        Handle reauthentication confirmation and credential update.
+
+        Args:
+            user_input: The user input dictionary.
+
+        Returns:
+            The flow result.
+        """
+        errors = {}
+
+        if user_input:
+            # Get existing config data
+            assert self._reauth_entry is not None
+            existing_data = dict(self._reauth_entry.data)
+
+            # Update credentials
+            existing_data[CONF_USERNAME] = user_input.get(CONF_USERNAME, "")
+            existing_data[CONF_PASSWORD] = user_input.get(CONF_PASSWORD, "")
+
+            # Test new credentials
+            self._config_data = existing_data
+            if await self._test_connection():
+                # Update the config entry with new credentials
+                self.hass.config_entries.async_update_entry(
+                    self._reauth_entry,
+                    data=existing_data,
+                )
+                await self.hass.config_entries.async_reload(self._reauth_entry.entry_id)
+                return self.async_abort(reason="reauth_successful")
+
+            errors["base"] = ERROR_CANNOT_CONNECT
+
+        # Show form with current values
+        assert self._reauth_entry is not None
+        return self.async_show_form(
+            step_id="reauth_confirm",
+            data_schema=vol.Schema(
+                {
+                    vol.Optional(
+                        CONF_USERNAME,
+                        default=self._reauth_entry.data.get(CONF_USERNAME, ""),
+                    ): str,
+                    vol.Optional(CONF_PASSWORD): str,
+                }
+            ),
+            errors=errors,
+            description_placeholders={
+                "controller_name": self._reauth_entry.data.get(
+                    CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME
+                ),
+                "api_url": self._reauth_entry.data.get(CONF_API_URL),
+            },
+        )
+
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """
+        Handle reconfiguration of connection settings.
+
+        Allows updating host, SSL, and other connection parameters without
+        repeating the entire setup process.
+
+        Args:
+            user_input: The user input dictionary.
+
+        Returns:
+            The flow result.
+        """
+        errors = {}
+
+        # Get the entry being reconfigured
+        reconfigure_entry = self.hass.config_entries.async_get_entry(
+            self.context["entry_id"]
+        )
+        assert reconfigure_entry is not None
+
+        if user_input:
+            # Validate IP address
+            if not validate_ip_address(user_input[CONF_API_URL]):
+                errors[CONF_API_URL] = ERROR_INVALID_IP
+            else:
+                # Build updated config
+                updated_data = dict(reconfigure_entry.data)
+                updated_data[CONF_API_URL] = user_input[CONF_API_URL]
+                updated_data[CONF_USE_SSL] = user_input.get(
+                    CONF_USE_SSL, DEFAULT_USE_SSL
+                )
+                updated_data[CONF_POLLING_INTERVAL] = int(
+                    user_input.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
+                )
+                updated_data[CONF_TIMEOUT_DURATION] = int(
+                    user_input.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)
+                )
+                updated_data[CONF_RETRY_ATTEMPTS] = int(
+                    user_input.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)
+                )
+
+                # Test connection with new settings
+                self._config_data = updated_data
+                if await self._test_connection():
+                    # Update the config entry
+                    self.hass.config_entries.async_update_entry(
+                        reconfigure_entry,
+                        data=updated_data,
+                    )
+                    await self.hass.config_entries.async_reload(
+                        reconfigure_entry.entry_id
+                    )
+                    return self.async_abort(reason="reconfigure_successful")
+
+                errors["base"] = ERROR_CANNOT_CONNECT
+
+        # Show form with current values
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_API_URL,
+                        default=reconfigure_entry.data.get(
+                            CONF_API_URL, "192.168.178.55"
+                        ),
+                    ): str,
+                    vol.Required(
+                        CONF_USE_SSL,
+                        default=reconfigure_entry.data.get(
+                            CONF_USE_SSL, DEFAULT_USE_SSL
+                        ),
+                    ): bool,
+                    vol.Required(
+                        CONF_POLLING_INTERVAL,
+                        default=reconfigure_entry.data.get(
+                            CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL
+                        ),
+                    ): selector.NumberSelector(
+                        selector.NumberSelectorConfig(
+                            min=MIN_POLLING_INTERVAL,
+                            max=MAX_POLLING_INTERVAL,
+                            step=1,
+                            mode=selector.NumberSelectorMode.BOX,
+                        )
+                    ),
+                    vol.Required(
+                        CONF_TIMEOUT_DURATION,
+                        default=reconfigure_entry.data.get(
+                            CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION
+                        ),
+                    ): selector.NumberSelector(
+                        selector.NumberSelectorConfig(
+                            min=MIN_TIMEOUT,
+                            max=MAX_TIMEOUT,
+                            step=1,
+                            mode=selector.NumberSelectorMode.BOX,
+                        )
+                    ),
+                    vol.Required(
+                        CONF_RETRY_ATTEMPTS,
+                        default=reconfigure_entry.data.get(
+                            CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS
+                        ),
+                    ): selector.NumberSelector(
+                        selector.NumberSelectorConfig(
+                            min=MIN_RETRIES,
+                            max=MAX_RETRIES,
+                            step=1,
+                            mode=selector.NumberSelectorMode.BOX,
+                        )
+                    ),
+                }
+            ),
+            errors=errors,
+            description_placeholders={
+                "controller_name": reconfigure_entry.data.get(
+                    CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME
+                ),
             },
         )
 

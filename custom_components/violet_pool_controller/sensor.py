@@ -326,6 +326,104 @@ class VioletErrorCodeSensor(VioletSensor):
         }
 
 
+class VioletSystemHealthSensor(VioletPoolControllerEntity, SensorEntity):
+    """Diagnostic sensor for system health percentage (0-100)."""
+
+    def __init__(
+        self,
+        coordinator: VioletPoolDataUpdateCoordinator,
+        config_entry: ConfigEntry,
+    ) -> None:
+        """Initialize the system health sensor.
+
+        Args:
+            coordinator: The data update coordinator.
+            config_entry: The configuration entry.
+        """
+        description = SensorEntityDescription(
+            key="system_health",
+            translation_key="system_health",
+            name="System Health",
+            icon="mdi:heart-pulse",
+            entity_category=EntityCategory.DIAGNOSTIC,
+            native_unit_of_measurement="%",
+            state_class=SensorStateClass.MEASUREMENT,
+            suggested_display_precision=0,
+        )
+        super().__init__(coordinator, config_entry, description)
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the system health percentage."""
+        return round(self.coordinator.device.system_health, 0)
+
+
+class VioletConnectionLatencySensor(VioletPoolControllerEntity, SensorEntity):
+    """Diagnostic sensor for connection latency in milliseconds."""
+
+    def __init__(
+        self,
+        coordinator: VioletPoolDataUpdateCoordinator,
+        config_entry: ConfigEntry,
+    ) -> None:
+        """Initialize the connection latency sensor.
+
+        Args:
+            coordinator: The data update coordinator.
+            config_entry: The configuration entry.
+        """
+        description = SensorEntityDescription(
+            key="connection_latency",
+            translation_key="connection_latency",
+            name="Connection Latency",
+            icon="mdi:speedometer",
+            entity_category=EntityCategory.DIAGNOSTIC,
+            native_unit_of_measurement="ms",
+            state_class=SensorStateClass.MEASUREMENT,
+            device_class=SensorDeviceClass.DURATION,
+            suggested_display_precision=0,
+        )
+        super().__init__(coordinator, config_entry, description)
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the connection latency in milliseconds."""
+        return round(self.coordinator.device.connection_latency, 0)
+
+
+class VioletLastEventAgeSensor(VioletPoolControllerEntity, SensorEntity):
+    """Diagnostic sensor for seconds since last successful update."""
+
+    def __init__(
+        self,
+        coordinator: VioletPoolDataUpdateCoordinator,
+        config_entry: ConfigEntry,
+    ) -> None:
+        """Initialize the last event age sensor.
+
+        Args:
+            coordinator: The data update coordinator.
+            config_entry: The configuration entry.
+        """
+        description = SensorEntityDescription(
+            key="last_event_age",
+            translation_key="last_event_age",
+            name="Last Event Age",
+            icon="mdi:clock-outline",
+            entity_category=EntityCategory.DIAGNOSTIC,
+            native_unit_of_measurement="s",
+            state_class=SensorStateClass.MEASUREMENT,
+            device_class=SensorDeviceClass.DURATION,
+            suggested_display_precision=0,
+        )
+        super().__init__(coordinator, config_entry, description)
+
+    @property
+    def native_value(self) -> float | None:
+        """Return seconds since last successful update."""
+        return round(self.coordinator.device.last_event_age, 0)
+
+
 class VioletFlowRateSensor(VioletPoolControllerEntity, SensorEntity):
     """A specialized sensor for flow rate that prioritizes ADC3 over IMP2."""
 
@@ -501,7 +599,8 @@ async def async_setup_entry(
         _LOGGER.info("%d sensors added for '%s'", len(sensors), config_entry.title)
     else:
         _LOGGER.warning(
-            "No sensors were added for '%s'. Check the sensor selection in the configuration menu.",
+            "No sensors were added for '%s'. "
+            "Check the sensor selection in the configuration menu.",
             config_entry.title,
         )
 
@@ -535,9 +634,19 @@ def _create_special_sensors(
     config_entry: ConfigEntry,
     config: dict[str, Any],
 ) -> tuple[list[SensorEntity], set[str]]:
-    """Creates specialized sensors like error codes and flow rate."""
+    """Creates specialized sensors like error codes, flow rate, and diagnostics."""
     sensors: list[SensorEntity] = []
     handled_keys: set[str] = set()
+
+    # ✅ DIAGNOSTIC SENSORS: Always create system monitoring sensors
+    sensors.append(VioletSystemHealthSensor(coordinator, config_entry))
+    sensors.append(VioletConnectionLatencySensor(coordinator, config_entry))
+    sensors.append(VioletLastEventAgeSensor(coordinator, config_entry))
+    handled_keys.update({"system_health", "connection_latency", "last_event_age"})
+    _LOGGER.debug(
+        "Diagnostic sensors created "
+        "(System Health, Connection Latency, Last Event Age)"
+    )
 
     for key in _ERROR_CODE_KEYS:
         if key in coordinator.data and (
@@ -604,9 +713,10 @@ def _build_sensor_description(
 ) -> SensorEntityDescription:
     """Builds a SensorEntityDescription for a given sensor key."""
     predefined_info = predefined.get(key)
-    # Prefer translation key logic if we were to implement it fully, but for dynamic sensors
-    # derived from API keys, we often need dynamic names.
-    # We'll stick to name here but could use key as translation key if we updated strings.json
+    # Prefer translation key logic if implemented fully,
+    # but for dynamic sensors derived from API keys, we need dynamic names.
+    # We stick to name here but could use key as translation key
+    # if we updated strings.json
     name = predefined_info["name"] if predefined_info else key.replace("_", " ").title()
     icon = predefined_info.get("icon") if predefined_info else None
 
