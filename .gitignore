@@ -99,11 +99,16 @@ celerybeat.pid
 .env
 .venv
 .venv-*/
+.venv-ha-test/
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Home Assistant test instance
+.ha-test-instance/
+activate-test-env.sh
 
 # Spyder project settings
 .spyderproject
