@@ -21,11 +21,9 @@ from .const import (
     CONF_ACTIVE_FEATURES,
     CONF_API_URL,
     CONF_CONTROLLER_NAME,
-    CONF_CONTROLLER_TYPE,
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
     CONF_DISINFECTION_METHOD,
-    CONF_ERROR_TOLERANCE,
     CONF_PASSWORD,
     CONF_POLLING_INTERVAL,
     CONF_POOL_SIZE,
@@ -35,12 +33,8 @@ from .const import (
     CONF_TIMEOUT_DURATION,
     CONF_USE_SSL,
     CONF_USERNAME,
-    CONTROLLER_TYPE_PROCONIP,
-    CONTROLLER_TYPE_VIOLET,
     DEFAULT_CONTROLLER_NAME,
-    DEFAULT_CONTROLLER_TYPE,
     DEFAULT_DISINFECTION_METHOD,
-    DEFAULT_ERROR_TOLERANCE,
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_POOL_SIZE,
     DEFAULT_POOL_TYPE,
@@ -48,7 +42,6 @@ from .const import (
     DEFAULT_TIMEOUT_DURATION,
     DEFAULT_USE_SSL,
     DOMAIN,
-    PROCONIP_API_GETSTATE,
 )
 from .const_sensors import (
     ANALOG_SENSORS,
@@ -300,7 +293,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             action = user_input.get("action", MENU_ACTION_START)
             if action == MENU_ACTION_HELP:
                 return await self.async_step_help()
-            return await self.async_step_controller_type()
+            return await self.async_step_disclaimer()
 
         return self.async_show_form(
             step_id="user",
@@ -353,65 +346,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="help",
             data_schema=vol.Schema({}),
             description_placeholders=self._get_help_links(),
-        )
-
-    async def async_step_controller_type(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
-        """
-        Handle controller type selection.
-
-        Args:
-            user_input: The user input dictionary.
-
-        Returns:
-            The flow result.
-        """
-        if user_input:
-            controller_type = user_input.get(
-                CONF_CONTROLLER_TYPE, DEFAULT_CONTROLLER_TYPE
-            )
-            self._config_data[CONF_CONTROLLER_TYPE] = controller_type
-
-            if controller_type == CONTROLLER_TYPE_PROCONIP:
-                return await self.async_step_proconip_connection()
-            else:
-                return await self.async_step_disclaimer()
-
-        return self.async_show_form(
-            step_id="controller_type",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        CONF_CONTROLLER_TYPE, default=DEFAULT_CONTROLLER_TYPE
-                    ): selector.SelectSelector(
-                        selector.SelectSelectorConfig(
-                            options=[
-                                selector.SelectOptionDict(
-                                    value=CONTROLLER_TYPE_VIOLET,
-                                    label="🌊 Violet Pool Controller (Modern)",
-                                ),
-                                selector.SelectOptionDict(
-                                    value=CONTROLLER_TYPE_PROCONIP,
-                                    label="🏊 ProCon.IP Pool Controller (Legacy)",
-                                ),
-                            ],
-                            mode=selector.SelectSelectorMode.LIST,
-                        )
-                    ),
-                }
-            ),
-            description_placeholders={
-                **self._get_help_links(),
-                "violet_info": (
-                    "Moderne Violet-Steuerung von PoolDigital mit JSON API, "
-                    "erweiterten Features und Home Assistant Integration."
-                ),
-                "proconip_info": (
-                    "Ältere ProCon.IP Steuerung mit CSV API. "
-                    "Grundlegende Pool-Automatisierung mit Relays und Sensoren."
-                ),
-            },
         )
 
     async def async_step_connection(
@@ -795,199 +729,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             },
         )
 
-    async def async_step_proconip_connection(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
-        """
-        Handle ProconIP controller connection setup.
-
-        Args:
-            user_input: The user input dictionary.
-
-        Returns:
-            The flow result.
-        """
-        errors = {}
-        error_hints = {}
-
-        if user_input:
-            # Extract controller URL (e.g., http://192.168.1.100)
-            controller_url = user_input[CONF_API_URL].strip()
-
-            # Normalize URL format
-            if not controller_url.startswith(("http://", "https://")):
-                controller_url = f"http://{controller_url}"
-
-            # Check for duplicate
-            if self._is_duplicate_proconip_entry(controller_url):
-                errors["base"] = ERROR_ALREADY_CONFIGURED
-                error_hints["base"] = (
-                    "This ProCon.IP controller is already configured."
-                )
-            else:
-                # Build config data for ProconIP
-                self._config_data.update(
-                    {
-                        CONF_API_URL: controller_url,
-                        CONF_USERNAME: user_input.get(CONF_USERNAME, "admin"),
-                        CONF_PASSWORD: user_input.get(CONF_PASSWORD, "admin"),
-                        CONF_POLLING_INTERVAL: int(
-                            user_input.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
-                        ),
-                        CONF_TIMEOUT_DURATION: int(
-                            user_input.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)
-                        ),
-                        CONF_ERROR_TOLERANCE: int(
-                            user_input.get(CONF_ERROR_TOLERANCE, DEFAULT_ERROR_TOLERANCE)
-                        ),
-                        CONF_CONTROLLER_NAME: user_input.get(
-                            CONF_CONTROLLER_NAME, "ProCon.IP Pool Controller"
-                        ),
-                        CONF_DEVICE_ID: 1,  # ProconIP doesn't need multiple device IDs
-                        CONF_USE_SSL: False,  # ProconIP typically doesn't use SSL
-                    }
-                )
-
-                await self.async_set_unique_id(f"proconip-{controller_url}")
-                self._abort_if_unique_id_configured()
-
-                # Test connection to ProconIP
-                if await self._test_proconip_connection():
-                    return await self.async_step_proconip_features()
-
-                errors["base"] = ERROR_CANNOT_CONNECT
-                error_hints["base"] = (
-                    "Cannot connect to ProCon.IP controller. Please check:\n"
-                    "• Is the controller powered on and connected?\n"
-                    "• Is the URL correct (e.g., http://192.168.1.100)?\n"
-                    "• Are username/password correct?\n"
-                    "• Can you access the web interface from this device?"
-                )
-
-        placeholders = {
-            **self._get_help_links(),
-            "step_progress": "Step 1 of 2",
-            "step_title": "ProCon.IP Connection",
-        }
-
-        if error_hints:
-            placeholders["error_hint"] = "\n".join(error_hints.values())
-
-        return self.async_show_form(
-            step_id="proconip_connection",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(CONF_API_URL, default="http://192.168.1.100"): str,
-                    vol.Optional(CONF_USERNAME, default="admin"): str,
-                    vol.Optional(CONF_PASSWORD, default="admin"): str,
-                    vol.Required(
-                        CONF_POLLING_INTERVAL, default=DEFAULT_POLLING_INTERVAL
-                    ): selector.NumberSelector(
-                        selector.NumberSelectorConfig(
-                            min=MIN_POLLING_INTERVAL,
-                            max=MAX_POLLING_INTERVAL,
-                            step=5,
-                            mode=selector.NumberSelectorMode.BOX,
-                            unit_of_measurement="s",
-                        )
-                    ),
-                    vol.Required(
-                        CONF_TIMEOUT_DURATION, default=DEFAULT_TIMEOUT_DURATION
-                    ): selector.NumberSelector(
-                        selector.NumberSelectorConfig(
-                            min=MIN_TIMEOUT,
-                            max=MAX_TIMEOUT,
-                            step=1,
-                            mode=selector.NumberSelectorMode.BOX,
-                            unit_of_measurement="s",
-                        )
-                    ),
-                    vol.Required(
-                        CONF_ERROR_TOLERANCE, default=DEFAULT_ERROR_TOLERANCE
-                    ): selector.NumberSelector(
-                        selector.NumberSelectorConfig(
-                            min=0,
-                            max=10,
-                            step=1,
-                            mode=selector.NumberSelectorMode.BOX,
-                        )
-                    ),
-                    vol.Optional(
-                        CONF_CONTROLLER_NAME, default="ProCon.IP Pool Controller"
-                    ): str,
-                }
-            ),
-            errors=errors,
-            description_placeholders=placeholders,
-        )
-
-    async def async_step_proconip_features(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
-        """
-        Handle ProconIP feature configuration (simplified).
-
-        Args:
-            user_input: The user input dictionary.
-
-        Returns:
-            The flow result.
-        """
-        if user_input:
-            # ProconIP has basic features - store pool info
-            self._config_data.update(
-                {
-                    CONF_POOL_SIZE: float(
-                        user_input.get(CONF_POOL_SIZE, DEFAULT_POOL_SIZE)
-                    ),
-                    CONF_POOL_TYPE: user_input.get(CONF_POOL_TYPE, DEFAULT_POOL_TYPE),
-                    CONF_DISINFECTION_METHOD: user_input.get(
-                        CONF_DISINFECTION_METHOD, DEFAULT_DISINFECTION_METHOD
-                    ),
-                    # ProconIP doesn't have advanced features like Violet
-                    CONF_ACTIVE_FEATURES: [],
-                    CONF_SELECTED_SENSORS: None,  # All sensors enabled by default
-                }
-            )
-
-            # Create entry
-            return self.async_create_entry(
-                title=self._generate_proconip_entry_title(),
-                data=self._config_data,
-            )
-
-        return self.async_show_form(
-            step_id="proconip_features",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        CONF_POOL_SIZE, default=DEFAULT_POOL_SIZE
-                    ): selector.NumberSelector(
-                        selector.NumberSelectorConfig(
-                            min=MIN_POOL_SIZE,
-                            max=MAX_POOL_SIZE,
-                            step=0.5,
-                            mode=selector.NumberSelectorMode.BOX,
-                            unit_of_measurement="m³",
-                        )
-                    ),
-                    vol.Required(
-                        CONF_POOL_TYPE, default=DEFAULT_POOL_TYPE
-                    ): vol.In(POOL_TYPE_OPTIONS),
-                    vol.Required(
-                        CONF_DISINFECTION_METHOD, default=DEFAULT_DISINFECTION_METHOD
-                    ): vol.In(DISINFECTION_OPTIONS),
-                }
-            ),
-            description_placeholders={
-                "step_progress": "Step 2 of 2",
-                "step_title": "Pool Configuration",
-                "step_description": (
-                    "Provide basic information about your pool for optimal monitoring."
-                ),
-            },
-        )
-
     # ================= Helper Methods =================
 
     def _is_duplicate_entry(self, ip: str, device_id: int = 1) -> bool:
@@ -1071,73 +812,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return True
         except ValueError:
             return False
-
-    def _is_duplicate_proconip_entry(self, controller_url: str) -> bool:
-        """
-        Check if ProconIP controller URL already exists.
-
-        Args:
-            controller_url: The controller URL to check.
-
-        Returns:
-            True if already configured, False otherwise.
-        """
-        return any(
-            entry.data.get(CONF_API_URL) == controller_url
-            and entry.data.get(CONF_CONTROLLER_TYPE) == CONTROLLER_TYPE_PROCONIP
-            for entry in self._async_current_entries()
-        )
-
-    async def _test_proconip_connection(self) -> bool:
-        """
-        Test connection to ProconIP controller via GetState.csv.
-
-        Returns:
-            True if successful, False otherwise.
-        """
-        try:
-            api_url = f"{self._config_data[CONF_API_URL]}{PROCONIP_API_GETSTATE}"
-            session = aiohttp_client.async_get_clientsession(self.hass)
-
-            # ProconIP uses basic auth
-            auth = None
-            if self._config_data.get(CONF_USERNAME):
-                auth = aiohttp.BasicAuth(
-                    self._config_data[CONF_USERNAME],
-                    self._config_data[CONF_PASSWORD],
-                )
-
-            timeout_obj = aiohttp.ClientTimeout(
-                total=self._config_data[CONF_TIMEOUT_DURATION]
-            )
-
-            async with session.get(
-                api_url, auth=auth, ssl=False, timeout=timeout_obj
-            ) as response:
-                response.raise_for_status()
-                # ProconIP returns CSV data - just check if we get a response
-                content = await response.text()
-                if len(content) > 0:
-                    _LOGGER.info("ProCon.IP connection test successful")
-                    return True
-                return False
-
-        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
-            _LOGGER.error("ProCon.IP connection test failed: %s", err)
-            return False
-
-    def _generate_proconip_entry_title(self) -> str:
-        """
-        Generate title for ProconIP config entry.
-
-        Returns:
-            The config entry title.
-        """
-        controller_name = self._config_data.get(
-            CONF_CONTROLLER_NAME, "ProCon.IP Pool Controller"
-        )
-        pool_size = self._config_data.get(CONF_POOL_SIZE)
-        return f"{controller_name} • {pool_size}m³"
 
     async def _get_grouped_sensors(self) -> dict[str, list[str]]:
         """
