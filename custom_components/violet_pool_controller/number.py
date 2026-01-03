@@ -244,6 +244,16 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                 result = await self.device.api.set_device_temperature(
                     climate_key, sanitized_value
                 )
+            elif api_key.endswith("_TOTAL_CAN_AMOUNT_ML"):
+                # Dosing canister volume parameters
+                _LOGGER.debug(
+                    "Verwende set_dosing_parameters für %s (sanitized: %.0f ml)",
+                    api_key,
+                    sanitized_value,
+                )
+                result = await self.device.api.set_dosing_parameters(
+                    {api_key: int(sanitized_value)}
+                )
             else:
                 _LOGGER.debug(
                     "Verwende set_target_value für %s (sanitized: %.2f)",

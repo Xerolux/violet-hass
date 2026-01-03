@@ -1,0 +1,319 @@
+# =============================================================================
+# Violet Pool Controller - ULTIMATE CONTROL DASHBOARD
+# =============================================================================
+#
+# Dieses Dashboard zeigt ALLE Steuerungsmöglichkeiten für jedes Gerät
+# in kompakten, übersichtlichen Karten.
+#
+# PERFEKT FÜR: Komplette Kontrolle, alle Einstellungen auf einen Blick
+# =============================================================================
+
+type: vertical-stack
+cards:
+  # ============================================================================
+  # 🏊 FILTERPUMPE - Komplett-Control
+  # ============================================================================
+  - type: custom:mushroom-template-card
+    primary: Filterpumpe
+    secondary: |
+      {% if is_state('sensor.violet_pool_controller_pumpen_status', 'Frostschutz') %}
+        ❄️ Frostschutz aktiv
+      {% elif is_state('switch.violet_pool_controller_filterpumpe', 'on') %}
+        ✅ Läuft ({{ states('number.violet_pool_controller_pumpengeschwindigkeit') }}/3)
+      {% else %}
+        🔴 Aus
+      {% endif %}
+    icon: mdi:water-pump
+    icon_color: |
+      {% if is_state('sensor.violet_pool_controller_pumpen_status', 'Frostschutz') %}
+        cyan
+      {% elif is_state('switch.violet_pool_controller_filterpumpe', 'on') %}
+        green
+      {% else %}
+        grey
+      {% endif %}
+    tap_action:
+      action: more-info
+      entity: switch.violet_pool_controller_filterpumpe
+
+  - type: entities
+    show_header_toggle: false
+    state_color: true
+    card_mod:
+      style: |
+        ha-card {
+          margin-top: -16px;
+          border-top: none;
+        }
+    entities:
+      - type: custom:mushroom-select-card
+        entity: switch.violet_pool_controller_filterpumpe
+        name: Modus
+        icon: mdi:auto-mode
+      - type: custom:slider-entity-row
+        entity: number.violet_pool_controller_pumpengeschwindigkeit
+        name: Geschwindigkeit
+        icon: mdi:speedometer
+        min: 1
+        max: 3
+        step: 1
+      - entity: sensor.violet_pool_controller_pumpen_status
+        name: Status
+        icon: mdi:information
+      - entity: sensor.violet_pool_controller_pump_runtime
+        name: Laufzeit
+        icon: mdi:timer-outline
+
+  # ============================================================================
+  # 🔥 HEIZUNG - Komplett-Control
+  # ============================================================================
+  - type: custom:mushroom-template-card
+    primary: Heizung
+    secondary: |
+      {% set temp = states('sensor.violet_pool_controller_pool_temperature') | float(0) %}
+      {% set target = states('number.violet_pool_controller_heizung_zieltemperatur') | float(0) %}
+      {{ temp }}°C → {{ target }}°C
+    icon: mdi:radiator
+    icon_color: |
+      {% if is_state('switch.violet_pool_controller_heizung', 'on') %}
+        red
+      {% else %}
+        grey
+      {% endif %}
+    tap_action:
+      action: more-info
+      entity: climate.violet_pool_controller_heizung
+
+  - type: entities
+    show_header_toggle: false
+    state_color: true
+    card_mod:
+      style: |
+        ha-card {
+          margin-top: -16px;
+          border-top: none;
+        }
+    entities:
+      - type: custom:mushroom-select-card
+        entity: switch.violet_pool_controller_heizung
+        name: Modus
+        icon: mdi:auto-mode
+      - type: custom:slider-entity-row
+        entity: number.violet_pool_controller_heizung_zieltemperatur
+        name: Zieltemperatur
+        icon: mdi:thermometer-chevron-up
+        min: 20
+        max: 35
+        step: 0.5
+      - entity: sensor.violet_pool_controller_heizungs_status
+        name: Status
+        icon: mdi:information
+      - entity: sensor.violet_pool_controller_heater_runtime
+        name: Laufzeit
+        icon: mdi:timer-outline
+
+  # ============================================================================
+  # ☀️ SOLAR - Komplett-Control
+  # ============================================================================
+  - type: custom:mushroom-template-card
+    primary: Solar
+    secondary: |
+      {% set temp = states('sensor.violet_pool_controller_pool_temperature') | float(0) %}
+      {% set target = states('number.violet_pool_controller_solar_zieltemperatur') | float(0) %}
+      {{ temp }}°C → {{ target }}°C
+    icon: mdi:solar-power
+    icon_color: |
+      {% if is_state('switch.violet_pool_controller_solar', 'on') %}
+        orange
+      {% else %}
+        grey
+      {% endif %}
+    tap_action:
+      action: more-info
+      entity: climate.violet_pool_controller_solar
+
+  - type: entities
+    show_header_toggle: false
+    state_color: true
+    card_mod:
+      style: |
+        ha-card {
+          margin-top: -16px;
+          border-top: none;
+        }
+    entities:
+      - type: custom:mushroom-select-card
+        entity: switch.violet_pool_controller_solar
+        name: Modus
+        icon: mdi:auto-mode
+      - type: custom:slider-entity-row
+        entity: number.violet_pool_controller_solar_zieltemperatur
+        name: Zieltemperatur
+        icon: mdi:thermometer-chevron-up
+        min: 20
+        max: 40
+        step: 0.5
+      - entity: sensor.violet_pool_controller_solar_status
+        name: Status
+        icon: mdi:information
+      - entity: sensor.violet_pool_controller_solar_runtime
+        name: Laufzeit
+        icon: mdi:timer-outline
+
+  # ============================================================================
+  # 💧 pH STEUERUNG - Komplett-Control
+  # ============================================================================
+  - type: custom:mushroom-template-card
+    primary: pH Steuerung
+    secondary: |
+      {% set ph = states('sensor.violet_pool_controller_ph_wert') | float(0) %}
+      {% set target = states('number.violet_pool_controller_ph_sollwert') | float(7.2) %}
+      Ist: {{ ph }} | Soll: {{ target }}
+    icon: mdi:flask
+    icon_color: |
+      {% set ph = states('sensor.violet_pool_controller_ph_wert') | float(0) %}
+      {% if ph < 7.0 %}
+        red
+      {% elif ph > 7.6 %}
+        orange
+      {% else %}
+        green
+      {% endif %}
+
+  - type: entities
+    show_header_toggle: false
+    state_color: true
+    card_mod:
+      style: |
+        ha-card {
+          margin-top: -16px;
+          border-top: none;
+        }
+    entities:
+      - type: section
+        label: pH Minus
+      - type: custom:mushroom-select-card
+        entity: switch.violet_pool_controller_ph_minus
+        name: pH- Modus
+        icon: mdi:minus-circle
+      - type: custom:slider-entity-row
+        entity: number.violet_pool_controller_ph_minus_canister_volume
+        name: Kanister (ml)
+        icon: mdi:barrel
+        min: 1000
+        max: 50000
+        step: 1000
+      - entity: sensor.violet_pool_controller_dos_4_phm_remaining_range
+        name: Reichweite
+        icon: mdi:calendar-clock
+      - entity: sensor.violet_pool_controller_dos_4_phm_runtime
+        name: Laufzeit
+        icon: mdi:timer-outline
+
+      - type: section
+        label: pH Plus
+      - type: custom:mushroom-select-card
+        entity: switch.violet_pool_controller_ph_plus
+        name: pH+ Modus
+        icon: mdi:plus-circle
+      - type: custom:slider-entity-row
+        entity: number.violet_pool_controller_ph_plus_canister_volume
+        name: Kanister (ml)
+        icon: mdi:barrel
+        min: 1000
+        max: 50000
+        step: 1000
+      - entity: sensor.violet_pool_controller_dos_5_php_remaining_range
+        name: Reichweite
+        icon: mdi:calendar-clock
+      - entity: sensor.violet_pool_controller_dos_5_php_runtime
+        name: Laufzeit
+        icon: mdi:timer-outline
+
+      - type: section
+        label: Sollwert
+      - type: custom:slider-entity-row
+        entity: number.violet_pool_controller_ph_sollwert
+        name: pH Zielwert
+        icon: mdi:target
+        min: 6.8
+        max: 7.8
+        step: 0.1
+
+  # ============================================================================
+  # 🟢 CHLOR STEUERUNG - Komplett-Control
+  # ============================================================================
+  - type: custom:mushroom-template-card
+    primary: Chlor Steuerung
+    secondary: |
+      {% set cl = states('sensor.violet_pool_controller_chlorgehalt') | float(0) %}
+      {% set target = states('number.violet_pool_controller_chlor_sollwert') | float(0.6) %}
+      Ist: {{ cl }} mg/l | Soll: {{ target }} mg/l
+    icon: mdi:test-tube
+    icon_color: |
+      {% set cl = states('sensor.violet_pool_controller_chlorgehalt') | float(0) %}
+      {% if cl < 0.3 %}
+        red
+      {% elif cl > 1.5 %}
+        orange
+      {% else %}
+        green
+      {% endif %}
+
+  - type: entities
+    show_header_toggle: false
+    state_color: true
+    card_mod:
+      style: |
+        ha-card {
+          margin-top: -16px;
+          border-top: none;
+        }
+    entities:
+      - type: custom:mushroom-select-card
+        entity: switch.violet_pool_controller_chlor
+        name: Chlor Modus
+        icon: mdi:auto-mode
+      - type: custom:slider-entity-row
+        entity: number.violet_pool_controller_chlor_canister_volume
+        name: Kanister (ml)
+        icon: mdi:barrel
+        min: 1000
+        max: 50000
+        step: 1000
+      - type: custom:slider-entity-row
+        entity: number.violet_pool_controller_chlor_sollwert
+        name: Sollwert
+        icon: mdi:target
+        min: 0.2
+        max: 2.0
+        step: 0.1
+      - type: custom:slider-entity-row
+        entity: number.violet_pool_controller_orp_setpoint
+        name: Redox Sollwert
+        icon: mdi:flash
+        min: 600
+        max: 800
+        step: 10
+      - entity: sensor.violet_pool_controller_redoxpotential
+        name: Redox aktuell
+        icon: mdi:flash-outline
+      - entity: sensor.violet_pool_controller_dos_1_cl_remaining_range
+        name: Reichweite
+        icon: mdi:calendar-clock
+      - entity: sensor.violet_pool_controller_dos_1_cl_runtime
+        name: Laufzeit
+        icon: mdi:timer-outline
+
+# =============================================================================
+# HINWEIS: Dieses Dashboard benötigt folgende Custom Cards (via HACS):
+#   - mushroom (https://github.com/piitaya/lovelace-mushroom)
+#   - slider-entity-row (https://github.com/thomasloven/lovelace-slider-entity-row)
+#   - card-mod (https://github.com/thomasloven/lovelace-card-mod)
+#
+# Installation:
+# 1. HACS → Frontend → Suche nach "Mushroom", "Slider Entity Row", "Card Mod"
+# 2. Installieren und Home Assistant neu starten
+# 3. Dashboard → Bearbeiten → Karte hinzufügen → Manuell
+# 4. Diesen YAML-Code einfügen
+# =============================================================================
