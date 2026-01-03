@@ -5,7 +5,8 @@
       "Bash(pip install:*)",
       "Bash(pytest:*)",
       "Bash(python -m pytest:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []
