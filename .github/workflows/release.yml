@@ -141,7 +141,7 @@ jobs:
 
           # Update CLAUDE.md if it exists
           if [ -f "$CLAUDE_FILE" ]; then
-            sed -i "s|**Current Version**: \`[^*]*\`|**Current Version**: \`$VERSION\`|" "$CLAUDE_FILE"
+            sed -i "s|\*\*Current Version\*\*: \`[^\`]*\`|\*\*Current Version\*\*: \`$VERSION\`|" "$CLAUDE_FILE"
             echo "✅ Updated CLAUDE.md"
           fi
 
@@ -415,7 +415,7 @@ jobs:
 
           # Update CLAUDE.md if it exists
           if [ -f "$CLAUDE_FILE" ]; then
-            sed -i "s|**Current Version**: \`[^*]*\`|**Current Version**: \`$VERSION\`|" "$CLAUDE_FILE"
+            sed -i "s|\*\*Current Version\*\*: \`[^\`]*\`|\*\*Current Version\*\*: \`$VERSION\`|" "$CLAUDE_FILE"
             echo "✅ Updated CLAUDE.md"
           fi
 
