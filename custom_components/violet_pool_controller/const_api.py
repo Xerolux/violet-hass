@@ -25,6 +25,15 @@ API_GET_WEATHER_DATA = "/getWeatherdata"
 API_GET_OVERALL_DOSING = "/getOverallDosing"
 API_GET_OUTPUT_STATES = "/getOutputstates"
 
+# =============================================================================
+# PROCONIP API ENDPOINTS
+# =============================================================================
+
+PROCONIP_API_GETSTATE = "/GetState.csv"
+PROCONIP_API_USRCFG_CGI = "/cgi-bin/usrcfg.cgi"
+PROCONIP_API_COMMAND = "/cgi-bin/command.cgi"
+PROCONIP_API_SETSTATE = "/cgi-bin/setstate.cgi"
+
 # Settings for optimizing data refreshes by fetching specific groups.
 SPECIFIC_READING_GROUPS = (
     "ADC",
