@@ -25,6 +25,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import (
     ANALOG_SENSORS,
+    COMPOSITE_STATE_SENSORS,
     CONF_ACTIVE_FEATURES,
     CONF_SELECTED_SENSORS,
     DOMAIN,
@@ -477,12 +478,20 @@ class VioletDosingStateSensor(VioletPoolControllerEntity, SensorEntity):
         """Return the dosing state as comma-separated string."""
         raw_value = self.get_value(self.entity_description.key)
 
-        # Handle array values
+        # Handle array values (DOS_*_STATE sensors)
         if isinstance(raw_value, list):
             if not raw_value:
                 return "OK"  # Empty array means no issues
             # Join array elements with comma
             return ", ".join(str(item) for item in raw_value)
+
+        # Handle pipe-separated strings (PUMPSTATE, HEATERSTATE, SOLARSTATE)
+        if isinstance(raw_value, str) and "|" in raw_value:
+            parts = raw_value.split("|", 1)
+            if len(parts) == 2:
+                state_num, detail = parts
+                return detail.replace("_", " ").title()  # "PUMP_ANTI_FREEZE" → "Pump Anti Freeze"
+            return raw_value
 
         # Handle string values (shouldn't happen based on API, but defensive)
         if isinstance(raw_value, str):
@@ -498,10 +507,21 @@ class VioletDosingStateSensor(VioletPoolControllerEntity, SensorEntity):
 
         attributes = {}
 
+        # Array-based sensors (DOS_*_STATE)
         if isinstance(raw_value, list):
             attributes["state_count"] = len(raw_value)
             attributes["states_list"] = raw_value
             attributes["has_issues"] = len(raw_value) > 0
+
+        # Pipe-separated sensors (PUMPSTATE, HEATERSTATE, SOLARSTATE)
+        elif isinstance(raw_value, str) and "|" in raw_value:
+            parts = raw_value.split("|", 1)
+            if len(parts) == 2:
+                state_num, detail = parts
+                attributes["numeric_state"] = state_num
+                attributes["detail_code"] = detail
+                attributes["detail_readable"] = detail.replace("_", " ").title()
+                attributes["raw_value"] = raw_value
 
         return attributes
 
@@ -770,6 +790,30 @@ def _create_special_sensors(
             )
             handled_keys.add(key)
             _LOGGER.debug("Dosing state sensor created for %s", key)
+
+    # Composite State Sensors (PUMPSTATE, HEATERSTATE, SOLARSTATE)
+    for key, sensor_config in COMPOSITE_STATE_SENSORS.items():
+        if key in coordinator.data:
+            # Check if feature is enabled
+            feature_id = SENSOR_FEATURE_MAP.get(key)
+            if feature_id and feature_id not in config["active_features"]:
+                continue
+
+            # Check if sensor is selected
+            if not config["create_all"] and key not in config["selected_sensors"]:
+                continue
+
+            sensors.append(
+                VioletDosingStateSensor(  # Reuse same class, handles both types
+                    coordinator,
+                    config_entry,
+                    key,
+                    sensor_config["name"],
+                    sensor_config["icon"],
+                )
+            )
+            handled_keys.add(key)
+            _LOGGER.debug("Composite state sensor created for %s", key)
 
     return sensors, handled_keys
 

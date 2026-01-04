@@ -69,6 +69,12 @@ DOSING_STATE_SENSORS = {
     "DOS_6_FLOC_STATE": {"name": "Flockung Status", "icon": "mdi:flask"},
 }
 
+COMPOSITE_STATE_SENSORS = {
+    "PUMPSTATE": {"name": "Pumpen Detail-Status", "icon": "mdi:pump"},
+    "HEATERSTATE": {"name": "Heizung Detail-Status", "icon": "mdi:radiator"},
+    "SOLARSTATE": {"name": "Solar Detail-Status", "icon": "mdi:solar-power"},
+}
+
 # =============================================================================
 # UNIT MAPPINGS
 # =============================================================================
@@ -140,6 +146,10 @@ SENSOR_FEATURE_MAP = {
     "DOS_4_PHM_STATE": "ph_control",
     "DOS_5_PHP_STATE": "ph_control",
     "DOS_6_FLOC_STATE": "flocculation",
+    # Composite state sensors (pipe-separated strings)
+    "PUMPSTATE": "filter_control",
+    "HEATERSTATE": "heating",
+    "SOLARSTATE": "solar",
     "onewire4_value": "solar",
     "onewire5_value": "heating",
     "onewire6_value": "heating",
