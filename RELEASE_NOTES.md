@@ -1,4 +1,4 @@
-## v1.0.7-alpha.1 – Violet Pool Controller
+## v1.0.7-alpha.2 – Violet Pool Controller
 
 🔴 **ALPHA RELEASE** - Experimental features, use with caution!
 
@@ -6,6 +6,11 @@
 
 ### ✨ New Features | Neue Funktionen
 
+- add-controller-selection (75a2eb8)
+- Add HA test directories to .gitignore (d3e168b)
+- Add Home Assistant test infrastructure and test results documentation (4f0c7f8)
+- Remove add-controller-selection (e57ab64)
+- Add ProCon.IP controller support to config flow (85f9ae3)
 - new release workflow (b715be0)
 - feat: Add reauthentication, reconfiguration, and diagnostic sensors (ed282c1)
 - feat: Add intuitive ON/OFF/AUTO control with Select entities and Dashboard templates (7ac8301)
@@ -26,6 +31,8 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- Fix sed regex in release workflow for CLAUDE.md version update (f7ccc6d)
+- 📝 Release v1.0.7-alpha.1 - Update changelog and version files (1d9d07c)
 - improve-setup-reauthentication (cb143dc)
 - optimize-ha-2026 (f63c755)
 - Optimize Violet Pool Controller integration for HA 2026 (73ad32a)
@@ -66,6 +73,10 @@
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- Fix sed regex in release workflow for CLAUDE.md version update (f7ccc6d)
+- display fix (459c3a1)
+- Firmware & State Fix (981abfd)
+- bugfix release notes (f17acd9)
 - addon-bugfix-ui-refactor (65c0a5b)
 - fix: Critical bugfixes, UI/UX improvements and code quality enhancements (cf3a920)
 - Fix bugs, optimize code and ensure functionality (ce025d4)
@@ -134,6 +145,7 @@
 
 ### 📚 Documentation | Dokumentation
 
+- Add Home Assistant test infrastructure and test results documentation (4f0c7f8)
 - Merge pull request #163 from Xerolux/claude/update-readme-01GdiF4dE7x48kixTQs1mbRk (243046c)
 - docs: Update README with v0.2.0-beta.4 changelog and improvements (7e8a039)
 - docs: Update CLAUDE.md with comprehensive codebase documentation (90b30d0)
@@ -147,6 +159,8 @@
 
 ### 🧪 Tests
 
+- Add HA test directories to .gitignore (d3e168b)
+- Add Home Assistant test infrastructure and test results documentation (4f0c7f8)
 - Live Test (bcf7e89)
 - refactor-config-flow-tests (9b170e8)
 - Refactor config flow and improve test coverage (279a658)
@@ -174,7 +188,7 @@
 
 ---
 
-📋 [Full changelog: v0.2.0...v1.0.7-alpha.1](https://github.com/Xerolux/violet-hass/compare/v0.2.0...v1.0.7-alpha.1)
+📋 [Full changelog: v0.2.0...v1.0.7-alpha.2](https://github.com/Xerolux/violet-hass/compare/v0.2.0...v1.0.7-alpha.2)
 
 ---
 
@@ -208,4 +222,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-01-03 16:00:36 UTC_
+_Generated automatically by GitHub Actions on 2026-01-04 08:34:47 UTC_
