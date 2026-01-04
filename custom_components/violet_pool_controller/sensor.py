@@ -28,6 +28,7 @@ from .const import (
     CONF_ACTIVE_FEATURES,
     CONF_SELECTED_SENSORS,
     DOMAIN,
+    DOSING_STATE_SENSORS,
     NO_UNIT_SENSORS,
     SENSOR_FEATURE_MAP,
     STATUS_SENSORS,
@@ -451,6 +452,60 @@ class VioletLastEventAgeSensor(VioletPoolControllerEntity, SensorEntity):
         return round(self.coordinator.device.last_event_age, 0)
 
 
+class VioletDosingStateSensor(VioletPoolControllerEntity, SensorEntity):
+    """Sensor for dosing system state arrays (DOS_*_STATE)."""
+
+    def __init__(
+        self,
+        coordinator: VioletPoolDataUpdateCoordinator,
+        config_entry: ConfigEntry,
+        key: str,
+        name: str,
+        icon: str,
+    ) -> None:
+        """Initialize the dosing state sensor."""
+        description = SensorEntityDescription(
+            key=key,
+            name=name,
+            icon=icon,
+            entity_category=EntityCategory.DIAGNOSTIC,
+        )
+        super().__init__(coordinator, config_entry, description)
+
+    @property
+    def native_value(self) -> str | None:
+        """Return the dosing state as comma-separated string."""
+        raw_value = self.get_value(self.entity_description.key)
+
+        # Handle array values
+        if isinstance(raw_value, list):
+            if not raw_value:
+                return "OK"  # Empty array means no issues
+            # Join array elements with comma
+            return ", ".join(str(item) for item in raw_value)
+
+        # Handle string values (shouldn't happen based on API, but defensive)
+        if isinstance(raw_value, str):
+            return raw_value if raw_value else "OK"
+
+        # No data available
+        return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return additional attributes."""
+        raw_value = self.get_value(self.entity_description.key)
+
+        attributes = {}
+
+        if isinstance(raw_value, list):
+            attributes["state_count"] = len(raw_value)
+            attributes["states_list"] = raw_value
+            attributes["has_issues"] = len(raw_value) > 0
+
+        return attributes
+
+
 class VioletFlowRateSensor(VioletPoolControllerEntity, SensorEntity):
     """A specialized sensor for flow rate that prioritizes ADC3 over IMP2."""
 
@@ -691,6 +746,30 @@ def _create_special_sensors(
         sensors.append(VioletFlowRateSensor(coordinator, config_entry))
         handled_keys.update(_FLOW_RATE_SOURCE_KEYS)
         _LOGGER.debug("Priority flow rate sensor created.")
+
+    # Dosing State Array Sensors
+    for key, sensor_config in DOSING_STATE_SENSORS.items():
+        if key in coordinator.data:
+            # Check if feature is enabled
+            feature_id = SENSOR_FEATURE_MAP.get(key)
+            if feature_id and feature_id not in config["active_features"]:
+                continue
+
+            # Check if sensor is selected
+            if not config["create_all"] and key not in config["selected_sensors"]:
+                continue
+
+            sensors.append(
+                VioletDosingStateSensor(
+                    coordinator,
+                    config_entry,
+                    key,
+                    sensor_config["name"],
+                    sensor_config["icon"],
+                )
+            )
+            handled_keys.add(key)
+            _LOGGER.debug("Dosing state sensor created for %s", key)
 
     return sensors, handled_keys
 

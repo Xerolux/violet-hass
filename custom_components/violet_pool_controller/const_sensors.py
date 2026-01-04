@@ -61,6 +61,14 @@ STATUS_SENSORS = {
     "FW": {"name": "Firmware Version", "icon": "mdi:package-up"},
 }
 
+DOSING_STATE_SENSORS = {
+    "DOS_1_CL_STATE": {"name": "Chlor Dosierung Status", "icon": "mdi:flask-outline"},
+    "DOS_2_ELO_STATE": {"name": "Elektrolyse Status", "icon": "mdi:lightning-bolt"},
+    "DOS_4_PHM_STATE": {"name": "pH- Dosierung Status", "icon": "mdi:flask-minus"},
+    "DOS_5_PHP_STATE": {"name": "pH+ Dosierung Status", "icon": "mdi:flask-plus"},
+    "DOS_6_FLOC_STATE": {"name": "Flockung Status", "icon": "mdi:flask"},
+}
+
 # =============================================================================
 # UNIT MAPPINGS
 # =============================================================================
@@ -126,6 +134,12 @@ SENSOR_FEATURE_MAP = {
     "onewire2_value": None,
     # Feature-dependent sensors
     "onewire3_value": "solar",
+    # Dosing state sensors (array-based)
+    "DOS_1_CL_STATE": "chlorine_control",
+    "DOS_2_ELO_STATE": "chlorine_control",
+    "DOS_4_PHM_STATE": "ph_control",
+    "DOS_5_PHP_STATE": "ph_control",
+    "DOS_6_FLOC_STATE": "flocculation",
     "onewire4_value": "solar",
     "onewire5_value": "heating",
     "onewire6_value": "heating",
