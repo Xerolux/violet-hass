@@ -218,10 +218,11 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                 result = await self.device.api.set_ph_target(sanitized_value)
             elif api_key == "ORP":
                 _LOGGER.debug(
-                    "Verwende set_orp_target für ORP-Wert (sanitized: %d)",
-                    int(sanitized_value),
+                    "Verwende set_orp_target für ORP-Wert (sanitized: %.1f)",
+                    sanitized_value,
                 )
-                result = await self.device.api.set_orp_target(int(sanitized_value))
+                # ORP values can be decimal (e.g., 650.5), preserve precision
+                result = await self.device.api.set_orp_target(sanitized_value)
             elif api_key == "MinChlorine":
                 _LOGGER.debug(
                     "Verwende set_min_chlorine_level für Chlor-Wert (sanitized: %.2f)",

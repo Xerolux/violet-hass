@@ -82,11 +82,9 @@ class InputSanitizer:
                     original,
                     str_value,
                 )
-
-        # HTML-Escape (macht nur Sinn wenn Sonderzeichen erlaubt sind oder nach der Bereinigung noch welche übrig sein könnten -
-        # aber wenn allow_special_chars False ist, sind < und > eh weg.
-        # Falls wir aber allow_special_chars=True haben, wollen wir evtl escapen.)
-        if escape_html:
+        # HTML-Escape nur wenn Sonderzeichen erlaubt sind
+        # (sonst sind < und > bereits durch Regex entfernt)
+        elif escape_html:
             str_value = escape(str_value)
 
         return str_value

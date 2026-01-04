@@ -336,9 +336,10 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         """
         try:
             speed_int = int(speed)
-            if 1 <= speed_int <= 4:
+            # Controller supports speeds 0-3 (PUMP_RPM_0 to PUMP_RPM_3)
+            if 0 <= speed_int <= 3:
                 return speed_int
-            _LOGGER.warning("Ungültiger Speed-Wert %s, verwende Default 2", speed)
+            _LOGGER.warning("Ungültiger Speed-Wert %s (erlaubt: 0-3), verwende Default 2", speed)
             return 2
         except (ValueError, TypeError):
             _LOGGER.warning("Ungültiger Speed-Typ %s, verwende Default 2", type(speed))

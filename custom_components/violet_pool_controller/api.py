@@ -206,9 +206,9 @@ class VioletPoolAPI:
                 delay = min(2.0, 0.2 * (2 ** (attempt - 1)))
                 await asyncio.sleep(delay)
 
-        if last_error:
-            raise last_error
-        raise VioletPoolAPIError("Request failed without raising an error")
+        # If we reach here, all retries succeeded but returned no data
+        # This should not happen in normal operation
+        raise VioletPoolAPIError("Request completed but returned no data")
 
     @staticmethod
     def _command_result(body: str) -> dict[str, Any]:

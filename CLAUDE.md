@@ -165,7 +165,7 @@ The project supports VS Code Remote Containers for development:
   - Dosing systems (pH-, pH+, Chlorine, Flocculant)
   - DMX scenes (1-8)
   - Extension relays (1-8)
-  - State 4 (undefined) handling
+  - Multi-state support (0-6) with automatic mode detection
 
 - **`climate.py`** - Thermostat entities:
   - Pool heater control with temperature setpoints
@@ -188,7 +188,7 @@ The project supports VS Code Remote Containers for development:
 Services defined in `services.yaml` and registered in `services.py`:
 
 - **`control_pump`** - Advanced pump control:
-  - Speed control (1-3)
+  - Speed control (0-3) - Controller supports 4 speed levels: PUMP_RPM_0 to PUMP_RPM_3
   - Force off mode
   - Eco mode
   - Boost mode
@@ -223,11 +223,16 @@ Services defined in `services.yaml` and registered in `services.py`:
 
 2. **Rate Limiting**: API requests go through a global rate limiter (`utils_rate_limiter.py`) using token bucket algorithm to protect the controller from overload.
 
-3. **3-State Switches**: Pool devices support:
-   - `0` = OFF (manual off)
-   - `1` = ON (manual on)
-   - `2` = AUTO (automatic control based on rules)
-   - `4` = UNDEFINED (error state, handled gracefully)
+3. **Multi-State Switches**: Pool devices support multiple states:
+   - `0` = AUTO - Standby (automatic control, currently off)
+   - `1` = MANUAL ON (manual on)
+   - `2` = AUTO - Active (automatic control, currently on)
+   - `3` = AUTO - Active with Timer (automatic control with timing)
+   - `4` = MANUAL ON - Forced (manual on, forced mode)
+   - `5` = AUTO - Waiting (automatic control, waiting for conditions)
+   - `6` = MANUAL OFF (manual off)
+
+   Additionally, some states include descriptive suffixes (e.g., `"3|PUMP_ANTI_FREEZE"`) which are parsed to extract operational modes like frost protection.
 
 4. **Multi-Controller Support**:
    - Unique identifiers use `{api_url}_{device_id}` format
@@ -459,7 +464,11 @@ Located in `.github/workflows/`:
 
 ## Important Notes
 
-1. **State 4 Handling**: Switches may return state "4" (undefined) from the controller. This is handled gracefully by treating it as "off" and logging a warning.
+1. **State Handling**: Switches support states 0-6 with specific meanings:
+   - States 0, 5, 6 = Device OFF (different automatic/manual modes)
+   - States 1, 2, 3, 4 = Device ON (different automatic/manual modes)
+   - Composite states like `"3|PUMP_ANTI_FREEZE"` provide additional context about operational modes
+   - All states are defined in `const_devices.py:DEVICE_STATE_MAPPING`
 
 2. **Multi-Controller**: The integration supports multiple pool controllers on the same Home Assistant instance. Each gets unique entity IDs based on the API URL.
 

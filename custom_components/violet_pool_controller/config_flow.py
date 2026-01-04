@@ -562,7 +562,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input:
             # Get existing config data
-            assert self._reauth_entry is not None
+            if self._reauth_entry is None:
+                return self.async_abort(reason="reauth_failed")
             existing_data = dict(self._reauth_entry.data)
 
             # Update credentials
@@ -583,7 +584,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors["base"] = ERROR_CANNOT_CONNECT
 
         # Show form with current values
-        assert self._reauth_entry is not None
+        if self._reauth_entry is None:
+            return self.async_abort(reason="reauth_failed")
         return self.async_show_form(
             step_id="reauth_confirm",
             data_schema=vol.Schema(
@@ -625,7 +627,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         reconfigure_entry = self.hass.config_entries.async_get_entry(
             self.context["entry_id"]
         )
-        assert reconfigure_entry is not None
+        if reconfigure_entry is None:
+            return self.async_abort(reason="reconfigure_failed")
 
         if user_input:
             # Validate IP address

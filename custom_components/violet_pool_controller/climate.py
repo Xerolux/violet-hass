@@ -436,7 +436,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                     _LOGGER.debug(
                         "Refresh task failed for %s: %s", self.climate_type, exc
                     )
-        except asyncio.CancelledError:
+        except (asyncio.CancelledError, asyncio.InvalidStateError):
             pass  # Normal, kein Log nötig
 
 

@@ -19,6 +19,7 @@ AVAILABLE_FEATURES = [
     {"id": "solar", "name": "Solarabsorber", "default": True},
     {"id": "ph_control", "name": "pH-Kontrolle", "default": True},
     {"id": "chlorine_control", "name": "Chlor-Kontrolle", "default": True},
+    {"id": "flocculation", "name": "Flockungsmittel-Dosierung", "default": True},
     {"id": "cover_control", "name": "Abdeckungssteuerung", "default": True},
     {"id": "backwash", "name": "Rückspülung", "default": True},
     {"id": "pv_surplus", "name": "PV-Überschuss", "default": True},
@@ -357,7 +358,7 @@ SETPOINT_DEFINITIONS = [
         "default_value": 10000,
         "icon": "mdi:barrel",
         "unit_of_measurement": "ml",
-        "device_class": NumberDeviceClass.VOLUME,
+        "device_class": None,  # Volume device class not available in HA
         "feature_id": "chlorine_control",
         "entity_category": EntityCategory.CONFIG,
         "setpoint_fields": ["DOS_1_CL_TOTAL_CAN_AMOUNT_ML"],
@@ -373,7 +374,7 @@ SETPOINT_DEFINITIONS = [
         "default_value": 10000,
         "icon": "mdi:barrel",
         "unit_of_measurement": "ml",
-        "device_class": NumberDeviceClass.VOLUME,
+        "device_class": None,  # Volume device class not available in HA
         "feature_id": "ph_control",
         "entity_category": EntityCategory.CONFIG,
         "setpoint_fields": ["DOS_4_PHM_TOTAL_CAN_AMOUNT_ML"],
@@ -389,7 +390,7 @@ SETPOINT_DEFINITIONS = [
         "default_value": 20000,
         "icon": "mdi:barrel",
         "unit_of_measurement": "ml",
-        "device_class": NumberDeviceClass.VOLUME,
+        "device_class": None,  # Volume device class not available in HA
         "feature_id": "ph_control",
         "entity_category": EntityCategory.CONFIG,
         "setpoint_fields": ["DOS_5_PHP_TOTAL_CAN_AMOUNT_ML"],
@@ -405,7 +406,7 @@ SETPOINT_DEFINITIONS = [
         "default_value": 20000,
         "icon": "mdi:barrel",
         "unit_of_measurement": "ml",
-        "device_class": NumberDeviceClass.VOLUME,
+        "device_class": None,  # Volume device class not available in HA
         "feature_id": "flocculation",
         "entity_category": EntityCategory.CONFIG,
         "setpoint_fields": ["DOS_6_FLOC_TOTAL_CAN_AMOUNT_ML"],

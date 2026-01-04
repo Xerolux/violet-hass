@@ -243,13 +243,25 @@ class VioletServiceManager:
 
         Returns:
             The device key.
+
+        Raises:
+            ValueError: If entity_id is invalid or cannot be parsed.
         """
+        if not entity_id or not isinstance(entity_id, str):
+            raise ValueError(f"Invalid entity_id: {entity_id}")
+
+        if "." not in entity_id:
+            raise ValueError(f"Entity ID must contain domain separator '.': {entity_id}")
+
         # switch.violet_pool_pump -> PUMP
         parts = entity_id.split(".")[-1].split("_")
-        if "violet" in parts:
-            parts.remove("violet")
-        if "pool" in parts:
-            parts.remove("pool")
+
+        # Remove common prefixes (filter out all occurrences)
+        parts = [p for p in parts if p not in ("violet", "pool")]
+
+        if not parts:
+            raise ValueError(f"Cannot extract device key from {entity_id}: no parts remaining")
+
         return "_".join(parts).upper()
 
     def check_safety_lock(self, device_key: str) -> bool:
@@ -322,11 +334,8 @@ class VioletServiceHandlers:
         Returns:
             A list of device IDs.
         """
-        if isinstance(raw, str):
-            return [raw]
-        if isinstance(raw, Iterable):
-            return [str(device) for device in raw]
-        return [str(raw)]
+        # Use the module-level function to avoid duplication
+        return _as_device_id_list(raw)
 
     async def handle_control_pump(self, call: ServiceCall) -> None:
         """

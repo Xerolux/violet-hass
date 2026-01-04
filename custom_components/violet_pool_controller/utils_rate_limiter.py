@@ -139,7 +139,8 @@ class RateLimiter:
         """Fülle Token-Bucket basierend auf verstrichener Zeit."""
         time_passed = current_time - self.last_refill
 
-        if time_passed >= self.time_window:
+        # Refill proportional to time passed, not just when full window elapsed
+        if time_passed > 0:
             # Berechne neue Tokens basierend auf verstrichener Zeit
             refill_rate = self.max_requests / self.time_window
             new_tokens = time_passed * refill_rate
@@ -148,9 +149,10 @@ class RateLimiter:
             self.last_refill = current_time
 
             _LOGGER.debug(
-                "Token-Bucket refilled: %.1f tokens (max: %d)",
+                "Token-Bucket refilled: %.1f tokens (max: %d, time_passed: %.2fs)",
                 self.tokens,
                 self.max_tokens,
+                time_passed,
             )
 
     def get_stats(self) -> dict:

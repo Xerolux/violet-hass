@@ -67,6 +67,7 @@ class VioletPoolControllerDevice:
         self._last_failure_log = 0.0  # Timestamp für Throttling
         self._first_failure_logged = False  # Flag für erste Warnung
         self._recovery_logged = False  # Flag für Recovery-Message
+        self._fw_logged = False  # Flag für Firmware-Version-Logging
 
         # ✅ RECOVERY OPTIMIZATION: Auto-Recovery Tracking
         self._recovery_attempts = 0  # Zähler für Recovery-Versuche
