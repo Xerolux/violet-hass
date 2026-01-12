@@ -225,15 +225,18 @@ async def get_grouped_sensors(
         A dictionary mapping groups to lists of sensor keys.
     """
     try:
+        # Validate credentials strength before using them
+        username = config_data.get(CONF_USERNAME)
+        password = config_data.get(CONF_PASSWORD)
+        
+        _validate_credentials_strength(username, password)
+        
         protocol = "https" if config_data[CONF_USE_SSL] else "http"
         api_url = f"{protocol}://{config_data[CONF_API_URL]}{API_READINGS}?ALL"
         session = aiohttp_client.async_get_clientsession(hass)
         auth = (
-            aiohttp.BasicAuth(
-                config_data[CONF_USERNAME],
-                config_data[CONF_PASSWORD],
-            )
-            if config_data.get(CONF_USERNAME)
+            aiohttp.BasicAuth(username, password)
+            if username
             else None
         )
 

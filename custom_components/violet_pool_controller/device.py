@@ -451,65 +451,68 @@ class VioletPoolControllerDevice:
         Returns:
             True if recovery was successful, False otherwise.
         """
-        # ✅ RACE CONDITION FIX: Atomic check-and-set mit Lock
+# ✅ RACE CONDITION FIX: Complete atomic recovery with proper lock protection
         async with self._recovery_lock:
+            # Atomic check-and-set under same lock
             if self._in_recovery_mode:
                 _LOGGER.debug("Recovery bereits im Gange, überspringe")
                 return False
+            
+            if self._recovery_attempts >= RECOVERY_MAX_ATTEMPTS:
+                _LOGGER.warning("Maximum recovery attempts reached")
+                return False
+                
+            # Set recovery state atomically
             self._in_recovery_mode = True
             self._recovery_attempts += 1
-
-        # Berechne Exponential Backoff Delay
-        delay = min(
-            RECOVERY_MAX_DELAY,
-            RECOVERY_BASE_DELAY * (2 ** (self._recovery_attempts - 1)),
-        )
-
-        _LOGGER.info(
-            "🔄 Recovery-Versuch %d/%d für '%s' (Delay: %.1fs)",
-            self._recovery_attempts,
-            RECOVERY_MAX_ATTEMPTS,
-            self.device_name,
-            delay,
-        )
+            current_attempt = self._recovery_attempts
 
         try:
-            # Warte mit Exponential Backoff
+            # Calculate exponential backoff delay
+            delay = min(
+                RECOVERY_MAX_DELAY,
+                RECOVERY_BASE_DELAY * (2 ** (current_attempt - 1)),
+            )
+            
+            _LOGGER.info(
+                "🔄 Recovery-Versuch %d/%d für '%s' (Delay: %.1fs)",
+                current_attempt,
+                RECOVERY_MAX_ATTEMPTS,
+                self.device_name,
+                delay,
+            )
+            
             await asyncio.sleep(delay)
-
-            # Versuche Daten abzurufen
+            
+            # Attempt data retrieval
             data = await self._fetch_controller_data()
-
+            
             if data and isinstance(data, dict):
-                # ✅ RECOVERY ERFOLGREICH!
-                _LOGGER.info(
-                    "✅ Recovery erfolgreich für '%s' nach %d Versuch%s",
-                    self.device_name,
-                    self._recovery_attempts,
-                    "en" if self._recovery_attempts > 1 else "",
-                )
-
-                # Reset Recovery-Status
-                self._consecutive_failures = 0
-                self._recovery_attempts = 0
-                self._available = True
-                self._in_recovery_mode = False
-                self._recovery_logged = True
-
+                # Recovery successful - reset state atomically
+                async with self._recovery_lock:
+                    self._consecutive_failures = 0
+                    self._recovery_attempts = 0
+                    self._available = True
+                    self._recovery_logged = True
+                
+                _LOGGER.info("Recovery successful for '%s'", self.device_name)
                 return True
-
+            
             return False
-
+            
         except Exception as err:
             _LOGGER.debug(
                 "Recovery-Versuch %d fehlgeschlagen: %s",
-                self._recovery_attempts,
+                current_attempt,
                 err,
             )
             return False
+            
         finally:
-            self._in_recovery_mode = False
-            self._last_recovery_attempt = time.time()
+            # Always ensure recovery state is reset under lock protection
+            async with self._recovery_lock:
+                self._in_recovery_mode = False
+                self._last_recovery_attempt = asyncio.get_event_loop().time()
 
     async def _start_recovery_background_task(self) -> None:
         """

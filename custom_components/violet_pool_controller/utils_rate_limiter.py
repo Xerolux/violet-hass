@@ -46,10 +46,19 @@ class RateLimiter:
         self.max_tokens = max_requests + burst_size
         self.last_refill = time.time()
 
-        # Request History für Statistiken
-        self.request_history: deque = deque(maxlen=1000)
+        # Optimized request history with size and time limits
+        self.request_history: deque = deque(maxlen=500)  # Reduced from 1000
         self.blocked_requests = 0
         self.total_requests = 0
+        self.history_cleanup_interval = 300  # 5 minutes
+        self.last_cleanup_time = time.time()
+        
+        # Memory-efficient statistics
+        self._recent_stats = {
+            'requests_last_minute': 0,
+            'blocked_last_minute': 0,
+            'last_minute_reset': time.time()
+        }
 
         # Lock für Thread-Safety
         self._lock = asyncio.Lock()
@@ -61,54 +70,72 @@ class RateLimiter:
             burst_size,
         )
 
-    async def acquire(self, priority: int = 3) -> bool:
+async def acquire(self, priority: int = 3) -> bool:
         """
-        Versuche ein Token zu erwerben.
+        Acquire a token from the rate limiter.
 
         Args:
-            priority: Priorität (1=critical, 2=high, 3=normal, 4=low)
+            priority: Priority level (0=highest, 3=lowest)
 
         Returns:
-            True wenn Request erlaubt, False wenn Rate Limit erreicht
+            True if token acquired, False otherwise
         """
         async with self._lock:
-            self.total_requests += 1
             current_time = time.time()
-
-            # Refill tokens basierend auf verstrichener Zeit
+            self.total_requests += 1
+            
+            # Periodic cleanup to prevent memory growth
+            if current_time - self.last_cleanup_time > self.history_cleanup_interval:
+                await self._cleanup_history(current_time)
+                self.last_cleanup_time = current_time
+            
+            # Update recent statistics
+            self._update_recent_stats(current_time)
+            
+            # Refill tokens
             await self._refill_tokens(current_time)
-
-            # Prüfe ob Token verfügbar
+            
             if self.tokens >= 1:
                 self.tokens -= 1
-                self.request_history.append(
-                    {
-                        "time": current_time,
-                        "priority": priority,
-                        "blocked": False,
-                    }
-                )
-                return True
-
-            # Rate Limit erreicht
-            self.blocked_requests += 1
-            self.request_history.append(
-                {
+                
+                # Store minimal data for efficiency
+                self.request_history.append({
                     "time": current_time,
                     "priority": priority,
-                    "blocked": True,
-                }
-            )
-
-            _LOGGER.debug(
-                "Rate Limit erreicht: %d/%d tokens (priority: %d, blocked: %d)",
-                self.tokens,
-                self.max_tokens,
-                priority,
-                self.blocked_requests,
-            )
-
+                    "blocked": False
+                })
+                
+                return True
+            
+            # Track failures efficiently
+            self.blocked_requests += 1
+            self._recent_stats['blocked_last_minute'] += 1
             return False
+
+    async def _cleanup_history(self, current_time: float) -> None:
+        """Clean up old history entries to prevent memory leaks."""
+        # Remove entries older than 1 hour
+        cutoff_time = current_time - 3600
+        
+        # Filter while maintaining order
+        filtered_history = deque(
+            (entry for entry in self.request_history 
+             if entry["time"] > cutoff_time),
+            maxlen=500
+        )
+        
+        self.request_history = filtered_history
+        _LOGGER.debug("Rate limiter history cleanup completed")
+
+    def _update_recent_stats(self, current_time: float) -> None:
+        """Update memory-efficient recent statistics."""
+        # Reset minute stats every 60 seconds
+        if current_time - self._recent_stats['last_minute_reset'] > 60:
+            self._recent_stats['requests_last_minute'] = 0
+            self._recent_stats['blocked_last_minute'] = 0
+            self._recent_stats['last_minute_reset'] = current_time
+        
+        self._recent_stats['requests_last_minute'] += 1
 
     async def wait_if_needed(self, priority: int = 3, timeout: float = 10.0) -> None:
         """

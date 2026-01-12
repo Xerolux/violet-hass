@@ -185,7 +185,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload a config entry.
+    """Unload a config entry with proper resource cleanup.
 
     Args:
         hass: The Home Assistant instance.
@@ -198,14 +198,34 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _LOGGER.info("Unloading '%s' (entry_id=%s)", device_name, entry.entry_id)
 
     try:
-        # Unload platforms
+        # Unload platforms first
         unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
         if unload_ok:
+            # Get coordinator for cleanup
+            coordinator = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+            if coordinator and hasattr(coordinator.device, 'api'):
+                # Close API session and connections
+                api = coordinator.device.api
+                if hasattr(api, '_session') and api._session:
+                    await api._session.close()
+                    _LOGGER.debug("API session closed for entry_id=%s", entry.entry_id)
+            
+            # Cancel any pending recovery tasks
+            if coordinator and hasattr(coordinator.device, '_recovery_task'):
+                recovery_task = coordinator.device._recovery_task
+                if recovery_task and not recovery_task.done():
+                    recovery_task.cancel()
+                    _LOGGER.debug("Recovery task cancelled for entry_id=%s", entry.entry_id)
+            
             # Remove coordinator from hass.data
             if entry.entry_id in hass.data.get(DOMAIN, {}):
                 hass.data[DOMAIN].pop(entry.entry_id)
                 _LOGGER.debug("Coordinator removed for entry_id=%s", entry.entry_id)
+
+            # Trigger garbage collection
+            import gc
+            gc.collect()
 
             _LOGGER.info(
                 "Successfully unloaded '%s' (entry_id=%s)", device_name, entry.entry_id
@@ -220,12 +240,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         return unload_ok
 
     except Exception as err:
-        _LOGGER.exception(
-            "Error during unload of '%s' (entry_id=%s): %s",
-            device_name,
-            entry.entry_id,
-            err,
-        )
+        _LOGGER.exception("Error during unload of '%s': %s", device_name, err)
         return False
 
 
