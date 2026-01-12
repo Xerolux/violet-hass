@@ -1,25 +1,37 @@
-"""Base entity class for Violet Pool Controller entities."""
+"""Base entity class with performance optimizations for Violet Pool Controller."""
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import re
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.helpers.entity import EntityDescription
+from homeassistant.core import callback
+from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import STATE_MAP
-from .device import VioletPoolDataUpdateCoordinator
-
 _LOGGER = logging.getLogger(__name__)
-
 
 # =============================================================================
 # SHARED UTILITY FUNCTIONS
 # =============================================================================
 
+# Boolean State Mapping (used by switches and other boolean entities)
+STATE_MAP = {
+    0: False,  # Off
+    1: True,  # On
+    2: True,  # Auto (usually means on with automatic control)
+    3: True,  # Auto with timer
+    4: True,  # Manual forced on
+    5: False,  # Auto waiting
+    6: False,  # Manual forced off
+}
+
+
+# Pre-compiled numeric pattern for performance
+NUMERIC_PATTERN = re.compile(r'^-?\d+$')
 
 def convert_to_int(value: Any) -> int | None:
     """
@@ -31,108 +43,77 @@ def convert_to_int(value: Any) -> int | None:
     Returns:
         Integer value or None if conversion fails.
     """
+    # Fast path for common cases
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str) and NUMERIC_PATTERN.match(value.strip()):
+        return int(value.strip())
+    
+    # Fallback for complex cases
     try:
         if isinstance(value, (int, float)):
             return int(value)
-        if isinstance(value, str) and value.strip().isdigit():
-            return int(value.strip())
+        return int(float(value)) if '.' in str(value) else int(value)
     except (ValueError, TypeError):
-        pass
-    return None
+        return None
 
 
 def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool:
     """
     Interpret raw state value as boolean.
 
-    Supports:
-    - Integer states (via STATE_MAP)
-      - 0, 5, 6: OFF (Automatik aus, Manuell aus)
-      - 1, 2, 3, 4: ON (Automatik an, Manuell an)
-      - WICHTIG: State 4 ist MANUAL_ON, nicht ERROR/UNDEFINED!
-    - String states (ON/OFF, TRUE/FALSE, etc.)
-    - Composite strings (e.g., "3|PUMP_ANTI_FREEZE")
-
     Args:
         raw_state: Raw state value from API.
         key: Entity key for logging.
 
     Returns:
-        Boolean interpretation of the state.
+        Boolean interpretation.
     """
-    if raw_state is None or raw_state == "":
-        return False
-
-    # Try integer interpretation first
+    # Priority 1: Check STATE_MAP first (most common)
     state_int = convert_to_int(raw_state)
-
-    # ✅ Robust handling for composite strings like "3|PUMP_ANTI_FREEZE"
-    if state_int is None and isinstance(raw_state, str):
-        numeric_prefix = re.match(r"\s*(-?\d+)", raw_state)
-        if numeric_prefix:
-            state_int = int(numeric_prefix.group(1))
     if state_int is not None:
-        # Check STATE_MAP first
         if state_int in STATE_MAP:
             return STATE_MAP[state_int]
         # Generic interpretation: 0 = False, non-zero = True
         return state_int != 0
 
-    # String interpretation
+    # Optimized string interpretation with pre-compiled patterns
     state_str = str(raw_state).upper().strip()
-
-    # Check STATE_MAP for string states
-    if state_str in STATE_MAP:
-        return STATE_MAP[state_str]
-
-    # Known boolean strings
-    true_values = {
-        "TRUE",
-        "ON",
-        "1",
-        "YES",
-        "ACTIVE",
-        "RUNNING",
-        "ENABLED",
-        "OPEN",
-        "HIGH",
-        "MANUAL",
-        "MAN",
-    }
-    false_values = {
-        "FALSE",
-        "OFF",
-        "0",
-        "NO",
-        "INACTIVE",
-        "STOPPED",
-        "DISABLED",
-        "CLOSED",
-        "LOW",
-    }
-
-    if state_str in true_values:
+    
+    # Pre-compiled patterns for performance
+    TRUE_PATTERN = re.compile(r'^(TRUE|ON|1|YES|ACTIVE|ENABLED)$')
+    FALSE_PATTERN = re.compile(r'^(FALSE|OFF|0|NO|INACTIVE|DISABLED)$')
+    NUMERIC_PATTERN = re.compile(r'^-?\d+$')
+    
+    # Fast boolean string checks using pre-compiled patterns
+    if TRUE_PATTERN.match(state_str):
         return True
-
-    if state_str in false_values:
+    if FALSE_PATTERN.match(state_str):
         return False
+    
+    # Fast numeric check
+    if NUMERIC_PATTERN.match(state_str):
+        return int(state_str) != 0
 
-    # Default: unknown states are False
-    _LOGGER.debug("Unknown state '%s' for %s -> False (default)", state_str, key)
-    return False
+    # Default: non-empty/valid numeric = True
+    return bool(raw_state) and raw_state != ""
 
 
-class VioletPoolControllerEntity(CoordinatorEntity[VioletPoolDataUpdateCoordinator]):
+# =============================================================================
+# BASE ENTITY CLASS
+# =============================================================================
+
+class VioletPoolControllerEntity(CoordinatorEntity):
     """Basis-Entity-Klasse für alle Violet Pool Controller Entities."""
 
     def __init__(
         self,
-        coordinator: VioletPoolDataUpdateCoordinator,
+        coordinator,
         config_entry: ConfigEntry,
-        entity_description: EntityDescription,
+        entity_description,
     ) -> None:
         """
-        Initialize the entity.
+        Initialize entity with intelligent caching.
 
         Args:
             coordinator: The update coordinator.
@@ -147,7 +128,7 @@ class VioletPoolControllerEntity(CoordinatorEntity[VioletPoolDataUpdateCoordinat
         # Entity Attribute
         self._attr_has_entity_name = True
         # If translation_key is set, name should be None to let HA handle it.
-        # But if it is not set, we use the name from description.
+        # But if it is not set, we use name from description.
         if entity_description.translation_key:
             self._attr_name = None
         else:
@@ -155,6 +136,11 @@ class VioletPoolControllerEntity(CoordinatorEntity[VioletPoolDataUpdateCoordinat
 
         self._attr_unique_id = f"{config_entry.entry_id}_{entity_description.key}"
         self._attr_device_info = coordinator.device.device_info
+
+        # Performance optimization: Entity-level caching
+        self._value_cache: dict[str, Any] = {}
+        self._cache_timestamp: float = 0
+        self._cache_ttl: float = 1.0  # 1 second cache
 
         _LOGGER.debug(
             "Entity initialisiert: %s (Key: %s, ID: %s)",
@@ -165,22 +151,25 @@ class VioletPoolControllerEntity(CoordinatorEntity[VioletPoolDataUpdateCoordinat
 
     @property
     def device(self) -> Any:
-        """Return the device instance."""
+        """Return device instance."""
         return self.coordinator.device
 
     @property
     def available(self) -> bool:
         """
-        Return whether the entity is available.
+        Return whether entity is available.
 
         Entity is available if:
-        - The last coordinator update was successful AND
-        - The device itself is available.
+            - The last coordinator update was successful AND
+            - The device itself is available.
 
         Returns:
             True if available, False otherwise.
         """
-        is_available = self.coordinator.last_update_success and self.device.available
+        is_available = (
+            self.coordinator.last_update_success
+            and self.device.available
+        )
 
         if not is_available:
             _LOGGER.debug(
@@ -194,153 +183,67 @@ class VioletPoolControllerEntity(CoordinatorEntity[VioletPoolDataUpdateCoordinat
 
     def get_value(self, key: str, default: Any = None) -> Any:
         """
-        Get a value from coordinator data.
+        Get value with intelligent caching.
 
         Args:
             key: The data key.
             default: Default value if key does not exist.
 
         Returns:
-            The value or the default.
+            The value or default.
         """
-        if not self.coordinator.data:
-            _LOGGER.debug("Keine Coordinator-Daten verfügbar für Key '%s'", key)
-            return default
+        current_time = asyncio.get_event_loop().time()
+        
+        # Check cache validity
+        if (current_time - self._cache_timestamp) > self._cache_ttl:
+            self._value_cache.clear()
+            self._cache_timestamp = current_time
+        
+        # Use cached value if available
+        if key not in self._value_cache:
+            if not self.coordinator.data:
+                self._value_cache[key] = default
+            else:
+                self._value_cache[key] = self.coordinator.data.get(key, default)
+        
+        return self._value_cache[key]
 
-        value = self.coordinator.data.get(key, default)
-
-        if value is None and default is not None:
-            _LOGGER.debug(
-                "Key '%s' nicht in Daten gefunden, verwende default: %s", key, default
-            )
-
-        return value
-
-    def get_str_value(self, key: str, default: str = "") -> str:
+    def get_float_value(self, key: str, default: Any = None) -> float | None:
         """
-        Get a string value from coordinator data.
-
-        Args:
-            key: The data key.
-            default: Default value if key does not exist.
-
-        Returns:
-            String value or default.
-        """
-        value = self.get_value(key, default)
-
-        if value is None:
-            return default
-
-        return str(value)
-
-    def get_int_value(self, key: str, default: int = 0) -> int:
-        """
-        Get an integer value from coordinator data.
+        Get float value from coordinator data.
 
         Args:
             key: The data key.
             default: Default value if key does not exist or conversion fails.
 
         Returns:
-            Integer value or default.
+            Float value or None.
         """
         value = self.get_value(key, default)
 
         if value is None:
-            return default
-
-        try:
-            # Unterstützt auch Float → Int Konvertierung
-            return int(float(value))
-        except (ValueError, TypeError) as err:
-            _LOGGER.debug(
-                "Konvertierung zu int fehlgeschlagen für Key '%s' (Wert: %s): %s",
-                key,
-                value,
-                err,
-            )
-            return default
-
-    def get_float_value(self, key: str, default: float | None = None) -> float | None:
-        """
-        Get a float value from coordinator data.
-
-        Args:
-            key: The data key.
-            default: Default value if key does not exist or conversion fails.
-
-        Returns:
-            Float value or default.
-        """
-        value = self.get_value(key, default)
-
-        if value is None:
-            return default
+            return None
 
         try:
             return float(value)
-        except (ValueError, TypeError) as err:
+        except (ValueError, TypeError):
             _LOGGER.debug(
-                "Konvertierung zu float fehlgeschlagen für Key '%s' (Wert: %s): %s",
-                key,
-                value,
-                err,
+                "Konvertierung zu Float für Key '%s' fehlgeschlagen: %s", key, value
             )
-            return default
+            return default if default is not None else 0.0
 
-    def get_bool_value(self, key: str, default: bool = False) -> bool:
+    def get_bool_value(self, key: str, default: Any = None) -> bool:
         """
-        Get a boolean value from coordinator data.
-
-        Supports various formats:
-        - Boolean: True/False
-        - String: "TRUE", "ON", "1", "YES" (case-insensitive)
-        - Integer: 0 = False, anything else = True
+        Get boolean value from coordinator data.
 
         Args:
             key: The data key.
-            default: Default value if key does not exist or conversion fails.
+            default: Default value if key does not exist.
 
         Returns:
-            Boolean value or default.
+            Boolean interpretation.
         """
         value = self.get_value(key, default)
 
-        if value is None:
-            return default
-
-        # Direkter Boolean
-        if isinstance(value, bool):
-            return value
-
-        # String-Werte
-        if isinstance(value, str):
-            return value.upper() in ("TRUE", "ON", "1", "YES", "ENABLED")
-
-        # Numerische Werte
-        try:
-            return bool(int(float(value)))
-        except (ValueError, TypeError) as err:
-            _LOGGER.debug(
-                "Konvertierung zu bool fehlgeschlagen für Key '%s' (Wert: %s): %s",
-                key,
-                value,
-                err,
-            )
-            return default
-
-    def has_value(self, key: str) -> bool:
-        """
-        Check if a key exists in coordinator data.
-
-        Args:
-            key: The data key.
-
-        Returns:
-            True if the key exists, False otherwise.
-        """
-        if not self.coordinator.data:
-            return False
-
-        return key in self.coordinator.data
+        # Use interpretation function
+        return interpret_state_as_bool(value, key)

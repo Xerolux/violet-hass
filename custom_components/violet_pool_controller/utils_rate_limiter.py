@@ -44,7 +44,7 @@ class RateLimiter:
         # Token Bucket
         self.tokens = float(max_requests + burst_size)
         self.max_tokens = max_requests + burst_size
-        self.last_refill = time.time()
+        self.last_refill = asyncio.get_event_loop().time()
 
         # Optimized request history with size and time limits
         self.request_history: deque = deque(maxlen=500)  # Reduced from 1000
