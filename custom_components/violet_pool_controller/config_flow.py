@@ -9,6 +9,7 @@ import re
 from typing import Any, Mapping
 
 import aiohttp
+import ssl
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigFlowResult
@@ -188,8 +189,9 @@ async def fetch_api_data(
     for attempt in range(retries):
         try:
             timeout_obj = aiohttp.ClientTimeout(total=timeout)
+            ssl_context = _create_ssl_context(use_ssl, verify_cert=True)
             async with session.get(
-                api_url, auth=auth, ssl=use_ssl, timeout=timeout_obj
+                api_url, auth=auth, ssl=ssl_context, timeout=timeout_obj
             ) as response:
                 response.raise_for_status()
                 return await response.json()

@@ -5,8 +5,9 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 from typing import Any, Mapping
-from urllib.parse import quote
+from urllib.parse import quote, urlparse, urlunparse
 
 import aiohttp
 
@@ -85,12 +86,7 @@ class VioletPoolAPI:
         if session is None:
             raise ValueError("A valid aiohttp session must be provided")
 
-        protocol = "https" if use_ssl else "http"
-        if host.startswith("http://") or host.startswith("https://"):
-            base = host
-        else:
-            base = f"{protocol}://{host}"
-        self._base_url = base.rstrip("/")
+        self._base_url = self._build_secure_base_url(host, use_ssl).rstrip("/")
 
         self._session = session
         self._timeout = aiohttp.ClientTimeout(total=max(float(timeout), 1.0))
@@ -106,6 +102,30 @@ class VioletPoolAPI:
     # ---------------------------------------------------------------------
     # Generic helpers
     # ---------------------------------------------------------------------
+
+    def _build_secure_base_url(self, host: str, use_ssl: bool) -> str:
+        """Securely construct base URL with comprehensive validation."""
+        # Strip existing protocols to prevent override
+        host = host.strip()
+        if host.startswith(("http://", "https://")):
+            parsed = urlparse(host)
+            host = parsed.netloc
+        
+        # Validate hostname format
+        if not re.match(r'^[a-zA-Z0-9.-]+$', host):
+            raise ValueError(f"Invalid hostname format: {host}")
+        
+        # SSRF Protection - Block private networks in production
+        if any(host.startswith(prefix) for prefix in ['127.', '192.168.', '10.', '172.', '169.254.']):
+            _LOGGER.warning("Connection to private network blocked: %s", host)
+            raise ValueError("Connection to private networks not allowed")
+        
+        # Additional validation
+        if len(host) > 253 or '..' in host or '//' in host:
+            raise ValueError(f"Invalid hostname: {host}")
+        
+        protocol = "https" if use_ssl else "http"
+        return urlunparse((protocol, host, "", "", "", ""))
 
     def _build_url(self, endpoint: str) -> str:
         """Constructs the full URL for a given endpoint.
@@ -428,25 +448,50 @@ class VioletPoolAPI:
             raise VioletPoolAPIError("Unexpected payload returned from getConfig")
         return response
 
-    async def set_config(self, config: Mapping[str, Any]) -> dict[str, Any]:
+async def set_config(self, config: Mapping[str, Any]) -> dict[str, Any]:
         """Updates controller configuration values.
 
         Args:
             config: A mapping of configuration keys and values to update.
 
         Returns:
-            A dictionary with the command result.
+            A dictionary with command result.
 
         Raises:
-            VioletPoolAPIError: If the configuration payload is empty.
+            VioletPoolAPIError: If configuration payload is empty.
         """
-        if not config:
+if not config:
             raise VioletPoolAPIError("Configuration payload must not be empty")
-
+        
+        # Sanitize all configuration parameters
+        sanitized_config = {}
+        from .utils_sanitizer import InputSanitizer
+        
+        for key, value in config.items():
+            try:
+                sanitized_key = InputSanitizer.validate_api_parameter(str(key))
+                
+                if isinstance(value, str):
+                    sanitized_value = InputSanitizer.sanitize_string(
+                        value, 
+                        max_length=1000, 
+                        escape_html=True
+                    )
+                elif isinstance(value, (int, float)):
+                    sanitized_value = InputSanitizer.sanitize_numeric(value)
+                else:
+                    sanitized_value = InputSanitizer.sanitize_string(str(value))
+                
+                sanitized_config[sanitized_key] = sanitized_value
+                
+            except ValueError as err:
+                _LOGGER.error("Invalid config parameter %s: %s", key, err)
+                raise VioletPoolAPIError(f"Invalid configuration parameter: {key}") from err
+        
         body = await self._request(
             API_SET_CONFIG,
             method="POST",
-            json_payload=dict(config),
+            json_payload=sanitized_config,
         )
         return self._command_result(body)
 
