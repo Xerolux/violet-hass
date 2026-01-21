@@ -8,8 +8,6 @@ import re
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import callback
-from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -79,18 +77,27 @@ def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool:
 
     # Optimized string interpretation with pre-compiled patterns
     state_str = str(raw_state).upper().strip()
-    
+
+    # Handle composite states like "5|AUTO_WAIT"
+    if "|" in state_str:
+        prefix = state_str.split("|")[0]
+        state_int = convert_to_int(prefix)
+        if state_int is not None:
+             if state_int in STATE_MAP:
+                return STATE_MAP[state_int]
+             return state_int != 0
+
     # Pre-compiled patterns for performance
     TRUE_PATTERN = re.compile(r'^(TRUE|ON|1|YES|ACTIVE|ENABLED)$')
     FALSE_PATTERN = re.compile(r'^(FALSE|OFF|0|NO|INACTIVE|DISABLED)$')
     NUMERIC_PATTERN = re.compile(r'^-?\d+$')
-    
+
     # Fast boolean string checks using pre-compiled patterns
     if TRUE_PATTERN.match(state_str):
         return True
     if FALSE_PATTERN.match(state_str):
         return False
-    
+
     # Fast numeric check
     if NUMERIC_PATTERN.match(state_str):
         return int(state_str) != 0
@@ -247,3 +254,34 @@ class VioletPoolControllerEntity(CoordinatorEntity):
 
         # Use interpretation function
         return interpret_state_as_bool(value, key)
+
+    def get_str_value(self, key: str, default: str | None = None) -> str | None:
+        """
+        Get string value from coordinator data.
+
+        Args:
+            key: The data key.
+            default: Default value if key does not exist.
+
+        Returns:
+            String value or None.
+        """
+        value = self.get_value(key, default)
+
+        if value is None:
+            return None
+        return str(value)
+
+    def get_int_value(self, key: str, default: int | None = None) -> int | None:
+        """
+        Get integer value from coordinator data.
+
+        Args:
+            key: The data key.
+            default: Default value if key does not exist or conversion fails.
+
+        Returns:
+            Integer value or None.
+        """
+        value = self.get_value(key, default)
+        return convert_to_int(value) if value is not None else default

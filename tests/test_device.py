@@ -150,7 +150,11 @@ class TestVioletPoolControllerDevice:
         with patch("asyncio.sleep", new_callable=AsyncMock) as mock_sleep:
             await device._attempt_recovery()
             # Sollte bei 300s (RECOVERY_MAX_DELAY) gekappt sein
-            assert mock_sleep.call_args[0][0] == 300.0
+            if mock_sleep.call_args:
+                args, _ = mock_sleep.call_args
+                assert args[0] == 300.0
+            else:
+                 pytest.fail("asyncio.sleep was not called")
 
     async def test_controller_name_in_device_info(self, device):
         """Test dass Controller-Name in device_info verwendet wird."""

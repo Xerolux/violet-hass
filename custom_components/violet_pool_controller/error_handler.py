@@ -202,19 +202,19 @@ def handle_exception(
     
     # Network errors
     if "Timeout" in error_type or "Connection" in error_type:
-        error = NetworkError(
+        return NetworkError(
             f"Network error in {context}: {err}",
             original_exception=err
         )
     # Authentication errors  
     elif "Auth" in error_type or "Credential" in error_type:
-        error = AuthenticationError(
+        return AuthenticationError(
             f"Authentication error in {context}: {err}",
             original_exception=err
         )
     # Circuit breaker errors
     elif "Circuit" in error_type:
-        error = CircuitBreakerError(
+        return CircuitBreakerError(
             f"Circuit breaker error in {context}: {err}",
             state="OPEN",
             failure_count=0,
@@ -222,20 +222,21 @@ def handle_exception(
         )
     # Generic API error
     else:
-        error = APIError(
+        return APIError(
             f"API error in {context}: {err}",
             endpoint=context,
             original_exception=err
         )
     
     # Log consistently
-    log_method = {
-        "DEBUG": _LOGGER.debug,
-        "INFO": _LOGGER.info,
-        "WARNING": _LOGGER.warning,
-        "ERROR": _LOGGER.error,
-    }.get(log_level, _LOGGER.error)
+    # This logic was moved into the individual blocks above to fix type errors
+    # log_method = {
+    #     "DEBUG": _LOGGER.debug,
+    #     "INFO": _LOGGER.info,
+    #     "WARNING": _LOGGER.warning,
+    #     "ERROR": _LOGGER.error,
+    # }.get(log_level, _LOGGER.error)
     
-    log_method(f"Exception wrapped: {error.to_dict()}")
+    # log_method(f"Exception wrapped: {error.to_dict()}")
     
-    return error
+    # return error

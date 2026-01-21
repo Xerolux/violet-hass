@@ -457,11 +457,11 @@ class VioletPoolControllerDevice:
             if self._in_recovery_mode:
                 _LOGGER.debug("Recovery bereits im Gange, überspringe")
                 return False
-            
-            if self._recovery_attempts >= RECOVERY_MAX_ATTEMPTS:
+
+            if self._recovery_attempts > RECOVERY_MAX_ATTEMPTS:
                 _LOGGER.warning("Maximum recovery attempts reached")
                 return False
-                
+
             # Set recovery state atomically
             self._in_recovery_mode = True
             self._recovery_attempts += 1

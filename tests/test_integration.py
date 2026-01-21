@@ -165,6 +165,9 @@ async def test_async_setup_entry_device_error(hass: HomeAssistant, config_entry:
 
 
 async def test_async_unload_entry_success(hass: HomeAssistant, config_entry: MockConfigEntry, coordinator: MagicMock) -> None:
+    # Setup coordinator mock with api mock
+    coordinator.device.api._session.close = AsyncMock()
+
     hass.data.setdefault(DOMAIN, {})[config_entry.entry_id] = coordinator
 
     # Mock async_unload_platforms on the instance
