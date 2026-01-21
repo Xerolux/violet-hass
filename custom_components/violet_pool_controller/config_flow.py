@@ -9,7 +9,6 @@ import re
 from typing import Any, Mapping
 
 import aiohttp
-import ssl
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigFlowResult
@@ -160,6 +159,35 @@ def get_sensor_label(key: str) -> str:
         return f"{all_sensors[key]['name']} ({key})"
     return key
 
+def _create_ssl_context(use_ssl: bool, verify_cert: bool = True):
+    """Create secure SSL context with proper certificate validation."""
+    import ssl
+    if not use_ssl:
+        # Only allow SSL to be disabled in development environments
+        _LOGGER.warning("SSL disabled - connection will not be encrypted")
+        return False
+
+    # Create strict SSL context
+    ssl_context = ssl.create_default_context()
+    ssl_context.check_hostname = True
+    ssl_context.verify_mode = ssl.CERT_REQUIRED
+
+    if not verify_cert:
+        # Only for development - certificate verification disabled
+        _LOGGER.warning("Certificate verification disabled - development only")
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+
+    return ssl_context
+
+def _validate_credentials_strength(username: str | None, password: str | None) -> None:
+    """Check credentials against basic security policies."""
+    # This is a basic check. In production this would check for password complexity.
+    if not password and username:
+        # It's okay to have no auth, but if username is present, password should be checked if needed.
+        # For now, just a placeholder.
+        pass
+
 
 async def fetch_api_data(
     session: aiohttp.ClientSession,
@@ -235,7 +263,7 @@ async def get_grouped_sensors(
         api_url = f"{protocol}://{config_data[CONF_API_URL]}{API_READINGS}?ALL"
         session = aiohttp_client.async_get_clientsession(hass)
         auth = (
-            aiohttp.BasicAuth(username, password)
+            aiohttp.BasicAuth(username, password or "")
             if username
             else None
         )
@@ -466,7 +494,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             )
 
             # Hole Sensor-Daten für nächsten Schritt
-            self._sensor_data = await self._get_grouped_sensors()
+            sensor_data = await self._get_grouped_sensors()
+            self._sensor_data = sensor_data
             if not self._sensor_data:
                 _LOGGER.warning(
                     "Keine dynamischen Sensoren gefunden. Überspringe Auswahl."

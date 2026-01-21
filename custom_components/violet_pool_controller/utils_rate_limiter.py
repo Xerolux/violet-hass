@@ -70,7 +70,7 @@ class RateLimiter:
             burst_size,
         )
 
-async def acquire(self, priority: int = 3) -> bool:
+    async def acquire(self, priority: int = 3) -> bool:
         """
         Acquire a token from the rate limiter.
 
@@ -83,30 +83,30 @@ async def acquire(self, priority: int = 3) -> bool:
         async with self._lock:
             current_time = time.time()
             self.total_requests += 1
-            
+
             # Periodic cleanup to prevent memory growth
             if current_time - self.last_cleanup_time > self.history_cleanup_interval:
                 await self._cleanup_history(current_time)
                 self.last_cleanup_time = current_time
-            
+
             # Update recent statistics
             self._update_recent_stats(current_time)
-            
+
             # Refill tokens
             await self._refill_tokens(current_time)
-            
+
             if self.tokens >= 1:
                 self.tokens -= 1
-                
+
                 # Store minimal data for efficiency
                 self.request_history.append({
                     "time": current_time,
                     "priority": priority,
                     "blocked": False
                 })
-                
+
                 return True
-            
+
             # Track failures efficiently
             self.blocked_requests += 1
             self._recent_stats['blocked_last_minute'] += 1
@@ -116,14 +116,14 @@ async def acquire(self, priority: int = 3) -> bool:
         """Clean up old history entries to prevent memory leaks."""
         # Remove entries older than 1 hour
         cutoff_time = current_time - 3600
-        
+
         # Filter while maintaining order
         filtered_history = deque(
-            (entry for entry in self.request_history 
+            (entry for entry in self.request_history
              if entry["time"] > cutoff_time),
             maxlen=500
         )
-        
+
         self.request_history = filtered_history
         _LOGGER.debug("Rate limiter history cleanup completed")
 

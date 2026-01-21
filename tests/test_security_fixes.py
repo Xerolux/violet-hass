@@ -32,21 +32,22 @@ class TestSecurityFixes:
     def test_url_security_srf_protection(self):
         """Test SSRF protection in URL construction."""
         api = VioletPoolAPI.__new__(VioletPoolAPI)
-        
+
         # Test valid host
         valid_url = api._build_secure_base_url("192.168.1.100", True)
         assert valid_url.startswith("https://192.168.1.100")
-        
+
         # Test SSRF attempts - should raise ValueError
-        with pytest.raises(ValueError, match="internal network"):
-            api._build_secure_base_url("127.0.0.1", True)
-        
-        with pytest.raises(ValueError, match="internal network"):
-            api._build_secure_base_url("169.254.169.254", True)
-        
+        # NOTE: Local network blocking has been disabled as this is a local integration
+        # with pytest.raises(ValueError, match="internal network"):
+        #     api._build_secure_base_url("127.0.0.1", True)
+
+        # with pytest.raises(ValueError, match="internal network"):
+        #     api._build_secure_base_url("169.254.169.254", True)
+
         with pytest.raises(ValueError, match="Invalid hostname"):
             api._build_secure_base_url("../../../etc/passwd", True)
-        
+
         with pytest.raises(ValueError, match="Invalid hostname"):
             api._build_secure_base_url("', DROP TABLE users; --", True)
 
@@ -154,7 +155,7 @@ class TestSecurityFixes:
     def test_hostname_validation_patterns(self):
         """Test various hostname validation patterns."""
         api = VioletPoolAPI.__new__(VioletPoolAPI)
-        
+
         # Valid hostnames
         valid_hosts = [
             "192.168.1.100",
@@ -162,7 +163,7 @@ class TestSecurityFixes:
             "violet.example.com",
             "192.0.2.1"
         ]
-        
+
         for host in valid_hosts:
             try:
                 result = api._build_secure_base_url(host, True)
@@ -170,21 +171,21 @@ class TestSecurityFixes:
                 assert result.startswith("https://")
             except ValueError:
                 pytest.fail(f"Valid host {host} was rejected")
-        
+
         # Invalid hostnames
         invalid_hosts = [
-            "127.0.0.1",
-            "169.254.169.254",
-            "10.0.0.1",
-            "172.16.0.1",
-            "localhost",
+            # "127.0.0.1",  # Local IPs are now allowed
+            # "169.254.169.254", # Local IPs are now allowed
+            # "10.0.0.1", # Local IPs are now allowed
+            # "172.16.0.1", # Local IPs are now allowed
+            # "localhost", # Localhost is now allowed
             "evil.com@internal",
             "user:pass@192.168.1.1",
             "../etc/passwd",
             "' OR 1=1 --",
             "''; DROP TABLE users; --"
         ]
-        
+
         for host in invalid_hosts:
             with pytest.raises(ValueError):
                 api._build_secure_base_url(host, True)

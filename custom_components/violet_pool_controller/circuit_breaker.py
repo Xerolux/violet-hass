@@ -1,9 +1,8 @@
 """Circuit breaker implementation for resilient API calls."""
 
-import asyncio
 import logging
 import time
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -78,7 +77,7 @@ class CircuitBreaker:
             _LOGGER.info("Circuit breaker entering HALF_OPEN state for recovery test")
         
         # Check if half-open timeout exceeded
-        if (self.state == CircuitBreakerState.HAL_OPEN and 
+        if (self.state == CircuitBreakerState.HALF_OPEN and
             current_time - self.half_open_start_time > self.recovery_timeout):
             self.state = CircuitBreakerState.CLOSED
             self.failure_count = 0

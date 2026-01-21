@@ -115,11 +115,6 @@ class VioletPoolAPI:
         if not re.match(r'^[a-zA-Z0-9.-]+$', host):
             raise ValueError(f"Invalid hostname format: {host}")
         
-        # SSRF Protection - Block private networks in production
-        if any(host.startswith(prefix) for prefix in ['127.', '192.168.', '10.', '172.', '169.254.']):
-            _LOGGER.warning("Connection to private network blocked: %s", host)
-            raise ValueError("Connection to private networks not allowed")
-        
         # Additional validation
         if len(host) > 253 or '..' in host or '//' in host:
             raise ValueError(f"Invalid hostname: {host}")
@@ -231,15 +226,19 @@ class VioletPoolAPI:
         raise VioletPoolAPIError("Request completed but returned no data")
 
     @staticmethod
-    def _command_result(body: str) -> dict[str, Any]:
+    def _command_result(body: str | dict[str, Any]) -> dict[str, Any]:
         """Normalizes the controller's response for command-style requests.
 
         Args:
-            body: The raw response body.
+            body: The raw response body or dict.
 
         Returns:
             A dictionary indicating success and the response text.
         """
+        if isinstance(body, dict):
+            # Already parsed JSON or dict response
+            return body
+
         text = (body or "").strip()
         success = not text or "error" not in text.lower()
         return {"success": success, "response": text}
@@ -448,7 +447,7 @@ class VioletPoolAPI:
             raise VioletPoolAPIError("Unexpected payload returned from getConfig")
         return response
 
-async def set_config(self, config: Mapping[str, Any]) -> dict[str, Any]:
+    async def set_config(self, config: Mapping[str, Any]) -> dict[str, Any]:
         """Updates controller configuration values.
 
         Args:
@@ -460,34 +459,34 @@ async def set_config(self, config: Mapping[str, Any]) -> dict[str, Any]:
         Raises:
             VioletPoolAPIError: If configuration payload is empty.
         """
-if not config:
+        if not config:
             raise VioletPoolAPIError("Configuration payload must not be empty")
-        
+
         # Sanitize all configuration parameters
         sanitized_config = {}
         from .utils_sanitizer import InputSanitizer
-        
+
         for key, value in config.items():
             try:
                 sanitized_key = InputSanitizer.validate_api_parameter(str(key))
-                
+
                 if isinstance(value, str):
                     sanitized_value = InputSanitizer.sanitize_string(
-                        value, 
-                        max_length=1000, 
+                        value,
+                        max_length=1000,
                         escape_html=True
                     )
                 elif isinstance(value, (int, float)):
                     sanitized_value = InputSanitizer.sanitize_numeric(value)
                 else:
                     sanitized_value = InputSanitizer.sanitize_string(str(value))
-                
+
                 sanitized_config[sanitized_key] = sanitized_value
-                
+
             except ValueError as err:
                 _LOGGER.error("Invalid config parameter %s: %s", key, err)
                 raise VioletPoolAPIError(f"Invalid configuration parameter: {key}") from err
-        
+
         body = await self._request(
             API_SET_CONFIG,
             method="POST",

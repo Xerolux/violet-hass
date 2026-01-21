@@ -30,10 +30,10 @@ class TestSecurityFixes:
         """Test basic input sanitization."""
         test_cases = [
             ("normal_text", "normal_text"),
-            ("text with spaces", "text_with_spaces"),
+            ("text with spaces", "text with spaces"),
             ("123", "123"),
         ]
-        
+
         for input_val, expected in test_cases:
             # Basic sanitization: remove dangerous characters
             sanitized = input_val.strip()

@@ -36,7 +36,7 @@ class TestConfigFlow:
         entry1.add_to_hass(hass)
 
         # Test: Zweiter Controller mit gleicher IP aber Device-ID 2
-        from custom_components.violet_pool_controller.config_flow import VioletDeviceConfigFlow
+        from custom_components.violet_pool_controller.config_flow import ConfigFlow as VioletDeviceConfigFlow
 
         flow = VioletDeviceConfigFlow()
         flow.hass = hass
@@ -65,7 +65,7 @@ class TestConfigFlow:
         )
         entry1.add_to_hass(hass)
 
-        from custom_components.violet_pool_controller.config_flow import VioletDeviceConfigFlow
+        from custom_components.violet_pool_controller.config_flow import ConfigFlow as VioletDeviceConfigFlow
 
         flow = VioletDeviceConfigFlow()
         flow.hass = hass
@@ -80,7 +80,7 @@ class TestConfigFlow:
         """Test dass Duplicate-Check mit leeren Entries funktioniert."""
         # Keine Entries hinzufügen
 
-        from custom_components.violet_pool_controller.config_flow import VioletDeviceConfigFlow
+        from custom_components.violet_pool_controller.config_flow import ConfigFlow as VioletDeviceConfigFlow
 
         flow = VioletDeviceConfigFlow()
         flow.hass = hass
@@ -93,7 +93,7 @@ class TestConfigFlow:
 
     async def test_controller_name_in_entry_title(self, hass):
         """Test dass Controller-Name im Entry-Title verwendet wird."""
-        from custom_components.violet_pool_controller.config_flow import VioletDeviceConfigFlow
+        from custom_components.violet_pool_controller.config_flow import ConfigFlow as VioletDeviceConfigFlow
 
         flow = VioletDeviceConfigFlow()
         flow.hass = hass
@@ -108,7 +108,7 @@ class TestConfigFlow:
 
     async def test_controller_name_fallback(self, hass):
         """Test dass Fallback auf Default-Name funktioniert."""
-        from custom_components.violet_pool_controller.config_flow import VioletDeviceConfigFlow
+        from custom_components.violet_pool_controller.config_flow import ConfigFlow as VioletDeviceConfigFlow
         from custom_components.violet_pool_controller.const import DEFAULT_CONTROLLER_NAME
 
         flow = VioletDeviceConfigFlow()
