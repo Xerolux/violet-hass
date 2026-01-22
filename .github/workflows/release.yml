@@ -48,7 +48,7 @@ jobs:
       release_type: ${{ steps.version.outputs.release_type }}
       release-notes: ${{ steps.generate.outputs.release-notes }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -397,7 +397,7 @@ jobs:
     runs-on: ubuntu-latest
     if: needs.prepare-release.outputs.is_draft != 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
