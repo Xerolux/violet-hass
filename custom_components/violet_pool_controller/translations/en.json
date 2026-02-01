@@ -469,6 +469,15 @@
             },
             "last_event_age": {
                 "name": "Last Event Age"
+            },
+            "api_request_rate": {
+                "name": "API Request Rate"
+            },
+            "average_latency": {
+                "name": "Average Latency"
+            },
+            "recovery_success_rate": {
+                "name": "Recovery Success Rate"
             }
         },
         "binary_sensor": {

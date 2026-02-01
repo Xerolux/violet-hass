@@ -22,7 +22,7 @@ from .const_sensors import *
 # =============================================================================
 
 DOMAIN = "violet_pool_controller"
-INTEGRATION_VERSION = "1.0.7-alpha.2"
+INTEGRATION_VERSION = "1.0.7-alpha.4"
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 
 # =============================================================================
@@ -36,6 +36,7 @@ CONF_POLLING_INTERVAL = "polling_interval"
 CONF_TIMEOUT_DURATION = "timeout_duration"
 CONF_RETRY_ATTEMPTS = "retry_attempts"
 CONF_USE_SSL = "use_ssl"
+CONF_VERIFY_SSL = "verify_ssl"
 CONF_DEVICE_ID = "device_id"
 CONF_DEVICE_NAME = "device_name"
 CONF_CONTROLLER_NAME = "controller_name"
@@ -50,6 +51,7 @@ DEFAULT_POLLING_INTERVAL = 10
 DEFAULT_TIMEOUT_DURATION = 10
 DEFAULT_RETRY_ATTEMPTS = 3
 DEFAULT_USE_SSL = False
+DEFAULT_VERIFY_SSL = True
 DEFAULT_DEVICE_NAME = "Violet Pool Controller"
 DEFAULT_CONTROLLER_NAME = "Violet Pool Controller"
 DEFAULT_POOL_SIZE = 50

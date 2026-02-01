@@ -39,6 +39,24 @@ RECOVERY_MAX_ATTEMPTS = 10  # Maximale Recovery-Versuche
 RECOVERY_BASE_DELAY = 10.0  # Basis-Delay für Exponential Backoff (10s)
 RECOVERY_MAX_DELAY = 300.0  # Maximaler Delay zwischen Versuchen (5 Min)
 
+# =============================================================================
+# THREAD SAFETY & LOCK ORDERING
+# =============================================================================
+# To prevent deadlocks, ALWAYS acquire locks in this order:
+# 1. _api_lock - protects API calls and data updates
+# 2. _recovery_lock - protects recovery state and attempts
+#
+# NEVER:
+# - Acquire _recovery_lock while holding _api_lock
+# - Acquire _api_lock while holding _recovery_lock
+# - Nest locks without releasing the first one
+#
+# SAFE PATTERNS:
+# - async with self._api_lock: ... (standalone)
+# - async with self._recovery_lock: ... (standalone)
+# - If both needed: acquire one, release, then acquire the other
+# =============================================================================
+
 
 class VioletPoolControllerDevice:
     """Violet Pool Controller Device - SMART LOGGING + AUTO RECOVERY."""
@@ -80,6 +98,13 @@ class VioletPoolControllerDevice:
         self._last_update_time = 0.0  # Timestamp of last successful update
         self._connection_latency = 0.0  # Last connection latency in milliseconds
         self._system_health = 100.0  # System health percentage (0-100)
+
+        # ✅ DIAGNOSTIC SENSORS: Advanced metrics
+        self._api_request_count = 0  # Total API requests
+        self._api_request_start_time = time.time()  # For rate calculation
+        self._latency_history = []  # Rolling window for average latency (max 60 samples)
+        self._recovery_success_count = 0  # Successful recoveries
+        self._recovery_failure_count = 0  # Failed recoveries
 
         # Konfiguration extrahieren (mit Options-Support)
         entry_data = config_entry.data
@@ -134,9 +159,15 @@ class VioletPoolControllerDevice:
             async with self._api_lock:
                 # ✅ DIAGNOSTIC: Measure connection latency
                 start_time = time.time()
+                self._api_request_count += 1  # Track API requests
                 data = await self._fetch_controller_data()
                 # Convert to milliseconds
                 self._connection_latency = (time.time() - start_time) * 1000
+
+                # ✅ DIAGNOSTIC: Update latency history (rolling window of 60 samples)
+                self._latency_history.append(self._connection_latency)
+                if len(self._latency_history) > 60:
+                    self._latency_history.pop(0)
 
                 # Validiere Daten
                 if not data or not isinstance(data, dict):
@@ -440,6 +471,41 @@ class VioletPoolControllerDevice:
             return 0.0
         return time.time() - self._last_update_time
 
+    @property
+    def api_request_rate(self) -> float:
+        """
+        Return API requests per minute.
+
+        ✅ DIAGNOSTIC SENSOR: API request rate.
+        """
+        elapsed = time.time() - self._api_request_start_time
+        if elapsed < 1:
+            return 0.0
+        return (self._api_request_count / elapsed) * 60
+
+    @property
+    def average_latency(self) -> float:
+        """
+        Return average connection latency in milliseconds.
+
+        ✅ DIAGNOSTIC SENSOR: Rolling average latency.
+        """
+        if not self._latency_history:
+            return 0.0
+        return sum(self._latency_history) / len(self._latency_history)
+
+    @property
+    def recovery_success_rate(self) -> float:
+        """
+        Return recovery success rate as percentage (0-100).
+
+        ✅ DIAGNOSTIC SENSOR: Recovery effectiveness.
+        """
+        total = self._recovery_success_count + self._recovery_failure_count
+        if total == 0:
+            return 100.0  # No recovery attempts = 100% success
+        return (self._recovery_success_count / total) * 100
+
     async def _attempt_recovery(self) -> bool:
         """
         Attempt automatic connection recovery.
@@ -494,7 +560,8 @@ class VioletPoolControllerDevice:
                     self._recovery_attempts = 0
                     self._available = True
                     self._recovery_logged = True
-                
+                    self._recovery_success_count += 1  # ✅ DIAGNOSTIC: Track success
+
                 _LOGGER.info("Recovery successful for '%s'", self.device_name)
                 return True
             

@@ -6,61 +6,53 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a Home Assistant custom integration for the **Violet Pool Controller** by PoolDigital GmbH & Co. KG. It enables local polling-based control and monitoring of pool systems including pumps, heaters, solar, chemical dosing, lighting, and covers.
 
-**Current Version**: `1.0.7-alpha.2` (defined in `manifest.json` and `const.py`)
+**Current Version**: `1.0.7-alpha.3` (defined in `manifest.json` and `const.py`)
 
 ## Development Commands
 
-### Test Environment Setup (One-Time)
+### Code Quality & Linting
 
 ```bash
-# Automated setup using script
-./scripts/setup-test-env.sh
+# Install dev tools (one-time)
+pip install ruff mypy
 
-# This creates a virtual environment and installs:
-# - Home Assistant 2025.1.4
-# - pytest and test dependencies
-# - Development tools (ruff, mypy)
+# Run ruff linter
+python -m ruff check custom_components/violet_pool_controller/
+
+# Auto-fix all ruff issues (preferred method)
+python -m ruff check custom_components/violet_pool_controller/ --fix
+
+# Run with specific rule sets
+python -m ruff check custom_components/violet_pool_controller/ --select=E,F,W,C4,UP,SIM
+
+# Type checking with mypy
+python -m mypy custom_components/violet_pool_controller/
 ```
 
 ### Running Tests
 
 ```bash
-# Option 1: Using the test runner script (recommended)
-./scripts/run-tests.sh
-
-# Option 2: Manual execution
-source activate-test-env.sh
+# Run all tests
 pytest tests/ -v
 
-# Run specific test suites
-pytest tests/test_api.py -v              # API tests
-pytest tests/test_config_flow.py -v      # Config flow tests
-pytest tests/test_device.py -v           # Device tests
-pytest tests/test_integration.py -v      # Integration tests
+# Run specific test file
+pytest tests/test_api.py -v
+pytest tests/test_config_flow.py -v
+pytest tests/test_device.py -v
+pytest tests/test_sanitizer.py -v
 
 # Run with coverage
 pytest --cov=custom_components/violet_pool_controller --cov-report=html
+
+# Run single test function
+pytest tests/test_api.py::test_function_name -v
 ```
 
-### Code Quality
+**Test Configuration** (`pytest.ini`):
+- `asyncio_mode = auto` - Automatic async/await handling
+- `asyncio_default_fixture_loop_scope = function` - Isolated event loops per test
 
-```bash
-# Lint code (uses ruff)
-ruff check custom_components/
-
-# Auto-fix linting issues
-ruff check --fix custom_components/
-
-# Type checking
-mypy custom_components/violet_pool_controller/
-```
-
-### Testing with VS Code Dev Container
-
-The project supports VS Code Remote Containers for development:
-1. Open in VS Code with Remote - Containers extension
-2. Reopen in Container when prompted
-3. Access Home Assistant at `http://localhost:8123`
+**Important**: The test suite includes a thread-safety workaround in `conftest.py` that patches `threading.enumerate()` to filter out Home Assistant's `_run_safe_shutdown_loop` threads for compatibility with newer HA versions.
 
 ## Architecture
 
@@ -74,14 +66,19 @@ The project supports VS Code Remote Containers for development:
   - Token bucket rate limiting
   - Priority queue for API requests
   - Retry logic with exponential backoff
+  - SSL/TLS certificate verification (configurable via `verify_ssl` parameter)
   - All API endpoints (`/getReadings`, `/setFunctionManually`, `/setConfig`, etc.)
-  - Timeout handling and error recovery
+  - Timeout handling with granular connection timeouts (80% of total timeout for connection/socket)
 
 - **`device.py`** - Contains two main classes:
   - `VioletPoolControllerDevice`: Device representation with auto-recovery
   - `VioletPoolDataUpdateCoordinator`: Home Assistant's data update coordinator pattern
-  - Smart failure logging with throttling
-  - Automatic connection recovery
+  - Smart failure logging with throttling (5-minute intervals)
+  - Automatic connection recovery with exponential backoff
+  - **Thread Safety**: Uses two locks with documented ordering:
+    - `_api_lock`: Protects API calls and data updates
+    - `_recovery_lock`: Protects recovery state and attempts
+    - **Never acquire locks in nested order** - see device.py:42-58 for full documentation
 
 - **`entity.py`** - Base entity class `VioletPoolControllerEntity` extending `CoordinatorEntity`. Provides helper methods:
   - `get_value()` - Safe data access with fallback
@@ -118,7 +115,7 @@ The project supports VS Code Remote Containers for development:
 
 - **`const.py`** - Central hub re-exporting all constants plus integration-level config:
   - `DOMAIN`, `INTEGRATION_VERSION`, `MANUFACTURER`
-  - Configuration keys (`CONF_API_URL`, `CONF_USERNAME`, etc.)
+  - Configuration keys including `CONF_VERIFY_SSL` for SSL certificate verification
   - Default values for all settings
   - Pool configuration (types, disinfection methods)
 
@@ -223,16 +220,16 @@ Services defined in `services.yaml` and registered in `services.py`:
 
 2. **Rate Limiting**: API requests go through a global rate limiter (`utils_rate_limiter.py`) using token bucket algorithm to protect the controller from overload.
 
-3. **Multi-State Switches**: Pool devices support multiple states:
-   - `0` = AUTO - Standby (automatic control, currently off)
-   - `1` = MANUAL ON (manual on)
-   - `2` = AUTO - Active (automatic control, currently on)
-   - `3` = AUTO - Active with Timer (automatic control with timing)
-   - `4` = MANUAL ON - Forced (manual on, forced mode)
-   - `5` = AUTO - Waiting (automatic control, waiting for conditions)
-   - `6` = MANUAL OFF (manual off)
+3. **Multi-State Switches**: Pool devices support multiple states (0-6):
+   - `0` = AUTO_OFF (automatic control, currently off)
+   - `1` = AUTO_ON (automatic control, currently on)
+   - `2` = AUTO_ACTIVE (automatic control with timing)
+   - `3` = AUTO_ACTIVE_TIMER (automatic control with timer)
+   - `4` = MANUAL_ON_FORCED (manual on, forced mode)
+   - `5` = AUTO_WAITING (automatic control, waiting for conditions)
+   - `6` = MANUAL_OFF (manual off)
 
-   Additionally, some states include descriptive suffixes (e.g., `"3|PUMP_ANTI_FREEZE"`) which are parsed to extract operational modes like frost protection.
+   **Important**: States may include descriptive suffixes (e.g., `"3|PUMP_ANTI_FREEZE"`) parsed as operational modes like frost protection.
 
 4. **Multi-Controller Support**:
    - Unique identifiers use `{api_url}_{device_id}` format
@@ -241,13 +238,19 @@ Services defined in `services.yaml` and registered in `services.py`:
 
 5. **Auto-Recovery**:
    - Automatic reconnection on connection loss
-   - Exponential backoff for retries
-   - Smart error logging with throttling
+   - Exponential backoff for retries (10s base, max 300s delay)
+   - Smart error logging with throttling (5-minute intervals)
+   - Max 10 recovery attempts before manual intervention required
 
 6. **Input Sanitization**:
    - All user inputs validated through `InputSanitizer`
    - Protection against injection attacks
    - Safe handling of API parameters
+
+7. **SSL/TLS Security**:
+   - SSL certificate verification enabled by default (`verify_ssl=True`)
+   - Configurable for self-signed certificates (generates warning)
+   - Proper SSL context handling in API requests
 
 ## API Communication
 
@@ -263,9 +266,11 @@ The Violet Pool Controller exposes a JSON-based HTTP API:
 ### Request Patterns
 
 - All requests are rate-limited using token bucket algorithm
-- Retry logic with exponential backoff (3 attempts by default)
-- Timeout: 10 seconds (configurable)
+- Retry logic with exponential backoff (configurable, 3 attempts by default)
+- Timeout: 10 seconds total, with 8-second connection/socket timeouts (configurable)
+- SSL certificate verification: enabled by default, configurable
 - Responses are JSON-formatted
+- All user inputs are sanitized through `InputSanitizer` before API calls
 
 ## Testing Infrastructure
 
@@ -452,7 +457,9 @@ Located in `.github/workflows/`:
 ## Dependencies
 
 **Runtime** (from `requirements.txt`):
-- `aiohttp>=3.8.0` - Async HTTP client
+- `homeassistant>=2025.12.0` - Minimum Home Assistant version (HA 2026 ready)
+- `aiohttp>=3.10.0` - Async HTTP client
+- `voluptuous>=0.14.2` - Data validation
 
 **Development** (from `requirements-dev.txt`):
 - `ruff>=0.1.0` - Linter and formatter
@@ -464,16 +471,26 @@ Located in `.github/workflows/`:
 
 ## Important Notes
 
-1. **State Handling**: Switches support states 0-6 with specific meanings:
+1. **Thread Safety**: The integration uses two locks (`_api_lock`, `_recovery_lock`) with documented ordering. Always read device.py:42-58 before modifying concurrent code to prevent deadlocks.
+
+2. **State Handling**: Switches support states 0-6 with specific meanings:
    - States 0, 5, 6 = Device OFF (different automatic/manual modes)
    - States 1, 2, 3, 4 = Device ON (different automatic/manual modes)
    - Composite states like `"3|PUMP_ANTI_FREEZE"` provide additional context about operational modes
    - All states are defined in `const_devices.py:DEVICE_STATE_MAPPING`
 
-2. **Multi-Controller**: The integration supports multiple pool controllers on the same Home Assistant instance. Each gets unique entity IDs based on the API URL.
+3. **Multi-Controller**: The integration supports multiple pool controllers on the same Home Assistant instance. Each gets unique entity IDs based on the API URL.
 
-3. **Fault Tolerance**: DMX scene updates and other non-critical operations are fault-tolerant and won't crash the integration if they fail.
+4. **SSL/TLS Security**: SSL certificate verification is enabled by default (`verify_ssl=True`). Only disable for self-signed certificates in trusted networks.
 
-4. **Calibration History**: The integration parses calibration history from the controller API, handling various date formats and edge cases.
+5. **Fault Tolerance**: DMX scene updates and other non-critical operations are fault-tolerant and won't crash the integration if they fail.
 
-5. **Version Consistency**: Keep version numbers in sync across `manifest.json`, `const.py`, and `RELEASE_NOTES.md`.
+6. **Calibration History**: The integration parses calibration history from the controller API, handling various date formats and edge cases.
+
+7. **Version Consistency**: Keep version numbers in sync across `manifest.json`, `const.py`, and `RELEASE_NOTES.md`.
+
+8. **Code Quality**: Always run `ruff check --fix` before committing. The integration maintains 0 ruff errors.
+
+9. **Home Assistant Compatibility**: Integration requires HA 2025.12.0+ and is tested against HA 2026.x. Use modern type annotations (`X | None` not `Optional[X]`) and `collections.abc` imports.
+
+10. **Recovery Behavior**: When connection is lost, the integration attempts auto-recovery with exponential backoff (10s → 300s max) for up to 10 attempts. After max attempts, manual intervention is required.

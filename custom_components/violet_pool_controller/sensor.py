@@ -453,6 +453,84 @@ class VioletLastEventAgeSensor(VioletPoolControllerEntity, SensorEntity):
         return round(self.coordinator.device.last_event_age, 0)
 
 
+class VioletAPIRequestRateSensor(VioletPoolControllerEntity, SensorEntity):
+    """Sensor for API request rate (requests per minute)."""
+
+    def __init__(
+        self,
+        coordinator: VioletPoolDataUpdateCoordinator,
+        config_entry: ConfigEntry,
+    ) -> None:
+        """Initialize the API request rate sensor."""
+        description = SensorEntityDescription(
+            key="api_request_rate",
+            translation_key="api_request_rate",
+            name="API Request Rate",
+            icon="mdi:network",
+            native_unit_of_measurement="req/min",
+            entity_category=EntityCategory.DIAGNOSTIC,
+            state_class=SensorStateClass.MEASUREMENT,
+        )
+        super().__init__(coordinator, config_entry, description)
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the API request rate."""
+        return round(self.coordinator.device.api_request_rate, 1)
+
+
+class VioletAverageLatencySensor(VioletPoolControllerEntity, SensorEntity):
+    """Sensor for average connection latency."""
+
+    def __init__(
+        self,
+        coordinator: VioletPoolDataUpdateCoordinator,
+        config_entry: ConfigEntry,
+    ) -> None:
+        """Initialize the average latency sensor."""
+        description = SensorEntityDescription(
+            key="average_latency",
+            translation_key="average_latency",
+            name="Average Latency",
+            icon="mdi:speedometer",
+            native_unit_of_measurement="ms",
+            entity_category=EntityCategory.DIAGNOSTIC,
+            state_class=SensorStateClass.MEASUREMENT,
+        )
+        super().__init__(coordinator, config_entry, description)
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the average connection latency."""
+        return round(self.coordinator.device.average_latency, 0)
+
+
+class VioletRecoverySuccessRateSensor(VioletPoolControllerEntity, SensorEntity):
+    """Sensor for recovery success rate."""
+
+    def __init__(
+        self,
+        coordinator: VioletPoolDataUpdateCoordinator,
+        config_entry: ConfigEntry,
+    ) -> None:
+        """Initialize the recovery success rate sensor."""
+        description = SensorEntityDescription(
+            key="recovery_success_rate",
+            translation_key="recovery_success_rate",
+            name="Recovery Success Rate",
+            icon="mdi:restore",
+            native_unit_of_measurement="%",
+            entity_category=EntityCategory.DIAGNOSTIC,
+            state_class=SensorStateClass.MEASUREMENT,
+        )
+        super().__init__(coordinator, config_entry, description)
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the recovery success rate."""
+        return round(self.coordinator.device.recovery_success_rate, 1)
+
+
 class VioletDosingStateSensor(VioletPoolControllerEntity, SensorEntity):
     """Sensor for dosing system state arrays (DOS_*_STATE)."""
 
@@ -748,6 +826,16 @@ def _create_special_sensors(
     _LOGGER.debug(
         "Diagnostic sensors created "
         "(System Health, Connection Latency, Last Event Age)"
+    )
+
+    # ✅ DIAGNOSTIC SENSORS: Advanced monitoring sensors
+    sensors.append(VioletAPIRequestRateSensor(coordinator, config_entry))
+    sensors.append(VioletAverageLatencySensor(coordinator, config_entry))
+    sensors.append(VioletRecoverySuccessRateSensor(coordinator, config_entry))
+    handled_keys.update({"api_request_rate", "average_latency", "recovery_success_rate"})
+    _LOGGER.debug(
+        "Advanced diagnostic sensors created "
+        "(API Request Rate, Average Latency, Recovery Success Rate)"
     )
 
     for key in _ERROR_CODE_KEYS:

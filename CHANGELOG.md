@@ -1,6 +1,116 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [1.0.7-alpha.4] - 2026-02-01
+
+### 📊 New Diagnostic Sensors | Neue Diagnose-Sensoren
+
+- **API Request Rate Sensor**:
+  - Zeigt API-Aufrufe pro Minute (`api_request_rate`)
+  - Einheit: `req/min`
+  - Hilft bei der Identifizierung von übermäßigem Polling
+
+- **Average Latency Sensor**:
+  - Zeigt durchschnittliche Verbindungslatenz (`average_latency`)
+  - Einheit: `ms`
+  - Rollender Durchschnitt der letzten 60 Anfragen
+  - Hilft bei der Analyse von Leistungstrends
+
+- **Recovery Success Rate Sensor**:
+  - Zeigt Erfolgsrate der Auto-Recovery (`recovery_success_rate`)
+  - Einheit: `%`
+  - Hilft bei der Bewertung der Verbindungsstabilität
+
+### 🔧 Improvements | Verbesserungen
+
+- **Diagnostic Tracking erweitert**:
+  - API-Request-Zähler für Rate-Berechnung
+  - Latency-Verlauf (Rolling Window, 60 Samples)
+  - Recovery-Statistiken (Success/Failure Count)
+  - Alle Metriken thread-safe implementiert
+
+### 🌐 Translations | Übersetzungen
+
+- Neue Sensor-Übersetzungen in Deutsch und Englisch
+- `api_request_rate` → "API-Anfragerate" / "API Request Rate"
+- `average_latency` → "Durchschnittslatenz" / "Average Latency"
+- `recovery_success_rate` → "Wiederherstellungsrate" / "Recovery Success Rate"
+
+### 📚 Documentation | Dokumentation
+
+- `FUTURE_IMPROVEMENTS.md` erstellt mit:
+  - Detaillierter Roadmap für zukünftige Verbesserungen
+  - Prioritäts-Matrix (10 Items identifiziert)
+  - Safe Refactoring-Guide für Config Flow
+  - Sicherheits-Checklisten
+
+### 🔍 Code Quality
+
+- ✅ Alle ruff checks bestanden
+- ✅ Keine breaking changes
+- ✅ Backward-kompatibel
+- ✅ Thread-sicherheit gewährleistet
+
+---
+
+## [1.0.7-alpha.3] - 2026-02-01
+
+### 🔒 Security Fixes | Sicherheits-Fixes
+
+- **SSL/TLS Certificate Verification**: Added configurable SSL certificate verification with `verify_ssl` parameter
+  - Default: Enabled (secure by default)
+  - Warning message when disabled for security awareness
+  - Proper SSL context handling with certificate validation
+- **Improved Timeout Configuration**: Enhanced timeout handling with granular connection timeouts
+  - Total timeout: User configurable (default 10s)
+  - Connection timeout: 80% of total timeout
+  - Socket connection timeout: 80% of total timeout
+- **Enhanced Input Sanitization**: Updated API methods to use comprehensive input sanitization
+
+### 🏗️ Refactoring | Code-Refactoring
+
+- **Type Annotations Modernization**:
+  - Updated all `typing.Mapping` imports to `collections.abc.Mapping`
+  - Replaced `typing.Dict` with `dict` throughout codebase
+  - Updated Optional types to use modern `X | None` syntax
+- **Code Quality Improvements**:
+  - Fixed all 144 ruff linting issues automatically
+  - Removed trailing whitespace and blank lines with whitespace
+  - Improved line length compliance (max 88 characters)
+  - Simplified nested if statements where applicable
+- **Import Cleanup**: Modernized all imports to use current best practices
+
+### 🧵 Thread Safety | Thread-Sicherheit
+
+- **Lock Ordering Documentation**: Added comprehensive thread safety documentation
+  - Documented lock acquisition order to prevent deadlocks
+  - `_api_lock`: Protects API calls and data updates
+  - `_recovery_lock`: Protects recovery state and attempts
+  - Clear warnings about nested locking and proper patterns
+- **Recovery Logic Safety**: Enhanced recovery task with proper lock handling
+
+### 🔧 Compatibility | Kompatibilität
+
+- **Home Assistant 2026.1 Ready**:
+  - Updated `manifest.json`: minimum HA version `2025.12.0`
+  - Updated `requirements.txt`: `homeassistant>=2025.12.0`
+  - Updated `aiohttp` dependency to `>=3.10.0`
+- **Backward Compatibility**: Maintained support for older HA versions through minimum version declaration
+
+### 🚀 Performance | Performance
+
+- **Optimized State Management**: Enhanced device.py state handling with better tracking
+- **Improved SSL Context Caching**: SSL contexts created only when needed, reducing overhead
+- **Better Timeout Granularity**: Prevents hanging connections with proper timeout hierarchy
+
+### 📝 Documentation | Dokumentation
+
+- **Thread Safety Guide**: Added detailed lock ordering documentation in device.py
+- **Security Warnings**: Added user-facing warnings for insecure SSL configurations
+- **Code Comments**: Enhanced inline documentation for security-critical sections
+
+---
+
 ## [1.0.7-alpha.2] - 2026-01-04
 
 ## v1.0.7-alpha.2 – Violet Pool Controller

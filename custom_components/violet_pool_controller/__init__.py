@@ -24,10 +24,12 @@ from .const import (
     CONF_TIMEOUT_DURATION,
     CONF_USE_SSL,
     CONF_USERNAME,
+    CONF_VERIFY_SSL,
     DEFAULT_CONTROLLER_NAME,
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_RETRY_ATTEMPTS,
     DEFAULT_TIMEOUT_DURATION,
+    DEFAULT_VERIFY_SSL,
     DOMAIN,
 )
 
@@ -139,6 +141,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             username=config["username"],
             password=config["password"],
             use_ssl=config["use_ssl"],
+            verify_ssl=config["verify_ssl"],
             timeout=config["timeout_duration"],
             max_retries=config["retry_attempts"],
         )
@@ -280,6 +283,7 @@ def _extract_config(entry: ConfigEntry) -> dict[str, Any]:
     return {
         "ip_address": ip_address.strip(),
         "use_ssl": entry.data.get(CONF_USE_SSL, True),
+        "verify_ssl": entry.data.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL),
         "device_id": entry.data.get(CONF_DEVICE_ID, 1),
         "username": entry.data.get(CONF_USERNAME, ""),
         "password": entry.data.get(CONF_PASSWORD, ""),

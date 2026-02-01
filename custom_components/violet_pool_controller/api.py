@@ -69,6 +69,7 @@ class VioletPoolAPI:
         username: str | None = None,
         password: str | None = None,
         use_ssl: bool = False,
+        verify_ssl: bool = True,
         timeout: int = DEFAULT_TIMEOUT_DURATION,
         max_retries: int = DEFAULT_RETRY_ATTEMPTS,
     ) -> None:
@@ -80,6 +81,7 @@ class VioletPoolAPI:
             username: The username for authentication.
             password: The password for authentication.
             use_ssl: Whether to use SSL for the connection.
+            verify_ssl: Whether to verify SSL certificates (security feature).
             timeout: The request timeout in seconds.
             max_retries: The maximum number of retries for failed requests.
         """
@@ -89,15 +91,32 @@ class VioletPoolAPI:
         self._base_url = self._build_secure_base_url(host, use_ssl).rstrip("/")
 
         self._session = session
-        self._timeout = aiohttp.ClientTimeout(total=max(float(timeout), 1.0))
+        self._timeout = aiohttp.ClientTimeout(
+            total=max(float(timeout), 1.0),
+            connect=max(float(timeout) * 0.8, 5.0),  # 80% of timeout for connection
+            sock_connect=max(float(timeout) * 0.8, 5.0),  # 80% for socket connection
+        )
         self._max_retries = max(1, int(max_retries))
         self._auth = None
         if username:
             self._auth = aiohttp.BasicAuth(username, password or "")
 
+        # SSL/TLS security configuration
+        self._verify_ssl = verify_ssl
+        if use_ssl and not verify_ssl:
+            _LOGGER.warning(
+                "SSL certificate verification is DISABLED. "
+                "This is a security risk and should only be used for testing "
+                "or with self-signed certificates in trusted networks."
+            )
+
         # Rate limiting to protect the controller from being overloaded
         self._rate_limiter = get_global_rate_limiter()
-        _LOGGER.debug("API initialized with rate limiting enabled")
+        _LOGGER.debug(
+            "API initialized with rate limiting enabled, SSL=%s, verify_ssl=%s",
+            use_ssl,
+            verify_ssl,
+        )
 
     # ---------------------------------------------------------------------
     # Generic helpers
@@ -185,6 +204,15 @@ class VioletPoolAPI:
 
         for attempt in range(1, self._max_retries + 1):
             try:
+                # SSL certificate verification configuration
+                ssl_context = None
+                if not self._verify_ssl:
+                    import ssl
+
+                    ssl_context = ssl.create_default_context()
+                    ssl_context.check_hostname = False
+                    ssl_context.verify_mode = ssl.CERT_NONE
+
                 async with self._session.request(
                     method,
                     url,
@@ -192,6 +220,7 @@ class VioletPoolAPI:
                     json=json_payload,
                     auth=self._auth,
                     timeout=self._timeout,
+                    ssl=ssl_context if not self._verify_ssl else None,
                 ) as response:
                     if response.status >= 400:
                         body = await response.text()
