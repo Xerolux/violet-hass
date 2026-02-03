@@ -101,6 +101,25 @@
             "sensor_selection": {
                 "title": "📊 Sensoren auswählen",
                 "description": "**DE:** Wähle die Sensoren aus, die du in Home Assistant sehen möchtest. Du kannst einzelne Sensoren aktivieren oder deaktivieren, um die Übersicht zu verbessern.\n**EN:** Choose which sensors you want to see in Home Assistant. Enable or disable individual sensors to keep your dashboard clean and focused.\n\n💡 **Tipp:** Standardmäßig sind alle verfügbaren Sensoren ausgewählt. Du kannst diese Auswahl jederzeit in den Optionen anpassen."
+            },
+            "reauth_confirm": {
+                "title": "🔐 Controller neu authentifizieren / Reauthenticate",
+                "description": "**DE:** Die Zugangsdaten müssen aktualisiert werden. Bitte gib Benutzername und Passwort neu ein.\n**EN:** The controller credentials need to be updated. Please enter your new username and password.\n\nController: **{controller_name}**\nIP: **{api_url}**",
+                "data": {
+                    "username": "👤 Benutzername / Username",
+                    "password": "🔐 Passwort / Password"
+                }
+            },
+            "reconfigure": {
+                "title": "🛠️ Verbindung neu konfigurieren / Reconfigure",
+                "description": "**DE:** Aktualisiere die Verbindungseinstellungen (z.B. neue IP-Adresse).\n**EN:** Update connection settings (e.g. new IP address).\n\nController: **{controller_name}**",
+                "data": {
+                    "host": "🌐 IP-Adresse / Hostname",
+                    "use_ssl": "🔒 SSL/HTTPS",
+                    "polling_interval": "⏱️ Intervall / Interval (s)",
+                    "timeout_duration": "⏰ Timeout (s)",
+                    "retry_attempts": "🔄 Retries"
+                }
             }
         },
         "error": {
