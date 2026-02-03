@@ -100,10 +100,7 @@
             },
             "sensor_selection": {
                 "title": "📊 Sensoren auswählen",
-                "description": "**DE:** Wähle die Sensoren aus, die du in Home Assistant sehen möchtest. Du kannst einzelne Sensoren aktivieren oder deaktivieren, um die Übersicht zu verbessern.\n**EN:** Choose which sensors you want to see in Home Assistant. Enable or disable individual sensors to keep your dashboard clean and focused.\n\n💡 **Tipp:** Standardmäßig sind alle verfügbaren Sensoren ausgewählt. Du kannst diese Auswahl jederzeit in den Optionen anpassen.",
-                "data_description": {
-                    "sensor_groups": "DE: Sensoren nach Gruppen organisiert · EN: Sensors organized by groups"
-                }
+                "description": "**DE:** Wähle die Sensoren aus, die du in Home Assistant sehen möchtest. Du kannst einzelne Sensoren aktivieren oder deaktivieren, um die Übersicht zu verbessern.\n**EN:** Choose which sensors you want to see in Home Assistant. Enable or disable individual sensors to keep your dashboard clean and focused.\n\n💡 **Tipp:** Standardmäßig sind alle verfügbaren Sensoren ausgewählt. Du kannst diese Auswahl jederzeit in den Optionen anpassen."
             }
         },
         "error": {

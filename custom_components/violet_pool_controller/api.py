@@ -228,7 +228,9 @@ class VioletPoolAPI:
 
                         if response.status >= 400:
                             body = await response.text()
-                            msg = f"HTTP {response.status} for {endpoint}: {body.strip()}"
+                            msg = (
+                                f"HTTP {response.status} for {endpoint}: {body.strip()}"
+                            )
                             if response.status in (401, 403):
                                 msg = f"Authentication failed: {msg}"
                             raise VioletPoolAPIError(msg)
