@@ -222,18 +222,11 @@ class VioletPoolAPI:
                         timeout=self._timeout,
                         ssl=self._ssl_context,
                     ) as response:
-                        # Retry on server errors (5xx) or rate limiting (429)
-                        if response.status >= 500 or response.status == 429:
-                            response.raise_for_status()
-
                         if response.status >= 400:
                             body = await response.text()
-                            msg = (
+                            raise VioletPoolAPIError(
                                 f"HTTP {response.status} for {endpoint}: {body.strip()}"
                             )
-                            if response.status in (401, 403):
-                                msg = f"Authentication failed: {msg}"
-                            raise VioletPoolAPIError(msg)
 
                         if expect_json:
                             try:
