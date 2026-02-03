@@ -103,15 +103,15 @@ class InputSanitizer:
         try:
             if isinstance(value, (int, float)):
                 return float(value)
-            
+
             # Konvertiere String zu Zahl
             str_value = str(value).strip()
             # Entferne alle Zeichen außer Zahlen, Minus und Punkt
-            cleaned = re.sub(r'[^0-9.-]', '', str_value)
-            
+            cleaned = re.sub(r"[^0-9.-]", "", str_value)
+
             if not cleaned:
                 return 0.0
-            
+
             return float(cleaned)
         except (ValueError, TypeError):
             _LOGGER.warning("Ungültiger numerischer Wert: %s", value)

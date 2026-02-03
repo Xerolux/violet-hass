@@ -207,20 +207,22 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if unload_ok:
             # Get coordinator for cleanup
             coordinator = hass.data.get(DOMAIN, {}).get(entry.entry_id)
-            if coordinator and hasattr(coordinator.device, 'api'):
+            if coordinator and hasattr(coordinator.device, "api"):
                 # Close API session and connections
                 api = coordinator.device.api
-                if hasattr(api, '_session') and api._session:
+                if hasattr(api, "_session") and api._session:
                     await api._session.close()
                     _LOGGER.debug("API session closed for entry_id=%s", entry.entry_id)
-            
+
             # Cancel any pending recovery tasks
-            if coordinator and hasattr(coordinator.device, '_recovery_task'):
+            if coordinator and hasattr(coordinator.device, "_recovery_task"):
                 recovery_task = coordinator.device._recovery_task
                 if recovery_task and not recovery_task.done():
                     recovery_task.cancel()
-                    _LOGGER.debug("Recovery task cancelled for entry_id=%s", entry.entry_id)
-            
+                    _LOGGER.debug(
+                        "Recovery task cancelled for entry_id=%s", entry.entry_id
+                    )
+
             # Remove coordinator from hass.data
             if entry.entry_id in hass.data.get(DOMAIN, {}):
                 hass.data[DOMAIN].pop(entry.entry_id)
@@ -228,6 +230,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
             # Trigger garbage collection
             import gc
+
             gc.collect()
 
             _LOGGER.info(

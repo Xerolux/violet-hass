@@ -42,6 +42,9 @@ from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity
 from .error_codes import get_error_info
 
+# Type checking for coordinator
+# VioletPoolDataUpdateCoordinator is already imported above
+
 _LOGGER = logging.getLogger(__name__)
 
 # --- Sensor Categorization ---
@@ -196,6 +199,7 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
     """Represents a generic Violet Pool Controller sensor."""
 
     entity_description: SensorEntityDescription
+    coordinator: VioletPoolDataUpdateCoordinator
 
     def __init__(
         self,
@@ -279,9 +283,7 @@ class VioletStatusSensor(VioletSensor):
             raw_value = self.coordinator.data.get(key)
 
         return (
-            VioletState(raw_value, key).display_mode
-            if raw_value is not None
-            else None
+            VioletState(raw_value, key).display_mode if raw_value is not None else None
         )
 
     @property
@@ -568,7 +570,9 @@ class VioletDosingStateSensor(VioletPoolControllerEntity, SensorEntity):
             parts = raw_value.split("|", 1)
             if len(parts) == 2:
                 state_num, detail = parts
-                return detail.replace("_", " ").title()  # "PUMP_ANTI_FREEZE" → "Pump Anti Freeze"
+                return detail.replace(
+                    "_", " "
+                ).title()  # "PUMP_ANTI_FREEZE" → "Pump Anti Freeze"
             return raw_value
 
         # Handle string values (shouldn't happen based on API, but defensive)
@@ -583,7 +587,7 @@ class VioletDosingStateSensor(VioletPoolControllerEntity, SensorEntity):
         """Return additional attributes."""
         raw_value = self.get_value(self.entity_description.key)
 
-        attributes = {}
+        attributes: dict[str, Any] = {}
 
         # Array-based sensors (DOS_*_STATE)
         if isinstance(raw_value, list):
@@ -824,15 +828,16 @@ def _create_special_sensors(
     sensors.append(VioletLastEventAgeSensor(coordinator, config_entry))
     handled_keys.update({"system_health", "connection_latency", "last_event_age"})
     _LOGGER.debug(
-        "Diagnostic sensors created "
-        "(System Health, Connection Latency, Last Event Age)"
+        "Diagnostic sensors created (System Health, Connection Latency, Last Event Age)"
     )
 
     # ✅ DIAGNOSTIC SENSORS: Advanced monitoring sensors
     sensors.append(VioletAPIRequestRateSensor(coordinator, config_entry))
     sensors.append(VioletAverageLatencySensor(coordinator, config_entry))
     sensors.append(VioletRecoverySuccessRateSensor(coordinator, config_entry))
-    handled_keys.update({"api_request_rate", "average_latency", "recovery_success_rate"})
+    handled_keys.update(
+        {"api_request_rate", "average_latency", "recovery_success_rate"}
+    )
     _LOGGER.debug(
         "Advanced diagnostic sensors created "
         "(API Request Rate, Average Latency, Recovery Success Rate)"
