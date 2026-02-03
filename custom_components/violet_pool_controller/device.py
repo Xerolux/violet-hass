@@ -101,7 +101,7 @@ class VioletPoolControllerDevice:
 
         # ✅ DIAGNOSTIC SENSORS: Advanced metrics
         self._api_request_count = 0  # Total API requests
-        self._api_request_start_time = time.time()  # For rate calculation
+        self._api_request_start_time = time.monotonic()  # For rate calculation
         self._latency_history = []  # Rolling window for average latency (max 60 samples)
         self._recovery_success_count = 0  # Successful recoveries
         self._recovery_failure_count = 0  # Failed recoveries
@@ -138,7 +138,7 @@ class VioletPoolControllerDevice:
         Returns:
             True if failure should be logged, False otherwise.
         """
-        now = time.time()
+        now = time.monotonic()
 
         if now - self._last_failure_log > FAILURE_LOG_INTERVAL:
             self._last_failure_log = now
@@ -158,11 +158,11 @@ class VioletPoolControllerDevice:
         try:
             async with self._api_lock:
                 # ✅ DIAGNOSTIC: Measure connection latency
-                start_time = time.time()
+                start_time = time.monotonic()
                 self._api_request_count += 1  # Track API requests
                 data = await self._fetch_controller_data()
                 # Convert to milliseconds
-                self._connection_latency = (time.time() - start_time) * 1000
+                self._connection_latency = (time.monotonic() - start_time) * 1000
 
                 # ✅ DIAGNOSTIC: Update latency history (rolling window of 60 samples)
                 self._latency_history.append(self._connection_latency)
@@ -244,7 +244,7 @@ class VioletPoolControllerDevice:
                 self._last_error = None
 
                 # ✅ DIAGNOSTIC: Update health metrics
-                self._last_update_time = time.time()
+                self._last_update_time = time.monotonic()
                 self._system_health = 100.0  # Perfect health
 
                 # Firmware-Version extrahieren (mehrere Fallbacks)
@@ -469,7 +469,7 @@ class VioletPoolControllerDevice:
         """
         if self._last_update_time == 0.0:
             return 0.0
-        return time.time() - self._last_update_time
+        return time.monotonic() - self._last_update_time
 
     @property
     def api_request_rate(self) -> float:
@@ -478,7 +478,7 @@ class VioletPoolControllerDevice:
 
         ✅ DIAGNOSTIC SENSOR: API request rate.
         """
-        elapsed = time.time() - self._api_request_start_time
+        elapsed = time.monotonic() - self._api_request_start_time
         if elapsed < 1:
             return 0.0
         return (self._api_request_count / elapsed) * 60
@@ -579,7 +579,7 @@ class VioletPoolControllerDevice:
             # Always ensure recovery state is reset under lock protection
             async with self._recovery_lock:
                 self._in_recovery_mode = False
-                self._last_recovery_attempt = asyncio.get_event_loop().time()
+                self._last_recovery_attempt = time.monotonic()
 
     async def _start_recovery_background_task(self) -> None:
         """

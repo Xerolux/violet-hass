@@ -44,6 +44,7 @@ from .const import (
     TARGET_ORP,
     TARGET_PH,
 )
+from .circuit_breaker import CircuitBreaker
 from .utils_rate_limiter import get_global_rate_limiter
 
 _LOGGER = logging.getLogger(__name__)
@@ -103,15 +104,22 @@ class VioletPoolAPI:
 
         # SSL/TLS security configuration
         self._verify_ssl = verify_ssl
+        self._ssl_context = None
         if use_ssl and not verify_ssl:
             _LOGGER.warning(
                 "SSL certificate verification is DISABLED. "
                 "This is a security risk and should only be used for testing "
                 "or with self-signed certificates in trusted networks."
             )
+            import ssl
+
+            self._ssl_context = ssl.create_default_context()
+            self._ssl_context.check_hostname = False
+            self._ssl_context.verify_mode = ssl.CERT_NONE
 
         # Rate limiting to protect the controller from being overloaded
         self._rate_limiter = get_global_rate_limiter()
+        self._circuit_breaker = CircuitBreaker(expected_exception=VioletPoolAPIError)
         _LOGGER.debug(
             "API initialized with rate limiting enabled, SSL=%s, verify_ssl=%s",
             use_ssl,
@@ -186,73 +194,67 @@ class VioletPoolAPI:
         if params and query:
             raise ValueError("'params' and 'query' are mutually exclusive")
 
-        # Wait if the rate limit is reached
-        try:
-            await self._rate_limiter.wait_if_needed(priority=priority, timeout=10.0)
-        except asyncio.TimeoutError:
-            _LOGGER.warning(
-                "Rate limiter timeout for %s (priority: %d) - continuing",
-                endpoint,
-                priority,
-            )
-
-        url = self._build_url(endpoint)
-        if query:
-            url = f"{url}?{query}"
-
-        last_error: VioletPoolAPIError | None = None
-
-        for attempt in range(1, self._max_retries + 1):
+        async def _execute_request() -> Any:
+            # Wait if the rate limit is reached
             try:
-                # SSL certificate verification configuration
-                ssl_context = None
-                if not self._verify_ssl:
-                    import ssl
+                await self._rate_limiter.wait_if_needed(priority=priority, timeout=10.0)
+            except asyncio.TimeoutError:
+                _LOGGER.warning(
+                    "Rate limiter timeout for %s (priority: %d) - continuing",
+                    endpoint,
+                    priority,
+                )
 
-                    ssl_context = ssl.create_default_context()
-                    ssl_context.check_hostname = False
-                    ssl_context.verify_mode = ssl.CERT_NONE
+            url = self._build_url(endpoint)
+            if query:
+                url = f"{url}?{query}"
 
-                async with self._session.request(
-                    method,
-                    url,
-                    params=params,
-                    json=json_payload,
-                    auth=self._auth,
-                    timeout=self._timeout,
-                    ssl=ssl_context if not self._verify_ssl else None,
-                ) as response:
-                    if response.status >= 400:
-                        body = await response.text()
-                        raise VioletPoolAPIError(
-                            f"HTTP {response.status} for {endpoint}: {body.strip()}"
-                        )
+            last_error: VioletPoolAPIError | None = None
 
-                    if expect_json:
-                        try:
-                            return await response.json(content_type=None)
-                        except (aiohttp.ContentTypeError, json.JSONDecodeError) as err:
+            for attempt in range(1, self._max_retries + 1):
+                try:
+                    async with self._session.request(
+                        method,
+                        url,
+                        params=params,
+                        json=json_payload,
+                        auth=self._auth,
+                        timeout=self._timeout,
+                        ssl=self._ssl_context,
+                    ) as response:
+                        if response.status >= 400:
                             body = await response.text()
                             raise VioletPoolAPIError(
-                                f"Invalid JSON payload for {endpoint}: {body.strip()}"
-                            ) from err
+                                f"HTTP {response.status} for {endpoint}: {body.strip()}"
+                            )
 
-                    return await response.text()
+                        if expect_json:
+                            try:
+                                return await response.json(content_type=None)
+                            except (aiohttp.ContentTypeError, json.JSONDecodeError) as err:
+                                body = await response.text()
+                                raise VioletPoolAPIError(
+                                    f"Invalid JSON payload for {endpoint}: {body.strip()}"
+                                ) from err
 
-            except (aiohttp.ClientError, asyncio.TimeoutError) as err:
-                last_error = VioletPoolAPIError(
-                    f"Error communicating with Violet controller: {err}"
-                )
-                _LOGGER.debug("Attempt %d for %s failed: %s", attempt, endpoint, err)
-                if attempt == self._max_retries:
-                    raise last_error
-                # Exponential backoff with jitter
-                delay = min(2.0, 0.2 * (2 ** (attempt - 1)))
-                await asyncio.sleep(delay)
+                        return await response.text()
 
-        # If we reach here, all retries succeeded but returned no data
-        # This should not happen in normal operation
-        raise VioletPoolAPIError("Request completed but returned no data")
+                except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+                    last_error = VioletPoolAPIError(
+                        f"Error communicating with Violet controller: {err}"
+                    )
+                    _LOGGER.debug("Attempt %d for %s failed: %s", attempt, endpoint, err)
+                    if attempt == self._max_retries:
+                        raise last_error
+                    # Exponential backoff with jitter
+                    delay = min(2.0, 0.2 * (2 ** (attempt - 1)))
+                    await asyncio.sleep(delay)
+
+            # If we reach here, all retries succeeded but returned no data
+            # This should not happen in normal operation
+            raise VioletPoolAPIError("Request completed but returned no data")
+
+        return await self._circuit_breaker.call(_execute_request)
 
     @staticmethod
     def _command_result(body: str | dict[str, Any]) -> dict[str, Any]:
@@ -565,15 +567,20 @@ class VioletPoolAPI:
 
         entries: list[dict[str, str]] = []
         for line in (response or "").strip().splitlines():
-            parts = [part.strip() for part in line.split("|")]
-            if len(parts) >= 3:
-                entries.append(
-                    {
-                        "timestamp": parts[0],
-                        "value": parts[1],
-                        "type": parts[2],
-                    }
-                )
+            try:
+                parts = [part.strip() for part in line.split("|")]
+                if len(parts) >= 3:
+                    entries.append(
+                        {
+                            "timestamp": parts[0],
+                            "value": parts[1],
+                            "type": parts[2],
+                        }
+                    )
+                else:
+                    _LOGGER.warning("Skipping malformed calibration history line: %s", line)
+            except Exception as err:
+                _LOGGER.warning("Error parsing calibration history line '%s': %s", line, err)
         return entries
 
     async def restore_calibration(self, sensor: str, timestamp: str) -> dict[str, Any]:

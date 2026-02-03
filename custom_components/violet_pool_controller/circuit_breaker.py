@@ -67,7 +67,7 @@ class CircuitBreaker:
         Raises:
             CircuitBreakerOpenError: If circuit is open
         """
-        current_time = time.time()
+        current_time = time.monotonic()
         
         # Check if circuit should be closed from timeout
         if (self.state == CircuitBreakerState.OPEN and 

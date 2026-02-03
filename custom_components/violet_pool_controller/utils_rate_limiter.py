@@ -44,20 +44,20 @@ class RateLimiter:
         # Token Bucket
         self.tokens = float(max_requests + burst_size)
         self.max_tokens = max_requests + burst_size
-        self.last_refill = asyncio.get_event_loop().time()
+        self.last_refill = time.monotonic()
 
         # Optimized request history with size and time limits
         self.request_history: deque = deque(maxlen=500)  # Reduced from 1000
         self.blocked_requests = 0
         self.total_requests = 0
         self.history_cleanup_interval = 300  # 5 minutes
-        self.last_cleanup_time = time.time()
+        self.last_cleanup_time = time.monotonic()
         
         # Memory-efficient statistics
         self._recent_stats = {
             'requests_last_minute': 0,
             'blocked_last_minute': 0,
-            'last_minute_reset': time.time()
+            'last_minute_reset': time.monotonic()
         }
 
         # Lock für Thread-Safety
@@ -81,7 +81,7 @@ class RateLimiter:
             True if token acquired, False otherwise
         """
         async with self._lock:
-            current_time = time.time()
+            current_time = time.monotonic()
             self.total_requests += 1
 
             # Periodic cleanup to prevent memory growth
@@ -148,14 +148,14 @@ class RateLimiter:
         Raises:
             asyncio.TimeoutError: Wenn Timeout erreicht
         """
-        start_time = time.time()
+        start_time = time.monotonic()
 
         while True:
             if await self.acquire(priority):
                 return
 
             # Timeout-Prüfung
-            elapsed = time.time() - start_time
+            elapsed = time.monotonic() - start_time
             if elapsed >= timeout:
                 raise asyncio.TimeoutError(f"Rate Limiter timeout nach {elapsed:.1f}s")
 
@@ -184,7 +184,7 @@ class RateLimiter:
 
     def get_stats(self) -> dict:
         """Hole Rate-Limiter-Statistiken."""
-        current_time = time.time()
+        current_time = time.monotonic()
 
         # Berechne Requests in letzter Minute
         recent_requests = [
@@ -209,7 +209,7 @@ class RateLimiter:
     def reset(self) -> None:
         """Setze Rate Limiter zurück."""
         self.tokens = float(self.max_tokens)
-        self.last_refill = time.time()
+        self.last_refill = time.monotonic()
         self.blocked_requests = 0
         self.total_requests = 0
         self.request_history.clear()
