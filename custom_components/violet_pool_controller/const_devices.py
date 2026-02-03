@@ -105,8 +105,16 @@ DEVICE_STATE_MAPPING = {
     "5": {"mode": "auto", "active": False, "desc": "Auto - Waiting"},
     "6": {"mode": "manual", "active": False, "desc": "Manual OFF"},
     # Special protection modes (from PUMPSTATE field with pipe separator)
-    "3|PUMP_ANTI_FREEZE": {"mode": "frost_protection", "active": True, "desc": "Frost Protection Active"},
-    "PUMP_ANTI_FREEZE": {"mode": "frost_protection", "active": True, "desc": "Frost Protection Active"},
+    "3|PUMP_ANTI_FREEZE": {
+        "mode": "frost_protection",
+        "active": True,
+        "desc": "Frost Protection Active",
+    },
+    "PUMP_ANTI_FREEZE": {
+        "mode": "frost_protection",
+        "active": True,
+        "desc": "Frost Protection Active",
+    },
     # Generic operational states
     "STOPPED": {"mode": "manual", "active": False, "desc": "Stopped"},
     "ERROR": {"mode": "error", "active": False, "desc": "Error State"},
@@ -228,7 +236,7 @@ def get_device_mode_from_state(raw_state: Any) -> str:
         return "manual_on" if active else "manual_off"
     if mode == "auto":
         return "auto_active" if active else "auto_inactive"
-    return mode
+    return cast(str, mode)
 
 
 class VioletState:
@@ -251,17 +259,17 @@ class VioletState:
     @property
     def mode(self) -> str:
         """The primary operational mode (e.g., 'auto', 'manual', 'error')."""
-        return self._info["mode"]
+        return cast(str, self._info["mode"])
 
     @property
     def is_active(self) -> Optional[bool]:
         """Whether the device is currently active (running)."""
-        return self._info["active"]
+        return cast(Optional[bool], self._info["active"])
 
     @property
     def description(self) -> str:
         """A human-readable description of the current state."""
-        return self._info["desc"]
+        return cast(str, self._info["desc"])
 
     @property
     def display_mode(self) -> str:

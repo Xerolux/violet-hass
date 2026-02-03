@@ -251,7 +251,9 @@ class VioletServiceManager:
             raise ValueError(f"Invalid entity_id: {entity_id}")
 
         if "." not in entity_id:
-            raise ValueError(f"Entity ID must contain domain separator '.': {entity_id}")
+            raise ValueError(
+                f"Entity ID must contain domain separator '.': {entity_id}"
+            )
 
         # switch.violet_pool_pump -> PUMP
         parts = entity_id.split(".")[-1].split("_")
@@ -260,7 +262,9 @@ class VioletServiceManager:
         parts = [p for p in parts if p not in ("violet", "pool")]
 
         if not parts:
-            raise ValueError(f"Cannot extract device key from {entity_id}: no parts remaining")
+            raise ValueError(
+                f"Cannot extract device key from {entity_id}: no parts remaining"
+            )
 
         return "_".join(parts).upper()
 
