@@ -137,15 +137,15 @@ class VioletPoolAPI:
         if host.startswith(("http://", "https://")):
             parsed = urlparse(host)
             host = parsed.netloc
-        
+
         # Validate hostname format
-        if not re.match(r'^[a-zA-Z0-9.-]+$', host):
+        if not re.match(r"^[a-zA-Z0-9.-]+$", host):
             raise ValueError(f"Invalid hostname format: {host}")
-        
+
         # Additional validation
-        if len(host) > 253 or '..' in host or '//' in host:
+        if len(host) > 253 or ".." in host or "//" in host:
             raise ValueError(f"Invalid hostname: {host}")
-        
+
         protocol = "https" if use_ssl else "http"
         return urlunparse((protocol, host, "", "", "", ""))
 
@@ -231,7 +231,10 @@ class VioletPoolAPI:
                         if expect_json:
                             try:
                                 return await response.json(content_type=None)
-                            except (aiohttp.ContentTypeError, json.JSONDecodeError) as err:
+                            except (
+                                aiohttp.ContentTypeError,
+                                json.JSONDecodeError,
+                            ) as err:
                                 body = await response.text()
                                 raise VioletPoolAPIError(
                                     f"Invalid JSON payload for {endpoint}: {body.strip()}"
@@ -243,7 +246,9 @@ class VioletPoolAPI:
                     last_error = VioletPoolAPIError(
                         f"Error communicating with Violet controller: {err}"
                     )
-                    _LOGGER.debug("Attempt %d for %s failed: %s", attempt, endpoint, err)
+                    _LOGGER.debug(
+                        "Attempt %d for %s failed: %s", attempt, endpoint, err
+                    )
                     if attempt == self._max_retries:
                         raise last_error
                     # Exponential backoff with jitter
@@ -500,12 +505,11 @@ class VioletPoolAPI:
         for key, value in config.items():
             try:
                 sanitized_key = InputSanitizer.validate_api_parameter(str(key))
+                sanitized_value: str | int | float
 
                 if isinstance(value, str):
                     sanitized_value = InputSanitizer.sanitize_string(
-                        value,
-                        max_length=1000,
-                        escape_html=True
+                        value, max_length=1000, escape_html=True
                     )
                 elif isinstance(value, (int, float)):
                     sanitized_value = InputSanitizer.sanitize_numeric(value)
@@ -516,7 +520,9 @@ class VioletPoolAPI:
 
             except ValueError as err:
                 _LOGGER.error("Invalid config parameter %s: %s", key, err)
-                raise VioletPoolAPIError(f"Invalid configuration parameter: {key}") from err
+                raise VioletPoolAPIError(
+                    f"Invalid configuration parameter: {key}"
+                ) from err
 
         body = await self._request(
             API_SET_CONFIG,
@@ -578,9 +584,13 @@ class VioletPoolAPI:
                         }
                     )
                 else:
-                    _LOGGER.warning("Skipping malformed calibration history line: %s", line)
+                    _LOGGER.warning(
+                        "Skipping malformed calibration history line: %s", line
+                    )
             except Exception as err:
-                _LOGGER.warning("Error parsing calibration history line '%s': %s", line, err)
+                _LOGGER.warning(
+                    "Error parsing calibration history line '%s': %s", line, err
+                )
         return entries
 
     async def restore_calibration(self, sensor: str, timestamp: str) -> dict[str, Any]:

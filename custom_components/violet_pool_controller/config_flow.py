@@ -6,7 +6,7 @@ import asyncio
 import ipaddress
 import logging
 import re
-from typing import Any, Mapping
+from typing import Any, Mapping, cast
 
 import aiohttp
 import voluptuous as vol
@@ -159,9 +159,11 @@ def get_sensor_label(key: str) -> str:
         return f"{all_sensors[key]['name']} ({key})"
     return key
 
+
 def _create_ssl_context(use_ssl: bool, verify_cert: bool = True):
     """Create secure SSL context with proper certificate validation."""
     import ssl
+
     if not use_ssl:
         # Only allow SSL to be disabled in development environments
         _LOGGER.warning("SSL disabled - connection will not be encrypted")
@@ -179,6 +181,7 @@ def _create_ssl_context(use_ssl: bool, verify_cert: bool = True):
         ssl_context.verify_mode = ssl.CERT_NONE
 
     return ssl_context
+
 
 def _validate_credentials_strength(username: str | None, password: str | None) -> None:
     """Check credentials against basic security policies."""
@@ -222,7 +225,7 @@ async def fetch_api_data(
                 api_url, auth=auth, ssl=ssl_context, timeout=timeout_obj
             ) as response:
                 response.raise_for_status()
-                return await response.json()
+                return cast(dict[str, Any], await response.json())
         except (aiohttp.ClientError, asyncio.TimeoutError) as err:
             if attempt + 1 == retries:
                 _LOGGER.error("API-Fehler nach %d Versuchen: %s", retries, err)
@@ -256,17 +259,13 @@ async def get_grouped_sensors(
         # Validate credentials strength before using them
         username = config_data.get(CONF_USERNAME)
         password = config_data.get(CONF_PASSWORD)
-        
+
         _validate_credentials_strength(username, password)
-        
+
         protocol = "https" if config_data[CONF_USE_SSL] else "http"
         api_url = f"{protocol}://{config_data[CONF_API_URL]}{API_READINGS}?ALL"
         session = aiohttp_client.async_get_clientsession(hass)
-        auth = (
-            aiohttp.BasicAuth(username, password or "")
-            if username
-            else None
-        )
+        auth = aiohttp.BasicAuth(username, password or "") if username else None
 
         data = await fetch_api_data(
             session,
@@ -408,8 +407,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             elif not validate_ip_address(user_input[CONF_API_URL]):
                 errors[CONF_API_URL] = ERROR_INVALID_IP
                 error_hints[CONF_API_URL] = (
-                    "Please enter a valid IP address "
-                    "(e.g., 192.168.1.100) or hostname."
+                    "Please enter a valid IP address (e.g., 192.168.1.100) or hostname."
                 )
             else:
                 self._config_data = self._build_config_data(user_input)

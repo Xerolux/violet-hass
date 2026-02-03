@@ -52,12 +52,12 @@ class RateLimiter:
         self.total_requests = 0
         self.history_cleanup_interval = 300  # 5 minutes
         self.last_cleanup_time = time.monotonic()
-        
+
         # Memory-efficient statistics
         self._recent_stats = {
-            'requests_last_minute': 0,
-            'blocked_last_minute': 0,
-            'last_minute_reset': time.monotonic()
+            "requests_last_minute": 0,
+            "blocked_last_minute": 0,
+            "last_minute_reset": time.monotonic(),
         }
 
         # Lock für Thread-Safety
@@ -99,17 +99,15 @@ class RateLimiter:
                 self.tokens -= 1
 
                 # Store minimal data for efficiency
-                self.request_history.append({
-                    "time": current_time,
-                    "priority": priority,
-                    "blocked": False
-                })
+                self.request_history.append(
+                    {"time": current_time, "priority": priority, "blocked": False}
+                )
 
                 return True
 
             # Track failures efficiently
             self.blocked_requests += 1
-            self._recent_stats['blocked_last_minute'] += 1
+            self._recent_stats["blocked_last_minute"] += 1
             return False
 
     async def _cleanup_history(self, current_time: float) -> None:
@@ -119,9 +117,8 @@ class RateLimiter:
 
         # Filter while maintaining order
         filtered_history = deque(
-            (entry for entry in self.request_history
-             if entry["time"] > cutoff_time),
-            maxlen=500
+            (entry for entry in self.request_history if entry["time"] > cutoff_time),
+            maxlen=500,
         )
 
         self.request_history = filtered_history
@@ -130,12 +127,12 @@ class RateLimiter:
     def _update_recent_stats(self, current_time: float) -> None:
         """Update memory-efficient recent statistics."""
         # Reset minute stats every 60 seconds
-        if current_time - self._recent_stats['last_minute_reset'] > 60:
-            self._recent_stats['requests_last_minute'] = 0
-            self._recent_stats['blocked_last_minute'] = 0
-            self._recent_stats['last_minute_reset'] = current_time
-        
-        self._recent_stats['requests_last_minute'] += 1
+        if current_time - self._recent_stats["last_minute_reset"] > 60:
+            self._recent_stats["requests_last_minute"] = 0
+            self._recent_stats["blocked_last_minute"] = 0
+            self._recent_stats["last_minute_reset"] = current_time
+
+        self._recent_stats["requests_last_minute"] += 1
 
     async def wait_if_needed(self, priority: int = 3, timeout: float = 10.0) -> None:
         """

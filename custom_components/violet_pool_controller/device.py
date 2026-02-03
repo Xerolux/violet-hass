@@ -102,7 +102,9 @@ class VioletPoolControllerDevice:
         # ✅ DIAGNOSTIC SENSORS: Advanced metrics
         self._api_request_count = 0  # Total API requests
         self._api_request_start_time = time.monotonic()  # For rate calculation
-        self._latency_history = []  # Rolling window for average latency (max 60 samples)
+        self._latency_history: list[
+            float
+        ] = []  # Rolling window for average latency (max 60 samples)
         self._recovery_success_count = 0  # Successful recoveries
         self._recovery_failure_count = 0  # Failed recoveries
 
@@ -517,7 +519,7 @@ class VioletPoolControllerDevice:
         Returns:
             True if recovery was successful, False otherwise.
         """
-# ✅ RACE CONDITION FIX: Complete atomic recovery with proper lock protection
+        # ✅ RACE CONDITION FIX: Complete atomic recovery with proper lock protection
         async with self._recovery_lock:
             # Atomic check-and-set under same lock
             if self._in_recovery_mode:
@@ -539,7 +541,7 @@ class VioletPoolControllerDevice:
                 RECOVERY_MAX_DELAY,
                 RECOVERY_BASE_DELAY * (2 ** (current_attempt - 1)),
             )
-            
+
             _LOGGER.info(
                 "🔄 Recovery-Versuch %d/%d für '%s' (Delay: %.1fs)",
                 current_attempt,
@@ -547,12 +549,12 @@ class VioletPoolControllerDevice:
                 self.device_name,
                 delay,
             )
-            
+
             await asyncio.sleep(delay)
-            
+
             # Attempt data retrieval
             data = await self._fetch_controller_data()
-            
+
             if data and isinstance(data, dict):
                 # Recovery successful - reset state atomically
                 async with self._recovery_lock:
@@ -564,9 +566,9 @@ class VioletPoolControllerDevice:
 
                 _LOGGER.info("Recovery successful for '%s'", self.device_name)
                 return True
-            
+
             return False
-            
+
         except Exception as err:
             _LOGGER.debug(
                 "Recovery-Versuch %d fehlgeschlagen: %s",
@@ -574,7 +576,7 @@ class VioletPoolControllerDevice:
                 err,
             )
             return False
-            
+
         finally:
             # Always ensure recovery state is reset under lock protection
             async with self._recovery_lock:

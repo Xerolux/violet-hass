@@ -97,7 +97,7 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
             self.entity_description.name,
             self._default_value,
         )
-        return self._default_value
+        return float(self._default_value)
 
     @property
     def available(self) -> bool:
