@@ -224,8 +224,10 @@ class VioletPoolAPI:
                     ) as response:
                         if response.status >= 400:
                             body = await response.text()
+                            # Only log full body at debug level to prevent sensitive info leaks
+                            _LOGGER.debug("HTTP %s for %s - Body: %s", response.status, endpoint, body.strip())
                             raise VioletPoolAPIError(
-                                f"HTTP {response.status} for {endpoint}: {body.strip()}"
+                                f"HTTP {response.status} for {endpoint}"
                             )
 
                         if expect_json:
@@ -236,8 +238,10 @@ class VioletPoolAPI:
                                 json.JSONDecodeError,
                             ) as err:
                                 body = await response.text()
+                                # Only log full body at debug level to prevent sensitive info leaks
+                                _LOGGER.debug("Invalid JSON for %s - Body: %s", endpoint, body.strip())
                                 raise VioletPoolAPIError(
-                                    f"Invalid JSON payload for {endpoint}: {body.strip()}"
+                                    f"Invalid JSON payload for {endpoint}"
                                 ) from err
 
                         return await response.text()

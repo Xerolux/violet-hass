@@ -1,7 +1,5 @@
 """Simplified tests for Violet Pool Controller improvements."""
 
-import pytest
-import asyncio
 import time
 
 

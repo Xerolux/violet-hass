@@ -67,7 +67,7 @@ def fetch_api_data():
             with open("api_data_full.json", "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
 
-            print(f"\n[OK] Full data saved to api_data_full.json")
+            print("\n[OK] Full data saved to api_data_full.json")
             print(f"[OK] Total fields: {len(data)}")
 
             return data
