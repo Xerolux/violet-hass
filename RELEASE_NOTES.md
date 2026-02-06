@@ -1,4 +1,4 @@
-## v1.0.7-alpha.2 – Violet Pool Controller
+## v1.0.7-alpha.3 – Violet Pool Controller
 
 🔴 **ALPHA RELEASE** - Experimental features, use with caution!
 
@@ -6,6 +6,10 @@
 
 ### ✨ New Features | Neue Funktionen
 
+- feat: Diagnostic sensors, HA 2026 compatibility, security improvements (v1.0.7-alpha.4) (4538860)
+- Add security utilities for authentication and SSL validation (8d64181)
+- ✨ Add composite state sensors (PUMPSTATE, HEATERSTATE, SOLARSTATE) (7fd6989)
+- ✨ Add dosing state array sensors (DOS_*_STATE) (88aae9c)
 - add-controller-selection (75a2eb8)
 - Add HA test directories to .gitignore (d3e168b)
 - Add Home Assistant test infrastructure and test results documentation (4f0c7f8)
@@ -31,6 +35,11 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- Improve API error handling and stability (2dc238a)
+- Merge pull request #182 from Xerolux/fix-and-optimize-violet-pool-controller-4890044213630928459 (83329c5)
+- Fix critical bugs, optimize entity logic, and improve type safety (d82545a)
+- 🐛 Fix 18 bugs and optimize code performance (69af24d)
+- 📝 Release v1.0.7-alpha.2 - Update changelog and version files (3517131)
 - Fix sed regex in release workflow for CLAUDE.md version update (f7ccc6d)
 - 📝 Release v1.0.7-alpha.1 - Update changelog and version files (1d9d07c)
 - improve-setup-reauthentication (cb143dc)
@@ -73,6 +82,16 @@
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- Merge pull request #184 from Xerolux/fix-api-error-handling-3216800569233088969 (553a2ad)
+- Fix CI validation failures (manifest and translations) (5c7ca9e)
+- Fix CI validation failures (manifest and translations) (eea40c2)
+- Fix CI validation failures (api formatting and strings.json schema) (8a12446)
+- fix-api-stability-performance (7dd4038)
+- Fix type checking and linting errors (aff549e)
+- Fix API stability and performance issues (761dfcc)
+- Merge pull request #182 from Xerolux/fix-and-optimize-violet-pool-controller-4890044213630928459 (83329c5)
+- Fix critical bugs, optimize entity logic, and improve type safety (d82545a)
+- 🐛 Fix 18 bugs and optimize code performance (69af24d)
 - Fix sed regex in release workflow for CLAUDE.md version update (f7ccc6d)
 - display fix (459c3a1)
 - Firmware & State Fix (981abfd)
@@ -159,6 +178,7 @@
 
 ### 🧪 Tests
 
+- Phase 3: Code quality improvements and comprehensive testing (0e00e5e)
 - Add HA test directories to .gitignore (d3e168b)
 - Add Home Assistant test infrastructure and test results documentation (4f0c7f8)
 - Live Test (bcf7e89)
@@ -188,7 +208,7 @@
 
 ---
 
-📋 [Full changelog: v0.2.0...v1.0.7-alpha.2](https://github.com/Xerolux/violet-hass/compare/v0.2.0...v1.0.7-alpha.2)
+📋 [Full changelog: v0.2.0...v1.0.7-alpha.3](https://github.com/Xerolux/violet-hass/compare/v0.2.0...v1.0.7-alpha.3)
 
 ---
 
@@ -222,4 +242,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-01-04 08:34:47 UTC_
+_Generated automatically by GitHub Actions on 2026-02-06 11:03:24 UTC_
