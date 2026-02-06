@@ -26,7 +26,7 @@
 - [ ] I have reviewed my code for any security vulnerabilities.
 - [ ] My changes are backward-compatible (if applicable). If not, clearly explain why and what breaking changes are introduced.
 - [ ] I have followed the coding style and conventions of this project. (Run `black .` to format your code)
-- [ ] I have added a changelog entry in `CHANGELOG.md` (if applicable).  Use the format: `- Your change description ([#PR number](link to PR))`
+- [ ] I have added a changelog entry in `docs/CHANGELOG.md` (if applicable).  Use the format: `- Your change description ([#PR number](link to PR))`
 - [ ] I have updated the version number in `const.py` and `manifest.json` if this is a new release.
 
 ### Related Issue(s)

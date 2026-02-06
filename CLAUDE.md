@@ -358,15 +358,12 @@ violet-hass/
 │   └── automation/                   # Automation blueprints
 ├── Dashboard/                        # Dashboard examples
 ├── docs/                             # Documentation
+│   ├── archive/                      # Archived documentation
+│   └── help/                         # Help documentation
 ├── .github/                          # GitHub workflows
 │   └── workflows/                    # CI/CD pipelines
 ├── CLAUDE.md                         # This file
 ├── README.md                         # Project README
-├── CONTRIBUTING.md                   # Contribution guidelines
-├── TESTING.md                        # Testing guide
-├── TESTING_CHECKLIST.md              # Manual testing checklist
-├── CHANGELOG.md                      # Version history
-├── RELEASE_NOTES.md                  # Release notes
 ├── requirements.txt                  # Runtime dependencies
 ├── requirements-dev.txt              # Development dependencies
 └── pytest.ini                        # Pytest configuration
@@ -487,7 +484,7 @@ Located in `.github/workflows/`:
 
 6. **Calibration History**: The integration parses calibration history from the controller API, handling various date formats and edge cases.
 
-7. **Version Consistency**: Keep version numbers in sync across `manifest.json`, `const.py`, and `RELEASE_NOTES.md`.
+7. **Version Consistency**: Keep version numbers in sync across `manifest.json`, `const.py`, and `docs/RELEASE_NOTES.md`.
 
 8. **Code Quality**: Always run `ruff check --fix` before committing. The integration maintains 0 ruff errors.
 

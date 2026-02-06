@@ -345,7 +345,7 @@ jobs:
             echo ""
             echo "- 🐛 **[Report a bug](https://github.com/${{ github.repository }}/issues/new?template=bug_report.md)**"
             echo "- 💡 **[Request a feature](https://github.com/${{ github.repository }}/issues/new?template=feature_request.md)**"
-            echo "- 🤝 **[Contribute](https://github.com/${{ github.repository }}/blob/main/CONTRIBUTING.md)**"
+            echo "- 🤝 **[Contribute](https://github.com/${{ github.repository }}/blob/main/docs/CONTRIBUTING.md)**"
             echo ""
             echo "---"
             echo ""
@@ -427,11 +427,11 @@ jobs:
           VERSION: ${{ needs.prepare-release.outputs.version }}
           TAG: ${{ needs.prepare-release.outputs.tag }}
         run: |
-          if [ ! -f CHANGELOG.md ]; then
-            echo "# Changelog" > CHANGELOG.md
-            echo "" >> CHANGELOG.md
-            echo "All notable changes to this project will be documented in this file." >> CHANGELOG.md
-            echo "" >> CHANGELOG.md
+          if [ ! -f docs/CHANGELOG.md ]; then
+            echo "# Changelog" > docs/CHANGELOG.md
+            echo "" >> docs/CHANGELOG.md
+            echo "All notable changes to this project will be documented in this file." >> docs/CHANGELOG.md
+            echo "" >> docs/CHANGELOG.md
           fi
 
           # Prepare entry
@@ -445,25 +445,25 @@ jobs:
           } > temp_changelog_entry.md
 
           # Insert after header
-          sed -i '/^All notable changes/r temp_changelog_entry.md' CHANGELOG.md
+          sed -i '/^All notable changes/r temp_changelog_entry.md' docs/CHANGELOG.md
 
           rm temp_changelog_entry.md
-          echo "✅ Updated CHANGELOG.md"
+          echo "✅ Updated docs/CHANGELOG.md"
 
       - name: Update RELEASE_NOTES.md
         env:
           RELEASE_NOTES: ${{ needs.prepare-release.outputs.release-notes }}
         run: |
           # This file contains ONLY the latest release
-          echo "$RELEASE_NOTES" > RELEASE_NOTES.md
-          echo "✅ Updated RELEASE_NOTES.md with latest release"
+          echo "$RELEASE_NOTES" > docs/RELEASE_NOTES.md
+          echo "✅ Updated docs/RELEASE_NOTES.md with latest release"
 
       - name: Commit and push changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add CHANGELOG.md RELEASE_NOTES.md CLAUDE.md \
+          git add docs/CHANGELOG.md docs/RELEASE_NOTES.md CLAUDE.md \
             custom_components/violet_pool_controller/manifest.json \
             custom_components/violet_pool_controller/const.py
 
@@ -557,8 +557,8 @@ jobs:
             echo "- \`violet_pool_controller.zip.sha256\` - Checksum file"
             echo ""
             echo "### 📝 Documentation Updated"
-            echo "- ✅ CHANGELOG.md (cumulative history)"
-            echo "- ✅ RELEASE_NOTES.md (latest only)"
+            echo "- ✅ docs/CHANGELOG.md (cumulative history)"
+            echo "- ✅ docs/RELEASE_NOTES.md (latest only)"
             echo "- ✅ CLAUDE.md (developer docs)"
             echo "- ✅ manifest.json (integration version)"
             echo "- ✅ const.py (integration version)"
