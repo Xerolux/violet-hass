@@ -79,18 +79,22 @@ _RUNTIME_KEYS = (
         "LIGHT_RUNTIME",
         "PUMP_RUNTIME",
         "BACKWASH_RUNTIME",
+        "BACKWASHRINSE_RUNTIME",
         "SOLAR_RUNTIME",
         "HEATER_RUNTIME",
         "DOS_1_CL_RUNTIME",
+        "DOS_2_ELO_RUNTIME",
+        "DOS_3_ELO_REV_RUNTIME",
         "DOS_4_PHM_RUNTIME",
         "DOS_5_PHP_RUNTIME",
         "DOS_6_FLOC_RUNTIME",
+        "REFILL_RUNTIME",
         "REFILL_TIMEOUT",
         "RUNTIME",
         "POSTRUN_TIME",
     }
     | {f"EXT{i}_{j}_RUNTIME" for i in (1, 2) for j in range(1, 9)}
-    | {f"OMNI_DC{i}_RUNTIME" for i in range(1, 6)}
+    | {f"OMNI_DC{i}_RUNTIME" for i in range(6)}
     | {f"PUMP_RPM_{i}_RUNTIME" for i in range(4)}
 )
 
@@ -107,8 +111,10 @@ _TIME_FORMAT_KEYS = (
 
 _TEXT_VALUE_KEYS = {
     "DOS_1_CL_STATE",
+    "DOS_2_ELO_STATE",
     "DOS_4_PHM_STATE",
     "DOS_5_PHP_STATE",
+    "DOS_6_FLOC_STATE",
     "HEATERSTATE",
     "SOLARSTATE",
     "PUMPSTATE",
@@ -140,6 +146,7 @@ _TEXT_VALUE_KEYS = {
     "CHECKSUM",
     "RULE_RESULT",
     "LAST_MOVING_DIRECTION",
+    "COVER_STATE",
     "COVER_DIRECTION",
     "SW_VERSION",
     "SW_VERSION_CARRIER",
@@ -161,7 +168,6 @@ _TEXT_VALUE_KEYS = {
     "BACKWASH_OMNI_MOVING",
     "BACKWASH_DELAY_RUNNING",
     "BACKWASH_STATE",
-    "BACKWASHRINSE_RUNTIME",  # Text-based runtime status, not numeric
     "REFILL_STATE",
     "BATHING_AI_SURVEILLANCE_STATE",
     "BATHING_AI_PUMP_STATE",
@@ -265,25 +271,34 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
 class VioletStatusSensor(VioletSensor):
     """Represents a sensor for status values that use VioletState."""
 
+    def _resolve_raw_value(self) -> Any | None:
+        """Resolve the best raw value, preferring *STATE key with fallback."""
+        key = self.entity_description.key
+        state_key = f"{key}STATE"
+
+        # Prefer *STATE field (e.g., PUMPSTATE = "3|PUMP_ANTI_FREEZE")
+        raw_value = self.coordinator.data.get(state_key)
+
+        # Skip empty/useless *STATE values (e.g., SOLARSTATE = "[]")
+        if raw_value is not None and str(raw_value).strip() in ("", "[]", "{}"):
+            raw_value = None
+
+        if raw_value is None:
+            raw_value = self.coordinator.data.get(key)
+
+        return raw_value
+
     @property
     def native_value(self) -> str | int | float | datetime | None:
         """Return the display string for the status."""
         if self.coordinator.data is None:
             return None
 
-        # Try to get detailed state first (e.g., PUMPSTATE instead of PUMP)
-        # PUMPSTATE contains detailed info like "3|PUMP_ANTI_FREEZE"
-        key = self.entity_description.key
-        state_key = f"{key}STATE"
-
-        # Prefer *STATE field if available (contains detailed status info)
-        raw_value = self.coordinator.data.get(state_key)
-        if raw_value is None:
-            # Fallback to basic key if *STATE doesn't exist
-            raw_value = self.coordinator.data.get(key)
-
+        raw_value = self._resolve_raw_value()
         return (
-            VioletState(raw_value, key).display_mode if raw_value is not None else None
+            VioletState(raw_value, self.entity_description.key).display_mode
+            if raw_value is not None
+            else None
         )
 
     @property
@@ -292,17 +307,10 @@ class VioletStatusSensor(VioletSensor):
         if self.coordinator.data is None:
             return super().icon
 
-        # Same logic as native_value - prefer *STATE field
-        key = self.entity_description.key
-        state_key = f"{key}STATE"
-
-        raw_value = self.coordinator.data.get(state_key)
-        if raw_value is None:
-            raw_value = self.coordinator.data.get(key)
-
+        raw_value = self._resolve_raw_value()
         if raw_value is None:
             return super().icon
-        return VioletState(raw_value, key).icon
+        return VioletState(raw_value, self.entity_description.key).icon
 
 
 class VioletErrorCodeSensor(VioletSensor):
@@ -534,7 +542,24 @@ class VioletRecoverySuccessRateSensor(VioletPoolControllerEntity, SensorEntity):
 
 
 class VioletDosingStateSensor(VioletPoolControllerEntity, SensorEntity):
-    """Sensor for dosing system state arrays (DOS_*_STATE)."""
+    """Sensor for dosing system state arrays (DOS_*_STATE) and composite states."""
+
+    # German translations for common state detail codes
+    _DETAIL_DE: dict[str, str] = {
+        "PUMP_ANTI_FREEZE": "Frostschutz",
+        "BLOCKED_BY_OUTSIDE_TEMP": "Blockiert (Außentemp.)",
+        "BLOCKED_BY_TRESHOLDS": "Blockiert (Grenzwerte)",
+        "TRESHOLDS_REACHED": "Grenzwerte erreicht",
+        "BLOCKED_BY_PUMP": "Blockiert (Pumpe aus)",
+        "BLOCKED_BY_FLOW": "Blockiert (Durchfluss)",
+        "BLOCKED_BY_SOLAR": "Blockiert (Solar)",
+        "BLOCKED_BY_HEATER": "Blockiert (Heizung)",
+        "WAITING_FOR_PUMP": "Wartet auf Pumpe",
+        "WAITING_FOR_FLOW": "Wartet auf Durchfluss",
+        "DOSING": "Dosiert",
+        "DOSING_PAUSED": "Dosierung pausiert",
+        "MANUAL_DOSING": "Manuelle Dosierung",
+    }
 
     def __init__(
         self,
@@ -553,33 +578,32 @@ class VioletDosingStateSensor(VioletPoolControllerEntity, SensorEntity):
         )
         super().__init__(coordinator, config_entry, description)
 
+    def _translate_detail(self, code: str) -> str:
+        """Translate a detail code to German, fallback to title-cased string."""
+        return self._DETAIL_DE.get(code, code.replace("_", " ").title())
+
     @property
     def native_value(self) -> str | None:
-        """Return the dosing state as comma-separated string."""
+        """Return the dosing state as comma-separated German string."""
         raw_value = self.get_value(self.entity_description.key)
 
         # Handle array values (DOS_*_STATE sensors)
         if isinstance(raw_value, list):
             if not raw_value:
-                return "OK"  # Empty array means no issues
-            # Join array elements with comma
-            return ", ".join(str(item) for item in raw_value)
+                return "OK"
+            return ", ".join(self._translate_detail(str(item)) for item in raw_value)
 
         # Handle pipe-separated strings (PUMPSTATE, HEATERSTATE, SOLARSTATE)
         if isinstance(raw_value, str) and "|" in raw_value:
             parts = raw_value.split("|", 1)
             if len(parts) == 2:
-                state_num, detail = parts
-                return detail.replace(
-                    "_", " "
-                ).title()  # "PUMP_ANTI_FREEZE" → "Pump Anti Freeze"
+                return self._translate_detail(parts[1])
             return raw_value
 
-        # Handle string values (shouldn't happen based on API, but defensive)
+        # Handle string values
         if isinstance(raw_value, str):
             return raw_value if raw_value else "OK"
 
-        # No data available
         return None
 
     @property
@@ -602,7 +626,7 @@ class VioletDosingStateSensor(VioletPoolControllerEntity, SensorEntity):
                 state_num, detail = parts
                 attributes["numeric_state"] = state_num
                 attributes["detail_code"] = detail
-                attributes["detail_readable"] = detail.replace("_", " ").title()
+                attributes["detail_readable"] = self._translate_detail(detail)
                 attributes["raw_value"] = raw_value
 
         return attributes

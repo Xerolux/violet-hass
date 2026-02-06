@@ -216,14 +216,30 @@ STATE_TRANSLATIONS = {
 
 
 def get_device_state_info(raw_state: Any) -> Dict[str, Any]:
-    """Get extended state information for a given raw state."""
+    """Get extended state information for a given raw state.
+
+    Handles plain numeric states ("2"), pipe-separated composite states
+    ("2|BLOCKED_BY_OUTSIDE_TEMP"), and empty arrays ("[]").
+    """
     state_str = str(raw_state).upper().strip()
+
+    # Direct lookup first (handles exact matches like "3|PUMP_ANTI_FREEZE")
+    if state_str in DEVICE_STATE_MAPPING:
+        return cast(Dict[str, Any], DEVICE_STATE_MAPPING[state_str])
+
+    # Handle pipe-separated composite states by extracting numeric prefix
+    if "|" in state_str:
+        prefix = state_str.split("|", 1)[0].strip()
+        if prefix in DEVICE_STATE_MAPPING:
+            return cast(Dict[str, Any], DEVICE_STATE_MAPPING[prefix])
+
+    # Handle empty arrays (e.g., SOLARSTATE = "[]")
+    if state_str in ("[]", "{}", ""):
+        return {"mode": "unknown", "active": None, "desc": "Keine Daten"}
+
     return cast(
         Dict[str, Any],
-        DEVICE_STATE_MAPPING.get(
-            state_str,
-            {"mode": "unknown", "active": None, "desc": f"Unknown: {raw_state}"},
-        ),
+        {"mode": "unknown", "active": None, "desc": f"Unknown: {raw_state}"},
     )
 
 

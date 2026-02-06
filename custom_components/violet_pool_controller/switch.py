@@ -73,6 +73,9 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         # ✅ FIXED: Lokale Cache-Variable für optimistisches Update
         self._optimistic_state: bool | None = None
 
+        # ✅ FIX: Force initial update to sync with controller
+        self._initial_update_done = False
+
         # ✅ Nur Setup loggen, nicht jeden Zugriff
         _LOGGER.debug("Switch initialisiert: %s", self.entity_id)
 
@@ -96,15 +99,16 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         Returns:
             The boolean state of the switch.
         """
-        # Prüfe zuerst optimistischen Cache
+        # Use optimistic cache while waiting for API confirmation
         if self._optimistic_state is not None:
             return self._optimistic_state
 
-        if self.coordinator.data is None:
-            return False
-
         key = self.entity_description.key
-        raw_state = self.get_value(key, "")
+        raw_state = self.get_value(key)
+
+        # No data available for this key
+        if raw_state is None:
+            return False
 
         # Use shared utility function
         result = interpret_state_as_bool(raw_state, key)
@@ -130,50 +134,241 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """
-        Return additional state attributes.
+        Return additional state attributes with descriptive status information.
+
+        Provides human-readable mode, state description, runtime, and
+        device-specific details (pump speed, dosing status, backwash info).
 
         Returns:
             A dictionary of attributes.
         """
         if self.coordinator.data is None:
             return {
-                "state_type": "unavailable",
-                "interpreted_as": "UNKNOWN",
-                "note": "Coordinator data not available",
+                "status_description": "Nicht verfügbar",
+                "mode": "unknown",
             }
 
         key = self.entity_description.key
-        raw_state = self.get_value(key, "")
-        current_result = self._get_switch_state()
+        raw_state = self.get_value(key)
+
+        # --- Base attributes: mode & description from state mapping ---
+        mode, description = self._get_mode_and_description(key, raw_state)
 
         attributes: dict[str, Any] = {
+            "mode": mode,
+            "status_description": description,
             "raw_state": str(raw_state) if raw_state is not None else "None",
-            "state_type": type(raw_state).__name__,
-            "interpreted_as": "ON" if current_result else "OFF",
         }
 
-        # ✅ FIXED: Zeige optimistischen Cache-Status
+        # Optimistic cache indicator
         if self._optimistic_state is not None:
-            attributes["optimistic_state"] = "ON" if self._optimistic_state else "OFF"
             attributes["pending_update"] = True
 
-        # PUMP-spezifische Attribute
+        # --- Device-specific enrichment ---
         if key == "PUMP":
-            attributes.update(
-                {
-                    "pump_runtime": self.get_str_value("PUMP_RUNTIME", "00h 00m 00s"),
-                    "pump_last_on": self.get_value("PUMP_LAST_ON", 0),
-                    "pump_last_off": self.get_value("PUMP_LAST_OFF", 0),
-                    "pump_rpm_2": self.get_value("PUMP_RPM_2", 0),
-                }
-            )
+            self._enrich_pump_attributes(attributes)
+        elif key == "HEATER":
+            self._enrich_heater_attributes(attributes)
+        elif key == "SOLAR":
+            self._enrich_solar_attributes(attributes)
+        elif key.startswith("DOS_"):
+            self._enrich_dosing_attributes(attributes, key)
+        elif key == "BACKWASH":
+            self._enrich_backwash_attributes(attributes)
 
-        # Runtime-Informationen
+        # --- Runtime (for any switch that has it) ---
         runtime_key = f"{key}_RUNTIME"
-        if runtime_key in self.coordinator.data:
-            attributes["runtime"] = self.get_str_value(runtime_key, "00h 00m 00s")
+        runtime_val = self.get_value(runtime_key)
+        if runtime_val is not None:
+            attributes["runtime"] = str(runtime_val)
 
         return attributes
+
+    # -----------------------------------------------------------------
+    # State description helpers
+    # -----------------------------------------------------------------
+
+    # German translations for numeric state descriptions
+    _STATE_DESC_DE: dict[int, str] = {
+        0: "Automatik – Bereitschaft",
+        1: "Manuell Ein",
+        2: "Automatik – Aktiv",
+        3: "Automatik – Aktiv (Timer)",
+        4: "Manuell Ein (Erzwungen)",
+        5: "Automatik – Wartend",
+        6: "Manuell Aus",
+    }
+
+    # German translations for common *STATE detail suffixes
+    _DETAIL_DE: dict[str, str] = {
+        "PUMP_ANTI_FREEZE": "Frostschutz",
+        "BLOCKED_BY_OUTSIDE_TEMP": "Blockiert (Außentemperatur)",
+        "BLOCKED_BY_TRESHOLDS": "Blockiert (Grenzwerte)",
+        "TRESHOLDS_REACHED": "Grenzwerte erreicht",
+        "BLOCKED_BY_PUMP": "Blockiert (Pumpe aus)",
+        "BLOCKED_BY_FLOW": "Blockiert (Durchfluss)",
+        "BLOCKED_BY_SOLAR": "Blockiert (Solar)",
+        "BLOCKED_BY_HEATER": "Blockiert (Heizung)",
+        "WAITING_FOR_PUMP": "Wartet auf Pumpe",
+        "WAITING_FOR_FLOW": "Wartet auf Durchfluss",
+        "DOSING": "Dosiert",
+        "DOSING_PAUSED": "Dosierung pausiert",
+        "MANUAL_DOSING": "Manuelle Dosierung",
+    }
+
+    def _get_mode_and_description(
+        self, key: str, raw_state: Any
+    ) -> tuple[str, str]:
+        """
+        Derive human-readable German mode and description from the raw state.
+
+        Uses the detailed *STATE key (e.g., PUMPSTATE, HEATERSTATE) if
+        available, otherwise falls back to the numeric state mapping.
+
+        Returns:
+            Tuple of (mode_string, description_string).
+        """
+        # Try the detailed STATE key first (e.g., PUMPSTATE = "3|PUMP_ANTI_FREEZE")
+        detail_state_key = f"{key}STATE"
+        detail_val = self.get_value(detail_state_key)
+
+        state_num = None
+        extra_detail = ""
+
+        if detail_val is not None and str(detail_val).strip() not in ("", "[]"):
+            detail_str = str(detail_val).strip()
+            if "|" in detail_str:
+                parts = detail_str.split("|", 1)
+                try:
+                    state_num = int(parts[0])
+                except (ValueError, TypeError):
+                    pass
+                if len(parts) > 1:
+                    raw_detail = parts[1].strip()
+                    extra_detail = self._DETAIL_DE.get(
+                        raw_detail, raw_detail.replace("_", " ").title()
+                    )
+            else:
+                try:
+                    state_num = int(detail_str)
+                except (ValueError, TypeError):
+                    raw_detail = detail_str.strip()
+                    extra_detail = self._DETAIL_DE.get(
+                        raw_detail, raw_detail.replace("_", " ").title()
+                    )
+
+        # Fall back to the raw numeric state
+        if state_num is None and raw_state is not None:
+            try:
+                state_num = int(raw_state)
+            except (ValueError, TypeError):
+                pass
+
+        # Map numeric state to mode + description
+        mode = "Unbekannt"
+        desc = "Unbekannt"
+
+        if state_num is not None:
+            # German mode from numeric state
+            mode_map = {
+                0: "Automatik",
+                1: "Manuell",
+                2: "Automatik",
+                3: "Automatik",
+                4: "Manuell",
+                5: "Automatik",
+                6: "Manuell",
+            }
+            mode = mode_map.get(state_num, "Unbekannt")
+            desc = self._STATE_DESC_DE.get(state_num, f"Status {state_num}")
+
+        # Append extra detail from *STATE field
+        if extra_detail:
+            desc = f"{desc} ({extra_detail})" if desc else extra_detail
+
+        return mode, desc
+
+    def _enrich_pump_attributes(self, attributes: dict[str, Any]) -> None:
+        """Add pump-specific attributes: speed, RPM level, last on/off."""
+        # Determine active RPM level
+        active_speed = None
+        for level in range(4):
+            rpm_key = f"PUMP_RPM_{level}"
+            rpm_val = self.get_value(rpm_key)
+            if rpm_val is not None:
+                try:
+                    if int(rpm_val) > 0:
+                        active_speed = level
+                except (ValueError, TypeError):
+                    pass
+
+        if active_speed is not None:
+            attributes["pump_speed_level"] = active_speed
+            attributes["status_description"] += f" | Stufe {active_speed}"
+
+    def _enrich_heater_attributes(self, attributes: dict[str, Any]) -> None:
+        """Add heater-specific attributes: target temp, postrun."""
+        target = self.get_value("HEATER_TARGET_TEMP")
+        if target is not None:
+            attributes["target_temperature"] = target
+        postrun = self.get_value("HEATER_POSTRUN_TIME")
+        if postrun is not None and str(postrun).upper() != "NONE":
+            attributes["postrun_time"] = str(postrun)
+
+    def _enrich_solar_attributes(self, attributes: dict[str, Any]) -> None:
+        """Add solar-specific attributes: target temp."""
+        target = self.get_value("SOLAR_TARGET_TEMP")
+        if target is not None:
+            attributes["target_temperature"] = target
+
+    def _enrich_dosing_attributes(
+        self, attributes: dict[str, Any], key: str
+    ) -> None:
+        """Add dosing-specific attributes: state details, remaining range, daily amount."""
+        # Dosing state (e.g., DOS_1_CL_STATE = ['BLOCKED_BY_TRESHOLDS', ...])
+        state_key = f"{key}_STATE"
+        state_val = self.get_value(state_key)
+        if state_val is not None:
+            if isinstance(state_val, list):
+                if state_val:
+                    # Translate state entries to German
+                    readable = [
+                        self._DETAIL_DE.get(s, s.replace("_", " ").title())
+                        for s in state_val
+                    ]
+                    attributes["dosing_status"] = ", ".join(readable)
+            elif str(state_val).strip() not in ("", "[]"):
+                raw_s = str(state_val).strip()
+                attributes["dosing_status"] = self._DETAIL_DE.get(
+                    raw_s, raw_s.replace("_", " ").title()
+                )
+
+        # Remaining range (e.g., ">99d")
+        range_key = f"{key}_REMAINING_RANGE"
+        range_val = self.get_value(range_key)
+        if range_val is not None:
+            attributes["remaining_range"] = str(range_val)
+
+        # Daily amount
+        daily_key = f"{key}_DAILY_AMOUNT"
+        daily_val = self.get_value(daily_key)
+        if daily_val is not None:
+            attributes["daily_amount_ml"] = daily_val
+
+        # Total canister volume
+        can_key = f"{key}_TOTAL_CAN_AMOUNT_ML"
+        can_val = self.get_value(can_key)
+        if can_val is not None:
+            attributes["canister_volume_ml"] = can_val
+
+    def _enrich_backwash_attributes(self, attributes: dict[str, Any]) -> None:
+        """Add backwash-specific attributes: schedule info, step."""
+        bw_state = self.get_value("BACKWASH_STATE")
+        if bw_state is not None and str(bw_state).strip():
+            attributes["backwash_info"] = str(bw_state)
+        bw_step = self.get_value("BACKWASH_STEP")
+        if bw_step is not None:
+            attributes["backwash_step"] = bw_step
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """
@@ -392,6 +587,10 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             "PV Surplus RPM %s außerhalb des gültigen Bereichs, verwende Default 2", rpm
         )
         return 2
+
+    async def async_added_to_hass(self) -> None:
+        """Called when the entity is added to Home Assistant."""
+        await super().async_added_to_hass()
 
 
 async def async_setup_entry(

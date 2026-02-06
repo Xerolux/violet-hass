@@ -337,7 +337,7 @@ class VioletPoolAPI:
         """
         response = await self._request(
             API_READINGS,
-            params={"ALL": ""},
+            query="ALL",
             expect_json=True,
         )
         if not isinstance(response, dict):

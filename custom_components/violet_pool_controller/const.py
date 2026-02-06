@@ -22,7 +22,7 @@ from .const_sensors import *
 # =============================================================================
 
 DOMAIN = "violet_pool_controller"
-INTEGRATION_VERSION = "1.0.7-alpha.3"
+INTEGRATION_VERSION = "1.0.7"
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 
 # =============================================================================
@@ -71,15 +71,17 @@ DISINFECTION_METHODS = ["chlorine", "salt", "bromine", "active_oxygen", "uv", "o
 
 VERSION_INFO = {
     "version": INTEGRATION_VERSION,
-    "release_date": "2025-11-20",
+    "release_date": "2026-02-06",
     "major_features": [
-        "Complete 3-State Switch Support with State 4 Fix",
-        "PVSURPLUS Parameter Support",
-        "Cover String-State Handling",
-        "Extended Sensor Coverage",
-        "Enhanced DMX Scene Control",
-        "Complete Extension Relay Support",
-        "Modular Constants Structure",
-        "API Rate Limiting Support",
+        "Critical API Query Parameter Fix (getReadings)",
+        "German State Descriptions for Switches and Sensors",
+        "Composite State Parsing (pipe-separated states)",
+        "Status Sensor German Translations",
+        "Improved Startup Performance (no delay)",
+        "Simplified Data Fetching (always full refresh)",
+        "Circuit Breaker Pattern for API Resilience",
+        "Enhanced Switch Attributes (mode, speed, runtime)",
+        "Dashboard Template with Secondary Info",
+        "HA 2026 Compatibility",
     ],
 }
