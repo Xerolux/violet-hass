@@ -100,10 +100,7 @@
             },
             "sensor_selection": {
                 "title": "📊 Sensoren auswählen",
-                "description": "**DE:** Wähle die Sensoren aus, die du in Home Assistant sehen möchtest. Du kannst einzelne Sensoren aktivieren oder deaktivieren, um die Übersicht zu verbessern.\n**EN:** Choose which sensors you want to see in Home Assistant. Enable or disable individual sensors to keep your dashboard clean and focused.\n\n💡 **Tipp:** Standardmäßig sind alle verfügbaren Sensoren ausgewählt. Du kannst diese Auswahl jederzeit in den Optionen anpassen.",
-                "data_description": {
-                    "sensor_groups": "DE: Sensoren nach Gruppen organisiert · EN: Sensors organized by groups"
-                }
+                "description": "**DE:** Wähle die Sensoren aus, die du in Home Assistant sehen möchtest. Du kannst einzelne Sensoren aktivieren oder deaktivieren, um die Übersicht zu verbessern.\n**EN:** Choose which sensors you want to see in Home Assistant. Enable or disable individual sensors to keep your dashboard clean and focused.\n\n💡 **Tipp:** Standardmäßig sind alle verfügbaren Sensoren ausgewählt. Du kannst diese Auswahl jederzeit in den Optionen anpassen."
             }
         },
         "error": {
@@ -137,46 +134,10 @@
                 "title": "🔧 Pool-Einstellungen anpassen",
                 "description": "**Was möchtest du konfigurieren?**\n\n🎛️ Features aktivieren/deaktivieren\n📊 Sensoren auswählen\n⚙️ Einstellungen ändern\n\n💡 **Tipp:** Du kannst jederzeit zurück zu dieser Auswahl kommen.",
                 "data": {
-                    "polling_interval": "⏱️ Datenabfrage-Intervall",
-                    "timeout_duration": "⏰ Verbindungs-Timeout",
-                    "retry_attempts": "🔄 Wiederholungsversuche",
-                    "pool_size": "📏 Pool-Volumen",
-                    "pool_type": "🏊 Pool-Typ",
-                    "disinfection_method": "🧼 Desinfektionsmethode",
-                    "feature_heating": "🔥 Heizungssteuerung",
-                    "feature_solar": "☀️ Solarabsorber",
-                    "feature_ph_control": "🧪 pH-Automatik",
-                    "feature_chlorine_control": "💧 Chlor-Management",
-                    "feature_cover_control": "🪟 Abdeckungssteuerung",
-                    "feature_backwash": "🔄 Rückspül-Automatik",
-                    "feature_pv_surplus": "🔋 PV-Überschuss",
-                    "feature_filter_control": "🌊 Filterpumpe",
-                    "feature_water_level": "📏 Füllstand-Monitor",
-                    "feature_water_refill": "🚰 Auto-Nachfüllung",
-                    "feature_led_lighting": "💡 LED-Beleuchtung",
-                    "feature_digital_inputs": "🔌 Digitale Eingänge",
-                    "feature_extension_outputs": "🔗 Erweiterungsmodule"
+                    "config_option": "Konfigurationsbereich auswählen"
                 },
                 "data_description": {
-                    "polling_interval": "Alle X Sekunden Daten abrufen (10-60s empfohlen)",
-                    "timeout_duration": "Max. Wartezeit für Controller-Antworten",
-                    "retry_attempts": "Anzahl Wiederholungen bei Verbindungsfehlern",
-                    "pool_size": "Wasservolumen in m³ für korrekte Berechnungen",
-                    "pool_type": "Beeinflusst Heizstrategien und Automatiken",
-                    "disinfection_method": "Hauptmethode für Wasserpflege",
-                    "feature_heating": "Poolheizung intelligent steuern",
-                    "feature_solar": "Kostenlose Sonnenenergie nutzen",
-                    "feature_ph_control": "pH-Wert automatisch optimieren",
-                    "feature_chlorine_control": "Sichere Wasserdesinfektion",
-                    "feature_cover_control": "Abdeckung zeitgesteuert bewegen",
-                    "feature_backwash": "Filter zur optimalen Zeit reinigen",
-                    "feature_pv_surplus": "Solarstrom-Überschuss verwerten",
-                    "feature_filter_control": "Pumpe bedarfsgerecht steuern",
-                    "feature_water_level": "Wasserstand überwachen",
-                    "feature_water_refill": "Bei Bedarf automatisch nachfüllen",
-                    "feature_led_lighting": "Stimmungsvolle Poolbeleuchtung",
-                    "feature_digital_inputs": "Externe Sensoren integrieren",
-                    "feature_extension_outputs": "Zusätzliche Geräte ansteuern"
+                    "config_option": "Wähle aus, was du anpassen möchtest"
                 }
             },
             "features": {

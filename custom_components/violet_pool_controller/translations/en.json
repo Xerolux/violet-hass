@@ -3,7 +3,7 @@
         "step": {
             "user": {
                 "title": "Violet Pool Setup Assistant",
-                "description": "Choose whether you want to start the configuration wizard immediately or open the detailed documentation first.\n\nDocumentation: [Configuration Guide](https://github.com/xerolux/violet-hass/blob/main/docs/help/configuration-guide.en.md)\n\nSupport & Feedback: https://github.com/xerolux/violet-hass/issues",
+                "description": "Choose whether you want to start the configuration wizard immediately or open the detailed documentation first.\n\nDocumentation: [Configuration Guide]({docs_en})\n\nSupport & Feedback: {issues_url}",
                 "data": {
                     "action": "Select action"
                 },
@@ -13,18 +13,18 @@
             },
             "disclaimer": {
                 "title": "Safety and Liability Notice",
-                "description": "⚠️ **Safety Warning**\n\nThis integration provides remote control for pumps, heaters, lights and dosing systems. Incorrect configuration may cause equipment damage, personal injury or chemical overdosing. Make sure you understand all safety features and keep manual overrides accessible.\n\nPlease review the [Configuration Guide](https://github.com/xerolux/violet-hass/blob/main/docs/help/configuration-guide.en.md) before you continue.",
+                "description": "⚠️ **Safety Warning**\n\nThis integration provides remote control for pumps, heaters, lights and dosing systems. Incorrect configuration may cause equipment damage, personal injury or chemical overdosing. Make sure you understand all safety features and keep manual overrides accessible.\n\nPlease review the [Configuration Guide]({docs_en}) before you continue.",
                 "data": {
                     "agreement": "I accept all risks and have read the full disclaimer."
                 }
             },
             "help": {
                 "title": "Help & Documentation",
-                "description": "Read the [Configuration Guide](https://github.com/xerolux/violet-hass/blob/main/docs/help/configuration-guide.en.md) for step-by-step instructions, safety notes and feature explanations.\n\nNeed assistance or want to share feedback? Open an issue at https://github.com/xerolux/violet-hass/issues.\n\nProject repository: https://github.com/xerolux/violet-hass\n\nClick **Next** to return to the main menu."
+                "description": "Read the [Configuration Guide]({docs_en}) for step-by-step instructions, safety notes and feature explanations.\n\nNeed assistance or want to share feedback? Open an issue at {issues_url}.\n\nProject repository: {github_url}\n\nClick **Next** to return to the main menu."
             },
             "connection": {
                 "title": "Controller Connection",
-                "description": "Connect your Violet Pool Controller to Home Assistant. Ensure the controller shares the same network and the API is reachable.\n\nAdditional documentation: [Configuration Guide](https://github.com/xerolux/violet-hass/blob/main/docs/help/configuration-guide.en.md)",
+                "description": "Connect your Violet Pool Controller to Home Assistant. Ensure the controller shares the same network and the API is reachable.\n\nAdditional documentation: [Configuration Guide]({docs_en})",
                 "data": {
                     "host": "IP Address or Hostname",
                     "username": "Username (optional)",
@@ -100,9 +100,36 @@
             },
             "sensor_selection": {
                 "title": "Select Sensors",
-                "description": "Choose which sensors you want to see in Home Assistant. Enable or disable individual sensors to keep your dashboard clean and focused.\n\nBy default, all available sensors are selected. You can adjust this selection anytime in the options.",
+                "description": "Choose which sensors you want to see in Home Assistant. Enable or disable individual sensors to keep your dashboard clean and focused.\n\nBy default, all available sensors are selected. You can adjust this selection anytime in the options."
+            },
+            "reauth_confirm": {
+                "title": "Reauthenticate Controller",
+                "description": "The controller credentials need to be updated. Please enter your new username and password.\n\nController: **{controller_name}**\nIP Address: **{api_url}**",
+                "data": {
+                    "username": "Username",
+                    "password": "Password"
+                },
                 "data_description": {
-                    "sensor_groups": "Sensors organized by groups"
+                    "username": "New username for authentication",
+                    "password": "New password for authentication"
+                }
+            },
+            "reconfigure": {
+                "title": "Reconfigure Connection",
+                "description": "Update the connection settings for your controller. This is useful when the controller IP address or network settings have changed.\n\nController: **{controller_name}**",
+                "data": {
+                    "host": "IP Address or Hostname",
+                    "use_ssl": "Use SSL/HTTPS",
+                    "polling_interval": "Polling Interval (seconds)",
+                    "timeout_duration": "Timeout (seconds)",
+                    "retry_attempts": "Retry Attempts"
+                },
+                "data_description": {
+                    "host": "New controller IP or DNS name",
+                    "use_ssl": "Enable HTTPS when supported",
+                    "polling_interval": "Data polling interval (10-3600s)",
+                    "timeout_duration": "Maximum wait time per request",
+                    "retry_attempts": "Number of retry attempts"
                 }
             }
         },
@@ -131,36 +158,6 @@
             "reauth_successful": "Reauthentication successful",
             "reconfigure_successful": "Reconfiguration successful",
             "unknown": "Unknown error"
-        },
-        "reauth_confirm": {
-            "title": "Reauthenticate Controller",
-            "description": "The controller credentials need to be updated. Please enter your new username and password.\n\nController: **{controller_name}**\nIP Address: **{api_url}**",
-            "data": {
-                "username": "Username",
-                "password": "Password"
-            },
-            "data_description": {
-                "username": "New username for authentication",
-                "password": "New password for authentication"
-            }
-        },
-        "reconfigure": {
-            "title": "Reconfigure Connection",
-            "description": "Update the connection settings for your controller. This is useful when the controller IP address or network settings have changed.\n\nController: **{controller_name}**",
-            "data": {
-                "host": "IP Address or Hostname",
-                "use_ssl": "Use SSL/HTTPS",
-                "polling_interval": "Polling Interval (seconds)",
-                "timeout_duration": "Timeout (seconds)",
-                "retry_attempts": "Retry Attempts"
-            },
-            "data_description": {
-                "host": "New controller IP or DNS name",
-                "use_ssl": "Enable HTTPS when supported",
-                "polling_interval": "Data polling interval (10-3600s)",
-                "timeout_duration": "Maximum wait time per request",
-                "retry_attempts": "Number of retry attempts"
-            }
         }
     },
     "options": {
@@ -169,46 +166,10 @@
                 "title": "Adjust Pool Settings",
                 "description": "What would you like to configure?\n\nEnable/disable features\nSelect sensors\nChange settings\n\nYou can always return to this selection.",
                 "data": {
-                    "polling_interval": "Data Polling Interval",
-                    "timeout_duration": "Connection Timeout",
-                    "retry_attempts": "Retry Attempts",
-                    "pool_size": "Pool Volume",
-                    "pool_type": "Pool Type",
-                    "disinfection_method": "Disinfection Method",
-                    "feature_heating": "Heating Control",
-                    "feature_solar": "Solar Absorber",
-                    "feature_ph_control": "pH Automation",
-                    "feature_chlorine_control": "Chlorine Management",
-                    "feature_cover_control": "Cover Control",
-                    "feature_backwash": "Backwash Automation",
-                    "feature_pv_surplus": "PV Surplus",
-                    "feature_filter_control": "Filter Pump",
-                    "feature_water_level": "Water Level Monitor",
-                    "feature_water_refill": "Auto Water Refill",
-                    "feature_led_lighting": "LED Lighting",
-                    "feature_digital_inputs": "Digital Inputs",
-                    "feature_extension_outputs": "Extension Modules"
+                    "config_option": "Select configuration area"
                 },
                 "data_description": {
-                    "polling_interval": "Fetch data every X seconds (10-60s recommended)",
-                    "timeout_duration": "Max. wait time for controller responses",
-                    "retry_attempts": "Number of retries on connection errors",
-                    "pool_size": "Water volume in m³ for accurate calculations",
-                    "pool_type": "Influences heating strategies and automation",
-                    "disinfection_method": "Primary water treatment method",
-                    "feature_heating": "Control pool heater intelligently",
-                    "feature_solar": "Use free solar energy",
-                    "feature_ph_control": "Optimize pH automatically",
-                    "feature_chlorine_control": "Safe water disinfection",
-                    "feature_cover_control": "Move cover on schedule",
-                    "feature_backwash": "Clean filter at optimal times",
-                    "feature_pv_surplus": "Utilize solar power surplus",
-                    "feature_filter_control": "Control pump on demand",
-                    "feature_water_level": "Monitor water level",
-                    "feature_water_refill": "Refill automatically when needed",
-                    "feature_led_lighting": "Atmospheric pool lighting",
-                    "feature_digital_inputs": "Integrate external sensors",
-                    "feature_extension_outputs": "Control additional devices"
+                    "config_option": "Choose what you want to adjust"
                 }
             },
             "features": {
