@@ -25,8 +25,6 @@ from .const import (
     DEFAULT_CONTROLLER_NAME,
     DEFAULT_POLLING_INTERVAL,
     DOMAIN,
-    SPECIFIC_FULL_REFRESH_INTERVAL,
-    SPECIFIC_READING_GROUPS,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -77,9 +75,6 @@ class VioletPoolControllerDevice:
         self._consecutive_failures = 0
         self._max_consecutive_failures = 5
         self._update_counter = 0
-        self._full_refresh_interval = max(1, SPECIFIC_FULL_REFRESH_INTERVAL)
-        self._specific_categories: list[str] = list(SPECIFIC_READING_GROUPS)
-        self._supports_specific_updates = True
 
         # ✅ LOGGING OPTIMIZATION: Smart Failure Tracking
         self._last_failure_log = 0.0  # Timestamp für Throttling
@@ -239,8 +234,11 @@ class VioletPoolControllerDevice:
                     self._recovery_logged = True
                     self._first_failure_logged = False
 
-                # Update erfolgreich
-                self._data = data
+                # Update erfolgreich - merge partial data into existing
+                if self._data:
+                    self._data.update(data)
+                else:
+                    self._data = data
                 self._available = True
                 self._consecutive_failures = 0
                 self._last_error = None
@@ -250,19 +248,21 @@ class VioletPoolControllerDevice:
                 self._system_health = 100.0  # Perfect health
 
                 # Firmware-Version extrahieren (mehrere Fallbacks)
-                # ✅ FIX: Erweiterte Firmware-Extraktion mit mehr Fallback-Optionen
-                self._firmware_version = (
-                    data.get("FW")
-                    or data.get("fw")
-                    or data.get("SW_VERSION")
-                    or data.get("sw_version")
-                    or data.get("VERSION")
-                    or data.get("version")
-                    or data.get("SW_VERSION_CARRIER")
-                    or data.get("FIRMWARE_VERSION")
-                    or data.get("firmware_version")
-                    or self._firmware_version  # Behalte alten Wert wenn nichts gefunden
-                )
+                fw_candidates = [
+                    data.get("FW"),
+                    data.get("fw"),
+                    data.get("SW_VERSION"),
+                    data.get("sw_version"),
+                    data.get("VERSION"),
+                    data.get("version"),
+                    data.get("SW_VERSION_CARRIER"),
+                    data.get("FIRMWARE_VERSION"),
+                    data.get("firmware_version"),
+                ]
+                for candidate in fw_candidates:
+                    if candidate is not None and str(candidate).strip():
+                        self._firmware_version = str(candidate).strip()
+                        break
 
                 # Debug-Log nur wenn Firmware gefunden wurde und sich geändert hat
                 if self._firmware_version and not hasattr(self, "_fw_logged"):
@@ -271,7 +271,7 @@ class VioletPoolControllerDevice:
                     )
                     self._fw_logged = True
 
-                return data
+                return self._data
 
         except VioletPoolAPIError as err:
             self._last_error = str(err)
@@ -346,58 +346,14 @@ class VioletPoolControllerDevice:
             return self._data
 
     async def _fetch_controller_data(self) -> dict[str, Any]:
-        """Fetch controller data with support for partial refreshes."""
+        """Fetch all controller data.
 
-        self._update_counter += 1
+        Always uses full refresh (?ALL) because the controller returns all
+        data in a single compact response (~403 keys) and partial category
+        queries miss many important keys (PUMP, SOLAR, fw, etc.).
+        """
+        return await self.api.get_readings()
 
-        full_refresh_due = (
-            self._update_counter == 1
-            or (
-                self._full_refresh_interval
-                and self._update_counter % self._full_refresh_interval == 0
-            )
-            or not self._supports_specific_updates
-        )
-
-        if full_refresh_due:
-            data = await self.api.get_readings()
-            self._specific_categories = self._derive_specific_categories(data)
-            self._supports_specific_updates = True
-            return data
-
-        categories = self._specific_categories or list(SPECIFIC_READING_GROUPS)
-
-        try:
-            return await self.api.get_specific_readings(categories)
-        except VioletPoolAPIError as err:
-            _LOGGER.debug(
-                "Spezifischer Datenabruf fehlgeschlagen (%s). Fallback auf Vollabruf.",
-                err,
-            )
-            self._supports_specific_updates = False
-            return await self.api.get_readings()
-
-    def _derive_specific_categories(self, data: Mapping[str, Any]) -> list[str]:
-        """Build a list of categories used for specific reading refreshes."""
-
-        categories: set[str] = set(SPECIFIC_READING_GROUPS)
-
-        for key in data.keys():
-            if not isinstance(key, str) or not key:
-                continue
-            prefix = key.split("_")[0]
-            if not prefix:
-                continue
-            if prefix.lower() in {"date", "time"}:
-                categories.add(prefix.lower())
-            else:
-                categories.add(prefix.upper())
-
-        ordered = sorted(categories)
-        # Limit the number of categories to keep the query string reasonable
-        if len(ordered) > 30:
-            ordered = ordered[:30]
-        return ordered
 
     @property
     def available(self) -> bool:
