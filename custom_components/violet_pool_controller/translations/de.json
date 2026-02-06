@@ -100,9 +100,36 @@
             },
             "sensor_selection": {
                 "title": "Sensoren auswählen",
-                "description": "Wähle die Sensoren aus, die du in Home Assistant sehen möchtest. Du kannst einzelne Sensoren aktivieren oder deaktivieren, um die Übersicht zu verbessern.\n\nStandardmäßig sind alle verfügbaren Sensoren ausgewählt. Du kannst diese Auswahl jederzeit in den Optionen anpassen.",
+                "description": "Wähle die Sensoren aus, die du in Home Assistant sehen möchtest. Du kannst einzelne Sensoren aktivieren oder deaktivieren, um die Übersicht zu verbessern.\n\nStandardmäßig sind alle verfügbaren Sensoren ausgewählt. Du kannst diese Auswahl jederzeit in den Optionen anpassen."
+            },
+            "reauth_confirm": {
+                "title": "Controller erneut authentifizieren",
+                "description": "Die Anmeldedaten des Controllers müssen aktualisiert werden. Bitte gib deinen neuen Benutzernamen und dein neues Passwort ein.\n\nController: **{controller_name}**\nIP-Adresse: **{api_url}**",
+                "data": {
+                    "username": "Benutzername",
+                    "password": "Passwort"
+                },
                 "data_description": {
-                    "sensor_groups": "Sensoren nach Gruppen organisiert"
+                    "username": "Neuer Benutzername für die Authentifizierung",
+                    "password": "Neues Passwort für die Authentifizierung"
+                }
+            },
+            "reconfigure": {
+                "title": "Verbindung neu konfigurieren",
+                "description": "Aktualisiere die Verbindungseinstellungen für deinen Controller. Dies ist nützlich, wenn sich die IP-Adresse oder die Netzwerkeinstellungen des Controllers geändert haben.\n\nController: **{controller_name}**",
+                "data": {
+                    "host": "IP-Adresse oder Hostname",
+                    "use_ssl": "SSL/HTTPS verwenden",
+                    "polling_interval": "Abrufintervall (Sekunden)",
+                    "timeout_duration": "Timeout (Sekunden)",
+                    "retry_attempts": "Wiederholungsversuche"
+                },
+                "data_description": {
+                    "host": "Neue Controller-IP oder DNS-Name",
+                    "use_ssl": "HTTPS aktivieren, falls unterstützt",
+                    "polling_interval": "Datenabruf-Intervall (10-3600s)",
+                    "timeout_duration": "Maximale Wartezeit pro Anfrage",
+                    "retry_attempts": "Anzahl Wiederholungsversuche"
                 }
             }
         },
@@ -131,36 +158,6 @@
             "reauth_successful": "Reauthentifizierung erfolgreich",
             "reconfigure_successful": "Neukonfiguration erfolgreich",
             "unknown": "Unbekannter Fehler"
-        },
-        "reauth_confirm": {
-            "title": "Controller erneut authentifizieren",
-            "description": "Die Anmeldedaten des Controllers müssen aktualisiert werden. Bitte gib deinen neuen Benutzernamen und dein neues Passwort ein.\n\nController: **{controller_name}**\nIP-Adresse: **{api_url}**",
-            "data": {
-                "username": "Benutzername",
-                "password": "Passwort"
-            },
-            "data_description": {
-                "username": "Neuer Benutzername für die Authentifizierung",
-                "password": "Neues Passwort für die Authentifizierung"
-            }
-        },
-        "reconfigure": {
-            "title": "Verbindung neu konfigurieren",
-            "description": "Aktualisiere die Verbindungseinstellungen für deinen Controller. Dies ist nützlich, wenn sich die IP-Adresse oder die Netzwerkeinstellungen des Controllers geändert haben.\n\nController: **{controller_name}**",
-            "data": {
-                "host": "IP-Adresse oder Hostname",
-                "use_ssl": "SSL/HTTPS verwenden",
-                "polling_interval": "Abrufintervall (Sekunden)",
-                "timeout_duration": "Timeout (Sekunden)",
-                "retry_attempts": "Wiederholungsversuche"
-            },
-            "data_description": {
-                "host": "Neue Controller-IP oder DNS-Name",
-                "use_ssl": "HTTPS aktivieren, falls unterstützt",
-                "polling_interval": "Datenabruf-Intervall (10-3600s)",
-                "timeout_duration": "Maximale Wartezeit pro Anfrage",
-                "retry_attempts": "Anzahl Wiederholungsversuche"
-            }
         }
     },
     "options": {
@@ -169,46 +166,10 @@
                 "title": "Pool-Einstellungen anpassen",
                 "description": "Was möchtest du konfigurieren?\n\nFeatures aktivieren/deaktivieren\nSensoren auswählen\nEinstellungen ändern\n\nDu kannst jederzeit zurück zu dieser Auswahl kommen.",
                 "data": {
-                    "polling_interval": "Datenabfrage-Intervall",
-                    "timeout_duration": "Verbindungs-Timeout",
-                    "retry_attempts": "Wiederholungsversuche",
-                    "pool_size": "Pool-Volumen",
-                    "pool_type": "Pool-Typ",
-                    "disinfection_method": "Desinfektionsmethode",
-                    "feature_heating": "Heizungssteuerung",
-                    "feature_solar": "Solarabsorber",
-                    "feature_ph_control": "pH-Automatik",
-                    "feature_chlorine_control": "Chlor-Management",
-                    "feature_cover_control": "Abdeckungssteuerung",
-                    "feature_backwash": "Rückspül-Automatik",
-                    "feature_pv_surplus": "PV-Überschuss",
-                    "feature_filter_control": "Filterpumpe",
-                    "feature_water_level": "Füllstand-Monitor",
-                    "feature_water_refill": "Auto-Nachfüllung",
-                    "feature_led_lighting": "LED-Beleuchtung",
-                    "feature_digital_inputs": "Digitale Eingänge",
-                    "feature_extension_outputs": "Erweiterungsmodule"
+                    "config_option": "Konfigurationsbereich auswählen"
                 },
                 "data_description": {
-                    "polling_interval": "Alle X Sekunden Daten abrufen (10-60s empfohlen)",
-                    "timeout_duration": "Max. Wartezeit für Controller-Antworten",
-                    "retry_attempts": "Anzahl Wiederholungen bei Verbindungsfehlern",
-                    "pool_size": "Wasservolumen in m³ für korrekte Berechnungen",
-                    "pool_type": "Beeinflusst Heizstrategien und Automatiken",
-                    "disinfection_method": "Hauptmethode für Wasserpflege",
-                    "feature_heating": "Poolheizung intelligent steuern",
-                    "feature_solar": "Kostenlose Sonnenenergie nutzen",
-                    "feature_ph_control": "pH-Wert automatisch optimieren",
-                    "feature_chlorine_control": "Sichere Wasserdesinfektion",
-                    "feature_cover_control": "Abdeckung zeitgesteuert bewegen",
-                    "feature_backwash": "Filter zur optimalen Zeit reinigen",
-                    "feature_pv_surplus": "Solarstrom-Überschuss verwerten",
-                    "feature_filter_control": "Pumpe bedarfsgerecht steuern",
-                    "feature_water_level": "Wasserstand überwachen",
-                    "feature_water_refill": "Bei Bedarf automatisch nachfüllen",
-                    "feature_led_lighting": "Stimmungsvolle Poolbeleuchtung",
-                    "feature_digital_inputs": "Externe Sensoren integrieren",
-                    "feature_extension_outputs": "Zusätzliche Geräte ansteuern"
+                    "config_option": "Wähle aus, was du anpassen möchtest"
                 }
             },
             "features": {

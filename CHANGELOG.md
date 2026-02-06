@@ -18,9 +18,9 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank!
 
 ---
 
-## [1.0.7] - 2026-02-06
+## [1.0.0] - 2026-02-06
 
-## v1.0.7 – Violet Pool Controller
+## v1.0.0 – Violet Pool Controller
 
 **STABLE RELEASE** - Production-ready with extensive testing on live hardware!
 

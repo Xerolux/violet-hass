@@ -1,4 +1,4 @@
-## v1.0.7 – Violet Pool Controller
+## v1.0.0 – Violet Pool Controller
 
 **STABLE RELEASE** - Production-ready with extensive testing on live hardware!
 
@@ -73,7 +73,7 @@ Getestet auf echtem Controller-Hardware mit HA 2026.
 
 ---
 
-📋 [Full changelog: v1.0.7-alpha.3...v1.0.7](https://github.com/Xerolux/violet-hass/compare/v1.0.7-alpha.3...v1.0.7)
+📋 [Full changelog: v1.0.7-alpha.3...v1.0.0](https://github.com/Xerolux/violet-hass/compare/v1.0.7-alpha.3...v1.0.0)
 
 ---
 
