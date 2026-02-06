@@ -368,7 +368,7 @@ Beiträge sind herzlich willkommen! Ob Bug-Fixes, neue Features, Dokumentation o
 4. Branch pushen (`git push origin feature/amazing-feature`)
 5. Pull Request öffnen
 
-Siehe [CONTRIBUTING.md](CONTRIBUTING.md) für Details.
+Siehe [CONTRIBUTING.md](docs/CONTRIBUTING.md) für Details.
 
 ### 🛠️ Entwicklungsumgebung einrichten
 
@@ -397,7 +397,7 @@ Siehe [CONTRIBUTING.md](CONTRIBUTING.md) für Details.
 
 ## 📋 Changelog
 
-Für die vollständige Changelog siehe [CHANGELOG.md](CHANGELOG.md).
+Für den vollständigen Changelog siehe [CHANGELOG.md](docs/CHANGELOG.md).
 
 ### **v0.2.0-beta.4** (2025-12-02) - Bug Fixes & Improvements
 - 🔧 Fix thread assertion error mit umfassender Test-Infrastruktur
