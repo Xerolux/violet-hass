@@ -179,7 +179,7 @@ def _install_homeassistant_stubs() -> None:
 
 _install_homeassistant_stubs()
 
-from custom_components.violet_pool_controller.entity import interpret_state_as_bool
+from custom_components.violet_pool_controller.entity import interpret_state_as_bool  # noqa: E402
 
 
 @pytest.mark.parametrize(

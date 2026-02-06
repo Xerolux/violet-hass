@@ -1,3 +1,8 @@
+import logging
+import ssl
+
+_LOGGER = logging.getLogger(__name__)
+
 def _create_ssl_context(use_ssl: bool, verify_cert: bool = True) -> bool | ssl.SSLContext:
     """Create secure SSL context with proper certificate validation."""
     if not use_ssl:

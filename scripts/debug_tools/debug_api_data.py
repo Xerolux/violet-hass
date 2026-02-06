@@ -9,7 +9,6 @@ This script fetches data from your controller and helps identify:
 import asyncio
 import aiohttp
 import json
-from pprint import pprint
 
 
 async def fetch_api_data():

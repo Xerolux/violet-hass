@@ -54,4 +54,4 @@ if __name__ == "__main__":
     if fw and fw != "Unbekannt":
         print(f"✓ SUCCESS: Firmware '{fw}' should be displayed")
     else:
-        print(f"✗ FAIL: Firmware extraction failed")
+        print("✗ FAIL: Firmware extraction failed")
