@@ -35,7 +35,7 @@ jobs:
             - ✅ Code follows our style guidelines
             - ✅ All tests pass
             - ✅ Documentation is updated (if needed)
-            - ✅ CHANGELOG.md is updated
+            - ✅ docs/CHANGELOG.md is updated
             
             A maintainer will review your PR soon!
 
