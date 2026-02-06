@@ -3,7 +3,7 @@
         "step": {
             "user": {
                 "title": "Configuration de l'utilisateur",
-                "description": "Si vous avez besoin d'aide pour la configuration, consultez ici : [Violet Hass Integration](https://github.com/Xerolux/violet-hass)",
+                "description": "Si vous avez besoin d'aide pour la configuration, consultez ici : [Violet Hass Integration]({github_url})",
                 "data": {
                     "username": "Nom d'utilisateur",
                     "password": "Mot de passe"

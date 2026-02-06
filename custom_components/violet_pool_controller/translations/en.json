@@ -3,7 +3,7 @@
         "step": {
             "user": {
                 "title": "Violet Pool Setup Assistant",
-                "description": "Choose whether you want to start the configuration wizard immediately or open the detailed documentation first.\n\nDocumentation: [Configuration Guide](https://github.com/xerolux/violet-hass/blob/main/docs/help/configuration-guide.en.md)\n\nSupport & Feedback: https://github.com/xerolux/violet-hass/issues",
+                "description": "Choose whether you want to start the configuration wizard immediately or open the detailed documentation first.\n\nDocumentation: [Configuration Guide]({docs_en})\n\nSupport & Feedback: {issues_url}",
                 "data": {
                     "action": "Select action"
                 },
@@ -13,18 +13,18 @@
             },
             "disclaimer": {
                 "title": "Safety and Liability Notice",
-                "description": "⚠️ **Safety Warning**\n\nThis integration provides remote control for pumps, heaters, lights and dosing systems. Incorrect configuration may cause equipment damage, personal injury or chemical overdosing. Make sure you understand all safety features and keep manual overrides accessible.\n\nPlease review the [Configuration Guide](https://github.com/xerolux/violet-hass/blob/main/docs/help/configuration-guide.en.md) before you continue.",
+                "description": "⚠️ **Safety Warning**\n\nThis integration provides remote control for pumps, heaters, lights and dosing systems. Incorrect configuration may cause equipment damage, personal injury or chemical overdosing. Make sure you understand all safety features and keep manual overrides accessible.\n\nPlease review the [Configuration Guide]({docs_en}) before you continue.",
                 "data": {
                     "agreement": "I accept all risks and have read the full disclaimer."
                 }
             },
             "help": {
                 "title": "Help & Documentation",
-                "description": "Read the [Configuration Guide](https://github.com/xerolux/violet-hass/blob/main/docs/help/configuration-guide.en.md) for step-by-step instructions, safety notes and feature explanations.\n\nNeed assistance or want to share feedback? Open an issue at https://github.com/xerolux/violet-hass/issues.\n\nProject repository: https://github.com/xerolux/violet-hass\n\nClick **Next** to return to the main menu."
+                "description": "Read the [Configuration Guide]({docs_en}) for step-by-step instructions, safety notes and feature explanations.\n\nNeed assistance or want to share feedback? Open an issue at {issues_url}.\n\nProject repository: {github_url}\n\nClick **Next** to return to the main menu."
             },
             "connection": {
                 "title": "Controller Connection",
-                "description": "Connect your Violet Pool Controller to Home Assistant. Ensure the controller shares the same network and the API is reachable.\n\nAdditional documentation: [Configuration Guide](https://github.com/xerolux/violet-hass/blob/main/docs/help/configuration-guide.en.md)",
+                "description": "Connect your Violet Pool Controller to Home Assistant. Ensure the controller shares the same network and the API is reachable.\n\nAdditional documentation: [Configuration Guide]({docs_en})",
                 "data": {
                     "host": "IP Address or Hostname",
                     "username": "Username (optional)",
