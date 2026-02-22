@@ -78,6 +78,24 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
         if self._optimistic_value is not None:
             return self._optimistic_value
 
+        # Spezialfall: Pumpengeschwindigkeit - aktive Stufe aus PUMP_RPM_{i} ermitteln
+        # PUMP_RPM_{i} liefert Statuscodes (0-6); Werte 1,2,3,4 = Ausgang EIN
+        if self._api_key == "PUMP_SPEED":
+            for level in range(1, 4):  # Stufen 1 (Eco), 2 (Normal), 3 (Boost)
+                rpm_val = self.get_value(f"PUMP_RPM_{level}")
+                if rpm_val is not None:
+                    try:
+                        if int(rpm_val) in (1, 2, 3, 4):  # Statuscode = EIN
+                            _LOGGER.debug(
+                                "Pumpengeschwindigkeit aktiv: Stufe %d (PUMP_RPM_%d=%s)",
+                                level,
+                                level,
+                                rpm_val,
+                            )
+                            return float(level)
+                    except (ValueError, TypeError):
+                        pass
+
         # Versuche Sollwert aus den konfigurierten Feldern zu lesen
         if self._setpoint_fields:
             for field in self._setpoint_fields:

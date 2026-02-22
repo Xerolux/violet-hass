@@ -344,7 +344,7 @@ SETPOINT_DEFINITIONS = [
         "device_class": None,
         "feature_id": "filter_control",
         "entity_category": EntityCategory.CONFIG,
-        "setpoint_fields": ["PUMP_RPM_2", "PUMP_SPEED", "pump_speed"],
+        "setpoint_fields": ["PUMP_SPEED", "pump_speed"],
         "indicator_fields": ["PUMP", "PUMP_RPM_2", "PUMP_RPM_2_VALUE"],
     },
     # Dosing Canister Volumes

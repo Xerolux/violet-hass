@@ -99,8 +99,8 @@ UNIT_MAP = {
     "ADC5_value": "V",
     "IMP1_value": "cm/s",
     "IMP2_value": "m³/h",
-    # Pump RPMs
-    **{f"PUMP_RPM_{i}": "RPM" for i in range(4)},
+    # Pump RPMs - only _VALUE sensors carry actual RPM measurements
+    # PUMP_RPM_{i} (without _VALUE) returns a state code (0-6), not a speed in RPM
     **{f"PUMP_RPM_{i}_VALUE": "RPM" for i in range(4)},
 }
 
@@ -126,6 +126,8 @@ NO_UNIT_SENSORS = {
     "SYSTEM_CARRIER_CPU_TEMPERATURE",
     "SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE",
     "SYSTEM_memoryusage",
+    # PUMP_RPM_{i} (without _VALUE) are state code sensors (values 0-6), not RPM measurements
+    *(f"PUMP_RPM_{i}" for i in range(4)),
 }
 
 # =============================================================================
