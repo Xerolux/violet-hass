@@ -186,6 +186,10 @@ _TEXT_VALUE_KEYS = {
     "SYSTEM_dosagemodule_alive_faultcount",
     "SYSTEM_ext1module_alive_count",
     "SYSTEM_ext1module_alive_faultcount",
+    # Cover contact sensors - these return string values ("RELEASED"/"TRIGGERED")
+    "CLOSE_CONTACT",
+    "OPEN_CONTACT",
+    "ERROR_CONTACT",
 }
 
 _ALL_TEXT_SENSORS = (
@@ -230,6 +234,24 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
         )
 
     @property
+    def state_class(self) -> SensorStateClass | None:
+        """Override state_class for contact sensors to prevent numeric conversion errors.
+
+        Contact sensors return string values ('RELEASED', 'TRIGGERED') but may have been
+        incorrectly created with state_class='measurement'. This property override
+        ensures they always return None, preventing Home Assistant from attempting
+        numeric conversion.
+        """
+        # Force state_class to None for contact sensors
+        if "contact" in self.entity_description.key.lower():
+            _LOGGER.debug(
+                "Overriding state_class to None for contact sensor: %s",
+                self.entity_description.key,
+            )
+            return None
+        return self.entity_description.state_class
+
+    @property
     def native_value(self) -> str | int | float | datetime | None:
         """Returns the native value of the sensor, formatted for Home Assistant."""
         if self.coordinator.data is None:
@@ -241,9 +263,19 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
         if raw_value is None:
             return None
 
-        if key in _TIMESTAMP_KEYS and key not in _TIME_FORMAT_KEYS:
+        # Check if key indicates a timestamp sensor (by suffix or membership in _TIMESTAMP_KEYS)
+        is_timestamp_key = key in _TIMESTAMP_KEYS or any(
+            key.upper().endswith(suffix) for suffix in _TIMESTAMP_SUFFIXES
+        )
+
+        if is_timestamp_key and key not in _TIME_FORMAT_KEYS:
             try:
-                return datetime.fromtimestamp(float(raw_value), tz=timezone.utc)
+                timestamp = float(raw_value)
+                # Handle milliseconds: if timestamp > 10000000000, it's in milliseconds
+                # (10000000000 ms = September 2001, in seconds since 1970)
+                if timestamp > 10000000000:
+                    timestamp = timestamp / 1000
+                return datetime.fromtimestamp(timestamp, tz=timezone.utc)
             except (ValueError, TypeError) as err:
                 self._logger.warning(
                     "Timestamp conversion failed for %s with value '%s': %s",
@@ -258,11 +290,31 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
 
         try:
             num_value = float(raw_value)
-            if key == "pH_value":
+
+            # Water chemistry values (pH, ORP, Chlorine) - 2 decimal places for precision
+            if key in {"pH_value", "orp_value", "pot_value"}:
                 return round(num_value, 2)
-            if "temp" in key.lower() or "onewire" in key.lower():
+
+            # Temperature sensors (all onewire, CPU temps) - 2 decimal places
+            # IMPORTANT: Exclude freezecount, faultcount - these are counters, NOT temperatures!
+            if ("temp" in key.lower() or "onewire" in key.lower()) and "freezecount" not in key.lower() and "faultcount" not in key.lower():
+                return round(num_value, 2)
+
+            # Analog sensors (ADC, IMP) - 2 decimal places for precision
+            if key.startswith(("ADC", "IMP")):
+                return round(num_value, 2)
+
+            # Percentage values - 1 decimal place
+            if key.startswith(("SYSTEM_")) or "_" in key and key.split("_")[-1] in ["PERCENT", "PERCENTAGE"]:
                 return round(num_value, 1)
-            return int(num_value) if num_value.is_integer() else num_value
+
+            # Integer values (counts, RPM, etc.) - round to integer if close to whole number
+            if num_value.is_integer():
+                return int(num_value)
+
+            # All other numeric values - 2 decimal places for consistency
+            return round(num_value, 2)
+
         except (ValueError, TypeError):
             # Explicitly cast to string to match return type
             return str(raw_value)
@@ -715,7 +767,8 @@ def determine_device_class(
         return None
     if key == "pH_value":
         return SensorDeviceClass.PH
-    if unit == "°C" or ("temp" in key.lower() and unit is not None):
+    # Temperature device class only for actual temperature sensors (not counters)
+    if (unit == "°C" or ("temp" in key.lower() and unit is not None)) and "freezecount" not in key.lower() and "faultcount" not in key.lower():
         return SensorDeviceClass.TEMPERATURE
     if unit == "%":
         return SensorDeviceClass.HUMIDITY
@@ -725,14 +778,29 @@ def determine_device_class(
         return SensorDeviceClass.VOLTAGE
     if unit == "W":
         return SensorDeviceClass.POWER
-    if key in _TIMESTAMP_KEYS and key not in _TIME_FORMAT_KEYS:
+    # Check if key indicates a timestamp sensor (by suffix or membership in _TIMESTAMP_KEYS)
+    is_timestamp_key = key in _TIMESTAMP_KEYS or any(
+        key.upper().endswith(suffix) for suffix in _TIMESTAMP_SUFFIXES
+    )
+    if is_timestamp_key and key not in _TIME_FORMAT_KEYS:
         return SensorDeviceClass.TIMESTAMP
     return None
 
 
 def determine_state_class(key: str) -> SensorStateClass | None:
     """Determines the appropriate state class for a sensor."""
-    if key in _ALL_TEXT_SENSORS or key in _TIMESTAMP_KEYS or key in NO_UNIT_SENSORS:
+    # Check if key indicates a timestamp sensor (by suffix or membership in _TIMESTAMP_KEYS)
+    is_timestamp_key = key in _TIMESTAMP_KEYS or any(
+        key.upper().endswith(suffix) for suffix in _TIMESTAMP_SUFFIXES
+    )
+
+    if key in _ALL_TEXT_SENSORS or is_timestamp_key or key in NO_UNIT_SENSORS:
+        return None
+    # Handle contact sensors (e.g., CLOSE_CONTACT) which return string values like "RELEASED"/"TRIGGERED"
+    if "contact" in key.lower():
+        return None
+    # Count/fault sensors should not have state_class (they are counters, not measurements)
+    if "freezecount" in key.lower() or "faultcount" in key.lower():
         return None
     if "total" in key.lower() or "daily" in key.lower():
         return SensorStateClass.TOTAL_INCREASING
@@ -991,6 +1059,10 @@ def _build_sensor_description(
     if _is_boolean_value(raw_value):
         unit = None  # Booleans should not have a unit
 
+    # Force no unit for count/fault sensors (they are counters, not measurements)
+    if "freezecount" in key.lower() or "faultcount" in key.lower():
+        unit = None
+
     if unit is None and key not in NO_UNIT_SENSORS and not _is_boolean_value(raw_value):
         for suffix in [
             "_min",
@@ -1002,11 +1074,20 @@ def _build_sensor_description(
         ]:
             if key.endswith(suffix):
                 base_key = key[: -len(suffix)]
-                if UNIT_MAP.get(base_key):
-                    unit = UNIT_MAP[base_key]
-                    break
-        if unit is None and ("temp" in key.lower() or "onewire" in key.lower()):
+                # IMPORTANT: Don't inherit unit for count/fault sensors
+                if suffix not in ["_faultcount", "_freezecount"]:
+                    if UNIT_MAP.get(base_key):
+                        unit = UNIT_MAP[base_key]
+                        break
+        # Default temperature unit for onewire/temp sensors (but not for counters!)
+        if unit is None and ("temp" in key.lower() or "onewire" in key.lower()) and "freezecount" not in key.lower() and "faultcount" not in key.lower():
             unit = "°C"
+
+    # Determine state class
+    state_class = determine_state_class(key)
+    # Force state_class to None for contact sensors (they return string values)
+    if "contact" in key.lower():
+        state_class = None
 
     return SensorEntityDescription(
         key=key,
@@ -1014,7 +1095,7 @@ def _build_sensor_description(
         icon=icon or get_icon(key, unit, raw_value),
         native_unit_of_measurement=unit,
         device_class=determine_device_class(key, unit, raw_value),
-        state_class=determine_state_class(key),
+        state_class=state_class,
         entity_category=EntityCategory.DIAGNOSTIC
         if key.startswith("SYSTEM_")
         else None,

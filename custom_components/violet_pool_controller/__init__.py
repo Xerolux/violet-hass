@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import timedelta
 from typing import Any
 
 import homeassistant.helpers.config_validation as cv
@@ -159,6 +160,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # Load platforms
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
+        # Register update listener for config changes (e.g., polling_interval)
+        entry.async_on_unload(entry.add_update_listener(async_update_listener))
+
         # Register services (only once for the entire integration)
         from .services import async_register_services
 
@@ -208,11 +212,10 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             # Get coordinator for cleanup
             coordinator = hass.data.get(DOMAIN, {}).get(entry.entry_id)
             if coordinator and hasattr(coordinator.device, "api"):
-                # Close API session and connections
+                # NOTE: Do NOT close the aiohttp session - it's managed by Home Assistant!
+                # The session is created by HA via async_get_clientsession() and should only be closed by HA
                 api = coordinator.device.api
-                if hasattr(api, "_session") and api._session:
-                    await api._session.close()
-                    _LOGGER.debug("API session closed for entry_id=%s", entry.entry_id)
+                _LOGGER.debug("API object reference released for entry_id=%s", entry.entry_id)
 
             # Cancel any pending recovery tasks
             if coordinator and hasattr(coordinator.device, "_recovery_task"):
@@ -248,6 +251,85 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     except Exception as err:
         _LOGGER.exception("Error during unload of '%s': %s", device_name, err)
         return False
+
+
+async def async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Handle config entry updates (e.g., polling_interval, timeout, retry changes).
+
+    This function is called when the user modifies integration options.
+    It updates ALL settings dynamically without requiring a reload.
+
+    Args:
+        hass: The Home Assistant instance.
+        entry: The config entry that was updated.
+    """
+    _LOGGER.info(
+        "Config entry updated for '%s' (entry_id=%s)",
+        entry.data.get(CONF_DEVICE_NAME, "Unknown"),
+        entry.entry_id,
+    )
+
+    # Get coordinator
+    coordinator = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+    if not coordinator:
+        _LOGGER.warning("Coordinator not found for entry_id=%s", entry.entry_id)
+        return
+
+    # Track if any setting was updated
+    settings_updated = False
+
+    # 1. Update polling interval if changed
+    new_polling_interval = entry.options.get(
+        CONF_POLLING_INTERVAL,
+        entry.data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL),
+    )
+
+    current_interval = coordinator.update_interval.total_seconds()
+
+    if new_polling_interval != current_interval:
+        _LOGGER.info(
+            "Updating polling interval from %ds to %ds (entry_id=%s)",
+            current_interval,
+            new_polling_interval,
+            entry.entry_id,
+        )
+
+        coordinator.update_interval = timedelta(seconds=new_polling_interval)
+
+        # Reset the update tracker to force an immediate update with the new interval
+        if hasattr(coordinator, "_last_update_time"):
+            coordinator._last_update_time = 0
+
+        _LOGGER.info(
+            "Polling interval updated successfully to %ds (entry_id=%s)",
+            new_polling_interval,
+            entry.entry_id,
+        )
+        settings_updated = True
+    else:
+        _LOGGER.debug(
+            "Polling interval unchanged at %ds (entry_id=%s)",
+            new_polling_interval,
+            entry.entry_id,
+        )
+
+    # 2. Update API connection settings if changed
+    if hasattr(coordinator.device, "update_api_config"):
+        api_updated = await coordinator.device.update_api_config(entry)
+        if api_updated:
+            settings_updated = True
+
+    # Log summary
+    if settings_updated:
+        _LOGGER.info(
+            "All settings updated successfully for entry_id=%s",
+            entry.entry_id,
+        )
+    else:
+        _LOGGER.debug(
+            "No settings changes detected for entry_id=%s",
+            entry.entry_id,
+        )
 
 
 # =============================================================================

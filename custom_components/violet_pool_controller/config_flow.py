@@ -198,7 +198,7 @@ async def fetch_api_data(
     auth: aiohttp.BasicAuth | None,
     use_ssl: bool,
     timeout: int,
-    retries: int,
+    retries: int | float,
 ) -> dict[str, Any]:
     """
     Fetch API data with retry logic.
@@ -217,7 +217,9 @@ async def fetch_api_data(
     Raises:
         ValueError: If the API request fails.
     """
-    for attempt in range(retries):
+    # Ensure retries is an integer (may be stored as float in config)
+    retries_int = int(retries)
+    for attempt in range(retries_int):
         try:
             timeout_obj = aiohttp.ClientTimeout(total=timeout)
             ssl_context = _create_ssl_context(use_ssl, verify_cert=True)
@@ -227,14 +229,14 @@ async def fetch_api_data(
                 response.raise_for_status()
                 return cast(dict[str, Any], await response.json())
         except (aiohttp.ClientError, asyncio.TimeoutError) as err:
-            if attempt + 1 == retries:
-                _LOGGER.error("API-Fehler nach %d Versuchen: %s", retries, err)
+            if attempt + 1 == retries_int:
+                _LOGGER.error("API-Fehler nach %d Versuchen: %s", retries_int, err)
                 raise ValueError(f"API-Anfrage fehlgeschlagen: {err}") from err
             retry_delay = BASE_RETRY_DELAY**attempt
             _LOGGER.warning(
                 "API-Versuch %d/%d fehlgeschlagen, wiederhole in %ds",
                 attempt + 1,
-                retries,
+                retries_int,
                 retry_delay,
             )
             await asyncio.sleep(retry_delay)
@@ -708,6 +710,14 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         default=reconfigure_entry.data.get(
                             CONF_API_URL, "192.168.178.55"
                         ),
+                    ): str,
+                    vol.Optional(
+                        CONF_USERNAME,
+                        default=reconfigure_entry.data.get(CONF_USERNAME, ""),
+                    ): str,
+                    vol.Optional(
+                        CONF_PASSWORD,
+                        default=reconfigure_entry.data.get(CONF_PASSWORD, ""),
                     ): str,
                     vol.Required(
                         CONF_USE_SSL,

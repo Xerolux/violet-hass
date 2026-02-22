@@ -3,7 +3,7 @@
         "step": {
             "user": {
                 "title": "Violet Pool Setup-Assistent",
-                "description": "Wähle aus, ob du direkt mit der Einrichtung starten möchtest oder zuerst die ausführliche Dokumentation lesen willst.\n\nDokumentation: [Konfigurationshilfe]({docs_de})\n\nSupport & Feedback: {issues_url}",
+                "description": "Wähle aus, ob du direkt mit der Einrichtung starten möchtest oder zuerst die ausführliche Dokumentation lesen willst.\n\nDokumentation: [Konfigurationshilfe]({docs_en})\n\nSupport & Feedback: {issues_url}",
                 "data": {
                     "action": "Aktion auswählen"
                 },
@@ -13,18 +13,18 @@
             },
             "disclaimer": {
                 "title": "Sicherheits- und Haftungshinweise",
-                "description": "⚠️ **Sicherheitswarnung**\n\nDiese Integration kann Pumpen, Heizungen, Beleuchtung und Dosieranlagen deines Pools fernsteuern. Falsche Einstellungen können zu Sachschäden, Verletzungen oder Überdosierungen führen. Stelle sicher, dass du alle Schutzmechanismen verstehst und jederzeit manuell eingreifen kannst.\n\nLies vor der Nutzung unbedingt die Hinweise in der [Konfigurationshilfe]({docs_de}).",
+                "description": "⚠️ **Sicherheitswarnung**\n\nDiese Integration kann Pumpen, Heizungen, Beleuchtung und Dosieranlagen deines Pools fernsteuern. Falsche Einstellungen können zu Sachschäden, Verletzungen oder Überdosierungen führen. Stelle sicher, dass du alle Schutzmechanismen verstehst und jederzeit manuell eingreifen kannst.\n\nLies vor der Nutzung unbedingt die Hinweise in der [Konfigurationshilfe]({docs_en}).",
                 "data": {
                     "agreement": "Ich akzeptiere alle Risiken und habe die Hinweise vollständig gelesen."
                 }
             },
             "help": {
                 "title": "Hilfe & Dokumentation",
-                "description": "Lies die [Konfigurationshilfe]({docs_de}) für Schritt-für-Schritt-Anleitungen, Sicherheits-Checklisten und Funktionsübersichten.\n\nUnterstützung oder Ideen? Erstelle ein Ticket unter {issues_url}.\n\nProjekt-Repository: {github_url}\n\nKlicke auf **Weiter**, um zum Hauptmenü zurückzukehren."
+                "description": "Lies die [Konfigurationshilfe]({docs_en}) für Schritt-für-Schritt-Anleitungen, Sicherheits-Checklisten und Funktionsübersichten.\n\nUnterstützung oder Ideen? Erstelle ein Ticket unter {issues_url}.\n\nProjekt-Repository: {github_url}\n\nKlicke auf **Weiter**, um zum Hauptmenü zurückzukehren."
             },
             "connection": {
                 "title": "Controller-Verbindung",
-                "description": "Verbinde deinen Violet Pool Controller mit Home Assistant. Stelle sicher, dass sich der Controller im selben Netzwerk befindet und die API erreichbar ist.\n\nWeitere Hinweise: [Konfigurationshilfe]({docs_de})",
+                "description": "Verbinde deinen Violet Pool Controller mit Home Assistant. Stelle sicher, dass sich der Controller im selben Netzwerk befindet und die API erreichbar ist.\n\nWeitere Hinweise: [Konfigurationshilfe]({docs_en})",
                 "data": {
                     "host": "IP-Adresse oder Hostname",
                     "username": "Benutzername (optional)",

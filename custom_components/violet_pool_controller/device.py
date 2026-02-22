@@ -126,6 +126,108 @@ class VioletPoolControllerDevice:
             self.device_id,
         )
 
+    async def update_api_config(self, new_config_entry: ConfigEntry) -> bool:
+        """Update API configuration dynamically without full reload.
+
+        Args:
+            new_config_entry: The updated config entry with new settings.
+
+        Returns:
+            True if configuration was updated successfully, False otherwise.
+        """
+        from .api import VioletPoolAPI
+        from .const import (
+            CONF_PASSWORD,
+            CONF_RETRY_ATTEMPTS,
+            CONF_TIMEOUT_DURATION,
+            CONF_USERNAME,
+            DEFAULT_RETRY_ATTEMPTS,
+            DEFAULT_TIMEOUT_DURATION,
+        )
+
+        try:
+            # Extract new configuration from BOTH data and options
+            entry_data = new_config_entry.data
+            entry_options = new_config_entry.options
+
+            new_api_url = self._extract_api_url(entry_data)
+            new_use_ssl = entry_data.get(CONF_USE_SSL, True)
+            new_username = entry_data.get(CONF_USERNAME)
+            new_password = entry_data.get(CONF_PASSWORD)
+
+            # Check options first, then data for timeout/retries
+            new_timeout = entry_options.get(
+                CONF_TIMEOUT_DURATION,
+                entry_data.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION),
+            )
+            new_retries = entry_options.get(
+                CONF_RETRY_ATTEMPTS,
+                entry_data.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS),
+            )
+
+            # Check if connection settings changed by comparing with current values
+            # Note: We compare with device settings, not API internal attributes
+            connection_changed = (
+                new_api_url != self.api_url
+                or new_use_ssl != self.use_ssl
+                or new_timeout != self.api._timeout.total  # Access private attribute
+                or int(new_retries) != self.api._max_retries  # Access private attribute
+            )
+
+            # Auth changes are harder to detect without storing credentials
+            # For username/password changes, we assume change if explicitly provided in options
+            # or if they differ from initial setup
+            auth_in_options = (
+                entry_options.get(CONF_USERNAME) is not None
+                or entry_options.get(CONF_PASSWORD) is not None
+            )
+            if auth_in_options:
+                connection_changed = True
+
+            if not connection_changed:
+                _LOGGER.debug("API configuration unchanged, no update needed")
+                return False
+
+            _LOGGER.info(
+                "Updating API configuration (URL: %s→%s, SSL: %s→%s, Timeout: %s→%s, Retries: %s→%s)",
+                self.api_url,
+                new_api_url,
+                self.use_ssl,
+                new_use_ssl,
+                self.api._timeout.total if hasattr(self.api, "_timeout") else "unknown",
+                new_timeout,
+                self.api._max_retries if hasattr(self.api, "_max_retries") else "unknown",
+                int(new_retries),
+            )
+
+            # Create new API instance with updated configuration
+            # IMPORTANT: Do NOT close the session - it's managed by Home Assistant!
+            # We just create a new API object that uses the same session
+            new_api = VioletPoolAPI(
+                host=new_api_url,
+                session=self._session,  # Reuse the HA session, don't close it!
+                username=new_username,
+                password=new_password,
+                use_ssl=new_use_ssl,
+                verify_ssl=True,  # Always verify SSL
+                timeout=new_timeout,
+                max_retries=int(new_retries),
+            )
+
+            # Replace the old API with the new one
+            self.api = new_api
+
+            # Update device configuration
+            self.api_url = new_api_url
+            self.use_ssl = new_use_ssl
+
+            _LOGGER.info("API configuration updated successfully (new API instance created)")
+            return True
+
+        except Exception as err:
+            _LOGGER.error("Failed to update API configuration: %s", err)
+            return False
+
     def _should_log_failure(self) -> bool:
         """
         Check if failure should be logged (throttling).
