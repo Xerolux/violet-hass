@@ -1,6 +1,125 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## [1.0.1] - 2026-02-22
+
+## v1.0.1 – Violet Pool Controller
+
+✅ **CRITICAL BUG FIXES RELEASE**
+
+This release fixes critical issues with sensor display, configuration updates, and session management. All users are strongly recommended to update!
+
+---
+
+### 🐛 Bug Fixes | Fehlerbehebungen
+
+#### Critical Fixes
+
+- **Contact Sensor State Class Issue**:
+  - Fixed sensors returning string values ('RELEASED'/'TRIGGERED') with numeric state_class
+  - Added runtime override in `VioletSensor.state_class` property
+  - Added pattern matching for all sensors containing 'contact'
+  - Added explicit keys: CLOSE_CONTACT, OPEN_CONTACT, ERROR_CONTACT
+  - **Impact**: Fixes ValueError for all contact sensors
+
+- **Session Management - CRITICAL FIX**:
+  - Fixed aiohttp session being closed by integration (managed by HA)
+  - Removed all `await api._session.close()` calls
+  - Sessions now properly managed by Home Assistant lifecycle
+  - **Impact**: Prevents warnings and potential connection issues
+
+- **API Configuration Update Issues**:
+  - Fixed AttributeError when accessing API internal attributes
+  - Changed from attribute manipulation to creating new API instances
+  - Fixed accessing private attributes (_timeout, _max_retries, _auth)
+  - **Impact**: Dynamic configuration now works correctly
+
+#### Sensor Display Fixes
+
+- **Timestamp Display Issues**:
+  - Fixed timestamps displayed as large numbers instead of dates
+  - Added millisecond handling (timestamps > 10000000000)
+  - Added suffix-based timestamp detection (_LAST_AUTO_RUN, etc.)
+  - All timestamp sensors now show proper datetime format
+  - **Impact**: "Backwash Last Auto Run" now shows date instead of raw number
+
+- **Freezecount Unit Problem**:
+  - Fixed freezecount/faultcount sensors incorrectly treated as temperatures
+  - Excluded from temperature device class and state_class
+  - No unit assigned for counter sensors
+  - **Impact**: Fixes recorder warnings and unit conversion errors
+
+- **Rounding Consistency**:
+  - All numeric values now rounded consistently:
+    - pH, ORP, Chlorine: 2 decimal places
+    - Temperatures: 2 decimal places (changed from 1)
+    - Analog sensors (ADC, IMP): 2 decimal places
+    - Percentages: 1 decimal place
+    - Others: 2 decimal places
+  - **Impact**: Better readability and consistent formatting
+
+#### Configuration & Translation Fixes
+
+- **Retries TypeError**:
+  - Fixed 'float' object cannot be interpreted as an integer in range()
+  - Updated `fetch_api_data()` to accept int | float for retries parameter
+  - Added int(retries) conversion before range() calls
+  - **Impact**: Config flow now handles retry values correctly
+
+- **German Translation Placeholders**:
+  - Fixed validation errors: docs_de → docs_en in de.json
+  - All translation placeholders now match English version
+  - **Impact**: Fixes translation validation warnings
+
+- **Dynamic Configuration Updates**:
+  - Added async_update_listener for instant config application
+  - ALL settings now update immediately without reload/restart
+  - Polling interval, timeout, retries, connection settings - all instant!
+  - **Impact**: No more restart needed for config changes
+
+- **Connection Settings in Reconfigure**:
+  - Added username/password fields to reconfigure step
+  - All connection settings now editable via UI
+  - **Impact**: Users can now update credentials without full reconfiguration
+
+### 🚀 Improvements | Verbesserungen
+
+- **Dynamic Configuration**:
+  - Settings changes now take effect immediately
+  - No Home Assistant restart required
+  - No integration reload required
+  - Better user experience
+
+- **Enhanced Error Handling**:
+  - Better logging for configuration updates
+  - Clear error messages for invalid states
+  - Improved debug information
+
+### 📝 Documentation | Dokumentation
+
+- Updated CHANGELOG with comprehensive v1.0.1 fixes
+- All fixes documented with impact analysis
+- Clear upgrade instructions
+
+### ⚠️ Breaking Changes
+
+**None** - This is a bug fix release, fully backward compatible
+
+### 📦 Installation
+
+**HACS (Recommended):**
+1. Check for updates in HACS
+2. Click "Update" for Violet Pool Controller
+3. Restart Home Assistant
+
+**Manual:**
+1. Download latest `violet_pool_controller.zip`
+2. Extract to `custom_components/violet_pool_controller`
+3. Restart Home Assistant
+
+---
+
 ## [1.0.0] - 2026-02-06
 
 ## v1.0.0 – Violet Pool Controller
