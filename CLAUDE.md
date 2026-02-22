@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a Home Assistant custom integration for the **Violet Pool Controller** by PoolDigital GmbH & Co. KG. It enables local polling-based control and monitoring of pool systems including pumps, heaters, solar, chemical dosing, lighting, and covers.
 
-**Current Version**: `1.0.0` (defined in `manifest.json` and `const.py`)
+**Current Version**: `1.0.1` (defined in `manifest.json` and `const.py`)
 
 ## Development Commands
 

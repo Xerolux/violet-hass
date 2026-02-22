@@ -22,7 +22,7 @@ from .const_sensors import *
 # =============================================================================
 
 DOMAIN = "violet_pool_controller"
-INTEGRATION_VERSION = "1.0.0"
+INTEGRATION_VERSION = "1.0.1"
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 
 # =============================================================================
