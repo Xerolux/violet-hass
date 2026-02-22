@@ -740,13 +740,20 @@ class VioletPoolAPI:
         if action not in {ACTION_ALLON, ACTION_ALLOFF, ACTION_ALLAUTO}:
             raise VioletPoolAPIError(f"Unsupported DMX action: {action}")
 
-        results = []
+        tasks = []
         for scene in range(1, 13):
             key = f"DMX_SCENE{scene}"
-            try:
-                results.append(await self.set_switch_state(key, action))
-            except VioletPoolAPIError as e:
-                results.append({"success": False, "response": str(e)})
+            tasks.append(self.set_switch_state(key, action))
+
+        # Run requests concurrently
+        raw_results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        results = []
+        for res in raw_results:
+            if isinstance(res, Exception):
+                results.append({"success": False, "response": str(res)})
+            else:
+                results.append(res)
 
         success = all(result.get("success") is True for result in results)
         response = ", ".join(

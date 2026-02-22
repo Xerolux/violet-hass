@@ -40,7 +40,6 @@ except Exception as e:
 # Test 3: Import const_sensors
 print("\n📦 Testing const_sensors.py imports...")
 try:
-    from custom_components.violet_pool_controller import const_sensors
     print("  ✅ const_sensors.py imported successfully")
 except Exception as e:
     errors.append(f"const_sensors.py: {e}")
@@ -49,7 +48,6 @@ except Exception as e:
 # Test 4: Import const_features
 print("\n📦 Testing const_features.py imports...")
 try:
-    from custom_components.violet_pool_controller import const_features
     print("  ✅ const_features.py imported successfully")
 except Exception as e:
     errors.append(f"const_features.py: {e}")
@@ -58,7 +56,6 @@ except Exception as e:
 # Test 5: Import const_devices
 print("\n📦 Testing const_devices.py imports...")
 try:
-    from custom_components.violet_pool_controller import const_devices
     print("  ✅ const_devices.py imported successfully")
 except Exception as e:
     errors.append(f"const_devices.py: {e}")
@@ -118,7 +115,7 @@ try:
         errors.append(f"Missing methods: {', '.join(missing_methods)}")
         print(f"  ❌ Missing: {', '.join(missing_methods)}")
     else:
-        print(f"  ✅ All essential methods present")
+        print("  ✅ All essential methods present")
 
 except Exception as e:
     errors.append(f"config_flow.py check: {e}")

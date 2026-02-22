@@ -2,14 +2,11 @@
 
 from __future__ import annotations
 
-import asyncio
-from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.config_entries import ConfigEntry
 
 from custom_components.violet_pool_controller import (
     PLATFORMS,
