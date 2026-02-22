@@ -214,7 +214,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             if coordinator and hasattr(coordinator.device, "api"):
                 # NOTE: Do NOT close the aiohttp session - it's managed by Home Assistant!
                 # The session is created by HA via async_get_clientsession() and should only be closed by HA
-                api = coordinator.device.api
                 _LOGGER.debug("API object reference released for entry_id=%s", entry.entry_id)
 
             # Cancel any pending recovery tasks
@@ -230,11 +229,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             if entry.entry_id in hass.data.get(DOMAIN, {}):
                 hass.data[DOMAIN].pop(entry.entry_id)
                 _LOGGER.debug("Coordinator removed for entry_id=%s", entry.entry_id)
-
-            # Trigger garbage collection
-            import gc
-
-            gc.collect()
 
             _LOGGER.info(
                 "Successfully unloaded '%s' (entry_id=%s)", device_name, entry.entry_id

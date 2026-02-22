@@ -1,10 +1,9 @@
 """Tests for security fixes validation."""
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 from custom_components.violet_pool_controller.api import VioletPoolAPI
 from custom_components.violet_pool_controller.utils_sanitizer import InputSanitizer
-from custom_components.violet_pool_controller.const import API_SET_CONFIG
 
 
 class TestSecurityFixes:

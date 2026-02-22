@@ -2,21 +2,19 @@
 
 from __future__ import annotations
 
-import asyncio
 import ipaddress
 import logging
 import re
-from typing import Any, Mapping, cast
+from typing import Any, Mapping
 
-import aiohttp
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import aiohttp_client, selector
 
+from .api import VioletPoolAPI
 from .const import (
-    API_READINGS,
     AVAILABLE_FEATURES,
     CONF_ACTIVE_FEATURES,
     CONF_API_URL,
@@ -160,29 +158,6 @@ def get_sensor_label(key: str) -> str:
     return key
 
 
-def _create_ssl_context(use_ssl: bool, verify_cert: bool = True):
-    """Create secure SSL context with proper certificate validation."""
-    import ssl
-
-    if not use_ssl:
-        # Only allow SSL to be disabled in development environments
-        _LOGGER.warning("SSL disabled - connection will not be encrypted")
-        return False
-
-    # Create strict SSL context
-    ssl_context = ssl.create_default_context()
-    ssl_context.check_hostname = True
-    ssl_context.verify_mode = ssl.CERT_REQUIRED
-
-    if not verify_cert:
-        # Only for development - certificate verification disabled
-        _LOGGER.warning("Certificate verification disabled - development only")
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
-
-    return ssl_context
-
-
 def _validate_credentials_strength(username: str | None, password: str | None) -> None:
     """Check credentials against basic security policies."""
     # This is a basic check. In production this would check for password complexity.
@@ -190,57 +165,6 @@ def _validate_credentials_strength(username: str | None, password: str | None) -
         # It's okay to have no auth, but if username is present, password should be checked if needed.
         # For now, just a placeholder.
         pass
-
-
-async def fetch_api_data(
-    session: aiohttp.ClientSession,
-    api_url: str,
-    auth: aiohttp.BasicAuth | None,
-    use_ssl: bool,
-    timeout: int,
-    retries: int | float,
-) -> dict[str, Any]:
-    """
-    Fetch API data with retry logic.
-
-    Args:
-        session: The aiohttp client session.
-        api_url: The API URL.
-        auth: The authentication object.
-        use_ssl: Whether to use SSL.
-        timeout: The timeout in seconds.
-        retries: The number of retries.
-
-    Returns:
-        A dictionary containing the API data.
-
-    Raises:
-        ValueError: If the API request fails.
-    """
-    # Ensure retries is an integer (may be stored as float in config)
-    retries_int = int(retries)
-    for attempt in range(retries_int):
-        try:
-            timeout_obj = aiohttp.ClientTimeout(total=timeout)
-            ssl_context = _create_ssl_context(use_ssl, verify_cert=True)
-            async with session.get(
-                api_url, auth=auth, ssl=ssl_context, timeout=timeout_obj
-            ) as response:
-                response.raise_for_status()
-                return cast(dict[str, Any], await response.json())
-        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
-            if attempt + 1 == retries_int:
-                _LOGGER.error("API-Fehler nach %d Versuchen: %s", retries_int, err)
-                raise ValueError(f"API-Anfrage fehlgeschlagen: {err}") from err
-            retry_delay = BASE_RETRY_DELAY**attempt
-            _LOGGER.warning(
-                "API-Versuch %d/%d fehlgeschlagen, wiederhole in %ds",
-                attempt + 1,
-                retries_int,
-                retry_delay,
-            )
-            await asyncio.sleep(retry_delay)
-    raise ValueError("Fehler nach allen Versuchen")
 
 
 async def get_grouped_sensors(
@@ -264,19 +188,18 @@ async def get_grouped_sensors(
 
         _validate_credentials_strength(username, password)
 
-        protocol = "https" if config_data[CONF_USE_SSL] else "http"
-        api_url = f"{protocol}://{config_data[CONF_API_URL]}{API_READINGS}?ALL"
-        session = aiohttp_client.async_get_clientsession(hass)
-        auth = aiohttp.BasicAuth(username, password or "") if username else None
-
-        data = await fetch_api_data(
-            session,
-            api_url,
-            auth,
-            config_data[CONF_USE_SSL],
-            config_data.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION),
-            config_data.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS),
+        api = VioletPoolAPI(
+            host=config_data[CONF_API_URL],
+            session=aiohttp_client.async_get_clientsession(hass),
+            username=username,
+            password=password,
+            use_ssl=config_data[CONF_USE_SSL],
+            verify_ssl=True,
+            timeout=config_data.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION),
+            max_retries=config_data.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS),
         )
+
+        data = await api.get_readings()
 
         grouped: dict[str, list[str]] = {}
         for key in sorted(data.keys()):
@@ -287,7 +210,7 @@ async def get_grouped_sensors(
             grouped[group].append(key)
         return grouped
 
-    except ValueError:
+    except Exception:
         return {}
 
 
@@ -833,29 +756,19 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             True if successful, False otherwise.
         """
         try:
-            protocol = "https" if self._config_data[CONF_USE_SSL] else "http"
-            api_url = (
-                f"{protocol}://{self._config_data[CONF_API_URL]}{API_READINGS}?ALL"
+            api = VioletPoolAPI(
+                host=self._config_data[CONF_API_URL],
+                session=aiohttp_client.async_get_clientsession(self.hass),
+                username=self._config_data.get(CONF_USERNAME),
+                password=self._config_data.get(CONF_PASSWORD),
+                use_ssl=self._config_data[CONF_USE_SSL],
+                verify_ssl=True,
+                timeout=self._config_data[CONF_TIMEOUT_DURATION],
+                max_retries=self._config_data[CONF_RETRY_ATTEMPTS],
             )
-            session = aiohttp_client.async_get_clientsession(self.hass)
-            auth = (
-                aiohttp.BasicAuth(
-                    self._config_data[CONF_USERNAME],
-                    self._config_data[CONF_PASSWORD],
-                )
-                if self._config_data[CONF_USERNAME]
-                else None
-            )
-            await fetch_api_data(
-                session,
-                api_url,
-                auth,
-                self._config_data[CONF_USE_SSL],
-                self._config_data[CONF_TIMEOUT_DURATION],
-                self._config_data[CONF_RETRY_ATTEMPTS],
-            )
+            await api.get_readings()
             return True
-        except ValueError:
+        except Exception:
             return False
 
     async def _get_grouped_sensors(self) -> dict[str, list[str]]:
