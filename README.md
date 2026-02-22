@@ -459,7 +459,7 @@ Für den vollständigen Changelog siehe [CHANGELOG.md](docs/CHANGELOG.md).
 [forum]: https://community.home-assistant.io/
 [buymeacoffee]: https://www.buymeacoffee.com/xerolux
 [buymeacoffee-badge]: https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg?style=for-the-badge
-[logo]: https://github.com/xerolux/violet-hass/raw/main/logo.png
+[logo]: https://github.com/xerolux/violet-hass/raw/main/custom_components/violet_pool_controller/logo.png
 [pbuy]: https://github.com/xerolux/violet-hass/raw/main/screenshots/violetbm.jpg
 [github]: https://github.com/xerolux/violet-hass
 [github-shield]: https://img.shields.io/badge/GitHub-xerolux/violet--hass-blue?style=for-the-badge&logo=github
