@@ -49,6 +49,25 @@ The violet-hass addon is professionally written with excellent architecture, com
 
 ```python
 # ❌ Before
+### 🟡 Areas for Improvement
+1. **Private attribute access** (Medium Priority)
+2. **Task cleanup on reload** (Low Priority)
+3. **Code duplication** (Low Priority)
+4. **Large file refactoring** (Optional)
+5. **Missing type hints** (Code Quality)
+
+---
+
+## 📋 Detailed Issues & Solutions
+
+### 1. Private Attribute Access (Medium Priority)
+
+**Location:** `device.py:173-174, 197-199`
+
+**Issue:** Direct access to private API attributes violates encapsulation.
+
+```python
+# ❌ Current Code (device.py)
 or new_timeout != self.api._timeout.total
 or int(new_retries) != self.api._max_retries
 ```
@@ -57,6 +76,12 @@ or int(new_retries) != self.api._max_retries
 
 ```python
 # ✅ After (api.py)
+**Impact:** Tight coupling, breaks if API implementation changes
+
+**Solution:** Add public properties to API class
+
+```python
+# ✅ Fixed Code (api.py)
 @property
 def timeout(self) -> float:
     """Get current timeout in seconds."""
@@ -68,6 +93,7 @@ def max_retries(self) -> int:
     return self._max_retries
 
 # ✅ After (device.py)
+# ✅ Fixed Code (device.py)
 or new_timeout != self.api.timeout
 or int(new_retries) != self.api.max_retries
 ```
@@ -85,6 +111,32 @@ or int(new_retries) != self.api.max_retries
 **Solution:** Added cleanup method
 
 ```python
+**Files to modify:**
+- `custom_components/violet_pool_controller/api.py`
+- `custom_components/violet_pool_controller/device.py`
+
+**Estimated effort:** 15 minutes
+
+---
+
+### 2. Task Cleanup on Reload (Low Priority)
+
+**Location:** `device.py:682`
+
+**Issue:** Recovery task may continue running after config reload.
+
+```python
+# ❌ Current Code
+self._recovery_task = asyncio.create_task(recovery_loop())
+# No cleanup of old task
+```
+
+**Impact:** Potential resource leak, multiple recovery tasks running
+
+**Solution:** Add cleanup method
+
+```python
+# ✅ Fixed Code (device.py)
 async def _cleanup_recovery_task(self) -> None:
     """Cancel existing recovery task if running."""
     if self._recovery_task and not self._recovery_task.done():
@@ -96,6 +148,117 @@ async def _cleanup_recovery_task(self) -> None:
 ```
 
 **Status:** ✅ Implemented in PR #196
+            _LOGGER.debug("Recovery-Task erfolgreich cancelled")
+
+# Call in update_api_config before creating new task
+await self._cleanup_recovery_task()
+```
+
+**Files to modify:**
+- `custom_components/violet_pool_controller/device.py`
+
+**Estimated effort:** 10 minutes
+
+---
+
+### 3. Code Duplication (Low Priority)
+
+**Location:** `switch.py:467`, `climate.py:`, `select.py:`
+
+**Issue:** `_delayed_refresh()` method duplicated across 3 files.
+
+**Impact:** Maintenance overhead, potential inconsistencies
+
+**Solution:** Extract to base class
+
+```python
+# ✅ Fixed Code (entity.py)
+class RefreshableEntity(VioletEntity):
+    """Base class for entities that support delayed refresh."""
+
+    async def _delayed_refresh(self) -> None:
+        """Perform delayed coordinator refresh with error handling."""
+        try:
+            await asyncio.sleep(REFRESH_DELAY)
+            await self.coordinator.async_request_refresh()
+        except Exception as err:
+            _LOGGER.debug("Fehler beim verzögerten Refresh: %s", err)
+
+# Inherit from RefreshableEntity instead of VioletEntity
+class VioletSwitch(RefreshableEntity):
+    # ... existing code ...
+```
+
+**Files to modify:**
+- `custom_components/violet_pool_controller/entity.py`
+- `custom_components/violet_pool_controller/switch.py`
+- `custom_components/violet_pool_controller/climate.py`
+- `custom_components/violet_pool_controller/select.py`
+
+**Estimated effort:** 45 minutes
+
+---
+
+### 4. Large Files Refactoring (Optional)
+
+**Location:**
+- `sensor.py` - 1102 lines
+- `config_flow.py` - 1315 lines
+
+**Issue:** Large files are harder to maintain and navigate.
+
+**Impact:** Code maintainability
+
+**Solution:** Split into logical modules
+
+```
+sensor.py →
+  - sensor_base.py (Base classes)
+  - sensor_temp.py (Temperature sensors)
+  - sensor_dosing.py (Dosing sensors)
+  - sensor_error.py (Error codes)
+
+config_flow.py →
+  - config_flow_base.py
+  - config_flow_steps.py
+  - config_flow_handlers.py
+```
+
+**Files to modify:**
+- `custom_components/violet_pool_controller/sensor.py`
+- `custom_components/violet_pool_controller/config_flow.py`
+
+**Estimated effort:** 2-3 hours
+
+---
+
+### 5. Missing Type Hints (Code Quality)
+
+**Location:** Various files
+
+**Issue:** Some functions lack type hints.
+
+**Impact:** Reduced IDE support, harder to catch type errors
+
+**Solution:** Add comprehensive type hints
+
+```python
+# ❌ Current Code
+async def update_api_config(self, new_config_entry):
+
+# ✅ Fixed Code
+from homeassistant.config_entries import ConfigEntry
+
+async def update_api_config(
+    self,
+    new_config_entry: ConfigEntry
+) -> bool:
+```
+
+**Files to modify:**
+- Multiple files
+
+**Estimated effort:** 30 minutes
 
 ---
 
@@ -123,6 +286,7 @@ async def _cleanup_recovery_task(self) -> None:
 - Optimistic UI for fast response
 
 ### 🔧 Future Optimization Opportunities
+### 🔧 Optimization Opportunities
 
 **1. Batch Requests (if API supports)**
 ```python
@@ -133,6 +297,7 @@ await api.get_readings("SYSTEM")
 
 # Better:
 await api.get_readings("ADC,DOSAGE,SYSTEM")
+await api.get_readings("ADC,DOSAGE,SYSTEM")  # Single request
 ```
 
 **2. Dynamic Polling Interval**
@@ -214,6 +379,119 @@ curl -u "Basti:YOUR_PASSWORD" "http://192.168.178.55/setFunctionManually?PUMP,ON
 
 ---
 
+## 🎯 Action Plan
+
+### High Priority (None - Code is production ready!)
+No critical issues found.
+
+### Medium Priority (Recommended)
+1. ✅ **Private Attribute Fix** - 15 min
+2. ✅ **Task Cleanup** - 10 min
+
+### Low Priority (Nice-to-have)
+3. 📝 **Type Hints** - 30 min
+4. 📝 **Code Duplication** - 45 min
+5. 📏 **Large Files** - 2-3 hours
+
+---
+
+## 🧪 Testing Recommendations
+
+### Manual Testing
+- [ ] Test pump speed changes (1, 2, 3)
+- [ ] Test config reload with recovery running
+- [ ] Test all switches (ON, OFF, AUTO)
+- [ ] Test climate entities
+- [ ] Test dosing control
+
+### Automated Testing
+- [ ] Run existing tests: `pytest tests/`
+- [ ] Add tests for new properties (timeout, max_retries)
+- [ ] Add test for task cleanup
+
+### Integration Testing
+- [ ] Test with actual hardware controller
+- [ ] Test error recovery scenarios
+- [ ] Test network failure handling
+
+---
+
+## 📝 Implementation Checklist
+
+### Phase 1: Critical Fixes (None)
+- ✅ No critical issues found
+
+### Phase 2: Recommended Improvements
+- [ ] Add public properties to API class
+- [ ] Update device.py to use public properties
+- [ ] Add task cleanup method
+- [ ] Test task cleanup
+
+### Phase 3: Code Quality
+- [ ] Add type hints to public methods
+- [ ] Extract _delayed_refresh to base class
+- [ ] Update entity classes to inherit from RefreshableEntity
+- [ ] Run tests
+
+### Phase 4: Optional Enhancements
+- [ ] Split sensor.py into modules
+- [ ] Split config_flow.py into modules
+- [ ] Add batch request optimization
+- [ ] Implement dynamic polling intervals
+
+---
+
+## 🔄 Rollback Information
+
+If any of the changes cause issues, you can revert to the previous state:
+
+### Git Commands
+```bash
+# View commit history
+git log --oneline
+
+# Revert specific commit
+git revert <commit-hash>
+
+# Reset to before changes
+git reset --hard <commit-hash-before-changes>
+
+# Create rollback branch
+git checkout -b rollback-to-previous
+git checkout <commit-hash-before-changes>
+```
+
+### Files Modified in This Review
+- `custom_components/violet_pool_controller/api.py`
+- `custom_components/violet_pool_controller/device.py`
+- `custom_components/violet_pool_controller/entity.py`
+- `custom_components/violet_pool_controller/switch.py`
+- `custom_components/violet_pool_controller/climate.py`
+- `custom_components/violet_pool_controller/select.py`
+
+### Rollback Specific Changes
+
+**If API properties cause issues:**
+```bash
+git checkout HEAD~1 custom_components/violet_pool_controller/api.py
+git checkout HEAD~1 custom_components/violet_pool_controller/device.py
+```
+
+**If task cleanup causes issues:**
+```bash
+git checkout HEAD~1 custom_components/violet_pool_controller/device.py
+```
+
+---
+
+## 📚 References
+
+- **Home Assistant Integration Best Practices:** https://developers.home-assistant.io/docs/create_integration_versioning/
+- **Python Async/Await Patterns:** https://docs.python.org/3/library/asyncio.html
+- **Circuit Breaker Pattern:** https://martinfowler.com/bliki/CircuitBreaker.html
+
+---
+
 ## ✅ Conclusion
 
 The violet-hass addon demonstrates **excellent code quality** with:
@@ -245,6 +523,9 @@ The implemented changes in PR #196 provide:
 - `device.py` - Device management and recovery
 - `utils_sanitizer.py` - Input validation and sanitization
 - `circuit_breaker.py` - Circuit breaker pattern
+The identified issues are **cosmetic improvements** rather than bugs. The addon is **production-ready** and can be deployed as-is.
+
+**Great job!** 🎉
 
 ---
 
