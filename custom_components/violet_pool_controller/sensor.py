@@ -21,15 +21,12 @@ from .const import (
     CONF_SELECTED_SENSORS,
     DOMAIN,
     DOSING_STATE_SENSORS,
-    NO_UNIT_SENSORS,
     SENSOR_FEATURE_MAP,
     STATUS_SENSORS,
     TEMP_SENSORS,
-    UNIT_MAP,
     WATER_CHEM_SENSORS,
 )
 from .device import VioletPoolDataUpdateCoordinator
-from .error_codes import get_error_info
 
 # Import sensor classes from submodules
 from .sensor_modules import (

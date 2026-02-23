@@ -1,27 +1,19 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
 from typing import Any
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
-    SensorEntity,
     SensorEntityDescription,
     SensorStateClass,
 )
 from homeassistant.helpers.entity import EntityCategory
 
 from ..const import (
-    COMPOSITE_STATE_SENSORS,
-    DOSING_STATE_SENSORS,
     NO_UNIT_SENSORS,
-    STATUS_SENSORS,
-    TEMP_SENSORS,
     UNIT_MAP,
 )
-from ..entity import VioletPoolControllerEntity
-from ..error_codes import get_error_info
 
 _LOGGER = logging.getLogger(__name__)
 
