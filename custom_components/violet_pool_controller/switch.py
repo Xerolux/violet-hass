@@ -466,37 +466,35 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
 
     async def _delayed_refresh(self, key: str) -> None:
         """
-        Perform a delayed refresh.
+        Perform a delayed refresh with optimistic cache reset.
 
         Args:
             key: The switch key.
         """
-        try:
-            await asyncio.sleep(REFRESH_DELAY)
-            await self.coordinator.async_request_refresh()
+        # ✅ SHARED CODE: Use base refresh method
+        success = await self._request_coordinator_refresh(
+            delay=REFRESH_DELAY, log_context=key
+        )
 
-            # ✅ FIXED: Reset optimistischen Cache nach Refresh
-            if self.coordinator.last_update_success:
-                old_optimistic = self._optimistic_state
-                self._optimistic_state = None
+        # Reset optimistischen Cache nach erfolgreichem Refresh
+        if success:
+            old_optimistic = self._optimistic_state
+            self._optimistic_state = None
 
-                if old_optimistic is not None:
-                    _LOGGER.debug(
-                        "Optimistischer Cache nach Refresh gelöscht für %s (war: %s)",
-                        key,
-                        "ON" if old_optimistic else "OFF",
-                    )
+            if old_optimistic is not None:
+                _LOGGER.debug(
+                    "Optimistischer Cache nach Refresh gelöscht für %s (war: %s)",
+                    key,
+                    "ON" if old_optimistic else "OFF",
+                )
 
-            # ✅ Nur bei Debug-Level loggen
+            # Log neuen State (nur bei Debug)
             if self.coordinator.data is not None:
                 new_state = self.coordinator.data.get(key, "UNKNOWN")
                 _LOGGER.debug("State nach Refresh: %s = %s", key, new_state)
             else:
                 _LOGGER.debug("Coordinator data is None nach Refresh für %s", key)
-
-        except Exception as err:
-            # ✅ Refresh-Fehler = DEBUG (nicht kritisch, wird wiederholt)
-            _LOGGER.debug("Fehler beim verzögerten Refresh für %s: %s", key, err)
+        else:
             # Bei Fehler auch Cache löschen
             self._optimistic_state = None
 

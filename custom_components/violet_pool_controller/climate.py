@@ -374,32 +374,32 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
 
     async def _delayed_refresh(self) -> None:
         """
-        Verzögerter Refresh - FULLY PROTECTED & THREAD-SAFE VERSION.
+        Verzögerter Refresh mit optimistischem Cache-Reset.
 
-        ✅ FIXED: Resettet optimistische Cache-Werte nach erfolgreichem Refresh.
+        ✅ SHARED CODE: Uses base _request_coordinator_refresh method.
         """
-        try:
-            await asyncio.sleep(REFRESH_DELAY)
-            _LOGGER.debug("Requesting coordinator refresh for %s", self.climate_type)
-            await self.coordinator.async_request_refresh()
+        # ✅ SHARED CODE: Use base refresh method
+        success = await self._request_coordinator_refresh(
+            delay=REFRESH_DELAY, log_context=self.climate_type
+        )
 
-            # ✅ FIXED: Reset optimistische Cache-Werte nach Refresh
-            if self.coordinator.last_update_success:
-                old_optimistic_temp = self._optimistic_target_temp
-                old_optimistic_mode = self._optimistic_hvac_mode
+        # Reset optimistische Cache-Werte nach erfolgreichem Refresh
+        if success:
+            old_optimistic_temp = self._optimistic_target_temp
+            old_optimistic_mode = self._optimistic_hvac_mode
 
-                self._optimistic_target_temp = None
-                self._optimistic_hvac_mode = None
+            self._optimistic_target_temp = None
+            self._optimistic_hvac_mode = None
 
-                if old_optimistic_temp is not None or old_optimistic_mode is not None:
-                    _LOGGER.debug(
-                        "Optimistische Cache-Werte nach Refresh gelöscht "
-                        "(temp: %s, mode: %s)",
-                        old_optimistic_temp,
-                        old_optimistic_mode,
-                    )
+            if old_optimistic_temp is not None or old_optimistic_mode is not None:
+                _LOGGER.debug(
+                    "Optimistische Cache-Werte nach Refresh gelöscht "
+                    "(temp: %s, mode: %s)",
+                    old_optimistic_temp,
+                    old_optimistic_mode,
+                )
 
-            # ✅ CRITICAL: None-Check nach Refresh
+            # Log neuen State
             if self.coordinator.data is not None:
                 new_state = self.coordinator.data.get(self.climate_type, "UNKNOWN")
                 new_temp = self.coordinator.data.get(
@@ -415,8 +415,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                 _LOGGER.debug(
                     "Coordinator data is None nach Refresh für %s", self.climate_type
                 )
-        except Exception as err:
-            _LOGGER.error("Fehler beim verzögerten Refresh: %s", err)
+        else:
             # Bei Fehler auch Cache löschen
             self._optimistic_target_temp = None
             self._optimistic_hvac_mode = None

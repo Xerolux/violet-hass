@@ -257,27 +257,29 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
             raise HomeAssistantError(f"Modus-Wechsel Fehler: {err}") from err
 
     async def _delayed_refresh(self) -> None:
-        """Perform a delayed refresh."""
-        try:
-            await asyncio.sleep(REFRESH_DELAY)
-            await self.coordinator.async_request_refresh()
+        """
+        Perform a delayed refresh with optimistic cache reset.
 
-            # Reset optimistic cache nach erfolgreichem Refresh
-            if self.coordinator.last_update_success:
-                old_mode = self._optimistic_mode
-                self._optimistic_mode = None
+        ✅ SHARED CODE: Uses base _request_coordinator_refresh method.
+        """
+        # ✅ SHARED CODE: Use base refresh method
+        success = await self._request_coordinator_refresh(
+            delay=REFRESH_DELAY, log_context=self._device_key
+        )
 
-                if old_mode is not None:
-                    _LOGGER.debug(
-                        "Optimistischer Cache nach Refresh gelöscht für %s (war: %s)",
-                        self._device_key,
-                        old_mode,
-                    )
+        # Reset optimistic cache nach erfolgreichem Refresh
+        if success:
+            old_mode = self._optimistic_mode
+            self._optimistic_mode = None
 
-        except Exception as err:
-            _LOGGER.debug(
-                "Fehler beim verzögerten Refresh für %s: %s", self._device_key, err
-            )
+            if old_mode is not None:
+                _LOGGER.debug(
+                    "Optimistischer Cache nach Refresh gelöscht für %s (war: %s)",
+                    self._device_key,
+                    old_mode,
+                )
+        else:
+            # Bei Fehler auch Cache löschen
             self._optimistic_mode = None
 
     def _handle_refresh_error(self, task: asyncio.Task) -> None:

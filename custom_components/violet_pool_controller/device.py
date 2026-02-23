@@ -683,7 +683,7 @@ class VioletPoolControllerDevice:
             )
             return
 
-        async def recovery_loop():
+        async def recovery_loop() -> None:
             """Recovery-Loop im Hintergrund."""
             while self._recovery_attempts < RECOVERY_MAX_ATTEMPTS:
                 if await self._attempt_recovery():
