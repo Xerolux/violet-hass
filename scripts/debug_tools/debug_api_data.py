@@ -14,7 +14,7 @@ import json
 async def fetch_api_data():
     """Fetch and analyze API data from the controller."""
     url = "http://192.168.178.55/getReadings?ALL"
-    auth = aiohttp.BasicAuth("Basti", "sebi2634")
+    auth = aiohttp.BasicAuth("Basti", "YOUR_PASSWORD")
 
     async with aiohttp.ClientSession() as session:
         try:

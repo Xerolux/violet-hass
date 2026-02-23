@@ -170,13 +170,13 @@ POLLING_INTERVAL_IDLE = 30    # When everything off
 ### Test Commands Used
 ```bash
 # Test pump speed 1 (Eco)
-curl -u "Basti:sebi2634" "http://192.168.178.55/setFunctionManually?PUMP,ON,0,1"
+curl -u "Basti:YOUR_PASSWORD" "http://192.168.178.55/setFunctionManually?PUMP,ON,0,1"
 
 # Test pump speed 2 (Normal)
-curl -u "Basti:sebi2634" "http://192.168.178.55/setFunctionManually?PUMP,ON,0,2"
+curl -u "Basti:YOUR_PASSWORD" "http://192.168.178.55/setFunctionManually?PUMP,ON,0,2"
 
 # Test pump speed 3 (Boost)
-curl -u "Basti:sebi2634" "http://192.168.178.55/setFunctionManually?PUMP,ON,0,3"
+curl -u "Basti:YOUR_PASSWORD" "http://192.168.178.55/setFunctionManually?PUMP,ON,0,3"
 ```
 
 **All tests passed!** ✅
@@ -209,7 +209,7 @@ git reset --hard c3ee1bf
 python scripts/debug_tools/debug_api_simple.py
 
 # Test pump control
-curl -u "Basti:sebi2634" "http://192.168.178.55/setFunctionManually?PUMP,ON,0,2"
+curl -u "Basti:YOUR_PASSWORD" "http://192.168.178.55/setFunctionManually?PUMP,ON,0,2"
 ```
 
 ---

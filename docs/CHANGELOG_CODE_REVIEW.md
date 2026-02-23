@@ -234,7 +234,7 @@ git revert <shared-code-commit>
 python scripts/debug_tools/debug_api_simple.py
 
 # Pump Test
-curl -u "Basti:sebi2634" "http://192.168.178.55/setFunctionManually?PUMP,ON,0,2"
+curl -u "Basti:YOUR_PASSWORD" "http://192.168.178.55/setFunctionManually?PUMP,ON,0,2"
 ```
 
 ---

@@ -187,6 +187,9 @@ tests/docker/
 docker-compose.yml
 docker-compose.override.yml
 
+# Debug scripts with credentials
+scripts/debug_tools/
+
 # Docker volumes (config directory with sensitive data)
 config/.storage/
 config/home-assistant.log*
