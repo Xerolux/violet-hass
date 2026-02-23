@@ -31,18 +31,18 @@ def validate_ip_address(ip: str) -> bool:
         return bool(re.match(r"^[a-zA-Z0-9\-\.]+$", ip))
 
 
-def get_sensor_label(key: str, all_sensors: dict[str, Any]) -> str:
+def get_sensor_label(key: str, all_sensors: dict[str, Any] | None = None) -> str:
     """
     Get the friendly name for a sensor key.
 
     Args:
         key: The sensor key.
-        all_sensors: Dictionary of all sensors.
+        all_sensors: Optional dictionary of all sensors for friendly name lookup.
 
     Returns:
         The friendly name with key.
     """
-    if key in all_sensors:
+    if all_sensors and key in all_sensors:
         return f"{all_sensors[key]['name']} ({key})"
     return key
 
