@@ -127,6 +127,28 @@ class VioletPoolAPI:
         )
 
     # ---------------------------------------------------------------------
+    # Public Properties
+    # ---------------------------------------------------------------------
+
+    @property
+    def timeout(self) -> float:
+        """Get current timeout in seconds.
+
+        Returns:
+            The timeout value in seconds.
+        """
+        return self._timeout.total
+
+    @property
+    def max_retries(self) -> int:
+        """Get maximum retry attempts.
+
+        Returns:
+            The maximum number of retry attempts.
+        """
+        return self._max_retries
+
+    # ---------------------------------------------------------------------
     # Generic helpers
     # ---------------------------------------------------------------------
 
