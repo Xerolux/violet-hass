@@ -290,3 +290,35 @@ class VioletPoolControllerEntity(CoordinatorEntity):
         """
         value = self.get_value(key, default)
         return convert_to_int(value) if value is not None else default
+
+    async def _request_coordinator_refresh(
+        self, delay: float = 2.0, log_context: str | None = None
+    ) -> bool:
+        """
+        Request a delayed coordinator refresh with error handling.
+
+        This is a shared utility method for entities that need to refresh
+        coordinator data after state changes. It handles the delay, refresh,
+        and error logging consistently.
+
+        Args:
+            delay: Delay in seconds before requesting refresh (default: 2.0)
+            log_context: Optional context string for logging (e.g., entity name)
+
+        Returns:
+            True if refresh was successful, False otherwise.
+
+        ✅ SHARED CODE: Reduces duplication across switch, climate, and select entities.
+        """
+        try:
+            await asyncio.sleep(delay)
+            await self.coordinator.async_request_refresh()
+            return self.coordinator.last_update_success
+        except Exception as err:
+            if log_context:
+                _LOGGER.debug(
+                    "Fehler beim verzögerten Refresh für %s: %s", log_context, err
+                )
+            else:
+                _LOGGER.debug("Fehler beim verzögerten Refresh: %s", err)
+            return False

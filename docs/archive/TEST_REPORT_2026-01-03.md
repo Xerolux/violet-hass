@@ -108,7 +108,7 @@ curl -s "http://192.168.178.55/getReadings?ALL"
 
 **Request:**
 ```bash
-curl -u "Basti:sebi2634" "http://192.168.178.55/setFunctionManually?DMX_SCENE2,ON,0,0"
+curl -u "Basti:YOUR_PASSWORD" "http://192.168.178.55/setFunctionManually?DMX_SCENE2,ON,0,0"
 ```
 
 **Response:**
@@ -191,7 +191,7 @@ numeric_prefix = re.match(r"\s*(-?\d+)", raw_state)
 
 **Request:**
 ```bash
-curl -u "Basti:sebi2634" "http://192.168.178.55/setFunctionManually?DMX_SCENE1,OFF,0,0"
+curl -u "Basti:YOUR_PASSWORD" "http://192.168.178.55/setFunctionManually?DMX_SCENE1,OFF,0,0"
 ```
 
 **Response:**
@@ -236,7 +236,7 @@ Access restricted, no Auth found
 
 **Request:**
 ```bash
-curl -u "Basti:sebi2634" "http://192.168.178.55/setFunctionManually?INVALID_DEVICE,ON,0,0"
+curl -u "Basti:YOUR_PASSWORD" "http://192.168.178.55/setFunctionManually?INVALID_DEVICE,ON,0,0"
 ```
 
 **Response:**
@@ -268,7 +268,7 @@ def _command_result(body: str) -> dict[str, Any]:
 
 **Request:**
 ```bash
-curl -u "Basti:sebi2634" "http://192.168.178.55/setFunctionManually?DOS_5_PHP,ON,3,0"
+curl -u "Basti:YOUR_PASSWORD" "http://192.168.178.55/setFunctionManually?DOS_5_PHP,ON,3,0"
 ```
 
 **Response:**
@@ -843,18 +843,18 @@ All commands successfully executed:
 curl -s "http://192.168.178.55/getReadings?ALL"
 
 # Test authentication
-curl -u "Basti:sebi2634" "http://192.168.178.55/setFunctionManually?DMX_SCENE1,ON,0,0"
+curl -u "Basti:YOUR_PASSWORD" "http://192.168.178.55/setFunctionManually?DMX_SCENE1,ON,0,0"
 
 # Test state changes
-curl -u "Basti:sebi2634" "http://192.168.178.55/setFunctionManually?DMX_SCENE2,ON,0,0"
-curl -u "Basti:sebi2634" "http://192.168.178.55/setFunctionManually?DMX_SCENE2,OFF,0,0"
-curl -u "Basti:sebi2634" "http://192.168.178.55/setFunctionManually?DMX_SCENE2,AUTO,0,0"
+curl -u "Basti:YOUR_PASSWORD" "http://192.168.178.55/setFunctionManually?DMX_SCENE2,ON,0,0"
+curl -u "Basti:YOUR_PASSWORD" "http://192.168.178.55/setFunctionManually?DMX_SCENE2,OFF,0,0"
+curl -u "Basti:YOUR_PASSWORD" "http://192.168.178.55/setFunctionManually?DMX_SCENE2,AUTO,0,0"
 
 # Test error handling
-curl -u "Basti:sebi2634" "http://192.168.178.55/setFunctionManually?INVALID_DEVICE,ON,0,0"
+curl -u "Basti:YOUR_PASSWORD" "http://192.168.178.55/setFunctionManually?INVALID_DEVICE,ON,0,0"
 
 # Test dosing safety
-curl -u "Basti:sebi2634" "http://192.168.178.55/setFunctionManually?DOS_5_PHP,ON,3,0"
+curl -u "Basti:YOUR_PASSWORD" "http://192.168.178.55/setFunctionManually?DOS_5_PHP,ON,3,0"
 ```
 
 **All commands executed successfully.**

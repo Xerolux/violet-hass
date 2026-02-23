@@ -181,3 +181,26 @@ backups/
 # Node.js (falls du Frontend-Entwicklung machst)
 node_modules/
 package-lock.json
+
+# Docker Test Environment - SENSITIVE DATA!
+tests/docker/
+docker-compose.yml
+docker-compose.override.yml
+
+# Debug scripts with credentials
+scripts/debug_tools/
+
+# Docker volumes (config directory with sensitive data)
+config/.storage/
+config/home-assistant.log*
+config/*.db
+config/.HA_VERSION
+config/.uuid
+config/deps/
+config/tts/
+config/blueprints/ (local edits)
+
+# Docker Test artifacts
+.env.local
+.env.test
+*.log

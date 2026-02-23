@@ -11,7 +11,7 @@ def fetch_api_data():
     """Fetch and analyze API data from the controller."""
     url = "http://192.168.178.55/getReadings?ALL"
     username = "Basti"
-    password = "sebi2634"
+    password = "YOUR_PASSWORD"
 
     # Create basic auth header
     credentials = f"{username}:{password}"
