@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone, timedelta
-from typing import Any
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -10,7 +8,7 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorStateClass,
 )
-from homeassistant.const import UnitOfTime
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity import EntityCategory
 
 from ..device import VioletPoolDataUpdateCoordinator
@@ -193,5 +191,3 @@ class VioletRecoverySuccessRateSensor(VioletPoolControllerEntity, SensorEntity):
     def native_value(self) -> float | None:
         """Return the recovery success rate."""
         return round(self.coordinator.device.recovery_success_rate, 1)
-
-

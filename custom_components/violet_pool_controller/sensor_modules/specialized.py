@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -11,10 +10,8 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfTime, UnitOfVolume
 from homeassistant.helpers.entity import EntityCategory
 
-from ..const import DOSING_STATE_SENSORS
 from ..device import VioletPoolDataUpdateCoordinator
 from ..entity import VioletPoolControllerEntity
 from ..error_codes import get_error_info

@@ -35,6 +35,10 @@ STATE_MAP = {
 # Pre-compiled numeric pattern for performance
 NUMERIC_PATTERN = re.compile(r"^-?\d+$")
 
+# Pre-compiled patterns for performance
+TRUE_PATTERN = re.compile(r"^(TRUE|ON|1|YES|ACTIVE|ENABLED)$")
+FALSE_PATTERN = re.compile(r"^(FALSE|OFF|0|NO|INACTIVE|DISABLED)$")
+
 
 def convert_to_int(value: Any) -> int | None:
     """
@@ -91,11 +95,6 @@ def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool:
             if state_int in STATE_MAP:
                 return STATE_MAP[state_int]
             return state_int != 0
-
-    # Pre-compiled patterns for performance
-    TRUE_PATTERN = re.compile(r"^(TRUE|ON|1|YES|ACTIVE|ENABLED)$")
-    FALSE_PATTERN = re.compile(r"^(FALSE|OFF|0|NO|INACTIVE|DISABLED)$")
-    NUMERIC_PATTERN = re.compile(r"^-?\d+$")
 
     # Fast boolean string checks using pre-compiled patterns
     if TRUE_PATTERN.match(state_str):

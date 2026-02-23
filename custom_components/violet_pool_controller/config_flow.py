@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-import ipaddress
 import logging
-import re
 from typing import Any, Mapping
 
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigFlowResult
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client, selector
 
 from .api import VioletPoolAPI
@@ -41,17 +39,21 @@ from .const import (
     DEFAULT_USE_SSL,
     DOMAIN,
 )
-from .const_sensors import (
-    ANALOG_SENSORS,
-    STATUS_SENSORS,
-    SYSTEM_SENSORS,
-    TEMP_SENSORS,
-    WATER_CHEM_SENSORS,
-)
 # Import refactored config flow modules
 from .config_flow_utils import (
     constants,
     validators,
+    get_grouped_sensors,
+    MIN_POLLING_INTERVAL,
+    MAX_POLLING_INTERVAL,
+    MIN_TIMEOUT,
+    MAX_TIMEOUT,
+    MIN_RETRIES,
+    MAX_RETRIES,
+    MIN_DEVICE_ID,
+    MAX_DEVICE_ID,
+    MIN_POOL_SIZE,
+    MAX_POOL_SIZE,
 )
 
 _LOGGER = logging.getLogger(__name__)

@@ -5,16 +5,13 @@ from datetime import datetime, timezone
 from typing import Any
 
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfTime, UnitOfTemperature
-from homeassistant.helpers.entity import EntityCategory
 
-from ..const import DOMAIN, STATUS_SENSORS, UNIT_MAP
+from ..const import DOMAIN
 from ..const_devices import VioletState
 from ..device import VioletPoolDataUpdateCoordinator
 from ..entity import VioletPoolControllerEntity
