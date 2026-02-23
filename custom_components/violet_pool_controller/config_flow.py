@@ -48,170 +48,13 @@ from .const_sensors import (
     TEMP_SENSORS,
     WATER_CHEM_SENSORS,
 )
+# Import refactored config flow modules
+from .config_flow_utils import (
+    constants,
+    validators,
+)
 
 _LOGGER = logging.getLogger(__name__)
-
-# Konstanten für Validierung
-MIN_POLLING_INTERVAL = 10
-MAX_POLLING_INTERVAL = 3600
-MIN_TIMEOUT = 1
-MAX_TIMEOUT = 60
-MIN_RETRIES = 1
-MAX_RETRIES = 10
-MIN_POOL_SIZE = 0.1
-MAX_POOL_SIZE = 1000.0
-MIN_DEVICE_ID = 1
-MAX_DEVICE_ID = 99
-
-# Retry-Konstanten
-BASE_RETRY_DELAY = 2
-DEFAULT_API_TIMEOUT = 10
-
-# Error Messages
-ERROR_ALREADY_CONFIGURED = "already_configured"
-ERROR_INVALID_IP = "invalid_ip_address"
-ERROR_CANNOT_CONNECT = "cannot_connect"
-ERROR_AGREEMENT_DECLINED = "agreement_declined"
-
-# Pool & Disinfection Options
-POOL_TYPE_OPTIONS = {
-    "outdoor": "🏖️ Freibad",
-    "indoor": "🏠 Hallenbad",
-    "whirlpool": "🛁 Whirlpool/Spa",
-    "natural": "🌿 Naturpool/Schwimmteich",
-    "combination": "🔄 Kombination",
-}
-DISINFECTION_OPTIONS = {
-    "chlorine": "🧪 Chlor (Flüssig/Tabletten)",
-    "salt": "🧂 Salzelektrolyse",
-    "bromine": "⚗️ Brom",
-    "active_oxygen": "💧 Aktivsauerstoff/H₂O₂",
-    "uv": "💡 UV-Desinfektion",
-    "ozone": "🌀 Ozon-Desinfektion",
-}
-
-# Features Info
-ENHANCED_FEATURES = {
-    "heating": {"icon": "🔥", "name": "Heizungssteuerung"},
-    "solar": {"icon": "☀️", "name": "Solarabsorber"},
-    "ph_control": {"icon": "🧪", "name": "pH-Automatik"},
-    "chlorine_control": {"icon": "💧", "name": "Chlor-Management"},
-    "cover_control": {"icon": "🪟", "name": "Abdeckungssteuerung"},
-    "backwash": {"icon": "🔄", "name": "Rückspül-Automatik"},
-    "pv_surplus": {"icon": "🔋", "name": "PV-Überschuss"},
-    "filter_control": {"icon": "🌊", "name": "Filterpumpe"},
-    "water_level": {"icon": "📏", "name": "Füllstand-Monitor"},
-    "water_refill": {"icon": "🚰", "name": "Auto-Nachfüllung"},
-    "led_lighting": {"icon": "💡", "name": "LED-Beleuchtung"},
-    "digital_inputs": {"icon": "🔌", "name": "Digitale Eingänge"},
-    "extension_outputs": {"icon": "🔗", "name": "Erweiterungsmodule"},
-}
-
-GITHUB_BASE_URL = "https://github.com/xerolux/violet-hass"
-HELP_DOC_DE_URL = f"{GITHUB_BASE_URL}/blob/main/docs/help/configuration-guide.de.md"
-HELP_DOC_EN_URL = f"{GITHUB_BASE_URL}/blob/main/docs/help/configuration-guide.en.md"
-SUPPORT_URL = f"{GITHUB_BASE_URL}/issues"
-
-MENU_ACTION_START = "start_setup"
-MENU_ACTION_HELP = "open_help"
-
-
-def validate_ip_address(ip: str) -> bool:
-    """
-    Validate IP address or hostname.
-
-    Args:
-        ip: The IP address or hostname to validate.
-
-    Returns:
-        True if valid, False otherwise.
-    """
-    if not ip:
-        return False
-    try:
-        ipaddress.ip_address(ip)
-        return True
-    except ValueError:
-        # Allow hostnames (letters, numbers, dots, dashes)
-        return bool(re.match(r"^[a-zA-Z0-9\-\.]+$", ip))
-
-
-def get_sensor_label(key: str) -> str:
-    """
-    Get the friendly name for a sensor key.
-
-    Args:
-        key: The sensor key.
-
-    Returns:
-        The friendly name with key.
-    """
-    all_sensors = {
-        **TEMP_SENSORS,
-        **WATER_CHEM_SENSORS,
-        **ANALOG_SENSORS,
-        **SYSTEM_SENSORS,
-        **STATUS_SENSORS,
-    }
-    if key in all_sensors:
-        return f"{all_sensors[key]['name']} ({key})"
-    return key
-
-
-def _validate_credentials_strength(username: str | None, password: str | None) -> None:
-    """Check credentials against basic security policies."""
-    # This is a basic check. In production this would check for password complexity.
-    if not password and username:
-        # It's okay to have no auth, but if username is present, password should be checked if needed.
-        # For now, just a placeholder.
-        pass
-
-
-async def get_grouped_sensors(
-    hass: HomeAssistant,
-    config_data: dict[str, Any],
-) -> dict[str, list[str]]:
-    """
-    Fetch sensors and group them.
-
-    Args:
-        hass: The Home Assistant instance.
-        config_data: The configuration data.
-
-    Returns:
-        A dictionary mapping groups to lists of sensor keys.
-    """
-    try:
-        # Validate credentials strength before using them
-        username = config_data.get(CONF_USERNAME)
-        password = config_data.get(CONF_PASSWORD)
-
-        _validate_credentials_strength(username, password)
-
-        api = VioletPoolAPI(
-            host=config_data[CONF_API_URL],
-            session=aiohttp_client.async_get_clientsession(hass),
-            username=username,
-            password=password,
-            use_ssl=config_data[CONF_USE_SSL],
-            verify_ssl=True,
-            timeout=config_data.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION),
-            max_retries=config_data.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS),
-        )
-
-        data = await api.get_readings()
-
-        grouped: dict[str, list[str]] = {}
-        for key in sorted(data.keys()):
-            # Einfache Gruppierung nach Präfix
-            group = key.split("_")[0]
-            if group not in grouped:
-                grouped[group] = []
-            grouped[group].append(key)
-        return grouped
-
-    except Exception:
-        return {}
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -247,8 +90,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             The flow result.
         """
         if user_input:
-            action = user_input.get("action", MENU_ACTION_START)
-            if action == MENU_ACTION_HELP:
+            action = user_input.get("action", constants.MENU_ACTION_START)
+            if action == constants.MENU_ACTION_HELP:
                 return await self.async_step_help()
             return await self.async_step_disclaimer()
 
@@ -273,7 +116,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input and user_input.get("agreement"):
             return await self.async_step_connection()
         if user_input is not None:
-            return self.async_abort(reason=ERROR_AGREEMENT_DECLINED)
+            return self.async_abort(reason=constants.ERROR_AGREEMENT_DECLINED)
 
         return self.async_show_form(
             step_id="disclaimer",
@@ -324,13 +167,13 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if self._is_duplicate_entry(
                 user_input[CONF_API_URL], int(user_input.get(CONF_DEVICE_ID, 1))
             ):
-                errors["base"] = ERROR_ALREADY_CONFIGURED
+                errors["base"] = constants.ERROR_ALREADY_CONFIGURED
                 error_hints["base"] = (
                     "This controller is already configured. "
                     "Please check your integrations list."
                 )
-            elif not validate_ip_address(user_input[CONF_API_URL]):
-                errors[CONF_API_URL] = ERROR_INVALID_IP
+            elif not validators.validate_ip_address(user_input[CONF_API_URL]):
+                errors[CONF_API_URL] = constants.ERROR_INVALID_IP
                 error_hints[CONF_API_URL] = (
                     "Please enter a valid IP address (e.g., 192.168.1.100) or hostname."
                 )
@@ -342,7 +185,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 self._abort_if_unique_id_configured()
                 if await self._test_connection():
                     return await self.async_step_pool_setup()
-                errors["base"] = ERROR_CANNOT_CONNECT
+                errors["base"] = constants.ERROR_CANNOT_CONNECT
                 error_hints["base"] = (
                     "Cannot connect to the controller. Please check:\n"
                     "• Is the controller powered on and connected?\n"
@@ -538,7 +381,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 await self.hass.config_entries.async_reload(self._reauth_entry.entry_id)
                 return self.async_abort(reason="reauth_successful")
 
-            errors["base"] = ERROR_CANNOT_CONNECT
+            errors["base"] = constants.ERROR_CANNOT_CONNECT
 
         # Show form with current values
         if self._reauth_entry is None:
@@ -589,8 +432,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input:
             # Validate IP address
-            if not validate_ip_address(user_input[CONF_API_URL]):
-                errors[CONF_API_URL] = ERROR_INVALID_IP
+            if not validators.validate_ip_address(user_input[CONF_API_URL]):
+                errors[CONF_API_URL] = constants.ERROR_INVALID_IP
             else:
                 # Build updated config
                 updated_data = dict(reconfigure_entry.data)
@@ -621,7 +464,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     )
                     return self.async_abort(reason="reconfigure_successful")
 
-                errors["base"] = ERROR_CANNOT_CONNECT
+                errors["base"] = constants.ERROR_CANNOT_CONNECT
 
         # Show form with current values
         return self.async_show_form(
@@ -840,10 +683,10 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             A dictionary of help links.
         """
         return {
-            "docs_de": HELP_DOC_DE_URL,
-            "docs_en": HELP_DOC_EN_URL,
-            "github_url": GITHUB_BASE_URL,
-            "issues_url": SUPPORT_URL,
+            "docs_de": constants.HELP_DOC_DE_URL,
+            "docs_en": constants.HELP_DOC_EN_URL,
+            "github_url": constants.GITHUB_BASE_URL,
+            "issues_url": constants.SUPPORT_URL,
         }
 
     def _get_main_menu_schema(self) -> vol.Schema:
@@ -856,16 +699,16 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return vol.Schema(
             {
                 vol.Required(
-                    "action", default=MENU_ACTION_START
+                    "action", default=constants.MENU_ACTION_START
                 ): selector.SelectSelector(
                     selector.SelectSelectorConfig(
                         options=[
                             selector.SelectOptionDict(
-                                value=MENU_ACTION_START,
+                                value=constants.MENU_ACTION_START,
                                 label="⚙️ Setup starten / Start setup",
                             ),
                             selector.SelectOptionDict(
-                                value=MENU_ACTION_HELP,
+                                value=constants.MENU_ACTION_HELP,
                                 label="📘 Hilfe & Dokumentation / Help & docs",
                             ),
                         ]
@@ -955,11 +798,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     )
                 ),
                 vol.Required(CONF_POOL_TYPE, default=DEFAULT_POOL_TYPE): vol.In(
-                    POOL_TYPE_OPTIONS
+                    constants.POOL_TYPE_OPTIONS
                 ),
                 vol.Required(
                     CONF_DISINFECTION_METHOD, default=DEFAULT_DISINFECTION_METHOD
-                ): vol.In(DISINFECTION_OPTIONS),
+                ): vol.In(constants.DISINFECTION_OPTIONS),
             }
         )
 
@@ -990,7 +833,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             options = [
                 selector.SelectOptionDict(
                     value=sensor,
-                    label=get_sensor_label(sensor),
+                    label=validators.get_sensor_label(sensor),
                 )
                 for sensor in sensors
             ]
@@ -1102,8 +945,8 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         feature_options = []
         for feature in AVAILABLE_FEATURES:
             feature_id = str(feature["id"])
-            if feature_id in ENHANCED_FEATURES:
-                info = ENHANCED_FEATURES[feature_id]
+            if feature_id in constants.ENHANCED_FEATURES:
+                info = constants.ENHANCED_FEATURES[feature_id]
                 label = f"{info['icon']} {info['name']}"
             else:
                 label = str(feature["name"])
@@ -1288,7 +1131,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             options = [
                 selector.SelectOptionDict(
                     value=sensor,
-                    label=get_sensor_label(sensor),
+                    label=validators.get_sensor_label(sensor),
                 )
                 for sensor in sensors
             ]
