@@ -166,12 +166,12 @@ class VioletPoolControllerDevice:
             )
 
             # Check if connection settings changed by comparing with current values
-            # Note: We compare with device settings, not API internal attributes
+            # Note: We compare with device settings, using public API properties
             connection_changed = (
                 new_api_url != self.api_url
                 or new_use_ssl != self.use_ssl
-                or new_timeout != self.api._timeout.total  # Access private attribute
-                or int(new_retries) != self.api._max_retries  # Access private attribute
+                or new_timeout != self.api.timeout
+                or int(new_retries) != self.api.max_retries
             )
 
             # Auth changes are harder to detect without storing credentials
@@ -194,9 +194,9 @@ class VioletPoolControllerDevice:
                 new_api_url,
                 self.use_ssl,
                 new_use_ssl,
-                self.api._timeout.total if hasattr(self.api, "_timeout") else "unknown",
+                self.api.timeout,
                 new_timeout,
-                self.api._max_retries if hasattr(self.api, "_max_retries") else "unknown",
+                self.api.max_retries,
                 int(new_retries),
             )
 
@@ -641,12 +641,35 @@ class VioletPoolControllerDevice:
                 self._in_recovery_mode = False
                 self._last_recovery_attempt = time.monotonic()
 
+    async def _cleanup_recovery_task(self) -> None:
+        """
+        Cancel existing recovery task if running.
+
+        ✅ TASK CLEANUP: Ensures old recovery tasks are properly cancelled
+        before starting new ones, preventing resource leaks.
+
+        This should be called before creating a new recovery task to ensure
+        any existing task is properly cancelled.
+        """
+        if self._recovery_task and not self._recovery_task.done():
+            _LOGGER.debug("Cancelling existing recovery task before creating new one")
+            self._recovery_task.cancel()
+            try:
+                await self._recovery_task
+            except asyncio.CancelledError:
+                _LOGGER.debug("Recovery-Task successfully cancelled")
+            except Exception as err:
+                _LOGGER.warning("Error cancelling recovery task: %s", err)
+
     async def _start_recovery_background_task(self) -> None:
         """
         Start recovery in the background.
 
         ✅ RECOVERY OPTIMIZATION: Prevents blocking normal updates.
         """
+        # Clean up any existing task before starting a new one
+        await self._cleanup_recovery_task()
+
         if self._recovery_task and not self._recovery_task.done():
             _LOGGER.debug("Recovery-Task läuft bereits")
             return
