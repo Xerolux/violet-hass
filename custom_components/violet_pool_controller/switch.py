@@ -469,31 +469,24 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             key: The switch key.
         """
         # ✅ SHARED CODE: Use base refresh method
-        success = await self._request_coordinator_refresh(
-            delay=REFRESH_DELAY, log_context=key
-        )
+        try:
+            success = await self._request_coordinator_refresh(
+                delay=REFRESH_DELAY, log_context=key
+            )
 
-        # Reset optimistischen Cache nach erfolgreichem Refresh
-        if success:
+            if success and self.coordinator.data is not None:
+                new_state = self.coordinator.data.get(key, "UNKNOWN")
+                _LOGGER.debug("State nach Refresh: %s = %s", key, new_state)
+        finally:
+            # Always clear optimistic cache — even on CancelledError during HA reload
             old_optimistic = self._optimistic_state
             self._optimistic_state = None
-
             if old_optimistic is not None:
                 _LOGGER.debug(
-                    "Optimistischer Cache nach Refresh gelöscht für %s (war: %s)",
+                    "Optimistischer Cache gelöscht für %s (war: %s)",
                     key,
                     "ON" if old_optimistic else "OFF",
                 )
-
-            # Log neuen State (nur bei Debug)
-            if self.coordinator.data is not None:
-                new_state = self.coordinator.data.get(key, "UNKNOWN")
-                _LOGGER.debug("State nach Refresh: %s = %s", key, new_state)
-            else:
-                _LOGGER.debug("Coordinator data is None nach Refresh für %s", key)
-        else:
-            # Bei Fehler auch Cache löschen
-            self._optimistic_state = None
 
     def _handle_refresh_error(self, task: asyncio.Task, key: str) -> None:
         """

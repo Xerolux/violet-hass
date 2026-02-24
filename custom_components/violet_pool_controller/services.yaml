@@ -36,13 +36,13 @@ smart_dosing:
   description: Manual or automatic dosing control
   fields:
     dosing_type:
-      description: Type of dosing
+      description: Type of dosing chemical
       required: true
       selector:
         select:
           options:
-            - pH-
-            - pH+
+            - "pH-"
+            - "pH+"
             - Chlor
             - Flockmittel
     action:
@@ -63,7 +63,7 @@ smart_dosing:
           max: 300
           unit_of_measurement: s
     safety_override:
-      description: Override safety interval
+      description: Override safety interval between dosing cycles
       default: false
       selector:
         boolean:
@@ -106,7 +106,7 @@ control_dmx_scenes:
             - sequence
             - party_mode
     sequence_delay:
-      description: Delay between scenes in sequence mode
+      description: Delay between scenes in sequence mode (seconds)
       default: 2
       selector:
         number:
@@ -116,7 +116,7 @@ control_dmx_scenes:
 
 set_light_color_pulse:
   name: Light Color Pulse
-  description: Send color pulse to pool lighting
+  description: Send color pulse command to pool lighting
   fields:
     pulse_count:
       description: Number of color pulses
@@ -136,7 +136,7 @@ set_light_color_pulse:
 
 manage_digital_rules:
   name: Digital Rules Management
-  description: Manage digital input rules
+  description: Manage digital input automation rules
   fields:
     rule_key:
       description: Rule to manage
@@ -172,19 +172,19 @@ test_output:
         device:
           integration: violet_pool_controller
     output:
-      description: Output identifier (e.g. PUMP, HEATER, SOLAR)
+      description: "Output identifier (e.g. PUMP, HEATER, SOLAR)"
       required: true
       selector:
         text:
     mode:
-      description: Test mode (switch toggles, on forces on, off forces off)
+      description: "Test mode: SWITCH toggles, ON forces on, OFF forces off"
       default: SWITCH
       selector:
         select:
           options:
             - SWITCH
-            - 'ON'
-            - 'OFF'
+            - "ON"
+            - "OFF"
     duration:
       description: Test duration in seconds
       default: 120

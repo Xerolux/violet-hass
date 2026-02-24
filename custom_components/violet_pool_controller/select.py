@@ -263,24 +263,20 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
         ✅ SHARED CODE: Uses base _request_coordinator_refresh method.
         """
         # ✅ SHARED CODE: Use base refresh method
-        success = await self._request_coordinator_refresh(
-            delay=REFRESH_DELAY, log_context=self._device_key
-        )
-
-        # Reset optimistic cache nach erfolgreichem Refresh
-        if success:
+        try:
+            await self._request_coordinator_refresh(
+                delay=REFRESH_DELAY, log_context=self._device_key
+            )
+        finally:
+            # Always clear optimistic cache — even on CancelledError during HA reload
             old_mode = self._optimistic_mode
             self._optimistic_mode = None
-
             if old_mode is not None:
                 _LOGGER.debug(
-                    "Optimistischer Cache nach Refresh gelöscht für %s (war: %s)",
+                    "Optimistischer Cache gelöscht für %s (war: %s)",
                     self._device_key,
                     old_mode,
                 )
-        else:
-            # Bei Fehler auch Cache löschen
-            self._optimistic_mode = None
 
     def _handle_refresh_error(self, task: asyncio.Task) -> None:
         """

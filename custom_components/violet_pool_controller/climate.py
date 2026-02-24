@@ -379,46 +379,31 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         ✅ SHARED CODE: Uses base _request_coordinator_refresh method.
         """
         # ✅ SHARED CODE: Use base refresh method
-        success = await self._request_coordinator_refresh(
-            delay=REFRESH_DELAY, log_context=self.climate_type
-        )
-
-        # Reset optimistische Cache-Werte nach erfolgreichem Refresh
-        if success:
-            old_optimistic_temp = self._optimistic_target_temp
-            old_optimistic_mode = self._optimistic_hvac_mode
-
-            self._optimistic_target_temp = None
-            self._optimistic_hvac_mode = None
-
-            if old_optimistic_temp is not None or old_optimistic_mode is not None:
-                _LOGGER.debug(
-                    "Optimistische Cache-Werte nach Refresh gelöscht "
-                    "(temp: %s, mode: %s)",
-                    old_optimistic_temp,
-                    old_optimistic_mode,
-                )
-
-            # Log neuen State
+        try:
+            await self._request_coordinator_refresh(
+                delay=REFRESH_DELAY, log_context=self.climate_type
+            )
             if self.coordinator.data is not None:
-                new_state = self.coordinator.data.get(self.climate_type, "UNKNOWN")
-                new_temp = self.coordinator.data.get(
-                    f"{self.climate_type}_TARGET_TEMP", "UNKNOWN"
-                )
                 _LOGGER.debug(
                     "State nach Refresh: %s=%s, Target=%s",
                     self.climate_type,
-                    new_state,
-                    new_temp,
+                    self.coordinator.data.get(self.climate_type, "UNKNOWN"),
+                    self.coordinator.data.get(
+                        f"{self.climate_type}_TARGET_TEMP", "UNKNOWN"
+                    ),
                 )
-            else:
-                _LOGGER.debug(
-                    "Coordinator data is None nach Refresh für %s", self.climate_type
-                )
-        else:
-            # Bei Fehler auch Cache löschen
+        finally:
+            # Always clear optimistic caches — even on CancelledError during HA reload
+            old_temp = self._optimistic_target_temp
+            old_mode = self._optimistic_hvac_mode
             self._optimistic_target_temp = None
             self._optimistic_hvac_mode = None
+            if old_temp is not None or old_mode is not None:
+                _LOGGER.debug(
+                    "Optimistische Cache-Werte gelöscht (temp: %s, mode: %s)",
+                    old_temp,
+                    old_mode,
+                )
 
     def _handle_refresh_error(self, task: asyncio.Task) -> None:
         """

@@ -317,6 +317,8 @@ class VioletPoolControllerEntity(CoordinatorEntity):
             await asyncio.sleep(delay)
             await self.coordinator.async_request_refresh()
             return self.coordinator.last_update_success
+        except asyncio.CancelledError:
+            raise  # Never swallow CancelledError - propagate task cancellation
         except Exception as err:
             if log_context:
                 _LOGGER.debug(
