@@ -205,7 +205,7 @@ export_diagnostic_logs:
         device:
           integration: violet_pool_controller
     lines:
-      description: Number of recent log lines to export (default: 100, max: 1000)
+      description: "Number of recent log lines to export (default: 100, max: 1000)"
       default: 100
       selector:
         number:

@@ -873,11 +873,11 @@ class VioletServiceHandlers:
 
             # If no logs found, provide system information
             if not log_entries:
-                log_entries.append(f"=== Violet Pool Controller Diagnostic Export ===")
+                log_entries.append("=== Violet Pool Controller Diagnostic Export ===")
                 log_entries.append(f"Device: {device_name}")
                 log_entries.append(f"Timestamp: {datetime.now().isoformat()}")
-                log_entries.append(f"")
-                log_entries.append(f"Controller Information:")
+                log_entries.append("")
+                log_entries.append("Controller Information:")
                 log_entries.append(f"  Name: {coordinator.device.controller_name}")
                 log_entries.append(f"  API URL: {coordinator.device.api_url}")
                 log_entries.append(f"  Device ID: {coordinator.device.device_id}")
@@ -888,9 +888,9 @@ class VioletServiceHandlers:
                 log_entries.append(f"  System Health: {coordinator.device.system_health:.0f}%")
                 log_entries.append(f"  Update Counter: {coordinator.device._update_counter}")
                 log_entries.append(f"  Consecutive Failures: {coordinator.device.consecutive_failures}")
-                log_entries.append(f"")
-                log_entries.append(f"No detailed log entries found in home-assistant.log.")
-                log_entries.append(f"Logs may have been rotated or not contain recent entries.")
+                log_entries.append("")
+                log_entries.append("No detailed log entries found in home-assistant.log.")
+                log_entries.append("Logs may have been rotated or not contain recent entries.")
 
             # Create export text
             export_header = f"""
