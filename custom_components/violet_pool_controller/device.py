@@ -345,13 +345,7 @@ class VioletPoolControllerDevice:
 
                 # ✅ FIX: Always replace _data with a fresh dict to ensure
                 # HA's DataUpdateCoordinator detects the change.
-                # Merge existing keys that might not be in the new response.
-                if self._data:
-                    merged = dict(self._data)
-                    merged.update(data)
-                    self._data = merged
-                else:
-                    self._data = dict(data)
+                self._data = dict(data)
                 self._available = True
                 self._consecutive_failures = 0
                 self._last_error = None
