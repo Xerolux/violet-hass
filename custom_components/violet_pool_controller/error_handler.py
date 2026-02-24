@@ -221,16 +221,3 @@ def handle_exception(
         return APIError(
             f"API error in {context}: {err}", endpoint=context, original_exception=err
         )
-
-    # Log consistently
-    # This logic was moved into the individual blocks above to fix type errors
-    # log_method = {
-    #     "DEBUG": _LOGGER.debug,
-    #     "INFO": _LOGGER.info,
-    #     "WARNING": _LOGGER.warning,
-    #     "ERROR": _LOGGER.error,
-    # }.get(log_level, _LOGGER.error)
-
-    # log_method(f"Exception wrapped: {error.to_dict()}")
-
-    # return error

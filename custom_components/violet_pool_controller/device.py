@@ -690,8 +690,16 @@ class VioletPoolControllerDevice:
                 data = await self._fetch_controller_data()
 
             if data and isinstance(data, dict):
-                # Recovery successful - reset state atomically
+                # Recovery successful - merge data and reset state atomically
                 async with self._recovery_lock:
+                    # ✅ FIX: Store recovered data so entities update immediately
+                    # without waiting for the next normal coordinator poll cycle.
+                    if self._data:
+                        merged = dict(self._data)
+                        merged.update(data)
+                        self._data = merged
+                    else:
+                        self._data = dict(data)
                     self._consecutive_failures = 0
                     self._recovery_attempts = 0
                     self._available = True
@@ -751,10 +759,6 @@ class VioletPoolControllerDevice:
         """
         # Clean up any existing task before starting a new one
         await self._cleanup_recovery_task()
-
-        if self._recovery_task and not self._recovery_task.done():
-            _LOGGER.debug("Recovery-Task läuft bereits")
-            return
 
         if self._recovery_attempts >= RECOVERY_MAX_ATTEMPTS:
             _LOGGER.warning(
