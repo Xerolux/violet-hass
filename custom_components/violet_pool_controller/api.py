@@ -244,6 +244,10 @@ class VioletPoolAPI:
                         timeout=self._timeout,
                         ssl=self._ssl_context,
                     ) as response:
+                        if response.status >= 500 or response.status == 429:
+                            # Server error or rate limit -> trigger retry via ClientError
+                            response.raise_for_status()
+
                         if response.status >= 400:
                             body = await response.text()
                             raise VioletPoolAPIError(

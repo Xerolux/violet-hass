@@ -115,14 +115,23 @@ class TestVioletPoolAPI:
         mock_response.status = 500
         mock_response.text = AsyncMock(return_value="Internal Server Error")
 
+        # Ensure raise_for_status raises an exception (sync method)
+        mock_response.raise_for_status = MagicMock()
+        mock_response.raise_for_status.side_effect = aiohttp.ClientResponseError(
+             request_info=MagicMock(), history=tuple(), status=500, message="Server Error"
+        )
+
         mock_response.__aenter__ = AsyncMock(return_value=mock_response)
         mock_response.__aexit__ = AsyncMock(return_value=None)
 
         mock_session.request = MagicMock(return_value=mock_response)
 
         with patch.object(api._rate_limiter, 'wait_if_needed', new_callable=AsyncMock):
-            # Sollte VioletPoolAPIError werfen
-            with pytest.raises(VioletPoolAPIError, match="HTTP 500"):
+            # Sollte VioletPoolAPIError werfen (nach Retries)
+            # Hinweis: Der retry loop fängt aiohttp.ClientError (Basis von ClientResponseError)
+            # und wirft am Ende VioletPoolAPIError.
+            # Da wir raise_for_status gemockt haben, wird der Retry Loop ausgelöst.
+            with pytest.raises(VioletPoolAPIError):
                 await api._request("/error")
 
     async def test_json_parsing_error_handling(self, api, mock_session):
