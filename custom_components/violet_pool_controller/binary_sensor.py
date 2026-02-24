@@ -136,7 +136,7 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
         }
 
 
-class CoverIsClosedBinarySensor(CoordinatorEntity, BinarySensorEntity):
+class CoverIsClosedBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
     """Sensor indicating if the cover is closed."""
 
     def __init__(
@@ -151,26 +151,17 @@ class CoverIsClosedBinarySensor(CoordinatorEntity, BinarySensorEntity):
             coordinator: The update coordinator.
             config_entry: The config entry.
         """
-        super().__init__(coordinator)
-        self._attr_has_entity_name = True
-        self._attr_name = "Cover Geschlossen"  # type: ignore[assignment]
-        self._attr_unique_id = f"{config_entry.entry_id}_cover_is_closed"
-        self._attr_device_class = BinarySensorDeviceClass.DOOR
-        self._attr_icon = "mdi:window-shutter"
-        self._attr_device_info = coordinator.device.device_info  # type: ignore[assignment]
+        description = BinarySensorEntityDescription(
+            key="cover_is_closed",
+            name="Cover Geschlossen",
+            device_class=BinarySensorDeviceClass.DOOR,
+            icon="mdi:window-shutter",
+        )
+        super().__init__(coordinator, config_entry, description)
+
         _LOGGER.debug(
             "Initialisiere Cover-Geschlossen Sensor: %s", self._attr_unique_id
         )
-
-    @property
-    def available(self) -> bool:
-        """
-        Return whether the entity is available.
-
-        Returns:
-            True if available, False otherwise.
-        """
-        return self.coordinator.last_update_success
 
     @property
     def is_on(self) -> bool:
