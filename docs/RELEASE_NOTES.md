@@ -1,4 +1,4 @@
-## v1.0.2-beta.3 – Violet Pool Controller
+## v1.0.2-beta.4 – Violet Pool Controller
 
 🟡 **BETA RELEASE** - Testing phase, may contain bugs
 
@@ -17,6 +17,9 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- refactor-recovery-api-retries (5453672)
+- Refactor recovery logic, enable API retries, and remove deprecated code (b4cce7a)
+- 📝 Release v1.0.2-beta.3 - Update changelog and version files (81a6b55)
 - feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
 - 📝 Release v1.0.2-beta.3 - Update changelog and version files (13d57e4)
 - force-update-option (3778ec2)
@@ -41,6 +44,8 @@
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- fix-sensor-log-spam (cadec9a)
+- Fix log spam in contact sensor state class override (c98a906)
 - fix: YAML parse error in services.yaml and ruff F541 cleanup in services.py (7b176ae)
 - fix: services.yaml YAML error and optimistic cache leak on task cancellation (655855c)
 - fix: dead code cleanup and recovery data propagation (8d94ca0)
@@ -99,7 +104,7 @@
 
 ---
 
-📋 [Full changelog: v1.0.1...v1.0.2-beta.3](https://github.com/Xerolux/violet-hass/compare/v1.0.1...v1.0.2-beta.3)
+📋 [Full changelog: v1.0.1...v1.0.2-beta.4](https://github.com/Xerolux/violet-hass/compare/v1.0.1...v1.0.2-beta.4)
 
 ---
 
@@ -133,4 +138,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-02-24 18:47:58 UTC_
+_Generated automatically by GitHub Actions on 2026-02-24 21:26:11 UTC_
