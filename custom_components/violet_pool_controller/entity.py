@@ -164,6 +164,24 @@ class VioletPoolControllerEntity(CoordinatorEntity):
         return self.coordinator.device
 
     @property
+    def force_update(self) -> bool:
+        """
+        Return whether the entity should force an update.
+
+        If True, the entity state will be updated on every polling interval,
+        even if the value has not changed. This updates the 'last_updated' timestamp.
+
+        Returns:
+            True if force update is enabled, False otherwise.
+        """
+        from .const import CONF_FORCE_UPDATE, DEFAULT_FORCE_UPDATE
+
+        return self.config_entry.options.get(
+            CONF_FORCE_UPDATE,
+            self.config_entry.data.get(CONF_FORCE_UPDATE, DEFAULT_FORCE_UPDATE),
+        )
+
+    @property
     def available(self) -> bool:
         """
         Return whether entity is available.
