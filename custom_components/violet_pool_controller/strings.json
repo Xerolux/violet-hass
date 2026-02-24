@@ -150,7 +150,21 @@
             },
             "settings": {
                 "title": "⚙️ Allgemeine Einstellungen",
-                "description": "**Passe die technischen Parameter an**\n\n⏱️ Polling-Intervall: Wie oft Daten abgerufen werden\n⏰ Timeout: Maximale Wartezeit für Antworten\n🔄 Wiederholungen: Anzahl Retry-Versuche\n\n💡 **Tipp:** Standard-Werte funktionieren für die meisten Setups!"
+                "description": "**Passe die technischen Parameter an**\n\n⏱️ Polling-Intervall: Wie oft Daten abgerufen werden\n⏰ Timeout: Maximale Wartezeit für Antworten\n🔄 Wiederholungen: Anzahl Retry-Versuche\n📊 Diagnostic Logging: Erweiterte Protokollierung\n\n💡 **Tipp:** Standard-Werte funktionieren für die meisten Setups!",
+                "data": {
+                    "controller_name": "🏷️ Controller-Name",
+                    "polling_interval": "⏱️ Abrufintervall (Sekunden)",
+                    "timeout_duration": "⏰ Timeout (Sekunden)",
+                    "retry_attempts": "🔄 Wiederholungsversuche",
+                    "enable_diagnostic_logging": "📊 Erweiterte Protokollierung"
+                },
+                "data_description": {
+                    "controller_name": "DE: Anzeigename des Controllers · EN: Controller display name",
+                    "polling_interval": "DE: Intervall für Datenabrufe (5-300s) · EN: Data polling interval (5-300s)",
+                    "timeout_duration": "DE: Maximale Wartezeit pro Anfrage (5-60s) · EN: Maximum wait time per request (5-60s)",
+                    "retry_attempts": "DE: Anzahl Wiederholungsversuche bei Fehlern (1-10) · EN: Number of retry attempts on failure (1-10)",
+                    "enable_diagnostic_logging": "DE: Ausführliche Logs bei jedem Update (nur für Diagnose!) · EN: Verbose logs on every update (diagnostics only!)"
+                }
             }
         }
     },
@@ -338,6 +352,28 @@
                 "rule_key": {
                     "name": "🔑 Regel-Nummer",
                     "description": "Welche Regel auslösen? (DIRULE_1 bis DIRULE_7)"
+                }
+            }
+        },
+        "export_diagnostic_logs": {
+            "name": "📋 Diagnostic-Logs exportieren",
+            "description": "Exportiert **letzte Integrations-Logs** für Troubleshooting und Support.\n\n📊 Sammelt relevante Log-Einträge und ermöglicht Download oder Datei-Speicherung.\n\n💡 **Tipp:** Nützlich bei Problemen oder wenn du Logs an den Support senden möchtest!",
+            "fields": {
+                "device_id": {
+                    "name": "🎯 Pool Controller",
+                    "description": "Violet Pool Controller für den Export"
+                },
+                "lines": {
+                    "name": "📝 Anzahl Zeilen",
+                    "description": "Wie viele letzte Log-Zeilen exportieren? (10-1000)"
+                },
+                "include_timestamps": {
+                    "name": "⏰ Timestamps inkludieren",
+                    "description": "Zeitstempel in den exportierten Logs einfügen"
+                },
+                "save_to_file": {
+                    "name": "💾 Als Datei speichern",
+                    "description": "Logs als Textdatei im /config/ Verzeichnis speichern"
                 }
             }
         }

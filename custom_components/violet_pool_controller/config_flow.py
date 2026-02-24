@@ -20,6 +20,7 @@ from .const import (
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
     CONF_DISINFECTION_METHOD,
+    CONF_ENABLE_DIAGNOSTIC_LOGGING,
     CONF_PASSWORD,
     CONF_POLLING_INTERVAL,
     CONF_POOL_SIZE,
@@ -31,6 +32,7 @@ from .const import (
     CONF_USERNAME,
     DEFAULT_CONTROLLER_NAME,
     DEFAULT_DISINFECTION_METHOD,
+    DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_POOL_SIZE,
     DEFAULT_POOL_TYPE,
@@ -1110,6 +1112,14 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                         step=1,
                         mode=selector.NumberSelectorMode.BOX,
                     )
+                ),
+                vol.Optional(
+                    CONF_ENABLE_DIAGNOSTIC_LOGGING,
+                    default=self.current_config.get(
+                        CONF_ENABLE_DIAGNOSTIC_LOGGING, DEFAULT_ENABLE_DIAGNOSTIC_LOGGING
+                    ),
+                ): selector.BooleanSelector(
+                    selector.BooleanSelectorConfig(),
                 ),
             }
         )

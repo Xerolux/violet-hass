@@ -173,6 +173,17 @@ def get_service_schemas() -> dict[str, vol.Schema]:
                 ),
             }
         ),
+        # Diagnostic Log Export
+        "export_diagnostic_logs": vol.Schema(
+            {
+                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
+                vol.Optional("lines", default=100): vol.All(
+                    vol.Coerce(int), vol.Range(min=10, max=1000)
+                ),
+                vol.Optional("include_timestamps", default=True): cv.boolean,
+                vol.Optional("save_to_file", default=False): cv.boolean,
+            }
+        ),
     }
 
 
@@ -791,6 +802,154 @@ class VioletServiceHandlers:
 
             await coordinator.async_request_refresh()
 
+    async def handle_export_diagnostic_logs(self, call: ServiceCall) -> None:
+        """
+        Handle the export diagnostic logs service.
+
+        This service collects recent integration logs and optionally saves them to a file.
+
+        Args:
+            call: The service call object.
+
+        Returns:
+            A text response containing the exported logs.
+
+        Raises:
+            HomeAssistantError: If the export fails.
+        """
+        import os
+        from datetime import datetime
+
+        device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
+        lines = call.data.get("lines", 100)
+        include_timestamps = call.data.get("include_timestamps", True)
+        save_to_file = call.data.get("save_to_file", False)
+
+        # Validate lines parameter
+        lines = max(10, min(1000, int(lines)))
+
+        # Get coordinator for device info
+        coordinator = None
+        for device_id in device_ids:
+            coordinator = await self.manager.get_coordinator_for_device(device_id)
+            if coordinator:
+                break
+
+        if not coordinator:
+            raise HomeAssistantError(f"Device not found: {device_ids[0]}")
+
+        try:
+            # Get logs from Home Assistant's logging system
+            # We'll collect recent logs related to this integration
+            log_entries = []
+            device_name = coordinator.device.device_name
+
+            # Read from the main log file if available
+            log_path = "/config/home-assistant.log"
+            if os.path.exists(log_path):
+                try:
+                    with open(log_path, 'r', encoding='utf-8', errors='ignore') as f:
+                        # Read last N lines
+                        all_lines = f.readlines()
+                        # Filter for violet-related entries
+                        violet_lines = [
+                            line for line in all_lines
+                            if 'violet_pool_controller' in line.lower()
+                        ]
+                        # Take last N lines
+                        recent_lines = violet_lines[-lines:] if len(violet_lines) > lines else violet_lines
+
+                        for line in recent_lines:
+                            if include_timestamps:
+                                log_entries.append(line.rstrip())
+                            else:
+                                # Remove timestamp (format: [2026-02-24 17:35:23.304] ...)
+                                import re
+                                cleaned = re.sub(r'^\[?\d{4}-\d{2}-\d{2}[^]]*\]?\s*', '', line)
+                                log_entries.append(cleaned.rstrip())
+
+                except Exception as e:
+                    _LOGGER.warning("Could not read log file: %s", e)
+
+            # If no logs found, provide system information
+            if not log_entries:
+                log_entries.append(f"=== Violet Pool Controller Diagnostic Export ===")
+                log_entries.append(f"Device: {device_name}")
+                log_entries.append(f"Timestamp: {datetime.now().isoformat()}")
+                log_entries.append(f"")
+                log_entries.append(f"Controller Information:")
+                log_entries.append(f"  Name: {coordinator.device.controller_name}")
+                log_entries.append(f"  API URL: {coordinator.device.api_url}")
+                log_entries.append(f"  Device ID: {coordinator.device.device_id}")
+                log_entries.append(f"  Available: {coordinator.device.available}")
+                log_entries.append(f"  Firmware: {coordinator.device.firmware_version or 'Unknown'}")
+                log_entries.append(f"  Last Update: {coordinator.device.last_event_age:.1f}s ago")
+                log_entries.append(f"  Connection Latency: {coordinator.device.connection_latency:.1f}ms")
+                log_entries.append(f"  System Health: {coordinator.device.system_health:.0f}%")
+                log_entries.append(f"  Update Counter: {coordinator.device._update_counter}")
+                log_entries.append(f"  Consecutive Failures: {coordinator.device.consecutive_failures}")
+                log_entries.append(f"")
+                log_entries.append(f"No detailed log entries found in home-assistant.log.")
+                log_entries.append(f"Logs may have been rotated or not contain recent entries.")
+
+            # Create export text
+            export_header = f"""
+{'='*80}
+Violet Pool Controller - Diagnostic Log Export
+{'='*80}
+Device: {device_name}
+Exported: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+Lines: {len(log_entries)}
+{'='*80}
+"""
+
+            export_text = export_header + "\n".join(log_entries)
+
+            # Save to file if requested
+            if save_to_file:
+                filename = f"violet_diagnostic_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+                filepath = f"/config/{filename}"
+
+                try:
+                    with open(filepath, 'w', encoding='utf-8') as f:
+                        f.write(export_text)
+
+                    _LOGGER.info(
+                        "Diagnostic logs exported to file: %s (%d lines)",
+                        filename,
+                        len(log_entries)
+                    )
+
+                    # Also return the content
+                    call.response = {
+                        "success": True,
+                        "filename": filename,
+                        "filepath": filepath,
+                        "lines_exported": len(log_entries),
+                        "message": f"Logs saved to {filename} ({len(log_entries)} lines)"
+                    }
+                except Exception as e:
+                    _LOGGER.error("Failed to save log file: %s", e)
+                    raise HomeAssistantError(f"Failed to save log file: {e}") from e
+            else:
+                # Return as service response
+                _LOGGER.info(
+                    "Diagnostic logs exported: %d lines for device %s",
+                    len(log_entries),
+                    device_name
+                )
+
+                call.response = {
+                    "success": True,
+                    "lines_exported": len(log_entries),
+                    "logs": export_text,
+                    "message": f"Exported {len(log_entries)} log lines"
+                }
+
+        except Exception as err:
+            _LOGGER.error("Log export error: %s", err)
+            raise HomeAssistantError(f"Log export failed: {err}") from err
+
 
 # =============================================================================
 # REGISTRATION
@@ -827,6 +986,7 @@ async def async_register_services(hass: HomeAssistant) -> None:
         "set_light_color_pulse": handlers.handle_set_light_color_pulse,
         "manage_digital_rules": handlers.handle_manage_digital_rules,
         "test_output": handlers.handle_test_output,
+        "export_diagnostic_logs": handlers.handle_export_diagnostic_logs,
     }
 
     for service_name, handler in service_map.items():

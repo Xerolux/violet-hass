@@ -193,3 +193,33 @@ test_output:
           min: 1
           max: 900
           unit_of_measurement: s
+
+export_diagnostic_logs:
+  name: Export Diagnostic Logs
+  description: Export recent integration logs for troubleshooting and support
+  fields:
+    device_id:
+      description: Target device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
+    lines:
+      description: Number of recent log lines to export (default: 100, max: 1000)
+      default: 100
+      selector:
+        number:
+          min: 10
+          max: 1000
+          step: 10
+          unit_of_measurement: lines
+    include_timestamps:
+      description: Include timestamps in exported log
+      default: true
+      selector:
+        boolean:
+    save_to_file:
+      description: Save logs to file in /config/ directory
+      default: false
+      selector:
+        boolean:
