@@ -80,9 +80,7 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
         Returns:
             True if on, False otherwise.
         """
-        state = self._get_sensor_state()
-        _LOGGER.debug("Binary Sensor %s state: %s", self.entity_description.key, state)
-        return state
+        return self._get_sensor_state()
 
     @property
     def icon(self) -> str | None:
@@ -116,14 +114,6 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
         """
         key = self.entity_description.key
         raw_state = self.get_value(key, "")
-
-        _LOGGER.debug(
-            "Binary Sensor state check für %s: raw=%s (type=%s)",
-            key,
-            raw_state,
-            type(raw_state).__name__,
-        )
-
         return interpret_state_as_bool(raw_state, key)
 
     @property
@@ -189,16 +179,9 @@ class CoverIsClosedBinarySensor(CoordinatorEntity, BinarySensorEntity):
             True if closed, False otherwise.
         """
         if not self.coordinator.data:
-            _LOGGER.debug("Cover-Geschlossen Sensor: Keine Daten verfügbar")
             return False
 
         cover_state = self.coordinator.data.get("COVER_STATE")
-        _LOGGER.debug(
-            "Cover-Geschlossen Sensor: COVER_STATE=%s (type=%s)",
-            cover_state,
-            type(cover_state).__name__,
-        )
-
         return self._is_cover_closed(cover_state)
 
     def _is_cover_closed(self, cover_state: Any) -> bool:
@@ -216,25 +199,15 @@ class CoverIsClosedBinarySensor(CoordinatorEntity, BinarySensorEntity):
 
         # Integer check
         if isinstance(cover_state, int):
-            is_closed = cover_state == COVER_STATE_CLOSED
-            _LOGGER.debug("Cover state integer %d → closed=%s", cover_state, is_closed)
-            return is_closed
+            return cover_state == COVER_STATE_CLOSED
 
         # String check
         if isinstance(cover_state, str):
-            state_upper = cover_state.upper().strip()
-            is_closed = state_upper in COVER_CLOSED_STRINGS
-            _LOGGER.debug("Cover state string '%s' → closed=%s", state_upper, is_closed)
-            return is_closed
+            return cover_state.upper().strip() in COVER_CLOSED_STRINGS
 
         # Try conversion
         try:
-            state_int = int(cover_state)
-            is_closed = state_int == COVER_STATE_CLOSED
-            _LOGGER.debug(
-                "Cover state converted to int %d → closed=%s", state_int, is_closed
-            )
-            return is_closed
+            return int(cover_state) == COVER_STATE_CLOSED
         except (ValueError, TypeError):
             _LOGGER.warning("Unbekannter Cover State Type: %s", type(cover_state))
             return False

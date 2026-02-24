@@ -610,8 +610,11 @@ class VioletPoolControllerDevice:
 
             await asyncio.sleep(delay)
 
-            # Attempt data retrieval
-            data = await self._fetch_controller_data()
+            # Attempt data retrieval under _api_lock to prevent concurrent API calls.
+            # Lock ordering: _api_lock first, _recovery_lock second — never nest them.
+            # We are NOT holding _recovery_lock here, so acquiring _api_lock is safe.
+            async with self._api_lock:
+                data = await self._fetch_controller_data()
 
             if data and isinstance(data, dict):
                 # Recovery successful - reset state atomically
@@ -665,6 +668,7 @@ class VioletPoolControllerDevice:
                 _LOGGER.debug("Recovery-Task successfully cancelled")
             except Exception as err:
                 _LOGGER.warning("Error cancelling recovery task: %s", err)
+        self._recovery_task = None
 
     async def _start_recovery_background_task(self) -> None:
         """

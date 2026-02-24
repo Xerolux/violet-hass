@@ -1,10 +1,11 @@
 """Rate Limiter für API-Requests - Token Bucket Algorithm."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
 import time
 from collections import deque
-from typing import Optional
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -172,13 +173,6 @@ class RateLimiter:
             self.tokens = min(self.max_tokens, self.tokens + new_tokens)
             self.last_refill = current_time
 
-            _LOGGER.debug(
-                "Token-Bucket refilled: %.1f tokens (max: %d, time_passed: %.2fs)",
-                self.tokens,
-                self.max_tokens,
-                time_passed,
-            )
-
     def get_stats(self) -> dict:
         """Hole Rate-Limiter-Statistiken."""
         current_time = time.monotonic()
@@ -214,7 +208,7 @@ class RateLimiter:
 
 
 # Global Rate Limiter-Instanz (kann pro API-Instanz auch separat erstellt werden)
-_global_rate_limiter: Optional[RateLimiter] = None
+_global_rate_limiter: RateLimiter | None = None
 
 
 def get_global_rate_limiter() -> RateLimiter:

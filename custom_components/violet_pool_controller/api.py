@@ -609,7 +609,7 @@ class VioletPoolAPI:
                     _LOGGER.warning(
                         "Skipping malformed calibration history line: %s", line
                     )
-            except Exception as err:
+            except (IndexError, AttributeError) as err:
                 _LOGGER.warning(
                     "Error parsing calibration history line '%s': %s", line, err
                 )

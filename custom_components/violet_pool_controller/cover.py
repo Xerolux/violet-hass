@@ -52,9 +52,7 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
     def is_closed(self) -> bool:
         """Gibt True zurück, wenn das Cover geschlossen ist."""
         state = COVER_STATE_MAP.get(self.get_str_value("COVER_STATE", ""), "")
-        is_closed = state == "closed"
-        _LOGGER.debug("Cover is_closed: %s (state: %s)", is_closed, state)
-        return is_closed
+        return state == "closed"
 
     @property
     def is_opening(self) -> bool:
@@ -66,21 +64,11 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
         # 1. State explizit "opening" ist
         # 2. Letzte Aktion war OPEN und Cover ist noch nicht offen
         # 3. Bewegungsrichtung ist OPEN und Cover ist in Bewegung
-        is_opening = (
+        return (
             state == "opening"
             or (self._last_action == "OPEN" and not self.is_open)
             or (direction == "OPEN" and not self.is_closed and not self.is_open)
         )
-
-        if is_opening:
-            _LOGGER.debug(
-                "Cover öffnet (state: %s, last_action: %s, direction: %s)",
-                state,
-                self._last_action,
-                direction,
-            )
-
-        return is_opening
 
     @property
     def is_closing(self) -> bool:
@@ -92,29 +80,17 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
         # 1. State explizit "closing" ist
         # 2. Letzte Aktion war CLOSE und Cover ist noch nicht geschlossen
         # 3. Bewegungsrichtung ist CLOSE und Cover ist in Bewegung
-        is_closing = (
+        return (
             state == "closing"
             or (self._last_action == "CLOSE" and not self.is_closed)
             or (direction == "CLOSE" and not self.is_closed and not self.is_open)
         )
 
-        if is_closing:
-            _LOGGER.debug(
-                "Cover schließt (state: %s, last_action: %s, direction: %s)",
-                state,
-                self._last_action,
-                direction,
-            )
-
-        return is_closing
-
     @property
     def is_open(self) -> bool:
         """Gibt True zurück, wenn das Cover geöffnet ist."""
         state = COVER_STATE_MAP.get(self.get_str_value("COVER_STATE", ""), "")
-        is_open = state == "open"
-        _LOGGER.debug("Cover is_open: %s (state: %s)", is_open, state)
-        return is_open
+        return state == "open"
 
     async def async_open_cover(self, **kwargs) -> None:
         """Öffnet das Cover."""
