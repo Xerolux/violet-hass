@@ -509,7 +509,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 if exc is not None:
                     # ✅ Nur bei echten Problemen loggen
                     _LOGGER.debug("Refresh task failed for %s: %s", key, exc)
-        except asyncio.CancelledError:
+        except (asyncio.CancelledError, asyncio.InvalidStateError):
             pass  # Normal, kein Log nötig
         except Exception as err:
             _LOGGER.debug("Error handling refresh task for %s: %s", key, err)

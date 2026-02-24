@@ -296,7 +296,7 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
                     _LOGGER.debug(
                         "Refresh task failed for %s: %s", self._device_key, exc
                     )
-        except asyncio.CancelledError:
+        except (asyncio.CancelledError, asyncio.InvalidStateError):
             pass
         except Exception as err:
             _LOGGER.debug(

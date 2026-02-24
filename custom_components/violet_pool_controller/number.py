@@ -304,14 +304,15 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                 self.async_write_ha_state()
 
                 # Daten vom Controller neu abrufen und dann Cache zurücksetzen
-                await self.coordinator.async_request_refresh()
-
-                # ✅ FIXED: Cache nach erfolgreichem Refresh zurücksetzen
-                self._optimistic_value = None
-                _LOGGER.debug(
-                    "Optimistischer Cache für '%s' zurückgesetzt",
-                    self.entity_description.name,
-                )
+                try:
+                    await self.coordinator.async_request_refresh()
+                finally:
+                    # ✅ FIX: Always clear optimistic cache, even if refresh raises
+                    self._optimistic_value = None
+                    _LOGGER.debug(
+                        "Optimistischer Cache für '%s' zurückgesetzt",
+                        self.entity_description.name,
+                    )
             else:
                 error_msg = result.get("response", result)
                 _LOGGER.warning(
