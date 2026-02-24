@@ -1,4 +1,4 @@
-## v1.0.2-beta.1 – Violet Pool Controller
+## v1.0.2-beta.2 – Violet Pool Controller
 
 🟡 **BETA RELEASE** - Testing phase, may contain bugs
 
@@ -12,6 +12,8 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- fix: resolve sensor update stalling caused by mutable dict reference (16ed441)
+- 📝 Release v1.0.2-beta.1 - Update changelog and version files (c6c0cf0)
 - docs(wiki): Fix double-bracket links and update date (d315c7e)
 - config-device-refactor (3fa6b19)
 - fix: correct 3 bugs in config_flow_utils and device after refactor (6e3e6d2)
@@ -28,6 +30,7 @@
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- fix: resolve sensor update stalling caused by mutable dict reference (16ed441)
 - fix-github-actions (e9bfba6)
 - fix: add .nojekyll to prevent GitHub Pages Jekyll build failure (e8ba40d)
 - fix: comprehensive code analysis - 8 bugs and race conditions resolved (d3564f7)
@@ -75,7 +78,7 @@
 
 ---
 
-📋 [Full changelog: v1.0.1...v1.0.2-beta.1](https://github.com/Xerolux/violet-hass/compare/v1.0.1...v1.0.2-beta.1)
+📋 [Full changelog: v1.0.1...v1.0.2-beta.2](https://github.com/Xerolux/violet-hass/compare/v1.0.1...v1.0.2-beta.2)
 
 ---
 
@@ -109,4 +112,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-02-24 09:46:32 UTC_
+_Generated automatically by GitHub Actions on 2026-02-24 13:02:41 UTC_
