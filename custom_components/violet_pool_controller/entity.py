@@ -5,7 +5,6 @@ from __future__ import annotations
 import asyncio
 import logging
 import re
-import time
 from typing import TYPE_CHECKING, Any, cast
 
 from homeassistant.config_entries import ConfigEntry
@@ -152,11 +151,6 @@ class VioletPoolControllerEntity(CoordinatorEntity):
         self._attr_unique_id = f"{config_entry.entry_id}_{entity_description.key}"
         self._attr_device_info = cast(DeviceInfo, coordinator.device.device_info)
 
-        # Performance optimization: Entity-level caching
-        self._value_cache: dict[str, Any] = {}
-        self._cache_timestamp: float = 0
-        self._cache_ttl: float = 1.0  # 1 second cache
-
         _LOGGER.debug(
             "Entity initialisiert: %s (Key: %s, ID: %s)",
             entity_description.name or entity_description.translation_key,
@@ -195,7 +189,10 @@ class VioletPoolControllerEntity(CoordinatorEntity):
 
     def get_value(self, key: str, default: Any = None) -> Any:
         """
-        Get value with intelligent caching.
+        Get value directly from coordinator data.
+
+        Always reads fresh data from the coordinator to ensure entities
+        reflect the latest controller state without caching delays.
 
         Args:
             key: The data key.
@@ -204,21 +201,9 @@ class VioletPoolControllerEntity(CoordinatorEntity):
         Returns:
             The value or default.
         """
-        current_time = time.monotonic()
-
-        # Check cache validity
-        if (current_time - self._cache_timestamp) > self._cache_ttl:
-            self._value_cache.clear()
-            self._cache_timestamp = current_time
-
-        # Use cached value if available
-        if key not in self._value_cache:
-            if not self.coordinator.data:
-                self._value_cache[key] = default
-            else:
-                self._value_cache[key] = self.coordinator.data.get(key, default)
-
-        return self._value_cache[key]
+        if not self.coordinator.data:
+            return default
+        return self.coordinator.data.get(key, default)
 
     def get_float_value(self, key: str, default: Any = None) -> float | None:
         """
