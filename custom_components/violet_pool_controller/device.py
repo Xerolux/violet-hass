@@ -248,6 +248,12 @@ class VioletPoolControllerDevice:
         """
         Aktualisiert Gerätedaten vom Controller - SMART FAILURE LOGGING.
 
+        Returns a NEW dict copy on every successful update so that
+        HA's DataUpdateCoordinator detects a data change and notifies
+        all entity listeners.  Returning the same mutable reference
+        caused HA 2025.12+ to skip entity state writes because
+        ``self.data is new_data`` evaluated to True.
+
         ✅ LOGGING OPTIMIZATION:
         - Erste Warnung sofort
         - Zwischenwarnungen nur alle 5 Minuten
@@ -277,8 +283,9 @@ class VioletPoolControllerDevice:
                         # First warning only if was available (not first setup)
                         if self._available or len(self._data) > 0:
                             _LOGGER.warning(
-                                "Controller '%s' antwortet nicht (erste Warnung)",
+                                "Controller '%s' returned empty/invalid data (attempt %d)",
                                 self.device_name,
+                                self._consecutive_failures,
                             )
                             self._first_failure_logged = True
                             self._recovery_logged = False
@@ -322,13 +329,13 @@ class VioletPoolControllerDevice:
                         0.0, 100.0 - (self._consecutive_failures * 20.0)
                     )
 
-                    # Gebe alte Daten zurück bei temporären Problemen
-                    return self._data
+                    # Return a COPY of stale data so coordinator sees a new object
+                    return dict(self._data) if self._data else {}
 
                 # ✅ LOGGING OPTIMIZATION: Erfolg nach Fehlern = wichtige Info
                 if self._consecutive_failures > 0 and not self._recovery_logged:
                     _LOGGER.info(
-                        "✓ Controller '%s' wieder erreichbar (nach %d Fehler%s)",
+                        "Controller '%s' wieder erreichbar (nach %d Fehler%s)",
                         self.device_name,
                         self._consecutive_failures,
                         "n" if self._consecutive_failures > 1 else "",
@@ -336,11 +343,15 @@ class VioletPoolControllerDevice:
                     self._recovery_logged = True
                     self._first_failure_logged = False
 
-                # Update erfolgreich - merge partial data into existing
+                # ✅ FIX: Always replace _data with a fresh dict to ensure
+                # HA's DataUpdateCoordinator detects the change.
+                # Merge existing keys that might not be in the new response.
                 if self._data:
-                    self._data.update(data)
+                    merged = dict(self._data)
+                    merged.update(data)
+                    self._data = merged
                 else:
-                    self._data = data
+                    self._data = dict(data)
                 self._available = True
                 self._consecutive_failures = 0
                 self._last_error = None
@@ -373,7 +384,16 @@ class VioletPoolControllerDevice:
                     )
                     self._fw_logged = True
 
-                return self._data
+                # ✅ FIX: Return a NEW dict so the coordinator always
+                # receives a distinct object, triggering entity updates.
+                self._update_counter += 1
+                _LOGGER.debug(
+                    "Update #%d for '%s': %d keys fetched",
+                    self._update_counter,
+                    self.device_name,
+                    len(data),
+                )
+                return dict(self._data)
 
         except VioletPoolAPIError as err:
             self._last_error = str(err)
@@ -410,8 +430,8 @@ class VioletPoolControllerDevice:
                     self._max_consecutive_failures,
                 )
 
-            # Gebe alte Daten zurück bei temporären Fehlern
-            return self._data
+            # ✅ FIX: Return a COPY of stale data
+            return dict(self._data) if self._data else {}
 
         except Exception as err:
             self._last_error = str(err)
@@ -445,7 +465,8 @@ class VioletPoolControllerDevice:
                     self._max_consecutive_failures,
                 )
 
-            return self._data
+            # ✅ FIX: Return a COPY of stale data
+            return dict(self._data) if self._data else {}
 
     async def _fetch_controller_data(self) -> dict[str, Any]:
         """Fetch all controller data.
@@ -774,9 +795,9 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         """
         Update data from the device.
 
-        ✅ LOGGING OPTIMIZATION:
-        - Errors are already smartly logged in the device.
-        - Minimal logging here.
+        Returns a fresh dict from the device on every call so that
+        HA's DataUpdateCoordinator always sees a new data object and
+        triggers entity listener callbacks.
 
         Returns:
             A dictionary containing the updated data.
@@ -785,10 +806,20 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             UpdateFailed: If the update fails.
         """
         try:
-            return await self.device.async_update()
+            data = await self.device.async_update()
+            if not data:
+                raise UpdateFailed(
+                    f"Empty data returned for '{self.device.device_name}'"
+                )
+            return data
+        except UpdateFailed:
+            raise
         except VioletPoolAPIError as err:
-            # ✅ Bereits im Device geloggt, hier nur Exception propagieren
             raise UpdateFailed(f"API error: {err}") from err
+        except Exception as err:
+            raise UpdateFailed(
+                f"Unexpected error updating '{self.device.device_name}': {err}"
+            ) from err
 
 
 async def async_setup_device(
