@@ -1,4 +1,6 @@
+
 """Number Integration für den Violet Pool Controller - WITH INPUT SANITIZATION."""
+from __future__ import annotations
 
 import logging
 

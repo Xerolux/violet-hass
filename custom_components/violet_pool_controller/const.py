@@ -1,3 +1,4 @@
+
 """This module serves as the central hub for all constants in the Violet Pool Controller integration.
 
 It aggregates constants from specialized modules (`const_api`, `const_devices`,
@@ -8,6 +9,7 @@ by organizing constants based on their functional area.
 The module also defines core integration-level information, such as the domain,
 version, and manufacturer details, as well as configuration keys and default values.
 """
+from __future__ import annotations
 
 # flake8: noqa: F401, F403 - Allows central exporting of constants
 # ruff: noqa: F401, F403 - Allows central exporting of constants

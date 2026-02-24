@@ -1,4 +1,6 @@
+
 """Sensor Submodules for Violet Pool Controller."""
+from __future__ import annotations
 
 from .base import (
     _BOOLEAN_VALUE_KEYS,
@@ -17,7 +19,6 @@ from .monitoring import (
     VioletAverageLatencySensor,
     VioletConnectionLatencySensor,
     VioletLastEventAgeSensor,
-    VioletRecoverySuccessRateSensor,
     VioletSystemHealthSensor,
 )
 from .specialized import (
@@ -42,7 +43,6 @@ __all__ = [
     "VioletAverageLatencySensor",
     "VioletConnectionLatencySensor",
     "VioletLastEventAgeSensor",
-    "VioletRecoverySuccessRateSensor",
     "VioletSystemHealthSensor",
     # Specialized
     "VioletDosingStateSensor",

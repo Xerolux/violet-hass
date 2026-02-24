@@ -1,4 +1,6 @@
+
 """Climate Integration für den Violet Pool Controller - FULLY PROTECTED & THREAD-SAFE VERSION."""
+from __future__ import annotations
 
 import asyncio
 import logging

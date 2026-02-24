@@ -1,3 +1,4 @@
+
 """This module defines constants related to sensor entities.
 
 It includes definitions for different categories of sensors such as temperature,
@@ -5,6 +6,7 @@ water chemistry, and system diagnostics. It also provides unit mappings and
 mappings between sensor keys and integration features to control sensor creation
 based on user configuration.
 """
+from __future__ import annotations
 
 # =============================================================================
 # SENSOR DEFINITIONS

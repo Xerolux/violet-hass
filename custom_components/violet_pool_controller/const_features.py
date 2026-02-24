@@ -1,3 +1,4 @@
+
 """This module defines the features and entities available in the integration.
 
 It includes a list of all toggleable features that can be configured by the user,
@@ -5,6 +6,7 @@ as well as detailed definitions for binary sensors, switches, and number entitie
 (setpoints). These definitions are used to dynamically create the correct entities
 based on the user's enabled features and the data available from the controller.
 """
+from __future__ import annotations
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.components.number import NumberDeviceClass

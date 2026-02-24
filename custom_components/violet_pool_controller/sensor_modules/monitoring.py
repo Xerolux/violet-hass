@@ -167,27 +167,3 @@ class VioletAverageLatencySensor(VioletPoolControllerEntity, SensorEntity):
         return round(self.coordinator.device.average_latency, 0)
 
 
-class VioletRecoverySuccessRateSensor(VioletPoolControllerEntity, SensorEntity):
-    """Sensor for recovery success rate."""
-
-    def __init__(
-        self,
-        coordinator: VioletPoolDataUpdateCoordinator,
-        config_entry: ConfigEntry,
-    ) -> None:
-        """Initialize the recovery success rate sensor."""
-        description = SensorEntityDescription(
-            key="recovery_success_rate",
-            translation_key="recovery_success_rate",
-            name="Recovery Success Rate",
-            icon="mdi:restore",
-            native_unit_of_measurement="%",
-            entity_category=EntityCategory.DIAGNOSTIC,
-            state_class=SensorStateClass.MEASUREMENT,
-        )
-        super().__init__(coordinator, config_entry, description)
-
-    @property
-    def native_value(self) -> float | None:
-        """Return the recovery success rate."""
-        return round(self.coordinator.device.recovery_success_rate, 1)

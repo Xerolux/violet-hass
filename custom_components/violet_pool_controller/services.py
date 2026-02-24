@@ -17,7 +17,7 @@ from typing import Any, Iterable
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant.const import ATTR_DEVICE_ID, ATTR_ENTITY_ID
-from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import entity_registry as er
 
@@ -978,7 +978,8 @@ async def async_register_services(hass: HomeAssistant) -> None:
     schemas = get_service_schemas()
 
     # Register services
-    service_map = {
+    # Regular services (no return value)
+    regular_services = {
         "control_pump": handlers.handle_control_pump,
         "smart_dosing": handlers.handle_smart_dosing,
         "manage_pv_surplus": handlers.handle_manage_pv_surplus,
@@ -986,12 +987,23 @@ async def async_register_services(hass: HomeAssistant) -> None:
         "set_light_color_pulse": handlers.handle_set_light_color_pulse,
         "manage_digital_rules": handlers.handle_manage_digital_rules,
         "test_output": handlers.handle_test_output,
-        "export_diagnostic_logs": handlers.handle_export_diagnostic_logs,
     }
 
-    for service_name, handler in service_map.items():
+    for service_name, handler in regular_services.items():
         hass.services.async_register(
             DOMAIN, service_name, handler, schema=schemas.get(service_name)
         )
 
-    _LOGGER.info("Successfully registered %d services", len(service_map))
+    # Services returning data
+    hass.services.async_register(
+        DOMAIN,
+        "export_diagnostic_logs",
+        handlers.handle_export_diagnostic_logs,
+        schema=schemas.get("export_diagnostic_logs"),
+        supports_response=SupportsResponse.ONLY,
+    )
+
+    _LOGGER.info(
+        "Successfully registered %d services",
+        len(regular_services) + 1,
+    )

@@ -1,3 +1,4 @@
+
 """This module defines constants related to the Violet Pool Controller API.
 
 It includes API endpoints, command actions, rate limiting settings, and
@@ -5,6 +6,7 @@ definitions for various controllable functions like switches, covers, and dosing
 These constants provide a centralized and consistent way to interact with the
 controller's HTTP API.
 """
+from __future__ import annotations
 
 # =============================================================================
 # API ENDPOINTS

@@ -37,7 +37,6 @@ from .sensor_modules import (
     VioletErrorCodeSensor,
     VioletFlowRateSensor,
     VioletLastEventAgeSensor,
-    VioletRecoverySuccessRateSensor,
     VioletSensor,
     VioletStatusSensor,
     VioletSystemHealthSensor,
@@ -138,7 +137,6 @@ def _create_special_sensors(
             VioletLastEventAgeSensor(coordinator, config_entry),
             VioletAPIRequestRateSensor(coordinator, config_entry),
             VioletAverageLatencySensor(coordinator, config_entry),
-            VioletRecoverySuccessRateSensor(coordinator, config_entry),
         ]
     )
     handled_keys.update(
@@ -148,12 +146,11 @@ def _create_special_sensors(
             "last_event_age",
             "api_request_rate",
             "average_latency",
-            "recovery_success_rate",
         }
     )
     _LOGGER.debug(
         "Diagnostic sensors created (System Health, Connection Latency, Last Event Age, "
-        "API Request Rate, Average Latency, Recovery Success Rate)"
+        "API Request Rate, Average Latency)"
     )
 
     # Error Code Sensors

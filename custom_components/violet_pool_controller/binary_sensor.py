@@ -1,4 +1,6 @@
+
 """Binary Sensor Integration für den Violet Pool Controller - OPTIMIZED VERSION."""
+from __future__ import annotations
 
 import logging
 from typing import Any

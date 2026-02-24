@@ -11,7 +11,6 @@ from homeassistant.exceptions import HomeAssistantError
 from custom_components.violet_pool_controller import (
     PLATFORMS,
     async_migrate_entry,
-    async_setup,
     async_setup_entry,
     async_unload_entry,
 )
@@ -72,16 +71,6 @@ def coordinator() -> MagicMock:
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
-
-
-async def test_async_setup_initialises_domain(hass: HomeAssistant) -> None:
-    # Ensure domain is clean
-    if DOMAIN in hass.data:
-        del hass.data[DOMAIN]
-
-    result = await async_setup(hass, {})
-    assert result is True
-    assert DOMAIN in hass.data
 
 
 async def test_async_setup_entry_success(hass: HomeAssistant, config_entry: MockConfigEntry, coordinator: MagicMock) -> None:

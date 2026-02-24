@@ -78,29 +78,6 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) ->
     return False
 
 
-async def async_setup(hass: HomeAssistant, config: dict[str, Any]) -> bool:
-    """Set up integration via YAML (deprecated).
-
-    Args:
-        hass: The Home Assistant instance.
-        config: The configuration dictionary.
-
-    Returns:
-        True.
-    """
-    if DOMAIN in config:
-        _LOGGER.warning(
-            "YAML configuration for %s is deprecated and will be removed in a future version. "
-            "Please use the UI to configure the integration.",
-            DOMAIN,
-        )
-
-    # Initialize domain data if not present
-    hass.data.setdefault(DOMAIN, {})
-
-    return True
-
-
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Violet Pool Controller from a config entry.
 
@@ -215,15 +192,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 # NOTE: Do NOT close the aiohttp session - it's managed by Home Assistant!
                 # The session is created by HA via async_get_clientsession() and should only be closed by HA
                 _LOGGER.debug("API object reference released for entry_id=%s", entry.entry_id)
-
-            # Cancel any pending recovery tasks
-            if coordinator and hasattr(coordinator.device, "_recovery_task"):
-                recovery_task = coordinator.device._recovery_task
-                if recovery_task and not recovery_task.done():
-                    recovery_task.cancel()
-                    _LOGGER.debug(
-                        "Recovery task cancelled for entry_id=%s", entry.entry_id
-                    )
 
             # Remove coordinator from hass.data
             if entry.entry_id in hass.data.get(DOMAIN, {}):

@@ -1,4 +1,6 @@
+
 """Cover Integration für den Violet Pool Controller."""
+from __future__ import annotations
 
 import logging
 
