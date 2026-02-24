@@ -290,9 +290,8 @@ async def async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None
 
         coordinator.update_interval = timedelta(seconds=new_polling_interval)
 
-        # Reset the update tracker to force an immediate update with the new interval
-        if hasattr(coordinator, "_last_update_time"):
-            coordinator._last_update_time = 0
+        # Force an immediate refresh so the new interval takes effect now
+        await coordinator.async_request_refresh()
 
         _LOGGER.info(
             "Polling interval updated successfully to %ds (entry_id=%s)",
