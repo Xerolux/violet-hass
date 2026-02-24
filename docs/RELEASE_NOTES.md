@@ -6,6 +6,9 @@
 
 ### ✨ New Features | Neue Funktionen
 
+- feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
+- docs: Add Extended Logging & Diagnostic Tools guide (1bee46a)
+- fix: Add missing force_update option in settings (6ccc232)
 - feat: Add diagnostic logging and log export service for troubleshooting (b50dac7)
 - Add Force Update option to settings (7927ba0)
 - fix: add .nojekyll to prevent GitHub Pages Jekyll build failure (e8ba40d)
@@ -14,6 +17,8 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
+- 📝 Release v1.0.2-beta.3 - Update changelog and version files (13d57e4)
 - force-update-option (3778ec2)
 - Add Force Update option to settings (7927ba0)
 - 📝 Release v1.0.2-beta.2 - Update changelog and version files (6874e31)
@@ -36,7 +41,12 @@
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- fix: YAML parse error in services.yaml and ruff F541 cleanup in services.py (7b176ae)
+- fix: services.yaml YAML error and optimistic cache leak on task cancellation (655855c)
+- fix: dead code cleanup and recovery data propagation (8d94ca0)
+- fix: Add missing force_update option in settings (6ccc232)
 - fix-stuck-sensors-partial-updates (a4055e5)
+- fix: prevent permanent optimistic cache staleness in number/switch/select (5a12b66)
 - Fix: Prevent stuck sensor values by replacing device data instead of merging (395e5cc)
 - fix: resolve sensor update stalling caused by mutable dict reference (16ed441)
 - fix-github-actions (e9bfba6)
@@ -55,6 +65,9 @@
 
 ### 📚 Documentation | Dokumentation
 
+- feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
+- docs: Übersetze Extended Logging Dokumentation ins Deutsche (48de0fe)
+- docs: Add Extended Logging & Diagnostic Tools guide (1bee46a)
 - Merge pull request #203 from Xerolux/claude/setup-wiki-docs-RsE1I (dc50f7e)
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
 - docs(wiki): Fix double-bracket links and update date (d315c7e)
@@ -120,4 +133,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-02-24 17:30:11 UTC_
+_Generated automatically by GitHub Actions on 2026-02-24 18:47:58 UTC_
