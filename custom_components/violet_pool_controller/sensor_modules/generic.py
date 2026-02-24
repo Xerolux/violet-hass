@@ -64,10 +64,12 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
         """
         # Force state_class to None for contact sensors
         if "contact" in self.entity_description.key.lower():
-            _LOGGER.debug(
-                "Overriding state_class to None for contact sensor: %s",
-                self.entity_description.key,
-            )
+            # Only log if we're actually overriding a non-None value
+            if self.entity_description.state_class is not None:
+                _LOGGER.debug(
+                    "Overriding state_class to None for contact sensor: %s",
+                    self.entity_description.key,
+                )
             return None
         return self.entity_description.state_class
 
