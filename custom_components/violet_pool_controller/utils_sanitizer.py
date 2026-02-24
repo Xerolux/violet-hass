@@ -1,4 +1,6 @@
+
 """Input Sanitization Utilities für User-Inputs und API-Parameter."""
+from __future__ import annotations
 
 import logging
 import re

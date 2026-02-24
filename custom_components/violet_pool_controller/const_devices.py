@@ -1,3 +1,4 @@
+
 """This module defines constants related to device characteristics and states.
 
 It includes detailed parameter configurations for various devices (e.g., pumps, heaters),
@@ -5,6 +6,7 @@ state mappings for normalizing device statuses, and visual configurations like i
 and colors. The module also provides helper functions and a `VioletState` class to
 consistently interpret and manage device states throughout the integration.
 """
+from __future__ import annotations
 
 from typing import Any, Dict, Optional, cast
 
