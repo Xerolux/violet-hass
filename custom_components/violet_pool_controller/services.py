@@ -178,7 +178,7 @@ def get_service_schemas() -> dict[str, vol.Schema]:
             {
                 vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
                 vol.Optional("lines", default=100): vol.All(
-                    vol.Coerce(int), vol.Range(min=10, max=1000)
+                    vol.Coerce(int), vol.Range(min=10, max=10000)
                 ),
                 vol.Optional("include_timestamps", default=True): cv.boolean,
                 vol.Optional("save_to_file", default=False): cv.boolean,

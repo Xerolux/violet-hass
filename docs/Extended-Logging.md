@@ -113,7 +113,7 @@ Controls when entities update their `last_updated` timestamp:
 The Log Export Service allows you to easily export integration logs for analysis or support requests.
 
 **Features:**
-- Export 10-1000 recent log lines
+- Export 10-10000 recent log lines
 - Save as file in `/config/` directory
 - Include/exclude timestamps
 - Automatic system information
@@ -128,7 +128,7 @@ The Log Export Service allows you to easily export integration logs for analysis
    | Field | Description | Default |
    |-------|-------------|---------|
    | **Device** | Your Violet Pool Controller | *(required)* |
-   | **Lines** | Number of log lines (10-1000) | 100 |
+   | **Lines** | Number of log lines (10-10000) | 100 |
    | **Include timestamps** | Keep timestamps in export | ✅ Yes |
    | **Save to file** | Save as file in /config/ | ❌ No |
 
@@ -281,12 +281,15 @@ Finished fetching ... (success: True)
 
 ## 📏 File Size Reference
 
-| Lines | File Size | Use Case |
-|-------|-----------|----------|
-| 50 | ~12 KB | Quick check |
-| 100 | ~24 KB | Standard support request |
-| 200 | ~48 KB | Detailed troubleshooting |
-| 1000 | ~157 KB | Full history |
+| Lines | File Size | Duration | Use Case |
+|-------|-----------|----------|----------|
+| 50 | ~12 KB | ~30 sec | Quick check |
+| 100 | ~24 KB | ~1 min | Standard support request |
+| 200 | ~48 KB | ~2 min | Detailed troubleshooting |
+| 500 | ~120 KB | ~5 min | Extended analysis |
+| 1000 | ~240 KB | ~10 min | Full session |
+| 5000 | ~1.2 MB | ~30 min | Long-term analysis |
+| 10000 | ~2.4 MB | ~60 min | Complete history |
 
 **Note:** A 100-line export is perfect for email or chat support!
 
