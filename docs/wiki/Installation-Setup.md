@@ -187,6 +187,6 @@ automation:
 
 ## Nächste Schritte
 
-- 📖 Lies mehr: [[Device-States]] - Verstehe die 7 Device States
-- 🤖 Automatisierungen: [[Services]] - Verfügbare Services
-- 🚨 Probleme: [[Troubleshooting]] - Häufige Fehler
+- 📖 Lies mehr: [Device States](Device-States) - Verstehe die 7 Device States
+- 🤖 Automatisierungen: [Services](Services) - Verfügbare Services
+- 🚨 Probleme: [Troubleshooting](Troubleshooting) - Häufige Fehler

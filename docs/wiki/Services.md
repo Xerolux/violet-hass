@@ -214,6 +214,6 @@ Testen kannst du Services direkt im Developer Tools:
 
 ## Nächste Schritte
 
-- 📖 Lies: [[Automations]] - Praktische Beispiele
-- 🎯 States: [[Device-States]] - States verstehen
-- 🚨 Fehler: [[Troubleshooting]] - Service-Fehler lösen
+- 📖 Lies: [Automations](Automations) - Praktische Beispiele
+- 🎯 States: [Device-States](Device-States) - States verstehen
+- 🚨 Fehler: [Troubleshooting](Troubleshooting) - Service-Fehler lösen

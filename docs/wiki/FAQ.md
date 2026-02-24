@@ -55,7 +55,7 @@ A: Sieben verschiedene Betriebszustände:
 - 5 = Automatik, wartend
 - 6 = Manuell, aus
 
-Lies [[Device-States]] für Details.
+Lies [Device-States](Device-States) für Details.
 
 **F: Kann ich Pumpen-Geschwindigkeit einstellen?**
 A: Ja! 3 Stufen möglich mit dem `control_pump` Service.
@@ -258,7 +258,7 @@ Fragen noch nicht beantwortet?
 
 ## Weitere Seiten
 
-- 📖 [[Installation-Setup]] - Installation Schritt-für-Schritt
-- 🎯 [[Device-States]] - States 0-6 erklärt
-- 🤖 [[Services]] - Alle Services
-- 🚨 [[Troubleshooting]] - Fehlersuche
+- 📖 [Installation & Setup](Installation-Setup) - Installation Schritt-für-Schritt
+- 🎯 [Device-States](Device-States) - States 0-6 erklärt
+- 🤖 [Services](Services) - Alle Services
+- 🚨 [Troubleshooting](Troubleshooting) - Fehlersuche

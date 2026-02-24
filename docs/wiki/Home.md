@@ -146,4 +146,4 @@ Home Assistant
 ---
 
 *Diese Wiki dokumentiert Version **1.0.1** des Violet Pool Controller Addons.*
-*Zuletzt aktualisiert: 2026-02-22*
+*Zuletzt aktualisiert: 2026-02-24*
