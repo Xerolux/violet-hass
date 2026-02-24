@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import re
+import time
 from typing import TYPE_CHECKING, Any, cast
 
 from homeassistant.config_entries import ConfigEntry
@@ -203,7 +204,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
         Returns:
             The value or default.
         """
-        current_time = asyncio.get_event_loop().time()
+        current_time = time.monotonic()
 
         # Check cache validity
         if (current_time - self._cache_timestamp) > self._cache_ttl:

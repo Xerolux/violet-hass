@@ -73,9 +73,6 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         # ✅ FIXED: Lokale Cache-Variable für optimistisches Update
         self._optimistic_state: bool | None = None
 
-        # ✅ FIX: Force initial update to sync with controller
-        self._initial_update_done = False
-
         # ✅ Nur Setup loggen, nicht jeden Zugriff
         _LOGGER.debug("Switch initialisiert: %s", self.entity_id)
 

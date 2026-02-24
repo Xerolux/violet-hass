@@ -1,5 +1,6 @@
 """Circuit breaker implementation for resilient API calls."""
 
+import asyncio
 import logging
 import time
 from typing import Any, Callable
@@ -47,6 +48,9 @@ class CircuitBreaker:
         self.state = CircuitBreakerState.CLOSED
         self.half_open_start_time = 0.0
 
+        # Protects mutable state from concurrent coroutine access (e.g., asyncio.gather)
+        self._lock = asyncio.Lock()
+
         _LOGGER.debug(
             "Circuit breaker initialized: threshold=%d, timeout=%.1fs, recovery=%.1fs",
             failure_threshold,
@@ -71,60 +75,64 @@ class CircuitBreaker:
         """
         current_time = time.monotonic()
 
-        # Check if circuit should be closed from timeout
-        if (
-            self.state == CircuitBreakerState.OPEN
-            and current_time - self.last_failure_time > self.timeout
-        ):
-            self.state = CircuitBreakerState.HALF_OPEN
-            self.half_open_start_time = current_time
-            _LOGGER.info("Circuit breaker entering HALF_OPEN state for recovery test")
+        # Check and update circuit state under lock to prevent races
+        async with self._lock:
+            # Check if circuit should be closed from timeout
+            if (
+                self.state == CircuitBreakerState.OPEN
+                and current_time - self.last_failure_time > self.timeout
+            ):
+                self.state = CircuitBreakerState.HALF_OPEN
+                self.half_open_start_time = current_time
+                _LOGGER.info("Circuit breaker entering HALF_OPEN state for recovery test")
 
-        # Check if half-open timeout exceeded
-        if (
-            self.state == CircuitBreakerState.HALF_OPEN
-            and current_time - self.half_open_start_time > self.recovery_timeout
-        ):
-            self.state = CircuitBreakerState.CLOSED
-            self.failure_count = 0
-            _LOGGER.info("Circuit breaker recovered to CLOSED state")
+            # Check if half-open timeout exceeded
+            if (
+                self.state == CircuitBreakerState.HALF_OPEN
+                and current_time - self.half_open_start_time > self.recovery_timeout
+            ):
+                self.state = CircuitBreakerState.CLOSED
+                self.failure_count = 0
+                _LOGGER.info("Circuit breaker recovered to CLOSED state")
 
-        # Fail fast if circuit is open
-        if self.state == CircuitBreakerState.OPEN:
-            raise CircuitBreakerOpenError("Circuit breaker is OPEN")
+            # Fail fast if circuit is open
+            if self.state == CircuitBreakerState.OPEN:
+                raise CircuitBreakerOpenError("Circuit breaker is OPEN")
 
         try:
-            # Execute the function
+            # Execute the function outside the lock to avoid blocking other coroutines
             result = await func(*args, **kwargs)
 
             # Success: reset failure count and close circuit if half-open
-            if self.state == CircuitBreakerState.HALF_OPEN:
-                self.state = CircuitBreakerState.CLOSED
-                self.failure_count = 0
-                _LOGGER.info("Circuit breaker recovered from HALF_OPEN to CLOSED")
-            else:
-                self.failure_count = 0
+            async with self._lock:
+                if self.state == CircuitBreakerState.HALF_OPEN:
+                    self.state = CircuitBreakerState.CLOSED
+                    self.failure_count = 0
+                    _LOGGER.info("Circuit breaker recovered from HALF_OPEN to CLOSED")
+                else:
+                    self.failure_count = 0
 
             return result
 
         except self.expected_exception as err:
-            self.failure_count += 1
-            self.last_failure_time = current_time
+            async with self._lock:
+                self.failure_count += 1
+                self.last_failure_time = current_time
 
-            _LOGGER.debug(
-                "Circuit breaker failure %d/%d: %s",
-                self.failure_count,
-                self.failure_threshold,
-                str(err),
-            )
-
-            # Open circuit if threshold reached
-            if self.failure_count >= self.failure_threshold:
-                self.state = CircuitBreakerState.OPEN
-                _LOGGER.warning(
-                    "Circuit breaker OPENED due to %d failures",
+                _LOGGER.debug(
+                    "Circuit breaker failure %d/%d: %s",
+                    self.failure_count,
                     self.failure_threshold,
+                    str(err),
                 )
+
+                # Open circuit if threshold reached
+                if self.failure_count >= self.failure_threshold:
+                    self.state = CircuitBreakerState.OPEN
+                    _LOGGER.warning(
+                        "Circuit breaker OPENED due to %d failures",
+                        self.failure_threshold,
+                    )
 
             # Re-raise the original exception
             raise
@@ -147,7 +155,7 @@ class CircuitBreaker:
         }
 
     def reset(self) -> None:
-        """Manually reset the circuit breaker."""
+        """Manually reset the circuit breaker (call from sync context only)."""
         self.state = CircuitBreakerState.CLOSED
         self.failure_count = 0
         self.last_failure_time = 0.0
