@@ -458,7 +458,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(
                         CONF_API_URL,
                         default=reconfigure_entry.data.get(
-                            CONF_API_URL, "192.168.1.100"
+                            CONF_API_URL
                         ),
                     ): str,
                     vol.Optional(
@@ -687,7 +687,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """
         return vol.Schema(
             {
-                vol.Required(CONF_API_URL, default="192.168.1.100"): str,
+                vol.Required(CONF_API_URL): str,
                 vol.Optional(CONF_USERNAME): str,
                 vol.Optional(CONF_PASSWORD): str,
                 vol.Required(CONF_USE_SSL, default=DEFAULT_USE_SSL): bool,
