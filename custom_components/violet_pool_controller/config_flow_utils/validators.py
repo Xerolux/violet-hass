@@ -3,7 +3,6 @@
 import ipaddress
 import logging
 import re
-from typing import Any
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -31,20 +30,20 @@ def validate_ip_address(ip: str) -> bool:
         return bool(re.match(r"^[a-zA-Z0-9\-\.]+$", ip))
 
 
-def get_sensor_label(key: str, all_sensors: dict[str, Any]) -> str:
+def get_sensor_label(key: str) -> str:
     """
     Get the friendly name for a sensor key.
 
+    Converts raw sensor keys (e.g. 'PUMP_RPM') to a human-readable label
+    by replacing underscores with spaces and title-casing the result.
+
     Args:
         key: The sensor key.
-        all_sensors: Dictionary of all sensors.
 
     Returns:
-        The friendly name with key.
+        The friendly label for the sensor key.
     """
-    if key in all_sensors:
-        return f"{all_sensors[key]['name']} ({key})"
-    return key
+    return key.replace("_", " ").title()
 
 
 def validate_credentials_strength(username: str | None, password: str | None) -> None:
