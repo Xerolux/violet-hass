@@ -1,25 +1,63 @@
-## v1.0.1 – Violet Pool Controller
+## v1.0.2-beta.1 – Violet Pool Controller
 
-✅ **STABLE RELEASE**
+🟡 **BETA RELEASE** - Testing phase, may contain bugs
+
+---
 
 ### ✨ New Features | Neue Funktionen
 
-- Enhanced Violet Pool Controller functionality
+- fix: add .nojekyll to prevent GitHub Pages Jekyll build failure (e8ba40d)
+- ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
+- Add comprehensive Code Review documentation (18bdf74)
 
 ### 🚀 Improvements | Verbesserungen
 
-- Refactor: Clean up repository structure and resolve conflicts (c4821fe)
-- 📝 Release v1.0.0 - Update changelog and version files (71bc58a)
+- docs(wiki): Fix double-bracket links and update date (d315c7e)
+- config-device-refactor (3fa6b19)
+- fix: correct 3 bugs in config_flow_utils and device after refactor (6e3e6d2)
+- Fix static analysis errors and optimize entity performance (d074202)
+- refactor/sensor-modules (b41984b)
+- Refactor: Split sensor.py into modular structure (2ef7455)
+- refactor/split-large-files (a2d0b83)
+- Merge branch 'main' into refactor/split-large-files (b5992ed)
+- security: Remove all passwords from repository and update .gitignore (6563515)
+- refactor: Split config_flow.py into modular structure (2fe1f5c)
+- /refactor-optimization-bugfix (c3ee1bf)
+- Refactor config flow, optimize API calls, and fix linting issues (95144d0)
+- 📝 Release v1.0.1 - Update changelog and version files (012a9a2)
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
-- Release v1.0.1 - Critical Bug Fixes (fe08725)
-- Fix: Multiple critical improvements and bug fixes (642a98e)
-- /repo-cleanup-docs-fix-conflicts (251e375)
+- fix-github-actions (e9bfba6)
+- fix: add .nojekyll to prevent GitHub Pages Jekyll build failure (e8ba40d)
+- fix: comprehensive code analysis - 8 bugs and race conditions resolved (d3564f7)
+- docs(wiki): Fix double-bracket links and update date (d315c7e)
+- fix: correct 3 bugs in config_flow_utils and device after refactor (6e3e6d2)
+- Fix static analysis errors and optimize entity performance (d074202)
+- /refactor-optimization-bugfix (c3ee1bf)
+- Fix CI failure by allowing Claude Code action to fail (122f9ad)
+- Refactor config flow, optimize API calls, and fix linting issues (95144d0)
+- fix-readme-logo-url- (f0d309d)
+- Fix broken logo URL in README.md (a9cdebc)
+- fix: Pumpengeschwindigkeit zeigt korrekte aktive Stufe an (6cec3c6)
+- fix: remove wrong RPM unit from PUMP_RPM state code sensors (10e27b3)
 
 ### 📚 Documentation | Dokumentation
 
-- /repo-cleanup-docs-fix-conflicts (251e375)
+- Merge pull request #203 from Xerolux/claude/setup-wiki-docs-RsE1I (dc50f7e)
+- ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
+- docs(wiki): Fix double-bracket links and update date (d315c7e)
+- docs: Komplettes GitHub Wiki mit allen Seiten (880bb0b)
+- Cleanup: Remove obsolete reports, archived docs, and debug tools (64d613b)
+- Add comprehensive Code Review documentation (18bdf74)
+- docs: Füge komplette Wiki-Dokumentation hinzu (d6188d6)
+- docs: Erstelle komplette Wiki mit allen Features und Dokumentation (4e980f4)
+- fix-readme-logo-url- (f0d309d)
+- Fix broken logo URL in README.md (a9cdebc)
+
+### 🧪 Tests
+
+- Test: Complete integration test with all 14 features (1d98bef)
 
 ---
 
@@ -37,7 +75,7 @@
 
 ---
 
-📋 [Full changelog: v1.0.0...v1.0.1](https://github.com/Xerolux/violet-hass/compare/v1.0.0...v1.0.1)
+📋 [Full changelog: v1.0.1...v1.0.2-beta.1](https://github.com/Xerolux/violet-hass/compare/v1.0.1...v1.0.2-beta.1)
 
 ---
 
@@ -71,4 +109,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-02-22 13:42:20 UTC_
+_Generated automatically by GitHub Actions on 2026-02-24 09:46:32 UTC_
