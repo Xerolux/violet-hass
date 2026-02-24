@@ -308,7 +308,7 @@ Wenn nichts hilft:
 
 ## Weitere Seiten
 
-- 📖 [[Installation-Setup]] - Installation Schritt-für-Schritt
-- 🎯 [[Device-States]] - States verstehen
-- ❓ [[FAQ]] - Häufige Fragen
-- 🤖 [[Services]] - Alle Services
+- 📖 [Installation & Setup](Installation-Setup) - Installation Schritt-für-Schritt
+- 🎯 [Device-States](Device-States) - States verstehen
+- ❓ [FAQ](FAQ) - Häufige Fragen
+- 🤖 [Services](Services) - Alle Services
