@@ -366,8 +366,8 @@ class VioletPoolControllerDevice:
                         self._firmware_version = str(candidate).strip()
                         break
 
-                # Debug-Log nur wenn Firmware gefunden wurde und sich geändert hat
-                if self._firmware_version and not hasattr(self, "_fw_logged"):
+                # Debug-Log nur wenn Firmware gefunden wurde und noch nicht geloggt
+                if self._firmware_version and not self._fw_logged:
                     _LOGGER.debug(
                         "Firmware-Version erkannt: %s", self._firmware_version
                     )
@@ -625,6 +625,9 @@ class VioletPoolControllerDevice:
                 _LOGGER.info("Recovery successful for '%s'", self.device_name)
                 return True
 
+            # Recovery attempt failed (no valid data returned)
+            async with self._recovery_lock:
+                self._recovery_failure_count += 1  # ✅ DIAGNOSTIC: Track failure
             return False
 
         except Exception as err:
@@ -633,6 +636,8 @@ class VioletPoolControllerDevice:
                 current_attempt,
                 err,
             )
+            async with self._recovery_lock:
+                self._recovery_failure_count += 1  # ✅ DIAGNOSTIC: Track failure
             return False
 
         finally:
