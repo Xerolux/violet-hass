@@ -115,7 +115,7 @@ class VioletPoolAPI:
 
             self._ssl_context = ssl.create_default_context()
             self._ssl_context.check_hostname = False
-            self._ssl_context.verify_mode = ssl.CERT_NONE
+            self._ssl_context.verify_mode = ssl.CERT_NONE  # nosec
 
         # Rate limiting to protect the controller from being overloaded
         self._rate_limiter = get_global_rate_limiter()
