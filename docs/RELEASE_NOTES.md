@@ -12,6 +12,7 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- 📝 Release v1.0.2-beta.2 - Update changelog and version files (bb134ff)
 - fix: resolve sensor update stalling caused by mutable dict reference (16ed441)
 - 📝 Release v1.0.2-beta.1 - Update changelog and version files (c6c0cf0)
 - docs(wiki): Fix double-bracket links and update date (d315c7e)
@@ -30,6 +31,8 @@
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- fix-stuck-sensors-partial-updates (a4055e5)
+- Fix: Prevent stuck sensor values by replacing device data instead of merging (395e5cc)
 - fix: resolve sensor update stalling caused by mutable dict reference (16ed441)
 - fix-github-actions (e9bfba6)
 - fix: add .nojekyll to prevent GitHub Pages Jekyll build failure (e8ba40d)
@@ -112,4 +115,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-02-24 13:02:41 UTC_
+_Generated automatically by GitHub Actions on 2026-02-24 13:37:16 UTC_
