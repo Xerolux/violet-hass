@@ -150,20 +150,22 @@
             },
             "settings": {
                 "title": "⚙️ Allgemeine Einstellungen",
-                "description": "**Passe die technischen Parameter an**\n\n⏱️ Polling-Intervall: Wie oft Daten abgerufen werden\n⏰ Timeout: Maximale Wartezeit für Antworten\n🔄 Wiederholungen: Anzahl Retry-Versuche\n📊 Diagnostic Logging: Erweiterte Protokollierung\n\n💡 **Tipp:** Standard-Werte funktionieren für die meisten Setups!",
+                "description": "**Passe die technischen Parameter an**\n\n⏱️ Polling-Intervall: Wie oft Daten abgerufen werden\n⏰ Timeout: Maximale Wartezeit für Antworten\n🔄 Wiederholungen: Anzahl Retry-Versuche\n🔄 Force Update: Immer alle Entities aktualisieren\n📊 Diagnostic Logging: Erweiterte Protokollierung\n\n💡 **Tipp:** Standard-Werte funktionieren für die meisten Setups!",
                 "data": {
                     "controller_name": "🏷️ Controller-Name",
                     "polling_interval": "⏱️ Abrufintervall (Sekunden)",
                     "timeout_duration": "⏰ Timeout (Sekunden)",
                     "retry_attempts": "🔄 Wiederholungsversuche",
-                    "enable_diagnostic_logging": "📊 Erweiterte Protokollierung"
+                    "enable_diagnostic_logging": "📊 Erweiterte Protokollierung",
+                    "force_update": "🔄 Immer aktualisieren"
                 },
                 "data_description": {
                     "controller_name": "DE: Anzeigename des Controllers · EN: Controller display name",
                     "polling_interval": "DE: Intervall für Datenabrufe (5-300s) · EN: Data polling interval (5-300s)",
                     "timeout_duration": "DE: Maximale Wartezeit pro Anfrage (5-60s) · EN: Maximum wait time per request (5-60s)",
                     "retry_attempts": "DE: Anzahl Wiederholungsversuche bei Fehlern (1-10) · EN: Number of retry attempts on failure (1-10)",
-                    "enable_diagnostic_logging": "DE: Ausführliche Logs bei jedem Update (nur für Diagnose!) · EN: Verbose logs on every update (diagnostics only!)"
+                    "enable_diagnostic_logging": "DE: Ausführliche Logs bei jedem Update (nur für Diagnose!) · EN: Verbose logs on every update (diagnostics only!)",
+                    "force_update": "DE: Entities immer aktualisieren, auch wenn Wert gleich · EN: Always update entities even if value unchanged"
                 }
             }
         }
