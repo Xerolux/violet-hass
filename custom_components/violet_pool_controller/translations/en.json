@@ -134,7 +134,7 @@
       }
     },
     "error": {
-      "invalid_ip_address": "❌ **Invalid IP Address**\n\nPlease enter a valid IP address (e.g., 192.168.1.100)",
+            "invalid_ip_address": "Invalid IP Address\n\nPlease enter a valid IP address (e.g. 192.168.1.x)",
       "cannot_connect": "🔌 **Connection Failed**\n\nController unreachable. Check:\n• Is the IP address correct?\n• Is the controller powered on?\n• Is the network connection OK?",
       "invalid_auth": "🔐 **Authentication Failed**\n\nInvalid username or password. Leave empty if authentication is disabled.",
       "timeout_connection": "⏰ **Connection Timeout**\n\nController is not responding. Possibly overloaded or unreachable.",
