@@ -1,4 +1,4 @@
-"""Binary Sensor Integration für den Violet Pool Controller - OPTIMIZED VERSION."""
+"""Binary Sensor Integration for the Violet Pool Controller - OPTIMIZED VERSION."""
 
 import logging
 from typing import Any
@@ -26,7 +26,7 @@ COVER_STATE_CLOSED = 2
 COVER_CLOSED_STRINGS = {"CLOSED", "2", "GESCHLOSSEN"}
 COVER_OPEN_STRINGS = {"OPEN", "1", "OFFEN"}
 
-# Feature mapping für Binary Sensors
+# Feature mapping for binary sensors
 BINARY_SENSOR_FEATURE_MAP = {
     "PUMP": "filter_control",
     "HEATER": "heating",
@@ -157,7 +157,7 @@ class CoverIsClosedBinarySensor(CoordinatorEntity, BinarySensorEntity):
         self._attr_icon = "mdi:window-shutter"
         self._attr_device_info = coordinator.device.device_info  # type: ignore[assignment]
         _LOGGER.debug(
-            "Initialisiere Cover-Geschlossen Sensor: %s", self._attr_unique_id
+            "Initialize Cover Closed Sensor: %s", self._attr_unique_id
         )
 
     @property
@@ -209,7 +209,7 @@ class CoverIsClosedBinarySensor(CoordinatorEntity, BinarySensorEntity):
         try:
             return int(cover_state) == COVER_STATE_CLOSED
         except (ValueError, TypeError):
-            _LOGGER.warning("Unbekannter Cover State Type: %s", type(cover_state))
+            _LOGGER.warning("Unknown Cover State Type: %s", type(cover_state))
             return False
 
     @property
@@ -264,16 +264,16 @@ async def async_setup_entry(
 
     _LOGGER.info("Binary Sensor Setup - Active features: %s", active_features)
 
-    # None-Check für coordinator.data
+    # None-Check for coordinator.data
     if coordinator.data is None:
         _LOGGER.warning(
-            "Coordinator-Daten sind None für '%s'. "
-            "Binary Sensors werden nicht erstellt.",
+            "Coordinator data is None for '%s'. "
+            "Binary Sensors will not be created.",
             config_entry.title,
         )
         return
 
-    # Diagnose für verfügbare Daten
+    # Diagnostics for available data
     if coordinator.data:
         _LOGGER.debug(
             "Coordinator data keys: %d - %s",
@@ -284,7 +284,7 @@ async def async_setup_entry(
     # Create binary sensor descriptions from BINARY_SENSORS constant
     for sensor_config in BINARY_SENSORS:
         if not isinstance(sensor_config, dict):
-            _LOGGER.warning("Ungültige Sensor-Config: %s", sensor_config)
+            _LOGGER.warning("Invalid Sensor Config: %s", sensor_config)
             continue
 
         # Use proper BinarySensorEntityDescription
@@ -301,7 +301,7 @@ async def async_setup_entry(
         # Check if feature is active (if feature_id is specified)
         if feature_id and feature_id not in active_features:
             _LOGGER.debug(
-                "Überspringe Binary Sensor %s: Feature %s nicht aktiv",
+                "Skipping Binary Sensor %s: Feature %s not active",
                 description.key,
                 feature_id,
             )
@@ -315,25 +315,25 @@ async def async_setup_entry(
             and not description.key.startswith("INPUT")
         ):
             _LOGGER.debug(
-                "Überspringe Binary Sensor %s: Keine Daten verfügbar",
+                "Skipping Binary Sensor %s: No data available",
                 description.key,
             )
             continue
 
-        _LOGGER.debug("Erstelle Binary Sensor: %s", description.name)
+        _LOGGER.debug("Create Binary Sensor: %s", description.name)
         entities.append(VioletBinarySensor(coordinator, config_entry, description))
 
     # Add cover closed sensor if cover control is active
     if "cover_control" in active_features:
-        _LOGGER.debug("Erstelle Cover-Geschlossen Sensor")
+        _LOGGER.debug("Create Cover Closed Sensor")
         entities.append(CoverIsClosedBinarySensor(coordinator, config_entry))
 
     if entities:
         async_add_entities(entities)
         _LOGGER.info(
-            "✓ %d Binary Sensors erfolgreich eingerichtet: %s",
+            "✓ %d Binary Sensors successfully set up: %s",
             len(entities),
             [e.name for e in entities],
         )
     else:
-        _LOGGER.warning("⚠ Keine Binary Sensors eingerichtet")
+        _LOGGER.warning("⚠ No Binary Sensors set up")

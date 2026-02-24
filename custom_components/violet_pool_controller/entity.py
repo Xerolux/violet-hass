@@ -116,7 +116,7 @@ def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool:
 
 
 class VioletPoolControllerEntity(CoordinatorEntity):
-    """Basis-Entity-Klasse für alle Violet Pool Controller Entities."""
+    """Base entity class for all Violet Pool Controller entities."""
 
     coordinator: VioletPoolDataUpdateCoordinator
 
@@ -152,7 +152,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
         self._attr_device_info = cast(DeviceInfo, coordinator.device.device_info)
 
         _LOGGER.debug(
-            "Entity initialisiert: %s (Key: %s, ID: %s)",
+            "Entity initialized: %s (Key: %s, ID: %s)",
             entity_description.name or entity_description.translation_key,
             entity_description.key,
             self._attr_unique_id,
@@ -197,7 +197,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
 
         if not is_available:
             _LOGGER.debug(
-                "Entity '%s' nicht verfügbar (coordinator_success: %s, device_available: %s)",
+                "Entity '%s' unavailable (coordinator_success: %s, device_available: %s)",
                 self.name or self.entity_description.key,
                 self.coordinator.last_update_success,
                 self.device.available,
@@ -243,7 +243,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
             return float(value)
         except (ValueError, TypeError):
             _LOGGER.debug(
-                "Konvertierung zu Float für Key '%s' fehlgeschlagen: %s", key, value
+                "Failed to convert value to float for key '%s': %s", key, value
             )
             return default if default is not None else 0.0
 
@@ -322,8 +322,8 @@ class VioletPoolControllerEntity(CoordinatorEntity):
         except Exception as err:
             if log_context:
                 _LOGGER.debug(
-                    "Fehler beim verzögerten Refresh für %s: %s", log_context, err
+                    "Error during delayed refresh for %s: %s", log_context, err
                 )
             else:
-                _LOGGER.debug("Fehler beim verzögerten Refresh: %s", err)
+                _LOGGER.debug("Error during delayed refresh: %s", err)
             return False

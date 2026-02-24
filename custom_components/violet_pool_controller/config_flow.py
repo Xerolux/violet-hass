@@ -1,4 +1,4 @@
-"""Config Flow für Violet Pool Controller Integration - OPTIMIZED VERSION."""
+"""Config Flow for Violet Pool Controller Integration - OPTIMIZED VERSION."""
 
 from __future__ import annotations
 
@@ -64,23 +64,23 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Config Flow für Violet Pool Controller."""
+    """Config Flow for Violet Pool Controller."""
 
     VERSION = 1
 
     def __init__(self) -> None:
-        """Initialisiere Config Flow."""
+        """Initialize Config Flow."""
         self._config_data: dict[str, Any] = {}
         self._sensor_data: dict[str, list[str]] = {}
         self._reauth_entry: config_entries.ConfigEntry | None = None
-        _LOGGER.info("Violet Pool Controller Setup gestartet")
+        _LOGGER.info("Violet Pool Controller Setup started")
 
     @staticmethod
     @callback
     def async_get_options_flow(
         config_entry: config_entries.ConfigEntry,
     ) -> config_entries.OptionsFlow:
-        """Options Flow zurückgeben."""
+        """Return Options Flow."""
         return OptionsFlowHandler()
 
     async def async_step_user(
@@ -127,10 +127,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="disclaimer",
             data_schema=vol.Schema({vol.Required("agreement", default=False): bool}),
-            description_placeholders={
-                "disclaimer_text": self._get_disclaimer_text(),
-                **self._get_help_links(),
-            },
+            description_placeholders=self._get_help_links(),
         )
 
     async def async_step_help(
@@ -167,22 +164,14 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             The flow result.
         """
         errors = {}
-        error_hints = {}
 
         if user_input:
             if self._is_duplicate_entry(
                 user_input[CONF_API_URL], int(user_input.get(CONF_DEVICE_ID, 1))
             ):
                 errors["base"] = constants.ERROR_ALREADY_CONFIGURED
-                error_hints["base"] = (
-                    "This controller is already configured. "
-                    "Please check your integrations list."
-                )
             elif not validators.validate_ip_address(user_input[CONF_API_URL]):
                 errors[CONF_API_URL] = constants.ERROR_INVALID_IP
-                error_hints[CONF_API_URL] = (
-                    "Please enter a valid IP address (e.g., 192.168.1.100) or hostname."
-                )
             else:
                 self._config_data = self._build_config_data(user_input)
                 await self.async_set_unique_id(
@@ -192,23 +181,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if await self._test_connection():
                     return await self.async_step_pool_setup()
                 errors["base"] = constants.ERROR_CANNOT_CONNECT
-                error_hints["base"] = (
-                    "Cannot connect to the controller. Please check:\n"
-                    "• Is the controller powered on and connected?\n"
-                    "• Is the IP address correct?\n"
-                    "• Are username/password correct (if auth enabled)?\n"
-                    "• Can you ping the controller from this device?"
-                )
 
         placeholders = {
             **self._get_help_links(),
             "step_progress": "Step 1 of 4",
             "step_title": "Connection Settings",
         }
-
-        # Add error hints to placeholders if present
-        if error_hints:
-            placeholders["error_hint"] = "\n".join(error_hints.values())
 
         return self.async_show_form(
             step_id="connection",
@@ -265,12 +243,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 user_input
             )
 
-            # Hole Sensor-Daten für nächsten Schritt
+            # Fetch sensor data for next step
             sensor_data = await self._get_grouped_sensors()
             self._sensor_data = sensor_data
             if not self._sensor_data:
                 _LOGGER.warning(
-                    "Keine dynamischen Sensoren gefunden. Überspringe Auswahl."
+                    "No dynamic sensors found. Skipping selection."
                 )
                 self._config_data[CONF_SELECTED_SENSORS] = []
                 return self.async_create_entry(
@@ -304,18 +282,18 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input:
             selected_sensors = []
             for key, value in user_input.items():
-                if isinstance(value, list) and value:  # Prüfe ob Liste und nicht leer
+                if isinstance(value, list) and value:  # Check if list and not empty
                     selected_sensors.extend(value)
 
-            # ✅ FIX: Speichere Auswahl direkt. Leere Liste = keine Sensoren.
-            # Wir verwenden None nur für Legacy-Konfigs, wo es "Alle" bedeutet.
-            # Hier hat der User explizit gewählt (oder abgewählt).
+            # ✅ FIX: Store selection directly. Empty list = no sensors.
+            # We use None only for legacy configs, where it means "All".
+            # Here the user has explicitly selected (or deselected).
             self._config_data[CONF_SELECTED_SENSORS] = selected_sensors
 
             if selected_sensors:
-                _LOGGER.info("%d dynamische Sensoren ausgewählt", len(selected_sensors))
+                _LOGGER.info("%d dynamic sensors selected", len(selected_sensors))
             else:
-                _LOGGER.info("Keine dynamischen Sensoren ausgewählt.")
+                _LOGGER.info("No dynamic sensors selected.")
 
             return self.async_create_entry(
                 title=self._generate_entry_title(), data=self._config_data
@@ -658,29 +636,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         pool_size = self._config_data.get(CONF_POOL_SIZE)
         return f"{controller_name} • {pool_size}m³"
 
-    def _get_disclaimer_text(self) -> str:
-        """
-        Get the disclaimer text.
-
-        Returns:
-            The disclaimer text.
-        """
-        template = (
-            "⚠️ **Sicherheitswarnung / Safety Warning**\n\n"
-            "**DE:** Diese Integration kann Pumpen, Heizungen, Beleuchtung und "
-            "Dosieranlagen deines Pools fernsteuern. Falsche Einstellungen können "
-            "zu Sachschäden, Verletzungen oder Überdosierungen führen. Stelle sicher, "
-            "dass du alle Schutzmechanismen verstehst und jederzeit manuell eingreifen "
-            "kannst. Lies vor der Nutzung unbedingt die Hinweise in der "
-            "Konfigurationshilfe ({docs_de}).\n\n"
-            "**EN:** This integration provides remote control for pumps, heaters, "
-            "lights and dosing systems. Incorrect configuration may cause equipment "
-            "damage, personal injury or chemical overdosing. Make sure you understand "
-            "all safety features and keep manual overrides accessible. Please review "
-            "the configuration guide ({docs_en}) before you continue."
-        )
-        return template.format(**self._get_help_links())
-
     def _get_help_links(self) -> dict[str, str]:
         """
         Get helper links.
@@ -857,7 +812,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class OptionsFlowHandler(config_entries.OptionsFlow):
-    """Options Flow für Violet Pool Controller."""
+    """Options Flow for Violet Pool Controller."""
 
     def __init__(self) -> None:
         """Initialize options flow."""
@@ -937,7 +892,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             self._updated_options[CONF_ACTIVE_FEATURES] = selected_features
 
             _LOGGER.info(
-                "Features in Optionen aktualisiert: %s", ", ".join(selected_features)
+                "Features updated in options: %s", ", ".join(selected_features)
             )
 
             # Merge with existing options and create entry
@@ -978,8 +933,8 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 }
             ),
             description_placeholders={
-                "info": "Wählen Sie die Features, die Sie nutzen möchten. "
-                "Deaktivierte Features werden ausgeblendet."
+                "info": "Choose the features you want to use. "
+                "Disabled features will be hidden."
             },
         )
 
@@ -996,13 +951,13 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             The flow result.
         """
         if user_input is not None:
-            # Trenne Sensor-Auswahl von anderen Optionen
+            # Separate sensor selection from other options
             selected_sensors = []
             for key, value in user_input.items():
-                if key in self._sensor_data:  # Key ist eine Sensor-Gruppe
+                if key in self._sensor_data:  # Key is a sensor group
                     if (
                         isinstance(value, list) and value
-                    ):  # Prüfe ob Liste und nicht leer
+                    ):  # Check if list and not empty
                         selected_sensors.extend(value)
 
             # Store selected sensors
@@ -1010,16 +965,16 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
             if selected_sensors:
                 _LOGGER.info(
-                    "%d Sensoren in Optionen gespeichert", len(selected_sensors)
+                    "%d sensors stored in options", len(selected_sensors)
                 )
             else:
-                _LOGGER.info("Keine Sensoren in Optionen ausgewählt.")
+                _LOGGER.info("No sensors selected in options.")
 
             # Merge with existing options and create entry
             final_options = {**self.current_config, **self._updated_options}
             return self.async_create_entry(title="", data=final_options)
 
-        # Lade Sensoren für die Anzeige im Options-Flow
+        # Load sensors for display in options flow
         self._sensor_data = await self._get_grouped_sensors()
 
         return self.async_show_form(
@@ -1143,13 +1098,13 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         """
         schema = {}
 
-        # Dynamische Sensor-Auswahl hinzufügen
-        # None (Legacy) bedeutet ALLE Sensoren sind ausgewählt.
+        # Add dynamic sensor selection
+        # None (Legacy) means ALL sensors are selected.
         stored_sensors = self.current_config.get(CONF_SELECTED_SENSORS)
         is_all_selected = stored_sensors is None
 
         for group, sensors in self._sensor_data.items():
-            # Erstelle Optionen mit freundlichen Namen
+            # Create options with friendly names
             options = [
                 selector.SelectOptionDict(
                     value=sensor,
@@ -1158,8 +1113,8 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 for sensor in sensors
             ]
 
-            # Wenn ALLE ausgewählt (None), dann wähle alle in dieser Gruppe.
-            # Ansonsten nimm die gespeicherte Liste.
+            # If ALL selected (None), then select all in this group.
+            # Otherwise use the stored list.
             if is_all_selected:
                 default_selection = sensors
             else:

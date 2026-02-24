@@ -91,20 +91,21 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         config_entry: ConfigEntry,
         climate_type: str,
     ) -> None:
-        """Initialisiere Climate-Entity - FULLY PROTECTED VERSION."""
-        name = "Heizung" if climate_type == "HEATER" else "Solarabsorber"
+        """Initialize Climate Entity - FULLY PROTECTED VERSION."""
+        # Use translation key for name
+        translation_key = "heater" if climate_type == "HEATER" else "solar"
         icon = "mdi:radiator" if climate_type == "HEATER" else "mdi:solar-power"
 
         climate_description = ClimateEntityDescription(
             key=climate_type,
-            name=name,
+            translation_key=translation_key,
             icon=icon,
         )
 
         super().__init__(coordinator, config_entry, climate_description)
         self.climate_type = climate_type
 
-        # ✅ FIXED: Lokale Cache-Variablen für optimistisches Update
+        # ✅ FIXED: Local cache variables for optimistic update
         self._optimistic_target_temp: float | None = None
         self._optimistic_hvac_mode: str | None = None
 
@@ -112,19 +113,19 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         self._attr_hvac_mode = self._get_hvac_mode()
 
         _LOGGER.debug(
-            "%s initialisiert: Ziel=%.1f°C, Modus=%s",
-            name,
+            "%s initialized: Target=%.1f°C, Mode=%s",
+            translation_key,
             self._attr_target_temperature,
             self._attr_hvac_mode,
         )
 
     def _get_target_temperature(self) -> float:
-        """Hole Zieltemperatur - FULLY PROTECTED VERSION."""
-        # ✅ FIXED: Prüfe zuerst optimistischen Cache
+        """Get target temperature - FULLY PROTECTED VERSION."""
+        # ✅ FIXED: Check optimistic cache first
         if self._optimistic_target_temp is not None:
             return self._optimistic_target_temp
 
-        # ✅ CRITICAL: None-Check vor Datenzugriff
+        # ✅ CRITICAL: None-Check before data access
         if self.coordinator.data is None:
             _LOGGER.debug(
                 "Coordinator data is None - returning default target %.1f°C",
@@ -137,10 +138,10 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         # get_float_value with a non-None default will always return a float
         assert target is not None
 
-        # Validiere Temperatur
+        # Validate temperature
         if not self.min_temp <= target <= self.max_temp:
             _LOGGER.warning(
-                "Zieltemperatur %.1f°C außerhalb Bereich (%.1f-%.1f°C), verwende %.1f°C",
+                "Target temperature %.1f°C out of range (%.1f-%.1f°C), using %.1f°C",
                 target,
                 self.min_temp,
                 self.max_temp,
@@ -151,8 +152,8 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         return target
 
     def _get_hvac_mode(self) -> HVACMode:
-        """Ermittle HVAC-Modus - FULLY PROTECTED VERSION."""
-        # ✅ FIXED: Prüfe zuerst optimistischen Cache
+        """Determine HVAC mode - FULLY PROTECTED VERSION."""
+        # ✅ FIXED: Check optimistic cache first
         if self._optimistic_hvac_mode is not None:
             # We assume optimistic_hvac_mode is always a valid HVACMode
             return HVACMode(self._optimistic_hvac_mode)
@@ -175,7 +176,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
 
     @property
     def hvac_action(self) -> HVACAction | None:
-        """Gib aktuelle HVAC-Aktion zurück - FULLY PROTECTED VERSION."""
+        """Return current HVAC action - FULLY PROTECTED VERSION."""
         # ✅ CRITICAL: None-Check
         if self.coordinator.data is None:
             _LOGGER.debug("Coordinator data is None - returning IDLE action")
@@ -189,20 +190,20 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
 
     @property
     def current_temperature(self) -> float | None:
-        """Gib aktuelle Wassertemperatur zurück - FULLY PROTECTED VERSION."""
+        """Return current water temperature - FULLY PROTECTED VERSION."""
         # ✅ CRITICAL: None-Check
         if self.coordinator.data is None:
             _LOGGER.debug("Coordinator data is None - no current temperature available")
             return None
 
-        # Versuche alle bekannten Sensor-Keys
+        # Try all known sensor keys
         for sensor_key in WATER_TEMP_SENSORS:
             value = self.get_float_value(sensor_key, None)
             if value is not None:
-                _LOGGER.debug("Wassertemperatur von '%s': %.1f°C", sensor_key, value)
+                _LOGGER.debug("Water temperature from '%s': %.1f°C", sensor_key, value)
                 return value
 
-        _LOGGER.debug("Keine Wassertemperatur gefunden in: %s", WATER_TEMP_SENSORS)
+        _LOGGER.debug("No water temperature found in: %s", WATER_TEMP_SENSORS)
         return None
 
     @property
@@ -213,7 +214,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return additional state attributes - FULLY PROTECTED VERSION."""
-        # ✅ CRITICAL: None-Check vor Daten-Zugriff
+        # ✅ CRITICAL: None-Check before data access
         if self.coordinator.data is None:
             return {
                 "state_type": "unavailable",
@@ -228,12 +229,12 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             "hvac_action_from_state": HEATER_HVAC_ACTIONS.get(state, "unknown"),
         }
 
-        # ✅ FIXED: Zeige optimistischen Cache-Status
+        # ✅ FIXED: Show optimistic cache status
         if self._optimistic_target_temp is not None:
             attributes["optimistic_target"] = self._optimistic_target_temp
             attributes["pending_update"] = True
 
-        # Runtime information mit None-Check
+        # Runtime information with None check
         runtime_key = f"{self.climate_type}_RUNTIME"
         if runtime_key in self.coordinator.data:
             attributes["runtime"] = self.get_str_value(runtime_key, "00h 00m 00s")
@@ -241,19 +242,19 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         return attributes
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
-        """Setze Zieltemperatur - FULLY PROTECTED & THREAD-SAFE VERSION."""
+        """Set target temperature - FULLY PROTECTED & THREAD-SAFE VERSION."""
         temperature = kwargs.get("temperature")
         if temperature is None:
-            _LOGGER.warning("Keine Temperatur in kwargs angegeben")
+            _LOGGER.warning("No temperature specified in kwargs")
             return
 
-        # Validiere Temperaturbereich
+        # Validate temperature range
         if not self._validate_temperature(temperature):
             return
 
         try:
             _LOGGER.info(
-                "Setze %s-Temperatur auf %.1f°C",
+                "Set %s temperature to %.1f°C",
                 self.climate_type,
                 temperature,
             )
@@ -263,39 +264,39 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             )
 
             if result.get("success") is True:
-                _LOGGER.debug("Temperatur erfolgreich gesetzt: %s", result)
+                _LOGGER.debug("Temperature successfully set: %s", result)
 
-                # ✅ FIXED: NUR lokale Variablen setzen, KEINE coordinator.data Mutation!
+                # ✅ FIXED: ONLY set local variables, NO coordinator.data mutation!
                 self._optimistic_target_temp = temperature
                 self._attr_target_temperature = temperature
                 self.async_write_ha_state()
 
                 _LOGGER.debug(
-                    "Optimistisches Update: %.1f°C (lokaler Cache, kein coordinator.data mutiert)",
+                    "Optimistic update: %.1f°C (local cache, no coordinator.data mutation)",
                     temperature,
                 )
 
-                # Asynchroner Refresh holt echte Daten und resettet Cache
+                # Asynchronous refresh fetches real data and resets cache
                 task = asyncio.create_task(self._delayed_refresh())
                 task.add_done_callback(self._handle_refresh_error)
             else:
-                error_msg = result.get("response", "Unbekannter Fehler")
-                _LOGGER.warning("Temperatur setzen fehlgeschlagen: %s", error_msg)
+                error_msg = result.get("response", "Unknown error")
+                _LOGGER.warning("Failed to set temperature: %s", error_msg)
                 raise HomeAssistantError(
-                    f"Temperatur setzen fehlgeschlagen: {error_msg}"
+                    f"Failed to set temperature: {error_msg}"
                 )
 
         except VioletPoolAPIError as err:
-            _LOGGER.error("API-Fehler beim Setzen der Temperatur: %s", err)
+            _LOGGER.error("API error setting temperature: %s", err)
             raise HomeAssistantError(
-                f"Temperatur setzen fehlgeschlagen: {err}"
+                f"Failed to set temperature: {err}"
             ) from err
         except Exception as err:
-            _LOGGER.error("Unerwarteter Fehler: %s", err)
-            raise HomeAssistantError(f"Temperaturfehler: {err}") from err
+            _LOGGER.error("Unexpected error: %s", err)
+            raise HomeAssistantError(f"Temperature error: {err}") from err
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
-        """Setze HVAC-Modus - FULLY PROTECTED & THREAD-SAFE VERSION."""
+        """Set HVAC mode - FULLY PROTECTED & THREAD-SAFE VERSION."""
         mode_action_map = {
             HVACMode.HEAT: ACTION_ON,
             HVACMode.OFF: ACTION_OFF,
@@ -304,12 +305,12 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
 
         api_action = mode_action_map.get(hvac_mode)
         if not api_action:
-            _LOGGER.warning("Nicht unterstützter HVAC-Modus: %s", hvac_mode)
+            _LOGGER.warning("Unsupported HVAC mode: %s", hvac_mode)
             return
 
         try:
             _LOGGER.info(
-                "Setze %s-Modus auf %s (API-Action: %s)",
+                "Set %s mode to %s (API Action: %s)",
                 self.climate_type,
                 hvac_mode,
                 api_action,
@@ -320,42 +321,42 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             )
 
             if result.get("success") is True:
-                _LOGGER.debug("HVAC-Modus erfolgreich gesetzt: %s", result)
+                _LOGGER.debug("HVAC mode successfully set: %s", result)
 
-                # ✅ FIXED: NUR lokale Variablen setzen, KEINE coordinator.data Mutation!
+                # ✅ FIXED: ONLY set local variables, NO coordinator.data mutation!
                 self._optimistic_hvac_mode = hvac_mode
                 self._attr_hvac_mode = hvac_mode
                 self.async_write_ha_state()
 
                 _LOGGER.debug(
-                    "Optimistisches Update: %s (lokaler Cache, kein coordinator.data mutiert)",
+                    "Optimistic update: %s (local cache, no coordinator.data mutation)",
                     hvac_mode,
                 )
 
-                # Asynchroner Refresh holt echte Daten und resettet Cache
+                # Asynchronous refresh fetches real data and resets cache
                 task = asyncio.create_task(self._delayed_refresh())
                 task.add_done_callback(self._handle_refresh_error)
             else:
-                error_msg = result.get("response", "Unbekannter Fehler")
-                _LOGGER.warning("HVAC-Modus setzen fehlgeschlagen: %s", error_msg)
+                error_msg = result.get("response", "Unknown error")
+                _LOGGER.warning("Failed to set HVAC mode: %s", error_msg)
                 raise HomeAssistantError(
-                    f"HVAC-Modus setzen fehlgeschlagen: {error_msg}"
+                    f"Failed to set HVAC mode: {error_msg}"
                 )
 
         except VioletPoolAPIError as err:
-            _LOGGER.error("API-Fehler beim Setzen des HVAC-Modus: %s", err)
+            _LOGGER.error("API error setting HVAC mode: %s", err)
             raise HomeAssistantError(
-                f"HVAC-Modus setzen fehlgeschlagen: {err}"
+                f"Failed to set HVAC mode: {err}"
             ) from err
         except Exception as err:
-            _LOGGER.error("Unerwarteter Fehler: %s", err)
-            raise HomeAssistantError(f"HVAC-Modusfehler: {err}") from err
+            _LOGGER.error("Unexpected error: %s", err)
+            raise HomeAssistantError(f"HVAC mode error: {err}") from err
 
     def _validate_temperature(self, temperature: float) -> bool:
-        """Validiere Temperatur."""
+        """Validate temperature."""
         if not self.min_temp <= temperature <= self.max_temp:
             _LOGGER.warning(
-                "Temperatur %.1f°C außerhalb erlaubtem Bereich (%.1f-%.1f°C)",
+                "Temperature %.1f°C out of allowed range (%.1f-%.1f°C)",
                 temperature,
                 self.min_temp,
                 self.max_temp,
@@ -364,7 +365,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         return True
 
     def _get_expected_state(self, action: str) -> int:
-        """Bestimme erwarteten State."""
+        """Determine expected state."""
         action_state_map = {
             ACTION_ON: STATE_MANUAL_ON,
             ACTION_OFF: STATE_MANUAL_OFF,
@@ -374,7 +375,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
 
     async def _delayed_refresh(self) -> None:
         """
-        Verzögerter Refresh mit optimistischem Cache-Reset.
+        Delayed refresh with optimistic cache reset.
 
         ✅ SHARED CODE: Uses base _request_coordinator_refresh method.
         """
@@ -385,7 +386,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             )
             if self.coordinator.data is not None:
                 _LOGGER.debug(
-                    "State nach Refresh: %s=%s, Target=%s",
+                    "State after refresh: %s=%s, Target=%s",
                     self.climate_type,
                     self.coordinator.data.get(self.climate_type, "UNKNOWN"),
                     self.coordinator.data.get(
@@ -400,7 +401,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             self._optimistic_hvac_mode = None
             if old_temp is not None or old_mode is not None:
                 _LOGGER.debug(
-                    "Optimistische Cache-Werte gelöscht (temp: %s, mode: %s)",
+                    "Optimistic cache values cleared (temp: %s, mode: %s)",
                     old_temp,
                     old_mode,
                 )
@@ -416,12 +417,12 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             if not task.cancelled():
                 exc = task.exception()
                 if exc is not None:
-                    # ✅ Nur bei echten Problemen loggen
+                    # ✅ Log only actual problems
                     _LOGGER.debug(
                         "Refresh task failed for %s: %s", self.climate_type, exc
                     )
         except (asyncio.CancelledError, asyncio.InvalidStateError):
-            pass  # Normal, kein Log nötig
+            pass  # Normal, no log needed
 
 
 async def async_setup_entry(
@@ -429,7 +430,7 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Richte Climate-Entities ein - FULLY PROTECTED VERSION."""
+    """Setup Climate Entities - FULLY PROTECTED VERSION."""
     coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][
         config_entry.entry_id
     ]
@@ -440,47 +441,47 @@ async def async_setup_entry(
 
     _LOGGER.info("Climate Setup - Active features: %s", active_features)
 
-    # ✅ CRITICAL: None-Check für Diagnose
+    # ✅ CRITICAL: None-Check for diagnostics
     if coordinator.data is not None:
         _LOGGER.debug("Coordinator data keys: %d", len(coordinator.data.keys()))
     else:
-        _LOGGER.warning("Coordinator data is None bei Climate Setup")
+        _LOGGER.warning("Coordinator data is None during Climate Setup")
 
     for climate_type, feature in CLIMATE_FEATURE_MAP.items():
-        # Prüfe ob Feature aktiv
+        # Check if feature active
         if feature not in active_features:
             _LOGGER.debug(
-                "%s-Entity nicht erstellt: Feature '%s' nicht aktiv",
+                "%s entity not created: Feature '%s' not active",
                 climate_type,
                 feature,
             )
             continue
 
-        # ✅ CRITICAL: None-Check vor Daten-Prüfung
+        # ✅ CRITICAL: None-Check before data check
         if coordinator.data is not None:
             if climate_type not in coordinator.data:
                 _LOGGER.debug(
-                    "%s-Entity nicht erstellt: Keine Daten verfügbar",
+                    "%s entity not created: No data available",
                     climate_type,
                 )
                 continue
         else:
             _LOGGER.debug(
-                "%s-Entity wird erstellt trotz fehlender Daten (Coordinator offline?)",
+                "%s entity created despite missing data (Coordinator offline?)",
                 climate_type,
             )
 
-        _LOGGER.debug("Erstelle %s-Entity: Feature '%s' aktiv", climate_type, feature)
+        _LOGGER.debug("Create %s entity: Feature '%s' active", climate_type, feature)
         entities.append(VioletClimateEntity(coordinator, config_entry, climate_type))
 
     if entities:
         async_add_entities(entities)
         _LOGGER.info(
-            "✓ %d Climate-Entities erfolgreich eingerichtet: %s",
+            "✓ %d Climate entities successfully set up: %s",
             len(entities),
             [e.name for e in entities],
         )
     else:
         _LOGGER.debug(
-            "Keine Climate-Entities eingerichtet (keine Features aktiviert oder keine Daten)"
+            "No Climate entities set up (no features activated or no data)"
         )

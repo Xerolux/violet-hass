@@ -367,7 +367,7 @@ class VioletServiceHandlers:
         )
         action = call.data["action"]
 
-        # ✅ INPUT SANITIZATION: Validiere speed und duration
+        # ✅ INPUT SANITIZATION: Validate speed and duration
         speed_raw = call.data.get("speed", 2)
         duration_raw = call.data.get("duration", 0)
 
@@ -450,7 +450,7 @@ class VioletServiceHandlers:
         dosing_type = call.data["dosing_type"]
         action = call.data["action"]
 
-        # ✅ INPUT SANITIZATION: Validiere duration (max 300s für Dosierung)
+        # ✅ INPUT SANITIZATION: Validate duration (max 300s for dosing)
         duration_raw = call.data.get("duration", 30)
         duration = InputSanitizer.validate_duration(
             duration_raw, min_sec=5, max_sec=300

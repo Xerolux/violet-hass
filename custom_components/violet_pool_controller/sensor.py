@@ -62,10 +62,10 @@ async def async_setup_entry(
         config_entry.entry_id
     ]
 
-    # None-Check für coordinator.data
+    # None-Check for coordinator.data
     if coordinator.data is None:
         _LOGGER.warning(
-            "Coordinator-Daten sind None für '%s'. Sensoren werden nicht erstellt.",
+            "Coordinator data is None for '%s'. Sensors will not be created.",
             config_entry.title,
         )
         return
