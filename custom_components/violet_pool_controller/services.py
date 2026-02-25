@@ -928,7 +928,14 @@ class VioletServiceHandlers:
                     log_entries.append(f"  Timezone: {self.hass.config.time_zone}")
 
                     # Loaded Components Count
-                    log_entries.append(f"  Loaded Components: {len(self.hass.config.components)}")
+                    components = sorted(self.hass.config.components)
+                    log_entries.append(f"  Loaded Components ({len(components)}):")
+
+                    # Split components into chunks for readability
+                    chunk_size = 5
+                    for i in range(0, len(components), chunk_size):
+                        chunk = components[i:i + chunk_size]
+                        log_entries.append(f"    {', '.join(chunk)}")
 
                     # Additional System Info (OS, Supervisor) - often requires hassio integration
                     hassio_info = self.hass.data.get("hassio")
