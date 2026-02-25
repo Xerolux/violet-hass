@@ -6,6 +6,7 @@
 
 ### ✨ New Features | Neue Funktionen
 
+- Fix diagnostic log export path and add debug hint (4602573)
 - feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
 - docs: Add Extended Logging & Diagnostic Tools guide (1bee46a)
 - fix: Add missing force_update option in settings (6ccc232)
@@ -17,6 +18,7 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- 📝 Release v1.0.2-beta.5 - Update changelog and version files (3f0d719)
 - 📝 Release v1.0.2-beta.5 - Update changelog and version files (1682109)
 - fix-cover-binary-sensor-force-update (5e4ee48)
 - Refactor `CoverIsClosedBinarySensor` to inherit from `VioletPoolControllerEntity`. (7d47fac)
@@ -48,6 +50,8 @@
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- fix-log-export-path (cddb3a3)
+- Fix diagnostic log export path and add debug hint (4602573)
 - fix-hass-data-keyerror (e93e589)
 - Fix KeyError in async_setup_entry by initializing hass.data[DOMAIN] (1c8ffef)
 - fix-release-workflow-injection (07a4cb4)
@@ -149,4 +153,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-02-25 05:58:48 UTC_
+_Generated automatically by GitHub Actions on 2026-02-25 06:14:17 UTC_
