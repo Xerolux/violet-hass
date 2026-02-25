@@ -19,6 +19,7 @@ import voluptuous as vol
 from homeassistant.const import ATTR_DEVICE_ID, ATTR_ENTITY_ID
 from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
 from .api import VioletPoolAPIError
@@ -216,10 +217,23 @@ class VioletServiceManager:
             The coordinator instance or None.
         """
         domain_data = self.hass.data.get(DOMAIN, {})
+
+        # 1. Check if device_id is directly a config_entry_id (legacy/direct usage)
         for coordinator in domain_data.values():
             if hasattr(coordinator, "device") and coordinator.device:
                 if str(coordinator.config_entry.entry_id) == device_id:
                     return coordinator
+
+        # 2. Check if device_id is a device registry ID
+        dev_reg = dr.async_get(self.hass)
+        device = dev_reg.async_get(device_id)
+
+        if device:
+            for config_entry_id in device.config_entries:
+                coordinator = domain_data.get(config_entry_id)
+                if coordinator and hasattr(coordinator, "device") and coordinator.device:
+                    return coordinator
+
         return None
 
     async def get_coordinators_for_entities(self, entity_ids: list[str]) -> list[Any]:
@@ -802,7 +816,7 @@ class VioletServiceHandlers:
 
             await coordinator.async_request_refresh()
 
-    async def handle_export_diagnostic_logs(self, call: ServiceCall) -> None:
+    async def handle_export_diagnostic_logs(self, call: ServiceCall) -> dict[str, Any]:
         """
         Handle the export diagnostic logs service.
 
@@ -921,7 +935,7 @@ Lines: {len(log_entries)}
                     )
 
                     # Also return the content
-                    call.response = {
+                    return {
                         "success": True,
                         "filename": filename,
                         "filepath": filepath,
@@ -939,7 +953,7 @@ Lines: {len(log_entries)}
                     device_name
                 )
 
-                call.response = {
+                return {
                     "success": True,
                     "lines_exported": len(log_entries),
                     "logs": export_text,
