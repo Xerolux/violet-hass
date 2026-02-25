@@ -859,7 +859,7 @@ class VioletServiceHandlers:
             device_name = coordinator.device.device_name
 
             # Read from the main log file if available
-            log_path = "/config/home-assistant.log"
+            log_path = self.hass.config.path("home-assistant.log")
             if os.path.exists(log_path):
                 try:
                     with open(log_path, 'r', encoding='utf-8', errors='ignore') as f:
@@ -905,6 +905,17 @@ class VioletServiceHandlers:
                 log_entries.append("")
                 log_entries.append("No detailed log entries found in home-assistant.log.")
                 log_entries.append("Logs may have been rotated or not contain recent entries.")
+
+                # Check log level
+                try:
+                    logger = logging.getLogger("custom_components.violet_pool_controller")
+                    level = logger.getEffectiveLevel()
+                    if level > logging.DEBUG:
+                        log_entries.append("")
+                        log_entries.append("NOTE: Debug logging is currently disabled.")
+                        log_entries.append("To see more details, enable debug logging for this integration.")
+                except Exception:
+                    pass
 
             # Create export text
             export_header = f"""
