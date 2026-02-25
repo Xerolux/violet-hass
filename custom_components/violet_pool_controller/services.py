@@ -912,6 +912,34 @@ class VioletServiceHandlers:
                 log_entries.append(f"  Consecutive Failures: {coordinator.device.consecutive_failures}")
                 log_entries.append("")
 
+                # Add System Information
+                log_entries.append("System Information:")
+                try:
+                    # HA Version
+                    log_entries.append(f"  Home Assistant: {self.hass.config.version}")
+
+                    # Installation Type (if available)
+                    if "hassio" in self.hass.config.components:
+                         log_entries.append("  Installation Type: Home Assistant OS / Supervised")
+                    else:
+                         log_entries.append("  Installation Type: Core / Container (likely)")
+
+                    # Timezone
+                    log_entries.append(f"  Timezone: {self.hass.config.time_zone}")
+
+                    # Loaded Components Count
+                    log_entries.append(f"  Loaded Components: {len(self.hass.config.components)}")
+
+                    # Additional System Info (OS, Supervisor) - often requires hassio integration
+                    hassio_info = self.hass.data.get("hassio")
+                    if hassio_info:
+                        # Try to extract info if available in standard location (implementation varies)
+                        pass
+
+                except Exception as e:
+                    log_entries.append(f"  Error retrieving system info: {e}")
+                log_entries.append("")
+
                 # Add Configuration Information
                 if include_config and hasattr(coordinator, "config_entry") and coordinator.config_entry:
                     from .const import (
