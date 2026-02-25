@@ -74,9 +74,6 @@ def coordinator() -> MagicMock:
 
 
 async def test_async_setup_entry_success(hass: HomeAssistant, config_entry: MockConfigEntry, coordinator: MagicMock) -> None:
-    # Ensure domain data exists (simulating async_setup)
-    hass.data.setdefault(DOMAIN, {})
-
     # Mock hass.config_entries.async_forward_entry_setups
     # In some HA versions/test setups this might be needed or it's an async method
     hass.config_entries.async_forward_entry_setups = AsyncMock()
@@ -117,9 +114,6 @@ async def test_async_setup_entry_missing_host(hass: HomeAssistant) -> None:
     )
     entry.add_to_hass(hass)
 
-    # Ensure domain data exists
-    hass.data.setdefault(DOMAIN, {})
-
     with patch.object(
         api_module,
         "VioletPoolAPI",
@@ -134,9 +128,6 @@ async def test_async_setup_entry_missing_host(hass: HomeAssistant) -> None:
 
 
 async def test_async_setup_entry_device_error(hass: HomeAssistant, config_entry: MockConfigEntry) -> None:
-    # Ensure domain data exists
-    hass.data.setdefault(DOMAIN, {})
-
     with patch.object(
         device_module,
         "async_setup_device",
