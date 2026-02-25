@@ -970,6 +970,61 @@ class VioletServiceHandlers:
                         log_entries.append("  No history available.")
                     log_entries.append("")
 
+                # Entity States
+                try:
+                    if hasattr(coordinator, "config_entry") and coordinator.config_entry:
+                        entry_id = coordinator.config_entry.entry_id
+                        registry = er.async_get(self.hass)
+                        entities = er.async_entries_for_config_entry(registry, entry_id)
+
+                        if entities:
+                            log_entries.append("Entity States:")
+                            sorted_entities = sorted(entities, key=lambda e: e.entity_id)
+
+                            for entity in sorted_entities:
+                                state = self.hass.states.get(entity.entity_id)
+                                if state:
+                                    # Limit attribute output to avoid massive logs
+                                    attrs = dict(state.attributes)
+                                    attr_str = str(attrs)
+                                    if len(attr_str) > 200:
+                                        attr_str = attr_str[:197] + "..."
+
+                                    log_entries.append(f"  - {entity.entity_id}: {state.state} (attrs: {attr_str})")
+                                else:
+                                    log_entries.append(f"  - {entity.entity_id}: <No State>")
+                            log_entries.append("")
+                except Exception as e:
+                    _LOGGER.warning("Could not dump entity states: %s", e)
+                    log_entries.append(f"Error dumping entity states: {e}")
+                    log_entries.append("")
+
+                # Raw Data Dump
+                try:
+                    import json
+                    if hasattr(coordinator, "data") and coordinator.data:
+                        log_entries.append("Latest Raw Data:")
+
+                        # Deep copy and redact
+                        raw_data = dict(coordinator.data)
+                        sensitive_keys = ["wifi_password", "password", "key", "token", "secret"]
+
+                        redacted_data = {}
+                        for key, value in raw_data.items():
+                            lower_key = str(key).lower()
+                            if any(sensitive in lower_key for sensitive in sensitive_keys):
+                                redacted_data[key] = "***REDACTED***"
+                            else:
+                                redacted_data[key] = value
+
+                        json_str = json.dumps(redacted_data, indent=2, default=str, sort_keys=True)
+                        log_entries.append(json_str)
+                        log_entries.append("")
+                except Exception as e:
+                     _LOGGER.warning("Could not dump raw data: %s", e)
+                     log_entries.append(f"Error dumping raw data: {e}")
+                     log_entries.append("")
+
                 log_entries.append("No detailed log entries found in home-assistant.log.")
                 log_entries.append("Logs may have been rotated or not contain recent entries.")
 
