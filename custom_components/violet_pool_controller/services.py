@@ -956,6 +956,20 @@ class VioletServiceHandlers:
 
                     log_entries.append("")
 
+                # Polling History
+                if hasattr(coordinator.device, "_first_poll") and coordinator.device._first_poll:
+                    log_entries.append("Polling History:")
+                    log_entries.append(f"  First Poll: {coordinator.device._first_poll.strftime('%Y-%m-%d %H:%M:%S')}")
+
+                    if hasattr(coordinator.device, "_poll_history") and coordinator.device._poll_history:
+                        history = list(coordinator.device._poll_history)
+                        log_entries.append(f"  Last {len(history)} Polls:")
+                        for timestamp, count, latency in history:
+                            log_entries.append(f"    - {timestamp.strftime('%H:%M:%S')}: {count} items ({latency:.1f}ms)")
+                    else:
+                        log_entries.append("  No history available.")
+                    log_entries.append("")
+
                 log_entries.append("No detailed log entries found in home-assistant.log.")
                 log_entries.append("Logs may have been rotated or not contain recent entries.")
 
