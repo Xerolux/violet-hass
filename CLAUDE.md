@@ -301,7 +301,7 @@ GitHub workflow `.github/workflows/validate.yml` runs:
 - Ruff linting
 - Mypy type checking
 - Full test suite with pytest
-- Tests against Home Assistant 2024.12.0 and 2025.1.0
+- Tests against Home Assistant 2025.1.0
 - Python 3.12 environment
 
 ## Translation Files
