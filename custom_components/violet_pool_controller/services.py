@@ -953,9 +953,24 @@ class VioletServiceHandlers:
                     if CONF_ACTIVE_FEATURES in config:
                         features = config[CONF_ACTIVE_FEATURES]
                         if isinstance(features, list):
-                            log_entries.append(f"  Active Features: {len(features)} enabled")
-                            # Optional: list them if not too long
-                            # log_entries.append(f"    {', '.join(features)}")
+                            from .const_features import AVAILABLE_FEATURES
+
+                            # Create feature mapping
+                            feature_map = {f["id"]: f["name"] for f in AVAILABLE_FEATURES}
+                            enabled_features = []
+                            disabled_features = []
+
+                            for f in AVAILABLE_FEATURES:
+                                if f["id"] in features:
+                                    enabled_features.append(f["name"])
+                                else:
+                                    disabled_features.append(f["name"])
+
+                            log_entries.append(f"  Active Features: {len(enabled_features)} enabled")
+                            if enabled_features:
+                                log_entries.append(f"    Enabled: {', '.join(sorted(enabled_features))}")
+                            if disabled_features:
+                                log_entries.append(f"    Disabled: {', '.join(sorted(disabled_features))}")
 
                     if CONF_SELECTED_SENSORS in config:
                         sensors = config[CONF_SELECTED_SENSORS]
