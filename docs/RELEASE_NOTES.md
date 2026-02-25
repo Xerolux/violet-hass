@@ -17,6 +17,7 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- 📝 Release v1.0.2-beta.5 - Update changelog and version files (1682109)
 - fix-cover-binary-sensor-force-update (5e4ee48)
 - Refactor `CoverIsClosedBinarySensor` to inherit from `VioletPoolControllerEntity`. (7d47fac)
 - 📝 Release v1.0.2-beta.4 - Update changelog and version files (11afbf8)
@@ -47,6 +48,8 @@
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- fix-hass-data-keyerror (e93e589)
+- Fix KeyError in async_setup_entry by initializing hass.data[DOMAIN] (1c8ffef)
 - fix-release-workflow-injection (07a4cb4)
 - fix: use env vars in release workflow to prevent shell injection (edf65ca)
 - fix-log-export-device-id (c930a35)
@@ -146,4 +149,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-02-25 05:40:15 UTC_
+_Generated automatically by GitHub Actions on 2026-02-25 05:58:48 UTC_
