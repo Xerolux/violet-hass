@@ -115,14 +115,17 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
 
         # Change-Only Logging
         if result != self._last_logged_state or raw_state != self._last_logged_raw:
+            if self._last_logged_state is None:
+                previous = "INIT"
+            elif self._last_logged_state:
+                previous = "ON"
+            else:
+                previous = "OFF"
+
             _LOGGER.info(
-                "Switch %s: %s → %s (raw: %s)",
+                "Switch %s: %s -> %s (raw: %s)",
                 key,
-                "ON"
-                if self._last_logged_state
-                else "OFF"
-                if self._last_logged_state is not None
-                else "INIT",
+                previous,
                 "ON" if result else "OFF",
                 raw_state,
             )
@@ -199,6 +202,17 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         6: "Manuell Aus",
     }
 
+    # Mapping from numeric state to mode string (Automatik or Manuell)
+    _MODE_MAP: dict[int, str] = {
+        0: "Automatik",
+        1: "Manuell",
+        2: "Automatik",
+        3: "Automatik",
+        4: "Manuell",
+        5: "Automatik",
+        6: "Manuell",
+    }
+
     # German translations for common *STATE detail suffixes
     _DETAIL_DE: dict[str, str] = {
         "PUMP_ANTI_FREEZE": "Frostschutz",
@@ -269,17 +283,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         desc = "Unbekannt"
 
         if state_num is not None:
-            # German mode from numeric state
-            mode_map = {
-                0: "Automatik",
-                1: "Manuell",
-                2: "Automatik",
-                3: "Automatik",
-                4: "Manuell",
-                5: "Automatik",
-                6: "Manuell",
-            }
-            mode = mode_map.get(state_num, "Unbekannt")
+            mode = self._MODE_MAP.get(state_num, "Unbekannt")
             desc = self._STATE_DESC_DE.get(state_num, f"Status {state_num}")
 
         # Append extra detail from *STATE field
@@ -425,30 +429,26 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 result = await self.device.api.set_switch_state(key=key, action=action)
 
             if result.get("success") is True:
-                # ✅ Erfolg nur bei Debug loggen (API loggt bereits)
-                _LOGGER.debug("Switch %s erfolgreich auf %s gesetzt", key, action)
+                _LOGGER.debug("Switch %s successfully set to %s", key, action)
 
-                # ✅ FIXED: NUR lokale Variable setzen, KEINE coordinator.data Mutation!
+                # Set optimistic state locally without mutating coordinator.data
                 self._optimistic_state = action == ACTION_ON
                 self.async_write_ha_state()
 
                 _LOGGER.debug(
-                    "Optimistisches Update: %s = %s (lokaler Cache, kein coordinator.data mutiert)",
+                    "Optimistic update: %s = %s (local cache only)",
                     key,
                     "ON" if self._optimistic_state else "OFF",
                 )
-
-                # Asynchroner Refresh holt echte Daten und resettet Cache
-                task = asyncio.create_task(self._delayed_refresh(key))
-                task.add_done_callback(lambda t: self._handle_refresh_error(t, key))
             else:
-                error_msg = result.get("response", "Unbekannter Fehler")
-                # ✅ Fehler = WARNING (User-relevant)
+                error_msg = result.get("response", "Unknown error")
                 _LOGGER.warning(
-                    "Switch %s Aktion %s fehlgeschlagen: %s", key, action, error_msg
+                    "Switch %s action %s failed: %s", key, action, error_msg
                 )
-                task = asyncio.create_task(self._delayed_refresh(key))
-                task.add_done_callback(lambda t: self._handle_refresh_error(t, key))
+
+            # Always schedule a refresh to sync with actual controller state
+            task = asyncio.create_task(self._delayed_refresh(key))
+            task.add_done_callback(lambda t: self._handle_refresh_error(t, key))
 
         except VioletPoolAPIError as err:
             # ✅ API-Fehler = ERROR (kritisch)
@@ -627,19 +627,19 @@ async def async_setup_entry(
             if key in coordinator.data:
                 try:
                     value = coordinator.data[key]
-                    state_int = (
-                        int(value)
-                        if isinstance(value, (int, float)) or str(value).isdigit()
-                        else None
-                    )
-                    expected = (
-                        "ON"
-                        if state_int in ON_STATES
-                        else "OFF"
-                        if state_int in OFF_STATES
-                        else "UNKNOWN"
-                    )
-                    _LOGGER.debug("%s: raw=%s → %s", key, value, expected)
+                    if isinstance(value, (int, float)) or str(value).isdigit():
+                        state_int = int(value)
+                    else:
+                        state_int = None
+
+                    if state_int in ON_STATES:
+                        expected = "ON"
+                    elif state_int in OFF_STATES:
+                        expected = "OFF"
+                    else:
+                        expected = "UNKNOWN"
+
+                    _LOGGER.debug("%s: raw=%s -> %s", key, value, expected)
                 except (ValueError, KeyError, TypeError) as err:
                     _LOGGER.debug("Diagnose-Fehler für %s: %s", key, err)
     else:
@@ -679,8 +679,7 @@ async def async_setup_entry(
 
     if entities:
         async_add_entities(entities)
-        # ✅ INFO: Erfolgreicher Setup
-        _LOGGER.info("✓ %d Switches erfolgreich eingerichtet", len(entities))
+        _LOGGER.info("%d switches set up successfully", len(entities))
 
         # Final check nur bei DEBUG
         if coordinator.data is not None:
@@ -700,5 +699,4 @@ async def async_setup_entry(
                     except (ValueError, KeyError, TypeError, AttributeError) as err:
                         _LOGGER.debug("Final-Check-Fehler für %s: %s", key, err)
     else:
-        # ✅ WARNING: Potenzielles Problem
-        _LOGGER.warning("⚠ Keine Switches eingerichtet")
+        _LOGGER.warning("No switches were set up")

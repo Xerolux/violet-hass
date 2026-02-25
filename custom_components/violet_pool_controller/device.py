@@ -226,10 +226,10 @@ class VioletPoolControllerDevice:
                 # ✅ LOGGING OPTIMIZATION: Erfolg nach Fehlern = wichtige Info
                 if self._consecutive_failures > 0 and not self._recovery_logged:
                     _LOGGER.info(
-                        "✓ Controller '%s' wieder erreichbar (nach %d Fehler%s)",
+                        "Controller '%s' reachable again (after %d failure%s)",
                         self.device_name,
                         self._consecutive_failures,
-                        "n" if self._consecutive_failures > 1 else "",
+                        "s" if self._consecutive_failures > 1 else "",
                     )
                     self._recovery_logged = True
                     self._first_failure_logged = False
@@ -264,10 +264,10 @@ class VioletPoolControllerDevice:
                         self._firmware_version = str(candidate).strip()
                         break
 
-                # Debug-Log nur wenn Firmware gefunden wurde und sich geändert hat
-                if self._firmware_version and not hasattr(self, "_fw_logged"):
+                # Log firmware version once when first detected
+                if self._firmware_version and not self._fw_logged:
                     _LOGGER.debug(
-                        "Firmware-Version erkannt: %s", self._firmware_version
+                        "Firmware version detected: %s", self._firmware_version
                     )
                     self._fw_logged = True
 
@@ -353,7 +353,6 @@ class VioletPoolControllerDevice:
         queries miss many important keys (PUMP, SOLAR, fw, etc.).
         """
         return await self.api.get_readings()
-
 
     @property
     def available(self) -> bool:
@@ -499,7 +498,7 @@ class VioletPoolControllerDevice:
             )
 
             _LOGGER.info(
-                "🔄 Recovery-Versuch %d/%d für '%s' (Delay: %.1fs)",
+                "Recovery attempt %d/%d for '%s' (delay: %.1fs)",
                 current_attempt,
                 RECOVERY_MAX_ATTEMPTS,
                 self.device_name,
@@ -551,8 +550,8 @@ class VioletPoolControllerDevice:
 
         if self._recovery_attempts >= RECOVERY_MAX_ATTEMPTS:
             _LOGGER.warning(
-                "⚠️ Maximale Recovery-Versuche (%d) erreicht für '%s'. "
-                "Manuelle Intervention erforderlich.",
+                "Maximum recovery attempts (%d) reached for '%s'. "
+                "Manual intervention required.",
                 RECOVERY_MAX_ATTEMPTS,
                 self.device_name,
             )
@@ -563,7 +562,7 @@ class VioletPoolControllerDevice:
             while self._recovery_attempts < RECOVERY_MAX_ATTEMPTS:
                 if await self._attempt_recovery():
                     _LOGGER.info(
-                        "✅ Background Recovery erfolgreich für '%s'",
+                        "Background recovery successful for '%s'",
                         self.device_name,
                     )
                     return
@@ -572,14 +571,14 @@ class VioletPoolControllerDevice:
                 await asyncio.sleep(5)
 
             _LOGGER.error(
-                "❌ Background Recovery fehlgeschlagen für '%s' nach %d Versuchen",
+                "Background recovery failed for '%s' after %d attempts",
                 self.device_name,
                 RECOVERY_MAX_ATTEMPTS,
             )
 
         self._recovery_task = asyncio.create_task(recovery_loop())
         _LOGGER.info(
-            "🔄 Background Recovery gestartet für '%s'",
+            "Background recovery started for '%s'",
             self.device_name,
         )
 
@@ -726,11 +725,10 @@ async def async_setup_device(
         # Ersten Refresh durchführen
         await coordinator.async_config_entry_first_refresh()
 
-        # ✅ Erfolgreicher Setup = wichtige Info
         _LOGGER.info(
-            "✓ Device Setup erfolgreich: '%s' (FW: %s, %d Datenpunkte)",
+            "Device setup successful: '%s' (FW: %s, %d data points)",
             device.device_name,
-            device.firmware_version or "Unbekannt",
+            device.firmware_version or "Unknown",
             len(device.data) if device.data else 0,
         )
 

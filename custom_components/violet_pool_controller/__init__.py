@@ -228,11 +228,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 hass.data[DOMAIN].pop(entry.entry_id)
                 _LOGGER.debug("Coordinator removed for entry_id=%s", entry.entry_id)
 
-            # Trigger garbage collection
-            import gc
-
-            gc.collect()
-
             _LOGGER.info(
                 "Successfully unloaded '%s' (entry_id=%s)", device_name, entry.entry_id
             )

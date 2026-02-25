@@ -32,8 +32,10 @@ STATE_MAP = {
 }
 
 
-# Pre-compiled numeric pattern for performance
-NUMERIC_PATTERN = re.compile(r"^-?\d+$")
+# Pre-compiled patterns for state interpretation
+_NUMERIC_PATTERN = re.compile(r"^-?\d+$")
+_TRUE_PATTERN = re.compile(r"^(TRUE|ON|1|YES|ACTIVE|ENABLED)$")
+_FALSE_PATTERN = re.compile(r"^(FALSE|OFF|0|NO|INACTIVE|DISABLED)$")
 
 
 def convert_to_int(value: Any) -> int | None:
@@ -49,7 +51,7 @@ def convert_to_int(value: Any) -> int | None:
     # Fast path for common cases
     if isinstance(value, int):
         return value
-    if isinstance(value, str) and NUMERIC_PATTERN.match(value.strip()):
+    if isinstance(value, str) and _NUMERIC_PATTERN.match(value.strip()):
         return int(value.strip())
 
     # Fallback for complex cases
@@ -92,19 +94,14 @@ def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool:
                 return STATE_MAP[state_int]
             return state_int != 0
 
-    # Pre-compiled patterns for performance
-    TRUE_PATTERN = re.compile(r"^(TRUE|ON|1|YES|ACTIVE|ENABLED)$")
-    FALSE_PATTERN = re.compile(r"^(FALSE|OFF|0|NO|INACTIVE|DISABLED)$")
-    NUMERIC_PATTERN = re.compile(r"^-?\d+$")
-
-    # Fast boolean string checks using pre-compiled patterns
-    if TRUE_PATTERN.match(state_str):
+    # Fast boolean string checks using module-level pre-compiled patterns
+    if _TRUE_PATTERN.match(state_str):
         return True
-    if FALSE_PATTERN.match(state_str):
+    if _FALSE_PATTERN.match(state_str):
         return False
 
     # Fast numeric check
-    if NUMERIC_PATTERN.match(state_str):
+    if _NUMERIC_PATTERN.match(state_str):
         return int(state_str) != 0
 
     # Default: non-empty/valid numeric = True

@@ -42,9 +42,6 @@ from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity
 from .error_codes import get_error_info
 
-# Type checking for coordinator
-# VioletPoolDataUpdateCoordinator is already imported above
-
 _LOGGER = logging.getLogger(__name__)
 
 # --- Sensor Categorization ---
@@ -675,7 +672,13 @@ class VioletFlowRateSensor(VioletPoolControllerEntity, SensorEntity):
 
         adc3 = self.coordinator.data.get("ADC3_value", "N/A")
         imp2 = self.coordinator.data.get("IMP2_value", "N/A")
-        source = "ADC3" if adc3 != "N/A" else "IMP2" if imp2 != "N/A" else "None"
+
+        if adc3 != "N/A":
+            source = "ADC3"
+        elif imp2 != "N/A":
+            source = "IMP2"
+        else:
+            source = "None"
         return {
             "adc3_raw_value": str(adc3),
             "imp2_raw_value": str(imp2),
@@ -740,7 +743,7 @@ def determine_state_class(key: str) -> SensorStateClass | None:
 
 
 def get_icon(key: str, unit: str | None, raw_value: Any) -> str:
-    """Determin a sensor."""
+    """Determines the appropriate icon for a sensor."""
     if key in _BOOLEAN_VALUE_KEYS or _is_boolean_value(raw_value):
         return "mdi:toggle-switch"
     if key == "pH_value":
@@ -965,12 +968,11 @@ def _create_standard_sensors(
             key, coordinator.data.get(key), all_predefined
         )
 
-        SensorClass = (
-            VioletStatusSensor
-            if key in STATUS_SENSORS and key not in ["fw", "FW"]
-            else VioletSensor
-        )
-        sensors.append(SensorClass(coordinator, config_entry, description))
+        if key in STATUS_SENSORS and key not in ("fw", "FW"):
+            sensor_cls = VioletStatusSensor
+        else:
+            sensor_cls = VioletSensor
+        sensors.append(sensor_cls(coordinator, config_entry, description))
 
     return sensors
 
