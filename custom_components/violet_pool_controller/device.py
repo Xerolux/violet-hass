@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import asyncio
+import collections
 import logging
 import time
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Any, Mapping
 
 from homeassistant.config_entries import ConfigEntry
@@ -54,6 +55,8 @@ class VioletPoolControllerDevice:
         self._consecutive_failures = 0
         self._max_consecutive_failures = 5
         self._update_counter = 0
+        self._poll_history: collections.deque[tuple[datetime, int, float]] = collections.deque(maxlen=10)
+        self._first_poll: datetime | None = None
 
         # ✅ LOGGING OPTIMIZATION: Smart Failure Tracking
         self._last_failure_log = 0.0  # Timestamp für Throttling
@@ -371,6 +374,13 @@ class VioletPoolControllerDevice:
                 # ✅ FIX: Return a NEW dict so the coordinator always
                 # receives a distinct object, triggering entity updates.
                 self._update_counter += 1
+
+                # Record Poll History
+                now_dt = datetime.now()
+                if self._first_poll is None:
+                    self._first_poll = now_dt
+
+                self._poll_history.append((now_dt, len(data), self._connection_latency))
 
                 # Standard Debug-Log (immer aktiv)
                 _LOGGER.debug(

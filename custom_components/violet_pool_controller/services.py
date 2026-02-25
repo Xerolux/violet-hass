@@ -182,6 +182,10 @@ def get_service_schemas() -> dict[str, vol.Schema]:
                     vol.Coerce(int), vol.Range(min=10, max=10000)
                 ),
                 vol.Optional("include_timestamps", default=True): cv.boolean,
+                vol.Optional("include_config", default=True): cv.boolean,
+                vol.Optional("include_history", default=True): cv.boolean,
+                vol.Optional("include_states", default=True): cv.boolean,
+                vol.Optional("include_raw_data", default=True): cv.boolean,
                 vol.Optional("save_to_file", default=False): cv.boolean,
             }
         ),
@@ -837,10 +841,14 @@ class VioletServiceHandlers:
         device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
         lines = call.data.get("lines", 100)
         include_timestamps = call.data.get("include_timestamps", True)
+        include_config = call.data.get("include_config", True)
+        include_history = call.data.get("include_history", True)
+        include_states = call.data.get("include_states", True)
+        include_raw_data = call.data.get("include_raw_data", True)
         save_to_file = call.data.get("save_to_file", False)
 
         # Validate lines parameter
-        lines = max(10, min(1000, int(lines)))
+        lines = max(10, min(10000, int(lines)))
 
         # Get coordinator for device info
         coordinator = None
@@ -903,6 +911,130 @@ class VioletServiceHandlers:
                 log_entries.append(f"  Update Counter: {coordinator.device._update_counter}")
                 log_entries.append(f"  Consecutive Failures: {coordinator.device.consecutive_failures}")
                 log_entries.append("")
+
+                # Add Configuration Information
+                if include_config and hasattr(coordinator, "config_entry") and coordinator.config_entry:
+                    from .const import (
+                        CONF_POLLING_INTERVAL,
+                        CONF_TIMEOUT_DURATION,
+                        CONF_RETRY_ATTEMPTS,
+                        CONF_FORCE_UPDATE,
+                        CONF_USE_SSL,
+                        CONF_VERIFY_SSL,
+                        CONF_POOL_SIZE,
+                        CONF_POOL_TYPE,
+                        CONF_DISINFECTION_METHOD,
+                        CONF_ACTIVE_FEATURES,
+                        CONF_SELECTED_SENSORS,
+                        CONF_PASSWORD
+                    )
+
+                    config = coordinator.config_entry.data
+                    log_entries.append("Configuration Settings:")
+
+                    # Safe keys to export directly
+                    safe_keys = {
+                        "Polling Interval": CONF_POLLING_INTERVAL,
+                        "Timeout": CONF_TIMEOUT_DURATION,
+                        "Retries": CONF_RETRY_ATTEMPTS,
+                        "Force Update": CONF_FORCE_UPDATE,
+                        "Use SSL": CONF_USE_SSL,
+                        "Verify SSL": CONF_VERIFY_SSL,
+                        "Pool Size": CONF_POOL_SIZE,
+                        "Pool Type": CONF_POOL_TYPE,
+                        "Disinfection": CONF_DISINFECTION_METHOD,
+                    }
+
+                    for label, key in safe_keys.items():
+                        if key in config:
+                            log_entries.append(f"  {label}: {config[key]}")
+
+                    # Handle lists (features/sensors)
+                    if CONF_ACTIVE_FEATURES in config:
+                        features = config[CONF_ACTIVE_FEATURES]
+                        if isinstance(features, list):
+                            log_entries.append(f"  Active Features: {len(features)} enabled")
+                            # Optional: list them if not too long
+                            # log_entries.append(f"    {', '.join(features)}")
+
+                    if CONF_SELECTED_SENSORS in config:
+                        sensors = config[CONF_SELECTED_SENSORS]
+                        if isinstance(sensors, list):
+                            log_entries.append(f"  Selected Sensors: {len(sensors)} enabled")
+
+                    log_entries.append("")
+
+                # Polling History
+                if include_history and hasattr(coordinator.device, "_first_poll") and coordinator.device._first_poll:
+                    log_entries.append("Polling History:")
+                    log_entries.append(f"  First Poll: {coordinator.device._first_poll.strftime('%Y-%m-%d %H:%M:%S')}")
+
+                    if hasattr(coordinator.device, "_poll_history") and coordinator.device._poll_history:
+                        history = list(coordinator.device._poll_history)
+                        log_entries.append(f"  Last {len(history)} Polls:")
+                        for timestamp, count, latency in history:
+                            log_entries.append(f"    - {timestamp.strftime('%H:%M:%S')}: {count} items ({latency:.1f}ms)")
+                    else:
+                        log_entries.append("  No history available.")
+                    log_entries.append("")
+
+                # Entity States
+                if include_states:
+                    try:
+                        if hasattr(coordinator, "config_entry") and coordinator.config_entry:
+                            entry_id = coordinator.config_entry.entry_id
+                            registry = er.async_get(self.hass)
+                            entities = er.async_entries_for_config_entry(registry, entry_id)
+
+                            if entities:
+                                log_entries.append("Entity States:")
+                                sorted_entities = sorted(entities, key=lambda e: e.entity_id)
+
+                                for entity in sorted_entities:
+                                    state = self.hass.states.get(entity.entity_id)
+                                    if state:
+                                        # Limit attribute output to avoid massive logs
+                                        attrs = dict(state.attributes)
+                                        attr_str = str(attrs)
+                                        if len(attr_str) > 200:
+                                            attr_str = attr_str[:197] + "..."
+
+                                        log_entries.append(f"  - {entity.entity_id}: {state.state} (attrs: {attr_str})")
+                                    else:
+                                        log_entries.append(f"  - {entity.entity_id}: <No State>")
+                                log_entries.append("")
+                    except Exception as e:
+                        _LOGGER.warning("Could not dump entity states: %s", e)
+                        log_entries.append(f"Error dumping entity states: {e}")
+                        log_entries.append("")
+
+                # Raw Data Dump
+                if include_raw_data:
+                    try:
+                        import json
+                        if hasattr(coordinator, "data") and coordinator.data:
+                            log_entries.append("Latest Raw Data:")
+
+                            # Deep copy and redact
+                            raw_data = dict(coordinator.data)
+                            sensitive_keys = ["wifi_password", "password", "key", "token", "secret"]
+
+                            redacted_data = {}
+                            for key, value in raw_data.items():
+                                lower_key = str(key).lower()
+                                if any(sensitive in lower_key for sensitive in sensitive_keys):
+                                    redacted_data[key] = "***REDACTED***"
+                                else:
+                                    redacted_data[key] = value
+
+                            json_str = json.dumps(redacted_data, indent=2, default=str, sort_keys=True)
+                            log_entries.append(json_str)
+                            log_entries.append("")
+                    except Exception as e:
+                        _LOGGER.warning("Could not dump raw data: %s", e)
+                        log_entries.append(f"Error dumping raw data: {e}")
+                        log_entries.append("")
+
                 log_entries.append("No detailed log entries found in home-assistant.log.")
                 log_entries.append("Logs may have been rotated or not contain recent entries.")
 
