@@ -1,4 +1,4 @@
-## v1.0.2-beta.5 – Violet Pool Controller
+## v1.0.2-beta.6 – Violet Pool Controller
 
 🟡 **BETA RELEASE** - Testing phase, may contain bugs
 
@@ -26,6 +26,7 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- 📝 Release v1.0.2-beta.5 - Update changelog and version files (e41f6e1)
 - workflow-update-remove (b5ec596)
 - update-wiki-content (0c3cfb0)
 - Update remaining wiki files with version 1.0.2-beta.5 (48d830a)
@@ -65,6 +66,8 @@
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- fix-ha-version-access-services (626fa5a)
+- Fix: Replace deprecated `hass.config.version` with `homeassistant.const.__version__` in diagnostic logs. (8fd9380)
 - enhanced-logging-and-sensor-fix (343ad18)
 - fix-log-export-path (976d4d8)
 - fix-log-export-path (cddb3a3)
@@ -138,7 +141,7 @@
 
 ---
 
-📋 [Full changelog: v1.0.1...v1.0.2-beta.5](https://github.com/Xerolux/violet-hass/compare/v1.0.1...v1.0.2-beta.5)
+📋 [Full changelog: v1.0.1...v1.0.2-beta.6](https://github.com/Xerolux/violet-hass/compare/v1.0.1...v1.0.2-beta.6)
 
 ---
 
@@ -172,4 +175,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-02-25 13:49:04 UTC_
+_Generated automatically by GitHub Actions on 2026-02-25 17:24:15 UTC_
