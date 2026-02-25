@@ -131,6 +131,8 @@ _TEXT_VALUE_KEYS = {
     "MAC_ADDRESS",
     "IP_ADDRESS",
     "DOS_1_CL_REMAINING_RANGE",
+    "DOS_2_ELO_REMAINING_RANGE",
+    "DOS_3_ELO_REV_REMAINING_RANGE",
     "DOS_4_PHM_REMAINING_RANGE",
     "DOS_5_PHP_REMAINING_RANGE",
     "DOS_6_FLOC_REMAINING_RANGE",
@@ -223,6 +225,10 @@ def determine_state_class(key: str) -> SensorStateClass | None:
     is_timestamp_key = key in _TIMESTAMP_KEYS or any(
         key.upper().endswith(suffix) for suffix in _TIMESTAMP_SUFFIXES
     )
+
+    # Explicitly force None for remaining range sensors (text/string values like ">99d")
+    if key.endswith("_REMAINING_RANGE"):
+        return None
 
     if key in _ALL_TEXT_SENSORS or is_timestamp_key or key in NO_UNIT_SENSORS:
         return None

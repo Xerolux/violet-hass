@@ -912,6 +912,41 @@ class VioletServiceHandlers:
                 log_entries.append(f"  Consecutive Failures: {coordinator.device.consecutive_failures}")
                 log_entries.append("")
 
+                # Add System Information
+                log_entries.append("System Information:")
+                try:
+                    # HA Version
+                    log_entries.append(f"  Home Assistant: {self.hass.config.version}")
+
+                    # Installation Type (if available)
+                    if "hassio" in self.hass.config.components:
+                         log_entries.append("  Installation Type: Home Assistant OS / Supervised")
+                    else:
+                         log_entries.append("  Installation Type: Core / Container (likely)")
+
+                    # Timezone
+                    log_entries.append(f"  Timezone: {self.hass.config.time_zone}")
+
+                    # Loaded Components Count
+                    components = sorted(self.hass.config.components)
+                    log_entries.append(f"  Loaded Components ({len(components)}):")
+
+                    # Split components into chunks for readability
+                    chunk_size = 5
+                    for i in range(0, len(components), chunk_size):
+                        chunk = components[i:i + chunk_size]
+                        log_entries.append(f"    {', '.join(chunk)}")
+
+                    # Additional System Info (OS, Supervisor) - often requires hassio integration
+                    hassio_info = self.hass.data.get("hassio")
+                    if hassio_info:
+                        # Try to extract info if available in standard location (implementation varies)
+                        pass
+
+                except Exception as e:
+                    log_entries.append(f"  Error retrieving system info: {e}")
+                log_entries.append("")
+
                 # Add Configuration Information
                 if include_config and hasattr(coordinator, "config_entry") and coordinator.config_entry:
                     from .const import (
@@ -953,9 +988,24 @@ class VioletServiceHandlers:
                     if CONF_ACTIVE_FEATURES in config:
                         features = config[CONF_ACTIVE_FEATURES]
                         if isinstance(features, list):
-                            log_entries.append(f"  Active Features: {len(features)} enabled")
-                            # Optional: list them if not too long
-                            # log_entries.append(f"    {', '.join(features)}")
+                            from .const_features import AVAILABLE_FEATURES
+
+                            # Create feature mapping
+                            feature_map = {f["id"]: f["name"] for f in AVAILABLE_FEATURES}
+                            enabled_features = []
+                            disabled_features = []
+
+                            for f in AVAILABLE_FEATURES:
+                                if f["id"] in features:
+                                    enabled_features.append(f["name"])
+                                else:
+                                    disabled_features.append(f["name"])
+
+                            log_entries.append(f"  Active Features: {len(enabled_features)} enabled")
+                            if enabled_features:
+                                log_entries.append(f"    Enabled: {', '.join(sorted(enabled_features))}")
+                            if disabled_features:
+                                log_entries.append(f"    Disabled: {', '.join(sorted(disabled_features))}")
 
                     if CONF_SELECTED_SENSORS in config:
                         sensors = config[CONF_SELECTED_SENSORS]
@@ -972,8 +1022,20 @@ class VioletServiceHandlers:
                     if hasattr(coordinator.device, "_poll_history") and coordinator.device._poll_history:
                         history = list(coordinator.device._poll_history)
                         log_entries.append(f"  Last {len(history)} Polls:")
-                        for timestamp, count, latency in history:
-                            log_entries.append(f"    - {timestamp.strftime('%H:%M:%S')}: {count} items ({latency:.1f}ms)")
+                        for item in history:
+                            if len(item) == 4:
+                                timestamp, count, latency, snapshot = item
+                                details = []
+                                # Fixed order for consistency
+                                for key in ["Pool Temp", "Redox", "pH", "Chlorine", "Overflow", "Flow", "Inflow"]:
+                                    if key in snapshot:
+                                        details.append(f"{key}: {snapshot[key]}")
+
+                                detail_str = " | ".join(details)
+                                log_entries.append(f"    - {timestamp.strftime('%H:%M:%S')}: {count} items ({latency:.1f}ms) -> {detail_str}")
+                            else:
+                                timestamp, count, latency = item
+                                log_entries.append(f"    - {timestamp.strftime('%H:%M:%S')}: {count} items ({latency:.1f}ms)")
                     else:
                         log_entries.append("  No history available.")
                     log_entries.append("")
