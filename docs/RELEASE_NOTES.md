@@ -1,4 +1,4 @@
-## v1.0.2-beta.4 – Violet Pool Controller
+## v1.0.2-beta.5 – Violet Pool Controller
 
 🟡 **BETA RELEASE** - Testing phase, may contain bugs
 
@@ -17,6 +17,9 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- fix-cover-binary-sensor-force-update (5e4ee48)
+- Refactor `CoverIsClosedBinarySensor` to inherit from `VioletPoolControllerEntity`. (7d47fac)
+- 📝 Release v1.0.2-beta.4 - Update changelog and version files (11afbf8)
 - refactor-recovery-api-retries (5453672)
 - Refactor recovery logic, enable API retries, and remove deprecated code (b4cce7a)
 - 📝 Release v1.0.2-beta.3 - Update changelog and version files (81a6b55)
@@ -44,6 +47,11 @@
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- fix-release-workflow-injection (07a4cb4)
+- fix: use env vars in release workflow to prevent shell injection (edf65ca)
+- fix-log-export-device-id (c930a35)
+- Fix export_diagnostic_logs failing with Device not found (ebe9ccc)
+- fix-cover-binary-sensor-force-update (5e4ee48)
 - fix-sensor-log-spam (cadec9a)
 - Fix log spam in contact sensor state class override (c98a906)
 - fix: YAML parse error in services.yaml and ruff F541 cleanup in services.py (7b176ae)
@@ -104,7 +112,7 @@
 
 ---
 
-📋 [Full changelog: v1.0.1...v1.0.2-beta.4](https://github.com/Xerolux/violet-hass/compare/v1.0.1...v1.0.2-beta.4)
+📋 [Full changelog: v1.0.1...v1.0.2-beta.5](https://github.com/Xerolux/violet-hass/compare/v1.0.1...v1.0.2-beta.5)
 
 ---
 
@@ -138,4 +146,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-02-24 21:26:11 UTC_
+_Generated automatically by GitHub Actions on 2026-02-25 05:40:15 UTC_
