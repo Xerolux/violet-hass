@@ -68,9 +68,10 @@ Das **Violet Pool Controller Home Assistant Integration** verbindet [Home Assist
 ### Ich habe ein Problem
 
 1. **[Troubleshooting](Troubleshooting)** – Häufige Probleme & Lösungen
-2. **[Fehler-Codes](Error-Codes)** – Controller-Fehlercodes erklärt
-3. **[FAQ](FAQ)** – 50+ häufige Fragen
-4. **[GitHub Issues](https://github.com/Xerolux/violet-hass/issues)** – Bug-Reports
+2. **[Erweiterte Protokollierung](Erweiterte-Protokollierung)** – Diagnose-Tools & Log-Export
+3. **[Fehler-Codes](Error-Codes)** – Controller-Fehlercodes erklärt
+4. **[FAQ](FAQ)** – 50+ häufige Fragen
+5. **[GitHub Issues](https://github.com/Xerolux/violet-hass/issues)** – Bug-Reports
 
 ### Ich will mehrere Controller
 

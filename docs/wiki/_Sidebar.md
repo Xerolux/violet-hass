@@ -21,6 +21,7 @@
 
 ## 🔧 Betrieb & Wartung
 - [Troubleshooting](Troubleshooting)
+- [Erweiterte Protokollierung](Erweiterte-Protokollierung)
 - [Fehler-Codes](Error-Codes)
 - [Security & SSL](Security)
 - [FAQ](FAQ)
