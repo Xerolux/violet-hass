@@ -55,7 +55,8 @@ class VioletPoolControllerDevice:
         self._consecutive_failures = 0
         self._max_consecutive_failures = 5
         self._update_counter = 0
-        self._poll_history: collections.deque[tuple[datetime, int, float, dict[str, Any]]] = collections.deque(maxlen=60)
+        # Increased history size to capture more context for troubleshooting
+        self._poll_history: collections.deque[tuple[datetime, int, float, dict[str, Any]]] = collections.deque(maxlen=1000)
         self._first_poll: datetime | None = None
 
         # ✅ LOGGING OPTIMIZATION: Smart Failure Tracking
