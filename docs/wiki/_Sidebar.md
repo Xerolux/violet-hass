@@ -34,7 +34,7 @@
 
 ---
 
-**Version:** 1.0.1
-**HA:** 2025.12.0+
+**Version:** 1.0.2-beta.5
+**HA:** 2025.12.0+ (getestet bis 2026.x)
 
 [GitHub](https://github.com/Xerolux/violet-hass) · [Issues](https://github.com/Xerolux/violet-hass/issues) · [HACS](https://hacs.xyz/)

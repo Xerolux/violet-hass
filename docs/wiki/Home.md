@@ -14,7 +14,7 @@ Das **Violet Pool Controller Home Assistant Integration** verbindet [Home Assist
 | **Protokoll** | HTTP/HTTPS, lokales Polling |
 | **HA-Mindestversion** | 2025.12.0 |
 | **Python** | 3.12+ |
-| **Version** | 1.0.1 (Stable) |
+| **Version** | 1.0.2-beta.5 |
 | **Lizenz** | MIT |
 | **Sprachen** | DE, EN, ES, FR, IT, NL, PL, PT, RU, ZH |
 
@@ -146,5 +146,5 @@ Home Assistant
 
 ---
 
-*Diese Wiki dokumentiert Version **1.0.1** des Violet Pool Controller Addons.*
-*Zuletzt aktualisiert: 2026-02-24*
+*Diese Wiki dokumentiert Version **1.0.2-beta.5** des Violet Pool Controller Addons.*
+*Zuletzt aktualisiert: 2026-02-25*

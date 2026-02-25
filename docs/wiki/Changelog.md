@@ -4,6 +4,34 @@
 
 ---
 
+## [1.0.2-beta.5] – 2026-02-25 🧪 BETA
+
+### Neue Features
+
+**Diagnostic Service**
+- Neuer Service: `export_diagnostic_logs`
+- Exportiere bis zu 10.000 Log-Zeilen für Troubleshooting
+- Optional in Datei speichern für Support-Tickets
+- Mit Timestamps und flexibler Zeilenanzahl
+
+### Verbesserungen
+
+**Fehlerbehandlung**
+- Bessere Recovery-Mechanismen bei Verbindungsverlust
+- Erweiterte Logging-Fähigkeiten
+
+**Wiki & Dokumentation**
+- Aktualisierte Services-Dokumentation
+- Neue Log-Export-Tipps in Troubleshooting
+- Erweiterte SSL/TLS-Dokumentation
+
+### Kompatibilität
+- Getestet auf Home Assistant 2025.12.0+
+- Vorbereitet für 2026.x Versionen
+- aiohttp>=3.10.0 erforderlich
+
+---
+
 ## [1.0.1] – 2026-02-22 ✅ STABLE
 
 ### Kritische Bugfixes

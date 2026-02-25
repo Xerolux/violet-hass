@@ -58,7 +58,10 @@ A: Sieben verschiedene Betriebszustände:
 Lies [Device-States](Device-States) für Details.
 
 **F: Kann ich Pumpen-Geschwindigkeit einstellen?**
-A: Ja! 3 Stufen möglich mit dem `control_pump` Service.
+A: Ja! 3 Stufen möglich mit dem `control_pump` Service (Stufe 1-3).
+
+**F: Was ist der `export_diagnostic_logs` Service?**
+A: Neuer Service (v1.0.2) zum Exportieren von Integrations-Logs für Troubleshooting. Nutze ihn, um bis zu 10.000 Log-Zeilen zu exportieren und an Support zu schicken. Optional in Datei speichern.
 
 **F: Wie dosiere ich sicher?**
 A:

@@ -13,6 +13,7 @@ Alle verfügbaren Services für erweiterte Automatisierung deines Pools.
 | **set_light_color_pulse** | Farbpulse | pulse_count, pulse_interval |
 | **manage_digital_rules** | Digital-Input Regeln | rule_key, action |
 | **test_output** | Diagnose | output, mode, duration |
+| **export_diagnostic_logs** | Log-Export | device_id, lines, include_timestamps |
 
 ---
 
@@ -196,6 +197,97 @@ data:
   output: PUMP
   mode: "ON"
   duration: 120
+```
+
+---
+
+## 📋 Service: manage_digital_rules - Digital-Input Regeln
+
+**Beschreibung**: Verwalte Automatisierungsregeln für digitale Eingänge
+
+### Parameter
+
+| Parameter | Werte | Beschreibung |
+|-----------|-------|-------------|
+| `rule_key` | DIRULE_1 bis DIRULE_7 | Welche Regel? |
+| `action` | trigger, lock, unlock | Aktion ausführen |
+
+### Beispiele
+
+**Regel 1 auslösen**
+```yaml
+service: violet_pool_controller.manage_digital_rules
+data:
+  rule_key: DIRULE_1
+  action: trigger
+```
+
+**Regel 2 sperren (deaktivieren)**
+```yaml
+service: violet_pool_controller.manage_digital_rules
+data:
+  rule_key: DIRULE_2
+  action: lock
+```
+
+---
+
+## 🎨 Service: set_light_color_pulse - Farb-Pulsing
+
+**Beschreibung**: Sende Farbpuls-Befehle an die Pool-Beleuchtung
+
+### Parameter
+
+| Parameter | Standard | Bereich | Beschreibung |
+|-----------|----------|---------|-------------|
+| `pulse_count` | 1 | 1-10 | Anzahl der Pulse |
+| `pulse_interval` | 500 | 100-2000 ms | Abstand zwischen Pulsen |
+
+### Beispiel
+
+**5 Farbpulse mit 1 Sekunde Abstand**
+```yaml
+service: violet_pool_controller.set_light_color_pulse
+data:
+  pulse_count: 5
+  pulse_interval: 1000
+```
+
+---
+
+## 📊 Service: export_diagnostic_logs - Log-Export (NEU)
+
+**Beschreibung**: Exportiere Integrations-Logs für Troubleshooting und Support
+
+### Parameter
+
+| Parameter | Standard | Bereich | Beschreibung |
+|-----------|----------|---------|-------------|
+| `device_id` | - | - | Zielgerät (erforderlich) |
+| `lines` | 100 | 10-10000 | Anzahl der Log-Zeilen |
+| `include_timestamps` | true | true/false | Zeitstempel einschließen? |
+| `save_to_file` | false | true/false | In `/config/` speichern? |
+
+### Beispiele
+
+**100 Log-Zeilen exportieren (Standard)**
+```yaml
+service: violet_pool_controller.export_diagnostic_logs
+target:
+  device_id: <device_id>
+data:
+  lines: 100
+```
+
+**500 Log-Zeilen mit Timestamps in Datei speichern**
+```yaml
+service: violet_pool_controller.export_diagnostic_logs
+target:
+  device_id: <device_id>
+data:
+  lines: 500
+  include_timestamps: true
+  save_to_file: true
 ```
 
 ---

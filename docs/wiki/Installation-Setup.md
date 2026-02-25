@@ -4,10 +4,11 @@ Schritt-für-Schritt Anleitung zur Installation und erstem Setup des Violet Pool
 
 ## Systemanforderungen
 
-- **Home Assistant Version**: 2025.12.0 oder neuer
+- **Home Assistant Version**: 2025.12.0 oder neuer (getestet bis 2026.x)
 - **Python**: 3.12+
 - **Netzwerk**: Violet Pool Controller im lokalen Netzwerk erreichbar
 - **Speicher**: Minimal (Integration benötigt <10 MB)
+- **Abhängigkeiten**: aiohttp>=3.10.0 (wird automatisch installiert)
 
 ## HACS Installation (Empfohlen)
 
