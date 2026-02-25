@@ -6,6 +6,11 @@
 
 ### ✨ New Features | Neue Funktionen
 
+- Add list of installed components to diagnostic export (6f16d16)
+- Add Home Assistant system info to diagnostic export (372f8be)
+- Add detailed feature logging to diagnostic export (46a2eae)
+- Add version 1.0.2-beta.5 to changelog (fed7182)
+- Add export_diagnostic_logs service to troubleshooting guide (2850fb3)
 - Add optional arguments to log export service (61b8bba)
 - Add configuration settings and poll history to diagnostic log export (5b5fe8c)
 - Add configuration settings to diagnostic log export (f522af0)
@@ -21,6 +26,11 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- workflow-update-remove (b5ec596)
+- update-wiki-content (0c3cfb0)
+- Update remaining wiki files with version 1.0.2-beta.5 (48d830a)
+- Update wiki documentation to version 1.0.2-beta.5 (d521c4d)
+- 📝 Release v1.0.2-beta.5 - Update changelog and version files (418c5fd)
 - Enhance diagnostic log export with entity states and raw data (e6d8c69)
 - 📝 Release v1.0.2-beta.5 - Update changelog and version files (316e76d)
 - 📝 Release v1.0.2-beta.5 - Update changelog and version files (3f0d719)
@@ -55,6 +65,7 @@
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- enhanced-logging-and-sensor-fix (343ad18)
 - fix-log-export-path (976d4d8)
 - fix-log-export-path (cddb3a3)
 - Fix diagnostic log export path and add debug hint (4602573)
@@ -91,6 +102,8 @@
 
 ### 📚 Documentation | Dokumentation
 
+- Update wiki documentation to version 1.0.2-beta.5 (d521c4d)
+- docs(wiki): Füge deutsche Erweiterte-Protokollierung Wiki-Seite hinzu (d1e0241)
 - feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
 - docs: Übersetze Extended Logging Dokumentation ins Deutsche (48de0fe)
 - docs: Add Extended Logging & Diagnostic Tools guide (1bee46a)
@@ -159,4 +172,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-02-25 06:52:13 UTC_
+_Generated automatically by GitHub Actions on 2026-02-25 13:49:04 UTC_
