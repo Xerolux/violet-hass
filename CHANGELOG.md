@@ -18,6 +18,26 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank!
 
 ---
 
+## [1.0.2] - 2026-02-25
+
+### Code Quality & Maintenance
+
+**Patch Release** — no breaking changes, no new features.
+
+#### Improvements | Verbesserungen
+
+- **Code Simplification**: Integration code refactored for clarity, consistency and maintainability — same functionality, cleaner codebase
+- **Repository Cleanup**: Removed development/debug artifacts from repository root (test scripts, ad-hoc reports)
+- **`.gitignore` Updated**: Added patterns to prevent future debug artifacts from being committed
+
+#### Documentation | Dokumentation
+
+- **SECURITY.md**: Comprehensive security policy with GitHub Private Security Advisories, response timeline, and security design overview
+- **LICENSE**: Copyright year updated to 2024–2026
+- **README**: Minimum HA version corrected to 2025.12.0+; changelog section updated
+
+---
+
 ## [1.0.0] - 2026-02-06
 
 ## v1.0.0 – Violet Pool Controller

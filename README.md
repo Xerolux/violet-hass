@@ -61,7 +61,7 @@
 ## ⚡ Schnellstart
 
 ### 1. Vorbereitung
-- ✅ Home Assistant 2024.6+ installiert (getestet mit 2024.12.0 und 2025.1.4)
+- ✅ Home Assistant 2025.12.0+ installiert (getestet mit 2025.12.x und 2026.x)
 - ✅ HACS installiert ([Anleitung](https://hacs.xyz/docs/setup/download))
 - ✅ Violet Pool Controller im Netzwerk erreichbar
 - ✅ Controller-IP-Adresse bekannt (z.B. 192.168.1.100)
@@ -399,36 +399,20 @@ Siehe [CONTRIBUTING.md](CONTRIBUTING.md) für Details.
 
 Für die vollständige Changelog siehe [CHANGELOG.md](CHANGELOG.md).
 
-### **v0.2.0-beta.4** (2025-12-02) - Bug Fixes & Improvements
-- 🔧 Fix thread assertion error mit umfassender Test-Infrastruktur
-- 🛡️ Alle mypy Type-Errors behoben
-- 💡 Fehlertolerante DMX-Szenen-Updates
-- 📝 Verbesserte Code-Qualität und Dokumentation
-- 🧪 Fix Kalibrierungs-Historie-Parsing
-- ✨ Umfassendes manuelles Testing-Checkliste
+### **v1.0.2** (2026-02-25) - Code Quality & Maintenance
+- 🔧 Vereinfachte und übersichtlichere Codestruktur
+- 📝 Verbesserte Lesbarkeit und Wartbarkeit
+- 🛡️ Sicherheitsrichtlinie aktualisiert (GitHub Security Advisories)
+- 📄 Lizenz auf 2024–2026 aktualisiert
+- 🧹 Repository-Aufräumung (Test-Artefakte entfernt)
 
-### **v0.2.0** (2025-11-20) - Semantic Versioning Adoption
-- 🎯 Migration zu sauberem Semantic Versioning (SemVer 2.0.0)
-- ✨ Complete 3-State Switch Support mit State 4 Fix
-- ☀️ PVSURPLUS Parameter Support
-- 💡 Enhanced DMX Scene Control (12 Szenen)
-- 📊 Extended Sensor Coverage (147 API-Parameter)
-- 🔧 Complete Extension Relay Support (EXT1/EXT2)
-- 🛡️ Thread-Safety Verbesserungen mit lokalen Cache-Variablen
-- 📝 Smart Logging (verhindert Log-Spam)
-- 🔄 Auto-Recovery für Controller-Verbindungen
-- 🔒 Enhanced Input Sanitization für mehr Sicherheit
-- 🏗️ Modulare Code-Struktur (const_*.py Organisation)
-
-### **v0.1.0** (2024-XX-XX) - Initial Release
-- ✨ Erste Veröffentlichung mit umfassender Pool-Steuerung
-- 🌡️ Klimasteuerung für Heizung & Solar
-- 🧪 Chemie-Überwachung & automatisierte Dosierung
-- 🏊 Pool-Abdeckungs-Integration mit Wetter-Automatisierung
-- 🔄 Intelligente Rückspül-Automatisierung
-- 📱 Vollständige Home Assistant UI-Integration
-- 🤖 Smart Automation Blueprints
-- 🌍 Multi-Language Support (EN/DE)
+### **v1.0.0** (2026-02-06) - First Stable Release
+- 🐛 Kritischer API-Bug-Fix (`getReadings` Parameter)
+- 🇩🇪 Deutsche Status-Beschreibungen für alle Entitäten
+- 🔄 Composite State Parsing (`"2|BLOCKED_BY_OUTSIDE_TEMP"`)
+- ⚡ Verbesserte Startup-Performance (kein 3s-Sleep mehr)
+- 🔁 Circuit Breaker Pattern für API-Ausfälle
+- 🏠 HA 2026 Kompatibilität (getestet mit 2025.12.0+)
 
 ---
 

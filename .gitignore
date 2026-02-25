@@ -160,8 +160,6 @@ config/
 logs/
 test_config/
 
-# Am Ende noch ergänzen:
-
 # Backup files
 *.bak
 *.backup
@@ -172,12 +170,24 @@ backups/
 *.tar
 *.gz
 
-# SSL/TLS certificates (falls verwendet)
+# SSL/TLS certificates
 *.pem
 *.key
 *.crt
 *.csr
 
-# Node.js (falls du Frontend-Entwicklung machst)
+# Node.js
 node_modules/
 package-lock.json
+
+# Development / debug artifacts in root
+test_*.py
+test-*.py
+debug_*.py
+*_REPORT.md
+docker-compose.test.yml
+create-test-env.*
+test-ha-config/
+api_data_*.json
+*api_response.json
+nul
