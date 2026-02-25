@@ -55,7 +55,7 @@ class VioletPoolControllerDevice:
         self._consecutive_failures = 0
         self._max_consecutive_failures = 5
         self._update_counter = 0
-        self._poll_history: collections.deque[tuple[datetime, int, float]] = collections.deque(maxlen=10)
+        self._poll_history: collections.deque[tuple[datetime, int, float, dict[str, Any]]] = collections.deque(maxlen=60)
         self._first_poll: datetime | None = None
 
         # ✅ LOGGING OPTIMIZATION: Smart Failure Tracking
@@ -380,7 +380,20 @@ class VioletPoolControllerDevice:
                 if self._first_poll is None:
                     self._first_poll = now_dt
 
-                self._poll_history.append((now_dt, len(data), self._connection_latency))
+                # Create snapshot of key values
+                snapshot = {
+                    "Pool Temp": data.get("onewire1_value"),
+                    "Redox": data.get("orp_value"),
+                    "pH": data.get("pH_value"),
+                    "Chlorine": data.get("pot_value"),
+                    "Overflow": data.get("ADC2_value"),
+                    "Flow": data.get("IMP2_value") if data.get("IMP2_value") is not None else data.get("ADC3_value"),
+                    "Inflow": data.get("IMP1_value"),
+                }
+                # Remove None values to save space/cleaner logs
+                snapshot = {k: v for k, v in snapshot.items() if v is not None}
+
+                self._poll_history.append((now_dt, len(data), self._connection_latency, snapshot))
 
                 # Standard Debug-Log (immer aktiv)
                 _LOGGER.debug(

@@ -972,8 +972,20 @@ class VioletServiceHandlers:
                     if hasattr(coordinator.device, "_poll_history") and coordinator.device._poll_history:
                         history = list(coordinator.device._poll_history)
                         log_entries.append(f"  Last {len(history)} Polls:")
-                        for timestamp, count, latency in history:
-                            log_entries.append(f"    - {timestamp.strftime('%H:%M:%S')}: {count} items ({latency:.1f}ms)")
+                        for item in history:
+                            if len(item) == 4:
+                                timestamp, count, latency, snapshot = item
+                                details = []
+                                # Fixed order for consistency
+                                for key in ["Pool Temp", "Redox", "pH", "Chlorine", "Overflow", "Flow", "Inflow"]:
+                                    if key in snapshot:
+                                        details.append(f"{key}: {snapshot[key]}")
+
+                                detail_str = " | ".join(details)
+                                log_entries.append(f"    - {timestamp.strftime('%H:%M:%S')}: {count} items ({latency:.1f}ms) -> {detail_str}")
+                            else:
+                                timestamp, count, latency = item
+                                log_entries.append(f"    - {timestamp.strftime('%H:%M:%S')}: {count} items ({latency:.1f}ms)")
                     else:
                         log_entries.append("  No history available.")
                     log_entries.append("")
