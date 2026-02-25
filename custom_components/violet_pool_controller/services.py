@@ -859,7 +859,7 @@ class VioletServiceHandlers:
             device_name = coordinator.device.device_name
 
             # Read from the main log file if available
-            log_path = "/config/home-assistant.log"
+            log_path = self.hass.config.path("home-assistant.log")
             if os.path.exists(log_path):
                 try:
                     with open(log_path, 'r', encoding='utf-8', errors='ignore') as f:
@@ -903,8 +903,72 @@ class VioletServiceHandlers:
                 log_entries.append(f"  Update Counter: {coordinator.device._update_counter}")
                 log_entries.append(f"  Consecutive Failures: {coordinator.device.consecutive_failures}")
                 log_entries.append("")
+
+                # Add Configuration Information
+                if hasattr(coordinator, "config_entry") and coordinator.config_entry:
+                    from .const import (
+                        CONF_POLLING_INTERVAL,
+                        CONF_TIMEOUT_DURATION,
+                        CONF_RETRY_ATTEMPTS,
+                        CONF_FORCE_UPDATE,
+                        CONF_USE_SSL,
+                        CONF_VERIFY_SSL,
+                        CONF_POOL_SIZE,
+                        CONF_POOL_TYPE,
+                        CONF_DISINFECTION_METHOD,
+                        CONF_ACTIVE_FEATURES,
+                        CONF_SELECTED_SENSORS,
+                        CONF_PASSWORD
+                    )
+
+                    config = coordinator.config_entry.data
+                    log_entries.append("Configuration Settings:")
+
+                    # Safe keys to export directly
+                    safe_keys = {
+                        "Polling Interval": CONF_POLLING_INTERVAL,
+                        "Timeout": CONF_TIMEOUT_DURATION,
+                        "Retries": CONF_RETRY_ATTEMPTS,
+                        "Force Update": CONF_FORCE_UPDATE,
+                        "Use SSL": CONF_USE_SSL,
+                        "Verify SSL": CONF_VERIFY_SSL,
+                        "Pool Size": CONF_POOL_SIZE,
+                        "Pool Type": CONF_POOL_TYPE,
+                        "Disinfection": CONF_DISINFECTION_METHOD,
+                    }
+
+                    for label, key in safe_keys.items():
+                        if key in config:
+                            log_entries.append(f"  {label}: {config[key]}")
+
+                    # Handle lists (features/sensors)
+                    if CONF_ACTIVE_FEATURES in config:
+                        features = config[CONF_ACTIVE_FEATURES]
+                        if isinstance(features, list):
+                            log_entries.append(f"  Active Features: {len(features)} enabled")
+                            # Optional: list them if not too long
+                            # log_entries.append(f"    {', '.join(features)}")
+
+                    if CONF_SELECTED_SENSORS in config:
+                        sensors = config[CONF_SELECTED_SENSORS]
+                        if isinstance(sensors, list):
+                            log_entries.append(f"  Selected Sensors: {len(sensors)} enabled")
+
+                    log_entries.append("")
+
                 log_entries.append("No detailed log entries found in home-assistant.log.")
                 log_entries.append("Logs may have been rotated or not contain recent entries.")
+
+                # Check log level
+                try:
+                    logger = logging.getLogger("custom_components.violet_pool_controller")
+                    level = logger.getEffectiveLevel()
+                    if level > logging.DEBUG:
+                        log_entries.append("")
+                        log_entries.append("NOTE: Debug logging is currently disabled.")
+                        log_entries.append("To see more details, enable debug logging for this integration.")
+                except Exception:
+                    pass
 
             # Create export text
             export_header = f"""
