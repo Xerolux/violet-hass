@@ -59,9 +59,9 @@ Hier findest du alles, was du brauchst - von der Installation bis zur Deinstalla
 
 ## 🔄 Auf dem neuesten Stand
 
-Diese Wiki dokumentiert **Version 1.0.1** des Violet Pool Controller Home Assistant Addons.
+Diese Wiki dokumentiert **Version 1.0.2-beta.5** des Violet Pool Controller Home Assistant Addons.
 
-Letzte Aktualisierung: **2025-12-22**
+Letzte Aktualisierung: **2026-02-25**
 
 ---
 
