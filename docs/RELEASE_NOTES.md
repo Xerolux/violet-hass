@@ -6,6 +6,9 @@
 
 ### ✨ New Features | Neue Funktionen
 
+- Add optional arguments to log export service (61b8bba)
+- Add configuration settings and poll history to diagnostic log export (5b5fe8c)
+- Add configuration settings to diagnostic log export (f522af0)
 - Fix diagnostic log export path and add debug hint (4602573)
 - feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
 - docs: Add Extended Logging & Diagnostic Tools guide (1bee46a)
@@ -18,6 +21,8 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- Enhance diagnostic log export with entity states and raw data (e6d8c69)
+- 📝 Release v1.0.2-beta.5 - Update changelog and version files (316e76d)
 - 📝 Release v1.0.2-beta.5 - Update changelog and version files (3f0d719)
 - 📝 Release v1.0.2-beta.5 - Update changelog and version files (1682109)
 - fix-cover-binary-sensor-force-update (5e4ee48)
@@ -50,6 +55,7 @@
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- fix-log-export-path (976d4d8)
 - fix-log-export-path (cddb3a3)
 - Fix diagnostic log export path and add debug hint (4602573)
 - fix-hass-data-keyerror (e93e589)
@@ -153,4 +159,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-02-25 06:14:17 UTC_
+_Generated automatically by GitHub Actions on 2026-02-25 06:52:13 UTC_
