@@ -916,7 +916,16 @@ class VioletServiceHandlers:
                 log_entries.append("System Information:")
                 try:
                     # HA Version
-                    log_entries.append(f"  Home Assistant: {self.hass.config.version}")
+                    from homeassistant.const import __version__ as HA_VERSION
+                    log_entries.append(f"  Home Assistant: {HA_VERSION}")
+
+                    # HACS Version (if available)
+                    hacs = self.hass.data.get("hacs")
+                    if hacs:
+                        hacs_version = getattr(hacs, "version", None)
+                        if not hacs_version:
+                            hacs_version = getattr(hacs, "integration_version", "Unknown")
+                        log_entries.append(f"  HACS: {hacs_version}")
 
                     # Installation Type (if available)
                     if "hassio" in self.hass.config.components:
