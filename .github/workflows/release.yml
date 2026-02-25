@@ -204,11 +204,17 @@ jobs:
 
       - name: Generate release notes
         id: generate
+        env:
+          RELEASE_TYPE: ${{ steps.version.outputs.release_type }}
+          VERSION: ${{ steps.version.outputs.version }}
+          TAG: ${{ steps.version.outputs.tag }}
+          BUG_FIXES: ${{ steps.commits.outputs.bug-fixes }}
+          IMPROVEMENTS: ${{ steps.commits.outputs.improvements }}
+          NEW_FEATURES: ${{ steps.commits.outputs.new-features }}
+          DOCS: ${{ steps.commits.outputs.docs }}
+          TESTS: ${{ steps.commits.outputs.tests }}
+          PREVIOUS_TAG: ${{ steps.commits.outputs.previous-tag }}
         run: |
-          RELEASE_TYPE="${{ steps.version.outputs.release_type }}"
-          VERSION="${{ steps.version.outputs.version }}"
-          TAG="${{ steps.version.outputs.tag }}"
-
           # Release type badge
           case "$RELEASE_TYPE" in
             alpha)
@@ -234,26 +240,19 @@ jobs:
           esac
 
           # Get categorized commits
-          BUG_FIXES="${{ steps.commits.outputs.bug-fixes }}"
           if [ -z "$BUG_FIXES" ]; then
             BUG_FIXES="- Minor bug fixes and stability improvements"
           fi
 
-          IMPROVEMENTS="${{ steps.commits.outputs.improvements }}"
           if [ -z "$IMPROVEMENTS" ]; then
             IMPROVEMENTS="- Performance improvements and code optimizations"
           fi
 
-          NEW_FEATURES="${{ steps.commits.outputs.new-features }}"
           if [ -z "$NEW_FEATURES" ]; then
             NEW_FEATURES="- Enhanced Violet Pool Controller functionality"
           fi
 
-          DOCS="${{ steps.commits.outputs.docs }}"
-          TESTS="${{ steps.commits.outputs.tests }}"
-
           # Generate changelog link
-          PREVIOUS_TAG="${{ steps.commits.outputs.previous-tag }}"
           if [ -z "$PREVIOUS_TAG" ]; then
             CHANGELOG_LINK="📋 Full changelog: Initial release"
           else
