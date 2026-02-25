@@ -181,6 +181,22 @@ logger:
 cp /config/home-assistant.log ~/violet-logs.txt
 ```
 
+### Logs exportieren mit Service (NEU in v1.0.2)
+
+Nutze den `export_diagnostic_logs` Service, um Logs direkt zu exportieren:
+
+```yaml
+service: violet_pool_controller.export_diagnostic_logs
+target:
+  device_id: <device_id>
+data:
+  lines: 500
+  include_timestamps: true
+  save_to_file: true
+```
+
+Dies speichert die Logs in `/config/` zur späteren Analyse oder zum Support-Ticket.
+
 ## Häufige Log-Fehler
 
 ### `Connection refused`
