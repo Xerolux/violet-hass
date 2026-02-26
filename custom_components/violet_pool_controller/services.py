@@ -999,8 +999,6 @@ class VioletServiceHandlers:
                         if isinstance(features, list):
                             from .const_features import AVAILABLE_FEATURES
 
-                            # Create feature mapping
-                            feature_map = {f["id"]: f["name"] for f in AVAILABLE_FEATURES}
                             enabled_features = []
                             disabled_features = []
 
