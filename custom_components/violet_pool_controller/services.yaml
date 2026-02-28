@@ -223,3 +223,53 @@ export_diagnostic_logs:
       default: false
       selector:
         boolean:
+
+get_connection_status:
+  name: Get Connection Status
+  description: Get detailed connection status and health metrics for troubleshooting
+  fields:
+    device_id:
+      description: Target device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
+
+get_error_summary:
+  name: Get Error Summary
+  description: Get summary of recent errors and recovery suggestions
+  fields:
+    device_id:
+      description: Target device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
+    include_history:
+      description: Include detailed error history
+      default: false
+      selector:
+        boolean:
+
+test_connection:
+  name: Test Connection
+  description: Test connection to the controller and return diagnostic information
+  fields:
+    device_id:
+      description: Target device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
+
+clear_error_history:
+  name: Clear Error History
+  description: Clear error history after successful recovery (use with caution)
+  fields:
+    device_id:
+      description: Target device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
+

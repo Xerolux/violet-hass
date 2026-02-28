@@ -1,0 +1,43 @@
+# Code Owners for Violet Pool Controller Integration
+#
+# This file defines who owns and is responsible for reviewing changes
+# to different parts of the codebase.
+
+# Global maintainers - own everything
+* @Xerolux
+
+# Documentation
+*.md @Xerolux
+docs/** @Xerolux
+
+# Core integration files
+custom_components/violet_pool_controller/__init__.py @Xerolux
+custom_components/violet_pool_controller/manifest.json @Xerolux
+custom_components/violet_pool_controller/const.py @Xerolux
+
+# API and device handling
+custom_components/violet_pool_controller/api.py @Xerolux
+custom_components/violet_pool_controller/device.py @Xerolux
+custom_components/violet_pool_controller/error_handler.py @Xerolux
+
+# Platform implementations
+custom_components/violet_pool_controller/sensor.py @Xerolux
+custom_components/violet_pool_controller/switch.py @Xerolux
+custom_components/violet_pool_controller/binary_sensor.py @Xerolux
+custom_components/violet_pool_controller/climate.py @Xerolux
+custom_components/violet_pool_controller/cover.py @Xerolux
+custom_components/violet_pool_controller/number.py @Xerolux
+custom_components/violet_pool_controller/select.py @Xerolux
+
+# Configuration and setup
+custom_components/violet_pool_controller/config_flow.py @Xerolux
+custom_components/violet_pool_controller/config_flow_utils.py @Xerolux
+custom_components/violet_pool_controller/services.yaml @Xerolux
+custom_components/violet_pool_controller/services.py @Xerolux
+
+# Tests
+tests/** @Xerolux
+
+# Translations (if added in the future)
+translations/** @Xerolux
+custom_components/violet_pool_controller/translations/** @Xerolux

@@ -189,6 +189,31 @@ def get_service_schemas() -> dict[str, vol.Schema]:
                 vol.Optional("save_to_file", default=False): cv.boolean,
             }
         ),
+        # Get Connection Status
+        "get_connection_status": vol.Schema(
+            {
+                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
+            }
+        ),
+        # Get Error Summary
+        "get_error_summary": vol.Schema(
+            {
+                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
+                vol.Optional("include_history", default=False): cv.boolean,
+            }
+        ),
+        # Test Connection
+        "test_connection": vol.Schema(
+            {
+                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
+            }
+        ),
+        # Clear Error History
+        "clear_error_history": vol.Schema(
+            {
+                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
+            }
+        ),
     }
 
 
@@ -1175,6 +1200,217 @@ Lines: {len(log_entries)}
             _LOGGER.error("Log export error: %s", err)
             raise HomeAssistantError(f"Log export failed: {err}") from err
 
+    async def handle_get_connection_status(self, call: ServiceCall) -> dict[str, Any]:
+        """
+        Handle get connection status diagnostic service.
+
+        Args:
+            call: The service call object.
+
+        Returns:
+            Dictionary with connection status details.
+
+        Raises:
+            HomeAssistantError: If service fails.
+        """
+        from .error_handler import get_enhanced_error_handler
+
+        device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
+        results = []
+
+        for device_id in device_ids:
+            try:
+                coordinator = await self.manager.get_coordinator_for_device(device_id)
+                if not coordinator or not hasattr(coordinator, "device"):
+                    raise HomeAssistantError(f"Device {device_id} not found")
+
+                device = coordinator.device
+                error_handler = get_enhanced_error_handler()
+                error_summary = error_handler.get_error_summary()
+
+                # Gather connection metrics
+                status = {
+                    "device_name": getattr(device, "device_name", "Unknown"),
+                    "device_id": device_id,
+                    "available": getattr(device, "_available", False),
+                    "last_update": getattr(device, "_last_update_time", 0),
+                    "connection_latency_ms": getattr(device, "_connection_latency", 0),
+                    "system_health": getattr(device, "_system_health", 0),
+                    "consecutive_failures": getattr(device, "_consecutive_failures", 0),
+                    "api_url": getattr(device, "api_url", "Unknown"),
+                    "use_ssl": getattr(device, "use_ssl", False),
+                    "error_summary": error_summary,
+                }
+
+                results.append(status)
+
+            except Exception as err:
+                _LOGGER.error("Get connection status error: %s", err)
+                raise HomeAssistantError(f"Failed to get connection status: {err}") from err
+
+        return {
+            "success": True,
+            "devices": results,
+            "message": f"Retrieved status for {len(results)} device(s)"
+        }
+
+    async def handle_get_error_summary(self, call: ServiceCall) -> dict[str, Any]:
+        """
+        Handle get error summary diagnostic service.
+
+        Args:
+            call: The service call object.
+
+        Returns:
+            Dictionary with error summary.
+
+        Raises:
+            HomeAssistantError: If service fails.
+        """
+        from .error_handler import get_enhanced_error_handler
+
+        device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
+        include_history = call.data.get("include_history", False)
+        results = []
+
+        for device_id in device_ids:
+            try:
+                coordinator = await self.manager.get_coordinator_for_device(device_id)
+                if not coordinator or not hasattr(coordinator, "device"):
+                    raise HomeAssistantError(f"Device {device_id} not found")
+
+                device = coordinator.device
+                error_handler = get_enhanced_error_handler()
+                error_summary = error_handler.get_error_summary()
+
+                result = {
+                    "device_name": getattr(device, "device_name", "Unknown"),
+                    "device_id": device_id,
+                    "error_summary": error_summary,
+                    "recovery_suggestion": error_handler.get_recovery_suggestion(),
+                }
+
+                if include_history:
+                    recent_errors = error_handler.get_recent_errors(count=10)
+                    result["error_history"] = [err.to_dict() for err in recent_errors]
+
+                results.append(result)
+
+            except Exception as err:
+                _LOGGER.error("Get error summary error: %s", err)
+                raise HomeAssistantError(f"Failed to get error summary: {err}") from err
+
+        return {
+            "success": True,
+            "devices": results,
+            "message": f"Retrieved error summary for {len(results)} device(s)"
+        }
+
+    async def handle_test_connection(self, call: ServiceCall) -> dict[str, Any]:
+        """
+        Handle test connection diagnostic service.
+
+        Args:
+            call: The service call object.
+
+        Returns:
+            Dictionary with test results.
+
+        Raises:
+            HomeAssistantError: If service fails.
+        """
+        device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
+        results = []
+
+        for device_id in device_ids:
+            try:
+                coordinator = await self.manager.get_coordinator_for_device(device_id)
+                if not coordinator or not hasattr(coordinator, "device"):
+                    raise HomeAssistantError(f"Device {device_id} not found")
+
+                device = coordinator.device
+                api = getattr(device, "api", None)
+
+                if not api:
+                    raise HomeAssistantError("API not available")
+
+                # Test the connection
+                import time
+                start_time = time.monotonic()
+
+                try:
+                    readings = await api.get_readings()
+                    latency_ms = (time.monotonic() - start_time) * 1000
+
+                    result = {
+                        "device_name": getattr(device, "device_name", "Unknown"),
+                        "device_id": device_id,
+                        "success": True,
+                        "latency_ms": round(latency_ms, 2),
+                        "keys_received": len(readings) if isinstance(readings, dict) else 0,
+                        "message": "Connection successful"
+                    }
+                except Exception as api_err:
+                    result = {
+                        "device_name": getattr(device, "device_name", "Unknown"),
+                        "device_id": device_id,
+                        "success": False,
+                        "error": str(api_err),
+                        "message": f"Connection failed: {api_err}"
+                    }
+
+                results.append(result)
+
+            except Exception as err:
+                _LOGGER.error("Test connection error: %s", err)
+                raise HomeAssistantError(f"Failed to test connection: {err}") from err
+
+        return {
+            "success": True,
+            "tests": results,
+            "message": f"Tested connection for {len(results)} device(s)"
+        }
+
+    async def handle_clear_error_history(self, call: ServiceCall) -> dict[str, Any]:
+        """
+        Handle clear error history service.
+
+        Args:
+            call: The service call object.
+
+        Returns:
+            Dictionary with operation result.
+
+        Raises:
+            HomeAssistantError: If service fails.
+        """
+        from .error_handler import get_enhanced_error_handler
+
+        device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
+        cleared_count = 0
+
+        for device_id in device_ids:
+            try:
+                coordinator = await self.manager.get_coordinator_for_device(device_id)
+                if not coordinator or not hasattr(coordinator, "device"):
+                    raise HomeAssistantError(f"Device {device_id} not found")
+
+                error_handler = get_enhanced_error_handler()
+                error_handler.clear_history()
+                cleared_count += 1
+
+            except Exception as err:
+                _LOGGER.error("Clear error history error: %s", err)
+                raise HomeAssistantError(f"Failed to clear error history: {err}") from err
+
+        _LOGGER.info("Cleared error history for %d device(s)", cleared_count)
+
+        return {
+            "success": True,
+            "cleared_count": cleared_count,
+            "message": f"Cleared error history for {cleared_count} device(s)"
+        }
+
 
 # =============================================================================
 # REGISTRATION
@@ -1228,7 +1464,39 @@ async def async_register_services(hass: HomeAssistant) -> None:
         supports_response=SupportsResponse.ONLY,
     )
 
+    hass.services.async_register(
+        DOMAIN,
+        "get_connection_status",
+        handlers.handle_get_connection_status,
+        schema=schemas.get("get_connection_status"),
+        supports_response=SupportsResponse.ONLY,
+    )
+
+    hass.services.async_register(
+        DOMAIN,
+        "get_error_summary",
+        handlers.handle_get_error_summary,
+        schema=schemas.get("get_error_summary"),
+        supports_response=SupportsResponse.ONLY,
+    )
+
+    hass.services.async_register(
+        DOMAIN,
+        "test_connection",
+        handlers.handle_test_connection,
+        schema=schemas.get("test_connection"),
+        supports_response=SupportsResponse.ONLY,
+    )
+
+    hass.services.async_register(
+        DOMAIN,
+        "clear_error_history",
+        handlers.handle_clear_error_history,
+        schema=schemas.get("clear_error_history"),
+        supports_response=SupportsResponse.ONLY,
+    )
+
     _LOGGER.info(
         "Successfully registered %d services",
-        len(regular_services) + 1,
+        len(regular_services) + 5,  # 5 diagnostic services
     )
