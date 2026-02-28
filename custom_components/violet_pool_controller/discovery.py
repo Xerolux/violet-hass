@@ -7,9 +7,11 @@ from typing import Any
 from homeassistant import config_entries
 from homeassistant.components.zeroconf import ZeroconfServiceInfo
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.data_flow_flow import FlowResult
+from homeassistant.data_entry_flow import FlowResult
 
-from . import DOMAIN, LOGGER
+from . import DOMAIN
+
+_LOGGER = logging.getLogger(__name__)
 
 # Service types for discovery
 SERVICE_TYPES = ["_http._tcp.local.", "_violet-controller._tcp.local."]
@@ -37,7 +39,7 @@ class VioletPoolControllerDiscovery:
         Returns:
             Config entry flow handler.
         """
-        LOGGER.info(
+        _LOGGER.info(
             "Discovered Violet Pool Controller: %s at %s:%s",
             service_info.name,
             service_info.host,

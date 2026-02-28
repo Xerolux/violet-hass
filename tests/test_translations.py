@@ -8,49 +8,42 @@ from pathlib import Path
 import pytest
 
 
+def get_component_dir():
+    """Get component directory path."""
+    return Path(__file__).parent.parent / "custom_components" / "violet_pool_controller"
+
+
 class TestTranslationFiles:
     """Test translation file structure and content."""
 
+    @property
+    def project_root(self):
+        """Get project root directory."""
+        return Path(__file__).parent.parent
+
+    @property
+    def component_dir(self):
+        """Get component directory."""
+        return self.project_root / "custom_components" / "violet_pool_controller"
+
     def test_strings_json_exists(self):
         """Test that strings.json exists."""
-        strings_path = (
-            Path(__file__).parent
-            / "custom_components"
-            / "violet_pool_controller"
-            / "strings.json"
-        )
-        assert strings_path.exists(), "strings.json not found"
+        strings_path = self.component_dir / "strings.json"
+        assert strings_path.exists(), f"strings.json not found at {strings_path}"
 
     def test_german_translation_exists(self):
         """Test that German translation file exists."""
-        de_path = (
-            Path(__file__).parent
-            / "custom_components"
-            / "violet_pool_controller"
-            / "translations"
-            / "de.json"
-        )
-        assert de_path.exists(), "German translation (de.json) not found"
+        de_path = self.component_dir / "translations" / "de.json"
+        assert de_path.exists(), f"German translation (de.json) not found at {de_path}"
 
     def test_english_translation_exists(self):
         """Test that English translation file exists."""
-        en_path = (
-            Path(__file__).parent
-            / "custom_components"
-            / "violet_pool_controller"
-            / "translations"
-            / "en.json"
-        )
-        assert en_path.exists(), "English translation (en.json) not found"
+        en_path = self.component_dir / "translations" / "en.json"
+        assert en_path.exists(), f"English translation (en.json) not found at {en_path}"
 
     def test_strings_json_valid_json(self):
         """Test that strings.json is valid JSON."""
-        strings_path = (
-            Path(__file__).parent
-            / "custom_components"
-            / "violet_pool_controller"
-            / "strings.json"
-        )
+        strings_path = self.component_dir / "strings.json"
 
         with open(strings_path, "r", encoding="utf-8") as f:
             data = json.load(f)
@@ -60,13 +53,7 @@ class TestTranslationFiles:
 
     def test_german_translation_valid_json(self):
         """Test that German translation is valid JSON."""
-        de_path = (
-            Path(__file__).parent
-            / "custom_components"
-            / "violet_pool_controller"
-            / "translations"
-            / "de.json"
-        )
+        de_path = self.component_dir / "translations" / "de.json"
 
         with open(de_path, "r", encoding="utf-8") as f:
             data = json.load(f)
@@ -76,13 +63,7 @@ class TestTranslationFiles:
 
     def test_english_translation_valid_json(self):
         """Test that English translation is valid JSON."""
-        en_path = (
-            Path(__file__).parent
-            / "custom_components"
-            / "violet_pool_controller"
-            / "translations"
-            / "en.json"
-        )
+        en_path = self.component_dir / "translations" / "en.json"
 
         with open(en_path, "r", encoding="utf-8") as f:
             data = json.load(f)
@@ -94,15 +75,15 @@ class TestTranslationFiles:
 class TestTranslationStructure:
     """Test translation structure and required keys."""
 
+    @property
+    def component_dir(self):
+        """Get component directory."""
+        return Path(__file__).parent.parent / "custom_components" / "violet_pool_controller"
+
     @pytest.fixture
     def strings_data(self):
         """Load strings.json data."""
-        strings_path = (
-            Path(__file__).parent
-            / "custom_components"
-            / "violet_pool_controller"
-            / "strings.json"
-        )
+        strings_path = self.component_dir / "strings.json"
 
         with open(strings_path, "r", encoding="utf-8") as f:
             return json.load(f)
@@ -110,13 +91,7 @@ class TestTranslationStructure:
     @pytest.fixture
     def german_data(self):
         """Load German translation data."""
-        de_path = (
-            Path(__file__).parent
-            / "custom_components"
-            / "violet_pool_controller"
-            / "translations"
-            / "de.json"
-        )
+        de_path = self.component_dir / "translations" / "de.json"
 
         with open(de_path, "r", encoding="utf-8") as f:
             return json.load(f)
@@ -124,13 +99,7 @@ class TestTranslationStructure:
     @pytest.fixture
     def english_data(self):
         """Load English translation data."""
-        en_path = (
-            Path(__file__).parent
-            / "custom_components"
-            / "violet_pool_controller"
-            / "translations"
-            / "en.json"
-        )
+        en_path = self.component_dir / "translations" / "en.json"
 
         with open(en_path, "r", encoding="utf-8") as f:
             return json.load(f)

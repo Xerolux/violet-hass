@@ -9,10 +9,10 @@ from typing import Any
 import homeassistant.helpers.config_validation as cv
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
 from homeassistant.helpers import aiohttp_client
-from homeassistant.components.zeroconf import ZeroconfServiceInfo
+from homeassistant.components.zeroconf import ZeroconfServiceInfo, config_entries
 
 from .const import (
     CONF_ACTIVE_FEATURES,
@@ -461,7 +461,7 @@ def async_zeroconf_get_service_info(
     """
     from .discovery import get_discovery_handler
 
-    LOGGER.info("ZeroConf discovery triggered for %s", info.name)
+    _LOGGER.info("ZeroConf discovery triggered for %s", info.name)
 
     # Get discovery handler
     handler = get_discovery_handler()
