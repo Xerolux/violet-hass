@@ -63,7 +63,7 @@ from .config_flow_utils import (
 _LOGGER = logging.getLogger(__name__)
 
 
-class ConfigFlow(config_entries.ConfigFlow):
+class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Config Flow für Violet Pool Controller."""
 
     VERSION = 1
