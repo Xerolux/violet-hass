@@ -239,7 +239,7 @@ Gerät in Automatikmodus schalten:
 ```yaml
 service: violet_pool_controller.turn_auto
 target:
-  entity_id: switch.pool_pump  
+  entity_id: switch.pool_pump
 data:
   auto_delay: 30  # Optional: Verzögerung in Sekunden
 ```
@@ -260,7 +260,7 @@ data:
 
 #### `violet_pool_controller.manual_dosing`
 Manuelle Dosierung auslösen:
-```yaml  
+```yaml
 service: violet_pool_controller.manual_dosing
 target:
   entity_id: switch.ph_dosing_minus
@@ -268,6 +268,94 @@ data:
   duration_seconds: 30  # Dosierdauer
 ```
 </details>
+
+### 📋 **Beispiel-Automatisierungen**
+
+#### 🌡️ **Intelligente Poolheizung mit Solar-Unterstützung**
+
+```yaml
+# Heize Pool wenn Solarkollektor > 35°C und Pool < 28°C
+- alias: "Pool: Solarheizung bei Sonne"
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.solar_temp
+      above: 35
+  condition:
+    - condition: numeric_state
+      entity_id: sensor.pool_temperature
+      below: 28
+    - condition: state
+      entity_id: switch.pool_pump
+      state: "on"
+  action:
+    - service: climate.turn_on
+      target:
+        entity_id: climate.pool_heater
+    - service: climate.set_temperature
+      target:
+        entity_id: climate.pool_heater
+      data:
+        temperature: 28
+```
+
+#### 🧪 **Automatische pH-Korrektur**
+
+```yaml
+# pH-Plus dosieren wenn pH < 7.0
+- alias: "Pool: pH zu niedrig - dosiere pH+"
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.pool_ph_value
+      below: 7.0
+      for:
+        minutes: 5
+  condition:
+    - condition: state
+      entity_id: switch.pool_pump
+      state: "on"
+  action:
+    - service: switch.turn_on
+      target:
+        entity_id: switch.ph_dosing_plus
+    - wait_template: "{{ states('sensor.pool_ph_value') | float > 7.2 }}"
+      timeout:
+        minutes: 30
+    - service: switch.turn_off
+      target:
+        entity_id: switch.ph_dosing_plus
+```
+
+#### ⚡ **Energie-Optimierung mit PV-Überschuss**
+
+```yaml
+# Aktiviere PV-Überschuss-Modus bei hohem Solarertrag
+- alias: "Pool: PV-Überschuss nutzen"
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.pv_power_export
+      above: 2000  # Watt
+  action:
+    - service: violet_pool_controller.set_pv_surplus
+      target:
+        entity_id: switch.pv_surplus_mode
+      data:
+        active: true
+        pump_speed: 2
+```
+
+#### 🌧️ **Abdeckung schließen bei Regen**
+
+```yaml
+- alias: "Pool: Abdeckung bei Regen schließen"
+  trigger:
+    - platform: state
+      entity_id: weather.pools_weather
+      to: "rainy"
+  action:
+    - service: cover.close_cover
+      target:
+        entity_id: cover.pool_cover
+```
 
 ### 📋 **Automation Blueprints**
 
@@ -278,7 +366,7 @@ Einstellungen → Automatisierungen & Szenen → Blueprints → Blueprint import
 
 **Verfügbare Blueprints:**
 - 🌡️ **Intelligente Temperatursteuerung** - Tag/Nacht-Modi mit Solar-Priorität
-- 🧪 **pH-Management** - Automatische Dosierung mit Sicherheitsgrenzen  
+- 🧪 **pH-Management** - Automatische Dosierung mit Sicherheitsgrenzen
 - ⚡ **Energie-Optimierung** - PV-Überschuss-Nutzung
 - 🌧️ **Wetter-Reaktionen** - Abdeckung bei Regen/Wind
 - 🏊 **Pool-Modi** - Party, Eco, Winter & Urlaubs-Automatisierungen
@@ -296,29 +384,170 @@ Einstellungen → Automatisierungen & Szenen → Blueprints → Blueprint import
 | **Entitäten fehlen** | Controller-Features & Integration neu laden |
 | **Langsame Updates** | Abfrageintervall verringern (min. 10s) |
 
-### 🔍 **Debug-Schritte**
+### 🔍 **Detaillierte Lösungen**
 
-**1. Konnektivität testen:**
+#### ❌ **"Failed to connect" - Keine Verbindung möglich**
+
+**Symptome:**
+- Integration zeigt "Nicht verfügbar"
+- Log-Meldung: "Connection refused" oder "Timeout"
+
+**Lösungsschritte:**
+1. **Konnektivität prüfen:**
+   ```bash
+   ping 192.168.1.100
+   curl http://192.168.1.100/getReadings?ALL
+   ```
+2. **Firewall prüfen:**
+   - Stelle sicher, dass Port 80 (HTTP) oder 443 (HTTPS) nicht blockiert ist
+   - Home Assistant Host muss Zugriff auf Controller-Subnetz haben
+3. **Controller-Status prüfen:**
+   - Controller-WebUI erreichbar? (http://192.168.1.100)
+   - Licht am Controller leuchtet?
+
+#### 🔐 **SSL_Zertifiziert-Fehler**
+
+**Symptome:**
+- Log-Meldung: "SSL: CERTIFICATE_VERIFY_FAILED"
+- Integration kann bei "SSL verwenden" nicht aktiviert werden
+
+**Lösung:**
+- Option 1: **"SSL verwenden" deaktivieren** (für selbstsignierte Zertifikate)
+- Option 2: **"Zertifikat verifizieren" deaktivieren** im Config-Flow
+- Option 3: Eigene CA-Zertifikate in HA importieren (Fortgeschritten)
+
+#### 📊 **Sensoren zeigen "Unbekannt" oder falsche Werte**
+
+**Mögliche Ursachen:**
+1. **Feature nicht aktiviert:**
+   - Gehe zu: *Einstellungen → Geräte & Dienste → Violet Pool Controller → Konfigurieren*
+   - Prüfe unter "Aktive Features" ob das korrekte Feature aktiviert ist
+   - Speichern und Integration neu laden
+
+2. **Falsche Sensor-Auswahl:**
+   - Beim Setup wurde die Gruppe des Sensors abgewählt
+   - Lösung: Neu konfigurieren und alle relevanten Sensor-Gruppen auswählen
+
+3. **Controller-Fehler:**
+   - Prüfe Controller-Logs: http://192.168.1.100/logs
+   - Restart des Controllers: Strom für 30 Sekunden entfernen
+
+#### ⏱️ **Entitäten aktualisieren nicht (stale values)**
+
+**Ursache:** Abfrageintervall zu hoch oder Controller antwortet nicht
+
+**Lösung:**
+1. **Abfrageintervall reduzieren:**
+   - Gehe zu: *Einstellungen → Geräte & Dienste → Violet Pool Controller → Konfigurieren*
+   - "Abfrageintervall" auf 15-30 Sekunden setzen
+   - Speichern
+
+2. **Timeout anpassen:**
+   - "Timeout" auf 10-15 Sekunden erhöhen
+   - Besonders bei langsamen Netzwerken
+
+3. **Manueller Refresh:**
+   ```
+   Einstellungen → Geräte & Dienste → Violet Pool Controller → ⋮ → Neu laden
+   ```
+
+#### 🐛 **Integration startet nicht (Setup: Failed)**
+
+**Debug-Schritte:**
+
+1. **Logs prüfen:**
+   ```bash
+   tail -100 /config/home-assistant.log | grep violet
+   ```
+
+2. **Config Exportieren:**
+   ```
+   Einstellungen → Geräte & Dienste → Violet Pool Controller → ⋮ → Diagnosedaten exportieren
+   ```
+
+3. **Vollständiger Neustart:**
+   - Integration entfernen
+   - HA neu starten
+   - Integration neu einrichten
+
+### 🔍 **Werkzeuge zur Fehlersuche**
+
+#### **Diagnostic Export Service**
+
+Nutze den integrierten Diagnostic-Service:
+
+```yaml
+service: violet_pool_controller.export_diagnostic_info
+data:
+  device_id:
+    - "deine_controller_id"
+  save_to_file: true
+```
+
+Dieser erstellt eine detaillierte Log-Datei mit:
+- ✅ Konfiguration
+- ✅ Alle Sensorwerte
+- ✅ Aktive Fehler
+- ✅ Laufzeiten
+- ✅ Historie der letzten 24h
+
+#### **Live API-Test**
+
+Teste die API-Verbindung direkt:
+
 ```bash
-ping 192.168.1.100
-curl http://192.168.1.100/getReadings?ALL
+# Alle Readings abrufen
+curl http://192.168.1.100/getReadings?ALL | jq
+
+# Konfiguration prüfen
+curl http://192.168.1.100/getConfig?TARGET_PH,TARGET_ORP
+
+# Manuelles Schalten testen
+curl "http://192.168.1.100/setFunctionManually?PUMP=ON"
 ```
 
-**2. Logs prüfen:**
-```bash
-tail -f /config/home-assistant.log | grep violet_pool_controller
+#### **Log-Level erhöhen**
+
+Für detaillierte Logs:
+
+```yaml
+# configuration.yaml
+logger:
+  logs:
+    custom_components.violet_pool_controller: debug
 ```
 
-**3. Integration neu laden:**
-```
-Einstellungen → Geräte & Dienste → Violet Pool Controller → ⋮ → Neu laden
-```
+**Wichtige Log-Meldungen:**
+- `ERROR` - Kritische Fehler die die Funktion beeinträchtigen
+- `WARNING` - Probleme die automatisch behoben wurden
+- `DEBUG` - Detaillierte Information für Fehlersuche
+- `INFO` - Normale Operations-Meldungen
 
 ### 📞 **Support erhalten**
 
-- 🐛 **Bug Reports:** [GitHub Issues][issues]
-- 💬 **Community:** [Discord][discord] | [Forum][forum]  
-- 📧 **Direkt:** [git@xerolux.de](mailto:git@xerolux.de)
+Wenn du keine Lösung findest:
+
+1. **GitHub Issues** - [Bug melden][issues]
+   - Wähle passendes Template aus
+   - Logs anhängen (`!secret` entfernen!)
+   - HA-Version und Integrations-Version angeben
+
+2. **Community** - [Discord][discord] | [Forum][forum]
+   - Andere Nutzer haben vielleicht ähnliche Probleme gehabt
+   - Suche nach Fehlercodes und Fehlermeldungen
+
+3. **Direkt Kontakt** - [git@xerolux.de](mailto:git@xerolux.de)
+   - Für geschäftliche Anfragen
+   - Support-Priorität für Sponsoren
+
+### 📚 **Bekannte Probleme & Workarounds**
+
+| Issue | Status | Workaround |
+|-------|--------|-----------|
+| **Cover öffnet nicht vollständig** | Bekannt | Manuell in App korrigieren, dann Neu laden |
+| **pH-Wert springt** | Controller-Bug | Sensor kalibrieren (Controller-WebUI) |
+| **Heizung schaltet nicht ein** | Feature-Abhängig | Prüfe ob "heating" Feature aktiviert |
+| **PV-Überschuss nicht verfügbar** | Hardware-Abhängig | Requires compatible PV inverter |
 
 ---
 
