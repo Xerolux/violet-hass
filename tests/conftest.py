@@ -2,12 +2,34 @@
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
 import threading
+
+# Add project root to Python path for imports
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 
 
 def pytest_configure(config):
     """Configure pytest with custom settings."""
+    # Disable socket blocking - needed for Home Assistant imports
+    # pytest-homeassistant-custom-component includes pytest-socket which blocks all sockets by default
+    try:
+        config.option.socket_enabled = False
+    except AttributeError:
+        pass
+
+    # Try to disable socket plugin completely
+    try:
+        plugin = config.pluginmanager.get_plugin('socket')
+        if plugin:
+            config.pluginmanager.unregister(plugin)
+    except Exception:
+        pass
+
     # Patch the thread check in pytest-homeassistant-custom-component
     # to allow newer Home Assistant thread names
     try:

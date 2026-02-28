@@ -644,7 +644,7 @@ class VioletPoolControllerDevice:
         return url.strip()
 
 
-class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
+class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
     """Data Update Coordinator - SMART FAILURE LOGGING."""
 
     def __init__(

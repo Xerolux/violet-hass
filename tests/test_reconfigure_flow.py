@@ -8,7 +8,7 @@ import pytest
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.data_flow_flow import FlowResultType
+from homeassistant.data_entry_flow import FlowResultType
 import voluptuous as vol
 
 

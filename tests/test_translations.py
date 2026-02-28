@@ -13,6 +13,27 @@ def get_component_dir():
     return Path(__file__).parent.parent / "custom_components" / "violet_pool_controller"
 
 
+def load_strings_json():
+    """Load strings.json data."""
+    strings_path = get_component_dir() / "strings.json"
+    with open(strings_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def load_german_translation():
+    """Load German translation data."""
+    de_path = get_component_dir() / "translations" / "de.json"
+    with open(de_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def load_english_translation():
+    """Load English translation data."""
+    en_path = get_component_dir() / "translations" / "en.json"
+    with open(en_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
 class TestTranslationFiles:
     """Test translation file structure and content."""
 
@@ -75,37 +96,10 @@ class TestTranslationFiles:
 class TestTranslationStructure:
     """Test translation structure and required keys."""
 
-    @property
-    def component_dir(self):
-        """Get component directory."""
-        return Path(__file__).parent.parent / "custom_components" / "violet_pool_controller"
-
-    @pytest.fixture
-    def strings_data(self):
-        """Load strings.json data."""
-        strings_path = self.component_dir / "strings.json"
-
-        with open(strings_path, "r", encoding="utf-8") as f:
-            return json.load(f)
-
-    @pytest.fixture
-    def german_data(self):
-        """Load German translation data."""
-        de_path = self.component_dir / "translations" / "de.json"
-
-        with open(de_path, "r", encoding="utf-8") as f:
-            return json.load(f)
-
-    @pytest.fixture
-    def english_data(self):
-        """Load English translation data."""
-        en_path = self.component_dir / "translations" / "en.json"
-
-        with open(en_path, "r", encoding="utf-8") as f:
-            return json.load(f)
-
-    def test_config_step_structure(self, strings_data):
+    def test_config_step_structure(self):
+        strings_data = load_strings_json()
         """Test that config steps are properly structured."""
+        strings_data = load_strings_json()
         assert "config" in strings_data
         assert "step" in strings_data["config"]
 
@@ -123,8 +117,10 @@ class TestTranslationStructure:
         for step in required_steps:
             assert step in strings_data["config"]["step"], f"Missing step: {step}"
 
-    def test_config_error_messages(self, strings_data):
+    def test_config_error_messages(self):
+        strings_data = load_strings_json()
         """Test that error messages are defined."""
+        strings_data = load_strings_json()
         assert "config" in strings_data
         assert "error" in strings_data["config"]
 
@@ -139,8 +135,10 @@ class TestTranslationStructure:
         for error in required_errors:
             assert error in strings_data["config"]["error"], f"Missing error: {error}"
 
-    def test_config_abort_messages(self, strings_data):
+    def test_config_abort_messages(self):
+        strings_data = load_strings_json()
         """Test that abort messages are defined."""
+        strings_data = load_strings_json()
         assert "config" in strings_data
         assert "abort" in strings_data["config"]
 
@@ -155,8 +153,10 @@ class TestTranslationStructure:
         for abort in required_aborts:
             assert abort in strings_data["config"]["abort"], f"Missing abort: {abort}"
 
-    def test_options_flow_structure(self, strings_data):
+    def test_options_flow_structure(self):
+        strings_data = load_strings_json()
         """Test that options flow steps are defined."""
+        strings_data = load_strings_json()
         assert "options" in strings_data
         assert "step" in strings_data["options"]
 
@@ -166,8 +166,10 @@ class TestTranslationStructure:
         for step in required_options_steps:
             assert step in strings_data["options"]["step"], f"Missing options step: {step}"
 
-    def test_services_translated(self, strings_data):
+    def test_services_translated(self):
+        strings_data = load_strings_json()
         """Test that services are translated."""
+        strings_data = load_strings_json()
         assert "services" in strings_data
 
         # Required services
@@ -185,8 +187,10 @@ class TestTranslationStructure:
             assert "name" in strings_data["services"][service]
             assert "description" in strings_data["services"][service]
 
-    def test_entity_translations(self, strings_data):
+    def test_entity_translations(self):
+        strings_data = load_strings_json()
         """Test that entity names are translated."""
+        strings_data = load_strings_json()
         assert "entity" in strings_data
 
         # Required entity components

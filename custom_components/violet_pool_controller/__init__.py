@@ -12,7 +12,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
 from homeassistant.helpers import aiohttp_client
-from homeassistant.components.zeroconf import ZeroconfServiceInfo, config_entries
+from homeassistant.components.zeroconf import AsyncServiceInfo
 
 from .const import (
     CONF_ACTIVE_FEATURES,
@@ -446,7 +446,7 @@ def _validate_config(config: dict[str, Any]) -> bool:
 @callback
 def async_zeroconf_get_service_info(
     hass: HomeAssistant,
-    info: ZeroconfServiceInfo,
+    info: AsyncServiceInfo,
     service_info_type: str,
 ) -> None:
     """Handle ZeroConf discovery of Violet Pool Controller.

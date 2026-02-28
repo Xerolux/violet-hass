@@ -5,9 +5,8 @@ import logging
 from typing import Any
 
 from homeassistant import config_entries
-from homeassistant.components.zeroconf import ZeroconfServiceInfo
+from homeassistant.components.zeroconf import AsyncServiceInfo
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.data_entry_flow import FlowResult
 
 from . import DOMAIN
 
@@ -28,7 +27,7 @@ class VioletPoolControllerDiscovery:
     def async_discover_service(
         self,
         hass: HomeAssistant,
-        service_info: ZeroconfServiceInfo,
+        service_info: AsyncServiceInfo,
     ) -> None:
         """Discover a Violet Pool Controller device.
 
