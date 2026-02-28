@@ -12,6 +12,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
 from homeassistant.helpers import aiohttp_client
+from homeassistant.components.zeroconf import ZeroconfServiceInfo
 
 from .const import (
     CONF_ACTIVE_FEATURES,
@@ -435,3 +436,36 @@ def _validate_config(config: dict[str, Any]) -> bool:
 
     _LOGGER.debug("Configuration validated successfully.")
     return True
+
+
+# =============================================================================
+# ZEROCONF DISCOVERY (Gold Level)
+# =============================================================================
+
+
+@callback
+def async_zeroconf_get_service_info(
+    hass: HomeAssistant,
+    info: ZeroconfServiceInfo,
+    service_info_type: str,
+) -> config_entries.ConfigFlow:
+    """Handle ZeroConf discovery of Violet Pool Controller.
+
+    Args:
+        hass: The Home Assistant instance.
+        info: The ZeroConf service info.
+        service_info_type: The service type.
+
+    Returns:
+        Config entry flow handler.
+    """
+    from .discovery import get_discovery_handler
+
+    LOGGER.info("ZeroConf discovery triggered for %s", info.name)
+
+    # Get discovery handler
+    handler = get_discovery_handler()
+
+    # Return flow handler with discovered device info
+    return handler.async_discover_service(hass, info)
+
