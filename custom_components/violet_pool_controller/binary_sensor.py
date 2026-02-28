@@ -1,19 +1,17 @@
 
-"""Binary Sensor Integration für den Violet Pool Controller - OPTIMIZED VERSION."""
+"""Binary sensor platform for Violet Pool Controller."""
 from __future__ import annotations
 
 import logging
 from typing import Any
 
 from homeassistant.components.binary_sensor import (
-    BinarySensorDeviceClass,
     BinarySensorEntity,
     BinarySensorEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import BINARY_SENSORS, CONF_ACTIVE_FEATURES, DOMAIN
 from .device import VioletPoolDataUpdateCoordinator

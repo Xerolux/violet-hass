@@ -128,7 +128,7 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
         self._last_action = action
 
         try:
-            _LOGGER.debug("Sende Cover-Befehl: %s (API-Key: %s)", action, cover_api_key)
+            _LOGGER.debug("Sende Cover-Befehl: %s", action)
 
             result = await self.device.api.set_switch_state(
                 key=cover_api_key, action=ACTION_PUSH

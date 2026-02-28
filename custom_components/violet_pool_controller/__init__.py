@@ -1,4 +1,4 @@
-"""Violet Pool Controller Integration - IMPROVED VERSION."""
+"""The Violet Pool Controller integration."""
 
 from __future__ import annotations
 

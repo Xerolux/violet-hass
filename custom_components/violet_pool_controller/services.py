@@ -1,4 +1,4 @@
-"""Service handlers for the Violet Pool Controller integration - WITH INPUT SANITIZATION.
+"""Service handlers for the Violet Pool Controller integration.
 
 Note on Validation:
     Service schemas use `vol.Coerce(int)` combined with `vol.Range()` for numeric inputs.
@@ -969,8 +969,7 @@ class VioletServiceHandlers:
                         CONF_POOL_TYPE,
                         CONF_DISINFECTION_METHOD,
                         CONF_ACTIVE_FEATURES,
-                        CONF_SELECTED_SENSORS,
-                        CONF_PASSWORD
+                        CONF_SELECTED_SENSORS
                     )
 
                     config = coordinator.config_entry.data

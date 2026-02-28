@@ -1,5 +1,5 @@
 
-"""Select Integration für den Violet Pool Controller - ON/OFF/AUTO Steuerung."""
+"""Select platform for Violet Pool Controller."""
 from __future__ import annotations
 
 import asyncio

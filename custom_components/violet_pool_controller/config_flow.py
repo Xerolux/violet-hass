@@ -1,4 +1,4 @@
-"""Config Flow für Violet Pool Controller Integration - OPTIMIZED VERSION."""
+"""Config flow for Violet Pool Controller integration."""
 
 from __future__ import annotations
 

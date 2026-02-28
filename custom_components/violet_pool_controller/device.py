@@ -1,4 +1,4 @@
-"""Violet Pool Controller Device Module - SMART FAILURE LOGGING + AUTO RECOVERY."""
+"""Violet Pool Controller device management."""
 
 from __future__ import annotations
 

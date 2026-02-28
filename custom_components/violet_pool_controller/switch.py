@@ -1,4 +1,4 @@
-"""Switch Integration für den Violet Pool Controller - CHANGE-ONLY LOGGING & THREAD-SAFE."""
+"""Switch platform for Violet Pool Controller."""
 
 from __future__ import annotations
 
