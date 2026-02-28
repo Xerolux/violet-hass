@@ -53,14 +53,14 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
     @property
     def is_closed(self) -> bool:
         """Gibt True zurück, wenn das Cover geschlossen ist."""
-        state = COVER_STATE_MAP.get(self.get_str_value("COVER_STATE", ""), "")
+        state = COVER_STATE_MAP.get(self.get_str_value("COVER_STATE", "") or "", "")
         return state == "closed"
 
     @property
     def is_opening(self) -> bool:
         """Gibt True zurück, wenn das Cover öffnet."""
-        state = COVER_STATE_MAP.get(self.get_str_value("COVER_STATE", ""), "")
-        direction = self.get_str_value("LAST_MOVING_DIRECTION", "")
+        state = COVER_STATE_MAP.get(self.get_str_value("COVER_STATE", "") or "", "")
+        direction = self.get_str_value("LAST_MOVING_DIRECTION", "") or ""
 
         # Cover ist am Öffnen wenn:
         # 1. State explizit "opening" ist
@@ -75,8 +75,8 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
     @property
     def is_closing(self) -> bool:
         """Gibt True zurück, wenn das Cover schließt."""
-        state = COVER_STATE_MAP.get(self.get_str_value("COVER_STATE", ""), "")
-        direction = self.get_str_value("LAST_MOVING_DIRECTION", "")
+        state = COVER_STATE_MAP.get(self.get_str_value("COVER_STATE", "") or "", "")
+        direction = self.get_str_value("LAST_MOVING_DIRECTION", "") or ""
 
         # Cover ist am Schließen wenn:
         # 1. State explizit "closing" ist
@@ -91,7 +91,7 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
     @property
     def is_open(self) -> bool:
         """Gibt True zurück, wenn das Cover geöffnet ist."""
-        state = COVER_STATE_MAP.get(self.get_str_value("COVER_STATE", ""), "")
+        state = COVER_STATE_MAP.get(self.get_str_value("COVER_STATE", "") or "", "")
         return state == "open"
 
     async def async_open_cover(self, **kwargs) -> None:

@@ -774,16 +774,16 @@ class VioletPoolAPI:
         # Run requests concurrently
         raw_results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        results = []
+        results: list[dict[str, Any]] = []
         for res in raw_results:
             if isinstance(res, Exception):
                 results.append({"success": False, "response": str(res)})
-            else:
+            elif isinstance(res, dict):
                 results.append(res)
 
         success = all(result.get("success") is True for result in results)
         response = ", ".join(
-            result.get("response", "") for result in results if result.get("response")
+            str(result.get("response", "")) for result in results if result.get("response")
         )
         return {"success": success, "response": response}
 

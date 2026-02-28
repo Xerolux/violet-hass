@@ -863,7 +863,7 @@ class VioletServiceHandlers:
         try:
             # Get logs from Home Assistant's logging system
             # We'll collect recent logs related to this integration
-            log_entries = []
+            log_entries: list[str] = []
             device_name = coordinator.device.device_name
 
             # Read from the main log file if available
@@ -998,14 +998,14 @@ class VioletServiceHandlers:
                         if isinstance(features, list):
                             from .const_features import AVAILABLE_FEATURES
 
-                            enabled_features = []
-                            disabled_features = []
+                            enabled_features: list[str] = []
+                            disabled_features: list[str] = []
 
-                            for f in AVAILABLE_FEATURES:
-                                if f["id"] in features:
-                                    enabled_features.append(f["name"])
+                            for feature in AVAILABLE_FEATURES:
+                                if feature["id"] in features:
+                                    enabled_features.append(str(feature["name"]))
                                 else:
-                                    disabled_features.append(f["name"])
+                                    disabled_features.append(str(feature["name"]))
 
                             log_entries.append(f"  Active Features: {len(enabled_features)} enabled")
                             if enabled_features:

@@ -164,7 +164,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             _LOGGER.debug("Coordinator data is None - returning OFF mode")
             return HVACMode.OFF
 
-        state = self.get_int_value(self.climate_type, STATE_OFF)
+        state = self.get_int_value(self.climate_type, STATE_OFF) or STATE_OFF
         mode = HEATER_HVAC_MODES.get(state, HVACMode.OFF)
 
         _LOGGER.debug("%s State %d → HVAC Mode %s", self.climate_type, state, mode)
@@ -183,7 +183,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             _LOGGER.debug("Coordinator data is None - returning IDLE action")
             return HVACAction.IDLE
 
-        state = self.get_int_value(self.climate_type, STATE_OFF)
+        state = self.get_int_value(self.climate_type, STATE_OFF) or STATE_OFF
         action = HEATER_HVAC_ACTIONS.get(state, HVACAction.IDLE)
 
         _LOGGER.debug("%s State %d → HVAC Action %s", self.climate_type, state, action)
@@ -226,8 +226,8 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
 
         attributes = {
             "raw_state": state,
-            "hvac_mode_from_state": HEATER_HVAC_MODES.get(state, "unknown"),
-            "hvac_action_from_state": HEATER_HVAC_ACTIONS.get(state, "unknown"),
+            "hvac_mode_from_state": HEATER_HVAC_MODES.get(state or STATE_OFF, "unknown"),
+            "hvac_action_from_state": HEATER_HVAC_ACTIONS.get(state or STATE_OFF, "unknown"),
         }
 
         # ✅ FIXED: Zeige optimistischen Cache-Status
