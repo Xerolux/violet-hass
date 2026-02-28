@@ -61,11 +61,21 @@ class TestVioletPoolControllerDiscovery:
         mock_hass = MagicMock(spec=HomeAssistant)
 
         # Call discover_service
-        result = await handler.async_discover_service(mock_hass, mock_zeroconf_info)
+        result = handler.async_discover_service(mock_hass, mock_zeroconf_info)
 
-        # Verify the device was stored
+        # Verify the method returns None (no ConfigFlowHandler)
+        assert result is None
+
+        # Verify the device was stored as dict
         assert mock_zeroconf_info.name in handler._discovered_devices
-        assert handler._discovered_devices[mock_zeroconf_info.name] == mock_zeroconf_info
+        device_info = handler._discovered_devices[mock_zeroconf_info.name]
+
+        # Verify all expected fields are present
+        assert device_info["host"] == "192.168.178.55"
+        assert device_info["port"] == 80
+        assert device_info["hostname"] == "violet-pool-controller"
+        assert device_info["name"] == mock_zeroconf_info.name
+        assert device_info["type"] == mock_zeroconf_info.type
 
     @pytest.mark.asyncio
     async def test_async_get_discovered_devices(
@@ -78,8 +88,14 @@ class TestVioletPoolControllerDiscovery:
 
         handler = VioletPoolControllerDiscovery()
 
-        # Add a device manually
-        handler._discovered_devices[mock_zeroconf_info.name] = mock_zeroconf_info
+        # Add a device manually as dict
+        handler._discovered_devices[mock_zeroconf_info.name] = {
+            "host": "192.168.178.55",
+            "port": 80,
+            "hostname": "violet-pool-controller",
+            "name": mock_zeroconf_info.name,
+            "type": mock_zeroconf_info.type,
+        }
 
         # Get discovered devices
         result = handler.async_get_discovered_devices()
@@ -100,9 +116,21 @@ class TestVioletPoolControllerDiscovery:
 
         handler = VioletPoolControllerDiscovery()
 
-        # Add some devices
-        handler._discovered_devices["device1"] = mock_zeroconf_info
-        handler._discovered_devices["device2"] = mock_zeroconf_info
+        # Add some devices as dicts
+        handler._discovered_devices["device1"] = {
+            "host": "192.168.178.55",
+            "port": 80,
+            "hostname": "violet-1",
+            "name": "device1",
+            "type": "_http._tcp.local.",
+        }
+        handler._discovered_devices["device2"] = {
+            "host": "192.168.178.56",
+            "port": 80,
+            "hostname": "violet-2",
+            "name": "device2",
+            "type": "_http._tcp.local.",
+        }
 
         assert len(handler._discovered_devices) == 2
 
@@ -172,18 +200,24 @@ class TestZeroConfIntegration:
         from custom_components.violet_pool_controller import (
             async_zeroconf_get_service_info,
         )
+        from custom_components.violet_pool_controller.discovery import (
+            get_discovery_handler,
+        )
 
         # Create mock Hass instance
         mock_hass = MagicMock(spec=HomeAssistant)
 
         # Call the function
-        result = await async_zeroconf_get_service_info(
+        result = async_zeroconf_get_service_info(
             mock_hass, mock_zeroconf_info, "_http._tcp.local."
         )
 
-        # Verify result is a config flow handler
-        # Note: The actual implementation might return a flow handler or similar
-        assert result is not None or result is not False  # Basic sanity check
+        # Verify function returns None (stores info for later use)
+        assert result is None
+
+        # Verify discovery handler has the device stored
+        handler = get_discovery_handler()
+        assert mock_zeroconf_info.name in handler._discovered_devices
 
 
 class TestDiscoveryServiceTypes:
@@ -235,23 +269,26 @@ class TestDiscoveryErrorHandling:
 
         handler = VioletPoolControllerDiscovery()
 
-        # Create invalid service info
+        # Create invalid service info with None values
         invalid_info = MagicMock(spec=ZeroconfServiceInfo)
-        invalid_info.name = None
+        invalid_info.name = "Invalid Device"
         invalid_info.host = None
         invalid_info.port = None
+        invalid_info.hostname = None
+        invalid_info.type = "_http._tcp.local."
 
         # Create mock Hass
         mock_hass = MagicMock(spec=HomeAssistant)
 
-        # Should handle gracefully (may log error but not crash)
-        try:
-            result = await handler.async_discover_service(mock_hass, invalid_info)
-            # If it succeeds, verify it returns something reasonable
-            assert result is not None or True  # Flexible assertion
-        except Exception as e:
-            # If it raises an exception, that's also acceptable behavior
-            assert isinstance(e, (ValueError, AttributeError, TypeError))
+        # Should handle gracefully - still stores the device even with None values
+        # (Real HA will filter invalid devices before calling this)
+        result = handler.async_discover_service(mock_hass, invalid_info)
+
+        # Verify it returns None
+        assert result is None
+
+        # Verify device was stored (even with partial/invalid data)
+        assert "Invalid Device" in handler._discovered_devices
 
     def test_get_discovered_devices_empty(self, discovery_handler):
         """Test getting discovered devices when none exist."""
@@ -310,11 +347,15 @@ class TestDiscoveryMultipleDevices:
         device2.hostname = "violet-2"
         device2.type = "_http._tcp.local."
 
-        # Discover both devices
-        await handler.async_discover_service(mock_hass, device1)
-        await handler.async_discover_service(mock_hass, device2)
+        # Discover both devices - should return None
+        result1 = handler.async_discover_service(mock_hass, device1)
+        result2 = handler.async_discover_service(mock_hass, device2)
 
-        # Verify both are stored
+        # Verify both return None
+        assert result1 is None
+        assert result2 is None
+
+        # Verify both are stored as dicts
         assert len(handler._discovered_devices) == 2
         assert device1.name in handler._discovered_devices
         assert device2.name in handler._discovered_devices
@@ -344,10 +385,14 @@ class TestDiscoveryMultipleDevices:
         device.hostname = "violet-pool-controller"
         device.type = "_http._tcp.local."
 
-        # Discover device twice
-        await handler.async_discover_service(mock_hass, device)
-        await handler.async_discover_service(mock_hass, device)
+        # Discover device twice - both should return None
+        result1 = handler.async_discover_service(mock_hass, device)
+        result2 = handler.async_discover_service(mock_hass, device)
 
-        # Should only have one entry (updated)
+        # Verify both return None
+        assert result1 is None
+        assert result2 is None
+
+        # Should only have one entry (updated/overwritten)
         assert len(handler._discovered_devices) == 1
         assert device.name in handler._discovered_devices

@@ -22,22 +22,26 @@ class VioletPoolControllerDiscovery:
 
     def __init__(self) -> None:
         """Initialize discovery handler."""
-        self._discovered_devices: dict[str, ZeroconfServiceInfo] = {}
+        self._discovered_devices: dict[str, dict[str, Any]] = {}
 
     @callback
     def async_discover_service(
         self,
         hass: HomeAssistant,
         service_info: ZeroconfServiceInfo,
-    ) -> config_entries.FlowHandler:
+    ) -> None:
         """Discover a Violet Pool Controller device.
+
+        This method is called by Home Assistant when a matching ZeroConf service
+        is discovered on the network. It stores the device information for later
+        use in the config flow.
 
         Args:
             hass: The Home Assistant instance.
             service_info: The ZeroConf service info.
 
         Returns:
-            Config entry flow handler.
+            None. Device info is stored in _discovered_devices for later retrieval.
         """
         _LOGGER.info(
             "Discovered Violet Pool Controller: %s at %s:%s",
@@ -46,20 +50,14 @@ class VioletPoolControllerDiscovery:
             service_info.port,
         )
 
-        # Store discovered device info
-        self._discovered_devices[service_info.name] = service_info
-
-        # Return the config flow handler
-        return config_entries.ConfigFlowHandler(
-            DOMAIN,
-            context={
-                "title": f"Violet Pool Controller ({service_info.name})",
-                "host": service_info.host,
-                "port": service_info.port,
-                "hostname": service_info.hostname,
-                "discovered": True,
-            },
-        )
+        # Store discovered device info as dict for later use
+        self._discovered_devices[service_info.name] = {
+            "host": service_info.host,
+            "port": service_info.port,
+            "hostname": service_info.hostname,
+            "name": service_info.name,
+            "type": service_info.type,
+        }
 
     @callback
     def async_get_discovered_devices(
@@ -68,18 +66,9 @@ class VioletPoolControllerDiscovery:
         """Return list of discovered devices.
 
         Returns:
-            Dictionary of discovered devices.
+            Dictionary of discovered devices with connection info.
         """
-        return {
-            name: {
-                "host": info.host,
-                "port": info.port,
-                "hostname": info.hostname,
-                "name": info.name,
-                "type": info.type,
-            }
-            for name, info in self._discovered_devices.items()
-        }
+        return dict(self._discovered_devices)  # Return a copy
 
     def clear_discovered_devices(self) -> None:
         """Clear all discovered devices."""

@@ -448,8 +448,12 @@ def async_zeroconf_get_service_info(
     hass: HomeAssistant,
     info: ZeroconfServiceInfo,
     service_info_type: str,
-) -> config_entries.ConfigFlow:
+) -> None:
     """Handle ZeroConf discovery of Violet Pool Controller.
+
+    This function is called by Home Assistant when a matching ZeroConf service
+    is discovered on the network. It stores the device information for later
+    use in the config flow.
 
     Args:
         hass: The Home Assistant instance.
@@ -457,15 +461,17 @@ def async_zeroconf_get_service_info(
         service_info_type: The service type.
 
     Returns:
-        Config entry flow handler.
+        None. Device info is stored for later retrieval by the config flow.
     """
     from .discovery import get_discovery_handler
 
     _LOGGER.info("ZeroConf discovery triggered for %s", info.name)
 
-    # Get discovery handler
+    # Get discovery handler and store the device info
     handler = get_discovery_handler()
+    handler.async_discover_service(hass, info)
 
-    # Return flow handler with discovered device info
-    return handler.async_discover_service(hass, info)
+    # Note: No return value needed. Home Assistant will automatically
+    # show discovered devices in the UI and start the config flow when
+    # the user clicks "Configure".
 
