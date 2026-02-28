@@ -11,12 +11,15 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- 📝 Release v1.0.3-alpha.1 - Update changelog and version files (1c31c4f)
 - Update Quality Scale Progress - Bronze Level 100% Complete (c041aad)
 - Update Quality Scale progress - Type Hints completed (cc1a922)
 - 📝 Release v1.0.2 - Update changelog and version files (c2bb382)
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- /fix-config-flow-handler (b401866)
+- Fix config flow handler not found by adding domain=DOMAIN (9181762)
 - Fix HA 2026 compatibility and complete Gold Level testing (58fa568)
 - Fix ZeroConf Discovery - 100% Tests Passing! ✅ (032d79e)
 - Fix Gold Level imports and test issues (8201f6e)
@@ -87,4 +90,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-02-28 18:49:22 UTC_
+_Generated automatically by GitHub Actions on 2026-02-28 19:54:21 UTC_
