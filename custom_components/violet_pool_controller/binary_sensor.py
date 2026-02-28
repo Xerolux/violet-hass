@@ -21,13 +21,6 @@ from .entity import VioletPoolControllerEntity, interpret_state_as_bool
 
 _LOGGER = logging.getLogger(__name__)
 
-# Cover State Constants
-COVER_STATE_CLOSED = 2
-
-# String representations of cover states
-COVER_CLOSED_STRINGS = {"CLOSED", "2", "GESCHLOSSEN"}
-COVER_OPEN_STRINGS = {"OPEN", "1", "OFFEN"}
-
 # Feature mapping für Binary Sensors
 BINARY_SENSOR_FEATURE_MAP = {
     "PUMP": "filter_control",
@@ -40,9 +33,6 @@ BINARY_SENSOR_FEATURE_MAP = {
     "DOS_4_PHM": "ph_control",
     "DOS_5_PHP": "ph_control",
     "DOS_6_FLOC": "chlorine_control",
-    "COVER_OPEN": "cover_control",
-    "COVER_CLOSE": "cover_control",
-    "COVER_STATE": "cover_control",
     "REFILL": "water_refill",
     "PVSURPLUS": "pv_surplus",
 }
@@ -136,104 +126,6 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
         }
 
 
-class CoverIsClosedBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
-    """Sensor indicating if the cover is closed."""
-
-    def __init__(
-        self,
-        coordinator: VioletPoolDataUpdateCoordinator,
-        config_entry: ConfigEntry,
-    ) -> None:
-        """
-        Initialize the cover closed sensor.
-
-        Args:
-            coordinator: The update coordinator.
-            config_entry: The config entry.
-        """
-        description = BinarySensorEntityDescription(
-            key="cover_is_closed",
-            name="Cover Geschlossen",
-            device_class=BinarySensorDeviceClass.DOOR,
-            icon="mdi:window-shutter",
-        )
-        super().__init__(coordinator, config_entry, description)
-
-        _LOGGER.debug(
-            "Initialisiere Cover-Geschlossen Sensor: %s", self._attr_unique_id
-        )
-
-    @property
-    def is_on(self) -> bool:
-        """
-        Return True if the cover is closed.
-
-        Returns:
-            True if closed, False otherwise.
-        """
-        if not self.coordinator.data:
-            return False
-
-        cover_state = self.coordinator.data.get("COVER_STATE")
-        return self._is_cover_closed(cover_state)
-
-    def _is_cover_closed(self, cover_state: Any) -> bool:
-        """
-        Check if the cover is closed.
-
-        Args:
-            cover_state: The raw cover state.
-
-        Returns:
-            True if closed, False otherwise.
-        """
-        if cover_state is None:
-            return False
-
-        # Integer check
-        if isinstance(cover_state, int):
-            return cover_state == COVER_STATE_CLOSED
-
-        # String check
-        if isinstance(cover_state, str):
-            return cover_state.upper().strip() in COVER_CLOSED_STRINGS
-
-        # Try conversion
-        try:
-            return int(cover_state) == COVER_STATE_CLOSED
-        except (ValueError, TypeError):
-            _LOGGER.warning("Unbekannter Cover State Type: %s", type(cover_state))
-            return False
-
-    @property
-    def icon(self) -> str:
-        """
-        Return icon based on cover state.
-
-        Returns:
-            The icon string.
-        """
-        return "mdi:window-shutter" if self.is_on else "mdi:window-shutter-open"
-
-    @property
-    def extra_state_attributes(self) -> dict[str, Any]:
-        """
-        Return additional state attributes.
-
-        Returns:
-            A dictionary of attributes.
-        """
-        if not self.coordinator.data:
-            return {}
-
-        cover_state = self.coordinator.data.get("COVER_STATE")
-        return {
-            "raw_state": str(cover_state),
-            "state_type": type(cover_state).__name__,
-            "is_closed": self.is_on,
-        }
-
-
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: ConfigEntry,
@@ -315,11 +207,6 @@ async def async_setup_entry(
 
         _LOGGER.debug("Erstelle Binary Sensor: %s", description.name)
         entities.append(VioletBinarySensor(coordinator, config_entry, description))
-
-    # Add cover closed sensor if cover control is active
-    if "cover_control" in active_features:
-        _LOGGER.debug("Erstelle Cover-Geschlossen Sensor")
-        entities.append(CoverIsClosedBinarySensor(coordinator, config_entry))
 
     if entities:
         async_add_entities(entities)
