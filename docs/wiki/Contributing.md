@@ -37,7 +37,7 @@ Beiträge sind herzlich willkommen – egal ob Bug-Reports, Feature-Requests, Do
 
 2. ENVIRONMENT
    - Home Assistant Version: 2026.x.x (Minimum: 2025.12.0)
-   - Integration Version: 1.0.2-beta.5
+   - Integration Version: 1.0.3-alpha.1
    - Controller Firmware: x.x.x
    - Python Version: 3.12+
 
