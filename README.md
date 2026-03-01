@@ -234,23 +234,24 @@ Die Integration bietet spezialisierte Services für erweiterte Automatisierung:
 <details>
 <summary><strong>🔧 Kern-Services</strong> (Klicken zum Erweitern)</summary>
 
-#### `violet_pool_controller.turn_auto`
-Gerät in Automatikmodus schalten:
+#### `violet_pool_controller.control_pump`
+Pumpe in Automatikmodus schalten:
 ```yaml
-service: violet_pool_controller.turn_auto
+service: violet_pool_controller.control_pump
 target:
   entity_id: switch.pool_pump
 data:
-  auto_delay: 30  # Optional: Verzögerung in Sekunden
+  action: auto
 ```
 
-#### `violet_pool_controller.set_pv_surplus`
+#### `violet_pool_controller.manage_pv_surplus`
 Solar-Überschuss-Modus aktivieren:
 ```yaml
-service: violet_pool_controller.set_pv_surplus
+service: violet_pool_controller.manage_pv_surplus
 target:
   entity_id: switch.pv_surplus_mode
 data:
+  mode: activate
   pump_speed: 2   # Geschwindigkeitsstufe 1-3
 ```
 </details>
@@ -258,14 +259,16 @@ data:
 <details>
 <summary><strong>🧪 Chemie-Services</strong> (Klicken zum Erweitern)</summary>
 
-#### `violet_pool_controller.manual_dosing`
+#### `violet_pool_controller.smart_dosing`
 Manuelle Dosierung auslösen:
 ```yaml
-service: violet_pool_controller.manual_dosing
+service: violet_pool_controller.smart_dosing
 target:
   entity_id: switch.ph_dosing_minus
 data:
-  duration_seconds: 30  # Dosierdauer
+  dosing_type: "pH-"
+  action: manual_dose
+  duration: 30  # Dosierdauer in Sekunden
 ```
 </details>
 
@@ -335,11 +338,11 @@ data:
       entity_id: sensor.pv_power_export
       above: 2000  # Watt
   action:
-    - service: violet_pool_controller.set_pv_surplus
+    - service: violet_pool_controller.manage_pv_surplus
       target:
         entity_id: switch.pv_surplus_mode
       data:
-        active: true
+        mode: activate
         pump_speed: 2
 ```
 
@@ -477,7 +480,7 @@ Einstellungen → Automatisierungen & Szenen → Blueprints → Blueprint import
 Nutze den integrierten Diagnostic-Service:
 
 ```yaml
-service: violet_pool_controller.export_diagnostic_info
+service: violet_pool_controller.export_diagnostic_logs
 data:
   device_id:
     - "deine_controller_id"
@@ -490,6 +493,15 @@ Dieser erstellt eine detaillierte Log-Datei mit:
 - ✅ Aktive Fehler
 - ✅ Laufzeiten
 - ✅ Historie der letzten 24h
+
+#### **Weitere Diagnose-Services**
+
+Die Integration bietet zusätzliche Services zur gezielten Fehleranalyse:
+
+- `violet_pool_controller.get_connection_status`: Detaillierte Verbindungsmetriken und Gesundheitsstatus.
+- `violet_pool_controller.get_error_summary`: Zusammenfassung aktueller Fehler mit Lösungsvorschlägen.
+- `violet_pool_controller.test_connection`: Direkter Verbindungstest zum Controller mit Latenzmessung.
+- `violet_pool_controller.clear_error_history`: Löscht die Fehlerhistorie nach erfolgreicher Behebung.
 
 #### **Live API-Test**
 
