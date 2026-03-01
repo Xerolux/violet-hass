@@ -8,7 +8,7 @@ consistently interpret and manage device states throughout the integration.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, cast
+from typing import Any, cast
 
 # =============================================================================
 # DEVICE PARAMETERS - Extended Configuration
@@ -217,7 +217,7 @@ STATE_TRANSLATIONS = {
 # =============================================================================
 
 
-def get_device_state_info(raw_state: Any) -> Dict[str, Any]:
+def get_device_state_info(raw_state: Any) -> dict[str, Any]:
     """Get extended state information for a given raw state.
 
     Handles plain numeric states ("2"), pipe-separated composite states
@@ -227,20 +227,20 @@ def get_device_state_info(raw_state: Any) -> Dict[str, Any]:
 
     # Direct lookup first (handles exact matches like "3|PUMP_ANTI_FREEZE")
     if state_str in DEVICE_STATE_MAPPING:
-        return cast(Dict[str, Any], DEVICE_STATE_MAPPING[state_str])
+        return cast(dict[str, Any], DEVICE_STATE_MAPPING[state_str])
 
     # Handle pipe-separated composite states by extracting numeric prefix
     if "|" in state_str:
         prefix = state_str.split("|", 1)[0].strip()
         if prefix in DEVICE_STATE_MAPPING:
-            return cast(Dict[str, Any], DEVICE_STATE_MAPPING[prefix])
+            return cast(dict[str, Any], DEVICE_STATE_MAPPING[prefix])
 
     # Handle empty arrays (e.g., SOLARSTATE = "[]")
     if state_str in ("[]", "{}", ""):
         return {"mode": "unknown", "active": None, "desc": "Keine Daten"}
 
     return cast(
-        Dict[str, Any],
+        dict[str, Any],
         {"mode": "unknown", "active": None, "desc": f"Unknown: {raw_state}"},
     )
 
@@ -266,10 +266,10 @@ class VioletState:
 
     Attributes:
         raw_state (str): The original state value from the controller.
-        device_key (Optional[str]): The unique key of the device.
+        device_key (str | None): The unique key of the device.
     """
 
-    def __init__(self, raw_state: Any, device_key: Optional[str] = None):
+    def __init__(self, raw_state: Any, device_key: str | None = None):
         self.raw_state = str(raw_state).strip()
         self.device_key = device_key
         self._info = get_device_state_info(self.raw_state)
@@ -280,9 +280,9 @@ class VioletState:
         return cast(str, self._info["mode"])
 
     @property
-    def is_active(self) -> Optional[bool]:
+    def is_active(self) -> bool | None:
         """Whether the device is currently active (running)."""
-        return cast(Optional[bool], self._info["active"])
+        return cast(bool | None, self._info["active"])
 
     @property
     def description(self) -> str:

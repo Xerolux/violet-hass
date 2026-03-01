@@ -12,7 +12,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from typing import Any, Iterable
+from typing import Any, Iterable, cast
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
@@ -536,8 +536,6 @@ class VioletServiceHandlers:
 
                     # Set safety lock
                     if not safety_override:
-                        from typing import cast
-
                         safety_interval = cast(
                             int,
                             DEVICE_PARAMETERS.get(device_key, {}).get(

@@ -6,7 +6,7 @@ import asyncio
 import logging
 import time
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 import aiohttp
 
@@ -57,8 +57,8 @@ class VioletPoolControllerError(Exception):
         self,
         message: str,
         code: str,
-        details: Optional[dict[str, Any]] = None,
-        original_exception: Optional[Exception] = None,
+        details: dict[str, Any] | None = None,
+        original_exception: Exception | None = None,
     ):
         """
         Initialize error with consistent structure.
@@ -96,7 +96,7 @@ class NetworkError(VioletPoolControllerError):
         self,
         message: str,
         code: str = VioletErrorCodes.NETWORK_CONNECTION_ERROR,
-        original_exception: Optional[Exception] = None,
+        original_exception: Exception | None = None,
     ):
         details = {
             "error_type": "network",
@@ -114,8 +114,8 @@ class APIError(VioletPoolControllerError):
         self,
         message: str,
         endpoint: str,
-        status_code: Optional[int] = None,
-        original_exception: Optional[Exception] = None,
+        status_code: int | None = None,
+        original_exception: Exception | None = None,
     ):
         code = VioletErrorCodes.API_CONNECTION_FAILED
         if status_code:
@@ -138,7 +138,7 @@ class AuthenticationError(VioletPoolControllerError):
         self,
         message: str,
         code: str = VioletErrorCodes.AUTH_INVALID_CREDENTIALS,
-        original_exception: Optional[Exception] = None,
+        original_exception: Exception | None = None,
     ):
         details = {
             "error_type": "authentication",
@@ -154,7 +154,7 @@ class ValidationError(VioletPoolControllerError):
         message: str,
         parameter_name: str,
         value: Any,
-        original_exception: Optional[Exception] = None,
+        original_exception: Exception | None = None,
     ):
         code = VioletErrorCodes.CONFIG_INVALID_PARAMETER
         details = {
@@ -173,7 +173,7 @@ class CircuitBreakerError(VioletPoolControllerError):
         message: str,
         state: str,
         failure_count: int,
-        original_exception: Optional[Exception] = None,
+        original_exception: Exception | None = None,
     ):
         code = VioletErrorCodes.CIRCUIT_BREAKER_OPEN
         details = {
