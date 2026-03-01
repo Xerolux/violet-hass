@@ -15,7 +15,7 @@ from custom_components.violet_pool_controller.const import (
     CONF_USE_SSL,
     DOMAIN,
 )
-from custom_components.violet_pool_controller.climate import VioletClimate
+from custom_components.violet_pool_controller.climate import VioletClimateEntity
 from custom_components.violet_pool_controller.cover import VioletCover
 from custom_components.violet_pool_controller.switch import VioletSwitch
 from custom_components.violet_pool_controller.number import VioletNumber
@@ -97,7 +97,7 @@ class TestClimateErrorHandling:
 
     def test_climate_with_no_data(self, mock_coordinator_error, config_entry):
         """Test climate handles None data gracefully."""
-        climate = VioletClimate(
+        climate = VioletClimateEntity(
             mock_coordinator_error,
             config_entry,
             climate_type="HEATER",
@@ -114,7 +114,7 @@ class TestClimateErrorHandling:
             "HEATER_TARGET_TEMP": "not_a_number",
         }
 
-        climate = VioletClimate(
+        climate = VioletClimateEntity(
             mock_coordinator_error,
             config_entry,
             climate_type="HEATER",
@@ -130,7 +130,7 @@ class TestClimateErrorHandling:
             "HEATER": None,  # Invalid state
         }
 
-        climate = VioletClimate(
+        climate = VioletClimateEntity(
             mock_coordinator_error,
             config_entry,
             climate_type="HEATER",
@@ -273,7 +273,7 @@ class TestCoordinatorErrors:
 
         # Create entities with failed coordinator
         cover = VioletCover(coordinator, config_entry)
-        climate = VioletClimate(coordinator, config_entry, climate_type="HEATER")
+        climate = VioletClimateEntity(coordinator, config_entry, climate_type="HEATER")
 
         # Entities should still be functional, just showing unavailable state
         assert cover.available is False
@@ -338,7 +338,7 @@ class TestEntityErrorStates:
         mock_coordinator_error.data = {}
 
         cover = VioletCover(mock_coordinator_error, config_entry)
-        climate = VioletClimate(mock_coordinator_error, config_entry, climate_type="HEATER")
+        climate = VioletClimateEntity(mock_coordinator_error, config_entry, climate_type="HEATER")
 
         # Should not crash
         cover_attrs = cover.extra_state_attributes
@@ -356,7 +356,7 @@ class TestEntityErrorStates:
         }
 
         cover = VioletCover(mock_coordinator_error, config_entry)
-        climate = VioletClimate(mock_coordinator_error, config_entry, climate_type="HEATER")
+        climate = VioletClimateEntity(mock_coordinator_error, config_entry, climate_type="HEATER")
 
         # Should handle None values gracefully
         assert cover.is_open is False  # Safe default
