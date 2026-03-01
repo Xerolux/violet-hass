@@ -451,11 +451,19 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 "API error setting switch %s to %s: %s", key, action, err
             )
             self._optimistic_state = None
-            raise HomeAssistantError(f"Switch action failed: {err}") from err
+            raise HomeAssistantError(
+                translation_key="api_error",
+                translation_domain=DOMAIN,
+                translation_placeholders={"detail": str(err)},
+            ) from err
         except Exception as err:
             _LOGGER.error("Unexpected error setting switch %s: %s", key, err)
             self._optimistic_state = None
-            raise HomeAssistantError(f"Switch error: {err}") from err
+            raise HomeAssistantError(
+                translation_key="unexpected_error",
+                translation_domain=DOMAIN,
+                translation_placeholders={"detail": str(err)},
+            ) from err
 
     async def _delayed_refresh(self, key: str) -> None:
         """

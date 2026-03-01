@@ -8,6 +8,7 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.components.zeroconf import ZeroconfServiceInfo
 from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client, selector
@@ -74,14 +75,14 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
         self._config_data: dict[str, Any] = {}
         self._sensor_data: dict[str, list[str]] = {}
         self._reauth_entry: config_entries.ConfigEntry | None = None
-        _LOGGER.info("Violet Pool Controller Setup gestartet")
+        _LOGGER.info("Violet Pool Controller setup started")
 
     @staticmethod
     @callback
     def async_get_options_flow(
         config_entry: config_entries.ConfigEntry,
     ) -> config_entries.OptionsFlow:
-        """Options Flow zurückgeben."""
+        """Return the options flow handler."""
         return OptionsFlowHandler()
 
     async def async_step_user(
@@ -409,6 +410,77 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
                 ),
                 "api_url": self._reauth_entry.data.get(CONF_API_URL),
             },
+        )
+
+    async def async_step_zeroconf(
+        self, discovery_info: ZeroconfServiceInfo
+    ) -> ConfigFlowResult:
+        """Handle zeroconf discovery of a Violet Pool Controller.
+
+        Args:
+            discovery_info: The zeroconf service discovery info.
+
+        Returns:
+            The flow result.
+        """
+        host = discovery_info.host
+        name = discovery_info.name
+
+        _LOGGER.info(
+            "Zeroconf discovery: Violet Pool Controller '%s' at %s", name, host
+        )
+
+        # Check if this host is already configured
+        await self.async_set_unique_id(host)
+        self._abort_if_unique_id_configured(
+            updates={CONF_API_URL: host},
+            reload_on_update=True,
+        )
+
+        # Store discovered info for the confirmation step
+        self._config_data = {
+            CONF_API_URL: host,
+            CONF_USE_SSL: DEFAULT_USE_SSL,
+            CONF_DEVICE_NAME: name.split(".")[0] if "." in name else name,
+            CONF_CONTROLLER_NAME: DEFAULT_CONTROLLER_NAME,
+            CONF_USERNAME: "",
+            CONF_PASSWORD: "",
+            CONF_DEVICE_ID: 1,
+            CONF_POLLING_INTERVAL: DEFAULT_POLLING_INTERVAL,
+            CONF_TIMEOUT_DURATION: DEFAULT_TIMEOUT_DURATION,
+            CONF_RETRY_ATTEMPTS: DEFAULT_RETRY_ATTEMPTS,
+        }
+
+        self.context["title_placeholders"] = {
+            "name": name,
+            "host": host,
+        }
+
+        return await self.async_step_zeroconf_confirm()
+
+    async def async_step_zeroconf_confirm(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Confirm zeroconf discovered Violet Pool Controller.
+
+        Args:
+            user_input: The user input dictionary.
+
+        Returns:
+            The flow result.
+        """
+        if user_input is not None:
+            if await self._test_connection():
+                return await self.async_step_pool_setup()
+            return self.async_show_form(
+                step_id="zeroconf_confirm",
+                description_placeholders=self.context.get("title_placeholders", {}),
+                errors={"base": constants.ERROR_CANNOT_CONNECT},
+            )
+
+        return self.async_show_form(
+            step_id="zeroconf_confirm",
+            description_placeholders=self.context.get("title_placeholders", {}),
         )
 
     async def async_step_reconfigure(
@@ -834,7 +906,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
         """
         schema = {}
         for group, sensors in self._sensor_data.items():
-            # Erstelle Optionen mit freundlichen Namen
+            # Create options with friendly names
             options = [
                 selector.SelectOptionDict(
                     value=sensor,
@@ -843,8 +915,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
                 for sensor in sensors
             ]
 
-            # Standardmäßig ALLE auswählen, damit der User sieht was er bekommt
-            # und explizit abwählen muss. Das verhindert Verwirrung.
+            # Pre-select ALL sensors so the user can see what they get
+            # and explicitly deselect. This prevents confusion.
             schema[vol.Optional(group, default=sensors)] = selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=options,
@@ -936,7 +1008,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             self._updated_options[CONF_ACTIVE_FEATURES] = selected_features
 
             _LOGGER.info(
-                "Features in Optionen aktualisiert: %s", ", ".join(selected_features)
+                "Features updated in options: %s", ", ".join(selected_features)
             )
 
             # Merge with existing options and create entry

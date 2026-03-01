@@ -279,17 +279,25 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                 error_msg = result.get("response", "Unknown error")
                 _LOGGER.warning("Failed to set temperature: %s", error_msg)
                 raise HomeAssistantError(
-                    f"Failed to set temperature: {error_msg}"
+                    translation_key="failed_to_set_value",
+                    translation_domain=DOMAIN,
+                    translation_placeholders={"detail": str(error_msg)},
                 )
 
         except VioletPoolAPIError as err:
             _LOGGER.error("API error setting temperature: %s", err)
             raise HomeAssistantError(
-                f"Failed to set temperature: {err}"
+                translation_key="api_error",
+                translation_domain=DOMAIN,
+                translation_placeholders={"detail": str(err)},
             ) from err
         except Exception as err:
             _LOGGER.error("Unexpected error: %s", err)
-            raise HomeAssistantError(f"Temperature error: {err}") from err
+            raise HomeAssistantError(
+                translation_key="unexpected_error",
+                translation_domain=DOMAIN,
+                translation_placeholders={"detail": str(err)},
+            ) from err
 
     async def async_set_hvac_mode(self, hvac_mode: HVACMode) -> None:
         """Set the HVAC mode."""
@@ -334,17 +342,25 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                 error_msg = result.get("response", "Unknown error")
                 _LOGGER.warning("Failed to set HVAC mode: %s", error_msg)
                 raise HomeAssistantError(
-                    f"Failed to set HVAC mode: {error_msg}"
+                    translation_key="failed_to_set_value",
+                    translation_domain=DOMAIN,
+                    translation_placeholders={"detail": str(error_msg)},
                 )
 
         except VioletPoolAPIError as err:
             _LOGGER.error("API error setting HVAC mode: %s", err)
             raise HomeAssistantError(
-                f"Failed to set HVAC mode: {err}"
+                translation_key="api_error",
+                translation_domain=DOMAIN,
+                translation_placeholders={"detail": str(err)},
             ) from err
         except Exception as err:
             _LOGGER.error("Unexpected error: %s", err)
-            raise HomeAssistantError(f"HVAC mode error: {err}") from err
+            raise HomeAssistantError(
+                translation_key="unexpected_error",
+                translation_domain=DOMAIN,
+                translation_placeholders={"detail": str(err)},
+            ) from err
 
     def _validate_temperature(self, temperature: float) -> bool:
         """Validate temperature is within the allowed range."""

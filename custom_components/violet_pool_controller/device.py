@@ -10,6 +10,7 @@ from collections.abc import Mapping
 from datetime import datetime, timedelta
 from typing import Any
 
+from homeassistant.components.repairs import IssueSeverity, async_create_issue, async_delete_issue
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
@@ -290,6 +291,21 @@ class VioletPoolControllerDevice:
                         )
                         self._available = False
 
+                        # Create a repair issue so users are notified in HA UI
+                        async_create_issue(
+                            self.hass,
+                            DOMAIN,
+                            f"controller_unavailable_{self.config_entry.entry_id}",
+                            is_fixable=True,
+                            is_persistent=True,
+                            severity=IssueSeverity.ERROR,
+                            translation_key="controller_unavailable",
+                            translation_placeholders={
+                                "name": self.device_name,
+                                "failures": str(self._consecutive_failures),
+                            },
+                        )
+
                         raise UpdateFailed(
                             f"Controller '{self.device_name}' unreachable "
                             f"({self._consecutive_failures} failures)"
@@ -321,6 +337,13 @@ class VioletPoolControllerDevice:
                     )
                     self._recovery_logged = True
                     self._first_failure_logged = False
+
+                    # Delete the repair issue when controller is available again
+                    async_delete_issue(
+                        self.hass,
+                        DOMAIN,
+                        f"controller_unavailable_{self.config_entry.entry_id}",
+                    )
 
                 # ✅ FIX: Always replace _data with a fresh dict to ensure
                 # HA's DataUpdateCoordinator detects the change.

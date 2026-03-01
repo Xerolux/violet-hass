@@ -167,7 +167,9 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                 self.entity_description.name,
             )
             raise HomeAssistantError(
-                f"No API key defined for {self.entity_description.name}"
+                translation_key="no_api_key",
+                translation_domain=DOMAIN,
+                translation_placeholders={"entity": str(self.entity_description.name)},
             )
 
         try:
@@ -192,7 +194,11 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                 value,
                 err,
             )
-            raise HomeAssistantError(f"Invalid value: {err}") from err
+            raise HomeAssistantError(
+                translation_key="invalid_value",
+                translation_domain=DOMAIN,
+                translation_placeholders={"detail": str(err)},
+            ) from err
 
         if (
             sanitized_value < self._attr_native_min_value
@@ -206,8 +212,13 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                 self.entity_description.name,
             )
             raise HomeAssistantError(
-                f"Value {sanitized_value} outside valid range "
-                f"({self._attr_native_min_value}-{self._attr_native_max_value})"
+                translation_key="value_out_of_range",
+                translation_domain=DOMAIN,
+                translation_placeholders={
+                    "value": str(sanitized_value),
+                    "min": str(self._attr_native_min_value),
+                    "max": str(self._attr_native_max_value),
+                },
             )
 
         try:
@@ -301,7 +312,11 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                     self.entity_description.name,
                     error_msg,
                 )
-                raise HomeAssistantError(f"Failed to set value: {error_msg}")
+                raise HomeAssistantError(
+                    translation_key="failed_to_set_value",
+                    translation_domain=DOMAIN,
+                    translation_placeholders={"detail": str(error_msg)},
+                )
 
         except VioletPoolAPIError as err:
             _LOGGER.error(
@@ -310,7 +325,11 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                 value,
                 err,
             )
-            raise HomeAssistantError(f"Failed to set value: {err}") from err
+            raise HomeAssistantError(
+                translation_key="api_error",
+                translation_domain=DOMAIN,
+                translation_placeholders={"detail": str(err)},
+            ) from err
 
         except Exception as err:
             _LOGGER.exception(
@@ -319,7 +338,11 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                 value,
                 err,
             )
-            raise HomeAssistantError(f"Unexpected error: {err}") from err
+            raise HomeAssistantError(
+                translation_key="unexpected_error",
+                translation_domain=DOMAIN,
+                translation_placeholders={"detail": str(err)},
+            ) from err
 
 
 async def async_setup_entry(

@@ -131,6 +131,10 @@
                     "timeout_duration": "Maximale Wartezeit pro Anfrage",
                     "retry_attempts": "Anzahl Wiederholungsversuche"
                 }
+            },
+            "zeroconf_confirm": {
+                "title": "Violet Pool Controller gefunden",
+                "description": "Ein Violet Pool Controller wurde im Netzwerk entdeckt.\n\nName: **{name}**\nIP-Adresse: **{host}**\n\nMöchtest du diesen Controller jetzt einrichten?"
             }
         },
         "error": {
@@ -156,7 +160,9 @@
             "invalid_auth": "Ungültige Anmeldedaten",
             "agreement_declined": "Sicherheitshinweise nicht akzeptiert",
             "reauth_successful": "Reauthentifizierung erfolgreich",
+            "reauth_failed": "Reauthentifizierung fehlgeschlagen",
             "reconfigure_successful": "Neukonfiguration erfolgreich",
+            "already_in_progress": "Einrichtung läuft bereits",
             "unknown": "Unbekannter Fehler"
         }
     },
@@ -184,6 +190,38 @@
                 "title": "Allgemeine Einstellungen",
                 "description": "Passe die technischen Parameter an\n\nPolling-Intervall: Wie oft Daten abgerufen werden\nTimeout: Maximale Wartezeit für Antworten\nWiederholungen: Anzahl Retry-Versuche\n\nStandard-Werte funktionieren für die meisten Setups!"
             }
+        }
+    },
+    "exceptions": {
+        "api_error": {
+            "message": "API-Kommunikationsfehler: {detail}"
+        },
+        "invalid_value": {
+            "message": "Ungültiger Wert: {detail}"
+        },
+        "value_out_of_range": {
+            "message": "Wert {value} liegt außerhalb des gültigen Bereichs ({min}–{max})"
+        },
+        "failed_to_set_value": {
+            "message": "Wert konnte nicht gesetzt werden: {detail}"
+        },
+        "no_api_key": {
+            "message": "Kein API-Schlüssel für Entität {entity} konfiguriert"
+        },
+        "invalid_action": {
+            "message": "Ungültige Aktion: {action}"
+        },
+        "unexpected_error": {
+            "message": "Unerwarteter Fehler: {detail}"
+        },
+        "controller_unavailable": {
+            "message": "Pool-Controller {name} ist nach {failures} aufeinanderfolgenden Fehlern nicht erreichbar"
+        }
+    },
+    "issues": {
+        "controller_unavailable": {
+            "title": "Pool-Controller nicht erreichbar",
+            "description": "Der Pool-Controller **{name}** ist seit {failures} aufeinanderfolgenden Abrufzyklen nicht erreichbar.\n\nBitte prüfe:\n- Ist der Controller eingeschaltet?\n- Ist die Netzwerkverbindung in Ordnung?\n- Ist die IP-Adresse noch korrekt?\n\nSobald der Controller wieder erreichbar ist, wird dieses Problem automatisch behoben."
         }
     },
     "services": {

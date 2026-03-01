@@ -1,0 +1,167 @@
+{
+    "entity": {
+        "sensor": {
+            "ph_value": {
+                "default": "mdi:flask"
+            },
+            "orp_value": {
+                "default": "mdi:lightning-bolt"
+            },
+            "pot_value": {
+                "default": "mdi:water-check"
+            },
+            "onewire1_value": {
+                "default": "mdi:thermometer-water"
+            },
+            "onewire2_value": {
+                "default": "mdi:thermometer"
+            },
+            "firmware_version": {
+                "default": "mdi:package-up"
+            },
+            "system_health": {
+                "default": "mdi:heart-pulse"
+            },
+            "connection_latency": {
+                "default": "mdi:timer-outline"
+            },
+            "last_event_age": {
+                "default": "mdi:clock-outline"
+            },
+            "api_request_rate": {
+                "default": "mdi:chart-line"
+            },
+            "average_latency": {
+                "default": "mdi:timer-sand"
+            },
+            "recovery_success_rate": {
+                "default": "mdi:reload-alert"
+            }
+        },
+        "binary_sensor": {
+            "pump_state": {
+                "default": "mdi:pump",
+                "state": {
+                    "on": "mdi:pump",
+                    "off": "mdi:pump-off"
+                }
+            },
+            "heater_state": {
+                "default": "mdi:radiator",
+                "state": {
+                    "on": "mdi:radiator",
+                    "off": "mdi:radiator-off"
+                }
+            },
+            "solar_state": {
+                "default": "mdi:solar-power",
+                "state": {
+                    "on": "mdi:solar-power",
+                    "off": "mdi:solar-power-variant-outline"
+                }
+            },
+            "cover_is_closed": {
+                "default": "mdi:window-shutter",
+                "state": {
+                    "on": "mdi:window-shutter",
+                    "off": "mdi:window-shutter-open"
+                }
+            }
+        },
+        "switch": {
+            "pump": {
+                "default": "mdi:pump",
+                "state": {
+                    "on": "mdi:pump",
+                    "off": "mdi:pump-off"
+                }
+            },
+            "heater": {
+                "default": "mdi:radiator",
+                "state": {
+                    "on": "mdi:radiator",
+                    "off": "mdi:radiator-off"
+                }
+            },
+            "solar": {
+                "default": "mdi:solar-power",
+                "state": {
+                    "on": "mdi:solar-power",
+                    "off": "mdi:solar-power-variant-outline"
+                }
+            },
+            "light": {
+                "default": "mdi:lightbulb",
+                "state": {
+                    "on": "mdi:lightbulb-on",
+                    "off": "mdi:lightbulb-off"
+                }
+            }
+        },
+        "climate": {
+            "heater": {
+                "default": "mdi:radiator"
+            },
+            "solar": {
+                "default": "mdi:solar-power"
+            }
+        },
+        "cover": {
+            "cover_state": {
+                "default": "mdi:window-shutter",
+                "state": {
+                    "open": "mdi:window-shutter-open",
+                    "closed": "mdi:window-shutter",
+                    "opening": "mdi:window-shutter-auto",
+                    "closing": "mdi:window-shutter-auto"
+                }
+            }
+        },
+        "number": {
+            "ph_target": {
+                "default": "mdi:flask"
+            },
+            "orp_target": {
+                "default": "mdi:lightning-bolt"
+            },
+            "min_chlorine": {
+                "default": "mdi:water-check"
+            },
+            "heater_target_temp": {
+                "default": "mdi:thermometer"
+            },
+            "solar_target_temp": {
+                "default": "mdi:thermometer-sun"
+            },
+            "pump_speed": {
+                "default": "mdi:speedometer"
+            }
+        }
+    },
+    "services": {
+        "turn_auto": {
+            "service": "mdi:robot"
+        },
+        "set_pv_surplus": {
+            "service": "mdi:solar-power"
+        },
+        "manual_dosing": {
+            "service": "mdi:water-plus"
+        },
+        "test_output": {
+            "service": "mdi:test-tube"
+        },
+        "set_temperature_target": {
+            "service": "mdi:thermometer"
+        },
+        "set_ph_target": {
+            "service": "mdi:flask"
+        },
+        "set_chlorine_target": {
+            "service": "mdi:water-check"
+        },
+        "trigger_backwash": {
+            "service": "mdi:refresh"
+        }
+    }
+}

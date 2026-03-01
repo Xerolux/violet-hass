@@ -101,6 +101,22 @@
             "sensor_selection": {
                 "title": "📊 Sensoren auswählen",
                 "description": "**DE:** Wähle die Sensoren aus, die du in Home Assistant sehen möchtest. Du kannst einzelne Sensoren aktivieren oder deaktivieren, um die Übersicht zu verbessern.\n**EN:** Choose which sensors you want to see in Home Assistant. Enable or disable individual sensors to keep your dashboard clean and focused.\n\n💡 **Tipp:** Standardmäßig sind alle verfügbaren Sensoren ausgewählt. Du kannst diese Auswahl jederzeit in den Optionen anpassen."
+            },
+            "reauth_confirm": {
+                "title": "Controller neu authentifizieren / Reauthenticate Controller",
+                "description": "**DE:** Die Zugangsdaten des Controllers müssen aktualisiert werden.\n**EN:** The controller credentials need to be updated.\n\nController: **{controller_name}**\nIP: **{api_url}**",
+                "data": {
+                    "username": "👤 Benutzername / Username",
+                    "password": "🔐 Passwort / Password"
+                },
+                "data_description": {
+                    "username": "DE: Neuer Benutzername · EN: New username for authentication",
+                    "password": "DE: Neues Passwort · EN: New password for authentication"
+                }
+            },
+            "zeroconf_confirm": {
+                "title": "🔍 Violet Pool Controller gefunden / Found",
+                "description": "**DE:** Ein Violet Pool Controller wurde im Netzwerk gefunden.\n**EN:** A Violet Pool Controller was discovered on the network.\n\nName: **{name}**\nIP: **{host}**\n\n**DE:** Möchtest du diesen Controller jetzt einrichten?\n**EN:** Do you want to set up this controller now?"
             }
         },
         "error": {
@@ -125,6 +141,10 @@
             "cannot_connect": "🔌 Verbindung fehlgeschlagen",
             "invalid_auth": "🔐 Ungültige Anmeldedaten",
             "agreement_declined": "⚠️ Sicherheitshinweise nicht akzeptiert",
+            "reauth_successful": "✅ Reauthentifizierung erfolgreich / Reauthentication successful",
+            "reauth_failed": "❌ Reauthentifizierung fehlgeschlagen / Reauthentication failed",
+            "reconfigure_successful": "✅ Neukonfiguration erfolgreich / Reconfiguration successful",
+            "already_in_progress": "⏳ Einrichtung läuft bereits / Setup already in progress",
             "unknown": "❓ Unbekannter Fehler"
         }
     },
@@ -168,6 +188,38 @@
                     "force_update": "DE: Entities immer aktualisieren, auch wenn Wert gleich · EN: Always update entities even if value unchanged"
                 }
             }
+        }
+    },
+    "exceptions": {
+        "api_error": {
+            "message": "API communication error: {detail}"
+        },
+        "invalid_value": {
+            "message": "Invalid value: {detail}"
+        },
+        "value_out_of_range": {
+            "message": "Value {value} is outside the valid range ({min}–{max})"
+        },
+        "failed_to_set_value": {
+            "message": "Failed to set value: {detail}"
+        },
+        "no_api_key": {
+            "message": "No API key configured for entity {entity}"
+        },
+        "invalid_action": {
+            "message": "Invalid action: {action}"
+        },
+        "unexpected_error": {
+            "message": "Unexpected error: {detail}"
+        },
+        "controller_unavailable": {
+            "message": "Pool controller {name} is unavailable after {failures} consecutive failures"
+        }
+    },
+    "issues": {
+        "controller_unavailable": {
+            "title": "Pool Controller Unavailable",
+            "description": "The pool controller **{name}** has been unreachable for {failures} consecutive polling cycles.\n\nPlease check:\n- Is the controller powered on?\n- Is the network connection OK?\n- Is the IP address still correct?\n\nOnce the controller is reachable again, this issue will be resolved automatically."
         }
     },
     "services": {

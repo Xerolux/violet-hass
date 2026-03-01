@@ -205,13 +205,17 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
             HomeAssistantError: If the action fails.
         """
         if option not in self._attr_options:
-            raise HomeAssistantError(f"Ungültige Option: {option}")
+            raise HomeAssistantError(
+                translation_key="invalid_action",
+                translation_domain=DOMAIN,
+                translation_placeholders={"action": option},
+            )
 
         action = MODE_TO_ACTION[option]
 
         try:
             _LOGGER.info(
-                "Setze %s auf Modus '%s' (Action: %s)", self._device_key, option, action
+                "Setting %s to mode '%s' (action: %s)", self._device_key, option, action
             )
 
             # API call
@@ -221,7 +225,7 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
 
             if result.get("success") is True:
                 _LOGGER.debug(
-                    "%s erfolgreich auf Modus '%s' gesetzt", self._device_key, option
+                    "%s successfully set to mode '%s'", self._device_key, option
                 )
 
                 # Optimistic update
@@ -232,9 +236,9 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
                 task = asyncio.create_task(self._delayed_refresh())
                 task.add_done_callback(lambda t: self._handle_refresh_error(t))
             else:
-                error_msg = result.get("response", "Unbekannter Fehler")
+                error_msg = result.get("response", "Unknown error")
                 _LOGGER.warning(
-                    "%s Modus-Wechsel zu '%s' fehlgeschlagen: %s",
+                    "%s mode switch to '%s' failed: %s",
                     self._device_key,
                     option,
                     error_msg,
@@ -244,22 +248,30 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
 
         except VioletPoolAPIError as err:
             _LOGGER.error(
-                "API-Fehler beim Setzen von %s auf Modus '%s': %s",
+                "API error setting %s to mode '%s': %s",
                 self._device_key,
                 option,
                 err,
             )
             self._optimistic_mode = None
-            raise HomeAssistantError(f"Modus-Wechsel fehlgeschlagen: {err}") from err
+            raise HomeAssistantError(
+                translation_key="failed_to_set_value",
+                translation_domain=DOMAIN,
+                translation_placeholders={"detail": str(err)},
+            ) from err
         except Exception as err:
             _LOGGER.error(
-                "Unerwarteter Fehler beim Setzen von %s auf Modus '%s': %s",
+                "Unexpected error setting %s to mode '%s': %s",
                 self._device_key,
                 option,
                 err,
             )
             self._optimistic_mode = None
-            raise HomeAssistantError(f"Modus-Wechsel Fehler: {err}") from err
+            raise HomeAssistantError(
+                translation_key="unexpected_error",
+                translation_domain=DOMAIN,
+                translation_placeholders={"detail": str(err)},
+            ) from err
 
     async def _delayed_refresh(self) -> None:
         """

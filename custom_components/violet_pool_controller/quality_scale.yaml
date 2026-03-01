@@ -55,10 +55,7 @@ rules:
   parallel-updates:
     status: done
   reauthentication-flow:
-    status: todo
-    comment: >
-      Re-authentication flow not yet implemented; authentication errors
-      are reported via config entry errors.
+    status: done
   test-coverage:
     status: done
 
@@ -68,9 +65,9 @@ rules:
   diagnostics:
     status: done
   discovery-update-info:
-    status: todo
+    status: done
   discovery:
-    status: todo
+    status: done
   docs-data-update:
     status: done
   docs-examples:
@@ -86,7 +83,7 @@ rules:
   docs-use-cases:
     status: done
   dynamic-devices:
-    status: todo
+    status: done
   entity-category:
     status: done
   entity-device-class:
@@ -96,15 +93,15 @@ rules:
   entity-translations:
     status: done
   exception-translations:
-    status: todo
+    status: done
   icon-translations:
-    status: todo
+    status: done
   reconfiguration-flow:
     status: done
   repair-issues:
-    status: todo
+    status: done
   stale-devices:
-    status: todo
+    status: done
 
   # Platinum
   async-dependency:

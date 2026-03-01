@@ -7,12 +7,13 @@ from datetime import timedelta
 from typing import Any
 
 import homeassistant.helpers.config_validation as cv
+from homeassistant.components.zeroconf import AsyncServiceInfo
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
 from homeassistant.helpers import aiohttp_client
-from homeassistant.components.zeroconf import AsyncServiceInfo
+from homeassistant.helpers import device_registry as dr
 
 from .const import (
     CONF_ACTIVE_FEATURES,
@@ -441,6 +442,34 @@ def _validate_config(config: dict[str, Any]) -> bool:
 # =============================================================================
 # ZEROCONF DISCOVERY (Gold Level)
 # =============================================================================
+
+
+async def async_remove_config_entry_device(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    device_entry: dr.DeviceEntry,
+) -> bool:
+    """Remove a device entry associated with a config entry.
+
+    Called by HA when the user removes a device from the device registry.
+    Returns True to allow removal; False to prevent it.
+
+    Args:
+        hass: The Home Assistant instance.
+        config_entry: The config entry owning the device.
+        device_entry: The device entry to remove.
+
+    Returns:
+        True if the device can be removed, False otherwise.
+    """
+    _LOGGER.info(
+        "Removing device entry '%s' from config entry '%s'",
+        device_entry.name,
+        config_entry.title,
+    )
+    # Allow removal of any device entry associated with this config entry.
+    # The coordinator data will reflect the actual hardware on the next poll.
+    return True
 
 
 @callback
