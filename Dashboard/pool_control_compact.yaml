@@ -6,6 +6,8 @@
 # wichtigsten Steuerungselementen für Ihren Pool.
 #
 # PERFEKT FÜR: Mobile Geräte, Übersichtsseiten, Tablets
+#
+# VERSION: 1.0.3-alpha.1 (2026-02-06)
 # =============================================================================
 
 type: entities
@@ -16,12 +18,12 @@ entities:
   # Schnellsteuerung
   - type: section
     label: Steuerung
-  - entity: select.violet_pool_controller_pump_mode
+  - entity: switch.violet_pool_controller_pump
     name: Pumpe
     icon: mdi:water-pump
   - entity: number.violet_pool_controller_pump_speed
     name: Geschwindigkeit
-  - entity: select.violet_pool_controller_heater_mode
+  - entity: switch.violet_pool_controller_heater
     name: Heizung
     icon: mdi:radiator
   - entity: number.violet_pool_controller_heater_target_temp

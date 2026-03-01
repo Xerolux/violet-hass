@@ -6,6 +6,12 @@
 # in kompakten, übersichtlichen Karten.
 #
 # PERFEKT FÜR: Komplette Kontrolle, alle Einstellungen auf einen Blick
+#
+# HINWEIS: 
+# - Benötigt Custom Cards via HACS (Mushroom, Slider Entity Row, Card Mod)
+# - Ersetzen Sie "violet_pool_controller" durch Ihren Device-Namen
+#
+# VERSION: 1.0.3-alpha.1 (2026-02-06)
 # =============================================================================
 
 type: vertical-stack
@@ -16,25 +22,25 @@ cards:
   - type: custom:mushroom-template-card
     primary: Filterpumpe
     secondary: |
-      {% if is_state('sensor.violet_pool_controller_pumpen_status', 'Frostschutz') %}
+      {% if is_state('sensor.violet_pool_controller_pump_status', 'Frostschutz') %}
         ❄️ Frostschutz aktiv
-      {% elif is_state('switch.violet_pool_controller_filterpumpe', 'on') %}
-        ✅ Läuft ({{ states('number.violet_pool_controller_pumpengeschwindigkeit') }}/3)
+      {% elif is_state('switch.violet_pool_controller_pump', 'on') %}
+        ✅ Läuft ({{ states('number.violet_pool_controller_pump_speed') }}/3)
       {% else %}
         🔴 Aus
       {% endif %}
     icon: mdi:water-pump
     icon_color: |
-      {% if is_state('sensor.violet_pool_controller_pumpen_status', 'Frostschutz') %}
+      {% if is_state('sensor.violet_pool_controller_pump_status', 'Frostschutz') %}
         cyan
-      {% elif is_state('switch.violet_pool_controller_filterpumpe', 'on') %}
+      {% elif is_state('switch.violet_pool_controller_pump', 'on') %}
         green
       {% else %}
         grey
       {% endif %}
     tap_action:
       action: more-info
-      entity: switch.violet_pool_controller_filterpumpe
+      entity: switch.violet_pool_controller_pump
 
   - type: entities
     show_header_toggle: false
@@ -47,17 +53,17 @@ cards:
         }
     entities:
       - type: custom:mushroom-select-card
-        entity: switch.violet_pool_controller_filterpumpe
+        entity: switch.violet_pool_controller_pump
         name: Modus
         icon: mdi:auto-mode
       - type: custom:slider-entity-row
-        entity: number.violet_pool_controller_pumpengeschwindigkeit
+        entity: number.violet_pool_controller_pump_speed
         name: Geschwindigkeit
         icon: mdi:speedometer
         min: 1
         max: 3
         step: 1
-      - entity: sensor.violet_pool_controller_pumpen_status
+      - entity: sensor.violet_pool_controller_pump_status
         name: Status
         icon: mdi:information
       - entity: sensor.violet_pool_controller_pump_runtime
@@ -71,18 +77,18 @@ cards:
     primary: Heizung
     secondary: |
       {% set temp = states('sensor.violet_pool_controller_pool_temperature') | float(0) %}
-      {% set target = states('number.violet_pool_controller_heizung_zieltemperatur') | float(0) %}
+      {% set target = states('number.violet_pool_controller_heater_target_temp') | float(0) %}
       {{ temp }}°C → {{ target }}°C
     icon: mdi:radiator
     icon_color: |
-      {% if is_state('switch.violet_pool_controller_heizung', 'on') %}
+      {% if is_state('switch.violet_pool_controller_heater', 'on') %}
         red
       {% else %}
         grey
       {% endif %}
     tap_action:
       action: more-info
-      entity: climate.violet_pool_controller_heizung
+      entity: climate.violet_pool_controller_heater
 
   - type: entities
     show_header_toggle: false
@@ -95,17 +101,17 @@ cards:
         }
     entities:
       - type: custom:mushroom-select-card
-        entity: switch.violet_pool_controller_heizung
+        entity: switch.violet_pool_controller_heater
         name: Modus
         icon: mdi:auto-mode
       - type: custom:slider-entity-row
-        entity: number.violet_pool_controller_heizung_zieltemperatur
+        entity: number.violet_pool_controller_heater_target_temp
         name: Zieltemperatur
         icon: mdi:thermometer-chevron-up
         min: 20
         max: 35
         step: 0.5
-      - entity: sensor.violet_pool_controller_heizungs_status
+      - entity: sensor.violet_pool_controller_heater_status
         name: Status
         icon: mdi:information
       - entity: sensor.violet_pool_controller_heater_runtime
@@ -119,7 +125,7 @@ cards:
     primary: Solar
     secondary: |
       {% set temp = states('sensor.violet_pool_controller_pool_temperature') | float(0) %}
-      {% set target = states('number.violet_pool_controller_solar_zieltemperatur') | float(0) %}
+      {% set target = states('number.violet_pool_controller_solar_target_temp') | float(0) %}
       {{ temp }}°C → {{ target }}°C
     icon: mdi:solar-power
     icon_color: |
@@ -147,7 +153,7 @@ cards:
         name: Modus
         icon: mdi:auto-mode
       - type: custom:slider-entity-row
-        entity: number.violet_pool_controller_solar_zieltemperatur
+        entity: number.violet_pool_controller_solar_target_temp
         name: Zieltemperatur
         icon: mdi:thermometer-chevron-up
         min: 20
@@ -166,12 +172,12 @@ cards:
   - type: custom:mushroom-template-card
     primary: pH Steuerung
     secondary: |
-      {% set ph = states('sensor.violet_pool_controller_ph_wert') | float(0) %}
-      {% set target = states('number.violet_pool_controller_ph_sollwert') | float(7.2) %}
+      {% set ph = states('sensor.violet_pool_controller_ph_value') | float(0) %}
+      {% set target = states('number.violet_pool_controller_ph_setpoint') | float(7.2) %}
       Ist: {{ ph }} | Soll: {{ target }}
     icon: mdi:flask
     icon_color: |
-      {% set ph = states('sensor.violet_pool_controller_ph_wert') | float(0) %}
+      {% set ph = states('sensor.violet_pool_controller_ph_value') | float(0) %}
       {% if ph < 7.0 %}
         red
       {% elif ph > 7.6 %}
@@ -193,7 +199,7 @@ cards:
       - type: section
         label: pH Minus
       - type: custom:mushroom-select-card
-        entity: switch.violet_pool_controller_ph_minus
+        entity: switch.violet_pool_controller_dos_4_phm
         name: pH- Modus
         icon: mdi:minus-circle
       - type: custom:slider-entity-row
@@ -213,7 +219,7 @@ cards:
       - type: section
         label: pH Plus
       - type: custom:mushroom-select-card
-        entity: switch.violet_pool_controller_ph_plus
+        entity: switch.violet_pool_controller_dos_5_php
         name: pH+ Modus
         icon: mdi:plus-circle
       - type: custom:slider-entity-row
@@ -233,7 +239,7 @@ cards:
       - type: section
         label: Sollwert
       - type: custom:slider-entity-row
-        entity: number.violet_pool_controller_ph_sollwert
+        entity: number.violet_pool_controller_ph_setpoint
         name: pH Zielwert
         icon: mdi:target
         min: 6.8
@@ -246,12 +252,12 @@ cards:
   - type: custom:mushroom-template-card
     primary: Chlor Steuerung
     secondary: |
-      {% set cl = states('sensor.violet_pool_controller_chlorgehalt') | float(0) %}
-      {% set target = states('number.violet_pool_controller_chlor_sollwert') | float(0.6) %}
+      {% set cl = states('sensor.violet_pool_controller_chlorine_level') | float(0) %}
+      {% set target = states('number.violet_pool_controller_chlorine_setpoint') | float(0.6) %}
       Ist: {{ cl }} mg/l | Soll: {{ target }} mg/l
     icon: mdi:test-tube
     icon_color: |
-      {% set cl = states('sensor.violet_pool_controller_chlorgehalt') | float(0) %}
+      {% set cl = states('sensor.violet_pool_controller_chlorine_level') | float(0) %}
       {% if cl < 0.3 %}
         red
       {% elif cl > 1.5 %}
@@ -271,18 +277,18 @@ cards:
         }
     entities:
       - type: custom:mushroom-select-card
-        entity: switch.violet_pool_controller_chlor
+        entity: switch.violet_pool_controller_dos_1_cl
         name: Chlor Modus
         icon: mdi:auto-mode
       - type: custom:slider-entity-row
-        entity: number.violet_pool_controller_chlor_canister_volume
+        entity: number.violet_pool_controller_chlorine_canister_volume
         name: Kanister (ml)
         icon: mdi:barrel
         min: 1000
         max: 50000
         step: 1000
       - type: custom:slider-entity-row
-        entity: number.violet_pool_controller_chlor_sollwert
+        entity: number.violet_pool_controller_chlorine_setpoint
         name: Sollwert
         icon: mdi:target
         min: 0.2
@@ -295,7 +301,7 @@ cards:
         min: 600
         max: 800
         step: 10
-      - entity: sensor.violet_pool_controller_redoxpotential
+      - entity: sensor.violet_pool_controller_orp_value
         name: Redox aktuell
         icon: mdi:flash-outline
       - entity: sensor.violet_pool_controller_dos_1_cl_remaining_range

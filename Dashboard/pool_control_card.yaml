@@ -12,8 +12,13 @@
 # 4. Kopieren Sie diese Konfiguration und passen Sie entity_ids an
 # 5. Speichern Sie die Karte
 #
-# HINWEIS: Ersetzen Sie "violet_pool_controller" durch Ihre Entity-ID-Prefix
-# falls Sie mehrere Controller haben oder einen anderen Namen vergeben haben.
+# HINWEIS: 
+# - Ersetzen Sie "violet_pool_controller" durch Ihren Device-Namen
+#   (Standard: "violet_pool_controller" → Entity-ID-Prefix)
+# - Bei mehreren Controllern oder geändertem Namen:
+#   Entwicklerwerkzeuge → Zustände → Nach "violet" suchen
+#
+# VERSION: 1.0.3-alpha.1 (2026-02-06)
 # =============================================================================
 
 type: vertical-stack
@@ -28,7 +33,7 @@ cards:
       # Pumpe - Modus & Geschwindigkeit
       - type: section
         label: Filterpumpe
-      - entity: select.violet_pool_controller_pump_mode
+      - entity: switch.violet_pool_controller_pump
         name: Modus
         icon: mdi:water-pump
       - entity: number.violet_pool_controller_pump_speed
@@ -41,7 +46,7 @@ cards:
       # Heizung - Modus & Temperatur
       - type: section
         label: Heizung
-      - entity: select.violet_pool_controller_heater_mode
+      - entity: switch.violet_pool_controller_heater
         name: Modus
         icon: mdi:radiator
       - entity: number.violet_pool_controller_heater_target_temp
@@ -54,7 +59,7 @@ cards:
       # Solar - Modus & Temperatur
       - type: section
         label: Solarabsorber
-      - entity: select.violet_pool_controller_solar_mode
+      - entity: switch.violet_pool_controller_solar
         name: Modus
         icon: mdi:solar-power
       - entity: number.violet_pool_controller_solar_target_temp
@@ -80,10 +85,10 @@ cards:
       - entity: number.violet_pool_controller_ph_setpoint
         name: Sollwert
         icon: mdi:flask-outline
-      - entity: select.violet_pool_controller_dos_phm_mode
+      - entity: switch.violet_pool_controller_dos_4_phm
         name: pH- Modus
         icon: mdi:flask-minus
-      - entity: select.violet_pool_controller_dos_php_mode
+      - entity: switch.violet_pool_controller_dos_5_php
         name: pH+ Modus
         icon: mdi:flask-plus
 
@@ -102,7 +107,7 @@ cards:
       - entity: number.violet_pool_controller_chlorine_setpoint
         name: Chlor Sollwert
         icon: mdi:test-tube-empty
-      - entity: select.violet_pool_controller_dos_cl_mode
+      - entity: switch.violet_pool_controller_dos_1_cl
         name: Chlor-Dosierung Modus
         icon: mdi:test-tube
 
@@ -167,12 +172,12 @@ cards:
     show_header_toggle: false
     entities:
       # Beleuchtung
-      - entity: select.violet_pool_controller_light_mode
+      - entity: switch.violet_pool_controller_light
         name: Beleuchtung
         icon: mdi:lightbulb
 
       # PV-Überschuss
-      - entity: select.violet_pool_controller_pvsurplus_mode
+      - entity: switch.violet_pool_controller_pvsurplus
         name: PV-Überschuss
         icon: mdi:solar-power-variant
 

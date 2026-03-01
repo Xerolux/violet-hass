@@ -28,7 +28,7 @@ jobs:
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-patch' || 
           steps.metadata.outputs.update-type == 'version-update:semver-minor'
-        uses: fountainhead/action-wait-for-check@v1.2.0
+        uses: fountainhead/action-wait-for-check@v1.3.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           checkName: 'validate'

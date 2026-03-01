@@ -33,9 +33,20 @@ on:
         required: false
         type: boolean
         default: true
+      post_to_forum:
+        description: 'Post announcement to poolsteuerung.de forum'
+        required: false
+        type: boolean
+        default: false
+      forum_dry_run:
+        description: 'Forum dry run (print post without submitting)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
+  discussions: write
 
 jobs:
   prepare-release:
@@ -47,6 +58,10 @@ jobs:
       is_draft: ${{ steps.version.outputs.is_draft }}
       release_type: ${{ steps.version.outputs.release_type }}
       release-notes: ${{ steps.generate.outputs.release-notes }}
+      features: ${{ steps.commits.outputs.new-features }}
+      improvements: ${{ steps.commits.outputs.improvements }}
+      bugfixes: ${{ steps.commits.outputs.bug-fixes }}
+      previous-tag: ${{ steps.commits.outputs.previous-tag }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -518,6 +533,23 @@ jobs:
           access-token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
           access-token-secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
 
+  create-announcement:
+    needs: [prepare-release, update-changelog]
+    runs-on: ubuntu-latest
+    if: |
+      success() &&
+      needs.prepare-release.outputs.is_draft != 'true' &&
+      needs.prepare-release.outputs.release_type == 'stable'
+    steps:
+      - name: Create GitHub Discussion
+        uses: abirismyname/create-discussion@v1.x
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository-id: ${{ vars.REPOSITORY_ID }}
+          category-id: ${{ vars.DISCUSSION_CATEGORY_ID }}
+          title: "🎉 Release v${{ needs.prepare-release.outputs.version }} - Violet Pool Controller"
+          body: ${{ needs.prepare-release.outputs.release-notes }}
+
   create-summary:
     needs: [prepare-release, update-changelog]
     runs-on: ubuntu-latest
@@ -561,4 +593,81 @@ jobs:
             echo "- ✅ CLAUDE.md (developer docs)"
             echo "- ✅ manifest.json (integration version)"
             echo "- ✅ const.py (integration version)"
+          } >> $GITHUB_STEP_SUMMARY
+
+  post-to-forum:
+    needs: [prepare-release, update-changelog]
+    runs-on: ubuntu-latest
+    if: |
+      success() &&
+      needs.prepare-release.outputs.is_draft != 'true' &&
+      inputs.post_to_forum == true
+    steps:
+      - uses: actions/checkout@v6
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: pip install requests
+      
+      - name: Dry run - Print forum post
+        if: inputs.forum_dry_run == true
+        run: |
+          python scripts/forum_poster.py \
+            --forum-url "${{ secrets.FORUM_URL }}" \
+            --username "${{ secrets.FORUM_USERNAME }}" \
+            --password "${{ secrets.FORUM_PASSWORD }}" \
+            --topic-id "${{ secrets.FORUM_TOPIC_ID }}" \
+            --version "${{ needs.prepare-release.outputs.version }}" \
+            --tag "${{ needs.prepare-release.outputs.tag }}" \
+            --release-type "${{ needs.prepare-release.outputs.release_type }}" \
+            --release-url "https://github.com/${{ github.repository }}/releases/tag/${{ needs.prepare-release.outputs.tag }}" \
+            --changelog-url "https://github.com/${{ github.repository }}/compare/${{ needs.prepare-release.outputs.previous-tag }}...${{ needs.prepare-release.outputs.tag }}" \
+            --download-url "https://github.com/${{ github.repository }}/releases/download/${{ needs.prepare-release.outputs.tag }}/violet_pool_controller.zip" \
+            --features "${{ needs.prepare-release.outputs.features }}" \
+            --improvements "${{ needs.prepare-release.outputs.improvements }}" \
+            --bugfixes "${{ needs.prepare-release.outputs.bugfixes }}" \
+            --dry-run
+      
+      - name: Post to forum
+        if: inputs.forum_dry_run != true
+        run: |
+          python scripts/forum_poster.py \
+            --forum-url "${{ secrets.FORUM_URL }}" \
+            --username "${{ secrets.FORUM_USERNAME }}" \
+            --password "${{ secrets.FORUM_PASSWORD }}" \
+            --topic-id "${{ secrets.FORUM_TOPIC_ID }}" \
+            --version "${{ needs.prepare-release.outputs.version }}" \
+            --tag "${{ needs.prepare-release.outputs.tag }}" \
+            --release-type "${{ needs.prepare-release.outputs.release_type }}" \
+            --release-url "https://github.com/${{ github.repository }}/releases/tag/${{ needs.prepare-release.outputs.tag }}" \
+            --changelog-url "https://github.com/${{ github.repository }}/compare/${{ needs.prepare-release.outputs.previous-tag }}...${{ needs.prepare-release.outputs.tag }}" \
+            --download-url "https://github.com/${{ github.repository }}/releases/download/${{ needs.prepare-release.outputs.tag }}/violet_pool_controller.zip" \
+            --features "${{ needs.prepare-release.outputs.features }}" \
+            --improvements "${{ needs.prepare-release.outputs.improvements }}" \
+            --bugfixes "${{ needs.prepare-release.outputs.bugfixes }}"
+      
+      - name: Summary
+        run: |
+          VERSION="${{ needs.prepare-release.outputs.version }}"
+          TAG="${{ needs.prepare-release.outputs.tag }}"
+          
+          {
+            echo "## 📢 Forum Announcement"
+            echo ""
+            echo "| Property | Value |"
+            echo "|----------|-------|"
+            echo "| **Version** | \`$VERSION\` |"
+            echo "| **Tag** | \`$TAG\` |"
+            echo "| **Topic** | [View Topic](https://www.poolsteuerung.de/viewtopic.php?p=37604#p37604) |"
+            echo ""
+            if [ "${{ inputs.forum_dry_run }}" = "true" ]; then
+              echo "⚠️ **DRY RUN** - Post was printed but not submitted"
+            else
+              echo "✅ **Posted successfully!**"
+            fi
           } >> $GITHUB_STEP_SUMMARY

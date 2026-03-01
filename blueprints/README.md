@@ -1,5 +1,7 @@
 # 🛠️ Helper Setup Guide für Pool Blueprints
 
+**Version:** 1.0.3-alpha.1 (2026-02-06)
+
 ## 📋 Übersicht
 Die Blueprints benötigen spezielle **Helper-Entities** um Zähler und Zeitstempel zu speichern. Diese müssen **vor** der Blueprint-Nutzung erstellt werden.
 
@@ -252,3 +254,25 @@ data:
 - **Timestamp:** Berechnung von Intervallen
 
 Die Helper sind essentiell für sichere und intelligente Pool-Automatisierung! 🏊‍♂️
+
+---
+
+## 📝 Versionshinweise
+
+### Version 1.0.3-alpha.1 (2026-02-06)
+- ✅ Alle Blueprints mit Versionsinformationen aktualisiert
+- ✅ Entity-Selektoren für bessere Integration-Unterstützung optimiert
+- ✅ Hinweise zu benötigten Helpers in Blueprint-Beschreibungen hinzugefügt
+- ⚠️ **Wichtig:** `pool_backwash_control.yaml` benötigt zusätzlich ein separates Script für den Rückspül-Zyklus (siehe Blueprint-Kommentare)
+
+### Verfügbare Blueprints
+1. **pool_temperature_control.yaml** - Intelligente Temperatursteuerung mit Solar-Unterstützung
+2. **pool_ph_control.yaml** - Automatische pH-Wert Kontrolle mit Dosierung
+3. **pool_cover_control.yaml** - Wetterabhängige Abdeckungssteuerung
+4. **pool_backwash_control.yaml** - Automatische Rückspülung (erfordert zusätzliches Script)
+
+### Installation
+1. Home Assistant öffnen → Einstellungen → Automatisierungen & Szenen → Blueprints
+2. "Blueprint importieren" klicken
+3. URL des gewünschten Blueprints eingeben (z.B. `https://github.com/xerolux/violet-hass/blob/main/blueprints/automation/pool_temperature_control.yaml`)
+4. Blueprint erstellen und konfigurieren

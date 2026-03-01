@@ -3,6 +3,10 @@ blueprint:
   description: |
     Automatische pH-Wert Kontrolle mit intelligenter Dosierung von pH+ und pH-.
     Überwacht pH-Werte und dosiert automatisch bei Abweichungen vom Sollbereich.
+    
+    BENÖTIGT: input_number.pool_ph_dosing_counter Helper (siehe blueprints/README.md)
+    
+    VERSION: 1.0.3-alpha.1 (2026-02-06)
   domain: automation
   source_url: https://github.com/xerolux/violet-hass/blob/main/blueprints/automation/pool_ph_control.yaml
   homeassistant:

@@ -3,6 +3,12 @@ blueprint:
   description: |
     Intelligente automatische Rückspülung basierend auf Filterdruck, Laufzeit und Zeitplan.
     Includes Backwash und Rinse-Zyklen mit Sicherheitsfeatures.
+    
+    BENÖTIGT: 
+    - input_datetime.pool_last_backwash Helper (siehe blueprints/README.md)
+    - input_number.pool_pump_runtime_hours Helper (optional, für laufzeitbasierte Steuerung)
+    
+    VERSION: 1.0.3-alpha.1 (2026-02-06)
   domain: automation
   source_url: https://github.com/xerolux/violet-hass/blob/main/blueprints/automation/pool_backwash_control.yaml
   homeassistant:
@@ -353,86 +359,29 @@ action:
                     Wasserstand zu niedrig: {{ current_water_level }}cm (Min: {{ min_water_level }}cm)
                     Bitte Wasser nachfüllen vor Rückspülung.
 
-  # === Rückspül-Zyklus Sequenz ===
-  backwash_cycle:
-    sequence:
-      # 1. Pumpe stoppen und warten
-      - if:
-          - condition: template
-            value_template: "{{ pump_is_running }}"
-        then:
-          - service: switch.turn_off
-            target:
-              entity_id: !input pump_switch
-          - delay:
-              seconds: !input pre_backwash_pump_off_time
-
-      # 2. Rückspülung starten
-      - service: violet_pool_controller.trigger_backwash
-        target:
-          entity_id: "{{ backwash_entity }}"
-        data:
-          duration: !input backwash_duration
-
-      # 3. Warten bis Rückspülung beendet
-      - delay:
-          seconds: "{{ backwash_duration + 10 }}"
-
-      # 4. Nachspülung (falls konfiguriert)
-      - if:
-          - condition: template
-            value_template: "{{ rinse_entity != '' }}"
-        then:
-          - service: switch.turn_on
-            target:
-              entity_id: "{{ rinse_entity }}"
-          - delay:
-              seconds: !input rinse_duration
-          - service: switch.turn_off
-            target:
-              entity_id: "{{ rinse_entity }}"
-
-      # 5. Wartezeit vor Pumpen-Neustart
-      - delay:
-          seconds: !input post_backwash_pump_start_delay
-
-      # 6. Pumpe wieder einschalten
-      - service: switch.turn_on
-        target:
-          entity_id: !input pump_switch
-
-      # 7. Letzte Rückspülung Zeit aktualisieren
-      - service: input_datetime.set_datetime
-        target:
-          entity_id: input_datetime.pool_last_backwash
-        data:
-          datetime: "{{ now().isoformat() }}"
-
-      # 8. Pump Runtime Counter zurücksetzen (falls vorhanden)
-      - if:
-          - condition: template
-            value_template: "{{ enable_runtime_control }}"
-        then:
-          - service: input_number.set_value
-            target:
-              entity_id: input_number.pool_pump_runtime_hours
-            data:
-              value: 0
-
-      # 9. Abschluss-Benachrichtigung
-      - if:
-          - condition: template
-            value_template: "{{ notify_service != '' and notify_after_backwash }}"
-        then:
-          - service: "{{ notify_service }}"
-            data:
-              title: "✅ Rückspülung abgeschlossen"
-              message: >
-                Rückspülung erfolgreich beendet:
-                • Rückspüldauer: {{ backwash_duration }}s
-                • Nachspüldauer: {{ rinse_duration if rinse_entity != '' else 'Keine' }}s
-                • Filterdruck vorher: {{ current_pressure }} bar
-                • Pumpe läuft wieder normal
-
 mode: single
 max_exceeded: silent
+
+# =============================================================================
+# HINWEIS FÜR ENTWICKLER:
+# =============================================================================
+# Die 'backwash_cycle' Sequenz unten ist kein gültiger Blueprint-Code.
+# In Home Assistant Blueprints können keine wiederverwendbaren Scripts definiert werden.
+# 
+# LÖSUNG: Erstellen Sie ein separates Script in Ihrer configuration.yaml:
+# 
+# script:
+#   pool_backwash_cycle:
+#     sequence:
+#       - service: switch.turn_off
+#         target:
+#           entity_id: switch.violet_pool_controller_pump
+#       - delay:
+#           seconds: 30
+#       # ... rest of backwash sequence
+# 
+# Dann ersetzen Sie '- perform: backwash_cycle' mit:
+# - service: script.turn_on
+#   target:
+#     entity_id: script.pool_backwash_cycle
+# =============================================================================

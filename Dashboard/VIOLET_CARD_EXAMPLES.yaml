@@ -1,5 +1,13 @@
 # Violet Pool Card - Dashboard Beispiele
 # Diese Datei zeigt verschiedene Konfigurationsbeispiele für die Violet Pool Card
+#
+# HINWEIS: 
+# - Diese Beispiele verwenden eine hypothetische "violet-pool-card" Custom Card
+# - Falls Sie diese Custom Card noch nicht haben, verwenden Sie die Standard-Dashboards
+# - Ersetzen Sie "violet_pool_controller" durch Ihren Device-Namen
+#
+# VERSION: 1.0.3-alpha.1 (2026-02-06)
+# ============================================================================
 
 # ============================================================================
 # EINZELNE CARDS - Detaillierte Steuerung
@@ -7,7 +15,7 @@
 
 # --- Pumpe Card ---
 - type: custom:violet-pool-card
-  entity: switch.violet_pool_pump
+  entity: switch.violet_pool_controller_pump
   card_type: pump
   name: Pool Pumpe
   show_state: true
@@ -17,7 +25,7 @@
 
 # --- Heizung Card ---
 - type: custom:violet-pool-card
-  entity: climate.violet_pool_heater
+  entity: climate.violet_pool_controller_heater
   card_type: heater
   name: Pool Heizung
   show_state: true
@@ -26,7 +34,7 @@
 
 # --- Solar Card ---
 - type: custom:violet-pool-card
-  entity: climate.violet_pool_solar
+  entity: climate.violet_pool_controller_solar
   card_type: solar
   name: Solar Heizung
   show_state: true
@@ -35,7 +43,7 @@
 
 # --- Chlor Dosierung Card ---
 - type: custom:violet-pool-card
-  entity: switch.violet_pool_dos_1_cl
+  entity: switch.violet_pool_controller_dos_1_cl
   card_type: dosing
   dosing_type: chlorine
   name: Chlor Dosierung
@@ -46,7 +54,7 @@
 
 # --- pH- Dosierung Card ---
 - type: custom:violet-pool-card
-  entity: switch.violet_pool_dos_4_phm
+  entity: switch.violet_pool_controller_dos_4_phm
   card_type: dosing
   dosing_type: ph_minus
   name: pH- Dosierung
@@ -56,7 +64,7 @@
 
 # --- pH+ Dosierung Card ---
 - type: custom:violet-pool-card
-  entity: switch.violet_pool_dos_5_php
+  entity: switch.violet_pool_controller_dos_5_php
   card_type: dosing
   dosing_type: ph_plus
   name: pH+ Dosierung
@@ -66,7 +74,7 @@
 
 # --- Flockung Card ---
 - type: custom:violet-pool-card
-  entity: switch.violet_pool_dos_6_floc
+  entity: switch.violet_pool_controller_dos_6_floc
   card_type: dosing
   dosing_type: flocculant
   name: Flockung
@@ -82,18 +90,18 @@
   card_type: overview
   entities:
     # Hauptgeräte
-    - switch.violet_pool_pump
-    - climate.violet_pool_heater
-    - climate.violet_pool_solar
+    - switch.violet_pool_controller_pump
+    - climate.violet_pool_controller_heater
+    - climate.violet_pool_controller_solar
     # Dosierungen
-    - switch.violet_pool_dos_1_cl
-    - switch.violet_pool_dos_4_phm
-    - switch.violet_pool_dos_5_php
+    - switch.violet_pool_controller_dos_1_cl
+    - switch.violet_pool_controller_dos_4_phm
+    - switch.violet_pool_controller_dos_5_php
     # Sensoren
-    - sensor.violet_pool_pool_temp
+    - sensor.violet_pool_controller_pool_temperature
     - sensor.violet_pool_ph_value
     - sensor.violet_pool_orp_value
-    - sensor.violet_pool_free_chlorine
+    - sensor.violet_pool_controller_chlorine_level
 
 # ============================================================================
 # COMPACT CARDS - Dashboard Übersicht
@@ -103,27 +111,27 @@
 - type: vertical-stack
   cards:
     - type: custom:violet-pool-card
-      entity: switch.violet_pool_pump
+      entity: switch.violet_pool_controller_pump
       card_type: compact
       show_controls: false
 
     - type: custom:violet-pool-card
-      entity: climate.violet_pool_heater
+      entity: climate.violet_pool_controller_heater
       card_type: compact
       show_controls: false
 
     - type: custom:violet-pool-card
-      entity: climate.violet_pool_solar
+      entity: climate.violet_pool_controller_solar
       card_type: compact
       show_controls: false
 
     - type: custom:violet-pool-card
-      entity: switch.violet_pool_dos_1_cl
+      entity: switch.violet_pool_controller_dos_1_cl
       card_type: compact
       show_controls: false
 
     - type: custom:violet-pool-card
-      entity: switch.violet_pool_dos_4_phm
+      entity: switch.violet_pool_controller_dos_4_phm
       card_type: compact
       show_controls: false
 
@@ -135,15 +143,15 @@
 - type: horizontal-stack
   cards:
     - type: custom:violet-pool-card
-      entity: switch.violet_pool_pump
+      entity: switch.violet_pool_controller_pump
       card_type: pump
 
     - type: custom:violet-pool-card
-      entity: climate.violet_pool_heater
+      entity: climate.violet_pool_controller_heater
       card_type: heater
 
     - type: custom:violet-pool-card
-      entity: climate.violet_pool_solar
+      entity: climate.violet_pool_controller_solar
       card_type: solar
 
 # --- Layout 2: Grid - Alle Dosierungen ---
@@ -152,22 +160,22 @@
   square: false
   cards:
     - type: custom:violet-pool-card
-      entity: switch.violet_pool_dos_1_cl
+      entity: switch.violet_pool_controller_dos_1_cl
       card_type: dosing
       dosing_type: chlorine
 
     - type: custom:violet-pool-card
-      entity: switch.violet_pool_dos_4_phm
+      entity: switch.violet_pool_controller_dos_4_phm
       card_type: dosing
       dosing_type: ph_minus
 
     - type: custom:violet-pool-card
-      entity: switch.violet_pool_dos_5_php
+      entity: switch.violet_pool_controller_dos_5_php
       card_type: dosing
       dosing_type: ph_plus
 
     - type: custom:violet-pool-card
-      entity: switch.violet_pool_dos_6_floc
+      entity: switch.violet_pool_controller_dos_6_floc
       card_type: dosing
       dosing_type: flocculant
 
@@ -178,13 +186,13 @@
     - type: custom:violet-pool-card
       card_type: overview
       entities:
-        - switch.violet_pool_pump
-        - climate.violet_pool_heater
-        - climate.violet_pool_solar
-        - switch.violet_pool_dos_1_cl
-        - switch.violet_pool_dos_4_phm
-        - switch.violet_pool_dos_5_php
-        - sensor.violet_pool_pool_temp
+        - switch.violet_pool_controller_pump
+        - climate.violet_pool_controller_heater
+        - climate.violet_pool_controller_solar
+        - switch.violet_pool_controller_dos_1_cl
+        - switch.violet_pool_controller_dos_4_phm
+        - switch.violet_pool_controller_dos_5_php
+        - sensor.violet_pool_controller_pool_temperature
         - sensor.violet_pool_ph_value
         - sensor.violet_pool_orp_value
 
@@ -192,11 +200,11 @@
     - type: horizontal-stack
       cards:
         - type: custom:violet-pool-card
-          entity: switch.violet_pool_pump
+          entity: switch.violet_pool_controller_pump
           card_type: pump
 
         - type: custom:violet-pool-card
-          entity: climate.violet_pool_heater
+          entity: climate.violet_pool_controller_heater
           card_type: heater
 
     # Dosierungen Grid
@@ -204,17 +212,17 @@
       columns: 3
       cards:
         - type: custom:violet-pool-card
-          entity: switch.violet_pool_dos_1_cl
+          entity: switch.violet_pool_controller_dos_1_cl
           card_type: dosing
           dosing_type: chlorine
 
         - type: custom:violet-pool-card
-          entity: switch.violet_pool_dos_4_phm
+          entity: switch.violet_pool_controller_dos_4_phm
           card_type: dosing
           dosing_type: ph_minus
 
         - type: custom:violet-pool-card
-          entity: switch.violet_pool_dos_5_php
+          entity: switch.violet_pool_controller_dos_5_php
           card_type: dosing
           dosing_type: ph_plus
 
@@ -224,14 +232,14 @@
 
 # Card mit benutzerdefinierten Farben
 - type: custom:violet-pool-card
-  entity: switch.violet_pool_pump
+  entity: switch.violet_pool_controller_pump
   card_type: pump
   accent_color: "#00bcd4"  # Cyan
   icon_color: "#ff9800"    # Orange
 
 # Card mit Tap Actions
 - type: custom:violet-pool-card
-  entity: switch.violet_pool_pump
+  entity: switch.violet_pool_controller_pump
   card_type: pump
   tap_action:
     action: more-info
@@ -239,7 +247,7 @@
     action: call-service
     service: violet_pool_controller.control_pump
     service_data:
-      entity_id: switch.violet_pool_pump
+      entity_id: switch.violet_pool_controller_pump
       action: "auto"
   double_tap_action:
     action: toggle
@@ -257,15 +265,15 @@
 
     # Wichtigste Geräte in Compact Mode
     - type: custom:violet-pool-card
-      entity: switch.violet_pool_pump
+      entity: switch.violet_pool_controller_pump
       card_type: compact
 
     - type: custom:violet-pool-card
-      entity: climate.violet_pool_heater
+      entity: climate.violet_pool_controller_heater
       card_type: compact
 
     - type: custom:violet-pool-card
-      entity: switch.violet_pool_dos_1_cl
+      entity: switch.violet_pool_controller_dos_1_cl
       card_type: compact
 
 # ============================================================================
@@ -275,11 +283,11 @@
 # Zeige Heizung Card nur wenn aktiv oder blockiert
 - type: conditional
   conditions:
-    - entity: climate.violet_pool_heater
+    - entity: climate.violet_pool_controller_heater
       state_not: "off"
   card:
     type: custom:violet-pool-card
-    entity: climate.violet_pool_heater
+    entity: climate.violet_pool_controller_heater
     card_type: heater
 
 # Zeige Warnung wenn Chlor niedrig
@@ -289,7 +297,7 @@
       state_below: 650
   card:
     type: custom:violet-pool-card
-    entity: switch.violet_pool_dos_1_cl
+    entity: switch.violet_pool_controller_dos_1_cl
     card_type: dosing
     dosing_type: chlorine
 
@@ -302,7 +310,7 @@
   elements:
     # Pumpe Position
     - type: custom:violet-pool-card
-      entity: switch.violet_pool_pump
+      entity: switch.violet_pool_controller_pump
       card_type: compact
       style:
         top: 20%
@@ -311,7 +319,7 @@
 
     # Heizung Position
     - type: custom:violet-pool-card
-      entity: climate.violet_pool_heater
+      entity: climate.violet_pool_controller_heater
       card_type: compact
       style:
         top: 40%
@@ -320,7 +328,7 @@
 
     # Wasserchemie Position
     - type: custom:violet-pool-card
-      entity: switch.violet_pool_dos_1_cl
+      entity: switch.violet_pool_controller_dos_1_cl
       card_type: compact
       style:
         top: 60%
@@ -333,13 +341,13 @@
 
 # Mit Google Dark Theme
 - type: custom:violet-pool-card
-  entity: switch.violet_pool_pump
+  entity: switch.violet_pool_controller_pump
   card_type: pump
   theme: Google Dark Theme
 
 # Mit iOS Light Theme
 - type: custom:violet-pool-card
-  entity: climate.violet_pool_heater
+  entity: climate.violet_pool_controller_heater
   card_type: heater
   theme: iOS Light Mode
 
@@ -348,18 +356,23 @@
 # ============================================================================
 
 # Für HA Badge Section (oben im Dashboard)
-badges:
-  - type: entity
-    entity: switch.violet_pool_pump
-    tap_action:
-      action: fire-dom-event
-      browser_mod:
-        service: browser_mod.popup
-        data:
-          content:
-            type: custom:violet-pool-card
-            entity: switch.violet_pool_pump
-            card_type: pump
+# Hinweis: Badges werden in der View-Konfiguration definiert, nicht als separate YAML
+# Beispiel für ui-lovelace.yaml:
+# 
+# views:
+#   - title: Pool
+#     badges:
+#       - type: entity
+#         entity: switch.violet_pool_controller_pump
+#         tap_action:
+#           action: fire-dom-event
+#           browser_mod:
+#             service: browser_mod.popup
+#             data:
+#               content:
+#                 type: custom:violet-pool-card
+#                 entity: switch.violet_pool_controller_pump
+#                 card_type: pump
 
 # ============================================================================
 # PANEL MODE - Vollbild Dashboard
@@ -370,13 +383,13 @@ badges:
   card_type: overview
   title: Pool Steuerung
   entities:
-    - switch.violet_pool_pump
-    - climate.violet_pool_heater
-    - climate.violet_pool_solar
-    - switch.violet_pool_dos_1_cl
-    - switch.violet_pool_dos_4_phm
-    - switch.violet_pool_dos_5_php
-    - sensor.violet_pool_pool_temp
-    - sensor.violet_pool_ph_value
-    - sensor.violet_pool_orp_value
-    - sensor.violet_pool_free_chlorine
+    - switch.violet_pool_controller_pump
+    - climate.violet_pool_controller_heater
+    - climate.violet_pool_controller_solar
+    - switch.violet_pool_controller_dos_1_cl
+    - switch.violet_pool_controller_dos_4_phm
+    - switch.violet_pool_controller_dos_5_php
+    - sensor.violet_pool_controller_pool_temperature
+    - sensor.violet_pool_controller_ph_value
+    - sensor.violet_pool_controller_orp_value
+    - sensor.violet_pool_controller_chlorine_level

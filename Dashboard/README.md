@@ -2,6 +2,8 @@
 
 Dieses Verzeichnis enthält vorgefertigte Dashboard-Konfigurationen für eine intuitive und übersichtliche Steuerung Ihres Violet Pool Controllers in Home Assistant.
 
+**Version:** 1.0.3-alpha.1 (2026-02-06)
+
 ## 📁 Verfügbare Dashboards
 
 ### 1. `pool_control_card.yaml` - Vollständige Steuerung
@@ -26,6 +28,29 @@ Dieses Verzeichnis enthält vorgefertigte Dashboard-Konfigurationen für eine in
 - ✅ Verbindungsstatus
 - ✅ Optimiert für kleine Bildschirme
 
+### 3. `pool_control_ultimate.yaml` - Ultimate Control (Erweitert)
+**Empfohlen für:** Power-User, vollständige Kontrolle
+
+**⚠️ Benötigt Custom Cards via HACS:**
+- [Mushroom Cards](https://github.com/piitaya/lovelace-mushroom)
+- [Slider Entity Row](https://github.com/thomasloven/lovelace-slider-entity-row)
+- [Card Mod](https://github.com/thomasloven/lovelace-card-mod)
+
+**Features:**
+- ✅ Detaillierte Status-Anzeigen für alle Geräte
+- ✅ Erweiterte Dosierungs-Steuerung mit Kanister-Volumen
+- ✅ Runtime- und Reichweiten-Anzeigen
+- ✅ Visuelle Status-Indikatoren (Farben, Icons)
+- ✅ Frostschutz-Erkennung
+
+### 4. `VIOLET_CARD_EXAMPLES.yaml` - Custom Card Beispiele
+**Hinweis:** Beispiele für eine hypothetische "violet-pool-card" Custom Card
+
+**Features:**
+- ✅ Verschiedene Card-Typen (pump, heater, solar, dosing)
+- ✅ Compact, Overview und Panel Modes
+- ✅ Layout-Beispiele (horizontal, grid, vertical)
+
 ## 🚀 Installation
 
 ### Methode 1: Manuelles Kopieren (Empfohlen)
@@ -45,11 +70,17 @@ Dieses Verzeichnis enthält vorgefertigte Dashboard-Konfigurationen für eine in
    - Fügen Sie ihn in den Code-Editor ein
 
 4. **Entity-IDs anpassen**
-   - Ersetzen Sie `violet_pool_controller` durch Ihren tatsächlichen Entity-ID-Prefix
+   - Alle Dashboards verwenden standardmäßig `violet_pool_controller` als Entity-Prefix
+   - Ersetzen Sie dies durch Ihren tatsächlichen Device-Namen
    - Dies ist besonders wichtig, wenn Sie:
      - Mehrere Pool-Controller haben
      - Einen anderen Namen während der Installation vergeben haben
-     - Beispiel: `pool1_controller` statt `violet_pool_controller`
+     - Beispiel: `mein_pool` statt `violet_pool_controller`
+   - **Entity-Namensschema:**
+     - Switches: `switch.{device_name}_{key}` (z.B. `switch.violet_pool_controller_pump`)
+     - Sensoren: `sensor.{device_name}_{key}` (z.B. `sensor.violet_pool_controller_ph_value`)
+     - Number: `number.{device_name}_{key}` (z.B. `number.violet_pool_controller_pump_speed`)
+     - Climate: `climate.{device_name}_{key}` (z.B. `climate.violet_pool_controller_heater`)
 
 5. **Speichern**
    - Klicken Sie auf "Speichern"
