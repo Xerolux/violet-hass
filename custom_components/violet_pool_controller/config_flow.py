@@ -64,13 +64,13 @@ from .config_flow_utils import (
 _LOGGER = logging.getLogger(__name__)
 
 
-class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Config Flow für Violet Pool Controller."""
+class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
+    """Config flow for Violet Pool Controller."""
 
     VERSION = 1
 
     def __init__(self) -> None:
-        """Initialisiere Config Flow."""
+        """Initialize config flow."""
         self._config_data: dict[str, Any] = {}
         self._sensor_data: dict[str, list[str]] = {}
         self._reauth_entry: config_entries.ConfigEntry | None = None
@@ -266,12 +266,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 user_input
             )
 
-            # Hole Sensor-Daten für nächsten Schritt
             sensor_data = await self._get_grouped_sensors()
             self._sensor_data = sensor_data
             if not self._sensor_data:
                 _LOGGER.warning(
-                    "Keine dynamischen Sensoren gefunden. Überspringe Auswahl."
+                    "No dynamic sensors found. Skipping sensor selection."
                 )
                 self._config_data[CONF_SELECTED_SENSORS] = []
                 return self.async_create_entry(
@@ -305,18 +304,17 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input:
             selected_sensors = []
             for key, value in user_input.items():
-                if isinstance(value, list) and value:  # Prüfe ob Liste und nicht leer
+                if isinstance(value, list) and value:
                     selected_sensors.extend(value)
 
-            # ✅ FIX: Speichere Auswahl direkt. Leere Liste = keine Sensoren.
-            # Wir verwenden None nur für Legacy-Konfigs, wo es "Alle" bedeutet.
-            # Hier hat der User explizit gewählt (oder abgewählt).
+            # Store selection directly. Empty list = no sensors selected.
+            # None is reserved for legacy configs where it means "all sensors".
             self._config_data[CONF_SELECTED_SENSORS] = selected_sensors
 
             if selected_sensors:
-                _LOGGER.info("%d dynamische Sensoren ausgewählt", len(selected_sensors))
+                _LOGGER.info("%d dynamic sensors selected", len(selected_sensors))
             else:
-                _LOGGER.info("Keine dynamischen Sensoren ausgewählt.")
+                _LOGGER.info("No dynamic sensors selected.")
 
             return self.async_create_entry(
                 title=self._generate_entry_title(), data=self._config_data
@@ -858,7 +856,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class OptionsFlowHandler(config_entries.OptionsFlow):
-    """Options Flow für Violet Pool Controller."""
+    """Options flow for Violet Pool Controller."""
 
     def __init__(self) -> None:
         """Initialize options flow."""
@@ -904,13 +902,13 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                             options=[
                                 selector.SelectOptionDict(
                                     value="features",
-                                    label="🎛️ Features aktivieren/deaktivieren",
+                                    label="🎛️ Enable/disable features",
                                 ),
                                 selector.SelectOptionDict(
-                                    value="sensors", label="📊 Sensoren auswählen"
+                                    value="sensors", label="📊 Select sensors"
                                 ),
                                 selector.SelectOptionDict(
-                                    value="settings", label="⚙️ Einstellungen ändern"
+                                    value="settings", label="⚙️ Change settings"
                                 ),
                             ],
                             mode=selector.SelectSelectorMode.LIST,
@@ -979,8 +977,8 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 }
             ),
             description_placeholders={
-                "info": "Wählen Sie die Features, die Sie nutzen möchten. "
-                "Deaktivierte Features werden ausgeblendet."
+                "info": "Select the features you want to use. "
+                "Disabled features will be hidden."
             },
         )
 
@@ -997,30 +995,24 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             The flow result.
         """
         if user_input is not None:
-            # Trenne Sensor-Auswahl von anderen Optionen
             selected_sensors = []
             for key, value in user_input.items():
-                if key in self._sensor_data:  # Key ist eine Sensor-Gruppe
-                    if (
-                        isinstance(value, list) and value
-                    ):  # Prüfe ob Liste und nicht leer
+                if key in self._sensor_data:  # key is a sensor group
+                    if isinstance(value, list) and value:
                         selected_sensors.extend(value)
 
-            # Store selected sensors
             self._updated_options[CONF_SELECTED_SENSORS] = selected_sensors
 
             if selected_sensors:
                 _LOGGER.info(
-                    "%d Sensoren in Optionen gespeichert", len(selected_sensors)
+                    "%d sensors saved in options", len(selected_sensors)
                 )
             else:
-                _LOGGER.info("Keine Sensoren in Optionen ausgewählt.")
+                _LOGGER.info("No sensors selected in options.")
 
-            # Merge with existing options and create entry
             final_options = {**self.current_config, **self._updated_options}
             return self.async_create_entry(title="", data=final_options)
 
-        # Lade Sensoren für die Anzeige im Options-Flow
         self._sensor_data = await self._get_grouped_sensors()
 
         return self.async_show_form(
@@ -1144,13 +1136,11 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         """
         schema = {}
 
-        # Dynamische Sensor-Auswahl hinzufügen
-        # None (Legacy) bedeutet ALLE Sensoren sind ausgewählt.
+        # None (legacy) means ALL sensors are selected.
         stored_sensors = self.current_config.get(CONF_SELECTED_SENSORS)
         is_all_selected = stored_sensors is None
 
         for group, sensors in self._sensor_data.items():
-            # Erstelle Optionen mit freundlichen Namen
             options = [
                 selector.SelectOptionDict(
                     value=sensor,
@@ -1159,8 +1149,6 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 for sensor in sensors
             ]
 
-            # Wenn ALLE ausgewählt (None), dann wähle alle in dieser Gruppe.
-            # Ansonsten nimm die gespeicherte Liste.
             if is_all_selected:
                 default_selection = sensors
             else:

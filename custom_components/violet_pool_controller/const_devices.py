@@ -237,7 +237,7 @@ def get_device_state_info(raw_state: Any) -> dict[str, Any]:
 
     # Handle empty arrays (e.g., SOLARSTATE = "[]")
     if state_str in ("[]", "{}", ""):
-        return {"mode": "unknown", "active": None, "desc": "Keine Daten"}
+        return {"mode": "unknown", "active": None, "desc": "No data"}
 
     return cast(
         dict[str, Any],

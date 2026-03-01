@@ -89,15 +89,15 @@ API_PRIORITY_LOW = 4  # For history and statistics
 
 # Base switchable functions
 SWITCH_FUNCTIONS = {
-    "PUMP": "Filterpumpe",
-    "SOLAR": "Solarabsorber",
-    "HEATER": "Heizung",
-    "LIGHT": "Beleuchtung",
-    "ECO": "Eco-Modus",
-    "BACKWASH": "Rückspülung",
-    "BACKWASHRINSE": "Nachspülung",
-    "REFILL": "Wassernachfüllung",
-    "PVSURPLUS": "PV-Überschuss",
+    "PUMP": "Filter Pump",
+    "SOLAR": "Solar Absorber",
+    "HEATER": "Heater",
+    "LIGHT": "Lighting",
+    "ECO": "Eco Mode",
+    "BACKWASH": "Backwash",
+    "BACKWASHRINSE": "Backwash Rinse",
+    "REFILL": "Water Refill",
+    "PVSURPLUS": "PV Surplus",
 }
 
 # Dynamically add extension relays

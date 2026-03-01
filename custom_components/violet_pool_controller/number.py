@@ -45,22 +45,20 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
         """
         super().__init__(coordinator, config_entry, description)
 
-        # Min/Max/Step Werte setzen
         self._attr_native_min_value = setpoint_config["min_value"]
         self._attr_native_max_value = setpoint_config["max_value"]
         self._attr_native_step = setpoint_config["step"]
 
-        # Zusätzliche Attribute speichern
         self._setpoint_fields = setpoint_config["setpoint_fields"]
         self._indicator_fields = setpoint_config["indicator_fields"]
         self._default_value = setpoint_config["default_value"]
         self._api_key = setpoint_config["api_key"]
 
-        # ✅ FIXED: Lokale Cache-Variable für thread-sichere optimistische Updates
+        # Local cache variable for thread-safe optimistic updates
         self._optimistic_value: float | None = None
 
         _LOGGER.info(
-            "Number-Entity initialisiert: %s (Range: %.1f-%.1f, Step: %.1f, API-Key: %s)",
+            "Number entity initialized: %s (range: %.1f-%.1f, step: %.1f, API key: %s)",
             description.name,
             self._attr_native_min_value,
             self._attr_native_max_value,
@@ -79,20 +77,19 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
         Returns:
             The current setpoint or default value.
         """
-        # ✅ FIXED: Prüfe zuerst optimistischen Cache
         if self._optimistic_value is not None:
             return self._optimistic_value
 
-        # Spezialfall: Pumpengeschwindigkeit - aktive Stufe aus PUMP_RPM_{i} ermitteln
-        # PUMP_RPM_{i} liefert Statuscodes (0-6); Werte 1,2,3,4 = Ausgang EIN
+        # Special case: pump speed — determine active level from PUMP_RPM_{i}
+        # PUMP_RPM_{i} returns status codes (0-6); values 1,2,3,4 = output ON
         if self._api_key == "PUMP_SPEED":
-            for level in range(1, 4):  # Stufen 1 (Eco), 2 (Normal), 3 (Boost)
+            for level in range(1, 4):  # levels 1 (Eco), 2 (Normal), 3 (Boost)
                 rpm_val = self.get_value(f"PUMP_RPM_{level}")
                 if rpm_val is not None:
                     try:
-                        if int(rpm_val) in (1, 2, 3, 4):  # Statuscode = EIN
+                        if int(rpm_val) in (1, 2, 3, 4):  # status code = ON
                             _LOGGER.debug(
-                                "Pumpengeschwindigkeit aktiv: Stufe %d (PUMP_RPM_%d=%s)",
+                                "Pump speed active: level %d (PUMP_RPM_%d=%s)",
                                 level,
                                 level,
                                 rpm_val,
@@ -101,22 +98,21 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                     except (ValueError, TypeError):
                         pass
 
-        # Versuche Sollwert aus den konfigurierten Feldern zu lesen
         if self._setpoint_fields:
             for field in self._setpoint_fields:
                 value = self.get_float_value(field)
                 if value is not None:
                     _LOGGER.debug(
-                        "Sollwert für %s aus Feld '%s': %.2f",
+                        "Setpoint for %s from field '%s': %.2f",
                         self.entity_description.name,
                         field,
                         value,
                     )
                     return value
 
-        # Fallback auf Standardwert
+        # Fallback to default value
         _LOGGER.debug(
-            "Kein Sollwert gefunden für %s, verwende default: %.2f",
+            "No setpoint found for %s, using default: %.2f",
             self.entity_description.name,
             self._default_value,
         )
@@ -133,23 +129,21 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
         Returns:
             True if available, False otherwise.
         """
-        # None-Check für coordinator.data
         if self.coordinator.data is None:
             return False
 
-        # Prüfe ob Indikator-Felder verfügbar sind
         if self._indicator_fields:
             for field in self._indicator_fields:
                 if field in self.coordinator.data:
                     _LOGGER.debug(
-                        "Entity %s verfügbar (Indikator '%s' gefunden)",
+                        "Entity %s available (indicator '%s' found)",
                         self.entity_description.name,
                         field,
                     )
                     return super().available
 
             _LOGGER.debug(
-                "Entity %s nicht verfügbar (keine Indikator-Felder gefunden)",
+                "Entity %s not available (no indicator fields found)",
                 self.entity_description.name,
             )
 
@@ -169,14 +163,13 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
         """
         if not self._api_key:
             _LOGGER.error(
-                "Kein API-Key für %s definiert - kann Sollwert nicht setzen",
+                "No API key defined for %s - cannot set value",
                 self.entity_description.name,
             )
             raise HomeAssistantError(
-                f"Kein API-Key für {self.entity_description.name} definiert"
+                f"No API key defined for {self.entity_description.name}"
             )
 
-        # ✅ INPUT SANITIZATION: Validiere und sanitize den Wert basierend auf Typ
         try:
             if self._api_key == "pH":
                 sanitized_value = InputSanitizer.validate_ph_value(value)
@@ -185,7 +178,7 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
             elif self._api_key == "MinChlorine":
                 sanitized_value = InputSanitizer.validate_chlorine_level(value)
             else:
-                # Generic float validation mit Range
+                # Generic float validation with range
                 sanitized_value = InputSanitizer.sanitize_float(
                     value,
                     min_value=self._attr_native_min_value,
@@ -194,34 +187,33 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                 )
         except (ValueError, TypeError) as err:
             _LOGGER.error(
-                "Input Sanitization fehlgeschlagen für %s (Wert: %s): %s",
+                "Input sanitization failed for %s (value: %s): %s",
                 self.entity_description.name,
                 value,
                 err,
             )
-            raise HomeAssistantError(f"Ungültiger Wert: {err}") from err
+            raise HomeAssistantError(f"Invalid value: {err}") from err
 
-        # Validiere finalen Wertebereich (zusätzliche Sicherheit)
         if (
             sanitized_value < self._attr_native_min_value
             or sanitized_value > self._attr_native_max_value
         ):
             _LOGGER.error(
-                "Wert %.2f außerhalb des gültigen Bereichs (%.1f-%.1f) für %s",
+                "Value %.2f outside valid range (%.1f-%.1f) for %s",
                 sanitized_value,
                 self._attr_native_min_value,
                 self._attr_native_max_value,
                 self.entity_description.name,
             )
             raise HomeAssistantError(
-                f"Wert {sanitized_value} außerhalb des gültigen Bereichs "
+                f"Value {sanitized_value} outside valid range "
                 f"({self._attr_native_min_value}-{self._attr_native_max_value})"
             )
 
         try:
             unit = self.entity_description.native_unit_of_measurement or ""
             _LOGGER.info(
-                "Setze %s auf %.2f%s (vorher: %.2f%s) [sanitized: %.2f]",
+                "Setting %s to %.2f%s (was: %.2f%s) [sanitized: %.2f]",
                 self.entity_description.name,
                 value,
                 unit,
@@ -230,37 +222,27 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                 sanitized_value,
             )
 
-            # Wähle die passende API-Methode basierend auf dem API-Key
             api_key = self._api_key
 
             if api_key == "pH":
-                _LOGGER.debug(
-                    "Verwende set_ph_target für pH-Wert (sanitized: %.2f)",
-                    sanitized_value,
-                )
+                _LOGGER.debug("Using set_ph_target (sanitized: %.2f)", sanitized_value)
                 result = await self.device.api.set_ph_target(sanitized_value)
             elif api_key == "ORP":
-                _LOGGER.debug(
-                    "Verwende set_orp_target für ORP-Wert (sanitized: %.1f)",
-                    sanitized_value,
-                )
-                # ORP values can be decimal (e.g., 650.5), preserve precision
+                _LOGGER.debug("Using set_orp_target (sanitized: %.1f)", sanitized_value)
                 result = await self.device.api.set_orp_target(sanitized_value)
             elif api_key == "MinChlorine":
                 _LOGGER.debug(
-                    "Verwende set_min_chlorine_level für Chlor-Wert (sanitized: %.2f)",
-                    sanitized_value,
+                    "Using set_min_chlorine_level (sanitized: %.2f)", sanitized_value
                 )
                 result = await self.device.api.set_min_chlorine_level(sanitized_value)
             elif api_key == "PUMP_SPEED":
                 _LOGGER.debug(
-                    "Verwende set_pump_speed für Pumpengeschwindigkeit (sanitized: %d)",
-                    int(sanitized_value),
+                    "Using set_pump_speed (sanitized: %d)", int(sanitized_value)
                 )
                 result = await self.device.api.set_pump_speed(int(sanitized_value))
             elif api_key in ("HEATER_TARGET_TEMP", "SOLAR_TARGET_TEMP"):
                 _LOGGER.debug(
-                    "Verwende set_device_temperature für %s (sanitized: %.1f)",
+                    "Using set_device_temperature for %s (sanitized: %.1f)",
                     api_key.replace("_TARGET_TEMP", ""),
                     sanitized_value,
                 )
@@ -269,9 +251,8 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                     climate_key, sanitized_value
                 )
             elif api_key.endswith("_TOTAL_CAN_AMOUNT_ML"):
-                # Dosing canister volume parameters
                 _LOGGER.debug(
-                    "Verwende set_dosing_parameters für %s (sanitized: %.0f ml)",
+                    "Using set_dosing_parameters for %s (sanitized: %.0f ml)",
                     api_key,
                     sanitized_value,
                 )
@@ -280,7 +261,7 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                 )
             else:
                 _LOGGER.debug(
-                    "Verwende set_target_value für %s (sanitized: %.2f)",
+                    "Using set_target_value for %s (sanitized: %.2f)",
                     api_key,
                     sanitized_value,
                 )
@@ -288,62 +269,57 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                     api_key, sanitized_value
                 )
 
-            # Prüfe Ergebnis
             if result.get("success") is True:
                 _LOGGER.info(
-                    "%s erfolgreich auf %.2f%s gesetzt",
+                    "%s set to %.2f%s successfully",
                     self.entity_description.name,
                     value,
                     unit,
                 )
 
-                # ✅ FIXED: Optimistisches Update mit lokalem Cache (thread-safe)
                 self._optimistic_value = value
                 _LOGGER.debug(
-                    "Optimistischer Cache für '%s' auf %.2f gesetzt",
+                    "Optimistic cache for '%s' set to %.2f",
                     self.entity_description.name,
                     value,
                 )
 
-                # State sofort aktualisieren
                 self.async_write_ha_state()
 
-                # Daten vom Controller neu abrufen und dann Cache zurücksetzen
                 try:
                     await self.coordinator.async_request_refresh()
                 finally:
-                    # ✅ FIX: Always clear optimistic cache, even if refresh raises
                     self._optimistic_value = None
                     _LOGGER.debug(
-                        "Optimistischer Cache für '%s' zurückgesetzt",
+                        "Optimistic cache for '%s' cleared",
                         self.entity_description.name,
                     )
             else:
                 error_msg = result.get("response", result)
                 _LOGGER.warning(
-                    "%s setzen möglicherweise fehlgeschlagen: %s",
+                    "Setting %s may have failed: %s",
                     self.entity_description.name,
                     error_msg,
                 )
-                raise HomeAssistantError(f"Sollwert setzen fehlgeschlagen: {error_msg}")
+                raise HomeAssistantError(f"Failed to set value: {error_msg}")
 
         except VioletPoolAPIError as err:
             _LOGGER.error(
-                "API-Fehler beim Setzen von %s auf %.2f: %s",
+                "API error setting %s to %.2f: %s",
                 self.entity_description.name,
                 value,
                 err,
             )
-            raise HomeAssistantError(f"Sollwert setzen fehlgeschlagen: {err}") from err
+            raise HomeAssistantError(f"Failed to set value: {err}") from err
 
         except Exception as err:
             _LOGGER.exception(
-                "Unerwarteter Fehler beim Setzen von %s auf %.2f: %s",
+                "Unexpected error setting %s to %.2f: %s",
                 self.entity_description.name,
                 value,
                 err,
             )
-            raise HomeAssistantError(f"Unerwarteter Fehler: {err}") from err
+            raise HomeAssistantError(f"Unexpected error: {err}") from err
 
 
 async def async_setup_entry(
@@ -366,22 +342,20 @@ async def async_setup_entry(
         config_entry.entry_id
     ]
 
-    # Aktive Features aus Options oder Data holen
     active_features = config_entry.options.get(
         CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
     )
 
     _LOGGER.debug(
-        "Setup Number-Entities für '%s' mit aktiven Features: %s",
+        "Setting up number entities for '%s' with active features: %s",
         config_entry.title,
         ", ".join(active_features),
     )
 
-    # None-Check für coordinator.data
     if coordinator.data is None:
         _LOGGER.warning(
-            "Coordinator-Daten sind None für '%s'. "
-            "Number-Entities werden nicht erstellt.",
+            "Coordinator data is None for '%s'. "
+            "Number entities will not be created.",
             config_entry.title,
         )
         return
@@ -393,17 +367,14 @@ async def async_setup_entry(
         setpoint_key = str(setpoint_config["key"])
         feature_id = setpoint_config["feature_id"]
 
-        # Prüfe ob Feature aktiviert ist
         if feature_id and feature_id not in active_features:
             _LOGGER.debug(
-                "Überspringe Number '%s': Feature '%s' nicht aktiv",
+                "Skipping number '%s': feature '%s' not active",
                 setpoint_name,
                 feature_id,
             )
             continue
 
-        # Prüfe ob Indikator-Felder verfügbar sind
-        # (zeigt an, dass dieser Sollwert relevant ist)
         indicator_fields = setpoint_config.get("indicator_fields", [])
         if isinstance(indicator_fields, list):
             has_indicators = any(
@@ -412,13 +383,12 @@ async def async_setup_entry(
 
             if not has_indicators:
                 _LOGGER.debug(
-                    "Überspringe Number '%s': Keine Indikator-Felder verfügbar (%s)",
+                    "Skipping number '%s': no indicator fields available (%s)",
                     setpoint_name,
                     ", ".join(str(f) for f in indicator_fields),
                 )
                 continue
 
-        # Erstelle NumberEntityDescription
         description = NumberEntityDescription(
             key=setpoint_key,
             name=setpoint_name,
@@ -429,24 +399,21 @@ async def async_setup_entry(
         )
 
         _LOGGER.debug(
-            "Erstelle Number-Entity für '%s' (Key: %s)", setpoint_name, setpoint_key
+            "Creating number entity for '%s' (key: %s)", setpoint_name, setpoint_key
         )
 
         entities.append(
             VioletNumber(coordinator, config_entry, description, setpoint_config)
         )
 
-    # Entities hinzufügen
     if entities:
         async_add_entities(entities)
-        # Type ignore: we know that entity_description.name is a string or None, and we handle None via str() if needed.
-        # But actually NumberEntityDescription name is expected to be str | None.
         entity_names = [str(e.entity_description.name) for e in entities]
         _LOGGER.info(
-            "%d Number-Entities für '%s' eingerichtet: %s",
+            "%d number entities added for '%s': %s",
             len(entities),
             config_entry.title,
             ", ".join(entity_names),
         )
     else:
-        _LOGGER.info("Keine Number-Entities für '%s' eingerichtet", config_entry.title)
+        _LOGGER.info("No number entities set up for '%s'", config_entry.title)

@@ -24,25 +24,25 @@ _LOGGER = logging.getLogger(__name__)
 PARALLEL_UPDATES = 0
 
 # State Constants
-# Der Violet Pool Controller verwendet verschiedene Zustände für Geräte:
-# - 0: AUTO_OFF - Automatik-Modus, Gerät ist aus
-# - 1: AUTO_ON - Automatik-Modus, Gerät ist an (z.B. nach Zeitplan)
-# - 2-3: Weitere AUTO-Zustände (z.B. Aufwärmen, Vorbereiten)
-# - 4: MANUAL_ON - Manueller Modus, Gerät ist eingeschaltet
-# - 5: AUTO_OFF - Alternative AUTO-OFF Darstellung
-# - 6: MANUAL_OFF - Manueller Modus, Gerät ist ausgeschaltet
+# The Violet Pool Controller uses the following states for devices:
+# - 0: AUTO_OFF - Automatic mode, device is off
+# - 1: AUTO_ON  - Automatic mode, device is on (e.g. by schedule)
+# - 2-3: Further AUTO states (e.g. warm-up, preparing)
+# - 4: MANUAL_ON  - Manual mode, device is switched on
+# - 5: AUTO_OFF - Alternative AUTO_OFF representation
+# - 6: MANUAL_OFF - Manual mode, device is switched off
 #
-# WICHTIG: State "4" wird als ON behandelt, nicht als ERROR/UNDEFINED.
-# Dies ist ein normaler Zustand für manuell eingeschaltete Geräte.
+# NOTE: State "4" is treated as ON, not as ERROR/UNDEFINED.
+# This is a normal state for manually switched-on devices.
 STATE_OFF = 0
 STATE_AUTO_ON = 1
 STATE_MANUAL_ON = 4
 STATE_AUTO_OFF = 5
 STATE_MANUAL_OFF = 6
 
-# ON_STATES: Alle Zustände, bei denen das Gerät aktiv ist (1-4)
+# ON_STATES: All states where the device is active (1-4)
 ON_STATES = {1, 2, 3, 4}
-# OFF_STATES: Alle Zustände, bei denen das Gerät inaktiv ist (0, 5, 6)
+# OFF_STATES: All states where the device is inactive (0, 5, 6)
 OFF_STATES = {0, 5, 6}
 
 REFRESH_DELAY = 0.3
@@ -69,15 +69,14 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         """
         super().__init__(coordinator, config_entry, description)
 
-        # ✅ LOGGING OPTIMIZATION: State-Change Detection
+        # State-change detection for log throttling
         self._last_logged_state: bool | None = None
         self._last_logged_raw: Any = None
 
-        # ✅ FIXED: Lokale Cache-Variable für optimistisches Update
+        # Local cache variable for optimistic updates
         self._optimistic_state: bool | None = None
 
-        # ✅ Nur Setup loggen, nicht jeden Zugriff
-        _LOGGER.debug("Switch initialisiert: %s", self.entity_id)
+        _LOGGER.debug("Switch initialized: %s", self.entity_id)
 
     @property
     def is_on(self) -> bool:
@@ -428,41 +427,35 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 # ✅ Erfolg nur bei Debug loggen (API loggt bereits)
                 _LOGGER.debug("Switch %s erfolgreich auf %s gesetzt", key, action)
 
-                # ✅ FIXED: NUR lokale Variable setzen, KEINE coordinator.data Mutation!
                 self._optimistic_state = action == ACTION_ON
                 self.async_write_ha_state()
 
                 _LOGGER.debug(
-                    "Optimistisches Update: %s = %s (lokaler Cache, kein coordinator.data mutiert)",
+                    "Optimistic update: %s = %s (local cache, coordinator.data not mutated)",
                     key,
                     "ON" if self._optimistic_state else "OFF",
                 )
 
-                # Asynchroner Refresh holt echte Daten und resettet Cache
                 task = asyncio.create_task(self._delayed_refresh(key))
                 task.add_done_callback(lambda t: self._handle_refresh_error(t, key))
             else:
-                error_msg = result.get("response", "Unbekannter Fehler")
-                # ✅ Fehler = WARNING (User-relevant)
+                error_msg = result.get("response", "Unknown error")
                 _LOGGER.warning(
-                    "Switch %s Aktion %s fehlgeschlagen: %s", key, action, error_msg
+                    "Switch %s action %s failed: %s", key, action, error_msg
                 )
                 task = asyncio.create_task(self._delayed_refresh(key))
                 task.add_done_callback(lambda t: self._handle_refresh_error(t, key))
 
         except VioletPoolAPIError as err:
-            # ✅ API-Fehler = ERROR (kritisch)
             _LOGGER.error(
-                "API-Fehler beim Setzen von Switch %s auf %s: %s", key, action, err
+                "API error setting switch %s to %s: %s", key, action, err
             )
-            # Bei Fehler Cache löschen
             self._optimistic_state = None
-            raise HomeAssistantError(f"Switch-Aktion fehlgeschlagen: {err}") from err
+            raise HomeAssistantError(f"Switch action failed: {err}") from err
         except Exception as err:
-            _LOGGER.error("Unerwarteter Fehler beim Setzen von Switch %s: %s", key, err)
-            # Bei Fehler Cache löschen
+            _LOGGER.error("Unexpected error setting switch %s: %s", key, err)
             self._optimistic_state = None
-            raise HomeAssistantError(f"Switch-Fehler: {err}") from err
+            raise HomeAssistantError(f"Switch error: {err}") from err
 
     async def _delayed_refresh(self, key: str) -> None:
         """
@@ -471,7 +464,6 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         Args:
             key: The switch key.
         """
-        # ✅ SHARED CODE: Use base refresh method
         try:
             success = await self._request_coordinator_refresh(
                 delay=REFRESH_DELAY, log_context=key
@@ -479,14 +471,14 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
 
             if success and self.coordinator.data is not None:
                 new_state = self.coordinator.data.get(key, "UNKNOWN")
-                _LOGGER.debug("State nach Refresh: %s = %s", key, new_state)
+                _LOGGER.debug("State after refresh: %s = %s", key, new_state)
         finally:
             # Always clear optimistic cache — even on CancelledError during HA reload
             old_optimistic = self._optimistic_state
             self._optimistic_state = None
             if old_optimistic is not None:
                 _LOGGER.debug(
-                    "Optimistischer Cache gelöscht für %s (war: %s)",
+                    "Optimistic cache cleared for %s (was: %s)",
                     key,
                     "ON" if old_optimistic else "OFF",
                 )
@@ -605,15 +597,11 @@ async def async_setup_entry(
     )
     entities: list[SwitchEntity] = []
 
-    # ✅ Setup = INFO (wichtig für User)
-    _LOGGER.info("Switch Setup - Active features: %s", active_features)
+    _LOGGER.info("Switch setup - active features: %s", active_features)
 
-    # Diagnose nur bei verfügbaren Daten
     if coordinator.data is not None:
-        # ✅ Diagnose = DEBUG (nur für Entwickler)
         _LOGGER.debug("Coordinator data keys: %d", len(coordinator.data.keys()))
 
-        # State-Diagnose nur für wichtige Switches
         for key in ["PUMP", "SOLAR", "HEATER"]:
             if key in coordinator.data:
                 try:
@@ -632,9 +620,9 @@ async def async_setup_entry(
                     )
                     _LOGGER.debug("%s: raw=%s → %s", key, value, expected)
                 except (ValueError, KeyError, TypeError) as err:
-                    _LOGGER.debug("Diagnose-Fehler für %s: %s", key, err)
+                    _LOGGER.debug("Diagnostic error for %s: %s", key, err)
     else:
-        _LOGGER.warning("Coordinator data is None bei Switch Setup")
+        _LOGGER.warning("Coordinator data is None during switch setup")
 
     # Create switches
     for switch_config in SWITCHES:
@@ -658,9 +646,8 @@ async def async_setup_entry(
         feature_id = switch_config.get("feature_id")
 
         if feature_id and feature_id not in active_features:
-            # ✅ DEBUG: Unwichtige Info
             _LOGGER.debug(
-                "Überspringe Switch %s: Feature %s nicht aktiv",
+                "Skipping switch %s: feature %s not active",
                 description.key,
                 feature_id,
             )
@@ -670,17 +657,14 @@ async def async_setup_entry(
 
     if entities:
         async_add_entities(entities)
-        # ✅ INFO: Erfolgreicher Setup
-        _LOGGER.info("✓ %d Switches erfolgreich eingerichtet", len(entities))
+        _LOGGER.info("%d switches added", len(entities))
 
-        # Final check nur bei DEBUG
         if coordinator.data is not None:
             for entity in entities:
                 key = entity.entity_description.key
                 if key in ["PUMP", "SOLAR", "HEATER"] and key in coordinator.data:
                     try:
                         raw_state = coordinator.data[key]
-                        # Type cast to access specific method
                         should_be_on = entity._get_switch_state()  # type: ignore[attr-defined]
                         _LOGGER.debug(
                             "Final check %s: raw=%s → display=%s",
@@ -689,7 +673,6 @@ async def async_setup_entry(
                             "ON" if should_be_on else "OFF",
                         )
                     except (ValueError, KeyError, TypeError, AttributeError) as err:
-                        _LOGGER.debug("Final-Check-Fehler für %s: %s", key, err)
+                        _LOGGER.debug("Final check error for %s: %s", key, err)
     else:
-        # ✅ WARNING: Potenzielles Problem
-        _LOGGER.warning("⚠ Keine Switches eingerichtet")
+        _LOGGER.warning("No switches were set up")
