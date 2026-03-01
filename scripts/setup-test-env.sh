@@ -1,6 +1,6 @@
 #!/bin/bash
 # Setup Test Environment for Violet Pool Controller
-# This script creates a Python 3.12 virtual environment with Home Assistant and test dependencies
+# This script creates a Python 3.13 virtual environment with Home Assistant and test dependencies
 
 set -e  # Exit on error
 
@@ -20,15 +20,15 @@ if [ ! -f "custom_components/violet_pool_controller/manifest.json" ]; then
     exit 1
 fi
 
-# Check Python 3.12
-echo -e "${YELLOW}Checking Python 3.12...${NC}"
-if ! command -v python3.12 &> /dev/null; then
-    echo -e "${RED}Python 3.12 not found. Please install it first:${NC}"
-    echo "  sudo apt-get install python3.12 python3.12-venv python3.12-dev"
+# Check Python 3.13
+echo -e "${YELLOW}Checking Python 3.13...${NC}"
+if ! command -v python3.13 &> /dev/null; then
+    echo -e "${RED}Python 3.13 not found. Please install it first:${NC}"
+    echo "  sudo apt-get install python3.13 python3.13-venv python3.13-dev"
     exit 1
 fi
 
-PYTHON_VERSION=$(python3.12 --version)
+PYTHON_VERSION=$(python3.13 --version)
 echo -e "${GREEN}✓ Found $PYTHON_VERSION${NC}\n"
 
 # Create virtual environment
@@ -39,7 +39,7 @@ if [ -d "$VENV_DIR" ]; then
     rm -rf "$VENV_DIR"
 fi
 
-python3.12 -m venv "$VENV_DIR"
+python3.13 -m venv "$VENV_DIR"
 echo -e "${GREEN}✓ Virtual environment created${NC}\n"
 
 # Activate virtual environment
@@ -53,9 +53,9 @@ pip install --quiet --upgrade pip setuptools wheel
 echo -e "${GREEN}✓ Upgraded${NC}\n"
 
 # Install Home Assistant
-echo -e "${YELLOW}Installing Home Assistant 2025.1.4...${NC}"
+echo -e "${YELLOW}Installing Home Assistant 2025.12.0...${NC}"
 echo -e "${YELLOW}  (This may take a few minutes)${NC}"
-pip install --quiet homeassistant==2025.1.4
+pip install --quiet homeassistant==2025.12.0
 echo -e "${GREEN}✓ Home Assistant installed${NC}\n"
 
 # Install test dependencies

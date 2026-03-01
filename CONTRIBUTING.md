@@ -24,8 +24,8 @@ This project adheres to the [Home Assistant Code of Conduct](https://www.home-as
 
 ### Prerequisites
 
-- Python 3.12 or later
-- Home Assistant 2025.1 or later
+- Python 3.13 or later
+- Home Assistant 2025.12 or later
 - Git
 - A Violet Pool Controller device (or access to simulator)
 

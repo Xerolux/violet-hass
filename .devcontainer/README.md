@@ -6,7 +6,7 @@ This directory contains the configuration for GitHub Codespaces and VS Code Dev 
 
 The `devcontainer.json` file defines a complete development environment for this project, including:
 
-- **Python 3.12** runtime
+- **Python 3.13** runtime
 - **Home Assistant 2025.1.4** and all test dependencies
 - **Development tools** (ruff, mypy, pytest)
 - **VS Code extensions** for Python development
@@ -32,7 +32,7 @@ The `devcontainer.json` file defines a complete development environment for this
 
 When a new Codespace or Dev Container is created:
 
-1. Python 3.12 container is started
+1. Python 3.13 container is started
 2. Git and GitHub CLI are installed
 3. The `scripts/setup-test-env.sh` script runs automatically:
    - Creates a virtual environment
