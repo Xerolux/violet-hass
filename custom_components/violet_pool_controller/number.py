@@ -18,6 +18,9 @@ from .utils_sanitizer import InputSanitizer
 
 _LOGGER = logging.getLogger(__name__)
 
+# Coordinator-based platforms; HA should not throttle entity state writes
+PARALLEL_UPDATES = 0
+
 
 class VioletNumber(VioletPoolControllerEntity, NumberEntity):
     """Representation of a Violet Pool number entity (setpoint)."""

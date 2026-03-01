@@ -12,7 +12,8 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from typing import Any, Iterable, cast
+from collections.abc import Iterable
+from typing import Any, cast
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol

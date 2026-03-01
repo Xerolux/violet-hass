@@ -53,9 +53,7 @@ rules:
   log-when-unavailable:
     status: done
   parallel-updates:
-    status: todo
-    comment: >
-      Parallel updates not yet explicitly configured in all platforms.
+    status: done
   reauthentication-flow:
     status: todo
     comment: >

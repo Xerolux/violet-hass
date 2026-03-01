@@ -19,6 +19,9 @@ from .entity import VioletPoolControllerEntity, interpret_state_as_bool
 
 _LOGGER = logging.getLogger(__name__)
 
+# Coordinator-based platforms; HA should not throttle entity state writes
+PARALLEL_UPDATES = 0
+
 # Feature mapping für Binary Sensors
 BINARY_SENSOR_FEATURE_MAP = {
     "PUMP": "filter_control",

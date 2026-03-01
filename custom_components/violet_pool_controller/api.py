@@ -6,7 +6,8 @@ import asyncio
 import json
 import logging
 import re
-from typing import Any, Mapping, cast
+from collections.abc import Mapping
+from typing import Any, cast
 from urllib.parse import quote, urlparse, urlunparse
 
 import aiohttp

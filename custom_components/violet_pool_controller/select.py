@@ -27,6 +27,9 @@ from .entity import VioletPoolControllerEntity
 
 _LOGGER = logging.getLogger(__name__)
 
+# Coordinator-based platforms; HA should not throttle entity state writes
+PARALLEL_UPDATES = 0
+
 # Mode Constants
 MODE_OFF = "off"
 MODE_ON = "on"

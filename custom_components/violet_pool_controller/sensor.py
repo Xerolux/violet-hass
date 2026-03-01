@@ -46,6 +46,9 @@ from .sensor_modules import (
 
 _LOGGER = logging.getLogger(__name__)
 
+# Coordinator-based platforms; HA should not throttle entity state writes
+PARALLEL_UPDATES = 0
+
 # Additional constants for sensor classification
 _ERROR_CODE_KEYS = {"LAST_ERROR_CODE", "ERROR_CODE", "LAST_ERROR"}
 _FLOW_RATE_SOURCE_KEYS = {"ADC3_value", "IMP2_value"}

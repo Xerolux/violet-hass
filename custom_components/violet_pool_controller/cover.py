@@ -1,5 +1,5 @@
 
-"""Cover Integration für den Violet Pool Controller."""
+"""Cover platform for Violet Pool Controller."""
 from __future__ import annotations
 
 import logging
@@ -28,9 +28,12 @@ from .entity import VioletPoolControllerEntity
 
 _LOGGER = logging.getLogger(__name__)
 
+# Coordinator-based platforms; HA should not throttle entity state writes
+PARALLEL_UPDATES = 0
+
 
 class VioletCover(VioletPoolControllerEntity, CoverEntity):
-    """Repräsentation der Pool-Abdeckung."""
+    """Representation of the pool cover."""
 
     _attr_device_class = CoverDeviceClass.SHUTTER
     _attr_supported_features = (
