@@ -4,7 +4,31 @@
 
 ---
 
-## [1.0.2-beta.5] – 2026-02-25 🧪 BETA
+## [1.0.3-alpha.1] – 2026-02-28 🔴 ALPHA
+
+### Neue Features
+
+- **Quality Scale Progress:** Dokumentation des Fortschritts zur Quality Scale hinzugefügt (Gold Level ~85% abgeschlossen).
+
+### Verbesserungen
+
+- **Code Quality:** Type Hints vervollständigt (Bronze Level 100% abgeschlossen).
+- **Fehlerbehebung:** Behebung von Config Flow Handler Problemen.
+- **HA 2026 Kompatibilität:** Fixes für Home Assistant 2026 Kompatibilität und Abschluss von Gold Level Tests.
+- **ZeroConf Discovery:** Fixes für ZeroConf Discovery (100% Tests erfolgreich).
+
+### Dokumentation
+
+- **Enhanced Documentation:** Verbesserte Fehlerbehandlung, Diagnostics und Dokumentation (Silver Level 100% abgeschlossen).
+
+### Kompatibilität
+- Getestet auf Home Assistant 2025.12.0+
+- Vorbereitet für 2026.x Versionen
+- aiohttp>=3.10.0 erforderlich
+
+---
+
+## [1.0.2] – 2026-02-26 ✅ STABLE
 
 ### Neue Features
 
@@ -13,6 +37,7 @@
 - Exportiere bis zu 10.000 Log-Zeilen für Troubleshooting
 - Optional in Datei speichern für Support-Tickets
 - Mit Timestamps und flexibler Zeilenanzahl
+- Export enthält nun auch installierte Komponenten und Home Assistant System-Infos.
 
 ### Verbesserungen
 
