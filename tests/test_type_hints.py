@@ -1,6 +1,6 @@
 """Tests for type hints and mypy compliance."""
 import pytest
-from custom_components.violet_pool_controller.climate import VioletClimate
+from custom_components.violet_pool_controller.climate import VioletClimateEntity
 from custom_components.violet_pool_controller.cover import VioletCover
 from custom_components.violet_pool_controller.const_devices import COVER_STATE_MAP
 
