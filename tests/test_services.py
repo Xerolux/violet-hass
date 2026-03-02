@@ -1,7 +1,7 @@
 
 import pytest
 from unittest.mock import MagicMock
-from homeassistant.core import HomeAssistant, Config
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -65,7 +65,7 @@ async def test_export_diagnostic_logs_failure(hass: HomeAssistant, device_regist
 
 
 # Mock Config class to simulate real behavior (no .version attribute)
-class RealConfig(Config):
+class RealConfig:
     def __init__(self):
         self.components = {"http", "websocket_api"}
         self.time_zone = "UTC"
