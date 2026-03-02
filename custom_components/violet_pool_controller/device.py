@@ -10,7 +10,7 @@ from collections.abc import Mapping
 from datetime import datetime, timedelta
 from typing import Any
 
-from homeassistant.components.repairs import IssueSeverity, async_create_issue, async_delete_issue
+from homeassistant.helpers.issue_registry import IssueSeverity, async_create_issue, async_delete_issue
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
