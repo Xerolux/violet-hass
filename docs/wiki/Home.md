@@ -13,8 +13,9 @@ Das **Violet Pool Controller Home Assistant Integration** verbindet [Home Assist
 |---------|---------|
 | **Protokoll** | HTTP/HTTPS, lokales Polling |
 | **HA-Mindestversion** | 2025.12.0 |
+| **Getestet bis** | 2026.x (aktuell) |
 | **Python** | 3.12+ |
-| **Version** | 1.0.3-alpha.1 |
+| **Version** | 1.0.3-alpha.2 |
 | **Lizenz** | MIT |
 | **Sprachen** | DE, EN, ES, FR, IT, NL, PL, PT, RU, ZH |
 
@@ -29,8 +30,8 @@ Das **Violet Pool Controller Home Assistant Integration** verbindet [Home Assist
 │   Pumpe      │   Heizung    │   Solar      │ Dosierung  │
 │  (3 Stufen)  │ (Thermostat) │ (PV-Surplus) │ pH/Cl/ORP  │
 ├──────────────┼──────────────┼──────────────┼────────────┤
-│   Beleucht.  │   Abdeckung  │  Digit. I/O  │ Kalibrierung│
-│ (DMX 1-8)   │  (Cover)     │  (DI1-DI8)   │ History    │
+│   Beleucht.  │   Abdeckung  │  Digit. I/O  │ Diagnose   │
+│ (DMX 1-8)   │  (Cover)     │  (DI1-DI8)   │ Download   │
 ├──────────────┴──────────────┴──────────────┴────────────┤
 │  100% lokal · Multi-Controller · SSL/TLS · Rate Limiting │
 └─────────────────────────────────────────────────────────┘
@@ -68,10 +69,11 @@ Das **Violet Pool Controller Home Assistant Integration** verbindet [Home Assist
 ### Ich habe ein Problem
 
 1. **[Troubleshooting](Troubleshooting)** – Häufige Probleme & Lösungen
-2. **[Erweiterte Protokollierung](Erweiterte-Protokollierung)** – Diagnose-Tools & Log-Export
-3. **[Fehler-Codes](Error-Codes)** – Controller-Fehlercodes erklärt
-4. **[FAQ](FAQ)** – 50+ häufige Fragen
-5. **[GitHub Issues](https://github.com/Xerolux/violet-hass/issues)** – Bug-Reports
+2. **[Diagnosedaten herunterladen](Diagnostics)** – JSON-Export für Bug-Reports
+3. **[Erweiterte Protokollierung](Erweiterte-Protokollierung)** – Diagnose-Tools & Log-Export
+4. **[Fehler-Codes](Error-Codes)** – Controller-Fehlercodes erklärt
+5. **[FAQ](FAQ)** – 50+ häufige Fragen
+6. **[GitHub Issues](https://github.com/Xerolux/violet-hass/issues)** – Bug-Reports
 
 ### Ich will mehrere Controller
 
@@ -88,9 +90,9 @@ Das **Violet Pool Controller Home Assistant Integration** verbindet [Home Assist
 ```
 Home Assistant
     │
-    ├── VioletPoolDataUpdateCoordinator (polling, 20s default)
+    ├── VioletPoolDataUpdateCoordinator (polling, 10s default)
     │       │
-    │       ├── VioletPoolAPI (aiohttp, rate-limited, retry-logic)
+    │       ├── VioletPoolAPI (aiohttp, rate-limited, retry-logic, SSL)
     │       │       │
     │       │       └── Violet Pool Controller (HTTP/HTTPS)
     │       │               GET /getReadings?ALL
@@ -99,7 +101,9 @@ Home Assistant
     │       │
     │       └── Entities (sensors, switches, climate, cover, number)
     │
-    └── Services (control_pump, smart_dosing, manage_pv_surplus, ...)
+    ├── Services (control_pump, smart_dosing, manage_pv_surplus, ...)
+    │
+    └── Diagnostics (Diagnosedaten herunterladen via HA UI)
 ```
 
 ### Sicherheits-Features
@@ -131,6 +135,17 @@ Home Assistant
 
 ---
 
+## HA 2026 Kompatibilität
+
+Diese Integration ist vollständig mit Home Assistant 2026.x kompatibel:
+
+| Problem | Status | Fix |
+|---------|--------|-----|
+| `ZeroconfServiceInfo` entfernt | ✅ Behoben | `AsyncServiceInfo` aus `homeassistant.components.zeroconf` |
+| `IssueSeverity` aus `components.repairs` entfernt | ✅ Behoben | Umzug nach `homeassistant.helpers.issue_registry` |
+
+---
+
 ## Links & Ressourcen
 
 | Ressource | Link |
@@ -146,5 +161,5 @@ Home Assistant
 
 ---
 
-*Diese Wiki dokumentiert Version **1.0.3-alpha.1** des Violet Pool Controller Addons.*
-*Zuletzt aktualisiert: 2026-02-28*
+*Diese Wiki dokumentiert Version **1.0.3-alpha.2** des Violet Pool Controller Addons.*
+*Zuletzt aktualisiert: 2026-03-02*

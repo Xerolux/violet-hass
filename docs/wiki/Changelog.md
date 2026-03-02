@@ -4,6 +4,25 @@
 
 ---
 
+## [1.0.3-alpha.2] – 2026-03-02 🔴 ALPHA
+
+### Bugfixes (HA 2026 Kompatibilität)
+
+- **ZeroconfServiceInfo entfernt**: `ZeroconfServiceInfo` wurde aus `homeassistant.components.zeroconf` entfernt. Import in `config_flow.py` und `tests/test_discovery.py` auf `AsyncServiceInfo` umgestellt.
+- **Repairs-Imports verschoben**: `IssueSeverity`, `async_create_issue` und `async_delete_issue` wurden aus `homeassistant.components.repairs` in `homeassistant.helpers.issue_registry` verschoben. Import in `device.py` entsprechend aktualisiert.
+
+### Neue Features
+
+- **Diagnosedaten-Download**: Neues `diagnostics.py` Modul hinzugefügt. Über die Geräteseite in HA kann jetzt eine JSON-Datei mit vollständigen Debug-Informationen heruntergeladen werden (Konfiguration, Gerätestatus, Verbindungsmetriken, aktuelle Messwerte, Poll-Statistiken). Passwörter werden automatisch geschwärzt.
+
+### Dokumentation
+
+- **README bereinigt**: README.md auf das Wesentliche (Features + Schnellstart + Wiki-Links) reduziert. Alle Details wurden in das Wiki ausgelagert.
+- **Wiki aktualisiert**: Home-Seite, Sidebar und Changelog auf Version 1.0.3-alpha.2 aktualisiert.
+- **Neue Wiki-Seite Diagnostics**: Vollständige Dokumentation der Diagnosedaten-Funktion.
+
+---
+
 ## [1.0.3-alpha.1] – 2026-02-28 🔴 ALPHA
 
 ### Neue Features

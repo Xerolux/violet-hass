@@ -21,6 +21,7 @@
 
 ## 🔧 Betrieb & Wartung
 - [Troubleshooting](Troubleshooting)
+- [Diagnosedaten](Diagnostics)
 - [Erweiterte Protokollierung](Erweiterte-Protokollierung)
 - [Fehler-Codes](Error-Codes)
 - [Security & SSL](Security)
@@ -34,7 +35,7 @@
 
 ---
 
-**Version:** 1.0.3-alpha.1
+**Version:** 1.0.3-alpha.2
 **HA:** 2025.12.0+ (getestet bis 2026.x)
 
 [GitHub](https://github.com/Xerolux/violet-hass) · [Issues](https://github.com/Xerolux/violet-hass/issues) · [HACS](https://hacs.xyz/)
