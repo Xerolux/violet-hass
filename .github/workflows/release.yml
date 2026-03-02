@@ -635,6 +635,7 @@ jobs:
       
       - name: Post to forum
         if: inputs.forum_dry_run != true
+        continue-on-error: true
         run: |
           python scripts/forum_poster.py \
             --forum-url "${{ secrets.FORUM_URL }}" \

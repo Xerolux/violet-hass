@@ -59,11 +59,26 @@ class PhpBBPoster:
             )
             response.raise_for_status()
             
-            if "Abmelden" in response.text or "Logout" in response.text:
+            # Check for common logout/sign-out link text in various languages
+            logout_indicators = [
+                "Abmelden", "Logout", "Log out", "Sign out",
+                "Ausloggen", "Déconnexion", "Cerrar sesión",
+            ]
+            if any(indicator in response.text for indicator in logout_indicators):
                 print("Successfully logged in to forum")
                 return True
-            
-            print("Login may have failed - logout link not found")
+
+            # Also check if the username appears in the page (another sign of successful login)
+            if self.username and self.username.lower() in response.text.lower():
+                print("Successfully logged in to forum (username found in response)")
+                return True
+
+            # Check that we are no longer on the login page (no login form present)
+            if 'name="login"' not in response.text and 'mode=login' not in response.url:
+                print("Successfully logged in to forum (login form no longer present)")
+                return True
+
+            print("Login may have failed - no successful login indicator found")
             return False
             
         except requests.RequestException as e:
@@ -223,7 +238,7 @@ def format_bbcode_release_post(
     [/list]
 [/list]
 
-[size=85]📋 [url={changelog_url}Vollständiges Changelog auf GitHub[/url] | [url={release_url}]Release Details[/url][/size]
+[size=85]📋 [url={changelog_url}]Vollständiges Changelog auf GitHub[/url] | [url={release_url}]Release Details[/url][/size]
 [/quote]
 
 [quote="[b]❤️ Entwicklung unterstützen[/b]"]
