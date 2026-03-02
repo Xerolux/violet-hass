@@ -1,4 +1,4 @@
-## v1.0.3-beta.2 – Violet Pool Controller
+## v1.0.3-beta.3 – Violet Pool Controller
 
 🟡 **BETA RELEASE** - Testing phase, may contain bugs
 
@@ -18,6 +18,8 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- Update integration logo to official Violet icon (8c23aff)
+- 📝 Release v1.0.3-beta.2 - Update changelog and version files (fc7ba31)
 - Update FUNDING.yml (499a6d5)
 - 📝 Release v1.0.3-beta.1 - Update changelog and version files (1fc2bce)
 - 📝 Release v1.0.3-alpha.4 - Update changelog and version files (55a78f6)
@@ -37,6 +39,7 @@
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- Fix code formatting in climate.py (fe7ebde)
 - fix-zeroconf-discovery-filter (eaa3ed3)
 - fix: restrict zeroconf discovery to violet devices (05a94c9)
 - fix: make forum login detection robust and fix BBCode URL typo (20216eb)
@@ -93,7 +96,7 @@
 
 ---
 
-📋 [Full changelog: v1.0.2...v1.0.3-beta.2](https://github.com/Xerolux/violet-hass/compare/v1.0.2...v1.0.3-beta.2)
+📋 [Full changelog: v1.0.2...v1.0.3-beta.3](https://github.com/Xerolux/violet-hass/compare/v1.0.2...v1.0.3-beta.3)
 
 ---
 
@@ -127,4 +130,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-03-02 15:48:04 UTC_
+_Generated automatically by GitHub Actions on 2026-03-02 18:40:23 UTC_
