@@ -4,6 +4,16 @@
 
 ---
 
+## [1.0.3-beta.1] – 2026-03-02 🟡 BETA
+
+### Versionsschritt Alpha → Beta
+
+- Alle bekannten HA 2026 Kompatibilitätsfehler behoben.
+- Diagnosedaten-Download Feature fertiggestellt.
+- Dokumentation (README + Wiki) vollständig überarbeitet und aktualisiert.
+
+---
+
 ## [1.0.3-alpha.2] – 2026-03-02 🔴 ALPHA
 
 ### Bugfixes (HA 2026 Kompatibilität)
