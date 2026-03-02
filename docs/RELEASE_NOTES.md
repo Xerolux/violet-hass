@@ -1,4 +1,4 @@
-## v1.0.3-alpha.2 – Violet Pool Controller
+## v1.0.3-alpha.3 – Violet Pool Controller
 
 🔴 **ALPHA RELEASE** - Experimental features, use with caution!
 
@@ -16,6 +16,7 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- 📝 Release v1.0.3-alpha.2 - Update changelog and version files (44d0302)
 - small update for blueprints, dashboards and workflows (38ed640)
 - update-readme-services (dac9edf)
 - update-wiki-version (77fcc81)
@@ -30,6 +31,8 @@
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- fix-zeroconf-import-error (512353a)
+- fix: replace ZeroconfServiceInfo with AsyncServiceInfo for HA 2026 compatibility (62ac86f)
 - fix: add repairs to manifest dependencies (e8a4f8a)
 - Fix HA coding standards: collections.abc imports and PARALLEL_UPDATES (7d51b91)
 - Fix HA coding standards: modernize type hints, add quality_scale.yaml (00ef821)
@@ -76,7 +79,7 @@
 
 ---
 
-📋 [Full changelog: v1.0.2...v1.0.3-alpha.2](https://github.com/Xerolux/violet-hass/compare/v1.0.2...v1.0.3-alpha.2)
+📋 [Full changelog: v1.0.2...v1.0.3-alpha.3](https://github.com/Xerolux/violet-hass/compare/v1.0.2...v1.0.3-alpha.3)
 
 ---
 
@@ -110,4 +113,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-03-02 04:29:56 UTC_
+_Generated automatically by GitHub Actions on 2026-03-02 05:02:47 UTC_
