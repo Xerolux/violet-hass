@@ -9,7 +9,7 @@
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/xerolux/violet-hass/issues",
   "requirements": ["aiohttp>=3.10.0"],
-  "version": "1.0.3-alpha.3",
+  "version": "1.0.3-alpha.4",
   "zeroconf": [
     "_http._tcp.local.",
     "_violet-controller._tcp.local."
