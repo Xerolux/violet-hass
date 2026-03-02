@@ -3,7 +3,7 @@
   "name": "Violet Pool Controller",
   "codeowners": ["@xerolux"],
   "config_flow": true,
-  "dependencies": [],
+  "dependencies": ["repairs"],
   "documentation": "https://github.com/xerolux/violet-hass",
   "integration_type": "device",
   "iot_class": "local_polling",
