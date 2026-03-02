@@ -8,7 +8,7 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.components.zeroconf import ZeroconfServiceInfo
+from homeassistant.components.zeroconf import AsyncServiceInfo
 from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client, selector
@@ -413,7 +413,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
         )
 
     async def async_step_zeroconf(
-        self, discovery_info: ZeroconfServiceInfo
+        self, discovery_info: AsyncServiceInfo
     ) -> ConfigFlowResult:
         """Handle zeroconf discovery of a Violet Pool Controller.
 
