@@ -6,7 +6,8 @@ import asyncio
 import json
 import logging
 import re
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any, cast
 from urllib.parse import quote, urlparse, urlunparse
 
 import aiohttp
@@ -327,8 +328,6 @@ class VioletPoolAPI:
         Raises:
             VioletPoolAPIError: If the template is misconfigured.
         """
-        from typing import cast
-
         template = cast(
             str,
             DEVICE_PARAMETERS.get(key, {}).get(

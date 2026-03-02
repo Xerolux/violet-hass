@@ -1,0 +1,112 @@
+rules:
+  # Bronze
+  action-setup:
+    status: done
+  appropriate-polling:
+    status: done
+  brands:
+    status: done
+  common-modules:
+    status: done
+  config-flow-test-coverage:
+    status: done
+  config-flow:
+    status: done
+  dependency-transparency:
+    status: done
+  docs-actions:
+    status: done
+  docs-high-level-description:
+    status: done
+  docs-installation-instructions:
+    status: done
+  docs-removal-instructions:
+    status: done
+  entity-event-setup:
+    status: done
+  entity-unique-id:
+    status: done
+  has-entity-name:
+    status: done
+  runtime-data:
+    status: done
+  test-before-configure:
+    status: done
+  test-before-setup:
+    status: done
+  unique-config-entry:
+    status: done
+
+  # Silver
+  action-exceptions:
+    status: done
+  config-entry-unloading:
+    status: done
+  docs-configuration-parameters:
+    status: done
+  docs-installation-parameters:
+    status: done
+  entity-unavailable:
+    status: done
+  integration-owner:
+    status: done
+  log-when-unavailable:
+    status: done
+  parallel-updates:
+    status: done
+  reauthentication-flow:
+    status: done
+  test-coverage:
+    status: done
+
+  # Gold
+  devices:
+    status: done
+  diagnostics:
+    status: done
+  discovery-update-info:
+    status: done
+  discovery:
+    status: done
+  docs-data-update:
+    status: done
+  docs-examples:
+    status: done
+  docs-known-limitations:
+    status: done
+  docs-supported-devices:
+    status: done
+  docs-supported-functions:
+    status: done
+  docs-troubleshooting:
+    status: done
+  docs-use-cases:
+    status: done
+  dynamic-devices:
+    status: done
+  entity-category:
+    status: done
+  entity-device-class:
+    status: done
+  entity-disabled-by-default:
+    status: done
+  entity-translations:
+    status: done
+  exception-translations:
+    status: done
+  icon-translations:
+    status: done
+  reconfiguration-flow:
+    status: done
+  repair-issues:
+    status: done
+  stale-devices:
+    status: done
+
+  # Platinum
+  async-dependency:
+    status: done
+  inject-websession:
+    status: done
+  strict-typing:
+    status: done

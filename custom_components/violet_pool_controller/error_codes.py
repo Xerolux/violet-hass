@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Dict
-
 # The dictionary below is intentionally focused on the most common error codes
 # observed in production systems.  Unknown codes fall back to a generic
 # response so the integration remains robust even when the controller ships a
 # firmware with additional diagnostics.
 
-ERROR_CODES: Dict[str, Dict[str, str]] = {
+ERROR_CODES: dict[str, dict[str, str]] = {
     "0": {
         "type": "MESSAGE",
         "subject": "Testnachricht",
@@ -667,7 +665,7 @@ ERROR_CODES: Dict[str, Dict[str, str]] = {
 }
 
 
-def get_error_info(code: str) -> Dict[str, str]:
+def get_error_info(code: str) -> dict[str, str]:
     """Return error information for a given code."""
 
     return ERROR_CODES.get(

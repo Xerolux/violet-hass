@@ -19,6 +19,9 @@ from .entity import VioletPoolControllerEntity, interpret_state_as_bool
 
 _LOGGER = logging.getLogger(__name__)
 
+# Coordinator-based platforms; HA should not throttle entity state writes
+PARALLEL_UPDATES = 0
+
 # Feature mapping für Binary Sensors
 BINARY_SENSOR_FEATURE_MAP = {
     "PUMP": "filter_control",
@@ -147,11 +150,11 @@ async def async_setup_entry(
 
     _LOGGER.info("Binary Sensor Setup - Active features: %s", active_features)
 
-    # None-Check für coordinator.data
+    # None-check for coordinator.data
     if coordinator.data is None:
         _LOGGER.warning(
-            "Coordinator-Daten sind None für '%s'. "
-            "Binary Sensors werden nicht erstellt.",
+            "Coordinator data is None for '%s'. "
+            "Binary sensors will not be created.",
             config_entry.title,
         )
         return
@@ -167,7 +170,7 @@ async def async_setup_entry(
     # Create binary sensor descriptions from BINARY_SENSORS constant
     for sensor_config in BINARY_SENSORS:
         if not isinstance(sensor_config, dict):
-            _LOGGER.warning("Ungültige Sensor-Config: %s", sensor_config)
+            _LOGGER.warning("Invalid sensor config: %s", sensor_config)
             continue
 
         # Use proper BinarySensorEntityDescription
@@ -184,7 +187,7 @@ async def async_setup_entry(
         # Check if feature is active (if feature_id is specified)
         if feature_id and feature_id not in active_features:
             _LOGGER.debug(
-                "Überspringe Binary Sensor %s: Feature %s nicht aktiv",
+                "Skipping binary sensor %s: feature %s not active",
                 description.key,
                 feature_id,
             )
@@ -198,20 +201,20 @@ async def async_setup_entry(
             and not description.key.startswith("INPUT")
         ):
             _LOGGER.debug(
-                "Überspringe Binary Sensor %s: Keine Daten verfügbar",
+                "Skipping binary sensor %s: no data available",
                 description.key,
             )
             continue
 
-        _LOGGER.debug("Erstelle Binary Sensor: %s", description.name)
+        _LOGGER.debug("Creating binary sensor: %s", description.name)
         entities.append(VioletBinarySensor(coordinator, config_entry, description))
 
     if entities:
         async_add_entities(entities)
         _LOGGER.info(
-            "✓ %d Binary Sensors erfolgreich eingerichtet: %s",
+            "%d binary sensors added: %s",
             len(entities),
             [e.name for e in entities],
         )
     else:
-        _LOGGER.warning("⚠ Keine Binary Sensors eingerichtet")
+        _LOGGER.warning("No binary sensors were set up")

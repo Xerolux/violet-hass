@@ -1,5 +1,7 @@
 """Config Flow Submodules."""
 
+from __future__ import annotations
+
 from .constants import (
     BASE_RETRY_DELAY,
     DEFAULT_API_TIMEOUT,

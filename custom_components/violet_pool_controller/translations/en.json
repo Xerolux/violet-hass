@@ -131,6 +131,10 @@
                     "timeout_duration": "Maximum wait time per request",
                     "retry_attempts": "Number of retry attempts"
                 }
+            },
+            "zeroconf_confirm": {
+                "title": "Violet Pool Controller Found",
+                "description": "A Violet Pool Controller was discovered on the network.\n\nName: **{name}**\nIP Address: **{host}**\n\nDo you want to set up this controller now?"
             }
         },
         "error": {
@@ -156,7 +160,9 @@
             "invalid_auth": "Invalid credentials",
             "agreement_declined": "Safety disclaimer not accepted",
             "reauth_successful": "Reauthentication successful",
+            "reauth_failed": "Reauthentication failed",
             "reconfigure_successful": "Reconfiguration successful",
+            "already_in_progress": "Setup already in progress",
             "unknown": "Unknown error"
         }
     },
@@ -184,6 +190,38 @@
                 "title": "General Settings",
                 "description": "Adjust the technical parameters\n\nPolling Interval: How often data is fetched\nTimeout: Maximum wait time for responses\nRetries: Number of retry attempts\n\nDefault values work for most setups!"
             }
+        }
+    },
+    "exceptions": {
+        "api_error": {
+            "message": "API communication error: {detail}"
+        },
+        "invalid_value": {
+            "message": "Invalid value: {detail}"
+        },
+        "value_out_of_range": {
+            "message": "Value {value} is outside the valid range ({min}–{max})"
+        },
+        "failed_to_set_value": {
+            "message": "Failed to set value: {detail}"
+        },
+        "no_api_key": {
+            "message": "No API key configured for entity {entity}"
+        },
+        "invalid_action": {
+            "message": "Invalid action: {action}"
+        },
+        "unexpected_error": {
+            "message": "Unexpected error: {detail}"
+        },
+        "controller_unavailable": {
+            "message": "Pool controller {name} is unavailable after {failures} consecutive failures"
+        }
+    },
+    "issues": {
+        "controller_unavailable": {
+            "title": "Pool Controller Unavailable",
+            "description": "The pool controller **{name}** has been unreachable for {failures} consecutive polling cycles.\n\nPlease check:\n- Is the controller powered on?\n- Is the network connection OK?\n- Is the IP address still correct?\n\nOnce the controller is reachable again, this issue will be resolved automatically."
         }
     },
     "services": {

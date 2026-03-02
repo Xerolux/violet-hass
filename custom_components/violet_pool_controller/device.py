@@ -6,9 +6,11 @@ import asyncio
 import collections
 import logging
 import time
+from collections.abc import Mapping
 from datetime import datetime, timedelta
-from typing import Any, Mapping
+from typing import Any
 
+from homeassistant.components.repairs import IssueSeverity, async_create_issue, async_delete_issue
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
@@ -32,8 +34,7 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-# ✅ LOGGING OPTIMIZATION: Throttling-Konstanten
-FAILURE_LOG_INTERVAL = 300  # Nur alle 5 Minuten bei wiederholten Fehlern
+FAILURE_LOG_INTERVAL = 300  # Log repeated failures at most every 5 minutes
 
 
 class VioletPoolControllerDevice:
@@ -42,7 +43,7 @@ class VioletPoolControllerDevice:
     def __init__(
         self, hass: HomeAssistant, config_entry: ConfigEntry, api: VioletPoolAPI
     ) -> None:
-        """Initialisiere die Geräteinstanz mit Smart Logging."""
+        """Initialize the device instance."""
         self.hass = hass
         self.config_entry = config_entry
         self.api = api
@@ -59,11 +60,10 @@ class VioletPoolControllerDevice:
         self._poll_history: collections.deque[tuple[datetime, int, float, dict[str, Any]]] = collections.deque(maxlen=1000)
         self._first_poll: datetime | None = None
 
-        # ✅ LOGGING OPTIMIZATION: Smart Failure Tracking
-        self._last_failure_log = 0.0  # Timestamp für Throttling
-        self._first_failure_logged = False  # Flag für erste Warnung
-        self._recovery_logged = False  # Flag für Recovery-Message
-        self._fw_logged = False  # Flag für Firmware-Version-Logging
+        self._last_failure_log = 0.0  # Timestamp for throttling
+        self._first_failure_logged = False  # Flag for first warning
+        self._recovery_logged = False  # Flag for recovery message
+        self._fw_logged = False  # Flag for firmware version logging
 
         # ✅ DIAGNOSTIC SENSORS: Connection health monitoring
         self._last_update_time = 0.0  # Timestamp of last successful update
@@ -77,14 +77,13 @@ class VioletPoolControllerDevice:
             float
         ] = []  # Rolling window for average latency (max 60 samples)
 
-        # Konfiguration extrahieren (mit Options-Support)
         entry_data = config_entry.data
         entry_options = config_entry.options
         self.api_url = self._extract_api_url(entry_data)
         self.use_ssl = entry_data.get(CONF_USE_SSL, True)
         self.device_id = entry_data.get(CONF_DEVICE_ID, 1)
         self.device_name = entry_data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
-        # ✅ MULTI-CONTROLLER: Priorisiere Options (nachträgliche Änderungen), dann Data
+        # Prefer options (later changes) over data
         self.controller_name = entry_options.get(
             CONF_CONTROLLER_NAME,
             entry_data.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME),
@@ -243,19 +242,13 @@ class VioletPoolControllerDevice:
 
     async def async_update(self) -> dict[str, Any]:
         """
-        Aktualisiert Gerätedaten vom Controller - SMART FAILURE LOGGING.
+        Fetch and return updated device data from the controller.
 
         Returns a NEW dict copy on every successful update so that
         HA's DataUpdateCoordinator detects a data change and notifies
         all entity listeners.  Returning the same mutable reference
         caused HA 2025.12+ to skip entity state writes because
         ``self.data is new_data`` evaluated to True.
-
-        ✅ LOGGING OPTIMIZATION:
-        - Erste Warnung sofort
-        - Zwischenwarnungen nur alle 5 Minuten
-        - Kritischer Fehler bei Max-Failures
-        - Recovery-Info nach Wiederherstellung
         """
         try:
             async with self._api_lock:
@@ -271,13 +264,10 @@ class VioletPoolControllerDevice:
                 if len(self._latency_history) > 60:
                     self._latency_history.pop(0)
 
-                # Validiere Daten
                 if not data or not isinstance(data, dict):
                     self._consecutive_failures += 1
 
-                    # ✅ LOGGING OPTIMIZATION: Intelligentes Failure-Logging
                     if self._consecutive_failures == 1:
-                        # First warning only if was available (not first setup)
                         if self._available or len(self._data) > 0:
                             _LOGGER.warning(
                                 "Controller '%s' returned empty/invalid data (attempt %d)",
@@ -287,32 +277,44 @@ class VioletPoolControllerDevice:
                             self._first_failure_logged = True
                             self._recovery_logged = False
                         else:
-                            # Beim ersten Setup nur Debug-Level
+                            # During initial setup use debug level
                             _LOGGER.debug(
-                                "Controller '%s' antwortet nicht (Setup-Phase)",
+                                "Controller '%s' not responding (setup phase)",
                                 self.device_name,
                             )
 
                     elif self._consecutive_failures >= self._max_consecutive_failures:
-                        # Kritisch: Wird unavailable - IMMER loggen
                         _LOGGER.error(
-                            "Controller '%s' nach %d aufeinanderfolgenden Fehlern als "
-                            "unavailable markiert.",
+                            "Controller '%s' marked unavailable after %d consecutive failures.",
                             self.device_name,
                             self._consecutive_failures,
                         )
                         self._available = False
 
+                        # Create a repair issue so users are notified in HA UI
+                        async_create_issue(
+                            self.hass,
+                            DOMAIN,
+                            f"controller_unavailable_{self.config_entry.entry_id}",
+                            is_fixable=True,
+                            is_persistent=True,
+                            severity=IssueSeverity.ERROR,
+                            translation_key="controller_unavailable",
+                            translation_placeholders={
+                                "name": self.device_name,
+                                "failures": str(self._consecutive_failures),
+                            },
+                        )
+
                         raise UpdateFailed(
-                            f"Controller '{self.device_name}' nicht erreichbar "
-                            f"({self._consecutive_failures} Fehler)"
+                            f"Controller '{self.device_name}' unreachable "
+                            f"({self._consecutive_failures} failures)"
                         )
 
                     elif self._should_log_failure():
-                        # Zwischenwarnungen nur throttled
                         _LOGGER.warning(
-                            "Controller '%s' weiterhin nicht erreichbar "
-                            "(%d/%d aufeinanderfolgende Fehler)",
+                            "Controller '%s' still unreachable "
+                            "(%d/%d consecutive failures)",
                             self.device_name,
                             self._consecutive_failures,
                             self._max_consecutive_failures,
@@ -326,16 +328,22 @@ class VioletPoolControllerDevice:
                     # Return a COPY of stale data so coordinator sees a new object
                     return dict(self._data) if self._data else {}
 
-                # ✅ LOGGING OPTIMIZATION: Erfolg nach Fehlern = wichtige Info
                 if self._consecutive_failures > 0 and not self._recovery_logged:
                     _LOGGER.info(
-                        "Controller '%s' wieder erreichbar (nach %d Fehler%s)",
+                        "Controller '%s' reachable again (after %d failure%s)",
                         self.device_name,
                         self._consecutive_failures,
-                        "n" if self._consecutive_failures > 1 else "",
+                        "s" if self._consecutive_failures > 1 else "",
                     )
                     self._recovery_logged = True
                     self._first_failure_logged = False
+
+                    # Delete the repair issue when controller is available again
+                    async_delete_issue(
+                        self.hass,
+                        DOMAIN,
+                        f"controller_unavailable_{self.config_entry.entry_id}",
+                    )
 
                 # ✅ FIX: Always replace _data with a fresh dict to ensure
                 # HA's DataUpdateCoordinator detects the change.
@@ -442,30 +450,29 @@ class VioletPoolControllerDevice:
 
             # ✅ LOGGING OPTIMIZATION: Konsolidiertes Error-Logging
             if self._consecutive_failures == 1:
-                # Beim ersten Setup nur Debug, sonst Error
                 if not self._available and len(self._data) == 0:
                     _LOGGER.debug(
-                        "API-Fehler bei Setup von '%s': %s",
+                        "API error during setup of '%s': %s",
                         self.device_name,
                         str(err)[:200],
                     )
                 else:
                     _LOGGER.error(
-                        "API-Fehler bei Update von '%s': %s",
+                        "API error during update of '%s': %s",
                         self.device_name,
-                        str(err)[:200],  # Gekürzt auf 200 Zeichen
+                        str(err)[:200],
                     )
             elif self._consecutive_failures >= self._max_consecutive_failures:
                 _LOGGER.error(
-                    "Controller '%s' nach %d API-Fehlern nicht mehr verfügbar",
+                    "Controller '%s' unavailable after %d API failures",
                     self.device_name,
                     self._consecutive_failures,
                 )
                 self._available = False
-                raise UpdateFailed(f"Controller nicht erreichbar: {err}") from err
+                raise UpdateFailed(f"Controller unreachable: {err}") from err
             elif self._should_log_failure():
                 _LOGGER.warning(
-                    "Anhaltende API-Probleme bei '%s' (%d/%d Fehler)",
+                    "Persistent API issues for '%s' (%d/%d failures)",
                     self.device_name,
                     self._consecutive_failures,
                     self._max_consecutive_failures,
@@ -478,20 +485,18 @@ class VioletPoolControllerDevice:
             self._last_error = str(err)
             self._consecutive_failures += 1
 
-            # ✅ LOGGING: Unexpected errors always logged
             if self._consecutive_failures == 1:
-                # Beim ersten Setup nur Debug, sonst volle Exception
                 if not self._available and len(self._data) == 0:
                     _LOGGER.debug(
-                        "Fehler bei Setup von '%s': %s", self.device_name, err
+                        "Error during setup of '%s': %s", self.device_name, err
                     )
                 else:
                     _LOGGER.exception(
-                        "Unerwarteter Fehler bei Update von '%s'", self.device_name
+                        "Unexpected error during update of '%s'", self.device_name
                     )
             elif self._consecutive_failures >= self._max_consecutive_failures:
                 _LOGGER.error(
-                    "Controller '%s' nach %d unerwarteten Fehlern nicht verfügbar",
+                    "Controller '%s' unavailable after %d unexpected failures",
                     self.device_name,
                     self._consecutive_failures,
                 )
@@ -499,9 +504,9 @@ class VioletPoolControllerDevice:
                 raise UpdateFailed(f"Update error: {err}") from err
             elif self._should_log_failure():
                 _LOGGER.warning(
-                    "Anhaltende Probleme bei '%s': %s (%d/%d Fehler)",
+                    "Persistent issues for '%s': %s (%d/%d failures)",
                     self.device_name,
-                    type(err).__name__,  # Nur Exception-Typ, nicht full trace
+                    type(err).__name__,
                     self._consecutive_failures,
                     self._max_consecutive_failures,
                 )
@@ -521,42 +526,35 @@ class VioletPoolControllerDevice:
 
     @property
     def available(self) -> bool:
-        """Gibt den Verfügbarkeitsstatus zurück."""
+        """Return the availability status."""
         return self._available
 
     @property
     def firmware_version(self) -> str | None:
-        """Gibt die Firmware-Version zurück."""
+        """Return the firmware version."""
         return self._firmware_version
 
     @property
     def data(self) -> dict[str, Any]:
-        """Gibt die aktuellen Daten zurück."""
+        """Return the current data."""
         return self._data
 
     @property
     def last_error(self) -> str | None:
-        """Gibt den letzten Fehler zurück."""
+        """Return the last error."""
         return self._last_error
 
     @property
     def consecutive_failures(self) -> int:
-        """Gibt die Anzahl aufeinanderfolgender Fehler zurück."""
+        """Return the number of consecutive failures."""
         return self._consecutive_failures
 
     @property
     def device_info(self) -> dict[str, Any]:
-        """
-        Gibt die Geräteinformationen für Home Assistant zurück.
-
-        ✅ MULTI-CONTROLLER SUPPORT:
-        - Verwendet controller_name für visuelle Unterscheidung
-        - suggested_area ermöglicht automatische Bereichszuweisung
-        - Kein Caching, damit Options-Änderungen sofort wirksam werden
-        """
+        """Return device information for Home Assistant."""
         return {
             "identifiers": {(DOMAIN, f"{self.api_url}_{self.device_id}")},
-            # ✅ Uses Controller-Name instead of Device-Name
+            # Uses controller_name for visual distinction in multi-controller setups
             "name": self.controller_name,
             "manufacturer": "PoolDigital GmbH & Co. KG",
             "model": "Violet Pool Controller",
@@ -636,16 +634,16 @@ class VioletPoolControllerDevice:
         )
 
         if not url:
-            raise ValueError("Keine IP-Adresse in Config Entry gefunden")
+            raise ValueError("No IP address found in config entry")
 
         if not isinstance(url, str):
-            raise ValueError("API URL ist kein String")
+            raise ValueError("API URL is not a string")
 
         return url.strip()
 
 
 class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
-    """Data Update Coordinator - SMART FAILURE LOGGING."""
+    """Data update coordinator for the Violet Pool Controller."""
 
     def __init__(
         self,
@@ -654,7 +652,7 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
         name: str,
         polling_interval: int = DEFAULT_POLLING_INTERVAL,
     ) -> None:
-        """Initialisiere den Coordinator mit Smart Logging."""
+        """Initialize the coordinator."""
         super().__init__(
             hass,
             _LOGGER,
@@ -703,24 +701,17 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
 async def async_setup_device(
     hass: HomeAssistant, config_entry: ConfigEntry, api: VioletPoolAPI
 ) -> VioletPoolDataUpdateCoordinator:
-    """
-    Setup des Violet Pool Controller Devices - SMART FAILURE LOGGING + RETRY LOGIC.
-
-    ✅ LOGGING OPTIMIZATION: Fokus auf Setup-Erfolg/Fehler, nicht auf Details.
-    ✅ RETRY LOGIC: Mehrere Versuche beim ersten Setup für bessere Zuverlässigkeit.
-    """
+    """Set up the Violet Pool Controller device and return a coordinator."""
     try:
-        # Device erstellen
         device = VioletPoolControllerDevice(hass, config_entry, api)
 
-        # Ersten Update durchführen mit Retry-Logik (max 3 Versuche)
         max_retries = 3
         last_error = None
 
         for attempt in range(1, max_retries + 1):
             try:
                 _LOGGER.debug(
-                    "Setup-Versuch %d/%d für '%s'",
+                    "Setup attempt %d/%d for '%s'",
                     attempt,
                     max_retries,
                     device.device_name,
@@ -729,36 +720,32 @@ async def async_setup_device(
                 await device.async_update()
 
                 if device.available:
-                    _LOGGER.debug("Setup-Versuch %d erfolgreich", attempt)
+                    _LOGGER.debug("Setup attempt %d succeeded", attempt)
                     break
 
             except Exception as err:
                 last_error = err
-                _LOGGER.debug("Setup-Versuch %d fehlgeschlagen: %s", attempt, err)
+                _LOGGER.debug("Setup attempt %d failed: %s", attempt, err)
 
-            # Warte zwischen Versuchen (außer beim letzten)
             if attempt < max_retries:
                 await asyncio.sleep(2)
 
         if not device.available:
-            # ✅ Clear setup error message after all attempts
             error_msg = (
-                f"Controller '{device.device_name}' nicht erreichbar nach "
-                f"{max_retries} Versuchen. "
-                f"Bitte Verbindung und Controller-Status prüfen."
+                f"Controller '{device.device_name}' not reachable after "
+                f"{max_retries} attempts. "
+                f"Please check connection and controller status."
             )
             if last_error:
-                error_msg += f" Letzter Fehler: {last_error}"
+                error_msg += f" Last error: {last_error}"
 
             raise ConfigEntryNotReady(error_msg)
 
-        # Polling-Intervall aus Options oder Data holen
         polling_interval = config_entry.options.get(
             CONF_POLLING_INTERVAL,
             config_entry.data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL),
         )
 
-        # Coordinator erstellen
         coordinator = VioletPoolDataUpdateCoordinator(
             hass,
             device,
@@ -766,24 +753,20 @@ async def async_setup_device(
             polling_interval,
         )
 
-        # Ersten Refresh durchführen
         await coordinator.async_config_entry_first_refresh()
 
-        # ✅ Erfolgreicher Setup = wichtige Info
         _LOGGER.info(
-            "✓ Device Setup erfolgreich: '%s' (FW: %s, %d Datenpunkte)",
+            "Device setup successful: '%s' (FW: %s, %d data points)",
             device.device_name,
-            device.firmware_version or "Unbekannt",
+            device.firmware_version or "Unknown",
             len(device.data) if device.data else 0,
         )
 
         return coordinator
 
     except ConfigEntryNotReady:
-        # Bereits korrekt formatierte Exception durchreichen
         raise
 
     except Exception as err:
-        # ✅ Setup-Fehler immer loggen (kritisch)
-        _LOGGER.exception("Device Setup fehlgeschlagen: %s", err)
-        raise ConfigEntryNotReady(f"Setup-Fehler: {err}") from err
+        _LOGGER.exception("Device setup failed: %s", err)
+        raise ConfigEntryNotReady(f"Setup error: {err}") from err

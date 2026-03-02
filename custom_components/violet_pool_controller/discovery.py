@@ -4,11 +4,9 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from homeassistant import config_entries
 from homeassistant.components.zeroconf import AsyncServiceInfo
 from homeassistant.core import HomeAssistant, callback
 
-from . import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 

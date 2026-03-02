@@ -46,6 +46,9 @@ from .sensor_modules import (
 
 _LOGGER = logging.getLogger(__name__)
 
+# Coordinator-based platforms; HA should not throttle entity state writes
+PARALLEL_UPDATES = 0
+
 # Additional constants for sensor classification
 _ERROR_CODE_KEYS = {"LAST_ERROR_CODE", "ERROR_CODE", "LAST_ERROR"}
 _FLOW_RATE_SOURCE_KEYS = {"ADC3_value", "IMP2_value"}
@@ -61,10 +64,10 @@ async def async_setup_entry(
         config_entry.entry_id
     ]
 
-    # None-Check für coordinator.data
+    # None-check for coordinator.data
     if coordinator.data is None:
         _LOGGER.warning(
-            "Coordinator-Daten sind None für '%s'. Sensoren werden nicht erstellt.",
+            "Coordinator data is None for '%s'. Sensors will not be created.",
             config_entry.title,
         )
         return
