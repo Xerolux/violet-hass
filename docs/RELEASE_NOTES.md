@@ -1,11 +1,13 @@
-## v1.0.3-alpha.4 – Violet Pool Controller
+## v1.0.3-beta.1 – Violet Pool Controller
 
-🔴 **ALPHA RELEASE** - Experimental features, use with caution!
+🟡 **BETA RELEASE** - Testing phase, may contain bugs
 
 ---
 
 ### ✨ New Features | Neue Funktionen
 
+- feat: add diagnostics support for HA diagnostics download (8e14741)
+- feat: add diagnostics support for HA diagnostics download (88527b9)
 - add repairs to manifest dependencies (bdfc0cd)
 - fix: add repairs to manifest dependencies (e8a4f8a)
 - Add missing future annotations to config_flow_utils modules (968c3c5)
@@ -16,6 +18,7 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- 📝 Release v1.0.3-alpha.4 - Update changelog and version files (55a78f6)
 - 📝 Release v1.0.3-alpha.3 - Update changelog and version files (de05bf5)
 - 📝 Release v1.0.3-alpha.2 - Update changelog and version files (44d0302)
 - small update for blueprints, dashboards and workflows (38ed640)
@@ -32,6 +35,7 @@
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- fix-zeroconf-import-error (4baba0c)
 - fix-zeroconf-import-error (739df44)
 - fix: move repairs imports to homeassistant.helpers.issue_registry for HA 2026 (3a9d087)
 - fix-zeroconf-import-error (512353a)
@@ -48,6 +52,7 @@
 
 ### 📚 Documentation | Dokumentation
 
+- docs: slim README, expand wiki with diagnostics page and HA 2026 notes (55ce11b)
 - update-readme-services (dac9edf)
 - docs: Update README.md to reflect new custom services (f1be61f)
 - docs: update github wiki to 1.0.3-alpha.1 (43b4c64)
@@ -82,7 +87,7 @@
 
 ---
 
-📋 [Full changelog: v1.0.2...v1.0.3-alpha.4](https://github.com/Xerolux/violet-hass/compare/v1.0.2...v1.0.3-alpha.4)
+📋 [Full changelog: v1.0.2...v1.0.3-beta.1](https://github.com/Xerolux/violet-hass/compare/v1.0.2...v1.0.3-beta.1)
 
 ---
 
@@ -116,4 +121,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-03-02 05:14:52 UTC_
+_Generated automatically by GitHub Actions on 2026-03-02 06:46:08 UTC_
