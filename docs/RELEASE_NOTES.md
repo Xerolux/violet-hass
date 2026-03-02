@@ -1,4 +1,4 @@
-## v1.0.3-beta.1 – Violet Pool Controller
+## v1.0.3-beta.2 – Violet Pool Controller
 
 🟡 **BETA RELEASE** - Testing phase, may contain bugs
 
@@ -18,6 +18,8 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- Update FUNDING.yml (499a6d5)
+- 📝 Release v1.0.3-beta.1 - Update changelog and version files (1fc2bce)
 - 📝 Release v1.0.3-alpha.4 - Update changelog and version files (55a78f6)
 - 📝 Release v1.0.3-alpha.3 - Update changelog and version files (de05bf5)
 - 📝 Release v1.0.3-alpha.2 - Update changelog and version files (44d0302)
@@ -35,6 +37,10 @@
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- fix-zeroconf-discovery-filter (eaa3ed3)
+- fix: restrict zeroconf discovery to violet devices (05a94c9)
+- fix: make forum login detection robust and fix BBCode URL typo (20216eb)
+- Merge branch 'main' into claude/fix-zeroconf-import-error-tplZf (e2f4cd8)
 - fix-zeroconf-import-error (4baba0c)
 - fix-zeroconf-import-error (739df44)
 - fix: move repairs imports to homeassistant.helpers.issue_registry for HA 2026 (3a9d087)
@@ -87,7 +93,7 @@
 
 ---
 
-📋 [Full changelog: v1.0.2...v1.0.3-beta.1](https://github.com/Xerolux/violet-hass/compare/v1.0.2...v1.0.3-beta.1)
+📋 [Full changelog: v1.0.2...v1.0.3-beta.2](https://github.com/Xerolux/violet-hass/compare/v1.0.2...v1.0.3-beta.2)
 
 ---
 
@@ -121,4 +127,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-03-02 06:46:08 UTC_
+_Generated automatically by GitHub Actions on 2026-03-02 15:48:04 UTC_
