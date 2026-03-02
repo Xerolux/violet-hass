@@ -422,7 +422,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             if not task.cancelled():
                 exc = task.exception()
                 if exc is not None:
-                                _LOGGER.debug(
+                    _LOGGER.debug(
                         "Refresh task failed for %s: %s", self.climate_type, exc
                     )
         except (asyncio.CancelledError, asyncio.InvalidStateError):
