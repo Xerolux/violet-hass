@@ -6,6 +6,8 @@
 
 ### ✨ New Features | Neue Funktionen
 
+- Add-custom-icon (65b96a7)
+- Add VIOLET_144.png as icon.png to root and component dirs (d3141ae)
 - feat: add diagnostics support for HA diagnostics download (8e14741)
 - feat: add diagnostics support for HA diagnostics download (88527b9)
 - add repairs to manifest dependencies (bdfc0cd)
@@ -18,6 +20,8 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- Update custom integration brand images structure (e190831)
+- 📝 Release v1.0.3-beta.3 - Update changelog and version files (a57b380)
 - Update integration logo to official Violet icon (8c23aff)
 - 📝 Release v1.0.3-beta.2 - Update changelog and version files (fc7ba31)
 - Update FUNDING.yml (499a6d5)
@@ -130,4 +134,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-03-02 18:40:23 UTC_
+_Generated automatically by GitHub Actions on 2026-03-03 04:51:15 UTC_
