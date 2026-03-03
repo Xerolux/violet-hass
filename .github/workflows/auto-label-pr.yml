@@ -1,0 +1,32 @@
+name: Auto Label PR
+
+on:
+  # Runs only on pull_request_target due to having access to a App token.
+  # This means PRs from forks will not be able to alter this workflow to get the tokens
+  pull_request_target:
+    types: [labeled, opened, reopened, synchronize, edited]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+env:
+  SMALL_PR_THRESHOLD: 30
+  MAX_LABELS: 15
+  TOO_BIG_THRESHOLD: 1000
+  COMPONENT_LABEL_THRESHOLD: 10
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    if: github.event.action != 'labeled' || github.event.sender.type != 'Bot'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Auto Label PR
+        uses: actions/labeler@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          configuration-path: .github/labeler.yml
+          sync-labels: true
