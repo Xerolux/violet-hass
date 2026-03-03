@@ -19,38 +19,25 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           issue-message: |
-            👋 Thank you for opening your first issue! 
-            
+            👋 Thank you for opening your first issue!
+
             Please provide as much detail as possible:
             - Home Assistant version
             - Integration version
             - Controller firmware version
             - Error logs (if applicable)
-            
+
             This helps us understand and resolve the issue faster.
           pr-message: |
-            👋 Thank you for your first pull request! 
-            
+            👋 Thank you for your first pull request!
+
             Please ensure:
             - ✅ Code follows our style guidelines
             - ✅ All tests pass
             - ✅ Documentation is updated (if needed)
             - ✅ docs/CHANGELOG.md is updated
-            
-            A maintainer will review your PR soon!
 
-  labeler:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request_target'
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          
-      - uses: actions/labeler@v6
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          configuration-path: .github/labeler.yml
+            A maintainer will review your PR soon!
 
   dependency-review:
     runs-on: ubuntu-latest
@@ -59,12 +46,12 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          
+
       - uses: actions/dependency-review-action@v4
         with:
           comment-summary-in-pr: always
           fail-on-severity: moderate
-          
+
   size-label:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request_target'
