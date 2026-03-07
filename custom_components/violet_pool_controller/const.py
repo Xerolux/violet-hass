@@ -77,7 +77,7 @@ DISINFECTION_METHODS = ["chlorine", "salt", "bromine", "active_oxygen", "uv", "o
 
 VERSION_INFO = {
     "version": INTEGRATION_VERSION,
-    "release_date": "2026-02-06",
+    "release_date": "2026-03-07",
     "major_features": [
         "Critical API Query Parameter Fix (getReadings)",
         "German State Descriptions for Switches and Sensors",
@@ -88,6 +88,8 @@ VERSION_INFO = {
         "Circuit Breaker Pattern for API Resilience",
         "Enhanced Switch Attributes (mode, speed, runtime)",
         "Dashboard Template with Secondary Info",
-        "HA 2026 Compatibility",
+        "HA 2026.3 / Python 3.14 Compatibility",
+        "Fixed get_float_value None-key fallback in entity base class",
+        "Fixed climate target temperature when data key is null",
     ],
 }

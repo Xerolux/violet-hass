@@ -30,6 +30,9 @@ def mock_coordinator():
             }
             self.device = MockDevice()
 
+        async def async_request_refresh(self):
+            """Mock refresh."""
+
     return MockCoordinator()
 
 
@@ -39,6 +42,13 @@ class MockDevice:
         self.device_name = "Test Pool"
         self.available = True
         self.api = MockAPI()
+        self.device_info = {
+            "identifiers": {("violet_pool_controller", "192.168.1.100_1")},
+            "name": "Test Pool",
+            "manufacturer": "PoolDigital GmbH & Co. KG",
+            "model": "Violet Pool Controller",
+            "sw_version": "1.0.0",
+        }
 
 
 class MockAPI:
@@ -73,10 +83,10 @@ class TestVioletCover:
         """Test cover initialization."""
         cover = VioletCover(mock_coordinator, config_entry)
 
-        assert cover.name == "Abdeckung"
+        assert cover.name == "Pool Cover"
         assert cover.unique_id is not None
         assert cover.device_class == "shutter"
-        assert cover.should_poll is True
+        assert cover.should_poll is False  # Coordinator-based entity; HA handles scheduling
 
     @pytest.mark.asyncio
     async def test_cover_is_open(self, mock_coordinator, config_entry):

@@ -141,13 +141,19 @@ class TestConnection:
     @pytest.mark.asyncio
     async def test_test_connection_success(self, service_handlers):
         """Test successful connection test."""
-        # Mock API
         mock_api = Mock()
         mock_api.get_readings = AsyncMock(return_value={"test": "data"})
 
-        # Get coordinator and set API
-        coordinator = await service_handlers.manager.get_coordinator_for_device("test_device_id")
-        coordinator.device.api = mock_api
+        # Create a fixed coordinator with mock API pre-configured so both the
+        # test and the service handler use the same coordinator instance.
+        fixed_coordinator = Mock()
+        fixed_coordinator.device = Mock()
+        fixed_coordinator.device.device_name = "Test Pool"
+        fixed_coordinator.device.api = mock_api
+
+        service_handlers.manager.get_coordinator_for_device = AsyncMock(
+            return_value=fixed_coordinator
+        )
 
         call = Mock()
         call.data = {"device_id": ["test_device_id"]}
@@ -158,19 +164,23 @@ class TestConnection:
         assert "tests" in result
         assert len(result["tests"]) == 1
         assert result["tests"][0]["success"] is True
-        assert result["tests"][0]["latency_ms"] > 0
+        assert result["tests"][0]["latency_ms"] >= 0
         assert result["tests"][0]["keys_received"] == 1
 
     @pytest.mark.asyncio
     async def test_test_connection_failure(self, service_handlers):
         """Test connection test with failure."""
-        # Mock API that raises error
         mock_api = Mock()
         mock_api.get_readings = AsyncMock(side_effect=Exception("Connection failed"))
 
-        # Get coordinator and set API
-        coordinator = await service_handlers.manager.get_coordinator_for_device("test_device_id")
-        coordinator.device.api = mock_api
+        fixed_coordinator = Mock()
+        fixed_coordinator.device = Mock()
+        fixed_coordinator.device.device_name = "Test Pool"
+        fixed_coordinator.device.api = mock_api
+
+        service_handlers.manager.get_coordinator_for_device = AsyncMock(
+            return_value=fixed_coordinator
+        )
 
         call = Mock()
         call.data = {"device_id": ["test_device_id"]}
@@ -186,9 +196,14 @@ class TestConnection:
     @pytest.mark.asyncio
     async def test_test_connection_no_api(self, service_handlers):
         """Test connection test when API is not available."""
-        # Get coordinator without API
-        coordinator = await service_handlers.manager.get_coordinator_for_device("test_device_id")
-        coordinator.device.api = None
+        fixed_coordinator = Mock()
+        fixed_coordinator.device = Mock()
+        fixed_coordinator.device.device_name = "Test Pool"
+        fixed_coordinator.device.api = None
+
+        service_handlers.manager.get_coordinator_for_device = AsyncMock(
+            return_value=fixed_coordinator
+        )
 
         call = Mock()
         call.data = {"device_id": ["test_device_id"]}

@@ -71,17 +71,17 @@ class TestEnhancedErrorHandler:
     @pytest.mark.asyncio
     async def test_classify_network_error(self):
         """Test classification of network errors."""
+        import aiohttp as aiohttp_module
         handler = EnhancedErrorHandler()
 
-        # Simulate aiohttp ClientError
-        with patch("custom_components.violet_pool_controller.error_handler.aiohttp") as mock_aiohttp:
-            error = mock_aiohttp.ClientError("Connection refused")
-            result = handler.classify_error(error)
+        # Use real aiohttp.ClientError to avoid patching issues with isinstance()
+        error = aiohttp_module.ClientError("Connection refused")
+        result = handler.classify_error(error)
 
-            assert result.error_type == ErrorType.NETWORK_ERROR
-            assert result.severity == ErrorSeverity.MEDIUM
-            assert result.recoverable is True
-            assert result.retry_after == 5.0
+        assert result.error_type == ErrorType.NETWORK_ERROR
+        assert result.severity == ErrorSeverity.MEDIUM
+        assert result.recoverable is True
+        assert result.retry_after == 5.0
 
     @pytest.mark.asyncio
     async def test_classify_timeout_error(self):
@@ -115,16 +115,16 @@ class TestEnhancedErrorHandler:
     @pytest.mark.asyncio
     async def test_classify_ssl_error(self):
         """Test classification of SSL errors."""
+        import aiohttp as aiohttp_module
         handler = EnhancedErrorHandler()
 
-        with patch("custom_components.violet_pool_controller.error_handler.aiohttp") as mock_aiohttp:
-            # Create a mock ClientError with SSL in message
-            error = mock_aiohttp.ClientError("SSL certificate verification failed")
-            result = handler.classify_error(error)
+        # Use real aiohttp.ClientError to avoid patching issues with isinstance()
+        error = aiohttp_module.ClientError("SSL certificate verification failed")
+        result = handler.classify_error(error)
 
-            assert result.error_type == ErrorType.SSL_ERROR
-            assert result.severity == ErrorSeverity.HIGH
-            assert result.recoverable is False
+        assert result.error_type == ErrorType.SSL_ERROR
+        assert result.severity == ErrorSeverity.HIGH
+        assert result.recoverable is False
 
     @pytest.mark.asyncio
     async def test_classify_unknown_error(self):

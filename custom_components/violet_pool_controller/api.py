@@ -138,7 +138,7 @@ class VioletPoolAPI:
         Returns:
             The timeout value in seconds.
         """
-        return self._timeout.total
+        return self._timeout.total or 0.0
 
     @property
     def max_retries(self) -> int:

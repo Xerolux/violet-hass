@@ -36,6 +36,13 @@ class TestTypeHints:
 
         class MockDevice:
             device_name = "Test"
+            device_info = {
+                "identifiers": {("violet_pool_controller", "192.168.1.100_1")},
+                "name": "Test",
+                "manufacturer": "PoolDigital GmbH & Co. KG",
+                "model": "Violet Pool Controller",
+                "sw_version": "1.0.0",
+            }
 
         coordinator = MockCoordinator()
         coordinator.device = MockDevice()

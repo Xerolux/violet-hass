@@ -388,7 +388,7 @@ class EnhancedErrorHandler:
         if isinstance(error, VioletPoolControllerError):
             error_str = str(error).lower()
 
-            if "authentication" in error_str or "unauthorized" in error_str:
+            if isinstance(error, AuthenticationError) or "authentication" in error_str or "unauthorized" in error_str:
                 self._auth_errors += 1
                 return IntegrationError(
                     error_type=ErrorType.AUTH_ERROR,
@@ -456,8 +456,10 @@ class EnhancedErrorHandler:
                 _LOGGER.warning(
                     "Controller marked as OFFLINE (error: %s)", error_info.message
                 )
-        else:
-            self._offline_since = None
+
+        # Track auth errors
+        if error_info.error_type == ErrorType.AUTH_ERROR:
+            self._auth_errors += 1
 
     def get_recent_errors(self, count: int = 10) -> list[IntegrationError]:
         """Get the most recent errors.

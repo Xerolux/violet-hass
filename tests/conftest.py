@@ -6,11 +6,12 @@ import sys
 from pathlib import Path
 import threading
 
+import pytest
+
 # Add project root to Python path for imports
 project_root = Path(__file__).parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
-
 
 
 def pytest_configure(config):
@@ -66,3 +67,24 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "thread_safe: mark test as thread-safe"
     )
+
+
+@pytest.hookimpl(tryfirst=True)
+def pytest_fixture_setup(fixturedef, request):
+    """Enable sockets before event_loop fixture is set up.
+
+    On Windows, asyncio's ProactorEventLoop needs socket.socketpair() to create
+    its internal IPC pipe. pytest-homeassistant-custom-component disables ALL
+    socket creation on Windows (since AF_UNIX is not available there), which
+    prevents the event loop from being created at all.
+
+    This hook intercepts event_loop fixture setup specifically and temporarily
+    re-enables sockets so the loop can be created. The sockets are re-disabled
+    by pytest-hacc's pytest_runtest_setup hook for the actual test body.
+    """
+    if fixturedef.argname == "event_loop":
+        try:
+            import pytest_socket
+            pytest_socket.enable_socket()
+        except Exception:
+            pass
