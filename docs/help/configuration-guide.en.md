@@ -2,7 +2,54 @@
 
 This guide walks you through the Home Assistant setup for the Violet Pool Controller and highlights all relevant safety considerations.
 
-## ⚠️ Safety First
+## ⚠️ Safety & Liability
+
+### IMPORTANT DISCLAIMER
+
+**Use of this software integration is at your own risk and responsibility.**
+
+This integration enables remote control of pool equipment including pumps, heaters, lighting and chemical dosing systems. Incorrect configuration or automation errors may result in:
+
+- **Property damage** (destruction of pumps, heaters, and other equipment)
+- **Personal injury** from electric shock
+- **Chemical overdosing** with health hazards
+- **Endangerment of people and animals** in the pool area
+
+### Your Responsibilities When Using
+
+By using this integration, you confirm that you:
+
+1. **Understand safety** – All safety mechanisms and emergency shut-offs are known
+2. **Maintain manual control** – Emergency shut-offs are accessible at all times
+3. **Handle chemicals properly** – Follow safety data sheets (gloves, goggles, ventilation)
+4. **Follow manufacturer documentation** – Observe your pool manufacturer's instructions
+5. **Comply with laws and standards** – Local regulations (DIN/EN standards, electrical and chemical laws)
+6. **Monitor regularly** – Personally inspect your installation even with active automation
+7. **Create backups** – Perform regular configuration backups
+
+### No Warranty
+
+The developer of this integration provides:
+
+- **NO warranty** regarding functionality, safety or completeness
+- **NO liability** for any damages whatsoever, including:
+  - Property damage (equipment, buildings, surroundings)
+  - Personal injury (injuries, health damage)
+  - Financial loss (repair costs, consequential damages)
+- **NO commercial guarantees** – This is open-source software
+
+### When in Doubt
+
+Consult a **professional** for:
+- Electrical installations
+- Chemical handling
+- Pool installation and maintenance
+
+By using this integration, you acknowledge that you have read, understood and accepted this disclaimer.
+
+---
+
+## ⚠️ Safety First – Checklist
 
 - **Personal responsibility:** You are fully responsible for every action triggered through the integration.
 - **Emergency plan:** Keep a manual override for pumps, dosing equipment and the pool cover ready at all times.
@@ -19,7 +66,7 @@ This guide walks you through the Home Assistant setup for the Violet Pool Contro
 ## 🚀 Guided Setup Steps
 
 1. **Welcome menu:** Decide whether to start the wizard or read the documentation first.
-2. **Disclaimer:** Read and accept the combined safety and liability notice.
+2. **Disclaimer:** Read the **full liability disclaimer** carefully. You must explicitly confirm that you understand and accept all risks. This is a legally binding disclaimer.
 3. **Connection details:**
    - Controller host/IP address
    - Optional username & password
