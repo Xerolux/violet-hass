@@ -371,6 +371,19 @@ violet-hass/
 
 ## Development Best Practices
 
+### Dependency Management
+
+**pytest-homeassistant-custom-component**
+- **Repository:** https://github.com/MatthewFlamm/pytest-homeassistant-custom-component
+- **Policy:** Always use the latest version when available
+- **Reason:** Ensures compatibility with latest Home Assistant versions and Python versions
+- **Update frequency:** Check for updates when:
+  - New Home Assistant version is released
+  - New Python version is released
+  - CI/CD pipeline fails due to compatibility issues
+- **Current version:** `>=0.13.317` (Python 3.14+ compatible)
+- **Update command:** `pip install --upgrade pytest-homeassistant-custom-component`
+
 ### Code Style
 
 1. **Follow PEP 8**: Use ruff for linting and auto-formatting
