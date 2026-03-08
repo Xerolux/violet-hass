@@ -1,4 +1,4 @@
-## v1.0.3-beta.3 – Violet Pool Controller
+## v1.0.3-beta.4 – Violet Pool Controller
 
 🟡 **BETA RELEASE** - Testing phase, may contain bugs
 
@@ -6,6 +6,10 @@
 
 ### ✨ New Features | Neue Funktionen
 
+- feat: Add comprehensive disclaimer, icon optimization, and dark mode support (March 2025) (f32b3a1)
+- Add GitHub Action testing for HA 2026.3 and Python 3.14 (878e93a)
+- add-custom-icon (92e25fe)
+- feat: add stale, status-check and auto-label PR workflows (4fe0174)
 - Add-custom-icon (65b96a7)
 - Add VIOLET_144.png as icon.png to root and component dirs (d3141ae)
 - feat: add diagnostics support for HA diagnostics download (8e14741)
@@ -20,6 +24,9 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- Document pytest-homeassistant-custom-component update policy (6d65c0b)
+- 📝 Release v1.0.3-beta.3 - Update changelog and version files (94eebbd)
+- Update logo to match brand (d3a089a)
 - Update custom integration brand images structure (e190831)
 - 📝 Release v1.0.3-beta.3 - Update changelog and version files (a57b380)
 - Update integration logo to official Violet icon (8c23aff)
@@ -43,6 +50,11 @@
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- Fix critical zeroconf discovery API compatibility for HA 2026.x (1efc579)
+- fix: production bugs, HA 2026.3/Python 3.14 compatibility, test suite fixes (4f153f6)
+- fix: correct permissions for actions/labeler (afbb57a)
+- fix: cleanup auto-label-pr.yml logic (a85edd6)
+- fix: prevent command injection and ensure syntax correctness (8e48cd2)
 - Fix code formatting in climate.py (fe7ebde)
 - fix-zeroconf-discovery-filter (eaa3ed3)
 - fix: restrict zeroconf discovery to violet devices (05a94c9)
@@ -76,6 +88,9 @@
 
 ### 🧪 Tests
 
+- Simplify CI: Only test Python 3.14 + HA 2026.3.1 (6604006)
+- Add GitHub Action testing for HA 2026.3 and Python 3.14 (878e93a)
+- fix: production bugs, HA 2026.3/Python 3.14 compatibility, test suite fixes (4f153f6)
 - fix: update test references for VioletClimateEntity (e363dcb)
 - Fix HA 2026 compatibility and complete Gold Level testing (58fa568)
 - Fix ZeroConf Discovery - 100% Tests Passing! ✅ (032d79e)
@@ -100,7 +115,7 @@
 
 ---
 
-📋 [Full changelog: v1.0.2...v1.0.3-beta.3](https://github.com/Xerolux/violet-hass/compare/v1.0.2...v1.0.3-beta.3)
+📋 [Full changelog: v1.0.2...v1.0.3-beta.4](https://github.com/Xerolux/violet-hass/compare/v1.0.2...v1.0.3-beta.4)
 
 ---
 
@@ -134,4 +149,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-03-03 04:51:15 UTC_
+_Generated automatically by GitHub Actions on 2026-03-08 10:42:24 UTC_
