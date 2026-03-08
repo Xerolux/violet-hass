@@ -8,7 +8,7 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.components.zeroconf import AsyncServiceInfo
+from homeassistant.components.zeroconf import AsyncServiceInfo, info_from_service
 from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client, selector
@@ -423,7 +423,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
         Returns:
             The flow result.
         """
-        host = discovery_info.host
+        # Convert AsyncServiceInfo to ZeroconfServiceInfo using helper
+        service_info = info_from_service(discovery_info)
+        if service_info is None:
+            return self.async_abort(reason="invalid_discovery_info")
+        
+        host = str(service_info.ip_address)
         name = discovery_info.name
 
         _LOGGER.info(

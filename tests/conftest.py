@@ -5,6 +5,24 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 import threading
+from unittest.mock import patch, MagicMock
+
+# CRITICAL: Patch deprecated timezone BEFORE any imports
+# pytest-homeassistant-custom-component uses 'US/Pacific' which is deprecated
+# This must happen before pytest or homeassistant is imported
+try:
+    import homeassistant.util.dt as dt_util
+    _original_get_time_zone = dt_util.get_time_zone
+    
+    def _patched_get_time_zone(time_zone_str):
+        """Accept US/Pacific and map to Europe/Berlin."""
+        if time_zone_str == "US/Pacific":
+            time_zone_str = "Europe/Berlin"
+        return _original_get_time_zone(time_zone_str)
+    
+    dt_util.get_time_zone = _patched_get_time_zone
+except Exception:
+    pass
 
 import pytest
 
