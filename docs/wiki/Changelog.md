@@ -4,7 +4,7 @@
 
 ---
 
-## 🆕 März 2025 - Version 1.x
+## 🆕 März 2026 - Version 1.x
 
 ### 🔒 Sicherheit & Haftung (NEU!)
 
@@ -233,7 +233,7 @@
 
 ## 🐛 Bug Fixes
 
-### März 2025
+### März 2026
 
 #### Icons fehlten
 

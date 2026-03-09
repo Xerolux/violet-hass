@@ -2,7 +2,7 @@
 
 ## Übersicht aller verfügbaren Entities
 
-Diese Seite listet alle Entities auf, die von der Violet Pool Controller Integration erstellt werden. Alle Icons wurden im **März 2025 optimiert** und verwenden jetzt konsistente, professionelle MDI-Icons.
+Diese Seite listet alle Entities auf, die von der Violet Pool Controller Integration erstellt werden. Alle Icons wurden im **März 2026 optimiert** und verwenden jetzt konsistente, professionelle MDI-Icons.
 
 ---
 
@@ -343,7 +343,7 @@ Du kannst die Geräte-ID in der Integration ändern:
 
 ---
 
-## 🎨 Icon-Optimierungen (März 2025)
+## 🎨 Icon-Optimierungen (März 2026)
 
 ### Top 10 Verbesserungen
 

@@ -235,7 +235,7 @@ Icons können **nicht** vom Benutzer geändert werden. Sie sind fest in der Inte
 
 ## 📝 Changelog
 
-### März 2025
+### März 2026
 - ✅ Icon-Optimierung: 68+ Icons zu MDI geändert
 - ✅ Nicht-existente Icons korrigiert
 - ✅ Konsistentes Icon-Set eingeführt

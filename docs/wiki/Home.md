@@ -5,7 +5,7 @@
 
 ---
 
-## 📢 Letzte Änderungen (März 2025)
+## 📢 Letzte Änderungen (März 2026)
 
 ### ✨ Neue Funktionen & Verbesserungen
 
