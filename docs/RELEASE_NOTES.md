@@ -1,4 +1,4 @@
-## v0.1.3 – Violet Pool Controller
+## v1.0.3 – Violet Pool Controller
 
 ✅ **STABLE RELEASE**
 
@@ -27,6 +27,7 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- 📝 Release v0.1.3 - Update changelog and version files (6d61fb1)
 - ci: improve trigger reliability for validation workflows (16a7fcf)
 - 📝 Release v0.1.3 - Update changelog and version files (e27c53c)
 - 📝 Release v1.0.3 - Update changelog and version files (afd3fc0)
@@ -140,7 +141,7 @@
 
 ---
 
-📋 [Full changelog: v1.0.2...v0.1.3](https://github.com/Xerolux/violet-hass/compare/v1.0.2...v0.1.3)
+📋 [Full changelog: v1.0.2...v1.0.3](https://github.com/Xerolux/violet-hass/compare/v1.0.2...v1.0.3)
 
 ---
 
@@ -174,4 +175,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-03-09 09:57:06 UTC_
+_Generated automatically by GitHub Actions on 2026-03-09 10:03:36 UTC_
