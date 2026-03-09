@@ -61,52 +61,52 @@ rules:
 
   # Gold
   devices:
-    status: done
+    status: todo
   diagnostics:
-    status: done
+    status: todo
   discovery-update-info:
-    status: done
+    status: todo
   discovery:
-    status: done
+    status: todo
   docs-data-update:
-    status: done
+    status: todo
   docs-examples:
-    status: done
+    status: todo
   docs-known-limitations:
-    status: done
+    status: todo
   docs-supported-devices:
-    status: done
+    status: todo
   docs-supported-functions:
-    status: done
+    status: todo
   docs-troubleshooting:
-    status: done
+    status: todo
   docs-use-cases:
-    status: done
+    status: todo
   dynamic-devices:
-    status: done
+    status: todo
   entity-category:
-    status: done
+    status: todo
   entity-device-class:
-    status: done
+    status: todo
   entity-disabled-by-default:
-    status: done
+    status: todo
   entity-translations:
-    status: done
+    status: todo
   exception-translations:
-    status: done
+    status: todo
   icon-translations:
-    status: done
+    status: todo
   reconfiguration-flow:
-    status: done
+    status: todo
   repair-issues:
-    status: done
+    status: todo
   stale-devices:
-    status: done
+    status: todo
 
   # Platinum
   async-dependency:
-    status: done
+    status: todo
   inject-websession:
-    status: done
+    status: todo
   strict-typing:
-    status: done
+    status: todo
