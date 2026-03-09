@@ -10,10 +10,12 @@
 - [Multi-Controller](Multi-Controller)
 
 ## 📊 Entities & Geräte
+- [Alle Entities](Entities)
 - [Sensoren & Messwerte](Sensors)
 - [Schalter & Steuerung](Switches)
 - [Klima & Heizung](Climate)
 - [Device States (0–6)](Device-States)
+- [Icon Referenz](Icon-Reference)
 
 ## ⚙️ Automatisierung
 - [Services Referenz](Services)
