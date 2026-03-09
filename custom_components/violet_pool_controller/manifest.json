@@ -12,7 +12,7 @@
   "integration_type": "device",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/xerolux/violet-hass/issues",
-  "quality_scale": "silver",
+  "quality_scale": "platinum",
   "requirements": [
     "aiohttp>=3.10.0"
   ],

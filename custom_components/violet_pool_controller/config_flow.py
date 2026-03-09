@@ -514,12 +514,13 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
 
         if user_input:
             # Validate IP address
-            if not validators.validate_ip_address(user_input[CONF_API_URL]):
+            api_url = user_input.get(CONF_API_URL) or user_input.get("api_url")
+            if not api_url or not validators.validate_ip_address(api_url):
                 errors[CONF_API_URL] = constants.ERROR_INVALID_IP
             else:
                 # Build updated config
                 updated_data = dict(reconfigure_entry.data)
-                updated_data[CONF_API_URL] = user_input[CONF_API_URL]
+                updated_data[CONF_API_URL] = api_url
                 updated_data[CONF_USE_SSL] = user_input.get(
                     CONF_USE_SSL, DEFAULT_USE_SSL
                 )
