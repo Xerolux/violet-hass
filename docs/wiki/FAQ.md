@@ -261,7 +261,7 @@ Fragen noch nicht beantwortet?
 
 ## Weitere Seiten
 
-- 📖 [Installation & Setup](Installation-Setup) - Installation Schritt-für-Schritt
+- 📖 [Installation & Setup](Installation-and-Setup) - Installation Schritt-für-Schritt
 - 🎯 [Device-States](Device-States) - States 0-6 erklärt
 - 🤖 [Services](Services) - Alle Services
 - 🚨 [Troubleshooting](Troubleshooting) - Fehlersuche

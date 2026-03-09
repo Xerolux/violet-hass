@@ -324,7 +324,7 @@ Wenn nichts hilft:
 
 ## Weitere Seiten
 
-- 📖 [Installation & Setup](Installation-Setup) - Installation Schritt-für-Schritt
+- 📖 [Installation & Setup](Installation-and-Setup) - Installation Schritt-für-Schritt
 - 🎯 [Device-States](Device-States) - States verstehen
 - ❓ [FAQ](FAQ) - Häufige Fragen
 - 🤖 [Services](Services) - Alle Services

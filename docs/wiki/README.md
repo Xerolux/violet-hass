@@ -10,7 +10,7 @@ Hier findest du alles, was du brauchst - von der Installation bis zur Deinstalla
 
 ### 📖 Dokumentation
 
-1. **[Installation & Setup](Installation-Setup.md)** - Schritt-für-Schritt Installationsanleitung
+1. **[Installation & Setup](Installation-and-Setup.md)** - Schritt-für-Schritt Installationsanleitung
 2. **[Device States erklärt](Device-States.md)** - Was bedeuten States 0-6?
 3. **[Services & Automatisierung](Services.md)** - control_pump, smart_dosing & mehr
 4. **[Häufige Fragen (FAQ)](FAQ.md)** - 40+ Q&A
@@ -22,7 +22,7 @@ Hier findest du alles, was du brauchst - von der Installation bis zur Deinstalla
 
 | Situation | Seite | Zeit |
 |-----------|-------|------|
-| **Neu hier?** | [Installation & Setup](Installation-Setup.md) | 15 Min |
+| **Neu hier?** | [Installation & Setup](Installation-and-Setup.md) | 15 Min |
 | **States verwirrt?** | [Device States](Device-States.md) | 15 Min |
 | **Automatisieren?** | [Services](Services.md) | 20 Min |
 | **Fehler?** | [Troubleshooting](Troubleshooting.md) | 10 Min |
