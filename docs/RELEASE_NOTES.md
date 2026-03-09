@@ -1,11 +1,14 @@
-## v1.0.3-beta.4 – Violet Pool Controller
+## v1.0.3 – Violet Pool Controller
 
-🟡 **BETA RELEASE** - Testing phase, may contain bugs
-
----
+✅ **STABLE RELEASE**
 
 ### ✨ New Features | Neue Funktionen
 
+- add-quality-scale-manifest (07e1381)
+- chore: add quality scale platinum to manifest.json (2b837c1)
+- chore: add quality scale platinum to manifest.json (722e5c1)
+- add-hacs-badge (c0d6566)
+- docs: add My Home Assistant badge for HACS integration (1261b16)
 - feat: Add comprehensive disclaimer, icon optimization, and dark mode support (March 2025) (f32b3a1)
 - Add GitHub Action testing for HA 2026.3 and Python 3.14 (878e93a)
 - add-custom-icon (92e25fe)
@@ -24,6 +27,8 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- docs: fix broken internal and external links in GitHub Wiki and update dates (3958807)
+- 📝 Release v1.0.3-beta.4 - Update changelog and version files (19aafb9)
 - Document pytest-homeassistant-custom-component update policy (6d65c0b)
 - 📝 Release v1.0.3-beta.3 - Update changelog and version files (94eebbd)
 - Update logo to match brand (d3a089a)
@@ -50,6 +55,11 @@
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- fix-test-env-setup (48649a0)
+- fix-quality-scale (8bc33d4)
+- fix-wiki-links (95274da)
+- docs: fix broken internal and external links in GitHub Wiki and update dates (3958807)
+- docs: fix broken internal and external links in GitHub Wiki (53bdbec)
 - Fix critical zeroconf discovery API compatibility for HA 2026.x (1efc579)
 - fix: production bugs, HA 2026.3/Python 3.14 compatibility, test suite fixes (4f153f6)
 - fix: correct permissions for actions/labeler (afbb57a)
@@ -77,6 +87,11 @@
 
 ### 📚 Documentation | Dokumentation
 
+- docs: review and analyze HA/HACS guidelines compliance (06bf5d1)
+- docs: add My Home Assistant badge for HACS integration (1261b16)
+- docs: fix broken internal and external links in GitHub Wiki and update dates (3958807)
+- docs: fix broken internal and external links in GitHub Wiki (53bdbec)
+- docs: Merge github_wiki_content into docs/wiki (605af30)
 - docs: slim README, expand wiki with diagnostics page and HA 2026 notes (55ce11b)
 - update-readme-services (dac9edf)
 - docs: Update README.md to reflect new custom services (f1be61f)
@@ -88,6 +103,9 @@
 
 ### 🧪 Tests
 
+- fix-test-env-setup (48649a0)
+- build(tests): Make test environment setup script more robust (8c7bc55)
+- I have updated the Home Assistant quality scale to Silver, as the Gold and Platinum requirements are not yet fully met and verified (specifically the 95% test coverage). (c125d8e)
 - Simplify CI: Only test Python 3.14 + HA 2026.3.1 (6604006)
 - Add GitHub Action testing for HA 2026.3 and Python 3.14 (878e93a)
 - fix: production bugs, HA 2026.3/Python 3.14 compatibility, test suite fixes (4f153f6)
@@ -115,7 +133,7 @@
 
 ---
 
-📋 [Full changelog: v1.0.2...v1.0.3-beta.4](https://github.com/Xerolux/violet-hass/compare/v1.0.2...v1.0.3-beta.4)
+📋 [Full changelog: v1.0.2...v1.0.3](https://github.com/Xerolux/violet-hass/compare/v1.0.2...v1.0.3)
 
 ---
 
@@ -149,4 +167,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-03-08 10:42:24 UTC_
+_Generated automatically by GitHub Actions on 2026-03-09 09:16:24 UTC_
