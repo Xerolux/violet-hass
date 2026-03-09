@@ -533,23 +533,6 @@ jobs:
           access-token: ${{ secrets.TWITTER_ACCESS_TOKEN }}
           access-token-secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
 
-  create-announcement:
-    needs: [prepare-release, update-changelog]
-    runs-on: ubuntu-latest
-    if: |
-      success() &&
-      needs.prepare-release.outputs.is_draft != 'true' &&
-      needs.prepare-release.outputs.release_type == 'stable'
-    steps:
-      - name: Create GitHub Discussion
-        uses: abirismyname/create-discussion@v1.x
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          repository-id: ${{ vars.REPOSITORY_ID }}
-          category-id: ${{ vars.DISCUSSION_CATEGORY_ID }}
-          title: "🎉 Release v${{ needs.prepare-release.outputs.version }} - Violet Pool Controller"
-          body: ${{ needs.prepare-release.outputs.release-notes }}
-
   create-summary:
     needs: [prepare-release, update-changelog]
     runs-on: ubuntu-latest
