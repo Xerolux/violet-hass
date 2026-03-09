@@ -1,6 +1,6 @@
 #!/bin/bash
 # Setup Test Environment for Violet Pool Controller
-# This script creates a Python 3.13 virtual environment with Home Assistant and test dependencies
+# This script creates a Python virtual environment with Home Assistant and test dependencies
 
 set -e  # Exit on error
 
@@ -20,16 +20,31 @@ if [ ! -f "custom_components/violet_pool_controller/manifest.json" ]; then
     exit 1
 fi
 
-# Check Python 3.13
-echo -e "${YELLOW}Checking Python 3.13...${NC}"
-if ! command -v python3.13 &> /dev/null; then
-    echo -e "${RED}Python 3.13 not found. Please install it first:${NC}"
+# Find a suitable Python version (>= 3.12)
+echo -e "${YELLOW}Looking for a compatible Python version (>= 3.12)...${NC}"
+PYTHON_CMD=""
+for cmd in python3.13 python3.12 python3 python; do
+    if command -v "$cmd" &> /dev/null; then
+        VERSION_STR=$("$cmd" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+        MAJOR=$(echo "$VERSION_STR" | cut -d. -f1)
+        MINOR=$(echo "$VERSION_STR" | cut -d. -f2)
+        if [ "$MAJOR" -ge 3 ] && [ "$MINOR" -ge 12 ]; then
+            PYTHON_CMD="$cmd"
+            break
+        fi
+    fi
+done
+
+if [ -z "$PYTHON_CMD" ]; then
+    echo -e "${RED}No compatible Python version found. Please install Python >= 3.12:${NC}"
+    echo "  sudo apt-get install python3.12 python3.12-venv python3.12-dev"
+    echo "  or"
     echo "  sudo apt-get install python3.13 python3.13-venv python3.13-dev"
     exit 1
 fi
 
-PYTHON_VERSION=$(python3.13 --version)
-echo -e "${GREEN}✓ Found $PYTHON_VERSION${NC}\n"
+PYTHON_VERSION=$($PYTHON_CMD --version)
+echo -e "${GREEN}✓ Found $PYTHON_VERSION ($PYTHON_CMD)${NC}\n"
 
 # Create virtual environment
 VENV_DIR=".venv-ha-test"
@@ -39,7 +54,7 @@ if [ -d "$VENV_DIR" ]; then
     rm -rf "$VENV_DIR"
 fi
 
-python3.13 -m venv "$VENV_DIR"
+$PYTHON_CMD -m venv "$VENV_DIR"
 echo -e "${GREEN}✓ Virtual environment created${NC}\n"
 
 # Activate virtual environment
@@ -53,9 +68,9 @@ pip install --quiet --upgrade pip setuptools wheel
 echo -e "${GREEN}✓ Upgraded${NC}\n"
 
 # Install Home Assistant
-echo -e "${YELLOW}Installing Home Assistant 2025.12.0...${NC}"
+echo -e "${YELLOW}Installing Home Assistant...${NC}"
 echo -e "${YELLOW}  (This may take a few minutes)${NC}"
-pip install --quiet homeassistant==2025.12.0
+pip install --quiet homeassistant==2025.1.4
 echo -e "${GREEN}✓ Home Assistant installed${NC}\n"
 
 # Install test dependencies
@@ -66,7 +81,7 @@ echo -e "${GREEN}✓ Test dependencies installed${NC}\n"
 # Verify installation
 echo -e "${YELLOW}Verifying installation...${NC}"
 PYTEST_VERSION=$(pytest --version | head -1)
-HA_VERSION=$(python -c "import homeassistant; print(homeassistant.__version__)")
+HA_VERSION=$(python -c "from homeassistant.const import __version__; print(__version__)")
 echo -e "${GREEN}✓ pytest: $PYTEST_VERSION${NC}"
 echo -e "${GREEN}✓ Home Assistant: $HA_VERSION${NC}\n"
 
