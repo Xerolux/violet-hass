@@ -1,6 +1,29 @@
-# Installation & Setup
+# 📦 Installation & Setup
 
 > Schritt-für-Schritt Anleitung zur Installation des Violet Pool Controller Addons in Home Assistant.
+
+---
+
+## ⚠️ WICHTIG - VOR DER INSTALLATION
+
+### 🔒 Sicherheit & Haftungsausschluss
+
+**Das Violet Pool Controller Addon steuert echte Poolausrüstung:**
+
+- ⚠️ **Pumpen, Heizungen, Dosieranlagen können ferngesteuert werden**
+- ⚠️ **Falsche Konfiguration kann zu Sachschäden führen**
+- ⚠️ **Chemikalien können gefährlich sein bei falscher Handhabung**
+- ⚠️ **Elektrische Anlagen müssen vorschriftsmäßig installiert sein**
+
+**Bevor du installierst:**
+
+✅ **Lies den vollständigen Haftungsausschluss**: [Konfigurationshilfe (DE)](../docs/help/configuration-guide.de.md#-sicherheit--haftung)
+✅ **Verstehe alle Sicherheitsmechanismen**
+✅ **Halte manuelle Not-Abschalter bereit**
+✅ **Beachte alle Sicherheitsdatenblätter**
+✅ **Konsultiere einen Fachbetrieb bei Unsicherheiten**
+
+> **⚠️ Die Nutzung erfolgt auf eigene Verantwortung und Gefahr!**
 
 ---
 
@@ -110,7 +133,25 @@ Identisch mit der HACS-Methode: **Einstellungen → Geräte & Dienste → + Inte
 
 Der integrierte Setup-Assistent führt dich durch alle Konfigurationsschritte.
 
-### Schritt 1: Controller-Verbindung
+### Schritt 1: 🚨 DISCLAIMER (HAFTUNGSAUSSCHLUSS)
+
+⚠️ **SEHR WICHTIG - BITTE SORGFÄLTIG LESEN!**
+
+Du wirst einen **umfangreichen Haftungsausschluss** sehen mit:
+
+- **⚠️ Sicherheitswarnung**: Alle Risiken bei der Nutzung
+- **🔒 Deine Verantwortung**: Was du tun musst
+- **⚖️ Haftungsausschluss**: Keine Gewährleistung
+- **📖 Dokumentation**: Links zur ausführlichen Hilfe
+
+**Du musst:**
+1. ✅ Den gesamten Text lesen
+2. ✅ Das Häkchen bei **"Ich akzeptiere"** setzen
+3. ✅ **"Bestätigen"** klicken
+
+**Ohne Bestätigung kannst du die Integration nicht einrichten!**
+
+### Schritt 2: Controller-Verbindung
 
 ```
 ┌──────────────────────────────────────────┐
@@ -142,7 +183,13 @@ Der integrierte Setup-Assistent führt dich durch alle Konfigurationsschritte.
 
 > **IP-Adresse finden**: Öffne deinen Router-Admin (z.B. `192.168.1.1`) → "Verbundene Geräte" → "Violet" suchen. Alternativ: `ping violet.local`
 
-### Schritt 2: Features auswählen
+### Schritt 3: Pooldaten
+
+1. **Poolvolumen**: In m³ (z.B. 40)
+2. **Pool-Typ**: Aufenthaltsbecken, Sportbecken, etc.
+3. **Desinfektionsmethode**: Chlor, Aktivsauerstoff, etc.
+
+### Schritt 4: Features auswählen
 
 Wähle die Features aus, die dein Controller unterstützt:
 
@@ -162,7 +209,7 @@ Wähle die Features aus, die dein Controller unterstützt:
 
 > **Tipp**: Features können später über **Einstellungen → Geräte & Dienste → Violet → Optionen → Neu konfigurieren** angepasst werden.
 
-### Schritt 3: Abfrageintervall einstellen
+### Schritt 5: Abfrageintervall einstellen
 
 Das Polling-Intervall bestimmt, wie oft Daten vom Controller abgerufen werden:
 

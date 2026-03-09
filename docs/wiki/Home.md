@@ -1,7 +1,32 @@
-# Violet Pool Controller – Home Assistant Integration
+# 🏊 Violet Pool Controller – Home Assistant Integration
 
 > **Die komplette Dokumentation** für das Violet Pool Controller Addon.
 > Von der Installation bis zur Deinstallation – mit allen Features, States, Services und Automatisierungen.
+
+---
+
+## 📢 Letzte Änderungen (März 2025)
+
+### ✨ Neue Funktionen & Verbesserungen
+
+#### 🔒 Sicherheit & Haftung (NEU!)
+- **Umfassender Disclaimer**: Haftungsausschluss für Sicherheit und Nutzung
+- **Deutsch & Englisch**: Vollständige Sicherheitshinweise in beiden Sprachen
+- **Setup-Integration**: Verbindlicher Haftungsausschluss im Konfigurationsprozess
+- 📖 [Konfigurationshilfe (DE)](../docs/help/configuration-guide.de.md)
+- 📖 [Konfigurationshilfe (EN)](../docs/help/configuration-guide.en.md)
+
+#### 🎨 Icon-Optimierung (NEU!)
+- **68+ Icons optimisiert**: Alle Entities jetzt mit konsistenten, professionellen MDI-Icons
+- **Bessere Erkennbarkeit**: Spezielle Icons statt generischer Symbole
+- **Beispiele**:
+  - pH-Wert: `mdi:ph` statt `mdi:flask`
+  - Beckenwasser: `mdi:pool`
+  - Überlaufbehälter: `mdi:water-sync`
+  - Wärmetauscher: `mdi:radiator`
+  - Rückspülung: `mdi:autorenew`
+  - Flockung: `mdi:water`
+- 📖 [Icon-Referenz](Icon-Reference) | 📊 [Alle Icons](../ICON_UPGRADE_SUMMARY.md)
 
 ---
 
@@ -56,8 +81,9 @@ Das **Violet Pool Controller Home Assistant Integration** verbindet [Home Assist
 
 1. **[Installation & Setup](Installation-and-Setup)** – HACS oder manuell installieren
 2. **[Konfiguration](Configuration)** – Integration einrichten
-3. **[Sensoren verstehen](Sensors)** – Welche Daten bekomme ich?
-4. **[Device States](Device-States)** – Was bedeuten die 7 States?
+3. **[Entities](Entities)** – Alle Sensoren, Schalter, Klima
+4. **[Sensoren verstehen](Sensors)** – Welche Daten bekomme ich?
+5. **[Device States](Device-States)** – Was bedeuten die 7 States?
 
 ### Ich will automatisieren
 
@@ -143,6 +169,21 @@ Diese Integration ist vollständig mit Home Assistant 2026.x kompatibel:
 |---------|--------|-----|
 | `ZeroconfServiceInfo` entfernt | ✅ Behoben | `AsyncServiceInfo` aus `homeassistant.components.zeroconf` |
 | `IssueSeverity` aus `components.repairs` entfernt | ✅ Behoben | Umzug nach `homeassistant.helpers.issue_registry` |
+
+---
+
+## 🔐 Sicherheitshinweise
+
+⚠️ **WICHTIG**: Diese Integration steuert echte Poolausrüstung!
+
+- ✅ Lies den **Haftungsausschluss** im Setup-Prozess sorgfältig
+- ✅ Stelle sicher, dass du alle Sicherheitsmechanismen verstehst
+- ✅ Halte jederzeit manuelle Not-Abschalter bereit
+- ✅ Überwache deine Anlage regelmäßig persönlich
+- ✅ Beachte die Sicherheitsdatenblätter aller verwendeten Chemikalien
+- ✅ Befolge die Dokumentation deines Pool-Herstellers
+
+> 📖 **Details**: [Sicherheit & Haftung](../docs/help/configuration-guide.de.md#-sicherheit--haftung)
 
 ---
 

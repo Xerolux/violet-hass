@@ -1,6 +1,31 @@
-# Konfiguration
+# ⚙️ Konfiguration
 
 > Alle Konfigurationsoptionen erklärt – von Basis-Setup bis zu erweiterten Einstellungen.
+
+---
+
+## 🚨 SICHERHEIT & HAFTUNG (BITTE ZUERST LESEN!)
+
+### ⚠️ WICHTIGE SICHERHEITSHINWEISE
+
+**Das Violet Pool Controller Addon steuert echte Poolausrüstung:**
+
+- ⚠️ **Pumpen, Heizungen, Dosieranlagen können ferngesteuert werden**
+- ⚠️ **Falsche Konfiguration kann zu Sachschäden führen**
+- ⚠️ **Chemikalien können gefährlich sein bei falscher Handhabung**
+- ⚠️ **Elektrische Anlagen müssen vorschriftsmäßig installiert sein**
+
+### 🔒 DEINE VERANTWORTUNG
+
+**Bevor du die Integration konfigurierst:**
+
+✅ **Lies den vollständigen Haftungsausschluss**: [📖 Konfigurationshilfe (DE)](../docs/help/configuration-guide.de.md#-sicherheit--haftung)
+✅ **Verstehe alle Sicherheitsmechanismen**
+✅ **Halte manuelle Not-Abschalter bereit**
+✅ **Beachte alle Sicherheitsdatenblätter**
+✅ **Konsultiere einen Fachbetrieb bei Unsicherheiten**
+
+> **⚠️ Die Nutzung erfolgt auf eigene Verantwortung und Gefahr!**
 
 ---
 
@@ -267,6 +292,64 @@ Dieses File wird automatisch durch HA-Backups gesichert.
 3. Neu hinzufügen wie bei der [Erstinstallation](Installation-and-Setup)
 
 > **Warnung**: Beim Löschen und Neuerstellen werden Entity-IDs neu generiert – ggf. Automatisierungen/Dashboard-Karten anpassen!
+
+---
+
+## 🐛 Troubleshooting
+
+### Verbindung kann nicht hergestellt werden
+
+**Fehler: "Keine Verbindung zum Controller"**
+
+**Lösungen:**
+1. **IP prüfen:**
+   ```bash
+   ping 192.168.1.100
+   ```
+2. **Port prüfen:**
+   ```bash
+   # HTTP
+   curl http://192.168.1.100
+   # HTTPS
+   curl https://192.168.1.100
+   ```
+3. **Netzwerk prüfen:**
+   - Bist du im gleichen Netzwerk?
+   - Kein Gast-WLAN?
+   - Firewall blockiert nicht?
+4. **SSL/TLS umschalten:**
+   - Aktivieren oder deaktivieren
+   - Je nach Controller-Konfiguration
+
+### Authentifizierung fehlgeschlagen
+
+**Fehler: "Authentifizierung fehlgeschlagen"**
+
+**Lösungen:**
+1. Benutzername und Passwort prüfen
+2. Groß-/Kleinschreibung beachten
+3. Leerzeichen entfernen
+4. Auf dem Controller prüfen:
+   - Existiert der Benutzer?
+   - Ist das Passwort korrekt?
+5. SSL/TLS umschalten
+
+### Entities fehlen nach Einrichtung
+
+**Problem: Nicht alle Entities sind sichtbar**
+
+**Lösungen:**
+1. **Home Assistant neu starten:**
+   - Einstellungen → System → Neustart
+2. **Browser-Cache leeren:**
+   - STRG + UMSCHALT + ENTF
+3. **Entity-Registry prüfen:**
+   - Einstellungen → Geräte & Dienste → Entities
+   - Suche nach "violet_pool_controller"
+4. **Features deaktivieren:**
+   - Entferne die Integration
+   - Füge sie wieder hinzu
+   - Wähle nur vorhandene Features
 
 ---
 
