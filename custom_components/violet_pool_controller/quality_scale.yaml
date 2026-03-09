@@ -61,52 +61,52 @@ rules:
 
   # Gold
   devices:
-    status: todo
+    status: done
   diagnostics:
-    status: todo
+    status: done
   discovery-update-info:
-    status: todo
+    status: done
   discovery:
-    status: todo
+    status: done
   docs-data-update:
-    status: todo
+    status: done
   docs-examples:
-    status: todo
+    status: done
   docs-known-limitations:
-    status: todo
+    status: done
   docs-supported-devices:
-    status: todo
+    status: done
   docs-supported-functions:
-    status: todo
+    status: done
   docs-troubleshooting:
-    status: todo
+    status: done
   docs-use-cases:
-    status: todo
+    status: done
   dynamic-devices:
-    status: todo
+    status: done
   entity-category:
-    status: todo
+    status: done
   entity-device-class:
-    status: todo
+    status: done
   entity-disabled-by-default:
-    status: todo
+    status: done
   entity-translations:
-    status: todo
+    status: done
   exception-translations:
-    status: todo
+    status: done
   icon-translations:
-    status: todo
+    status: done
   reconfiguration-flow:
-    status: todo
+    status: done
   repair-issues:
-    status: todo
+    status: done
   stale-devices:
-    status: todo
+    status: done
 
   # Platinum
   async-dependency:
-    status: todo
+    status: done
   inject-websession:
-    status: todo
+    status: done
   strict-typing:
-    status: todo
+    status: done
