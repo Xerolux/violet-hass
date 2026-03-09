@@ -17,7 +17,7 @@
 
 **Bevor du installierst:**
 
-✅ **Lies den vollständigen Haftungsausschluss**: [Konfigurationshilfe (DE)](../docs/help/configuration-guide.de.md#-sicherheit--haftung)
+✅ **Lies den vollständigen Haftungsausschluss**: [Konfigurationshilfe (DE)](https://github.com/Xerolux/violet-hass/blob/main/docs/help/configuration-guide.de.md#-sicherheit--haftung)
 ✅ **Verstehe alle Sicherheitsmechanismen**
 ✅ **Halte manuelle Not-Abschalter bereit**
 ✅ **Beachte alle Sicherheitsdatenblätter**

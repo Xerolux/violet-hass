@@ -60,8 +60,8 @@
 
 #### 📖 Dokumentation
 
-- [Konfigurationshilfe (DE)](../docs/help/configuration-guide.de.md)
-- [Konfigurationshilfe (EN)](../docs/help/configuration-guide.en.md)
+- [Konfigurationshilfe (DE)](https://github.com/Xerolux/violet-hass/blob/main/docs/help/configuration-guide.de.md)
+- [Konfigurationshilfe (EN)](https://github.com/Xerolux/violet-hass/blob/main/docs/help/configuration-guide.en.md)
 
 ---
 
@@ -227,7 +227,7 @@
 #### 📚 Referenz
 
 - [Icon-Referenz](Icon-Reference) - Alle Icons im Detail
-- [Icon Upgrade Summary](../ICON_UPGRADE_SUMMARY.md) - Detaillierte Analyse
+- [Icon Upgrade Summary](https://github.com/Xerolux/violet-hass/blob/main/ICON_UPGRADE_SUMMARY.md) - Detaillierte Analyse
 
 ---
 

@@ -376,7 +376,7 @@ Du kannst die Geräte-ID in der Integration ändern:
 Nachdem du alle Entities kennst:
 
 1. 🤖 **Automationen erstellen**: [Services Guide](Services)
-2. 🎨 **Dashboard einrichten**: [Dashboard Guide](Dashboard)
+2. 🎨 **Dashboard einrichten**: [Dashboard Guide](Home)
 3. 🐛 **Probleme lösen**: [Troubleshooting](Troubleshooting)
 
 ---
@@ -422,7 +422,7 @@ Nachdem du alle Entities kennst:
 ## 🔗 Nützliche Links
 
 - 🎨 [Icon-Referenz](Icon-Reference) - Alle Icons im Detail
-- 📖 [Konfigurationshilfe](../docs/help/configuration-guide.de.md)
+- 📖 [Konfigurationshilfe](https://github.com/Xerolux/violet-hass/blob/main/docs/help/configuration-guide.de.md)
 - 🐛 [Troubleshooting](Troubleshooting)
 - 🤖 [Services Guide](Services)
 

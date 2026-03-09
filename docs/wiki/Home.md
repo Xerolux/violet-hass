@@ -13,8 +13,8 @@
 - **Umfassender Disclaimer**: Haftungsausschluss für Sicherheit und Nutzung
 - **Deutsch & Englisch**: Vollständige Sicherheitshinweise in beiden Sprachen
 - **Setup-Integration**: Verbindlicher Haftungsausschluss im Konfigurationsprozess
-- 📖 [Konfigurationshilfe (DE)](../docs/help/configuration-guide.de.md)
-- 📖 [Konfigurationshilfe (EN)](../docs/help/configuration-guide.en.md)
+- 📖 [Konfigurationshilfe (DE)](https://github.com/Xerolux/violet-hass/blob/main/docs/help/configuration-guide.de.md)
+- 📖 [Konfigurationshilfe (EN)](https://github.com/Xerolux/violet-hass/blob/main/docs/help/configuration-guide.en.md)
 
 #### 🎨 Icon-Optimierung (NEU!)
 - **68+ Icons optimisiert**: Alle Entities jetzt mit konsistenten, professionellen MDI-Icons
@@ -26,7 +26,7 @@
   - Wärmetauscher: `mdi:radiator`
   - Rückspülung: `mdi:autorenew`
   - Flockung: `mdi:water`
-- 📖 [Icon-Referenz](Icon-Reference) | 📊 [Alle Icons](../ICON_UPGRADE_SUMMARY.md)
+- 📖 [Icon-Referenz](Icon-Reference) | 📊 [Alle Icons](https://github.com/Xerolux/violet-hass/blob/main/ICON_UPGRADE_SUMMARY.md)
 
 ---
 
@@ -183,7 +183,7 @@ Diese Integration ist vollständig mit Home Assistant 2026.x kompatibel:
 - ✅ Beachte die Sicherheitsdatenblätter aller verwendeten Chemikalien
 - ✅ Befolge die Dokumentation deines Pool-Herstellers
 
-> 📖 **Details**: [Sicherheit & Haftung](../docs/help/configuration-guide.de.md#-sicherheit--haftung)
+> 📖 **Details**: [Sicherheit & Haftung](https://github.com/Xerolux/violet-hass/blob/main/docs/help/configuration-guide.de.md#-sicherheit--haftung)
 
 ---
 
