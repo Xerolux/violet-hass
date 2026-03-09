@@ -38,6 +38,9 @@
 ## ⚡ Schnellstart
 
 **1. HACS – Integration hinzufügen**
+
+<a href="https://my.home-assistant.io/redirect/hacs_repository/?repository=https%3A%2F%2Fgithub.com%2FXerolux%2Fviolet-hass&owner=Xerolux&category=Integration" target="_blank" rel="noreferrer noopener"><img src="https://my.home-assistant.io/badges/hacs_repository.svg" alt="Open your Home Assistant instance and open a repository inside the Home Assistant Community Store." /></a>
+
 ```
 HACS → Integrationen → ⋮ → Benutzerdefinierte Repositories
 URL: https://github.com/xerolux/violet-hass  |  Kategorie: Integration
