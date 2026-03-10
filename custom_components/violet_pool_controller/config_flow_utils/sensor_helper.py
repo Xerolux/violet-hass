@@ -8,7 +8,7 @@ from typing import Any
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import aiohttp_client
 
-from ..api import VioletPoolAPI
+from violet_poolcontroller_api.api import VioletPoolAPI
 from ..const import (
     CONF_API_URL,
     CONF_PASSWORD,

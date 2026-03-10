@@ -19,7 +19,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .api import VioletPoolAPIError
+from violet_poolcontroller_api.api import VioletPoolAPIError
 from .const import ACTION_AUTO, ACTION_OFF, ACTION_ON, CONF_ACTIVE_FEATURES, DOMAIN
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity

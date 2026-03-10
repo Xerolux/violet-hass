@@ -10,11 +10,11 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .api import VioletPoolAPIError
+from violet_poolcontroller_api.api import VioletPoolAPIError
 from .const import CONF_ACTIVE_FEATURES, DOMAIN, SETPOINT_DEFINITIONS
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity
-from .utils_sanitizer import InputSanitizer
+from violet_poolcontroller_api.utils_sanitizer import InputSanitizer
 
 _LOGGER = logging.getLogger(__name__)
 

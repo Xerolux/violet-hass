@@ -14,8 +14,8 @@ from __future__ import annotations
 # flake8: noqa: F401, F403 - Allows central exporting of constants
 # ruff: noqa: F401, F403 - Allows central exporting of constants
 
-from .const_api import *
-from .const_devices import *
+from violet_poolcontroller_api.const_api import *
+from violet_poolcontroller_api.const_devices import *
 from .const_features import *
 from .const_sensors import *
 
@@ -31,16 +31,20 @@ MANUFACTURER = "PoolDigital GmbH & Co. KG"
 # CONFIGURATION KEYS
 # =============================================================================
 
-CONF_API_URL = "host"
-CONF_USERNAME = "username"
-CONF_PASSWORD = "password"
+from homeassistant.const import (
+    CONF_DEVICE_ID,
+    CONF_HOST,
+    CONF_PASSWORD,
+    CONF_USERNAME,
+    CONF_VERIFY_SSL,
+)
+
+CONF_API_URL = CONF_HOST
 CONF_POLLING_INTERVAL = "polling_interval"
 CONF_TIMEOUT_DURATION = "timeout_duration"
 CONF_RETRY_ATTEMPTS = "retry_attempts"
 CONF_FORCE_UPDATE = "force_update"
 CONF_USE_SSL = "use_ssl"
-CONF_VERIFY_SSL = "verify_ssl"
-CONF_DEVICE_ID = "device_id"
 CONF_DEVICE_NAME = "device_name"
 CONF_CONTROLLER_NAME = "controller_name"
 CONF_ACTIVE_FEATURES = "active_features"

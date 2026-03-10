@@ -7,7 +7,7 @@ from datetime import datetime
 from homeassistant.helpers.update_coordinator import UpdateFailed
 
 from custom_components.violet_pool_controller.device import VioletPoolControllerDevice
-from custom_components.violet_pool_controller.api import VioletPoolAPIError
+from violet_poolcontroller_api.api import VioletPoolAPIError
 
 
 @pytest.fixture

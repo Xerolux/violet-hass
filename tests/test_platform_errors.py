@@ -341,9 +341,9 @@ class TestPlatformInitialization:
         # For now, we just verify the function exists
         assert async_setup_entry is not None
 
-    def test_platform_setup_with_missing_features(self, config_entry):
+    def test_platform_setup_with_missing_features(self, config_entry, hass):
         """Test platform setup when active features don't include platform."""
-        config_entry.options = {CONF_ACTIVE_FEATURES: []}  # No features
+        object.__setattr__(config_entry, "options", {CONF_ACTIVE_FEATURES: []})
 
         # Should not crash when setting up platforms
         # (Actual platform setup is tested by HA test framework)

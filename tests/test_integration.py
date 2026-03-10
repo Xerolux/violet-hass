@@ -14,7 +14,7 @@ from custom_components.violet_pool_controller import (
     async_setup_entry,
     async_unload_entry,
 )
-from custom_components.violet_pool_controller import api as api_module
+import violet_poolcontroller_api.api as api_module
 from custom_components.violet_pool_controller import device as device_module
 from custom_components.violet_pool_controller.const import (
     CONF_ACTIVE_FEATURES,
