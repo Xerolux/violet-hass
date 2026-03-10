@@ -23,7 +23,7 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
-from .api import VioletPoolAPIError
+from .violet_pool_api.api import VioletPoolAPIError
 from .const import (
     ACTION_ALLAUTO,
     ACTION_ALLOFF,
@@ -34,7 +34,7 @@ from .const import (
     DEVICE_PARAMETERS,
     DOMAIN,
 )
-from .utils_sanitizer import InputSanitizer
+from .violet_pool_api.utils_sanitizer import InputSanitizer
 
 _LOGGER = logging.getLogger(__name__)
 

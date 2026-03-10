@@ -17,7 +17,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .api import VioletPoolAPI, VioletPoolAPIError
+from .violet_pool_api.api import VioletPoolAPI, VioletPoolAPIError
 from .const import (
     CONF_API_URL,
     CONF_CONTROLLER_NAME,
@@ -113,7 +113,7 @@ class VioletPoolControllerDevice:
         Returns:
             True if configuration was updated successfully, False otherwise.
         """
-        from .api import VioletPoolAPI
+        from .violet_pool_api.api import VioletPoolAPI
         from .const import (
             CONF_ENABLE_DIAGNOSTIC_LOGGING,
             CONF_PASSWORD,

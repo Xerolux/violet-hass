@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "violet-pool-api"
+version = "1.0.0"
+authors = [
+  { name="Basti (Xerolux)", email="xerolux@example.com" },
+]
+description = "Asynchronous Python client for the Violet Pool Controller."
+readme = "README.md"
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Home Automation",
+]
+dependencies = [
+    "aiohttp>=3.9.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/Xerolux/violet_pool_api"
+"Bug Tracker" = "https://github.com/Xerolux/violet_pool_api/issues"
