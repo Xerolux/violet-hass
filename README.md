@@ -106,6 +106,7 @@ Der **VIOLET Pool Controller** von [PoolDigital GmbH & Co. KG](https://www.poold
 
 - **Offizieller Shop:** [pooldigital.de](https://www.pooldigital.de/poolsteuerungen/violet-poolsteuerung/74/violet-basis-modul-poolsteuerung-smart)
 - **Community:** [PoolDigital Forum](http://forum.pooldigital.de/)
+- **API Package:** [violet-poolController-api](https://pypi.org/project/violet-poolController-api/) auf PyPI ([GitHub](https://github.com/Xerolux/violet-poolController-api))
 
 ---
 

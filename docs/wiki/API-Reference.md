@@ -178,10 +178,14 @@ GET http://192.168.1.55/setOutputTestmode?output=PUMP&mode=ON&duration=120
 
 ## Python Client: `VioletPoolAPI`
 
+Der Python-Client wurde in ein eigenständiges PyPI-Paket ausgelagert:
+- **PyPI:** [violet-poolController-api](https://pypi.org/project/violet-poolController-api/)
+- **GitHub:** [Xerolux/violet-poolController-api](https://github.com/Xerolux/violet-poolController-api)
+
 ### Initialisierung
 
 ```python
-from custom_components.violet_pool_controller.api import VioletPoolAPI
+from violet_poolcontroller_api.api import VioletPoolAPI
 import aiohttp
 
 async with aiohttp.ClientSession() as session:
@@ -243,7 +247,7 @@ await api.set_output_testmode(
 Alle API-Aufrufe gehen durch den globalen Rate-Limiter:
 
 ```python
-from custom_components.violet_pool_controller.utils_rate_limiter import get_global_rate_limiter
+from violet_poolcontroller_api.utils_rate_limiter import get_global_rate_limiter
 
 limiter = get_global_rate_limiter()
 # Token-Bucket-Algorithmus

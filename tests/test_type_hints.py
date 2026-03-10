@@ -2,7 +2,7 @@
 import pytest
 from custom_components.violet_pool_controller.climate import VioletClimateEntity
 from custom_components.violet_pool_controller.cover import VioletCover
-from custom_components.violet_pool_controller.violet_pool_api.const_devices import COVER_STATE_MAP
+from violet_poolcontroller_api.const_devices import COVER_STATE_MAP
 
 
 class TestTypeHints:

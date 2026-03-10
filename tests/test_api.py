@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import aiohttp
 import pytest
 
-from custom_components.violet_pool_controller.violet_pool_api.api import VioletPoolAPI, VioletPoolAPIError
+from violet_poolcontroller_api.api import VioletPoolAPI, VioletPoolAPIError
 from custom_components.violet_pool_controller.const import (
     API_PRIORITY_CRITICAL,
     API_PRIORITY_HIGH,
