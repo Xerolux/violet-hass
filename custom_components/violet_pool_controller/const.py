@@ -14,8 +14,8 @@ from __future__ import annotations
 # flake8: noqa: F401, F403 - Allows central exporting of constants
 # ruff: noqa: F401, F403 - Allows central exporting of constants
 
-from .const_api import *
-from .const_devices import *
+from .violet_pool_api.const_api import *
+from .violet_pool_api.const_devices import *
 from .const_features import *
 from .const_sensors import *
 

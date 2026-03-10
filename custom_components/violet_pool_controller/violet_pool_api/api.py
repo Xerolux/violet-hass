@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from .const_devices import DEVICE_PARAMETERS
+
 import asyncio
 import json
 import logging
@@ -12,7 +14,7 @@ from urllib.parse import quote, urlparse, urlunparse
 
 import aiohttp
 
-from .const import (
+from .const_api import (
     ACTION_ALLAUTO,
     ACTION_ALLOFF,
     ACTION_ALLON,
@@ -37,9 +39,6 @@ from .const import (
     API_SET_FUNCTION_MANUALLY,
     API_SET_OUTPUT_TESTMODE,
     API_SET_TARGET_VALUES,
-    DEFAULT_RETRY_ATTEMPTS,
-    DEFAULT_TIMEOUT_DURATION,
-    DEVICE_PARAMETERS,
     DOSING_FUNCTIONS,
     TARGET_MIN_CHLORINE,
     TARGET_ORP,
@@ -72,8 +71,8 @@ class VioletPoolAPI:
         password: str | None = None,
         use_ssl: bool = False,
         verify_ssl: bool = True,
-        timeout: int = DEFAULT_TIMEOUT_DURATION,
-        max_retries: int = DEFAULT_RETRY_ATTEMPTS,
+        timeout: int = 10,
+        max_retries: int = 3,
     ) -> None:
         """Initializes the API helper.
 

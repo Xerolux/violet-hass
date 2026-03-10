@@ -216,7 +216,7 @@ def get_global_rate_limiter() -> RateLimiter:
     global _global_rate_limiter
     if _global_rate_limiter is None:
         # Default-Werte aus const_api
-        from .const import (
+        from .const_api import (
             API_RATE_LIMIT_BURST,
             API_RATE_LIMIT_REQUESTS,
             API_RATE_LIMIT_RETRY_AFTER,
