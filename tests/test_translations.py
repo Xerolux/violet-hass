@@ -178,7 +178,6 @@ class TestTranslationStructure:
             "set_pv_surplus",
             "set_temperature_target",
             "set_ph_target",
-            "export_diagnostic_logs",
         ]
 
         for service in required_services:

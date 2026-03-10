@@ -23,11 +23,9 @@ from .const import (
     CONF_CONTROLLER_NAME,
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
-    CONF_ENABLE_DIAGNOSTIC_LOGGING,
     CONF_POLLING_INTERVAL,
     CONF_USE_SSL,
     DEFAULT_CONTROLLER_NAME,
-    DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
     DEFAULT_POLLING_INTERVAL,
     DOMAIN,
 )
@@ -88,11 +86,6 @@ class VioletPoolControllerDevice:
             CONF_CONTROLLER_NAME,
             entry_data.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME),
         )
-        # ✅ DIAGNOSTIC LOGGING: Read from options (priority), then data, then default
-        self._enable_diagnostic_logging = entry_options.get(
-            CONF_ENABLE_DIAGNOSTIC_LOGGING,
-            entry_data.get(CONF_ENABLE_DIAGNOSTIC_LOGGING, DEFAULT_ENABLE_DIAGNOSTIC_LOGGING),
-        )
 
         _LOGGER.info(
             "Device initialized: '%s' (Controller: %s, URL: %s, SSL: %s, "
@@ -115,12 +108,10 @@ class VioletPoolControllerDevice:
         """
         from violet_poolcontroller_api.api import VioletPoolAPI
         from .const import (
-            CONF_ENABLE_DIAGNOSTIC_LOGGING,
             CONF_PASSWORD,
             CONF_RETRY_ATTEMPTS,
             CONF_TIMEOUT_DURATION,
             CONF_USERNAME,
-            DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
             DEFAULT_RETRY_ATTEMPTS,
             DEFAULT_TIMEOUT_DURATION,
         )
@@ -145,13 +136,6 @@ class VioletPoolControllerDevice:
                 entry_data.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS),
             )
 
-            # ✅ DIAGNOSTIC LOGGING: Check if setting changed
-            new_diagnostic_logging = entry_options.get(
-                CONF_ENABLE_DIAGNOSTIC_LOGGING,
-                entry_data.get(CONF_ENABLE_DIAGNOSTIC_LOGGING, DEFAULT_ENABLE_DIAGNOSTIC_LOGGING),
-            )
-            diagnostic_logging_changed = new_diagnostic_logging != self._enable_diagnostic_logging
-
             # Check if connection settings changed by comparing with current values
             # Note: We compare with device settings, using public API properties
             connection_changed = (
@@ -170,15 +154,6 @@ class VioletPoolControllerDevice:
             )
             if auth_in_options:
                 connection_changed = True
-
-            # ✅ DIAGNOSTIC LOGGING: Apply change if detected
-            if diagnostic_logging_changed:
-                self._enable_diagnostic_logging = new_diagnostic_logging
-                _LOGGER.info(
-                    "Diagnostic logging %s",
-                    "ENABLED 📊" if new_diagnostic_logging else "DISABLED",
-                )
-                return True
 
             if not connection_changed:
                 _LOGGER.debug("API configuration unchanged, no update needed")
@@ -412,35 +387,6 @@ class VioletPoolControllerDevice:
                     len(data),
                     self._connection_latency / 1000,  # Convert ms to seconds
                 )
-
-                # ✅ DIAGNOSTIC LOGGING: Erweiterte Informationen (optional)
-                if self._enable_diagnostic_logging:
-                    # Liste der geänderten Keys seit letztem Update
-                    changed_keys = set(data.keys()) - set(self._data.keys()) if self._data else set(data.keys())
-                    if changed_keys:
-                        _LOGGER.info(
-                            "📊 Update #%d: %d new/changed keys: %s%s",
-                            self._update_counter,
-                            len(changed_keys),
-                            ", ".join(sorted(changed_keys)[:20]),  # Max 20 keys
-                            "..." if len(changed_keys) > 20 else "",
-                        )
-
-                    # Verbindungs-Metriken
-                    _LOGGER.info(
-                        "📈 Connection: %.1fms latency, %.0f%% health, %.2f req/min",
-                        self._connection_latency,
-                        self._system_health,
-                        self.api_request_rate,
-                    )
-
-                    # Beispiel-Keys (zu Debug-Zwecken)
-                    sample_keys = sorted(data.keys())[:15]
-                    _LOGGER.info(
-                        "🔑 Sample keys (%d total): %s",
-                        len(data),
-                        ", ".join(sample_keys),
-                    )
 
                 return dict(self._data)
 

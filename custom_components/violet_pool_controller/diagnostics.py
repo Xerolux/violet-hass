@@ -10,6 +10,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN, INTEGRATION_VERSION
+from .error_handler import get_enhanced_error_handler
 
 # Fields redacted from config entry data (sensitive / privacy-relevant)
 _REDACT_KEYS = {"password", "username"}
@@ -76,4 +77,5 @@ async def async_get_config_entry_diagnostics(
         "connection": connection,
         "current_data": dict(coordinator.data) if coordinator.data else {},
         "poll_statistics": poll_stats,
+        "error_summary": get_enhanced_error_handler().get_error_summary(),
     }
