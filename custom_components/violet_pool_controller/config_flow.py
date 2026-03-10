@@ -13,7 +13,7 @@ from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client, selector
 
-from .violet_pool_api.api import VioletPoolAPI
+from violet_poolcontroller_api.api import VioletPoolAPI
 from .const import (
     AVAILABLE_FEATURES,
     CONF_ACTIVE_FEATURES,

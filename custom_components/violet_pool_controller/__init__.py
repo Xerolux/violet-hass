@@ -103,7 +103,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     # Lazy imports to avoid blocking the event loop
-    from .violet_pool_api.api import VioletPoolAPI
+    from violet_poolcontroller_api.api import VioletPoolAPI
     from .device import async_setup_device
 
     # Extract configuration

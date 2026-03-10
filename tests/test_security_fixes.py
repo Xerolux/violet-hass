@@ -2,8 +2,8 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
-from custom_components.violet_pool_controller.violet_pool_api.api import VioletPoolAPI
-from custom_components.violet_pool_controller.violet_pool_api.utils_sanitizer import InputSanitizer
+from violet_poolcontroller_api.api import VioletPoolAPI
+from violet_poolcontroller_api.utils_sanitizer import InputSanitizer
 
 
 class TestSecurityFixes:

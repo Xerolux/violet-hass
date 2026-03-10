@@ -12,7 +12,7 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 
 from ..const import DOMAIN
-from ..violet_pool_api.const_devices import VioletState
+from violet_poolcontroller_api.const_devices import VioletState
 from ..device import VioletPoolDataUpdateCoordinator
 from ..entity import VioletPoolControllerEntity
 from .base import (
