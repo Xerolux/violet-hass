@@ -13,7 +13,7 @@ from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client, selector
 
-from .api import VioletPoolAPI
+from .violet_pool_api.api import VioletPoolAPI
 from .const import (
     AVAILABLE_FEATURES,
     CONF_ACTIVE_FEATURES,
@@ -516,13 +516,19 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
             # Validate IP address
             api_url = user_input.get(CONF_API_URL) or user_input.get("api_url")
             if not api_url or not validators.validate_ip_address(api_url):
-                errors[CONF_API_URL] = constants.ERROR_INVALID_IP
+                errors["host"] = constants.ERROR_INVALID_IP
             else:
                 # Build updated config
                 updated_data = dict(reconfigure_entry.data)
                 updated_data[CONF_API_URL] = api_url
                 updated_data[CONF_USE_SSL] = user_input.get(
                     CONF_USE_SSL, DEFAULT_USE_SSL
+                )
+                updated_data[CONF_USERNAME] = user_input.get(
+                    CONF_USERNAME, reconfigure_entry.data.get(CONF_USERNAME, "")
+                )
+                updated_data[CONF_PASSWORD] = user_input.get(
+                    CONF_PASSWORD, reconfigure_entry.data.get(CONF_PASSWORD, "")
                 )
                 updated_data[CONF_POLLING_INTERVAL] = int(
                     user_input.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)

@@ -13,7 +13,7 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .api import VioletPoolAPIError
+from .violet_pool_api.api import VioletPoolAPIError
 from .const import (
     ACTION_AUTO,
     ACTION_OFF,
