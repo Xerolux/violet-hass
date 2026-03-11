@@ -19,6 +19,14 @@ from violet_poolcontroller_api.const_devices import *
 from .const_features import *
 from .const_sensors import *
 
+from homeassistant.const import (
+    CONF_DEVICE_ID,
+    CONF_HOST,
+    CONF_PASSWORD,
+    CONF_USERNAME,
+    CONF_VERIFY_SSL,
+)
+
 # =============================================================================
 # INTEGRATION INFO
 # =============================================================================
@@ -30,14 +38,8 @@ MANUFACTURER = "PoolDigital GmbH & Co. KG"
 # =============================================================================
 # CONFIGURATION KEYS
 # =============================================================================
-
-from homeassistant.const import (
-    CONF_DEVICE_ID,
-    CONF_HOST,
-    CONF_PASSWORD,
-    CONF_USERNAME,
-    CONF_VERIFY_SSL,
-)
+# API CONFIGURATION
+# =============================================================================
 
 CONF_API_URL = CONF_HOST
 CONF_POLLING_INTERVAL = "polling_interval"

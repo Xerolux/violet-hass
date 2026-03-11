@@ -7,7 +7,6 @@ from datetime import timedelta
 from typing import Any
 
 import homeassistant.helpers.config_validation as cv
-from homeassistant.components.zeroconf import AsyncServiceInfo
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, callback
@@ -440,7 +439,7 @@ async def async_remove_config_entry_device(
 @callback
 def async_zeroconf_get_service_info(
     hass: HomeAssistant,
-    info: AsyncServiceInfo,
+    info: Any,
     service_info_type: str,
 ) -> None:
     """Handle ZeroConf discovery of Violet Pool Controller.

@@ -8,7 +8,7 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.components.zeroconf import AsyncServiceInfo, info_from_service
+from homeassistant.components.zeroconf import ZeroconfServiceInfo
 from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client, selector
@@ -403,15 +403,15 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
             ),
             errors=errors,
             description_placeholders={
-                "controller_name": self._reauth_entry.data.get(
+                "controller_name": str(self._reauth_entry.data.get(
                     CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME
-                ),
-                "api_url": self._reauth_entry.data.get(CONF_API_URL),
+                )),
+                "api_url": str(self._reauth_entry.data.get(CONF_API_URL, "")),
             },
         )
 
     async def async_step_zeroconf(
-        self, discovery_info: AsyncServiceInfo
+        self, discovery_info: ZeroconfServiceInfo
     ) -> ConfigFlowResult:
         """Handle zeroconf discovery of a Violet Pool Controller.
 
@@ -421,12 +421,10 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
         Returns:
             The flow result.
         """
-        # Convert AsyncServiceInfo to ZeroconfServiceInfo using helper
-        service_info = info_from_service(discovery_info)
-        if service_info is None:
+        if discovery_info is None:
             return self.async_abort(reason="invalid_discovery_info")
         
-        host = str(service_info.ip_address)
+        host = str(discovery_info.ip_address)
         name = discovery_info.name
 
         _LOGGER.info(

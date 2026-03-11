@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .device import VioletPoolDataUpdateCoordinator
 
 from homeassistant.components.button import ButtonEntity, ButtonEntityDescription
 from homeassistant.config_entries import ConfigEntry
@@ -61,14 +64,14 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-
 class VioletDiagnosticButton(VioletPoolControllerEntity, ButtonEntity):
     """Button to clear the error history of the integration."""
 
-    def __init__(self, coordinator: DataUpdateCoordinator[Any], description: ButtonEntityDescription) -> None:
+    def __init__(self, coordinator: "VioletPoolDataUpdateCoordinator", description: ButtonEntityDescription) -> None:
         """Initialize the button."""
-        super().__init__(coordinator)
+        if coordinator.config_entry is None:
+            raise ValueError("Coordinator is missing a config entry")
+        super().__init__(coordinator, coordinator.config_entry, description)
         self.entity_description = description
         self._attr_unique_id = f"{coordinator.device.device_id}_{description.key}"
 

@@ -222,7 +222,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
 
         state = self.get_int_value(self.climate_type, STATE_OFF)
 
-        attributes = {
+        attributes: dict[str, Any] = {
             "raw_state": state,
             "hvac_mode_from_state": HEATER_HVAC_MODES.get(state or STATE_OFF, "unknown"),
             "hvac_action_from_state": HEATER_HVAC_ACTIONS.get(state or STATE_OFF, "unknown"),

@@ -71,7 +71,13 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
                     self.entity_description.key,
                 )
             return None
-        return self.entity_description.state_class
+
+        # We need to explicitly cast or check, since entity_description.state_class might be a string but we want SensorStateClass
+        if isinstance(self.entity_description.state_class, SensorStateClass):
+            return self.entity_description.state_class
+        if isinstance(self.entity_description.state_class, str):
+            return SensorStateClass(self.entity_description.state_class)
+        return None
 
     @property
     def native_value(self) -> str | int | float | datetime | None:
