@@ -15,7 +15,7 @@
   "quality_scale": "platinum",
   "requirements": [
     "aiohttp>=3.10.0",
-    "violet-poolController-api==0.0.1"
+    "violet-poolController-api==0.0.2"
   ],
   "version": "1.0.3",
   "zeroconf": [
