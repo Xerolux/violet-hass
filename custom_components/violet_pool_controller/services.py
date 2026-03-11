@@ -165,22 +165,6 @@ def get_service_schemas() -> dict[str, vol.Schema]:
                 vol.Required("action"): vol.In(["trigger", "lock", "unlock"]),
             }
         ),
-        "test_output": vol.Schema(
-            {
-                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
-                vol.Required("output"): cv.string,
-                vol.Optional("mode", default="SWITCH"): vol.In(["SWITCH", "ON", "OFF"]),
-                vol.Optional("duration", default=120): vol.All(
-                    vol.Coerce(int), vol.Range(min=1, max=900)
-                ),
-            }
-        ),
-        # Clear Error History
-        "clear_error_history": vol.Schema(
-            {
-                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
-            }
-        ),
     }
 
 
@@ -764,91 +748,6 @@ class VioletServiceHandlers:
 
             await coordinator.async_request_refresh()
 
-    async def handle_test_output(self, call: ServiceCall) -> None:
-        """
-        Handle the output test service.
-
-        Args:
-            call: The service call object.
-
-        Raises:
-            HomeAssistantError: If the action fails.
-        """
-
-        device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
-        output = call.data["output"]
-        mode = call.data.get("mode", "SWITCH")
-        duration = call.data.get("duration", 120)
-
-        for device_id in device_ids:
-            coordinator = await self.manager.get_coordinator_for_device(device_id)
-            if not coordinator:
-                raise HomeAssistantError(f"Device not found: {device_id}")
-
-            try:
-                result = await coordinator.device.api.set_output_test_mode(
-                    output=output,
-                    mode=mode,
-                    duration=int(duration),
-                )
-                _LOGGER.info(
-                    "Test mode for %s activated (%ds, mode %s, device %s)",
-                    output,
-                    duration,
-                    mode,
-                    device_id,
-                )
-                if result.get("success") is not True:
-                    _LOGGER.warning(
-                        "Test mode could not be activated for %s: %s",
-                        device_id,
-                        result.get("response", result),
-                    )
-            except VioletPoolAPIError as err:
-                _LOGGER.error("Test mode error (%s): %s", device_id, err)
-                raise HomeAssistantError(f"Test mode failed: {err}") from err
-
-            await coordinator.async_request_refresh()
-
-    async def handle_clear_error_history(self, call: ServiceCall) -> dict[str, Any]:
-        """
-        Handle clear error history service.
-
-        Args:
-            call: The service call object.
-
-        Returns:
-            Dictionary with operation result.
-
-        Raises:
-            HomeAssistantError: If service fails.
-        """
-        from .error_handler import get_enhanced_error_handler
-
-        device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
-        cleared_count = 0
-
-        for device_id in device_ids:
-            try:
-                coordinator = await self.manager.get_coordinator_for_device(device_id)
-                if not coordinator or not hasattr(coordinator, "device"):
-                    raise HomeAssistantError(f"Device {device_id} not found")
-
-                error_handler = get_enhanced_error_handler()
-                error_handler.clear_history()
-                cleared_count += 1
-
-            except Exception as err:
-                _LOGGER.error("Clear error history error: %s", err)
-                raise HomeAssistantError(f"Failed to clear error history: {err}") from err
-
-        _LOGGER.info("Cleared error history for %d device(s)", cleared_count)
-
-        return {
-            "success": True,
-            "cleared_count": cleared_count,
-            "message": f"Cleared error history for {cleared_count} device(s)"
-        }
 
 
 # =============================================================================
@@ -886,7 +785,6 @@ async def async_register_services(hass: HomeAssistant) -> None:
         "control_dmx_scenes": handlers.handle_control_dmx_scenes,
         "set_light_color_pulse": handlers.handle_set_light_color_pulse,
         "manage_digital_rules": handlers.handle_manage_digital_rules,
-        "test_output": handlers.handle_test_output,
     }
 
     for service_name, handler in regular_services.items():
@@ -894,16 +792,7 @@ async def async_register_services(hass: HomeAssistant) -> None:
             DOMAIN, service_name, handler, schema=schemas.get(service_name)
         )
 
-    # Services returning data
-    hass.services.async_register(
-        DOMAIN,
-        "clear_error_history",
-        handlers.handle_clear_error_history,
-        schema=schemas.get("clear_error_history"),
-        supports_response=SupportsResponse.ONLY,
-    )
-
     _LOGGER.info(
         "Successfully registered %d services",
-        len(regular_services) + 1,  # 1 diagnostic service remaining
+        len(regular_services),
     )

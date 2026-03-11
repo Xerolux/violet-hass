@@ -190,7 +190,6 @@ async def test_service_registration_registers_expected_services(hass: HomeAssist
         "control_dmx_scenes",
         "set_light_color_pulse",
         "manage_digital_rules",
-        "test_output",
     }
 
     for service in expected_services:

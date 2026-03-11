@@ -498,6 +498,20 @@
             "solar": {
                 "name": "☀️ Solarheizung"
             }
+        },
+        "button": {
+            "clear_error_history": {
+                "name": "🧹 Fehlerhistorie löschen"
+            },
+            "test_pump": {
+                "name": "⚡ Testmodus Pumpe"
+            },
+            "test_heater": {
+                "name": "⚡ Testmodus Heizung"
+            },
+            "test_solar": {
+                "name": "⚡ Testmodus Solar"
+            }
         }
     }
 }
