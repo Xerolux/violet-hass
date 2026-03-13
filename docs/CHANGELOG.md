@@ -1,6 +1,50 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## [1.0.4-beta.1] - 2026-03-13
+
+## v1.0.4-beta.1 – Violet Pool Controller
+
+🧪 **BETA RELEASE**
+
+### ✨ New Features | Neue Funktionen
+
+- **PyPI-Migration**: Complete migration to standalone `violet-poolController-api` package (v0.0.2)
+  - API now distributed as separate PyPI package for better modularity
+  - Automatic dependency management through PyPI
+  - Reduced integration size and complexity
+- **Auto-Update Workflow**: Added GitHub Actions workflow to automatically check for PyPI API updates
+  - Weekly checks for new API versions
+  - Automatic PR creation for dependency updates
+- **Refactored Configuration Keys**: Migrated to standard `homeassistant.const` keys
+  - Better compatibility with Home Assistant Core requirements
+  - Cleaner configuration handling
+
+### 🚀 Improvements | Verbesserungen
+
+- **Platinum Quality Scale**: Integration now certified at Platinum level
+- **HACS Integration**: Improved HACS default instructions and workflows
+- **CI/CD Enhancements**: Split HACS and hassfest workflows for better performance
+
+### 🔧 Bug Fixes | Fehlerbehebungen
+
+- Fixed import paths for PyPI API package
+- Updated all API references to use new module structure
+- Ensured backward compatibility during migration
+
+### ⚠️ Breaking Changes | Wichtige Änderungen
+
+- Requires `violet-poolController-api==0.0.2` as external dependency
+- Old internal API module removed - ensure PyPI package is installed
+
+### 📋 Technical Details | Technische Details
+
+- **API Package**: `violet-poolController-api v0.0.2`
+- **Dependencies**: `aiohttp>=3.10.0`, `violet-poolController-api==0.0.2`
+- **Home Assistant**: 2025.12.0+ (tested up to 2026.3.x)
+- **Python**: 3.12+
+
 ## [1.0.3] - 2026-03-09
 
 ## v1.0.3 – Violet Pool Controller
