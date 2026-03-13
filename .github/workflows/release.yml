@@ -415,6 +415,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+          ref: main  # Always checkout main branch to avoid detached HEAD
 
       - name: Update version in files
         run: |
