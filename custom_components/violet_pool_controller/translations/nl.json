@@ -2,37 +2,521 @@
     "config": {
         "step": {
             "user": {
-                "title": "Gebruikersconfiguratie",
-                "description": "Als je hulp nodig hebt bij de configuratie, kijk dan hier: [Violet Hass Integration]({github_url})",
+                "title": "Violette zwembadconfiguratieassistent",
+                "description": "Kies of u de configuratiewizard direct wilt starten of eerst de uitgebreide documentatie wilt openen.\n\nDocumentatie: [Configuratiehandleiding]({docs_en})\n\nOndersteuning en feedback: {issues_url}",
+                "data": {
+                    "action": "Selecteer actie"
+                },
+                "data_description": {
+                    "action": "Open de documentatie of start direct de installatie."
+                }
+            },
+            "disclaimer": {
+                "title": "Veiligheids- en aansprakelijkheidsmededeling",
+                "description": "**Veiligheidswaarschuwing**\n\nDeze integratie biedt afstandsbediening voor pompen, verwarmingen, verlichting en doseersystemen. Een onjuiste configuratie kan schade aan de apparatuur, persoonlijk letsel of een overdosis chemicaliën veroorzaken. Zorg ervoor dat u alle veiligheidsfuncties begrijpt en dat handmatige overschrijvingen toegankelijk zijn.\n\nRaadpleeg de [Configuratiehandleiding]({docs_en}) voordat u doorgaat.",
+                "data": {
+                    "agreement": "Ik accepteer alle risico's en heb de volledige disclaimer gelezen."
+                }
+            },
+            "help": {
+                "title": "Hulp & Documentatie",
+                "description": "Lees de [Configuratiehandleiding]({docs_en}) voor stapsgewijze instructies, veiligheidsopmerkingen en uitleg van functies.\n\nHeeft u hulp nodig of wilt u feedback delen? Open een probleem op {issues_url}.\n\nProjectopslagplaats: {github_url}\n\nKlik op **Volgende** om terug te keren naar het hoofdmenu."
+            },
+            "connection": {
+                "title": "Controller-aansluiting",
+                "description": "Verbind uw Violet Pool Controller met Home Assistant. Zorg ervoor dat de controller hetzelfde netwerk deelt en dat de API bereikbaar is.\n\nAanvullende documentatie: [Configuratiehandleiding]({docs_en})",
+                "data": {
+                    "host": "IP-adres of hostnaam",
+                    "port": "TCP-poort",
+                    "username": "Gebruikersnaam (optioneel)",
+                    "password": "Wachtwoord (optioneel)",
+                    "use_ssl": "Gebruik SSL/HTTPS",
+                    "device_name": "Apparaatnaam",
+                    "controller_name": "Naam van controller",
+                    "device_id": "Apparaat-ID",
+                    "polling_interval": "Polling-interval (seconden)",
+                    "timeout_duration": "Time-out (seconden)",
+                    "retry_attempts": "Probeer pogingen opnieuw"
+                },
+                "data_description": {
+                    "host": "IP- of DNS-naam van controller",
+                    "port": "TCP-poort (laat op 80 tenzij u een aangepaste proxy gebruikt)",
+                    "username": "Optionele gebruikersnaam als authenticatie is ingeschakeld",
+                    "password": "Wachtwoord indien vereist",
+                    "use_ssl": "Schakel HTTPS in indien ondersteund",
+                    "device_name": "Beschrijvende naam weergegeven in Home Assistant",
+                    "controller_name": "Weergavenaam van controller",
+                    "device_id": "Unieke ID als er meerdere controllers bestaan",
+                    "polling_interval": "Interval voor gegevensopvragen (10-3600s)",
+                    "timeout_duration": "Maximale wachttijd per aanvraag",
+                    "retry_attempts": "Aantal nieuwe pogingen"
+                }
+            },
+            "pool_setup": {
+                "title": "Zwembadconfiguratie",
+                "description": "Geef de grootte, het type en de desinfectiemethode van het zwembad op. Deze waarden worden gebruikt voor runtime-optimalisatie, energiemanagement en doseringsberekeningen.",
+                "data": {
+                    "pool_size": "Zwembadgrootte (m³)",
+                    "pool_type": "Zwembadtype",
+                    "disinfection_method": "Desinfectiemethode"
+                },
+                "data_description": {
+                    "pool_size": "Watervolume in kubieke meter",
+                    "pool_type": "Beïnvloedt het verwarmings- en zonnegedrag",
+                    "disinfection_method": "Primaire waterbehandelingsmethode"
+                }
+            },
+            "feature_selection": {
+                "title": "Schakel slimme functies in",
+                "description": "Schakel alleen de functies in die uw zwembadinstallatie daadwerkelijk gebruikt. Dit houdt het bronnengebruik laag en de gebruikersinterface overzichtelijk. U kunt de selectie op elk gewenst moment aanpassen in de opties.",
+                "data": {
+                    "enable_heating": "Verwarmingscontrole",
+                    "enable_solar": "Zonne-absorber",
+                    "enable_ph_control": "pH-automatisering",
+                    "enable_chlorine_control": "Chloorbeheer",
+                    "enable_cover_control": "Dekkingscontrole",
+                    "enable_backwash": "Terugspoelautomatisering",
+                    "enable_pv_surplus": "PV-overschot",
+                    "enable_filter_control": "Filterpomp",
+                    "enable_water_level": "Waterniveaumonitor",
+                    "enable_water_refill": "Automatisch water bijvullen",
+                    "enable_led_lighting": "LED-verlichting",
+                    "enable_digital_inputs": "Digitale ingangen",
+                    "enable_extension_outputs": "Uitbreidingsmodules"
+                },
+                "data_description": {
+                    "enable_heating": "Geautomatiseerde verwarmingsregeling",
+                    "enable_solar": "Slimme regeling van de zonne-absorber",
+                    "enable_ph_control": "Geautomatiseerde pH-controle",
+                    "enable_chlorine_control": "Chloor-/redoxbeheer",
+                    "enable_cover_control": "Bedien de zwembadafdekking",
+                    "enable_backwash": "Geautomatiseerde terugspoelcycli",
+                    "enable_pv_surplus": "Maak slim gebruik van het fotovoltaïsche overschot",
+                    "enable_filter_control": "Bedien de filterpomp op aanvraag",
+                    "enable_water_level": "Houd het waterniveau in de gaten",
+                    "enable_water_refill": "Automatische waterbijvulling",
+                    "enable_led_lighting": "LED-verlichtingsscènes",
+                    "enable_digital_inputs": "Integreer externe sensoren en schakelaars",
+                    "enable_extension_outputs": "Gebruik uitbreidingsmodules"
+                }
+            },
+            "sensor_selection": {
+                "title": "Selecteer Sensoren",
+                "description": "Kies welke sensoren je wilt zien in Home Assistant. Schakel individuele sensoren in of uit om uw dashboard schoon en gefocust te houden.\n\nStandaard zijn alle beschikbare sensoren geselecteerd. U kunt deze selectie op elk gewenst moment aanpassen in de opties."
+            },
+            "reauth_confirm": {
+                "title": "Authenticeer de controller opnieuw",
+                "description": "De controllerreferenties moeten worden bijgewerkt. Voer uw nieuwe gebruikersnaam en wachtwoord in.\n\nBeheerder: **{controller_name}**\nIP-adres: **{api_url}**",
                 "data": {
                     "username": "Gebruikersnaam",
                     "password": "Wachtwoord"
+                },
+                "data_description": {
+                    "username": "Nieuwe gebruikersnaam voor authenticatie",
+                    "password": "Nieuw wachtwoord voor authenticatie"
                 }
+            },
+            "reconfigure": {
+                "title": "Configureer de verbinding opnieuw",
+                "description": "Update de verbindingsinstellingen voor uw controller. Dit is handig als het IP-adres van de controller of de netwerkinstellingen zijn gewijzigd.\n\nBeheerder: **{controller_name}**",
+                "data": {
+                    "host": "IP-adres of hostnaam",
+                    "port": "TCP-poort",
+                    "use_ssl": "Gebruik SSL/HTTPS",
+                    "polling_interval": "Polling-interval (seconden)",
+                    "timeout_duration": "Time-out (seconden)",
+                    "retry_attempts": "Probeer pogingen opnieuw"
+                },
+                "data_description": {
+                    "host": "Nieuwe controller-IP of DNS-naam",
+                    "port": "TCP-poort (laat op 80 tenzij u een aangepaste proxy gebruikt)",
+                    "use_ssl": "Schakel HTTPS in indien ondersteund",
+                    "polling_interval": "Interval voor gegevensopvragen (10-3600s)",
+                    "timeout_duration": "Maximale wachttijd per aanvraag",
+                    "retry_attempts": "Aantal nieuwe pogingen"
+                }
+            },
+            "zeroconf_confirm": {
+                "title": "Violette zwembadcontroller gevonden",
+                "description": "Er is een Violet Pool Controller op het netwerk ontdekt.\n\nNaam: **{name}**\nIP-adres: **{host}**\n\nWil je deze controller nu instellen?"
             }
         },
         "error": {
-            "invalid_auth": "Ongeldige gebruikersnaam of wachtwoord.",
-            "cannot_connect": "Kan geen verbinding maken met de server.",
-            "unknown": "Er is een onbekende fout opgetreden."
+            "invalid_ip_address": "Ongeldig IP-adres\n\nVoer een geldig IP-adres in (bijvoorbeeld 192.168.1.100)",
+            "cannot_connect": "Verbinding mislukt\n\nBeheerder niet bereikbaar. Controleer:\n• Is het IP-adres correct?\n• Is de controller ingeschakeld?\n• Is de netwerkverbinding in orde?",
+            "invalid_auth": "Authenticatie mislukt\n\nGebruikersnaam of wachtwoord onjuist. Laat velden leeg als authenticatie is uitgeschakeld.",
+            "timeout_connection": "Time-out voor verbinding\n\nController reageert niet. Mogelijk overbelast of onbereikbaar.",
+            "authentication_error": "Authenticatie vereist\n\nDe controller heeft inloggegevens nodig. Voer gebruikersnaam en wachtwoord in.",
+            "api_endpoint_not_found": "API-eindpunt niet gevonden\n\nDe controllerfirmware is mogelijk verouderd of de URL is onjuist.",
+            "invalid_pool_size": "Invalid Pool Size\n\nWaarde moet tussen 0,1 en 1000 m³ liggen.",
+            "invalid_configuration": "Configuratiefout\n\nEen of meer invoer is ongeldig. Controleer dit alstublieft.",
+            "api_response_error": "Ongeldige controllerreactie\n\nController verzendt onverwachte gegevens. Firmware-update nodig?",
+            "firmware_data_missing": "Firmware-informatie ontbreekt\n\nFirmwareversie van controller kan niet worden bepaald.",
+            "invalid_firmware_version": "Firmware-probleem\n\nControllerfirmware lijkt verouderd. Update alstublieft.",
+            "connection_error": "Netwerkfout\n\nAlgemene verbindingsfout. Controleer netwerkinstellingen.",
+            "already_configured": "Al geconfigureerd\n\nEr is al een controller met dit IP-adres ingesteld.",
+            "agreement_declined": "Installatie afgebroken\n\nDe installatie is afgebroken omdat de veiligheidsdisclaimer niet werd geaccepteerd.",
+            "unknown": "Onbekende fout\n\nEr heeft zich een onverwacht probleem voorgedaan. Neem contact op met de ondersteuning als het probleem zich blijft voordoen."
+        },
+        "abort": {
+            "already_configured": "Controller al geconfigureerd",
+            "cannot_connect": "Verbinding mislukt",
+            "invalid_auth": "Ongeldige inloggegevens",
+            "agreement_declined": "Veiligheidsdisclaimer niet geaccepteerd",
+            "reauth_successful": "Herauthenticatie succesvol",
+            "reauth_failed": "Opnieuw verifiëren is mislukt",
+            "reconfigure_successful": "Herconfiguratie succesvol",
+            "already_in_progress": "Het instellen wordt al uitgevoerd",
+            "unknown": "Onbekende fout"
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Pas zwembadinstellingen aan",
+                "description": "Wat wilt u configureren?\n\nFuncties in-/uitschakelen\nSelecteer sensoren\nWijzig instellingen\n\nU kunt altijd terugkeren naar deze selectie.",
+                "data": {
+                    "config_option": "Selecteer configuratiegebied"
+                },
+                "data_description": {
+                    "config_option": "Kies wat je wilt aanpassen"
+                }
+            },
+            "features": {
+                "title": "Functies in-/uitschakelen",
+                "description": "Kies de functies die u wilt gebruiken\n\nIngeschakelde functies worden weergegeven in Home Assistant\nUitgeschakelde functies worden verborgen\n\nSchakel alleen in wat u echt nodig heeft - houdt de interface schoon!"
+            },
+            "sensors": {
+                "title": "Selecteer Sensoren",
+                "description": "Kies welke sensoren moeten worden weergegeven\n\nAlleen geselecteerde sensoren worden weergegeven in Home Assistant\nWijzigingen zijn onmiddellijk van kracht\n\nSelecteer alleen de sensoren die u echt wilt monitoren!"
+            },
+            "settings": {
+                "title": "Algemene instellingen",
+                "description": "Pas de technische parameters aan\n\nPollinginterval: hoe vaak gegevens worden opgehaald\nTime-out: maximale wachttijd voor reacties\nNieuwe pogingen: aantal nieuwe pogingen\n\nStandaardwaarden werken voor de meeste instellingen!"
+            }
+        }
+    },
+    "exceptions": {
+        "api_error": {
+            "message": "API-communicatiefout: {detail}"
+        },
+        "invalid_value": {
+            "message": "Ongeldige waarde: {detail}"
+        },
+        "value_out_of_range": {
+            "message": "Waarde {value} ligt buiten het geldige bereik ({min}–{max})"
+        },
+        "failed_to_set_value": {
+            "message": "Kan waarde niet instellen: {detail}"
+        },
+        "no_api_key": {
+            "message": "Geen API-sleutel geconfigureerd voor entiteit {entity}"
+        },
+        "invalid_action": {
+            "message": "Ongeldige actie: {action}"
+        },
+        "unexpected_error": {
+            "message": "Onverwachte fout: {detail}"
+        },
+        "controller_unavailable": {
+            "message": "Zwembadcontroller {name} is niet beschikbaar na {failures} opeenvolgende fouten"
+        }
+    },
+    "issues": {
+        "controller_unavailable": {
+            "title": "Zwembadcontroller niet beschikbaar",
+            "description": "De zwembadcontroller **{name}** is gedurende {failures} opeenvolgende pollingcycli onbereikbaar geweest.\n\nControleer:\n- Is de controller ingeschakeld?\n- Is de netwerkverbinding in orde?\n- Klopt het IP-adres nog?\n\nZodra de controller weer bereikbaar is, wordt dit probleem automatisch opgelost."
         }
     },
     "services": {
         "turn_auto": {
-            "name": "In Automatische modus zetten",
-            "description": "Stelt de schakelaar in op automatische modus met aangepaste vertraging en laatste waarde.",
+            "name": "Activeer de AUTO-modus",
+            "description": "Schakelt apparaten over naar de intelligente automatische modus.\n\nHet systeem neemt nu de optimale besturing over op basis van sensordata en planningen.",
             "fields": {
                 "entity_id": {
-                    "name": "Entiteit-ID",
-                    "description": "De ID van de entiteit die moet worden bediend."
+                    "name": "Apparaten om te bedienen",
+                    "description": "Selecteer de apparaten om naar de AUTO-modus te schakelen."
                 },
                 "auto_delay": {
-                    "name": "Automatische vertraging",
-                    "description": "De vertragingstijd voor de automatische modus."
-                },
-                "last_value": {
-                    "name": "Laatste waarde",
-                    "description": "De laatste waarde die voor de schakelaar is ingesteld."
+                    "name": "Vertraging (seconden)",
+                    "description": "Wachttijd voordat de AUTO-modus wordt geactiveerd (0-86400s)."
                 }
+            }
+        },
+        "set_pv_surplus": {
+            "name": "Gebruik PV-overschot",
+            "description": "Activeert de fotovoltaïsche overschotmodus voor optimaal gebruik van zonne-energie.\n\nZwembadapparaten worden automatisch aangedreven met overtollige zonne-energie.",
+            "fields": {
+                "entity_id": {
+                    "name": "PV-overschotschakelaar",
+                    "description": "De PV-overschotschakelaar van de controller."
+                },
+                "pump_speed": {
+                    "name": "Pompsnelheid",
+                    "description": "Gewenst pompvermogen (1=Eco, 2=Normaal, 3=Maximum)."
+                }
+            }
+        },
+        "manual_dosing": {
+            "name": "Handmatige dosering",
+            "description": "Start handmatige dosering voor de gewenste duur.\n\nLet op: vermijd overdosering! Controleer altijd eerst de waterwaarden.",
+            "fields": {
+                "entity_id": {
+                    "name": "Doseersysteem",
+                    "description": "Selecteer het doseersysteem (pH+, pH-, Chloor, etc.)."
+                },
+                "duration_seconds": {
+                    "name": "Doseringsduur (seconden)",
+                    "description": "Hoe lang moet de dosering duren? (1-3600s, begin met korte tijden!)"
+                }
+            }
+        },
+        "test_output": {
+            "name": "Uitgangstestmodus",
+            "description": "Activeert tijdelijk een controlleruitgang voor diagnose. Zorg ervoor dat er geen mensen of apparatuur in gevaar komen terwijl de uitvoer wordt geforceerd.",
+            "fields": {
+                "output": {
+                    "name": "Uitgangsidentificatie",
+                    "description": "Identificatie zoals PUMP, HEATER of SOLAR"
+                },
+                "mode": {
+                    "name": "Testmodus",
+                    "description": "SCHAKELAAR=schakelen, AAN=geforceerd aan, UIT=geforceerd uit"
+                },
+                "duration": {
+                    "name": "Testduur (seconden)",
+                    "description": "Duur tussen 1 en 900 seconden"
+                }
+            }
+        },
+        "set_temperature_target": {
+            "name": "Stel de doeltemperatuur in",
+            "description": "Stelt de gewenste zwembadtemperatuur in.\n\nDe regelaar verwarmt automatisch naar deze temperatuur en handhaaft deze.",
+            "fields": {
+                "entity_ids": {
+                    "name": "Verwarmingssystemen",
+                    "description": "Selecteer verwarming en/of zonnecollector."
+                },
+                "temperature": {
+                    "name": "Doeltemperatuur (°C)",
+                    "description": "Gewenste zwembadtemperatuur (20-35°C aanbevolen)."
+                }
+            }
+        },
+        "set_ph_target": {
+            "name": "Stel pH-doel in",
+            "description": "Definieert de ideale pH-waarde voor automatische dosering.\n\nAanbevolen bereik: 7,0-7,4 voor optimale waterkwaliteit en huidcompatibiliteit.",
+            "fields": {
+                "entity_ids": {
+                    "name": "pH-doseersysteem",
+                    "description": "Selecteer de pH-regeling van de controller."
+                },
+                "target_value": {
+                    "name": "pH-doel",
+                    "description": "Gewenste pH-waarde (6,8-7,8, optimaal: 7,0-7,4)."
+                }
+            }
+        },
+        "set_chlorine_target": {
+            "name": "Chloordoel instellen",
+            "description": "Bepaalt het beoogde chloorgehalte voor een veilige desinfectie.\n\nVoldoende chloor elimineert bacteriën, te veel irriteert huid en ogen.",
+            "fields": {
+                "entity_ids": {
+                    "name": "Chloordoseersysteem",
+                    "description": "Chloortoseer- of elektrolysesysteem."
+                },
+                "target_value": {
+                    "name": "Chloordoel (mg/l)",
+                    "description": "Gewenst gehalte aan vrij chloor (0,3-1,5 mg/l aanbevolen)."
+                }
+            }
+        },
+        "trigger_backwash": {
+            "name": "Terugspoeling starten",
+            "description": "Start een filterterugspoeling voor reiniging.\n\nVerwijdert vuil en aanslag voor optimale filterprestaties.",
+            "fields": {
+                "entity_ids": {
+                    "name": "Terugspoelsysteem",
+                    "description": "Terugspoelklep of filterautomatisering."
+                },
+                "duration": {
+                    "name": "Terugspoelduur (seconden)",
+                    "description": "Spoelduur (typisch 60-300s, 0=handmatig einde)."
+                }
+            }
+        },
+        "start_water_analysis": {
+            "name": "Wateranalyse starten",
+            "description": "Start een automatische wateranalyse van alle parameters.\n\nMeet pH, chloor, temperatuur en andere waarden voor optimalisatiesuggesties.",
+            "fields": {
+                "entity_ids": {
+                    "name": "Controleur",
+                    "description": "Violet Pool Controller voor analyse."
+                }
+            }
+        },
+        "set_maintenance_mode": {
+            "name": "Onderhoudsmodus",
+            "description": "Schakelt de onderhoudsmodus in/uit.\n\nIn de onderhoudsmodus wordt alle automatisering gepauzeerd voor veilig zwembadwerk.",
+            "fields": {
+                "entity_ids": {
+                    "name": "Controleur",
+                    "description": "Selecteer Violet Pool Controller."
+                },
+                "enable": {
+                    "name": "Onderhoudsmodus inschakelen",
+                    "description": "Aan: Alle automatisering stoppen | Uit: Hervat de normale werking."
+                }
+            }
+        },
+        "set_all_dmx_scenes_mode": {
+            "name": "Bedien DMX-verlichting",
+            "description": "Bestuurt alle DMX-lichtscènes tegelijkertijd.\n\nPerfect voor uniforme lichteffecten of volledige aan/uit-schakeling.",
+            "fields": {
+                "device_id": {
+                    "name": "Zwembadcontroleur",
+                    "description": "Violet Pool Controller met DMX-uitgang."
+                },
+                "dmx_mode": {
+                    "name": "Lichtmodus",
+                    "description": "Alle lichten: Aan/Uit/Automatisch."
+                }
+            }
+        },
+        "set_digital_input_rule_lock_state": {
+            "name": "Schakelregel vergrendelen",
+            "description": "Vergrendelt of ontgrendelt digitale schakelregels.\n\nVoorkomt ongewenste activering tijdens onderhoud of storingen.",
+            "fields": {
+                "device_id": {
+                    "name": "Zwembadcontroleur",
+                    "description": "Violet Pool Controller met digitale regels."
+                },
+                "rule_key": {
+                    "name": "Regel nummer",
+                    "description": "Nummer van de regel die moet worden vergrendeld (DIRULE_1 tot en met DIRULE_7)."
+                },
+                "lock_state": {
+                    "name": "Slot",
+                    "description": "Regel vergrendelen (Aan) of loslaten (Uit)."
+                }
+            }
+        },
+        "trigger_digital_input_rule": {
+            "name": "Trigger-schakelregel",
+            "description": "Activeert handmatig een digitale schakelregel.\n\nHandig voor het testen van automatisering of handmatige bediening wanneer dat nodig is.",
+            "fields": {
+                "device_id": {
+                    "name": "Zwembadcontroleur",
+                    "description": "Violet Pool Controller met de regels."
+                },
+                "rule_key": {
+                    "name": "Regel nummer",
+                    "description": "Welke regel moet worden geactiveerd? (DIRULE_1 tot en met DIRULE_7)"
+                }
+            }
+        }
+    },
+    "selector": {
+        "pool_type": {
+            "options": {
+                "outdoor": "Buitenzwembad",
+                "indoor": "Overdekt zwembad",
+                "whirlpool": "Bubbelbad/spa",
+                "natural": "Natuurlijk zwembad/vijver",
+                "combination": "Combinatie/Hybride"
+            }
+        },
+        "disinfection_method": {
+            "options": {
+                "chlorine": "Chloor (vloeistof/tabletten)",
+                "salt": "Zoutwaterelektrolyse",
+                "bromine": "Broom Desinfectie",
+                "active_oxygen": "Actieve zuurstof/H₂O₂",
+                "uv": "UV-C-desinfectie",
+                "ozone": "Ozonbehandeling"
+            }
+        },
+        "dmx_mode": {
+            "options": {
+                "allon": "Alle lichten aan",
+                "alloff": "Alle lichten uit",
+                "allauto": "Alle lichten Auto"
+            }
+        }
+    },
+    "entity": {
+        "sensor": {
+            "ph_value": {
+                "name": "pH-waarde"
+            },
+            "orp_value": {
+                "name": "Redoxpotentieel"
+            },
+            "pot_value": {
+                "name": "Chloorniveau"
+            },
+            "onewire1_value": {
+                "name": "Watertemperatuur"
+            },
+            "onewire2_value": {
+                "name": "Luchttemperatuur"
+            },
+            "firmware_version": {
+                "name": "Firmwareversie"
+            },
+            "system_health": {
+                "name": "Systeemgezondheid"
+            },
+            "connection_latency": {
+                "name": "Verbinding latentie"
+            },
+            "last_event_age": {
+                "name": "Laatste gebeurtenistijdperk"
+            },
+            "api_request_rate": {
+                "name": "API-verzoekpercentage"
+            },
+            "average_latency": {
+                "name": "Gemiddelde latentie"
+            },
+            "recovery_success_rate": {
+                "name": "Herstelsuccespercentage"
+            }
+        },
+        "binary_sensor": {
+            "pump_state": {
+                "name": "Filterpompstatus"
+            },
+            "heater_state": {
+                "name": "Verwarmingsstatus"
+            },
+            "solar_state": {
+                "name": "Zonne-status"
+            },
+            "cover_is_closed": {
+                "name": "Deksel gesloten"
+            }
+        },
+        "switch": {
+            "pump": {
+                "name": "Filterpomp"
+            },
+            "heater": {
+                "name": "Verwarming"
+            },
+            "solar": {
+                "name": "Zonne-absorber"
+            },
+            "light": {
+                "name": "Verlichting"
+            }
+        },
+        "climate": {
+            "heater": {
+                "name": "Zwembadverwarmer"
+            },
+            "solar": {
+                "name": "Zonneverwarmer"
             }
         }
     }
