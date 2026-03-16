@@ -35,6 +35,7 @@ from homeassistant.const import (
     CONF_DEVICE_ID,
     CONF_HOST,
     CONF_PASSWORD,
+    CONF_PORT,
     CONF_USERNAME,
     CONF_VERIFY_SSL,
 )
@@ -63,6 +64,7 @@ DEFAULT_USE_SSL = False
 DEFAULT_VERIFY_SSL = True
 DEFAULT_DEVICE_NAME = "Violet Pool Controller"
 DEFAULT_CONTROLLER_NAME = "Violet Pool Controller"
+DEFAULT_PORT = 80
 DEFAULT_POOL_SIZE = 50
 DEFAULT_POOL_TYPE = "outdoor"
 DEFAULT_DISINFECTION_METHOD = "chlorine"

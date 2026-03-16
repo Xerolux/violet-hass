@@ -80,6 +80,10 @@ class VioletPoolControllerDevice:
         entry_data = config_entry.data
         entry_options = config_entry.options
         self.api_url = self._extract_api_url(entry_data)
+        from .const import CONF_PORT, DEFAULT_PORT
+        port = entry_data.get(CONF_PORT, DEFAULT_PORT)
+        if port not in (80, 443):
+            self.api_url = f"{self.api_url}:{port}"
         self.use_ssl = entry_data.get(CONF_USE_SSL, True)
         self.device_id = entry_data.get(CONF_DEVICE_ID, 1)
         self.device_name = entry_data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
@@ -117,6 +121,8 @@ class VioletPoolControllerDevice:
         from .const import (
             CONF_ENABLE_DIAGNOSTIC_LOGGING,
             CONF_PASSWORD,
+            CONF_PORT,
+            DEFAULT_PORT,
             CONF_RETRY_ATTEMPTS,
             CONF_TIMEOUT_DURATION,
             CONF_USERNAME,
@@ -131,6 +137,9 @@ class VioletPoolControllerDevice:
             entry_options = new_config_entry.options
 
             new_api_url = self._extract_api_url(entry_data)
+            new_port = entry_data.get(CONF_PORT, DEFAULT_PORT)
+            if new_port not in (80, 443):
+                new_api_url = f"{new_api_url}:{new_port}"
             new_use_ssl = entry_data.get(CONF_USE_SSL, True)
             new_username = entry_data.get(CONF_USERNAME)
             new_password = entry_data.get(CONF_PASSWORD)

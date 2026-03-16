@@ -46,17 +46,18 @@ Einstellungen → Geräte & Dienste → Violet Pool Controller → Optionen
 | Parameter | Typ | Standard | Beschreibung |
 |-----------|-----|---------|--------------|
 | `host` | String | – | IP-Adresse oder Hostname des Controllers |
-| `port` | Integer | 80 | TCP-Port (80 für HTTP, 443 für HTTPS) |
+| `port` | Integer | 80 | TCP-Port (Auf 80 belassen, außer bei Nutzung eines Proxys) |
 | `use_ssl` | Boolean | False | HTTPS statt HTTP verwenden |
 | `verify_ssl` | Boolean | True | SSL-Zertifikat validieren |
 
 **Beispiele für Host-Konfiguration:**
 
 ```
-HTTP (Standard):     192.168.1.100:80
-HTTPS validiert:     192.168.1.100:443  (verify_ssl=True)
-HTTPS selbsigniert:  192.168.1.100:443  (verify_ssl=False)
-Hostname:            violet.local:80
+HTTP (Standard):     Host: 192.168.1.100, Port: 80
+HTTP Custom Port:    Host: 192.168.1.100, Port: 8080
+HTTPS validiert:     Host: 192.168.1.100, Port: 443 (verify_ssl=True)
+HTTPS selbsigniert:  Host: 192.168.1.100, Port: 443 (verify_ssl=False)
+Hostname:            Host: violet.local, Port: 80
 ```
 
 > **Sicherheitshinweis**: `verify_ssl=False` nur in vertrauenswürdigen lokalen Netzwerken verwenden!

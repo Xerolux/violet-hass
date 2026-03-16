@@ -28,6 +28,7 @@ from .const import (
     CONF_POLLING_INTERVAL,
     CONF_POOL_SIZE,
     CONF_POOL_TYPE,
+    CONF_PORT,
     CONF_RETRY_ATTEMPTS,
     CONF_SELECTED_SENSORS,
     CONF_TIMEOUT_DURATION,
@@ -40,6 +41,7 @@ from .const import (
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_POOL_SIZE,
     DEFAULT_POOL_TYPE,
+    DEFAULT_PORT,
     DEFAULT_RETRY_ATTEMPTS,
     DEFAULT_TIMEOUT_DURATION,
     DEFAULT_USE_SSL,
@@ -172,8 +174,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
         error_hints = {}
 
         if user_input:
+            port = user_input.get(CONF_PORT, DEFAULT_PORT)
             if self._is_duplicate_entry(
-                user_input[CONF_API_URL], int(user_input.get(CONF_DEVICE_ID, 1))
+                user_input[CONF_API_URL], port, int(user_input.get(CONF_DEVICE_ID, 1))
             ):
                 errors["base"] = constants.ERROR_ALREADY_CONFIGURED
                 error_hints["base"] = (
@@ -443,8 +446,10 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
         )
 
         # Store discovered info for the confirmation step
+        port = service_info.port or DEFAULT_PORT
         self._config_data = {
             CONF_API_URL: host,
+            CONF_PORT: port,
             CONF_USE_SSL: DEFAULT_USE_SSL,
             CONF_DEVICE_NAME: name.split(".")[0] if "." in name else name,
             CONF_CONTROLLER_NAME: DEFAULT_CONTROLLER_NAME,
@@ -458,7 +463,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
 
         self.context["title_placeholders"] = {
             "name": name,
-            "host": host,
+            "host": f"{host}:{port}" if port not in (80, 443) else host,
         }
 
         return await self.async_step_zeroconf_confirm()
@@ -521,6 +526,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
                 # Build updated config
                 updated_data = dict(reconfigure_entry.data)
                 updated_data[CONF_API_URL] = api_url
+                updated_data[CONF_PORT] = int(
+                    user_input.get(CONF_PORT, DEFAULT_PORT)
+                )
                 updated_data[CONF_USE_SSL] = user_input.get(
                     CONF_USE_SSL, DEFAULT_USE_SSL
                 )
@@ -566,6 +574,19 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
                             CONF_API_URL, "192.168.178.55"
                         ),
                     ): str,
+                    vol.Required(
+                        CONF_PORT,
+                        default=reconfigure_entry.data.get(
+                            CONF_PORT, DEFAULT_PORT
+                        ),
+                    ): selector.NumberSelector(
+                        selector.NumberSelectorConfig(
+                            min=1,
+                            max=65535,
+                            step=1,
+                            mode=selector.NumberSelectorMode.BOX,
+                        )
+                    ),
                     vol.Optional(
                         CONF_USERNAME,
                         default=reconfigure_entry.data.get(CONF_USERNAME, ""),
@@ -631,15 +652,16 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
 
     # ================= Helper Methods =================
 
-    def _is_duplicate_entry(self, ip: str, device_id: int = 1) -> bool:
+    def _is_duplicate_entry(self, ip: str, port: int, device_id: int = 1) -> bool:
         """
-        Check if the IP + Device ID combination already exists.
+        Check if the IP + Port + Device ID combination already exists.
 
         ✅ MULTI-CONTROLLER FIX: Allows multiple controllers with the same IP
-        but different Device IDs (e.g., on different ports).
+        but different Device IDs or Ports.
 
         Args:
             ip: Controller IP address.
+            port: Controller Port.
             device_id: Device ID (default: 1).
 
         Returns:
@@ -647,6 +669,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
         """
         return any(
             entry.data.get(CONF_API_URL) == ip
+            and entry.data.get(CONF_PORT, DEFAULT_PORT) == port
             and entry.data.get(CONF_DEVICE_ID, 1) == device_id
             for entry in self._async_current_entries()
         )
@@ -663,6 +686,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
         """
         return {
             CONF_API_URL: ui[CONF_API_URL],
+            CONF_PORT: int(ui.get(CONF_PORT, DEFAULT_PORT)),
             CONF_USE_SSL: ui.get(CONF_USE_SSL, DEFAULT_USE_SSL),
             CONF_DEVICE_NAME: ui.get(CONF_DEVICE_NAME, "🌊 Violet Pool Controller"),
             CONF_CONTROLLER_NAME: ui.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME),
@@ -688,8 +712,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
             True if successful, False otherwise.
         """
         try:
+            host = self._config_data[CONF_API_URL]
+            port = self._config_data.get(CONF_PORT, DEFAULT_PORT)
+            if port not in (80, 443):
+                host = f"{host}:{port}"
             api = VioletPoolAPI(
-                host=self._config_data[CONF_API_URL],
+                host=host,
                 session=aiohttp_client.async_get_clientsession(self.hass),
                 username=self._config_data.get(CONF_USERNAME),
                 password=self._config_data.get(CONF_PASSWORD),
@@ -854,6 +882,14 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
         return vol.Schema(
             {
                 vol.Required(CONF_API_URL, default="192.168.178.55"): str,
+                vol.Required(CONF_PORT, default=DEFAULT_PORT): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=1,
+                        max=65535,
+                        step=1,
+                        mode=selector.NumberSelectorMode.BOX,
+                    )
+                ),
                 vol.Optional(CONF_USERNAME): str,
                 vol.Optional(CONF_PASSWORD): str,
                 vol.Required(CONF_USE_SSL, default=DEFAULT_USE_SSL): bool,
