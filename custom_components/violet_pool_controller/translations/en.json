@@ -27,6 +27,7 @@
                 "description": "Connect your Violet Pool Controller to Home Assistant. Ensure the controller shares the same network and the API is reachable.\n\nAdditional documentation: [Configuration Guide]({docs_en})",
                 "data": {
                     "host": "IP Address or Hostname",
+                    "port": "TCP Port",
                     "username": "Username (optional)",
                     "password": "Password (optional)",
                     "use_ssl": "Use SSL/HTTPS",
@@ -39,6 +40,7 @@
                 },
                 "data_description": {
                     "host": "Controller IP or DNS name",
+                    "port": "TCP port (Leave at 80 unless using a custom proxy)",
                     "username": "Optional username if authentication is enabled",
                     "password": "Password if required",
                     "use_ssl": "Enable HTTPS when supported",
@@ -119,6 +121,7 @@
                 "description": "Update the connection settings for your controller. This is useful when the controller IP address or network settings have changed.\n\nController: **{controller_name}**",
                 "data": {
                     "host": "IP Address or Hostname",
+                    "port": "TCP Port",
                     "use_ssl": "Use SSL/HTTPS",
                     "polling_interval": "Polling Interval (seconds)",
                     "timeout_duration": "Timeout (seconds)",
@@ -126,6 +129,7 @@
                 },
                 "data_description": {
                     "host": "New controller IP or DNS name",
+                    "port": "TCP port (Leave at 80 unless using a custom proxy)",
                     "use_ssl": "Enable HTTPS when supported",
                     "polling_interval": "Data polling interval (10-3600s)",
                     "timeout_duration": "Maximum wait time per request",

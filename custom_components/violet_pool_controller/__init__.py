@@ -114,9 +114,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         raise HomeAssistantError("Invalid configuration")
 
     try:
+        host = config["ip_address"]
+        port = config["port"]
+        if port not in (80, 443):
+            host = f"{host}:{port}"
         # Create API instance
         api = VioletPoolAPI(
-            host=config["ip_address"],
+            host=host,
             session=aiohttp_client.async_get_clientsession(hass),
             username=config["username"],
             password=config["password"],
@@ -359,6 +363,8 @@ def _extract_config(entry: ConfigEntry) -> dict[str, Any]:
         or entry.data.get("host")
         or entry.data.get("base_ip")
     )
+    from .const import CONF_PORT, DEFAULT_PORT
+    port = entry.data.get(CONF_PORT, DEFAULT_PORT)
 
     if not ip_address:
         _LOGGER.error("Required IP address is missing from the configuration.")
@@ -367,6 +373,7 @@ def _extract_config(entry: ConfigEntry) -> dict[str, Any]:
     # Build the configuration dictionary with defaults
     return {
         "ip_address": ip_address.strip(),
+        "port": port,
         "use_ssl": entry.data.get(CONF_USE_SSL, True),
         "verify_ssl": entry.data.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL),
         "device_id": entry.data.get(CONF_DEVICE_ID, 1),

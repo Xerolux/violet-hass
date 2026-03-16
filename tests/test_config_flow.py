@@ -40,11 +40,11 @@ class TestConfigFlow:
         flow.handler = DOMAIN # Set handler (domain) so _async_current_entries works
 
         # Sollte NICHT als Duplikat erkannt werden
-        is_duplicate = flow._is_duplicate_entry("192.168.178.55", device_id=2)
+        is_duplicate = flow._is_duplicate_entry("192.168.178.55", 80, device_id=2)
         assert not is_duplicate, "Controller mit gleicher IP aber unterschiedlicher Device-ID sollte erlaubt sein"
 
         # Sollte als Duplikat erkannt werden (gleiche IP + Device-ID)
-        is_duplicate = flow._is_duplicate_entry("192.168.178.55", device_id=1)
+        is_duplicate = flow._is_duplicate_entry("192.168.178.55", 80, device_id=1)
         assert is_duplicate, "Controller mit gleicher IP UND Device-ID sollte als Duplikat erkannt werden"
 
 
@@ -69,7 +69,7 @@ class TestConfigFlow:
         flow.handler = DOMAIN
 
         # Sollte NICHT als Duplikat erkannt werden (unterschiedliche IP)
-        is_duplicate = flow._is_duplicate_entry("192.168.178.56", device_id=1)
+        is_duplicate = flow._is_duplicate_entry("192.168.178.56", 80, device_id=1)
         assert not is_duplicate, "Controller mit unterschiedlicher IP sollte erlaubt sein"
 
 
@@ -84,7 +84,7 @@ class TestConfigFlow:
         flow.handler = DOMAIN
 
         # Sollte nie als Duplikat erkannt werden wenn keine Entries existieren
-        is_duplicate = flow._is_duplicate_entry("192.168.178.55", device_id=1)
+        is_duplicate = flow._is_duplicate_entry("192.168.178.55", 80, device_id=1)
         assert not is_duplicate, "Bei leeren Entries sollte nichts als Duplikat erkannt werden"
 
 

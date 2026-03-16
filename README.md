@@ -50,7 +50,7 @@ URL: https://github.com/xerolux/violet-hass  |  Kategorie: Integration
 **2. Integration einrichten**
 ```
 Einstellungen → Geräte & Dienste → Integration hinzufügen → "Violet Pool Controller"
-Host-IP eingeben → Features auswählen → Fertig!
+Host-IP eingeben (und Port anpassen, falls abweichend von 80) → Features auswählen → Fertig!
 ```
 
 **3. Fertig!** 🎉 Dein Pool ist jetzt smart.
