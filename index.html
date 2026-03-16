@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Violet Pool Controller für Home Assistant</title>
+    <meta name="description" content="Verwandle deinen Pool in einen Smart Pool! Vollständige lokale Steuerung und Überwachung deines Violet Pool Controllers – ohne Cloud, ohne Abonnement.">
+    <style>
+        :root {
+            --primary: #5c20d0; /* Violet primary color */
+            --primary-light: #7e48e8;
+            --primary-dark: #3a0d8e;
+            --bg: #f8f9fa;
+            --text: #333;
+            --card-bg: #fff;
+            --border: #e9ecef;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .logo-container {
+            margin-bottom: 2rem;
+        }
+
+        .logo-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            background: white;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+
+        .badges {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .badges img {
+            height: 28px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: white;
+            color: var(--primary);
+            border: 2px solid white;
+        }
+
+        .btn-primary:hover {
+            background-color: transparent;
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 3rem;
+            color: var(--primary-dark);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        .feature-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: var(--primary-dark);
+        }
+
+        .hacs-install {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 3rem;
+            text-align: center;
+            margin-bottom: 4rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .hacs-install img {
+            margin: 1.5rem 0;
+            max-width: 100%;
+        }
+
+        code {
+            background: #f1f1f1;
+            padding: 1rem;
+            border-radius: 4px;
+            display: block;
+            text-align: left;
+            margin: 1.5rem auto;
+            max-width: 600px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            border: 1px solid #ddd;
+        }
+
+        footer {
+            background: var(--text);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        footer a {
+            color: var(--primary-light);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-container">
+        <img src="https://raw.githubusercontent.com/xerolux/violet-hass/main/custom_components/violet_pool_controller/brand/logo.png" alt="Violet Home Assistant Integration">
+    </div>
+    <h1>Violet Pool Controller</h1>
+    <p class="subtitle">Verwandle deinen Pool in einen Smart Pool! Vollständige lokale Steuerung und Überwachung deines Violet Pool Controllers – ohne Cloud, ohne Abonnement.</p>
+
+    <div class="badges">
+        <img src="https://img.shields.io/github/release/xerolux/violet-hass.svg?style=for-the-badge" alt="GitHub Release">
+        <img src="https://img.shields.io/github/downloads/xerolux/violet-hass/latest/total.svg?style=for-the-badge" alt="Downloads">
+        <img src="https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge" alt="HACS">
+    </div>
+
+    <div class="badges">
+        <a href="https://github.com/sponsors/xerolux"><img src="https://img.shields.io/github/sponsors/xerolux?logo=github&style=for-the-badge&color=blue" alt="GitHub Sponsor"></a>
+        <a href="https://ko-fi.com/xerolux"><img src="https://img.shields.io/badge/Ko--fi-xerolux-blue?logo=ko-fi&style=for-the-badge" alt="Ko-Fi"></a>
+        <a href="https://www.buymeacoffee.com/xerolux"><img src="https://img.shields.io/badge/Buy%20Me%20A%20Coffee-xerolux-yellow?logo=buy-me-a-coffee&style=for-the-badge" alt="Buy Me A Coffee"></a>
+    </div>
+
+    <div class="cta-buttons">
+        <a href="https://github.com/xerolux/violet-hass" class="btn btn-primary">GitHub Repository</a>
+        <a href="https://github.com/Xerolux/violet-hass/wiki" class="btn btn-outline">Dokumentation (Wiki)</a>
+        <a href="https://www.pooldigital.de/poolsteuerungen/violet-poolsteuerung/74/violet-basis-modul-poolsteuerung-smart" class="btn btn-outline">Zum PoolDigital Shop</a>
+    </div>
+</header>
+
+<main>
+    <h2 class="section-title">Features im Überblick</h2>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <span class="feature-icon">🌡️</span>
+            <div class="feature-title">Klimasteuerung</div>
+            <p>Heizung & Solar mit Thermostat und Zeitplanung. Behalte die Wassertemperatur immer im Wohlfühlbereich.</p>
+        </div>
+        <div class="feature-card">
+            <span class="feature-icon">🧪</span>
+            <div class="feature-title">Chemie-Dosierung</div>
+            <p>Automatisches pH & Chlor mit Sicherheitsgrenzen. Perfekte Wasserqualität ganz ohne manuellen Aufwand.</p>
+        </div>
+        <div class="feature-card">
+            <span class="feature-icon">💧</span>
+            <div class="feature-title">Filter & Pumpe</div>
+            <p>Intelligente Steuerung der 3-Stufen-Pumpe und automatische Rückspülung für kristallklares Wasser.</p>
+        </div>
+        <div class="feature-card">
+            <span class="feature-icon">🏊</span>
+            <div class="feature-title">Abdeckung</div>
+            <p>Wetterabhängige Cover-Automatisierung. Schütze deinen Pool effizient vor Auskühlung und Schmutz.</p>
+        </div>
+        <div class="feature-card">
+            <span class="feature-icon">💡</span>
+            <div class="feature-title">LED / DMX Beleuchtung</div>
+            <p>Steuere 8 verschiedene Szenen und passe die RGB-Beleuchtung für die perfekte Stimmung an.</p>
+        </div>
+        <div class="feature-card">
+            <span class="feature-icon">⚡</span>
+            <div class="feature-title">Energie & Solar</div>
+            <p>Nutze den PV-Überschuss-Modus für effiziente Solarheizung und reduziere die Betriebskosten.</p>
+        </div>
+        <div class="feature-card">
+            <span class="feature-icon">📊</span>
+            <div class="feature-title">Überwachung</div>
+            <p>Erfasse detaillierte Daten: pH, ORP, Temperaturen, Druck, Durchfluss und Laufzeiten deiner Anlagen.</p>
+        </div>
+        <div class="feature-card">
+            <span class="feature-icon">🔒</span>
+            <div class="feature-title">100% Lokal & Sicher</div>
+            <p>Volle Kontrolle im Heimnetzwerk. SSL/TLS, Rate Limiting und Input Sanitization ohne Cloud-Abhängigkeit.</p>
+        </div>
+    </div>
+
+    <div class="hacs-install">
+        <h2 class="section-title" style="margin-bottom: 1rem;">Installation</h2>
+        <p>Die Installation erfolgt am einfachsten über den Home Assistant Community Store (HACS).</p>
+
+        <a href="https://my.home-assistant.io/redirect/hacs_repository/?repository=https%3A%2F%2Fgithub.com%2FXerolux%2Fviolet-hass&owner=Xerolux&category=Integration">
+            <img src="https://my.home-assistant.io/badges/hacs_repository.svg" alt="Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.">
+        </a>
+
+        <code>HACS → Integrationen → ⋮ → Benutzerdefinierte Repositories
+URL: https://github.com/xerolux/violet-hass
+Kategorie: Integration
+→ "Violet Pool Controller" herunterladen → HA neu starten</code>
+
+        <p>Danach kannst du die Integration in Home Assistant unter <strong>Einstellungen → Geräte & Dienste</strong> hinzufügen.</p>
+
+        <div style="margin-top: 2rem;">
+            <a href="https://github.com/Xerolux/violet-hass/wiki/Installation-and-Setup" class="btn" style="background: var(--primary); color: white;">Zur detaillierten Installationsanleitung</a>
+        </div>
+    </div>
+
+</main>
+
+<footer>
+    <p>Made with ❤️ for the Home Assistant & Pool Community by <a href="https://github.com/xerolux">Xerolux</a></p>
+    <p style="margin-top: 10px; font-size: 0.9em;">
+        Der VIOLET Pool Controller ist ein Produkt der <a href="https://www.pooldigital.de/">PoolDigital GmbH & Co. KG</a>. Diese Integration ist ein Community-Projekt.
+    </p>
+</footer>
+
+</body>
+</html>
