@@ -13,7 +13,7 @@
             },
             "disclaimer": {
                 "title": "Safety and Liability Notice",
-                "description": "⚠️ **Safety Warning**\n\nThis integration provides remote control for pumps, heaters, lights and dosing systems. Incorrect configuration may cause equipment damage, personal injury or chemical overdosing. Make sure you understand all safety features and keep manual overrides accessible.\n\nPlease review the [Configuration Guide]({docs_en}) before you continue.",
+                "description": "**Safety Warning**\n\nThis integration provides remote control for pumps, heaters, lights and dosing systems. Incorrect configuration may cause equipment damage, personal injury or chemical overdosing. Make sure you understand all safety features and keep manual overrides accessible.\n\nPlease review the [Configuration Guide]({docs_en}) before you continue.",
                 "data": {
                     "agreement": "I accept all risks and have read the full disclaimer."
                 }

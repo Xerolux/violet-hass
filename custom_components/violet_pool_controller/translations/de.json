@@ -13,7 +13,7 @@
             },
             "disclaimer": {
                 "title": "Sicherheits- und Haftungshinweise",
-                "description": "⚠️ **Sicherheitswarnung**\n\nDiese Integration kann Pumpen, Heizungen, Beleuchtung und Dosieranlagen deines Pools fernsteuern. Falsche Einstellungen können zu Sachschäden, Verletzungen oder Überdosierungen führen. Stelle sicher, dass du alle Schutzmechanismen verstehst und jederzeit manuell eingreifen kannst.\n\nLies vor der Nutzung unbedingt die Hinweise in der [Konfigurationshilfe]({docs_en}).",
+                "description": "**Sicherheitswarnung**\n\nDiese Integration kann Pumpen, Heizungen, Beleuchtung und Dosieranlagen deines Pools fernsteuern. Falsche Einstellungen können zu Sachschäden, Verletzungen oder Überdosierungen führen. Stelle sicher, dass du alle Schutzmechanismen verstehst und jederzeit manuell eingreifen kannst.\n\nLies vor der Nutzung unbedingt die Hinweise in der [Konfigurationshilfe]({docs_en}).",
                 "data": {
                     "agreement": "Ich akzeptiere alle Risiken und habe die Hinweise vollständig gelesen."
                 }
