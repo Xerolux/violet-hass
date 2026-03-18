@@ -1,2 +1,0 @@
-from violet_poolcontroller_api.api import VioletPoolAPI
-print(VioletPoolAPI._build_secure_base_url.__code__.co_varnames)
