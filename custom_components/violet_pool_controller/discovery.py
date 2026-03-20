@@ -40,18 +40,19 @@ class VioletPoolControllerDiscovery:
         Returns:
             None. Device info is stored in _discovered_devices for later retrieval.
         """
+        addresses = service_info.parsed_addresses()
+        host = addresses[0] if addresses else str(service_info.server)
         _LOGGER.info(
             "Discovered Violet Pool Controller: %s at %s:%s",
             service_info.name,
-            service_info.host,
+            host,
             service_info.port,
         )
 
-        # Store discovered device info as dict for later use
         self._discovered_devices[service_info.name] = {
-            "host": service_info.host,
+            "host": host,
             "port": service_info.port,
-            "hostname": service_info.hostname,
+            "hostname": service_info.name,
             "name": service_info.name,
             "type": service_info.type,
         }

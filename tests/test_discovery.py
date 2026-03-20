@@ -33,9 +33,8 @@ class TestVioletPoolControllerDiscovery:
         """Create a mock ZeroConf service info."""
         info = MagicMock(spec=AsyncServiceInfo)
         info.name = "Violet Pool Controller._http._tcp.local."
-        info.host = "192.168.178.55"
+        info.parsed_addresses.return_value = ["192.168.178.55"]
         info.port = 80
-        info.hostname = "violet-pool-controller"
         info.type = "_http._tcp.local."
         return info
 
@@ -73,7 +72,7 @@ class TestVioletPoolControllerDiscovery:
         # Verify all expected fields are present
         assert device_info["host"] == "192.168.178.55"
         assert device_info["port"] == 80
-        assert device_info["hostname"] == "violet-pool-controller"
+        assert device_info["hostname"] == mock_zeroconf_info.name
         assert device_info["name"] == mock_zeroconf_info.name
         assert device_info["type"] == mock_zeroconf_info.type
 
@@ -335,16 +334,14 @@ class TestDiscoveryMultipleDevices:
         # Create multiple device infos
         device1 = MagicMock(spec=AsyncServiceInfo)
         device1.name = "Violet Pool Controller 1._http._tcp.local."
-        device1.host = "192.168.178.55"
+        device1.parsed_addresses.return_value = ["192.168.178.55"]
         device1.port = 80
-        device1.hostname = "violet-1"
         device1.type = "_http._tcp.local."
 
         device2 = MagicMock(spec=AsyncServiceInfo)
         device2.name = "Violet Pool Controller 2._http._tcp.local."
-        device2.host = "192.168.178.56"
+        device2.parsed_addresses.return_value = ["192.168.178.56"]
         device2.port = 80
-        device2.hostname = "violet-2"
         device2.type = "_http._tcp.local."
 
         # Discover both devices - should return None

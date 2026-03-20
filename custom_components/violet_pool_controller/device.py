@@ -73,9 +73,7 @@ class VioletPoolControllerDevice:
         # ✅ DIAGNOSTIC SENSORS: Advanced metrics
         self._api_request_count = 0  # Total API requests
         self._api_request_start_time = time.monotonic()  # For rate calculation
-        self._latency_history: list[
-            float
-        ] = []  # Rolling window for average latency (max 60 samples)
+        self._latency_history: collections.deque[float] = collections.deque(maxlen=60)
 
         entry_data = config_entry.data
         entry_options = config_entry.options
@@ -126,9 +124,11 @@ class VioletPoolControllerDevice:
             CONF_RETRY_ATTEMPTS,
             CONF_TIMEOUT_DURATION,
             CONF_USERNAME,
+            CONF_VERIFY_SSL,
             DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
             DEFAULT_RETRY_ATTEMPTS,
             DEFAULT_TIMEOUT_DURATION,
+            DEFAULT_VERIFY_SSL,
         )
 
         try:
@@ -141,6 +141,7 @@ class VioletPoolControllerDevice:
             if new_port not in (80, 443):
                 new_api_url = f"{new_api_url}:{new_port}"
             new_use_ssl = entry_data.get(CONF_USE_SSL, True)
+            new_verify_ssl = entry_data.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL)
             new_username = entry_data.get(CONF_USERNAME)
             new_password = entry_data.get(CONF_PASSWORD)
 
@@ -210,11 +211,11 @@ class VioletPoolControllerDevice:
             # We just create a new API object that uses the same session
             new_api = VioletPoolAPI(
                 host=new_api_url,
-                session=self._session,  # Reuse the HA session, don't close it!
+                session=self._session,
                 username=new_username,
                 password=new_password,
                 use_ssl=new_use_ssl,
-                verify_ssl=True,  # Always verify SSL
+                verify_ssl=new_verify_ssl,
                 timeout=new_timeout,
                 max_retries=int(new_retries),
             )
@@ -270,8 +271,6 @@ class VioletPoolControllerDevice:
 
                 # ✅ DIAGNOSTIC: Update latency history (rolling window of 60 samples)
                 self._latency_history.append(self._connection_latency)
-                if len(self._latency_history) > 60:
-                    self._latency_history.pop(0)
 
                 if not data or not isinstance(data, dict):
                     self._consecutive_failures += 1
@@ -356,6 +355,8 @@ class VioletPoolControllerDevice:
 
                 # ✅ FIX: Always replace _data with a fresh dict to ensure
                 # HA's DataUpdateCoordinator detects the change.
+                previous_data_keys = set(self._data.keys()) if self._data else set()
+                previous_data = self._data
                 self._data = dict(data)
                 self._available = True
                 self._consecutive_failures = 0
@@ -424,15 +425,19 @@ class VioletPoolControllerDevice:
 
                 # ✅ DIAGNOSTIC LOGGING: Erweiterte Informationen (optional)
                 if self._enable_diagnostic_logging:
-                    # Liste der geänderten Keys seit letztem Update
-                    changed_keys = set(data.keys()) - set(self._data.keys()) if self._data else set(data.keys())
-                    if changed_keys:
+                    changed_keys = set(data.keys()) - previous_data_keys
+                    changed_values = {
+                        k for k in data.keys() & previous_data_keys
+                        if data.get(k) != previous_data.get(k)
+                    }
+                    all_changes = changed_keys | changed_values
+                    if all_changes:
                         _LOGGER.info(
                             "📊 Update #%d: %d new/changed keys: %s%s",
                             self._update_counter,
-                            len(changed_keys),
-                            ", ".join(sorted(changed_keys)[:20]),  # Max 20 keys
-                            "..." if len(changed_keys) > 20 else "",
+                            len(all_changes),
+                            ", ".join(sorted(all_changes)[:20]),
+                            "..." if len(all_changes) > 20 else "",
                         )
 
                     # Verbindungs-Metriken
@@ -567,7 +572,7 @@ class VioletPoolControllerDevice:
             "name": self.controller_name,
             "manufacturer": "PoolDigital GmbH & Co. KG",
             "model": "Violet Pool Controller",
-            "sw_version": self._firmware_version or "Unbekannt",
+            "sw_version": self._firmware_version or "Unknown",
             "suggested_area": self.controller_name,  # ✅ Auto-Area für Multi-Controller
         }
 

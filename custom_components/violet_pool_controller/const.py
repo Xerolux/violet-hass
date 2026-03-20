@@ -1,4 +1,3 @@
-
 """This module serves as the central hub for all constants in the Violet Pool Controller integration.
 
 It aggregates constants from specialized modules (`const_api`, `const_devices`,
@@ -10,6 +9,15 @@ The module also defines core integration-level information, such as the domain,
 version, and manufacturer details, as well as configuration keys and default values.
 """
 from __future__ import annotations
+
+from homeassistant.const import (
+    CONF_DEVICE_ID,
+    CONF_HOST,
+    CONF_PASSWORD,
+    CONF_PORT,
+    CONF_USERNAME,
+    CONF_VERIFY_SSL,
+)
 
 # flake8: noqa: F401, F403 - Allows central exporting of constants
 # ruff: noqa: F401, F403 - Allows central exporting of constants
@@ -30,15 +38,6 @@ MANUFACTURER = "PoolDigital GmbH & Co. KG"
 # =============================================================================
 # CONFIGURATION KEYS
 # =============================================================================
-
-from homeassistant.const import (
-    CONF_DEVICE_ID,
-    CONF_HOST,
-    CONF_PASSWORD,
-    CONF_PORT,
-    CONF_USERNAME,
-    CONF_VERIFY_SSL,
-)
 
 CONF_API_URL = CONF_HOST
 CONF_POLLING_INTERVAL = "polling_interval"

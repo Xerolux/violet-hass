@@ -8,7 +8,7 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.components.zeroconf import AsyncServiceInfo, info_from_service
+from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client, selector
@@ -34,6 +34,7 @@ from .const import (
     CONF_TIMEOUT_DURATION,
     CONF_USE_SSL,
     CONF_USERNAME,
+    CONF_VERIFY_SSL,
     DEFAULT_CONTROLLER_NAME,
     DEFAULT_DISINFECTION_METHOD,
     DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
@@ -45,6 +46,7 @@ from .const import (
     DEFAULT_RETRY_ATTEMPTS,
     DEFAULT_TIMEOUT_DURATION,
     DEFAULT_USE_SSL,
+    DEFAULT_VERIFY_SSL,
     DOMAIN,
 )
 # Import refactored config flow modules
@@ -411,12 +413,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
                 "controller_name": self._reauth_entry.data.get(
                     CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME
                 ),
-                "api_url": self._reauth_entry.data.get(CONF_API_URL),
+                "api_url": self._reauth_entry.data.get(CONF_API_URL, "Unknown"),
             },
         )
 
     async def async_step_zeroconf(
-        self, discovery_info: AsyncServiceInfo
+        self, discovery_info: ZeroconfServiceInfo
     ) -> ConfigFlowResult:
         """Handle zeroconf discovery of a Violet Pool Controller.
 
@@ -426,12 +428,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
         Returns:
             The flow result.
         """
-        # Convert AsyncServiceInfo to ZeroconfServiceInfo using helper
-        service_info = info_from_service(discovery_info)
-        if service_info is None:
-            return self.async_abort(reason="invalid_discovery_info")
-        
-        host = str(service_info.ip_address)
+        host = str(discovery_info.ip_address)
         name = discovery_info.name
 
         _LOGGER.info(
@@ -446,7 +443,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
         )
 
         # Store discovered info for the confirmation step
-        port = service_info.port or DEFAULT_PORT
+        port = discovery_info.port or DEFAULT_PORT
         self._config_data = {
             CONF_API_URL: host,
             CONF_PORT: port,
@@ -571,7 +568,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
                     vol.Required(
                         CONF_API_URL,
                         default=reconfigure_entry.data.get(
-                            CONF_API_URL, "192.168.178.55"
+                            CONF_API_URL, ""
                         ),
                     ): str,
                     vol.Required(
@@ -722,7 +719,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
                 username=self._config_data.get(CONF_USERNAME),
                 password=self._config_data.get(CONF_PASSWORD),
                 use_ssl=self._config_data[CONF_USE_SSL],
-                verify_ssl=True,
+                verify_ssl=self._config_data.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL),
                 timeout=self._config_data[CONF_TIMEOUT_DURATION],
                 max_retries=self._config_data[CONF_RETRY_ATTEMPTS],
             )
@@ -782,7 +779,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
             "Die Nutzung dieser Software-Integration erfolgt auf eigene Verantwortung und Gefahr. "
             "Diese Integration ermöglicht die Fernsteuerung von Poolausrüstung einschließlich Pumpen, "
             "Heizungen, Beleuchtung und chemischen Dosieranlagen.\n\n"
-            "**Risiken beachten:** Falsche Konfiguration oder自动化fehler können zu Sachschäden, "
+            "**Risiken beachten:** Falsche Konfiguration oder Automatisierungsfehler können zu Sachschäden, "
             "Verletzungen durch elektrischen Schlag, chemischen Überdosierungen oder anderen "
             "Gefährdungen führen.\n\n"
             "**Deine Verantwortung:**\n"
@@ -881,7 +878,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call
         """
         return vol.Schema(
             {
-                vol.Required(CONF_API_URL, default="192.168.178.55"): str,
+                vol.Required(CONF_API_URL, default=""): str,
                 vol.Required(CONF_PORT, default=DEFAULT_PORT): selector.NumberSelector(
                     selector.NumberSelectorConfig(
                         min=1,

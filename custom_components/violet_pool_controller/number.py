@@ -1,7 +1,6 @@
-
-"""Number platform for Violet Pool Controller."""
 from __future__ import annotations
 
+import asyncio
 import logging
 
 from homeassistant.components.number import NumberEntity, NumberEntityDescription
@@ -148,6 +147,18 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
             )
 
         return super().available
+
+    async def _delayed_refresh(self) -> None:
+        """Request a coordinator refresh and clear optimistic value after data arrives."""
+        try:
+            await self.coordinator.async_request_refresh()
+        finally:
+            self._optimistic_value = None
+            _LOGGER.debug(
+                "Optimistic cache for '%s' cleared",
+                self.entity_description.name,
+            )
+            self.async_write_ha_state()
 
     async def async_set_native_value(self, value: float) -> None:
         """
@@ -297,14 +308,8 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
 
                 self.async_write_ha_state()
 
-                try:
-                    await self.coordinator.async_request_refresh()
-                finally:
-                    self._optimistic_value = None
-                    _LOGGER.debug(
-                        "Optimistic cache for '%s' cleared",
-                        self.entity_description.name,
-                    )
+                asyncio.create_task(self._delayed_refresh())
+
             else:
                 error_msg = result.get("response", result)
                 _LOGGER.warning(
