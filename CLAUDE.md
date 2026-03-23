@@ -301,8 +301,8 @@ GitHub workflow `.github/workflows/validate.yml` runs:
 - Ruff linting
 - Mypy type checking
 - Full test suite with pytest
-- Tests against Home Assistant 2025.12.0
-- Python 3.13 environment
+- Tests against Home Assistant 2026.3.1
+- Python 3.14 environment
 
 ## Translation Files
 
@@ -381,7 +381,7 @@ violet-hass/
   - New Home Assistant version is released
   - New Python version is released
   - CI/CD pipeline fails due to compatibility issues
-- **Current version:** `>=0.13.317` (Python 3.14+ compatible)
+- **Current version:** `>=0.13.109` (Python 3.14+ compatible)
 - **Update command:** `pip install --upgrade pytest-homeassistant-custom-component`
 
 ### Code Style
@@ -467,17 +467,17 @@ Located in `.github/workflows/`:
 ## Dependencies
 
 **Runtime** (from `requirements.txt`):
-- `homeassistant>=2025.12.0` - Minimum Home Assistant version (HA 2026 ready)
-- `aiohttp>=3.10.0` - Async HTTP client
-- `voluptuous>=0.14.2` - Data validation
+- `homeassistant>=2026.3.0` - Minimum Home Assistant version
+- `aiohttp>=3.11.0` - Async HTTP client
+- `voluptuous>=0.15.0` - Data validation
 
 **Development** (from `requirements-dev.txt`):
-- `ruff>=0.1.0` - Linter and formatter
-- `mypy>=1.7.0` - Static type checker
-- `pytest>=7.4.0` - Test framework
-- `pytest-cov>=4.1.0` - Coverage plugin
-- `pytest-asyncio>=0.21.0` - Async test support
-- `pytest-homeassistant-custom-component>=0.13.0` - HA test helpers
+- `ruff>=0.15.0` - Linter and formatter
+- `mypy>=1.15.0` - Static type checker
+- `pytest>=9.0.0` - Test framework
+- `pytest-cov>=6.0.0` - Coverage plugin
+- `pytest-asyncio>=1.0.0` - Async test support
+- `pytest-homeassistant-custom-component>=0.13.109` - HA test helpers
 
 ## Important Notes
 
@@ -501,6 +501,6 @@ Located in `.github/workflows/`:
 
 8. **Code Quality**: Always run `ruff check --fix` before committing. The integration maintains 0 ruff errors.
 
-9. **Home Assistant Compatibility**: Integration requires HA 2025.12.0+ and is tested against HA 2026.x. Use modern type annotations (`X | None` not `Optional[X]`) and `collections.abc` imports.
+9. **Home Assistant Compatibility**: Integration requires HA 2026.3.0+ and is tested against HA 2026.3.x. Use modern type annotations (`X | None` not `Optional[X]`) and `collections.abc` imports.
 
 10. **Recovery Behavior**: When connection is lost, the integration attempts auto-recovery with exponential backoff (10s → 300s max) for up to 10 attempts. After max attempts, manual intervention is required.
