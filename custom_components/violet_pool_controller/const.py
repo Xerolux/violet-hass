@@ -1,3 +1,10 @@
+# =============================================================================
+# Violet Pool Controller – Home Assistant Custom Integration
+# Copyright © 2026 Xerolux
+# Entwickelt und erstellt von Xerolux
+# https://github.com/Xerolux/violet-hass
+# =============================================================================
+
 """This module serves as the central hub for all constants in the Violet Pool Controller integration.
 
 It aggregates constants from specialized modules (`const_api`, `const_devices`,
