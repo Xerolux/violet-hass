@@ -1,3 +1,9 @@
+# =============================================================================
+# Violet Pool Controller – Home Assistant Custom Integration
+# Copyright © 2026 Xerolux · PoolDigital GmbH & Co. KG
+# Entwickelt und erstellt von Xerolux
+# https://github.com/Xerolux/violet-hass
+# =============================================================================
 
 """Select platform for Violet Pool Controller."""
 from __future__ import annotations
