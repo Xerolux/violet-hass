@@ -309,7 +309,7 @@ Wenn du von einer Version ohne Disclaimer aktualisierst:
 
 ---
 
-## [1.0.3-beta.1] – 2026-03-02 🟡 BETA
+## [1.0.4] – 2026-03-02 🟡 BETA
 
 ### Versionsschritt Alpha → Beta
 

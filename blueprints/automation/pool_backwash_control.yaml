@@ -8,7 +8,7 @@ blueprint:
     - input_datetime.pool_last_backwash Helper (siehe blueprints/README.md)
     - input_number.pool_pump_runtime_hours Helper (optional, für laufzeitbasierte Steuerung)
     
-    VERSION: 1.0.3-alpha.1 (2026-02-06)
+    VERSION: 1.0.4 (2026-02-06)
   domain: automation
   source_url: https://github.com/xerolux/violet-hass/blob/main/blueprints/automation/pool_backwash_control.yaml
   homeassistant:
