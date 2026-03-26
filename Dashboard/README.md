@@ -2,7 +2,7 @@
 
 Dieses Verzeichnis enthält vorgefertigte Dashboard-Konfigurationen für eine intuitive und übersichtliche Steuerung Ihres Violet Pool Controllers in Home Assistant.
 
-**Version:** 1.0.3-alpha.1 (2026-02-06)
+**Version:** 1.0.4 (2026-02-06)
 
 ## 📁 Verfügbare Dashboards
 

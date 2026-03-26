@@ -1,4 +1,4 @@
-## v1.0.3 – Violet Pool Controller
+## v1.0.4 – Violet Pool Controller
 
 ✅ **STABLE RELEASE**
 
@@ -141,7 +141,7 @@
 
 ---
 
-📋 [Full changelog: v1.0.2...v1.0.3](https://github.com/Xerolux/violet-hass/compare/v1.0.2...v1.0.3)
+📋 [Full changelog: v1.0.3...v1.0.4](https://github.com/Xerolux/violet-hass/compare/v1.0.3...v1.0.4)
 
 ---
 

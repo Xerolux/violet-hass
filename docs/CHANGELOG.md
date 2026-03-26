@@ -2,11 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.0.4-beta.1] - 2026-03-13
+## [1.0.4] - 2026-03-13
 
-## v1.0.4-beta.1 – Violet Pool Controller
+## v1.0.4 – Violet Pool Controller
 
-🧪 **BETA RELEASE**
+✅ **STABLE RELEASE**
 
 ### ✨ New Features | Neue Funktionen
 
