@@ -1,4 +1,6 @@
 """Tests for Violet Pool Controller config flow."""
+from unittest.mock import AsyncMock, MagicMock
+
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.violet_pool_controller.const import (
@@ -118,3 +120,28 @@ class TestConfigFlow:
         title = flow._generate_entry_title()
         expected = f"{DEFAULT_CONTROLLER_NAME} • 50m³"
         assert title == expected, f"Expected '{expected}' but got '{title}'"
+
+    async def test_zeroconf_uses_same_unique_id_format(self, hass):
+        """Test dass Zeroconf denselben unique_id-Builder wie der manuelle Flow nutzt."""
+        from custom_components.violet_pool_controller.config_flow import (
+            ConfigFlow as VioletDeviceConfigFlow,
+        )
+
+        flow = VioletDeviceConfigFlow()
+        flow.hass = hass
+        flow.handler = DOMAIN
+        flow.async_set_unique_id = AsyncMock()
+        flow._abort_if_unique_id_configured = MagicMock()
+        flow.async_step_zeroconf_confirm = AsyncMock(
+            return_value={"type": "form", "step_id": "zeroconf_confirm"}
+        )
+
+        discovery_info = MagicMock()
+        discovery_info.ip_address = "192.168.178.55"
+        discovery_info.name = "violet-controller.local."
+        discovery_info.port = 80
+
+        result = await flow.async_step_zeroconf(discovery_info)
+
+        flow.async_set_unique_id.assert_awaited_once_with("192.168.178.55-1")
+        assert result["step_id"] == "zeroconf_confirm"

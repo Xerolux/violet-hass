@@ -169,3 +169,52 @@ async def test_hacs_version_display(hass):
     # Check for HACS version
     logs = result["logs"]
     assert "HACS: 1.2.3" in logs
+
+
+@pytest.mark.asyncio
+async def test_export_diagnostic_logs_uses_executor_for_file_io(hass):
+    """Diagnostic log export should use the executor for file I/O."""
+    manager = VioletServiceManager(hass)
+    handlers = VioletServiceHandlers(manager)
+
+    mock_coordinator = MagicMock()
+    mock_coordinator.device.device_name = "Test Device"
+    mock_coordinator.device.controller_name = "Violet"
+    mock_coordinator.device.api_url = "http://localhost"
+    mock_coordinator.device.device_id = "1"
+    mock_coordinator.device.available = True
+    mock_coordinator.device.firmware_version = "1.0"
+    mock_coordinator.device.last_event_age = 1
+    mock_coordinator.device.connection_latency = 10
+    mock_coordinator.device.system_health = 100
+    mock_coordinator.device._update_counter = 1
+    mock_coordinator.device.consecutive_failures = 0
+    mock_coordinator.config_entry = MagicMock()
+    mock_coordinator.config_entry.data = {}
+
+    async def get_coordinator(*args, **kwargs):
+        return mock_coordinator
+
+    manager.get_coordinator_for_device = MagicMock(side_effect=get_coordinator)
+
+    executor_calls = []
+
+    async def async_add_executor_job(func, *args):
+        executor_calls.append(func.__name__)
+        return func(*args)
+
+    hass.async_add_executor_job = async_add_executor_job
+
+    class RealConfig:
+        def path(self, *args):
+            return "/config/home-assistant.log"
+
+    hass.config = RealConfig()
+
+    call = MagicMock()
+    call.data = {"device_id": ["test_device"], "save_to_file": False}
+
+    result = await handlers.handle_export_diagnostic_logs(call)
+
+    assert result["success"] is True
+    assert "_read_recent_violet_log_lines" in executor_calls

@@ -18,16 +18,12 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import time
-from collections.abc import Iterable
+from datetime import datetime
 from typing import Any, cast
 
-import homeassistant.helpers.config_validation as cv
-import voluptuous as vol
 from homeassistant.const import ATTR_DEVICE_ID, ATTR_ENTITY_ID
 from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
 from violet_poolcontroller_api.api import VioletPoolAPIError
@@ -42,333 +38,17 @@ from .const import (
     DOMAIN,
 )
 from violet_poolcontroller_api.utils_sanitizer import InputSanitizer
+from .service_helpers import (
+    DEFAULT_SAFETY_INTERVAL,
+    DOSING_TYPE_MAPPING,
+    as_device_id_list,
+    read_recent_violet_log_lines,
+    write_text_file,
+)
+from .service_manager import VioletServiceManager
+from .service_schemas import get_service_schemas
 
 _LOGGER = logging.getLogger(__name__)
-
-# =============================================================================
-# CONSTANTS
-# =============================================================================
-
-
-# Common validators
-def _as_device_id_list(value: Any) -> list[str]:
-    """
-    Normalize raw device id input into a list of strings.
-
-    Args:
-        value: The raw device ID input (string or list).
-
-    Returns:
-        A list of device ID strings.
-    """
-    if isinstance(value, str):
-        return [value]
-    if isinstance(value, Iterable) and not isinstance(value, (bytes, bytearray)):
-        return [str(item) for item in value]
-    return [str(value)]
-
-
-DEVICE_ID_SELECTOR = vol.All(_as_device_id_list, [cv.string])
-
-# Dosing Mappings
-DOSING_TYPE_MAPPING = {
-    "pH-": "DOS_4_PHM",
-    "pH+": "DOS_5_PHP",
-    "Chlor": "DOS_1_CL",
-    "Flockmittel": "DOS_6_FLOC",
-}
-
-# Validation Ranges
-MIN_DOSING_DURATION = 5
-MAX_DOSING_DURATION = 300
-MIN_PUMP_SPEED = 1
-MAX_PUMP_SPEED = 3
-MIN_TEMPERATURE = 20.0
-MAX_TEMPERATURE = 40.0
-MIN_PH = 6.8
-MAX_PH = 7.8
-DEFAULT_SAFETY_INTERVAL = 300
-
-# =============================================================================
-# SERVICE SCHEMAS
-# =============================================================================
-
-
-def get_service_schemas() -> dict[str, vol.Schema]:
-    """
-    Get all service schemas.
-
-    Returns:
-        A dictionary mapping service names to schemas.
-    """
-    return {
-        # Pump Control
-        "control_pump": vol.Schema(
-            {
-                vol.Required(ATTR_ENTITY_ID): cv.entity_ids,
-                vol.Required("action"): vol.In(
-                    ["speed_control", "force_off", "eco_mode", "boost_mode", "auto"]
-                ),
-                vol.Optional("speed", default=2): vol.All(
-                    vol.Coerce(int), vol.Range(min=MIN_PUMP_SPEED, max=MAX_PUMP_SPEED)
-                ),
-                vol.Optional("duration", default=0): vol.All(
-                    vol.Coerce(int), vol.Range(min=0, max=86400)
-                ),
-            }
-        ),
-        # Smart Dosing
-        "smart_dosing": vol.Schema(
-            {
-                vol.Required(ATTR_ENTITY_ID): cv.entity_ids,
-                vol.Required("dosing_type"): vol.In(list(DOSING_TYPE_MAPPING.keys())),
-                vol.Required("action"): vol.In(["manual_dose", "auto", "stop"]),
-                vol.Optional("duration", default=30): vol.All(
-                    vol.Coerce(int),
-                    vol.Range(min=MIN_DOSING_DURATION, max=MAX_DOSING_DURATION),
-                ),
-                vol.Optional("safety_override", default=False): cv.boolean,
-            }
-        ),
-        # PV Surplus
-        "manage_pv_surplus": vol.Schema(
-            {
-                vol.Required(ATTR_ENTITY_ID): cv.entity_ids,
-                vol.Required("mode"): vol.In(["activate", "deactivate", "auto"]),
-                vol.Optional("pump_speed", default=2): vol.All(
-                    vol.Coerce(int), vol.Range(min=MIN_PUMP_SPEED, max=MAX_PUMP_SPEED)
-                ),
-            }
-        ),
-        # DMX Control
-        "control_dmx_scenes": vol.Schema(
-            {
-                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
-                vol.Required("action"): vol.In(
-                    ["all_on", "all_off", "all_auto", "sequence", "party_mode"]
-                ),
-                vol.Optional("sequence_delay", default=2): vol.All(
-                    vol.Coerce(int), vol.Range(min=1, max=60)
-                ),
-            }
-        ),
-        # Light Color Pulse
-        "set_light_color_pulse": vol.Schema(
-            {
-                vol.Required(ATTR_ENTITY_ID): cv.entity_ids,
-                vol.Optional("pulse_count", default=1): vol.All(
-                    vol.Coerce(int), vol.Range(min=1, max=10)
-                ),
-                vol.Optional("pulse_interval", default=500): vol.All(
-                    vol.Coerce(int), vol.Range(min=100, max=2000)
-                ),
-            }
-        ),
-        # Digital Rules
-        "manage_digital_rules": vol.Schema(
-            {
-                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
-                vol.Required("rule_key"): vol.In([f"DIRULE_{i}" for i in range(1, 8)]),
-                vol.Required("action"): vol.In(["trigger", "lock", "unlock"]),
-            }
-        ),
-        "test_output": vol.Schema(
-            {
-                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
-                vol.Required("output"): cv.string,
-                vol.Optional("mode", default="SWITCH"): vol.In(["SWITCH", "ON", "OFF"]),
-                vol.Optional("duration", default=120): vol.All(
-                    vol.Coerce(int), vol.Range(min=1, max=900)
-                ),
-            }
-        ),
-        # Diagnostic Log Export
-        "export_diagnostic_logs": vol.Schema(
-            {
-                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
-                vol.Optional("lines", default=100): vol.All(
-                    vol.Coerce(int), vol.Range(min=10, max=10000)
-                ),
-                vol.Optional("include_timestamps", default=True): cv.boolean,
-                vol.Optional("include_config", default=True): cv.boolean,
-                vol.Optional("include_history", default=True): cv.boolean,
-                vol.Optional("include_states", default=True): cv.boolean,
-                vol.Optional("include_raw_data", default=True): cv.boolean,
-                vol.Optional("save_to_file", default=False): cv.boolean,
-            }
-        ),
-        # Get Connection Status
-        "get_connection_status": vol.Schema(
-            {
-                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
-            }
-        ),
-        # Get Error Summary
-        "get_error_summary": vol.Schema(
-            {
-                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
-                vol.Optional("include_history", default=False): cv.boolean,
-            }
-        ),
-        # Test Connection
-        "test_connection": vol.Schema(
-            {
-                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
-            }
-        ),
-        # Clear Error History
-        "clear_error_history": vol.Schema(
-            {
-                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
-            }
-        ),
-    }
-
-
-# =============================================================================
-# SERVICE MANAGER
-# =============================================================================
-
-
-class VioletServiceManager:
-    """Manages all Violet Pool Controller services."""
-
-    def __init__(self, hass: HomeAssistant):
-        """
-        Initialize the service manager.
-
-        Args:
-            hass: The Home Assistant instance.
-        """
-        self.hass = hass
-        self._safety_locks: dict[str, float] = {}
-
-    async def get_coordinator_for_device(self, device_id: str):
-        """
-        Get coordinator for device ID.
-
-        Args:
-            device_id: The device ID.
-
-        Returns:
-            The coordinator instance or None.
-        """
-        domain_data = self.hass.data.get(DOMAIN, {})
-
-        # 1. Check if device_id is directly a config_entry_id (legacy/direct usage)
-        for coordinator in domain_data.values():
-            if hasattr(coordinator, "device") and coordinator.device:
-                if str(coordinator.config_entry.entry_id) == device_id:
-                    return coordinator
-
-        # 2. Check if device_id is a device registry ID
-        dev_reg = dr.async_get(self.hass)
-        device = dev_reg.async_get(device_id)
-
-        if device:
-            for config_entry_id in device.config_entries:
-                coordinator = domain_data.get(config_entry_id)
-                if coordinator and hasattr(coordinator, "device") and coordinator.device:
-                    return coordinator
-
-        return None
-
-    async def get_coordinators_for_entities(self, entity_ids: list[str]) -> list[Any]:
-        """
-        Get coordinators for entity IDs.
-
-        Args:
-            entity_ids: A list of entity IDs.
-
-        Returns:
-            A list of coordinator instances.
-        """
-        coordinators = []
-        entity_reg = er.async_get(self.hass)
-
-        for entity_id in entity_ids:
-            entity = entity_reg.async_get(entity_id)
-            if entity and entity.config_entry_id:
-                domain_data = self.hass.data.get(DOMAIN, {})
-                coordinator = domain_data.get(entity.config_entry_id)
-                if coordinator and coordinator not in coordinators:
-                    coordinators.append(coordinator)
-
-        return coordinators
-
-    def extract_device_key(self, entity_id: str) -> str:
-        """
-        Extract device key from entity ID.
-
-        Args:
-            entity_id: The entity ID.
-
-        Returns:
-            The device key.
-
-        Raises:
-            ValueError: If entity_id is invalid or cannot be parsed.
-        """
-        if not entity_id or not isinstance(entity_id, str):
-            raise ValueError(f"Invalid entity_id: {entity_id}")
-
-        if "." not in entity_id:
-            raise ValueError(
-                f"Entity ID must contain domain separator '.': {entity_id}"
-            )
-
-        # switch.violet_pool_pump -> PUMP
-        parts = entity_id.split(".")[-1].split("_")
-
-        # Remove common prefixes (filter out all occurrences)
-        parts = [p for p in parts if p not in ("violet", "pool")]
-
-        if not parts:
-            raise ValueError(
-                f"Cannot extract device key from {entity_id}: no parts remaining"
-            )
-
-        return "_".join(parts).upper()
-
-    def check_safety_lock(self, device_key: str) -> bool:
-        """
-        Check if device has active safety lock.
-
-        Args:
-            device_key: The device key.
-
-        Returns:
-            True if locked, False otherwise.
-        """
-        if device_key not in self._safety_locks:
-            return False
-
-        return time.time() < self._safety_locks[device_key]
-
-    def set_safety_lock(self, device_key: str, duration: int) -> None:
-        """
-        Set safety lock for device.
-
-        Args:
-            device_key: The device key.
-            duration: The duration in seconds.
-        """
-        self._safety_locks[device_key] = time.time() + duration
-
-    def get_remaining_lock_time(self, device_key: str) -> int:
-        """
-        Get remaining lock time in seconds.
-
-        Args:
-            device_key: The device key.
-
-        Returns:
-            Remaining time in seconds.
-        """
-        if not self.check_safety_lock(device_key):
-            return 0
-
-        return int(self._safety_locks[device_key] - time.time())
 
 
 # =============================================================================
@@ -400,8 +80,7 @@ class VioletServiceHandlers:
         Returns:
             A list of device IDs.
         """
-        # Use the module-level function to avoid duplication
-        return _as_device_id_list(raw)
+        return as_device_id_list(raw)
 
     async def handle_control_pump(self, call: ServiceCall) -> None:
         """
@@ -901,26 +580,14 @@ class VioletServiceHandlers:
             log_path = self.hass.config.path("home-assistant.log")
             if os.path.exists(log_path):
                 try:
-                    with open(log_path, 'r', encoding='utf-8', errors='ignore') as f:
-                        # Read last N lines
-                        all_lines = f.readlines()
-                        # Filter for violet-related entries
-                        violet_lines = [
-                            line for line in all_lines
-                            if 'violet_pool_controller' in line.lower()
-                        ]
-                        # Take last N lines
-                        recent_lines = violet_lines[-lines:] if len(violet_lines) > lines else violet_lines
-
-                        for line in recent_lines:
-                            if include_timestamps:
-                                log_entries.append(line.rstrip())
-                            else:
-                                # Remove timestamp (format: [2026-02-24 17:35:23.304] ...)
-                                import re
-                                cleaned = re.sub(r'^\[?\d{4}-\d{2}-\d{2}[^]]*\]?\s*', '', line)
-                                log_entries.append(cleaned.rstrip())
-
+                    log_entries.extend(
+                        await self.hass.async_add_executor_job(
+                            read_recent_violet_log_lines,
+                            log_path,
+                            lines,
+                            include_timestamps,
+                        )
+                    )
                 except Exception as e:
                     _LOGGER.warning("Could not read log file: %s", e)
 
@@ -1167,8 +834,9 @@ Lines: {len(log_entries)}
                 filepath = f"/config/{filename}"
 
                 try:
-                    with open(filepath, 'w', encoding='utf-8') as f:
-                        f.write(export_text)
+                    await self.hass.async_add_executor_job(
+                        write_text_file, filepath, export_text
+                    )
 
                     _LOGGER.info(
                         "Diagnostic logs exported to file: %s (%d lines)",

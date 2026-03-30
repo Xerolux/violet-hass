@@ -148,9 +148,12 @@ class TestReconfigureFlow:
         assert result["step_id"] == "reconfigure"
         assert "errors" in result
 
-        # We test both because in different versions/mocks it might fallback to base
-        # or use host. As long as there is an error it's fine.
-        assert len(result["errors"]) > 0
+        # Invalid host input should be mapped to the API URL field.
+        assert result["errors"] == {CONF_API_URL: "invalid_ip"}
+
+    def test_build_unique_id_is_stable(self, config_flow):
+        """Manual and zeroconf setup must share the same unique ID format."""
+        assert config_flow._build_unique_id("192.168.178.55", 1) == "192.168.178.55-1"
 
     @pytest.mark.asyncio
     async def test_async_step_reconfigure_connection_fails(

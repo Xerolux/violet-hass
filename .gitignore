@@ -184,6 +184,8 @@ package-lock.json
 
 # Docker Test Environment - SENSITIVE DATA!
 tests/docker/
+tests/docker/test_credentials.txt
+tests/docker/*.local.txt
 docker-compose.yml
 docker-compose.override.yml
 
