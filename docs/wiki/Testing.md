@@ -27,19 +27,18 @@
 ```
 
 Das Script erledigt:
-- Python 3.13 prüfen
+- Python 3.14 prüfen
 - Virtuelle Umgebung `.venv-ha-test/` erstellen
-- Home Assistant 2025.12.0+ installieren
+- Abhängigkeiten aus `requirements-dev.txt` installieren
 - pytest und Abhängigkeiten installieren
 - `activate-test-env.sh` Helper erstellen
 
 ### Manuell
 
 ```bash
-python3.12 -m venv .venv-ha-test
+python3.14 -m venv .venv-ha-test
 source .venv-ha-test/bin/activate
 pip install -r requirements-dev.txt
-pip install pytest-homeassistant-custom-component
 ```
 
 ---
@@ -319,8 +318,8 @@ GitHub Actions läuft automatisch bei Push/PR:
 # .github/workflows/validate.yml
 - Ruff Linting
 - MyPy Type Checking
-- pytest (HA 2025.12.0)
-- Python 3.13
+- pytest (HA 2026.3.x)
+- Python 3.14
 ```
 
 ---

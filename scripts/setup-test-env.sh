@@ -20,15 +20,15 @@ if [ ! -f "custom_components/violet_pool_controller/manifest.json" ]; then
     exit 1
 fi
 
-# Find a suitable Python version (>= 3.12)
-echo -e "${YELLOW}Looking for a compatible Python version (>= 3.12)...${NC}"
+# Find a suitable Python version (>= 3.14)
+echo -e "${YELLOW}Looking for a compatible Python version (>= 3.14)...${NC}"
 PYTHON_CMD=""
-for cmd in python3.13 python3.12 python3 python; do
+for cmd in python3.14 python3.13 python3 python; do
     if command -v "$cmd" &> /dev/null; then
         VERSION_STR=$("$cmd" -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
         MAJOR=$(echo "$VERSION_STR" | cut -d. -f1)
         MINOR=$(echo "$VERSION_STR" | cut -d. -f2)
-        if [ "$MAJOR" -ge 3 ] && [ "$MINOR" -ge 12 ]; then
+        if [ "$MAJOR" -gt 3 ] || { [ "$MAJOR" -eq 3 ] && [ "$MINOR" -ge 14 ]; }; then
             PYTHON_CMD="$cmd"
             break
         fi
@@ -36,10 +36,8 @@ for cmd in python3.13 python3.12 python3 python; do
 done
 
 if [ -z "$PYTHON_CMD" ]; then
-    echo -e "${RED}No compatible Python version found. Please install Python >= 3.12:${NC}"
-    echo "  sudo apt-get install python3.12 python3.12-venv python3.12-dev"
-    echo "  or"
-    echo "  sudo apt-get install python3.13 python3.13-venv python3.13-dev"
+    echo -e "${RED}No compatible Python version found. Please install Python >= 3.14:${NC}"
+    echo "  sudo apt-get install python3.14 python3.14-venv python3.14-dev"
     exit 1
 fi
 
@@ -67,16 +65,11 @@ echo -e "${YELLOW}Upgrading pip, setuptools, wheel...${NC}"
 pip install --quiet --upgrade pip setuptools wheel
 echo -e "${GREEN}✓ Upgraded${NC}\n"
 
-# Install Home Assistant
-echo -e "${YELLOW}Installing Home Assistant...${NC}"
+# Install project dependencies
+echo -e "${YELLOW}Installing project dependencies...${NC}"
 echo -e "${YELLOW}  (This may take a few minutes)${NC}"
-pip install --quiet homeassistant==2025.1.4
-echo -e "${GREEN}✓ Home Assistant installed${NC}\n"
-
-# Install test dependencies
-echo -e "${YELLOW}Installing test dependencies...${NC}"
-pip install --quiet pytest pytest-asyncio pytest-homeassistant-custom-component
-echo -e "${GREEN}✓ Test dependencies installed${NC}\n"
+pip install --quiet -r requirements-dev.txt
+echo -e "${GREEN}✓ Dependencies installed${NC}\n"
 
 # Verify installation
 echo -e "${YELLOW}Verifying installation...${NC}"
