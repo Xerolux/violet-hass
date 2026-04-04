@@ -294,6 +294,8 @@ class ConfigFlow(
         self._reauth_entry = self.hass.config_entries.async_get_entry(
             self.context["entry_id"]
         )
+        if self._reauth_entry is None:
+            return self.async_abort(reason="reauth_failed")
         return await self.async_step_reauth_confirm()
 
     async def async_step_reauth_confirm(

@@ -117,7 +117,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
 
         # ✅ FIXED: Lokale Cache-Variablen für optimistisches Update
         self._optimistic_target_temp: float | None = None
-        self._optimistic_hvac_mode: str | None = None
+        self._optimistic_hvac_mode: HVACMode | None = None
 
         self._attr_target_temperature = self._get_target_temperature()
         self._attr_hvac_mode = self._get_hvac_mode()
@@ -165,8 +165,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         """Return the current HVAC mode."""
         # Check optimistic cache first
         if self._optimistic_hvac_mode is not None:
-            # We assume optimistic_hvac_mode is always a valid HVACMode
-            return HVACMode(self._optimistic_hvac_mode)
+            return self._optimistic_hvac_mode
 
         if self.coordinator.data is None:
             _LOGGER.debug("Coordinator data is None - returning OFF mode")
