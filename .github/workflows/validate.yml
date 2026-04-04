@@ -8,6 +8,7 @@ on:
       - '.github/workflows/validate.yml'
       - 'requirements*.txt'
       - 'pyproject.toml'
+      - 'tox.ini'
   pull_request:
     branches: [main]
     paths:
@@ -15,6 +16,7 @@ on:
       - '.github/workflows/validate.yml'
       - 'requirements*.txt'
       - 'pyproject.toml'
+      - 'tox.ini'
   workflow_dispatch:
 
 jobs:
@@ -23,9 +25,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.14"]
-        home-assistant-version: 
-          - "2026.3.1"
+        include:
+          - python-version: "3.12"
+            tox-env: "py312"
+          - python-version: "3.14"
+            tox-env: "py314"
     
     steps:
       - uses: actions/checkout@v6
@@ -34,47 +38,13 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
-          
-      - name: Install Home Assistant ${{ matrix.home-assistant-version }}
+
+      - name: Install tox
         run: |
-          python -m pip install --upgrade pip setuptools wheel
-          pip install homeassistant==${{ matrix.home-assistant-version }}
-          pip install "aiohttp>=3.11.0"
-          
-      - name: Install dev dependencies
-        run: |
-          pip install "ruff>=0.15.0" "mypy>=1.15.0" "pytest>=9.0.0" "pytest-cov>=6.0.0" "pytest-asyncio>=1.0.0"
-          pip install "pytest-homeassistant-custom-component>=0.13.109"
-          
-      - name: Lint with Ruff
-        run: |
-          ruff check custom_components/violet_pool_controller/ \
-            --line-length=120 \
-            --output-format=github
-        continue-on-error: true
-        
-      - name: Format check with Ruff
-        run: |
-          ruff format custom_components/violet_pool_controller/ --check
-        continue-on-error: true
-        
-      - name: Type check with mypy
-        run: |
-          mypy custom_components/violet_pool_controller/ \
-            --ignore-missing-imports \
-            --no-strict-optional \
-            --warn-return-any
-        continue-on-error: true
-      
-      - name: Run Unit Tests
-        run: |
-          pytest tests/ \
-            -v \
-            --tb=short \
-            --cov=custom_components/violet_pool_controller \
-            --cov-report=xml \
-            --cov-report=term-missing
-        continue-on-error: true
+          python -m pip install --upgrade pip tox
+
+      - name: Run tox (${{ matrix.tox-env }})
+        run: tox -e ${{ matrix.tox-env }}
         
       - name: Create validation summary
         if: always()
@@ -82,7 +52,7 @@ jobs:
           echo "## ✅ Validation Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Python:** ${{ matrix.python-version }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Home Assistant:** ${{ matrix.home-assistant-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Tox Environment:** ${{ matrix.tox-env }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "All validation checks completed!" >> $GITHUB_STEP_SUMMARY
 

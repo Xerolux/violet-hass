@@ -12,7 +12,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse
+from homeassistant.core import HomeAssistant, SupportsResponse
 
 from .const import DOMAIN
 from .service_control import VioletControlServiceHandlers

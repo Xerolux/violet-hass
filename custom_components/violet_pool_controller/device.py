@@ -13,7 +13,6 @@ import asyncio
 import collections
 import logging
 import time
-from collections.abc import Mapping
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -25,17 +24,27 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from violet_poolcontroller_api.api import VioletPoolAPI, VioletPoolAPIError
+from .config_entry_helpers import extract_api_host, get_entry_value, with_non_default_port
 from .const import (
-    CONF_API_URL,
     CONF_CONTROLLER_NAME,
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
     CONF_ENABLE_DIAGNOSTIC_LOGGING,
+    CONF_PASSWORD,
     CONF_POLLING_INTERVAL,
+    CONF_PORT,
+    CONF_RETRY_ATTEMPTS,
+    CONF_TIMEOUT_DURATION,
     CONF_USE_SSL,
+    CONF_USERNAME,
+    CONF_VERIFY_SSL,
     DEFAULT_CONTROLLER_NAME,
     DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
+    DEFAULT_PORT,
     DEFAULT_POLLING_INTERVAL,
+    DEFAULT_RETRY_ATTEMPTS,
+    DEFAULT_TIMEOUT_DURATION,
+    DEFAULT_VERIFY_SSL,
     DOMAIN,
 )
 
@@ -83,24 +92,24 @@ class VioletPoolControllerDevice:
         self._latency_history: collections.deque[float] = collections.deque(maxlen=60)
 
         entry_data = config_entry.data
-        entry_options = config_entry.options
-        self.api_url = self._extract_api_url(entry_data)
-        from .const import CONF_PORT, DEFAULT_PORT
-        port = entry_data.get(CONF_PORT, DEFAULT_PORT)
-        if port not in (80, 443):
-            self.api_url = f"{self.api_url}:{port}"
+        self.api_url = with_non_default_port(
+            extract_api_host(entry_data),
+            entry_data.get(CONF_PORT, DEFAULT_PORT),
+        )
         self.use_ssl = entry_data.get(CONF_USE_SSL, True)
         self.device_id = entry_data.get(CONF_DEVICE_ID, 1)
         self.device_name = entry_data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
         # Prefer options (later changes) over data
-        self.controller_name = entry_options.get(
+        self.controller_name = get_entry_value(
+            config_entry,
             CONF_CONTROLLER_NAME,
-            entry_data.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME),
+            DEFAULT_CONTROLLER_NAME,
         )
         # ✅ DIAGNOSTIC LOGGING: Read from options (priority), then data, then default
-        self._enable_diagnostic_logging = entry_options.get(
+        self._enable_diagnostic_logging = get_entry_value(
+            config_entry,
             CONF_ENABLE_DIAGNOSTIC_LOGGING,
-            entry_data.get(CONF_ENABLE_DIAGNOSTIC_LOGGING, DEFAULT_ENABLE_DIAGNOSTIC_LOGGING),
+            DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
         )
 
         _LOGGER.info(
@@ -123,49 +132,38 @@ class VioletPoolControllerDevice:
             True if configuration was updated successfully, False otherwise.
         """
         from violet_poolcontroller_api.api import VioletPoolAPI
-        from .const import (
-            CONF_ENABLE_DIAGNOSTIC_LOGGING,
-            CONF_PASSWORD,
-            CONF_PORT,
-            DEFAULT_PORT,
-            CONF_RETRY_ATTEMPTS,
-            CONF_TIMEOUT_DURATION,
-            CONF_USERNAME,
-            CONF_VERIFY_SSL,
-            DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
-            DEFAULT_RETRY_ATTEMPTS,
-            DEFAULT_TIMEOUT_DURATION,
-            DEFAULT_VERIFY_SSL,
-        )
 
         try:
             # Extract new configuration from BOTH data and options
             entry_data = new_config_entry.data
             entry_options = new_config_entry.options
 
-            new_api_url = self._extract_api_url(entry_data)
-            new_port = entry_data.get(CONF_PORT, DEFAULT_PORT)
-            if new_port not in (80, 443):
-                new_api_url = f"{new_api_url}:{new_port}"
+            new_api_url = with_non_default_port(
+                extract_api_host(entry_data),
+                entry_data.get(CONF_PORT, DEFAULT_PORT),
+            )
             new_use_ssl = entry_data.get(CONF_USE_SSL, True)
             new_verify_ssl = entry_data.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL)
             new_username = entry_data.get(CONF_USERNAME)
             new_password = entry_data.get(CONF_PASSWORD)
 
             # Check options first, then data for timeout/retries
-            new_timeout = entry_options.get(
+            new_timeout = get_entry_value(
+                new_config_entry,
                 CONF_TIMEOUT_DURATION,
-                entry_data.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION),
+                DEFAULT_TIMEOUT_DURATION,
             )
-            new_retries = entry_options.get(
+            new_retries = get_entry_value(
+                new_config_entry,
                 CONF_RETRY_ATTEMPTS,
-                entry_data.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS),
+                DEFAULT_RETRY_ATTEMPTS,
             )
 
             # ✅ DIAGNOSTIC LOGGING: Check if setting changed
-            new_diagnostic_logging = entry_options.get(
+            new_diagnostic_logging = get_entry_value(
+                new_config_entry,
                 CONF_ENABLE_DIAGNOSTIC_LOGGING,
-                entry_data.get(CONF_ENABLE_DIAGNOSTIC_LOGGING, DEFAULT_ENABLE_DIAGNOSTIC_LOGGING),
+                DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
             )
             diagnostic_logging_changed = new_diagnostic_logging != self._enable_diagnostic_logging
 
@@ -635,34 +633,6 @@ class VioletPoolControllerDevice:
             return 0.0
         return sum(self._latency_history) / len(self._latency_history)
 
-    def _extract_api_url(self, entry_data: Mapping[str, Any]) -> str:
-        """
-        Extract the API URL from config data.
-
-        Args:
-            entry_data: The configuration data dictionary.
-
-        Returns:
-            The API URL.
-
-        Raises:
-            ValueError: If no API URL is found.
-        """
-        url = (
-            entry_data.get(CONF_API_URL)
-            or entry_data.get("host")
-            or entry_data.get("base_ip")
-        )
-
-        if not url:
-            raise ValueError("No IP address found in config entry")
-
-        if not isinstance(url, str):
-            raise ValueError("API URL is not a string")
-
-        return url.strip()
-
-
 class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
     """Data update coordinator for the Violet Pool Controller."""
 
@@ -762,9 +732,10 @@ async def async_setup_device(
 
             raise ConfigEntryNotReady(error_msg)
 
-        polling_interval = config_entry.options.get(
+        polling_interval = get_entry_value(
+            config_entry,
             CONF_POLLING_INTERVAL,
-            config_entry.data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL),
+            DEFAULT_POLLING_INTERVAL,
         )
 
         coordinator = VioletPoolDataUpdateCoordinator(
