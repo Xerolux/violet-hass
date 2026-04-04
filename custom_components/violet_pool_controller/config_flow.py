@@ -18,7 +18,7 @@ from homeassistant import config_entries
 from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client, selector
-from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
+from homeassistant.components.zeroconf import ZeroconfServiceInfo
 
 from violet_poolcontroller_api.api import VioletPoolAPI
 from .config_flow_support import (
@@ -374,9 +374,12 @@ class ConfigFlow(
             CONF_RETRY_ATTEMPTS: DEFAULT_RETRY_ATTEMPTS,
         }
 
-        self.context["title_placeholders"] = {
-            "name": name,
-            "host": f"{host}:{port}" if port not in (80, 443) else host,
+        self.context = {
+            **self.context,
+            "title_placeholders": {
+                "name": name,
+                "host": f"{host}:{port}" if port not in (80, 443) else host,
+            },
         }
         return await self.async_step_zeroconf_confirm()
 

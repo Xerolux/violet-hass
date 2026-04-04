@@ -132,9 +132,9 @@ class TestReconfigureFlow:
         hass.config_entries.async_get_entry = MagicMock(return_value=mock_config_entry)
         config_flow.context = {"entry_id": mock_config_entry.entry_id}
 
-        # Invalid IP
+        # Invalid IP (contains characters not allowed by validator hostname check)
         user_input = {
-            CONF_API_URL: "invalid-ip-address",
+            CONF_API_URL: "invalid_ip_address_with_underscores!",
             CONF_USE_SSL: True,
             "polling_interval": 10,
             "timeout_duration": 30,
@@ -149,7 +149,7 @@ class TestReconfigureFlow:
         assert "errors" in result
 
         # Invalid host input should be mapped to the API URL field.
-        assert result["errors"] == {CONF_API_URL: "invalid_ip"}
+        assert result["errors"] == {CONF_API_URL: "invalid_ip_address"}
 
     def test_build_unique_id_is_stable(self, config_flow):
         """Manual and zeroconf setup must share the same unique ID format."""
