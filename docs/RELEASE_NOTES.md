@@ -10,7 +10,7 @@
 - add-port-configuration (c7faedd)
 - Feat: Add port configuration to setup flow and API client (2b4e285)
 - Merge branch 'main' into feat/github-pages-landing-3280418167961250373 (42fb8f6)
-- feat: add landing page for github pages with sponsor and shop links\n\n- Created a responsive `index.html` as the landing page based on README.md.\n- Added GitHub Sponsors, Ko-fi, Buy Me a Coffee, Tesla referral, and PayPal badges.\n- Added a link to the PoolDigital Shop.\n- Removed all `target="_blank"` attributes for security scanner compliance. (bd97a08)
+- feat: add landing page for github pages with sponsor and shop links\n\n- Created a responsive `index.html` as the landing page based on README.md.\n- Added GitHub Sponsors, Ko-fi, Buy Me a Coffee, Tesla referral, and PayPal badges.\n- Added a link to the PoolDigital Shop.\n- Removed all target-blank attributes for security scanner compliance. (bd97a08)
 - feat: create github pages landing page with sponsors and shop link (cf49372)
 - fix: add missing rel attributes to external links (ceaaacf)
 - feat: add GitHub Pages landing page (index.html) (d5172a8)
@@ -50,7 +50,7 @@
 - add-claude-documentation (47ddfa0)
 - docs: update CLAUDE.md to reflect v1.0.4-beta.1 codebase state (6b46549)
 - Update sponsorship badges in README.md (e59249e)
-- feat: add landing page for github pages with sponsor and shop links\n\n- Created a responsive `index.html` as the landing page based on README.md.\n- Added GitHub Sponsors, Ko-fi, Buy Me a Coffee, Tesla referral, and PayPal badges.\n- Added a link to the PoolDigital Shop.\n- Removed all `target="_blank"` attributes for security scanner compliance. (bd97a08)
+- feat: add landing page for github pages with sponsor and shop links\n\n- Created a responsive `index.html` as the landing page based on README.md.\n- Added GitHub Sponsors, Ko-fi, Buy Me a Coffee, Tesla referral, and PayPal badges.\n- Added a link to the PoolDigital Shop.\n- Removed all target-blank attributes for security scanner compliance. (bd97a08)
 - docs: Update PyPI migration guide to reflect new target repo and module name (edb8257)
 - docs: Add PyPI migration boilerplate and instructions (1190d66)
 
