@@ -167,6 +167,20 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
             )
             self.async_write_ha_state()
 
+    def _handle_refresh_error(self, task: asyncio.Task) -> None:
+        """Handle errors in the refresh task."""
+        try:
+            if not task.cancelled():
+                exc = task.exception()
+                if exc is not None:
+                    _LOGGER.debug(
+                        "Refresh task failed for %s: %s",
+                        self.entity_description.name,
+                        exc,
+                    )
+        except (asyncio.CancelledError, asyncio.InvalidStateError):
+            pass  # Normal during HA reload
+
     async def async_set_native_value(self, value: float) -> None:
         """
         Set a new setpoint value.
@@ -315,7 +329,8 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
 
                 self.async_write_ha_state()
 
-                asyncio.create_task(self._delayed_refresh())
+                task = asyncio.create_task(self._delayed_refresh())
+                task.add_done_callback(self._handle_refresh_error)
 
             else:
                 error_msg = result.get("response", result)
