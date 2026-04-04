@@ -89,7 +89,7 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
         # Special case: pump speed — determine active level from PUMP_RPM_{i}
         # PUMP_RPM_{i} returns status codes (0-6); values 1,2,3,4 = output ON
         if self._api_key == "PUMP_SPEED":
-            for level in range(1, 4):  # levels 1 (Eco), 2 (Normal), 3 (Boost)
+            for level in range(4):  # levels 0-3 (PUMP_RPM_0 to PUMP_RPM_3)
                 rpm_val = self.get_value(f"PUMP_RPM_{level}")
                 if rpm_val is not None:
                     try:
