@@ -1,62 +1,45 @@
-## v1.0.4 – Violet Pool Controller
+## v1.0.5-alpha.1 – Violet Pool Controller
 
-✅ **STABLE RELEASE**
+🔴 **ALPHA RELEASE** - Experimental features, use with caution!
+
+---
 
 ### ✨ New Features | Neue Funktionen
 
-- Merge pull request #280 from Xerolux/claude/add-code-headers-9tKo5 (52c47ab)
-- Add Xerolux 2026 copyright headers to all Python source files (411845a)
-- add-claude-documentation (47ddfa0)
-- add-port-configuration (c7faedd)
-- Feat: Add port configuration to setup flow and API client (2b4e285)
-- Merge branch 'main' into feat/github-pages-landing-3280418167961250373 (42fb8f6)
-- feat: add landing page for github pages with sponsor and shop links\n\n- Created a responsive `index.html` as the landing page based on README.md.\n- Added GitHub Sponsors, Ko-fi, Buy Me a Coffee, Tesla referral, and PayPal badges.\n- Added a link to the PoolDigital Shop.\n- Removed all `target="_blank"` attributes for security scanner compliance. (bd97a08)
-- feat: create github pages landing page with sponsors and shop link (cf49372)
-- fix: add missing rel attributes to external links (ceaaacf)
-- feat: add GitHub Pages landing page (index.html) (d5172a8)
-- update-api-and-add-workflow (5531acc)
-- feat: update API to 0.0.2 and add auto-update workflow (c92c0f1)
-- docs: Update PyPI migration guide to reflect new target repo and module name (edb8257)
-- docs: Add PyPI migration boilerplate and instructions (1190d66)
+- chore(ci): add tox matrix and refactor diagnostics/config helpers (83d15c7)
 
 ### 🚀 Improvements | Verbesserungen
 
-- docs: update CLAUDE.md to reflect v1.0.4-beta.1 codebase state (6b46549)
-- update-dependencies-2026 (467af10)
-- Update dependencies for HA 2026.3 compatibility (de0f114)
-- Update sponsorship badges in README.md (e59249e)
-- refactor(translations): sync translation keys and remove emojis (8788efb)
-- Update violet-poolController-api version to 0.0.3 (a0b093c)
-- update-api-and-add-workflow (5531acc)
-- feat: update API to 0.0.2 and add auto-update workflow (c92c0f1)
-- refactor-migrate-to-pypi-api (c6130de)
-- Refactor: Migrate to standalone PyPI violet-poolController-api package (dacf019)
-- docs: Update PyPI migration guide to reflect new target repo and module name (edb8257)
-- Refactor: Extract API into isolated internal package (99e4f90)
-- Refactor configuration keys to use standard homeassistant.const (f2d1941)
-- Refactor configuration keys to use standard homeassistant.const (d6d89af)
-- 📝 Release v1.0.3 - Update changelog and version files (472606d)
+- refactor: reduce poll history memory footprint (cc339e8)
+- Update HACS minimum HA version to 2026.3.0 (6e3a519)
+- Update violet-poolController-api to 0.0.5 (334d9ca)
+- chore(ci): add tox matrix and refactor diagnostics/config helpers (83d15c7)
+- fix: align 1.0.5 version metadata and update test env requirements (00d87a6)
+- refactor services into control and diagnostics modules (7ee8f79)
+- Update version and dependency for violet_pool_controller (5017122)
+- Update version to 1.0.5 (d5790ad)
+- Update violet-poolController-api to version 0.0.4 (0d077e7)
+- refactor config flow and service modules (5ace21f)
+- 📝 Release v1.0.4 - Update changelog and version files (784bc44)
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
-- fix: resolve 12 bugs and compatibility issues (2182c37)
-- fix: remove target blank to resolve security scanner issues (d37e44d)
-- fix: standardise noopener noreferrer format (935116c)
-- fix: add missing rel attributes to external links (ceaaacf)
-- fix: prevent detached HEAD state in release workflow (bcfd477)
+- fix(ci): stabilize config flow tests for zeroconf and invalid host (bd3f547)
+- fix-bugs (1469f03)
+- fix: two more bugs - PUMP_RPM_0 missing and wrong float fallback (cabf378)
+- fix: resolve type safety, None-safety and async task bugs (84c6efb)
+- fix: align 1.0.5 version metadata and update test env requirements (00d87a6)
 
 ### 📚 Documentation | Dokumentation
 
-- add-claude-documentation (47ddfa0)
-- docs: update CLAUDE.md to reflect v1.0.4-beta.1 codebase state (6b46549)
-- Update sponsorship badges in README.md (e59249e)
-- feat: add landing page for github pages with sponsor and shop links\n\n- Created a responsive `index.html` as the landing page based on README.md.\n- Added GitHub Sponsors, Ko-fi, Buy Me a Coffee, Tesla referral, and PayPal badges.\n- Added a link to the PoolDigital Shop.\n- Removed all `target="_blank"` attributes for security scanner compliance. (bd97a08)
-- docs: Update PyPI migration guide to reflect new target repo and module name (edb8257)
-- docs: Add PyPI migration boilerplate and instructions (1190d66)
+- docs: align README and testing docs with current requirements (2d280e7)
 
 ### 🧪 Tests
 
-- I have updated the quality scale to platinum and fixed the associated tests. Here is a summary of the changes I made: (b0bfc6a)
+- test: cover config flow IP literal helper (4063b29)
+- fix(ci): stabilize config flow tests for zeroconf and invalid host (bd3f547)
+- docs: align README and testing docs with current requirements (2d280e7)
+- fix: align 1.0.5 version metadata and update test env requirements (00d87a6)
 
 ---
 
@@ -74,7 +57,7 @@
 
 ---
 
-📋 [Full changelog: v1.0.3...v1.0.4](https://github.com/Xerolux/violet-hass/compare/v1.0.3...v1.0.4)
+📋 [Full changelog: v1.0.4...v1.0.5-alpha.1](https://github.com/Xerolux/violet-hass/compare/v1.0.4...v1.0.5-alpha.1)
 
 ---
 
@@ -108,4 +91,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-03-26 06:22:11 UTC_
+_Generated automatically by GitHub Actions on 2026-04-05 19:00:19 UTC_
