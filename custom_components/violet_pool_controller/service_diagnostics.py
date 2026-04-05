@@ -14,6 +14,15 @@ from homeassistant.helpers import entity_registry as er
 from .service_helpers import read_recent_violet_log_lines, write_text_file
 
 _LOGGER = logging.getLogger(__name__)
+_POLL_SNAPSHOT_FIELDS = (
+    "Pool Temp",
+    "Redox",
+    "pH",
+    "Chlorine",
+    "Overflow",
+    "Flow",
+    "Inflow",
+)
 
 
 class VioletDiagnosticServiceHandlers:
@@ -474,23 +483,20 @@ class VioletDiagnosticServiceHandlers:
         )
 
         if hasattr(coordinator.device, "_poll_history") and coordinator.device._poll_history:
-            history = list(coordinator.device._poll_history)
+            history = coordinator.device._poll_history
             log_entries.append(f"  Last {len(history)} Polls:")
             for item in history:
                 if len(item) == 4:
                     timestamp, count, latency, snapshot = item
                     details = []
-                    for key in [
-                        "Pool Temp",
-                        "Redox",
-                        "pH",
-                        "Chlorine",
-                        "Overflow",
-                        "Flow",
-                        "Inflow",
-                    ]:
-                        if key in snapshot:
-                            details.append(f"{key}: {snapshot[key]}")
+                    if isinstance(snapshot, dict):
+                        for key in _POLL_SNAPSHOT_FIELDS:
+                            if key in snapshot:
+                                details.append(f"{key}: {snapshot[key]}")
+                    else:
+                        for key, value in zip(_POLL_SNAPSHOT_FIELDS, snapshot):
+                            if value is not None:
+                                details.append(f"{key}: {value}")
 
                     detail_str = " | ".join(details)
                     log_entries.append(

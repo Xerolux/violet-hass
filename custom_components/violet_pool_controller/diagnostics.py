@@ -36,14 +36,15 @@ async def async_get_config_entry_diagnostics(
 
     # --- Poll history statistics ---
     poll_stats: dict[str, Any] = {"total_polls": 0}
-    history = list(device._poll_history)
+    history = device._poll_history
     if history:
-        timestamps = [entry_ts for entry_ts, *_ in history]
+        first_poll = history[0][0]
+        last_poll = history[-1][0]
         data_counts = [count for _, count, *_ in history]
         poll_stats = {
             "total_polls": len(history),
-            "first_poll": timestamps[0].isoformat() if isinstance(timestamps[0], datetime) else str(timestamps[0]),
-            "last_poll": timestamps[-1].isoformat() if isinstance(timestamps[-1], datetime) else str(timestamps[-1]),
+            "first_poll": first_poll.isoformat() if isinstance(first_poll, datetime) else str(first_poll),
+            "last_poll": last_poll.isoformat() if isinstance(last_poll, datetime) else str(last_poll),
             "avg_data_points": round(sum(data_counts) / len(data_counts), 1),
         }
 

@@ -51,6 +51,15 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 FAILURE_LOG_INTERVAL = 300  # Log repeated failures at most every 5 minutes
+POLL_SNAPSHOT_FIELDS = (
+    "Pool Temp",
+    "Redox",
+    "pH",
+    "Chlorine",
+    "Overflow",
+    "Flow",
+    "Inflow",
+)
 
 
 class VioletPoolControllerDevice:
@@ -72,8 +81,10 @@ class VioletPoolControllerDevice:
         self._consecutive_failures = 0
         self._max_consecutive_failures = 5
         self._update_counter = 0
-        # Increased history size to capture more context for troubleshooting
-        self._poll_history: collections.deque[tuple[datetime, int, float, dict[str, Any]]] = collections.deque(maxlen=1000)
+        # Store poll snapshots as fixed-position tuples to reduce per-entry overhead.
+        self._poll_history: collections.deque[
+            tuple[datetime, int, float, tuple[Any, ...]]
+        ] = collections.deque(maxlen=1000)
         self._first_poll: datetime | None = None
 
         self._last_failure_log = 0.0  # Timestamp for throttling
@@ -404,20 +415,25 @@ class VioletPoolControllerDevice:
                 if self._first_poll is None:
                     self._first_poll = now_dt
 
-                # Create snapshot of key values
-                snapshot = {
-                    "Pool Temp": data.get("onewire1_value"),
-                    "Redox": data.get("orp_value"),
-                    "pH": data.get("pH_value"),
-                    "Chlorine": data.get("pot_value"),
-                    "Overflow": data.get("ADC2_value"),
-                    "Flow": data.get("IMP2_value") if data.get("IMP2_value") is not None else data.get("ADC3_value"),
-                    "Inflow": data.get("IMP1_value"),
-                }
-                # Remove None values to save space/cleaner logs
-                snapshot = {k: v for k, v in snapshot.items() if v is not None}
+                # Keep a compact fixed-order snapshot for diagnostics.
+                flow_value = (
+                    data.get("IMP2_value")
+                    if data.get("IMP2_value") is not None
+                    else data.get("ADC3_value")
+                )
+                snapshot = (
+                    data.get("onewire1_value"),  # Pool Temp
+                    data.get("orp_value"),  # Redox
+                    data.get("pH_value"),  # pH
+                    data.get("pot_value"),  # Chlorine
+                    data.get("ADC2_value"),  # Overflow
+                    flow_value,  # Flow
+                    data.get("IMP1_value"),  # Inflow
+                )
 
-                self._poll_history.append((now_dt, len(data), self._connection_latency, snapshot))
+                self._poll_history.append(
+                    (now_dt, len(data), self._connection_latency, snapshot)
+                )
 
                 # Standard Debug-Log (immer aktiv)
                 _LOGGER.debug(
