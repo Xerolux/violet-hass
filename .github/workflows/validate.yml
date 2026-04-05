@@ -28,8 +28,10 @@ jobs:
         include:
           - python-version: "3.12"
             tox-env: "py312"
+            allow-prereleases: false
           - python-version: "3.14"
             tox-env: "py314"
+            allow-prereleases: true
     
     steps:
       - uses: actions/checkout@v6
@@ -38,6 +40,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
+          allow-prereleases: ${{ matrix.allow-prereleases }}
 
       - name: Install tox
         run: |
