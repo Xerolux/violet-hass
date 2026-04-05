@@ -79,10 +79,10 @@ Die vollständige Dokumentation befindet sich im **[Wiki][wiki]**:
 
 ## 🔑 Voraussetzungen
 
-- Home Assistant **2025.12.0+** (getestet bis 2026.x)
+- Home Assistant **2026.3.0+** (getestet bis 2026.x)
 - HACS ([Installationsanleitung](https://hacs.xyz/docs/setup/download))
 - Violet Pool Controller im lokalen Netzwerk erreichbar
-- Python 3.12+
+- Python 3.14.2+
 
 ---
 

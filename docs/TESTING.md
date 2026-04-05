@@ -14,9 +14,9 @@ Dieses Projekt enthält umfassende Tests, die vor jedem Release durchgeführt we
 ```
 
 Das Script:
-- ✅ Prüft Python 3.13
+- ✅ Prüft Python 3.14
 - ✅ Erstellt virtuelle Umgebung (`.venv-ha-test/`)
-- ✅ Installiert Home Assistant 2025.12.0
+- ✅ Installiert Abhängigkeiten aus `requirements-dev.txt`
 - ✅ Installiert pytest und Test-Dependencies
 - ✅ Erstellt `activate-test-env.sh` Helper
 
