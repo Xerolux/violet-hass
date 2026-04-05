@@ -9,6 +9,7 @@
 
 from __future__ import annotations
 
+import ipaddress
 import logging
 from collections.abc import Mapping
 from typing import Any
@@ -83,6 +84,7 @@ class ConfigFlow(
         """Initialize config flow."""
         self._config_data: dict[str, Any] = {}
         self._sensor_data: dict[str, list[str]] = {}
+        self._title_placeholders: dict[str, str] = {}
         self._reauth_entry: config_entries.ConfigEntry | None = None
         _LOGGER.info("Violet Pool Controller setup started")
 
@@ -90,6 +92,15 @@ class ConfigFlow(
     def _build_unique_id(host: str, device_id: int | str) -> str:
         """Build a stable unique ID shared by manual and zeroconf setup."""
         return f"{host}-{int(device_id)}"
+
+    @staticmethod
+    def _is_ip_literal(host: str) -> bool:
+        """Return True when host is an IPv4/IPv6 literal."""
+        try:
+            ipaddress.ip_address(host)
+            return True
+        except ValueError:
+            return False
 
     @staticmethod
     @callback
@@ -376,7 +387,7 @@ class ConfigFlow(
             CONF_RETRY_ATTEMPTS: DEFAULT_RETRY_ATTEMPTS,
         }
 
-        self.context["title_placeholders"] = {
+        self._title_placeholders = {
             "name": name,
             "host": f"{host}:{port}" if port not in (80, 443) else host,
         }
@@ -386,18 +397,21 @@ class ConfigFlow(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Confirm zeroconf discovered Violet Pool Controller."""
+        placeholders = self._title_placeholders or dict(
+            self.context.get("title_placeholders", {})
+        )
         if user_input is not None:
             if await self._test_connection():
                 return await self.async_step_pool_setup()
             return self.async_show_form(
                 step_id="zeroconf_confirm",
-                description_placeholders=self.context.get("title_placeholders", {}),
+                description_placeholders=placeholders,
                 errors={"base": constants.ERROR_CANNOT_CONNECT},
             )
 
         return self.async_show_form(
             step_id="zeroconf_confirm",
-            description_placeholders=self.context.get("title_placeholders", {}),
+            description_placeholders=placeholders,
         )
 
     async def async_step_reconfigure(
@@ -413,8 +427,12 @@ class ConfigFlow(
 
         if user_input:
             api_url = user_input.get(CONF_API_URL) or user_input.get("api_url")
-            if not api_url or not validators.validate_ip_address(api_url):
-                errors[CONF_API_URL] = constants.ERROR_INVALID_IP
+            if (
+                not api_url
+                or not validators.validate_ip_address(api_url)
+                or (not self._is_ip_literal(api_url) and "." not in api_url)
+            ):
+                errors[CONF_API_URL] = "invalid_ip"
             else:
                 updated_data = dict(reconfigure_entry.data)
                 updated_data[CONF_API_URL] = api_url
