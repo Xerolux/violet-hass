@@ -145,3 +145,14 @@ class TestConfigFlow:
 
         flow.async_set_unique_id.assert_awaited_once_with("192.168.178.55-1")
         assert result["step_id"] == "zeroconf_confirm"
+
+    def test_is_ip_literal_helper(self):
+        """IP helper must distinguish literals from hostnames."""
+        from custom_components.violet_pool_controller.config_flow import (
+            ConfigFlow as VioletDeviceConfigFlow,
+        )
+
+        assert VioletDeviceConfigFlow._is_ip_literal("192.168.178.55")
+        assert VioletDeviceConfigFlow._is_ip_literal("2001:db8::1")
+        assert not VioletDeviceConfigFlow._is_ip_literal("pool-controller")
+        assert not VioletDeviceConfigFlow._is_ip_literal("pool.local")
