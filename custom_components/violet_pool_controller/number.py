@@ -89,7 +89,7 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
         # Special case: pump speed — determine active level from PUMP_RPM_{i}
         # PUMP_RPM_{i} returns status codes (0-6); values 1,2,3,4 = output ON
         if self._api_key == "PUMP_SPEED":
-            for level in range(1, 4):  # levels 1 (Eco), 2 (Normal), 3 (Boost)
+            for level in range(4):  # levels 0-3 (PUMP_RPM_0 to PUMP_RPM_3)
                 rpm_val = self.get_value(f"PUMP_RPM_{level}")
                 if rpm_val is not None:
                     try:
@@ -166,6 +166,20 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                 self.entity_description.name,
             )
             self.async_write_ha_state()
+
+    def _handle_refresh_error(self, task: asyncio.Task) -> None:
+        """Handle errors in the refresh task."""
+        try:
+            if not task.cancelled():
+                exc = task.exception()
+                if exc is not None:
+                    _LOGGER.debug(
+                        "Refresh task failed for %s: %s",
+                        self.entity_description.name,
+                        exc,
+                    )
+        except (asyncio.CancelledError, asyncio.InvalidStateError):
+            pass  # Normal during HA reload
 
     async def async_set_native_value(self, value: float) -> None:
         """
@@ -315,7 +329,8 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
 
                 self.async_write_ha_state()
 
-                asyncio.create_task(self._delayed_refresh())
+                task = asyncio.create_task(self._delayed_refresh())
+                task.add_done_callback(self._handle_refresh_error)
 
             else:
                 error_msg = result.get("response", result)

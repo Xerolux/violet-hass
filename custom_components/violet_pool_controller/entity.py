@@ -252,7 +252,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
             _LOGGER.debug(
                 "Konvertierung zu Float für Key '%s' fehlgeschlagen: %s", key, value
             )
-            return float(default) if default is not None else 0.0
+            return float(default) if default is not None else None
 
     def get_bool_value(self, key: str, default: Any = None) -> bool:
         """

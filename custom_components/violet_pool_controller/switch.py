@@ -621,11 +621,10 @@ async def async_setup_entry(
             if key in coordinator.data:
                 try:
                     value = coordinator.data[key]
-                    state_int = (
-                        int(value)
-                        if isinstance(value, (int, float)) or str(value).isdigit()
-                        else None
-                    )
+                    try:
+                        state_int = int(float(value)) if value is not None else None
+                    except (ValueError, TypeError):
+                        state_int = None
                     expected = (
                         "ON"
                         if state_int in ON_STATES

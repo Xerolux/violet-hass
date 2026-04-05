@@ -22,6 +22,26 @@ class VioletDiagnosticServiceHandlers:
     hass: Any
     manager: Any
 
+    async def _get_first_coordinator(self, device_ids: list[str]) -> Any:
+        """Return the first coordinator found for any provided device id."""
+        for device_id in device_ids:
+            coordinator = await self.manager.get_coordinator_for_device(device_id)
+            if coordinator:
+                return coordinator
+        raise HomeAssistantError(f"Device not found: {device_ids[0]}")
+
+    async def _get_device_for_id(self, device_id: str) -> Any:
+        """Resolve and validate a device object for a given device id."""
+        coordinator = await self.manager.get_coordinator_for_device(device_id)
+        if not coordinator or not hasattr(coordinator, "device"):
+            raise HomeAssistantError(f"Device {device_id} not found")
+        return coordinator.device
+
+    @staticmethod
+    def _device_label(device: Any) -> str:
+        """Return a stable device name for response payloads."""
+        return getattr(device, "device_name", "Unknown")
+
     async def handle_export_diagnostic_logs(self, call: ServiceCall) -> dict[str, Any]:
         """Handle the export diagnostic logs service."""
         device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
@@ -33,14 +53,7 @@ class VioletDiagnosticServiceHandlers:
         include_raw_data = call.data.get("include_raw_data", True)
         save_to_file = call.data.get("save_to_file", False)
 
-        coordinator = None
-        for device_id in device_ids:
-            coordinator = await self.manager.get_coordinator_for_device(device_id)
-            if coordinator:
-                break
-
-        if not coordinator:
-            raise HomeAssistantError(f"Device not found: {device_ids[0]}")
+        coordinator = await self._get_first_coordinator(device_ids)
 
         try:
             log_entries: list[str] = []
@@ -125,16 +138,12 @@ class VioletDiagnosticServiceHandlers:
 
         for device_id in device_ids:
             try:
-                coordinator = await self.manager.get_coordinator_for_device(device_id)
-                if not coordinator or not hasattr(coordinator, "device"):
-                    raise HomeAssistantError(f"Device {device_id} not found")
-
-                device = coordinator.device
+                device = await self._get_device_for_id(device_id)
                 error_handler = get_enhanced_error_handler()
 
                 results.append(
                     {
-                        "device_name": getattr(device, "device_name", "Unknown"),
+                        "device_name": self._device_label(device),
                         "device_id": device_id,
                         "available": getattr(device, "_available", False),
                         "last_update": getattr(device, "_last_update_time", 0),
@@ -173,15 +182,11 @@ class VioletDiagnosticServiceHandlers:
 
         for device_id in device_ids:
             try:
-                coordinator = await self.manager.get_coordinator_for_device(device_id)
-                if not coordinator or not hasattr(coordinator, "device"):
-                    raise HomeAssistantError(f"Device {device_id} not found")
-
-                device = coordinator.device
+                device = await self._get_device_for_id(device_id)
                 error_handler = get_enhanced_error_handler()
 
                 result = {
-                    "device_name": getattr(device, "device_name", "Unknown"),
+                    "device_name": self._device_label(device),
                     "device_id": device_id,
                     "error_summary": error_handler.get_error_summary(),
                     "recovery_suggestion": error_handler.get_recovery_suggestion(),
@@ -214,11 +219,7 @@ class VioletDiagnosticServiceHandlers:
 
         for device_id in device_ids:
             try:
-                coordinator = await self.manager.get_coordinator_for_device(device_id)
-                if not coordinator or not hasattr(coordinator, "device"):
-                    raise HomeAssistantError(f"Device {device_id} not found")
-
-                device = coordinator.device
+                device = await self._get_device_for_id(device_id)
                 api = getattr(device, "api", None)
                 if not api:
                     raise HomeAssistantError("API not available")
@@ -229,7 +230,7 @@ class VioletDiagnosticServiceHandlers:
                     readings = await api.get_readings()
                     latency_ms = (time.monotonic() - start_time) * 1000
                     result = {
-                        "device_name": getattr(device, "device_name", "Unknown"),
+                        "device_name": self._device_label(device),
                         "device_id": device_id,
                         "success": True,
                         "latency_ms": round(latency_ms, 2),
@@ -240,7 +241,7 @@ class VioletDiagnosticServiceHandlers:
                     }
                 except Exception as api_err:
                     result = {
-                        "device_name": getattr(device, "device_name", "Unknown"),
+                        "device_name": self._device_label(device),
                         "device_id": device_id,
                         "success": False,
                         "error": str(api_err),
@@ -268,9 +269,7 @@ class VioletDiagnosticServiceHandlers:
 
         for device_id in device_ids:
             try:
-                coordinator = await self.manager.get_coordinator_for_device(device_id)
-                if not coordinator or not hasattr(coordinator, "device"):
-                    raise HomeAssistantError(f"Device {device_id} not found")
+                await self._get_device_for_id(device_id)
 
                 error_handler = get_enhanced_error_handler()
                 error_handler.clear_history()
@@ -387,10 +386,6 @@ class VioletDiagnosticServiceHandlers:
             for index in range(0, len(components), chunk_size):
                 chunk = components[index : index + chunk_size]
                 log_entries.append(f"    {', '.join(chunk)}")
-
-            hassio_info = self.hass.data.get("hassio")
-            if hassio_info:
-                pass
 
         except Exception as err:
             log_entries.append(f"  Error retrieving system info: {err}")

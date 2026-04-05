@@ -22,20 +22,24 @@ from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers import device_registry as dr
 
+from .config_entry_helpers import extract_api_host, get_entry_value, with_non_default_port
 from .const import (
     CONF_ACTIVE_FEATURES,
-    CONF_API_URL,
     CONF_CONTROLLER_NAME,
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
+    CONF_ENABLE_DIAGNOSTIC_LOGGING,
     CONF_PASSWORD,
     CONF_POLLING_INTERVAL,
+    CONF_PORT,
     CONF_RETRY_ATTEMPTS,
     CONF_TIMEOUT_DURATION,
     CONF_USE_SSL,
     CONF_USERNAME,
     CONF_VERIFY_SSL,
     DEFAULT_CONTROLLER_NAME,
+    DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
+    DEFAULT_PORT,
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_RETRY_ATTEMPTS,
     DEFAULT_TIMEOUT_DURATION,
@@ -121,10 +125,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         raise HomeAssistantError("Invalid configuration")
 
     try:
-        host = config["ip_address"]
-        port = config["port"]
-        if port not in (80, 443):
-            host = f"{host}:{port}"
+        host = with_non_default_port(config["ip_address"], config["port"])
         # Create API instance
         api = VioletPoolAPI(
             host=host,
@@ -258,9 +259,10 @@ async def async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None
     settings_updated = False
 
     # 1. Update polling interval if changed
-    new_polling_interval = entry.options.get(
+    new_polling_interval = get_entry_value(
+        entry,
         CONF_POLLING_INTERVAL,
-        entry.data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL),
+        DEFAULT_POLLING_INTERVAL,
     )
 
     current_interval = coordinator.update_interval.total_seconds()
@@ -324,11 +326,10 @@ def _apply_logging_config(entry: ConfigEntry) -> None:
     Args:
         entry: The config entry.
     """
-    from .const import CONF_ENABLE_DIAGNOSTIC_LOGGING, DEFAULT_ENABLE_DIAGNOSTIC_LOGGING
-
-    enable_diagnostic = entry.options.get(
+    enable_diagnostic = get_entry_value(
+        entry,
         CONF_ENABLE_DIAGNOSTIC_LOGGING,
-        entry.data.get(CONF_ENABLE_DIAGNOSTIC_LOGGING, DEFAULT_ENABLE_DIAGNOSTIC_LOGGING),
+        DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
     )
 
     logger = logging.getLogger(__package__)
@@ -365,17 +366,13 @@ def _extract_config(entry: ConfigEntry) -> dict[str, Any]:
         HomeAssistantError: If the IP address (host) is missing from the configuration.
     """
     # Extract IP address with fallbacks for legacy keys
-    ip_address = (
-        entry.data.get(CONF_API_URL)
-        or entry.data.get("host")
-        or entry.data.get("base_ip")
-    )
-    from .const import CONF_PORT, DEFAULT_PORT
-    port = entry.data.get(CONF_PORT, DEFAULT_PORT)
-
-    if not ip_address:
+    try:
+        ip_address = extract_api_host(entry.data)
+    except ValueError as err:
         _LOGGER.error("Required IP address is missing from the configuration.")
-        raise HomeAssistantError("No IP address found in config entry")
+        raise HomeAssistantError(str(err)) from err
+
+    port = entry.data.get(CONF_PORT, DEFAULT_PORT)
 
     # Build the configuration dictionary with defaults
     return {
@@ -390,20 +387,25 @@ def _extract_config(entry: ConfigEntry) -> dict[str, Any]:
         "controller_name": entry.data.get(
             CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME
         ),
-        "polling_interval": entry.options.get(
+        "polling_interval": get_entry_value(
+            entry,
             CONF_POLLING_INTERVAL,
-            entry.data.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL),
+            DEFAULT_POLLING_INTERVAL,
         ),
-        "timeout_duration": entry.options.get(
+        "timeout_duration": get_entry_value(
+            entry,
             CONF_TIMEOUT_DURATION,
-            entry.data.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION),
+            DEFAULT_TIMEOUT_DURATION,
         ),
-        "retry_attempts": entry.options.get(
+        "retry_attempts": get_entry_value(
+            entry,
             CONF_RETRY_ATTEMPTS,
-            entry.data.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS),
+            DEFAULT_RETRY_ATTEMPTS,
         ),
-        "active_features": entry.options.get(
-            CONF_ACTIVE_FEATURES, entry.data.get(CONF_ACTIVE_FEATURES, [])
+        "active_features": get_entry_value(
+            entry,
+            CONF_ACTIVE_FEATURES,
+            [],
         ),
     }
 
@@ -517,4 +519,3 @@ def async_zeroconf_get_service_info(
     # Note: No return value needed. Home Assistant will automatically
     # show discovered devices in the UI and start the config flow when
     # the user clicks "Configure".
-
