@@ -1,6 +1,5 @@
 """Tests for type hints and mypy compliance."""
 import pytest
-from custom_components.violet_pool_controller.climate import VioletClimateEntity
 from custom_components.violet_pool_controller.cover import VioletCover
 from violet_poolcontroller_api.const_devices import COVER_STATE_MAP
 
@@ -23,7 +22,6 @@ class TestTypeHints:
     @pytest.mark.asyncio
     async def test_cover_properties_return_bool(self):
         """Test that cover properties return boolean values."""
-        from unittest.mock import MagicMock
         from pytest_homeassistant_custom_component.common import MockConfigEntry
 
         # Mock coordinator

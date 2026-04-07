@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-import asyncio
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
-from homeassistant import config_entries
 from homeassistant.components.zeroconf import AsyncServiceInfo
 from homeassistant.core import HomeAssistant
 

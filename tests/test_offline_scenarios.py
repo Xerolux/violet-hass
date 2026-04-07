@@ -2,7 +2,6 @@
 import pytest
 import asyncio
 from unittest.mock import Mock, AsyncMock, patch
-from datetime import datetime
 
 from homeassistant.helpers.update_coordinator import UpdateFailed
 
@@ -311,7 +310,6 @@ class TestOfflineErrorHandling:
         """Test that errors are properly classified."""
         from custom_components.violet_pool_controller.error_handler import (
             get_enhanced_error_handler,
-            ErrorType,
         )
 
         handler = get_enhanced_error_handler()

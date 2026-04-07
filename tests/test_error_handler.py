@@ -1,7 +1,6 @@
 """Tests for enhanced error handler."""
 import pytest
 import asyncio
-from unittest.mock import Mock, patch
 
 from custom_components.violet_pool_controller.error_handler import (
     ErrorType,
