@@ -1,6 +1,6 @@
 """Tests for platform error handling."""
 import pytest
-from unittest.mock import Mock, AsyncMock, MagicMock
+from unittest.mock import Mock
 
 from homeassistant.components.switch import SwitchEntityDescription
 from homeassistant.components.number import NumberEntityDescription
@@ -223,8 +223,7 @@ class TestNumberErrorHandling:
         number = VioletNumber(mock_coordinator_error, config_entry, desc, _setpoint_config)
 
         # Should handle gracefully
-        value = number.native_value
-        # May be None or 0 depending on implementation
+        assert number.native_value is None or isinstance(number.native_value, (int, float))
 
 
 class TestSelectErrorHandling:
@@ -268,8 +267,7 @@ class TestSelectErrorHandling:
         )
 
         # Should handle gracefully
-        current = select.current_option
-        # May show invalid value or fallback
+        assert select.current_option is None or select.current_option in select.options
 
 
 class TestCoordinatorErrors:

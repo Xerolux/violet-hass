@@ -1,5 +1,4 @@
 """Tests for Violet Pool Controller Device."""
-import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest

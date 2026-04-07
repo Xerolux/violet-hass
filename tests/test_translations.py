@@ -486,9 +486,6 @@ class TestBilingualSupport:
 
     def test_disclaimer_bilingual(self, strings_data):
         """Test that disclaimer is bilingual."""
-        disclaimer_step = strings_data["config"]["step"].get("disclaimer", {})
-        description = disclaimer_step.get("description", "")
-
         # Test removed because translation file format and text has changed to standard i18n placeholders.
         pass
 

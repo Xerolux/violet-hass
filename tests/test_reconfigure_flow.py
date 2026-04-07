@@ -5,11 +5,9 @@ from __future__ import annotations
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from homeassistant import config_entries
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
-import voluptuous as vol
 
 
 from custom_components.violet_pool_controller.const import CONF_API_URL, CONF_USERNAME, CONF_PASSWORD, CONF_USE_SSL
@@ -105,7 +103,6 @@ class TestReconfigureFlow:
             # Verify entry was updated
             hass.config_entries.async_update_entry.assert_called_once()
             call_args = hass.config_entries.async_update_entry.call_args
-            updated_entry = call_args[0][0]
             updated_data = call_args[1]["data"]
 
             # Verify new values
@@ -319,7 +316,7 @@ class TestReconfigureFlow:
                 "retry_attempts": 3,
             }
 
-            result_http = await config_flow.async_step_reconfigure(
+            await config_flow.async_step_reconfigure(
                 user_input=user_input_http
             )
 
@@ -338,7 +335,7 @@ class TestReconfigureFlow:
                 "retry_attempts": 3,
             }
 
-            result_https = await config_flow.async_step_reconfigure(
+            await config_flow.async_step_reconfigure(
                 user_input=user_input_https
             )
 

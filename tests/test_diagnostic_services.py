@@ -1,7 +1,6 @@
 """Tests for diagnostic services."""
 import pytest
-from unittest.mock import Mock, AsyncMock, patch
-from datetime import datetime
+from unittest.mock import Mock, AsyncMock
 
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError

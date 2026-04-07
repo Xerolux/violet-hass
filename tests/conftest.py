@@ -5,7 +5,6 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 import threading
-from unittest.mock import patch, MagicMock
 
 # CRITICAL: Patch deprecated timezone BEFORE any imports
 # pytest-homeassistant-custom-component uses 'US/Pacific' which is deprecated

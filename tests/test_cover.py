@@ -2,9 +2,6 @@
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.violet_pool_controller import (
-    async_setup_entry,
-)
 from custom_components.violet_pool_controller.const import (
     CONF_ACTIVE_FEATURES,
     CONF_API_URL,
