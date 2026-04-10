@@ -14,15 +14,17 @@ on:
       tag_name:
         description: |
           Tag name for the release (Semantic Versioning 2.0.0)
-          Stable: v0.2.0, v1.0.0
-          Pre-releases: v0.3.0-alpha.1, v0.3.0-beta.1, v1.0.0-rc.1
+          Stable: v1.0.0, v1.0.5
+          Pre-releases: v1.0.0-alpha.1, v1.0.5-beta.1
+          Enter "auto" to auto-increment from latest stable release
         required: true
         type: string
       release_type:
-        description: 'Release type'
+        description: 'Release type (latest = stable with auto version check)'
         required: true
         type: choice
         options:
+          - latest
           - stable
           - beta
           - alpha
@@ -30,6 +32,11 @@ on:
         default: 'stable'
       make_latest:
         description: 'Mark as latest release'
+        required: false
+        type: boolean
+        default: true
+      auto_increment:
+        description: 'Auto-increment version (patch version +1)'
         required: false
         type: boolean
         default: true
@@ -71,6 +78,32 @@ jobs:
         id: version
         run: |
           TAG="${{ github.event.release.tag_name || inputs.tag_name || github.ref_name }}"
+          
+          # Auto-increment logic
+          if [ "${{ inputs.auto_increment }}" = "true" ] && [ "$TAG" = "auto" ]; then
+            echo "Auto-incrementing version..."
+            
+            # Get latest tag
+            LATEST_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+            
+            if [ -z "$LATEST_TAG" ]; then
+              # No previous stable release, start with v1.0.0
+              TAG="v1.0.0"
+              echo "No previous release found, starting with v1.0.0"
+            else
+              # Increment patch version
+              LATEST_VERSION="${LATEST_TAG#v}"
+              MAJOR=$(echo "$LATEST_VERSION" | cut -d. -f1)
+              MINOR=$(echo "$LATEST_VERSION" | cut -d. -f2)
+              PATCH=$(echo "$LATEST_VERSION" | cut -d. -f3)
+              
+              # Increment patch
+              NEW_PATCH=$((PATCH + 1))
+              TAG="v${MAJOR}.${MINOR}.${NEW_PATCH}"
+              echo "Previous: $LATEST_TAG -> New: $TAG"
+            fi
+          fi
+          
           VERSION="${TAG#v}"
 
           # Auto-detect release type from tag
@@ -91,6 +124,14 @@ jobs:
             IS_PRERELEASE=false
             IS_DRAFT=false
           fi
+          
+          # Handle "latest" release type
+          if [ "${{ inputs.release_type }}" = "latest" ]; then
+            RELEASE_TYPE="stable"
+            IS_PRERELEASE=false
+            IS_DRAFT=false
+            echo "🔔 'latest' selected - treating as stable release"
+          fi
 
           # Override with manual input if provided
           if [ "${{ inputs.release_type }}" = "draft" ]; then
@@ -103,7 +144,7 @@ jobs:
           elif [ "${{ inputs.release_type }}" = "beta" ]; then
             IS_PRERELEASE=true
             RELEASE_TYPE="beta"
-          elif [ "${{ inputs.release_type }}" = "stable" ]; then
+          elif [ "${{ inputs.release_type }}" = "latest" ] || [ "${{ inputs.release_type }}" = "stable" ]; then
             IS_PRERELEASE=false
             RELEASE_TYPE="stable"
           fi
@@ -121,6 +162,7 @@ jobs:
           echo "  Type: $RELEASE_TYPE"
           echo "  Pre-release: $IS_PRERELEASE"
           echo "  Draft: $IS_DRAFT"
+          echo "  Auto-increment: ${{ inputs.auto_increment }}"
 
       - name: Validate tag format
         run: |
