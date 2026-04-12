@@ -12,7 +12,7 @@
 
 - refactor: reduce poll history memory footprint (cc339e8)
 - Update HACS minimum HA version to 2026.3.0 (6e3a519)
-- Update violet-poolController-api to 0.0.8
+- Update violet-poolController-api to 0.0.6
 - Update violet-poolController-api to 0.0.5 (334d9ca)
 - chore(ci): add tox matrix and refactor diagnostics/config helpers (83d15c7)
 - fix: align 1.0.5 version metadata and update test env requirements (00d87a6)

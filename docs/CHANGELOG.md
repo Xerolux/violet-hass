@@ -12,7 +12,7 @@ All notable changes to this project will be documented in this file.
 ### ✨ New Features | Neue Funktionen
 
 - chore(ci): add tox matrix and refactor diagnostics/config helpers (83d15c7)
-- Add Dosing Standalone configuration and API v0.0.8 support
+- Add Dosing Standalone configuration and API v0.0.6 support
 
 ### 🚀 Improvements | Verbesserungen
 
