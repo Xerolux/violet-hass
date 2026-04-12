@@ -27,7 +27,7 @@
 | Kategorie | Was ist enthalten |
 |-----------|-------------------|
 | **🌡️ Klimasteuerung** | Heizung & Solar mit Thermostat und Zeitplanung |
-| **🧪 Chemie-Dosierung** | Automatisches pH & Chlor mit Sicherheitsgrenzen |
+| **🧪 Chemie-Dosierung** | Automatisches pH & Chlor mit Sicherheitsgrenzen (Standalone Dosierung möglich) |
 | **💧 Filter & Pumpe** | 3-Stufen-Pumpe, automatische Rückspülung |
 | **🏊 Abdeckung** | Wetterabhängige Cover-Automatisierung |
 | **💡 LED / DMX** | 8 steuerbare Szenen, RGB-Beleuchtung |

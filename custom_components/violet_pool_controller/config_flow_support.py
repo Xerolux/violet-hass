@@ -18,6 +18,7 @@ from .const import (
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
     CONF_DISINFECTION_METHOD,
+    CONF_DOSING_STANDALONE,
     CONF_ENABLE_DIAGNOSTIC_LOGGING,
     CONF_FORCE_UPDATE,
     CONF_PASSWORD,
@@ -32,6 +33,7 @@ from .const import (
     CONF_USERNAME,
     DEFAULT_CONTROLLER_NAME,
     DEFAULT_DISINFECTION_METHOD,
+    DEFAULT_DOSING_STANDALONE,
     DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
     DEFAULT_FORCE_UPDATE,
     DEFAULT_POLLING_INTERVAL,
@@ -475,6 +477,12 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                     CONF_FORCE_UPDATE,
                     default=self.current_config.get(
                         CONF_FORCE_UPDATE, DEFAULT_FORCE_UPDATE
+                    ),
+                ): selector.BooleanSelector(selector.BooleanSelectorConfig()),
+                vol.Optional(
+                    CONF_DOSING_STANDALONE,
+                    default=self.current_config.get(
+                        CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE
                     ),
                 ): selector.BooleanSelector(selector.BooleanSelectorConfig()),
             }

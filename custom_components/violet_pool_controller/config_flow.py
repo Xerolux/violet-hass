@@ -387,6 +387,9 @@ class ConfigFlow(
             CONF_RETRY_ATTEMPTS: DEFAULT_RETRY_ATTEMPTS,
         }
 
+        from .const import CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE
+        self._config_data[CONF_DOSING_STANDALONE] = DEFAULT_DOSING_STANDALONE
+
         self._title_placeholders = {
             "name": name,
             "host": f"{host}:{port}" if port not in (80, 443) else host,
@@ -454,6 +457,10 @@ class ConfigFlow(
                 )
                 updated_data[CONF_RETRY_ATTEMPTS] = int(
                     user_input.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)
+                )
+                from .const import CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE
+                updated_data[CONF_DOSING_STANDALONE] = user_input.get(
+                    CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE
                 )
 
                 self._config_data = updated_data
@@ -541,6 +548,12 @@ class ConfigFlow(
                             mode=selector.NumberSelectorMode.BOX,
                         )
                     ),
+                    vol.Optional(
+                        "dosing_standalone",
+                        default=reconfigure_entry.data.get(
+                            "dosing_standalone", False
+                        ),
+                    ): selector.BooleanSelector(selector.BooleanSelectorConfig()),
                 }
             ),
             errors=errors,
@@ -562,7 +575,7 @@ class ConfigFlow(
 
     def _build_config_data(self, ui: dict) -> dict:
         """Build the configuration data dictionary."""
-        return {
+        config_data = {
             CONF_API_URL: ui[CONF_API_URL],
             CONF_PORT: int(ui.get(CONF_PORT, DEFAULT_PORT)),
             CONF_USE_SSL: ui.get(CONF_USE_SSL, DEFAULT_USE_SSL),
@@ -581,6 +594,9 @@ class ConfigFlow(
                 ui.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)
             ),
         }
+        from .const import CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE
+        config_data[CONF_DOSING_STANDALONE] = ui.get(CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE)
+        return config_data
 
     async def _test_connection(self) -> bool:
         """Test the connection to the controller."""
@@ -589,6 +605,7 @@ class ConfigFlow(
             port = self._config_data.get(CONF_PORT, DEFAULT_PORT)
             if port not in (80, 443):
                 host = f"{host}:{port}"
+            from .const import CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE
             api = VioletPoolAPI(
                 host=host,
                 session=aiohttp_client.async_get_clientsession(self.hass),
@@ -598,6 +615,7 @@ class ConfigFlow(
                 verify_ssl=self._config_data.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL),
                 timeout=self._config_data[CONF_TIMEOUT_DURATION],
                 max_retries=self._config_data[CONF_RETRY_ATTEMPTS],
+                dosing_standalone=self._config_data.get(CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE),
             )
             await api.get_readings()
             return True

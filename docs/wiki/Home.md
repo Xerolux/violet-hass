@@ -148,6 +148,7 @@ Home Assistant
 |---------|---------------------|--------------|
 | Pumpensteuerung | Immer | 3-Stufen-Pumpe mit Automatik |
 | Heizung | Optional | Thermostat mit Solltemperatur |
+| Standalone Dosierung | Optional | Isoliert Dosier-Features, blockiert Haupt-Geräte |
 | Solar | Optional | Solarkollektor + PV-Überschuss |
 | pH-Dosierung | Optional | pH- und pH+ Dosierpumpen |
 | Chlor-Dosierung | Optional | Chlor-Dosierpumpe |
