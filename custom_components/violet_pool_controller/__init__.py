@@ -127,6 +127,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     try:
         host = with_non_default_port(config["ip_address"], config["port"])
         # Create API instance
+        from .const import CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE
+        dosing_standalone = config.get(CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE)
+
         api = VioletPoolAPI(
             host=host,
             session=aiohttp_client.async_get_clientsession(hass),
@@ -136,6 +139,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             verify_ssl=config["verify_ssl"],
             timeout=config["timeout_duration"],
             max_retries=config["retry_attempts"],
+            dosing_standalone=dosing_standalone,
         )
 
         # Set up device and coordinator

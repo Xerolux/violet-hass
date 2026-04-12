@@ -36,7 +36,8 @@
                     "device_id": "设备ID",
                     "polling_interval": "轮询间隔（秒）",
                     "timeout_duration": "超时（秒）",
-                    "retry_attempts": "重试尝试"
+                    "retry_attempts": "重试尝试",
+                    "dosing_standalone": "Standalone Dosing"
                 },
                 "data_description": {
                     "host": "控制器 IP 或 DNS 名称",
@@ -49,7 +50,8 @@
                     "device_id": "如果存在多个控制器，则唯一 ID",
                     "polling_interval": "数据轮询间隔（10-3600s）",
                     "timeout_duration": "每个请求的最长等待时间",
-                    "retry_attempts": "重试次数"
+                    "retry_attempts": "重试次数",
+                    "dosing_standalone": "DE: Violet Pool Controller steuert nur Dosierung · EN: Violet Pool Controller controls dosing only"
                 }
             },
             "pool_setup": {
@@ -192,7 +194,13 @@
             },
             "settings": {
                 "title": "常规设置",
-                "description": "调整技术参数\n\n轮询间隔：获取数据的频率\n超时：响应的最大等待时间\n重试次数：重试次数\n\n默认值适用于大多数设置！"
+                "description": "调整技术参数\n\n轮询间隔：获取数据的频率\n超时：响应的最大等待时间\n重试次数：重试次数\n\n默认值适用于大多数设置！",
+                "data": {
+                    "dosing_standalone": "Standalone Dosing"
+                },
+                "data_description": {
+                    "dosing_standalone": "DE: Violet Pool Controller steuert nur Dosierung · EN: Violet Pool Controller controls dosing only"
+                }
             }
         }
     },

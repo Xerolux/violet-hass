@@ -36,7 +36,8 @@
                     "device_id": "ID del dispositivo",
                     "polling_interval": "Intervalo de sondeo (segundos)",
                     "timeout_duration": "Tiempo de espera (segundos)",
-                    "retry_attempts": "Reintentar intentos"
+                    "retry_attempts": "Reintentar intentos",
+                    "dosing_standalone": "Standalone Dosing"
                 },
                 "data_description": {
                     "host": "IP del controlador o nombre DNS",
@@ -49,7 +50,8 @@
                     "device_id": "ID único si existen varios controladores",
                     "polling_interval": "Intervalo de sondeo de datos (10-3600 s)",
                     "timeout_duration": "Tiempo máximo de espera por solicitud",
-                    "retry_attempts": "Número de reintentos"
+                    "retry_attempts": "Número de reintentos",
+                    "dosing_standalone": "DE: Violet Pool Controller steuert nur Dosierung · EN: Violet Pool Controller controls dosing only"
                 }
             },
             "pool_setup": {
@@ -192,7 +194,13 @@
             },
             "settings": {
                 "title": "Configuraciones generales",
-                "description": "Ajustar los parámetros técnicos.\n\nIntervalo de sondeo: con qué frecuencia se obtienen los datos\nTimeout: tiempo máximo de espera para respuestas\nReintentos: número de reintentos\n\n¡Los valores predeterminados funcionan para la mayoría de las configuraciones!"
+                "description": "Ajustar los parámetros técnicos.\n\nIntervalo de sondeo: con qué frecuencia se obtienen los datos\nTimeout: tiempo máximo de espera para respuestas\nReintentos: número de reintentos\n\n¡Los valores predeterminados funcionan para la mayoría de las configuraciones!",
+                "data": {
+                    "dosing_standalone": "Standalone Dosing"
+                },
+                "data_description": {
+                    "dosing_standalone": "DE: Violet Pool Controller steuert nur Dosierung · EN: Violet Pool Controller controls dosing only"
+                }
             }
         }
     },

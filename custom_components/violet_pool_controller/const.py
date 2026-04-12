@@ -60,6 +60,7 @@ CONF_POOL_SIZE = "pool_size"
 CONF_POOL_TYPE = "pool_type"
 CONF_DISINFECTION_METHOD = "disinfection_method"
 CONF_ENABLE_DIAGNOSTIC_LOGGING = "enable_diagnostic_logging"
+CONF_DOSING_STANDALONE = "dosing_standalone"
 
 # Default Values
 DEFAULT_POLLING_INTERVAL = 10
@@ -75,6 +76,7 @@ DEFAULT_POOL_SIZE = 50
 DEFAULT_POOL_TYPE = "outdoor"
 DEFAULT_DISINFECTION_METHOD = "chlorine"
 DEFAULT_ENABLE_DIAGNOSTIC_LOGGING = False
+DEFAULT_DOSING_STANDALONE = False
 
 # =============================================================================
 # POOL CONFIGURATION

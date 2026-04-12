@@ -225,6 +225,12 @@ class VioletPoolControllerDevice:
             # Create new API instance with updated configuration
             # IMPORTANT: Do NOT close the session - it's managed by Home Assistant!
             # We just create a new API object that uses the same session
+            from .const import CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE
+            new_dosing_standalone = entry_options.get(
+                CONF_DOSING_STANDALONE,
+                entry_data.get(CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE)
+            )
+
             new_api = VioletPoolAPI(
                 host=new_api_url,
                 session=self._session,
@@ -234,6 +240,7 @@ class VioletPoolControllerDevice:
                 verify_ssl=new_verify_ssl,
                 timeout=new_timeout,
                 max_retries=int(new_retries),
+                dosing_standalone=new_dosing_standalone,
             )
 
             # Replace the old API with the new one

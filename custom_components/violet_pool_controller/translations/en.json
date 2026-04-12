@@ -36,7 +36,8 @@
                     "device_id": "Device ID",
                     "polling_interval": "Polling Interval (seconds)",
                     "timeout_duration": "Timeout (seconds)",
-                    "retry_attempts": "Retry Attempts"
+                    "retry_attempts": "Retry Attempts",
+                    "dosing_standalone": "Standalone Dosing"
                 },
                 "data_description": {
                     "host": "Controller IP or DNS name",
@@ -49,7 +50,8 @@
                     "device_id": "Unique ID if multiple controllers exist",
                     "polling_interval": "Data polling interval (10-3600s)",
                     "timeout_duration": "Maximum wait time per request",
-                    "retry_attempts": "Number of retry attempts"
+                    "retry_attempts": "Number of retry attempts",
+                    "dosing_standalone": "DE: Violet Pool Controller steuert nur Dosierung · EN: Violet Pool Controller controls dosing only"
                 }
             },
             "pool_setup": {
@@ -192,7 +194,13 @@
             },
             "settings": {
                 "title": "General Settings",
-                "description": "Adjust the technical parameters\n\nPolling Interval: How often data is fetched\nTimeout: Maximum wait time for responses\nRetries: Number of retry attempts\n\nDefault values work for most setups!"
+                "description": "Adjust the technical parameters\n\nPolling Interval: How often data is fetched\nTimeout: Maximum wait time for responses\nRetries: Number of retry attempts\n\nDefault values work for most setups!",
+                "data": {
+                    "dosing_standalone": "Standalone Dosing"
+                },
+                "data_description": {
+                    "dosing_standalone": "DE: Violet Pool Controller steuert nur Dosierung · EN: Violet Pool Controller controls dosing only"
+                }
             }
         }
     },
