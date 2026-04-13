@@ -1,9 +1,9 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
-## [1.0.5-alpha.2] - 2026-04-13
+## [1.0.5-alpha.3] - 2026-04-13
 
-## v1.0.5-alpha.2 – Violet Pool Controller
+## v1.0.5-alpha.3 – Violet Pool Controller
 
 🔴 **ALPHA RELEASE** - Experimental features, use with caution!
 
@@ -77,7 +77,7 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-📋 [Full changelog: v1.0.4...v1.0.5-alpha.2](https://github.com/Xerolux/violet-hass/compare/v1.0.4...v1.0.5-alpha.2)
+📋 [Full changelog: v1.0.4...v1.0.5-alpha.3](https://github.com/Xerolux/violet-hass/compare/v1.0.4...v1.0.5-alpha.3)
 
 ---
 

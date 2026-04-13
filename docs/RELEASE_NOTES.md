@@ -1,4 +1,4 @@
-## v1.0.5-alpha.2 – Violet Pool Controller
+## v1.0.5-alpha.3 – Violet Pool Controller
 
 🔴 **ALPHA RELEASE** - Experimental features, use with caution!
 
@@ -72,7 +72,7 @@
 
 ---
 
-📋 [Full changelog: v1.0.4...v1.0.5-alpha.2](https://github.com/Xerolux/violet-hass/compare/v1.0.4...v1.0.5-alpha.2)
+📋 [Full changelog: v1.0.4...v1.0.5-alpha.3](https://github.com/Xerolux/violet-hass/compare/v1.0.4...v1.0.5-alpha.3)
 
 ---
 
