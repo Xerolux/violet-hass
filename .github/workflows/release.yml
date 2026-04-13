@@ -437,7 +437,7 @@ jobs:
           echo "✅ SHA256: $(cat violet_pool_controller.zip.sha256)"
 
       - name: Upload ZIP to release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             violet_pool_controller.zip
