@@ -14,6 +14,7 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- 📝 Release v1.0.5-alpha.2 - Update changelog and version files (e8d3df3)
 - Update manifest.json (020ff97)
 - Update violet-poolController-api to version 0.0.8 (0ef62ee)
 - update-api-dosing-standalone (df88f52)
@@ -106,4 +107,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-04-13 04:20:01 UTC_
+_Generated automatically by GitHub Actions on 2026-04-13 18:15:56 UTC_
