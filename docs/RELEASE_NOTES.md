@@ -1,4 +1,4 @@
-## v1.0.5-alpha.1 – Violet Pool Controller
+## v1.0.5-alpha.2 – Violet Pool Controller
 
 🔴 **ALPHA RELEASE** - Experimental features, use with caution!
 
@@ -6,13 +6,22 @@
 
 ### ✨ New Features | Neue Funktionen
 
+- feat: Update API to 0.0.6 and add standalone dosing config (c4199ed)
+- feat: Update API to 0.0.8 and add standalone dosing config (4cb47ce)
+- Add files via upload (ee3a816)
+- feat: Add latest release option and auto-increment version (f191f68)
 - chore(ci): add tox matrix and refactor diagnostics/config helpers (83d15c7)
 
 ### 🚀 Improvements | Verbesserungen
 
+- Update manifest.json (020ff97)
+- Update violet-poolController-api to version 0.0.8 (0ef62ee)
+- update-api-dosing-standalone (df88f52)
+- feat: Update API to 0.0.6 and add standalone dosing config (c4199ed)
+- feat: Update API to 0.0.8 and add standalone dosing config (4cb47ce)
+- 📝 Release v1.0.5-alpha.1 - Update changelog and version files (82aa7c3)
 - refactor: reduce poll history memory footprint (cc339e8)
 - Update HACS minimum HA version to 2026.3.0 (6e3a519)
-- Update violet-poolController-api to 0.0.6
 - Update violet-poolController-api to 0.0.5 (334d9ca)
 - chore(ci): add tox matrix and refactor diagnostics/config helpers (83d15c7)
 - fix: align 1.0.5 version metadata and update test env requirements (00d87a6)
@@ -25,6 +34,8 @@
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- chore: fix ruff linting errors and warnings in test suite (6cc7439)
+- chore: fix ruff linting errors and warnings in test suite (af6a96e)
 - fix(ci): stabilize config flow tests for zeroconf and invalid host (bd3f547)
 - fix-bugs (1469f03)
 - fix: two more bugs - PUMP_RPM_0 missing and wrong float fallback (cabf378)
@@ -37,6 +48,9 @@
 
 ### 🧪 Tests
 
+- test-linter-errors (301aedc)
+- chore: fix ruff linting errors and warnings in test suite (6cc7439)
+- chore: fix ruff linting errors and warnings in test suite (af6a96e)
 - test: cover config flow IP literal helper (4063b29)
 - fix(ci): stabilize config flow tests for zeroconf and invalid host (bd3f547)
 - docs: align README and testing docs with current requirements (2d280e7)
@@ -58,7 +72,7 @@
 
 ---
 
-📋 [Full changelog: v1.0.4...v1.0.5-alpha.1](https://github.com/Xerolux/violet-hass/compare/v1.0.4...v1.0.5-alpha.1)
+📋 [Full changelog: v1.0.4...v1.0.5-alpha.2](https://github.com/Xerolux/violet-hass/compare/v1.0.4...v1.0.5-alpha.2)
 
 ---
 
@@ -92,4 +106,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-04-05 19:00:19 UTC_
+_Generated automatically by GitHub Actions on 2026-04-13 04:20:01 UTC_
