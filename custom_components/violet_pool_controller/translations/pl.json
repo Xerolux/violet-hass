@@ -1,525 +1,582 @@
 {
-    "config": {
-        "step": {
-            "user": {
-                "title": "Asystent konfiguracji basenu Violet",
-                "description": "Wybierz, czy chcesz od razu uruchomić kreator konfiguracji, czy najpierw otworzyć szczegółową dokumentację.\n\nDokumentacja: [Przewodnik konfiguracji]({docs_en})\n\nWsparcie i opinie: {issues_url}",
-                "data": {
-                    "action": "Wybierz akcję"
-                },
-                "data_description": {
-                    "action": "Otwórz dokumentację lub bezpośrednio rozpocznij instalację."
-                }
-            },
-            "disclaimer": {
-                "title": "Informacje dotyczące bezpieczeństwa i odpowiedzialności",
-                "description": "**Ostrzeżenie dotyczące bezpieczeństwa**\n\nIntegracja ta zapewnia zdalne sterowanie pompami, grzejnikami, oświetleniem i systemami dozowania. Nieprawidłowa konfiguracja może spowodować uszkodzenie sprzętu, obrażenia ciała lub przedawkowanie środków chemicznych. Upewnij się, że rozumiesz wszystkie funkcje bezpieczeństwa i zapewnij dostępność możliwości ręcznego sterowania.\n\nZanim będziesz kontynuować, zapoznaj się z [Podręcznikiem konfiguracji]({docs_en}).",
-                "data": {
-                    "agreement": "Akceptuję wszelkie ryzyko i przeczytałem pełne zastrzeżenie."
-                }
-            },
-            "help": {
-                "title": "Pomoc i dokumentacja",
-                "description": "Przeczytaj [Przewodnik konfiguracji]({docs_en}), aby uzyskać instrukcje krok po kroku, uwagi dotyczące bezpieczeństwa i objaśnienia funkcji.\n\nPotrzebujesz pomocy lub chcesz podzielić się opinią? Otwórz problem pod adresem {issues_url}.\n\nRepozytorium projektu: {github_url}\n\nKliknij **Dalej**, aby powrócić do menu głównego."
-            },
-            "connection": {
-                "title": "Połączenie kontrolera",
-                "description": "Podłącz kontroler basenu Violet do Home Assistant. Upewnij się, że kontroler korzysta z tej samej sieci i że interfejs API jest dostępny.\n\nDodatkowa dokumentacja: [Podręcznik konfiguracji]({docs_en})",
-                "data": {
-                    "host": "Adres IP lub nazwa hosta",
-                    "port": "Port TCP",
-                    "username": "Nazwa użytkownika (opcjonalnie)",
-                    "password": "Hasło (opcjonalnie)",
-                    "use_ssl": "Użyj protokołu SSL/HTTPS",
-                    "device_name": "Nazwa urządzenia",
-                    "controller_name": "Nazwa kontrolera",
-                    "device_id": "Identyfikator urządzenia",
-                    "polling_interval": "Interwał odpytywania (sekundy)",
-                    "timeout_duration": "Limit czasu (sekundy)",
-                    "retry_attempts": "Ponów próby"
-                },
-                "data_description": {
-                    "host": "IP kontrolera lub nazwa DNS",
-                    "port": "Port TCP (pozostaw 80, chyba że używasz niestandardowego serwera proxy)",
-                    "username": "Opcjonalna nazwa użytkownika, jeśli włączone jest uwierzytelnianie",
-                    "password": "Hasło, jeśli jest wymagane",
-                    "use_ssl": "Włącz protokół HTTPS, jeśli jest obsługiwany",
-                    "device_name": "Przyjazna nazwa wyświetlana w Home Assistant",
-                    "controller_name": "Nazwa wyświetlana kontrolera",
-                    "device_id": "Unikalny identyfikator, jeśli istnieje wiele kontrolerów",
-                    "polling_interval": "Interwał odpytywania danych (10–3600 s)",
-                    "timeout_duration": "Maksymalny czas oczekiwania na żądanie",
-                    "retry_attempts": "Liczba ponownych prób"
-                }
-            },
-            "pool_setup": {
-                "title": "Konfiguracja puli",
-                "description": "Podaj wielkość, rodzaj i metodę dezynfekcji basenu. Wartości te są wykorzystywane do optymalizacji czasu pracy, zarządzania energią i obliczeń dozowania.",
-                "data": {
-                    "pool_size": "Rozmiar basenu (m³)",
-                    "pool_type": "Typ basenu",
-                    "disinfection_method": "Metoda dezynfekcji"
-                },
-                "data_description": {
-                    "pool_size": "Objętość wody w metrach sześciennych",
-                    "pool_type": "Wpływa na ogrzewanie i zachowanie słońca",
-                    "disinfection_method": "Podstawowa metoda uzdatniania wody"
-                }
-            },
-            "feature_selection": {
-                "title": "Włącz inteligentne funkcje",
-                "description": "Włącz tylko te funkcje, z których faktycznie korzysta Twoja instalacja puli. Dzięki temu zużycie zasobów jest niskie, a interfejs użytkownika uporządkowany. Możesz dostosować wybór w dowolnym momencie w opcjach.",
-                "data": {
-                    "enable_heating": "Sterowanie ogrzewaniem",
-                    "enable_solar": "Absorber słoneczny",
-                    "enable_ph_control": "Automatyzacja pH",
-                    "enable_chlorine_control": "Zarządzanie chlorem",
-                    "enable_cover_control": "Kontrola okładki",
-                    "enable_backwash": "Automatyka płukania wstecznego",
-                    "enable_pv_surplus": "Nadwyżka fotowoltaiczna",
-                    "enable_filter_control": "Pompa filtrująca",
-                    "enable_water_level": "Monitor poziomu wody",
-                    "enable_water_refill": "Automatyczne uzupełnianie wody",
-                    "enable_led_lighting": "Oświetlenie LED",
-                    "enable_digital_inputs": "Wejścia cyfrowe",
-                    "enable_extension_outputs": "Moduły rozszerzeń"
-                },
-                "data_description": {
-                    "enable_heating": "Zautomatyzowane sterowanie ogrzewaniem",
-                    "enable_solar": "Inteligentne sterowanie absorberem słonecznym",
-                    "enable_ph_control": "Automatyczna kontrola pH",
-                    "enable_chlorine_control": "Zarządzanie chlorem/redoksem",
-                    "enable_cover_control": "Kontroluj pokrywę basenu",
-                    "enable_backwash": "Automatyczne cykle płukania wstecznego",
-                    "enable_pv_surplus": "Wykorzystaj nadwyżki fotowoltaiczne mądrze",
-                    "enable_filter_control": "Steruj pompą filtrującą na żądanie",
-                    "enable_water_level": "Monitoruj poziom wody",
-                    "enable_water_refill": "Automatyczne uzupełnianie wody",
-                    "enable_led_lighting": "Sceny świetlne LED",
-                    "enable_digital_inputs": "Zintegruj zewnętrzne czujniki i przełączniki",
-                    "enable_extension_outputs": "Użyj modułów rozszerzeń"
-                }
-            },
-            "sensor_selection": {
-                "title": "Wybierz Czujniki",
-                "description": "Wybierz, które czujniki chcesz widzieć w Home Assistant. Włącz lub wyłącz poszczególne czujniki, aby utrzymać czystość i koncentrację na desce rozdzielczej.\n\nDomyślnie zaznaczone są wszystkie dostępne czujniki. Możesz dostosować ten wybór w dowolnym momencie w opcjach."
-            },
-            "reauth_confirm": {
-                "title": "Ponownie uwierzytelnij kontrolera",
-                "description": "Należy zaktualizować dane uwierzytelniające kontrolera. Proszę wprowadzić nową nazwę użytkownika i hasło.\n\nKontroler: **{controller_name}**\nAdres IP: **{api_url}**",
-                "data": {
-                    "username": "Nazwa użytkownika",
-                    "password": "Hasło"
-                },
-                "data_description": {
-                    "username": "Nowa nazwa użytkownika do uwierzytelnienia",
-                    "password": "Nowe hasło do uwierzytelnienia"
-                }
-            },
-            "reconfigure": {
-                "title": "Skonfiguruj ponownie połączenie",
-                "description": "Zaktualizuj ustawienia połączenia kontrolera. Jest to przydatne, gdy zmienił się adres IP kontrolera lub ustawienia sieciowe.\n\nKontroler: **{controller_name}**",
-                "data": {
-                    "host": "Adres IP lub nazwa hosta",
-                    "port": "Port TCP",
-                    "use_ssl": "Użyj protokołu SSL/HTTPS",
-                    "polling_interval": "Interwał odpytywania (sekundy)",
-                    "timeout_duration": "Limit czasu (sekundy)",
-                    "retry_attempts": "Ponów próby"
-                },
-                "data_description": {
-                    "host": "Nowy adres IP lub nazwa DNS kontrolera",
-                    "port": "Port TCP (pozostaw 80, chyba że używasz niestandardowego serwera proxy)",
-                    "use_ssl": "Włącz protokół HTTPS, jeśli jest obsługiwany",
-                    "polling_interval": "Interwał odpytywania danych (10–3600 s)",
-                    "timeout_duration": "Maksymalny czas oczekiwania na żądanie",
-                    "retry_attempts": "Liczba ponownych prób"
-                }
-            },
-            "zeroconf_confirm": {
-                "title": "Znaleziono kontroler puli Violet",
-                "description": "W sieci wykryto kontroler puli Violet.\n\nImię: **{name}**\nAdres IP: **{host}**\n\nCzy chcesz teraz skonfigurować ten kontroler?"
-            }
+  "config": {
+    "step": {
+      "user": {
+        "title": "Asystent konfiguracji basenu Violet",
+        "description": "Wybierz, czy chcesz od razu uruchomić kreator konfiguracji, czy najpierw otworzyć szczegółową dokumentację.\n\nDokumentacja: [Przewodnik konfiguracji]({docs_en})\n\nWsparcie i opinie: {issues_url}",
+        "data": {
+          "action": "Wybierz akcję"
         },
-        "error": {
-            "invalid_ip_address": "Nieprawidłowy adres IP\n\nProszę wprowadzić prawidłowy adres IP (np. 192.168.1.100)",
-            "cannot_connect": "Połączenie nie powiodło się\n\nKontroler nieosiągalny. Sprawdź:\n• Czy adres IP jest prawidłowy?\n• Czy kontroler jest włączony?\n• Czy połączenie sieciowe jest prawidłowe?",
-            "invalid_auth": "Uwierzytelnienie nie powiodło się\n\nNieprawidłowa nazwa użytkownika lub hasło. Pozostaw pola puste, jeśli uwierzytelnianie jest wyłączone.",
-            "timeout_connection": "Limit czasu połączenia\n\nKontroler nie odpowiada. Prawdopodobnie przeciążony lub nieosiągalny.",
-            "authentication_error": "Wymagane uwierzytelnienie\n\nKontroler wymaga poświadczeń. Proszę wprowadzić nazwę użytkownika i hasło.",
-            "api_endpoint_not_found": "Nie znaleziono punktu końcowego interfejsu API\n\nOprogramowanie sprzętowe kontrolera może być nieaktualne lub adres URL jest nieprawidłowy.",
-            "invalid_pool_size": "Nieprawidłowy rozmiar puli\n\nWartość musi mieścić się w przedziale od 0,1 do 1000 m³.",
-            "invalid_configuration": "Błąd konfiguracji\n\nJedno lub więcej wejść jest nieprawidłowych. Proszę sprawdzić.",
-            "api_response_error": "Nieprawidłowa odpowiedź kontrolera\n\nKontroler wysyła nieoczekiwane dane. Potrzebna aktualizacja oprogramowania?",
-            "firmware_data_missing": "Brak informacji o oprogramowaniu sprzętowym\n\nNie można określić wersji oprogramowania sprzętowego kontrolera.",
-            "invalid_firmware_version": "Problem z oprogramowaniem sprzętowym\n\nOprogramowanie sprzętowe kontrolera wygląda na nieaktualne. Proszę zaktualizować.",
-            "connection_error": "Błąd sieci\n\nOgólny błąd połączenia. Sprawdź ustawienia sieciowe.",
-            "already_configured": "Już skonfigurowane\n\nKontroler o tym adresie IP jest już skonfigurowany.",
-            "agreement_declined": "Konfiguracja przerwana\n\nKonfiguracja została przerwana, ponieważ nie zaakceptowano zastrzeżenia dotyczącego bezpieczeństwa.",
-            "unknown": "Nieznany błąd\n\nWystąpił nieoczekiwany problem. Skontaktuj się z pomocą techniczną, jeśli problem będzie się powtarzał."
-        },
-        "abort": {
-            "already_configured": "Kontroler już skonfigurowany",
-            "cannot_connect": "Połączenie nie powiodło się",
-            "invalid_auth": "Nieprawidłowe dane uwierzytelniające",
-            "agreement_declined": "Zastrzeżenie dotyczące bezpieczeństwa nie zostało zaakceptowane",
-            "reauth_successful": "Ponowne uwierzytelnienie powiodło się",
-            "reauth_failed": "Ponowne uwierzytelnienie nie powiodło się",
-            "reconfigure_successful": "Rekonfiguracja powiodła się",
-            "already_in_progress": "Konfiguracja już w toku",
-            "unknown": "Nieznany błąd"
+        "data_description": {
+          "action": "Otwórz dokumentację lub bezpośrednio rozpocznij instalację."
         }
-    },
-    "options": {
-        "step": {
-            "init": {
-                "title": "Dostosuj ustawienia basenu",
-                "description": "Co chcesz skonfigurować?\n\nWłącz/wyłącz funkcje\nWybierz czujniki\nZmień ustawienia\n\nZawsze możesz wrócić do tego wyboru.",
-                "data": {
-                    "config_option": "Wybierz obszar konfiguracji"
-                },
-                "data_description": {
-                    "config_option": "Wybierz, co chcesz dostosować"
-                }
-            },
-            "features": {
-                "title": "Włącz/wyłącz funkcje",
-                "description": "Wybierz funkcje, z których chcesz skorzystać\n\nWłączone funkcje zostaną pokazane w Home Assistant\nWyłączone funkcje zostaną ukryte\n\nWłącz tylko to, czego naprawdę potrzebujesz - utrzymuje interfejs w czystości!"
-            },
-            "sensors": {
-                "title": "Wybierz Czujniki",
-                "description": "Wybierz, które czujniki mają być wyświetlane\n\nW Home Assistant zostaną pokazane tylko wybrane czujniki\nZmiany wchodzą w życie natychmiast\n\nWybierz tylko te czujniki, które naprawdę chcesz monitorować!"
-            },
-            "settings": {
-                "title": "Ustawienia ogólne",
-                "description": "Dostosuj parametry techniczne\n\nInterwał sondowania: częstotliwość pobierania danych\nLimit czasu: Maksymalny czas oczekiwania na odpowiedzi\nPonawianie prób: liczba ponownych prób\n\nWartości domyślne działają w przypadku większości konfiguracji!",
-                "data": {},
-                "data_description": {}
-            }
+      },
+      "disclaimer": {
+        "title": "Informacje dotyczące bezpieczeństwa i odpowiedzialności",
+        "description": "**Ostrzeżenie dotyczące bezpieczeństwa**\n\nIntegracja ta zapewnia zdalne sterowanie pompami, grzejnikami, oświetleniem i systemami dozowania. Nieprawidłowa konfiguracja może spowodować uszkodzenie sprzętu, obrażenia ciała lub przedawkowanie środków chemicznych. Upewnij się, że rozumiesz wszystkie funkcje bezpieczeństwa i zapewnij dostępność możliwości ręcznego sterowania.\n\nZanim będziesz kontynuować, zapoznaj się z [Podręcznikiem konfiguracji]({docs_en}).",
+        "data": {
+          "agreement": "Akceptuję wszelkie ryzyko i przeczytałem pełne zastrzeżenie."
         }
-    },
-    "exceptions": {
-        "api_error": {
-            "message": "Błąd komunikacji API: {detail}"
+      },
+      "help": {
+        "title": "Pomoc i dokumentacja",
+        "description": "Przeczytaj [Przewodnik konfiguracji]({docs_en}), aby uzyskać instrukcje krok po kroku, uwagi dotyczące bezpieczeństwa i objaśnienia funkcji.\n\nPotrzebujesz pomocy lub chcesz podzielić się opinią? Otwórz problem pod adresem {issues_url}.\n\nRepozytorium projektu: {github_url}\n\nKliknij **Dalej**, aby powrócić do menu głównego."
+      },
+      "connection": {
+        "title": "Połączenie kontrolera",
+        "description": "Podłącz kontroler basenu Violet do Home Assistant. Upewnij się, że kontroler korzysta z tej samej sieci i że interfejs API jest dostępny.\n\nDodatkowa dokumentacja: [Podręcznik konfiguracji]({docs_en})",
+        "data": {
+          "host": "Adres IP lub nazwa hosta",
+          "port": "Port TCP",
+          "username": "Nazwa użytkownika (opcjonalnie)",
+          "password": "Hasło (opcjonalnie)",
+          "use_ssl": "Użyj protokołu SSL/HTTPS",
+          "device_name": "Nazwa urządzenia",
+          "controller_name": "Nazwa kontrolera",
+          "device_id": "Identyfikator urządzenia",
+          "polling_interval": "Interwał odpytywania (sekundy)",
+          "timeout_duration": "Limit czasu (sekundy)",
+          "retry_attempts": "Ponów próby"
         },
-        "invalid_value": {
-            "message": "Nieprawidłowa wartość: {detail}"
-        },
-        "value_out_of_range": {
-            "message": "Wartość {value} jest poza prawidłowym zakresem ({min}–{max})"
-        },
-        "failed_to_set_value": {
-            "message": "Nie udało się ustawić wartości: {detail}"
-        },
-        "no_api_key": {
-            "message": "Nie skonfigurowano klucza API dla jednostki {entity}"
-        },
-        "invalid_action": {
-            "message": "Nieprawidłowa akcja: {action}"
-        },
-        "unexpected_error": {
-            "message": "Nieoczekiwany błąd: {detail}"
-        },
-        "controller_unavailable": {
-            "message": "Kontroler basenu {name} jest niedostępny po {failures} kolejnych awariach"
+        "data_description": {
+          "host": "IP kontrolera lub nazwa DNS",
+          "port": "Port TCP (pozostaw 80, chyba że używasz niestandardowego serwera proxy)",
+          "username": "Opcjonalna nazwa użytkownika, jeśli włączone jest uwierzytelnianie",
+          "password": "Hasło, jeśli jest wymagane",
+          "use_ssl": "Włącz protokół HTTPS, jeśli jest obsługiwany",
+          "device_name": "Przyjazna nazwa wyświetlana w Home Assistant",
+          "controller_name": "Nazwa wyświetlana kontrolera",
+          "device_id": "Unikalny identyfikator, jeśli istnieje wiele kontrolerów",
+          "polling_interval": "Interwał odpytywania danych (10–3600 s)",
+          "timeout_duration": "Maksymalny czas oczekiwania na żądanie",
+          "retry_attempts": "Liczba ponownych prób"
         }
-    },
-    "issues": {
-        "controller_unavailable": {
-            "title": "Kontroler basenu niedostępny",
-            "description": "Kontroler puli **{name}** był nieosiągalny przez {failures} kolejnych cykli odpytywania.\n\nProszę sprawdzić:\n- Czy kontroler jest włączony?\n- Czy połączenie sieciowe jest w porządku?\n- Czy adres IP jest nadal poprawny?\n\nGdy kontroler będzie ponownie osiągalny, problem zostanie rozwiązany automatycznie."
+      },
+      "pool_setup": {
+        "title": "Konfiguracja puli",
+        "description": "Podaj wielkość, rodzaj i metodę dezynfekcji basenu. Wartości te są wykorzystywane do optymalizacji czasu pracy, zarządzania energią i obliczeń dozowania.",
+        "data": {
+          "pool_size": "Rozmiar basenu (m³)",
+          "pool_type": "Typ basenu",
+          "disinfection_method": "Metoda dezynfekcji"
+        },
+        "data_description": {
+          "pool_size": "Objętość wody w metrach sześciennych",
+          "pool_type": "Wpływa na ogrzewanie i zachowanie słońca",
+          "disinfection_method": "Podstawowa metoda uzdatniania wody"
         }
-    },
-    "services": {
-        "turn_auto": {
-            "name": "Aktywuj tryb AUTO",
-            "description": "Przełącza urządzenia w inteligentny tryb automatyczny.\n\nSystem przejmuje teraz optymalną kontrolę w oparciu o dane z czujników i harmonogramy.",
-            "fields": {
-                "entity_id": {
-                    "name": "Urządzenia do kontrolowania",
-                    "description": "Wybierz urządzenia, aby przełączyć się w tryb AUTO."
-                },
-                "auto_delay": {
-                    "name": "Opóźnienie (sekundy)",
-                    "description": "Czas oczekiwania przed aktywacją trybu AUTO (0-86400s)."
-                }
-            }
+      },
+      "feature_selection": {
+        "title": "Włącz inteligentne funkcje",
+        "description": "Włącz tylko te funkcje, z których faktycznie korzysta Twoja instalacja puli. Dzięki temu zużycie zasobów jest niskie, a interfejs użytkownika uporządkowany. Możesz dostosować wybór w dowolnym momencie w opcjach.",
+        "data": {
+          "enable_heating": "Sterowanie ogrzewaniem",
+          "enable_solar": "Absorber słoneczny",
+          "enable_ph_control": "Automatyzacja pH",
+          "enable_chlorine_control": "Zarządzanie chlorem",
+          "enable_cover_control": "Kontrola okładki",
+          "enable_backwash": "Automatyka płukania wstecznego",
+          "enable_pv_surplus": "Nadwyżka fotowoltaiczna",
+          "enable_filter_control": "Pompa filtrująca",
+          "enable_water_level": "Monitor poziomu wody",
+          "enable_water_refill": "Automatyczne uzupełnianie wody",
+          "enable_led_lighting": "Oświetlenie LED",
+          "enable_digital_inputs": "Wejścia cyfrowe",
+          "enable_extension_outputs": "Moduły rozszerzeń"
         },
-        "set_pv_surplus": {
-            "name": "Wykorzystaj nadwyżkę fotowoltaiczną",
-            "description": "Aktywuje tryb nadwyżki fotowoltaicznej w celu optymalnego wykorzystania energii słonecznej.\n\nUrządzenia basenowe są automatycznie zasilane nadmiarem energii słonecznej.",
-            "fields": {
-                "entity_id": {
-                    "name": "Przełącznik nadwyżki PV",
-                    "description": "Przełącznik nadwyżki PV sterownika."
-                },
-                "pump_speed": {
-                    "name": "Prędkość pompy",
-                    "description": "Żądana moc pompy (1=Eco, 2=Normalna, 3=Maksymalna)."
-                }
-            }
-        },
-        "manual_dosing": {
-            "name": "Dozowanie ręczne",
-            "description": "Rozpoczyna dozowanie ręczne przez żądany czas.\n\nUwaga: Unikaj przedawkowania! Zawsze najpierw sprawdź parametry wody.",
-            "fields": {
-                "entity_id": {
-                    "name": "System dozowania",
-                    "description": "Wybierz system dozowania (pH+, pH-, chlor itp.)."
-                },
-                "duration_seconds": {
-                    "name": "Czas dozowania (sekundy)",
-                    "description": "Jak długo powinno trwać dozowanie? (1-3600 s, zacznij od krótkich czasów!)"
-                }
-            }
-        },
-        "test_output": {
-            "name": "Tryb testu wyjścia",
-            "description": "Tymczasowo aktywuje wyjście sterownika w celach diagnostycznych. Upewnij się, że podczas wymuszania wyjścia nie są zagrożone żadne osoby ani sprzęt.",
-            "fields": {
-                "output": {
-                    "name": "Identyfikator wyjścia",
-                    "description": "Identyfikator taki jak POMPA, GRZAŁKA lub SOLAR"
-                },
-                "mode": {
-                    "name": "Tryb testowy",
-                    "description": "SWITCH=przełącz, ON=wymuś włączenie, OFF=wymuś wyłączenie"
-                },
-                "duration": {
-                    "name": "Czas trwania testu (sekundy)",
-                    "description": "Czas trwania od 1 do 900 sekund"
-                }
-            }
-        },
-        "set_temperature_target": {
-            "name": "Ustaw temperaturę docelową",
-            "description": "Ustawia żądaną temperaturę basenu.\n\nSterownik automatycznie nagrzewa się do tej temperatury i ją utrzymuje.",
-            "fields": {
-                "entity_ids": {
-                    "name": "Systemy grzewcze",
-                    "description": "Wybierz grzejnik i/lub absorber słoneczny."
-                },
-                "temperature": {
-                    "name": "Temperatura docelowa (°C)",
-                    "description": "Pożądana temperatura basenu (zalecana 20-35°C)."
-                }
-            }
-        },
-        "set_ph_target": {
-            "name": "Ustaw docelowe pH",
-            "description": "Określa idealną wartość pH dla automatycznego dozowania.\n\nZalecany zakres: 7,0-7,4 dla optymalnej jakości wody i zgodności ze skórą.",
-            "fields": {
-                "entity_ids": {
-                    "name": "System dozowania pH",
-                    "description": "Wybierz kontrolę pH sterownika."
-                },
-                "target_value": {
-                    "name": "Docelowe pH",
-                    "description": "Pożądana wartość pH (6,8-7,8, optymalna: 7,0-7,4)."
-                }
-            }
-        },
-        "set_chlorine_target": {
-            "name": "Ustaw docelowy poziom chloru",
-            "description": "Określa docelową zawartość chloru dla bezpiecznej dezynfekcji.\n\nWystarczająca ilość chloru eliminuje bakterie, zbyt duża podrażnia skórę i oczy.",
-            "fields": {
-                "entity_ids": {
-                    "name": "System dozowania chloru",
-                    "description": "System dozowania chloru lub elektrolizy."
-                },
-                "target_value": {
-                    "name": "Docelowa zawartość chloru (mg/l)",
-                    "description": "Pożądana zawartość wolnego chloru (zalecana 0,3-1,5 mg/l)."
-                }
-            }
-        },
-        "trigger_backwash": {
-            "name": "Rozpocznij płukanie wsteczne",
-            "description": "Rozpoczyna płukanie wsteczne filtra w celu oczyszczenia.\n\nUsuwa brud i osady, zapewniając optymalną wydajność filtra.",
-            "fields": {
-                "entity_ids": {
-                    "name": "System płukania wstecznego",
-                    "description": "Zawór płukania wstecznego lub automatyka filtra."
-                },
-                "duration": {
-                    "name": "Czas płukania wstecznego (sekundy)",
-                    "description": "Czas płukania (typowo 60–300 s, 0 = zakończenie ręczne)."
-                }
-            }
-        },
-        "start_water_analysis": {
-            "name": "Rozpocznij analizę wody",
-            "description": "Rozpoczyna automatyczną analizę wody pod kątem wszystkich parametrów.\n\nMierzy pH, chlor, temperaturę i inne wartości w celu uzyskania sugestii optymalizacji.",
-            "fields": {
-                "entity_ids": {
-                    "name": "Kontroler",
-                    "description": "Fioletowy kontroler puli do analizy."
-                }
-            }
-        },
-        "set_maintenance_mode": {
-            "name": "Tryb konserwacji",
-            "description": "Włącza/wyłącza tryb konserwacji.\n\nW trybie konserwacji cała automatyka jest wstrzymana w celu bezpiecznej pracy basenu.",
-            "fields": {
-                "entity_ids": {
-                    "name": "Kontroler",
-                    "description": "Wybierz Fioletowy kontroler puli."
-                },
-                "enable": {
-                    "name": "Włącz tryb konserwacji",
-                    "description": "Włącz: Zatrzymaj całą automatyzację | Wył.: wznowienie normalnej pracy."
-                }
-            }
-        },
-        "set_all_dmx_scenes_mode": {
-            "name": "Sterowanie oświetleniem DMX",
-            "description": "Kontroluje jednocześnie wszystkie sceny świetlne DMX.\n\nIdealny do jednolitych efektów świetlnych lub całkowitego włączania/wyłączania.",
-            "fields": {
-                "device_id": {
-                    "name": "Kontroler basenu",
-                    "description": "Kontroler basenu Violet z wyjściem DMX."
-                },
-                "dmx_mode": {
-                    "name": "Tryb światła",
-                    "description": "Wszystkie światła: włączone/wyłączone/automatyczne."
-                }
-            }
-        },
-        "set_digital_input_rule_lock_state": {
-            "name": "Zasada przełączania blokady",
-            "description": "Blokuje lub odblokowuje reguły przełączania cyfrowego.\n\nZapobiega niepożądanemu wyzwalaniu podczas konserwacji lub usterek.",
-            "fields": {
-                "device_id": {
-                    "name": "Kontroler basenu",
-                    "description": "Kontroler basenu Violet z regułami cyfrowymi."
-                },
-                "rule_key": {
-                    "name": "Numer zasady",
-                    "description": "Numer reguły do ​​zablokowania (DIRULE_1 do DIRULE_7)."
-                },
-                "lock_state": {
-                    "name": "Zamek",
-                    "description": "Zablokuj regułę (Wł.) lub zwolnij (Wył.)."
-                }
-            }
-        },
-        "trigger_digital_input_rule": {
-            "name": "Zasada przełączania wyzwalacza",
-            "description": "Ręcznie wyzwala regułę przełączania cyfrowego.\n\nPrzydatne do testowania automatyzacji lub sterowania ręcznego, jeśli jest to potrzebne.",
-            "fields": {
-                "device_id": {
-                    "name": "Kontroler basenu",
-                    "description": "Kontroler basenu Violet z zasadami."
-                },
-                "rule_key": {
-                    "name": "Numer zasady",
-                    "description": "Którą regułę uruchomić? (DIRULE_1 do DIRULE_7)"
-                }
-            }
+        "data_description": {
+          "enable_heating": "Zautomatyzowane sterowanie ogrzewaniem",
+          "enable_solar": "Inteligentne sterowanie absorberem słonecznym",
+          "enable_ph_control": "Automatyczna kontrola pH",
+          "enable_chlorine_control": "Zarządzanie chlorem/redoksem",
+          "enable_cover_control": "Kontroluj pokrywę basenu",
+          "enable_backwash": "Automatyczne cykle płukania wstecznego",
+          "enable_pv_surplus": "Wykorzystaj nadwyżki fotowoltaiczne mądrze",
+          "enable_filter_control": "Steruj pompą filtrującą na żądanie",
+          "enable_water_level": "Monitoruj poziom wody",
+          "enable_water_refill": "Automatyczne uzupełnianie wody",
+          "enable_led_lighting": "Sceny świetlne LED",
+          "enable_digital_inputs": "Zintegruj zewnętrzne czujniki i przełączniki",
+          "enable_extension_outputs": "Użyj modułów rozszerzeń"
         }
-    },
-    "selector": {
-        "pool_type": {
-            "options": {
-                "outdoor": "Basen odkryty",
-                "indoor": "Kryty basen",
-                "whirlpool": "jacuzzi/spa",
-                "natural": "Naturalny basen/staw",
-                "combination": "Kombinacja/hybryda"
-            }
+      },
+      "sensor_selection": {
+        "title": "Wybierz Czujniki",
+        "description": "Wybierz, które czujniki chcesz widzieć w Home Assistant. Włącz lub wyłącz poszczególne czujniki, aby utrzymać czystość i koncentrację na desce rozdzielczej.\n\nDomyślnie zaznaczone są wszystkie dostępne czujniki. Możesz dostosować ten wybór w dowolnym momencie w opcjach."
+      },
+      "reauth_confirm": {
+        "title": "Ponownie uwierzytelnij kontrolera",
+        "description": "Należy zaktualizować dane uwierzytelniające kontrolera. Proszę wprowadzić nową nazwę użytkownika i hasło.\n\nKontroler: **{controller_name}**\nAdres IP: **{api_url}**",
+        "data": {
+          "username": "Nazwa użytkownika",
+          "password": "Hasło"
         },
-        "disinfection_method": {
-            "options": {
-                "chlorine": "Chlor (płyn/tabletki)",
-                "salt": "Elektroliza słonej wody",
-                "bromine": "Dezynfekcja bromem",
-                "active_oxygen": "Aktywny tlen/H₂O₂",
-                "uv": "Dezynfekcja UV-C",
-                "ozone": "Leczenie ozonem"
-            }
+        "data_description": {
+          "username": "Nowa nazwa użytkownika do uwierzytelnienia",
+          "password": "Nowe hasło do uwierzytelnienia"
+        }
+      },
+      "reconfigure": {
+        "title": "Skonfiguruj ponownie połączenie",
+        "description": "Zaktualizuj ustawienia połączenia kontrolera. Jest to przydatne, gdy zmienił się adres IP kontrolera lub ustawienia sieciowe.\n\nKontroler: **{controller_name}**",
+        "data": {
+          "host": "Adres IP lub nazwa hosta",
+          "port": "Port TCP",
+          "use_ssl": "Użyj protokołu SSL/HTTPS",
+          "polling_interval": "Interwał odpytywania (sekundy)",
+          "timeout_duration": "Limit czasu (sekundy)",
+          "retry_attempts": "Ponów próby"
+        },
+        "data_description": {
+          "host": "Nowy adres IP lub nazwa DNS kontrolera",
+          "port": "Port TCP (pozostaw 80, chyba że używasz niestandardowego serwera proxy)",
+          "use_ssl": "Włącz protokół HTTPS, jeśli jest obsługiwany",
+          "polling_interval": "Interwał odpytywania danych (10–3600 s)",
+          "timeout_duration": "Maksymalny czas oczekiwania na żądanie",
+          "retry_attempts": "Liczba ponownych prób"
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "Znaleziono kontroler puli Violet",
+        "description": "W sieci wykryto kontroler puli Violet.\n\nImię: **{name}**\nAdres IP: **{host}**\n\nCzy chcesz teraz skonfigurować ten kontroler?"
+      }
+    },
+    "error": {
+      "invalid_ip_address": "Nieprawidłowy adres IP\n\nProszę wprowadzić prawidłowy adres IP (np. 192.168.1.100)",
+      "cannot_connect": "Połączenie nie powiodło się\n\nKontroler nieosiągalny. Sprawdź:\n• Czy adres IP jest prawidłowy?\n• Czy kontroler jest włączony?\n• Czy połączenie sieciowe jest prawidłowe?",
+      "invalid_auth": "Uwierzytelnienie nie powiodło się\n\nNieprawidłowa nazwa użytkownika lub hasło. Pozostaw pola puste, jeśli uwierzytelnianie jest wyłączone.",
+      "timeout_connection": "Limit czasu połączenia\n\nKontroler nie odpowiada. Prawdopodobnie przeciążony lub nieosiągalny.",
+      "authentication_error": "Wymagane uwierzytelnienie\n\nKontroler wymaga poświadczeń. Proszę wprowadzić nazwę użytkownika i hasło.",
+      "api_endpoint_not_found": "Nie znaleziono punktu końcowego interfejsu API\n\nOprogramowanie sprzętowe kontrolera może być nieaktualne lub adres URL jest nieprawidłowy.",
+      "invalid_pool_size": "Nieprawidłowy rozmiar puli\n\nWartość musi mieścić się w przedziale od 0,1 do 1000 m³.",
+      "invalid_configuration": "Błąd konfiguracji\n\nJedno lub więcej wejść jest nieprawidłowych. Proszę sprawdzić.",
+      "api_response_error": "Nieprawidłowa odpowiedź kontrolera\n\nKontroler wysyła nieoczekiwane dane. Potrzebna aktualizacja oprogramowania?",
+      "firmware_data_missing": "Brak informacji o oprogramowaniu sprzętowym\n\nNie można określić wersji oprogramowania sprzętowego kontrolera.",
+      "invalid_firmware_version": "Problem z oprogramowaniem sprzętowym\n\nOprogramowanie sprzętowe kontrolera wygląda na nieaktualne. Proszę zaktualizować.",
+      "connection_error": "Błąd sieci\n\nOgólny błąd połączenia. Sprawdź ustawienia sieciowe.",
+      "already_configured": "Już skonfigurowane\n\nKontroler o tym adresie IP jest już skonfigurowany.",
+      "agreement_declined": "Konfiguracja przerwana\n\nKonfiguracja została przerwana, ponieważ nie zaakceptowano zastrzeżenia dotyczącego bezpieczeństwa.",
+      "unknown": "Nieznany błąd\n\nWystąpił nieoczekiwany problem. Skontaktuj się z pomocą techniczną, jeśli problem będzie się powtarzał."
+    },
+    "abort": {
+      "already_configured": "Kontroler już skonfigurowany",
+      "cannot_connect": "Połączenie nie powiodło się",
+      "invalid_auth": "Nieprawidłowe dane uwierzytelniające",
+      "agreement_declined": "Zastrzeżenie dotyczące bezpieczeństwa nie zostało zaakceptowane",
+      "reauth_successful": "Ponowne uwierzytelnienie powiodło się",
+      "reauth_failed": "Ponowne uwierzytelnienie nie powiodło się",
+      "reconfigure_successful": "Rekonfiguracja powiodła się",
+      "already_in_progress": "Konfiguracja już w toku",
+      "unknown": "Nieznany błąd"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Dostosuj ustawienia basenu",
+        "description": "Co chcesz skonfigurować?\n\nWłącz/wyłącz funkcje\nWybierz czujniki\nZmień ustawienia\n\nZawsze możesz wrócić do tego wyboru.",
+        "data": {
+          "config_option": "Wybierz obszar konfiguracji"
+        },
+        "data_description": {
+          "config_option": "Wybierz, co chcesz dostosować"
+        }
+      },
+      "features": {
+        "title": "Włącz/wyłącz funkcje",
+        "description": "Wybierz funkcje, z których chcesz skorzystać\n\nWłączone funkcje zostaną pokazane w Home Assistant\nWyłączone funkcje zostaną ukryte\n\nWłącz tylko to, czego naprawdę potrzebujesz - utrzymuje interfejs w czystości!"
+      },
+      "sensors": {
+        "title": "Wybierz Czujniki",
+        "description": "Wybierz, które czujniki mają być wyświetlane\n\nW Home Assistant zostaną pokazane tylko wybrane czujniki\nZmiany wchodzą w życie natychmiast\n\nWybierz tylko te czujniki, które naprawdę chcesz monitorować!"
+      },
+      "settings": {
+        "title": "Ustawienia ogólne",
+        "description": "Dostosuj parametry techniczne\n\nInterwał sondowania: częstotliwość pobierania danych\nLimit czasu: Maksymalny czas oczekiwania na odpowiedzi\nPonawianie prób: liczba ponownych prób\n\nWartości domyślne działają w przypadku większości konfiguracji!",
+        "data": {
+          "controller_name": "Nazwa kontrolera",
+          "polling_interval": "Interwał odpytywania (sekundy)",
+          "timeout_duration": "Limit czasu (sekundy)",
+          "retry_attempts": "Próby ponowienia",
+          "enable_diagnostic_logging": "Rozszerzone logowanie",
+          "force_update": "Zawsze aktualizuj"
+        },
+        "data_description": {
+          "controller_name": "Wyświetlana nazwa kontrolera",
+          "polling_interval": "Interwał odpytywania danych (5-300s)",
+          "timeout_duration": "Maksymalny czas oczekiwania na żądanie (5-60s)",
+          "retry_attempts": "Liczba prób ponowienia przy błędzie (1-10)",
+          "enable_diagnostic_logging": "Szczegółowe logi przy każdej aktualizacji (tylko diagnostyka!)",
+          "force_update": "Zawsze aktualizuj encje, nawet jeśli wartość się nie zmieniła"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "api_error": {
+      "message": "Błąd komunikacji API: {detail}"
+    },
+    "invalid_value": {
+      "message": "Nieprawidłowa wartość: {detail}"
+    },
+    "value_out_of_range": {
+      "message": "Wartość {value} jest poza prawidłowym zakresem ({min}–{max})"
+    },
+    "failed_to_set_value": {
+      "message": "Nie udało się ustawić wartości: {detail}"
+    },
+    "no_api_key": {
+      "message": "Nie skonfigurowano klucza API dla jednostki {entity}"
+    },
+    "invalid_action": {
+      "message": "Nieprawidłowa akcja: {action}"
+    },
+    "unexpected_error": {
+      "message": "Nieoczekiwany błąd: {detail}"
+    },
+    "controller_unavailable": {
+      "message": "Kontroler basenu {name} jest niedostępny po {failures} kolejnych awariach"
+    }
+  },
+  "issues": {
+    "controller_unavailable": {
+      "title": "Kontroler basenu niedostępny",
+      "description": "Kontroler puli **{name}** był nieosiągalny przez {failures} kolejnych cykli odpytywania.\n\nProszę sprawdzić:\n- Czy kontroler jest włączony?\n- Czy połączenie sieciowe jest w porządku?\n- Czy adres IP jest nadal poprawny?\n\nGdy kontroler będzie ponownie osiągalny, problem zostanie rozwiązany automatycznie."
+    }
+  },
+  "services": {
+    "turn_auto": {
+      "name": "Aktywuj tryb AUTO",
+      "description": "Przełącza urządzenia w inteligentny tryb automatyczny.\n\nSystem przejmuje teraz optymalną kontrolę w oparciu o dane z czujników i harmonogramy.",
+      "fields": {
+        "entity_id": {
+          "name": "Urządzenia do kontrolowania",
+          "description": "Wybierz urządzenia, aby przełączyć się w tryb AUTO."
+        },
+        "auto_delay": {
+          "name": "Opóźnienie (sekundy)",
+          "description": "Czas oczekiwania przed aktywacją trybu AUTO (0-86400s)."
+        }
+      }
+    },
+    "set_pv_surplus": {
+      "name": "Wykorzystaj nadwyżkę fotowoltaiczną",
+      "description": "Aktywuje tryb nadwyżki fotowoltaicznej w celu optymalnego wykorzystania energii słonecznej.\n\nUrządzenia basenowe są automatycznie zasilane nadmiarem energii słonecznej.",
+      "fields": {
+        "entity_id": {
+          "name": "Przełącznik nadwyżki PV",
+          "description": "Przełącznik nadwyżki PV sterownika."
+        },
+        "pump_speed": {
+          "name": "Prędkość pompy",
+          "description": "Żądana moc pompy (1=Eco, 2=Normalna, 3=Maksymalna)."
+        }
+      }
+    },
+    "manual_dosing": {
+      "name": "Dozowanie ręczne",
+      "description": "Rozpoczyna dozowanie ręczne przez żądany czas.\n\nUwaga: Unikaj przedawkowania! Zawsze najpierw sprawdź parametry wody.",
+      "fields": {
+        "entity_id": {
+          "name": "System dozowania",
+          "description": "Wybierz system dozowania (pH+, pH-, chlor itp.)."
+        },
+        "duration_seconds": {
+          "name": "Czas dozowania (sekundy)",
+          "description": "Jak długo powinno trwać dozowanie? (1-3600 s, zacznij od krótkich czasów!)"
+        }
+      }
+    },
+    "test_output": {
+      "name": "Tryb testu wyjścia",
+      "description": "Tymczasowo aktywuje wyjście sterownika w celach diagnostycznych. Upewnij się, że podczas wymuszania wyjścia nie są zagrożone żadne osoby ani sprzęt.",
+      "fields": {
+        "output": {
+          "name": "Identyfikator wyjścia",
+          "description": "Identyfikator taki jak POMPA, GRZAŁKA lub SOLAR"
+        },
+        "mode": {
+          "name": "Tryb testowy",
+          "description": "SWITCH=przełącz, ON=wymuś włączenie, OFF=wymuś wyłączenie"
+        },
+        "duration": {
+          "name": "Czas trwania testu (sekundy)",
+          "description": "Czas trwania od 1 do 900 sekund"
+        }
+      }
+    },
+    "set_temperature_target": {
+      "name": "Ustaw temperaturę docelową",
+      "description": "Ustawia żądaną temperaturę basenu.\n\nSterownik automatycznie nagrzewa się do tej temperatury i ją utrzymuje.",
+      "fields": {
+        "entity_ids": {
+          "name": "Systemy grzewcze",
+          "description": "Wybierz grzejnik i/lub absorber słoneczny."
+        },
+        "temperature": {
+          "name": "Temperatura docelowa (°C)",
+          "description": "Pożądana temperatura basenu (zalecana 20-35°C)."
+        }
+      }
+    },
+    "set_ph_target": {
+      "name": "Ustaw docelowe pH",
+      "description": "Określa idealną wartość pH dla automatycznego dozowania.\n\nZalecany zakres: 7,0-7,4 dla optymalnej jakości wody i zgodności ze skórą.",
+      "fields": {
+        "entity_ids": {
+          "name": "System dozowania pH",
+          "description": "Wybierz kontrolę pH sterownika."
+        },
+        "target_value": {
+          "name": "Docelowe pH",
+          "description": "Pożądana wartość pH (6,8-7,8, optymalna: 7,0-7,4)."
+        }
+      }
+    },
+    "set_chlorine_target": {
+      "name": "Ustaw docelowy poziom chloru",
+      "description": "Określa docelową zawartość chloru dla bezpiecznej dezynfekcji.\n\nWystarczająca ilość chloru eliminuje bakterie, zbyt duża podrażnia skórę i oczy.",
+      "fields": {
+        "entity_ids": {
+          "name": "System dozowania chloru",
+          "description": "System dozowania chloru lub elektrolizy."
+        },
+        "target_value": {
+          "name": "Docelowa zawartość chloru (mg/l)",
+          "description": "Pożądana zawartość wolnego chloru (zalecana 0,3-1,5 mg/l)."
+        }
+      }
+    },
+    "trigger_backwash": {
+      "name": "Rozpocznij płukanie wsteczne",
+      "description": "Rozpoczyna płukanie wsteczne filtra w celu oczyszczenia.\n\nUsuwa brud i osady, zapewniając optymalną wydajność filtra.",
+      "fields": {
+        "entity_ids": {
+          "name": "System płukania wstecznego",
+          "description": "Zawór płukania wstecznego lub automatyka filtra."
+        },
+        "duration": {
+          "name": "Czas płukania wstecznego (sekundy)",
+          "description": "Czas płukania (typowo 60–300 s, 0 = zakończenie ręczne)."
+        }
+      }
+    },
+    "start_water_analysis": {
+      "name": "Rozpocznij analizę wody",
+      "description": "Rozpoczyna automatyczną analizę wody pod kątem wszystkich parametrów.\n\nMierzy pH, chlor, temperaturę i inne wartości w celu uzyskania sugestii optymalizacji.",
+      "fields": {
+        "entity_ids": {
+          "name": "Kontroler",
+          "description": "Fioletowy kontroler puli do analizy."
+        }
+      }
+    },
+    "set_maintenance_mode": {
+      "name": "Tryb konserwacji",
+      "description": "Włącza/wyłącza tryb konserwacji.\n\nW trybie konserwacji cała automatyka jest wstrzymana w celu bezpiecznej pracy basenu.",
+      "fields": {
+        "entity_ids": {
+          "name": "Kontroler",
+          "description": "Wybierz Fioletowy kontroler puli."
+        },
+        "enable": {
+          "name": "Włącz tryb konserwacji",
+          "description": "Włącz: Zatrzymaj całą automatyzację | Wył.: wznowienie normalnej pracy."
+        }
+      }
+    },
+    "set_all_dmx_scenes_mode": {
+      "name": "Sterowanie oświetleniem DMX",
+      "description": "Kontroluje jednocześnie wszystkie sceny świetlne DMX.\n\nIdealny do jednolitych efektów świetlnych lub całkowitego włączania/wyłączania.",
+      "fields": {
+        "device_id": {
+          "name": "Kontroler basenu",
+          "description": "Kontroler basenu Violet z wyjściem DMX."
         },
         "dmx_mode": {
-            "options": {
-                "allon": "Wszystkie światła włączone",
-                "alloff": "Wszystkie światła wyłączone",
-                "allauto": "Wszystkie światła automatyczne"
-            }
+          "name": "Tryb światła",
+          "description": "Wszystkie światła: włączone/wyłączone/automatyczne."
         }
+      }
     },
-    "entity": {
-        "sensor": {
-            "ph_value": {
-                "name": "Wartość pH"
-            },
-            "orp_value": {
-                "name": "Potencjał redoks"
-            },
-            "pot_value": {
-                "name": "Poziom chloru"
-            },
-            "onewire1_value": {
-                "name": "Temperatura wody"
-            },
-            "onewire2_value": {
-                "name": "Temperatura powietrza"
-            },
-            "firmware_version": {
-                "name": "Wersja oprogramowania"
-            },
-            "system_health": {
-                "name": "Stan systemu"
-            },
-            "connection_latency": {
-                "name": "Opóźnienie połączenia"
-            },
-            "last_event_age": {
-                "name": "Wiek ostatniego zdarzenia"
-            },
-            "api_request_rate": {
-                "name": "Częstotliwość żądań API"
-            },
-            "average_latency": {
-                "name": "Średnie opóźnienie"
-            },
-            "recovery_success_rate": {
-                "name": "Wskaźnik powodzenia odzyskiwania"
-            }
+    "set_digital_input_rule_lock_state": {
+      "name": "Zasada przełączania blokady",
+      "description": "Blokuje lub odblokowuje reguły przełączania cyfrowego.\n\nZapobiega niepożądanemu wyzwalaniu podczas konserwacji lub usterek.",
+      "fields": {
+        "device_id": {
+          "name": "Kontroler basenu",
+          "description": "Kontroler basenu Violet z regułami cyfrowymi."
         },
-        "binary_sensor": {
-            "pump_state": {
-                "name": "Stan pompy filtrującej"
-            },
-            "heater_state": {
-                "name": "Stan grzejnika"
-            },
-            "solar_state": {
-                "name": "Stan słoneczny"
-            },
-            "cover_is_closed": {
-                "name": "Pokrywa zamknięta"
-            }
+        "rule_key": {
+          "name": "Numer zasady",
+          "description": "Numer reguły do ​​zablokowania (DIRULE_1 do DIRULE_7)."
         },
-        "switch": {
-            "pump": {
-                "name": "Pompa filtrująca"
-            },
-            "heater": {
-                "name": "Podgrzewacz"
-            },
-            "solar": {
-                "name": "Absorber słoneczny"
-            },
-            "light": {
-                "name": "Oświetlenie"
-            }
-        },
-        "climate": {
-            "heater": {
-                "name": "Podgrzewacz basenowy"
-            },
-            "solar": {
-                "name": "Grzejnik słoneczny"
-            }
+        "lock_state": {
+          "name": "Zamek",
+          "description": "Zablokuj regułę (Wł.) lub zwolnij (Wył.)."
         }
+      }
+    },
+    "trigger_digital_input_rule": {
+      "name": "Zasada przełączania wyzwalacza",
+      "description": "Ręcznie wyzwala regułę przełączania cyfrowego.\n\nPrzydatne do testowania automatyzacji lub sterowania ręcznego, jeśli jest to potrzebne.",
+      "fields": {
+        "device_id": {
+          "name": "Kontroler basenu",
+          "description": "Kontroler basenu Violet z zasadami."
+        },
+        "rule_key": {
+          "name": "Numer zasady",
+          "description": "Którą regułę uruchomić? (DIRULE_1 do DIRULE_7)"
+        }
+      }
+    },
+    "export_diagnostic_logs": {
+      "name": "Eksportuj logi diagnostyczne",
+      "description": "Eksportuje ostatnie logi integracji do rozwiązywania problemów i wsparcia.",
+      "fields": {
+        "device_id": {
+          "name": "Sterownik basenu",
+          "description": "Violet Pool Controller do eksportu"
+        },
+        "lines": {
+          "name": "Liczba linii",
+          "description": "Ile ostatnich linii logów eksportować? (10-1000)"
+        },
+        "include_timestamps": {
+          "name": "Dołącz znaczniki czasu",
+          "description": "Dołącz znaczniki czasu w eksportowanych logach"
+        },
+        "save_to_file": {
+          "name": "Zapisz do pliku",
+          "description": "Zapisz logi jako plik tekstowy w katalogu /config/"
+        }
+      }
     }
+  },
+  "selector": {
+    "pool_type": {
+      "options": {
+        "outdoor": "Basen odkryty",
+        "indoor": "Kryty basen",
+        "whirlpool": "jacuzzi/spa",
+        "natural": "Naturalny basen/staw",
+        "combination": "Kombinacja/hybryda"
+      }
+    },
+    "disinfection_method": {
+      "options": {
+        "chlorine": "Chlor (płyn/tabletki)",
+        "salt": "Elektroliza słonej wody",
+        "bromine": "Dezynfekcja bromem",
+        "active_oxygen": "Aktywny tlen/H₂O₂",
+        "uv": "Dezynfekcja UV-C",
+        "ozone": "Leczenie ozonem"
+      }
+    },
+    "dmx_mode": {
+      "options": {
+        "allon": "Wszystkie światła włączone",
+        "alloff": "Wszystkie światła wyłączone",
+        "allauto": "Wszystkie światła automatyczne"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "ph_value": {
+        "name": "Wartość pH"
+      },
+      "orp_value": {
+        "name": "Potencjał redoks"
+      },
+      "pot_value": {
+        "name": "Poziom chloru"
+      },
+      "onewire1_value": {
+        "name": "Temperatura wody"
+      },
+      "onewire2_value": {
+        "name": "Temperatura powietrza"
+      },
+      "firmware_version": {
+        "name": "Wersja oprogramowania"
+      },
+      "system_health": {
+        "name": "Stan systemu"
+      },
+      "connection_latency": {
+        "name": "Opóźnienie połączenia"
+      },
+      "last_event_age": {
+        "name": "Wiek ostatniego zdarzenia"
+      },
+      "api_request_rate": {
+        "name": "Częstotliwość żądań API"
+      },
+      "average_latency": {
+        "name": "Średnie opóźnienie"
+      },
+      "recovery_success_rate": {
+        "name": "Wskaźnik powodzenia odzyskiwania"
+      },
+      "flow_rate": {
+        "name": "Przepływ"
+      },
+      "last_error_code": {
+        "name": "Ostatni kod błędu"
+      }
+    },
+    "binary_sensor": {
+      "pump_state": {
+        "name": "Stan pompy filtrującej"
+      },
+      "heater_state": {
+        "name": "Stan grzejnika"
+      },
+      "solar_state": {
+        "name": "Stan słoneczny"
+      },
+      "cover_is_closed": {
+        "name": "Pokrywa zamknięta"
+      },
+      "hw_base_module": {
+        "name": "Moduł podstawowy"
+      },
+      "hw_dosing_module": {
+        "name": "Moduł dozowania"
+      },
+      "hw_extension_module_1": {
+        "name": "Moduł rozszerzenia 1"
+      },
+      "hw_extension_module_2": {
+        "name": "Moduł rozszerzenia 2"
+      },
+      "hw_standalone_mode": {
+        "name": "Samodzielne dozowanie"
+      }
+    },
+    "switch": {
+      "pump": {
+        "name": "Pompa filtrująca"
+      },
+      "heater": {
+        "name": "Podgrzewacz"
+      },
+      "solar": {
+        "name": "Absorber słoneczny"
+      },
+      "light": {
+        "name": "Oświetlenie"
+      }
+    },
+    "climate": {
+      "heater": {
+        "name": "Podgrzewacz basenowy"
+      },
+      "solar": {
+        "name": "Grzejnik słoneczny"
+      }
+    }
+  }
 }

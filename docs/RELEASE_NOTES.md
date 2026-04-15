@@ -1,10 +1,32 @@
-## v1.0.5-beta.1 – Violet Pool Controller
+## v1.0.5-beta.2 – Violet Pool Controller
 
 🟡 **BETA RELEASE** - Testing phase, may contain bugs
 
 ---
 
 ### ✨ New Features | Neue Funktionen
+
+- feat: hardware module detection (HW_BASE_MODULE, HW_DOSING_MODULE, HW_EXTENSION_MODULE_1/2, HW_STANDALONE_MODE) as diagnostic binary sensors with full i18n support (10 languages)
+
+### 🚀 Improvements | Verbesserungen
+
+- update: API dependency upgraded to violet-poolController-api 0.0.11
+- refactor: hardware detection now uses key-prefix scanning compatible with API 0.0.11 filtered readings
+- fix: device info model string no longer shows redundant "Base" for standard setups
+- fix: dosing_standalone read from entry.data instead of _extract_config() dict (was always False)
+- fix: entity cleanup on setup now uses correct entry_id prefix for unique_id matching
+
+### 🌐 Translations | Übersetzungen
+
+- fix: options.step.settings.data/data_description populated for all 10 languages (was empty)
+- fix: entity.sensor.flow_rate and last_error_code names added to all 10 languages
+- fix: services.export_diagnostic_logs fully translated in all 10 languages
+- fix: reconfigure config flow step added to strings.json (was missing, present in all language files)
+- feat: HW_* binary sensor translation_key i18n wired up for all 10 languages
+
+---
+
+### ✨ New Features (beta.1) | Neue Funktionen
 
 - feat: implement automatic hardware detection with api 0.0.10 including standalone dosing (7930810)
 - feat: implement automatic hardware detection with api 0.0.10 (708a146)
@@ -79,7 +101,7 @@
 
 ---
 
-📋 [Full changelog: v1.0.4...v1.0.5-beta.1](https://github.com/Xerolux/violet-hass/compare/v1.0.4...v1.0.5-beta.1)
+📋 [Full changelog: v1.0.4...v1.0.5-beta.2](https://github.com/Xerolux/violet-hass/compare/v1.0.4...v1.0.5-beta.2)
 
 ---
 

@@ -183,6 +183,7 @@ async def async_setup_entry(
         description = BinarySensorEntityDescription(
             key=sensor_config["key"],
             name=sensor_config["name"],
+            translation_key=sensor_config.get("translation_key"),
             icon=sensor_config.get("icon"),  # type: ignore[arg-type]
             device_class=sensor_config.get("device_class"),  # type: ignore[arg-type]
             entity_category=sensor_config.get("entity_category"),  # type: ignore[arg-type]

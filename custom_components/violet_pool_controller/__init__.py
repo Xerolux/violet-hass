@@ -128,7 +128,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         host = with_non_default_port(config["ip_address"], config["port"])
         # Create API instance
         from .const import CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE
-        dosing_standalone = config.get(CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE)
+        dosing_standalone = entry.data.get(CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE)
 
         api = VioletPoolAPI(
             host=host,
@@ -167,14 +167,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         await async_register_services(hass)
 
-        # Clean up entities that are no longer provided by the API due to hardware profile
+        # Clean up sensor/binary_sensor entities whose data key is no longer
+        # present in the coordinator data (e.g. hardware module removed).
+        # Entity unique_ids are formatted as "{entry_id}_{key}" (see entity.py).
         if coordinator.data:
             import homeassistant.helpers.entity_registry as er
             ent_reg = er.async_get(hass)
             entities = er.async_entries_for_config_entry(ent_reg, entry.entry_id)
             static_keys = {"system_health", "connection_latency", "last_event_age", "api_request_rate", "average_latency"}
 
-            prefix = f"{entry.unique_id}_"
+            prefix = f"{entry.entry_id}_"
             for entity in entities:
                 if entity.domain in ("sensor", "binary_sensor"):
                     if entity.unique_id.startswith(prefix):
