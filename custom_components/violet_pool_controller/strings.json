@@ -117,6 +117,26 @@
             "zeroconf_confirm": {
                 "title": "Violet Pool Controller gefunden / Found",
                 "description": "**DE:** Ein Violet Pool Controller wurde im Netzwerk gefunden.\n**EN:** A Violet Pool Controller was discovered on the network.\n\nName: **{name}**\nIP: **{host}**\n\n**DE:** Möchtest du diesen Controller jetzt einrichten?\n**EN:** Do you want to set up this controller now?"
+            },
+            "reconfigure": {
+                "title": "Verbindung neu konfigurieren / Reconfigure Connection",
+                "description": "**DE:** Aktualisiere die Verbindungseinstellungen für deinen Controller.\n**EN:** Update the connection settings for your controller.\n\nController: **{controller_name}**",
+                "data": {
+                    "host": "IP-Adresse / IP Address",
+                    "port": "TCP-Port / TCP Port",
+                    "use_ssl": "SSL/HTTPS verwenden / Use SSL",
+                    "polling_interval": "Abrufintervall (s) / Polling Interval (s)",
+                    "timeout_duration": "Timeout (s)",
+                    "retry_attempts": "Wiederholungen / Retry Attempts"
+                },
+                "data_description": {
+                    "host": "DE: Neue Controller-IP oder DNS-Name · EN: New controller IP or DNS name",
+                    "port": "DE: TCP-Port (Standard 80) · EN: TCP port (default 80)",
+                    "use_ssl": "DE: HTTPS aktivieren · EN: Enable HTTPS",
+                    "polling_interval": "DE: Datenabruf-Intervall (10–3600s) · EN: Data polling interval (10–3600s)",
+                    "timeout_duration": "DE: Maximale Wartezeit · EN: Maximum wait time per request",
+                    "retry_attempts": "DE: Anzahl Wiederholungsversuche · EN: Number of retry attempts"
+                }
             }
         },
         "error": {
