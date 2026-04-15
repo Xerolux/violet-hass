@@ -64,7 +64,7 @@ pytest tests/test_api.py::test_function_name -v
 
 - **`__init__.py`** - Integration entry point. Handles setup, config entry migration, platform loading, and service registration. Loads these platforms: `sensor`, `binary_sensor`, `switch`, `climate`, `cover`, `number`, `select`.
 
-- **External API package** (`violet-poolController-api==0.0.3` on PyPI) - The HTTP client and low-level utilities are **not** in this repo; they ship as an external package. Provides:
+- **External API package** (`violet-poolController-api==0.0.11` on PyPI) - The HTTP client and low-level utilities are **not** in this repo; they ship as an external package. Provides:
   - `VioletPoolAPI` class - rate-limited HTTP client with retry/backoff
   - `VioletPoolAPIError` exception hierarchy
   - `InputSanitizer` - XSS/injection/path-traversal protection
@@ -556,7 +556,7 @@ Located in `.github/workflows/`:
 - `voluptuous>=0.15.0` - Data validation
 
 **Integration requirement** (from `manifest.json`):
-- `violet-poolController-api==0.0.3` - External API client package (installed by HA automatically)
+- `violet-poolController-api==0.0.11` - External API client package (installed by HA automatically)
 
 **Development** (from `requirements-dev.txt`):
 - `ruff>=0.15.0` - Linter and formatter

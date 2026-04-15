@@ -562,21 +562,35 @@ class VioletPoolControllerDevice:
         Always uses full refresh (?ALL) because the controller returns all
         data in a single compact response (~403 keys) and partial category
         queries miss many important keys (PUMP, SOLAR, fw, etc.).
+
+        API 0.0.11 note: get_readings() now internally builds a hardware
+        profile and filters out readings for absent modules.  The HW_* flags
+        below are derived from what is actually present in the returned data,
+        which is reliable because the API filter only removes keys whose
+        module is absent.
         """
         data = await self.api.get_readings()
 
-        def is_present(key: str) -> bool:
-            if not isinstance(data, dict):
-                return False
-            val = data.get(key)
-            return val is not None and str(val).strip().upper() != "N/A"
-
         if isinstance(data, dict):
-            data["HW_BASE_MODULE"] = not self.api.dosing_standalone
-            data["HW_DOSING_MODULE"] = self.api.dosing_standalone or is_present("SYSTEM_dosagemodule_cpu_temperature")
-            data["HW_EXTENSION_MODULE_1"] = is_present("EXT1_1")
-            data["HW_EXTENSION_MODULE_2"] = is_present("EXT2_1")
-            data["HW_STANDALONE_MODE"] = self.api.dosing_standalone
+            # Derive hardware presence from the filtered data returned by the API.
+            # For dosing: check the CPU-temperature key *and* any DOS_* key so
+            # that detection works even when the temperature sensor is absent.
+            has_dosing = (
+                self.api.dosing_standalone
+                or data.get("SYSTEM_dosagemodule_cpu_temperature") not in (None, "N/A", "n/a")
+                or any(k.startswith("DOS_") for k in data)
+            )
+            # For extension modules: any EXT1_* / EXT2_* key signals presence.
+            has_ext1 = any(k.startswith("EXT1_") for k in data)
+            has_ext2 = any(k.startswith("EXT2_") for k in data)
+
+            is_standalone = self.api.dosing_standalone
+
+            data["HW_BASE_MODULE"] = not is_standalone
+            data["HW_DOSING_MODULE"] = has_dosing
+            data["HW_EXTENSION_MODULE_1"] = has_ext1
+            data["HW_EXTENSION_MODULE_2"] = has_ext2
+            data["HW_STANDALONE_MODE"] = is_standalone
 
         return data
 
@@ -609,17 +623,23 @@ class VioletPoolControllerDevice:
     @property
     def device_info(self) -> dict[str, Any]:
         """Return device information for Home Assistant."""
-        model_parts = ["Violet Pool Controller"]
-        if self._data.get("HW_BASE_MODULE"):
-            model_parts.append("Base")
-        if self._data.get("HW_DOSING_MODULE"):
-            model_parts.append("Dosing")
+        # Build a readable model string from detected hardware modules.
+        # "Base" is omitted when it is the only module to avoid redundancy.
+        extra_modules = []
+        if self._data.get("HW_STANDALONE_MODE"):
+            extra_modules.append("Dosing-Standalone")
+        elif self._data.get("HW_DOSING_MODULE"):
+            extra_modules.append("Dosing")
         if self._data.get("HW_EXTENSION_MODULE_1"):
-            model_parts.append("Ext1")
+            extra_modules.append("Ext1")
         if self._data.get("HW_EXTENSION_MODULE_2"):
-            model_parts.append("Ext2")
+            extra_modules.append("Ext2")
 
-        model_str = " + ".join(model_parts) if len(model_parts) > 1 else "Violet Pool Controller"
+        model_str = (
+            "Violet Pool Controller (" + ", ".join(extra_modules) + ")"
+            if extra_modules
+            else "Violet Pool Controller"
+        )
 
         return {
             "identifiers": {(DOMAIN, f"{self.api_url}_{self.device_id}")},
