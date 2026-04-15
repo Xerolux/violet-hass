@@ -193,8 +193,22 @@
       "settings": {
         "title": "Configuraciones generales",
         "description": "Ajustar los parámetros técnicos.\n\nIntervalo de sondeo: con qué frecuencia se obtienen los datos\nTimeout: tiempo máximo de espera para respuestas\nReintentos: número de reintentos\n\n¡Los valores predeterminados funcionan para la mayoría de las configuraciones!",
-        "data": {},
-        "data_description": {}
+        "data": {
+          "controller_name": "Nombre del controlador",
+          "polling_interval": "Intervalo de sondeo (segundos)",
+          "timeout_duration": "Tiempo de espera (segundos)",
+          "retry_attempts": "Intentos de reintento",
+          "enable_diagnostic_logging": "Registro extendido",
+          "force_update": "Actualizar siempre"
+        },
+        "data_description": {
+          "controller_name": "Nombre de visualización del controlador",
+          "polling_interval": "Intervalo de sondeo de datos (5-300s)",
+          "timeout_duration": "Tiempo máximo de espera por solicitud (5-60s)",
+          "retry_attempts": "Número de intentos de reintento en caso de fallo (1-10)",
+          "enable_diagnostic_logging": "Registros detallados en cada actualización (¡solo diagnóstico!)",
+          "force_update": "Actualizar entidades siempre aunque el valor no cambie"
+        }
       }
     }
   },
@@ -416,6 +430,28 @@
           "description": "¿Qué regla activar? (DIRULE_1 a DIRULE_7)"
         }
       }
+    },
+    "export_diagnostic_logs": {
+      "name": "Exportar registros de diagnóstico",
+      "description": "Exporta los registros recientes de integración para solución de problemas y soporte.",
+      "fields": {
+        "device_id": {
+          "name": "Controlador de piscina",
+          "description": "Violet Pool Controller para la exportación"
+        },
+        "lines": {
+          "name": "Número de líneas",
+          "description": "¿Cuántas líneas de registro recientes exportar? (10-1000)"
+        },
+        "include_timestamps": {
+          "name": "Incluir marcas de tiempo",
+          "description": "Incluir marcas de tiempo en los registros exportados"
+        },
+        "save_to_file": {
+          "name": "Guardar en archivo",
+          "description": "Guardar registros como archivo de texto en el directorio /config/"
+        }
+      }
     }
   },
   "selector": {
@@ -483,6 +519,12 @@
       },
       "recovery_success_rate": {
         "name": "Tasa de éxito de la recuperación"
+      },
+      "flow_rate": {
+        "name": "Caudal"
+      },
+      "last_error_code": {
+        "name": "Último código de error"
       }
     },
     "binary_sensor": {

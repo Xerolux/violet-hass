@@ -128,7 +128,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         host = with_non_default_port(config["ip_address"], config["port"])
         # Create API instance
         from .const import CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE
-        dosing_standalone = config.get(CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE)
+        dosing_standalone = entry.data.get(CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE)
 
         api = VioletPoolAPI(
             host=host,

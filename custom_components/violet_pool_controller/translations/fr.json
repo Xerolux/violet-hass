@@ -193,8 +193,22 @@
       "settings": {
         "title": "Paramètres généraux",
         "description": "Ajuster les paramètres techniques\n\nIntervalle d'interrogation : à quelle fréquence les données sont récupérées\nTimeout : temps d'attente maximum pour les réponses\nNouvelles tentatives : nombre de nouvelles tentatives\n\nLes valeurs par défaut fonctionnent pour la plupart des configurations !",
-        "data": {},
-        "data_description": {}
+        "data": {
+          "controller_name": "Nom du contrôleur",
+          "polling_interval": "Intervalle d'interrogation (secondes)",
+          "timeout_duration": "Délai d'attente (secondes)",
+          "retry_attempts": "Tentatives de réessai",
+          "enable_diagnostic_logging": "Journalisation étendue",
+          "force_update": "Toujours mettre à jour"
+        },
+        "data_description": {
+          "controller_name": "Nom d'affichage du contrôleur",
+          "polling_interval": "Intervalle d'interrogation des données (5-300s)",
+          "timeout_duration": "Temps d'attente maximum par requête (5-60s)",
+          "retry_attempts": "Nombre de tentatives de réessai en cas d'échec (1-10)",
+          "enable_diagnostic_logging": "Journaux détaillés à chaque mise à jour (diagnostics uniquement !)",
+          "force_update": "Toujours mettre à jour les entités même si la valeur est inchangée"
+        }
       }
     }
   },
@@ -416,6 +430,28 @@
           "description": "Quelle règle déclencher ? (DIRULE_1 à DIRULE_7)"
         }
       }
+    },
+    "export_diagnostic_logs": {
+      "name": "Exporter les journaux de diagnostic",
+      "description": "Exporte les journaux d'intégration récents pour le dépannage et le support.",
+      "fields": {
+        "device_id": {
+          "name": "Contrôleur de piscine",
+          "description": "Violet Pool Controller pour l'exportation"
+        },
+        "lines": {
+          "name": "Nombre de lignes",
+          "description": "Combien de lignes de journal récentes exporter ? (10-1000)"
+        },
+        "include_timestamps": {
+          "name": "Inclure les horodatages",
+          "description": "Inclure les horodatages dans les journaux exportés"
+        },
+        "save_to_file": {
+          "name": "Sauvegarder dans un fichier",
+          "description": "Sauvegarder les journaux en tant que fichier texte dans le répertoire /config/"
+        }
+      }
     }
   },
   "selector": {
@@ -483,6 +519,12 @@
       },
       "recovery_success_rate": {
         "name": "Taux de réussite de la récupération"
+      },
+      "flow_rate": {
+        "name": "Débit"
+      },
+      "last_error_code": {
+        "name": "Dernier code d'erreur"
       }
     },
     "binary_sensor": {

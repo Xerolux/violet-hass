@@ -193,8 +193,22 @@
       "settings": {
         "title": "Ustawienia ogólne",
         "description": "Dostosuj parametry techniczne\n\nInterwał sondowania: częstotliwość pobierania danych\nLimit czasu: Maksymalny czas oczekiwania na odpowiedzi\nPonawianie prób: liczba ponownych prób\n\nWartości domyślne działają w przypadku większości konfiguracji!",
-        "data": {},
-        "data_description": {}
+        "data": {
+          "controller_name": "Nazwa kontrolera",
+          "polling_interval": "Interwał odpytywania (sekundy)",
+          "timeout_duration": "Limit czasu (sekundy)",
+          "retry_attempts": "Próby ponowienia",
+          "enable_diagnostic_logging": "Rozszerzone logowanie",
+          "force_update": "Zawsze aktualizuj"
+        },
+        "data_description": {
+          "controller_name": "Wyświetlana nazwa kontrolera",
+          "polling_interval": "Interwał odpytywania danych (5-300s)",
+          "timeout_duration": "Maksymalny czas oczekiwania na żądanie (5-60s)",
+          "retry_attempts": "Liczba prób ponowienia przy błędzie (1-10)",
+          "enable_diagnostic_logging": "Szczegółowe logi przy każdej aktualizacji (tylko diagnostyka!)",
+          "force_update": "Zawsze aktualizuj encje, nawet jeśli wartość się nie zmieniła"
+        }
       }
     }
   },
@@ -416,6 +430,28 @@
           "description": "Którą regułę uruchomić? (DIRULE_1 do DIRULE_7)"
         }
       }
+    },
+    "export_diagnostic_logs": {
+      "name": "Eksportuj logi diagnostyczne",
+      "description": "Eksportuje ostatnie logi integracji do rozwiązywania problemów i wsparcia.",
+      "fields": {
+        "device_id": {
+          "name": "Sterownik basenu",
+          "description": "Violet Pool Controller do eksportu"
+        },
+        "lines": {
+          "name": "Liczba linii",
+          "description": "Ile ostatnich linii logów eksportować? (10-1000)"
+        },
+        "include_timestamps": {
+          "name": "Dołącz znaczniki czasu",
+          "description": "Dołącz znaczniki czasu w eksportowanych logach"
+        },
+        "save_to_file": {
+          "name": "Zapisz do pliku",
+          "description": "Zapisz logi jako plik tekstowy w katalogu /config/"
+        }
+      }
     }
   },
   "selector": {
@@ -483,6 +519,12 @@
       },
       "recovery_success_rate": {
         "name": "Wskaźnik powodzenia odzyskiwania"
+      },
+      "flow_rate": {
+        "name": "Przepływ"
+      },
+      "last_error_code": {
+        "name": "Ostatni kod błędu"
       }
     },
     "binary_sensor": {

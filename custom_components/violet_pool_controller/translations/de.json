@@ -193,8 +193,22 @@
       "settings": {
         "title": "Allgemeine Einstellungen",
         "description": "Passe die technischen Parameter an\n\nPolling-Intervall: Wie oft Daten abgerufen werden\nTimeout: Maximale Wartezeit für Antworten\nWiederholungen: Anzahl Retry-Versuche\n\nStandard-Werte funktionieren für die meisten Setups!",
-        "data": {},
-        "data_description": {}
+        "data": {
+          "controller_name": "Controller-Name",
+          "polling_interval": "Abrufintervall (Sekunden)",
+          "timeout_duration": "Timeout (Sekunden)",
+          "retry_attempts": "Wiederholungsversuche",
+          "enable_diagnostic_logging": "Erweiterte Protokollierung",
+          "force_update": "Immer aktualisieren"
+        },
+        "data_description": {
+          "controller_name": "Anzeigename des Controllers",
+          "polling_interval": "Intervall für Datenabrufe (5-300s)",
+          "timeout_duration": "Maximale Wartezeit pro Anfrage (5-60s)",
+          "retry_attempts": "Anzahl Wiederholungsversuche bei Fehlern (1-10)",
+          "enable_diagnostic_logging": "Ausführliche Logs bei jedem Update (nur für Diagnose!)",
+          "force_update": "Entities immer aktualisieren, auch wenn Wert gleich"
+        }
       }
     }
   },
@@ -416,6 +430,28 @@
           "description": "Welche Regel auslösen? (DIRULE_1 bis DIRULE_7)"
         }
       }
+    },
+    "export_diagnostic_logs": {
+      "name": "Diagnostic-Logs exportieren",
+      "description": "Exportiert letzte Integrations-Logs für Troubleshooting und Support.",
+      "fields": {
+        "device_id": {
+          "name": "Pool Controller",
+          "description": "Violet Pool Controller für den Export"
+        },
+        "lines": {
+          "name": "Anzahl Zeilen",
+          "description": "Wie viele letzte Log-Zeilen exportieren? (10-1000)"
+        },
+        "include_timestamps": {
+          "name": "Timestamps inkludieren",
+          "description": "Zeitstempel in den exportierten Logs einfügen"
+        },
+        "save_to_file": {
+          "name": "Als Datei speichern",
+          "description": "Logs als Textdatei im /config/ Verzeichnis speichern"
+        }
+      }
     }
   },
   "selector": {
@@ -483,6 +519,12 @@
       },
       "recovery_success_rate": {
         "name": "Wiederherstellungsrate"
+      },
+      "flow_rate": {
+        "name": "Durchflussmenge"
+      },
+      "last_error_code": {
+        "name": "Letzter Fehlercode"
       }
     },
     "binary_sensor": {

@@ -193,8 +193,22 @@
       "settings": {
         "title": "Configurações Gerais",
         "description": "Ajuste os parâmetros técnicos\n\nIntervalo de pesquisa: com que frequência os dados são buscados\nTimeout: Tempo máximo de espera por respostas\nNovas tentativas: Número de novas tentativas\n\nOs valores padrão funcionam para a maioria das configurações!",
-        "data": {},
-        "data_description": {}
+        "data": {
+          "controller_name": "Nome do controlador",
+          "polling_interval": "Intervalo de sondagem (segundos)",
+          "timeout_duration": "Tempo limite (segundos)",
+          "retry_attempts": "Tentativas de repetição",
+          "enable_diagnostic_logging": "Registro estendido",
+          "force_update": "Atualizar sempre"
+        },
+        "data_description": {
+          "controller_name": "Nome de exibição do controlador",
+          "polling_interval": "Intervalo de sondagem de dados (5-300s)",
+          "timeout_duration": "Tempo máximo de espera por solicitação (5-60s)",
+          "retry_attempts": "Número de tentativas de repetição em caso de falha (1-10)",
+          "enable_diagnostic_logging": "Registros detalhados em cada atualização (apenas diagnóstico!)",
+          "force_update": "Sempre atualizar entidades, mesmo que o valor não mude"
+        }
       }
     }
   },
@@ -416,6 +430,28 @@
           "description": "Qual regra acionar? (DIRULE_1 a DIRULE_7)"
         }
       }
+    },
+    "export_diagnostic_logs": {
+      "name": "Exportar registros de diagnóstico",
+      "description": "Exporta os registros de integração recentes para solução de problemas e suporte.",
+      "fields": {
+        "device_id": {
+          "name": "Controlador da piscina",
+          "description": "Violet Pool Controller para a exportação"
+        },
+        "lines": {
+          "name": "Número de linhas",
+          "description": "Quantas linhas de registro recentes exportar? (10-1000)"
+        },
+        "include_timestamps": {
+          "name": "Incluir timestamps",
+          "description": "Incluir timestamps nos registros exportados"
+        },
+        "save_to_file": {
+          "name": "Salvar em arquivo",
+          "description": "Salvar registros como arquivo de texto no diretório /config/"
+        }
+      }
     }
   },
   "selector": {
@@ -483,6 +519,12 @@
       },
       "recovery_success_rate": {
         "name": "Taxa de sucesso de recuperação"
+      },
+      "flow_rate": {
+        "name": "Taxa de fluxo"
+      },
+      "last_error_code": {
+        "name": "Último código de erro"
       }
     },
     "binary_sensor": {

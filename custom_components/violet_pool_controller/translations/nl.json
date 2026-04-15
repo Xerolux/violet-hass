@@ -193,8 +193,22 @@
       "settings": {
         "title": "Algemene instellingen",
         "description": "Pas de technische parameters aan\n\nPollinginterval: hoe vaak gegevens worden opgehaald\nTime-out: maximale wachttijd voor reacties\nNieuwe pogingen: aantal nieuwe pogingen\n\nStandaardwaarden werken voor de meeste instellingen!",
-        "data": {},
-        "data_description": {}
+        "data": {
+          "controller_name": "Controller-naam",
+          "polling_interval": "Poll-interval (seconden)",
+          "timeout_duration": "Time-out (seconden)",
+          "retry_attempts": "Herpogingen",
+          "enable_diagnostic_logging": "Uitgebreide logging",
+          "force_update": "Altijd bijwerken"
+        },
+        "data_description": {
+          "controller_name": "Weergavenaam van de controller",
+          "polling_interval": "Data-poll-interval (5-300s)",
+          "timeout_duration": "Maximale wachttijd per verzoek (5-60s)",
+          "retry_attempts": "Aantal herpogingen bij fout (1-10)",
+          "enable_diagnostic_logging": "Uitgebreide logs bij elke update (alleen diagnostiek!)",
+          "force_update": "Entiteiten altijd bijwerken, ook als waarde ongewijzigd is"
+        }
       }
     }
   },
@@ -416,6 +430,28 @@
           "description": "Welke regel moet worden geactiveerd? (DIRULE_1 tot en met DIRULE_7)"
         }
       }
+    },
+    "export_diagnostic_logs": {
+      "name": "Diagnostische logs exporteren",
+      "description": "Exporteert recente integratielogs voor probleemoplossing en ondersteuning.",
+      "fields": {
+        "device_id": {
+          "name": "Pool controller",
+          "description": "Violet Pool Controller voor de export"
+        },
+        "lines": {
+          "name": "Aantal regels",
+          "description": "Hoeveel recente logregels exporteren? (10-1000)"
+        },
+        "include_timestamps": {
+          "name": "Tijdstempels opnemen",
+          "description": "Tijdstempels opnemen in de geëxporteerde logs"
+        },
+        "save_to_file": {
+          "name": "Opslaan als bestand",
+          "description": "Logs opslaan als tekstbestand in de /config/ map"
+        }
+      }
     }
   },
   "selector": {
@@ -483,6 +519,12 @@
       },
       "recovery_success_rate": {
         "name": "Herstelsuccespercentage"
+      },
+      "flow_rate": {
+        "name": "Debiet"
+      },
+      "last_error_code": {
+        "name": "Laatste foutcode"
       }
     },
     "binary_sensor": {

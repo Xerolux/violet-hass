@@ -193,8 +193,22 @@
       "settings": {
         "title": "常规设置",
         "description": "调整技术参数\n\n轮询间隔：获取数据的频率\n超时：响应的最大等待时间\n重试次数：重试次数\n\n默认值适用于大多数设置！",
-        "data": {},
-        "data_description": {}
+        "data": {
+          "controller_name": "控制器名称",
+          "polling_interval": "轮询间隔（秒）",
+          "timeout_duration": "超时（秒）",
+          "retry_attempts": "重试次数",
+          "enable_diagnostic_logging": "扩展日志记录",
+          "force_update": "始终更新"
+        },
+        "data_description": {
+          "controller_name": "控制器显示名称",
+          "polling_interval": "数据轮询间隔（5-300秒）",
+          "timeout_duration": "每次请求最长等待时间（5-60秒）",
+          "retry_attempts": "失败时的重试次数（1-10）",
+          "enable_diagnostic_logging": "每次更新时的详细日志（仅用于诊断！）",
+          "force_update": "始终更新实体，即使值未更改"
+        }
       }
     }
   },
@@ -416,6 +430,28 @@
           "description": "触发哪个规则？ （DIRULE_1 到 DIRULE_7）"
         }
       }
+    },
+    "export_diagnostic_logs": {
+      "name": "导出诊断日志",
+      "description": "导出最近的集成日志，用于故障排除和支持。",
+      "fields": {
+        "device_id": {
+          "name": "泳池控制器",
+          "description": "用于导出的 Violet Pool Controller"
+        },
+        "lines": {
+          "name": "行数",
+          "description": "要导出多少最近的日志行？（10-1000）"
+        },
+        "include_timestamps": {
+          "name": "包含时间戳",
+          "description": "在导出的日志中包含时间戳"
+        },
+        "save_to_file": {
+          "name": "保存到文件",
+          "description": "将日志保存为 /config/ 目录中的文本文件"
+        }
+      }
     }
   },
   "selector": {
@@ -483,6 +519,12 @@
       },
       "recovery_success_rate": {
         "name": "恢复成功率"
+      },
+      "flow_rate": {
+        "name": "流量"
+      },
+      "last_error_code": {
+        "name": "最后错误代码"
       }
     },
     "binary_sensor": {

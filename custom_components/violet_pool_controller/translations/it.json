@@ -193,8 +193,22 @@
       "settings": {
         "title": "Impostazioni generali",
         "description": "Regolare i parametri tecnici\n\nIntervallo di polling: la frequenza con cui vengono recuperati i dati\nTimeout: tempo massimo di attesa per le risposte\nTentativi: numero di tentativi\n\nI valori predefiniti funzionano per la maggior parte delle configurazioni!",
-        "data": {},
-        "data_description": {}
+        "data": {
+          "controller_name": "Nome del controller",
+          "polling_interval": "Intervallo di polling (secondi)",
+          "timeout_duration": "Timeout (secondi)",
+          "retry_attempts": "Tentativi di ripetizione",
+          "enable_diagnostic_logging": "Registrazione estesa",
+          "force_update": "Aggiorna sempre"
+        },
+        "data_description": {
+          "controller_name": "Nome visualizzato del controller",
+          "polling_interval": "Intervallo di polling dati (5-300s)",
+          "timeout_duration": "Tempo massimo di attesa per richiesta (5-60s)",
+          "retry_attempts": "Numero di tentativi di ripetizione in caso di errore (1-10)",
+          "enable_diagnostic_logging": "Log dettagliati ad ogni aggiornamento (solo diagnostica!)",
+          "force_update": "Aggiorna sempre le entità anche se il valore non cambia"
+        }
       }
     }
   },
@@ -416,6 +430,28 @@
           "description": "Quale regola attivare? (da DIRULE_1 a DIRULE_7)"
         }
       }
+    },
+    "export_diagnostic_logs": {
+      "name": "Esporta log diagnostici",
+      "description": "Esporta i log di integrazione recenti per la risoluzione dei problemi e il supporto.",
+      "fields": {
+        "device_id": {
+          "name": "Controller piscina",
+          "description": "Violet Pool Controller per l'esportazione"
+        },
+        "lines": {
+          "name": "Numero di righe",
+          "description": "Quante righe di log recenti esportare? (10-1000)"
+        },
+        "include_timestamps": {
+          "name": "Includi timestamp",
+          "description": "Includi timestamp nei log esportati"
+        },
+        "save_to_file": {
+          "name": "Salva su file",
+          "description": "Salva i log come file di testo nella directory /config/"
+        }
+      }
     }
   },
   "selector": {
@@ -483,6 +519,12 @@
       },
       "recovery_success_rate": {
         "name": "Tasso di successo del recupero"
+      },
+      "flow_rate": {
+        "name": "Portata"
+      },
+      "last_error_code": {
+        "name": "Ultimo codice errore"
       }
     },
     "binary_sensor": {
