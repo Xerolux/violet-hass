@@ -1,4 +1,4 @@
-## v1.0.5-alpha.3 – Violet Pool Controller
+## v1.0.5-alpha.4 – Violet Pool Controller
 
 🔴 **ALPHA RELEASE** - Experimental features, use with caution!
 
@@ -6,6 +6,8 @@
 
 ### ✨ New Features | Neue Funktionen
 
+- feat: implement automatic hardware detection with api 0.0.10 including standalone dosing (7930810)
+- feat: implement automatic hardware detection with api 0.0.10 (708a146)
 - feat: Update API to 0.0.6 and add standalone dosing config (c4199ed)
 - feat: Update API to 0.0.8 and add standalone dosing config (4cb47ce)
 - Add files via upload (ee3a816)
@@ -14,6 +16,7 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- 📝 Release v1.0.5-alpha.3 - Update changelog and version files (df3717b)
 - 📝 Release v1.0.5-alpha.2 - Update changelog and version files (e8d3df3)
 - Update manifest.json (020ff97)
 - Update violet-poolController-api to version 0.0.8 (0ef62ee)
@@ -73,7 +76,7 @@
 
 ---
 
-📋 [Full changelog: v1.0.4...v1.0.5-alpha.3](https://github.com/Xerolux/violet-hass/compare/v1.0.4...v1.0.5-alpha.3)
+📋 [Full changelog: v1.0.4...v1.0.5-alpha.4](https://github.com/Xerolux/violet-hass/compare/v1.0.4...v1.0.5-alpha.4)
 
 ---
 
@@ -107,4 +110,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-04-13 18:15:56 UTC_
+_Generated automatically by GitHub Actions on 2026-04-15 06:31:50 UTC_
