@@ -51,6 +51,7 @@ _BOOLEAN_VALUE_KEYS = {
     "HW_DOSING_MODULE",
     "HW_EXTENSION_MODULE_1",
     "HW_EXTENSION_MODULE_2",
+    "HW_STANDALONE_MODE",
 } | {f"onewire{i}_state" for i in range(1, 13)}
 
 _RUNTIME_KEYS = (

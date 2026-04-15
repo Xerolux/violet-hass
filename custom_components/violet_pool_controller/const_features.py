@@ -171,6 +171,12 @@ BINARY_SENSORS.extend([
         "icon": "mdi:expansion-card",
         "entity_category": EntityCategory.DIAGNOSTIC,
     },
+    {
+        "key": "HW_STANDALONE_MODE",
+        "name": "Hardware: Standalone Dosieranlage",
+        "icon": "mdi:server-network",
+        "entity_category": EntityCategory.DIAGNOSTIC,
+    },
 ])
 
 # =============================================================================

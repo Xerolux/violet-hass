@@ -187,6 +187,7 @@ class TestOfflineScenarios:
         assert result["test"] == "data"
         assert result["value"] == 123
         assert "HW_BASE_MODULE" in result
+        assert "HW_STANDALONE_MODE" in result
 
     @pytest.mark.asyncio
     async def test_throttled_logging(self, device, mock_api):

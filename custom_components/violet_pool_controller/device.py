@@ -576,6 +576,7 @@ class VioletPoolControllerDevice:
             data["HW_DOSING_MODULE"] = self.api.dosing_standalone or is_present("SYSTEM_dosagemodule_cpu_temperature")
             data["HW_EXTENSION_MODULE_1"] = is_present("EXT1_1")
             data["HW_EXTENSION_MODULE_2"] = is_present("EXT2_1")
+            data["HW_STANDALONE_MODE"] = self.api.dosing_standalone
 
         return data
 
