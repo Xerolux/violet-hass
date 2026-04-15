@@ -609,12 +609,24 @@ class VioletPoolControllerDevice:
     @property
     def device_info(self) -> dict[str, Any]:
         """Return device information for Home Assistant."""
+        model_parts = ["Violet Pool Controller"]
+        if self._data.get("HW_BASE_MODULE"):
+            model_parts.append("Base")
+        if self._data.get("HW_DOSING_MODULE"):
+            model_parts.append("Dosing")
+        if self._data.get("HW_EXTENSION_MODULE_1"):
+            model_parts.append("Ext1")
+        if self._data.get("HW_EXTENSION_MODULE_2"):
+            model_parts.append("Ext2")
+
+        model_str = " + ".join(model_parts) if len(model_parts) > 1 else "Violet Pool Controller"
+
         return {
             "identifiers": {(DOMAIN, f"{self.api_url}_{self.device_id}")},
             # Uses controller_name for visual distinction in multi-controller setups
             "name": self.controller_name,
             "manufacturer": "PoolDigital GmbH & Co. KG",
-            "model": "Violet Pool Controller",
+            "model": model_str,
             "sw_version": self._firmware_version or "Unknown",
             "suggested_area": self.controller_name,  # ✅ Auto-Area für Multi-Controller
         }
