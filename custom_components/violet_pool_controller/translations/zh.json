@@ -1,525 +1,540 @@
 {
-    "config": {
-        "step": {
-            "user": {
-                "title": "紫池设置助手",
-                "description": "选择是立即启动配置向导还是先打开详细文档。\n\n文档：[配置指南]({docs_en})\n\n支持与反馈：{issues_url}",
-                "data": {
-                    "action": "选择动作"
-                },
-                "data_description": {
-                    "action": "打开文档或直接开始安装。"
-                }
-            },
-            "disclaimer": {
-                "title": "安全与责任须知",
-                "description": "**安全警告**\n\n这种集成为泵、加热器、灯和计量系统提供远程控制。不正确的配置可能会导致设备损坏、人身伤害或化学品过量。确保您了解所有安全功能并确保可以手动操作。\n\n请先查看[配置指南]({docs_en})，然后再继续。",
-                "data": {
-                    "agreement": "我接受所有风险并已阅读完整的免责声明。"
-                }
-            },
-            "help": {
-                "title": "帮助和文档",
-                "description": "请阅读[配置指南]({docs_en})，了解分步说明、安全注意事项和功能说明。\n\n需要帮助或想分享反馈？在 {issues_url} 上打开问题。\n\n项目存储库：{github_url}\n\n单击**下一步**返回主菜单。"
-            },
-            "connection": {
-                "title": "控制器连接",
-                "description": "将您的紫罗兰泳池控制器连接到 Home Assistant。确保控制器共享同一网络并且 API 可达。\n\n附加文档：[配置指南]({docs_en})",
-                "data": {
-                    "host": "IP 地址或主机名",
-                    "port": "TCP端口",
-                    "username": "用户名（可选）",
-                    "password": "密码（可选）",
-                    "use_ssl": "使用 SSL/HTTPS",
-                    "device_name": "设备名称",
-                    "controller_name": "控制器名称",
-                    "device_id": "设备ID",
-                    "polling_interval": "轮询间隔（秒）",
-                    "timeout_duration": "超时（秒）",
-                    "retry_attempts": "重试尝试"
-                },
-                "data_description": {
-                    "host": "控制器 IP 或 DNS 名称",
-                    "port": "TCP 端口（除非使用自定义代理，否则保留为 80）",
-                    "username": "如果启用身份验证，可选用户名",
-                    "password": "如果需要密码",
-                    "use_ssl": "支持时启用 HTTPS",
-                    "device_name": "Home Assistant 中显示的友好名称",
-                    "controller_name": "控制器显示名称",
-                    "device_id": "如果存在多个控制器，则唯一 ID",
-                    "polling_interval": "数据轮询间隔（10-3600s）",
-                    "timeout_duration": "每个请求的最长等待时间",
-                    "retry_attempts": "重试次数"
-                }
-            },
-            "pool_setup": {
-                "title": "池配置",
-                "description": "提供水池尺寸、类型和消毒方法。这些值用于运行时间优化、能源管理和剂量计算。",
-                "data": {
-                    "pool_size": "泳池尺寸（立方米）",
-                    "pool_type": "泳池类型",
-                    "disinfection_method": "消毒方法"
-                },
-                "data_description": {
-                    "pool_size": "水量（立方米）",
-                    "pool_type": "影响供暖和太阳能行为",
-                    "disinfection_method": "初级水处理方法"
-                }
-            },
-            "feature_selection": {
-                "title": "启用智能功能",
-                "description": "仅启用您的池安装实际使用的功能。这可以保持较低的资源使用率和 UI 整洁。您可以随时在选项中调整选择。",
-                "data": {
-                    "enable_heating": "加热控制",
-                    "enable_solar": "太阳能吸收器",
-                    "enable_ph_control": "pH自动化",
-                    "enable_chlorine_control": "氯管理",
-                    "enable_cover_control": "封面控制",
-                    "enable_backwash": "反冲洗自动化",
-                    "enable_pv_surplus": "光伏剩余",
-                    "enable_filter_control": "过滤泵",
-                    "enable_water_level": "水位监测仪",
-                    "enable_water_refill": "自动加水",
-                    "enable_led_lighting": "LED照明",
-                    "enable_digital_inputs": "数字输入",
-                    "enable_extension_outputs": "扩展模块"
-                },
-                "data_description": {
-                    "enable_heating": "自动加热控制",
-                    "enable_solar": "智能太阳能吸收器控制",
-                    "enable_ph_control": "自动 pH 控制",
-                    "enable_chlorine_control": "氯/氧化还原管理",
-                    "enable_cover_control": "控制水池盖",
-                    "enable_backwash": "自动反洗循环",
-                    "enable_pv_surplus": "智能利用光伏剩余电量",
-                    "enable_filter_control": "按需控制过滤泵",
-                    "enable_water_level": "监测水位",
-                    "enable_water_refill": "自动补水",
-                    "enable_led_lighting": "LED照明场景",
-                    "enable_digital_inputs": "集成外部传感器和开关",
-                    "enable_extension_outputs": "使用扩展模块"
-                }
-            },
-            "sensor_selection": {
-                "title": "选择传感器",
-                "description": "选择您想要在 Home Assistant 中看到的传感器。启用或禁用单个传感器，以保持仪表板干净和专注。\n\n默认情况下，选择所有可用的传感器。您可以随时在选项中调整此选择。"
-            },
-            "reauth_confirm": {
-                "title": "重新验证控制器",
-                "description": "控制器凭据需要更新。请输入您的新用户名和密码。\n\n控制器：**{controller_name}**\nIP 地址：**{api_url}**",
-                "data": {
-                    "username": "用户名",
-                    "password": "密码"
-                },
-                "data_description": {
-                    "username": "用于身份验证的新用户名",
-                    "password": "用于身份验证的新密码"
-                }
-            },
-            "reconfigure": {
-                "title": "重新配置连接",
-                "description": "更新控制器的连接设置。当控制器 IP 地址或网络设置发生更改时，这非常有用。\n\n控制器：**{controller_name}**",
-                "data": {
-                    "host": "IP 地址或主机名",
-                    "port": "TCP端口",
-                    "use_ssl": "使用 SSL/HTTPS",
-                    "polling_interval": "轮询间隔（秒）",
-                    "timeout_duration": "超时（秒）",
-                    "retry_attempts": "重试尝试"
-                },
-                "data_description": {
-                    "host": "新控制器 IP 或 DNS 名称",
-                    "port": "TCP 端口（除非使用自定义代理，否则保留为 80）",
-                    "use_ssl": "支持时启用 HTTPS",
-                    "polling_interval": "数据轮询间隔（10-3600s）",
-                    "timeout_duration": "每个请求的最长等待时间",
-                    "retry_attempts": "重试次数"
-                }
-            },
-            "zeroconf_confirm": {
-                "title": "发现紫池控制器",
-                "description": "在网络上发现紫池控制器。\n\n名称：**{name}**\nIP 地址：**{host}**\n\n您想现在设置该控制器吗？"
-            }
+  "config": {
+    "step": {
+      "user": {
+        "title": "紫池设置助手",
+        "description": "选择是立即启动配置向导还是先打开详细文档。\n\n文档：[配置指南]({docs_en})\n\n支持与反馈：{issues_url}",
+        "data": {
+          "action": "选择动作"
         },
-        "error": {
-            "invalid_ip_address": "IP 地址无效\n\n请输入有效的 IP 地址（例如 192.168.1.100）",
-            "cannot_connect": "连接失败\n\n无法访问控制器。检查：\n• IP 地址是否正确？\n• 控制器是否已通电？\n• 网络连接是否正常？",
-            "invalid_auth": "认证失败\n\n用户名或密码不正确。如果禁用身份验证，请将字段留空。",
-            "timeout_connection": "连接超时\n\n控制器没有响应。可能超载或无法访问。",
-            "authentication_error": "需要身份验证\n\n控制器需要凭据。请输入用户名和密码。",
-            "api_endpoint_not_found": "未找到 API 端点\n\n控制器固件可能已过时或 URL 不正确。",
-            "invalid_pool_size": "池大小无效\n\n值必须介于 0.1 到 1000 立方米之间。",
-            "invalid_configuration": "配置错误\n\n一个或多个输入无效。请检查。",
-            "api_response_error": "控制器响应无效\n\n控制器发送意外数据。需要更新固件吗？",
-            "firmware_data_missing": "固件信息丢失\n\n无法确定控制器固件版本。",
-            "invalid_firmware_version": "固件问题\n\n控制器固件似乎已过时。请更新。",
-            "connection_error": "网络错误\n\n一般连接错误。检查网络设置。",
-            "already_configured": "已配置\n\n已设置具有此 IP 地址的控制器。",
-            "agreement_declined": "安装程序中止\n\n由于不接受安全免责声明，安装被中止。",
-            "unknown": "未知错误\n\n出现了意想不到的问题。如果问题仍然存在，请联系支持人员。"
-        },
-        "abort": {
-            "already_configured": "控制器已配置",
-            "cannot_connect": "连接失败",
-            "invalid_auth": "凭证无效",
-            "agreement_declined": "不接受安全免责声明",
-            "reauth_successful": "重新认证成功",
-            "reauth_failed": "重新认证失败",
-            "reconfigure_successful": "重新配置成功",
-            "already_in_progress": "设置已在进行中",
-            "unknown": "未知错误"
+        "data_description": {
+          "action": "打开文档或直接开始安装。"
         }
-    },
-    "options": {
-        "step": {
-            "init": {
-                "title": "调整池设置",
-                "description": "您想配置什么？\n\n启用/禁用功能\n选择传感器\n更改设置\n\n您可以随时返回此选择。",
-                "data": {
-                    "config_option": "选择配置区域"
-                },
-                "data_description": {
-                    "config_option": "选择您要调整的内容"
-                }
-            },
-            "features": {
-                "title": "启用/禁用功能",
-                "description": "选择您要使用的功能\n\n启用的功能将显示在 Home Assistant 中\n禁用的功能将被隐藏\n\n仅启用您真正需要的内容 - 保持界面干净！"
-            },
-            "sensors": {
-                "title": "选择传感器",
-                "description": "选择应显示哪些传感器\n\n只有选定的传感器才会显示在 Home Assistant 中\n更改立即生效\n\n仅选择您真正想要监控的传感器！"
-            },
-            "settings": {
-                "title": "常规设置",
-                "description": "调整技术参数\n\n轮询间隔：获取数据的频率\n超时：响应的最大等待时间\n重试次数：重试次数\n\n默认值适用于大多数设置！",
-                "data": {},
-                "data_description": {}
-            }
+      },
+      "disclaimer": {
+        "title": "安全与责任须知",
+        "description": "**安全警告**\n\n这种集成为泵、加热器、灯和计量系统提供远程控制。不正确的配置可能会导致设备损坏、人身伤害或化学品过量。确保您了解所有安全功能并确保可以手动操作。\n\n请先查看[配置指南]({docs_en})，然后再继续。",
+        "data": {
+          "agreement": "我接受所有风险并已阅读完整的免责声明。"
         }
-    },
-    "exceptions": {
-        "api_error": {
-            "message": "API 通信错误：{detail}"
+      },
+      "help": {
+        "title": "帮助和文档",
+        "description": "请阅读[配置指南]({docs_en})，了解分步说明、安全注意事项和功能说明。\n\n需要帮助或想分享反馈？在 {issues_url} 上打开问题。\n\n项目存储库：{github_url}\n\n单击**下一步**返回主菜单。"
+      },
+      "connection": {
+        "title": "控制器连接",
+        "description": "将您的紫罗兰泳池控制器连接到 Home Assistant。确保控制器共享同一网络并且 API 可达。\n\n附加文档：[配置指南]({docs_en})",
+        "data": {
+          "host": "IP 地址或主机名",
+          "port": "TCP端口",
+          "username": "用户名（可选）",
+          "password": "密码（可选）",
+          "use_ssl": "使用 SSL/HTTPS",
+          "device_name": "设备名称",
+          "controller_name": "控制器名称",
+          "device_id": "设备ID",
+          "polling_interval": "轮询间隔（秒）",
+          "timeout_duration": "超时（秒）",
+          "retry_attempts": "重试尝试"
         },
-        "invalid_value": {
-            "message": "无效值：{detail}"
-        },
-        "value_out_of_range": {
-            "message": "值 {value} 超出有效范围 ({min}–{max})"
-        },
-        "failed_to_set_value": {
-            "message": "无法设置值：{detail}"
-        },
-        "no_api_key": {
-            "message": "没有为实体 {entity} 配置 API 密钥"
-        },
-        "invalid_action": {
-            "message": "无效操作：{action}"
-        },
-        "unexpected_error": {
-            "message": "意外错误：{detail}"
-        },
-        "controller_unavailable": {
-            "message": "池控制器 {name} 在 {failures} 连续失败后不可用"
+        "data_description": {
+          "host": "控制器 IP 或 DNS 名称",
+          "port": "TCP 端口（除非使用自定义代理，否则保留为 80）",
+          "username": "如果启用身份验证，可选用户名",
+          "password": "如果需要密码",
+          "use_ssl": "支持时启用 HTTPS",
+          "device_name": "Home Assistant 中显示的友好名称",
+          "controller_name": "控制器显示名称",
+          "device_id": "如果存在多个控制器，则唯一 ID",
+          "polling_interval": "数据轮询间隔（10-3600s）",
+          "timeout_duration": "每个请求的最长等待时间",
+          "retry_attempts": "重试次数"
         }
-    },
-    "issues": {
-        "controller_unavailable": {
-            "title": "池控制器不可用",
-            "description": "池控制器 **{name}** 在 {failures} 连续轮询周期内无法访问。\n\n请检查：\n- 控制器是否已通电？\n- 网络连接是否正常？\n- IP 地址仍然正确吗？\n\n一旦控制器再次可用，此问题将自动解决。"
+      },
+      "pool_setup": {
+        "title": "池配置",
+        "description": "提供水池尺寸、类型和消毒方法。这些值用于运行时间优化、能源管理和剂量计算。",
+        "data": {
+          "pool_size": "泳池尺寸（立方米）",
+          "pool_type": "泳池类型",
+          "disinfection_method": "消毒方法"
+        },
+        "data_description": {
+          "pool_size": "水量（立方米）",
+          "pool_type": "影响供暖和太阳能行为",
+          "disinfection_method": "初级水处理方法"
         }
-    },
-    "services": {
-        "turn_auto": {
-            "name": "激活自动模式",
-            "description": "将设备切换到智能自动模式。\n\n该系统现在接管基于传感器数据和时间表的最佳控制。",
-            "fields": {
-                "entity_id": {
-                    "name": "要控制的设备",
-                    "description": "选择要切换到自动模式的设备。"
-                },
-                "auto_delay": {
-                    "name": "延迟（秒）",
-                    "description": "激活 AUTO 模式之前的等待时间（0-86400 秒）。"
-                }
-            }
+      },
+      "feature_selection": {
+        "title": "启用智能功能",
+        "description": "仅启用您的池安装实际使用的功能。这可以保持较低的资源使用率和 UI 整洁。您可以随时在选项中调整选择。",
+        "data": {
+          "enable_heating": "加热控制",
+          "enable_solar": "太阳能吸收器",
+          "enable_ph_control": "pH自动化",
+          "enable_chlorine_control": "氯管理",
+          "enable_cover_control": "封面控制",
+          "enable_backwash": "反冲洗自动化",
+          "enable_pv_surplus": "光伏剩余",
+          "enable_filter_control": "过滤泵",
+          "enable_water_level": "水位监测仪",
+          "enable_water_refill": "自动加水",
+          "enable_led_lighting": "LED照明",
+          "enable_digital_inputs": "数字输入",
+          "enable_extension_outputs": "扩展模块"
         },
-        "set_pv_surplus": {
-            "name": "使用光伏剩余",
-            "description": "激活光伏剩余模式以实现最佳太阳能利用。\n\n泳池设备会利用多余的太阳能自动运行。",
-            "fields": {
-                "entity_id": {
-                    "name": "光伏剩余开关",
-                    "description": "控制器的PV剩余开关。"
-                },
-                "pump_speed": {
-                    "name": "泵速",
-                    "description": "所需的泵功率（1=经济、2=正常、3=最大）。"
-                }
-            }
-        },
-        "manual_dosing": {
-            "name": "手动加药",
-            "description": "在所需的持续时间内开始手动给药。\n\n注意：避免服用过量！务必先检查水值。",
-            "fields": {
-                "entity_id": {
-                    "name": "加药系统",
-                    "description": "选择给药系统（pH+、pH-、氯等）。"
-                },
-                "duration_seconds": {
-                    "name": "给药持续时间（秒）",
-                    "description": "给药应持续多长时间？ （1-3600s，从短时间开始！）"
-                }
-            }
-        },
-        "test_output": {
-            "name": "输出测试模式",
-            "description": "暂时激活控制器输出以进行诊断。确保强制输出时没有人员或设备处于危险之中。",
-            "fields": {
-                "output": {
-                    "name": "输出标识符",
-                    "description": "标识符，例如泵、加热器或太阳能"
-                },
-                "mode": {
-                    "name": "测试模式",
-                    "description": "SWITCH=切换，ON=强制打开，OFF=强制关闭"
-                },
-                "duration": {
-                    "name": "测试持续时间（秒）",
-                    "description": "持续时间介于 1 到 900 秒之间"
-                }
-            }
-        },
-        "set_temperature_target": {
-            "name": "设置目标温度",
-            "description": "设置所需的水池温度。\n\n控制器自动加热至该温度并保持该温度。",
-            "fields": {
-                "entity_ids": {
-                    "name": "供暖系统",
-                    "description": "选择加热器和/或太阳能吸收器。"
-                },
-                "temperature": {
-                    "name": "目标温度（°C）",
-                    "description": "所需的水池温度（建议 20-35°C）。"
-                }
-            }
-        },
-        "set_ph_target": {
-            "name": "设定 pH 目标",
-            "description": "定义自动加液的理想 pH 值。\n\n推荐范围：7.0-7.4，以获得最佳水质和皮肤兼容性。",
-            "fields": {
-                "entity_ids": {
-                    "name": "pH加药系统",
-                    "description": "选择控制器的 pH 控制。"
-                },
-                "target_value": {
-                    "name": "pH值目标",
-                    "description": "所需的 pH 值（6.8-7.8，最佳：7.0-7.4）。"
-                }
-            }
-        },
-        "set_chlorine_target": {
-            "name": "设定氯目标",
-            "description": "确定安全消毒的目标氯含量。\n\n足够的氯可以消除细菌，过多的氯会刺激皮肤和眼睛。",
-            "fields": {
-                "entity_ids": {
-                    "name": "加氯系统",
-                    "description": "加氯或电解系统。"
-                },
-                "target_value": {
-                    "name": "氯目标（毫克/升）",
-                    "description": "所需的游离氯含量（建议 0.3-1.5 毫克/升）。"
-                }
-            }
-        },
-        "trigger_backwash": {
-            "name": "开始反洗",
-            "description": "启动过滤器反冲洗以进行清洁。\n\n去除污垢和沉积物，以获得最佳的过滤器性能。",
-            "fields": {
-                "entity_ids": {
-                    "name": "反冲洗系统",
-                    "description": "反冲洗阀或过滤器自动化。"
-                },
-                "duration": {
-                    "name": "反洗持续时间（秒）",
-                    "description": "冲洗持续时间（通常为 60-300 秒，0=手动结束）。"
-                }
-            }
-        },
-        "start_water_analysis": {
-            "name": "开始水质分析",
-            "description": "开始对所有参数进行自动水分析。\n\n测量 pH、氯、温度和其他值以提供优化建议。",
-            "fields": {
-                "entity_ids": {
-                    "name": "控制器",
-                    "description": "用于分析的紫池控制器。"
-                }
-            }
-        },
-        "set_maintenance_mode": {
-            "name": "维护方式",
-            "description": "启用/禁用维护模式。\n\n在维护模式下，所有自动化都会暂停以确保池工作安全。",
-            "fields": {
-                "entity_ids": {
-                    "name": "控制器",
-                    "description": "选择紫池控制器。"
-                },
-                "enable": {
-                    "name": "启用维护模式",
-                    "description": "开：停止所有自动化|熄灭：恢复正常运行。"
-                }
-            }
-        },
-        "set_all_dmx_scenes_mode": {
-            "name": "控制DMX灯光",
-            "description": "同时控制所有 DMX 灯光场景。\n\n非常适合均匀的灯光效果或完整的开/关切换。",
-            "fields": {
-                "device_id": {
-                    "name": "泳池控制器",
-                    "description": "带 DMX 输出的紫池控制器。"
-                },
-                "dmx_mode": {
-                    "name": "灯光模式",
-                    "description": "所有灯：开/关/自动。"
-                }
-            }
-        },
-        "set_digital_input_rule_lock_state": {
-            "name": "锁切换规则",
-            "description": "锁定或解锁数字交换规则。\n\n防止维护或故障期间不必要的触发。",
-            "fields": {
-                "device_id": {
-                    "name": "泳池控制器",
-                    "description": "带数字规则的紫池控制器。"
-                },
-                "rule_key": {
-                    "name": "规则编号",
-                    "description": "要锁定的规则编号（DIRULE_1 到 DIRULE_7）。"
-                },
-                "lock_state": {
-                    "name": "锁",
-                    "description": "锁定规则（开）或释放（关）。"
-                }
-            }
-        },
-        "trigger_digital_input_rule": {
-            "name": "触发切换规则",
-            "description": "手动触发数字切换规则。\n\n在需要时可用于测试自动化或手动控制。",
-            "fields": {
-                "device_id": {
-                    "name": "泳池控制器",
-                    "description": "紫池控制器有规则。"
-                },
-                "rule_key": {
-                    "name": "规则编号",
-                    "description": "触发哪个规则？ （DIRULE_1 到 DIRULE_7）"
-                }
-            }
+        "data_description": {
+          "enable_heating": "自动加热控制",
+          "enable_solar": "智能太阳能吸收器控制",
+          "enable_ph_control": "自动 pH 控制",
+          "enable_chlorine_control": "氯/氧化还原管理",
+          "enable_cover_control": "控制水池盖",
+          "enable_backwash": "自动反洗循环",
+          "enable_pv_surplus": "智能利用光伏剩余电量",
+          "enable_filter_control": "按需控制过滤泵",
+          "enable_water_level": "监测水位",
+          "enable_water_refill": "自动补水",
+          "enable_led_lighting": "LED照明场景",
+          "enable_digital_inputs": "集成外部传感器和开关",
+          "enable_extension_outputs": "使用扩展模块"
         }
-    },
-    "selector": {
-        "pool_type": {
-            "options": {
-                "outdoor": "室外泳池",
-                "indoor": "室内泳池",
-                "whirlpool": "漩涡浴缸/水疗中心",
-                "natural": "天然泳池/池塘",
-                "combination": "组合/混合"
-            }
+      },
+      "sensor_selection": {
+        "title": "选择传感器",
+        "description": "选择您想要在 Home Assistant 中看到的传感器。启用或禁用单个传感器，以保持仪表板干净和专注。\n\n默认情况下，选择所有可用的传感器。您可以随时在选项中调整此选择。"
+      },
+      "reauth_confirm": {
+        "title": "重新验证控制器",
+        "description": "控制器凭据需要更新。请输入您的新用户名和密码。\n\n控制器：**{controller_name}**\nIP 地址：**{api_url}**",
+        "data": {
+          "username": "用户名",
+          "password": "密码"
         },
-        "disinfection_method": {
-            "options": {
-                "chlorine": "氯（液体/片剂）",
-                "salt": "盐水电解",
-                "bromine": "溴消毒",
-                "active_oxygen": "活性氧/H2O2",
-                "uv": "UV-C 消毒",
-                "ozone": "臭氧处理"
-            }
+        "data_description": {
+          "username": "用于身份验证的新用户名",
+          "password": "用于身份验证的新密码"
+        }
+      },
+      "reconfigure": {
+        "title": "重新配置连接",
+        "description": "更新控制器的连接设置。当控制器 IP 地址或网络设置发生更改时，这非常有用。\n\n控制器：**{controller_name}**",
+        "data": {
+          "host": "IP 地址或主机名",
+          "port": "TCP端口",
+          "use_ssl": "使用 SSL/HTTPS",
+          "polling_interval": "轮询间隔（秒）",
+          "timeout_duration": "超时（秒）",
+          "retry_attempts": "重试尝试"
+        },
+        "data_description": {
+          "host": "新控制器 IP 或 DNS 名称",
+          "port": "TCP 端口（除非使用自定义代理，否则保留为 80）",
+          "use_ssl": "支持时启用 HTTPS",
+          "polling_interval": "数据轮询间隔（10-3600s）",
+          "timeout_duration": "每个请求的最长等待时间",
+          "retry_attempts": "重试次数"
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "发现紫池控制器",
+        "description": "在网络上发现紫池控制器。\n\n名称：**{name}**\nIP 地址：**{host}**\n\n您想现在设置该控制器吗？"
+      }
+    },
+    "error": {
+      "invalid_ip_address": "IP 地址无效\n\n请输入有效的 IP 地址（例如 192.168.1.100）",
+      "cannot_connect": "连接失败\n\n无法访问控制器。检查：\n• IP 地址是否正确？\n• 控制器是否已通电？\n• 网络连接是否正常？",
+      "invalid_auth": "认证失败\n\n用户名或密码不正确。如果禁用身份验证，请将字段留空。",
+      "timeout_connection": "连接超时\n\n控制器没有响应。可能超载或无法访问。",
+      "authentication_error": "需要身份验证\n\n控制器需要凭据。请输入用户名和密码。",
+      "api_endpoint_not_found": "未找到 API 端点\n\n控制器固件可能已过时或 URL 不正确。",
+      "invalid_pool_size": "池大小无效\n\n值必须介于 0.1 到 1000 立方米之间。",
+      "invalid_configuration": "配置错误\n\n一个或多个输入无效。请检查。",
+      "api_response_error": "控制器响应无效\n\n控制器发送意外数据。需要更新固件吗？",
+      "firmware_data_missing": "固件信息丢失\n\n无法确定控制器固件版本。",
+      "invalid_firmware_version": "固件问题\n\n控制器固件似乎已过时。请更新。",
+      "connection_error": "网络错误\n\n一般连接错误。检查网络设置。",
+      "already_configured": "已配置\n\n已设置具有此 IP 地址的控制器。",
+      "agreement_declined": "安装程序中止\n\n由于不接受安全免责声明，安装被中止。",
+      "unknown": "未知错误\n\n出现了意想不到的问题。如果问题仍然存在，请联系支持人员。"
+    },
+    "abort": {
+      "already_configured": "控制器已配置",
+      "cannot_connect": "连接失败",
+      "invalid_auth": "凭证无效",
+      "agreement_declined": "不接受安全免责声明",
+      "reauth_successful": "重新认证成功",
+      "reauth_failed": "重新认证失败",
+      "reconfigure_successful": "重新配置成功",
+      "already_in_progress": "设置已在进行中",
+      "unknown": "未知错误"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "调整池设置",
+        "description": "您想配置什么？\n\n启用/禁用功能\n选择传感器\n更改设置\n\n您可以随时返回此选择。",
+        "data": {
+          "config_option": "选择配置区域"
+        },
+        "data_description": {
+          "config_option": "选择您要调整的内容"
+        }
+      },
+      "features": {
+        "title": "启用/禁用功能",
+        "description": "选择您要使用的功能\n\n启用的功能将显示在 Home Assistant 中\n禁用的功能将被隐藏\n\n仅启用您真正需要的内容 - 保持界面干净！"
+      },
+      "sensors": {
+        "title": "选择传感器",
+        "description": "选择应显示哪些传感器\n\n只有选定的传感器才会显示在 Home Assistant 中\n更改立即生效\n\n仅选择您真正想要监控的传感器！"
+      },
+      "settings": {
+        "title": "常规设置",
+        "description": "调整技术参数\n\n轮询间隔：获取数据的频率\n超时：响应的最大等待时间\n重试次数：重试次数\n\n默认值适用于大多数设置！",
+        "data": {},
+        "data_description": {}
+      }
+    }
+  },
+  "exceptions": {
+    "api_error": {
+      "message": "API 通信错误：{detail}"
+    },
+    "invalid_value": {
+      "message": "无效值：{detail}"
+    },
+    "value_out_of_range": {
+      "message": "值 {value} 超出有效范围 ({min}–{max})"
+    },
+    "failed_to_set_value": {
+      "message": "无法设置值：{detail}"
+    },
+    "no_api_key": {
+      "message": "没有为实体 {entity} 配置 API 密钥"
+    },
+    "invalid_action": {
+      "message": "无效操作：{action}"
+    },
+    "unexpected_error": {
+      "message": "意外错误：{detail}"
+    },
+    "controller_unavailable": {
+      "message": "池控制器 {name} 在 {failures} 连续失败后不可用"
+    }
+  },
+  "issues": {
+    "controller_unavailable": {
+      "title": "池控制器不可用",
+      "description": "池控制器 **{name}** 在 {failures} 连续轮询周期内无法访问。\n\n请检查：\n- 控制器是否已通电？\n- 网络连接是否正常？\n- IP 地址仍然正确吗？\n\n一旦控制器再次可用，此问题将自动解决。"
+    }
+  },
+  "services": {
+    "turn_auto": {
+      "name": "激活自动模式",
+      "description": "将设备切换到智能自动模式。\n\n该系统现在接管基于传感器数据和时间表的最佳控制。",
+      "fields": {
+        "entity_id": {
+          "name": "要控制的设备",
+          "description": "选择要切换到自动模式的设备。"
+        },
+        "auto_delay": {
+          "name": "延迟（秒）",
+          "description": "激活 AUTO 模式之前的等待时间（0-86400 秒）。"
+        }
+      }
+    },
+    "set_pv_surplus": {
+      "name": "使用光伏剩余",
+      "description": "激活光伏剩余模式以实现最佳太阳能利用。\n\n泳池设备会利用多余的太阳能自动运行。",
+      "fields": {
+        "entity_id": {
+          "name": "光伏剩余开关",
+          "description": "控制器的PV剩余开关。"
+        },
+        "pump_speed": {
+          "name": "泵速",
+          "description": "所需的泵功率（1=经济、2=正常、3=最大）。"
+        }
+      }
+    },
+    "manual_dosing": {
+      "name": "手动加药",
+      "description": "在所需的持续时间内开始手动给药。\n\n注意：避免服用过量！务必先检查水值。",
+      "fields": {
+        "entity_id": {
+          "name": "加药系统",
+          "description": "选择给药系统（pH+、pH-、氯等）。"
+        },
+        "duration_seconds": {
+          "name": "给药持续时间（秒）",
+          "description": "给药应持续多长时间？ （1-3600s，从短时间开始！）"
+        }
+      }
+    },
+    "test_output": {
+      "name": "输出测试模式",
+      "description": "暂时激活控制器输出以进行诊断。确保强制输出时没有人员或设备处于危险之中。",
+      "fields": {
+        "output": {
+          "name": "输出标识符",
+          "description": "标识符，例如泵、加热器或太阳能"
+        },
+        "mode": {
+          "name": "测试模式",
+          "description": "SWITCH=切换，ON=强制打开，OFF=强制关闭"
+        },
+        "duration": {
+          "name": "测试持续时间（秒）",
+          "description": "持续时间介于 1 到 900 秒之间"
+        }
+      }
+    },
+    "set_temperature_target": {
+      "name": "设置目标温度",
+      "description": "设置所需的水池温度。\n\n控制器自动加热至该温度并保持该温度。",
+      "fields": {
+        "entity_ids": {
+          "name": "供暖系统",
+          "description": "选择加热器和/或太阳能吸收器。"
+        },
+        "temperature": {
+          "name": "目标温度（°C）",
+          "description": "所需的水池温度（建议 20-35°C）。"
+        }
+      }
+    },
+    "set_ph_target": {
+      "name": "设定 pH 目标",
+      "description": "定义自动加液的理想 pH 值。\n\n推荐范围：7.0-7.4，以获得最佳水质和皮肤兼容性。",
+      "fields": {
+        "entity_ids": {
+          "name": "pH加药系统",
+          "description": "选择控制器的 pH 控制。"
+        },
+        "target_value": {
+          "name": "pH值目标",
+          "description": "所需的 pH 值（6.8-7.8，最佳：7.0-7.4）。"
+        }
+      }
+    },
+    "set_chlorine_target": {
+      "name": "设定氯目标",
+      "description": "确定安全消毒的目标氯含量。\n\n足够的氯可以消除细菌，过多的氯会刺激皮肤和眼睛。",
+      "fields": {
+        "entity_ids": {
+          "name": "加氯系统",
+          "description": "加氯或电解系统。"
+        },
+        "target_value": {
+          "name": "氯目标（毫克/升）",
+          "description": "所需的游离氯含量（建议 0.3-1.5 毫克/升）。"
+        }
+      }
+    },
+    "trigger_backwash": {
+      "name": "开始反洗",
+      "description": "启动过滤器反冲洗以进行清洁。\n\n去除污垢和沉积物，以获得最佳的过滤器性能。",
+      "fields": {
+        "entity_ids": {
+          "name": "反冲洗系统",
+          "description": "反冲洗阀或过滤器自动化。"
+        },
+        "duration": {
+          "name": "反洗持续时间（秒）",
+          "description": "冲洗持续时间（通常为 60-300 秒，0=手动结束）。"
+        }
+      }
+    },
+    "start_water_analysis": {
+      "name": "开始水质分析",
+      "description": "开始对所有参数进行自动水分析。\n\n测量 pH、氯、温度和其他值以提供优化建议。",
+      "fields": {
+        "entity_ids": {
+          "name": "控制器",
+          "description": "用于分析的紫池控制器。"
+        }
+      }
+    },
+    "set_maintenance_mode": {
+      "name": "维护方式",
+      "description": "启用/禁用维护模式。\n\n在维护模式下，所有自动化都会暂停以确保池工作安全。",
+      "fields": {
+        "entity_ids": {
+          "name": "控制器",
+          "description": "选择紫池控制器。"
+        },
+        "enable": {
+          "name": "启用维护模式",
+          "description": "开：停止所有自动化|熄灭：恢复正常运行。"
+        }
+      }
+    },
+    "set_all_dmx_scenes_mode": {
+      "name": "控制DMX灯光",
+      "description": "同时控制所有 DMX 灯光场景。\n\n非常适合均匀的灯光效果或完整的开/关切换。",
+      "fields": {
+        "device_id": {
+          "name": "泳池控制器",
+          "description": "带 DMX 输出的紫池控制器。"
         },
         "dmx_mode": {
-            "options": {
-                "allon": "所有灯都亮",
-                "alloff": "所有灯都关闭",
-                "allauto": "所有灯自动"
-            }
+          "name": "灯光模式",
+          "description": "所有灯：开/关/自动。"
         }
+      }
     },
-    "entity": {
-        "sensor": {
-            "ph_value": {
-                "name": "pH值"
-            },
-            "orp_value": {
-                "name": "氧化还原电位"
-            },
-            "pot_value": {
-                "name": "氯含量"
-            },
-            "onewire1_value": {
-                "name": "水温"
-            },
-            "onewire2_value": {
-                "name": "气温"
-            },
-            "firmware_version": {
-                "name": "固件版本"
-            },
-            "system_health": {
-                "name": "系统健康状况"
-            },
-            "connection_latency": {
-                "name": "连接延迟"
-            },
-            "last_event_age": {
-                "name": "上次活动年龄"
-            },
-            "api_request_rate": {
-                "name": "API 请求率"
-            },
-            "average_latency": {
-                "name": "平均延迟"
-            },
-            "recovery_success_rate": {
-                "name": "恢复成功率"
-            }
+    "set_digital_input_rule_lock_state": {
+      "name": "锁切换规则",
+      "description": "锁定或解锁数字交换规则。\n\n防止维护或故障期间不必要的触发。",
+      "fields": {
+        "device_id": {
+          "name": "泳池控制器",
+          "description": "带数字规则的紫池控制器。"
         },
-        "binary_sensor": {
-            "pump_state": {
-                "name": "过滤泵状态"
-            },
-            "heater_state": {
-                "name": "加热器状态"
-            },
-            "solar_state": {
-                "name": "太阳能状况"
-            },
-            "cover_is_closed": {
-                "name": "盖子关闭"
-            }
+        "rule_key": {
+          "name": "规则编号",
+          "description": "要锁定的规则编号（DIRULE_1 到 DIRULE_7）。"
         },
-        "switch": {
-            "pump": {
-                "name": "过滤泵"
-            },
-            "heater": {
-                "name": "加热器"
-            },
-            "solar": {
-                "name": "太阳能吸收器"
-            },
-            "light": {
-                "name": "灯光"
-            }
-        },
-        "climate": {
-            "heater": {
-                "name": "泳池加热器"
-            },
-            "solar": {
-                "name": "太阳能热水器"
-            }
+        "lock_state": {
+          "name": "锁",
+          "description": "锁定规则（开）或释放（关）。"
         }
+      }
+    },
+    "trigger_digital_input_rule": {
+      "name": "触发切换规则",
+      "description": "手动触发数字切换规则。\n\n在需要时可用于测试自动化或手动控制。",
+      "fields": {
+        "device_id": {
+          "name": "泳池控制器",
+          "description": "紫池控制器有规则。"
+        },
+        "rule_key": {
+          "name": "规则编号",
+          "description": "触发哪个规则？ （DIRULE_1 到 DIRULE_7）"
+        }
+      }
     }
+  },
+  "selector": {
+    "pool_type": {
+      "options": {
+        "outdoor": "室外泳池",
+        "indoor": "室内泳池",
+        "whirlpool": "漩涡浴缸/水疗中心",
+        "natural": "天然泳池/池塘",
+        "combination": "组合/混合"
+      }
+    },
+    "disinfection_method": {
+      "options": {
+        "chlorine": "氯（液体/片剂）",
+        "salt": "盐水电解",
+        "bromine": "溴消毒",
+        "active_oxygen": "活性氧/H2O2",
+        "uv": "UV-C 消毒",
+        "ozone": "臭氧处理"
+      }
+    },
+    "dmx_mode": {
+      "options": {
+        "allon": "所有灯都亮",
+        "alloff": "所有灯都关闭",
+        "allauto": "所有灯自动"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "ph_value": {
+        "name": "pH值"
+      },
+      "orp_value": {
+        "name": "氧化还原电位"
+      },
+      "pot_value": {
+        "name": "氯含量"
+      },
+      "onewire1_value": {
+        "name": "水温"
+      },
+      "onewire2_value": {
+        "name": "气温"
+      },
+      "firmware_version": {
+        "name": "固件版本"
+      },
+      "system_health": {
+        "name": "系统健康状况"
+      },
+      "connection_latency": {
+        "name": "连接延迟"
+      },
+      "last_event_age": {
+        "name": "上次活动年龄"
+      },
+      "api_request_rate": {
+        "name": "API 请求率"
+      },
+      "average_latency": {
+        "name": "平均延迟"
+      },
+      "recovery_success_rate": {
+        "name": "恢复成功率"
+      }
+    },
+    "binary_sensor": {
+      "pump_state": {
+        "name": "过滤泵状态"
+      },
+      "heater_state": {
+        "name": "加热器状态"
+      },
+      "solar_state": {
+        "name": "太阳能状况"
+      },
+      "cover_is_closed": {
+        "name": "盖子关闭"
+      },
+      "hw_base_module": {
+        "name": "基础模块"
+      },
+      "hw_dosing_module": {
+        "name": "加药模块"
+      },
+      "hw_extension_module_1": {
+        "name": "扩展模块 1"
+      },
+      "hw_extension_module_2": {
+        "name": "扩展模块 2"
+      },
+      "hw_standalone_mode": {
+        "name": "独立加药模式"
+      }
+    },
+    "switch": {
+      "pump": {
+        "name": "过滤泵"
+      },
+      "heater": {
+        "name": "加热器"
+      },
+      "solar": {
+        "name": "太阳能吸收器"
+      },
+      "light": {
+        "name": "灯光"
+      }
+    },
+    "climate": {
+      "heater": {
+        "name": "泳池加热器"
+      },
+      "solar": {
+        "name": "太阳能热水器"
+      }
+    }
+  }
 }

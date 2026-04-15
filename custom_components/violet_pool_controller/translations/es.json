@@ -1,525 +1,540 @@
 {
-    "config": {
-        "step": {
-            "user": {
-                "title": "Asistente de configuración de piscina violeta",
-                "description": "Elija si desea iniciar el asistente de configuración inmediatamente o abrir primero la documentación detallada.\n\nDocumentación: [Guía de configuración]({docs_en})\n\nSoporte y comentarios: {issues_url}",
-                "data": {
-                    "action": "Seleccionar acción"
-                },
-                "data_description": {
-                    "action": "Abra la documentación o inicie la configuración directamente."
-                }
-            },
-            "disclaimer": {
-                "title": "Aviso de seguridad y responsabilidad",
-                "description": "**Advertencia de seguridad**\n\nEsta integración proporciona control remoto para bombas, calentadores, luces y sistemas de dosificación. La configuración incorrecta puede causar daños al equipo, lesiones personales o sobredosis de productos químicos. Asegúrese de comprender todas las funciones de seguridad y mantenga accesibles las anulaciones manuales.\n\nRevise la [Guía de configuración]({docs_en}) antes de continuar.",
-                "data": {
-                    "agreement": "Acepto todos los riesgos y he leído el descargo de responsabilidad completo."
-                }
-            },
-            "help": {
-                "title": "Ayuda y documentación",
-                "description": "Lea la [Guía de configuración]({docs_en}) para obtener instrucciones paso a paso, notas de seguridad y explicaciones de funciones.\n\n¿Necesita ayuda o quiere compartir comentarios? Abra un problema en {issues_url}.\n\nRepositorio de proyectos: {github_url}\n\nHaga clic en **Siguiente** para volver al menú principal."
-            },
-            "connection": {
-                "title": "Conexión del controlador",
-                "description": "Conecte su controlador de piscina Violet a Home Assistant. Asegúrese de que el controlador comparta la misma red y que se pueda acceder a la API.\n\nDocumentación adicional: [Guía de configuración]({docs_en})",
-                "data": {
-                    "host": "Dirección IP o nombre de host",
-                    "port": "Puerto TCP",
-                    "username": "Nombre de usuario (opcional)",
-                    "password": "Contraseña (opcional)",
-                    "use_ssl": "Utilice SSL/HTTPS",
-                    "device_name": "Nombre del dispositivo",
-                    "controller_name": "Nombre del controlador",
-                    "device_id": "ID del dispositivo",
-                    "polling_interval": "Intervalo de sondeo (segundos)",
-                    "timeout_duration": "Tiempo de espera (segundos)",
-                    "retry_attempts": "Reintentar intentos"
-                },
-                "data_description": {
-                    "host": "IP del controlador o nombre DNS",
-                    "port": "Puerto TCP (déjelo en 80 a menos que use un proxy personalizado)",
-                    "username": "Nombre de usuario opcional si la autenticación está habilitada",
-                    "password": "Contraseña si es requerida",
-                    "use_ssl": "Habilite HTTPS cuando sea compatible",
-                    "device_name": "Nombre descriptivo que se muestra en Home Assistant",
-                    "controller_name": "Nombre para mostrar del controlador",
-                    "device_id": "ID único si existen varios controladores",
-                    "polling_interval": "Intervalo de sondeo de datos (10-3600 s)",
-                    "timeout_duration": "Tiempo máximo de espera por solicitud",
-                    "retry_attempts": "Número de reintentos"
-                }
-            },
-            "pool_setup": {
-                "title": "Configuración de la piscina",
-                "description": "Proporcionar tamaño, tipo y método de desinfección de la piscina. Estos valores se utilizan para la optimización del tiempo de ejecución, la gestión de energía y los cálculos de dosificación.",
-                "data": {
-                    "pool_size": "Tamaño de la piscina (m³)",
-                    "pool_type": "Tipo de piscina",
-                    "disinfection_method": "Método de desinfección"
-                },
-                "data_description": {
-                    "pool_size": "Volumen de agua en metros cúbicos.",
-                    "pool_type": "Influye en el comportamiento de la calefacción y del sol.",
-                    "disinfection_method": "Método de tratamiento primario de agua."
-                }
-            },
-            "feature_selection": {
-                "title": "Habilitar funciones inteligentes",
-                "description": "Habilite solo las funciones que realmente utiliza la instalación de su piscina. Esto mantiene bajo el uso de recursos y la interfaz de usuario ordenada. Puede ajustar la selección en cualquier momento en las opciones.",
-                "data": {
-                    "enable_heating": "Control de calefacción",
-                    "enable_solar": "Absorbedor solar",
-                    "enable_ph_control": "Automatización del pH",
-                    "enable_chlorine_control": "Gestión del cloro",
-                    "enable_cover_control": "Control de cubierta",
-                    "enable_backwash": "Automatización de retrolavado",
-                    "enable_pv_surplus": "Superávit fotovoltaico",
-                    "enable_filter_control": "Bomba de filtro",
-                    "enable_water_level": "Monitor de nivel de agua",
-                    "enable_water_refill": "Recarga automática de agua",
-                    "enable_led_lighting": "Iluminación LED",
-                    "enable_digital_inputs": "Entradas digitales",
-                    "enable_extension_outputs": "Módulos de extensión"
-                },
-                "data_description": {
-                    "enable_heating": "Control de calefacción automatizado",
-                    "enable_solar": "Control inteligente de absorbedores solares",
-                    "enable_ph_control": "Control de pH automatizado",
-                    "enable_chlorine_control": "Gestión de cloro/redox",
-                    "enable_cover_control": "Controlar la cubierta de la piscina",
-                    "enable_backwash": "Ciclos de retrolavado automatizados",
-                    "enable_pv_surplus": "Utilizar inteligentemente el excedente fotovoltaico",
-                    "enable_filter_control": "Controle la bomba de filtrado bajo demanda",
-                    "enable_water_level": "Monitorear el nivel del agua",
-                    "enable_water_refill": "Recarga automática de agua",
-                    "enable_led_lighting": "escenas de iluminación LED",
-                    "enable_digital_inputs": "Integrar sensores e interruptores externos",
-                    "enable_extension_outputs": "Usar módulos de extensión"
-                }
-            },
-            "sensor_selection": {
-                "title": "Seleccionar sensores",
-                "description": "Elige qué sensores quieres ver en Home Assistant. Habilite o deshabilite sensores individuales para mantener su tablero limpio y enfocado.\n\nDe forma predeterminada, se seleccionan todos los sensores disponibles. Puede ajustar esta selección en cualquier momento en las opciones."
-            },
-            "reauth_confirm": {
-                "title": "Volver a autenticar el controlador",
-                "description": "Es necesario actualizar las credenciales del controlador. Por favor ingrese su nuevo nombre de usuario y contraseña.\n\nControlador: **{controller_name}**\nDirección IP: **{api_url}**",
-                "data": {
-                    "username": "Nombre de usuario",
-                    "password": "Contraseña"
-                },
-                "data_description": {
-                    "username": "Nuevo nombre de usuario para autenticación",
-                    "password": "Nueva contraseña para autenticación"
-                }
-            },
-            "reconfigure": {
-                "title": "Reconfigurar la conexión",
-                "description": "Actualice la configuración de conexión de su controlador. Esto es útil cuando la dirección IP del controlador o la configuración de red han cambiado.\n\nControlador: **{controller_name}**",
-                "data": {
-                    "host": "Dirección IP o nombre de host",
-                    "port": "Puerto TCP",
-                    "use_ssl": "Utilice SSL/HTTPS",
-                    "polling_interval": "Intervalo de sondeo (segundos)",
-                    "timeout_duration": "Tiempo de espera (segundos)",
-                    "retry_attempts": "Reintentar intentos"
-                },
-                "data_description": {
-                    "host": "Nueva IP del controlador o nombre DNS",
-                    "port": "Puerto TCP (déjelo en 80 a menos que use un proxy personalizado)",
-                    "use_ssl": "Habilite HTTPS cuando sea compatible",
-                    "polling_interval": "Intervalo de sondeo de datos (10-3600 s)",
-                    "timeout_duration": "Tiempo máximo de espera por solicitud",
-                    "retry_attempts": "Número de reintentos"
-                }
-            },
-            "zeroconf_confirm": {
-                "title": "Controlador de piscina violeta encontrado",
-                "description": "Se descubrió un Violet Pool Controller en la red.\n\nNombre: **{name}**\nDirección IP: **{host}**\n\n¿Quieres configurar este controlador ahora?"
-            }
+  "config": {
+    "step": {
+      "user": {
+        "title": "Asistente de configuración de piscina violeta",
+        "description": "Elija si desea iniciar el asistente de configuración inmediatamente o abrir primero la documentación detallada.\n\nDocumentación: [Guía de configuración]({docs_en})\n\nSoporte y comentarios: {issues_url}",
+        "data": {
+          "action": "Seleccionar acción"
         },
-        "error": {
-            "invalid_ip_address": "Dirección IP no válida\n\nIngrese una dirección IP válida (por ejemplo, 192.168.1.100)",
-            "cannot_connect": "Conexión fallida\n\nControlador no accesible. Comprobar:\n• ¿Es correcta la dirección IP?\n• ¿Está encendido el controlador?\n• ¿Está bien la conexión de red?",
-            "invalid_auth": "Error de autenticación\n\nNombre de usuario o contraseña incorrectos. Deje los campos vacíos si la autenticación está deshabilitada.",
-            "timeout_connection": "Tiempo de espera de conexión\n\nEl controlador no responde. Posiblemente sobrecargado o inalcanzable.",
-            "authentication_error": "Se requiere autenticación\n\nEl controlador requiere credenciales. Por favor ingrese nombre de usuario y contraseña.",
-            "api_endpoint_not_found": "Punto final API no encontrado\n\nEl firmware del controlador puede estar desactualizado o la URL es incorrecta.",
-            "invalid_pool_size": "Tamaño de piscina no válido\n\nEl valor debe estar entre 0,1 y 1000 m³.",
-            "invalid_configuration": "Error de configuración\n\nUna o más entradas no son válidas. Por favor, compruebe.",
-            "api_response_error": "Respuesta del controlador no válida\n\nEl controlador envía datos inesperados. ¿Necesita actualización de firmware?",
-            "firmware_data_missing": "Falta información de firmware\n\nNo se pudo determinar la versión del firmware del controlador.",
-            "invalid_firmware_version": "Problema de firmware\n\nEl firmware del controlador parece desactualizado. Por favor actualice.",
-            "connection_error": "Error de red\n\nError general de conexión. Verifique la configuración de red.",
-            "already_configured": "Ya configurado\n\nYa hay un controlador con esta dirección IP configurado.",
-            "agreement_declined": "Configuración cancelada\n\nLa instalación se canceló porque no se aceptó la exención de responsabilidad de seguridad.",
-            "unknown": "Error desconocido\n\nOcurrió un problema inesperado. Póngase en contacto con el soporte si persiste."
-        },
-        "abort": {
-            "already_configured": "Controlador ya configurado",
-            "cannot_connect": "La conexión falló",
-            "invalid_auth": "Credenciales no válidas",
-            "agreement_declined": "Descargo de responsabilidad de seguridad no aceptado",
-            "reauth_successful": "Reautenticación exitosa",
-            "reauth_failed": "Error de reautenticación",
-            "reconfigure_successful": "Reconfiguración exitosa",
-            "already_in_progress": "Configuración ya en progreso",
-            "unknown": "Error desconocido"
+        "data_description": {
+          "action": "Abra la documentación o inicie la configuración directamente."
         }
-    },
-    "options": {
-        "step": {
-            "init": {
-                "title": "Ajustar la configuración de la piscina",
-                "description": "¿Qué te gustaría configurar?\n\nActivar/desactivar funciones\nSeleccionar sensores\nCambiar configuración\n\nSiempre podrás volver a esta selección.",
-                "data": {
-                    "config_option": "Seleccionar área de configuración"
-                },
-                "data_description": {
-                    "config_option": "Elige lo que quieres ajustar"
-                }
-            },
-            "features": {
-                "title": "Activar/desactivar funciones",
-                "description": "Elija las funciones que desea utilizar\n\nLas funciones habilitadas se mostrarán en Home Assistant\nLas funciones deshabilitadas se ocultarán\n\nHabilite sólo lo que realmente necesita: ¡mantiene la interfaz limpia!"
-            },
-            "sensors": {
-                "title": "Seleccionar sensores",
-                "description": "Elija qué sensores deben mostrarse\n\nSolo los sensores seleccionados se mostrarán en Home Assistant\nLos cambios entran en vigor inmediatamente\n\n¡Seleccione sólo los sensores que realmente desea monitorear!"
-            },
-            "settings": {
-                "title": "Configuraciones generales",
-                "description": "Ajustar los parámetros técnicos.\n\nIntervalo de sondeo: con qué frecuencia se obtienen los datos\nTimeout: tiempo máximo de espera para respuestas\nReintentos: número de reintentos\n\n¡Los valores predeterminados funcionan para la mayoría de las configuraciones!",
-                "data": {},
-                "data_description": {}
-            }
+      },
+      "disclaimer": {
+        "title": "Aviso de seguridad y responsabilidad",
+        "description": "**Advertencia de seguridad**\n\nEsta integración proporciona control remoto para bombas, calentadores, luces y sistemas de dosificación. La configuración incorrecta puede causar daños al equipo, lesiones personales o sobredosis de productos químicos. Asegúrese de comprender todas las funciones de seguridad y mantenga accesibles las anulaciones manuales.\n\nRevise la [Guía de configuración]({docs_en}) antes de continuar.",
+        "data": {
+          "agreement": "Acepto todos los riesgos y he leído el descargo de responsabilidad completo."
         }
-    },
-    "exceptions": {
-        "api_error": {
-            "message": "Error de comunicación API: {detail}"
+      },
+      "help": {
+        "title": "Ayuda y documentación",
+        "description": "Lea la [Guía de configuración]({docs_en}) para obtener instrucciones paso a paso, notas de seguridad y explicaciones de funciones.\n\n¿Necesita ayuda o quiere compartir comentarios? Abra un problema en {issues_url}.\n\nRepositorio de proyectos: {github_url}\n\nHaga clic en **Siguiente** para volver al menú principal."
+      },
+      "connection": {
+        "title": "Conexión del controlador",
+        "description": "Conecte su controlador de piscina Violet a Home Assistant. Asegúrese de que el controlador comparta la misma red y que se pueda acceder a la API.\n\nDocumentación adicional: [Guía de configuración]({docs_en})",
+        "data": {
+          "host": "Dirección IP o nombre de host",
+          "port": "Puerto TCP",
+          "username": "Nombre de usuario (opcional)",
+          "password": "Contraseña (opcional)",
+          "use_ssl": "Utilice SSL/HTTPS",
+          "device_name": "Nombre del dispositivo",
+          "controller_name": "Nombre del controlador",
+          "device_id": "ID del dispositivo",
+          "polling_interval": "Intervalo de sondeo (segundos)",
+          "timeout_duration": "Tiempo de espera (segundos)",
+          "retry_attempts": "Reintentar intentos"
         },
-        "invalid_value": {
-            "message": "Valor no válido: {detail}"
-        },
-        "value_out_of_range": {
-            "message": "El valor {value} está fuera del rango válido ({min}–{max})"
-        },
-        "failed_to_set_value": {
-            "message": "No se pudo establecer el valor: {detail}"
-        },
-        "no_api_key": {
-            "message": "No hay clave API configurada para la entidad {entity}"
-        },
-        "invalid_action": {
-            "message": "Acción no válida: {action}"
-        },
-        "unexpected_error": {
-            "message": "Error inesperado: {detail}"
-        },
-        "controller_unavailable": {
-            "message": "El controlador de grupo {name} no está disponible después de {failures} fallas consecutivas"
+        "data_description": {
+          "host": "IP del controlador o nombre DNS",
+          "port": "Puerto TCP (déjelo en 80 a menos que use un proxy personalizado)",
+          "username": "Nombre de usuario opcional si la autenticación está habilitada",
+          "password": "Contraseña si es requerida",
+          "use_ssl": "Habilite HTTPS cuando sea compatible",
+          "device_name": "Nombre descriptivo que se muestra en Home Assistant",
+          "controller_name": "Nombre para mostrar del controlador",
+          "device_id": "ID único si existen varios controladores",
+          "polling_interval": "Intervalo de sondeo de datos (10-3600 s)",
+          "timeout_duration": "Tiempo máximo de espera por solicitud",
+          "retry_attempts": "Número de reintentos"
         }
-    },
-    "issues": {
-        "controller_unavailable": {
-            "title": "Controlador de piscina no disponible",
-            "description": "El controlador del grupo **{name}** ha estado inaccesible durante {failures} ciclos de sondeo consecutivos.\n\nPor favor verifique:\n- ¿Está encendido el controlador?\n- ¿Está bien la conexión de red?\n- ¿La dirección IP sigue siendo correcta?\n\nUna vez que se pueda acceder nuevamente al controlador, este problema se resolverá automáticamente."
+      },
+      "pool_setup": {
+        "title": "Configuración de la piscina",
+        "description": "Proporcionar tamaño, tipo y método de desinfección de la piscina. Estos valores se utilizan para la optimización del tiempo de ejecución, la gestión de energía y los cálculos de dosificación.",
+        "data": {
+          "pool_size": "Tamaño de la piscina (m³)",
+          "pool_type": "Tipo de piscina",
+          "disinfection_method": "Método de desinfección"
+        },
+        "data_description": {
+          "pool_size": "Volumen de agua en metros cúbicos.",
+          "pool_type": "Influye en el comportamiento de la calefacción y del sol.",
+          "disinfection_method": "Método de tratamiento primario de agua."
         }
-    },
-    "services": {
-        "turn_auto": {
-            "name": "Activar el modo AUTO",
-            "description": "Cambia los dispositivos al modo automático inteligente.\n\nEl sistema ahora asume un control óptimo basado en los datos y horarios de los sensores.",
-            "fields": {
-                "entity_id": {
-                    "name": "Dispositivos para controlar",
-                    "description": "Seleccione los dispositivos para cambiar al modo AUTO."
-                },
-                "auto_delay": {
-                    "name": "Retraso (segundos)",
-                    "description": "Tiempo de espera antes de que se active el modo AUTO (0-86400s)."
-                }
-            }
+      },
+      "feature_selection": {
+        "title": "Habilitar funciones inteligentes",
+        "description": "Habilite solo las funciones que realmente utiliza la instalación de su piscina. Esto mantiene bajo el uso de recursos y la interfaz de usuario ordenada. Puede ajustar la selección en cualquier momento en las opciones.",
+        "data": {
+          "enable_heating": "Control de calefacción",
+          "enable_solar": "Absorbedor solar",
+          "enable_ph_control": "Automatización del pH",
+          "enable_chlorine_control": "Gestión del cloro",
+          "enable_cover_control": "Control de cubierta",
+          "enable_backwash": "Automatización de retrolavado",
+          "enable_pv_surplus": "Superávit fotovoltaico",
+          "enable_filter_control": "Bomba de filtro",
+          "enable_water_level": "Monitor de nivel de agua",
+          "enable_water_refill": "Recarga automática de agua",
+          "enable_led_lighting": "Iluminación LED",
+          "enable_digital_inputs": "Entradas digitales",
+          "enable_extension_outputs": "Módulos de extensión"
         },
-        "set_pv_surplus": {
-            "name": "Utilizar excedente fotovoltaico",
-            "description": "Activa el modo excedente fotovoltaico para un uso óptimo de la energía solar.\n\nLos dispositivos de la piscina funcionan automáticamente con el exceso de energía solar.",
-            "fields": {
-                "entity_id": {
-                    "name": "Interruptor de excedente fotovoltaico",
-                    "description": "El interruptor de excedente fotovoltaico del controlador."
-                },
-                "pump_speed": {
-                    "name": "Velocidad de la bomba",
-                    "description": "Potencia de bomba deseada (1=Eco, 2=Normal, 3=Máxima)."
-                }
-            }
-        },
-        "manual_dosing": {
-            "name": "Dosificación manual",
-            "description": "Inicia la dosificación manual durante el tiempo deseado.\n\nPrecaución: ¡Evite la sobredosis! Siempre verifique primero los valores del agua.",
-            "fields": {
-                "entity_id": {
-                    "name": "Sistema de dosificación",
-                    "description": "Seleccionar el sistema de dosificación (pH+, pH-, Cloro, etc.)."
-                },
-                "duration_seconds": {
-                    "name": "Duración de la dosificación (segundos)",
-                    "description": "¿Cuánto tiempo debe durar la dosificación? (¡1-3600, comience con tiempos cortos!)"
-                }
-            }
-        },
-        "test_output": {
-            "name": "Modo de prueba de salida",
-            "description": "Activa temporalmente una salida del controlador para diagnóstico. Asegúrese de que no haya personas ni equipos en riesgo mientras se fuerza la salida.",
-            "fields": {
-                "output": {
-                    "name": "Identificador de salida",
-                    "description": "Identificador como BOMBA, CALENTADOR o SOLAR"
-                },
-                "mode": {
-                    "name": "Modo de prueba",
-                    "description": "SWITCH=alternar, ON=forzar encendido, OFF=forzar apagado"
-                },
-                "duration": {
-                    "name": "Duración de la prueba (segundos)",
-                    "description": "Duración entre 1 y 900 segundos."
-                }
-            }
-        },
-        "set_temperature_target": {
-            "name": "Establecer temperatura objetivo",
-            "description": "Establece la temperatura deseada de la piscina.\n\nEl controlador calienta automáticamente a esta temperatura y la mantiene.",
-            "fields": {
-                "entity_ids": {
-                    "name": "Sistemas de calefacción",
-                    "description": "Seleccione calentador y/o absorbente solar."
-                },
-                "temperature": {
-                    "name": "Temperatura objetivo (°C)",
-                    "description": "Temperatura deseada de la piscina (se recomienda 20-35°C)."
-                }
-            }
-        },
-        "set_ph_target": {
-            "name": "Establecer objetivo de pH",
-            "description": "Define el valor de pH ideal para la dosificación automática.\n\nRango recomendado: 7,0-7,4 para una calidad óptima del agua y compatibilidad con la piel.",
-            "fields": {
-                "entity_ids": {
-                    "name": "Sistema de dosificación de pH",
-                    "description": "Seleccione el control de pH del controlador."
-                },
-                "target_value": {
-                    "name": "Objetivo de pH",
-                    "description": "Valor de pH deseado (6,8-7,8, óptimo: 7,0-7,4)."
-                }
-            }
-        },
-        "set_chlorine_target": {
-            "name": "Establecer objetivo de cloro",
-            "description": "Determina el contenido de cloro objetivo para una desinfección segura.\n\nUna cantidad suficiente de cloro elimina las bacterias, un exceso irrita la piel y los ojos.",
-            "fields": {
-                "entity_ids": {
-                    "name": "Sistema de dosificación de cloro",
-                    "description": "Sistema de dosificación de cloro o electrólisis."
-                },
-                "target_value": {
-                    "name": "Objetivo de cloro (mg/l)",
-                    "description": "Contenido de cloro libre deseado (se recomienda 0,3-1,5 mg/l)."
-                }
-            }
-        },
-        "trigger_backwash": {
-            "name": "Iniciar retrolavado",
-            "description": "Inicia un retrolavado del filtro para su limpieza.\n\nElimina la suciedad y los depósitos para un rendimiento óptimo del filtro.",
-            "fields": {
-                "entity_ids": {
-                    "name": "Sistema de retrolavado",
-                    "description": "Válvula de retrolavado o automatización de filtro."
-                },
-                "duration": {
-                    "name": "Duración del retrolavado (segundos)",
-                    "description": "Duración del enjuague (60-300 s típico, 0 = final manual)."
-                }
-            }
-        },
-        "start_water_analysis": {
-            "name": "Iniciar análisis de agua",
-            "description": "Inicia un análisis de agua automático de todos los parámetros.\n\nMide pH, cloro, temperatura y otros valores para sugerencias de optimización.",
-            "fields": {
-                "entity_ids": {
-                    "name": "Controlador",
-                    "description": "Controlador de piscina violeta para análisis."
-                }
-            }
-        },
-        "set_maintenance_mode": {
-            "name": "Modo de mantenimiento",
-            "description": "Activa/desactiva el modo de mantenimiento.\n\nEn modo de mantenimiento, toda la automatización está en pausa para un trabajo seguro en la piscina.",
-            "fields": {
-                "entity_ids": {
-                    "name": "Controlador",
-                    "description": "Seleccione Controlador de piscina violeta."
-                },
-                "enable": {
-                    "name": "Habilitar el modo de mantenimiento",
-                    "description": "Activado: detener toda la automatización | Apagado: reanuda el funcionamiento normal."
-                }
-            }
-        },
-        "set_all_dmx_scenes_mode": {
-            "name": "Controlar la iluminación DMX",
-            "description": "Controla todas las escenas de luz DMX simultáneamente.\n\nPerfecto para efectos de luz uniformes o encendido/apagado completo.",
-            "fields": {
-                "device_id": {
-                    "name": "Controlador de piscina",
-                    "description": "Controlador de Piscina Violeta con salida DMX."
-                },
-                "dmx_mode": {
-                    "name": "Modo de luz",
-                    "description": "Todas las luces: Encendido/Apagado/Automático."
-                }
-            }
-        },
-        "set_digital_input_rule_lock_state": {
-            "name": "Regla de cambio de bloqueo",
-            "description": "Bloquea o desbloquea reglas de conmutación digital.\n\nEvita disparos no deseados durante el mantenimiento o fallas.",
-            "fields": {
-                "device_id": {
-                    "name": "Controlador de piscina",
-                    "description": "Controlador de piscina violeta con reglas digitales."
-                },
-                "rule_key": {
-                    "name": "Número de regla",
-                    "description": "Número de la regla a bloquear (DIRULE_1 a DIRULE_7)."
-                },
-                "lock_state": {
-                    "name": "Cerrar",
-                    "description": "Bloquear regla (Activado) o liberar (Desactivado)."
-                }
-            }
-        },
-        "trigger_digital_input_rule": {
-            "name": "Regla de cambio de disparador",
-            "description": "Activa manualmente una regla de conmutación digital.\n\nÚtil para probar la automatización o el control manual cuando sea necesario.",
-            "fields": {
-                "device_id": {
-                    "name": "Controlador de piscina",
-                    "description": "Controlador de piscina violeta con las reglas."
-                },
-                "rule_key": {
-                    "name": "Número de regla",
-                    "description": "¿Qué regla activar? (DIRULE_1 a DIRULE_7)"
-                }
-            }
+        "data_description": {
+          "enable_heating": "Control de calefacción automatizado",
+          "enable_solar": "Control inteligente de absorbedores solares",
+          "enable_ph_control": "Control de pH automatizado",
+          "enable_chlorine_control": "Gestión de cloro/redox",
+          "enable_cover_control": "Controlar la cubierta de la piscina",
+          "enable_backwash": "Ciclos de retrolavado automatizados",
+          "enable_pv_surplus": "Utilizar inteligentemente el excedente fotovoltaico",
+          "enable_filter_control": "Controle la bomba de filtrado bajo demanda",
+          "enable_water_level": "Monitorear el nivel del agua",
+          "enable_water_refill": "Recarga automática de agua",
+          "enable_led_lighting": "escenas de iluminación LED",
+          "enable_digital_inputs": "Integrar sensores e interruptores externos",
+          "enable_extension_outputs": "Usar módulos de extensión"
         }
-    },
-    "selector": {
-        "pool_type": {
-            "options": {
-                "outdoor": "Piscina al aire libre",
-                "indoor": "Piscina cubierta",
-                "whirlpool": "Bañera de hidromasaje/spa",
-                "natural": "Piscina/Estanque Natural",
-                "combination": "Combinación/Híbrido"
-            }
+      },
+      "sensor_selection": {
+        "title": "Seleccionar sensores",
+        "description": "Elige qué sensores quieres ver en Home Assistant. Habilite o deshabilite sensores individuales para mantener su tablero limpio y enfocado.\n\nDe forma predeterminada, se seleccionan todos los sensores disponibles. Puede ajustar esta selección en cualquier momento en las opciones."
+      },
+      "reauth_confirm": {
+        "title": "Volver a autenticar el controlador",
+        "description": "Es necesario actualizar las credenciales del controlador. Por favor ingrese su nuevo nombre de usuario y contraseña.\n\nControlador: **{controller_name}**\nDirección IP: **{api_url}**",
+        "data": {
+          "username": "Nombre de usuario",
+          "password": "Contraseña"
         },
-        "disinfection_method": {
-            "options": {
-                "chlorine": "Cloro (líquido/tabletas)",
-                "salt": "Electrólisis de agua salada",
-                "bromine": "Desinfección con bromo",
-                "active_oxygen": "Oxígeno activo/H₂O₂",
-                "uv": "Desinfección UV-C",
-                "ozone": "Tratamiento con ozono"
-            }
+        "data_description": {
+          "username": "Nuevo nombre de usuario para autenticación",
+          "password": "Nueva contraseña para autenticación"
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigurar la conexión",
+        "description": "Actualice la configuración de conexión de su controlador. Esto es útil cuando la dirección IP del controlador o la configuración de red han cambiado.\n\nControlador: **{controller_name}**",
+        "data": {
+          "host": "Dirección IP o nombre de host",
+          "port": "Puerto TCP",
+          "use_ssl": "Utilice SSL/HTTPS",
+          "polling_interval": "Intervalo de sondeo (segundos)",
+          "timeout_duration": "Tiempo de espera (segundos)",
+          "retry_attempts": "Reintentar intentos"
+        },
+        "data_description": {
+          "host": "Nueva IP del controlador o nombre DNS",
+          "port": "Puerto TCP (déjelo en 80 a menos que use un proxy personalizado)",
+          "use_ssl": "Habilite HTTPS cuando sea compatible",
+          "polling_interval": "Intervalo de sondeo de datos (10-3600 s)",
+          "timeout_duration": "Tiempo máximo de espera por solicitud",
+          "retry_attempts": "Número de reintentos"
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "Controlador de piscina violeta encontrado",
+        "description": "Se descubrió un Violet Pool Controller en la red.\n\nNombre: **{name}**\nDirección IP: **{host}**\n\n¿Quieres configurar este controlador ahora?"
+      }
+    },
+    "error": {
+      "invalid_ip_address": "Dirección IP no válida\n\nIngrese una dirección IP válida (por ejemplo, 192.168.1.100)",
+      "cannot_connect": "Conexión fallida\n\nControlador no accesible. Comprobar:\n• ¿Es correcta la dirección IP?\n• ¿Está encendido el controlador?\n• ¿Está bien la conexión de red?",
+      "invalid_auth": "Error de autenticación\n\nNombre de usuario o contraseña incorrectos. Deje los campos vacíos si la autenticación está deshabilitada.",
+      "timeout_connection": "Tiempo de espera de conexión\n\nEl controlador no responde. Posiblemente sobrecargado o inalcanzable.",
+      "authentication_error": "Se requiere autenticación\n\nEl controlador requiere credenciales. Por favor ingrese nombre de usuario y contraseña.",
+      "api_endpoint_not_found": "Punto final API no encontrado\n\nEl firmware del controlador puede estar desactualizado o la URL es incorrecta.",
+      "invalid_pool_size": "Tamaño de piscina no válido\n\nEl valor debe estar entre 0,1 y 1000 m³.",
+      "invalid_configuration": "Error de configuración\n\nUna o más entradas no son válidas. Por favor, compruebe.",
+      "api_response_error": "Respuesta del controlador no válida\n\nEl controlador envía datos inesperados. ¿Necesita actualización de firmware?",
+      "firmware_data_missing": "Falta información de firmware\n\nNo se pudo determinar la versión del firmware del controlador.",
+      "invalid_firmware_version": "Problema de firmware\n\nEl firmware del controlador parece desactualizado. Por favor actualice.",
+      "connection_error": "Error de red\n\nError general de conexión. Verifique la configuración de red.",
+      "already_configured": "Ya configurado\n\nYa hay un controlador con esta dirección IP configurado.",
+      "agreement_declined": "Configuración cancelada\n\nLa instalación se canceló porque no se aceptó la exención de responsabilidad de seguridad.",
+      "unknown": "Error desconocido\n\nOcurrió un problema inesperado. Póngase en contacto con el soporte si persiste."
+    },
+    "abort": {
+      "already_configured": "Controlador ya configurado",
+      "cannot_connect": "La conexión falló",
+      "invalid_auth": "Credenciales no válidas",
+      "agreement_declined": "Descargo de responsabilidad de seguridad no aceptado",
+      "reauth_successful": "Reautenticación exitosa",
+      "reauth_failed": "Error de reautenticación",
+      "reconfigure_successful": "Reconfiguración exitosa",
+      "already_in_progress": "Configuración ya en progreso",
+      "unknown": "Error desconocido"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Ajustar la configuración de la piscina",
+        "description": "¿Qué te gustaría configurar?\n\nActivar/desactivar funciones\nSeleccionar sensores\nCambiar configuración\n\nSiempre podrás volver a esta selección.",
+        "data": {
+          "config_option": "Seleccionar área de configuración"
+        },
+        "data_description": {
+          "config_option": "Elige lo que quieres ajustar"
+        }
+      },
+      "features": {
+        "title": "Activar/desactivar funciones",
+        "description": "Elija las funciones que desea utilizar\n\nLas funciones habilitadas se mostrarán en Home Assistant\nLas funciones deshabilitadas se ocultarán\n\nHabilite sólo lo que realmente necesita: ¡mantiene la interfaz limpia!"
+      },
+      "sensors": {
+        "title": "Seleccionar sensores",
+        "description": "Elija qué sensores deben mostrarse\n\nSolo los sensores seleccionados se mostrarán en Home Assistant\nLos cambios entran en vigor inmediatamente\n\n¡Seleccione sólo los sensores que realmente desea monitorear!"
+      },
+      "settings": {
+        "title": "Configuraciones generales",
+        "description": "Ajustar los parámetros técnicos.\n\nIntervalo de sondeo: con qué frecuencia se obtienen los datos\nTimeout: tiempo máximo de espera para respuestas\nReintentos: número de reintentos\n\n¡Los valores predeterminados funcionan para la mayoría de las configuraciones!",
+        "data": {},
+        "data_description": {}
+      }
+    }
+  },
+  "exceptions": {
+    "api_error": {
+      "message": "Error de comunicación API: {detail}"
+    },
+    "invalid_value": {
+      "message": "Valor no válido: {detail}"
+    },
+    "value_out_of_range": {
+      "message": "El valor {value} está fuera del rango válido ({min}–{max})"
+    },
+    "failed_to_set_value": {
+      "message": "No se pudo establecer el valor: {detail}"
+    },
+    "no_api_key": {
+      "message": "No hay clave API configurada para la entidad {entity}"
+    },
+    "invalid_action": {
+      "message": "Acción no válida: {action}"
+    },
+    "unexpected_error": {
+      "message": "Error inesperado: {detail}"
+    },
+    "controller_unavailable": {
+      "message": "El controlador de grupo {name} no está disponible después de {failures} fallas consecutivas"
+    }
+  },
+  "issues": {
+    "controller_unavailable": {
+      "title": "Controlador de piscina no disponible",
+      "description": "El controlador del grupo **{name}** ha estado inaccesible durante {failures} ciclos de sondeo consecutivos.\n\nPor favor verifique:\n- ¿Está encendido el controlador?\n- ¿Está bien la conexión de red?\n- ¿La dirección IP sigue siendo correcta?\n\nUna vez que se pueda acceder nuevamente al controlador, este problema se resolverá automáticamente."
+    }
+  },
+  "services": {
+    "turn_auto": {
+      "name": "Activar el modo AUTO",
+      "description": "Cambia los dispositivos al modo automático inteligente.\n\nEl sistema ahora asume un control óptimo basado en los datos y horarios de los sensores.",
+      "fields": {
+        "entity_id": {
+          "name": "Dispositivos para controlar",
+          "description": "Seleccione los dispositivos para cambiar al modo AUTO."
+        },
+        "auto_delay": {
+          "name": "Retraso (segundos)",
+          "description": "Tiempo de espera antes de que se active el modo AUTO (0-86400s)."
+        }
+      }
+    },
+    "set_pv_surplus": {
+      "name": "Utilizar excedente fotovoltaico",
+      "description": "Activa el modo excedente fotovoltaico para un uso óptimo de la energía solar.\n\nLos dispositivos de la piscina funcionan automáticamente con el exceso de energía solar.",
+      "fields": {
+        "entity_id": {
+          "name": "Interruptor de excedente fotovoltaico",
+          "description": "El interruptor de excedente fotovoltaico del controlador."
+        },
+        "pump_speed": {
+          "name": "Velocidad de la bomba",
+          "description": "Potencia de bomba deseada (1=Eco, 2=Normal, 3=Máxima)."
+        }
+      }
+    },
+    "manual_dosing": {
+      "name": "Dosificación manual",
+      "description": "Inicia la dosificación manual durante el tiempo deseado.\n\nPrecaución: ¡Evite la sobredosis! Siempre verifique primero los valores del agua.",
+      "fields": {
+        "entity_id": {
+          "name": "Sistema de dosificación",
+          "description": "Seleccionar el sistema de dosificación (pH+, pH-, Cloro, etc.)."
+        },
+        "duration_seconds": {
+          "name": "Duración de la dosificación (segundos)",
+          "description": "¿Cuánto tiempo debe durar la dosificación? (¡1-3600, comience con tiempos cortos!)"
+        }
+      }
+    },
+    "test_output": {
+      "name": "Modo de prueba de salida",
+      "description": "Activa temporalmente una salida del controlador para diagnóstico. Asegúrese de que no haya personas ni equipos en riesgo mientras se fuerza la salida.",
+      "fields": {
+        "output": {
+          "name": "Identificador de salida",
+          "description": "Identificador como BOMBA, CALENTADOR o SOLAR"
+        },
+        "mode": {
+          "name": "Modo de prueba",
+          "description": "SWITCH=alternar, ON=forzar encendido, OFF=forzar apagado"
+        },
+        "duration": {
+          "name": "Duración de la prueba (segundos)",
+          "description": "Duración entre 1 y 900 segundos."
+        }
+      }
+    },
+    "set_temperature_target": {
+      "name": "Establecer temperatura objetivo",
+      "description": "Establece la temperatura deseada de la piscina.\n\nEl controlador calienta automáticamente a esta temperatura y la mantiene.",
+      "fields": {
+        "entity_ids": {
+          "name": "Sistemas de calefacción",
+          "description": "Seleccione calentador y/o absorbente solar."
+        },
+        "temperature": {
+          "name": "Temperatura objetivo (°C)",
+          "description": "Temperatura deseada de la piscina (se recomienda 20-35°C)."
+        }
+      }
+    },
+    "set_ph_target": {
+      "name": "Establecer objetivo de pH",
+      "description": "Define el valor de pH ideal para la dosificación automática.\n\nRango recomendado: 7,0-7,4 para una calidad óptima del agua y compatibilidad con la piel.",
+      "fields": {
+        "entity_ids": {
+          "name": "Sistema de dosificación de pH",
+          "description": "Seleccione el control de pH del controlador."
+        },
+        "target_value": {
+          "name": "Objetivo de pH",
+          "description": "Valor de pH deseado (6,8-7,8, óptimo: 7,0-7,4)."
+        }
+      }
+    },
+    "set_chlorine_target": {
+      "name": "Establecer objetivo de cloro",
+      "description": "Determina el contenido de cloro objetivo para una desinfección segura.\n\nUna cantidad suficiente de cloro elimina las bacterias, un exceso irrita la piel y los ojos.",
+      "fields": {
+        "entity_ids": {
+          "name": "Sistema de dosificación de cloro",
+          "description": "Sistema de dosificación de cloro o electrólisis."
+        },
+        "target_value": {
+          "name": "Objetivo de cloro (mg/l)",
+          "description": "Contenido de cloro libre deseado (se recomienda 0,3-1,5 mg/l)."
+        }
+      }
+    },
+    "trigger_backwash": {
+      "name": "Iniciar retrolavado",
+      "description": "Inicia un retrolavado del filtro para su limpieza.\n\nElimina la suciedad y los depósitos para un rendimiento óptimo del filtro.",
+      "fields": {
+        "entity_ids": {
+          "name": "Sistema de retrolavado",
+          "description": "Válvula de retrolavado o automatización de filtro."
+        },
+        "duration": {
+          "name": "Duración del retrolavado (segundos)",
+          "description": "Duración del enjuague (60-300 s típico, 0 = final manual)."
+        }
+      }
+    },
+    "start_water_analysis": {
+      "name": "Iniciar análisis de agua",
+      "description": "Inicia un análisis de agua automático de todos los parámetros.\n\nMide pH, cloro, temperatura y otros valores para sugerencias de optimización.",
+      "fields": {
+        "entity_ids": {
+          "name": "Controlador",
+          "description": "Controlador de piscina violeta para análisis."
+        }
+      }
+    },
+    "set_maintenance_mode": {
+      "name": "Modo de mantenimiento",
+      "description": "Activa/desactiva el modo de mantenimiento.\n\nEn modo de mantenimiento, toda la automatización está en pausa para un trabajo seguro en la piscina.",
+      "fields": {
+        "entity_ids": {
+          "name": "Controlador",
+          "description": "Seleccione Controlador de piscina violeta."
+        },
+        "enable": {
+          "name": "Habilitar el modo de mantenimiento",
+          "description": "Activado: detener toda la automatización | Apagado: reanuda el funcionamiento normal."
+        }
+      }
+    },
+    "set_all_dmx_scenes_mode": {
+      "name": "Controlar la iluminación DMX",
+      "description": "Controla todas las escenas de luz DMX simultáneamente.\n\nPerfecto para efectos de luz uniformes o encendido/apagado completo.",
+      "fields": {
+        "device_id": {
+          "name": "Controlador de piscina",
+          "description": "Controlador de Piscina Violeta con salida DMX."
         },
         "dmx_mode": {
-            "options": {
-                "allon": "Todas las luces encendidas",
-                "alloff": "Todas las luces apagadas",
-                "allauto": "Todas las luces automáticas"
-            }
+          "name": "Modo de luz",
+          "description": "Todas las luces: Encendido/Apagado/Automático."
         }
+      }
     },
-    "entity": {
-        "sensor": {
-            "ph_value": {
-                "name": "Valor de pH"
-            },
-            "orp_value": {
-                "name": "Potencial redox"
-            },
-            "pot_value": {
-                "name": "Nivel de cloro"
-            },
-            "onewire1_value": {
-                "name": "Temperatura del agua"
-            },
-            "onewire2_value": {
-                "name": "Temperatura del aire"
-            },
-            "firmware_version": {
-                "name": "Versión de firmware"
-            },
-            "system_health": {
-                "name": "Estado del sistema"
-            },
-            "connection_latency": {
-                "name": "Latencia de conexión"
-            },
-            "last_event_age": {
-                "name": "Edad del último evento"
-            },
-            "api_request_rate": {
-                "name": "Tasa de solicitud de API"
-            },
-            "average_latency": {
-                "name": "Latencia promedio"
-            },
-            "recovery_success_rate": {
-                "name": "Tasa de éxito de la recuperación"
-            }
+    "set_digital_input_rule_lock_state": {
+      "name": "Regla de cambio de bloqueo",
+      "description": "Bloquea o desbloquea reglas de conmutación digital.\n\nEvita disparos no deseados durante el mantenimiento o fallas.",
+      "fields": {
+        "device_id": {
+          "name": "Controlador de piscina",
+          "description": "Controlador de piscina violeta con reglas digitales."
         },
-        "binary_sensor": {
-            "pump_state": {
-                "name": "Estado de la bomba de filtrado"
-            },
-            "heater_state": {
-                "name": "Estado del calentador"
-            },
-            "solar_state": {
-                "name": "Estado solar"
-            },
-            "cover_is_closed": {
-                "name": "Tapa cerrada"
-            }
+        "rule_key": {
+          "name": "Número de regla",
+          "description": "Número de la regla a bloquear (DIRULE_1 a DIRULE_7)."
         },
-        "switch": {
-            "pump": {
-                "name": "Bomba de filtro"
-            },
-            "heater": {
-                "name": "Calentador"
-            },
-            "solar": {
-                "name": "Absorbedor solar"
-            },
-            "light": {
-                "name": "Iluminación"
-            }
-        },
-        "climate": {
-            "heater": {
-                "name": "Calentador de piscina"
-            },
-            "solar": {
-                "name": "Calentador solar"
-            }
+        "lock_state": {
+          "name": "Cerrar",
+          "description": "Bloquear regla (Activado) o liberar (Desactivado)."
         }
+      }
+    },
+    "trigger_digital_input_rule": {
+      "name": "Regla de cambio de disparador",
+      "description": "Activa manualmente una regla de conmutación digital.\n\nÚtil para probar la automatización o el control manual cuando sea necesario.",
+      "fields": {
+        "device_id": {
+          "name": "Controlador de piscina",
+          "description": "Controlador de piscina violeta con las reglas."
+        },
+        "rule_key": {
+          "name": "Número de regla",
+          "description": "¿Qué regla activar? (DIRULE_1 a DIRULE_7)"
+        }
+      }
     }
+  },
+  "selector": {
+    "pool_type": {
+      "options": {
+        "outdoor": "Piscina al aire libre",
+        "indoor": "Piscina cubierta",
+        "whirlpool": "Bañera de hidromasaje/spa",
+        "natural": "Piscina/Estanque Natural",
+        "combination": "Combinación/Híbrido"
+      }
+    },
+    "disinfection_method": {
+      "options": {
+        "chlorine": "Cloro (líquido/tabletas)",
+        "salt": "Electrólisis de agua salada",
+        "bromine": "Desinfección con bromo",
+        "active_oxygen": "Oxígeno activo/H₂O₂",
+        "uv": "Desinfección UV-C",
+        "ozone": "Tratamiento con ozono"
+      }
+    },
+    "dmx_mode": {
+      "options": {
+        "allon": "Todas las luces encendidas",
+        "alloff": "Todas las luces apagadas",
+        "allauto": "Todas las luces automáticas"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "ph_value": {
+        "name": "Valor de pH"
+      },
+      "orp_value": {
+        "name": "Potencial redox"
+      },
+      "pot_value": {
+        "name": "Nivel de cloro"
+      },
+      "onewire1_value": {
+        "name": "Temperatura del agua"
+      },
+      "onewire2_value": {
+        "name": "Temperatura del aire"
+      },
+      "firmware_version": {
+        "name": "Versión de firmware"
+      },
+      "system_health": {
+        "name": "Estado del sistema"
+      },
+      "connection_latency": {
+        "name": "Latencia de conexión"
+      },
+      "last_event_age": {
+        "name": "Edad del último evento"
+      },
+      "api_request_rate": {
+        "name": "Tasa de solicitud de API"
+      },
+      "average_latency": {
+        "name": "Latencia promedio"
+      },
+      "recovery_success_rate": {
+        "name": "Tasa de éxito de la recuperación"
+      }
+    },
+    "binary_sensor": {
+      "pump_state": {
+        "name": "Estado de la bomba de filtrado"
+      },
+      "heater_state": {
+        "name": "Estado del calentador"
+      },
+      "solar_state": {
+        "name": "Estado solar"
+      },
+      "cover_is_closed": {
+        "name": "Tapa cerrada"
+      },
+      "hw_base_module": {
+        "name": "Módulo base"
+      },
+      "hw_dosing_module": {
+        "name": "Módulo de dosificación"
+      },
+      "hw_extension_module_1": {
+        "name": "Módulo de extensión 1"
+      },
+      "hw_extension_module_2": {
+        "name": "Módulo de extensión 2"
+      },
+      "hw_standalone_mode": {
+        "name": "Dosificación autónoma"
+      }
+    },
+    "switch": {
+      "pump": {
+        "name": "Bomba de filtro"
+      },
+      "heater": {
+        "name": "Calentador"
+      },
+      "solar": {
+        "name": "Absorbedor solar"
+      },
+      "light": {
+        "name": "Iluminación"
+      }
+    },
+    "climate": {
+      "heater": {
+        "name": "Calentador de piscina"
+      },
+      "solar": {
+        "name": "Calentador solar"
+      }
+    }
+  }
 }
