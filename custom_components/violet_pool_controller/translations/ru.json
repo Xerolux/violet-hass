@@ -36,8 +36,7 @@
                     "device_id": "Идентификатор устройства",
                     "polling_interval": "Интервал опроса (секунды)",
                     "timeout_duration": "Тайм-аут (секунды)",
-                    "retry_attempts": "Повторить попытки",
-                    "dosing_standalone": "Standalone Dosing"
+                    "retry_attempts": "Повторить попытки"
                 },
                 "data_description": {
                     "host": "IP-адрес или DNS-имя контроллера",
@@ -50,8 +49,7 @@
                     "device_id": "Уникальный идентификатор, если существует несколько контроллеров",
                     "polling_interval": "Интервал опроса данных (10-3600 с)",
                     "timeout_duration": "Максимальное время ожидания одного запроса",
-                    "retry_attempts": "Количество повторных попыток",
-                    "dosing_standalone": "DE: Violet Pool Controller steuert nur Dosierung · EN: Violet Pool Controller controls dosing only"
+                    "retry_attempts": "Количество повторных попыток"
                 }
             },
             "pool_setup": {
@@ -195,12 +193,8 @@
             "settings": {
                 "title": "Общие настройки",
                 "description": "Отрегулируйте технические параметры\n\nИнтервал опроса: как часто извлекаются данные\nТаймаут: максимальное время ожидания ответов.\nПовторы: количество повторных попыток.\n\nЗначения по умолчанию подходят для большинства настроек!",
-                "data": {
-                    "dosing_standalone": "Standalone Dosing"
-                },
-                "data_description": {
-                    "dosing_standalone": "DE: Violet Pool Controller steuert nur Dosierung · EN: Violet Pool Controller controls dosing only"
-                }
+                "data": {},
+                "data_description": {}
             }
         }
     },
