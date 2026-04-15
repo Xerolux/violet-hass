@@ -146,6 +146,33 @@ for i in range(1, 5):
         }
     )
 
+BINARY_SENSORS.extend([
+    {
+        "key": "HW_BASE_MODULE",
+        "name": "Hardware: Base Module",
+        "icon": "mdi:chip",
+        "entity_category": EntityCategory.DIAGNOSTIC,
+    },
+    {
+        "key": "HW_DOSING_MODULE",
+        "name": "Hardware: Dosing Module",
+        "icon": "mdi:flask",
+        "entity_category": EntityCategory.DIAGNOSTIC,
+    },
+    {
+        "key": "HW_EXTENSION_MODULE_1",
+        "name": "Hardware: Extension Module 1",
+        "icon": "mdi:expansion-card",
+        "entity_category": EntityCategory.DIAGNOSTIC,
+    },
+    {
+        "key": "HW_EXTENSION_MODULE_2",
+        "name": "Hardware: Extension Module 2",
+        "icon": "mdi:expansion-card",
+        "entity_category": EntityCategory.DIAGNOSTIC,
+    },
+])
+
 # =============================================================================
 # SWITCHES
 # =============================================================================

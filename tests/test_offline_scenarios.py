@@ -178,12 +178,15 @@ class TestOfflineScenarios:
         mock_api.get_readings = AsyncMock(
             return_value={"test": "data", "value": 123}
         )
+        mock_api.dosing_standalone = False
 
         result = await device.async_update()
 
         assert device._available is True
         assert device._consecutive_failures == 0
-        assert result == {"test": "data", "value": 123}
+        assert result["test"] == "data"
+        assert result["value"] == 123
+        assert "HW_BASE_MODULE" in result
 
     @pytest.mark.asyncio
     async def test_throttled_logging(self, device, mock_api):

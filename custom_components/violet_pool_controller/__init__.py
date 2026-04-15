@@ -167,6 +167,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         await async_register_services(hass)
 
+        # Clean up entities that are no longer provided by the API due to hardware profile
+        if coordinator.data:
+            import homeassistant.helpers.entity_registry as er
+            ent_reg = er.async_get(hass)
+            entities = er.async_entries_for_config_entry(ent_reg, entry.entry_id)
+            static_keys = {"system_health", "connection_latency", "last_event_age", "api_request_rate", "average_latency"}
+
+            prefix = f"{entry.unique_id}_"
+            for entity in entities:
+                if entity.domain in ("sensor", "binary_sensor"):
+                    if entity.unique_id.startswith(prefix):
+                        key = entity.unique_id[len(prefix):]
+                        if key not in coordinator.data and key not in static_keys:
+                            _LOGGER.debug("Removing unsupported entity %s (key=%s)", entity.entity_id, key)
+                            ent_reg.async_remove(entity.entity_id)
+
         _LOGGER.info(
             "Setup completed successfully for '%s' (entry_id=%s)",
             config["device_name"],
