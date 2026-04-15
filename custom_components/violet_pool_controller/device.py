@@ -563,7 +563,22 @@ class VioletPoolControllerDevice:
         data in a single compact response (~403 keys) and partial category
         queries miss many important keys (PUMP, SOLAR, fw, etc.).
         """
-        return await self.api.get_readings()
+        data = await self.api.get_readings()
+
+        def is_present(key: str) -> bool:
+            if not isinstance(data, dict):
+                return False
+            val = data.get(key)
+            return val is not None and str(val).strip().upper() != "N/A"
+
+        if isinstance(data, dict):
+            data["HW_BASE_MODULE"] = not self.api.dosing_standalone
+            data["HW_DOSING_MODULE"] = self.api.dosing_standalone or is_present("SYSTEM_dosagemodule_cpu_temperature")
+            data["HW_EXTENSION_MODULE_1"] = is_present("EXT1_1")
+            data["HW_EXTENSION_MODULE_2"] = is_present("EXT2_1")
+            data["HW_STANDALONE_MODE"] = self.api.dosing_standalone
+
+        return data
 
 
     @property
