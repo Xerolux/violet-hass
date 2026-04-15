@@ -1,6 +1,6 @@
-## v1.0.5-alpha.4 – Violet Pool Controller
+## v1.0.5-beta.1 – Violet Pool Controller
 
-🔴 **ALPHA RELEASE** - Experimental features, use with caution!
+🟡 **BETA RELEASE** - Testing phase, may contain bugs
 
 ---
 
@@ -16,6 +16,9 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- Refactor: Simplify configuration flow to align with HA Core guidelines (45a4d0b)
+- Refactor: Remove dosing_standalone from UI and dynamically show hardware modules in Device Info (af65117)
+- 📝 Release v1.0.5-alpha.4 - Update changelog and version files (ca8e73c)
 - 📝 Release v1.0.5-alpha.3 - Update changelog and version files (df3717b)
 - 📝 Release v1.0.5-alpha.2 - Update changelog and version files (e8d3df3)
 - Update manifest.json (020ff97)
@@ -76,7 +79,7 @@
 
 ---
 
-📋 [Full changelog: v1.0.4...v1.0.5-alpha.4](https://github.com/Xerolux/violet-hass/compare/v1.0.4...v1.0.5-alpha.4)
+📋 [Full changelog: v1.0.4...v1.0.5-beta.1](https://github.com/Xerolux/violet-hass/compare/v1.0.4...v1.0.5-beta.1)
 
 ---
 
@@ -110,4 +113,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-04-15 06:31:50 UTC_
+_Generated automatically by GitHub Actions on 2026-04-15 10:54:04 UTC_
