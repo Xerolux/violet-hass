@@ -6,28 +6,8 @@
 
 ### ✨ New Features | Neue Funktionen
 
-- feat: hardware module detection (HW_BASE_MODULE, HW_DOSING_MODULE, HW_EXTENSION_MODULE_1/2, HW_STANDALONE_MODE) as diagnostic binary sensors with full i18n support (10 languages)
-
-### 🚀 Improvements | Verbesserungen
-
-- update: API dependency upgraded to violet-poolController-api 0.0.11
-- refactor: hardware detection now uses key-prefix scanning compatible with API 0.0.11 filtered readings
-- fix: device info model string no longer shows redundant "Base" for standard setups
-- fix: dosing_standalone read from entry.data instead of _extract_config() dict (was always False)
-- fix: entity cleanup on setup now uses correct entry_id prefix for unique_id matching
-
-### 🌐 Translations | Übersetzungen
-
-- fix: options.step.settings.data/data_description populated for all 10 languages (was empty)
-- fix: entity.sensor.flow_rate and last_error_code names added to all 10 languages
-- fix: services.export_diagnostic_logs fully translated in all 10 languages
-- fix: reconfigure config flow step added to strings.json (was missing, present in all language files)
-- feat: HW_* binary sensor translation_key i18n wired up for all 10 languages
-
----
-
-### ✨ New Features (beta.1) | Neue Funktionen
-
+- feat: add translation_key to HW_* hardware binary sensors (10 languages) (13f82dd)
+- fix: add missing reconfigure step to strings.json (aa0b7d2)
 - feat: implement automatic hardware detection with api 0.0.10 including standalone dosing (7930810)
 - feat: implement automatic hardware detection with api 0.0.10 (708a146)
 - feat: Update API to 0.0.6 and add standalone dosing config (c4199ed)
@@ -38,6 +18,10 @@
 
 ### 🚀 Improvements | Verbesserungen
 
+- fix-modules-api-update (18ae039)
+- 📝 Release v1.0.5-beta.2 – Update version and changelog (81b4abf)
+- fix: update to API 0.0.11, robust module detection, fix entity cleanup (e1666e1)
+- 📝 Release v1.0.5-beta.1 - Update changelog and version files (a8ebbc3)
 - Refactor: Simplify configuration flow to align with HA Core guidelines (45a4d0b)
 - Refactor: Remove dosing_standalone from UI and dynamically show hardware modules in Device Info (af65117)
 - 📝 Release v1.0.5-alpha.4 - Update changelog and version files (ca8e73c)
@@ -63,6 +47,10 @@
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- fix-modules-api-update (18ae039)
+- fix: dosing_standalone config read + complete translation coverage (103565d)
+- fix: add missing reconfigure step to strings.json (aa0b7d2)
+- fix: update to API 0.0.11, robust module detection, fix entity cleanup (e1666e1)
 - chore: fix ruff linting errors and warnings in test suite (6cc7439)
 - chore: fix ruff linting errors and warnings in test suite (af6a96e)
 - fix(ci): stabilize config flow tests for zeroconf and invalid host (bd3f547)
@@ -135,4 +123,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-04-15 10:54:04 UTC_
+_Generated automatically by GitHub Actions on 2026-04-16 04:37:29 UTC_
