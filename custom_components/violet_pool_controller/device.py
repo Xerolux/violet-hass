@@ -572,17 +572,20 @@ class VioletPoolControllerDevice:
         data = await self.api.get_readings()
 
         if isinstance(data, dict):
+            def is_valid(val: Any) -> bool:
+                return val is not None and str(val).strip().upper() != "N/A"
+
             # Derive hardware presence from the filtered data returned by the API.
             # For dosing: check the CPU-temperature key *and* any DOS_* key so
             # that detection works even when the temperature sensor is absent.
             has_dosing = (
                 self.api.dosing_standalone
-                or data.get("SYSTEM_dosagemodule_cpu_temperature") not in (None, "N/A", "n/a")
-                or any(k.startswith("DOS_") for k in data)
+                or is_valid(data.get("SYSTEM_dosagemodule_cpu_temperature"))
+                or any(k.startswith("DOS_") and is_valid(v) for k, v in data.items())
             )
-            # For extension modules: any EXT1_* / EXT2_* key signals presence.
-            has_ext1 = any(k.startswith("EXT1_") for k in data)
-            has_ext2 = any(k.startswith("EXT2_") for k in data)
+            # For extension modules: any valid EXT1_* / EXT2_* key signals presence.
+            has_ext1 = any(k.startswith("EXT1_") and is_valid(v) for k, v in data.items())
+            has_ext2 = any(k.startswith("EXT2_") and is_valid(v) for k, v in data.items())
 
             is_standalone = self.api.dosing_standalone
 
