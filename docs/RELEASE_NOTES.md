@@ -1,3 +1,79 @@
+## v1.0.5-beta.3 – Violet Pool Controller
+
+🟡 **BETA RELEASE** - Testing phase, may contain bugs
+
+---
+
+### ✨ New Features | Neue Funktionen
+
+- feat: upgrade to violet-poolController-api 0.0.12 (latest)
+
+### 🚀 Improvements | Verbesserungen
+
+- Live-tested against real Violet Pool Controller hardware (Base + Dosing + EXT1 modules)
+- Verified module detection for all hardware modules (Base, Dosing, EXT1, EXT2)
+- Verified switch control (Pump, Solar, Light) with automatic state restoration
+
+### 🔧 Bug Fixes | Fehlerbehebungen
+
+- fix: dosing daily amount key mismatch - `DAILY_AMOUNT` -> `DAILY_DOSING_AMOUNT_ML` (5b32af7)
+- fix: hardware module detection for EXT2 and standalone dosing unit
+- fix: robust hardware module detection checking valid values instead of key existence
+
+---
+
+### 📦 Installation
+
+**HACS (Recommended):**
+1. Add custom repository: `Xerolux/violet-hass`
+2. Search for "Violet Pool Controller"
+3. Click Install
+
+**Manual:**
+1. Download `violet_pool_controller.zip`
+2. Extract to `custom_components/violet_pool_controller`
+3. Restart Home Assistant
+
+---
+
+📋 [Full changelog: v1.0.5-beta.2...v1.0.5-beta.3](https://github.com/Xerolux/violet-hass/compare/v1.0.5-beta.2...v1.0.5-beta.3)
+
+---
+
+### ❤️ Support | Unterstützung
+
+If you find this integration useful, consider supporting the developer:
+
+- ☕ **[Buy Me a Coffee](https://buymeacoffee.com/xerolux)**
+- 🚗 **[Tesla Referral Code](https://ts.la/sebastian564489)**
+- ⭐ **Star this repository**
+
+Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
+
+Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
+
+---
+
+### 💬 Feedback & Contributions
+
+- 🐛 **[Report a bug](https://github.com/Xerolux/violet-hass/issues/new?template=bug_report.md)**
+- 💡 **[Request a feature](https://github.com/Xerolux/violet-hass/issues/new?template=feature_request.md)**
+- 🤝 **[Contribute](https://github.com/Xerolux/violet-hass/blob/main/docs/CONTRIBUTING.md)**
+
+---
+
+### 📄 Credits
+
+**Developed by:** [Xerolux](https://github.com/Xerolux)
+**Integration for:** Violet Pool Controller by PoolDigital GmbH & Co. KG
+**License:** MIT
+
+---
+
+_Generated on 2026-04-17_
+
+---
+
 ## v1.0.5-beta.2 – Violet Pool Controller
 
 🟡 **BETA RELEASE** - Testing phase, may contain bugs
