@@ -356,7 +356,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             attributes["remaining_range"] = str(range_val)
 
         # Daily amount
-        daily_key = f"{key}_DAILY_AMOUNT"
+        daily_key = f"{key}_DAILY_DOSING_AMOUNT_ML"
         daily_val = self.get_value(daily_key)
         if daily_val is not None:
             attributes["daily_amount_ml"] = daily_val
