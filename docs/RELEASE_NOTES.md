@@ -1,6 +1,6 @@
-## v1.0.5-beta.3 – Violet Pool Controller
+## v1.0.5 – Violet Pool Controller
 
-🟡 **BETA RELEASE** - Testing phase, may contain bugs
+🟢 **STABLE RELEASE**
 
 ---
 
@@ -18,11 +18,11 @@
 
 ### 🚀 Improvements | Verbesserungen
 
-- 📝 Release v1.0.5-beta.2 - Update changelog and version files (836e435)
+- 📝 Release v1.0.5 - Update changelog and version files (836e435)
 - fix-modules-api-update (18ae039)
-- 📝 Release v1.0.5-beta.2 – Update version and changelog (81b4abf)
+- 📝 Release v1.0.5 – Update version and changelog (81b4abf)
 - fix: update to API 0.0.11, robust module detection, fix entity cleanup (e1666e1)
-- 📝 Release v1.0.5-beta.1 - Update changelog and version files (a8ebbc3)
+- 📝 Release v1.0.5 - Update changelog and version files (a8ebbc3)
 - Refactor: Simplify configuration flow to align with HA Core guidelines (45a4d0b)
 - Refactor: Remove dosing_standalone from UI and dynamically show hardware modules in Device Info (af65117)
 - 📝 Release v1.0.5-alpha.4 - Update changelog and version files (ca8e73c)
@@ -48,7 +48,7 @@
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
-- Release v1.0.5-beta.3 - upgrade API to 0.0.12, fix dosing key mismatch (677eb93)
+- Release v1.0.5 - upgrade API to 0.0.12, fix dosing key mismatch (677eb93)
 - Fix dosing daily amount key mismatch in switch attributes (5b32af7)
 - fix-hardware-detection-ext2 (b7c9e43)
 - fix: robust hardware module detection checking valid values (6d1409e)
@@ -94,7 +94,7 @@
 
 ---
 
-📋 [Full changelog: v1.0.4...v1.0.5-beta.3](https://github.com/Xerolux/violet-hass/compare/v1.0.4...v1.0.5-beta.3)
+📋 [Full changelog: v1.0.4...v1.0.5](https://github.com/Xerolux/violet-hass/compare/v1.0.4...v1.0.5)
 
 ---
 

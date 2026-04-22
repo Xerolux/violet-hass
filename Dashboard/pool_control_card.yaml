@@ -18,7 +18,7 @@
 # - Bei mehreren Controllern oder geändertem Namen:
 #   Entwicklerwerkzeuge → Zustände → Nach "violet" suchen
 #
-# VERSION: 1.0.4 (2026-02-06)
+# VERSION: 1.0.5 (2026-04-22)
 # =============================================================================
 
 type: vertical-stack

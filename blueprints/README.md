@@ -1,6 +1,6 @@
 # 🛠️ Helper Setup Guide für Pool Blueprints
 
-**Version:** 1.0.4 (2026-02-06)
+**Version:** 1.0.5 (2026-04-22)
 
 ## 📋 Übersicht
 Die Blueprints benötigen spezielle **Helper-Entities** um Zähler und Zeitstempel zu speichern. Diese müssen **vor** der Blueprint-Nutzung erstellt werden.
@@ -259,7 +259,7 @@ Die Helper sind essentiell für sichere und intelligente Pool-Automatisierung! �
 
 ## 📝 Versionshinweise
 
-### Version 1.0.4 (2026-02-06)
+### Version 1.0.5 (2026-04-22)
 - ✅ Alle Blueprints mit Versionsinformationen aktualisiert
 - ✅ Entity-Selektoren für bessere Integration-Unterstützung optimiert
 - ✅ Hinweise zu benötigten Helpers in Blueprint-Beschreibungen hinzugefügt

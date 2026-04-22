@@ -17,7 +17,7 @@
     "aiohttp>=3.11.0",
     "violet-poolController-api==0.0.12"
   ],
-  "version": "1.0.5-beta.3",
+  "version": "1.0.5",
   "zeroconf": [
     {
       "type": "_http._tcp.local.",
