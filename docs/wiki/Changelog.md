@@ -309,6 +309,19 @@ Wenn du von einer Version ohne Disclaimer aktualisierst:
 
 ---
 
+## [1.0.5] – 2026-04-22 🟢 STABLE
+
+### Version 1.0.5 Release
+
+- feat: add translation_key to HW_* hardware binary sensors (10 languages) (13f82dd)
+- fix: add missing reconfigure step to strings.json (aa0b7d2)
+- feat: implement automatic hardware detection with api 0.0.10 including standalone dosing (7930810)
+- feat: implement automatic hardware detection with api 0.0.10 (708a146)
+- feat: Update API to 0.0.6 and add standalone dosing config (c4199ed)
+- feat: Update API to 0.0.8 and add standalone dosing config (4cb47ce)
+
+---
+
 ## [1.0.4] – 2026-03-02 🟡 BETA
 
 ### Versionsschritt Alpha → Beta
