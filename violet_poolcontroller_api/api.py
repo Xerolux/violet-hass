@@ -513,13 +513,11 @@ class VioletPoolAPI:
             A dictionary with boolean flags for connected hardware components.
         """
         def _module_alive(alive_key: str) -> bool:
-            val = flattened.get(alive_key)
-            if val is None:
-                return False
-            try:
-                return float(str(val).strip()) > 0
-            except (ValueError, TypeError):
-                return False
+            # Key presence means the module is connected; the counter starts at 0
+            # on boot and the controller only emits alive-count keys for modules
+            # that are physically attached, so checking value > 0 would produce
+            # false negatives immediately after a controller restart.
+            return alive_key in flattened
 
         def _any_relay_used(prefix: str) -> bool:
             for key, val in flattened.items():

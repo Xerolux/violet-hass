@@ -317,6 +317,81 @@ async def test_get_hardware_profile(mock_aioresponse, api_client):
     assert profile["extension_module_2"] is False
 
 @pytest.mark.asyncio
+async def test_set_switch_state_ext1_relay(mock_aioresponse, api_client):
+    """Test set_switch_state sends correct URL for EXT1_2 ON, OFF, and AUTO."""
+    base = "http://192.168.1.100/setFunctionManually"
+
+    mock_aioresponse.get(f"{base}?EXT1_2,ON,0,0", body="OK", status=200)
+    result = await api_client.set_switch_state("EXT1_2", "ON")
+    assert result["success"] is True
+
+    mock_aioresponse.get(f"{base}?EXT1_2,OFF,0,0", body="OK", status=200)
+    result = await api_client.set_switch_state("EXT1_2", "OFF")
+    assert result["success"] is True
+
+    mock_aioresponse.get(f"{base}?EXT1_2,AUTO,0,0", body="OK", status=200)
+    result = await api_client.set_switch_state("EXT1_2", "AUTO")
+    assert result["success"] is True
+
+
+@pytest.mark.asyncio
+async def test_module_alive_on_zero_count(mock_aioresponse, api_client):
+    """EXT1 module must be detected when alive_count key is present but value is 0.
+
+    The alive counter starts at 0 immediately after a controller restart.  The
+    old code required value > 0, which caused EXT1_* readings to be filtered
+    and the relay switch to appear broken right after a restart.
+    """
+    url = "http://192.168.1.100/getReadings?ALL"
+    mock_aioresponse.get(url, payload={"getReadings": {
+        "PUMPSTATE": "2",
+        "SYSTEM_ext1module_alive_count": "0",
+        "EXT1_1": 0,
+        "EXT1_2": 0,
+    }}, status=200)
+
+    result = await api_client.get_readings()
+    assert "EXT1_2" in result, (
+        "EXT1_2 must not be filtered when SYSTEM_ext1module_alive_count is present, "
+        "even if the counter is still 0 after a restart"
+    )
+
+
+@pytest.mark.asyncio
+async def test_ext1_readings_not_filtered_when_detected(mock_aioresponse, api_client):
+    """EXT1_* readings are included when extension_module_1 is detected."""
+    url = "http://192.168.1.100/getReadings?ALL"
+    mock_aioresponse.get(url, payload={"getReadings": {
+        "PUMPSTATE": "2",
+        "SYSTEM_ext1module_alive_count": "12345",
+        "EXT1_1": 1,
+        "EXT1_2": 0,
+        "EXT1_3": 0,
+    }}, status=200)
+
+    result = await api_client.get_readings()
+    assert "EXT1_1" in result
+    assert "EXT1_2" in result
+    assert "EXT1_3" in result
+
+
+@pytest.mark.asyncio
+async def test_ext1_readings_filtered_when_not_detected(mock_aioresponse, api_client):
+    """EXT1_* readings are stripped when extension_module_1 key is absent."""
+    url = "http://192.168.1.100/getReadings?ALL"
+    mock_aioresponse.get(url, payload={"getReadings": {
+        "PUMPSTATE": "2",
+        # No SYSTEM_ext1module_alive_count → module not connected
+        "EXT1_1": 0,
+        "EXT1_2": 0,
+    }}, status=200)
+
+    result = await api_client.get_readings()
+    assert "EXT1_1" not in result
+    assert "EXT1_2" not in result
+
+
+@pytest.mark.asyncio
 async def test_get_hardware_profile_standalone_dosing(mock_aioresponse, standalone_api_client):
     """Test get_hardware_profile with a standalone dosing configuration."""
     url = "http://192.168.1.100/getReadings?ALL"
