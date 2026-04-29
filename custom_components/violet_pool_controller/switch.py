@@ -53,6 +53,9 @@ ON_STATES = {1, 2, 3, 4}
 OFF_STATES = {0, 5, 6}
 
 REFRESH_DELAY = 0.3
+# Extension module relays may need more time for the controller to update LAST_ON
+# after a command, so that the next get_readings() call can detect the module.
+REFRESH_DELAY_EXT = 1.5
 
 
 class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
@@ -480,8 +483,12 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             key: The switch key.
         """
         try:
+            # EXT switches need a longer delay so the controller can update
+            # EXT*_LAST_ON before the next get_readings() call, which is required
+            # for the API package's hardware detection to recognise the module.
+            delay = REFRESH_DELAY_EXT if key.startswith("EXT") else REFRESH_DELAY
             success = await self._request_coordinator_refresh(
-                delay=REFRESH_DELAY, log_context=key
+                delay=delay, log_context=key
             )
 
             if success and self.coordinator.data is not None:
