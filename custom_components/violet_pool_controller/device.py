@@ -97,6 +97,14 @@ class VioletPoolControllerDevice:
         self._connection_latency = 0.0  # Last connection latency in milliseconds
         self._system_health = 100.0  # System health percentage (0-100)
 
+        # Sticky hardware module detection: once a module is detected it is never
+        # de-detected within the same HA session.  The API package (0.0.12+) filters
+        # EXT1/EXT2 keys when the module looks absent (e.g. LAST_ON == 0 for a
+        # freshly connected, never-used relay board).  Without this cache those keys
+        # would disappear from coordinator.data and switch entities would silently
+        # revert to OFF even though the relay board is physically present.
+        self._hw_detected: set[str] = set()
+
         # ✅ DIAGNOSTIC SENSORS: Advanced metrics
         self._api_request_count = 0  # Total API requests
         self._api_request_start_time = time.monotonic()  # For rate calculation
@@ -575,6 +583,16 @@ class VioletPoolControllerDevice:
             def is_valid(val: Any) -> bool:
                 return val is not None and str(val).strip().upper() != "N/A"
 
+            def is_alive_count(key: str) -> bool:
+                """Return True when the controller reports a positive alive count."""
+                val = data.get(key)
+                if val is None:
+                    return False
+                try:
+                    return float(str(val).strip()) > 0
+                except (ValueError, TypeError):
+                    return False
+
             # Derive hardware presence from the filtered data returned by the API.
             # For dosing: check the CPU-temperature key *and* any DOS_* key so
             # that detection works even when the temperature sensor is absent.
@@ -583,9 +601,40 @@ class VioletPoolControllerDevice:
                 or is_valid(data.get("SYSTEM_dosagemodule_cpu_temperature"))
                 or any(k.startswith("DOS_") and is_valid(v) for k, v in data.items())
             )
-            # For extension modules: any valid EXT1_* / EXT2_* key signals presence.
-            has_ext1 = any(k.startswith("EXT1_") and is_valid(v) for k, v in data.items())
-            has_ext2 = any(k.startswith("EXT2_") and is_valid(v) for k, v in data.items())
+
+            # For extension modules use a two-tier approach:
+            # 1. SYSTEM_ext*module_alive_count: reliable when the controller sends it.
+            # 2. Any EXT1_/EXT2_ key present in the (already-filtered) data.
+            # Sticky cache: once detected in a session, always considered present.
+            # This covers fresh relay boards (LAST_ON == 0, alive count absent) whose
+            # keys are otherwise filtered out by the API package.
+            has_ext1_now = (
+                is_alive_count("SYSTEM_ext1module_alive_count")
+                or any(k.startswith("EXT1_") and is_valid(v) for k, v in data.items())
+            )
+            has_ext2_now = (
+                is_alive_count("SYSTEM_ext2module_alive_count")
+                or any(k.startswith("EXT2_") and is_valid(v) for k, v in data.items())
+            )
+            if has_ext1_now:
+                self._hw_detected.add("EXT1")
+            if has_ext2_now:
+                self._hw_detected.add("EXT2")
+
+            has_ext1 = "EXT1" in self._hw_detected
+            has_ext2 = "EXT2" in self._hw_detected
+
+            # When the API package has filtered EXT keys out (module not yet detected
+            # via LAST_ON) but we know from a previous poll that the module IS present,
+            # restore the last known state values so switch entities remain consistent.
+            if has_ext1 and not has_ext1_now:
+                for prev_key, prev_val in self._data.items():
+                    if prev_key.startswith("EXT1_") and prev_key not in data:
+                        data[prev_key] = prev_val
+            if has_ext2 and not has_ext2_now:
+                for prev_key, prev_val in self._data.items():
+                    if prev_key.startswith("EXT2_") and prev_key not in data:
+                        data[prev_key] = prev_val
 
             is_standalone = self.api.dosing_standalone
 
