@@ -529,4 +529,42 @@ SELECT_CONTROLS = [
         "feature_id": "pv_surplus",
         "entity_category": "config",
     },
+    {
+        "key": "backwash_mode",
+        "name": "Rückspülung Modus",
+        "device_key": "BACKWASH",
+        "icon": "mdi:autorenew",
+        "feature_id": "backwash",
+        "entity_category": "config",
+    },
+    {
+        "key": "backwashrinse_mode",
+        "name": "Nachspülung Modus",
+        "device_key": "BACKWASHRINSE",
+        "icon": "mdi:autorenew",
+        "feature_id": "backwash",
+        "entity_category": "config",
+    },
+    {
+        "key": "dos_floc_mode",
+        "name": "Flockmittel Modus",
+        "device_key": "DOS_6_FLOC",
+        "icon": "mdi:water",
+        "feature_id": "flocculation",
+        "entity_category": "config",
+    },
 ]
+
+# Dynamisch Erweiterungsausgänge als Select (ON/OFF/AUTO) hinzufügen
+for _ext_bank in [1, 2]:
+    for _i in range(1, 9):
+        SELECT_CONTROLS.append(
+            {
+                "key": f"ext{_ext_bank}_{_i}_mode",
+                "name": f"Erweiterung {_ext_bank}.{_i} Modus",
+                "device_key": f"EXT{_ext_bank}_{_i}",
+                "icon": "mdi:toggle-switch-outline",
+                "feature_id": "extension_outputs",
+                "entity_category": "config",
+            }
+        )

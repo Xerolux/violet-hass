@@ -68,6 +68,7 @@ MODE_TO_ACTION = {
 }
 
 REFRESH_DELAY = 0.5
+REFRESH_DELAY_EXT = 1.5
 
 
 class VioletSelect(VioletPoolControllerEntity, SelectEntity):
@@ -286,9 +287,10 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
         ✅ SHARED CODE: Uses base _request_coordinator_refresh method.
         """
         # ✅ SHARED CODE: Use base refresh method
+        delay = REFRESH_DELAY_EXT if self._device_key.startswith("EXT") else REFRESH_DELAY
         try:
             await self._request_coordinator_refresh(
-                delay=REFRESH_DELAY, log_context=self._device_key
+                delay=delay, log_context=self._device_key
             )
         finally:
             # Always clear optimistic cache — even on CancelledError during HA reload
