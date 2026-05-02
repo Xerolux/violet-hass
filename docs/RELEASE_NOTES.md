@@ -1,81 +1,37 @@
-## v1.0.5 – Violet Pool Controller
+## v1.0.6-alpha.1 – Violet Pool Controller
 
-✅ **STABLE RELEASE**
+🔴 **ALPHA RELEASE** - Experimental features, use with caution!
+
+### ❤️ Support | Unterstützung
+
+If you find this integration useful, consider supporting the developer. Every contribution, no matter how small, is a huge motivation to improve the project and keep it alive! Thank you! 🙏
+
+Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter zu verbessern und am Leben zu erhalten! Vielen Dank! 🙏
+
+- 💳 **[PayPal](https://paypal.me/xerolux)**
+- ☕ **[Buy Me a Coffee](https://buymeacoffee.com/xerolux)**
+- 🚗 **[Tesla Referral Code](https://ts.la/sebastian564489)**
+- ⭐ **[Star this repository](https://github.com/Xerolux/violet-hass)**
+
+---
+
+---
 
 ### ✨ New Features | Neue Funktionen
 
-- feat: add translation_key to HW_* hardware binary sensors (10 languages) (13f82dd)
-- fix: add missing reconfigure step to strings.json (aa0b7d2)
-- feat: implement automatic hardware detection with api 0.0.10 including standalone dosing (7930810)
-- feat: implement automatic hardware detection with api 0.0.10 (708a146)
-- feat: Update API to 0.0.6 and add standalone dosing config (c4199ed)
-- feat: Update API to 0.0.8 and add standalone dosing config (4cb47ce)
-- Add files via upload (ee3a816)
-- feat: Add latest release option and auto-increment version (f191f68)
-- chore(ci): add tox matrix and refactor diagnostics/config helpers (83d15c7)
+- feat: add ON/OFF/AUTO select entities for all controllable switches (8505b85)
 
 ### 🚀 Improvements | Verbesserungen
 
-- 📝 Release v1.0.5-beta.3 - Update changelog and version files (056eab4)
-- 📝 Release v1.0.5-beta.2 - Update changelog and version files (836e435)
-- fix-modules-api-update (18ae039)
-- 📝 Release v1.0.5-beta.2 – Update version and changelog (81b4abf)
-- fix: update to API 0.0.11, robust module detection, fix entity cleanup (e1666e1)
-- 📝 Release v1.0.5-beta.1 - Update changelog and version files (a8ebbc3)
-- Refactor: Simplify configuration flow to align with HA Core guidelines (45a4d0b)
-- Refactor: Remove dosing_standalone from UI and dynamically show hardware modules in Device Info (af65117)
-- 📝 Release v1.0.5-alpha.4 - Update changelog and version files (ca8e73c)
-- 📝 Release v1.0.5-alpha.3 - Update changelog and version files (df3717b)
-- 📝 Release v1.0.5-alpha.2 - Update changelog and version files (e8d3df3)
-- Update manifest.json (020ff97)
-- Update violet-poolController-api to version 0.0.8 (0ef62ee)
-- update-api-dosing-standalone (df88f52)
-- feat: Update API to 0.0.6 and add standalone dosing config (c4199ed)
-- feat: Update API to 0.0.8 and add standalone dosing config (4cb47ce)
-- 📝 Release v1.0.5-alpha.1 - Update changelog and version files (82aa7c3)
-- refactor: reduce poll history memory footprint (cc339e8)
-- Update HACS minimum HA version to 2026.3.0 (6e3a519)
-- Update violet-poolController-api to 0.0.5 (334d9ca)
-- chore(ci): add tox matrix and refactor diagnostics/config helpers (83d15c7)
-- fix: align 1.0.5 version metadata and update test env requirements (00d87a6)
-- refactor services into control and diagnostics modules (7ee8f79)
-- Update version and dependency for violet_pool_controller (5017122)
-- Update version to 1.0.5 (d5790ad)
-- Update violet-poolController-api to version 0.0.4 (0d077e7)
-- refactor config flow and service modules (5ace21f)
-- 📝 Release v1.0.4 - Update changelog and version files (784bc44)
+- update-api-version-0-0-14 (cb6208d)
+- Update violet-poolController-api to version 0.0.14 (35ab076)
+- update-release-changelog-support-section (56ced0f)
+- 📝 Release v1.0.5 - Update changelog and version files (acfcaa8)
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
-- Release v1.0.5-beta.3 - upgrade API to 0.0.12, fix dosing key mismatch (677eb93)
-- Fix dosing daily amount key mismatch in switch attributes (5b32af7)
-- fix-hardware-detection-ext2 (b7c9e43)
-- fix: robust hardware module detection checking valid values (6d1409e)
-- fix-modules-api-update (18ae039)
-- fix: dosing_standalone config read + complete translation coverage (103565d)
-- fix: add missing reconfigure step to strings.json (aa0b7d2)
-- fix: update to API 0.0.11, robust module detection, fix entity cleanup (e1666e1)
-- chore: fix ruff linting errors and warnings in test suite (6cc7439)
-- chore: fix ruff linting errors and warnings in test suite (af6a96e)
-- fix(ci): stabilize config flow tests for zeroconf and invalid host (bd3f547)
-- fix-bugs (1469f03)
-- fix: two more bugs - PUMP_RPM_0 missing and wrong float fallback (cabf378)
-- fix: resolve type safety, None-safety and async task bugs (84c6efb)
-- fix: align 1.0.5 version metadata and update test env requirements (00d87a6)
-
-### 📚 Documentation | Dokumentation
-
-- docs: align README and testing docs with current requirements (2d280e7)
-
-### 🧪 Tests
-
-- test-linter-errors (301aedc)
-- chore: fix ruff linting errors and warnings in test suite (6cc7439)
-- chore: fix ruff linting errors and warnings in test suite (af6a96e)
-- test: cover config flow IP literal helper (4063b29)
-- fix(ci): stabilize config flow tests for zeroconf and invalid host (bd3f547)
-- docs: align README and testing docs with current requirements (2d280e7)
-- fix: align 1.0.5 version metadata and update test env requirements (00d87a6)
+- fix-ext1-api-switching (f761565)
+- fix: EXT1/EXT2 sticky hardware detection + longer refresh delay (36cb133)
 
 ---
 
@@ -93,21 +49,7 @@
 
 ---
 
-📋 [Full changelog: v1.0.4...v1.0.5](https://github.com/Xerolux/violet-hass/compare/v1.0.4...v1.0.5)
-
----
-
-### ❤️ Support | Unterstützung
-
-If you find this integration useful, consider supporting the developer:
-
-- ☕ **[Buy Me a Coffee](https://buymeacoffee.com/xerolux)**
-- 🚗 **[Tesla Referral Code](https://ts.la/sebastian564489)**
-- ⭐ **Star this repository**
-
-Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
-
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
+📋 [Full changelog: v1.0.5...v1.0.6-alpha.1](https://github.com/Xerolux/violet-hass/compare/v1.0.5...v1.0.6-alpha.1)
 
 ---
 
@@ -127,4 +69,4 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-04-23 04:54:12 UTC_
+_Generated automatically by GitHub Actions on 2026-05-02 17:34:12 UTC_
