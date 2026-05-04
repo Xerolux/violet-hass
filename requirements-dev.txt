@@ -3,7 +3,7 @@
 -r requirements.txt
 ruff>=0.15.0
 mypy>=1.15.0
-pytest>=9.0.0
+pytest>=9.0.3
 pytest-cov>=6.0.0
 pytest-asyncio>=1.0.0
 # IMPORTANT: Always use latest version from https://github.com/MatthewFlamm/pytest-homeassistant-custom-component
