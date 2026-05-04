@@ -8,4 +8,4 @@ pytest-cov>=6.0.0
 pytest-asyncio>=1.0.0
 # IMPORTANT: Always use latest version from https://github.com/MatthewFlamm/pytest-homeassistant-custom-component
 # Check for updates when new HA or Python versions are released
-pytest-homeassistant-custom-component>=0.13.109
+pytest-homeassistant-custom-component>=0.13.326
