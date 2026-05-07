@@ -1,7 +1,7 @@
 # Development tools
 # Tested against Home Assistant 2026.5.0 (Python 3.14)
 -r requirements.txt
-ruff>=0.15.0
+ruff>=0.15.12
 mypy>=1.15.0
 pytest>=9.0.0
 pytest-cov>=6.0.0
