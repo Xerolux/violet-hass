@@ -22,6 +22,14 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
+### ⚠️ BREAKING CHANGE | WICHTIGE ÄNDERUNG
+
+**Home Assistant 2026.5.0+ is now required!**
+Due to core platform changes (specifically the removal of `ZeroconfServiceInfo` from `homeassistant.components.zeroconf`), this integration now requires Home Assistant version 2026.5.0 or newer. If you are running an older version, please upgrade Home Assistant before installing this update.
+
+**Home Assistant 2026.5.0+ wird nun zwingend vorausgesetzt!**
+Aufgrund von Änderungen in der Core-Plattform (insbesondere der Entfernung von `ZeroconfServiceInfo` aus `homeassistant.components.zeroconf`), benötigt diese Integration nun zwingend Home Assistant Version 2026.5.0 oder neuer. Bitte aktualisieren Sie Home Assistant, bevor Sie dieses Update installieren.
+
 ### ✨ New Features | Neue Funktionen
 
 - feat: add ON/OFF/AUTO select entities for all controllable switches (8505b85)
@@ -116,7 +124,7 @@ _Generated automatically by GitHub Actions on 2026-05-02 17:34:12 UTC_
 - feat: Update API to 0.0.8 and add standalone dosing config (4cb47ce)
 - 📝 Release v1.0.5-alpha.1 - Update changelog and version files (82aa7c3)
 - refactor: reduce poll history memory footprint (cc339e8)
-- Update HACS minimum HA version to 2026.3.0 (6e3a519)
+- Update HACS minimum HA version to 2026.5.0 (6e3a519)
 - Update violet-poolController-api to 0.0.5 (334d9ca)
 - chore(ci): add tox matrix and refactor diagnostics/config helpers (83d15c7)
 - fix: align 1.0.5 version metadata and update test env requirements (00d87a6)
@@ -258,7 +266,7 @@ _Generated automatically by GitHub Actions on 2026-04-23 04:54:12 UTC_
 - feat: Update API to 0.0.8 and add standalone dosing config (4cb47ce)
 - 📝 Release v1.0.5 - Update changelog and version files (82aa7c3)
 - refactor: reduce poll history memory footprint (cc339e8)
-- Update HACS minimum HA version to 2026.3.0 (6e3a519)
+- Update HACS minimum HA version to 2026.5.0 (6e3a519)
 - Update violet-poolController-api to 0.0.5 (334d9ca)
 - chore(ci): add tox matrix and refactor diagnostics/config helpers (83d15c7)
 - fix: align 1.0.5 version metadata and update test env requirements (00d87a6)
@@ -375,7 +383,7 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 - docs: update CLAUDE.md to reflect v1.0.4-beta.1 codebase state (6b46549)
 - update-dependencies-2026 (467af10)
-- Update dependencies for HA 2026.3 compatibility (de0f114)
+- Update dependencies for HA 2026.5.0 compatibility (de0f114)
 - Update sponsorship badges in README.md (e59249e)
 - refactor(translations): sync translation keys and remove emojis (8788efb)
 - Update violet-poolController-api version to 0.0.3 (a0b093c)
@@ -504,7 +512,7 @@ _Generated automatically by GitHub Actions on 2026-03-26 06:22:11 UTC_
 
 - **API Package**: `violet-poolController-api v0.0.2`
 - **Dependencies**: `aiohttp>=3.10.0`, `violet-poolController-api==0.0.2`
-- **Home Assistant**: 2025.12.0+ (tested up to 2026.3.x)
+- **Home Assistant**: 2025.12.0+ (tested up to 2026.5.0.x)
 - **Python**: 3.12+
 
 ## [1.0.3] - 2026-03-09
@@ -521,7 +529,7 @@ _Generated automatically by GitHub Actions on 2026-03-26 06:22:11 UTC_
 - add-hacs-badge (c0d6566)
 - docs: add My Home Assistant badge for HACS integration (1261b16)
 - feat: Add comprehensive disclaimer, icon optimization, and dark mode support (March 2025) (f32b3a1)
-- Add GitHub Action testing for HA 2026.3 and Python 3.14 (878e93a)
+- Add GitHub Action testing for HA 2026.5.0 and Python 3.14 (878e93a)
 - add-custom-icon (92e25fe)
 - feat: add stale, status-check and auto-label PR workflows (4fe0174)
 - Add-custom-icon (65b96a7)
@@ -576,7 +584,7 @@ _Generated automatically by GitHub Actions on 2026-03-26 06:22:11 UTC_
 - docs: fix broken internal and external links in GitHub Wiki and update dates (3958807)
 - docs: fix broken internal and external links in GitHub Wiki (53bdbec)
 - Fix critical zeroconf discovery API compatibility for HA 2026.x (1efc579)
-- fix: production bugs, HA 2026.3/Python 3.14 compatibility, test suite fixes (4f153f6)
+- fix: production bugs, HA 2026.5.0/Python 3.14 compatibility, test suite fixes (4f153f6)
 - fix: correct permissions for actions/labeler (afbb57a)
 - fix: cleanup auto-label-pr.yml logic (a85edd6)
 - fix: prevent command injection and ensure syntax correctness (8e48cd2)
@@ -625,9 +633,9 @@ _Generated automatically by GitHub Actions on 2026-03-26 06:22:11 UTC_
 - fix-test-env-setup (48649a0)
 - build(tests): Make test environment setup script more robust (8c7bc55)
 - I have updated the Home Assistant quality scale to Silver, as the Gold and Platinum requirements are not yet fully met and verified (specifically the 95% test coverage). (c125d8e)
-- Simplify CI: Only test Python 3.14 + HA 2026.3.1 (6604006)
-- Add GitHub Action testing for HA 2026.3 and Python 3.14 (878e93a)
-- fix: production bugs, HA 2026.3/Python 3.14 compatibility, test suite fixes (4f153f6)
+- Simplify CI: Only test Python 3.14 + HA 2026.5.0 (6604006)
+- Add GitHub Action testing for HA 2026.5.0 and Python 3.14 (878e93a)
+- fix: production bugs, HA 2026.5.0/Python 3.14 compatibility, test suite fixes (4f153f6)
 - fix: update test references for VioletClimateEntity (e363dcb)
 - Fix HA 2026 compatibility and complete Gold Level testing (58fa568)
 - Fix ZeroConf Discovery - 100% Tests Passing! ✅ (032d79e)
@@ -704,7 +712,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 10:03:36 UTC_
 - add-hacs-badge (c0d6566)
 - docs: add My Home Assistant badge for HACS integration (1261b16)
 - feat: Add comprehensive disclaimer, icon optimization, and dark mode support (March 2025) (f32b3a1)
-- Add GitHub Action testing for HA 2026.3 and Python 3.14 (878e93a)
+- Add GitHub Action testing for HA 2026.5.0 and Python 3.14 (878e93a)
 - add-custom-icon (92e25fe)
 - feat: add stale, status-check and auto-label PR workflows (4fe0174)
 - Add-custom-icon (65b96a7)
@@ -758,7 +766,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 10:03:36 UTC_
 - docs: fix broken internal and external links in GitHub Wiki and update dates (3958807)
 - docs: fix broken internal and external links in GitHub Wiki (53bdbec)
 - Fix critical zeroconf discovery API compatibility for HA 2026.x (1efc579)
-- fix: production bugs, HA 2026.3/Python 3.14 compatibility, test suite fixes (4f153f6)
+- fix: production bugs, HA 2026.5.0/Python 3.14 compatibility, test suite fixes (4f153f6)
 - fix: correct permissions for actions/labeler (afbb57a)
 - fix: cleanup auto-label-pr.yml logic (a85edd6)
 - fix: prevent command injection and ensure syntax correctness (8e48cd2)
@@ -807,9 +815,9 @@ _Generated automatically by GitHub Actions on 2026-03-09 10:03:36 UTC_
 - fix-test-env-setup (48649a0)
 - build(tests): Make test environment setup script more robust (8c7bc55)
 - I have updated the Home Assistant quality scale to Silver, as the Gold and Platinum requirements are not yet fully met and verified (specifically the 95% test coverage). (c125d8e)
-- Simplify CI: Only test Python 3.14 + HA 2026.3.1 (6604006)
-- Add GitHub Action testing for HA 2026.3 and Python 3.14 (878e93a)
-- fix: production bugs, HA 2026.3/Python 3.14 compatibility, test suite fixes (4f153f6)
+- Simplify CI: Only test Python 3.14 + HA 2026.5.0 (6604006)
+- Add GitHub Action testing for HA 2026.5.0 and Python 3.14 (878e93a)
+- fix: production bugs, HA 2026.5.0/Python 3.14 compatibility, test suite fixes (4f153f6)
 - fix: update test references for VioletClimateEntity (e363dcb)
 - Fix HA 2026 compatibility and complete Gold Level testing (58fa568)
 - Fix ZeroConf Discovery - 100% Tests Passing! ✅ (032d79e)
@@ -965,7 +973,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 09:49:19 UTC_
 - add-hacs-badge (c0d6566)
 - docs: add My Home Assistant badge for HACS integration (1261b16)
 - feat: Add comprehensive disclaimer, icon optimization, and dark mode support (March 2025) (f32b3a1)
-- Add GitHub Action testing for HA 2026.3 and Python 3.14 (878e93a)
+- Add GitHub Action testing for HA 2026.5.0 and Python 3.14 (878e93a)
 - add-custom-icon (92e25fe)
 - feat: add stale, status-check and auto-label PR workflows (4fe0174)
 - Add-custom-icon (65b96a7)
@@ -1016,7 +1024,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 09:49:19 UTC_
 - docs: fix broken internal and external links in GitHub Wiki and update dates (3958807)
 - docs: fix broken internal and external links in GitHub Wiki (53bdbec)
 - Fix critical zeroconf discovery API compatibility for HA 2026.x (1efc579)
-- fix: production bugs, HA 2026.3/Python 3.14 compatibility, test suite fixes (4f153f6)
+- fix: production bugs, HA 2026.5.0/Python 3.14 compatibility, test suite fixes (4f153f6)
 - fix: correct permissions for actions/labeler (afbb57a)
 - fix: cleanup auto-label-pr.yml logic (a85edd6)
 - fix: prevent command injection and ensure syntax correctness (8e48cd2)
@@ -1061,9 +1069,9 @@ _Generated automatically by GitHub Actions on 2026-03-09 09:49:19 UTC_
 - fix-test-env-setup (48649a0)
 - build(tests): Make test environment setup script more robust (8c7bc55)
 - I have updated the Home Assistant quality scale to Silver, as the Gold and Platinum requirements are not yet fully met and verified (specifically the 95% test coverage). (c125d8e)
-- Simplify CI: Only test Python 3.14 + HA 2026.3.1 (6604006)
-- Add GitHub Action testing for HA 2026.3 and Python 3.14 (878e93a)
-- fix: production bugs, HA 2026.3/Python 3.14 compatibility, test suite fixes (4f153f6)
+- Simplify CI: Only test Python 3.14 + HA 2026.5.0 (6604006)
+- Add GitHub Action testing for HA 2026.5.0 and Python 3.14 (878e93a)
+- fix: production bugs, HA 2026.5.0/Python 3.14 compatibility, test suite fixes (4f153f6)
 - fix: update test references for VioletClimateEntity (e363dcb)
 - Fix HA 2026 compatibility and complete Gold Level testing (58fa568)
 - Fix ZeroConf Discovery - 100% Tests Passing! ✅ (032d79e)
@@ -1137,7 +1145,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 09:16:24 UTC_
 ### ✨ New Features | Neue Funktionen
 
 - feat: Add comprehensive disclaimer, icon optimization, and dark mode support (March 2025) (f32b3a1)
-- Add GitHub Action testing for HA 2026.3 and Python 3.14 (878e93a)
+- Add GitHub Action testing for HA 2026.5.0 and Python 3.14 (878e93a)
 - add-custom-icon (92e25fe)
 - feat: add stale, status-check and auto-label PR workflows (4fe0174)
 - Add-custom-icon (65b96a7)
@@ -1181,7 +1189,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 09:16:24 UTC_
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
 - Fix critical zeroconf discovery API compatibility for HA 2026.x (1efc579)
-- fix: production bugs, HA 2026.3/Python 3.14 compatibility, test suite fixes (4f153f6)
+- fix: production bugs, HA 2026.5.0/Python 3.14 compatibility, test suite fixes (4f153f6)
 - fix: correct permissions for actions/labeler (afbb57a)
 - fix: cleanup auto-label-pr.yml logic (a85edd6)
 - fix: prevent command injection and ensure syntax correctness (8e48cd2)
@@ -1218,9 +1226,9 @@ _Generated automatically by GitHub Actions on 2026-03-09 09:16:24 UTC_
 
 ### 🧪 Tests
 
-- Simplify CI: Only test Python 3.14 + HA 2026.3.1 (6604006)
-- Add GitHub Action testing for HA 2026.3 and Python 3.14 (878e93a)
-- fix: production bugs, HA 2026.3/Python 3.14 compatibility, test suite fixes (4f153f6)
+- Simplify CI: Only test Python 3.14 + HA 2026.5.0 (6604006)
+- Add GitHub Action testing for HA 2026.5.0 and Python 3.14 (878e93a)
+- fix: production bugs, HA 2026.5.0/Python 3.14 compatibility, test suite fixes (4f153f6)
 - fix: update test references for VioletClimateEntity (e363dcb)
 - Fix HA 2026 compatibility and complete Gold Level testing (58fa568)
 - Fix ZeroConf Discovery - 100% Tests Passing! ✅ (032d79e)
