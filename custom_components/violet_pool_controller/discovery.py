@@ -47,7 +47,8 @@ class VioletPoolControllerDiscovery:
         Returns:
             None. Device info is stored in _discovered_devices for later retrieval.
         """
-        addresses = service_info.parsed_addresses()
+        ip_addresses = getattr(service_info, 'ip_addresses', getattr(service_info, 'parsed_addresses', lambda: [])())
+        addresses = [str(ip) for ip in ip_addresses]
         host = addresses[0] if addresses else str(service_info.server)
         _LOGGER.info(
             "Discovered Violet Pool Controller: %s at %s:%s",
