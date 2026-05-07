@@ -11,7 +11,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from homeassistant.components.zeroconf import AsyncServiceInfo
+from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 from homeassistant.core import HomeAssistant, callback
 
 
@@ -32,7 +32,7 @@ class VioletPoolControllerDiscovery:
     def async_discover_service(
         self,
         hass: HomeAssistant,
-        service_info: AsyncServiceInfo,
+        service_info: ZeroconfServiceInfo,
     ) -> None:
         """Discover a Violet Pool Controller device.
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
-from homeassistant.components.zeroconf import AsyncServiceInfo
+from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 from homeassistant.core import HomeAssistant
 
 
@@ -29,7 +29,7 @@ class TestVioletPoolControllerDiscovery:
     @pytest.fixture
     def mock_zeroconf_info(self):
         """Create a mock ZeroConf service info."""
-        info = MagicMock(spec=AsyncServiceInfo)
+        info = MagicMock(spec=ZeroconfServiceInfo)
         info.name = "Violet Pool Controller._http._tcp.local."
         info.parsed_addresses.return_value = ["192.168.178.55"]
         info.port = 80
@@ -183,7 +183,7 @@ class TestZeroConfIntegration:
     @pytest.fixture
     def mock_zeroconf_info(self):
         """Create a mock ZeroConf service info."""
-        info = MagicMock(spec=AsyncServiceInfo)
+        info = MagicMock(spec=ZeroconfServiceInfo)
         info.name = "Violet Pool Controller._http._tcp.local."
         info.host = "192.168.178.55"
         info.port = 80
@@ -267,7 +267,7 @@ class TestDiscoveryErrorHandling:
         handler = VioletPoolControllerDiscovery()
 
         # Create invalid service info with None values
-        invalid_info = MagicMock(spec=AsyncServiceInfo)
+        invalid_info = MagicMock(spec=ZeroconfServiceInfo)
         invalid_info.name = "Invalid Device"
         invalid_info.host = None
         invalid_info.port = None
@@ -330,13 +330,13 @@ class TestDiscoveryMultipleDevices:
         mock_hass = MagicMock(spec=HomeAssistant)
 
         # Create multiple device infos
-        device1 = MagicMock(spec=AsyncServiceInfo)
+        device1 = MagicMock(spec=ZeroconfServiceInfo)
         device1.name = "Violet Pool Controller 1._http._tcp.local."
         device1.parsed_addresses.return_value = ["192.168.178.55"]
         device1.port = 80
         device1.type = "_http._tcp.local."
 
-        device2 = MagicMock(spec=AsyncServiceInfo)
+        device2 = MagicMock(spec=ZeroconfServiceInfo)
         device2.name = "Violet Pool Controller 2._http._tcp.local."
         device2.parsed_addresses.return_value = ["192.168.178.56"]
         device2.port = 80
@@ -373,7 +373,7 @@ class TestDiscoveryMultipleDevices:
         mock_hass = MagicMock(spec=HomeAssistant)
 
         # Create device info
-        device = MagicMock(spec=AsyncServiceInfo)
+        device = MagicMock(spec=ZeroconfServiceInfo)
         device.name = "Violet Pool Controller._http._tcp.local."
         device.host = "192.168.178.55"
         device.port = 80

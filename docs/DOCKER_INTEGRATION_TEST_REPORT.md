@@ -3,7 +3,7 @@
 **Date**: 2026-02-28
 **Session**: Complete Docker Integration Testing
 **Controller**: 192.168.178.55
-**Home Assistant Version**: 2026.3.0.dev202602230311
+**Home Assistant Version**: 2026.5.0.dev202602230311
 **Python Version**: 3.14.2
 
 ---
@@ -385,7 +385,7 @@ async def async_setup_entry(
    - Steps defined correctly
    - Data validation working
 
-**Conclusion**: ✅ **The code is 100% compatible with Home Assistant 2026.3.0.dev**
+**Conclusion**: ✅ **The code is 100% compatible with Home Assistant 2026.5.0.dev**
 
 ---
 
@@ -433,7 +433,7 @@ async def async_setup_entry(
 - Network: Local (192.168.178.0/24)
 
 **Software**:
-- Home Assistant: 2026.3.0.dev202602230311
+- Home Assistant: 2026.5.0.dev202602230311
 - Python: 3.14.2
 - Docker Container: homeassistant-dev
 - Integration Version: 1.1.0

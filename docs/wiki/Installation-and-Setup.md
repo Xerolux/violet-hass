@@ -31,7 +31,7 @@
 
 | Anforderung | Mindest | Empfohlen |
 |-------------|---------|-----------|
-| Home Assistant | 2026.3.0 | 2026.x (aktuell) |
+| Home Assistant | 2026.5.0 | 2026.x (aktuell) |
 | Python | 3.14.2 | 3.14.2+ |
 | Netzwerk | Controller per HTTP erreichbar | Feste IP-Adresse (DHCP-Reservierung) |
 | HACS | Optional | Empfohlen für einfache Updates |

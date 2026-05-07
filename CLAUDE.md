@@ -339,7 +339,7 @@ GitHub workflow `.github/workflows/validate.yml` runs:
 - Ruff linting
 - Mypy type checking
 - Full test suite with pytest
-- Tests against Home Assistant 2026.3.1
+- Tests against Home Assistant 2026.5.0
 - Python 3.14 environment
 
 ## Translation Files
@@ -497,7 +497,7 @@ violet-hass/
 Located in `.github/workflows/`:
 
 **Validation & CI:**
-- **`validate.yml`** - Code validation on push/PR (ruff, mypy, pytest; HA 2026.3.x, Python 3.14)
+- **`validate.yml`** - Code validation on push/PR (ruff, mypy, pytest; HA 2026.5.x, Python 3.14)
 - **`hassfest-validation.yml`** - Home Assistant manifest/quality validation
 - **`hacs-validation.yml`** - HACS compatibility check
 
@@ -551,7 +551,7 @@ Located in `.github/workflows/`:
 ## Dependencies
 
 **Runtime** (from `requirements.txt`):
-- `homeassistant>=2026.3.0` - Minimum Home Assistant version
+- `homeassistant>=2026.5.0` - Minimum Home Assistant version
 - `aiohttp>=3.11.0` - Async HTTP client
 - `voluptuous>=0.15.0` - Data validation
 
@@ -588,7 +588,7 @@ Located in `.github/workflows/`:
 
 8. **Code Quality**: Always run `ruff check --fix` before committing. The integration maintains 0 ruff errors.
 
-9. **Home Assistant Compatibility**: Integration requires HA 2026.3.0+ and is tested against HA 2026.3.x. Use modern type annotations (`X | None` not `Optional[X]`) and `collections.abc` imports.
+9. **Home Assistant Compatibility**: Integration requires HA 2026.5.0+ and is tested against HA 2026.5.x. Use modern type annotations (`X | None` not `Optional[X]`) and `collections.abc` imports.
 
 10. **Recovery Behavior**: When connection is lost, the integration attempts auto-recovery with exponential backoff (10s → 300s max) for up to 10 attempts. After max attempts, manual intervention is required.
 

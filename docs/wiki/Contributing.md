@@ -36,7 +36,7 @@ Beiträge sind herzlich willkommen – egal ob Bug-Reports, Feature-Requests, Do
    Was ist das Problem? (1-2 Sätze)
 
 2. ENVIRONMENT
-   - Home Assistant Version: 2026.x.x (Minimum: 2026.3.0)
+   - Home Assistant Version: 2026.x.x (Minimum: 2026.5.0)
    - Integration Version: 1.0.5
    - Controller Firmware: x.x.x
    - Python Version: 3.14.2+

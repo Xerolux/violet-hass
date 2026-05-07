@@ -318,7 +318,7 @@ GitHub Actions läuft automatisch bei Push/PR:
 # .github/workflows/validate.yml
 - Ruff Linting
 - MyPy Type Checking
-- pytest (HA 2026.3.x)
+- pytest (HA 2026.5.x)
 - Python 3.14
 ```
 

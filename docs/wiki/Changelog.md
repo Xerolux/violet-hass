@@ -6,6 +6,16 @@
 
 ## 🆕 März 2026 - Version 1.x
 
+### ⚠️ BREAKING CHANGE | WICHTIGE ÄNDERUNG
+
+**Home Assistant 2026.5.0+ is now required!**
+Due to core platform changes (specifically the removal of `ZeroconfServiceInfo` from `homeassistant.components.zeroconf`), this integration now requires Home Assistant version 2026.5.0 or newer. If you are running an older version, please upgrade Home Assistant before installing this update.
+
+**Home Assistant 2026.5.0+ wird nun zwingend vorausgesetzt!**
+Aufgrund von Änderungen in der Core-Plattform (insbesondere der Entfernung von `ZeroconfServiceInfo` aus `homeassistant.components.zeroconf`), benötigt diese Integration nun zwingend Home Assistant Version 2026.5.0 oder neuer. Bitte aktualisieren Sie Home Assistant, bevor Sie dieses Update installieren.
+
+
+
 ### 🔒 Sicherheit & Haftung (NEU!)
 
 **Umfassender Disclaimer und Sicherheitshinweise**
