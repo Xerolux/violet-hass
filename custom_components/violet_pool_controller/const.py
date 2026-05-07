@@ -102,7 +102,7 @@ VERSION_INFO = {
         "Circuit Breaker Pattern for API Resilience",
         "Enhanced Switch Attributes (mode, speed, runtime)",
         "Dashboard Template with Secondary Info",
-        "HA 2026.3 / Python 3.14 Compatibility",
+        "HA 2026.5.0 / Python 3.14 Compatibility",
         "Fixed get_float_value None-key fallback in entity base class",
         "Fixed climate target temperature when data key is null",
     ],

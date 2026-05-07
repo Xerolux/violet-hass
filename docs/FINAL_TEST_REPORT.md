@@ -287,7 +287,7 @@ Die Violet Pool Controller Integration wurde **vollständig erfolgreich** im Doc
 - **Pool-Volume**: 55 m³
 
 ### Software
-- **Home Assistant**: 2026.3.0.dev202602230311
+- **Home Assistant**: 2026.5.0.dev202602230311
 - **Python**: 3.14.2
 - **Docker**: homeassistant-dev
 - **Integration Version**: 1.1.0
