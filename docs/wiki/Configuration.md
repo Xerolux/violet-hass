@@ -1,150 +1,150 @@
-# ⚙️ Konfiguration
+# ⚙️ Configuration
 
-> Alle Konfigurationsoptionen erklärt – von Basis-Setup bis zu erweiterten Einstellungen.
-
----
-
-## 🚨 SICHERHEIT & HAFTUNG (BITTE ZUERST LESEN!)
-
-### ⚠️ WICHTIGE SICHERHEITSHINWEISE
-
-**Das Violet Pool Controller Addon steuert echte Poolausrüstung:**
-
-- ⚠️ **Pumpen, Heizungen, Dosieranlagen können ferngesteuert werden**
-- ⚠️ **Falsche Konfiguration kann zu Sachschäden führen**
-- ⚠️ **Chemikalien können gefährlich sein bei falscher Handhabung**
-- ⚠️ **Elektrische Anlagen müssen vorschriftsmäßig installiert sein**
-
-### 🔒 DEINE VERANTWORTUNG
-
-**Bevor du die Integration konfigurierst:**
-
-✅ **Lies den vollständigen Haftungsausschluss**: [📖 Konfigurationshilfe (DE)](https://github.com/Xerolux/violet-hass/blob/main/docs/help/configuration-guide.de.md#-sicherheit--haftung)
-✅ **Verstehe alle Sicherheitsmechanismen**
-✅ **Halte manuelle Not-Abschalter bereit**
-✅ **Beachte alle Sicherheitsdatenblätter**
-✅ **Konsultiere einen Fachbetrieb bei Unsicherheiten**
-
-> **⚠️ Die Nutzung erfolgt auf eigene Verantwortung und Gefahr!**
+> All configuration options explained – from basic setup to advanced settings.
 
 ---
 
-## Konfigurationsübersicht
+## 🚨 SAFETY & LIABILITY (PLEASE READ FIRST!)
 
-Die Violet Pool Controller Integration wird vollständig über die Home Assistant UI konfiguriert – keine manuelle YAML-Konfiguration notwendig.
+### ⚠️ IMPORTANT SAFETY NOTICES
+
+**The Violet Pool Controller add-on controls real pool equipment:**
+
+- ⚠️ **Pumps, heaters, and dosing systems can be remotely controlled**
+- ⚠️ **Incorrect configuration can cause property damage**
+- ⚠️ **Chemicals can be dangerous if mishandled**
+- ⚠️ **Electrical systems must be installed in compliance with regulations**
+
+### 🔒 YOUR RESPONSIBILITY
+
+**Before configuring the integration:**
+
+✅ **Read the complete liability disclaimer**: [📖 Configuration Guide (DE)](https://github.com/Xerolux/violet-hass/blob/main/docs/help/configuration-guide.de.md#-sicherheit--haftung)
+✅ **Understand all safety mechanisms**
+✅ **Keep manual emergency shutoffs available**
+✅ **Observe all safety data sheets**
+✅ **Consult a professional if unsure**
+
+> **⚠️ Use is at your own responsibility and risk!**
+
+---
+
+## Configuration Overview
+
+The Violet Pool Controller integration is configured entirely through the Home Assistant UI – no manual YAML configuration required.
 
 ```
-Einstellungen → Geräte & Dienste → Violet Pool Controller → Optionen
+Settings → Devices & Services → Violet Pool Controller → Options
 ```
 
 ---
 
-## Verbindungseinstellungen
+## Connection Settings
 
-### Host-Konfiguration
+### Host Configuration
 
-| Parameter | Typ | Standard | Beschreibung |
-|-----------|-----|---------|--------------|
-| `host` | String | – | IP-Adresse oder Hostname des Controllers |
-| `port` | Integer | 80 | TCP-Port (Auf 80 belassen, außer bei Nutzung eines Proxys) |
-| `use_ssl` | Boolean | False | HTTPS statt HTTP verwenden |
-| `verify_ssl` | Boolean | True | SSL-Zertifikat validieren |
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `host` | String | – | IP address or hostname of the controller |
+| `port` | Integer | 80 | TCP port (leave at 80 unless using a proxy) |
+| `use_ssl` | Boolean | False | Use HTTPS instead of HTTP |
+| `verify_ssl` | Boolean | True | Validate SSL certificate |
 
-**Beispiele für Host-Konfiguration:**
+**Host Configuration Examples:**
 
 ```
-HTTP (Standard):     Host: 192.168.1.100, Port: 80
+HTTP (default):      Host: 192.168.1.100, Port: 80
 HTTP Custom Port:    Host: 192.168.1.100, Port: 8080
-HTTPS validiert:     Host: 192.168.1.100, Port: 443 (verify_ssl=True)
-HTTPS selbsigniert:  Host: 192.168.1.100, Port: 443 (verify_ssl=False)
+HTTPS validated:     Host: 192.168.1.100, Port: 443 (verify_ssl=True)
+HTTPS self-signed:   Host: 192.168.1.100, Port: 443 (verify_ssl=False)
 Hostname:            Host: violet.local, Port: 80
 ```
 
-> **Sicherheitshinweis**: `verify_ssl=False` nur in vertrauenswürdigen lokalen Netzwerken verwenden!
+> **Security notice**: Only use `verify_ssl=False` in trusted local networks!
 
-### Authentifizierung
+### Authentication
 
-| Parameter | Typ | Beschreibung |
-|-----------|-----|--------------|
-| `username` | String | API-Benutzername (leer lassen falls keine Auth) |
-| `password` | String | API-Passwort |
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `username` | String | API username (leave empty if no auth) |
+| `password` | String | API password |
 
-Zugangsdaten werden verschlüsselt in der Home Assistant Konfiguration gespeichert.
+Credentials are stored encrypted in the Home Assistant configuration.
 
 ---
 
-## Poll-Einstellungen
+## Poll Settings
 
-### Abfrageintervall
+### Polling Interval
 
 ```
-Einstellungen → Geräte & Dienste → Violet → Optionen → Abfrageintervall
+Settings → Devices & Services → Violet → Options → Polling Interval
 ```
 
-| Wert | Verhalten | Empfohlen für |
-|------|-----------|---------------|
-| 10s | Sehr reaktiv, hohe Controller-Last | Debugging |
-| **20s** | **Standard-Empfehlung** | Die meisten Nutzer |
-| 30s | Gute Balance | Mehrere Controller |
-| 45–60s | Niedrige Last, weniger reaktiv | Schwache Hardware/Netzwerk |
+| Value | Behavior | Recommended For |
+|-------|----------|-----------------|
+| 10s | Very responsive, high controller load | Debugging |
+| **20s** | **Standard recommendation** | Most users |
+| 30s | Good balance | Multiple controllers |
+| 45–60s | Low load, less responsive | Weak hardware/network |
 
-Der Coordinator fragt alle Sensoren in einem einzelnen Request ab (`GET /getReadings?ALL`), um Controller-Last zu minimieren.
+The coordinator queries all sensors in a single request (`GET /getReadings?ALL`) to minimize controller load.
 
 ### Timeout
 
-| Parameter | Standard | Beschreibung |
-|-----------|---------|--------------|
-| `timeout` | 10s | Gesamter Request-Timeout |
-| Verbindungs-Timeout | 8s (80%) | Timeout für TCP-Verbindungsaufbau |
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `timeout` | 10s | Total request timeout |
+| Connection timeout | 8s (80%) | Timeout for TCP connection setup |
 
-Bei langsamen Netzwerken auf 15–20s erhöhen.
+Increase to 15–20s for slow networks.
 
-### Retry-Logik
+### Retry Logic
 
-| Parameter | Standard | Beschreibung |
-|-----------|---------|--------------|
-| `retry_attempts` | 3 | Wiederholungen bei Fehler |
-| Backoff | Exponentiell | 2s → 4s → 8s zwischen Versuchen |
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `retry_attempts` | 3 | Retries on error |
+| Backoff | Exponential | 2s → 4s → 8s between attempts |
 
 ---
 
-## Feature-Konfiguration
+## Feature Configuration
 
-### Features aktivieren/deaktivieren
+### Enable/Disable Features
 
-Features werden im Setup-Flow konfiguriert und bestimmen, welche Entities erstellt werden:
+Features are configured in the setup flow and determine which entities are created:
 
 ```
-Einstellungen → Geräte & Dienste → Violet → Optionen → Features neu konfigurieren
+Settings → Devices & Services → Violet → Options → Reconfigure Features
 ```
 
-**Verfügbare Features:**
+**Available Features:**
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                    FEATURE FLAGS                        │
 ├─────────────────┬───────────────────────────────────────┤
-│ PUMP            │ Filterpumpe (immer aktiv)             │
-│ HEATER          │ Pool-Heizung / Wärmetauscher           │
-│ SOLAR           │ Solarkollektor                        │
-│ PV_SURPLUS      │ PV-Überschuss-Modus                   │
-│ DOSING_PH_MINUS │ pH- Dosierpumpe                       │
-│ DOSING_PH_PLUS  │ pH+ Dosierpumpe                       │
-│ DOSING_CHLORINE │ Chlor-Dosierpumpe                     │
-│ DOSING_FLOCCULANT│ Flockungs-Dosierpumpe                │
-│ DMX             │ DMX-Beleuchtungssteuerung (1–8)       │
-│ DIGITAL_INPUTS  │ Digitale Eingänge DI1–DI8             │
-│ COVER           │ Pool-Abdeckung                        │
-│ EXTENSION_RELAYS│ Erweiterungs-Relais REL1–REL8         │
-│ BACKWASH        │ Rückspülung                           │
+│ PUMP            │ Filter pump (always active)            │
+│ HEATER          │ Pool heater / heat exchanger           │
+│ SOLAR           │ Solar collector                        │
+│ PV_SURPLUS      │ PV surplus mode                        │
+│ DOSING_PH_MINUS │ pH- dosing pump                        │
+│ DOSING_PH_PLUS  │ pH+ dosing pump                        │
+│ DOSING_CHLORINE │ Chlorine dosing pump                   │
+│ DOSING_FLOCCULANT│ Flocculant dosing pump                │
+│ DMX             │ DMX lighting control (1–8)             │
+│ DIGITAL_INPUTS  │ Digital inputs DI1–DI8                 │
+│ COVER           │ Pool cover                             │
+│ EXTENSION_RELAYS│ Extension relays REL1–REL8             │
+│ BACKWASH        │ Backwash                               │
 └─────────────────┴───────────────────────────────────────┘
 ```
 
 ---
 
-## Logging-Konfiguration
+## Logging Configuration
 
-### Debug-Logging aktivieren
+### Enable Debug Logging
 
 In `configuration.yaml`:
 
@@ -156,7 +156,7 @@ logger:
     aiohttp: info
 ```
 
-### Logging reduzieren (Performance)
+### Reduce Logging (Performance)
 
 ```yaml
 logger:
@@ -164,7 +164,7 @@ logger:
     custom_components.violet_pool_controller: warning
 ```
 
-### Nur Fehler loggen
+### Log Errors Only
 
 ```yaml
 logger:
@@ -174,184 +174,184 @@ logger:
 
 ---
 
-## Controller-Name & Multi-Controller
+## Controller Name & Multi-Controller
 
-Für Installationen mit mehreren Controllern ist der **Controller-Name** wichtig:
+For installations with multiple controllers, the **Controller Name** is important:
 
 ```
-Einstellungen → Integration hinzufügen → Controller-Name: "Außenpool"
+Settings → Add Integration → Controller Name: "Outdoor Pool"
 ```
 
-| Empfehlung | Beispiel |
-|-----------|---------|
-| Eindeutig & beschreibend | `Außenpool`, `Whirlpool`, `Hallenbad` |
-| Kurz (max. 2–3 Wörter) | `Pool 1`, `Badeteich` |
-| Nicht generisch | ~~"Pool"~~, ~~"Controller"~~ |
+| Recommendation | Example |
+|----------------|---------|
+| Unique & descriptive | `Outdoor Pool`, `Hot Tub`, `Indoor Pool` |
+| Short (max. 2–3 words) | `Pool 1`, `Swimming Pond` |
+| Not generic | ~~"Pool"~~, ~~"Controller"~~ |
 
-Der Controller-Name bestimmt:
-- Den **Gerätenamen** in HA
-- Den **empfohlenen Bereich** (automatische Gruppierung)
-- Den **Entity-Prefix** (bei eindeutiger Benennung)
+The controller name determines:
+- The **device name** in HA
+- The **suggested area** (automatic grouping)
+- The **entity prefix** (with unique naming)
 
-→ Mehr dazu: **[Multi-Controller Guide](Multi-Controller)**
+→ More info: **[Multi-Controller Guide](Multi-Controller)**
 
 ---
 
-## Dashboard-Konfiguration
+## Dashboard Configuration
 
-### Automatische Bereiche
+### Automatic Areas
 
-Home Assistant erstellt automatisch einen Bereich basierend auf dem Controller-Namen. Alle Entities werden diesem Bereich zugeordnet.
+Home Assistant automatically creates an area based on the controller name. All entities are assigned to this area.
 
-### Empfohlene Dashboard-Karten
+### Recommended Dashboard Cards
 
-**Sensor-Übersicht:**
+**Sensor Overview:**
 ```yaml
 type: entities
-title: Pool Wasserchemie
+title: Pool Water Chemistry
 entities:
   - entity: sensor.violet_water_temperature
-    name: Wassertemperatur
+    name: Water Temperature
   - entity: sensor.violet_ph_value
-    name: pH-Wert
+    name: pH Value
   - entity: sensor.violet_orp_value
     name: ORP/Redox
   - entity: sensor.violet_chlorine
-    name: Chlorgehalt
+    name: Chlorine Level
 ```
 
-**Steuerung-Karte:**
+**Control Card:**
 ```yaml
 type: glance
-title: Pool Steuerung
+title: Pool Control
 entities:
   - entity: switch.violet_pump
-    name: Pumpe
+    name: Pump
   - entity: switch.violet_heater
-    name: Heizung
+    name: Heating
   - entity: switch.violet_solar
     name: Solar
   - entity: cover.violet_cover
-    name: Abdeckung
+    name: Cover
 ```
 
-**Thermostat-Karte:**
+**Thermostat Card:**
 ```yaml
 type: thermostat
 entity: climate.violet_heater
-name: Pool Heizung
+name: Pool Heating
 ```
 
 ---
 
-## Konfigurationsvalidierung
+## Configuration Validation
 
-Die Integration validiert alle Eingaben beim Setup und zeigt klare Fehlermeldungen:
+The integration validates all inputs during setup and displays clear error messages:
 
-| Fehler | Ursache | Lösung |
-|--------|---------|--------|
-| `cannot_connect` | Controller nicht erreichbar | IP/Port prüfen |
-| `invalid_auth` | Falsches Passwort | Zugangsdaten prüfen |
-| `already_configured` | Gleiche IP bereits konfiguriert | Bestehende Integration entfernen |
-| `ssl_error` | Zertifikatsproblem | `verify_ssl` deaktivieren |
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `cannot_connect` | Controller unreachable | Check IP/port |
+| `invalid_auth` | Wrong password | Check credentials |
+| `already_configured` | Same IP already configured | Remove existing integration |
+| `ssl_error` | Certificate problem | Disable `verify_ssl` |
 
 ---
 
-## Konfiguration sichern
+## Backup Configuration
 
-### Backup erstellen (vor Änderungen)
+### Create Backup (Before Changes)
 
 ```
-Einstellungen → System → Sicherungen → Sicherung erstellen
+Settings → System → Backups → Create Backup
 ```
 
-### Konfiguration exportieren
+### Export Configuration
 
-Die Integration speichert ihre Konfiguration in:
+The integration stores its configuration in:
 ```
 /config/.storage/core.config_entries
 ```
 
-Dieses File wird automatisch durch HA-Backups gesichert.
+This file is automatically backed up by HA backups.
 
 ---
 
-## Reset & Neukonfiguration
+## Reset & Reconfiguration
 
-### Integration neu konfigurieren
+### Reconfigure Integration
 
-1. **Einstellungen → Geräte & Dienste**
-2. Violet Pool Controller auswählen
-3. **"⋮" → "Neu konfigurieren"** (oder "Optionen")
-4. Änderungen vornehmen
-5. Speichern
+1. **Settings → Devices & Services**
+2. Select Violet Pool Controller
+3. **"⋮" → "Reconfigure"** (or "Options")
+4. Make changes
+5. Save
 
-### Integration vollständig entfernen und neu hinzufügen
+### Remove and Re-add Integration Completely
 
-1. **Einstellungen → Geräte & Dienste → Violet**
-2. **"⋮" → "Löschen"**
-3. Neu hinzufügen wie bei der [Erstinstallation](Installation-and-Setup)
+1. **Settings → Devices & Services → Violet**
+2. **"⋮" → "Delete"**
+3. Re-add as during [initial installation](Installation-and-Setup)
 
-> **Warnung**: Beim Löschen und Neuerstellen werden Entity-IDs neu generiert – ggf. Automatisierungen/Dashboard-Karten anpassen!
+> **Warning**: Deleting and recreating will regenerate entity IDs – you may need to update automations/dashboard cards!
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Verbindung kann nicht hergestellt werden
+### Cannot Establish Connection
 
-**Fehler: "Keine Verbindung zum Controller"**
+**Error: "No connection to controller"**
 
-**Lösungen:**
-1. **IP prüfen:**
+**Solutions:**
+1. **Check IP:**
    ```bash
    ping 192.168.1.100
    ```
-2. **Port prüfen:**
+2. **Check port:**
    ```bash
    # HTTP
    curl http://192.168.1.100
    # HTTPS
    curl https://192.168.1.100
    ```
-3. **Netzwerk prüfen:**
-   - Bist du im gleichen Netzwerk?
-   - Kein Gast-WLAN?
-   - Firewall blockiert nicht?
-4. **SSL/TLS umschalten:**
-   - Aktivieren oder deaktivieren
-   - Je nach Controller-Konfiguration
+3. **Check network:**
+   - Are you on the same network?
+   - Not on guest Wi-Fi?
+   - Firewall not blocking?
+4. **Toggle SSL/TLS:**
+   - Enable or disable
+   - Depending on controller configuration
 
-### Authentifizierung fehlgeschlagen
+### Authentication Failed
 
-**Fehler: "Authentifizierung fehlgeschlagen"**
+**Error: "Authentication failed"**
 
-**Lösungen:**
-1. Benutzername und Passwort prüfen
-2. Groß-/Kleinschreibung beachten
-3. Leerzeichen entfernen
-4. Auf dem Controller prüfen:
-   - Existiert der Benutzer?
-   - Ist das Passwort korrekt?
-5. SSL/TLS umschalten
+**Solutions:**
+1. Check username and password
+2. Note case sensitivity
+3. Remove trailing spaces
+4. Check on the controller:
+   - Does the user exist?
+   - Is the password correct?
+5. Toggle SSL/TLS
 
-### Entities fehlen nach Einrichtung
+### Entities Missing After Setup
 
-**Problem: Nicht alle Entities sind sichtbar**
+**Problem: Not all entities are visible**
 
-**Lösungen:**
-1. **Home Assistant neu starten:**
-   - Einstellungen → System → Neustart
-2. **Browser-Cache leeren:**
-   - STRG + UMSCHALT + ENTF
-3. **Entity-Registry prüfen:**
-   - Einstellungen → Geräte & Dienste → Entities
-   - Suche nach "violet_pool_controller"
-4. **Features deaktivieren:**
-   - Entferne die Integration
-   - Füge sie wieder hinzu
-   - Wähle nur vorhandene Features
+**Solutions:**
+1. **Restart Home Assistant:**
+   - Settings → System → Restart
+2. **Clear browser cache:**
+   - CTRL + SHIFT + DELETE
+3. **Check entity registry:**
+   - Settings → Devices & Services → Entities
+   - Search for "violet_pool_controller"
+4. **Disable features:**
+   - Remove the integration
+   - Add it again
+   - Select only existing features
 
 ---
 
-**Weiter:** [Sensoren](Sensors) | [Device States](Device-States) | [Services](Services)
+**Next:** [Sensors](Sensors) | [Device States](Device-States) | [Services](Services)

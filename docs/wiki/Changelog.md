@@ -1,144 +1,141 @@
-# Changelog – Versionshistorie
+# Changelog – Version History
 
-> Alle wichtigen Änderungen am Violet Pool Controller Addon.
+> All important changes to the Violet Pool Controller add-on.
 
 ---
 
-## 🆕 März 2026 - Version 1.x
+## 🆕 March 2026 - Version 1.x
 
-### ⚠️ BREAKING CHANGE | WICHTIGE ÄNDERUNG
+### ⚠️ BREAKING CHANGE
 
 **Home Assistant 2026.5.0+ is now required!**
 Due to core platform changes (specifically the removal of `ZeroconfServiceInfo` from `homeassistant.components.zeroconf`), this integration now requires Home Assistant version 2026.5.0 or newer. If you are running an older version, please upgrade Home Assistant before installing this update.
 
-**Home Assistant 2026.5.0+ wird nun zwingend vorausgesetzt!**
-Aufgrund von Änderungen in der Core-Plattform (insbesondere der Entfernung von `ZeroconfServiceInfo` aus `homeassistant.components.zeroconf`), benötigt diese Integration nun zwingend Home Assistant Version 2026.5.0 oder neuer. Bitte aktualisieren Sie Home Assistant, bevor Sie dieses Update installieren.
 
 
+### 🔒 Safety & Liability (NEW!)
 
-### 🔒 Sicherheit & Haftung (NEU!)
+**Comprehensive disclaimer and safety notices**
 
-**Umfassender Disclaimer und Sicherheitshinweise**
+#### ✨ New Features
 
-#### ✨ Neue Funktionen
+- **Liability disclaimer in setup flow:**
+  - Mandatory disclaimer during integration setup
+  - Must be confirmed to proceed
+  - Bilingual (German & English)
 
-- **Haftungsausschluss im Setup-Flow:**
-  - Verbindlicher Disclaimer beim Einrichten der Integration
-  - Muss bestätigt werden um fortzufahren
-  - Bilingual (Deutsch & Englisch)
+- **Extended documentation:**
+  - Comprehensive safety notices in both languages
+  - Detailed user responsibilities
+  - References to manufacturer documentation
+  - Checklists for safe operation
 
-- **Erweiterte Dokumentation:**
-  - Umfassende Sicherheitshinweise in beiden Sprachen
-  - Detaillierte Benutzer-Verantwortlichkeiten
-  - Referenz zu Hersteller-Dokumentationen
-  - Checklisten für sicheren Betrieb
+- **Prominent placement:**
+  - Disclaimer integrated into setup process
+  - Safety first in all documentation
+  - Progressive warnings in wiki
 
-- **Prominente Platzierung:**
-  - Disclaimer in Setup-Prozess integriert
-  - Sicherheit an erster Stelle in allen Dokumentationen
-  - Degressive Warnungen in Wiki
-
-#### 📄 Geänderte Dateien
+#### 📄 Changed Files
 
 **Code:**
 - `custom_components/violet_pool_controller/config_flow.py`
-  - `_get_disclaimer_text()` Methode erweitert
-  - Umfassender bilingualer Disclaimer
-  - Verbindliche Bestätigung erforderlich
+  - `_get_disclaimer_text()` method extended
+  - Comprehensive bilingual disclaimer
+  - Mandatory confirmation required
 
-**Dokumentation:**
+**Documentation:**
 - `docs/help/configuration-guide.de.md`
-  - Neue Sektion: "Sicherheit & Haftung"
-  - Checklisten für Compliance
-  - Rechtliche Hinweise
+  - New section: "Safety & Liability"
+  - Compliance checklists
+  - Legal notices
 
 - `docs/help/configuration-guide.en.md`
-  - Spiegelt deutsche Version
-  - Konsistente Struktur
+  - Mirrors German version
+  - Consistent structure
 
-#### 🔐 Inhalt
+#### 🔐 Content
 
-**Haftungsausschluss deckt ab:**
-- ⚠️ Alle Sicherheitsrisiken bei der Nutzung
-- 🔒 Verantwortlichkeiten des Benutzers
-- ⚖️ Gewährleistungsausschluss
-- 📖 Verweise auf Dokumentationen
-- 🏗️ Einhaltung von Normen (VDE, DIN)
-- 🧪 Chemische Sicherheit
-- ⚡ Elektrische Sicherheit
-- 🔒 Betriebliche Sicherheit
+**Disclaimer covers:**
+- ⚠️ All safety risks during use
+- 🔒 User responsibilities
+- ⚖️ Warranty disclaimer
+- 📖 References to documentation
+- 🏗️ Standards compliance (VDE, DIN)
+- 🧪 Chemical safety
+- ⚡ Electrical safety
+- 🔒 Operational safety
 
-#### 📖 Dokumentation
+#### 📖 Documentation
 
-- [Konfigurationshilfe (DE)](https://github.com/Xerolux/violet-hass/blob/main/docs/help/configuration-guide.de.md)
-- [Konfigurationshilfe (EN)](https://github.com/Xerolux/violet-hass/blob/main/docs/help/configuration-guide.en.md)
+- [Configuration Guide (DE)](https://github.com/Xerolux/violet-hass/blob/main/docs/help/configuration-guide.de.md)
+- [Configuration Guide (EN)](https://github.com/Xerolux/violet-hass/blob/main/docs/help/configuration-guide.en.md)
 
 ---
 
-### 🎨 Icon-Optimierung (NEU!)
+### 🎨 Icon Optimization (NEW!)
 
-**Alle Icons optimiert und zu MDI gewechselt**
+**All icons optimized and switched to MDI**
 
-#### ✨ Zusammenfassung
+#### ✨ Summary
 
-- **68+ Icons optimiert**
-- **100% zu Material Design Icons (MDI) gewechselt**
-- **Konsistentes, professionelles Icon-Set**
-- **Keine defekten Icons mehr**
+- **68+ icons optimized**
+- **100% switched to Material Design Icons (MDI)**
+- **Consistent, professional icon set**
+- **No more broken icons**
 
-#### 🔍 Analyse
+#### 🔍 Analysis
 
 **Problem:**
-- Nicht existente Icons verwendet (z.B. `mdi:pump-on`, `mdi:overflow`)
-- Inkonsistente Icon-Stile (solid, outline, gemischt)
-- Fehlende Icons bei einigen Entities
-- Verwirrung bei Benutzern
+- Non-existent icons used (e.g. `mdi:pump-on`, `mdi:overflow`)
+- Inconsistent icon styles (solid, outline, mixed)
+- Missing icons on some entities
+- User confusion
 
-**Lösung:**
-- Alle Icons gegen verifizierte MDI-Icons ausgetauscht
-- Konsistent zu soliden Icons gewechselt
-- Spezielle Icons für spezielle Funktionen (z.B. `mdi:ph` für pH)
-- Alle Icons in [MDI Library](https://pictogrammers.com/library/mdi/) verifiziert
+**Solution:**
+- All icons replaced with verified MDI icons
+- Consistently switched to solid icons
+- Special icons for specific functions (e.g. `mdi:ph` for pH)
+- All icons verified in [MDI Library](https://pictogrammers.com/library/mdi/)
 
-#### 📊 Top 10 Icon-Verbesserungen
+#### 📊 Top 10 Icon Improvements
 
-| Platz | Icon-Wechsel | Grund |
-|-------|--------------|--------|
-| 🥇 | `mdi:flask` → **`mdi:ph`** | Echtes pH-Icon statt Flasche |
-| 🥈 | `mdi:water-percent` → **`mdi:water-sync`** | Überlauf statt Prozent |
-| 🥉 | `mdi:refresh` → **`mdi:autorenew`** | Autorenew für Zyklus |
-| 4 | `mdi:pump-on` → **`mdi:water-pump`** | Wasserpumpe existiert |
-| 5 | `mdi:radiator-disabled` → **`mdi:radiator`** | Heizkörper einfacher |
-| 6 | `mdi:lightbulb-on` → **`mdi:lightbulb`** | Glühbirne Standard |
-| 7 | `mdi:heat-exchange` → **`mdi:radiator`** | Wärmetauscher klarer |
-| 8 | `mdi:pool-thermometer` → **`mdi:pool`** | Pool einfacher |
-| 9 | `mdi:water-opacity` → **`mdi:water`** | Wasser statt Trübung |
-| 10 | `mdi:gauge-full` → **`mdi:gauge`** | Messanzeige Standard |
+| Rank | Icon Change | Reason |
+|------|-------------|--------|
+| 🥇 | `mdi:flask` → **`mdi:ph`** | Real pH icon instead of flask |
+| 🥈 | `mdi:water-percent` → **`mdi:water-sync`** | Overflow instead of percent |
+| 🥉 | `mdi:refresh` → **`mdi:autorenew`** | Autorenew for cycle |
+| 4 | `mdi:pump-on` → **`mdi:water-pump`** | Water pump exists |
+| 5 | `mdi:radiator-disabled` → **`mdi:radiator`** | Simpler radiator |
+| 6 | `mdi:lightbulb-on` → **`mdi:lightbulb`** | Standard lightbulb |
+| 7 | `mdi:heat-exchange` → **`mdi:radiator`** | Heat exchanger clearer |
+| 8 | `mdi:pool-thermometer` → **`mdi:pool`** | Simpler pool |
+| 9 | `mdi:water-opacity` → **`mdi:water`** | Water instead of turbidity |
+| 10 | `mdi:gauge-full` → **`mdi:gauge`** | Standard gauge |
 
-#### 📄 Geänderte Dateien
+#### 📄 Changed Files
 
 **Code:**
 - `custom_components/violet_pool_controller/const_sensors.py`
-  - TEMP_SENSORS (6 Icons)
-  - WATER_CHEM_SENSORS (3 Icons)
-  - ANALOG_SENSORS (7 Icons)
-  - SYSTEM_SENSORS (7 Icons)
-  - STATUS_SENSORS (7 Icons)
-  - DOSING_STATE_SENSORS (5 Icons)
+  - TEMP_SENSORS (6 icons)
+  - WATER_CHEM_SENSORS (3 icons)
+  - ANALOG_SENSORS (7 icons)
+  - SYSTEM_SENSORS (7 icons)
+  - STATUS_SENSORS (7 icons)
+  - DOSING_STATE_SENSORS (5 icons)
 
 - `custom_components/violet_pool_controller/const_features.py`
-  - BINARY_SENSORS (11+ Icons)
-  - SWITCHES (11+ Icons)
-  - SELECT_CONTROLS (8 Icons)
-  - SETPOINT_DEFINITIONS (11 Icons)
+  - BINARY_SENSORS (11+ icons)
+  - SWITCHES (11+ icons)
+  - SELECT_CONTROLS (8 icons)
+  - SETPOINT_DEFINITIONS (11 icons)
 
-**Dokumentation:**
-- `docs/wiki/Icon-Reference.md` (NEU)
-- `docs/wiki/Entities.md` (Aktualisiert)
+**Documentation:**
+- `docs/wiki/Icon-Reference.md` (NEW)
+- `docs/wiki/Entities.md` (Updated)
 
-#### 🎨 Alle Icon-Änderungen
+#### 🎨 All Icon Changes
 
-**Temperatursensoren (6):**
+**Temperature Sensors (6):**
 - `onewire1_value`: `mdi:pool-thermometer` → `mdi:pool`
 - `onewire2_value`: `mdi:thermometer-lines` → `mdi:thermometer`
 - `onewire3_value`: `mdi:solar-power-variant` → `mdi:solar-power`
@@ -146,12 +143,12 @@ Aufgrund von Änderungen in der Core-Plattform (insbesondere der Entfernung von 
 - `onewire5_value`: `mdi:heat-exchange` → `mdi:radiator`
 - `onewire6_value`: `mdi:water-boiler-auto` → `mdi:water-boiler`
 
-**Wasserchemie (3):**
+**Water Chemistry (3):**
 - `pH_value`: `mdi:flask` → `mdi:ph` ⭐
 - `orp_value`: `mdi:lightning-bolt` → `mdi:lightning-bolt-circle`
 - `pot_value`: `mdi:water-opacity` → `mdi:water-plus`
 
-**Analogsensoren (7):**
+**Analog Sensors (7):**
 - `ADC1_value`: `mdi:gauge-full` → `mdi:gauge`
 - `ADC2_value`: `mdi:water-percent` → `mdi:water-sync`
 - `ADC3_value`: `mdi:arrow-left-right` → `mdi:swap-horizontal`
@@ -160,7 +157,7 @@ Aufgrund von Änderungen in der Core-Plattform (insbesondere der Entfernung von 
 - `IMP1_value`: `mdi:pipe-valve-open` → `mdi:pipe-valve`
 - `IMP2_value`: `mdi:pump` → `mdi:water-pump`
 
-**System-Sensoren (7):**
+**System Sensors (7):**
 - `CPU_TEMP`: `mdi:thermometer-high` → `mdi:thermometer-alert`
 - `CPU_TEMP_CARRIER`: `mdi:chip` → `mdi:motherboard`
 - `CPU_UPTIME`: `mdi:clock-outline` → `mdi:clock-time-eight`
@@ -169,7 +166,7 @@ Aufgrund von Änderungen in der Core-Plattform (insbesondere der Entfernung von 
 - `SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE`: `mdi:memory` → `mdi:memory-lan`
 - `SYSTEM_memoryusage`: `mdi:memory` → `mdi:memory-lan`
 
-**Status-Sensoren (7):**
+**Status Sensors (7):**
 - `PUMP`: `mdi:pump` → `mdi:pump`
 - `HEATER`: `mdi:radiator` → `mdi:radiator`
 - `SOLAR`: `mdi:solar-power` → `mdi:solar-power`
@@ -178,7 +175,7 @@ Aufgrund von Änderungen in der Core-Plattform (insbesondere der Entfernung von 
 - `PVSURPLUS`: `mdi:solar-power` → `mdi:solar-power`
 - `FW`: `mdi:package` → `mdi:package-variant`
 
-**Dosier-Sensoren (5):**
+**Dosing Sensors (5):**
 - `DOS_1_CL_STATE`: `mdi:flask-empty` → `mdi:flask-outline`
 - `DOS_2_ELO_STATE`: `mdi:lightning-bolt` → `mdi:lightning-bolt`
 - `DOS_4_PHM_STATE`: `mdi:flask-empty-remove` → `mdi:flask-minus`
@@ -234,88 +231,88 @@ Aufgrund von Änderungen in der Core-Plattform (insbesondere der Entfernung von 
 - `ph_plus_canister_volume`: `mdi:keg` → `mdi:barrel`
 - `flocculant_canister_volume`: `mdi:keg` → `mdi:barrel`
 
-#### 📚 Referenz
+#### 📚 Reference
 
-- [Icon-Referenz](Icon-Reference) - Alle Icons im Detail
-- [Icon Upgrade Summary](https://github.com/Xerolux/violet-hass/blob/main/ICON_UPGRADE_SUMMARY.md) - Detaillierte Analyse
+- [Icon Reference](Icon-Reference) - All icons in detail
+- [Icon Upgrade Summary](https://github.com/Xerolux/violet-hass/blob/main/ICON_UPGRADE_SUMMARY.md) - Detailed analysis
 
 ---
 
 ## 🐛 Bug Fixes
 
-### März 2026
+### March 2026
 
-#### Icons fehlten
+#### Missing Icons
 
 **Problem:**
-- Filterpumpe hatte kein Symbol
-- Überlaufbehälter, Wärmetauscher, Solar State, Refill State, PV Surplus fehlten
-- Icons wurden in Home Assistant nicht angezeigt
+- Filter pump had no icon
+- Overflow tank, heat exchanger, solar state, refill state, PV surplus were missing
+- Icons were not displayed in Home Assistant
 
-**Ursache:**
-- Nicht existente MDI-Icons verwendet:
-  - `mdi:pump-on` - existiert nicht
-  - `mdi:overflow` - existiert nicht
-  - `mdi:heat-exchange` - existiert nicht
-  - `mdi:solar-power-variant-outline` - existiert nicht
-  - `mdi:water-plus` (ursprünglich) - existiert nicht
-  - `mdi:radiator-disabled` - existiert nicht
-  - `mdi:lightbulb-on` - existiert nicht
-  - Und viele mehr...
+**Cause:**
+- Non-existent MDI icons used:
+  - `mdi:pump-on` - does not exist
+  - `mdi:overflow` - does not exist
+  - `mdi:heat-exchange` - does not exist
+  - `mdi:solar-power-variant-outline` - does not exist
+  - `mdi:water-plus` (original) - does not exist
+  - `mdi:radiator-disabled` - does not exist
+  - `mdi:lightbulb-on` - does not exist
+  - And many more...
 
-**Lösung:**
-- Alle Icons gegen existierende MDI-Icons ausgetauscht
-- Verifiziert in der [MDI Library](https://pictogrammers.com/library/mdi/)
-- Konsistentes Set eingeführt
+**Solution:**
+- All icons replaced with existing MDI icons
+- Verified in the [MDI Library](https://pictogrammers.com/library/mdi/)
+- Consistent icon set introduced
 
-**Status:** ✅ Gelöst
+**Status:** ✅ Resolved
 
 ---
 
 ## 🔄 Migration
 
-### Von älteren Versionen aktualisieren
+### Updating from Older Versions
 
 #### Icons
 
-Wenn du von einer älteren Version aktualisierst:
+If you are updating from an older version:
 
-1. **Home Assistant neu starten:**
+1. **Restart Home Assistant:**
    ```
-   Einstellungen → System → Neustart
-   ```
-
-2. **Browser-Cache leeren:**
-   ```
-   STRG + UMSCHALT + ENTF
+   Settings → System → Restart
    ```
 
-3. **Entity-Registry aktualisieren:**
-   - Icons aktualisieren sich automatisch
-   - Keine manuelle Arbeit nötig
+2. **Clear browser cache:**
+   ```
+   CTRL + SHIFT + DELETE
+   ```
+
+3. **Update entity registry:**
+   - Icons update automatically
+   - No manual work needed
 
 #### Disclaimer
 
-Wenn du von einer Version ohne Disclaimer aktualisierst:
+If you are updating from a version without the disclaimer:
 
-1. **Integration entfernen:**
+1. **Remove integration:**
    ```
-   Einstellungen → Geräte & Dienste → Violet Pool Controller → "..." → Entfernen
-   ```
-
-2. **Integration neu hinzufügen:**
-   ```
-   Einstellungen → Geräte & Dienste → + Integration hinzufügen
+   Settings → Devices & Services → Violet Pool Controller → "..." → Remove
    ```
 
-3. **Disclaimer bestätigen:**
-   - Lies den gesamten Text
-   - Setze das Häkchen
-   - Klicke auf "Bestätigen"
+2. **Re-add integration:**
+   ```
+   Settings → Devices & Services → + Add Integration
+   ```
 
-4. **Konfiguration übernehmen:**
-   - Alle Einstellungen bleiben erhalten
-   - Feature-Auswahl wird übernommen
+3. **Confirm disclaimer:**
+   - Read the entire text
+   - Check the box
+   - Click "Confirm"
+
+4. **Retain configuration:**
+   - All settings are preserved
+   - Feature selection is retained
 
 ---
 
@@ -334,153 +331,153 @@ Wenn du von einer Version ohne Disclaimer aktualisierst:
 
 ## [1.0.4] – 2026-03-02 🟡 BETA
 
-### Versionsschritt Alpha → Beta
+### Version Step Alpha → Beta
 
-- Alle bekannten HA 2026 Kompatibilitätsfehler behoben.
-- Diagnosedaten-Download Feature fertiggestellt.
-- Dokumentation (README + Wiki) vollständig überarbeitet und aktualisiert.
+- All known HA 2026 compatibility errors fixed.
+- Diagnostics download feature completed.
+- Documentation (README + Wiki) completely revised and updated.
 
 ---
 
 ## [1.0.3-alpha.2] – 2026-03-02 🔴 ALPHA
 
-### Bugfixes (HA 2026 Kompatibilität)
+### Bugfixes (HA 2026 Compatibility)
 
-- **ZeroconfServiceInfo entfernt**: `ZeroconfServiceInfo` wurde aus `homeassistant.components.zeroconf` entfernt. Import in `config_flow.py` und `tests/test_discovery.py` auf `AsyncServiceInfo` umgestellt.
-- **Repairs-Imports verschoben**: `IssueSeverity`, `async_create_issue` und `async_delete_issue` wurden aus `homeassistant.components.repairs` in `homeassistant.helpers.issue_registry` verschoben. Import in `device.py` entsprechend aktualisiert.
+- **ZeroconfServiceInfo removed**: `ZeroconfServiceInfo` was removed from `homeassistant.components.zeroconf`. Import in `config_flow.py` and `tests/test_discovery.py` switched to `AsyncServiceInfo`.
+- **Repairs imports moved**: `IssueSeverity`, `async_create_issue`, and `async_delete_issue` were moved from `homeassistant.components.repairs` to `homeassistant.helpers.issue_registry`. Import in `device.py` updated accordingly.
 
-### Neue Features
+### New Features
 
-- **Diagnosedaten-Download**: Neues `diagnostics.py` Modul hinzugefügt. Über die Geräteseite in HA kann jetzt eine JSON-Datei mit vollständigen Debug-Informationen heruntergeladen werden (Konfiguration, Gerätestatus, Verbindungsmetriken, aktuelle Messwerte, Poll-Statistiken). Passwörter werden automatisch geschwärzt.
+- **Diagnostics Download**: New `diagnostics.py` module added. A JSON file with complete debug information can now be downloaded from the device page in HA (configuration, device status, connection metrics, current readings, poll statistics). Passwords are automatically redacted.
 
-### Dokumentation
+### Documentation
 
-- **README bereinigt**: README.md auf das Wesentliche (Features + Schnellstart + Wiki-Links) reduziert. Alle Details wurden in das Wiki ausgelagert.
-- **Wiki aktualisiert**: Home-Seite, Sidebar und Changelog auf Version 1.0.3-alpha.2 aktualisiert.
-- **Neue Wiki-Seite Diagnostics**: Vollständige Dokumentation der Diagnosedaten-Funktion.
+- **README cleaned up**: README.md reduced to essentials (features + quickstart + wiki links). All details moved to the wiki.
+- **Wiki updated**: Home page, sidebar, and changelog updated to version 1.0.3-alpha.2.
+- **New wiki page Diagnostics**: Complete documentation of the diagnostics feature.
 
 ---
 
 ## [1.0.3-alpha.1] – 2026-02-28 🔴 ALPHA
 
-### Neue Features
+### New Features
 
-- **Quality Scale Progress:** Dokumentation des Fortschritts zur Quality Scale hinzugefügt (Gold Level ~85% abgeschlossen).
+- **Quality Scale Progress:** Documentation of progress toward Quality Scale added (Gold Level ~85% complete).
 
-### Verbesserungen
+### Improvements
 
-- **Code Quality:** Type Hints vervollständigt (Bronze Level 100% abgeschlossen).
-- **Fehlerbehebung:** Behebung von Config Flow Handler Problemen.
-- **HA 2026 Kompatibilität:** Fixes für Home Assistant 2026 Kompatibilität und Abschluss von Gold Level Tests.
-- **ZeroConf Discovery:** Fixes für ZeroConf Discovery (100% Tests erfolgreich).
+- **Code Quality:** Type hints completed (Bronze Level 100% complete).
+- **Bug fixes:** Fixed config flow handler issues.
+- **HA 2026 Compatibility:** Fixes for Home Assistant 2026 compatibility and completion of Gold Level tests.
+- **ZeroConf Discovery:** Fixes for ZeroConf Discovery (100% tests passing).
 
-### Dokumentation
+### Documentation
 
-- **Enhanced Documentation:** Verbesserte Fehlerbehandlung, Diagnostics und Dokumentation (Silver Level 100% abgeschlossen).
+- **Enhanced Documentation:** Improved error handling, diagnostics, and documentation (Silver Level 100% complete).
 
-### Kompatibilität
-- Getestet auf Home Assistant 2025.12.0+
-- Vorbereitet für 2026.x Versionen
-- aiohttp>=3.10.0 erforderlich
+### Compatibility
+- Tested on Home Assistant 2025.12.0+
+- Prepared for 2026.x versions
+- aiohttp>=3.10.0 required
 
 ---
 
 ## [1.0.2] – 2026-02-26 ✅ STABLE
 
-### Neue Features
+### New Features
 
 **Diagnostic Service**
-- Neuer Service: `export_diagnostic_logs`
-- Exportiere bis zu 10.000 Log-Zeilen für Troubleshooting
-- Optional in Datei speichern für Support-Tickets
-- Mit Timestamps und flexibler Zeilenanzahl
-- Export enthält nun auch installierte Komponenten und Home Assistant System-Infos.
+- New service: `export_diagnostic_logs`
+- Export up to 10,000 log lines for troubleshooting
+- Optionally save to file for support tickets
+- With timestamps and flexible line count
+- Export now also includes installed components and Home Assistant system info.
 
-### Verbesserungen
+### Improvements
 
-**Fehlerbehandlung**
-- Bessere Recovery-Mechanismen bei Verbindungsverlust
-- Erweiterte Logging-Fähigkeiten
+**Error Handling**
+- Better recovery mechanisms on connection loss
+- Extended logging capabilities
 
-**Wiki & Dokumentation**
-- Aktualisierte Services-Dokumentation
-- Neue Log-Export-Tipps in Troubleshooting
-- Erweiterte SSL/TLS-Dokumentation
+**Wiki & Documentation**
+- Updated services documentation
+- New log export tips in troubleshooting
+- Extended SSL/TLS documentation
 
-### Kompatibilität
-- Getestet auf Home Assistant 2025.12.0+
-- Vorbereitet für 2026.x Versionen
-- aiohttp>=3.10.0 erforderlich
+### Compatibility
+- Tested on Home Assistant 2025.12.0+
+- Prepared for 2026.x versions
+- aiohttp>=3.10.0 required
 
 ---
 
 ## [1.0.1] – 2026-02-22 ✅ STABLE
 
-### Kritische Bugfixes
+### Critical Bugfixes
 
 **Contact Sensor State Class**
-- Sensoren gaben String-Werte (`'RELEASED'`/`'TRIGGERED'`) mit numerischer `state_class` zurück
-- Fix: Runtime-Override in `VioletSensor.state_class` Property
+- Sensors returned string values (`'RELEASED'`/`'TRIGGERED'`) with numeric `state_class`
+- Fix: Runtime override in `VioletSensor.state_class` property
 
-**Weitere kritische Fixes in diesem Release:**
-- Verbesserungen der Sensor-Anzeige
-- Korrekturen bei Konfigurations-Updates
-- Session-Management verbessert
+**Other critical fixes in this release:**
+- Improvements to sensor display
+- Corrections to configuration updates
+- Improved session management
 
-### Upgraden auf 1.0.1
+### Upgrading to 1.0.1
 
 **HACS:**
-1. HACS → Integrationen
-2. „Violet Pool Controller" → Aktualisieren
-3. Home Assistant neu starten
+1. HACS → Integrations
+2. "Violet Pool Controller" → Update
+3. Restart Home Assistant
 
-**Manuell:**
+**Manually:**
 ```bash
 cd /config/custom_components
 rm -rf violet_pool_controller
-# ZIP von GitHub Release extrahieren
+# Extract ZIP from GitHub Release
 ```
 
 ---
 
 ## [1.0.0] – 2026-02-22 ✅ STABLE
 
-### Erstes stabiles Release!
+### First Stable Release!
 
-#### Neue Features
-- Vollständige Home Assistant Integration für Violet Pool Controller
-- Multi-Controller Support (mehrere Pools gleichzeitig)
-- Automatische Bereichszuweisung (Areas)
+#### New Features
+- Complete Home Assistant integration for Violet Pool Controller
+- Multi-controller support (multiple pools simultaneously)
+- Automatic area assignment
 
-#### Plattformen
-- **Sensor**: Temperaturen, pH, ORP, Chlor, Leitfähigkeit, AI1–AI8, Fehlercodes
-- **Binary Sensor**: Digitaleingänge DI1–DI8, Alarme, Verbindungsstatus
-- **Switch**: Pumpe, Heizung, Solar, pH±, Chlor, Flockmittel, DMX 1–8, Relais 1–8
-- **Climate**: Poolheizung, Solarheizung (Thermostat)
-- **Cover**: Poolabdeckung mit Position
-- **Number**: Sollwerte für Temperatur, pH, ORP, Dosierung
+#### Platforms
+- **Sensor**: Temperatures, pH, ORP, chlorine, conductivity, AI1–AI8, error codes
+- **Binary Sensor**: Digital inputs DI1–DI8, alarms, connection status
+- **Switch**: Pump, heater, solar, pH±, chlorine, flocculant, DMX 1–8, relays 1–8
+- **Climate**: Pool heater, solar heater (thermostat)
+- **Cover**: Pool cover with position
+- **Number**: Setpoints for temperature, pH, ORP, dosing
 
 #### Services
-- `control_pump` – Pumpensteuerung mit Geschwindigkeit
-- `smart_dosing` – Intelligente Chemikaliendosierung
-- `manage_pv_surplus` – PV-Überschuss-Management
-- `control_dmx_scenes` – DMX-Beleuchtungsszenen
-- `set_light_color_pulse` – Lichtfarb-Pulse
-- `manage_digital_rules` – Digitale Eingangsregeln
-- `test_output` – Diagnose-Testmodus
+- `control_pump` – Pump control with speed
+- `smart_dosing` – Intelligent chemical dosing
+- `manage_pv_surplus` – PV surplus management
+- `control_dmx_scenes` – DMX lighting scenes
+- `set_light_color_pulse` – Light color pulses
+- `manage_digital_rules` – Digital input rules
+- `test_output` – Diagnostic test mode
 
-#### Sicherheit
-- Token-Bucket Rate Limiting
-- Input Sanitization (XSS, SQL-Injection, Command-Injection)
-- SSL/TLS Zertifikats-Verifikation (Standard: aktiv)
-- Thread-Safe Locking mit dokumentierter Reihenfolge
+#### Security
+- Token bucket rate limiting
+- Input sanitization (XSS, SQL injection, command injection)
+- SSL/TLS certificate verification (default: on)
+- Thread-safe locking with documented ordering
 
 #### Auto-Recovery
-- Exponentielles Backoff: 10s → 300s
-- Max. 10 Wiederholungsversuche
-- Intelligentes Fehler-Logging (Throttling alle 5 Minuten)
+- Exponential backoff: 10s → 300s
+- Max 10 retry attempts
+- Intelligent error logging (throttling every 5 minutes)
 
-#### Übersetzungen
+#### Translations
 - DE, EN, ES, FR, IT, NL, PL, PT, RU, ZH
 
 ---
@@ -489,48 +486,48 @@ rm -rf violet_pool_controller
 
 ### Multi-Controller Support
 
-#### Neu
-- Controller-Name-Feld beim Setup
-- Automatische Bereichszuweisung (`suggested_area`)
-- Verbesserte visuelle Trennung im Dashboard
+#### New
+- Controller name field during setup
+- Automatic area assignment (`suggested_area`)
+- Improved visual separation in dashboard
 
-#### Technisch
-- Neue Konstante: `CONF_CONTROLLER_NAME`
-- Device-Info verwendet `controller_name`
-- Entry-Title zeigt Controller-Name
+#### Technical
+- New constant: `CONF_CONTROLLER_NAME`
+- Device info uses `controller_name`
+- Entry title shows controller name
 
-#### Abwärtskompatibilität
-- Bestehende Installationen funktionieren weiter
-- Default-Name: „Violet Pool Controller"
+#### Backward Compatibility
+- Existing installations continue to work
+- Default name: "Violet Pool Controller"
 
 ---
 
 ## [0.2.0] – 2025-10-15 🧪 BETA
 
-### Große Umstrukturierung
+### Major Restructuring
 
-#### Änderungen
-- Modulare Konstanten (`const_api.py`, `const_devices.py`, `const_sensors.py`, `const_features.py`)
-- Rate Limiter als separates Modul (`utils_rate_limiter.py`)
-- Input Sanitizer (`utils_sanitizer.py`)
-- Fehlercode-Mapping (`error_codes.py`)
+#### Changes
+- Modular constants (`const_api.py`, `const_devices.py`, `const_sensors.py`, `const_features.py`)
+- Rate limiter as separate module (`utils_rate_limiter.py`)
+- Input sanitizer (`utils_sanitizer.py`)
+- Error code mapping (`error_codes.py`)
 
-#### Neue Entities
-- Kalibrierungsverlauf-Sensoren
-- Analogeingänge AI1–AI8
-- Erweiterungs-Relais 1–8
+#### New Entities
+- Calibration history sensors
+- Analog inputs AI1–AI8
+- Extension relays 1–8
 
 ---
 
 ## [0.1.0] – 2025-08-01 🧪 ALPHA
 
-### Erster öffentlicher Release
+### First Public Release
 
 #### Features
-- Grundlegende HTTP-API-Kommunikation
-- Sensor-Entities für Temperaturen und Chemiewerte
-- Einfache Switch-Entities für Pumpe und Heizung
-- Config Flow für Setup
+- Basic HTTP API communication
+- Sensor entities for temperatures and chemical values
+- Simple switch entities for pump and heater
+- Config flow for setup
 
 ---
 
@@ -538,44 +535,44 @@ rm -rf violet_pool_controller
 
 ### 1.0.0 → 1.0.1
 
-Keine Breaking Changes. Direktes Upgrade möglich.
+No breaking changes. Direct upgrade possible.
 
 ### 0.2.x → 1.0.0
 
-- Mindest-HA-Version: **2025.12.0** (vorher 2024.12.0)
-- Python: **3.12+** erforderlich
-- Type Annotations: `X | None` statt `Optional[X]`
+- Minimum HA version: **2025.12.0** (previously 2024.12.0)
+- Python: **3.12+** required
+- Type annotations: `X | None` instead of `Optional[X]`
 
 ### 0.1.x → 0.2.x
 
-- Konstanten reorganisiert (Import aus `const.py` weiterhin möglich)
-- Entity-IDs können sich geändert haben (Neuinstallation empfohlen)
+- Constants reorganized (import from `const.py` still possible)
+- Entity IDs may have changed (reinstallation recommended)
 
 ---
 
-## Upgrade-Anleitung
+## Upgrade Guide
 
-### Via HACS (empfohlen)
+### Via HACS (Recommended)
 
-1. HACS → Integrationen
-2. Violet Pool Controller finden
-3. „Aktualisieren" klicken
-4. HA neu starten
-5. Einstellungen → Geräte & Dienste → Integration prüfen
+1. HACS → Integrations
+2. Find Violet Pool Controller
+3. Click "Update"
+4. Restart HA
+5. Settings → Devices & Services → check integration
 
-### Manuell
+### Manually
 
 ```bash
-# Backup erstellen!
+# Create backup!
 cp -r /config/custom_components/violet_pool_controller \
        /config/backup_violet_$(date +%Y%m%d)
 
-# Neue Version installieren
+# Install new version
 cd /config/custom_components
 rm -rf violet_pool_controller
-# ZIP entpacken oder git pull
+# Extract ZIP or git pull
 
-# HA neu starten
+# Restart HA
 ```
 
 ---
@@ -583,10 +580,10 @@ rm -rf violet_pool_controller
 ## Links
 
 - [GitHub Releases](https://github.com/Xerolux/violet-hass/releases)
-- [Vollständiger Changelog auf GitHub](https://github.com/Xerolux/violet-hass/blob/main/docs/CHANGELOG.md)
-- [Bug melden](https://github.com/Xerolux/violet-hass/issues/new?template=bug_report.md)
-- [Feature anfragen](https://github.com/Xerolux/violet-hass/issues/new?template=feature_request.md)
+- [Complete Changelog on GitHub](https://github.com/Xerolux/violet-hass/blob/main/docs/CHANGELOG.md)
+- [Report a Bug](https://github.com/Xerolux/violet-hass/issues/new?template=bug_report.md)
+- [Request a Feature](https://github.com/Xerolux/violet-hass/issues/new?template=feature_request.md)
 
 ---
 
-*Zurück: [API-Referenz](API-Reference) | Zurück: [Home](Home)*
+*Back: [API Reference](API-Reference) | Back: [Home](Home)*

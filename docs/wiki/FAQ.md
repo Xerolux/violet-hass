@@ -1,231 +1,231 @@
-# ❓ FAQ - Häufig gestellte Fragen
+# ❓ FAQ - Frequently Asked Questions
 
-Über 40 häufige Fragen und Antworten!
+Over 40 common questions and answers!
 
-## Allgemein
+## General
 
-**F: Benötige ich eine Cloud-Anbindung?**
-A: Nein! Das Addon ist 100% lokal. Keine Cloud, kein Internet erforderlich.
+**Q: Do I need a cloud connection?**
+A: No! The add-on is 100% local. No cloud, no internet required.
 
-**F: Kann ich mehrere Controller ansteuern?**
-A: Ja! Multi-Controller ist vollständig unterstützt. Einfach mehrere Integrationen hinzufügen.
+**Q: Can I control multiple controllers?**
+A: Yes! Multi-controller is fully supported. Simply add multiple integrations.
 
-**F: Ist das Addon sicher?**
-A: Ja! Lokale Kommunikation mit SSL/TLS-Optionen und Input-Sanitization gegen Injection-Angriffe.
+**Q: Is the add-on secure?**
+A: Yes! Local communication with SSL/TLS options and input sanitization against injection attacks.
 
-**F: Welche Home Assistant Version?**
-A: Minimum 2026.5.0. Getestet auf 2026.x.
+**Q: Which Home Assistant version?**
+A: Minimum 2026.5.0. Tested on 2026.x.
 
 ---
 
 ## Installation
 
-**F: Wie finde ich die IP-Adresse meines Controllers?**
+**Q: How do I find my controller's IP address?**
 A:
-1. Router-Admin öffnen (192.168.1.1)
-2. Verbundene Geräte anzeigen
-3. "Violet" suchen und IP notieren
-4. Oder: `ping violet.local`
+1. Open router admin (192.168.1.1)
+2. Show connected devices
+3. Search for "Violet" and note the IP
+4. Or: `ping violet.local`
 
-**F: Kann ich den Controller über HTTPS ansprechen?**
-A: Ja! "SSL verwenden" aktivieren in den Einstellungen.
+**Q: Can I connect to the controller via HTTPS?**
+A: Yes! Enable "Use SSL" in the settings.
 
-**F: Funktioniert selbsigniertes Zertifikat?**
-A: Ja, aber "SSL-Zertifikat prüfen" deaktivieren (nur für vertrauenswürdige Netzwerke!).
+**Q: Does a self-signed certificate work?**
+A: Yes, but disable "Verify SSL certificate" (only for trusted networks!).
 
-**F: Warum wird meine Integration nicht angezeigt?**
-A: Home Assistant neu starten nach Installation!
+**Q: Why isn't my integration showing up?**
+A: Restart Home Assistant after installation!
 
 ---
 
-## Funktionen & Bedienung
+## Features & Operation
 
-**F: Was bedeutet "Automatik" vs. "Manuell"?**
+**Q: What does "Automatic" vs. "Manual" mean?**
 A:
-- **Automatik**: Controller regelt selbstständig (nach Temperatur, Zeit, etc.)
-- **Manuell**: Du stellst direkt ein, Auto-Regeln werden ignoriert
+- **Automatic**: Controller regulates independently (by temperature, time, etc.)
+- **Manual**: You set directly, auto rules are ignored
 
-**F: Was sind die Device States 0-6?**
-A: Sieben verschiedene Betriebszustände:
-- 0 = Automatik, aus
-- 1 = Manuell an
-- 2 = Automatik, an
-- 3 = Automatik mit Timer, an
-- 4 = Manuell erzwungen, an
-- 5 = Automatik, wartend
-- 6 = Manuell, aus
+**Q: What are Device States 0-6?**
+A: Seven different operating states:
+- 0 = Automatic, off
+- 1 = Manual on
+- 2 = Automatic, on
+- 3 = Automatic with timer, on
+- 4 = Manual forced, on
+- 5 = Automatic, waiting
+- 6 = Manual, off
 
-Lies [Device-States](Device-States) für Details.
+Read [Device-States](Device-States) for details.
 
-**F: Kann ich Pumpen-Geschwindigkeit einstellen?**
-A: Ja! 3 Stufen möglich mit dem `control_pump` Service (Stufe 1-3).
+**Q: Can I adjust pump speed?**
+A: Yes! 3 stages available with the `control_pump` service (stages 1-3).
 
-**F: Was ist der `export_diagnostic_logs` Service?**
-A: Neuer Service (v1.0.2) zum Exportieren von Integrations-Logs für Troubleshooting. Nutze ihn, um bis zu 10.000 Log-Zeilen zu exportieren und an Support zu schicken. Optional in Datei speichern.
+**Q: What is the `export_diagnostic_logs` service?**
+A: New service (v1.0.2) for exporting integration logs for troubleshooting. Use it to export up to 10,000 log lines and send them to support. Optionally save to file.
 
-**F: Wie dosiere ich sicher?**
+**Q: How do I dose safely?**
 A:
-- Kleine Mengen (15-30 Sekunden)
-- Abstand zwischen Dosierungen beachten
-- Sensor-Wert immer kontrollieren
-- Safety-Override nur wenn nötig
+- Small amounts (15-30 seconds)
+- Observe intervals between dosing
+- Always check sensor value
+- Safety override only when necessary
 
-**F: Können die Sensoren falsch zeigen?**
-A: Möglich! Kalibrierung:
-- pH/ORP: Monatlich
-- Chlor: Mit Testkit wöchentlich
-- Prüfe Sensoren auf Verschmutzung
+**Q: Can sensors show incorrect values?**
+A: Possible! Calibration:
+- pH/ORP: Monthly
+- Chlorine: Weekly with test kit
+- Check sensors for contamination
 
 ---
 
-## Probleme & Fehlersuche
+## Problems & Troubleshooting
 
-**F: Sensoren zeigen "unavailable"**
+**Q: Sensors show "unavailable"**
 A:
-1. Abfrageintervall erhöhen (30-45s)
-2. Integration neu laden
-3. Weniger Sensoren aktivieren
-4. Netzwerk-Stabilität prüfen
+1. Increase polling interval (30-45s)
+2. Reload integration
+3. Activate fewer sensors
+4. Check network stability
 
-**F: Controller antwortet sehr langsam**
+**Q: Controller responds very slowly**
 A:
-1. Netzwerk-Auslastung prüfen
-2. Abfrageintervall erhöhen
-3. CPU-Last des Controllers prüfen
-4. Zu viele Sensoren?
+1. Check network utilization
+2. Increase polling interval
+3. Check controller CPU load
+4. Too many sensors?
 
-**F: Warum werden Sensoren nicht angezeigt?**
+**Q: Why aren't sensors showing up?**
 A:
-1. Nicht im Setup-Flow aktiviert?
-2. Controller hat diesen Sensor nicht
-3. Feature ist nicht konfiguriert
-4. Lösung: Integration neu laden
+1. Not activated in setup flow?
+2. Controller doesn't have this sensor
+3. Feature not configured
+4. Solution: Reload integration
 
-**F: "Verbindung fehlgeschlagen"**
+**Q: "Connection failed"**
 A:
-1. IP-Adresse stimmt? Ping testen: `ping 192.168.1.100`
-2. Controller online? Web-Seite öffnen
-3. Firewall blockiert?
-4. Username/Passwort korrekt?
+1. IP address correct? Test ping: `ping 192.168.1.100`
+2. Controller online? Open web page
+3. Firewall blocking?
+4. Username/password correct?
 
-**F: SSL-Fehler beim Verbinden**
+**Q: SSL error when connecting**
 A:
-1. Zertifikat valid? Mit Browser prüfen
-2. "SSL-Zertifikat prüfen" deaktivieren (nur temp!)
-3. Datum/Uhrzeit korrekt auf HA?
+1. Certificate valid? Check with browser
+2. Disable "Verify SSL certificate" (only temporarily!)
+3. Date/time correct on HA?
 
 ---
 
-## Performance & Optimierung
+## Performance & Optimization
 
-**F: Welches Abfrageintervall sollte ich nutzen?**
+**Q: What polling interval should I use?**
 A:
-- 10-15s: Schnell, aber hohe Last
-- **20-30s: Standard, gute Balance** ✅
-- 45-60s: Sparsam, weniger reaktiv
+- 10-15s: Fast, but high load
+- **20-30s: Standard, good balance** ✅
+- 45-60s: Conservative, less responsive
 
-**F: Ständig Automatisierungen schreiben - langweilig!**
-A: Nutze Blueprints! Vorgefertigte Automatisierungs-Vorlagen sind im Repo enthalten.
+**Q: Writing automations all the time is boring!**
+A: Use Blueprints! Pre-built automation templates are included in the repo.
 
-**F: Kann ich Logging reduzieren?**
-A: Ja, in `configuration.yaml`:
+**Q: Can I reduce logging?**
+A: Yes, in `configuration.yaml`:
 ```yaml
 logger:
   logs:
     custom_components.violet_pool_controller: warning
 ```
 
-**F: Addon verlangsamt Home Assistant?**
-A: Sollte nicht. Bei Problemen:
-1. Abfrageintervall erhöhen
-2. Weniger Sensoren aktivieren
-3. Weniger Automatisierungen starten
-4. Logs checken auf Fehler-Loop
+**Q: Add-on slowing down Home Assistant?**
+A: It shouldn't. If problems occur:
+1. Increase polling interval
+2. Activate fewer sensors
+3. Start fewer automations
+4. Check logs for error loops
 
 ---
 
-## Services & Automatisierungen
+## Services & Automations
 
-**F: Wie rufe ich einen Service auf?**
-A: Drei Möglichkeiten:
+**Q: How do I call a service?**
+A: Three ways:
 1. Developer Tools → Services
-2. YAML in Automatisierung
+2. YAML in automation
 3. Automation UI Builder
 
-**F: Kann ich eine Automatisierung zeitgesteuert auslösen?**
-A: Ja!
+**Q: Can I trigger an automation on a schedule?**
+A: Yes!
 ```yaml
 trigger:
   - platform: time
     at: "08:00:00"
 ```
 
-**F: Kann ich auf Wettervorhersagen reagieren?**
-A: Ja, mit der Weather-Integration!
+**Q: Can I react to weather forecasts?**
+A: Yes, with the Weather integration!
 
-**F: Was ist der Unterschied zwischen Services?**
-A: Services sind spezialisiert:
-- `control_pump` - Pumpe mit Geschwindigkeit
-- `smart_dosing` - Chemikalien dosieren
-- `switch.turn_on` - Nur Ein/Aus
+**Q: What's the difference between services?**
+A: Services are specialized:
+- `control_pump` - Pump with speed
+- `smart_dosing` - Chemical dosing
+- `switch.turn_on` - Only on/off
 
 ---
 
 ## Updates & Maintenance
 
-**F: Wie aktualisiere ich das Addon?**
-A: Mit HACS:
-1. HACS → Integrationen
-2. "Violet Pool Controller" finden
-3. Wenn verfügbar: "Aktualisieren"
-4. Home Assistant neu starten
+**Q: How do I update the add-on?**
+A: With HACS:
+1. HACS → Integrations
+2. Find "Violet Pool Controller"
+3. If available: "Update"
+4. Restart Home Assistant
 
-**F: Was ist vor einem Update zu tun?**
+**Q: What should I do before an update?**
 A:
-1. Backup erstellen
-2. Changelog lesen
-3. Breaking Changes prüfen
+1. Create a backup
+2. Read the changelog
+3. Check for breaking changes
 
-**F: Was wenn Update Probleme macht?**
+**Q: What if the update causes problems?**
 A:
-1. Home Assistant neu starten (nicht nur Reload!)
-2. Integration neu laden
-3. Bei Problemen: zur alten Version zurück
+1. Restart Home Assistant (not just reload!)
+2. Reload the integration
+3. If problems persist: revert to the old version
 
-**F: Wie stelle ich zur alten Version zurück?**
+**Q: How do I revert to an older version?**
 A:
 ```bash
 cd /config/custom_components/violet_pool_controller
-git checkout v0.2.0  # Beispiel
+git checkout v0.2.0  # example
 ```
 
 ---
 
-## Deinstallation
+## Uninstallation
 
-**F: Wie deinstalliere ich das Addon?**
+**Q: How do I uninstall the add-on?**
 A:
-1. Einstellungen → Geräte & Dienste
-2. Violet auswählen → ⋮ → Entfernen
-3. Dateien löschen: `/config/custom_components/violet_pool_controller`
-4. Home Assistant neu starten
+1. Settings → Devices & Services
+2. Select Violet → ⋮ → Remove
+3. Delete files: `/config/custom_components/violet_pool_controller`
+4. Restart Home Assistant
 
-**F: Bleiben meine Automatisierungen nach Deinstallation?**
-A: Ja! Sie sind separat gespeichert. Funktionieren aber nicht ohne Addon.
+**Q: Will my automations survive uninstallation?**
+A: Yes! They are stored separately. But they won't work without the add-on.
 
 ---
 
-## Besondere Anwendungen
+## Special Applications
 
-**F: Kann ich eine Pool-Party automatisieren?**
-A: Ja! Mit Services:
+**Q: Can I automate a pool party?**
+A: Yes! With services:
 ```yaml
 service: violet_pool_controller.control_dmx_scenes
 data:
   action: party_mode
 ```
 
-**F: Wie nutze ich Solar-Überschuss?**
+**Q: How do I use solar surplus?**
 A:
 ```yaml
 service: violet_pool_controller.manage_pv_surplus
@@ -234,8 +234,8 @@ data:
   pump_speed: 3
 ```
 
-**F: Kann ich Temperaturgrenzen setzen?**
-A: Ja mit Climate-Entities:
+**Q: Can I set temperature limits?**
+A: Yes, with climate entities:
 ```yaml
 service: climate.set_temperature
 target:
@@ -247,21 +247,21 @@ data:
 
 ---
 
-## Support & Weitere Hilfe
+## Support & Further Help
 
-Fragen noch nicht beantwortet?
+Questions still not answered?
 
-- 📖 **Wiki durchsuchen** - Wahrscheinlich hier
-- 🐛 **[GitHub Issues](https://github.com/xerolux/violet-hass/issues)** - Bug-Reports
-- 💬 **[Community Forum](https://community.home-assistant.io/)** - Nutzer-Fragen
-- 🎮 **[Discord](https://discord.gg/Qa5fW2R)** - Live-Chat
+- 📖 **Search the wiki** - Probably here
+- 🐛 **[GitHub Issues](https://github.com/xerolux/violet-hass/issues)** - Bug reports
+- 💬 **[Community Forum](https://community.home-assistant.io/)** - User questions
+- 🎮 **[Discord](https://discord.gg/Qa5fW2R)** - Live chat
 - 📧 **Email**: git@xerolux.de
 
 ---
 
-## Weitere Seiten
+## More Pages
 
-- 📖 [Installation & Setup](Installation-and-Setup) - Installation Schritt-für-Schritt
-- 🎯 [Device-States](Device-States) - States 0-6 erklärt
-- 🤖 [Services](Services) - Alle Services
-- 🚨 [Troubleshooting](Troubleshooting) - Fehlersuche
+- 📖 [Installation & Setup](Installation-and-Setup) - Step-by-step installation
+- 🎯 [Device-States](Device-States) - States 0-6 explained
+- 🤖 [Services](Services) - All services
+- 🚨 [Troubleshooting](Troubleshooting) - Troubleshooting guide

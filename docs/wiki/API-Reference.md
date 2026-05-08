@@ -1,30 +1,30 @@
-# API-Referenz – Violet Pool Controller HTTP API
+# API Reference – Violet Pool Controller HTTP API
 
-> Vollständige Dokumentation der Controller-API-Endpunkte und der Python-Client-Klasse.
+> Complete documentation of the controller API endpoints and the Python client class.
 
 ---
 
-## Überblick
+## Overview
 
-Der Violet Pool Controller stellt eine **JSON-basierte HTTP API** bereit. Die Integration kommuniziert ausschließlich lokal – keine Cloud, kein externes Netzwerk erforderlich.
+The Violet Pool Controller provides a **JSON-based HTTP API**. The integration communicates exclusively locally – no cloud, no external network required.
 
 ```
 Home Assistant
     └── VioletPoolAPI (aiohttp)
-            ├── GET  /getReadings?ALL        → Alle Sensordaten
-            ├── GET  /setFunctionManually    → Outputs steuern
-            ├── POST /setConfig              → Konfiguration setzen
-            ├── GET  /getConfig              → Konfiguration lesen
-            └── GET  /getHistory             → Verlauf abrufen
+            ├── GET  /getReadings?ALL        → All sensor data
+            ├── GET  /setFunctionManually    → Control outputs
+            ├── POST /setConfig              → Set configuration
+            ├── GET  /getConfig              → Read configuration
+            └── GET  /getHistory             → Retrieve history
 ```
 
 ---
 
-## Endpunkte
+## Endpoints
 
 ### GET `/getReadings?ALL`
 
-Liest alle aktuellen Messwerte und Systemzustände.
+Reads all current measurements and system states.
 
 **Request:**
 ```
@@ -49,15 +49,15 @@ GET http://192.168.1.55/getReadings?ALL
 }
 ```
 
-**Verwendung in HA:**
-- Wird alle `scan_interval` Sekunden abgerufen
-- Alle Sensor- und Switch-Entities werden aus dieser Antwort aktualisiert
+**Usage in HA:**
+- Polled every `scan_interval` seconds
+- All sensor and switch entities are updated from this response
 
 ---
 
 ### GET `/setFunctionManually`
 
-Steuert Ausgänge und Funktionen des Controllers.
+Controls outputs and functions of the controller.
 
 **Request:**
 ```
@@ -66,35 +66,35 @@ GET http://192.168.1.55/setFunctionManually?HEATER=OFF
 GET http://192.168.1.55/setFunctionManually?PH_MINUS=AUTO
 ```
 
-**Parameter:**
-| Parameter | Werte | Beschreibung |
-|-----------|-------|-------------|
-| `PUMP` | `0`–`3`, `ON`, `OFF`, `AUTO` | Pumpenstufe oder Modus |
-| `HEATER` | `ON`, `OFF`, `AUTO` | Heizung |
+**Parameters:**
+| Parameter | Values | Description |
+|-----------|--------|-------------|
+| `PUMP` | `0`–`3`, `ON`, `OFF`, `AUTO` | Pump speed or mode |
+| `HEATER` | `ON`, `OFF`, `AUTO` | Heater |
 | `SOLAR` | `ON`, `OFF`, `AUTO` | Solar |
-| `PH_MINUS` | `ON`, `OFF`, `AUTO` | pH-Senker |
-| `PH_PLUS` | `ON`, `OFF`, `AUTO` | pH-Heber |
-| `CHLORINE` | `ON`, `OFF`, `AUTO` | Chlor |
-| `FLOCCULANT` | `ON`, `OFF`, `AUTO` | Flockmittel |
-| `DMX1`–`DMX8` | `ON`, `OFF`, `AUTO` | DMX-Szenen |
-| `RELAY1`–`RELAY8` | `ON`, `OFF`, `AUTO` | Erweiterungs-Relais |
+| `PH_MINUS` | `ON`, `OFF`, `AUTO` | pH reducer |
+| `PH_PLUS` | `ON`, `OFF`, `AUTO` | pH increaser |
+| `CHLORINE` | `ON`, `OFF`, `AUTO` | Chlorine |
+| `FLOCCULANT` | `ON`, `OFF`, `AUTO` | Flocculant |
+| `DMX1`–`DMX8` | `ON`, `OFF`, `AUTO` | DMX scenes |
+| `RELAY1`–`RELAY8` | `ON`, `OFF`, `AUTO` | Extension relays |
 
-**Aktions-Konstanten:**
+**Action Constants:**
 
-| Konstante | Wert | Bedeutung |
-|-----------|------|-----------|
-| `ACTION_ON` | `"1"` | Manuell einschalten |
-| `ACTION_OFF` | `"6"` | Manuell ausschalten |
-| `ACTION_AUTO` | `"AUTO"` | Auf Automatik setzen |
-| `ACTION_ALLON` | `"ALLON"` | Alle ein |
-| `ACTION_ALLOFF` | `"ALLOFF"` | Alle aus |
-| `ACTION_ALLAUTO` | `"ALLAUTO"` | Alle automatisch |
+| Constant | Value | Meaning |
+|----------|-------|---------|
+| `ACTION_ON` | `"1"` | Manually turn on |
+| `ACTION_OFF` | `"6"` | Manually turn off |
+| `ACTION_AUTO` | `"AUTO"` | Set to automatic |
+| `ACTION_ALLON` | `"ALLON"` | All on |
+| `ACTION_ALLOFF` | `"ALLOFF"` | All off |
+| `ACTION_ALLAUTO` | `"ALLAUTO"` | All automatic |
 
 ---
 
 ### POST `/setConfig`
 
-Setzt Konfigurationswerte des Controllers.
+Sets configuration values on the controller.
 
 **Request:**
 ```
@@ -104,20 +104,20 @@ Content-Type: application/x-www-form-urlencoded
 TARGET_PH=7.2&TARGET_ORP=720
 ```
 
-**Konfigurierbare Parameter:**
-| Parameter | Typ | Bereich | Beschreibung |
-|-----------|-----|---------|-------------|
-| `TARGET_PH` | float | 6.0–8.0 | pH-Sollwert |
-| `TARGET_ORP` | int | 200–900 | ORP-Sollwert in mV |
-| `TARGET_MIN_CHLORINE` | float | 0.1–5.0 | Mindest-Chlorgehalt mg/l |
-| `TARGET_POOL_TEMP` | float | 10–40 | Pool-Solltemperatur °C |
-| `TARGET_SOLAR_TEMP` | float | 20–60 | Solar-Maximaltemperatur °C |
+**Configurable Parameters:**
+| Parameter | Type | Range | Description |
+|-----------|------|-------|-------------|
+| `TARGET_PH` | float | 6.0–8.0 | pH setpoint |
+| `TARGET_ORP` | int | 200–900 | ORP setpoint in mV |
+| `TARGET_MIN_CHLORINE` | float | 0.1–5.0 | Minimum chlorine level mg/l |
+| `TARGET_POOL_TEMP` | float | 10–40 | Pool target temperature °C |
+| `TARGET_SOLAR_TEMP` | float | 20–60 | Solar maximum temperature °C |
 
 ---
 
 ### GET `/getConfig`
 
-Liest Konfigurationswerte.
+Reads configuration values.
 
 **Request:**
 ```
@@ -136,7 +136,7 @@ GET http://192.168.1.55/getConfig?TARGET_PH,TARGET_ORP
 
 ### GET `/getHistory`
 
-Ruft Verlaufsdaten ab.
+Retrieves history data.
 
 **Request:**
 ```
@@ -147,42 +147,42 @@ GET http://192.168.1.55/getHistory
 
 ### GET `/getCalibHistory`
 
-Kalibrierungsverlauf abrufen.
+Retrieves calibration history.
 
 **Request:**
 ```
 GET http://192.168.1.55/getCalibHistory
 ```
 
-**Response:** JSON-Array mit Kalibrierungseinträgen inklusive Datum, Sensortyp und Kalibrierwerten.
+**Response:** JSON array with calibration entries including date, sensor type, and calibration values.
 
 ---
 
 ### GET `/setOutputTestmode`
 
-Diagnose-Modus für Ausgänge.
+Diagnostic mode for outputs.
 
 **Request:**
 ```
 GET http://192.168.1.55/setOutputTestmode?output=PUMP&mode=ON&duration=120
 ```
 
-**Parameter:**
-| Parameter | Beschreibung |
+**Parameters:**
+| Parameter | Description |
 |-----------|-------------|
-| `output` | Ausgangs-Bezeichner (PUMP, HEATER, etc.) |
-| `mode` | `SWITCH`, `ON`, oder `OFF` |
-| `duration` | Testdauer in Sekunden (1–900) |
+| `output` | Output identifier (PUMP, HEATER, etc.) |
+| `mode` | `SWITCH`, `ON`, or `OFF` |
+| `duration` | Test duration in seconds (1–900) |
 
 ---
 
 ## Python Client: `VioletPoolAPI`
 
-Der Python-Client wurde in ein eigenständiges PyPI-Paket ausgelagert:
+The Python client has been extracted into a standalone PyPI package:
 - **PyPI:** [violet-poolController-api](https://pypi.org/project/violet-poolController-api/)
 - **GitHub:** [Xerolux/violet-poolController-api](https://github.com/Xerolux/violet-poolController-api)
 
-### Initialisierung
+### Initialization
 
 ```python
 from violet_poolcontroller_api.api import VioletPoolAPI
@@ -194,20 +194,20 @@ async with aiohttp.ClientSession() as session:
         session=session,
         username="admin",        # Optional
         password="secret",       # Optional
-        use_ssl=False,           # HTTPS verwenden
-        verify_ssl=True,         # Zertifikat verifizieren
-        timeout=10,              # Sekunden
-        max_retries=3,           # Wiederholungsversuche
+        use_ssl=False,           # Use HTTPS
+        verify_ssl=True,         # Verify certificate
+        timeout=10,              # Seconds
+        max_retries=3,           # Retry attempts
     )
 ```
 
-### Methoden
+### Methods
 
 #### `get_readings()`
 
 ```python
 data: dict = await api.get_readings()
-# Gibt alle aktuellen Messwerte zurück
+# Returns all current measurements
 ```
 
 #### `set_function_manually(key, value)`
@@ -244,118 +244,118 @@ await api.set_output_testmode(
 
 ## Rate Limiting
 
-Alle API-Aufrufe gehen durch den globalen Rate-Limiter:
+All API calls go through the global rate limiter:
 
 ```python
 from violet_poolcontroller_api.utils_rate_limiter import get_global_rate_limiter
 
 limiter = get_global_rate_limiter()
-# Token-Bucket-Algorithmus
-# Verhindert Controller-Überlastung
+# Token bucket algorithm
+# Prevents controller overload
 ```
 
-### Prioritäts-Stufen
+### Priority Levels
 
-| Priorität | Konstante | Verwendung |
-|-----------|-----------|-----------|
-| Hoch | `API_PRIORITY_HIGH` | Manuelle Steuerungsbefehle |
-| Normal | `API_PRIORITY_NORMAL` | Reguläres Polling |
-| Niedrig | `API_PRIORITY_LOW` | Hintergrund-Aufgaben |
+| Priority | Constant | Usage |
+|----------|----------|-------|
+| High | `API_PRIORITY_HIGH` | Manual control commands |
+| Normal | `API_PRIORITY_NORMAL` | Regular polling |
+| Low | `API_PRIORITY_LOW` | Background tasks |
 
 ---
 
-## Fehlerbehandlung
+## Error Handling
 
 ### Exceptions
 
-| Exception | Beschreibung |
+| Exception | Description |
 |-----------|-------------|
-| `VioletPoolAPIError` | Allgemeiner API-Fehler |
-| `aiohttp.ClientTimeout` | Timeout überschritten |
-| `aiohttp.ClientConnectionError` | Verbindung fehlgeschlagen |
-| `json.JSONDecodeError` | Ungültige JSON-Antwort |
+| `VioletPoolAPIError` | General API error |
+| `aiohttp.ClientTimeout` | Timeout exceeded |
+| `aiohttp.ClientConnectionError` | Connection failed |
+| `json.JSONDecodeError` | Invalid JSON response |
 
-### Retry-Logik
+### Retry Logic
 
 ```
-Versuch 1:  Sofort
-Versuch 2:  Exponentielles Backoff
-Versuch 3:  Exponentielles Backoff
+Attempt 1:  Immediately
+Attempt 2:  Exponential backoff
+Attempt 3:  Exponential backoff
 ...
-Max: DEFAULT_RETRY_ATTEMPTS (Standard: 3)
+Max: DEFAULT_RETRY_ATTEMPTS (default: 3)
 ```
 
 ---
 
-## Timeout-Konfiguration
+## Timeout Configuration
 
 ```
-Gesamt-Timeout:       DEFAULT_TIMEOUT_DURATION (Standard: 10s)
-Verbindungs-Timeout:  80% des Gesamt-Timeouts (8s)
-Socket-Timeout:       80% des Gesamt-Timeouts (8s)
+Total timeout:       DEFAULT_TIMEOUT_DURATION (default: 10s)
+Connection timeout:  80% of total timeout (8s)
+Socket timeout:      80% of total timeout (8s)
 ```
 
 ---
 
-## Authentifizierung
+## Authentication
 
-Der Controller unterstützt HTTP Basic Authentication:
+The controller supports HTTP Basic Authentication:
 
 ```
 Authorization: Basic base64(username:password)
 ```
 
-Wenn kein Username/Passwort konfiguriert: Kein Auth-Header wird gesendet.
+If no username/password is configured, no auth header is sent.
 
 ---
 
 ## SSL/TLS
 
 ```python
-# Vollständige Verifikation (Standard)
+# Full verification (default)
 api = VioletPoolAPI(host=..., use_ssl=True, verify_ssl=True)
 
-# Selbstsigniertes Zertifikat (Heimnetz)
+# Self-signed certificate (home network)
 api = VioletPoolAPI(host=..., use_ssl=True, verify_ssl=False)
 
-# Kein SSL (HTTP)
+# No SSL (HTTP)
 api = VioletPoolAPI(host=..., use_ssl=False)
 ```
 
 ---
 
-## Daten-Typen in API-Antworten
+## Data Types in API Responses
 
-| Datentyp | Beispielwert | Beschreibung |
-|----------|-------------|-------------|
-| Integer State | `2` | Device State 0–6 |
-| Float | `26.5` | Temperatur, pH, etc. |
-| String State | `"3\|PUMP_ANTI_FREEZE"` | Composite State |
-| String | `"RELEASED"` | Digital-Eingang Status |
-| Error Code | `"120"` | Fehlercode als String |
-
----
-
-## Sensor-Schlüssel Referenz
-
-Wichtige Schlüssel aus `/getReadings?ALL`:
-
-| Schlüssel | Einheit | Beschreibung |
-|-----------|---------|-------------|
-| `WATER_TEMP` | °C | Beckenwasser-Temperatur |
-| `SOLAR_TEMP` | °C | Solar-Kollektor Temperatur |
-| `AIR_TEMP` | °C | Lufttemperatur |
-| `PH_VALUE` | pH | pH-Wert |
-| `ORP_VALUE` | mV | Redox-Potential |
-| `CHLORINE` | mg/l | Chlorgehalt |
-| `CONDUCTIVITY` | µS/cm | Leitfähigkeit |
-| `PUMP` | 0–6 | Pumpenzustand |
-| `HEATER` | 0–6 | Heizungszustand |
-| `SOLAR` | 0–6 | Solarzustand |
-| `DI1`–`DI8` | 0/1 | Digitaleingänge |
-| `AI1`–`AI8` | V/mA | Analogeingänge |
-| `ERROR_CODE` | string | Aktueller Fehlercode |
+| Data Type | Example Value | Description |
+|-----------|--------------|-------------|
+| Integer State | `2` | Device state 0–6 |
+| Float | `26.5` | Temperature, pH, etc. |
+| String State | `"3\|PUMP_ANTI_FREEZE"` | Composite state |
+| String | `"RELEASED"` | Digital input status |
+| Error Code | `"120"` | Error code as string |
 
 ---
 
-*Zurück: [Testing](Testing) | Weiter: [Changelog](Changelog)*
+## Sensor Key Reference
+
+Important keys from `/getReadings?ALL`:
+
+| Key | Unit | Description |
+|-----|------|-------------|
+| `WATER_TEMP` | °C | Pool water temperature |
+| `SOLAR_TEMP` | °C | Solar collector temperature |
+| `AIR_TEMP` | °C | Air temperature |
+| `PH_VALUE` | pH | pH value |
+| `ORP_VALUE` | mV | Redox potential |
+| `CHLORINE` | mg/l | Chlorine level |
+| `CONDUCTIVITY` | µS/cm | Conductivity |
+| `PUMP` | 0–6 | Pump state |
+| `HEATER` | 0–6 | Heater state |
+| `SOLAR` | 0–6 | Solar state |
+| `DI1`–`DI8` | 0/1 | Digital inputs |
+| `AI1`–`AI8` | V/mA | Analog inputs |
+| `ERROR_CODE` | string | Current error code |
+
+---
+
+*Back: [Testing](Testing) | Next: [Changelog](Changelog)*

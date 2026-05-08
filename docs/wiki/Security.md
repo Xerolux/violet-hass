@@ -1,12 +1,12 @@
-# Security & SSL – Sicherheit der Integration
+# Security & SSL – Integration Security
 
-> Sicherheitsarchitektur, SSL/TLS-Konfiguration und Best Practices.
+> Security architecture, SSL/TLS configuration, and best practices.
 
 ---
 
-## Sicherheits-Überblick
+## Security Overview
 
-Die Violet Pool Controller Integration wurde mit mehreren Sicherheits-Schichten entwickelt:
+The Violet Pool Controller integration was developed with multiple security layers:
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -16,143 +16,143 @@ Die Violet Pool Controller Integration wurde mit mehreren Sicherheits-Schichten 
 │  2. SSL/TLS Certificate Verification        │
 │  3. Token Bucket Rate Limiting              │
 │  4. Thread-Safe Locking                     │
-│  5. Auto-Recovery mit Backoff               │
+│  5. Auto-Recovery with Backoff              │
 └─────────────────────────────────────────────┘
 ```
 
 ---
 
-## SSL/TLS Konfiguration
+## SSL/TLS Configuration
 
-### Standard-Einstellung: SSL aktiviert
+### Default Setting: SSL Enabled
 
-SSL-Zertifikats-Verifikation ist **standardmäßig aktiv** (`verify_ssl=True`).
+SSL certificate verification is **enabled by default** (`verify_ssl=True`).
 
-### Konfigurationsoptionen
+### Configuration Options
 
-| Option | Standard | Beschreibung |
+| Option | Default | Description |
 |--------|---------|-------------|
-| `use_ssl` | `False` | HTTPS statt HTTP verwenden |
-| `verify_ssl` | `True` | Zertifikat verifizieren |
+| `use_ssl` | `False` | Use HTTPS instead of HTTP |
+| `verify_ssl` | `True` | Verify certificate |
 
-### Wann SSL deaktivieren?
+### When to Disable SSL?
 
-Nur wenn der Controller ein **selbstsigniertes Zertifikat** verwendet und du im **vertrauenswürdigen Heimnetzwerk** bist:
+Only when the controller uses a **self-signed certificate** and you are on a **trusted home network**:
 
 ```
-Einstellungen → Geräte & Dienste → Violet Pool Controller
-→ Konfigurieren → SSL-Zertifikat prüfen: Nein
+Settings → Devices & Services → Violet Pool Controller
+→ Configure → Verify SSL certificate: No
 ```
 
-> **Warnung:** Deaktiviere SSL-Verifikation niemals in öffentlichen Netzwerken!
+> **Warning:** Never disable SSL verification on public networks!
 
-### SSL mit eigenem Zertifikat
+### SSL with Custom Certificate
 
-Für selbstsignierte Zertifikate in Production-Umgebungen:
+For self-signed certificates in production environments:
 
-1. Zertifikat dem Home Assistant CA-Store hinzufügen
-2. `verify_ssl: true` beibehalten
-3. Zertifikat regelmäßig erneuern
+1. Add the certificate to the Home Assistant CA store
+2. Keep `verify_ssl: true`
+3. Renew the certificate regularly
 
 ---
 
 ## Input Sanitization
 
-Alle Benutzereingaben werden durch `InputSanitizer` validiert, bevor sie die API erreichen.
+All user inputs are validated through `InputSanitizer` before reaching the API.
 
-### Geschützte Angriffsvektoren
+### Protected Attack Vectors
 
-| Angriff | Schutz |
-|---------|--------|
-| **XSS** (Cross-Site-Scripting) | HTML-Escaping aller Eingaben |
-| **SQL Injection** | Pattern-basierte Validierung |
-| **Command Injection** | Whitelist-Validierung für Befehle |
-| **Path Traversal** | Pfad-Normalisierung und Validierung |
-| **Parameter Tampering** | Bereichsprüfung für numerische Werte |
+| Attack | Protection |
+|--------|------------|
+| **XSS** (Cross-Site-Scripting) | HTML escaping of all inputs |
+| **SQL Injection** | Pattern-based validation |
+| **Command Injection** | Whitelist validation for commands |
+| **Path Traversal** | Path normalization and validation |
+| **Parameter Tampering** | Range checking for numeric values |
 
-### Validierte Wertebereiche
+### Validated Value Ranges
 
 | Parameter | Minimum | Maximum |
 |-----------|---------|---------|
-| pH-Wert | 6.0 | 8.0 |
-| ORP-Wert | 200 mV | 900 mV |
-| Temperatur | 10°C | 40°C |
-| Dosier-Dauer | 5s | 300s |
-| Pump-Geschwindigkeit | 0 | 3 |
+| pH value | 6.0 | 8.0 |
+| ORP value | 200 mV | 900 mV |
+| Temperature | 10°C | 40°C |
+| Dosing duration | 5s | 300s |
+| Pump speed | 0 | 3 |
 
 ---
 
 ## Rate Limiting
 
-Der Token-Bucket-Algorithmus schützt den Controller vor Überlastung:
+The token bucket algorithm protects the controller from overload:
 
 ```
 Token Bucket:
-├── Max. Tokens: konfigurierbar
-├── Auffüllrate: konstant
-├── Prioritäts-Queue: kritische Anfragen zuerst
-└── Bei leerem Bucket: Anfrage verzögert
+├── Max tokens: configurable
+├── Refill rate: constant
+├── Priority queue: critical requests first
+└── When bucket empty: request delayed
 ```
 
-### Warum Rate Limiting?
+### Why Rate Limiting?
 
-Der Violet Pool Controller ist ein **Embedded-System** mit begrenzter CPU-Leistung. Zu viele gleichzeitige API-Anfragen können:
-- Den Controller zum Absturz bringen
-- Messwerte verfälschen
-- Die Steuerung verlangsamen
+The Violet Pool Controller is an **embedded system** with limited CPU power. Too many simultaneous API requests can:
+- Crash the controller
+- Corrupt measurements
+- Slow down control operations
 
-### Empfohlene Polling-Intervalle
+### Recommended Polling Intervals
 
-| Anzahl Controller | Empfohlenes Intervall |
-|-------------------|----------------------|
-| 1 | 15–20 Sekunden |
-| 2–3 | 25–30 Sekunden |
-| 4+ | 45–60 Sekunden |
+| Number of Controllers | Recommended Interval |
+|-----------------------|----------------------|
+| 1 | 15–20 seconds |
+| 2–3 | 25–30 seconds |
+| 4+ | 45–60 seconds |
 
 ---
 
 ## Thread Safety
 
-Die Integration verwendet zwei dokumentierte Locks mit fester Reihenfolge:
+The integration uses two documented locks with a fixed ordering:
 
 ```python
-_api_lock:       Schützt API-Aufrufe und Daten-Updates
-_recovery_lock:  Schützt Recovery-State und Versuche
+_api_lock:       Protects API calls and data updates
+_recovery_lock:  Protects recovery state and attempts
 
-Reihenfolge: NIEMALS verschachtelt!
+Ordering: NEVER nested!
 ```
 
-**Warum wichtig?** Home Assistant ist multi-threaded. Ohne Locks könnten gleichzeitige Anfragen zu inkonsistenten Zuständen führen.
+**Why is this important?** Home Assistant is multi-threaded. Without locks, simultaneous requests could lead to inconsistent states.
 
 ---
 
 ## Auto-Recovery & Backoff
 
-Bei Verbindungsverlust versucht die Integration automatisch die Verbindung wiederherzustellen:
+On connection loss, the integration automatically attempts to re-establish the connection:
 
 ```
-Versuch 1:  Sofort
-Versuch 2:  10 Sekunden warten
-Versuch 3:  20 Sekunden warten
-Versuch 4:  40 Sekunden warten
+Attempt 1:  Immediately
+Attempt 2:  Wait 10 seconds
+Attempt 3:  Wait 20 seconds
+Attempt 4:  Wait 40 seconds
 ...
-Max. Wartezeit: 300 Sekunden (5 Minuten)
-Max. Versuche:  10
+Max wait time: 300 seconds (5 minutes)
+Max attempts:  10
 
-Nach 10 Fehlversuchen: Manuelle Intervention erforderlich
+After 10 failed attempts: Manual intervention required
 ```
 
-### Recovery nach maximalem Fehlschlag
+### Recovery After Maximum Failure
 
 ```
-Einstellungen → Geräte & Dienste → Violet Pool Controller
-→ Neu laden
+Settings → Devices & Services → Violet Pool Controller
+→ Reload
 ```
 
-Oder in der `configuration.yaml`:
+Or in `configuration.yaml`:
 
 ```yaml
-# Integration manuell neu starten
+# Manually restart integration
 homeassistant:
   customize:
     violet_pool_controller.*:
@@ -161,88 +161,88 @@ homeassistant:
 
 ---
 
-## Netzwerk-Sicherheit
+## Network Security
 
-### Empfohlene Netzwerk-Konfiguration
+### Recommended Network Configuration
 
 ```
 ┌─────────────────────────────────────────┐
-│  Heimnetzwerk (192.168.1.0/24)          │
+│  Home Network (192.168.1.0/24)          │
 │                                         │
 │  Home Assistant  ←→  Violet Controller  │
 │  (192.168.1.10)       (192.168.1.55)   │
 │                                         │
-│  Beide im selben VLAN (kein Internet)   │
+│  Both in same VLAN (no internet)        │
 └─────────────────────────────────────────┘
 ```
 
-### Firewall-Empfehlungen
+### Firewall Recommendations
 
 ```
-# Empfohlen: Controller vom Internet isolieren
-# Nur Home Assistant darf auf Controller zugreifen
+# Recommended: Isolate controller from the internet
+# Only Home Assistant should access the controller
 
 iptables -A INPUT -s 192.168.1.10 -d 192.168.1.55 -j ACCEPT
 iptables -A INPUT -d 192.168.1.55 -j DROP
 ```
 
-### Port-Anforderungen
+### Port Requirements
 
-| Port | Protokoll | Verwendung |
-|------|-----------|-----------|
-| `80` | HTTP | Unverschlüsselte API |
-| `443` | HTTPS | Verschlüsselte API (wenn SSL aktiviert) |
+| Port | Protocol | Usage |
+|------|----------|-------|
+| `80` | HTTP | Unencrypted API |
+| `443` | HTTPS | Encrypted API (when SSL enabled) |
 
 ---
 
-## Sicherheits-Checkliste
+## Security Checklist
 
-### Grundkonfiguration
+### Basic Configuration
 
-- [ ] Controller hat statische IP-Adresse
-- [ ] Controller ist nicht direkt aus dem Internet erreichbar
-- [ ] Home Assistant ist aktuell
-- [ ] Integration auf aktueller Version
+- [ ] Controller has a static IP address
+- [ ] Controller is not directly accessible from the internet
+- [ ] Home Assistant is up to date
+- [ ] Integration is on the latest version
 
 ### SSL/TLS
 
-- [ ] SSL aktiviert wenn möglich
-- [ ] Zertifikat gültig (nicht abgelaufen)
-- [ ] `verify_ssl` nur deaktiviert bei selbstsigniertem Zertifikat im Heimnetz
+- [ ] SSL enabled when possible
+- [ ] Certificate valid (not expired)
+- [ ] `verify_ssl` only disabled for self-signed certificate on home network
 
-### Zugangsdaten
+### Credentials
 
-- [ ] Controller-Passwort ist stark und einzigartig
-- [ ] Zugangsdaten nur in HA-Konfiguration gespeichert (nicht in YAML-Dateien)
+- [ ] Controller password is strong and unique
+- [ ] Credentials stored only in HA configuration (not in YAML files)
 
 ### Monitoring
 
-- [ ] Automatisierung für kritische Fehlercodes
-- [ ] Log-Level auf `warning` gesetzt für Produktionsbetrieb
+- [ ] Automation for critical error codes
+- [ ] Log level set to `warning` for production
 
 ---
 
-## Sicherheitslücken melden
+## Reporting Security Vulnerabilities
 
-Wenn du eine Sicherheitslücke entdeckst:
+If you discover a security vulnerability:
 
-1. **Nicht öffentlich melden** (kein GitHub Issue)
+1. **Do not report publicly** (no GitHub issue)
 2. **Email:** git@xerolux.de
-3. **Beschreibung** der Lücke mit Proof-of-Concept
-4. **Erwartetes Verhalten** vs. tatsächliches Verhalten
+3. **Description** of the vulnerability with proof of concept
+4. **Expected behavior** vs. actual behavior
 
-Wir antworten innerhalb von 48 Stunden und koordinieren eine verantwortungsvolle Offenlegung.
+We respond within 48 hours and coordinate responsible disclosure.
 
 ---
 
-## Logging & Datenschutz
+## Logging & Privacy
 
-Die Integration loggt **keine** sensiblen Daten:
-- Keine Passwörter in Logs
-- Keine vollständigen API-Antworten im Debug-Modus
-- Keine persönlichen Daten
+The integration logs **no** sensitive data:
+- No passwords in logs
+- No complete API responses in debug mode
+- No personal data
 
-### Log-Level konfigurieren
+### Configure Log Level
 
 ```yaml
 # configuration.yaml
@@ -250,10 +250,10 @@ logger:
   default: warning
   logs:
     custom_components.violet_pool_controller: warning
-    # Für Debugging:
+    # For debugging:
     # custom_components.violet_pool_controller: debug
 ```
 
 ---
 
-*Zurück: [Troubleshooting](Troubleshooting) | Weiter: [FAQ](FAQ)*
+*Back: [Troubleshooting](Troubleshooting) | Next: [FAQ](FAQ)*

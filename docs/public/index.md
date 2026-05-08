@@ -1,4 +1,6 @@
-# 🏊 Violet Pool Controller für Home Assistant
+# 🏊 Violet Pool Controller for Home Assistant
+
+**English** | **[Deutsch](index.de)**
 
 [![GitHub Release][releases-shield]][releases]
 [![Downloads][downloads-shield]][releases]
@@ -13,7 +15,7 @@
 
 [![Release Management](https://github.com/Xerolux/violet-hass/actions/workflows/release.yml/badge.svg)](https://github.com/Xerolux/violet-hass/actions/workflows/release.yml)
 
-> **Verwandle deinen Pool in einen Smart Pool!** Vollständige lokale Steuerung und Überwachung deines Violet Pool Controllers – ohne Cloud, ohne Abonnement.
+> **Turn your pool into a Smart Pool!** Complete local control and monitoring of your Violet Pool Controller – no cloud, no subscription.
 
 ![Violet Home Assistant Integration][logo]
 
@@ -21,92 +23,92 @@
 
 ## 🌟 Features
 
-| Kategorie | Was ist enthalten |
+| Category | What's Included |
 |-----------|-------------------|
-| **🌡️ Klimasteuerung** | Heizung & Solar mit Thermostat und Zeitplanung |
-| **🧪 Chemie-Dosierung** | Automatisches pH & Chlor mit Sicherheitsgrenzen (Standalone Dosierung möglich) |
-| **💧 Filter & Pumpe** | 3-Stufen-Pumpe, automatische Rückspülung |
-| **🏊 Abdeckung** | Wetterabhängige Cover-Automatisierung |
-| **💡 LED / DMX** | 8 steuerbare Szenen, RGB-Beleuchtung |
-| **📊 Überwachung** | pH, ORP, Temperaturen, Druck, Durchfluss, Laufzeiten |
-| **⚡ Energie** | PV-Überschuss-Modus für Solarheizung |
-| **🔒 Sicherheit** | 100% lokal, SSL/TLS, Rate Limiting, Input Sanitization |
-| **🔧 Multi-Controller** | Mehrere Pools in einer HA-Instanz |
+| **🌡️ Climate Control** | Heater & Solar with thermostat and scheduling |
+| **🧪 Chemical Dosing** | Automatic pH & Chlorine with safety limits (standalone dosing supported) |
+| **💧 Filter & Pump** | 3-speed pump, automatic backwash |
+| **🏊 Cover** | Weather-dependent cover automation |
+| **💡 LED / DMX** | 8 controllable scenes, RGB lighting |
+| **📊 Monitoring** | pH, ORP, temperatures, pressure, flow, runtimes |
+| **⚡ Energy** | PV surplus mode for solar heating |
+| **🔒 Security** | 100% local, SSL/TLS, rate limiting, input sanitization |
+| **🔧 Multi-Controller** | Multiple pools in one HA instance |
 
 ---
 
-## ⚡ Schnellstart
+## ⚡ Quick Start
 
-**1. HACS – Integration hinzufügen**
+**1. HACS – Add Integration**
 
 <a href="https://my.home-assistant.io/redirect/hacs_repository/?repository=https%3A%2F%2Fgithub.com%2FXerolux%2Fviolet-hass&owner=Xerolux&category=Integration" target="_blank" rel="noopener noreferrer"><img src="https://my.home-assistant.io/badges/hacs_repository.svg" alt="Open your Home Assistant instance and open a repository inside the Home Assistant Community Store." /></a>
 
 ```
-HACS → Integrationen → ⋮ → Benutzerdefinierte Repositories
-URL: https://github.com/xerolux/violet-hass  |  Kategorie: Integration
-→ "Violet Pool Controller" herunterladen → HA neu starten
+HACS → Integrations → ⋮ → Custom Repositories
+URL: https://github.com/xerolux/violet-hass  |  Category: Integration
+→ Download "Violet Pool Controller" → Restart HA
 ```
 
-**2. Integration einrichten**
+**2. Set Up Integration**
 ```
-Einstellungen → Geräte & Dienste → Integration hinzufügen → "Violet Pool Controller"
-Host-IP eingeben → Features auswählen → Fertig!
+Settings → Devices & Services → Add Integration → "Violet Pool Controller"
+Enter Host IP → Select Features → Done!
 ```
 
-**3. Fertig!** 🎉 Dein Pool ist jetzt smart.
+**3. Ready!** 🎉 Your pool is now smart.
 
-> Detaillierte Anleitung → **[Installation & Setup][wiki-install]**
+> Detailed instructions → **[Installation & Setup][wiki-install]**
 
 ---
 
-## 📖 Dokumentation (Wiki)
+## 📖 Documentation (Wiki)
 
-Die vollständige Dokumentation befindet sich im **[Wiki][wiki]**:
+The complete documentation is available in the **[Wiki][wiki]**:
 
-| Bereich | Seiten |
+| Area | Pages |
 |---------|--------|
-| 🚀 **Erste Schritte** | [Installation & Setup][wiki-install] · [Konfiguration][wiki-config] · [Multi-Controller][wiki-multi] |
-| 📊 **Entities** | [Sensoren][wiki-sensors] · [Schalter][wiki-switches] · [Klima][wiki-climate] · [Device States][wiki-states] |
-| ⚙️ **Automatisierung** | [Services Referenz][wiki-services] · [Automatisierungs-Beispiele][wiki-automations] |
-| 🔧 **Betrieb** | [Troubleshooting][wiki-trouble] · [Diagnosedaten][wiki-diag] · [Fehler-Codes][wiki-errors] · [FAQ][wiki-faq] |
-| 🔐 **Sicherheit** | [Security & SSL][wiki-security] · [Erweiterte Protokollierung][wiki-logging] |
-| 👩‍💻 **Entwicklung** | [Contributing][wiki-contributing] · [API Referenz][wiki-api] · [Changelog][wiki-changelog] |
+| 🚀 **Getting Started** | [Installation & Setup][wiki-install] · [Configuration][wiki-config] · [Multi-Controller][wiki-multi] |
+| 📊 **Entities** | [Sensors][wiki-sensors] · [Switches][wiki-switches] · [Climate][wiki-climate] · [Device States][wiki-states] |
+| ⚙️ **Automation** | [Services Reference][wiki-services] · [Automation Examples][wiki-automations] |
+| 🔧 **Operation** | [Troubleshooting][wiki-trouble] · [Diagnostics][wiki-diag] · [Error Codes][wiki-errors] · [FAQ][wiki-faq] |
+| 🔐 **Security** | [Security & SSL][wiki-security] · [Extended Logging][wiki-logging] |
+| 👩‍💻 **Development** | [Contributing][wiki-contributing] · [API Reference][wiki-api] · [Changelog][wiki-changelog] |
 
 ---
 
-## 🔑 Voraussetzungen
+## 🔑 Requirements
 
-- Home Assistant **2026.5.0+** (getestet bis 2026.x)
-- HACS ([Installationsanleitung](https://hacs.xyz/docs/setup/download))
-- Violet Pool Controller im lokalen Netzwerk erreichbar
+- Home Assistant **2026.5.0+** (tested up to 2026.x)
+- HACS ([Installation Guide](https://hacs.xyz/docs/setup/download))
+- Violet Pool Controller accessible on the local network
 - Python 3.14.2+
 
 ---
 
-## 💝 Unterstützung
+## 💝 Support
 
-Diese Integration wird in meiner Freizeit entwickelt:
+This integration is developed in my spare time:
 
 [![GitHub Sponsor](https://img.shields.io/github/sponsors/xerolux?logo=github&style=for-the-badge&color=blue)](https://github.com/sponsors/xerolux)
 [![Ko-Fi](https://img.shields.io/badge/Ko--fi-xerolux-blue?logo=ko-fi&style=for-the-badge)](https://ko-fi.com/xerolux)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-xerolux-yellow?logo=buy-me-a-coffee&style=for-the-badge)](https://www.buymeacoffee.com/xerolux)
 
-- ⭐ Repository auf GitHub sternen
-- 🐛 [Bugs melden][issues]
-- 📢 Mit anderen Pool-Besitzern teilen
-- 💬 Anderen in [Community][forum] & [Discord][discord] helfen
+- ⭐ Star the repository on GitHub
+- 🐛 [Report Bugs][issues]
+- 📢 Share with other pool owners
+- 💬 Help others in the [Community][forum] & [Discord][discord]
 
 ---
 
-## 🏊 Über den Violet Pool Controller
+## 🏊 About the Violet Pool Controller
 
 ![Violet Pool Controller][pbuy]
 
-Der **VIOLET Pool Controller** von [PoolDigital GmbH & Co. KG](https://www.pooldigital.de/) ist ein Premium Smart Pool Automation System aus deutscher Entwicklung – mit JSON API für nahtlose Home Assistant Integration.
+The **VIOLET Pool Controller** by [PoolDigital GmbH & Co. KG](https://www.pooldigital.de/) is a premium smart pool automation system developed in Germany – with JSON API for seamless Home Assistant integration.
 
-- **Offizieller Shop:** [pooldigital.de](https://www.pooldigital.de/poolsteuerungen/violet-poolsteuerung/74/violet-basis-modul-poolsteuerung-smart)
+- **Official Shop:** [pooldigital.de](https://www.pooldigital.de/poolsteuerungen/violet-poolsteuerung/74/violet-basis-modul-poolsteuerung-smart)
 - **Community:** [PoolDigital Forum](http://forum.pooldigital.de/)
-- **API Package:** [violet-poolController-api](https://pypi.org/project/violet-poolController-api/) auf PyPI ([GitHub](https://github.com/Xerolux/violet-poolController-api))
+- **API Package:** [violet-poolController-api](https://pypi.org/project/violet-poolController-api/) on PyPI ([GitHub](https://github.com/Xerolux/violet-poolController-api))
 
 ---
 

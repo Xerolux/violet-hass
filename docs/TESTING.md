@@ -1,145 +1,145 @@
-# Testing Guide für Violet Pool Controller
+# Testing Guide for Violet Pool Controller
 
-## 🧪 Übersicht
+## 🧪 Overview
 
-Dieses Projekt enthält umfassende Tests, die vor jedem Release durchgeführt werden müssen.
+This project contains comprehensive tests that must be run before each release.
 
 ## 📋 Quick Start
 
-### 1. Testumgebung einrichten (einmalig)
+### 1. Set Up Test Environment (one-time)
 
 ```bash
-# Aus dem Projekt-Stammverzeichnis:
+# From the project root directory:
 ./scripts/setup-test-env.sh
 ```
 
-Das Script:
-- ✅ Prüft Python 3.14
-- ✅ Erstellt virtuelle Umgebung (`.venv-ha-test/`)
-- ✅ Installiert Abhängigkeiten aus `requirements-dev.txt`
-- ✅ Installiert pytest und Test-Dependencies
-- ✅ Erstellt `activate-test-env.sh` Helper
+The script:
+- ✅ Checks Python 3.14
+- ✅ Creates virtual environment (`.venv-ha-test/`)
+- ✅ Installs dependencies from `requirements-dev.txt`
+- ✅ Installs pytest and test dependencies
+- ✅ Creates `activate-test-env.sh` helper
 
-### 2. Tests ausführen
+### 2. Run Tests
 
 ```bash
-# Option 1: Mit dem Run-Script (empfohlen)
+# Option 1: With the run script (recommended)
 ./scripts/run-tests.sh
 
-# Option 2: Manuell
+# Option 2: Manually
 source activate-test-env.sh
 pytest tests/ -v
 ```
 
-## 🎯 Test-Kategorien
+## 🎯 Test Categories
 
 ### API Tests (`tests/test_api.py`)
-Tests für die API-Kommunikation mit dem Pool-Controller:
-- ✅ Rate Limiting (Token Bucket)
-- ✅ Priority Queue
-- ✅ Timeout Handling
-- ✅ Error Handling
-- ✅ JSON Parsing
+Tests for API communication with the pool controller:
+- ✅ Rate limiting (token bucket)
+- ✅ Priority queue
+- ✅ Timeout handling
+- ✅ Error handling
+- ✅ JSON parsing
 
 ```bash
 pytest tests/test_api.py -v
 ```
 
 ### Config Flow Tests (`tests/test_config_flow.py`)
-Tests für die Konfigurations-UI:
-- ✅ Duplikat-Erkennung
-- ✅ Controller-Name Handling
-- ✅ IP-Validierung
+Tests for the configuration UI:
+- ✅ Duplicate detection
+- ✅ Controller name handling
+- ✅ IP validation
 
 ```bash
 pytest tests/test_config_flow.py -v
 ```
 
 ### Device Tests (`tests/test_device.py`)
-Tests für Device-Management und Recovery:
-- ✅ Recovery-Lock gegen Race Conditions
-- ✅ Exponential Backoff
-- ✅ Device Info Updates
+Tests for device management and recovery:
+- ✅ Recovery lock against race conditions
+- ✅ Exponential backoff
+- ✅ Device info updates
 
 ```bash
 pytest tests/test_device.py -v
 ```
 
 ### Integration Tests (`tests/test_integration.py`)
-End-to-End Tests für Integration Setup:
-- ✅ Domain Initialisierung
-- ✅ Entry Setup/Unload
-- ✅ Service Registration
-- ✅ Config Migration
+End-to-end tests for integration setup:
+- ✅ Domain initialization
+- ✅ Entry setup/unload
+- ✅ Service registration
+- ✅ Config migration
 
 ```bash
 pytest tests/test_integration.py -v
 ```
 
 ### Entity State Tests (`tests/test_entity_state.py`)
-Tests für State-Interpretation:
-- ✅ 3-State Switches (ON/OFF/AUTO)
-- ✅ Numeric Prefix Handling
-- ✅ String State Parsing
+Tests for state interpretation:
+- ✅ 3-state switches (ON/OFF/AUTO)
+- ✅ Numeric prefix handling
+- ✅ String state parsing
 
 ```bash
 pytest tests/test_entity_state.py -v
 ```
 
 ### Sanitizer Tests (`tests/test_sanitizer.py`)
-Security und Input-Validation Tests:
-- ✅ XSS Prevention
-- ✅ Path Traversal Prevention
-- ✅ Range Validation (pH, ORP, Chlor)
-- ✅ SQL Injection Prevention
+Security and input validation tests:
+- ✅ XSS prevention
+- ✅ Path traversal prevention
+- ✅ Range validation (pH, ORP, Chlorine)
+- ✅ SQL injection prevention
 
 ```bash
 pytest tests/test_sanitizer.py -v
 ```
 
-## 📊 Test-Coverage
+## 📊 Test Coverage
 
-Coverage-Report erstellen:
+Generate coverage report:
 
 ```bash
 source activate-test-env.sh
 pytest tests/ --cov=custom_components/violet_pool_controller --cov-report=html
 ```
 
-HTML-Report öffnen:
+Open HTML report:
 ```bash
 open htmlcov/index.html  # macOS
 xdg-open htmlcov/index.html  # Linux
 ```
 
-## 🔧 Erweiterte Test-Optionen
+## 🔧 Advanced Test Options
 
-### Einzelnen Test ausführen
+### Run a Single Test
 
 ```bash
 pytest tests/test_api.py::TestVioletPoolAPI::test_rate_limiting_active -v
 ```
 
-### Tests mit bestimmtem Marker
+### Run Tests with Specific Marker
 
 ```bash
 pytest -m thread_safe -v
 ```
 
-### Tests parallel ausführen (schneller)
+### Run Tests in Parallel (faster)
 
 ```bash
 pip install pytest-xdist
 pytest tests/ -n auto -v
 ```
 
-### Detaillierte Fehlerausgabe
+### Detailed Failure Output
 
 ```bash
 pytest tests/ -vv --tb=long
 ```
 
-### Nur fehlgeschlagene Tests wiederholen
+### Repeat Only Failed Tests
 
 ```bash
 pytest tests/ --lf -v
@@ -147,89 +147,89 @@ pytest tests/ --lf -v
 
 ## 🐛 Debugging Tests
 
-### Mit pdb (Python Debugger)
+### With pdb (Python Debugger)
 
 ```bash
 pytest tests/ --pdb
 ```
 
-Bei Fehler wird automatisch der Debugger gestartet.
+The debugger starts automatically on failure.
 
-### Test-Output anzeigen (print statements)
+### Show Test Output (print statements)
 
 ```bash
 pytest tests/ -v -s
 ```
 
-### Logging aktivieren
+### Enable Logging
 
 ```bash
 pytest tests/ -v --log-cli-level=DEBUG
 ```
 
-## ⚙️ pytest.ini Konfiguration
+## ⚙️ pytest.ini Configuration
 
-Die `pytest.ini` enthält:
+The `pytest.ini` contains:
 ```ini
 [pytest]
 asyncio_mode = auto
 asyncio_default_fixture_loop_scope = function
 ```
 
-Diese Einstellungen sind wichtig für async Tests mit Home Assistant.
+These settings are important for async tests with Home Assistant.
 
 ## 🔍 conftest.py - Thread-Check Workaround
 
-Die `tests/conftest.py` enthält einen wichtigen Patch:
-- Filtert Home Assistant's `_run_safe_shutdown_loop` Threads
-- Verhindert false-positive Thread-Leaks
-- Notwendig für Kompatibilität mit HA 2025.1+
+The `tests/conftest.py` contains an important patch:
+- Filters Home Assistant's `_run_safe_shutdown_loop` threads
+- Prevents false-positive thread leaks
+- Required for compatibility with HA 2025.1+
 
-## 📝 Vor jedem Release
+## 📝 Before Each Release
 
 ### Pre-Release Checklist
 
 ```bash
-# 1. Code-Qualität prüfen
+# 1. Check code quality
 ruff check custom_components/
 mypy custom_components/violet_pool_controller/
 
-# 2. Alle Tests laufen lassen
+# 2. Run all tests
 ./scripts/run-tests.sh
 
-# 3. Coverage prüfen (sollte > 80% sein)
+# 3. Check coverage (should be > 80%)
 pytest tests/ --cov=custom_components/violet_pool_controller --cov-report=term
 
-# 4. Integration in echter HA-Instanz testen (siehe TESTING_CHECKLIST.md)
+# 4. Test integration in real HA instance (see TESTING_CHECKLIST.md)
 ```
 
-### Erwartete Test-Ergebnisse
+### Expected Test Results
 
 ```
 ======================== Test Summary ========================
-✓ 53 Tests BESTANDEN
+✓ 53 Tests PASSED
 ══════════════════════════════════════════════════════════════
-Erfolgsrate: 100%
+Success rate: 100%
 ```
 
-Alle Tests müssen bestehen, bevor ein Release erstellt wird!
+All tests must pass before a release is created!
 
-## 🏗️ Test-Struktur
+## 🏗️ Test Structure
 
 ```
 tests/
-├── conftest.py              # Pytest-Konfiguration & Fixtures
-├── test_api.py              # API-Tests (7 Tests)
-├── test_config_flow.py      # Config Flow Tests (5 Tests)
-├── test_device.py           # Device Tests (7 Tests)
-├── test_entity_state.py     # State Tests (4 Tests)
-├── test_integration.py      # Integration Tests (10 Tests)
-└── test_sanitizer.py        # Security Tests (13 Tests)
+├── conftest.py              # Pytest configuration & fixtures
+├── test_api.py              # API tests (7 tests)
+├── test_config_flow.py      # Config flow tests (5 tests)
+├── test_device.py           # Device tests (7 tests)
+├── test_entity_state.py     # State tests (4 tests)
+├── test_integration.py      # Integration tests (10 tests)
+└── test_sanitizer.py        # Security tests (13 tests)
 ```
 
 ## 🔄 CI/CD Integration
 
-Für GitHub Actions / GitLab CI:
+For GitHub Actions / GitLab CI:
 
 ```yaml
 # .github/workflows/test.yml
@@ -253,28 +253,28 @@ jobs:
 
 ## 🆘 Troubleshooting
 
-### Problem: Import-Fehler
+### Problem: Import Errors
 
-**Lösung:**
+**Solution:**
 ```bash
 export PYTHONPATH="$(pwd):$PYTHONPATH"
 ```
 
 ### Problem: "No module named custom_components"
 
-**Lösung:** Test von Projekt-Root ausführen, nicht aus `tests/` Verzeichnis.
+**Solution:** Run tests from project root, not from the `tests/` directory.
 
-### Problem: Thread-Name Assertion Error
+### Problem: Thread Name Assertion Error
 
-**Lösung:** `conftest.py` enthält bereits den Fix. Falls Problem weiterhin besteht:
+**Solution:** `conftest.py` already contains the fix. If problem persists:
 ```bash
 rm -rf .venv-ha-test/
 ./scripts/setup-test-env.sh
 ```
 
-### Problem: Alte Home Assistant Version
+### Problem: Old Home Assistant Version
 
-**Lösung:**
+**Solution:**
 ```bash
 rm -rf .venv-ha-test/
 ./scripts/setup-test-env.sh
@@ -282,34 +282,34 @@ rm -rf .venv-ha-test/
 
 ### Problem: pytest not found
 
-**Lösung:**
+**Solution:**
 ```bash
 source .venv-ha-test/bin/activate
 ```
 
-## 📚 Weitere Ressourcen
+## 📚 Additional Resources
 
-- [pytest Dokumentation](https://docs.pytest.org/)
+- [pytest Documentation](https://docs.pytest.org/)
 - [Home Assistant Testing Best Practices](https://developers.home-assistant.io/docs/development_testing)
 - [pytest-homeassistant-custom-component](https://github.com/MatthewFlamm/pytest-homeassistant-custom-component)
 
-## ✅ Test-Erfolg Kriterien
+## ✅ Test Success Criteria
 
-Vor einem Merge/Release müssen erfüllt sein:
+Before a merge/release, the following must be met:
 
-- [ ] **100% aller Unit-Tests bestehen**
-- [ ] **Ruff Linting: 0 Fehler**
-- [ ] **MyPy Type Check: 0 Fehler (außer import-not-found)**
+- [ ] **100% of unit tests pass**
+- [ ] **Ruff Linting: 0 errors**
+- [ ] **MyPy Type Check: 0 errors (except import-not-found)**
 - [ ] **Test Coverage: > 80%**
-- [ ] **Manuelle Tests in echter HA-Instanz** (siehe TESTING_CHECKLIST.md)
-- [ ] **Keine Regression bei existierenden Features**
+- [ ] **Manual tests in real HA instance** (see TESTING_CHECKLIST.md)
+- [ ] **No regression in existing features**
 
 ## 🚀 Continuous Testing
 
-Es wird empfohlen, Tests automatisch bei jedem Commit zu laufen:
+It is recommended to run tests automatically on every commit:
 
 ```bash
-# Git pre-commit hook erstellen
+# Create git pre-commit hook
 cat > .git/hooks/pre-commit << 'EOF'
 #!/bin/bash
 ./scripts/run-tests.sh
@@ -317,4 +317,4 @@ EOF
 chmod +x .git/hooks/pre-commit
 ```
 
-Dann werden Tests automatisch vor jedem Commit ausgeführt.
+Tests will then run automatically before every commit.

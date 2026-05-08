@@ -1,43 +1,43 @@
 # Violet Pool Controller
 
-**[🏠 Home](Home)**
+**[🏠 Home](Home)** · [🇩🇪 Deutsch](Home.de)
 
 ---
 
-## 🚀 Erste Schritte
+## 🚀 Getting Started
 - [Installation & Setup](Installation-and-Setup)
-- [Konfiguration](Configuration)
+- [Configuration](Configuration)
 - [Multi-Controller](Multi-Controller)
 
-## 📊 Entities & Geräte
-- [Alle Entities](Entities)
-- [Sensoren & Messwerte](Sensors)
-- [Schalter & Steuerung](Switches)
-- [Klima & Heizung](Climate)
+## 📊 Entities & Devices
+- [All Entities](Entities)
+- [Sensors & Measurements](Sensors)
+- [Switches & Control](Switches)
+- [Climate & Heating](Climate)
 - [Device States (0–6)](Device-States)
-- [Icon Referenz](Icon-Reference)
+- [Icon Reference](Icon-Reference)
 
-## ⚙️ Automatisierung
-- [Services Referenz](Services)
-- [Automatisierungs-Beispiele](Automations)
+## ⚙️ Automation
+- [Services Reference](Services)
+- [Automation Examples](Automations)
 
-## 🔧 Betrieb & Wartung
+## 🔧 Operation & Maintenance
 - [Troubleshooting](Troubleshooting)
-- [Diagnosedaten](Diagnostics)
-- [Erweiterte Protokollierung](Erweiterte-Protokollierung)
-- [Fehler-Codes](Error-Codes)
+- [Diagnostics Data](Diagnostics)
+- [Advanced Logging](Erweiterte-Protokollierung)
+- [Error Codes](Error-Codes)
 - [Security & SSL](Security)
 - [FAQ](FAQ)
 
-## 👩‍💻 Entwicklung
+## 👩‍💻 Development
 - [Contributing](Contributing)
 - [Testing](Testing)
-- [API Referenz](API-Reference)
+- [API Reference](API-Reference)
 - [Changelog](Changelog)
 
 ---
 
 **Version:** 1.0.5
-**HA:** 2026.5.0+ (getestet bis 2026.x)
+**HA:** 2026.5.0+ (tested up to 2026.x)
 
 [GitHub](https://github.com/Xerolux/violet-hass) · [Issues](https://github.com/Xerolux/violet-hass/issues) · [HACS](https://hacs.xyz/)

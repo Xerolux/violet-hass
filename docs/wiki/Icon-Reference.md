@@ -1,215 +1,215 @@
-# 🎨 Icon-Referenz - Violet Pool Controller
+# 🎨 Icon Reference - Violet Pool Controller
 
-## Übersicht aller Icons
+## Overview of All Icons
 
-Diese Seite zeigt alle Icons, die von der Violet Pool Controller Integration verwendet werden. Alle Icons sind aus dem **Material Design Icons (MDI)** Set.
+This page shows all icons used by the Violet Pool Controller integration. All icons are from the **Material Design Icons (MDI)** set.
 
 ---
 
-## 📊 Statistik
+## 📊 Statistics
 
-| Metrik | Wert |
+| Metric | Value |
 |--------|-------|
-| **Gesamtzahl Icons** | 68+ |
-| **Kategorien** | 10 |
-| **Icon-Set** | Material Design Icons (MDI) |
-| **Status** | Alle verifiziert & funktionierend |
+| **Total Icons** | 68+ |
+| **Categories** | 10 |
+| **Icon Set** | Material Design Icons (MDI) |
+| **Status** | All verified & working |
 
 ---
 
-## 🌡️ Temperatursensoren (6 Icons)
+## 🌡️ Temperature Sensors (6 Icons)
 
-| Entity | Name | Icon | MDI-Name | Beschreibung |
-|--------|------|------|-----------|-------------|
-| `onewire1_value` | Beckenwasser | 🏊 | `mdi:pool` | Pool-Wassertemperatur |
-| `onewire2_value` | Außentemperatur | 🌡️ | `mdi:thermometer` | Außenlufttemperatur |
-| `onewire3_value` | Solarabsorber | ☀️ | `mdi:solar-power` | Solar-Kollektor-Temperatur |
-| `onewire4_value` | Absorber-Rücklauf | 🔧 | `mdi:pipe-valve` | Rücklauftemperatur mit Ventil |
-| `onewire5_value` | Wärmetauscher | ♨️ | `mdi:radiator` | Wärmetauscher-Temperatur |
-| `onewire6_value` | Heizungs-Speicher | 🚿 | `mdi:water-boiler` | Speichertemperatur |
-
----
-
-## 🧪 Wasserchemie (3 Icons)
-
-| Entity | Name | Icon | MDI-Name | Beschreibung |
-|--------|------|------|-----------|-------------|
-| `pH_value` | pH-Wert | ⚗️ | `mdi:ph` | **Spezielles pH-Icon!** |
-| `orp_value` | Redoxpotential | ⚡ | `mdi:lightning-bolt-circle` | Redoxpotential mit Kreis |
-| `pot_value` | Chlorgehalt | 🧪 | `mdi:water-plus` | Chlorgehalt im Wasser |
+| Entity | Name | Icon | MDI Name | Description |
+|--------|------|------|----------|-------------|
+| `onewire1_value` | Pool Water | 🏊 | `mdi:pool` | Pool water temperature |
+| `onewire2_value` | Outdoor Temperature | 🌡️ | `mdi:thermometer` | Outdoor air temperature |
+| `onewire3_value` | Solar Absorber | ☀️ | `mdi:solar-power` | Solar collector temperature |
+| `onewire4_value` | Absorber Return | 🔧 | `mdi:pipe-valve` | Return temperature with valve |
+| `onewire5_value` | Heat Exchanger | ♨️ | `mdi:radiator` | Heat exchanger temperature |
+| `onewire6_value` | Heating Storage | 🚿 | `mdi:water-boiler` | Storage temperature |
 
 ---
 
-## 📊 Analogsensoren (7 Icons)
+## 🧪 Water Chemistry (3 Icons)
 
-| Entity | Name | Icon | MDI-Name | Beschreibung |
-|--------|------|------|-----------|-------------|
-| `ADC1_value` | Filterdruck | 🌡️ | `mdi:gauge` | Druckanzeige |
-| `ADC2_value` | Überlaufbehälter | 💧 | `mdi:water-sync` | Überlauf-Wasserspiegel |
-| `ADC3_value` | Durchflussmesser | ↔️ | `mdi:swap-horizontal` | Durchfluss-Pfeile |
-| `ADC4_value` | Analogsensor 4 | 📊 | `mdi:gauge` | Universeller Sensor |
-| `ADC5_value` | Analogsensor 5 | 〰️ | `mdi:sine-wave` | Spannungswelle |
-| `IMP1_value` | Flow-Switch | 🔧 | `mdi:pipe-valve` | Durchfluss-Schalter |
-| `IMP2_value` | Pumpen-Durchfluss | 💧 | `mdi:water-pump` | Volumenstrom |
+| Entity | Name | Icon | MDI Name | Description |
+|--------|------|------|----------|-------------|
+| `pH_value` | pH Value | ⚗️ | `mdi:ph` | **Dedicated pH icon!** |
+| `orp_value` | Redox Potential | ⚡ | `mdi:lightning-bolt-circle` | Redox potential with circle |
+| `pot_value` | Chlorine Level | 🧪 | `mdi:water-plus` | Chlorine level in water |
 
 ---
 
-## 💻 Systemsensoren (7 Icons)
+## 📊 Analog Sensors (7 Icons)
 
-| Entity | Name | Icon | MDI-Name | Beschreibung |
-|--------|------|------|-----------|-------------|
-| `CPU_TEMP` | CPU Temperatur | 🔥 | `mdi:thermometer-alert` | Temp mit Warnung |
-| `CPU_TEMP_CARRIER` | Carrier Board | 🖥️ | `mdi:motherboard` | Hauptplatine |
-| `CPU_UPTIME` | System Uptime | ⏰ | `mdi:clock-time-eight` | Uhrzeit-Anzeige |
-| `SYSTEM_CPU_TEMPERATURE` | System CPU | 🌡️ | `mdi:thermometer-check` | Temp-Check |
-| `SYSTEM_CARRIER_CPU_TEMPERATURE` | Carrier CPU | 💾 | `mdi:memory` | Speicher-Chip |
-| `SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE` | Dosiermodul CPU | 💾 | `mdi:memory-lan` | LAN-Speicher |
-| `SYSTEM_memoryusage` | Memory Usage | 💾 | `mdi:memory-lan` | Speichernutzung |
-
----
-
-## ⚡ Status-Sensoren (7 Icons)
-
-| Entity | Name | Icon | MDI-Name | Beschreibung |
-|--------|------|------|-----------|-------------|
-| `PUMP` | Pumpen-Status | ⚙️ | `mdi:pump` | Pumpen-Status |
-| `HEATER` | Heizungs-Status | ♨️ | `mdi:radiator` | Heizkörper-Status |
-| `SOLAR` | Solar-Status | ☀️ | `mdi:solar-power` | Solar-Status |
-| `BACKWASH` | Rückspül-Status | 🔄 | `mdi:autorenew` | Autorenew-Zyklus |
-| `LIGHT` | Beleuchtung Status | 💡 | `mdi:lightbulb` | Lampen-Status |
-| `PVSURPLUS` | PV-Überschuss | ☀️ | `mdi:solar-power` | PV-Überschuss |
-| `FW` | Firmware | 📦 | `mdi:package-variant` | Firmware-Version |
+| Entity | Name | Icon | MDI Name | Description |
+|--------|------|------|----------|-------------|
+| `ADC1_value` | Filter Pressure | 🌡️ | `mdi:gauge` | Pressure gauge |
+| `ADC2_value` | Overflow Tank | 💧 | `mdi:water-sync` | Overflow water level |
+| `ADC3_value` | Flow Meter | ↔️ | `mdi:swap-horizontal` | Flow arrows |
+| `ADC4_value` | Analog Sensor 4 | 📊 | `mdi:gauge` | Universal sensor |
+| `ADC5_value` | Analog Sensor 5 | 〰️ | `mdi:sine-wave` | Voltage wave |
+| `IMP1_value` | Flow Switch | 🔧 | `mdi:pipe-valve` | Flow switch |
+| `IMP2_value` | Pump Flow Rate | 💧 | `mdi:water-pump` | Volume flow |
 
 ---
 
-## 🧪 Dosier-Sensoren (5 Icons)
+## 💻 System Sensors (7 Icons)
 
-| Entity | Name | Icon | MDI-Name | Beschreibung |
-|--------|------|------|-----------|-------------|
-| `DOS_1_CL_STATE` | Chlor Status | 🧪 | `mdi:flask-outline` | Chlor-Dosierung |
-| `DOS_2_ELO_STATE` | Elektrolyse | ⚡ | `mdi:lightning-bolt` | Elektrolyse-Status |
-| `DOS_4_PHM_STATE` | pH- Status | 🧪 | `mdi:flask-minus` | pH-Minus Dosierung |
-| `DOS_5_PHP_STATE` | pH+ Status | 🧪 | `mdi:flask-plus` | pH-Plus Dosierung |
-| `DOS_6_FLOC_STATE` | Flockung | 💧 | `mdi:water` | Flockmittel-Status |
+| Entity | Name | Icon | MDI Name | Description |
+|--------|------|------|----------|-------------|
+| `CPU_TEMP` | CPU Temperature | 🔥 | `mdi:thermometer-alert` | Temperature with warning |
+| `CPU_TEMP_CARRIER` | Carrier Board | 🖥️ | `mdi:motherboard` | Main board |
+| `CPU_UPTIME` | System Uptime | ⏰ | `mdi:clock-time-eight` | Clock display |
+| `SYSTEM_CPU_TEMPERATURE` | System CPU | 🌡️ | `mdi:thermometer-check` | Temperature check |
+| `SYSTEM_CARRIER_CPU_TEMPERATURE` | Carrier CPU | 💾 | `mdi:memory` | Memory chip |
+| `SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE` | Dosing Module CPU | 💾 | `mdi:memory-lan` | LAN memory |
+| `SYSTEM_memoryusage` | Memory Usage | 💾 | `mdi:memory-lan` | Memory utilization |
+
+---
+
+## ⚡ Status Sensors (7 Icons)
+
+| Entity | Name | Icon | MDI Name | Description |
+|--------|------|------|----------|-------------|
+| `PUMP` | Pump Status | ⚙️ | `mdi:pump` | Pump status |
+| `HEATER` | Heater Status | ♨️ | `mdi:radiator` | Heater status |
+| `SOLAR` | Solar Status | ☀️ | `mdi:solar-power` | Solar status |
+| `BACKWASH` | Backwash Status | 🔄 | `mdi:autorenew` | Auto-renew cycle |
+| `LIGHT` | Light Status | 💡 | `mdi:lightbulb` | Light status |
+| `PVSURPLUS` | PV Surplus | ☀️ | `mdi:solar-power` | PV surplus |
+| `FW` | Firmware | 📦 | `mdi:package-variant` | Firmware version |
+
+---
+
+## 🧪 Dosing Sensors (5 Icons)
+
+| Entity | Name | Icon | MDI Name | Description |
+|--------|------|------|----------|-------------|
+| `DOS_1_CL_STATE` | Chlorine Status | 🧪 | `mdi:flask-outline` | Chlorine dosing |
+| `DOS_2_ELO_STATE` | Electrolysis | ⚡ | `mdi:lightning-bolt` | Electrolysis status |
+| `DOS_4_PHM_STATE` | pH- Status | 🧪 | `mdi:flask-minus` | pH minus dosing |
+| `DOS_5_PHP_STATE` | pH+ Status | 🧪 | `mdi:flask-plus` | pH plus dosing |
+| `DOS_6_FLOC_STATE` | Flocculant | 💧 | `mdi:water` | Flocculant status |
 
 ---
 
 ## 🔧 Binary Sensors (11+ Icons)
 
-| Entity | Name | Icon | MDI-Name | Beschreibung |
-|--------|------|------|-----------|-------------|
-| `PUMP` | Pump State | 💧 | `mdi:water-pump` | Pumpe läuft |
-| `SOLAR` | Solar State | ☀️ | `mdi:solar-power` | Solar aktiv |
-| `HEATER` | Heater State | ♨️ | `mdi:radiator` | Heizung aktiv |
-| `LIGHT` | Light State | 💡 | `mdi:lightbulb` | Licht an |
-| `BACKWASH` | Backwash State | 🔄 | `mdi:autorenew` | Rückspülung läuft |
-| `REFILL` | Refill State | 💧 | `mdi:water` | Nachfüllen aktiv |
-| `ECO` | ECO Mode | 🍃 | `mdi:leaf` | Eco-Modus |
-| `PVSURPLUS` | PV Surplus | ☀️ | `mdi:solar-power` | PV-Überschuss |
-| `CIRCULATION_STATE` | Circulation Issue | ⚠️ | `mdi:water-alert` | Zirkulations-Problem |
-| `ELECTRODE_FLOW_STATE` | Electrode Flow | ✅ | `mdi:water-check` | Elektroden-Fluss |
-| `PRESSURE_STATE` | Pressure Issue | 🌡️ | `mdi:gauge` | Druck-Problem |
-| `CAN_RANGE_STATE` | Can Range | 🍾 | `mdi:bottle-tonic` | Kanister-Problem |
+| Entity | Name | Icon | MDI Name | Description |
+|--------|------|------|----------|-------------|
+| `PUMP` | Pump State | 💧 | `mdi:water-pump` | Pump running |
+| `SOLAR` | Solar State | ☀️ | `mdi:solar-power` | Solar active |
+| `HEATER` | Heater State | ♨️ | `mdi:radiator` | Heater active |
+| `LIGHT` | Light State | 💡 | `mdi:lightbulb` | Light on |
+| `BACKWASH` | Backwash State | 🔄 | `mdi:autorenew` | Backwash running |
+| `REFILL` | Refill State | 💧 | `mdi:water` | Refill active |
+| `ECO` | ECO Mode | 🍃 | `mdi:leaf` | Eco mode |
+| `PVSURPLUS` | PV Surplus | ☀️ | `mdi:solar-power` | PV surplus |
+| `CIRCULATION_STATE` | Circulation Issue | ⚠️ | `mdi:water-alert` | Circulation problem |
+| `ELECTRODE_FLOW_STATE` | Electrode Flow | ✅ | `mdi:water-check` | Electrode flow |
+| `PRESSURE_STATE` | Pressure Issue | 🌡️ | `mdi:gauge` | Pressure problem |
+| `CAN_RANGE_STATE` | Can Range | 🍾 | `mdi:bottle-tonic` | Canister problem |
 
 ---
 
 ## 🔌 Switches (11+ Icons)
 
-| Entity | Name | Icon | MDI-Name | Beschreibung |
-|--------|------|------|-----------|-------------|
-| `PUMP` | Filterpumpe | 💧 | `mdi:water-pump` | Pumpe ein/aus |
-| `SOLAR` | Solarabsorber | ☀️ | `mdi:solar-power` | Solar ein/aus |
-| `HEATER` | Heizung | ♨️ | `mdi:radiator` | Heizung ein/aus |
-| `LIGHT` | Beleuchtung | 💡 | `mdi:lightbulb` | Licht ein/aus |
-| `DOS_5_PHP` | Dosierung pH+ | 🧪 | `mdi:flask-plus` | pH+ dosieren |
-| `DOS_4_PHM` | Dosierung pH- | 🧪 | `mdi:flask-minus` | pH- dosieren |
-| `DOS_1_CL` | Chlor-Dosierung | 🧪 | `mdi:flask-outline` | Chlor dosieren |
-| `DOS_6_FLOC` | Flockmittel | 💧 | `mdi:water` | Flockung dosieren |
-| `PVSURPLUS` | PV-Überschuss | ☀️ | `mdi:solar-power` | PV-Modus |
-| `BACKWASH` | Rückspülung | 🔄 | `mdi:autorenew` | Rückspülung starten |
-| `BACKWASHRINSE` | Nachspülung | 🔄 | `mdi:autorenew` | Nachspülung starten |
+| Entity | Name | Icon | MDI Name | Description |
+|--------|------|------|----------|-------------|
+| `PUMP` | Filter Pump | 💧 | `mdi:water-pump` | Pump on/off |
+| `SOLAR` | Solar Absorber | ☀️ | `mdi:solar-power` | Solar on/off |
+| `HEATER` | Heater | ♨️ | `mdi:radiator` | Heater on/off |
+| `LIGHT` | Lighting | 💡 | `mdi:lightbulb` | Light on/off |
+| `DOS_5_PHP` | Dosing pH+ | 🧪 | `mdi:flask-plus` | Dose pH+ |
+| `DOS_4_PHM` | Dosing pH- | 🧪 | `mdi:flask-minus` | Dose pH- |
+| `DOS_1_CL` | Chlorine Dosing | 🧪 | `mdi:flask-outline` | Dose chlorine |
+| `DOS_6_FLOC` | Flocculant | 💧 | `mdi:water` | Dose flocculant |
+| `PVSURPLUS` | PV Surplus | ☀️ | `mdi:solar-power` | PV mode |
+| `BACKWASH` | Backwash | 🔄 | `mdi:autorenew` | Start backwash |
+| `BACKWASHRINSE` | Rinse | 🔄 | `mdi:autorenew` | Start rinse |
 
 ---
 
 ## 🎛️ Select Controls (8 Icons)
 
-| Entity | Name | Icon | MDI-Name | Beschreibung |
-|--------|------|------|-----------|-------------|
-| `pump_mode` | Pumpen-Modus | 💧 | `mdi:water-pump` | Pumpe: Aus/Ein/Auto |
-| `heater_mode` | Heizungs-Modus | ♨️ | `mdi:radiator` | Heizung: Aus/Ein/Auto |
-| `solar_mode` | Solar-Modus | ☀️ | `mdi:solar-power` | Solar: Aus/Ein/Auto |
-| `light_mode` | Licht-Modus | 💡 | `mdi:lightbulb` | Licht: Aus/Ein/Auto |
-| `dos_cl_mode` | Chlor-Modus | 🧪 | `mdi:flask-outline` | Chlor-Dosierung |
-| `dos_phm_mode` | pH-Modus | 🧪 | `mdi:flask-minus` | pH-Minus-Dosierung |
-| `dos_php_mode` | pH+ Modus | 🧪 | `mdi:flask-plus` | pH-Plus-Dosierung |
-| `pvsurplus_mode` | PV-Modus | ☀️ | `mdi:solar-power` | PV-Überschuss-Modus |
+| Entity | Name | Icon | MDI Name | Description |
+|--------|------|------|----------|-------------|
+| `pump_mode` | Pump Mode | 💧 | `mdi:water-pump` | Pump: Off/On/Auto |
+| `heater_mode` | Heater Mode | ♨️ | `mdi:radiator` | Heater: Off/On/Auto |
+| `solar_mode` | Solar Mode | ☀️ | `mdi:solar-power` | Solar: Off/On/Auto |
+| `light_mode` | Light Mode | 💡 | `mdi:lightbulb` | Light: Off/On/Auto |
+| `dos_cl_mode` | Chlorine Mode | 🧪 | `mdi:flask-outline` | Chlorine dosing |
+| `dos_phm_mode` | pH- Mode | 🧪 | `mdi:flask-minus` | pH minus dosing |
+| `dos_php_mode` | pH+ Mode | 🧪 | `mdi:flask-plus` | pH plus dosing |
+| `pvsurplus_mode` | PV Mode | ☀️ | `mdi:solar-power` | PV surplus mode |
 
 ---
 
 ## 🔢 Setpoints (3 Icons)
 
-| Entity | Name | Icon | MDI-Name | Beschreibung |
-|--------|------|------|-----------|-------------|
-| `ph_setpoint` | pH Sollwert | ⚗️ | `mdi:ph` | **Spezielles pH-Icon!** |
-| `orp_setpoint` | Redox Sollwert | ⚡ | `mdi:lightning-bolt-circle` | Redox-Zielwert |
-| `chlorine_setpoint` | Chlor Sollwert | 🧪 | `mdi:water-plus` | Chlor-Zielwert |
+| Entity | Name | Icon | MDI Name | Description |
+|--------|------|------|----------|-------------|
+| `ph_setpoint` | pH Setpoint | ⚗️ | `mdi:ph` | **Dedicated pH icon!** |
+| `orp_setpoint` | Redox Setpoint | ⚡ | `mdi:lightning-bolt-circle` | Redox target value |
+| `chlorine_setpoint` | Chlorine Setpoint | 🧪 | `mdi:water-plus` | Chlorine target value |
 
 ---
 
-## 🎨 Top 10 Icon-Verbesserungen
+## 🎨 Top 10 Icon Improvements
 
-| Platz | Icon-Wechsel | Grund |
-|-------|--------------|--------|
-| 🥇 | `mdi:flask` → **`mdi:ph`** | Echtes pH-Icon statt Flasche |
-| 🥈 | `mdi:water-percent` → **`mdi:water-sync`** | Überlauf statt Prozent |
-| 🥉 | `mdi:refresh` → **`mdi:autorenew`** | Autorenew für Zyklus |
-| 4 | `mdi:pump-on` → **`mdi:water-pump`** | Wasserpumpe existiert |
-| 5 | `mdi:radiator-disabled` → **`mdi:radiator`** | Heizkörper einfacher |
-| 6 | `mdi:lightbulb-on` → **`mdi:lightbulb`** | Glühbirne Standard |
-| 7 | `mdi:heat-exchange` → **`mdi:radiator`** | Wärmetauscher klarer |
-| 8 | `mdi:pool-thermometer` → **`mdi:pool`** | Pool einfacher |
-| 9 | `mdi:water-opacity` → **`mdi:water`** | Wasser statt Trübung |
-| 10 | `mdi:gauge-full` → **`mdi:gauge`** | Messanzeige Standard |
+| Rank | Icon Change | Reason |
+|------|-------------|--------|
+| 🥇 | `mdi:flask` → **`mdi:ph`** | Dedicated pH icon instead of flask |
+| 🥈 | `mdi:water-percent` → **`mdi:water-sync`** | Overflow instead of percentage |
+| 🥉 | `mdi:refresh` → **`mdi:autorenew`** | Auto-renew for cycle |
+| 4 | `mdi:pump-on` → **`mdi:water-pump`** | Water pump exists |
+| 5 | `mdi:radiator-disabled` → **`mdi:radiator`** | Simpler heater icon |
+| 6 | `mdi:lightbulb-on` → **`mdi:lightbulb`** | Standard lightbulb |
+| 7 | `mdi:heat-exchange` → **`mdi:radiator`** | Clearer heat exchanger |
+| 8 | `mdi:pool-thermometer` → **`mdi:pool`** | Simpler pool icon |
+| 9 | `mdi:water-opacity` → **`mdi:water`** | Water instead of turbidity |
+| 10 | `mdi:gauge-full` → **`mdi:gauge`** | Standard gauge display |
 
 ---
 
-## 🔍 Icon-Suche
+## 🔍 Icon Search
 
-### Nach Entity suchen
-- Drücke `STRG + F` im Browser
-- Tippe den Entity-Namen ein
-- Finde das zugehörige Icon
+### Search by Entity
+- Press `Ctrl + F` in your browser
+- Type the entity name
+- Find the corresponding icon
 
-### Nach Kategorie suchen
-- Nutze die obenstehenden Tabellen
-- Klicke auf die Kategorie-Überschriften
-- Alle Icons der Kategorie werden angezeigt
+### Search by Category
+- Use the tables above
+- Click on the category headings
+- All icons in the category will be displayed
 
 ---
 
 ## 📚 MDI Icon Library
 
-Alle Icons stammen aus der **[Material Design Icons Library](https://pictogrammers.com/library/mdi/)**.
+All icons are from the **[Material Design Icons Library](https://pictogrammers.com/library/mdi/)**.
 
-### Nützliche Links:
-- **[MDI Suche](https://pictogrammers.com/library/mdi/)** - Alle Icons durchsuchen
-- **[MDI GitHub](https://github.com/Templarian/MaterialDesign)** - Offizielle Repository
-- **[MDI Lizenz](https://github.com/Templarian/MaterialDesign/blob/master/LICENSE)** - Apache 2.0
+### Useful Links:
+- **[MDI Search](https://pictogrammers.com/library/mdi/)** - Browse all icons
+- **[MDI GitHub](https://github.com/Templarian/MaterialDesign)** - Official repository
+- **[MDI License](https://github.com/Templarian/MaterialDesign/blob/master/LICENSE)** - Apache 2.0
 
 ---
 
-## ⚙️ Icon-Konfiguration
+## ⚙️ Icon Configuration
 
-Icons werden in diesen Dateien definiert:
-- `custom_components/violet_pool_controller/const_sensors.py` (Sensoren)
-- `custom_components/violet_pool_controller/const_features.py` (Binary Sensoren, Switches, Selects)
+Icons are defined in these files:
+- `custom_components/violet_pool_controller/const_sensors.py` (Sensors)
+- `custom_components/violet_pool_controller/const_features.py` (Binary Sensors, Switches, Selects)
 
-### Beispiel:
+### Example:
 ```python
 TEMP_SENSORS = {
     "onewire1_value": {
-        "name": "Beckenwasser",
-        "icon": "mdi:pool"  # ← Hier wird das Icon definiert
+        "name": "Pool Water",
+        "icon": "mdi:pool"  # ← Icon is defined here
     },
 }
 ```
@@ -218,28 +218,28 @@ TEMP_SENSORS = {
 
 ## ❓ FAQ
 
-### Fehlt ein Icon?
-1. Browser-Cache leeren
-2. Home Assistant neu starten
-3. Entity-Registry prüfen
+### Missing an icon?
+1. Clear browser cache
+2. Restart Home Assistant
+3. Check entity registry
 
-### Icon wird nicht angezeigt?
-- Prüfe ob das Icon in MDI existiert: [MDI Library](https://pictogrammers.com/library/mdi/)
-- Überprüfe die Logs auf Icon-Fehler
-- Stelle sicher, dass du Home Assistant 2025.12+ nutzt
+### Icon not displaying?
+- Check if the icon exists in MDI: [MDI Library](https://pictogrammers.com/library/mdi/)
+- Check logs for icon errors
+- Make sure you're running Home Assistant 2025.12+
 
-### Icon ändern?
-Icons können **nicht** vom Benutzer geändert werden. Sie sind fest in der Integration definiert.
+### Change an icon?
+Icons **cannot** be changed by the user. They are hardcoded in the integration.
 
 ---
 
 ## 📝 Changelog
 
-### März 2026
-- ✅ Icon-Optimierung: 68+ Icons zu MDI geändert
-- ✅ Nicht-existente Icons korrigiert
-- ✅ Konsistentes Icon-Set eingeführt
+### March 2026
+- ✅ Icon optimization: 68+ icons changed to MDI
+- ✅ Corrected non-existent icons
+- ✅ Introduced consistent icon set
 
 ---
 
-**🎨 Alle Icons sind optimiert und funktionieren!**
+**🎨 All icons are optimized and working!**

@@ -1,74 +1,74 @@
-# Testing Checkliste für Violet Pool Controller Integration
+# Testing Checklist for Violet Pool Controller Integration
 
-## ✅ Automatische Checks (Bereits durchgeführt)
+## ✅ Automated Checks (Already performed)
 
-- [x] **Ruff Linting**: Keine Code-Qualitätsprobleme
-- [x] **MyPy Type Checking**: Alle Type-Errors behoben
-- [x] **Python Syntax**: Alle `.py` Dateien syntaktisch korrekt
-- [x] **manifest.json**: Valides JSON, alle Pflichtfelder vorhanden
-- [x] **services.yaml**: Valides YAML, 7 Services definiert
-- [x] **Übersetzungen**: 10 Sprachen (de, en, es, fr, it, nl, pl, pt, ru, zh)
-- [x] **Plattformen**: Alle 6 Plattformen vorhanden
+- [x] **Ruff Linting**: No code quality issues
+- [x] **MyPy Type Checking**: All type errors resolved
+- [x] **Python Syntax**: All `.py` files syntactically correct
+- [x] **manifest.json**: Valid JSON, all required fields present
+- [x] **services.yaml**: Valid YAML, 7 services defined
+- [x] **Translations**: 10 languages (de, en, es, fr, it, nl, pl, pt, ru, zh)
+- [x] **Platforms**: All 6 platforms present
 
-## 🧪 Manuelle Tests in Home Assistant
+## 🧪 Manual Tests in Home Assistant
 
 ### 1. Installation & Setup
 
 ```bash
-# In deiner Home Assistant Installation:
+# In your Home Assistant installation:
 cd /config/custom_components/
 git clone https://github.com/Xerolux/violet-hass.git violet_pool_controller
-# oder kopiere den violet_pool_controller Ordner manuell
+# or manually copy the violet_pool_controller folder
 
-# Starte Home Assistant neu
+# Restart Home Assistant
 ```
 
-#### Zu testen:
-- [ ] Integration erscheint in "Integrationen hinzufügen"
-- [ ] Configuration Flow startet ohne Fehler
-- [ ] IP-Adresse/Hostname kann eingegeben werden
-- [ ] Verbindung zum Controller erfolgreich
-- [ ] Features können ausgewählt werden
+#### To test:
+- [ ] Integration appears in "Add Integration"
+- [ ] Configuration flow starts without errors
+- [ ] IP address/hostname can be entered
+- [ ] Connection to controller successful
+- [ ] Features can be selected
 
-### 2. Entities Prüfung
+### 2. Entity Verification
 
-Nach erfolgreicher Konfiguration sollten folgende Entities verfügbar sein:
+After successful configuration, the following entities should be available:
 
 #### Sensors (sensor.*)
-- [ ] Temperatur-Sensoren (Wasser, Pool, Solar, etc.)
-- [ ] Wasser-Chemie (pH, ORP, Chlor)
-- [ ] System-Diagnostics
-- [ ] Analoge Eingänge
+- [ ] Temperature sensors (Water, Pool, Solar, etc.)
+- [ ] Water chemistry (pH, ORP, Chlorine)
+- [ ] System diagnostics
+- [ ] Analog inputs
 
 #### Binary Sensors (binary_sensor.*)
-- [ ] Digitale Eingänge
-- [ ] System-Alarme
+- [ ] Digital inputs
+- [ ] System alarms
 
 #### Switches (switch.*)
-- [ ] Pumpe (ON/OFF/AUTO)
-- [ ] Heizung (ON/OFF/AUTO)
+- [ ] Pump (ON/OFF/AUTO)
+- [ ] Heater (ON/OFF/AUTO)
 - [ ] Solar (ON/OFF/AUTO)
-- [ ] Dosierung (Chlor, pH-, pH+, Flockung)
-- [ ] DMX Szenen
-- [ ] Extension Relays
+- [ ] Dosing (Chlorine, pH-, pH+, Flocculant)
+- [ ] DMX scenes
+- [ ] Extension relays
 
 #### Climate (climate.*)
-- [ ] Heizungs-Thermostat
-- [ ] Solar-Thermostat
-- [ ] Temperatur-Setpoints änderbar
-- [ ] HVAC Modi funktionieren
+- [ ] Heater thermostat
+- [ ] Solar thermostat
+- [ ] Temperature setpoints adjustable
+- [ ] HVAC modes work
 
 #### Cover (cover.*)
-- [ ] Pool-Abdeckung
-- [ ] Öffnen/Schließen/Stopp Befehle
+- [ ] Pool cover
+- [ ] Open/Close/Stop commands
 
 #### Number (number.*)
-- [ ] Temperatur-Sollwerte
-- [ ] pH/ORP Sollwerte
+- [ ] Temperature setpoints
+- [ ] pH/ORP setpoints
 
-### 3. Services Testen
+### 3. Testing Services
 
-Gehe zu **Entwicklerwerkzeuge > Services** und teste:
+Go to **Developer Tools > Services** and test:
 
 #### control_pump
 ```yaml
@@ -77,9 +77,9 @@ data:
   action: "on"
   speed: 75
 ```
-- [ ] Pumpe schaltet ein
-- [ ] Geschwindigkeit wird gesetzt
-- [ ] Status-Update in Entity sichtbar
+- [ ] Pump turns on
+- [ ] Speed is set
+- [ ] Status update visible in entity
 
 #### smart_dosing
 ```yaml
@@ -89,9 +89,9 @@ data:
   action: "manual"
   duration: 30
 ```
-- [ ] Dosierung startet
-- [ ] Timer läuft
-- [ ] Safety Lock wird gesetzt
+- [ ] Dosing starts
+- [ ] Timer runs
+- [ ] Safety lock is set
 
 #### manage_pv_surplus
 ```yaml
@@ -99,8 +99,8 @@ service: violet_pool_controller.manage_pv_surplus
 data:
   mode: "on"
 ```
-- [ ] PV-Modus aktiviert
-- [ ] Status-Update sichtbar
+- [ ] PV mode activated
+- [ ] Status update visible
 
 #### control_dmx_scenes
 ```yaml
@@ -109,105 +109,105 @@ data:
   scene: "scene1"
   action: "on"
 ```
-- [ ] DMX Szene aktiviert
-- [ ] Lichter reagieren
+- [ ] DMX scene activated
+- [ ] Lights respond
 
-### 4. API Kommunikation
+### 4. API Communication
 
 #### Rate Limiting
-- [ ] Schnelle aufeinanderfolgende Requests werden gedrosselt
-- [ ] Keine 429 "Too Many Requests" Fehler
-- [ ] Exponential Backoff funktioniert
+- [ ] Rapid consecutive requests are throttled
+- [ ] No 429 "Too Many Requests" errors
+- [ ] Exponential backoff works
 
 #### Error Handling
-- [ ] Controller offline → Entities werden "unavailable"
-- [ ] Netzwerkfehler werden geloggt
-- [ ] Auto-Recovery nach Wiederverbindung
+- [ ] Controller offline → Entities become "unavailable"
+- [ ] Network errors are logged
+- [ ] Auto-recovery after reconnection
 
 #### Optimistic Updates
-- [ ] Switches zeigen sofort neuen Status (optimistic)
-- [ ] Nach API-Response wird Status aktualisiert
-- [ ] Attribute `optimistic_state` und `pending_update` vorhanden
+- [ ] Switches show new status immediately (optimistic)
+- [ ] After API response, status is updated
+- [ ] Attributes `optimistic_state` and `pending_update` present
 
 ### 5. State Interpretation
 
 #### 3-State Switches (ON/OFF/AUTO)
-Teste mit verschiedenen Rohwerten:
+Test with various raw values:
 - [ ] "1", 1, "ON" → Status ON
 - [ ] "0", 0, "OFF" → Status OFF
 - [ ] "2", "AUTO", "A" → Status AUTO
-- [ ] String-States werden korrekt interpretiert
+- [ ] String states are correctly interpreted
 
 #### Cover States
-- [ ] "OPEN", "open", "1" → Abdeckung offen
-- [ ] "CLOSED", "closed", "0" → Abdeckung geschlossen
-- [ ] Zwischenpositionen werden erkannt
+- [ ] "OPEN", "open", "1" → Cover open
+- [ ] "CLOSED", "closed", "0" → Cover closed
+- [ ] Intermediate positions detected
 
 ### 6. Logging & Debugging
 
-Prüfe Home Assistant Logs (`/config/home-assistant.log`):
+Check Home Assistant logs (`/config/home-assistant.log`):
 
 ```bash
 grep -i "violet" /config/home-assistant.log | tail -50
 ```
 
-Achte auf:
-- [ ] Keine ERROR oder CRITICAL Meldungen
-- [ ] INFO-Level zeigt normale Operationen
-- [ ] DEBUG-Level (wenn aktiviert) zeigt Details
-- [ ] Keine Python Tracebacks
+Watch for:
+- [ ] No ERROR or CRITICAL messages
+- [ ] INFO level shows normal operations
+- [ ] DEBUG level (when enabled) shows details
+- [ ] No Python tracebacks
 
 ### 7. Performance
 
-- [ ] Coordinator Update alle 30s (Standard)
-- [ ] CPU-Last < 5% normal
-- [ ] Speicher-Usage stabil
-- [ ] Keine Memory Leaks bei Langzeit-Betrieb (24h+)
+- [ ] Coordinator update every 30s (default)
+- [ ] CPU load < 5% normal
+- [ ] Memory usage stable
+- [ ] No memory leaks during long-term operation (24h+)
 
 ### 8. Edge Cases
 
-#### Fehlende Daten
-- [ ] Leere API Response → Default-Werte
-- [ ] Fehlende Sensor-Keys → Keine Crashes
-- [ ] None-Werte werden behandelt
+#### Missing Data
+- [ ] Empty API response → Default values
+- [ ] Missing sensor keys → No crashes
+- [ ] None values are handled
 
-#### Ungültige Eingaben
-- [ ] Zu hohe Temperatur → Clamping/Warning
-- [ ] Negative Duration → Validation
-- [ ] Ungültiger Action → Error Message
+#### Invalid Inputs
+- [ ] Too high temperature → Clamping/Warning
+- [ ] Negative duration → Validation
+- [ ] Invalid action → Error message
 
-#### Gleichzeitige Requests
-- [ ] Multiple Switches gleichzeitig → Queuing
-- [ ] Rate Limiter verhindert Überlast
-- [ ] Keine Race Conditions
+#### Concurrent Requests
+- [ ] Multiple switches simultaneously → Queuing
+- [ ] Rate limiter prevents overload
+- [ ] No race conditions
 
 ### 9. Config Flow
 
-#### Ersteinrichtung
-- [ ] IP/Hostname Validation
-- [ ] Connection Test funktioniert
-- [ ] Feature Discovery zeigt verfügbare Features
+#### Initial Setup
+- [ ] IP/hostname validation
+- [ ] Connection test works
+- [ ] Feature discovery shows available features
 
-#### Optionen Flow
-- [ ] Update Intervall änderbar
-- [ ] Features de-/aktivierbar
-- [ ] Änderungen werden sofort angewendet
+#### Options Flow
+- [ ] Update interval changeable
+- [ ] Features can be enabled/disabled
+- [ ] Changes are applied immediately
 
 #### Migration
-- [ ] Alte Configs werden migriert (falls vorhanden)
-- [ ] Keine Datenverluste
+- [ ] Old configs are migrated (if present)
+- [ ] No data loss
 
-### 10. Übersetzungen
+### 10. Translations
 
-Ändere die Sprache in Home Assistant und prüfe:
-- [ ] Entity Names übersetzt
-- [ ] Service Beschreibungen übersetzt
-- [ ] Error Messages übersetzt
-- [ ] Config Flow Texte übersetzt
+Change the language in Home Assistant and check:
+- [ ] Entity names translated
+- [ ] Service descriptions translated
+- [ ] Error messages translated
+- [ ] Config flow texts translated
 
 ## 🐛 Bug Reporting
 
-Falls Fehler auftreten, sammle:
+If errors occur, collect:
 
 1. **Home Assistant Version**
    ```bash
@@ -219,18 +219,18 @@ Falls Fehler auftreten, sammle:
    cat /config/custom_components/violet_pool_controller/manifest.json | grep version
    ```
 
-3. **Relevante Logs**
+3. **Relevant Logs**
    ```bash
    grep -i "violet" /config/home-assistant.log > violet_debug.log
    ```
 
-4. **Config Entry Data** (aus .storage/core.config_entries)
+4. **Config Entry Data** (from .storage/core.config_entries)
 
-5. **API Response Sample** (anonymisiert)
+5. **API Response Sample** (anonymized)
 
-## ✨ Type-Fixes in diesem Update
+## ✨ Type Fixes in This Update
 
-Die folgenden Type-Errors wurden behoben:
+The following type errors have been resolved:
 
 1. ✅ Optional parameters in `utils_sanitizer.py`
 2. ✅ Float/Int type mismatch in `utils_rate_limiter.py`
@@ -241,4 +241,4 @@ Die folgenden Type-Errors wurden behoben:
 7. ✅ Temperature return type in `climate.py`
 8. ✅ Safety interval cast in `services.py`
 
-Alle MyPy Type-Errors (außer erwartete import-not-found) sind behoben!
+All MyPy type errors (except expected import-not-found) are resolved!

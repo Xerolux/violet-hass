@@ -1,43 +1,43 @@
-# Klima & Heizung – Climate Entities
+# Climate & Heating – Climate Entities
 
-> Thermostat-Steuerung für Pool-Heizung und Solaranlage.
+> Thermostat control for pool heater and solar system.
 
 ---
 
-## Überblick
+## Overview
 
-Die Climate-Entities bieten eine vollwertige Thermostat-Schnittstelle für:
-- **Pool-Heizung** (Wärmepumpe, Gas, Elektrisch)
-- **Solar-Heizung** (Solarkollektor mit Differenzregelung)
+The Climate entities provide a full thermostat interface for:
+- **Pool Heater** (heat pump, gas, electric)
+- **Solar Heating** (solar collector with differential control)
 
 ---
 
 ## Climate Entities
 
-| Entity | Beschreibung | Standard-Sollwert |
-|--------|-------------|-------------------|
-| `climate.violet_heater` | Pool-Hauptheizung | 28°C |
-| `climate.violet_solar` | Solar-Heizkreis | 30°C |
+| Entity | Description | Default Setpoint |
+|--------|-------------|------------------|
+| `climate.violet_heater` | Main pool heater | 28°C |
+| `climate.violet_solar` | Solar heating circuit | 30°C |
 
 ---
 
-## HVAC-Modi
+## HVAC Modes
 
-Jede Climate-Entity unterstützt drei Modi:
+Each Climate entity supports three modes:
 
-| Modus | Beschreibung | Wann nutzen? |
-|-------|-------------|--------------|
-| `off` | Heizung komplett aus | Nicht-Badesaison |
-| `heat` | Auf Solltemperatur heizen | Aktive Nutzung |
-| `auto` | Controller regelt automatisch | Normalfall |
+| Mode | Description | When to Use |
+|------|-------------|-------------|
+| `off` | Heater completely off | Off-season |
+| `heat` | Heat to target temperature | Active use |
+| `auto` | Controller regulates automatically | Normal operation |
 
 ---
 
-## Solltemperatur einstellen
+## Setting the Target Temperature
 
 ### Via Home Assistant UI
 
-Klicke auf die Climate-Entity → Temperatur-Regler verwenden.
+Click on the Climate entity → use the temperature slider.
 
 ### Via Service
 
@@ -50,7 +50,7 @@ data:
   hvac_mode: heat
 ```
 
-### Via Number-Entity (Alternative)
+### Via Number Entity (Alternative)
 
 ```yaml
 service: number.set_value
@@ -62,24 +62,24 @@ data:
 
 ---
 
-## Verfügbare Number-Entities für Sollwerte
+## Available Number Entities for Setpoints
 
-| Entity | Beschreibung | Bereich |
-|--------|-------------|---------|
-| `number.violet_target_pool_temperature` | Pool-Solltemperatur | 10–40°C |
-| `number.violet_target_solar_temperature` | Solar-Maximaltemperatur | 20–60°C |
-| `number.violet_target_ph` | pH-Sollwert | 6.0–8.0 |
-| `number.violet_target_orp` | ORP-Sollwert | 200–900 mV |
+| Entity | Description | Range |
+|--------|-------------|-------|
+| `number.violet_target_pool_temperature` | Pool target temperature | 10–40°C |
+| `number.violet_target_solar_temperature` | Solar max temperature | 20–60°C |
+| `number.violet_target_ph` | pH setpoint | 6.0–8.0 |
+| `number.violet_target_orp` | ORP setpoint | 200–900 mV |
 
 ---
 
-## Automatisierungen
+## Automations
 
-### Temperatur nach Wochentag anpassen
+### Adjust Temperature by Day of Week
 
 ```yaml
 automation:
-  - alias: "Wochenend-Pool aufheizen"
+  - alias: "Weekend Pool Heat Up"
     trigger:
       - platform: time
         at: "07:00:00"
@@ -96,7 +96,7 @@ automation:
           temperature: 30
           hvac_mode: heat
 
-  - alias: "Wochentag Pool Eco-Modus"
+  - alias: "Weekday Pool Eco Mode"
     trigger:
       - platform: time
         at: "07:00:00"
@@ -117,11 +117,11 @@ automation:
           hvac_mode: auto
 ```
 
-### Heizung bei Schlechtwetter deaktivieren
+### Disable Heater in Bad Weather
 
 ```yaml
 automation:
-  - alias: "Heizung bei Regen aus"
+  - alias: "Heater off in rain"
     trigger:
       - platform: state
         entity_id: weather.home
@@ -134,11 +134,11 @@ automation:
           hvac_mode: "off"
 ```
 
-### Solar-Überschuss für Heizung nutzen
+### Use Solar Surplus for Heating
 
 ```yaml
 automation:
-  - alias: "PV-Überschuss für Pool nutzen"
+  - alias: "Use PV surplus for pool"
     trigger:
       - platform: numeric_state
         entity_id: sensor.solar_export_power
@@ -155,11 +155,11 @@ automation:
           pump_speed: 2
 ```
 
-### Temperatur-Ziel basierend auf Wetter
+### Temperature Target Based on Weather
 
 ```yaml
 automation:
-  - alias: "Soll-Temperatur an Außentemperatur anpassen"
+  - alias: "Adjust target temperature based on outside temperature"
     trigger:
       - platform: numeric_state
         entity_id: sensor.outside_temperature
@@ -171,7 +171,7 @@ automation:
         data:
           temperature: 28
 
-  - alias: "Kühle Tage: Temperatur erhöhen"
+  - alias: "Cool days: Increase temperature"
     trigger:
       - platform: numeric_state
         entity_id: sensor.outside_temperature
@@ -186,26 +186,26 @@ automation:
 
 ---
 
-## Solar-Differenzregelung
+## Solar Differential Control
 
-Die Solar-Heizung arbeitet mit einer **Differenzregelung**:
+Solar heating operates with **differential control**:
 
 ```
-Solar einschalten wenn:
-  T_Solar > T_Pool + Differenz (z.B. 5°C)
+Turn solar on when:
+  T_Solar > T_Pool + Differential (e.g. 5°C)
 
-Solar ausschalten wenn:
-  T_Solar < T_Pool + Hysterese (z.B. 2°C)
+Turn solar off when:
+  T_Solar < T_Pool + Hysteresis (e.g. 2°C)
 ```
 
-Die Solar-Climate-Entity zeigt die aktuelle Solar-Maximaltemperatur als Sollwert.
+The Solar Climate entity displays the current solar maximum temperature as the setpoint.
 
-**Template-Sensor für Solar-Differenz:**
+**Template Sensor for Solar Differential:**
 
 ```yaml
 template:
   - sensor:
-      - name: "Solar-Pool Temperaturdifferenz"
+      - name: "Solar-Pool Temperature Difference"
         unit_of_measurement: "°C"
         state: >
           {{ (states('sensor.violet_solar_temperature') | float(0) -
@@ -214,13 +214,13 @@ template:
 
 ---
 
-## PV-Surplus Integration
+## PV Surplus Integration
 
-Kombiniere Solar-Anlage mit Pool-Heizung:
+Combine solar system with pool heating:
 
 ```yaml
 automation:
-  - alias: "Optimale PV-Nutzung"
+  - alias: "Optimal PV Usage"
     trigger:
       - platform: time_pattern
         minutes: "/15"
@@ -255,62 +255,62 @@ automation:
 
 ---
 
-## Dashboard-Karte
+## Dashboard Card
 
 ```yaml
-# Thermostat-Karte für Pool-Heizung
+# Thermostat card for pool heater
 type: thermostat
 entity: climate.violet_heater
-name: Pool Heizung
+name: Pool Heater
 
-# Kombinierte Karte mit Temperaturen
+# Combined card with temperatures
 type: vertical-stack
 cards:
   - type: thermostat
     entity: climate.violet_heater
   - type: entities
-    title: Temperaturen
+    title: Temperatures
     entities:
       - sensor.violet_water_temperature
       - sensor.violet_solar_temperature
       - entity: sensor.outside_temperature
-        name: Außentemperatur
+        name: Outside Temperature
 ```
 
 ---
 
-## Attribute der Climate-Entity
+## Climate Entity Attributes
 
-| Attribut | Beschreibung |
+| Attribute | Description |
 |----------|-------------|
-| `current_temperature` | Aktuelle Wassertemperatur |
-| `target_temperature` | Eingestellte Solltemperatur |
-| `hvac_mode` | Aktueller Modus (off/heat/auto) |
-| `hvac_action` | Aktuelle Aktion (idle/heating) |
-| `min_temp` | Minimale Solltemperatur |
-| `max_temp` | Maximale Solltemperatur |
+| `current_temperature` | Current water temperature |
+| `target_temperature` | Configured target temperature |
+| `hvac_mode` | Current mode (off/heat/auto) |
+| `hvac_action` | Current action (idle/heating) |
+| `min_temp` | Minimum target temperature |
+| `max_temp` | Maximum target temperature |
 
 ---
 
 ## Troubleshooting
 
-### Climate zeigt falsche Temperatur
+### Climate Shows Wrong Temperature
 
-Die Current Temperature der Climate-Entity wird vom Wassertemperatur-Sensor bezogen. Prüfe `sensor.violet_water_temperature`.
+The current temperature of the Climate entity is sourced from the water temperature sensor. Check `sensor.violet_water_temperature`.
 
-### Heizung schaltet nicht ein
+### Heater Does Not Turn On
 
-1. HVAC-Mode prüfen (muss `heat` sein)
-2. Aktuelle Temperatur < Solltemperatur?
-3. Heizungs-Switch (`switch.violet_heater`) prüfen
-4. Fehler-Codes checken → [Error-Codes](Error-Codes)
+1. Check HVAC mode (must be `heat`)
+2. Current temperature < target temperature?
+3. Check heater switch (`switch.violet_heater`)
+4. Check error codes → [Error-Codes](Error-Codes)
 
-### Solltemperatur wird nicht übernommen
+### Target Temperature Not Applied
 
-1. Kurz warten (nächster Polling-Zyklus)
-2. Integration neu laden
-3. Logs prüfen auf API-Fehler
+1. Wait briefly (next polling cycle)
+2. Reload integration
+3. Check logs for API errors
 
 ---
 
-*Zurück: [Schalter](Switches) | Weiter: [Services](Services)*
+*Back: [Switches](Switches) | Next: [Services](Services)*

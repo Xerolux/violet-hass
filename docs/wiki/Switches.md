@@ -1,44 +1,44 @@
-# Schalter & Steuerung – Switch-Entities
+# Switches & Control – Switch Entities
 
-> Vollständige Dokumentation aller Switch-Entities des Violet Pool Controllers.
-
----
-
-## Überblick
-
-Alle Schalter des Violet Pool Controllers sind **3-State Switches**: Sie kennen nicht nur `Ein` und `Aus`, sondern auch `Automatik`. Der tatsächliche Betriebszustand wird als **State 0–6** gespeichert.
-
-| Zustand (State) | Bedeutung | Switch-Anzeige |
-|-----------------|-----------|----------------|
-| `0` – AUTO_OFF | Automatik, gerade aus | `off` |
-| `1` – MANUAL_ON | Manuell eingeschaltet | `on` |
-| `2` – AUTO_ON | Automatik, gerade an | `on` |
-| `3` – AUTO_TIMER | Automatik mit Timer, an | `on` |
-| `4` – FORCED_ON | Erzwungen an | `on` |
-| `5` – AUTO_WAITING | Automatik, wartet auf Bedingung | `off` |
-| `6` – MANUAL_OFF | Manuell ausgeschaltet | `off` |
-
-> Detaillierte State-Erklärung: [Device States](Device-States)
+> Complete documentation of all switch entities for the Violet Pool Controller.
 
 ---
 
-## Alle Switch-Entities
+## Overview
 
-### Pumpe
+All switches on the Violet Pool Controller are **3-state switches**: they support not only `On` and `Off`, but also `Automatic`. The actual operating state is stored as **State 0–6**.
 
-| Entity | Beschreibung |
+| State | Meaning | Switch Display |
+|-------|---------|----------------|
+| `0` – AUTO_OFF | Automatic, currently off | `off` |
+| `1` – MANUAL_ON | Manually turned on | `on` |
+| `2` – AUTO_ON | Automatic, currently on | `on` |
+| `3` – AUTO_TIMER | Automatic with timer, on | `on` |
+| `4` – FORCED_ON | Forced on | `on` |
+| `5` – AUTO_WAITING | Automatic, waiting for condition | `off` |
+| `6` – MANUAL_OFF | Manually turned off | `off` |
+
+> Detailed state explanation: [Device States](Device-States)
+
+---
+
+## All Switch Entities
+
+### Pump
+
+| Entity | Description |
 |--------|-------------|
-| `switch.violet_pump` | Hauptfilterpumpe (3 Geschwindigkeitsstufen) |
+| `switch.violet_pump` | Main filter pump (3 speed levels) |
 
-**Besonderheit:** Die Pumpe unterstützt 4 Geschwindigkeitsstufen (0–3). Für Geschwindigkeitssteuerung nutze den [Service `control_pump`](Services#-service-control_pump).
+**Note:** The pump supports 4 speed levels (0–3). For speed control, use the [`control_pump` service](Services#-service-control_pump).
 
 ```yaml
-# Einfaches Ein/Aus
+# Simple on/off
 service: switch.turn_on
 target:
   entity_id: switch.violet_pump
 
-# Geschwindigkeit mit Service
+# Speed with service
 service: violet_pool_controller.control_pump
 data:
   action: speed_control
@@ -48,13 +48,13 @@ data:
 
 ---
 
-### Heizung
+### Heater
 
-| Entity | Beschreibung |
+| Entity | Description |
 |--------|-------------|
-| `switch.violet_heater` | Pool-Heizung |
+| `switch.violet_heater` | Pool heater |
 
-> Für Thermostat-Steuerung mit Solltemperatur: [Climate Entities](Climate)
+> For thermostat control with target temperature: [Climate Entities](Climate)
 
 ```yaml
 service: switch.turn_on
@@ -66,12 +66,12 @@ target:
 
 ### Solar
 
-| Entity | Beschreibung |
+| Entity | Description |
 |--------|-------------|
-| `switch.violet_solar` | Solarkollektor |
+| `switch.violet_solar` | Solar collector |
 
 ```yaml
-# Nur einschalten wenn Solartemperatur > Beckenwasser
+# Only turn on when solar temperature > pool water
 automation:
   trigger:
     platform: template
@@ -86,19 +86,19 @@ automation:
 
 ---
 
-### Dosier-Pumpen
+### Dosing Pumps
 
-| Entity | Beschreibung |
+| Entity | Description |
 |--------|-------------|
-| `switch.violet_ph_minus` | pH-Senker Dosierpumpe |
-| `switch.violet_ph_plus` | pH-Heber Dosierpumpe |
-| `switch.violet_chlorine` | Chlor-Dosierpumpe |
-| `switch.violet_flocculant` | Flockmittel-Dosierpumpe |
+| `switch.violet_ph_minus` | pH reducer dosing pump |
+| `switch.violet_ph_plus` | pH increaser dosing pump |
+| `switch.violet_chlorine` | Chlorine dosing pump |
+| `switch.violet_flocculant` | Flocculant dosing pump |
 
-> **Sicherheitshinweis:** Dosier-Pumpen direkt über Switch zu steuern ist möglich, aber für präzise Dosierung nutze den [Service `smart_dosing`](Services#-service-smart_dosing).
+> **Safety note:** Controlling dosing pumps directly via switch is possible, but for precise dosing use the [`smart_dosing` service](Services#-service-smart_dosing).
 
 ```yaml
-# Empfohlen: Service mit Zeitsteuerung
+# Recommended: Service with time control
 service: violet_pool_controller.smart_dosing
 data:
   dosing_type: "pH-"
@@ -108,23 +108,23 @@ data:
 
 ---
 
-### DMX-Beleuchtung
+### DMX Lighting
 
-| Entity | Beschreibung |
+| Entity | Description |
 |--------|-------------|
-| `switch.violet_dmx_scene_1` | DMX Szene 1 |
-| `switch.violet_dmx_scene_2` | DMX Szene 2 |
-| `switch.violet_dmx_scene_3` | DMX Szene 3 |
-| `switch.violet_dmx_scene_4` | DMX Szene 4 |
-| `switch.violet_dmx_scene_5` | DMX Szene 5 |
-| `switch.violet_dmx_scene_6` | DMX Szene 6 |
-| `switch.violet_dmx_scene_7` | DMX Szene 7 |
-| `switch.violet_dmx_scene_8` | DMX Szene 8 |
+| `switch.violet_dmx_scene_1` | DMX Scene 1 |
+| `switch.violet_dmx_scene_2` | DMX Scene 2 |
+| `switch.violet_dmx_scene_3` | DMX Scene 3 |
+| `switch.violet_dmx_scene_4` | DMX Scene 4 |
+| `switch.violet_dmx_scene_5` | DMX Scene 5 |
+| `switch.violet_dmx_scene_6` | DMX Scene 6 |
+| `switch.violet_dmx_scene_7` | DMX Scene 7 |
+| `switch.violet_dmx_scene_8` | DMX Scene 8 |
 
 ```yaml
-# Beleuchtung bei Sonnenuntergang einschalten
+# Turn on lighting at sunset
 automation:
-  - alias: "Pool Beleuchtung Sonnenuntergang"
+  - alias: "Pool Lighting Sunset"
     trigger:
       - platform: sun
         event: sunset
@@ -137,22 +137,22 @@ automation:
 
 ---
 
-### Erweiterungs-Relais
+### Extension Relays
 
-| Entity | Beschreibung |
+| Entity | Description |
 |--------|-------------|
-| `switch.violet_relay_1` bis `switch.violet_relay_8` | Frei konfigurierbare Relais |
+| `switch.violet_relay_1` to `switch.violet_relay_8` | Freely configurable relays |
 
-Erweiterungs-Relais können für beliebige Geräte genutzt werden:
-- Wasserfall-Pumpe
-- Gegenstromanlage
-- Luftbläser
-- Beleuchtung (nicht-DMX)
+Extension relays can be used for various devices:
+- Waterfall pump
+- Counter-current system
+- Air blower
+- Lighting (non-DMX)
 
 ```yaml
-# Wasserfall nur wenn Pumpe läuft
+# Waterfall only when pump is running
 automation:
-  - alias: "Wasserfall mit Pumpe"
+  - alias: "Waterfall with Pump"
     trigger:
       - platform: state
         entity_id: switch.violet_pump
@@ -165,32 +165,32 @@ automation:
 
 ---
 
-## Switch-Steuerung via UI
+## Switch Control via UI
 
 ### 3-State Toggle
 
-In der Home Assistant UI zeigt jeder Switch:
-- **Grün (ON)**: Gerät aktiv (States 1, 2, 3, 4)
-- **Grau (OFF)**: Gerät inaktiv (States 0, 5, 6)
+In the Home Assistant UI, each switch shows:
+- **Green (ON)**: Device active (states 1, 2, 3, 4)
+- **Gray (OFF)**: Device inactive (states 0, 5, 6)
 
-Klicken schaltet zwischen manuell-EIN und Automatik um.
+Clicking toggles between manual-ON and Automatic mode.
 
-### State-Details anzeigen
+### View State Details
 
-Klicke auf die Entity → **Attribute** zum Anzeigen:
-- `raw_state`: Der numerische State 0–6
-- `mode`: Aktueller Betriebsmodus
-- `last_changed`: Letzter Zustandswechsel
+Click on the entity → **Attributes** to view:
+- `raw_state`: The numeric state 0–6
+- `mode`: Current operating mode
+- `last_changed`: Last state change
 
 ---
 
-## Automatisierung: Nützliche Patterns
+## Automation: Useful Patterns
 
-### Tages-Zeitplan für Pumpe
+### Daily Pump Schedule
 
 ```yaml
 automation:
-  - alias: "Pumpe Tagesprogramm"
+  - alias: "Pump Daily Program"
     trigger:
       - platform: time
         at: "08:00:00"
@@ -200,7 +200,7 @@ automation:
           action: speed_control
           speed: 2
 
-  - alias: "Pumpe Nacht Reduktion"
+  - alias: "Pump Night Reduction"
     trigger:
       - platform: time
         at: "22:00:00"
@@ -211,32 +211,32 @@ automation:
           speed: 1
 ```
 
-### Switch-State in Template-Sensor auswerten
+### Evaluate Switch State in Template Sensor
 
 ```yaml
 template:
   - sensor:
-      - name: "Pumpen-Modus"
+      - name: "Pump Mode"
         state: >
           {% set state = states('switch.violet_pump') %}
           {% set raw = state_attr('switch.violet_pump', 'raw_state') | int(-1) %}
-          {% if raw == 0 %} Automatik aus
-          {% elif raw == 1 %} Manuell an
-          {% elif raw == 2 %} Automatik an
-          {% elif raw == 3 %} Timer aktiv
-          {% elif raw == 4 %} Zwang an
-          {% elif raw == 5 %} Warten
-          {% elif raw == 6 %} Manuell aus
-          {% else %} Unbekannt
+          {% if raw == 0 %} Auto off
+          {% elif raw == 1 %} Manual on
+          {% elif raw == 2 %} Auto on
+          {% elif raw == 3 %} Timer active
+          {% elif raw == 4 %} Forced on
+          {% elif raw == 5 %} Waiting
+          {% elif raw == 6 %} Manual off
+          {% else %} Unknown
           {% endif %}
 ```
 
-### Alle Schalter auf Automatik setzen
+### Set All Switches to Automatic
 
 ```yaml
 script:
-  alle_automatik:
-    alias: "Alle Schalter auf Automatik"
+  all_automatic:
+    alias: "Set All Switches to Automatic"
     sequence:
       - service: switch.turn_off
         target:
@@ -250,9 +250,9 @@ script:
 
 ---
 
-## Composite States (Pipe-Separator)
+## Composite States (Pipe Separator)
 
-Manche Switches zeigen zusammengesetzte States:
+Some switches show composite states:
 
 ```
 "3|PUMP_ANTI_FREEZE"
@@ -260,10 +260,10 @@ Manche Switches zeigen zusammengesetzte States:
 "4|MANUAL_OVERRIDE"
 ```
 
-Das erste Segment (vor `|`) ist der numerische State (0–6).
-Das zweite Segment gibt einen operationellen Modus an.
+The first segment (before `|`) is the numeric state (0–6).
+The second segment indicates an operational mode.
 
-**In Automatisierungen prüfen:**
+**Check in automations:**
 
 ```yaml
 condition:
@@ -276,27 +276,27 @@ condition:
 
 ## Troubleshooting
 
-### Switch zeigt immer `unavailable`
+### Switch always shows `unavailable`
 
-1. Controller erreichbar? → [Troubleshooting](Troubleshooting)
-2. Feature im Setup aktiviert?
-3. Integration neu laden: Einstellungen → Geräte & Dienste → Violet → Neu laden
+1. Is the controller reachable? → [Troubleshooting](Troubleshooting)
+2. Feature enabled in setup?
+3. Reload integration: Settings → Devices & Services → Violet → Reload
 
-### Switch reagiert nicht auf Steuerung
+### Switch doesn't respond to control
 
-1. Prüfe ob Controller im manuellen Override-Modus
-2. Prüfe Logs: Einstellungen → System → Protokoll
-3. Rate-Limiting aktiv? Kurz warten und erneut versuchen
+1. Check if controller is in manual override mode
+2. Check logs: Settings → System → Logs
+3. Rate limiting active? Wait briefly and try again
 
-### Pumpe lässt sich nicht einschalten
+### Pump won't turn on
 
-Mögliche Ursachen:
-- Frostschutz aktiv (`PUMP_ANTI_FREEZE` in State)
-- Sicherheitsverriegelung aktiv (Fehlercode prüfen)
-- Druckschalter-Fehler (Error Code 20/21)
+Possible causes:
+- Frost protection active (`PUMP_ANTI_FREEZE` in state)
+- Safety lockout active (check error code)
+- Pressure switch error (Error Code 20/21)
 
-→ Siehe [Fehler-Codes](Error-Codes) für Details
+→ See [Error Codes](Error-Codes) for details
 
 ---
 
-*Zurück: [Home](Home) | Weiter: [Climate & Heizung](Climate)*
+*Back: [Home](Home) | Next: [Climate & Heating](Climate)*

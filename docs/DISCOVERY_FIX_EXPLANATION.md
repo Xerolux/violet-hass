@@ -1,41 +1,41 @@
-# ZeroConf Discovery: Korrekte Implementierung
+# ZeroConf Discovery: Correct Implementation
 
-## Das Problem
+## The Problem
 
-In meiner ursprünglichen Implementierung in `discovery.py`:
+In my original implementation in `discovery.py`:
 
 ```python
-# ❌ FALSCH - ConfigFlowHandler existiert nicht!
+# ❌ WRONG - ConfigFlowHandler does not exist!
 def async_discover_service(self, hass, service_info):
-    return config_entries.ConfigFlowHandler(  # ← Fehler!
+    return config_entries.ConfigFlowHandler(  # ← Error!
         DOMAIN,
         context={...}
     )
 ```
 
-**Fehler**: `ConfigFlowHandler` existiert nicht in Home Assistant!
+**Error**: `ConfigFlowHandler` does not exist in Home Assistant!
 
 ---
 
-## Die korrekte Lösung
+## The Correct Solution
 
-### Was ZeroConf Discovery WIRKLICH macht:
+### What ZeroConf Discovery REALLY Does:
 
-In Home Assistant werden ZeroConf discoveries **NICHT** durch `return` Statements abgewickelt!
+In Home Assistant, ZeroConf discoveries are **NOT** handled via `return` statements!
 
-Stattdessen passiert das Discovery automatisch:
+Instead, discovery happens automatically:
 
-1. **Home Assistant entdeckt Service** (automatisch via mDNS)
-2. **HA ruft `async_zeroconf_get_service_info`** auf
-3. **Diese Funktion speichert die Info** (nicht return!)
-4. **User klickt "Konfigurieren"** im UI
-5. **Config Flow wird gestartet** mit den discovered infos
+1. **Home Assistant discovers service** (automatically via mDNS)
+2. **HA calls `async_zeroconf_get_service_info`**
+3. **This function stores the info** (does not return it!)
+4. **User clicks "Configure"** in the UI
+5. **Config Flow is started** with the discovered info
 
 ---
 
-## Korrekte Implementierung
+## Correct Implementation
 
-### Datei: `discovery.py`
+### File: `discovery.py`
 
 ```python
 """ZeroConf discovery for Violet Pool Controller."""
@@ -47,7 +47,7 @@ from typing import Any
 from homeassistant import config_entries
 from homeassistant.components.zeroconf import ZeroconfServiceInfo
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.data_entry_flow import FlowResult  # Nicht ConfigFlowHandler!
+from homeassistant.data_entry_flow import FlowResult  # Not ConfigFlowHandler!
 
 from . import DOMAIN
 
@@ -69,11 +69,11 @@ class VioletPoolControllerDiscovery:
         self,
         hass: HomeAssistant,
         service_info: ZeroconfServiceInfo,
-    ) -> None:  # ← NICHTS returnen!
+    ) -> None:  # ← Return NOTHING!
         """Discover a Violet Pool Controller device.
 
-        Diese Methode wird von HA aufgerufen wenn ein Device entdeckt wird.
-        Sie speichert die Info für späteren Gebrauch.
+        This method is called by HA when a device is discovered.
+        It stores the info for later use.
 
         Args:
             hass: The Home Assistant instance.
@@ -86,7 +86,7 @@ class VioletPoolControllerDiscovery:
             service_info.port,
         )
 
-        # Speichere die discovered device info
+        # Store the discovered device info
         self._discovered_devices[service_info.name] = {
             "host": service_info.host,
             "port": service_info.port,
@@ -95,8 +95,8 @@ class VioletPoolControllerDiscovery:
             "type": service_info.type,
         }
 
-        # ❌ KEIN RETURN! Wir speichern nur die Info!
-        # Das UI zeigt automatisch discovered devices an
+        # ❌ NO RETURN! We only store the info!
+        # The UI automatically shows discovered devices
 
 
 def get_discovery_handler() -> VioletPoolControllerDiscovery:
@@ -115,7 +115,7 @@ _discovery_handler: VioletPoolControllerDiscovery | None = None
 
 ## In `__init__.py`:
 
-### Die `async_zeroconf_get_service_info` Funktion sollte so aussehen:
+### The `async_zeroconf_get_service_info` function should look like this:
 
 ```python
 @callback
@@ -123,11 +123,11 @@ def async_zeroconf_get_service_info(
     hass: HomeAssistant,
     info: ZeroconfServiceInfo,
     service_info_type: str,
-) -> FlowResult | None:  # ← Kann FlowResult oder None zurückgeben
+) -> FlowResult | None:  # ← Can return FlowResult or None
     """Handle ZeroConf discovery of Violet Pool Controller.
 
-    Wird von HA aufgerufen wenn ein _http._tcp.local. oder
-    _violet-controller._tcp.local. Service gefunden wird.
+    Called by HA when an _http._tcp.local. or
+    _violet-controller._tcp.local. service is found.
 
     Args:
         hass: The Home Assistant instance.
@@ -135,8 +135,8 @@ def async_zeroconf_get_service_info(
         service_info_type: The service type.
 
     Returns:
-        FlowResult wenn Config Flow gestartet werden soll,
-        None wenn discovery nur gespeichert werden soll.
+        FlowResult if Config Flow should be started,
+        None if discovery should only be stored.
     """
     from .discovery import get_discovery_handler
 
@@ -145,21 +145,21 @@ def async_zeroconf_get_service_info(
     # Get discovery handler
     handler = get_discovery_handler()
 
-    # Speichere die discovery info
+    # Store the discovery info
     handler.async_discover_service(hass, info)
 
-    # ❌ KEIN CONFIG FLOW HANDLER RETURNEN!
-    # HA kümmert sich automatisch darum, den Flow zu starten
-    # wenn der User auf "Konfigurieren" klickt
+    # ❌ DO NOT RETURN A CONFIG FLOW HANDLER!
+    # HA automatically takes care of starting the flow
+    # when the user clicks "Configure"
 
-    return None  # Optional: Explizit None zurückgeben
+    return None  # Optional: Explicitly return None
 ```
 
 ---
 
-## Wie der Config Flow dann discovered infos bekommt
+## How the Config Flow Gets Discovered Info
 
-### In `config_flow.py` beim Setup:
+### In `config_flow.py` during setup:
 
 ```python
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -171,14 +171,14 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input=None):
         """Handle user init."""
-        # Zeige discovered devices an wenn verfügbar
+        # Show discovered devices if available
         from .discovery import get_discovery_handler
 
         handler = get_discovery_handler()
         discovered = handler.async_get_discovered_devices()
 
         if discovered and not user_input:
-            # Zeige discovered devices im UI an
+            # Show discovered devices in UI
             return self.async_show_form(
                 step_id="user",
                 data_schema=vol.Schema({
@@ -189,12 +189,12 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 })
             )
 
-        # ... normaler Setup Flow
+        # ... normal setup flow
 ```
 
 ---
 
-## Warum meine Tests fehlschlugen
+## Why My Tests Failed
 
 ### Test Error:
 
@@ -202,15 +202,15 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 # In test_discovery.py:
 result = await handler.async_discover_service(mock_hass, mock_zeroconf_info)
 
-# Ich erwartete einen Config Flow Handler zurück:
-assert result is not None  # ❌ Das geht schief!
+# I expected a Config Flow Handler back:
+assert result is not None  # ❌ This fails!
 
-# Aber richtig ist:
-# async_discover_service gibt NICHTS zurück (None)!
-# Es speichert nur die info!
+# But the correct behavior is:
+# async_discover_service returns NOTHING (None)!
+# It only stores the info!
 ```
 
-### Korrekte Tests:
+### Correct Tests:
 
 ```python
 @pytest.mark.asyncio
@@ -219,60 +219,60 @@ async def test_async_discover_service():
     handler = VioletPoolControllerDiscovery()
     mock_hass = MagicMock(spec=HomeAssistant)
 
-    # Rufe discovery auf
+    # Call discovery
     result = handler.async_discover_service(mock_hass, mock_zeroconf_info)
 
-    # ✅ Korrekt: Gibt NICHTS zurück!
+    # ✅ Correct: Returns NOTHING!
     assert result is None
 
-    # ✅ Überprüfe dass device gespeichert wurde
+    # ✅ Verify that device was stored
     assert mock_zeroconf_info.name in handler._discovered_devices
     assert handler._discovered_devices[mock_zeroconf_info.name]["host"] == "192.168.178.55"
 ```
 
 ---
 
-## Zusammenfassung
+## Summary
 
-### ❌ Falsch (was ich gemacht habe):
+### ❌ Wrong (what I did):
 ```python
-return config_entries.ConfigFlowHandler(...)  # Klasse existiert nicht!
+return config_entries.ConfigFlowHandler(...)  # Class does not exist!
 ```
 
-### ✅ Richtig:
+### ✅ Correct:
 ```python
-# Speichere discovery info
+# Store discovery info
 self._discovered_devices[name] = {...}
-# Kein return!
+# No return!
 ```
 
 ---
 
-## Was geändert werden muss
+## What Needs to Be Changed
 
 1. **`discovery.py`**:
-   - `async_discover_service` gibt `None` zurück (nicht ConfigFlowHandler)
-   - Speichert nur device info
+   - `async_discover_service` returns `None` (not ConfigFlowHandler)
+   - Only stores device info
 
 2. **`__init__.py`**:
-   - `async_zeroconf_get_service_info` gibt `None` zurück
-   - Ruft nur discovery handler auf
+   - `async_zeroconf_get_service_info` returns `None`
+   - Only calls discovery handler
 
 3. **`test_discovery.py`**:
-   - Tests erwarten `None` als Rückgabewert
-   - Tests überprüfen `_discovered_devices` dict
+   - Tests expect `None` as return value
+   - Tests check `_discovered_devices` dict
 
 4. **`config_flow.py`** (optional):
-   - Kann discovered devices beim Setup anzeigen
-   - User wählt aus discovered devices
+   - Can show discovered devices during setup
+   - User selects from discovered devices
 
 ---
 
-**Das ist der Grund warum 4 Tests fehlgeschlagen sind!**
+**This is the reason why 4 tests failed!**
 
-Die Tests erwarteten einen `ConfigFlowHandler` zurück, aber:
-1. Die Klasse existiert nicht
-2. Die Methode gibt gar nichts zurück
-3. Sie speichert nur info
+The tests expected a `ConfigFlowHandler` back, but:
+1. The class does not exist
+2. The method returns nothing at all
+3. It only stores info
 
-**Fix**: Alle 4 Tests anpassen auf `None` Rückgabewert.
+**Fix**: Adjust all 4 tests to expect `None` return value.

@@ -1,39 +1,39 @@
-# Contributing – Mitmachen & Beitragen
+# Contributing – Participate & Contribute
 
-> Wie du zum Violet Pool Controller Projekt beitragen kannst.
-
----
-
-## Willkommen!
-
-Beiträge sind herzlich willkommen – egal ob Bug-Reports, Feature-Requests, Dokumentation oder Code. Jeder Beitrag zählt!
+> How you can contribute to the Violet Pool Controller project.
 
 ---
 
-## Arten von Beiträgen
+## Welcome!
 
-| Art | Beschreibung | Wie? |
-|-----|-------------|------|
-| **Bug-Report** | Fehler gefunden | GitHub Issue |
-| **Feature-Request** | Neue Funktion gewünscht | GitHub Issue |
-| **Pull Request** | Code oder Doku verbessert | Fork → PR |
-| **Übersetzung** | Neue Sprache hinzufügen | Fork → PR |
-| **Wiki** | Dokumentation verbessern | Fork → PR |
-| **Testing** | Integration testen | Feedback via Issue |
+Contributions are warmly welcome – whether bug reports, feature requests, documentation, or code. Every contribution counts!
 
 ---
 
-## Bug-Report erstellen
+## Types of Contributions
 
-### GitHub Issue öffnen
+| Type | Description | How? |
+|------|-------------|------|
+| **Bug Report** | Found a bug | GitHub Issue |
+| **Feature Request** | Want a new feature | GitHub Issue |
+| **Pull Request** | Improved code or docs | Fork → PR |
+| **Translation** | Add a new language | Fork → PR |
+| **Wiki** | Improve documentation | Fork → PR |
+| **Testing** | Test the integration | Feedback via Issue |
 
-[Neues Issue erstellen](https://github.com/Xerolux/violet-hass/issues/new)
+---
 
-### Ein guter Bug-Report enthält
+## Creating a Bug Report
+
+### Open a GitHub Issue
+
+[Create New Issue](https://github.com/Xerolux/violet-hass/issues/new)
+
+### A Good Bug Report Contains
 
 ```
-1. ZUSAMMENFASSUNG
-   Was ist das Problem? (1-2 Sätze)
+1. SUMMARY
+   What is the problem? (1-2 sentences)
 
 2. ENVIRONMENT
    - Home Assistant Version: 2026.x.x (Minimum: 2026.5.0)
@@ -41,172 +41,172 @@ Beiträge sind herzlich willkommen – egal ob Bug-Reports, Feature-Requests, Do
    - Controller Firmware: x.x.x
    - Python Version: 3.14.2+
 
-3. SCHRITTE ZUM REPRODUZIEREN
-   1. Integration hinzufügen mit ...
-   2. Klicke auf ...
-   3. Fehler tritt auf
+3. STEPS TO REPRODUCE
+   1. Add integration with ...
+   2. Click on ...
+   3. Error occurs
 
-4. ERWARTETES VERHALTEN
-   Was sollte passieren?
+4. EXPECTED BEHAVIOR
+   What should happen?
 
-5. TATSÄCHLICHES VERHALTEN
-   Was passiert stattdessen?
+5. ACTUAL BEHAVIOR
+   What happens instead?
 
 6. LOGS
-   Einstellungen → System → Protokoll → Filtern nach "violet"
+   Settings → System → Logs → Filter by "violet"
 ```
 
 ---
 
-## Pull Request erstellen
+## Creating a Pull Request
 
-### Schritt-für-Schritt
+### Step by Step
 
 ```bash
-# 1. Repository forken (GitHub UI)
+# 1. Fork the repository (GitHub UI)
 
-# 2. Fork klonen
-git clone https://github.com/DEIN_USERNAME/violet-hass.git
+# 2. Clone your fork
+git clone https://github.com/YOUR_USERNAME/violet-hass.git
 cd violet-hass
 
-# 3. Branch erstellen
-git checkout -b feat/neue-funktion
-# oder: fix/bug-beschreibung
+# 3. Create a branch
+git checkout -b feat/new-feature
+# or: fix/bug-description
 
-# 4. Änderungen machen
-# Code editieren...
+# 4. Make changes
+# Edit code...
 
-# 5. Code-Qualität prüfen
+# 5. Check code quality
 pip install ruff mypy
 python -m ruff check custom_components/violet_pool_controller/ --fix
 python -m mypy custom_components/violet_pool_controller/
 
-# 6. Tests ausführen
-./scripts/setup-test-env.sh  # Einmalig
+# 6. Run tests
+./scripts/setup-test-env.sh  # One-time
 ./scripts/run-tests.sh
 
-# 7. Committen (Conventional Commits)
-git add custom_components/violet_pool_controller/datei.py
-git commit -m "feat: Neue Funktion XYZ hinzugefügt"
+# 7. Commit (Conventional Commits)
+git add custom_components/violet_pool_controller/file.py
+git commit -m "feat: Added new feature XYZ"
 
-# 8. Pushen
-git push origin feat/neue-funktion
+# 8. Push
+git push origin feat/new-feature
 
-# 9. Pull Request auf GitHub erstellen
+# 9. Create Pull Request on GitHub
 ```
 
-### Branch-Naming
+### Branch Naming
 
-| Typ | Beispiel |
-|-----|---------|
+| Type | Example |
+|------|---------|
 | Feature | `feat/dmx-color-control` |
 | Bugfix | `fix/pump-state-parsing` |
-| Dokumentation | `docs/wiki-update` |
+| Documentation | `docs/wiki-update` |
 | Refactoring | `refactor/api-cleanup` |
 | Tests | `test/sensor-coverage` |
 
 ---
 
-## Commit-Nachrichten
+## Commit Messages
 
-Wir folgen [Conventional Commits](https://www.conventionalcommits.org/):
+We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
-<typ>: <kurze Beschreibung>
+<type>: <short description>
 
-[optionaler Body]
+[optional body]
 
-[optionaler Footer]
+[optional footer]
 ```
 
-### Typen
+### Types
 
-| Typ | Verwendung |
-|-----|-----------|
-| `feat` | Neue Funktion |
-| `fix` | Bug-Behebung |
-| `docs` | Dokumentation |
-| `refactor` | Code-Umstrukturierung |
-| `test` | Tests hinzufügen/ändern |
-| `chore` | Build, Dependencies, CI |
-| `perf` | Performance-Verbesserung |
+| Type | Usage |
+|------|--------|
+| `feat` | New feature |
+| `fix` | Bug fix |
+| `docs` | Documentation |
+| `refactor` | Code refactoring |
+| `test` | Add/modify tests |
+| `chore` | Build, dependencies, CI |
+| `perf` | Performance improvement |
 
-### Beispiele
+### Examples
 
 ```bash
-git commit -m "feat: Unterstützung für AI1-AI8 Analogeingänge hinzugefügt"
-git commit -m "fix: pH-Sensor zeigt falschen Wert bei negativen Zahlen"
-git commit -m "docs: Fehler-Codes Tabelle erweitert"
-git commit -m "test: Tests für Rate-Limiter Randwerte hinzugefügt"
+git commit -m "feat: Added support for AI1-AI8 analog inputs"
+git commit -m "fix: pH sensor shows wrong value for negative numbers"
+git commit -m "docs: Extended error codes table"
+git commit -m "test: Added tests for rate limiter edge cases"
 ```
 
 ---
 
-## Code-Style
+## Code Style
 
-### Linting mit Ruff
+### Linting with Ruff
 
 ```bash
-# Prüfen
+# Check
 python -m ruff check custom_components/violet_pool_controller/
 
-# Automatisch reparieren
+# Auto-fix
 python -m ruff check custom_components/violet_pool_controller/ --fix
 ```
 
-### Type Checking mit MyPy
+### Type Checking with MyPy
 
 ```bash
 python -m mypy custom_components/violet_pool_controller/
 ```
 
-### Style-Regeln
+### Style Rules
 
 ```python
-# Ja: Moderne Type-Annotations
+# Yes: Modern type annotations
 def get_value(key: str) -> float | None:
     ...
 
-# Nein: Alte Optional-Syntax
+# No: Old Optional syntax
 from typing import Optional
 def get_value(key: str) -> Optional[float]:
     ...
 
-# Ja: collections.abc
+# Yes: collections.abc
 from collections.abc import Callable
 
-# Nein: typing.Callable (deprecated)
+# No: typing.Callable (deprecated)
 from typing import Callable
 ```
 
-### Wichtige Prinzipien
+### Important Principles
 
-1. **Keine stillen Fehler:** Alle Exceptions loggen
-2. **Type Hints:** Alle öffentlichen Methoden typisieren
-3. **Docstrings:** Öffentliche Klassen und Methoden dokumentieren
-4. **Konstanten:** In `const_*.py` Dateien definieren
-5. **Tests:** Neue Funktionen mit Tests abdecken
+1. **No silent errors:** Log all exceptions
+2. **Type Hints:** Type all public methods
+3. **Docstrings:** Document public classes and methods
+4. **Constants:** Define in `const_*.py` files
+5. **Tests:** Cover new features with tests
 
 ---
 
-## Tests schreiben
+## Writing Tests
 
-### Neue Tests hinzufügen
+### Adding New Tests
 
 ```python
-# tests/test_meine_funktion.py
+# tests/test_my_feature.py
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
 from custom_components.violet_pool_controller.api import VioletPoolAPI
 
 
-class TestMeineFunktion:
-    """Tests für meine neue Funktion."""
+class TestMyFeature:
+    """Tests for my new feature."""
 
     @pytest.fixture
     def api(self):
-        """API-Fixture."""
+        """API fixture."""
         session = AsyncMock()
         return VioletPoolAPI(
             host="192.168.1.55",
@@ -214,7 +214,7 @@ class TestMeineFunktion:
         )
 
     async def test_basic_functionality(self, api):
-        """Test der Grundfunktionalität."""
+        """Test basic functionality."""
         # Arrange
         expected = 7.2
 
@@ -225,57 +225,57 @@ class TestMeineFunktion:
         assert result == expected
 
     async def test_error_handling(self, api):
-        """Test der Fehlerbehandlung."""
+        """Test error handling."""
         with pytest.raises(ValueError):
             api.parse_ph_value("invalid")
 ```
 
-### Tests ausführen
+### Running Tests
 
 ```bash
-# Alle Tests
+# All tests
 pytest tests/ -v
 
-# Einzelner Test
-pytest tests/test_meine_funktion.py -v
+# Single test
+pytest tests/test_my_feature.py -v
 
-# Mit Coverage
+# With coverage
 pytest tests/ --cov=custom_components/violet_pool_controller --cov-report=term
 
 # Details
 pytest tests/ -vv --tb=long
 ```
 
-### Test-Kriterien für PR-Merge
+### Test Criteria for PR Merge
 
-- [ ] Alle 53+ bestehenden Tests bestehen
-- [ ] Neue Funktionen haben Tests
+- [ ] All 53+ existing tests pass
+- [ ] New features have tests
 - [ ] Coverage > 80%
-- [ ] Ruff: 0 Fehler
-- [ ] MyPy: 0 Fehler
+- [ ] Ruff: 0 errors
+- [ ] MyPy: 0 errors
 
 ---
 
-## Neue Sprache hinzufügen
+## Adding a New Language
 
-### Übersetzungsdatei erstellen
+### Create Translation File
 
-1. `custom_components/violet_pool_controller/translations/en.json` als Vorlage kopieren
-2. Als `xx.json` (Sprachcode) speichern
-3. Alle Strings übersetzen
-4. PR erstellen
+1. Copy `custom_components/violet_pool_controller/translations/en.json` as a template
+2. Save as `xx.json` (language code)
+3. Translate all strings
+4. Create a PR
 
-### Unterstützte Sprachen
+### Supported Languages
 
-Aktuell: `de`, `en`, `es`, `fr`, `it`, `nl`, `pl`, `pt`, `ru`, `zh`
+Currently: `de`, `en`, `es`, `fr`, `it`, `nl`, `pl`, `pt`, `ru`, `zh`
 
 ```json
 {
   "config": {
     "step": {
       "user": {
-        "title": "Violet Pool Controller einrichten",
-        "description": "Verbindungsdaten eingeben"
+        "title": "Set up Violet Pool Controller",
+        "description": "Enter connection details"
       }
     }
   }
@@ -284,27 +284,27 @@ Aktuell: `de`, `en`, `es`, `fr`, `it`, `nl`, `pl`, `pt`, `ru`, `zh`
 
 ---
 
-## Entwicklungsumgebung einrichten
+## Setting Up the Development Environment
 
-### Lokale HA-Entwicklungsinstanz
+### Local HA Development Instance
 
 ```bash
-# Virtuelle Umgebung für Tests
+# Virtual environment for tests
 ./scripts/setup-test-env.sh
 
-# VS Code Dev Container (empfohlen)
-# .devcontainer/ öffnen → "Reopen in Container"
+# VS Code Dev Container (recommended)
+# Open .devcontainer/ → "Reopen in Container"
 # → http://localhost:8123
 ```
 
-### Abhängigkeiten installieren
+### Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 pip install -r requirements-dev.txt
 ```
 
-### Pre-Commit Hook (optional)
+### Pre-Commit Hook (Optional)
 
 ```bash
 cat > .git/hooks/pre-commit << 'EOF'
@@ -317,28 +317,28 @@ chmod +x .git/hooks/pre-commit
 
 ---
 
-## Review-Prozess
+## Review Process
 
-1. **PR öffnen** mit klarer Beschreibung
-2. **CI prüft** automatisch: Ruff, MyPy, pytest
-3. **Maintainer reviewt** den Code
-4. **Feedback** ggf. umsetzen
-5. **Merge** nach Genehmigung
+1. **Open PR** with clear description
+2. **CI checks** automatically: Ruff, MyPy, pytest
+3. **Maintainer reviews** the code
+4. **Address feedback** if needed
+5. **Merge** after approval
 
-### PR-Checkliste
+### PR Checklist
 
-- [ ] Branch von `main` erstellt
-- [ ] Beschreibung erklärt Was und Warum
-- [ ] Tests wurden ergänzt/angepasst
-- [ ] Ruff und MyPy fehlerfrei
-- [ ] Dokumentation aktualisiert
-- [ ] CHANGELOG.md Eintrag hinzugefügt
+- [ ] Branch created from `main`
+- [ ] Description explains what and why
+- [ ] Tests added/updated
+- [ ] Ruff and MyPy error-free
+- [ ] Documentation updated
+- [ ] CHANGELOG.md entry added
 
 ---
 
-## Lizenz
+## License
 
-Mit einem Beitrag stimmst du zu, dass dein Code unter der **MIT-Lizenz** veröffentlicht wird.
+By contributing, you agree that your code will be published under the **MIT License**.
 
 ```
 MIT License – Copyright (c) 2024 Xerolux
@@ -349,12 +349,12 @@ of this software and associated documentation files...
 
 ---
 
-## Fragen?
+## Questions?
 
-- **GitHub Discussions:** Für allgemeine Fragen
-- **GitHub Issues:** Für konkrete Bugs/Features
+- **GitHub Discussions:** For general questions
+- **GitHub Issues:** For specific bugs/features
 - **Email:** git@xerolux.de
 
 ---
 
-*Zurück: [Home](Home) | Weiter: [Testing](Testing)*
+*Back: [Home](Home) | Next: [Testing](Testing)*

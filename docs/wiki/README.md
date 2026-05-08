@@ -1,67 +1,67 @@
-# 🏊 Violet Pool Controller - Komplette Wiki
+# 🏊 Violet Pool Controller - Complete Wiki
 
-Willkommen in der **kompletten Dokumentation** für das Violet Pool Controller Home Assistant Addon!
+Welcome to the **complete documentation** for the Violet Pool Controller Home Assistant add-on!
 
-Hier findest du alles, was du brauchst - von der Installation bis zur Deinstallation, mit detaillierten Erklärungen aller Funktionen, States und Services.
-
----
-
-## 📚 Wiki-Inhalte
-
-### 📖 Dokumentation
-
-1. **[Installation & Setup](Installation-and-Setup.md)** - Schritt-für-Schritt Installationsanleitung
-2. **[Device States erklärt](Device-States.md)** - Was bedeuten States 0-6?
-3. **[Services & Automatisierung](Services.md)** - control_pump, smart_dosing & mehr
-4. **[Häufige Fragen (FAQ)](FAQ.md)** - 40+ Q&A
-5. **[Troubleshooting](Troubleshooting.md)** - Fehlersuche & Lösungen
+Here you will find everything you need - from installation to uninstallation, with detailed explanations of all features, states, and services.
 
 ---
 
-## ⭐ Schnelle Links
+## 📚 Wiki Contents
 
-| Situation | Seite | Zeit |
-|-----------|-------|------|
-| **Neu hier?** | [Installation & Setup](Installation-and-Setup.md) | 15 Min |
-| **States verwirrt?** | [Device States](Device-States.md) | 15 Min |
-| **Automatisieren?** | [Services](Services.md) | 20 Min |
-| **Fehler?** | [Troubleshooting](Troubleshooting.md) | 10 Min |
-| **Fragen?** | [FAQ](FAQ.md) | 5 Min |
+### 📖 Documentation
 
----
-
-## 🎯 Nach Anwendungsfall
-
-### "Ich will meine Pumpe steuern"
-1. [Device States](Device-States.md) - Verstehe die States
-2. [Services](Services.md#-service-controlpump---pumpensteuerung) - Pumpen-Control
-
-### "Ich will automatisierungen erstellen"
-1. [Services](Services.md) - Verfügbare Services
-2. [FAQ](FAQ.md#services--automatisierungen) - Tipps & Tricks
-
-### "Ich habe ein Problem"
-1. [Troubleshooting](Troubleshooting.md) - Fehlersuche
-2. [FAQ](FAQ.md) - Häufige Fragen
-3. [GitHub Issues](https://github.com/xerolux/violet-hass/issues) - Bug-Reports
+1. **[Installation & Setup](Installation-and-Setup.md)** - Step-by-step installation guide
+2. **[Device States Explained](Device-States.md)** - What do states 0-6 mean?
+3. **[Services & Automation](Services.md)** - control_pump, smart_dosing & more
+4. **[Frequently Asked Questions (FAQ)](FAQ.md)** - 40+ Q&A
+5. **[Troubleshooting](Troubleshooting.md)** - Troubleshooting & solutions
 
 ---
 
-## 📊 Wiki-Statistiken
+## ⭐ Quick Links
 
-- **5 Haupt-Dokumentseiten**
-- **1.357 Zeilen** Dokumentation
-- **60+ Code-Beispiele**
-- **40+ FAQ-Fragen**
-- **Vollständig auf Deutsch**
+| Situation | Page | Time |
+|-----------|------|------|
+| **New here?** | [Installation & Setup](Installation-and-Setup.md) | 15 Min |
+| **States confusing?** | [Device States](Device-States.md) | 15 Min |
+| **Want to automate?** | [Services](Services.md) | 20 Min |
+| **Errors?** | [Troubleshooting](Troubleshooting.md) | 10 Min |
+| **Questions?** | [FAQ](FAQ.md) | 5 Min |
 
 ---
 
-## 🔄 Auf dem neuesten Stand
+## 🎯 By Use Case
 
-Diese Wiki dokumentiert **Version 1.0.5** des Violet Pool Controller Home Assistant Addons.
+### "I want to control my pump"
+1. [Device States](Device-States.md) - Understand the states
+2. [Services](Services.md#-service-controlpump---pumpensteuerung) - Pump control
 
-Letzte Aktualisierung: **2026-04-01**
+### "I want to create automations"
+1. [Services](Services.md) - Available services
+2. [FAQ](FAQ.md#services--automatisierungen) - Tips & tricks
+
+### "I have a problem"
+1. [Troubleshooting](Troubleshooting.md) - Troubleshooting
+2. [FAQ](FAQ.md) - Frequently asked questions
+3. [GitHub Issues](https://github.com/xerolux/violet-hass/issues) - Bug reports
+
+---
+
+## 📊 Wiki Statistics
+
+- **5 main documentation pages**
+- **1,357 lines** of documentation
+- **60+ code examples**
+- **40+ FAQ questions**
+- **Fully in English**
+
+---
+
+## 🔄 Up to Date
+
+This wiki documents **version 1.0.5** of the Violet Pool Controller Home Assistant add-on.
+
+Last updated: **2026-04-01**
 
 ---
 

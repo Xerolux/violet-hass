@@ -1,25 +1,25 @@
-# Automatisierungs-Beispiele
+# Automation Examples
 
-> Copy-paste YAML-Beispiele für häufige Pool-Automatisierungen.
-
----
-
-## Schnellstart
-
-Alle Beispiele können direkt in Home Assistant eingefügt werden:
-**Einstellungen → Automatisierungen → Erstellen → YAML-Modus**
+> Copy-paste YAML examples for common pool automations.
 
 ---
 
-## Pumpen-Steuerung
+## Quick Start
 
-### Tagesprogramm (Zeitgesteuert)
+All examples can be pasted directly into Home Assistant:
+**Settings → Automations → Create → YAML Mode**
+
+---
+
+## Pump Control
+
+### Daily Schedule (Time-Based)
 
 ```yaml
-# Pumpe morgens einschalten
+# Turn pump on in the morning
 automation:
-  - alias: "Pool: Pumpe Morgens ein"
-    description: "Filterpumpe täglich um 8 Uhr einschalten"
+  - alias: "Pool: Pump On Morning"
+    description: "Turn on filter pump daily at 8 AM"
     trigger:
       - platform: time
         at: "08:00:00"
@@ -29,8 +29,8 @@ automation:
           action: speed_control
           speed: 2
 
-  - alias: "Pool: Pumpe Nachts aus"
-    description: "Filterpumpe um 22 Uhr ausschalten"
+  - alias: "Pool: Pump Off Night"
+    description: "Turn off filter pump at 10 PM"
     trigger:
       - platform: time
         at: "22:00:00"
@@ -41,12 +41,12 @@ automation:
           speed: 1
 ```
 
-### Pumpe bei Solarüberschuss hochdrehen
+### Increase Pump Speed on Solar Surplus
 
 ```yaml
 automation:
-  - alias: "Pool: Pumpe bei PV-Überschuss"
-    description: "Bei viel Solar mehr filtern"
+  - alias: "Pool: Pump on PV Surplus"
+    description: "Filter more when solar production is high"
     trigger:
       - platform: numeric_state
         entity_id: sensor.solar_production
@@ -62,7 +62,7 @@ automation:
           speed: 3
           duration: 7200
 
-  - alias: "Pool: Pumpe nach PV-Überschuss normalisieren"
+  - alias: "Pool: Normalize pump after PV surplus"
     trigger:
       - platform: numeric_state
         entity_id: sensor.solar_production
@@ -74,12 +74,12 @@ automation:
           speed: 2
 ```
 
-### Pumpe bei Frost schützen
+### Frost Protection for Pump
 
 ```yaml
 automation:
-  - alias: "Pool: Frostschutz Pumpe"
-    description: "Pumpe bei drohenden Frost einschalten"
+  - alias: "Pool: Frost Protection Pump"
+    description: "Turn on pump when frost is imminent"
     trigger:
       - platform: numeric_state
         entity_id: sensor.outside_temperature
@@ -94,20 +94,20 @@ automation:
           entity_id: switch.violet_pump
       - service: notify.mobile_app_phone
         data:
-          title: "Frost-Alarm"
-          message: "Frostschutz aktiv – Filterpumpe eingeschaltet!"
+          title: "Frost Alert"
+          message: "Frost protection active – filter pump turned on!"
 ```
 
 ---
 
-## Wasserchemie & Dosierung
+## Water Chemistry & Dosing
 
-### Automatische pH-Korrektur
+### Automatic pH Correction
 
 ```yaml
 automation:
-  - alias: "Pool: pH zu niedrig – pH+ dosieren"
-    description: "pH+ dosieren wenn pH unter 7.1 fällt"
+  - alias: "Pool: pH too low – dose pH+"
+    description: "Dose pH+ when pH drops below 7.1"
     trigger:
       - platform: numeric_state
         entity_id: sensor.violet_ph_value
@@ -128,11 +128,11 @@ automation:
           minutes: 60
       - service: notify.mobile_app_phone
         data:
-          title: "Pool pH-Alarm"
-          message: "pH war zu niedrig ({{ states('sensor.violet_ph_value') }}). pH+ wurde dosiert."
+          title: "Pool pH Alert"
+          message: "pH was too low ({{ states('sensor.violet_ph_value') }}). pH+ was dosed."
 
-  - alias: "Pool: pH zu hoch – pH- dosieren"
-    description: "pH- dosieren wenn pH über 7.6 steigt"
+  - alias: "Pool: pH too high – dose pH-"
+    description: "Dose pH- when pH rises above 7.6"
     trigger:
       - platform: numeric_state
         entity_id: sensor.violet_ph_value
@@ -151,12 +151,12 @@ automation:
           duration: 30
 ```
 
-### Chlor-Dosierung nach ORP-Wert
+### Chlorine Dosing Based on ORP Value
 
 ```yaml
 automation:
-  - alias: "Pool: Chlor nachfüllen bei niedrigem ORP"
-    description: "Chlor dosieren wenn ORP unter 650 mV fällt"
+  - alias: "Pool: Chlorine refill at low ORP"
+    description: "Dose chlorine when ORP drops below 650 mV"
     trigger:
       - platform: numeric_state
         entity_id: sensor.violet_orp_value
@@ -178,12 +178,12 @@ automation:
           duration: 45
 ```
 
-### Wöchentliche Stoßchlorierung
+### Weekly Shock Chlorination
 
 ```yaml
 automation:
-  - alias: "Pool: Wöchentliche Stoßchlorierung"
-    description: "Jeden Montag Chlor nachfüllen"
+  - alias: "Pool: Weekly Shock Chlorination"
+    description: "Refill chlorine every Monday"
     trigger:
       - platform: time
         at: "10:00:00"
@@ -200,19 +200,19 @@ automation:
           safety_override: false
       - service: notify.mobile_app_phone
         data:
-          message: "Wöchentliche Stoßchlorierung abgeschlossen"
+          message: "Weekly shock chlorination completed"
 ```
 
 ---
 
-## Temperatur & Heizung
+## Temperature & Heating
 
-### Heizung nach Zeitplan
+### Heating by Schedule
 
 ```yaml
 automation:
-  - alias: "Pool: Wochenend-Heizung"
-    description: "Wochenende: Wasser auf 30°C aufheizen"
+  - alias: "Pool: Weekend Heating"
+    description: "Weekend: Heat water to 30°C"
     trigger:
       - platform: time
         at: "06:00:00"
@@ -230,7 +230,7 @@ automation:
           temperature: 30
           hvac_mode: heat
 
-  - alias: "Pool: Wochentag Eco-Heizung"
+  - alias: "Pool: Weekday Eco Heating"
     trigger:
       - platform: time
         at: "06:00:00"
@@ -250,12 +250,12 @@ automation:
           hvac_mode: auto
 ```
 
-### Benachrichtigung wenn Pool warm genug
+### Notification When Pool Is Warm Enough
 
 ```yaml
 automation:
-  - alias: "Pool: Temperatur-Benachrichtigung"
-    description: "Info wenn Pool Badetemeratur erreicht"
+  - alias: "Pool: Temperature Notification"
+    description: "Info when pool reaches bathing temperature"
     trigger:
       - platform: numeric_state
         entity_id: sensor.violet_water_temperature
@@ -267,23 +267,23 @@ automation:
     action:
       - service: notify.mobile_app_phone
         data:
-          title: "Pool ist warm!"
+          title: "Pool is warm!"
           message: >
-            Wassertemperatur: {{ states('sensor.violet_water_temperature') }}°C
+            Water temperature: {{ states('sensor.violet_water_temperature') }}°C
             pH: {{ states('sensor.violet_ph_value') }}
             ORP: {{ states('sensor.violet_orp_value') }} mV
 ```
 
 ---
 
-## Beleuchtung & Atmosphäre
+## Lighting & Atmosphere
 
-### Abendbeleuchtung automatisch
+### Automatic Evening Lighting
 
 ```yaml
 automation:
-  - alias: "Pool: Abendbeleuchtung"
-    description: "Beleuchtung bei Sonnenuntergang einschalten"
+  - alias: "Pool: Evening Lighting"
+    description: "Turn on lighting at sunset"
     trigger:
       - platform: sun
         event: sunset
@@ -301,7 +301,7 @@ automation:
         target:
           entity_id: switch.violet_dmx_scene_1
 
-  - alias: "Pool: Beleuchtung aus bei Sonnenaufgang"
+  - alias: "Pool: Lights off at sunrise"
     trigger:
       - platform: sun
         event: sunrise
@@ -313,11 +313,11 @@ automation:
             - switch.violet_dmx_scene_2
 ```
 
-### Party-Modus
+### Party Mode
 
 ```yaml
 automation:
-  - alias: "Pool: Party-Modus aktivieren"
+  - alias: "Pool: Activate Party Mode"
     trigger:
       - platform: state
         entity_id: input_boolean.party_mode
@@ -337,7 +337,7 @@ automation:
           temperature: 30
           hvac_mode: heat
 
-  - alias: "Pool: Party-Modus deaktivieren"
+  - alias: "Pool: Deactivate Party Mode"
     trigger:
       - platform: state
         entity_id: input_boolean.party_mode
@@ -350,13 +350,13 @@ automation:
 
 ---
 
-## Cover / Abdeckung
+## Cover
 
-### Abdeckung automatisch fahren
+### Automatic Cover Control
 
 ```yaml
 automation:
-  - alias: "Pool: Abdeckung schließen bei Regen"
+  - alias: "Pool: Close cover on rain"
     trigger:
       - platform: state
         entity_id: weather.home
@@ -371,9 +371,9 @@ automation:
           entity_id: cover.violet_cover
       - service: notify.mobile_app_phone
         data:
-          message: "Pool-Abdeckung automatisch geschlossen (Regen)"
+          message: "Pool cover automatically closed (rain)"
 
-  - alias: "Pool: Abdeckung morgens öffnen"
+  - alias: "Pool: Open cover in the morning"
     trigger:
       - platform: time
         at: "09:00:00"
@@ -389,14 +389,14 @@ automation:
 
 ---
 
-## Wartungs-Erinnerungen
+## Maintenance Reminders
 
-### Kalibrierungs-Erinnerung
+### Calibration Reminder
 
 ```yaml
 automation:
-  - alias: "Pool: Kalibrierungs-Erinnerung"
-    description: "Monatliche Erinnerung zur Elektroden-Kalibrierung"
+  - alias: "Pool: Calibration Reminder"
+    description: "Monthly reminder for electrode calibration"
     trigger:
       - platform: time
         at: "10:00:00"
@@ -407,20 +407,20 @@ automation:
     action:
       - service: notify.mobile_app_phone
         data:
-          title: "Pool Wartung"
+          title: "Pool Maintenance"
           message: >
-            Monatliche Erinnerung:
-            - pH-Elektrode kalibrieren
-            - ORP-Elektrode prüfen
-            - Filter reinigen
-            - Kanister-Füllstände prüfen
+            Monthly reminder:
+            - Calibrate pH electrode
+            - Check ORP electrode
+            - Clean filter
+            - Check canister fill levels
 ```
 
-### Wochencheck mit Statusbericht
+### Weekly Check with Status Report
 
 ```yaml
 automation:
-  - alias: "Pool: Wöchentlicher Statusbericht"
+  - alias: "Pool: Weekly Status Report"
     trigger:
       - platform: time
         at: "09:00:00"
@@ -431,25 +431,25 @@ automation:
     action:
       - service: notify.mobile_app_phone
         data:
-          title: "Pool Wochencheck"
+          title: "Pool Weekly Check"
           message: >
-            Wasser: {{ states('sensor.violet_water_temperature') }}°C
+            Water: {{ states('sensor.violet_water_temperature') }}°C
             pH: {{ states('sensor.violet_ph_value') }}
             ORP: {{ states('sensor.violet_orp_value') }} mV
-            Chlor: {{ states('sensor.violet_chlorine') }} mg/l
-            Pumpe: {{ states('switch.violet_pump') }}
-            Heizung: {{ states('climate.violet_heater') }}
+            Chlorine: {{ states('sensor.violet_chlorine') }} mg/l
+            Pump: {{ states('switch.violet_pump') }}
+            Heater: {{ states('climate.violet_heater') }}
 ```
 
 ---
 
-## Alarme & Benachrichtigungen
+## Alarms & Notifications
 
-### Alarmanlage für kritische Werte
+### Alarm System for Critical Values
 
 ```yaml
 automation:
-  - alias: "Pool: Kritischer pH-Alarm"
+  - alias: "Pool: Critical pH Alarm"
     trigger:
       - platform: numeric_state
         entity_id: sensor.violet_ph_value
@@ -457,12 +457,12 @@ automation:
     action:
       - service: notify.mobile_app_phone
         data:
-          title: "ALARM: Pool pH kritisch!"
+          title: "ALARM: Pool pH Critical!"
           message: >
-            pH-Wert: {{ states('sensor.violet_ph_value') }}
-            Sofort pH+ dosieren!
+            pH Value: {{ states('sensor.violet_ph_value') }}
+            Dose pH+ immediately!
 
-  - alias: "Pool: Temperaturfühler-Alarm"
+  - alias: "Pool: Temperature Sensor Alarm"
     trigger:
       - platform: state
         entity_id: sensor.violet_water_temperature
@@ -472,20 +472,20 @@ automation:
     action:
       - service: notify.mobile_app_phone
         data:
-          title: "Pool Sensor-Ausfall"
-          message: "Temperaturfühler meldet keinen Wert!"
+          title: "Pool Sensor Failure"
+          message: "Temperature sensor not reporting a value!"
 ```
 
 ---
 
-## Blueprint: Fertige Vorlagen
+## Blueprints: Ready-Made Templates
 
-Das Repository enthält fertige Blueprints im Verzeichnis `blueprints/automation/`.
+The repository contains ready-made blueprints in the `blueprints/automation/` directory.
 
 **Installation:**
-1. Blueprint-Datei in `config/blueprints/automation/violet_pool/` kopieren
-2. Einstellungen → Automatisierungen → Blueprints → Importieren
+1. Copy blueprint file to `config/blueprints/automation/violet_pool/`
+2. Settings → Automations → Blueprints → Import
 
 ---
 
-*Zurück: [Services](Services) | Weiter: [Troubleshooting](Troubleshooting)*
+*Back: [Services](Services) | Next: [Troubleshooting](Troubleshooting)*

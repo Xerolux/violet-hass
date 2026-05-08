@@ -1,25 +1,25 @@
-# Erweiterte Protokollierung & Diagnose-Tools
+# Advanced Logging & Diagnostic Tools
 
-Diese Wiki-Seite beschreibt die leistungsstarken Diagnose-Features der Violet Pool Controller Home Assistant Integration für Fehlersuche und Performance-Analyse.
+This wiki page describes the powerful diagnostic features of the Violet Pool Controller Home Assistant integration for troubleshooting and performance analysis.
 
-## Funktionsübersicht
+## Feature Overview
 
-### 1. 🔍 Diagnose-Protokollierung (Extended Logging)
+### 1. 🔍 Diagnostic Logging (Extended Logging)
 
-Wenn aktiviert, protokolliert das System detaillierte Informationen zu jedem Update-Zyklus:
+When enabled, the system logs detailed information for each update cycle:
 
-| Information | Beschreibung |
+| Information | Description |
 |---|---|
-| **Update-Zähler** | Nummer des aktuellen Update-Zyklus |
-| **Anzahl Keys** | Wie viele Werte vom Controller geholt wurden |
-| **Abrufdauer** | Wie lange die API-Abfrage gedauert hat (in Millisekunden) |
-| **Geänderte Keys** | Welche Werte sich seit dem letzten Update geändert haben |
-| **Verbindungsmetriken** | Signalstärke, Latenz und Verbindungsinformationen |
-| **Beispieldaten** | Aktuelle Messwerte (Temperatur, pH-Wert, etc.) |
+| **Update Counter** | Number of the current update cycle |
+| **Key Count** | How many values were fetched from the controller |
+| **Fetch Duration** | How long the API query took (in milliseconds) |
+| **Changed Keys** | Which values have changed since the last update |
+| **Connection Metrics** | Signal strength, latency, and connection information |
+| **Sample Data** | Current measurements (temperature, pH value, etc.) |
 
-Diese detaillierten Logs helfen beim Debugging von Problemen und bei der Performance-Analyse.
+These detailed logs help with debugging issues and performance analysis.
 
-**Beispiel-Ausgabe:**
+**Example Output:**
 ```
 [2025-02-24 12:30:45] Update #127 - 42 keys fetched in 245ms
 Changed keys: temperature_pool, ph_value, heater_status
@@ -27,56 +27,56 @@ Connection: Latency 52ms, Signal Quality: 92%
 Sample data: Pool Temp: 24.5°C, pH: 7.2, ORP: 650mV
 ```
 
-### 2. ⏱️ Force Update (Erzwungene Updates)
+### 2. ⏱️ Force Update (Forced Updates)
 
-Diese Funktion steuert, wann die Entitäten ihren `last_updated` Zeitstempel aktualisieren:
+This feature controls when entities update their `last_updated` timestamp:
 
-| Einstellung | Verhalten | Verwendungsfall |
+| Setting | Behavior | Use Case |
 |---|---|---|
-| **Deaktiviert** ✓ Standard | Zeitstempel nur bei Wertänderungen | Normale Nutzung |
-| **Aktiviert** | Zeitstempel bei jedem Zyklus | Verifikation der Verbindung |
+| **Disabled** ✓ Default | Timestamp only on value changes | Normal usage |
+| **Enabled** | Timestamp on every cycle | Connection verification |
 
-**Wann ist es sinnvoll?**
-- Überprüfung, dass der Controller aktiv ist und Daten sendet
-- Verifizierung, dass die Integration regelmäßig Daten abruft
-- Bestätigung, dass Automatisierungen die aktuellen Werte verwenden
+**When is it useful?**
+- Verify that the controller is active and sending data
+- Verify that the integration is regularly fetching data
+- Confirm that automations are using current values
 
-### 3 📊 Log-Export-Service
+### 3 📊 Log Export Service
 
-Mit diesem Service können Sie zwischen 10 und 1.000 aktuelle Log-Zeilen exportieren und als Textdatei speichern.
+This service allows you to export between 10 and 1,000 recent log lines and save them as a text file.
 
-**Export-Format:**
-- **Dateiname:** `violet_diagnostic_YYYYMMDD_HHMMSS.txt`
-- **Speicherort:** `/config/` Verzeichnis
-- **Typische Größe:** 12–157 KB
-- **Optionen:** Timestamps und Systeminfos
+**Export Format:**
+- **Filename:** `violet_diagnostic_YYYYMMDD_HHMMSS.txt`
+- **Location:** `/config/` directory
+- **Typical Size:** 12–157 KB
+- **Options:** Timestamps and system info
 
-## 🚀 Schnellstart
+## 🚀 Quick Start
 
-### Aktivierung über die Home Assistant UI
+### Activation via Home Assistant UI
 
-1. Öffnen Sie **Einstellungen** → **Geräte & Services**
-2. Suchen Sie nach **Violet Pool Controller**
-3. Klicken Sie auf **Konfigurieren**
-4. Aktivieren Sie:
-   - ☑️ **Extended Logging** (Erweiterte Protokollierung)
+1. Open **Settings** → **Devices & Services**
+2. Search for **Violet Pool Controller**
+3. Click **Configure**
+4. Enable:
+   - ☑️ **Extended Logging**
    - ☑️ **Force Update** (optional)
 
-### Log exportieren
+### Export Logs
 
-1. Öffnen Sie **Entwickler-Tools** → **Services**
-2. Wählen Sie Service: `violet_pool_controller.log_export`
-3. Geben Sie ein:
-   - `line_count: 200` (Anzahl der zu exportierenden Zeilen)
-   - `include_timestamp: true` (mit Zeitstempel)
-   - `include_system_info: true` (mit System-Infos)
-4. Klicken Sie auf **Aufrufen**
-5. Finden Sie die Datei im Verzeichnis `/config/`
+1. Open **Developer Tools** → **Services**
+2. Select service: `violet_pool_controller.log_export`
+3. Enter:
+   - `line_count: 200` (number of lines to export)
+   - `include_timestamp: true` (with timestamp)
+   - `include_system_info: true` (with system info)
+4. Click **Call Service**
+5. Find the file in the `/config/` directory
 
-### YAML-Beispiel
+### YAML Example
 
 ```yaml
-# In einer Automatisierung oder einem Skript:
+# In an automation or script:
 service: violet_pool_controller.log_export
 data:
   line_count: 500
@@ -84,94 +84,94 @@ data:
   include_system_info: true
 ```
 
-## 🛠️ Verwendungsszenarien
+## 🛠️ Usage Scenarios
 
-### Szenario 1: Unzureichend reagierende Sensoren
+### Scenario 1: Unresponsive Sensors
 
-**Problem:** Ein Sensor aktualisiert sich nicht regelmäßig.
+**Problem:** A sensor is not updating regularly.
 
-**Lösung:**
-1. Aktivieren Sie **Extended Logging**
-2. Warten Sie 2–3 Minuten
-3. Exportieren Sie 200 Log-Zeilen
-4. Prüfen Sie, ob der Sensor in den Logs auftaucht und sich ändert
+**Solution:**
+1. Enable **Extended Logging**
+2. Wait 2–3 minutes
+3. Export 200 log lines
+4. Check whether the sensor appears in the logs and changes
 
-### Szenario 2: Langsame API-Abfragen
+### Scenario 2: Slow API Queries
 
-**Problem:** Die Integration antwortet langsam.
+**Problem:** The integration is responding slowly.
 
-**Lösung:**
-1. Aktivieren Sie **Extended Logging**
-2. Notieren Sie die `Abrufdauer` in mehreren Log-Einträgen
-3. Wenn Werte > 1000ms:
-   - Überprüfen Sie die Netzwerk-Verbindung
-   - Reduzieren Sie Scan-Intervalle in anderen Integrationen
-   - Kontaktieren Sie Support mit Log-Export
+**Solution:**
+1. Enable **Extended Logging**
+2. Note the `Fetch Duration` across several log entries
+3. If values > 1000ms:
+   - Check the network connection
+   - Reduce scan intervals in other integrations
+   - Contact support with log export
 
-### Szenario 3: Verbindungsprobleme
+### Scenario 3: Connection Issues
 
-**Problem:** "Verbindung zum Controller verloren"-Fehlermeldungen.
+**Problem:** "Connection to controller lost" error messages.
 
-**Lösung:**
-1. Aktivieren Sie beide: **Extended Logging** + **Force Update**
-2. Sammeln Sie 3–5 Minuten Logs
-3. Exportieren Sie und prüfen Sie auf Verbindungsabbrüche
-4. Teilen Sie die Diagnostik mit Support
+**Solution:**
+1. Enable both: **Extended Logging** + **Force Update**
+2. Collect 3–5 minutes of logs
+3. Export and check for connection drops
+4. Share the diagnostics with support
 
-### Szenario 4: Automatisierungen arbeiten nicht
+### Scenario 4: Automations Not Working
 
-**Problem:** Eine Automatisierung triggert nicht, obwohl sich der Wert ändert.
+**Problem:** An automation does not trigger even though the value changes.
 
-**Lösung:**
-1. Aktivieren Sie **Extended Logging**
-2. Rufen Sie die Aktion manuell am Controller aus
-3. Prüfen Sie die Logs auf `Changed keys`
-4. Vergleichen Sie mit Ihrer Automatisierungs-Bedingung
+**Solution:**
+1. Enable **Extended Logging**
+2. Trigger the action manually on the controller
+3. Check the logs for `Changed keys`
+4. Compare with your automation condition
 
 ## ⚙️ Best Practices
 
-### ✓ Do's (Was Sie tun sollten)
+### ✓ Do's
 
-- ✅ **Deaktivieren Sie Extended Logging nach dem Debugging** – Dies reduziert Log-Dateigröße und CPU-Nutzung
-- ✅ **Sammeln Sie gezielt 2–3 Minuten Logs** beim Auftreten eines Problems
-- ✅ **Exportieren Sie Logs statt sie ständig zu protokollieren**
-- ✅ **Nutzen Sie `line_count: 100–500`** für aussagekräftige Exports ohne Überfluss
-- ✅ **Löschen Sie alte Export-Dateien** aus `/config/` regelmäßig
+- ✅ **Disable Extended Logging after debugging** – This reduces log file size and CPU usage
+- ✅ **Collect 2–3 minutes of logs** when an issue occurs
+- ✅ **Export logs instead of continuously logging**
+- ✅ **Use `line_count: 100–500`** for meaningful exports without excess
+- ✅ **Delete old export files** from `/config/` regularly
 
-### ✗ Don'ts (Was Sie vermeiden sollten)
+### ✗ Don'ts
 
-- ❌ **Lassen Sie Extended Logging dauerhaft aktiviert** – Verschleißt die Log-Dateien unnötig
-- ❌ **Exportieren Sie 10.000+ Zeilen auf einmal** – Zu große Dateien, schwer zu analysieren
-- ❌ **Ignorieren Sie hohe Abrufdauern** – Dies deutet auf Netzwerk- oder Hardware-Probleme hin
-- ❌ **Aktivieren Sie Force Update ohne Grund** – Verschleißt den Speicher unnötig
+- ❌ **Leave Extended Logging enabled permanently** – Wears out log files unnecessarily
+- ❌ **Export 10,000+ lines at once** – Files too large, hard to analyze
+- ❌ **Ignore high fetch durations** – This indicates network or hardware issues
+- ❌ **Enable Force Update without reason** – Wears out storage unnecessarily
 
-## 📋 Schritt-für-Schritt Fehlerbehebung
+## 📋 Step-by-Step Troubleshooting
 
-### Debug-Workflow
+### Debug Workflow
 
 ```
-1. Problem beobachten (z.B. Sensor antwortet nicht)
+1. Observe the problem (e.g. sensor not responding)
         ↓
-2. Extended Logging AKTIVIEREN
+2. ENABLE Extended Logging
         ↓
-3. Problem reproduzieren (2–3 Minuten warten)
+3. Reproduce the problem (wait 2–3 minutes)
         ↓
-4. Log-Export durchführen
+4. Perform log export
         ↓
-5. Extended Logging DEAKTIVIEREN ← Wichtig!
+5. DISABLE Extended Logging ← Important!
         ↓
-6. Export-Datei analysieren
+6. Analyze export file
         ↓
-7. Lösung implementieren oder Support kontaktieren
+7. Implement solution or contact support
 ```
 
-## 🔧 Erweiterte Konfiguration
+## 🔧 Advanced Configuration
 
-### Automatische Log-Erfassung bei Fehlern
+### Automatic Log Capture on Errors
 
 ```yaml
 automation:
-  - alias: "Violet Fehler - Logs exportieren"
+  - alias: "Violet Error - Export Logs"
     trigger:
       platform: state
       entity_id: binary_sensor.violet_pool_controller_connection
@@ -183,11 +183,11 @@ automation:
         include_system_info: true
 ```
 
-### Regelmäßige Diagnose-Snapshots
+### Regular Diagnostic Snapshots
 
 ```yaml
 automation:
-  - alias: "Täglich Diagnose-Snapshot"
+  - alias: "Daily Diagnostic Snapshot"
     trigger:
       platform: time
       at: "01:00:00"
@@ -197,29 +197,29 @@ automation:
         line_count: 200
 ```
 
-## ❓ Häufig gestellte Fragen
+## ❓ Frequently Asked Questions
 
-**F: Wirkt sich Extended Logging auf die Performance aus?**
-> A: Ja, geringfügig. Die CPU-Nutzung steigt um ~5–10%. Deshalb sollte es nur beim Debugging aktiv sein.
+**Q: Does Extended Logging affect performance?**
+> A: Yes, slightly. CPU usage increases by ~5–10%. Therefore it should only be active during debugging.
 
-**F: Wie lange sollte ich Extended Logging aktiviert lassen?**
-> A: Maximal 10–15 Minuten. Danach sollten genug Daten für eine Analyse vorhanden sein.
+**Q: How long should I keep Extended Logging enabled?**
+> A: Maximum 10–15 minutes. After that, there should be enough data for analysis.
 
-**F: Wo genau werden Log-Dateien gespeichert?**
-> A: Im `/config/` Verzeichnis Ihrer Home Assistant Installation. Via SSH: `ls -la /config/ | grep violet_diagnostic`
+**Q: Where exactly are log files stored?**
+> A: In the `/config/` directory of your Home Assistant installation. Via SSH: `ls -la /config/ | grep violet_diagnostic`
 
-**F: Kann ich die Logs automatisch löschen?**
-> A: Ja, mit einem Automation-Skript oder manuell. Alte Dateien: `rm /config/violet_diagnostic_*.txt`
+**Q: Can I delete the logs automatically?**
+> A: Yes, with an automation script or manually. Old files: `rm /config/violet_diagnostic_*.txt`
 
-**F: Was ist der Unterschied zwischen Extended Logging und Home Assistant Logs?**
-> A: Extended Logging zeigt Controller-spezifische Metriken. HA-Logs zeigen Integrations-Fehler. Beide sind hilfreich!
+**Q: What is the difference between Extended Logging and Home Assistant Logs?**
+> A: Extended Logging shows controller-specific metrics. HA logs show integration errors. Both are helpful!
 
-## 📞 Support & Weitere Ressourcen
+## 📞 Support & Further Resources
 
 - **GitHub Issues:** [Violet Pool Controller Issues](https://github.com/Xerolux/violet-hass/issues)
 - **Home Assistant Docs:** [Logging Documentation](https://www.home-assistant.io/docs/logging/)
-- **Hauptdokumentation:** [[Home]] oder [README.md](https://github.com/Xerolux/violet-hass/blob/main/README.md)
+- **Main Documentation:** [[Home]] or [README.md](https://github.com/Xerolux/violet-hass/blob/main/README.md)
 
 ---
 
-**Tipp:** Speichern Sie aussagekräftige Log-Exports bevor Sie Support kontaktieren – sie helfen bei der schnelleren Problemlösung! 🚀
+**Tip:** Save meaningful log exports before contacting support – they help speed up problem resolution! 🚀

@@ -3,29 +3,29 @@
 
 ---
 
-## 📋 Projekt-Übersicht
+## 📋 Project Overview
 
-### Ziel
-Eine dedizierte, visuell ansprechende Lovelace Card für die Violet Pool Controller Integration, die alle Funktionen in einer kompakten, benutzerfreundlichen UI darstellt.
+### Goal
+A dedicated, visually appealing Lovelace card for the Violet Pool Controller integration that presents all functions in a compact, user-friendly UI.
 
 ### Inspiration
-- **Multiple Entity Row**: Kompakte Multi-Entity-Darstellung
-- **Mushroom Cards**: Moderne, cleane UI mit Icons
-- **Better Sliders**: Intuitive Slider-Steuerung
+- **Multiple Entity Row**: Compact multi-entity display
+- **Mushroom Cards**: Modern, clean UI with icons
+- **Better Sliders**: Intuitive slider controls
 
-### Besonderheit
-**All-in-One Card pro Entity**: Jede Entität (Pumpe, Heizung, Solar, Dosierung) bekommt eine eigene Card, die:
-- ✅ Aktuellen State anzeigt (ON/OFF/AUTO/MANUAL)
-- ✅ Blockierungsgründe visualisiert (Frost, Außentemp, etc.)
-- ✅ Speed/Geschwindigkeit steuert (Slider für Pumpe)
-- ✅ Zielwerte einstellt (pH, ORP, Temperatur)
-- ✅ Grenzwerte anzeigt (Min/Max)
-- ✅ Lesen UND Schreiben ermöglicht
-- ✅ Responsive Design (Desktop/Tablet/Mobile)
+### Key Feature
+**All-in-One Card per Entity**: Each entity (pump, heater, solar, dosing) gets its own card that:
+- ✅ Displays current state (ON/OFF/AUTO/MANUAL)
+- ✅ Visualizes blocking reasons (frost, outdoor temp, etc.)
+- ✅ Controls speed/velocity (slider for pump)
+- ✅ Sets target values (pH, ORP, temperature)
+- ✅ Shows limits (Min/Max)
+- ✅ Enables reading AND writing
+- ✅ Responsive design (Desktop/Tablet/Mobile)
 
 ---
 
-## 🎯 Features & Funktionen
+## 🎯 Features & Functions
 
 ### 1. **Pump Card** 🚀
 ```yaml
@@ -34,18 +34,18 @@ entity: switch.violet_pool_pump
 card_type: pump
 
 Features:
-  - Status Badge (OFF/ON/AUTO/MANUAL) mit Farbe
-  - Detail-Status (z.B. "Pump Anti Freeze" in Stufe 2)
-  - Speed Slider (0-3) mit Labels (OFF/ECO/Normal/Boost)
+  - Status Badge (OFF/ON/AUTO/MANUAL) with color
+  - Detail status (e.g. "Pump Anti Freeze" at level 2)
+  - Speed Slider (0-3) with labels (OFF/ECO/Normal/Boost)
   - Quick Actions: OFF / AUTO / ECO / Normal / Boost
   - Runtime Counter
-  - Icon Animation bei Betrieb
+  - Icon animation when running
 ```
 
 **Visual Mock-up:**
 ```
 ┌─────────────────────────────────────────┐
-│ 🔵 Pumpe              [AUTO] [Stufe 2] │
+│ 🔵 Pump              [AUTO] [Level 2]  │
 │                                         │
 │ Status: Pump Anti Freeze                │
 │                                         │
@@ -54,7 +54,7 @@ Features:
 │                                         │
 │ [OFF] [AUTO] [ECO] [Normal] [Boost]    │
 │                                         │
-│ ⏱️ Laufzeit: 2h 34min                   │
+│ ⏱️ Runtime: 2h 34min                    │
 └─────────────────────────────────────────┘
 ```
 
@@ -66,24 +66,24 @@ card_type: heater
 
 Features:
   - Status Badge (OFF/HEAT/AUTO)
-  - Blockierungsgrund (z.B. "Blocked By Outside Temp")
-  - Zieltemperatur Slider (18-35°C)
-  - Aktuelle Temperatur groß angezeigt
-  - Außentemperatur Indikator
+  - Blocking reason (e.g. "Blocked By Outside Temp")
+  - Target temperature slider (18-35°C)
+  - Current temperature displayed large
+  - Outdoor temperature indicator
   - Quick Actions: OFF / AUTO / HEAT
 ```
 
 **Visual Mock-up:**
 ```
 ┌─────────────────────────────────────────┐
-│ 🔥 Heizung            [AUTO] [Blocked]  │
+│ 🔥 Heater            [AUTO] [Blocked]   │
 │                                         │
 │ 🌡️ 24.5°C → 26.0°C                     │
 │                                         │
 │ Status: Blocked By Outside Temp         │
-│ Außen: 14.0°C (Min: 14.5°C)            │
+│ Outdoor: 14.0°C (Min: 14.5°C)          │
 │                                         │
-│ Ziel: ━━━━━━━●━━━━━━━━━━━━━━━━━━━━━━━ │
+│ Target: ━━━━━━━●━━━━━━━━━━━━━━━━━━━━━━━ │
 │      18°C          26°C            35°C │
 │                                         │
 │ [OFF] [AUTO] [HEAT]                     │
@@ -98,10 +98,10 @@ card_type: solar
 
 Features:
   - Status Badge (OFF/ON/AUTO)
-  - Detail-Status (z.B. "Solar Anti Freeze")
-  - Absorber-Temperatur vs Pool-Temperatur
-  - Zieltemperatur Slider
-  - Temperatur-Differenz Anzeige
+  - Detail status (e.g. "Solar Anti Freeze")
+  - Absorber temperature vs pool temperature
+  - Target temperature slider
+  - Temperature difference display
   - Quick Actions: OFF / AUTO / ON
 ```
 
@@ -111,11 +111,11 @@ Features:
 │ ☀️ Solar              [AUTO] [OFF]      │
 │                                         │
 │ 🌡️ Pool: 24.5°C  Absorber: 18.3°C      │
-│ Δ -6.2°C (zu kalt für Heizen)          │
+│ Δ -6.2°C (too cold for heating)         │
 │                                         │
 │ Status: Solar Anti Freeze               │
 │                                         │
-│ Ziel: ━━━━━━━●━━━━━━━━━━━━━━━━━━━━━━━ │
+│ Target: ━━━━━━━●━━━━━━━━━━━━━━━━━━━━━━━ │
 │      18°C          25°C            32°C │
 │                                         │
 │ [OFF] [AUTO] [ON]                       │
@@ -130,53 +130,53 @@ card_type: dosing
 dosing_type: chlorine  # or ph_minus, ph_plus, flocculant
 
 Features:
-  - Status Badge (OFF/ON/AUTO) mit Blockierungsgründen
-  - Aktueller Wert (ORP/pH) groß angezeigt
-  - Zielwert Slider
-  - Grenzwerte (Min/Max) visualisiert
-  - Dosiermengen-History
-  - Blockierungsgründe als Chips
+  - Status Badge (OFF/ON/AUTO) with blocking reasons
+  - Current value (ORP/pH) displayed large
+  - Target value slider
+  - Limits (Min/Max) visualized
+  - Dosing quantity history
+  - Blocking reasons as chips
   - Quick Actions: OFF / AUTO / Manual Dose
 ```
 
-**Visual Mock-up (Chlor):**
+**Visual Mock-up (Chlorine):**
 ```
 ┌─────────────────────────────────────────┐
-│ 💧 Chlor Dosierung    [AUTO] [Blocked]  │
+│ 💧 Chlorine Dosing    [AUTO] [Blocked]  │
 │                                         │
 │ 🧪 650.5 mV → 700 mV                    │
 │                                         │
-│ ⚠️ Blocked By Tresholds                │
-│ ⚠️ Tresholds Reached                   │
+│ ⚠️ Blocked By Thresholds               │
+│ ⚠️ Thresholds Reached                   │
 │                                         │
-│ Ziel: ━━━━━━━━━━━●━━━━━━━━━━━━━━━━━━━ │
+│ Target: ━━━━━━━━━━━●━━━━━━━━━━━━━━━━━━━ │
 │      600mV        700mV          800mV  │
 │                                         │
 │ Min: 650mV  |  Max: 750mV              │
 │                                         │
-│ [OFF] [AUTO] [Dosieren (30s)]          │
+│ [OFF] [AUTO] [Dose (30s)]              │
 │                                         │
-│ 📊 Letzte 24h: 450ml                    │
+│ 📊 Last 24h: 450ml                      │
 └─────────────────────────────────────────┘
 ```
 
 **Visual Mock-up (pH):**
 ```
 ┌─────────────────────────────────────────┐
-│ 🧪 pH- Dosierung      [AUTO] [Active]   │
+│ 🧪 pH- Dosing         [AUTO] [Active]   │
 │                                         │
 │ 📊 7.8 → 7.2                            │
 │                                         │
-│ ✅ OK - Aktive Dosierung                │
+│ ✅ OK - Active Dosing                   │
 │                                         │
-│ Ziel: ━━━●━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
+│ Target: ━━━●━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
 │      6.8          7.2              7.8  │
 │                                         │
 │ Min: 7.0  |  Max: 7.4                  │
 │                                         │
-│ [OFF] [AUTO] [Dosieren (30s)]          │
+│ [OFF] [AUTO] [Dose (30s)]              │
 │                                         │
-│ 📊 Letzte 24h: 120ml                    │
+│ 📊 Last 24h: 120ml                      │
 └─────────────────────────────────────────┘
 ```
 
@@ -186,12 +186,12 @@ type: custom:violet-pool-card
 card_type: overview
 
 Features:
-  - Alle wichtigen Status auf einen Blick
-  - Wasserchemie (pH, ORP, Chlor) mit Ampel
-  - Temperaturen (Pool, Solar, Heizung)
-  - Aktive Geräte mit Icons
-  - Warnungen/Blockierungen prominent
-  - Quick Actions für alle Geräte
+  - All important statuses at a glance
+  - Water chemistry (pH, ORP, Chlorine) with traffic light
+  - Temperatures (Pool, Solar, Heater)
+  - Active devices with icons
+  - Warnings/Blockages prominent
+  - Quick actions for all devices
 ```
 
 **Visual Mock-up:**
@@ -202,88 +202,88 @@ Features:
 │ 🌡️ 24.5°C  |  🧪 pH 7.2  |  ⚡ 650mV   │
 │   ✅ OK        ✅ OK         ⚠️ Low     │
 │                                         │
-│ Aktive Geräte:                          │
-│ 🔵 Pumpe (Auto, Stufe 2, Anti-Freeze)   │
-│ ❌ Heizung (Blocked by Outside Temp)    │
+│ Active Devices:                          │
+│ 🔵 Pump (Auto, Level 2, Anti-Freeze)    │
+│ ❌ Heater (Blocked by Outside Temp)     │
 │ ❌ Solar (Anti-Freeze)                  │
-│ 💧 Chlor (Blocked by Tresholds)        │
+│ 💧 Chlorine (Blocked by Thresholds)    │
 │ ✅ pH- (Active Dosing)                  │
 │                                         │
-│ Warnungen:                              │
-│ ⚠️ ORP zu niedrig - Chlor dosieren      │
-│ ℹ️ Frostschutz aktiv (14°C)            │
+│ Warnings:                                │
+│ ⚠️ ORP too low - Dose chlorine           │
+│ ℹ️ Frost protection active (14°C)       │
 └─────────────────────────────────────────┘
 ```
 
-### 6. **Compact Card** (für Dashboards)
+### 6. **Compact Card** (for Dashboards)
 ```yaml
 type: custom:violet-pool-card
 entity: switch.violet_pool_pump
 card_type: compact
-show_controls: false  # Nur Status, keine Steuerung
+show_controls: false  # Status only, no controls
 
 Features:
-  - Eine Zeile pro Entity
-  - Status Badge + Wert + Detail
-  - Click → Modal mit Full Card
-  - Perfekt für Übersichts-Dashboards
+  - One line per entity
+  - Status Badge + Value + Detail
+  - Click → Modal with full card
+  - Perfect for overview dashboards
 ```
 
 **Visual Mock-up:**
 ```
 ┌─────────────────────────────────────────┐
-│ 🔵 Pumpe        [AUTO] Stufe 2 (Anti-F) │
-│ 🔥 Heizung      [AUTO] Blocked (14°C)   │
+│ 🔵 Pump        [AUTO] Level 2 (Anti-F) │
+│ 🔥 Heater      [AUTO] Blocked (14°C)   │
 │ ☀️ Solar        [AUTO] Anti-Freeze      │
-│ 💧 Chlor        [AUTO] Blocked (650mV)  │
+│ 💧 Chlorine    [AUTO] Blocked (650mV)  │
 │ 🧪 pH-          [AUTO] Active (7.8)     │
 └─────────────────────────────────────────┘
 ```
 
 ---
 
-## 🏗️ Technische Architektur
+## 🏗️ Technical Architecture
 
-### Repository Struktur
+### Repository Structure
 ```
 violet-pool-card/
 ├── src/
 │   ├── violet-pool-card.ts          # Main card class
 │   ├── cards/
-│   │   ├── pump-card.ts              # Pump-spezifische Card
-│   │   ├── heater-card.ts            # Heater-spezifische Card
-│   │   ├── solar-card.ts             # Solar-spezifische Card
-│   │   ├── dosing-card.ts            # Dosing-spezifische Card
-│   │   ├── overview-card.ts          # Overview Card
-│   │   └── compact-card.ts           # Compact Card
+│   │   ├── pump-card.ts              # Pump-specific card
+│   │   ├── heater-card.ts            # Heater-specific card
+│   │   ├── solar-card.ts             # Solar-specific card
+│   │   ├── dosing-card.ts            # Dosing-specific card
+│   │   ├── overview-card.ts          # Overview card
+│   │   └── compact-card.ts           # Compact card
 │   ├── components/
-│   │   ├── status-badge.ts           # Status Badge Component
-│   │   ├── slider-control.ts         # Slider Component
-│   │   ├── quick-actions.ts          # Quick Action Buttons
-│   │   ├── value-display.ts          # Wert-Anzeige Component
-│   │   ├── detail-status.ts          # Detail-Status Component
-│   │   └── warning-chips.ts          # Warning Chips Component
+│   │   ├── status-badge.ts           # Status Badge component
+│   │   ├── slider-control.ts         # Slider component
+│   │   ├── quick-actions.ts          # Quick Action buttons
+│   │   ├── value-display.ts          # Value display component
+│   │   ├── detail-status.ts          # Detail status component
+│   │   └── warning-chips.ts          # Warning chips component
 │   ├── utils/
-│   │   ├── entity-helper.ts          # Entity State Helper
-│   │   ├── service-caller.ts         # HA Service Aufrufe
-│   │   ├── formatter.ts              # Wert-Formatierung
-│   │   └── icons.ts                  # Icon Mappings
+│   │   ├── entity-helper.ts          # Entity state helper
+│   │   ├── service-caller.ts         # HA service calls
+│   │   ├── formatter.ts              # Value formatting
+│   │   └── icons.ts                  # Icon mappings
 │   └── styles/
-│       ├── card-styles.ts            # Card Styling
-│       ├── theme-support.ts          # HA Theme Integration
-│       └── animations.ts             # Animationen
-├── dist/                             # Build Output
-├── hacs.json                         # HACS Configuration
+│       ├── card-styles.ts            # Card styling
+│       ├── theme-support.ts          # HA theme integration
+│       └── animations.ts             # Animations
+├── dist/                             # Build output
+├── hacs.json                         # HACS configuration
 ├── package.json
 ├── tsconfig.json
 ├── rollup.config.js
 └── README.md
 ```
 
-### Technologie-Stack
+### Technology Stack
 
 **Framework & Build:**
-- **Lit** (wie Mushroom) - Moderne Web Components
+- **Lit** (like Mushroom) - Modern Web Components
 - **TypeScript** - Type Safety
 - **Rollup** - Bundling
 - **SCSS** - Styling
@@ -340,7 +340,7 @@ interface VioletPoolCardConfig {
 
 ## 🎨 Design System
 
-### Farbschema (basierend auf State)
+### Color Scheme (based on state)
 
 ```typescript
 const STATE_COLORS = {
@@ -358,10 +358,10 @@ const STATE_COLORS = {
   critical: '#F44336',      // Red
 
   // Value Ranges
-  low: '#2196F3',           // Blue (niedrig)
+  low: '#2196F3',           // Blue (low)
   normal: '#4CAF50',        // Green (optimal)
-  high: '#FF9800',          // Orange (hoch)
-  critical: '#F44336',      // Red (kritisch)
+  high: '#FF9800',          // Orange (high)
+  critical: '#F44336',      // Red (critical)
 };
 ```
 
@@ -397,10 +397,10 @@ const ICONS = {
 };
 ```
 
-### Animationen
+### Animations
 
 ```scss
-// Icon Spin bei Betrieb
+// Icon spin when running
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -410,7 +410,7 @@ const ICONS = {
   animation: spin 2s linear infinite;
 }
 
-// Pulsing bei Warnung
+// Pulsing for warnings
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
@@ -420,7 +420,7 @@ const ICONS = {
   animation: pulse 2s ease-in-out infinite;
 }
 
-// Slide-in für Details
+// Slide-in for details
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -437,83 +437,83 @@ const ICONS = {
 
 ## 🔧 Implementation Steps
 
-### Phase 1: Setup & Grundgerüst (Session 1)
-**Dauer**: ~2-3 Stunden
+### Phase 1: Setup & Skeleton (Session 1)
+**Duration**: ~2-3 hours
 
 **Tasks:**
-1. ✅ Repository erstellen (`violet-pool-card`)
-2. ✅ Build-System einrichten (Rollup + TypeScript)
-3. ✅ HACS Manifest (`hacs.json`) erstellen
-4. ✅ Basis Card-Klasse implementieren
-5. ✅ Theme Integration vorbereiten
-6. ✅ README mit Installation-Anleitung
+1. ✅ Create repository (`violet-pool-card`)
+2. ✅ Set up build system (Rollup + TypeScript)
+3. ✅ Create HACS manifest (`hacs.json`)
+4. ✅ Implement base card class
+5. ✅ Prepare theme integration
+6. ✅ README with installation instructions
 
 **Deliverables:**
-- Funktionierendes Repository
-- Minimale Card die rendert
-- HACS-kompatibel
-- Build-System funktioniert
+- Working repository
+- Minimal card that renders
+- HACS-compatible
+- Build system works
 
 ---
 
 ### Phase 2: Status Badge & Display (Session 2)
-**Dauer**: ~2-3 Stunden
+**Duration**: ~2-3 hours
 
 **Tasks:**
 1. ✅ Status Badge Component
-   - OFF/ON/AUTO/MANUAL States
-   - Farbcodierung
-   - Icon Support
+   - OFF/ON/AUTO/MANUAL states
+   - Color coding
+   - Icon support
 2. ✅ Value Display Component
-   - Aktuelle Werte anzeigen
-   - Formatierung (Temperatur, pH, mV)
-   - Min/Max Indicators
+   - Display current values
+   - Formatting (temperature, pH, mV)
+   - Min/Max indicators
 3. ✅ Detail Status Component
-   - Pipe-separierte Strings parsen
-   - Blockierungsgründe anzeigen
-   - Array-States darstellen
+   - Parse pipe-separated strings
+   - Display blocking reasons
+   - Represent array states
 4. ✅ Warning Chips Component
-   - Dosing State Arrays
-   - Multiple Warnungen
+   - Dosing state arrays
+   - Multiple warnings
    - Dismissable optional
 
 **Deliverables:**
-- Status Badge funktioniert
-- Werte werden korrekt angezeigt
-- Detail-Status wird geparst
-- Warnungen sichtbar
+- Status badge works
+- Values displayed correctly
+- Detail status is parsed
+- Warnings visible
 
 ---
 
 ### Phase 3: Slider Controls (Session 3)
-**Dauer**: ~2-3 Stunden
+**Duration**: ~2-3 hours
 
 **Tasks:**
 1. ✅ Slider Control Component
-   - Touch-optimiert
+   - Touch-optimized
    - Snap-to-value (Speed 0-3)
-   - Range Slider (Temperatur)
-   - Labels anzeigen
-2. ✅ Service Caller implementieren
+   - Range slider (temperature)
+   - Show labels
+2. ✅ Implement Service Caller
    - `violet_pool_controller.control_pump`
    - `climate.set_temperature`
    - `number.set_value`
-   - Error Handling
-3. ✅ Live-Update auf Änderungen
-   - Entity State Subscription
-   - Optimistic UI Updates
+   - Error handling
+3. ✅ Live update on changes
+   - Entity state subscription
+   - Optimistic UI updates
    - Debouncing
 
 **Deliverables:**
-- Slider funktional
-- Werte können geändert werden
-- HA Services werden aufgerufen
-- UI aktualisiert sich live
+- Slider functional
+- Values can be changed
+- HA services are called
+- UI updates live
 
 ---
 
 ### Phase 4: Quick Actions (Session 4)
-**Dauer**: ~2 Stunden
+**Duration**: ~2 hours
 
 **Tasks:**
 1. ✅ Quick Action Buttons
@@ -522,24 +522,24 @@ const ICONS = {
    - Manual Dosing
    - Icon + Label
 2. ✅ Action Confirmation
-   - Optional Confirm Dialog
-   - Toast Notifications
-   - Error Messages
+   - Optional confirm dialog
+   - Toast notifications
+   - Error messages
 3. ✅ Tap Actions
    - tap_action
    - hold_action
    - double_tap_action
 
 **Deliverables:**
-- Buttons funktionieren
-- Services werden aufgerufen
-- Feedback für User
-- Customizable Actions
+- Buttons work
+- Services are called
+- Feedback for user
+- Customizable actions
 
 ---
 
-### Phase 5: Card Types implementieren (Session 5-8)
-**Dauer**: ~4-6 Stunden
+### Phase 5: Implement Card Types (Session 5-8)
+**Duration**: ~4-6 hours
 
 **Session 5: Pump Card**
 1. ✅ Pump Card Layout
@@ -551,7 +551,7 @@ const ICONS = {
 1. ✅ Temperature Display
 2. ✅ Target Temperature Slider
 3. ✅ Outside Temperature Indicator
-4. ✅ Blockierung Anzeige
+4. ✅ Blocking Display
 
 **Session 7: Solar Card**
 1. ✅ Absorber vs Pool Temp
@@ -562,46 +562,46 @@ const ICONS = {
 **Session 8: Dosing Card**
 1. ✅ Current Value (pH/ORP)
 2. ✅ Target Slider
-3. ✅ Min/Max Grenzwerte
-4. ✅ Blockierungsgründe
+3. ✅ Min/Max limits
+4. ✅ Blocking reasons
 5. ✅ Manual Dosing Button
 6. ✅ History Graph (optional)
 
 **Deliverables:**
-- Alle Card Types funktional
-- Spezifische Features pro Type
-- Responsive Design
-- Fehlerbehandlung
+- All card types functional
+- Specific features per type
+- Responsive design
+- Error handling
 
 ---
 
 ### Phase 6: Overview & Compact Cards (Session 9)
-**Dauer**: ~2-3 Stunden
+**Duration**: ~2-3 hours
 
 **Tasks:**
 1. ✅ Overview Card
-   - Alle Entities auf einen Blick
-   - Wasserchemie-Ampel
-   - Aktive Geräte Liste
-   - Warnungen prominent
+   - All entities at a glance
+   - Water chemistry traffic light
+   - Active devices list
+   - Warnings prominent
 2. ✅ Compact Card
-   - Minimale Darstellung
+   - Minimal display
    - Click → Modal
-   - Dashboard-optimiert
+   - Dashboard-optimized
 
 **Deliverables:**
-- Overview Card funktional
-- Compact Card funktional
-- Modal Dialog für Details
-- Dashboard-Integration
+- Overview Card functional
+- Compact Card functional
+- Modal dialog for details
+- Dashboard integration
 
 ---
 
 ### Phase 7: Polish & Release (Session 10)
-**Dauer**: ~2-3 Stunden
+**Duration**: ~2-3 hours
 
 **Tasks:**
-1. ✅ Responsive Design testen
+1. ✅ Test responsive design
    - Desktop (1920px)
    - Tablet (768px)
    - Mobile (375px)
@@ -616,26 +616,26 @@ const ICONS = {
 4. ✅ Performance
    - Lazy Loading
    - Debouncing
-   - Bundle Size Optimierung
+   - Bundle Size optimization
 5. ✅ Documentation
-   - README erweitern
+   - Expand README
    - Screenshots
    - Configuration Examples
    - Troubleshooting
 6. ✅ HACS Submission
-   - Repository Tags
+   - Repository tags
    - GitHub Release
-   - HACS Default aufnehmen
+   - Add to HACS Default
 
 **Deliverables:**
-- Produktionsreife Card
-- Vollständige Dokumentation
-- HACS-verfügbar
+- Production-ready card
+- Complete documentation
+- HACS-available
 - Release v1.0.0
 
 ---
 
-## 📝 Code Snippets für schnellen Start
+## 📝 Code Snippets for Quick Start
 
 ### 1. Main Card Class (src/violet-pool-card.ts)
 
@@ -1136,112 +1136,112 @@ export default {
 
 ### Session 1: Initial Setup
 ```
-Ich möchte eine Custom Lovelace Card für Home Assistant erstellen: "Violet Pool Card"
+I want to create a Custom Lovelace Card for Home Assistant: "Violet Pool Card"
 
-Ziel: HACS-kompatible Card für die Violet Pool Controller Integration
+Goal: HACS-compatible card for the Violet Pool Controller integration
 
 Setup:
 - Repository Name: violet-pool-card
-- Technologie: Lit Element + TypeScript + Rollup
-- Vorlage: Mushroom Cards Style
+- Technology: Lit Element + TypeScript + Rollup
+- Template: Mushroom Cards style
 
-Bitte erstelle:
-1. Vollständige Ordnerstruktur
-2. package.json mit allen Dependencies
+Please create:
+1. Complete folder structure
+2. package.json with all dependencies
 3. tsconfig.json
 4. rollup.config.js
 5. hacs.json
-6. Basis violet-pool-card.ts mit card registration
-7. README.md mit Installation-Anleitung
+6. Base violet-pool-card.ts with card registration
+7. README.md with installation instructions
 
-Referenz-Dateien aus VIOLET_CARD_ROADMAP.md verwenden!
+Use reference files from VIOLET_CARD_ROADMAP.md!
 ```
 
 ### Session 2: Status Components
 ```
-Weiter mit Violet Pool Card - Status Components implementieren
+Continue with Violet Pool Card - Implement Status Components
 
 Tasks:
 1. Status Badge Component (src/components/status-badge.ts)
    - States: OFF/ON/AUTO/MANUAL/BLOCKED/ERROR
-   - Farbcodierung wie in Roadmap
-   - Icon Support
-   - Pulse Animation optional
+   - Color coding as in roadmap
+   - Icon support
+   - Pulse animation optional
 
 2. Value Display Component (src/components/value-display.ts)
-   - Temperatur, pH, mV Formatierung
-   - Min/Max Indicators
-   - Trend Arrow (optional)
+   - Temperature, pH, mV formatting
+   - Min/Max indicators
+   - Trend arrow (optional)
 
 3. Detail Status Component (src/components/detail-status.ts)
    - Parse "3|PUMP_ANTI_FREEZE" → "Pump Anti Freeze"
-   - Array States ["BLOCKED_BY_TRESHOLDS", ...] anzeigen
+   - Display array states ["BLOCKED_BY_TRESHOLDS", ...]
 
 4. Warning Chips Component (src/components/warning-chips.ts)
-   - Multiple Warnungen als Chips
+   - Multiple warnings as chips
    - Color-coded (Info/Warning/Error)
 
-Verwende Code aus VIOLET_CARD_ROADMAP.md Section "Code Snippets"!
+Use code from VIOLET_CARD_ROADMAP.md "Code Snippets" section!
 ```
 
 ### Session 3: Slider & Controls
 ```
-Weiter mit Violet Pool Card - Slider Controls
+Continue with Violet Pool Card - Slider Controls
 
 Tasks:
-1. Slider Control Component implementieren (src/components/slider-control.ts)
-   - Touch-optimiert
+1. Implement Slider Control Component (src/components/slider-control.ts)
+   - Touch-optimized
    - Labels support
    - Value change events
-   - Snap-to-value für discrete values
+   - Snap-to-value for discrete values
 
 2. Service Caller Utility (src/utils/service-caller.ts)
-   - control_pump Service
-   - set_temperature Service
-   - set_value Service
-   - Error Handling
+   - control_pump service
+   - set_temperature service
+   - set_value service
+   - Error handling
 
 3. Entity Helper (src/utils/entity-helper.ts)
    - Get state from entity
    - Parse attributes
    - Get detail status from PUMPSTATE etc.
 
-Code-Vorlagen in VIOLET_CARD_ROADMAP.md verwenden!
+Use code templates in VIOLET_CARD_ROADMAP.md!
 ```
 
 ### Session 4: Quick Actions
 ```
-Weiter mit Violet Pool Card - Quick Action Buttons
+Continue with Violet Pool Card - Quick Action Buttons
 
 Tasks:
 1. Quick Actions Component (src/components/quick-actions.ts)
    - Button Grid Layout
    - Icon + Label
-   - Click Handler
-   - Disabled State
+   - Click handler
+   - Disabled state
 
 2. Action Integration
    - OFF / AUTO / ON Buttons
    - Speed Presets (Pump)
    - Manual Dosing Button
-   - Confirmation Dialog (optional)
+   - Confirmation dialog (optional)
 
 3. Toast Notifications
-   - Success Messages
-   - Error Messages
-   - HA Toast Integration
+   - Success messages
+   - Error messages
+   - HA toast integration
 
-Referenz: Mushroom Cards Button Style
+Reference: Mushroom Cards Button style
 ```
 
 ### Session 5: Pump Card
 ```
-Weiter mit Violet Pool Card - Pump Card implementieren
+Continue with Violet Pool Card - Implement Pump Card
 
 Tasks:
 1. Pump Card Class (src/cards/pump-card.ts)
-   - Layout wie in Mock-up
-   - Status Badge Integration
+   - Layout as in mock-up
+   - Status Badge integration
    - Speed Slider (0-3)
    - Labels: OFF/ECO/Normal/Boost
    - Quick Actions: OFF/AUTO/ECO/Normal/Boost
@@ -1252,40 +1252,40 @@ Entity Example:
 - switch.violet_pool_pump
 - Attributes: PUMPSTATE, PUMP_RPM_*, runtime
 
-Mock-up und Code in VIOLET_CARD_ROADMAP.md verwenden!
+Use mock-up and code in VIOLET_CARD_ROADMAP.md!
 ```
 
 ### Session 6: Heater Card
 ```
-Weiter mit Violet Pool Card - Heater Card implementieren
+Continue with Violet Pool Card - Implement Heater Card
 
 Tasks:
 1. Heater Card Class (src/cards/heater-card.ts)
-   - Layout wie in Mock-up
-   - Temperature Display groß
-   - Target Temperature Slider (18-35°C)
-   - Outside Temp Indicator
-   - Blockierung Status
+   - Layout as in mock-up
+   - Temperature display large
+   - Target temperature slider (18-35°C)
+   - Outdoor temp indicator
+   - Blocking status
    - Quick Actions: OFF/AUTO/HEAT
 
 Entity Example:
 - climate.violet_pool_heater
 - Attributes: HEATERSTATE, current_temperature, temperature, etc.
 
-Mock-up in VIOLET_CARD_ROADMAP.md verwenden!
+Use mock-up in VIOLET_CARD_ROADMAP.md!
 ```
 
 ### Session 7: Solar Card
 ```
-Weiter mit Violet Pool Card - Solar Card implementieren
+Continue with Violet Pool Card - Implement Solar Card
 
 Tasks:
 1. Solar Card Class (src/cards/solar-card.ts)
-   - Layout wie in Mock-up
-   - Pool Temp vs Absorber Temp
-   - Delta Calculation
-   - Target Temperature Slider
-   - Anti-Freeze Status
+   - Layout as in mock-up
+   - Pool temp vs absorber temp
+   - Delta calculation
+   - Target temperature slider
+   - Anti-Freeze status
    - Quick Actions: OFF/AUTO/ON
 
 Entity Example:
@@ -1293,135 +1293,135 @@ Entity Example:
 - Sensors: onewire1_value (Pool), onewire3_value (Absorber)
 - Attributes: SOLARSTATE
 
-Mock-up in VIOLET_CARD_ROADMAP.md verwenden!
+Use mock-up in VIOLET_CARD_ROADMAP.md!
 ```
 
 ### Session 8: Dosing Card
 ```
-Weiter mit Violet Pool Card - Dosing Card implementieren
+Continue with Violet Pool Card - Implement Dosing Card
 
 Tasks:
 1. Dosing Card Class (src/cards/dosing-card.ts)
-   - Layout wie in Mock-up
-   - Current Value Display (pH/ORP/Chlorine)
-   - Target Slider
-   - Min/Max Grenzwerte
-   - Blockierungsgründe als Chips
-   - Manual Dosing Button
+   - Layout as in mock-up
+   - Current value display (pH/ORP/Chlorine)
+   - Target slider
+   - Min/Max limits
+   - Blocking reasons as chips
+   - Manual dosing button
    - History (optional)
 
 Entity Examples:
-- switch.violet_pool_dos_1_cl (Chlor)
+- switch.violet_pool_dos_1_cl (Chlorine)
 - sensor.violet_pool_orp_value
 - number.violet_pool_target_orp
-- Attributes: DOS_1_CL_STATE (Array)
+- Attributes: DOS_1_CL_STATE (array)
 
-Dosing Types: chlorine, ph_minus, ph_plus, flocculant
+Dosing types: chlorine, ph_minus, ph_plus, flocculant
 
-Mock-ups in VIOLET_CARD_ROADMAP.md verwenden!
+Use mock-ups in VIOLET_CARD_ROADMAP.md!
 ```
 
 ### Session 9: Overview & Compact
 ```
-Weiter mit Violet Pool Card - Overview & Compact Cards
+Continue with Violet Pool Card - Overview & Compact Cards
 
 Tasks:
 1. Overview Card (src/cards/overview-card.ts)
-   - Alle Entities auf einen Blick
-   - Wasserchemie Ampel (pH/ORP/Chlorine)
-   - Temperaturen
-   - Aktive Geräte Liste
-   - Warnungen prominent
+   - All entities at a glance
+   - Water chemistry traffic light (pH/ORP/Chlorine)
+   - Temperatures
+   - Active devices list
+   - Warnings prominent
 
 2. Compact Card (src/cards/compact-card.ts)
-   - Eine Zeile pro Entity
+   - One line per entity
    - Status Badge + Value + Detail
-   - Click → Modal mit Full Card
-   - Dashboard-optimiert
+   - Click → Modal with full card
+   - Dashboard-optimized
 
-Mock-ups in VIOLET_CARD_ROADMAP.md verwenden!
+Use mock-ups in VIOLET_CARD_ROADMAP.md!
 ```
 
 ### Session 10: Polish & Release
 ```
-Weiter mit Violet Pool Card - Final Polish & Release
+Continue with Violet Pool Card - Final Polish & Release
 
 Tasks:
-1. Responsive Design testen
+1. Test responsive design
    - Desktop (1920px)
    - Tablet (768px)
    - Mobile (375px)
 
 2. Theme Support
-   - Dark Mode testen
-   - Light Mode testen
-   - Custom Theme Variablen
+   - Test Dark Mode
+   - Test Light Mode
+   - Custom Theme Variables
 
 3. Performance
-   - Bundle Size optimieren
+   - Optimize bundle size
    - Lazy Loading
    - Debouncing
 
 4. Documentation
-   - README erweitern
-   - Screenshots erstellen
+   - Expand README
+   - Create screenshots
    - Configuration Examples
    - Troubleshooting Section
 
 5. HACS Release
-   - GitHub Release erstellen
+   - Create GitHub Release
    - Tag v1.0.0
    - HACS Default Submission
 
-Checkliste in VIOLET_CARD_ROADMAP.md verwenden!
+Use checklist in VIOLET_CARD_ROADMAP.md!
 ```
 
 ---
 
 ## ✅ Success Criteria
 
-### Funktionale Anforderungen
-- ✅ Alle Card Types (Pump, Heater, Solar, Dosing, Overview, Compact) funktionieren
-- ✅ Status Badges zeigen korrekte States an
-- ✅ Sliders können Werte ändern
-- ✅ Quick Actions rufen HA Services auf
-- ✅ Detail Status wird geparst (Pipe-separated, Arrays)
-- ✅ Responsive auf allen Geräten
-- ✅ Theme Support (Dark/Light)
+### Functional Requirements
+- ✅ All card types (Pump, Heater, Solar, Dosing, Overview, Compact) work
+- ✅ Status badges display correct states
+- ✅ Sliders can change values
+- ✅ Quick Actions call HA services
+- ✅ Detail status is parsed (pipe-separated, arrays)
+- ✅ Responsive on all devices
+- ✅ Theme support (Dark/Light)
 
-### Qualitätsanforderungen
-- ✅ TypeScript ohne Errors
+### Quality Requirements
+- ✅ TypeScript without errors
 - ✅ ESLint clean
 - ✅ Bundle Size < 100KB
-- ✅ Funktioniert mit HA 2024.1+
-- ✅ HACS-kompatibel
-- ✅ Dokumentation vollständig
+- ✅ Works with HA 2024.1+
+- ✅ HACS-compatible
+- ✅ Documentation complete
 
 ### User Experience
-- ✅ Intuitive Bedienung
-- ✅ Smooth Animationen
-- ✅ Klare Fehlermeldungen
-- ✅ Feedback bei Actions
+- ✅ Intuitive operation
+- ✅ Smooth animations
+- ✅ Clear error messages
+- ✅ Feedback on actions
 - ✅ Accessibility (ARIA, Keyboard)
 
 ---
 
 ## 🚀 Ready to Start!
 
-Diese Roadmap enthält ALLES was du brauchst:
-1. ✅ Vollständige technische Spezifikation
-2. ✅ Design Mock-ups für alle Card Types
-3. ✅ Code-Vorlagen zum Copy-Paste
-4. ✅ Session-by-Session Prompts
-5. ✅ Build-System Configuration
-6. ✅ HACS Integration Guide
+This roadmap contains EVERYTHING you need:
+1. ✅ Complete technical specification
+2. ✅ Design mock-ups for all card types
+3. ✅ Code templates for copy-paste
+4. ✅ Session-by-session prompts
+5. ✅ Build system configuration
+6. ✅ HACS integration guide
 
-**Nächster Schritt:**
-Einfach Session 1 Prompt kopieren und in einer neuen Claude Code Session einfügen! 🎉
+**Next Step:**
+Simply copy the Session 1 prompt and paste it into a new Claude Code session! 🎉
 
 ---
 
-**Erstellt**: 2026-01-04
-**Für**: Violet Pool Controller HACS Card
+**Created**: 2026-01-04
+**For**: Violet Pool Controller HACS Card
 **Status**: Ready to Implement
-**Geschätzte Gesamtdauer**: 20-25 Stunden (10 Sessions à 2-3h)
+**Estimated Total Duration**: 20-25 hours (10 sessions à 2-3h)

@@ -1,242 +1,242 @@
 # Device States (0–6)
 
-> Das **wichtigste Konzept** der Integration! Hier lernst du, was die 7 Device States bedeuten und wie du sie in Automatisierungen nutzt.
+> The **most important concept** of the integration! Learn what the 7 device states mean and how to use them in automations.
 
 ---
 
-## Die 7 Device States
+## The 7 Device States
 
-Der Violet Controller unterscheidet 7 Betriebszustände für jedes steuerbare Gerät:
+The Violet Controller distinguishes 7 operating states for each controllable device:
 
-| State | Konstante | Status | Typ | Beschreibung |
-|-------|-----------|--------|-----|--------------|
-| **0** | `AUTO_OFF` | OFF | Automatik | Automatik aktiv – Gerät läuft nicht (Bedingungen nicht erfüllt) |
-| **1** | `MANUAL_ON` | ON | Manuell | Benutzer hat manuell eingeschaltet |
-| **2** | `AUTO_ON` | ON | Automatik | Automatik aktiv – Gerät läuft (Bedingungen erfüllt) |
-| **3** | `AUTO_TIMER` | ON | Automatik | Automatik mit Zeitsteuerung – Gerät läuft gerade |
-| **4** | `MANUAL_FORCED` | ON | Manuell | Manuell erzwungen – ignoriert alle Automatik-Regeln |
-| **5** | `AUTO_WAITING` | OFF | Automatik | Automatik aktiv – wartet auf Bedingungen (z.B. Sicherheitsintervall) |
-| **6** | `MANUAL_OFF` | OFF | Manuell | Benutzer hat manuell ausgeschaltet |
+| State | Constant | Status | Type | Description |
+|-------|----------|--------|------|-------------|
+| **0** | `AUTO_OFF` | OFF | Automatic | Automatic active – device not running (conditions not met) |
+| **1** | `MANUAL_ON` | ON | Manual | User has manually turned on |
+| **2** | `AUTO_ON` | ON | Automatic | Automatic active – device running (conditions met) |
+| **3** | `AUTO_TIMER` | ON | Automatic | Automatic with timer control – device currently running |
+| **4** | `MANUAL_FORCED` | ON | Manual | Manually forced – ignores all automatic rules |
+| **5** | `AUTO_WAITING` | OFF | Automatic | Automatic active – waiting for conditions (e.g. safety interval) |
+| **6** | `MANUAL_OFF` | OFF | Manual | User has manually turned off |
 
 ---
 
-## State-Gruppen
+## State Groups
 
-### Geräte-Status (ON/OFF)
+### Device Status (ON/OFF)
 
 ```
 ┌──────────────────────────────────────────┐
-│             GERÄT LÄUFT (ON)             │
+│             DEVICE RUNNING (ON)          │
 │  State 1 (MANUAL_ON)                     │
 │  State 2 (AUTO_ON)                       │
 │  State 3 (AUTO_TIMER)                    │
 │  State 4 (MANUAL_FORCED)                 │
 ├──────────────────────────────────────────┤
-│          GERÄT LÄUFT NICHT (OFF)         │
+│          DEVICE NOT RUNNING (OFF)        │
 │  State 0 (AUTO_OFF)                      │
 │  State 5 (AUTO_WAITING)                  │
 │  State 6 (MANUAL_OFF)                    │
 └──────────────────────────────────────────┘
 ```
 
-### Steuerungstyp (Automatik vs. Manuell)
+### Control Type (Automatic vs. Manual)
 
 ```
 ┌──────────────────────────────────────────┐
-│          AUTOMATIK-MODUS                 │
-│  State 0 – Bereit, wartet               │
-│  State 2 – Läuft nach Programm          │
-│  State 3 – Läuft nach Zeitplan          │
-│  State 5 – Wartet auf Bedingungen       │
+│          AUTOMATIC MODE                  │
+│  State 0 – Ready, waiting               │
+│  State 2 – Running by program           │
+│  State 3 – Running by schedule          │
+│  State 5 – Waiting for conditions       │
 ├──────────────────────────────────────────┤
-│          MANUELL-MODUS                   │
-│  State 1 – Manuell ein                  │
-│  State 4 – Erzwungen ein                │
-│  State 6 – Manuell aus                  │
+│          MANUAL MODE                     │
+│  State 1 – Manual on                    │
+│  State 4 – Forced on                    │
+│  State 6 – Manual off                   │
 └──────────────────────────────────────────┘
 ```
 
 ---
 
-## Visualisierung in Home Assistant
+## Visualization in Home Assistant
 
-| State | Icon-Farbe | Bedeutung |
-|-------|-----------|-----------|
-| 0 (AUTO_OFF) | Blau | Bereit im Automatik-Modus |
-| 1 (MANUAL_ON) | Orange | Manuell eingeschaltet |
-| 2 (AUTO_ON) | Grün | Läuft automatisch |
-| 3 (AUTO_TIMER) | Grün | Läuft per Zeitplan |
-| 4 (MANUAL_FORCED) | Orange | Erzwungen eingeschaltet |
-| 5 (AUTO_WAITING) | Blau | Automatik wartet |
-| 6 (MANUAL_OFF) | Rot | Manuell ausgeschaltet |
-
----
-
-## Detaillierte Erklärung jedes States
-
-### State 0 – AUTO_OFF (Automatik, Bereit)
-
-Der Controller läuft im **Automatik-Modus**, aber das Gerät ist aktuell **nicht aktiv** – weil die Bedingungen (Temperatur, Zeit, etc.) noch nicht erfüllt sind.
-
-```
-Beispiel Pumpe: Tagesprogramm läuft, aber geplante Zeit noch nicht erreicht.
-→ Gerät startet automatisch, wenn Bedingung erfüllt.
-```
-
-**In HA**: Schalter zeigt `off`, Attribut `violet_state = "0"`
+| State | Icon Color | Meaning |
+|-------|-----------|---------|
+| 0 (AUTO_OFF) | Blue | Ready in automatic mode |
+| 1 (MANUAL_ON) | Orange | Manually turned on |
+| 2 (AUTO_ON) | Green | Running automatically |
+| 3 (AUTO_TIMER) | Green | Running by schedule |
+| 4 (MANUAL_FORCED) | Orange | Forced on |
+| 5 (AUTO_WAITING) | Blue | Automatic waiting |
+| 6 (MANUAL_OFF) | Red | Manually turned off |
 
 ---
 
-### State 1 – MANUAL_ON (Manuell An)
+## Detailed Explanation of Each State
 
-Der Benutzer hat das Gerät **manuell eingeschaltet**. Automatik-Regeln sind übersteuert.
+### State 0 – AUTO_OFF (Automatic, Ready)
+
+The controller is in **automatic mode**, but the device is currently **not active** – because the conditions (temperature, time, etc.) are not yet met.
 
 ```
-Beispiel: Benutzer schaltet Pumpe manuell ein für Poolreinigung.
-→ Läuft bis manuell ausgeschaltet oder auf AUTO zurückgestellt.
+Example pump: Daily program running, but scheduled time not yet reached.
+→ Device starts automatically when condition is met.
 ```
 
-**In HA**: Schalter zeigt `on`, Attribut `violet_state = "1"`
+**In HA**: Switch shows `off`, attribute `violet_state = "0"`
 
 ---
 
-### State 2 – AUTO_ON (Automatik, An)
+### State 1 – MANUAL_ON (Manual On)
 
-Der Controller läuft im Automatik-Modus und das Gerät ist **aktiv** – weil alle Bedingungen erfüllt sind.
+The user has **manually turned on** the device. Automatic rules are overridden.
 
 ```
-Beispiel Heizung: Pool-Temperatur < Sollwert → Heizung läuft automatisch.
-→ Hört automatisch auf, wenn Sollwert erreicht.
+Example: User manually turns on pump for pool cleaning.
+→ Runs until manually turned off or set back to AUTO.
 ```
 
-**In HA**: Schalter zeigt `on`, Attribut `violet_state = "2"`
+**In HA**: Switch shows `on`, attribute `violet_state = "1"`
 
 ---
 
-### State 3 – AUTO_TIMER (Automatik, Timer)
+### State 2 – AUTO_ON (Automatic, On)
 
-Gerät läuft automatisch aufgrund einer **Zeitsteuerung** im Controller.
+The controller is in automatic mode and the device is **active** – because all conditions are met.
 
 ```
-Beispiel: Pumpe läuft täglich 08:00–12:00 Uhr per Timer-Programm.
-→ Stoppt automatisch am Zeitplan-Ende.
+Example heater: Pool temperature < setpoint → heater runs automatically.
+→ Stops automatically when setpoint is reached.
 ```
 
-**In HA**: Schalter zeigt `on`, Attribut `violet_state = "3"`
+**In HA**: Switch shows `on`, attribute `violet_state = "2"`
 
 ---
 
-### State 4 – MANUAL_FORCED (Manuell, Erzwungen)
+### State 3 – AUTO_TIMER (Automatic, Timer)
 
-Das Gerät wurde **erzwungen eingeschaltet** und ignoriert alle Sicherheits- und Automatik-Einschränkungen.
+Device is running automatically due to a **timer control** in the controller.
 
 ```
-Beispiel: Heizung wird trotz Temperaturgrenzen forciert eingeschaltet.
-→ Nur für Wartung/Tests! Vorsichtig verwenden!
+Example: Pump runs daily 08:00–12:00 via timer program.
+→ Stops automatically at schedule end.
 ```
 
-**In HA**: Schalter zeigt `on`, Attribut `violet_state = "4"`
-
-> **Warnung**: State 4 kann Sicherheitsprüfungen überspringen. Nur für autorisierte Wartungsarbeiten verwenden!
+**In HA**: Switch shows `on`, attribute `violet_state = "3"`
 
 ---
 
-### State 5 – AUTO_WAITING (Automatik, Wartend)
+### State 4 – MANUAL_FORCED (Manual, Forced)
 
-Der Controller möchte das Gerät einschalten, **wartet aber** auf eine Bedingung:
-- Sicherheitsintervall (z.B. 5 Minuten nach Dosierung)
-- Fehler muss behoben werden
-- Andere Abhängigkeit nicht erfüllt
+The device has been **forced on** and ignores all safety and automatic restrictions.
 
 ```
-Beispiel Dosierung: Chlor wurde dosiert, Controller wartet
-Sicherheitsintervall ab bevor er wieder startet.
+Example: Heater is forced on despite temperature limits.
+→ Only for maintenance/testing! Use with caution!
 ```
 
-**In HA**: Schalter zeigt `off`, Attribut `violet_state = "5"`
+**In HA**: Switch shows `on`, attribute `violet_state = "4"`
+
+> **Warning**: State 4 can bypass safety checks. Only use for authorized maintenance work!
 
 ---
 
-### State 6 – MANUAL_OFF (Manuell, Aus)
+### State 5 – AUTO_WAITING (Automatic, Waiting)
 
-Der Benutzer hat das Gerät **manuell ausgeschaltet**. Automatik-Regeln sind übersteuert.
+The controller wants to turn on the device, but is **waiting** for a condition:
+- Safety interval (e.g. 5 minutes after dosing)
+- Error needs to be resolved
+- Other dependency not met
 
 ```
-Beispiel: Pool wird für Winter-Pause ausgeschaltet.
-→ Gerät startet nicht automatisch bis zurück auf AUTO.
+Example dosing: Chlorine was dosed, controller waits
+for safety interval before restarting.
 ```
 
-**In HA**: Schalter zeigt `off`, Attribut `violet_state = "6"`
+**In HA**: Switch shows `off`, attribute `violet_state = "5"`
 
 ---
 
-## Composite States (States mit Zusatzinfo)
+### State 6 – MANUAL_OFF (Manual, Off)
 
-Manche States enthalten einen **Pipe-Separator (`|`)** mit zusätzlichem Kontext:
+The user has **manually turned off** the device. Automatic rules are overridden.
 
 ```
-Format: {STATE_ZAHL}|{BESCHREIBUNG}
-
-Beispiele:
-  "3|PUMP_ANTI_FREEZE"        → State 3, Frostschutz aktiv
-  "2|BLOCKED_BY_TEMP"         → State 2, aber durch Temperatur blockiert
-  "5|SAFETY_INTERVAL"         → State 5, Sicherheitsintervall läuft
-  "1|HIGH_PRESSURE_WARNING"   → State 1, Hochdruckwarnung
+Example: Pool is turned off for winter shutdown.
+→ Device does not start automatically until set back to AUTO.
 ```
 
-**Wichtig**: Die **Zahl vor dem `|`** bestimmt den State! Der Text dahinter ist nur Kontext-Information.
+**In HA**: Switch shows `off`, attribute `violet_state = "6"`
 
-In Home Assistant wird der vollständige String als Entity-State gespeichert:
+---
+
+## Composite States (States with Additional Info)
+
+Some states contain a **pipe separator (`|`)** with additional context:
+
+```
+Format: {STATE_NUMBER}|{DESCRIPTION}
+
+Examples:
+  "3|PUMP_ANTI_FREEZE"        → State 3, frost protection active
+  "2|BLOCKED_BY_TEMP"         → State 2, but blocked by temperature
+  "5|SAFETY_INTERVAL"         → State 5, safety interval running
+  "1|HIGH_PRESSURE_WARNING"   → State 1, high pressure warning
+```
+
+**Important**: The **number before the `|`** determines the state! The text after is only context information.
+
+In Home Assistant, the full string is stored as the entity state:
 ```yaml
-# Beispiel Entity-Attribut
+# Example entity attribute
 violet_state: "3|PUMP_ANTI_FREEZE"
-# Der Binary-Status (on/off) basiert auf der Zahl: 3 → ON
+# The binary status (on/off) is based on the number: 3 → ON
 ```
 
 ---
 
-## States in Home Assistant nutzen
+## Using States in Home Assistant
 
-### State-Wert lesen
+### Read State Value
 
 ```yaml
-# Template: Aktuellen State lesen
-{{ states('switch.violet_pump') }}        # → "on" oder "off"
-{{ state_attr('switch.violet_pump', 'violet_state') }}  # → "2" oder "3|PUMP_ANTI_FREEZE"
+# Template: Read current state
+{{ states('switch.violet_pump') }}        # → "on" or "off"
+{{ state_attr('switch.violet_pump', 'violet_state') }}  # → "2" or "3|PUMP_ANTI_FREEZE"
 ```
 
-### Auf State-Änderungen reagieren
+### React to State Changes
 
 ```yaml
 automation:
-  - alias: "Benachrichtigung bei manueller Pumpen-Steuerung"
+  - alias: "Notification on manual pump control"
     trigger:
       - platform: template
         value_template: >
           {{ state_attr('switch.violet_pump', 'violet_state') in ['1', '4', '6'] }}
     action:
-      - service: notify.mobile_app_mein_handy
+      - service: notify.mobile_app_my_phone
         data:
           title: "Pool"
-          message: "Pumpe ist im manuellen Modus!"
+          message: "Pump is in manual mode!"
 ```
 
-### State-Gruppen in Kondition prüfen
+### Check State Groups in Condition
 
 ```yaml
-# Prüfen ob Gerät ON ist (States 1,2,3,4)
+# Check if device is ON (States 1,2,3,4)
 condition:
   - condition: template
     value_template: >
       {{ state_attr('switch.violet_pump', 'violet_state') | int(default=0) in [1, 2, 3, 4] }}
 
-# Prüfen ob Gerät im Automatik-Modus ist (States 0,2,3,5)
+# Check if device is in automatic mode (States 0,2,3,5)
 condition:
   - condition: template
     value_template: >
       {{ state_attr('switch.violet_pump', 'violet_state') | int(default=0) in [0, 2, 3, 5] }}
 
-# Prüfen ob Gerät manuell gesteuert wird (States 1,4,6)
+# Check if device is manually controlled (States 1,4,6)
 condition:
   - condition: template
     value_template: >
@@ -245,70 +245,70 @@ condition:
 
 ---
 
-## Typische State-Verläufe
+## Typical State Sequences
 
-### Normaler Tagesbetrieb (Pumpe)
-
-```
-06:00  [0] AUTO_OFF    – Automatik läuft, Pumpe wartet
-08:00  [3] AUTO_TIMER  – Timer startet, Pumpe läuft
-12:00  [0] AUTO_OFF    – Timer Ende, Pumpe stoppt
-16:00  [2] AUTO_ON     – Temperatur-Bedingung erfüllt, Pumpe läuft
-18:00  [0] AUTO_OFF    – Temperatur erreicht, Pumpe stoppt
-```
-
-### Manuelles Eingreifen
+### Normal Daily Operation (Pump)
 
 ```
-[2] AUTO_ON     – Pumpe läuft automatisch
-[1] MANUAL_ON   – Benutzer schaltet manuell ein (Test/Reinigung)
-[0] AUTO_OFF    – Benutzer gibt Kontrolle zurück ("AUTO" klicken)
-[2] AUTO_ON     – Automatik übernimmt wieder
+06:00  [0] AUTO_OFF    – Automatic running, pump waiting
+08:00  [3] AUTO_TIMER  – Timer starts, pump running
+12:00  [0] AUTO_OFF    – Timer end, pump stops
+16:00  [2] AUTO_ON     – Temperature condition met, pump running
+18:00  [0] AUTO_OFF    – Temperature reached, pump stops
 ```
 
-### Dosierungs-Ablauf
+### Manual Intervention
 
 ```
-[0] AUTO_OFF    – Dosierung bereit
-[2] AUTO_ON     – Chlor-Level niedrig → Dosierung startet
-[5] AUTO_WAITING– Dosierung fertig, Sicherheitsintervall läuft (5 Min)
-[0] AUTO_OFF    – Sicherheitsintervall vorbei, bereit für nächste Dosierung
+[2] AUTO_ON     – Pump running automatically
+[1] MANUAL_ON   – User manually turns on (test/cleaning)
+[0] AUTO_OFF    – User returns control (click "AUTO")
+[2] AUTO_ON     – Automatic takes over again
 ```
 
-### Fehlerfall (Heizung)
+### Dosing Sequence
 
 ```
-[2] AUTO_ON     – Heizung läuft
-[5] AUTO_WAITING– Fehler erkannt, Heizung pausiert
-[0] AUTO_OFF    – Fehler behoben, wartet auf nächste Bedingung
-[2] AUTO_ON     – Normalzustand wiederhergestellt
+[0] AUTO_OFF    – Dosing ready
+[2] AUTO_ON     – Chlorine level low → dosing starts
+[5] AUTO_WAITING– Dosing complete, safety interval running (5 min)
+[0] AUTO_OFF    – Safety interval passed, ready for next dose
+```
+
+### Error Case (Heater)
+
+```
+[2] AUTO_ON     – Heater running
+[5] AUTO_WAITING– Error detected, heater paused
+[0] AUTO_OFF    – Error resolved, waiting for next condition
+[2] AUTO_ON     – Normal state restored
 ```
 
 ---
 
-## State-Debugging
+## State Debugging
 
-### Über Developer Tools
+### Via Developer Tools
 
-1. **Entwicklerwerkzeuge → Zustände**
-2. Nach `switch.violet_pump` suchen
-3. State und Attribute prüfen
+1. **Developer Tools → States**
+2. Search for `switch.violet_pump`
+3. Check state and attributes
 
-### Template-Konsole
+### Template Console
 
 ```
-Entwicklerwerkzeuge → Vorlage
+Developer Tools → Template
 ```
 
 ```yaml
-# Alle State-Infos auf einmal
-Pumpe State: {{ states('switch.violet_pump') }}
+# All state info at once
+Pump State: {{ states('switch.violet_pump') }}
 Violet State: {{ state_attr('switch.violet_pump', 'violet_state') }}
-Modus: {{ 'MANUELL' if state_attr('switch.violet_pump', 'violet_state') | int(0) in [1,4,6] else 'AUTOMATIK' }}
-Läuft: {{ 'JA' if state_attr('switch.violet_pump', 'violet_state') | int(0) in [1,2,3,4] else 'NEIN' }}
+Mode: {{ 'MANUAL' if state_attr('switch.violet_pump', 'violet_state') | int(0) in [1,4,6] else 'AUTOMATIC' }}
+Running: {{ 'YES' if state_attr('switch.violet_pump', 'violet_state') | int(0) in [1,2,3,4] else 'NO' }}
 ```
 
-### Logs prüfen
+### Check Logs
 
 ```bash
 tail -f /config/home-assistant.log | grep violet_pool_controller
@@ -316,43 +316,43 @@ tail -f /config/home-assistant.log | grep violet_pool_controller
 
 ---
 
-## Häufige State-Probleme
+## Common State Issues
 
-### Problem: State bleibt dauerhaft bei "6" (MANUAL_OFF)
+### Problem: State stays permanently at "6" (MANUAL_OFF)
 
-**Ursache**: Gerät wurde manuell ausgeschaltet und auf "Manuell" belassen.
+**Cause:** Device was manually turned off and left in "Manual" mode.
 
-**Lösung**: In HA auf "AUTO" klicken, oder:
+**Solution:** Click "AUTO" in HA, or:
 ```yaml
 service: switch.turn_on
 target:
   entity_id: switch.violet_pump
-# Schaltet auf Automatik zurück
+# Switches back to automatic
 ```
 
 ---
 
-### Problem: State wechselt ständig zwischen 0 und 2
+### Problem: State constantly alternates between 0 and 2
 
-**Ursache**: Automatik-Bedingungen pendeln am Grenzwert (z.B. Temperatur ±0.1°C).
+**Cause:** Automatic conditions oscillate at the threshold (e.g. temperature ±0.1°C).
 
-**Lösung**:
-- Hysterese im Controller erhöhen
-- Abfrageintervall erhöhen (um Messrauschen zu reduzieren)
-
----
-
-### Problem: State 5 (WAITING) dauert sehr lange
-
-**Ursache**:
-- Sicherheitsintervall nach Dosierung (5–10 Minuten normal)
-- Fehler-Code am Controller
-
-**Lösung**:
-- Fehler-Codes prüfen: `sensor.violet_system_error_codes`
-- Abwarten (Sicherheitsintervall ist beabsichtigt)
-- Falls >30 Minuten: Controller neu starten
+**Solution:**
+- Increase hysteresis in the controller
+- Increase polling interval (to reduce measurement noise)
 
 ---
 
-**Weiter:** [Sensoren](Sensors) | [Schalter](Switches) | [Services](Services)
+### Problem: State 5 (WAITING) takes very long
+
+**Cause:**
+- Safety interval after dosing (5–10 minutes is normal)
+- Error code on controller
+
+**Solution:**
+- Check error codes: `sensor.violet_system_error_codes`
+- Wait (safety interval is intentional)
+- If >30 minutes: Restart controller
+
+---
+
+**Next:** [Sensors](Sensors) | [Switches](Switches) | [Services](Services)

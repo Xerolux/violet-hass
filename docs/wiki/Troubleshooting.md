@@ -1,156 +1,156 @@
-# 🚨 Troubleshooting - Fehlersuche
+# 🚨 Troubleshooting
 
-Fehler treten auf? Hier findest du die Lösungen!
+Having issues? Here you'll find the solutions!
 
-## Häufige Fehler
+## Common Errors
 
-### ❌ "Verbindung zum Controller fehlgeschlagen"
+### ❌ "Connection to controller failed"
 
-**Symptome:**
-- Integration zeigt "Nicht verfügbar" in Rot
-- Alle Entitäten sind "unavailable"
+**Symptoms:**
+- Integration shows "Unavailable" in red
+- All entities are "unavailable"
 
-**Lösungsschritte:**
+**Solution steps:**
 
-1. **Konnektivität testen:**
+1. **Test connectivity:**
 ```bash
-# Ping Controller
+# Ping controller
 ping 192.168.1.100
 
-# HTTP-Request testen
+# Test HTTP request
 curl http://192.168.1.100/getReadings?ALL
 ```
 
-2. **IP-Adresse überprüfen**
-   - Stimmt die IP noch? (Router kann IP ändern)
-   - Verwende statische IP oder DHCP-Reservierung
+2. **Verify IP address**
+   - Is the IP still correct? (Router may have changed the IP)
+   - Use a static IP or DHCP reservation
 
-3. **Firewall prüfen**
-   - Firewall blockiert Zugriff?
-   - Port 80 (oder 8080) freigeben
+3. **Check firewall**
+   - Is the firewall blocking access?
+   - Open port 80 (or 8080)
 
-4. **Controller neu starten**
-   - Controller ausschalten (Hauptschalter)
-   - 30 Sekunden warten
-   - Wieder anschalten
+4. **Restart the controller**
+   - Turn off the controller (main switch)
+   - Wait 30 seconds
+   - Turn it back on
 
-5. **Integration neu laden**
-   - Einstellungen → Geräte & Dienste → Violet
-   - ⋮ (Menü) → "Neu laden"
+5. **Reload the integration**
+   - Settings → Devices & Services → Violet
+   - ⋮ (Menu) → "Reload"
 
-### ❌ "SSL-Zertifikat-Fehler"
+### ❌ "SSL Certificate Error"
 
 **Symptom:** `SSL: CERTIFICATE_VERIFY_FAILED`
 
-**Ursachen:**
-- Controller nutzt selbsigniertes Zertifikat
-- Datum/Uhrzeit auf HA falsch
-- Falscher Hostname in URL
+**Causes:**
+- Controller uses a self-signed certificate
+- Date/time on HA is incorrect
+- Wrong hostname in URL
 
-**Lösung 1: SSL-Validation deaktivieren (schnell)**
-1. Einstellungen → Geräte & Dienste → Violet
-2. ⋮ → "Optionen"
-3. "SSL-Zertifikat prüfen" deaktivieren
+**Solution 1: Disable SSL validation (quick)**
+1. Settings → Devices & Services → Violet
+2. ⋮ → "Options"
+3. Disable "Verify SSL certificate"
 
-⚠️ **Warnung:** Nur für vertrauenswürdige Netzwerke!
+⚠️ **Warning:** Only for trusted networks!
 
-**Lösung 2: Zertifikat validieren**
+**Solution 2: Validate the certificate**
 ```bash
-# Mit Browser prüfen
+# Check with browser
 https://192.168.1.100/
 
-# Oder mit OpenSSL
+# Or with OpenSSL
 openssl s_client -connect 192.168.1.100:8443 -showcerts
 ```
 
-### ❌ "Timeout - Request dauert zu lange"
+### ❌ "Timeout - Request takes too long"
 
-**Symptome:**
-- Integration arbeitet, aber sehr langsam
-- Häufige "Timeout"-Fehler in Logs
+**Symptoms:**
+- Integration works but is very slow
+- Frequent "Timeout" errors in logs
 
-**Ursachen:**
-- Netzwerk überlastet
-- Controller nicht responsive
-- Zu viele Sensoren abgefragt
-- Timeout-Wert zu niedrig
+**Causes:**
+- Network overloaded
+- Controller not responsive
+- Too many sensors queried
+- Timeout value too low
 
-**Lösungen:**
+**Solutions:**
 
-1. **Abfrageintervall erhöhen:**
-   - Einstellungen → Geräte & Dienste → Violet → Optionen
-   - "Abfrageintervall" erhöhen (z.B. 45 Sekunden statt 30)
+1. **Increase polling interval:**
+   - Settings → Devices & Services → Violet → Options
+   - Increase "Polling interval" (e.g., 45 seconds instead of 30)
 
-2. **Weniger Sensoren aktivieren:**
-   - Integration neu laden
-   - Nur wichtige Sensoren auswählen
+2. **Enable fewer sensors:**
+   - Reload the integration
+   - Select only important sensors
 
-3. **Timeout-Wert erhöhen (erweitert):**
-   - Einstellungen → Geräte & Dienste → Violet → Optionen
-   - "Timeout" erhöhen (z.B. 15 Sekunden statt 10)
+3. **Increase timeout value (advanced):**
+   - Settings → Devices & Services → Violet → Options
+   - Increase "Timeout" (e.g., 15 seconds instead of 10)
 
-4. **Netzwerk-Stabilität prüfen:**
+4. **Check network stability:**
 ```bash
-# Ping und Packet Loss testen
+# Test ping and packet loss
 ping -c 20 192.168.1.100
 ```
 
-### ❌ "Entitäten sind ständig 'unavailable'"
+### ❌ "Entities are constantly 'unavailable'"
 
-**Symptome:**
-- Entitäten zeigen "unavailable" State
-- Koordinator-Fehler im Log
+**Symptoms:**
+- Entities show "unavailable" state
+- Coordinator errors in the log
 
-**Ursachen:**
-- Zu kurzes Abfrageintervall
-- Sensor-Fehler am Controller
-- Rate-Limit erreicht
+**Causes:**
+- Polling interval too short
+- Sensor error on the controller
+- Rate limit reached
 
-**Lösungen:**
+**Solutions:**
 
-1. **Abfrageintervall erhöhen:**
-   - Momentan auf 10-15s? → Auf 30-45s erhöhen
+1. **Increase polling interval:**
+   - Currently at 10-15s? → Increase to 30-45s
 
-2. **Integration neu laden:**
+2. **Reload the integration:**
 ```yaml
-# In Automatisierung oder Developer Tools
+# In automation or Developer Tools
 service: homeassistant.reload_config_entry
 target:
   device_id: <device_id>
 ```
 
-3. **Logs prüfen:**
+3. **Check logs:**
 ```bash
 tail -f /config/home-assistant.log | grep violet_pool_controller
 ```
 
-### ❌ "Sensor zeigt 'unknown' oder falsche Werte"
+### ❌ "Sensor shows 'unknown' or incorrect values"
 
-**Ursachen:**
-- Sensor nicht kalibriert
-- Sensor defekt
-- Falsche API-Antwort
+**Causes:**
+- Sensor not calibrated
+- Sensor defective
+- Incorrect API response
 
-**Lösungen:**
+**Solutions:**
 
-1. **Sensor-Kalibrierung:**
-   - pH: Monatlich kalibrieren
-   - ORP: Mit pH-Kalibrierung
-   - Chlor: Mit Testkit wöchentlich prüfen
+1. **Sensor calibration:**
+   - pH: Calibrate monthly
+   - ORP: Along with pH calibration
+   - Chlorine: Check weekly with test kit
 
-2. **Sensor reinigen:**
-   - Linse der Sensoren säubern
-   - Verschmutzung entfernen
+2. **Clean sensor:**
+   - Clean the sensor lenses
+   - Remove dirt/deposits
 
-3. **Controller prüfen:**
-   - Error-Codes anschauen
-   - `sensor.violet_system_error_codes` prüfen
+3. **Check controller:**
+   - Look at error codes
+   - Check `sensor.violet_system_error_codes`
 
-## Debug-Modus aktivieren
+## Enabling Debug Mode
 
-Für detaillierte Logs:
+For detailed logs:
 
-1. **configuration.yaml bearbeiten:**
+1. **Edit configuration.yaml:**
 ```yaml
 logger:
   logs:
@@ -158,32 +158,32 @@ logger:
     aiohttp: debug
 ```
 
-2. **Home Assistant neu starten**
+2. **Restart Home Assistant**
 
-3. **Logs prüfen:**
-   - Home Assistant → Einstellungen → System → Protokolle
-   - Oder: `tail -f /config/home-assistant.log`
+3. **Check logs:**
+   - Home Assistant → Settings → System → Logs
+   - Or: `tail -f /config/home-assistant.log`
 
-## Logs analysieren
+## Analyzing Logs
 
-**Wichtige Log-Einträge:**
+**Important log entries:**
 
-| Log-Level | Bedeutung | Beispiel |
-|-----------|-----------|----------|
-| **DEBUG** | Detailinfos | Request wird gesendet |
-| **INFO** | Normale Infos | Integration loaded |
-| **WARNING** | Warnung | Sensor nicht gefunden |
-| **ERROR** | Fehler | Verbindung fehlgeschlagen |
+| Log Level | Meaning | Example |
+|-----------|---------|---------|
+| **DEBUG** | Detailed info | Request being sent |
+| **INFO** | Normal info | Integration loaded |
+| **WARNING** | Warning | Sensor not found |
+| **ERROR** | Error | Connection failed |
 
-**Logs speichern:**
+**Save logs:**
 ```bash
-# Logs in Datei speichern
+# Save logs to file
 cp /config/home-assistant.log ~/violet-logs.txt
 ```
 
-### Logs exportieren mit Service (NEU in v1.0.2)
+### Export Logs with Service (NEW in v1.0.2)
 
-Nutze den `export_diagnostic_logs` Service, um Logs direkt zu exportieren:
+Use the `export_diagnostic_logs` service to export logs directly:
 
 ```yaml
 service: violet_pool_controller.export_diagnostic_logs
@@ -195,84 +195,84 @@ data:
   save_to_file: true
 ```
 
-Dies speichert die Logs in `/config/` zur späteren Analyse oder zum Support-Ticket.
+This saves the logs to `/config/` for later analysis or support tickets.
 
-## Häufige Log-Fehler
+## Common Log Errors
 
 ### `Connection refused`
-- **Ursache:** Controller nicht erreichbar
-- **Lösung:** IP, Port, Firewall prüfen
+- **Cause:** Controller not reachable
+- **Solution:** Check IP, port, firewall
 
 ### `Request timeout`
-- **Ursache:** Zu langsame Verbindung
-- **Lösung:** Abfrageintervall erhöhen
+- **Cause:** Connection too slow
+- **Solution:** Increase polling interval
 
 ### `SSL: CERTIFICATE_VERIFY_FAILED`
-- **Ursache:** Zertifikats-Problem
-- **Lösung:** SSL-Validation deaktivieren oder Zertifikat prüfen
+- **Cause:** Certificate problem
+- **Solution:** Disable SSL validation or check certificate
 
 ### `Invalid JSON response`
-- **Ursache:** Controller antwortet falsch
-- **Lösung:** Controller neu starten, Firmware prüfen
+- **Cause:** Controller responding incorrectly
+- **Solution:** Restart controller, check firmware
 
-## Fehler-Codes vom Controller
+## Controller Error Codes
 
-Diese Codes sieht du in `sensor.violet_system_error_codes`:
+These codes appear in `sensor.violet_system_error_codes`:
 
-| Code | Fehler | Lösung |
-|------|--------|--------|
-| **101** | Sensor-Fehler (pH, ORP, etc.) | Sensor prüfen/reinigen |
-| **205** | Druck zu hoch | Ventil öffnen, Rückspülung |
-| **301** | Wasser-Level zu niedrig | Wasser nachfüllen |
-| **401** | Temperatur-Sensor defekt | Sensor ersetzen |
+| Code | Error | Solution |
+|------|-------|----------|
+| **101** | Sensor error (pH, ORP, etc.) | Check/clean sensor |
+| **205** | Pressure too high | Open valve, backwash |
+| **301** | Water level too low | Refill water |
+| **401** | Temperature sensor defective | Replace sensor |
 
-Siehe Controller-Handbuch für vollständige Liste.
+See the controller manual for a complete list.
 
-## Spezielle Probleme
+## Special Issues
 
-### Problem: State bleibt bei "5" (Wartend)
+### Issue: State stays at "5" (Waiting)
 
-**Bedeutung:** Automatik wartet auf Bedingungen
+**Meaning:** Automation is waiting for conditions
 
-**Lösungen:**
-1. Bedingungen prüfen (z.B. Temperatur-Schwellenwert)
-2. Fehler-Codes prüfen
-3. Sicherheitsintervall (normalerweise 5-10 Min)
-4. Manuell auf "1" (an) setzen zum Testen
+**Solutions:**
+1. Check conditions (e.g., temperature threshold)
+2. Check error codes
+3. Safety interval (usually 5-10 minutes)
+4. Set manually to "1" (on) for testing
 
-### Problem: Pumpen-Geschwindigkeit zeigt falsch
+### Issue: Pump speed shows incorrect value
 
-**Symptom:** Speed-Sensor zeigt 0 obwohl Pumpe läuft
+**Symptom:** Speed sensor shows 0 even though pump is running
 
-**Lösung:**
-- Nicht alle Controller haben Speed-Sensor
-- Mit `control_pump` Service nutzen für Speed-Control
+**Solution:**
+- Not all controllers have a speed sensor
+- Use the `control_pump` service for speed control
 
-### Problem: DMX-Szenen funktionieren nicht
+### Issue: DMX scenes not working
 
-**Lösungen:**
-1. Lichter sind mit DMX verbunden?
-2. DMX-Adressierung korrekt im Controller?
-3. Mit `test_output` Service testen
+**Solutions:**
+1. Are the lights connected via DMX?
+2. Is DMX addressing correct on the controller?
+3. Test with the `test_output` service
 
-### Problem: Dosierung funktioniert nicht
+### Issue: Dosing not working
 
-**Prüfen:**
-1. Dosierpumpen angeschlossen?
-2. Sicherheitsintervall vorbei? (normalerweise 5 Min)
-3. Safety-Override umgehen (wenn gewünscht)
+**Check:**
+1. Are dosing pumps connected?
+2. Has the safety interval passed? (usually 5 minutes)
+3. Override safety (if desired)
 
-## Performance & Optimierung
+## Performance & Optimization
 
-### Home Assistant wird langsam
+### Home Assistant is slow
 
 **Checks:**
-1. Abfrageintervall auf 45-60s erhöhen
-2. Weniger Sensoren aktivieren
-3. Automatisierungen reduzieren
-4. Logs auf Fehler-Loop prüfen
+1. Increase polling interval to 45-60s
+2. Enable fewer sensors
+3. Reduce automations
+4. Check logs for error loops
 
-### Zu viele Log-Einträge
+### Too many log entries
 
 ```yaml
 logger:
@@ -283,48 +283,48 @@ logger:
 
 ## Backup & Recovery
 
-### Backup erstellen
+### Create backup
 ```
-Einstellungen → System → Sicherungen → Erstellen
-```
-
-### Aus Backup wiederherstellen
-```
-Einstellungen → System → Sicherungen → Wiederherstellen
+Settings → System → Backups → Create
 ```
 
-### Integration neu laden ohne Restart
+### Restore from backup
 ```
-Einstellungen → Geräte & Dienste → Violet → ⋮ → Neu laden
+Settings → System → Backups → Restore
 ```
 
-## Support anfordern
+### Reload integration without restart
+```
+Settings → Devices & Services → Violet → ⋮ → Reload
+```
 
-Wenn nichts hilft:
+## Getting Support
 
-1. **Logs sammeln:**
-   - 50-100 Zeilen aus home-assistant.log kopieren
-   - Debug-Mode aktivieren
+If nothing helps:
 
-2. **System-Info:**
-   - Home Assistant Version
-   - Addon Version
-   - Controller-Modell & Firmware
+1. **Collect logs:**
+   - Copy 50-100 lines from home-assistant.log
+   - Enable debug mode
 
-3. **Erstellung eines Issues:**
+2. **System info:**
+   - Home Assistant version
+   - Addon version
+   - Controller model & firmware
+
+3. **Create an issue:**
    - [GitHub Issues](https://github.com/xerolux/violet-hass/issues)
-   - Detaillierte Problembeschreibung
-   - Logs anhängen (ohne Passwörter!)
+   - Detailed problem description
+   - Attach logs (without passwords!)
 
-4. **Community-Hilfe:**
+4. **Community help:**
    - [Discord](https://discord.gg/Qa5fW2R)
    - [Community Forum](https://community.home-assistant.io/)
 
 ---
 
-## Weitere Seiten
+## More Pages
 
-- 📖 [Installation & Setup](Installation-and-Setup) - Installation Schritt-für-Schritt
-- 🎯 [Device-States](Device-States) - States verstehen
-- ❓ [FAQ](FAQ) - Häufige Fragen
-- 🤖 [Services](Services) - Alle Services
+- 📖 [Installation & Setup](Installation-and-Setup) - Step-by-step installation
+- 🎯 [Device States](Device-States) - Understanding states
+- ❓ [FAQ](FAQ) - Frequently asked questions
+- 🤖 [Services](Services) - All services

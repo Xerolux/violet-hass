@@ -7,11 +7,10 @@ All notable changes to this project will be documented in this file.
 
 🔴 **ALPHA RELEASE** - Experimental features, use with caution!
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer. Every contribution, no matter how small, is a huge motivation to improve the project and keep it alive! Thank you! 🙏
 
-Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter zu verbessern und am Leben zu erhalten! Vielen Dank! 🙏
 
 - 💳 **[PayPal](https://paypal.me/xerolux)**
 - ☕ **[Buy Me a Coffee](https://buymeacoffee.com/xerolux)**
@@ -22,26 +21,24 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-### ⚠️ BREAKING CHANGE | WICHTIGE ÄNDERUNG
+### ⚠️ BREAKING CHANGE
 
 **Home Assistant 2026.5.0+ is now required!**
 Due to core platform changes (specifically the removal of `ZeroconfServiceInfo` from `homeassistant.components.zeroconf`), this integration now requires Home Assistant version 2026.5.0 or newer. If you are running an older version, please upgrade Home Assistant before installing this update.
 
-**Home Assistant 2026.5.0+ wird nun zwingend vorausgesetzt!**
-Aufgrund von Änderungen in der Core-Plattform (insbesondere der Entfernung von `ZeroconfServiceInfo` aus `homeassistant.components.zeroconf`), benötigt diese Integration nun zwingend Home Assistant Version 2026.5.0 oder neuer. Bitte aktualisieren Sie Home Assistant, bevor Sie dieses Update installieren.
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - feat: add ON/OFF/AUTO select entities for all controllable switches (8505b85)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - update-api-version-0-0-14 (cb6208d)
 - Update violet-poolController-api to version 0.0.14 (35ab076)
 - update-release-changelog-support-section (56ced0f)
 - 📝 Release v1.0.5 - Update changelog and version files (acfcaa8)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix-ext1-api-switching (f761565)
 - fix: EXT1/EXT2 sticky hardware detection + longer refresh delay (36cb133)
@@ -92,7 +89,7 @@ _Generated automatically by GitHub Actions on 2026-05-02 17:34:12 UTC_
 
 ✅ **STABLE RELEASE**
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - feat: add translation_key to HW_* hardware binary sensors (10 languages) (13f82dd)
 - fix: add missing reconfigure step to strings.json (aa0b7d2)
@@ -104,7 +101,7 @@ _Generated automatically by GitHub Actions on 2026-05-02 17:34:12 UTC_
 - feat: Add latest release option and auto-increment version (f191f68)
 - chore(ci): add tox matrix and refactor diagnostics/config helpers (83d15c7)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - 📝 Release v1.0.5-beta.3 - Update changelog and version files (056eab4)
 - 📝 Release v1.0.5-beta.2 - Update changelog and version files (836e435)
@@ -135,7 +132,7 @@ _Generated automatically by GitHub Actions on 2026-05-02 17:34:12 UTC_
 - refactor config flow and service modules (5ace21f)
 - 📝 Release v1.0.4 - Update changelog and version files (784bc44)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - Release v1.0.5-beta.3 - upgrade API to 0.0.12, fix dosing key mismatch (677eb93)
 - Fix dosing daily amount key mismatch in switch attributes (5b32af7)
@@ -153,7 +150,7 @@ _Generated automatically by GitHub Actions on 2026-05-02 17:34:12 UTC_
 - fix: resolve type safety, None-safety and async task bugs (84c6efb)
 - fix: align 1.0.5 version metadata and update test env requirements (00d87a6)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - docs: align README and testing docs with current requirements (2d280e7)
 
@@ -187,7 +184,7 @@ _Generated automatically by GitHub Actions on 2026-05-02 17:34:12 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -197,7 +194,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -235,7 +231,7 @@ _Generated automatically by GitHub Actions on 2026-04-23 04:54:12 UTC_
 
 🟢 **STABLE RELEASE**
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - feat: add translation_key to HW_* hardware binary sensors (10 languages) (13f82dd)
 - fix: add missing reconfigure step to strings.json (aa0b7d2)
@@ -247,7 +243,7 @@ _Generated automatically by GitHub Actions on 2026-04-23 04:54:12 UTC_
 - feat: Add latest release option and auto-increment version (f191f68)
 - chore(ci): add tox matrix and refactor diagnostics/config helpers (83d15c7)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - 📝 Release v1.0.5 - Update changelog and version files (836e435)
 - fix-modules-api-update (18ae039)
@@ -277,7 +273,7 @@ _Generated automatically by GitHub Actions on 2026-04-23 04:54:12 UTC_
 - refactor config flow and service modules (5ace21f)
 - 📝 Release v1.0.4 - Update changelog and version files (784bc44)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - Release v1.0.5 - upgrade API to 0.0.12, fix dosing key mismatch (677eb93)
 - Fix dosing daily amount key mismatch in switch attributes (5b32af7)
@@ -295,7 +291,7 @@ _Generated automatically by GitHub Actions on 2026-04-23 04:54:12 UTC_
 - fix: resolve type safety, None-safety and async task bugs (84c6efb)
 - fix: align 1.0.5 version metadata and update test env requirements (00d87a6)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - docs: align README and testing docs with current requirements (2d280e7)
 
@@ -329,14 +325,13 @@ _Generated automatically by GitHub Actions on 2026-04-23 04:54:12 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 <a href="https://www.buymeacoffee.com/xerolux" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 40px !important;width: 145px !important;" ></a>
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -362,7 +357,7 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ✅ **STABLE RELEASE**
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - Merge pull request #280 from Xerolux/claude/add-code-headers-9tKo5 (52c47ab)
 - Add Xerolux 2026 copyright headers to all Python source files (411845a)
@@ -379,7 +374,7 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 - docs: Update PyPI migration guide to reflect new target repo and module name (edb8257)
 - docs: Add PyPI migration boilerplate and instructions (1190d66)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - docs: update CLAUDE.md to reflect v1.0.4-beta.1 codebase state (6b46549)
 - update-dependencies-2026 (467af10)
@@ -397,7 +392,7 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 - Refactor configuration keys to use standard homeassistant.const (d6d89af)
 - 📝 Release v1.0.3 - Update changelog and version files (472606d)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix: resolve 12 bugs and compatibility issues (2182c37)
 - fix: remove target blank to resolve security scanner issues (d37e44d)
@@ -405,7 +400,7 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 - fix: add missing rel attributes to external links (ceaaacf)
 - fix: prevent detached HEAD state in release workflow (bcfd477)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - add-claude-documentation (47ddfa0)
 - docs: update CLAUDE.md to reflect v1.0.4-beta.1 codebase state (6b46549)
@@ -438,7 +433,7 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -448,7 +443,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -478,7 +472,7 @@ _Generated automatically by GitHub Actions on 2026-03-26 06:22:11 UTC_
 
 ✅ **STABLE RELEASE**
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - **PyPI-Migration**: Complete migration to standalone `violet-poolController-api` package (v0.0.2)
   - API now distributed as separate PyPI package for better modularity
@@ -491,24 +485,24 @@ _Generated automatically by GitHub Actions on 2026-03-26 06:22:11 UTC_
   - Better compatibility with Home Assistant Core requirements
   - Cleaner configuration handling
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - **Platinum Quality Scale**: Integration now certified at Platinum level
 - **HACS Integration**: Improved HACS default instructions and workflows
 - **CI/CD Enhancements**: Split HACS and hassfest workflows for better performance
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - Fixed import paths for PyPI API package
 - Updated all API references to use new module structure
 - Ensured backward compatibility during migration
 
-### ⚠️ Breaking Changes | Wichtige Änderungen
+### ⚠️ Breaking Changesen
 
 - Requires `violet-poolController-api==0.0.2` as external dependency
 - Old internal API module removed - ensure PyPI package is installed
 
-### 📋 Technical Details | Technische Details
+### 📋 Technical Details
 
 - **API Package**: `violet-poolController-api v0.0.2`
 - **Dependencies**: `aiohttp>=3.10.0`, `violet-poolController-api==0.0.2`
@@ -521,7 +515,7 @@ _Generated automatically by GitHub Actions on 2026-03-26 06:22:11 UTC_
 
 ✅ **STABLE RELEASE**
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - add-quality-scale-manifest (07e1381)
 - chore: add quality scale platinum to manifest.json (2b837c1)
@@ -544,7 +538,7 @@ _Generated automatically by GitHub Actions on 2026-03-26 06:22:11 UTC_
 - Add final honest report - Gold Level ~85% complete (3f5f68e)
 - Add Quality Scale progress documentation (4710b02)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - 📝 Release v0.1.3 - Update changelog and version files (6d61fb1)
 - ci: improve trigger reliability for validation workflows (16a7fcf)
@@ -576,7 +570,7 @@ _Generated automatically by GitHub Actions on 2026-03-26 06:22:11 UTC_
 - Update Quality Scale progress - Type Hints completed (cc1a922)
 - 📝 Release v1.0.2 - Update changelog and version files (c2bb382)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix-test-env-setup (48649a0)
 - fix-quality-scale (8bc33d4)
@@ -608,7 +602,7 @@ _Generated automatically by GitHub Actions on 2026-03-26 06:22:11 UTC_
 - Fix ZeroConf Discovery - 100% Tests Passing! ✅ (032d79e)
 - Fix Gold Level imports and test issues (8201f6e)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - docs: verify hassfest action is present (ef0ef51)
 - docs: Provide v1.0.2 PR template links (fee9f75)
@@ -664,7 +658,7 @@ _Generated automatically by GitHub Actions on 2026-03-26 06:22:11 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -674,7 +668,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -704,7 +697,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 10:03:36 UTC_
 
 ✅ **STABLE RELEASE**
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - add-quality-scale-manifest (07e1381)
 - chore: add quality scale platinum to manifest.json (2b837c1)
@@ -727,7 +720,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 10:03:36 UTC_
 - Add final honest report - Gold Level ~85% complete (3f5f68e)
 - Add Quality Scale progress documentation (4710b02)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - ci: improve trigger reliability for validation workflows (16a7fcf)
 - 📝 Release v0.1.3 - Update changelog and version files (e27c53c)
@@ -758,7 +751,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 10:03:36 UTC_
 - Update Quality Scale progress - Type Hints completed (cc1a922)
 - 📝 Release v1.0.2 - Update changelog and version files (c2bb382)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix-test-env-setup (48649a0)
 - fix-quality-scale (8bc33d4)
@@ -790,7 +783,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 10:03:36 UTC_
 - Fix ZeroConf Discovery - 100% Tests Passing! ✅ (032d79e)
 - Fix Gold Level imports and test issues (8201f6e)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - docs: verify hassfest action is present (ef0ef51)
 - docs: Provide v1.0.2 PR template links (fee9f75)
@@ -846,7 +839,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 10:03:36 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -856,7 +849,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -886,19 +878,19 @@ _Generated automatically by GitHub Actions on 2026-03-09 09:57:06 UTC_
 
 ✅ **STABLE RELEASE**
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - Enhanced Violet Pool Controller functionality
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - 📝 Release v1.0.3 - Update changelog and version files (afd3fc0)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - Minor bug fixes and stability improvements
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - docs: verify hassfest action is present (ef0ef51)
 - docs: Provide v1.0.2 PR template links (fee9f75)
@@ -925,7 +917,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 09:57:06 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -935,7 +927,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -965,7 +956,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 09:49:19 UTC_
 
 ✅ **STABLE RELEASE**
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - add-quality-scale-manifest (07e1381)
 - chore: add quality scale platinum to manifest.json (2b837c1)
@@ -988,7 +979,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 09:49:19 UTC_
 - Add final honest report - Gold Level ~85% complete (3f5f68e)
 - Add Quality Scale progress documentation (4710b02)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - docs: fix broken internal and external links in GitHub Wiki and update dates (3958807)
 - 📝 Release v1.0.3-beta.4 - Update changelog and version files (19aafb9)
@@ -1016,7 +1007,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 09:49:19 UTC_
 - Update Quality Scale progress - Type Hints completed (cc1a922)
 - 📝 Release v1.0.2 - Update changelog and version files (c2bb382)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix-test-env-setup (48649a0)
 - fix-quality-scale (8bc33d4)
@@ -1048,7 +1039,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 09:49:19 UTC_
 - Fix ZeroConf Discovery - 100% Tests Passing! ✅ (032d79e)
 - Fix Gold Level imports and test issues (8201f6e)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - docs: review and analyze HA/HACS guidelines compliance (06bf5d1)
 - docs: add My Home Assistant badge for HACS integration (1261b16)
@@ -1100,7 +1091,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 09:49:19 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -1110,7 +1101,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -1142,7 +1132,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 09:16:24 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - feat: Add comprehensive disclaimer, icon optimization, and dark mode support (March 2025) (f32b3a1)
 - Add GitHub Action testing for HA 2026.5.0 and Python 3.14 (878e93a)
@@ -1160,7 +1150,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 09:16:24 UTC_
 - Add final honest report - Gold Level ~85% complete (3f5f68e)
 - Add Quality Scale progress documentation (4710b02)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - Document pytest-homeassistant-custom-component update policy (6d65c0b)
 - 📝 Release v1.0.3-beta.3 - Update changelog and version files (94eebbd)
@@ -1186,7 +1176,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 09:16:24 UTC_
 - Update Quality Scale progress - Type Hints completed (cc1a922)
 - 📝 Release v1.0.2 - Update changelog and version files (c2bb382)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - Fix critical zeroconf discovery API compatibility for HA 2026.x (1efc579)
 - fix: production bugs, HA 2026.5.0/Python 3.14 compatibility, test suite fixes (4f153f6)
@@ -1213,7 +1203,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 09:16:24 UTC_
 - Fix ZeroConf Discovery - 100% Tests Passing! ✅ (032d79e)
 - Fix Gold Level imports and test issues (8201f6e)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - docs: slim README, expand wiki with diagnostics page and HA 2026 notes (55ce11b)
 - update-readme-services (dac9edf)
@@ -1257,7 +1247,7 @@ _Generated automatically by GitHub Actions on 2026-03-09 09:16:24 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -1267,7 +1257,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -1299,7 +1288,7 @@ _Generated automatically by GitHub Actions on 2026-03-08 10:42:24 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - Add-custom-icon (65b96a7)
 - Add VIOLET_144.png as icon.png to root and component dirs (d3141ae)
@@ -1313,7 +1302,7 @@ _Generated automatically by GitHub Actions on 2026-03-08 10:42:24 UTC_
 - Add final honest report - Gold Level ~85% complete (3f5f68e)
 - Add Quality Scale progress documentation (4710b02)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - Update custom integration brand images structure (e190831)
 - 📝 Release v1.0.3-beta.3 - Update changelog and version files (a57b380)
@@ -1336,7 +1325,7 @@ _Generated automatically by GitHub Actions on 2026-03-08 10:42:24 UTC_
 - Update Quality Scale progress - Type Hints completed (cc1a922)
 - 📝 Release v1.0.2 - Update changelog and version files (c2bb382)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - Fix code formatting in climate.py (fe7ebde)
 - fix-zeroconf-discovery-filter (eaa3ed3)
@@ -1358,7 +1347,7 @@ _Generated automatically by GitHub Actions on 2026-03-08 10:42:24 UTC_
 - Fix ZeroConf Discovery - 100% Tests Passing! ✅ (032d79e)
 - Fix Gold Level imports and test issues (8201f6e)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - docs: slim README, expand wiki with diagnostics page and HA 2026 notes (55ce11b)
 - update-readme-services (dac9edf)
@@ -1399,7 +1388,7 @@ _Generated automatically by GitHub Actions on 2026-03-08 10:42:24 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -1409,7 +1398,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -1441,7 +1429,7 @@ _Generated automatically by GitHub Actions on 2026-03-03 04:51:15 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - feat: add diagnostics support for HA diagnostics download (8e14741)
 - feat: add diagnostics support for HA diagnostics download (88527b9)
@@ -1453,7 +1441,7 @@ _Generated automatically by GitHub Actions on 2026-03-03 04:51:15 UTC_
 - Add final honest report - Gold Level ~85% complete (3f5f68e)
 - Add Quality Scale progress documentation (4710b02)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - Update integration logo to official Violet icon (8c23aff)
 - 📝 Release v1.0.3-beta.2 - Update changelog and version files (fc7ba31)
@@ -1474,7 +1462,7 @@ _Generated automatically by GitHub Actions on 2026-03-03 04:51:15 UTC_
 - Update Quality Scale progress - Type Hints completed (cc1a922)
 - 📝 Release v1.0.2 - Update changelog and version files (c2bb382)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - Fix code formatting in climate.py (fe7ebde)
 - fix-zeroconf-discovery-filter (eaa3ed3)
@@ -1496,7 +1484,7 @@ _Generated automatically by GitHub Actions on 2026-03-03 04:51:15 UTC_
 - Fix ZeroConf Discovery - 100% Tests Passing! ✅ (032d79e)
 - Fix Gold Level imports and test issues (8201f6e)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - docs: slim README, expand wiki with diagnostics page and HA 2026 notes (55ce11b)
 - update-readme-services (dac9edf)
@@ -1537,7 +1525,7 @@ _Generated automatically by GitHub Actions on 2026-03-03 04:51:15 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -1547,7 +1535,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -1579,7 +1566,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 18:40:23 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - feat: add diagnostics support for HA diagnostics download (8e14741)
 - feat: add diagnostics support for HA diagnostics download (88527b9)
@@ -1591,7 +1578,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 18:40:23 UTC_
 - Add final honest report - Gold Level ~85% complete (3f5f68e)
 - Add Quality Scale progress documentation (4710b02)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - Update FUNDING.yml (499a6d5)
 - 📝 Release v1.0.3-beta.1 - Update changelog and version files (1fc2bce)
@@ -1610,7 +1597,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 18:40:23 UTC_
 - Update Quality Scale progress - Type Hints completed (cc1a922)
 - 📝 Release v1.0.2 - Update changelog and version files (c2bb382)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix-zeroconf-discovery-filter (eaa3ed3)
 - fix: restrict zeroconf discovery to violet devices (05a94c9)
@@ -1631,7 +1618,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 18:40:23 UTC_
 - Fix ZeroConf Discovery - 100% Tests Passing! ✅ (032d79e)
 - Fix Gold Level imports and test issues (8201f6e)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - docs: slim README, expand wiki with diagnostics page and HA 2026 notes (55ce11b)
 - update-readme-services (dac9edf)
@@ -1672,7 +1659,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 18:40:23 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -1682,7 +1669,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -1714,7 +1700,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 15:48:04 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - feat: add diagnostics support for HA diagnostics download (8e14741)
 - feat: add diagnostics support for HA diagnostics download (88527b9)
@@ -1726,7 +1712,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 15:48:04 UTC_
 - Add final honest report - Gold Level ~85% complete (3f5f68e)
 - Add Quality Scale progress documentation (4710b02)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - 📝 Release v1.0.3-alpha.4 - Update changelog and version files (55a78f6)
 - 📝 Release v1.0.3-alpha.3 - Update changelog and version files (de05bf5)
@@ -1743,7 +1729,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 15:48:04 UTC_
 - Update Quality Scale progress - Type Hints completed (cc1a922)
 - 📝 Release v1.0.2 - Update changelog and version files (c2bb382)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix-zeroconf-import-error (4baba0c)
 - fix-zeroconf-import-error (739df44)
@@ -1760,7 +1746,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 15:48:04 UTC_
 - Fix ZeroConf Discovery - 100% Tests Passing! ✅ (032d79e)
 - Fix Gold Level imports and test issues (8201f6e)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - docs: slim README, expand wiki with diagnostics page and HA 2026 notes (55ce11b)
 - update-readme-services (dac9edf)
@@ -1801,7 +1787,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 15:48:04 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -1811,7 +1797,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -1843,7 +1828,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 06:46:08 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - add repairs to manifest dependencies (bdfc0cd)
 - fix: add repairs to manifest dependencies (e8a4f8a)
@@ -1853,7 +1838,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 06:46:08 UTC_
 - Add final honest report - Gold Level ~85% complete (3f5f68e)
 - Add Quality Scale progress documentation (4710b02)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - 📝 Release v1.0.3-alpha.3 - Update changelog and version files (de05bf5)
 - 📝 Release v1.0.3-alpha.2 - Update changelog and version files (44d0302)
@@ -1869,7 +1854,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 06:46:08 UTC_
 - Update Quality Scale progress - Type Hints completed (cc1a922)
 - 📝 Release v1.0.2 - Update changelog and version files (c2bb382)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix-zeroconf-import-error (739df44)
 - fix: move repairs imports to homeassistant.helpers.issue_registry for HA 2026 (3a9d087)
@@ -1885,7 +1870,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 06:46:08 UTC_
 - Fix ZeroConf Discovery - 100% Tests Passing! ✅ (032d79e)
 - Fix Gold Level imports and test issues (8201f6e)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - update-readme-services (dac9edf)
 - docs: Update README.md to reflect new custom services (f1be61f)
@@ -1925,7 +1910,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 06:46:08 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -1935,7 +1920,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -1967,7 +1951,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 05:14:52 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - add repairs to manifest dependencies (bdfc0cd)
 - fix: add repairs to manifest dependencies (e8a4f8a)
@@ -1977,7 +1961,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 05:14:52 UTC_
 - Add final honest report - Gold Level ~85% complete (3f5f68e)
 - Add Quality Scale progress documentation (4710b02)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - 📝 Release v1.0.3-alpha.2 - Update changelog and version files (44d0302)
 - small update for blueprints, dashboards and workflows (38ed640)
@@ -1992,7 +1976,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 05:14:52 UTC_
 - Update Quality Scale progress - Type Hints completed (cc1a922)
 - 📝 Release v1.0.2 - Update changelog and version files (c2bb382)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix-zeroconf-import-error (512353a)
 - fix: replace ZeroconfServiceInfo with AsyncServiceInfo for HA 2026 compatibility (62ac86f)
@@ -2006,7 +1990,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 05:14:52 UTC_
 - Fix ZeroConf Discovery - 100% Tests Passing! ✅ (032d79e)
 - Fix Gold Level imports and test issues (8201f6e)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - update-readme-services (dac9edf)
 - docs: Update README.md to reflect new custom services (f1be61f)
@@ -2046,7 +2030,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 05:14:52 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -2056,7 +2040,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -2088,7 +2071,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 05:02:47 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - add repairs to manifest dependencies (bdfc0cd)
 - fix: add repairs to manifest dependencies (e8a4f8a)
@@ -2098,7 +2081,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 05:02:47 UTC_
 - Add final honest report - Gold Level ~85% complete (3f5f68e)
 - Add Quality Scale progress documentation (4710b02)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - small update for blueprints, dashboards and workflows (38ed640)
 - update-readme-services (dac9edf)
@@ -2112,7 +2095,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 05:02:47 UTC_
 - Update Quality Scale progress - Type Hints completed (cc1a922)
 - 📝 Release v1.0.2 - Update changelog and version files (c2bb382)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix: add repairs to manifest dependencies (e8a4f8a)
 - Fix HA coding standards: collections.abc imports and PARALLEL_UPDATES (7d51b91)
@@ -2124,7 +2107,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 05:02:47 UTC_
 - Fix ZeroConf Discovery - 100% Tests Passing! ✅ (032d79e)
 - Fix Gold Level imports and test issues (8201f6e)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - update-readme-services (dac9edf)
 - docs: Update README.md to reflect new custom services (f1be61f)
@@ -2164,7 +2147,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 05:02:47 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -2174,7 +2157,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -2206,19 +2188,19 @@ _Generated automatically by GitHub Actions on 2026-03-02 04:29:56 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - Add final honest report - Gold Level ~85% complete (3f5f68e)
 - Add Quality Scale progress documentation (4710b02)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - 📝 Release v1.0.3-alpha.1 - Update changelog and version files (1c31c4f)
 - Update Quality Scale Progress - Bronze Level 100% Complete (c041aad)
 - Update Quality Scale progress - Type Hints completed (cc1a922)
 - 📝 Release v1.0.2 - Update changelog and version files (c2bb382)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - /fix-config-flow-handler (b401866)
 - Fix config flow handler not found by adding domain=DOMAIN (9181762)
@@ -2226,7 +2208,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 04:29:56 UTC_
 - Fix ZeroConf Discovery - 100% Tests Passing! ✅ (032d79e)
 - Fix Gold Level imports and test issues (8201f6e)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - Silver Level: Enhanced Error Handling, Diagnostics & Documentation 🥈 (59e947f)
 - Phase 1 Complete: README, Entity Docs & Tests - 100% Bronze Level Achieved (f74118d)
@@ -2262,7 +2244,7 @@ _Generated automatically by GitHub Actions on 2026-03-02 04:29:56 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -2272,7 +2254,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -2304,24 +2285,24 @@ _Generated automatically by GitHub Actions on 2026-02-28 19:54:21 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - Add final honest report - Gold Level ~85% complete (3f5f68e)
 - Add Quality Scale progress documentation (4710b02)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - Update Quality Scale Progress - Bronze Level 100% Complete (c041aad)
 - Update Quality Scale progress - Type Hints completed (cc1a922)
 - 📝 Release v1.0.2 - Update changelog and version files (c2bb382)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - Fix HA 2026 compatibility and complete Gold Level testing (58fa568)
 - Fix ZeroConf Discovery - 100% Tests Passing! ✅ (032d79e)
 - Fix Gold Level imports and test issues (8201f6e)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - Silver Level: Enhanced Error Handling, Diagnostics & Documentation 🥈 (59e947f)
 - Phase 1 Complete: README, Entity Docs & Tests - 100% Bronze Level Achieved (f74118d)
@@ -2357,7 +2338,7 @@ _Generated automatically by GitHub Actions on 2026-02-28 19:54:21 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -2367,7 +2348,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -2397,7 +2377,7 @@ _Generated automatically by GitHub Actions on 2026-02-28 18:49:22 UTC_
 
 ✅ **STABLE RELEASE**
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - Add list of installed components to diagnostic export (6f16d16)
 - Add Home Assistant system info to diagnostic export (372f8be)
@@ -2417,7 +2397,7 @@ _Generated automatically by GitHub Actions on 2026-02-28 18:49:22 UTC_
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
 - Add comprehensive Code Review documentation (18bdf74)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - Update README.md (d8c08bf)
 - 📝 Release v1.0.2-beta.6 - Update changelog and version files (3139add)
@@ -2459,7 +2439,7 @@ _Generated automatically by GitHub Actions on 2026-02-28 18:49:22 UTC_
 - Refactor config flow, optimize API calls, and fix linting issues (95144d0)
 - 📝 Release v1.0.1 - Update changelog and version files (012a9a2)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - Potential fix for code scanning alert no. 7040: Unused local variable (f3a9936)
 - fix-ha-version-access-services (626fa5a)
@@ -2499,13 +2479,13 @@ _Generated automatically by GitHub Actions on 2026-02-28 18:49:22 UTC_
 - fix: Pumpengeschwindigkeit zeigt korrekte aktive Stufe an (6cec3c6)
 - fix: remove wrong RPM unit from PUMP_RPM state code sensors (10e27b3)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - Update README.md (d8c08bf)
 - Update wiki documentation to version 1.0.2-beta.5 (d521c4d)
-- docs(wiki): Füge deutsche Erweiterte-Protokollierung Wiki-Seite hinzu (d1e0241)
+- docs(wiki): Add German Extended Logging wiki page (d1e0241)
 - feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
-- docs: Übersetze Extended Logging Dokumentation ins Deutsche (48de0fe)
+- docs: Translate Extended Logging documentation to German (48de0fe)
 - docs: Add Extended Logging & Diagnostic Tools guide (1bee46a)
 - Merge pull request #203 from Xerolux/claude/setup-wiki-docs-RsE1I (dc50f7e)
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
@@ -2513,8 +2493,8 @@ _Generated automatically by GitHub Actions on 2026-02-28 18:49:22 UTC_
 - docs: Komplettes GitHub Wiki mit allen Seiten (880bb0b)
 - Cleanup: Remove obsolete reports, archived docs, and debug tools (64d613b)
 - Add comprehensive Code Review documentation (18bdf74)
-- docs: Füge komplette Wiki-Dokumentation hinzu (d6188d6)
-- docs: Erstelle komplette Wiki mit allen Features und Dokumentation (4e980f4)
+- docs: Add complete wiki documentation (d6188d6)
+- docs: Create complete wiki with all features and documentation (4e980f4)
 - fix-readme-logo-url- (f0d309d)
 - Fix broken logo URL in README.md (a9cdebc)
 
@@ -2542,7 +2522,7 @@ _Generated automatically by GitHub Actions on 2026-02-28 18:49:22 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -2552,7 +2532,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -2584,7 +2563,7 @@ _Generated automatically by GitHub Actions on 2026-02-26 19:53:49 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - Add list of installed components to diagnostic export (6f16d16)
 - Add Home Assistant system info to diagnostic export (372f8be)
@@ -2604,7 +2583,7 @@ _Generated automatically by GitHub Actions on 2026-02-26 19:53:49 UTC_
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
 - Add comprehensive Code Review documentation (18bdf74)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - 📝 Release v1.0.2-beta.5 - Update changelog and version files (e41f6e1)
 - workflow-update-remove (b5ec596)
@@ -2644,7 +2623,7 @@ _Generated automatically by GitHub Actions on 2026-02-26 19:53:49 UTC_
 - Refactor config flow, optimize API calls, and fix linting issues (95144d0)
 - 📝 Release v1.0.1 - Update changelog and version files (012a9a2)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix-ha-version-access-services (626fa5a)
 - Fix: Replace deprecated `hass.config.version` with `homeassistant.const.__version__` in diagnostic logs. (8fd9380)
@@ -2683,12 +2662,12 @@ _Generated automatically by GitHub Actions on 2026-02-26 19:53:49 UTC_
 - fix: Pumpengeschwindigkeit zeigt korrekte aktive Stufe an (6cec3c6)
 - fix: remove wrong RPM unit from PUMP_RPM state code sensors (10e27b3)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - Update wiki documentation to version 1.0.2-beta.5 (d521c4d)
-- docs(wiki): Füge deutsche Erweiterte-Protokollierung Wiki-Seite hinzu (d1e0241)
+- docs(wiki): Add German Extended Logging wiki page (d1e0241)
 - feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
-- docs: Übersetze Extended Logging Dokumentation ins Deutsche (48de0fe)
+- docs: Translate Extended Logging documentation to German (48de0fe)
 - docs: Add Extended Logging & Diagnostic Tools guide (1bee46a)
 - Merge pull request #203 from Xerolux/claude/setup-wiki-docs-RsE1I (dc50f7e)
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
@@ -2696,8 +2675,8 @@ _Generated automatically by GitHub Actions on 2026-02-26 19:53:49 UTC_
 - docs: Komplettes GitHub Wiki mit allen Seiten (880bb0b)
 - Cleanup: Remove obsolete reports, archived docs, and debug tools (64d613b)
 - Add comprehensive Code Review documentation (18bdf74)
-- docs: Füge komplette Wiki-Dokumentation hinzu (d6188d6)
-- docs: Erstelle komplette Wiki mit allen Features und Dokumentation (4e980f4)
+- docs: Add complete wiki documentation (d6188d6)
+- docs: Create complete wiki with all features and documentation (4e980f4)
 - fix-readme-logo-url- (f0d309d)
 - Fix broken logo URL in README.md (a9cdebc)
 
@@ -2725,7 +2704,7 @@ _Generated automatically by GitHub Actions on 2026-02-26 19:53:49 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -2735,7 +2714,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -2767,7 +2745,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 17:24:15 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - Add list of installed components to diagnostic export (6f16d16)
 - Add Home Assistant system info to diagnostic export (372f8be)
@@ -2787,7 +2765,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 17:24:15 UTC_
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
 - Add comprehensive Code Review documentation (18bdf74)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - workflow-update-remove (b5ec596)
 - update-wiki-content (0c3cfb0)
@@ -2826,7 +2804,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 17:24:15 UTC_
 - Refactor config flow, optimize API calls, and fix linting issues (95144d0)
 - 📝 Release v1.0.1 - Update changelog and version files (012a9a2)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - enhanced-logging-and-sensor-fix (343ad18)
 - fix-log-export-path (976d4d8)
@@ -2863,12 +2841,12 @@ _Generated automatically by GitHub Actions on 2026-02-25 17:24:15 UTC_
 - fix: Pumpengeschwindigkeit zeigt korrekte aktive Stufe an (6cec3c6)
 - fix: remove wrong RPM unit from PUMP_RPM state code sensors (10e27b3)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - Update wiki documentation to version 1.0.2-beta.5 (d521c4d)
-- docs(wiki): Füge deutsche Erweiterte-Protokollierung Wiki-Seite hinzu (d1e0241)
+- docs(wiki): Add German Extended Logging wiki page (d1e0241)
 - feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
-- docs: Übersetze Extended Logging Dokumentation ins Deutsche (48de0fe)
+- docs: Translate Extended Logging documentation to German (48de0fe)
 - docs: Add Extended Logging & Diagnostic Tools guide (1bee46a)
 - Merge pull request #203 from Xerolux/claude/setup-wiki-docs-RsE1I (dc50f7e)
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
@@ -2876,8 +2854,8 @@ _Generated automatically by GitHub Actions on 2026-02-25 17:24:15 UTC_
 - docs: Komplettes GitHub Wiki mit allen Seiten (880bb0b)
 - Cleanup: Remove obsolete reports, archived docs, and debug tools (64d613b)
 - Add comprehensive Code Review documentation (18bdf74)
-- docs: Füge komplette Wiki-Dokumentation hinzu (d6188d6)
-- docs: Erstelle komplette Wiki mit allen Features und Dokumentation (4e980f4)
+- docs: Add complete wiki documentation (d6188d6)
+- docs: Create complete wiki with all features and documentation (4e980f4)
 - fix-readme-logo-url- (f0d309d)
 - Fix broken logo URL in README.md (a9cdebc)
 
@@ -2905,7 +2883,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 17:24:15 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -2915,7 +2893,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -2947,7 +2924,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 13:49:04 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - Add optional arguments to log export service (61b8bba)
 - Add configuration settings and poll history to diagnostic log export (5b5fe8c)
@@ -2962,7 +2939,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 13:49:04 UTC_
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
 - Add comprehensive Code Review documentation (18bdf74)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - Enhance diagnostic log export with entity states and raw data (e6d8c69)
 - 📝 Release v1.0.2-beta.5 - Update changelog and version files (316e76d)
@@ -2996,7 +2973,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 13:49:04 UTC_
 - Refactor config flow, optimize API calls, and fix linting issues (95144d0)
 - 📝 Release v1.0.1 - Update changelog and version files (012a9a2)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix-log-export-path (976d4d8)
 - fix-log-export-path (cddb3a3)
@@ -3032,10 +3009,10 @@ _Generated automatically by GitHub Actions on 2026-02-25 13:49:04 UTC_
 - fix: Pumpengeschwindigkeit zeigt korrekte aktive Stufe an (6cec3c6)
 - fix: remove wrong RPM unit from PUMP_RPM state code sensors (10e27b3)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
-- docs: Übersetze Extended Logging Dokumentation ins Deutsche (48de0fe)
+- docs: Translate Extended Logging documentation to German (48de0fe)
 - docs: Add Extended Logging & Diagnostic Tools guide (1bee46a)
 - Merge pull request #203 from Xerolux/claude/setup-wiki-docs-RsE1I (dc50f7e)
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
@@ -3043,8 +3020,8 @@ _Generated automatically by GitHub Actions on 2026-02-25 13:49:04 UTC_
 - docs: Komplettes GitHub Wiki mit allen Seiten (880bb0b)
 - Cleanup: Remove obsolete reports, archived docs, and debug tools (64d613b)
 - Add comprehensive Code Review documentation (18bdf74)
-- docs: Füge komplette Wiki-Dokumentation hinzu (d6188d6)
-- docs: Erstelle komplette Wiki mit allen Features und Dokumentation (4e980f4)
+- docs: Add complete wiki documentation (d6188d6)
+- docs: Create complete wiki with all features and documentation (4e980f4)
 - fix-readme-logo-url- (f0d309d)
 - Fix broken logo URL in README.md (a9cdebc)
 
@@ -3072,7 +3049,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 13:49:04 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -3082,7 +3059,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -3114,7 +3090,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 06:52:13 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - Fix diagnostic log export path and add debug hint (4602573)
 - feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
@@ -3126,7 +3102,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 06:52:13 UTC_
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
 - Add comprehensive Code Review documentation (18bdf74)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - 📝 Release v1.0.2-beta.5 - Update changelog and version files (3f0d719)
 - 📝 Release v1.0.2-beta.5 - Update changelog and version files (1682109)
@@ -3158,7 +3134,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 06:52:13 UTC_
 - Refactor config flow, optimize API calls, and fix linting issues (95144d0)
 - 📝 Release v1.0.1 - Update changelog and version files (012a9a2)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix-log-export-path (cddb3a3)
 - Fix diagnostic log export path and add debug hint (4602573)
@@ -3193,10 +3169,10 @@ _Generated automatically by GitHub Actions on 2026-02-25 06:52:13 UTC_
 - fix: Pumpengeschwindigkeit zeigt korrekte aktive Stufe an (6cec3c6)
 - fix: remove wrong RPM unit from PUMP_RPM state code sensors (10e27b3)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
-- docs: Übersetze Extended Logging Dokumentation ins Deutsche (48de0fe)
+- docs: Translate Extended Logging documentation to German (48de0fe)
 - docs: Add Extended Logging & Diagnostic Tools guide (1bee46a)
 - Merge pull request #203 from Xerolux/claude/setup-wiki-docs-RsE1I (dc50f7e)
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
@@ -3204,8 +3180,8 @@ _Generated automatically by GitHub Actions on 2026-02-25 06:52:13 UTC_
 - docs: Komplettes GitHub Wiki mit allen Seiten (880bb0b)
 - Cleanup: Remove obsolete reports, archived docs, and debug tools (64d613b)
 - Add comprehensive Code Review documentation (18bdf74)
-- docs: Füge komplette Wiki-Dokumentation hinzu (d6188d6)
-- docs: Erstelle komplette Wiki mit allen Features und Dokumentation (4e980f4)
+- docs: Add complete wiki documentation (d6188d6)
+- docs: Create complete wiki with all features and documentation (4e980f4)
 - fix-readme-logo-url- (f0d309d)
 - Fix broken logo URL in README.md (a9cdebc)
 
@@ -3233,7 +3209,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 06:52:13 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -3243,7 +3219,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -3275,7 +3250,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 06:14:17 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
 - docs: Add Extended Logging & Diagnostic Tools guide (1bee46a)
@@ -3286,7 +3261,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 06:14:17 UTC_
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
 - Add comprehensive Code Review documentation (18bdf74)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - 📝 Release v1.0.2-beta.5 - Update changelog and version files (1682109)
 - fix-cover-binary-sensor-force-update (5e4ee48)
@@ -3317,7 +3292,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 06:14:17 UTC_
 - Refactor config flow, optimize API calls, and fix linting issues (95144d0)
 - 📝 Release v1.0.1 - Update changelog and version files (012a9a2)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix-hass-data-keyerror (e93e589)
 - Fix KeyError in async_setup_entry by initializing hass.data[DOMAIN] (1c8ffef)
@@ -3350,10 +3325,10 @@ _Generated automatically by GitHub Actions on 2026-02-25 06:14:17 UTC_
 - fix: Pumpengeschwindigkeit zeigt korrekte aktive Stufe an (6cec3c6)
 - fix: remove wrong RPM unit from PUMP_RPM state code sensors (10e27b3)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
-- docs: Übersetze Extended Logging Dokumentation ins Deutsche (48de0fe)
+- docs: Translate Extended Logging documentation to German (48de0fe)
 - docs: Add Extended Logging & Diagnostic Tools guide (1bee46a)
 - Merge pull request #203 from Xerolux/claude/setup-wiki-docs-RsE1I (dc50f7e)
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
@@ -3361,8 +3336,8 @@ _Generated automatically by GitHub Actions on 2026-02-25 06:14:17 UTC_
 - docs: Komplettes GitHub Wiki mit allen Seiten (880bb0b)
 - Cleanup: Remove obsolete reports, archived docs, and debug tools (64d613b)
 - Add comprehensive Code Review documentation (18bdf74)
-- docs: Füge komplette Wiki-Dokumentation hinzu (d6188d6)
-- docs: Erstelle komplette Wiki mit allen Features und Dokumentation (4e980f4)
+- docs: Add complete wiki documentation (d6188d6)
+- docs: Create complete wiki with all features and documentation (4e980f4)
 - fix-readme-logo-url- (f0d309d)
 - Fix broken logo URL in README.md (a9cdebc)
 
@@ -3390,7 +3365,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 06:14:17 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -3400,7 +3375,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -3432,7 +3406,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 05:58:48 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
 - docs: Add Extended Logging & Diagnostic Tools guide (1bee46a)
@@ -3443,7 +3417,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 05:58:48 UTC_
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
 - Add comprehensive Code Review documentation (18bdf74)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - fix-cover-binary-sensor-force-update (5e4ee48)
 - Refactor `CoverIsClosedBinarySensor` to inherit from `VioletPoolControllerEntity`. (7d47fac)
@@ -3473,7 +3447,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 05:58:48 UTC_
 - Refactor config flow, optimize API calls, and fix linting issues (95144d0)
 - 📝 Release v1.0.1 - Update changelog and version files (012a9a2)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix-release-workflow-injection (07a4cb4)
 - fix: use env vars in release workflow to prevent shell injection (edf65ca)
@@ -3504,10 +3478,10 @@ _Generated automatically by GitHub Actions on 2026-02-25 05:58:48 UTC_
 - fix: Pumpengeschwindigkeit zeigt korrekte aktive Stufe an (6cec3c6)
 - fix: remove wrong RPM unit from PUMP_RPM state code sensors (10e27b3)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
-- docs: Übersetze Extended Logging Dokumentation ins Deutsche (48de0fe)
+- docs: Translate Extended Logging documentation to German (48de0fe)
 - docs: Add Extended Logging & Diagnostic Tools guide (1bee46a)
 - Merge pull request #203 from Xerolux/claude/setup-wiki-docs-RsE1I (dc50f7e)
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
@@ -3515,8 +3489,8 @@ _Generated automatically by GitHub Actions on 2026-02-25 05:58:48 UTC_
 - docs: Komplettes GitHub Wiki mit allen Seiten (880bb0b)
 - Cleanup: Remove obsolete reports, archived docs, and debug tools (64d613b)
 - Add comprehensive Code Review documentation (18bdf74)
-- docs: Füge komplette Wiki-Dokumentation hinzu (d6188d6)
-- docs: Erstelle komplette Wiki mit allen Features und Dokumentation (4e980f4)
+- docs: Add complete wiki documentation (d6188d6)
+- docs: Create complete wiki with all features and documentation (4e980f4)
 - fix-readme-logo-url- (f0d309d)
 - Fix broken logo URL in README.md (a9cdebc)
 
@@ -3544,7 +3518,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 05:58:48 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -3554,7 +3528,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -3586,7 +3559,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 05:40:15 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
 - docs: Add Extended Logging & Diagnostic Tools guide (1bee46a)
@@ -3597,7 +3570,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 05:40:15 UTC_
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
 - Add comprehensive Code Review documentation (18bdf74)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - refactor-recovery-api-retries (5453672)
 - Refactor recovery logic, enable API retries, and remove deprecated code (b4cce7a)
@@ -3624,7 +3597,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 05:40:15 UTC_
 - Refactor config flow, optimize API calls, and fix linting issues (95144d0)
 - 📝 Release v1.0.1 - Update changelog and version files (012a9a2)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix-sensor-log-spam (cadec9a)
 - Fix log spam in contact sensor state class override (c98a906)
@@ -3650,10 +3623,10 @@ _Generated automatically by GitHub Actions on 2026-02-25 05:40:15 UTC_
 - fix: Pumpengeschwindigkeit zeigt korrekte aktive Stufe an (6cec3c6)
 - fix: remove wrong RPM unit from PUMP_RPM state code sensors (10e27b3)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
-- docs: Übersetze Extended Logging Dokumentation ins Deutsche (48de0fe)
+- docs: Translate Extended Logging documentation to German (48de0fe)
 - docs: Add Extended Logging & Diagnostic Tools guide (1bee46a)
 - Merge pull request #203 from Xerolux/claude/setup-wiki-docs-RsE1I (dc50f7e)
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
@@ -3661,8 +3634,8 @@ _Generated automatically by GitHub Actions on 2026-02-25 05:40:15 UTC_
 - docs: Komplettes GitHub Wiki mit allen Seiten (880bb0b)
 - Cleanup: Remove obsolete reports, archived docs, and debug tools (64d613b)
 - Add comprehensive Code Review documentation (18bdf74)
-- docs: Füge komplette Wiki-Dokumentation hinzu (d6188d6)
-- docs: Erstelle komplette Wiki mit allen Features und Dokumentation (4e980f4)
+- docs: Add complete wiki documentation (d6188d6)
+- docs: Create complete wiki with all features and documentation (4e980f4)
 - fix-readme-logo-url- (f0d309d)
 - Fix broken logo URL in README.md (a9cdebc)
 
@@ -3690,7 +3663,7 @@ _Generated automatically by GitHub Actions on 2026-02-25 05:40:15 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -3700,7 +3673,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -3732,7 +3704,7 @@ _Generated automatically by GitHub Actions on 2026-02-24 21:26:11 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
 - docs: Add Extended Logging & Diagnostic Tools guide (1bee46a)
@@ -3743,7 +3715,7 @@ _Generated automatically by GitHub Actions on 2026-02-24 21:26:11 UTC_
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
 - Add comprehensive Code Review documentation (18bdf74)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
 - 📝 Release v1.0.2-beta.3 - Update changelog and version files (13d57e4)
@@ -3767,7 +3739,7 @@ _Generated automatically by GitHub Actions on 2026-02-24 21:26:11 UTC_
 - Refactor config flow, optimize API calls, and fix linting issues (95144d0)
 - 📝 Release v1.0.1 - Update changelog and version files (012a9a2)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix: YAML parse error in services.yaml and ruff F541 cleanup in services.py (7b176ae)
 - fix: services.yaml YAML error and optimistic cache leak on task cancellation (655855c)
@@ -3791,10 +3763,10 @@ _Generated automatically by GitHub Actions on 2026-02-24 21:26:11 UTC_
 - fix: Pumpengeschwindigkeit zeigt korrekte aktive Stufe an (6cec3c6)
 - fix: remove wrong RPM unit from PUMP_RPM state code sensors (10e27b3)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - feat: Increase log export limit to 10,000 lines and update documentation (3c42752)
-- docs: Übersetze Extended Logging Dokumentation ins Deutsche (48de0fe)
+- docs: Translate Extended Logging documentation to German (48de0fe)
 - docs: Add Extended Logging & Diagnostic Tools guide (1bee46a)
 - Merge pull request #203 from Xerolux/claude/setup-wiki-docs-RsE1I (dc50f7e)
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
@@ -3802,8 +3774,8 @@ _Generated automatically by GitHub Actions on 2026-02-24 21:26:11 UTC_
 - docs: Komplettes GitHub Wiki mit allen Seiten (880bb0b)
 - Cleanup: Remove obsolete reports, archived docs, and debug tools (64d613b)
 - Add comprehensive Code Review documentation (18bdf74)
-- docs: Füge komplette Wiki-Dokumentation hinzu (d6188d6)
-- docs: Erstelle komplette Wiki mit allen Features und Dokumentation (4e980f4)
+- docs: Add complete wiki documentation (d6188d6)
+- docs: Create complete wiki with all features and documentation (4e980f4)
 - fix-readme-logo-url- (f0d309d)
 - Fix broken logo URL in README.md (a9cdebc)
 
@@ -3831,7 +3803,7 @@ _Generated automatically by GitHub Actions on 2026-02-24 21:26:11 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -3841,7 +3813,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -3873,7 +3844,7 @@ _Generated automatically by GitHub Actions on 2026-02-24 18:47:58 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - feat: Add diagnostic logging and log export service for troubleshooting (b50dac7)
 - Add Force Update option to settings (7927ba0)
@@ -3881,7 +3852,7 @@ _Generated automatically by GitHub Actions on 2026-02-24 18:47:58 UTC_
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
 - Add comprehensive Code Review documentation (18bdf74)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - force-update-option (3778ec2)
 - Add Force Update option to settings (7927ba0)
@@ -3903,7 +3874,7 @@ _Generated automatically by GitHub Actions on 2026-02-24 18:47:58 UTC_
 - Refactor config flow, optimize API calls, and fix linting issues (95144d0)
 - 📝 Release v1.0.1 - Update changelog and version files (012a9a2)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix-stuck-sensors-partial-updates (a4055e5)
 - Fix: Prevent stuck sensor values by replacing device data instead of merging (395e5cc)
@@ -3922,7 +3893,7 @@ _Generated automatically by GitHub Actions on 2026-02-24 18:47:58 UTC_
 - fix: Pumpengeschwindigkeit zeigt korrekte aktive Stufe an (6cec3c6)
 - fix: remove wrong RPM unit from PUMP_RPM state code sensors (10e27b3)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - Merge pull request #203 from Xerolux/claude/setup-wiki-docs-RsE1I (dc50f7e)
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
@@ -3930,8 +3901,8 @@ _Generated automatically by GitHub Actions on 2026-02-24 18:47:58 UTC_
 - docs: Komplettes GitHub Wiki mit allen Seiten (880bb0b)
 - Cleanup: Remove obsolete reports, archived docs, and debug tools (64d613b)
 - Add comprehensive Code Review documentation (18bdf74)
-- docs: Füge komplette Wiki-Dokumentation hinzu (d6188d6)
-- docs: Erstelle komplette Wiki mit allen Features und Dokumentation (4e980f4)
+- docs: Add complete wiki documentation (d6188d6)
+- docs: Create complete wiki with all features and documentation (4e980f4)
 - fix-readme-logo-url- (f0d309d)
 - Fix broken logo URL in README.md (a9cdebc)
 
@@ -3959,7 +3930,7 @@ _Generated automatically by GitHub Actions on 2026-02-24 18:47:58 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -3969,7 +3940,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -4001,13 +3971,13 @@ _Generated automatically by GitHub Actions on 2026-02-24 17:30:11 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - fix: add .nojekyll to prevent GitHub Pages Jekyll build failure (e8ba40d)
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
 - Add comprehensive Code Review documentation (18bdf74)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - 📝 Release v1.0.2-beta.2 - Update changelog and version files (bb134ff)
 - fix: resolve sensor update stalling caused by mutable dict reference (16ed441)
@@ -4026,7 +3996,7 @@ _Generated automatically by GitHub Actions on 2026-02-24 17:30:11 UTC_
 - Refactor config flow, optimize API calls, and fix linting issues (95144d0)
 - 📝 Release v1.0.1 - Update changelog and version files (012a9a2)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix-stuck-sensors-partial-updates (a4055e5)
 - Fix: Prevent stuck sensor values by replacing device data instead of merging (395e5cc)
@@ -4045,7 +4015,7 @@ _Generated automatically by GitHub Actions on 2026-02-24 17:30:11 UTC_
 - fix: Pumpengeschwindigkeit zeigt korrekte aktive Stufe an (6cec3c6)
 - fix: remove wrong RPM unit from PUMP_RPM state code sensors (10e27b3)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - Merge pull request #203 from Xerolux/claude/setup-wiki-docs-RsE1I (dc50f7e)
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
@@ -4053,8 +4023,8 @@ _Generated automatically by GitHub Actions on 2026-02-24 17:30:11 UTC_
 - docs: Komplettes GitHub Wiki mit allen Seiten (880bb0b)
 - Cleanup: Remove obsolete reports, archived docs, and debug tools (64d613b)
 - Add comprehensive Code Review documentation (18bdf74)
-- docs: Füge komplette Wiki-Dokumentation hinzu (d6188d6)
-- docs: Erstelle komplette Wiki mit allen Features und Dokumentation (4e980f4)
+- docs: Add complete wiki documentation (d6188d6)
+- docs: Create complete wiki with all features and documentation (4e980f4)
 - fix-readme-logo-url- (f0d309d)
 - Fix broken logo URL in README.md (a9cdebc)
 
@@ -4082,7 +4052,7 @@ _Generated automatically by GitHub Actions on 2026-02-24 17:30:11 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -4092,7 +4062,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -4124,13 +4093,13 @@ _Generated automatically by GitHub Actions on 2026-02-24 13:37:16 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - fix: add .nojekyll to prevent GitHub Pages Jekyll build failure (e8ba40d)
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
 - Add comprehensive Code Review documentation (18bdf74)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - fix: resolve sensor update stalling caused by mutable dict reference (16ed441)
 - 📝 Release v1.0.2-beta.1 - Update changelog and version files (c6c0cf0)
@@ -4148,7 +4117,7 @@ _Generated automatically by GitHub Actions on 2026-02-24 13:37:16 UTC_
 - Refactor config flow, optimize API calls, and fix linting issues (95144d0)
 - 📝 Release v1.0.1 - Update changelog and version files (012a9a2)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix: resolve sensor update stalling caused by mutable dict reference (16ed441)
 - fix-github-actions (e9bfba6)
@@ -4165,7 +4134,7 @@ _Generated automatically by GitHub Actions on 2026-02-24 13:37:16 UTC_
 - fix: Pumpengeschwindigkeit zeigt korrekte aktive Stufe an (6cec3c6)
 - fix: remove wrong RPM unit from PUMP_RPM state code sensors (10e27b3)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - Merge pull request #203 from Xerolux/claude/setup-wiki-docs-RsE1I (dc50f7e)
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
@@ -4173,8 +4142,8 @@ _Generated automatically by GitHub Actions on 2026-02-24 13:37:16 UTC_
 - docs: Komplettes GitHub Wiki mit allen Seiten (880bb0b)
 - Cleanup: Remove obsolete reports, archived docs, and debug tools (64d613b)
 - Add comprehensive Code Review documentation (18bdf74)
-- docs: Füge komplette Wiki-Dokumentation hinzu (d6188d6)
-- docs: Erstelle komplette Wiki mit allen Features und Dokumentation (4e980f4)
+- docs: Add complete wiki documentation (d6188d6)
+- docs: Create complete wiki with all features and documentation (4e980f4)
 - fix-readme-logo-url- (f0d309d)
 - Fix broken logo URL in README.md (a9cdebc)
 
@@ -4202,7 +4171,7 @@ _Generated automatically by GitHub Actions on 2026-02-24 13:37:16 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -4212,7 +4181,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -4244,13 +4212,13 @@ _Generated automatically by GitHub Actions on 2026-02-24 13:02:41 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - fix: add .nojekyll to prevent GitHub Pages Jekyll build failure (e8ba40d)
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
 - Add comprehensive Code Review documentation (18bdf74)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - docs(wiki): Fix double-bracket links and update date (d315c7e)
 - config-device-refactor (3fa6b19)
@@ -4266,7 +4234,7 @@ _Generated automatically by GitHub Actions on 2026-02-24 13:02:41 UTC_
 - Refactor config flow, optimize API calls, and fix linting issues (95144d0)
 - 📝 Release v1.0.1 - Update changelog and version files (012a9a2)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix-github-actions (e9bfba6)
 - fix: add .nojekyll to prevent GitHub Pages Jekyll build failure (e8ba40d)
@@ -4282,7 +4250,7 @@ _Generated automatically by GitHub Actions on 2026-02-24 13:02:41 UTC_
 - fix: Pumpengeschwindigkeit zeigt korrekte aktive Stufe an (6cec3c6)
 - fix: remove wrong RPM unit from PUMP_RPM state code sensors (10e27b3)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - Merge pull request #203 from Xerolux/claude/setup-wiki-docs-RsE1I (dc50f7e)
 - ci: Add workflow to sync docs/wiki/ to GitHub Wiki (5eba541)
@@ -4290,8 +4258,8 @@ _Generated automatically by GitHub Actions on 2026-02-24 13:02:41 UTC_
 - docs: Komplettes GitHub Wiki mit allen Seiten (880bb0b)
 - Cleanup: Remove obsolete reports, archived docs, and debug tools (64d613b)
 - Add comprehensive Code Review documentation (18bdf74)
-- docs: Füge komplette Wiki-Dokumentation hinzu (d6188d6)
-- docs: Erstelle komplette Wiki mit allen Features und Dokumentation (4e980f4)
+- docs: Add complete wiki documentation (d6188d6)
+- docs: Create complete wiki with all features and documentation (4e980f4)
 - fix-readme-logo-url- (f0d309d)
 - Fix broken logo URL in README.md (a9cdebc)
 
@@ -4319,7 +4287,7 @@ _Generated automatically by GitHub Actions on 2026-02-24 13:02:41 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -4329,7 +4297,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -4359,22 +4326,22 @@ _Generated automatically by GitHub Actions on 2026-02-24 09:46:32 UTC_
 
 ✅ **STABLE RELEASE**
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - Enhanced Violet Pool Controller functionality
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - Refactor: Clean up repository structure and resolve conflicts (c4821fe)
 - 📝 Release v1.0.0 - Update changelog and version files (71bc58a)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - Release v1.0.1 - Critical Bug Fixes (fe08725)
 - Fix: Multiple critical improvements and bug fixes (642a98e)
 - /repo-cleanup-docs-fix-conflicts (251e375)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - /repo-cleanup-docs-fix-conflicts (251e375)
 
@@ -4398,7 +4365,7 @@ _Generated automatically by GitHub Actions on 2026-02-24 09:46:32 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -4408,7 +4375,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -4442,7 +4408,7 @@ This release fixes critical issues with sensor display, configuration updates, a
 
 ---
 
-### 🐛 Bug Fixes | Fehlerbehebungen
+### 🐛 Bug Fixes
 
 #### Critical Fixes
 
@@ -4513,7 +4479,7 @@ This release fixes critical issues with sensor display, configuration updates, a
   - All connection settings now editable via UI
   - **Impact**: Users can now update credentials without full reconfiguration
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - **Dynamic Configuration**:
   - Settings changes now take effect immediately
@@ -4526,7 +4492,7 @@ This release fixes critical issues with sensor display, configuration updates, a
   - Clear error messages for invalid states
   - Improved debug information
 
-### 📝 Documentation | Dokumentation
+### 📝 Documentation
 
 - Updated CHANGELOG with comprehensive v1.0.1 fixes
 - All fixes documented with impact analysis
@@ -4556,7 +4522,7 @@ This release fixes critical issues with sensor display, configuration updates, a
 
 ✅ **STABLE RELEASE**
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - Fix critical API bug, improve startup, add German state descriptions (fa94d08)
 - feat: Diagnostic sensors, HA 2026 compatibility, security improvements (v1.0.7-alpha.4) (4538860)
@@ -4580,13 +4546,13 @@ This release fixes critical issues with sensor display, configuration updates, a
 - Fix firmware version extraction and add setup guide (6f7aed8)
 - Add device info lookup to API (7d53ce0)
 - Add error handling utilities for config flow (1ee9bf2)
-- 🐛 Fix: Schema-Validierung für Feature-Selection (dict comprehension) (dda5028)
-- 🐛 Fix: Config Flow Feature-Selection und Platzhalter (e29ae93)
-- ✨ Feature: Multi-Controller Support mit Auto-Bereichen (ff3f7fc)
-- ✨ Feature: Auto-Recovery + Enhanced Input Sanitization (bb07c09)
+- 🐛 Fix: Schema validation for feature selection (dict comprehension) (dda5028)
+- 🐛 Fix: Config flow feature selection and placeholders (e29ae93)
+- ✨ Feature: Multi-controller support with auto ranges (ff3f7fc)
+- ✨ Feature: Auto-recovery + enhanced input sanitization (bb07c09)
 - ✨ Add explicit pre-release support to workflow (96a4bc9)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - Fix critical API bug, improve startup, add German state descriptions (fa94d08)
 - 📝 Release v1.0.7-alpha.3 - Update changelog and version files (33f1eef)
@@ -4626,16 +4592,16 @@ This release fixes critical issues with sensor display, configuration updates, a
 - Fix controller connection setup errors and improve retry logic (3d75ed2)
 - Update config_flow.py (d57e4d1)
 - Update config_flow.py (c1a8406)
-- 🔧 Refactor: Harmonisierung und Code-Optimierung (a9302b2)
+- 🔧 Refactor: Harmonization and code optimization (a9302b2)
 - 📝 Update version to v0.2.0-beta.3 and release notes (31e18d7)
 - 📝 Update version to v0.2.0-beta.2 and release notes (0713c62)
-- 🔧 Refactor: Modular code structure + Security improvements (3946e22)
+- 🔧 Refactor: Modular code structure + security improvements (3946e22)
 - 📝 Update version to v0.2.0-beta.1 and release notes (814cd1c)
 - Update README.md (8f43330)
 - Update README.md (3630abb)
 - 📝 Update version to v0.2.0 and release notes (4887b5b)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - 🔧 Fix hassfest validation: remove homeassistant key, fix URLs (b3757ae)
 - 📦 Release v1.0.0 - Fix hassfest validation, version bump (6ae9fea)
@@ -4711,16 +4677,16 @@ This release fixes critical issues with sensor display, configuration updates, a
 - fix (8c9c534)
 - Merge pull request #128 from Xerolux/claude/fix-violet-pool-logger-01GrXWMNUnsRLnJNm8477LZk (425aea7)
 - Merge pull request #127 from Xerolux/claude/fix-violet-pool-logger-01GrXWMNUnsRLnJNm8477LZk (b51847b)
-- 🐛 Fix: Schema-Validierung für Feature-Selection (dict comprehension) (dda5028)
+- 🐛 Fix: Schema validation for feature selection (dict comprehension) (dda5028)
 - Merge pull request #126 from Xerolux/claude/fix-violet-pool-logger-01GrXWMNUnsRLnJNm8477LZk (0bbb990)
-- 🐛 Fix: Config Flow Feature-Selection und Platzhalter (e29ae93)
+- 🐛 Fix: Config flow feature selection and placeholders (e29ae93)
 - Merge pull request #125 from Xerolux/claude/fix-violet-pool-logger-01GrXWMNUnsRLnJNm8477LZk (c7977ef)
-- 🐛 Fix: Config Flow Step-ID Fehler welcome (3652e8d)
+- 🐛 Fix: Config flow step ID error welcome (3652e8d)
 - Merge pull request #124 from Xerolux/claude/fix-violet-pool-logger-01GrXWMNUnsRLnJNm8477LZk (d5193b9)
-- 🐛 Fix: ConfigEntryNotReady Exception-Handling beim Setup (8421498)
-- 🐛 Fix: Options Flow + Dynamic Device-Info für Multi-Controller (fd91013)
+- 🐛 Fix: ConfigEntryNotReady exception handling during setup (8421498)
+- 🐛 Fix: Options flow + dynamic device info for multi-controller (fd91013)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - Add Home Assistant test infrastructure and test results documentation (4f0c7f8)
 - Merge pull request #163 from Xerolux/claude/update-readme-01GdiF4dE7x48kixTQs1mbRk (243046c)
@@ -4770,7 +4736,7 @@ This release fixes critical issues with sensor display, configuration updates, a
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -4780,7 +4746,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -4804,7 +4769,7 @@ _Generated automatically by GitHub Actions on 2026-02-06 13:00:03 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -4814,7 +4779,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you!
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank!
 
 ---
 
@@ -4828,48 +4792,48 @@ Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank!
 
 ### Highlights
 
-Die erste stabile Version der komplett überarbeiteten Violet Pool Controller Integration.
-Getestet auf echtem Controller-Hardware mit HA 2026.
+The first stable release of the completely rewritten Violet Pool Controller integration.
+Tested on real controller hardware with HA 2026.
 
 ---
 
-### Critical Bug Fixes | Kritische Fehlerbehebungen
+### Critical Bug Fixes
 
-- **API Query Parameter Fix**: `getReadings` Endpunkt nutzte fehlerhafte `params={"ALL": ""}` statt korrekte `query="ALL"` - **dies war die Ursache für fehlende Sensordaten**
-- **Firmware-Extraktion**: Firmware-Version wird jetzt korrekt aus der API-Antwort extrahiert
-- **Switch State Handling**: Leere Strings (`""`) werden nicht mehr als `True` interpretiert
-- **Composite State Parsing**: Pipe-separierte Zustände wie `"2|BLOCKED_BY_OUTSIDE_TEMP"` werden jetzt korrekt aufgelöst
-- **Empty State Arrays**: `SOLARSTATE = "[]"` wird als fehlender Wert erkannt und Fallback auf Basiszustand genutzt
-- **Status-Sensor Deutsch**: Alle Status-Sensoren zeigen jetzt deutsche Beschreibungen statt englischer Texte
+- **API Query Parameter Fix**: `getReadings` endpoint used incorrect `params={"ALL": ""}` instead of correct `query="ALL"` - **this was the cause of missing sensor data**
+- **Firmware Extraction**: Firmware version is now correctly extracted from the API response
+- **Switch State Handling**: Empty strings (`""`) are no longer interpreted as `True`
+- **Composite State Parsing**: Pipe-separated states like `"2|BLOCKED_BY_OUTSIDE_TEMP"` are now correctly resolved
+- **Empty State Arrays**: `SOLARSTATE = "[]"` is recognized as a missing value with fallback to base state
+- **Status Sensor Localization**: All status sensors now show localized descriptions instead of English text
 
-### New Features | Neue Funktionen
+### New Features
 
-- **Deutsche Status-Beschreibungen**: Switches zeigen detaillierte deutsche Zustandsinformationen in `extra_state_attributes` (Modus, Geschwindigkeit, Laufzeit)
-- **Pumpen-Details**: Aktive Drehzahlstufe (0-3) wird automatisch erkannt und angezeigt
-- **Heizungs-Details**: Zieltemperatur und Nachlaufzeit in Attributen sichtbar
-- **Solar-Details**: Zieltemperatur als Attribut verfügbar
-- **Dosierungs-Details**: Status, Reichweite, Tagesmenge und Kanistervolumen als Attribute
-- **Rückspülungs-Details**: Rückspülschritt und Info als Attribute
-- **Dashboard Template**: `Dashboard/pool_control_status.yaml` mit `secondaryinfo-entity-row` für Status-Anzeige direkt unter Schaltern
-- **Circuit Breaker Pattern**: Automatische Absicherung gegen API-Ausfälle mit Retry und Recovery
+- **Localized Status Descriptions**: Switches show detailed state information in `extra_state_attributes` (mode, speed, runtime)
+- **Pump Details**: Active speed level (0-3) is automatically detected and displayed
+- **Heater Details**: Target temperature and overrun time visible in attributes
+- **Solar Details**: Target temperature available as attribute
+- **Dosing Details**: Status, range, daily amount and canister volume as attributes
+- **Backwash Details**: Backwash step and info as attributes
+- **Dashboard Template**: `Dashboard/pool_control_status.yaml` with `secondaryinfo-entity-row` for status display directly under switches
+- **Circuit Breaker Pattern**: Automatic protection against API failures with retry and recovery
 
-### Improvements | Verbesserungen
+### Improvements
 
-- **Startup Performance**: 3-Sekunden-Sleep beim Start entfernt - Integration startet sofort
-- **Vereinfachtes Data Fetching**: Immer Full Refresh statt komplexer Partial/Full-Logik
-- **Composite State Sensoren**: PUMPSTATE, HEATERSTATE, SOLARSTATE korrekt als Sensoren verfügbar
-- **Dosing State Sensoren**: DOS_*_STATE Arrays werden korrekt geparst und angezeigt
-- **API Rate Limiting**: Token Bucket Algorithmus schützt den Controller vor Überlastung
-- **Auto-Recovery**: Exponentieller Backoff (10s-300s) bei Verbindungsverlust
-- **Input Sanitization**: Schutz gegen XSS, SQL Injection und Command Injection
-- **SSL/TLS Security**: Zertifikatsverifizierung standardmäßig aktiviert
-- **HA 2026 Kompatibilität**: Getestet mit Home Assistant 2025.12.0+
+- **Startup Performance**: Removed 3-second sleep at startup - integration starts immediately
+- **Simplified Data Fetching**: Always full refresh instead of complex partial/full logic
+- **Composite State Sensors**: PUMPSTATE, HEATERSTATE, SOLARSTATE correctly available as sensors
+- **Dosing State Sensors**: DOS_*_STATE arrays are correctly parsed and displayed
+- **API Rate Limiting**: Token bucket algorithm protects the controller from overload
+- **Auto-Recovery**: Exponential backoff (10s-300s) on connection loss
+- **Input Sanitization**: Protection against XSS, SQL injection and command injection
+- **SSL/TLS Security**: Certificate verification enabled by default
+- **HA 2026 Compatibility**: Tested with Home Assistant 2025.12.0+
 
-### Dashboard | Dashboard-Vorlagen
+### Dashboard
 
-- Neue `pool_control_status.yaml` mit zwei Varianten:
-  - **Variante 1**: Mit `custom:secondaryinfo-entity-row` (HACS) - Status direkt unter Schaltern
-  - **Variante 2**: Ohne Custom Card - Status als separate Zeilen
+- New `pool_control_status.yaml` with two variants:
+  - **Variant 1**: With `custom:secondaryinfo-entity-row` (HACS) - status directly under switches
+  - **Variant 2**: Without custom card - status as separate rows
 
 ---
 
@@ -4883,7 +4847,7 @@ Getestet auf echtem Controller-Hardware mit HA 2026.
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - feat: Diagnostic sensors, HA 2026 compatibility, security improvements (v1.0.7-alpha.4) (4538860)
 - Add security utilities for authentication and SSL validation (8d64181)
@@ -4906,13 +4870,13 @@ Getestet auf echtem Controller-Hardware mit HA 2026.
 - Fix firmware version extraction and add setup guide (6f7aed8)
 - Add device info lookup to API (7d53ce0)
 - Add error handling utilities for config flow (1ee9bf2)
-- 🐛 Fix: Schema-Validierung für Feature-Selection (dict comprehension) (dda5028)
-- 🐛 Fix: Config Flow Feature-Selection und Platzhalter (e29ae93)
-- ✨ Feature: Multi-Controller Support mit Auto-Bereichen (ff3f7fc)
-- ✨ Feature: Auto-Recovery + Enhanced Input Sanitization (bb07c09)
+- 🐛 Fix: Schema validation for feature selection (dict comprehension) (dda5028)
+- 🐛 Fix: Config flow feature selection and placeholders (e29ae93)
+- ✨ Feature: Multi-controller support with auto ranges (ff3f7fc)
+- ✨ Feature: Auto-recovery + enhanced input sanitization (bb07c09)
 - ✨ Add explicit pre-release support to workflow (96a4bc9)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - Improve API error handling and stability (2dc238a)
 - Merge pull request #182 from Xerolux/fix-and-optimize-violet-pool-controller-4890044213630928459 (83329c5)
@@ -4950,16 +4914,16 @@ Getestet auf echtem Controller-Hardware mit HA 2026.
 - Fix controller connection setup errors and improve retry logic (3d75ed2)
 - Update config_flow.py (d57e4d1)
 - Update config_flow.py (c1a8406)
-- 🔧 Refactor: Harmonisierung und Code-Optimierung (a9302b2)
+- 🔧 Refactor: Harmonization and code optimization (a9302b2)
 - 📝 Update version to v0.2.0-beta.3 and release notes (31e18d7)
 - 📝 Update version to v0.2.0-beta.2 and release notes (0713c62)
-- 🔧 Refactor: Modular code structure + Security improvements (3946e22)
+- 🔧 Refactor: Modular code structure + security improvements (3946e22)
 - 📝 Update version to v0.2.0-beta.1 and release notes (814cd1c)
 - Update README.md (8f43330)
 - Update README.md (3630abb)
 - 📝 Update version to v0.2.0 and release notes (4887b5b)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - Merge pull request #184 from Xerolux/fix-api-error-handling-3216800569233088969 (553a2ad)
 - Fix CI validation failures (manifest and translations) (5c7ca9e)
@@ -5032,16 +4996,16 @@ Getestet auf echtem Controller-Hardware mit HA 2026.
 - fix (8c9c534)
 - Merge pull request #128 from Xerolux/claude/fix-violet-pool-logger-01GrXWMNUnsRLnJNm8477LZk (425aea7)
 - Merge pull request #127 from Xerolux/claude/fix-violet-pool-logger-01GrXWMNUnsRLnJNm8477LZk (b51847b)
-- 🐛 Fix: Schema-Validierung für Feature-Selection (dict comprehension) (dda5028)
+- 🐛 Fix: Schema validation for feature selection (dict comprehension) (dda5028)
 - Merge pull request #126 from Xerolux/claude/fix-violet-pool-logger-01GrXWMNUnsRLnJNm8477LZk (0bbb990)
-- 🐛 Fix: Config Flow Feature-Selection und Platzhalter (e29ae93)
+- 🐛 Fix: Config flow feature selection and placeholders (e29ae93)
 - Merge pull request #125 from Xerolux/claude/fix-violet-pool-logger-01GrXWMNUnsRLnJNm8477LZk (c7977ef)
-- 🐛 Fix: Config Flow Step-ID Fehler welcome (3652e8d)
+- 🐛 Fix: Config flow step ID error welcome (3652e8d)
 - Merge pull request #124 from Xerolux/claude/fix-violet-pool-logger-01GrXWMNUnsRLnJNm8477LZk (d5193b9)
-- 🐛 Fix: ConfigEntryNotReady Exception-Handling beim Setup (8421498)
-- 🐛 Fix: Options Flow + Dynamic Device-Info für Multi-Controller (fd91013)
+- 🐛 Fix: ConfigEntryNotReady exception handling during setup (8421498)
+- 🐛 Fix: Options flow + dynamic device info for multi-controller (fd91013)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - Add Home Assistant test infrastructure and test results documentation (4f0c7f8)
 - Merge pull request #163 from Xerolux/claude/update-readme-01GdiF4dE7x48kixTQs1mbRk (243046c)
@@ -5091,7 +5055,7 @@ Getestet auf echtem Controller-Hardware mit HA 2026.
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -5101,7 +5065,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -5127,59 +5090,59 @@ _Generated automatically by GitHub Actions on 2026-02-06 11:03:24 UTC_
 
 ## [1.0.7-alpha.4] - 2026-02-01
 
-### 📊 New Diagnostic Sensors | Neue Diagnose-Sensoren
+### 📊 New Diagnostic Sensors
 
 - **API Request Rate Sensor**:
-  - Zeigt API-Aufrufe pro Minute (`api_request_rate`)
-  - Einheit: `req/min`
-  - Hilft bei der Identifizierung von übermäßigem Polling
+  - Shows API calls per minute (`api_request_rate`)
+  - Unit: `req/min`
+  - Helps identify excessive polling
 
 - **Average Latency Sensor**:
-  - Zeigt durchschnittliche Verbindungslatenz (`average_latency`)
-  - Einheit: `ms`
-  - Rollender Durchschnitt der letzten 60 Anfragen
-  - Hilft bei der Analyse von Leistungstrends
+  - Shows average connection latency (`average_latency`)
+  - Unit: `ms`
+  - Rolling average of the last 60 requests
+  - Helps analyze performance trends
 
 - **Recovery Success Rate Sensor**:
-  - Zeigt Erfolgsrate der Auto-Recovery (`recovery_success_rate`)
-  - Einheit: `%`
-  - Hilft bei der Bewertung der Verbindungsstabilität
+  - Shows auto-recovery success rate (`recovery_success_rate`)
+  - Unit: `%`
+  - Helps evaluate connection stability
 
-### 🔧 Improvements | Verbesserungen
+### 🔧 Improvements
 
-- **Diagnostic Tracking erweitert**:
-  - API-Request-Zähler für Rate-Berechnung
-  - Latency-Verlauf (Rolling Window, 60 Samples)
-  - Recovery-Statistiken (Success/Failure Count)
-  - Alle Metriken thread-safe implementiert
+- **Extended Diagnostic Tracking**:
+  - API request counter for rate calculation
+  - Latency history (rolling window, 60 samples)
+  - Recovery statistics (success/failure count)
+  - All metrics implemented thread-safely
 
-### 🌐 Translations | Übersetzungen
+### 🌐 Translations
 
-- Neue Sensor-Übersetzungen in Deutsch und Englisch
-- `api_request_rate` → "API-Anfragerate" / "API Request Rate"
-- `average_latency` → "Durchschnittslatenz" / "Average Latency"
-- `recovery_success_rate` → "Wiederherstellungsrate" / "Recovery Success Rate"
+- New sensor translations in German and English
+- `api_request_rate` → "API Request Rate"
+- `average_latency` → "Average Latency"
+- `recovery_success_rate` → "Recovery Success Rate"
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
-- `FUTURE_IMPROVEMENTS.md` erstellt mit:
-  - Detaillierter Roadmap für zukünftige Verbesserungen
-  - Prioritäts-Matrix (10 Items identifiziert)
-  - Safe Refactoring-Guide für Config Flow
-  - Sicherheits-Checklisten
+- `FUTURE_IMPROVEMENTS.md` created with:
+  - Detailed roadmap for future improvements
+  - Priority matrix (10 items identified)
+  - Safe refactoring guide for config flow
+  - Security checklists
 
 ### 🔍 Code Quality
 
-- ✅ Alle ruff checks bestanden
-- ✅ Keine breaking changes
-- ✅ Backward-kompatibel
-- ✅ Thread-sicherheit gewährleistet
+- ✅ All ruff checks passed
+- ✅ No breaking changes
+- ✅ Backward compatible
+- ✅ Thread safety guaranteed
 
 ---
 
 ## [1.0.7-alpha.3] - 2026-02-01
 
-### 🔒 Security Fixes | Sicherheits-Fixes
+### 🔒 Security Fixes
 
 - **SSL/TLS Certificate Verification**: Added configurable SSL certificate verification with `verify_ssl` parameter
   - Default: Enabled (secure by default)
@@ -5191,7 +5154,7 @@ _Generated automatically by GitHub Actions on 2026-02-06 11:03:24 UTC_
   - Socket connection timeout: 80% of total timeout
 - **Enhanced Input Sanitization**: Updated API methods to use comprehensive input sanitization
 
-### 🏗️ Refactoring | Code-Refactoring
+### 🏗️ Refactoring
 
 - **Type Annotations Modernization**:
   - Updated all `typing.Mapping` imports to `collections.abc.Mapping`
@@ -5204,7 +5167,7 @@ _Generated automatically by GitHub Actions on 2026-02-06 11:03:24 UTC_
   - Simplified nested if statements where applicable
 - **Import Cleanup**: Modernized all imports to use current best practices
 
-### 🧵 Thread Safety | Thread-Sicherheit
+### 🧵 Thread Safety
 
 - **Lock Ordering Documentation**: Added comprehensive thread safety documentation
   - Documented lock acquisition order to prevent deadlocks
@@ -5213,7 +5176,7 @@ _Generated automatically by GitHub Actions on 2026-02-06 11:03:24 UTC_
   - Clear warnings about nested locking and proper patterns
 - **Recovery Logic Safety**: Enhanced recovery task with proper lock handling
 
-### 🔧 Compatibility | Kompatibilität
+### 🔧 Compatibility
 
 - **Home Assistant 2026.1 Ready**:
   - Updated `manifest.json`: minimum HA version `2025.12.0`
@@ -5227,7 +5190,7 @@ _Generated automatically by GitHub Actions on 2026-02-06 11:03:24 UTC_
 - **Improved SSL Context Caching**: SSL contexts created only when needed, reducing overhead
 - **Better Timeout Granularity**: Prevents hanging connections with proper timeout hierarchy
 
-### 📝 Documentation | Dokumentation
+### 📝 Documentation
 
 - **Thread Safety Guide**: Added detailed lock ordering documentation in device.py
 - **Security Warnings**: Added user-facing warnings for insecure SSL configurations
@@ -5243,7 +5206,7 @@ _Generated automatically by GitHub Actions on 2026-02-06 11:03:24 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - add-controller-selection (75a2eb8)
 - Add HA test directories to .gitignore (d3e168b)
@@ -5262,13 +5225,13 @@ _Generated automatically by GitHub Actions on 2026-02-06 11:03:24 UTC_
 - Fix firmware version extraction and add setup guide (6f7aed8)
 - Add device info lookup to API (7d53ce0)
 - Add error handling utilities for config flow (1ee9bf2)
-- 🐛 Fix: Schema-Validierung für Feature-Selection (dict comprehension) (dda5028)
-- 🐛 Fix: Config Flow Feature-Selection und Platzhalter (e29ae93)
-- ✨ Feature: Multi-Controller Support mit Auto-Bereichen (ff3f7fc)
-- ✨ Feature: Auto-Recovery + Enhanced Input Sanitization (bb07c09)
+- 🐛 Fix: Schema validation for feature selection (dict comprehension) (dda5028)
+- 🐛 Fix: Config flow feature selection and placeholders (e29ae93)
+- ✨ Feature: Multi-controller support with auto ranges (ff3f7fc)
+- ✨ Feature: Auto-recovery + enhanced input sanitization (bb07c09)
 - ✨ Add explicit pre-release support to workflow (96a4bc9)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - Fix sed regex in release workflow for CLAUDE.md version update (f7ccc6d)
 - 📝 Release v1.0.7-alpha.1 - Update changelog and version files (1d9d07c)
@@ -5301,16 +5264,16 @@ _Generated automatically by GitHub Actions on 2026-02-06 11:03:24 UTC_
 - Fix controller connection setup errors and improve retry logic (3d75ed2)
 - Update config_flow.py (d57e4d1)
 - Update config_flow.py (c1a8406)
-- 🔧 Refactor: Harmonisierung und Code-Optimierung (a9302b2)
+- 🔧 Refactor: Harmonization and code optimization (a9302b2)
 - 📝 Update version to v0.2.0-beta.3 and release notes (31e18d7)
 - 📝 Update version to v0.2.0-beta.2 and release notes (0713c62)
-- 🔧 Refactor: Modular code structure + Security improvements (3946e22)
+- 🔧 Refactor: Modular code structure + security improvements (3946e22)
 - 📝 Update version to v0.2.0-beta.1 and release notes (814cd1c)
 - Update README.md (8f43330)
 - Update README.md (3630abb)
 - 📝 Update version to v0.2.0 and release notes (4887b5b)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - Fix sed regex in release workflow for CLAUDE.md version update (f7ccc6d)
 - display fix (459c3a1)
@@ -5373,16 +5336,16 @@ _Generated automatically by GitHub Actions on 2026-02-06 11:03:24 UTC_
 - fix (8c9c534)
 - Merge pull request #128 from Xerolux/claude/fix-violet-pool-logger-01GrXWMNUnsRLnJNm8477LZk (425aea7)
 - Merge pull request #127 from Xerolux/claude/fix-violet-pool-logger-01GrXWMNUnsRLnJNm8477LZk (b51847b)
-- 🐛 Fix: Schema-Validierung für Feature-Selection (dict comprehension) (dda5028)
+- 🐛 Fix: Schema validation for feature selection (dict comprehension) (dda5028)
 - Merge pull request #126 from Xerolux/claude/fix-violet-pool-logger-01GrXWMNUnsRLnJNm8477LZk (0bbb990)
-- 🐛 Fix: Config Flow Feature-Selection und Platzhalter (e29ae93)
+- 🐛 Fix: Config flow feature selection and placeholders (e29ae93)
 - Merge pull request #125 from Xerolux/claude/fix-violet-pool-logger-01GrXWMNUnsRLnJNm8477LZk (c7977ef)
-- 🐛 Fix: Config Flow Step-ID Fehler welcome (3652e8d)
+- 🐛 Fix: Config flow step ID error welcome (3652e8d)
 - Merge pull request #124 from Xerolux/claude/fix-violet-pool-logger-01GrXWMNUnsRLnJNm8477LZk (d5193b9)
-- 🐛 Fix: ConfigEntryNotReady Exception-Handling beim Setup (8421498)
-- 🐛 Fix: Options Flow + Dynamic Device-Info für Multi-Controller (fd91013)
+- 🐛 Fix: ConfigEntryNotReady exception handling during setup (8421498)
+- 🐛 Fix: Options flow + dynamic device info for multi-controller (fd91013)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - Add Home Assistant test infrastructure and test results documentation (4f0c7f8)
 - Merge pull request #163 from Xerolux/claude/update-readme-01GdiF4dE7x48kixTQs1mbRk (243046c)
@@ -5431,7 +5394,7 @@ _Generated automatically by GitHub Actions on 2026-02-06 11:03:24 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -5441,7 +5404,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 
@@ -5473,7 +5435,7 @@ _Generated automatically by GitHub Actions on 2026-01-04 08:34:47 UTC_
 
 ---
 
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - new release workflow (b715be0)
 - feat: Add reauthentication, reconfiguration, and diagnostic sensors (ed282c1)
@@ -5487,13 +5449,13 @@ _Generated automatically by GitHub Actions on 2026-01-04 08:34:47 UTC_
 - Fix firmware version extraction and add setup guide (6f7aed8)
 - Add device info lookup to API (7d53ce0)
 - Add error handling utilities for config flow (1ee9bf2)
-- 🐛 Fix: Schema-Validierung für Feature-Selection (dict comprehension) (dda5028)
-- 🐛 Fix: Config Flow Feature-Selection und Platzhalter (e29ae93)
-- ✨ Feature: Multi-Controller Support mit Auto-Bereichen (ff3f7fc)
-- ✨ Feature: Auto-Recovery + Enhanced Input Sanitization (bb07c09)
+- 🐛 Fix: Schema validation for feature selection (dict comprehension) (dda5028)
+- 🐛 Fix: Config flow feature selection and placeholders (e29ae93)
+- ✨ Feature: Multi-controller support with auto ranges (ff3f7fc)
+- ✨ Feature: Auto-recovery + enhanced input sanitization (bb07c09)
 - ✨ Add explicit pre-release support to workflow (96a4bc9)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - improve-setup-reauthentication (cb143dc)
 - optimize-ha-2026 (f63c755)
@@ -5524,16 +5486,16 @@ _Generated automatically by GitHub Actions on 2026-01-04 08:34:47 UTC_
 - Fix controller connection setup errors and improve retry logic (3d75ed2)
 - Update config_flow.py (d57e4d1)
 - Update config_flow.py (c1a8406)
-- 🔧 Refactor: Harmonisierung und Code-Optimierung (a9302b2)
+- 🔧 Refactor: Harmonization and code optimization (a9302b2)
 - 📝 Update version to v0.2.0-beta.3 and release notes (31e18d7)
 - 📝 Update version to v0.2.0-beta.2 and release notes (0713c62)
-- 🔧 Refactor: Modular code structure + Security improvements (3946e22)
+- 🔧 Refactor: Modular code structure + security improvements (3946e22)
 - 📝 Update version to v0.2.0-beta.1 and release notes (814cd1c)
 - Update README.md (8f43330)
 - Update README.md (3630abb)
 - 📝 Update version to v0.2.0 and release notes (4887b5b)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - addon-bugfix-ui-refactor (65c0a5b)
 - fix: Critical bugfixes, UI/UX improvements and code quality enhancements (cf3a920)
@@ -5592,16 +5554,16 @@ _Generated automatically by GitHub Actions on 2026-01-04 08:34:47 UTC_
 - fix (8c9c534)
 - Merge pull request #128 from Xerolux/claude/fix-violet-pool-logger-01GrXWMNUnsRLnJNm8477LZk (425aea7)
 - Merge pull request #127 from Xerolux/claude/fix-violet-pool-logger-01GrXWMNUnsRLnJNm8477LZk (b51847b)
-- 🐛 Fix: Schema-Validierung für Feature-Selection (dict comprehension) (dda5028)
+- 🐛 Fix: Schema validation for feature selection (dict comprehension) (dda5028)
 - Merge pull request #126 from Xerolux/claude/fix-violet-pool-logger-01GrXWMNUnsRLnJNm8477LZk (0bbb990)
-- 🐛 Fix: Config Flow Feature-Selection und Platzhalter (e29ae93)
+- 🐛 Fix: Config flow feature selection and placeholders (e29ae93)
 - Merge pull request #125 from Xerolux/claude/fix-violet-pool-logger-01GrXWMNUnsRLnJNm8477LZk (c7977ef)
-- 🐛 Fix: Config Flow Step-ID Fehler welcome (3652e8d)
+- 🐛 Fix: Config flow step ID error welcome (3652e8d)
 - Merge pull request #124 from Xerolux/claude/fix-violet-pool-logger-01GrXWMNUnsRLnJNm8477LZk (d5193b9)
-- 🐛 Fix: ConfigEntryNotReady Exception-Handling beim Setup (8421498)
-- 🐛 Fix: Options Flow + Dynamic Device-Info für Multi-Controller (fd91013)
+- 🐛 Fix: ConfigEntryNotReady exception handling during setup (8421498)
+- 🐛 Fix: Options flow + dynamic device info for multi-controller (fd91013)
 
-### 📚 Documentation | Dokumentation
+### 📚 Documentation
 
 - Merge pull request #163 from Xerolux/claude/update-readme-01GdiF4dE7x48kixTQs1mbRk (243046c)
 - docs: Update README with v0.2.0-beta.4 changelog and improvements (7e8a039)
@@ -5647,7 +5609,7 @@ _Generated automatically by GitHub Actions on 2026-01-04 08:34:47 UTC_
 
 ---
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer:
 
@@ -5657,7 +5619,6 @@ If you find this integration useful, consider supporting the developer:
 
 Every contribution, no matter how small, is a huge motivation! Thank you! 🙏
 
-Jeder Beitrag, egal wie klein, ist eine große Motivation! Vielen Dank! 🙏
 
 ---
 

@@ -1,266 +1,266 @@
-# Fehler-Codes – Controller Fehlercodes erklärt
+# Error Codes – Controller Error Codes Explained
 
-> Vollständige Referenz aller Violet Pool Controller Fehlercodes mit Ursachen und Lösungsansätzen.
+> Complete reference of all Violet Pool Controller error codes with causes and solutions.
 
 ---
 
-## Überblick
+## Overview
 
-Der Violet Pool Controller sendet Fehlercodes über die API. Diese werden in Home Assistant als Sensor-Attribute angezeigt und können für Automatisierungen genutzt werden.
+The Violet Pool Controller sends error codes via the API. These are displayed in Home Assistant as sensor attributes and can be used for automations.
 
-### Severity-Klassen
+### Severity Classes
 
-| Klasse | Symbol | Bedeutung |
-|--------|--------|-----------|
-| `info` | ℹ️ | Information / Erinnerung – kein Handlungsbedarf |
-| `warning` | ⚠️ | Warnung – Aufmerksamkeit erforderlich |
-| `critical` | 🚨 | Kritisch – sofortige Aktion erforderlich |
+| Class | Symbol | Meaning |
+|--------|--------|---------|
+| `info` | ℹ️ | Information / Reminder – no action required |
+| `warning` | ⚠️ | Warning – attention required |
+| `critical` | 🚨 | Critical – immediate action required |
 
-### Code-Typen
+### Code Types
 
-| Typ | Beschreibung |
+| Type | Description |
 |-----|-------------|
-| `MESSAGE` | Statusnachricht vom Controller |
-| `ALERT` | Alarm – System-Fehler oder Sicherheitsfunktion aktiv |
-| `WARNING` | Warnung – Grenzwert überschritten |
-| `REMINDER` | Erinnerung – Wartung oder Update |
+| `MESSAGE` | Status message from the controller |
+| `ALERT` | Alarm – system error or safety function active |
+| `WARNING` | Warning – threshold exceeded |
+| `REMINDER` | Reminder – maintenance or update |
 
 ---
 
 ## System & Hardware
 
-| Code | Typ | Schwere | Beschreibung | Lösung |
-|------|-----|---------|-------------|--------|
-| `0` | MESSAGE | ℹ️ | Testnachricht | Keine Aktion erforderlich |
-| `1` | MESSAGE | ℹ️ | Statusnachricht | Keine Aktion erforderlich |
-| `2` | ALERT | 🚨 | **Hardwareproblem: COM-Link zum Carrier fehlerhaft** | Gerät neu starten, Hardware prüfen, Support kontaktieren |
-| `3` | REMINDER | ℹ️ | Happy Birthday | Systemgeburtstag – keine Aktion |
-| `8` | WARNING | ⚠️ | CPU-Temperatur hoch | Gerät entlüften, Umgebungstemperatur prüfen |
-| `9` | ALERT | 🚨 | **CPU-Temperatur kritisch** | Sofort Gerät abschalten, Gehäuse/Lüftung prüfen |
+| Code | Type | Severity | Description | Solution |
+|------|------|----------|-------------|----------|
+| `0` | MESSAGE | ℹ️ | Test message | No action required |
+| `1` | MESSAGE | ℹ️ | Status message | No action required |
+| `2` | ALERT | 🚨 | **Hardware issue: COM-Link to carrier faulty** | Restart device, check hardware, contact support |
+| `3` | REMINDER | ℹ️ | Happy Birthday | System birthday – no action |
+| `8` | WARNING | ⚠️ | CPU temperature high | Ventilate device, check ambient temperature |
+| `9` | ALERT | 🚨 | **CPU temperature critical** | Shut down device immediately, check case/ventilation |
 
 ---
 
 ## Updates
 
-| Code | Typ | Schwere | Beschreibung | Lösung |
-|------|-----|---------|-------------|--------|
-| `10` | REMINDER | ℹ️ | Update verfügbar – wird automatisch installiert | Nächste Nacht abwarten |
-| `11` | REMINDER | ℹ️ | Update verfügbar – Bestätigung erforderlich | Im Controller-Webinterface bestätigen |
-| `12` | REMINDER | ℹ️ | Update verfügbar – manuell installieren | Update manuell anstoßen |
+| Code | Type | Severity | Description | Solution |
+|------|------|----------|-------------|----------|
+| `10` | REMINDER | ℹ️ | Update available – will be installed automatically | Wait until next night |
+| `11` | REMINDER | ℹ️ | Update available – confirmation required | Confirm in controller web interface |
+| `12` | REMINDER | ℹ️ | Update available – install manually | Trigger update manually |
 
 ---
 
-## Filterpumpe & Druck
+## Filter Pump & Pressure
 
-| Code | Typ | Schwere | Beschreibung | Lösung |
-|------|-----|---------|-------------|--------|
-| `20` | ALERT | 🚨 | **Filterdruck zu niedrig** | Pumpe und Filter prüfen, Ansaugung kontrollieren |
-| `21` | ALERT | 🚨 | **Filterdruck zu hoch** | Filter rückspülen, Filtergehäuse prüfen |
-| `22` | WARNING | ⚠️ | Messwasser-Anströmung fehlt | Probenahmehahn öffnen, Strömung prüfen |
-| `23` | WARNING | ⚠️ | Messwasser-Anströmung zu hoch | Probenahmehahn drosseln |
-| `24` | ALERT | 🚨 | **Zirkulation fehlt** | Pumpe und Rohrsystem prüfen |
-| `25` | ALERT | 🚨 | **Zirkulation zu hoch** | Absperrorgan prüfen, Pumpe drosseln |
-| `26` | ALERT | 🚨 | **Frostschutz Filterpumpe nicht verfügbar** | Temperatursensor prüfen |
-| `27` | ALERT | 🚨 | **Frostschutz Absorber nicht verfügbar** | Solar-Temperatursensor prüfen |
-
----
-
-## Heizung & Temperatur
-
-| Code | Typ | Schwere | Beschreibung | Lösung |
-|------|-----|---------|-------------|--------|
-| `30` | WARNING | ⚠️ | Wärmetauscher-Temperatur hoch | Durchfluss erhöhen, Heizleistung reduzieren |
-| `31` | ALERT | 🚨 | **Übertemperatur-Schutz nicht verfügbar** | Temperatursensor prüfen |
-
-### Temperaturprogramme (71–78)
-
-| Code | Typ | Schwere | Beschreibung |
-|------|-----|---------|-------------|
-| `71` | WARNING | ⚠️ | Temperaturregelung Programm 1 ausgelöst |
-| `72` | WARNING | ⚠️ | Temperaturregelung Programm 2 ausgelöst |
-| `73` | WARNING | ⚠️ | Temperaturregelung Programm 3 ausgelöst |
-| `74` | WARNING | ⚠️ | Temperaturregelung Programm 4 ausgelöst |
-| `75` | MESSAGE | ℹ️ | Temperaturregelung Programm 5 ausgelöst |
-| `76` | WARNING | ⚠️ | Temperaturregelung Programm 6 ausgelöst |
-| `77` | WARNING | ⚠️ | Temperaturregelung Programm 7 ausgelöst |
-| `78` | WARNING | ⚠️ | Temperaturregelung Programm 8 ausgelöst |
+| Code | Type | Severity | Description | Solution |
+|------|------|----------|-------------|----------|
+| `20` | ALERT | 🚨 | **Filter pressure too low** | Check pump and filter, inspect intake |
+| `21` | ALERT | 🚨 | **Filter pressure too high** | Backwash filter, check filter housing |
+| `22` | WARNING | ⚠️ | Sample water inflow missing | Open sampling valve, check flow |
+| `23` | WARNING | ⚠️ | Sample water inflow too high | Throttle sampling valve |
+| `24` | ALERT | 🚨 | **Circulation missing** | Check pump and piping system |
+| `25` | ALERT | 🚨 | **Circulation too high** | Check shut-off valve, throttle pump |
+| `26` | ALERT | 🚨 | **Frost protection filter pump unavailable** | Check temperature sensor |
+| `27` | ALERT | 🚨 | **Frost protection absorber unavailable** | Check solar temperature sensor |
 
 ---
 
-## Rückspülung
+## Heater & Temperature
 
-| Code | Typ | Schwere | Beschreibung | Lösung |
-|------|-----|---------|-------------|--------|
-| `40` | WARNING | ⚠️ | Rückspülung ausgelassen | Manuell rückspülen, Zeitfenster prüfen |
-| `41` | MESSAGE | ℹ️ | Nachspeisung vor Rückspülung fehlgeschlagen | Wasserzufuhr prüfen |
-| `42` | MESSAGE | ℹ️ | Nachspeisung nicht möglich | Nachspeiseventil und Zufuhr prüfen |
-| `45` | ALERT | 🚨 | **Omnitronic ohne Rückmeldung (Rückspülen)** | Stellantrieb prüfen, Verkabelung kontrollieren |
-| `46` | ALERT | 🚨 | **Omnitronic ohne Rückmeldung (Nachspülen)** | Stellantrieb prüfen |
-| `47` | ALERT | 🚨 | **Omni-Stellantrieb Position nicht erreicht** | Mechanik prüfen, Endschalter kontrollieren |
-| `49` | ALERT | 🚨 | **Omnitronic Rückmeldekontakt offen** | Anschluss und Kontakt prüfen |
+| Code | Type | Severity | Description | Solution |
+|------|------|----------|-------------|----------|
+| `30` | WARNING | ⚠️ | Heat exchanger temperature high | Increase flow rate, reduce heating power |
+| `31` | ALERT | 🚨 | **Over-temperature protection unavailable** | Check temperature sensor |
 
----
+### Temperature Programs (71–78)
 
-## Wassernachspeisung
-
-| Code | Typ | Schwere | Beschreibung | Lösung |
-|------|-----|---------|-------------|--------|
-| `50` | ALERT | 🚨 | **Sicherheitszeit überschritten** | Schwimmerschalter und Wasserzufuhr prüfen |
-| `51` | ALERT | 🚨 | **Oberer Schwimmer hat nicht reagiert** | Schwimmerschalter reinigen/tauschen |
-| `52` | ALERT | 🚨 | **Unterer Schwimmer hat nicht zurückgeschaltet** | Schwimmerschalter reinigen/tauschen |
+| Code | Type | Severity | Description |
+|------|------|----------|-------------|
+| `71` | WARNING | ⚠️ | Temperature control program 1 triggered |
+| `72` | WARNING | ⚠️ | Temperature control program 2 triggered |
+| `73` | WARNING | ⚠️ | Temperature control program 3 triggered |
+| `74` | WARNING | ⚠️ | Temperature control program 4 triggered |
+| `75` | MESSAGE | ℹ️ | Temperature control program 5 triggered |
+| `76` | WARNING | ⚠️ | Temperature control program 6 triggered |
+| `77` | WARNING | ⚠️ | Temperature control program 7 triggered |
+| `78` | WARNING | ⚠️ | Temperature control program 8 triggered |
 
 ---
 
-## Überlaufbehälter
+## Backwash
 
-| Code | Typ | Schwere | Beschreibung | Lösung |
-|------|-----|---------|-------------|--------|
-| `60` | ALERT | 🚨 | **Nachspeisung fehlgeschlagen** | Wasserzufuhr und Ventil prüfen |
-| `61` | WARNING | ⚠️ | Trockenlauf | Füllstand erhöhen, Ansaugung prüfen |
-| `62` | WARNING | ⚠️ | Pegelmessung fehlerhaft | Pegelsonde reinigen/kalibrieren |
-
----
-
-## Temperatursensoren (101–112)
-
-| Code | Typ | Schwere | Beschreibung | Lösung |
-|------|-----|---------|-------------|--------|
-| `101` | WARNING | ⚠️ | Temperatursensor 1 fehlt | Sensor-Kabel prüfen, Sensor tauschen |
-| `102` | WARNING | ⚠️ | Temperatursensor 2 fehlt | Sensor-Kabel prüfen |
-| `103–112` | WARNING | ⚠️ | Temperatursensoren 3–12 fehlen | Entsprechenden Sensor prüfen |
-
-**Vorgehen bei Sensor-Fehler:**
-1. Kabel auf Beschädigung prüfen
-2. Stecker am Controller reinigen
-3. Sensor mit Ohmmeter messen (1-Wire: ~1kΩ bei 25°C)
-4. Bei Defekt: Gleichen Sensor-Typ (DS18B20) verwenden
+| Code | Type | Severity | Description | Solution |
+|------|------|----------|-------------|----------|
+| `40` | WARNING | ⚠️ | Backwash skipped | Backwash manually, check time window |
+| `41` | MESSAGE | ℹ️ | Pre-backwash refill failed | Check water supply |
+| `42` | MESSAGE | ℹ️ | Refill not possible | Check refill valve and supply |
+| `45` | ALERT | 🚨 | **Omnitronic no feedback (backwash)** | Check actuator, inspect wiring |
+| `46` | ALERT | 🚨 | **Omnitronic no feedback (rinse)** | Check actuator |
+| `47` | ALERT | 🚨 | **Omni actuator position not reached** | Check mechanics, inspect limit switches |
+| `49` | ALERT | 🚨 | **Omnitronic feedback contact open** | Check connection and contact |
 
 ---
 
-## Chlor-Dosierung (120–125)
+## Water Refill
 
-| Code | Typ | Schwere | Beschreibung | Lösung |
-|------|-----|---------|-------------|--------|
-| `120` | WARNING | ⚠️ | Redox-Grenzwert Chlor-Dosierung | ORP-Wert prüfen, ggf. manuell dosieren |
-| `121` | WARNING | ⚠️ | Chlor-Grenzwert Dosierung | Chlorgehalt prüfen |
-| `122` | WARNING | ⚠️ | Max. Tagesdosierung überschritten | Ursache suchen (Wasserverlust, hoher Bedarf) |
-| `123` | WARNING | ⚠️ | Chlor-Kanister niedrig | Nachfüllen! |
-| `124` | WARNING | ⚠️ | **Chlor-Kanister leer** | Sofort nachfüllen, Dosierung unterbrochen |
-| `125` | WARNING | ⚠️ | Leermelder-Kontakt Sauglanze | Kanister-Füllstand und Sauglanze prüfen |
+| Code | Type | Severity | Description | Solution |
+|------|------|----------|-------------|----------|
+| `50` | ALERT | 🚨 | **Safety time exceeded** | Check float switch and water supply |
+| `51` | ALERT | 🚨 | **Upper float did not respond** | Clean/replace float switch |
+| `52` | ALERT | 🚨 | **Lower float did not reset** | Clean/replace float switch |
 
 ---
 
-## Elektrolyse (130–135)
+## Overflow Tank
 
-| Code | Typ | Schwere | Beschreibung | Lösung |
-|------|-----|---------|-------------|--------|
-| `130` | WARNING | ⚠️ | Redox-Grenzwert Elektrolyse | ORP-Wert überwachen |
-| `131` | WARNING | ⚠️ | Chlor-Grenzwert Elektrolyse | Chlormessung prüfen |
-| `132` | WARNING | ⚠️ | Max. Tagesproduktion Elektrolyse | Leistung prüfen |
-| `133` | WARNING | ⚠️ | Elektrolyse Restlaufzeit | Zelle-Lebensdauer prüfen, Wartung planen |
-| `134` | WARNING | ⚠️ | Max. Betriebszeit Elektrolyse-Zelle | Zelle tauschen |
-| `135` | WARNING | ⚠️ | Durchflussschalter Elektrolyse | Durchfluss prüfen, Schalter reinigen |
+| Code | Type | Severity | Description | Solution |
+|------|------|----------|-------------|----------|
+| `60` | ALERT | 🚨 | **Refill failed** | Check water supply and valve |
+| `61` | WARNING | ⚠️ | Dry run | Increase fill level, check intake |
+| `62` | WARNING | ⚠️ | Level measurement faulty | Clean/calibrate level probe |
 
 ---
 
-## H2O2-Dosierung (142–145)
+## Temperature Sensors (101–112)
 
-| Code | Typ | Schwere | Beschreibung | Lösung |
-|------|-----|---------|-------------|--------|
-| `142` | WARNING | ⚠️ | H2O2 max. Tagesdosierung | Wasserqualität prüfen |
-| `143` | WARNING | ⚠️ | H2O2-Kanister niedrig | Nachfüllen |
-| `144` | WARNING | ⚠️ | H2O2-Kanister leer | Sofort nachfüllen |
-| `145` | WARNING | ⚠️ | Leermelder Sauerstoff-Kanister | Sauglanze prüfen |
+| Code | Type | Severity | Description | Solution |
+|------|------|----------|-------------|----------|
+| `101` | WARNING | ⚠️ | Temperature sensor 1 missing | Check sensor cable, replace sensor |
+| `102` | WARNING | ⚠️ | Temperature sensor 2 missing | Check sensor cable |
+| `103–112` | WARNING | ⚠️ | Temperature sensors 3–12 missing | Check corresponding sensor |
 
----
-
-## pH-Dosierung (150–165)
-
-| Code | Typ | Schwere | Beschreibung | Lösung |
-|------|-----|---------|-------------|--------|
-| `150` | WARNING | ⚠️ | pH-minus Grenzwert | pH-Wert prüfen |
-| `152` | WARNING | ⚠️ | pH-minus max. Tagesdosierung | Wasserchemie prüfen |
-| `153` | WARNING | ⚠️ | pH-minus Kanister niedrig | Nachfüllen |
-| `154` | WARNING | ⚠️ | **pH-minus Kanister leer** | Sofort nachfüllen |
-| `155` | WARNING | ⚠️ | pH-minus Leermelder | Sauglanze prüfen |
-| `160` | WARNING | ⚠️ | pH-plus Grenzwert | pH-Wert prüfen |
-| `162` | WARNING | ⚠️ | pH-plus max. Tagesdosierung | Wasserchemie prüfen |
-| `163` | WARNING | ⚠️ | pH-plus Kanister niedrig | Nachfüllen |
-| `164` | WARNING | ⚠️ | **pH-plus Kanister leer** | Sofort nachfüllen |
-| `165` | WARNING | ⚠️ | pH-plus Leermelder | Sauglanze prüfen |
+**Steps for sensor failure:**
+1. Check cable for damage
+2. Clean connector on controller
+3. Measure sensor with ohmmeter (1-Wire: ~1kΩ at 25°C)
+4. If defective: Use same sensor type (DS18B20)
 
 ---
 
-## Flockmittel (172–175)
+## Chlorine Dosing (120–125)
 
-| Code | Typ | Schwere | Beschreibung | Lösung |
-|------|-----|---------|-------------|--------|
-| `172` | WARNING | ⚠️ | Flockmittel max. Tagesdosierung | Wassertrübung prüfen |
-| `173` | WARNING | ⚠️ | Flockmittel-Kanister niedrig | Nachfüllen |
-| `174` | WARNING | ⚠️ | **Flockmittel-Kanister leer** | Sofort nachfüllen |
-| `175` | WARNING | ⚠️ | Flockmittel Leermelder | Sauglanze prüfen |
-
----
-
-## Kalibrierungs-Erinnerungen (180–182)
-
-| Code | Typ | Schwere | Beschreibung | Intervall |
-|------|-----|---------|-------------|----------|
-| `180` | REMINDER | ℹ️ | pH-Elektrode kalibrieren fällig | Monatlich |
-| `181` | REMINDER | ℹ️ | Redox-Elektrode kalibrieren fällig | Monatlich |
-| `182` | REMINDER | ℹ️ | Chlor-Elektrode kalibrieren fällig | Monatlich |
+| Code | Type | Severity | Description | Solution |
+|------|------|----------|-------------|----------|
+| `120` | WARNING | ⚠️ | ORP threshold chlorine dosing | Check ORP value, dose manually if needed |
+| `121` | WARNING | ⚠️ | Chlorine threshold dosing | Check chlorine level |
+| `122` | WARNING | ⚠️ | Max. daily dosing exceeded | Find cause (water loss, high demand) |
+| `123` | WARNING | ⚠️ | Chlorine canister low | Refill! |
+| `124` | WARNING | ⚠️ | **Chlorine canister empty** | Refill immediately, dosing interrupted |
+| `125` | WARNING | ⚠️ | Empty indicator contact suction lance | Check canister level and suction lance |
 
 ---
 
-## Kommunikation & Module (200–210)
+## Electrolysis (130–135)
 
-| Code | Typ | Schwere | Beschreibung | Lösung |
-|------|-----|---------|-------------|--------|
-| `200` | WARNING | ⚠️ | Dosiermodul getrennt | Kabel und Stecker prüfen |
-| `201` | WARNING | ⚠️ | Dosiermodul Kommunikation verloren | Bus-Kommunikation prüfen |
-| `203` | WARNING | ⚠️ | Relais-Erweiterung 1 getrennt | Kabel prüfen |
-| `204` | WARNING | ⚠️ | Relais-Erweiterung 1 Kommunikation verloren | Bus-Kommunikation prüfen |
-| `206` | WARNING | ⚠️ | Relais-Erweiterung 2 getrennt | Kabel prüfen |
-| `207` | WARNING | ⚠️ | Relais-Erweiterung 2 Kommunikation verloren | Bus-Kommunikation prüfen |
-| `209` | ALERT | 🚨 | **Zweites Dosiermodul erkannt** | Nur ein Dosiermodul erlaubt – entfernen |
-| `210` | ALERT | 🚨 | **Falsch codierte Relais-Erweiterung** | Codierung der Erweiterung prüfen |
+| Code | Type | Severity | Description | Solution |
+|------|------|----------|-------------|----------|
+| `130` | WARNING | ⚠️ | ORP threshold electrolysis | Monitor ORP value |
+| `131` | WARNING | ⚠️ | Chlorine threshold electrolysis | Check chlorine measurement |
+| `132` | WARNING | ⚠️ | Max. daily production electrolysis | Check performance |
+| `133` | WARNING | ⚠️ | Electrolysis remaining runtime | Check cell lifespan, plan maintenance |
+| `134` | WARNING | ⚠️ | Max. operating hours electrolysis cell | Replace cell |
+| `135` | WARNING | ⚠️ | Flow switch electrolysis | Check flow, clean switch |
 
 ---
 
-## Analog- und Schaltregeln (81–98)
+## H2O2 Dosing (142–145)
 
-### Analogregeln
+| Code | Type | Severity | Description | Solution |
+|------|------|----------|-------------|----------|
+| `142` | WARNING | ⚠️ | H2O2 max. daily dosing | Check water quality |
+| `143` | WARNING | ⚠️ | H2O2 canister low | Refill |
+| `144` | WARNING | ⚠️ | H2O2 canister empty | Refill immediately |
+| `145` | WARNING | ⚠️ | Empty indicator oxygen canister | Check suction lance |
 
-| Code | Beschreibung |
+---
+
+## pH Dosing (150–165)
+
+| Code | Type | Severity | Description | Solution |
+|------|------|----------|-------------|----------|
+| `150` | WARNING | ⚠️ | pH-minus threshold | Check pH value |
+| `152` | WARNING | ⚠️ | pH-minus max. daily dosing | Check water chemistry |
+| `153` | WARNING | ⚠️ | pH-minus canister low | Refill |
+| `154` | WARNING | ⚠️ | **pH-minus canister empty** | Refill immediately |
+| `155` | WARNING | ⚠️ | pH-minus empty indicator | Check suction lance |
+| `160` | WARNING | ⚠️ | pH-plus threshold | Check pH value |
+| `162` | WARNING | ⚠️ | pH-plus max. daily dosing | Check water chemistry |
+| `163` | WARNING | ⚠️ | pH-plus canister low | Refill |
+| `164` | WARNING | ⚠️ | **pH-plus canister empty** | Refill immediately |
+| `165` | WARNING | ⚠️ | pH-plus empty indicator | Check suction lance |
+
+---
+
+## Flocculant (172–175)
+
+| Code | Type | Severity | Description | Solution |
+|------|------|----------|-------------|----------|
+| `172` | WARNING | ⚠️ | Flocculant max. daily dosing | Check water turbidity |
+| `173` | WARNING | ⚠️ | Flocculant canister low | Refill |
+| `174` | WARNING | ⚠️ | **Flocculant canister empty** | Refill immediately |
+| `175` | WARNING | ⚠️ | Flocculant empty indicator | Check suction lance |
+
+---
+
+## Calibration Reminders (180–182)
+
+| Code | Type | Severity | Description | Interval |
+|------|------|----------|-------------|----------|
+| `180` | REMINDER | ℹ️ | pH electrode calibration due | Monthly |
+| `181` | REMINDER | ℹ️ | ORP electrode calibration due | Monthly |
+| `182` | REMINDER | ℹ️ | Chlorine electrode calibration due | Monthly |
+
+---
+
+## Communication & Modules (200–210)
+
+| Code | Type | Severity | Description | Solution |
+|------|------|----------|-------------|----------|
+| `200` | WARNING | ⚠️ | Dosing module disconnected | Check cable and connectors |
+| `201` | WARNING | ⚠️ | Dosing module communication lost | Check bus communication |
+| `203` | WARNING | ⚠️ | Relay extension 1 disconnected | Check cable |
+| `204` | WARNING | ⚠️ | Relay extension 1 communication lost | Check bus communication |
+| `206` | WARNING | ⚠️ | Relay extension 2 disconnected | Check cable |
+| `207` | WARNING | ⚠️ | Relay extension 2 communication lost | Check bus communication |
+| `209` | ALERT | 🚨 | **Second dosing module detected** | Only one dosing module allowed – remove |
+| `210` | ALERT | 🚨 | **Incorrectly coded relay extension** | Check extension coding |
+
+---
+
+## Analog and Switch Rules (81–98)
+
+### Analog Rules
+
+| Code | Description |
 |------|-------------|
-| `81–88` | Analogregel-Programme 1–8 ausgelöst |
+| `81–88` | Analog rule programs 1–8 triggered |
 
-### Schaltregeln
+### Switch Rules
 
-| Code | Beschreibung |
+| Code | Description |
 |------|-------------|
-| `91–98` | Schaltregel-Programme 1–8 ausgelöst |
+| `91–98` | Switch rule programs 1–8 triggered |
 
 ---
 
-## Fehlercode in Home Assistant nutzen
+## Using Error Codes in Home Assistant
 
-### Error-Sensor abfragen
+### Query Error Sensor
 
 ```yaml
-# Template-Sensor für aktuellen Fehlercode
+# Template sensor for current error code
 template:
   - sensor:
-      - name: "Pool Fehler-Text"
+      - name: "Pool Error Text"
         state: >
-          {{ state_attr('sensor.violet_error_code', 'description') | default('Kein Fehler') }}
+          {{ state_attr('sensor.violet_error_code', 'description') | default('No error') }}
 ```
 
-### Automatisierung bei kritischem Fehler
+### Automation on Critical Error
 
 ```yaml
 automation:
-  - alias: "Pool: Kritischer Fehler-Alarm"
+  - alias: "Pool: Critical Error Alarm"
     trigger:
       - platform: template
         value_template: >
@@ -268,18 +268,18 @@ automation:
     action:
       - service: notify.mobile_app_phone
         data:
-          title: "KRITISCHER POOL-FEHLER"
+          title: "CRITICAL POOL ERROR"
           message: >
             Code: {{ states('sensor.violet_error_code') }}
             Problem: {{ state_attr('sensor.violet_error_code', 'subject') }}
             Details: {{ state_attr('sensor.violet_error_code', 'description') }}
 ```
 
-### Kalibrierungs-Erinnerung automatisch
+### Automatic Calibration Reminder
 
 ```yaml
 automation:
-  - alias: "Pool: Kalibrierung fällig"
+  - alias: "Pool: Calibration Due"
     trigger:
       - platform: template
         value_template: >
@@ -287,21 +287,21 @@ automation:
     action:
       - service: notify.mobile_app_phone
         data:
-          title: "Pool: Kalibrierung erforderlich"
+          title: "Pool: Calibration Required"
           message: >
             {{ state_attr('sensor.violet_error_code', 'subject') }}
 ```
 
 ---
 
-## Unbekannte Fehlercodes
+## Unknown Error Codes
 
-Wenn ein Code nicht in dieser Liste vorhanden ist:
+If a code is not listed here:
 
-1. Firmware-Version des Controllers prüfen (neuere Codes in neuerer Firmware)
-2. Controller-Webinterface für direkte Fehlermeldung öffnen
-3. [GitHub Issue](https://github.com/Xerolux/violet-hass/issues) erstellen mit Code und Beschreibung
+1. Check controller firmware version (newer codes in newer firmware)
+2. Open controller web interface for direct error message
+3. Create a [GitHub Issue](https://github.com/Xerolux/violet-hass/issues) with the code and description
 
 ---
 
-*Zurück: [Troubleshooting](Troubleshooting) | Zurück: [Home](Home)*
+*Back: [Troubleshooting](Troubleshooting) | Back: [Home](Home)*

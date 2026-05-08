@@ -2,244 +2,244 @@
 
 ## ✨ Feature Overview
 
-Die Violet Pool Controller Integration unterstützt jetzt **mehrere Controller gleichzeitig** in einer Home Assistant Installation!
+The Violet Pool Controller Integration now supports **multiple controllers simultaneously** in a single Home Assistant instance!
 
-## 🎯 Was ist neu?
+## 🎯 What's New?
 
-### 1. **Controller-Name-Feld**
-- Beim Hinzufügen eines Controllers kannst du jetzt einen eindeutigen Namen vergeben
-- Beispiele: "Pool 1", "Pool 2", "Hauptpool", "Whirlpool", etc.
-- Standard: "Violet Pool Controller" (für Abwärtskompatibilität)
+### 1. **Controller Name Field**
+- When adding a controller, you can now assign a unique name
+- Examples: "Pool 1", "Pool 2", "Main Pool", "Hot Tub", etc.
+- Default: "Violet Pool Controller" (for backward compatibility)
 
-### 2. **Automatische Bereichszuweisung**
-- Jeder Controller bekommt automatisch einen eigenen Bereich (Area)
-- Alle Entities eines Controllers werden gruppiert
-- Visuelle Trennung im Dashboard
+### 2. **Automatic Area Assignment**
+- Each controller automatically gets its own area
+- All entities of a controller are grouped together
+- Visual separation in the dashboard
 
-### 3. **Eindeutige Entity-IDs**
-- Jeder Controller hat einen separaten `entry_id`
-- Entities: `{entry_id}_{entity_key}` - automatisch eindeutig
-- Keine Konflikte zwischen Controllern
+### 3. **Unique Entity IDs**
+- Each controller has a separate `entry_id`
+- Entities: `{entry_id}_{entity_key}` - automatically unique
+- No conflicts between controllers
 
-## 📋 Setup-Anleitung
+## 📋 Setup Instructions
 
-### Controller hinzufügen
+### Adding a Controller
 
-1. **Gehe zu:** Einstellungen → Geräte & Dienste
-2. **Klicke auf:** "Integration hinzufügen"
-3. **Suche nach:** "Violet Pool Controller"
-4. **Wichtig:** Vergebe einen **eindeutigen Controller-Namen**
-   - ✅ "Pool 1", "Außenpool", "Whirlpool"
-   - ❌ Nicht mehrfach: "Violet Pool Controller"
+1. **Go to:** Settings → Devices & Services
+2. **Click:** "Add Integration"
+3. **Search for:** "Violet Pool Controller"
+4. **Important:** Assign a **unique controller name**
+   - ✅ "Pool 1", "Outdoor Pool", "Hot Tub"
+   - ❌ Don't use the same name: "Violet Pool Controller"
 
-### Mehrere Controller
+### Multiple Controllers
 
-Wiederhole den Prozess für jeden zusätzlichen Controller:
+Repeat the process for each additional controller:
 
 ```
 Controller 1:
-  - Name: "Außenpool"
+  - Name: "Outdoor Pool"
   - IP: 192.168.178.55
-  - Bereich: "Außenpool" (automatisch)
+  - Area: "Outdoor Pool" (automatic)
 
 Controller 2:
-  - Name: "Whirlpool"
+  - Name: "Hot Tub"
   - IP: 192.168.178.56
-  - Bereich: "Whirlpool" (automatisch)
+  - Area: "Hot Tub" (automatic)
 ```
 
-## 🏗️ Technische Details
+## 🏗️ Technical Details
 
-### Geänderte Dateien
+### Modified Files
 
 1. **const.py**
-   - Neue Konstante: `CONF_CONTROLLER_NAME`
+   - New constant: `CONF_CONTROLLER_NAME`
    - Default: `DEFAULT_CONTROLLER_NAME = "Violet Pool Controller"`
 
 2. **config_flow.py**
-   - Neues Feld im Connection-Setup: `CONF_CONTROLLER_NAME`
-   - Entry-Title verwendet jetzt Controller-Name
+   - New field in connection setup: `CONF_CONTROLLER_NAME`
+   - Entry title now uses controller name
 
 3. **__init__.py**
-   - Extrahiert `controller_name` aus Config Entry
-   - Übergibt an Device
+   - Extracts `controller_name` from config entry
+   - Passes to device
 
 4. **device.py**
-   - Speichert `controller_name`
-   - `device_info` verwendet:
-     - `name`: Controller-Name (statt Device-Name)
-     - `suggested_area`: Controller-Name für Auto-Gruppierung
+   - Stores `controller_name`
+   - `device_info` uses:
+     - `name`: Controller name (instead of device name)
+     - `suggested_area`: Controller name for auto-grouping
 
-### Entity-Struktur
+### Entity Structure
 
 ```python
-# Config Entry Unique ID (bereits eindeutig pro IP+Device-ID)
+# Config Entry Unique ID (already unique per IP+Device-ID)
 f"{ip_address}-{device_id}"
 
 # Device Identifier
 (DOMAIN, f"{api_url}_{device_id}")
 
-# Entity Unique ID (automatisch eindeutig durch entry_id)
+# Entity Unique ID (automatically unique through entry_id)
 f"{config_entry.entry_id}_{entity_key}"
 ```
 
-## 🎨 Dashboard-Organisation
+## 🎨 Dashboard Organization
 
-### Automatische Bereiche
+### Automatic Areas
 
-Home Assistant erstellt automatisch Bereiche basierend auf `suggested_area`:
+Home Assistant automatically creates areas based on `suggested_area`:
 
 ```
-📍 Außenpool
-  ├─ 🌡️ Beckenwasser Temperatur
-  ├─ 💧 pH-Wert
-  ├─ 💦 Filterpumpe
+📍 Outdoor Pool
+  ├─ 🌡️ Pool Water Temperature
+  ├─ 💧 pH Value
+  ├─ 💦 Filter Pump
   └─ ...
 
-📍 Whirlpool
-  ├─ 🌡️ Beckenwasser Temperatur
-  ├─ 💧 pH-Wert
-  ├─ 💦 Filterpumpe
+📍 Hot Tub
+  ├─ 🌡️ Pool Water Temperature
+  ├─ 💧 pH Value
+  ├─ 💦 Filter Pump
   └─ ...
 ```
 
-### Dashboard-Ansicht
+### Dashboard View
 
-Jeder Controller erscheint als separates Gerät:
+Each controller appears as a separate device:
 
 ```yaml
-# Beispiel Dashboard-Karte
+# Example Dashboard Card
 type: entities
-title: Alle Pool Controller
+title: All Pool Controllers
 entities:
-  - entity: sensor.aussenpool_water_temp
-  - entity: sensor.whirlpool_water_temp
+  - entity: sensor.outdoorpool_water_temp
+  - entity: sensor.hottub_water_temp
 ```
 
 ## ✅ Best Practices
 
-### Namensgebung
+### Naming
 
-- ✅ **Sprechende Namen:** "Außenpool", "Whirlpool", "Pool Erdgeschoss"
-- ✅ **Kurz & prägnant:** Maximal 2-3 Wörter
-- ❌ **Nicht generisch:** "Pool 1", "Pool 2" nur wenn wirklich nötig
+- ✅ **Descriptive names:** "Outdoor Pool", "Hot Tub", "Pool Ground Floor"
+- ✅ **Short & concise:** Maximum 2-3 words
+- ❌ **Not generic:** "Pool 1", "Pool 2" only when really necessary
 
-### Netzwerk
+### Network
 
-- Jeder Controller braucht eine **eigene IP-Adresse**
-- Stelle sicher, dass alle Controller im **selben Netzwerk** sind
-- **Feste IPs** (DHCP-Reservierung) empfohlen
+- Each controller needs its **own IP address**
+- Make sure all controllers are on the **same network**
+- **Static IPs** (DHCP reservation) recommended
 
 ### Performance
 
-- Jeder Controller hat einen **eigenen Coordinator**
-- Polling-Intervalle sind **unabhängig** voneinander
-- Bei vielen Controllern: Polling-Intervall erhöhen (z.B. 15-30s)
+- Each controller has its **own coordinator**
+- Polling intervals are **independent** of each other
+- With many controllers: increase polling interval (e.g. 15-30s)
 
 ## 🔧 Troubleshooting
 
-### Problem: Entities haben gleiche Namen
+### Problem: Entities have identical names
 
-**Lösung:** Verwende eindeutige Controller-Namen beim Setup
+**Solution:** Use unique controller names during setup
 
-### Problem: Controller erscheint nicht in separatem Bereich
+### Problem: Controller doesn't appear in separate area
 
-**Lösung:** Prüfe, ob `controller_name` korrekt gesetzt ist in:
-- Einstellungen → Geräte & Dienste → [Deine Integration]
+**Solution:** Check that `controller_name` is correctly set in:
+- Settings → Devices & Services → [Your Integration]
 
-### Problem: Entity-IDs überschneiden sich
+### Problem: Entity IDs overlap
 
-**Lösung:** Dies sollte **nicht** passieren, da `entry_id` automatisch eindeutig ist.
-Falls doch: Entferne und füge den Controller neu hinzu.
+**Solution:** This should **not** happen since `entry_id` is automatically unique.
+If it does: Remove and re-add the controller.
 
-## 📊 Upgrade von vorherigen Versionen
+## 📊 Upgrading from Previous Versions
 
-### Bestehende Installation
+### Existing Installation
 
-Bestehende Installationen behalten den Default-Namen:
-- Controller-Name: "Violet Pool Controller"
-- Bereich: "Violet Pool Controller"
+Existing installations keep the default name:
+- Controller Name: "Violet Pool Controller"
+- Area: "Violet Pool Controller"
 
-### Umbenennen
+### Renaming
 
-So änderst du den Controller-Namen nachträglich:
+How to change the controller name afterwards:
 
-1. Einstellungen → Geräte & Dienste
-2. Finde "Violet Pool Controller"
-3. Klicke auf das Gerät
-4. Klicke auf "Umbenennen" (Zahnrad-Symbol)
-5. Vergebe neuen Namen
+1. Settings → Devices & Services
+2. Find "Violet Pool Controller"
+3. Click on the device
+4. Click "Rename" (gear icon)
+5. Assign new name
 
-**Hinweis:** Dies ändert nur den Anzeigenamen, nicht den Bereich.
-Für einen neuen Bereich: Integration entfernen und neu hinzufügen.
+**Note:** This only changes the display name, not the area.
+For a new area: Remove the integration and re-add it.
 
-## 🚀 Neue Möglichkeiten
+## 🚀 New Possibilities
 
-### Automatisierungen
+### Automations
 
 {% raw %}
 ```yaml
-# Beispiel: Synchronisiere pH-Werte aller Pools
+# Example: Sync pH values across all pools
 automation:
-  - alias: "Pool pH Synchronisation"
+  - alias: "Pool pH Sync"
     trigger:
       - platform: numeric_state
-        entity_id: sensor.aussenpool_ph_value
+        entity_id: sensor.outdoorpool_ph_value
         below: 7.0
     action:
       - service: notify.mobile_app
         data:
-          message: "Außenpool pH zu niedrig! Whirlpool: {{ states('sensor.whirlpool_ph_value') }}"
+          message: "Outdoor pool pH too low! Hot tub: {{ states('sensor.hottub_ph_value') }}"
 ```
 {% endraw %}
 
-### Dashboard mit Tabs
+### Dashboard with Tabs
 
 ```yaml
-# Beispiel: Tabs für jeden Pool
+# Example: Tabs for each pool
 type: vertical-stack
 cards:
   - type: horizontal-stack
     cards:
       - type: button
-        name: Außenpool
+        name: Outdoor Pool
         tap_action:
           action: navigate
-          navigation_path: /lovelace/aussenpool
+          navigation_path: /lovelace/outdoorpool
       - type: button
-        name: Whirlpool
+        name: Hot Tub
         tap_action:
           action: navigate
-          navigation_path: /lovelace/whirlpool
+          navigation_path: /lovelace/hottub
 ```
 
 ## 📝 Changelog
 
 ### v0.2.1-beta.1 (2025-11-20)
 
-✨ **Neue Features:**
-- Multi-Controller Support mit eindeutigen Namen
-- Automatische Bereichszuweisung (`suggested_area`)
-- Verbesserte visuelle Trennung im Dashboard
+✨ **New Features:**
+- Multi-controller support with unique names
+- Automatic area assignment (`suggested_area`)
+- Improved visual separation in the dashboard
 
-🔧 **Technische Änderungen:**
-- Neue Config-Option: `CONF_CONTROLLER_NAME`
-- Device-Info verwendet jetzt `controller_name`
-- Entry-Title zeigt Controller-Name
+🔧 **Technical Changes:**
+- New config option: `CONF_CONTROLLER_NAME`
+- Device info now uses `controller_name`
+- Entry title shows controller name
 
-🛡️ **Abwärtskompatibilität:**
-- Bestehende Installationen funktionieren weiterhin
-- Default-Name: "Violet Pool Controller"
+🛡️ **Backward Compatibility:**
+- Existing installations continue to work
+- Default name: "Violet Pool Controller"
 
-## 💡 Tipps
+## 💡 Tips
 
-1. **Plane voraus:** Überlege dir eine konsistente Namensgebung
-2. **Nutze Bereiche:** Organisation im Dashboard wird deutlich einfacher
-3. **Dashboard-Vorlagen:** Erstelle eine Vorlage für einen Pool, kopiere sie für weitere
-4. **Automationen:** Nutze Template-Sensoren für Pool-übergreifende Vergleiche
+1. **Plan ahead:** Think of a consistent naming scheme
+2. **Use areas:** Dashboard organization becomes much easier
+3. **Dashboard templates:** Create a template for one pool, copy it for more
+4. **Automations:** Use template sensors for cross-pool comparisons
 
 ## 🆘 Support
 
-Bei Fragen oder Problemen:
+For questions or issues:
 - **GitHub Issues:** https://github.com/xerolux/violet-hass/issues
-- **Dokumentation:** https://github.com/xerolux/violet-hass/blob/main/README.md
+- **Documentation:** https://github.com/xerolux/violet-hass/blob/main/README.md

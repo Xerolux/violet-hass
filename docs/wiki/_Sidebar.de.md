@@ -1,0 +1,43 @@
+# Violet Pool Controller
+
+**[🏠 Home](Home)** · [🇬🇧 English](Home)
+
+---
+
+## 🚀 Erste Schritte
+- [Installation & Setup](Installation-and-Setup)
+- [Konfiguration](Configuration)
+- [Multi-Controller](Multi-Controller)
+
+## 📊 Entities & Geräte
+- [Alle Entities](Entities)
+- [Sensoren & Messwerte](Sensors)
+- [Schalter & Steuerung](Switches)
+- [Klima & Heizung](Climate)
+- [Device States (0–6)](Device-States)
+- [Icon Referenz](Icon-Reference)
+
+## ⚙️ Automatisierung
+- [Services Referenz](Services)
+- [Automatisierungs-Beispiele](Automations)
+
+## 🔧 Betrieb & Wartung
+- [Troubleshooting](Troubleshooting)
+- [Diagnosedaten](Diagnostics)
+- [Erweiterte Protokollierung](Erweiterte-Protokollierung)
+- [Fehler-Codes](Error-Codes)
+- [Security & SSL](Security)
+- [FAQ](FAQ)
+
+## 👩‍💻 Entwicklung
+- [Contributing](Contributing)
+- [Testing](Testing)
+- [API Referenz](API-Reference)
+- [Changelog](Changelog)
+
+---
+
+**Version:** 1.0.5
+**HA:** 2026.5.0+ (getestet bis 2026.x)
+
+[GitHub](https://github.com/Xerolux/violet-hass) · [Issues](https://github.com/Xerolux/violet-hass/issues) · [HACS](https://hacs.xyz/)

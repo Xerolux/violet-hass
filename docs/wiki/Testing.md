@@ -1,39 +1,39 @@
-# Testing – Tests ausführen und schreiben
+# Testing – Running and Writing Tests
 
-> Komplette Anleitung für das Test-System der Violet Pool Controller Integration.
+> Complete guide for the Violet Pool Controller integration test system.
 
 ---
 
 ## Quick Start
 
 ```bash
-# Einmalig: Testumgebung einrichten
+# One-time: Set up test environment
 ./scripts/setup-test-env.sh
 
-# Tests ausführen
+# Run tests
 ./scripts/run-tests.sh
 
-# Erwartetes Ergebnis: 53+ Tests, alle grün ✓
+# Expected result: 53+ tests, all passing ✓
 ```
 
 ---
 
-## Testumgebung einrichten
+## Setting Up the Test Environment
 
-### Automatisch (empfohlen)
+### Automatic (Recommended)
 
 ```bash
 ./scripts/setup-test-env.sh
 ```
 
-Das Script erledigt:
-- Python 3.14 prüfen
-- Virtuelle Umgebung `.venv-ha-test/` erstellen
-- Abhängigkeiten aus `requirements-dev.txt` installieren
-- pytest und Abhängigkeiten installieren
-- `activate-test-env.sh` Helper erstellen
+The script handles:
+- Checking Python 3.14
+- Creating virtual environment `.venv-ha-test/`
+- Installing dependencies from `requirements-dev.txt`
+- Installing pytest and dependencies
+- Creating `activate-test-env.sh` helper
 
-### Manuell
+### Manual
 
 ```bash
 python3.14 -m venv .venv-ha-test
@@ -43,18 +43,18 @@ pip install -r requirements-dev.txt
 
 ---
 
-## Tests ausführen
+## Running Tests
 
-### Alle Tests
+### All Tests
 
 ```bash
 ./scripts/run-tests.sh
-# oder
+# or
 source .venv-ha-test/bin/activate
 pytest tests/ -v
 ```
 
-### Einzelne Test-Dateien
+### Individual Test Files
 
 ```bash
 pytest tests/test_api.py -v
@@ -65,7 +65,7 @@ pytest tests/test_integration.py -v
 pytest tests/test_sanitizer.py -v
 ```
 
-### Einzelne Test-Funktion
+### Individual Test Function
 
 ```bash
 pytest tests/test_api.py::TestVioletPoolAPI::test_rate_limiting -v
@@ -73,21 +73,21 @@ pytest tests/test_api.py::TestVioletPoolAPI::test_rate_limiting -v
 
 ---
 
-## Test-Kategorien
+## Test Categories
 
 ### API Tests (`test_api.py`) – 7 Tests
 
-Testet die HTTP-Kommunikation mit dem Controller:
+Tests HTTP communication with the controller:
 
-| Test | Beschreibung |
+| Test | Description |
 |------|-------------|
-| `test_rate_limiting` | Token-Bucket schränkt Anfragen ein |
-| `test_priority_queue` | Hochprioritäre Anfragen zuerst |
-| `test_timeout_handling` | Timeouts werden korrekt behandelt |
-| `test_retry_logic` | Wiederholungsversuche bei Fehlern |
-| `test_error_responses` | HTTP-Fehler werden korrekt weitergeleitet |
-| `test_json_parsing` | JSON-Antworten korrekt geparst |
-| `test_ssl_config` | SSL-Einstellungen werden angewendet |
+| `test_rate_limiting` | Token bucket limits requests |
+| `test_priority_queue` | High-priority requests first |
+| `test_timeout_handling` | Timeouts handled correctly |
+| `test_retry_logic` | Retry attempts on errors |
+| `test_error_responses` | HTTP errors forwarded correctly |
+| `test_json_parsing` | JSON responses parsed correctly |
+| `test_ssl_config` | SSL settings applied |
 
 ```bash
 pytest tests/test_api.py -v
@@ -97,15 +97,15 @@ pytest tests/test_api.py -v
 
 ### Config Flow Tests (`test_config_flow.py`) – 5 Tests
 
-Testet den Setup-Assistenten:
+Tests the setup wizard:
 
-| Test | Beschreibung |
+| Test | Description |
 |------|-------------|
-| `test_duplicate_detection` | Zwei gleiche Controller werden erkannt |
-| `test_controller_name_handling` | Controller-Namen korrekt gespeichert |
-| `test_ip_validation` | Ungültige IPs werden abgelehnt |
-| `test_feature_selection` | Feature-Auswahl wird gespeichert |
-| `test_successful_setup` | Vollständiger Setup-Flow |
+| `test_duplicate_detection` | Two identical controllers detected |
+| `test_controller_name_handling` | Controller names saved correctly |
+| `test_ip_validation` | Invalid IPs rejected |
+| `test_feature_selection` | Feature selection saved |
+| `test_successful_setup` | Complete setup flow |
 
 ```bash
 pytest tests/test_config_flow.py -v
@@ -115,17 +115,17 @@ pytest tests/test_config_flow.py -v
 
 ### Device Tests (`test_device.py`) – 7 Tests
 
-Testet Device-Management und Recovery:
+Tests device management and recovery:
 
-| Test | Beschreibung |
+| Test | Description |
 |------|-------------|
-| `test_recovery_lock` | Keine Race Conditions |
-| `test_exponential_backoff` | Wartezeiten verdoppeln sich |
-| `test_max_recovery_attempts` | Nach 10 Versuchen: Stop |
-| `test_device_info_update` | Device-Info korrekt aktualisiert |
-| `test_connection_loss` | Verbindungsverlust erkannt |
-| `test_successful_recovery` | Verbindung wiederhergestellt |
-| `test_coordinator_update` | Daten-Update korrekt verarbeitet |
+| `test_recovery_lock` | No race conditions |
+| `test_exponential_backoff` | Wait times double |
+| `test_max_recovery_attempts` | Stops after 10 attempts |
+| `test_device_info_update` | Device info updated correctly |
+| `test_connection_loss` | Connection loss detected |
+| `test_successful_recovery` | Connection restored |
+| `test_coordinator_update` | Data update processed correctly |
 
 ```bash
 pytest tests/test_device.py -v
@@ -135,20 +135,20 @@ pytest tests/test_device.py -v
 
 ### Integration Tests (`test_integration.py`) – 10 Tests
 
-End-to-End Tests:
+End-to-end tests:
 
-| Test | Beschreibung |
+| Test | Description |
 |------|-------------|
-| `test_domain_initialization` | Domain korrekt registriert |
-| `test_entry_setup` | Config Entry wird geladen |
-| `test_entry_unload` | Integration sauber entladen |
-| `test_service_registration` | Alle Services registriert |
-| `test_config_migration` | Alte Konfigurationen migriert |
-| `test_sensor_creation` | Sensoren werden erstellt |
-| `test_switch_creation` | Schalter werden erstellt |
-| `test_climate_creation` | Climate-Entities erstellt |
-| `test_cover_creation` | Cover-Entity erstellt |
-| `test_number_creation` | Number-Entities erstellt |
+| `test_domain_initialization` | Domain registered correctly |
+| `test_entry_setup` | Config entry loaded |
+| `test_entry_unload` | Integration cleanly unloaded |
+| `test_service_registration` | All services registered |
+| `test_config_migration` | Old configurations migrated |
+| `test_sensor_creation` | Sensors created |
+| `test_switch_creation` | Switches created |
+| `test_climate_creation` | Climate entities created |
+| `test_cover_creation` | Cover entity created |
+| `test_number_creation` | Number entities created |
 
 ```bash
 pytest tests/test_integration.py -v
@@ -158,14 +158,14 @@ pytest tests/test_integration.py -v
 
 ### Entity State Tests (`test_entity_state.py`) – 4 Tests
 
-Testet State-Interpretation:
+Tests state interpretation:
 
-| Test | Beschreibung |
+| Test | Description |
 |------|-------------|
-| `test_3state_switches` | ON/OFF/AUTO korrekt interpretiert |
-| `test_numeric_prefix` | `"2\|SOLAR_ACTIVE"` korrekt geparst |
-| `test_string_state_parsing` | String-States korrekt konvertiert |
-| `test_boolean_conversion` | Wahrheitswerte korrekt |
+| `test_3state_switches` | ON/OFF/AUTO interpreted correctly |
+| `test_numeric_prefix` | `"2\|SOLAR_ACTIVE"` parsed correctly |
+| `test_string_state_parsing` | String states converted correctly |
+| `test_boolean_conversion` | Boolean values correct |
 
 ```bash
 pytest tests/test_entity_state.py -v
@@ -175,23 +175,23 @@ pytest tests/test_entity_state.py -v
 
 ### Sanitizer Tests (`test_sanitizer.py`) – 13 Tests
 
-Security und Input-Validation:
+Security and input validation:
 
-| Test | Beschreibung |
+| Test | Description |
 |------|-------------|
-| `test_xss_prevention` | `<script>` wird geblockt |
-| `test_sql_injection` | SQL-Syntax wird geblockt |
-| `test_command_injection` | Shell-Befehle werden geblockt |
-| `test_path_traversal` | `../` wird geblockt |
-| `test_ph_range` | pH außerhalb 6.0–8.0 geblockt |
-| `test_orp_range` | ORP außerhalb 200–900 mV geblockt |
-| `test_temperature_range` | Temp außerhalb 10–40°C geblockt |
-| `test_alphanumeric_validation` | Nur erlaubte Zeichen |
-| `test_numeric_validation` | Nur Zahlen |
-| `test_html_escaping` | HTML-Sonderzeichen escaped |
-| `test_empty_input` | Leere Eingaben behandelt |
-| `test_null_input` | None-Werte behandelt |
-| `test_oversized_input` | Zu lange Eingaben gestutzt |
+| `test_xss_prevention` | `<script>` is blocked |
+| `test_sql_injection` | SQL syntax is blocked |
+| `test_command_injection` | Shell commands are blocked |
+| `test_path_traversal` | `../` is blocked |
+| `test_ph_range` | pH outside 6.0–8.0 blocked |
+| `test_orp_range` | ORP outside 200–900 mV blocked |
+| `test_temperature_range` | Temp outside 10–40°C blocked |
+| `test_alphanumeric_validation` | Only allowed characters |
+| `test_numeric_validation` | Only numbers |
+| `test_html_escaping` | HTML special characters escaped |
+| `test_empty_input` | Empty inputs handled |
+| `test_null_input` | None values handled |
+| `test_oversized_input` | Overly long inputs truncated |
 
 ```bash
 pytest tests/test_sanitizer.py -v
@@ -199,35 +199,35 @@ pytest tests/test_sanitizer.py -v
 
 ---
 
-## Erweiterte Optionen
+## Advanced Options
 
-### Coverage-Report
+### Coverage Report
 
 ```bash
-# Terminal-Report
+# Terminal report
 pytest tests/ --cov=custom_components/violet_pool_controller --cov-report=term
 
-# HTML-Report (detailliert)
+# HTML report (detailed)
 pytest tests/ --cov=custom_components/violet_pool_controller --cov-report=html
-# Öffnen: htmlcov/index.html
+# Open: htmlcov/index.html
 
-# Ziel: > 80% Coverage
+# Target: > 80% coverage
 ```
 
-### Parallel ausführen (schneller)
+### Run in Parallel (Faster)
 
 ```bash
 pip install pytest-xdist
 pytest tests/ -n auto -v
 ```
 
-### Fehlgeschlagene Tests wiederholen
+### Re-run Failed Tests
 
 ```bash
 pytest tests/ --lf -v
 ```
 
-### Verbose mit Details
+### Verbose with Details
 
 ```bash
 pytest tests/ -vv --tb=long
@@ -241,16 +241,16 @@ pytest tests/ -vv --tb=long
 
 ```bash
 pytest tests/ --pdb
-# Bei Fehler: Debugger startet automatisch
+# On failure: debugger starts automatically
 ```
 
-### Print-Ausgaben anzeigen
+### Show Print Output
 
 ```bash
 pytest tests/ -v -s
 ```
 
-### Debug-Logging
+### Debug Logging
 
 ```bash
 pytest tests/ -v --log-cli-level=DEBUG
@@ -258,7 +258,7 @@ pytest tests/ -v --log-cli-level=DEBUG
 
 ---
 
-## pytest.ini Konfiguration
+## pytest.ini Configuration
 
 ```ini
 [pytest]
@@ -266,41 +266,41 @@ asyncio_mode = auto
 asyncio_default_fixture_loop_scope = function
 ```
 
-Diese Einstellungen sind notwendig für:
-- **asyncio_mode = auto**: Automatisches async/await-Handling
-- **asyncio_default_fixture_loop_scope = function**: Isolierte Event-Loops pro Test
+These settings are required for:
+- **asyncio_mode = auto**: Automatic async/await handling
+- **asyncio_default_fixture_loop_scope = function**: Isolated event loops per test
 
 ---
 
-## conftest.py – Thread-Workaround
+## conftest.py – Thread Workaround
 
-`tests/conftest.py` enthält einen wichtigen Patch:
+`tests/conftest.py` contains an important patch:
 
 ```python
-# Filtert Home Assistant's _run_safe_shutdown_loop Threads
-# Verhindert false-positive Thread-Leak-Warnungen
-# Notwendig für HA 2025.1+
+# Filters Home Assistant's _run_safe_shutdown_loop threads
+# Prevents false-positive thread leak warnings
+# Required for HA 2025.1+
 ```
 
 ---
 
-## Pre-Release Checkliste
+## Pre-Release Checklist
 
 ```bash
-# 1. Linting (0 Fehler!)
+# 1. Linting (0 errors!)
 python -m ruff check custom_components/violet_pool_controller/
 python -m mypy custom_components/violet_pool_controller/
 
-# 2. Alle Tests grün
+# 2. All tests passing
 ./scripts/run-tests.sh
 
-# 3. Coverage prüfen (> 80%)
+# 3. Check coverage (> 80%)
 pytest tests/ --cov=custom_components/violet_pool_controller --cov-report=term
 
-# 4. Manueller Test in echter HA-Instanz
+# 4. Manual test in real HA instance
 ```
 
-### Erwartetes Ergebnis
+### Expected Result
 
 ```
 ======================== test session starts ========================
@@ -312,7 +312,7 @@ pytest tests/ --cov=custom_components/violet_pool_controller --cov-report=term
 
 ## CI/CD Integration
 
-GitHub Actions läuft automatisch bei Push/PR:
+GitHub Actions runs automatically on push/PR:
 
 ```yaml
 # .github/workflows/validate.yml
@@ -334,25 +334,25 @@ export PYTHONPATH="$(pwd):$PYTHONPATH"
 
 ### "No module named custom_components"
 
-Tests vom Projekt-Root ausführen (nicht aus `tests/`):
+Run tests from the project root (not from `tests/`):
 
 ```bash
-# Richtig
+# Correct
 pytest tests/ -v
 
-# Falsch
+# Wrong
 cd tests && pytest
 ```
 
 ### Thread-Assertion Error
 
 ```bash
-# Virtuelle Umgebung neu erstellen
+# Recreate virtual environment
 rm -rf .venv-ha-test/
 ./scripts/setup-test-env.sh
 ```
 
-### Alte HA-Version
+### Old HA Version
 
 ```bash
 rm -rf .venv-ha-test/
@@ -361,16 +361,16 @@ rm -rf .venv-ha-test/
 
 ---
 
-## Test-Erfolgs-Kriterien
+## Test Success Criteria
 
-Vor jedem Merge/Release müssen erfüllt sein:
+Before every merge/release, the following must be met:
 
-- [ ] **100% aller Unit-Tests bestehen**
-- [ ] **Ruff Linting: 0 Fehler**
-- [ ] **MyPy: 0 Fehler** (außer `import-not-found`)
+- [ ] **100% of all unit tests pass**
+- [ ] **Ruff linting: 0 errors**
+- [ ] **MyPy: 0 errors** (except `import-not-found`)
 - [ ] **Coverage: > 80%**
-- [ ] **Kein Regression bei bestehenden Features**
+- [ ] **No regression in existing features**
 
 ---
 
-*Zurück: [Contributing](Contributing) | Weiter: [API Referenz](API-Reference)*
+*Back: [Contributing](Contributing) | Next: [API Reference](API-Reference)*

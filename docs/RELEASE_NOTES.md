@@ -2,11 +2,9 @@
 
 🔴 **ALPHA RELEASE** - Experimental features, use with caution!
 
-### ❤️ Support | Unterstützung
+### ❤️ Support
 
 If you find this integration useful, consider supporting the developer. Every contribution, no matter how small, is a huge motivation to improve the project and keep it alive! Thank you! 🙏
-
-Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter zu verbessern und am Leben zu erhalten! Vielen Dank! 🙏
 
 - 💳 **[PayPal](https://paypal.me/xerolux)**
 - ☕ **[Buy Me a Coffee](https://buymeacoffee.com/xerolux)**
@@ -17,26 +15,23 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-### ⚠️ BREAKING CHANGE | WICHTIGE ÄNDERUNG
+### ⚠️ BREAKING CHANGE
 
 **Home Assistant 2026.5.0+ is now required!**
 Due to core platform changes (specifically the removal of `ZeroconfServiceInfo` from `homeassistant.components.zeroconf`), this integration now requires Home Assistant version 2026.5.0 or newer. If you are running an older version, please upgrade Home Assistant before installing this update.
 
-**Home Assistant 2026.5.0+ wird nun zwingend vorausgesetzt!**
-Aufgrund von Änderungen in der Core-Plattform (insbesondere der Entfernung von `ZeroconfServiceInfo` aus `homeassistant.components.zeroconf`), benötigt diese Integration nun zwingend Home Assistant Version 2026.5.0 oder neuer. Bitte aktualisieren Sie Home Assistant, bevor Sie dieses Update installieren.
-
-### ✨ New Features | Neue Funktionen
+### ✨ New Features
 
 - feat: add ON/OFF/AUTO select entities for all controllable switches (8505b85)
 
-### 🚀 Improvements | Verbesserungen
+### 🚀 Improvements
 
 - update-api-version-0-0-14 (cb6208d)
 - Update violet-poolController-api to version 0.0.14 (35ab076)
 - update-release-changelog-support-section (56ced0f)
 - 📝 Release v1.0.5 - Update changelog and version files (acfcaa8)
 
-### 🔧 Bug Fixes | Fehlerbehebungen
+### 🔧 Bug Fixes
 
 - fix-ext1-api-switching (f761565)
 - fix: EXT1/EXT2 sticky hardware detection + longer refresh delay (36cb133)

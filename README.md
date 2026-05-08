@@ -1,5 +1,7 @@
 # 🏊 Violet Pool Controller for Home Assistant
 
+**English** | **[Deutsch](README.de.md)**
+
 [![GitHub Release][releases-shield]][releases]
 [![Downloads][downloads-shield]][releases]
 [![GitHub Activity][commits-shield]][commits]

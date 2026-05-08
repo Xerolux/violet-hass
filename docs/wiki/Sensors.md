@@ -1,101 +1,101 @@
-# Sensoren & Messwerte
+# Sensors & Measurements
 
-> Vollständige Dokumentation aller Sensor-Entities – von Wasserchemie bis Systemdiagnose.
+> Complete documentation of all sensor entities – from water chemistry to system diagnostics.
 
 ---
 
-## Sensor-Übersicht
+## Sensor Overview
 
-Die Integration erstellt automatisch Sensor-Entities basierend auf den aktivierten Features und den verfügbaren Daten des Controllers.
+The integration automatically creates sensor entities based on the enabled features and available data from the controller.
 
-### Wasserchemie-Sensoren
+### Water Chemistry Sensors
 
-| Entity-ID | Name | Einheit | Bereich | Beschreibung |
-|-----------|------|---------|---------|--------------|
-| `sensor.violet_ph_value` | pH-Wert | – | 6.0–8.0 | Aktueller pH-Wert des Poolwassers |
-| `sensor.violet_orp_value` | ORP/Redox | mV | 200–900 | Oxidations-Reduktions-Potential |
-| `sensor.violet_chlorine` | Freies Chlor | mg/L | 0.1–3.0 | Freier Chlorgehalt |
-| `sensor.violet_conductivity` | Leitfähigkeit | µS/cm | – | Elektrische Leitfähigkeit (Salzgehalt) |
+| Entity ID | Name | Unit | Range | Description |
+|-----------|------|------|-------|-------------|
+| `sensor.violet_ph_value` | pH Value | – | 6.0–8.0 | Current pH value of the pool water |
+| `sensor.violet_orp_value` | ORP/Redox | mV | 200–900 | Oxidation-reduction potential |
+| `sensor.violet_chlorine` | Free Chlorine | mg/L | 0.1–3.0 | Free chlorine level |
+| `sensor.violet_conductivity` | Conductivity | µS/cm | – | Electrical conductivity (salt content) |
 
-**Optimale Wasserwerte:**
+**Optimal Water Values:**
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│                  IDEALE POOL-WASSERWERTE                │
+│                IDEAL POOL WATER VALUES                  │
 ├─────────────────┬──────────┬──────────┬────────────────┤
 │ Parameter       │ Minimum  │ Optimal  │ Maximum        │
 ├─────────────────┼──────────┼──────────┼────────────────┤
 │ pH              │ 7.0      │ 7.2–7.4  │ 7.6            │
 │ ORP/Redox       │ 600 mV   │ 650–750  │ 800 mV         │
-│ Freies Chlor    │ 0.2 mg/L │ 0.5–1.0  │ 2.0 mg/L       │
-│ Leitfähigkeit   │ –        │ Boden-   │ –              │
-│                 │          │ abhängig │                │
+│ Free Chlorine   │ 0.2 mg/L │ 0.5–1.0  │ 2.0 mg/L       │
+│ Conductivity    │ –        │ Floor-   │ –              │
+│                 │          │ dependent│                │
 └─────────────────┴──────────┴──────────┴────────────────┘
 ```
 
-### Temperatur-Sensoren
+### Temperature Sensors
 
-| Entity-ID | Name | Einheit | Beschreibung |
-|-----------|------|---------|--------------|
-| `sensor.violet_water_temperature` | Wassertemperatur | °C | Pool-Wassertemperatur |
-| `sensor.violet_solar_temperature` | Solar-Temperatur | °C | Temperatur des Solarkollektors |
-| `sensor.violet_ambient_temperature` | Außentemperatur | °C | Umgebungstemperatur |
-| `sensor.violet_heater_temperature` | Heizer-Temperatur | °C | Wärmetauscher-Temperatur |
+| Entity ID | Name | Unit | Description |
+|-----------|------|------|-------------|
+| `sensor.violet_water_temperature` | Water Temperature | °C | Pool water temperature |
+| `sensor.violet_solar_temperature` | Solar Temperature | °C | Solar collector temperature |
+| `sensor.violet_ambient_temperature` | Outdoor Temperature | °C | Ambient temperature |
+| `sensor.violet_heater_temperature` | Heater Temperature | °C | Heat exchanger temperature |
 
-### Analoge Eingänge (AI1–AI8)
+### Analog Inputs (AI1–AI8)
 
-| Entity-ID | Beschreibung |
-|-----------|--------------|
-| `sensor.violet_ai1` | Analogeingang 1 (konfigurierbar) |
-| `sensor.violet_ai2` | Analogeingang 2 (konfigurierbar) |
+| Entity ID | Description |
+|-----------|-------------|
+| `sensor.violet_ai1` | Analog input 1 (configurable) |
+| `sensor.violet_ai2` | Analog input 2 (configurable) |
 | ... | ... |
-| `sensor.violet_ai8` | Analogeingang 8 (konfigurierbar) |
+| `sensor.violet_ai8` | Analog input 8 (configurable) |
 
-Analoge Eingänge können für externe Sensoren verwendet werden (Drucksensor, Durchflussmesser, etc.). Die Einheit hängt vom angeschlossenen Sensor ab.
-
----
-
-## System-Sensoren
-
-### Diagnose & Status
-
-| Entity-ID | Name | Typ | Beschreibung |
-|-----------|------|-----|--------------|
-| `sensor.violet_system_error_codes` | Fehler-Codes | String | Aktuelle Fehlercodes (leer = kein Fehler) |
-| `sensor.violet_pump_runtime` | Pumpen-Laufzeit | h | Gesamte Betriebsstunden der Pumpe |
-| `sensor.violet_filter_runtime` | Filter-Laufzeit | h | Betriebsstunden seit letzter Rückspülung |
-| `sensor.violet_last_calibration` | Letzte Kalibrierung | Datum | Datum der letzten Sensor-Kalibrierung |
-| `sensor.violet_firmware_version` | Firmware-Version | String | Controller-Firmware-Version |
-
-### Kalibrierungshistorie
-
-Die Integration parst automatisch die Kalibrierungshistorie vom Controller:
-
-| Entity-ID | Beschreibung |
-|-----------|--------------|
-| `sensor.violet_ph_calibration_date` | Letztes pH-Kalibrierungsdatum |
-| `sensor.violet_orp_calibration_date` | Letztes ORP-Kalibrierungsdatum |
-| `sensor.violet_chlorine_calibration_date` | Letztes Chlor-Kalibrierungsdatum |
+Analog inputs can be used for external sensors (pressure sensor, flow meter, etc.). The unit depends on the connected sensor.
 
 ---
 
-## Sensor-Kalibrierung
+## System Sensors
 
-### Kalibrierungsintervalle
+### Diagnostics & Status
 
-| Sensor | Empfohlenes Intervall | Methode |
-|--------|----------------------|---------|
-| **pH** | Monatlich | Pufferlösung pH 7.0 & pH 4.0 |
-| **ORP/Redox** | Mit pH-Kalibrierung | ORP-Referenzlösung |
-| **Freies Chlor** | Wöchentlich prüfen | Fotometer/Teststreifen |
-| **Temperaturen** | Jährlich | Referenzthermometer |
+| Entity ID | Name | Type | Description |
+|-----------|------|------|-------------|
+| `sensor.violet_system_error_codes` | Error Codes | String | Current error codes (empty = no error) |
+| `sensor.violet_pump_runtime` | Pump Runtime | h | Total operating hours of the pump |
+| `sensor.violet_filter_runtime` | Filter Runtime | h | Operating hours since last backwash |
+| `sensor.violet_last_calibration` | Last Calibration | Date | Date of last sensor calibration |
+| `sensor.violet_firmware_version` | Firmware Version | String | Controller firmware version |
 
-### Kalibrierung fehlerhafter Werte erkennen
+### Calibration History
+
+The integration automatically parses the calibration history from the controller:
+
+| Entity ID | Description |
+|-----------|-------------|
+| `sensor.violet_ph_calibration_date` | Last pH calibration date |
+| `sensor.violet_orp_calibration_date` | Last ORP calibration date |
+| `sensor.violet_chlorine_calibration_date` | Last chlorine calibration date |
+
+---
+
+## Sensor Calibration
+
+### Calibration Intervals
+
+| Sensor | Recommended Interval | Method |
+|--------|---------------------|--------|
+| **pH** | Monthly | Buffer solution pH 7.0 & pH 4.0 |
+| **ORP/Redox** | Along with pH calibration | ORP reference solution |
+| **Free Chlorine** | Check weekly | Photometer/test strips |
+| **Temperatures** | Annually | Reference thermometer |
+
+### Detect Calibration Errors
 
 ```yaml
-# Automatisierung: Benachrichtigung wenn pH außer Bereich
+# Automation: Notification when pH is out of range
 automation:
-  - alias: "pH-Warnung"
+  - alias: "pH Warning"
     trigger:
       - platform: numeric_state
         entity_id: sensor.violet_ph_value
@@ -110,23 +110,23 @@ automation:
     action:
       - service: notify.mobile_app
         data:
-          title: "Pool-Warnung"
-          message: "pH-Wert außer Bereich: {{ states('sensor.violet_ph_value') }}"
+          title: "Pool Warning"
+          message: "pH value out of range: {{ states('sensor.violet_ph_value') }}"
 ```
 
 ---
 
-## Sensor-Attribute
+## Sensor Attributes
 
-Jeder Sensor enthält zusätzliche Attribute:
+Each sensor contains additional attributes:
 
 ```yaml
-# Beispiel: sensor.violet_ph_value Attribute
+# Example: sensor.violet_ph_value attributes
 state: "7.3"
 attributes:
   unit_of_measurement: ""
   device_class: null
-  friendly_name: "pH-Wert"
+  friendly_name: "pH Value"
   last_update: "2026-02-22T10:30:00+00:00"
   controller_ip: "192.168.1.100"
   raw_value: 7.3
@@ -134,31 +134,31 @@ attributes:
 
 ---
 
-## Sensoren in Automatisierungen
+## Sensors in Automations
 
-### Wasserchemie überwachen
+### Monitor Water Chemistry
 
 ```yaml
-# Vollständige Wasserchemie-Überwachung
+# Complete water chemistry monitoring
 automation:
-  - alias: "Pool Wasserchemie Monitor"
+  - alias: "Pool Water Chemistry Monitor"
     trigger:
-      # pH zu niedrig
+      # pH too low
       - platform: numeric_state
         entity_id: sensor.violet_ph_value
         below: 7.0
         id: ph_low
-      # pH zu hoch
+      # pH too high
       - platform: numeric_state
         entity_id: sensor.violet_ph_value
         above: 7.6
         id: ph_high
-      # Chlor zu niedrig
+      # Chlorine too low
       - platform: numeric_state
         entity_id: sensor.violet_chlorine
         below: 0.3
         id: chlorine_low
-      # ORP zu niedrig
+      # ORP too low
       - platform: numeric_state
         entity_id: sensor.violet_orp_value
         below: 600
@@ -166,24 +166,24 @@ automation:
     action:
       - service: notify.mobile_app
         data:
-          title: "Pool-Alarm"
+          title: "Pool Alert"
           message: >
             {% if trigger.id == 'ph_low' %}
-              pH zu niedrig: {{ states('sensor.violet_ph_value') }} (Soll: 7.0–7.4)
+              pH too low: {{ states('sensor.violet_ph_value') }} (target: 7.0–7.4)
             {% elif trigger.id == 'ph_high' %}
-              pH zu hoch: {{ states('sensor.violet_ph_value') }} (Soll: 7.0–7.4)
+              pH too high: {{ states('sensor.violet_ph_value') }} (target: 7.0–7.4)
             {% elif trigger.id == 'chlorine_low' %}
-              Chlor zu niedrig: {{ states('sensor.violet_chlorine') }} mg/L
+              Chlorine too low: {{ states('sensor.violet_chlorine') }} mg/L
             {% elif trigger.id == 'orp_low' %}
-              ORP zu niedrig: {{ states('sensor.violet_orp_value') }} mV
+              ORP too low: {{ states('sensor.violet_orp_value') }} mV
             {% endif %}
 ```
 
-### Temperatur-basierte Heizungssteuerung
+### Temperature-Based Heater Control
 
 ```yaml
 automation:
-  - alias: "Pool Heizung bei Temperaturabfall"
+  - alias: "Pool Heater on Temperature Drop"
     trigger:
       - platform: numeric_state
         entity_id: sensor.violet_water_temperature
@@ -200,11 +200,11 @@ automation:
           hvac_mode: heat
 ```
 
-### Solar-Steuerung nach Temperaturdifferenz
+### Solar Control Based on Temperature Difference
 
 ```yaml
 automation:
-  - alias: "Solar starten wenn Kollektor wärmer als Pool"
+  - alias: "Start solar when collector is warmer than pool"
     trigger:
       - platform: template
         value_template: >
@@ -220,15 +220,15 @@ automation:
 
 ---
 
-## Template-Sensoren
+## Template Sensors
 
-Du kannst eigene Template-Sensoren erstellen, um Daten zu kombinieren:
+You can create custom template sensors to combine data:
 
 ```yaml
-# configuration.yaml oder templates.yaml
+# configuration.yaml or templates.yaml
 template:
   - sensor:
-      - name: "Pool Hygienestatus"
+      - name: "Pool Hygiene Status"
         state: >
           {% set ph = states('sensor.violet_ph_value') | float(0) %}
           {% set chlor = states('sensor.violet_chlorine') | float(0) %}
@@ -236,16 +236,16 @@ template:
           {% if 7.0 <= ph <= 7.4 and chlor >= 0.3 and orp >= 650 %}
             Optimal
           {% elif 6.8 <= ph <= 7.6 and chlor >= 0.2 %}
-            Akzeptabel
+            Acceptable
           {% else %}
-            Handlungsbedarf
+            Action Required
           {% endif %}
         icon: >
           {% if this.state == 'Optimal' %}mdi:check-circle
-          {% elif this.state == 'Akzeptabel' %}mdi:alert-circle
+          {% elif this.state == 'Acceptable' %}mdi:alert-circle
           {% else %}mdi:alert{% endif %}
 
-      - name: "Pool Temperaturdifferenz Solar"
+      - name: "Pool Temperature Difference Solar"
         unit_of_measurement: "°C"
         state: >
           {{ (states('sensor.violet_solar_temperature') | float(0)) -
@@ -254,16 +254,16 @@ template:
 
 ---
 
-## Sensor-Probleme beheben
+## Troubleshooting Sensor Issues
 
-| Problem | Mögliche Ursache | Lösung |
-|---------|-----------------|--------|
-| Sensor zeigt `unavailable` | Controller nicht erreichbar | Verbindung prüfen |
-| Sensor zeigt `unknown` | Sensor am Controller nicht vorhanden/aktiviert | Feature im Setup aktivieren |
-| Falscher Wert | Sensor nicht kalibriert | Kalibrierung durchführen |
-| Wert springt unkontrolliert | Sensor verschmutzt | Sensor reinigen |
-| Negativer Wert | Sensor-Kabel defekt | Kabel/Sensor prüfen |
+| Problem | Possible Cause | Solution |
+|---------|---------------|----------|
+| Sensor shows `unavailable` | Controller not reachable | Check connection |
+| Sensor shows `unknown` | Sensor not present/enabled on controller | Enable feature in setup |
+| Incorrect value | Sensor not calibrated | Perform calibration |
+| Value fluctuates uncontrollably | Sensor dirty | Clean sensor |
+| Negative value | Sensor cable defective | Check cable/sensor |
 
 ---
 
-**Weiter:** [Schalter & Steuerung](Switches) | [Klima & Heizung](Climate) | [Services](Services)
+**Next:** [Switches & Control](Switches) | [Climate & Heating](Climate) | [Services](Services)

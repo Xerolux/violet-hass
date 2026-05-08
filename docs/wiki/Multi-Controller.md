@@ -1,131 +1,131 @@
-# Multi-Controller – Mehrere Pools verwalten
+# Multi-Controller – Managing Multiple Pools
 
-> Verwalte mehrere Violet Pool Controller gleichzeitig in einer einzigen Home Assistant Installation.
+> Manage multiple Violet Pool Controllers simultaneously in a single Home Assistant installation.
 
 ---
 
-## Überblick
+## Overview
 
-Die Violet Pool Controller Integration unterstützt **unbegrenzt viele Controller** in einer Home Assistant Instanz. Jeder Controller bekommt seinen eigenen Koordinator, eigene Entities und einen eigenen Bereich (Area).
+The Violet Pool Controller integration supports **unlimited controllers** in a single Home Assistant instance. Each controller gets its own coordinator, own entities, and its own area.
 
 ```
 Home Assistant
-├── Außenpool (192.168.1.55)
-│   ├── sensor.aussenpool_water_temperature
-│   ├── switch.aussenpool_pump
-│   └── climate.aussenpool_heater
+├── Outdoor Pool (192.168.1.55)
+│   ├── sensor.outdoor_pool_water_temperature
+│   ├── switch.outdoor_pool_pump
+│   └── climate.outdoor_pool_heater
 │
-├── Whirlpool (192.168.1.56)
-│   ├── sensor.whirlpool_water_temperature
-│   ├── switch.whirlpool_pump
-│   └── climate.whirlpool_heater
+├── Hot Tub (192.168.1.56)
+│   ├── sensor.hot_tub_water_temperature
+│   ├── switch.hot_tub_pump
+│   └── climate.hot_tub_heater
 │
-└── Kinderpool (192.168.1.57)
-    ├── sensor.kinderpool_water_temperature
-    └── switch.kinderpool_pump
+└── Kids Pool (192.168.1.57)
+    ├── sensor.kids_pool_water_temperature
+    └── switch.kids_pool_pump
 ```
 
 ---
 
-## Setup: Mehrere Controller hinzufügen
+## Setup: Adding Multiple Controllers
 
-### Schritt 1: Erste Integration einrichten
+### Step 1: Set Up the First Integration
 
-Falls noch nicht geschehen: [Installation & Setup](Installation-and-Setup) folgen.
+If not already done: Follow [Installation & Setup](Installation-and-Setup).
 
-### Schritt 2: Weitere Controller hinzufügen
+### Step 2: Add Additional Controllers
 
-1. **Einstellungen** → **Geräte & Dienste**
-2. Klicke **„Integration hinzufügen"** (unten rechts)
-3. Suche nach **„Violet Pool Controller"**
-4. Gib die Verbindungsdaten des zweiten Controllers ein
-5. **Wichtig:** Vergib einen **eindeutigen Controller-Namen**
+1. **Settings** → **Devices & Services**
+2. Click **"Add Integration"** (bottom right)
+3. Search for **"Violet Pool Controller"**
+4. Enter the connection details of the second controller
+5. **Important:** Assign a **unique controller name**
 
-### Schritt 3: Eindeutige Namen vergeben
+### Step 3: Assign Unique Names
 
-| Beispiel | Gut | Schlecht |
-|----------|-----|---------|
-| Außenbereich | `Außenpool` | `Pool` |
-| Whirlpool | `Whirlpool` | `Violet Pool Controller` |
-| Kinderpool | `Kinderpool` | `Pool 1` |
+| Example | Good | Bad |
+|---------|------|-----|
+| Outdoor area | `Outdoor Pool` | `Pool` |
+| Hot tub | `Hot Tub` | `Violet Pool Controller` |
+| Kids pool | `Kids Pool` | `Pool 1` |
 
-> **Tipp:** Der Controller-Name wird zur Area in Home Assistant und zu einem Präfix in den Entity-Namen. Kurze, sprechende Namen sind ideal.
+> **Tip:** The controller name becomes an area in Home Assistant and a prefix in entity names. Short, descriptive names are ideal.
 
 ---
 
-## Technische Umsetzung
+## Technical Implementation
 
-### Entity-IDs
+### Entity IDs
 
-Jede Entity hat eine eindeutige ID basierend auf der `entry_id`:
+Each entity has a unique ID based on the `entry_id`:
 
 ```
 {entry_id}_{entity_key}
 ```
 
-Beispiele:
-- `sensor.aussenpool_water_temperature`
-- `sensor.whirlpool_water_temperature`
-- `switch.aussenpool_pump`
-- `switch.whirlpool_pump`
+Examples:
+- `sensor.outdoor_pool_water_temperature`
+- `sensor.hot_tub_water_temperature`
+- `switch.outdoor_pool_pump`
+- `switch.hot_tub_pump`
 
-### Device-Identifikatoren
+### Device Identifiers
 
 ```python
-# Eindeutig per IP + Device-ID
+# Unique per IP + Device-ID
 (DOMAIN, f"{api_url}_{device_id}")
 ```
 
-### Automatische Bereichszuweisung
+### Automatic Area Assignment
 
-Home Assistant erstellt automatisch Bereiche basierend auf `suggested_area`:
+Home Assistant automatically creates areas based on `suggested_area`:
 
 ```
-📍 Außenpool
-  ├─ Beckenwasser Temperatur
-  ├─ pH-Wert
-  ├─ Filterpumpe
+📍 Outdoor Pool
+  ├─ Pool Water Temperature
+  ├─ pH Value
+  ├─ Filter Pump
   └─ ...
 
-📍 Whirlpool
-  ├─ Beckenwasser Temperatur
-  ├─ pH-Wert
-  ├─ Filterpumpe
+📍 Hot Tub
+  ├─ Pool Water Temperature
+  ├─ pH Value
+  ├─ Filter Pump
   └─ ...
 ```
 
 ---
 
-## Dashboard-Konfiguration
+## Dashboard Configuration
 
-### Tabs für jeden Pool
+### Tabs for Each Pool
 
 ```yaml
-# Lovelace-Konfiguration mit Tabs
+# Lovelace configuration with tabs
 views:
-  - title: Außenpool
-    path: aussenpool
+  - title: Outdoor Pool
+    path: outdoor_pool
     cards:
       - type: entities
-        title: Außenpool – Sensoren
+        title: Outdoor Pool – Sensors
         entities:
-          - sensor.aussenpool_water_temperature
-          - sensor.aussenpool_ph_value
-          - sensor.aussenpool_orp_value
+          - sensor.outdoor_pool_water_temperature
+          - sensor.outdoor_pool_ph_value
+          - sensor.outdoor_pool_orp_value
       - type: thermostat
-        entity: climate.aussenpool_heater
+        entity: climate.outdoor_pool_heater
 
-  - title: Whirlpool
-    path: whirlpool
+  - title: Hot Tub
+    path: hot_tub
     cards:
       - type: entities
-        title: Whirlpool – Sensoren
+        title: Hot Tub – Sensors
         entities:
-          - sensor.whirlpool_water_temperature
-          - sensor.whirlpool_ph_value
+          - sensor.hot_tub_water_temperature
+          - sensor.hot_tub_ph_value
 ```
 
-### Übersichts-Karte für alle Pools
+### Overview Card for All Pools
 
 ```yaml
 type: vertical-stack
@@ -133,51 +133,51 @@ cards:
   - type: horizontal-stack
     cards:
       - type: entity
-        entity: sensor.aussenpool_water_temperature
-        name: Außenpool Temp.
+        entity: sensor.outdoor_pool_water_temperature
+        name: Outdoor Pool Temp.
       - type: entity
-        entity: sensor.whirlpool_water_temperature
-        name: Whirlpool Temp.
+        entity: sensor.hot_tub_water_temperature
+        name: Hot Tub Temp.
 
   - type: horizontal-stack
     cards:
       - type: entity
-        entity: sensor.aussenpool_ph_value
-        name: Außenpool pH
+        entity: sensor.outdoor_pool_ph_value
+        name: Outdoor Pool pH
       - type: entity
-        entity: sensor.whirlpool_ph_value
-        name: Whirlpool pH
+        entity: sensor.hot_tub_ph_value
+        name: Hot Tub pH
 ```
 
 ---
 
-## Automatisierungen mit mehreren Controllern
+## Automations with Multiple Controllers
 
-### pH-Wert vergleichen und warnen
+### Compare pH Values and Alert
 
 ```yaml
 automation:
-  - alias: "Multi-Pool: pH-Vergleich"
+  - alias: "Multi-Pool: pH Comparison"
     trigger:
       - platform: numeric_state
         entity_id:
-          - sensor.aussenpool_ph_value
-          - sensor.whirlpool_ph_value
+          - sensor.outdoor_pool_ph_value
+          - sensor.hot_tub_ph_value
         below: 7.0
     action:
       - service: notify.mobile_app_phone
         data:
-          title: "Pool pH-Alarm"
+          title: "Pool pH Alert"
           message: >
-            Außenpool: {{ states('sensor.aussenpool_ph_value') }} pH
-            Whirlpool: {{ states('sensor.whirlpool_ph_value') }} pH
+            Outdoor Pool: {{ states('sensor.outdoor_pool_ph_value') }} pH
+            Hot Tub: {{ states('sensor.hot_tub_ph_value') }} pH
 ```
 
-### Beide Pumpen gleichzeitig steuern
+### Control All Pumps Simultaneously
 
 ```yaml
 automation:
-  - alias: "Alle Pumpen nachts aus"
+  - alias: "All pumps off at night"
     trigger:
       - platform: time
         at: "22:00:00"
@@ -185,127 +185,127 @@ automation:
       - service: switch.turn_off
         target:
           entity_id:
-            - switch.aussenpool_pump
-            - switch.whirlpool_pump
-            - switch.kinderpool_pump
+            - switch.outdoor_pool_pump
+            - switch.hot_tub_pump
+            - switch.kids_pool_pump
 ```
 
-### Pool-übergreifende Durchschnittswerte
+### Cross-Pool Average Values
 
 ```yaml
-# Template-Sensor für Durchschnittstemperatur
+# Template sensor for average temperature
 template:
   - sensor:
-      - name: "Alle Pools Durchschnittstemperatur"
+      - name: "All Pools Average Temperature"
         unit_of_measurement: "°C"
         state: >
           {{ (
-            states('sensor.aussenpool_water_temperature') | float(0) +
-            states('sensor.whirlpool_water_temperature') | float(0)
+            states('sensor.outdoor_pool_water_temperature') | float(0) +
+            states('sensor.hot_tub_water_temperature') | float(0)
           ) / 2 | round(1) }}
 ```
 
 ---
 
-## Netzwerk-Konfiguration
+## Network Configuration
 
-### Empfehlungen
+### Recommendations
 
-| Aspekt | Empfehlung |
-|--------|-----------|
-| **IP-Adressen** | Statische IPs (DHCP-Reservierung) verwenden |
-| **Netzwerk** | Alle Controller im selben Subnetz |
-| **Polling-Intervall** | Bei 3+ Controllern: 30-60 Sekunden |
-| **SSL** | Konsistente Einstellung (alle SSL oder keiner) |
+| Aspect | Recommendation |
+|--------|---------------|
+| **IP Addresses** | Use static IPs (DHCP reservation) |
+| **Network** | All controllers in the same subnet |
+| **Polling Interval** | With 3+ controllers: 30-60 seconds |
+| **SSL** | Consistent setting (all SSL or none) |
 
-### DHCP-Reservierung (Fritzbox)
+### DHCP Reservation (Router)
 
 ```
-Heimnetz → Netzwerk → Netzwerkverbindungen → Gerät → IP-Adresse immer zuweisen
+Home Network → Network → Network Connections → Device → Assign static IP
 ```
 
 ---
 
 ## Best Practices
 
-### Namensgebung
+### Naming
 
 ```
-Gut:
-- "Außenpool"          → sensor.aussenpool_*
-- "Whirlpool"          → sensor.whirlpool_*
-- "Pool Erdgeschoss"   → sensor.pool_erdgeschoss_*
+Good:
+- "Outdoor Pool"       → sensor.outdoor_pool_*
+- "Hot Tub"            → sensor.hot_tub_*
+- "Pool Ground Floor"  → sensor.pool_ground_floor_*
 
-Vermeiden:
-- "Pool 1"             → zu generisch
-- "Violet Pool"        → Standard-Name, nicht eindeutig
+Avoid:
+- "Pool 1"             → too generic
+- "Violet Pool"        → default name, not unique
 ```
 
 ### Performance
 
-- **Staffeln** der Polling-Zeiten durch unterschiedliche Intervalle
-- Bei 2-3 Controllern: 20-30s Intervall
-- Bei 4+ Controllern: 30-60s Intervall empfohlen
+- **Stagger** polling times with different intervals
+- With 2-3 controllers: 20-30s interval
+- With 4+ controllers: 30-60s interval recommended
 
 ### Backup
 
-Vor dem Hinzufügen weiterer Controller:
+Before adding additional controllers:
 ```
-Einstellungen → System → Backups → Backup erstellen
+Settings → System → Backups → Create Backup
 ```
 
 ---
 
 ## Upgrade & Migration
 
-### Bestehende Installation umbenennen
+### Rename Existing Installation
 
-So änderst du den Controller-Namen nachträglich:
+How to change the controller name after setup:
 
-1. **Einstellungen** → **Geräte & Dienste**
-2. „Violet Pool Controller" auswählen
-3. Klicke auf **Gerätename** → Bearbeiten
+1. **Settings** → **Devices & Services**
+2. Select "Violet Pool Controller"
+3. Click on **Device Name** → Edit
 
-> **Hinweis:** Das ändert nur den Anzeigenamen. Für neue Entity-IDs: Integration entfernen und neu hinzufügen.
+> **Note:** This only changes the display name. For new entity IDs: Remove and re-add the integration.
 
-### Migration von Einzel- zu Multi-Controller
+### Migration from Single to Multi-Controller
 
-1. Erstelle ein Backup
-2. Notiere alle Automatisierungen
-3. Füge zweite Integration hinzu
-4. Passe Automatisierungen auf neue Entity-IDs an
+1. Create a backup
+2. Note all automations
+3. Add second integration
+4. Update automations with new entity IDs
 
 ---
 
 ## Troubleshooting
 
-### Problem: Entities haben identische Namen
+### Problem: Entities have identical names
 
-**Ursache:** Beide Controller haben den gleichen Namen.
+**Cause:** Both controllers have the same name.
 
-**Lösung:**
-1. Einstellungen → Geräte & Dienste
-2. Controller umbenennen (eindeutige Namen!)
+**Solution:**
+1. Settings → Devices & Services
+2. Rename controllers (unique names!)
 
-### Problem: Controller erscheint nicht in separatem Bereich
+### Problem: Controller does not appear in separate area
 
-**Lösung:** Prüfe ob `controller_name` im Config Entry korrekt gesetzt ist.
+**Solution:** Check whether `controller_name` is correctly set in the config entry.
 
 ```
-Einstellungen → Geräte & Dienste → [Integration] → Konfigurieren
+Settings → Devices & Services → [Integration] → Configure
 ```
 
-### Problem: Zu viele API-Anfragen
+### Problem: Too many API requests
 
-**Lösung:** Polling-Intervall erhöhen:
+**Solution:** Increase polling interval:
 ```
-Einstellungen → Geräte & Dienste → Violet Pool Controller → Konfigurieren
-→ Abfrageintervall: 45 Sekunden
+Settings → Devices & Services → Violet Pool Controller → Configure
+→ Polling interval: 45 seconds
 ```
 
-### Problem: Ein Controller offline, andere funktionieren
+### Problem: One controller offline, others working
 
-Das ist normales Verhalten! Jeder Controller ist unabhängig. Der ausgefallene Controller zeigt `unavailable`, die anderen arbeiten weiter.
+This is normal behavior! Each controller is independent. The failed controller shows `unavailable`, the others continue working.
 
 ---
 
@@ -317,4 +317,4 @@ Das ist normales Verhalten! Jeder Controller ist unabhängig. Der ausgefallene C
 
 ---
 
-*Zuletzt aktualisiert: 2026-02-23*
+*Last updated: 2026-02-23*

@@ -1,34 +1,34 @@
-# Diagnosedaten – Diagnostics
+# Diagnostics Data
 
-> Mit dem eingebauten Diagnostics-Feature kannst du mit einem Klick alle relevanten Informationen über deinen Violet Pool Controller als JSON-Datei herunterladen – ideal für Bug-Reports und Troubleshooting.
-
----
-
-## Was sind Diagnosedaten?
-
-Home Assistant bietet für Integrationen eine eingebaute Diagnostics-Funktion. Beim Klick auf **„Diagnosedaten herunterladen"** wird eine JSON-Datei erstellt, die alle wichtigen Informationen zum aktuellen Zustand der Integration enthält – ohne sensible Daten wie Passwörter.
+> With the built-in diagnostics feature, you can download all relevant information about your Violet Pool Controller as a JSON file with a single click – ideal for bug reports and troubleshooting.
 
 ---
 
-## Diagnosedaten herunterladen
+## What Are Diagnostics Data?
 
-1. Gehe zu **Einstellungen → Geräte & Dienste**
-2. Klicke auf **Violet Pool Controller**
-3. Wähle dein Gerät aus
-4. Klicke auf **„Diagnosedaten herunterladen"** (⬇️)
-5. Eine JSON-Datei wird gespeichert
-
-> Die Datei kann direkt als Anhang an ein [GitHub Issue](https://github.com/Xerolux/violet-hass/issues) angehängt werden.
+Home Assistant provides a built-in diagnostics function for integrations. When you click **"Download Diagnostics"**, a JSON file is created containing all important information about the current state of the integration – without sensitive data like passwords.
 
 ---
 
-## Inhalt der Diagnosedaten
+## Download Diagnostics Data
 
-Die heruntergeladene JSON-Datei ist in folgende Sektionen aufgeteilt:
+1. Go to **Settings → Devices & Services**
+2. Click on **Violet Pool Controller**
+3. Select your device
+4. Click **"Download Diagnostics"** (⬇️)
+5. A JSON file will be saved
+
+> The file can be attached directly to a [GitHub Issue](https://github.com/Xerolux/violet-hass/issues).
+
+---
+
+## Contents of the Diagnostics Data
+
+The downloaded JSON file is divided into the following sections:
 
 ### `integration`
 
-Basisinformationen zur Integration:
+Basic integration information:
 
 ```json
 "integration": {
@@ -41,7 +41,7 @@ Basisinformationen zur Integration:
 
 ### `config_entry`
 
-Alle Konfigurationseinstellungen. **Passwörter und Benutzernamen werden automatisch geschwärzt (`**REDACTED**`).**
+All configuration settings. **Passwords and usernames are automatically redacted (`**REDACTED**`).**
 
 ```json
 "config_entry": {
@@ -56,7 +56,7 @@ Alle Konfigurationseinstellungen. **Passwörter und Benutzernamen werden automat
     "verify_ssl": true,
     "device_id": 1,
     "device_name": "Violet Pool Controller",
-    "controller_name": "Hauptpool",
+    "controller_name": "Main Pool",
     "active_features": ["pump", "heater", "solar", "dosing_ph"],
     "password": "**REDACTED**"
   },
@@ -68,12 +68,12 @@ Alle Konfigurationseinstellungen. **Passwörter und Benutzernamen werden automat
 
 ### `device`
 
-Aktueller Status des Controllers:
+Current controller status:
 
 ```json
 "device": {
   "name": "Violet Pool Controller",
-  "controller_name": "Hauptpool",
+  "controller_name": "Main Pool",
   "firmware": "1.1.9",
   "device_id": 1,
   "api_url": "192.168.1.100",
@@ -84,18 +84,18 @@ Aktueller Status des Controllers:
 }
 ```
 
-| Feld | Bedeutung |
-|------|-----------|
-| `available` | `true` = Controller erreichbar |
-| `consecutive_failures` | Anzahl aufeinanderfolgender Verbindungsfehler (ab 5 wird der Controller als nicht verfügbar markiert) |
-| `last_error` | Letzter Fehlertext (null = kein Fehler) |
-| `firmware` | Firmware-Version des Controllers |
+| Field | Meaning |
+|------|---------|
+| `available` | `true` = Controller reachable |
+| `consecutive_failures` | Number of consecutive connection failures (from 5 onwards, the controller is marked as unavailable) |
+| `last_error` | Last error text (null = no error) |
+| `firmware` | Controller firmware version |
 
 ---
 
 ### `connection`
 
-Verbindungsmetriken und Gesundheitsstatus:
+Connection metrics and health status:
 
 ```json
 "connection": {
@@ -109,21 +109,21 @@ Verbindungsmetriken und Gesundheitsstatus:
 }
 ```
 
-| Feld | Bedeutung |
-|------|-----------|
-| `system_health_pct` | Gesundheitsscore 0–100 % |
-| `last_latency_ms` | Antwortzeit des letzten API-Calls in ms |
-| `average_latency_ms` | Durchschnitt der letzten 60 Messungen |
-| `total_api_requests` | Gesamtanzahl API-Requests seit HA-Start |
-| `api_request_rate_per_min` | Aktuelle Request-Rate pro Minute |
-| `seconds_since_last_update` | Sekunden seit dem letzten erfolgreichen Update |
-| `last_update_success` | `true` = letztes Update erfolgreich |
+| Field | Meaning |
+|------|---------|
+| `system_health_pct` | Health score 0–100% |
+| `last_latency_ms` | Response time of the last API call in ms |
+| `average_latency_ms` | Average of the last 60 measurements |
+| `total_api_requests` | Total API requests since HA start |
+| `api_request_rate_per_min` | Current request rate per minute |
+| `seconds_since_last_update` | Seconds since the last successful update |
+| `last_update_success` | `true` = last update successful |
 
 ---
 
 ### `current_data`
 
-Snapshot aller aktuellen Messwerte vom Controller (z. B. Temperaturen, pH, ORP, Pumpenstatus):
+Snapshot of all current measurements from the controller (e.g., temperatures, pH, ORP, pump status):
 
 ```json
 "current_data": {
@@ -138,13 +138,13 @@ Snapshot aller aktuellen Messwerte vom Controller (z. B. Temperaturen, pH, ORP, 
 }
 ```
 
-> Der Inhalt hängt von deinem Controller und den aktivierten Features ab. Alle verfügbaren Sensoren werden hier aufgelistet.
+> The content depends on your controller and the enabled features. All available sensors are listed here.
 
 ---
 
 ### `poll_statistics`
 
-Statistiken über die bisherigen Datenabfragen:
+Statistics about previous data queries:
 
 ```json
 "poll_statistics": {
@@ -155,42 +155,42 @@ Statistiken über die bisherigen Datenabfragen:
 }
 ```
 
-| Feld | Bedeutung |
-|------|-----------|
-| `total_polls` | Gesamtanzahl abgeschlossener Polls seit Start |
-| `first_poll` | Zeitstempel des ersten Polls |
-| `last_poll` | Zeitstempel des letzten Polls |
-| `avg_data_points` | Durchschnittliche Anzahl empfangener Datenpunkte pro Poll |
+| Field | Meaning |
+|------|---------|
+| `total_polls` | Total number of completed polls since start |
+| `first_poll` | Timestamp of the first poll |
+| `last_poll` | Timestamp of the last poll |
+| `avg_data_points` | Average number of received data points per poll |
 
 ---
 
-## Datenschutz & Sicherheit
+## Privacy & Security
 
-Die Diagnosedaten werden **nur lokal erzeugt** und nur dann weitergegeben, wenn du die Datei manuell hochlädst. Folgende Felder werden automatisch geschwärzt:
+Diagnostics data is **only generated locally** and only shared if you manually upload the file. The following fields are automatically redacted:
 
-| Feld | Behandlung |
+| Field | Treatment |
 |------|-----------|
 | `password` | `**REDACTED**` |
 | `username` | `**REDACTED**` |
-| Alle anderen Felder | Klartext |
+| All other fields | Plaintext |
 
-> Die IP-Adresse des Controllers (`host`) ist in den Diagnosedaten sichtbar. Falls du sie nicht teilen möchtest, ersetze sie manuell im JSON-Editor, bevor du die Datei hochlädst.
-
----
-
-## Diagnosedaten für einen Bug-Report nutzen
-
-1. Diagnosedaten herunterladen (siehe oben)
-2. Datei ggf. in einem Texteditor öffnen und IP anonymisieren
-3. [Neues Issue erstellen](https://github.com/Xerolux/violet-hass/issues/new/choose)
-4. Fehlerbeschreibung, HA-Version und Integrations-Version angeben
-5. JSON-Datei als Anhang hinzufügen
+> The controller's IP address (`host`) is visible in the diagnostics data. If you don't want to share it, replace it manually in a JSON editor before uploading the file.
 
 ---
 
-## Verwandte Seiten
+## Using Diagnostics Data for a Bug Report
 
-- [Troubleshooting](Troubleshooting) – Häufige Probleme & Lösungen
-- [Erweiterte Protokollierung](Erweiterte-Protokollierung) – Debug-Logs aktivieren
-- [Fehler-Codes](Error-Codes) – Controller-Fehlercodes erklärt
-- [FAQ](FAQ) – Häufige Fragen
+1. Download diagnostics data (see above)
+2. Open the file in a text editor if needed and anonymize the IP
+3. [Create a new issue](https://github.com/Xerolux/violet-hass/issues/new/choose)
+4. Provide error description, HA version, and integration version
+5. Attach the JSON file
+
+---
+
+## Related Pages
+
+- [Troubleshooting](Troubleshooting) – Common problems & solutions
+- [Advanced Logging](Erweiterte-Protokollierung) – Enable debug logs
+- [Error Codes](Error-Codes) – Controller error codes explained
+- [FAQ](FAQ) – Frequently asked questions

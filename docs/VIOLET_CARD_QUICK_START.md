@@ -1,17 +1,17 @@
 # 🚀 Violet Pool Card - Quick Start Guide
 
-**Schnellstart für neue Sessions - Einfach Copy & Paste!**
+**Quick start for new sessions - Just Copy & Paste!**
 
 ---
 
 ## 📋 Pre-Session Checklist
 
-Bevor du mit einer Development Session startest:
+Before starting a development session:
 
-- [ ] VIOLET_CARD_ROADMAP.md gelesen
-- [ ] Passende Session ausgewählt (1-10)
-- [ ] Claude Code gestartet
-- [ ] Session Prompt kopiert
+- [ ] Read VIOLET_CARD_ROADMAP.md
+- [ ] Select appropriate session (1-10)
+- [ ] Start Claude Code
+- [ ] Copy session prompt
 
 ---
 
@@ -19,44 +19,44 @@ Bevor du mit einer Development Session startest:
 
 ### Copy-Paste Prompt:
 ```
-Ich möchte eine Custom Lovelace Card für Home Assistant erstellen: "Violet Pool Card"
+I want to create a Custom Lovelace Card for Home Assistant: "Violet Pool Card"
 
-KONTEXT:
+CONTEXT:
 - Integration: Violet Pool Controller (violet_pool_controller)
 - GitHub: https://github.com/YOUR_USERNAME/violet-pool-card
-- Style: Mushroom Cards ähnlich
+- Style: Similar to Mushroom Cards
 - Tech: Lit Element + TypeScript + Rollup
 
-ZIEL:
-Vollständiges Repository Setup mit HACS Kompatibilität
+GOAL:
+Complete repository setup with HACS compatibility
 
 TASKS:
-1. Repository Struktur erstellen (siehe VIOLET_CARD_ROADMAP.md)
-2. package.json mit Dependencies
+1. Create repository structure (see VIOLET_CARD_ROADMAP.md)
+2. package.json with dependencies
 3. tsconfig.json
 4. rollup.config.js
 5. hacs.json
 6. .gitignore
-7. README.md mit Installation
-8. Basis violet-pool-card.ts mit Card Registration
-9. Build-System testen
+7. README.md with installation
+8. Base violet-pool-card.ts with card registration
+9. Test build system
 
-WICHTIG:
-- Verwende Code-Vorlagen aus VIOLET_CARD_ROADMAP.md
-- HACS-kompatibel von Anfang an
+IMPORTANT:
+- Use code templates from VIOLET_CARD_ROADMAP.md
+- HACS-compatible from the start
 - TypeScript strict mode
-- ESLint konfigurieren
+- Configure ESLint
 
 DELIVERABLES:
-- ✅ npm install funktioniert
-- ✅ npm run build erstellt dist/violet-pool-card.js
-- ✅ Card registriert sich in HA
-- ✅ README mit Installation
+- ✅ npm install works
+- ✅ npm run build creates dist/violet-pool-card.js
+- ✅ Card registers in HA
+- ✅ README with installation
 ```
 
-### Nach der Session:
+### After the Session:
 ```bash
-# Testen
+# Test
 npm install
 npm run build
 
@@ -74,50 +74,50 @@ git push -u origin main
 
 ### Copy-Paste Prompt:
 ```
-Weiter mit Violet Pool Card - Status Components
+Continue with Violet Pool Card - Status Components
 
-KONTEXT:
-Repository aus Session 1 ist fertig. Jetzt Components bauen.
+CONTEXT:
+Repository from Session 1 is ready. Now build components.
 
-ZIEL:
-Status-Anzeige Components für alle Card Types
+GOAL:
+Status display components for all card types
 
 TASKS:
 1. Status Badge Component (src/components/status-badge.ts)
    - States: off, on, auto, manual, blocked, error
-   - Farben aus VIOLET_CARD_ROADMAP.md
+   - Colors from VIOLET_CARD_ROADMAP.md
    - Icon Support (MDI)
    - Pulse Animation
 
 2. Value Display Component (src/components/value-display.ts)
-   - Temperatur (°C)
-   - pH Wert (0-14)
+   - Temperature (°C)
+   - pH value (0-14)
    - ORP (mV)
-   - Formatierung mit Unit
-   - Min/Max Range Indicator
+   - Formatting with unit
+   - Min/Max range indicator
 
 3. Detail Status Component (src/components/detail-status.ts)
    - Parse "3|PUMP_ANTI_FREEZE" → "Pump Anti Freeze"
-   - Parse Arrays: ["BLOCKED_BY_TRESHOLDS", "TRESHOLDS_REACHED"]
-   - Readable Formatting
+   - Parse arrays: ["BLOCKED_BY_TRESHOLDS", "TRESHOLDS_REACHED"]
+   - Readable formatting
 
 4. Warning Chips Component (src/components/warning-chips.ts)
-   - Multiple Warnings als Chips
+   - Multiple warnings as chips
    - Color-coded (Info/Warning/Error)
    - Dismissable optional
 
-CODE VORLAGEN:
-Verwende Code aus VIOLET_CARD_ROADMAP.md "Code Snippets" Section!
+CODE TEMPLATES:
+Use code from VIOLET_CARD_ROADMAP.md "Code Snippets" section!
 
 DELIVERABLES:
-- ✅ Alle 4 Components funktionieren standalone
+- ✅ All 4 components work standalone
 - ✅ Import in violet-pool-card.ts
-- ✅ Storybook/Demo Page (optional)
+- ✅ Storybook/Demo page (optional)
 ```
 
-### Testen:
+### Testing:
 ```typescript
-// In violet-pool-card.ts temporär testen:
+// Test temporarily in violet-pool-card.ts:
 protected render() {
   return html`
     <ha-card>
@@ -136,22 +136,22 @@ protected render() {
 
 ### Copy-Paste Prompt:
 ```
-Weiter mit Violet Pool Card - Slider Controls & Service Integration
+Continue with Violet Pool Card - Slider Controls & Service Integration
 
-KONTEXT:
-Status Components sind fertig. Jetzt Steuerung implementieren.
+CONTEXT:
+Status Components are ready. Now implement controls.
 
-ZIEL:
-Funktionale Slider + Service Calls an Home Assistant
+GOAL:
+Functional sliders + service calls to Home Assistant
 
 TASKS:
 1. Slider Control Component (src/components/slider-control.ts)
    - Range Slider (continuous)
    - Discrete Slider (snap-to-value)
-   - Touch-optimiert
+   - Touch-optimized
    - Labels (optional)
-   - Value Change Events
-   - Live Update während Drag
+   - Value change events
+   - Live update during drag
 
 2. Service Caller Utility (src/utils/service-caller.ts)
    - violet_pool_controller.control_pump
@@ -159,8 +159,8 @@ TASKS:
    - number.set_value
    - switch.turn_on / turn_off
    - violet_pool_controller.smart_dosing
-   - Error Handling
-   - Toast Notifications
+   - Error handling
+   - Toast notifications
 
 3. Entity Helper (src/utils/entity-helper.ts)
    - Get entity state
@@ -169,10 +169,10 @@ TASKS:
    - Get DOS_*_STATE (arrays)
    - Format values
 
-CODE VORLAGEN:
-VIOLET_CARD_ROADMAP.md enthält vollständige Implementierungen!
+CODE TEMPLATES:
+VIOLET_CARD_ROADMAP.md contains complete implementations!
 
-BEISPIEL INTEGRATION:
+EXAMPLE INTEGRATION:
 ```typescript
 // Pump Speed Slider
 <slider-control
@@ -193,17 +193,17 @@ private async _handleSpeedChange(e: CustomEvent) {
 ```
 
 DELIVERABLES:
-- ✅ Slider funktioniert
-- ✅ Services werden aufgerufen
-- ✅ Fehler werden behandelt
-- ✅ Toast Notifications
+- ✅ Slider works
+- ✅ Services are called
+- ✅ Errors are handled
+- ✅ Toast notifications
 ```
 
 ### Live Test:
-1. Card in HA laden
-2. Slider bewegen
-3. DevTools → Network → prüfe Service Call
-4. Entity State sollte sich ändern
+1. Load card in HA
+2. Move slider
+3. DevTools → Network → check service call
+4. Entity state should change
 
 ---
 
@@ -211,34 +211,34 @@ DELIVERABLES:
 
 ### Copy-Paste Prompt:
 ```
-Weiter mit Violet Pool Card - Quick Action Buttons
+Continue with Violet Pool Card - Quick Action Buttons
 
-KONTEXT:
-Slider funktionieren. Jetzt Quick Actions für schnelle Steuerung.
+CONTEXT:
+Sliders work. Now Quick Actions for fast control.
 
-ZIEL:
-Button-Grid für häufige Aktionen (OFF/AUTO/ON, Speed Presets)
+GOAL:
+Button grid for common actions (OFF/AUTO/ON, Speed Presets)
 
 TASKS:
 1. Quick Actions Component (src/components/quick-actions.ts)
    - Button Grid Layout
    - Icon + Label
-   - Click Handler
-   - Active State
-   - Disabled State
-   - Loading State
+   - Click handler
+   - Active state
+   - Disabled state
+   - Loading state
 
 2. Action Types:
    - State Actions: OFF / AUTO / ON
    - Speed Presets: ECO / Normal / Boost
-   - Manual Dosing: "Dosieren (30s)" Button
+   - Manual Dosing: "Dose (30s)" Button
    - Custom Actions (tap_action config)
 
 3. Confirmation Dialog (optional)
-   - Bei kritischen Aktionen
-   - "Wirklich ausschalten?"
+   - For critical actions
+   - "Really turn off?"
 
-CODE VORLAGE:
+CODE TEMPLATE:
 ```typescript
 interface QuickAction {
   icon: string;
@@ -261,7 +261,7 @@ DELIVERABLES:
 - ✅ Quick Actions Component
 - ✅ Integration in Cards
 - ✅ Responsive Layout
-- ✅ Feedback bei Click
+- ✅ Feedback on Click
 ```
 
 ---
@@ -271,19 +271,19 @@ DELIVERABLES:
 ### Session 5: Pump Card
 
 ```
-Weiter mit Violet Pool Card - PUMP CARD implementieren
+Continue with Violet Pool Card - Implement PUMP CARD
 
-KONTEXT:
-Components sind fertig. Jetzt erste vollständige Card.
+CONTEXT:
+Components are ready. Now first complete card.
 
-REFERENZ MOCK-UP (VIOLET_CARD_ROADMAP.md):
+REFERENCE MOCK-UP (VIOLET_CARD_ROADMAP.md):
 ┌─────────────────────────────────────────┐
-│ 🔵 Pumpe              [AUTO] [Stufe 2] │
+│ 🔵 Pump              [AUTO] [Level 2]  │
 │ Status: Pump Anti Freeze                │
 │ ━━●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
 │ OFF        ECO      Normal      Boost   │
 │ [OFF] [AUTO] [ECO] [Normal] [Boost]    │
-│ ⏱️ Laufzeit: 2h 34min                   │
+│ ⏱️ Runtime: 2h 34min                    │
 └─────────────────────────────────────────┘
 
 ENTITY:
@@ -295,13 +295,13 @@ ENTITY:
 
 TASKS:
 1. Pump Card Class (src/cards/pump-card.ts)
-2. Layout wie Mock-up
+2. Layout like mock-up
 3. Status Badge (OFF/ON/AUTO/MANUAL)
 4. Detail Status (Parse PUMPSTATE)
-5. Speed Slider (0-3 mit Labels)
+5. Speed Slider (0-3 with labels)
 6. Quick Actions (OFF/AUTO/Speed Presets)
 7. Runtime Counter (optional)
-8. Icon Animation bei Betrieb
+8. Icon animation when running
 
 INTEGRATION:
 ```typescript
@@ -311,18 +311,18 @@ case 'pump':
 ```
 
 DELIVERABLES:
-- ✅ Pump Card funktional
-- ✅ Alle Features aus Mock-up
+- ✅ Pump Card functional
+- ✅ All features from mock-up
 - ✅ Responsive
 ```
 
-### Session 6-8: Weitere Cards
-Analog zu Session 5, aber für:
+### Session 6-8: More Cards
+Analogous to Session 5, but for:
 - **Session 6**: Heater Card (climate.violet_pool_heater)
 - **Session 7**: Solar Card (climate.violet_pool_solar)
 - **Session 8**: Dosing Card (switch.violet_pool_dos_*)
 
-Mock-ups in VIOLET_CARD_ROADMAP.md verwenden!
+Use mock-ups from VIOLET_CARD_ROADMAP.md!
 
 ---
 
@@ -330,53 +330,53 @@ Mock-ups in VIOLET_CARD_ROADMAP.md verwenden!
 
 ### Copy-Paste Prompt:
 ```
-Weiter mit Violet Pool Card - OVERVIEW & COMPACT CARDS
+Continue with Violet Pool Card - OVERVIEW & COMPACT CARDS
 
-KONTEXT:
-Alle Detail-Cards (Pump, Heater, Solar, Dosing) sind fertig.
+CONTEXT:
+All detail cards (Pump, Heater, Solar, Dosing) are ready.
 
-ZIEL:
-- Overview Card: Alles auf einen Blick
-- Compact Card: Minimale Dashboard-Ansicht
+GOAL:
+- Overview Card: Everything at a glance
+- Compact Card: Minimal dashboard view
 
 OVERVIEW CARD MOCK-UP:
 ┌─────────────────────────────────────────┐
 │ 🏊 Pool Status                          │
 │ 🌡️ 24.5°C  |  🧪 pH 7.2  |  ⚡ 650mV   │
 │   ✅ OK        ✅ OK         ⚠️ Low     │
-│ Aktive Geräte:                          │
-│ 🔵 Pumpe (Auto, Stufe 2, Anti-Freeze)   │
-│ ❌ Heizung (Blocked by Outside Temp)    │
-│ 💧 Chlor (Blocked by Tresholds)        │
-│ Warnungen:                              │
-│ ⚠️ ORP zu niedrig - Chlor dosieren      │
+│ Active Devices:                          │
+│ 🔵 Pump (Auto, Level 2, Anti-Freeze)    │
+│ ❌ Heater (Blocked by Outside Temp)     │
+│ 💧 Chlorine (Blocked by Thresholds)    │
+│ Warnings:                                │
+│ ⚠️ ORP too low - Dose chlorine           │
 └─────────────────────────────────────────┘
 
 COMPACT CARD MOCK-UP:
 ┌─────────────────────────────────────────┐
-│ 🔵 Pumpe        [AUTO] Stufe 2 (Anti-F) │
-│ 🔥 Heizung      [AUTO] Blocked (14°C)   │
+│ 🔵 Pump        [AUTO] Level 2 (Anti-F) │
+│ 🔥 Heater      [AUTO] Blocked (14°C)   │
 │ ☀️ Solar        [AUTO] Anti-Freeze      │
 └─────────────────────────────────────────┘
 
 TASKS:
 1. Overview Card (src/cards/overview-card.ts)
-   - Multi-entity Config
-   - Wasserchemie Ampel (pH/ORP/Chlorine)
-   - Temperatur-Übersicht
-   - Aktive Geräte Liste
-   - Warnungen prominent
+   - Multi-entity config
+   - Water chemistry traffic light (pH/ORP/Chlorine)
+   - Temperature overview
+   - Active devices list
+   - Warnings prominent
    - Click → Details
 
 2. Compact Card (src/cards/compact-card.ts)
-   - Einzeilige Darstellung
+   - Single-line display
    - Status Badge + Value + Detail
-   - Click → Modal mit Full Card
-   - Dashboard-optimiert
+   - Click → Modal with full card
+   - Dashboard-optimized
 
 DELIVERABLES:
-- ✅ Overview Card funktional
-- ✅ Compact Card funktional
+- ✅ Overview Card functional
+- ✅ Compact Card functional
 - ✅ Modal Dialog
 - ✅ Responsive
 ```
@@ -387,10 +387,10 @@ DELIVERABLES:
 
 ### Copy-Paste Prompt:
 ```
-Weiter mit Violet Pool Card - FINAL POLISH & RELEASE
+Continue with Violet Pool Card - FINAL POLISH & RELEASE
 
-KONTEXT:
-Alle Card Types funktionieren. Jetzt Production-Ready machen.
+CONTEXT:
+All card types work. Now make production-ready.
 
 TASKS:
 1. RESPONSIVE TESTING
@@ -399,14 +399,14 @@ TASKS:
    - Mobile (375px) ✅
 
 2. THEME SUPPORT
-   - Dark Mode funktioniert
-   - Light Mode funktioniert
+   - Dark Mode works
+   - Light Mode works
    - Custom Theme Variables
-   - CSS Variables nutzen
+   - Use CSS Variables
 
 3. PERFORMANCE
    - Bundle Size < 100KB
-   - Lazy Loading für Modal
+   - Lazy Loading for Modal
    - Debounce Slider Updates
    - Optimize Re-renders
 
@@ -417,34 +417,34 @@ TASKS:
    - Focus States
 
 5. DOCUMENTATION
-   - README erweitern
-   - Screenshots erstellen
+   - Expand README
+   - Create screenshots
    - Configuration Examples
    - Troubleshooting Section
    - CHANGELOG.md
 
 6. TESTING
    - Test in HA 2024.1+
-   - Test mit echtem Controller
-   - Test alle Card Types
-   - Test Theme Switching
+   - Test with real controller
+   - Test all card types
+   - Test theme switching
 
 7. GITHUB RELEASE
    - Tag v1.0.0
-   - Release Notes
+   - Release notes
    - Dist files
    - Screenshots
 
 8. HACS SUBMISSION
    - Fork HACS/default
    - Add Repository
-   - PR erstellen
+   - Create PR
 
 DELIVERABLES:
-- ✅ Production-ready Code
-- ✅ Vollständige Docs
+- ✅ Production-ready code
+- ✅ Complete docs
 - ✅ GitHub Release
-- ✅ HACS verfügbar
+- ✅ HACS available
 ```
 
 ### Release Checklist:
@@ -461,37 +461,37 @@ git commit -m "🚀 Release v1.0.0"
 git tag v1.0.0
 git push origin main --tags
 
-# GitHub Release erstellen
+# Create GitHub Release
 # - Tag: v1.0.0
 # - Title: "🎉 Violet Pool Card v1.0.0"
 # - Attach: dist/violet-pool-card.js
-# - Release Notes aus CHANGELOG.md
+# - Release notes from CHANGELOG.md
 ```
 
 ---
 
-## 🔧 Debugging Tipps
+## 🔧 Debugging Tips
 
-### Card lädt nicht
+### Card doesn't load
 ```javascript
 // Browser Console
 window.customCards
-// Sollte violet-pool-card enthalten
+// Should contain violet-pool-card
 
 // HA Developer Tools → States
-// Prüfe ob Entities existieren
+// Check if entities exist
 ```
 
-### Service Call schlägt fehl
+### Service call fails
 ```typescript
 // In service-caller.ts
 console.log('Calling service:', service, data);
 ```
 
-### Styling Probleme
+### Styling Issues
 ```css
 /* DevTools → Elements → Computed */
-/* Prüfe CSS Variables */
+/* Check CSS Variables */
 --primary-color
 --primary-text-color
 --card-background-color
@@ -499,9 +499,9 @@ console.log('Calling service:', service, data);
 
 ---
 
-## 📚 Nützliche Links
+## 📚 Useful Links
 
-**Während Development:**
+**During Development:**
 - Lit Playground: https://lit.dev/playground/
 - MDI Icons: https://pictogrammers.com/library/mdi/
 - HA Frontend Docs: https://developers.home-assistant.io/docs/frontend/
@@ -509,7 +509,7 @@ console.log('Calling service:', service, data);
 **Testing:**
 - HA Dev Environment: http://localhost:8123
 - Browser DevTools: F12
-- HA Logs: Einstellungen → System → Logs
+- HA Logs: Settings → System → Logs
 
 **Release:**
 - HACS Docs: https://hacs.xyz/docs/publish/start
@@ -519,36 +519,36 @@ console.log('Calling service:', service, data);
 
 ## 🎯 Success Metrics
 
-### Nach jeder Session prüfen:
-- [ ] Code kompiliert ohne Errors
-- [ ] ESLint clean (keine Warnings)
+### Check after each session:
+- [ ] Code compiles without errors
+- [ ] ESLint clean (no warnings)
 - [ ] TypeScript Errors: 0
-- [ ] Card rendert in HA
-- [ ] Funktionen testen
+- [ ] Card renders in HA
+- [ ] Functions test
 
-### Vor Release:
-- [ ] Alle Card Types funktionieren
-- [ ] Responsive auf allen Geräten
-- [ ] Theme Support (Dark/Light)
+### Before Release:
+- [ ] All card types work
+- [ ] Responsive on all devices
+- [ ] Theme support (Dark/Light)
 - [ ] Bundle Size < 100KB
-- [ ] README vollständig
-- [ ] Screenshots vorhanden
-- [ ] HACS-kompatibel
+- [ ] README complete
+- [ ] Screenshots available
+- [ ] HACS-compatible
 
 ---
 
-## 🚀 Los geht's!
+## 🚀 Let's Go!
 
 **Next Step:**
-1. Öffne neue Claude Code Session
-2. Kopiere Session 1 Prompt (oben)
+1. Open new Claude Code session
+2. Copy Session 1 prompt (above)
 3. Paste & Enter
 4. Follow the roadmap! 🎉
 
-**Geschätzte Zeit:**
-- Session 1-3: Je 2-3h (Setup & Components)
-- Session 4-8: Je 2h (Cards)
-- Session 9-10: Je 2-3h (Polish & Release)
-- **Total: ~20-25 Stunden**
+**Estimated Time:**
+- Sessions 1-3: ~2-3h each (Setup & Components)
+- Sessions 4-8: ~2h each (Cards)
+- Sessions 9-10: ~2-3h each (Polish & Release)
+- **Total: ~20-25 hours**
 
-Viel Erfolg! 💪
+Good luck! 💪

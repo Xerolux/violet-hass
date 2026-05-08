@@ -1,317 +1,317 @@
 # 📦 Installation & Setup
 
-> Schritt-für-Schritt Anleitung zur Installation des Violet Pool Controller Addons in Home Assistant.
+> Step-by-step guide to installing the Violet Pool Controller add-on in Home Assistant.
 
 ---
 
-## ⚠️ WICHTIG - VOR DER INSTALLATION
+## ⚠️ IMPORTANT - BEFORE INSTALLATION
 
-### 🔒 Sicherheit & Haftungsausschluss
+### 🔒 Safety & Liability Disclaimer
 
-**Das Violet Pool Controller Addon steuert echte Poolausrüstung:**
+**The Violet Pool Controller add-on controls real pool equipment:**
 
-- ⚠️ **Pumpen, Heizungen, Dosieranlagen können ferngesteuert werden**
-- ⚠️ **Falsche Konfiguration kann zu Sachschäden führen**
-- ⚠️ **Chemikalien können gefährlich sein bei falscher Handhabung**
-- ⚠️ **Elektrische Anlagen müssen vorschriftsmäßig installiert sein**
+- ⚠️ **Pumps, heaters, and dosing systems can be remotely controlled**
+- ⚠️ **Incorrect configuration can cause property damage**
+- ⚠️ **Chemicals can be dangerous if mishandled**
+- ⚠️ **Electrical systems must be installed in compliance with regulations**
 
-**Bevor du installierst:**
+**Before you install:**
 
-✅ **Lies den vollständigen Haftungsausschluss**: [Konfigurationshilfe (DE)](https://github.com/Xerolux/violet-hass/blob/main/docs/help/configuration-guide.de.md#-sicherheit--haftung)
-✅ **Verstehe alle Sicherheitsmechanismen**
-✅ **Halte manuelle Not-Abschalter bereit**
-✅ **Beachte alle Sicherheitsdatenblätter**
-✅ **Konsultiere einen Fachbetrieb bei Unsicherheiten**
+✅ **Read the complete liability disclaimer**: [Configuration Guide (DE)](https://github.com/Xerolux/violet-hass/blob/main/docs/help/configuration-guide.de.md#-sicherheit--haftung)
+✅ **Understand all safety mechanisms**
+✅ **Keep manual emergency shutoffs available**
+✅ **Observe all safety data sheets**
+✅ **Consult a professional if unsure**
 
-> **⚠️ Die Nutzung erfolgt auf eigene Verantwortung und Gefahr!**
+> **⚠️ Use is at your own responsibility and risk!**
 
 ---
 
-## Systemvoraussetzungen
+## System Requirements
 
-| Anforderung | Mindest | Empfohlen |
-|-------------|---------|-----------|
-| Home Assistant | 2026.5.0 | 2026.x (aktuell) |
+| Requirement | Minimum | Recommended |
+|-------------|---------|-------------|
+| Home Assistant | 2026.5.0 | 2026.x (current) |
 | Python | 3.14.2 | 3.14.2+ |
-| Netzwerk | Controller per HTTP erreichbar | Feste IP-Adresse (DHCP-Reservierung) |
-| HACS | Optional | Empfohlen für einfache Updates |
-| Speicher | <10 MB | – |
+| Network | Controller reachable via HTTP | Static IP address (DHCP reservation) |
+| HACS | Optional | Recommended for easy updates |
+| Storage | <10 MB | – |
 
-> **Hinweis**: HA 2026.x wird vollständig unterstützt und ist die empfohlene Version.
+> **Note**: HA 2026.x is fully supported and is the recommended version.
 
 ---
 
-## Methode 1: HACS (Empfohlen)
+## Method 1: HACS (Recommended)
 
-HACS (Home Assistant Community Store) ermöglicht einfache Installation und automatische Updates.
+HACS (Home Assistant Community Store) enables easy installation and automatic updates.
 
-### Schritt 1: HACS installieren (falls noch nicht vorhanden)
+### Step 1: Install HACS (if not already installed)
 
-Falls HACS noch nicht installiert ist, folge der [offiziellen HACS-Installationsanleitung](https://hacs.xyz/docs/setup/download).
+If HACS is not yet installed, follow the [official HACS installation guide](https://hacs.xyz/docs/setup/download).
 
-### Schritt 2: Repository hinzufügen
+### Step 2: Add Repository
 
-1. Öffne **HACS** in Home Assistant
-2. Klicke auf die **drei Punkte (⋮)** oben rechts
-3. Wähle **"Benutzerdefinierte Repositories"**
-4. Füge folgendes ein:
-   - **Repository-URL**: `https://github.com/Xerolux/violet-hass`
-   - **Kategorie**: `Integration`
-5. Klicke **"Hinzufügen"**
+1. Open **HACS** in Home Assistant
+2. Click the **three dots (⋮)** in the top right
+3. Select **"Custom Repositories"**
+4. Enter the following:
+   - **Repository URL**: `https://github.com/Xerolux/violet-hass`
+   - **Category**: `Integration`
+5. Click **"Add"**
 
-### Schritt 3: Integration installieren
+### Step 3: Install Integration
 
-1. Gehe in HACS zu **"Integrationen"**
-2. Suche nach **"Violet Pool Controller"**
-3. Klicke auf die Karte und dann auf **"Herunterladen"**
-4. Bestätige die Installation
+1. Go to **"Integrations"** in HACS
+2. Search for **"Violet Pool Controller"**
+3. Click the card and then click **"Download"**
+4. Confirm the installation
 
-### Schritt 4: Home Assistant neu starten
+### Step 4: Restart Home Assistant
 
 ```
-Einstellungen → System → Neustart → Home Assistant neu starten
+Settings → System → Restart → Restart Home Assistant
 ```
 
-Oder per Docker:
+Or via Docker:
 ```bash
 docker restart homeassistant
 ```
 
-### Schritt 5: Integration hinzufügen
+### Step 5: Add Integration
 
-1. Gehe zu **Einstellungen → Geräte & Dienste**
-2. Klicke auf **"+ Integration hinzufügen"**
-3. Suche nach **"Violet Pool Controller"**
-4. Folge dem [Setup-Assistenten](#setup-assistent)
+1. Go to **Settings → Devices & Services**
+2. Click **"+ Add Integration"**
+3. Search for **"Violet Pool Controller"**
+4. Follow the [Setup Wizard](#setup-wizard)
 
 ---
 
-## Methode 2: Manuelle Installation
+## Method 2: Manual Installation
 
-Für Benutzer ohne HACS oder Entwickler.
+For users without HACS or developers.
 
 ### Option A: Via Git
 
 ```bash
-# Wechsle in das custom_components Verzeichnis
+# Navigate to the custom_components directory
 cd /config/custom_components/
 
-# Repository klonen
+# Clone the repository
 git clone https://github.com/Xerolux/violet-hass.git temp_violet
 
-# Nur den Integration-Ordner kopieren
+# Copy only the integration folder
 cp -r temp_violet/custom_components/violet_pool_controller ./
 
-# Temp-Ordner löschen
+# Remove the temp folder
 rm -rf temp_violet
 ```
 
-### Option B: Via ZIP-Download
+### Option B: Via ZIP Download
 
-1. Gehe zu: https://github.com/Xerolux/violet-hass/releases/latest
-2. Lade `violet_pool_controller.zip` herunter (oder `Source code.zip`)
-3. Entpacke das Archiv
-4. Kopiere den Ordner `custom_components/violet_pool_controller` nach `/config/custom_components/`
+1. Go to: https://github.com/Xerolux/violet-hass/releases/latest
+2. Download `violet_pool_controller.zip` (or `Source code.zip`)
+3. Extract the archive
+4. Copy the folder `custom_components/violet_pool_controller` to `/config/custom_components/`
 
 ```bash
-# Beispiel (angepasst auf deinen Download-Pfad)
+# Example (adjust to your download path)
 unzip violet-hass-main.zip
 cp -r violet-hass-main/custom_components/violet_pool_controller /config/custom_components/
 ```
 
-### Schritt 3: Home Assistant neu starten
+### Step 3: Restart Home Assistant
 
-Nach der manuellen Installation **muss** Home Assistant neugestartet werden.
+After manual installation, Home Assistant **must** be restarted.
 
-### Schritt 4: Integration hinzufügen
+### Step 4: Add Integration
 
-Identisch mit der HACS-Methode: **Einstellungen → Geräte & Dienste → + Integration → "Violet Pool Controller"**
+Same as the HACS method: **Settings → Devices & Services → + Integration → "Violet Pool Controller"**
 
 ---
 
-## Setup-Assistent
+## Setup Wizard
 
-Der integrierte Setup-Assistent führt dich durch alle Konfigurationsschritte.
+The built-in setup wizard guides you through all configuration steps.
 
-### Schritt 1: 🚨 DISCLAIMER (HAFTUNGSAUSSCHLUSS)
+### Step 1: 🚨 DISCLAIMER (LIABILITY WAIVER)
 
-⚠️ **SEHR WICHTIG - BITTE SORGFÄLTIG LESEN!**
+⚠️ **VERY IMPORTANT - PLEASE READ CAREFULLY!**
 
-Du wirst einen **umfangreichen Haftungsausschluss** sehen mit:
+You will see a **comprehensive liability disclaimer** with:
 
-- **⚠️ Sicherheitswarnung**: Alle Risiken bei der Nutzung
-- **🔒 Deine Verantwortung**: Was du tun musst
-- **⚖️ Haftungsausschluss**: Keine Gewährleistung
-- **📖 Dokumentation**: Links zur ausführlichen Hilfe
+- **⚠️ Safety Warning**: All risks of usage
+- **🔒 Your Responsibility**: What you must do
+- **⚖️ Liability Disclaimer**: No warranty
+- **📖 Documentation**: Links to detailed help
 
-**Du musst:**
-1. ✅ Den gesamten Text lesen
-2. ✅ Das Häkchen bei **"Ich akzeptiere"** setzen
-3. ✅ **"Bestätigen"** klicken
+**You must:**
+1. ✅ Read the entire text
+2. ✅ Check the box at **"I accept"**
+3. ✅ Click **"Confirm"**
 
-**Ohne Bestätigung kannst du die Integration nicht einrichten!**
+**Without confirmation, you cannot set up the integration!**
 
-### Schritt 2: Controller-Verbindung
+### Step 2: Controller Connection
 
 ```
 ┌──────────────────────────────────────────┐
-│  Violet Pool Controller – Verbindung     │
+│  Violet Pool Controller – Connection     │
 ├──────────────────────────────────────────┤
-│  Host (IP oder Hostname):                │
+│  Host (IP or Hostname):                  │
 │  ┌────────────────────────────────────┐  │
 │  │ 192.168.1.100                      │  │
 │  └────────────────────────────────────┘  │
 │                                          │
-│  Port:           [80      ]              │
-│  SSL verwenden:  [ ] Nein  [x] Ja        │
-│  SSL verifiz.:   [x] Ja   [ ] Nein      │
-│  Benutzername:   [admin   ]              │
-│  Passwort:       [••••••••]              │
-│  Controller-Name:[Violet Pool Controller]│
+│  Port:            [80      ]             │
+│  Use SSL:         [ ] No   [x] Yes       │
+│  Verify SSL:      [x] Yes  [ ] No       │
+│  Username:        [admin   ]             │
+│  Password:        [••••••••]             │
+│  Controller Name: [Violet Pool Controller]│
 └──────────────────────────────────────────┘
 ```
 
-| Feld | Beschreibung | Beispiel |
-|------|--------------|---------|
-| **Host** | IP-Adresse oder Hostname des Controllers | `192.168.1.100` oder `violet.local` |
-| **Port** | HTTP/HTTPS Port (Standard: 80) | `80`, `443`, `8080` |
-| **SSL** | HTTPS-Verbindung verwenden | Aktivieren wenn HTTPS |
-| **SSL verifizieren** | Zertifikat validieren | Deaktivieren nur bei selbsignierten Zertifikaten |
-| **Benutzername** | API-Benutzername (falls gesetzt) | `admin` |
-| **Passwort** | API-Passwort (falls gesetzt) | – |
-| **Controller-Name** | Anzeigename (wichtig bei mehreren Controllern!) | `Außenpool`, `Whirlpool` |
+| Field | Description | Example |
+|-------|-------------|---------|
+| **Host** | IP address or hostname of the controller | `192.168.1.100` or `violet.local` |
+| **Port** | HTTP/HTTPS port (default: 80) | `80`, `443`, `8080` |
+| **SSL** | Use HTTPS connection | Enable when using HTTPS |
+| **Verify SSL** | Validate certificate | Disable only for self-signed certificates |
+| **Username** | API username (if configured) | `admin` |
+| **Password** | API password (if configured) | – |
+| **Controller Name** | Display name (important for multiple controllers!) | `Outdoor Pool`, `Hot Tub` |
 
-> **IP-Adresse finden**: Öffne deinen Router-Admin (z.B. `192.168.1.1`) → "Verbundene Geräte" → "Violet" suchen. Alternativ: `ping violet.local`
+> **Finding the IP address**: Open your router admin panel (e.g. `192.168.1.1`) → "Connected Devices" → search for "Violet". Alternatively: `ping violet.local`
 
-### Schritt 3: Pooldaten
+### Step 3: Pool Data
 
-1. **Poolvolumen**: In m³ (z.B. 40)
-2. **Pool-Typ**: Aufenthaltsbecken, Sportbecken, etc.
-3. **Desinfektionsmethode**: Chlor, Aktivsauerstoff, etc.
+1. **Pool Volume**: In m³ (e.g. 40)
+2. **Pool Type**: Swimming pool, sports pool, etc.
+3. **Disinfection Method**: Chlorine, active oxygen, etc.
 
-### Schritt 4: Features auswählen
+### Step 4: Select Features
 
-Wähle die Features aus, die dein Controller unterstützt:
+Select the features your controller supports:
 
-| Feature | Aktivieren wenn... |
-|---------|-------------------|
-| **Heizung** | Ein Wärmetauscher oder Heizer angeschlossen ist |
-| **Solar** | Solarkollektor vorhanden |
-| **PV-Überschuss** | Solaranlage für Überschuss-Nutzung |
-| **pH-Dosierung** | pH- oder pH+ Dosierpumpe angeschlossen |
-| **Chlor-Dosierung** | Chlor-Dosierpumpe angeschlossen |
-| **Flockmittel** | Flockungs-Dosierpumpe vorhanden |
-| **DMX-Beleuchtung** | Pool-Beleuchtung per DMX gesteuert |
-| **Digitale Eingänge** | DI1–DI8 für externe Sensoren/Schalter |
-| **Abdeckung** | Poolabdeckung (Cover) mit Steuerung |
-| **Erweiterungs-Relais** | Zusätzliche Relais-Module (REL1–REL8) |
-| **Rückspülung** | Automatische Rückspülung konfiguriert |
+| Feature | Enable when... |
+|---------|----------------|
+| **Heating** | A heat exchanger or heater is connected |
+| **Solar** | Solar collector is present |
+| **PV Surplus** | Solar system for surplus usage |
+| **pH Dosing** | pH- or pH+ dosing pump is connected |
+| **Chlorine Dosing** | Chlorine dosing pump is connected |
+| **Flocculant** | Flocculant dosing pump is present |
+| **DMX Lighting** | Pool lighting is controlled via DMX |
+| **Digital Inputs** | DI1–DI8 for external sensors/switches |
+| **Cover** | Pool cover with control |
+| **Extension Relays** | Additional relay modules (REL1–REL8) |
+| **Backwash** | Automatic backwash configured |
 
-> **Tipp**: Features können später über **Einstellungen → Geräte & Dienste → Violet → Optionen → Neu konfigurieren** angepasst werden.
+> **Tip**: Features can be adjusted later via **Settings → Devices & Services → Violet → Options → Reconfigure**.
 
-### Schritt 5: Abfrageintervall einstellen
+### Step 5: Set Polling Interval
 
-Das Polling-Intervall bestimmt, wie oft Daten vom Controller abgerufen werden:
+The polling interval determines how often data is fetched from the controller:
 
-| Intervall | Vorteile | Nachteile |
-|-----------|----------|-----------|
-| 10–15 Sekunden | Sehr reaktiv | Höhere Last auf Controller |
-| **20–30 Sekunden** | **Gute Balance (empfohlen)** | – |
-| 45–60 Sekunden | Minimale Last | Weniger reaktiv |
-
----
-
-## Erweiterte Einstellungen
-
-Diese Einstellungen sind über **Einstellungen → Geräte & Dienste → Violet → Optionen** zugänglich.
-
-| Option | Standard | Beschreibung |
-|--------|---------|--------------|
-| `Abfrageintervall` | 30s | Polling-Intervall in Sekunden |
-| `Timeout` | 10s | Request-Timeout (80% für Verbindung) |
-| `Retry-Versuche` | 3 | Anzahl Wiederholungen bei Fehler |
-| `SSL verifizieren` | An | SSL-Zertifikat validieren |
+| Interval | Advantages | Disadvantages |
+|----------|------------|---------------|
+| 10–15 seconds | Very responsive | Higher load on controller |
+| **20–30 seconds** | **Good balance (recommended)** | – |
+| 45–60 seconds | Minimal load | Less responsive |
 
 ---
 
-## Nach der Installation
+## Advanced Settings
 
-### Empfohlene erste Schritte
+These settings are accessible via **Settings → Devices & Services → Violet → Options**.
 
-1. **Dashboard einrichten** – Erstelle eine neue Dashboard-Ansicht für deinen Pool
-2. **Automationen testen** – Überprüfe ob Sensoren korrekte Werte zeigen
-3. **Logs prüfen** – Stelle sicher, dass keine Fehler auftreten:
+| Option | Default | Description |
+|--------|---------|-------------|
+| `Polling Interval` | 30s | Polling interval in seconds |
+| `Timeout` | 10s | Request timeout (80% for connection) |
+| `Retry Attempts` | 3 | Number of retries on error |
+| `Verify SSL` | On | Validate SSL certificate |
+
+---
+
+## After Installation
+
+### Recommended First Steps
+
+1. **Set up dashboard** – Create a new dashboard view for your pool
+2. **Test automations** – Check if sensors show correct values
+3. **Check logs** – Make sure no errors appear:
    ```
-   Einstellungen → System → Protokolle → "violet" suchen
+   Settings → System → Logs → search for "violet"
    ```
 
-### Verfügbare Entities prüfen
+### Check Available Entities
 
-Nach der Installation findest du alle Entities unter:
+After installation you can find all entities under:
 ```
-Einstellungen → Geräte & Dienste → Violet Pool Controller → [Gerät] → Entities
+Settings → Devices & Services → Violet Pool Controller → [Device] → Entities
 ```
 
-Oder direkt: **Entwicklerwerkzeuge → Status** → nach `violet_pool_controller` suchen
+Or directly: **Developer Tools → States** → search for `violet_pool_controller`
 
 ---
 
-## Deinstallation
+## Uninstallation
 
-### Mit HACS
+### With HACS
 
-1. **HACS → Integrationen → Violet Pool Controller**
-2. Klicke auf **"Entfernen"**
-3. Gehe zu **Einstellungen → Geräte & Dienste**
-4. Entferne die Violet Pool Controller Integration
-5. Home Assistant neu starten
+1. **HACS → Integrations → Violet Pool Controller**
+2. Click **"Remove"**
+3. Go to **Settings → Devices & Services**
+4. Remove the Violet Pool Controller integration
+5. Restart Home Assistant
 
-### Manuell
+### Manually
 
 ```bash
-# Integration entfernen
+# Remove integration
 rm -rf /config/custom_components/violet_pool_controller
 
-# Home Assistant neu starten
-docker restart homeassistant  # oder über HA-UI
+# Restart Home Assistant
+docker restart homeassistant  # or via HA UI
 ```
 
-> **Hinweis**: Deine Automatisierungen und Dashboard-Konfigurationen bleiben erhalten, funktionieren aber ohne das Addon nicht mehr.
+> **Note**: Your automations and dashboard configurations will be preserved but will no longer function without the add-on.
 
 ---
 
-## Upgrade von einer älteren Version
+## Upgrading from an Older Version
 
-### Mit HACS (Automatisch)
+### With HACS (Automatic)
 
-1. **HACS → Integrationen** → "Violet Pool Controller" → **"Update"**
-2. Home Assistant neu starten
-3. Bei Breaking Changes: Integrations-Config prüfen
+1. **HACS → Integrations** → "Violet Pool Controller" → **"Update"**
+2. Restart Home Assistant
+3. For breaking changes: check integration config
 
-### Manuell
+### Manually
 
 ```bash
 cd /config/custom_components/violet_pool_controller
 git pull origin main
-# oder ZIP erneut herunterladen und ersetzen
+# or re-download ZIP and replace
 ```
 
-### Breaking Changes beachten
+### Note Breaking Changes
 
-Vor jedem Update den **[Changelog](Changelog)** prüfen! Bei größeren Updates kann eine Neukonfiguration erforderlich sein.
-
----
-
-## Häufige Installationsprobleme
-
-| Problem | Ursache | Lösung |
-|---------|---------|--------|
-| Integration erscheint nicht | HA nicht neugestartet | HA neu starten |
-| "Verbindung fehlgeschlagen" | Falsche IP oder Port | IP prüfen, `ping` testen |
-| SSL-Fehler | Selbsigniertes Zertifikat | "SSL verifizieren" deaktivieren |
-| "Duplicate Integration" | Gleiche IP bereits konfiguriert | Bestehende Integration entfernen |
-| Keine Entities | Features nicht aktiviert | Setup-Assistent neu durchlaufen |
+Check the **[Changelog](Changelog)** before every update! Major updates may require reconfiguration.
 
 ---
 
-**Weiter:** [Konfiguration](Configuration) | [Sensoren](Sensors) | [Troubleshooting](Troubleshooting)
+## Common Installation Problems
+
+| Problem | Cause | Solution |
+|---------|-------|----------|
+| Integration doesn't appear | HA not restarted | Restart HA |
+| "Connection failed" | Wrong IP or port | Check IP, test with `ping` |
+| SSL error | Self-signed certificate | Disable "Verify SSL" |
+| "Duplicate Integration" | Same IP already configured | Remove existing integration |
+| No entities | Features not activated | Re-run setup wizard |
+
+---
+
+**Next:** [Configuration](Configuration) | [Sensors](Sensors) | [Troubleshooting](Troubleshooting)

@@ -1,62 +1,62 @@
 # Violet Pool Controller - Installation Guide
 
-## Installation via HACS (empfohlen)
+## Installation via HACS (recommended)
 
-### Schritt 1: HACS Custom Repository hinzufügen
+### Step 1: Add HACS Custom Repository
 
-1. Öffne HACS in Home Assistant
-2. Klicke auf die 3 Punkte (⋮) oben rechts
-3. Wähle "Custom repositories"
-4. Füge hinzu:
+1. Open HACS in Home Assistant
+2. Click the 3 dots (⋮) in the top right
+3. Select "Custom repositories"
+4. Add:
    - **Repository**: `https://github.com/PoolDigitalGmbH/violet-hass`
    - **Category**: Integration
-5. Klicke "Add"
+5. Click "Add"
 
-### Schritt 2: Integration installieren
+### Step 2: Install Integration
 
-1. Gehe zu HACS → Integrations
-2. Suche nach "Violet Pool Controller"
-3. Klicke "Download"
-4. Starte Home Assistant neu
+1. Go to HACS → Integrations
+2. Search for "Violet Pool Controller"
+3. Click "Download"
+4. Restart Home Assistant
 
-### Schritt 3: Integration konfigurieren
+### Step 3: Configure Integration
 
-1. Gehe zu **Einstellungen** → **Geräte & Dienste**
-2. Klicke **+ Integration hinzufügen**
-3. Suche nach "Violet Pool Controller"
-4. Gib die Verbindungsdaten ein:
-   - **Controller URL**: `http://192.168.178.55` (oder deine IP)
-   - **Benutzername**: `Basti` (dein Controller-Benutzer)
-   - **Passwort**: `dein-passwort`
-   - **Update-Intervall**: 30 Sekunden (Standard)
+1. Go to **Settings** → **Devices & Services**
+2. Click **+ Add Integration**
+3. Search for "Violet Pool Controller"
+4. Enter connection details:
+   - **Controller URL**: `http://192.168.178.55` (or your IP)
+   - **Username**: `Basti` (your controller username)
+   - **Password**: `your-password`
+   - **Update Interval**: 30 seconds (default)
 
-5. Klicke **Weiter**
+5. Click **Next**
 
-### Schritt 4: Features auswählen
+### Step 4: Select Features
 
-Wähle die Features aus, die dein Pool hat:
-- ✅ **Pump** (Filterpumpe)
-- ✅ **Solar** (Solarheizung)
-- ✅ **Heater** (Heizung)
-- ✅ **Chlorine Control** (Chlor-Dosierung)
-- ✅ **pH Control** (pH-Dosierung)
-- ⬜ **Backwash** (Rückspülung) - falls vorhanden
-- ⬜ **Cover** (Poolabdeckung) - falls vorhanden
-- ⬜ **Light** (Beleuchtung) - falls vorhanden
-- ⬜ **DMX Scenes** (DMX-Beleuchtung) - falls vorhanden
+Select the features your pool has:
+- ✅ **Pump** (filter pump)
+- ✅ **Solar** (solar heating)
+- ✅ **Heater** (heating)
+- ✅ **Chlorine Control** (chlorine dosing)
+- ✅ **pH Control** (pH dosing)
+- ⬜ **Backwash** - if available
+- ⬜ **Cover** (pool cover) - if available
+- ⬜ **Light** (lighting) - if available
+- ⬜ **DMX Scenes** (DMX lighting) - if available
 
-### Schritt 5: Sensoren auswählen (optional)
+### Step 5: Select Sensors (optional)
 
-Die Integration erkennt automatisch alle verfügbaren Sensoren. Du kannst auswählen, welche du nutzen möchtest:
-- Temperatursensoren (OneWire 1-12)
-- Wasser-Chemie (pH, ORP, Chlor)
-- Analog-Eingänge (ADC1-6)
-- System-Sensoren (CPU, Memory, Uptime)
-- Digital-Eingänge (DI1-12)
+The integration automatically detects all available sensors. You can choose which ones to use:
+- Temperature sensors (OneWire 1-12)
+- Water chemistry (pH, ORP, Chlorine)
+- Analog inputs (ADC1-6)
+- System sensors (CPU, Memory, Uptime)
+- Digital inputs (DI1-12)
 
-### Schritt 6: Fertig!
+### Step 6: Done!
 
-Die Integration erstellt jetzt alle Entities:
+The integration will now create all entities:
 - **Switches**: `switch.violet_pump`, `switch.violet_solar`, etc.
 - **Sensors**: `sensor.violet_pool_temperature`, `sensor.violet_ph_value`, etc.
 - **Climate**: `climate.violet_heater`, `climate.violet_solar`
@@ -65,79 +65,79 @@ Die Integration erstellt jetzt alle Entities:
 
 ---
 
-## Manuelle Installation
+## Manual Installation
 
-### Schritt 1: Repository klonen
+### Step 1: Clone Repository
 
 ```bash
 cd /config/custom_components
 git clone https://github.com/PoolDigitalGmbH/violet-hass.git violet_pool_controller
 ```
 
-### Schritt 2: Dependencies installieren
+### Step 2: Install Dependencies
 
-Die Integration nutzt nur `aiohttp`, das bereits in Home Assistant enthalten ist.
+The integration only uses `aiohttp`, which is already included in Home Assistant.
 
-### Schritt 3: Home Assistant neu starten
+### Step 3: Restart Home Assistant
 
 ```bash
 ha core restart
 ```
 
-### Schritt 4: Integration konfigurieren
+### Step 4: Configure Integration
 
-Folge den Schritten 3-6 von oben.
+Follow steps 3-6 from above.
 
 ---
 
-## Erste Schritte nach der Installation
+## First Steps After Installation
 
-### 1. Entities prüfen
+### 1. Check Entities
 
-Gehe zu **Einstellungen** → **Geräte & Dienste** → **Violet Pool Controller**
+Go to **Settings** → **Devices & Services** → **Violet Pool Controller**
 
-Du solltest sehen:
-- **1 Gerät**: Violet Pool Controller
-- **~50+ Entities**: Je nach ausgewählten Features
+You should see:
+- **1 Device**: Violet Pool Controller
+- **~50+ Entities**: Depending on selected features
 
-### 2. Dashboard erstellen
+### 2. Create Dashboard
 
-Erstelle ein neues Dashboard für deinen Pool:
+Create a new dashboard for your pool:
 
-**Beispiel-Karten:**
+**Example Cards:**
 
 ```yaml
-# Poolübersicht
+# Pool Overview
 type: entities
-title: Pool Übersicht
+title: Pool Overview
 entities:
   - entity: sensor.violet_pool_temperature
-    name: Beckenwasser
+    name: Pool Water
   - entity: sensor.violet_outdoor_temperature
-    name: Außentemperatur
+    name: Outdoor Temperature
   - entity: sensor.violet_solar_temperature
-    name: Solarabsorber
+    name: Solar Absorber
   - entity: sensor.violet_ph_value
-    name: pH-Wert
+    name: pH Value
   - entity: sensor.violet_orp_value
     name: Redox
   - entity: sensor.violet_chlorine_level
-    name: Chlor
+    name: Chlorine
 
-# Steuerung
+# Controls
 type: entities
-title: Pool Steuerung
+title: Pool Controls
 entities:
   - entity: switch.violet_pump
-    name: Filterpumpe
+    name: Filter Pump
   - entity: switch.violet_solar
     name: Solar
   - entity: switch.violet_heater
-    name: Heizung
+    name: Heater
   - entity: climate.violet_heater
-    name: Heizung Sollwert
+    name: Heater Setpoint
 
-# System-Info
+# System Info
 type: entities
 title: System
 entities:
@@ -147,13 +147,13 @@ entities:
   - entity: sensor.violet_memory_used
 ```
 
-### 3. Automatisierungen erstellen
+### 3. Create Automations
 
-**Beispiel: Pumpe bei Frostgefahr einschalten**
+**Example: Turn on pump when frost is detected**
 
 ```yaml
 automation:
-  - alias: "Pool: Frostschutz"
+  - alias: "Pool: Frost Protection"
     trigger:
       - platform: numeric_state
         entity_id: sensor.violet_outdoor_temperature
@@ -168,10 +168,10 @@ automation:
           entity_id: switch.violet_pump
       - service: notify.mobile_app
         data:
-          message: "Frostschutz aktiviert! Pumpe eingeschaltet bei {{ states('sensor.violet_outdoor_temperature') }}°C"
+          message: "Frost protection activated! Pump turned on at {{ states('sensor.violet_outdoor_temperature') }}°C"
 ```
 
-**Beispiel: Solar-Heizung automatisch steuern**
+**Example: Automatic solar heating control**
 
 ```yaml
 automation:
@@ -189,33 +189,33 @@ automation:
 
 ---
 
-## Erweiterte Konfiguration
+## Advanced Configuration
 
-### Update-Intervall anpassen
+### Adjust Update Interval
 
-Standard: 30 Sekunden
+Default: 30 seconds
 
-So ändern:
-1. **Einstellungen** → **Geräte & Dienste**
-2. Klicke auf "Violet Pool Controller"
-3. Klicke **Konfigurieren**
-4. Ändere "Update-Intervall"
+How to change:
+1. **Settings** → **Devices & Services**
+2. Click on "Violet Pool Controller"
+3. Click **Configure**
+4. Change "Update Interval"
 
-**Empfehlungen:**
-- **10-20 Sekunden**: Wenn du schnelle Reaktionen brauchst
-- **30-60 Sekunden**: Normaler Betrieb (empfohlen)
-- **120+ Sekunden**: Minimale Belastung
+**Recommendations:**
+- **10-20 seconds**: If you need fast responses
+- **30-60 seconds**: Normal operation (recommended)
+- **120+ seconds**: Minimal load
 
 ### Rate Limiting
 
-Die Integration schützt deinen Controller automatisch:
-- **Max. 10 Requests pro Sekunde**
-- **Burst-Limit: 3 Requests**
-- **Priority Queue**: Wichtige Befehle (Switches) werden priorisiert
+The integration automatically protects your controller:
+- **Max. 10 requests per second**
+- **Burst limit: 3 requests**
+- **Priority Queue**: Important commands (switches) are prioritized
 
-### Logging aktivieren
+### Enable Logging
 
-Für Debugging:
+For debugging:
 
 ```yaml
 # configuration.yaml
@@ -231,74 +231,74 @@ logger:
 
 ### Problem: "Connection refused"
 
-**Lösung:**
-- Prüfe IP-Adresse des Controllers
-- Stelle sicher, dass Controller im gleichen Netzwerk ist
-- Teste: `curl http://192.168.178.55/getReadings?ALL`
+**Solution:**
+- Check controller IP address
+- Make sure controller is on the same network
+- Test: `curl http://192.168.178.55/getReadings?ALL`
 
 ### Problem: "Authentication failed"
 
-**Lösung:**
-- Prüfe Benutzername und Passwort
-- Controller erlaubt nur Basic Auth
-- Teste: `curl -u "Benutzername:Passwort" http://192.168.178.55/getReadings?ALL`
+**Solution:**
+- Check username and password
+- Controller only supports Basic Auth
+- Test: `curl -u "username:password" http://192.168.178.55/getReadings?ALL`
 
-### Problem: Entities fehlen
+### Problem: Entities missing
 
-**Lösung:**
-1. Gehe zu **Konfigurieren**
-2. Wähle **Features neu auswählen**
-3. Aktiviere fehlende Features
-4. **Neu laden** klicken
+**Solution:**
+1. Go to **Configure**
+2. Select **Re-select Features**
+3. Activate missing features
+4. Click **Reload**
 
-### Problem: Werte werden nicht aktualisiert
+### Problem: Values not updating
 
-**Lösung:**
-- Prüfe Update-Intervall
-- Schaue in die Logs: `tail -f /config/home-assistant.log | grep violet`
-- Prüfe Controller-Erreichbarkeit
+**Solution:**
+- Check update interval
+- Check logs: `tail -f /config/home-assistant.log | grep violet`
+- Check controller reachability
 
-### Problem: Switches schalten nicht
+### Problem: Switches not toggling
 
-**Lösung:**
-- Prüfe ob Controller im **MANUAL** Modus ist (nicht AUTO)
-- Manche Ausgänge können durch Controller-Regeln blockiert sein
-- Schaue in Controller-Webinterface nach Fehlermeldungen
+**Solution:**
+- Check if controller is in **MANUAL** mode (not AUTO)
+- Some outputs may be blocked by controller rules
+- Check controller web interface for error messages
 
 ---
 
 ## Services
 
-Die Integration stellt folgende Services bereit:
+The integration provides the following services:
 
 ### `violet_pool_controller.control_pump`
 
-Erweiterte Pumpen-Steuerung:
+Advanced pump control:
 
 ```yaml
 service: violet_pool_controller.control_pump
 data:
-  speed: 2        # 1, 2, oder 3
-  duration: 3600  # Sekunden (optional)
+  speed: 2        # 1, 2, or 3
+  duration: 3600  # seconds (optional)
   mode: "boost"   # "boost", "eco", "force_off", "auto"
 ```
 
 ### `violet_pool_controller.smart_dosing`
 
-Manuelle Dosierung:
+Manual dosing:
 
 ```yaml
 service: violet_pool_controller.smart_dosing
 data:
-  dosing_type: "Chlor"  # "Chlor", "pH-", "pH+", "Flockmittel"
-  duration: 10          # Sekunden
+  dosing_type: "Chlor"  # "Chlor", "pH-", "pH+", "Flocculant"
+  duration: 10          # seconds
 ```
 
-**⚠️ WARNUNG:** Controller blockiert direkte Dosing-ON Befehle aus Sicherheitsgründen!
+**⚠️ WARNING:** Controller blocks direct dosing-ON commands for safety reasons!
 
 ### `violet_pool_controller.control_dmx_scenes`
 
-DMX-Szenen steuern:
+Control DMX scenes:
 
 ```yaml
 service: violet_pool_controller.control_dmx_scenes
@@ -309,23 +309,23 @@ data:
 
 ---
 
-## Unterstützte Features
+## Supported Features
 
 | Feature | Sensor | Switch | Climate | Number | Cover |
 |---------|--------|--------|---------|--------|-------|
-| Pumpe | ✅ | ✅ | - | - | - |
+| Pump | ✅ | ✅ | - | - | - |
 | Solar | ✅ | ✅ | ✅ | ✅ | - |
-| Heizung | ✅ | ✅ | ✅ | ✅ | - |
-| Chlor-Dosierung | ✅ | ✅ | - | ✅ | - |
-| pH-Dosierung | ✅ | ✅ | - | ✅ | - |
-| Rückspülung | ✅ | ✅ | - | - | - |
-| Poolabdeckung | ✅ | - | - | - | ✅ |
-| Beleuchtung | ✅ | ✅ | - | - | - |
+| Heater | ✅ | ✅ | ✅ | ✅ | - |
+| Chlorine Dosing | ✅ | ✅ | - | ✅ | - |
+| pH Dosing | ✅ | ✅ | - | ✅ | - |
+| Backwash | ✅ | ✅ | - | - | - |
+| Pool Cover | ✅ | - | - | - | ✅ |
+| Lighting | ✅ | ✅ | - | - | - |
 | DMX Scenes | ✅ | ✅ | - | - | - |
-| Temperaturen | ✅ | - | - | - | - |
-| Wasser-Chemie | ✅ | - | - | ✅ | - |
+| Temperatures | ✅ | - | - | - | - |
+| Water Chemistry | ✅ | - | - | ✅ | - |
 | Digital Inputs | ✅ | - | - | - | - |
-| System-Info | ✅ | - | - | - | - |
+| System Info | ✅ | - | - | - | - |
 
 ---
 
@@ -338,8 +338,8 @@ data:
 
 ---
 
-## Lizenz
+## License
 
-MIT License - siehe [LICENSE](LICENSE)
+MIT License - see [LICENSE](LICENSE)
 
-**Hinweis:** Diese Integration ist nicht offiziell von PoolDigital GmbH & Co. KG unterstützt.
+**Note:** This integration is not officially endorsed by PoolDigital GmbH & Co. KG.
