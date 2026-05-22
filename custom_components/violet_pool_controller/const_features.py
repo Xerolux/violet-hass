@@ -235,7 +235,7 @@ SWITCHES = [
         "key": "DOS_6_FLOC",
         "name": "Flockmittel",
         "icon": "mdi:water",
-        "feature_id": "chlorine_control",
+        "feature_id": "flocculation",
     },
     {
         "key": "PVSURPLUS",
