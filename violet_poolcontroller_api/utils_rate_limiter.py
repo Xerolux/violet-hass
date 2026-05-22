@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Rate Limiter für API-Requests - Token Bucket Algorithm."""
+"""Rate Limiter für API-Requests — Token Bucket Algorithm."""
 
 from __future__ import annotations
 
@@ -27,8 +27,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class RateLimiter:
-    """
-    Rate Limiter mit Token Bucket Algorithm.
+    """Rate Limiter mit Token Bucket Algorithm.
 
     Verhindert API-Overload durch:
     - Maximale Requests pro Zeitfenster
@@ -44,14 +43,13 @@ class RateLimiter:
         burst_size: int = 3,
         retry_after: float = 0.1,
     ) -> None:
-        """
-        Initialisiere den Rate Limiter.
+        """Initialisiere den Rate Limiter.
 
         Args:
-            max_requests: Maximale Anzahl Requests pro Zeitfenster
-            time_window: Zeitfenster in Sekunden
-            burst_size: Erlaubte Burst-Größe (zusätzliche Requests)
-            retry_after: Wartezeit in Sekunden bei Limit-Überschreitung
+            max_requests: Maximale Anzahl Requests pro Zeitfenster.
+            time_window: Zeitfenster in Sekunden.
+            burst_size: Erlaubte Burst-Größe (zusätzliche Requests).
+            retry_after: Wartezeit in Sekunden bei Limit-Überschreitung.
         """
         self.max_requests = max_requests
         self.time_window = time_window
@@ -64,38 +62,37 @@ class RateLimiter:
         self.last_refill = time.monotonic()
 
         # Optimized request history with size and time limits
-        self.request_history: deque = deque(maxlen=500)  # Reduced from 1000
+        self.request_history: deque[dict] = deque(maxlen=500)
         self.blocked_requests = 0
         self.total_requests = 0
         self.history_cleanup_interval = 300  # 5 minutes
         self.last_cleanup_time = time.monotonic()
 
         # Memory-efficient statistics
-        self._recent_stats = {
+        self._recent_stats: dict[str, float | int] = {
             "requests_last_minute": 0,
             "blocked_last_minute": 0,
             "last_minute_reset": time.monotonic(),
         }
 
-        # Lock für Thread-Safety
+        # Lock für Thread-Safety (asyncio coroutines)
         self._lock = asyncio.Lock()
 
         _LOGGER.debug(
-            "Rate Limiter initialisiert: %d req/%ss (burst: %d)",
+            "Rate Limiter initialisiert: %d req/%.1fs (burst: %d)",
             max_requests,
             time_window,
             burst_size,
         )
 
     async def acquire(self, priority: int = 3) -> bool:
-        """
-        Acquire a token from the rate limiter.
+        """Acquire a token from the rate limiter.
 
         Args:
-            priority: Priority level (0=highest, 3=lowest)
+            priority: Priority level (1=highest, 4=lowest).
 
         Returns:
-            True if token acquired, False otherwise
+            True if token acquired, False otherwise.
         """
         async with self._lock:
             current_time = time.monotonic()
@@ -109,22 +106,21 @@ class RateLimiter:
             # Update recent statistics
             self._update_recent_stats(current_time)
 
-            # Refill tokens
+            # Refill tokens based on elapsed time
             self._refill_tokens(current_time)
 
             if self.tokens >= 1:
                 self.tokens -= 1
-
-                # Store minimal data for efficiency
                 self.request_history.append(
                     {"time": current_time, "priority": priority, "blocked": False}
                 )
-
                 return True
 
-            # Track failures efficiently
+            # Token exhausted
             self.blocked_requests += 1
-            self._recent_stats["blocked_last_minute"] += 1
+            self._recent_stats["blocked_last_minute"] = (
+                int(self._recent_stats["blocked_last_minute"]) + 1
+            )
             self.request_history.append(
                 {"time": current_time, "priority": priority, "blocked": True}
             )
@@ -132,34 +128,30 @@ class RateLimiter:
 
     def _cleanup_history(self, current_time: float) -> None:
         """Clean up old history entries to prevent memory leaks."""
-        # Remove entries older than 1 hour
-        cutoff_time = current_time - 3600
-
+        cutoff_time = current_time - 3600  # keep last hour
         while self.request_history and self.request_history[0]["time"] <= cutoff_time:
             self.request_history.popleft()
-
         _LOGGER.debug("Rate limiter history cleanup completed")
 
     def _update_recent_stats(self, current_time: float) -> None:
         """Update memory-efficient recent statistics."""
-        # Reset minute stats every 60 seconds
-        if current_time - self._recent_stats["last_minute_reset"] > 60:
+        if current_time - float(self._recent_stats["last_minute_reset"]) > 60:
             self._recent_stats["requests_last_minute"] = 0
             self._recent_stats["blocked_last_minute"] = 0
             self._recent_stats["last_minute_reset"] = current_time
-
-        self._recent_stats["requests_last_minute"] += 1
+        self._recent_stats["requests_last_minute"] = (
+            int(self._recent_stats["requests_last_minute"]) + 1
+        )
 
     async def wait_if_needed(self, priority: int = 3, timeout: float = 10.0) -> None:
-        """
-        Warte bis ein Token verfügbar ist.
+        """Warte bis ein Token verfügbar ist.
 
         Args:
-            priority: Request-Priorität
-            timeout: Maximale Wartezeit in Sekunden
+            priority: Request-Priorität (1=highest, 4=lowest).
+            timeout: Maximale Wartezeit in Sekunden.
 
         Raises:
-            asyncio.TimeoutError: Wenn Timeout erreicht
+            asyncio.TimeoutError: Wenn Timeout erreicht wird.
         """
         start_time = time.monotonic()
 
@@ -167,32 +159,26 @@ class RateLimiter:
             if await self.acquire(priority):
                 return
 
-            # Timeout-Prüfung
             elapsed = time.monotonic() - start_time
             if elapsed >= timeout:
-                raise asyncio.TimeoutError(f"Rate Limiter timeout nach {elapsed:.1f}s")
+                raise asyncio.TimeoutError(
+                    f"Rate Limiter timeout after {elapsed:.1f}s"
+                )
 
-            # Warte auf Token-Refill
             await asyncio.sleep(self.retry_after)
 
     def _refill_tokens(self, current_time: float) -> None:
         """Fülle Token-Bucket basierend auf verstrichener Zeit."""
         time_passed = current_time - self.last_refill
-
-        # Refill proportional to time passed, not just when full window elapsed
         if time_passed > 0:
-            # Berechne neue Tokens basierend auf verstrichener Zeit
             refill_rate = self.max_requests / self.time_window
             new_tokens = time_passed * refill_rate
-
             self.tokens = min(self.max_tokens, self.tokens + new_tokens)
             self.last_refill = current_time
 
-    def get_stats(self) -> dict:
+    def get_stats(self) -> dict[str, object]:
         """Hole Rate-Limiter-Statistiken."""
         current_time = time.monotonic()
-
-        # Berechne Requests in letzter Minute
         recent_requests = [
             r for r in self.request_history if current_time - r["time"] <= 60
         ]
@@ -208,7 +194,7 @@ class RateLimiter:
             "block_rate": (
                 self.blocked_requests / self.total_requests * 100
                 if self.total_requests > 0
-                else 0
+                else 0.0
             ),
         }
 
@@ -222,15 +208,25 @@ class RateLimiter:
         _LOGGER.debug("Rate Limiter zurückgesetzt")
 
 
-# Global Rate Limiter-Instanz (kann pro API-Instanz auch separat erstellt werden)
+# ---------------------------------------------------------------------------
+# Legacy global singleton — kept for backward compatibility with any external
+# code that calls get_global_rate_limiter().
+# The VioletPoolAPI class now creates a per-instance RateLimiter so that
+# multiple API instances (multiple controllers) each get their own budget.
+# ---------------------------------------------------------------------------
+
 _global_rate_limiter: RateLimiter | None = None
 
 
 def get_global_rate_limiter() -> RateLimiter:
-    """Hole oder erstelle globalen Rate Limiter."""
+    """Return (or create) the module-level global rate limiter.
+
+    .. deprecated::
+        Prefer creating a ``RateLimiter`` per ``VioletPoolAPI`` instance so
+        that multiple controllers do not share the same token budget.
+    """
     global _global_rate_limiter
     if _global_rate_limiter is None:
-        # Default-Werte aus const_api
         from .const_api import (
             API_RATE_LIMIT_BURST,
             API_RATE_LIMIT_REQUESTS,

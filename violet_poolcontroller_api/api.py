@@ -46,6 +46,10 @@ from .const_api import (
     API_GET_OVERALL_DOSING,
     API_GET_WEATHER_DATA,
     API_PRIORITY_NORMAL,
+    API_RATE_LIMIT_BURST,
+    API_RATE_LIMIT_REQUESTS,
+    API_RATE_LIMIT_RETRY_AFTER,
+    API_RATE_LIMIT_WINDOW,
     API_READINGS,
     API_RESTORE_CALIBRATION,
     API_SET_CONFIG,
@@ -61,7 +65,7 @@ from .const_api import (
 )
 from .circuit_breaker import CircuitBreaker, CircuitBreakerOpenError
 from .const_devices import DEVICE_PARAMETERS
-from .utils_rate_limiter import get_global_rate_limiter
+from .utils_rate_limiter import RateLimiter
 from .utils_sanitizer import InputSanitizer
 
 _LOGGER = logging.getLogger(__name__)
@@ -135,13 +139,22 @@ class VioletPoolAPI:
             self._ssl_context.check_hostname = False
             self._ssl_context.verify_mode = ssl.CERT_NONE
 
-        # Rate limiting to protect the controller from being overloaded
-        self._rate_limiter = get_global_rate_limiter()
+        # Per-instance rate limiter: each controller gets its own token bucket.
+        # Using a global singleton would starve all controllers equally when
+        # running multiple API instances against different controllers.
+        self._rate_limiter = RateLimiter(
+            max_requests=API_RATE_LIMIT_REQUESTS,
+            time_window=API_RATE_LIMIT_WINDOW,
+            burst_size=API_RATE_LIMIT_BURST,
+            retry_after=API_RATE_LIMIT_RETRY_AFTER,
+        )
         self._circuit_breaker = CircuitBreaker(expected_exception=VioletPoolAPIError)
         _LOGGER.debug(
-            "API initialized with rate limiting enabled, SSL=%s, verify_ssl=%s",
+            "API initialized: host=%s, SSL=%s, verify_ssl=%s, standalone=%s",
+            host,
             use_ssl,
             verify_ssl,
+            dosing_standalone,
         )
 
     # ---------------------------------------------------------------------
@@ -150,20 +163,12 @@ class VioletPoolAPI:
 
     @property
     def timeout(self) -> float:
-        """Get current timeout in seconds.
-
-        Returns:
-            The timeout value in seconds.
-        """
+        """Get current timeout in seconds."""
         return self._timeout.total or 0.0
 
     @property
     def max_retries(self) -> int:
-        """Get maximum retry attempts.
-
-        Returns:
-            The maximum number of retry attempts.
-        """
+        """Get maximum retry attempts."""
         return self._max_retries
 
     @property
@@ -195,14 +200,7 @@ class VioletPoolAPI:
         return urlunparse((protocol, host, "", "", "", ""))
 
     def _build_url(self, endpoint: str) -> str:
-        """Constructs the full URL for a given endpoint.
-
-        Args:
-            endpoint: The API endpoint.
-
-        Returns:
-            The full URL.
-        """
+        """Constructs the full URL for a given endpoint."""
         if not endpoint.startswith("/"):
             endpoint = f"/{endpoint}"
         return f"{self._base_url}{endpoint}"
@@ -220,7 +218,9 @@ class VioletPoolAPI:
     ) -> Any:
         """Performs a request with rate limiting, retries, and error handling.
 
-        This method automatically waits if the request limit is reached.
+        Errors are always propagated as ``VioletPoolAPIError`` — the caller
+        decides what to do.  This method never silently ignores failures or
+        returns a fallback value on error.
 
         Args:
             endpoint: The API endpoint to request.
@@ -241,12 +241,12 @@ class VioletPoolAPI:
             raise ValueError("'params' and 'query' are mutually exclusive")
 
         async def _execute_request() -> Any:
-            # Wait if the rate limit is reached
+            # Wait for a rate-limiter token; continue on timeout (best-effort)
             try:
                 await self._rate_limiter.wait_if_needed(priority=priority, timeout=10.0)
             except asyncio.TimeoutError:
                 _LOGGER.warning(
-                    "Rate limiter timeout for %s (priority: %d) - continuing",
+                    "Rate limiter timeout for %s (priority: %d) — proceeding anyway",
                     endpoint,
                     priority,
                 )
@@ -268,29 +268,30 @@ class VioletPoolAPI:
                         timeout=self._timeout,
                         ssl=self._ssl_context,  # type: ignore[arg-type]
                     ) as response:
+                        # 5xx and 429 → retry via ClientError
                         if response.status >= 500 or response.status == 429:
-                            # Server error or rate limit -> trigger retry via ClientError
                             response.raise_for_status()
 
-                        if response.status >= 400 and response.status < 500:
+                        # 4xx (except 429) → permanent client error, no retry
+                        if 400 <= response.status < 500:
                             body = await response.text()
                             raise aiohttp.ClientResponseError(
                                 request_info=response.request_info,
                                 history=response.history,
                                 status=response.status,
-                                message=f"HTTP {response.status} for {endpoint}: {body.strip()}",
+                                message=(
+                                    f"HTTP {response.status} for {endpoint}: "
+                                    f"{body.strip()}"
+                                ),
                             )
 
                         if expect_json:
                             try:
                                 return await response.json(content_type=None)
-                            except (
-                                aiohttp.ContentTypeError,
-                                json.JSONDecodeError,
-                            ) as err:
+                            except (aiohttp.ContentTypeError, json.JSONDecodeError) as err:
                                 body = await response.text()
                                 raise VioletPoolAPIError(
-                                    f"Invalid JSON payload for {endpoint}: {body.strip()}"
+                                    f"Invalid JSON from {endpoint}: {body.strip()!r}"
                                 ) from err
 
                         return await response.text()
@@ -300,7 +301,11 @@ class VioletPoolAPI:
                         f"Error communicating with Violet controller: {err}"
                     )
                     _LOGGER.debug(
-                        "Attempt %d for %s failed: %s", attempt, endpoint, err
+                        "Attempt %d/%d for %s failed: %s",
+                        attempt,
+                        self._max_retries,
+                        endpoint,
+                        err,
                     )
                     if attempt == self._max_retries:
                         raise last_error
@@ -325,10 +330,9 @@ class VioletPoolAPI:
             body: The raw response body or dict.
 
         Returns:
-            A dictionary indicating success and the response text.
+            A dictionary with ``success`` (bool) and ``response`` (str).
         """
         if isinstance(body, dict):
-            # Already parsed JSON or dict response
             return body
 
         text = (body or "").strip()
@@ -343,7 +347,7 @@ class VioletPoolAPI:
         duration: int | float | None = None,
         last_value: int | float | None = None,
     ) -> str:
-        """Renders the command payload based on the device parameter template.
+        """Renders the command payload from the device parameter template.
 
         Args:
             key: The device key.
@@ -392,7 +396,11 @@ class VioletPoolAPI:
         query: str | None = None,
         payload_name: str,
     ) -> dict[str, Any]:
-        """Request JSON content and enforce a dictionary response shape."""
+        """Request JSON content and enforce a dictionary response shape.
+
+        Raises:
+            VioletPoolAPIError: If the response is not a JSON object.
+        """
         response = await self._request(
             endpoint,
             params=params,
@@ -401,7 +409,8 @@ class VioletPoolAPI:
         )
         if not isinstance(response, dict):
             raise VioletPoolAPIError(
-                f"Unexpected payload returned from {payload_name}"
+                f"Expected a JSON object from {payload_name}, "
+                f"got {type(response).__name__}"
             )
         return response
 
@@ -428,7 +437,7 @@ class VioletPoolAPI:
 
                 sanitized_config[sanitized_key] = sanitized_value
             except ValueError as err:
-                _LOGGER.error("Invalid config parameter %s: %s", key, err)
+                _LOGGER.error("Invalid config parameter %r: %s", key, err)
                 raise VioletPoolAPIError(
                     f"Invalid configuration parameter: {key}"
                 ) from err
@@ -463,39 +472,70 @@ class VioletPoolAPI:
     # Public API surface
     # ---------------------------------------------------------------------
 
-
     def _flatten_getreadings_response(self, response: dict[str, Any]) -> dict[str, Any]:
-        """Flattens the getReadings list response if it matches the standalone firmware format.
+        """Flattens the getReadings response to a plain key-value dict.
+
+        The controller can return data in two formats:
+        - **Dict format** (base module): ``{"getReadings": {"KEY": value, …}}``
+        - **List format** (dosing standalone): ``{"getReadings": [{"VALUE NAME": …}, …]}``
+
+        When no ``getReadings`` key is present the response is assumed to already
+        be a flat key-value mapping and is returned unchanged.
+
+        The ``_dosing_standalone`` flag is updated whenever a clear format
+        signal is received so the API can adapt if the controller changes mode.
 
         Args:
-            response: The raw response dictionary from the controller.
+            response: The raw JSON object from the controller.
 
         Returns:
-            The flattened key-value dictionary, or the original response if not applicable.
+            A flat ``{key: value}`` dictionary ready for hardware-profile
+            detection and filtering.
         """
-        readings = response.get("getReadings")
-        if not readings:
+        # No getReadings wrapper → treat as already-flat response
+        if "getReadings" not in response:
             return response
 
+        readings = response["getReadings"]
+
+        # --- Dict format (base module firmware) ---
         if isinstance(readings, dict):
+            if self._dosing_standalone:
+                _LOGGER.info(
+                    "Controller switched from dosing-standalone to base-module mode "
+                    "(received dict-format getReadings)"
+                )
             self._dosing_standalone = False
             return readings
 
+        # --- List format (dosing-standalone firmware) ---
         if isinstance(readings, list):
+            if not self._dosing_standalone:
+                _LOGGER.info(
+                    "Controller switched to dosing-standalone mode "
+                    "(received list-format getReadings)"
+                )
             self._dosing_standalone = True
             flat_dict: dict[str, Any] = {}
             for item in readings:
-                if isinstance(item, dict) and item.get("VALUE NAME"):
-                    key = str(item["VALUE NAME"]).strip().strip('"')
-                    # Value might be in 'VALUE' or other fields, we just ensure it's not breaking
-                    # The standalone docs output actually doesn't include live values,
-                    # but if it did, they would likely be in a 'VALUE' or similar key.
-                    # As a fallback, we extract the entire item or specifically handle known keys.
-                    val = item.get("VALUE", item.get("VALUE ", item.get("value")))
-                    flat_dict[key] = val
+                if not isinstance(item, dict):
+                    continue
+                raw_name = item.get("VALUE NAME")
+                if raw_name is None:
+                    continue
+                key = str(raw_name).strip().strip('"')
+                if not key:
+                    continue
+                val = item.get("VALUE", item.get("VALUE ", item.get("value")))
+                flat_dict[key] = val
             return flat_dict
 
-        return response
+        # --- Unexpected type ---
+        _LOGGER.warning(
+            "Unexpected getReadings type %s — ignoring payload",
+            type(readings).__name__,
+        )
+        return {}
 
     def _build_hardware_profile(self, flattened: dict[str, Any]) -> dict[str, bool]:
         """Build a hardware presence profile from flattened getReadings data.
@@ -506,6 +546,10 @@ class VioletPoolAPI:
         ``0`` even when the physical module is absent, so checking those keys
         would yield false positives.
 
+        The counter starts at ``0`` on boot and the controller only emits
+        alive-count keys for modules that are physically attached, so checking
+        ``value > 0`` would produce false negatives immediately after a restart.
+
         Args:
             flattened: The flattened key-value readings dict.
 
@@ -513,24 +557,22 @@ class VioletPoolAPI:
             A dictionary with boolean flags for connected hardware components.
         """
         def _module_alive(alive_key: str) -> bool:
-            # Key presence means the module is connected; the counter starts at 0
-            # on boot and the controller only emits alive-count keys for modules
-            # that are physically attached, so checking value > 0 would produce
-            # false negatives immediately after a controller restart.
             return alive_key in flattened
 
         def _any_relay_used(prefix: str) -> bool:
-            for key, val in flattened.items():
+            for key in flattened:
                 if not key.startswith(prefix):
                     continue
-                if "_LAST_ON" not in key and "_LAST_OFF" not in key and "_RUNTIME" not in key:
-                    last_on = flattened.get(f"{key}_LAST_ON")
-                    if last_on is not None:
-                        try:
-                            if float(str(last_on).strip()) > 0:
-                                return True
-                        except (ValueError, TypeError):
-                            pass
+                if "_LAST_ON" in key or "_LAST_OFF" in key or "_RUNTIME" in key:
+                    continue
+                last_on = flattened.get(f"{key}_LAST_ON")
+                if last_on is None:
+                    continue
+                try:
+                    if float(str(last_on).strip()) > 0:
+                        return True
+                except (ValueError, TypeError):
+                    pass
             return False
 
         ext1 = _module_alive("SYSTEM_ext1module_alive_count") or _any_relay_used("EXT1_")
@@ -544,14 +586,66 @@ class VioletPoolAPI:
             "extension_module_2": ext2,
         }
 
+    def _filter_unsupported_readings(
+        self, readings: dict[str, Any], profile: dict[str, bool]
+    ) -> dict[str, Any]:
+        """Filter out readings for hardware modules that are not present.
+
+        Keys for absent modules are silently dropped so that the caller never
+        receives stale or meaningless values.  No fallback values are inserted
+        — if a reading is unavailable, it is simply absent from the result.
+
+        Args:
+            readings: The full flattened readings dict.
+            profile: Hardware presence flags from ``_build_hardware_profile``.
+
+        Returns:
+            The filtered readings dict.
+        """
+        if not isinstance(readings, dict):
+            return readings
+
+        filtered: dict[str, Any] = {}
+        for key, value in readings.items():
+            norm = key.upper()
+
+            # Base module keys — skip when no base module is present
+            if not profile.get("base_module"):
+                if norm in {
+                    "PUMPSTATE", "PUMP_SPEED", "HEATER", "LIGHT", "ECO",
+                    "BACKWASH", "BACKWASHRINSE", "REFILL", "PVSURPLUS", "TEMP_PUMP",
+                } or (
+                    norm.startswith("SYSTEM_")
+                    and norm != "SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE"
+                ):
+                    continue
+
+            # Extension module 1
+            if not profile.get("extension_module_1") and norm.startswith("EXT1_"):
+                continue
+
+            # Extension module 2
+            if not profile.get("extension_module_2") and norm.startswith("EXT2_"):
+                continue
+
+            # Dosing module
+            if not profile.get("dosing_module"):
+                if norm.startswith("DOS_") or norm == "SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE":
+                    continue
+
+            filtered[key] = value
+
+        return filtered
+
     async def get_readings(self) -> dict[str, Any]:
         """Returns the complete dataset from the controller.
 
         Returns:
-            A dictionary containing all readings.
+            A dictionary containing all readings filtered to the detected
+            hardware configuration.
 
         Raises:
-            VioletPoolAPIError: If the payload is unexpected.
+            VioletPoolAPIError: If the request fails or the payload is unexpected.
         """
         response = await self._request_json_dict(
             API_READINGS,
@@ -561,40 +655,6 @@ class VioletPoolAPI:
         flattened = self._flatten_getreadings_response(response)
         profile = self._build_hardware_profile(flattened)
         return self._filter_unsupported_readings(flattened, profile)
-
-    def _filter_unsupported_readings(self, readings: dict[str, Any], profile: dict[str, bool]) -> dict[str, Any]:
-        """Filters out readings for hardware modules that are not present."""
-        if not isinstance(readings, dict):
-            return readings
-
-        filtered_readings = {}
-        for key, value in readings.items():
-            normalized_key = key.upper()
-
-            # Base Module specific keys
-            if not profile.get("base_module"):
-                if normalized_key in {
-                    "PUMPSTATE", "PUMP_SPEED", "HEATER", "LIGHT", "ECO",
-                    "BACKWASH", "BACKWASHRINSE", "REFILL", "PVSURPLUS", "TEMP_PUMP"
-                } or (normalized_key.startswith("SYSTEM_") and normalized_key != "SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE"):
-                    continue
-
-            # Extension Module 1 specific keys
-            if not profile.get("extension_module_1") and normalized_key.startswith("EXT1_"):
-                continue
-
-            # Extension Module 2 specific keys
-            if not profile.get("extension_module_2") and normalized_key.startswith("EXT2_"):
-                continue
-
-            # Dosing Module specific keys
-            if not profile.get("dosing_module"):
-                if normalized_key.startswith("DOS_") or normalized_key == "SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE":
-                    continue
-
-            filtered_readings[key] = value
-
-        return filtered_readings
 
     async def get_specific_readings(
         self, categories: list[str] | tuple[str, ...]
@@ -608,7 +668,7 @@ class VioletPoolAPI:
             A dictionary containing the requested readings.
 
         Raises:
-            VioletPoolAPIError: If no categories are provided or the payload is unexpected.
+            VioletPoolAPIError: If no categories are provided or the request fails.
         """
         if not categories:
             raise VioletPoolAPIError("At least one category must be provided")
@@ -627,14 +687,14 @@ class VioletPoolAPI:
         """Fetches historical readings from the controller.
 
         Args:
-            hours: The number of hours of history to fetch.
+            hours: The number of hours of history to fetch (minimum 1).
             sensor: The specific sensor to fetch history for, or "ALL".
 
         Returns:
             A dictionary containing the history data.
 
         Raises:
-            VioletPoolAPIError: If the payload is unexpected.
+            VioletPoolAPIError: If the request fails or the payload is unexpected.
         """
         safe_hours = max(1, int(hours))
         params = {"hours": safe_hours, "sensor": sensor or "ALL"}
@@ -651,7 +711,7 @@ class VioletPoolAPI:
             A dictionary containing weather data.
 
         Raises:
-            VioletPoolAPIError: If the payload is unexpected.
+            VioletPoolAPIError: If the request fails or the payload is unexpected.
         """
         return await self._request_json_dict(
             API_GET_WEATHER_DATA,
@@ -663,10 +723,13 @@ class VioletPoolAPI:
 
         Returns:
             A dictionary with boolean flags for connected hardware components:
-            - base_module: True if the base module is present.
-            - dosing_module: True if the dosing module is present.
-            - extension_module_1: True if the first relay extension is present.
-            - extension_module_2: True if the second relay extension is present.
+            - ``base_module``: True if the base module is present.
+            - ``dosing_module``: True if the dosing module is present.
+            - ``extension_module_1``: True if the first relay extension is present.
+            - ``extension_module_2``: True if the second relay extension is present.
+
+        Raises:
+            VioletPoolAPIError: If the request fails.
         """
         response = await self._request_json_dict(
             API_READINGS,
@@ -683,7 +746,7 @@ class VioletPoolAPI:
             A dictionary containing overall dosing statistics.
 
         Raises:
-            VioletPoolAPIError: If the payload is unexpected.
+            VioletPoolAPIError: If the request fails or the payload is unexpected.
         """
         return await self._request_json_dict(
             API_GET_OVERALL_DOSING,
@@ -697,7 +760,7 @@ class VioletPoolAPI:
             A dictionary containing output states.
 
         Raises:
-            VioletPoolAPIError: If the payload is unexpected.
+            VioletPoolAPIError: If the request fails or the payload is unexpected.
         """
         return await self._request_json_dict(
             API_GET_OUTPUT_STATES,
@@ -716,7 +779,7 @@ class VioletPoolAPI:
             A dictionary containing the configuration values.
 
         Raises:
-            VioletPoolAPIError: If no keys are provided or the payload is unexpected.
+            VioletPoolAPIError: If no keys are provided or the request fails.
         """
         if not parameters:
             raise VioletPoolAPIError("At least one configuration key is required")
@@ -741,7 +804,7 @@ class VioletPoolAPI:
             A dictionary with command result.
 
         Raises:
-            VioletPoolAPIError: If configuration payload is empty.
+            VioletPoolAPIError: If configuration payload is empty or invalid.
         """
         if not config:
             raise VioletPoolAPIError("Configuration payload must not be empty")
@@ -762,7 +825,7 @@ class VioletPoolAPI:
             A dictionary containing raw calibration values.
 
         Raises:
-            VioletPoolAPIError: If the payload is unexpected.
+            VioletPoolAPIError: If the request fails or the payload is unexpected.
         """
         return await self._request_json_dict(
             API_GET_CALIB_RAW_VALUES,
@@ -779,7 +842,7 @@ class VioletPoolAPI:
             A list of dictionaries representing the history entries.
 
         Raises:
-            VioletPoolAPIError: If the sensor name is missing.
+            VioletPoolAPIError: If the sensor name is missing or the request fails.
         """
         if not sensor:
             raise VioletPoolAPIError("Sensor name required for calibration history")
@@ -804,12 +867,13 @@ class VioletPoolAPI:
                     )
                 else:
                     _LOGGER.warning(
-                        "Skipping malformed calibration history line: %s", line
+                        "Skipping malformed calibration history line: %r", line
                     )
             except (IndexError, AttributeError) as err:
-                err_msg = str(err) or type(err).__name__
                 _LOGGER.warning(
-                    "Error parsing calibration history line '%s': %s", line, err_msg
+                    "Error parsing calibration history line %r: %s",
+                    line,
+                    err or type(err).__name__,
                 )
         return entries
 
@@ -850,7 +914,7 @@ class VioletPoolAPI:
         Args:
             output: The identifier of the output.
             mode: The test mode (default is "SWITCH").
-            duration: The duration in seconds (default is 120).
+            duration: The duration in seconds (default is 120, max 86400).
 
         Returns:
             A dictionary with the command result.
@@ -888,6 +952,10 @@ class VioletPoolAPI:
 
         Returns:
             A dictionary with the command result.
+
+        Raises:
+            VioletPoolAPIError: If the function is unavailable in standalone mode
+                or if the request fails.
         """
         if self._dosing_standalone and self._is_base_module_function(key):
             raise VioletPoolAPIError(
@@ -912,18 +980,18 @@ class VioletPoolAPI:
         """Triggers a dosing run using the manual function endpoint.
 
         Args:
-            dosing_type: The type of dosing (e.g., "Chlor").
+            dosing_type: The type of dosing (e.g., "Chlor", "pH-", "pH+").
             duration: The duration in seconds.
 
         Returns:
             A dictionary with the command result.
 
         Raises:
-            VioletPoolAPIError: If the dosing type is unknown.
+            VioletPoolAPIError: If the dosing type is unknown or the request fails.
         """
         device_key = DOSING_FUNCTIONS.get(dosing_type)
         if not device_key:
-            raise VioletPoolAPIError(f"Unknown dosing type: {dosing_type}")
+            raise VioletPoolAPIError(f"Unknown dosing type: {dosing_type!r}")
 
         return await self.set_switch_state(
             device_key,
@@ -965,26 +1033,27 @@ class VioletPoolAPI:
             VioletPoolAPIError: If the action is unsupported.
         """
         if action not in {ACTION_ALLON, ACTION_ALLOFF, ACTION_ALLAUTO}:
-            raise VioletPoolAPIError(f"Unsupported DMX action: {action}")
+            raise VioletPoolAPIError(f"Unsupported DMX action: {action!r}")
 
-        tasks = []
-        for scene in range(1, DMX_SCENE_COUNT + 1):
-            key = f"DMX_SCENE{scene}"
-            tasks.append(self.set_switch_state(key, action))
+        tasks = [
+            self.set_switch_state(f"DMX_SCENE{scene}", action)
+            for scene in range(1, DMX_SCENE_COUNT + 1)
+        ]
 
-        # Run requests concurrently
         raw_results = await asyncio.gather(*tasks, return_exceptions=True)
 
         results: list[dict[str, Any]] = []
         for res in raw_results:
             if isinstance(res, Exception):
-                results.append({"success": False, "response": f"{type(res).__name__}: {str(res)}"})
+                results.append(
+                    {"success": False, "response": f"{type(res).__name__}: {res}"}
+                )
             elif isinstance(res, dict):
                 results.append(res)
 
-        success = all(result.get("success") is True for result in results)
+        success = all(r.get("success") is True for r in results)
         response = ", ".join(
-            str(result.get("response", "")) for result in results if result.get("response")
+            str(r.get("response", "")) for r in results if r.get("response")
         )
         return {"success": success, "response": response}
 
@@ -1058,7 +1127,7 @@ class VioletPoolAPI:
         """Updates the ORP setpoint.
 
         Args:
-            value: The new ORP target value.
+            value: The new ORP target value in mV.
 
         Returns:
             A dictionary with the command result.
@@ -1069,7 +1138,7 @@ class VioletPoolAPI:
         """Updates the minimum chlorine level.
 
         Args:
-            value: The new minimum chlorine level.
+            value: The new minimum chlorine level in mg/l.
 
         Returns:
             A dictionary with the command result.
