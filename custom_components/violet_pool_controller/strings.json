@@ -534,6 +534,12 @@
       },
       "hw_standalone_mode": {
         "name": "Standalone-Dosieranlage"
+      },
+      "hw_dmx_module": {
+        "name": "DMX-Modul"
+      },
+      "hw_dirule_module": {
+        "name": "Digitalregel-Modul"
       }
     },
     "switch": {

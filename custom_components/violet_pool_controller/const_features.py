@@ -182,6 +182,20 @@ BINARY_SENSORS.extend([
         "icon": "mdi:server-network",
         "entity_category": EntityCategory.DIAGNOSTIC,
     },
+    {
+        "key": "HW_DMX_MODULE",
+        "name": "Hardware: DMX Module",
+        "translation_key": "hw_dmx_module",
+        "icon": "mdi:lightbulb-multiple",
+        "entity_category": EntityCategory.DIAGNOSTIC,
+    },
+    {
+        "key": "HW_DIRULE_MODULE",
+        "name": "Hardware: Digital Rules Module",
+        "translation_key": "hw_dirule_module",
+        "icon": "mdi:script-text",
+        "entity_category": EntityCategory.DIAGNOSTIC,
+    },
 ])
 
 # =============================================================================

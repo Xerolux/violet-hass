@@ -593,69 +593,93 @@ class VioletPoolControllerDevice:
                 except (ValueError, TypeError):
                     return False
 
-            # Derive hardware presence from the filtered data returned by the API.
-            # For dosing: check the CPU-temperature key *and* any DOS_* key so
-            # that detection works even when the temperature sensor is absent.
-            # "now" means the current API response includes dosing data.
+            # ----------------------------------------------------------------
+            # Hardware module detection + sticky-cache key restoration
+            # ----------------------------------------------------------------
+            # Optional hardware modules (dosing, extension relays, DMX, digital
+            # rules) are filtered out of the API response when the controller
+            # considers them absent.  This can happen transiently during a
+            # controller reboot, firmware update, or brief communication gap.
+            #
+            # Without protection, missing keys cause switch/sensor entities to
+            # silently revert to OFF/Unknown for the duration of the gap.
+            #
+            # Strategy (same for every optional module):
+            #  1. Detect whether the module is present in THIS response ("_now").
+            #  2. Once seen, add to _hw_detected sticky cache (session-permanent).
+            #  3. If the module was previously seen but is now absent, restore its
+            #     keys from self._data (last good poll) so entities keep the last
+            #     known valid state instead of flipping to OFF/Unknown.
+            # ----------------------------------------------------------------
+
+            # --- Dosing module ---
+            # Extra detection: dedicated CPU-temperature sensor key OR
+            # dosing_standalone flag (set when dosing runs without a base module).
             has_dosing_now = (
                 is_valid(data.get("SYSTEM_dosagemodule_cpu_temperature"))
                 or any(k.startswith("DOS_") and is_valid(v) for k, v in data.items())
             )
-            # Sticky cache: standalone mode or previously-detected dosing always
-            # counts as present so DOS_* keys are never silently dropped.
             if self.api.dosing_standalone or has_dosing_now:
                 self._hw_detected.add("DOSING")
             has_dosing = "DOSING" in self._hw_detected or self.api.dosing_standalone
 
-            # When the API package has filtered DOS keys out (e.g. the dosing
-            # module is momentarily absent from the controller response during
-            # a reboot or brief communication gap) but we know from a previous
-            # poll that the dosing module IS present, restore the last known
-            # state values so switch/sensor entities remain consistent and do
-            # NOT silently revert to OFF/Unknown.
-            if has_dosing and not has_dosing_now:
-                for prev_key, prev_val in self._data.items():
-                    if prev_key.startswith("DOS_") and prev_key not in data:
-                        data[prev_key] = prev_val
-                _LOGGER.debug(
-                    "Dosing module temporarily absent from API response; "
-                    "restored %d DOS_* keys from previous poll",
-                    sum(1 for k in self._data if k.startswith("DOS_") and k not in data),
-                )
-
-            # For extension modules use a two-tier approach:
-            # 1. SYSTEM_ext*module_alive_count: reliable when the controller sends it.
-            # 2. Any EXT1_/EXT2_ key present in the (already-filtered) data.
-            # Sticky cache: once detected in a session, always considered present.
-            # This covers fresh relay boards (LAST_ON == 0, alive count absent) whose
-            # keys are otherwise filtered out by the API package.
+            # --- Extension module 1 ---
+            # Extra detection: alive-count key (reliable) OR any EXT1_ key present.
             has_ext1_now = (
                 is_alive_count("SYSTEM_ext1module_alive_count")
                 or any(k.startswith("EXT1_") and is_valid(v) for k, v in data.items())
             )
+            if has_ext1_now:
+                self._hw_detected.add("EXT1")
+            has_ext1 = "EXT1" in self._hw_detected
+
+            # --- Extension module 2 ---
             has_ext2_now = (
                 is_alive_count("SYSTEM_ext2module_alive_count")
                 or any(k.startswith("EXT2_") and is_valid(v) for k, v in data.items())
             )
-            if has_ext1_now:
-                self._hw_detected.add("EXT1")
             if has_ext2_now:
                 self._hw_detected.add("EXT2")
-
-            has_ext1 = "EXT1" in self._hw_detected
             has_ext2 = "EXT2" in self._hw_detected
 
-            # When the API package has filtered EXT keys out (module not yet detected
-            # via LAST_ON) but we know from a previous poll that the module IS present,
-            # restore the last known state values so switch entities remain consistent.
-            if has_ext1 and not has_ext1_now:
-                for prev_key, prev_val in self._data.items():
-                    if prev_key.startswith("EXT1_") and prev_key not in data:
-                        data[prev_key] = prev_val
-            if has_ext2 and not has_ext2_now:
-                for prev_key, prev_val in self._data.items():
-                    if prev_key.startswith("EXT2_") and prev_key not in data:
-                        data[prev_key] = prev_val
+            # --- DMX lighting module ---
+            has_dmx_now = any(
+                k.startswith("DMX_") and is_valid(v) for k, v in data.items()
+            )
+            if has_dmx_now:
+                self._hw_detected.add("DMX")
+            has_dmx = "DMX" in self._hw_detected
+
+            # --- Digital input rules ---
+            has_dirule_now = any(
+                k.startswith("DIRULE_") and is_valid(v) for k, v in data.items()
+            )
+            if has_dirule_now:
+                self._hw_detected.add("DIRULE")
+            has_dirule = "DIRULE" in self._hw_detected
+
+            # ---- Generic key restoration for all optional modules ----
+            # Maps cache tag → (key_prefix, currently_present_flag)
+            _optional_modules: list[tuple[str, str, bool]] = [
+                ("DOSING",  "DOS_",    has_dosing_now),
+                ("EXT1",    "EXT1_",   has_ext1_now),
+                ("EXT2",    "EXT2_",   has_ext2_now),
+                ("DMX",     "DMX_",    has_dmx_now),
+                ("DIRULE",  "DIRULE_", has_dirule_now),
+            ]
+            for _tag, _prefix, _present_now in _optional_modules:
+                if _tag in self._hw_detected and not _present_now:
+                    restored = 0
+                    for prev_key, prev_val in self._data.items():
+                        if prev_key.startswith(_prefix) and prev_key not in data:
+                            data[prev_key] = prev_val
+                            restored += 1
+                    if restored:
+                        _LOGGER.debug(
+                            "%s module temporarily absent from API response; "
+                            "restored %d %s* keys from previous poll",
+                            _tag, restored, _prefix,
+                        )
 
             is_standalone = self.api.dosing_standalone
 
@@ -663,6 +687,8 @@ class VioletPoolControllerDevice:
             data["HW_DOSING_MODULE"] = has_dosing
             data["HW_EXTENSION_MODULE_1"] = has_ext1
             data["HW_EXTENSION_MODULE_2"] = has_ext2
+            data["HW_DMX_MODULE"] = has_dmx
+            data["HW_DIRULE_MODULE"] = has_dirule
             data["HW_STANDALONE_MODE"] = is_standalone
 
         return data
@@ -707,6 +733,10 @@ class VioletPoolControllerDevice:
             extra_modules.append("Ext1")
         if self._data.get("HW_EXTENSION_MODULE_2"):
             extra_modules.append("Ext2")
+        if self._data.get("HW_DMX_MODULE"):
+            extra_modules.append("DMX")
+        if self._data.get("HW_DIRULE_MODULE"):
+            extra_modules.append("DiRule")
 
         model_str = (
             "Violet Pool Controller (" + ", ".join(extra_modules) + ")"
