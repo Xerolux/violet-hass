@@ -1,4 +1,4 @@
-## v1.0.6-alpha.2 – Violet Pool Controller
+## v1.0.6-alpha.3 – Violet Pool Controller
 
 🔴 **ALPHA RELEASE** - Experimental features, use with caution!
 
@@ -27,6 +27,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🚀 Improvements | Verbesserungen
 
+- 📝 Release v1.0.6-alpha.2 - Update changelog and version files (e8828ca)
 - chore(deps-dev): update pytest-cov requirement from >=6.0.0 to >=7.1.0 (9e33ab2)
 - chore(deps): update aiohttp requirement from >=3.11.0 to >=3.13.5 (ff6db43)
 - chore(deps): update voluptuous requirement from >=0.15.0 to >=0.16.0 (36f58b1)
@@ -43,6 +44,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- device-state-bug (18c967e)
 - device-state-bug (a23cafe)
 - fix: add sticky cache for dosing module to prevent DOS_* switches showing OFF (ad66241)
 - fix: correct feature_id for DOS_6_FLOC (Flockmittel) from chlorine_control to flocculation (1b4bf39)
@@ -83,7 +85,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-📋 [Full changelog: v1.0.5...v1.0.6-alpha.2](https://github.com/Xerolux/violet-hass/compare/v1.0.5...v1.0.6-alpha.2)
+📋 [Full changelog: v1.0.5...v1.0.6-alpha.3](https://github.com/Xerolux/violet-hass/compare/v1.0.5...v1.0.6-alpha.3)
 
 ---
 
@@ -103,4 +105,4 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-05-22 20:47:19 UTC_
+_Generated automatically by GitHub Actions on 2026-05-22 21:01:22 UTC_
