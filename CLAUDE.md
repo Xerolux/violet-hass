@@ -559,12 +559,12 @@ Located in `.github/workflows/`:
 - `violet-poolController-api==0.0.11` - External API client package (installed by HA automatically)
 
 **Development** (from `requirements-dev.txt`):
-- `ruff>=0.15.0` - Linter and formatter
-- `mypy>=1.15.0` - Static type checker
+- `ruff>=0.15.14` - Linter and formatter
+- `mypy>=2.1.0` - Static type checker
 - `pytest>=9.0.0` - Test framework
 - `pytest-cov>=6.0.0` - Coverage plugin
 - `pytest-asyncio>=1.0.0` - Async test support
-- `pytest-homeassistant-custom-component>=0.13.109` - HA test helpers
+- `pytest-homeassistant-custom-component>=0.13.326` - HA test helpers
 
 ## Important Notes
 
