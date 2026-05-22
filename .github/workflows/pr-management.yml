@@ -47,7 +47,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - uses: actions/dependency-review-action@v4
+      - uses: actions/dependency-review-action@v5
         with:
           comment-summary-in-pr: always
           fail-on-severity: moderate
