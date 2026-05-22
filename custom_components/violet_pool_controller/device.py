@@ -596,11 +596,32 @@ class VioletPoolControllerDevice:
             # Derive hardware presence from the filtered data returned by the API.
             # For dosing: check the CPU-temperature key *and* any DOS_* key so
             # that detection works even when the temperature sensor is absent.
-            has_dosing = (
-                self.api.dosing_standalone
-                or is_valid(data.get("SYSTEM_dosagemodule_cpu_temperature"))
+            # "now" means the current API response includes dosing data.
+            has_dosing_now = (
+                is_valid(data.get("SYSTEM_dosagemodule_cpu_temperature"))
                 or any(k.startswith("DOS_") and is_valid(v) for k, v in data.items())
             )
+            # Sticky cache: standalone mode or previously-detected dosing always
+            # counts as present so DOS_* keys are never silently dropped.
+            if self.api.dosing_standalone or has_dosing_now:
+                self._hw_detected.add("DOSING")
+            has_dosing = "DOSING" in self._hw_detected or self.api.dosing_standalone
+
+            # When the API package has filtered DOS keys out (e.g. the dosing
+            # module is momentarily absent from the controller response during
+            # a reboot or brief communication gap) but we know from a previous
+            # poll that the dosing module IS present, restore the last known
+            # state values so switch/sensor entities remain consistent and do
+            # NOT silently revert to OFF/Unknown.
+            if has_dosing and not has_dosing_now:
+                for prev_key, prev_val in self._data.items():
+                    if prev_key.startswith("DOS_") and prev_key not in data:
+                        data[prev_key] = prev_val
+                _LOGGER.debug(
+                    "Dosing module temporarily absent from API response; "
+                    "restored %d DOS_* keys from previous poll",
+                    sum(1 for k in self._data if k.startswith("DOS_") and k not in data),
+                )
 
             # For extension modules use a two-tier approach:
             # 1. SYSTEM_ext*module_alive_count: reliable when the controller sends it.
