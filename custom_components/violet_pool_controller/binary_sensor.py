@@ -39,7 +39,7 @@ BINARY_SENSOR_FEATURE_MAP = {
     "DOS_1_CL": "chlorine_control",
     "DOS_4_PHM": "ph_control",
     "DOS_5_PHP": "ph_control",
-    "DOS_6_FLOC": "chlorine_control",
+    "DOS_6_FLOC": "flocculation",
     "REFILL": "water_refill",
     "PVSURPLUS": "pv_surplus",
 }
