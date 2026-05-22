@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "violet-poolController-api"
-version = "0.0.15"
+version = "0.0.16"
 authors = [
   { name="Basti (Xerolux)", email="git@xerolux.de" },
 ]
@@ -39,7 +39,7 @@ asyncio_mode = "auto"
 
 [tool.ruff]
 line-length = 100
-target-version = "py312"
+target-version = "0.0.16"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP"]
