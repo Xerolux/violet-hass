@@ -23,6 +23,14 @@ from custom_components.violet_pool_controller.entity import interpret_state_as_b
         ("5|AUTO_WAIT", False),
         (" 2 |AUTO", True),
         ("0|OFF", False),
+        ("N/A", None),
+        ("n/a", None),
+        ("UNKNOWN", None),
+        ("unknown", None),
+        ("NONE", None),
+        ("NULL", None),
+        (None, None),
+        ("", False),
     ],
 )
 def test_interpret_state_with_numeric_prefix(raw_state, expected):

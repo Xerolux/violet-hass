@@ -89,24 +89,24 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         _LOGGER.debug("Switch initialized: %s", self.entity_id)
 
     @property
-    def is_on(self) -> bool:
+    def is_on(self) -> bool | None:
         """
-        Return True if the switch is on.
+        Return True if the switch is on, None if unknown.
 
         Returns:
-            True if on, False otherwise.
+            True if on, False if off, None if unknown.
         """
         if self.coordinator.data is None:
-            return False
+            return None
 
         return self._get_switch_state()
 
-    def _get_switch_state(self) -> bool:
+    def _get_switch_state(self) -> bool | None:
         """
         Get the switch state with change-only logging and optimistic cache.
 
         Returns:
-            The boolean state of the switch.
+            The boolean state of the switch or None.
         """
         # Use optimistic cache while waiting for API confirmation
         if self._optimistic_state is not None:
@@ -117,13 +117,18 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
 
         # No data available for this key
         if raw_state is None:
-            return False
+            return None
 
         # Use shared utility function
         result = interpret_state_as_bool(raw_state, key)
 
         # Change-Only Logging
         if result != self._last_logged_state or raw_state != self._last_logged_raw:
+            if result is None:
+                new_state_str = "UNKNOWN"
+            else:
+                new_state_str = "ON" if result else "OFF"
+
             _LOGGER.info(
                 "Switch %s: %s → %s (raw: %s)",
                 key,
@@ -132,7 +137,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 else "OFF"
                 if self._last_logged_state is not None
                 else "INIT",
-                "ON" if result else "OFF",
+                new_state_str,
                 raw_state,
             )
             self._last_logged_state = result
@@ -687,11 +692,16 @@ async def async_setup_entry(
                     try:
                         raw_state = coordinator.data[key]
                         should_be_on = entity._get_switch_state()  # type: ignore[attr-defined]
+                        if should_be_on is None:
+                            disp = "UNKNOWN"
+                        else:
+                            disp = "ON" if should_be_on else "OFF"
+
                         _LOGGER.debug(
                             "Final check %s: raw=%s → display=%s",
                             key,
                             raw_state,
-                            "ON" if should_be_on else "OFF",
+                            disp,
                         )
                     except (ValueError, KeyError, TypeError, AttributeError) as err:
                         _LOGGER.debug("Final check error for %s: %s", key, err)

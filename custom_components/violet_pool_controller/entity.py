@@ -72,17 +72,24 @@ def convert_to_int(value: Any) -> int | None:
         return None
 
 
-def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool:
+def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool | None:
     """
-    Interpret raw state value as boolean.
+    Interpret raw state value as boolean or None for unknown states.
 
     Args:
         raw_state: Raw state value from API.
         key: Entity key for logging.
 
     Returns:
-        Boolean interpretation.
+        Boolean interpretation or None.
     """
+    if raw_state is None:
+        return None
+
+    state_str = str(raw_state).upper().strip()
+    if state_str in ("N/A", "NONE", "UNKNOWN", "NULL"):
+        return None
+
     # Priority 1: Check STATE_MAP first (most common)
     state_int = convert_to_int(raw_state)
     if state_int is not None:
@@ -254,7 +261,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
             )
             return float(default) if default is not None else None
 
-    def get_bool_value(self, key: str, default: Any = None) -> bool:
+    def get_bool_value(self, key: str, default: Any = None) -> bool | None:
         """
         Get boolean value from coordinator data.
 
@@ -263,7 +270,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
             default: Default value if key does not exist.
 
         Returns:
-            Boolean interpretation.
+            Boolean interpretation or None.
         """
         value = self.get_value(key, default)
 
