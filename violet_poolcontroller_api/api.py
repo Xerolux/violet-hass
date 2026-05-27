@@ -521,7 +521,7 @@ class VioletPoolAPI:
 
         if isinstance(readings, dict):
             self._dosing_standalone = False
-            return readings
+            return self._filter_orphan_extension_keys(readings)
 
         if isinstance(readings, list):
             self._dosing_standalone = True
@@ -534,6 +534,27 @@ class VioletPoolAPI:
             return flat_dict
 
         return response
+
+    @staticmethod
+    def _filter_orphan_extension_keys(readings: dict[str, Any]) -> dict[str, Any]:
+        """Remove EXT*_ keys when the corresponding module is not connected.
+
+        The controller always returns EXT*_ keys even when no hardware module
+        is physically present.  We only keep them when the matching
+        ``SYSTEM_ext*module_alive_count`` key exists in the payload.
+        """
+        ext1_alive = "SYSTEM_ext1module_alive_count" in readings
+        ext2_alive = "SYSTEM_ext2module_alive_count" in readings
+
+        if ext1_alive and ext2_alive:
+            return readings
+
+        return {
+            k: v
+            for k, v in readings.items()
+            if (ext1_alive or not k.startswith("EXT1"))
+            and (ext2_alive or not k.startswith("EXT2"))
+        }
 
     async def get_readings(self) -> dict[str, Any]:
         """Return the complete dataset from the controller.
@@ -551,6 +572,33 @@ class VioletPoolAPI:
             payload_name="getReadings",
         )
         return self._flatten_getreadings_response(response)
+
+    async def get_hardware_profile(self) -> dict[str, bool]:
+        """Detect connected hardware modules from the controller readings.
+
+        Uses ``SYSTEM_*_alive_count`` keys to determine which modules are
+        physically present.  For standalone dosing setups (list-format
+        payloads) the base module is always reported as absent.
+
+        Returns:
+            A dictionary with keys ``base_module``, ``dosing_module``,
+            ``extension_module_1``, and ``extension_module_2``.
+        """
+        response = await self._request_json_dict(
+            API_READINGS,
+            query="ALL",
+            payload_name="getReadings",
+        )
+        readings = self._flatten_getreadings_response(response)
+
+        has_base = not self._dosing_standalone and bool(readings)
+        return {
+            "base_module": has_base,
+            "dosing_module": self._dosing_standalone
+            or "SYSTEM_dosagemodule_alive_count" in readings,
+            "extension_module_1": "SYSTEM_ext1module_alive_count" in readings,
+            "extension_module_2": "SYSTEM_ext2module_alive_count" in readings,
+        }
 
     async def get_specific_readings(
         self, categories: list[str] | tuple[str, ...],
