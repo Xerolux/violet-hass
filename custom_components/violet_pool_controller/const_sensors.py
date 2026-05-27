@@ -39,7 +39,7 @@ ANALOG_SENSORS = {
     "ADC3_value": {"name": "Flow Meter (4-20mA)", "translation_key": "adc3_value", "icon": "mdi:swap-horizontal"},
     "ADC4_value": {"name": "Analog Sensor 4 (4-20mA)", "translation_key": "adc4_value", "icon": "mdi:gauge"},
     "ADC5_value": {"name": "Analog Sensor 5 (0-10V)", "translation_key": "adc5_value", "icon": "mdi:sine-wave"},
-    "IMP1_value": {"name": "Flow Switch", "translation_key": "imp1_value", "icon": "mdi:pipe-valve"},
+    "IMP1_value": {"name": "Dosing Inflow", "translation_key": "imp1_value", "icon": "mdi:pipe-valve"},
     "IMP2_value": {"name": "Pump Flow Rate", "translation_key": "imp2_value", "icon": "mdi:water-pump"},
 }
 

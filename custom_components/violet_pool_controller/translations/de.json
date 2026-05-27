@@ -633,6 +633,75 @@
       },
       "solarstate": {
         "name": "Solar Detail-Status"
+      },
+      "adc1_value": {
+        "name": "Filterdruck"
+      },
+      "adc2_value": {
+        "name": "Überlaufbehälter"
+      },
+      "adc3_value": {
+        "name": "Durchflussmesser (4-20mA)"
+      },
+      "adc4_value": {
+        "name": "Analog Sensor 4 (4-20mA)"
+      },
+      "adc5_value": {
+        "name": "Analog Sensor 5 (0-10V)"
+      },
+      "imp1_value": {
+        "name": "Dosieranströmung"
+      },
+      "imp2_value": {
+        "name": "Pumpen-Durchfluss"
+      },
+      "ext1_1": {
+        "name": "Erweiterung 1.1"
+      },
+      "ext1_2": {
+        "name": "Erweiterung 1.2"
+      },
+      "ext1_3": {
+        "name": "Erweiterung 1.3"
+      },
+      "ext1_4": {
+        "name": "Erweiterung 1.4"
+      },
+      "ext1_5": {
+        "name": "Erweiterung 1.5"
+      },
+      "ext1_6": {
+        "name": "Erweiterung 1.6"
+      },
+      "ext1_7": {
+        "name": "Erweiterung 1.7"
+      },
+      "ext1_8": {
+        "name": "Erweiterung 1.8"
+      },
+      "ext2_1": {
+        "name": "Erweiterung 2.1"
+      },
+      "ext2_2": {
+        "name": "Erweiterung 2.2"
+      },
+      "ext2_3": {
+        "name": "Erweiterung 2.3"
+      },
+      "ext2_4": {
+        "name": "Erweiterung 2.4"
+      },
+      "ext2_5": {
+        "name": "Erweiterung 2.5"
+      },
+      "ext2_6": {
+        "name": "Erweiterung 2.6"
+      },
+      "ext2_7": {
+        "name": "Erweiterung 2.7"
+      },
+      "ext2_8": {
+        "name": "Erweiterung 2.8"
       }
     },
     "binary_sensor": {
