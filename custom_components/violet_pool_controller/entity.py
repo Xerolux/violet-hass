@@ -338,3 +338,25 @@ class VioletPoolControllerEntity(CoordinatorEntity):
             else:
                 _LOGGER.debug("Delayed refresh error: %s", err)
             return False
+
+    def _handle_refresh_error(self, task: asyncio.Task) -> None:
+        """
+        Handle errors in async refresh tasks.
+
+        Safe to use as a done callback for asyncio.Task. Logs exceptions
+        but does not re-raise, allowing task cleanup without propagating errors.
+
+        Args:
+            task: The completed/failed task.
+        """
+        try:
+            if not task.cancelled():
+                exc = task.exception()
+                if exc is not None:
+                    _LOGGER.debug(
+                        "Refresh task failed (%s): %s",
+                        self.entity_id or "unknown",
+                        exc,
+                    )
+        except (asyncio.CancelledError, asyncio.InvalidStateError):
+            pass  # Normal during HA reload, no logging needed
