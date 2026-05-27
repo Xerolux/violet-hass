@@ -313,8 +313,10 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 try:
                     if int(rpm_val) > 0:
                         active_speed = level
-                except (ValueError, TypeError):
-                    pass
+                except (ValueError, TypeError) as err:
+                    _LOGGER.debug(
+                        "Invalid RPM value for %s: %s (%s)", rpm_key, rpm_val, err
+                    )
 
         if active_speed is not None:
             attributes["pump_speed_level"] = active_speed

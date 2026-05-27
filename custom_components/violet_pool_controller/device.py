@@ -108,7 +108,8 @@ class VioletPoolControllerDevice:
         # ✅ DIAGNOSTIC SENSORS: Advanced metrics
         self._api_request_count = 0  # Total API requests
         self._api_request_start_time = time.monotonic()  # For rate calculation
-        self._latency_history: collections.deque[float] = collections.deque(maxlen=60)
+        # 360 samples = 1 hour of history (at default 10s polling interval)
+        self._latency_history: collections.deque[float] = collections.deque(maxlen=360)
 
         entry_data = config_entry.data
         self.api_url = with_non_default_port(

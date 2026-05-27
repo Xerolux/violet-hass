@@ -155,12 +155,9 @@ class VioletPoolControllerEntity(CoordinatorEntity):
 
         # Entity attributes
         self._attr_has_entity_name = True
-        # If translation_key is set, name should be None to let HA handle it.
-        # But if it is not set, we use name from description.
-        if entity_description.translation_key:
-            self._attr_name = None
-        else:
-            self._attr_name = entity_description.name
+        # Always set name from description. Home Assistant will automatically translate
+        # via translation_key if a translation is available in strings.json
+        self._attr_name = entity_description.name
 
         self._attr_unique_id = f"{config_entry.entry_id}_{entity_description.key}"
         self._attr_device_info = cast(DeviceInfo, coordinator.device.device_info)
@@ -341,3 +338,25 @@ class VioletPoolControllerEntity(CoordinatorEntity):
             else:
                 _LOGGER.debug("Delayed refresh error: %s", err)
             return False
+
+    def _handle_refresh_error(self, task: asyncio.Task) -> None:
+        """
+        Handle errors in async refresh tasks.
+
+        Safe to use as a done callback for asyncio.Task. Logs exceptions
+        but does not re-raise, allowing task cleanup without propagating errors.
+
+        Args:
+            task: The completed/failed task.
+        """
+        try:
+            if not task.cancelled():
+                exc = task.exception()
+                if exc is not None:
+                    _LOGGER.debug(
+                        "Refresh task failed (%s): %s",
+                        self.entity_id or "unknown",
+                        exc,
+                    )
+        except (asyncio.CancelledError, asyncio.InvalidStateError):
+            pass  # Normal during HA reload, no logging needed
