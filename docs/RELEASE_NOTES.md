@@ -1,4 +1,4 @@
-## v1.0.6-alpha.3 – Violet Pool Controller
+## v1.0.7-alpha.1 – Violet Pool Controller
 
 🔴 **ALPHA RELEASE** - Experimental features, use with caution!
 
@@ -19,6 +19,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### ✨ New Features | Neue Funktionen
 
+- feat: v1.0.7-alpha.1 - EN migration, translation_key for 174 entities, 10-language support, dependency updates (f7e2bfa)
 - feat: extend sticky-cache key restoration to ALL optional hardware modules (1b33abf)
 - fix: add sticky cache for dosing module to prevent DOS_* switches showing OFF (ad66241)
 - Translate all docs and wiki to English; add .de.md German alternatives (ecd37c1)
@@ -27,6 +28,8 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🚀 Improvements | Verbesserungen
 
+- chore(deps): update violet-poolController-api to 0.0.17 (ef42551)
+- 📝 Release v1.0.6-alpha.3 - Update changelog and version files (e6cfc12)
 - 📝 Release v1.0.6-alpha.2 - Update changelog and version files (e8828ca)
 - chore(deps-dev): update pytest-cov requirement from >=6.0.0 to >=7.1.0 (9e33ab2)
 - chore(deps): update aiohttp requirement from >=3.11.0 to >=3.13.5 (ff6db43)
@@ -44,6 +47,10 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- fix: prevent sensor unit flipping when controller returns boolean-like values (0/1) (524fba5)
+- fix-interpret-state-unknown (693d7e7)
+- fix: resolve CI failures for voluptuous dependency and test mocks (a6b597e)
+- fix: prevent hard off state for unknown sensor data (09a3962)
 - device-state-bug (18c967e)
 - device-state-bug (a23cafe)
 - fix: add sticky cache for dosing module to prevent DOS_* switches showing OFF (ad66241)
@@ -63,6 +70,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🧪 Tests
 
+- fix: resolve CI failures for voluptuous dependency and test mocks (a6b597e)
 - fix-test-entity-state-mocks (8a31793)
 - Fix ModuleNotFoundError in test suite for HA 2026 (9d12bf1)
 - Fix CI tests for Home Assistant 2026.5.0 compatibility (41b8b4e)
@@ -85,7 +93,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-📋 [Full changelog: v1.0.5...v1.0.6-alpha.3](https://github.com/Xerolux/violet-hass/compare/v1.0.5...v1.0.6-alpha.3)
+📋 [Full changelog: v1.0.5...v1.0.7-alpha.1](https://github.com/Xerolux/violet-hass/compare/v1.0.5...v1.0.7-alpha.1)
 
 ---
 
@@ -105,4 +113,4 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-05-22 21:01:22 UTC_
+_Generated automatically by GitHub Actions on 2026-05-27 16:00:39 UTC_
