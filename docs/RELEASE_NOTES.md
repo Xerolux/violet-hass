@@ -19,6 +19,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### ✨ New Features | Neue Funktionen
 
+- fix: Add missing translations for ADC and EXT sensors (f7bfaac)
 - feat: v1.0.7-alpha.1 - EN migration, translation_key for 174 entities, 10-language support, dependency updates (f7e2bfa)
 - feat: extend sticky-cache key restoration to ALL optional hardware modules (1b33abf)
 - fix: add sticky cache for dosing module to prevent DOS_* switches showing OFF (ad66241)
@@ -28,6 +29,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🚀 Improvements | Verbesserungen
 
+- 📝 Release v1.0.7-alpha.3 - Update changelog and version files (3f586c3)
 - refactor: Improve code quality and diagnostics (ad2238e)
 - 📝 Release v1.0.7-alpha.3 - Update changelog and version files (04ae67a)
 - 📝 Release v1.0.7-alpha.2 - Update changelog and version files (9cb1c7a)
@@ -51,6 +53,10 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- fix: strings.json imp1_value von "Flow Switch" auf "Dosing Inflow" korrigiert (cbb5fca)
+- fix: deutsche Lokalisierung – fehlende Translation-Keys, Select-Optionen und Zustandstexte (fb72cdd)
+- fix: Correct IMP1 sensor name from 'Flow Switch' to 'Dosing Inflow' (d7519ad)
+- fix: Add missing translations for ADC and EXT sensors (f7bfaac)
 - fix: Enable translation keys for device entity names (33da009)
 - chore: bump API to 0.0.18 (dosing endpoint fix), clean up 23 internal dev reports (38c11d5)
 - fix: align translation_key casing with strings.json entries (579a266)
@@ -122,4 +128,4 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-05-27 22:57:23 UTC_
+_Generated automatically by GitHub Actions on 2026-05-27 23:25:35 UTC_
