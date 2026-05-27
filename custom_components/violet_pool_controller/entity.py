@@ -155,12 +155,9 @@ class VioletPoolControllerEntity(CoordinatorEntity):
 
         # Entity attributes
         self._attr_has_entity_name = True
-        # If translation_key is set, name should be None to let HA handle it.
-        # But if it is not set, we use name from description.
-        if entity_description.translation_key:
-            self._attr_name = None
-        else:
-            self._attr_name = entity_description.name
+        # Always set name from description. Home Assistant will automatically translate
+        # via translation_key if a translation is available in strings.json
+        self._attr_name = entity_description.name
 
         self._attr_unique_id = f"{config_entry.entry_id}_{entity_description.key}"
         self._attr_device_info = cast(DeviceInfo, coordinator.device.device_info)
