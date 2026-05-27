@@ -650,7 +650,7 @@
         "name": "Analog Sensor 5 (0-10V)"
       },
       "imp1_value": {
-        "name": "Durchflussschalter"
+        "name": "Dosieranströmung"
       },
       "imp2_value": {
         "name": "Pumpen-Durchfluss"
