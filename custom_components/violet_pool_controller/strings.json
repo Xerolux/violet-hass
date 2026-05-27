@@ -618,7 +618,7 @@
         "name": "Analog Sensor 5 (0-10V)"
       },
       "imp1_value": {
-        "name": "Flow Switch"
+        "name": "Dosing Inflow"
       },
       "imp2_value": {
         "name": "Pump Flow Rate"
