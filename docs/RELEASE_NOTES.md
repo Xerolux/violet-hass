@@ -28,6 +28,8 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🚀 Improvements | Verbesserungen
 
+- refactor: Improve code quality and diagnostics (ad2238e)
+- 📝 Release v1.0.7-alpha.3 - Update changelog and version files (04ae67a)
 - 📝 Release v1.0.7-alpha.2 - Update changelog and version files (9cb1c7a)
 - 📝 Release v1.0.7-alpha.1 - Update changelog and version files (57a80f1)
 - chore(deps): update violet-poolController-api to 0.0.17 (ef42551)
@@ -49,6 +51,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- fix: Enable translation keys for device entity names (33da009)
 - chore: bump API to 0.0.18 (dosing endpoint fix), clean up 23 internal dev reports (38c11d5)
 - fix: align translation_key casing with strings.json entries (579a266)
 - /fix-release-workflow (3e67e06)
@@ -119,4 +122,4 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-05-27 22:16:45 UTC_
+_Generated automatically by GitHub Actions on 2026-05-27 22:57:23 UTC_
