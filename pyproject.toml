@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "violet-poolController-api"
-version = "0.0.16"
+version = "0.0.17"
 authors = [
   { name="Basti (Xerolux)", email="git@xerolux.de" },
 ]
@@ -12,8 +12,13 @@ description = "Asynchronous Python client for the Violet Pool Controller."
 readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "AGPL-3.0-or-later" }
+keywords = ["pool", "violet", "controller", "home-assistant", "async"]
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Framework :: AsyncIO",
     "Operating System :: OS Independent",
     "Intended Audience :: Developers",
     "Topic :: Home Automation",
@@ -33,6 +38,7 @@ test = [
 "Homepage" = "https://github.com/Xerolux/violet-poolController-api"
 "Bug Tracker" = "https://github.com/Xerolux/violet-poolController-api/issues"
 "License" = "https://www.gnu.org/licenses/agpl-3.0.html"
+"Changelog" = "https://github.com/Xerolux/violet-poolController-api/blob/main/CHANGELOG.md"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
@@ -44,3 +50,8 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP"]
 ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true

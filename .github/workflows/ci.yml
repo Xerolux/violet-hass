@@ -27,13 +27,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.12", "3.14"]
-        tox-env: ["py312", "py314"]
+        python-version: ["3.12", "3.13", "3.14"]
+        tox-env: ["py312", "py313", "py314"]
         exclude:
           - python-version: "3.12"
+            tox-env: "py313"
+          - python-version: "3.12"
+            tox-env: "py314"
+          - python-version: "3.13"
+            tox-env: "py312"
+          - python-version: "3.13"
             tox-env: "py314"
           - python-version: "3.14"
             tox-env: "py312"
+          - python-version: "3.14"
+            tox-env: "py313"
 
     steps:
       - uses: actions/checkout@v4

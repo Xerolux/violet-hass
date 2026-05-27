@@ -181,12 +181,13 @@ class CircuitBreaker:
             "half_open_start_time": self.half_open_start_time,
         }
 
-    def reset(self) -> None:
-        """Manually reset the circuit breaker (call from sync context only)."""
-        self.state = CircuitBreakerState.CLOSED
-        self.failure_count = 0
-        self.last_failure_time = 0.0
-        self.half_open_start_time = 0.0
+    async def reset(self) -> None:
+        """Manually reset the circuit breaker."""
+        async with self._lock:
+            self.state = CircuitBreakerState.CLOSED
+            self.failure_count = 0
+            self.last_failure_time = 0.0
+            self.half_open_start_time = 0.0
         _LOGGER.info("Circuit breaker manually reset to CLOSED state")
 
 

@@ -2,6 +2,67 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.0.17
+
+### Improvements
+- **feat: add `get_hardware_profile()`** for detecting connected hardware modules (base, dosing, ext1, ext2)
+- **feat: filter orphan EXT* keys** from getReadings when module not physically connected
+- **feat: add i18n language selector** with flag icons (EN/DE) to all documentation pages
+- **feat: add German translations** for all documentation in `docs/de/`
+- **feat: add Wiki sidebar** (`_Sidebar.md`) with language selection
+- **docs: fix pyproject.toml `target-version`** (was package version instead of Python version)
+- **chore: extend CI to Python 3.13** (now tests 3.12, 3.13, 3.14)
+- **chore: add mypy config** for type checking
+- **chore: add `__init__.py` public API exports** (`from violet_poolcontroller_api import VioletPoolAPI`)
+- **chore: sync `setup.py` version and deps** with `pyproject.toml`
+- **chore: make `circuit_breaker.reset()` async** for thread safety
+- **chore: expand `.gitignore`** (pytest, ruff, mypy caches)
+- **chore: add pyproject classifiers** for Python 3.12/3.13/3.14, AsyncIO framework, keywords
+- **test: add 29 new tests** covering all previously untested public methods (49 total)
+
+### Installation
+```bash
+pip install violet-poolController-api==0.0.17
+```
+
+---
+
+## v0.0.16
+
+### Improvements
+- Update deps, fix read/write reliability
+
+### Installation
+```bash
+pip install violet-poolController-api==0.0.16
+```
+
+---
+
+## v0.0.15
+
+### Improvements
+- Version bump to 0.0.15
+
+### Installation
+```bash
+pip install violet-poolController-api==0.0.15
+```
+
+---
+
+## v0.0.14
+
+### Bugfixes
+- Fix EXT module alive detection when alive_count is zero, bump version
+
+### Installation
+```bash
+pip install violet-poolController-api==0.0.14
+```
+
+---
+
 ## v0.0.13
 
 ### Bugfixes
