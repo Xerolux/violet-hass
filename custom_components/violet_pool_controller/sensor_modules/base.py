@@ -209,7 +209,7 @@ def determine_device_class(
     key: str, unit: str | None, raw_value: Any
 ) -> SensorDeviceClass | None:
     """Determines the appropriate device class for a sensor."""
-    if key in _BOOLEAN_VALUE_KEYS or _is_boolean_value(raw_value):
+    if key in _BOOLEAN_VALUE_KEYS or (_is_boolean_value(raw_value) and key not in UNIT_MAP):
         return None
     if key == "pH_value":
         return SensorDeviceClass.PH
@@ -259,7 +259,7 @@ def determine_state_class(key: str) -> SensorStateClass | None:
 
 def get_icon(key: str, unit: str | None, raw_value: Any) -> str:
     """Determin a sensor."""
-    if key in _BOOLEAN_VALUE_KEYS or _is_boolean_value(raw_value):
+    if key in _BOOLEAN_VALUE_KEYS or (_is_boolean_value(raw_value) and key not in UNIT_MAP):
         return "mdi:toggle-switch"
     if key == "pH_value":
         return "mdi:flask"
@@ -299,14 +299,14 @@ def _build_sensor_description(
     icon = predefined_info.get("icon") if predefined_info else None
 
     unit = UNIT_MAP.get(key) if key not in NO_UNIT_SENSORS else None
-    if _is_boolean_value(raw_value):
-        unit = None  # Booleans should not have a unit
+    if _is_boolean_value(raw_value) and key not in UNIT_MAP:
+        unit = None
 
     # Force no unit for count/fault sensors (they are counters, not measurements)
     if "freezecount" in key.lower() or "faultcount" in key.lower():
         unit = None
 
-    if unit is None and key not in NO_UNIT_SENSORS and not _is_boolean_value(raw_value):
+    if unit is None and key not in NO_UNIT_SENSORS:
         for suffix in [
             "_min",
             "_max",
