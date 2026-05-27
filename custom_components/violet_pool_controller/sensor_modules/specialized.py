@@ -85,21 +85,21 @@ class VioletErrorCodeSensor(VioletSensor):
 class VioletDosingStateSensor(VioletPoolControllerEntity, SensorEntity):
     """Sensor for dosing system state arrays (DOS_*_STATE) and composite states."""
 
-    # English translations for common state detail codes
-    _DETAIL_EN: dict[str, str] = {
-        "PUMP_ANTI_FREEZE": "Frost protection",
-        "BLOCKED_BY_OUTSIDE_TEMP": "Blocked (outside temp)",
-        "BLOCKED_BY_TRESHOLDS": "Blocked (thresholds)",
-        "TRESHOLDS_REACHED": "Thresholds reached",
-        "BLOCKED_BY_PUMP": "Blocked (pump off)",
-        "BLOCKED_BY_FLOW": "Blocked (flow)",
-        "BLOCKED_BY_SOLAR": "Blocked (solar)",
-        "BLOCKED_BY_HEATER": "Blocked (heater)",
-        "WAITING_FOR_PUMP": "Waiting for pump",
-        "WAITING_FOR_FLOW": "Waiting for flow",
-        "DOSING": "Dosing",
-        "DOSING_PAUSED": "Dosing paused",
-        "MANUAL_DOSING": "Manual dosing",
+    # Zustandsbeschreibungen für Dosier- und Verbundstatus-Codes (Deutsch)
+    _DETAIL_DE: dict[str, str] = {
+        "PUMP_ANTI_FREEZE": "Frostschutz",
+        "BLOCKED_BY_OUTSIDE_TEMP": "Blockiert (Außentemperatur)",
+        "BLOCKED_BY_TRESHOLDS": "Blockiert (Schwellenwerte)",
+        "TRESHOLDS_REACHED": "Schwellenwerte erreicht",
+        "BLOCKED_BY_PUMP": "Blockiert (Pumpe aus)",
+        "BLOCKED_BY_FLOW": "Blockiert (Durchfluss)",
+        "BLOCKED_BY_SOLAR": "Blockiert (Solar)",
+        "BLOCKED_BY_HEATER": "Blockiert (Heizung)",
+        "WAITING_FOR_PUMP": "Warte auf Pumpe",
+        "WAITING_FOR_FLOW": "Warte auf Durchfluss",
+        "DOSING": "Dosierung",
+        "DOSING_PAUSED": "Dosierung pausiert",
+        "MANUAL_DOSING": "Manuelle Dosierung",
     }
 
     def __init__(
@@ -124,7 +124,7 @@ class VioletDosingStateSensor(VioletPoolControllerEntity, SensorEntity):
 
     def _translate_detail(self, code: str) -> str:
         """Translate a detail code to English, fallback to title-cased string."""
-        return self._DETAIL_EN.get(code, code.replace("_", " ").title())
+        return self._DETAIL_DE.get(code, code.replace("_", " ").title())
 
     @property
     def native_value(self) -> str | None:

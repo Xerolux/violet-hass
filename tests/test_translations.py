@@ -476,13 +476,13 @@ class TestBilingualSupport:
             return json.load(f)
 
     def test_strings_json_contains_bilingual_text(self, strings_data):
-        """Test that strings.json contains both German and English text."""
+        """Test that strings.json references both DE and EN documentation links."""
         user_step = strings_data["config"]["step"].get("user", {})
         description = user_step.get("description", "")
 
-        # Should contain both German ("DE:") and English ("EN:") markers
-        assert "DE:" in description or "Deutsch" in description
-        assert "EN:" in description or "English" in description
+        # Should reference both German (DE) and English (EN) documentation
+        assert "docs_de" in description or "(DE)" in description or "DE" in description
+        assert "docs_en" in description or "(EN)" in description or "EN" in description
 
     def test_disclaimer_bilingual(self, strings_data):
         """Test that disclaimer is bilingual."""

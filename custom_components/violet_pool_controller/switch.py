@@ -158,8 +158,8 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         """
         if self.coordinator.data is None:
             return {
-                "status_description": "Unavailable",
-                "mode": "unknown",
+                "status_description": "Nicht verfügbar",
+                "mode": "Unbekannt",
             }
 
         key = self.entity_description.key
@@ -202,32 +202,32 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
     # State description helpers
     # -----------------------------------------------------------------
 
-    # Numeric state descriptions (English)
+    # Numerische Zustandsbeschreibungen (Deutsch)
     _STATE_DESC_DE: dict[int, str] = {
         0: "Auto – Standby",
-        1: "Manual On",
-        2: "Auto – Active",
-        3: "Auto – Active (Timer)",
-        4: "Manual On (Forced)",
-        5: "Auto – Waiting",
-        6: "Manual Off",
+        1: "Manuell Ein",
+        2: "Auto – Aktiv",
+        3: "Auto – Aktiv (Timer)",
+        4: "Manuell Ein (Erzwungen)",
+        5: "Auto – Wartend",
+        6: "Manuell Aus",
     }
 
-    # Common *STATE detail suffixes (English)
+    # Detailbeschreibungen für *STATE-Felder (Deutsch)
     _DETAIL_DE: dict[str, str] = {
-        "PUMP_ANTI_FREEZE": "Frost Protection",
-        "BLOCKED_BY_OUTSIDE_TEMP": "Blocked (Outside Temperature)",
-        "BLOCKED_BY_TRESHOLDS": "Blocked (Thresholds)",
-        "TRESHOLDS_REACHED": "Thresholds Reached",
-        "BLOCKED_BY_PUMP": "Blocked (Pump Off)",
-        "BLOCKED_BY_FLOW": "Blocked (Flow Rate)",
-        "BLOCKED_BY_SOLAR": "Blocked (Solar)",
-        "BLOCKED_BY_HEATER": "Blocked (Heater)",
-        "WAITING_FOR_PUMP": "Waiting for Pump",
-        "WAITING_FOR_FLOW": "Waiting for Flow Rate",
-        "DOSING": "Dosing",
-        "DOSING_PAUSED": "Dosing Paused",
-        "MANUAL_DOSING": "Manual Dosing",
+        "PUMP_ANTI_FREEZE": "Frostschutz",
+        "BLOCKED_BY_OUTSIDE_TEMP": "Blockiert (Außentemperatur)",
+        "BLOCKED_BY_TRESHOLDS": "Blockiert (Schwellenwerte)",
+        "TRESHOLDS_REACHED": "Schwellenwerte erreicht",
+        "BLOCKED_BY_PUMP": "Blockiert (Pumpe aus)",
+        "BLOCKED_BY_FLOW": "Blockiert (Durchfluss)",
+        "BLOCKED_BY_SOLAR": "Blockiert (Solar)",
+        "BLOCKED_BY_HEATER": "Blockiert (Heizung)",
+        "WAITING_FOR_PUMP": "Warte auf Pumpe",
+        "WAITING_FOR_FLOW": "Warte auf Durchfluss",
+        "DOSING": "Dosierung",
+        "DOSING_PAUSED": "Dosierung pausiert",
+        "MANUAL_DOSING": "Manuelle Dosierung",
     }
 
     def _get_mode_and_description(
@@ -283,18 +283,18 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         desc = "Unknown"
 
         if state_num is not None:
-            # Mode from numeric state
+            # Modus aus numerischem Zustand
             mode_map = {
                 0: "Auto",
-                1: "Manual",
+                1: "Manuell",
                 2: "Auto",
                 3: "Auto",
-                4: "Manual",
+                4: "Manuell",
                 5: "Auto",
-                6: "Manual",
+                6: "Manuell",
             }
-            mode = mode_map.get(state_num, "Unknown")
-            desc = self._STATE_DESC_DE.get(state_num, f"State {state_num}")
+            mode = mode_map.get(state_num, "Unbekannt")
+            desc = self._STATE_DESC_DE.get(state_num, f"Zustand {state_num}")
 
         # Append extra detail from *STATE field
         if extra_detail:

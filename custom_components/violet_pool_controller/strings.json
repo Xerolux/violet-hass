@@ -618,7 +618,7 @@
         "name": "Analog Sensor 5 (0-10V)"
       },
       "imp1_value": {
-        "name": "Flow Switch"
+        "name": "Dosing Inflow"
       },
       "imp2_value": {
         "name": "Pump Flow Rate"
@@ -954,85 +954,220 @@
     },
     "select": {
       "pump_mode": {
-        "name": "Pump Mode"
+        "name": "Pump Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "heater_mode": {
-        "name": "Heater Mode"
+        "name": "Heater Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "solar_mode": {
-        "name": "Solar Mode"
+        "name": "Solar Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "light_mode": {
-        "name": "Light Mode"
+        "name": "Light Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "dos_cl_mode": {
-        "name": "Chlorine Dosing Mode"
+        "name": "Chlorine Dosing Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "dos_phm_mode": {
-        "name": "pH- Dosing Mode"
+        "name": "pH- Dosing Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "dos_php_mode": {
-        "name": "pH+ Dosing Mode"
+        "name": "pH+ Dosing Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "pvsurplus_mode": {
-        "name": "PV Surplus Mode"
+        "name": "PV Surplus Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "backwash_mode": {
-        "name": "Backwash Mode"
+        "name": "Backwash Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "backwashrinse_mode": {
-        "name": "Rinse Mode"
+        "name": "Rinse Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "dos_floc_mode": {
-        "name": "Flocculant Mode"
+        "name": "Flocculant Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "ext1_1_mode": {
-        "name": "Extension 1.1 Mode"
+        "name": "Extension 1.1 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "ext1_2_mode": {
-        "name": "Extension 1.2 Mode"
+        "name": "Extension 1.2 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "ext1_3_mode": {
-        "name": "Extension 1.3 Mode"
+        "name": "Extension 1.3 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "ext1_4_mode": {
-        "name": "Extension 1.4 Mode"
+        "name": "Extension 1.4 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "ext1_5_mode": {
-        "name": "Extension 1.5 Mode"
+        "name": "Extension 1.5 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "ext1_6_mode": {
-        "name": "Extension 1.6 Mode"
+        "name": "Extension 1.6 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "ext1_7_mode": {
-        "name": "Extension 1.7 Mode"
+        "name": "Extension 1.7 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "ext1_8_mode": {
-        "name": "Extension 1.8 Mode"
+        "name": "Extension 1.8 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "ext2_1_mode": {
-        "name": "Extension 2.1 Mode"
+        "name": "Extension 2.1 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "ext2_2_mode": {
-        "name": "Extension 2.2 Mode"
+        "name": "Extension 2.2 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "ext2_3_mode": {
-        "name": "Extension 2.3 Mode"
+        "name": "Extension 2.3 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "ext2_4_mode": {
-        "name": "Extension 2.4 Mode"
+        "name": "Extension 2.4 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "ext2_5_mode": {
-        "name": "Extension 2.5 Mode"
+        "name": "Extension 2.5 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "ext2_6_mode": {
-        "name": "Extension 2.6 Mode"
+        "name": "Extension 2.6 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "ext2_7_mode": {
-        "name": "Extension 2.7 Mode"
+        "name": "Extension 2.7 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       },
       "ext2_8_mode": {
-        "name": "Extension 2.8 Mode"
+        "name": "Extension 2.8 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
       }
     }
   }
