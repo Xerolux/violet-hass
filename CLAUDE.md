@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a Home Assistant custom integration for the **Violet Pool Controller** by PoolDigital GmbH & Co. KG. It enables local polling-based control and monitoring of pool systems including pumps, heaters, solar, chemical dosing, lighting, and covers.
 
-**Current Version**: `1.0.6-alpha.3` (defined in `manifest.json` and `const.py`)
+**Current Version**: `1.0.7-alpha.1` (defined in `manifest.json` and `const.py`)
 
 ## Development Commands
 
@@ -339,7 +339,7 @@ GitHub workflow `.github/workflows/validate.yml` runs:
 - Ruff linting
 - Mypy type checking
 - Full test suite with pytest
-- Tests against Home Assistant 2026.5.0
+- Tests against Home Assistant 2026.5.x
 - Python 3.14 environment
 
 ## Translation Files
@@ -552,8 +552,8 @@ Located in `.github/workflows/`:
 
 **Runtime** (from `requirements.txt`):
 - `homeassistant>=2026.5.0` - Minimum Home Assistant version
-- `aiohttp>=3.11.0` - Async HTTP client
-- `voluptuous>=0.15.0` - Data validation
+- `aiohttp>=3.13.5` - Async HTTP client
+- `voluptuous>=0.16.0` - Data validation
 
 **Integration requirement** (from `manifest.json`):
 - `violet-poolController-api==0.0.16` - External API client package (installed by HA automatically)
@@ -561,9 +561,9 @@ Located in `.github/workflows/`:
 **Development** (from `requirements-dev.txt`):
 - `ruff>=0.15.14` - Linter and formatter
 - `mypy>=2.1.0` - Static type checker
-- `pytest>=9.0.0` - Test framework
-- `pytest-cov>=6.0.0` - Coverage plugin
-- `pytest-asyncio>=1.0.0` - Async test support
+- `pytest>=9.0.3` - Test framework
+- `pytest-cov>=7.1.0` - Coverage plugin
+- `pytest-asyncio>=1.4.0` - Async test support
 - `pytest-homeassistant-custom-component>=0.13.326` - HA test helpers
 
 ## Important Notes

@@ -1,7 +1,7 @@
 # =============================================================================
 # Violet Pool Controller – Home Assistant Custom Integration
 # Copyright © 2026 Xerolux
-# Entwickelt und erstellt von Xerolux
+# Developed and created by Xerolux
 # https://github.com/Xerolux/violet-hass
 # =============================================================================
 
@@ -85,21 +85,21 @@ class VioletErrorCodeSensor(VioletSensor):
 class VioletDosingStateSensor(VioletPoolControllerEntity, SensorEntity):
     """Sensor for dosing system state arrays (DOS_*_STATE) and composite states."""
 
-    # German translations for common state detail codes
-    _DETAIL_DE: dict[str, str] = {
-        "PUMP_ANTI_FREEZE": "Frostschutz",
-        "BLOCKED_BY_OUTSIDE_TEMP": "Blockiert (Außentemp.)",
-        "BLOCKED_BY_TRESHOLDS": "Blockiert (Grenzwerte)",
-        "TRESHOLDS_REACHED": "Grenzwerte erreicht",
-        "BLOCKED_BY_PUMP": "Blockiert (Pumpe aus)",
-        "BLOCKED_BY_FLOW": "Blockiert (Durchfluss)",
-        "BLOCKED_BY_SOLAR": "Blockiert (Solar)",
-        "BLOCKED_BY_HEATER": "Blockiert (Heizung)",
-        "WAITING_FOR_PUMP": "Wartet auf Pumpe",
-        "WAITING_FOR_FLOW": "Wartet auf Durchfluss",
-        "DOSING": "Dosiert",
-        "DOSING_PAUSED": "Dosierung pausiert",
-        "MANUAL_DOSING": "Manuelle Dosierung",
+    # English translations for common state detail codes
+    _DETAIL_EN: dict[str, str] = {
+        "PUMP_ANTI_FREEZE": "Frost protection",
+        "BLOCKED_BY_OUTSIDE_TEMP": "Blocked (outside temp)",
+        "BLOCKED_BY_TRESHOLDS": "Blocked (thresholds)",
+        "TRESHOLDS_REACHED": "Thresholds reached",
+        "BLOCKED_BY_PUMP": "Blocked (pump off)",
+        "BLOCKED_BY_FLOW": "Blocked (flow)",
+        "BLOCKED_BY_SOLAR": "Blocked (solar)",
+        "BLOCKED_BY_HEATER": "Blocked (heater)",
+        "WAITING_FOR_PUMP": "Waiting for pump",
+        "WAITING_FOR_FLOW": "Waiting for flow",
+        "DOSING": "Dosing",
+        "DOSING_PAUSED": "Dosing paused",
+        "MANUAL_DOSING": "Manual dosing",
     }
 
     def __init__(
@@ -109,6 +109,8 @@ class VioletDosingStateSensor(VioletPoolControllerEntity, SensorEntity):
         key: str,
         name: str,
         icon: str,
+        *,
+        translation_key: str | None = None,
     ) -> None:
         """Initialize the dosing state sensor."""
         description = SensorEntityDescription(
@@ -116,16 +118,17 @@ class VioletDosingStateSensor(VioletPoolControllerEntity, SensorEntity):
             name=name,
             icon=icon,
             entity_category=EntityCategory.DIAGNOSTIC,
+            translation_key=translation_key,
         )
         super().__init__(coordinator, config_entry, description)
 
     def _translate_detail(self, code: str) -> str:
-        """Translate a detail code to German, fallback to title-cased string."""
-        return self._DETAIL_DE.get(code, code.replace("_", " ").title())
+        """Translate a detail code to English, fallback to title-cased string."""
+        return self._DETAIL_EN.get(code, code.replace("_", " ").title())
 
     @property
     def native_value(self) -> str | None:
-        """Return the dosing state as comma-separated German string."""
+        """Return the dosing state as comma-separated English string."""
         raw_value = self.get_value(self.entity_description.key)
 
         # Handle array values (DOS_*_STATE sensors)

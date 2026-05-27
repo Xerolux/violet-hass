@@ -1,189 +1,189 @@
-# 📊 Violet Pool Controller - Dashboard-Vorlagen
+# 📊 Violet Pool Controller - Dashboard Templates
 
-Dieses Verzeichnis enthält vorgefertigte Dashboard-Konfigurationen für eine intuitive und übersichtliche Steuerung Ihres Violet Pool Controllers in Home Assistant.
+This directory contains ready-made dashboard configurations for intuitive and clear control of your Violet Pool Controller in Home Assistant.
 
 **Version:** 1.0.5 (2026-04-22)
 
-## 📁 Verfügbare Dashboards
+## 📁 Available Dashboards
 
-### 1. `pool_control_card.yaml` - Vollständige Steuerung
-**Empfohlen für:** Desktop, Tablets, Haupt-Dashboard
-
-**Features:**
-- ✅ Vollständige ON/OFF/AUTO Steuerung für Pumpe, Heizung, Solar
-- ✅ Geschwindigkeitssteuerung für die Pumpe
-- ✅ Temperatur-Sollwerte und -Anzeige
-- ✅ pH- und Chlor-Kontrolle mit Dosierungssteuerung
-- ✅ Temperatur-Gauges für Becken, Solar, Außentemperatur
-- ✅ 24h-History-Graph für Wasserchemie
-- ✅ Erweiterte Steuerung (Licht, PV-Überschuss, Abdeckung)
-- ✅ System-Status und Verbindungsüberwachung
-
-### 2. `pool_control_compact.yaml` - Kompakte Ansicht
-**Empfohlen für:** Mobile Geräte, Schnellzugriff, Übersichtsseiten
+### 1. `pool_control_card.yaml` - Full Control
+**Recommended for:** Desktop, tablets, main dashboard
 
 **Features:**
-- ✅ Essenzielle Steuerungselemente
-- ✅ Wasserqualität auf einen Blick
-- ✅ Verbindungsstatus
-- ✅ Optimiert für kleine Bildschirme
+- ✅ Full ON/OFF/AUTO control for pump, heater, solar
+- ✅ Pump speed control
+- ✅ Temperature setpoints and display
+- ✅ pH and chlorine control with dosing control
+- ✅ Temperature gauges for pool, solar, ambient
+- ✅ 24h history graph for water chemistry
+- ✅ Advanced control (lighting, PV surplus, cover)
+- ✅ System status and connection monitoring
 
-### 3. `pool_control_ultimate.yaml` - Ultimate Control (Erweitert)
-**Empfohlen für:** Power-User, vollständige Kontrolle
+### 2. `pool_control_compact.yaml` - Compact View
+**Recommended for:** Mobile devices, quick access, overview pages
 
-**⚠️ Benötigt Custom Cards via HACS:**
+**Features:**
+- ✅ Essential control elements
+- ✅ Water quality at a glance
+- ✅ Connection status
+- ✅ Optimized for small screens
+
+### 3. `pool_control_ultimate.yaml` - Ultimate Control (Advanced)
+**Recommended for:** Power users, full control
+
+**⚠️ Requires Custom Cards via HACS:**
 - [Mushroom Cards](https://github.com/piitaya/lovelace-mushroom)
 - [Slider Entity Row](https://github.com/thomasloven/lovelace-slider-entity-row)
 - [Card Mod](https://github.com/thomasloven/lovelace-card-mod)
 
 **Features:**
-- ✅ Detaillierte Status-Anzeigen für alle Geräte
-- ✅ Erweiterte Dosierungs-Steuerung mit Kanister-Volumen
-- ✅ Runtime- und Reichweiten-Anzeigen
-- ✅ Visuelle Status-Indikatoren (Farben, Icons)
-- ✅ Frostschutz-Erkennung
+- ✅ Detailed status displays for all devices
+- ✅ Advanced dosing control with canister volume
+- ✅ Runtime and range displays
+- ✅ Visual status indicators (colors, icons)
+- ✅ Frost protection detection
 
-### 4. `VIOLET_CARD_EXAMPLES.yaml` - Custom Card Beispiele
-**Hinweis:** Beispiele für eine hypothetische "violet-pool-card" Custom Card
+### 4. `VIOLET_CARD_EXAMPLES.yaml` - Custom Card Examples
+**Note:** Examples for a hypothetical "violet-pool-card" Custom Card
 
 **Features:**
-- ✅ Verschiedene Card-Typen (pump, heater, solar, dosing)
-- ✅ Compact, Overview und Panel Modes
-- ✅ Layout-Beispiele (horizontal, grid, vertical)
+- ✅ Various card types (pump, heater, solar, dosing)
+- ✅ Compact, overview, and panel modes
+- ✅ Layout examples (horizontal, grid, vertical)
 
 ## 🚀 Installation
 
-### Methode 1: Manuelles Kopieren (Empfohlen)
+### Method 1: Manual Copy (Recommended)
 
-1. **Dashboard öffnen**
-   - Öffnen Sie Ihr Home Assistant Dashboard
-   - Klicken Sie auf die drei Punkte (⋮) oben rechts
-   - Wählen Sie "Bearbeiten"
+1. **Open Dashboard**
+   - Open your Home Assistant Dashboard
+   - Click the three dots (⋮) in the top right
+   - Select "Edit"
 
-2. **Neue Karte hinzufügen**
-   - Klicken Sie auf "+ Karte hinzufügen"
-   - Scrollen Sie nach unten und wählen Sie "Manuell" oder klicken Sie auf "Code-Editor anzeigen"
+2. **Add New Card**
+   - Click "+ Add Card"
+   - Scroll down and select "Manual" or click "Show Code Editor"
 
-3. **Konfiguration einfügen**
-   - Öffnen Sie die gewünschte YAML-Datei (`pool_control_card.yaml` oder `pool_control_compact.yaml`)
-   - Kopieren Sie den gesamten Inhalt
-   - Fügen Sie ihn in den Code-Editor ein
+3. **Paste Configuration**
+   - Open the desired YAML file (`pool_control_card.yaml` or `pool_control_compact.yaml`)
+   - Copy the entire contents
+   - Paste it into the code editor
 
-4. **Entity-IDs anpassen**
-   - Alle Dashboards verwenden standardmäßig `violet_pool_controller` als Entity-Prefix
-   - Ersetzen Sie dies durch Ihren tatsächlichen Device-Namen
-   - Dies ist besonders wichtig, wenn Sie:
-     - Mehrere Pool-Controller haben
-     - Einen anderen Namen während der Installation vergeben haben
-     - Beispiel: `mein_pool` statt `violet_pool_controller`
-   - **Entity-Namensschema:**
-     - Switches: `switch.{device_name}_{key}` (z.B. `switch.violet_pool_controller_pump`)
-     - Sensoren: `sensor.{device_name}_{key}` (z.B. `sensor.violet_pool_controller_ph_value`)
-     - Number: `number.{device_name}_{key}` (z.B. `number.violet_pool_controller_pump_speed`)
-     - Climate: `climate.{device_name}_{key}` (z.B. `climate.violet_pool_controller_heater`)
+4. **Adjust Entity IDs**
+   - All dashboards use `violet_pool_controller` as the entity prefix by default
+   - Replace this with your actual device name
+   - This is especially important if you:
+     - Have multiple pool controllers
+     - Assigned a different name during installation
+     - Example: `my_pool` instead of `violet_pool_controller`
+   - **Entity Naming Scheme:**
+     - Switches: `switch.{device_name}_{key}` (e.g. `switch.violet_pool_controller_pump`)
+     - Sensors: `sensor.{device_name}_{key}` (e.g. `sensor.violet_pool_controller_ph_value`)
+     - Number: `number.{device_name}_{key}` (e.g. `number.violet_pool_controller_pump_speed`)
+     - Climate: `climate.{device_name}_{key}` (e.g. `climate.violet_pool_controller_heater`)
 
-5. **Speichern**
-   - Klicken Sie auf "Speichern"
-   - Beenden Sie den Bearbeitungsmodus
+5. **Save**
+   - Click "Save"
+   - Exit edit mode
 
-### Methode 2: YAML-Dashboard (Für Fortgeschrittene)
+### Method 2: YAML Dashboard (For Advanced Users)
 
-Wenn Sie ein YAML-basiertes Dashboard verwenden:
+If you are using a YAML-based dashboard:
 
-1. Öffnen Sie Ihre `ui-lovelace.yaml` oder die entsprechende Dashboard-Datei
-2. Fügen Sie die Karten-Konfiguration unter `views` → `cards` hinzu
-3. Passen Sie die Entity-IDs an
-4. Speichern und neu laden
+1. Open your `ui-lovelace.yaml` or the corresponding dashboard file
+2. Add the card configuration under `views` → `cards`
+3. Adjust the entity IDs
+4. Save and reload
 
-## 🎨 Anpassung
+## 🎨 Customization
 
-### Entity-IDs herausfinden
+### Finding Entity IDs
 
-Wenn Sie nicht sicher sind, welche Entity-IDs Sie verwenden sollen:
+If you are unsure which entity IDs to use:
 
-1. Gehen Sie zu **Entwicklerwerkzeuge** → **Zustände**
-2. Suchen Sie nach `violet` oder `pool`
-3. Notieren Sie die vollständigen Entity-IDs (z.B. `select.violet_pool_controller_pump_mode`)
-4. Verwenden Sie diese IDs in der Dashboard-Konfiguration
+1. Go to **Developer Tools** → **States**
+2. Search for `violet` or `pool`
+3. Note the full entity IDs (e.g. `select.violet_pool_controller_pump_mode`)
+4. Use these IDs in the dashboard configuration
 
-### Icons anpassen
+### Customizing Icons
 
-Sie können die Icons beliebig ändern. Suchen Sie nach verfügbaren Icons auf:
+You can change the icons as you wish. Search for available icons at:
 - [Material Design Icons](https://pictogrammers.com/library/mdi/)
 
-Beispiel:
+Example:
 ```yaml
 - entity: select.violet_pool_controller_pump_mode
-  name: Pumpe
-  icon: mdi:pump  # ← Hier können Sie das Icon ändern
+  name: Pump
+  icon: mdi:pump  # ← You can change the icon here
 ```
 
-### Farben und Schwellwerte (Gauges)
+### Colors and Thresholds (Gauges)
 
-Die Gauge-Karten verwenden Farbschwellwerte. Passen Sie diese an Ihre Präferenzen an:
+The gauge cards use color thresholds. Adjust these to your preferences:
 
 ```yaml
 severity:
-  green: 24  # Ab 24°C grün
-  yellow: 20  # 20-24°C gelb
-  red: 10     # Unter 20°C rot
+  green: 24  # Green above 24°C
+  yellow: 20  # Yellow from 20-24°C
+  red: 10     # Red below 20°C
 ```
 
-## 🔧 Fehlerbehebung
+## 🔧 Troubleshooting
 
-### "Entity nicht gefunden" Fehler
+### "Entity Not Found" Error
 
-**Problem:** Eine oder mehrere Entities werden nicht gefunden.
+**Problem:** One or more entities cannot be found.
 
-**Lösung:**
-1. Überprüfen Sie, ob das entsprechende Feature aktiviert ist:
-   - Gehen Sie zu **Einstellungen** → **Geräte & Dienste**
-   - Klicken Sie auf "Violet Pool Controller"
-   - Wählen Sie "Konfigurieren"
-   - Aktivieren Sie die benötigten Features
-2. Prüfen Sie die Entity-IDs wie oben beschrieben
-3. Entfernen Sie Entities, die Sie nicht benötigen, aus der Konfiguration
+**Solution:**
+1. Check if the corresponding feature is enabled:
+   - Go to **Settings** → **Devices & Services**
+   - Click "Violet Pool Controller"
+   - Select "Configure"
+   - Enable the required features
+2. Check the entity IDs as described above
+3. Remove entities you don't need from the configuration
 
-### Karten werden nicht korrekt angezeigt
+### Cards Not Displayed Correctly
 
-**Problem:** Karten sind zu groß/klein oder unübersichtlich.
+**Problem:** Cards are too large/small or cluttered.
 
-**Lösung:**
-1. Verwenden Sie `pool_control_compact.yaml` für mobile Geräte
-2. Verwenden Sie `pool_control_card.yaml` für Desktop/Tablet
-3. Passen Sie die `hours_to_show` im History-Graph an (Standard: 24h)
+**Solution:**
+1. Use `pool_control_compact.yaml` for mobile devices
+2. Use `pool_control_card.yaml` for desktop/tablet
+3. Adjust `hours_to_show` in the history graph (default: 24h)
 
-### Entities fehlen
+### Missing Entities
 
-**Problem:** Nicht alle Sensoren/Steuerungen werden angezeigt.
+**Problem:** Not all sensors/controls are displayed.
 
-**Lösung:**
-1. Stellen Sie sicher, dass die Features in der Integration aktiviert sind
-2. Warten Sie auf den nächsten Update-Zyklus (Standard: alle 10 Sekunden)
-3. Prüfen Sie die Logs: **Einstellungen** → **System** → **Protokolle**
+**Solution:**
+1. Make sure the features are enabled in the integration
+2. Wait for the next update cycle (default: every 10 seconds)
+3. Check the logs: **Settings** → **System** → **Logs**
 
-## 📱 Mobile Optimierung
+## 📱 Mobile Optimization
 
-Für die beste mobile Erfahrung:
+For the best mobile experience:
 
-1. Verwenden Sie `pool_control_compact.yaml`
-2. Erstellen Sie ein separates Dashboard speziell für mobile Geräte:
-   - Gehen Sie zu **Einstellungen** → **Dashboards**
-   - Klicken Sie auf "+ Dashboard hinzufügen"
-   - Wählen Sie "Mobil" als Namen
-   - Fügen Sie nur die kompakte Karte hinzu
-3. Aktivieren Sie "Für mobile App optimieren" in den Dashboard-Einstellungen
+1. Use `pool_control_compact.yaml`
+2. Create a separate dashboard specifically for mobile devices:
+   - Go to **Settings** → **Dashboards**
+   - Click "+ Add Dashboard"
+   - Select "Mobile" as the name
+   - Add only the compact card
+3. Enable "Optimize for mobile app" in the dashboard settings
 
-## 🎯 Erweiterte Funktionen
+## 🎯 Advanced Features
 
-### Automationen verknüpfen
+### Linking Automations
 
-Sie können die Dashboard-Elemente mit Automationen kombinieren:
+You can combine dashboard elements with automations:
 
 ```yaml
-# Beispiel: Benachrichtigung bei niedrigem pH-Wert
+# Example: Notification for low pH value
 automation:
-  - alias: "Pool: pH-Wert zu niedrig"
+  - alias: "Pool: pH value too low"
     trigger:
       - platform: numeric_state
         entity_id: sensor.violet_pool_controller_ph_value
@@ -191,12 +191,12 @@ automation:
     action:
       - service: notify.mobile_app
         data:
-          message: "Pool pH-Wert zu niedrig: {{ states('sensor.violet_pool_controller_ph_value') }}"
+          message: "Pool pH value too low: {{ states('sensor.violet_pool_controller_ph_value') }}"
 ```
 
-### Bedingte Karten
+### Conditional Cards
 
-Zeigen Sie Karten nur an, wenn bestimmte Bedingungen erfüllt sind:
+Show cards only when certain conditions are met:
 
 ```yaml
 type: conditional
@@ -207,23 +207,23 @@ card:
   type: entities
   entities:
     - entity: sensor.violet_pool_controller_pump_runtime
-      name: Laufzeit seit Start
+      name: Runtime since start
 ```
 
-## 💡 Tipps
+## 💡 Tips
 
-1. **Gruppierung:** Die Entities sind automatisch nach Funktionen gruppiert (Steuerung, Wasserqualität, System)
-2. **Entity-Categories:** Konfigurationselemente (Modi, Sollwerte) sind als "CONFIG" kategorisiert
-3. **State-Colors:** `state_color: true` färbt Entities basierend auf ihrem Zustand
-4. **Updates:** Die Dashboard-Vorlagen werden mit Updates der Integration aktualisiert
+1. **Grouping:** Entities are automatically grouped by function (control, water quality, system)
+2. **Entity Categories:** Configuration elements (modes, setpoints) are categorized as "CONFIG"
+3. **State Colors:** `state_color: true` colors entities based on their state
+4. **Updates:** Dashboard templates are updated with integration updates
 
 ## 🆘 Support
 
-Bei Problemen:
-1. Überprüfen Sie die [Integration-Dokumentation](../README.md)
-2. Erstellen Sie ein [GitHub Issue](https://github.com/Xerolux/violet-hass/issues)
-3. Teilen Sie Ihre Dashboard-Konfiguration und Fehlerprotokolle
+If you encounter issues:
+1. Check the [integration documentation](../README.md)
+2. Create a [GitHub Issue](https://github.com/Xerolux/violet-hass/issues)
+3. Share your dashboard configuration and error logs
 
-## 📝 Lizenz
+## 📝 License
 
-Diese Dashboard-Vorlagen sind Teil der Violet Pool Controller Integration und stehen unter der gleichen Lizenz.
+These dashboard templates are part of the Violet Pool Controller integration and are licensed under the same license.

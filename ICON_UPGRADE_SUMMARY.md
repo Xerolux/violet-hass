@@ -1,50 +1,50 @@
-# ✅ Icon-Upgrade ABGESCHLOSSEN - Violet Pool Controller
+# ✅ Icon Upgrade COMPLETE - Violet Pool Controller
 
-## Option 2: Komplettes Solid Upgrade
+## Option 2: Complete Solid Upgrade
 
-**Alle Icons wurden erfolgreich zu optimierten Varianten aktualisiert!**
-
----
-
-## 📊 Zusammenfassung
-
-| Metrik | Wert |
-|--------|------|
-| **Gesamt aktualisierte Icons** | **68+** |
-| **Geänderte Dateien** | 2 |
-| **Kategorien** | 10 |
-| **Dauer** | < 5 Minuten |
+**All icons have been successfully updated to optimized variants!**
 
 ---
 
-## 🎯 Die Top 10 WICHTIGSTEN Verbesserungen
+## 📊 Summary
 
-| Platz | Icon-Wechsel | Grund |
-|-------|--------------|-------|
-| 🥇 | `mdi:flask` → **`mdi:ph`** | Echtes pH-Icon! |
-| 🥈 | `mdi:pool` → **`mdi:pool-thermometer`** | Pool + Temperatur perfekt |
-| 🥉 | `mdi:water-percent` → **`mdi:overflow`** | Überlauf-Icon existiert! |
-| 4 | `mdi:pipe` → **`mdi:pipe-valve`** | Mit Ventil für Rücklauf |
-| 5 | `mdi:flask` → **`mdi:water-opacity`** | Flockung = Wasser-Trübung |
-| 6 | `mdi:chip` → **`mdi:thermometer-check`** | Temp-Check ist klarer |
-| 7 | `mdi:pump` → **`mdi:swap-horizontal`** | Pfeile = Durchfluss |
-| 8 | `mdi:radiator` → **`mdi:heat-exchange`** | Spezielles Icon |
-| 9 | `mdi:chip` → **`mdi:thermometer-alert`** | Warnung + Chip |
-| 10 | `mdi:water-pump` → **`mdi:pipe-wrench`** | Flow-Switch = Mechanik |
+| Metric | Value |
+|--------|-------|
+| **Total updated icons** | **68+** |
+| **Modified files** | 2 |
+| **Categories** | 10 |
+| **Duration** | < 5 minutes |
 
 ---
 
-## 📁 Geänderte Dateien
+## 🎯 Top 10 MOST IMPORTANT Improvements
 
-### 1. `const_sensors.py` (35 Icons)
-- ✅ Temperatursensoren (6)
-- ✅ Wasserchemie (3)
-- ✅ Analog-Sensoren (7)
-- ✅ System-Sensoren (7)
-- ✅ Status-Sensoren (7)
-- ✅ Dosier-Sensoren (5)
+| Rank | Icon Change | Reason |
+|------|-------------|--------|
+| 🥇 | `mdi:flask` → **`mdi:ph`** | Dedicated pH icon! |
+| 🥈 | `mdi:pool` → **`mdi:pool-thermometer`** | Pool + temperature perfect |
+| 🥉 | `mdi:water-percent` → **`mdi:overflow`** | Overflow icon exists! |
+| 4 | `mdi:pipe` → **`mdi:pipe-valve`** | With valve for return line |
+| 5 | `mdi:flask` → **`mdi:water-opacity`** | Flocculation = water turbidity |
+| 6 | `mdi:chip` → **`mdi:thermometer-check`** | Temp check is clearer |
+| 7 | `mdi:pump` → **`mdi:swap-horizontal`** | Arrows = flow |
+| 8 | `mdi:radiator` → **`mdi:heat-exchange`** | Dedicated icon |
+| 9 | `mdi:chip` → **`mdi:thermometer-alert`** | Warning + chip |
+| 10 | `mdi:water-pump` → **`mdi:pipe-wrench`** | Flow switch = mechanics |
 
-### 2. `const_features.py` (33+ Icons)
+---
+
+## 📁 Modified Files
+
+### 1. `const_sensors.py` (35 icons)
+- ✅ Temperature sensors (6)
+- ✅ Water chemistry (3)
+- ✅ Analog sensors (7)
+- ✅ System sensors (7)
+- ✅ Status sensors (7)
+- ✅ Dosing sensors (5)
+
+### 2. `const_features.py` (33+ icons)
 - ✅ Binary Sensors (11)
 - ✅ Switches (11)
 - ✅ Select Controls (8)
@@ -52,134 +52,134 @@
 
 ---
 
-## 🌡️ Kategorie: Temperatursensoren (6)
+## 🌡️ Category: Temperature Sensors (6)
 
-| Entity | Name | Alt → Neu |
+| Entity | Name | Old → New |
 |--------|------|-----------|
-| `onewire1_value` | Beckenwasser | `mdi:pool` → **`mdi:pool-thermometer`** |
-| `onewire2_value` | Außentemperatur | `mdi:thermometer` → **`mdi:thermometer-lines`** |
-| `onewire3_value` | Solarabsorber | `mdi:solar-power` → **`mdi:solar-power-variant`** |
-| `onewire4_value` | Absorber-Rücklauf | `mdi:pipe` → **`mdi:pipe-valve`** |
-| `onewire5_value` | Wärmetauscher | `mdi:radiator` → **`mdi:heat-exchange`** |
-| `onewire6_value` | Heizungs-Speicher | `mdi:water-boiler` → **`mdi:tank-standpad`** |
+| `onewire1_value` | Pool Water | `mdi:pool` → **`mdi:pool-thermometer`** |
+| `onewire2_value` | Outdoor Temperature | `mdi:thermometer` → **`mdi:thermometer-lines`** |
+| `onewire3_value` | Solar Absorber | `mdi:solar-power` → **`mdi:solar-power-variant`** |
+| `onewire4_value` | Absorber Return | `mdi:pipe` → **`mdi:pipe-valve`** |
+| `onewire5_value` | Heat Exchanger | `mdi:radiator` → **`mdi:heat-exchange`** |
+| `onewire6_value` | Heating Storage | `mdi:water-boiler` → **`mdi:tank-standpad`** |
 
 ---
 
-## 🧪 Kategorie: Wasserchemie (3)
+## 🧪 Category: Water Chemistry (3)
 
-| Entity | Name | Alt → Neu |
+| Entity | Name | Old → New |
 |--------|------|-----------|
-| `pH_value` | pH-Wert | `mdi:flask` → **`mdi:ph`** ⭐ |
-| `orp_value` | Redoxpotential | `mdi:flash` → **`mdi:lightning-bolt-circle`** |
-| `pot_value` | Chlorgehalt | `mdi:test-tube` → **`mdi:water-plus`** |
+| `pH_value` | pH Value | `mdi:flask` → **`mdi:ph`** ⭐ |
+| `orp_value` | Redox Potential | `mdi:flash` → **`mdi:lightning-bolt-circle`** |
+| `pot_value` | Chlorine Level | `mdi:test-tube` → **`mdi:water-plus`** |
 
 ---
 
-## ⚡ Kategorie: Status-Sensoren (7)
+## ⚡ Category: Status Sensors (7)
 
-| Entity | Name | Alt → Neu |
+| Entity | Name | Old → New |
 |--------|------|-----------|
-| `PUMP` | Pumpen-Status | `mdi:pump` → **`mdi:pump-on`** |
-| `HEATER` | Heizungs-Status | `mdi:radiator` → **`mdi:radiator-disabled`** |
-| `SOLAR` | Solar-Status | `mdi:solar-power` → **`mdi:solar-power-variant-outline`** |
-| `BACKWASH` | Rückspül-Status | `mdi:refresh` → **`mdi:autorenew`** |
-| `LIGHT` | Beleuchtung Status | `mdi:lightbulb` → **`mdi:lightbulb-on`** |
-| `PVSURPLUS` | PV-Überschuss | `mdi:solar-power-variant` → **`mdi:solar-power`** |
+| `PUMP` | Pump Status | `mdi:pump` → **`mdi:pump-on`** |
+| `HEATER` | Heater Status | `mdi:radiator` → **`mdi:radiator-disabled`** |
+| `SOLAR` | Solar Status | `mdi:solar-power` → **`mdi:solar-power-variant-outline`** |
+| `BACKWASH` | Backwash Status | `mdi:refresh` → **`mdi:autorenew`** |
+| `LIGHT` | Lighting Status | `mdi:lightbulb` → **`mdi:lightbulb-on`** |
+| `PVSURPLUS` | PV Surplus | `mdi:solar-power-variant` → **`mdi:solar-power`** |
 | `FW` | Firmware | `mdi:package-up` → **`mdi:package-variant-closed`** |
 
 ---
 
-## 🎖️ Vorteile des Upgrades
+## 🎖️ Benefits of the Upgrade
 
-### 1. Bessere Erkennbarkeit 🔍
-- Icons zeigen **genau**, was sie bedeuten
-- **Spezielle Icons** statt generischer
-- pH-Icon statt Flask - viel klarer!
+### 1. Better Recognizability 🔍
+- Icons show **exactly** what they mean
+- **Dedicated icons** instead of generic ones
+- pH icon instead of flask — much clearer!
 
-### 2. Perfekte Konsistenz ✨
-- Alle Icons im **gleichen optimierten Stil**
-- Einheitliche **Qualität**
-- Professionalität
+### 2. Perfect Consistency ✨
+- All icons in the **same optimized style**
+- Uniform **quality**
+- Professionalism
 
-### 3. Moderne Auswahl 🎨
-- Basierend auf **offizieller MDI-Bibliothek**
-- **7.000+ Icons** zur Auswahl
-- Regelmäßige **Updates**
+### 3. Modern Selection 🎨
+- Based on the **official MDI library**
+- **7,000+ icons** to choose from
+- Regular **updates**
 
-### 4. Bessere UX 👥
-- Schnellere **Erkennung**
-- Intuitivere **Navigation**
-- Professionelleres **Erscheinungsbild**
+### 4. Better UX 👥
+- Faster **recognition**
+- More intuitive **navigation**
+- More professional **appearance**
 
 ---
 
-## 🚀 Nächste Schritte
+## 🚀 Next Steps
 
-### Option A: Sofort testen (Empfohlen)
+### Option A: Test Immediately (Recommended)
 ```bash
-# Home Assistant neustarten
+# Restart Home Assistant
 docker restart violet-ha-test
 ```
 
-Die neuen Icons werden sofort nach dem Neustart angezeigt!
+The new icons will appear immediately after the restart!
 
-### Option B: In Produktion übernehmen
+### Option B: Deploy to Production
 ```bash
-# Änderungen commiten
+# Commit changes
 git add custom_components/violet_pool_controller/const_*.py
 git commit -m "Upgrade all icons to optimized MDI variants"
 git push
 ```
 
-### Option C: Dokumentation aktualisieren
-Die Icon-Änderungen können in der README.md erwähnt werden.
+### Option C: Update Documentation
+The icon changes can be mentioned in the README.md.
 
 ---
 
-## 📋 Checkliste
+## 📋 Checklist
 
-- [x] Alle Icons in `const_sensors.py` aktualisiert
-- [x] Alle Icons in `const_features.py` aktualisiert
-- [x] Konsistenz geprüft
-- [x] Zusammenfassung erstellt
-- [ ] Home Assistant neustarten (zum Testen)
-- [ ] Änderungen commiten (optional)
-- [ ] Dokumentation aktualisieren (optional)
+- [x] All icons in `const_sensors.py` updated
+- [x] All icons in `const_features.py` updated
+- [x] Consistency verified
+- [x] Summary created
+- [ ] Restart Home Assistant (for testing)
+- [ ] Commit changes (optional)
+- [ ] Update documentation (optional)
 
 ---
 
-## 💡 Hinweise
+## 💡 Notes
 
-### Bleibt kompatibel ✅
-- Alle Icons sind **valides MDI**
-- **Keine Breaking Changes**
-- **Abwärtskompatibel**
+### Remains Compatible ✅
+- All icons are **valid MDI**
+- **No breaking changes**
+- **Backward compatible**
 
 ### Performance ⚡
-- **Keine Performance-Auswirkungen**
-- Icons werden vom **Client gerendert**
-- **Keine Server-last**
+- **No performance impact**
+- Icons are **rendered client-side**
+- **No server load**
 
 ### Updates 🔄
-- Einfach zu **pflegen**
-- **Konsistente Struktur**
-- **Zukunftssicher**
+- Easy to **maintain**
+- **Consistent structure**
+- **Future-proof**
 
 ---
 
-## 🎉 Fazit
+## 🎉 Conclusion
 
-Das Violet Pool Controller Addon verfügt jetzt über die **bestmögliche Icon-Auswahl** aus der **offiziellen MDI-Bibliothek**!
+The Violet Pool Controller addon now features the **best possible icon selection** from the **official MDI library**!
 
-- ✅ **68+ Icons** optimiert
-- ✅ **100% MDI-konform**
-- ✅ **Perfekt konsistent**
+- ✅ **68+ icons** optimized
+- ✅ **100% MDI compliant**
+- ✅ **Perfectly consistent**
 - ✅ **Production-ready**
 
-**Viel Spaß mit den neuen, verbesserten Icons!** 🚀🎨
+**Enjoy the new, improved icons!** 🚀🎨
 
 ---
 
-*Erstellt am: 2026-03-08*
-*Option: 2 - Komplettes Solid Upgrade*
-*Status: ✅ ABGESCHLOSSEN*
+*Created on: 2026-03-08*
+*Option: 2 - Complete Solid Upgrade*
+*Status: ✅ COMPLETE*

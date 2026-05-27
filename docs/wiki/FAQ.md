@@ -1,3 +1,7 @@
+﻿> 🇬🇧 **English** | 🇩🇪 **[Deutsch](FAQ.de)**
+
+---
+
 # ❓ FAQ - Frequently Asked Questions
 
 Over 40 common questions and answers!

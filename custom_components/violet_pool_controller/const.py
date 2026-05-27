@@ -1,7 +1,7 @@
 # =============================================================================
 # Violet Pool Controller – Home Assistant Custom Integration
 # Copyright © 2026 Xerolux
-# Entwickelt und erstellt von Xerolux
+# Developed and created by Xerolux
 # https://github.com/Xerolux/violet-hass
 # =============================================================================
 
@@ -39,7 +39,7 @@ from .const_sensors import *
 # =============================================================================
 
 DOMAIN = "violet_pool_controller"
-INTEGRATION_VERSION = "1.0.6-alpha.3"
+INTEGRATION_VERSION = "1.0.7-alpha.1"
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 
 # =============================================================================
@@ -102,7 +102,7 @@ VERSION_INFO = {
         "Circuit Breaker Pattern for API Resilience",
         "Enhanced Switch Attributes (mode, speed, runtime)",
         "Dashboard Template with Secondary Info",
-        "HA 2026.5.0 / Python 3.14 Compatibility",
+        "HA 2026.5.x / Python 3.14 Compatibility",
         "Fixed get_float_value None-key fallback in entity base class",
         "Fixed climate target temperature when data key is null",
     ],

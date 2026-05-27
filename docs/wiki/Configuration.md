@@ -1,3 +1,7 @@
+﻿> 🇬🇧 **English** | 🇩🇪 **[Deutsch](Configuration.de)**
+
+---
+
 # ⚙️ Configuration
 
 > All configuration options explained – from basic setup to advanced settings.

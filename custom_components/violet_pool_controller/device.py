@@ -1,7 +1,7 @@
 # =============================================================================
 # Violet Pool Controller – Home Assistant Custom Integration
 # Copyright © 2026 Xerolux
-# Entwickelt und erstellt von Xerolux
+# Developed and created by Xerolux
 # https://github.com/Xerolux/violet-hass
 # =============================================================================
 
@@ -397,7 +397,7 @@ class VioletPoolControllerDevice:
                 self._last_update_time = time.monotonic()
                 self._system_health = 100.0  # Perfect health
 
-                # Firmware-Version extrahieren (mehrere Fallbacks)
+                # Extract firmware version (multiple fallbacks)
                 fw_candidates = [
                     data.get("FW"),
                     data.get("fw"),
@@ -414,10 +414,10 @@ class VioletPoolControllerDevice:
                         self._firmware_version = str(candidate).strip()
                         break
 
-                # Debug-Log nur wenn Firmware gefunden wurde und noch nicht geloggt
+                # Debug log only if firmware was found and not yet logged
                 if self._firmware_version and not self._fw_logged:
                     _LOGGER.debug(
-                        "Firmware-Version erkannt: %s", self._firmware_version
+                        "Firmware version detected: %s", self._firmware_version
                     )
                     self._fw_logged = True
 
@@ -450,7 +450,7 @@ class VioletPoolControllerDevice:
                     (now_dt, len(data), self._connection_latency, snapshot)
                 )
 
-                # Standard Debug-Log (immer aktiv)
+                # Standard debug log (always active)
                 _LOGGER.debug(
                     "Update #%d for '%s': %d keys fetched in %.3fs",
                     self._update_counter,
@@ -459,7 +459,7 @@ class VioletPoolControllerDevice:
                     self._connection_latency / 1000,  # Convert ms to seconds
                 )
 
-                # ✅ DIAGNOSTIC LOGGING: Erweiterte Informationen (optional)
+                # DIAGNOSTIC LOGGING: Extended information (optional)
                 if self._enable_diagnostic_logging:
                     changed_keys = set(data.keys()) - previous_data_keys
                     changed_values = {
@@ -476,7 +476,7 @@ class VioletPoolControllerDevice:
                             "..." if len(all_changes) > 20 else "",
                         )
 
-                    # Verbindungs-Metriken
+                    # Connection metrics
                     _LOGGER.info(
                         "📈 Connection: %.1fms latency, %.0f%% health, %.2f req/min",
                         self._connection_latency,
@@ -484,7 +484,7 @@ class VioletPoolControllerDevice:
                         self.api_request_rate,
                     )
 
-                    # Beispiel-Keys (zu Debug-Zwecken)
+                    # Sample keys (for debugging)
                     sample_keys = sorted(data.keys())[:15]
                     _LOGGER.info(
                         "🔑 Sample keys (%d total): %s",
@@ -498,7 +498,7 @@ class VioletPoolControllerDevice:
             self._last_error = str(err)
             self._consecutive_failures += 1
 
-            # ✅ LOGGING OPTIMIZATION: Konsolidiertes Error-Logging
+            # LOGGING OPTIMIZATION: Consolidated error logging
             if self._consecutive_failures == 1:
                 if not self._available and len(self._data) == 0:
                     _LOGGER.debug(
@@ -751,7 +751,7 @@ class VioletPoolControllerDevice:
             "manufacturer": "PoolDigital GmbH & Co. KG",
             "model": model_str,
             "sw_version": self._firmware_version or "Unknown",
-            "suggested_area": self.controller_name,  # ✅ Auto-Area für Multi-Controller
+            "suggested_area": self.controller_name,  # Auto-area for multi-controller setups
         }
 
     @property
@@ -826,7 +826,7 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
         self.device = device
 
         _LOGGER.info(
-            "Coordinator initialisiert für '%s' (Abruf alle %ds)",
+            "Coordinator initialized for '%s' (polling every %ds)",
             name,
             polling_interval,
         )

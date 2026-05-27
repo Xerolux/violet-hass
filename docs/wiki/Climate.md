@@ -1,3 +1,7 @@
+﻿> 🇬🇧 **English** | 🇩🇪 **[Deutsch](Climate.de)**
+
+---
+
 # Climate & Heating – Climate Entities
 
 > Thermostat control for pool heater and solar system.

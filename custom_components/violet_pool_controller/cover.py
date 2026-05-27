@@ -1,7 +1,7 @@
 # =============================================================================
 # Violet Pool Controller – Home Assistant Custom Integration
 # Copyright © 2026 Xerolux
-# Entwickelt und erstellt von Xerolux
+# Developed and created by Xerolux
 # https://github.com/Xerolux/violet-hass
 # =============================================================================
 
@@ -54,6 +54,7 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
             key="COVER_STATE",
             name="Pool Cover",
             icon="mdi:window-shutter",
+            translation_key="pool_cover",
         )
         super().__init__(coordinator, config_entry, entity_description)
         self._last_action: str | None = None

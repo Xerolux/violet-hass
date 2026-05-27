@@ -1,7 +1,7 @@
 # =============================================================================
 # Violet Pool Controller – Home Assistant Custom Integration
 # Copyright © 2026 Xerolux
-# Entwickelt und erstellt von Xerolux
+# Developed and created by Xerolux
 # https://github.com/Xerolux/violet-hass
 # =============================================================================
 
@@ -23,20 +23,20 @@ from homeassistant.helpers.entity import EntityCategory
 # =============================================================================
 
 AVAILABLE_FEATURES = [
-    {"id": "heating", "name": "Heizung", "default": True},
-    {"id": "solar", "name": "Solarabsorber", "default": True},
-    {"id": "ph_control", "name": "pH-Kontrolle", "default": True},
-    {"id": "chlorine_control", "name": "Chlor-Kontrolle", "default": True},
-    {"id": "flocculation", "name": "Flockungsmittel-Dosierung", "default": True},
-    {"id": "cover_control", "name": "Abdeckungssteuerung", "default": True},
-    {"id": "backwash", "name": "Rückspülung", "default": True},
-    {"id": "pv_surplus", "name": "PV-Überschuss", "default": True},
-    {"id": "filter_control", "name": "Filterpumpe", "default": True},
-    {"id": "water_level", "name": "Wasserstand", "default": False},
-    {"id": "water_refill", "name": "Wassernachfüllung", "default": False},
-    {"id": "led_lighting", "name": "LED-Beleuchtung", "default": True},
-    {"id": "digital_inputs", "name": "Digitale Eingänge", "default": False},
-    {"id": "extension_outputs", "name": "Erweiterungsausgänge", "default": False},
+    {"id": "heating", "name": "Heater", "default": True},
+    {"id": "solar", "name": "Solar Absorber", "default": True},
+    {"id": "ph_control", "name": "pH Control", "default": True},
+    {"id": "chlorine_control", "name": "Chlorine Control", "default": True},
+    {"id": "flocculation", "name": "Flocculant Dosing", "default": True},
+    {"id": "cover_control", "name": "Cover Control", "default": True},
+    {"id": "backwash", "name": "Backwash", "default": True},
+    {"id": "pv_surplus", "name": "PV Surplus", "default": True},
+    {"id": "filter_control", "name": "Filter Pump", "default": True},
+    {"id": "water_level", "name": "Water Level", "default": False},
+    {"id": "water_refill", "name": "Water Refill", "default": False},
+    {"id": "led_lighting", "name": "LED Lighting", "default": True},
+    {"id": "digital_inputs", "name": "Digital Inputs", "default": False},
+    {"id": "extension_outputs", "name": "Extension Outputs", "default": False},
 ]
 
 # =============================================================================
@@ -48,6 +48,7 @@ BINARY_SENSORS = [
     {
         "key": "PUMP",
         "name": "Pump State",
+        "translation_key": "pump",
         "icon": "mdi:water-pump",
         "device_class": BinarySensorDeviceClass.RUNNING,
         "feature_id": "filter_control",
@@ -55,6 +56,7 @@ BINARY_SENSORS = [
     {
         "key": "SOLAR",
         "name": "Solar State",
+        "translation_key": "solar",
         "icon": "mdi:solar-power",
         "device_class": BinarySensorDeviceClass.RUNNING,
         "feature_id": "solar",
@@ -62,6 +64,7 @@ BINARY_SENSORS = [
     {
         "key": "HEATER",
         "name": "Heater State",
+        "translation_key": "heater",
         "icon": "mdi:radiator",
         "device_class": BinarySensorDeviceClass.RUNNING,
         "feature_id": "heating",
@@ -69,12 +72,14 @@ BINARY_SENSORS = [
     {
         "key": "LIGHT",
         "name": "Light State",
+        "translation_key": "light",
         "icon": "mdi:lightbulb",
         "feature_id": "led_lighting",
     },
     {
         "key": "BACKWASH",
         "name": "Backwash State",
+        "translation_key": "backwash",
         "icon": "mdi:autorenew",
         "device_class": BinarySensorDeviceClass.RUNNING,
         "feature_id": "backwash",
@@ -82,14 +87,16 @@ BINARY_SENSORS = [
     {
         "key": "REFILL",
         "name": "Refill State",
+        "translation_key": "refill",
         "icon": "mdi:water",
         "device_class": BinarySensorDeviceClass.RUNNING,
         "feature_id": "water_refill",
     },
-    {"key": "ECO", "name": "ECO Mode", "icon": "mdi:leaf"},
+    {"key": "ECO", "name": "ECO Mode", "translation_key": "eco", "icon": "mdi:leaf"},
     {
         "key": "PVSURPLUS",
         "name": "PV Surplus",
+        "translation_key": "pvsurplus",
         "icon": "mdi:solar-power",
         "feature_id": "pv_surplus",
     },
@@ -97,6 +104,7 @@ BINARY_SENSORS = [
     {
         "key": "CIRCULATION_STATE",
         "name": "Circulation Issue",
+        "translation_key": "circulation_state",
         "icon": "mdi:water-alert",
         "device_class": BinarySensorDeviceClass.PROBLEM,
         "entity_category": EntityCategory.DIAGNOSTIC,
@@ -104,6 +112,7 @@ BINARY_SENSORS = [
     {
         "key": "ELECTRODE_FLOW_STATE",
         "name": "Electrode Flow Issue",
+        "translation_key": "electrode_flow_state",
         "icon": "mdi:water-check",
         "device_class": BinarySensorDeviceClass.PROBLEM,
         "entity_category": EntityCategory.DIAGNOSTIC,
@@ -111,6 +120,7 @@ BINARY_SENSORS = [
     {
         "key": "PRESSURE_STATE",
         "name": "Pressure Issue",
+        "translation_key": "pressure_state",
         "icon": "mdi:gauge",
         "device_class": BinarySensorDeviceClass.PROBLEM,
         "entity_category": EntityCategory.DIAGNOSTIC,
@@ -118,6 +128,7 @@ BINARY_SENSORS = [
     {
         "key": "CAN_RANGE_STATE",
         "name": "Can Range Issue",
+        "translation_key": "can_range_state",
         "icon": "mdi:bottle-tonic",
         "device_class": BinarySensorDeviceClass.PROBLEM,
         "entity_category": EntityCategory.DIAGNOSTIC,
@@ -130,6 +141,7 @@ for i in range(1, 13):
         {
             "key": f"INPUT{i}",
             "name": f"Digital Input {i}",
+            "translation_key": f"input{i}",
             "icon": "mdi:electric-switch",
             "feature_id": "digital_inputs",
             "entity_category": EntityCategory.DIAGNOSTIC,
@@ -140,6 +152,7 @@ for i in range(1, 5):
         {
             "key": f"INPUT_CE{i}",
             "name": f"Digital Input CE{i}",
+            "translation_key": f"input_ce{i}",
             "icon": "mdi:electric-switch",
             "feature_id": "digital_inputs",
             "entity_category": EntityCategory.DIAGNOSTIC,
@@ -177,7 +190,7 @@ BINARY_SENSORS.extend([
     },
     {
         "key": "HW_STANDALONE_MODE",
-        "name": "Hardware: Standalone Dosieranlage",
+        "name": "Hardware: Standalone Dosing Unit",
         "translation_key": "hw_standalone_mode",
         "icon": "mdi:server-network",
         "entity_category": EntityCategory.DIAGNOSTIC,
@@ -205,67 +218,78 @@ BINARY_SENSORS.extend([
 SWITCHES = [
     {
         "key": "PUMP",
-        "name": "Filterpumpe",
+        "name": "Filter Pump",
+        "translation_key": "pump",
         "icon": "mdi:water-pump",
         "feature_id": "filter_control",
     },
     {
         "key": "SOLAR",
-        "name": "Solarabsorber",
+        "name": "Solar Absorber",
+        "translation_key": "solar",
         "icon": "mdi:solar-power",
         "feature_id": "solar",
     },
     {
         "key": "HEATER",
-        "name": "Heizung",
+        "name": "Heater",
+        "translation_key": "heater",
         "icon": "mdi:radiator",
         "feature_id": "heating",
     },
     {
         "key": "LIGHT",
-        "name": "Beleuchtung",
+        "name": "Lighting",
+        "translation_key": "light",
         "icon": "mdi:lightbulb",
         "feature_id": "led_lighting",
     },
     {
         "key": "DOS_5_PHP",
-        "name": "Dosierung pH+",
+        "name": "Dosing pH+",
+        "translation_key": "dos_5_php",
         "icon": "mdi:flask-plus",
         "feature_id": "ph_control",
     },
     {
         "key": "DOS_4_PHM",
-        "name": "Dosierung pH-",
+        "name": "Dosing pH-",
+        "translation_key": "dos_4_phm",
         "icon": "mdi:flask-minus",
         "feature_id": "ph_control",
     },
     {
         "key": "DOS_1_CL",
-        "name": "Chlor-Dosierung",
+        "name": "Chlorine Dosing",
+        "translation_key": "dos_1_cl",
         "icon": "mdi:flask-outline",
         "feature_id": "chlorine_control",
     },
     {
         "key": "DOS_6_FLOC",
-        "name": "Flockmittel",
+        "name": "Flocculant",
+        "translation_key": "dos_6_floc",
         "icon": "mdi:water",
         "feature_id": "flocculation",
     },
     {
         "key": "PVSURPLUS",
-        "name": "PV-Überschuss",
+        "name": "PV Surplus",
+        "translation_key": "pvsurplus",
         "icon": "mdi:solar-power",
         "feature_id": "pv_surplus",
     },
     {
         "key": "BACKWASH",
-        "name": "Rückspülung",
+        "name": "Backwash",
+        "translation_key": "backwash",
         "icon": "mdi:autorenew",
         "feature_id": "backwash",
     },
     {
         "key": "BACKWASHRINSE",
-        "name": "Nachspülung",
+        "name": "Rinse",
+        "translation_key": "backwashrinse",
         "icon": "mdi:autorenew",
         "feature_id": "backwash",
     },
@@ -278,9 +302,10 @@ for ext_bank in [1, 2]:
             {
                 "key": f"EXT{ext_bank}_{i}",
                 "name": f"Extension {ext_bank}.{i}",
+                "translation_key": f"ext{ext_bank}_{i}",
                 "icon": "mdi:toggle-switch-outline",
                 "feature_id": "extension_outputs",
-                "entity_category": "diagnostic",  # Erweiterte Hardware-Ausgänge
+                "entity_category": "diagnostic",  # Extension hardware outputs
             }
         )
 # Dynamically add DMX scenes
@@ -288,10 +313,11 @@ for i in range(1, 13):
     SWITCHES.append(
         {
             "key": f"DMX_SCENE{i}",
-            "name": f"DMX Szene {i}",
+            "name": f"DMX Scene {i}",
+            "translation_key": f"dmx_scene{i}",
             "icon": "mdi:lightbulb-multiple",
             "feature_id": "led_lighting",
-            "entity_category": "config",  # Konfigurierbare Lichtszenen
+            "entity_category": "config",  # Configurable light scenes
         }
     )
 # Dynamically add digital rules
@@ -299,10 +325,11 @@ for i in range(1, 8):
     SWITCHES.append(
         {
             "key": f"DIRULE_{i}",
-            "name": f"Schaltregel {i}",
+            "name": f"Switching Rule {i}",
+            "translation_key": f"dirule_{i}",
             "icon": "mdi:script-text",
             "feature_id": "digital_inputs",
-            "entity_category": "config",  # Konfigurierbare Schaltregeln
+            "entity_category": "config",  # Configurable switching rules
         }
     )
 
@@ -313,7 +340,8 @@ for i in range(1, 8):
 SETPOINT_DEFINITIONS = [
     {
         "key": "ph_setpoint",
-        "name": "pH Sollwert",
+        "name": "pH Setpoint",
+        "translation_key": "ph_setpoint",
         "api_key": "pH",
         "min_value": 6.8,
         "max_value": 7.8,
@@ -329,7 +357,8 @@ SETPOINT_DEFINITIONS = [
     },
     {
         "key": "orp_setpoint",
-        "name": "Redox Sollwert",
+        "name": "ORP Setpoint",
+        "translation_key": "orp_setpoint",
         "api_key": "ORP",
         "min_value": 600,
         "max_value": 800,
@@ -345,7 +374,8 @@ SETPOINT_DEFINITIONS = [
     },
     {
         "key": "chlorine_setpoint",
-        "name": "Chlor Sollwert",
+        "name": "Chlorine Setpoint",
+        "translation_key": "chlorine_setpoint",
         "api_key": "MinChlorine",
         "min_value": 0.2,
         "max_value": 2.0,
@@ -361,7 +391,8 @@ SETPOINT_DEFINITIONS = [
     },
     {
         "key": "heater_target_temp",
-        "name": "Heizung Zieltemperatur",
+        "name": "Heater Target Temperature",
+        "translation_key": "heater_target_temp",
         "api_key": "HEATER_TARGET_TEMP",
         "min_value": 20.0,
         "max_value": 35.0,
@@ -377,7 +408,8 @@ SETPOINT_DEFINITIONS = [
     },
     {
         "key": "solar_target_temp",
-        "name": "Solar Zieltemperatur",
+        "name": "Solar Target Temperature",
+        "translation_key": "solar_target_temp",
         "api_key": "SOLAR_TARGET_TEMP",
         "min_value": 20.0,
         "max_value": 40.0,
@@ -393,7 +425,8 @@ SETPOINT_DEFINITIONS = [
     },
     {
         "key": "pump_speed",
-        "name": "Pumpengeschwindigkeit",
+        "name": "Pump Speed",
+        "translation_key": "pump_speed",
         "api_key": "PUMP_SPEED",
         "min_value": 1,
         "max_value": 3,
@@ -410,7 +443,8 @@ SETPOINT_DEFINITIONS = [
     # Dosing Canister Volumes
     {
         "key": "chlorine_canister_volume",
-        "name": "Chlor Kanister Volumen",
+        "name": "Chlorine Canister Volume",
+        "translation_key": "chlorine_canister_volume",
         "api_key": "DOS_1_CL_TOTAL_CAN_AMOUNT_ML",
         "min_value": 100,
         "max_value": 50000,
@@ -426,7 +460,8 @@ SETPOINT_DEFINITIONS = [
     },
     {
         "key": "ph_minus_canister_volume",
-        "name": "pH- Kanister Volumen",
+        "name": "pH- Canister Volume",
+        "translation_key": "ph_minus_canister_volume",
         "api_key": "DOS_4_PHM_TOTAL_CAN_AMOUNT_ML",
         "min_value": 100,
         "max_value": 50000,
@@ -442,7 +477,8 @@ SETPOINT_DEFINITIONS = [
     },
     {
         "key": "ph_plus_canister_volume",
-        "name": "pH+ Kanister Volumen",
+        "name": "pH+ Canister Volume",
+        "translation_key": "ph_plus_canister_volume",
         "api_key": "DOS_5_PHP_TOTAL_CAN_AMOUNT_ML",
         "min_value": 100,
         "max_value": 50000,
@@ -458,7 +494,8 @@ SETPOINT_DEFINITIONS = [
     },
     {
         "key": "flocculant_canister_volume",
-        "name": "Flockulant Kanister Volumen",
+        "name": "Flocculant Canister Volume",
+        "translation_key": "flocculant_canister_volume",
         "api_key": "DOS_6_FLOC_TOTAL_CAN_AMOUNT_ML",
         "min_value": 100,
         "max_value": 50000,
@@ -475,13 +512,14 @@ SETPOINT_DEFINITIONS = [
 ]
 
 # =============================================================================
-# SELECT CONTROLS - ON/OFF/AUTO Steuerung
+# SELECT CONTROLS - ON/OFF/AUTO Control
 # =============================================================================
 
 SELECT_CONTROLS = [
     {
         "key": "pump_mode",
-        "name": "Pumpen-Modus",
+        "name": "Pump Mode",
+        "translation_key": "pump_mode",
         "device_key": "PUMP",
         "icon": "mdi:water-pump",
         "feature_id": "filter_control",
@@ -489,7 +527,8 @@ SELECT_CONTROLS = [
     },
     {
         "key": "heater_mode",
-        "name": "Heizungs-Modus",
+        "name": "Heater Mode",
+        "translation_key": "heater_mode",
         "device_key": "HEATER",
         "icon": "mdi:radiator-disabled",
         "feature_id": "heating",
@@ -497,7 +536,8 @@ SELECT_CONTROLS = [
     },
     {
         "key": "solar_mode",
-        "name": "Solar-Modus",
+        "name": "Solar Mode",
+        "translation_key": "solar_mode",
         "device_key": "SOLAR",
         "icon": "mdi:solar-power-variant",
         "feature_id": "solar",
@@ -505,7 +545,8 @@ SELECT_CONTROLS = [
     },
     {
         "key": "light_mode",
-        "name": "Licht-Modus",
+        "name": "Light Mode",
+        "translation_key": "light_mode",
         "device_key": "LIGHT",
         "icon": "mdi:lightbulb-on",
         "feature_id": "led_lighting",
@@ -513,7 +554,8 @@ SELECT_CONTROLS = [
     },
     {
         "key": "dos_cl_mode",
-        "name": "Chlor-Dosierung Modus",
+        "name": "Chlorine Dosing Mode",
+        "translation_key": "dos_cl_mode",
         "device_key": "DOS_1_CL",
         "icon": "mdi:flask-empty-outline",
         "feature_id": "chlorine_control",
@@ -521,7 +563,8 @@ SELECT_CONTROLS = [
     },
     {
         "key": "dos_phm_mode",
-        "name": "pH- Dosierung Modus",
+        "name": "pH- Dosing Mode",
+        "translation_key": "dos_phm_mode",
         "device_key": "DOS_4_PHM",
         "icon": "mdi:flask-empty-minus",
         "feature_id": "ph_control",
@@ -529,7 +572,8 @@ SELECT_CONTROLS = [
     },
     {
         "key": "dos_php_mode",
-        "name": "pH+ Dosierung Modus",
+        "name": "pH+ Dosing Mode",
+        "translation_key": "dos_php_mode",
         "device_key": "DOS_5_PHP",
         "icon": "mdi:flask-plus",
         "feature_id": "ph_control",
@@ -537,7 +581,8 @@ SELECT_CONTROLS = [
     },
     {
         "key": "pvsurplus_mode",
-        "name": "PV-Überschuss Modus",
+        "name": "PV Surplus Mode",
+        "translation_key": "pvsurplus_mode",
         "device_key": "PVSURPLUS",
         "icon": "mdi:solar-power-variant",
         "feature_id": "pv_surplus",
@@ -545,7 +590,8 @@ SELECT_CONTROLS = [
     },
     {
         "key": "backwash_mode",
-        "name": "Rückspülung Modus",
+        "name": "Backwash Mode",
+        "translation_key": "backwash_mode",
         "device_key": "BACKWASH",
         "icon": "mdi:autorenew",
         "feature_id": "backwash",
@@ -553,7 +599,8 @@ SELECT_CONTROLS = [
     },
     {
         "key": "backwashrinse_mode",
-        "name": "Nachspülung Modus",
+        "name": "Rinse Mode",
+        "translation_key": "backwashrinse_mode",
         "device_key": "BACKWASHRINSE",
         "icon": "mdi:autorenew",
         "feature_id": "backwash",
@@ -561,7 +608,8 @@ SELECT_CONTROLS = [
     },
     {
         "key": "dos_floc_mode",
-        "name": "Flockmittel Modus",
+        "name": "Flocculant Mode",
+        "translation_key": "dos_floc_mode",
         "device_key": "DOS_6_FLOC",
         "icon": "mdi:water",
         "feature_id": "flocculation",
@@ -569,13 +617,14 @@ SELECT_CONTROLS = [
     },
 ]
 
-# Dynamisch Erweiterungsausgänge als Select (ON/OFF/AUTO) hinzufügen
+# Dynamically add extension outputs as select (ON/OFF/AUTO)
 for _ext_bank in [1, 2]:
     for _i in range(1, 9):
         SELECT_CONTROLS.append(
             {
                 "key": f"ext{_ext_bank}_{_i}_mode",
-                "name": f"Erweiterung {_ext_bank}.{_i} Modus",
+                "name": f"Extension {_ext_bank}.{_i} Mode",
+                "translation_key": f"ext{_ext_bank}_{_i}_mode",
                 "device_key": f"EXT{_ext_bank}_{_i}",
                 "icon": "mdi:toggle-switch-outline",
                 "feature_id": "extension_outputs",

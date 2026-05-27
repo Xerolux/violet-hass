@@ -1,3 +1,7 @@
+﻿> 🇩🇪 **Deutsch** | 🇬🇧 **[English](Services)**
+
+---
+
 # 🤖 Services & Automatisierungen
 
 Alle verfügbaren Services für erweiterte Automatisierung deines Pools.

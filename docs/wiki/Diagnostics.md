@@ -1,3 +1,7 @@
+﻿> 🇬🇧 **English** | 🇩🇪 **[Deutsch](Diagnostics.de)**
+
+---
+
 # Diagnostics Data
 
 > With the built-in diagnostics feature, you can download all relevant information about your Violet Pool Controller as a JSON file with a single click – ideal for bug reports and troubleshooting.

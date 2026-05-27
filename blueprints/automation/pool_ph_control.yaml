@@ -1,10 +1,10 @@
 blueprint:
-  name: Violet Pool - Intelligente pH-Kontrolle
+  name: Violet Pool - Smart pH Control
   description: |
-    Automatische pH-Wert Kontrolle mit intelligenter Dosierung von pH+ und pH-.
-    Überwacht pH-Werte und dosiert automatisch bei Abweichungen vom Sollbereich.
+    Automatic pH value control with smart dosing of pH+ and pH-.
+    Monitors pH values and doses automatically when deviations from the target range occur.
     
-    BENÖTIGT: input_number.pool_ph_dosing_counter Helper (siehe blueprints/README.md)
+    REQUIRED: input_number.pool_ph_dosing_counter Helper (see blueprints/README.md)
     
     VERSION: 1.0.5 (2026-04-22)
   domain: automation
@@ -13,8 +13,8 @@ blueprint:
     min_version: "2024.6.0"
   input:
     ph_sensor:
-      name: pH-Sensor
-      description: Sensor für den aktuellen pH-Wert des Pools
+      name: pH Sensor
+      description: Sensor for the current pH value of the pool
       selector:
         entity:
           filter:
@@ -22,32 +22,32 @@ blueprint:
             - domain: sensor
             - device_class: ph
     ph_setpoint_entity:
-      name: pH-Sollwert
-      description: Number-Entity für den pH-Sollwert
+      name: pH Setpoint
+      description: Number entity for the pH target value
       selector:
         entity:
           filter:
             - integration: violet_pool_controller
             - domain: number
     ph_minus_switch:
-      name: pH- Dosierung
-      description: Switch für pH-Minus Dosierung
+      name: pH- Dosing
+      description: Switch for pH-Minus dosing
       selector:
         entity:
           filter:
             - integration: violet_pool_controller
             - domain: switch
     ph_plus_switch:
-      name: pH+ Dosierung
-      description: Switch für pH-Plus Dosierung
+      name: pH+ Dosing
+      description: Switch for pH-Plus dosing
       selector:
         entity:
           filter:
             - integration: violet_pool_controller
             - domain: switch
     ph_tolerance:
-      name: pH-Toleranz
-      description: Toleranzbereich um den Sollwert (±)
+      name: pH Tolerance
+      description: Tolerance range around the setpoint (±)
       default: 0.2
       selector:
         number:
@@ -57,8 +57,8 @@ blueprint:
           unit_of_measurement: pH
           mode: slider
     dosing_duration_ph_minus:
-      name: Dosierdauer pH-
-      description: Dauer der pH-Minus Dosierung in Sekunden
+      name: Dosing Duration pH-
+      description: Duration of pH-Minus dosing in seconds
       default: 30
       selector:
         number:
@@ -68,8 +68,8 @@ blueprint:
           unit_of_measurement: s
           mode: box
     dosing_duration_ph_plus:
-      name: Dosierdauer pH+
-      description: Dauer der pH-Plus Dosierung in Sekunden
+      name: Dosing Duration pH+
+      description: Duration of pH-Plus dosing in seconds
       default: 30
       selector:
         number:
@@ -79,8 +79,8 @@ blueprint:
           unit_of_measurement: s
           mode: box
     max_dosing_per_day:
-      name: Max. Dosierungen pro Tag
-      description: Maximale Anzahl Dosierungen pro 24h als Sicherheit
+      name: Max. Dosing per Day
+      description: Maximum number of dosing cycles per 24h as a safety limit
       default: 10
       selector:
         number:
@@ -89,8 +89,8 @@ blueprint:
           step: 1
           mode: box
     min_wait_between_dosing:
-      name: Wartezeit zwischen Dosierungen
-      description: Mindestwartezeit zwischen Dosierungen in Minuten
+      name: Wait Time Between Dosing
+      description: Minimum wait time between dosing cycles in minutes
       default: 60
       selector:
         number:
@@ -100,14 +100,14 @@ blueprint:
           unit_of_measurement: min
           mode: box
     enable_pump_check:
-      name: Pumpen-Check aktivieren
-      description: Dosierung nur bei laufender Filterpumpe
+      name: Enable Pump Check
+      description: Only dose when the filter pump is running
       default: true
       selector:
         boolean:
     pump_entity:
-      name: Filterpumpe (Optional)
-      description: Binary Sensor oder Switch der Filterpumpe
+      name: Filter Pump (Optional)
+      description: Binary sensor or switch of the filter pump
       default: ""
       selector:
         entity:
@@ -118,8 +118,8 @@ blueprint:
                 - switch
           multiple: false
     notification_entity:
-      name: Benachrichtigungs-Service (Optional)
-      description: Service für Benachrichtigungen
+      name: Notification Service (Optional)
+      description: Service for notifications
       default: ""
       selector:
         text:
@@ -138,17 +138,17 @@ variables:
   pump_sensor: !input pump_entity
   notify_service: !input notification_entity
   
-  # pH-Werte
+  # pH values
   current_ph: "{{ states(ph_current_sensor) | float(7.2) }}"
   target_ph: "{{ states(ph_target_entity) | float(7.2) }}"
   ph_diff: "{{ current_ph - target_ph }}"
   
-  # Bereiche
+  # Ranges
   ph_too_high: "{{ ph_diff > tolerance }}"
   ph_too_low: "{{ ph_diff < -tolerance }}"
   ph_ok: "{{ abs(ph_diff) <= tolerance }}"
   
-  # Pumpen-Status
+  # Pump status
   pump_running: >
     {% if not pump_check_enabled or pump_sensor == "" %}
       true
@@ -156,7 +156,7 @@ variables:
       {{ is_state(pump_sensor, 'on') }}
     {% endif %}
   
-  # Dosier-Counter (über Input Number Helper)
+  # Dosing counter (via Input Number Helper)
   dosing_counter_today: >
     {{ states('input_number.pool_ph_dosing_counter') | int(0) }}
 
@@ -184,7 +184,7 @@ condition:
 
 action:
   - choose:
-      # === pH zu hoch: pH-Minus dosieren ===
+      # === pH too high: Dose pH-Minus ===
       - conditions:
           - condition: template
             value_template: "{{ ph_too_high and pump_running }}"
@@ -201,26 +201,26 @@ action:
             data:
               duration_seconds: "{{ dosing_duration_minus }}"
           
-          # Counter erhöhen
+          # Increment counter
           - service: input_number.set_value
             target:
               entity_id: input_number.pool_ph_dosing_counter
             data:
               value: "{{ dosing_counter_today + 1 }}"
           
-          # Benachrichtigung
+          # Notification
           - if:
               - condition: template
                 value_template: "{{ notify_service != '' }}"
             then:
               - service: "{{ notify_service }}"
                 data:
-                  title: "🔻 pH-Korrektur"
+                  title: "🔻 pH Correction"
                   message: >
-                    pH zu hoch: {{ '%.2f' | format(current_ph) }} → {{ '%.2f' | format(target_ph) }}
-                    pH-Minus für {{ dosing_duration_minus }}s dosiert
+                    pH too high: {{ '%.2f' | format(current_ph) }} → {{ '%.2f' | format(target_ph) }}
+                    pH-Minus dosed for {{ dosing_duration_minus }}s
 
-      # === pH zu niedrig: pH-Plus dosieren ===
+      # === pH too low: Dose pH-Plus ===
       - conditions:
           - condition: template
             value_template: "{{ ph_too_low and pump_running }}"
@@ -237,26 +237,26 @@ action:
             data:
               duration_seconds: "{{ dosing_duration_plus }}"
           
-          # Counter erhöhen
+          # Increment counter
           - service: input_number.set_value
             target:
               entity_id: input_number.pool_ph_dosing_counter
             data:
               value: "{{ dosing_counter_today + 1 }}"
           
-          # Benachrichtigung
+          # Notification
           - if:
               - condition: template
                 value_template: "{{ notify_service != '' }}"
             then:
               - service: "{{ notify_service }}"
                 data:
-                  title: "🔺 pH-Korrektur"
+                  title: "🔺 pH Correction"
                   message: >
-                    pH zu niedrig: {{ '%.2f' | format(current_ph) }} → {{ '%.2f' | format(target_ph) }}
-                    pH-Plus für {{ dosing_duration_plus }}s dosiert
+                    pH too low: {{ '%.2f' | format(current_ph) }} → {{ '%.2f' | format(target_ph) }}
+                    pH-Plus dosed for {{ dosing_duration_plus }}s
 
-      # === Maximale Dosierungen erreicht ===
+      # === Maximum dosing reached ===
       - conditions:
           - condition: template
             value_template: "{{ not ph_ok and dosing_counter_today >= max_daily_dosing }}"
@@ -267,13 +267,13 @@ action:
             then:
               - service: "{{ notify_service }}"
                 data:
-                  title: "⚠️ pH-Dosierung gestoppt"
+                  title: "⚠️ pH Dosing Stopped"
                   message: >
-                    Maximale Dosierungen ({{ max_daily_dosing }}) für heute erreicht.
-                    pH: {{ '%.2f' | format(current_ph) }}, Ziel: {{ '%.2f' | format(target_ph) }}
-                    Manuelle Überprüfung erforderlich!
+                    Maximum dosing cycles ({{ max_daily_dosing }}) reached for today.
+                    pH: {{ '%.2f' | format(current_ph) }}, Target: {{ '%.2f' | format(target_ph) }}
+                    Manual check required!
 
-      # === pH im Sollbereich ===
+      # === pH within target range ===
       - conditions:
           - condition: template
             value_template: "{{ ph_ok }}"
@@ -286,10 +286,10 @@ action:
             then:
               - service: "{{ notify_service }}"
                 data:
-                  title: "✅ pH-Wert optimal"
-                  message: "pH-Wert im Sollbereich: {{ '%.2f' | format(current_ph) }} (Ziel: {{ '%.2f' | format(target_ph) }})"
+                  title: "✅ pH Value Optimal"
+                  message: "pH value within target range: {{ '%.2f' | format(current_ph) }} (Target: {{ '%.2f' | format(target_ph) }})"
 
-  # Counter um Mitternacht zurücksetzen
+  # Reset counter at midnight
   - if:
       - condition: template
         value_template: "{{ now().hour == 0 and now().minute == 0 }}"

@@ -14,10 +14,10 @@
   "issue_tracker": "https://github.com/xerolux/violet-hass/issues",
   "quality_scale": "platinum",
   "requirements": [
-    "aiohttp>=3.11.0",
+    "aiohttp>=3.13.5",
     "violet-poolController-api==0.0.16"
   ],
-  "version": "1.0.6-alpha.3",
+  "version": "1.0.7-alpha.1",
   "zeroconf": [
     {
       "type": "_http._tcp.local.",

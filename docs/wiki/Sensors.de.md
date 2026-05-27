@@ -1,3 +1,7 @@
+﻿> 🇩🇪 **Deutsch** | 🇬🇧 **[English](Sensors)**
+
+---
+
 # Sensoren & Messwerte
 
 > Vollständige Dokumentation aller Sensor-Entities – von Wasserchemie bis Systemdiagnose.

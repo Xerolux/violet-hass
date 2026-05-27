@@ -1,314 +1,314 @@
-# 🏊 Violet Pool Controller Home Assistant - Komplette Wiki
+# 🏊 Violet Pool Controller Home Assistant - Complete Wiki
 
-> **Alles, was du über das Violet Pool Controller Addon für Home Assistant wissen musst** - Von der Installation bis zur Deinstallation, mit detaillierten Erklärungen aller Funktionen, States und Services.
+> **Everything you need to know about the Violet Pool Controller Addon for Home Assistant** - From installation to uninstallation, with detailed explanations of all features, states, and services.
 
 ---
 
-## 📑 Inhaltsverzeichnis
+## 📑 Table of Contents
 
 1. [Installation & Setup](#-installation--setup)
-2. [Konfiguration](#-konfiguration)
-3. [Geräte & Entitäten](#-geräte--entitäten)
-4. [Device States erklärt](#-device-states-erklärt)
-5. [Services & Automatisierungen](#-services--automatisierungen)
-6. [Sensoren & Messwerte](#-sensoren--messwerte)
-7. [Schalter & Steuerungen](#-schalter--steuerungen)
-8. [Fehlerbehandlung & Troubleshooting](#-fehlerbehandlung--troubleshooting)
+2. [Configuration](#-configuration)
+3. [Devices & Entities](#-devices--entities)
+4. [Device States Explained](#-device-states-explained)
+5. [Services & Automations](#-services--automations)
+6. [Sensors & Measurements](#-sensors--measurements)
+7. [Switches & Controls](#-switches--controls)
+8. [Error Handling & Troubleshooting](#-error-handling--troubleshooting)
 9. [Updates & Upgrades](#-updates--upgrades)
-10. [Deinstallation](#-deinstallation)
-11. [FAQ & Häufige Fragen](#-faq--häufige-fragen)
-12. [Sicherheit & Best Practices](#-sicherheit--best-practices)
+10. [Uninstallation](#-uninstallation)
+11. [FAQ & Frequently Asked Questions](#-faq--frequently-asked-questions)
+12. [Security & Best Practices](#-security--best-practices)
 
 ---
 
 ## 📦 Installation & Setup
 
-### Systemanforderungen
+### System Requirements
 
-- **Home Assistant Version**: 2025.12.0 oder neuer
+- **Home Assistant Version**: 2025.12.0 or newer
 - **Python**: 3.12+
-- **Netzwerk**: Violet Pool Controller im lokalen Netzwerk erreichbar
-- **Speicher**: Minimal (Integration benötigt <10 MB)
+- **Network**: Violet Pool Controller accessible on the local network
+- **Storage**: Minimal (integration requires <10 MB)
 
-### HACS Installation (Empfohlen)
+### HACS Installation (Recommended)
 
-**Schritt 1: HACS öffnen**
-1. Home Assistant → Einstellungen
-2. Geräte & Dienste → HACS (Custom Repositories)
-3. ⋮ (Menü) → Benutzerdefinierte Repositories
+**Step 1: Open HACS**
+1. Home Assistant → Settings
+2. Devices & Services → HACS (Custom Repositories)
+3. ⋮ (Menu) → Custom Repositories
 
-**Schritt 2: Repository hinzufügen**
+**Step 2: Add Repository**
 ```
 URL: https://github.com/xerolux/violet-hass
-Kategorie: Integration
+Category: Integration
 ```
 
-**Schritt 3: Integration installieren**
-1. Nach "Violet Pool Controller" suchen
-2. "Installieren" klicken
-3. **Home Assistant neu starten**
+**Step 3: Install Integration**
+1. Search for "Violet Pool Controller"
+2. Click "Install"
+3. **Restart Home Assistant**
 
-**Schritt 4: Integration aktivieren**
-1. Einstellungen → Geräte & Dienste
-2. "Integration hinzufügen"
-3. "Violet Pool Controller" suchen und hinzufügen
-4. Host IP eingeben (z.B. 192.168.1.100)
+**Step 4: Enable Integration**
+1. Settings → Devices & Services
+2. "Add Integration"
+3. Search for "Violet Pool Controller" and add it
+4. Enter Host IP (e.g. 192.168.1.100)
 
-### Manuelle Installation
+### Manual Installation
 
-Für Entwickler oder ohne HACS:
+For developers or without HACS:
 
 ```bash
-# Repository klonen
+# Clone repository
 cd /config/custom_components/
 git clone https://github.com/xerolux/violet-hass.git violet_pool_controller
 
-# Oder ZIP herunterladen und entpacken
+# Or download ZIP and extract
 cd /config
 unzip violet-hass-main.zip
 mv violet-hass-main/custom_components/violet_pool_controller .
 ```
 
-**Danach Home Assistant neu starten:**
-- Web-UI: ⋮ → Systemsteuerelemente → Home Assistant neu starten
+**Then restart Home Assistant:**
+- Web UI: ⋮ → System Controls → Restart Home Assistant
 - Docker: `docker restart homeassistant`
 
-### Erstes Setup
+### Initial Setup
 
-#### Schritt 1: Konfigurationsflow starten
+#### Step 1: Start Configuration Flow
 
-1. Einstellungen → Geräte & Dienste → "Integration hinzufügen"
-2. "Violet Pool Controller" auswählen
-3. "Host IP-Adresse" eingeben (z.B. `192.168.1.100`)
+1. Settings → Devices & Services → "Add Integration"
+2. Select "Violet Pool Controller"
+3. Enter "Host IP Address" (e.g. `192.168.1.100`)
 
-#### Schritt 2: Authentifizierung (optional)
+#### Step 2: Authentication (Optional)
 
-Falls dein Controller Benutzername/Passwort erfordert:
-- Benutzername eingeben (normalerweise `admin`)
-- Passwort eingeben
-- **SSL/TLS aktivieren**: Wenn HTTPS verwendet wird
+If your controller requires username/password:
+- Enter username (usually `admin`)
+- Enter password
+- **Enable SSL/TLS**: If using HTTPS
 
-#### Schritt 3: Features auswählen
+#### Step 3: Select Features
 
-Der Assistent zeigt folgende Optionen:
+The wizard shows the following options:
 
-- **Heizung**: Nutzt du einen Heizer?
-- **Solar**: Solarthermie-Kollektor vorhanden?
-- **Digitale Eingänge**: DI1-DI8 konfiguriert?
-- **PV-Überschuss**: Solaranlage mit Überschuss-Modus?
-- **Weitere Features**: Rückspülung, Dosierung, etc.
+- **Heater**: Do you use a heater?
+- **Solar**: Do you have a solar thermal collector?
+- **Digital Inputs**: DI1-DI8 configured?
+- **PV Surplus**: Solar system with surplus mode?
+- **Additional Features**: Backwash, dosing, etc.
 
-> **Tipp**: Nur wirklich verwendete Features aktivieren = bessere Performance!
+> **Tip**: Only enable features you actually use = better performance!
 
-#### Schritt 4: Sensor-Auswahl
+#### Step 4: Sensor Selection
 
-Die Integration prüft deinen Controller auf verfügbare Sensoren und bietet diese zum Auswählen:
+The integration checks your controller for available sensors and offers them for selection:
 
-- **Wasserchemie**: pH, ORP, Chlorin
-- **Temperaturen**: Pool, Umgebung, Solar
-- **Systemzustände**: Druck, Wasserstände
-- **Laufzeitstatistiken**: Pumpen, Heizer, etc.
+- **Water Chemistry**: pH, ORP, Chlorine
+- **Temperatures**: Pool, Ambient, Solar
+- **System Status**: Pressure, Water levels
+- **Runtime Statistics**: Pumps, heaters, etc.
 
-> **Standard**: Wenn nichts ausgewählt → alle Sensoren werden angelegt
+> **Default**: If nothing is selected → all sensors will be created
 
-#### Schritt 5: Abfrage-Intervall
+#### Step 5: Polling Interval
 
-- **Vorschlag**: 30 Sekunden
-- **Minimum**: 10 Sekunden
-- **Maximum**: 300 Sekunden
-- **Empfehlung für große Pools**: 20-30 Sekunden
+- **Suggested**: 30 seconds
+- **Minimum**: 10 seconds
+- **Maximum**: 300 seconds
+- **Recommended for large pools**: 20-30 seconds
 
 ---
 
-## ⚙️ Konfiguration
+## ⚙️ Configuration
 
-### Konfigurationsoptionen
+### Configuration Options
 
-Nach der Installation kannst du die Integration feinabstimmen:
+After installation you can fine-tune the integration:
 
-**Einstellungen → Geräte & Dienste → Violet Pool Controller → ⋮ (Menü) → Optionen**
+**Settings → Devices & Services → Violet Pool Controller → ⋮ (Menu) → Options**
 
-| Option | Beispiel | Beschreibung |
-|--------|----------|-------------|
-| **Host/IP-Adresse** | `192.168.1.100` | IP des Violet Controllers |
-| **Port** | `8080` | HTTP-Port (Standard: 80) |
-| **Abfrageintervall** | `30` | Update-Frequenz in Sekunden |
-| **Timeout** | `10` | Request-Timeout in Sekunden |
-| **SSL/TLS verwenden** | ☑ | HTTPS aktivieren |
-| **SSL-Zertifikat prüfen** | ☑ | Zertifikat-Validierung |
-| **Username** | `admin` | Nur wenn erforderlich |
-| **Passwort** | `****` | Nur wenn erforderlich |
+| Option | Example | Description |
+|--------|---------|-------------|
+| **Host/IP Address** | `192.168.1.100` | IP of the Violet controller |
+| **Port** | `8080` | HTTP port (default: 80) |
+| **Polling Interval** | `30` | Update frequency in seconds |
+| **Timeout** | `10` | Request timeout in seconds |
+| **Use SSL/TLS** | ☑ | Enable HTTPS |
+| **Verify SSL Certificate** | ☑ | Certificate validation |
+| **Username** | `admin` | Only if required |
+| **Password** | `****` | Only if required |
 
-### Erweiterte Optionen
+### Advanced Options
 
-#### SSL/TLS Konfiguration
+#### SSL/TLS Configuration
 
-**SSL aktivieren:**
-- Notwendig wenn Controller HTTPS nutzt
-- Gesetztes Zertifikat wird validiert
+**Enable SSL:**
+- Necessary when controller uses HTTPS
+- Installed certificate will be validated
 
-**SSL-Zertifikat prüfen deaktivieren:**
-- ⚠️ **Nur für selbsignierte Zertifikate!**
-- Nur in vertrauenswürdigen Netzwerken
-- Home Assistant zeigt Warnung
+**Disable SSL certificate verification:**
+- ⚠️ **Only for self-signed certificates!**
+- Only in trusted networks
+- Home Assistant will show a warning
 
 ```yaml
-# Beispiel: Konfiguration mit selbsigniertem Zertifikat
+# Example: Configuration with self-signed certificate
 Host: 192.168.1.100
-SSL verwenden: ☑
-SSL-Zertifikat prüfen: ☐
+Use SSL: ☑
+Verify SSL Certificate: ☐
 ```
 
-#### Timeout-Einstellungen
+#### Timeout Settings
 
-- **Gesamtlaufzeit**: 10 Sekunden (Standard)
-- **Verbindungs-Timeout**: 8 Sekunden (80% der Gesamtzeit)
-- **Socket-Timeout**: 8 Sekunden
+- **Total timeout**: 10 seconds (default)
+- **Connection timeout**: 8 seconds (80% of total time)
+- **Socket timeout**: 8 seconds
 
-> Diese Werte sind optimiert. Nur bei Verbindungsproblemen anpassen.
+> These values are optimized. Only adjust if you experience connection issues.
 
-#### Pool-Konfiguration (optional)
+#### Pool Configuration (Optional)
 
-Im Konfigurationsflow kannst du eingeben:
-- **Pool-Größe**: z.B. 50 m³
-- **Pool-Typ**: Außen/Innen
-- **Desinfektionsmittel**: Chlor/Brom/etc.
+In the configuration flow you can enter:
+- **Pool Size**: e.g. 50 m³
+- **Pool Type**: Indoor/Outdoor
+- **Disinfectant**: Chlorine/Bromine/etc.
 
-Diese beeinflussen die Standardwerte für Dosierungen.
+These influence the default values for dosing.
 
-### Feature-Gruppen
+### Feature Groups
 
-Die Integration unterstützt folgende Feature-Gruppen:
+The integration supports the following feature groups:
 
-| Feature | Beschreibung | Optionen |
-|---------|-------------|----------|
-| **Pumpe** | Filterpumpe mit Geschwindigkeit | Aus/Ein/Auto, 3 Geschwindigkeitsstufen |
-| **Heizer** | Heizung mit Thermostaten | Aus/Heat/Auto, Sollwert (°C) |
-| **Solar** | Solarthermie-Kollektor | Aus/Heat/Auto, Sollwert (°C) |
-| **Dosierung** | Chemische Dosierungen | pH-, pH+, Chlor, Flockmittel |
-| **Rückspülung** | Filterrückspülung | Manuell, mit Timer |
-| **Beleuchtung** | Pool-Beleuchtung | On/Off, DMX-Szenen, Farben |
-| **Abdeckung** | Pool-Abdeckung | Auf/Zu, Position-Tracking |
-| **PV-Überschuss** | Solar-Überschuss-Nutzer | Auto, 3 Geschwindigkeitsstufen |
-| **Digitale Eingänge** | DI1-DI8 | Binary Sensors, Regeln |
+| Feature | Description | Options |
+|---------|-------------|---------|
+| **Pump** | Filter pump with speed control | Off/On/Auto, 3 speed levels |
+| **Heater** | Heater with thermostat | Off/Heat/Auto, Setpoint (°C) |
+| **Solar** | Solar thermal collector | Off/Heat/Auto, Setpoint (°C) |
+| **Dosing** | Chemical dosing | pH-, pH+, Chlorine, Flocculant |
+| **Backwash** | Filter backwash | Manual, with timer |
+| **Lighting** | Pool lighting | On/Off, DMX scenes, Colors |
+| **Cover** | Pool cover | Open/Close, Position tracking |
+| **PV Surplus** | Solar surplus usage | Auto, 3 speed levels |
+| **Digital Inputs** | DI1-DI8 | Binary sensors, Rules |
 
 ---
 
-## 🖥️ Geräte & Entitäten
+## 🖥️ Devices & Entities
 
-### Was ist eine Entität?
+### What is an Entity?
 
-Eine **Entität** ist ein steuerbares oder messbares Element in Home Assistant:
-- **Sensoren**: Messwerte (Temperatur, Druck)
-- **Schalter**: Steuerbar (Pumpe, Heizer)
-- **Klima**: Heizung mit Thermostat
-- **Abdeckung**: Cover mit Position
+An **entity** is a controllable or measurable element in Home Assistant:
+- **Sensors**: Measurements (temperature, pressure)
+- **Switches**: Controllable (pump, heater)
+- **Climate**: Heater with thermostat
+- **Cover**: Cover with position
 
-### Benennungsschema
+### Naming Scheme
 
-Entitäten erhalten automatisch eindeutige Namen:
+Entities automatically receive unique names:
 
 ```
 {domain}.{device_name}_{feature_name}
 ```
 
-**Beispiele:**
-- `sensor.violet_pool_temperature` → Wassertemperatur
-- `switch.violet_pump` → Filterpumpe
-- `climate.violet_heater` → Heizung mit Thermostat
-- `cover.violet_pool_cover` → Pool-Abdeckung
+**Examples:**
+- `sensor.violet_pool_temperature` → Water temperature
+- `switch.violet_pump` → Filter pump
+- `climate.violet_heater` → Heater with thermostat
+- `cover.violet_pool_cover` → Pool cover
 
-### Multi-Controller Betrieb
+### Multi-Controller Operation
 
-Wenn mehrere Controller angebunden sind:
+When multiple controllers are connected:
 
 ```
 {domain}.{device_name_1}_{feature_name}
 {domain}.{device_name_2}_{feature_name}
 ```
 
-Die Namen werden mit `_2`, `_3` usw. erweitert.
+Names are extended with `_2`, `_3`, etc.
 
-### Entitäten organisieren
+### Organizing Entities
 
-Home Assistant zeigt Entitäten automatisch nach Geräten. Du kannst diese auch manuell organisieren:
+Home Assistant automatically displays entities by device. You can also organize them manually:
 
-1. Einstellungen → Geräte & Dienste → Geräte
-2. Dein Violet-Gerät auswählen
-3. Entitäten verschieben oder umbenennen
-
----
-
-## 🎯 Device States erklärt
-
-### Die 7 Device States (0-6)
-
-Der Violet Controller hat 7 verschiedene Zustände für Geräte. Diese sind **sehr wichtig zum Verstehen**:
-
-| State | Name | Deutsch | Manuell/Auto | Status | Beschreibung |
-|-------|------|---------|-------------|--------|-------------|
-| **0** | AUTO_OFF | Automatik - Aus | Auto | ⛔ OFF | Automatik aktiv, Gerät läuft nicht |
-| **1** | MANUAL_ON | Manuell An | Manuell | ✅ ON | Manuell eingeschaltet |
-| **2** | AUTO_ON | Automatik - An | Auto | ✅ ON | Automatik aktiv, Gerät läuft |
-| **3** | AUTO_TIMER | Automatik - Timer | Auto | ✅ ON | Automatik mit Zeitsteuerung, aktiv |
-| **4** | MANUAL_FORCED | Manuell erzwungen | Manuell | ✅ ON | Manuell eingeschaltet, erzwungen |
-| **5** | AUTO_WAITING | Automatik - Wartend | Auto | ⛔ OFF | Automatik aktiv, wartet auf Bedingungen |
-| **6** | MANUAL_OFF | Manuell Aus | Manuell | ⛔ OFF | Manuell ausgeschaltet |
-
-### State-Visualisierung in Home Assistant
-
-Je nach State werden unterschiedliche Icons und Farben angezeigt:
-
-**Automatik-Modus:**
-- 🟢 **Grün** (Auto - Aktiv): States 2, 3
-- 🔵 **Blau** (Auto - Bereit): States 0, 5
-
-**Manuell-Modus:**
-- 🟠 **Orange** (Manuell An): States 1, 4
-- 🔴 **Rot** (Manuell Aus): State 6
-
-### Besondere States
-
-#### State 3 mit Zusatzinfo: `3|PUMP_ANTI_FREEZE`
-
-States können mit Zusatzinformationen durch `|` getrennt sein:
-
-```
-3|PUMP_ANTI_FREEZE    → Automatik mit Frostschutz aktiv
-2|BLOCKED_BY_TEMP     → Automatik läuft, aber blockiert durch Temperatur
-```
-
-**Die Ziffer ist wichtig**, die Zusatzinfo ist erklärend.
-
-### State-Übergänge
-
-Typische Übergänge:
-
-```
-6 (Manuell Aus)
-  ↓
-1 (Manuell An)      → Benutzer schaltet manuell ein
-  ↓
-6 (Manuell Aus)     → Benutzer schaltet manuell aus
+1. Settings → Devices & Services → Devices
+2. Select your Violet device
+3. Move or rename entities
 
 ---
 
-0 (Auto - Aus)
-  ↓
-2 (Auto - An)       → Automatik erkennt Bedingung
-  ↓
-3 (Auto - Timer)    → Zeitsteuerung tritt in Kraft
-  ↓
-0 (Auto - Aus)      → Bedingung erfüllt oder Bedingung verändert
+## 🎯 Device States Explained
+
+### The 7 Device States (0-6)
+
+The Violet controller has 7 different states for devices. These are **very important to understand**:
+
+| State | Name | Description | Manual/Auto | Status | Explanation |
+|-------|------|-------------|-------------|--------|-------------|
+| **0** | AUTO_OFF | Auto - Off | Auto | ⛔ OFF | Automatic active, device not running |
+| **1** | MANUAL_ON | Manual On | Manual | ✅ ON | Manually turned on |
+| **2** | AUTO_ON | Auto - On | Auto | ✅ ON | Automatic active, device running |
+| **3** | AUTO_TIMER | Auto - Timer | Auto | ✅ ON | Automatic with timer control, active |
+| **4** | MANUAL_FORCED | Manual Forced | Manual | ✅ ON | Manually turned on, forced |
+| **5** | AUTO_WAITING | Auto - Waiting | Auto | ⛔ OFF | Automatic active, waiting for conditions |
+| **6** | MANUAL_OFF | Manual Off | Manual | ⛔ OFF | Manually turned off |
+
+### State Visualization in Home Assistant
+
+Depending on the state, different icons and colors are displayed:
+
+**Automatic Mode:**
+- 🟢 **Green** (Auto - Active): States 2, 3
+- 🔵 **Blue** (Auto - Ready): States 0, 5
+
+**Manual Mode:**
+- 🟠 **Orange** (Manual On): States 1, 4
+- 🔴 **Red** (Manual Off): State 6
+
+### Special States
+
+#### State 3 with Additional Info: `3|PUMP_ANTI_FREEZE`
+
+States can include additional information separated by `|`:
+
+```
+3|PUMP_ANTI_FREEZE    → Automatic with frost protection active
+2|BLOCKED_BY_TEMP     → Automatic running, but blocked by temperature
 ```
 
-### State in Automatisierungen nutzen
+**The number is important**, the additional info is explanatory.
 
-**Beispiel: Überprüfe, ob Pumpe läuft**
+### State Transitions
+
+Typical transitions:
+
+```
+6 (Manual Off)
+  ↓
+1 (Manual On)       → User manually turns on
+  ↓
+6 (Manual Off)      → User manually turns off
+
+---
+
+0 (Auto - Off)
+  ↓
+2 (Auto - On)       → Automatic detects condition
+  ↓
+3 (Auto - Timer)    → Timer control takes effect
+  ↓
+0 (Auto - Off)      → Condition met or condition changed
+```
+
+### Using States in Automations
+
+**Example: Check if pump is running**
 
 ```yaml
 automation:
-  - alias: "Überprüfe Pumpen-Status"
+  - alias: "Check Pump Status"
     trigger:
       - platform: state
         entity_id: switch.violet_pump
@@ -316,43 +316,43 @@ automation:
     action:
       - service: notify.notify
         data:
-          message: "Pumpe läuft jetzt!"
+          message: "Pump is now running!"
 ```
 
-**Beispiel: Reagiere auf Manuell-Status**
+**Example: React to Manual Status**
 
 ```yaml
 automation:
-  - alias: "Benachrichtigung bei manuellem Heizer"
+  - alias: "Notification on manual heater"
     trigger:
       - platform: template
         value_template: "{{ state_attr('switch.violet_heater', 'violet_state') in ['1', '4'] }}"
     action:
       - service: notify.notify
         data:
-          message: "Heizer läuft im manuellen Modus!"
+          message: "Heater is running in manual mode!"
 ```
 
 ---
 
-## 🤖 Services & Automatisierungen
+## 🤖 Services & Automations
 
-### Verfügbare Services
+### Available Services
 
-Die Integration bietet spezialisierte Services für erweiterte Automatisierung. Diese sind deutlich leistungsfähiger als einfache An/Aus-Schalter.
+The integration provides specialized services for advanced automation. These are significantly more powerful than simple on/off switches.
 
-### 🔧 Service: `control_pump` - Pumpen-Steuerung
+### 🔧 Service: `control_pump` - Pump Control
 
-**Beschreibung**: Erweiterte Pumpensteuerung mit Geschwindigkeit und Modi
+**Description**: Advanced pump control with speed and modes
 
-**Verfügbare Aktionen:**
-- `speed_control` - Geschwindigkeit (1-3) mit Timer
-- `force_off` - Erzwungenes Ausschalten
-- `eco_mode` - Energiesparen (reduzierte Geschwindigkeit)
-- `boost_mode` - Maximale Leistung
-- `auto` - Zurück zu Automatik
+**Available actions:**
+- `speed_control` - Speed (1-3) with timer
+- `force_off` - Force turn off
+- `eco_mode` - Energy saving (reduced speed)
+- `boost_mode` - Maximum performance
+- `auto` - Return to automatic
 
-**Beispiel: Pumpe mit Geschwindigkeit 2 starten**
+**Example: Start pump at speed 2**
 ```yaml
 service: violet_pool_controller.control_pump
 target:
@@ -360,10 +360,10 @@ target:
 data:
   action: speed_control
   speed: 2
-  duration: 3600  # 1 Stunde
+  duration: 3600  # 1 hour
 ```
 
-**Beispiel: Pumpe 30 Min im Eco-Modus**
+**Example: Pump in eco mode for 30 minutes**
 ```yaml
 service: violet_pool_controller.control_pump
 target:
@@ -373,41 +373,41 @@ data:
   duration: 1800
 ```
 
-**Parameter:**
+**Parameters:**
 
-| Parameter | Typ | Bereich | Standard | Beschreibung |
-|-----------|-----|--------|---------|-------------|
-| `action` | Text | Siehe oben | - | Aktion durchführen |
-| `speed` | Zahl | 1-3 | 2 | Pumpengeschwindigkeit |
-| `duration` | Zahl | 0-86400 | 0 | Dauer in Sekunden (0=unbegrenzt) |
+| Parameter | Type | Range | Default | Description |
+|-----------|------|-------|---------|-------------|
+| `action` | Text | See above | - | Action to perform |
+| `speed` | Number | 1-3 | 2 | Pump speed |
+| `duration` | Number | 0-86400 | 0 | Duration in seconds (0=unlimited) |
 
-### 🧪 Service: `smart_dosing` - Intelligente Dosierung
+### 🧪 Service: `smart_dosing` - Smart Dosing
 
-**Beschreibung**: Manuelle oder automatische Dosierung von Chemikalien
+**Description**: Manual or automatic dosing of chemicals
 
-**Verfügbare Chemikalien:**
-- `pH-` (Säure/Reduktion)
-- `pH+` (Lauge/Erhöhung)
-- `Chlor` (Desinfektionsmittel)
-- `Flockmittel` (Filterverbesserer)
+**Available chemicals:**
+- `pH-` (Acid/Reduction)
+- `pH+` (Base/Increase)
+- `Chlorine` (Disinfectant)
+- `Flocculant` (Filter aid)
 
-**Verfügbare Aktionen:**
-- `manual_dose` - Manuell dosieren
-- `auto` - Automatische Dosierung starten
-- `stop` - Dosierung stoppen
+**Available actions:**
+- `manual_dose` - Manual dose
+- `auto` - Start automatic dosing
+- `stop` - Stop dosing
 
-**Beispiel: 30 Sekunden Chlor dosieren**
+**Example: Dose chlorine for 30 seconds**
 ```yaml
 service: violet_pool_controller.smart_dosing
 target:
   entity_id: switch.chlorine_dosing
 data:
-  dosing_type: "Chlor"
+  dosing_type: "Chlorine"
   action: manual_dose
   duration: 30
 ```
 
-**Beispiel: pH-Ausgleich mit Sicherheit**
+**Example: pH adjustment with safety**
 ```yaml
 service: violet_pool_controller.smart_dosing
 target:
@@ -416,28 +416,28 @@ data:
   dosing_type: "pH-"
   action: manual_dose
   duration: 15
-  safety_override: false  # Sicherheitschecks beachten
+  safety_override: false  # Observe safety checks
 ```
 
-**Parameter:**
+**Parameters:**
 
-| Parameter | Typ | Bereich | Standard | Beschreibung |
-|-----------|-----|--------|---------|-------------|
-| `dosing_type` | Text | Siehe oben | - | Welche Chemikalie? |
-| `action` | Text | Siehe oben | - | Aktion durchführen |
-| `duration` | Zahl | 5-300 | 30 | Dosierdauer in Sekunden |
-| `safety_override` | Boolean | true/false | false | Sicherheitsintervalle ignorieren |
+| Parameter | Type | Range | Default | Description |
+|-----------|------|-------|---------|-------------|
+| `dosing_type` | Text | See above | - | Which chemical? |
+| `action` | Text | See above | - | Action to perform |
+| `duration` | Number | 5-300 | 30 | Dosing duration in seconds |
+| `safety_override` | Boolean | true/false | false | Ignore safety intervals |
 
-### ☀️ Service: `manage_pv_surplus` - PV-Überschuss-Management
+### ☀️ Service: `manage_pv_surplus` - PV Surplus Management
 
-**Beschreibung**: Nutze Solaranlagen-Überschuss für Poolheizung
+**Description**: Use solar system surplus for pool heating
 
-**Modi:**
-- `activate` - PV-Modus aktivieren
-- `deactivate` - PV-Modus deaktivieren
-- `auto` - Automatische Verwaltung
+**Modes:**
+- `activate` - Enable PV mode
+- `deactivate` - Disable PV mode
+- `auto` - Automatic management
 
-**Beispiel: PV-Surplus mit Geschwindigkeit 3**
+**Example: PV surplus with speed 3**
 ```yaml
 service: violet_pool_controller.manage_pv_surplus
 target:
@@ -447,49 +447,49 @@ data:
   pump_speed: 3
 ```
 
-**Parameter:**
+**Parameters:**
 
-| Parameter | Typ | Bereich | Default | Beschreibung |
-|-----------|-----|--------|---------|-------------|
-| `mode` | Text | activate/deactivate/auto | - | Modus |
-| `pump_speed` | Zahl | 1-3 | 2 | Pumpengeschwindigkeit |
+| Parameter | Type | Range | Default | Description |
+|-----------|------|-------|---------|-------------|
+| `mode` | Text | activate/deactivate/auto | - | Mode |
+| `pump_speed` | Number | 1-3 | 2 | Pump speed |
 
 ### 💡 Service: `control_dmx_scenes` - DMX Lighting
 
-**Beschreibung**: Steuere Pool-Beleuchtungs-Szenen
+**Description**: Control pool lighting scenes
 
-**Verfügbare Aktionen:**
-- `all_on` - Alle Szenen einschalten
-- `all_off` - Alle Szenen ausschalten
-- `all_auto` - Automatik
-- `sequence` - Szenen nacheinander abspielen
-- `party_mode` - Party-Modus aktivieren
+**Available actions:**
+- `all_on` - Turn on all scenes
+- `all_off` - Turn off all scenes
+- `all_auto` - Automatic
+- `sequence` - Play scenes in sequence
+- `party_mode` - Activate party mode
 
-**Beispiel: Alle Lichter ausschalten**
+**Example: Turn off all lights**
 ```yaml
 service: violet_pool_controller.control_dmx_scenes
 data:
   action: all_off
 ```
 
-**Beispiel: Party-Modus mit Szenen-Wechsel**
+**Example: Party mode with scene switching**
 ```yaml
 service: violet_pool_controller.control_dmx_scenes
 data:
   action: sequence
-  sequence_delay: 3  # 3 Sekunden zwischen Szenen
+  sequence_delay: 3  # 3 seconds between scenes
 ```
 
-### 🔍 Service: `test_output` - Diagnose
+### 🔍 Service: `test_output` - Diagnostics
 
-**Beschreibung**: Teste Ausgänge für Diagnose und Wartung
+**Description**: Test outputs for diagnostics and maintenance
 
-**Parameter:**
-- `output` - Welcher Ausgang? (PUMP, HEATER, SOLAR, etc.)
-- `mode` - SWITCH, ON, oder OFF
-- `duration` - Test-Laufzeit (1-900 Sekunden)
+**Parameters:**
+- `output` - Which output? (PUMP, HEATER, SOLAR, etc.)
+- `mode` - SWITCH, ON, or OFF
+- `duration` - Test duration (1-900 seconds)
 
-**Beispiel: Pumpe 2 Min testen**
+**Example: Test pump for 2 minutes**
 ```yaml
 service: violet_pool_controller.test_output
 target:
@@ -502,110 +502,110 @@ data:
 
 ### Automation Blueprints
 
-Fertige Automatisierungs-Vorlagen sind im Projekt enthalten:
+Ready-made automation templates are included in the project:
 
 **Installation:**
-1. Einstellungen → Automatisierungen & Szenen → Blueprints
-2. "Blueprint importieren"
-3. Repository-URL eingeben
+1. Settings → Automations & Scenes → Blueprints
+2. "Import Blueprint"
+3. Enter repository URL
 
-**Verfügbare Blueprints:**
-- 🌡️ Intelligente Temperatursteuerung
-- 🧪 pH-Management
-- ⚡ Energie-Optimierung
-- 🌧️ Wetter-Automatisierung
-- 🏊 Pool-Modi (Party, Eco, Winter)
-
----
-
-## 📊 Sensoren & Messwerte
-
-### Wasserchemie-Sensoren
-
-Diese Sensoren messen die Wasserqualität:
-
-| Sensor | Einheit | Bereich | Normalwert | Beschreibung |
-|--------|--------|--------|-----------|-------------|
-| **pH-Wert** | pH | 6.0-8.5 | 7.0-7.4 | Säuregehalt (7=neutral) |
-| **Redoxpotential (ORP)** | mV | 400-800 | 650-750 | Desinfektionswirkung |
-| **Chlorin** | mg/l | 0-5 | 1.0-3.0 | Freies Chlor |
-| **Leitfähigkeit** | µS/cm | 0-2000 | ~1200 | Salzgehalt |
-
-### Temperatur-Sensoren
-
-| Sensor | Einheit | Bereich | Beschreibung |
-|--------|--------|--------|-------------|
-| **Pool-Temperatur** | °C | 0-50 | Aktuelle Wassertemperatur |
-| **Solar-Temperatur** | °C | 0-80 | Temperatur Solarthermie-Kollektor |
-| **Umgebungstemperatur** | °C | -20-60 | Außentemperatur |
-
-### System-Sensoren
-
-| Sensor | Einheit | Beschreibung |
-|--------|--------|-------------|
-| **Filterdruck** | bar | Druck im Filtersystem (0.5-2.5) |
-| **Wasserstände** | % | Poolwasser-Niveau |
-| **Pumpen-Laufzeit** | h | Gesamtlaufzeit heute |
-| **Heizer-Laufzeit** | h | Gesamte Laufzeit |
-| **Energieverbrauch** | kWh | Heutige Strombilanz |
-
-### Analog-Eingänge (AI1-AI8)
-
-Falls vorhanden: `sensor.violet_ai1` bis `sensor.violet_ai8`
-- Allgemeine Messeingänge (0-10V oder 4-20mA)
-- Benutzerdefinierte Sensoren anschließbar
-
-### Digital-Eingänge (DI1-DI8)
-
-Binäre Sensoren für Schalter, Kontakte, Drucktaster:
-- `binary_sensor.violet_di1` bis `binary_sensor.violet_di8`
-- On/Off Zustände
-
-### Fehler-Codes Sensor
-
-`sensor.violet_system_error_codes` zeigt aktuelle Fehler:
-
-```
-[]                      → Keine Fehler
-[101, 205]             → Mehrere Fehler (z.B. Sensor-, Druckfehler)
-```
-
-### Kalibrierungs-Historie
-
-`sensor.violet_calibration_history` enthält Kalibrierungsdaten:
-- Datum und Uhrzeit
-- Kalibriert Sensor (pH, ORP, etc.)
-- Kalibrierungswerte
+**Available Blueprints:**
+- 🌡️ Smart Temperature Control
+- 🧪 pH Management
+- ⚡ Energy Optimization
+- 🌧️ Weather Automation
+- 🏊 Pool Modes (Party, Eco, Winter)
 
 ---
 
-## 🎚️ Schalter & Steuerungen
+## 📊 Sensors & Measurements
 
-### Die 3-State Schalter-Logik
+### Water Chemistry Sensors
 
-Alle Geräte sind **3-State Schalter** mit den Zuständen:
-1. **Ein** (ON)
-2. **Aus** (OFF)
-3. **Automatik** (AUTO)
+These sensors measure water quality:
+
+| Sensor | Unit | Range | Normal Value | Description |
+|--------|------|-------|-------------|-------------|
+| **pH Value** | pH | 6.0-8.5 | 7.0-7.4 | Acidity (7=neutral) |
+| **Redox Potential (ORP)** | mV | 400-800 | 650-750 | Disinfection effectiveness |
+| **Chlorine** | mg/l | 0-5 | 1.0-3.0 | Free chlorine |
+| **Conductivity** | µS/cm | 0-2000 | ~1200 | Salt content |
+
+### Temperature Sensors
+
+| Sensor | Unit | Range | Description |
+|--------|------|-------|-------------|
+| **Pool Temperature** | °C | 0-50 | Current water temperature |
+| **Solar Temperature** | °C | 0-80 | Solar thermal collector temperature |
+| **Ambient Temperature** | °C | -20-60 | Outside temperature |
+
+### System Sensors
+
+| Sensor | Unit | Description |
+|--------|------|-------------|
+| **Filter Pressure** | bar | Pressure in filter system (0.5-2.5) |
+| **Water Levels** | % | Pool water level |
+| **Pump Runtime** | h | Total runtime today |
+| **Heater Runtime** | h | Total runtime |
+| **Energy Consumption** | kWh | Today's power consumption |
+
+### Analog Inputs (AI1-AI8)
+
+If available: `sensor.violet_ai1` through `sensor.violet_ai8`
+- General-purpose measurement inputs (0-10V or 4-20mA)
+- Custom sensors can be connected
+
+### Digital Inputs (DI1-DI8)
+
+Binary sensors for switches, contacts, push buttons:
+- `binary_sensor.violet_di1` through `binary_sensor.violet_di8`
+- On/Off states
+
+### Error Codes Sensor
+
+`sensor.violet_system_error_codes` shows current errors:
 
 ```
-Schalter: Ein → Aus → Automatik → Ein ...
+[]                      → No errors
+[101, 205]             → Multiple errors (e.g. sensor, pressure errors)
 ```
 
-Home Assistant zeigt zusätzlich den inneren **State** an (0-6):
+### Calibration History
+
+`sensor.violet_calibration_history` contains calibration data:
+- Date and time
+- Calibrated sensor (pH, ORP, etc.)
+- Calibration values
+
+---
+
+## 🎚️ Switches & Controls
+
+### The 3-State Switch Logic
+
+All devices are **3-state switches** with the following states:
+1. **On** (ON)
+2. **Off** (OFF)
+3. **Automatic** (AUTO)
 
 ```
-Anzeige: Ein/Aus/Automatik (Intern: State 1/6/0)
+Switch: On → Off → Automatic → On ...
 ```
 
-### Schalter-Typen
+Home Assistant also displays the internal **state** (0-6):
 
-#### 1. Binäre Schalter (nur Ein/Aus)
-- Pool-Abdeckung
-- Rückspülung
-- Einige Extension-Relays
+```
+Display: On/Off/Automatic (Internal: State 1/6/0)
+```
 
-**Befehle:**
+### Switch Types
+
+#### 1. Binary Switches (On/Off only)
+- Pool cover
+- Backwash
+- Some extension relays
+
+**Commands:**
 ```yaml
 service: switch.turn_on
 target:
@@ -616,92 +616,92 @@ target:
   entity_id: switch.violet_backwash
 ```
 
-#### 2. 3-State Schalter (Ein/Aus/Auto)
-- Pumpe
-- Heizer
+#### 2. 3-State Switches (On/Off/Auto)
+- Pump
+- Heater
 - Solar
-- Dosierungen
-- DMX-Szenen
+- Dosing
+- DMX scenes
 
-**Befehle:**
+**Commands:**
 ```yaml
-# Einschalten
+# Turn on
 service: switch.turn_on
 target:
   entity_id: switch.violet_pump
 
-# Ausschalten
+# Turn off
 service: switch.turn_off
 target:
   entity_id: switch.violet_pump
 
-# Automatik
+# Automatic
 service: violet_pool_controller.turn_auto
 target:
   entity_id: switch.violet_pump
 ```
 
-### Verfügbare Schalter
+### Available Switches
 
-#### Hauptkomponenten
+#### Main Components
 
-| Schalter | Funktion | States | Besonderheiten |
-|----------|----------|--------|-----------------|
-| **Pumpe** | Filterpumpe | Ein/Aus/Auto | 3 Geschwindigkeiten |
-| **Heizer** | Hauptheizung | Ein/Aus/Auto | Mit Thermostat |
-| **Solar** | Solarthermie | Ein/Aus/Auto | Mit Thermostat |
-| **Beleuchtung** | Pool-Licht | Ein/Aus/Auto | DMX-Szenen möglich |
+| Switch | Function | States | Special Features |
+|--------|----------|--------|------------------|
+| **Pump** | Filter pump | On/Off/Auto | 3 speed levels |
+| **Heater** | Main heater | On/Off/Auto | With thermostat |
+| **Solar** | Solar thermal | On/Off/Auto | With thermostat |
+| **Lighting** | Pool light | On/Off/Auto | DMX scenes possible |
 
-#### Chemie-Dosierung
+#### Chemical Dosing
 
-| Schalter | Chemikalien | Dauer | Sicherheit |
-|----------|------------|-------|-----------|
-| **pH- Dosierung** | Säure | 5-300s | Minimalintervall |
-| **pH+ Dosierung** | Lauge | 5-300s | Minimalintervall |
-| **Chlor Dosierung** | Chlorin | 5-300s | Überdosis-Schutz |
-| **Flockmittel** | Filterhelfer | 5-300s | Mit Pumpen-Sync |
+| Switch | Chemical | Duration | Safety |
+|--------|----------|----------|--------|
+| **pH- Dosing** | Acid | 5-300s | Minimum interval |
+| **pH+ Dosing** | Base | 5-300s | Minimum interval |
+| **Chlorine Dosing** | Chlorine | 5-300s | Overdose protection |
+| **Flocculant** | Filter aid | 5-300s | With pump sync |
 
-#### Wartung & Sonderausgänge
+#### Maintenance & Special Outputs
 
-| Schalter | Funktion | Verwendung |
-|----------|----------|-----------|
-| **Rückspülung** | Filterreinigung | Automatisch/Manuell |
-| **Rückspül-Rinse** | Nachspülung | Nach Rückspülung |
-| **Abdeckung** | Pool-Cover | Auf/Zu/Stopp |
-| **PV-Überschuss** | Solar-Nutzung | Mit Geschwindigkeit |
+| Switch | Function | Usage |
+|--------|----------|-------|
+| **Backwash** | Filter cleaning | Automatic/Manual |
+| **Backwash Rinse** | Rinsing | After backwash |
+| **Cover** | Pool cover | Open/Close/Stop |
+| **PV Surplus** | Solar usage | With speed control |
 
 #### Extension Relays (EXT1-EXT8, EXT2-EXT8)
 
-Zusätzliche Ausgänge für benutzerdefinierte Geräte:
-- `switch.violet_ext1_1` bis `switch.violet_ext1_8`
-- `switch.violet_ext2_1` bis `switch.violet_ext2_8`
+Additional outputs for custom devices:
+- `switch.violet_ext1_1` through `switch.violet_ext1_8`
+- `switch.violet_ext2_1` through `switch.violet_ext2_8`
 
-Konfigurierbar für beliebige Verwendung.
+Configurable for any purpose.
 
-#### DMX Szenen (SCENE 1-12)
+#### DMX Scenes (SCENE 1-12)
 
-Vordefinierte Lichtszenarios:
-- `switch.violet_dmx_scene1` bis `switch.violet_dmx_scene12`
+Predefined lighting scenarios:
+- `switch.violet_dmx_scene1` through `switch.violet_dmx_scene12`
 
-Aktiviere Szenen einzeln oder via Service für Sequenzen.
+Activate scenes individually or via service for sequences.
 
 ---
 
-## 🌡️ Klima-Steuerungen (Climate)
+## 🌡️ Climate Controls
 
-Spezielle Entitäten für Heizung und Solar mit Temperaturregelung:
+Special entities for heater and solar with temperature control:
 
-### Heizer (climate.violet_heater)
+### Heater (climate.violet_heater)
 
-**HVAC-Modi:**
-- `off` - Aus
-- `heat` - Heizen
-- `auto` - Automatik
+**HVAC Modes:**
+- `off` - Off
+- `heat` - Heating
+- `auto` - Automatic
 
-**Aktuelle Temperatur:** Pool-Temperatur
-**Sollwert:** Zieltemperatur eingeben (z.B. 28°C)
+**Current Temperature:** Pool temperature
+**Setpoint:** Enter target temperature (e.g. 28°C)
 
-**Beispiel: Auf 28°C heizen**
+**Example: Heat to 28°C**
 ```yaml
 service: climate.set_temperature
 target:
@@ -713,14 +713,14 @@ data:
 
 ### Solar (climate.violet_solar)
 
-**HVAC-Modi:**
-- `off` - Aus
-- `heat` - Solarheizung
-- `auto` - Automatik
+**HVAC Modes:**
+- `off` - Off
+- `heat` - Solar heating
+- `auto` - Automatic
 
-**Besonderheit:** Nur aktiv wenn Kollektor > Poolwasser
+**Special feature:** Only active when collector > pool water
 
-**Beispiel: Solar auf 30°C automatisch**
+**Example: Solar automatic at 30°C**
 ```yaml
 service: climate.set_temperature
 target:
@@ -736,33 +736,33 @@ data:
 
 ### Lovelace Dashboard
 
-Ein vorgefertigtes Dashboard liegt bei:
-- Datei: `Dashboard/pool-dashboard.yaml`
-- Kopiere nach `/config/`
-- Importiere in HA → Einstellungen → Dashboards
+A pre-built dashboard is included:
+- File: `Dashboard/pool-dashboard.yaml`
+- Copy to `/config/`
+- Import in HA → Settings → Dashboards
 
-**Das Dashboard enthält:**
-- 🌡️ Aktuelle Temperaturen
-- 📊 Wasserchemie-Monitore
-- 🎚️ Schnellzugriff auf Geräte
-- 📈 Statistiken und Trends
+**The dashboard contains:**
+- 🌡️ Current temperatures
+- 📊 Water chemistry monitors
+- 🎚️ Quick access to devices
+- 📈 Statistics and trends
 
-### Eigenes Dashboard erstellen
+### Creating a Custom Dashboard
 
 ```yaml
-title: Mein Pool Dashboard
+title: My Pool Dashboard
 views:
-  - title: Übersicht
+  - title: Overview
     cards:
       - type: glance
-        title: Aktuelle Werte
+        title: Current Values
         entities:
           - sensor.violet_pool_temperature
           - sensor.violet_pool_ph_value
           - sensor.violet_pool_chlorine_level
 
       - type: entities
-        title: Steuerung
+        title: Controls
         entities:
           - switch.violet_pump
           - switch.violet_heater
@@ -772,13 +772,13 @@ views:
         entity: climate.violet_heater
 ```
 
-### Automatisierungen erstellen
+### Creating Automations
 
-**Einfache Automation: Heizer aktivieren wenn Temperatur zu niedrig**
+**Simple Automation: Activate heater when temperature is too low**
 
 ```yaml
 automation:
-  - alias: "Pool zu kalt - Heizen"
+  - alias: "Pool too cold - Heating"
     trigger:
       - platform: numeric_state
         entity_id: sensor.violet_pool_temperature
@@ -792,14 +792,14 @@ automation:
           hvac_mode: heat
       - service: notify.notify
         data:
-          message: "Pool ist zu kalt, Heizung wird aktiviert"
+          message: "Pool is too cold, heater is being activated"
 ```
 
-**Komplexe Automation: Intelligente Dosierung**
+**Complex Automation: Smart Dosing**
 
 ```yaml
 automation:
-  - alias: "Automatisches pH-Management"
+  - alias: "Automatic pH Management"
     trigger:
       - platform: numeric_state
         entity_id: sensor.violet_pool_ph_value
@@ -814,308 +814,308 @@ automation:
           duration: 20
       - service: notify.notify
         data:
-          message: "pH zu hoch, pH- wird dosiert"
+          message: "pH too high, pH- is being dosed"
 ```
 
 ---
 
-## 🚨 Fehlerbehandlung & Troubleshooting
+## 🚨 Error Handling & Troubleshooting
 
-### Häufige Fehler und Lösungen
+### Common Errors and Solutions
 
-#### ❌ "Verbindung zum Controller fehlgeschlagen"
+#### ❌ "Connection to controller failed"
 
-**Ursachen:**
-- Controller nicht im Netzwerk erreichbar
-- Falsche IP-Adresse
-- Firewall blockiert
-- Controller ausgeschaltet
+**Causes:**
+- Controller not reachable on the network
+- Wrong IP address
+- Firewall blocking
+- Controller is turned off
 
-**Lösungen:**
+**Solutions:**
 ```bash
-# 1. Ping testen
+# 1. Ping test
 ping 192.168.1.100
 
-# 2. Direkter HTTP-Test
+# 2. Direct HTTP test
 curl http://192.168.1.100/getReadings?ALL
 
-# 3. In HA testen
-Einstellungen → Geräte & Dienste → Violet → ⋮ → Neu laden
+# 3. Test in HA
+Settings → Devices & Services → Violet → ⋮ → Reload
 ```
 
-#### ❌ "SSL-Zertifikat-Fehler"
+#### ❌ "SSL Certificate Error"
 
 **Symptom:** `SSL: CERTIFICATE_VERIFY_FAILED`
 
-**Lösung:**
-1. Einstellungen → Geräte & Dienste → Violet → ⋮ → Optionen
-2. "SSL-Zertifikat prüfen" deaktivieren
-3. ⚠️ Nur für selbsignierte Zertifikate!
+**Solution:**
+1. Settings → Devices & Services → Violet → ⋮ → Options
+2. Disable "Verify SSL Certificate"
+3. ⚠️ Only for self-signed certificates!
 
-#### ❌ "Timeout - Request dauert zu lange"
+#### ❌ "Timeout - Request takes too long"
 
-**Ursachen:**
-- Netzwerk überlastet
-- Controller nicht responsive
-- Zu viele Sensoren abgefragt
+**Causes:**
+- Network overloaded
+- Controller not responsive
+- Too many sensors queried
 
-**Lösungen:**
-1. Abfrageintervall erhöhen (z.B. 45 Sekunden)
-2. Weniger Sensoren aktivieren
-3. Netzwerk-Stabilität prüfen
+**Solutions:**
+1. Increase polling interval (e.g. 45 seconds)
+2. Enable fewer sensors
+3. Check network stability
 
-#### ❌ "Entitäten sind ständig 'unavailable'"
+#### ❌ "Entities are constantly 'unavailable'"
 
-**Ursachen:**
-- Koordinator-Fehler
-- Zu kurzes Abfrageintervall
-- Sensor-Problem am Controller
+**Causes:**
+- Coordinator error
+- Polling interval too short
+- Sensor problem on the controller
 
-**Lösungen:**
+**Solutions:**
 ```yaml
-# Integration neu laden
+# Reload integration
 service: homeassistant.reload_config_entry
 target:
   device_id: <device_id>
 
-# Oder manuell:
-# Einstellungen → Geräte & Dienste → Violet → ⋮ → Neu laden
+# Or manually:
+# Settings → Devices & Services → Violet → ⋮ → Reload
 ```
 
-### Debug-Modus aktivieren
+### Enabling Debug Mode
 
-Für detailliertere Logs:
+For more detailed logs:
 
-1. `configuration.yaml` bearbeiten:
+1. Edit `configuration.yaml`:
 ```yaml
 logger:
   logs:
     custom_components.violet_pool_controller: debug
 ```
 
-2. Home Assistant neu starten
+2. Restart Home Assistant
 
-3. Logs prüfen:
+3. Check logs:
 ```bash
 tail -f /config/home-assistant.log | grep violet_pool_controller
 ```
 
-### Logs prüfen
+### Checking Logs
 
-Home Assistant → Einstellungen → System → Protokolle
+Home Assistant → Settings → System → Logs
 
-Wichtige Meldungen:
-- `INFO` - Informationen (Normal)
-- `WARNING` - Warnungen (Beachten)
-- `ERROR` - Fehler (Untersuchen!)
+Important messages:
+- `INFO` - Information (Normal)
+- `WARNING` - Warnings (Pay attention)
+- `ERROR` - Errors (Investigate!)
 
-### Fehler-Codes vom Controller
+### Error Codes from the Controller
 
-Der Controller sendet Fehlercodes. Diese finden sich in `error_codes.py`:
+The controller sends error codes. These can be found in `error_codes.py`:
 
-**Häufige Fehler:**
-- `101` - Sensor-Fehler (pH, ORP, etc.)
-- `205` - Druck zu hoch
-- `301` - Wasser-Level zu niedrig
-- `401` - Temperatur-Sensor defekt
+**Common errors:**
+- `101` - Sensor error (pH, ORP, etc.)
+- `205` - Pressure too high
+- `301` - Water level too low
+- `401` - Temperature sensor defective
 
-Nutze `sensor.violet_system_error_codes` zur Überwachung.
+Use `sensor.violet_system_error_codes` for monitoring.
 
-### Support & Hilfe
+### Support & Help
 
 - 🐛 **GitHub Issues**: [xerolux/violet-hass/issues](https://github.com/xerolux/violet-hass/issues)
-- 💬 **Discord**: [Community-Server](https://discord.gg/Qa5fW2R)
-- 📧 **E-Mail**: git@xerolux.de
-- 📖 **Wiki**: [Komplette Dokumentation](https://github.com/xerolux/violet-hass/wiki)
+- 💬 **Discord**: [Community Server](https://discord.gg/Qa5fW2R)
+- 📧 **Email**: git@xerolux.de
+- 📖 **Wiki**: [Complete Documentation](https://github.com/xerolux/violet-hass/wiki)
 
 ---
 
 ## 📈 Updates & Upgrades
 
-### Automatische Updates mit HACS
+### Automatic Updates with HACS
 
-HACS prüft automatisch auf Updates:
+HACS automatically checks for updates:
 
-1. HACS → Integrationen
-2. "Violet Pool Controller" finden
-3. Wenn Update verfügbar: 🔵 Punkt neben Name
-4. "Aktualisieren" klicken
-5. Home Assistant neu starten
+1. HACS → Integrations
+2. Find "Violet Pool Controller"
+3. If update available: 🔵 dot next to name
+4. Click "Update"
+5. Restart Home Assistant
 
-### Manuelle Updates
+### Manual Updates
 
 ```bash
 cd /config/custom_components/violet_pool_controller
 git pull origin main
-# Home Assistant neu starten
+# Restart Home Assistant
 ```
 
-### Changelog lesen
+### Reading the Changelog
 
-Vor jedem Update solltest du den Changelog prüfen:
+Before each update you should check the changelog:
 - 📝 [CHANGELOG.md](docs/CHANGELOG.md)
-- 🚨 Mögliche Breaking Changes?
-- ✨ Neue Features?
-- 🐛 Behobene Bugs?
+- 🚨 Possible breaking changes?
+- ✨ New features?
+- 🐛 Fixed bugs?
 
-### Version überprüfen
+### Checking Version
 
-**Aktuelle Version in HA:**
-1. Einstellungen → Geräte & Dienste → Violet
-2. "Violet Pool Controller" auswählen
-3. Version oben rechts angezeigt
+**Current version in HA:**
+1. Settings → Devices & Services → Violet
+2. Select "Violet Pool Controller"
+3. Version displayed in the top right
 
-**Oder im Terminal:**
+**Or in the terminal:**
 ```bash
 grep '"version"' /config/custom_components/violet_pool_controller/manifest.json
 ```
 
-### Backup vor Update
+### Backup Before Update
 
-Immer sichern:
+Always create a backup:
 ```bash
 # Home Assistant Backup
-Einstellungen → System → Sicherungen → Erstellen
+Settings → System → Backups → Create
 
-# Oder manuell
+# Or manually
 cp -r /config/custom_components/violet_pool_controller /backup/
 ```
 
-### Troubleshooting nach Update
+### Troubleshooting After Update
 
-Wenn nach Update Probleme auftreten:
+If problems occur after an update:
 
-1. **Home Assistant komplett neu starten** (nicht nur Reload)
-   - Einstellungen → System → Systemsteuerelemente → Neu starten
+1. **Completely restart Home Assistant** (not just reload)
+   - Settings → System → System Controls → Restart
 
-2. **Integration neu laden**
-   - Einstellungen → Geräte & Dienste → Violet → ⋮ → Neu laden
+2. **Reload integration**
+   - Settings → Devices & Services → Violet → ⋮ → Reload
 
-3. **Bei Problemen zurück zur alten Version**
+3. **If problems persist, revert to the old version**
    ```bash
    cd /config/custom_components/violet_pool_controller
    git checkout <version>
-   # Beispiel: git checkout v0.2.0
+   # Example: git checkout v0.2.0
    ```
 
 ---
 
-## 🗑️ Deinstallation
+## 🗑️ Uninstallation
 
-### Vollständige Entfernung
+### Complete Removal
 
-#### Schritt 1: Integration aus Home Assistant entfernen
+#### Step 1: Remove Integration from Home Assistant
 
-1. Einstellungen → Geräte & Dienste
-2. "Violet Pool Controller" auswählen
-3. ⋮ (Menü) → "Entfernen"
-4. Bestätigung akzeptieren
+1. Settings → Devices & Services
+2. Select "Violet Pool Controller"
+3. ⋮ (Menu) → "Remove"
+4. Accept confirmation
 
-#### Schritt 2: Dateien löschen
+#### Step 2: Delete Files
 
 ```bash
-# Integrations-Verzeichnis löschen
+# Delete integration directory
 rm -rf /config/custom_components/violet_pool_controller
 ```
 
-#### Schritt 3: HACS-Eintrag entfernen (optional)
+#### Step 3: Remove HACS Entry (Optional)
 
-1. HACS → Integrationen
-2. "Violet Pool Controller" auswählen
-3. ⋮ → "Repository entfernen"
+1. HACS → Integrations
+2. Select "Violet Pool Controller"
+3. ⋮ → "Remove Repository"
 
-#### Schritt 4: Home Assistant neu starten
+#### Step 4: Restart Home Assistant
 
 ```bash
-# Web-UI: ⋮ → Systemsteuerelemente → Neu starten
+# Web UI: ⋮ → System Controls → Restart
 # Docker: docker restart homeassistant
 ```
 
-### Daten erhalten
+### Preserving Data
 
-Falls du die Konfiguration wiederverwenden möchtest:
+If you want to reuse the configuration:
 
-1. **Automatisierungen exportieren:**
-   - Einstellungen → Automatisierungen
-   - Jede Automatisierung öffnen
-   - YAML kopieren
+1. **Export automations:**
+   - Settings → Automations
+   - Open each automation
+   - Copy YAML
 
-2. **Dashboards exportieren:**
-   - Einstellungen → Dashboards
-   - Dashboard-YAML exportieren
+2. **Export dashboards:**
+   - Settings → Dashboards
+   - Export dashboard YAML
 
-3. **Entitäts-Aliases speichern:**
+3. **Save entity aliases:**
    ```bash
-   # Home Assistant Dateien sichern
+   # Backup Home Assistant files
    cp -r /config/.storage /backup/
    ```
 
-### Migration zu neuem System
+### Migration to a New System
 
-Falls du zu einem neuen Home Assistant System wechselst:
+If you are moving to a new Home Assistant system:
 
-1. **Backup erstellen** (wie oben)
-2. **Neues System starten**
-3. **Integration installieren**
-4. **Backup einspielen** (falls benötigt)
-5. **Automatisierungen/Dashboards neu erstellen** (nutze gesicherte YAMLs)
+1. **Create backup** (as above)
+2. **Start new system**
+3. **Install integration**
+4. **Restore backup** (if needed)
+5. **Recreate automations/dashboards** (use saved YAMLs)
 
 ---
 
-## ❓ FAQ & Häufige Fragen
+## ❓ FAQ & Frequently Asked Questions
 
-### Allgemein
+### General
 
-**F: Benötige ich eine Cloud-Anbindung?**
-A: Nein! Das Addon ist 100% lokal. Kein Internet, kein Cloud-Service erforderlich.
+**Q: Do I need a cloud connection?**
+A: No! The addon is 100% local. No internet, no cloud service required.
 
-**F: Kann ich mehrere Controller ansteuern?**
-A: Ja! Die Integration unterstützt Multi-Controller. Jeder bekommt eindeutige Entitäten.
+**Q: Can I control multiple controllers?**
+A: Yes! The integration supports multi-controller. Each gets unique entities.
 
-**F: Ist das Addon sicher?**
-A: Ja! Es nutzt lokale Netzwerk-Kommunikation mit optionalem SSL/TLS und Input-Sanitization.
+**Q: Is the addon secure?**
+A: Yes! It uses local network communication with optional SSL/TLS and input sanitization.
 
-**F: Welche Home Assistant Version ist minimal erforderlich?**
-A: Home Assistant 2025.12.0 oder neuer (Ältere Versionen werden nicht unterstützt).
+**Q: What Home Assistant version is required at minimum?**
+A: Home Assistant 2025.12.0 or newer (older versions are not supported).
 
 ### Installation & Setup
 
-**F: Wie finde ich die IP-Adresse meines Controllers?**
+**Q: How do I find my controller's IP address?**
 A:
-1. Router-Admin-Interface öffnen (meist 192.168.1.1)
-2. Verbundene Geräte anzeigen
-3. "Violet" oder ähnlich suchen
-4. Notiere die IP
+1. Open your router admin interface (usually 192.168.1.1)
+2. Show connected devices
+3. Search for "Violet" or similar
+4. Note the IP
 
-Oder im Terminal:
+Or in the terminal:
 ```bash
-ping violet.local    # Falls mDNS aktiviert
+ping violet.local    # If mDNS is enabled
 ```
 
-**F: Kann ich den Controller über HTTPS ansprechen?**
-A: Ja! Aktiviere "SSL verwenden" in den Optionen. SSL-Zertifikat-Validierung kann deaktiviert werden.
+**Q: Can I connect to the controller via HTTPS?**
+A: Yes! Enable "Use SSL" in the options. SSL certificate validation can be disabled.
 
-**F: Funktioniert das mit selbsigniertem Zertifikat?**
-A: Ja, aber deaktiviere "SSL-Zertifikat prüfen" in den Optionen (nur für vertrauenswürdige Netzwerke!).
+**Q: Does this work with self-signed certificates?**
+A: Yes, but disable "Verify SSL Certificate" in the options (only for trusted networks!).
 
-### Funktionen & Bedienung
+### Features & Operation
 
-**F: Was bedeutet "Automatik" im Gegensatz zu "Manuell"?**
+**Q: What does "Automatic" mean compared to "Manual"?**
 A:
-- **Automatik**: Controller regelt selbstständig (z.B. nach Temperaturen)
-- **Manuell**: Du stellst direkt ein, Auto-Regeln werden ignoriert
+- **Automatic**: Controller regulates independently (e.g. based on temperatures)
+- **Manual**: You control directly, auto rules are ignored
 
-**F: Kann ich den Pumpe-Geschwindigkeit einstellen?**
-A: Ja! Die Pumpe hat 3 Geschwindigkeitsstufen (1, 2, 3). Mit Service `control_pump` kannst du diese wählen.
+**Q: Can I adjust the pump speed?**
+A: Yes! The pump has 3 speed levels (1, 2, 3). Use the `control_pump` service to select them.
 
-**F: Wie dosiere ich Chemikalien sicher?**
-A: Nutze den `smart_dosing` Service:
-- Kleine Mengen (15-30 Sekunden)
-- Abstand zwischen Dosierungen beachten
-- Immer den Sensor-Wert kontrollieren
+**Q: How do I dose chemicals safely?**
+A: Use the `smart_dosing` service:
+- Small amounts (15-30 seconds)
+- Observe intervals between dosing
+- Always check sensor values
 
-**F: Kann ich Szenen speichern?**
-A: Ja! Mit Automation kannst du Schalter-Kombinationen speichern:
+**Q: Can I save scenes?**
+A: Yes! With automation you can save switch combinations:
 ```yaml
 scene.create
 entities:
@@ -1124,59 +1124,59 @@ entities:
   climate.violet_heater: { temperature: 28 }
 ```
 
-### Fehlersuche
+### Troubleshooting
 
-**F: Meine Sensoren zeigen "unavailable" - Warum?**
-A: Koordinator-Fehler (meist Verbindungsproblem). Lösungen:
-1. Abfrageintervall erhöhen (30-45s)
-2. Integration neu laden
-3. Weniger Sensoren aktivieren
+**Q: My sensors show "unavailable" - why?**
+A: Coordinator error (usually a connection issue). Solutions:
+1. Increase polling interval (30-45s)
+2. Reload integration
+3. Enable fewer sensors
 
-**F: Der Controller antwortet sehr langsam?**
+**Q: The controller responds very slowly?**
 A:
-1. Netzwerk-Auslastung prüfen
-2. Abfrageintervall erhöhen
-3. CPU-Last des Controllers prüfen
-4. Zu viele Sensoren?
+1. Check network utilization
+2. Increase polling interval
+3. Check controller CPU load
+4. Too many sensors?
 
-**F: Warum werden manche Sensoren nicht angezeigt?**
+**Q: Why are some sensors not showing?**
 A:
-1. Nicht im Setup-Flow aktiviert?
-2. Controller besitzt diesen Sensor nicht
-3. Feature ist nicht konfiguriert
-4. Lösung: Integration neu laden
+1. Not enabled in the setup flow?
+2. Controller doesn't have this sensor
+3. Feature is not configured
+4. Solution: Reload integration
 
-### Performance & Optimierung
+### Performance & Optimization
 
-**F: Welches Abfrageintervall sollte ich nutzen?**
+**Q: What polling interval should I use?**
 A:
-- **20-30s**: Standard (gute Balance)
-- **10-15s**: Für schnelle Reaktionen (höhere Last)
-- **45-60s**: Für weniger wichtige Pools
+- **20-30s**: Standard (good balance)
+- **10-15s**: For fast reactions (higher load)
+- **45-60s**: For less critical pools
 
-**F: Ständig neue Automatisierungen erstellen - langweilig!**
-A: Nutze Blueprints! Diese sind vorgefertigte Automatisierungs-Vorlagen:
-- Einstellungen → Automatisierungen → Blueprints
-- "Blueprint importieren" → Repository-URL eingeben
+**Q: Creating new automations all the time is boring!**
+A: Use Blueprints! These are pre-made automation templates:
+- Settings → Automations → Blueprints
+- "Import Blueprint" → Enter repository URL
 
-**F: Kann ich Logging reduzieren?**
-A: Ja! In Home Assistant `configuration.yaml`:
+**Q: Can I reduce logging?**
+A: Yes! In Home Assistant `configuration.yaml`:
 ```yaml
 logger:
   logs:
-    custom_components.violet_pool_controller: warning  # Nur Warnungen
+    custom_components.violet_pool_controller: warning  # Warnings only
 ```
 
-### Services & Automatisierungen
+### Services & Automations
 
-**F: Wie rufe ich einen Service auf?**
-A: Mehrere Möglichkeiten:
+**Q: How do I call a service?**
+A: Several options:
 
 1. **Developer Tools:**
-   - Einstellungen → Developer Tools → Services
-   - Service auswählen, ausfüllen, testen
+   - Settings → Developer Tools → Services
+   - Select service, fill in, test
 
-2. **YAML in Automatisierung:**
+2. **YAML in automation:**
    ```yaml
    service: violet_pool_controller.control_pump
    target:
@@ -1187,22 +1187,22 @@ A: Mehrere Möglichkeiten:
    ```
 
 3. **UI Automation Builder:**
-   - Einstellungen → Automatisierungen → Erstellen
+   - Settings → Automations → Create
 
-**F: Kann ich eine Automatisierung zeitgesteuert auslösen?**
-A: Ja!
+**Q: Can I trigger an automation on a schedule?**
+A: Yes!
 ```yaml
 trigger:
   - platform: time
-    at: "08:00:00"  # Jeden Morgen 8:00 Uhr
+    at: "08:00:00"  # Every morning at 8:00 AM
 action:
   - service: switch.turn_on
     target:
       entity_id: switch.violet_pump
 ```
 
-**F: Kann ich auf Wettervorhersagen reagieren?**
-A: Ja! Mit der Weather-Integration:
+**Q: Can I react to weather forecasts?**
+A: Yes! With the Weather integration:
 ```yaml
 trigger:
   - platform: template
@@ -1215,81 +1215,81 @@ action:
 
 ---
 
-## 🔒 Sicherheit & Best Practices
+## 🔒 Security & Best Practices
 
-### Sicherheits-Grundlagen
+### Security Basics
 
-#### 1. Netzwerk-Sicherheit
+#### 1. Network Security
 
-✅ **Empfohlen:**
-- Controller im privaten Netzwerk
-- Firewall schützt Zugriff
-- Nur lokale Kommunikation
-- SSL/TLS aktivieren
+✅ **Recommended:**
+- Controller in private network
+- Firewall protects access
+- Local communication only
+- Enable SSL/TLS
 
-❌ **Nicht empfohlen:**
-- Controller ins Internet exposieren
-- Standardpasswort verwenden
-- Auf öffentlichen WLAN
+❌ **Not recommended:**
+- Expose controller to the internet
+- Use default password
+- On public WiFi
 
-#### 2. Authentifizierung
+#### 2. Authentication
 
-Falls dein Controller Passwort erfordert:
-- **Starkes Passwort** verwenden (min. 12 Zeichen)
-- **Home Assistant .env-Datei** nutzen:
+If your controller requires a password:
+- Use a **strong password** (min. 12 characters)
+- Use **Home Assistant .env file**:
 
 ```bash
 # /config/.env
-VIOLET_PASSWORD=DeinStarkesPasswort
+VIOLET_PASSWORD=YourStrongPassword
 ```
 
 ```yaml
-# In Integration-Konfiguration
+# In integration configuration
 password: !env_var VIOLET_PASSWORD
 ```
 
-#### 3. Input-Validation
+#### 3. Input Validation
 
-Die Integration validiert automatisch:
-- XSS-Schutz (HTML-Escaping)
-- SQL-Injection-Schutz
-- Command-Injection-Schutz
-- Path-Traversal-Schutz
+The integration automatically validates:
+- XSS protection (HTML escaping)
+- SQL injection protection
+- Command injection protection
+- Path traversal protection
 
 ### Best Practices
 
-#### 1. Regelmäßige Backups
+#### 1. Regular Backups
 
 ```bash
-# Wöchentliches Backup
-Home Assistant → Einstellungen → System → Sicherungen → Erstellen
+# Weekly backup
+Home Assistant → Settings → System → Backups → Create
 ```
 
-#### 2. Logs überwachen
+#### 2. Monitor Logs
 
-Regelmäßig prüfen auf:
-- Unerwartete Fehler
-- Kommunikationsprobleme
-- Ungewöhnliche States
+Regularly check for:
+- Unexpected errors
+- Communication issues
+- Unusual states
 
-#### 3. Sensoren kalibrieren
+#### 3. Calibrate Sensors
 
-Besonders pH und ORP sollten regelmäßig kalibriert werden:
-- **Monatlich**: pH und ORP
-- **Wöchentlich**: Chlor (mit Testkit)
-- **2x täglich**: Sichtprüfung
+Especially pH and ORP should be calibrated regularly:
+- **Monthly**: pH and ORP
+- **Weekly**: Chlorine (with test kit)
+- **2x daily**: Visual inspection
 
-#### 4. Automatisierungen testen
+#### 4. Test Automations
 
-Neue Automatisierungen sollten:
-1. Mit kurzer Dauer testen
-2. Mit Benachrichtigungen testen
-3. Dann in Produktion gehen
+New automations should:
+1. Be tested with short duration
+2. Be tested with notifications
+3. Then go into production
 
-**Beispiel: Test-Automatisierung**
+**Example: Test automation**
 ```yaml
 automation:
-  - alias: "TEST - Pumpe für 10s"
+  - alias: "TEST - Pump for 10s"
     trigger:
       - platform: state
         entity_id: input_boolean.test_pump
@@ -1304,27 +1304,27 @@ automation:
           duration: 10
       - service: notify.notify
         data:
-          message: "TEST: Pumpe startet für 10s"
+          message: "TEST: Pump starting for 10s"
 ```
 
-#### 5. Wartung planen
+#### 5. Schedule Maintenance
 
-Einmal pro Quartal:
-- **Hardware-Check**: Sensoren prüfen
-- **Software-Update**: Addon aktualisieren
-- **Backup-Test**: Backup einspielen testen
-- **Config-Review**: Automatisierungen überprüfen
+Once per quarter:
+- **Hardware check**: Inspect sensors
+- **Software update**: Update addon
+- **Backup test**: Test backup restore
+- **Config review**: Review automations
 
-#### 6. Monitoring einrichten
+#### 6. Set Up Monitoring
 
-Überwache kritische Metriken:
-- Fehler-Codes des Controllers
-- Sensor-Verfügbarkeit
-- Verbindungs-Stabilität
+Monitor critical metrics:
+- Controller error codes
+- Sensor availability
+- Connection stability
 
 ```yaml
 automation:
-  - alias: "Fehler-Alarm"
+  - alias: "Error Alert"
     trigger:
       - platform: state
         entity_id: sensor.violet_system_error_codes
@@ -1334,60 +1334,60 @@ automation:
     action:
       - service: notify.notify
         data:
-          title: "⚠️ Pool-Fehler!"
+          title: "⚠️ Pool Error!"
           message: "{{ states('sensor.violet_system_error_codes') }}"
 ```
 
-### SSL/TLS Konfiguration (Erweitert)
+### SSL/TLS Configuration (Advanced)
 
-#### Mit Self-Signed Zertifikat
+#### With Self-Signed Certificate
 
 ```yaml
-# Integration-Einstellungen
+# Integration settings
 Host: 192.168.1.100
 Port: 8443
-SSL verwenden: ☑
-SSL-Zertifikat prüfen: ☐  # ACHTUNG: Unsicher!
+Use SSL: ☑
+Verify SSL Certificate: ☐  # WARNING: Insecure!
 ```
 
-**Sicherer: Zertifikat in Home Assistant importieren**
+**More secure: Import certificate into Home Assistant**
 
 ```bash
-# Zertifikat vom Controller exportieren
+# Export certificate from controller
 openssl s_client -connect 192.168.1.100:8443 -showcerts
 
-# In Home Assistant importieren
-# (Erweiterte Konfiguration erforderlich)
+# Import into Home Assistant
+# (Advanced configuration required)
 ```
 
-### Fehlersuche bei Sicherheitsproblemen
+### Troubleshooting Security Issues
 
-#### SSL-Fehler beheben
+#### Fixing SSL Errors
 
 ```
 SSL: CERTIFICATE_VERIFY_FAILED
 ```
 
-Mögliche Lösungen:
-1. Zertifikat validieren:
+Possible solutions:
+1. Validate certificate:
    ```bash
    openssl s_client -connect 192.168.1.100:8443
    ```
 
-2. Debugging aktivieren:
+2. Enable debugging:
    ```yaml
    logger:
      logs:
        aiohttp: debug
    ```
 
-3. Notfalls SSL-Validation deaktivieren (⚠️ nur temporär)
+3. As a last resort, disable SSL validation (⚠️ only temporarily)
 
 ---
 
-## 📚 Weitere Ressourcen
+## 📚 Additional Resources
 
-- **Offizieller GitHub**: https://github.com/xerolux/violet-hass
+- **Official GitHub**: https://github.com/xerolux/violet-hass
 - **Home Assistant Docs**: https://www.home-assistant.io/
 - **HACS**: https://hacs.xyz/
 - **Violet Controller**: https://www.pooldigital.de/
@@ -1395,17 +1395,16 @@ Mögliche Lösungen:
 
 ---
 
-## 📝 Versionshistorie
+## 📝 Version History
 
-| Version | Datum | Highlights |
-|---------|-------|-----------|
-| **1.0.1** | 2025-12-02 | Bug Fixes, Type Errors behoben |
-| **1.0.0** | 2025-11-20 | 3-State Switch Support, 147 Sensoren |
-| **0.1.0** | 2024-XX-XX | Initial Release |
+| Version | Date | Highlights |
+|---------|------|-----------|
+| **1.0.1** | 2025-12-02 | Bug fixes, type errors resolved |
+| **1.0.0** | 2025-11-20 | 3-state switch support, 147 sensors |
+| **0.1.0** | 2024-XX-XX | Initial release |
 
 ---
 
 **Made with ❤️ for the Home Assistant & Pool Community**
 
 *Transform your pool into a smart pool - because life's too short for manual pool maintenance!* 🏊‍♀️🤖
-

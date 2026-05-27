@@ -1,7 +1,7 @@
 # =============================================================================
 # Violet Pool Controller – Home Assistant Custom Integration
 # Copyright © 2026 Xerolux
-# Entwickelt und erstellt von Xerolux
+# Developed and created by Xerolux
 # https://github.com/Xerolux/violet-hass
 # =============================================================================
 
@@ -28,7 +28,7 @@ _LOGGER = logging.getLogger(__name__)
 # Coordinator-based platforms; HA should not throttle entity state writes
 PARALLEL_UPDATES = 0
 
-# Feature mapping für Binary Sensors
+# Feature mapping for binary sensors
 BINARY_SENSOR_FEATURE_MAP = {
     "PUMP": "filter_control",
     "HEATER": "heating",
@@ -171,7 +171,7 @@ async def async_setup_entry(
         )
         return
 
-    # Diagnose für verfügbare Daten
+    # Diagnostics for available data
     if coordinator.data:
         _LOGGER.debug(
             "Coordinator data keys: %d - %s",

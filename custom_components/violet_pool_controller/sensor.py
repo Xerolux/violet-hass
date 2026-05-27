@@ -1,7 +1,7 @@
 # =============================================================================
 # Violet Pool Controller – Home Assistant Custom Integration
 # Copyright © 2026 Xerolux
-# Entwickelt und erstellt von Xerolux
+# Developed and created by Xerolux
 # https://github.com/Xerolux/violet-hass
 # =============================================================================
 
@@ -201,6 +201,7 @@ def _create_special_sensors(
                     key,
                     sensor_config["name"],
                     sensor_config["icon"],
+                    translation_key=sensor_config.get("translation_key"),
                 )
             )
             handled_keys.add(key)
@@ -225,6 +226,7 @@ def _create_special_sensors(
                     key,
                     sensor_config["name"],
                     sensor_config["icon"],
+                    translation_key=sensor_config.get("translation_key"),
                 )
             )
             handled_keys.add(key)
@@ -259,8 +261,14 @@ def _create_standard_sensors(
         if not config["create_all"] and key not in config["selected_sensors"]:
             continue
 
+        predefined_info = all_predefined.get(key)
+        if predefined_info:
+            tk = predefined_info.get("translation_key")
+        else:
+            tk = key.lower()
+
         description = _build_sensor_description(
-            key, coordinator.data.get(key), all_predefined
+            key, coordinator.data.get(key), all_predefined, translation_key=tk
         )
 
         SensorClass = (

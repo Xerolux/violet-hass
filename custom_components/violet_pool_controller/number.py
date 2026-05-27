@@ -1,7 +1,7 @@
 # =============================================================================
 # Violet Pool Controller – Home Assistant Custom Integration
 # Copyright © 2026 Xerolux
-# Entwickelt und erstellt von Xerolux
+# Developed and created by Xerolux
 # https://github.com/Xerolux/violet-hass
 # =============================================================================
 
@@ -446,6 +446,7 @@ async def async_setup_entry(
             native_unit_of_measurement=setpoint_config.get("unit_of_measurement"),  # type: ignore[arg-type]
             device_class=setpoint_config.get("device_class"),  # type: ignore[arg-type]
             entity_category=setpoint_config.get("entity_category"),  # type: ignore[arg-type]
+            translation_key=setpoint_config.get("translation_key"),
         )
 
         _LOGGER.debug(

@@ -1,3 +1,7 @@
+﻿> 🇩🇪 **Deutsch** | 🇬🇧 **[English](Erweiterte-Protokollierung)**
+
+---
+
 # Erweiterte Protokollierung & Diagnose-Tools
 
 Diese Wiki-Seite beschreibt die leistungsstarken Diagnose-Features der Violet Pool Controller Home Assistant Integration für Fehlersuche und Performance-Analyse.

@@ -1,3 +1,7 @@
+﻿> 🇩🇪 **Deutsch** | 🇬🇧 **[English](Automations)**
+
+---
+
 # Automatisierungs-Beispiele
 
 > Copy-paste YAML-Beispiele für häufige Pool-Automatisierungen.

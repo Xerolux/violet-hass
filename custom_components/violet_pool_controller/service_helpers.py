@@ -24,8 +24,8 @@ DEVICE_ID_SELECTOR = vol.All(as_device_id_list, [cv.string])
 DOSING_TYPE_MAPPING = {
     "pH-": "DOS_4_PHM",
     "pH+": "DOS_5_PHP",
-    "Chlor": "DOS_1_CL",
-    "Flockmittel": "DOS_6_FLOC",
+    "Chlorine": "DOS_1_CL",
+    "Flocculant": "DOS_6_FLOC",
 }
 
 MIN_DOSING_DURATION = 5

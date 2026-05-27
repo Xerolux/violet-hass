@@ -1,7 +1,7 @@
 # =============================================================================
 # Violet Pool Controller – Home Assistant Custom Integration
 # Copyright © 2026 Xerolux
-# Entwickelt und erstellt von Xerolux
+# Developed and created by Xerolux
 # https://github.com/Xerolux/violet-hass
 # =============================================================================
 
@@ -69,7 +69,7 @@ async def get_grouped_sensors(
 
         grouped: dict[str, list[str]] = {}
         for key in sorted(data.keys()):
-            # Einfache Gruppierung nach Präfix
+            # Simple grouping by prefix
             group = key.split("_")[0]
             if group not in grouped:
                 grouped[group] = []

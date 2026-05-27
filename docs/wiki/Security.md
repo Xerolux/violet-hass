@@ -1,3 +1,7 @@
+﻿> 🇬🇧 **English** | 🇩🇪 **[Deutsch](Security.de)**
+
+---
+
 # Security & SSL – Integration Security
 
 > Security architecture, SSL/TLS configuration, and best practices.

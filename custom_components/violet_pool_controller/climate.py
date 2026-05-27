@@ -1,7 +1,7 @@
 # =============================================================================
 # Violet Pool Controller – Home Assistant Custom Integration
 # Copyright © 2026 Xerolux
-# Entwickelt und erstellt von Xerolux
+# Developed and created by Xerolux
 # https://github.com/Xerolux/violet-hass
 # =============================================================================
 
@@ -110,12 +110,13 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             key=climate_type,
             name=name,
             icon=icon,
+            translation_key=climate_type.lower(),
         )
 
         super().__init__(coordinator, config_entry, climate_description)
         self.climate_type = climate_type
 
-        # ✅ FIXED: Lokale Cache-Variablen für optimistisches Update
+        # FIXED: Local cache variables for optimistic updates
         self._optimistic_target_temp: float | None = None
         self._optimistic_hvac_mode: HVACMode | None = None
 
@@ -238,7 +239,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             attributes["optimistic_target"] = self._optimistic_target_temp
             attributes["pending_update"] = True
 
-        # Runtime information mit None-Check
+        # Runtime information with null check
         runtime_key = f"{self.climate_type}_RUNTIME"
         if runtime_key in self.coordinator.data:
             attributes["runtime"] = self.get_str_value(runtime_key, "00h 00m 00s")

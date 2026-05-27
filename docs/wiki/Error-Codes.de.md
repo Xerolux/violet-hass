@@ -1,3 +1,7 @@
+﻿> 🇩🇪 **Deutsch** | 🇬🇧 **[English](Error-Codes)**
+
+---
+
 # Fehler-Codes – Controller Fehlercodes erklärt
 
 > Vollständige Referenz aller Violet Pool Controller Fehlercodes mit Ursachen und Lösungsansätzen.

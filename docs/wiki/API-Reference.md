@@ -1,3 +1,7 @@
+﻿> 🇬🇧 **English** | 🇩🇪 **[Deutsch](API-Reference.de)**
+
+---
+
 # API Reference – Violet Pool Controller HTTP API
 
 > Complete documentation of the controller API endpoints and the Python client class.

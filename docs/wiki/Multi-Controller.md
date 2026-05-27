@@ -1,3 +1,7 @@
+﻿> 🇬🇧 **English** | 🇩🇪 **[Deutsch](Multi-Controller.de)**
+
+---
+
 # Multi-Controller – Managing Multiple Pools
 
 > Manage multiple Violet Pool Controllers simultaneously in a single Home Assistant installation.

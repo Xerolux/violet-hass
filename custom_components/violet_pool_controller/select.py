@@ -1,7 +1,7 @@
 # =============================================================================
 # Violet Pool Controller – Home Assistant Custom Integration
 # Copyright © 2026 Xerolux
-# Entwickelt und erstellt von Xerolux
+# Developed and created by Xerolux
 # https://github.com/Xerolux/violet-hass
 # =============================================================================
 
@@ -42,9 +42,9 @@ MODE_ON = "on"
 MODE_AUTO = "auto"
 
 # State to Mode Mapping
-# Der Controller liefert numerische States 0-6
+# The controller provides numeric states 0-6
 # 0 = AUTO (Standby/Off)
-# 1 = MANUAL ON oder AUTO ON
+# 1 = MANUAL ON or AUTO ON
 # 2 = AUTO (Active)
 # 3 = AUTO (Active with Timer)
 # 4 = MANUAL ON (Forced)
@@ -52,7 +52,7 @@ MODE_AUTO = "auto"
 # 6 = MANUAL OFF
 STATE_TO_MODE = {
     0: MODE_AUTO,  # Auto Standby
-    1: MODE_ON,  # Manual ON oder Auto ON (behandeln als ON)
+    1: MODE_ON,  # Manual ON or Auto ON (treated as ON)
     2: MODE_AUTO,  # Auto Active
     3: MODE_AUTO,  # Auto Active with Timer
     4: MODE_ON,  # Manual ON (Forced)
@@ -72,7 +72,7 @@ REFRESH_DELAY_EXT = 1.5
 
 
 class VioletSelect(VioletPoolControllerEntity, SelectEntity):
-    """Select Entity für ON/OFF/AUTO Steuerung von Pool-Geräten."""
+    """Select entity for ON/OFF/AUTO control of pool devices."""
 
     entity_description: SelectEntityDescription
 
@@ -100,13 +100,13 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
         self._optimistic_mode: str | None = None
 
         _LOGGER.debug(
-            "Select-Entity initialisiert: %s (Device: %s)", self.entity_id, device_key
+            "Select entity initialized: %s (Device: %s)", self.entity_id, device_key
         )
 
     @property
     def current_option(self) -> str | None:
         """Return the current selected option."""
-        # Prüfe optimistischen Cache
+        # Check optimistic cache
         if self._optimistic_mode is not None:
             return self._optimistic_mode
 
@@ -115,7 +115,7 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
 
         raw_state = self.get_value(self._device_key, "")
 
-        # Konvertiere raw_state zu Mode
+        # Convert raw_state to mode
         try:
             if isinstance(raw_state, (int, float)):
                 state_int = int(raw_state)
@@ -131,19 +131,19 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
                 if state_str in ("AUTO", "AUTOMATIC"):
                     return MODE_AUTO
                 _LOGGER.debug(
-                    "Unbekannter String-State '%s' für %s, verwende AUTO als Default",
+                    "Unknown string state '%s' for %s, using AUTO as default",
                     raw_state,
                     self._device_key,
                 )
                 return MODE_AUTO
 
-            # Verwende Mapping für numerische States
+            # Use mapping for numeric states
             mode = STATE_TO_MODE.get(state_int)
             if mode:
                 return mode
 
             _LOGGER.warning(
-                "Unbekannter numerischer State %s für %s, verwende AUTO als Default",
+                "Unknown numeric state %s for %s, using AUTO as default",
                 state_int,
                 self._device_key,
             )
@@ -151,7 +151,7 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
 
         except (ValueError, TypeError) as err:
             _LOGGER.debug(
-                "Fehler beim Konvertieren von State '%s' für %s: %s",
+                "Error converting state '%s' for %s: %s",
                 raw_state,
                 self._device_key,
                 err,
@@ -176,7 +176,7 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
             attributes["pending_update"] = True
             attributes["target_mode"] = self._optimistic_mode
 
-        # Device-spezifische Attribute
+        # Device-specific attributes
         if self._device_key == "PUMP":
             attributes.update(
                 {
@@ -298,7 +298,7 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
             self._optimistic_mode = None
             if old_mode is not None:
                 _LOGGER.debug(
-                    "Optimistischer Cache gelöscht für %s (war: %s)",
+                    "Optimistic cache cleared for %s (was: %s)",
                     self._device_key,
                     old_mode,
                 )
@@ -354,7 +354,7 @@ async def async_setup_entry(
 
         if feature_id and feature_id not in active_features:
             _LOGGER.debug(
-                "Überspringe Select %s: Feature %s nicht aktiv",
+                "Skipping select %s: feature %s not active",
                 select_config["key"],
                 feature_id,
             )
@@ -372,6 +372,7 @@ async def async_setup_entry(
             name=select_config["name"],
             icon=select_config.get("icon"),
             entity_category=entity_category,
+            translation_key=select_config.get("translation_key"),
         )
 
         entities.append(
@@ -382,6 +383,6 @@ async def async_setup_entry(
 
     if entities:
         async_add_entities(entities)
-        _LOGGER.info("✓ %d Select-Entities erfolgreich eingerichtet", len(entities))
+        _LOGGER.info("✓ %d select entities successfully set up", len(entities))
     else:
-        _LOGGER.warning("⚠ Keine Select-Entities eingerichtet")
+        _LOGGER.warning("⚠ No select entities set up")

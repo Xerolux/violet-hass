@@ -67,34 +67,7 @@ class ConfigFlowTextMixin:
     def _get_disclaimer_text(self) -> str:
         """Get the disclaimer text."""
         template = (
-            "⚠️ **Sicherheitswarnung & Haftungsausschluss / Safety Warning & Liability Disclaimer**\n\n"
-            "**🇩🇪 DEUTSCH:**\n\n"
-            "Die Nutzung dieser Software-Integration erfolgt auf eigene Verantwortung und Gefahr. "
-            "Diese Integration ermöglicht die Fernsteuerung von Poolausrüstung einschließlich Pumpen, "
-            "Heizungen, Beleuchtung und chemischen Dosieranlagen.\n\n"
-            "**Risiken beachten:** Falsche Konfiguration oder Automatisierungsfehler können zu Sachschäden, "
-            "Verletzungen durch elektrischen Schlag, chemischen Überdosierungen oder anderen "
-            "Gefährdungen führen.\n\n"
-            "**Deine Verantwortung:**\n"
-            "• Stelle sicher, dass du alle Schutzmechanismen verstehst\n"
-            "• Halte jederzeit manuelle Not-Abschalter bereit\n"
-            "• Beachte die Sicherheitsdatenblätter aller verwendeten Chemikalien\n"
-            "• Befolge die Dokumentation deines Pool-Herstellers\n"
-            "• Beachte lokale Vorschriften (DIN/EN Normen, Elektro- und Chemikalienrecht)\n"
-            "• Überwache deine Anlage regelmäßig persönlich, auch bei aktiver Automation\n"
-            "• Erstelle regelmäßige Backups deiner Konfiguration\n\n"
-            "**Haftungsausschluss:**\n"
-            "Der Entwickler dieser Integration übernimmt keinerlei Gewährleistung für die "
-            "Funktionsfähigkeit, Sicherheit oder Vollständigkeit. Die Nutzung erfolgt auf "
-            "eigenes Risiko. Der Entwickler ist nicht haftbar für Schäden jeder Art, einschließlich "
-            "aber nicht beschränkt auf Sachschäden, Personenschäden oder finanzielle Verluste, "
-            "die aus der Nutzung oder Nicht-Nutzung dieser Software resultieren.\n\n"
-            "Dies ist eine Open-Source-Software ohne kommerzielle Garantien. Bei Unsicherheiten "
-            "solltest du einen Fachbetrieb konsultieren.\n\n"
-            "Durch Bestätigung erklärst du, dass du diese Warnung gelesen, verstanden und "
-            "akzeptiert hast. Vollständige Hinweise findest du hier: {docs_de}\n\n"
-            "---\n\n"
-            "**🇬🇧 ENGLISH:**\n\n"
+            "⚠️ **Safety Warning & Liability Disclaimer**\n\n"
             "Use of this software integration is at your own risk and responsibility. "
             "This integration enables remote control of pool equipment including pumps, "
             "heaters, lighting and chemical dosing systems.\n\n"
@@ -123,7 +96,6 @@ class ConfigFlowTextMixin:
     def _get_help_links(self) -> dict[str, str]:
         """Get helper links."""
         return {
-            "docs_de": constants.HELP_DOC_DE_URL,
             "docs_en": constants.HELP_DOC_EN_URL,
             "github_url": constants.GITHUB_BASE_URL,
             "issues_url": constants.SUPPORT_URL,
@@ -144,11 +116,11 @@ class ConfigFlowSchemaMixin:
                         options=[
                             selector.SelectOptionDict(
                                 value=constants.MENU_ACTION_START,
-                                label="⚙️ Setup starten / Start setup",
+                                label="⚙️ Start setup",
                             ),
                             selector.SelectOptionDict(
                                 value=constants.MENU_ACTION_HELP,
-                                label="📘 Hilfe & Dokumentation / Help & docs",
+                                label="📘 Help & documentation",
                             ),
                         ]
                     )

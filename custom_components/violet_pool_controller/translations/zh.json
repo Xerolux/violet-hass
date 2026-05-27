@@ -484,35 +484,74 @@
   },
   "entity": {
     "sensor": {
-      "ph_value": {
-        "name": "pH值"
-      },
-      "orp_value": {
-        "name": "氧化还原电位"
-      },
-      "pot_value": {
-        "name": "氯含量"
-      },
       "onewire1_value": {
         "name": "水温"
       },
       "onewire2_value": {
-        "name": "气温"
+        "name": "室外温度"
       },
-      "firmware_version": {
-        "name": "固件版本"
+      "onewire3_value": {
+        "name": "太阳能集热器"
+      },
+      "onewire4_value": {
+        "name": "集热器回水"
+      },
+      "onewire5_value": {
+        "name": "热交换器进水"
+      },
+      "onewire6_value": {
+        "name": "热交换器出水"
+      },
+      "onewire7_value": {
+        "name": "温度传感器 7"
+      },
+      "onewire8_value": {
+        "name": "温度传感器 8"
+      },
+      "ph_value": {
+        "name": "pH值"
+      },
+      "orp_value": {
+        "name": "ORP值"
+      },
+      "pot_value": {
+        "name": "氯含量"
+      },
+      "ai1_value": {
+        "name": "模拟输入 1"
+      },
+      "ai2_value": {
+        "name": "模拟输入 2"
+      },
+      "ai3_value": {
+        "name": "模拟输入 3"
+      },
+      "ai4_value": {
+        "name": "模拟输入 4"
+      },
+      "ai5_value": {
+        "name": "模拟输入 5"
+      },
+      "ai6_value": {
+        "name": "模拟输入 6"
+      },
+      "ai7_value": {
+        "name": "模拟输入 7"
+      },
+      "ai8_value": {
+        "name": "模拟输入 8"
       },
       "system_health": {
-        "name": "系统健康状况"
+        "name": "系统健康"
       },
       "connection_latency": {
-        "name": "连接延迟"
+        "name": "延迟"
       },
       "last_event_age": {
-        "name": "上次活动年龄"
+        "name": "上次事件时间"
       },
       "api_request_rate": {
-        "name": "API 请求率"
+        "name": "API请求率"
       },
       "average_latency": {
         "name": "平均延迟"
@@ -524,27 +563,177 @@
         "name": "流量"
       },
       "last_error_code": {
-        "name": "最后错误代码"
+        "name": "错误代码"
+      },
+      "firmware_version": {
+        "name": "固件"
+      },
+      "pump_status": {
+        "name": "过滤泵状态"
+      },
+      "heater_status": {
+        "name": "加热器状态"
+      },
+      "solar_status": {
+        "name": "太阳能状态"
+      },
+      "backwash_status": {
+        "name": "反冲洗状态"
+      },
+      "pvsurplus_status": {
+        "name": "光伏余量状态"
+      },
+      "refill_status": {
+        "name": "补水状态"
+      },
+      "pump_detail": {
+        "name": "过滤泵详情"
+      },
+      "heater_detail": {
+        "name": "加热器详情"
+      },
+      "solar_detail": {
+        "name": "太阳能详情"
+      },
+      "dos_1_cl_state": {
+        "name": "氯投加状态"
+      },
+      "dos_4_phm_state": {
+        "name": "pH- 投加状态"
+      },
+      "dos_5_php_state": {
+        "name": "pH+ 投加状态"
+      },
+      "dos_6_floc_state": {
+        "name": "絮凝剂投加状态"
+      },
+      "pump_composite": {
+        "name": "过滤泵状态详情"
+      },
+      "heater_composite": {
+        "name": "加热器状态详情"
+      },
+      "solar_composite": {
+        "name": "太阳能状态详情"
+      },
+      "cpu_temp": {
+        "name": "CPU温度"
+      },
+      "cpu_temp_carrier": {
+        "name": "载板温度"
+      },
+      "cpu_uptime": {
+        "name": "运行时间"
+      },
+      "system_cpu_temperature": {
+        "name": "系统CPU温度"
+      },
+      "system_carrier_cpu_temperature": {
+        "name": "载板CPU温度"
+      },
+      "system_dosagemodule_cpu_temperature": {
+        "name": "投加模块CPU温度"
+      },
+      "system_memoryusage": {
+        "name": "内存使用"
+      },
+      "system_safety_timer_active": {
+        "name": "安全计时器激活"
+      },
+      "system_relais_status": {
+        "name": "继电器状态"
       }
     },
     "binary_sensor": {
-      "pump_state": {
-        "name": "过滤泵状态"
+      "pump": {
+        "name": "过滤泵"
       },
-      "heater_state": {
-        "name": "加热器状态"
+      "solar": {
+        "name": "太阳能集热器"
       },
-      "solar_state": {
-        "name": "太阳能状况"
+      "heater": {
+        "name": "加热器"
       },
-      "cover_is_closed": {
-        "name": "盖子关闭"
+      "light": {
+        "name": "照明"
+      },
+      "backwash": {
+        "name": "反冲洗"
+      },
+      "refill": {
+        "name": "补水"
+      },
+      "eco": {
+        "name": "节能模式"
+      },
+      "pvsurplus": {
+        "name": "光伏余量"
+      },
+      "circulation_state": {
+        "name": "循环状态"
+      },
+      "electrode_flow_state": {
+        "name": "电极流量"
+      },
+      "pressure_state": {
+        "name": "压力状态"
+      },
+      "can_range_state": {
+        "name": "CAN范围"
+      },
+      "input1": {
+        "name": "数字输入 1"
+      },
+      "input2": {
+        "name": "数字输入 2"
+      },
+      "input3": {
+        "name": "数字输入 3"
+      },
+      "input4": {
+        "name": "数字输入 4"
+      },
+      "input5": {
+        "name": "数字输入 5"
+      },
+      "input6": {
+        "name": "数字输入 6"
+      },
+      "input7": {
+        "name": "数字输入 7"
+      },
+      "input8": {
+        "name": "数字输入 8"
+      },
+      "input9": {
+        "name": "数字输入 9"
+      },
+      "input10": {
+        "name": "数字输入 10"
+      },
+      "input11": {
+        "name": "数字输入 11"
+      },
+      "input12": {
+        "name": "数字输入 12"
+      },
+      "input_ce1": {
+        "name": "CE输入 1"
+      },
+      "input_ce2": {
+        "name": "CE输入 2"
+      },
+      "input_ce3": {
+        "name": "CE输入 3"
+      },
+      "input_ce4": {
+        "name": "CE输入 4"
       },
       "hw_base_module": {
         "name": "基础模块"
       },
       "hw_dosing_module": {
-        "name": "加药模块"
+        "name": "投加模块"
       },
       "hw_extension_module_1": {
         "name": "扩展模块 1"
@@ -553,21 +742,153 @@
         "name": "扩展模块 2"
       },
       "hw_standalone_mode": {
-        "name": "独立加药模式"
+        "name": "独立投加模式"
+      },
+      "hw_dmx_module": {
+        "name": "DMX模块"
+      },
+      "hw_dirule_module": {
+        "name": "数字规则模块"
       }
     },
     "switch": {
       "pump": {
         "name": "过滤泵"
       },
+      "solar": {
+        "name": "太阳能集热器"
+      },
       "heater": {
         "name": "加热器"
       },
-      "solar": {
-        "name": "太阳能吸收器"
-      },
       "light": {
-        "name": "灯光"
+        "name": "照明"
+      },
+      "dos_5_php": {
+        "name": "pH+ 投加"
+      },
+      "dos_4_phm": {
+        "name": "pH- 投加"
+      },
+      "dos_1_cl": {
+        "name": "氯投加"
+      },
+      "dos_6_floc": {
+        "name": "絮凝剂投加"
+      },
+      "pvsurplus": {
+        "name": "光伏余量"
+      },
+      "backwash": {
+        "name": "反冲洗"
+      },
+      "backwashrinse": {
+        "name": "冲洗"
+      },
+      "ext1_1": {
+        "name": "扩展 1.1"
+      },
+      "ext1_2": {
+        "name": "扩展 1.2"
+      },
+      "ext1_3": {
+        "name": "扩展 1.3"
+      },
+      "ext1_4": {
+        "name": "扩展 1.4"
+      },
+      "ext1_5": {
+        "name": "扩展 1.5"
+      },
+      "ext1_6": {
+        "name": "扩展 1.6"
+      },
+      "ext1_7": {
+        "name": "扩展 1.7"
+      },
+      "ext1_8": {
+        "name": "扩展 1.8"
+      },
+      "ext2_1": {
+        "name": "扩展 2.1"
+      },
+      "ext2_2": {
+        "name": "扩展 2.2"
+      },
+      "ext2_3": {
+        "name": "扩展 2.3"
+      },
+      "ext2_4": {
+        "name": "扩展 2.4"
+      },
+      "ext2_5": {
+        "name": "扩展 2.5"
+      },
+      "ext2_6": {
+        "name": "扩展 2.6"
+      },
+      "ext2_7": {
+        "name": "扩展 2.7"
+      },
+      "ext2_8": {
+        "name": "扩展 2.8"
+      },
+      "dmx_scene1": {
+        "name": "DMX场景 1"
+      },
+      "dmx_scene2": {
+        "name": "DMX场景 2"
+      },
+      "dmx_scene3": {
+        "name": "DMX场景 3"
+      },
+      "dmx_scene4": {
+        "name": "DMX场景 4"
+      },
+      "dmx_scene5": {
+        "name": "DMX场景 5"
+      },
+      "dmx_scene6": {
+        "name": "DMX场景 6"
+      },
+      "dmx_scene7": {
+        "name": "DMX场景 7"
+      },
+      "dmx_scene8": {
+        "name": "DMX场景 8"
+      },
+      "dmx_scene9": {
+        "name": "DMX场景 9"
+      },
+      "dmx_scene10": {
+        "name": "DMX场景 10"
+      },
+      "dmx_scene11": {
+        "name": "DMX场景 11"
+      },
+      "dmx_scene12": {
+        "name": "DMX场景 12"
+      },
+      "dirule_1": {
+        "name": "切换规则 1"
+      },
+      "dirule_2": {
+        "name": "切换规则 2"
+      },
+      "dirule_3": {
+        "name": "切换规则 3"
+      },
+      "dirule_4": {
+        "name": "切换规则 4"
+      },
+      "dirule_5": {
+        "name": "切换规则 5"
+      },
+      "dirule_6": {
+        "name": "切换规则 6"
+      },
+      "dirule_7": {
+        "name": "切换规则 7"
       }
     },
     "climate": {
@@ -575,7 +896,127 @@
         "name": "泳池加热器"
       },
       "solar": {
-        "name": "太阳能热水器"
+        "name": "太阳能加热器"
+      }
+    },
+    "cover": {
+      "pool_cover": {
+        "name": "泳池盖"
+      }
+    },
+    "number": {
+      "ph_sp_value": {
+        "name": "pH设定值"
+      },
+      "orp_sp_value": {
+        "name": "ORP设定值"
+      },
+      "cl_sp_value": {
+        "name": "氯设定值"
+      },
+      "target_temp_heater": {
+        "name": "加热器目标温度"
+      },
+      "target_temp_solar": {
+        "name": "太阳能目标温度"
+      },
+      "pump_rpm_sp": {
+        "name": "泵速"
+      },
+      "cl_canister_vol": {
+        "name": "氯药桶容量"
+      },
+      "phm_canister_vol": {
+        "name": "pH- 药桶容量"
+      },
+      "php_canister_vol": {
+        "name": "pH+ 药桶容量"
+      },
+      "floc_canister_vol": {
+        "name": "絮凝剂药桶容量"
+      }
+    },
+    "select": {
+      "pump_mode": {
+        "name": "过滤泵模式"
+      },
+      "heater_mode": {
+        "name": "加热器模式"
+      },
+      "solar_mode": {
+        "name": "太阳能模式"
+      },
+      "light_mode": {
+        "name": "照明模式"
+      },
+      "dos_cl_mode": {
+        "name": "氯模式"
+      },
+      "dos_phm_mode": {
+        "name": "pH- 模式"
+      },
+      "dos_php_mode": {
+        "name": "pH+ 模式"
+      },
+      "pvsurplus_mode": {
+        "name": "光伏余量模式"
+      },
+      "backwash_mode": {
+        "name": "反冲洗模式"
+      },
+      "backwashrinse_mode": {
+        "name": "冲洗模式"
+      },
+      "dos_floc_mode": {
+        "name": "絮凝剂模式"
+      },
+      "ext1_1_mode": {
+        "name": "扩展 1.1 模式"
+      },
+      "ext1_2_mode": {
+        "name": "扩展 1.2 模式"
+      },
+      "ext1_3_mode": {
+        "name": "扩展 1.3 模式"
+      },
+      "ext1_4_mode": {
+        "name": "扩展 1.4 模式"
+      },
+      "ext1_5_mode": {
+        "name": "扩展 1.5 模式"
+      },
+      "ext1_6_mode": {
+        "name": "扩展 1.6 模式"
+      },
+      "ext1_7_mode": {
+        "name": "扩展 1.7 模式"
+      },
+      "ext1_8_mode": {
+        "name": "扩展 1.8 模式"
+      },
+      "ext2_1_mode": {
+        "name": "扩展 2.1 模式"
+      },
+      "ext2_2_mode": {
+        "name": "扩展 2.2 模式"
+      },
+      "ext2_3_mode": {
+        "name": "扩展 2.3 模式"
+      },
+      "ext2_4_mode": {
+        "name": "扩展 2.4 模式"
+      },
+      "ext2_5_mode": {
+        "name": "扩展 2.5 模式"
+      },
+      "ext2_6_mode": {
+        "name": "扩展 2.6 模式"
+      },
+      "ext2_7_mode": {
+        "name": "扩展 2.7 模式"
+      },
+      "ext2_8_mode": {
+        "name": "扩展 2.8 模式"
       }
     }
   }

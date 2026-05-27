@@ -1,3 +1,7 @@
+﻿> 🇬🇧 **English** | 🇩🇪 **[Deutsch](Device-States.de)**
+
+---
+
 # Device States (0–6)
 
 > The **most important concept** of the integration! Learn what the 7 device states mean and how to use them in automations.

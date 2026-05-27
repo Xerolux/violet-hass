@@ -1,3 +1,7 @@
+﻿> 🇩🇪 **Deutsch** | 🇬🇧 **[English](README)**
+
+---
+
 # 🏊 Violet Pool Controller - Komplette Wiki
 
 Willkommen in der **kompletten Dokumentation** für das Violet Pool Controller Home Assistant Addon!

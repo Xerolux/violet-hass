@@ -1,7 +1,7 @@
 # =============================================================================
 # Violet Pool Controller – Home Assistant Custom Integration
 # Copyright © 2026 Xerolux
-# Entwickelt und erstellt von Xerolux
+# Developed and created by Xerolux
 # https://github.com/Xerolux/violet-hass
 # =============================================================================
 
@@ -287,7 +287,7 @@ def should_skip_sensor(key: str, raw_value: Any) -> bool:
 
 
 def _build_sensor_description(
-    key: str, raw_value: Any, predefined: dict[str, Any]
+    key: str, raw_value: Any, predefined: dict[str, Any], *, translation_key: str | None = None
 ) -> SensorEntityDescription:
     """Builds a SensorEntityDescription for a given sensor key."""
     predefined_info = predefined.get(key)
@@ -342,5 +342,6 @@ def _build_sensor_description(
         entity_category=EntityCategory.DIAGNOSTIC
         if key.startswith("SYSTEM_")
         else None,
+        translation_key=translation_key,
     )
 

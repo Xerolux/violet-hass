@@ -1,84 +1,84 @@
 # 🔧 Violet Pool Controller Blueprints - Installation & Setup
 
-## 📋 Übersicht
-Die Blueprints bieten vorgefertigte Automatisierungen für die Violet Pool Controller Integration:
+## 📋 Overview
+The blueprints provide pre-built automations for the Violet Pool Controller integration:
 
-- **🌡️ Temperatursteuerung**: Intelligente Heizungs- und Solarsteuerung
-- **🧪 pH-Kontrolle**: Automatische pH-Wert Korrektur mit Dosierung
-- **🏊 Abdeckungssteuerung**: Wetterbasierte Cover-Automatik
-- **🔄 Rückspülungssteuerung**: Automatische Filter-Reinigung
+- **🌡️ Temperature Control**: Smart heater and solar control
+- **🧪 pH Control**: Automatic pH value correction with dosing
+- **🏊 Cover Control**: Weather-based cover automation
+- **🔄 Backwash Control**: Automatic filter cleaning
 
-## 📥 Installation der Blueprints
+## 📥 Blueprint Installation
 
-### Methode 1: Direkt über Home Assistant UI (Empfohlen)
+### Method 1: Directly via Home Assistant UI (Recommended)
 
-1. **Blueprint importieren:**
+1. **Import Blueprint:**
    ```
    Settings → Automations & Scenes → Blueprints → Import Blueprint
    ```
 
-2. **URLs eingeben:**
+2. **Enter URLs:**
    ```
-   Temperatur: https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_temperature_control.yaml
-   pH-Kontrolle: https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_ph_control.yaml
-   Abdeckung: https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_cover_control.yaml
-   Rückspülung: https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_backwash_control.yaml
+   Temperature: https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_temperature_control.yaml
+   pH Control: https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_ph_control.yaml
+   Cover: https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_cover_control.yaml
+   Backwash: https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_backwash_control.yaml
    ```
 
-### Methode 2: Manuelle Installation
+### Method 2: Manual Installation
 
-1. **Ordner erstellen:**
+1. **Create folder:**
    ```bash
    mkdir -p config/blueprints/automation/violet_pool_controller/
    ```
 
-2. **Dateien kopieren:**
+2. **Copy files:**
    ```bash
-   # In Home Assistant config Verzeichnis
+   # In Home Assistant config directory
    cd config/blueprints/automation/violet_pool_controller/
    
-   # Blueprints herunterladen
+   # Download blueprints
    wget https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_temperature_control.yaml
    wget https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_ph_control.yaml
    wget https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_cover_control.yaml
    wget https://github.com/xerolux/violet-hass/raw/main/blueprints/automation/pool_backwash_control.yaml
    ```
 
-3. **Home Assistant neustarten**
+3. **Restart Home Assistant**
 
-## 🌡️ Temperatursteuerung Blueprint
+## 🌡️ Temperature Control Blueprint
 
-### Benötigte Entities:
-- ✅ **Pool-Temperatursensor** (sensor.violet_onewire1_value)
-- ✅ **Pool-Heizung** (climate.violet_heater)
-- 🔧 **Solarabsorber** (climate.violet_solar) - Optional
-- 🔧 **Außentemperatursensor** - Optional
-- 🔧 **Solarleistungssensor** - Optional
+### Required Entities:
+- ✅ **Pool Temperature Sensor** (sensor.violet_onewire1_value)
+- ✅ **Pool Heater** (climate.violet_heater)
+- 🔧 **Solar Absorber** (climate.violet_solar) - Optional
+- 🔧 **Outside Temperature Sensor** - Optional
+- 🔧 **Solar Power Sensor** - Optional
 
-### Setup-Schritte:
+### Setup Steps:
 
-1. **Blueprint erstellen:**
+1. **Create Blueprint:**
    ```
    Settings → Automations & Scenes → Blueprints
-   → "Violet Pool - Intelligente Temperatursteuerung" → Use This Blueprint
+   → "Violet Pool - Smart Temperature Control" → Use This Blueprint
    ```
 
-2. **Konfiguration:**
+2. **Configuration:**
    ```yaml
-   Pool-Temperatursensor: sensor.violet_onewire1_value
-   Pool-Heizung: climate.violet_heater
-   Solarabsorber: climate.violet_solar        # Optional
-   Zieltemperatur Tag: 26°C
-   Zieltemperatur Nacht: 24°C
-   Tagesbeginn: 07:00
-   Nachtbeginn: 22:00
-   Energiesparmodus: Ein
+   Pool Temperature Sensor: sensor.violet_onewire1_value
+   Pool Heater: climate.violet_heater
+   Solar Absorber: climate.violet_solar        # Optional
+   Target Temperature Day: 26°C
+   Target Temperature Night: 24°C
+   Day Start Time: 07:00
+   Night Start Time: 22:00
+   Energy Saving Mode: On
    ```
 
-## 🧪 pH-Kontrolle Blueprint
+## 🧪 pH Control Blueprint
 
-### Benötigte Helper:
-1. **Input Number für Dosier-Counter:**
+### Required Helpers:
+1. **Input Number for Dosing Counter:**
    ```
    Settings → Devices & Services → Helpers → Create Helper → Number
    Name: Pool pH Dosing Counter
@@ -86,74 +86,74 @@ Die Blueprints bieten vorgefertigte Automatisierungen für die Violet Pool Contr
    Min: 0, Max: 50, Step: 1, Initial: 0
    ```
 
-### Setup-Schritte:
+### Setup Steps:
 ```yaml
-pH-Sensor: sensor.violet_ph_value
-pH-Sollwert: number.violet_ph_setpoint
-pH- Dosierung: switch.violet_dos_4_phm
-pH+ Dosierung: switch.violet_dos_5_php
-pH-Toleranz: ±0.2
-Max. Dosierungen pro Tag: 10
+pH Sensor: sensor.violet_ph_value
+pH Setpoint: number.violet_ph_setpoint
+pH- Dosing: switch.violet_dos_4_phm
+pH+ Dosing: switch.violet_dos_5_php
+pH Tolerance: ±0.2
+Max. Dosing per Day: 10
 ```
 
-## 🏊 Abdeckungssteuerung Blueprint
+## 🏊 Cover Control Blueprint
 
-### Benötigte Entities:
-- ✅ **Pool-Abdeckung** (cover.violet_cover)
-- ✅ **Pool-Temperatursensor** (sensor.violet_onewire1_value)
-- ✅ **Außentemperatursensor** (sensor.openweather_temperature)
-- ✅ **Wetter-Entity** (weather.openweathermap)
-- 🔧 **Pumpen-Entity** (switch.violet_pump) - Optional
+### Required Entities:
+- ✅ **Pool Cover** (cover.violet_cover)
+- ✅ **Pool Temperature Sensor** (sensor.violet_onewire1_value)
+- ✅ **Outside Temperature Sensor** (sensor.openweather_temperature)
+- ✅ **Weather Entity** (weather.openweathermap)
+- 🔧 **Pump Entity** (switch.violet_pump) - Optional
 
-### Setup-Schritte:
+### Setup Steps:
 
-1. **Blueprint erstellen:**
+1. **Create Blueprint:**
    ```yaml
-   Pool-Abdeckung: cover.violet_cover
-   Pool-Temperatursensor: sensor.violet_onewire1_value
-   Außentemperatursensor: sensor.openweather_temperature
-   Wetter-Entity: weather.openweathermap
+   Pool Cover: cover.violet_cover
+   Pool Temperature Sensor: sensor.violet_onewire1_value
+   Outside Temperature Sensor: sensor.openweather_temperature
+   Weather Entity: weather.openweathermap
    ```
 
-2. **Zeitsteuerung:**
+2. **Time Control:**
    ```yaml
-   Automatisches Öffnen: 08:00
-   Öffnungszeit Wochenende: 10:00
-   Automatisches Schließen: 22:00
+   Auto Open Time: 08:00
+   Weekend Open Time: 10:00
+   Auto Close Time: 22:00
    ```
 
-3. **Wettersteuerung:**
+3. **Weather Control:**
    ```yaml
-   Wetterbasierte Steuerung: Ein
-   Regenschwelle: 70%
-   Windschwelle: 25 km/h
+   Weather-Based Control: On
+   Rain Threshold: 70%
+   Wind Speed Threshold: 25 km/h
    ```
 
-4. **Temperatursteuerung:**
+4. **Temperature Control:**
    ```yaml
-   Temperaturbasierte Steuerung: Ein
-   Minimale Außentemperatur: 5°C
-   Max. Temperaturdifferenz: 15°C
+   Temperature-Based Control: On
+   Minimum Outside Temperature: 5°C
+   Max Temperature Difference: 15°C
    ```
 
 ### Features:
-- ✅ **Automatisches Öffnen/Schließen** nach Zeitplan
-- ✅ **Wetterschutz** bei Regen/Wind/Sturm
-- ✅ **Temperaturschutz** bei niedrigen Temperaturen
-- ✅ **Pumpen-Verriegelung** (kein Schließen bei laufender Pumpe)
-- ✅ **Wochenend-Modus** (späteres Öffnen)
-- ✅ **Manuelle Übersteuerung** mit Pause-Funktion
+- ✅ **Automatic Open/Close** based on schedule
+- ✅ **Weather Protection** during rain/wind/storms
+- ✅ **Temperature Protection** at low temperatures
+- ✅ **Pump Interlock** (no closing while pump is running)
+- ✅ **Weekend Mode** (later opening)
+- ✅ **Manual Override** with pause function
 
-## 🔄 Rückspülungssteuerung Blueprint
+## 🔄 Backwash Control Blueprint
 
-### Benötigte Entities:
-- ✅ **Rückspül-Switch** (switch.violet_backwash)
-- ✅ **Pumpen-Switch** (switch.violet_pump)
-- 🔧 **Nachspül-Switch** (switch.violet_backwashrinse) - Optional
-- 🔧 **Filterdruck-Sensor** (sensor.violet_adc1_value) - Optional
+### Required Entities:
+- ✅ **Backwash Switch** (switch.violet_backwash)
+- ✅ **Pump Switch** (switch.violet_pump)
+- 🔧 **Rinse Switch** (switch.violet_backwashrinse) - Optional
+- 🔧 **Filter Pressure Sensor** (sensor.violet_adc1_value) - Optional
 
-### Benötigte Helper:
-1. **Input Datetime für letzte Rückspülung:**
+### Required Helpers:
+1. **Input Datetime for last backwash:**
    ```
    Settings → Helpers → Create Helper → Date and/or time
    Name: Pool Last Backwash
@@ -161,61 +161,61 @@ Max. Dosierungen pro Tag: 10
    Has date: ✓, Has time: ✓
    ```
 
-2. **Input Number für Pumpenlaufzeit (optional):**
+2. **Input Number for pump runtime (optional):**
    ```
    Name: Pool Pump Runtime Hours
    Entity ID: input_number.pool_pump_runtime_hours
    Min: 0, Max: 500, Step: 0.1, Unit: h
    ```
 
-### Setup-Schritte:
+### Setup Steps:
 
-1. **Basis-Konfiguration:**
+1. **Basic Configuration:**
    ```yaml
-   Rückspül-Switch: switch.violet_backwash
-   Pumpen-Switch: switch.violet_pump
-   Nachspül-Switch: switch.violet_backwashrinse
-   Filterdruck-Sensor: sensor.violet_adc1_value
+   Backwash Switch: switch.violet_backwash
+   Pump Switch: switch.violet_pump
+   Rinse Switch: switch.violet_backwashrinse
+   Filter Pressure Sensor: sensor.violet_adc1_value
    ```
 
-2. **Automatisierung:**
+2. **Automation:**
    ```yaml
-   Druckbasierte Rückspülung: Ein
-   Maximaler Filterdruck: 1.5 bar
-   Geplante Rückspülung: Ein
-   Rückspül-Intervall: 7 Tage
-   Rückspül-Uhrzeit: 03:00
+   Pressure-Based Backwash: On
+   Maximum Filter Pressure: 1.5 bar
+   Scheduled Backwash: On
+   Backwash Interval: 7 days
+   Backwash Time: 03:00
    ```
 
-3. **Parameter:**
+3. **Parameters:**
    ```yaml
-   Rückspül-Dauer: 120s
-   Nachspül-Dauer: 30s
-   Pumpen-Stopp vor Rückspülung: 30s
-   Pumpen-Start nach Rückspülung: 60s
+   Backwash Duration: 120s
+   Rinse Duration: 30s
+   Pump Stop Before Backwash: 30s
+   Pump Start After Backwash: 60s
    ```
 
 ### Features:
-- ✅ **Druckbasierte Auslösung** bei hohem Filterdruck
-- ✅ **Zeitbasierte Rückspülung** nach Intervallen
-- ✅ **Laufzeitbasierte Auslösung** nach Pumpenstunden
-- ✅ **Automatischer Nachspül-Zyklus**
-- ✅ **Wasserstands-Prüfung** vor Rückspülung
-- ✅ **Sichere Pumpensteuerung** mit Wartezeiten
+- ✅ **Pressure-Based Trigger** at high filter pressure
+- ✅ **Schedule-Based Backwash** at intervals
+- ✅ **Runtime-Based Trigger** after pump hours
+- ✅ **Automatic Rinse Cycle**
+- ✅ **Water Level Check** before backwash
+- ✅ **Safe Pump Control** with wait times
 
-## 📱 Benachrichtigungen einrichten
+## 📱 Setting Up Notifications
 
-### Mobile App Benachrichtigung:
+### Mobile App Notification:
 
-1. **Service ermitteln:**
+1. **Find service:**
    ```
-   Developer Tools → Services → Suche: "notify"
-   → notify.mobile_app_dein_handy_name
+   Developer Tools → Services → Search: "notify"
+   → notify.mobile_app_your_phone_name
    ```
 
-2. **In Blueprint eingeben:**
+2. **Enter in Blueprint:**
    ```
-   Benachrichtigungs-Service: notify.mobile_app_iphone
+   Notification Service: notify.mobile_app_iphone
    ```
 
 ### Telegram/Discord/Slack:
@@ -225,77 +225,77 @@ notify.discord_webhook
 notify.slack_webhook
 ```
 
-## 💡 Beispiel-Benachrichtigungen
+## 💡 Example Notifications
 
-### Temperatursteuerung:
-- 🌅 "Pool-Temperatur: Tagestemperatur auf 26°C gesetzt"
-- ☀️ "Solar-Heizung aktiviert (1500W), Ziel: 26°C"
-- 🔥 "Pool-Heizung aktiviert: 23.5°C → 26°C (Δ2.5°C)"
+### Temperature Control:
+- 🌅 "Pool Temperature: Day temperature set to 26°C"
+- ☀️ "Solar Heating activated (1500W), target: 26°C"
+- 🔥 "Pool Heater activated: 23.5°C → 26°C (Δ2.5°C)"
 
-### pH-Kontrolle:
-- 🔻 "pH-Korrektur: 7.6 → 7.2, pH-Minus für 30s dosiert"
-- ⚠️ "pH-Dosierung gestoppt: Max. 10 Dosierungen erreicht"
+### pH Control:
+- 🔻 "pH Correction: 7.6 → 7.2, pH-Minus dosed for 30s"
+- ⚠️ "pH Dosing stopped: Max. 10 dosing cycles reached"
 
-### Abdeckungssteuerung:
-- 🌧️ "Wetter-Schutz: Abdeckung wegen Regen geschlossen"
-- 🌡️ "Temperatur-Schutz: Außen 3°C, Abdeckung geschlossen"
+### Cover Control:
+- 🌧️ "Weather Protection: Cover closed due to rain"
+- 🌡️ "Temperature Protection: Outside 3°C, cover closed"
 
-### Rückspülung:
-- 🔄 "Automatische Rückspülung: Filterdruck 1.8 bar (Max: 1.5)"
-- ✅ "Rückspülung abgeschlossen: 120s Backwash + 30s Rinse"
+### Backwash:
+- 🔄 "Automatic Backwash: Filter pressure 1.8 bar (Max: 1.5)"
+- ✅ "Backwash completed: 120s Backwash + 30s Rinse"
 
 ## 🚨 Troubleshooting
 
-### Blueprint nicht sichtbar:
+### Blueprint not visible:
 ```bash
-# Logs prüfen:
+# Check logs:
 tail -f config/home-assistant.log | grep blueprint
 
-# Dateiberechtigungen:
+# File permissions:
 chmod 644 config/blueprints/automation/violet_pool_controller/*.yaml
 
-# HA neustarten
+# Restart HA
 ```
 
-### Entities nicht gefunden:
-- Integration korrekt installiert?
-- Entities in Developer Tools sichtbar?
-- Feature in Integration aktiviert?
+### Entities not found:
+- Integration correctly installed?
+- Entities visible in Developer Tools?
+- Feature enabled in integration?
 
-### Benachrichtigungen funktionieren nicht:
-- Service-Name korrekt? (mit notify. Prefix)
-- Mobile App installiert und angemeldet?
-- Test über Developer Tools → Services
+### Notifications not working:
+- Service name correct? (with notify. prefix)
+- Mobile app installed and logged in?
+- Test via Developer Tools → Services
 
-### Automatisierung läuft nicht:
-- Trigger-Conditions erfüllt?
-- Entities verfügbar (nicht "unavailable")?
-- Mode: single - nur eine Ausführung gleichzeitig
+### Automation not running:
+- Trigger conditions met?
+- Entities available (not "unavailable")?
+- Mode: single - only one execution at a time
 
-## 🔧 Anpassungen
+## 🔧 Customization
 
-### Eigene Trigger hinzufügen:
+### Adding Custom Triggers:
 ```yaml
-# In Blueprint YAML ergänzen:
+# Add to Blueprint YAML:
 - platform: state
   entity_id: input_boolean.my_custom_trigger
   to: 'on'
   id: custom_trigger
 ```
 
-### Zeiten anpassen:
+### Adjusting Times:
 ```yaml
-# Andere Überprüfungsintervalle:
+# Different check intervals:
 - platform: time_pattern
-  minutes: /15  # Alle 15 Minuten statt 30
+  minutes: /15  # Every 15 minutes instead of 30
 ```
 
-### Zusätzliche Bedingungen:
+### Additional Conditions:
 ```yaml
-# Z.B. nur bei Anwesenheit:
+# e.g. only when someone is home:
 - condition: state
   entity_id: person.homeowner
   state: 'home'
 ```
 
-Die Blueprints sind modular aufgebaut und können individuell angepasst werden!
+The blueprints are modular and can be customized individually!

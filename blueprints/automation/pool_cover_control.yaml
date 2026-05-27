@@ -1,8 +1,8 @@
 blueprint:
-  name: Violet Pool - Intelligente Abdeckungssteuerung
+  name: Violet Pool - Smart Cover Control
   description: |
-    Automatische Pool-Abdeckungssteuerung basierend auf Wetter, Temperatur, Zeit und Pool-Status.
-    Schützt vor Regen, spart Energie und hält das Wasser sauber.
+    Automatic pool cover control based on weather, temperature, time, and pool status.
+    Protects against rain, saves energy, and keeps the water clean.
     
     VERSION: 1.0.5 (2026-04-22)
   domain: automation
@@ -11,16 +11,16 @@ blueprint:
     min_version: "2024.6.0"
   input:
     pool_cover:
-      name: Pool-Abdeckung
-      description: Cover-Entity der Pool-Abdeckung
+      name: Pool Cover
+      description: Cover entity of the pool cover
       selector:
         entity:
           filter:
             - integration: violet_pool_controller
             - domain: cover
     pool_temperature_sensor:
-      name: Pool-Temperatursensor
-      description: Sensor für die Wassertemperatur
+      name: Pool Temperature Sensor
+      description: Sensor for the water temperature
       selector:
         entity:
           filter:
@@ -28,23 +28,23 @@ blueprint:
             - domain: sensor
             - device_class: temperature
     outside_temp_sensor:
-      name: Außentemperatursensor
-      description: Sensor für die Außentemperatur
+      name: Outside Temperature Sensor
+      description: Sensor for the outside temperature
       selector:
         entity:
           filter:
             - domain: sensor
             - device_class: temperature
     weather_entity:
-      name: Wetter-Entity
-      description: Wetter-Integration für Regenvorhersage
+      name: Weather Entity
+      description: Weather integration for rain forecast
       selector:
         entity:
           filter:
             - domain: weather
     pump_entity:
-      name: Pool-Pumpe (Optional)
-      description: Pumpen-Status für intelligente Steuerung
+      name: Pool Pump (Optional)
+      description: Pump status for smart control
       default: ""
       selector:
         entity:
@@ -55,36 +55,36 @@ blueprint:
                 - binary_sensor
           multiple: false
     
-    # === Zeitsteuerung ===
+    # === Time Control ===
     auto_close_time:
-      name: Automatisches Schließen
-      description: Uhrzeit für automatisches Schließen der Abdeckung
+      name: Auto Close Time
+      description: Time for automatic closing of the cover
       default: "22:00"
       selector:
         time:
     auto_open_time:
-      name: Automatisches Öffnen
-      description: Uhrzeit für automatisches Öffnen der Abdeckung
+      name: Auto Open Time
+      description: Time for automatic opening of the cover
       default: "08:00"
       selector:
         time:
     weekend_open_time:
-      name: Öffnungszeit Wochenende
-      description: Spätere Öffnungszeit am Wochenende
+      name: Weekend Open Time
+      description: Later opening time on weekends
       default: "10:00"
       selector:
         time:
     
-    # === Wetterbasierte Steuerung ===
+    # === Weather-Based Control ===
     enable_weather_control:
-      name: Wetterbasierte Steuerung
-      description: Abdeckung automatisch bei schlechtem Wetter schließen
+      name: Weather-Based Control
+      description: Close cover automatically in bad weather
       default: true
       selector:
         boolean:
     rain_threshold:
-      name: Regenschwelle
-      description: Regenwahrscheinlichkeit für automatisches Schließen (%)
+      name: Rain Threshold
+      description: Rain probability for automatic closing (%)
       default: 70
       selector:
         number:
@@ -94,8 +94,8 @@ blueprint:
           unit_of_measurement: "%"
           mode: slider
     wind_speed_threshold:
-      name: Windschwelle
-      description: Windgeschwindigkeit für automatisches Schließen
+      name: Wind Speed Threshold
+      description: Wind speed for automatic closing
       default: 25
       selector:
         number:
@@ -105,16 +105,16 @@ blueprint:
           unit_of_measurement: "km/h"
           mode: slider
     
-    # === Temperaturbasierte Steuerung ===
+    # === Temperature-Based Control ===
     enable_temp_control:
-      name: Temperaturbasierte Steuerung
-      description: Abdeckung bei niedrigen Temperaturen automatisch schließen
+      name: Temperature-Based Control
+      description: Close cover automatically at low temperatures
       default: true
       selector:
         boolean:
     min_outside_temp:
-      name: Minimale Außentemperatur
-      description: Außentemperatur unter der automatisch geschlossen wird
+      name: Minimum Outside Temperature
+      description: Outside temperature below which the cover closes automatically
       default: 5
       selector:
         number:
@@ -124,8 +124,8 @@ blueprint:
           unit_of_measurement: "°C"
           mode: slider
     max_temp_difference:
-      name: Max. Temperaturdifferenz
-      description: Max. Unterschied zwischen Pool- und Außentemperatur für Schließung
+      name: Max Temperature Difference
+      description: Maximum difference between pool and outside temperature for closing
       default: 15
       selector:
         number:
@@ -135,22 +135,22 @@ blueprint:
           unit_of_measurement: "°C"
           mode: slider
     
-    # === Sicherheit & Komfort ===
+    # === Safety & Comfort ===
     enable_pump_interlock:
-      name: Pumpen-Verriegelung
-      description: Abdeckung nicht schließen bei laufender Pumpe
+      name: Pump Interlock
+      description: Do not close cover while pump is running
       default: true
       selector:
         boolean:
     enable_manual_override:
-      name: Manuelle Übersteuerung
-      description: Automatik nach manueller Bedienung pausieren
+      name: Manual Override
+      description: Pause automation after manual operation
       default: true
       selector:
         boolean:
     manual_override_duration:
-      name: Übersteuerungs-Dauer
-      description: Dauer der Automatik-Pause nach manueller Bedienung
+      name: Override Duration
+      description: Duration of automation pause after manual operation
       default: 120
       selector:
         number:
@@ -160,22 +160,22 @@ blueprint:
           unit_of_measurement: "min"
           mode: box
     
-    # === Benachrichtigungen ===
+    # === Notifications ===
     notification_entity:
-      name: Benachrichtigungs-Service (Optional)
-      description: Service für Status-Benachrichtigungen
+      name: Notification Service (Optional)
+      description: Service for status notifications
       default: ""
       selector:
         text:
     notify_on_weather_close:
-      name: Wetter-Benachrichtigungen
-      description: Benachrichtigung bei wetterbedingtem Schließen
+      name: Weather Notifications
+      description: Notification when closed due to weather
       default: true
       selector:
         boolean:
     notify_on_temp_close:
-      name: Temperatur-Benachrichtigungen
-      description: Benachrichtigung bei temperaturbedingtem Schließen
+      name: Temperature Notifications
+      description: Notification when closed due to temperature
       default: true
       selector:
         boolean:
@@ -188,8 +188,8 @@ variables:
   pump_sensor: !input pump_entity
   notify_service: !input notification_entity
   
-  # Zeitvariablen
-  is_weekend: "{{ now().weekday() in [5, 6] }}"  # Samstag, Sonntag
+  # Time variables
+  is_weekend: "{{ now().weekday() in [5, 6] }}"  # Saturday, Sunday
   open_time: >
     {% if is_weekend %}
       {{ (weekend_open_time | as_datetime).time() }}
@@ -200,24 +200,24 @@ variables:
   is_day_time: >
     {{ now().time() >= open_time and now().time() < close_time }}
   
-  # Temperaturvariablen
+  # Temperature variables
   pool_temp: "{{ states(pool_temp_sensor) | float(20) }}"
   outside_temp: "{{ states(outside_temp_sensor) | float(20) }}"
   temp_diff: "{{ pool_temp - outside_temp }}"
   
-  # Wettervariablen
+  # Weather variables
   weather_condition: "{{ states(weather_entity) }}"
   weather_attrs: "{{ state_attr(weather_entity, '') }}"
   rain_probability: "{{ state_attr(weather_entity, 'forecast')[0].precipitation_probability | default(0) }}"
   wind_speed: "{{ state_attr(weather_entity, 'wind_speed') | default(0) }}"
   
-  # Status-Variablen
+  # Status variables
   cover_state: "{{ states(cover_entity) }}"
   is_cover_open: "{{ cover_state == 'open' }}"
   is_cover_closed: "{{ cover_state == 'closed' }}"
   is_cover_moving: "{{ cover_state in ['opening', 'closing'] }}"
   
-  # Pumpen-Status
+  # Pump status
   pump_running: >
     {% if pump_sensor == "" %}
       false
@@ -225,7 +225,7 @@ variables:
       {{ is_state(pump_sensor, 'on') }}
     {% endif %}
   
-  # Entscheidungslogik
+  # Decision logic
   should_close_weather: >
     {{ enable_weather_control and (
        weather_condition in ['rainy', 'snowy', 'hail'] or
@@ -247,7 +247,7 @@ variables:
        (not enable_pump_interlock or not pump_running) }}
 
 trigger:
-  # Zeitbasierte Trigger
+  # Time-based triggers
   - platform: time
     at: !input auto_open_time
     id: time_open_weekday
@@ -258,7 +258,7 @@ trigger:
     at: !input auto_close_time
     id: time_close
   
-  # Wetterbasierte Trigger
+  # Weather-based triggers
   - platform: state
     entity_id: !input weather_entity
     for:
@@ -272,7 +272,7 @@ trigger:
       minutes: 10
     id: high_wind
   
-  # Temperaturbasierte Trigger
+  # Temperature-based triggers
   - platform: numeric_state
     entity_id: !input outside_temp_sensor
     below: !input min_outside_temp
@@ -286,7 +286,7 @@ trigger:
       minutes: 20
     id: temp_diff_high
   
-  # Pumpen-Status Trigger
+  # Pump status trigger
   - platform: state
     entity_id: !input pump_entity
     to: "off"
@@ -294,7 +294,7 @@ trigger:
       minutes: 5
     id: pump_stopped
   
-  # Periodische Überprüfung
+  # Periodic check
   - platform: time_pattern
     minutes: /30
     id: periodic_check
@@ -306,7 +306,7 @@ condition:
 
 action:
   - choose:
-      # === Automatisches Öffnen zur festgelegten Zeit ===
+      # === Automatic opening at scheduled time ===
       - conditions:
           - condition: or
             conditions:
@@ -328,12 +328,12 @@ action:
             then:
               - service: "{{ notify_service }}"
                 data:
-                  title: "🌅 Pool-Abdeckung geöffnet"
+                  title: "🌅 Pool Cover Opened"
                   message: >
-                    Abdeckung automatisch zur Tageszeit geöffnet
+                    Cover opened automatically at scheduled time
                     ({{ open_time.strftime('%H:%M') }})
 
-      # === Automatisches Schließen zur Nachtzeit ===
+      # === Automatic closing at nighttime ===
       - conditions:
           - condition: trigger
             id: time_close
@@ -349,12 +349,12 @@ action:
             then:
               - service: "{{ notify_service }}"
                 data:
-                  title: "🌙 Pool-Abdeckung geschlossen"
+                  title: "🌙 Pool Cover Closed"
                   message: >
-                    Abdeckung automatisch zur Nachtzeit geschlossen
+                    Cover closed automatically for nighttime
                     ({{ close_time.strftime('%H:%M') }})
 
-      # === Wetterbedingtes Schließen ===
+      # === Weather-triggered closing ===
       - conditions:
           - condition: template
             value_template: "{{ should_close_weather and can_move_cover and is_cover_open }}"
@@ -376,12 +376,12 @@ action:
             then:
               - service: "{{ notify_service }}"
                 data:
-                  title: "🌧️ Wetter-Schutz aktiviert"
+                  title: "🌧️ Weather Protection Activated"
                   message: >
-                    Abdeckung wegen schlechtem Wetter geschlossen
-                    Bedingung: {{ weather_condition }}, Regen: {{ rain_probability }}%, Wind: {{ wind_speed }} km/h
+                    Cover closed due to bad weather
+                    Condition: {{ weather_condition }}, Rain: {{ rain_probability }}%, Wind: {{ wind_speed }} km/h
 
-      # === Temperaturbedingtes Schließen ===
+      # === Temperature-triggered closing ===
       - conditions:
           - condition: template
             value_template: "{{ should_close_temp and can_move_cover and is_cover_open }}"
@@ -403,12 +403,12 @@ action:
             then:
               - service: "{{ notify_service }}"
                 data:
-                  title: "🌡️ Temperatur-Schutz aktiviert"
+                  title: "🌡️ Temperature Protection Activated"
                   message: >
-                    Abdeckung wegen niedrigen Temperaturen geschlossen
-                    Außen: {{ outside_temp }}°C, Pool: {{ pool_temp }}°C, Differenz: {{ temp_diff }}°C
+                    Cover closed due to low temperatures
+                    Outside: {{ outside_temp }}°C, Pool: {{ pool_temp }}°C, Difference: {{ temp_diff }}°C
 
-      # === Öffnen nach Pumpen-Stop (falls vorher blockiert) ===
+      # === Open after pump stop (if previously blocked) ===
       - conditions:
           - condition: trigger
             id: pump_stopped
@@ -418,7 +418,7 @@ action:
             value_template: "{{ not (should_close_weather or should_close_temp) }}"
         sequence:
           - delay:
-              minutes: 2  # Kurze Wartezeit nach Pumpen-Stop
+              minutes: 2  # Short wait after pump stop
           - service: cover.open_cover
             target:
               entity_id: !input pool_cover
@@ -428,10 +428,10 @@ action:
             then:
               - service: "{{ notify_service }}"
                 data:
-                  title: "💡 Abdeckung nach Pumpen-Stop geöffnet"
-                  message: "Abdeckung geöffnet nach Ende des Pumpbetriebs"
+                  title: "💡 Cover Opened After Pump Stop"
+                  message: "Cover opened after pump operation ended"
 
-      # === Warnung bei blockierter Bewegung ===
+      # === Warning when movement is blocked ===
       - conditions:
           - condition: template
             value_template: "{{ enable_pump_interlock and pump_running and (should_close_weather or should_close_temp) }}"
@@ -444,10 +444,10 @@ action:
             then:
               - service: "{{ notify_service }}"
                 data:
-                  title: "⚠️ Abdeckung blockiert"
+                  title: "⚠️ Cover Blocked"
                   message: >
-                    Abdeckung sollte geschlossen werden, aber Pumpe läuft noch.
-                    Bitte Pumpe manuell stoppen oder Verriegelung deaktivieren.
+                    Cover should be closed, but the pump is still running.
+                    Please stop the pump manually or disable the interlock.
 
 mode: single
 max_exceeded: silent

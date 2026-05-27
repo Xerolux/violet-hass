@@ -1,3 +1,7 @@
+﻿> 🇩🇪 **Deutsch** | 🇬🇧 **[English](Configuration)**
+
+---
+
 # ⚙️ Konfiguration
 
 > Alle Konfigurationsoptionen erklärt – von Basis-Setup bis zu erweiterten Einstellungen.

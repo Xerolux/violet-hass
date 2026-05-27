@@ -1,6 +1,9 @@
+﻿> 🇬🇧 **English** | 🇩🇪 **[Deutsch](Home.de)**
+
+---
+
 # 🏊 Violet Pool Controller – Home Assistant Integration
 
-**English** | **[Deutsch](Home.de)**
 
 > **The complete documentation** for the Violet Pool Controller add-on.
 > From installation to uninstallation – with all features, states, services, and automations.

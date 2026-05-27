@@ -1,3 +1,7 @@
+﻿> 🇬🇧 **English** | 🇩🇪 **[Deutsch](Installation-and-Setup.de)**
+
+---
+
 # 📦 Installation & Setup
 
 > Step-by-step guide to installing the Violet Pool Controller add-on in Home Assistant.

@@ -484,23 +484,62 @@
   },
   "entity": {
     "sensor": {
-      "ph_value": {
-        "name": "Valeur pH"
-      },
-      "orp_value": {
-        "name": "Potentiel rédox"
-      },
-      "pot_value": {
-        "name": "Niveau de chlore"
-      },
       "onewire1_value": {
         "name": "Température de l'eau"
       },
       "onewire2_value": {
-        "name": "Température de l'air"
+        "name": "Température extérieure"
       },
-      "firmware_version": {
-        "name": "Version du micrologiciel"
+      "onewire3_value": {
+        "name": "Absorbeur solaire"
+      },
+      "onewire4_value": {
+        "name": "Retour absorbeur"
+      },
+      "onewire5_value": {
+        "name": "Entrée échangeur de chaleur"
+      },
+      "onewire6_value": {
+        "name": "Sortie échangeur de chaleur"
+      },
+      "onewire7_value": {
+        "name": "Capteur de température 7"
+      },
+      "onewire8_value": {
+        "name": "Capteur de température 8"
+      },
+      "ph_value": {
+        "name": "Valeur du pH"
+      },
+      "orp_value": {
+        "name": "Valeur ORP"
+      },
+      "pot_value": {
+        "name": "Taux de chlore"
+      },
+      "ai1_value": {
+        "name": "Entrée analogique 1"
+      },
+      "ai2_value": {
+        "name": "Entrée analogique 2"
+      },
+      "ai3_value": {
+        "name": "Entrée analogique 3"
+      },
+      "ai4_value": {
+        "name": "Entrée analogique 4"
+      },
+      "ai5_value": {
+        "name": "Entrée analogique 5"
+      },
+      "ai6_value": {
+        "name": "Entrée analogique 6"
+      },
+      "ai7_value": {
+        "name": "Entrée analogique 7"
+      },
+      "ai8_value": {
+        "name": "Entrée analogique 8"
       },
       "system_health": {
         "name": "Santé du système"
@@ -518,27 +557,177 @@
         "name": "Latence moyenne"
       },
       "recovery_success_rate": {
-        "name": "Taux de réussite de la récupération"
+        "name": "Taux de réussite de récupération"
       },
       "flow_rate": {
         "name": "Débit"
       },
       "last_error_code": {
         "name": "Dernier code d'erreur"
+      },
+      "firmware_version": {
+        "name": "Version du micrologiciel"
+      },
+      "pump_status": {
+        "name": "État de la pompe"
+      },
+      "heater_status": {
+        "name": "État du chauffage"
+      },
+      "solar_status": {
+        "name": "État du solaire"
+      },
+      "backwash_status": {
+        "name": "État du contre-lavage"
+      },
+      "pvsurplus_status": {
+        "name": "État de l'excédent photovoltaïque"
+      },
+      "refill_status": {
+        "name": "État du remplissage"
+      },
+      "pump_detail": {
+        "name": "Détails pompe"
+      },
+      "heater_detail": {
+        "name": "Détails chauffage"
+      },
+      "solar_detail": {
+        "name": "Détails solaire"
+      },
+      "dos_1_cl_state": {
+        "name": "État dosage chlore"
+      },
+      "dos_4_phm_state": {
+        "name": "État dosage pH-"
+      },
+      "dos_5_php_state": {
+        "name": "État dosage pH+"
+      },
+      "dos_6_floc_state": {
+        "name": "État dosage floculant"
+      },
+      "pump_composite": {
+        "name": "Détails état pompe"
+      },
+      "heater_composite": {
+        "name": "Détails état chauffage"
+      },
+      "solar_composite": {
+        "name": "Détails état solaire"
+      },
+      "cpu_temp": {
+        "name": "Température CPU"
+      },
+      "cpu_temp_carrier": {
+        "name": "Température carte carrier"
+      },
+      "cpu_uptime": {
+        "name": "Durée de fonctionnement"
+      },
+      "system_cpu_temperature": {
+        "name": "Température CPU système"
+      },
+      "system_carrier_cpu_temperature": {
+        "name": "Température CPU carte carrier"
+      },
+      "system_dosagemodule_cpu_temperature": {
+        "name": "Température CPU module de dosage"
+      },
+      "system_memoryusage": {
+        "name": "Utilisation mémoire"
+      },
+      "system_safety_timer_active": {
+        "name": "Minuterie de sécurité active"
+      },
+      "system_relais_status": {
+        "name": "État des relais"
       }
     },
     "binary_sensor": {
-      "pump_state": {
-        "name": "État de la pompe de filtration"
+      "pump": {
+        "name": "Pompe de filtration"
       },
-      "heater_state": {
-        "name": "État du chauffage"
+      "solar": {
+        "name": "Solaire"
       },
-      "solar_state": {
-        "name": "Statut solaire"
+      "heater": {
+        "name": "Chauffage"
       },
-      "cover_is_closed": {
-        "name": "Couvercle fermé"
+      "light": {
+        "name": "Éclairage"
+      },
+      "backwash": {
+        "name": "Contre-lavage"
+      },
+      "refill": {
+        "name": "Remplissage"
+      },
+      "eco": {
+        "name": "Mode éco"
+      },
+      "pvsurplus": {
+        "name": "Excédent photovoltaïque"
+      },
+      "circulation_state": {
+        "name": "État de circulation"
+      },
+      "electrode_flow_state": {
+        "name": "Débit électrode"
+      },
+      "pressure_state": {
+        "name": "État de pression"
+      },
+      "can_range_state": {
+        "name": "Portée CAN"
+      },
+      "input1": {
+        "name": "Entrée numérique 1"
+      },
+      "input2": {
+        "name": "Entrée numérique 2"
+      },
+      "input3": {
+        "name": "Entrée numérique 3"
+      },
+      "input4": {
+        "name": "Entrée numérique 4"
+      },
+      "input5": {
+        "name": "Entrée numérique 5"
+      },
+      "input6": {
+        "name": "Entrée numérique 6"
+      },
+      "input7": {
+        "name": "Entrée numérique 7"
+      },
+      "input8": {
+        "name": "Entrée numérique 8"
+      },
+      "input9": {
+        "name": "Entrée numérique 9"
+      },
+      "input10": {
+        "name": "Entrée numérique 10"
+      },
+      "input11": {
+        "name": "Entrée numérique 11"
+      },
+      "input12": {
+        "name": "Entrée numérique 12"
+      },
+      "input_ce1": {
+        "name": "Entrée CE 1"
+      },
+      "input_ce2": {
+        "name": "Entrée CE 2"
+      },
+      "input_ce3": {
+        "name": "Entrée CE 3"
+      },
+      "input_ce4": {
+        "name": "Entrée CE 4"
       },
       "hw_base_module": {
         "name": "Module de base"
@@ -554,28 +743,280 @@
       },
       "hw_standalone_mode": {
         "name": "Dosage autonome"
+      },
+      "hw_dmx_module": {
+        "name": "Module DMX"
+      },
+      "hw_dirule_module": {
+        "name": "Module de règles numériques"
       }
     },
     "switch": {
       "pump": {
-        "name": "Pompe à filtre"
-      },
-      "heater": {
-        "name": "Chauffage"
+        "name": "Pompe de filtration"
       },
       "solar": {
         "name": "Absorbeur solaire"
       },
+      "heater": {
+        "name": "Chauffage"
+      },
       "light": {
         "name": "Éclairage"
+      },
+      "dos_5_php": {
+        "name": "Dosage pH+"
+      },
+      "dos_4_phm": {
+        "name": "Dosage pH-"
+      },
+      "dos_1_cl": {
+        "name": "Dosage chlore"
+      },
+      "dos_6_floc": {
+        "name": "Dosage floculant"
+      },
+      "pvsurplus": {
+        "name": "Excédent photovoltaïque"
+      },
+      "backwash": {
+        "name": "Contre-lavage"
+      },
+      "backwashrinse": {
+        "name": "Rinçage"
+      },
+      "ext1_1": {
+        "name": "Extension 1.1"
+      },
+      "ext1_2": {
+        "name": "Extension 1.2"
+      },
+      "ext1_3": {
+        "name": "Extension 1.3"
+      },
+      "ext1_4": {
+        "name": "Extension 1.4"
+      },
+      "ext1_5": {
+        "name": "Extension 1.5"
+      },
+      "ext1_6": {
+        "name": "Extension 1.6"
+      },
+      "ext1_7": {
+        "name": "Extension 1.7"
+      },
+      "ext1_8": {
+        "name": "Extension 1.8"
+      },
+      "ext2_1": {
+        "name": "Extension 2.1"
+      },
+      "ext2_2": {
+        "name": "Extension 2.2"
+      },
+      "ext2_3": {
+        "name": "Extension 2.3"
+      },
+      "ext2_4": {
+        "name": "Extension 2.4"
+      },
+      "ext2_5": {
+        "name": "Extension 2.5"
+      },
+      "ext2_6": {
+        "name": "Extension 2.6"
+      },
+      "ext2_7": {
+        "name": "Extension 2.7"
+      },
+      "ext2_8": {
+        "name": "Extension 2.8"
+      },
+      "dmx_scene1": {
+        "name": "Scène DMX 1"
+      },
+      "dmx_scene2": {
+        "name": "Scène DMX 2"
+      },
+      "dmx_scene3": {
+        "name": "Scène DMX 3"
+      },
+      "dmx_scene4": {
+        "name": "Scène DMX 4"
+      },
+      "dmx_scene5": {
+        "name": "Scène DMX 5"
+      },
+      "dmx_scene6": {
+        "name": "Scène DMX 6"
+      },
+      "dmx_scene7": {
+        "name": "Scène DMX 7"
+      },
+      "dmx_scene8": {
+        "name": "Scène DMX 8"
+      },
+      "dmx_scene9": {
+        "name": "Scène DMX 9"
+      },
+      "dmx_scene10": {
+        "name": "Scène DMX 10"
+      },
+      "dmx_scene11": {
+        "name": "Scène DMX 11"
+      },
+      "dmx_scene12": {
+        "name": "Scène DMX 12"
+      },
+      "dirule_1": {
+        "name": "Règle de commutation 1"
+      },
+      "dirule_2": {
+        "name": "Règle de commutation 2"
+      },
+      "dirule_3": {
+        "name": "Règle de commutation 3"
+      },
+      "dirule_4": {
+        "name": "Règle de commutation 4"
+      },
+      "dirule_5": {
+        "name": "Règle de commutation 5"
+      },
+      "dirule_6": {
+        "name": "Règle de commutation 6"
+      },
+      "dirule_7": {
+        "name": "Règle de commutation 7"
       }
     },
     "climate": {
       "heater": {
-        "name": "Chauffe-piscine"
+        "name": "Chauffage piscine"
       },
       "solar": {
         "name": "Chauffage solaire"
+      }
+    },
+    "cover": {
+      "pool_cover": {
+        "name": "Couverture de piscine"
+      }
+    },
+    "number": {
+      "ph_sp_value": {
+        "name": "Consigne pH"
+      },
+      "orp_sp_value": {
+        "name": "Consigne ORP"
+      },
+      "cl_sp_value": {
+        "name": "Consigne chlore"
+      },
+      "target_temp_heater": {
+        "name": "Température cible chauffage"
+      },
+      "target_temp_solar": {
+        "name": "Température cible solaire"
+      },
+      "pump_rpm_sp": {
+        "name": "Vitesse de pompe"
+      },
+      "cl_canister_vol": {
+        "name": "Volume de bidon chlore"
+      },
+      "phm_canister_vol": {
+        "name": "Volume de bidon pH-"
+      },
+      "php_canister_vol": {
+        "name": "Volume de bidon pH+"
+      },
+      "floc_canister_vol": {
+        "name": "Volume de bidon floculant"
+      }
+    },
+    "select": {
+      "pump_mode": {
+        "name": "Mode pompe"
+      },
+      "heater_mode": {
+        "name": "Mode chauffage"
+      },
+      "solar_mode": {
+        "name": "Mode solaire"
+      },
+      "light_mode": {
+        "name": "Mode éclairage"
+      },
+      "dos_cl_mode": {
+        "name": "Mode chlore"
+      },
+      "dos_phm_mode": {
+        "name": "Mode pH-"
+      },
+      "dos_php_mode": {
+        "name": "Mode pH+"
+      },
+      "pvsurplus_mode": {
+        "name": "Mode excédent photovoltaïque"
+      },
+      "backwash_mode": {
+        "name": "Mode contre-lavage"
+      },
+      "backwashrinse_mode": {
+        "name": "Mode rinçage"
+      },
+      "dos_floc_mode": {
+        "name": "Mode floculant"
+      },
+      "ext1_1_mode": {
+        "name": "Mode extension 1.1"
+      },
+      "ext1_2_mode": {
+        "name": "Mode extension 1.2"
+      },
+      "ext1_3_mode": {
+        "name": "Mode extension 1.3"
+      },
+      "ext1_4_mode": {
+        "name": "Mode extension 1.4"
+      },
+      "ext1_5_mode": {
+        "name": "Mode extension 1.5"
+      },
+      "ext1_6_mode": {
+        "name": "Mode extension 1.6"
+      },
+      "ext1_7_mode": {
+        "name": "Mode extension 1.7"
+      },
+      "ext1_8_mode": {
+        "name": "Mode extension 1.8"
+      },
+      "ext2_1_mode": {
+        "name": "Mode extension 2.1"
+      },
+      "ext2_2_mode": {
+        "name": "Mode extension 2.2"
+      },
+      "ext2_3_mode": {
+        "name": "Mode extension 2.3"
+      },
+      "ext2_4_mode": {
+        "name": "Mode extension 2.4"
+      },
+      "ext2_5_mode": {
+        "name": "Mode extension 2.5"
+      },
+      "ext2_6_mode": {
+        "name": "Mode extension 2.6"
+      },
+      "ext2_7_mode": {
+        "name": "Mode extension 2.7"
+      },
+      "ext2_8_mode": {
+        "name": "Mode extension 2.8"
       }
     }
   }

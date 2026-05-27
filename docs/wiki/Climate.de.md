@@ -1,3 +1,7 @@
+﻿> 🇩🇪 **Deutsch** | 🇬🇧 **[English](Climate)**
+
+---
+
 # Klima & Heizung – Climate Entities
 
 > Thermostat-Steuerung für Pool-Heizung und Solaranlage.

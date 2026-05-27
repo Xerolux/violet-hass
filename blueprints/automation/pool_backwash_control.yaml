@@ -1,12 +1,12 @@
 blueprint:
-  name: Violet Pool - Automatische Rückspülung
+  name: Violet Pool - Automatic Backwash
   description: |
-    Intelligente automatische Rückspülung basierend auf Filterdruck, Laufzeit und Zeitplan.
-    Includes Backwash und Rinse-Zyklen mit Sicherheitsfeatures.
+    Smart automatic backwash based on filter pressure, runtime, and schedule.
+    Includes backwash and rinse cycles with safety features.
     
-    BENÖTIGT: 
-    - input_datetime.pool_last_backwash Helper (siehe blueprints/README.md)
-    - input_number.pool_pump_runtime_hours Helper (optional, für laufzeitbasierte Steuerung)
+    REQUIRED: 
+    - input_datetime.pool_last_backwash Helper (see blueprints/README.md)
+    - input_number.pool_pump_runtime_hours Helper (optional, for runtime-based control)
     
     VERSION: 1.0.5 (2026-04-22)
   domain: automation
@@ -15,16 +15,16 @@ blueprint:
     min_version: "2024.6.0"
   input:
     backwash_switch:
-      name: Rückspül-Switch
-      description: Switch für die Rückspülung
+      name: Backwash Switch
+      description: Switch for backwashing
       selector:
         entity:
           filter:
             - integration: violet_pool_controller
             - domain: switch
     rinse_switch:
-      name: Nachspül-Switch (Optional)
-      description: Switch für die Nachspülung
+      name: Rinse Switch (Optional)
+      description: Switch for rinsing
       default: ""
       selector:
         entity:
@@ -33,16 +33,16 @@ blueprint:
             - domain: switch
           multiple: false
     pump_switch:
-      name: Pumpen-Switch
-      description: Hauptpumpe des Pools
+      name: Pump Switch
+      description: Main pool pump
       selector:
         entity:
           filter:
             - integration: violet_pool_controller
             - domain: switch
     filter_pressure_sensor:
-      name: Filterdruck-Sensor (Optional)
-      description: Sensor für den aktuellen Filterdruck
+      name: Filter Pressure Sensor (Optional)
+      description: Sensor for the current filter pressure
       default: ""
       selector:
         entity:
@@ -51,16 +51,16 @@ blueprint:
             - domain: sensor
           multiple: false
     
-    # === Druckbasierte Steuerung ===
+    # === Pressure-Based Control ===
     enable_pressure_control:
-      name: Druckbasierte Rückspülung
-      description: Automatische Rückspülung bei zu hohem Filterdruck
+      name: Pressure-Based Backwash
+      description: Automatic backwash when filter pressure is too high
       default: true
       selector:
         boolean:
     max_filter_pressure:
-      name: Maximaler Filterdruck
-      description: Druck bei dem Rückspülung ausgelöst wird
+      name: Maximum Filter Pressure
+      description: Pressure at which backwash is triggered
       default: 1.5
       selector:
         number:
@@ -70,54 +70,54 @@ blueprint:
           unit_of_measurement: "bar"
           mode: slider
     
-    # === Zeitbasierte Steuerung ===
+    # === Schedule-Based Control ===
     enable_scheduled_backwash:
-      name: Geplante Rückspülung
-      description: Rückspülung nach festen Intervallen
+      name: Scheduled Backwash
+      description: Backwash at fixed intervals
       default: true
       selector:
         boolean:
     backwash_interval_days:
-      name: Rückspül-Intervall
-      description: Intervall zwischen Rückspülungen in Tagen
+      name: Backwash Interval
+      description: Interval between backwashes in days
       default: 7
       selector:
         number:
           min: 3
           max: 21
           step: 1
-          unit_of_measurement: "Tage"
+          unit_of_measurement: "days"
           mode: box
     backwash_time:
-      name: Rückspül-Uhrzeit
-      description: Bevorzugte Uhrzeit für geplante Rückspülung
+      name: Backwash Time
+      description: Preferred time for scheduled backwash
       default: "03:00"
       selector:
         time:
     
-    # === Laufzeitbasierte Steuerung ===
+    # === Runtime-Based Control ===
     enable_runtime_control:
-      name: Laufzeitbasierte Rückspülung
-      description: Rückspülung nach bestimmter Pumpenlaufzeit
+      name: Runtime-Based Backwash
+      description: Backwash after a certain pump runtime
       default: false
       selector:
         boolean:
     max_pump_runtime_hours:
-      name: Maximale Pumpenlaufzeit
-      description: Pumpenlaufzeit bis zur nächsten Rückspülung
+      name: Maximum Pump Runtime
+      description: Pump runtime until next backwash
       default: 168
       selector:
         number:
           min: 48
           max: 336
           step: 12
-          unit_of_measurement: "Stunden"
+          unit_of_measurement: "hours"
           mode: box
     
-    # === Rückspül-Parameter ===
+    # === Backwash Parameters ===
     backwash_duration:
-      name: Rückspül-Dauer
-      description: Dauer der Rückspülung in Sekunden
+      name: Backwash Duration
+      description: Duration of backwash in seconds
       default: 120
       selector:
         number:
@@ -127,8 +127,8 @@ blueprint:
           unit_of_measurement: "s"
           mode: box
     rinse_duration:
-      name: Nachspül-Dauer
-      description: Dauer der Nachspülung in Sekunden
+      name: Rinse Duration
+      description: Duration of rinse in seconds
       default: 30
       selector:
         number:
@@ -138,8 +138,8 @@ blueprint:
           unit_of_measurement: "s"
           mode: box
     pre_backwash_pump_off_time:
-      name: Pumpen-Stopp vor Rückspülung
-      description: Zeit die Pumpe vor Rückspülung gestoppt wird
+      name: Pump Stop Before Backwash
+      description: Time the pump is stopped before backwash
       default: 30
       selector:
         number:
@@ -149,8 +149,8 @@ blueprint:
           unit_of_measurement: "s"
           mode: box
     post_backwash_pump_start_delay:
-      name: Pumpen-Start nach Rückspülung
-      description: Wartezeit bevor Pumpe nach Rückspülung wieder startet
+      name: Pump Start After Backwash
+      description: Wait time before pump restarts after backwash
       default: 60
       selector:
         number:
@@ -160,16 +160,16 @@ blueprint:
           unit_of_measurement: "s"
           mode: box
     
-    # === Sicherheit ===
+    # === Safety ===
     enable_water_level_check:
-      name: Wasserstand-Prüfung
-      description: Rückspülung nur bei ausreichendem Wasserstand
+      name: Water Level Check
+      description: Only backwash when water level is sufficient
       default: false
       selector:
         boolean:
     water_level_sensor:
-      name: Wasserstand-Sensor (Optional)
-      description: Sensor für den Poolwasserstand
+      name: Water Level Sensor (Optional)
+      description: Sensor for the pool water level
       default: ""
       selector:
         entity:
@@ -178,8 +178,8 @@ blueprint:
             - domain: sensor
           multiple: false
     min_water_level:
-      name: Minimaler Wasserstand
-      description: Mindest-Wasserstand für Rückspülung
+      name: Minimum Water Level
+      description: Minimum water level for backwash
       default: 50
       selector:
         number:
@@ -189,22 +189,22 @@ blueprint:
           unit_of_measurement: "cm"
           mode: box
     
-    # === Benachrichtigungen ===
+    # === Notifications ===
     notification_entity:
-      name: Benachrichtigungs-Service (Optional)
-      description: Service für Rückspül-Benachrichtigungen
+      name: Notification Service (Optional)
+      description: Service for backwash notifications
       default: ""
       selector:
         text:
     notify_before_backwash:
-      name: Vorankündigung
-      description: Benachrichtigung vor automatischer Rückspülung
+      name: Pre-Notification
+      description: Notification before automatic backwash
       default: true
       selector:
         boolean:
     notify_after_backwash:
-      name: Abschluss-Meldung
-      description: Benachrichtigung nach abgeschlossener Rückspülung
+      name: Completion Notification
+      description: Notification after backwash is completed
       default: true
       selector:
         boolean:
@@ -217,20 +217,20 @@ variables:
   water_level_sensor_entity: !input water_level_sensor
   notify_service: !input notification_entity
   
-  # Aktueller Status
+  # Current status
   current_pressure: >
     {{ states(pressure_sensor) | float(0) if pressure_sensor != "" else 0 }}
   current_water_level: >
     {{ states(water_level_sensor_entity) | float(100) if water_level_sensor_entity != "" else 100 }}
   pump_is_running: "{{ is_state(pump_entity, 'on') }}"
   
-  # Bedingungen prüfen
+  # Check conditions
   pressure_too_high: >
     {{ enable_pressure_control and pressure_sensor != "" and current_pressure > max_filter_pressure }}
   water_level_ok: >
     {{ not enable_water_level_check or water_level_sensor_entity == "" or current_water_level >= min_water_level }}
   
-  # Zeitberechnung für nächste geplante Rückspülung
+  # Time calculation for next scheduled backwash
   last_backwash: >
     {{ states('input_datetime.pool_last_backwash') | as_datetime | default(now() - timedelta(days=backwash_interval_days + 1)) }}
   days_since_backwash: >
@@ -238,14 +238,14 @@ variables:
   scheduled_backwash_due: >
     {{ enable_scheduled_backwash and days_since_backwash >= backwash_interval_days }}
   
-  # Runtime-basierte Überprüfung (erfordert Pump Runtime Sensor)
+  # Runtime-based check (requires Pump Runtime Sensor)
   pump_runtime_hours: >
     {{ states('sensor.pool_pump_runtime_hours') | float(0) }}
   runtime_backwash_due: >
     {{ enable_runtime_control and pump_runtime_hours >= max_pump_runtime_hours }}
 
 trigger:
-  # Druckbasierte Trigger
+  # Pressure-based trigger
   - platform: numeric_state
     entity_id: !input filter_pressure_sensor
     above: !input max_filter_pressure
@@ -253,17 +253,17 @@ trigger:
       minutes: 15
     id: pressure_high
   
-  # Zeitbasierte Trigger
+  # Schedule-based trigger
   - platform: time
     at: !input backwash_time
     id: scheduled_time
   
-  # Manuelle Überprüfung alle 6 Stunden
+  # Periodic check every 6 hours
   - platform: time_pattern
     hours: /6
     id: periodic_check
   
-  # Pumpen-Status Änderung
+  # Pump status change
   - platform: state
     entity_id: !input pump_switch
     from: "on"
@@ -280,7 +280,7 @@ condition:
 
 action:
   - choose:
-      # === Druckbedingte Rückspülung ===
+      # === Pressure-triggered backwash ===
       - conditions:
           - condition: trigger
             id: pressure_high
@@ -293,13 +293,13 @@ action:
             then:
               - service: "{{ notify_service }}"
                 data:
-                  title: "🔄 Automatische Rückspülung startet"
+                  title: "🔄 Automatic Backwash Starting"
                   message: >
-                    Filterdruck zu hoch: {{ current_pressure }} bar (Max: {{ max_filter_pressure }} bar)
-                    Rückspülung wird automatisch gestartet.
+                    Filter pressure too high: {{ current_pressure }} bar (Max: {{ max_filter_pressure }} bar)
+                    Backwash will start automatically.
           - perform: backwash_cycle
 
-      # === Geplante Rückspülung ===
+      # === Scheduled backwash ===
       - conditions:
           - condition: trigger
             id: scheduled_time
@@ -312,13 +312,13 @@ action:
             then:
               - service: "{{ notify_service }}"
                 data:
-                  title: "🕐 Geplante Rückspülung"
+                  title: "🕐 Scheduled Backwash"
                   message: >
-                    Letzte Rückspülung vor {{ days_since_backwash }} Tagen
-                    Planmäßige Rückspülung wird gestartet.
+                    Last backwash was {{ days_since_backwash }} days ago
+                    Scheduled backwash is starting.
           - perform: backwash_cycle
 
-      # === Laufzeitbedingte Rückspülung ===
+      # === Runtime-triggered backwash ===
       - conditions:
           - condition: trigger
             id: periodic_check
@@ -331,13 +331,13 @@ action:
             then:
               - service: "{{ notify_service }}"
                 data:
-                  title: "⏱️ Laufzeitbedingte Rückspülung"
+                  title: "⏱️ Runtime-Based Backwash"
                   message: >
-                    Pumpenlaufzeit: {{ pump_runtime_hours }}h (Max: {{ max_pump_runtime_hours }}h)
-                    Rückspülung wird gestartet.
+                    Pump runtime: {{ pump_runtime_hours }}h (Max: {{ max_pump_runtime_hours }}h)
+                    Backwash is starting.
           - perform: backwash_cycle
 
-      # === Wasserstand zu niedrig ===
+      # === Water level too low ===
       - conditions:
           - condition: template
             value_template: "{{ not water_level_ok and enable_water_level_check }}"
@@ -354,21 +354,21 @@ action:
             then:
               - service: "{{ notify_service }}"
                 data:
-                  title: "⚠️ Rückspülung abgebrochen"
+                  title: "⚠️ Backwash Cancelled"
                   message: >
-                    Wasserstand zu niedrig: {{ current_water_level }}cm (Min: {{ min_water_level }}cm)
-                    Bitte Wasser nachfüllen vor Rückspülung.
+                    Water level too low: {{ current_water_level }}cm (Min: {{ min_water_level }}cm)
+                    Please refill water before backwashing.
 
 mode: single
 max_exceeded: silent
 
 # =============================================================================
-# HINWEIS FÜR ENTWICKLER:
+# NOTE FOR DEVELOPERS:
 # =============================================================================
-# Die 'backwash_cycle' Sequenz unten ist kein gültiger Blueprint-Code.
-# In Home Assistant Blueprints können keine wiederverwendbaren Scripts definiert werden.
+# The 'backwash_cycle' sequence below is not valid Blueprint code.
+# Home Assistant Blueprints do not support defining reusable scripts.
 # 
-# LÖSUNG: Erstellen Sie ein separates Script in Ihrer configuration.yaml:
+# SOLUTION: Create a separate script in your configuration.yaml:
 # 
 # script:
 #   pool_backwash_cycle:
@@ -380,7 +380,7 @@ max_exceeded: silent
 #           seconds: 30
 #       # ... rest of backwash sequence
 # 
-# Dann ersetzen Sie '- perform: backwash_cycle' mit:
+# Then replace '- perform: backwash_cycle' with:
 # - service: script.turn_on
 #   target:
 #     entity_id: script.pool_backwash_cycle

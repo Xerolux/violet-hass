@@ -1,3 +1,7 @@
+﻿> 🇬🇧 **English** | 🇩🇪 **[Deutsch](Contributing.de)**
+
+---
+
 # Contributing – Participate & Contribute
 
 > How you can contribute to the Violet Pool Controller project.

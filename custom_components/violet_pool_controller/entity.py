@@ -1,7 +1,7 @@
 # =============================================================================
 # Violet Pool Controller – Home Assistant Custom Integration
 # Copyright © 2026 Xerolux
-# Entwickelt und erstellt von Xerolux
+# Developed and created by Xerolux
 # https://github.com/Xerolux/violet-hass
 # =============================================================================
 
@@ -130,7 +130,7 @@ def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool | None:
 
 
 class VioletPoolControllerEntity(CoordinatorEntity):
-    """Basis-Entity-Klasse für alle Violet Pool Controller Entities."""
+    """Base entity class for all Violet Pool Controller entities."""
 
     coordinator: VioletPoolDataUpdateCoordinator
 
@@ -153,7 +153,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
         self.config_entry = config_entry
         self.entity_description = entity_description
 
-        # Entity Attribute
+        # Entity attributes
         self._attr_has_entity_name = True
         # If translation_key is set, name should be None to let HA handle it.
         # But if it is not set, we use name from description.
@@ -166,7 +166,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
         self._attr_device_info = cast(DeviceInfo, coordinator.device.device_info)
 
         _LOGGER.debug(
-            "Entity initialisiert: %s (Key: %s, ID: %s)",
+            "Entity initialized: %s (Key: %s, ID: %s)",
             entity_description.name or entity_description.translation_key,
             entity_description.key,
             self._attr_unique_id,
@@ -211,7 +211,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
 
         if not is_available:
             _LOGGER.debug(
-                "Entity '%s' nicht verfügbar (coordinator_success: %s, device_available: %s)",
+                "Entity '%s' not available (coordinator_success: %s, device_available: %s)",
                 self.name or self.entity_description.key,
                 self.coordinator.last_update_success,
                 self.device.available,
@@ -257,7 +257,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
             return float(value)
         except (ValueError, TypeError):
             _LOGGER.debug(
-                "Konvertierung zu Float für Key '%s' fehlgeschlagen: %s", key, value
+                "Float conversion failed for key '%s': %s", key, value
             )
             return float(default) if default is not None else None
 
@@ -336,8 +336,8 @@ class VioletPoolControllerEntity(CoordinatorEntity):
         except Exception as err:
             if log_context:
                 _LOGGER.debug(
-                    "Fehler beim verzögerten Refresh für %s: %s", log_context, err
+                    "Delayed refresh error for %s: %s", log_context, err
                 )
             else:
-                _LOGGER.debug("Fehler beim verzögerten Refresh: %s", err)
+                _LOGGER.debug("Delayed refresh error: %s", err)
             return False

@@ -1,3 +1,7 @@
+﻿> 🇩🇪 **Deutsch** | 🇬🇧 **[English](Contributing)**
+
+---
+
 # Contributing – Mitmachen & Beitragen
 
 > Wie du zum Violet Pool Controller Projekt beitragen kannst.

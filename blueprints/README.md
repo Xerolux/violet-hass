@@ -1,25 +1,25 @@
-# 🛠️ Helper Setup Guide für Pool Blueprints
+# 🛠️ Helper Setup Guide for Pool Blueprints
 
 **Version:** 1.0.5 (2026-04-22)
 
-## 📋 Übersicht
-Die Blueprints benötigen spezielle **Helper-Entities** um Zähler und Zeitstempel zu speichern. Diese müssen **vor** der Blueprint-Nutzung erstellt werden.
+## 📋 Overview
+The blueprints require special **Helper entities** to store counters and timestamps. These must be created **before** using the blueprints.
 
-## 🧪 Helper für pH-Kontrolle
+## 🧪 Helpers for pH Control
 
 ### `input_number.pool_ph_dosing_counter`
-**Zweck:** Zählt die täglichen pH-Dosierungen zur Sicherheit
+**Purpose:** Counts daily pH dosing cycles as a safety measure
 
-#### Schritt-für-Schritt Erstellung:
+#### Step-by-Step Creation:
 
-1. **Helper-Menü öffnen:**
+1. **Open Helper menu:**
    ```
    Settings → Devices & Services → Helpers → Create Helper
    ```
 
-2. **"Number" auswählen**
+2. **Select "Number"**
 
-3. **Konfiguration eingeben:**
+3. **Enter configuration:**
    ```yaml
    Name: Pool pH Dosing Counter
    Entity ID: input_number.pool_ph_dosing_counter
@@ -28,52 +28,52 @@ Die Blueprints benötigen spezielle **Helper-Entities** um Zähler und Zeitstemp
    Maximum value: 50
    Step: 1
    Initial value: 0
-   Unit of measurement: Dosierungen
+   Unit of measurement: Dosing cycles
    Display mode: Box
    ```
 
-4. **"Create" klicken**
+4. **Click "Create"**
 
-### Verwendung im Blueprint:
-- Zählt jede pH+ und pH- Dosierung
-- Verhindert mehr als X Dosierungen pro Tag (Sicherheit)
-- Reset um Mitternacht automatisch auf 0
+### Usage in Blueprint:
+- Counts every pH+ and pH- dosing cycle
+- Prevents more than X dosing cycles per day (safety)
+- Automatically resets to 0 at midnight
 
 ---
 
-## 🔄 Helper für Rückspül-Kontrolle
+## 🔄 Helpers for Backwash Control
 
 ### `input_datetime.pool_last_backwash`
-**Zweck:** Speichert Zeitpunkt der letzten Rückspülung
+**Purpose:** Stores the timestamp of the last backwash
 
-#### Schritt-für-Schritt Erstellung:
+#### Step-by-Step Creation:
 
-1. **Helper-Menü öffnen:**
+1. **Open Helper menu:**
    ```
    Settings → Devices & Services → Helpers → Create Helper
    ```
 
-2. **"Date and/or time" auswählen**
+2. **Select "Date and/or time"**
 
-3. **Konfiguration eingeben:**
+3. **Enter configuration:**
    ```yaml
    Name: Pool Last Backwash
    Entity ID: input_datetime.pool_last_backwash
    Icon: mdi:calendar-clock
-   Has date: ✓ (aktiviert)
-   Has time: ✓ (aktiviert)
+   Has date: ✓ (enabled)
+   Has time: ✓ (enabled)
    ```
 
-4. **"Create" klicken**
+4. **Click "Create"**
 
 ### `input_number.pool_pump_runtime_hours` (Optional)
-**Zweck:** Zählt Pumpenlaufzeit für laufzeitbasierte Rückspülung
+**Purpose:** Counts pump runtime for runtime-based backwash control
 
-#### Schritt-für-Schritt Erstellung:
+#### Step-by-Step Creation:
 
-1. **"Number" Helper erstellen**
+1. **Create a "Number" Helper**
 
-2. **Konfiguration eingeben:**
+2. **Enter configuration:**
    ```yaml
    Name: Pool Pump Runtime Hours
    Entity ID: input_number.pool_pump_runtime_hours
@@ -86,18 +86,18 @@ Die Blueprints benötigen spezielle **Helper-Entities** um Zähler und Zeitstemp
    Display mode: Box
    ```
 
-### Verwendung im Blueprint:
-- **Last Backwash:** Berechnet Tage seit letzter Rückspülung
-- **Runtime Hours:** Triggert Rückspülung nach X Stunden Pumpenlauf
-- Wird automatisch nach Rückspülung zurückgesetzt
+### Usage in Blueprint:
+- **Last Backwash:** Calculates days since last backwash
+- **Runtime Hours:** Triggers backwash after X hours of pump runtime
+- Automatically resets after backwash
 
 ---
 
-## 📱 Alle Helper auf einen Blick
+## 📱 All Helpers at a Glance
 
-### Schnell-Erstellung via YAML (Advanced)
+### Quick Creation via YAML (Advanced)
 
-Für erfahrene Nutzer - diese Konfiguration in `configuration.yaml` einfügen:
+For experienced users - add this configuration to your `configuration.yaml`:
 
 {% raw %}
 ```yaml
@@ -109,7 +109,7 @@ input_number:
     max: 50
     step: 1
     initial: 0
-    unit_of_measurement: "Dosierungen"
+    unit_of_measurement: "Dosing cycles"
     icon: mdi:counter
 
   pool_pump_runtime_hours:
@@ -130,38 +130,38 @@ input_datetime:
 ```
 {% endraw %}
 
-Nach dem Hinzufügen: **Home Assistant neustarten**
+After adding: **Restart Home Assistant**
 
 ---
 
-## 🎛️ Helper im Dashboard anzeigen (Optional)
+## 🎛️ Display Helpers on Dashboard (Optional)
 
-### Lovelace Card für Pool Status:
+### Lovelace Card for Pool Status:
 
 ```yaml
 type: entities
-title: Pool Automatisierung
+title: Pool Automation
 entities:
   - entity: input_number.pool_ph_dosing_counter
-    name: pH-Dosierungen heute
+    name: pH Dosing today
   - entity: input_datetime.pool_last_backwash
-    name: Letzte Rückspülung
+    name: Last Backwash
   - entity: input_number.pool_pump_runtime_hours
-    name: Pumpenlaufzeit
+    name: Pump Runtime
 show_header_toggle: false
 ```
 
 ---
 
-## ⚙️ Erweiterte Automatisierungen (Optional)
+## ⚙️ Advanced Automations (Optional)
 
-### Automatischer Runtime Counter:
+### Automatic Runtime Counter:
 
-Wenn du die Pumpenlaufzeit automatisch zählen möchtest:
+If you want to count pump runtime automatically:
 
 {% raw %}
 ```yaml
-# Automation für Pump Runtime Counter
+# Automation for Pump Runtime Counter
 automation:
   - alias: "Pool Pump Runtime Counter"
     trigger:
@@ -187,10 +187,10 @@ automation:
 ```
 {% endraw %}
 
-### Täglicher Reset der pH-Dosierungen:
+### Daily Reset of pH Dosing Counter:
 
 ```yaml
-# Automation für täglichen Reset
+# Automation for daily reset
 automation:
   - alias: "Reset pH Dosing Counter Daily"
     trigger:
@@ -208,21 +208,21 @@ automation:
 
 ## 🚨 Troubleshooting
 
-### Helper nicht sichtbar:
+### Helper not visible:
 ```bash
-# Developer Tools → States → Suchen nach:
+# Developer Tools → States → Search for:
 input_number.pool_ph_dosing_counter
 input_datetime.pool_last_backwash
 input_number.pool_pump_runtime_hours
 ```
 
-### Blueprint-Fehler wegen fehlenden Helpers:
+### Blueprint error due to missing helpers:
 ```
 Template error: input_number.pool_ph_dosing_counter not found
 ```
-**Lösung:** Helper wie oben beschrieben erstellen
+**Solution:** Create the helpers as described above
 
-### Helper zurücksetzen:
+### Resetting a helper:
 ```yaml
 # Via Developer Tools → Services
 service: input_number.set_value
@@ -232,47 +232,47 @@ data:
   value: 0
 ```
 
-### YAML-Methode funktioniert nicht:
-- Helper über UI erstellen (einfacher)
-- Nach YAML-Änderungen HA neustarten
-- Syntax-Fehler in configuration.yaml prüfen
+### YAML method not working:
+- Create helpers via UI (easier)
+- Restart HA after YAML changes
+- Check configuration.yaml for syntax errors
 
 ---
 
-## 💡 Warum sind Helper notwendig?
+## 💡 Why Are Helpers Necessary?
 
-### Datenpersistenz:
-- **Ohne Helper:** Daten gehen bei HA-Neustart verloren
-- **Mit Helper:** Werte bleiben dauerhaft gespeichert
+### Data Persistence:
+- **Without helpers:** Data is lost on HA restart
+- **With helpers:** Values are permanently stored
 
-### Sicherheit:
-- **pH-Counter:** Verhindert Überdosierung
-- **Last Backwash:** Verhindert zu häufige Rückspülung
+### Safety:
+- **pH Counter:** Prevents overdosing
+- **Last Backwash:** Prevents too-frequent backwashing
 
-### Intelligenz:
-- **Runtime Counter:** Ermöglicht laufzeitbasierte Automatisierung
-- **Timestamp:** Berechnung von Intervallen
+### Intelligence:
+- **Runtime Counter:** Enables runtime-based automation
+- **Timestamp:** Calculation of intervals
 
-Die Helper sind essentiell für sichere und intelligente Pool-Automatisierung! 🏊‍♂️
+Helpers are essential for safe and smart pool automation! 🏊‍♂️
 
 ---
 
-## 📝 Versionshinweise
+## 📝 Version Notes
 
 ### Version 1.0.5 (2026-04-22)
-- ✅ Alle Blueprints mit Versionsinformationen aktualisiert
-- ✅ Entity-Selektoren für bessere Integration-Unterstützung optimiert
-- ✅ Hinweise zu benötigten Helpers in Blueprint-Beschreibungen hinzugefügt
-- ⚠️ **Wichtig:** `pool_backwash_control.yaml` benötigt zusätzlich ein separates Script für den Rückspül-Zyklus (siehe Blueprint-Kommentare)
+- ✅ All blueprints updated with version information
+- ✅ Entity selectors optimized for better integration support
+- ✅ Notes about required helpers added to blueprint descriptions
+- ⚠️ **Important:** `pool_backwash_control.yaml` additionally requires a separate script for the backwash cycle (see blueprint comments)
 
-### Verfügbare Blueprints
-1. **pool_temperature_control.yaml** - Intelligente Temperatursteuerung mit Solar-Unterstützung
-2. **pool_ph_control.yaml** - Automatische pH-Wert Kontrolle mit Dosierung
-3. **pool_cover_control.yaml** - Wetterabhängige Abdeckungssteuerung
-4. **pool_backwash_control.yaml** - Automatische Rückspülung (erfordert zusätzliches Script)
+### Available Blueprints
+1. **pool_temperature_control.yaml** - Smart temperature control with solar support
+2. **pool_ph_control.yaml** - Automatic pH value control with dosing
+3. **pool_cover_control.yaml** - Weather-dependent cover control
+4. **pool_backwash_control.yaml** - Automatic backwash (requires additional script)
 
 ### Installation
-1. Home Assistant öffnen → Einstellungen → Automatisierungen & Szenen → Blueprints
-2. "Blueprint importieren" klicken
-3. URL des gewünschten Blueprints eingeben (z.B. `https://github.com/xerolux/violet-hass/blob/main/blueprints/automation/pool_temperature_control.yaml`)
-4. Blueprint erstellen und konfigurieren
+1. Open Home Assistant → Settings → Automations & Scenes → Blueprints
+2. Click "Import Blueprint"
+3. Enter the URL of the desired blueprint (e.g. `https://github.com/xerolux/violet-hass/blob/main/blueprints/automation/pool_temperature_control.yaml`)
+4. Create and configure the blueprint

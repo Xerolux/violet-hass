@@ -484,6 +484,30 @@
   },
   "entity": {
     "sensor": {
+      "onewire1_value": {
+        "name": "Watertemperatuur"
+      },
+      "onewire2_value": {
+        "name": "Buitentemperatuur"
+      },
+      "onewire3_value": {
+        "name": "Zonne-absorber"
+      },
+      "onewire4_value": {
+        "name": "Absorber-retour"
+      },
+      "onewire5_value": {
+        "name": "Warmtewisselaar inlaat"
+      },
+      "onewire6_value": {
+        "name": "Warmtewisselaar uitlaat"
+      },
+      "onewire7_value": {
+        "name": "Temperatuursensor 7"
+      },
+      "onewire8_value": {
+        "name": "Temperatuursensor 8"
+      },
       "ph_value": {
         "name": "pH-waarde"
       },
@@ -491,28 +515,43 @@
         "name": "Redoxpotentieel"
       },
       "pot_value": {
-        "name": "Chloorniveau"
+        "name": "Chloorgehalte"
       },
-      "onewire1_value": {
-        "name": "Watertemperatuur"
+      "ai1_value": {
+        "name": "Analoge ingang 1"
       },
-      "onewire2_value": {
-        "name": "Luchttemperatuur"
+      "ai2_value": {
+        "name": "Analoge ingang 2"
       },
-      "firmware_version": {
-        "name": "Firmwareversie"
+      "ai3_value": {
+        "name": "Analoge ingang 3"
+      },
+      "ai4_value": {
+        "name": "Analoge ingang 4"
+      },
+      "ai5_value": {
+        "name": "Analoge ingang 5"
+      },
+      "ai6_value": {
+        "name": "Analoge ingang 6"
+      },
+      "ai7_value": {
+        "name": "Analoge ingang 7"
+      },
+      "ai8_value": {
+        "name": "Analoge ingang 8"
       },
       "system_health": {
-        "name": "Systeemgezondheid"
+        "name": "Systeemstatus"
       },
       "connection_latency": {
-        "name": "Verbinding latentie"
+        "name": "Verbindingslatentie"
       },
       "last_event_age": {
-        "name": "Laatste gebeurtenistijdperk"
+        "name": "Laatste gebeurtenisleeftijd"
       },
       "api_request_rate": {
-        "name": "API-verzoekpercentage"
+        "name": "API-aanvraagfrequentie"
       },
       "average_latency": {
         "name": "Gemiddelde latentie"
@@ -521,30 +560,180 @@
         "name": "Herstelsuccespercentage"
       },
       "flow_rate": {
-        "name": "Debiet"
+        "name": "Doorstroomsnelheid"
       },
       "last_error_code": {
         "name": "Laatste foutcode"
+      },
+      "firmware_version": {
+        "name": "Firmwareversie"
+      },
+      "pump_status": {
+        "name": "Filterpompstatus"
+      },
+      "heater_status": {
+        "name": "Verwarmerstatus"
+      },
+      "solar_status": {
+        "name": "Zonne-absorberstatus"
+      },
+      "backwash_status": {
+        "name": "Tegenspoelstatus"
+      },
+      "pvsurplus_status": {
+        "name": "PV-overschotstatus"
+      },
+      "refill_status": {
+        "name": "Bijvulstatus"
+      },
+      "pump_detail": {
+        "name": "Pompdetailstatus"
+      },
+      "heater_detail": {
+        "name": "Verwarmerdetailstatus"
+      },
+      "solar_detail": {
+        "name": "Zonne-absorberdetailstatus"
+      },
+      "dos_1_cl_state": {
+        "name": "Chloordoseringstatus"
+      },
+      "dos_4_phm_state": {
+        "name": "pH- doseringsstatus"
+      },
+      "dos_5_php_state": {
+        "name": "pH+ doseringsstatus"
+      },
+      "dos_6_floc_state": {
+        "name": "Vlokkenmiddeldoseringsstatus"
+      },
+      "pump_composite": {
+        "name": "Pompstatusdetails"
+      },
+      "heater_composite": {
+        "name": "Verwarmerstatusdetails"
+      },
+      "solar_composite": {
+        "name": "Zonne-absorberstatusdetails"
+      },
+      "cpu_temp": {
+        "name": "CPU-temperatuur"
+      },
+      "cpu_temp_carrier": {
+        "name": "Carrier-boardtemperatuur"
+      },
+      "cpu_uptime": {
+        "name": "Bedrijfstijd"
+      },
+      "system_cpu_temperature": {
+        "name": "Systeem CPU-temperatuur"
+      },
+      "system_carrier_cpu_temperature": {
+        "name": "Carrier CPU-temperatuur"
+      },
+      "system_dosagemodule_cpu_temperature": {
+        "name": "Doseringsmodule CPU-temperatuur"
+      },
+      "system_memoryusage": {
+        "name": "Geheugengebruik"
+      },
+      "system_safety_timer_active": {
+        "name": "Veiligheidstimer actief"
+      },
+      "system_relais_status": {
+        "name": "Relaisstatus"
       }
     },
     "binary_sensor": {
-      "pump_state": {
-        "name": "Filterpompstatus"
+      "pump": {
+        "name": "Filterpomp"
       },
-      "heater_state": {
-        "name": "Verwarmingsstatus"
+      "solar": {
+        "name": "Zonne-absorber"
       },
-      "solar_state": {
-        "name": "Zonne-status"
+      "heater": {
+        "name": "Verwarmer"
       },
-      "cover_is_closed": {
-        "name": "Deksel gesloten"
+      "light": {
+        "name": "Verlichting"
+      },
+      "backwash": {
+        "name": "Tegenspoelen"
+      },
+      "refill": {
+        "name": "Bijvulling"
+      },
+      "eco": {
+        "name": "Eco-modus"
+      },
+      "pvsurplus": {
+        "name": "PV-overschot"
+      },
+      "circulation_state": {
+        "name": "Circulatiestatus"
+      },
+      "electrode_flow_state": {
+        "name": "Elektrodedoorstroom"
+      },
+      "pressure_state": {
+        "name": "Drukstatus"
+      },
+      "can_range_state": {
+        "name": "CAN-bereik"
+      },
+      "input1": {
+        "name": "Digitale ingang 1"
+      },
+      "input2": {
+        "name": "Digitale ingang 2"
+      },
+      "input3": {
+        "name": "Digitale ingang 3"
+      },
+      "input4": {
+        "name": "Digitale ingang 4"
+      },
+      "input5": {
+        "name": "Digitale ingang 5"
+      },
+      "input6": {
+        "name": "Digitale ingang 6"
+      },
+      "input7": {
+        "name": "Digitale ingang 7"
+      },
+      "input8": {
+        "name": "Digitale ingang 8"
+      },
+      "input9": {
+        "name": "Digitale ingang 9"
+      },
+      "input10": {
+        "name": "Digitale ingang 10"
+      },
+      "input11": {
+        "name": "Digitale ingang 11"
+      },
+      "input12": {
+        "name": "Digitale ingang 12"
+      },
+      "input_ce1": {
+        "name": "CE-ingang 1"
+      },
+      "input_ce2": {
+        "name": "CE-ingang 2"
+      },
+      "input_ce3": {
+        "name": "CE-ingang 3"
+      },
+      "input_ce4": {
+        "name": "CE-ingang 4"
       },
       "hw_base_module": {
         "name": "Basismodule"
       },
       "hw_dosing_module": {
-        "name": "Doseermodule"
+        "name": "Doseringsmodule"
       },
       "hw_extension_module_1": {
         "name": "Uitbreidingsmodule 1"
@@ -553,21 +742,153 @@
         "name": "Uitbreidingsmodule 2"
       },
       "hw_standalone_mode": {
-        "name": "Zelfstandige dosering"
+        "name": "Zelfstandige doseerinrichting"
+      },
+      "hw_dmx_module": {
+        "name": "DMX-module"
+      },
+      "hw_dirule_module": {
+        "name": "Digitale regelmodule"
       }
     },
     "switch": {
       "pump": {
         "name": "Filterpomp"
       },
-      "heater": {
-        "name": "Verwarming"
-      },
       "solar": {
         "name": "Zonne-absorber"
       },
+      "heater": {
+        "name": "Verwarmer"
+      },
       "light": {
         "name": "Verlichting"
+      },
+      "dos_5_php": {
+        "name": "pH+ dosering"
+      },
+      "dos_4_phm": {
+        "name": "pH- dosering"
+      },
+      "dos_1_cl": {
+        "name": "Chloordosering"
+      },
+      "dos_6_floc": {
+        "name": "Vlokkenmiddeldosering"
+      },
+      "pvsurplus": {
+        "name": "PV-overschot"
+      },
+      "backwash": {
+        "name": "Tegenspoelen"
+      },
+      "backwashrinse": {
+        "name": "Spoeling"
+      },
+      "ext1_1": {
+        "name": "Uitbreiding 1.1"
+      },
+      "ext1_2": {
+        "name": "Uitbreiding 1.2"
+      },
+      "ext1_3": {
+        "name": "Uitbreiding 1.3"
+      },
+      "ext1_4": {
+        "name": "Uitbreiding 1.4"
+      },
+      "ext1_5": {
+        "name": "Uitbreiding 1.5"
+      },
+      "ext1_6": {
+        "name": "Uitbreiding 1.6"
+      },
+      "ext1_7": {
+        "name": "Uitbreiding 1.7"
+      },
+      "ext1_8": {
+        "name": "Uitbreiding 1.8"
+      },
+      "ext2_1": {
+        "name": "Uitbreiding 2.1"
+      },
+      "ext2_2": {
+        "name": "Uitbreiding 2.2"
+      },
+      "ext2_3": {
+        "name": "Uitbreiding 2.3"
+      },
+      "ext2_4": {
+        "name": "Uitbreiding 2.4"
+      },
+      "ext2_5": {
+        "name": "Uitbreiding 2.5"
+      },
+      "ext2_6": {
+        "name": "Uitbreiding 2.6"
+      },
+      "ext2_7": {
+        "name": "Uitbreiding 2.7"
+      },
+      "ext2_8": {
+        "name": "Uitbreiding 2.8"
+      },
+      "dmx_scene1": {
+        "name": "DMX-scène 1"
+      },
+      "dmx_scene2": {
+        "name": "DMX-scène 2"
+      },
+      "dmx_scene3": {
+        "name": "DMX-scène 3"
+      },
+      "dmx_scene4": {
+        "name": "DMX-scène 4"
+      },
+      "dmx_scene5": {
+        "name": "DMX-scène 5"
+      },
+      "dmx_scene6": {
+        "name": "DMX-scène 6"
+      },
+      "dmx_scene7": {
+        "name": "DMX-scène 7"
+      },
+      "dmx_scene8": {
+        "name": "DMX-scène 8"
+      },
+      "dmx_scene9": {
+        "name": "DMX-scène 9"
+      },
+      "dmx_scene10": {
+        "name": "DMX-scène 10"
+      },
+      "dmx_scene11": {
+        "name": "DMX-scène 11"
+      },
+      "dmx_scene12": {
+        "name": "DMX-scène 12"
+      },
+      "dirule_1": {
+        "name": "Schakelregel 1"
+      },
+      "dirule_2": {
+        "name": "Schakelregel 2"
+      },
+      "dirule_3": {
+        "name": "Schakelregel 3"
+      },
+      "dirule_4": {
+        "name": "Schakelregel 4"
+      },
+      "dirule_5": {
+        "name": "Schakelregel 5"
+      },
+      "dirule_6": {
+        "name": "Schakelregel 6"
+      },
+      "dirule_7": {
+        "name": "Schakelregel 7"
       }
     },
     "climate": {
@@ -576,6 +897,126 @@
       },
       "solar": {
         "name": "Zonneverwarmer"
+      }
+    },
+    "cover": {
+      "pool_cover": {
+        "name": "Zwembadafdekking"
+      }
+    },
+    "number": {
+      "ph_sp_value": {
+        "name": "pH-instelpunt"
+      },
+      "orp_sp_value": {
+        "name": "ORP-instelpunt"
+      },
+      "cl_sp_value": {
+        "name": "Chloorinstelpunt"
+      },
+      "target_temp_heater": {
+        "name": "Verwarmingsdoeltemperatuur"
+      },
+      "target_temp_solar": {
+        "name": "Zonne-doeltemperatuur"
+      },
+      "pump_rpm_sp": {
+        "name": "Pompsnelheid"
+      },
+      "cl_canister_vol": {
+        "name": "Chloor kanistervolume"
+      },
+      "phm_canister_vol": {
+        "name": "pH- kanistervolume"
+      },
+      "php_canister_vol": {
+        "name": "pH+ kanistervolume"
+      },
+      "floc_canister_vol": {
+        "name": "Vlokkenmiddel kanistervolume"
+      }
+    },
+    "select": {
+      "pump_mode": {
+        "name": "Pompmodus"
+      },
+      "heater_mode": {
+        "name": "Verwarmingsmodus"
+      },
+      "solar_mode": {
+        "name": "Zonne-absorbermodus"
+      },
+      "light_mode": {
+        "name": "Verlichtingsmodus"
+      },
+      "dos_cl_mode": {
+        "name": "Chloormodus"
+      },
+      "dos_phm_mode": {
+        "name": "pH- modus"
+      },
+      "dos_php_mode": {
+        "name": "pH+ modus"
+      },
+      "pvsurplus_mode": {
+        "name": "PV-overschotmodus"
+      },
+      "backwash_mode": {
+        "name": "Tegenspoelmodus"
+      },
+      "backwashrinse_mode": {
+        "name": "Spoelmodus"
+      },
+      "dos_floc_mode": {
+        "name": "Vlokkenmiddelmodus"
+      },
+      "ext1_1_mode": {
+        "name": "Uitbreiding 1.1 modus"
+      },
+      "ext1_2_mode": {
+        "name": "Uitbreiding 1.2 modus"
+      },
+      "ext1_3_mode": {
+        "name": "Uitbreiding 1.3 modus"
+      },
+      "ext1_4_mode": {
+        "name": "Uitbreiding 1.4 modus"
+      },
+      "ext1_5_mode": {
+        "name": "Uitbreiding 1.5 modus"
+      },
+      "ext1_6_mode": {
+        "name": "Uitbreiding 1.6 modus"
+      },
+      "ext1_7_mode": {
+        "name": "Uitbreiding 1.7 modus"
+      },
+      "ext1_8_mode": {
+        "name": "Uitbreiding 1.8 modus"
+      },
+      "ext2_1_mode": {
+        "name": "Uitbreiding 2.1 modus"
+      },
+      "ext2_2_mode": {
+        "name": "Uitbreiding 2.2 modus"
+      },
+      "ext2_3_mode": {
+        "name": "Uitbreiding 2.3 modus"
+      },
+      "ext2_4_mode": {
+        "name": "Uitbreiding 2.4 modus"
+      },
+      "ext2_5_mode": {
+        "name": "Uitbreiding 2.5 modus"
+      },
+      "ext2_6_mode": {
+        "name": "Uitbreiding 2.6 modus"
+      },
+      "ext2_7_mode": {
+        "name": "Uitbreiding 2.7 modus"
+      },
+      "ext2_8_mode": {
+        "name": "Uitbreiding 2.8 modus"
       }
     }
   }

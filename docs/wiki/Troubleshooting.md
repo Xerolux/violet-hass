@@ -1,3 +1,7 @@
+﻿> 🇬🇧 **English** | 🇩🇪 **[Deutsch](Troubleshooting.de)**
+
+---
+
 # 🚨 Troubleshooting
 
 Having issues? Here you'll find the solutions!

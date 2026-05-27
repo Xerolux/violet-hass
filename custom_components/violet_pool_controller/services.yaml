@@ -43,8 +43,8 @@ smart_dosing:
           options:
             - "pH-"
             - "pH+"
-            - Chlor
-            - Flockmittel
+            - Chlorine
+            - Flocculant
     action:
       description: Dosing action
       required: true

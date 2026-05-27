@@ -1,7 +1,7 @@
 # =============================================================================
 # Violet Pool Controller – Home Assistant Custom Integration
 # Copyright © 2026 Xerolux
-# Entwickelt und erstellt von Xerolux
+# Developed and created by Xerolux
 # https://github.com/Xerolux/violet-hass
 # =============================================================================
 
@@ -47,20 +47,20 @@ ERROR_AGREEMENT_DECLINED: Final = "agreement_declined"
 # =============================================================================
 
 POOL_TYPE_OPTIONS = {
-    "outdoor": "🏖️ Freibad",
-    "indoor": "🏠 Hallenbad",
+    "outdoor": "🏖️ Outdoor Pool",
+    "indoor": "🏠 Indoor Pool",
     "whirlpool": "🛁 Whirlpool/Spa",
-    "natural": "🌿 Naturpool/Schwimmteich",
-    "combination": "🔄 Kombination",
+    "natural": "🌿 Natural Pool",
+    "combination": "🔄 Combination",
 }
 
 DISINFECTION_OPTIONS = {
-    "chlorine": "🧪 Chlor (Flüssig/Tabletten)",
-    "salt": "🧂 Salzelektrolyse",
-    "bromine": "⚗️ Brom",
-    "active_oxygen": "💧 Aktivsauerstoff/H₂O₂",
-    "uv": "💡 UV-Desinfektion",
-    "ozone": "🌀 Ozon-Desinfektion",
+    "chlorine": "🧪 Chlorine (Liquid/Tablets)",
+    "salt": "🧂 Salt Electrolysis",
+    "bromine": "⚗️ Bromine",
+    "active_oxygen": "💧 Active Oxygen/H₂O₂",
+    "uv": "💡 UV Disinfection",
+    "ozone": "🌀 Ozone Treatment",
 }
 
 # =============================================================================
@@ -68,19 +68,19 @@ DISINFECTION_OPTIONS = {
 # =============================================================================
 
 ENHANCED_FEATURES = {
-    "heating": {"icon": "🔥", "name": "Heizungssteuerung"},
-    "solar": {"icon": "☀️", "name": "Solarabsorber"},
-    "ph_control": {"icon": "🧪", "name": "pH-Automatik"},
-    "chlorine_control": {"icon": "💧", "name": "Chlor-Management"},
-    "cover_control": {"icon": "🪟", "name": "Abdeckungssteuerung"},
-    "backwash": {"icon": "🔄", "name": "Rückspül-Automatik"},
-    "pv_surplus": {"icon": "🔋", "name": "PV-Überschuss"},
-    "filter_control": {"icon": "🌊", "name": "Filterpumpe"},
-    "water_level": {"icon": "📏", "name": "Füllstand-Monitor"},
-    "water_refill": {"icon": "🚰", "name": "Auto-Nachfüllung"},
-    "led_lighting": {"icon": "💡", "name": "LED-Beleuchtung"},
-    "digital_inputs": {"icon": "🔌", "name": "Digitale Eingänge"},
-    "extension_outputs": {"icon": "🔗", "name": "Erweiterungsmodule"},
+    "heating": {"icon": "🔥", "name": "Heating Control"},
+    "solar": {"icon": "☀️", "name": "Solar Absorber"},
+    "ph_control": {"icon": "🧪", "name": "pH Control"},
+    "chlorine_control": {"icon": "💧", "name": "Chlorine Management"},
+    "cover_control": {"icon": "🪟", "name": "Cover Control"},
+    "backwash": {"icon": "🔄", "name": "Backwash Automation"},
+    "pv_surplus": {"icon": "🔋", "name": "PV Surplus"},
+    "filter_control": {"icon": "🌊", "name": "Filter Pump"},
+    "water_level": {"icon": "📏", "name": "Water Level Monitor"},
+    "water_refill": {"icon": "🚰", "name": "Auto Refill"},
+    "led_lighting": {"icon": "💡", "name": "LED Lighting"},
+    "digital_inputs": {"icon": "🔌", "name": "Digital Inputs"},
+    "extension_outputs": {"icon": "🔗", "name": "Extension Modules"},
 }
 
 # =============================================================================

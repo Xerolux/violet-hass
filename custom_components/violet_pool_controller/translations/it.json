@@ -484,61 +484,250 @@
   },
   "entity": {
     "sensor": {
-      "ph_value": {
-        "name": "Valore del pH"
-      },
-      "orp_value": {
-        "name": "Potenziale Redox"
-      },
-      "pot_value": {
-        "name": "Livello di cloro"
-      },
       "onewire1_value": {
-        "name": "Temperatura dell'acqua"
+        "name": "Temperatura acqua piscina"
       },
       "onewire2_value": {
-        "name": "Temperatura dell'aria"
+        "name": "Temperatura esterna"
       },
-      "firmware_version": {
-        "name": "Versione del firmware"
+      "onewire3_value": {
+        "name": "Assorbitore solare"
+      },
+      "onewire4_value": {
+        "name": "Ritorno assorbitore"
+      },
+      "onewire5_value": {
+        "name": "Scambiatore di calore ingresso"
+      },
+      "onewire6_value": {
+        "name": "Scambiatore di calore uscita"
+      },
+      "onewire7_value": {
+        "name": "Sensore temperatura 7"
+      },
+      "onewire8_value": {
+        "name": "Sensore temperatura 8"
+      },
+      "ph_value": {
+        "name": "Valore pH"
+      },
+      "orp_value": {
+        "name": "Valore ORP"
+      },
+      "pot_value": {
+        "name": "Livello cloro"
+      },
+      "ai1_value": {
+        "name": "Ingresso analogico 1"
+      },
+      "ai2_value": {
+        "name": "Ingresso analogico 2"
+      },
+      "ai3_value": {
+        "name": "Ingresso analogico 3"
+      },
+      "ai4_value": {
+        "name": "Ingresso analogico 4"
+      },
+      "ai5_value": {
+        "name": "Ingresso analogico 5"
+      },
+      "ai6_value": {
+        "name": "Ingresso analogico 6"
+      },
+      "ai7_value": {
+        "name": "Ingresso analogico 7"
+      },
+      "ai8_value": {
+        "name": "Ingresso analogico 8"
       },
       "system_health": {
-        "name": "Salute del sistema"
+        "name": "Salute sistema"
       },
       "connection_latency": {
-        "name": "Latenza di connessione"
+        "name": "Latenza connessione"
       },
       "last_event_age": {
-        "name": "Età dell'ultimo evento"
+        "name": "Età ultimo evento"
       },
       "api_request_rate": {
-        "name": "Tasso di richiesta API"
+        "name": "Frequenza richieste API"
       },
       "average_latency": {
         "name": "Latenza media"
       },
       "recovery_success_rate": {
-        "name": "Tasso di successo del recupero"
+        "name": "Percentuale recupero riuscito"
       },
       "flow_rate": {
         "name": "Portata"
       },
       "last_error_code": {
-        "name": "Ultimo codice errore"
+        "name": "Codice errore"
+      },
+      "firmware_version": {
+        "name": "Firmware"
+      },
+      "pump_status": {
+        "name": "Stato pompa"
+      },
+      "heater_status": {
+        "name": "Stato riscaldatore"
+      },
+      "solar_status": {
+        "name": "Stato solare"
+      },
+      "backwash_status": {
+        "name": "Stato contro-lavaggio"
+      },
+      "pvsurplus_status": {
+        "name": "Stato surplus fotovoltaico"
+      },
+      "refill_status": {
+        "name": "Stato riempimento"
+      },
+      "pump_detail": {
+        "name": "Dettaglio stato pompa"
+      },
+      "heater_detail": {
+        "name": "Dettaglio stato riscaldatore"
+      },
+      "solar_detail": {
+        "name": "Dettaglio stato solare"
+      },
+      "dos_1_cl_state": {
+        "name": "Stato dosaggio cloro"
+      },
+      "dos_4_phm_state": {
+        "name": "Stato dosaggio pH-"
+      },
+      "dos_5_php_state": {
+        "name": "Stato dosaggio pH+"
+      },
+      "dos_6_floc_state": {
+        "name": "Stato dosaggio flocculante"
+      },
+      "pump_composite": {
+        "name": "Dettagli stato pompa"
+      },
+      "heater_composite": {
+        "name": "Dettagli stato riscaldatore"
+      },
+      "solar_composite": {
+        "name": "Dettagli stato solare"
+      },
+      "cpu_temp": {
+        "name": "Temperatura CPU"
+      },
+      "cpu_temp_carrier": {
+        "name": "Temperatura scheda carrier"
+      },
+      "cpu_uptime": {
+        "name": "Tempo di attività"
+      },
+      "system_cpu_temperature": {
+        "name": "Temperatura CPU sistema"
+      },
+      "system_carrier_cpu_temperature": {
+        "name": "Temperatura CPU carrier"
+      },
+      "system_dosagemodule_cpu_temperature": {
+        "name": "Temperatura CPU modulo dosaggio"
+      },
+      "system_memoryusage": {
+        "name": "Utilizzo memoria"
+      },
+      "system_safety_timer_active": {
+        "name": "Timer di sicurezza attivo"
+      },
+      "system_relais_status": {
+        "name": "Stato relè"
       }
     },
     "binary_sensor": {
-      "pump_state": {
-        "name": "Stato della pompa filtro"
+      "pump": {
+        "name": "Pompa filtro"
       },
-      "heater_state": {
-        "name": "Stato del riscaldatore"
+      "solar": {
+        "name": "Solare"
       },
-      "solar_state": {
-        "name": "Stato solare"
+      "heater": {
+        "name": "Riscaldatore"
       },
-      "cover_is_closed": {
-        "name": "Coperchio chiuso"
+      "light": {
+        "name": "Illuminazione"
+      },
+      "backwash": {
+        "name": "Contro-lavaggio"
+      },
+      "refill": {
+        "name": "Riempimento"
+      },
+      "eco": {
+        "name": "Modalità Eco"
+      },
+      "pvsurplus": {
+        "name": "Surplus fotovoltaico"
+      },
+      "circulation_state": {
+        "name": "Stato circolazione"
+      },
+      "electrode_flow_state": {
+        "name": "Flusso elettrodi"
+      },
+      "pressure_state": {
+        "name": "Stato pressione"
+      },
+      "can_range_state": {
+        "name": "Portata CAN"
+      },
+      "input1": {
+        "name": "Ingresso digitale 1"
+      },
+      "input2": {
+        "name": "Ingresso digitale 2"
+      },
+      "input3": {
+        "name": "Ingresso digitale 3"
+      },
+      "input4": {
+        "name": "Ingresso digitale 4"
+      },
+      "input5": {
+        "name": "Ingresso digitale 5"
+      },
+      "input6": {
+        "name": "Ingresso digitale 6"
+      },
+      "input7": {
+        "name": "Ingresso digitale 7"
+      },
+      "input8": {
+        "name": "Ingresso digitale 8"
+      },
+      "input9": {
+        "name": "Ingresso digitale 9"
+      },
+      "input10": {
+        "name": "Ingresso digitale 10"
+      },
+      "input11": {
+        "name": "Ingresso digitale 11"
+      },
+      "input12": {
+        "name": "Ingresso digitale 12"
+      },
+      "input_ce1": {
+        "name": "Ingresso CE 1"
+      },
+      "input_ce2": {
+        "name": "Ingresso CE 2"
+      },
+      "input_ce3": {
+        "name": "Ingresso CE 3"
+      },
+      "input_ce4": {
+        "name": "Ingresso CE 4"
       },
       "hw_base_module": {
         "name": "Modulo base"
@@ -554,28 +743,280 @@
       },
       "hw_standalone_mode": {
         "name": "Dosaggio autonomo"
+      },
+      "hw_dmx_module": {
+        "name": "Modulo DMX"
+      },
+      "hw_dirule_module": {
+        "name": "Modulo regole digitali"
       }
     },
     "switch": {
       "pump": {
         "name": "Pompa filtro"
       },
-      "heater": {
-        "name": "Stufa"
-      },
       "solar": {
         "name": "Assorbitore solare"
       },
+      "heater": {
+        "name": "Riscaldatore"
+      },
       "light": {
         "name": "Illuminazione"
+      },
+      "dos_5_php": {
+        "name": "Dosaggio pH+"
+      },
+      "dos_4_phm": {
+        "name": "Dosaggio pH-"
+      },
+      "dos_1_cl": {
+        "name": "Dosaggio cloro"
+      },
+      "dos_6_floc": {
+        "name": "Dosaggio flocculante"
+      },
+      "pvsurplus": {
+        "name": "Surplus fotovoltaico"
+      },
+      "backwash": {
+        "name": "Contro-lavaggio"
+      },
+      "backwashrinse": {
+        "name": "Risciacquo"
+      },
+      "ext1_1": {
+        "name": "Estensione 1.1"
+      },
+      "ext1_2": {
+        "name": "Estensione 1.2"
+      },
+      "ext1_3": {
+        "name": "Estensione 1.3"
+      },
+      "ext1_4": {
+        "name": "Estensione 1.4"
+      },
+      "ext1_5": {
+        "name": "Estensione 1.5"
+      },
+      "ext1_6": {
+        "name": "Estensione 1.6"
+      },
+      "ext1_7": {
+        "name": "Estensione 1.7"
+      },
+      "ext1_8": {
+        "name": "Estensione 1.8"
+      },
+      "ext2_1": {
+        "name": "Estensione 2.1"
+      },
+      "ext2_2": {
+        "name": "Estensione 2.2"
+      },
+      "ext2_3": {
+        "name": "Estensione 2.3"
+      },
+      "ext2_4": {
+        "name": "Estensione 2.4"
+      },
+      "ext2_5": {
+        "name": "Estensione 2.5"
+      },
+      "ext2_6": {
+        "name": "Estensione 2.6"
+      },
+      "ext2_7": {
+        "name": "Estensione 2.7"
+      },
+      "ext2_8": {
+        "name": "Estensione 2.8"
+      },
+      "dmx_scene1": {
+        "name": "Scena DMX 1"
+      },
+      "dmx_scene2": {
+        "name": "Scena DMX 2"
+      },
+      "dmx_scene3": {
+        "name": "Scena DMX 3"
+      },
+      "dmx_scene4": {
+        "name": "Scena DMX 4"
+      },
+      "dmx_scene5": {
+        "name": "Scena DMX 5"
+      },
+      "dmx_scene6": {
+        "name": "Scena DMX 6"
+      },
+      "dmx_scene7": {
+        "name": "Scena DMX 7"
+      },
+      "dmx_scene8": {
+        "name": "Scena DMX 8"
+      },
+      "dmx_scene9": {
+        "name": "Scena DMX 9"
+      },
+      "dmx_scene10": {
+        "name": "Scena DMX 10"
+      },
+      "dmx_scene11": {
+        "name": "Scena DMX 11"
+      },
+      "dmx_scene12": {
+        "name": "Scena DMX 12"
+      },
+      "dirule_1": {
+        "name": "Regola commutazione 1"
+      },
+      "dirule_2": {
+        "name": "Regola commutazione 2"
+      },
+      "dirule_3": {
+        "name": "Regola commutazione 3"
+      },
+      "dirule_4": {
+        "name": "Regola commutazione 4"
+      },
+      "dirule_5": {
+        "name": "Regola commutazione 5"
+      },
+      "dirule_6": {
+        "name": "Regola commutazione 6"
+      },
+      "dirule_7": {
+        "name": "Regola commutazione 7"
       }
     },
     "climate": {
       "heater": {
-        "name": "Riscaldatore per piscina"
+        "name": "Riscaldatore piscina"
       },
       "solar": {
-        "name": "Riscaldatore solare"
+        "name": "Riscaldamento solare"
+      }
+    },
+    "cover": {
+      "pool_cover": {
+        "name": "Copertura piscina"
+      }
+    },
+    "number": {
+      "ph_sp_value": {
+        "name": "Valore di riferimento pH"
+      },
+      "orp_sp_value": {
+        "name": "Valore di riferimento ORP"
+      },
+      "cl_sp_value": {
+        "name": "Valore di riferimento cloro"
+      },
+      "target_temp_heater": {
+        "name": "Temperatura target riscaldatore"
+      },
+      "target_temp_solar": {
+        "name": "Temperatura target solare"
+      },
+      "pump_rpm_sp": {
+        "name": "Velocità pompa"
+      },
+      "cl_canister_vol": {
+        "name": "Volume tanica cloro"
+      },
+      "phm_canister_vol": {
+        "name": "Volume tanica pH-"
+      },
+      "php_canister_vol": {
+        "name": "Volume tanica pH+"
+      },
+      "floc_canister_vol": {
+        "name": "Volume tanica flocculante"
+      }
+    },
+    "select": {
+      "pump_mode": {
+        "name": "Modalità pompa"
+      },
+      "heater_mode": {
+        "name": "Modalità riscaldatore"
+      },
+      "solar_mode": {
+        "name": "Modalità solare"
+      },
+      "light_mode": {
+        "name": "Modalità illuminazione"
+      },
+      "dos_cl_mode": {
+        "name": "Modalità cloro"
+      },
+      "dos_phm_mode": {
+        "name": "Modalità pH-"
+      },
+      "dos_php_mode": {
+        "name": "Modalità pH+"
+      },
+      "pvsurplus_mode": {
+        "name": "Modalità surplus fotovoltaico"
+      },
+      "backwash_mode": {
+        "name": "Modalità contro-lavaggio"
+      },
+      "backwashrinse_mode": {
+        "name": "Modalità risciacquo"
+      },
+      "dos_floc_mode": {
+        "name": "Modalità flocculante"
+      },
+      "ext1_1_mode": {
+        "name": "Modalità estensione 1.1"
+      },
+      "ext1_2_mode": {
+        "name": "Modalità estensione 1.2"
+      },
+      "ext1_3_mode": {
+        "name": "Modalità estensione 1.3"
+      },
+      "ext1_4_mode": {
+        "name": "Modalità estensione 1.4"
+      },
+      "ext1_5_mode": {
+        "name": "Modalità estensione 1.5"
+      },
+      "ext1_6_mode": {
+        "name": "Modalità estensione 1.6"
+      },
+      "ext1_7_mode": {
+        "name": "Modalità estensione 1.7"
+      },
+      "ext1_8_mode": {
+        "name": "Modalità estensione 1.8"
+      },
+      "ext2_1_mode": {
+        "name": "Modalità estensione 2.1"
+      },
+      "ext2_2_mode": {
+        "name": "Modalità estensione 2.2"
+      },
+      "ext2_3_mode": {
+        "name": "Modalità estensione 2.3"
+      },
+      "ext2_4_mode": {
+        "name": "Modalità estensione 2.4"
+      },
+      "ext2_5_mode": {
+        "name": "Modalità estensione 2.5"
+      },
+      "ext2_6_mode": {
+        "name": "Modalità estensione 2.6"
+      },
+      "ext2_7_mode": {
+        "name": "Modalità estensione 2.7"
+      },
+      "ext2_8_mode": {
+        "name": "Modalità estensione 2.8"
       }
     }
   }

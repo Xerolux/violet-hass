@@ -1,3 +1,7 @@
+﻿> 🇬🇧 **English** | 🇩🇪 **[Deutsch](Entities.de)**
+
+---
+
 # 🎛️ Entities - Violet Pool Controller
 
 ## Overview of All Available Entities

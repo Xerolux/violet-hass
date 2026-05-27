@@ -484,26 +484,143 @@
   },
   "entity": {
     "sensor": {
+      "onewire1_value": {
+        "name": "Pool Water"
+      },
+      "onewire2_value": {
+        "name": "Outside Temperature"
+      },
+      "onewire3_value": {
+        "name": "Solar Absorber"
+      },
+      "onewire4_value": {
+        "name": "Absorber Return"
+      },
+      "onewire5_value": {
+        "name": "Heat Exchanger"
+      },
+      "onewire6_value": {
+        "name": "Heater Storage"
+      },
+      "onewire7_value": {
+        "name": "Temperature Sensor 7"
+      },
+      "onewire8_value": {
+        "name": "Temperature Sensor 8"
+      },
       "ph_value": {
         "name": "pH Value"
       },
       "orp_value": {
-        "name": "Redox Potential"
+        "name": "ORP Value"
       },
       "pot_value": {
         "name": "Chlorine Level"
       },
-      "onewire1_value": {
-        "name": "Water Temperature"
+      "ai1_value": {
+        "name": "Analog Input 1"
       },
-      "onewire2_value": {
-        "name": "Air Temperature"
+      "ai2_value": {
+        "name": "Analog Input 2"
+      },
+      "ai3_value": {
+        "name": "Analog Input 3"
+      },
+      "ai4_value": {
+        "name": "Analog Input 4"
+      },
+      "ai5_value": {
+        "name": "Analog Input 5"
+      },
+      "ai6_value": {
+        "name": "Analog Input 6"
+      },
+      "ai7_value": {
+        "name": "Analog Input 7"
+      },
+      "ai8_value": {
+        "name": "Analog Input 8"
       },
       "firmware_version": {
         "name": "Firmware Version"
       },
+      "pump_status": {
+        "name": "Pump Status"
+      },
+      "heater_status": {
+        "name": "Heater Status"
+      },
+      "solar_status": {
+        "name": "Solar Status"
+      },
+      "backwash_status": {
+        "name": "Backwash Status"
+      },
+      "pvsurplus_status": {
+        "name": "PV Surplus Status"
+      },
+      "refill_status": {
+        "name": "Refill Status"
+      },
+      "pump_detail": {
+        "name": "Pump Detail Status"
+      },
+      "heater_detail": {
+        "name": "Heater Detail Status"
+      },
+      "solar_detail": {
+        "name": "Solar Detail Status"
+      },
+      "dos_1_cl_state": {
+        "name": "Chlorine Dosing State"
+      },
+      "dos_4_phm_state": {
+        "name": "pH- Dosing State"
+      },
+      "dos_5_php_state": {
+        "name": "pH+ Dosing State"
+      },
+      "dos_6_floc_state": {
+        "name": "Flocculant Dosing State"
+      },
+      "pump_composite": {
+        "name": "Pump State Details"
+      },
+      "heater_composite": {
+        "name": "Heater State Details"
+      },
+      "solar_composite": {
+        "name": "Solar State Details"
+      },
+      "cpu_temp": {
+        "name": "CPU Temperature"
+      },
+      "cpu_temp_carrier": {
+        "name": "Carrier Board"
+      },
+      "cpu_uptime": {
+        "name": "System Uptime"
+      },
+      "system_cpu_temperature": {
+        "name": "System CPU Temperature"
+      },
+      "system_carrier_cpu_temperature": {
+        "name": "Carrier CPU Temperature"
+      },
+      "system_dosagemodule_cpu_temperature": {
+        "name": "Dosing Module CPU Temperature"
+      },
+      "system_memoryusage": {
+        "name": "System Memory Usage"
+      },
       "system_health": {
         "name": "System Health"
+      },
+      "system_safety_timer_active": {
+        "name": "Safety Timer Active"
+      },
+      "system_relais_status": {
+        "name": "Relay Status"
       },
       "connection_latency": {
         "name": "Connection Latency"
@@ -520,60 +637,258 @@
       "recovery_success_rate": {
         "name": "Recovery Success Rate"
       },
-      "flow_rate": {
-        "name": "Flow Rate"
-      },
       "last_error_code": {
         "name": "Last Error Code"
+      },
+      "flow_rate": {
+        "name": "Flow Rate"
       }
     },
     "binary_sensor": {
-      "pump_state": {
-        "name": "Filter Pump Status"
+      "pump": {
+        "name": "Pump State"
       },
-      "heater_state": {
-        "name": "Heater Status"
+      "solar": {
+        "name": "Solar State"
       },
-      "solar_state": {
-        "name": "Solar Status"
+      "heater": {
+        "name": "Heater State"
       },
-      "cover_is_closed": {
-        "name": "Cover Closed"
+      "light": {
+        "name": "Light State"
+      },
+      "backwash": {
+        "name": "Backwash State"
+      },
+      "refill": {
+        "name": "Refill State"
+      },
+      "eco": {
+        "name": "ECO Mode"
+      },
+      "pvsurplus": {
+        "name": "PV Surplus"
+      },
+      "circulation_state": {
+        "name": "Circulation Issue"
+      },
+      "electrode_flow_state": {
+        "name": "Electrode Flow Issue"
+      },
+      "pressure_state": {
+        "name": "Pressure Issue"
+      },
+      "can_range_state": {
+        "name": "Can Range Issue"
+      },
+      "input1": {
+        "name": "Digital Input 1"
+      },
+      "input2": {
+        "name": "Digital Input 2"
+      },
+      "input3": {
+        "name": "Digital Input 3"
+      },
+      "input4": {
+        "name": "Digital Input 4"
+      },
+      "input5": {
+        "name": "Digital Input 5"
+      },
+      "input6": {
+        "name": "Digital Input 6"
+      },
+      "input7": {
+        "name": "Digital Input 7"
+      },
+      "input8": {
+        "name": "Digital Input 8"
+      },
+      "input9": {
+        "name": "Digital Input 9"
+      },
+      "input10": {
+        "name": "Digital Input 10"
+      },
+      "input11": {
+        "name": "Digital Input 11"
+      },
+      "input12": {
+        "name": "Digital Input 12"
+      },
+      "input_ce1": {
+        "name": "Digital Input CE1"
+      },
+      "input_ce2": {
+        "name": "Digital Input CE2"
+      },
+      "input_ce3": {
+        "name": "Digital Input CE3"
+      },
+      "input_ce4": {
+        "name": "Digital Input CE4"
       },
       "hw_base_module": {
-        "name": "Base Module"
+        "name": "Hardware: Base Module"
       },
       "hw_dosing_module": {
-        "name": "Dosing Module"
+        "name": "Hardware: Dosing Module"
       },
       "hw_extension_module_1": {
-        "name": "Extension Module 1"
+        "name": "Hardware: Extension Module 1"
       },
       "hw_extension_module_2": {
-        "name": "Extension Module 2"
+        "name": "Hardware: Extension Module 2"
       },
       "hw_standalone_mode": {
-        "name": "Standalone Dosing"
+        "name": "Hardware: Standalone Dosing Unit"
       },
       "hw_dmx_module": {
-        "name": "DMX Module"
+        "name": "Hardware: DMX Module"
       },
       "hw_dirule_module": {
-        "name": "Digital Rules Module"
+        "name": "Hardware: Digital Rules Module"
       }
     },
     "switch": {
       "pump": {
         "name": "Filter Pump"
       },
-      "heater": {
-        "name": "Heater"
-      },
       "solar": {
         "name": "Solar Absorber"
       },
+      "heater": {
+        "name": "Heater"
+      },
       "light": {
         "name": "Lighting"
+      },
+      "dos_5_php": {
+        "name": "Dosing pH+"
+      },
+      "dos_4_phm": {
+        "name": "Dosing pH-"
+      },
+      "dos_1_cl": {
+        "name": "Chlorine Dosing"
+      },
+      "dos_6_floc": {
+        "name": "Flocculant"
+      },
+      "pvsurplus": {
+        "name": "PV Surplus"
+      },
+      "backwash": {
+        "name": "Backwash"
+      },
+      "backwashrinse": {
+        "name": "Rinse"
+      },
+      "ext1_1": {
+        "name": "Extension 1.1"
+      },
+      "ext1_2": {
+        "name": "Extension 1.2"
+      },
+      "ext1_3": {
+        "name": "Extension 1.3"
+      },
+      "ext1_4": {
+        "name": "Extension 1.4"
+      },
+      "ext1_5": {
+        "name": "Extension 1.5"
+      },
+      "ext1_6": {
+        "name": "Extension 1.6"
+      },
+      "ext1_7": {
+        "name": "Extension 1.7"
+      },
+      "ext1_8": {
+        "name": "Extension 1.8"
+      },
+      "ext2_1": {
+        "name": "Extension 2.1"
+      },
+      "ext2_2": {
+        "name": "Extension 2.2"
+      },
+      "ext2_3": {
+        "name": "Extension 2.3"
+      },
+      "ext2_4": {
+        "name": "Extension 2.4"
+      },
+      "ext2_5": {
+        "name": "Extension 2.5"
+      },
+      "ext2_6": {
+        "name": "Extension 2.6"
+      },
+      "ext2_7": {
+        "name": "Extension 2.7"
+      },
+      "ext2_8": {
+        "name": "Extension 2.8"
+      },
+      "dmx_scene1": {
+        "name": "DMX Scene 1"
+      },
+      "dmx_scene2": {
+        "name": "DMX Scene 2"
+      },
+      "dmx_scene3": {
+        "name": "DMX Scene 3"
+      },
+      "dmx_scene4": {
+        "name": "DMX Scene 4"
+      },
+      "dmx_scene5": {
+        "name": "DMX Scene 5"
+      },
+      "dmx_scene6": {
+        "name": "DMX Scene 6"
+      },
+      "dmx_scene7": {
+        "name": "DMX Scene 7"
+      },
+      "dmx_scene8": {
+        "name": "DMX Scene 8"
+      },
+      "dmx_scene9": {
+        "name": "DMX Scene 9"
+      },
+      "dmx_scene10": {
+        "name": "DMX Scene 10"
+      },
+      "dmx_scene11": {
+        "name": "DMX Scene 11"
+      },
+      "dmx_scene12": {
+        "name": "DMX Scene 12"
+      },
+      "dirule_1": {
+        "name": "Switching Rule 1"
+      },
+      "dirule_2": {
+        "name": "Switching Rule 2"
+      },
+      "dirule_3": {
+        "name": "Switching Rule 3"
+      },
+      "dirule_4": {
+        "name": "Switching Rule 4"
+      },
+      "dirule_5": {
+        "name": "Switching Rule 5"
+      },
+      "dirule_6": {
+        "name": "Switching Rule 6"
+      },
+      "dirule_7": {
+        "name": "Switching Rule 7"
       }
     },
     "climate": {
@@ -582,6 +897,126 @@
       },
       "solar": {
         "name": "Solar Heater"
+      }
+    },
+    "cover": {
+      "pool_cover": {
+        "name": "Pool Cover"
+      }
+    },
+    "number": {
+      "ph_sp_value": {
+        "name": "pH Setpoint"
+      },
+      "orp_sp_value": {
+        "name": "ORP Setpoint"
+      },
+      "cl_sp_value": {
+        "name": "Chlorine Setpoint"
+      },
+      "target_temp_heater": {
+        "name": "Heater Target Temperature"
+      },
+      "target_temp_solar": {
+        "name": "Solar Target Temperature"
+      },
+      "pump_rpm_sp": {
+        "name": "Pump Speed"
+      },
+      "cl_canister_vol": {
+        "name": "Chlorine Canister Volume"
+      },
+      "phm_canister_vol": {
+        "name": "pH- Canister Volume"
+      },
+      "php_canister_vol": {
+        "name": "pH+ Canister Volume"
+      },
+      "floc_canister_vol": {
+        "name": "Flocculant Canister Volume"
+      }
+    },
+    "select": {
+      "pump_mode": {
+        "name": "Pump Mode"
+      },
+      "heater_mode": {
+        "name": "Heater Mode"
+      },
+      "solar_mode": {
+        "name": "Solar Mode"
+      },
+      "light_mode": {
+        "name": "Light Mode"
+      },
+      "dos_cl_mode": {
+        "name": "Chlorine Dosing Mode"
+      },
+      "dos_phm_mode": {
+        "name": "pH- Dosing Mode"
+      },
+      "dos_php_mode": {
+        "name": "pH+ Dosing Mode"
+      },
+      "pvsurplus_mode": {
+        "name": "PV Surplus Mode"
+      },
+      "backwash_mode": {
+        "name": "Backwash Mode"
+      },
+      "backwashrinse_mode": {
+        "name": "Rinse Mode"
+      },
+      "dos_floc_mode": {
+        "name": "Flocculant Mode"
+      },
+      "ext1_1_mode": {
+        "name": "Extension 1.1 Mode"
+      },
+      "ext1_2_mode": {
+        "name": "Extension 1.2 Mode"
+      },
+      "ext1_3_mode": {
+        "name": "Extension 1.3 Mode"
+      },
+      "ext1_4_mode": {
+        "name": "Extension 1.4 Mode"
+      },
+      "ext1_5_mode": {
+        "name": "Extension 1.5 Mode"
+      },
+      "ext1_6_mode": {
+        "name": "Extension 1.6 Mode"
+      },
+      "ext1_7_mode": {
+        "name": "Extension 1.7 Mode"
+      },
+      "ext1_8_mode": {
+        "name": "Extension 1.8 Mode"
+      },
+      "ext2_1_mode": {
+        "name": "Extension 2.1 Mode"
+      },
+      "ext2_2_mode": {
+        "name": "Extension 2.2 Mode"
+      },
+      "ext2_3_mode": {
+        "name": "Extension 2.3 Mode"
+      },
+      "ext2_4_mode": {
+        "name": "Expansion 2.4 Mode"
+      },
+      "ext2_5_mode": {
+        "name": "Extension 2.5 Mode"
+      },
+      "ext2_6_mode": {
+        "name": "Extension 2.6 Mode"
+      },
+      "ext2_7_mode": {
+        "name": "Extension 2.7 Mode"
+      },
+      "ext2_8_mode": {
+        "name": "Extension 2.8 Mode"
       }
     }
   }

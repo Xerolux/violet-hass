@@ -1,3 +1,7 @@
+﻿> 🇬🇧 **English** | 🇩🇪 **[Deutsch](Icon-Reference.de)**
+
+---
+
 # 🎨 Icon Reference - Violet Pool Controller
 
 ## Overview of All Icons

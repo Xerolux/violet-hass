@@ -1,3 +1,7 @@
+﻿> 🇩🇪 **Deutsch** | 🇬🇧 **[English](Troubleshooting)**
+
+---
+
 # 🚨 Troubleshooting - Fehlersuche
 
 Fehler treten auf? Hier findest du die Lösungen!

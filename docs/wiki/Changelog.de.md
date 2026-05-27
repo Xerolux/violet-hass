@@ -1,3 +1,7 @@
+﻿> 🇩🇪 **Deutsch** | 🇬🇧 **[English](Changelog)**
+
+---
+
 # Changelog – Versionshistorie
 
 > Alle wichtigen Änderungen am Violet Pool Controller Addon.

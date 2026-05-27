@@ -1,3 +1,7 @@
+﻿> 🇩🇪 **Deutsch** | 🇬🇧 **[English](Switches)**
+
+---
+
 # Schalter & Steuerung – Switch-Entities
 
 > Vollständige Dokumentation aller Switch-Entities des Violet Pool Controllers.

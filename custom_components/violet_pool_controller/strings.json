@@ -2,210 +2,210 @@
   "config": {
     "step": {
       "user": {
-        "title": "Violet Pool Setup-Assistent",
-        "description": "**Willkommen!**\n\n**DE:** Wähle aus, ob du direkt mit der Einrichtung starten möchtest oder zuerst die ausführliche Dokumentation lesen willst.\n**EN:** Choose whether you want to start the configuration wizard immediately or open the detailed documentation first.\n\n**Dokumentation / Documentation**\n• [Konfigurationshilfe (DE)]({docs_de})\n• [Configuration Guide (EN)]({docs_en})\n\nSupport & Feedback: {issues_url}",
+        "title": "Violet Pool Setup Wizard",
+        "description": "**Welcome!**\n\nChoose whether you want to start the configuration wizard immediately or open the detailed documentation first.\n\n**Documentation**\n• [Configuration Guide (DE)]({docs_de})\n• [Configuration Guide (EN)]({docs_en})\n\nSupport & Feedback: {issues_url}",
         "data": {
-          "action": "Aktion auswählen / Select action"
+          "action": "Select action"
         },
         "data_description": {
-          "action": "Öffne die Dokumentation oder starte direkt mit dem Setup."
+          "action": "Open the documentation or start the setup directly."
         }
       },
       "disclaimer": {
-        "title": "Sicherheits- und Haftungshinweise",
-        "description": "{disclaimer_text}\n\n**Mehr erfahren / Learn more**\n• [Konfigurationshilfe (DE)]({docs_de})\n• [Configuration Guide (EN)]({docs_en})",
+        "title": "Safety and Liability Notice",
+        "description": "{disclaimer_text}\n\n**Learn more**\n• [Configuration Guide (DE)]({docs_de})\n• [Configuration Guide (EN)]({docs_en})",
         "data": {
-          "agreement": "Ich akzeptiere alle Risiken und habe die Hinweise vollständig gelesen. / I accept all risks and read the full disclaimer."
+          "agreement": "I accept all risks and have read the full disclaimer."
         }
       },
       "help": {
-        "title": "Hilfe & Dokumentation",
-        "description": "**DE:**\n• Lies die [Konfigurationshilfe (DE)]({docs_de}) für Schritt-für-Schritt-Anleitungen, Sicherheits-Checklisten und Funktionsübersichten.\n• Unterstützung oder Ideen? Erstelle ein Ticket unter {issues_url}.\n\n**EN:**\n• Read the [Configuration Guide (EN)]({docs_en}) for step-by-step instructions, safety notes and feature explanations.\n• Need assistance or want to share feedback? Open an issue at {issues_url}.\n\nProjekt-Repository: {github_url}\n\nKlicke auf **Weiter**, um zum Hauptmenü zurückzukehren. / Click **Next** to return to the main menu."
+        "title": "Help & Documentation",
+        "description": "• Read the [Configuration Guide (DE)]({docs_de}) for step-by-step instructions, safety checklists and feature overviews.\n• Need support or have ideas? Open a ticket at {issues_url}.\n\n• Read the [Configuration Guide (EN)]({docs_en}) for step-by-step instructions, safety notes and feature explanations.\n• Need assistance or want to share feedback? Open an issue at {issues_url}.\n\nProject repository: {github_url}\n\nClick **Next** to return to the main menu."
       },
       "connection": {
-        "title": "Controller-Verbindung",
-        "description": "**DE:** Verbinde deinen Violet Pool Controller mit Home Assistant. Stelle sicher, dass sich der Controller im selben Netzwerk befindet und die API erreichbar ist.\n**EN:** Connect your Violet Pool Controller to Home Assistant. Ensure the controller shares the same network and the API is reachable.\n\nWeitere Hinweise / Additional docs: [DE]({docs_de}) · [EN]({docs_en})",
+        "title": "Controller Connection",
+        "description": "Connect your Violet Pool Controller to Home Assistant. Ensure the controller shares the same network and the API is reachable.\n\nAdditional docs: [DE]({docs_de}) · [EN]({docs_en})",
         "data": {
-          "host": "IP-Adresse oder Hostname",
-          "username": "Benutzername (optional)",
-          "password": "Passwort (optional)",
-          "use_ssl": "SSL/HTTPS verwenden",
-          "device_name": "Gerätename",
-          "controller_name": "Controller-Name",
-          "device_id": "Geräte-ID",
-          "polling_interval": "Abrufintervall (Sekunden)",
-          "timeout_duration": "Timeout (Sekunden)",
-          "retry_attempts": "Wiederholungsversuche"
+          "host": "IP address or hostname",
+          "username": "Username (optional)",
+          "password": "Password (optional)",
+          "use_ssl": "Use SSL/HTTPS",
+          "device_name": "Device name",
+          "controller_name": "Controller name",
+          "device_id": "Device ID",
+          "polling_interval": "Polling interval (seconds)",
+          "timeout_duration": "Timeout (seconds)",
+          "retry_attempts": "Retry attempts"
         },
         "data_description": {
-          "host": "DE: IP oder DNS-Name des Controllers · EN: Controller IP or DNS name",
-          "username": "DE: Nur falls Authentifizierung aktiv · EN: Optional username if authentication is enabled",
-          "password": "DE: Passwort eingeben, falls benötigt · EN: Password if required",
-          "use_ssl": "DE: HTTPS aktivieren, falls konfiguriert · EN: Enable HTTPS when supported",
-          "device_name": "DE: Anzeigename in Home Assistant · EN: Friendly name shown in Home Assistant",
-          "controller_name": "DE: Name des Controllers für die Anzeige · EN: Controller display name",
-          "device_id": "DE: Eindeutige ID bei mehreren Controllern · EN: Unique ID if multiple controllers exist",
-          "polling_interval": "DE: Intervall für Datenabrufe (10-3600s) · EN: Data polling interval (10-3600s)",
-          "timeout_duration": "DE: Maximale Wartezeit pro Anfrage · EN: Maximum wait time per request",
-          "retry_attempts": "DE: Anzahl Wiederholungsversuche · EN: Number of retry attempts"
+          "host": "Controller IP or DNS name",
+          "username": "Optional username if authentication is enabled",
+          "password": "Password if required",
+          "use_ssl": "Enable HTTPS when supported",
+          "device_name": "Friendly name shown in Home Assistant",
+          "controller_name": "Controller display name",
+          "device_id": "Unique ID if multiple controllers exist",
+          "polling_interval": "Data polling interval (10-3600s)",
+          "timeout_duration": "Maximum wait time per request",
+          "retry_attempts": "Number of retry attempts"
         }
       },
       "pool_setup": {
-        "title": "Pool-Konfiguration",
-        "description": "**DE:** Lege Pool-Größe, Typ und Desinfektionsmethode fest. Diese Werte werden für Laufzeiten, Energieoptimierung und Dosierberechnungen genutzt.\n**EN:** Provide pool size, type and disinfection method. These values are used for runtime optimisation, energy management and dosing calculations.",
+        "title": "Pool Configuration",
+        "description": "Provide pool size, type and disinfection method. These values are used for runtime optimisation, energy management and dosing calculations.",
         "data": {
-          "pool_size": "Pool-Größe (m³)",
-          "pool_type": "Pool-Typ",
-          "disinfection_method": "Desinfektionsmethode"
+          "pool_size": "Pool size (m\u00b3)",
+          "pool_type": "Pool type",
+          "disinfection_method": "Disinfection method"
         },
         "data_description": {
-          "pool_size": "DE: Wasservolumen in m³ · EN: Water volume in cubic metres",
-          "pool_type": "DE: Beeinflusst Strategien für Heizung & Solar · EN: Influences heating and solar behaviour",
-          "disinfection_method": "DE: Hauptmethode der Wasserpflege · EN: Primary water treatment method"
+          "pool_size": "Water volume in cubic metres",
+          "pool_type": "Influences heating and solar behaviour",
+          "disinfection_method": "Primary water treatment method"
         }
       },
       "feature_selection": {
-        "title": "Smart-Features aktivieren",
-        "description": "**DE:** Aktiviere nur die Funktionen, die dein Pool-Setup wirklich benötigt. Das reduziert Ressourcenverbrauch und hält die Oberfläche übersichtlich.\n**EN:** Enable only the features your pool installation actually uses. This keeps resource usage low and the UI tidy. Du kannst die Auswahl jederzeit in den Optionen anpassen.",
+        "title": "Enable Smart Features",
+        "description": "Enable only the features your pool installation actually uses. This keeps resource usage low and the UI tidy. You can adjust the selection at any time in the options.",
         "data": {
-          "enable_heating": "Heizungssteuerung",
-          "enable_solar": "Solarabsorber",
-          "enable_ph_control": "pH-Automatik",
-          "enable_chlorine_control": "Chlor-Management",
-          "enable_cover_control": "Abdeckungssteuerung",
-          "enable_backwash": "Rückspül-Automatik",
-          "enable_pv_surplus": "PV-Überschuss",
-          "enable_filter_control": "Filterpumpe",
-          "enable_water_level": "Füllstand-Monitor",
-          "enable_water_refill": "Auto-Nachfüllung",
-          "enable_led_lighting": "LED-Beleuchtung",
-          "enable_digital_inputs": "Digitale Eingänge",
-          "enable_extension_outputs": "Erweiterungsmodule"
+          "enable_heating": "Heating control",
+          "enable_solar": "Solar absorber",
+          "enable_ph_control": "pH automation",
+          "enable_chlorine_control": "Chlorine management",
+          "enable_cover_control": "Cover control",
+          "enable_backwash": "Backwash automation",
+          "enable_pv_surplus": "PV surplus",
+          "enable_filter_control": "Filter pump",
+          "enable_water_level": "Water level monitor",
+          "enable_water_refill": "Auto water refill",
+          "enable_led_lighting": "LED lighting",
+          "enable_digital_inputs": "Digital inputs",
+          "enable_extension_outputs": "Extension modules"
         },
         "data_description": {
-          "enable_heating": "DE: Automatische Heizungslogik · EN: Automated heating control",
-          "enable_solar": "DE: Solarabsorber intelligent nutzen · EN: Smart solar absorber control",
-          "enable_ph_control": "DE: pH-Regelung und Überwachung · EN: Automated pH control",
-          "enable_chlorine_control": "DE: Chlor-/Redox-Management · EN: Chlorine/redox management",
-          "enable_cover_control": "DE: Poolabdeckung steuern · EN: Control the pool cover",
-          "enable_backwash": "DE: Automatische Rückspülprogramme · EN: Automated backwash cycles",
-          "enable_pv_surplus": "DE: PV-Überschuss intelligent nutzen · EN: Use photovoltaic surplus intelligently",
-          "enable_filter_control": "DE: Filterpumpe bedarfsgerecht steuern · EN: Control the filter pump on demand",
-          "enable_water_level": "DE: Wasserstand überwachen · EN: Monitor water level",
-          "enable_water_refill": "DE: Automatisches Nachfüllen · EN: Automatic water refill",
-          "enable_led_lighting": "DE: LED-Lichtshows & Szenen · EN: LED lighting scenes",
-          "enable_digital_inputs": "DE: Externe Sensoren/Schalter integrieren · EN: Integrate external sensors and switches",
-          "enable_extension_outputs": "DE: Erweiterungsmodule nutzen · EN: Use extension modules"
+          "enable_heating": "Automated heating control",
+          "enable_solar": "Smart solar absorber control",
+          "enable_ph_control": "Automated pH control",
+          "enable_chlorine_control": "Chlorine/redox management",
+          "enable_cover_control": "Control the pool cover",
+          "enable_backwash": "Automated backwash cycles",
+          "enable_pv_surplus": "Use photovoltaic surplus intelligently",
+          "enable_filter_control": "Control the filter pump on demand",
+          "enable_water_level": "Monitor water level",
+          "enable_water_refill": "Automatic water refill",
+          "enable_led_lighting": "LED lighting scenes",
+          "enable_digital_inputs": "Integrate external sensors and switches",
+          "enable_extension_outputs": "Use extension modules"
         }
       },
       "sensor_selection": {
-        "title": "Sensoren auswählen",
-        "description": "**DE:** Wähle die Sensoren aus, die du in Home Assistant sehen möchtest. Du kannst einzelne Sensoren aktivieren oder deaktivieren, um die Übersicht zu verbessern.\n**EN:** Choose which sensors you want to see in Home Assistant. Enable or disable individual sensors to keep your dashboard clean and focused.\n\n**Tipp:** Standardmäßig sind alle verfügbaren Sensoren ausgewählt. Du kannst diese Auswahl jederzeit in den Optionen anpassen."
+        "title": "Select Sensors",
+        "description": "Choose which sensors you want to see in Home Assistant. Enable or disable individual sensors to keep your dashboard clean and focused.\n\n**Tip:** All available sensors are selected by default. You can adjust this selection at any time in the options."
       },
       "reauth_confirm": {
-        "title": "Controller neu authentifizieren / Reauthenticate Controller",
-        "description": "**DE:** Die Zugangsdaten des Controllers müssen aktualisiert werden.\n**EN:** The controller credentials need to be updated.\n\nController: **{controller_name}**\nIP: **{api_url}**",
+        "title": "Reauthenticate Controller",
+        "description": "The controller credentials need to be updated.\n\nController: **{controller_name}**\nIP: **{api_url}**",
         "data": {
-          "username": "Benutzername / Username",
-          "password": "Passwort / Password"
+          "username": "Username",
+          "password": "Password"
         },
         "data_description": {
-          "username": "DE: Neuer Benutzername · EN: New username for authentication",
-          "password": "DE: Neues Passwort · EN: New password for authentication"
+          "username": "New username for authentication",
+          "password": "New password for authentication"
         }
       },
       "zeroconf_confirm": {
-        "title": "Violet Pool Controller gefunden / Found",
-        "description": "**DE:** Ein Violet Pool Controller wurde im Netzwerk gefunden.\n**EN:** A Violet Pool Controller was discovered on the network.\n\nName: **{name}**\nIP: **{host}**\n\n**DE:** Möchtest du diesen Controller jetzt einrichten?\n**EN:** Do you want to set up this controller now?"
+        "title": "Violet Pool Controller Found",
+        "description": "A Violet Pool Controller was discovered on the network.\n\nName: **{name}**\nIP: **{host}**\n\nWould you like to set up this controller now?"
       },
       "reconfigure": {
-        "title": "Verbindung neu konfigurieren / Reconfigure Connection",
-        "description": "**DE:** Aktualisiere die Verbindungseinstellungen für deinen Controller.\n**EN:** Update the connection settings for your controller.\n\nController: **{controller_name}**",
+        "title": "Reconfigure Connection",
+        "description": "Update the connection settings for your controller.\n\nController: **{controller_name}**",
         "data": {
-          "host": "IP-Adresse / IP Address",
-          "port": "TCP-Port / TCP Port",
-          "use_ssl": "SSL/HTTPS verwenden / Use SSL",
-          "polling_interval": "Abrufintervall (s) / Polling Interval (s)",
+          "host": "IP Address",
+          "port": "TCP Port",
+          "use_ssl": "Use SSL/HTTPS",
+          "polling_interval": "Polling Interval (s)",
           "timeout_duration": "Timeout (s)",
-          "retry_attempts": "Wiederholungen / Retry Attempts"
+          "retry_attempts": "Retry Attempts"
         },
         "data_description": {
-          "host": "DE: Neue Controller-IP oder DNS-Name · EN: New controller IP or DNS name",
-          "port": "DE: TCP-Port (Standard 80) · EN: TCP port (default 80)",
-          "use_ssl": "DE: HTTPS aktivieren · EN: Enable HTTPS",
-          "polling_interval": "DE: Datenabruf-Intervall (10–3600s) · EN: Data polling interval (10–3600s)",
-          "timeout_duration": "DE: Maximale Wartezeit · EN: Maximum wait time per request",
-          "retry_attempts": "DE: Anzahl Wiederholungsversuche · EN: Number of retry attempts"
+          "host": "New controller IP or DNS name",
+          "port": "TCP port (default 80)",
+          "use_ssl": "Enable HTTPS",
+          "polling_interval": "Data polling interval (10\u20133600s)",
+          "timeout_duration": "Maximum wait time per request",
+          "retry_attempts": "Number of retry attempts"
         }
       }
     },
     "error": {
-      "invalid_ip_address": "**Ungültige IP-Adresse**\n\nBitte gib eine gültige IP-Adresse ein (z.B. 192.168.1.100)",
-      "cannot_connect": "**Verbindung fehlgeschlagen**\n\nController nicht erreichbar. Prüfe:\n• IP-Adresse korrekt?\n• Controller eingeschaltet?\n• Netzwerkverbindung OK?",
-      "invalid_auth": "**Anmeldung fehlgeschlagen**\n\nBenutzername oder Passwort falsch. Bei deaktivierter Authentifizierung Felder leer lassen.",
-      "timeout_connection": "**Verbindungs-Timeout**\n\nController antwortet nicht. Möglicherweise überlastet oder nicht erreichbar.",
-      "authentication_error": "**Authentifizierung erforderlich**\n\nController benötigt Anmeldedaten. Bitte Username und Passwort eingeben.",
-      "api_endpoint_not_found": "**API-Endpunkt nicht gefunden**\n\nController-Firmware möglicherweise veraltet oder URL falsch.",
-      "invalid_pool_size": "**Ungültige Pool-Größe**\n\nWert muss zwischen 0.1 und 1000 m³ liegen.",
-      "invalid_configuration": "**Konfigurationsfehler**\n\nEine oder mehrere Eingaben sind ungültig. Bitte überprüfen.",
-      "api_response_error": "**Ungültige Controller-Antwort**\n\nController sendet unerwartete Daten. Firmware-Update nötig?",
-      "firmware_data_missing": "**Firmware-Info fehlt**\n\nController-Firmware-Version konnte nicht ermittelt werden.",
-      "invalid_firmware_version": "**Firmware-Problem**\n\nController-Firmware scheint veraltet. Bitte aktualisieren.",
-      "connection_error": "**Netzwerkfehler**\n\nAllgemeiner Verbindungsfehler. Netzwerk-Einstellungen prüfen.",
-      "already_configured": "**Bereits konfiguriert**\n\nEin Controller mit dieser IP-Adresse ist bereits eingerichtet.",
-      "agreement_declined": "**Setup abgebrochen**\n\nDie Einrichtung wurde abgebrochen, da die Sicherheitshinweise nicht akzeptiert wurden.",
-      "unknown": "**Unbekannter Fehler**\n\nEin unerwartetes Problem ist aufgetreten. Bei Wiederholung Support kontaktieren."
+      "invalid_ip_address": "**Invalid IP address**\n\nPlease enter a valid IP address (e.g. 192.168.1.100)",
+      "cannot_connect": "**Connection failed**\n\nController unreachable. Check:\n• Is the IP address correct?\n• Is the controller powered on?\n• Is the network connection OK?",
+      "invalid_auth": "**Login failed**\n\nUsername or password incorrect. If authentication is disabled, leave the fields empty.",
+      "timeout_connection": "**Connection timeout**\n\nController is not responding. It may be overloaded or unreachable.",
+      "authentication_error": "**Authentication required**\n\nThe controller requires login credentials. Please enter username and password.",
+      "api_endpoint_not_found": "**API endpoint not found**\n\nController firmware may be outdated or the URL is incorrect.",
+      "invalid_pool_size": "**Invalid pool size**\n\nValue must be between 0.1 and 1000 m\u00b3.",
+      "invalid_configuration": "**Configuration error**\n\nOne or more inputs are invalid. Please review.",
+      "api_response_error": "**Invalid controller response**\n\nController is sending unexpected data. Firmware update needed?",
+      "firmware_data_missing": "**Firmware info missing**\n\nController firmware version could not be determined.",
+      "invalid_firmware_version": "**Firmware issue**\n\nController firmware appears outdated. Please update.",
+      "connection_error": "**Network error**\n\nGeneral connection error. Check network settings.",
+      "already_configured": "**Already configured**\n\nA controller with this IP address is already set up.",
+      "agreement_declined": "**Setup cancelled**\n\nSetup was cancelled because the safety notice was not accepted.",
+      "unknown": "**Unknown error**\n\nAn unexpected problem occurred. If it persists, contact support."
     },
     "abort": {
-      "already_configured": "Controller bereits eingerichtet",
-      "cannot_connect": "Verbindung fehlgeschlagen",
-      "invalid_auth": "Ungültige Anmeldedaten",
-      "agreement_declined": "Sicherheitshinweise nicht akzeptiert",
-      "reauth_successful": "Reauthentifizierung erfolgreich / Reauthentication successful",
-      "reauth_failed": "Reauthentifizierung fehlgeschlagen / Reauthentication failed",
-      "reconfigure_successful": "Neukonfiguration erfolgreich / Reconfiguration successful",
-      "already_in_progress": "Einrichtung läuft bereits / Setup already in progress",
-      "unknown": "Unbekannter Fehler"
+      "already_configured": "Controller already set up",
+      "cannot_connect": "Connection failed",
+      "invalid_auth": "Invalid credentials",
+      "agreement_declined": "Safety notice not accepted",
+      "reauth_successful": "Reauthentication successful",
+      "reauth_failed": "Reauthentication failed",
+      "reconfigure_successful": "Reconfiguration successful",
+      "already_in_progress": "Setup already in progress",
+      "unknown": "Unknown error"
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Pool-Einstellungen anpassen",
-        "description": "**Was möchtest du konfigurieren?**\n\nFeatures aktivieren/deaktivieren\nSensoren auswählen\nEinstellungen ändern\n\n**Tipp:** Du kannst jederzeit zurück zu dieser Auswahl kommen.",
+        "title": "Adjust Pool Settings",
+        "description": "**What would you like to configure?**\n\nEnable/disable features\nSelect sensors\nChange settings\n\n**Tip:** You can return to this selection at any time.",
         "data": {
-          "config_option": "Konfigurationsbereich auswählen"
+          "config_option": "Select configuration area"
         },
         "data_description": {
-          "config_option": "Wähle aus, was du anpassen möchtest"
+          "config_option": "Choose what you want to adjust"
         }
       },
       "features": {
-        "title": "Features aktivieren/deaktivieren",
-        "description": "**Wähle die Features, die du nutzen möchtest**\n\nAktivierte Features werden in Home Assistant angezeigt\nDeaktivierte Features werden ausgeblendet\n\n**Tipp:** Aktiviere nur, was du wirklich brauchst - das hält die Oberfläche übersichtlich!"
+        "title": "Enable/Disable Features",
+        "description": "**Select the features you want to use**\n\nEnabled features are shown in Home Assistant\nDisabled features are hidden\n\n**Tip:** Only enable what you really need — this keeps the interface clean!"
       },
       "sensors": {
-        "title": "Sensoren auswählen",
-        "description": "**Wähle die Sensoren, die angezeigt werden sollen**\n\nNur ausgewählte Sensoren werden in Home Assistant angezeigt\nÄnderungen werden sofort übernommen\n\n**Tipp:** Wähle nur die Sensoren aus, die du wirklich überwachen möchtest!"
+        "title": "Select Sensors",
+        "description": "**Choose which sensors to display**\n\nOnly selected sensors are shown in Home Assistant\nChanges take effect immediately\n\n**Tip:** Only select the sensors you actually want to monitor!"
       },
       "settings": {
-        "title": "Allgemeine Einstellungen",
-        "description": "**Passe die technischen Parameter an**\n\nPolling-Intervall: Wie oft Daten abgerufen werden\nTimeout: Maximale Wartezeit für Antworten\nWiederholungen: Anzahl Retry-Versuche\nForce Update: Immer alle Entities aktualisieren\nDiagnostic Logging: Erweiterte Protokollierung\n\n**Tipp:** Standard-Werte funktionieren für die meisten Setups!",
+        "title": "General Settings",
+        "description": "**Adjust technical parameters**\n\nPolling interval: How often data is fetched\nTimeout: Maximum wait time for responses\nRetry attempts: Number of retry attempts\nForce update: Always update all entities\nDiagnostic logging: Extended logging\n\n**Tip:** Default values work for most setups!",
         "data": {
-          "controller_name": "Controller-Name",
-          "polling_interval": "Abrufintervall (Sekunden)",
-          "timeout_duration": "Timeout (Sekunden)",
-          "retry_attempts": "Wiederholungsversuche",
-          "enable_diagnostic_logging": "Erweiterte Protokollierung",
-          "force_update": "Immer aktualisieren"
+          "controller_name": "Controller name",
+          "polling_interval": "Polling interval (seconds)",
+          "timeout_duration": "Timeout (seconds)",
+          "retry_attempts": "Retry attempts",
+          "enable_diagnostic_logging": "Extended logging",
+          "force_update": "Always update"
         },
         "data_description": {
-          "controller_name": "DE: Anzeigename des Controllers · EN: Controller display name",
-          "polling_interval": "DE: Intervall für Datenabrufe (5-300s) · EN: Data polling interval (5-300s)",
-          "timeout_duration": "DE: Maximale Wartezeit pro Anfrage (5-60s) · EN: Maximum wait time per request (5-60s)",
-          "retry_attempts": "DE: Anzahl Wiederholungsversuche bei Fehlern (1-10) · EN: Number of retry attempts on failure (1-10)",
-          "enable_diagnostic_logging": "DE: Ausführliche Logs bei jedem Update (nur für Diagnose!) · EN: Verbose logs on every update (diagnostics only!)",
-          "force_update": "DE: Entities immer aktualisieren, auch wenn Wert gleich · EN: Always update entities even if value unchanged"
+          "controller_name": "Controller display name",
+          "polling_interval": "Data polling interval (5-300s)",
+          "timeout_duration": "Maximum wait time per request (5-60s)",
+          "retry_attempts": "Number of retry attempts on failure (1-10)",
+          "enable_diagnostic_logging": "Verbose logs on every update (diagnostics only!)",
+          "force_update": "Always update entities even if value unchanged"
         }
       }
     }
@@ -218,7 +218,7 @@
       "message": "Invalid value: {detail}"
     },
     "value_out_of_range": {
-      "message": "Value {value} is outside the valid range ({min}–{max})"
+      "message": "Value {value} is outside the valid range ({min}\u2013{max})"
     },
     "failed_to_set_value": {
       "message": "Failed to set value: {detail}"
@@ -244,210 +244,210 @@
   },
   "services": {
     "turn_auto": {
-      "name": "AUTO-Modus aktivieren",
-      "description": "Schaltet Geräte in den **intelligenten Automatikmodus**.\n\nDas System übernimmt ab sofort die optimale Steuerung basierend auf Sensordaten und Zeitplänen.",
+      "name": "Enable AUTO mode",
+      "description": "Switches devices to **intelligent automatic mode**.\n\nThe system takes over optimal control based on sensor data and schedules.",
       "fields": {
         "entity_id": {
-          "name": "Zu steuernde Geräte",
-          "description": "Wähle die Geräte aus, die in den AUTO-Modus geschaltet werden sollen."
+          "name": "Devices to control",
+          "description": "Select the devices to switch to AUTO mode."
         },
         "auto_delay": {
-          "name": "Verzögerung (Sekunden)",
-          "description": "Wartezeit bevor der AUTO-Modus aktiviert wird (0-86400s)."
+          "name": "Delay (seconds)",
+          "description": "Wait time before AUTO mode is activated (0-86400s)."
         }
       }
     },
     "set_pv_surplus": {
-      "name": "PV-Überschuss nutzen",
-      "description": "Aktiviert den **Photovoltaik-Überschussmodus** für optimale Solarstrom-Nutzung.\n\nPool-Geräte werden automatisch mit überschüssigem Solarstrom betrieben.",
+      "name": "Use PV surplus",
+      "description": "Activates **photovoltaic surplus mode** for optimal solar power utilisation.\n\nPool devices are automatically powered with surplus solar energy.",
       "fields": {
         "entity_id": {
-          "name": "PV-Überschuss Schalter",
-          "description": "Der PV-Überschuss-Schalter des Controllers."
+          "name": "PV surplus switch",
+          "description": "The controller's PV surplus switch."
         },
         "pump_speed": {
-          "name": "Pumpendrehzahl",
-          "description": "Gewünschte Pumpenleistung (1=Eco, 2=Normal, 3=Maximum)."
+          "name": "Pump speed",
+          "description": "Desired pump output (1=Eco, 2=Normal, 3=Maximum)."
         }
       }
     },
     "manual_dosing": {
-      "name": "Manuelle Dosierung",
-      "description": "Startet eine **manuelle Dosierung** für die gewünschte Dauer.\n\n**Vorsicht:** Überdosierung vermeiden! Immer Wasserwerte vorher prüfen.",
+      "name": "Manual dosing",
+      "description": "Starts a **manual dosing** for the desired duration.\n\n**Caution:** Avoid overdosing! Always check water values beforehand.",
       "fields": {
         "entity_id": {
-          "name": "Dosierungssystem",
-          "description": "Wähle das Dosierungssystem (pH+, pH-, Chlor, etc.)."
+          "name": "Dosing system",
+          "description": "Select the dosing system (pH+, pH-, Chlorine, etc.)."
         },
         "duration_seconds": {
-          "name": "Dosierdauer (Sekunden)",
-          "description": "Wie lange soll dosiert werden? (1-3600s, Start mit kurzen Zeiten!)"
+          "name": "Dosing duration (seconds)",
+          "description": "How long should dosing last? (1-3600s, start with short durations!)"
         }
       }
     },
     "test_output": {
-      "name": "Ausgangstest-Modus",
-      "description": "**DE:** Aktiviert einen Ausgang des Controllers testweise für einen begrenzten Zeitraum. Achte darauf, dass keine Personen oder Geräte gefährdet werden.\n**EN:** Temporarily activates a controller output for diagnostics. Make sure no people or equipment are at risk while the output is forced.",
+      "name": "Output test mode",
+      "description": "Temporarily activates a controller output for diagnostics. Make sure no people or equipment are at risk while the output is forced.",
       "fields": {
         "output": {
-          "name": "Ausgangskennung",
-          "description": "DE: Bezeichner wie PUMP, HEATER oder SOLAR · EN: Identifier such as PUMP, HEATER or SOLAR"
+          "name": "Output identifier",
+          "description": "Identifier such as PUMP, HEATER or SOLAR"
         },
         "mode": {
-          "name": "Testmodus",
-          "description": "DE: SWITCH=toggle, ON=erzwingen, OFF=abschalten · EN: SWITCH=toggle, ON=force on, OFF=force off"
+          "name": "Test mode",
+          "description": "SWITCH=toggle, ON=force on, OFF=force off"
         },
         "duration": {
-          "name": "Testdauer (Sekunden)",
-          "description": "DE: Dauer zwischen 1 und 900 Sekunden · EN: Duration between 1 and 900 seconds"
+          "name": "Test duration (seconds)",
+          "description": "Duration between 1 and 900 seconds"
         }
       }
     },
     "set_temperature_target": {
-      "name": "Zieltemperatur einstellen",
-      "description": "Stellt die **gewünschte Pooltemperatur** ein.\n\nDer Controller heizt automatisch auf diese Temperatur und hält sie konstant.",
+      "name": "Set target temperature",
+      "description": "Sets the **desired pool temperature**.\n\nThe controller heats automatically to this temperature and maintains it.",
       "fields": {
         "entity_ids": {
-          "name": "Heizungssysteme",
-          "description": "Wähle Heizung und/oder Solarabsorber aus."
+          "name": "Heating systems",
+          "description": "Select heater and/or solar absorber."
         },
         "temperature": {
-          "name": "Zieltemperatur (°C)",
-          "description": "Gewünschte Pooltemperatur (20-35°C empfohlen)."
+          "name": "Target temperature (\u00b0C)",
+          "description": "Desired pool temperature (20-35\u00b0C recommended)."
         }
       }
     },
     "set_ph_target": {
-      "name": "pH-Sollwert einstellen",
-      "description": "Definiert den **idealen pH-Wert** für automatische Dosierung.\n\nEmpfohlener Bereich: 7.0-7.4 für optimale Wasserqualität und Hautverträglichkeit.",
+      "name": "Set pH target",
+      "description": "Defines the **ideal pH value** for automatic dosing.\n\nRecommended range: 7.0-7.4 for optimal water quality and skin compatibility.",
       "fields": {
         "entity_ids": {
-          "name": "pH-Dosierungssystem",
-          "description": "pH-Regelung des Controllers auswählen."
+          "name": "pH dosing system",
+          "description": "Select the controller's pH regulation."
         },
         "target_value": {
-          "name": "pH-Sollwert",
-          "description": "Gewünschter pH-Wert (6.8-7.8, optimal: 7.0-7.4)."
+          "name": "pH target value",
+          "description": "Desired pH value (6.8-7.8, optimal: 7.0-7.4)."
         }
       }
     },
     "set_chlorine_target": {
-      "name": "Chlor-Sollwert einstellen",
-      "description": "Bestimmt den **Ziel-Chlorgehalt** für sichere Desinfektion.\n\nAusreichend Chlor eliminiert Bakterien, zu viel reizt Haut und Augen.",
+      "name": "Set chlorine target",
+      "description": "Sets the **target chlorine level** for safe disinfection.\n\nSufficient chlorine eliminates bacteria; too much irritates skin and eyes.",
       "fields": {
         "entity_ids": {
-          "name": "Chlor-Dosierungssystem",
-          "description": "Chlordosierung oder Elektrolyse-Anlage."
+          "name": "Chlorine dosing system",
+          "description": "Chlorine dosing or electrolysis system."
         },
         "target_value": {
-          "name": "Chlor-Sollwert (mg/l)",
-          "description": "Gewünschter freier Chlorgehalt (0.3-1.5 mg/l empfohlen)."
+          "name": "Chlorine target (mg/l)",
+          "description": "Desired free chlorine level (0.3-1.5 mg/l recommended)."
         }
       }
     },
     "trigger_backwash": {
-      "name": "Rückspülung starten",
-      "description": "Startet eine **Filterrückspülung** zur Reinigung.\n\nEntfernt Schmutz und Ablagerungen für optimale Filterleistung.",
+      "name": "Start backwash",
+      "description": "Starts a **filter backwash** for cleaning.\n\nRemoves dirt and deposits for optimal filter performance.",
       "fields": {
         "entity_ids": {
-          "name": "Rückspülsystem",
-          "description": "Rückspülventil oder -automatik des Filters."
+          "name": "Backwash system",
+          "description": "Backwash valve or filter automation."
         },
         "duration": {
-          "name": "Rückspüldauer (Sekunden)",
-          "description": "Spüldauer (60-300s üblich, 0=manuell beenden)."
+          "name": "Backwash duration (seconds)",
+          "description": "Flush duration (60-300s typical, 0=manual stop)."
         }
       }
     },
     "start_water_analysis": {
-      "name": "Wasseranalyse starten",
-      "description": "Startet eine **automatische Wasseranalyse** aller Parameter.\n\nMisst pH, Chlor, Temperatur und weitere Werte für Optimierungsvorschläge.",
+      "name": "Start water analysis",
+      "description": "Starts an **automatic water analysis** of all parameters.\n\nMeasures pH, chlorine, temperature and more for optimisation suggestions.",
       "fields": {
         "entity_ids": {
           "name": "Controller",
-          "description": "Violet Pool Controller für die Analyse."
+          "description": "Violet Pool Controller for the analysis."
         }
       }
     },
     "set_maintenance_mode": {
-      "name": "Wartungsmodus",
-      "description": "Aktiviert/deaktiviert den **Wartungsmodus**.\n\nIm Wartungsmodus sind alle Automatiken pausiert für sichere Arbeiten am Pool.",
+      "name": "Maintenance mode",
+      "description": "Activates/deactivates **maintenance mode**.\n\nIn maintenance mode, all automation is paused for safe work on the pool.",
       "fields": {
         "entity_ids": {
           "name": "Controller",
-          "description": "Violet Pool Controller auswählen."
+          "description": "Select a Violet Pool Controller."
         },
         "enable": {
-          "name": "Wartungsmodus aktivieren",
-          "description": "Ein: Alle Automatiken stoppen | Aus: Normalbetrieb fortsetzen."
+          "name": "Enable maintenance mode",
+          "description": "On: Stop all automation | Off: Resume normal operation."
         }
       }
     },
     "set_all_dmx_scenes_mode": {
-      "name": "DMX-Beleuchtung steuern",
-      "description": "Steuert **alle DMX-Lichtszenen** gleichzeitig.\n\nPerfekt für einheitliche Lichteffekte oder komplettes Ein/Ausschalten.",
+      "name": "Control DMX lighting",
+      "description": "Controls **all DMX light scenes** simultaneously.\n\nPerfect for uniform lighting effects or complete on/off switching.",
       "fields": {
         "device_id": {
           "name": "Pool Controller",
-          "description": "Violet Pool Controller mit DMX-Ausgang."
+          "description": "Violet Pool Controller with DMX output."
         },
         "dmx_mode": {
-          "name": "Lichtmodus",
-          "description": "Alle Lichter: Ein/Aus/Automatik."
+          "name": "Light mode",
+          "description": "All lights: On/Off/Auto."
         }
       }
     },
     "set_digital_input_rule_lock_state": {
-      "name": "Schaltregel sperren",
-      "description": "Sperrt oder entsperrt **digitale Schaltregeln**.\n\nVerhindert unerwünschte Auslösung bei Wartungsarbeiten oder Störungen.",
+      "name": "Lock switching rule",
+      "description": "Locks or unlocks **digital switching rules**.\n\nPrevents unwanted triggering during maintenance or disturbances.",
       "fields": {
         "device_id": {
           "name": "Pool Controller",
-          "description": "Violet Pool Controller mit digitalen Regeln."
+          "description": "Violet Pool Controller with digital rules."
         },
         "rule_key": {
-          "name": "Regel-Nummer",
-          "description": "Nummer der zu sperrenden Regel (DIRULE_1 bis DIRULE_7)."
+          "name": "Rule number",
+          "description": "Number of the rule to lock (DIRULE_1 to DIRULE_7)."
         },
         "lock_state": {
-          "name": "Sperren",
-          "description": "Regel sperren (Ein) oder freigeben (Aus)."
+          "name": "Lock",
+          "description": "Lock rule (On) or release rule (Off)."
         }
       }
     },
     "trigger_digital_input_rule": {
-      "name": "Schaltregel auslösen",
-      "description": "Löst eine **digitale Schaltregel** manuell aus.\n\nNützlich zum Testen von Automatiken oder bei Bedarf manuelle Steuerung.",
+      "name": "Trigger switching rule",
+      "description": "Manually triggers a **digital switching rule**.\n\nUseful for testing automations or for manual control when needed.",
       "fields": {
         "device_id": {
           "name": "Pool Controller",
-          "description": "Violet Pool Controller mit den Regeln."
+          "description": "Violet Pool Controller with the rules."
         },
         "rule_key": {
-          "name": "Regel-Nummer",
-          "description": "Welche Regel auslösen? (DIRULE_1 bis DIRULE_7)"
+          "name": "Rule number",
+          "description": "Which rule to trigger? (DIRULE_1 to DIRULE_7)"
         }
       }
     },
     "export_diagnostic_logs": {
-      "name": "Diagnostic-Logs exportieren",
-      "description": "Exportiert **letzte Integrations-Logs** für Troubleshooting und Support.\n\nSammelt relevante Log-Einträge und ermöglicht Download oder Datei-Speicherung.\n\n**Tipp:** Nützlich bei Problemen oder wenn du Logs an den Support senden möchtest!",
+      "name": "Export diagnostic logs",
+      "description": "Exports **recent integration logs** for troubleshooting and support.\n\nCollects relevant log entries and enables download or file storage.\n\n**Tip:** Useful for problems or when sending logs to support!",
       "fields": {
         "device_id": {
           "name": "Pool Controller",
-          "description": "Violet Pool Controller für den Export"
+          "description": "Violet Pool Controller for the export"
         },
         "lines": {
-          "name": "Anzahl Zeilen",
-          "description": "Wie viele letzte Log-Zeilen exportieren? (10-1000)"
+          "name": "Number of lines",
+          "description": "How many recent log lines to export? (10-1000)"
         },
         "include_timestamps": {
-          "name": "Timestamps inkludieren",
-          "description": "Zeitstempel in den exportierten Logs einfügen"
+          "name": "Include timestamps",
+          "description": "Include timestamps in the exported logs"
         },
         "save_to_file": {
-          "name": "Als Datei speichern",
-          "description": "Logs als Textdatei im /config/ Verzeichnis speichern"
+          "name": "Save as file",
+          "description": "Save logs as text file in the /config/ directory"
         }
       }
     }
@@ -455,113 +455,566 @@
   "selector": {
     "pool_type": {
       "options": {
-        "outdoor": "Freibad (Outdoor)",
-        "indoor": "Hallenbad (Indoor)",
+        "outdoor": "Outdoor Pool",
+        "indoor": "Indoor Pool",
         "whirlpool": "Whirlpool/Spa",
-        "natural": "Naturpool/Schwimmteich",
-        "combination": "Kombination/Hybrid"
+        "natural": "Natural Pool/Swimming Pond",
+        "combination": "Combination/Hybrid"
       }
     },
     "disinfection_method": {
       "options": {
-        "chlorine": "Chlor (Flüssig/Tabletten)",
-        "salt": "Salzelektrolyse",
-        "bromine": "Brom-Desinfektion",
-        "active_oxygen": "Aktivsauerstoff/H₂O₂",
-        "uv": "UV-C Desinfektion",
-        "ozone": "Ozon-Behandlung"
+        "chlorine": "Chlorine (Liquid/Tablets)",
+        "salt": "Salt Electrolysis",
+        "bromine": "Bromine Disinfection",
+        "active_oxygen": "Active Oxygen/H\u2082O\u2082",
+        "uv": "UV-C Disinfection",
+        "ozone": "Ozone Treatment"
       }
     },
     "dmx_mode": {
       "options": {
-        "allon": "Alle Lichter einschalten",
-        "alloff": "Alle Lichter ausschalten",
-        "allauto": "Alle Lichter auf Automatik"
+        "allon": "Turn all lights on",
+        "alloff": "Turn all lights off",
+        "allauto": "Set all lights to auto"
       }
     }
   },
   "entity": {
     "sensor": {
-      "ph_value": {
-        "name": "pH-Wert"
-      },
-      "orp_value": {
-        "name": "Redoxpotential"
-      },
-      "pot_value": {
-        "name": "Chlorgehalt"
-      },
       "onewire1_value": {
-        "name": "Wassertemperatur"
+        "name": "Pool Water"
       },
       "onewire2_value": {
-        "name": "Außentemperatur"
+        "name": "Outside Temperature"
+      },
+      "onewire3_value": {
+        "name": "Solar Absorber"
+      },
+      "onewire4_value": {
+        "name": "Absorber Return"
+      },
+      "onewire5_value": {
+        "name": "Heat Exchanger"
+      },
+      "onewire6_value": {
+        "name": "Heater Storage"
+      },
+      "onewire7_value": {
+        "name": "Temperature Sensor 7"
+      },
+      "onewire8_value": {
+        "name": "Temperature Sensor 8"
+      },
+      "ph_value": {
+        "name": "pH Value"
+      },
+      "orp_value": {
+        "name": "ORP Value"
+      },
+      "pot_value": {
+        "name": "Chlorine Level"
+      },
+      "ai1_value": {
+        "name": "Analog Input 1"
+      },
+      "ai2_value": {
+        "name": "Analog Input 2"
+      },
+      "ai3_value": {
+        "name": "Analog Input 3"
+      },
+      "ai4_value": {
+        "name": "Analog Input 4"
+      },
+      "ai5_value": {
+        "name": "Analog Input 5"
+      },
+      "ai6_value": {
+        "name": "Analog Input 6"
+      },
+      "ai7_value": {
+        "name": "Analog Input 7"
+      },
+      "ai8_value": {
+        "name": "Analog Input 8"
       },
       "firmware_version": {
-        "name": "Firmware-Version"
+        "name": "Firmware Version"
+      },
+      "pump_status": {
+        "name": "Pump Status"
+      },
+      "heater_status": {
+        "name": "Heater Status"
+      },
+      "solar_status": {
+        "name": "Solar Status"
+      },
+      "backwash_status": {
+        "name": "Backwash Status"
+      },
+      "pvsurplus_status": {
+        "name": "PV Surplus Status"
+      },
+      "refill_status": {
+        "name": "Refill Status"
+      },
+      "pump_detail": {
+        "name": "Pump Detail Status"
+      },
+      "heater_detail": {
+        "name": "Heater Detail Status"
+      },
+      "solar_detail": {
+        "name": "Solar Detail Status"
+      },
+      "dos_1_cl_state": {
+        "name": "Chlorine Dosing State"
+      },
+      "dos_4_phm_state": {
+        "name": "pH- Dosing State"
+      },
+      "dos_5_php_state": {
+        "name": "pH+ Dosing State"
+      },
+      "dos_6_floc_state": {
+        "name": "Flocculant Dosing State"
+      },
+      "pump_composite": {
+        "name": "Pump State Details"
+      },
+      "heater_composite": {
+        "name": "Heater State Details"
+      },
+      "solar_composite": {
+        "name": "Solar State Details"
+      },
+      "cpu_temp": {
+        "name": "CPU Temperature"
+      },
+      "cpu_temp_carrier": {
+        "name": "Carrier Board"
+      },
+      "cpu_uptime": {
+        "name": "System Uptime"
+      },
+      "system_cpu_temperature": {
+        "name": "System CPU Temperature"
+      },
+      "system_carrier_cpu_temperature": {
+        "name": "Carrier CPU Temperature"
+      },
+      "system_dosagemodule_cpu_temperature": {
+        "name": "Dosing Module CPU Temperature"
+      },
+      "system_memoryusage": {
+        "name": "System Memory Usage"
+      },
+      "system_health": {
+        "name": "System Health"
+      },
+      "system_safety_timer_active": {
+        "name": "Safety Timer Active"
+      },
+      "system_relais_status": {
+        "name": "Relay Status"
+      },
+      "connection_latency": {
+        "name": "Connection Latency"
+      },
+      "last_event_age": {
+        "name": "Last Event Age"
+      },
+      "api_request_rate": {
+        "name": "API Request Rate"
+      },
+      "average_latency": {
+        "name": "Average Latency"
+      },
+      "recovery_success_rate": {
+        "name": "Recovery Success Rate"
       },
       "last_error_code": {
-        "name": "Letzter Fehlercode"
+        "name": "Last Error Code"
       },
       "flow_rate": {
-        "name": "Durchflussmenge"
+        "name": "Flow Rate"
       }
     },
     "binary_sensor": {
-      "pump_state": {
-        "name": "Filterpumpe Status"
+      "pump": {
+        "name": "Pump State"
       },
-      "heater_state": {
-        "name": "Heizung Status"
+      "solar": {
+        "name": "Solar State"
       },
-      "solar_state": {
-        "name": "Solar Status"
+      "heater": {
+        "name": "Heater State"
       },
-      "cover_is_closed": {
-        "name": "Abdeckung geschlossen"
+      "light": {
+        "name": "Light State"
+      },
+      "backwash": {
+        "name": "Backwash State"
+      },
+      "refill": {
+        "name": "Refill State"
+      },
+      "eco": {
+        "name": "ECO Mode"
+      },
+      "pvsurplus": {
+        "name": "PV Surplus"
+      },
+      "circulation_state": {
+        "name": "Circulation Issue"
+      },
+      "electrode_flow_state": {
+        "name": "Electrode Flow Issue"
+      },
+      "pressure_state": {
+        "name": "Pressure Issue"
+      },
+      "can_range_state": {
+        "name": "Can Range Issue"
+      },
+      "input1": {
+        "name": "Digital Input 1"
+      },
+      "input2": {
+        "name": "Digital Input 2"
+      },
+      "input3": {
+        "name": "Digital Input 3"
+      },
+      "input4": {
+        "name": "Digital Input 4"
+      },
+      "input5": {
+        "name": "Digital Input 5"
+      },
+      "input6": {
+        "name": "Digital Input 6"
+      },
+      "input7": {
+        "name": "Digital Input 7"
+      },
+      "input8": {
+        "name": "Digital Input 8"
+      },
+      "input9": {
+        "name": "Digital Input 9"
+      },
+      "input10": {
+        "name": "Digital Input 10"
+      },
+      "input11": {
+        "name": "Digital Input 11"
+      },
+      "input12": {
+        "name": "Digital Input 12"
+      },
+      "input_ce1": {
+        "name": "Digital Input CE1"
+      },
+      "input_ce2": {
+        "name": "Digital Input CE2"
+      },
+      "input_ce3": {
+        "name": "Digital Input CE3"
+      },
+      "input_ce4": {
+        "name": "Digital Input CE4"
       },
       "hw_base_module": {
-        "name": "Basismodul"
+        "name": "Hardware: Base Module"
       },
       "hw_dosing_module": {
-        "name": "Dosiermodul"
+        "name": "Hardware: Dosing Module"
       },
       "hw_extension_module_1": {
-        "name": "Erweiterungsmodul 1"
+        "name": "Hardware: Extension Module 1"
       },
       "hw_extension_module_2": {
-        "name": "Erweiterungsmodul 2"
+        "name": "Hardware: Extension Module 2"
       },
       "hw_standalone_mode": {
-        "name": "Standalone-Dosieranlage"
+        "name": "Hardware: Standalone Dosing Unit"
       },
       "hw_dmx_module": {
-        "name": "DMX-Modul"
+        "name": "Hardware: DMX Module"
       },
       "hw_dirule_module": {
-        "name": "Digitalregel-Modul"
+        "name": "Hardware: Digital Rules Module"
       }
     },
     "switch": {
       "pump": {
-        "name": "Filterpumpe"
-      },
-      "heater": {
-        "name": "Heizung"
+        "name": "Filter Pump"
       },
       "solar": {
-        "name": "Solarabsorber"
+        "name": "Solar Absorber"
+      },
+      "heater": {
+        "name": "Heater"
       },
       "light": {
-        "name": "Beleuchtung"
+        "name": "Lighting"
+      },
+      "dos_5_php": {
+        "name": "Dosing pH+"
+      },
+      "dos_4_phm": {
+        "name": "Dosing pH-"
+      },
+      "dos_1_cl": {
+        "name": "Chlorine Dosing"
+      },
+      "dos_6_floc": {
+        "name": "Flocculant"
+      },
+      "pvsurplus": {
+        "name": "PV Surplus"
+      },
+      "backwash": {
+        "name": "Backwash"
+      },
+      "backwashrinse": {
+        "name": "Rinse"
+      },
+      "ext1_1": {
+        "name": "Extension 1.1"
+      },
+      "ext1_2": {
+        "name": "Extension 1.2"
+      },
+      "ext1_3": {
+        "name": "Extension 1.3"
+      },
+      "ext1_4": {
+        "name": "Extension 1.4"
+      },
+      "ext1_5": {
+        "name": "Extension 1.5"
+      },
+      "ext1_6": {
+        "name": "Extension 1.6"
+      },
+      "ext1_7": {
+        "name": "Extension 1.7"
+      },
+      "ext1_8": {
+        "name": "Extension 1.8"
+      },
+      "ext2_1": {
+        "name": "Extension 2.1"
+      },
+      "ext2_2": {
+        "name": "Extension 2.2"
+      },
+      "ext2_3": {
+        "name": "Extension 2.3"
+      },
+      "ext2_4": {
+        "name": "Extension 2.4"
+      },
+      "ext2_5": {
+        "name": "Extension 2.5"
+      },
+      "ext2_6": {
+        "name": "Extension 2.6"
+      },
+      "ext2_7": {
+        "name": "Extension 2.7"
+      },
+      "ext2_8": {
+        "name": "Extension 2.8"
+      },
+      "dmx_scene1": {
+        "name": "DMX Scene 1"
+      },
+      "dmx_scene2": {
+        "name": "DMX Scene 2"
+      },
+      "dmx_scene3": {
+        "name": "DMX Scene 3"
+      },
+      "dmx_scene4": {
+        "name": "DMX Scene 4"
+      },
+      "dmx_scene5": {
+        "name": "DMX Scene 5"
+      },
+      "dmx_scene6": {
+        "name": "DMX Scene 6"
+      },
+      "dmx_scene7": {
+        "name": "DMX Scene 7"
+      },
+      "dmx_scene8": {
+        "name": "DMX Scene 8"
+      },
+      "dmx_scene9": {
+        "name": "DMX Scene 9"
+      },
+      "dmx_scene10": {
+        "name": "DMX Scene 10"
+      },
+      "dmx_scene11": {
+        "name": "DMX Scene 11"
+      },
+      "dmx_scene12": {
+        "name": "DMX Scene 12"
+      },
+      "dirule_1": {
+        "name": "Switching Rule 1"
+      },
+      "dirule_2": {
+        "name": "Switching Rule 2"
+      },
+      "dirule_3": {
+        "name": "Switching Rule 3"
+      },
+      "dirule_4": {
+        "name": "Switching Rule 4"
+      },
+      "dirule_5": {
+        "name": "Switching Rule 5"
+      },
+      "dirule_6": {
+        "name": "Switching Rule 6"
+      },
+      "dirule_7": {
+        "name": "Switching Rule 7"
       }
     },
     "climate": {
       "heater": {
-        "name": "Pool-Heizung"
+        "name": "Pool Heater"
       },
       "solar": {
-        "name": "Solarheizung"
+        "name": "Solar Heater"
+      }
+    },
+    "cover": {
+      "pool_cover": {
+        "name": "Pool Cover"
+      }
+    },
+    "number": {
+      "ph_sp_value": {
+        "name": "pH Setpoint"
+      },
+      "orp_sp_value": {
+        "name": "ORP Setpoint"
+      },
+      "cl_sp_value": {
+        "name": "Chlorine Setpoint"
+      },
+      "target_temp_heater": {
+        "name": "Heater Target Temperature"
+      },
+      "target_temp_solar": {
+        "name": "Solar Target Temperature"
+      },
+      "pump_rpm_sp": {
+        "name": "Pump Speed"
+      },
+      "cl_canister_vol": {
+        "name": "Chlorine Canister Volume"
+      },
+      "phm_canister_vol": {
+        "name": "pH- Canister Volume"
+      },
+      "php_canister_vol": {
+        "name": "pH+ Canister Volume"
+      },
+      "floc_canister_vol": {
+        "name": "Flocculant Canister Volume"
+      }
+    },
+    "select": {
+      "pump_mode": {
+        "name": "Pump Mode"
+      },
+      "heater_mode": {
+        "name": "Heater Mode"
+      },
+      "solar_mode": {
+        "name": "Solar Mode"
+      },
+      "light_mode": {
+        "name": "Light Mode"
+      },
+      "dos_cl_mode": {
+        "name": "Chlorine Dosing Mode"
+      },
+      "dos_phm_mode": {
+        "name": "pH- Dosing Mode"
+      },
+      "dos_php_mode": {
+        "name": "pH+ Dosing Mode"
+      },
+      "pvsurplus_mode": {
+        "name": "PV Surplus Mode"
+      },
+      "backwash_mode": {
+        "name": "Backwash Mode"
+      },
+      "backwashrinse_mode": {
+        "name": "Rinse Mode"
+      },
+      "dos_floc_mode": {
+        "name": "Flocculant Mode"
+      },
+      "ext1_1_mode": {
+        "name": "Extension 1.1 Mode"
+      },
+      "ext1_2_mode": {
+        "name": "Extension 1.2 Mode"
+      },
+      "ext1_3_mode": {
+        "name": "Extension 1.3 Mode"
+      },
+      "ext1_4_mode": {
+        "name": "Extension 1.4 Mode"
+      },
+      "ext1_5_mode": {
+        "name": "Extension 1.5 Mode"
+      },
+      "ext1_6_mode": {
+        "name": "Extension 1.6 Mode"
+      },
+      "ext1_7_mode": {
+        "name": "Extension 1.7 Mode"
+      },
+      "ext1_8_mode": {
+        "name": "Extension 1.8 Mode"
+      },
+      "ext2_1_mode": {
+        "name": "Extension 2.1 Mode"
+      },
+      "ext2_2_mode": {
+        "name": "Extension 2.2 Mode"
+      },
+      "ext2_3_mode": {
+        "name": "Extension 2.3 Mode"
+      },
+      "ext2_4_mode": {
+        "name": "Extension 2.4 Mode"
+      },
+      "ext2_5_mode": {
+        "name": "Extension 2.5 Mode"
+      },
+      "ext2_6_mode": {
+        "name": "Extension 2.6 Mode"
+      },
+      "ext2_7_mode": {
+        "name": "Extension 2.7 Mode"
+      },
+      "ext2_8_mode": {
+        "name": "Extension 2.8 Mode"
       }
     }
   }

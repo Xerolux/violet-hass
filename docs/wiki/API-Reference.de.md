@@ -1,3 +1,7 @@
+﻿> 🇩🇪 **Deutsch** | 🇬🇧 **[English](API-Reference)**
+
+---
+
 # API-Referenz – Violet Pool Controller HTTP API
 
 > Vollständige Dokumentation der Controller-API-Endpunkte und der Python-Client-Klasse.
