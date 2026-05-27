@@ -23,6 +23,7 @@ configurations like icons and colors. Also provides helper functions and a
 `VioletState` class to consistently interpret and manage device states
 throughout the integration.
 """
+
 from __future__ import annotations
 
 from typing import Any, cast
@@ -325,7 +326,8 @@ class VioletState:
         """The translated name for the current state, suitable for UI display."""
         mode_key = get_device_mode_from_state(self.raw_state)
         return STATE_TRANSLATIONS.get("de", {}).get(
-            mode_key, mode_key.replace("_", " ").title(),
+            mode_key,
+            mode_key.replace("_", " ").title(),
         )
 
     @property
@@ -336,7 +338,4 @@ class VioletState:
 
     def __repr__(self) -> str:
         """Return a string representation of the state."""
-        return (
-            f"VioletState(raw='{self.raw_state}', "
-            f"mode='{self.mode}', active={self.is_active})"
-        )
+        return f"VioletState(raw='{self.raw_state}', mode='{self.mode}', active={self.is_active})"

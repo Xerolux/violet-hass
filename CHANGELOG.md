@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.0.18
+
+### Improvements
+- **feat: complete error code reference from manual section 27.2** — all ~80 controller error codes (0000-0209) with exact German descriptions and severity levels (ALARM/WARNING/INFO)
+- **feat: add `parse_error_notification()` and `parse_multiple_errors()` helpers** for decoding controller error notifications into structured dicts suitable for Home Assistant sensor entities
+- **feat: improved `_command_result()` response parsing** — multi-line controller responses now return structured `output` and `message` fields (line 1=OK/ERROR, line 2=output, line 3+=info)
+- **fix: PVSURPLUS command verified correct** — speed parameter goes in WERT_1 (position 3) per manual section 26.3
+- **chore: export `ERROR_CODES`, `ERROR_SEVERITY_*` from `__init__.py`**
+- **test: add 19 new tests** covering error code parsing, multi-line response parsing, PV surplus with speed (68 total)
+
+### Manual verification (section 26.2)
+All `/setFunctionManually` commands verified against manual v1.1.9:
+- `PUMP,{action},{duration},{speed}` (26.2.1)
+- `EXT{1|2}_{1-8},{action},{duration},0` (26.2.2)
+- `LIGHT,{action},0,0` / `DMX_SCENE{1-12},{action},0,0` / `ALLON/ALLOFF/ALLAUTO` (26.2.3)
+- `DIRULE_{1-7},PUSH/LOCK/UNLOCK,0,0` (26.2.4)
+- `PVSURPLUS,ON/OFF,{speed},0` (26.3)
+
+### Installation
+```bash
+pip install violet-poolController-api==0.0.18
+```
+
+---
+
 ## v0.0.17
 
 ### Improvements

@@ -16,6 +16,7 @@
 
 
 """Circuit breaker implementation for resilient API calls."""
+
 from __future__ import annotations
 
 import asyncio

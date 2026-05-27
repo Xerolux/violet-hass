@@ -22,6 +22,7 @@ definitions for various controllable functions like switches, covers,
 and dosing pumps. These constants provide a centralized and consistent
 way to interact with the controller's HTTP API.
 """
+
 from __future__ import annotations
 
 # =============================================================================
@@ -120,9 +121,7 @@ SWITCH_FUNCTIONS = {
 # Dynamically add extension relays
 for ext_bank in [1, 2]:
     for relay_num in range(1, 9):
-        SWITCH_FUNCTIONS[f"EXT{ext_bank}_{relay_num}"] = (
-            f"Erweiterung {ext_bank}.{relay_num}"
-        )
+        SWITCH_FUNCTIONS[f"EXT{ext_bank}_{relay_num}"] = f"Erweiterung {ext_bank}.{relay_num}"
 
 DMX_SCENE_COUNT = 12  # Number of DMX scenes supported by the controller
 
@@ -160,4 +159,430 @@ DOSING_OUTPUT_INDEX = {
     "DOS_4_PHM": 3,
     "DOS_5_PHP": 4,
     "DOS_6_FLOC": 5,
+}
+
+# =============================================================================
+# CONTROLLER ERROR CODES (Manual Section 27.2 - Software 1.1.9)
+# =============================================================================
+# These codes are sent BY the controller TO external systems via outbound
+# HTTP GET/POST requests.  Format: ERRORCODE=NNNN&SUBJECT=<text>
+# They are NOT queryable via the API - the controller pushes them.
+
+ERROR_SEVERITY_ALARM = "ALARM"
+ERROR_SEVERITY_WARNING = "WARNING"
+ERROR_SEVERITY_INFO = "INFO"
+
+ERROR_CODES: dict[str, dict[str, str]] = {
+    # -- System messages --
+    "0000": {"severity": ERROR_SEVERITY_INFO, "message": "Testnachricht"},
+    "0001": {"severity": ERROR_SEVERITY_INFO, "message": "Statusnachricht"},
+    "0002": {
+        "severity": ERROR_SEVERITY_ALARM,
+        "message": "Hardwareproblem (COM-Link zum Carrier fehlerhaft)",
+    },
+    "0005": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Wartungsarbeiten am Cloud-Server",
+    },
+    "0008": {"severity": ERROR_SEVERITY_WARNING, "message": "CPU-Temperatur hoch (> 83°C)"},
+    "0009": {
+        "severity": ERROR_SEVERITY_ALARM,
+        "message": "CPU-Temperatur zu hoch (> 95°C)",
+    },
+    "0010": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Update steht zur Installation bereit. Keine Aktion erforderlich.",
+    },
+    "0011": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Update steht zur Installation bereit. Installation erforderlich.",
+    },
+    "0012": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Update steht zur Installation bereit. Installation erforderlich.",
+    },
+    # -- Filter / Circulation monitoring --
+    "0020": {
+        "severity": ERROR_SEVERITY_ALARM,
+        "message": "Filterdrucküberwachung (Druck zu niedrig)",
+    },
+    "0021": {
+        "severity": ERROR_SEVERITY_ALARM,
+        "message": "Filterdrucküberwachung (Druck zu hoch)",
+    },
+    "0022": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Messwasserüberwachung (Anströmung fehlt)",
+    },
+    "0023": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Messwasserüberwachung (Anströmung zu hoch)",
+    },
+    "0024": {
+        "severity": ERROR_SEVERITY_ALARM,
+        "message": "Zirkulationsüberwachung (Zirkulation fehlt)",
+    },
+    "0025": {
+        "severity": ERROR_SEVERITY_ALARM,
+        "message": "Zirkulationsüberwachung (Zirkulation zu hoch)",
+    },
+    "0026": {
+        "severity": ERROR_SEVERITY_ALARM,
+        "message": "Filterpumpen-Frostschutz nicht verfügbar - Sensorfehler",
+    },
+    "0027": {
+        "severity": ERROR_SEVERITY_ALARM,
+        "message": "Absorber-Frostschutz nicht verfügbar - Sensorfehler",
+    },
+    # -- Heat exchanger --
+    "0030": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Wärmetauscher Temperatur zu hoch",
+    },
+    "0031": {
+        "severity": ERROR_SEVERITY_ALARM,
+        "message": "Wärmetauscher ÜberTemperatur-Schutz nicht verfügbar - Sensorfehler",
+    },
+    # -- Backwash / Water refill --
+    "0040": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Rückspülung wurde ausgelassen",
+    },
+    "0041": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Nachspeisung fehlgeschlagen",
+    },
+    "0042": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Nachspeisung fehlgeschlagen",
+    },
+    # -- Skimmer water level --
+    "0050": {
+        "severity": ERROR_SEVERITY_ALARM,
+        "message": "Fehler bei Wassernachspeisung / Schwimmerschalter",
+    },
+    "0051": {
+        "severity": ERROR_SEVERITY_ALARM,
+        "message": "Fehler bei Wassernachspeisung / Schwimmerschalter",
+    },
+    "0052": {
+        "severity": ERROR_SEVERITY_ALARM,
+        "message": "Fehler bei Wassernachspeisung / Schwimmerschalter",
+    },
+    "0053": {
+        "severity": ERROR_SEVERITY_ALARM,
+        "message": "Fehler bei Wassernachspeisung / Magnetventil öffnet nicht",
+    },
+    "0054": {
+        "severity": ERROR_SEVERITY_ALARM,
+        "message": "Fehler bei Wassernachspeisung / Magnetventil schließt nicht",
+    },
+    # -- Overflow tank --
+    "0060": {
+        "severity": ERROR_SEVERITY_ALARM,
+        "message": "Überlaufbehältersteuerung: Fehler bei Wassernachspeisung",
+    },
+    "0061": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Überlaufbehältersteuerung: Trockenlaufschutz ausgelöst",
+    },
+    "0062": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Überlaufbehälter: Pegelmessung fehlerhaft",
+    },
+    # -- Temperature control rules --
+    "0071": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Temperatursteuerung, Schaltprogramm 1 ausgelöst",
+    },
+    "0072": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Temperatursteuerung, Schaltprogramm 2 ausgelöst",
+    },
+    "0073": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Temperatursteuerung, Schaltprogramm 3 ausgelöst",
+    },
+    "0074": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Temperatursteuerung, Schaltprogramm 4 ausgelöst",
+    },
+    "0075": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Temperatursteuerung, Schaltprogramm 5 ausgelöst",
+    },
+    "0076": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Temperatursteuerung, Schaltprogramm 6 ausgelöst",
+    },
+    "0077": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Temperatursteuerung, Schaltprogramm 7 ausgelöst",
+    },
+    "0078": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Temperatursteuerung, Schaltprogramm 8 ausgelöst",
+    },
+    # -- Analog rules --
+    "0081": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Analogregeln, Schaltprogramm 1 ausgelöst",
+    },
+    "0082": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Analogregeln, Schaltprogramm 2 ausgelöst",
+    },
+    "0083": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Analogregeln, Schaltprogramm 3 ausgelöst",
+    },
+    "0084": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Analogregeln, Schaltprogramm 4 ausgelöst",
+    },
+    "0085": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Analogregeln, Schaltprogramm 5 ausgelöst",
+    },
+    "0086": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Analogregeln, Schaltprogramm 6 ausgelöst",
+    },
+    "0087": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Analogregeln, Schaltprogramm 7 ausgelöst",
+    },
+    "0088": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Analogregeln, Schaltprogramm 8 ausgelöst",
+    },
+    # -- Switch input rules --
+    "0091": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Schaltregeln: Schaltprogramm 1 ausgelöst",
+    },
+    "0092": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Schaltregeln: Schaltprogramm 2 ausgelöst",
+    },
+    "0093": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Schaltregeln: Schaltprogramm 3 ausgelöst",
+    },
+    "0094": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Schaltregeln: Schaltprogramm 4 ausgelöst",
+    },
+    "0095": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Schaltregeln: Schaltprogramm 5 ausgelöst",
+    },
+    "0096": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Schaltregeln: Schaltprogramm 6 ausgelöst",
+    },
+    "0097": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Schaltregeln: Schaltprogramm 7 ausgelöst",
+    },
+    "0098": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Schaltregeln: Schaltprogramm 8 ausgelöst",
+    },
+    # -- Temperature sensors --
+    "0101": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Temperatursensor 1: Fehler bei Messwerterfassung",
+    },
+    "0102": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Temperatursensor 2: Fehler bei Messwerterfassung",
+    },
+    "0103": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Temperatursensor 3: Fehler bei Messwerterfassung",
+    },
+    "0104": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Temperatursensor 4: Fehler bei Messwerterfassung",
+    },
+    "0105": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Temperatursensor 5: Fehler bei Messwerterfassung",
+    },
+    "0106": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Temperatursensor 6: Fehler bei Messwerterfassung",
+    },
+    "0107": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Temperatursensor 7: Fehler bei Messwerterfassung",
+    },
+    "0108": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Temperatursensor 8: Fehler bei Messwerterfassung",
+    },
+    "0109": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Temperatursensor 9: Fehler bei Messwerterfassung",
+    },
+    "0110": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Temperatursensor 10: Fehler bei Messwerterfassung",
+    },
+    "0111": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Temperatursensor 11: Fehler bei Messwerterfassung",
+    },
+    "0112": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Temperatursensor 12: Fehler bei Messwerterfassung",
+    },
+    # -- Chlor dosing --
+    "0120": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Chlor-Dosierung: Redox Grenzwert erreicht",
+    },
+    "0121": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Chlor-Dosierung: Chlor Grenzwert erreicht",
+    },
+    "0122": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Chlor-Dosierung: max. Tagesdosierleistung erreicht",
+    },
+    "0123": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Chlor-Kanister Restinhalt niedrig",
+    },
+    "0124": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Chlor-Kanister leer",
+    },
+    "0125": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Leermeldekontakt: Chlor-Kanister",
+    },
+    # -- Electrolysis --
+    "0130": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Elektrolyse: Redox Grenzwert erreicht",
+    },
+    "0131": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Elektrolyse: Chlor Grenzwert erreicht",
+    },
+    "0132": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Elektrolyse: maximale Tagesproduktion erreicht",
+    },
+    "0133": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Elektrolyse: Restlaufzeitwarnung für Zelle",
+    },
+    "0134": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Elektrolyse: maximale Gesamt-Betriebszeit erreicht",
+    },
+    # -- pH- dosing --
+    "0150": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "pH-minus Dosierung: pH Grenzwert erreicht",
+    },
+    "0152": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "pH-minus Dosierung: max. Tagesdosierleistung erreicht",
+    },
+    "0153": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "pH-minus Dosierung: Kanister Restinhalt niedrig",
+    },
+    "0154": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "pH-minus Dosierung: Kanister leer",
+    },
+    "0155": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Leermeldekontakt: pH-minus Kanister",
+    },
+    # -- pH+ dosing --
+    "0160": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "pH-plus Dosierung: pH Grenzwert erreicht",
+    },
+    "0162": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "pH-plus Dosierung: max. Tagesdosierleistung erreicht",
+    },
+    "0163": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "pH-plus Dosierung: Kanister Restinhalt niedrig",
+    },
+    "0164": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "pH-plus Dosierung: Kanister leer",
+    },
+    "0165": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Leermeldekontakt: pH-plus Kanister",
+    },
+    # -- Flocculant --
+    "0173": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Flockmittel: Kanister Restinhalt niedrig",
+    },
+    "0174": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Flockmittel: Kanister leer",
+    },
+    "0175": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Leermeldekontakt: Flockmittel Kanister",
+    },
+    # -- Calibration reminders --
+    "0180": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Erinnerung: pH-Elektrode kalibrieren",
+    },
+    "0181": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Erinnerung: Redox-Elektrode kalibrieren",
+    },
+    "0182": {
+        "severity": ERROR_SEVERITY_INFO,
+        "message": "Erinnerung: Chlor-Elektrode kalibrieren",
+    },
+    # -- Hardware modules --
+    "0200": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Dosiermodul: nicht mehr verbunden (abgesteckt)",
+    },
+    "0201": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Dosiermodul: Kommunikation verloren",
+    },
+    "0203": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Relais-Erweiterung 1: nicht mehr verbunden (abgesteckt)",
+    },
+    "0204": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Relais-Erweiterung 1: Kommunikation verloren",
+    },
+    "0206": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Relais-Erweiterung 2: nicht mehr verbunden (abgesteckt)",
+    },
+    "0207": {
+        "severity": ERROR_SEVERITY_WARNING,
+        "message": "Relais-Erweiterung 2: Kommunikation verloren",
+    },
+    "0208": {
+        "severity": ERROR_SEVERITY_ALARM,
+        "message": "Zweites Dosiermodul erkannt. Wird ignoriert.",
+    },
+    "0209": {
+        "severity": ERROR_SEVERITY_ALARM,
+        "message": "Falsch codierte Relais Erweiterung erkannt.",
+    },
 }

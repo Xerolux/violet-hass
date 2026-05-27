@@ -57,6 +57,10 @@ from .const_api import (
     API_TRIGGER_MANUAL_DOSING,
     DOSING_FUNCTIONS,
     DOSING_OUTPUT_INDEX,
+    ERROR_CODES,
+    ERROR_SEVERITY_ALARM,
+    ERROR_SEVERITY_INFO,
+    ERROR_SEVERITY_WARNING,
     TARGET_MIN_CHLORINE,
     TARGET_ORP,
     TARGET_PH,
@@ -306,10 +310,7 @@ class VioletPoolAPI:
                                 request_info=response.request_info,
                                 history=response.history,
                                 status=response.status,
-                                message=(
-                                    f"HTTP {response.status} for"
-                                    f" {endpoint}: {body.strip()}"
-                                ),
+                                message=(f"HTTP {response.status} for {endpoint}: {body.strip()}"),
                             )
 
                         if expect_json:
@@ -320,10 +321,7 @@ class VioletPoolAPI:
                                 json.JSONDecodeError,
                             ) as err:
                                 body = await response.text()
-                                msg = (
-                                f"Invalid JSON payload for"
-                                f" {endpoint}: {body.strip()}"
-                            )
+                                msg = f"Invalid JSON payload for {endpoint}: {body.strip()}"
                                 raise VioletPoolAPIError(
                                     msg,
                                 ) from err
@@ -335,7 +333,10 @@ class VioletPoolAPI:
                         f"Error communicating with Violet controller: {err}",
                     )
                     _LOGGER.debug(
-                        "Attempt %d for %s failed: %s", attempt, endpoint, err,
+                        "Attempt %d for %s failed: %s",
+                        attempt,
+                        endpoint,
+                        err,
                     )
                     if attempt == self._max_retries:
                         raise last_error from None
@@ -358,20 +359,36 @@ class VioletPoolAPI:
     def _command_result(body: str | dict[str, Any]) -> dict[str, Any]:
         """Normalize the controller's response for command-style requests.
 
+        The controller responds with up to 4 lines of text/plain:
+          Line 1: OK or ERROR
+          Line 2: Output name (e.g. PUMP, DOS_1_CL)
+          Line 3+: Status message
+
+        For dosing: MANDOS_STARTED\\nOK or MANDOS_STOPPED\\nOK
+
         Args:
             body: The raw response body or dict.
 
         Returns:
-            A dictionary indicating success and the response text.
+            A dictionary with success status, response text, and optional
+            parsed output/message fields.
 
         """
         if isinstance(body, dict):
-            # Already parsed JSON or dict response
             return body
 
         text = (body or "").strip()
         success = not text or "error" not in text.lower()
-        return {"success": success, "response": text}
+
+        result: dict[str, Any] = {"success": success, "response": text}
+
+        lines = text.splitlines() if text else []
+        if len(lines) >= 2:
+            result["output"] = lines[1].strip()
+        if len(lines) >= 3:
+            result["message"] = "\n".join(line.strip() for line in lines[2:])
+
+        return result
 
     def _build_manual_command(
         self,
@@ -399,7 +416,8 @@ class VioletPoolAPI:
         template = cast(
             "str",
             DEVICE_PARAMETERS.get(key, {}).get(
-                "api_template", f"{key},{{action}},{{duration}},{{value}}",
+                "api_template",
+                f"{key},{{action}},{{duration}},{{value}}",
             ),
         )
         payload_data = {
@@ -506,9 +524,9 @@ class VioletPoolAPI:
     # Public API surface
     # ---------------------------------------------------------------------
 
-
     def _flatten_getreadings_response(
-        self, response: dict[str, Any],
+        self,
+        response: dict[str, Any],
     ) -> dict[str, Any]:
         """Flatten the getReadings list response for standalone firmware.
 
@@ -557,8 +575,7 @@ class VioletPoolAPI:
         return {
             k: v
             for k, v in readings.items()
-            if (ext1_alive or not k.startswith("EXT1"))
-            and (ext2_alive or not k.startswith("EXT2"))
+            if (ext1_alive or not k.startswith("EXT1")) and (ext2_alive or not k.startswith("EXT2"))
         }
 
     async def get_readings(self) -> dict[str, Any]:
@@ -606,7 +623,8 @@ class VioletPoolAPI:
         }
 
     async def get_specific_readings(
-        self, categories: list[str] | tuple[str, ...],
+        self,
+        categories: list[str] | tuple[str, ...],
     ) -> dict[str, Any]:
         """Return a reduced dataset for the provided categories.
 
@@ -634,7 +652,10 @@ class VioletPoolAPI:
         return self._flatten_getreadings_response(response)
 
     async def get_history(
-        self, *, hours: int = 24, sensor: str = "ALL",
+        self,
+        *,
+        hours: int = 24,
+        sensor: str = "ALL",
     ) -> dict[str, Any]:
         """Fetch historical readings from the controller.
 
@@ -703,7 +724,8 @@ class VioletPoolAPI:
         )
 
     async def get_config(
-        self, parameters: list[str] | tuple[str, ...],
+        self,
+        parameters: list[str] | tuple[str, ...],
     ) -> dict[str, Any]:
         """Fetch controller configuration values for the provided keys.
 
@@ -809,12 +831,15 @@ class VioletPoolAPI:
                     )
                 else:
                     _LOGGER.warning(
-                        "Skipping malformed calibration history line: %s", line,
+                        "Skipping malformed calibration history line: %s",
+                        line,
                     )
             except (IndexError, AttributeError) as err:
                 err_msg = str(err) or type(err).__name__
                 _LOGGER.warning(
-                    "Error parsing calibration history line '%s': %s", line, err_msg,
+                    "Error parsing calibration history line '%s': %s",
+                    line,
+                    err_msg,
                 )
         return entries
 
@@ -1050,9 +1075,7 @@ class VioletPoolAPI:
 
         success = all(result.get("success") is True for result in results)
         response = ", ".join(
-            str(result.get("response", ""))
-            for result in results
-            if result.get("response")
+            str(result.get("response", "")) for result in results if result.get("response")
         )
         return {"success": success, "response": response}
 
@@ -1238,3 +1261,73 @@ class VioletPoolAPI:
             duration=duration,
             last_value=speed,
         )
+
+    @staticmethod
+    def parse_error_notification(
+        error_code: str,
+        subject: str | None = None,
+    ) -> dict[str, Any]:
+        """Parse an error notification received from the controller.
+
+        The controller sends outbound HTTP requests with ERRORCODE and SUBJECT
+        fields when warnings/alarms occur.  This method decodes them into a
+        structured dict suitable for display as a sensor entity.
+
+        Args:
+            error_code: The 4-digit error code string (e.g. "0020").
+            subject: The SUBJECT field from the controller (optional fallback).
+
+        Returns:
+            A dict with keys: code, severity, message, is_alarm, is_warning.
+
+        """
+        code = str(error_code).strip().zfill(4)
+        info = ERROR_CODES.get(code)
+
+        if info:
+            severity = info["severity"]
+            message = info["message"]
+        else:
+            severity = ERROR_SEVERITY_WARNING
+            message = subject or f"Unbekannter Fehlercode {code}"
+
+        return {
+            "code": code,
+            "severity": severity,
+            "message": message,
+            "is_alarm": severity == ERROR_SEVERITY_ALARM,
+            "is_warning": severity == ERROR_SEVERITY_WARNING,
+            "is_info": severity == ERROR_SEVERITY_INFO,
+        }
+
+    @staticmethod
+    def parse_multiple_errors(
+        error_data: Mapping[str, Any],
+    ) -> list[dict[str, Any]]:
+        """Parse multiple error codes from a notification payload.
+
+        Handles payloads where ERRORCODE may contain multiple comma-separated
+        codes or where multiple error fields are present.
+
+        Args:
+            error_data: The full notification payload dict.
+
+        Returns:
+            A list of parsed error dicts.
+
+        """
+        results: list[dict[str, Any]] = []
+        raw_code = str(error_data.get("ERRORCODE", ""))
+        subject = str(error_data.get("SUBJECT", ""))
+
+        if not raw_code or raw_code == "0":
+            return results
+
+        for code in raw_code.split(","):
+            code = code.strip()
+            if code and code != "0":
+                results.append(
+                    VioletPoolAPI.parse_error_notification(code, subject),
+                )
+
+        return results

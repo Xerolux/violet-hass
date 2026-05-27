@@ -29,6 +29,10 @@ from .const_api import (  # noqa: F401
     ACTION_ON,
     ACTION_PUSH,
     ACTION_UNLOCK,
+    ERROR_CODES,
+    ERROR_SEVERITY_ALARM,
+    ERROR_SEVERITY_INFO,
+    ERROR_SEVERITY_WARNING,
 )
 from .const_devices import DEVICE_PARAMETERS, VioletState
 from .utils_rate_limiter import RateLimiter, get_global_rate_limiter

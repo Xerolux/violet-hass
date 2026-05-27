@@ -141,10 +141,7 @@ class RateLimiter:
     def _update_recent_stats(self, current_time: float) -> None:
         """Update memory-efficient recent statistics."""
         # Reset minute stats every _STATS_WINDOW_SECONDS
-        if (
-            current_time - self._recent_stats["last_minute_reset"]
-            > _STATS_WINDOW_SECONDS
-        ):
+        if current_time - self._recent_stats["last_minute_reset"] > _STATS_WINDOW_SECONDS:
             self._recent_stats["requests_last_minute"] = 0
             self._recent_stats["blocked_last_minute"] = 0
             self._recent_stats["last_minute_reset"] = current_time
@@ -196,8 +193,7 @@ class RateLimiter:
 
         # Berechne Requests in letzter Minute
         recent_requests = [
-            r for r in self.request_history
-            if current_time - r["time"] <= _STATS_WINDOW_SECONDS
+            r for r in self.request_history if current_time - r["time"] <= _STATS_WINDOW_SECONDS
         ]
         recent_blocked = sum(1 for r in recent_requests if r["blocked"])
 
@@ -209,9 +205,7 @@ class RateLimiter:
             "current_tokens": self.tokens,
             "max_tokens": self.max_tokens,
             "block_rate": (
-                self.blocked_requests / self.total_requests * 100
-                if self.total_requests > 0
-                else 0
+                self.blocked_requests / self.total_requests * 100 if self.total_requests > 0 else 0
             ),
         }
 

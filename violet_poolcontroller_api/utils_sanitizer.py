@@ -16,6 +16,7 @@
 
 
 """Input Sanitization Utilities für User-Inputs und API-Parameter."""
+
 from __future__ import annotations
 
 import logging
@@ -379,7 +380,10 @@ class InputSanitizer:
 
     @staticmethod
     def validate_speed(
-        speed: Any, min_speed: int = 1, max_speed: int = 4, default: int = 2,  # noqa: ANN401
+        speed: Any,
+        min_speed: int = 1,
+        max_speed: int = 4,
+        default: int = 2,  # noqa: ANN401
     ) -> int:
         """Validiere einen Speed-Wert (z.B. Pumpengeschwindigkeit).
 
