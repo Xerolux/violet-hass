@@ -1,4 +1,4 @@
-## v1.0.7-alpha.2 – Violet Pool Controller
+## v1.0.7-alpha.3 – Violet Pool Controller
 
 🔴 **ALPHA RELEASE** - Experimental features, use with caution!
 
@@ -28,6 +28,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🚀 Improvements | Verbesserungen
 
+- 📝 Release v1.0.7-alpha.2 - Update changelog and version files (9cb1c7a)
 - 📝 Release v1.0.7-alpha.1 - Update changelog and version files (57a80f1)
 - chore(deps): update violet-poolController-api to 0.0.17 (ef42551)
 - 📝 Release v1.0.6-alpha.3 - Update changelog and version files (e6cfc12)
@@ -48,6 +49,8 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- chore: bump API to 0.0.18 (dosing endpoint fix), clean up 23 internal dev reports (38c11d5)
+- fix: align translation_key casing with strings.json entries (579a266)
 - /fix-release-workflow (3e67e06)
 - fix: correct release workflow tag handling and bump to v1.0.7-alpha.2 (ef6e332)
 - fix: prevent sensor unit flipping when controller returns boolean-like values (0/1) (524fba5)
@@ -96,7 +99,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-📋 [Full changelog: v1.0.5...v1.0.7-alpha.2](https://github.com/Xerolux/violet-hass/compare/v1.0.5...v1.0.7-alpha.2)
+📋 [Full changelog: v1.0.5...v1.0.7-alpha.3](https://github.com/Xerolux/violet-hass/compare/v1.0.5...v1.0.7-alpha.3)
 
 ---
 
@@ -116,4 +119,4 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-05-27 19:30:03 UTC_
+_Generated automatically by GitHub Actions on 2026-05-27 22:16:45 UTC_
