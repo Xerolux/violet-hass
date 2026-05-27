@@ -164,7 +164,7 @@ class TestSwitchErrorHandling:
         switch = VioletSwitch(mock_coordinator_error, config_entry, desc)
 
         # Should not crash
-        assert switch.is_on is False
+        assert switch.is_on is None
 
     def test_switch_extra_state_attributes(self, mock_coordinator_error, config_entry):
         """Test switch attributes with error coordinator."""

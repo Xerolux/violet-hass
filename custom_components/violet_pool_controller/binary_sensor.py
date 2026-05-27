@@ -72,12 +72,12 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
         )
 
     @property
-    def is_on(self) -> bool:
+    def is_on(self) -> bool | None:
         """
         Return True if the sensor is on.
 
         Returns:
-            True if on, False otherwise.
+            True if on, False if off, None if unknown.
         """
         return self._get_sensor_state()
 
@@ -96,23 +96,23 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
 
         # Handle outline icons
         if base_icon.endswith("-outline"):
-            return base_icon.replace("-outline", "") if self.is_on else base_icon
+            return base_icon.replace("-outline", "") if self.is_on is True else base_icon
 
         # Add -off suffix for inactive state
-        if not self.is_on and not base_icon.endswith("-off"):
+        if self.is_on is False and not base_icon.endswith("-off"):
             return f"{base_icon}-off"
 
         return base_icon
 
-    def _get_sensor_state(self) -> bool:
+    def _get_sensor_state(self) -> bool | None:
         """
         Get the current sensor state.
 
         Returns:
-            The boolean state of the sensor.
+            The boolean state of the sensor, or None if unknown.
         """
         key = self.entity_description.key
-        raw_state = self.get_value(key, "")
+        raw_state = self.get_value(key)
         return interpret_state_as_bool(raw_state, key)
 
     @property
@@ -126,10 +126,16 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
         key = self.entity_description.key
         raw_state = self.get_value(key, "")
 
+        interpreted = "UNKNOWN"
+        if self.is_on is True:
+            interpreted = "ON"
+        elif self.is_on is False:
+            interpreted = "OFF"
+
         return {
             "raw_state": str(raw_state),
             "state_type": type(raw_state).__name__,
-            "interpreted_as": "ON" if self.is_on else "OFF",
+            "interpreted_as": interpreted,
         }
 
 
