@@ -532,6 +532,10 @@ jobs:
           git push
           echo "✅ Pushed changelog and version updates"
 
+          # Move the tag to the new commit and force push
+          git tag -f "${{ needs.prepare-release.outputs.tag }}"
+          git push -f origin "${{ needs.prepare-release.outputs.tag }}"
+
   post-to-x:
     needs: [prepare-release, update-changelog]
     runs-on: ubuntu-latest
