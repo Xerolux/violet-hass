@@ -131,7 +131,7 @@ GNU Affero General Public License v3.0 or later (AGPLv3+)
 
 ## About the Violet Pool Controller
 
-Der **VIOLET Pool Controller** von [PoolDigital GmbH & Co. KG](https://www.pooldigital.de/) ist ein Premium Smart Pool Automation System aus deutscher Entwicklung – mit JSON API für nahtlose Home Assistant Integration.
+The **VIOLET Pool Controller** by [PoolDigital GmbH & Co. KG](https://www.pooldigital.de/) is a premium smart pool automation system developed in Germany, featuring a JSON API for seamless Home Assistant integration.
 
 - **Offizieller Shop:** [pooldigital.de](https://www.pooldigital.de/)
 - **Community:** [PoolDigital Forum](http://forum.pooldigital.de/)

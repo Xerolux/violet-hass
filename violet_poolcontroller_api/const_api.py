@@ -1,5 +1,5 @@
 # violet-poolController-api - API für Violet Pool Controller
-# Copyright (C) 2024–2026  Xerolux
+# Copyright (C) 2024-2026  Xerolux
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -15,12 +15,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-"""This module defines constants related to the Violet Pool Controller API.
+"""Module defining constants related to the Violet Pool Controller API.
 
-It includes API endpoints, command actions, rate limiting settings, and
-definitions for various controllable functions like switches, covers, and dosing pumps.
-These constants provide a centralized and consistent way to interact with the
-controller's HTTP API.
+Includes API endpoints, command actions, rate limiting settings, and
+definitions for various controllable functions like switches, covers,
+and dosing pumps. These constants provide a centralized and consistent
+way to interact with the controller's HTTP API.
 """
 from __future__ import annotations
 

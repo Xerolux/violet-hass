@@ -1,3 +1,5 @@
+> [🇬🇧 English](Initialization-&-Authentication) | [🇩🇪 Deutsch](de/Initialization-&-Authentication) &nbsp;|&nbsp; [🏠](Home)
+
 # Initialization & Authentication
 
 To start, you need an `aiohttp.ClientSession` and your controller's credentials.

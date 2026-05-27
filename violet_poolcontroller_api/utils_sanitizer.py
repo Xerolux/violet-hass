@@ -1,5 +1,5 @@
 # violet-poolController-api - API für Violet Pool Controller
-# Copyright (C) 2024–2026  Xerolux
+# Copyright (C) 2024-2026  Xerolux
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -25,10 +25,12 @@ from typing import Any
 
 _LOGGER = logging.getLogger(__name__)
 
+_MAX_DEVICE_KEY_LENGTH = 50
+_MAX_API_PARAM_LENGTH = 100
+
 
 class InputSanitizer:
-    """
-    Input Sanitization für Sicherheit und Datenintegrität.
+    """Input Sanitization für Sicherheit und Datenintegrität.
 
     Schützt vor:
     - XSS (Cross-Site Scripting)
@@ -53,13 +55,13 @@ class InputSanitizer:
 
     @staticmethod
     def sanitize_string(
-        value: Any,
+        value: Any,  # noqa: ANN401
         max_length: int = 255,
+        *,
         allow_special_chars: bool = False,
         escape_html: bool = True,
     ) -> str:
-        """
-        Sanitize einen String-Wert.
+        """Sanitize einen String-Wert.
 
         Args:
             value: Zu sanitisierender Wert
@@ -72,6 +74,7 @@ class InputSanitizer:
 
         Raises:
             ValueError: Bei ungültigen Eingaben
+
         """
         if value is None:
             return ""
@@ -108,15 +111,15 @@ class InputSanitizer:
         return str_value
 
     @staticmethod
-    def sanitize_numeric(value: Any) -> float:
-        """
-        Sanitize a numeric value.
+    def sanitize_numeric(value: Any) -> float:  # noqa: ANN401
+        """Sanitize a numeric value.
 
         Args:
             value: Zu sanitisierender numerischer Wert
 
         Returns:
             Sanierte Fließkommazahl
+
         """
         try:
             if isinstance(value, (int, float)):
@@ -137,13 +140,12 @@ class InputSanitizer:
 
     @staticmethod
     def sanitize_integer(
-        value: Any,
+        value: Any,  # noqa: ANN401
         min_value: int | None = None,
         max_value: int | None = None,
         default: int = 0,
     ) -> int:
-        """
-        Sanitize einen Integer-Wert.
+        """Sanitize einen Integer-Wert.
 
         Args:
             value: Zu sanitisierender Wert
@@ -153,6 +155,7 @@ class InputSanitizer:
 
         Returns:
             Sanitisierter Integer
+
         """
         try:
             try:
@@ -177,8 +180,6 @@ class InputSanitizer:
                 )
                 return max_value
 
-            return int_value
-
         except (ValueError, TypeError) as err:
             _LOGGER.warning(
                 "Ungültiger Integer-Wert '%s', verwende default %d: %s",
@@ -187,17 +188,18 @@ class InputSanitizer:
                 err,
             )
             return default
+        else:
+            return int_value
 
     @staticmethod
     def sanitize_float(
-        value: Any,
+        value: Any,  # noqa: ANN401
         min_value: float | None = None,
         max_value: float | None = None,
         precision: int = 2,
         default: float = 0.0,
     ) -> float:
-        """
-        Sanitize einen Float-Wert.
+        """Sanitize einen Float-Wert.
 
         Args:
             value: Zu sanitisierender Wert
@@ -208,6 +210,7 @@ class InputSanitizer:
 
         Returns:
             Sanitisierter Float
+
         """
         try:
             float_value = float(value)
@@ -242,9 +245,8 @@ class InputSanitizer:
             return default
 
     @staticmethod
-    def sanitize_boolean(value: Any, default: bool = False) -> bool:
-        """
-        Sanitize einen Boolean-Wert.
+    def sanitize_boolean(value: Any, *, default: bool = False) -> bool:  # noqa: ANN401
+        """Sanitize einen Boolean-Wert.
 
         Args:
             value: Zu sanitisierender Wert
@@ -252,6 +254,7 @@ class InputSanitizer:
 
         Returns:
             Sanitisierter Boolean
+
         """
         if isinstance(value, bool):
             return value
@@ -275,8 +278,7 @@ class InputSanitizer:
 
     @staticmethod
     def validate_device_key(key: str) -> str:
-        """
-        Validiere einen Device-Key (z.B. PUMP, HEATER, etc.).
+        """Validiere einen Device-Key (z.B. PUMP, HEATER, etc.).
 
         Args:
             key: Device-Key
@@ -286,9 +288,11 @@ class InputSanitizer:
 
         Raises:
             ValueError: Bei ungültigem Key
+
         """
         if not key:
-            raise ValueError("Device-Key darf nicht leer sein")
+            msg = "Device-Key darf nicht leer sein"
+            raise ValueError(msg)
 
         # Nur Großbuchstaben, Zahlen und Underscore erlaubt
         # Wir erlauben auch Bindestriche und konvertieren sie zu Underscores
@@ -302,15 +306,15 @@ class InputSanitizer:
                 sanitized,
             )
 
-        if len(sanitized) > 50:
-            raise ValueError(f"Device-Key zu lang: {len(sanitized)} > 50")
+        if len(sanitized) > _MAX_DEVICE_KEY_LENGTH:
+            msg = f"Device-Key zu lang: {len(sanitized)} > {_MAX_DEVICE_KEY_LENGTH}"
+            raise ValueError(msg)
 
         return sanitized
 
     @staticmethod
     def validate_api_parameter(param: str) -> str:
-        """
-        Validiere einen API-Parameter-Namen.
+        """Validiere einen API-Parameter-Namen.
 
         Args:
             param: Parameter-Name
@@ -320,13 +324,16 @@ class InputSanitizer:
 
         Raises:
             ValueError: Bei ungültigem Parameter oder Path Traversal
+
         """
         if not param:
-            raise ValueError("API-Parameter darf nicht leer sein")
+            msg = "API-Parameter darf nicht leer sein"
+            raise ValueError(msg)
 
         # Prüfe auf Path Traversal VOR der Bereinigung
         if InputSanitizer.PATH_TRAVERSAL.search(param):
-            raise ValueError(f"Path Traversal erkannt in Parameter: {param}")
+            msg = f"Path Traversal erkannt in Parameter: {param}"
+            raise ValueError(msg)
 
         # Entferne gefährliche Zeichen
         sanitized = re.sub(r"[^a-zA-Z0-9_-]", "", param)
@@ -338,15 +345,15 @@ class InputSanitizer:
                 sanitized,
             )
 
-        if len(sanitized) > 100:
-            raise ValueError(f"API-Parameter zu lang: {len(sanitized)} > 100")
+        if len(sanitized) > _MAX_API_PARAM_LENGTH:
+            msg = f"API-Parameter zu lang: {len(sanitized)} > {_MAX_API_PARAM_LENGTH}"
+            raise ValueError(msg)
 
         return sanitized
 
     @staticmethod
-    def validate_duration(duration: Any, min_sec: int = 0, max_sec: int = 86400) -> int:
-        """
-        Validiere eine Duration in Sekunden.
+    def validate_duration(duration: Any, min_sec: int = 0, max_sec: int = 86400) -> int:  # noqa: ANN401
+        """Validiere eine Duration in Sekunden.
 
         Args:
             duration: Duration-Wert
@@ -355,6 +362,7 @@ class InputSanitizer:
 
         Returns:
             Validierte Duration in Sekunden
+
         """
         duration_int = InputSanitizer.sanitize_integer(
             duration,
@@ -371,10 +379,9 @@ class InputSanitizer:
 
     @staticmethod
     def validate_speed(
-        speed: Any, min_speed: int = 1, max_speed: int = 4, default: int = 2
+        speed: Any, min_speed: int = 1, max_speed: int = 4, default: int = 2,  # noqa: ANN401
     ) -> int:
-        """
-        Validiere einen Speed-Wert (z.B. Pumpengeschwindigkeit).
+        """Validiere einen Speed-Wert (z.B. Pumpengeschwindigkeit).
 
         Args:
             speed: Speed-Wert
@@ -384,6 +391,7 @@ class InputSanitizer:
 
         Returns:
             Validierte Speed
+
         """
         return InputSanitizer.sanitize_integer(
             speed,
@@ -394,12 +402,11 @@ class InputSanitizer:
 
     @staticmethod
     def validate_temperature(
-        temp: Any,
+        temp: Any,  # noqa: ANN401
         min_temp: float = -50.0,
         max_temp: float = 100.0,
     ) -> float:
-        """
-        Validiere einen Temperatur-Wert.
+        """Validiere einen Temperatur-Wert.
 
         Args:
             temp: Temperatur-Wert
@@ -408,6 +415,7 @@ class InputSanitizer:
 
         Returns:
             Validierte Temperatur
+
         """
         return InputSanitizer.sanitize_float(
             temp,
@@ -418,15 +426,15 @@ class InputSanitizer:
         )
 
     @staticmethod
-    def validate_ph_value(ph: Any) -> float:
-        """
-        Validiere einen pH-Wert.
+    def validate_ph_value(ph: Any) -> float:  # noqa: ANN401
+        """Validiere einen pH-Wert.
 
         Args:
             ph: pH-Wert
 
         Returns:
             Validierter pH-Wert (6.0-9.0)
+
         """
         return InputSanitizer.sanitize_float(
             ph,
@@ -437,15 +445,15 @@ class InputSanitizer:
         )
 
     @staticmethod
-    def validate_orp_value(orp: Any) -> int:
-        """
-        Validiere einen ORP-Wert (Redoxpotential).
+    def validate_orp_value(orp: Any) -> int:  # noqa: ANN401
+        """Validiere einen ORP-Wert (Redoxpotential).
 
         Args:
             orp: ORP-Wert in mV
 
         Returns:
             Validierter ORP-Wert (400-900 mV)
+
         """
         return InputSanitizer.sanitize_integer(
             orp,
@@ -455,15 +463,15 @@ class InputSanitizer:
         )
 
     @staticmethod
-    def validate_chlorine_level(chlorine: Any) -> float:
-        """
-        Validiere einen Chlor-Wert.
+    def validate_chlorine_level(chlorine: Any) -> float:  # noqa: ANN401
+        """Validiere einen Chlor-Wert.
 
         Args:
             chlorine: Chlor-Wert in mg/l
 
         Returns:
             Validierter Chlor-Wert (0.0-5.0 mg/l)
+
         """
         return InputSanitizer.sanitize_float(
             chlorine,
@@ -478,30 +486,30 @@ class InputSanitizer:
 _sanitizer = InputSanitizer()
 
 
-def sanitize_string(*args, **kwargs) -> str:
+def sanitize_string(*args: Any, **kwargs: Any) -> str:  # noqa: ANN401
     """Shortcut für InputSanitizer.sanitize_string()."""
     return _sanitizer.sanitize_string(*args, **kwargs)
 
 
-def sanitize_integer(*args, **kwargs) -> int:
+def sanitize_integer(*args: Any, **kwargs: Any) -> int:  # noqa: ANN401
     """Shortcut für InputSanitizer.sanitize_integer()."""
     return _sanitizer.sanitize_integer(*args, **kwargs)
 
 
-def sanitize_float(*args, **kwargs) -> float:
+def sanitize_float(*args: Any, **kwargs: Any) -> float:  # noqa: ANN401
     """Shortcut für InputSanitizer.sanitize_float()."""
     return _sanitizer.sanitize_float(*args, **kwargs)
 
 
-def sanitize_boolean(*args, **kwargs) -> bool:
+def sanitize_boolean(*args: Any, **kwargs: Any) -> bool:  # noqa: ANN401
     """Shortcut für InputSanitizer.sanitize_boolean()."""
     return _sanitizer.sanitize_boolean(*args, **kwargs)
 
 
 __all__ = [
     "InputSanitizer",
-    "sanitize_string",
-    "sanitize_integer",
-    "sanitize_float",
     "sanitize_boolean",
+    "sanitize_float",
+    "sanitize_integer",
+    "sanitize_string",
 ]

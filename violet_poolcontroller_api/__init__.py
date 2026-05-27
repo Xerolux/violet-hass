@@ -1,5 +1,5 @@
 # violet-poolController-api - API für Violet Pool Controller
-# Copyright (C) 2024–2026  Xerolux
+# Copyright (C) 2024-2026  Xerolux
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -14,6 +14,4 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .api import VioletPoolAPI, VioletPoolAPIError
-
-__all__ = ["VioletPoolAPI", "VioletPoolAPIError"]
+"""Violet Pool Controller API client library."""

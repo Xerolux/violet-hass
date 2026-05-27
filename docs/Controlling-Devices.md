@@ -1,3 +1,5 @@
+> [🇬🇧 English](Controlling-Devices) | [🇩🇪 Deutsch](de/Controlling-Devices) &nbsp;|&nbsp; [🏠](Home)
+
 # Controlling Devices
 
 Many devices can be turned `ON`, `OFF`, or set to `AUTO`. Some devices support durations (`duration` in seconds, `0` means permanently) or speeds/values.

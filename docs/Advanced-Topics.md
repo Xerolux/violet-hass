@@ -1,3 +1,5 @@
+> [🇬🇧 English](Advanced-Topics) | [🇩🇪 Deutsch](de/Advanced-Topics) &nbsp;|&nbsp; [🏠](Home)
+
 # Advanced Topics
 
 ## PV Surplus Mode

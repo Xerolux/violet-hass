@@ -1,5 +1,5 @@
 # violet-poolController-api - API für Violet Pool Controller
-# Copyright (C) 2024–2026  Xerolux
+# Copyright (C) 2024-2026  Xerolux
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -21,9 +21,11 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from collections.abc import Callable
 from enum import StrEnum
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -48,15 +50,15 @@ class CircuitBreaker:
         timeout: float = 60.0,
         recovery_timeout: float = 300.0,
         expected_exception: type[BaseException] = Exception,
-    ):
-        """
-        Initialize circuit breaker.
+    ) -> None:
+        """Initialize circuit breaker.
 
         Args:
             failure_threshold: Number of failures before opening circuit
             timeout: How long to keep circuit open (seconds)
             recovery_timeout: How long to stay in half-open state
             expected_exception: Exception type to consider for failures
+
         """
         self.failure_threshold = failure_threshold
         self.timeout = timeout
@@ -78,9 +80,8 @@ class CircuitBreaker:
             recovery_timeout,
         )
 
-    async def call(self, func: Callable, *args, **kwargs) -> Any:
-        """
-        Execute function with circuit breaker protection.
+    async def call(self, func: Callable, *args: Any, **kwargs: Any) -> Any:  # noqa: ANN401
+        """Execute function with circuit breaker protection.
 
         Args:
             func: The async function to call
@@ -92,6 +93,7 @@ class CircuitBreaker:
 
         Raises:
             CircuitBreakerOpenError: If circuit is open
+
         """
         current_time = time.monotonic()
 
@@ -104,7 +106,9 @@ class CircuitBreaker:
             ):
                 self.state = CircuitBreakerState.HALF_OPEN
                 self.half_open_start_time = current_time
-                _LOGGER.info("Circuit breaker entering HALF_OPEN state for recovery test")
+                _LOGGER.info(
+                    "Circuit breaker entering HALF_OPEN state for recovery test",
+                )
 
             # Check if half-open timeout exceeded
             if (
@@ -117,22 +121,12 @@ class CircuitBreaker:
 
             # Fail fast if circuit is open
             if self.state == CircuitBreakerState.OPEN:
-                raise CircuitBreakerOpenError("Circuit breaker is OPEN")
+                msg = "Circuit breaker is OPEN"
+                raise CircuitBreakerOpenError(msg)
 
         try:
             # Execute the function outside the lock to avoid blocking other coroutines
             result = await func(*args, **kwargs)
-
-            # Success: reset failure count and close circuit if half-open
-            async with self._lock:
-                if self.state == CircuitBreakerState.HALF_OPEN:
-                    self.state = CircuitBreakerState.CLOSED
-                    self.failure_count = 0
-                    _LOGGER.info("Circuit breaker recovered from HALF_OPEN to CLOSED")
-                else:
-                    self.failure_count = 0
-
-            return result
 
         except self.expected_exception as err:
             async with self._lock:
@@ -158,10 +152,22 @@ class CircuitBreaker:
             # Re-raise the original exception
             raise
 
-        except Exception as err:
+        except Exception:
             # Unexpected exception - don't count for circuit breaker
-            _LOGGER.exception("Unexpected error in circuit breaker: %s", str(err))
+            _LOGGER.exception("Unexpected error in circuit breaker")
             raise
+
+        else:
+            # Success: reset failure count and close circuit if half-open
+            async with self._lock:
+                if self.state == CircuitBreakerState.HALF_OPEN:
+                    self.state = CircuitBreakerState.CLOSED
+                    self.failure_count = 0
+                    _LOGGER.info("Circuit breaker recovered from HALF_OPEN to CLOSED")
+                else:
+                    self.failure_count = 0
+
+            return result
 
     def get_stats(self) -> dict[str, Any]:
         """Get circuit breaker statistics."""
@@ -175,17 +181,14 @@ class CircuitBreaker:
             "half_open_start_time": self.half_open_start_time,
         }
 
-    async def reset(self) -> None:
-        """Manually reset the circuit breaker to CLOSED state."""
-        async with self._lock:
-            self.state = CircuitBreakerState.CLOSED
-            self.failure_count = 0
-            self.last_failure_time = 0.0
-            self.half_open_start_time = 0.0
+    def reset(self) -> None:
+        """Manually reset the circuit breaker (call from sync context only)."""
+        self.state = CircuitBreakerState.CLOSED
+        self.failure_count = 0
+        self.last_failure_time = 0.0
+        self.half_open_start_time = 0.0
         _LOGGER.info("Circuit breaker manually reset to CLOSED state")
 
 
 class CircuitBreakerOpenError(Exception):
     """Exception raised when circuit breaker is open."""
-
-    pass

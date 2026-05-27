@@ -1,5 +1,5 @@
 # violet-poolController-api - API für Violet Pool Controller
-# Copyright (C) 2024–2026  Xerolux
+# Copyright (C) 2024-2026  Xerolux
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -14,47 +14,65 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+"""Tests for the VioletPoolAPI client."""
+
+# ruff: noqa: S101
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Never
+
 import aiohttp
 import pytest
 import pytest_asyncio
 from aioresponses import aioresponses
+
 from violet_poolcontroller_api.api import VioletPoolAPI, VioletPoolAPIError
 from violet_poolcontroller_api.circuit_breaker import CircuitBreakerOpenError
 
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator, Generator
+
+
 @pytest.fixture
-def mock_aioresponse():
+def mock_aioresponse() -> Generator[aioresponses, None, None]:
+    """Provide a mocked aioresponses context for HTTP mocking."""
     with aioresponses() as m:
         yield m
 
 @pytest_asyncio.fixture
-async def api_client():
+async def api_client() -> AsyncGenerator[VioletPoolAPI, None]:
+    """Provide a VioletPoolAPI instance with low retries for fast error tests."""
     async with aiohttp.ClientSession() as session:
         # Pass low retry counts to make error tests faster
         api = VioletPoolAPI(
             host="192.168.1.100",
             session=session,
             username="admin",
-            password="password",
-            max_retries=1
+            password="password",  # noqa: S106
+            max_retries=1,
         )
         yield api
 
 
 @pytest_asyncio.fixture
-async def standalone_api_client():
+async def standalone_api_client() -> AsyncGenerator[VioletPoolAPI, None]:
+    """Provide a VioletPoolAPI instance configured for dosing-standalone mode."""
     async with aiohttp.ClientSession() as session:
         api = VioletPoolAPI(
             host="192.168.1.100",
             session=session,
             username="admin",
-            password="password",
+            password="password",  # noqa: S106
             max_retries=1,
             dosing_standalone=True,
         )
         yield api
 
 @pytest.mark.asyncio
-async def test_get_readings_success(mock_aioresponse, api_client):
+async def test_get_readings_success(
+    mock_aioresponse: aioresponses, api_client: VioletPoolAPI,
+) -> None:
     """Test get_readings returns the correct parsed JSON dictionary."""
     url = "http://192.168.1.100/getReadings?ALL"
     mock_data = {"PUMPSTATE": "2", "PH": 7.2}
@@ -66,7 +84,9 @@ async def test_get_readings_success(mock_aioresponse, api_client):
     assert result == mock_data
 
 @pytest.mark.asyncio
-async def test_set_pump_speed_success(mock_aioresponse, api_client):
+async def test_set_pump_speed_success(
+    mock_aioresponse: aioresponses, api_client: VioletPoolAPI,
+) -> None:
     """Test set_pump_speed formats the request correctly and returns success."""
     url = "http://192.168.1.100/setFunctionManually?PUMP,ON,0,2"
     mock_aioresponse.get(url, body="OK", status=200)
@@ -77,7 +97,9 @@ async def test_set_pump_speed_success(mock_aioresponse, api_client):
     assert result["response"] == "OK"
 
 @pytest.mark.asyncio
-async def test_request_server_error(mock_aioresponse, api_client):
+async def test_request_server_error(
+    mock_aioresponse: aioresponses, api_client: VioletPoolAPI,
+) -> None:
     """Test that a 500 error raises VioletPoolAPIError after retrying."""
     url = "http://192.168.1.100/getReadings?ALL"
     mock_aioresponse.get(url, status=500)
@@ -90,26 +112,29 @@ async def test_request_server_error(mock_aioresponse, api_client):
     assert "Error communicating with Violet controller" in str(exc_info.value)
 
 @pytest.mark.asyncio
-async def test_init_with_port():
+async def test_init_with_port() -> None:
     """Test initializing API with a port in the hostname."""
     async with aiohttp.ClientSession() as session:
         api = VioletPoolAPI(
             host="192.168.1.100:8080",
             session=session,
             username="admin",
-            password="password"
+            password="password",  # noqa: S106
         )
-        assert api._base_url == "http://192.168.1.100:8080"
+        assert api._base_url == "http://192.168.1.100:8080"  # noqa: SLF001
 
 
 @pytest.mark.asyncio
-async def test_circuit_breaker_open_is_wrapped(api_client, monkeypatch):
+async def test_circuit_breaker_open_is_wrapped(
+    api_client: VioletPoolAPI, monkeypatch: pytest.Monkeypatch,
+) -> None:
     """Test circuit breaker open errors are exposed as VioletPoolAPIError."""
 
-    async def raise_open(_func, *args, **kwargs):
-        raise CircuitBreakerOpenError("Circuit breaker is OPEN")
+    async def raise_open(_func: Any, *_args: Any, **_kwargs: Any) -> Never:  # noqa: ANN401
+        msg = "Circuit breaker is OPEN"
+        raise CircuitBreakerOpenError(msg)
 
-    monkeypatch.setattr(api_client._circuit_breaker, "call", raise_open)
+    monkeypatch.setattr(api_client._circuit_breaker, "call", raise_open)  # noqa: SLF001
 
     with pytest.raises(VioletPoolAPIError) as exc_info:
         await api_client.get_readings()
@@ -118,7 +143,9 @@ async def test_circuit_breaker_open_is_wrapped(api_client, monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_get_specific_readings_requires_valid_categories(api_client):
+async def test_get_specific_readings_requires_valid_categories(
+    api_client: VioletPoolAPI,
+) -> None:
     """Test that empty category lists are rejected consistently."""
     with pytest.raises(VioletPoolAPIError) as exc_info:
         await api_client.get_specific_readings(["", "   "])
@@ -127,7 +154,9 @@ async def test_get_specific_readings_requires_valid_categories(api_client):
 
 
 @pytest.mark.asyncio
-async def test_set_config_rejects_path_traversal_parameter(api_client):
+async def test_set_config_rejects_path_traversal_parameter(
+    api_client: VioletPoolAPI,
+) -> None:
     """Test config payload validation rejects dangerous parameter names."""
     with pytest.raises(VioletPoolAPIError) as exc_info:
         await api_client.set_config({"../../evil": "1"})
@@ -136,7 +165,7 @@ async def test_set_config_rejects_path_traversal_parameter(api_client):
 
 
 @pytest.mark.asyncio
-async def test_get_config_requires_non_empty_keys(api_client):
+async def test_get_config_requires_non_empty_keys(api_client: VioletPoolAPI) -> None:
     """Test whitespace-only config key lists are rejected."""
     with pytest.raises(VioletPoolAPIError) as exc_info:
         await api_client.get_config(["  ", ""])
@@ -145,11 +174,13 @@ async def test_get_config_requires_non_empty_keys(api_client):
 
 
 @pytest.mark.asyncio
-async def test_get_history_normalizes_hours_and_sensor(api_client, monkeypatch):
+async def test_get_history_normalizes_hours_and_sensor(
+    api_client: VioletPoolAPI, monkeypatch: pytest.Monkeypatch,
+) -> None:
     """Test get_history enforces minimum hour value and ALL sensor fallback."""
     captured: dict[str, object] = {}
 
-    async def fake_request(endpoint, **kwargs):
+    async def fake_request(endpoint: str, **kwargs: Any) -> dict[str, bool]:  # noqa: ANN401
         captured["endpoint"] = endpoint
         captured["params"] = kwargs.get("params")
         return {"ok": True}
@@ -163,11 +194,13 @@ async def test_get_history_normalizes_hours_and_sensor(api_client, monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_set_config_sanitizes_payload_before_request(api_client, monkeypatch):
+async def test_set_config_sanitizes_payload_before_request(
+    api_client: VioletPoolAPI, monkeypatch: pytest.Monkeypatch,
+) -> None:
     """Test set_config applies sanitizer before sending JSON payload."""
     captured: dict[str, object] = {}
 
-    async def fake_request(endpoint, **kwargs):
+    async def fake_request(endpoint: str, **kwargs: Any) -> str:  # noqa: ANN401
         captured["endpoint"] = endpoint
         captured["json_payload"] = kwargs.get("json_payload")
         return "OK"
@@ -183,8 +216,8 @@ async def test_set_config_sanitizes_payload_before_request(api_client, monkeypat
 
 @pytest.mark.asyncio
 async def test_standalone_mode_allows_manual_dosing(
-    mock_aioresponse, standalone_api_client
-):
+    mock_aioresponse: aioresponses, standalone_api_client: VioletPoolAPI,
+) -> None:
     """Standalone mode must still allow dosing outputs."""
     url = "http://192.168.1.100/setFunctionManually?DOS_1_CL,ON,45,0"
     mock_aioresponse.get(url, body="OK", status=200)
@@ -196,7 +229,9 @@ async def test_standalone_mode_allows_manual_dosing(
 
 
 @pytest.mark.asyncio
-async def test_standalone_mode_blocks_base_module_functions(standalone_api_client):
+async def test_standalone_mode_blocks_base_module_functions(
+    standalone_api_client: VioletPoolAPI,
+) -> None:
     """Standalone mode must reject functions that require the base module."""
     with pytest.raises(VioletPoolAPIError) as exc_info:
         await standalone_api_client.set_pump_speed(speed=2, duration=0)
@@ -204,26 +239,28 @@ async def test_standalone_mode_blocks_base_module_functions(standalone_api_clien
     assert "requires the Violet base module" in str(exc_info.value)
 
 @pytest.mark.asyncio
-async def test_get_readings_standalone_list_format(mock_aioresponse, api_client):
+async def test_get_readings_standalone_list_format(
+    mock_aioresponse: aioresponses, api_client: VioletPoolAPI,
+) -> None:
     """Test get_readings parses the standalone list format correctly."""
     url = "http://192.168.1.100/getReadings?ALL"
     mock_data = {
         "getReadings": [
             {
-                "VALUE NAME": "   \"date\"",
+                "VALUE NAME": '   "date"',
                 "DESCRIPTION": "System-date",
                 "FORMAT": "STRING",
                 "DETAILS": "deliverd as TT.MM.YYYY",
-                "VALUE": "12.04.2023"
+                "VALUE": "12.04.2023",
             },
             {
-                "VALUE NAME": "   \"CPU_TEMP\"",
+                "VALUE NAME": '   "CPU_TEMP"',
                 "DESCRIPTION": "CPU-Temperature",
                 "FORMAT": "FLOAT",
                 "DETAILS": None,
-                "VALUE": 45.5
-            }
-        ]
+                "VALUE": 45.5,
+            },
+        ],
     }
     mock_aioresponse.get(url, payload=mock_data, status=200)
 
@@ -237,14 +274,16 @@ async def test_get_readings_standalone_list_format(mock_aioresponse, api_client)
 
 
 @pytest.mark.asyncio
-async def test_dosing_standalone_detection_dict_format(mock_aioresponse, standalone_api_client):
+async def test_dosing_standalone_detection_dict_format(
+    mock_aioresponse: aioresponses, standalone_api_client: VioletPoolAPI,
+) -> None:
     """Test dosing_standalone is set to False when dict format is received."""
     url = "http://192.168.1.100/getReadings?ALL"
     mock_data = {
         "getReadings": {
             "PUMPSTATE": "2",
-            "PH": 7.2
-        }
+            "PH": 7.2,
+        },
     }
     mock_aioresponse.get(url, payload=mock_data, status=200)
 

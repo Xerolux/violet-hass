@@ -1,3 +1,5 @@
+> [🇬🇧 English](Installation) | [🇩🇪 Deutsch](de/Installation) &nbsp;|&nbsp; [🏠](Home)
+
 # Installation
 
 ```bash

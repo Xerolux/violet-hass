@@ -1,5 +1,5 @@
 # violet-poolController-api - API für Violet Pool Controller
-# Copyright (C) 2024–2026  Xerolux
+# Copyright (C) 2024-2026  Xerolux
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published
@@ -15,12 +15,13 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-"""This module defines constants related to device characteristics and states.
+"""Module defining constants related to device characteristics and states.
 
-It includes detailed parameter configurations for various devices (e.g., pumps, heaters),
-state mappings for normalizing device statuses, and visual configurations like icons
-and colors. The module also provides helper functions and a `VioletState` class to
-consistently interpret and manage device states throughout the integration.
+Includes detailed parameter configurations for various devices (e.g., pumps,
+heaters), state mappings for normalizing device statuses, and visual
+configurations like icons and colors. Also provides helper functions and a
+`VioletState` class to consistently interpret and manage device states
+throughout the integration.
 """
 from __future__ import annotations
 
@@ -245,7 +246,7 @@ STATE_TRANSLATIONS = {
 # =============================================================================
 
 
-def get_device_state_info(raw_state: Any) -> dict[str, Any]:
+def get_device_state_info(raw_state: Any) -> dict[str, Any]:  # noqa: ANN401
     """Get extended state information for a given raw state.
 
     Handles plain numeric states ("2"), pipe-separated composite states
@@ -255,25 +256,25 @@ def get_device_state_info(raw_state: Any) -> dict[str, Any]:
 
     # Direct lookup first (handles exact matches like "3|PUMP_ANTI_FREEZE")
     if state_str in DEVICE_STATE_MAPPING:
-        return cast(dict[str, Any], DEVICE_STATE_MAPPING[state_str])
+        return cast("dict[str, Any]", DEVICE_STATE_MAPPING[state_str])
 
     # Handle pipe-separated composite states by extracting numeric prefix
     if "|" in state_str:
         prefix = state_str.split("|", 1)[0].strip()
         if prefix in DEVICE_STATE_MAPPING:
-            return cast(dict[str, Any], DEVICE_STATE_MAPPING[prefix])
+            return cast("dict[str, Any]", DEVICE_STATE_MAPPING[prefix])
 
     # Handle empty arrays (e.g., SOLARSTATE = "[]")
     if state_str in ("[]", "{}", ""):
         return {"mode": "unknown", "active": None, "desc": "No data"}
 
     return cast(
-        dict[str, Any],
+        "dict[str, Any]",
         {"mode": "unknown", "active": None, "desc": f"Unknown: {raw_state}"},
     )
 
 
-def get_device_mode_from_state(raw_state: Any) -> str:
+def get_device_mode_from_state(raw_state: Any) -> str:  # noqa: ANN401
     """Determine the UI display mode from a raw state."""
     state_info = get_device_state_info(raw_state)
     mode, active = state_info["mode"], state_info["active"]
@@ -282,7 +283,7 @@ def get_device_mode_from_state(raw_state: Any) -> str:
         return "manual_on" if active else "manual_off"
     if mode == "auto":
         return "auto_active" if active else "auto_inactive"
-    return cast(str, mode)
+    return cast("str", mode)
 
 
 class VioletState:
@@ -295,9 +296,11 @@ class VioletState:
     Attributes:
         raw_state (str): The original state value from the controller.
         device_key (str | None): The unique key of the device.
+
     """
 
-    def __init__(self, raw_state: Any, device_key: str | None = None):
+    def __init__(self, raw_state: Any, device_key: str | None = None) -> None:  # noqa: ANN401
+        """Initialize VioletState from a raw controller value."""
         self.raw_state = str(raw_state).strip()
         self.device_key = device_key
         self._info = get_device_state_info(self.raw_state)
@@ -305,24 +308,24 @@ class VioletState:
     @property
     def mode(self) -> str:
         """The primary operational mode (e.g., 'auto', 'manual', 'error')."""
-        return cast(str, self._info["mode"])
+        return cast("str", self._info["mode"])
 
     @property
     def is_active(self) -> bool | None:
         """Whether the device is currently active (running)."""
-        return cast(bool | None, self._info["active"])
+        return cast("bool | None", self._info["active"])
 
     @property
     def description(self) -> str:
         """A human-readable description of the current state."""
-        return cast(str, self._info["desc"])
+        return cast("str", self._info["desc"])
 
     @property
     def display_mode(self) -> str:
         """The translated name for the current state, suitable for UI display."""
         mode_key = get_device_mode_from_state(self.raw_state)
         return STATE_TRANSLATIONS.get("de", {}).get(
-            mode_key, mode_key.replace("_", " ").title()
+            mode_key, mode_key.replace("_", " ").title(),
         )
 
     @property
@@ -332,4 +335,8 @@ class VioletState:
         return STATE_ICONS.get(mode_key, "mdi:help-circle")
 
     def __repr__(self) -> str:
-        return f"VioletState(raw='{self.raw_state}', mode='{self.mode}', active={self.is_active})"
+        """Return a string representation of the state."""
+        return (
+            f"VioletState(raw='{self.raw_state}', "
+            f"mode='{self.mode}', active={self.is_active})"
+        )

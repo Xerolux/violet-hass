@@ -1,3 +1,5 @@
+> [🇬🇧 English](Fetching-Data) | [🇩🇪 Deutsch](de/Fetching-Data) &nbsp;|&nbsp; [🏠](Home)
+
 # Fetching Data
 
 ## All Readings

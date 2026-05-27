@@ -1,3 +1,5 @@
+> [🇬🇧 English](Dosing-&-Targets) | [🇩🇪 Deutsch](de/Dosing-&-Targets) &nbsp;|&nbsp; [🏠](Home)
+
 # Dosing & Targets
 
 All commands in this section are supported in standard Violet setups and in dosing-standalone mode (`dosing_standalone=True`).

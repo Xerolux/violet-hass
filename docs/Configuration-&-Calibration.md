@@ -1,3 +1,5 @@
+> [🇬🇧 English](Configuration-&-Calibration) | [🇩🇪 Deutsch](de/Configuration-&-Calibration) &nbsp;|&nbsp; [🏠](Home)
+
 # Configuration & Calibration
 
 ## Reading Configuration
