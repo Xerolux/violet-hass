@@ -38,6 +38,7 @@ API_GET_CALIB_RAW_VALUES = "/getCalibRawValues"
 API_GET_CALIB_HISTORY = "/getCalibHistory"
 API_RESTORE_CALIBRATION = "/restoreOldCalib"
 API_SET_OUTPUT_TESTMODE = "/setOutputTestmode"
+API_TRIGGER_MANUAL_DOSING = "/triggerManualDosing"
 API_GET_HISTORY = "/getHistory"
 API_GET_WEATHER_DATA = "/getWeatherdata"
 API_GET_OVERALL_DOSING = "/getOverallDosing"
@@ -151,4 +152,12 @@ DOSING_FUNCTIONS = {
     "Chlor": "DOS_1_CL",
     "Elektrolyse": "DOS_2_ELO",
     "Flockmittel": "DOS_6_FLOC",
+}
+
+DOSING_OUTPUT_INDEX = {
+    "DOS_1_CL": 0,
+    "DOS_2_ELO": 1,
+    "DOS_4_PHM": 3,
+    "DOS_5_PHP": 4,
+    "DOS_6_FLOC": 5,
 }

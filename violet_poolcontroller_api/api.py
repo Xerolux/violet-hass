@@ -45,6 +45,7 @@ from .const_api import (
     API_GET_OUTPUT_STATES,
     API_GET_OVERALL_DOSING,
     API_GET_WEATHER_DATA,
+    API_PRIORITY_CRITICAL,
     API_PRIORITY_NORMAL,
     API_READINGS,
     API_RESTORE_CALIBRATION,
@@ -53,7 +54,9 @@ from .const_api import (
     API_SET_FUNCTION_MANUALLY,
     API_SET_OUTPUT_TESTMODE,
     API_SET_TARGET_VALUES,
+    API_TRIGGER_MANUAL_DOSING,
     DOSING_FUNCTIONS,
+    DOSING_OUTPUT_INDEX,
     TARGET_MIN_CHLORINE,
     TARGET_ORP,
     TARGET_PH,
@@ -229,6 +232,7 @@ class VioletPoolAPI:
         params: Mapping[str, Any] | None = None,
         query: str | None = None,
         json_payload: Any | None = None,  # noqa: ANN401
+        data: Any | None = None,  # noqa: ANN401
         expect_json: bool = False,
         priority: int = API_PRIORITY_NORMAL,
     ) -> Any:  # noqa: ANN401
@@ -280,6 +284,7 @@ class VioletPoolAPI:
                         url,
                         params=params,
                         json=json_payload,
+                        data=data,
                         auth=self._auth,
                         timeout=self._timeout,
                         ssl=self._ssl_context,  # type: ignore[arg-type]
@@ -881,7 +886,10 @@ class VioletPoolAPI:
         duration: float | None = None,
         last_value: float | None = None,
     ) -> dict[str, Any]:
-        """Control a function output via /setFunctionManually.
+        """Control a function output.
+
+        Uses /triggerManualDosing for dosing pumps (DOS_*) and
+        /setFunctionManually for all other functions.
 
         Args:
             key: The device key.
@@ -902,6 +910,9 @@ class VioletPoolAPI:
                 msg,
             )
 
+        if key.startswith("DOS_"):
+            return await self._trigger_dosing(key, action, duration=duration)
+
         payload = self._build_manual_command(
             key,
             action,
@@ -909,9 +920,50 @@ class VioletPoolAPI:
             last_value=last_value,
         )
         query = quote(payload, safe=",")
+        body = await self._request(API_SET_FUNCTION_MANUALLY, query=query)
+        return self._command_result(body)
+
+    async def _trigger_dosing(
+        self,
+        key: str,
+        action: str,
+        *,
+        duration: float | None = None,
+    ) -> dict[str, Any]:
+        """Trigger or stop a manual dosing run via /triggerManualDosing.
+
+        Args:
+            key: The dosing pump key (e.g. DOS_6_FLOC).
+            action: The action (ON/START → DOSSTART, OFF/STOP → DOSSTOP).
+            duration: Duration in seconds.
+
+        Returns:
+            A dictionary with the command result.
+
+        Raises:
+            VioletPoolAPIError: If the dosing key is unknown.
+
+        """
+        output_index = DOSING_OUTPUT_INDEX.get(key)
+        if output_index is None:
+            msg = f"Unknown dosing output key: {key}"
+            raise VioletPoolAPIError(msg)
+
+        dos_action = "DOSSTOP" if action.upper() in ("OFF", "STOP") else "DOSSTART"
+        dos_duration = int(duration) if duration else 0
+
+        form_data = {
+            "action": dos_action,
+            "output": str(output_index),
+            "runtime": str(dos_duration),
+            "from": "1",
+            "runtime_formatted": f"{dos_duration // 60:02d}:{dos_duration % 60:02d}",
+        }
         body = await self._request(
-            API_SET_FUNCTION_MANUALLY,
-            query=query,
+            API_TRIGGER_MANUAL_DOSING,
+            method="POST",
+            data=form_data,
+            priority=API_PRIORITY_CRITICAL,
         )
         return self._command_result(body)
 

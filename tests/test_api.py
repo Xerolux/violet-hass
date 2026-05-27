@@ -219,13 +219,13 @@ async def test_standalone_mode_allows_manual_dosing(
     mock_aioresponse: aioresponses, standalone_api_client: VioletPoolAPI,
 ) -> None:
     """Standalone mode must still allow dosing outputs."""
-    url = "http://192.168.1.100/setFunctionManually?DOS_1_CL,ON,45,0"
-    mock_aioresponse.get(url, body="OK", status=200)
+    url = "http://192.168.1.100/triggerManualDosing"
+    mock_aioresponse.post(url, body="MANDOS_STARTED\nOK", status=200)
 
     result = await standalone_api_client.manual_dosing("Chlor", 45)
 
     assert result["success"] is True
-    assert result["response"] == "OK"
+    assert "MANDOS_STARTED" in result["response"]
 
 
 @pytest.mark.asyncio
