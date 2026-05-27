@@ -565,36 +565,6 @@
       "last_error_code": {
         "name": "Codice errore"
       },
-      "firmware_version": {
-        "name": "Firmware"
-      },
-      "pump_status": {
-        "name": "Stato pompa"
-      },
-      "heater_status": {
-        "name": "Stato riscaldatore"
-      },
-      "solar_status": {
-        "name": "Stato solare"
-      },
-      "backwash_status": {
-        "name": "Stato contro-lavaggio"
-      },
-      "pvsurplus_status": {
-        "name": "Stato surplus fotovoltaico"
-      },
-      "refill_status": {
-        "name": "Stato riempimento"
-      },
-      "pump_detail": {
-        "name": "Dettaglio stato pompa"
-      },
-      "heater_detail": {
-        "name": "Dettaglio stato riscaldatore"
-      },
-      "solar_detail": {
-        "name": "Dettaglio stato solare"
-      },
       "dos_1_cl_state": {
         "name": "Stato dosaggio cloro"
       },
@@ -606,15 +576,6 @@
       },
       "dos_6_floc_state": {
         "name": "Stato dosaggio flocculante"
-      },
-      "pump_composite": {
-        "name": "Dettagli stato pompa"
-      },
-      "heater_composite": {
-        "name": "Dettagli stato riscaldatore"
-      },
-      "solar_composite": {
-        "name": "Dettagli stato solare"
       },
       "cpu_temp": {
         "name": "Temperatura CPU"
@@ -642,6 +603,36 @@
       },
       "system_relais_status": {
         "name": "Stato relè"
+      },
+      "fw": {
+        "name": "Firmware"
+      },
+      "pump": {
+        "name": "Stato pompa"
+      },
+      "heater": {
+        "name": "Stato riscaldatore"
+      },
+      "solar": {
+        "name": "Stato solare"
+      },
+      "backwash": {
+        "name": "Stato contro-lavaggio"
+      },
+      "pvsurplus": {
+        "name": "Stato surplus fotovoltaico"
+      },
+      "refill": {
+        "name": "Stato riempimento"
+      },
+      "pumpstate": {
+        "name": "Dettaglio stato pompa"
+      },
+      "heaterstate": {
+        "name": "Dettaglio stato riscaldatore"
+      },
+      "solarstate": {
+        "name": "Dettaglio stato solare"
       }
     },
     "binary_sensor": {
@@ -905,34 +896,34 @@
       }
     },
     "number": {
-      "ph_sp_value": {
+      "ph_setpoint": {
         "name": "Valore di riferimento pH"
       },
-      "orp_sp_value": {
+      "orp_setpoint": {
         "name": "Valore di riferimento ORP"
       },
-      "cl_sp_value": {
+      "chlorine_setpoint": {
         "name": "Valore di riferimento cloro"
       },
-      "target_temp_heater": {
+      "heater_target_temp": {
         "name": "Temperatura target riscaldatore"
       },
-      "target_temp_solar": {
+      "solar_target_temp": {
         "name": "Temperatura target solare"
       },
-      "pump_rpm_sp": {
+      "pump_speed": {
         "name": "Velocità pompa"
       },
-      "cl_canister_vol": {
+      "chlorine_canister_volume": {
         "name": "Volume tanica cloro"
       },
-      "phm_canister_vol": {
+      "ph_minus_canister_volume": {
         "name": "Volume tanica pH-"
       },
-      "php_canister_vol": {
+      "ph_plus_canister_volume": {
         "name": "Volume tanica pH+"
       },
-      "floc_canister_vol": {
+      "flocculant_canister_volume": {
         "name": "Volume tanica flocculante"
       }
     },

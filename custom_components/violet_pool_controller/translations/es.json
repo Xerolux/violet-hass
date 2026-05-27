@@ -565,36 +565,6 @@
       "last_error_code": {
         "name": "Último código de error"
       },
-      "firmware_version": {
-        "name": "Versión de firmware"
-      },
-      "pump_status": {
-        "name": "Estado de la bomba"
-      },
-      "heater_status": {
-        "name": "Estado del calentador"
-      },
-      "solar_status": {
-        "name": "Estado solar"
-      },
-      "backwash_status": {
-        "name": "Estado de lavado a contracorriente"
-      },
-      "pvsurplus_status": {
-        "name": "Estado de excedente FV"
-      },
-      "refill_status": {
-        "name": "Estado de relleno"
-      },
-      "pump_detail": {
-        "name": "Estado detallado de la bomba"
-      },
-      "heater_detail": {
-        "name": "Estado detallado del calentador"
-      },
-      "solar_detail": {
-        "name": "Estado detallado solar"
-      },
       "dos_1_cl_state": {
         "name": "Estado de dosificación de cloro"
       },
@@ -606,15 +576,6 @@
       },
       "dos_6_floc_state": {
         "name": "Estado de dosificación de floculante"
-      },
-      "pump_composite": {
-        "name": "Detalles de estado de la bomba"
-      },
-      "heater_composite": {
-        "name": "Detalles de estado del calentador"
-      },
-      "solar_composite": {
-        "name": "Detalles de estado solar"
       },
       "cpu_temp": {
         "name": "Temperatura CPU"
@@ -642,6 +603,36 @@
       },
       "system_relais_status": {
         "name": "Estado de relés"
+      },
+      "fw": {
+        "name": "Versión de firmware"
+      },
+      "pump": {
+        "name": "Estado de la bomba"
+      },
+      "heater": {
+        "name": "Estado del calentador"
+      },
+      "solar": {
+        "name": "Estado solar"
+      },
+      "backwash": {
+        "name": "Estado de lavado a contracorriente"
+      },
+      "pvsurplus": {
+        "name": "Estado de excedente FV"
+      },
+      "refill": {
+        "name": "Estado de relleno"
+      },
+      "pumpstate": {
+        "name": "Estado detallado de la bomba"
+      },
+      "heaterstate": {
+        "name": "Estado detallado del calentador"
+      },
+      "solarstate": {
+        "name": "Estado detallado solar"
       }
     },
     "binary_sensor": {
@@ -905,34 +896,34 @@
       }
     },
     "number": {
-      "ph_sp_value": {
+      "ph_setpoint": {
         "name": "Valor de consigna pH"
       },
-      "orp_sp_value": {
+      "orp_setpoint": {
         "name": "Valor de consigna ORP"
       },
-      "cl_sp_value": {
+      "chlorine_setpoint": {
         "name": "Valor de consigna de cloro"
       },
-      "target_temp_heater": {
+      "heater_target_temp": {
         "name": "Temperatura objetivo del calentador"
       },
-      "target_temp_solar": {
+      "solar_target_temp": {
         "name": "Temperatura objetivo solar"
       },
-      "pump_rpm_sp": {
+      "pump_speed": {
         "name": "Velocidad de bomba"
       },
-      "cl_canister_vol": {
+      "chlorine_canister_volume": {
         "name": "Volumen de bidón de cloro"
       },
-      "phm_canister_vol": {
+      "ph_minus_canister_volume": {
         "name": "Volumen de bidón pH-"
       },
-      "php_canister_vol": {
+      "ph_plus_canister_volume": {
         "name": "Volumen de bidón pH+"
       },
-      "floc_canister_vol": {
+      "flocculant_canister_volume": {
         "name": "Volumen de bidón de floculante"
       }
     },

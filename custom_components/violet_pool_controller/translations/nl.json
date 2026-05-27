@@ -565,36 +565,6 @@
       "last_error_code": {
         "name": "Laatste foutcode"
       },
-      "firmware_version": {
-        "name": "Firmwareversie"
-      },
-      "pump_status": {
-        "name": "Filterpompstatus"
-      },
-      "heater_status": {
-        "name": "Verwarmerstatus"
-      },
-      "solar_status": {
-        "name": "Zonne-absorberstatus"
-      },
-      "backwash_status": {
-        "name": "Tegenspoelstatus"
-      },
-      "pvsurplus_status": {
-        "name": "PV-overschotstatus"
-      },
-      "refill_status": {
-        "name": "Bijvulstatus"
-      },
-      "pump_detail": {
-        "name": "Pompdetailstatus"
-      },
-      "heater_detail": {
-        "name": "Verwarmerdetailstatus"
-      },
-      "solar_detail": {
-        "name": "Zonne-absorberdetailstatus"
-      },
       "dos_1_cl_state": {
         "name": "Chloordoseringstatus"
       },
@@ -606,15 +576,6 @@
       },
       "dos_6_floc_state": {
         "name": "Vlokkenmiddeldoseringsstatus"
-      },
-      "pump_composite": {
-        "name": "Pompstatusdetails"
-      },
-      "heater_composite": {
-        "name": "Verwarmerstatusdetails"
-      },
-      "solar_composite": {
-        "name": "Zonne-absorberstatusdetails"
       },
       "cpu_temp": {
         "name": "CPU-temperatuur"
@@ -642,6 +603,36 @@
       },
       "system_relais_status": {
         "name": "Relaisstatus"
+      },
+      "fw": {
+        "name": "Firmwareversie"
+      },
+      "pump": {
+        "name": "Filterpompstatus"
+      },
+      "heater": {
+        "name": "Verwarmerstatus"
+      },
+      "solar": {
+        "name": "Zonne-absorberstatus"
+      },
+      "backwash": {
+        "name": "Tegenspoelstatus"
+      },
+      "pvsurplus": {
+        "name": "PV-overschotstatus"
+      },
+      "refill": {
+        "name": "Bijvulstatus"
+      },
+      "pumpstate": {
+        "name": "Pompdetailstatus"
+      },
+      "heaterstate": {
+        "name": "Verwarmerdetailstatus"
+      },
+      "solarstate": {
+        "name": "Zonne-absorberdetailstatus"
       }
     },
     "binary_sensor": {
@@ -905,34 +896,34 @@
       }
     },
     "number": {
-      "ph_sp_value": {
+      "ph_setpoint": {
         "name": "pH-instelpunt"
       },
-      "orp_sp_value": {
+      "orp_setpoint": {
         "name": "ORP-instelpunt"
       },
-      "cl_sp_value": {
+      "chlorine_setpoint": {
         "name": "Chloorinstelpunt"
       },
-      "target_temp_heater": {
+      "heater_target_temp": {
         "name": "Verwarmingsdoeltemperatuur"
       },
-      "target_temp_solar": {
+      "solar_target_temp": {
         "name": "Zonne-doeltemperatuur"
       },
-      "pump_rpm_sp": {
+      "pump_speed": {
         "name": "Pompsnelheid"
       },
-      "cl_canister_vol": {
+      "chlorine_canister_volume": {
         "name": "Chloor kanistervolume"
       },
-      "phm_canister_vol": {
+      "ph_minus_canister_volume": {
         "name": "pH- kanistervolume"
       },
-      "php_canister_vol": {
+      "ph_plus_canister_volume": {
         "name": "pH+ kanistervolume"
       },
-      "floc_canister_vol": {
+      "flocculant_canister_volume": {
         "name": "Vlokkenmiddel kanistervolume"
       }
     },

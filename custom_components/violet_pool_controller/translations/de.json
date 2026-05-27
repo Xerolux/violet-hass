@@ -565,36 +565,6 @@
       "last_error_code": {
         "name": "Letzter Fehlercode"
       },
-      "firmware_version": {
-        "name": "Firmware-Version"
-      },
-      "pump_status": {
-        "name": "Pumpen-Status"
-      },
-      "heater_status": {
-        "name": "Heizungs-Status"
-      },
-      "solar_status": {
-        "name": "Solar-Status"
-      },
-      "backwash_status": {
-        "name": "Rückspül-Status"
-      },
-      "pvsurplus_status": {
-        "name": "PV-Überschuss Status"
-      },
-      "refill_status": {
-        "name": "Nachfüll-Status"
-      },
-      "pump_detail": {
-        "name": "Pumpen Detail-Status"
-      },
-      "heater_detail": {
-        "name": "Heizung Detail-Status"
-      },
-      "solar_detail": {
-        "name": "Solar Detail-Status"
-      },
       "dos_1_cl_state": {
         "name": "Chlor-Dosierstatus"
       },
@@ -606,15 +576,6 @@
       },
       "dos_6_floc_state": {
         "name": "Flockmittel-Dosierstatus"
-      },
-      "pump_composite": {
-        "name": "Pumpen-Statusdetails"
-      },
-      "heater_composite": {
-        "name": "Heizungs-Statusdetails"
-      },
-      "solar_composite": {
-        "name": "Solar-Statusdetails"
       },
       "cpu_temp": {
         "name": "CPU-Temperatur"
@@ -642,6 +603,36 @@
       },
       "system_relais_status": {
         "name": "Relais-Status"
+      },
+      "fw": {
+        "name": "Firmware-Version"
+      },
+      "pump": {
+        "name": "Pumpen-Status"
+      },
+      "heater": {
+        "name": "Heizungs-Status"
+      },
+      "solar": {
+        "name": "Solar-Status"
+      },
+      "backwash": {
+        "name": "Rückspül-Status"
+      },
+      "pvsurplus": {
+        "name": "PV-Überschuss Status"
+      },
+      "refill": {
+        "name": "Nachfüll-Status"
+      },
+      "pumpstate": {
+        "name": "Pumpen Detail-Status"
+      },
+      "heaterstate": {
+        "name": "Heizung Detail-Status"
+      },
+      "solarstate": {
+        "name": "Solar Detail-Status"
       }
     },
     "binary_sensor": {
@@ -905,34 +896,34 @@
       }
     },
     "number": {
-      "ph_sp_value": {
+      "ph_setpoint": {
         "name": "pH-Sollwert"
       },
-      "orp_sp_value": {
+      "orp_setpoint": {
         "name": "Redox-Sollwert"
       },
-      "cl_sp_value": {
+      "chlorine_setpoint": {
         "name": "Chlor-Sollwert"
       },
-      "target_temp_heater": {
+      "heater_target_temp": {
         "name": "Heizung Zieltemperatur"
       },
-      "target_temp_solar": {
+      "solar_target_temp": {
         "name": "Solar Zieltemperatur"
       },
-      "pump_rpm_sp": {
+      "pump_speed": {
         "name": "Pumpendrehzahl"
       },
-      "cl_canister_vol": {
+      "chlorine_canister_volume": {
         "name": "Chlor Kanister Volumen"
       },
-      "phm_canister_vol": {
+      "ph_minus_canister_volume": {
         "name": "pH- Kanister Volumen"
       },
-      "php_canister_vol": {
+      "ph_plus_canister_volume": {
         "name": "pH+ Kanister Volumen"
       },
-      "floc_canister_vol": {
+      "flocculant_canister_volume": {
         "name": "Flockmittel Kanister Volumen"
       }
     },

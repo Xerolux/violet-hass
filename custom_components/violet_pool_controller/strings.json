@@ -54,7 +54,7 @@
         "title": "Pool Configuration",
         "description": "Provide pool size, type and disinfection method. These values are used for runtime optimisation, energy management and dosing calculations.",
         "data": {
-          "pool_size": "Pool size (m\u00b3)",
+          "pool_size": "Pool size (m³)",
           "pool_type": "Pool type",
           "disinfection_method": "Disinfection method"
         },
@@ -133,7 +133,7 @@
           "host": "New controller IP or DNS name",
           "port": "TCP port (default 80)",
           "use_ssl": "Enable HTTPS",
-          "polling_interval": "Data polling interval (10\u20133600s)",
+          "polling_interval": "Data polling interval (10–3600s)",
           "timeout_duration": "Maximum wait time per request",
           "retry_attempts": "Number of retry attempts"
         }
@@ -146,7 +146,7 @@
       "timeout_connection": "**Connection timeout**\n\nController is not responding. It may be overloaded or unreachable.",
       "authentication_error": "**Authentication required**\n\nThe controller requires login credentials. Please enter username and password.",
       "api_endpoint_not_found": "**API endpoint not found**\n\nController firmware may be outdated or the URL is incorrect.",
-      "invalid_pool_size": "**Invalid pool size**\n\nValue must be between 0.1 and 1000 m\u00b3.",
+      "invalid_pool_size": "**Invalid pool size**\n\nValue must be between 0.1 and 1000 m³.",
       "invalid_configuration": "**Configuration error**\n\nOne or more inputs are invalid. Please review.",
       "api_response_error": "**Invalid controller response**\n\nController is sending unexpected data. Firmware update needed?",
       "firmware_data_missing": "**Firmware info missing**\n\nController firmware version could not be determined.",
@@ -218,7 +218,7 @@
       "message": "Invalid value: {detail}"
     },
     "value_out_of_range": {
-      "message": "Value {value} is outside the valid range ({min}\u2013{max})"
+      "message": "Value {value} is outside the valid range ({min}–{max})"
     },
     "failed_to_set_value": {
       "message": "Failed to set value: {detail}"
@@ -312,8 +312,8 @@
           "description": "Select heater and/or solar absorber."
         },
         "temperature": {
-          "name": "Target temperature (\u00b0C)",
-          "description": "Desired pool temperature (20-35\u00b0C recommended)."
+          "name": "Target temperature (°C)",
+          "description": "Desired pool temperature (20-35°C recommended)."
         }
       }
     },
@@ -467,7 +467,7 @@
         "chlorine": "Chlorine (Liquid/Tablets)",
         "salt": "Salt Electrolysis",
         "bromine": "Bromine Disinfection",
-        "active_oxygen": "Active Oxygen/H\u2082O\u2082",
+        "active_oxygen": "Active Oxygen/H₂O₂",
         "uv": "UV-C Disinfection",
         "ozone": "Ozone Treatment"
       }
@@ -539,36 +539,6 @@
       "ai8_value": {
         "name": "Analog Input 8"
       },
-      "firmware_version": {
-        "name": "Firmware Version"
-      },
-      "pump_status": {
-        "name": "Pump Status"
-      },
-      "heater_status": {
-        "name": "Heater Status"
-      },
-      "solar_status": {
-        "name": "Solar Status"
-      },
-      "backwash_status": {
-        "name": "Backwash Status"
-      },
-      "pvsurplus_status": {
-        "name": "PV Surplus Status"
-      },
-      "refill_status": {
-        "name": "Refill Status"
-      },
-      "pump_detail": {
-        "name": "Pump Detail Status"
-      },
-      "heater_detail": {
-        "name": "Heater Detail Status"
-      },
-      "solar_detail": {
-        "name": "Solar Detail Status"
-      },
       "dos_1_cl_state": {
         "name": "Chlorine Dosing State"
       },
@@ -580,15 +550,6 @@
       },
       "dos_6_floc_state": {
         "name": "Flocculant Dosing State"
-      },
-      "pump_composite": {
-        "name": "Pump State Details"
-      },
-      "heater_composite": {
-        "name": "Heater State Details"
-      },
-      "solar_composite": {
-        "name": "Solar State Details"
       },
       "cpu_temp": {
         "name": "CPU Temperature"
@@ -640,6 +601,63 @@
       },
       "flow_rate": {
         "name": "Flow Rate"
+      },
+      "adc1_value": {
+        "name": "Filter Pressure"
+      },
+      "adc2_value": {
+        "name": "Overflow Tank"
+      },
+      "adc3_value": {
+        "name": "Flow Meter (4-20mA)"
+      },
+      "adc4_value": {
+        "name": "Analog Sensor 4 (4-20mA)"
+      },
+      "adc5_value": {
+        "name": "Analog Sensor 5 (0-10V)"
+      },
+      "imp1_value": {
+        "name": "Flow Switch"
+      },
+      "imp2_value": {
+        "name": "Pump Flow Rate"
+      },
+      "dos_2_elo_state": {
+        "name": "Electrolysis State"
+      },
+      "fw": {
+        "name": "Firmware Version"
+      },
+      "pump": {
+        "name": "Pump Status"
+      },
+      "heater": {
+        "name": "Heater Status"
+      },
+      "solar": {
+        "name": "Solar Status"
+      },
+      "backwash": {
+        "name": "Backwash Status"
+      },
+      "light": {
+        "name": "Lighting Status"
+      },
+      "pvsurplus": {
+        "name": "PV Surplus Status"
+      },
+      "pumpstate": {
+        "name": "Pump Detail Status"
+      },
+      "heaterstate": {
+        "name": "Heater Detail Status"
+      },
+      "solarstate": {
+        "name": "Solar Detail Status"
+      },
+      "refill": {
+        "name": "Refill Status"
       }
     },
     "binary_sensor": {
@@ -903,34 +921,34 @@
       }
     },
     "number": {
-      "ph_sp_value": {
+      "ph_setpoint": {
         "name": "pH Setpoint"
       },
-      "orp_sp_value": {
+      "orp_setpoint": {
         "name": "ORP Setpoint"
       },
-      "cl_sp_value": {
+      "chlorine_setpoint": {
         "name": "Chlorine Setpoint"
       },
-      "target_temp_heater": {
+      "heater_target_temp": {
         "name": "Heater Target Temperature"
       },
-      "target_temp_solar": {
+      "solar_target_temp": {
         "name": "Solar Target Temperature"
       },
-      "pump_rpm_sp": {
+      "pump_speed": {
         "name": "Pump Speed"
       },
-      "cl_canister_vol": {
+      "chlorine_canister_volume": {
         "name": "Chlorine Canister Volume"
       },
-      "phm_canister_vol": {
+      "ph_minus_canister_volume": {
         "name": "pH- Canister Volume"
       },
-      "php_canister_vol": {
+      "ph_plus_canister_volume": {
         "name": "pH+ Canister Volume"
       },
-      "floc_canister_vol": {
+      "flocculant_canister_volume": {
         "name": "Flocculant Canister Volume"
       }
     },

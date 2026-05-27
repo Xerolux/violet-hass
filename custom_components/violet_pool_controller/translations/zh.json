@@ -565,36 +565,6 @@
       "last_error_code": {
         "name": "错误代码"
       },
-      "firmware_version": {
-        "name": "固件"
-      },
-      "pump_status": {
-        "name": "过滤泵状态"
-      },
-      "heater_status": {
-        "name": "加热器状态"
-      },
-      "solar_status": {
-        "name": "太阳能状态"
-      },
-      "backwash_status": {
-        "name": "反冲洗状态"
-      },
-      "pvsurplus_status": {
-        "name": "光伏余量状态"
-      },
-      "refill_status": {
-        "name": "补水状态"
-      },
-      "pump_detail": {
-        "name": "过滤泵详情"
-      },
-      "heater_detail": {
-        "name": "加热器详情"
-      },
-      "solar_detail": {
-        "name": "太阳能详情"
-      },
       "dos_1_cl_state": {
         "name": "氯投加状态"
       },
@@ -606,15 +576,6 @@
       },
       "dos_6_floc_state": {
         "name": "絮凝剂投加状态"
-      },
-      "pump_composite": {
-        "name": "过滤泵状态详情"
-      },
-      "heater_composite": {
-        "name": "加热器状态详情"
-      },
-      "solar_composite": {
-        "name": "太阳能状态详情"
       },
       "cpu_temp": {
         "name": "CPU温度"
@@ -642,6 +603,36 @@
       },
       "system_relais_status": {
         "name": "继电器状态"
+      },
+      "fw": {
+        "name": "固件"
+      },
+      "pump": {
+        "name": "过滤泵状态"
+      },
+      "heater": {
+        "name": "加热器状态"
+      },
+      "solar": {
+        "name": "太阳能状态"
+      },
+      "backwash": {
+        "name": "反冲洗状态"
+      },
+      "pvsurplus": {
+        "name": "光伏余量状态"
+      },
+      "refill": {
+        "name": "补水状态"
+      },
+      "pumpstate": {
+        "name": "过滤泵详情"
+      },
+      "heaterstate": {
+        "name": "加热器详情"
+      },
+      "solarstate": {
+        "name": "太阳能详情"
       }
     },
     "binary_sensor": {
@@ -905,34 +896,34 @@
       }
     },
     "number": {
-      "ph_sp_value": {
+      "ph_setpoint": {
         "name": "pH设定值"
       },
-      "orp_sp_value": {
+      "orp_setpoint": {
         "name": "ORP设定值"
       },
-      "cl_sp_value": {
+      "chlorine_setpoint": {
         "name": "氯设定值"
       },
-      "target_temp_heater": {
+      "heater_target_temp": {
         "name": "加热器目标温度"
       },
-      "target_temp_solar": {
+      "solar_target_temp": {
         "name": "太阳能目标温度"
       },
-      "pump_rpm_sp": {
+      "pump_speed": {
         "name": "泵速"
       },
-      "cl_canister_vol": {
+      "chlorine_canister_volume": {
         "name": "氯药桶容量"
       },
-      "phm_canister_vol": {
+      "ph_minus_canister_volume": {
         "name": "pH- 药桶容量"
       },
-      "php_canister_vol": {
+      "ph_plus_canister_volume": {
         "name": "pH+ 药桶容量"
       },
-      "floc_canister_vol": {
+      "flocculant_canister_volume": {
         "name": "絮凝剂药桶容量"
       }
     },

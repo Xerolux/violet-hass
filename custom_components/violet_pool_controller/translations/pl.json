@@ -565,36 +565,6 @@
       "last_error_code": {
         "name": "Ostatni kod błędu"
       },
-      "firmware_version": {
-        "name": "Wersja oprogramowania"
-      },
-      "pump_status": {
-        "name": "Status pompy"
-      },
-      "heater_status": {
-        "name": "Status grzałki"
-      },
-      "solar_status": {
-        "name": "Status kolektora słonecznego"
-      },
-      "backwash_status": {
-        "name": "Status płukania wstecznego"
-      },
-      "pvsurplus_status": {
-        "name": "Status nadwyżki PV"
-      },
-      "refill_status": {
-        "name": "Status uzupełniania"
-      },
-      "pump_detail": {
-        "name": "Szczegółowy status pompy"
-      },
-      "heater_detail": {
-        "name": "Szczegółowy status grzałki"
-      },
-      "solar_detail": {
-        "name": "Szczegółowy status kolektora"
-      },
       "dos_1_cl_state": {
         "name": "Status dozowania chloru"
       },
@@ -606,15 +576,6 @@
       },
       "dos_6_floc_state": {
         "name": "Status dozowania koagulantu"
-      },
-      "pump_composite": {
-        "name": "Szczegóły statusu pompy"
-      },
-      "heater_composite": {
-        "name": "Szczegóły statusu grzałki"
-      },
-      "solar_composite": {
-        "name": "Szczegóły statusu kolektora"
       },
       "cpu_temp": {
         "name": "Temperatura CPU"
@@ -642,6 +603,36 @@
       },
       "system_relais_status": {
         "name": "Status przekaźników"
+      },
+      "fw": {
+        "name": "Wersja oprogramowania"
+      },
+      "pump": {
+        "name": "Status pompy"
+      },
+      "heater": {
+        "name": "Status grzałki"
+      },
+      "solar": {
+        "name": "Status kolektora słonecznego"
+      },
+      "backwash": {
+        "name": "Status płukania wstecznego"
+      },
+      "pvsurplus": {
+        "name": "Status nadwyżki PV"
+      },
+      "refill": {
+        "name": "Status uzupełniania"
+      },
+      "pumpstate": {
+        "name": "Szczegółowy status pompy"
+      },
+      "heaterstate": {
+        "name": "Szczegółowy status grzałki"
+      },
+      "solarstate": {
+        "name": "Szczegółowy status kolektora"
       }
     },
     "binary_sensor": {
@@ -905,34 +896,34 @@
       }
     },
     "number": {
-      "ph_sp_value": {
+      "ph_setpoint": {
         "name": "Wartość zadana pH"
       },
-      "orp_sp_value": {
+      "orp_setpoint": {
         "name": "Wartość zadana ORP"
       },
-      "cl_sp_value": {
+      "chlorine_setpoint": {
         "name": "Wartość zadana chloru"
       },
-      "target_temp_heater": {
+      "heater_target_temp": {
         "name": "Temperatura docelowa grzałki"
       },
-      "target_temp_solar": {
+      "solar_target_temp": {
         "name": "Temperatura docelowa kolektora"
       },
-      "pump_rpm_sp": {
+      "pump_speed": {
         "name": "Prędkość pompy"
       },
-      "cl_canister_vol": {
+      "chlorine_canister_volume": {
         "name": "Pojemność kanistra chloru"
       },
-      "phm_canister_vol": {
+      "ph_minus_canister_volume": {
         "name": "Pojemność kanistra pH-"
       },
-      "php_canister_vol": {
+      "ph_plus_canister_volume": {
         "name": "Pojemność kanistra pH+"
       },
-      "floc_canister_vol": {
+      "flocculant_canister_volume": {
         "name": "Pojemność kanistra koagulantu"
       }
     },

@@ -28,61 +28,61 @@ TEMP_SENSORS = {
 }
 
 WATER_CHEM_SENSORS = {
-    "pH_value": {"name": "pH Value", "translation_key": "pH_value", "icon": "mdi:ph"},
+    "pH_value": {"name": "pH Value", "translation_key": "ph_value", "icon": "mdi:ph"},
     "orp_value": {"name": "ORP Value", "translation_key": "orp_value", "icon": "mdi:lightning-bolt-circle"},
     "pot_value": {"name": "Chlorine Level", "translation_key": "pot_value", "icon": "mdi:water-plus"},
 }
 
 ANALOG_SENSORS = {
-    "ADC1_value": {"name": "Filter Pressure", "translation_key": "ADC1_value", "icon": "mdi:gauge"},
-    "ADC2_value": {"name": "Overflow Tank", "translation_key": "ADC2_value", "icon": "mdi:water-sync"},
-    "ADC3_value": {"name": "Flow Meter (4-20mA)", "translation_key": "ADC3_value", "icon": "mdi:swap-horizontal"},
-    "ADC4_value": {"name": "Analog Sensor 4 (4-20mA)", "translation_key": "ADC4_value", "icon": "mdi:gauge"},
-    "ADC5_value": {"name": "Analog Sensor 5 (0-10V)", "translation_key": "ADC5_value", "icon": "mdi:sine-wave"},
-    "IMP1_value": {"name": "Flow Switch", "translation_key": "IMP1_value", "icon": "mdi:pipe-valve"},
-    "IMP2_value": {"name": "Pump Flow Rate", "translation_key": "IMP2_value", "icon": "mdi:water-pump"},
+    "ADC1_value": {"name": "Filter Pressure", "translation_key": "adc1_value", "icon": "mdi:gauge"},
+    "ADC2_value": {"name": "Overflow Tank", "translation_key": "adc2_value", "icon": "mdi:water-sync"},
+    "ADC3_value": {"name": "Flow Meter (4-20mA)", "translation_key": "adc3_value", "icon": "mdi:swap-horizontal"},
+    "ADC4_value": {"name": "Analog Sensor 4 (4-20mA)", "translation_key": "adc4_value", "icon": "mdi:gauge"},
+    "ADC5_value": {"name": "Analog Sensor 5 (0-10V)", "translation_key": "adc5_value", "icon": "mdi:sine-wave"},
+    "IMP1_value": {"name": "Flow Switch", "translation_key": "imp1_value", "icon": "mdi:pipe-valve"},
+    "IMP2_value": {"name": "Pump Flow Rate", "translation_key": "imp2_value", "icon": "mdi:water-pump"},
 }
 
 SYSTEM_SENSORS = {
-    "CPU_TEMP": {"name": "CPU Temperature", "translation_key": "CPU_TEMP", "icon": "mdi:thermometer-alert"},
-    "CPU_TEMP_CARRIER": {"name": "Carrier Board", "translation_key": "CPU_TEMP_CARRIER", "icon": "mdi:motherboard"},
-    "CPU_UPTIME": {"name": "System Uptime", "translation_key": "CPU_UPTIME", "icon": "mdi:clock-time-eight"},
-    "SYSTEM_CPU_TEMPERATURE": {"name": "System CPU Temperature", "translation_key": "SYSTEM_CPU_TEMPERATURE", "icon": "mdi:thermometer-check"},
+    "CPU_TEMP": {"name": "CPU Temperature", "translation_key": "cpu_temp", "icon": "mdi:thermometer-alert"},
+    "CPU_TEMP_CARRIER": {"name": "Carrier Board", "translation_key": "cpu_temp_carrier", "icon": "mdi:motherboard"},
+    "CPU_UPTIME": {"name": "System Uptime", "translation_key": "cpu_uptime", "icon": "mdi:clock-time-eight"},
+    "SYSTEM_CPU_TEMPERATURE": {"name": "System CPU Temperature", "translation_key": "system_cpu_temperature", "icon": "mdi:thermometer-check"},
     "SYSTEM_CARRIER_CPU_TEMPERATURE": {
         "name": "Carrier CPU Temperature",
-        "translation_key": "SYSTEM_CARRIER_CPU_TEMPERATURE",
+        "translation_key": "system_carrier_cpu_temperature",
         "icon": "mdi:memory",
     },
     "SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE": {
         "name": "Dosing Module CPU Temperature",
-        "translation_key": "SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE",
+        "translation_key": "system_dosagemodule_cpu_temperature",
         "icon": "mdi:memory-lan",
     },
-    "SYSTEM_memoryusage": {"name": "System Memory Usage", "translation_key": "SYSTEM_memoryusage", "icon": "mdi:memory-lan"},
+    "SYSTEM_memoryusage": {"name": "System Memory Usage", "translation_key": "system_memoryusage", "icon": "mdi:memory-lan"},
 }
 
 STATUS_SENSORS = {
-    "PUMP": {"name": "Pump Status", "translation_key": "PUMP", "icon": "mdi:pump"},
-    "HEATER": {"name": "Heater Status", "translation_key": "HEATER", "icon": "mdi:radiator"},
-    "SOLAR": {"name": "Solar Status", "translation_key": "SOLAR", "icon": "mdi:solar-power"},
-    "BACKWASH": {"name": "Backwash Status", "translation_key": "BACKWASH", "icon": "mdi:autorenew"},
-    "LIGHT": {"name": "Lighting Status", "translation_key": "LIGHT", "icon": "mdi:lightbulb"},
-    "PVSURPLUS": {"name": "PV Surplus Status", "translation_key": "PVSURPLUS", "icon": "mdi:solar-power"},
-    "FW": {"name": "Firmware Version", "translation_key": "FW", "icon": "mdi:package-variant"},
+    "PUMP": {"name": "Pump Status", "translation_key": "pump", "icon": "mdi:pump"},
+    "HEATER": {"name": "Heater Status", "translation_key": "heater", "icon": "mdi:radiator"},
+    "SOLAR": {"name": "Solar Status", "translation_key": "solar", "icon": "mdi:solar-power"},
+    "BACKWASH": {"name": "Backwash Status", "translation_key": "backwash", "icon": "mdi:autorenew"},
+    "LIGHT": {"name": "Lighting Status", "translation_key": "light", "icon": "mdi:lightbulb"},
+    "PVSURPLUS": {"name": "PV Surplus Status", "translation_key": "pvsurplus", "icon": "mdi:solar-power"},
+    "FW": {"name": "Firmware Version", "translation_key": "fw", "icon": "mdi:package-variant"},
 }
 
 DOSING_STATE_SENSORS = {
-    "DOS_1_CL_STATE": {"name": "Chlorine Dosing Status", "translation_key": "DOS_1_CL_STATE", "icon": "mdi:flask-outline"},
-    "DOS_2_ELO_STATE": {"name": "Electrolysis Status", "translation_key": "DOS_2_ELO_STATE", "icon": "mdi:lightning-bolt"},
-    "DOS_4_PHM_STATE": {"name": "pH- Dosing Status", "translation_key": "DOS_4_PHM_STATE", "icon": "mdi:flask-minus"},
-    "DOS_5_PHP_STATE": {"name": "pH+ Dosing Status", "translation_key": "DOS_5_PHP_STATE", "icon": "mdi:flask-plus"},
-    "DOS_6_FLOC_STATE": {"name": "Flocculation Status", "translation_key": "DOS_6_FLOC_STATE", "icon": "mdi:water"},
+    "DOS_1_CL_STATE": {"name": "Chlorine Dosing Status", "translation_key": "dos_1_cl_state", "icon": "mdi:flask-outline"},
+    "DOS_2_ELO_STATE": {"name": "Electrolysis Status", "translation_key": "dos_2_elo_state", "icon": "mdi:lightning-bolt"},
+    "DOS_4_PHM_STATE": {"name": "pH- Dosing Status", "translation_key": "dos_4_phm_state", "icon": "mdi:flask-minus"},
+    "DOS_5_PHP_STATE": {"name": "pH+ Dosing Status", "translation_key": "dos_5_php_state", "icon": "mdi:flask-plus"},
+    "DOS_6_FLOC_STATE": {"name": "Flocculation Status", "translation_key": "dos_6_floc_state", "icon": "mdi:water"},
 }
 
 COMPOSITE_STATE_SENSORS = {
-    "PUMPSTATE": {"name": "Pump Detail Status", "translation_key": "PUMPSTATE", "icon": "mdi:water-pump"},
-    "HEATERSTATE": {"name": "Heater Detail Status", "translation_key": "HEATERSTATE", "icon": "mdi:radiator"},
-    "SOLARSTATE": {"name": "Solar Detail Status", "translation_key": "SOLARSTATE", "icon": "mdi:solar-power-variant"},
+    "PUMPSTATE": {"name": "Pump Detail Status", "translation_key": "pumpstate", "icon": "mdi:water-pump"},
+    "HEATERSTATE": {"name": "Heater Detail Status", "translation_key": "heaterstate", "icon": "mdi:radiator"},
+    "SOLARSTATE": {"name": "Solar Detail Status", "translation_key": "solarstate", "icon": "mdi:solar-power-variant"},
 }
 
 # =============================================================================

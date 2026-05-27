@@ -565,36 +565,6 @@
       "last_error_code": {
         "name": "Код ошибки"
       },
-      "firmware_version": {
-        "name": "Версия прошивки"
-      },
-      "pump_status": {
-        "name": "Статус насоса"
-      },
-      "heater_status": {
-        "name": "Статус нагревателя"
-      },
-      "solar_status": {
-        "name": "Статус солнечного коллектора"
-      },
-      "backwash_status": {
-        "name": "Статус обратной промывки"
-      },
-      "pvsurplus_status": {
-        "name": "Статус профицита ФЭ"
-      },
-      "refill_status": {
-        "name": "Статус долива"
-      },
-      "pump_detail": {
-        "name": "Подробный статус насоса"
-      },
-      "heater_detail": {
-        "name": "Подробный статус нагревателя"
-      },
-      "solar_detail": {
-        "name": "Подробный статус солнечного коллектора"
-      },
       "dos_1_cl_state": {
         "name": "Статус дозирования хлора"
       },
@@ -606,15 +576,6 @@
       },
       "dos_6_floc_state": {
         "name": "Статус дозирования коагулянта"
-      },
-      "pump_composite": {
-        "name": "Подробности статуса насоса"
-      },
-      "heater_composite": {
-        "name": "Подробности статуса нагревателя"
-      },
-      "solar_composite": {
-        "name": "Подробности статуса солнечного коллектора"
       },
       "cpu_temp": {
         "name": "Температура CPU"
@@ -642,6 +603,36 @@
       },
       "system_relais_status": {
         "name": "Статус реле"
+      },
+      "fw": {
+        "name": "Версия прошивки"
+      },
+      "pump": {
+        "name": "Статус насоса"
+      },
+      "heater": {
+        "name": "Статус нагревателя"
+      },
+      "solar": {
+        "name": "Статус солнечного коллектора"
+      },
+      "backwash": {
+        "name": "Статус обратной промывки"
+      },
+      "pvsurplus": {
+        "name": "Статус профицита ФЭ"
+      },
+      "refill": {
+        "name": "Статус долива"
+      },
+      "pumpstate": {
+        "name": "Подробный статус насоса"
+      },
+      "heaterstate": {
+        "name": "Подробный статус нагревателя"
+      },
+      "solarstate": {
+        "name": "Подробный статус солнечного коллектора"
       }
     },
     "binary_sensor": {
@@ -905,34 +896,34 @@
       }
     },
     "number": {
-      "ph_sp_value": {
+      "ph_setpoint": {
         "name": "Заданное значение pH"
       },
-      "orp_sp_value": {
+      "orp_setpoint": {
         "name": "Заданное значение ОВП"
       },
-      "cl_sp_value": {
+      "chlorine_setpoint": {
         "name": "Заданное значение хлора"
       },
-      "target_temp_heater": {
+      "heater_target_temp": {
         "name": "Целевая температура нагревателя"
       },
-      "target_temp_solar": {
+      "solar_target_temp": {
         "name": "Целевая температура солнечного коллектора"
       },
-      "pump_rpm_sp": {
+      "pump_speed": {
         "name": "Скорость насоса"
       },
-      "cl_canister_vol": {
+      "chlorine_canister_volume": {
         "name": "Объём канистры хлора"
       },
-      "phm_canister_vol": {
+      "ph_minus_canister_volume": {
         "name": "Объём канистры pH-"
       },
-      "php_canister_vol": {
+      "ph_plus_canister_volume": {
         "name": "Объём канистры pH+"
       },
-      "floc_canister_vol": {
+      "flocculant_canister_volume": {
         "name": "Объём канистры коагулянта"
       }
     },
