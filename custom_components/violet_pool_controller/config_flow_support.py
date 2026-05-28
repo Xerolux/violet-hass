@@ -30,6 +30,7 @@ from .const import (
     CONF_TIMEOUT_DURATION,
     CONF_USE_SSL,
     CONF_USERNAME,
+    CONF_VERIFY_SSL,
     DEFAULT_CONTROLLER_NAME,
     DEFAULT_DISINFECTION_METHOD,
     DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
@@ -41,6 +42,7 @@ from .const import (
     DEFAULT_RETRY_ATTEMPTS,
     DEFAULT_TIMEOUT_DURATION,
     DEFAULT_USE_SSL,
+    DEFAULT_VERIFY_SSL,
 )
 from .config_flow_utils import (
     MAX_DEVICE_ID,
@@ -144,6 +146,9 @@ class ConfigFlowSchemaMixin:
                 vol.Optional(CONF_USERNAME): str,
                 vol.Optional(CONF_PASSWORD): str,
                 vol.Required(CONF_USE_SSL, default=DEFAULT_USE_SSL): bool,
+                vol.Required(
+                    CONF_VERIFY_SSL, default=DEFAULT_VERIFY_SSL
+                ): bool,
                 vol.Required(CONF_DEVICE_ID, default=1): selector.NumberSelector(
                     selector.NumberSelectorConfig(
                         min=MIN_DEVICE_ID,

@@ -160,7 +160,7 @@ async def async_setup_entry(
     )
     entities: list[BinarySensorEntity] = []
 
-    _LOGGER.info("Binary Sensor Setup - Active features: %s", active_features)
+    _LOGGER.debug("Binary Sensor Setup - Active features: %s", active_features)
 
     # None-check for coordinator.data
     if coordinator.data is None:
@@ -193,6 +193,10 @@ async def async_setup_entry(
             icon=sensor_config.get("icon"),  # type: ignore[arg-type]
             device_class=sensor_config.get("device_class"),  # type: ignore[arg-type]
             entity_category=sensor_config.get("entity_category"),  # type: ignore[arg-type]
+            entity_registry_enabled_default=sensor_config.get(
+                "entity_registry_enabled_default",
+                sensor_config.get("entity_category") is None,
+            ),
         )
 
         feature_id = BINARY_SENSOR_FEATURE_MAP.get(description.key)
@@ -224,7 +228,7 @@ async def async_setup_entry(
 
     if entities:
         async_add_entities(entities)
-        _LOGGER.info(
+        _LOGGER.debug(
             "%d binary sensors added: %s",
             len(entities),
             [e.name for e in entities],

@@ -32,6 +32,9 @@ from .specialized import (
     VioletErrorCodeSensor,
     VioletFlowRateSensor,
 )
+from .energy import (
+    VioletPumpPowerSensor,
+)
 
 __all__ = [
     # Base
@@ -54,4 +57,6 @@ __all__ = [
     "VioletDosingStateSensor",
     "VioletErrorCodeSensor",
     "VioletFlowRateSensor",
+    # Energy
+    "VioletPumpPowerSensor",
 ]

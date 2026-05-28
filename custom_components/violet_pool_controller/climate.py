@@ -450,7 +450,7 @@ async def async_setup_entry(
     )
     entities = []
 
-    _LOGGER.info("Climate Setup - Active features: %s", active_features)
+    _LOGGER.debug("Climate Setup - Active features: %s", active_features)
 
     if coordinator.data is not None:
         _LOGGER.debug("Coordinator data keys: %d", len(coordinator.data.keys()))
@@ -484,7 +484,7 @@ async def async_setup_entry(
 
     if entities:
         async_add_entities(entities)
-        _LOGGER.info(
+        _LOGGER.debug(
             "%d climate entities added: %s",
             len(entities),
             [e.name for e in entities],

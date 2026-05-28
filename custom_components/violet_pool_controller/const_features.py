@@ -18,6 +18,8 @@ from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.components.number import NumberDeviceClass
 from homeassistant.helpers.entity import EntityCategory
 
+_ENTITY_CATEGORY_CONFIG = EntityCategory.CONFIG
+
 # =============================================================================
 # AVAILABLE FEATURES
 # =============================================================================
@@ -108,6 +110,7 @@ BINARY_SENSORS = [
         "icon": "mdi:water-alert",
         "device_class": BinarySensorDeviceClass.PROBLEM,
         "entity_category": EntityCategory.DIAGNOSTIC,
+        "entity_registry_enabled_default": False,
     },
     {
         "key": "ELECTRODE_FLOW_STATE",
@@ -116,6 +119,7 @@ BINARY_SENSORS = [
         "icon": "mdi:water-check",
         "device_class": BinarySensorDeviceClass.PROBLEM,
         "entity_category": EntityCategory.DIAGNOSTIC,
+        "entity_registry_enabled_default": False,
     },
     {
         "key": "PRESSURE_STATE",
@@ -124,6 +128,7 @@ BINARY_SENSORS = [
         "icon": "mdi:gauge",
         "device_class": BinarySensorDeviceClass.PROBLEM,
         "entity_category": EntityCategory.DIAGNOSTIC,
+        "entity_registry_enabled_default": False,
     },
     {
         "key": "CAN_RANGE_STATE",
@@ -132,6 +137,7 @@ BINARY_SENSORS = [
         "icon": "mdi:bottle-tonic",
         "device_class": BinarySensorDeviceClass.PROBLEM,
         "entity_category": EntityCategory.DIAGNOSTIC,
+        "entity_registry_enabled_default": False,
     },
 ]
 
@@ -145,6 +151,7 @@ for i in range(1, 13):
             "icon": "mdi:electric-switch",
             "feature_id": "digital_inputs",
             "entity_category": EntityCategory.DIAGNOSTIC,
+            "entity_registry_enabled_default": False,
         }
     )
 for i in range(1, 5):
@@ -156,6 +163,7 @@ for i in range(1, 5):
             "icon": "mdi:electric-switch",
             "feature_id": "digital_inputs",
             "entity_category": EntityCategory.DIAGNOSTIC,
+            "entity_registry_enabled_default": False,
         }
     )
 
@@ -166,6 +174,7 @@ BINARY_SENSORS.extend([
         "translation_key": "hw_base_module",
         "icon": "mdi:chip",
         "entity_category": EntityCategory.DIAGNOSTIC,
+        "entity_registry_enabled_default": False,
     },
     {
         "key": "HW_DOSING_MODULE",
@@ -173,6 +182,7 @@ BINARY_SENSORS.extend([
         "translation_key": "hw_dosing_module",
         "icon": "mdi:flask",
         "entity_category": EntityCategory.DIAGNOSTIC,
+        "entity_registry_enabled_default": False,
     },
     {
         "key": "HW_EXTENSION_MODULE_1",
@@ -180,6 +190,7 @@ BINARY_SENSORS.extend([
         "translation_key": "hw_extension_module_1",
         "icon": "mdi:expansion-card",
         "entity_category": EntityCategory.DIAGNOSTIC,
+        "entity_registry_enabled_default": False,
     },
     {
         "key": "HW_EXTENSION_MODULE_2",
@@ -187,6 +198,7 @@ BINARY_SENSORS.extend([
         "translation_key": "hw_extension_module_2",
         "icon": "mdi:expansion-card",
         "entity_category": EntityCategory.DIAGNOSTIC,
+        "entity_registry_enabled_default": False,
     },
     {
         "key": "HW_STANDALONE_MODE",
@@ -194,6 +206,7 @@ BINARY_SENSORS.extend([
         "translation_key": "hw_standalone_mode",
         "icon": "mdi:server-network",
         "entity_category": EntityCategory.DIAGNOSTIC,
+        "entity_registry_enabled_default": False,
     },
     {
         "key": "HW_DMX_MODULE",
@@ -201,6 +214,7 @@ BINARY_SENSORS.extend([
         "translation_key": "hw_dmx_module",
         "icon": "mdi:lightbulb-multiple",
         "entity_category": EntityCategory.DIAGNOSTIC,
+        "entity_registry_enabled_default": False,
     },
     {
         "key": "HW_DIRULE_MODULE",
@@ -208,6 +222,7 @@ BINARY_SENSORS.extend([
         "translation_key": "hw_dirule_module",
         "icon": "mdi:script-text",
         "entity_category": EntityCategory.DIAGNOSTIC,
+        "entity_registry_enabled_default": False,
     },
 ])
 
@@ -307,33 +322,36 @@ for ext_bank in [1, 2]:
                 "translation_key": f"ext{ext_bank}_{i}",
                 "icon": "mdi:toggle-switch-outline",
                 "feature_id": "extension_outputs",
-                "entity_category": "diagnostic",  # Extension hardware outputs
+                "entity_category": EntityCategory.DIAGNOSTIC,
+                "entity_registry_enabled_default": False,
             }
         )
 # Dynamically add DMX scenes
 for i in range(1, 13):
-    SWITCHES.append(
-        {
-            "key": f"DMX_SCENE{i}",
-            "name": f"DMX Scene {i}",
-            "translation_key": f"dmx_scene{i}",
-            "icon": "mdi:lightbulb-multiple",
-            "feature_id": "led_lighting",
-            "entity_category": "config",  # Configurable light scenes
-        }
-    )
+        SWITCHES.append(
+            {
+                "key": f"DMX_SCENE{i}",
+                "name": f"DMX Scene {i}",
+                "translation_key": f"dmx_scene{i}",
+                "icon": "mdi:lightbulb-multiple",
+                "feature_id": "led_lighting",
+                "entity_category": EntityCategory.CONFIG,
+                "entity_registry_enabled_default": False,
+            }
+        )
 # Dynamically add digital rules
 for i in range(1, 8):
-    SWITCHES.append(
-        {
-            "key": f"DIRULE_{i}",
-            "name": f"Switching Rule {i}",
-            "translation_key": f"dirule_{i}",
-            "icon": "mdi:script-text",
-            "feature_id": "digital_inputs",
-            "entity_category": "config",  # Configurable switching rules
-        }
-    )
+        SWITCHES.append(
+            {
+                "key": f"DIRULE_{i}",
+                "name": f"Switching Rule {i}",
+                "translation_key": f"dirule_{i}",
+                "icon": "mdi:script-text",
+                "feature_id": "digital_inputs",
+                "entity_category": EntityCategory.CONFIG,
+                "entity_registry_enabled_default": False,
+            }
+        )
 
 # =============================================================================
 # NUMBER ENTITIES (SETPOINTS)
@@ -525,7 +543,7 @@ SELECT_CONTROLS = [
         "device_key": "PUMP",
         "icon": "mdi:water-pump",
         "feature_id": "filter_control",
-        "entity_category": "config",
+        "entity_category": _ENTITY_CATEGORY_CONFIG,
     },
     {
         "key": "heater_mode",
@@ -534,7 +552,7 @@ SELECT_CONTROLS = [
         "device_key": "HEATER",
         "icon": "mdi:radiator-disabled",
         "feature_id": "heating",
-        "entity_category": "config",
+        "entity_category": _ENTITY_CATEGORY_CONFIG,
     },
     {
         "key": "solar_mode",
@@ -543,7 +561,7 @@ SELECT_CONTROLS = [
         "device_key": "SOLAR",
         "icon": "mdi:solar-power-variant",
         "feature_id": "solar",
-        "entity_category": "config",
+        "entity_category": _ENTITY_CATEGORY_CONFIG,
     },
     {
         "key": "light_mode",
@@ -552,7 +570,7 @@ SELECT_CONTROLS = [
         "device_key": "LIGHT",
         "icon": "mdi:lightbulb-on",
         "feature_id": "led_lighting",
-        "entity_category": "config",
+        "entity_category": _ENTITY_CATEGORY_CONFIG,
     },
     {
         "key": "dos_cl_mode",
@@ -561,7 +579,7 @@ SELECT_CONTROLS = [
         "device_key": "DOS_1_CL",
         "icon": "mdi:flask-empty-outline",
         "feature_id": "chlorine_control",
-        "entity_category": "config",
+        "entity_category": _ENTITY_CATEGORY_CONFIG,
     },
     {
         "key": "dos_phm_mode",
@@ -570,7 +588,7 @@ SELECT_CONTROLS = [
         "device_key": "DOS_4_PHM",
         "icon": "mdi:flask-empty-minus",
         "feature_id": "ph_control",
-        "entity_category": "config",
+        "entity_category": _ENTITY_CATEGORY_CONFIG,
     },
     {
         "key": "dos_php_mode",
@@ -579,7 +597,7 @@ SELECT_CONTROLS = [
         "device_key": "DOS_5_PHP",
         "icon": "mdi:flask-plus",
         "feature_id": "ph_control",
-        "entity_category": "config",
+        "entity_category": _ENTITY_CATEGORY_CONFIG,
     },
     {
         "key": "pvsurplus_mode",
@@ -588,7 +606,7 @@ SELECT_CONTROLS = [
         "device_key": "PVSURPLUS",
         "icon": "mdi:solar-power-variant",
         "feature_id": "pv_surplus",
-        "entity_category": "config",
+        "entity_category": _ENTITY_CATEGORY_CONFIG,
     },
     {
         "key": "backwash_mode",
@@ -597,7 +615,7 @@ SELECT_CONTROLS = [
         "device_key": "BACKWASH",
         "icon": "mdi:autorenew",
         "feature_id": "backwash",
-        "entity_category": "config",
+        "entity_category": _ENTITY_CATEGORY_CONFIG,
     },
     {
         "key": "backwashrinse_mode",
@@ -606,7 +624,7 @@ SELECT_CONTROLS = [
         "device_key": "BACKWASHRINSE",
         "icon": "mdi:autorenew",
         "feature_id": "backwash",
-        "entity_category": "config",
+        "entity_category": _ENTITY_CATEGORY_CONFIG,
     },
     {
         "key": "dos_floc_mode",
@@ -615,7 +633,7 @@ SELECT_CONTROLS = [
         "device_key": "DOS_6_FLOC",
         "icon": "mdi:water",
         "feature_id": "flocculation",
-        "entity_category": "config",
+        "entity_category": _ENTITY_CATEGORY_CONFIG,
     },
 ]
 
@@ -630,6 +648,6 @@ for _ext_bank in [1, 2]:
                 "device_key": f"EXT{_ext_bank}_{_i}",
                 "icon": "mdi:toggle-switch-outline",
                 "feature_id": "extension_outputs",
-                "entity_category": "config",
+                "entity_category": _ENTITY_CATEGORY_CONFIG,
             }
         )

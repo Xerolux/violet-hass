@@ -17,7 +17,6 @@ from homeassistant.components.switch import SwitchEntity, SwitchEntityDescriptio
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from violet_poolcontroller_api.api import VioletPoolAPIError
@@ -203,31 +202,30 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
     # -----------------------------------------------------------------
 
     # Numerische Zustandsbeschreibungen (Deutsch)
-    _STATE_DESC_DE: dict[int, str] = {
+    _STATE_DESCRIPTIONS: dict[int, str] = {
         0: "Auto – Standby",
-        1: "Manuell Ein",
-        2: "Auto – Aktiv",
-        3: "Auto – Aktiv (Timer)",
-        4: "Manuell Ein (Erzwungen)",
-        5: "Auto – Wartend",
-        6: "Manuell Aus",
+        1: "Manual On",
+        2: "Auto – Active",
+        3: "Auto – Active (Timer)",
+        4: "Manual On (Forced)",
+        5: "Auto – Waiting",
+        6: "Manual Off",
     }
 
-    # Detailbeschreibungen für *STATE-Felder (Deutsch)
-    _DETAIL_DE: dict[str, str] = {
-        "PUMP_ANTI_FREEZE": "Frostschutz",
-        "BLOCKED_BY_OUTSIDE_TEMP": "Blockiert (Außentemperatur)",
-        "BLOCKED_BY_TRESHOLDS": "Blockiert (Schwellenwerte)",
-        "TRESHOLDS_REACHED": "Schwellenwerte erreicht",
-        "BLOCKED_BY_PUMP": "Blockiert (Pumpe aus)",
-        "BLOCKED_BY_FLOW": "Blockiert (Durchfluss)",
-        "BLOCKED_BY_SOLAR": "Blockiert (Solar)",
-        "BLOCKED_BY_HEATER": "Blockiert (Heizung)",
-        "WAITING_FOR_PUMP": "Warte auf Pumpe",
-        "WAITING_FOR_FLOW": "Warte auf Durchfluss",
-        "DOSING": "Dosierung",
-        "DOSING_PAUSED": "Dosierung pausiert",
-        "MANUAL_DOSING": "Manuelle Dosierung",
+    _DETAIL_DESCRIPTIONSSCRIPTIONS: dict[str, str] = {
+        "PUMP_ANTI_FREEZE": "Frost Protection",
+        "BLOCKED_BY_OUTSIDE_TEMP": "Blocked (Outside Temperature)",
+        "BLOCKED_BY_TRESHOLDS": "Blocked (Thresholds)",
+        "TRESHOLDS_REACHED": "Thresholds Reached",
+        "BLOCKED_BY_PUMP": "Blocked (Pump Off)",
+        "BLOCKED_BY_FLOW": "Blocked (Flow)",
+        "BLOCKED_BY_SOLAR": "Blocked (Solar)",
+        "BLOCKED_BY_HEATER": "Blocked (Heater)",
+        "WAITING_FOR_PUMP": "Waiting for Pump",
+        "WAITING_FOR_FLOW": "Waiting for Flow",
+        "DOSING": "Dosing",
+        "DOSING_PAUSED": "Dosing Paused",
+        "MANUAL_DOSING": "Manual Dosing",
     }
 
     def _get_mode_and_description(
@@ -259,7 +257,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                     pass
                 if len(parts) > 1:
                     raw_detail = parts[1].strip()
-                    extra_detail = self._DETAIL_DE.get(
+                    extra_detail = self._DETAIL_DESCRIPTIONS.get(
                         raw_detail, raw_detail.replace("_", " ").title()
                     )
             else:
@@ -267,7 +265,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                     state_num = int(detail_str)
                 except (ValueError, TypeError):
                     raw_detail = detail_str.strip()
-                    extra_detail = self._DETAIL_DE.get(
+                    extra_detail = self._DETAIL_DESCRIPTIONS.get(
                         raw_detail, raw_detail.replace("_", " ").title()
                     )
 
@@ -294,7 +292,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 6: "Manuell",
             }
             mode = mode_map.get(state_num, "Unbekannt")
-            desc = self._STATE_DESC_DE.get(state_num, f"Zustand {state_num}")
+            desc = self._STATE_DESCRIPTIONS.get(state_num, f"Zustand {state_num}")
 
         # Append extra detail from *STATE field
         if extra_detail:
@@ -349,13 +347,13 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 if state_val:
                     # Translate state entries to English
                     readable = [
-                        self._DETAIL_DE.get(s, s.replace("_", " ").title())
+                        self._DETAIL_DESCRIPTIONS.get(s, s.replace("_", " ").title())
                         for s in state_val
                     ]
                     attributes["dosing_status"] = ", ".join(readable)
             elif str(state_val).strip() not in ("", "[]"):
                 raw_s = str(state_val).strip()
-                attributes["dosing_status"] = self._DETAIL_DE.get(
+                attributes["dosing_status"] = self._DETAIL_DESCRIPTIONS.get(
                     raw_s, raw_s.replace("_", " ").title()
                 )
 
@@ -624,7 +622,7 @@ async def async_setup_entry(
     )
     entities: list[SwitchEntity] = []
 
-    _LOGGER.info("Switch setup - active features: %s", active_features)
+    _LOGGER.debug("Switch setup - active features: %s", active_features)
 
     if coordinator.data is not None:
         _LOGGER.debug("Coordinator data keys: %d", len(coordinator.data.keys()))
@@ -652,22 +650,18 @@ async def async_setup_entry(
 
     # Create switches
     for switch_config in SWITCHES:
-        # Map entity_category string to EntityCategory enum
-        entity_category = None
-        if "entity_category" in switch_config:
-            category_str = switch_config["entity_category"]
-            if category_str == "diagnostic":
-                entity_category = EntityCategory.DIAGNOSTIC
-            elif category_str == "config":
-                entity_category = EntityCategory.CONFIG
-
         description = SwitchEntityDescription(
             key=switch_config["key"],
             name=switch_config["name"],
-            translation_key=switch_config.get("translation_key", switch_config["key"].lower()),
+            translation_key=switch_config.get(
+                "translation_key", switch_config["key"].lower()
+            ),
             icon=switch_config.get("icon"),
-            entity_category=entity_category,
+            entity_category=switch_config.get("entity_category"),
             primary=switch_config.get("primary", False),
+            entity_registry_enabled_default=switch_config.get(
+                "entity_registry_enabled_default", True
+            ),
         )
 
         feature_id = switch_config.get("feature_id")
@@ -684,7 +678,7 @@ async def async_setup_entry(
 
     if entities:
         async_add_entities(entities)
-        _LOGGER.info("%d switches added", len(entities))
+        _LOGGER.debug("%d switches added", len(entities))
 
         if coordinator.data is not None:
             for entity in entities:

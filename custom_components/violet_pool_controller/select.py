@@ -16,7 +16,6 @@ from homeassistant.components.select import SelectEntity, SelectEntityDescriptio
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from violet_poolcontroller_api.api import VioletPoolAPIError
@@ -346,7 +345,7 @@ async def async_setup_entry(
     )
     entities: list[SelectEntity] = []
 
-    _LOGGER.info("Select Setup - Active features: %s", active_features)
+    _LOGGER.debug("Select Setup - Active features: %s", active_features)
 
     # Create select entities
     for select_config in SELECT_CONTROLS:
@@ -360,18 +359,11 @@ async def async_setup_entry(
             )
             continue
 
-        # Map entity_category string to EntityCategory enum
-        entity_category = None
-        if "entity_category" in select_config:
-            category_str = select_config["entity_category"]
-            if category_str == "config":
-                entity_category = EntityCategory.CONFIG
-
         description = SelectEntityDescription(
             key=select_config["key"],
             name=select_config["name"],
             icon=select_config.get("icon"),
-            entity_category=entity_category,
+            entity_category=select_config.get("entity_category"),
             translation_key=select_config.get("translation_key"),
         )
 
@@ -383,6 +375,6 @@ async def async_setup_entry(
 
     if entities:
         async_add_entities(entities)
-        _LOGGER.info("✓ %d select entities successfully set up", len(entities))
+        _LOGGER.debug("%d select entities set up", len(entities))
     else:
         _LOGGER.warning("⚠ No select entities set up")

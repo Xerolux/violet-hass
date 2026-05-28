@@ -45,6 +45,7 @@ from .sensor_modules import (
     VioletErrorCodeSensor,
     VioletFlowRateSensor,
     VioletLastEventAgeSensor,
+    VioletPumpPowerSensor,
     VioletSensor,
     VioletStatusSensor,
     VioletSystemHealthSensor,
@@ -98,7 +99,9 @@ async def async_setup_entry(
 
     if sensors:
         async_add_entities(sensors)
-        _LOGGER.info("%d sensors added for '%s'", len(sensors), config_entry.title)
+        _LOGGER.debug(
+            "%d sensors added for '%s'", len(sensors), config_entry.title
+        )
     else:
         _LOGGER.warning(
             "No sensors were added for '%s'. "
@@ -118,11 +121,9 @@ def _get_sensor_config(config_entry: ConfigEntry) -> dict[str, Any]:
     create_all = selected_sensors_raw is None
 
     if create_all:
-        _LOGGER.info(
-            "No sensor selection found (legacy config). Creating all available sensors."
-        )
+        _LOGGER.debug("No sensor selection found (legacy config). Creating all available sensors.")
     else:
-        _LOGGER.info("Creating %d selected sensors.", len(selected_sensors_raw or []))
+        _LOGGER.debug("Creating %d selected sensors.", len(selected_sensors_raw or []))
 
     return {
         "active_features": set(active_features),
@@ -182,6 +183,11 @@ def _create_special_sensors(
         sensors.append(VioletFlowRateSensor(coordinator, config_entry))
         handled_keys.update(_FLOW_RATE_SOURCE_KEYS)
         _LOGGER.debug("Priority flow rate sensor created.")
+
+    # Pump Power Estimation Sensor
+    if "filter_control" in config["active_features"] or config["create_all"]:
+        sensors.append(VioletPumpPowerSensor(coordinator, config_entry))
+        _LOGGER.debug("Pump power estimation sensor created.")
 
     # Dosing State Array Sensors
     for key, sensor_config in DOSING_STATE_SENSORS.items():

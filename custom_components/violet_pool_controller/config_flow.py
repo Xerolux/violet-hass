@@ -86,7 +86,7 @@ class ConfigFlow(
         self._sensor_data: dict[str, list[str]] = {}
         self._title_placeholders: dict[str, str] = {}
         self._reauth_entry: config_entries.ConfigEntry | None = None
-        _LOGGER.info("Violet Pool Controller setup started")
+        _LOGGER.debug("Violet Pool Controller setup started")
 
     @staticmethod
     def _build_unique_id(host: str, device_id: int | str) -> str:
@@ -546,6 +546,73 @@ class ConfigFlow(
             errors=errors,
             description_placeholders={
                 "controller_name": reconfigure_entry.data.get(
+                    CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME
+                ),
+            },
+        )
+
+    async def async_step_repair(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle repair flow for controller_unavailable issue."""
+        errors: dict[str, str] = {}
+        repair_entry = self.hass.config_entries.async_get_entry(
+            self.context["entry_id"]
+        )
+        if repair_entry is None:
+            return self.async_abort(reason="repair_failed")
+
+        if user_input:
+            updated_data = dict(repair_entry.data)
+            updated_data[CONF_API_URL] = user_input[CONF_API_URL]
+            updated_data[CONF_PORT] = int(
+                user_input.get(CONF_PORT, DEFAULT_PORT)
+            )
+            updated_data[CONF_USERNAME] = user_input.get(CONF_USERNAME, "")
+            updated_data[CONF_PASSWORD] = user_input.get(CONF_PASSWORD, "")
+            self._config_data = updated_data
+            if await self._test_connection():
+                self.hass.config_entries.async_update_entry(
+                    repair_entry, data=updated_data
+                )
+                await self.hass.config_entries.async_reload(
+                    repair_entry.entry_id
+                )
+                return self.async_abort(reason="repair_successful")
+            errors["base"] = constants.ERROR_CANNOT_CONNECT
+
+        return self.async_show_form(
+            step_id="repair",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_API_URL,
+                        default=repair_entry.data.get(CONF_API_URL, ""),
+                    ): str,
+                    vol.Required(
+                        CONF_PORT,
+                        default=repair_entry.data.get(CONF_PORT, DEFAULT_PORT),
+                    ): selector.NumberSelector(
+                        selector.NumberSelectorConfig(
+                            min=1,
+                            max=65535,
+                            step=1,
+                            mode=selector.NumberSelectorMode.BOX,
+                        )
+                    ),
+                    vol.Optional(
+                        CONF_USERNAME,
+                        default=repair_entry.data.get(CONF_USERNAME, ""),
+                    ): str,
+                    vol.Optional(
+                        CONF_PASSWORD,
+                        default=repair_entry.data.get(CONF_PASSWORD, ""),
+                    ): str,
+                }
+            ),
+            errors=errors,
+            description_placeholders={
+                "controller_name": repair_entry.data.get(
                     CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME
                 ),
             },

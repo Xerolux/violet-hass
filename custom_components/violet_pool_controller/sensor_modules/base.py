@@ -25,6 +25,46 @@ from ..const import (
 _LOGGER = logging.getLogger(__name__)
 
 
+_PRECISION_MAP: dict[str, int] = {
+    "°C": 1,
+    "pH": 2,
+    "mV": 0,
+    "mg/l": 2,
+    "bar": 2,
+    "m³/h": 2,
+    "cm": 1,
+    "V": 1,
+    "RPM": 0,
+    "cm/s": 1,
+    "%": 0,
+    "W": 0,
+}
+
+_KEYS_DISABLED_BY_DEFAULT: frozenset[str] = frozenset({
+    "CPU_TEMP",
+    "CPU_TEMP_CARRIER",
+    "CPU_UPTIME",
+    "FW",
+    "CURRENT_TIME_UNIX",
+})
+
+_KEY_PREFIXES_DISABLED_BY_DEFAULT: frozenset[str] = frozenset({
+    "SYSTEM_",
+    "PUMP_RPM_",
+})
+
+_KEY_SUFFIXES_DISABLED_BY_DEFAULT: frozenset[str] = frozenset({
+    "_LAST_ON",
+    "_LAST_OFF",
+    "_LAST_AUTO_RUN",
+    "_LAST_MANUAL_RUN",
+    "_LAST_CAN_RESET",
+    "_TIMESTAMP",
+    "_RUNTIME",
+    "_faultcount",
+    "_freezecount",
+})
+
 _TIMESTAMP_SUFFIXES = (
     "_LAST_ON",
     "_LAST_OFF",
@@ -349,5 +389,23 @@ def _build_sensor_description(
         else None,
         translation_key=translation_key,
         primary=primary,
+        entity_registry_enabled_default=_should_enable_by_default(key),
+        suggested_display_precision=_PRECISION_MAP.get(unit) if unit else None,
     )
+
+
+def _should_enable_by_default(key: str) -> bool:
+    if key in _KEYS_DISABLED_BY_DEFAULT:
+        return False
+    for prefix in _KEY_PREFIXES_DISABLED_BY_DEFAULT:
+        if key.startswith(prefix):
+            if key in ("PUMP_RPM_0_VALUE", "PUMP_RPM_1_VALUE",
+                        "PUMP_RPM_2_VALUE", "PUMP_RPM_3_VALUE"):
+                continue
+            return False
+    key_upper = key.upper()
+    for suffix in _KEY_SUFFIXES_DISABLED_BY_DEFAULT:
+        if key_upper.endswith(suffix.upper()):
+            return False
+    return True
 

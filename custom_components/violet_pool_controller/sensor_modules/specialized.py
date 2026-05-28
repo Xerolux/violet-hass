@@ -52,6 +52,7 @@ class VioletErrorCodeSensor(VioletSensor):
             name="Last Error Code",
             icon="mdi:alert-circle",
             entity_category=EntityCategory.DIAGNOSTIC,
+            entity_registry_enabled_default=False,
         )
         super().__init__(coordinator, config_entry, description)
 
@@ -85,21 +86,20 @@ class VioletErrorCodeSensor(VioletSensor):
 class VioletDosingStateSensor(VioletPoolControllerEntity, SensorEntity):
     """Sensor for dosing system state arrays (DOS_*_STATE) and composite states."""
 
-    # Zustandsbeschreibungen für Dosier- und Verbundstatus-Codes (Deutsch)
-    _DETAIL_DE: dict[str, str] = {
-        "PUMP_ANTI_FREEZE": "Frostschutz",
-        "BLOCKED_BY_OUTSIDE_TEMP": "Blockiert (Außentemperatur)",
-        "BLOCKED_BY_TRESHOLDS": "Blockiert (Schwellenwerte)",
-        "TRESHOLDS_REACHED": "Schwellenwerte erreicht",
-        "BLOCKED_BY_PUMP": "Blockiert (Pumpe aus)",
-        "BLOCKED_BY_FLOW": "Blockiert (Durchfluss)",
-        "BLOCKED_BY_SOLAR": "Blockiert (Solar)",
-        "BLOCKED_BY_HEATER": "Blockiert (Heizung)",
-        "WAITING_FOR_PUMP": "Warte auf Pumpe",
-        "WAITING_FOR_FLOW": "Warte auf Durchfluss",
-        "DOSING": "Dosierung",
-        "DOSING_PAUSED": "Dosierung pausiert",
-        "MANUAL_DOSING": "Manuelle Dosierung",
+    _DETAIL_DESCRIPTIONSSCRIPTIONS: dict[str, str] = {
+        "PUMP_ANTI_FREEZE": "Frost Protection",
+        "BLOCKED_BY_OUTSIDE_TEMP": "Blocked (Outside Temperature)",
+        "BLOCKED_BY_TRESHOLDS": "Blocked (Thresholds)",
+        "TRESHOLDS_REACHED": "Thresholds Reached",
+        "BLOCKED_BY_PUMP": "Blocked (Pump Off)",
+        "BLOCKED_BY_FLOW": "Blocked (Flow)",
+        "BLOCKED_BY_SOLAR": "Blocked (Solar)",
+        "BLOCKED_BY_HEATER": "Blocked (Heater)",
+        "WAITING_FOR_PUMP": "Waiting for Pump",
+        "WAITING_FOR_FLOW": "Waiting for Flow",
+        "DOSING": "Dosing",
+        "DOSING_PAUSED": "Dosing Paused",
+        "MANUAL_DOSING": "Manual Dosing",
     }
 
     def __init__(
@@ -119,12 +119,13 @@ class VioletDosingStateSensor(VioletPoolControllerEntity, SensorEntity):
             icon=icon,
             entity_category=EntityCategory.DIAGNOSTIC,
             translation_key=translation_key,
+            entity_registry_enabled_default=False,
         )
         super().__init__(coordinator, config_entry, description)
 
     def _translate_detail(self, code: str) -> str:
         """Translate a detail code to English, fallback to title-cased string."""
-        return self._DETAIL_DE.get(code, code.replace("_", " ").title())
+        return self._DETAIL_DESCRIPTIONS.get(code, code.replace("_", " ").title())
 
     @property
     def native_value(self) -> str | None:

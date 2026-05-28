@@ -47,6 +47,7 @@ class VioletSystemHealthSensor(VioletPoolControllerEntity, SensorEntity):
             native_unit_of_measurement="%",
             state_class=SensorStateClass.MEASUREMENT,
             suggested_display_precision=0,
+            entity_registry_enabled_default=False,
         )
         super().__init__(coordinator, config_entry, description)
 
@@ -80,6 +81,7 @@ class VioletConnectionLatencySensor(VioletPoolControllerEntity, SensorEntity):
             state_class=SensorStateClass.MEASUREMENT,
             device_class=SensorDeviceClass.DURATION,
             suggested_display_precision=0,
+            entity_registry_enabled_default=False,
         )
         super().__init__(coordinator, config_entry, description)
 
@@ -113,6 +115,7 @@ class VioletLastEventAgeSensor(VioletPoolControllerEntity, SensorEntity):
             state_class=SensorStateClass.MEASUREMENT,
             device_class=SensorDeviceClass.DURATION,
             suggested_display_precision=0,
+            entity_registry_enabled_default=False,
         )
         super().__init__(coordinator, config_entry, description)
 
@@ -139,6 +142,7 @@ class VioletAPIRequestRateSensor(VioletPoolControllerEntity, SensorEntity):
             native_unit_of_measurement="req/min",
             entity_category=EntityCategory.DIAGNOSTIC,
             state_class=SensorStateClass.MEASUREMENT,
+            entity_registry_enabled_default=False,
         )
         super().__init__(coordinator, config_entry, description)
 
@@ -165,6 +169,7 @@ class VioletAverageLatencySensor(VioletPoolControllerEntity, SensorEntity):
             native_unit_of_measurement="ms",
             entity_category=EntityCategory.DIAGNOSTIC,
             state_class=SensorStateClass.MEASUREMENT,
+            entity_registry_enabled_default=False,
         )
         super().__init__(coordinator, config_entry, description)
 
