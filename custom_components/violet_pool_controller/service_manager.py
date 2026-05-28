@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import time
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
+from homeassistant.const import ATTR_DEVICE_ID, ATTR_ENTITY_ID
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
 from .const import DOMAIN
+
+if TYPE_CHECKING:
+    from homeassistant.core import ServiceCall
 
 
 class VioletServiceManager:
@@ -58,6 +62,35 @@ class VioletServiceManager:
                 coordinator = domain_data.get(entity.config_entry_id)
                 if coordinator and coordinator not in coordinators:
                     coordinators.append(coordinator)
+
+        return coordinators
+
+    async def get_coordinators_for_call(
+        self, call: ServiceCall
+    ) -> list[Any]:
+        """Get coordinators from a service call (entity_id or device_id)."""
+        coordinators: list[Any] = []
+        entity_reg = er.async_get(self.hass)
+        device_reg = dr.async_get(self.hass)
+        domain_data = self.hass.data.get(DOMAIN, {})
+
+        entity_ids: list[str] = call.data.get(ATTR_ENTITY_ID, [])
+        device_ids: list[str] = call.data.get(ATTR_DEVICE_ID, [])
+
+        for eid in entity_ids:
+            entity = entity_reg.async_get(eid)
+            if entity and entity.config_entry_id:
+                coord = domain_data.get(entity.config_entry_id)
+                if coord and coord not in coordinators:
+                    coordinators.append(coord)
+
+        for did in device_ids:
+            device = device_reg.async_get(did)
+            if device and device.config_entries:
+                for entry_id in device.config_entries:
+                    coord = domain_data.get(entry_id)
+                    if coord and coord not in coordinators:
+                        coordinators.append(coord)
 
         return coordinators
 

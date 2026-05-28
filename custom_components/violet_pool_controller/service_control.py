@@ -6,7 +6,7 @@ import asyncio
 import logging
 from typing import Any, cast
 
-from homeassistant.const import ATTR_DEVICE_ID, ATTR_ENTITY_ID
+from homeassistant.const import ATTR_DEVICE_ID
 from homeassistant.core import ServiceCall
 from homeassistant.exceptions import HomeAssistantError
 
@@ -22,7 +22,11 @@ from .const import (
     ACTION_ON,
     DEVICE_PARAMETERS,
 )
-from .service_helpers import DEFAULT_SAFETY_INTERVAL, DOSING_TYPE_MAPPING
+from .service_helpers import (
+    DEFAULT_SAFETY_INTERVAL,
+    DOSING_API_MAPPING,
+    DOSING_TYPE_MAPPING,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,9 +38,7 @@ class VioletControlServiceHandlers:
 
     async def handle_control_pump(self, call: ServiceCall) -> None:
         """Handle pump control service."""
-        coordinators = await self.manager.get_coordinators_for_entities(
-            call.data[ATTR_ENTITY_ID]
-        )
+        coordinators = await self.manager.get_coordinators_for_call(call)
         action = call.data["action"]
 
         speed_raw = call.data.get("speed", 2)
@@ -107,9 +109,7 @@ class VioletControlServiceHandlers:
 
     async def handle_smart_dosing(self, call: ServiceCall) -> None:
         """Handle smart dosing service."""
-        coordinators = await self.manager.get_coordinators_for_entities(
-            call.data[ATTR_ENTITY_ID]
-        )
+        coordinators = await self.manager.get_coordinators_for_call(call)
         dosing_type = call.data["dosing_type"]
         action = call.data["action"]
 
@@ -145,8 +145,11 @@ class VioletControlServiceHandlers:
                 result = {"success": True}
 
                 if action == "manual_dose":
+                    api_dosing_type = DOSING_API_MAPPING.get(
+                        dosing_type, dosing_type
+                    )
                     result = await coordinator.device.api.manual_dosing(
-                        dosing_type, duration
+                        api_dosing_type, duration
                     )
                     _LOGGER.info(
                         "Manual dosing %s for %ds (sanitized)", dosing_type, duration
@@ -186,9 +189,7 @@ class VioletControlServiceHandlers:
 
     async def handle_manage_pv_surplus(self, call: ServiceCall) -> None:
         """Handle PV surplus management service."""
-        coordinators = await self.manager.get_coordinators_for_entities(
-            call.data[ATTR_ENTITY_ID]
-        )
+        coordinators = await self.manager.get_coordinators_for_call(call)
         mode = call.data["mode"]
         try:
             pump_speed = int(call.data.get("pump_speed", 2))
@@ -298,9 +299,7 @@ class VioletControlServiceHandlers:
 
     async def handle_set_light_color_pulse(self, call: ServiceCall) -> None:
         """Handle light color pulse service."""
-        coordinators = await self.manager.get_coordinators_for_entities(
-            call.data[ATTR_ENTITY_ID]
-        )
+        coordinators = await self.manager.get_coordinators_for_call(call)
         pulse_count = call.data.get("pulse_count", 1)
         pulse_interval = call.data.get("pulse_interval", 500)
 

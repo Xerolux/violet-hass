@@ -183,11 +183,12 @@ node_modules/
 package-lock.json
 
 # Docker Test Environment - SENSITIVE DATA!
-tests/docker/
 tests/docker/test_credentials.txt
 tests/docker/*.local.txt
 docker-compose.yml
 docker-compose.override.yml
+config/test_secrets.ps1
+config/.test_token
 
 # Debug scripts with credentials
 scripts/debug_tools/

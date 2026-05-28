@@ -2,6 +2,10 @@
 control_pump:
   name: Pump Control
   description: Control the pool pump with advanced options
+  target:
+    entity:
+      integration: violet_pool_controller
+      domain: switch
   fields:
     action:
       description: Control action
@@ -34,6 +38,10 @@ control_pump:
 smart_dosing:
   name: Smart Dosing
   description: Manual or automatic dosing control
+  target:
+    entity:
+      integration: violet_pool_controller
+      domain: switch
   fields:
     dosing_type:
       description: Type of dosing chemical
@@ -71,6 +79,10 @@ smart_dosing:
 manage_pv_surplus:
   name: PV Surplus Management
   description: Control PV surplus mode
+  target:
+    entity:
+      integration: violet_pool_controller
+      domain: switch
   fields:
     mode:
       description: PV surplus mode
@@ -93,6 +105,9 @@ manage_pv_surplus:
 control_dmx_scenes:
   name: DMX Scene Control
   description: Control DMX lighting scenes
+  target:
+    device:
+      integration: violet_pool_controller
   fields:
     action:
       description: DMX action
@@ -117,6 +132,10 @@ control_dmx_scenes:
 set_light_color_pulse:
   name: Light Color Pulse
   description: Send color pulse command to pool lighting
+  target:
+    entity:
+      integration: violet_pool_controller
+      domain: switch
   fields:
     pulse_count:
       description: Number of color pulses
@@ -137,6 +156,9 @@ set_light_color_pulse:
 manage_digital_rules:
   name: Digital Rules Management
   description: Manage digital input automation rules
+  target:
+    device:
+      integration: violet_pool_controller
   fields:
     rule_key:
       description: Rule to manage
@@ -164,13 +186,10 @@ manage_digital_rules:
 test_output:
   name: Output Test Mode
   description: Temporarily activate a controller output for diagnostics
+  target:
+    device:
+      integration: violet_pool_controller
   fields:
-    device_id:
-      description: Target device
-      required: true
-      selector:
-        device:
-          integration: violet_pool_controller
     output:
       description: "Output identifier (e.g. PUMP, HEATER, SOLAR)"
       required: true
@@ -197,13 +216,10 @@ test_output:
 export_diagnostic_logs:
   name: Export Diagnostic Logs
   description: Export recent integration logs for troubleshooting and support
+  target:
+    device:
+      integration: violet_pool_controller
   fields:
-    device_id:
-      description: Target device
-      required: true
-      selector:
-        device:
-          integration: violet_pool_controller
     lines:
       description: "Number of recent log lines to export (default: 100, max: 10000)"
       default: 100
@@ -227,24 +243,17 @@ export_diagnostic_logs:
 get_connection_status:
   name: Get Connection Status
   description: Get detailed connection status and health metrics for troubleshooting
-  fields:
-    device_id:
-      description: Target device
-      required: true
-      selector:
-        device:
-          integration: violet_pool_controller
+  target:
+    device:
+      integration: violet_pool_controller
 
 get_error_summary:
   name: Get Error Summary
   description: Get summary of recent errors and recovery suggestions
+  target:
+    device:
+      integration: violet_pool_controller
   fields:
-    device_id:
-      description: Target device
-      required: true
-      selector:
-        device:
-          integration: violet_pool_controller
     include_history:
       description: Include detailed error history
       default: false
@@ -254,22 +263,14 @@ get_error_summary:
 test_connection:
   name: Test Connection
   description: Test connection to the controller and return diagnostic information
-  fields:
-    device_id:
-      description: Target device
-      required: true
-      selector:
-        device:
-          integration: violet_pool_controller
+  target:
+    device:
+      integration: violet_pool_controller
 
 clear_error_history:
   name: Clear Error History
   description: Clear error history after successful recovery (use with caution)
-  fields:
-    device_id:
-      description: Target device
-      required: true
-      selector:
-        device:
-          integration: violet_pool_controller
+  target:
+    device:
+      integration: violet_pool_controller
 

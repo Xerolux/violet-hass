@@ -28,6 +28,13 @@ DOSING_TYPE_MAPPING = {
     "Flocculant": "DOS_6_FLOC",
 }
 
+DOSING_API_MAPPING = {
+    "pH-": "pH-",
+    "pH+": "pH+",
+    "Chlorine": "Chlor",
+    "Flocculant": "Flockmittel",
+}
+
 MIN_DOSING_DURATION = 5
 MAX_DOSING_DURATION = 300
 MIN_PUMP_SPEED = 1

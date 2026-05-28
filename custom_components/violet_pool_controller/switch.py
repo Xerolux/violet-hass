@@ -645,7 +645,6 @@ async def async_setup_entry(
             ),
             icon=switch_config.get("icon"),
             entity_category=switch_config.get("entity_category"),
-            primary=switch_config.get("primary", False),
             entity_registry_enabled_default=switch_config.get(
                 "entity_registry_enabled_default", True
             ),
