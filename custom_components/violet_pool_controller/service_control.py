@@ -268,18 +268,52 @@ class VioletControlServiceHandlers:
                         device_id,
                     )
 
+                    failed_scenes: list[str] = []
                     for scene in scenes:
-                        await coordinator.device.api.set_switch_state(scene, ACTION_ON)
+                        r_on = await coordinator.device.api.set_switch_state(
+                            key=scene, action=ACTION_ON
+                        )
+                        if r_on.get("success") is not True:
+                            _LOGGER.warning(
+                                "DMX scene %s ON failed: %s",
+                                scene,
+                                r_on.get("response"),
+                            )
+                            failed_scenes.append(scene)
                         await asyncio.sleep(sequence_delay)
-                        await coordinator.device.api.set_switch_state(scene, ACTION_OFF)
+                        r_off = await coordinator.device.api.set_switch_state(
+                            key=scene, action=ACTION_OFF
+                        )
+                        if r_off.get("success") is not True:
+                            _LOGGER.warning(
+                                "DMX scene %s OFF failed: %s",
+                                scene,
+                                r_off.get("response"),
+                            )
 
-                    result = {"success": True, "response": "Sequence completed"}
+                    if failed_scenes:
+                        result = {
+                            "success": False,
+                            "response": f"Sequence failed for: {', '.join(failed_scenes)}",
+                        }
+                    else:
+                        result = {"success": True, "response": "Sequence completed"}
 
                 elif action == "party_mode":
                     _LOGGER.info("Party mode activated! (device %s)", device_id)
-                    await coordinator.device.api.set_all_dmx_scenes(ACTION_ALLON)
-                    await coordinator.device.api.set_light_color_pulse()
-                    result = {"success": True, "response": "Party mode activated"}
+                    r_dmx = await coordinator.device.api.set_all_dmx_scenes(ACTION_ALLON)
+                    r_pulse = await coordinator.device.api.set_light_color_pulse()
+                    if r_dmx.get("success") is True and r_pulse.get("success") is True:
+                        result = {"success": True, "response": "Party mode activated"}
+                    else:
+                        result = {
+                            "success": False,
+                            "response": (
+                                f"Party mode partially failed — "
+                                f"DMX: {r_dmx.get('response')}, "
+                                f"pulse: {r_pulse.get('response')}"
+                            ),
+                        }
 
                 else:
                     raise HomeAssistantError(f"Unsupported DMX action: {action}")
