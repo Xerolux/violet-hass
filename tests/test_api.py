@@ -694,10 +694,9 @@ async def test_set_all_dmx_scenes_alloff(
     mock_aioresponse: aioresponses,
     api_client: VioletPoolAPI,
 ) -> None:
-    """Test set_all_dmx_scenes sends ALLOFF to all 12 DMX scenes."""
-    for i in range(1, 13):
-        url = f"http://192.168.1.100/setFunctionManually?DMX_SCENE{i},ALLOFF,0,0"
-        mock_aioresponse.get(url, body="OK", status=200)
+    """Test set_all_dmx_scenes sends a single ALLOFF request to DMX_SCENE1."""
+    url = "http://192.168.1.100/setFunctionManually?DMX_SCENE1,ALLOFF,0,0"
+    mock_aioresponse.get(url, body="OK", status=200)
 
     result = await api_client.set_all_dmx_scenes("ALLOFF")
 

@@ -1038,13 +1038,16 @@ class VioletPoolAPI:
         )
 
     async def set_all_dmx_scenes(self, action: str) -> dict[str, Any]:
-        """Send the same command to all DMX scenes.
+        """Send a global DMX command that affects all scenes and the LIGHT output.
+
+        The controller treats ALLON/ALLOFF/ALLAUTO as global actions: a single
+        request to any DMX_SCENE key switches all 12 scenes and LIGHT at once.
 
         Args:
             action: The action to perform (ALLON, ALLOFF, ALLAUTO).
 
         Returns:
-            A dictionary with the combined command results.
+            A dictionary with the command result.
 
         Raises:
             VioletPoolAPIError: If the action is unsupported.
@@ -1054,28 +1057,7 @@ class VioletPoolAPI:
             msg = f"Unsupported DMX action: {action}"
             raise VioletPoolAPIError(msg)
 
-        tasks = []
-        for scene in range(1, 13):
-            key = f"DMX_SCENE{scene}"
-            tasks.append(self.set_switch_state(key, action))
-
-        # Run requests concurrently
-        raw_results = await asyncio.gather(*tasks, return_exceptions=True)
-
-        results: list[dict[str, Any]] = []
-        for res in raw_results:
-            if isinstance(res, Exception):
-                results.append(
-                    {"success": False, "response": f"{type(res).__name__}: {res!s}"},
-                )
-            elif isinstance(res, dict):
-                results.append(res)
-
-        success = all(result.get("success") is True for result in results)
-        response = ", ".join(
-            str(result.get("response", "")) for result in results if result.get("response")
-        )
-        return {"success": success, "response": response}
+        return await self.set_switch_state("DMX_SCENE1", action)
 
     async def set_light_color_pulse(self) -> dict[str, Any]:
         """Trigger the color pulse animation for the pool light.
