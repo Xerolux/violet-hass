@@ -214,12 +214,12 @@ async def test_set_config_sanitizes_payload_before_request(
     api_client: VioletPoolAPI,
     monkeypatch: pytest.Monkeypatch,
 ) -> None:
-    """Test set_config applies sanitizer before sending JSON payload."""
+    """Test set_config applies sanitizer before sending form-encoded payload."""
     captured: dict[str, object] = {}
 
     async def fake_request(endpoint: str, **kwargs: Any) -> str:  # noqa: ANN401
         captured["endpoint"] = endpoint
-        captured["json_payload"] = kwargs.get("json_payload")
+        captured["data"] = kwargs.get("data")
         return "OK"
 
     monkeypatch.setattr(api_client, "_request", fake_request)
@@ -228,7 +228,7 @@ async def test_set_config_sanitizes_payload_before_request(
 
     assert result["success"] is True
     assert result["response"] == "OK"
-    assert captured["json_payload"] == {"poolmode": "A<mode>", "speed": 3.7}
+    assert captured["data"] == {"poolmode": "A<mode>", "speed": 3.7}
 
 
 @pytest.mark.asyncio

@@ -17,7 +17,7 @@ permissions:
 jobs:
   dev-release:
     runs-on: ubuntu-latest
-    if: "!startsWith(github.event.head_commit.message, 'chore: bump dev version')"
+    if: github.event.head_commit.message == '' || !startsWith(github.event.head_commit.message, 'chore: bump dev version')
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
