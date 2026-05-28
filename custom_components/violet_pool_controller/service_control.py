@@ -353,13 +353,13 @@ class VioletControlServiceHandlers:
 
                 elif action == "lock":
                     result = await coordinator.device.api.set_digital_input_rule_lock(
-                        rule_key, True
+                        rule_key, locked=True
                     )
                     _LOGGER.info("Rule %s locked (device %s)", rule_key, device_id)
 
                 elif action == "unlock":
                     result = await coordinator.device.api.set_digital_input_rule_lock(
-                        rule_key, False
+                        rule_key, locked=False
                     )
                     _LOGGER.info("Rule %s unlocked (device %s)", rule_key, device_id)
 
