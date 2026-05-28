@@ -1,7 +1,8 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
+
 setup(
     name="violet-poolController-api",
-    version="0.0.22",
+    version="0.0.23",
     author="Basti (Xerolux)",
     author_email="git@xerolux.de",
     description="Asynchronous Python client for the Violet Pool Controller.",

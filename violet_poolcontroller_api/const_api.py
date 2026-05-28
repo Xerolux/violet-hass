@@ -31,8 +31,6 @@ from __future__ import annotations
 
 API_READINGS = "/getReadings"
 API_SET_FUNCTION_MANUALLY = "/setFunctionManually"
-API_SET_DOSING_PARAMETERS = "/setDosingParameters"
-API_SET_TARGET_VALUES = "/setTargetValues"
 API_GET_CONFIG = "/getConfig"
 API_SET_CONFIG = "/setConfig"
 API_GET_CALIB_RAW_VALUES = "/getCalibRawValues"

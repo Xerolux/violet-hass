@@ -1,6 +1,6 @@
 # Violet Pool Controller API - Referenzdokument
 
-> Software 1.1.9 | Stand 05/2026 | violet-poolController-api v0.0.18
+> Software 1.1.9 | Stand 05/2026 | violet-poolController-api v0.0.23
 
 ## Inhaltsverzeichnis
 
@@ -17,9 +17,10 @@
 11. [Kalibrierung](#11-kalibrierung)
 12. [Fehlercodes](#12-fehlercodes)
 13. [Gerätestates dekodieren](#13-gerätestates-dekodieren)
-14. [Controller-Endpoints (Raw)](#14-controller-endpoints-raw)
-15. [Response-Format](#15-response-format)
-16. [Rate Limiting & Prioritäten](#16-rate-limiting--prioritäten)
+14. [Konfigurations-Schlüssel](#14-konfigurations-schlüssel-getconfig--post-setconfig)
+15. [Controller-Endpoints (Raw)](#15-controller-endpoints-raw)
+16. [Response-Format](#16-response-format)
+17. [Rate Limiting & Prioritäten](#17-rate-limiting--prioritäten)
 
 ---
 
@@ -273,8 +274,9 @@ result = await api.set_dosing_parameters({
 })
 ```
 
-- **Endpoint**: `POST /setDosingParameters` (JSON)
+- **Endpoint**: `POST /setConfig` (JSON) — delegates to `set_config()`
 - **Parameter**: `Mapping[str, Any]`
+- **Hinweis**: `/setDosingParameters` existiert nicht auf dem Controller (FW 1.1.9), alle Dosierparameter werden über `/setConfig` geschrieben
 
 ---
 
@@ -355,8 +357,8 @@ result = await api.set_all_dmx_scenes("ALLON")    # Alle an
 result = await api.set_all_dmx_scenes("ALLAUTO")  # Alle auf Auto
 ```
 
-- **Sendet 12 parallele Requests** via `asyncio.gather`
-- **Rückgabe**: `{"success": bool, "response": str}` (kombiniert)
+- **Sendet einen einzelnen Request** — ALLON/ALLOFF/ALLAUTO sind globale Aktionen, ein Request an DMX_SCENE1 schaltet alle 12 Szenen + LIGHT gleichzeitig
+- **Rückgabe**: `{"success": bool, "response": str}`
 
 ---
 
@@ -394,7 +396,7 @@ await api.set_device_temperature("HEATER", 28.0)   # Heizung auf 28°C
 await api.set_device_temperature("SOLAR", 30.0)     # Solar auf 30°C
 ```
 
-- **Endpoint**: `GET /setTargetValues?target={climate_key}_TARGET_TEMP&value={temp}`
+- **Endpoint**: `POST /setConfig` — delegates to `set_target_value()` → `set_config()`
 - **Parameter**:
 
 | Parameter | Typ | Beschreibung |
@@ -408,7 +410,15 @@ await api.set_device_temperature("SOLAR", 30.0)     # Solar auf 30°C
 await api.set_ph_target(7.2)
 ```
 
-- **Endpoint**: `GET /setTargetValues?target=pH&value=7.2`
+- **Endpoint**: `POST /setConfig` — delegates to `set_target_value()` → `set_config()`
+
+### 8.2 `set_ph_target(value)` - pH-Sollwert
+
+```python
+await api.set_ph_target(7.2)
+```
+
+- **Endpoint**: `POST /setConfig` — delegates to `set_target_value()` → `set_config()`
 
 ### 8.3 `set_orp_target(value)` - Redox-Sollwert
 
@@ -416,7 +426,7 @@ await api.set_ph_target(7.2)
 await api.set_orp_target(750)
 ```
 
-- **Endpoint**: `GET /setTargetValues?target=ORP&value=750`
+- **Endpoint**: `POST /setConfig` — delegates to `set_target_value()` → `set_config()`
 
 ### 8.4 `set_min_chlorine_level(value)` - Mindest-Chlorgehalt
 
@@ -424,7 +434,7 @@ await api.set_orp_target(750)
 await api.set_min_chlorine_level(0.5)
 ```
 
-- **Endpoint**: `GET /setTargetValues?target=MinChlorine&value=0.5`
+- **Endpoint**: `POST /setConfig` — delegates to `set_target_value()` → `set_config()`
 
 ### 8.5 `set_target_value(key, value)` - Generischer Zielwert
 
@@ -432,7 +442,8 @@ await api.set_min_chlorine_level(0.5)
 await api.set_target_value("HEATER_TARGET_TEMP", 28.0)
 ```
 
-- **Endpoint**: `GET /setTargetValues?target={key}&value={value}`
+- **Endpoint**: `POST /setConfig` — delegates to `set_config({key: value})`
+- **Hinweis**: `/setTargetValues` existiert nicht auf dem Controller (FW 1.1.9)
 
 ---
 
@@ -724,7 +735,350 @@ state.description # "Frost Protection Active"
 
 ---
 
-## 14. Controller-Endpoints (Raw)
+## 14. Konfigurations-Schlüssel (`/getConfig` / `POST /setConfig`)
+
+Alle Konfigurationswerte werden über `GET /getConfig?key1,key2` gelesen und über `POST /setConfig` (form-encoded) geschrieben. Die Schlüssel entsprechen den HTML-Element-IDs des Controller-WebUI.
+
+### 14.1 Benutzer & Pool (`configuration.htm` CID=1,2)
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `USER_salutation` | int (0-2) | Anrede |
+| `USER_firstname` | string | Vorname |
+| `USER_lastname` | string | Nachname |
+| `USER_birthday` | string (DD.MM.YYYY) | Geburtstag |
+| `USER_street`, `USER_streetnr` | string | Straße / Nr. |
+| `USER_zip`, `USER_city` | string | PLZ / Ort |
+| `USER_country` | string (ISO) | Land (z.B. "DE") |
+| `USER_email` | string | E-Mail |
+| `USER_pp_accepted_cloud` | int (0/1) | Datenschutz Cloud |
+| `POOL_location` | int (0/1) | Standort (indoor/outdoor) |
+| `POOL_type` | int (0/1) | Beckentyp |
+| `POOL_cover` | int (0-4) | Abdeckungstyp |
+| `POOL_surface` | float | Oberfläche (m²) |
+| `POOL_volume` | float | Volumen (m³) |
+| `POOL_usage` | float (0/0.25/0.50) | Nutzungsfaktor |
+
+### 14.2 Benachrichtigungen (`configuration.htm` CID=3)
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `NOTIFY_email_enable` | int (0/1) | E-Mail aktiv |
+| `NOTIFY_email_service` | int (0/1) | 0=VIOLET-Service, 1=SMTP |
+| `NOTIFY_email_smtp_host` | string | SMTP-Host |
+| `NOTIFY_email_smtp_port` | int | SMTP-Port |
+| `NOTIFY_email_smtp_user` | string | SMTP-User |
+| `NOTIFY_email_smtp_pass` | string | SMTP-Passwort |
+| `NOTIFY_email_smtp_sender` | string | Absender-Adresse |
+| `NOTIFY_email_sender_name` | string | Absender-Name |
+| `NOTIFY_email{1-5}` | string | E-Mail-Empfänger 1-5 |
+| `NOTIFY_email{1-5}_active` | int (0/1) | Empfänger aktiv |
+| `NOTIFY_push_enable` | int (0/1) | Push aktiv |
+| `NOTIFY_push_serviceprovider` | int (0/1) | 0=Pushover, 1=Telegram |
+| `NOTIFY_push_user_key` | string | Pushover User Key |
+| `NOTIFY_push_api_token` | string | Pushover API Token |
+| `NOTIFY_push_sender_name` | string | Push-Absender-Name |
+| `NOTIFY_telegram_user_id` | string | Telegram User ID |
+| `NOTIFY_http_enable` | int (0/1) | HTTP-Benachrichtigung aktiv |
+| `NOTIFY_http_baseurl` | string | HTTP Basis-URL |
+| `NOTIFY_http_path` | string | HTTP Pfad |
+| `NOTIFY_http_query` | string | HTTP Query-Parameter |
+| `NOTIFY_http_type` | string (GET/POST) | HTTP-Methode |
+| `NOTIFY_http_response_ok` | string | Erwartete OK-Antwort |
+| `NOTIFY_http_response_error` | string | Erwartete Fehler-Antwort |
+| `NOTIFY_dailystatus_enable` | int (0/1) | Täglicher Status aktiv |
+| `NOTIFY_dailystatus_on` | string (HH:MM) | Sendezeitpunkt |
+| `NOTIFY_FEM_messageoptions` | int | Message-Options Bitmask |
+
+### 14.3 Funktionssteuerung (`configuration.htm` CID=4)
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `MENU_control_1` | string (none/block) | Filterpumpe aktiv |
+| `PUMP_type` | int (0/1/2) | 0=Einstufig, 1=Drehzahl, 2=RS485 |
+| `PUMP_pconsumtion_{0-3}` | float | Stromverbrauch pro Stufe (W) |
+| `PUMP_capacity_{0-3}` | float | Fördermenge pro Stufe (l/h) |
+| `PUMP_RS485_model` | string | RS485 Pumpenmodell |
+| `PUMP_RS485_slaveid` | int | RS485 Slave-ID |
+| `PUMP_RS485_prog{1-3}_value` | float | RS485 Programmwert |
+| `PUMP_RS485_prog{1-3}_mode` | string | RS485 Modus (RPM/PWR/HZ) |
+| `MENU_control_2` | string (none/block) | Solar aktiv |
+| `SOLAR_control_type` | int (1/2) | Solartyp |
+| `SOLAR_dashboardsensor_{1-3}` | int | Sensor-Zuordnung (1-12) |
+| `SOLAR_maxtemp` | float | Solarmaximaltemperatur (°C) |
+| `MENU_control_3` | string (none/block) | Heizung aktiv |
+| `HEATER_type` | int (0/1) | 0=Relais, 1=Wärmepumpe |
+| `HEATER_set_temp` | float | Heizung Solltemperatur (°C) |
+| `HEATER_dashboardsensor_{1-3}` | int | Sensor-Zuordnung (1-12) |
+| `MENU_control_4` | string (none/block) | Rückspülung aktiv |
+| `BACKWASH_type` | int (0/1) | Rückspültyp |
+| `BACKWASH_capacity` | float | Behältervolumen (l) |
+| `MENU_control_5` | string (none/block) | Nachspeisung aktiv |
+| `REFILL_capacity` | float | Nachspeisevolumen (l) |
+| `REFILL_flowSurveillance_use` | int (0/1) | Durchflussüberwachung (DI7) |
+| `MENU_control_6` | string (none/block) | Überlauf aktiv |
+| `OVERFLOW_footprint` | float | Grundfläche |
+| `OVERFLOW_fullat` | float | Füllstand voll |
+| `OVERFLOW_refillcapacity` | float | Nachspeisevolumen |
+| `MENU_control_7` | string (none/block) | Beleuchtung aktiv |
+| `LIGHT_control_has_colorchange` | int (0/1) | Farbwechsel unterstützt |
+| `LIGHT_control_max_rules` | int (1-12) | Anzahl Lichtregeln |
+| `LIGHT_control_dmx` | int (0/1) | DMX aktiv |
+| `LIGHT_control_max_dmx_pattern` | int (3/6/9/12) | Anzahl DMX-Muster |
+| `MENU_control_8` | string (none/block) | Abdeckung aktiv |
+| `COVER_control_type` | int (0/1) | 0=Vollständig, 1=Endschalter |
+| `COVER_control_web_open` | int (0/1) | Web-UI Öffnen erlaubt |
+| `COVER_control_web_close` | int (0/1) | Web-UI Schließen erlaubt |
+| `COVER_control_runtime` | int | Fahrzeit (sec) |
+| `WEATHER_use` | int (0/1) | Wetter aktiv |
+| `WEATHER_showindashboard` | int (0/1) | Im Dashboard anzeigen |
+| `WEATHER_apikey` | string | OpenWeatherMap API-Key |
+| `WEATHER_countrycode` | string | Ländercode |
+| `WEATHER_citycode` | string | Stadtid |
+| `WEATHER_cityname` | string | Stadtname |
+
+### 14.4 Dosierung (`configuration.htm` CID=5 + `dosage.htm`)
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `MENU_dosage_1` | string (none/block) | Chlor-Dosierung aktiv |
+| `DOSAGE_chlorine_flowrate` | int | Chlor Fließrate (ml/h) |
+| `MENU_dosage_2` | string (none/block) | Elektrolyse aktiv |
+| `DOSAGE_electrolysis_prodrate` | float | Produktionsrate (g/h) |
+| `DOSAGE_electrolysis_dashboardsensor_1` | int | Sensor-Zuordnung (3-5) |
+| `DOSAGE_cl_electrode_use` | int (0/1) | Chlor-Elektrode aktiv |
+| `MENU_dosage_3` | string (none/block) | H2O2 aktiv |
+| `DOSAGE_h2o2_flowrate` | float | H2O2 Fließrate |
+| `MENU_dosage_4` | string (none/block) | pH- aktiv |
+| `DOSAGE_phminus_flowrate` | float | pH- Fließrate |
+| `MENU_dosage_5` | string (none/block) | pH+ aktiv |
+| `DOSAGE_phplus_flowrate` | float | pH+ Fließrate |
+| `MENU_dosage_6` | string (none/block) | Flockmittel aktiv |
+| `DOSAGE_floc_flowrate` | float | Flockmittel Fließrate |
+
+**Dosierparameter (aus `dosage.htm`):**
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `DOSAGE_chlorine_setpoint_orp` | int | Chlor ORP-Sollwert (mV) |
+| `DOSAGE_chlorine_setpoint_chlorine` | float | Chlor-Sollwert (mg/l) |
+| `DOSAGE_chlorine_max_daily_output` | float | Max. Tagesmenge (ml) |
+| `DOSAGE_electrolysis_setpoint_orp` | int | Elektrolyse ORP-Sollwert (mV) |
+| `DOSAGE_electrolysis_setpoint_chlorine` | float | Elektrolyse Chlor-Sollwert |
+| `DOSAGE_electrolysis_max_daily_output` | float | Max. Tagesproduktion |
+| `DOSAGE_phminus_setpoint` | float | pH- Sollwert |
+| `DOSAGE_phminus_max_daily_output` | float | pH- Max. Tagesmenge |
+| `DOSAGE_phplus_setpoint` | float | pH+ Sollwert |
+| `DOSAGE_phplus_max_daily_output` | float | pH+ Max. Tagesmenge |
+| `DOSAGE_floc_dosing_interval` | int | Flockmittel Intervall (min) |
+| `DOSAGE_floc_dosing_volume` | float | Flockmittel Menge pro Intervall |
+| `DOSAGE_floc_max_daily_output` | float | Flockmittel Max. Tagesmenge |
+| `DOSAGE_h2o2_setpoint` | float | H2O2 Sollwert |
+| `DOSAGE_h2o2_max_daily_output` | float | H2O2 Max. Tagesmenge |
+
+**Hinweis**: Die Schlüssel `pH` und `ORP` sind ebenfalls gültige Config-Keys für die jeweiligen Sollwerte.
+
+### 14.5 Sensoren & Kalibrierung (`configuration.htm` CID=6)
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `NAMES_onewire{1-12}` | string | Sensorname |
+| `ROMCODE_onewire{1-12}` | string | ROM-Code Zuordnung |
+| `OFFSET_{romcode}` | float | Kalibrierungs-Offset |
+| `ONEWIRE_FEM_messageoptions` | int | Sensor-Warnung Bitmask |
+
+### 14.6 Impulszähler & Analoge Eingänge (`configuration.htm` CID=7)
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `IMPULS_input1_use` | int (0/1) | Impulseingang 1 aktiv |
+| `IMPULS_input1_echo_or_switch` | int (0/1) | Echo/Schalter |
+| `NAMES_impulscount{1-2}` | string | Impulszähler-Name |
+| `IMPULS_input1_pulses_per_liter` | float | Impulse/Liter |
+| `IMPULS_input1_diameter_cell` | float | Zelldurchmesser |
+| `IMPULS_input2_use` | int (0/1) | Impulseingang 2 aktiv |
+| `IMPULS_input2_signal` | int (0-2) | Signalart |
+| `IMPULS_input2_pulses_per_liter` | float | Impulse/Liter |
+| `IMPULS_input2_hz_per_ms` | float | Hz pro ms |
+| `IMPULS_input2_hz_per_qm` | float | Hz pro m² |
+| `IMPULS_input2_diameter_pipe` | float | Rohrdurchmesser |
+| `ANALOG_adc{1-5}_use` | int (0/1) | ADC-Eingang aktiv |
+| `NAMES_adc{1-5}` | string | ADC-Name |
+| `ANALOG_adc{1-5}_units` | string | Einheit |
+| `ANALOG_adc{1-5}_decimal` | int | Nachkommastellen |
+| `ANALOG_adc{1-5}_offset` | float | Offset |
+| `ANALOG_adc{1-5}_signal_min` | float | Signal Minimum (mA/mV) |
+| `ANALOG_adc{1-5}_signal_max` | float | Signal Maximum (mA/mV) |
+| `ANALOG_adc{1-5}_range_min` | float | Messbereich Minimum |
+| `ANALOG_adc{1-5}_range_max` | float | Messbereich Maximum |
+
+### 14.7 DMX-Lichtmuster (`configuration.htm` CID=8)
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `LIGHT_pattern{1-12}_name` | string | Mustername |
+| `LIGHT_pattern{1-12}_channels` | string (CSV) | Aktive Kanäle (z.B. "1,3,5,EXT1_2") |
+| `LIGHT_pattern{1-12}_values` | string (CSV) | Kanalwerte (0-255) |
+| `LIGHT_pattern{1-12}_is_chained_to` | string (CSV) | Verkettete Muster |
+
+### 14.8 Schaltregeln (`configuration.htm` CID=9 + `rules.htm`)
+
+**Regel-Aktivierung:**
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `MENU_rules_1` | string (none/block) | Zeitprogramme aktiv |
+| `MENU_rules_2` | string (none/block) | Temperatur-Regeln aktiv |
+| `MENU_rules_3` | string (none/block) | Schaltregeln aktiv |
+| `MENU_rules_4` | string (none/block) | Analog-Regeln aktiv |
+| `TIMERRULE_max_rules` | int (1-8) | Anzahl Zeitprogramme |
+| `TEMPRULE_max_rules` | int (1-8) | Anzahl Temperatur-Regeln |
+| `SWITCHINGRULE_max_rules` | int (1-7) | Anzahl Schaltregeln |
+| `ANALOGRULE_max_rules` | int (1-8) | Anzahl Analog-Regeln |
+
+**Zeitprogramme (TIMERRULE, 1-8):**
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `TIMERRULE_prog{i}_on_type` | int | Start-Typ |
+| `TIMERRULE_prog{i}_on_time` | string (HH:MM) | Start-Zeit |
+| `TIMERRULE_prog{i}_on_weekdays` | int | Wochentage Bitmask |
+| `TIMERRULE_prog{i}_off_type` | int | Stop-Typ |
+| `TIMERRULE_prog{i}_off_time` | string (HH:MM) | Stop-Zeit |
+| `TIMERRULE_prog{i}_off_timer` | string (HH:MM) | Timer-Dauer |
+| `TIMERRULE_prog{i}_output_{1-3}` | string | Ausgang (PUMP, LIGHT, ECO, EXT*) |
+| `TIMERRULE_prog{i}_output_{1-3}_state` | int (1/2) | 1=EIN, 2=AUS |
+
+**Temperatur-Regeln (TEMPRULE, 1-4):**
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `TEMPRULE_prog{i}_use` | int (0/1) | Regel aktiv |
+| `TEMPRULE_prog{i}_runtime_on` | string (HH:MM) | Zeitfenster Start |
+| `TEMPRULE_prog{i}_runtime_off` | string (HH:MM) | Zeitfenster Ende |
+| `TEMPRULE_prog{i}_sensor_1` | int | Sensor 1 (1-12) |
+| `TEMPRULE_prog{i}_sensor_2` | int | Sensor 2 (0=absolut, 1-12) |
+| `TEMPRULE_prog{i}_logic` | string (>= / <=) | Vergleichsoperator |
+| `TEMPRULE_prog{i}_diffval` | float | Einschalt-Differenz |
+| `TEMPRULE_prog{i}_hystval` | float | Ausschalt-Differenz |
+| `TEMPRULE_prog{i}_output_{1-3}` | string | Ausgang |
+| `TEMPRULE_prog{i}_output_{1-3}_state` | int (1/2) | EIN/AUS |
+| `TEMPRULE_prog{i}_FEM_messageoptions` | int | Benachrichtigung Bitmask |
+
+**Schaltregeln (SWITCHINGRULE, 1-7):**
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `SWITCHINGRULE_prog{i}_use` | int (0/1) | Regel aktiv |
+| `SWITCHINGRULE_prog{i}_name` | string (max 16) | Regelname |
+| `SWITCHINGRULE_prog{i}_input` | int (1-7) | Digitaleingang (DIN_1-7) |
+| `SWITCHINGRULE_prog{i}_type` | int (0-3) | Regeltyp |
+| `SWITCHINGRULE_prog{i}_runtime` | string (HHMMSS) | Timer-Dauer |
+| `SWITCHINGRULE_prog{i}_blocks_dosage` | int (0/1) | Blockiert Dosierung |
+| `SWITCHINGRULE_prog{i}_output_{1-3}` | string | Ausgang |
+| `SWITCHINGRULE_prog{i}_output_{1-3}_state` | int (1/2) | EIN/AUS |
+| `SWITCHINGRULE_prog{i}_FEM_messageoptions` | int | Benachrichtigung Bitmask |
+
+**Analog-Regeln (ANALOGRULE, 1-4):**
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `ANALOGRULE_prog{i}_use` | int (0/1) | Regel aktiv |
+| `ANALOGRULE_prog{i}_depending_on` | string | Abhängigkeit (PUMP, SOLAR, ...) |
+| `ANALOGRULE_prog{i}_runtime_on` | string (HH:MM) | Zeitfenster Start |
+| `ANALOGRULE_prog{i}_runtime_off` | string (HH:MM) | Zeitfenster Ende |
+| `ANALOGRULE_prog{i}_sensor` | int (1-5) | ADC-Eingang |
+| `ANALOGRULE_prog{i}_logic` | string (>= / <=) | Vergleichsoperator |
+| `ANALOGRULE_prog{i}_value` | float | Schaltpunkt EIN |
+| `ANALOGRULE_prog{i}_hyst` | float | Schaltpunkt AUS |
+| `ANALOGRULE_prog{i}_delay` | int | Verzögerung (sec) |
+| `ANALOGRULE_prog{i}_output_{1-3}` | string | Ausgang |
+| `ANALOGRULE_prog{i}_output_{1-3}_state` | int (1/2) | EIN/AUS |
+| `ANALOGRULE_prog{i}_FEM_messageoptions` | int | Benachrichtigung Bitmask |
+
+### 14.9 Erweiterungsmodule
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `EXTENSION_1_use` | int (0/1) | Erweiterung 1 aktiv |
+| `EXTENSION_2_use` | int (0/1) | Erweiterung 2 aktiv |
+| `NAMES_EXT{1-2}_{1-8}` | string | Relais-Name |
+
+### 14.10 System & Netzwerk (`system.htm`)
+
+**Netzwerk (CID=1) - speichert über `POST /setLanConfig`:**
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `NET_dhcp` | int (0/1) | DHCP aktiv (0=nein, 1=ja) |
+| `NET_ip` | string (IP) | Statische IP-Adresse |
+| `NET_sub` | string (IP) | Subnetzmaske |
+| `NET_gate` | string (IP) | Gateway |
+| `NET_dns` | string (IP) | DNS-Server |
+| `NET_wifi_use` | int (0/1) | WiFi DirectAccess aktiv |
+| `NET_wifi_ssid` | string (max 32) | WiFi SSID |
+| `NET_wifi_pass` | string (max 32) | WiFi Passwort (min 8) |
+| `NET_wifi_channel` | int (1-11) | WiFi Kanal |
+
+**GUI & Zeitzone (CID=2) - speichert über `POST /setConfig` bzw. `POST /setTimezone`:**
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `GUI_language` | string | Sprachdatei (z.B. "de") |
+| `GUI_color` | string | Farbschema (z.B. "blue_white") |
+| `GUI_accesslevel` | int (0-3) | Zugriffsstufe |
+| `NET_tz` | string | Zeitzone |
+
+**Dienste (CID=3) - verwendet eigene Endpoints:**
+
+| Schlüssel/Endpoint | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `tunnel_state` | int (0/1) | SSH-Tunnel (via `/enableTUNNEL`, `/disableTUNNEL`) |
+| `support_tunnel_state` | int (0/1) | Support-Tunnel (via `/enableSUPPORTTUNNEL`, `/disableSUPPORTTUNNEL`) |
+| `proftpd` | int (0/1) | FTP-Server (via `/enableFTP`, `/disableFTP`) |
+| `samba` | int (0/1) | SAMBA (via `/enableSAMBA`, `/disableSAMBA`) |
+| `sshd` | int (0/1) | SSH-Server (via `/enableSSH`, `/disableSSH`) |
+| `shairport` | int (0/1) | AirPlay (via `/enableSHAIRPORT`, `/disableSHAIRPORT`) |
+| `USER_pp_accepted` | int (0/1) | Datenschutz akzeptiert |
+
+**System (CID=4) - Read-only:**
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `SYSTEM_swversion` | string | Aktuelle Firmware-Version |
+| `SYSTEM_availableversion` | string | Verfügbare Version |
+| `SYSTEM_updateavailable` | string | "block" = Update verfügbar |
+| `SYSTEM_carrierboard_swversion` | string | Carrier-Board Version |
+
+**Backup (CID=5):**
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `BACKUP_local_active` | string | SD-Backup (OFF/ALL/0-6 für Wochentag) |
+| `BACKUP_local_time` | string (HH:MM) | SD-Backup Uhrzeit |
+| `BACKUP_local_active_usb` | string | USB-Backup (OFF/ALL/0-6) |
+| `BACKUP_local_time_usb` | string (HH:MM) | USB-Backup Uhrzeit |
+| `BACKUP_cloud_active` | string | Cloud-Backup (OFF/0-6) |
+| `BACKUP_cloud_time` | string (HH:MM) | Cloud-Backup Uhrzeit |
+| `BACKUP_cloud_user` | string | Cloud-Benutzername |
+| `BACKUP_is_usb_present` | string (YES/NO) | USB-Stick erkannt |
+
+**Namen (CID=6):**
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `NAMES_act{1-18}` | string | Ausgangsname (Pump/Solar/Heater/...) |
+| `NAMES_digitalinput{1-12}` | string | Digitaleingang-Name |
+| `NAMES_onewire{1-12}` | string | Temperatursensor-Name |
+| `NAMES_adc{1-5}` | string | Analogeingang-Name |
+| `NAMES_impulscount{1-2}` | string | Impulszähler-Name |
+| `NAMES_omni_dz{0-5}` | string | Omni DC-Name |
+| `NAMES_EXT{1-2}_{1-8}` | string | Erweiterungs-Relais-Name |
+| `NAMES_defaults_user_selectable` | int | Benutzerdefinierte Namen erlaubt |
+
+---
+
+## 15. Controller-Endpoints (Raw)
 
 ### Lese-Endpoints
 
@@ -746,9 +1100,49 @@ state.description # "Frost Protection Active"
 |----------|---------|-------------|
 | `/setFunctionManually` | GET | Universeller Schaltbefehl (`?AUSGANG,ACTION,WERT1,WERT2`) |
 | `/triggerManualDosing` | POST | Dosierung starten/stoppen (Form-Data) |
-| `/setTargetValues` | GET | Zielwerte setzen (`?target=...&value=...`) |
-| `/setDosingParameters` | POST JSON | Dosierparameter ändern |
-| `/setConfig` | POST | Konfiguration schreiben |
+| `/setConfig` | POST | Konfiguration schreiben (form-encoded) |
+| `/setLanConfig` | POST | Netzwerkkonfiguration (form-encoded) |
+| `/setTimezone` | POST | Zeitzone ändern (form-encoded, restart) |
+| `/setOutputTestmode` | POST | Testmodus aktivieren |
+| `/restoreOldCalib` | POST | Kalibrierung wiederherstellen |
+| `/enableTUNNEL` | GET | SSH-Tunnel aktivieren |
+| `/disableTUNNEL` | GET | SSH-Tunnel deaktivieren |
+| `/enableFTP` | GET | FTP-Server aktivieren |
+| `/disableFTP` | GET | FTP-Server deaktivieren |
+| `/enableSAMBA` | GET | SAMBA aktivieren |
+| `/disableSAMBA` | GET | SAMBA deaktivieren |
+| `/enableSUPPORTTUNNEL` | GET | Support-Tunnel aktivieren |
+| `/disableSUPPORTTUNNEL` | GET | Support-Tunnel deaktivieren |
+| `/getServiceStates` | GET | Dienst-Status abfragen |
+| `/getUpdateState` | GET | Update-Status abfragen |
+| `/getUpdateHistory` | GET | Update-Historie |
+| `/initUpdate` | GET | Update starten |
+| `/doManualBackup` | GET | Manuelles Backup (SD/USB/Cloud) |
+| `/restoreLocalBackup` | GET | Backup-Liste laden |
+| `/doLocalRestore` | GET | Backup wiederherstellen |
+| `/reboot` | GET | System neustarten |
+
+### Lese-Endpoints
+
+| Endpoint | Methode | Beschreibung |
+|----------|---------|-------------|
+| `/getReadings` | GET | Alle Daten (`?ALL` oder `?key1,key2`) |
+| `/getOutputstates` | GET | Ausgangs-Status-Flags |
+| `/getConfig` | GET | Konfiguration (`?key1,key2`) |
+| `/getHistory` | GET | Historie (`?hours=24&sensor=ALL`) |
+| `/getWeatherdata` | GET | Wetterdaten |
+| `/getOverallDosing` | GET | Dosierstatistik |
+| `/getCalibRawValues` | GET | Kalibrier-Rohwerte |
+| `/getCalibHistory` | GET | Kalibrierhistorie (`?sensor=...`) |
+| `/debughttp.htm` | GET | Debug-Seite (Live-Request-Logging) |
+
+### Schreib-Endpoints
+
+| Endpoint | Methode | Beschreibung |
+|----------|---------|-------------|
+| `/setFunctionManually` | GET | Universeller Schaltbefehl (`?AUSGANG,ACTION,WERT1,WERT2`) |
+| `/triggerManualDosing` | POST | Dosierung starten/stoppen (Form-Data) |
+| `/setConfig` | POST JSON | Konfiguration schreiben (auch für Zielwerte und Dosierparameter) |
 | `/setOutputTestmode` | POST | Testmodus aktivieren |
 | `/restoreOldCalib` | POST | Kalibrierung wiederherstellen |
 
@@ -771,7 +1165,7 @@ state.description # "Frost Protection Active"
 
 ---
 
-## 15. Response-Format
+## 16. Response-Format
 
 ### `/setFunctionManually` - Text/Plain (mehrzeilig)
 
@@ -822,7 +1216,7 @@ ERRORCODE=0173&SUBJECT=Flockmittel%3A+Kanister+Restinhalt+niedrig
 
 ---
 
-## 16. Rate Limiting & Prioritäten
+## 17. Rate Limiting & Prioritäten
 
 ### Rate Limiter
 

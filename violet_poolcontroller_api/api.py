@@ -50,7 +50,6 @@ from .const_api import (
     API_READINGS,
     API_RESTORE_CALIBRATION,
     API_SET_CONFIG,
-    API_SET_DOSING_PARAMETERS,
     API_SET_FUNCTION_MANUALLY,
     API_SET_OUTPUT_TESTMODE,
     API_TRIGGER_MANUAL_DOSING,
@@ -1117,8 +1116,8 @@ class VioletPoolAPI:
             A dictionary with the command result.
 
         """
-        target_key = f"{climate_key}_TARGET_TEMP"
-        return await self.set_target_value(target_key, float(temperature))
+        config_key = "SOLAR_maxtemp" if climate_key.upper() == "SOLAR" else f"{climate_key}_set_temp"
+        return await self.set_target_value(config_key, float(temperature))
 
     async def set_ph_target(self, value: float) -> dict[str, Any]:
         """Update the pH setpoint.
@@ -1173,7 +1172,11 @@ class VioletPoolAPI:
         self,
         parameters: Mapping[str, Any],
     ) -> dict[str, Any]:
-        """Update dosing parameters via the dedicated endpoint.
+        """Update dosing parameters via /setConfig.
+
+        The /setDosingParameters endpoint does not exist on the controller
+        (firmware 1.1.9). All dosing parameters are written through
+        POST /setConfig, just like other configuration values.
 
         Args:
             parameters: A mapping of dosing parameters.
@@ -1182,12 +1185,7 @@ class VioletPoolAPI:
             A dictionary with the command result.
 
         """
-        body = await self._request(
-            API_SET_DOSING_PARAMETERS,
-            method="POST",
-            data=dict(parameters),
-        )
-        return self._command_result(body)
+        return await self.set_config(dict(parameters))
 
     async def set_pump_speed(
         self,

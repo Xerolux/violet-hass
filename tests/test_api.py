@@ -785,6 +785,20 @@ async def test_set_device_temperature(
 
 
 @pytest.mark.asyncio
+async def test_set_device_temperature_solar(
+    mock_aioresponse: aioresponses,
+    api_client: VioletPoolAPI,
+) -> None:
+    """Test set_device_temperature uses SOLAR_maxtemp for SOLAR key."""
+    url = "http://192.168.1.100/setConfig"
+    mock_aioresponse.post(url, body="OK", status=200)
+
+    result = await api_client.set_device_temperature("SOLAR", 30.0)
+
+    assert result["success"] is True
+
+
+@pytest.mark.asyncio
 async def test_set_ph_target(
     mock_aioresponse: aioresponses,
     api_client: VioletPoolAPI,
@@ -845,8 +859,8 @@ async def test_set_dosing_parameters(
     mock_aioresponse: aioresponses,
     api_client: VioletPoolAPI,
 ) -> None:
-    """Test set_dosing_parameters sends POST with dosing configuration."""
-    url = "http://192.168.1.100/setDosingParameters"
+    """Test set_dosing_parameters sends POST via /setConfig."""
+    url = "http://192.168.1.100/setConfig"
     mock_aioresponse.post(url, body="OK", status=200)
 
     result = await api_client.set_dosing_parameters({"DOS_1_CL_DOSING_TIME": 30})
