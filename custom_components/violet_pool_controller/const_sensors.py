@@ -85,6 +85,15 @@ COMPOSITE_STATE_SENSORS = {
     "SOLARSTATE": {"name": "Solar Detail Status", "translation_key": "solarstate", "icon": "mdi:solar-power-variant"},
 }
 
+PRIMARY_SENSOR_KEYS = {
+    "onewire1_value",
+    "pH_value",
+    "pot_value",
+    "orp_value",
+    "IMP2_value",
+    "ADC1_value",
+}
+
 # =============================================================================
 # UNIT MAPPINGS
 # =============================================================================

@@ -111,6 +111,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             name=name,
             icon=icon,
             translation_key=climate_type.lower(),
+            primary=(climate_type == "HEATER"),
         )
 
         super().__init__(coordinator, config_entry, climate_description)

@@ -287,7 +287,12 @@ def should_skip_sensor(key: str, raw_value: Any) -> bool:
 
 
 def _build_sensor_description(
-    key: str, raw_value: Any, predefined: dict[str, Any], *, translation_key: str | None = None
+    key: str,
+    raw_value: Any,
+    predefined: dict[str, Any],
+    *,
+    translation_key: str | None = None,
+    primary: bool = False,
 ) -> SensorEntityDescription:
     """Builds a SensorEntityDescription for a given sensor key."""
     predefined_info = predefined.get(key)
@@ -343,5 +348,6 @@ def _build_sensor_description(
         if key.startswith("SYSTEM_")
         else None,
         translation_key=translation_key,
+        primary=primary,
     )
 

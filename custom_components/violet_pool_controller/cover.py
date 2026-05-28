@@ -55,6 +55,7 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
             name="Pool Cover",
             icon="mdi:window-shutter",
             translation_key="pool_cover",
+            primary=True,
         )
         super().__init__(coordinator, config_entry, entity_description)
         self._last_action: str | None = None

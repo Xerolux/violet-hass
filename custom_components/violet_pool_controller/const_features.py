@@ -222,6 +222,7 @@ SWITCHES = [
         "translation_key": "pump",
         "icon": "mdi:water-pump",
         "feature_id": "filter_control",
+        "primary": True,
     },
     {
         "key": "SOLAR",
@@ -229,6 +230,7 @@ SWITCHES = [
         "translation_key": "solar",
         "icon": "mdi:solar-power",
         "feature_id": "solar",
+        "primary": True,
     },
     {
         "key": "HEATER",

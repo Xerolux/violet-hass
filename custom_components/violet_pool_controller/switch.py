@@ -667,6 +667,7 @@ async def async_setup_entry(
             translation_key=switch_config.get("translation_key", switch_config["key"].lower()),
             icon=switch_config.get("icon"),
             entity_category=entity_category,
+            primary=switch_config.get("primary", False),
         )
 
         feature_id = switch_config.get("feature_id")
