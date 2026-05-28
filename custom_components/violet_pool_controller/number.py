@@ -268,16 +268,50 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
 
             api_key = self._api_key
 
-            if api_key == "PUMP_SPEED" or api_key.endswith("_TOTAL_CAN_AMOUNT_ML"):
-                config_value: int | float = int(sanitized_value)
+            if api_key == "pH":
+                _LOGGER.debug("Using set_ph_target (sanitized: %.2f)", sanitized_value)
+                result = await self.device.api.set_ph_target(sanitized_value)
+            elif api_key == "ORP":
+                _LOGGER.debug("Using set_orp_target (sanitized: %.1f)", sanitized_value)
+                result = await self.device.api.set_orp_target(sanitized_value)
+            elif api_key == "MinChlorine":
+                _LOGGER.debug(
+                    "Using set_min_chlorine_level (sanitized: %.2f)", sanitized_value
+                )
+                result = await self.device.api.set_min_chlorine_level(sanitized_value)
+            elif api_key == "PUMP_SPEED":
+                _LOGGER.debug(
+                    "Using set_pump_speed (sanitized: %d)", int(sanitized_value)
+                )
+                result = await self.device.api.set_pump_speed(int(sanitized_value))
+            elif api_key in ("HEATER_TARGET_TEMP", "SOLAR_TARGET_TEMP"):
+                _LOGGER.debug(
+                    "Using set_device_temperature for %s (sanitized: %.1f)",
+                    api_key.replace("_TARGET_TEMP", ""),
+                    sanitized_value,
+                )
+                climate_key = api_key.replace("_TARGET_TEMP", "")
+                result = await self.device.api.set_device_temperature(
+                    climate_key, sanitized_value
+                )
+            elif api_key.endswith("_TOTAL_CAN_AMOUNT_ML"):
+                _LOGGER.debug(
+                    "Using set_dosing_parameters for %s (sanitized: %.0f ml)",
+                    api_key,
+                    sanitized_value,
+                )
+                result = await self.device.api.set_dosing_parameters(
+                    {api_key: int(sanitized_value)}
+                )
             else:
-                config_value = sanitized_value
-            _LOGGER.debug(
-                "Using set_config for %s (sanitized: %s)",
-                api_key,
-                config_value,
-            )
-            result = await self.device.api.set_config({api_key: config_value})
+                _LOGGER.debug(
+                    "Using set_target_value for %s (sanitized: %.2f)",
+                    api_key,
+                    sanitized_value,
+                )
+                result = await self.device.api.set_target_value(
+                    api_key, sanitized_value
+                )
 
             if result.get("success") is True:
                 _LOGGER.info(

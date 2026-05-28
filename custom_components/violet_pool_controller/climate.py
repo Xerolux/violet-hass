@@ -268,8 +268,8 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                 temperature,
             )
 
-            result = await self.device.api.set_config(
-                {f"{self.climate_type}_TARGET_TEMP": temperature}
+            result = await self.device.api.set_device_temperature(
+                self.climate_type, temperature
             )
 
             if result.get("success") is True:
