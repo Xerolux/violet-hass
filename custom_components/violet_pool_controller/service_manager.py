@@ -37,7 +37,11 @@ class VioletServiceManager:
         if device:
             for config_entry_id in device.config_entries:
                 coordinator = domain_data.get(config_entry_id)
-                if coordinator and hasattr(coordinator, "device") and coordinator.device:
+                if (
+                    coordinator
+                    and hasattr(coordinator, "device")
+                    and coordinator.device
+                ):
                     return coordinator
 
         return None

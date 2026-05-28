@@ -6,6 +6,7 @@
 # =============================================================================
 
 """Binary sensor platform for Violet Pool Controller."""
+
 from __future__ import annotations
 
 import logging
@@ -96,7 +97,9 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
 
         # Handle outline icons
         if base_icon.endswith("-outline"):
-            return base_icon.replace("-outline", "") if self.is_on is True else base_icon
+            return (
+                base_icon.replace("-outline", "") if self.is_on is True else base_icon
+            )
 
         # Add -off suffix for inactive state
         if self.is_on is False and not base_icon.endswith("-off"):
@@ -165,8 +168,7 @@ async def async_setup_entry(
     # None-check for coordinator.data
     if coordinator.data is None:
         _LOGGER.warning(
-            "Coordinator data is None for '%s'. "
-            "Binary sensors will not be created.",
+            "Coordinator data is None for '%s'. Binary sensors will not be created.",
             config_entry.title,
         )
         return

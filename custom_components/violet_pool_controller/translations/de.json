@@ -31,6 +31,7 @@
           "username": "Benutzername (optional)",
           "password": "Passwort (optional)",
           "use_ssl": "SSL/HTTPS verwenden",
+          "verify_ssl": "SSL-Zertifikat überprüfen",
           "device_name": "Gerätename",
           "controller_name": "Controller-Name",
           "device_id": "Geräte-ID",
@@ -44,6 +45,7 @@
           "username": "Nur falls Authentifizierung aktiv",
           "password": "Passwort eingeben, falls benötigt",
           "use_ssl": "HTTPS aktivieren, falls konfiguriert",
+          "verify_ssl": "SSL-Zertifikat des Controllers überprüfen (für selbstsignierte Zertifikate deaktivieren)",
           "device_name": "Anzeigename in Home Assistant",
           "controller_name": "Name des Controllers für die Anzeige",
           "device_id": "Eindeutige ID bei mehreren Controllern",
@@ -136,6 +138,22 @@
           "retry_attempts": "Anzahl Wiederholungsversuche"
         }
       },
+      "repair": {
+        "title": "Controller-Verbindung reparieren",
+        "description": "Der Controller **{controller_name}** antwortet nicht.\n\nStellen Sie sicher, dass der Controller eingeschaltet und mit dem Netzwerk verbunden ist, und aktualisieren Sie die Verbindungseinstellungen.",
+        "data": {
+          "host": "IP-Adresse",
+          "port": "TCP-Port",
+          "username": "Benutzername",
+          "password": "Passwort"
+        },
+        "data_description": {
+          "host": "IP-Adresse oder Hostname des Controllers",
+          "port": "TCP-Port (Standard: 80)",
+          "username": "Benutzername, falls Authentifizierung aktiviert",
+          "password": "Passwort, falls erforderlich"
+        }
+      },
       "zeroconf_confirm": {
         "title": "Violet Pool Controller gefunden",
         "description": "Ein Violet Pool Controller wurde im Netzwerk entdeckt.\n\nName: **{name}**\nIP-Adresse: **{host}**\n\nMöchtest du diesen Controller jetzt einrichten?"
@@ -166,6 +184,8 @@
       "reauth_successful": "Reauthentifizierung erfolgreich",
       "reauth_failed": "Reauthentifizierung fehlgeschlagen",
       "reconfigure_successful": "Neukonfiguration erfolgreich",
+      "repair_successful": "Reparatur erfolgreich – Controller ist wieder online",
+      "repair_failed": "Reparatur fehlgeschlagen",
       "already_in_progress": "Einrichtung läuft bereits",
       "unknown": "Unbekannter Fehler"
     }
@@ -245,145 +265,141 @@
     }
   },
   "services": {
-    "turn_auto": {
-      "name": "AUTO-Modus aktivieren",
-      "description": "Schaltet Geräte in den intelligenten Automatikmodus.\n\nDas System übernimmt ab sofort die optimale Steuerung basierend auf Sensordaten und Zeitplänen.",
+    "control_pump": {
+      "name": "Pumpensteuerung",
+      "description": "Steuert die Poolpumpe mit erweiterten Optionen wie Drehzahl, Eco-Modus oder Boost-Modus.",
       "fields": {
-        "entity_id": {
-          "name": "Zu steuernde Geräte",
-          "description": "Wähle die Geräte aus, die in den AUTO-Modus geschaltet werden sollen."
+        "action": {
+          "name": "Steuerungsaktion",
+          "description": "Auswahl: speed_control, force_off, eco_mode, boost_mode oder auto."
         },
-        "auto_delay": {
-          "name": "Verzögerung (Sekunden)",
-          "description": "Wartezeit bevor der AUTO-Modus aktiviert wird (0-86400s)."
+        "speed": {
+          "name": "Pumpendrehzahl",
+          "description": "Pumpendrehzahlstufe (1-3)."
+        },
+        "duration": {
+          "name": "Dauer (Sekunden)",
+          "description": "Wie lange die Aktion angewendet werden soll (0 = unbegrenzt)."
         }
       }
     },
-    "set_pv_surplus": {
-      "name": "PV-Überschuss nutzen",
-      "description": "Aktiviert den Photovoltaik-Überschussmodus für optimale Solarstrom-Nutzung.\n\nPool-Geräte werden automatisch mit überschüssigem Solarstrom betrieben.",
+    "smart_dosing": {
+      "name": "Intelligente Dosierung",
+      "description": "Manuelle oder automatische Dosierungssteuerung für pH, Chlor und Flockmittel.\n\n**Vorsicht:** Überdosierung vermeiden! Immer Wasserwerte vorher prüfen.",
       "fields": {
-        "entity_id": {
-          "name": "PV-Überschuss Schalter",
-          "description": "Der PV-Überschuss-Schalter des Controllers."
+        "dosing_type": {
+          "name": "Dosierungschemikalie",
+          "description": "Chemikalie auswählen (pH-, pH+, Chlor, Flockmittel)."
+        },
+        "action": {
+          "name": "Dosierungsaktion",
+          "description": "Auswahl: manual_dose, auto oder stop."
+        },
+        "duration": {
+          "name": "Dosierdauer (Sekunden)",
+          "description": "Wie lange soll dosiert werden? (5-300s)."
+        },
+        "safety_override": {
+          "name": "Sicherheitsintervall überspringen",
+          "description": "Sicherheitsintervall zwischen Dosierzyklen überspringen."
+        }
+      }
+    },
+    "manage_pv_surplus": {
+      "name": "PV-Überschuss verwalten",
+      "description": "Steuert den Photovoltaik-Überschussmodus für optimale Solarnutzung.\n\nPool-Geräte werden automatisch mit überschüssigem Solarstrom betrieben.",
+      "fields": {
+        "mode": {
+          "name": "PV-Überschussmodus",
+          "description": "Auswahl: activate, deactivate oder auto."
         },
         "pump_speed": {
           "name": "Pumpendrehzahl",
-          "description": "Gewünschte Pumpenleistung (1=Eco, 2=Normal, 3=Maximum)."
+          "description": "Gewünschte Pumpenleistung für PV-Modus (1=Eco, 2=Normal, 3=Maximum)."
         }
       }
     },
-    "manual_dosing": {
-      "name": "Manuelle Dosierung",
-      "description": "Startet eine manuelle Dosierung für die gewünschte Dauer.\n\nVorsicht: Überdosierung vermeiden! Immer Wasserwerte vorher prüfen.",
+    "control_dmx_scenes": {
+      "name": "DMX-Szenensteuerung",
+      "description": "Steuert DMX-Beleuchtungsszenen für die Poolbereich-Beleuchtung.",
       "fields": {
-        "entity_id": {
-          "name": "Dosierungssystem",
-          "description": "Wähle das Dosierungssystem (pH+, pH-, Chlor, etc.)."
+        "action": {
+          "name": "DMX-Aktion",
+          "description": "Auswahl: all_on, all_off, all_auto, sequence oder party_mode."
         },
-        "duration_seconds": {
-          "name": "Dosierdauer (Sekunden)",
-          "description": "Wie lange soll dosiert werden? (1-3600s, Start mit kurzen Zeiten!)"
+        "sequence_delay": {
+          "name": "Szenen-Verzögerung (Sekunden)",
+          "description": "Verzögerung zwischen Szenen im Sequenzmodus (1-60s)."
+        }
+      }
+    },
+    "set_light_color_pulse": {
+      "name": "Licht-Farbpuls",
+      "description": "Sendet Farbpuls-Befehle an die Poolbeleuchtung.",
+      "fields": {
+        "pulse_count": {
+          "name": "Anzahl Pulse",
+          "description": "Wie viele Farbpulse gesendet werden sollen (1-10)."
+        },
+        "pulse_interval": {
+          "name": "Puls-Intervall (ms)",
+          "description": "Zeit zwischen Pulsen in Millisekunden (100-2000ms)."
+        }
+      }
+    },
+    "manage_digital_rules": {
+      "name": "Digitalregeln verwalten",
+      "description": "Verwaltet digitale Eingangsautomatisierungsregeln für Controller-Eingänge.",
+      "fields": {
+        "rule_key": {
+          "name": "Zu verwaltende Regel",
+          "description": "Digitalregel auswählen (DIRULE_1 bis DIRULE_7)."
+        },
+        "action": {
+          "name": "Regelaktion",
+          "description": "Auswahl: trigger, lock oder unlock."
         }
       }
     },
     "test_output": {
       "name": "Ausgangstest-Modus",
-      "description": "Aktiviert einen Ausgang des Controllers testweise für einen begrenzten Zeitraum. Achte darauf, dass keine Personen oder Geräte gefährdet werden.",
+      "description": "Aktiviert einen Controller-Ausgang testweise für Diagnosezwecke. Stellen Sie sicher, dass keine Personen oder Geräte gefährdet sind.",
       "fields": {
         "output": {
           "name": "Ausgangskennung",
-          "description": "Bezeichner wie PUMP, HEATER oder SOLAR"
+          "description": "Bezeichner wie PUMP, HEATER oder SOLAR."
         },
         "mode": {
           "name": "Testmodus",
-          "description": "SWITCH=toggle, ON=erzwingen, OFF=abschalten"
+          "description": "SWITCH=Umschalten, ON=Erzwingen, OFF=Ausschalten."
         },
         "duration": {
           "name": "Testdauer (Sekunden)",
-          "description": "Dauer zwischen 1 und 900 Sekunden"
+          "description": "Dauer zwischen 1 und 900 Sekunden."
         }
       }
     },
-    "set_temperature_target": {
-      "name": "Zieltemperatur einstellen",
-      "description": "Stellt die gewünschte Pooltemperatur ein.\n\nDer Controller heizt automatisch auf diese Temperatur und hält sie konstant.",
+    "get_connection_status": {
+      "name": "Verbindungsstatus abrufen",
+      "description": "Detaillierten Verbindungsstatus und Gesundheitsmetriken zur Fehlerbehebung abrufen."
+    },
+    "get_error_summary": {
+      "name": "Fehlerzusammenfassung abrufen",
+      "description": "Zusammenfassung der letzten Fehler und Wiederherstellungsvorschläge abrufen.",
       "fields": {
-        "entity_ids": {
-          "name": "Heizungssysteme",
-          "description": "Wähle Heizung und/oder Solarabsorber aus."
-        },
-        "temperature": {
-          "name": "Zieltemperatur (°C)",
-          "description": "Gewünschte Pooltemperatur (20-35°C empfohlen)."
+        "include_history": {
+          "name": "Verlauf einbeziehen",
+          "description": "Detaillierten Fehlerverlauf einbeziehen."
         }
       }
     },
-    "set_ph_target": {
-      "name": "pH-Sollwert einstellen",
-      "description": "Definiert den idealen pH-Wert für automatische Dosierung.\n\nEmpfohlener Bereich: 7.0-7.4 für optimale Wasserqualität und Hautverträglichkeit.",
-      "fields": {
-        "entity_ids": {
-          "name": "pH-Dosierungssystem",
-          "description": "pH-Regelung des Controllers auswählen."
-        },
-        "target_value": {
-          "name": "pH-Sollwert",
-          "description": "Gewünschter pH-Wert (6.8-7.8, optimal: 7.0-7.4)."
-        }
-      }
+    "test_connection": {
+      "name": "Verbindung testen",
+      "description": "Verbindung zum Controller testen und Diagnoseinformationen zurückgeben."
     },
-    "set_chlorine_target": {
-      "name": "Chlor-Sollwert einstellen",
-      "description": "Bestimmt den Ziel-Chlorgehalt für sichere Desinfektion.\n\nAusreichend Chlor eliminiert Bakterien, zu viel reizt Haut und Augen.",
-      "fields": {
-        "entity_ids": {
-          "name": "Chlor-Dosierungssystem",
-          "description": "Chlordosierung oder Elektrolyse-Anlage."
-        },
-        "target_value": {
-          "name": "Chlor-Sollwert (mg/l)",
-          "description": "Gewünschter freier Chlorgehalt (0.3-1.5 mg/l empfohlen)."
-        }
-      }
-    },
-    "trigger_backwash": {
-      "name": "Rückspülung starten",
-      "description": "Startet eine Filterrückspülung zur Reinigung.\n\nEntfernt Schmutz und Ablagerungen für optimale Filterleistung.",
-      "fields": {
-        "entity_ids": {
-          "name": "Rückspülsystem",
-          "description": "Rückspülventil oder -automatik des Filters."
-        },
-        "duration": {
-          "name": "Rückspüldauer (Sekunden)",
-          "description": "Spüldauer (60-300s üblich, 0=manuell beenden)."
-        }
-      }
-    },
-    "start_water_analysis": {
-      "name": "Wasseranalyse starten",
-      "description": "Startet eine automatische Wasseranalyse aller Parameter.\n\nMisst pH, Chlor, Temperatur und weitere Werte für Optimierungsvorschläge.",
-      "fields": {
-        "entity_ids": {
-          "name": "Controller",
-          "description": "Violet Pool Controller für die Analyse."
-        }
-      }
-    },
-    "set_maintenance_mode": {
-      "name": "Wartungsmodus",
-      "description": "Aktiviert/deaktiviert den Wartungsmodus.\n\nIm Wartungsmodus sind alle Automatiken pausiert für sichere Arbeiten am Pool.",
-      "fields": {
-        "entity_ids": {
-          "name": "Controller",
-          "description": "Violet Pool Controller auswählen."
-        },
-        "enable": {
-          "name": "Wartungsmodus aktivieren",
-          "description": "Ein: Alle Automatiken stoppen | Aus: Normalbetrieb fortsetzen."
-        }
-      }
+    "clear_error_history": {
+      "name": "Fehlerverlauf löschen",
+      "description": "Fehlerverlauf nach erfolgreicher Wiederherstellung löschen (mit Vorsicht verwenden)."
     },
     "set_all_dmx_scenes_mode": {
       "name": "DMX-Beleuchtung steuern",
@@ -433,7 +449,7 @@
     },
     "export_diagnostic_logs": {
       "name": "Diagnostic-Logs exportieren",
-      "description": "Exportiert letzte Integrations-Logs für Troubleshooting und Support.",
+      "description": "Exportiert letzte Integrations-Logs für Troubleshooting und Support.\n\nSammelt relevante Log-Einträge und ermöglicht Download oder Dateispeicherung.\n\n**Tipp:** Nützlich bei Problemen oder beim Senden von Logs an den Support!",
       "fields": {
         "device_id": {
           "name": "Pool Controller",
@@ -558,6 +574,9 @@
       },
       "recovery_success_rate": {
         "name": "Wiederherstellungsrate"
+      },
+      "pump_estimated_power": {
+        "name": "Pumpenleistung (geschätzt)"
       },
       "flow_rate": {
         "name": "Durchflussmenge"

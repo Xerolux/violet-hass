@@ -6,6 +6,7 @@
 # =============================================================================
 
 """Select platform for Violet Pool Controller."""
+
 from __future__ import annotations
 
 import asyncio
@@ -286,7 +287,9 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
         ✅ SHARED CODE: Uses base _request_coordinator_refresh method.
         """
         # ✅ SHARED CODE: Use base refresh method
-        delay = REFRESH_DELAY_EXT if self._device_key.startswith("EXT") else REFRESH_DELAY
+        delay = (
+            REFRESH_DELAY_EXT if self._device_key.startswith("EXT") else REFRESH_DELAY
+        )
         try:
             await self._request_coordinator_refresh(
                 delay=delay, log_context=self._device_key
@@ -364,6 +367,9 @@ async def async_setup_entry(
             name=select_config["name"],
             icon=select_config.get("icon"),
             entity_category=select_config.get("entity_category"),
+            entity_registry_enabled_default=select_config.get(
+                "entity_registry_enabled_default", True
+            ),
             translation_key=select_config.get("translation_key"),
         )
 

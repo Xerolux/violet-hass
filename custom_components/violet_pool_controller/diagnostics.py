@@ -43,8 +43,12 @@ async def async_get_config_entry_diagnostics(
         data_counts = [count for _, count, *_ in history]
         poll_stats = {
             "total_polls": len(history),
-            "first_poll": first_poll.isoformat() if isinstance(first_poll, datetime) else str(first_poll),
-            "last_poll": last_poll.isoformat() if isinstance(last_poll, datetime) else str(last_poll),
+            "first_poll": first_poll.isoformat()
+            if isinstance(first_poll, datetime)
+            else str(first_poll),
+            "last_poll": last_poll.isoformat()
+            if isinstance(last_poll, datetime)
+            else str(last_poll),
             "avg_data_points": round(sum(data_counts) / len(data_counts), 1),
         }
 

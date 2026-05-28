@@ -88,8 +88,12 @@ ENHANCED_FEATURES = {
 # =============================================================================
 
 GITHUB_BASE_URL: Final = "https://github.com/xerolux/violet-hass"
-HELP_DOC_DE_URL: Final = f"{GITHUB_BASE_URL}/blob/main/docs/help/configuration-guide.de.md"
-HELP_DOC_EN_URL: Final = f"{GITHUB_BASE_URL}/blob/main/docs/help/configuration-guide.en.md"
+HELP_DOC_DE_URL: Final = (
+    f"{GITHUB_BASE_URL}/blob/main/docs/help/configuration-guide.de.md"
+)
+HELP_DOC_EN_URL: Final = (
+    f"{GITHUB_BASE_URL}/blob/main/docs/help/configuration-guide.en.md"
+)
 SUPPORT_URL: Final = f"{GITHUB_BASE_URL}/issues"
 
 # =============================================================================

@@ -121,7 +121,8 @@ class VioletControlServiceHandlers:
         safety_override = call.data.get("safety_override", False)
 
         _LOGGER.debug(
-            "Smart dosing: type=%s, action=%s, duration=%d (raw: %s), safety_override=%s",
+            "Smart dosing: type=%s, action=%s, duration=%d"
+            " (raw: %s), safety_override=%s",
             dosing_type,
             action,
             duration,

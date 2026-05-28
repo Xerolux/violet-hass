@@ -72,7 +72,9 @@ class VioletPumpPowerSensor(VioletPoolControllerEntity, SensorEntity):
     def _get_active_speed(self) -> int | None:
         for level in range(4):
             rpm_key = f"PUMP_RPM_{level}"
-            rpm_val = self.coordinator.data.get(rpm_key) if self.coordinator.data else None
+            rpm_val = (
+                self.coordinator.data.get(rpm_key) if self.coordinator.data else None
+            )
             if rpm_val is not None:
                 try:
                     if int(rpm_val) > 0:

@@ -40,30 +40,36 @@ _PRECISION_MAP: dict[str, int] = {
     "W": 0,
 }
 
-_KEYS_DISABLED_BY_DEFAULT: frozenset[str] = frozenset({
-    "CPU_TEMP",
-    "CPU_TEMP_CARRIER",
-    "CPU_UPTIME",
-    "FW",
-    "CURRENT_TIME_UNIX",
-})
+_KEYS_DISABLED_BY_DEFAULT: frozenset[str] = frozenset(
+    {
+        "CPU_TEMP",
+        "CPU_TEMP_CARRIER",
+        "CPU_UPTIME",
+        "FW",
+        "CURRENT_TIME_UNIX",
+    }
+)
 
-_KEY_PREFIXES_DISABLED_BY_DEFAULT: frozenset[str] = frozenset({
-    "SYSTEM_",
-    "PUMP_RPM_",
-})
+_KEY_PREFIXES_DISABLED_BY_DEFAULT: frozenset[str] = frozenset(
+    {
+        "SYSTEM_",
+        "PUMP_RPM_",
+    }
+)
 
-_KEY_SUFFIXES_DISABLED_BY_DEFAULT: frozenset[str] = frozenset({
-    "_LAST_ON",
-    "_LAST_OFF",
-    "_LAST_AUTO_RUN",
-    "_LAST_MANUAL_RUN",
-    "_LAST_CAN_RESET",
-    "_TIMESTAMP",
-    "_RUNTIME",
-    "_faultcount",
-    "_freezecount",
-})
+_KEY_SUFFIXES_DISABLED_BY_DEFAULT: frozenset[str] = frozenset(
+    {
+        "_LAST_ON",
+        "_LAST_OFF",
+        "_LAST_AUTO_RUN",
+        "_LAST_MANUAL_RUN",
+        "_LAST_CAN_RESET",
+        "_TIMESTAMP",
+        "_RUNTIME",
+        "_faultcount",
+        "_freezecount",
+    }
+)
 
 _TIMESTAMP_SUFFIXES = (
     "_LAST_ON",
@@ -230,7 +236,6 @@ _FLOW_RATE_SOURCE_KEYS = {"ADC3_value", "IMP2_value"}
 _ERROR_CODE_KEYS = {"LAST_ERROR_CODE", "ERROR_CODE", "LAST_ERROR"}
 
 
-
 def _is_boolean_value(value: Any) -> bool:
     """Checks if a value can be interpreted as a boolean."""
     return str(value).lower().strip() in (
@@ -249,12 +254,18 @@ def determine_device_class(
     key: str, unit: str | None, raw_value: Any
 ) -> SensorDeviceClass | None:
     """Determines the appropriate device class for a sensor."""
-    if key in _BOOLEAN_VALUE_KEYS or (_is_boolean_value(raw_value) and key not in UNIT_MAP):
+    if key in _BOOLEAN_VALUE_KEYS or (
+        _is_boolean_value(raw_value) and key not in UNIT_MAP
+    ):
         return None
     if key == "pH_value":
         return SensorDeviceClass.PH
     # Temperature device class only for actual temperature sensors (not counters)
-    if (unit == "°C" or ("temp" in key.lower() and unit is not None)) and "freezecount" not in key.lower() and "faultcount" not in key.lower():
+    if (
+        (unit == "°C" or ("temp" in key.lower() and unit is not None))
+        and "freezecount" not in key.lower()
+        and "faultcount" not in key.lower()
+    ):
         return SensorDeviceClass.TEMPERATURE
     if unit == "%":
         return SensorDeviceClass.HUMIDITY
@@ -264,7 +275,8 @@ def determine_device_class(
         return SensorDeviceClass.VOLTAGE
     if unit == "W":
         return SensorDeviceClass.POWER
-    # Check if key indicates a timestamp sensor (by suffix or membership in _TIMESTAMP_KEYS)
+    # Check if key indicates a timestamp sensor
+    # (by suffix or membership in _TIMESTAMP_KEYS)
     is_timestamp_key = key in _TIMESTAMP_KEYS or any(
         key.upper().endswith(suffix) for suffix in _TIMESTAMP_SUFFIXES
     )
@@ -275,7 +287,8 @@ def determine_device_class(
 
 def determine_state_class(key: str) -> SensorStateClass | None:
     """Determines the appropriate state class for a sensor."""
-    # Check if key indicates a timestamp sensor (by suffix or membership in _TIMESTAMP_KEYS)
+    # Check if key indicates a timestamp sensor
+    # (by suffix or membership in _TIMESTAMP_KEYS)
     is_timestamp_key = key in _TIMESTAMP_KEYS or any(
         key.upper().endswith(suffix) for suffix in _TIMESTAMP_SUFFIXES
     )
@@ -286,10 +299,12 @@ def determine_state_class(key: str) -> SensorStateClass | None:
 
     if key in _ALL_TEXT_SENSORS or is_timestamp_key or key in NO_UNIT_SENSORS:
         return None
-    # Handle contact sensors (e.g., CLOSE_CONTACT) which return string values like "RELEASED"/"TRIGGERED"
+    # Handle contact sensors (e.g., CLOSE_CONTACT) which return
+    # string values like "RELEASED"/"TRIGGERED"
     if "contact" in key.lower():
         return None
-    # Count/fault sensors should not have state_class (they are counters, not measurements)
+    # Count/fault sensors should not have state_class
+    # (they are counters, not measurements)
     if "freezecount" in key.lower() or "faultcount" in key.lower():
         return None
     if "total" in key.lower() or "daily" in key.lower():
@@ -299,7 +314,9 @@ def determine_state_class(key: str) -> SensorStateClass | None:
 
 def get_icon(key: str, unit: str | None, raw_value: Any) -> str:
     """Determin a sensor."""
-    if key in _BOOLEAN_VALUE_KEYS or (_is_boolean_value(raw_value) and key not in UNIT_MAP):
+    if key in _BOOLEAN_VALUE_KEYS or (
+        _is_boolean_value(raw_value) and key not in UNIT_MAP
+    ):
         return "mdi:toggle-switch"
     if key == "pH_value":
         return "mdi:flask"
@@ -363,11 +380,18 @@ def _build_sensor_description(
             if key.endswith(suffix):
                 base_key = key[: -len(suffix)]
                 # IMPORTANT: Don't inherit unit for count/fault sensors
-                if suffix not in ["_faultcount", "_freezecount"] and UNIT_MAP.get(base_key):
+                if suffix not in ["_faultcount", "_freezecount"] and UNIT_MAP.get(
+                    base_key
+                ):
                     unit = UNIT_MAP[base_key]
                     break
         # Default temperature unit for onewire/temp sensors (but not for counters!)
-        if unit is None and ("temp" in key.lower() or "onewire" in key.lower()) and "freezecount" not in key.lower() and "faultcount" not in key.lower():
+        if (
+            unit is None
+            and ("temp" in key.lower() or "onewire" in key.lower())
+            and "freezecount" not in key.lower()
+            and "faultcount" not in key.lower()
+        ):
             unit = "°C"
 
     # Determine state class
@@ -398,8 +422,12 @@ def _should_enable_by_default(key: str) -> bool:
         return False
     for prefix in _KEY_PREFIXES_DISABLED_BY_DEFAULT:
         if key.startswith(prefix):
-            if key in ("PUMP_RPM_0_VALUE", "PUMP_RPM_1_VALUE",
-                        "PUMP_RPM_2_VALUE", "PUMP_RPM_3_VALUE"):
+            if key in (
+                "PUMP_RPM_0_VALUE",
+                "PUMP_RPM_1_VALUE",
+                "PUMP_RPM_2_VALUE",
+                "PUMP_RPM_3_VALUE",
+            ):
                 continue
             return False
     key_upper = key.upper()
@@ -407,4 +435,3 @@ def _should_enable_by_default(key: str) -> bool:
         if key_upper.endswith(suffix.upper()):
             return False
     return True
-

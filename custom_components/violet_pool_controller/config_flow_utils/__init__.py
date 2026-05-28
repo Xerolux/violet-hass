@@ -37,7 +37,11 @@ from .constants import (
     SUPPORT_URL,
 )
 from .sensor_helper import get_grouped_sensors
-from .validators import get_sensor_label, validate_credentials_strength, validate_ip_address
+from .validators import (
+    get_sensor_label,
+    validate_credentials_strength,
+    validate_ip_address,
+)
 
 __all__ = [
     # Constants

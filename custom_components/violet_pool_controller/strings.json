@@ -377,24 +377,6 @@
         }
       }
     },
-    "export_diagnostic_logs": {
-      "name": "Export Diagnostic Logs",
-      "description": "Export recent integration logs for troubleshooting and support.",
-      "fields": {
-        "lines": {
-          "name": "Number of log lines",
-          "description": "Recent log lines to export (10-10000, default: 100)."
-        },
-        "include_timestamps": {
-          "name": "Include timestamps",
-          "description": "Add timestamps to each log line."
-        },
-        "save_to_file": {
-          "name": "Save to file",
-          "description": "Save logs to a file in the /config/ directory."
-        }
-      }
-    },
     "get_connection_status": {
       "name": "Get Connection Status",
       "description": "Get detailed connection status and health metrics for troubleshooting."

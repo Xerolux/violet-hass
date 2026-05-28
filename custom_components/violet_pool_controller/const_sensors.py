@@ -12,6 +12,7 @@ water chemistry, and system diagnostics. It also provides unit mappings and
 mappings between sensor keys and integration features to control sensor creation
 based on user configuration.
 """
+
 from __future__ import annotations
 
 # =============================================================================
@@ -19,35 +20,111 @@ from __future__ import annotations
 # =============================================================================
 
 TEMP_SENSORS = {
-    "onewire1_value": {"name": "Pool Water", "translation_key": "onewire1_value", "icon": "mdi:pool"},
-    "onewire2_value": {"name": "Outside Temperature", "translation_key": "onewire2_value", "icon": "mdi:thermometer"},
-    "onewire3_value": {"name": "Solar Absorber", "translation_key": "onewire3_value", "icon": "mdi:solar-power"},
-    "onewire4_value": {"name": "Absorber Return", "translation_key": "onewire4_value", "icon": "mdi:pipe-valve"},
-    "onewire5_value": {"name": "Heat Exchanger", "translation_key": "onewire5_value", "icon": "mdi:radiator"},
-    "onewire6_value": {"name": "Heater Storage", "translation_key": "onewire6_value", "icon": "mdi:water-boiler"},
+    "onewire1_value": {
+        "name": "Pool Water",
+        "translation_key": "onewire1_value",
+        "icon": "mdi:pool",
+    },
+    "onewire2_value": {
+        "name": "Outside Temperature",
+        "translation_key": "onewire2_value",
+        "icon": "mdi:thermometer",
+    },
+    "onewire3_value": {
+        "name": "Solar Absorber",
+        "translation_key": "onewire3_value",
+        "icon": "mdi:solar-power",
+    },
+    "onewire4_value": {
+        "name": "Absorber Return",
+        "translation_key": "onewire4_value",
+        "icon": "mdi:pipe-valve",
+    },
+    "onewire5_value": {
+        "name": "Heat Exchanger",
+        "translation_key": "onewire5_value",
+        "icon": "mdi:radiator",
+    },
+    "onewire6_value": {
+        "name": "Heater Storage",
+        "translation_key": "onewire6_value",
+        "icon": "mdi:water-boiler",
+    },
 }
 
 WATER_CHEM_SENSORS = {
     "pH_value": {"name": "pH Value", "translation_key": "ph_value", "icon": "mdi:ph"},
-    "orp_value": {"name": "ORP Value", "translation_key": "orp_value", "icon": "mdi:lightning-bolt-circle"},
-    "pot_value": {"name": "Chlorine Level", "translation_key": "pot_value", "icon": "mdi:water-plus"},
+    "orp_value": {
+        "name": "ORP Value",
+        "translation_key": "orp_value",
+        "icon": "mdi:lightning-bolt-circle",
+    },
+    "pot_value": {
+        "name": "Chlorine Level",
+        "translation_key": "pot_value",
+        "icon": "mdi:water-plus",
+    },
 }
 
 ANALOG_SENSORS = {
-    "ADC1_value": {"name": "Filter Pressure", "translation_key": "adc1_value", "icon": "mdi:gauge"},
-    "ADC2_value": {"name": "Overflow Tank", "translation_key": "adc2_value", "icon": "mdi:water-sync"},
-    "ADC3_value": {"name": "Flow Meter (4-20mA)", "translation_key": "adc3_value", "icon": "mdi:swap-horizontal"},
-    "ADC4_value": {"name": "Analog Sensor 4 (4-20mA)", "translation_key": "adc4_value", "icon": "mdi:gauge"},
-    "ADC5_value": {"name": "Analog Sensor 5 (0-10V)", "translation_key": "adc5_value", "icon": "mdi:sine-wave"},
-    "IMP1_value": {"name": "Dosing Inflow", "translation_key": "imp1_value", "icon": "mdi:pipe-valve"},
-    "IMP2_value": {"name": "Pump Flow Rate", "translation_key": "imp2_value", "icon": "mdi:water-pump"},
+    "ADC1_value": {
+        "name": "Filter Pressure",
+        "translation_key": "adc1_value",
+        "icon": "mdi:gauge",
+    },
+    "ADC2_value": {
+        "name": "Overflow Tank",
+        "translation_key": "adc2_value",
+        "icon": "mdi:water-sync",
+    },
+    "ADC3_value": {
+        "name": "Flow Meter (4-20mA)",
+        "translation_key": "adc3_value",
+        "icon": "mdi:swap-horizontal",
+    },
+    "ADC4_value": {
+        "name": "Analog Sensor 4 (4-20mA)",
+        "translation_key": "adc4_value",
+        "icon": "mdi:gauge",
+    },
+    "ADC5_value": {
+        "name": "Analog Sensor 5 (0-10V)",
+        "translation_key": "adc5_value",
+        "icon": "mdi:sine-wave",
+    },
+    "IMP1_value": {
+        "name": "Dosing Inflow",
+        "translation_key": "imp1_value",
+        "icon": "mdi:pipe-valve",
+    },
+    "IMP2_value": {
+        "name": "Pump Flow Rate",
+        "translation_key": "imp2_value",
+        "icon": "mdi:water-pump",
+    },
 }
 
 SYSTEM_SENSORS = {
-    "CPU_TEMP": {"name": "CPU Temperature", "translation_key": "cpu_temp", "icon": "mdi:thermometer-alert"},
-    "CPU_TEMP_CARRIER": {"name": "Carrier Board", "translation_key": "cpu_temp_carrier", "icon": "mdi:motherboard"},
-    "CPU_UPTIME": {"name": "System Uptime", "translation_key": "cpu_uptime", "icon": "mdi:clock-time-eight"},
-    "SYSTEM_CPU_TEMPERATURE": {"name": "System CPU Temperature", "translation_key": "system_cpu_temperature", "icon": "mdi:thermometer-check"},
+    "CPU_TEMP": {
+        "name": "CPU Temperature",
+        "translation_key": "cpu_temp",
+        "icon": "mdi:thermometer-alert",
+    },
+    "CPU_TEMP_CARRIER": {
+        "name": "Carrier Board",
+        "translation_key": "cpu_temp_carrier",
+        "icon": "mdi:motherboard",
+    },
+    "CPU_UPTIME": {
+        "name": "System Uptime",
+        "translation_key": "cpu_uptime",
+        "icon": "mdi:clock-time-eight",
+    },
+    "SYSTEM_CPU_TEMPERATURE": {
+        "name": "System CPU Temperature",
+        "translation_key": "system_cpu_temperature",
+        "icon": "mdi:thermometer-check",
+    },
     "SYSTEM_CARRIER_CPU_TEMPERATURE": {
         "name": "Carrier CPU Temperature",
         "translation_key": "system_carrier_cpu_temperature",
@@ -58,31 +135,91 @@ SYSTEM_SENSORS = {
         "translation_key": "system_dosagemodule_cpu_temperature",
         "icon": "mdi:memory-lan",
     },
-    "SYSTEM_memoryusage": {"name": "System Memory Usage", "translation_key": "system_memoryusage", "icon": "mdi:memory-lan"},
+    "SYSTEM_memoryusage": {
+        "name": "System Memory Usage",
+        "translation_key": "system_memoryusage",
+        "icon": "mdi:memory-lan",
+    },
 }
 
 STATUS_SENSORS = {
     "PUMP": {"name": "Pump Status", "translation_key": "pump", "icon": "mdi:pump"},
-    "HEATER": {"name": "Heater Status", "translation_key": "heater", "icon": "mdi:radiator"},
-    "SOLAR": {"name": "Solar Status", "translation_key": "solar", "icon": "mdi:solar-power"},
-    "BACKWASH": {"name": "Backwash Status", "translation_key": "backwash", "icon": "mdi:autorenew"},
-    "LIGHT": {"name": "Lighting Status", "translation_key": "light", "icon": "mdi:lightbulb"},
-    "PVSURPLUS": {"name": "PV Surplus Status", "translation_key": "pvsurplus", "icon": "mdi:solar-power"},
-    "FW": {"name": "Firmware Version", "translation_key": "fw", "icon": "mdi:package-variant"},
+    "HEATER": {
+        "name": "Heater Status",
+        "translation_key": "heater",
+        "icon": "mdi:radiator",
+    },
+    "SOLAR": {
+        "name": "Solar Status",
+        "translation_key": "solar",
+        "icon": "mdi:solar-power",
+    },
+    "BACKWASH": {
+        "name": "Backwash Status",
+        "translation_key": "backwash",
+        "icon": "mdi:autorenew",
+    },
+    "LIGHT": {
+        "name": "Lighting Status",
+        "translation_key": "light",
+        "icon": "mdi:lightbulb",
+    },
+    "PVSURPLUS": {
+        "name": "PV Surplus Status",
+        "translation_key": "pvsurplus",
+        "icon": "mdi:solar-power",
+    },
+    "FW": {
+        "name": "Firmware Version",
+        "translation_key": "fw",
+        "icon": "mdi:package-variant",
+    },
 }
 
 DOSING_STATE_SENSORS = {
-    "DOS_1_CL_STATE": {"name": "Chlorine Dosing Status", "translation_key": "dos_1_cl_state", "icon": "mdi:flask-outline"},
-    "DOS_2_ELO_STATE": {"name": "Electrolysis Status", "translation_key": "dos_2_elo_state", "icon": "mdi:lightning-bolt"},
-    "DOS_4_PHM_STATE": {"name": "pH- Dosing Status", "translation_key": "dos_4_phm_state", "icon": "mdi:flask-minus"},
-    "DOS_5_PHP_STATE": {"name": "pH+ Dosing Status", "translation_key": "dos_5_php_state", "icon": "mdi:flask-plus"},
-    "DOS_6_FLOC_STATE": {"name": "Flocculation Status", "translation_key": "dos_6_floc_state", "icon": "mdi:water"},
+    "DOS_1_CL_STATE": {
+        "name": "Chlorine Dosing Status",
+        "translation_key": "dos_1_cl_state",
+        "icon": "mdi:flask-outline",
+    },
+    "DOS_2_ELO_STATE": {
+        "name": "Electrolysis Status",
+        "translation_key": "dos_2_elo_state",
+        "icon": "mdi:lightning-bolt",
+    },
+    "DOS_4_PHM_STATE": {
+        "name": "pH- Dosing Status",
+        "translation_key": "dos_4_phm_state",
+        "icon": "mdi:flask-minus",
+    },
+    "DOS_5_PHP_STATE": {
+        "name": "pH+ Dosing Status",
+        "translation_key": "dos_5_php_state",
+        "icon": "mdi:flask-plus",
+    },
+    "DOS_6_FLOC_STATE": {
+        "name": "Flocculation Status",
+        "translation_key": "dos_6_floc_state",
+        "icon": "mdi:water",
+    },
 }
 
 COMPOSITE_STATE_SENSORS = {
-    "PUMPSTATE": {"name": "Pump Detail Status", "translation_key": "pumpstate", "icon": "mdi:water-pump"},
-    "HEATERSTATE": {"name": "Heater Detail Status", "translation_key": "heaterstate", "icon": "mdi:radiator"},
-    "SOLARSTATE": {"name": "Solar Detail Status", "translation_key": "solarstate", "icon": "mdi:solar-power-variant"},
+    "PUMPSTATE": {
+        "name": "Pump Detail Status",
+        "translation_key": "pumpstate",
+        "icon": "mdi:water-pump",
+    },
+    "HEATERSTATE": {
+        "name": "Heater Detail Status",
+        "translation_key": "heaterstate",
+        "icon": "mdi:radiator",
+    },
+    "SOLARSTATE": {
+        "name": "Solar Detail Status",
+        "translation_key": "solarstate",
+        "icon": "mdi:solar-power-variant",
+    },
 }
 
 PRIMARY_SENSOR_KEYS = {
@@ -124,8 +261,9 @@ UNIT_MAP = {
 }
 
 # Sensors that should explicitly have no unit.
-# This is important for sensors where a unit is semantically incorrect (e.g., firmware versions)
-# or to maintain backward compatibility for Home Assistant's long-term statistics.
+# This is important for sensors where a unit is semantically incorrect
+# (e.g., firmware versions) or to maintain backward compatibility for
+# Home Assistant's long-term statistics.
 NO_UNIT_SENSORS = {
     "FW",
     "SW_VERSION",
@@ -145,7 +283,8 @@ NO_UNIT_SENSORS = {
     "SYSTEM_CARRIER_CPU_TEMPERATURE",
     "SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE",
     "SYSTEM_memoryusage",
-    # PUMP_RPM_{i} (without _VALUE) are state code sensors (values 0-6), not RPM measurements
+    # PUMP_RPM_{i} (without _VALUE) are state code sensors (values 0-6),
+    # not RPM measurements
     *(f"PUMP_RPM_{i}" for i in range(4)),
 }
 

@@ -31,6 +31,7 @@
           "username": "Nom d'utilisateur (facultatif)",
           "password": "Mot de passe (facultatif)",
           "use_ssl": "Utiliser SSL/HTTPS",
+          "verify_ssl": "Vérifier le certificat SSL",
           "device_name": "Nom de l'appareil",
           "controller_name": "Nom du contrôleur",
           "device_id": "ID de l'appareil",
@@ -44,6 +45,7 @@
           "username": "Nom d'utilisateur facultatif si l'authentification est activée",
           "password": "Mot de passe si nécessaire",
           "use_ssl": "Activer HTTPS lorsqu'il est pris en charge",
+          "verify_ssl": "Vérifier le certificat SSL du contrôleur (désactiver pour les certificats auto-signés)",
           "device_name": "Nom convivial affiché dans Home Assistant",
           "controller_name": "Nom d'affichage du contrôleur",
           "device_id": "ID unique s'il existe plusieurs contrôleurs",
@@ -136,6 +138,22 @@
           "retry_attempts": "Nombre de nouvelles tentatives"
         }
       },
+      "repair": {
+        "title": "Réparer la connexion",
+        "description": "Le contrôleur **{controller_name}** ne répond pas.\n\nVérifiez que le contrôleur est allumé et connecté au réseau, puis mettez à jour les paramètres.",
+        "data": {
+          "host": "Adresse IP",
+          "port": "Port TCP",
+          "username": "Nom d'utilisateur",
+          "password": "Mot de passe"
+        },
+        "data_description": {
+          "host": "Adresse IP ou nom d'hôte du contrôleur",
+          "port": "Port TCP (par défaut: 80)",
+          "username": "Nom d'utilisateur si l'authentification est activée",
+          "password": "Mot de passe si requis"
+        }
+      },
       "zeroconf_confirm": {
         "title": "Contrôleur de pool violet trouvé",
         "description": "Un contrôleur Violet Pool a été découvert sur le réseau.\n\nNom : **{name}**\nAdresse IP : **{host}**\n\nVoulez-vous configurer ce contrôleur maintenant ?"
@@ -166,6 +184,8 @@
       "reauth_successful": "Réauthentification réussie",
       "reauth_failed": "Échec de la réauthentification",
       "reconfigure_successful": "Reconfiguration réussie",
+      "repair_successful": "Réparation réussie – le contrôleur est de nouveau en ligne",
+      "repair_failed": "Réparation échouée",
       "already_in_progress": "Installation déjà en cours",
       "unknown": "Erreur inconnue"
     }
@@ -245,45 +265,99 @@
     }
   },
   "services": {
-    "turn_auto": {
-      "name": "Activer le mode AUTO",
-      "description": "Fait passer les appareils en mode automatique intelligent.\n\nLe système prend désormais en charge un contrôle optimal en fonction des données et des calendriers des capteurs.",
+    "control_pump": {
+      "name": "Contrôle de pompe",
+      "description": "Contrôle la pompe de la piscine avec des options avancées comme la vitesse, le mode éco ou le mode boost.",
       "fields": {
-        "entity_id": {
-          "name": "Appareils à contrôler",
-          "description": "Sélectionnez les appareils pour passer en mode AUTO."
+        "action": {
+          "name": "Action de contrôle",
+          "description": "Sélectionner : contrôle_vitesse, forcé_off, mode_éco, mode_boost ou automatique."
         },
-        "auto_delay": {
-          "name": "Délai (secondes)",
-          "description": "Temps d'attente avant l'activation du mode AUTO (0-86400s)."
+        "speed": {
+          "name": "Vitesse de pompe",
+          "description": "Niveau de vitesse de la pompe (1-3)."
+        },
+        "duration": {
+          "name": "Durée (secondes)",
+          "description": "Combien de temps appliquer l'action (0 = indéfini)."
         }
       }
     },
-    "set_pv_surplus": {
-      "name": "Utiliser le surplus PV",
-      "description": "Active le mode excédentaire photovoltaïque pour une utilisation optimale de l'énergie solaire.\n\nLes appareils de piscine fonctionnent automatiquement avec l’énergie solaire excédentaire.",
+    "smart_dosing": {
+      "name": "Dosage intelligent",
+      "description": "Contrôle du dosage manuel ou automatique pour le pH, le chlore et le floculant.\n\n**Attention :** Évitez le surdosage ! Vérifiez toujours les valeurs de l'eau au préalable.",
       "fields": {
-        "entity_id": {
-          "name": "Commutateur de surplus PV",
-          "description": "L'interrupteur de surplus PV du contrôleur."
+        "dosing_type": {
+          "name": "Produit chimique",
+          "description": "Sélectionner le type de produit (pH-, pH+, Chlore, Floculant)."
+        },
+        "action": {
+          "name": "Action de dosage",
+          "description": "Sélectionner : dosage_manuel, automatique ou arrêter."
+        },
+        "duration": {
+          "name": "Durée du dosage (secondes)",
+          "description": "Combien de temps le dosage doit-il durer ? (5-300s)."
+        },
+        "safety_override": {
+          "name": "Ignorer l'intervalle de sécurité",
+          "description": "Ignorer l'intervalle de sécurité entre les cycles de dosage."
+        }
+      }
+    },
+    "manage_pv_surplus": {
+      "name": "Gestion du surplus PV",
+      "description": "Contrôle le mode surplus photovoltaïque pour une utilisation optimale de l'énergie solaire.\n\nLes appareils de piscine fonctionnent automatiquement avec l'énergie solaire excédentaire.",
+      "fields": {
+        "mode": {
+          "name": "Mode surplus PV",
+          "description": "Sélectionner : activer, désactiver ou automatique."
         },
         "pump_speed": {
-          "name": "Vitesse de la pompe",
-          "description": "Puissance de pompe souhaitée (1=Eco, 2=Normal, 3=Maximum)."
+          "name": "Vitesse de pompe",
+          "description": "Puissance de pompe souhaitée pour le mode PV (1=Éco, 2=Normal, 3=Maximum)."
         }
       }
     },
-    "manual_dosing": {
-      "name": "Dosage manuel",
-      "description": "Démarre le dosage manuel pour la durée souhaitée.\n\nAttention : évitez le surdosage ! Vérifiez toujours les valeurs de l’eau en premier.",
+    "control_dmx_scenes": {
+      "name": "Contrôle de scènes DMX",
+      "description": "Contrôle les scènes d'éclairage DMX pour l'éclairage de la zone piscine.",
       "fields": {
-        "entity_id": {
-          "name": "Système de dosage",
-          "description": "Sélectionnez le système de dosage (pH+, pH-, Chlore, etc.)."
+        "action": {
+          "name": "Action DMX",
+          "description": "Sélectionner : tout_allumé, tout_éteint, tout_automatique, séquence ou mode_fête."
         },
-        "duration_seconds": {
-          "name": "Durée du dosage (secondes)",
-          "description": "Combien de temps le dosage doit-il durer ? (1-3600s, commencez par des temps courts !)"
+        "sequence_delay": {
+          "name": "Délai de séquence (secondes)",
+          "description": "Délai entre les scènes en mode séquence (1-60s)."
+        }
+      }
+    },
+    "set_light_color_pulse": {
+      "name": "Impulsion de couleur lumineuse",
+      "description": "Envoie des commandes d'impulsion de couleur à l'éclairage de la piscine.",
+      "fields": {
+        "pulse_count": {
+          "name": "Nombre d'impulsions",
+          "description": "Combien d'impulsions de couleur envoyer (1-10)."
+        },
+        "pulse_interval": {
+          "name": "Intervalle d'impulsions (ms)",
+          "description": "Temps entre les impulsions en millisecondes (100-2000ms)."
+        }
+      }
+    },
+    "manage_digital_rules": {
+      "name": "Gestion des règles numériques",
+      "description": "Gère les règles d'automatisation des entrées numériques du contrôleur.",
+      "fields": {
+        "rule_key": {
+          "name": "Règle à gérer",
+          "description": "Sélectionner la règle numérique (DIRULE_1 à DIRULE_7)."
+        },
+        "action": {
+          "name": "Action de règle",
+          "description": "Sélectionner : déclencher, verrouiller ou déverrouiller."
         }
       }
     },
@@ -293,97 +367,39 @@
       "fields": {
         "output": {
           "name": "Identificateur de sortie",
-          "description": "Identifiant tel que POMPE, CHAUFFAGE ou SOLAIRE"
+          "description": "Identifiant tel que POMPE, CHAUFFAGE ou SOLAIRE."
         },
         "mode": {
           "name": "Mode Test",
-          "description": "SWITCH = bascule, ON = forcer l'activation, OFF = forcer l'arrêt"
+          "description": "SWITCH = bascule, ON = forcer l'activation, OFF = forcer l'arrêt."
         },
         "duration": {
           "name": "Durée du test (secondes)",
-          "description": "Durée entre 1 et 900 secondes"
+          "description": "Durée entre 1 et 900 secondes."
         }
       }
     },
-    "set_temperature_target": {
-      "name": "Définir la température cible",
-      "description": "Règle la température souhaitée de la piscine.\n\nLe contrôleur chauffe automatiquement à cette température et la maintient.",
+    "get_connection_status": {
+      "name": "Obtenir l'état de connexion",
+      "description": "Obtient l'état détaillé de la connexion et les métriques de santé pour le diagnostic."
+    },
+    "get_error_summary": {
+      "name": "Obtenir le résumé des erreurs",
+      "description": "Obtient un résumé des erreurs récentes et des suggestions de récupération.",
       "fields": {
-        "entity_ids": {
-          "name": "Systèmes de chauffage",
-          "description": "Sélectionnez un chauffage et/ou un absorbeur solaire."
-        },
-        "temperature": {
-          "name": "Température cible (°C)",
-          "description": "Température de piscine souhaitée (20-35°C recommandés)."
+        "include_history": {
+          "name": "Inclure l'historique",
+          "description": "Inclure l'historique détaillé des erreurs."
         }
       }
     },
-    "set_ph_target": {
-      "name": "Définir le pH cible",
-      "description": "Définit la valeur pH idéale pour le dosage automatique.\n\nPlage recommandée : 7,0-7,4 pour une qualité d’eau et une compatibilité cutanée optimales.",
-      "fields": {
-        "entity_ids": {
-          "name": "Système de dosage de pH",
-          "description": "Sélectionnez le contrôle du pH du contrôleur."
-        },
-        "target_value": {
-          "name": "Cible de pH",
-          "description": "Valeur pH souhaitée (6,8-7,8, optimal : 7,0-7,4)."
-        }
-      }
+    "test_connection": {
+      "name": "Tester la connexion",
+      "description": "Teste la connexion au contrôleur et renvoie des informations de diagnostic."
     },
-    "set_chlorine_target": {
-      "name": "Définir l'objectif de chlore",
-      "description": "Détermine la teneur en chlore cible pour une désinfection en toute sécurité.\n\nUne quantité suffisante de chlore élimine les bactéries, une trop grande quantité irrite la peau et les yeux.",
-      "fields": {
-        "entity_ids": {
-          "name": "Système de dosage de chlore",
-          "description": "Système de dosage de chlore ou d'électrolyse."
-        },
-        "target_value": {
-          "name": "Cible de chlore (mg/l)",
-          "description": "Teneur en chlore libre souhaitée (0,3-1,5 mg/l recommandé)."
-        }
-      }
-    },
-    "trigger_backwash": {
-      "name": "Démarrer le lavage à contre-courant",
-      "description": "Démarre un lavage à contre-courant du filtre pour le nettoyage.\n\nÉlimine la saleté et les dépôts pour des performances de filtre optimales.",
-      "fields": {
-        "entity_ids": {
-          "name": "Système de lavage à contre-courant",
-          "description": "Vanne de rétrolavage ou automatisation du filtre."
-        },
-        "duration": {
-          "name": "Durée du lavage à contre-courant (secondes)",
-          "description": "Durée de rinçage (60-300 s typique, 0=fin manuelle)."
-        }
-      }
-    },
-    "start_water_analysis": {
-      "name": "Démarrer l'analyse de l'eau",
-      "description": "Démarre une analyse automatique de l’eau de tous les paramètres.\n\nMesure le pH, le chlore, la température et d'autres valeurs pour des suggestions d'optimisation.",
-      "fields": {
-        "entity_ids": {
-          "name": "Contrôleur",
-          "description": "Contrôleur de piscine violette pour analyse."
-        }
-      }
-    },
-    "set_maintenance_mode": {
-      "name": "Mode d'entretien",
-      "description": "Active/désactive le mode maintenance.\n\nEn mode maintenance, toutes les automatisations sont suspendues pour un travail en toute sécurité dans la piscine.",
-      "fields": {
-        "entity_ids": {
-          "name": "Contrôleur",
-          "description": "Sélectionnez Contrôleur de piscine Violet."
-        },
-        "enable": {
-          "name": "Activer le mode maintenance",
-          "description": "Activé : arrêter toute automatisation | Éteint : Reprendre le fonctionnement normal."
-        }
-      }
+    "clear_error_history": {
+      "name": "Effacer l'historique des erreurs",
+      "description": "Efface l'historique des erreurs après une récupération réussie (utiliser avec précaution)."
     },
     "set_all_dmx_scenes_mode": {
       "name": "Contrôler l'éclairage DMX",
@@ -437,7 +453,7 @@
       "fields": {
         "device_id": {
           "name": "Contrôleur de piscine",
-          "description": "Violet Pool Controller pour l'exportation"
+          "description": "Violet Pool Controller pour l'exportation."
         },
         "lines": {
           "name": "Nombre de lignes",
@@ -445,11 +461,11 @@
         },
         "include_timestamps": {
           "name": "Inclure les horodatages",
-          "description": "Inclure les horodatages dans les journaux exportés"
+          "description": "Inclure les horodatages dans les journaux exportés."
         },
         "save_to_file": {
           "name": "Sauvegarder dans un fichier",
-          "description": "Sauvegarder les journaux en tant que fichier texte dans le répertoire /config/"
+          "description": "Sauvegarder les journaux en tant que fichier texte dans le répertoire /config/."
         }
       }
     }
@@ -702,6 +718,9 @@
       },
       "ext2_8": {
         "name": "Extension 2.8"
+      },
+      "pump_estimated_power": {
+        "name": "Puissance pompe (estimée)"
       }
     },
     "binary_sensor": {

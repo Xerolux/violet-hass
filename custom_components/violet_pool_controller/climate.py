@@ -6,6 +6,7 @@
 # =============================================================================
 
 """Climate platform for Violet Pool Controller."""
+
 from __future__ import annotations
 
 import asyncio
@@ -231,8 +232,12 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
 
         attributes = {
             "raw_state": state,
-            "hvac_mode_from_state": HEATER_HVAC_MODES.get(state or STATE_OFF, "unknown"),
-            "hvac_action_from_state": HEATER_HVAC_ACTIONS.get(state or STATE_OFF, "unknown"),
+            "hvac_mode_from_state": HEATER_HVAC_MODES.get(
+                state or STATE_OFF, "unknown"
+            ),
+            "hvac_action_from_state": HEATER_HVAC_ACTIONS.get(
+                state or STATE_OFF, "unknown"
+            ),
         }
 
         # Show optimistic cache status
@@ -276,7 +281,10 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                 self.async_write_ha_state()
 
                 _LOGGER.debug(
-                    "Optimistic update: %.1f°C (local cache, coordinator.data not mutated)",
+                    (
+                        "Optimistic update: %.1f°C"
+                        " (local cache, coordinator.data not mutated)"
+                    ),
                     temperature,
                 )
 

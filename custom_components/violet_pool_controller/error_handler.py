@@ -6,6 +6,7 @@
 # =============================================================================
 
 """Error handling utilities for Violet Pool Controller integration."""
+
 from __future__ import annotations
 
 import asyncio
@@ -394,7 +395,11 @@ class EnhancedErrorHandler:
         if isinstance(error, VioletPoolControllerError):
             error_str = str(error).lower()
 
-            if isinstance(error, AuthenticationError) or "authentication" in error_str or "unauthorized" in error_str:
+            if (
+                isinstance(error, AuthenticationError)
+                or "authentication" in error_str
+                or "unauthorized" in error_str
+            ):
                 self._auth_errors += 1
                 return IntegrationError(
                     error_type=ErrorType.AUTH_ERROR,
@@ -452,11 +457,15 @@ class EnhancedErrorHandler:
         self._last_error_time = now
 
         # Track offline status
-        if error_info.error_type in (
-            ErrorType.NETWORK_ERROR,
-            ErrorType.TIMEOUT_ERROR,
-            ErrorType.SERVER_ERROR,
-        ) and self._offline_since is None:
+        if (
+            error_info.error_type
+            in (
+                ErrorType.NETWORK_ERROR,
+                ErrorType.TIMEOUT_ERROR,
+                ErrorType.SERVER_ERROR,
+            )
+            and self._offline_since is None
+        ):
             self._offline_since = now
             _LOGGER.warning(
                 "Controller marked as OFFLINE (error: %s)", error_info.message
@@ -520,9 +529,7 @@ class EnhancedErrorHandler:
         """
         # Trigger if we've had multiple recent auth errors
         recent_auth_errors = sum(
-            1
-            for e in self._error_history[-10:]
-            if e.error_type == ErrorType.AUTH_ERROR
+            1 for e in self._error_history[-10:] if e.error_type == ErrorType.AUTH_ERROR
         )
 
         return recent_auth_errors >= 2
@@ -539,22 +546,34 @@ class EnhancedErrorHandler:
         last_error = self._error_history[-1]
 
         if last_error.error_type == ErrorType.AUTH_ERROR:
-            return "Please re-authenticate via Settings > Devices & Services > Configure"
+            return (
+                "Please re-authenticate via Settings > Devices & Services > Configure"
+            )
 
         if last_error.error_type == ErrorType.NETWORK_ERROR:
             return "Check if the controller is powered on and connected to the network"
 
         if last_error.error_type == ErrorType.TIMEOUT_ERROR:
-            return "The controller is not responding. Check network connectivity and controller status"
+            return (
+                "The controller is not responding."
+                " Check network connectivity and controller status"
+            )
 
         if last_error.error_type == ErrorType.SSL_ERROR:
-            return "SSL certificate verification failed. Check certificate configuration or disable SSL verification for testing"
+            return (
+                "SSL certificate verification failed."
+                " Check certificate configuration or disable SSL verification"
+                " for testing"
+            )
 
         if last_error.error_type == ErrorType.RATE_LIMIT_ERROR:
             return "Too many requests. Please wait before trying again"
 
         if last_error.error_type == ErrorType.SERVER_ERROR:
-            return "The controller is experiencing issues. Check controller logs and status"
+            return (
+                "The controller is experiencing issues."
+                " Check controller logs and status"
+            )
 
         return None
 
@@ -573,4 +592,3 @@ def get_enhanced_error_handler() -> EnhancedErrorHandler:
     if _enhanced_error_handler is None:
         _enhanced_error_handler = EnhancedErrorHandler()
     return _enhanced_error_handler
-

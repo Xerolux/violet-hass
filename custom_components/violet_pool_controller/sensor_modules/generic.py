@@ -62,12 +62,13 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
 
     @property
     def state_class(self) -> SensorStateClass | None:
-        """Override state_class for contact sensors to prevent numeric conversion errors.
+        """Override state_class for contact sensors to prevent numeric
+        conversion errors.
 
-        Contact sensors return string values ('RELEASED', 'TRIGGERED') but may have been
-        incorrectly created with state_class='measurement'. This property override
-        ensures they always return None, preventing Home Assistant from attempting
-        numeric conversion.
+        Contact sensors return string values ('RELEASED', 'TRIGGERED') but
+        may have been incorrectly created with state_class='measurement'.
+        This property override ensures they always return None, preventing
+        Home Assistant from attempting numeric conversion.
         """
         # Force state_class to None for contact sensors
         if "contact" in self.entity_description.key.lower():
@@ -92,7 +93,8 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
         if raw_value is None:
             return None
 
-        # Check if key indicates a timestamp sensor (by suffix or membership in _TIMESTAMP_KEYS)
+        # Check if key indicates a timestamp sensor
+        # (by suffix or membership in _TIMESTAMP_KEYS)
         is_timestamp_key = key in _TIMESTAMP_KEYS or any(
             key.upper().endswith(suffix) for suffix in _TIMESTAMP_SUFFIXES
         )
@@ -120,13 +122,19 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
         try:
             num_value = float(raw_value)
 
-            # Water chemistry values (pH, ORP, Chlorine) - 2 decimal places for precision
+            # Water chemistry values (pH, ORP, Chlorine) -
+            # 2 decimal places for precision
             if key in {"pH_value", "orp_value", "pot_value"}:
                 return round(num_value, 2)
 
             # Temperature sensors (all onewire, CPU temps) - 2 decimal places
-            # IMPORTANT: Exclude freezecount, faultcount - these are counters, NOT temperatures!
-            if ("temp" in key.lower() or "onewire" in key.lower()) and "freezecount" not in key.lower() and "faultcount" not in key.lower():
+            # IMPORTANT: Exclude freezecount, faultcount -
+            # these are counters, NOT temperatures!
+            if (
+                ("temp" in key.lower() or "onewire" in key.lower())
+                and "freezecount" not in key.lower()
+                and "faultcount" not in key.lower()
+            ):
                 return round(num_value, 2)
 
             # Analog sensors (ADC, IMP) - 2 decimal places for precision
@@ -134,10 +142,15 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
                 return round(num_value, 2)
 
             # Percentage values - 1 decimal place
-            if key.startswith("SYSTEM_") or "_" in key and key.split("_")[-1] in ["PERCENT", "PERCENTAGE"]:
+            if (
+                key.startswith("SYSTEM_")
+                or "_" in key
+                and key.split("_")[-1] in ["PERCENT", "PERCENTAGE"]
+            ):
                 return round(num_value, 1)
 
-            # Integer values (counts, RPM, etc.) - round to integer if close to whole number
+            # Integer values (counts, RPM, etc.) -
+            # round to integer if close to whole number
             if num_value.is_integer():
                 return int(num_value)
 
@@ -192,5 +205,3 @@ class VioletStatusSensor(VioletSensor):
         if raw_value is None:
             return super().icon
         return VioletState(raw_value, self.entity_description.key).icon
-
-

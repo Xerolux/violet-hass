@@ -155,8 +155,8 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         """
         if self.coordinator.data is None:
             return {
-                "status_description": "Nicht verfügbar",
-                "mode": "Unbekannt",
+                "status_description": "Unavailable",
+                "mode": "Unknown",
             }
 
         key = self.entity_description.key
@@ -199,7 +199,6 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
     # State description helpers
     # -----------------------------------------------------------------
 
-    # Numerische Zustandsbeschreibungen (Deutsch)
     _STATE_DESCRIPTIONS: dict[int, str] = {
         0: "Auto – Standby",
         1: "Manual On",
@@ -210,7 +209,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         6: "Manual Off",
     }
 
-    _DETAIL_DESCRIPTIONSSCRIPTIONS: dict[str, str] = {
+    _DETAIL_DESCRIPTIONS: dict[str, str] = {
         "PUMP_ANTI_FREEZE": "Frost Protection",
         "BLOCKED_BY_OUTSIDE_TEMP": "Blocked (Outside Temperature)",
         "BLOCKED_BY_TRESHOLDS": "Blocked (Thresholds)",
@@ -226,9 +225,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         "MANUAL_DOSING": "Manual Dosing",
     }
 
-    def _get_mode_and_description(
-        self, key: str, raw_state: Any
-    ) -> tuple[str, str]:
+    def _get_mode_and_description(self, key: str, raw_state: Any) -> tuple[str, str]:
         """
         Derive human-readable mode and description from the raw state.
 
@@ -275,18 +272,18 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         desc = "Unknown"
 
         if state_num is not None:
-            # Modus aus numerischem Zustand
+            # Mode from numeric state
             mode_map = {
                 0: "Auto",
-                1: "Manuell",
+                1: "Manual",
                 2: "Auto",
                 3: "Auto",
-                4: "Manuell",
+                4: "Manual",
                 5: "Auto",
-                6: "Manuell",
+                6: "Manual",
             }
-            mode = mode_map.get(state_num, "Unbekannt")
-            desc = self._STATE_DESCRIPTIONS.get(state_num, f"Zustand {state_num}")
+            mode = mode_map.get(state_num, "Unknown")
+            desc = self._STATE_DESCRIPTIONS.get(state_num, f"State {state_num}")
 
         # Append extra detail from *STATE field
         if extra_detail:
@@ -329,10 +326,9 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         if target is not None:
             attributes["target_temperature"] = target
 
-    def _enrich_dosing_attributes(
-        self, attributes: dict[str, Any], key: str
-    ) -> None:
-        """Add dosing-specific attributes: state details, remaining range, daily amount."""
+    def _enrich_dosing_attributes(self, attributes: dict[str, Any], key: str) -> None:
+        """Add dosing-specific attributes: state details, remaining range,
+        daily amount."""
         # Dosing state (e.g., DOS_1_CL_STATE = ['BLOCKED_BY_TRESHOLDS', ...])
         state_key = f"{key}_STATE"
         state_val = self.get_value(state_key)
@@ -438,7 +434,8 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 self.async_write_ha_state()
 
                 _LOGGER.debug(
-                    "Optimistic update: %s = %s (local cache, coordinator.data not mutated)",
+                    "Optimistic update: %s = %s"
+                    " (local cache, coordinator.data not mutated)",
                     key,
                     "ON" if self._optimistic_state else "OFF",
                 )
@@ -454,9 +451,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 task.add_done_callback(lambda t: self._handle_refresh_error(t, key))
 
         except VioletPoolAPIError as err:
-            _LOGGER.error(
-                "API error setting switch %s to %s: %s", key, action, err
-            )
+            _LOGGER.error("API error setting switch %s to %s: %s", key, action, err)
             self._optimistic_state = None
             raise HomeAssistantError(
                 translation_key="api_error",
@@ -585,9 +580,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         if 1 <= rpm_int <= 3:
             return rpm_int
 
-        _LOGGER.debug(
-            "PV Surplus RPM %s out of valid range, using default 2", rpm
-        )
+        _LOGGER.debug("PV Surplus RPM %s out of valid range, using default 2", rpm)
         return 2
 
     async def async_added_to_hass(self) -> None:

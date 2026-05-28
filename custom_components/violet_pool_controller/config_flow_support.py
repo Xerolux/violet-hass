@@ -71,27 +71,36 @@ class ConfigFlowTextMixin:
         template = (
             "⚠️ **Safety Warning & Liability Disclaimer**\n\n"
             "Use of this software integration is at your own risk and responsibility. "
-            "This integration enables remote control of pool equipment including pumps, "
+            "This integration enables remote control of pool equipment"
+            " including pumps, "
             "heaters, lighting and chemical dosing systems.\n\n"
-            "**Risks involved:** Incorrect configuration or automation errors may cause "
-            "property damage, injury from electric shock, chemical overdosing or other hazards.\n\n"
+            "**Risks involved:** Incorrect configuration or automation"
+            " errors may cause "
+            "property damage, injury from electric shock, chemical overdosing or other "
+            "hazards.\n\n"
             "**Your responsibilities:**\n"
             "• Ensure you understand all safety mechanisms\n"
             "• Keep manual emergency shut-offs accessible at all times\n"
             "• Follow safety data sheets for all chemicals used\n"
             "• Comply with your pool manufacturer's documentation\n"
-            "• Observe local regulations (DIN/EN standards, electrical and chemical laws)\n"
-            "• Regularly monitor your installation personally, even with active automation\n"
+            "• Observe local regulations"
+            " (DIN/EN standards, electrical and chemical laws)\n"
+            "• Regularly monitor your installation personally,"
+            " even with active automation\n"
             "• Create regular backups of your configuration\n\n"
             "**Disclaimer of liability:**\n"
-            "The developer of this integration provides NO warranty regarding functionality, "
-            "safety or completeness. Use is entirely at your own risk. The developer is not "
-            "liable for any damages whatsoever, including but not limited to property damage, "
-            "personal injury or financial loss resulting from use or non-use of this software.\n\n"
-            "This is open-source software without commercial guarantees. Consult a professional "
-            "if you are uncertain.\n\n"
-            "By confirming, you acknowledge that you have read, understood and accepted this "
-            "warning. Full details available at: {docs_en}"
+            "The developer of this integration provides NO warranty regarding "
+            "functionality, safety or completeness. Use is entirely at your own risk. "
+            "The developer is not liable for any damages whatsoever, including but not "
+            "limited to property damage, personal injury or financial loss"
+            " resulting from "
+            "use or non-use of this software.\n\n"
+            "This is open-source software without commercial guarantees."
+            " Consult a professional if you are uncertain.\n\n"
+            "By confirming, you acknowledge that you have read,"
+            " understood and accepted "
+            "this warning. Full details available at:"
+            " {docs_en}"
         )
         return template.format(**self._get_help_links())
 
@@ -146,9 +155,7 @@ class ConfigFlowSchemaMixin:
                 vol.Optional(CONF_USERNAME): str,
                 vol.Optional(CONF_PASSWORD): str,
                 vol.Required(CONF_USE_SSL, default=DEFAULT_USE_SSL): bool,
-                vol.Required(
-                    CONF_VERIFY_SSL, default=DEFAULT_VERIFY_SSL
-                ): bool,
+                vol.Required(CONF_VERIFY_SSL, default=DEFAULT_VERIFY_SSL): bool,
                 vol.Required(CONF_DEVICE_ID, default=1): selector.NumberSelector(
                     selector.NumberSelectorConfig(
                         min=MIN_DEVICE_ID,
@@ -345,7 +352,10 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 }
             ),
             description_placeholders={
-                "info": "Select the features you want to use. Disabled features will be hidden."
+                "info": (
+                    "Select the features you want to use."
+                    " Disabled features will be hidden."
+                ),
             },
         )
 

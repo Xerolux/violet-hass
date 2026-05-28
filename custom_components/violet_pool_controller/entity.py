@@ -210,7 +210,10 @@ class VioletPoolControllerEntity(CoordinatorEntity):
 
         if not is_available:
             _LOGGER.debug(
-                "Entity '%s' not available (coordinator_success: %s, device_available: %s)",
+                (
+                    "Entity '%s' not available"
+                    " (coordinator_success: %s, device_available: %s)"
+                ),
                 self.name or self.entity_description.key,
                 self.coordinator.last_update_success,
                 self.device.available,
@@ -255,9 +258,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
         try:
             return float(value)
         except (ValueError, TypeError):
-            _LOGGER.debug(
-                "Float conversion failed for key '%s': %s", key, value
-            )
+            _LOGGER.debug("Float conversion failed for key '%s': %s", key, value)
             return float(default) if default is not None else None
 
     def get_bool_value(self, key: str, default: Any = None) -> bool | None:
@@ -334,9 +335,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
             raise  # Never swallow CancelledError - propagate task cancellation
         except Exception as err:
             if log_context:
-                _LOGGER.debug(
-                    "Delayed refresh error for %s: %s", log_context, err
-                )
+                _LOGGER.debug("Delayed refresh error for %s: %s", log_context, err)
             else:
                 _LOGGER.debug("Delayed refresh error: %s", err)
             return False

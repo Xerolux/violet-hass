@@ -6,6 +6,7 @@
 # =============================================================================
 
 """ZeroConf discovery for Violet Pool Controller."""
+
 from __future__ import annotations
 
 import logging
@@ -48,13 +49,23 @@ class VioletPoolControllerDiscovery:
             None. Device info is stored in _discovered_devices for later retrieval.
         """
         addresses = []
-        if getattr(service_info, 'ip_addresses', None):
-            addresses = [getattr(ip, 'exploded', str(ip)) for ip in service_info.ip_addresses]
-        elif getattr(service_info, 'ip_address', None):
-            addresses = [getattr(service_info.ip_address, 'exploded', str(service_info.ip_address))]
-        elif hasattr(service_info, 'parsed_addresses'):
-            addresses = service_info.parsed_addresses() if callable(service_info.parsed_addresses) else service_info.parsed_addresses
-        host = addresses[0] if addresses else getattr(service_info, 'server', 'unknown')
+        if getattr(service_info, "ip_addresses", None):
+            addresses = [
+                getattr(ip, "exploded", str(ip)) for ip in service_info.ip_addresses
+            ]
+        elif getattr(service_info, "ip_address", None):
+            addresses = [
+                getattr(
+                    service_info.ip_address, "exploded", str(service_info.ip_address)
+                )
+            ]
+        elif hasattr(service_info, "parsed_addresses"):
+            addresses = (
+                service_info.parsed_addresses()
+                if callable(service_info.parsed_addresses)
+                else service_info.parsed_addresses
+            )
+        host = addresses[0] if addresses else getattr(service_info, "server", "unknown")
         _LOGGER.info(
             "Discovered Violet Pool Controller: %s at %s:%s",
             service_info.name,

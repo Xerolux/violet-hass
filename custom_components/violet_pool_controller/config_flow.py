@@ -171,7 +171,8 @@ class ConfigFlow(
             ):
                 errors["base"] = constants.ERROR_ALREADY_CONFIGURED
                 error_hints["base"] = (
-                    "This controller is already configured. Please check your integrations list."
+                    "This controller is already configured."
+                    " Please check your integrations list."
                 )
             elif not validators.validate_ip_address(user_input[CONF_API_URL]):
                 errors[CONF_API_URL] = constants.ERROR_INVALID_IP
@@ -565,9 +566,7 @@ class ConfigFlow(
         if user_input:
             updated_data = dict(repair_entry.data)
             updated_data[CONF_API_URL] = user_input[CONF_API_URL]
-            updated_data[CONF_PORT] = int(
-                user_input.get(CONF_PORT, DEFAULT_PORT)
-            )
+            updated_data[CONF_PORT] = int(user_input.get(CONF_PORT, DEFAULT_PORT))
             updated_data[CONF_USERNAME] = user_input.get(CONF_USERNAME, "")
             updated_data[CONF_PASSWORD] = user_input.get(CONF_PASSWORD, "")
             self._config_data = updated_data
@@ -575,9 +574,7 @@ class ConfigFlow(
                 self.hass.config_entries.async_update_entry(
                     repair_entry, data=updated_data
                 )
-                await self.hass.config_entries.async_reload(
-                    repair_entry.entry_id
-                )
+                await self.hass.config_entries.async_reload(repair_entry.entry_id)
                 return self.async_abort(reason="repair_successful")
             errors["base"] = constants.ERROR_CANNOT_CONNECT
 

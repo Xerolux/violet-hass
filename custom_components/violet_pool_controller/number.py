@@ -156,7 +156,8 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
         return super().available
 
     async def _delayed_refresh(self) -> None:
-        """Request a coordinator refresh and clear optimistic value after data arrives."""
+        """Request a coordinator refresh and clear optimistic value after
+        data arrives."""
         try:
             await self.coordinator.async_request_refresh()
         finally:
@@ -404,8 +405,7 @@ async def async_setup_entry(
 
     if coordinator.data is None:
         _LOGGER.warning(
-            "Coordinator data is None for '%s'. "
-            "Number entities will not be created.",
+            "Coordinator data is None for '%s'. Number entities will not be created.",
             config_entry.title,
         )
         return
@@ -446,6 +446,9 @@ async def async_setup_entry(
             native_unit_of_measurement=setpoint_config.get("unit_of_measurement"),  # type: ignore[arg-type]
             device_class=setpoint_config.get("device_class"),  # type: ignore[arg-type]
             entity_category=setpoint_config.get("entity_category"),  # type: ignore[arg-type]
+            entity_registry_enabled_default=setpoint_config.get(
+                "entity_registry_enabled_default", True
+            ),
             translation_key=setpoint_config.get("translation_key"),
         )
 

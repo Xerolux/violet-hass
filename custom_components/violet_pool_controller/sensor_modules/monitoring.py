@@ -177,5 +177,3 @@ class VioletAverageLatencySensor(VioletPoolControllerEntity, SensorEntity):
     def native_value(self) -> float | None:
         """Return the average connection latency."""
         return round(self.coordinator.device.average_latency, 0)
-
-

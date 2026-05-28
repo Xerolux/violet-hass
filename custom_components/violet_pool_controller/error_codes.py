@@ -19,7 +19,10 @@ ERROR_CODES: dict[str, dict[str, str]] = {
         "type": "MESSAGE",
         "subject": "Test message",
         "severity": "info",
-        "description": "Test message from . The message was triggered on  at  and sent on  at .",
+        "description": (
+            "Test message from ."
+            " The message was triggered on  at  and sent on  at ."
+        ),
     },
     "1": {
         "type": "MESSAGE",
@@ -49,13 +52,18 @@ ERROR_CODES: dict[str, dict[str, str]] = {
         "type": "ALERT",
         "subject": "CPU temperature too high",
         "severity": "critical",
-        "description": "The CPU temperature is significantly above the permissible value.",
+        "description": (
+            "The CPU temperature is significantly above the permissible value."
+        ),
     },
     "10": {
         "type": "REMINDER",
         "subject": "Update available (Auto)",
         "severity": "info",
-        "description": "A software update will be automatically installed during the coming night.",
+        "description": (
+            "A software update will be automatically installed"
+            " during the coming night."
+        ),
     },
     "11": {
         "type": "REMINDER",
@@ -73,13 +81,17 @@ ERROR_CODES: dict[str, dict[str, str]] = {
         "type": "ALERT",
         "subject": "Filter pressure too low",
         "severity": "critical",
-        "description": "The filter pump remains deactivated until the error is resolved.",
+        "description": (
+            "The filter pump remains deactivated until the error is resolved."
+        ),
     },
     "21": {
         "type": "ALERT",
         "subject": "Filter pressure too high",
         "severity": "critical",
-        "description": "The filter pump remains deactivated until the error is resolved.",
+        "description": (
+            "The filter pump remains deactivated until the error is resolved."
+        ),
     },
     "22": {
         "type": "WARNING",
@@ -97,25 +109,34 @@ ERROR_CODES: dict[str, dict[str, str]] = {
         "type": "ALERT",
         "subject": "Circulation missing",
         "severity": "critical",
-        "description": "The filter pump has been deactivated until circulation is restored.",
+        "description": (
+            "The filter pump has been deactivated until circulation is restored."
+        ),
     },
     "25": {
         "type": "ALERT",
         "subject": "Circulation too high",
         "severity": "critical",
-        "description": "The filter pump has been deactivated until circulation normalizes.",
+        "description": (
+            "The filter pump has been deactivated until circulation normalizes."
+        ),
     },
     "26": {
         "type": "ALERT",
         "subject": "Frost protection filter pump unavailable",
         "severity": "critical",
-        "description": "Temperature sensor error prevents the pump frost protection function.",
+        "description": (
+            "Temperature sensor error prevents the pump frost protection function."
+        ),
     },
     "27": {
         "type": "ALERT",
         "subject": "Frost protection absorber unavailable",
         "severity": "critical",
-        "description": "Temperature sensor error prevents the absorber frost protection function.",
+        "description": (
+            "Temperature sensor error prevents"
+            " the absorber frost protection function."
+        ),
     },
     "30": {
         "type": "WARNING",
@@ -211,49 +232,65 @@ ERROR_CODES: dict[str, dict[str, str]] = {
         "type": "WARNING",
         "subject": "Temperature control program 1",
         "severity": "warning",
-        "description": "Switching program 1 of the temperature control has been triggered.",
+        "description": (
+            "Switching program 1 of the temperature control has been triggered."
+        ),
     },
     "72": {
         "type": "WARNING",
         "subject": "Temperature control program 2",
         "severity": "warning",
-        "description": "Switching program 2 of the temperature control has been triggered.",
+        "description": (
+            "Switching program 2 of the temperature control has been triggered."
+        ),
     },
     "73": {
         "type": "WARNING",
         "subject": "Temperature control program 3",
         "severity": "warning",
-        "description": "Switching program 3 of the temperature control has been triggered.",
+        "description": (
+            "Switching program 3 of the temperature control has been triggered."
+        ),
     },
     "74": {
         "type": "WARNING",
         "subject": "Temperature control program 4",
         "severity": "warning",
-        "description": "Switching program 4 of the temperature control has been triggered.",
+        "description": (
+            "Switching program 4 of the temperature control has been triggered."
+        ),
     },
     "75": {
         "type": "MESSAGE",
         "subject": "Temperature control program 5",
         "severity": "info",
-        "description": "Switching program 5 of the temperature control has been triggered.",
+        "description": (
+            "Switching program 5 of the temperature control has been triggered."
+        ),
     },
     "76": {
         "type": "WARNING",
         "subject": "Temperature control program 6",
         "severity": "warning",
-        "description": "Switching program 6 of the temperature control has been triggered.",
+        "description": (
+            "Switching program 6 of the temperature control has been triggered."
+        ),
     },
     "77": {
         "type": "WARNING",
         "subject": "Temperature control program 7",
         "severity": "warning",
-        "description": "Switching program 7 of the temperature control has been triggered.",
+        "description": (
+            "Switching program 7 of the temperature control has been triggered."
+        ),
     },
     "78": {
         "type": "WARNING",
         "subject": "Temperature control program 8",
         "severity": "warning",
-        "description": "Switching program 8 of the temperature control has been triggered.",
+        "description": (
+            "Switching program 8 of the temperature control has been triggered."
+        ),
     },
     "81": {
         "type": "WARNING",

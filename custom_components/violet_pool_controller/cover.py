@@ -6,6 +6,7 @@
 # =============================================================================
 
 """Cover platform for Violet Pool Controller."""
+
 from __future__ import annotations
 
 import logging

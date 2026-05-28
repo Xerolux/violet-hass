@@ -5,7 +5,8 @@
 # https://github.com/Xerolux/violet-hass
 # =============================================================================
 
-"""This module serves as the central hub for all constants in the Violet Pool Controller integration.
+"""This module serves as the central hub for all constants in the Violet Pool
+Controller integration.
 
 It aggregates constants from specialized modules (`const_api`, `const_devices`,
 `const_sensors`, `const_features`) to provide a single, consistent import point
@@ -15,6 +16,7 @@ by organizing constants based on their functional area.
 The module also defines core integration-level information, such as the domain,
 version, and manufacturer details, as well as configuration keys and default values.
 """
+
 from __future__ import annotations
 
 from homeassistant.const import (
@@ -39,7 +41,7 @@ from .const_sensors import *
 # =============================================================================
 
 DOMAIN = "violet_pool_controller"
-INTEGRATION_VERSION = "1.0.7"
+INTEGRATION_VERSION = "1.1.0"
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 
 # =============================================================================

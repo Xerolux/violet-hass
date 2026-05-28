@@ -31,6 +31,7 @@
           "username": "Nome utente (facoltativo)",
           "password": "Password (facoltativa)",
           "use_ssl": "Utilizza SSL/HTTPS",
+          "verify_ssl": "Verifica certificato SSL",
           "device_name": "Nome del dispositivo",
           "controller_name": "Nome del controllore",
           "device_id": "ID del dispositivo",
@@ -44,6 +45,7 @@
           "username": "Nome utente facoltativo se l'autenticazione è abilitata",
           "password": "Password se richiesta",
           "use_ssl": "Abilita HTTPS quando supportato",
+          "verify_ssl": "Verifica il certificato SSL del controller (disabilitare per certificati autofirmati)",
           "device_name": "Nome descrittivo mostrato in Home Assistant",
           "controller_name": "Nome visualizzato del controller",
           "device_id": "ID univoco se esistono più controller",
@@ -136,6 +138,22 @@
           "retry_attempts": "Numero di tentativi"
         }
       },
+      "repair": {
+        "title": "Ripara connessione controller",
+        "description": "Il controller **{controller_name}** non risponde.\n\nVerificare che il controller sia acceso e connesso alla rete, quindi aggiornare le impostazioni.",
+        "data": {
+          "host": "Indirizzo IP",
+          "port": "Porta TCP",
+          "username": "Nome utente",
+          "password": "Password"
+        },
+        "data_description": {
+          "host": "Indirizzo IP o nome host del controller",
+          "port": "Porta TCP (predefinita: 80)",
+          "username": "Nome utente se l'autenticazione è abilitata",
+          "password": "Password se richiesta"
+        }
+      },
       "zeroconf_confirm": {
         "title": "Trovato controller viola della piscina",
         "description": "È stato rilevato un Violet Pool Controller sulla rete.\n\nNome: **{name}**\nIndirizzo IP: **{host}**\n\nVuoi configurare questo controller adesso?"
@@ -166,6 +184,8 @@
       "reauth_successful": "Riautenticazione riuscita",
       "reauth_failed": "Riautenticazione non riuscita",
       "reconfigure_successful": "Riconfigurazione riuscita",
+      "repair_successful": "Riparazione riuscita – il controller è di nuovo online",
+      "repair_failed": "Riparazione non riuscita",
       "already_in_progress": "Configurazione già in corso",
       "unknown": "Errore sconosciuto"
     }
@@ -245,45 +265,99 @@
     }
   },
   "services": {
-    "turn_auto": {
-      "name": "Attiva la modalità AUTO",
-      "description": "Passa i dispositivi alla modalità automatica intelligente.\n\nIl sistema ora assume il controllo ottimale in base ai dati e ai programmi dei sensori.",
+    "control_pump": {
+      "name": "Controllo pompa",
+      "description": "Controlla la pompa della piscina con opzioni avanzate come velocità, modalità eco o boost.",
       "fields": {
-        "entity_id": {
-          "name": "Dispositivi da controllare",
-          "description": "Seleziona i dispositivi per passare alla modalità AUTO."
+        "action": {
+          "name": "Azione di controllo",
+          "description": "Selezionare: controllo_velocità, forzato_off, modalità_eco, modalità_boost o automatico."
         },
-        "auto_delay": {
-          "name": "Ritardo (secondi)",
-          "description": "Tempo di attesa prima dell'attivazione della modalità AUTO (0-86400s)."
+        "speed": {
+          "name": "Velocità pompa",
+          "description": "Livello di velocità della pompa (1-3)."
+        },
+        "duration": {
+          "name": "Durata (secondi)",
+          "description": "Per quanto tempo applicare l'azione (0 = indefinito)."
         }
       }
     },
-    "set_pv_surplus": {
-      "name": "Utilizza surplus FV",
-      "description": "Attiva la modalità surplus fotovoltaico per un utilizzo ottimale dell'energia solare.\n\nI dispositivi della piscina funzionano automaticamente con l'energia solare in eccesso.",
+    "smart_dosing": {
+      "name": "Dosaggio intelligente",
+      "description": "Controllo del dosaggio manuale o automatico per pH, cloro e flocculante.\n\n**Attenzione:** Evitare il sovradosaggio! Controllare sempre i valori dell'acqua prima.",
       "fields": {
-        "entity_id": {
-          "name": "Interruttore del surplus fotovoltaico",
-          "description": "L'interruttore del surplus FV del controller."
+        "dosing_type": {
+          "name": "Prodotto chimico",
+          "description": "Selezionare il tipo di prodotto (pH-, pH+, Cloro, Flocculante)."
+        },
+        "action": {
+          "name": "Azione dosaggio",
+          "description": "Selezionare: dosaggio_manuale, automatico o ferma."
+        },
+        "duration": {
+          "name": "Durata dosaggio (secondi)",
+          "description": "Per quanto tempo deve durare il dosaggio? (5-300s)."
+        },
+        "safety_override": {
+          "name": "Ignora intervallo di sicurezza",
+          "description": "Salta l'intervallo di sicurezza tra i cicli di dosaggio."
+        }
+      }
+    },
+    "manage_pv_surplus": {
+      "name": "Gestione surplus FV",
+      "description": "Controlla la modalità surplus fotovoltaico per un utilizzo ottimale dell'energia solare.\n\nI dispositivi della piscina funzionano automaticamente con l'energia solare in eccesso.",
+      "fields": {
+        "mode": {
+          "name": "Modalità surplus FV",
+          "description": "Selezionare: attiva, disattiva o automatico."
         },
         "pump_speed": {
-          "name": "Velocità della pompa",
-          "description": "Potenza della pompa desiderata (1=Eco, 2=Normale, 3=Massima)."
+          "name": "Velocità pompa",
+          "description": "Potenza desiderata della pompa per modalità FV (1=Eco, 2=Normale, 3=Massima)."
         }
       }
     },
-    "manual_dosing": {
-      "name": "Dosaggio manuale",
-      "description": "Avvia il dosaggio manuale per la durata desiderata.\n\nAttenzione: evitare il sovradosaggio! Controllare sempre prima i valori dell'acqua.",
+    "control_dmx_scenes": {
+      "name": "Controllo scene DMX",
+      "description": "Controlla le scene di illuminazione DMX per l'illuminazione dell'area piscina.",
       "fields": {
-        "entity_id": {
-          "name": "Sistema di dosaggio",
-          "description": "Selezionare il sistema di dosaggio (pH+, pH-, Cloro, ecc.)."
+        "action": {
+          "name": "Azione DMX",
+          "description": "Selezionare: tutto_acceso, tutto_spento, tutto_automatico, sequenza o modalità_festa."
         },
-        "duration_seconds": {
-          "name": "Durata della dose (secondi)",
-          "description": "Per quanto tempo dovrebbe durare il dosaggio? (1-3600, inizia con tempi brevi!)"
+        "sequence_delay": {
+          "name": "Ritardo sequenza (secondi)",
+          "description": "Ritardo tra le scene in modalità sequenza (1-60s)."
+        }
+      }
+    },
+    "set_light_color_pulse": {
+      "name": "Impulso colore luce",
+      "description": "Invia comandi di impulso colore all'illuminazione della piscina.",
+      "fields": {
+        "pulse_count": {
+          "name": "Numero di impulsi",
+          "description": "Quanti impulsi di colore inviare (1-10)."
+        },
+        "pulse_interval": {
+          "name": "Intervallo impulsi (ms)",
+          "description": "Tempo tra gli impulsi in millisecondi (100-2000ms)."
+        }
+      }
+    },
+    "manage_digital_rules": {
+      "name": "Gestione regole digitali",
+      "description": "Gestisce le regole di automazione degli ingressi digitali del controller.",
+      "fields": {
+        "rule_key": {
+          "name": "Regola da gestire",
+          "description": "Selezionare la regola digitale (da DIRULE_1 a DIRULE_7)."
+        },
+        "action": {
+          "name": "Azione regola",
+          "description": "Selezionare: attiva, blocca o sblocca."
         }
       }
     },
@@ -293,105 +367,47 @@
       "fields": {
         "output": {
           "name": "Identificatore di uscita",
-          "description": "Identificatore come POMPA, RISCALDATORE o SOLARE"
+          "description": "Identificatore come POMPA, RISCALDATORE o SOLARE."
         },
         "mode": {
           "name": "Modalità di prova",
-          "description": "SWITCH=attivazione/disattivazione, ON=attivazione forzata, OFF=disattivazione forzata"
+          "description": "SWITCH=attivazione/disattivazione, ON=attivazione forzata, OFF=disattivazione forzata."
         },
         "duration": {
           "name": "Durata del test (secondi)",
-          "description": "Durata compresa tra 1 e 900 secondi"
+          "description": "Durata compresa tra 1 e 900 secondi."
         }
       }
     },
-    "set_temperature_target": {
-      "name": "Imposta la temperatura target",
-      "description": "Imposta la temperatura della piscina desiderata.\n\nIl controller si riscalda automaticamente a questa temperatura e la mantiene.",
+    "get_connection_status": {
+      "name": "Ottieni stato connessione",
+      "description": "Ottiene lo stato dettagliato della connessione e le metriche di salute per la diagnostica."
+    },
+    "get_error_summary": {
+      "name": "Ottieni riepilogo errori",
+      "description": "Ottiene un riepilogo degli errori recenti e suggerimenti di ripristino.",
       "fields": {
-        "entity_ids": {
-          "name": "Sistemi di riscaldamento",
-          "description": "Selezionare il riscaldatore e/o l'assorbitore solare."
-        },
-        "temperature": {
-          "name": "Temperatura target (°C)",
-          "description": "Temperatura della piscina desiderata (consigliata 20-35°C)."
+        "include_history": {
+          "name": "Includi cronologia",
+          "description": "Includi cronologia dettagliata degli errori."
         }
       }
     },
-    "set_ph_target": {
-      "name": "Imposta il pH target",
-      "description": "Definisce il valore di pH ideale per il dosaggio automatico.\n\nIntervallo consigliato: 7,0-7,4 per una qualità dell'acqua ottimale e compatibilità con la pelle.",
-      "fields": {
-        "entity_ids": {
-          "name": "Sistema di dosaggio del pH",
-          "description": "Selezionare il controllo del pH del controller."
-        },
-        "target_value": {
-          "name": "Obiettivo del pH",
-          "description": "Valore pH desiderato (6,8-7,8, ottimale: 7,0-7,4)."
-        }
-      }
+    "test_connection": {
+      "name": "Testa connessione",
+      "description": "Verifica la connessione al controller e restituisce informazioni diagnostiche."
     },
-    "set_chlorine_target": {
-      "name": "Imposta il target del cloro",
-      "description": "Determina il contenuto di cloro target per una disinfezione sicura.\n\nUna quantità sufficiente di cloro elimina i batteri, troppo irrita la pelle e gli occhi.",
-      "fields": {
-        "entity_ids": {
-          "name": "Sistema di dosaggio del cloro",
-          "description": "Sistema di dosaggio o elettrolisi del cloro."
-        },
-        "target_value": {
-          "name": "Target di cloro (mg/l)",
-          "description": "Contenuto desiderato di cloro libero (consigliato 0,3-1,5 mg/l)."
-        }
-      }
-    },
-    "trigger_backwash": {
-      "name": "Avvia il controlavaggio",
-      "description": "Avvia un controlavaggio del filtro per la pulizia.\n\nRimuove sporco e depositi per prestazioni ottimali del filtro.",
-      "fields": {
-        "entity_ids": {
-          "name": "Sistema di controlavaggio",
-          "description": "Automazione della valvola di controlavaggio o del filtro."
-        },
-        "duration": {
-          "name": "Durata del controlavaggio (secondi)",
-          "description": "Durata del risciacquo (60-300 s tipico, 0=fine manuale)."
-        }
-      }
-    },
-    "start_water_analysis": {
-      "name": "Avvia l'analisi dell'acqua",
-      "description": "Avvia un'analisi automatica dell'acqua di tutti i parametri.\n\nMisura pH, cloro, temperatura e altri valori per suggerimenti di ottimizzazione.",
-      "fields": {
-        "entity_ids": {
-          "name": "Controllore",
-          "description": "Violet Pool Controller per analisi."
-        }
-      }
-    },
-    "set_maintenance_mode": {
-      "name": "Modalità di manutenzione",
-      "description": "Abilita/disabilita la modalità di manutenzione.\n\nIn modalità manutenzione, tutta l'automazione viene messa in pausa per garantire un lavoro sicuro in piscina.",
-      "fields": {
-        "entity_ids": {
-          "name": "Controllore",
-          "description": "Selezionare Controller piscina viola."
-        },
-        "enable": {
-          "name": "Abilita la modalità di manutenzione",
-          "description": "On: Arresta tutte le automazioni | Spento: riprende il funzionamento normale."
-        }
-      }
+    "clear_error_history": {
+      "name": "Cancella cronologia errori",
+      "description": "Cancella la cronologia degli errori dopo un ripristino riuscito (usare con cautela)."
     },
     "set_all_dmx_scenes_mode": {
       "name": "Controlla l'illuminazione DMX",
       "description": "Controlla simultaneamente tutte le scene luminose DMX.\n\nPerfetto per effetti di luce uniformi o per accensioni/spegnimenti completi.",
       "fields": {
         "device_id": {
-          "name": "Controllore della piscina",
-          "description": "Controller per piscina viola con uscita DMX."
+          "name": "Controller della piscina",
+          "description": "Violet Pool Controller con uscita DMX."
         },
         "dmx_mode": {
           "name": "Modalità luce",
@@ -404,7 +420,7 @@
       "description": "Blocca o sblocca le regole di commutazione digitale.\n\nImpedisce attivazioni indesiderate durante la manutenzione o guasti.",
       "fields": {
         "device_id": {
-          "name": "Controllore della piscina",
+          "name": "Controller della piscina",
           "description": "Violet Pool Controller con regole digitali."
         },
         "rule_key": {
@@ -422,7 +438,7 @@
       "description": "Attiva manualmente una regola di commutazione digitale.\n\nUtile per testare l'automazione o il controllo manuale quando necessario.",
       "fields": {
         "device_id": {
-          "name": "Controllore della piscina",
+          "name": "Controller della piscina",
           "description": "Violet Pool Controller con le regole."
         },
         "rule_key": {
@@ -437,7 +453,7 @@
       "fields": {
         "device_id": {
           "name": "Controller piscina",
-          "description": "Violet Pool Controller per l'esportazione"
+          "description": "Violet Pool Controller per l'esportazione."
         },
         "lines": {
           "name": "Numero di righe",
@@ -445,11 +461,11 @@
         },
         "include_timestamps": {
           "name": "Includi timestamp",
-          "description": "Includi timestamp nei log esportati"
+          "description": "Includi timestamp nei log esportati."
         },
         "save_to_file": {
           "name": "Salva su file",
-          "description": "Salva i log come file di testo nella directory /config/"
+          "description": "Salva i log come file di testo nella directory /config/."
         }
       }
     }
@@ -702,6 +718,9 @@
       },
       "ext2_8": {
         "name": "Extension 2.8"
+      },
+      "pump_estimated_power": {
+        "name": "Potenza pompa (stimata)"
       }
     },
     "binary_sensor": {

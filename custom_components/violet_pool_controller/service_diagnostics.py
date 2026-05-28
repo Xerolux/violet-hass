@@ -105,9 +105,7 @@ class VioletDiagnosticServiceHandlers:
                     )
                 except Exception as err:
                     _LOGGER.error("Failed to save log file: %s", err)
-                    raise HomeAssistantError(
-                        f"Failed to save log file: {err}"
-                    ) from err
+                    raise HomeAssistantError(f"Failed to save log file: {err}") from err
 
                 _LOGGER.info(
                     "Diagnostic logs exported to file: %s (%d lines)",
@@ -209,9 +207,7 @@ class VioletDiagnosticServiceHandlers:
 
             except Exception as err:
                 _LOGGER.error("Get error summary error: %s", err)
-                raise HomeAssistantError(
-                    f"Failed to get error summary: {err}"
-                ) from err
+                raise HomeAssistantError(f"Failed to get error summary: {err}") from err
 
         return {
             "success": True,
@@ -333,9 +329,7 @@ class VioletDiagnosticServiceHandlers:
         log_entries.append(
             f"  Connection Latency: {coordinator.device.connection_latency:.1f}ms"
         )
-        log_entries.append(
-            f"  System Health: {coordinator.device.system_health:.0f}%"
-        )
+        log_entries.append(f"  System Health: {coordinator.device.system_health:.0f}%")
         log_entries.append(f"  Update Counter: {coordinator.device._update_counter}")
         log_entries.append(
             f"  Consecutive Failures: {coordinator.device.consecutive_failures}"
@@ -474,15 +468,22 @@ class VioletDiagnosticServiceHandlers:
     @staticmethod
     def _append_poll_history(log_entries: list[str], coordinator: Any) -> None:
         """Append recent polling history when available."""
-        if not hasattr(coordinator.device, "_first_poll") or not coordinator.device._first_poll:
+        if (
+            not hasattr(coordinator.device, "_first_poll")
+            or not coordinator.device._first_poll
+        ):
             return
 
         log_entries.append("Polling History:")
         log_entries.append(
-            f"  First Poll: {coordinator.device._first_poll.strftime('%Y-%m-%d %H:%M:%S')}"
+            f"  First Poll:"
+            f" {coordinator.device._first_poll.strftime('%Y-%m-%d %H:%M:%S')}"
         )
 
-        if hasattr(coordinator.device, "_poll_history") and coordinator.device._poll_history:
+        if (
+            hasattr(coordinator.device, "_poll_history")
+            and coordinator.device._poll_history
+        ):
             history = coordinator.device._poll_history
             log_entries.append(f"  Last {len(history)} Polls:")
             for item in history:
@@ -500,12 +501,14 @@ class VioletDiagnosticServiceHandlers:
 
                     detail_str = " | ".join(details)
                     log_entries.append(
-                        f"    - {timestamp.strftime('%H:%M:%S')}: {count} items ({latency:.1f}ms) -> {detail_str}"
+                        f"    - {timestamp.strftime('%H:%M:%S')}:"
+                        f" {count} items ({latency:.1f}ms) -> {detail_str}"
                     )
                 else:
                     timestamp, count, latency = item
                     log_entries.append(
-                        f"    - {timestamp.strftime('%H:%M:%S')}: {count} items ({latency:.1f}ms)"
+                        f"    - {timestamp.strftime('%H:%M:%S')}:"
+                        f" {count} items ({latency:.1f}ms)"
                     )
         else:
             log_entries.append("  No history available.")
@@ -582,12 +585,12 @@ class VioletDiagnosticServiceHandlers:
     def _build_export_text(device_name: str, log_entries: list[str]) -> str:
         """Build the final exported text block."""
         export_header = f"""
-{'=' * 80}
+{"=" * 80}
 Violet Pool Controller - Diagnostic Log Export
-{'=' * 80}
+{"=" * 80}
 Device: {device_name}
-Exported: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+Exported: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 Lines: {len(log_entries)}
-{'=' * 80}
+{"=" * 80}
 """
         return export_header + "\n".join(log_entries)

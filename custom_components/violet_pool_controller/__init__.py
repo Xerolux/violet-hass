@@ -22,7 +22,11 @@ from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers import device_registry as dr
 
-from .config_entry_helpers import extract_api_host, get_entry_value, with_non_default_port
+from .config_entry_helpers import (
+    extract_api_host,
+    get_entry_value,
+    with_non_default_port,
+)
 from .const import (
     CONF_ACTIVE_FEATURES,
     CONF_CONTROLLER_NAME,
@@ -128,7 +132,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         host = with_non_default_port(config["ip_address"], config["port"])
         # Create API instance
         from .const import CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE
-        dosing_standalone = entry.data.get(CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE)
+
+        dosing_standalone = entry.data.get(
+            CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE
+        )
 
         api = VioletPoolAPI(
             host=host,
@@ -172,20 +179,31 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # Entity unique_ids are formatted as "{entry_id}_{key}" (see entity.py).
         if coordinator.data:
             import homeassistant.helpers.entity_registry as er
+
             ent_reg = er.async_get(hass)
             entities = er.async_entries_for_config_entry(ent_reg, entry.entry_id)
-            static_keys = {"system_health", "connection_latency", "last_event_age", "api_request_rate", "average_latency"}
+            static_keys = {
+                "system_health",
+                "connection_latency",
+                "last_event_age",
+                "api_request_rate",
+                "average_latency",
+            }
 
             prefix = f"{entry.entry_id}_"
             for entity in entities:
-                if (
-                    entity.domain in ("sensor", "binary_sensor")
-                    and entity.unique_id.startswith(prefix)
-                ):
-                    key = entity.unique_id[len(prefix):]
+                if entity.domain in (
+                    "sensor",
+                    "binary_sensor",
+                ) and entity.unique_id.startswith(prefix):
+                    key = entity.unique_id[len(prefix) :]
                     if key not in coordinator.data and key not in static_keys:
-                            _LOGGER.debug("Removing unsupported entity %s (key=%s)", entity.entity_id, key)
-                            ent_reg.async_remove(entity.entity_id)
+                        _LOGGER.debug(
+                            "Removing unsupported entity %s (key=%s)",
+                            entity.entity_id,
+                            key,
+                        )
+                        ent_reg.async_remove(entity.entity_id)
 
         _LOGGER.info(
             "Setup completed successfully for '%s' (entry_id=%s)",
@@ -231,9 +249,12 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             # Get coordinator for cleanup
             coordinator = hass.data.get(DOMAIN, {}).get(entry.entry_id)
             if coordinator and hasattr(coordinator.device, "api"):
-                # NOTE: Do NOT close the aiohttp session - it's managed by Home Assistant!
-                # The session is created by HA via async_get_clientsession() and should only be closed by HA
-                _LOGGER.debug("API object reference released for entry_id=%s", entry.entry_id)
+                # NOTE: Do NOT close the aiohttp session - it's managed by
+                # Home Assistant! The session is created by HA via
+                # async_get_clientsession() and should only be closed by HA
+                _LOGGER.debug(
+                    "API object reference released for entry_id=%s", entry.entry_id
+                )
 
             # Remove coordinator from hass.data
             if entry.entry_id in hass.data.get(DOMAIN, {}):
@@ -363,22 +384,26 @@ def _apply_logging_config(entry: ConfigEntry) -> None:
         # We also enable DEBUG level for this package
         if logger.getEffectiveLevel() > logging.DEBUG:
             logger.setLevel(logging.DEBUG)
-            _LOGGER.info("Diagnostic logging enabled: Log level set to DEBUG for %s", __package__)
+            _LOGGER.info(
+                "Diagnostic logging enabled: Log level set to DEBUG for %s", __package__
+            )
     else:
         # Revert to default behavior (inherit from parent)
         # Note: We can't easily 'reset' to previous state without tracking it,
         # but setting to NOTSET usually causes it to inherit from parent (root)
         if logger.level == logging.DEBUG:
             logger.setLevel(logging.NOTSET)
-            _LOGGER.info("Diagnostic logging disabled: Log level reset for %s", __package__)
+            _LOGGER.info(
+                "Diagnostic logging disabled: Log level reset for %s", __package__
+            )
 
 
 def _extract_config(entry: ConfigEntry) -> dict[str, Any]:
     """Extract and normalize configuration from a ConfigEntry.
 
-    This function retrieves configuration values from the ConfigEntry's data and options,
-    providing default values for missing optional settings. It also handles legacy
-    configuration keys for backward compatibility.
+    This function retrieves configuration values from the ConfigEntry's data and
+    options, providing default values for missing optional settings. It also handles
+    legacy configuration keys for backward compatibility.
 
     Args:
         entry: The Home Assistant ConfigEntry.

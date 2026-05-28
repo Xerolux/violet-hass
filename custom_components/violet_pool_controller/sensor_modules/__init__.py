@@ -6,6 +6,7 @@
 # =============================================================================
 
 """Sensor Submodules for Violet Pool Controller."""
+
 from __future__ import annotations
 
 from .base import (

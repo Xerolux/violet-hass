@@ -309,6 +309,30 @@
         },
         "test_output": {
             "service": "mdi:test-tube"
+        },
+        "export_diagnostic_logs": {
+            "service": "mdi:file-document-outline"
+        },
+        "get_connection_status": {
+            "service": "mdi:connection"
+        },
+        "get_error_summary": {
+            "service": "mdi:alert-circle-outline"
+        },
+        "test_connection": {
+            "service": "mdi:lan-connect"
+        },
+        "clear_error_history": {
+            "service": "mdi:delete-sweep"
+        },
+        "set_all_dmx_scenes_mode": {
+            "service": "mdi:lightbulb-group"
+        },
+        "set_digital_input_rule_lock_state": {
+            "service": "mdi:lock"
+        },
+        "trigger_digital_input_rule": {
+            "service": "mdi:flash"
         }
     }
 }

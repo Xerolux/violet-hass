@@ -86,7 +86,7 @@ class VioletErrorCodeSensor(VioletSensor):
 class VioletDosingStateSensor(VioletPoolControllerEntity, SensorEntity):
     """Sensor for dosing system state arrays (DOS_*_STATE) and composite states."""
 
-    _DETAIL_DESCRIPTIONSSCRIPTIONS: dict[str, str] = {
+    _DETAIL_DESCRIPTIONS: dict[str, str] = {
         "PUMP_ANTI_FREEZE": "Frost Protection",
         "BLOCKED_BY_OUTSIDE_TEMP": "Blocked (Outside Temperature)",
         "BLOCKED_BY_TRESHOLDS": "Blocked (Thresholds)",

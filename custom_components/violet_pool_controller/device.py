@@ -16,7 +16,11 @@ import time
 from datetime import datetime, timedelta
 from typing import Any
 
-from homeassistant.helpers.issue_registry import IssueSeverity, async_create_issue, async_delete_issue
+from homeassistant.helpers.issue_registry import (
+    IssueSeverity,
+    async_create_issue,
+    async_delete_issue,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
@@ -24,7 +28,11 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from violet_poolcontroller_api.api import VioletPoolAPI, VioletPoolAPIError
-from .config_entry_helpers import extract_api_host, get_entry_value, with_non_default_port
+from .config_entry_helpers import (
+    extract_api_host,
+    get_entry_value,
+    with_non_default_port,
+)
 from .const import (
     CONF_CONTROLLER_NAME,
     CONF_DEVICE_ID,
@@ -185,7 +193,9 @@ class VioletPoolControllerDevice:
                 CONF_ENABLE_DIAGNOSTIC_LOGGING,
                 DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
             )
-            diagnostic_logging_changed = new_diagnostic_logging != self._enable_diagnostic_logging
+            diagnostic_logging_changed = (
+                new_diagnostic_logging != self._enable_diagnostic_logging
+            )
 
             # Check if connection settings changed by comparing with current values
             # Note: We compare with device settings, using public API properties
@@ -197,8 +207,8 @@ class VioletPoolControllerDevice:
             )
 
             # Auth changes are harder to detect without storing credentials
-            # For username/password changes, we assume change if explicitly provided in options
-            # or if they differ from initial setup
+            # For username/password changes, we assume change if explicitly
+            # provided in options or if they differ from initial setup
             auth_in_options = (
                 entry_options.get(CONF_USERNAME) is not None
                 or entry_options.get(CONF_PASSWORD) is not None
@@ -220,7 +230,11 @@ class VioletPoolControllerDevice:
                 return False
 
             _LOGGER.info(
-                "Updating API configuration (URL: %s→%s, SSL: %s→%s, Timeout: %s→%s, Retries: %s→%s)",
+                (
+                    "Updating API configuration"
+                    " (URL: %s→%s, SSL: %s→%s,"
+                    " Timeout: %s→%s, Retries: %s→%s)"
+                ),
                 self.api_url,
                 new_api_url,
                 self.use_ssl,
@@ -235,9 +249,10 @@ class VioletPoolControllerDevice:
             # IMPORTANT: Do NOT close the session - it's managed by Home Assistant!
             # We just create a new API object that uses the same session
             from .const import CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE
+
             new_dosing_standalone = entry_options.get(
                 CONF_DOSING_STANDALONE,
-                entry_data.get(CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE)
+                entry_data.get(CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE),
             )
 
             new_api = VioletPoolAPI(
@@ -259,7 +274,9 @@ class VioletPoolControllerDevice:
             self.api_url = new_api_url
             self.use_ssl = new_use_ssl
 
-            _LOGGER.info("API configuration updated successfully (new API instance created)")
+            _LOGGER.info(
+                "API configuration updated successfully (new API instance created)"
+            )
             return True
 
         except Exception as err:
@@ -310,7 +327,10 @@ class VioletPoolControllerDevice:
                     if self._consecutive_failures == 1:
                         if self._available or len(self._data) > 0:
                             _LOGGER.warning(
-                                "Controller '%s' returned empty/invalid data (attempt %d)",
+                                (
+                                    "Controller '%s' returned"
+                                    " empty/invalid data (attempt %d)"
+                                ),
                                 self.device_name,
                                 self._consecutive_failures,
                             )
@@ -325,7 +345,10 @@ class VioletPoolControllerDevice:
 
                     elif self._consecutive_failures >= self._max_consecutive_failures:
                         _LOGGER.error(
-                            "Controller '%s' marked unavailable after %d consecutive failures.",
+                            (
+                                "Controller '%s' marked unavailable"
+                                " after %d consecutive failures."
+                            ),
                             self.device_name,
                             self._consecutive_failures,
                         )
@@ -464,7 +487,8 @@ class VioletPoolControllerDevice:
                 if self._enable_diagnostic_logging:
                     changed_keys = set(data.keys()) - previous_data_keys
                     changed_values = {
-                        k for k in data.keys() & previous_data_keys
+                        k
+                        for k in data.keys() & previous_data_keys
                         if data.get(k) != previous_data.get(k)
                     }
                     all_changes = changed_keys | changed_values
@@ -581,6 +605,7 @@ class VioletPoolControllerDevice:
         data = await self.api.get_readings()
 
         if isinstance(data, dict):
+
             def is_valid(val: Any) -> bool:
                 return val is not None and str(val).strip().upper() != "N/A"
 
@@ -616,28 +641,25 @@ class VioletPoolControllerDevice:
             # --- Dosing module ---
             # Extra detection: dedicated CPU-temperature sensor key OR
             # dosing_standalone flag (set when dosing runs without a base module).
-            has_dosing_now = (
-                is_valid(data.get("SYSTEM_dosagemodule_cpu_temperature"))
-                or any(k.startswith("DOS_") and is_valid(v) for k, v in data.items())
-            )
+            has_dosing_now = is_valid(
+                data.get("SYSTEM_dosagemodule_cpu_temperature")
+            ) or any(k.startswith("DOS_") and is_valid(v) for k, v in data.items())
             if self.api.dosing_standalone or has_dosing_now:
                 self._hw_detected.add("DOSING")
             has_dosing = "DOSING" in self._hw_detected or self.api.dosing_standalone
 
             # --- Extension module 1 ---
             # Extra detection: alive-count key (reliable) OR any EXT1_ key present.
-            has_ext1_now = (
-                is_alive_count("SYSTEM_ext1module_alive_count")
-                or any(k.startswith("EXT1_") and is_valid(v) for k, v in data.items())
+            has_ext1_now = is_alive_count("SYSTEM_ext1module_alive_count") or any(
+                k.startswith("EXT1_") and is_valid(v) for k, v in data.items()
             )
             if has_ext1_now:
                 self._hw_detected.add("EXT1")
             has_ext1 = "EXT1" in self._hw_detected
 
             # --- Extension module 2 ---
-            has_ext2_now = (
-                is_alive_count("SYSTEM_ext2module_alive_count")
-                or any(k.startswith("EXT2_") and is_valid(v) for k, v in data.items())
+            has_ext2_now = is_alive_count("SYSTEM_ext2module_alive_count") or any(
+                k.startswith("EXT2_") and is_valid(v) for k, v in data.items()
             )
             if has_ext2_now:
                 self._hw_detected.add("EXT2")
@@ -662,11 +684,11 @@ class VioletPoolControllerDevice:
             # ---- Generic key restoration for all optional modules ----
             # Maps cache tag → (key_prefix, currently_present_flag)
             _optional_modules: list[tuple[str, str, bool]] = [
-                ("DOSING",  "DOS_",    has_dosing_now),
-                ("EXT1",    "EXT1_",   has_ext1_now),
-                ("EXT2",    "EXT2_",   has_ext2_now),
-                ("DMX",     "DMX_",    has_dmx_now),
-                ("DIRULE",  "DIRULE_", has_dirule_now),
+                ("DOSING", "DOS_", has_dosing_now),
+                ("EXT1", "EXT1_", has_ext1_now),
+                ("EXT2", "EXT2_", has_ext2_now),
+                ("DMX", "DMX_", has_dmx_now),
+                ("DIRULE", "DIRULE_", has_dirule_now),
             ]
             for _tag, _prefix, _present_now in _optional_modules:
                 if _tag in self._hw_detected and not _present_now:
@@ -679,7 +701,9 @@ class VioletPoolControllerDevice:
                         _LOGGER.debug(
                             "%s module temporarily absent from API response; "
                             "restored %d %s* keys from previous poll",
-                            _tag, restored, _prefix,
+                            _tag,
+                            restored,
+                            _prefix,
                         )
 
             is_standalone = self.api.dosing_standalone
@@ -693,7 +717,6 @@ class VioletPoolControllerDevice:
             data["HW_STANDALONE_MODE"] = is_standalone
 
         return data
-
 
     @property
     def available(self) -> bool:
@@ -752,7 +775,8 @@ class VioletPoolControllerDevice:
             "manufacturer": "PoolDigital GmbH & Co. KG",
             "model": model_str,
             "sw_version": self._firmware_version or "Unknown",
-            "suggested_area": self.controller_name,  # Auto-area for multi-controller setups
+            # Auto-area for multi-controller setups
+            "suggested_area": self.controller_name,
         }
 
     @property
@@ -806,6 +830,7 @@ class VioletPoolControllerDevice:
         if not self._latency_history:
             return 0.0
         return sum(self._latency_history) / len(self._latency_history)
+
 
 class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
     """Data update coordinator for the Violet Pool Controller."""

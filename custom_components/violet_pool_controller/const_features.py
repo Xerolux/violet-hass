@@ -12,6 +12,7 @@ as well as detailed definitions for binary sensors, switches, and number entitie
 (setpoints). These definitions are used to dynamically create the correct entities
 based on the user's enabled features and the data available from the controller.
 """
+
 from __future__ import annotations
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
@@ -167,64 +168,66 @@ for i in range(1, 5):
         }
     )
 
-BINARY_SENSORS.extend([
-    {
-        "key": "HW_BASE_MODULE",
-        "name": "Hardware: Base Module",
-        "translation_key": "hw_base_module",
-        "icon": "mdi:chip",
-        "entity_category": EntityCategory.DIAGNOSTIC,
-        "entity_registry_enabled_default": False,
-    },
-    {
-        "key": "HW_DOSING_MODULE",
-        "name": "Hardware: Dosing Module",
-        "translation_key": "hw_dosing_module",
-        "icon": "mdi:flask",
-        "entity_category": EntityCategory.DIAGNOSTIC,
-        "entity_registry_enabled_default": False,
-    },
-    {
-        "key": "HW_EXTENSION_MODULE_1",
-        "name": "Hardware: Extension Module 1",
-        "translation_key": "hw_extension_module_1",
-        "icon": "mdi:expansion-card",
-        "entity_category": EntityCategory.DIAGNOSTIC,
-        "entity_registry_enabled_default": False,
-    },
-    {
-        "key": "HW_EXTENSION_MODULE_2",
-        "name": "Hardware: Extension Module 2",
-        "translation_key": "hw_extension_module_2",
-        "icon": "mdi:expansion-card",
-        "entity_category": EntityCategory.DIAGNOSTIC,
-        "entity_registry_enabled_default": False,
-    },
-    {
-        "key": "HW_STANDALONE_MODE",
-        "name": "Hardware: Standalone Dosing Unit",
-        "translation_key": "hw_standalone_mode",
-        "icon": "mdi:server-network",
-        "entity_category": EntityCategory.DIAGNOSTIC,
-        "entity_registry_enabled_default": False,
-    },
-    {
-        "key": "HW_DMX_MODULE",
-        "name": "Hardware: DMX Module",
-        "translation_key": "hw_dmx_module",
-        "icon": "mdi:lightbulb-multiple",
-        "entity_category": EntityCategory.DIAGNOSTIC,
-        "entity_registry_enabled_default": False,
-    },
-    {
-        "key": "HW_DIRULE_MODULE",
-        "name": "Hardware: Digital Rules Module",
-        "translation_key": "hw_dirule_module",
-        "icon": "mdi:script-text",
-        "entity_category": EntityCategory.DIAGNOSTIC,
-        "entity_registry_enabled_default": False,
-    },
-])
+BINARY_SENSORS.extend(
+    [
+        {
+            "key": "HW_BASE_MODULE",
+            "name": "Hardware: Base Module",
+            "translation_key": "hw_base_module",
+            "icon": "mdi:chip",
+            "entity_category": EntityCategory.DIAGNOSTIC,
+            "entity_registry_enabled_default": False,
+        },
+        {
+            "key": "HW_DOSING_MODULE",
+            "name": "Hardware: Dosing Module",
+            "translation_key": "hw_dosing_module",
+            "icon": "mdi:flask",
+            "entity_category": EntityCategory.DIAGNOSTIC,
+            "entity_registry_enabled_default": False,
+        },
+        {
+            "key": "HW_EXTENSION_MODULE_1",
+            "name": "Hardware: Extension Module 1",
+            "translation_key": "hw_extension_module_1",
+            "icon": "mdi:expansion-card",
+            "entity_category": EntityCategory.DIAGNOSTIC,
+            "entity_registry_enabled_default": False,
+        },
+        {
+            "key": "HW_EXTENSION_MODULE_2",
+            "name": "Hardware: Extension Module 2",
+            "translation_key": "hw_extension_module_2",
+            "icon": "mdi:expansion-card",
+            "entity_category": EntityCategory.DIAGNOSTIC,
+            "entity_registry_enabled_default": False,
+        },
+        {
+            "key": "HW_STANDALONE_MODE",
+            "name": "Hardware: Standalone Dosing Unit",
+            "translation_key": "hw_standalone_mode",
+            "icon": "mdi:server-network",
+            "entity_category": EntityCategory.DIAGNOSTIC,
+            "entity_registry_enabled_default": False,
+        },
+        {
+            "key": "HW_DMX_MODULE",
+            "name": "Hardware: DMX Module",
+            "translation_key": "hw_dmx_module",
+            "icon": "mdi:lightbulb-multiple",
+            "entity_category": EntityCategory.DIAGNOSTIC,
+            "entity_registry_enabled_default": False,
+        },
+        {
+            "key": "HW_DIRULE_MODULE",
+            "name": "Hardware: Digital Rules Module",
+            "translation_key": "hw_dirule_module",
+            "icon": "mdi:script-text",
+            "entity_category": EntityCategory.DIAGNOSTIC,
+            "entity_registry_enabled_default": False,
+        },
+    ]
+)
 
 # =============================================================================
 # SWITCHES
@@ -328,30 +331,30 @@ for ext_bank in [1, 2]:
         )
 # Dynamically add DMX scenes
 for i in range(1, 13):
-        SWITCHES.append(
-            {
-                "key": f"DMX_SCENE{i}",
-                "name": f"DMX Scene {i}",
-                "translation_key": f"dmx_scene{i}",
-                "icon": "mdi:lightbulb-multiple",
-                "feature_id": "led_lighting",
-                "entity_category": EntityCategory.CONFIG,
-                "entity_registry_enabled_default": False,
-            }
-        )
+    SWITCHES.append(
+        {
+            "key": f"DMX_SCENE{i}",
+            "name": f"DMX Scene {i}",
+            "translation_key": f"dmx_scene{i}",
+            "icon": "mdi:lightbulb-multiple",
+            "feature_id": "led_lighting",
+            "entity_category": EntityCategory.CONFIG,
+            "entity_registry_enabled_default": False,
+        }
+    )
 # Dynamically add digital rules
 for i in range(1, 8):
-        SWITCHES.append(
-            {
-                "key": f"DIRULE_{i}",
-                "name": f"Switching Rule {i}",
-                "translation_key": f"dirule_{i}",
-                "icon": "mdi:script-text",
-                "feature_id": "digital_inputs",
-                "entity_category": EntityCategory.CONFIG,
-                "entity_registry_enabled_default": False,
-            }
-        )
+    SWITCHES.append(
+        {
+            "key": f"DIRULE_{i}",
+            "name": f"Switching Rule {i}",
+            "translation_key": f"dirule_{i}",
+            "icon": "mdi:script-text",
+            "feature_id": "digital_inputs",
+            "entity_category": EntityCategory.CONFIG,
+            "entity_registry_enabled_default": False,
+        }
+    )
 
 # =============================================================================
 # NUMBER ENTITIES (SETPOINTS)
@@ -475,6 +478,7 @@ SETPOINT_DEFINITIONS = [
         "device_class": None,  # Volume device class not available in HA
         "feature_id": "chlorine_control",
         "entity_category": EntityCategory.CONFIG,
+        "entity_registry_enabled_default": False,
         "setpoint_fields": ["DOS_1_CL_TOTAL_CAN_AMOUNT_ML"],
         "indicator_fields": ["DOS_1_CL", "DOS_1_CL_STATE"],
     },
@@ -492,6 +496,7 @@ SETPOINT_DEFINITIONS = [
         "device_class": None,  # Volume device class not available in HA
         "feature_id": "ph_control",
         "entity_category": EntityCategory.CONFIG,
+        "entity_registry_enabled_default": False,
         "setpoint_fields": ["DOS_4_PHM_TOTAL_CAN_AMOUNT_ML"],
         "indicator_fields": ["DOS_4_PHM", "DOS_4_PHM_STATE"],
     },
@@ -509,6 +514,7 @@ SETPOINT_DEFINITIONS = [
         "device_class": None,  # Volume device class not available in HA
         "feature_id": "ph_control",
         "entity_category": EntityCategory.CONFIG,
+        "entity_registry_enabled_default": False,
         "setpoint_fields": ["DOS_5_PHP_TOTAL_CAN_AMOUNT_ML"],
         "indicator_fields": ["DOS_5_PHP", "DOS_5_PHP_STATE"],
     },
@@ -526,6 +532,7 @@ SETPOINT_DEFINITIONS = [
         "device_class": None,  # Volume device class not available in HA
         "feature_id": "flocculation",
         "entity_category": EntityCategory.CONFIG,
+        "entity_registry_enabled_default": False,
         "setpoint_fields": ["DOS_6_FLOC_TOTAL_CAN_AMOUNT_ML"],
         "indicator_fields": ["DOS_6_FLOC", "DOS_6_FLOC_STATE"],
     },
@@ -649,5 +656,6 @@ for _ext_bank in [1, 2]:
                 "icon": "mdi:toggle-switch-outline",
                 "feature_id": "extension_outputs",
                 "entity_category": _ENTITY_CATEGORY_CONFIG,
+                "entity_registry_enabled_default": False,
             }
         )

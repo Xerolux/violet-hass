@@ -99,9 +99,7 @@ async def async_setup_entry(
 
     if sensors:
         async_add_entities(sensors)
-        _LOGGER.debug(
-            "%d sensors added for '%s'", len(sensors), config_entry.title
-        )
+        _LOGGER.debug("%d sensors added for '%s'", len(sensors), config_entry.title)
     else:
         _LOGGER.warning(
             "No sensors were added for '%s'. "
@@ -121,7 +119,9 @@ def _get_sensor_config(config_entry: ConfigEntry) -> dict[str, Any]:
     create_all = selected_sensors_raw is None
 
     if create_all:
-        _LOGGER.debug("No sensor selection found (legacy config). Creating all available sensors.")
+        _LOGGER.debug(
+            "No sensor selection found (legacy config). Creating all available sensors."
+        )
     else:
         _LOGGER.debug("Creating %d selected sensors.", len(selected_sensors_raw or []))
 
@@ -161,8 +161,8 @@ def _create_special_sensors(
         }
     )
     _LOGGER.debug(
-        "Diagnostic sensors created (System Health, Connection Latency, Last Event Age, "
-        "API Request Rate, Average Latency)"
+        "Diagnostic sensors created (System Health, Connection Latency,"
+        " Last Event Age, API Request Rate, Average Latency)"
     )
 
     # Error Code Sensors
@@ -272,7 +272,10 @@ def _create_standard_sensors(
         tk = predefined_info.get("translation_key") if predefined_info else key.lower()
 
         description = _build_sensor_description(
-            key, coordinator.data.get(key), all_predefined, translation_key=tk,
+            key,
+            coordinator.data.get(key),
+            all_predefined,
+            translation_key=tk,
             primary=key in PRIMARY_SENSOR_KEYS,
         )
 
