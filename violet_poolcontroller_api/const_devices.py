@@ -128,13 +128,13 @@ DEVICE_STATE_MAPPING = {
     "ON": {"mode": "manual", "active": True, "desc": "Manual ON"},
     "OFF": {"mode": "manual", "active": False, "desc": "Manual OFF"},
     "AUTO": {"mode": "auto", "active": None, "desc": "Auto Mode"},
-    # Numeric states from the API
+    # Numeric states from the API (source: getReadings spec Rev. 14-07-2024)
     "0": {"mode": "auto", "active": False, "desc": "Auto - Standby"},
-    "1": {"mode": "manual", "active": True, "desc": "Manual ON"},
-    "2": {"mode": "auto", "active": True, "desc": "Auto - Active"},
-    "3": {"mode": "auto", "active": True, "desc": "Auto - Active (Timer)"},
+    "1": {"mode": "auto", "active": True, "desc": "Auto - Active (Scheduled)"},
+    "2": {"mode": "auto", "active": False, "desc": "Auto - Priority OFF (Rule Blocked)"},
+    "3": {"mode": "auto", "active": True, "desc": "Auto - Priority ON (Emergency Rule)"},
     "4": {"mode": "manual", "active": True, "desc": "Manual ON (Forced)"},
-    "5": {"mode": "auto", "active": False, "desc": "Auto - Waiting"},
+    "5": {"mode": "auto", "active": False, "desc": "Rule OFF (Emergency Rule)"},
     "6": {"mode": "manual", "active": False, "desc": "Manual OFF"},
     # Special protection modes (from PUMPSTATE field with pipe separator)
     "3|PUMP_ANTI_FREEZE": {
@@ -158,14 +158,14 @@ STATE_MAP = {
     # Numeric states (as int and str)
     0: False,
     1: True,
-    2: True,
+    2: False,
     3: True,
     4: True,
     5: False,
     6: False,
     "0": False,
     "1": True,
-    "2": True,
+    "2": False,
     "3": True,
     "4": True,
     "5": False,
