@@ -50,10 +50,8 @@ from .const_api import (
     API_READINGS,
     API_RESTORE_CALIBRATION,
     API_SET_CONFIG,
-    API_SET_DOSING_PARAMETERS,
     API_SET_FUNCTION_MANUALLY,
     API_SET_OUTPUT_TESTMODE,
-    API_SET_TARGET_VALUES,
     API_TRIGGER_MANUAL_DOSING,
     DOSING_FUNCTIONS,
     DOSING_OUTPUT_INDEX,
@@ -1186,18 +1184,13 @@ class VioletPoolAPI:
             A dictionary with the command result.
 
         """
-        params = {"target": key, "value": value}
-        body = await self._request(
-            API_SET_TARGET_VALUES,
-            params=params,
-        )
-        return self._command_result(body)
+        return await self.set_config({key: value})
 
     async def set_dosing_parameters(
         self,
         parameters: Mapping[str, Any],
     ) -> dict[str, Any]:
-        """Update dosing parameters via the dedicated endpoint.
+        """Update dosing parameters on the controller.
 
         Args:
             parameters: A mapping of dosing parameters.
@@ -1206,12 +1199,7 @@ class VioletPoolAPI:
             A dictionary with the command result.
 
         """
-        body = await self._request(
-            API_SET_DOSING_PARAMETERS,
-            method="POST",
-            data=dict(parameters),
-        )
-        return self._command_result(body)
+        return await self.set_config(dict(parameters))
 
     async def set_pump_speed(
         self,

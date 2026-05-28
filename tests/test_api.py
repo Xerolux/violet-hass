@@ -777,8 +777,8 @@ async def test_set_device_temperature(
     api_client: VioletPoolAPI,
 ) -> None:
     """Test set_device_temperature sends correct target temperature."""
-    url = "http://192.168.1.100/setTargetValues?target=HEATER_TARGET_TEMP&value=28.0"
-    mock_aioresponse.get(url, body="OK", status=200)
+    url = "http://192.168.1.100/setConfig"
+    mock_aioresponse.post(url, body="OK", status=200)
 
     result = await api_client.set_device_temperature("HEATER", 28.0)
 
@@ -791,8 +791,8 @@ async def test_set_ph_target(
     api_client: VioletPoolAPI,
 ) -> None:
     """Test set_ph_target sends correct pH target value."""
-    url = "http://192.168.1.100/setTargetValues?target=pH&value=7.2"
-    mock_aioresponse.get(url, body="OK", status=200)
+    url = "http://192.168.1.100/setConfig"
+    mock_aioresponse.post(url, body="OK", status=200)
 
     result = await api_client.set_ph_target(7.2)
 
@@ -805,8 +805,8 @@ async def test_set_orp_target(
     api_client: VioletPoolAPI,
 ) -> None:
     """Test set_orp_target sends correct ORP target value."""
-    url = "http://192.168.1.100/setTargetValues?target=ORP&value=750"
-    mock_aioresponse.get(url, body="OK", status=200)
+    url = "http://192.168.1.100/setConfig"
+    mock_aioresponse.post(url, body="OK", status=200)
 
     result = await api_client.set_orp_target(750)
 
@@ -819,8 +819,8 @@ async def test_set_min_chlorine_level(
     api_client: VioletPoolAPI,
 ) -> None:
     """Test set_min_chlorine_level sends correct chlorine target value."""
-    url = "http://192.168.1.100/setTargetValues?target=MinChlorine&value=0.5"
-    mock_aioresponse.get(url, body="OK", status=200)
+    url = "http://192.168.1.100/setConfig"
+    mock_aioresponse.post(url, body="OK", status=200)
 
     result = await api_client.set_min_chlorine_level(0.5)
 
@@ -833,8 +833,8 @@ async def test_set_target_value(
     api_client: VioletPoolAPI,
 ) -> None:
     """Test set_target_value sends generic target value update."""
-    url = "http://192.168.1.100/setTargetValues?target=CUSTOM&value=42.0"
-    mock_aioresponse.get(url, body="OK", status=200)
+    url = "http://192.168.1.100/setConfig"
+    mock_aioresponse.post(url, body="OK", status=200)
 
     result = await api_client.set_target_value("CUSTOM", 42.0)
 
@@ -847,7 +847,7 @@ async def test_set_dosing_parameters(
     api_client: VioletPoolAPI,
 ) -> None:
     """Test set_dosing_parameters sends POST with dosing configuration."""
-    url = "http://192.168.1.100/setDosingParameters"
+    url = "http://192.168.1.100/setConfig"
     mock_aioresponse.post(url, body="OK", status=200)
 
     result = await api_client.set_dosing_parameters({"DOS_1_CL_DOSING_TIME": 30})
