@@ -28,7 +28,6 @@ from .const import (
     CONF_SELECTED_SENSORS,
     DOMAIN,
     DOSING_STATE_SENSORS,
-    PRIMARY_SENSOR_KEYS,
     SENSOR_FEATURE_MAP,
     STATUS_SENSORS,
     TEMP_SENSORS,
@@ -276,7 +275,6 @@ def _create_standard_sensors(
             coordinator.data.get(key),
             all_predefined,
             translation_key=tk,
-            primary=key in PRIMARY_SENSOR_KEYS,
         )
 
         SensorClass = (

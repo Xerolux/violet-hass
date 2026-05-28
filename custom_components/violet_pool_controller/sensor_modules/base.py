@@ -349,7 +349,6 @@ def _build_sensor_description(
     predefined: dict[str, Any],
     *,
     translation_key: str | None = None,
-    primary: bool = False,
 ) -> SensorEntityDescription:
     """Builds a SensorEntityDescription for a given sensor key."""
     predefined_info = predefined.get(key)
@@ -411,7 +410,6 @@ def _build_sensor_description(
         if key.startswith("SYSTEM_")
         else None,
         translation_key=translation_key,
-        primary=primary,
         entity_registry_enabled_default=_should_enable_by_default(key),
         suggested_display_precision=_PRECISION_MAP.get(unit) if unit else None,
     )
