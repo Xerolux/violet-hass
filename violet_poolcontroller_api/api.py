@@ -775,7 +775,7 @@ class VioletPoolAPI:
         body = await self._request(
             API_SET_CONFIG,
             method="POST",
-            json_payload=sanitized_config,
+            data=sanitized_config,
         )
         return self._command_result(body)
 
@@ -866,7 +866,7 @@ class VioletPoolAPI:
         body = await self._request(
             API_RESTORE_CALIBRATION,
             method="POST",
-            json_payload={"sensor": sensor, "timestamp": timestamp},
+            data={"sensor": sensor, "timestamp": timestamp},
         )
         return self._command_result(body)
 
@@ -1209,7 +1209,7 @@ class VioletPoolAPI:
         body = await self._request(
             API_SET_DOSING_PARAMETERS,
             method="POST",
-            json_payload=dict(parameters),
+            data=dict(parameters),
         )
         return self._command_result(body)
 
