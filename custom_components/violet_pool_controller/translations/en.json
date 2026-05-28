@@ -702,6 +702,405 @@
       },
       "ext2_8": {
         "name": "Extension 2.8"
+      },
+      "light": {
+        "name": "Lighting Status"
+      },
+      "dos_2_elo_state": {
+        "name": "Electrolysis Status"
+      },
+      "backwashrinse": {
+        "name": "Backwash Rinse Status"
+      },
+      "backwash_delay_running": {
+        "name": "Backwash Delay Active"
+      },
+      "backwash_delay_timestamp": {
+        "name": "Backwash Delay Timestamp"
+      },
+      "backwash_last_auto_run": {
+        "name": "Backwash Last Auto Run"
+      },
+      "backwash_last_manual_run": {
+        "name": "Backwash Last Manual Run"
+      },
+      "backwash_last_off": {
+        "name": "Backwash Last Off"
+      },
+      "backwash_last_on": {
+        "name": "Backwash Last On"
+      },
+      "backwash_omni_moving": {
+        "name": "Backwash Valve Moving"
+      },
+      "backwash_omni_state": {
+        "name": "Backwash Valve State"
+      },
+      "backwash_runtime": {
+        "name": "Backwash Runtime"
+      },
+      "backwash_state": {
+        "name": "Backwash State"
+      },
+      "backwash_step": {
+        "name": "Backwash Step"
+      },
+      "backwashrinse_last_off": {
+        "name": "Backwash Rinse Last Off"
+      },
+      "backwashrinse_last_on": {
+        "name": "Backwash Rinse Last On"
+      },
+      "backwashrinse_runtime": {
+        "name": "Backwash Rinse Runtime"
+      },
+      "pump_runtime": {
+        "name": "Pump Runtime"
+      },
+      "pump_last_on": {
+        "name": "Pump Last On"
+      },
+      "pump_last_off": {
+        "name": "Pump Last Off"
+      },
+      "heater_runtime": {
+        "name": "Heater Runtime"
+      },
+      "heater_last_on": {
+        "name": "Heater Last On"
+      },
+      "heater_last_off": {
+        "name": "Heater Last Off"
+      },
+      "heater_postrun_time": {
+        "name": "Heater Post-Run Time"
+      },
+      "solar_runtime": {
+        "name": "Solar Runtime"
+      },
+      "solar_last_on": {
+        "name": "Solar Last On"
+      },
+      "solar_last_off": {
+        "name": "Solar Last Off"
+      },
+      "light_runtime": {
+        "name": "Lighting Runtime"
+      },
+      "light_last_on": {
+        "name": "Lighting Last On"
+      },
+      "light_last_off": {
+        "name": "Lighting Last Off"
+      },
+      "eco": {
+        "name": "Eco Mode Status"
+      },
+      "eco_runtime": {
+        "name": "Eco Runtime"
+      },
+      "eco_last_on": {
+        "name": "Eco Last On"
+      },
+      "eco_last_off": {
+        "name": "Eco Last Off"
+      },
+      "dos_1_cl": {
+        "name": "Chlorine Dosing System"
+      },
+      "dos_1_cl_runtime": {
+        "name": "Chlorine Dosing Runtime"
+      },
+      "dos_1_cl_last_on": {
+        "name": "Chlorine Dosing Last On"
+      },
+      "dos_1_cl_last_off": {
+        "name": "Chlorine Dosing Last Off"
+      },
+      "dos_1_cl_daily_dosing_amount_ml": {
+        "name": "Chlorine Daily Amount (ml)"
+      },
+      "dos_1_cl_total_can_amount_ml": {
+        "name": "Chlorine Canister Amount (ml)"
+      },
+      "dos_1_cl_type": {
+        "name": "Chlorine Dosing Type"
+      },
+      "dos_1_cl_use": {
+        "name": "Chlorine Usage"
+      },
+      "dos_1_cl_last_can_reset": {
+        "name": "Chlorine Last Canister Reset"
+      },
+      "dos_2_elo": {
+        "name": "Electrolysis System"
+      },
+      "dos_4_phm": {
+        "name": "pH- Dosing System"
+      },
+      "dos_5_php": {
+        "name": "pH+ Dosing System"
+      },
+      "dos_6_floc": {
+        "name": "Flocculant Dosing System"
+      },
+      "refill_runtime": {
+        "name": "Refill Runtime"
+      },
+      "refill_last_on": {
+        "name": "Refill Last On"
+      },
+      "refill_last_off": {
+        "name": "Refill Last Off"
+      },
+      "overflow_dryrun_state": {
+        "name": "Overflow Dry Run State"
+      },
+      "overflow_overfill_state": {
+        "name": "Overflow Overfill State"
+      },
+      "overflow_refill_state": {
+        "name": "Overflow Refill State"
+      },
+      "bathing_ai_last_level": {
+        "name": "Bathing AI Last Level"
+      },
+      "bathing_ai_pump_state": {
+        "name": "Bathing AI Pump State"
+      },
+      "bathing_ai_pump_timestamp": {
+        "name": "Bathing AI Pump Timestamp"
+      },
+      "bathing_ai_start_level": {
+        "name": "Bathing AI Start Level"
+      },
+      "bathing_ai_surveillance_state": {
+        "name": "Bathing AI Surveillance State"
+      },
+      "pump_rpm_0": {
+        "name": "Pump Speed 0"
+      },
+      "pump_rpm_1": {
+        "name": "Pump Speed 1"
+      },
+      "pump_rpm_2": {
+        "name": "Pump Speed 2"
+      },
+      "pump_rpm_3": {
+        "name": "Pump Speed 3"
+      },
+      "pump_rpm_0_last_off": {
+        "name": "Pump Speed 0 Last Off"
+      },
+      "pump_rpm_1_last_off": {
+        "name": "Pump Speed 1 Last Off"
+      },
+      "pump_rpm_2_last_off": {
+        "name": "Pump Speed 2 Last Off"
+      },
+      "pump_rpm_3_last_off": {
+        "name": "Pump Speed 3 Last Off"
+      },
+      "pump_rpm_0_runtime": {
+        "name": "Pump Speed 0 Runtime"
+      },
+      "pump_rpm_1_runtime": {
+        "name": "Pump Speed 1 Runtime"
+      },
+      "pump_rpm_2_runtime": {
+        "name": "Pump Speed 2 Runtime"
+      },
+      "pump_rpm_3_runtime": {
+        "name": "Pump Speed 3 Runtime"
+      },
+      "sw_version": {
+        "name": "Software Version"
+      },
+      "sw_version_carrier": {
+        "name": "Carrier Software Version"
+      },
+      "system_memory": {
+        "name": "System Memory"
+      },
+      "cover_state": {
+        "name": "Cover State"
+      },
+      "onewire12_value": {
+        "name": "Temperature Sensor 12"
+      },
+      "onewire12_value_max": {
+        "name": "Temperature Sensor 12 Max"
+      },
+      "onewire12_value_min": {
+        "name": "Temperature Sensor 12 Min"
+      },
+      "onewire1_value_max": {
+        "name": "Water Temperature Max"
+      },
+      "onewire1_value_min": {
+        "name": "Water Temperature Min"
+      },
+      "orp_value_max": {
+        "name": "ORP Max"
+      },
+      "orp_value_min": {
+        "name": "ORP Min"
+      },
+      "ph_value_max": {
+        "name": "pH Max"
+      },
+      "ph_value_min": {
+        "name": "pH Min"
+      },
+      "pot_value_max": {
+        "name": "Chlorine Max"
+      },
+      "pot_value_min": {
+        "name": "Chlorine Min"
+      },
+      "ext1_1_last_on": {
+        "name": "Extension 1.1 Last On"
+      },
+      "ext1_1_last_off": {
+        "name": "Extension 1.1 Last Off"
+      },
+      "ext1_1_runtime": {
+        "name": "Extension 1.1 Runtime"
+      },
+      "ext1_2_last_on": {
+        "name": "Extension 1.2 Last On"
+      },
+      "ext1_2_last_off": {
+        "name": "Extension 1.2 Last Off"
+      },
+      "ext1_2_runtime": {
+        "name": "Extension 1.2 Runtime"
+      },
+      "ext1_3_last_on": {
+        "name": "Extension 1.3 Last On"
+      },
+      "ext1_3_last_off": {
+        "name": "Extension 1.3 Last Off"
+      },
+      "ext1_3_runtime": {
+        "name": "Extension 1.3 Runtime"
+      },
+      "ext1_4_last_on": {
+        "name": "Extension 1.4 Last On"
+      },
+      "ext1_4_last_off": {
+        "name": "Extension 1.4 Last Off"
+      },
+      "ext1_4_runtime": {
+        "name": "Extension 1.4 Runtime"
+      },
+      "ext1_5_last_on": {
+        "name": "Extension 1.5 Last On"
+      },
+      "ext1_5_last_off": {
+        "name": "Extension 1.5 Last Off"
+      },
+      "ext1_5_runtime": {
+        "name": "Extension 1.5 Runtime"
+      },
+      "ext1_6_last_on": {
+        "name": "Extension 1.6 Last On"
+      },
+      "ext1_6_last_off": {
+        "name": "Extension 1.6 Last Off"
+      },
+      "ext1_6_runtime": {
+        "name": "Extension 1.6 Runtime"
+      },
+      "ext1_7_last_on": {
+        "name": "Extension 1.7 Last On"
+      },
+      "ext1_7_last_off": {
+        "name": "Extension 1.7 Last Off"
+      },
+      "ext1_7_runtime": {
+        "name": "Extension 1.7 Runtime"
+      },
+      "ext1_8_last_on": {
+        "name": "Extension 1.8 Last On"
+      },
+      "ext1_8_last_off": {
+        "name": "Extension 1.8 Last Off"
+      },
+      "ext1_8_runtime": {
+        "name": "Extension 1.8 Runtime"
+      },
+      "ext2_1_last_on": {
+        "name": "Extension 2.1 Last On"
+      },
+      "ext2_1_last_off": {
+        "name": "Extension 2.1 Last Off"
+      },
+      "ext2_1_runtime": {
+        "name": "Extension 2.1 Runtime"
+      },
+      "ext2_2_last_on": {
+        "name": "Extension 2.2 Last On"
+      },
+      "ext2_2_last_off": {
+        "name": "Extension 2.2 Last Off"
+      },
+      "ext2_2_runtime": {
+        "name": "Extension 2.2 Runtime"
+      },
+      "ext2_3_last_on": {
+        "name": "Extension 2.3 Last On"
+      },
+      "ext2_3_last_off": {
+        "name": "Extension 2.3 Last Off"
+      },
+      "ext2_3_runtime": {
+        "name": "Extension 2.3 Runtime"
+      },
+      "ext2_4_last_on": {
+        "name": "Extension 2.4 Last On"
+      },
+      "ext2_4_last_off": {
+        "name": "Extension 2.4 Last Off"
+      },
+      "ext2_4_runtime": {
+        "name": "Extension 2.4 Runtime"
+      },
+      "ext2_5_last_on": {
+        "name": "Extension 2.5 Last On"
+      },
+      "ext2_5_last_off": {
+        "name": "Extension 2.5 Last Off"
+      },
+      "ext2_5_runtime": {
+        "name": "Extension 2.5 Runtime"
+      },
+      "ext2_6_last_on": {
+        "name": "Extension 2.6 Last On"
+      },
+      "ext2_6_last_off": {
+        "name": "Extension 2.6 Last Off"
+      },
+      "ext2_6_runtime": {
+        "name": "Extension 2.6 Runtime"
+      },
+      "ext2_7_last_on": {
+        "name": "Extension 2.7 Last On"
+      },
+      "ext2_7_last_off": {
+        "name": "Extension 2.7 Last Off"
+      },
+      "ext2_7_runtime": {
+        "name": "Extension 2.7 Runtime"
+      },
+      "ext2_8_last_on": {
+        "name": "Extension 2.8 Last On"
+      },
+      "ext2_8_last_off": {
+        "name": "Extension 2.8 Last Off"
+      },
+      "ext2_8_runtime": {
+        "name": "Extension 2.8 Runtime"
       }
     },
     "binary_sensor": {
