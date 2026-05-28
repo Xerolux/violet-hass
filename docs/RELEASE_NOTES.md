@@ -19,6 +19,8 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### ✨ New Features | Neue Funktionen
 
+- docs: add complete API sensor reference (read & write) (cd47f54)
+- feat: complete sensor translations for all API key patterns (fd78cd6)
 - fix: Add missing translations for ADC and EXT sensors (f7bfaac)
 - feat: v1.0.7-alpha.1 - EN migration, translation_key for 174 entities, 10-language support, dependency updates (f7e2bfa)
 - feat: extend sticky-cache key restoration to ALL optional hardware modules (1b33abf)
@@ -29,6 +31,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🚀 Improvements | Verbesserungen
 
+- 📝 Release v1.0.7-alpha.3 - Update changelog and version files (5096528)
 - 📝 Release v1.0.7-alpha.3 - Update changelog and version files (3f586c3)
 - refactor: Improve code quality and diagnostics (ad2238e)
 - 📝 Release v1.0.7-alpha.3 - Update changelog and version files (04ae67a)
@@ -53,6 +56,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- fix: entity names now display in German via translation_key lookup (3750fc6)
 - fix: strings.json imp1_value von "Flow Switch" auf "Dosing Inflow" korrigiert (cbb5fca)
 - fix: deutsche Lokalisierung – fehlende Translation-Keys, Select-Optionen und Zustandstexte (fb72cdd)
 - fix: Correct IMP1 sensor name from 'Flow Switch' to 'Dosing Inflow' (d7519ad)
@@ -80,6 +84,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 📚 Documentation | Dokumentation
 
+- docs: add complete API sensor reference (read & write) (cd47f54)
 - Translate all docs and wiki to English; add .de.md German alternatives (ecd37c1)
 - Translate README from German to English (19d3843)
 
@@ -128,4 +133,4 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-05-27 23:25:35 UTC_
+_Generated automatically by GitHub Actions on 2026-05-28 08:13:16 UTC_
