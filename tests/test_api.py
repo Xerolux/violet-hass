@@ -846,7 +846,7 @@ async def test_set_dosing_parameters(
     api_client: VioletPoolAPI,
 ) -> None:
     """Test set_dosing_parameters sends POST with dosing configuration."""
-    url = "http://192.168.1.100/setConfig"
+    url = "http://192.168.1.100/setDosingParameters"
     mock_aioresponse.post(url, body="OK", status=200)
 
     result = await api_client.set_dosing_parameters({"DOS_1_CL_DOSING_TIME": 30})
