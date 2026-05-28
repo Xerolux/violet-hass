@@ -134,7 +134,7 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
                 return round(num_value, 2)
 
             # Percentage values - 1 decimal place
-            if key.startswith(("SYSTEM_")) or "_" in key and key.split("_")[-1] in ["PERCENT", "PERCENTAGE"]:
+            if key.startswith("SYSTEM_") or "_" in key and key.split("_")[-1] in ["PERCENT", "PERCENTAGE"]:
                 return round(num_value, 1)
 
             # Integer values (counts, RPM, etc.) - round to integer if close to whole number

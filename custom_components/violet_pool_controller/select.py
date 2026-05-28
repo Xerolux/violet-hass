@@ -116,9 +116,9 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
 
         # Convert raw_state to mode
         try:
-            if isinstance(raw_state, (int, float)):
-                state_int = int(raw_state)
-            elif isinstance(raw_state, str) and raw_state.isdigit():
+            if isinstance(raw_state, (int, float)) or (
+                isinstance(raw_state, str) and raw_state.isdigit()
+            ):
                 state_int = int(raw_state)
             else:
                 # String-based states (ON, OFF, AUTO)

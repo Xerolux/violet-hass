@@ -456,12 +456,11 @@ class EnhancedErrorHandler:
             ErrorType.NETWORK_ERROR,
             ErrorType.TIMEOUT_ERROR,
             ErrorType.SERVER_ERROR,
-        ):
-            if self._offline_since is None:
-                self._offline_since = now
-                _LOGGER.warning(
-                    "Controller marked as OFFLINE (error: %s)", error_info.message
-                )
+        ) and self._offline_since is None:
+            self._offline_since = now
+            _LOGGER.warning(
+                "Controller marked as OFFLINE (error: %s)", error_info.message
+            )
 
         # Track auth errors
         if error_info.error_type == ErrorType.AUTH_ERROR:

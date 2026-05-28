@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
 from typing import Any
 
@@ -123,10 +124,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
 
         # Change-Only Logging
         if result != self._last_logged_state or raw_state != self._last_logged_raw:
-            if result is None:
-                new_state_str = "UNKNOWN"
-            else:
-                new_state_str = "ON" if result else "OFF"
+            new_state_str = "UNKNOWN" if result is None else "ON" if result else "OFF"
 
             _LOGGER.info(
                 "Switch %s: %s → %s (raw: %s)",
@@ -251,10 +249,8 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             detail_str = str(detail_val).strip()
             if "|" in detail_str:
                 parts = detail_str.split("|", 1)
-                try:
+                with contextlib.suppress(ValueError, TypeError):
                     state_num = int(parts[0])
-                except (ValueError, TypeError):
-                    pass
                 if len(parts) > 1:
                     raw_detail = parts[1].strip()
                     extra_detail = self._DETAIL_DESCRIPTIONS.get(
@@ -271,10 +267,8 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
 
         # Fall back to the raw numeric state
         if state_num is None and raw_state is not None:
-            try:
+            with contextlib.suppress(ValueError, TypeError):
                 state_num = int(raw_state)
-            except (ValueError, TypeError):
-                pass
 
         # Map numeric state to mode + description
         mode = "Unknown"

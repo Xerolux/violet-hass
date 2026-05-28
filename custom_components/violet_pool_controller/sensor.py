@@ -269,10 +269,7 @@ def _create_standard_sensors(
             continue
 
         predefined_info = all_predefined.get(key)
-        if predefined_info:
-            tk = predefined_info.get("translation_key")
-        else:
-            tk = key.lower()
+        tk = predefined_info.get("translation_key") if predefined_info else key.lower()
 
         description = _build_sensor_description(
             key, coordinator.data.get(key), all_predefined, translation_key=tk,

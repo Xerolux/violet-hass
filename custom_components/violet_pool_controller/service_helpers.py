@@ -48,7 +48,7 @@ def read_recent_violet_log_lines(
     if not os.path.exists(log_path):
         return []
 
-    with open(log_path, "r", encoding="utf-8", errors="ignore") as log_file:
+    with open(log_path, encoding="utf-8", errors="ignore") as log_file:
         all_lines = log_file.readlines()
 
     violet_lines = [

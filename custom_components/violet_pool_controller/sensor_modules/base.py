@@ -363,10 +363,9 @@ def _build_sensor_description(
             if key.endswith(suffix):
                 base_key = key[: -len(suffix)]
                 # IMPORTANT: Don't inherit unit for count/fault sensors
-                if suffix not in ["_faultcount", "_freezecount"]:
-                    if UNIT_MAP.get(base_key):
-                        unit = UNIT_MAP[base_key]
-                        break
+                if suffix not in ["_faultcount", "_freezecount"] and UNIT_MAP.get(base_key):
+                    unit = UNIT_MAP[base_key]
+                    break
         # Default temperature unit for onewire/temp sensors (but not for counters!)
         if unit is None and ("temp" in key.lower() or "onewire" in key.lower()) and "freezecount" not in key.lower() and "faultcount" not in key.lower():
             unit = "°C"

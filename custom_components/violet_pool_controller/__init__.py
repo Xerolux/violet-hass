@@ -178,10 +178,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
             prefix = f"{entry.entry_id}_"
             for entity in entities:
-                if entity.domain in ("sensor", "binary_sensor"):
-                    if entity.unique_id.startswith(prefix):
-                        key = entity.unique_id[len(prefix):]
-                        if key not in coordinator.data and key not in static_keys:
+                if (
+                    entity.domain in ("sensor", "binary_sensor")
+                    and entity.unique_id.startswith(prefix)
+                ):
+                    key = entity.unique_id[len(prefix):]
+                    if key not in coordinator.data and key not in static_keys:
                             _LOGGER.debug("Removing unsupported entity %s (key=%s)", entity.entity_id, key)
                             ent_reg.async_remove(entity.entity_id)
 

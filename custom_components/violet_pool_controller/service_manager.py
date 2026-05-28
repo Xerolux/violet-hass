@@ -24,9 +24,12 @@ class VioletServiceManager:
         domain_data = self.hass.data.get(DOMAIN, {})
 
         for coordinator in domain_data.values():
-            if hasattr(coordinator, "device") and coordinator.device:
-                if str(coordinator.config_entry.entry_id) == device_id:
-                    return coordinator
+            if (
+                hasattr(coordinator, "device")
+                and coordinator.device
+                and str(coordinator.config_entry.entry_id) == device_id
+            ):
+                return coordinator
 
         dev_reg = dr.async_get(self.hass)
         device = dev_reg.async_get(device_id)
