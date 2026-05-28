@@ -1,0 +1,83 @@
+name: Dev Pre-Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "violet_poolcontroller_api/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - "setup.py"
+      - "tox.ini"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  dev-release:
+    runs-on: ubuntu-latest
+    if: "!startsWith(github.event.head_commit.message, 'chore: bump version')"
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine version and tag
+        id: version
+        run: |
+          import re, subprocess, os
+
+          with open("pyproject.toml") as f:
+              content = f.read()
+          m = re.search(r'version\s*=\s*"(\d+\.\d+\.\d+)"', content)
+          if not m:
+              raise SystemExit("ERROR: cannot parse version from pyproject.toml")
+
+          base_version = m.group(1)
+          short_sha = subprocess.run(
+              ["git", "rev-parse", "--short", "HEAD"],
+              capture_output=True, text=True
+          ).stdout.strip()
+
+          dev_tag = f"v{base_version}-dev.{short_sha}"
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              print(f"base_version={base_version}", file=out)
+              print(f"dev_tag={dev_tag}", file=out)
+        shell: python {0}
+
+      - name: Delete previous dev pre-release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Looking for existing dev pre-releases for v${{ steps.version.outputs.base_version }}..."
+          for tag in $(gh release list --limit 50 --json tagName --jq '.[].tagName' | grep "^v${{ steps.version.outputs.base_version }}-dev\."); do
+            echo "Deleting old dev release: $tag"
+            gh release delete "$tag" --yes --cleanup-tag || true
+          done
+
+      - name: Create dev pre-release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          DEV_TAG="${{ steps.version.outputs.dev_tag }}"
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          COMMIT_MSG=$(git log -1 --pretty=format:"%s")
+          COMMIT_COUNT=$(git rev-list v0.0.19..HEAD --count 2>/dev/null || echo "0")
+
+          gh release create "${DEV_TAG}" \
+            --prerelease \
+            --title "v${{ steps.version.outputs.base_version }}-dev.${SHORT_SHA}" \
+            --notes "Auto pre-release from commit ${SHORT_SHA}
+
+**${COMMIT_MSG}**
+
+Commits since last stable: ${COMMIT_COUNT}
+SHA: \`${SHORT_SHA}\`
+
+> This is an automated development pre-release.
+> It replaces any previous \`-dev.*\` pre-release for v${{ steps.version.outputs.base_version }}."
