@@ -42,6 +42,12 @@ API_GET_HISTORY = "/getHistory"
 API_GET_WEATHER_DATA = "/getWeatherdata"
 API_GET_OVERALL_DOSING = "/getOverallDosing"
 API_GET_OUTPUT_STATES = "/getOutputstates"
+API_GET_LOG = "/getLog"
+API_GET_NOTIFICATIONS = "/getNotifications"
+
+LOG_TYPE_ACTIONS = "actions"
+LOG_TYPE_SWITCHING = "switching"
+LOG_TYPE_ONEWIRE = "onewire"
 
 # Settings for optimizing data refreshes by fetching specific groups.
 SPECIFIC_READING_GROUPS = (
@@ -78,9 +84,9 @@ ACTION_UNLOCK = "UNLOCK"
 
 # Common Query and Target Parameters
 QUERY_ALL = "ALL"
-TARGET_PH = "pH"
-TARGET_ORP = "ORP"
-TARGET_MIN_CHLORINE = "MinChlorine"
+TARGET_PH = "DOSAGE_phminus_setpoint"
+TARGET_ORP = "DOSAGE_chlorine_setpoint_orp"
+TARGET_MIN_CHLORINE = "DOSAGE_chlorine_lowerval_cl"
 KEY_MAINTENANCE = "MAINTENANCE"
 KEY_PVSURPLUS = "PVSURPLUS"
 
@@ -157,6 +163,15 @@ DOSING_OUTPUT_INDEX = {
     "DOS_4_PHM": 3,
     "DOS_5_PHP": 4,
     "DOS_6_FLOC": 5,
+}
+
+DOSING_CONFIG_PREFIX = {
+    "pH-": "DOSAGE_phminus",
+    "pH+": "DOSAGE_phplus",
+    "Chlor": "DOSAGE_chlorine",
+    "Elektrolyse": "DOSAGE_electrolysis",
+    "Flockmittel": "DOSAGE_floc",
+    "H2O2": "DOSAGE_h2o2",
 }
 
 # =============================================================================

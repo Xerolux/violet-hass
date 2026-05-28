@@ -42,6 +42,8 @@ from .const_api import (
     API_GET_CALIB_RAW_VALUES,
     API_GET_CONFIG,
     API_GET_HISTORY,
+    API_GET_LOG,
+    API_GET_NOTIFICATIONS,
     API_GET_OUTPUT_STATES,
     API_GET_OVERALL_DOSING,
     API_GET_WEATHER_DATA,
@@ -53,6 +55,7 @@ from .const_api import (
     API_SET_FUNCTION_MANUALLY,
     API_SET_OUTPUT_TESTMODE,
     API_TRIGGER_MANUAL_DOSING,
+    DOSING_CONFIG_PREFIX,
     DOSING_FUNCTIONS,
     DOSING_OUTPUT_INDEX,
     ERROR_CODES,
@@ -1187,6 +1190,63 @@ class VioletPoolAPI:
         """
         return await self.set_config(dict(parameters))
 
+    async def set_dosage_enabled(
+        self,
+        dosing_type: str,
+        enabled: bool,
+    ) -> dict[str, Any]:
+        """Enable or disable a dosing function.
+
+        Args:
+            dosing_type: One of ``"pH-"``, ``"pH+"``, ``"Chlor"``,
+                ``"Elektrolyse"``, ``"Flockmittel"``, ``"H2O2"``.
+            enabled: True to enable, False to disable.
+
+        Returns:
+            A dictionary with the command result.
+
+        Raises:
+            VioletPoolAPIError: If the dosing type is unknown.
+
+        """
+        prefix = DOSING_CONFIG_PREFIX.get(dosing_type)
+        if prefix is None:
+            msg = (
+                f"Unknown dosing type '{dosing_type}'. "
+                f"Valid: {list(DOSING_CONFIG_PREFIX)}"
+            )
+            raise VioletPoolAPIError(msg)
+
+        return await self.set_config({f"{prefix}_use": 1 if enabled else 0})
+
+    async def is_dosage_enabled(self, dosing_type: str) -> bool:
+        """Check whether a dosing function is enabled.
+
+        Args:
+            dosing_type: One of ``"pH-"``, ``"pH+"``, ``"Chlor"``,
+                ``"Elektrolyse"``, ``"Flockmittel"``, ``"H2O2"``.
+
+        Returns:
+            True if the dosing function is enabled.
+
+        Raises:
+            VioletPoolAPIError: If the dosing type is unknown.
+
+        """
+        prefix = DOSING_CONFIG_PREFIX.get(dosing_type)
+        if prefix is None:
+            msg = (
+                f"Unknown dosing type '{dosing_type}'. "
+                f"Valid: {list(DOSING_CONFIG_PREFIX)}"
+            )
+            raise VioletPoolAPIError(msg)
+
+        result = await self._request_json_dict(
+            API_GET_CONFIG,
+            query=f"{prefix}_use",
+        )
+        return bool(int(result.get(f"{prefix}_use", 0)))
+
     async def set_pump_speed(
         self,
         speed: int,
@@ -1305,3 +1365,57 @@ class VioletPoolAPI:
                 )
 
         return results
+
+    async def get_log(
+        self,
+        log_type: str,
+        page: int = 0,
+    ) -> dict[str, Any]:
+        """Fetch log entries from the controller.
+
+        Args:
+            log_type: One of ``LOG_TYPE_ACTIONS``, ``LOG_TYPE_SWITCHING``,
+                ``LOG_TYPE_ONEWIRE`` (``"actions"``, ``"switching"``,
+                ``"onewire"``).
+            page: Page number (0-based). Use -1 to download the full
+                actions log instead of paginated text.
+
+        Returns:
+            A dict with keys:
+            - ``lines``: list of pipe-delimited log line strings
+            - ``has_more``: True when ``LOAD_MORE`` sentinel was present
+            - ``raw``: the raw text response
+
+        """
+        if page < 0 and log_type == "actions":
+            url = f"{API_GET_LOG}?downloadActionsLog"
+        else:
+            url = f"{API_GET_LOG}?{log_type}&{page}"
+
+        resp = await self._api_request(
+            "GET",
+            url,
+            priority=API_PRIORITY_NORMAL,
+        )
+        text = resp.strip() if resp else ""
+        lines = text.split("\n") if text else []
+        has_more = lines and lines[-1].strip() == "LOAD_MORE"
+        if has_more:
+            lines = lines[:-1]
+        lines = [ln for ln in lines if ln.strip()]
+        return {"lines": lines, "has_more": has_more, "raw": text}
+
+    async def get_notifications(self) -> dict[str, Any]:
+        """Fetch all notification history from the controller.
+
+        Returns:
+            The JSON response dict where each key is a numeric ID and each
+            value is a notification record with fields like DATE, TIME,
+            SENSOR_ID, TYPE, TEXT, MAIL_STATE, etc.
+
+        """
+        return await self._api_request(
+            "GET",
+            f"{API_GET_NOTIFICATIONS}?ALL",
+            priority=API_PRIORITY_NORMAL,
+        )

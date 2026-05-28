@@ -887,6 +887,121 @@ Alle Konfigurationswerte werden über `GET /getConfig?key1,key2` gelesen und üb
 | `OFFSET_{romcode}` | float | Kalibrierungs-Offset |
 | `ONEWIRE_FEM_messageoptions` | int | Sensor-Warnung Bitmask |
 
+### 14.5a Elektroden-Kalibrierung (`calibrations.htm` CID=1/3)
+
+Alle Kalibrierungen werden über `POST /setConfig` (form-encoded) gespeichert.
+
+**pH 2-Punkt-Kalibrierung:**
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `CALIBRATION_ph_gain` | float | Verstärkungsfaktor (0.1–3.0) |
+| `CALIBRATION_ph_offset` | float | Offset in mV (±60) |
+| `CALIBRATION_ph_last` | string | Datum/Zeit der letzten Kalibrierung |
+| `CALIBRATION_ph_last_epoch` | int | Unix-Timestamp |
+| `CALIBRATION_ph_electrode_state` | string | `"UNCHANGED"` oder `"NEW_ELECTRODE"` |
+| `REMINDER_ph_calibration` | int | Erinnerung in Tagen (0,7,14,30,60,90,120,150,180) |
+| `REMINDER_ph_firedate` | string | Datum für Erinnerung (DD.MM.YYYY) oder `"0"` |
+| `CALIBRATION_ph_HW_gain` | float | Hardware-Gain (CID=2) |
+| `CALIBRATION_ph_HW_offset` | float | Hardware-Offset (CID=2) |
+
+**Redox (ORP) 1-Punkt-Kalibrierung:**
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `CALIBRATION_orp_gain` | float | Verstärkung (immer 1.0) |
+| `CALIBRATION_orp_offset` | float | Offset in mV (±100) |
+| `CALIBRATION_orp_last` | string | Datum/Zeit der letzten Kalibrierung |
+| `CALIBRATION_orp_last_epoch` | int | Unix-Timestamp |
+| `CALIBRATION_orp_electrode_state` | string | `"UNCHANGED"` oder `"NEW_ELECTRODE"` |
+| `REMINDER_orp_calibration` | int | Erinnerung in Tagen |
+| `REMINDER_orp_firedate` | string | Datum oder `"0"` |
+| `CALIBRATION_orp_HW_gain` | float | Hardware-Gain (CID=2) |
+| `CALIBRATION_orp_HW_offset` | float | Hardware-Offset (CID=2) |
+
+**Potentiostat (Chlor) Kalibrierung:**
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `CALIBRATION_pot_gain` | float | Verstärkungsfaktor |
+| `CALIBRATION_pot_offset` | float | Offset |
+| `CALIBRATION_pot_last` | string | Datum/Zeit der letzten Kalibrierung |
+| `CALIBRATION_pot_last_epoch` | int | Unix-Timestamp |
+| `CALIBRATION_pot_electrode_state` | string | `"UNCHANGED"` oder `"NEW_ELECTRODE"` |
+| `CALIBRATION_pot_calib_flow` | float | Anströmung bei Kalibrierung (cm/s) |
+| `CALIBRATION_pot_calib_temp` | float | Temperatur bei Kalibrierung |
+| `CALIBRATION_pot_zeropoint` | float | 0-Punkt Spannung (mV) |
+| `CALIBRATION_pot_zeropoint_last_epoch` | int | Epoch des letzten 0-Punkt |
+| `CALIBRATION_pot_zeropoint_offset` | float | 0-Punkt Offset (wird bei Kalib auf 0 gesetzt) |
+| `CALIBRATION_pot_flow_compensation` | float | Anströmungskompensations-Faktor |
+| `REMINDER_pot_calibration` | int | Erinnerung in Tagen (0,7,14,21) |
+| `REMINDER_pot_firedate` | string | Datum oder `"0"` |
+| `CALIBRATION_pot_HW_gain` | float | Hardware-Gain (CID=2) |
+| `CALIBRATION_pot_HW_offset` | float | Hardware-Offset (CID=2) |
+
+**Kalibrier-Rohwerte (`GET /getCalibRawValues`) liefert:**
+
+| Feld | Typ | Beschreibung |
+|------|-----|-------------|
+| `PH` | float | Aktueller pH-Wert |
+| `ORP` | float | Aktueller Redox-Wert (mV) |
+| `POT_WO_ZEROPOINTOFFSET` | float | POT ohne 0-Punkt Offset |
+| `POT_READABLE_UNCOMP` | float | Unkompensierter Chlorwert |
+| `IMP1_value` | float | Anströmung (cm/s) |
+| `PUMP_RPM_1/2/3` | int | Pumpenstatus pro Drehzahl |
+| `PUMP` | int | Pumpenstatus |
+| `DOS_MODULE_PRESENT` | int | Dosiermodul verbunden (0=ja, ≠0=nein) |
+| `epoch` | int | Aktueller Unix-Timestamp |
+| `date` | string | Aktuelles Datum |
+| `time` | string | Aktuelle Zeit |
+| `POT_ZEROPOINT` | float | Aktueller 0-Punkt |
+| `POT_ZEROPOINT_LAST_EPOCH` | int | Epoch des letzten 0-Punkt |
+| `POT_ZEROPOINT_OFFSET` | float | 0-Punkt Offset |
+| `onewire1_value` | float | Temperatur Sensor 1 |
+| `HW_RAW_PH` | float | Roh-Hardware pH (CID=2) |
+| `HW_RAW_ORP` | float | Roh-Hardware ORP (CID=2) |
+| `HW_RAW_POT` | float | Roh-Hardware POT (CID=2) |
+
+**Kalibrierhistorie (`GET /getCalibHistory`):**
+
+| Parameter | Format | Beschreibung |
+|-----------|--------|-------------|
+| `calibrations_ph.log` | pipe-separated | pH-Historie |
+| `calibrations_orp.log` | pipe-separated | ORP-Historie |
+| `calibrations_pot.log` | pipe-separated | Chlor-Historie |
+
+**pH Log-Zeilenformat** (`date|time|offset|gain|slope_must|slope_is|offset_text|buffer1|mvraw1|buffer2|mvraw2|state|epoch`):
+```
+PH|28.05.2026|14:30|12.3|0.998|54.19|54.19|Offset: -12.3mV|7.01|123.4|4.01|234.5|UNCHANGED|1748431200
+```
+
+**ORP Log-Zeilenformat** (`date|time|offset|offset_text|buffer|mvraw|state|epoch`):
+```
+ORP|28.05.2026|14:30|5.2|Offset: -5.2mV|468.0|462.8|UNCHANGED|1748431200
+```
+
+**POT Log-Zeilenformat** (`date|time|offset|gain|mv_zeropoint|ppm|mv_probe|mv_per_ppm|temp|flow|state|epoch`):
+```
+POT|28.05.2026|14:30|-52.1|0.045|10540.2|0.60|250.3|7.2|22.5|45.0|UNCHANGED|1748431200
+```
+
+**Erinnerung speichern (`CID=1`):**
+
+| Schlüssel | Typ | Beschreibung |
+|-----------|-----|-------------|
+| `REMINDER_FEM_messageoptions` | int | Benachrichtigungs-Methoden Bitmask |
+
+**`POST /restoreOldCalib` (form-encoded):**
+
+| Parameter | Beschreibung |
+|-----------|-------------|
+| `calDate` | Unix-Timestamp der wiederherzustellenden Kalibrierung |
+| `which` | `"ph"`, `"orp"` oder `"pot"` |
+
+**Testmodus für Anströmungskompensation:**
+
+`GET /setOutputTestmode?{PUMP_RPM_1/2/3},SWITCH,120000`
+
 ### 14.6 Impulszähler & Analoge Eingänge (`configuration.htm` CID=7)
 
 | Schlüssel | Typ | Beschreibung |
@@ -1092,9 +1207,19 @@ Alle Konfigurationswerte werden über `GET /getConfig?key1,key2` gelesen und üb
 | `/getOverallDosing` | GET | Dosierstatistik |
 | `/getCalibRawValues` | GET | Kalibrier-Rohwerte |
 | `/getCalibHistory` | GET | Kalibrierhistorie (`?sensor=...`) |
+| `/getRomcodes` | GET | 1-Wire ROM-Codes und Status |
+| `/getCloudData` | GET | Cloud-Account-Daten |
+| `/getLog?actions&{page}` | GET | Aktions-Log (paginiert, pipe-separated) |
+| `/getLog?switching&{page}` | GET | Schalt-Log (paginiert) |
+| `/getLog?onewire&{page}` | GET | 1-Wire Sensor-Log (paginiert) |
+| `/getLog?downloadActionsLog` | GET | Aktions-Log als Download |
+| `/getNotifications?ALL` | GET | Benachrichtigungs-Historie (JSON) |
+| `/getServiceStates` | GET | Dienst-Status (Tunnel, FTP, etc.) |
+| `/getUpdateState` | GET | Update-Status |
+| `/getUpdateHistory` | GET | Update-Historie |
 | `/debughttp.htm` | GET | Debug-Seite (Live-Request-Logging) |
 
-### Schreib-Endpoints
+### Schreib- und Steuerungs-Endpoints
 
 | Endpoint | Methode | Beschreibung |
 |----------|---------|-------------|
@@ -1113,38 +1238,11 @@ Alle Konfigurationswerte werden über `GET /getConfig?key1,key2` gelesen und üb
 | `/disableSAMBA` | GET | SAMBA deaktivieren |
 | `/enableSUPPORTTUNNEL` | GET | Support-Tunnel aktivieren |
 | `/disableSUPPORTTUNNEL` | GET | Support-Tunnel deaktivieren |
-| `/getServiceStates` | GET | Dienst-Status abfragen |
-| `/getUpdateState` | GET | Update-Status abfragen |
-| `/getUpdateHistory` | GET | Update-Historie |
 | `/initUpdate` | GET | Update starten |
 | `/doManualBackup` | GET | Manuelles Backup (SD/USB/Cloud) |
 | `/restoreLocalBackup` | GET | Backup-Liste laden |
 | `/doLocalRestore` | GET | Backup wiederherstellen |
 | `/reboot` | GET | System neustarten |
-
-### Lese-Endpoints
-
-| Endpoint | Methode | Beschreibung |
-|----------|---------|-------------|
-| `/getReadings` | GET | Alle Daten (`?ALL` oder `?key1,key2`) |
-| `/getOutputstates` | GET | Ausgangs-Status-Flags |
-| `/getConfig` | GET | Konfiguration (`?key1,key2`) |
-| `/getHistory` | GET | Historie (`?hours=24&sensor=ALL`) |
-| `/getWeatherdata` | GET | Wetterdaten |
-| `/getOverallDosing` | GET | Dosierstatistik |
-| `/getCalibRawValues` | GET | Kalibrier-Rohwerte |
-| `/getCalibHistory` | GET | Kalibrierhistorie (`?sensor=...`) |
-| `/debughttp.htm` | GET | Debug-Seite (Live-Request-Logging) |
-
-### Schreib-Endpoints
-
-| Endpoint | Methode | Beschreibung |
-|----------|---------|-------------|
-| `/setFunctionManually` | GET | Universeller Schaltbefehl (`?AUSGANG,ACTION,WERT1,WERT2`) |
-| `/triggerManualDosing` | POST | Dosierung starten/stoppen (Form-Data) |
-| `/setConfig` | POST JSON | Konfiguration schreiben (auch für Zielwerte und Dosierparameter) |
-| `/setOutputTestmode` | POST | Testmodus aktivieren |
-| `/restoreOldCalib` | POST | Kalibrierung wiederherstellen |
 
 ### Befehlsformat `/setFunctionManually` (Manual Section 26.2)
 
@@ -1202,6 +1300,61 @@ ERROR\nDOS_1_CL\nTHIS IS A DOSING OUTPUT! ARE YOU NUTS?
 ```
 
 → Deshalb wird für DOS_* Keys automatisch `/triggerManualDosing` verwendet.
+
+### `/getLog` - Text/Plain (Logdaten)
+
+Pipe-separated Format, paginiert über `{page}` (0-basiert).
+
+**Aktions-Log** (`/getLog?actions&0`):
+```
+2025-05-28|14:30:01|USERACTION|PUMP|MANUELL EIN|Drehzahl 2
+2025-05-28|14:31:05|CONTROLTASK|DOS_1_CL|DOSIERUNG GESTARTET|50ml
+LOAD_MORE
+```
+
+**Schalt-Log** (`/getLog?switching&0`):
+```
+2025-05-28|14:30:01|PUMP|ON|MANUELL
+2025-05-28|14:31:05|DOS_1_CL|ON|AUTO
+```
+
+**1-Wire Sensor-Log** (`/getLog?onewire&0`):
+```
+2025-05-28|14:30:01|SENSOR_POOL|23.5|OK
+2025-05-28|14:30:01|SENSOR_SOLAR|45.2|OK
+```
+
+Letzte Zeile `LOAD_MORE` = weitere Seiten vorhanden.
+
+**Download**: `/getLog?downloadActionsLog` liefert das komplette Aktions-Log als Datei.
+
+### `/getNotifications` - JSON (Benachrichtigungen)
+
+`/getNotifications?ALL` liefert ein JSON-Objekt mit allen Benachrichtigungen:
+
+```json
+{
+  "1": {
+    "DATE": "2025-05-28",
+    "TIME": "14:30:01",
+    "SENSOR_ID": "SENSOR_POOL",
+    "SENSOR_NAME": "Pool",
+    "SENSOR_STATE_OR_VALUE": "ALARM",
+    "TYPE": "ALERT",
+    "TEXT": "Pool-Temperatur außerhalb des zulässigen Bereichs!",
+    "MAIL_STATE": "SENT",
+    "MAIL_API_URL": "",
+    "MAIL_API_RESPONSE": "200 OK",
+    "SMTP_STATE": "NOT_REQUESTED",
+    "PUSH_STATE": "SENT",
+    "HTTP_STATE": "NOT_REQUESTED"
+  }
+}
+```
+
+**TYPE**: `WARNING` | `ALERT` | `REMINDER`
+
+**MAIL_STATE / PUSH_STATE / HTTP_STATE**: `NOT_REQUESTED` | `SENT` | `PENDING` | `FAILED` | `REPEATED_ERROR`
 
 ### JSON-Endpoints
 
