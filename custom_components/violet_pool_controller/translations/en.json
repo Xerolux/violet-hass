@@ -1101,6 +1101,309 @@
       },
       "ext2_8_runtime": {
         "name": "Extension 2.8 Runtime"
+      },
+      "onewire2_value_max": {
+        "name": "Outside Temperature Max"
+      },
+      "onewire2_value_min": {
+        "name": "Outside Temperature Min"
+      },
+      "onewire3_value_max": {
+        "name": "Solar Absorber Max"
+      },
+      "onewire3_value_min": {
+        "name": "Solar Absorber Min"
+      },
+      "onewire4_value_max": {
+        "name": "Absorber Return Max"
+      },
+      "onewire4_value_min": {
+        "name": "Absorber Return Min"
+      },
+      "onewire5_value_max": {
+        "name": "Heat Exchanger Inlet Max"
+      },
+      "onewire5_value_min": {
+        "name": "Heat Exchanger Inlet Min"
+      },
+      "onewire6_value_max": {
+        "name": "Heat Exchanger Outlet Max"
+      },
+      "onewire6_value_min": {
+        "name": "Heat Exchanger Outlet Min"
+      },
+      "onewire7_value_max": {
+        "name": "Temperature Sensor 7 Max"
+      },
+      "onewire7_value_min": {
+        "name": "Temperature Sensor 7 Min"
+      },
+      "onewire8_value_max": {
+        "name": "Temperature Sensor 8 Max"
+      },
+      "onewire8_value_min": {
+        "name": "Temperature Sensor 8 Min"
+      },
+      "onewire9_value": {
+        "name": "Temperature Sensor 9"
+      },
+      "onewire9_value_max": {
+        "name": "Temperature Sensor 9 Max"
+      },
+      "onewire9_value_min": {
+        "name": "Temperature Sensor 9 Min"
+      },
+      "onewire10_value": {
+        "name": "Temperature Sensor 10"
+      },
+      "onewire10_value_max": {
+        "name": "Temperature Sensor 10 Max"
+      },
+      "onewire10_value_min": {
+        "name": "Temperature Sensor 10 Min"
+      },
+      "onewire11_value": {
+        "name": "Temperature Sensor 11"
+      },
+      "onewire11_value_max": {
+        "name": "Temperature Sensor 11 Max"
+      },
+      "onewire11_value_min": {
+        "name": "Temperature Sensor 11 Min"
+      },
+      "pump_rpm_0_last_on": {
+        "name": "Pump Speed 0 Last On"
+      },
+      "pump_rpm_1_last_on": {
+        "name": "Pump Speed 1 Last On"
+      },
+      "pump_rpm_2_last_on": {
+        "name": "Pump Speed 2 Last On"
+      },
+      "pump_rpm_3_last_on": {
+        "name": "Pump Speed 3 Last On"
+      },
+      "dos_2_elo_daily_dosing_amount_ml": {
+        "name": "Electrolysis Daily Amount (ml)"
+      },
+      "dos_2_elo_last_can_reset": {
+        "name": "Electrolysis Last Canister Reset"
+      },
+      "dos_2_elo_last_off": {
+        "name": "Electrolysis Dosing Last Off"
+      },
+      "dos_2_elo_last_on": {
+        "name": "Electrolysis Dosing Last On"
+      },
+      "dos_2_elo_runtime": {
+        "name": "Electrolysis Dosing Runtime"
+      },
+      "dos_2_elo_total_can_amount_ml": {
+        "name": "Electrolysis Canister Amount (ml)"
+      },
+      "dos_2_elo_type": {
+        "name": "Electrolysis Dosing Type"
+      },
+      "dos_2_elo_use": {
+        "name": "Electrolysis Usage"
+      },
+      "dos_4_phm_daily_dosing_amount_ml": {
+        "name": "pH- Daily Amount (ml)"
+      },
+      "dos_4_phm_last_can_reset": {
+        "name": "pH- Last Canister Reset"
+      },
+      "dos_4_phm_last_off": {
+        "name": "pH- Dosing Last Off"
+      },
+      "dos_4_phm_last_on": {
+        "name": "pH- Dosing Last On"
+      },
+      "dos_4_phm_runtime": {
+        "name": "pH- Dosing Runtime"
+      },
+      "dos_4_phm_total_can_amount_ml": {
+        "name": "pH- Canister Amount (ml)"
+      },
+      "dos_4_phm_type": {
+        "name": "pH- Dosing Type"
+      },
+      "dos_4_phm_use": {
+        "name": "pH- Usage"
+      },
+      "dos_5_php_daily_dosing_amount_ml": {
+        "name": "pH+ Daily Amount (ml)"
+      },
+      "dos_5_php_last_can_reset": {
+        "name": "pH+ Last Canister Reset"
+      },
+      "dos_5_php_last_off": {
+        "name": "pH+ Dosing Last Off"
+      },
+      "dos_5_php_last_on": {
+        "name": "pH+ Dosing Last On"
+      },
+      "dos_5_php_runtime": {
+        "name": "pH+ Dosing Runtime"
+      },
+      "dos_5_php_total_can_amount_ml": {
+        "name": "pH+ Canister Amount (ml)"
+      },
+      "dos_5_php_type": {
+        "name": "pH+ Dosing Type"
+      },
+      "dos_5_php_use": {
+        "name": "pH+ Usage"
+      },
+      "dos_6_floc_daily_dosing_amount_ml": {
+        "name": "Flocculant Daily Amount (ml)"
+      },
+      "dos_6_floc_last_can_reset": {
+        "name": "Flocculant Last Canister Reset"
+      },
+      "dos_6_floc_last_off": {
+        "name": "Flocculant Dosing Last Off"
+      },
+      "dos_6_floc_last_on": {
+        "name": "Flocculant Dosing Last On"
+      },
+      "dos_6_floc_runtime": {
+        "name": "Flocculant Dosing Runtime"
+      },
+      "dos_6_floc_total_can_amount_ml": {
+        "name": "Flocculant Canister Amount (ml)"
+      },
+      "dos_6_floc_type": {
+        "name": "Flocculant Dosing Type"
+      },
+      "dos_6_floc_use": {
+        "name": "Flocculant Usage"
+      },
+      "dmx_scene1": {
+        "name": "DMX Light Scene 1"
+      },
+      "dmx_scene2": {
+        "name": "DMX Light Scene 2"
+      },
+      "dmx_scene3": {
+        "name": "DMX Light Scene 3"
+      },
+      "dmx_scene4": {
+        "name": "DMX Light Scene 4"
+      },
+      "dmx_scene5": {
+        "name": "DMX Light Scene 5"
+      },
+      "dmx_scene6": {
+        "name": "DMX Light Scene 6"
+      },
+      "dmx_scene7": {
+        "name": "DMX Light Scene 7"
+      },
+      "dmx_scene8": {
+        "name": "DMX Light Scene 8"
+      },
+      "dmx_scene9": {
+        "name": "DMX Light Scene 9"
+      },
+      "dmx_scene10": {
+        "name": "DMX Light Scene 10"
+      },
+      "dmx_scene11": {
+        "name": "DMX Light Scene 11"
+      },
+      "dmx_scene12": {
+        "name": "DMX Light Scene 12"
+      },
+      "digitalinputrule_state_digitalinput_rule_1": {
+        "name": "Digital Input Rule State 1"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch1": {
+        "name": "Digital Input Rule Stopwatch 1"
+      },
+      "digitalinputrule_state_digitalinput_rule_2": {
+        "name": "Digital Input Rule State 2"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch2": {
+        "name": "Digital Input Rule Stopwatch 2"
+      },
+      "digitalinputrule_state_digitalinput_rule_3": {
+        "name": "Digital Input Rule State 3"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch3": {
+        "name": "Digital Input Rule Stopwatch 3"
+      },
+      "digitalinputrule_state_digitalinput_rule_4": {
+        "name": "Digital Input Rule State 4"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch4": {
+        "name": "Digital Input Rule Stopwatch 4"
+      },
+      "digitalinputrule_state_digitalinput_rule_5": {
+        "name": "Digital Input Rule State 5"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch5": {
+        "name": "Digital Input Rule Stopwatch 5"
+      },
+      "digitalinputrule_state_digitalinput_rule_6": {
+        "name": "Digital Input Rule State 6"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch6": {
+        "name": "Digital Input Rule Stopwatch 6"
+      },
+      "digitalinputrule_state_digitalinput_rule_7": {
+        "name": "Digital Input Rule State 7"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch7": {
+        "name": "Digital Input Rule Stopwatch 7"
+      },
+      "input1": {
+        "name": "Digital Input 1"
+      },
+      "input2": {
+        "name": "Digital Input 2"
+      },
+      "input3": {
+        "name": "Digital Input 3"
+      },
+      "input4": {
+        "name": "Digital Input 4"
+      },
+      "input5": {
+        "name": "Digital Input 5"
+      },
+      "input6": {
+        "name": "Digital Input 6"
+      },
+      "input7": {
+        "name": "Digital Input 7"
+      },
+      "input8": {
+        "name": "Digital Input 8"
+      },
+      "input9": {
+        "name": "Digital Input 9"
+      },
+      "input10": {
+        "name": "Digital Input 10"
+      },
+      "input11": {
+        "name": "Digital Input 11"
+      },
+      "input12": {
+        "name": "Digital Input 12"
+      },
+      "input_ce1": {
+        "name": "Can Empty Sensor 1"
+      },
+      "input_ce2": {
+        "name": "Can Empty Sensor 2"
+      },
+      "input_ce3": {
+        "name": "Can Empty Sensor 3"
+      },
+      "input_ce4": {
+        "name": "Can Empty Sensor 4"
       }
     },
     "binary_sensor": {
