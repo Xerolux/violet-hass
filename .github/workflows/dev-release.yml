@@ -47,6 +47,17 @@ jobs:
             echo "No previous dev releases to clean up."
           fi
 
+      - name: Patch version into files for dev build
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          DEV_VERSION="${TAG#v}"
+          MANIFEST="custom_components/violet_pool_controller/manifest.json"
+          CONST="custom_components/violet_pool_controller/const.py"
+
+          sed -i "s|\"version\": \"[^\"]*\"|\"version\": \"$DEV_VERSION\"|" "$MANIFEST"
+          sed -i "s|^INTEGRATION_VERSION = .*|INTEGRATION_VERSION = \"$DEV_VERSION\"|" "$CONST"
+          echo "Patched version to $DEV_VERSION in ZIP files"
+
       - name: Create ZIP artifact
         run: |
           cd custom_components/violet_pool_controller
