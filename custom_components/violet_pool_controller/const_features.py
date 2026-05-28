@@ -641,6 +641,7 @@ SELECT_CONTROLS = [
         "icon": "mdi:water",
         "feature_id": "flocculation",
         "entity_category": _ENTITY_CATEGORY_CONFIG,
+        "binary": True,
     },
 ]
 

@@ -33,6 +33,10 @@ from .entity import VioletPoolControllerEntity
 
 _LOGGER = logging.getLogger(__name__)
 
+BINARY_DOSING_CONFIG_KEYS = {
+    "DOS_6_FLOC": "DOSAGE_floc_use",
+}
+
 # Coordinator-based platforms; HA should not throttle entity state writes
 PARALLEL_UPDATES = 0
 
@@ -82,6 +86,7 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
         config_entry: ConfigEntry,
         description: SelectEntityDescription,
         device_key: str,
+        is_binary: bool = False,
     ) -> None:
         """
         Initialize the select entity.
@@ -91,10 +96,14 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
             config_entry: The config entry.
             description: The select entity description.
             device_key: The device key (e.g., PUMP, HEATER).
+            is_binary: If True, only OFF/ON options (no AUTO).
         """
         super().__init__(coordinator, config_entry, description)
         self._device_key = device_key
-        self._attr_options = [MODE_OFF, MODE_ON, MODE_AUTO]
+        self._is_binary = is_binary
+        self._attr_options = (
+            [MODE_OFF, MODE_ON] if self._is_binary else [MODE_OFF, MODE_ON, MODE_AUTO]
+        )
 
         # Optimistic state cache
         self._optimistic_mode: str | None = None
@@ -106,7 +115,6 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
     @property
     def current_option(self) -> str | None:
         """Return the current selected option."""
-        # Check optimistic cache
         if self._optimistic_mode is not None:
             return self._optimistic_mode
 
@@ -115,38 +123,28 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
 
         raw_state = self.get_value(self._device_key, "")
 
-        # Convert raw_state to mode
         try:
             if isinstance(raw_state, (int, float)) or (
                 isinstance(raw_state, str) and raw_state.isdigit()
             ):
                 state_int = int(raw_state)
             else:
-                # String-based states (ON, OFF, AUTO)
                 state_str = str(raw_state).upper().strip()
                 if state_str in ("ON", "MANUAL", "MAN"):
                     return MODE_ON
                 if state_str in ("OFF", "STOPPED"):
                     return MODE_OFF
                 if state_str in ("AUTO", "AUTOMATIC"):
-                    return MODE_AUTO
-                _LOGGER.debug(
-                    "Unknown string state '%s' for %s, using AUTO as default",
-                    raw_state,
-                    self._device_key,
-                )
-                return MODE_AUTO
+                    return MODE_AUTO if not self._is_binary else MODE_ON
+                return MODE_AUTO if not self._is_binary else MODE_OFF
 
-            # Use mapping for numeric states
+            if self._is_binary:
+                return MODE_ON if state_int in (1, 2, 3, 4) else MODE_OFF
+
             mode = STATE_TO_MODE.get(state_int)
             if mode:
                 return mode
 
-            _LOGGER.warning(
-                "Unknown numeric state %s for %s, using AUTO as default",
-                state_int,
-                self._device_key,
-            )
             return MODE_AUTO
 
         except (ValueError, TypeError) as err:
@@ -156,7 +154,7 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
                 self._device_key,
                 err,
             )
-            return MODE_AUTO
+            return MODE_OFF if self._is_binary else MODE_AUTO
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -225,10 +223,16 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
                 "Setting %s to mode '%s' (action: %s)", self._device_key, option, action
             )
 
-            # API call
-            result = await self.device.api.set_switch_state(
-                key=self._device_key, action=action
-            )
+            if self._is_binary and self._device_key in BINARY_DOSING_CONFIG_KEYS:
+                config_key = BINARY_DOSING_CONFIG_KEYS[self._device_key]
+                config_val = "1" if option == MODE_ON else "0"
+                result = await self.device.api.set_config(
+                    {config_key: config_val}
+                )
+            else:
+                result = await self.device.api.set_switch_state(
+                    key=self._device_key, action=action
+                )
 
             if result.get("success") is True:
                 _LOGGER.debug(
@@ -375,7 +379,11 @@ async def async_setup_entry(
 
         entities.append(
             VioletSelect(
-                coordinator, config_entry, description, select_config["device_key"]
+                coordinator,
+                config_entry,
+                description,
+                select_config["device_key"],
+                is_binary=select_config.get("binary", False),
             )
         )
 
