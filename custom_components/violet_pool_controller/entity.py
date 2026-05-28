@@ -29,13 +29,13 @@ _LOGGER = logging.getLogger(__name__)
 
 # Boolean State Mapping (used by switches and other boolean entities)
 STATE_MAP = {
-    0: False,  # Off
-    1: True,  # On
-    2: True,  # Auto (usually means on with automatic control)
-    3: True,  # Auto with timer
-    4: True,  # Manual forced on
-    5: False,  # Auto waiting
-    6: False,  # Manual forced off
+    0: False,  # Auto - Standby
+    1: True,  # Auto - Active (Scheduled)
+    2: False,  # Auto - Priority OFF (Rule Blocked)
+    3: True,  # Auto - Priority ON (Emergency Rule)
+    4: True,  # Manual ON (Forced)
+    5: False,  # Auto - Rule OFF (Emergency Rule)
+    6: False,  # Manual OFF
 }
 
 

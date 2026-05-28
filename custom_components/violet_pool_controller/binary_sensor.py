@@ -43,6 +43,7 @@ BINARY_SENSOR_FEATURE_MAP = {
     "DOS_6_FLOC": "flocculation",
     "REFILL": "water_refill",
     "PVSURPLUS": "pv_surplus",
+    "ECO": None,
 }
 
 

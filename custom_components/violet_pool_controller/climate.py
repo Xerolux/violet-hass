@@ -148,7 +148,13 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         key = f"{self.climate_type}_TARGET_TEMP"
         target = self.get_float_value(key, DEFAULT_TARGET_TEMP)
         if target is None:
-            return DEFAULT_TARGET_TEMP
+            # Fallback to config key
+            config_key = (
+                "SOLAR_maxtemp"
+                if self.climate_type == "SOLAR"
+                else "HEATER_set_temp"
+            )
+            target = self.get_float_value(config_key, DEFAULT_TARGET_TEMP)
 
         # Validate temperature range
         if not self.min_temp <= target <= self.max_temp:

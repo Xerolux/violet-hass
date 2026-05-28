@@ -299,296 +299,6 @@ class VioletPoolControllerDevice:
             return True
         return False
 
-    async def async_update(self) -> dict[str, Any]:
-        """
-        Fetch and return updated device data from the controller.
-
-        Returns a NEW dict copy on every successful update so that
-        HA's DataUpdateCoordinator detects a data change and notifies
-        all entity listeners.  Returning the same mutable reference
-        caused HA 2025.12+ to skip entity state writes because
-        ``self.data is new_data`` evaluated to True.
-        """
-        try:
-            async with self._api_lock:
-                # ✅ DIAGNOSTIC: Measure connection latency
-                start_time = time.monotonic()
-                self._api_request_count += 1  # Track API requests
-                data = await self._fetch_controller_data()
-                # Convert to milliseconds
-                self._connection_latency = (time.monotonic() - start_time) * 1000
-
-                # ✅ DIAGNOSTIC: Update latency history (rolling window of 60 samples)
-                self._latency_history.append(self._connection_latency)
-
-                if not data or not isinstance(data, dict):
-                    self._consecutive_failures += 1
-
-                    if self._consecutive_failures == 1:
-                        if self._available or len(self._data) > 0:
-                            _LOGGER.warning(
-                                (
-                                    "Controller '%s' returned"
-                                    " empty/invalid data (attempt %d)"
-                                ),
-                                self.device_name,
-                                self._consecutive_failures,
-                            )
-                            self._first_failure_logged = True
-                            self._recovery_logged = False
-                        else:
-                            # During initial setup use debug level
-                            _LOGGER.debug(
-                                "Controller '%s' not responding (setup phase)",
-                                self.device_name,
-                            )
-
-                    elif self._consecutive_failures >= self._max_consecutive_failures:
-                        _LOGGER.error(
-                            (
-                                "Controller '%s' marked unavailable"
-                                " after %d consecutive failures."
-                            ),
-                            self.device_name,
-                            self._consecutive_failures,
-                        )
-                        self._available = False
-
-                        # Create a repair issue so users are notified in HA UI
-                        async_create_issue(
-                            self.hass,
-                            DOMAIN,
-                            f"controller_unavailable_{self.config_entry.entry_id}",
-                            is_fixable=True,
-                            is_persistent=True,
-                            severity=IssueSeverity.ERROR,
-                            translation_key="controller_unavailable",
-                            translation_placeholders={
-                                "name": self.device_name,
-                                "failures": str(self._consecutive_failures),
-                            },
-                        )
-
-                        raise UpdateFailed(
-                            f"Controller '{self.device_name}' unreachable "
-                            f"({self._consecutive_failures} failures)"
-                        )
-
-                    elif self._should_log_failure():
-                        _LOGGER.warning(
-                            "Controller '%s' still unreachable "
-                            "(%d/%d consecutive failures)",
-                            self.device_name,
-                            self._consecutive_failures,
-                            self._max_consecutive_failures,
-                        )
-
-                    # ✅ DIAGNOSTIC: Degrade system health based on failures
-                    self._system_health = max(
-                        0.0, 100.0 - (self._consecutive_failures * 20.0)
-                    )
-
-                    # Return a COPY of stale data so coordinator sees a new object
-                    return dict(self._data) if self._data else {}
-
-                if self._consecutive_failures > 0 and not self._recovery_logged:
-                    _LOGGER.info(
-                        "Controller '%s' reachable again (after %d failure%s)",
-                        self.device_name,
-                        self._consecutive_failures,
-                        "s" if self._consecutive_failures > 1 else "",
-                    )
-                    self._recovery_logged = True
-                    self._first_failure_logged = False
-
-                    # Delete the repair issue when controller is available again
-                    async_delete_issue(
-                        self.hass,
-                        DOMAIN,
-                        f"controller_unavailable_{self.config_entry.entry_id}",
-                    )
-
-                # ✅ FIX: Always replace _data with a fresh dict to ensure
-                # HA's DataUpdateCoordinator detects the change.
-                previous_data_keys = set(self._data.keys()) if self._data else set()
-                previous_data = self._data
-                self._data = dict(data)
-                self._available = True
-                self._consecutive_failures = 0
-                self._last_error = None
-
-                # ✅ DIAGNOSTIC: Update health metrics
-                self._last_update_time = time.monotonic()
-                self._system_health = 100.0  # Perfect health
-
-                # Extract firmware version (multiple fallbacks)
-                fw_candidates = [
-                    data.get("FW"),
-                    data.get("fw"),
-                    data.get("SW_VERSION"),
-                    data.get("sw_version"),
-                    data.get("VERSION"),
-                    data.get("version"),
-                    data.get("SW_VERSION_CARRIER"),
-                    data.get("FIRMWARE_VERSION"),
-                    data.get("firmware_version"),
-                ]
-                for candidate in fw_candidates:
-                    if candidate is not None and str(candidate).strip():
-                        self._firmware_version = str(candidate).strip()
-                        break
-
-                # Debug log only if firmware was found and not yet logged
-                if self._firmware_version and not self._fw_logged:
-                    _LOGGER.debug(
-                        "Firmware version detected: %s", self._firmware_version
-                    )
-                    self._fw_logged = True
-
-                # ✅ FIX: Return a NEW dict so the coordinator always
-                # receives a distinct object, triggering entity updates.
-                self._update_counter += 1
-
-                # Record Poll History
-                now_dt = datetime.now()
-                if self._first_poll is None:
-                    self._first_poll = now_dt
-
-                # Keep a compact fixed-order snapshot for diagnostics.
-                flow_value = (
-                    data.get("IMP2_value")
-                    if data.get("IMP2_value") is not None
-                    else data.get("ADC3_value")
-                )
-                snapshot = (
-                    data.get("onewire1_value"),  # Pool Temp
-                    data.get("orp_value"),  # Redox
-                    data.get("pH_value"),  # pH
-                    data.get("pot_value"),  # Chlorine
-                    data.get("ADC2_value"),  # Overflow
-                    flow_value,  # Flow
-                    data.get("IMP1_value"),  # Inflow
-                )
-
-                self._poll_history.append(
-                    (now_dt, len(data), self._connection_latency, snapshot)
-                )
-
-                # Standard debug log (always active)
-                _LOGGER.debug(
-                    "Update #%d for '%s': %d keys fetched in %.3fs",
-                    self._update_counter,
-                    self.device_name,
-                    len(data),
-                    self._connection_latency / 1000,  # Convert ms to seconds
-                )
-
-                # DIAGNOSTIC LOGGING: Extended information (optional)
-                if self._enable_diagnostic_logging:
-                    changed_keys = set(data.keys()) - previous_data_keys
-                    changed_values = {
-                        k
-                        for k in data.keys() & previous_data_keys
-                        if data.get(k) != previous_data.get(k)
-                    }
-                    all_changes = changed_keys | changed_values
-                    if all_changes:
-                        _LOGGER.info(
-                            "📊 Update #%d: %d new/changed keys: %s%s",
-                            self._update_counter,
-                            len(all_changes),
-                            ", ".join(sorted(all_changes)[:20]),
-                            "..." if len(all_changes) > 20 else "",
-                        )
-
-                    # Connection metrics
-                    _LOGGER.info(
-                        "📈 Connection: %.1fms latency, %.0f%% health, %.2f req/min",
-                        self._connection_latency,
-                        self._system_health,
-                        self.api_request_rate,
-                    )
-
-                    # Sample keys (for debugging)
-                    sample_keys = sorted(data.keys())[:15]
-                    _LOGGER.info(
-                        "🔑 Sample keys (%d total): %s",
-                        len(data),
-                        ", ".join(sample_keys),
-                    )
-
-                return dict(self._data)
-
-        except VioletPoolAPIError as err:
-            self._last_error = str(err)
-            self._consecutive_failures += 1
-
-            # LOGGING OPTIMIZATION: Consolidated error logging
-            if self._consecutive_failures == 1:
-                if not self._available and len(self._data) == 0:
-                    _LOGGER.debug(
-                        "API error during setup of '%s': %s",
-                        self.device_name,
-                        str(err)[:200],
-                    )
-                else:
-                    _LOGGER.error(
-                        "API error during update of '%s': %s",
-                        self.device_name,
-                        str(err)[:200],
-                    )
-            elif self._consecutive_failures >= self._max_consecutive_failures:
-                _LOGGER.error(
-                    "Controller '%s' unavailable after %d API failures",
-                    self.device_name,
-                    self._consecutive_failures,
-                )
-                self._available = False
-                raise UpdateFailed(f"Controller unreachable: {err}") from err
-            elif self._should_log_failure():
-                _LOGGER.warning(
-                    "Persistent API issues for '%s' (%d/%d failures)",
-                    self.device_name,
-                    self._consecutive_failures,
-                    self._max_consecutive_failures,
-                )
-
-            # ✅ FIX: Return a COPY of stale data
-            return dict(self._data) if self._data else {}
-
-        except Exception as err:
-            self._last_error = str(err)
-            self._consecutive_failures += 1
-
-            if self._consecutive_failures == 1:
-                if not self._available and len(self._data) == 0:
-                    _LOGGER.debug(
-                        "Error during setup of '%s': %s", self.device_name, err
-                    )
-                else:
-                    _LOGGER.exception(
-                        "Unexpected error during update of '%s'", self.device_name
-                    )
-            elif self._consecutive_failures >= self._max_consecutive_failures:
-                _LOGGER.error(
-                    "Controller '%s' unavailable after %d unexpected failures",
-                    self.device_name,
-                    self._consecutive_failures,
-                )
-                self._available = False
-                raise UpdateFailed(f"Update error: {err}") from err
-            elif self._should_log_failure():
-                _LOGGER.warning(
-                    "Persistent issues for '%s': %s (%d/%d failures)",
-                    self.device_name,
-                    type(err).__name__,
-                    self._consecutive_failures,
-                    self._max_consecutive_failures,
-                )
-
-            # ✅ FIX: Return a COPY of stale data
-            return dict(self._data) if self._data else {}
-
     async def _fetch_controller_data(self) -> dict[str, Any]:
         """Fetch all controller data.
 
@@ -610,7 +320,6 @@ class VioletPoolControllerDevice:
                 return val is not None and str(val).strip().upper() != "N/A"
 
             def is_alive_count(key: str) -> bool:
-                """Return True when the controller reports a positive alive count."""
                 val = data.get(key)
                 if val is None:
                     return False
@@ -619,28 +328,7 @@ class VioletPoolControllerDevice:
                 except (ValueError, TypeError):
                     return False
 
-            # ----------------------------------------------------------------
-            # Hardware module detection + sticky-cache key restoration
-            # ----------------------------------------------------------------
-            # Optional hardware modules (dosing, extension relays, DMX, digital
-            # rules) are filtered out of the API response when the controller
-            # considers them absent.  This can happen transiently during a
-            # controller reboot, firmware update, or brief communication gap.
-            #
-            # Without protection, missing keys cause switch/sensor entities to
-            # silently revert to OFF/Unknown for the duration of the gap.
-            #
-            # Strategy (same for every optional module):
-            #  1. Detect whether the module is present in THIS response ("_now").
-            #  2. Once seen, add to _hw_detected sticky cache (session-permanent).
-            #  3. If the module was previously seen but is now absent, restore its
-            #     keys from self._data (last good poll) so entities keep the last
-            #     known valid state instead of flipping to OFF/Unknown.
-            # ----------------------------------------------------------------
-
             # --- Dosing module ---
-            # Extra detection: dedicated CPU-temperature sensor key OR
-            # dosing_standalone flag (set when dosing runs without a base module).
             has_dosing_now = is_valid(
                 data.get("SYSTEM_dosagemodule_cpu_temperature")
             ) or any(k.startswith("DOS_") and is_valid(v) for k, v in data.items())
@@ -649,7 +337,6 @@ class VioletPoolControllerDevice:
             has_dosing = "DOSING" in self._hw_detected or self.api.dosing_standalone
 
             # --- Extension module 1 ---
-            # Extra detection: alive-count key (reliable) OR any EXT1_ key present.
             has_ext1_now = is_alive_count("SYSTEM_ext1module_alive_count") or any(
                 k.startswith("EXT1_") and is_valid(v) for k, v in data.items()
             )
@@ -682,7 +369,6 @@ class VioletPoolControllerDevice:
             has_dirule = "DIRULE" in self._hw_detected
 
             # ---- Generic key restoration for all optional modules ----
-            # Maps cache tag → (key_prefix, currently_present_flag)
             _optional_modules: list[tuple[str, str, bool]] = [
                 ("DOSING", "DOS_", has_dosing_now),
                 ("EXT1", "EXT1_", has_ext1_now),
@@ -718,6 +404,206 @@ class VioletPoolControllerDevice:
 
         return data
 
+    async def async_update(self) -> dict[str, Any]:
+        """Fetch and return updated device data from the controller."""
+        try:
+            async with self._api_lock:
+                start_time = time.monotonic()
+                self._api_request_count += 1
+                data = await self._fetch_controller_data()
+                self._connection_latency = (time.monotonic() - start_time) * 1000
+                self._latency_history.append(self._connection_latency)
+
+                if not data or not isinstance(data, dict):
+                    self._consecutive_failures += 1
+                    if self._consecutive_failures == 1:
+                        if self._available or len(self._data) > 0:
+                            _LOGGER.warning(
+                                "Controller '%s' returned empty/invalid data (attempt %d)",
+                                self.device_name,
+                                self._consecutive_failures,
+                            )
+                    elif self._consecutive_failures >= self._max_consecutive_failures:
+                        _LOGGER.error(
+                            "Controller '%s' marked unavailable after %d consecutive failures.",
+                            self.device_name,
+                            self._consecutive_failures,
+                        )
+                        self._available = False
+                        async_create_issue(
+                            self.hass,
+                            DOMAIN,
+                            f"controller_unavailable_{self.config_entry.entry_id}",
+                            is_fixable=True,
+                            is_persistent=True,
+                            severity=IssueSeverity.ERROR,
+                            translation_key="controller_unavailable",
+                            translation_placeholders={
+                                "name": self.device_name,
+                                "failures": str(self._consecutive_failures),
+                            },
+                        )
+                        raise UpdateFailed(
+                            f"Controller '{self.device_name}' unreachable "
+                            f"({self._consecutive_failures} failures)"
+                        )
+                    elif self._should_log_failure():
+                        _LOGGER.warning(
+                            "Controller '%s' still unreachable (%d/%d consecutive failures)",
+                            self.device_name,
+                            self._consecutive_failures,
+                            self._max_consecutive_failures,
+                        )
+                    self._system_health = max(
+                        0.0, 100.0 - (self._consecutive_failures * 20.0)
+                    )
+                    return dict(self._data) if self._data else {}
+
+                # Fetch config-based setpoints NOT in getReadings
+                try:
+                    config_keys = [
+                        "HEATER_set_temp",
+                        "SOLAR_maxtemp",
+                        "DOSAGE_phminus_setpoint",
+                        "DOSAGE_chlorine_setpoint_orp",
+                        "DOSAGE_chlorine_lowerval_cl",
+                        "DOSAGE_chlorine_use",
+                        "DOSAGE_electrolysis_use",
+                        "DOSAGE_phminus_use",
+                        "DOSAGE_phplus_use",
+                        "DOSAGE_floc_use",
+                    ]
+                    config_data = await self.api.get_config(config_keys)
+                    if isinstance(config_data, dict):
+                        data.update(config_data)
+                except VioletPoolAPIError:
+                    pass
+
+                if self._consecutive_failures > 0 and not self._recovery_logged:
+                    _LOGGER.info(
+                        "Controller '%s' reachable again (after %d failure%s)",
+                        self.device_name,
+                        self._consecutive_failures,
+                        "s" if self._consecutive_failures > 1 else "",
+                    )
+                    self._recovery_logged = True
+                    self._first_failure_logged = False
+                    async_delete_issue(
+                        self.hass,
+                        DOMAIN,
+                        f"controller_unavailable_{self.config_entry.entry_id}",
+                    )
+
+                previous_data = self._data
+                self._data = dict(data)
+                self._available = True
+                self._consecutive_failures = 0
+                self._last_error = None
+                self._last_update_time = time.monotonic()
+                self._system_health = 100.0
+
+                fw_candidates = [
+                    data.get("FW"),
+                    data.get("fw"),
+                    data.get("SW_VERSION"),
+                    data.get("sw_version"),
+                    data.get("VERSION"),
+                    data.get("version"),
+                    data.get("SW_VERSION_CARRIER"),
+                    data.get("FIRMWARE_VERSION"),
+                    data.get("firmware_version"),
+                ]
+                for candidate in fw_candidates:
+                    if candidate is not None and str(candidate).strip():
+                        self._firmware_version = str(candidate).strip()
+                        break
+
+                if self._firmware_version and not self._fw_logged:
+                    _LOGGER.debug("Firmware version detected: %s", self._firmware_version)
+                    self._fw_logged = True
+
+                self._update_counter += 1
+                now_dt = datetime.now()
+                if self._first_poll is None:
+                    self._first_poll = now_dt
+
+                flow_value = (
+                    data.get("IMP2_value")
+                    if data.get("IMP2_value") is not None
+                    else data.get("ADC3_value")
+                )
+                snapshot = (
+                    data.get("onewire1_value"),
+                    data.get("orp_value"),
+                    data.get("pH_value"),
+                    data.get("pot_value"),
+                    data.get("ADC2_value"),
+                    flow_value,
+                    data.get("IMP1_value"),
+                )
+                self._poll_history.append(
+                    (now_dt, len(data), self._connection_latency, snapshot)
+                )
+
+                _LOGGER.debug(
+                    "Update #%d for '%s': %d keys fetched in %.3fs",
+                    self._update_counter,
+                    self.device_name,
+                    len(data),
+                    self._connection_latency / 1000,
+                )
+
+                if self._enable_diagnostic_logging and previous_data:
+                    previous_data_keys = set(previous_data.keys()) if previous_data else set()
+                    changed_keys = set(data.keys()) - previous_data_keys
+                    changed_values = {
+                        k
+                        for k in data.keys() & previous_data_keys
+                        if data.get(k) != previous_data.get(k)
+                    }
+                    all_changes = changed_keys | changed_values
+                    if all_changes:
+                        _LOGGER.info(
+                            "Update #%d: %d new/changed keys: %s%s",
+                            self._update_counter,
+                            len(all_changes),
+                            ", ".join(sorted(all_changes)[:20]),
+                            "..." if len(all_changes) > 20 else "",
+                        )
+
+                return dict(self._data)
+
+        except VioletPoolAPIError as err:
+            self._last_error = str(err)
+            self._consecutive_failures += 1
+            if self._consecutive_failures == 1:
+                if not self._available and len(self._data) == 0:
+                    _LOGGER.debug("API error during setup of '%s': %s", self.device_name, str(err)[:200])
+                else:
+                    _LOGGER.error("API error during update of '%s': %s", self.device_name, str(err)[:200])
+            elif self._consecutive_failures >= self._max_consecutive_failures:
+                _LOGGER.error("Controller '%s' unavailable after %d API failures", self.device_name, self._consecutive_failures)
+                self._available = False
+                raise UpdateFailed(f"Controller unreachable: {err}") from err
+            elif self._should_log_failure():
+                _LOGGER.warning("Persistent API issues for '%s' (%d/%d failures)", self.device_name, self._consecutive_failures, self._max_consecutive_failures)
+            return dict(self._data) if self._data else {}
+
+        except Exception as err:
+            self._last_error = str(err)
+            self._consecutive_failures += 1
+            if self._consecutive_failures == 1:
+                if not self._available and len(self._data) == 0:
+                    _LOGGER.debug("Error during setup of '%s': %s", self.device_name, err)
+                else:
+                    _LOGGER.exception("Unexpected error during update of '%s'", self.device_name)
+            elif self._consecutive_failures >= self._max_consecutive_failures:
+                _LOGGER.error("Controller '%s' unavailable after %d unexpected failures", self.device_name, self._consecutive_failures)
+                self._available = False
+                raise UpdateFailed(f"Update error: {err}") from err
+            elif self._should_log_failure():
+                _LOGGER.warning("Persistent issues for '%s': %s (%d/%d failures)", self.device_name, type(err).__name__, self._consecutive_failures, self._max_consecutive_failures)
+            return dict(self._data) if self._data else {}
     @property
     def available(self) -> bool:
         """Return the availability status."""

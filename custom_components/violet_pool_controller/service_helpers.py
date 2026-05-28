@@ -25,6 +25,7 @@ DOSING_TYPE_MAPPING = {
     "pH-": "DOS_4_PHM",
     "pH+": "DOS_5_PHP",
     "Chlorine": "DOS_1_CL",
+    "Electrolysis": "DOS_2_ELO",
     "Flocculant": "DOS_6_FLOC",
 }
 
@@ -32,7 +33,16 @@ DOSING_API_MAPPING = {
     "pH-": "pH-",
     "pH+": "pH+",
     "Chlorine": "Chlor",
+    "Electrolysis": "Elektrolyse",
     "Flocculant": "Flockmittel",
+}
+
+DOSING_CONFIG_PREFIX_MAPPING = {
+    "DOS_1_CL": "DOSAGE_chlorine",
+    "DOS_2_ELO": "DOSAGE_electrolysis",
+    "DOS_4_PHM": "DOSAGE_phminus",
+    "DOS_5_PHP": "DOSAGE_phplus",
+    "DOS_6_FLOC": "DOSAGE_floc",
 }
 
 MIN_DOSING_DURATION = 5

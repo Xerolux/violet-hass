@@ -218,11 +218,59 @@ BINARY_SENSORS.extend(
             "entity_category": EntityCategory.DIAGNOSTIC,
             "entity_registry_enabled_default": False,
         },
+    {
+        "key": "HW_DIRULE_MODULE",
+        "name": "Hardware: Digital Rules Module",
+        "translation_key": "hw_dirule_module",
+        "icon": "mdi:script-text",
+        "entity_category": EntityCategory.DIAGNOSTIC,
+        "entity_registry_enabled_default": False,
+    },
+    ]
+)
+
+# Overflow and Backwash binary sensors
+BINARY_SENSORS.extend(
+    [
         {
-            "key": "HW_DIRULE_MODULE",
-            "name": "Hardware: Digital Rules Module",
-            "translation_key": "hw_dirule_module",
-            "icon": "mdi:script-text",
+            "key": "OVERFLOW_OVERFILL_STATE",
+            "name": "Overflow Overfill",
+            "translation_key": "overflow_overfill",
+            "icon": "mdi:water-alert",
+            "device_class": BinarySensorDeviceClass.PROBLEM,
+            "entity_category": EntityCategory.DIAGNOSTIC,
+            "entity_registry_enabled_default": False,
+        },
+        {
+            "key": "OVERFLOW_DRYRUN_STATE",
+            "name": "Overflow Dry Run",
+            "translation_key": "overflow_dryrun",
+            "icon": "mdi:water-off",
+            "device_class": BinarySensorDeviceClass.PROBLEM,
+            "entity_category": EntityCategory.DIAGNOSTIC,
+            "entity_registry_enabled_default": False,
+        },
+        {
+            "key": "OVERFLOW_REFILL_STATE",
+            "name": "Overflow Refill",
+            "translation_key": "overflow_refill",
+            "icon": "mdi:water-sync",
+            "entity_category": EntityCategory.DIAGNOSTIC,
+            "entity_registry_enabled_default": False,
+        },
+        {
+            "key": "BACKWASH_DELAY_RUNNING",
+            "name": "Backwash Delay Active",
+            "translation_key": "backwash_delay",
+            "icon": "mdi:timer-sand",
+            "entity_category": EntityCategory.DIAGNOSTIC,
+            "entity_registry_enabled_default": False,
+        },
+        {
+            "key": "BATHING_AI_SURVEILLANCE_STATE",
+            "name": "Bathing AI Surveillance",
+            "translation_key": "bathing_ai_surveillance",
+            "icon": "mdi:account-supervisor",
             "entity_category": EntityCategory.DIAGNOSTIC,
             "entity_registry_enabled_default": False,
         },
@@ -284,6 +332,13 @@ SWITCHES = [
         "feature_id": "chlorine_control",
     },
     {
+        "key": "DOS_2_ELO",
+        "name": "Electrolysis Dosing",
+        "translation_key": "dos_2_elo",
+        "icon": "mdi:lightning-bolt",
+        "feature_id": "chlorine_control",
+    },
+    {
         "key": "DOS_6_FLOC",
         "name": "Flocculant",
         "translation_key": "dos_6_floc",
@@ -310,6 +365,19 @@ SWITCHES = [
         "translation_key": "backwashrinse",
         "icon": "mdi:autorenew",
         "feature_id": "backwash",
+    },
+    {
+        "key": "REFILL",
+        "name": "Water Refill",
+        "translation_key": "refill",
+        "icon": "mdi:water",
+        "feature_id": "water_refill",
+    },
+    {
+        "key": "ECO",
+        "name": "ECO Mode",
+        "translation_key": "eco",
+        "icon": "mdi:leaf",
     },
 ]
 
@@ -353,6 +421,19 @@ for i in range(1, 8):
             "entity_registry_enabled_default": False,
         }
     )
+# Dynamically add OMNI DC outputs
+for i in range(6):
+    SWITCHES.append(
+        {
+            "key": f"OMNI_DC{i}",
+            "name": f"Omni DC{i}",
+            "translation_key": f"omni_dc{i}",
+            "icon": "mdi:electric-switch",
+            "feature_id": "extension_outputs",
+            "entity_category": EntityCategory.DIAGNOSTIC,
+            "entity_registry_enabled_default": False,
+        }
+    )
 
 # =============================================================================
 # NUMBER ENTITIES (SETPOINTS)
@@ -373,7 +454,12 @@ SETPOINT_DEFINITIONS = [
         "device_class": NumberDeviceClass.PH,
         "feature_id": "ph_control",
         "entity_category": EntityCategory.CONFIG,
-        "setpoint_fields": ["pH_SETPOINT", "pH_setpoint", "pH_target"],
+        "setpoint_fields": [
+            "pH_SETPOINT",
+            "pH_setpoint",
+            "pH_target",
+            "DOSAGE_phminus_setpoint",
+        ],
         "indicator_fields": ["pH_value", "pH_VALUE", "DOS_4_PHM", "DOS_5_PHP"],
     },
     {
@@ -390,7 +476,12 @@ SETPOINT_DEFINITIONS = [
         "device_class": None,
         "feature_id": "chlorine_control",
         "entity_category": EntityCategory.CONFIG,
-        "setpoint_fields": ["ORP_SETPOINT", "ORP_setpoint", "ORP_target"],
+        "setpoint_fields": [
+            "ORP_SETPOINT",
+            "ORP_setpoint",
+            "ORP_target",
+            "DOSAGE_chlorine_setpoint_orp",
+        ],
         "indicator_fields": ["orp_value", "ORP_VALUE", "DOS_1_CL"],
     },
     {
@@ -407,7 +498,12 @@ SETPOINT_DEFINITIONS = [
         "device_class": None,
         "feature_id": "chlorine_control",
         "entity_category": EntityCategory.CONFIG,
-        "setpoint_fields": ["CHLORINE_SETPOINT", "MinChlorine", "pot_setpoint"],
+        "setpoint_fields": [
+            "CHLORINE_SETPOINT",
+            "MinChlorine",
+            "pot_setpoint",
+            "DOSAGE_chlorine_lowerval_cl",
+        ],
         "indicator_fields": ["pot_value", "POT_VALUE", "DOS_1_CL"],
     },
     {
@@ -424,7 +520,11 @@ SETPOINT_DEFINITIONS = [
         "device_class": None,
         "feature_id": "heating",
         "entity_category": EntityCategory.CONFIG,
-        "setpoint_fields": ["HEATER_TARGET_TEMP", "heater_target_temp"],
+        "setpoint_fields": [
+            "HEATER_TARGET_TEMP",
+            "heater_target_temp",
+            "HEATER_set_temp",
+        ],
         "indicator_fields": ["HEATER", "onewire5_value"],
     },
     {
@@ -441,7 +541,11 @@ SETPOINT_DEFINITIONS = [
         "device_class": None,
         "feature_id": "solar",
         "entity_category": EntityCategory.CONFIG,
-        "setpoint_fields": ["SOLAR_TARGET_TEMP", "solar_target_temp"],
+        "setpoint_fields": [
+            "SOLAR_TARGET_TEMP",
+            "solar_target_temp",
+            "SOLAR_maxtemp",
+        ],
         "indicator_fields": ["SOLAR", "onewire3_value"],
     },
     {
@@ -461,7 +565,6 @@ SETPOINT_DEFINITIONS = [
         "setpoint_fields": ["PUMP_SPEED", "pump_speed"],
         "indicator_fields": ["PUMP", "PUMP_RPM_2", "PUMP_RPM_2_VALUE"],
     },
-    # Dosing Canister Volumes
     {
         "key": "chlorine_canister_volume",
         "name": "Chlorine Canister Volume",
@@ -473,7 +576,7 @@ SETPOINT_DEFINITIONS = [
         "default_value": 10000,
         "icon": "mdi:barrel",
         "unit_of_measurement": "ml",
-        "device_class": None,  # Volume device class not available in HA
+        "device_class": None,
         "feature_id": "chlorine_control",
         "entity_category": EntityCategory.CONFIG,
         "entity_registry_enabled_default": False,
@@ -491,7 +594,7 @@ SETPOINT_DEFINITIONS = [
         "default_value": 10000,
         "icon": "mdi:barrel",
         "unit_of_measurement": "ml",
-        "device_class": None,  # Volume device class not available in HA
+        "device_class": None,
         "feature_id": "ph_control",
         "entity_category": EntityCategory.CONFIG,
         "entity_registry_enabled_default": False,
@@ -509,7 +612,7 @@ SETPOINT_DEFINITIONS = [
         "default_value": 20000,
         "icon": "mdi:barrel",
         "unit_of_measurement": "ml",
-        "device_class": None,  # Volume device class not available in HA
+        "device_class": None,
         "feature_id": "ph_control",
         "entity_category": EntityCategory.CONFIG,
         "entity_registry_enabled_default": False,
@@ -527,7 +630,7 @@ SETPOINT_DEFINITIONS = [
         "default_value": 20000,
         "icon": "mdi:barrel",
         "unit_of_measurement": "ml",
-        "device_class": None,  # Volume device class not available in HA
+        "device_class": None,
         "feature_id": "flocculation",
         "entity_category": EntityCategory.CONFIG,
         "entity_registry_enabled_default": False,
@@ -587,6 +690,15 @@ SELECT_CONTROLS = [
         "entity_category": _ENTITY_CATEGORY_CONFIG,
     },
     {
+        "key": "dos_elo_mode",
+        "name": "Electrolysis Dosing Mode",
+        "translation_key": "dos_elo_mode",
+        "device_key": "DOS_2_ELO",
+        "icon": "mdi:lightning-bolt-outline",
+        "feature_id": "chlorine_control",
+        "entity_category": _ENTITY_CATEGORY_CONFIG,
+    },
+    {
         "key": "dos_phm_mode",
         "name": "pH- Dosing Mode",
         "translation_key": "dos_phm_mode",
@@ -632,6 +744,23 @@ SELECT_CONTROLS = [
         "entity_category": _ENTITY_CATEGORY_CONFIG,
     },
     {
+        "key": "refill_mode",
+        "name": "Refill Mode",
+        "translation_key": "refill_mode",
+        "device_key": "REFILL",
+        "icon": "mdi:water",
+        "feature_id": "water_refill",
+        "entity_category": _ENTITY_CATEGORY_CONFIG,
+    },
+    {
+        "key": "eco_mode",
+        "name": "ECO Mode",
+        "translation_key": "eco_mode",
+        "device_key": "ECO",
+        "icon": "mdi:leaf",
+        "entity_category": _ENTITY_CATEGORY_CONFIG,
+    },
+    {
         "key": "dos_floc_mode",
         "name": "Flocculant Mode",
         "translation_key": "dos_floc_mode",
@@ -658,3 +787,17 @@ for _ext_bank in [1, 2]:
                 "entity_registry_enabled_default": False,
             }
         )
+# Dynamically add OMNI DC outputs as select (ON/OFF/AUTO)
+for _dc_i in range(6):
+    SELECT_CONTROLS.append(
+        {
+            "key": f"omni_dc{_dc_i}_mode",
+            "name": f"Omni DC{_dc_i} Mode",
+            "translation_key": f"omni_dc{_dc_i}_mode",
+            "device_key": f"OMNI_DC{_dc_i}",
+            "icon": "mdi:electric-switch",
+            "feature_id": "extension_outputs",
+            "entity_category": _ENTITY_CATEGORY_CONFIG,
+            "entity_registry_enabled_default": False,
+        }
+    )

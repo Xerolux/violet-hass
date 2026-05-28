@@ -150,10 +150,13 @@ _TEXT_VALUE_KEYS = {
     "BACKWASHSTATE",
     # STATUS_SENSORS - these return text values like "Automatik (Bereit)", "Ein", "Aus"
     "BACKWASH",
+    "BACKWASHRINSE",
     "PUMP",
     "HEATER",
     "SOLAR",
     "LIGHT",
+    "ECO",
+    "REFILL",
     "PVSURPLUS",
     # Other STATE sensors
     "OMNI_STATE",

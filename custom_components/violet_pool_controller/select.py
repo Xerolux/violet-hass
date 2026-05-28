@@ -37,6 +37,13 @@ BINARY_DOSING_CONFIG_KEYS = {
     "DOS_6_FLOC": "DOSAGE_floc_use",
 }
 
+DOSING_CONFIG_KEYS = {
+    "DOS_1_CL": {"prefix": "DOSAGE_chlorine", "type": "Chlor"},
+    "DOS_2_ELO": {"prefix": "DOSAGE_electrolysis", "type": "Elektrolyse"},
+    "DOS_4_PHM": {"prefix": "DOSAGE_phminus", "type": "pH-"},
+    "DOS_5_PHP": {"prefix": "DOSAGE_phplus", "type": "pH+"},
+}
+
 # Coordinator-based platforms; HA should not throttle entity state writes
 PARALLEL_UPDATES = 0
 
@@ -45,23 +52,22 @@ MODE_OFF = "off"
 MODE_ON = "on"
 MODE_AUTO = "auto"
 
-# State to Mode Mapping
-# The controller provides numeric states 0-6
-# 0 = AUTO (Standby/Off)
-# 1 = MANUAL ON or AUTO ON
-# 2 = AUTO (Active)
-# 3 = AUTO (Active with Timer)
-# 4 = MANUAL ON (Forced)
-# 5 = AUTO (Waiting/Off)
-# 6 = MANUAL OFF
+# State to Mode Mapping (matches DEVICE_STATE_MAPPING from API library)
+# 0 = Auto - Standby (OFF)
+# 1 = Auto - Active (Scheduled) (ON)
+# 2 = Auto - Priority OFF / Rule Blocked (OFF)
+# 3 = Auto - Priority ON / Emergency Rule (ON)
+# 4 = Manual ON (Forced)
+# 5 = Auto - Rule OFF / Emergency Rule (OFF)
+# 6 = Manual OFF
 STATE_TO_MODE = {
-    0: MODE_AUTO,  # Auto Standby
-    1: MODE_ON,  # Manual ON or Auto ON (treated as ON)
-    2: MODE_AUTO,  # Auto Active
-    3: MODE_AUTO,  # Auto Active with Timer
-    4: MODE_ON,  # Manual ON (Forced)
-    5: MODE_AUTO,  # Auto Waiting
-    6: MODE_OFF,  # Manual OFF
+    0: MODE_AUTO,
+    1: MODE_AUTO,
+    2: MODE_AUTO,
+    3: MODE_AUTO,
+    4: MODE_ON,
+    5: MODE_AUTO,
+    6: MODE_OFF,
 }
 
 # Mode to Action Mapping
@@ -120,6 +126,19 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
 
         if self.coordinator.data is None:
             return None
+
+        # Dosing keys: check DOSAGE_*_use config value
+        if self._device_key in DOSING_CONFIG_KEYS:
+            dosing_info = DOSING_CONFIG_KEYS[self._device_key]
+            use_key = f"{dosing_info['prefix']}_use"
+            use_val = self.get_value(use_key)
+            if use_val is not None:
+                try:
+                    if int(use_val) == 1:
+                        return MODE_ON if self._is_binary else MODE_AUTO
+                    return MODE_OFF
+                except (ValueError, TypeError):
+                    pass
 
         raw_state = self.get_value(self._device_key, "")
 
@@ -229,6 +248,25 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
                 result = await self.device.api.set_config(
                     {config_key: config_val}
                 )
+            elif self._device_key in DOSING_CONFIG_KEYS:
+                dosing_info = DOSING_CONFIG_KEYS[self._device_key]
+                dosing_type = dosing_info["type"]
+                if option == MODE_AUTO:
+                    result = await self.device.api.set_dosage_enabled(
+                        dosing_type, enabled=True
+                    )
+                elif option == MODE_ON:
+                    result = await self.device.api.set_dosage_enabled(
+                        dosing_type, enabled=True
+                    )
+                elif option == MODE_OFF:
+                    result = await self.device.api.set_dosage_enabled(
+                        dosing_type, enabled=False
+                    )
+                else:
+                    result = await self.device.api.set_switch_state(
+                        key=self._device_key, action=action
+                    )
             else:
                 result = await self.device.api.set_switch_state(
                     key=self._device_key, action=action

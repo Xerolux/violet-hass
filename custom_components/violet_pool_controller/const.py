@@ -41,7 +41,7 @@ from .const_sensors import *
 # =============================================================================
 
 DOMAIN = "violet_pool_controller"
-INTEGRATION_VERSION = "1.1.0"
+INTEGRATION_VERSION = "1.2.0"
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 
 # =============================================================================
@@ -93,19 +93,16 @@ DISINFECTION_METHODS = ["chlorine", "salt", "bromine", "active_oxygen", "uv", "o
 
 VERSION_INFO = {
     "version": INTEGRATION_VERSION,
-    "release_date": "2026-03-07",
+    "release_date": "2026-05-28",
     "major_features": [
-        "Critical API Query Parameter Fix (getReadings)",
-        "German State Descriptions for Switches and Sensors",
-        "Composite State Parsing (pipe-separated states)",
-        "Status Sensor German Translations",
-        "Improved Startup Performance (no delay)",
-        "Simplified Data Fetching (always full refresh)",
-        "Circuit Breaker Pattern for API Resilience",
-        "Enhanced Switch Attributes (mode, speed, runtime)",
-        "Dashboard Template with Secondary Info",
-        "HA 2026.5.x / Python 3.14 Compatibility",
-        "Fixed get_float_value None-key fallback in entity base class",
-        "Fixed climate target temperature when data key is null",
+        "Fixed state 2 mapping: Auto-Priority OFF is now correctly OFF (was ON)",
+        "Fixed select mode mapping: all auto states map to AUTO mode",
+        "Updated state descriptions to match DEVICE_STATE_MAPPING",
+        "Added OMNI DC output switches (OMNI_DC0-OMNI_DC5)",
+        "Added H2O2 dosing support",
+        "Added overflow/backwash/bathing AI binary sensors",
+        "Added runtime and dosing statistics sensors",
+        "Updated setpoint config keys to match API",
+        "Updated API dependency to violet-poolController-api 0.0.24",
     ],
 }

@@ -30,27 +30,24 @@ _LOGGER = logging.getLogger(__name__)
 # Coordinator-based platforms; HA should not throttle entity state writes
 PARALLEL_UPDATES = 0
 
-# State Constants
-# The Violet Pool Controller uses the following states for devices:
-# - 0: AUTO_OFF - Automatic mode, device is off
-# - 1: AUTO_ON  - Automatic mode, device is on (e.g. by schedule)
-# - 2-3: Further AUTO states (e.g. warm-up, preparing)
-# - 4: MANUAL_ON  - Manual mode, device is switched on
-# - 5: AUTO_OFF - Alternative AUTO_OFF representation
-# - 6: MANUAL_OFF - Manual mode, device is switched off
-#
-# NOTE: State "4" is treated as ON, not as ERROR/UNDEFINED.
-# This is a normal state for manually switched-on devices.
+# State Constants (matches DEVICE_STATE_MAPPING from API library)
+# - 0: Auto - Standby (OFF)
+# - 1: Auto - Active (Scheduled) (ON)
+# - 2: Auto - Priority OFF / Rule Blocked (OFF)
+# - 3: Auto - Priority ON / Emergency Rule (ON)
+# - 4: Manual ON (Forced) (ON)
+# - 5: Auto - Rule OFF / Emergency Rule (OFF)
+# - 6: Manual OFF (OFF)
 STATE_OFF = 0
 STATE_AUTO_ON = 1
 STATE_MANUAL_ON = 4
 STATE_AUTO_OFF = 5
 STATE_MANUAL_OFF = 6
 
-# ON_STATES: All states where the device is active (1-4)
-ON_STATES = {1, 2, 3, 4}
-# OFF_STATES: All states where the device is inactive (0, 5, 6)
-OFF_STATES = {0, 5, 6}
+# ON_STATES: All states where the device is active
+ON_STATES = {1, 3, 4}
+# OFF_STATES: All states where the device is inactive
+OFF_STATES = {0, 2, 5, 6}
 
 REFRESH_DELAY = 0.3
 # Extension module relays may need more time for the controller to update LAST_ON
@@ -201,12 +198,12 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
 
     _STATE_DESCRIPTIONS: dict[int, str] = {
         0: "Auto – Standby",
-        1: "Manual On",
-        2: "Auto – Active",
-        3: "Auto – Active (Timer)",
-        4: "Manual On (Forced)",
-        5: "Auto – Waiting",
-        6: "Manual Off",
+        1: "Auto – Active (Scheduled)",
+        2: "Auto – Priority OFF (Rule Blocked)",
+        3: "Auto – Priority ON (Emergency Rule)",
+        4: "Manual ON (Forced)",
+        5: "Auto – Rule OFF (Emergency Rule)",
+        6: "Manual OFF",
     }
 
     _DETAIL_DESCRIPTIONS: dict[str, str] = {

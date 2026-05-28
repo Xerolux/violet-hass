@@ -50,6 +50,36 @@ TEMP_SENSORS = {
         "translation_key": "onewire6_value",
         "icon": "mdi:water-boiler",
     },
+    "onewire7_value": {
+        "name": "Temperature Sensor 7",
+        "translation_key": "onewire7_value",
+        "icon": "mdi:thermometer",
+    },
+    "onewire8_value": {
+        "name": "Temperature Sensor 8",
+        "translation_key": "onewire8_value",
+        "icon": "mdi:thermometer",
+    },
+    "onewire9_value": {
+        "name": "Temperature Sensor 9",
+        "translation_key": "onewire9_value",
+        "icon": "mdi:thermometer",
+    },
+    "onewire10_value": {
+        "name": "Temperature Sensor 10",
+        "translation_key": "onewire10_value",
+        "icon": "mdi:thermometer",
+    },
+    "onewire11_value": {
+        "name": "Temperature Sensor 11",
+        "translation_key": "onewire11_value",
+        "icon": "mdi:thermometer",
+    },
+    "onewire12_value": {
+        "name": "Temperature Sensor 12",
+        "translation_key": "onewire12_value",
+        "icon": "mdi:thermometer",
+    },
 }
 
 WATER_CHEM_SENSORS = {
@@ -164,6 +194,16 @@ STATUS_SENSORS = {
         "translation_key": "light",
         "icon": "mdi:lightbulb",
     },
+    "REFILL": {
+        "name": "Refill Status",
+        "translation_key": "refill",
+        "icon": "mdi:water",
+    },
+    "ECO": {
+        "name": "ECO Status",
+        "translation_key": "eco",
+        "icon": "mdi:leaf",
+    },
     "PVSURPLUS": {
         "name": "PV Surplus Status",
         "translation_key": "pvsurplus",
@@ -201,6 +241,57 @@ DOSING_STATE_SENSORS = {
         "name": "Flocculation Status",
         "translation_key": "dos_6_floc_state",
         "icon": "mdi:water",
+    },
+}
+
+RUNTIME_SENSORS = {
+    "PUMP_RUNTIME": {
+        "name": "Pump Runtime Today",
+        "translation_key": "pump_runtime",
+        "icon": "mdi:clock-outline",
+    },
+    "SOLAR_RUNTIME": {
+        "name": "Solar Runtime Today",
+        "translation_key": "solar_runtime",
+        "icon": "mdi:clock-outline",
+    },
+    "HEATER_RUNTIME": {
+        "name": "Heater Runtime Today",
+        "translation_key": "heater_runtime",
+        "icon": "mdi:clock-outline",
+    },
+    "LIGHT_RUNTIME": {
+        "name": "Light Runtime Today",
+        "translation_key": "light_runtime",
+        "icon": "mdi:clock-outline",
+    },
+    "BACKWASH_RUNTIME": {
+        "name": "Backwash Runtime",
+        "translation_key": "backwash_runtime",
+        "icon": "mdi:clock-outline",
+    },
+}
+
+DOSING_STATS_SENSORS = {
+    "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": {
+        "name": "Chlorine Daily Dosing",
+        "translation_key": "dos_1_cl_daily",
+        "icon": "mdi:beaker",
+    },
+    "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML": {
+        "name": "pH- Daily Dosing",
+        "translation_key": "dos_4_phm_daily",
+        "icon": "mdi:beaker-minus",
+    },
+    "DOS_5_PHP_DAILY_DOSING_AMOUNT_ML": {
+        "name": "pH+ Daily Dosing",
+        "translation_key": "dos_5_php_daily",
+        "icon": "mdi:beaker-plus",
+    },
+    "DOS_6_FLOC_DAILY_DOSING_AMOUNT_ML": {
+        "name": "Flocculant Daily Dosing",
+        "translation_key": "dos_6_floc_daily",
+        "icon": "mdi:beaker-outline",
     },
 }
 
@@ -243,6 +334,12 @@ UNIT_MAP = {
     "onewire4_value": "°C",
     "onewire5_value": "°C",
     "onewire6_value": "°C",
+    "onewire7_value": "°C",
+    "onewire8_value": "°C",
+    "onewire9_value": "°C",
+    "onewire10_value": "°C",
+    "onewire11_value": "°C",
+    "onewire12_value": "°C",
     "CPU_TEMP": "°C",
     "CPU_TEMP_CARRIER": "°C",
     # Water Chemistry
@@ -258,6 +355,11 @@ UNIT_MAP = {
     # Pump RPMs - only _VALUE sensors carry actual RPM measurements
     # PUMP_RPM_{i} (without _VALUE) returns a state code (0-6), not a speed in RPM
     **{f"PUMP_RPM_{i}_VALUE": "RPM" for i in range(4)},
+    # Dosing Statistics
+    "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": "ml",
+    "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML": "ml",
+    "DOS_5_PHP_DAILY_DOSING_AMOUNT_ML": "ml",
+    "DOS_6_FLOC_DAILY_DOSING_AMOUNT_ML": "ml",
 }
 
 # Sensors that should explicitly have no unit.
@@ -278,14 +380,16 @@ NO_UNIT_SENSORS = {
     "CURRENT_TIME",
     "LOAD_AVG",
     "CPU_GOV",
-    # System diagnostic sensors are kept unitless for statistics compatibility
     "SYSTEM_CPU_TEMPERATURE",
     "SYSTEM_CARRIER_CPU_TEMPERATURE",
     "SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE",
     "SYSTEM_memoryusage",
-    # PUMP_RPM_{i} (without _VALUE) are state code sensors (values 0-6),
-    # not RPM measurements
     *(f"PUMP_RPM_{i}" for i in range(4)),
+    "PUMP_RUNTIME",
+    "SOLAR_RUNTIME",
+    "HEATER_RUNTIME",
+    "LIGHT_RUNTIME",
+    "BACKWASH_RUNTIME",
 }
 
 # =============================================================================
@@ -295,28 +399,40 @@ NO_UNIT_SENSORS = {
 # Maps specific sensor keys to the features that enable them.
 # A value of None means the sensor is always created if available.
 SENSOR_FEATURE_MAP = {
-    # Always create core temperature sensors
     "onewire1_value": None,
     "onewire2_value": None,
-    # Feature-dependent sensors
     "onewire3_value": "solar",
-    # Dosing state sensors (array-based)
+    "onewire4_value": "solar",
+    "onewire5_value": "heating",
+    "onewire6_value": "heating",
+    "onewire7_value": None,
+    "onewire8_value": None,
+    "onewire9_value": None,
+    "onewire10_value": None,
+    "onewire11_value": None,
+    "onewire12_value": None,
     "DOS_1_CL_STATE": "chlorine_control",
     "DOS_2_ELO_STATE": "chlorine_control",
     "DOS_4_PHM_STATE": "ph_control",
     "DOS_5_PHP_STATE": "ph_control",
     "DOS_6_FLOC_STATE": "flocculation",
-    # Composite state sensors (pipe-separated strings)
     "PUMPSTATE": "filter_control",
     "HEATERSTATE": "heating",
     "SOLARSTATE": "solar",
-    "onewire4_value": "solar",
-    "onewire5_value": "heating",
-    "onewire6_value": "heating",
     "pH_value": "ph_control",
     "orp_value": "chlorine_control",
     "pot_value": "chlorine_control",
-    # Always create core system sensors
     "CPU_TEMP": None,
     "CPU_UPTIME": None,
+    "REFILL": "water_refill",
+    "ECO": None,
+    "PUMP_RUNTIME": "filter_control",
+    "SOLAR_RUNTIME": "solar",
+    "HEATER_RUNTIME": "heating",
+    "LIGHT_RUNTIME": "led_lighting",
+    "BACKWASH_RUNTIME": "backwash",
+    "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": "chlorine_control",
+    "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML": "ph_control",
+    "DOS_5_PHP_DAILY_DOSING_AMOUNT_ML": "ph_control",
+    "DOS_6_FLOC_DAILY_DOSING_AMOUNT_ML": "flocculation",
 }

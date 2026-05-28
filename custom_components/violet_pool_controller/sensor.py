@@ -26,8 +26,10 @@ from .const import (
     COMPOSITE_STATE_SENSORS,
     CONF_ACTIVE_FEATURES,
     CONF_SELECTED_SENSORS,
-    DOMAIN,
+    DOSING_STATS_SENSORS,
     DOSING_STATE_SENSORS,
+    DOMAIN,
+    RUNTIME_SENSORS,
     SENSOR_FEATURE_MAP,
     STATUS_SENSORS,
     TEMP_SENSORS,
@@ -238,6 +240,58 @@ def _create_special_sensors(
             handled_keys.add(key)
             _LOGGER.debug("Composite state sensor created for %s", key)
 
+    # Runtime Sensors (PUMP_RUNTIME, SOLAR_RUNTIME, etc.)
+    for key, sensor_config in RUNTIME_SENSORS.items():
+        if key in coordinator.data:
+            feature_id = SENSOR_FEATURE_MAP.get(key)
+            if feature_id and feature_id not in config["active_features"]:
+                continue
+            if not config["create_all"] and key not in config["selected_sensors"]:
+                continue
+
+            sensors.append(
+                VioletSensor(
+                    coordinator,
+                    config_entry,
+                    _build_sensor_description(
+                        key,
+                        coordinator.data.get(key),
+                        RUNTIME_SENSORS,
+                        translation_key=sensor_config.get(
+                            "translation_key", key.lower()
+                        ),
+                    ),
+                )
+            )
+            handled_keys.add(key)
+            _LOGGER.debug("Runtime sensor created for %s", key)
+
+    # Dosing Statistics Sensors
+    for key, sensor_config in DOSING_STATS_SENSORS.items():
+        if key in coordinator.data:
+            feature_id = SENSOR_FEATURE_MAP.get(key)
+            if feature_id and feature_id not in config["active_features"]:
+                continue
+            if not config["create_all"] and key not in config["selected_sensors"]:
+                continue
+
+            sensors.append(
+                VioletSensor(
+                    coordinator,
+                    config_entry,
+                    _build_sensor_description(
+                        key,
+                        coordinator.data.get(key),
+                        DOSING_STATS_SENSORS,
+                        translation_key=sensor_config.get(
+                            "translation_key", key.lower()
+                        ),
+                    ),
+                )
+            )
+            handled_keys.add(key)
+            _LOGGER.debug("Dosing stats sensor created for %s", key)
+
     return sensors, handled_keys
 
 
@@ -254,6 +308,8 @@ def _create_standard_sensors(
         **WATER_CHEM_SENSORS,
         **ANALOG_SENSORS,
         **STATUS_SENSORS,
+        **RUNTIME_SENSORS,
+        **DOSING_STATS_SENSORS,
     }
 
     for key in sorted(coordinator.data.keys()):
