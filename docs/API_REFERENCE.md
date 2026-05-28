@@ -67,7 +67,7 @@ data = await api.get_readings()
 
 | Key | Beispielwert | Beschreibung |
 |-----|-------------|-------------|
-| `PUMP` | `0` | Pumpe Aus (0=Aus, 1=Ein, 2=Auto-Aktiv, 4=Manuell) |
+| `PUMP` | `0` | Pumpe Aus (0=Auto-Standby, 1=Auto-Ein, 2=Auto-Prio-AUS, 3=Auto-Prio-EIN, 4=Manuell-EIN, 5=Regel-AUS, 6=Manuell-AUS) |
 | `DOS_6_FLOC` | `0` | Flockmittel-Dosierung (0=Aus) |
 | `DOS_6_FLOC_STATE` | `[]` | Aktive Status-Flags als Liste |
 | `DOS_6_FLOC_DAILY_DOSING_AMOUNT_ML` | `4` | Tagesdosiermenge in ml |
@@ -694,13 +694,13 @@ state.icon        # "mdi:autorenew"
 
 | Rohwert | Mode | Active | Beschreibung |
 |---------|------|--------|-------------|
-| `0` | auto | False | Auto - Standby |
-| `1` | manual | True | Manual ON |
-| `2` | auto | True | Auto - Active |
-| `3` | auto | True | Auto - Active (Timer) |
-| `4` | manual | True | Manual ON (Forced) |
-| `5` | auto | False | Auto - Waiting |
-| `6` | manual | False | Manual OFF |
+| `0` | auto | False | Auto – Standby (Automatik, derzeit aus) |
+| `1` | auto | True | Auto – Ein (Automatik, derzeit ein) |
+| `2` | auto | False | Auto – Prio AUS (durch Regel deaktiviert) |
+| `3` | auto | True | Auto – Prio EIN (Notfallregel aktiviert) |
+| `4` | manual | True | MANUELL EIN (erzwungen) |
+| `5` | auto | False | AUS durch Regel (Notfallregel) |
+| `6` | manual | False | MANUELL AUS |
 | `ON` | manual | True | Manual ON |
 | `OFF` | manual | False | Manual OFF |
 | `AUTO` | auto | None | Auto Mode |
