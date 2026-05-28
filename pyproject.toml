@@ -45,13 +45,13 @@ asyncio_mode = "auto"
 
 [tool.ruff]
 line-length = 100
-target-version = "py312"
+target-version = "0.0.19"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP"]
 ignore = ["E501"]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "0.0.19"
 warn_return_any = true
 warn_unused_configs = true
