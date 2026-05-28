@@ -1,0 +1,101 @@
+name: Dev Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  dev-release:
+    runs-on: ubuntu-latest
+    if: "!startsWith(github.event.head_commit.message, '📝 Release')"
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Determine version and tag
+        id: version
+        run: |
+          VERSION=$(python3 -c "import json; print(json.load(open('custom_components/violet_pool_controller/manifest.json'))['version'])")
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          TAG="v${VERSION}-dev.${SHORT_SHA}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Building dev release: $TAG"
+
+      - name: Delete previous dev releases for this version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          echo "Cleaning up old dev releases for v${VERSION}..."
+
+          OLD_TAGS=$(git tag -l "v${VERSION}-dev.*")
+          if [ -n "$OLD_TAGS" ]; then
+            echo "Found old tags:"
+            echo "$OLD_TAGS"
+            echo "$OLD_TAGS" | while read -r old_tag; do
+              echo "Deleting release and tag: $old_tag"
+              gh release delete "$old_tag" --yes --cleanup-tag 2>/dev/null || true
+            done
+          else
+            echo "No previous dev releases to clean up."
+          fi
+
+      - name: Create ZIP artifact
+        run: |
+          cd custom_components/violet_pool_controller
+          zip -r ../../violet_pool_controller.zip . \
+            -x "*.pyc" -x "__pycache__/*" -x "*.git*" -x "test_*.py" -x ".DS_Store"
+          cd ../..
+          SIZE=$(du -h violet_pool_controller.zip | cut -f1)
+          echo "Created violet_pool_controller.zip ($SIZE)"
+          sha256sum violet_pool_controller.zip > violet_pool_controller.zip.sha256
+
+      - name: Get commit log since last stable release
+        id: commits
+        run: |
+          LAST_STABLE=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+          if [ -n "$LAST_STABLE" ]; then
+            COMMITS=$(git log ${LAST_STABLE}..HEAD --oneline --pretty=format:"- %s (%h)" | head -20)
+          else
+            COMMITS=$(git log --oneline --pretty=format:"- %s (%h)" | head -20)
+          fi
+
+          echo "commits<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create dev release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          prerelease: true
+          draft: false
+          make_latest: false
+          files: |
+            violet_pool_controller.zip
+            violet_pool_controller.zip.sha256
+          body: |
+            ## ${{ steps.version.outputs.tag }} — Dev Build
+
+            > **DEV RELEASE** — Auto-generated from commit `${{ github.sha }}`
+
+            ### Commits since last stable release
+            ${{ steps.commits.outputs.commits }}
+
+            ---
+
+            - **Branch:** `${{ github.ref_name }}`
+            - **Commit:** [${{ github.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
+            - **Built:** $(date +'%Y-%m-%d %H:%M UTC')
+
+            ### Installation
+            1. Download `violet_pool_controller.zip`
+            2. Extract to `custom_components/violet_pool_controller`
+            3. Restart Home Assistant
