@@ -73,14 +73,33 @@ jobs:
         run: |
           LAST_STABLE=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
           if [ -n "$LAST_STABLE" ]; then
-            COMMITS=$(git log ${LAST_STABLE}..HEAD --oneline --pretty=format:"- %s (%h)" | head -20)
+            ALL_COMMITS=$(git log ${LAST_STABLE}..HEAD --oneline --pretty=format:"- %s (%h)")
           else
-            COMMITS=$(git log --oneline --pretty=format:"- %s (%h)" | head -20)
+            ALL_COMMITS=$(git log --oneline --pretty=format:"- %s (%h)" | head -50)
           fi
 
-          echo "commits<<EOF" >> $GITHUB_OUTPUT
-          echo "$COMMITS" >> $GITHUB_OUTPUT
+          BUG_FIXES=$(echo "$ALL_COMMITS" | grep -iE "(\bfix\b|\bbug\b|\bpatch\b|hotfix|bugfix)" || echo "")
+          IMPROVEMENTS=$(echo "$ALL_COMMITS" | grep -iE "(\bimprove\b|\benhance\b|\bupdate\b|\brefactor\b|\boptimize\b|\bchore\b)" || echo "")
+          NEW_FEATURES=$(echo "$ALL_COMMITS" | grep -iE "(\badd\b|\bfeat\b|\bfeature\b|\bnew\b)" || echo "")
+          OTHER=$(echo "$ALL_COMMITS" | grep -viE "(\bfix\b|\bbug\b|\bpatch\b|hotfix|bugfix|\bimprove\b|\benhance\b|\bupdate\b|\brefactor\b|\boptimize\b|\bchore\b|\badd\b|\bfeat\b|\bfeature\b|\bnew\b|\bRelease\b)" || echo "")
+
+          echo "bug-fixes<<EOF" >> $GITHUB_OUTPUT
+          echo "$BUG_FIXES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "improvements<<EOF" >> $GITHUB_OUTPUT
+          echo "$IMPROVEMENTS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "new-features<<EOF" >> $GITHUB_OUTPUT
+          echo "$NEW_FEATURES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "other<<EOF" >> $GITHUB_OUTPUT
+          echo "$OTHER" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "last-stable=$LAST_STABLE" >> $GITHUB_OUTPUT
 
       - name: Create dev release
         uses: softprops/action-gh-release@v3
@@ -97,16 +116,58 @@ jobs:
 
             > **DEV RELEASE** — Auto-generated from commit `${{ github.sha }}`
 
-            ### Commits since last stable release
-            ${{ steps.commits.outputs.commits }}
+            ### ❤️ Support | Unterstützung
+
+            If you find this integration useful, consider supporting the developer. Every contribution, no matter how small, is a huge motivation to improve the project and keep it alive! Thank you! 🙏
+
+            Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter zu verbessern und am Leben zu erhalten! Vielen Dank! 🙏
+
+            - 💳 **[PayPal](https://paypal.me/xerolux)**
+            - ☕ **[Buy Me a Coffee](https://buymeacoffee.com/xerolux)**
+            - 🚗 **[Tesla Referral Code](https://ts.la/sebastian564489)**
+            - ⭐ **[Star this repository](https://github.com/${{ github.repository }})**
+
+            ---
+
+            ${{ steps.commits.outputs.new-features && '### ✨ New Features | Neue Funktionen
+
+            ' || '' }}${{ steps.commits.outputs.new-features }}
+
+            ${{ steps.commits.outputs.improvements && '### 🚀 Improvements | Verbesserungen
+
+            ' || '' }}${{ steps.commits.outputs.improvements }}
+
+            ${{ steps.commits.outputs.bug-fixes && '### 🔧 Bug Fixes | Fehlerbehebungen
+
+            ' || '' }}${{ steps.commits.outputs.bug-fixes }}
+
+            ${{ steps.commits.outputs.other && '### 📋 Other | Sonstiges
+
+            ' || '' }}${{ steps.commits.outputs.other }}
 
             ---
 
             - **Branch:** `${{ github.ref_name }}`
             - **Commit:** [${{ github.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
-            - **Built:** $(date +'%Y-%m-%d %H:%M UTC')
+            - **Base:** ${{ steps.commits.outputs.last-stable || 'Initial commit' }}
 
-            ### Installation
+            ${{ steps.commits.outputs.last-stable && format('[Full changelog: {0}...{1}]({2}/compare/{0}...{1})', steps.commits.outputs.last-stable, steps.version.outputs.tag, github.server_url) || '' }}
+
+            ---
+
+            ### 📦 Installation
+
+            **HACS (show beta releases enabled):**
+            1. Add custom repository: `${{ github.repository }}`
+            2. Search for "Violet Pool Controller"
+            3. Click Install
+
+            **Manual:**
             1. Download `violet_pool_controller.zip`
             2. Extract to `custom_components/violet_pool_controller`
             3. Restart Home Assistant
+
+            ---
+
+            - 🐛 **[Report a bug](https://github.com/${{ github.repository }}/issues/new?template=bug_report.md)**
+            - 💡 **[Request a feature](https://github.com/${{ github.repository }}/issues/new?template=feature_request.md)**
