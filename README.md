@@ -124,6 +124,72 @@ print(profile)
 ```
 This detection parses `get_readings()` to check for the presence of certain internal status parameters (`SYSTEM_dosagemodule_cpu_temperature`, `EXT1_1`, `EXT2_1`), allowing your application to dynamically adapt to the connected modules (Base Module, Dosing Module, Relay Extension 1 and 2). By utilizing this detection, developers and integrations can accurately filter out features for missing hardware, ensuring that only supported options are exposed to the user.
 
+## Mock Server (Testing Without Hardware)
+
+The project includes a full mock server that simulates the Violet Pool Controller. This allows you to develop and test without needing the physical controller.
+
+### Start the Mock Server
+
+```bash
+# Without authentication (default port 8480)
+python tests/mock_server.py
+
+# With Basic Auth (like the real controller)
+python tests/mock_server.py --user admin --password secret
+
+# With simulated network latency (300ms)
+python tests/mock_server.py --user admin --password secret --delay 0.3
+
+# Dosing-standalone mode (list format responses)
+python tests/mock_server.py --standalone
+```
+
+### Connect Your Code
+
+```python
+import asyncio, aiohttp
+from violet_poolcontroller_api import VioletPoolAPI
+
+async def main():
+    async with aiohttp.ClientSession() as session:
+        api = VioletPoolAPI(
+            host="localhost:8480",
+            session=session,
+            username="admin",
+            password="secret",
+        )
+        readings = await api.get_readings()
+        print(f"pH={readings['pH_value']}, PUMP={readings['PUMP']}")
+
+asyncio.run(main())
+```
+
+### Run the Smoke Test
+
+The smoke test automatically starts the mock server, tests every public API method, and prints a detailed report:
+
+```bash
+python tests/test_api_smoke.py --user admin --password secret
+```
+
+### Mock Server Control Endpoints
+
+These endpoints exist only on the mock server (not the real controller):
+
+| Endpoint | Description |
+|---|---|
+| `GET /mock/state` | View internal state (outputs, sensors, config) as JSON |
+| `GET /mock/error?code=500&count=3` | Force next 3 requests to return HTTP 500 |
+| `GET /mock/reset` | Reset all state to defaults |
+
+### Mock Server Features
+
+- **Stateful:** Switch/dosing changes are reflected in `getReadings` (e.g. PUMP ON -> PUMP=4)
+- **Sensor drift:** pH, ORP, chlorine, and CPU temperature change slowly over time
+- **Config persistence:** Values set via `setConfig` are returned by `getConfig`
+- **Log history:** Actions are logged and returned by `getLog`
+- **Error simulation:** Test your error handling with forced HTTP errors
+
 ## License
 GNU Affero General Public License v3.0 or later (AGPLv3+)
 
