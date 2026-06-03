@@ -16,12 +16,14 @@
   "requirements": [
     "violet-poolController-api>=0.0.24"
   ],
-  "version": "1.2.1.dev0",
+  "version": "1.2.1",
   "zeroconf": [
     {
       "type": "_http._tcp.local.",
       "name": "violet*"
     },
-    "_violet-controller._tcp.local."
+    {
+      "type": "_violet-controller._tcp.local."
+    }
   ]
 }
