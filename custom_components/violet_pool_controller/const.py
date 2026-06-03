@@ -32,7 +32,10 @@ from homeassistant.const import (
 # ruff: noqa: F401, F403 - Allows central exporting of constants
 
 from violet_poolcontroller_api.const_api import *
-from violet_poolcontroller_api.const_devices import *
+try:
+    from violet_poolcontroller_api.const_devices import *
+except ImportError:
+    pass
 from .const_features import *
 from .const_sensors import *
 
@@ -103,14 +106,18 @@ DISINFECTION_METHODS = ["chlorine", "salt", "bromine", "active_oxygen", "uv", "o
 # FALLBACK CONSTANTS (if not provided by external API package)
 # =============================================================================
 
-if 'COVER_FUNCTIONS' not in globals():
+try:
+    COVER_FUNCTIONS
+except NameError:
     COVER_FUNCTIONS = {
         "OPEN": "COVER_OPEN",
         "CLOSE": "COVER_CLOSE",
         "STOP": "COVER_STOP",
     }
 
-if 'COVER_STATE_MAP' not in globals():
+try:
+    COVER_STATE_MAP
+except NameError:
     COVER_STATE_MAP = {
         "0": "closed",
         "1": "open",
@@ -119,7 +126,9 @@ if 'COVER_STATE_MAP' not in globals():
         "4": "stopped",
     }
 
-if 'DEVICE_PARAMETERS' not in globals():
+try:
+    DEVICE_PARAMETERS
+except NameError:
     DEVICE_PARAMETERS = {}
 
 # =============================================================================
