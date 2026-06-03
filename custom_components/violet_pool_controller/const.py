@@ -80,7 +80,8 @@ ACTION_ON = "ON"
 # COVER CONSTANTS
 # =============================================================================
 
-COVER_FUNCTIONS = {}
+COVER_FUNCTIONS: dict[str, dict[str, str | bool]] = {}
+DEVICE_PARAMETERS: dict[str, dict[str, str]] = {}
 
 # Default Values
 DEFAULT_POLLING_INTERVAL = 10
