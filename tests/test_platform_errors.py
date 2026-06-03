@@ -138,6 +138,78 @@ class TestClimateErrorHandling:
         temp = climate.current_temperature
         assert temp is None or temp == 0
 
+    def test_climate_target_temperature_with_lowercase_field(self, mock_coordinator_error, config_entry):
+        """Test climate reads target temperature from lowercase field (issue: Stefan's 28°C bug).
+
+        Stefan reported that climate-card shows 28°C instead of Violet's 25°C.
+        This happens when target temperature is stored in lowercase field name.
+        """
+        # Simulate Violet storing temperature under lowercase field name
+        mock_coordinator_error.data = {
+            "heater_target_temp": 25.0,  # lowercase version
+            "onewire1_value": 22.5,  # current pool temperature
+            "HEATER": 1,  # heater state
+        }
+
+        climate = VioletClimateEntity(
+            mock_coordinator_error,
+            config_entry,
+            climate_type="HEATER",
+        )
+
+        # Should read 25.0°C from lowercase field, not fallback to default 28.0°C
+        assert climate.target_temperature == 25.0, \
+            f"Expected 25.0°C from heater_target_temp, got {climate.target_temperature}°C"
+
+    def test_climate_target_temperature_with_uppercase_field(self, mock_coordinator_error, config_entry):
+        """Test climate reads target temperature from uppercase field."""
+        mock_coordinator_error.data = {
+            "HEATER_TARGET_TEMP": 26.0,  # uppercase version
+            "onewire1_value": 22.5,
+            "HEATER": 1,
+        }
+
+        climate = VioletClimateEntity(
+            mock_coordinator_error,
+            config_entry,
+            climate_type="HEATER",
+        )
+
+        assert climate.target_temperature == 26.0
+
+    def test_climate_target_temperature_fallback_to_set_temp(self, mock_coordinator_error, config_entry):
+        """Test climate falls back to HEATER_set_temp if primary fields missing."""
+        mock_coordinator_error.data = {
+            "HEATER_set_temp": 27.0,  # fallback field
+            "onewire1_value": 22.5,
+            "HEATER": 1,
+        }
+
+        climate = VioletClimateEntity(
+            mock_coordinator_error,
+            config_entry,
+            climate_type="HEATER",
+        )
+
+        assert climate.target_temperature == 27.0
+
+    def test_climate_target_temperature_uses_default_when_all_missing(self, mock_coordinator_error, config_entry):
+        """Test climate uses default 28.0°C only when NO target temp field exists."""
+        mock_coordinator_error.data = {
+            "onewire1_value": 22.5,
+            "HEATER": 1,
+            # No target temperature field at all
+        }
+
+        climate = VioletClimateEntity(
+            mock_coordinator_error,
+            config_entry,
+            climate_type="HEATER",
+        )
+
+        # This is correct behavior - default only when truly missing
+        assert climate.target_temperature == 28.0
+
     def test_climate_hvac_action_with_errors(self, mock_coordinator_error, config_entry):
         """Test climate HVAC action calculation with errors."""
         mock_coordinator_error.data = {

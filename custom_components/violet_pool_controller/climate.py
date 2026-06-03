@@ -145,16 +145,42 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             )
             return DEFAULT_TARGET_TEMP
 
-        key = f"{self.climate_type}_TARGET_TEMP"
-        target = self.get_float_value(key, DEFAULT_TARGET_TEMP)
+        # Try all possible field names for the target temperature
+        # Based on SETPOINT_DEFINITIONS in const_features.py
+        possible_keys = (
+            [
+                "HEATER_TARGET_TEMP",
+                "heater_target_temp",
+                "HEATER_set_temp",
+            ]
+            if self.climate_type == "HEATER"
+            else [
+                "SOLAR_TARGET_TEMP",
+                "solar_target_temp",
+                "SOLAR_maxtemp",
+            ]
+        )
+
+        target = None
+        for key in possible_keys:
+            target = self.get_float_value(key, None)
+            if target is not None:
+                _LOGGER.debug(
+                    "%s target temperature found in '%s': %.1f°C",
+                    self.climate_type,
+                    key,
+                    target,
+                )
+                break
+
+        # Use default if no value found
         if target is None:
-            # Fallback to config key
-            config_key = (
-                "SOLAR_maxtemp"
-                if self.climate_type == "SOLAR"
-                else "HEATER_set_temp"
+            _LOGGER.debug(
+                "%s target temperature not found in any field, using default %.1f°C",
+                self.climate_type,
+                DEFAULT_TARGET_TEMP,
             )
-            target = self.get_float_value(config_key, DEFAULT_TARGET_TEMP)
+            target = DEFAULT_TARGET_TEMP
 
         # Validate temperature range
         if not self.min_temp <= target <= self.max_temp:
