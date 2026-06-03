@@ -106,30 +106,21 @@ DISINFECTION_METHODS = ["chlorine", "salt", "bromine", "active_oxygen", "uv", "o
 # FALLBACK CONSTANTS (if not provided by external API package)
 # =============================================================================
 
-try:
-    COVER_FUNCTIONS
-except NameError:
-    COVER_FUNCTIONS = {
-        "OPEN": "COVER_OPEN",
-        "CLOSE": "COVER_CLOSE",
-        "STOP": "COVER_STOP",
-    }
+COVER_FUNCTIONS = {
+    "OPEN": "COVER_OPEN",
+    "CLOSE": "COVER_CLOSE",
+    "STOP": "COVER_STOP",
+}
 
-try:
-    COVER_STATE_MAP
-except NameError:
-    COVER_STATE_MAP = {
-        "0": "closed",
-        "1": "open",
-        "2": "opening",
-        "3": "closing",
-        "4": "stopped",
-    }
+COVER_STATE_MAP = {
+    "0": "closed",
+    "1": "open",
+    "2": "opening",
+    "3": "closing",
+    "4": "stopped",
+}
 
-try:
-    DEVICE_PARAMETERS
-except NameError:
-    DEVICE_PARAMETERS = {}
+DEVICE_PARAMETERS = {}
 
 # =============================================================================
 # VERSION INFO
