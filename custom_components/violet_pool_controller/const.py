@@ -100,6 +100,29 @@ POOL_TYPES = ["outdoor", "indoor", "whirlpool", "natural", "combination"]
 DISINFECTION_METHODS = ["chlorine", "salt", "bromine", "active_oxygen", "uv", "ozone"]
 
 # =============================================================================
+# FALLBACK CONSTANTS (if not provided by external API package)
+# =============================================================================
+
+if 'COVER_FUNCTIONS' not in globals():
+    COVER_FUNCTIONS = {
+        "OPEN": "COVER_OPEN",
+        "CLOSE": "COVER_CLOSE",
+        "STOP": "COVER_STOP",
+    }
+
+if 'COVER_STATE_MAP' not in globals():
+    COVER_STATE_MAP = {
+        "0": "closed",
+        "1": "open",
+        "2": "opening",
+        "3": "closing",
+        "4": "stopped",
+    }
+
+if 'DEVICE_PARAMETERS' not in globals():
+    DEVICE_PARAMETERS = {}
+
+# =============================================================================
 # VERSION INFO
 # =============================================================================
 
