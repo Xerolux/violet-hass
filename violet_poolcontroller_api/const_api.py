@@ -141,13 +141,6 @@ for rule_num in range(1, 8):
 for dc_num in range(6):
     SWITCH_FUNCTIONS[f"OMNI_DC{dc_num}"] = f"Omni DC{dc_num}"
 
-# Cover control functions
-COVER_FUNCTIONS = {
-    "OPEN": "COVER_OPEN",
-    "CLOSE": "COVER_CLOSE",
-    "STOP": "COVER_STOP",
-}
-
 # Dosing pump functions
 DOSING_FUNCTIONS = {
     "pH-": "DOS_4_PHM",

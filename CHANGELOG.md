@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.0.25
+
+### Improvements
+- **fix: restore public API constants** — `ACTION_*`, `COVER_FUNCTIONS`, and `COVER_STATE_MAP` symbols are now part of the stable public API contract and cannot be removed without a major version bump
+- **chore: properly export all public constants** from `__init__.py` so they are accessible via `import *` patterns used by the Home Assistant integration
+
+### Installation
+```bash
+pip install violet-poolController-api==0.0.25
+```
+
+---
+
 ## v0.0.18
 
 ### Improvements

@@ -34,7 +34,12 @@ from .const_api import (  # noqa: F401
     ERROR_SEVERITY_INFO,
     ERROR_SEVERITY_WARNING,
 )
-from .const_devices import DEVICE_PARAMETERS, VioletState
+from .const_devices import (  # noqa: F401
+    COVER_FUNCTIONS,
+    COVER_STATE_MAP,
+    DEVICE_PARAMETERS,
+    VioletState,
+)
 from .utils_rate_limiter import RateLimiter, get_global_rate_limiter
 from .utils_sanitizer import InputSanitizer
 
@@ -47,5 +52,21 @@ __all__ = [
     "InputSanitizer",
     "RateLimiter",
     "get_global_rate_limiter",
+    "ACTION_ALLAUTO",
+    "ACTION_ALLOFF",
+    "ACTION_ALLON",
+    "ACTION_AUTO",
+    "ACTION_COLOR",
+    "ACTION_LOCK",
+    "ACTION_OFF",
+    "ACTION_ON",
+    "ACTION_PUSH",
+    "ACTION_UNLOCK",
+    "COVER_FUNCTIONS",
+    "COVER_STATE_MAP",
     "DEVICE_PARAMETERS",
+    "ERROR_CODES",
+    "ERROR_SEVERITY_ALARM",
+    "ERROR_SEVERITY_INFO",
+    "ERROR_SEVERITY_WARNING",
 ]
