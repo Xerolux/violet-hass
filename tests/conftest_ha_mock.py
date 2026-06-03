@@ -234,11 +234,6 @@ def setup_homeassistant_mocks():
 
     # helpers.entity_platform
     entity_platform_module = types.ModuleType('entity_platform')
-
-    async def add_entities(hass, entity_id):
-        """Mock AddEntitiesCallback."""
-        pass
-
     entity_platform_module.AddEntitiesCallback = type('AddEntitiesCallback', (), {})
     helpers_module.entity_platform = entity_platform_module
     sys.modules['homeassistant.helpers.entity_platform'] = entity_platform_module

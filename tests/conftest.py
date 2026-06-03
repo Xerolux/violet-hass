@@ -16,6 +16,8 @@ if str(_test_dir) not in sys.path:
 # Setup Home Assistant mocks first
 # Import as a module to ensure proper execution context
 import conftest_ha_mock  # noqa: F401
+# Use the module to satisfy linters (setup happens at import time)
+_ = conftest_ha_mock
 
 
 def _create_mock_violet_api_module():
