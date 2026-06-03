@@ -75,8 +75,7 @@ def config_entry():
 class TestVioletCover:
     """Test VioletCover entity."""
 
-    @pytest.mark.asyncio
-    async def test_cover_initialization(self, mock_coordinator, config_entry):
+    def test_cover_initialization(self, mock_coordinator, config_entry):
         """Test cover initialization."""
         cover = VioletCover(mock_coordinator, config_entry)
 
@@ -85,8 +84,7 @@ class TestVioletCover:
         assert cover.device_class == "shutter"
         assert cover.should_poll is False  # Coordinator-based entity; HA handles scheduling
 
-    @pytest.mark.asyncio
-    async def test_cover_is_open(self, mock_coordinator, config_entry):
+    def test_cover_is_open(self, mock_coordinator, config_entry):
         """Test cover is_open property."""
         mock_coordinator.data["COVER_STATE"] = "OPEN"
         cover = VioletCover(mock_coordinator, config_entry)
@@ -94,8 +92,7 @@ class TestVioletCover:
         assert cover.is_open is True
         assert cover.is_closed is False
 
-    @pytest.mark.asyncio
-    async def test_cover_is_closed(self, mock_coordinator, config_entry):
+    def test_cover_is_closed(self, mock_coordinator, config_entry):
         """Test cover is_closed property."""
         mock_coordinator.data["COVER_STATE"] = "CLOSED"
         cover = VioletCover(mock_coordinator, config_entry)
@@ -103,16 +100,14 @@ class TestVioletCover:
         assert cover.is_closed is True
         assert cover.is_open is False
 
-    @pytest.mark.asyncio
-    async def test_cover_is_opening(self, mock_coordinator, config_entry):
+    def test_cover_is_opening(self, mock_coordinator, config_entry):
         """Test cover is_opening property."""
         mock_coordinator.data["COVER_STATE"] = "OPENING"
         cover = VioletCover(mock_coordinator, config_entry)
 
         assert cover.is_opening is True
 
-    @pytest.mark.asyncio
-    async def test_cover_is_closing(self, mock_coordinator, config_entry):
+    def test_cover_is_closing(self, mock_coordinator, config_entry):
         """Test cover is_closing property."""
         mock_coordinator.data["COVER_STATE"] = "CLOSING"
         cover = VioletCover(mock_coordinator, config_entry)
@@ -147,16 +142,14 @@ class TestVioletCover:
 
         assert cover._last_action == "STOP"
 
-    @pytest.mark.asyncio
-    async def test_cover_state_map(self):
+    def test_cover_state_map(self):
         """Test COVER_STATE_MAP mappings."""
         assert COVER_STATE_MAP.get("0") == "open"
         assert COVER_STATE_MAP.get("2") == "closed"
         assert COVER_STATE_MAP.get("1") == "opening"
         assert COVER_STATE_MAP.get("3") == "closing"
 
-    @pytest.mark.asyncio
-    async def test_cover_none_data(self, mock_coordinator, config_entry):
+    def test_cover_none_data(self, mock_coordinator, config_entry):
         """Test cover with None coordinator data."""
         mock_coordinator.data = None
         cover = VioletCover(mock_coordinator, config_entry)
