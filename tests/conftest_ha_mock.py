@@ -67,6 +67,7 @@ def setup_homeassistant_mocks():
 
     # Mock config_entries
     ha_module.config_entries = types.ModuleType('config_entries')
+
     class MockConfigEntry:
         def __init__(self, domain=None, data=None, options=None, entry_id=None, title=None):
             self.domain = domain
@@ -74,6 +75,14 @@ def setup_homeassistant_mocks():
             self.options = options or {}
             self.entry_id = entry_id or 'test_entry_id'
             self.title = title or 'Test'
+
+        def add_to_hass(self, hass):
+            """Add entry to hass."""
+            if not hasattr(hass, 'config_entries'):
+                hass.config_entries = []
+            if not isinstance(hass.config_entries, list):
+                hass.config_entries = []
+            hass.config_entries.append(self)
 
     ha_module.config_entries.ConfigEntry = MockConfigEntry
     sys.modules['homeassistant.config_entries'] = ha_module.config_entries

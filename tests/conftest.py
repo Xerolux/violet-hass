@@ -343,3 +343,30 @@ def pytest_fixture_setup(fixturedef, request):
             pytest_socket.enable_socket()
         except Exception:
             pass
+
+
+@pytest.fixture
+async def hass():
+    """Fixture that provides a Home Assistant instance."""
+    from homeassistant.core import HomeAssistant
+
+    ha = HomeAssistant()
+    ha.data = {}
+    return ha
+
+
+@pytest.fixture
+def device_registry(hass):
+    """Fixture that provides a device registry."""
+    from homeassistant.helpers.device_registry import DeviceRegistry
+
+    return DeviceRegistry()
+
+
+@pytest.fixture
+def entity_registry(hass):
+    """Fixture that provides an entity registry."""
+    class EntityRegistry:
+        pass
+
+    return EntityRegistry()
