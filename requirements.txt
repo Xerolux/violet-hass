@@ -3,4 +3,4 @@
 homeassistant>=2026.5.0
 aiohttp>=3.13.5
 voluptuous>=0.15.2
-violet-poolController-api==0.0.24
+violet-poolController-api>=0.0.25
