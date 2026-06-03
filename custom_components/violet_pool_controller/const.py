@@ -100,6 +100,21 @@ POOL_TYPES = ["outdoor", "indoor", "whirlpool", "natural", "combination"]
 DISINFECTION_METHODS = ["chlorine", "salt", "bromine", "active_oxygen", "uv", "ozone"]
 
 # =============================================================================
+# COVER & DEVICE CONTROL CONSTANTS
+# =============================================================================
+# These constants are imported/used by cover.py, switch.py, and service handlers.
+# They map high-level control actions to protocol command strings recognized
+# by the Violet Pool Controller API.
+
+COVER_FUNCTIONS: dict[str, str | None] = {
+    "OPEN": "COVER_OPEN",
+    "CLOSE": "COVER_CLOSE",
+    "STOP": "COVER_STOP",
+}
+
+DEVICE_PARAMETERS: dict[str, dict[str, str]] = {}
+
+# =============================================================================
 # VERSION INFO
 # =============================================================================
 
