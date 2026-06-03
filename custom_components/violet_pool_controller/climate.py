@@ -28,6 +28,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from violet_poolcontroller_api.api import VioletPoolAPIError
 from .const import ACTION_AUTO, ACTION_OFF, ACTION_ON, CONF_ACTIVE_FEATURES, DOMAIN
+from .const_features import SETPOINT_DEFINITIONS
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity
 
@@ -78,6 +79,27 @@ CLIMATE_FEATURE_MAP = {
     "HEATER": "heating",
     "SOLAR": "solar",
 }
+
+
+def _get_setpoint_fields_for_climate_type(climate_type: str) -> list[str]:
+    """Get possible field names for a climate type from SETPOINT_DEFINITIONS.
+
+    Args:
+        climate_type: "HEATER" or "SOLAR"
+
+    Returns:
+        List of possible field names to try (e.g., for HEATER:
+        ["HEATER_TARGET_TEMP", "heater_target_temp", "HEATER_set_temp"])
+    """
+    target_key = f"{climate_type.lower()}_target_temp"
+    for definition in SETPOINT_DEFINITIONS:
+        if definition.get("key") == target_key:
+            return definition.get("setpoint_fields", [])
+
+    # Fallback if definition not found (should not happen in normal operation)
+    if climate_type == "HEATER":
+        return ["HEATER_TARGET_TEMP", "heater_target_temp", "HEATER_set_temp"]
+    return ["SOLAR_TARGET_TEMP", "solar_target_temp", "SOLAR_maxtemp"]
 
 WATER_TEMP_SENSORS = [
     "onewire1_value",
@@ -145,24 +167,37 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             )
             return DEFAULT_TARGET_TEMP
 
-        key = f"{self.climate_type}_TARGET_TEMP"
-        target = self.get_float_value(key, DEFAULT_TARGET_TEMP)
+        # Get all possible field names from SETPOINT_DEFINITIONS for this climate type
+        possible_keys = _get_setpoint_fields_for_climate_type(self.climate_type)
+
+        target = None
+        for key in possible_keys:
+            target = self.get_float_value(key, None)
+            if target is not None:
+                _LOGGER.debug(
+                    "%s target temperature found in '%s': %.1f°C",
+                    self.climate_type,
+                    key,
+                    target,
+                )
+                break
+
+        # Use default if no value found
         if target is None:
-            # Fallback to config key
-            config_key = (
-                "SOLAR_maxtemp"
-                if self.climate_type == "SOLAR"
-                else "HEATER_set_temp"
+            _LOGGER.debug(
+                "%s target temperature not found in any field, using default %.1f°C",
+                self.climate_type,
+                DEFAULT_TARGET_TEMP,
             )
-            target = self.get_float_value(config_key, DEFAULT_TARGET_TEMP)
+            target = DEFAULT_TARGET_TEMP
 
         # Validate temperature range
-        if not self.min_temp <= target <= self.max_temp:
+        if not DEFAULT_MIN_TEMP <= target <= DEFAULT_MAX_TEMP:
             _LOGGER.warning(
                 "Target temperature %.1f°C out of range (%.1f-%.1f°C), using %.1f°C",
                 target,
-                self.min_temp,
-                self.max_temp,
+                DEFAULT_MIN_TEMP,
+                DEFAULT_MAX_TEMP,
                 DEFAULT_TARGET_TEMP,
             )
             return DEFAULT_TARGET_TEMP
@@ -384,12 +419,12 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
 
     def _validate_temperature(self, temperature: float) -> bool:
         """Validate temperature is within the allowed range."""
-        if not self.min_temp <= temperature <= self.max_temp:
+        if not DEFAULT_MIN_TEMP <= temperature <= DEFAULT_MAX_TEMP:
             _LOGGER.warning(
                 "Temperature %.1f°C outside allowed range (%.1f-%.1f°C)",
                 temperature,
-                self.min_temp,
-                self.max_temp,
+                DEFAULT_MIN_TEMP,
+                DEFAULT_MAX_TEMP,
             )
             return False
         return True

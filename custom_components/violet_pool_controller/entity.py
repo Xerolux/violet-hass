@@ -166,7 +166,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
         # Do NOT set _attr_name when translation_key is present.
         # HA skips translation_key lookup entirely when _attr_name is explicitly set,
         # causing all entity names to display in the fallback (English) name.
-        if not entity_description.translation_key:
+        if not getattr(entity_description, "translation_key", None):
             self._attr_name = entity_description.name
 
         self._attr_unique_id = f"{config_entry.entry_id}_{entity_description.key}"
