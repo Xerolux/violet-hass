@@ -28,6 +28,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from violet_poolcontroller_api.api import VioletPoolAPIError
 from .const import ACTION_AUTO, ACTION_OFF, ACTION_ON, CONF_ACTIVE_FEATURES, DOMAIN
+from .const_features import SETPOINT_DEFINITIONS
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity
 
@@ -78,6 +79,27 @@ CLIMATE_FEATURE_MAP = {
     "HEATER": "heating",
     "SOLAR": "solar",
 }
+
+
+def _get_setpoint_fields_for_climate_type(climate_type: str) -> list[str]:
+    """Get possible field names for a climate type from SETPOINT_DEFINITIONS.
+
+    Args:
+        climate_type: "HEATER" or "SOLAR"
+
+    Returns:
+        List of possible field names to try (e.g., for HEATER:
+        ["HEATER_TARGET_TEMP", "heater_target_temp", "HEATER_set_temp"])
+    """
+    target_key = f"{climate_type.lower()}_target_temp"
+    for definition in SETPOINT_DEFINITIONS:
+        if definition.get("key") == target_key:
+            return definition.get("setpoint_fields", [])
+
+    # Fallback if definition not found (should not happen in normal operation)
+    if climate_type == "HEATER":
+        return ["HEATER_TARGET_TEMP", "heater_target_temp", "HEATER_set_temp"]
+    return ["SOLAR_TARGET_TEMP", "solar_target_temp", "SOLAR_maxtemp"]
 
 WATER_TEMP_SENSORS = [
     "onewire1_value",
@@ -145,21 +167,8 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             )
             return DEFAULT_TARGET_TEMP
 
-        # Try all possible field names for the target temperature
-        # Based on SETPOINT_DEFINITIONS in const_features.py
-        possible_keys = (
-            [
-                "HEATER_TARGET_TEMP",
-                "heater_target_temp",
-                "HEATER_set_temp",
-            ]
-            if self.climate_type == "HEATER"
-            else [
-                "SOLAR_TARGET_TEMP",
-                "solar_target_temp",
-                "SOLAR_maxtemp",
-            ]
-        )
+        # Get all possible field names from SETPOINT_DEFINITIONS for this climate type
+        possible_keys = _get_setpoint_fields_for_climate_type(self.climate_type)
 
         target = None
         for key in possible_keys:
