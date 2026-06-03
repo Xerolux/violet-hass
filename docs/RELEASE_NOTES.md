@@ -1,4 +1,4 @@
-## v1.2.0 – Violet Pool Controller
+## v1.2.1 – Violet Pool Controller
 
 ✅ **STABLE RELEASE**
 
@@ -17,105 +17,70 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### ✨ New Features | Neue Funktionen
 
-- feat: align integration with API 0.0.24 and fix critical state mapping bugs (923487c)
-- feat: comprehensive quality improvements (10 fixes) (b5d03b4)
-- feat: add primary entities for prominent device page display (f884db4)
-- feat: enhance dev-release body with support links and categorized changelog (ec3dde9)
-- feat: add auto dev-release workflow (6bca678)
-- docs: add complete API sensor reference (read & write) (cd47f54)
-- feat: complete sensor translations for all API key patterns (fd78cd6)
-- fix: Add missing translations for ADC and EXT sensors (f7bfaac)
-- feat: v1.0.7-alpha.1 - EN migration, translation_key for 174 entities, 10-language support, dependency updates (f7e2bfa)
-- feat: extend sticky-cache key restoration to ALL optional hardware modules (1b33abf)
-- fix: add sticky cache for dosing module to prevent DOS_* switches showing OFF (ad66241)
-- Translate all docs and wiki to English; add .de.md German alternatives (ecd37c1)
-- feat: upgrade to home assistant 2026.5.0 (4f35d97)
-- feat: add ON/OFF/AUTO select entities for all controllable switches (8505b85)
+- docs: add copy-paste AI prompt to restore API constants in the api package (572bf76)
+- test: add missing aiohttp_client mock attrs for phacc compatibility (029d772)
+- docs: add API package contract to prevent recurrence of missing-constant breakage (48c4a8d)
+- fix: add COVER_FUNCTIONS/DEVICE_PARAMETERS and fix temperature validation (b18ecf1)
+- fix: add type annotations to resolve mypy errors (49414b8)
+- fix: add basic pytest fixtures for Home Assistant mocks (41e053b)
+- fix: add missing constants and mock classes for Home Assistant (9bcf653)
+- fix: add device_id field translations to services (672ac81)
 
 ### 🚀 Improvements | Verbesserungen
 
-- chore(deps-dev): update pytest-homeassistant-custom-component requirement (487638a)
-- chore(deps-dev): update ruff requirement from >=0.15.14 to >=0.15.15 (0bed01f)
-- chore(deps): update aiohttp requirement from >=3.13.5 to >=3.14.0 (ccf42db)
-- chore(deps): update violet-poolController-api to 0.0.22 (1ae4b61)
-- feat: enhance dev-release body with support links and categorized changelog (ec3dde9)
-- 📝 Release v1.0.7-alpha.3 - Update changelog and version files (58521da)
-- 📝 Release v1.0.7-alpha.3 - Update changelog and version files (5096528)
-- 📝 Release v1.0.7-alpha.3 - Update changelog and version files (3f586c3)
-- refactor: Improve code quality and diagnostics (ad2238e)
-- 📝 Release v1.0.7-alpha.3 - Update changelog and version files (04ae67a)
-- 📝 Release v1.0.7-alpha.2 - Update changelog and version files (9cb1c7a)
-- 📝 Release v1.0.7-alpha.1 - Update changelog and version files (57a80f1)
-- chore(deps): update violet-poolController-api to 0.0.17 (ef42551)
-- 📝 Release v1.0.6-alpha.3 - Update changelog and version files (e6cfc12)
-- 📝 Release v1.0.6-alpha.2 - Update changelog and version files (e8828ca)
-- chore(deps-dev): update pytest-cov requirement from >=6.0.0 to >=7.1.0 (9e33ab2)
-- chore(deps): update aiohttp requirement from >=3.11.0 to >=3.13.5 (ff6db43)
-- chore(deps): update voluptuous requirement from >=0.15.0 to >=0.16.0 (36f58b1)
-- chore(deps-dev): update pytest-asyncio requirement (efbea30)
-- chore(deps-dev): update ruff requirement from >=0.15.0 to >=0.15.12 (1f0ec40)
-- chore(deps-dev): update mypy requirement from >=1.15.0 to >=1.20.2 (d5f6527)
-- chore(deps-dev): update pytest requirement from >=9.0.0 to >=9.0.3 (382b18b)
-- chore(deps-dev): update pytest-homeassistant-custom-component requirement (9e3b39d)
-- 📝 Release v1.0.6-alpha.1 - Update changelog and version files (c809a6c)
-- update-api-version-0-0-14 (cb6208d)
-- Update violet-poolController-api to version 0.0.14 (35ab076)
-- update-release-changelog-support-section (56ced0f)
-- 📝 Release v1.0.5 - Update changelog and version files (acfcaa8)
+- refactor: DRY up temperature limit logic and clarify constant usage (9c0a4ad)
+- refactor: use instance-level temperature limits for better extensibility (2506bea)
+- refactor: load setpoint field names dynamically from SETPOINT_DEFINITIONS (2e2003a)
+- fix: enhance MockRateLimiter and MockVioletPoolAPI methods (94b477c)
+- fix: enhance Home Assistant mocks with additional modules and classes (b31a808)
+- fix: improve test infrastructure mocking for HA and external API compatibility (a72f76d)
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
-- feat: align integration with API 0.0.24 and fix critical state mapping bugs (923487c)
-- fix: proper error handling for DMX sequence and party mode (4b8ff2c)
-- fix: replace broken /setTargetValues calls with set_config (82fd204)
-- fix: remove primary from SensorEntityDescription (not in HA 2025.x) (0c724ea)
-- chore: bump API dependency to 0.0.20 (form-encoded setConfig fix) (1c70d23)
-- fix: flocculation select uses OFF/ON only (no AUTO mode) (da2d7de)
-- fix: digital rule lock API call - use keyword arg locked=True/False (e8bdc7e)
-- fix: services target selector, dosing DE/EN key mapping, primary removal from non-sensor entities (8865389)
-- fix: P0 runtime crash, sync all translations, E501 cleanup, v1.1.0 (6fef688)
-- style: fix all SIM/UP ruff warnings (11 fixes) (0f6d674)
-- fix: patch dev version into ZIP manifest and const.py (5fd0eb3)
-- fix: entity names now display in German via translation_key lookup (3750fc6)
-- fix: strings.json imp1_value von "Flow Switch" auf "Dosing Inflow" korrigiert (cbb5fca)
-- fix: deutsche Lokalisierung – fehlende Translation-Keys, Select-Optionen und Zustandstexte (fb72cdd)
-- fix: Correct IMP1 sensor name from 'Flow Switch' to 'Dosing Inflow' (d7519ad)
-- fix: Add missing translations for ADC and EXT sensors (f7bfaac)
-- fix: Enable translation keys for device entity names (33da009)
-- chore: bump API to 0.0.18 (dosing endpoint fix), clean up 23 internal dev reports (38c11d5)
-- fix: align translation_key casing with strings.json entries (579a266)
-- /fix-release-workflow (3e67e06)
-- fix: correct release workflow tag handling and bump to v1.0.7-alpha.2 (ef6e332)
-- fix: prevent sensor unit flipping when controller returns boolean-like values (0/1) (524fba5)
-- fix-interpret-state-unknown (693d7e7)
-- fix: resolve CI failures for voluptuous dependency and test mocks (a6b597e)
-- fix: prevent hard off state for unknown sensor data (09a3962)
-- device-state-bug (18c967e)
-- device-state-bug (a23cafe)
-- fix: add sticky cache for dosing module to prevent DOS_* switches showing OFF (ad66241)
-- fix: correct feature_id for DOS_6_FLOC (Flockmittel) from chlorine_control to flocculation (1b4bf39)
-- fix-test-entity-state-mocks (8a31793)
-- Fix ModuleNotFoundError in test suite for HA 2026 (9d12bf1)
-- Fix CI tests for Home Assistant 2026.5.0 compatibility (41b8b4e)
-- Fix CI tests for Home Assistant 2026.5.0 compatibility (4cec71d)
-- Fix CI tests for Home Assistant 2026.5.0 compatibility (5c12e60)
-- fix-ext1-api-switching (f761565)
-- fix: EXT1/EXT2 sticky hardware detection + longer refresh delay (36cb133)
+- fix(switch): dosing channels with _USE=0 now correctly show as OFF (9e620b0)
+- fix: restore COVER_STATE_MAP, pin API dep, remove junk file (6f7601d)
+- temperature-bug (0042686)
+- fix: use getattr with fallback for temperature limit attributes (2f0d4ce)
+- fix: add COVER_FUNCTIONS/DEVICE_PARAMETERS and fix temperature validation (b18ecf1)
+- fix: restore COVER_FUNCTIONS/DEVICE_PARAMETERS and bump to v1.2.1 (6670912)
+- violet-temp-display-bug (6e52f65)
+- fix: resolve test failures and attribute issues (c03612e)
+- fix: climate entity reads target temperature from multiple field names (6dedfd4)
+- fix: remove unused variable assignments in mock _request method (fb6de89)
+- fix: enhance MockRateLimiter and MockVioletPoolAPI methods (94b477c)
+- fix: add type annotations to resolve mypy errors (49414b8)
+- fix: add basic pytest fixtures for Home Assistant mocks (41e053b)
+- fix: resolve CodeQL warnings about unused imports and variables (d646d79)
+- fix: complete Home Assistant mocks for test collection (5a71b16)
+- fix: add missing constants and mock classes for Home Assistant (9bcf653)
+- fix: enhance Home Assistant mocks with additional modules and classes (b31a808)
+- fix: pass globals() to exec() for proper Home Assistant mock initialization (2796687)
+- fix: resolve CodeQL security issues (81d3ba0)
+- fix: improve test infrastructure mocking for HA and external API compatibility (a72f76d)
+- fix: extend mock API to support security tests (17d60b6)
+- fix: conftest.py - implement set_all_dmx_scenes with error handling in mock API (424a030)
+- fix: test_cover.py - remove async decorator from non-async tests (5062680)
+- fix: interpret_state_as_bool - correct STATE_MAP values per device specs (feeefcc)
+- fix: add device_id field translations to services (672ac81)
+- fix: resolve pytest-asyncio version conflict (61fb250)
+- fix: use device selector in fields instead of target (326caa6)
+- fix: remove device filter from services (use device selector instead) (bb93913)
+- fix: use PEP 440 compliant version format (2941f42)
+- fix: resolve aiohttp version conflict with Home Assistant 2026.5.x (9bdd309)
 
 ### 📚 Documentation | Dokumentation
 
-- docs: add complete API sensor reference (read & write) (cd47f54)
-- Translate all docs and wiki to English; add .de.md German alternatives (ecd37c1)
-- Translate README from German to English (19d3843)
+- docs: add copy-paste AI prompt to restore API constants in the api package (572bf76)
+- docs: add API package contract to prevent recurrence of missing-constant breakage (48c4a8d)
 
 ### 🧪 Tests
 
-- fix: resolve CI failures for voluptuous dependency and test mocks (a6b597e)
-- fix-test-entity-state-mocks (8a31793)
-- Fix ModuleNotFoundError in test suite for HA 2026 (9d12bf1)
-- Fix CI tests for Home Assistant 2026.5.0 compatibility (41b8b4e)
-- Fix CI tests for Home Assistant 2026.5.0 compatibility (4cec71d)
-- Fix CI tests for Home Assistant 2026.5.0 compatibility (5c12e60)
+- test: add missing aiohttp_client mock attrs for phacc compatibility (029d772)
+- fix: resolve test failures and attribute issues (c03612e)
+- fix: complete Home Assistant mocks for test collection (5a71b16)
+- fix: improve test infrastructure mocking for HA and external API compatibility (a72f76d)
+- fix: extend mock API to support security tests (17d60b6)
+- fix: test_cover.py - remove async decorator from non-async tests (5062680)
 
 ---
 
@@ -133,7 +98,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-📋 [Full changelog: v1.0.5...v1.2.0](https://github.com/Xerolux/violet-hass/compare/v1.0.5...v1.2.0)
+📋 [Full changelog: v1.2.0...v1.2.1](https://github.com/Xerolux/violet-hass/compare/v1.2.0...v1.2.1)
 
 ---
 
@@ -153,4 +118,4 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-06-03 11:51:38 UTC_
+_Generated automatically by GitHub Actions on 2026-06-03 21:40:07 UTC_
