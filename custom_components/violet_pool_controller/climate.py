@@ -192,12 +192,14 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             target = DEFAULT_TARGET_TEMP
 
         # Validate temperature range
-        if not self._attr_min_temp <= target <= self._attr_max_temp:
+        min_temp = getattr(self, "_attr_min_temp", DEFAULT_MIN_TEMP)
+        max_temp = getattr(self, "_attr_max_temp", DEFAULT_MAX_TEMP)
+        if not min_temp <= target <= max_temp:
             _LOGGER.warning(
                 "Target temperature %.1f°C out of range (%.1f-%.1f°C), using %.1f°C",
                 target,
-                self._attr_min_temp,
-                self._attr_max_temp,
+                min_temp,
+                max_temp,
                 DEFAULT_TARGET_TEMP,
             )
             return DEFAULT_TARGET_TEMP
@@ -419,12 +421,14 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
 
     def _validate_temperature(self, temperature: float) -> bool:
         """Validate temperature is within the allowed range."""
-        if not self._attr_min_temp <= temperature <= self._attr_max_temp:
+        min_temp = getattr(self, "_attr_min_temp", DEFAULT_MIN_TEMP)
+        max_temp = getattr(self, "_attr_max_temp", DEFAULT_MAX_TEMP)
+        if not min_temp <= temperature <= max_temp:
             _LOGGER.warning(
                 "Temperature %.1f°C outside allowed range (%.1f-%.1f°C)",
                 temperature,
-                self._attr_min_temp,
-                self._attr_max_temp,
+                min_temp,
+                max_temp,
             )
             return False
         return True
