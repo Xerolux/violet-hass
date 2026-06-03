@@ -1,6 +1,6 @@
-## v1.0.7-alpha.3 – Violet Pool Controller
+## v1.2.0 – Violet Pool Controller
 
-🔴 **ALPHA RELEASE** - Experimental features, use with caution!
+✅ **STABLE RELEASE**
 
 ### ❤️ Support | Unterstützung
 
@@ -15,10 +15,13 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
----
-
 ### ✨ New Features | Neue Funktionen
 
+- feat: align integration with API 0.0.24 and fix critical state mapping bugs (923487c)
+- feat: comprehensive quality improvements (10 fixes) (b5d03b4)
+- feat: add primary entities for prominent device page display (f884db4)
+- feat: enhance dev-release body with support links and categorized changelog (ec3dde9)
+- feat: add auto dev-release workflow (6bca678)
 - docs: add complete API sensor reference (read & write) (cd47f54)
 - feat: complete sensor translations for all API key patterns (fd78cd6)
 - fix: Add missing translations for ADC and EXT sensors (f7bfaac)
@@ -31,6 +34,12 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🚀 Improvements | Verbesserungen
 
+- chore(deps-dev): update pytest-homeassistant-custom-component requirement (487638a)
+- chore(deps-dev): update ruff requirement from >=0.15.14 to >=0.15.15 (0bed01f)
+- chore(deps): update aiohttp requirement from >=3.13.5 to >=3.14.0 (ccf42db)
+- chore(deps): update violet-poolController-api to 0.0.22 (1ae4b61)
+- feat: enhance dev-release body with support links and categorized changelog (ec3dde9)
+- 📝 Release v1.0.7-alpha.3 - Update changelog and version files (58521da)
 - 📝 Release v1.0.7-alpha.3 - Update changelog and version files (5096528)
 - 📝 Release v1.0.7-alpha.3 - Update changelog and version files (3f586c3)
 - refactor: Improve code quality and diagnostics (ad2238e)
@@ -56,6 +65,17 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- feat: align integration with API 0.0.24 and fix critical state mapping bugs (923487c)
+- fix: proper error handling for DMX sequence and party mode (4b8ff2c)
+- fix: replace broken /setTargetValues calls with set_config (82fd204)
+- fix: remove primary from SensorEntityDescription (not in HA 2025.x) (0c724ea)
+- chore: bump API dependency to 0.0.20 (form-encoded setConfig fix) (1c70d23)
+- fix: flocculation select uses OFF/ON only (no AUTO mode) (da2d7de)
+- fix: digital rule lock API call - use keyword arg locked=True/False (e8bdc7e)
+- fix: services target selector, dosing DE/EN key mapping, primary removal from non-sensor entities (8865389)
+- fix: P0 runtime crash, sync all translations, E501 cleanup, v1.1.0 (6fef688)
+- style: fix all SIM/UP ruff warnings (11 fixes) (0f6d674)
+- fix: patch dev version into ZIP manifest and const.py (5fd0eb3)
 - fix: entity names now display in German via translation_key lookup (3750fc6)
 - fix: strings.json imp1_value von "Flow Switch" auf "Dosing Inflow" korrigiert (cbb5fca)
 - fix: deutsche Lokalisierung – fehlende Translation-Keys, Select-Optionen und Zustandstexte (fb72cdd)
@@ -113,7 +133,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-📋 [Full changelog: v1.0.5...v1.0.7-alpha.3](https://github.com/Xerolux/violet-hass/compare/v1.0.5...v1.0.7-alpha.3)
+📋 [Full changelog: v1.0.5...v1.2.0](https://github.com/Xerolux/violet-hass/compare/v1.0.5...v1.2.0)
 
 ---
 
@@ -133,4 +153,4 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-05-28 08:13:16 UTC_
+_Generated automatically by GitHub Actions on 2026-06-03 11:51:38 UTC_
