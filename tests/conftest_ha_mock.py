@@ -156,7 +156,22 @@ def setup_homeassistant_mocks():
         """Mock async_get_clientsession."""
         pass
 
+    def async_create_clientsession(hass, verify_ssl=True, **kwargs):
+        """Mock async_create_clientsession."""
+        return None
+
+    def _async_make_resolver(hass):
+        """Mock _async_make_resolver.
+
+        pytest-homeassistant-custom-component's autouse fixtures patch this
+        internal helper to avoid creating a real DNS resolver. The attribute
+        must exist on the mocked module for ``mock.patch`` to succeed.
+        """
+        return None
+
     aiohttp_client_module.async_get_clientsession = async_get_clientsession
+    aiohttp_client_module.async_create_clientsession = async_create_clientsession
+    aiohttp_client_module._async_make_resolver = _async_make_resolver
     helpers_module.aiohttp_client = aiohttp_client_module
     sys.modules['homeassistant.helpers.aiohttp_client'] = aiohttp_client_module
 
