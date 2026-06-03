@@ -281,7 +281,7 @@ BINARY_SENSORS.extend(
 # SWITCHES
 # =============================================================================
 
-SWITCHES = [
+SWITCHES: list[dict[str, str | bool | None]] = [
     {
         "key": "PUMP",
         "name": "Filter Pump",

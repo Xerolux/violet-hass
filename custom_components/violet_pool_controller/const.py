@@ -41,7 +41,7 @@ from .const_sensors import *
 # =============================================================================
 
 DOMAIN = "violet_pool_controller"
-INTEGRATION_VERSION = "1.2.0"
+INTEGRATION_VERSION = "1.2.1.dev0"
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 
 # =============================================================================
@@ -63,6 +63,25 @@ CONF_POOL_TYPE = "pool_type"
 CONF_DISINFECTION_METHOD = "disinfection_method"
 CONF_ENABLE_DIAGNOSTIC_LOGGING = "enable_diagnostic_logging"
 CONF_DOSING_STANDALONE = "dosing_standalone"
+
+# =============================================================================
+# ACTION CONSTANTS
+# =============================================================================
+
+ACTION_PUSH = "PUSH"
+ACTION_ALLAUTO = "ALLAUTO"
+ACTION_ALLOFF = "ALLOFF"
+ACTION_ALLON = "ALLON"
+ACTION_AUTO = "AUTO"
+ACTION_OFF = "OFF"
+ACTION_ON = "ON"
+
+# =============================================================================
+# COVER CONSTANTS
+# =============================================================================
+
+COVER_FUNCTIONS: dict[str, dict[str, str | bool]] = {}
+DEVICE_PARAMETERS: dict[str, dict[str, str]] = {}
 
 # Default Values
 DEFAULT_POLLING_INTERVAL = 10

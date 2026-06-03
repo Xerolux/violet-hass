@@ -106,10 +106,13 @@ manage_pv_surplus:
 control_dmx_scenes:
   name: DMX Scene Control
   description: Control DMX lighting scenes
-  target:
-    device:
-      integration: violet_pool_controller
   fields:
+    device_id:
+      description: Target device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
     action:
       description: DMX action
       required: true
@@ -157,10 +160,13 @@ set_light_color_pulse:
 manage_digital_rules:
   name: Digital Rules Management
   description: Manage digital input automation rules
-  target:
-    device:
-      integration: violet_pool_controller
   fields:
+    device_id:
+      description: Target device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
     rule_key:
       description: Rule to manage
       required: true
@@ -187,10 +193,13 @@ manage_digital_rules:
 test_output:
   name: Output Test Mode
   description: Temporarily activate a controller output for diagnostics
-  target:
-    device:
-      integration: violet_pool_controller
   fields:
+    device_id:
+      description: Target device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
     output:
       description: "Output identifier (e.g. PUMP, HEATER, SOLAR)"
       required: true
@@ -217,10 +226,13 @@ test_output:
 export_diagnostic_logs:
   name: Export Diagnostic Logs
   description: Export recent integration logs for troubleshooting and support
-  target:
-    device:
-      integration: violet_pool_controller
   fields:
+    device_id:
+      description: Target device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
     lines:
       description: "Number of recent log lines to export (default: 100, max: 10000)"
       default: 100
@@ -244,17 +256,24 @@ export_diagnostic_logs:
 get_connection_status:
   name: Get Connection Status
   description: Get detailed connection status and health metrics for troubleshooting
-  target:
-    device:
-      integration: violet_pool_controller
+  fields:
+    device_id:
+      description: Target device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
 
 get_error_summary:
   name: Get Error Summary
   description: Get summary of recent errors and recovery suggestions
-  target:
-    device:
-      integration: violet_pool_controller
   fields:
+    device_id:
+      description: Target device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
     include_history:
       description: Include detailed error history
       default: false
@@ -264,14 +283,22 @@ get_error_summary:
 test_connection:
   name: Test Connection
   description: Test connection to the controller and return diagnostic information
-  target:
-    device:
-      integration: violet_pool_controller
+  fields:
+    device_id:
+      description: Target device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
 
 clear_error_history:
   name: Clear Error History
   description: Clear error history after successful recovery (use with caution)
-  target:
-    device:
-      integration: violet_pool_controller
+  fields:
+    device_id:
+      description: Target device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
 

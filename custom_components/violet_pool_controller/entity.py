@@ -28,14 +28,22 @@ _LOGGER = logging.getLogger(__name__)
 # =============================================================================
 
 # Boolean State Mapping (used by switches and other boolean entities)
+# States per device specifications:
+# 0 = AUTO_OFF (automatic control, currently off)
+# 1 = AUTO_ON (automatic control, currently on)
+# 2 = AUTO_ACTIVE (automatic control with timing)
+# 3 = AUTO_ACTIVE_TIMER (automatic control with timer)
+# 4 = MANUAL_ON_FORCED (manual on, forced mode)
+# 5 = AUTO_WAITING (automatic control, waiting for conditions)
+# 6 = MANUAL_OFF (manual off)
 STATE_MAP = {
-    0: False,  # Auto - Standby
-    1: True,  # Auto - Active (Scheduled)
-    2: False,  # Auto - Priority OFF (Rule Blocked)
-    3: True,  # Auto - Priority ON (Emergency Rule)
-    4: True,  # Manual ON (Forced)
-    5: False,  # Auto - Rule OFF (Emergency Rule)
-    6: False,  # Manual OFF
+    0: False,  # AUTO_OFF
+    1: True,   # AUTO_ON
+    2: True,   # AUTO_ACTIVE (with timing, device is active)
+    3: True,   # AUTO_ACTIVE_TIMER (with timer, device is active)
+    4: True,   # MANUAL_ON_FORCED
+    5: False,  # AUTO_WAITING (not yet active)
+    6: False,  # MANUAL_OFF
 }
 
 
@@ -103,7 +111,7 @@ def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool | None:
 
     # Handle composite states like "5|AUTO_WAIT"
     if "|" in state_str:
-        prefix = state_str.split("|")[0]
+        prefix = state_str.split("|")[0].strip()
         state_int = convert_to_int(prefix)
         if state_int is not None:
             if state_int in STATE_MAP:
