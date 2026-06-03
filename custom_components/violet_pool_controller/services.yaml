@@ -108,7 +108,6 @@ control_dmx_scenes:
   description: Control DMX lighting scenes
   target:
     device:
-      integration: violet_pool_controller
   fields:
     action:
       description: DMX action
@@ -159,7 +158,6 @@ manage_digital_rules:
   description: Manage digital input automation rules
   target:
     device:
-      integration: violet_pool_controller
   fields:
     rule_key:
       description: Rule to manage
@@ -189,7 +187,6 @@ test_output:
   description: Temporarily activate a controller output for diagnostics
   target:
     device:
-      integration: violet_pool_controller
   fields:
     output:
       description: "Output identifier (e.g. PUMP, HEATER, SOLAR)"
@@ -219,7 +216,6 @@ export_diagnostic_logs:
   description: Export recent integration logs for troubleshooting and support
   target:
     device:
-      integration: violet_pool_controller
   fields:
     lines:
       description: "Number of recent log lines to export (default: 100, max: 10000)"
@@ -246,14 +242,12 @@ get_connection_status:
   description: Get detailed connection status and health metrics for troubleshooting
   target:
     device:
-      integration: violet_pool_controller
 
 get_error_summary:
   name: Get Error Summary
   description: Get summary of recent errors and recovery suggestions
   target:
     device:
-      integration: violet_pool_controller
   fields:
     include_history:
       description: Include detailed error history
@@ -266,12 +260,10 @@ test_connection:
   description: Test connection to the controller and return diagnostic information
   target:
     device:
-      integration: violet_pool_controller
 
 clear_error_history:
   name: Clear Error History
   description: Clear error history after successful recovery (use with caution)
   target:
     device:
-      integration: violet_pool_controller
 
