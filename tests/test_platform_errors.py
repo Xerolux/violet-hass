@@ -41,6 +41,7 @@ def mock_coordinator_error():
         "model": "Violet Pool Controller",
         "sw_version": "1.0.0",
     }
+    coordinator.last_update_success = True
 
     # Mock get_str_value to return safe defaults
     def get_str_value(key, default=""):
@@ -49,8 +50,18 @@ def mock_coordinator_error():
     def get_int_value(key, default=0):
         return default
 
+    def get_float_value(key, default=None):
+        """Return float value from data or default."""
+        if coordinator.data and key in coordinator.data:
+            try:
+                return float(coordinator.data[key])
+            except (ValueError, TypeError):
+                return default
+        return default
+
     coordinator.get_str_value = get_str_value
     coordinator.get_int_value = get_int_value
+    coordinator.get_float_value = get_float_value
 
     return coordinator
 
