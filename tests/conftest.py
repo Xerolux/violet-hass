@@ -94,10 +94,6 @@ def _create_mock_violet_api_module():
 
         async def _request(self, method=None, endpoint=None, **kwargs):
             """Mock HTTP request."""
-            # Handle case where only endpoint is passed as first arg
-            if endpoint is None and method is not None and not method.upper() in ["GET", "POST", "PUT", "DELETE"]:
-                endpoint = method
-                method = "GET"
             return {"success": True, "data": {}}
 
         async def set_config(self, config):
