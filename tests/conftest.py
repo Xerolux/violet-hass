@@ -59,12 +59,36 @@ def _create_mock_violet_api_module():
             return {"success": True}
 
         async def set_all_dmx_scenes(self, action):
-            """Set all DMX scenes."""
-            responses = {}
+            """Set all DMX scenes with error handling.
+
+            Iterates through all 12 DMX scenes and continues on error,
+            collecting results and failures.
+            """
+            results = []
+            errors = []
+
+            # Iterate through all 12 scenes
             for i in range(1, 13):
                 key = f"DMX_SCENE{i}"
-                responses[key] = f"{key} OK"
-            return {"success": True, "response": ", ".join(responses.values())}
+                try:
+                    result = await self.set_switch_state(key, action)
+                    results.append(f"{key} OK")
+                except Exception as e:
+                    errors.append(str(e))
+                    results.append(f"{key} ERROR: {e}")
+
+            # Return aggregated result
+            response_text = "; ".join(results)
+            if errors:
+                return {
+                    "success": False,
+                    "response": response_text,
+                    "errors": errors
+                }
+            return {
+                "success": True,
+                "response": response_text
+            }
 
     # api submodule
     api_module = types.ModuleType('api')
