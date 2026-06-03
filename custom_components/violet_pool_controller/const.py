@@ -112,6 +112,15 @@ COVER_FUNCTIONS: dict[str, str | None] = {
     "STOP": "COVER_STOP",
 }
 
+# Maps the controller's numeric COVER_STATE values to the high-level cover
+# states consumed by cover.py (is_open / is_closed / is_opening / is_closing).
+COVER_STATE_MAP: dict[str, str] = {
+    "0": "open",
+    "1": "opening",
+    "2": "closed",
+    "3": "closing",
+}
+
 DEVICE_PARAMETERS: dict[str, dict[str, str]] = {}
 
 # =============================================================================
