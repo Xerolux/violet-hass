@@ -45,6 +45,7 @@ def _create_mock_violet_api_module():
             self.timeout = timeout
             self.max_retries = max_retries
             self._rate_limiter = MockRateLimiter()
+            self._base_url = self._build_secure_base_url(host, use_ssl)
 
         async def get_readings(self, query=None):
             """Get readings from controller."""
@@ -57,6 +58,44 @@ def _create_mock_violet_api_module():
         async def set_switch_state(self, key, action):
             """Set switch state."""
             return {"success": True}
+
+        def _build_secure_base_url(self, host, use_ssl):
+            """Build secure base URL with validation."""
+            import re
+
+            # Validate hostname for common injection attacks
+            if not host or not isinstance(host, str):
+                raise ValueError("Invalid hostname")
+
+            # Prevent path traversal
+            if ".." in host or "/" in host or "\\" in host:
+                raise ValueError("Invalid hostname")
+
+            # Prevent SQL injection patterns
+            if ";" in host or "DROP" in host.upper() or "--" in host:
+                raise ValueError("Invalid hostname")
+
+            # Prevent basic XSS
+            if "<" in host or ">" in host:
+                raise ValueError("Invalid hostname")
+
+            scheme = "https" if use_ssl else "http"
+            return f"{scheme}://{host}"
+
+        async def _request(self, method, endpoint, **kwargs):
+            """Mock HTTP request."""
+            return {"success": True, "data": {}}
+
+        async def set_config(self, config):
+            """Mock set_config with sanitization."""
+            # Sanitize the config
+            sanitized = {}
+            for key, value in config.items():
+                if ";" in key or "DROP TABLE" in key.upper():
+                    raise ValueError("Invalid configuration parameter")
+                sanitized[key] = value
+
+            return await self._request("POST", "/setConfig", json_payload=sanitized)
 
         async def set_all_dmx_scenes(self, action):
             """Set all DMX scenes with error handling.
@@ -125,10 +164,57 @@ def _create_mock_violet_api_module():
 
     # utils_sanitizer submodule
     sanitizer_module = types.ModuleType('utils_sanitizer')
+
     class InputSanitizer:
         @staticmethod
         def sanitize(value):
             return value
+
+        @staticmethod
+        def validate_api_parameter(param):
+            """Validate API parameter for security."""
+            if not isinstance(param, str):
+                raise ValueError("Parameter must be string")
+            if any(c in param for c in [";", "<", ">", "'", '"']):
+                raise ValueError("Invalid characters in parameter")
+            if ".." in param or "/" in param:
+                raise ValueError("Path traversal attempt")
+            return param
+
+        @staticmethod
+        def sanitize_string(value, max_length=1000):
+            """Sanitize string value."""
+            if value is None:
+                return ""
+            value_str = str(value)
+            if len(value_str) > max_length:
+                value_str = value_str[:max_length]
+            # Remove potential XSS
+            value_str = value_str.replace("<", "&lt;").replace(">", "&gt;")
+            return value_str
+
+        @staticmethod
+        def sanitize_numeric(value):
+            """Sanitize numeric value."""
+            if value is None:
+                return 0.0
+            if isinstance(value, (int, float)):
+                return float(value)
+            if isinstance(value, str):
+                if not value:
+                    return 0.0
+                # Try to extract numeric part
+                import re
+                # Extract number with optional negative sign and decimals
+                match = re.search(r"-?\d+(?:\.\d+)?", value)
+                if match:
+                    try:
+                        return float(match.group())
+                    except ValueError:
+                        return 0.0
+                return 0.0
+            return 0.0
+
     sanitizer_module.InputSanitizer = InputSanitizer
     mock_module.utils_sanitizer = sanitizer_module
 

@@ -104,3 +104,25 @@ def setup_homeassistant_mocks():
 
 # Setup mocks
 setup_homeassistant_mocks()
+
+
+# Setup pytest_homeassistant_custom_component mocks
+if 'pytest_homeassistant_custom_component' not in sys.modules:
+    common_module = types.ModuleType('pytest_homeassistant_custom_component')
+    common_submodule = types.ModuleType('common')
+
+    # Mock MockConfigEntry
+    class MockConfigEntry(dict):
+        def __init__(self, domain=None, data=None, options=None, entry_id=None, title=None):
+            super().__init__()
+            self.domain = domain
+            self.data = data or {}
+            self.options = options or {}
+            self.entry_id = entry_id or 'test_entry_id'
+            self.title = title or 'Test'
+
+    common_submodule.MockConfigEntry = MockConfigEntry
+    common_module.common = common_submodule
+
+    sys.modules['pytest_homeassistant_custom_component'] = common_module
+    sys.modules['pytest_homeassistant_custom_component.common'] = common_submodule
