@@ -35,6 +35,7 @@ from violet_poolcontroller_api.const_api import *
 try:
     from violet_poolcontroller_api.const_devices import *
 except ImportError:
+    # External API package may not have const_devices module; fallback definitions provided below
     pass
 from .const_features import *
 from .const_sensors import *
