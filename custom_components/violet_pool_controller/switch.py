@@ -441,11 +441,29 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 task.add_done_callback(lambda t: self._handle_refresh_error(t, key))
             else:
                 error_msg = result.get("response", "Unknown error")
-                _LOGGER.warning(
-                    "Switch %s action %s failed: %s", key, action, error_msg
-                )
-                task = asyncio.create_task(self._delayed_refresh(key))
-                task.add_done_callback(lambda t: self._handle_refresh_error(t, key))
+                error_msg = self._clean_error_message(error_msg)
+
+                if "PUMP_OFF_ERROR" in error_msg.upper():
+                    _LOGGER.error(
+                        "Switch %s action %s failed with pump error: %s. "
+                        "Check if pump is in an error state or has configuration issues",
+                        key, action, error_msg
+                    )
+                    self._optimistic_state = None
+                    raise HomeAssistantError(
+                        translation_key="pump_error",
+                        translation_domain=DOMAIN,
+                        translation_placeholders={
+                            "device": key,
+                            "detail": error_msg,
+                        },
+                    )
+                else:
+                    _LOGGER.warning(
+                        "Switch %s action %s failed: %s", key, action, error_msg
+                    )
+                    task = asyncio.create_task(self._delayed_refresh(key))
+                    task.add_done_callback(lambda t: self._handle_refresh_error(t, key))
 
         except VioletPoolAPIError as err:
             _LOGGER.error("API error setting switch %s to %s: %s", key, action, err)
@@ -463,6 +481,26 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 translation_domain=DOMAIN,
                 translation_placeholders={"detail": str(err)},
             ) from err
+
+    def _clean_error_message(self, error_msg: str) -> str:
+        """
+        Clean up error message by removing duplicates and formatting.
+
+        Args:
+            error_msg: Raw error message from API.
+
+        Returns:
+            Cleaned error message.
+        """
+        if not error_msg:
+            return "Unknown error"
+
+        error_msg = str(error_msg).strip()
+
+        if error_msg.endswith(" ERROR") and error_msg[:-6].endswith("ERROR"):
+            error_msg = error_msg[:-6].strip()
+
+        return error_msg
 
     async def _delayed_refresh(self, key: str) -> None:
         """

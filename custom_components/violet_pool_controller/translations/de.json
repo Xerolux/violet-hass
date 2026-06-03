@@ -236,6 +236,9 @@
     "api_error": {
       "message": "API-Kommunikationsfehler: {detail}"
     },
+    "pump_error": {
+      "message": "Pumpenfehler bei der Steuerung von {device}: {detail}. Prüfe, ob die Pumpe einen Fehlerzustand hat oder die Pumpenkonfiguration korrekt ist."
+    },
     "invalid_value": {
       "message": "Ungültiger Wert: {detail}"
     },
