@@ -100,6 +100,18 @@ POOL_TYPES = ["outdoor", "indoor", "whirlpool", "natural", "combination"]
 DISINFECTION_METHODS = ["chlorine", "salt", "bromine", "active_oxygen", "uv", "ozone"]
 
 # =============================================================================
+# COVER & DEVICE CONTROL CONSTANTS
+# =============================================================================
+
+COVER_FUNCTIONS: dict[str, str | None] = {
+    "OPEN": "COVER_OPEN",
+    "CLOSE": "COVER_CLOSE",
+    "STOP": "COVER_STOP",
+}
+
+DEVICE_PARAMETERS: dict[str, dict[str, str]] = {}
+
+# =============================================================================
 # VERSION INFO
 # =============================================================================
 
