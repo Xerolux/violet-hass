@@ -1,8 +1,6 @@
 """Mock for violet-poolController-api for testing without external dependency."""
 
 import sys
-from pathlib import Path
-from unittest.mock import AsyncMock, MagicMock
 
 # Create mock module structure
 class MockVioletPoolAPIError(Exception):

@@ -14,7 +14,8 @@ if str(_test_dir) not in sys.path:
     sys.path.insert(0, str(_test_dir))
 
 # Setup Home Assistant mocks first
-exec(open(_test_dir / 'conftest_ha_mock.py').read())
+with open(_test_dir / 'conftest_ha_mock.py') as f:
+    exec(f.read())
 
 
 def _create_mock_violet_api_module():
@@ -110,7 +111,7 @@ def _create_mock_violet_api_module():
             for i in range(1, 13):
                 key = f"DMX_SCENE{i}"
                 try:
-                    result = await self.set_switch_state(key, action)
+                    await self.set_switch_state(key, action)
                     results.append(f"{key} OK")
                 except Exception as e:
                     errors.append(str(e))

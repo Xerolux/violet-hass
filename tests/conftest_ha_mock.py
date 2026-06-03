@@ -170,6 +170,15 @@ if 'pytest_homeassistant_custom_component' not in sys.modules:
             self.entry_id = entry_id or 'test_entry_id'
             self.title = title or 'Test'
 
+        def __eq__(self, other):
+            if not isinstance(other, MockConfigEntry):
+                return False
+            return (self.domain == other.domain and
+                    self.data == other.data and
+                    self.options == other.options and
+                    self.entry_id == other.entry_id and
+                    self.title == other.title)
+
     common_submodule.MockConfigEntry = MockConfigEntry
     common_module.common = common_submodule
 
