@@ -15,7 +15,7 @@ if str(_test_dir) not in sys.path:
 
 # Setup Home Assistant mocks first
 with open(_test_dir / 'conftest_ha_mock.py') as f:
-    exec(f.read())
+    exec(f.read(), globals())
 
 
 def _create_mock_violet_api_module():
