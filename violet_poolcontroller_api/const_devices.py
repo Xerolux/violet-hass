@@ -29,6 +29,16 @@ from __future__ import annotations
 from typing import Any, cast
 
 # =============================================================================
+# COVER CONTROL FUNCTIONS
+# =============================================================================
+
+COVER_FUNCTIONS: dict[str, str | None] = {
+    "OPEN": "COVER_OPEN",
+    "CLOSE": "COVER_CLOSE",
+    "STOP": "COVER_STOP",
+}
+
+# =============================================================================
 # DEVICE PARAMETERS - Extended Configuration
 # =============================================================================
 
