@@ -20,6 +20,20 @@ def setup_homeassistant_mocks():
     ha_module.const.CONF_PORT = 'port'
     ha_module.const.CONF_USERNAME = 'username'
     ha_module.const.CONF_VERIFY_SSL = 'verify_ssl'
+    ha_module.const.ATTR_DEVICE_ID = 'device_id'
+
+    # Mock UnitOfTemperature
+    class UnitOfTemperature:
+        CELSIUS = '°C'
+        FAHRENHEIT = '°F'
+
+    # Mock UnitOfPower
+    class UnitOfPower:
+        WATT = 'W'
+        KILOWATT = 'kW'
+
+    ha_module.const.UnitOfTemperature = UnitOfTemperature
+    ha_module.const.UnitOfPower = UnitOfPower
 
     # Mock Platform enum
     class Platform:
@@ -33,6 +47,21 @@ def setup_homeassistant_mocks():
 
     ha_module.const.Platform = Platform
     sys.modules['homeassistant.const'] = ha_module.const
+
+    # Mock data_entry_flow
+    data_entry_flow_module = types.ModuleType('data_entry_flow')
+
+    class FlowHandler:
+        pass
+
+    class FlowResultType:
+        FORM = 'form'
+        CREATE_ENTRY = 'create_entry'
+        ABORT = 'abort'
+
+    data_entry_flow_module.FlowHandler = FlowHandler
+    data_entry_flow_module.FlowResultType = FlowResultType
+    sys.modules['homeassistant.data_entry_flow'] = data_entry_flow_module
 
     # Mock config_entries
     ha_module.config_entries = types.ModuleType('config_entries')
@@ -61,9 +90,17 @@ def setup_homeassistant_mocks():
     class SupportsResponse:
         ONLY = 'only'
 
+    class ServiceCall:
+        def __init__(self, domain=None, service=None, data=None, context=None):
+            self.domain = domain
+            self.service = service
+            self.data = data or {}
+            self.context = context
+
     ha_module.core.HomeAssistant = HomeAssistant
     ha_module.core.callback = callback
     ha_module.core.SupportsResponse = SupportsResponse
+    ha_module.core.ServiceCall = ServiceCall
     sys.modules['homeassistant.core'] = ha_module.core
 
     # Mock exceptions
@@ -92,12 +129,23 @@ def setup_homeassistant_mocks():
             return {}
         return schema
 
+    def string(value):
+        """Mock string validator."""
+        return str(value)
+
     config_validation_module.config_entry_only_config_schema = config_entry_only_config_schema
+    config_validation_module.string = string
     helpers_module.config_validation = config_validation_module
     sys.modules['homeassistant.helpers.config_validation'] = config_validation_module
 
     # helpers.aiohttp_client
     aiohttp_client_module = types.ModuleType('aiohttp_client')
+
+    async def async_get_clientsession(hass, verify_ssl=True):
+        """Mock async_get_clientsession."""
+        pass
+
+    aiohttp_client_module.async_get_clientsession = async_get_clientsession
     helpers_module.aiohttp_client = aiohttp_client_module
     sys.modules['homeassistant.helpers.aiohttp_client'] = aiohttp_client_module
 
@@ -125,8 +173,18 @@ def setup_homeassistant_mocks():
         """Mock create_issue."""
         pass
 
+    async def async_create_issue(hass, domain, issue_id, **kwargs):
+        """Mock async_create_issue."""
+        pass
+
+    async def async_delete_issue(hass, domain, issue_id):
+        """Mock async_delete_issue."""
+        pass
+
     issue_registry_module.IssueSeverity = IssueSeverity
     issue_registry_module.create_issue = create_issue
+    issue_registry_module.async_create_issue = async_create_issue
+    issue_registry_module.async_delete_issue = async_delete_issue
     helpers_module.issue_registry = issue_registry_module
     sys.modules['homeassistant.helpers.issue_registry'] = issue_registry_module
 
@@ -144,11 +202,19 @@ def setup_homeassistant_mocks():
     class UpdateFailed(Exception):
         pass
 
+    class DataUpdateCoordinator:
+        def __init__(self, hass, logger, name, update_interval=None):
+            self.hass = hass
+            self.logger = logger
+            self.name = name
+            self.update_interval = update_interval
+
     class CoordinatorEntity:
         def __init__(self, coordinator):
             self.coordinator = coordinator
 
     update_coordinator_module.UpdateFailed = UpdateFailed
+    update_coordinator_module.DataUpdateCoordinator = DataUpdateCoordinator
     update_coordinator_module.CoordinatorEntity = CoordinatorEntity
     helpers_module.update_coordinator = update_coordinator_module
     sys.modules['homeassistant.helpers.update_coordinator'] = update_coordinator_module
@@ -205,11 +271,28 @@ def setup_homeassistant_mocks():
         HEAT = 'heat'
         AUTO = 'auto'
 
+    class HVACAction:
+        OFF = 'off'
+        HEATING = 'heating'
+        IDLE = 'idle'
+
+    class ClimateEntityFeature:
+        TARGET_TEMPERATURE = 1
+        TARGET_TEMPERATURE_RANGE = 2
+
     class ClimateEntity:
         pass
 
+    class ClimateEntityDescription:
+        def __init__(self, key, name=None, **kwargs):
+            self.key = key
+            self.name = name
+
     climate_module.HVACMode = HVACMode
+    climate_module.HVACAction = HVACAction
+    climate_module.ClimateEntityFeature = ClimateEntityFeature
     climate_module.ClimateEntity = ClimateEntity
+    climate_module.ClimateEntityDescription = ClimateEntityDescription
     components_module.climate = climate_module
     sys.modules['homeassistant.components.climate'] = climate_module
 
@@ -239,10 +322,16 @@ def setup_homeassistant_mocks():
 
     # components.switch
     switch_module = types.ModuleType('switch')
+
+    class SwitchEntity:
+        pass
+
     class SwitchEntityDescription:
         def __init__(self, key, name=None, **kwargs):
             self.key = key
             self.name = name
+
+    switch_module.SwitchEntity = SwitchEntity
     switch_module.SwitchEntityDescription = SwitchEntityDescription
     components_module.switch = switch_module
     sys.modules['homeassistant.components.switch'] = switch_module
@@ -275,6 +364,33 @@ def setup_homeassistant_mocks():
     select_module.SelectEntityDescription = SelectEntityDescription
     components_module.select = select_module
     sys.modules['homeassistant.components.select'] = select_module
+
+    # components.sensor
+    sensor_module = types.ModuleType('sensor')
+
+    class SensorDeviceClass:
+        TEMPERATURE = 'temperature'
+        HUMIDITY = 'humidity'
+        POWER = 'power'
+
+    class SensorStateClass:
+        MEASUREMENT = 'measurement'
+
+    class SensorEntity:
+        pass
+
+    class SensorEntityDescription:
+        def __init__(self, key, name=None, **kwargs):
+            self.key = key
+            self.name = name
+
+    sensor_module.SensorDeviceClass = SensorDeviceClass
+    sensor_module.SensorStateClass = SensorStateClass
+    sensor_module.SensorEntity = SensorEntity
+    sensor_module.SensorEntityDescription = SensorEntityDescription
+    components_module.sensor = sensor_module
+    sys.modules['homeassistant.components.sensor'] = sensor_module
+
     sys.modules['homeassistant.helpers'] = ha_module.helpers
 
 

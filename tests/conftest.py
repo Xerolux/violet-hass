@@ -146,6 +146,17 @@ def _create_mock_violet_api_module():
 
     # const_devices submodule
     const_devices_module = types.ModuleType('const_devices')
+
+    class VioletState:
+        AUTO_OFF = "AUTO_OFF"
+        AUTO_ON = "AUTO_ON"
+        AUTO_ACTIVE = "AUTO_ACTIVE"
+        AUTO_ACTIVE_TIMER = "AUTO_ACTIVE_TIMER"
+        MANUAL_ON_FORCED = "MANUAL_ON_FORCED"
+        AUTO_WAITING = "AUTO_WAITING"
+        MANUAL_OFF = "MANUAL_OFF"
+
+    const_devices_module.VioletState = VioletState
     const_devices_module.DEVICE_STATE_MAPPING = {
         0: "AUTO_OFF",
         1: "AUTO_ON",
@@ -161,6 +172,7 @@ def _create_mock_violet_api_module():
         "2": "closed",
         "3": "closing",
     }
+    const_devices_module.DEVICE_PARAMETERS = {}
     mock_module.const_devices = const_devices_module
 
     # utils_sanitizer submodule

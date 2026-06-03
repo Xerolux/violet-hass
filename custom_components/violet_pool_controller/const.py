@@ -64,6 +64,24 @@ CONF_DISINFECTION_METHOD = "disinfection_method"
 CONF_ENABLE_DIAGNOSTIC_LOGGING = "enable_diagnostic_logging"
 CONF_DOSING_STANDALONE = "dosing_standalone"
 
+# =============================================================================
+# ACTION CONSTANTS
+# =============================================================================
+
+ACTION_PUSH = "PUSH"
+ACTION_ALLAUTO = "ALLAUTO"
+ACTION_ALLOFF = "ALLOFF"
+ACTION_ALLON = "ALLON"
+ACTION_AUTO = "AUTO"
+ACTION_OFF = "OFF"
+ACTION_ON = "ON"
+
+# =============================================================================
+# COVER CONSTANTS
+# =============================================================================
+
+COVER_FUNCTIONS = {}
+
 # Default Values
 DEFAULT_POLLING_INTERVAL = 10
 DEFAULT_TIMEOUT_DURATION = 10
