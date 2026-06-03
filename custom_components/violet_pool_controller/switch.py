@@ -30,6 +30,22 @@ _LOGGER = logging.getLogger(__name__)
 # Coordinator-based platforms; HA should not throttle entity state writes
 PARALLEL_UPDATES = 0
 
+
+def _dosing_switch_on(raw_state: Any, use_val: Any) -> bool | None:
+    """Determine ON/OFF for a dosing channel, honouring the _USE flag.
+
+    Args:
+        raw_state: The numeric state value for the dosing key (e.g. DOS_1_CL).
+        use_val:   The value of the matching {key}_USE key, or None if absent.
+
+    Returns:
+        False if use_val == "0" (channel disabled in controller config).
+        Otherwise delegates to the shared STATE_MAP interpretation.
+    """
+    if use_val is not None and str(use_val).strip() == "0":
+        return False
+    return interpret_state_as_bool(raw_state)
+
 # State Constants (matches DEVICE_STATE_MAPPING from API library)
 # - 0: Auto - Standby (OFF)
 # - 1: Auto - Active (Scheduled) (ON)
@@ -116,8 +132,13 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         if raw_state is None:
             return None
 
-        # Use shared utility function
-        result = interpret_state_as_bool(raw_state, key)
+        # Dosing channels: delegate to _dosing_switch_on which honours _USE flag.
+        if key.startswith("DOS_"):
+            use_val = self.get_value(f"{key}_USE")
+            result = _dosing_switch_on(raw_state, use_val)
+        else:
+            # Use shared utility function
+            result = interpret_state_as_bool(raw_state, key)
 
         # Change-Only Logging
         if result != self._last_logged_state or raw_state != self._last_logged_raw:
@@ -326,6 +347,11 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
     def _enrich_dosing_attributes(self, attributes: dict[str, Any], key: str) -> None:
         """Add dosing-specific attributes: state details, remaining range,
         daily amount."""
+        # Whether this dosing channel is enabled in the controller config
+        use_val = self.get_value(f"{key}_USE")
+        if use_val is not None:
+            attributes["dosing_configured"] = str(use_val).strip() != "0"
+
         # Dosing state (e.g., DOS_1_CL_STATE = ['BLOCKED_BY_TRESHOLDS', ...])
         state_key = f"{key}_STATE"
         state_val = self.get_value(state_key)
