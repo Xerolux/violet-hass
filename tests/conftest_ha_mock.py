@@ -21,6 +21,8 @@ def setup_homeassistant_mocks():
     ha_module.const.CONF_USERNAME = 'username'
     ha_module.const.CONF_VERIFY_SSL = 'verify_ssl'
     ha_module.const.ATTR_DEVICE_ID = 'device_id'
+    ha_module.const.ATTR_ENTITY_ID = 'entity_id'
+    ha_module.const.__version__ = '2026.5.0'
 
     # Mock UnitOfTemperature
     class UnitOfTemperature:
@@ -160,6 +162,11 @@ def setup_homeassistant_mocks():
     helpers_module.entity = entity_module
     sys.modules['homeassistant.helpers.entity'] = entity_module
 
+    # helpers.entity_registry
+    entity_registry_module = types.ModuleType('entity_registry')
+    helpers_module.entity_registry = entity_registry_module
+    sys.modules['homeassistant.helpers.entity_registry'] = entity_registry_module
+
     # helpers.issue_registry
     issue_registry_module = types.ModuleType('issue_registry')
 
@@ -190,9 +197,15 @@ def setup_homeassistant_mocks():
 
     # helpers.device_registry
     device_registry_module = types.ModuleType('device_registry')
+
     class DeviceInfo(dict):
         pass
+
+    class DeviceRegistry:
+        pass
+
     device_registry_module.DeviceInfo = DeviceInfo
+    device_registry_module.DeviceRegistry = DeviceRegistry
     helpers_module.device_registry = device_registry_module
     sys.modules['homeassistant.helpers.device_registry'] = device_registry_module
 
@@ -345,22 +358,32 @@ def setup_homeassistant_mocks():
         POWER = 'power'
         PH = 'ph'
 
+    class NumberEntity:
+        pass
+
     class NumberEntityDescription:
         def __init__(self, key, name=None, **kwargs):
             self.key = key
             self.name = name
 
     number_module.NumberDeviceClass = NumberDeviceClass
+    number_module.NumberEntity = NumberEntity
     number_module.NumberEntityDescription = NumberEntityDescription
     components_module.number = number_module
     sys.modules['homeassistant.components.number'] = number_module
 
     # components.select
     select_module = types.ModuleType('select')
+
+    class SelectEntity:
+        pass
+
     class SelectEntityDescription:
         def __init__(self, key, name=None, **kwargs):
             self.key = key
             self.name = name
+
+    select_module.SelectEntity = SelectEntity
     select_module.SelectEntityDescription = SelectEntityDescription
     components_module.select = select_module
     sys.modules['homeassistant.components.select'] = select_module
