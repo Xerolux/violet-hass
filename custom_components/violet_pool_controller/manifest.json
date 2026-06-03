@@ -14,7 +14,7 @@
   "issue_tracker": "https://github.com/xerolux/violet-hass/issues",
   "quality_scale": "platinum",
   "requirements": [
-    "violet-poolController-api==0.0.24"
+    "violet-poolController-api>=0.0.24"
   ],
   "version": "1.2.1.dev0",
   "zeroconf": [
