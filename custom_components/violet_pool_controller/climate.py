@@ -109,6 +109,24 @@ WATER_TEMP_SENSORS = [
 ]
 
 
+def _get_temp_limits(entity: VioletClimateEntity) -> tuple[float, float]:
+    """Get min/max temperature limits with safe fallback.
+
+    Uses instance attributes _attr_min_temp/_attr_max_temp if available,
+    otherwise falls back to DEFAULT_MIN_TEMP/DEFAULT_MAX_TEMP. This handles
+    test scenarios where instance attributes may not be initialized.
+
+    Args:
+        entity: The climate entity instance.
+
+    Returns:
+        Tuple of (min_temp, max_temp).
+    """
+    min_temp = getattr(entity, "_attr_min_temp", DEFAULT_MIN_TEMP)
+    max_temp = getattr(entity, "_attr_max_temp", DEFAULT_MAX_TEMP)
+    return min_temp, max_temp
+
+
 class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
     """Climate Entity - FULLY PROTECTED & THREAD-SAFE VERSION."""
 
@@ -192,8 +210,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             target = DEFAULT_TARGET_TEMP
 
         # Validate temperature range
-        min_temp = getattr(self, "_attr_min_temp", DEFAULT_MIN_TEMP)
-        max_temp = getattr(self, "_attr_max_temp", DEFAULT_MAX_TEMP)
+        min_temp, max_temp = _get_temp_limits(self)
         if not min_temp <= target <= max_temp:
             _LOGGER.warning(
                 "Target temperature %.1f°C out of range (%.1f-%.1f°C), using %.1f°C",
@@ -421,8 +438,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
 
     def _validate_temperature(self, temperature: float) -> bool:
         """Validate temperature is within the allowed range."""
-        min_temp = getattr(self, "_attr_min_temp", DEFAULT_MIN_TEMP)
-        max_temp = getattr(self, "_attr_max_temp", DEFAULT_MAX_TEMP)
+        min_temp, max_temp = _get_temp_limits(self)
         if not min_temp <= temperature <= max_temp:
             _LOGGER.warning(
                 "Temperature %.1f°C outside allowed range (%.1f-%.1f°C)",
