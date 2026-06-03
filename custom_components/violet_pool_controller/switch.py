@@ -473,6 +473,8 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 translation_domain=DOMAIN,
                 translation_placeholders={"detail": str(err)},
             ) from err
+        except HomeAssistantError:
+            raise
         except Exception as err:
             _LOGGER.error("Unexpected error setting switch %s: %s", key, err)
             self._optimistic_state = None
