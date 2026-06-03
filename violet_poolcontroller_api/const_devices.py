@@ -32,7 +32,7 @@ from typing import Any, cast
 # COVER CONTROL FUNCTIONS
 # =============================================================================
 
-COVER_FUNCTIONS: dict[str, str | None] = {
+COVER_FUNCTIONS: dict[str, str] = {
     "OPEN": "COVER_OPEN",
     "CLOSE": "COVER_CLOSE",
     "STOP": "COVER_STOP",
