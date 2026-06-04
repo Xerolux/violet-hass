@@ -189,6 +189,11 @@ STATUS_SENSORS = {
         "translation_key": "backwash",
         "icon": "mdi:autorenew",
     },
+    "BACKWASHRINSE": {
+        "name": "Backwash Rinse Status",
+        "translation_key": "backwashrinse",
+        "icon": "mdi:water-opacity",
+    },
     "LIGHT": {
         "name": "Lighting Status",
         "translation_key": "light",
@@ -270,6 +275,69 @@ RUNTIME_SENSORS = {
         "translation_key": "backwash_runtime",
         "icon": "mdi:clock-outline",
     },
+    "BACKWASHRINSE_RUNTIME": {
+        "name": "Backwash Rinse Runtime",
+        "translation_key": "backwashrinse_runtime",
+        "icon": "mdi:clock-outline",
+    },
+    "ECO_RUNTIME": {
+        "name": "ECO Runtime",
+        "translation_key": "eco_runtime",
+        "icon": "mdi:clock-outline",
+    },
+    "DOS_1_CL_RUNTIME": {
+        "name": "Chlorine Dosing Runtime",
+        "translation_key": "dos_1_cl_runtime",
+        "icon": "mdi:clock-outline",
+    },
+    "DOS_2_ELO_RUNTIME": {
+        "name": "Electrolysis Runtime",
+        "translation_key": "dos_2_elo_runtime",
+        "icon": "mdi:clock-outline",
+    },
+    "DOS_3_ELO_REV_RUNTIME": {
+        "name": "Electrolysis Reverse Runtime",
+        "translation_key": "dos_3_elo_rev_runtime",
+        "icon": "mdi:clock-outline",
+    },
+    "DOS_4_PHM_RUNTIME": {
+        "name": "pH- Dosing Runtime",
+        "translation_key": "dos_4_phm_runtime",
+        "icon": "mdi:clock-outline",
+    },
+    "DOS_5_PHP_RUNTIME": {
+        "name": "pH+ Dosing Runtime",
+        "translation_key": "dos_5_php_runtime",
+        "icon": "mdi:clock-outline",
+    },
+    "DOS_6_FLOC_RUNTIME": {
+        "name": "Flocculation Runtime",
+        "translation_key": "dos_6_floc_runtime",
+        "icon": "mdi:clock-outline",
+    },
+    "REFILL_RUNTIME": {
+        "name": "Refill Runtime",
+        "translation_key": "refill_runtime",
+        "icon": "mdi:clock-outline",
+    },
+    # Extension relay runtimes (EXT1/EXT2 modules)
+    **{f"EXT{i}_{j}_RUNTIME": {
+        "name": f"Extension {i} Relay {j} Runtime",
+        "translation_key": f"ext{i}_{j}_runtime",
+        "icon": "mdi:clock-outline",
+    } for i in (1, 2) for j in range(1, 9)},
+    # OMNI module runtimes
+    **{f"OMNI_DC{i}_RUNTIME": {
+        "name": f"OMNI DC Motor {i} Runtime",
+        "translation_key": f"omni_dc{i}_runtime",
+        "icon": "mdi:clock-outline",
+    } for i in range(6)},
+    # Pump RPM level runtimes
+    **{f"PUMP_RPM_{i}_RUNTIME": {
+        "name": f"Pump RPM Level {i} Runtime",
+        "translation_key": f"pump_rpm_{i}_runtime",
+        "icon": "mdi:clock-outline",
+    } for i in range(4)},
 }
 
 DOSING_STATS_SENSORS = {
@@ -390,6 +458,21 @@ NO_UNIT_SENSORS = {
     "HEATER_RUNTIME",
     "LIGHT_RUNTIME",
     "BACKWASH_RUNTIME",
+    "BACKWASHRINSE_RUNTIME",
+    "ECO_RUNTIME",
+    "DOS_1_CL_RUNTIME",
+    "DOS_2_ELO_RUNTIME",
+    "DOS_3_ELO_REV_RUNTIME",
+    "DOS_4_PHM_RUNTIME",
+    "DOS_5_PHP_RUNTIME",
+    "DOS_6_FLOC_RUNTIME",
+    "REFILL_RUNTIME",
+    # Extension relay runtimes
+    *(f"EXT{i}_{j}_RUNTIME" for i in (1, 2) for j in range(1, 9)),
+    # OMNI module runtimes
+    *(f"OMNI_DC{i}_RUNTIME" for i in range(6)),
+    # Pump RPM level runtimes
+    *(f"PUMP_RPM_{i}_RUNTIME" for i in range(4)),
 }
 
 # =============================================================================
