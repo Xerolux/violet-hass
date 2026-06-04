@@ -189,6 +189,11 @@ STATUS_SENSORS = {
         "translation_key": "backwash",
         "icon": "mdi:autorenew",
     },
+    "BACKWASHRINSE": {
+        "name": "Backwash Rinse Status",
+        "translation_key": "backwashrinse",
+        "icon": "mdi:water-opacity",
+    },
     "LIGHT": {
         "name": "Lighting Status",
         "translation_key": "light",
@@ -268,6 +273,11 @@ RUNTIME_SENSORS = {
     "BACKWASH_RUNTIME": {
         "name": "Backwash Runtime",
         "translation_key": "backwash_runtime",
+        "icon": "mdi:clock-outline",
+    },
+    "BACKWASHRINSE_RUNTIME": {
+        "name": "Backwash Rinse Runtime",
+        "translation_key": "backwashrinse_runtime",
         "icon": "mdi:clock-outline",
     },
 }
@@ -390,6 +400,7 @@ NO_UNIT_SENSORS = {
     "HEATER_RUNTIME",
     "LIGHT_RUNTIME",
     "BACKWASH_RUNTIME",
+    "BACKWASHRINSE_RUNTIME",
 }
 
 # =============================================================================
