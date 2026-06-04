@@ -320,6 +320,24 @@ RUNTIME_SENSORS = {
         "translation_key": "refill_runtime",
         "icon": "mdi:clock-outline",
     },
+    # Extension relay runtimes (EXT1/EXT2 modules)
+    **{f"EXT{i}_{j}_RUNTIME": {
+        "name": f"Extension {i} Relay {j} Runtime",
+        "translation_key": f"ext{i}_{j}_runtime",
+        "icon": "mdi:clock-outline",
+    } for i in (1, 2) for j in range(1, 9)},
+    # OMNI module runtimes
+    **{f"OMNI_DC{i}_RUNTIME": {
+        "name": f"OMNI DC Motor {i} Runtime",
+        "translation_key": f"omni_dc{i}_runtime",
+        "icon": "mdi:clock-outline",
+    } for i in range(6)},
+    # Pump RPM level runtimes
+    **{f"PUMP_RPM_{i}_RUNTIME": {
+        "name": f"Pump RPM Level {i} Runtime",
+        "translation_key": f"pump_rpm_{i}_runtime",
+        "icon": "mdi:clock-outline",
+    } for i in range(4)},
 }
 
 DOSING_STATS_SENSORS = {
@@ -449,6 +467,12 @@ NO_UNIT_SENSORS = {
     "DOS_5_PHP_RUNTIME",
     "DOS_6_FLOC_RUNTIME",
     "REFILL_RUNTIME",
+    # Extension relay runtimes
+    *(f"EXT{i}_{j}_RUNTIME" for i in (1, 2) for j in range(1, 9)),
+    # OMNI module runtimes
+    *(f"OMNI_DC{i}_RUNTIME" for i in range(6)),
+    # Pump RPM level runtimes
+    *(f"PUMP_RPM_{i}_RUNTIME" for i in range(4)),
 }
 
 # =============================================================================
