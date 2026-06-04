@@ -280,6 +280,46 @@ RUNTIME_SENSORS = {
         "translation_key": "backwashrinse_runtime",
         "icon": "mdi:clock-outline",
     },
+    "ECO_RUNTIME": {
+        "name": "ECO Runtime",
+        "translation_key": "eco_runtime",
+        "icon": "mdi:clock-outline",
+    },
+    "DOS_1_CL_RUNTIME": {
+        "name": "Chlorine Dosing Runtime",
+        "translation_key": "dos_1_cl_runtime",
+        "icon": "mdi:clock-outline",
+    },
+    "DOS_2_ELO_RUNTIME": {
+        "name": "Electrolysis Runtime",
+        "translation_key": "dos_2_elo_runtime",
+        "icon": "mdi:clock-outline",
+    },
+    "DOS_3_ELO_REV_RUNTIME": {
+        "name": "Electrolysis Reverse Runtime",
+        "translation_key": "dos_3_elo_rev_runtime",
+        "icon": "mdi:clock-outline",
+    },
+    "DOS_4_PHM_RUNTIME": {
+        "name": "pH- Dosing Runtime",
+        "translation_key": "dos_4_phm_runtime",
+        "icon": "mdi:clock-outline",
+    },
+    "DOS_5_PHP_RUNTIME": {
+        "name": "pH+ Dosing Runtime",
+        "translation_key": "dos_5_php_runtime",
+        "icon": "mdi:clock-outline",
+    },
+    "DOS_6_FLOC_RUNTIME": {
+        "name": "Flocculation Runtime",
+        "translation_key": "dos_6_floc_runtime",
+        "icon": "mdi:clock-outline",
+    },
+    "REFILL_RUNTIME": {
+        "name": "Refill Runtime",
+        "translation_key": "refill_runtime",
+        "icon": "mdi:clock-outline",
+    },
 }
 
 DOSING_STATS_SENSORS = {
@@ -401,6 +441,14 @@ NO_UNIT_SENSORS = {
     "LIGHT_RUNTIME",
     "BACKWASH_RUNTIME",
     "BACKWASHRINSE_RUNTIME",
+    "ECO_RUNTIME",
+    "DOS_1_CL_RUNTIME",
+    "DOS_2_ELO_RUNTIME",
+    "DOS_3_ELO_REV_RUNTIME",
+    "DOS_4_PHM_RUNTIME",
+    "DOS_5_PHP_RUNTIME",
+    "DOS_6_FLOC_RUNTIME",
+    "REFILL_RUNTIME",
 }
 
 # =============================================================================
