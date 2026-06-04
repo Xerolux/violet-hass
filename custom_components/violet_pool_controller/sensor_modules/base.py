@@ -310,6 +310,9 @@ def determine_state_class(key: str) -> SensorStateClass | None:
     # (they are counters, not measurements)
     if "freezecount" in key.lower() or "faultcount" in key.lower():
         return None
+    # Dosing can amount sensors (DOS_*_TOTAL_CAN_AMOUNT_ML) can decrease on refill
+    if "dos_" in key.lower() and "_total_can_amount_" in key.lower():
+        return SensorStateClass.MEASUREMENT
     if "total" in key.lower() or "daily" in key.lower():
         return SensorStateClass.TOTAL_INCREASING
     return SensorStateClass.MEASUREMENT
