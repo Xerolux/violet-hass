@@ -1,4 +1,4 @@
-## v1.2.2 – Violet Pool Controller
+## v1.2.3 – Violet Pool Controller
 
 ✅ **STABLE RELEASE**
 
@@ -17,7 +17,9 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### ✨ New Features | Neue Funktionen
 
-- Enhanced Violet Pool Controller functionality
+- Add comprehensive RUNTIME sensor definitions for all modules (c8f9593)
+- Add missing RUNTIME sensor definitions (9838671)
+- Add missing sensor definitions for BACKWASHRINSE (a325492)
 
 ### 🚀 Improvements | Verbesserungen
 
@@ -25,7 +27,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
-- Fix state_class for dosing can amount sensors (98d520a)
+- Fix state-class (21c3007)
 
 ---
 
@@ -43,7 +45,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-📋 [Full changelog: v1.2.1...v1.2.2](https://github.com/Xerolux/violet-hass/compare/v1.2.1...v1.2.2)
+📋 [Full changelog: v1.2.2...v1.2.3](https://github.com/Xerolux/violet-hass/compare/v1.2.2...v1.2.3)
 
 ---
 
@@ -63,4 +65,4 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-06-04 09:37:34 UTC_
+_Generated automatically by GitHub Actions on 2026-06-04 10:12:49 UTC_
