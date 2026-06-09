@@ -119,6 +119,12 @@ COVER_STATE_MAP: dict[str, str] = {
     "1": "opening",
     "2": "closed",
     "3": "closing",
+    "4": "stopped",
+    "OPEN": "open",
+    "OPENING": "opening",
+    "CLOSED": "closed",
+    "CLOSING": "closing",
+    "STOPPED": "stopped",
 }
 
 DEVICE_PARAMETERS: dict[str, dict[str, str]] = {}

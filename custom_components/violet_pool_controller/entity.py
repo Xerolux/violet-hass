@@ -222,7 +222,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
                     "Entity '%s' not available"
                     " (coordinator_success: %s, device_available: %s)"
                 ),
-                self.name or self.entity_description.key,
+                getattr(self, "name", None) or self.entity_description.key,
                 self.coordinator.last_update_success,
                 self.device.available,
             )
@@ -364,7 +364,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
                 if exc is not None:
                     _LOGGER.debug(
                         "Refresh task failed (%s): %s",
-                        self.entity_id or "unknown",
+                        getattr(self, "entity_id", "unknown") or "unknown",
                         exc,
                     )
         except (asyncio.CancelledError, asyncio.InvalidStateError):

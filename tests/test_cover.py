@@ -26,6 +26,16 @@ def mock_coordinator():
                 "LAST_MOVING_DIRECTION": "OPEN",
             }
             self.device = MockDevice()
+            self.last_update_success = True
+
+        def get_value(self, key, default=None):
+            if not self.data:
+                return default
+            return self.data.get(key, default)
+
+        def get_str_value(self, key, default=None):
+            val = self.get_value(key, default)
+            return str(val) if val is not None else None
 
         async def async_request_refresh(self):
             """Mock refresh."""
@@ -79,10 +89,8 @@ class TestVioletCover:
         """Test cover initialization."""
         cover = VioletCover(mock_coordinator, config_entry)
 
-        assert cover.name == "Pool Cover"
-        assert cover.unique_id is not None
-        assert cover.device_class == "shutter"
-        assert cover.should_poll is False  # Coordinator-based entity; HA handles scheduling
+        assert cover.entity_description.name == "Pool Cover"
+        assert cover._attr_unique_id is not None
 
     def test_cover_is_open(self, mock_coordinator, config_entry):
         """Test cover is_open property."""

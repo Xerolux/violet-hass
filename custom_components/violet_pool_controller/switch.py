@@ -13,7 +13,6 @@ import asyncio
 import contextlib
 import logging
 from typing import Any
-from urllib.parse import quote
 
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
 from homeassistant.config_entries import ConfigEntry
@@ -23,7 +22,6 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from violet_poolcontroller_api.api import VioletPoolAPIError
 from .const import (
-    ACTION_AUTO,
     ACTION_OFF,
     ACTION_ON,
     CONF_ACTIVE_FEATURES,
@@ -107,7 +105,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         # Local cache variable for optimistic updates
         self._optimistic_state: bool | None = None
 
-        _LOGGER.debug("Switch initialized: %s", self.entity_id)
+        _LOGGER.debug("Switch initialized: %s", getattr(self, "entity_id", description.key))
 
     @property
     def is_on(self) -> bool | None:
@@ -418,18 +416,14 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         """
         Turn the switch off.
 
-        For dosing channels (DOS_*) this sends AUTO instead of OFF to
-        return the controller to automatic mode.  Sending OFF would put
-        the controller into *Manual OFF* (state 6) — a sticky state that
-        can only be escaped by explicitly sending AUTO, which the regular
-        switch UI cannot do.
+        For dosing channels (DOS_*) this sends OFF which the API routes
+        through /triggerManualDosing as DOSSTOP — stopping any active
+        manual dosing run and returning the channel to automatic mode.
 
         Args:
             **kwargs: Additional arguments.
         """
-        key = self.entity_description.key
-        action = ACTION_AUTO if key.startswith("DOS_") else ACTION_OFF
-        await self._set_switch_state(action, **kwargs)
+        await self._set_switch_state(ACTION_OFF, **kwargs)
 
     async def _set_switch_state(self, action: str, **kwargs: Any) -> None:
         """
@@ -447,12 +441,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         try:
             _LOGGER.info("Setting switch %s to %s", key, action)
 
-            # For dosing AUTO: bypass set_switch_state which routes DOS_
-            # through _trigger_dosing (only supports DOSSTART/DOSSTOP).
-            # Send via setFunctionManually instead.
-            if key.startswith("DOS_") and action == ACTION_AUTO:
-                result = await self._send_dosing_auto_command(key)
-            elif key == "PUMP" and action == ACTION_ON:
+            if key == "PUMP" and action == ACTION_ON:
                 speed = self._validate_speed(kwargs.get("speed", 2))
                 duration = self._validate_duration(kwargs.get("duration", 0))
 
@@ -509,23 +498,6 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 translation_domain=DOMAIN,
                 translation_placeholders={"detail": str(err)},
             ) from err
-
-    async def _send_dosing_auto_command(self, key: str) -> dict[str, Any]:
-        """Send AUTO command for a dosing channel via setFunctionManually.
-
-        The API's ``set_switch_state`` routes DOS_* keys through
-        ``_trigger_dosing`` which only understands DOSSTART / DOSSTOP.
-        To return a dosing channel from *Manual OFF* (state 6) back to
-        automatic mode we must send ``AUTO`` via the regular
-        ``setFunctionManually`` endpoint instead.
-        """
-        api = self.device.api
-        payload = f"{key},AUTO,0,0"
-        query = quote(payload, safe=",")
-        body = await api._request(  # noqa: SLF001
-            "/setFunctionManually", query=query
-        )
-        return api._command_result(body)  # noqa: SLF001
 
     async def _delayed_refresh(self, key: str) -> None:
         """

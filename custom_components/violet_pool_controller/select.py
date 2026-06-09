@@ -115,7 +115,7 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
         self._optimistic_mode: str | None = None
 
         _LOGGER.debug(
-            "Select entity initialized: %s (Device: %s)", self.entity_id, device_key
+            "Select entity initialized: %s (Device: %s)", getattr(self, "entity_id", description.key), device_key
         )
 
     @property

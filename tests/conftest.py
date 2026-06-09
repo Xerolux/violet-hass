@@ -180,8 +180,21 @@ def _create_mock_violet_api_module():
         "1": "opening",
         "2": "closed",
         "3": "closing",
+        "4": "stopped",
+        "OPEN": "open",
+        "OPENING": "opening",
+        "CLOSED": "closed",
+        "CLOSING": "closing",
+        "STOPPED": "stopped",
     }
     const_devices_module.DEVICE_PARAMETERS = {}
+    for _mod in ("EXT1", "EXT2"):
+        for _relay in range(1, 9):
+            _key = f"{_mod}_{_relay}"
+            const_devices_module.DEVICE_PARAMETERS[_key] = {
+                "supports_timer": True,
+                "api_template": f"{_key},{{action}},{{duration}},0",
+            }
     mock_module.const_devices = const_devices_module
 
     # utils_sanitizer submodule

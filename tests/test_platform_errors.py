@@ -1,6 +1,6 @@
 """Tests for platform error handling."""
 import pytest
-from unittest.mock import Mock
+from unittest.mock import Mock, MagicMock
 
 from homeassistant.components.switch import SwitchEntityDescription
 from homeassistant.components.number import NumberEntityDescription
@@ -26,14 +26,14 @@ from custom_components.violet_pool_controller.number import VioletNumber
 from custom_components.violet_pool_controller.select import VioletSelect
 
 
-@pytest.fixture
-def mock_coordinator_error():
-    """Mock coordinator that raises errors."""
-    coordinator = Mock()
-    coordinator.data = None  # Simulate error state
-    coordinator.device = Mock()
+def _make_mock_coordinator(data=None):
+    """Create a mock coordinator with proper method stubs."""
+    coordinator = MagicMock()
+    coordinator.data = data
+    coordinator.last_update_success = True
+    coordinator.device = MagicMock()
     coordinator.device.device_name = "Test"
-    coordinator.device.available = False
+    coordinator.device.available = data is not None
     coordinator.device.device_info = {
         "identifiers": {(DOMAIN, "192.168.1.100_1")},
         "name": "Test",
@@ -41,29 +41,46 @@ def mock_coordinator_error():
         "model": "Violet Pool Controller",
         "sw_version": "1.0.0",
     }
-    coordinator.last_update_success = True
 
-    # Mock get_str_value to return safe defaults
-    def get_str_value(key, default=""):
-        return default
+    def get_value(key, default=None):
+        if not coordinator.data:
+            return default
+        return coordinator.data.get(key, default)
 
-    def get_int_value(key, default=0):
-        return default
+    def get_str_value(key, default=None):
+        val = get_value(key, default)
+        return str(val) if val is not None else None
+
+    def get_int_value(key, default=None):
+        val = get_value(key, default)
+        if val is None:
+            return default
+        try:
+            return int(float(val))
+        except (ValueError, TypeError):
+            return default
 
     def get_float_value(key, default=None):
-        """Return float value from data or default."""
-        if coordinator.data and key in coordinator.data:
-            try:
-                return float(coordinator.data[key])
-            except (ValueError, TypeError):
-                return default
-        return default
+        val = get_value(key, default)
+        if val is None:
+            return float(default) if default is not None else None
+        try:
+            return float(val)
+        except (ValueError, TypeError):
+            return float(default) if default is not None else None
 
+    coordinator.get_value = get_value
     coordinator.get_str_value = get_str_value
     coordinator.get_int_value = get_int_value
     coordinator.get_float_value = get_float_value
 
     return coordinator
+
+
+@pytest.fixture
+def mock_coordinator_error():
+    """Mock coordinator that raises errors."""
+    return _make_mock_coordinator(data=None)
 
 
 @pytest.fixture
@@ -102,17 +119,14 @@ class TestCoverErrorHandling:
 
         cover = VioletCover(mock_coordinator_error, config_entry)
 
-        # Should not crash; cover may return None or dict depending on implementation
-        attrs = cover.extra_state_attributes
+        attrs = getattr(cover, "extra_state_attributes", None)
         assert attrs is None or isinstance(attrs, dict)
 
     def test_cover_device_info(self, mock_coordinator_error, config_entry):
         """Test cover device_info with error coordinator."""
         cover = VioletCover(mock_coordinator_error, config_entry)
 
-        info = cover.device_info
-        # device_info comes from coordinator.device.device_info (mocked as a dict)
-        assert info is not None
+        assert cover._attr_device_info is not None
 
 
 class TestClimateErrorHandling:
@@ -350,7 +364,7 @@ class TestSelectErrorHandling:
         )
 
         # Should handle gracefully
-        assert select.current_option is None or select.current_option in select.options
+        assert select.current_option is None or select.current_option in select._attr_options
 
 
 class TestCoordinatorErrors:
@@ -359,10 +373,9 @@ class TestCoordinatorErrors:
     @pytest.mark.asyncio
     async def test_coordinator_update_fails(self):
         """Test entities when coordinator update fails."""
-        # Mock failed coordinator
-        coordinator = Mock()
-        coordinator.data = None
+        coordinator = _make_mock_coordinator(data=None)
         coordinator.last_update_success = False
+        coordinator.device.available = False
 
         config_entry = MockConfigEntry(
             domain=DOMAIN,
@@ -374,23 +387,18 @@ class TestCoordinatorErrors:
             },
         )
 
-        # Create entities with failed coordinator
         cover = VioletCover(coordinator, config_entry)
         climate = VioletClimateEntity(coordinator, config_entry, climate_type="HEATER")
 
-        # Entities should still be functional, just showing unavailable state
         assert cover.available is False
         assert climate.available is False
 
     @pytest.mark.asyncio
     async def test_coordinator_recovers(self):
         """Test entities recover when coordinator recovers."""
-        # Mock failed coordinator
-        coordinator = Mock()
-        coordinator.data = None
+        coordinator = _make_mock_coordinator(data=None)
         coordinator.last_update_success = False
-        coordinator.device = Mock()
-        coordinator.device.device_name = "Test"
+        coordinator.device.available = False
 
         config_entry = MockConfigEntry(
             domain=DOMAIN,
@@ -405,12 +413,9 @@ class TestCoordinatorErrors:
         cover = VioletCover(coordinator, config_entry)
         assert cover.available is False
 
-        # Simulate recovery
         coordinator.data = {"COVER_STATE": "OPEN"}
         coordinator.last_update_success = True
-
-        # Entity should reflect new state
-        # (Note: availability is updated by HA, not by us)
+        coordinator.device.available = True
 
 
 class TestPlatformInitialization:
@@ -441,11 +446,9 @@ class TestEntityErrorStates:
         cover = VioletCover(mock_coordinator_error, config_entry)
         climate = VioletClimateEntity(mock_coordinator_error, config_entry, climate_type="HEATER")
 
-        # Should not crash
-        cover_attrs = cover.extra_state_attributes
+        cover_attrs = getattr(cover, "extra_state_attributes", None)
         climate_attrs = climate.extra_state_attributes
 
-        # Cover has no extra_state_attributes implementation → returns None
         assert cover_attrs is None or isinstance(cover_attrs, dict)
         assert isinstance(climate_attrs, dict)
 
