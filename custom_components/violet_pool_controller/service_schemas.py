@@ -79,7 +79,7 @@ def get_service_schemas() -> dict[str, vol.Schema]:
         "manage_digital_rules": vol.Schema(
             {
                 vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
-                vol.Required("rule_key"): vol.In([f"DIRULE_{i}" for i in range(1, 8)]),
+                vol.Required("rule_key"): vol.In([f"DIRULE_{i}" for i in range(1, 9)]),
                 vol.Required("action"): vol.In(["trigger", "lock", "unlock"]),
             }
         ),

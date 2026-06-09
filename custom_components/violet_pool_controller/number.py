@@ -11,6 +11,11 @@ import asyncio
 import logging
 
 from homeassistant.components.number import NumberEntity, NumberEntityDescription
+try:
+    from homeassistant.components.number import NumberMode
+except ImportError:
+    NumberMode = None  # type: ignore[assignment,misc]
+
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
@@ -159,7 +164,10 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
         """Request a coordinator refresh and clear optimistic value after
         data arrives."""
         try:
-            await self.coordinator.async_request_refresh()
+            await self._request_coordinator_refresh(
+                delay=0.5,
+                log_context=self.entity_description.name,
+            )
         finally:
             self._optimistic_value = None
             _LOGGER.debug(
@@ -450,6 +458,7 @@ async def async_setup_entry(
                 "entity_registry_enabled_default", True
             ),
             translation_key=setpoint_config.get("translation_key"),
+            mode=NumberMode.BOX if NumberMode else "box",
         )
 
         _LOGGER.debug(

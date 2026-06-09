@@ -968,6 +968,9 @@
       },
       "dirule_7": {
         "name": "Regla de conmutación 7"
+      },
+      "dirule_8": {
+        "name": "Regla de conmutación 8"
       }
     },
     "climate": {

@@ -968,6 +968,9 @@
       },
       "dirule_7": {
         "name": "Reguła przełączania 7"
+      },
+      "dirule_8": {
+        "name": "Reguła przełączania 8"
       }
     },
     "climate": {

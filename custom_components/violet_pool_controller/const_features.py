@@ -409,7 +409,7 @@ for i in range(1, 13):
         }
     )
 # Dynamically add digital rules
-for i in range(1, 8):
+for i in range(1, 9):
     SWITCHES.append(
         {
             "key": f"DIRULE_{i}",
@@ -467,9 +467,9 @@ SETPOINT_DEFINITIONS = [
         "name": "ORP Setpoint",
         "translation_key": "orp_setpoint",
         "api_key": "ORP",
-        "min_value": 600,
-        "max_value": 800,
-        "step": 10,
+        "min_value": 100,
+        "max_value": 1000,
+        "step": 5,
         "default_value": 700,
         "icon": "mdi:lightning-bolt-circle",
         "unit_of_measurement": "mV",
@@ -489,9 +489,9 @@ SETPOINT_DEFINITIONS = [
         "name": "Chlorine Setpoint",
         "translation_key": "chlorine_setpoint",
         "api_key": "MinChlorine",
-        "min_value": 0.2,
-        "max_value": 2.0,
-        "step": 0.1,
+        "min_value": 0.05,
+        "max_value": 5.0,
+        "step": 0.05,
         "default_value": 0.6,
         "icon": "mdi:water-plus",
         "unit_of_measurement": "mg/l",
@@ -759,6 +759,7 @@ SELECT_CONTROLS = [
         "device_key": "ECO",
         "icon": "mdi:leaf",
         "entity_category": _ENTITY_CATEGORY_CONFIG,
+        "is_read_only": True,
     },
     {
         "key": "dos_floc_mode",

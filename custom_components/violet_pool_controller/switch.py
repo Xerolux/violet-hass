@@ -132,7 +132,13 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             return self._optimistic_state
 
         key = self.entity_description.key
-        raw_state = self.get_value(key)
+
+        if key.startswith("DIRULE_"):
+            data_key = f"DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_{key[7:]}"
+        else:
+            data_key = key
+
+        raw_state = self.get_value(data_key)
 
         # No data available for this key
         if raw_state is None:
@@ -184,7 +190,13 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             }
 
         key = self.entity_description.key
-        raw_state = self.get_value(key)
+
+        if key.startswith("DIRULE_"):
+            data_key = f"DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_{key[7:]}"
+        else:
+            data_key = key
+
+        raw_state = self.get_value(data_key)
 
         # --- Base attributes: mode & description from state mapping ---
         mode, description = self._get_mode_and_description(key, raw_state)

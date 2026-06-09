@@ -968,6 +968,9 @@
       },
       "dirule_7": {
         "name": "Schakelregel 7"
+      },
+      "dirule_8": {
+        "name": "Schakelregel 8"
       }
     },
     "climate": {

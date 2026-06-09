@@ -61,49 +61,33 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
         self._last_action: str | None = None
         _LOGGER.debug("Cover entity initialized for %s", config_entry.title)
 
+    def _map_cover_state(self) -> str:
+        """Map COVER_STATE to normalized value, case-insensitive."""
+        raw = self.get_str_value("COVER_STATE", "") or ""
+        state = COVER_STATE_MAP.get(raw)
+        if state is not None:
+            return state
+        return COVER_STATE_MAP.get(raw.upper(), "")
+
     @property
     def is_closed(self) -> bool:
         """Return True if the cover is closed."""
-        state = COVER_STATE_MAP.get(self.get_str_value("COVER_STATE", "") or "", "")
-        return state == "closed"
+        return self._map_cover_state() == "closed"
 
     @property
     def is_opening(self) -> bool:
         """Return True if the cover is opening."""
-        state = COVER_STATE_MAP.get(self.get_str_value("COVER_STATE", "") or "", "")
-        direction = self.get_str_value("LAST_MOVING_DIRECTION", "") or ""
-
-        # Cover is opening when:
-        # 1. State is explicitly "opening"
-        # 2. Last action was OPEN and cover is not yet open
-        # 3. Movement direction is OPEN and cover is in motion
-        return (
-            state == "opening"
-            or (self._last_action == "OPEN" and not self.is_open)
-            or (direction == "OPEN" and not self.is_closed and not self.is_open)
-        )
+        return self._map_cover_state() == "opening"
 
     @property
     def is_closing(self) -> bool:
         """Return True if the cover is closing."""
-        state = COVER_STATE_MAP.get(self.get_str_value("COVER_STATE", "") or "", "")
-        direction = self.get_str_value("LAST_MOVING_DIRECTION", "") or ""
-
-        # Cover is closing when:
-        # 1. State is explicitly "closing"
-        # 2. Last action was CLOSE and cover is not yet closed
-        # 3. Movement direction is CLOSE and cover is in motion
-        return (
-            state == "closing"
-            or (self._last_action == "CLOSE" and not self.is_closed)
-            or (direction == "CLOSE" and not self.is_closed and not self.is_open)
-        )
+        return self._map_cover_state() == "closing"
 
     @property
     def is_open(self) -> bool:
         """Return True if the cover is open."""
-        state = COVER_STATE_MAP.get(self.get_str_value("COVER_STATE", "") or "", "")
-        return state == "open"
+        return self._map_cover_state() == "open"
 
     async def async_open_cover(self, **kwargs) -> None:
         """Open the pool cover."""

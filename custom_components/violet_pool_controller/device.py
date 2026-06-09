@@ -362,7 +362,9 @@ class VioletPoolControllerDevice:
 
             # --- Digital input rules ---
             has_dirule_now = any(
-                k.startswith("DIRULE_") and is_valid(v) for k, v in data.items()
+                k.startswith("DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_")
+                and is_valid(v)
+                for k, v in data.items()
             )
             if has_dirule_now:
                 self._hw_detected.add("DIRULE")
@@ -374,7 +376,7 @@ class VioletPoolControllerDevice:
                 ("EXT1", "EXT1_", has_ext1_now),
                 ("EXT2", "EXT2_", has_ext2_now),
                 ("DMX", "DMX_", has_dmx_now),
-                ("DIRULE", "DIRULE_", has_dirule_now),
+                ("DIRULE", "DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_", has_dirule_now),
             ]
             for _tag, _prefix, _present_now in _optional_modules:
                 if _tag in self._hw_detected and not _present_now:

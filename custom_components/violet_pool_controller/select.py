@@ -93,6 +93,7 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
         description: SelectEntityDescription,
         device_key: str,
         is_binary: bool = False,
+        is_read_only: bool = False,
     ) -> None:
         """
         Initialize the select entity.
@@ -100,13 +101,15 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
         Args:
             coordinator: The update coordinator.
             config_entry: The config entry.
-            description: The select entity description.
+            description: The entity description.
             device_key: The device key (e.g., PUMP, HEATER).
             is_binary: If True, only OFF/ON options (no AUTO).
+            is_read_only: If True, entity reports state but cannot be changed.
         """
         super().__init__(coordinator, config_entry, description)
         self._device_key = device_key
         self._is_binary = is_binary
+        self._is_read_only = is_read_only
         self._attr_options = (
             [MODE_OFF, MODE_ON] if self._is_binary else [MODE_OFF, MODE_ON, MODE_AUTO]
         )
@@ -228,6 +231,13 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
         Raises:
             HomeAssistantError: If the action fails.
         """
+        if self._is_read_only:
+            raise HomeAssistantError(
+                translation_key="read_only_entity",
+                translation_domain=DOMAIN,
+                translation_placeholders={"entity": str(self._device_key)},
+            )
+
         if option not in self._attr_options:
             raise HomeAssistantError(
                 translation_key="invalid_action",
@@ -422,6 +432,7 @@ async def async_setup_entry(
                 description,
                 select_config["device_key"],
                 is_binary=select_config.get("binary", False),
+                is_read_only=select_config.get("is_read_only", False),
             )
         )
 

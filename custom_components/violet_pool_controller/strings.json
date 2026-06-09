@@ -243,6 +243,9 @@
     "failed_to_set_value": {
       "message": "Failed to set value: {detail}"
     },
+    "read_only_entity": {
+      "message": "Entity {entity} is read-only and cannot be controlled manually"
+    },
     "no_api_key": {
       "message": "No API key configured for entity {entity}"
     },
@@ -895,6 +898,9 @@
       },
       "dirule_7": {
         "name": "Switching Rule 7"
+      },
+      "dirule_8": {
+        "name": "Switching Rule 8"
       }
     },
     "climate": {

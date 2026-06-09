@@ -1670,6 +1670,9 @@
       },
       "dirule_7": {
         "name": "Schaltregel 7"
+      },
+      "dirule_8": {
+        "name": "Schaltregel 8"
       }
     },
     "climate": {
