@@ -320,6 +320,14 @@ def determine_state_class(key: str) -> SensorStateClass | None:
 
 def get_icon(key: str, unit: str | None, raw_value: Any) -> str:
     """Determin a sensor."""
+    if key.startswith("EXT1_") or key.startswith("EXT2_"):
+        return "mdi:electric-switch"
+    if key.startswith("OMNI_DC"):
+        return "mdi:electric-switch"
+    if key.startswith("DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_"):
+        return "mdi:script-text"
+    if key.startswith("PUMP_RPM_") and key.endswith(("_LAST_ON", "_LAST_OFF")) is False:
+        return "mdi:speedometer"
     if key in _BOOLEAN_VALUE_KEYS or (
         _is_boolean_value(raw_value) and key not in UNIT_MAP
     ):
