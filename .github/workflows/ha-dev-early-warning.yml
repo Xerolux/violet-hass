@@ -1,0 +1,28 @@
+name: HA Dev Early Warning Test
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+
+jobs:
+  ha-dev-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies with HA Dev
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          pip install git+https://github.com/home-assistant/core.git@dev
+
+      - name: Run Pytest Suite
+        run: |
+          pytest tests/

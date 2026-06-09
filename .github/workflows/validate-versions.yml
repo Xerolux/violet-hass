@@ -1,0 +1,31 @@
+name: Validate Version Consistency
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract version from manifest.json
+        id: get_manifest_version
+        run: |
+          VERSION=$(jq -r '.version' custom_components/violet_pool_controller/manifest.json)
+          echo "MANIFEST_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Manifest Version found: $VERSION"
+
+      - name: Check if version exists in CLAUDE.md
+        run: |
+          CLEAN_VERSION=$(echo ${{ env.MANIFEST_VERSION }} | sed 's/-dev//g')
+          if ! grep -q "$CLEAN_VERSION" CLAUDE.md; then
+            echo "ERROR: Version $CLEAN_VERSION from manifest.json was not found in CLAUDE.md!"
+            exit 1
+          else
+            echo "OK: Version $CLEAN_VERSION matches CLAUDE.md."
+          fi

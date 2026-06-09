@@ -80,6 +80,25 @@ def convert_to_int(value: Any) -> int | None:
         return None
 
 
+def parse_composite_state(raw_state: str) -> tuple[str, str]:
+    """Parse composite state strings from the Violet controller.
+
+    Handles formats like "3|PUMP_ANTI_FREEZE", "3|PUMP_ANTI_FREEZE|NEW_FLAG",
+    plain integers, and plain strings.
+
+    Returns:
+        Tuple of (status_code, status_text).
+    """
+    if not raw_state:
+        return "UNKNOWN", "UNKNOWN"
+
+    parts = raw_state.split("|")
+    status_code = parts[0].strip()
+    status_text = parts[1].strip() if len(parts) > 1 else "UNKNOWN"
+
+    return status_code, status_text
+
+
 def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool | None:
     """
     Interpret raw state value as boolean or None for unknown states.
@@ -109,10 +128,10 @@ def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool | None:
     # Optimized string interpretation with pre-compiled patterns
     state_str = str(raw_state).upper().strip()
 
-    # Handle composite states like "5|AUTO_WAIT"
+    # Handle composite states like "5|AUTO_WAIT" or "3|PUMP_ANTI_FREEZE|NEW_FLAG"
     if "|" in state_str:
-        prefix = state_str.split("|")[0].strip()
-        state_int = convert_to_int(prefix)
+        status_code, _status_text = parse_composite_state(state_str)
+        state_int = convert_to_int(status_code)
         if state_int is not None:
             if state_int in STATE_MAP:
                 return STATE_MAP[state_int]
