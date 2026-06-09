@@ -139,6 +139,7 @@ class VioletPoolAPI:
 
         # SSL/TLS security configuration
         self._verify_ssl = verify_ssl
+        self._use_ssl = use_ssl
         self._ssl_context = None
         if use_ssl and not verify_ssl:
             _LOGGER.warning(
@@ -189,6 +190,15 @@ class VioletPoolAPI:
     def dosing_standalone(self) -> bool:
         """Return whether dosing-standalone mode is enabled."""
         return self._dosing_standalone
+
+    @property
+    def _ssl_param(self) -> bool | None:
+        """Return the SSL parameter for aiohttp requests."""
+        if not self._use_ssl:
+            return None
+        if self._ssl_context is not None:
+            return self._ssl_context
+        return True
 
     # ---------------------------------------------------------------------
     # Generic helpers
@@ -292,7 +302,7 @@ class VioletPoolAPI:
                         data=data,
                         auth=self._auth,
                         timeout=self._timeout,
-                        ssl=self._ssl_context,  # type: ignore[arg-type]
+                        ssl=self._ssl_param,
                     ) as response:
                         if (
                             response.status >= _HTTP_SERVER_ERROR
@@ -570,14 +580,11 @@ class VioletPoolAPI:
         ext1_alive = "SYSTEM_ext1module_alive_count" in readings
         ext2_alive = "SYSTEM_ext2module_alive_count" in readings
 
-        if ext1_alive and ext2_alive:
-            return readings
-
-        return {
-            k: v
-            for k, v in readings.items()
-            if (ext1_alive or not k.startswith("EXT1")) and (ext2_alive or not k.startswith("EXT2"))
-        }
+        if not ext1_alive:
+            readings = {k: v for k, v in readings.items() if not k.startswith("EXT1")}
+        if not ext2_alive:
+            readings = {k: v for k, v in readings.items() if not k.startswith("EXT2")}
+        return readings
 
     async def get_readings(self) -> dict[str, Any]:
         """Return the complete dataset from the controller.
@@ -1388,13 +1395,13 @@ class VioletPoolAPI:
 
         """
         if page < 0 and log_type == "actions":
-            url = f"{API_GET_LOG}?downloadActionsLog"
+            query = "downloadActionsLog"
         else:
-            url = f"{API_GET_LOG}?{log_type}&{page}"
+            query = f"{log_type}&{page}"
 
-        resp = await self._api_request(
-            "GET",
-            url,
+        resp = await self._request(
+            API_GET_LOG,
+            query=query,
             priority=API_PRIORITY_NORMAL,
         )
         text = resp.strip() if resp else ""
@@ -1414,8 +1421,9 @@ class VioletPoolAPI:
             SENSOR_ID, TYPE, TEXT, MAIL_STATE, etc.
 
         """
-        return await self._api_request(
-            "GET",
-            f"{API_GET_NOTIFICATIONS}?ALL",
+        return await self._request(
+            API_GET_NOTIFICATIONS,
+            query="ALL",
+            expect_json=True,
             priority=API_PRIORITY_NORMAL,
         )

@@ -190,18 +190,13 @@ class RateLimiter:
     def get_stats(self) -> dict:
         """Hole Rate-Limiter-Statistiken."""
         current_time = time.monotonic()
-
-        # Berechne Requests in letzter Minute
-        recent_requests = [
-            r for r in self.request_history if current_time - r["time"] <= _STATS_WINDOW_SECONDS
-        ]
-        recent_blocked = sum(1 for r in recent_requests if r["blocked"])
+        self._update_recent_stats(current_time)
 
         return {
             "total_requests": self.total_requests,
             "blocked_requests": self.blocked_requests,
-            "recent_requests_1min": len(recent_requests),
-            "recent_blocked_1min": recent_blocked,
+            "recent_requests_1min": self._recent_stats["requests_last_minute"],
+            "recent_blocked_1min": self._recent_stats["blocked_last_minute"],
             "current_tokens": self.tokens,
             "max_tokens": self.max_tokens,
             "block_rate": (
