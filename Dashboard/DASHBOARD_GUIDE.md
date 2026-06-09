@@ -97,7 +97,7 @@ Ich habe zwei neue Dashboard-Vorlagen erstellt, die **ALLE Einstellungen für je
 
 #### Benötigte Custom Cards:
 
-1. **HACS** installieren (falls noch nicht): https://hacs.xyz/docs/setup/download
+1. **HACS** installieren (falls noch nicht): https://hacs.xyz/docs/use/download/download/
 2. **HACS** → **Frontend** → Suche nach:
    - **Mushroom**
    - **Slider Entity Row**
