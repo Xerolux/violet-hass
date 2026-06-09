@@ -22,6 +22,7 @@ jobs:
         id: version
         run: |
           VERSION=$(python3 -c "import json; print(json.load(open('custom_components/violet_pool_controller/manifest.json'))['version'])")
+          VERSION="${VERSION%-dev*}"
           SHORT_SHA=$(git rev-parse --short HEAD)
           TAG="v${VERSION}-dev.${SHORT_SHA}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
