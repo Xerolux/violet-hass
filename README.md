@@ -113,6 +113,12 @@ The **VIOLET Pool Controller** by [PoolDigital GmbH & Co. KG](https://www.pooldi
 - **Community:** [PoolDigital Forum](http://forum.pooldigital.de/)
 - **API Package:** [violet-poolController-api](https://pypi.org/project/violet-poolController-api/) on PyPI ([GitHub](https://github.com/Xerolux/violet-poolController-api))
 
+**Disclaimer:**
+*This is an unofficial, community-driven project. It is not affiliated with, endorsed by, or associated with PoolDigital GmbH & Co. KG in any way. "VIOLET" and any related trademarks are the property of their respective owners.*
+
+⚠️ **WARNING - USE AT YOUR OWN RISK:**
+*This software interacts with physical hardware and automation systems that control water chemistry (pH, Chlorine/ORP) and electrical equipment (pumps, heaters). A bug, network issue, or incorrect configuration could result in hardware damage, unsafe water conditions, or other hazards. By using this software, you acknowledge and agree that you are solely responsible for any damage, injury, or loss of property that may occur. Please always monitor your pool's chemistry and hardware independently.*
+
 ---
 
 <div align="center">
