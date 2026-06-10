@@ -22,13 +22,14 @@ from inspect import signature
 
 import aiohttp.client_reqrep
 
-
-# Monkey-patch aiohttp.ClientResponse to handle missing stream_writer parameter
-# This is needed for compatibility with aioresponses 0.7.8 and aiohttp 3.13+
 _original_client_response_init = aiohttp.client_reqrep.ClientResponse.__init__
 
 
-def _patched_client_response_init(self: aiohttp.client_reqrep.ClientResponse, *args, **kwargs) -> None:
+def _patched_client_response_init(
+    self: aiohttp.client_reqrep.ClientResponse,
+    *args: object,
+    **kwargs: object,
+) -> None:
     """Patched ClientResponse.__init__ that adds stream_writer if missing."""
     sig = signature(_original_client_response_init)
     if "stream_writer" in sig.parameters and "stream_writer" not in kwargs:
