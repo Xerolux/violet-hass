@@ -113,7 +113,9 @@ The **VIOLET Pool Controller** by [PoolDigital GmbH & Co. KG](https://www.pooldi
 - **Community:** [PoolDigital Forum](http://forum.pooldigital.de/)
 - **API Package:** [violet-poolController-api](https://pypi.org/project/violet-poolController-api/) on PyPI ([GitHub](https://github.com/Xerolux/violet-poolController-api))
 
-**Disclaimer:**
+
+
+## **Disclaimer:**
 *This is an unofficial, community-driven project. It is not affiliated with, endorsed by, or associated with PoolDigital GmbH & Co. KG in any way. "VIOLET" and any related trademarks are the property of their respective owners.*
 
 ⚠️ **WARNING - USE AT YOUR OWN RISK:**
