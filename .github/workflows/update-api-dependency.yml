@@ -1,82 +1,81 @@
-name: Update API Dependency
+name: Sync API Version
 
 on:
-  schedule:
-    - cron: "0 0 * * 0" # Every Sunday at midnight
+  push:
+    branches: [main]
+    paths:
+      - "violet_poolcontroller_api/pyproject.toml"
   workflow_dispatch:
 
 jobs:
-  update-dependency:
+  sync-version:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
-      - name: Fetch latest violet-poolController-api version
-        id: fetch_version
+      - name: Extract API version from pyproject.toml
+        id: extract
         run: |
-          LATEST_VERSION=$(curl -s https://pypi.org/pypi/violet-poolController-api/json | jq -r .info.version)
-          if [ -z "$LATEST_VERSION" ] || [ "$LATEST_VERSION" = "null" ]; then
-            echo "Failed to fetch version from PyPI"
-            exit 1
-          fi
-          echo "latest_version=$LATEST_VERSION" >> "$GITHUB_OUTPUT"
-          echo "Latest version on PyPI: $LATEST_VERSION"
+          API_VERSION=$(python3 -c "
+          import tomllib
+          with open('violet_poolcontroller_api/pyproject.toml', 'rb') as f:
+              data = tomllib.load(f)
+          print(data['project']['version'])
+          ")
+          echo "api_version=$API_VERSION" >> $GITHUB_OUTPUT
+          echo "API version: $API_VERSION"
 
-      - name: Update manifest.json
-        id: update_manifest
+      - name: Update manifest.json requirements
         env:
-          MANIFEST_FILE: custom_components/violet_pool_controller/manifest.json
-          LATEST_VERSION: ${{ steps.fetch_version.outputs.latest_version }}
+          API_VERSION: ${{ steps.extract.outputs.api_version }}
         run: |
           python3 -c "
           import json
-          import sys
-          import os
 
-          manifest_file = os.environ['MANIFEST_FILE']
-          latest_ver = os.environ['LATEST_VERSION']
-          github_output = os.environ['GITHUB_OUTPUT']
-
+          manifest_file = 'custom_components/violet_pool_controller/manifest.json'
           with open(manifest_file, 'r') as f:
               data = json.load(f)
 
-          changed = False
-          new_reqs = []
+          new_req = f'violet-poolController-api>={API_VERSION}'
+          old_reqs = data.get('requirements', [])
 
-          for req in data.get('requirements', []):
-              if req.startswith('violet-poolController-api=='):
-                  current_ver = req.split('==')[1]
-                  if current_ver != latest_ver:
-                      new_reqs.append(f'violet-poolController-api=={latest_ver}')
-                      changed = True
-                      print(f'Updating from {current_ver} to {latest_ver}')
+          updated = False
+          new_reqs = []
+          for req in old_reqs:
+              if req.startswith('violet-poolController-api'):
+                  if req != new_req:
+                      new_reqs.append(new_req)
+                      updated = True
+                      print(f'Updated: {req} -> {new_req}')
                   else:
                       new_reqs.append(req)
               else:
                   new_reqs.append(req)
 
-          if changed:
+          if updated:
               data['requirements'] = new_reqs
               with open(manifest_file, 'w') as f:
                   json.dump(data, f, indent=2)
                   f.write('\n')
-              with open(github_output, 'a') as f:
-                  f.write('changed=true\n')
+              print('manifest.json updated')
           else:
-              with open(github_output, 'a') as f:
-                  f.write('changed=false\n')
+              print('No changes needed')
           "
 
-      - name: Create Pull Request
-        if: steps.update_manifest.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@v8
-        env:
-          LATEST_VERSION: ${{ steps.fetch_version.outputs.latest_version }}
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore(deps): update violet-poolController-api to ${{ env.LATEST_VERSION }}"
-          title: "chore(deps): update violet-poolController-api to ${{ env.LATEST_VERSION }}"
-          body: "Automated PR to update the `violet-poolController-api` dependency in `manifest.json` to the latest version on PyPI (${{ env.LATEST_VERSION }})."
-          branch: "update-api-dependency"
-          delete-branch: true
+      - name: Check for changes
+        id: check
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit changes
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add custom_components/violet_pool_controller/manifest.json
+          git commit -m "chore: sync API version to ${{ steps.extract.outputs.api_version }} in manifest.json"
+          git push

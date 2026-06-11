@@ -1,0 +1,89 @@
+name: Publish API to PyPI
+
+on:
+  push:
+    tags:
+      - "api-v*"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (build only, no upload)"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Install build tools
+        run: pip install build twine
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          VERSION="${TAG#api-v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Publishing violet-poolController-api version: $VERSION"
+
+      - name: Verify version matches pyproject.toml
+        run: |
+          TOML_VERSION=$(python3 -c "
+          import tomllib
+          with open('violet_poolcontroller_api/pyproject.toml', 'rb') as f:
+              data = tomllib.load(f)
+          print(data['project']['version'])
+          ")
+          TAG_VERSION="${{ steps.version.outputs.version }}"
+          if [ "$TOML_VERSION" != "$TAG_VERSION" ]; then
+            echo "Version mismatch: pyproject.toml=$TOML_VERSION, tag=$TAG_VERSION"
+            echo "Please update violet_poolcontroller_api/pyproject.toml version to $TAG_VERSION"
+            exit 1
+          fi
+          echo "Version check passed: $TOML_VERSION"
+
+      - name: Build distribution
+        run: |
+          cd violet_poolcontroller_api
+          python -m build
+
+      - name: Check package
+        run: |
+          cd violet_poolcontroller_api
+          twine check dist/*
+
+      - name: Publish to PyPI
+        if: inputs.dry_run != true
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          cd violet_poolcontroller_api
+          twine upload dist/*
+
+      - name: Create GitHub Release
+        if: inputs.dry_run != true
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          files: violet_poolcontroller_api/dist/*
+          body: |
+            ## violet-poolController-api ${{ steps.version.outputs.version }}
+
+            API client package for Violet Pool Controller.
+
+            **Install:** `pip install violet-poolController-api==${{ steps.version.outputs.version }}`
+
+            **PyPI:** https://pypi.org/project/violet-poolController-api/${{ steps.version.outputs.version }}/

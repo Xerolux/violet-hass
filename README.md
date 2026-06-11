@@ -88,6 +88,21 @@ The full documentation is available in the **[Wiki][wiki]**:
 
 ---
 
+## Repository Structure
+
+This is a **monorepo** containing both the API client and the HA integration:
+
+| Directory | Description |
+|-----------|-------------|
+| `violet_poolcontroller_api/` | Standalone Python API client ([PyPI](https://pypi.org/project/violet-poolController-api/)) |
+| `custom_components/violet_pool_controller/` | Home Assistant integration ([HACS](https://hacs.xyz/)) |
+| `tests/` | HA integration tests |
+| `docs/` | Documentation |
+
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed structure and development guide.
+
+---
+
 ## 💝 Support
 
 This integration is developed in my spare time:
@@ -111,7 +126,7 @@ The **VIOLET Pool Controller** by [PoolDigital GmbH & Co. KG](https://www.pooldi
 
 - **Official Shop:** [pooldigital.de](https://www.pooldigital.de/poolsteuerungen/violet-poolsteuerung/74/violet-basis-modul-poolsteuerung-smart)
 - **Community:** [PoolDigital Forum](http://forum.pooldigital.de/)
-- **API Package:** [violet-poolController-api](https://pypi.org/project/violet-poolController-api/) on PyPI ([GitHub](https://github.com/Xerolux/violet-poolController-api))
+- **API Package:** [violet-poolController-api](https://pypi.org/project/violet-poolController-api/) on PyPI (included in this repo under `violet_poolcontroller_api/`)
 
 ---
 

@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "violet-hass"
+version = "1.2.4-dev"
+description = "Home Assistant integration + API client for Violet pool controllers"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "AGPL-3.0-or-later" }
+
+[project.optional-dependencies]
+api = ["violet-poolController-api"]
+dev = [
+    "violet-poolController-api[test]",
+    "pytest>=8.3",
+    "pytest-asyncio>=1.4.0",
+    "pytest-cov>=7.1.0",
+    "pytest-homeassistant-custom-component>=0.13.326",
+    "ruff>=0.15.0",
+    "mypy>=2.1.0",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-select = ["I", "UP", "T20"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "C4", "SIM"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+disallow_untyped_defs = false
+warn_unused_configs = true

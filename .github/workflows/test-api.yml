@@ -1,0 +1,46 @@
+name: Test API Package
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "violet_poolcontroller_api/**"
+      - ".github/workflows/test-api.yml"
+  pull_request:
+    paths:
+      - "violet_poolcontroller_api/**"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13", "3.14"]
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
+
+      - name: Install API in editable mode with test deps
+        run: pip install -e "./violet_poolcontroller_api[test]"
+
+      - name: Run tests
+        run: pytest violet_poolcontroller_api/tests/ -v
+
+      - name: Lint with ruff
+        run: |
+          pip install ruff
+          ruff check violet_poolcontroller_api/violet_poolcontroller_api/
+          ruff format --check violet_poolcontroller_api/violet_poolcontroller_api/
+
+      - name: Type check
+        run: |
+          pip install mypy
+          mypy violet_poolcontroller_api/violet_poolcontroller_api/

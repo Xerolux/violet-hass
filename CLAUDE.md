@@ -4,36 +4,63 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Home Assistant custom integration for the **Violet Pool Controller** by PoolDigital GmbH & Co. KG. It enables local polling-based control and monitoring of pool systems including pumps, heaters, solar, chemical dosing, lighting, and covers.
+This is a **monorepo** containing two components:
 
-**Current Version**: `1.2.3` (defined in `manifest.json` and `const.py`)
+1. **`violet_poolcontroller_api/`** - Standalone Python API client (PyPI: `violet-poolController-api`)
+   - Async HTTP client for Violet Pool Controller hardware
+   - Rate limiting, circuit breaker, input sanitization
+   - No HA dependencies, usable standalone
+
+2. **`custom_components/violet_pool_controller/`** - Home Assistant custom integration (HACS)
+   - Exposes pool sensors, switches, climate, covers, etc. to HA
+   - Depends on `violet_poolcontroller_api` for hardware communication
+
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.
+
+**Current HA Version**: `1.2.4-dev` (defined in `manifest.json` and `const.py`)
+**Current API Version**: `0.0.26` (defined in `violet_poolcontroller_api/pyproject.toml`)
 
 ## Development Commands
+
+### Setup
+
+```bash
+# Install API package in editable mode
+pip install -e "./violet_poolcontroller_api[test]"
+
+# Install HA integration dev deps
+pip install pytest-homeassistant-custom-component
+```
 
 ### Code Quality & Linting
 
 ```bash
-# Install dev tools (one-time)
-pip install ruff mypy
-
-# Run ruff linter
+# Run ruff linter (HA integration)
 python -m ruff check custom_components/violet_pool_controller/
+
+# Run ruff linter (API)
+python -m ruff check violet_poolcontroller_api/violet_poolcontroller_api/
 
 # Auto-fix all ruff issues (preferred method)
 python -m ruff check custom_components/violet_pool_controller/ --fix
-
-# Run with specific rule sets
-python -m ruff check custom_components/violet_pool_controller/ --select=E,F,W,C4,UP,SIM
+python -m ruff check violet_poolcontroller_api/violet_poolcontroller_api/ --fix
 
 # Type checking with mypy
 python -m mypy custom_components/violet_pool_controller/
+python -m mypy violet_poolcontroller_api/violet_poolcontroller_api/
 ```
 
 ### Running Tests
 
 ```bash
-# Run all tests
+# Run HA integration tests
 pytest tests/ -v
+
+# Run API tests
+pytest violet_poolcontroller_api/tests/ -v
+
+# Run all tests
+pytest -v
 
 # Run specific test file
 pytest tests/test_api.py -v
@@ -137,7 +164,7 @@ pytest tests/test_api.py::test_function_name -v
   - Feature groupings for UI
   - Feature dependencies
 
-**Note**: `const_api.py` and `const_devices.py` are now part of the external `violet-poolController-api` package, not local files.
+**Note**: `const_api.py` and `const_devices.py` are part of the `violet_poolcontroller_api/` subdirectory in this monorepo. Import from `violet_poolcontroller_api.*`. They are also published to PyPI as `violet-poolController-api` for HACS users.
 
 #### Subdirectories
 
@@ -359,6 +386,19 @@ Translation files cover:
 
 ```
 violet-hass/
+├── violet_poolcontroller_api/          # API client (PyPI: violet-poolController-api)
+│   ├── violet_poolcontroller_api/
+│   │   ├── __init__.py
+│   │   ├── api.py                      # VioletPoolAPI client class
+│   │   ├── const_api.py                # API endpoints, actions, error codes
+│   │   ├── const_devices.py            # Device params, state mappings, VioletState
+│   │   ├── circuit_breaker.py          # Circuit breaker pattern
+│   │   ├── utils_rate_limiter.py       # Token bucket rate limiter
+│   │   └── utils_sanitizer.py          # Input sanitization
+│   ├── tests/                          # API test suite
+│   ├── pyproject.toml                  # API build config
+│   ├── CHANGELOG.md                    # API changelog
+│   └── README.md                       # API documentation
 ├── custom_components/
 │   └── violet_pool_controller/      # Main integration code
 │       ├── __init__.py               # Entry point (loads 7 platforms)
@@ -536,9 +576,9 @@ Located in `.github/workflows/`:
 
 ### Fixing API Issues
 
-1. API client lives in the **external** `violet-poolController-api` PyPI package — check its source for endpoint definitions and rate limiting
+1. API client source is in `violet_poolcontroller_api/violet_poolcontroller_api/` (local to this monorepo)
 2. Local error handling is in `error_handler.py` (`VioletErrorCodes`)
-3. Test with `tests/test_api.py` and `tests/test_error_handler.py`
+3. Test with `violet_poolcontroller_api/tests/` for API tests and `tests/test_api.py` for HA integration API tests
 4. Check retry/backoff logic in `device.py`
 
 ### Updating Constants
@@ -556,7 +596,7 @@ Located in `.github/workflows/`:
 - `voluptuous>=0.16.0` - Data validation
 
 **Integration requirement** (from `manifest.json`):
-- `violet-poolController-api>=0.0.25` - External API client package (installed by HA automatically)
+- `violet-poolController-api>=0.0.25` - API client package (installed by HA from PyPI; source is in `violet_poolcontroller_api/` locally)
 
 **Development** (from `requirements-dev.txt`):
 - `ruff>=0.15.14` - Linter and formatter
@@ -574,7 +614,7 @@ Located in `.github/workflows/`:
    - States 0, 5, 6 = Device OFF (different automatic/manual modes)
    - States 1, 2, 3, 4 = Device ON (different automatic/manual modes)
    - Composite states like `"3|PUMP_ANTI_FREEZE"` provide additional context about operational modes
-   - All states are defined in `DEVICE_STATE_MAPPING` inside the external `violet-poolController-api` package (`const_devices` module)
+   - All states are defined in `DEVICE_STATE_MAPPING` in `violet_poolcontroller_api/violet_poolcontroller_api/const_devices.py`
 
 3. **Multi-Controller**: The integration supports multiple pool controllers on the same Home Assistant instance. Each gets unique entity IDs based on the API URL.
 
@@ -592,7 +632,7 @@ Located in `.github/workflows/`:
 
 10. **Recovery Behavior**: When connection is lost, the integration attempts auto-recovery with exponential backoff (10s → 300s max) for up to 10 attempts. After max attempts, manual intervention is required.
 
-11. **External API Package**: `api.py`, `utils_rate_limiter.py`, `utils_sanitizer.py`, `const_api.py`, and `const_devices.py` no longer exist as local files. All are provided by `violet-poolController-api` (PyPI). Import from `violet_poolcontroller_api.*`.
+11. **API Package (Monorepo)**: `api.py`, `utils_rate_limiter.py`, `utils_sanitizer.py`, `const_api.py`, and `const_devices.py` are in `violet_poolcontroller_api/violet_poolcontroller_api/`. They are also published to PyPI as `violet-poolController-api`. For local development, use `pip install -e ./violet_poolcontroller_api`. Import from `violet_poolcontroller_api.*`.
 
 12. **Diagnostics**: The integration supports Home Assistant's built-in diagnostics download (`diagnostics.py`). Sensitive fields are redacted automatically. Access via HA UI → Devices → Download diagnostics.
 

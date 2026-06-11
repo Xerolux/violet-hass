@@ -33,25 +33,32 @@ test = [
     "pytest>=8.3",
     "pytest-asyncio>=0.24",
 ]
+dev = [
+    "aioresponses>=0.7.8",
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "ruff>=0.15.0",
+    "mypy>=2.1.0",
+]
 
 [project.urls]
-"Homepage" = "https://github.com/Xerolux/violet-poolController-api"
-"Bug Tracker" = "https://github.com/Xerolux/violet-poolController-api/issues"
+"Homepage" = "https://github.com/Xerolux/violet-hass"
+"Bug Tracker" = "https://github.com/Xerolux/violet-hass/issues"
 "License" = "https://www.gnu.org/licenses/agpl-3.0.html"
-"Changelog" = "https://github.com/Xerolux/violet-poolController-api/blob/main/CHANGELOG.md"
+"Changelog" = "https://github.com/Xerolux/violet-hass/blob/main/violet_poolcontroller_api/CHANGELOG.md"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 
 [tool.ruff]
 line-length = 100
-target-version = "0.0.26"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP"]
 ignore = ["E501"]
 
 [tool.mypy]
-python_version = "0.0.26"
+python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
