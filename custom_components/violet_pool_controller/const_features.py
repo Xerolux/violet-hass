@@ -15,6 +15,8 @@ based on the user's enabled features and the data available from the controller.
 
 from __future__ import annotations
 
+from typing import Any
+
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.components.number import NumberDeviceClass
 from homeassistant.helpers.entity import EntityCategory
@@ -645,7 +647,7 @@ SETPOINT_DEFINITIONS = [
 # SELECT CONTROLS - ON/OFF/AUTO Control
 # =============================================================================
 
-SELECT_CONTROLS = [
+SELECT_CONTROLS: list[dict[str, Any]] = [
     {
         "key": "pump_mode",
         "name": "Pump Mode",

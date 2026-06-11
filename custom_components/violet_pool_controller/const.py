@@ -36,26 +36,25 @@ from violet_poolcontroller_api.const_devices import *
 from .const_features import *
 from .const_sensors import *
 
-# Explicit re-exports ("X as X" marks them as intentional) so that type
-# checkers see these names - the external package ships no py.typed marker,
-# so the wildcard imports above are opaque to mypy
-from violet_poolcontroller_api.const_api import (
-    ACTION_ALLAUTO as ACTION_ALLAUTO,
-    ACTION_ALLOFF as ACTION_ALLOFF,
-    ACTION_ALLON as ACTION_ALLON,
-    ACTION_AUTO as ACTION_AUTO,
-    ACTION_COLOR as ACTION_COLOR,
-    ACTION_LOCK as ACTION_LOCK,
-    ACTION_MAN as ACTION_MAN,
-    ACTION_OFF as ACTION_OFF,
-    ACTION_ON as ACTION_ON,
-    ACTION_PUSH as ACTION_PUSH,
-    ACTION_UNLOCK as ACTION_UNLOCK,
-)
-from violet_poolcontroller_api.const_devices import (
-    COVER_FUNCTIONS as COVER_FUNCTIONS,
-    DEVICE_PARAMETERS as DEVICE_PARAMETERS,
-)
+# Explicit re-exports via assignment so that both type checkers and static
+# analysis see these names as defined and used here - the external package
+# ships no py.typed marker, so the wildcard imports above are opaque to mypy
+from violet_poolcontroller_api import const_api as _const_api
+from violet_poolcontroller_api import const_devices as _const_devices
+
+ACTION_ALLAUTO = _const_api.ACTION_ALLAUTO
+ACTION_ALLOFF = _const_api.ACTION_ALLOFF
+ACTION_ALLON = _const_api.ACTION_ALLON
+ACTION_AUTO = _const_api.ACTION_AUTO
+ACTION_COLOR = _const_api.ACTION_COLOR
+ACTION_LOCK = _const_api.ACTION_LOCK
+ACTION_MAN = _const_api.ACTION_MAN
+ACTION_OFF = _const_api.ACTION_OFF
+ACTION_ON = _const_api.ACTION_ON
+ACTION_PUSH = _const_api.ACTION_PUSH
+ACTION_UNLOCK = _const_api.ACTION_UNLOCK
+COVER_FUNCTIONS = _const_devices.COVER_FUNCTIONS
+DEVICE_PARAMETERS = _const_devices.DEVICE_PARAMETERS
 
 # =============================================================================
 # INTEGRATION INFO
