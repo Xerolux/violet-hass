@@ -160,8 +160,14 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
                     return MODE_AUTO if not self._is_binary else MODE_ON
                 return MODE_AUTO if not self._is_binary else MODE_OFF
 
+            # PVSURPLUS uses its own scheme: 0 = off, 1/2 = on (not the
+            # 0-6 output states)
+            if self._device_key == "PVSURPLUS":
+                return MODE_ON if state_int in (1, 2) else MODE_OFF
+
             if self._is_binary:
-                return MODE_ON if state_int in (1, 2, 3, 4) else MODE_OFF
+                # Active states per DEVICE_STATE_MAPPING; 2 = rule-blocked OFF
+                return MODE_ON if state_int in (1, 3, 4) else MODE_OFF
 
             mode = STATE_TO_MODE.get(state_int)
             if mode:

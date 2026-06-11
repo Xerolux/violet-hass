@@ -1,5 +1,12 @@
-"""Minimal Home Assistant mocks for tests without full HA installation."""
+"""Minimal Home Assistant mocks for tests without full HA installation.
 
+The mocks are only installed when the real packages are not importable.
+Replacing an installed Home Assistant with these stubs breaks
+pytest-homeassistant-custom-component (its fixtures patch real HA modules
+such as homeassistant.util.logging) and with it the entire test suite.
+"""
+
+import importlib.util
 import sys
 import types
 
@@ -436,12 +443,19 @@ def setup_homeassistant_mocks():
     sys.modules['homeassistant.helpers'] = ha_module.helpers
 
 
-# Setup mocks
-setup_homeassistant_mocks()
+# Setup mocks only when the real Home Assistant is not installed
+if (
+    'homeassistant' not in sys.modules
+    and importlib.util.find_spec('homeassistant') is None
+):
+    setup_homeassistant_mocks()
 
 
 # Setup pytest_homeassistant_custom_component mocks
-if 'pytest_homeassistant_custom_component' not in sys.modules:
+if (
+    'pytest_homeassistant_custom_component' not in sys.modules
+    and importlib.util.find_spec('pytest_homeassistant_custom_component') is None
+):
     common_module = types.ModuleType('pytest_homeassistant_custom_component')
     common_submodule = types.ModuleType('common')
 

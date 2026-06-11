@@ -162,6 +162,6 @@ class TestVioletCover:
         mock_coordinator.data = None
         cover = VioletCover(mock_coordinator, config_entry)
 
-        # Should return False, not crash
+        # Unknown state: is_open False, is_closed None (HA semantics)
         assert cover.is_open is False
-        assert cover.is_closed is False
+        assert cover.is_closed is None

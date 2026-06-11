@@ -160,7 +160,8 @@ SYSTEM_SENSORS = {
         "translation_key": "system_carrier_cpu_temperature",
         "icon": "mdi:memory",
     },
-    "SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE": {
+    # Spec key is lowercase: SYSTEM_dosagemodule_cpu_temperature
+    "SYSTEM_dosagemodule_cpu_temperature": {
         "name": "Dosing Module CPU Temperature",
         "translation_key": "system_dosagemodule_cpu_temperature",
         "icon": "mdi:memory-lan",
@@ -450,7 +451,8 @@ NO_UNIT_SENSORS = {
     "CPU_GOV",
     "SYSTEM_CPU_TEMPERATURE",
     "SYSTEM_CARRIER_CPU_TEMPERATURE",
-    "SYSTEM_DOSAGEMODULE_CPU_TEMPERATURE",
+    # SYSTEM_dosagemodule_cpu_temperature deliberately not listed: it is a
+    # FLOAT in °C and must keep its temperature unit
     "SYSTEM_memoryusage",
     *(f"PUMP_RPM_{i}" for i in range(4)),
     "PUMP_RUNTIME",

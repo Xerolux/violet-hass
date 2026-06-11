@@ -49,6 +49,8 @@ STATE_MANUAL_OFF = 6
 # Temperature limits
 DEFAULT_MIN_TEMP = 20.0
 DEFAULT_MAX_TEMP = 35.0
+# Solar absorbers go up to 40 °C, matching the solar_setpoint number entity
+SOLAR_MAX_TEMP = 40.0
 DEFAULT_TARGET_TEMP = 28.0
 TEMP_STEP = 0.5
 
@@ -156,6 +158,11 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
 
         super().__init__(coordinator, config_entry, climate_description)
         self.climate_type = climate_type
+
+        # Solar absorbers allow up to 40 °C (matches the solar_setpoint
+        # number entity); heaters stay at the 35 °C default
+        if climate_type == "SOLAR":
+            self._attr_max_temp = SOLAR_MAX_TEMP
 
         # FIXED: Local cache variables for optimistic updates
         self._optimistic_target_temp: float | None = None

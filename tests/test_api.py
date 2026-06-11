@@ -154,25 +154,26 @@ class TestVioletPoolAPI:
             with pytest.raises(VioletPoolAPIError, match="Invalid JSON"):
                 await api._request("/test", expect_json=True)
 
-    async def test_set_all_dmx_scenes_handles_errors(self, api: VioletPoolAPI) -> None:
-        """Test that set_all_dmx_scenes continues after an error on one scene."""
+    async def test_set_all_dmx_scenes_sends_single_global_command(
+        self, api: VioletPoolAPI
+    ) -> None:
+        """ALLON/ALLOFF/ALLAUTO are global: one request switches all scenes."""
         with patch.object(
             api, "set_switch_state", new_callable=AsyncMock
         ) as mock_set_switch_state:
-
-            async def side_effect(key: str, action: str):
-                if key == "DMX_SCENE3":
-                    raise VioletPoolAPIError("Controller unavailable for scene 3")
-                return {"success": True, "response": f"{key} OK"}
-
-            mock_set_switch_state.side_effect = side_effect
+            mock_set_switch_state.return_value = {
+                "success": True,
+                "response": "DMX_SCENE1 OK",
+            }
 
             result = await api.set_all_dmx_scenes("ALLON")
 
-            assert mock_set_switch_state.call_count == 12
+            mock_set_switch_state.assert_awaited_once_with("DMX_SCENE1", "ALLON")
+            assert result["success"] is True
 
-            assert result["success"] is False
-
-            assert "Controller unavailable for scene 3" in result["response"]
-            assert "DMX_SCENE1 OK" in result["response"]
-            assert "DMX_SCENE12 OK" in result["response"]
+    async def test_set_all_dmx_scenes_rejects_unknown_action(
+        self, api: VioletPoolAPI
+    ) -> None:
+        """Unsupported DMX actions must raise instead of hitting the API."""
+        with pytest.raises(VioletPoolAPIError, match="Unsupported DMX action"):
+            await api.set_all_dmx_scenes("EXPLODE")

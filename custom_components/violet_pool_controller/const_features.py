@@ -15,6 +15,8 @@ based on the user's enabled features and the data available from the controller.
 
 from __future__ import annotations
 
+from typing import Any
+
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.components.number import NumberDeviceClass
 from homeassistant.helpers.entity import EntityCategory
@@ -408,8 +410,8 @@ for i in range(1, 13):
             "entity_registry_enabled_default": False,
         }
     )
-# Dynamically add digital rules
-for i in range(1, 9):
+# Dynamically add digital rules (controller exposes DIRULE_1..7)
+for i in range(1, 8):
     SWITCHES.append(
         {
             "key": f"DIRULE_{i}",
@@ -467,8 +469,10 @@ SETPOINT_DEFINITIONS = [
         "name": "ORP Setpoint",
         "translation_key": "orp_setpoint",
         "api_key": "ORP",
-        "min_value": 100,
-        "max_value": 1000,
+        # InputSanitizer.validate_orp_value clamps writes to 400-900 mV;
+        # a wider UI range would be silently rewritten on save
+        "min_value": 400,
+        "max_value": 900,
         "step": 5,
         "default_value": 700,
         "icon": "mdi:lightning-bolt-circle",
@@ -643,7 +647,7 @@ SETPOINT_DEFINITIONS = [
 # SELECT CONTROLS - ON/OFF/AUTO Control
 # =============================================================================
 
-SELECT_CONTROLS = [
+SELECT_CONTROLS: list[dict[str, Any]] = [
     {
         "key": "pump_mode",
         "name": "Pump Mode",
