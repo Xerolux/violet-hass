@@ -107,9 +107,9 @@ class TestCoverErrorHandling:
         """Test cover handles None data gracefully."""
         cover = VioletCover(mock_coordinator_error, config_entry)
 
-        # Should not crash, return safe defaults
+        # Should not crash; unknown state reports is_closed None
         assert cover.is_open is False
-        assert cover.is_closed is False
+        assert cover.is_closed is None
         assert cover.is_opening is False
         assert cover.is_closing is False
 

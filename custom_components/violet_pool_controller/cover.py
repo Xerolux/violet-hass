@@ -70,9 +70,13 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
         return COVER_STATE_MAP.get(raw.upper(), "")
 
     @property
-    def is_closed(self) -> bool:
-        """Return True if the cover is closed."""
-        return self._map_cover_state() == "closed"
+    def is_closed(self) -> bool | None:
+        """Return True if the cover is closed, None if the state is unknown."""
+        state = self._map_cover_state()
+        if not state:
+            # Unknown/unmapped COVER_STATE must not be reported as "open"
+            return None
+        return state == "closed"
 
     @property
     def is_opening(self) -> bool:

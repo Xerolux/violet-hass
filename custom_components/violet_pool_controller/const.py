@@ -36,6 +36,26 @@ from violet_poolcontroller_api.const_devices import *
 from .const_features import *
 from .const_sensors import *
 
+# Explicit re-imports so that type checkers see these names (the external
+# package ships no py.typed marker, so wildcard imports are opaque to mypy)
+from violet_poolcontroller_api.const_api import (
+    ACTION_ALLAUTO,
+    ACTION_ALLOFF,
+    ACTION_ALLON,
+    ACTION_AUTO,
+    ACTION_COLOR,
+    ACTION_LOCK,
+    ACTION_MAN,
+    ACTION_OFF,
+    ACTION_ON,
+    ACTION_PUSH,
+    ACTION_UNLOCK,
+)
+from violet_poolcontroller_api.const_devices import (
+    COVER_FUNCTIONS,
+    DEVICE_PARAMETERS,
+)
+
 # =============================================================================
 # INTEGRATION INFO
 # =============================================================================
@@ -64,17 +84,8 @@ CONF_DISINFECTION_METHOD = "disinfection_method"
 CONF_ENABLE_DIAGNOSTIC_LOGGING = "enable_diagnostic_logging"
 CONF_DOSING_STANDALONE = "dosing_standalone"
 
-# =============================================================================
-# ACTION CONSTANTS
-# =============================================================================
-
-ACTION_PUSH = "PUSH"
-ACTION_ALLAUTO = "ALLAUTO"
-ACTION_ALLOFF = "ALLOFF"
-ACTION_ALLON = "ALLON"
-ACTION_AUTO = "AUTO"
-ACTION_OFF = "OFF"
-ACTION_ON = "ON"
+# ACTION_* constants come from violet_poolcontroller_api.const_api (wildcard
+# import above) - do not redefine them here, local copies drift from the API.
 
 # Default Values
 DEFAULT_POLLING_INTERVAL = 10
@@ -106,11 +117,8 @@ DISINFECTION_METHODS = ["chlorine", "salt", "bromine", "active_oxygen", "uv", "o
 # They map high-level control actions to protocol command strings recognized
 # by the Violet Pool Controller API.
 
-COVER_FUNCTIONS: dict[str, str | None] = {
-    "OPEN": "COVER_OPEN",
-    "CLOSE": "COVER_CLOSE",
-    "STOP": "COVER_STOP",
-}
+# COVER_FUNCTIONS and DEVICE_PARAMETERS come from
+# violet_poolcontroller_api.const_devices (wildcard import above).
 
 # Maps the controller's numeric COVER_STATE values to the high-level cover
 # states consumed by cover.py (is_open / is_closed / is_opening / is_closing).
@@ -126,8 +134,6 @@ COVER_STATE_MAP: dict[str, str] = {
     "CLOSING": "closing",
     "STOPPED": "stopped",
 }
-
-DEVICE_PARAMETERS: dict[str, dict[str, str]] = {}
 
 # =============================================================================
 # VERSION INFO

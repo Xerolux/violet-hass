@@ -453,7 +453,13 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         try:
             _LOGGER.info("Setting switch %s to %s", key, action)
 
-            if key == "PUMP" and action == ACTION_ON:
+            if key.startswith("DIRULE_"):
+                # Rules are lock-controlled: ON = unlock, OFF = lock.
+                # Plain ON/OFF actions are not valid for DIRULE keys.
+                result = await self.device.api.set_digital_input_rule_lock(
+                    rule_key=key, locked=action == ACTION_OFF
+                )
+            elif key == "PUMP" and action == ACTION_ON:
                 speed = self._validate_speed(kwargs.get("speed", 2))
                 duration = self._validate_duration(kwargs.get("duration", 0))
 

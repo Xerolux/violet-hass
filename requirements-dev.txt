@@ -5,7 +5,8 @@ ruff>=0.15.16
 mypy>=2.1.0
 pytest>=9.0.3
 pytest-cov>=7.1.0
-pytest-asyncio>=1.4.0
+# pytest-homeassistant-custom-component pins pytest-asyncio==1.3.0
+pytest-asyncio>=1.3.0
 # IMPORTANT: Always use latest version from https://github.com/MatthewFlamm/pytest-homeassistant-custom-component
 # Check for updates when new HA or Python versions are released
 pytest-homeassistant-custom-component>=0.13.337
