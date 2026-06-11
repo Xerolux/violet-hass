@@ -1,4 +1,4 @@
-# violet-poolController-api - API für Violet Pool Controller
+# violet-poolController-api - API f├╝r Violet Pool Controller
 # Copyright (C) 2024-2026  Xerolux
 #
 # This program is free software: you can redistribute it and/or modify
@@ -38,7 +38,10 @@ from .const_devices import (  # noqa: F401
     COVER_FUNCTIONS,
     COVER_STATE_MAP,
     DEVICE_PARAMETERS,
+    STATE_TRANSLATIONS,
     VioletState,
+    get_state_translation_language,
+    set_state_translation_language,
 )
 from .utils_rate_limiter import RateLimiter, get_global_rate_limiter
 from .utils_sanitizer import InputSanitizer
@@ -52,6 +55,9 @@ __all__ = [
     "InputSanitizer",
     "RateLimiter",
     "get_global_rate_limiter",
+    "get_state_translation_language",
+    "set_state_translation_language",
+    "STATE_TRANSLATIONS",
     "ACTION_ALLAUTO",
     "ACTION_ALLOFF",
     "ACTION_ALLON",

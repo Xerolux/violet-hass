@@ -1,4 +1,4 @@
-# violet-poolController-api - API für Violet Pool Controller
+# violet-poolController-api - API f├╝r Violet Pool Controller
 # Copyright (C) 2024-2026  Xerolux
 #
 # This program is free software: you can redistribute it and/or modify
@@ -59,6 +59,11 @@ DEVICE_PARAMETERS: dict[str, dict[str, Any]] = {
         "supports_color_pulse": True,
         "api_template": "LIGHT,{action},0,0",
     },
+    # NOTE: The api_template entries for DOS_* are NOT usable with
+    # /setFunctionManually - the controller rejects dosing outputs there
+    # (confirmed by PoolDigital). VioletPoolAPI.set_switch_state() routes
+    # all DOS_* keys to POST /triggerManualDosing instead; the templates
+    # remain only for backwards compatibility of this public constant.
     "DOS_1_CL": {
         "supports_timer": True,
         "dosing_type": "Chlor",
@@ -252,6 +257,39 @@ STATE_TRANSLATIONS = {
     },
 }
 
+# Default language for human-readable state texts.  Defaults to German for
+# backwards compatibility; consumers (e.g. the Home Assistant integration)
+# can switch globally via set_state_translation_language() or per instance
+# via VioletState(..., language="en").
+DEFAULT_STATE_LANGUAGE = "de"
+_state_language = DEFAULT_STATE_LANGUAGE
+
+
+def set_state_translation_language(language: str) -> None:
+    """Set the global default language for state display texts.
+
+    Args:
+        language: A language code present in STATE_TRANSLATIONS
+            (currently ``"de"`` or ``"en"``).
+
+    Raises:
+        ValueError: If the language is not available.
+
+    """
+    if language not in STATE_TRANSLATIONS:
+        msg = (
+            f"Unsupported language '{language}'. "
+            f"Available: {sorted(STATE_TRANSLATIONS)}"
+        )
+        raise ValueError(msg)
+    global _state_language  # noqa: PLW0603
+    _state_language = language
+
+
+def get_state_translation_language() -> str:
+    """Return the current global default language for state display texts."""
+    return _state_language
+
 # =============================================================================
 # HELPER FUNCTIONS and STATE CLASS
 # =============================================================================
@@ -307,13 +345,29 @@ class VioletState:
     Attributes:
         raw_state (str): The original state value from the controller.
         device_key (str | None): The unique key of the device.
+        language (str | None): Optional language override for display texts.
 
     """
 
-    def __init__(self, raw_state: Any, device_key: str | None = None) -> None:  # noqa: ANN401
-        """Initialize VioletState from a raw controller value."""
+    def __init__(
+        self,
+        raw_state: Any,  # noqa: ANN401
+        device_key: str | None = None,
+        language: str | None = None,
+    ) -> None:
+        """Initialize VioletState from a raw controller value.
+
+        Args:
+            raw_state: The raw state value from the controller.
+            device_key: The unique key of the device.
+            language: Optional language code for display texts ("de"/"en").
+                Falls back to the global default
+                (see set_state_translation_language).
+
+        """
         self.raw_state = str(raw_state).strip()
         self.device_key = device_key
+        self.language = language
         self._info = get_device_state_info(self.raw_state)
 
     @property
@@ -333,9 +387,26 @@ class VioletState:
 
     @property
     def display_mode(self) -> str:
-        """The translated name for the current state, suitable for UI display."""
+        """The translated name for the current state, suitable for UI display.
+
+        Uses the per-instance language if set, otherwise the global default
+        language (German unless changed via set_state_translation_language).
+        """
+        return self.display_mode_for(self.language or _state_language)
+
+    def display_mode_for(self, language: str) -> str:
+        """Return the translated state name for a specific language.
+
+        Args:
+            language: A language code present in STATE_TRANSLATIONS.
+
+        Returns:
+            The translated state text, falling back to a title-cased
+            mode key for unknown languages or modes.
+
+        """
         mode_key = get_device_mode_from_state(self.raw_state)
-        return STATE_TRANSLATIONS.get("de", {}).get(
+        return STATE_TRANSLATIONS.get(language, {}).get(
             mode_key,
             mode_key.replace("_", " ").title(),
         )

@@ -1,4 +1,4 @@
-# violet-poolController-api - API für Violet Pool Controller
+# violet-poolController-api - API f├╝r Violet Pool Controller
 # Copyright (C) 2024-2026  Xerolux
 #
 # This program is free software: you can redistribute it and/or modify
@@ -26,6 +26,7 @@ import aiohttp
 import pytest
 import pytest_asyncio
 from aioresponses import aioresponses
+from yarl import URL
 
 from violet_poolcontroller_api.api import VioletPoolAPI, VioletPoolAPIError
 from violet_poolcontroller_api.circuit_breaker import CircuitBreakerOpenError
@@ -483,7 +484,7 @@ async def test_ext1_readings_filtered_when_not_detected(mock_aioresponse, api_cl
         payload={
             "getReadings": {
                 "PUMPSTATE": "2",
-                # No SYSTEM_ext1module_alive_count → module not connected
+                # No SYSTEM_ext1module_alive_count ÔåÆ module not connected
                 "EXT1_1": 0,
                 "EXT1_2": 0,
             }
@@ -1180,6 +1181,35 @@ async def test_manual_dosing_stop(
 
 
 @pytest.mark.asyncio
+async def test_dosing_auto_action_sends_dosstop(
+    mock_aioresponse: aioresponses,
+    api_client: VioletPoolAPI,
+) -> None:
+    """AUTO on a dosing output must stop the run, never start one.
+
+    setFunctionManually does not work for DOS_* outputs (PoolDigital forum),
+    so AUTO maps to DOSSTOP via /triggerManualDosing - stopping the manual
+    run returns the channel to automatic mode.
+    """
+    url = "http://192.168.1.100/triggerManualDosing"
+    mock_aioresponse.post(url, body="MANDOS_STOPPED\nOK", status=200)
+
+    result = await api_client.set_switch_state("DOS_6_FLOC", "AUTO")
+
+    assert result["success"] is True
+    request_key = ("POST", URL(url))
+    sent = mock_aioresponse.requests[request_key][0].kwargs["data"]
+    assert sent["action"] == "DOSSTOP"
+
+
+@pytest.mark.asyncio
+async def test_dosing_unknown_action_rejected(api_client: VioletPoolAPI) -> None:
+    """Unknown dosing actions raise instead of defaulting to DOSSTART."""
+    with pytest.raises(VioletPoolAPIError, match="Unsupported dosing action"):
+        await api_client.set_switch_state("DOS_1_CL", "PUSH")
+
+
+@pytest.mark.asyncio
 async def test_pv_surplus_with_speed(
     mock_aioresponse: aioresponses,
     api_client: VioletPoolAPI,
@@ -1235,3 +1265,124 @@ async def test_pump_off_with_duration(
 
     assert result["success"] is True
     assert result["message"] == "MANUELL AUS\n600 Sekunden"
+
+
+@pytest.mark.asyncio
+async def test_pv_surplus_auto_is_mapped_to_off(
+    mock_aioresponse: aioresponses,
+    api_client: VioletPoolAPI,
+) -> None:
+    """PVSURPLUS supports only ON/OFF (manual 26.3); AUTO is sent as OFF."""
+    url = "http://192.168.1.100/setFunctionManually?PVSURPLUS,OFF,0,0"
+    mock_aioresponse.get(url, body="OK\nPVSURPLUS\nOFF", status=200)
+
+    result = await api_client.set_switch_state("PVSURPLUS", "AUTO")
+
+    assert result["success"] is True
+    assert result["output"] == "PVSURPLUS"
+
+
+@pytest.mark.asyncio
+async def test_pv_surplus_rejects_unknown_action(
+    api_client: VioletPoolAPI,
+) -> None:
+    """PVSURPLUS rejects actions that cannot be mapped to ON/OFF."""
+    with pytest.raises(VioletPoolAPIError, match="manual section 26.3"):
+        await api_client.set_switch_state("PVSURPLUS", "PUSH")
+
+
+@pytest.mark.asyncio
+async def test_pv_surplus_speed_is_clamped(
+    mock_aioresponse: aioresponses,
+    api_client: VioletPoolAPI,
+) -> None:
+    """Pump speed for PVSURPLUS is clamped to the documented 1-3 range."""
+    url = "http://192.168.1.100/setFunctionManually?PVSURPLUS,ON,3,0"
+    mock_aioresponse.get(url, body="OK\nPVSURPLUS\nON", status=200)
+
+    result = await api_client.set_pv_surplus(active=True, pump_speed=5)
+
+    assert result["success"] is True
+
+
+@pytest.mark.asyncio
+async def test_client_error_fails_fast_without_retry(
+    mock_aioresponse: aioresponses,
+    api_client: VioletPoolAPI,
+) -> None:
+    """A 4xx response raises immediately instead of being retried."""
+    url = "http://192.168.1.100/getReadings?ALL"
+    mock_aioresponse.get(url, status=401, body="Unauthorized")
+
+    with pytest.raises(VioletPoolAPIError, match="HTTP 401"):
+        await api_client.get_readings()
+
+
+@pytest.mark.asyncio
+async def test_client_error_does_not_trip_circuit_breaker(
+    mock_aioresponse: aioresponses,
+    api_client: VioletPoolAPI,
+) -> None:
+    """Deterministic 4xx errors must not count as circuit breaker failures."""
+    url = "http://192.168.1.100/getReadings?ALL"
+    threshold = api_client._circuit_breaker.failure_threshold
+
+    for _ in range(threshold + 1):
+        mock_aioresponse.get(url, status=401, body="Unauthorized")
+        with pytest.raises(VioletPoolAPIError, match="HTTP 401"):
+            await api_client.get_readings()
+
+    stats = api_client._circuit_breaker.get_stats()
+    assert stats["failure_count"] == 0
+    assert stats["state"] == "CLOSED"
+
+
+@pytest.mark.asyncio
+async def test_server_error_still_counts_for_circuit_breaker(
+    mock_aioresponse: aioresponses,
+    api_client: VioletPoolAPI,
+) -> None:
+    """5xx errors keep counting as circuit breaker failures."""
+    url = "http://192.168.1.100/getReadings?ALL"
+    mock_aioresponse.get(url, status=500, body="boom")
+
+    with pytest.raises(VioletPoolAPIError):
+        await api_client.get_readings()
+
+    stats = api_client._circuit_breaker.get_stats()
+    assert stats["failure_count"] == 1
+
+
+def test_command_result_error_first_line() -> None:
+    """Line 1 of the response decides success per manual section 26.2."""
+    result = VioletPoolAPI._command_result("ERROR\nPUMP\nUNKNOWN OUTPUT")
+    assert result["success"] is False
+
+    result = VioletPoolAPI._command_result("OK\nPUMP\nInfo about error handling")
+    assert result["success"] is True
+
+
+def test_state_translation_language_switch() -> None:
+    """Display texts are language-configurable instead of hardwired German."""
+    from violet_poolcontroller_api.const_devices import (
+        VioletState,
+        get_state_translation_language,
+        set_state_translation_language,
+    )
+
+    assert get_state_translation_language() == "de"
+    state = VioletState("0")
+    assert state.display_mode == "Automatik (Bereit)"
+    assert state.display_mode_for("en") == "Auto (Ready)"
+
+    english_state = VioletState("0", language="en")
+    assert english_state.display_mode == "Auto (Ready)"
+
+    set_state_translation_language("en")
+    try:
+        assert VioletState("4").display_mode == "Manual On"
+    finally:
+        set_state_translation_language("de")
+
+    with pytest.raises(ValueError, match="Unsupported language"):
+        set_state_translation_language("fr")

@@ -1,4 +1,4 @@
-# violet-poolController-api - API für Violet Pool Controller
+# violet-poolController-api - API f├╝r Violet Pool Controller
 # Copyright (C) 2024-2026  Xerolux
 #
 # This program is free software: you can redistribute it and/or modify
@@ -51,6 +51,7 @@ class CircuitBreaker:
         timeout: float = 60.0,
         recovery_timeout: float = 300.0,
         expected_exception: type[BaseException] = Exception,
+        ignored_exceptions: tuple[type[BaseException], ...] = (),
     ) -> None:
         """Initialize circuit breaker.
 
@@ -59,12 +60,16 @@ class CircuitBreaker:
             timeout: How long to keep circuit open (seconds)
             recovery_timeout: How long to stay in half-open state
             expected_exception: Exception type to consider for failures
+            ignored_exceptions: Exception types that pass through without
+                affecting the failure count (e.g. deterministic client
+                errors that do not indicate an unavailable service)
 
         """
         self.failure_threshold = failure_threshold
         self.timeout = timeout
         self.recovery_timeout = recovery_timeout
         self.expected_exception = expected_exception
+        self.ignored_exceptions = ignored_exceptions
 
         self.failure_count = 0
         self.last_failure_time = 0.0
@@ -128,6 +133,10 @@ class CircuitBreaker:
         try:
             # Execute the function outside the lock to avoid blocking other coroutines
             result = await func(*args, **kwargs)
+
+        except self.ignored_exceptions:
+            # Deterministic errors pass through without counting as failures
+            raise
 
         except self.expected_exception as err:
             async with self._lock:

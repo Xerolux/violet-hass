@@ -1,4 +1,4 @@
-# violet-poolController-api - API für Violet Pool Controller
+# violet-poolController-api - API f├╝r Violet Pool Controller
 # Copyright (C) 2024-2026  Xerolux
 #
 # This program is free software: you can redistribute it and/or modify
@@ -32,6 +32,7 @@ from .const_api import (
     ACTION_ALLAUTO,
     ACTION_ALLOFF,
     ACTION_ALLON,
+    ACTION_AUTO,
     ACTION_COLOR,
     ACTION_LOCK,
     ACTION_OFF,
@@ -84,6 +85,18 @@ _MIN_CALIB_HISTORY_PARTS = 3
 
 class VioletPoolAPIError(Exception):
     """Raised when the Violet Pool Controller API returns an error."""
+
+
+class _DeterministicClientError(Exception):
+    """Internal marker for 4xx client errors.
+
+    Deliberately inherits from neither VioletPoolAPIError nor
+    aiohttp.ClientError so it bypasses both the retry loop and the
+    circuit breaker failure count: 4xx responses are deterministic
+    (bad credentials, unknown endpoint) and must not open the breaker
+    that protects against a down controller or network.  It is
+    translated to VioletPoolAPIError before reaching the caller.
+    """
 
 
 class VioletPoolAPI:
@@ -155,7 +168,10 @@ class VioletPoolAPI:
 
         # Rate limiting to protect the controller from being overloaded
         self._rate_limiter = get_global_rate_limiter()
-        self._circuit_breaker = CircuitBreaker(expected_exception=VioletPoolAPIError)
+        self._circuit_breaker = CircuitBreaker(
+            expected_exception=VioletPoolAPIError,
+            ignored_exceptions=(_DeterministicClientError,),
+        )
         _LOGGER.debug(
             "API initialized with rate limiting enabled, SSL=%s, verify_ssl=%s",
             use_ssl,
@@ -316,13 +332,11 @@ class VioletPoolAPI:
                             response.status >= _HTTP_CLIENT_ERROR
                             and response.status < _HTTP_SERVER_ERROR
                         ):
+                            # Client errors (4xx, except 429 handled above) are
+                            # deterministic - fail fast instead of retrying.
                             body = await response.text()
-                            raise aiohttp.ClientResponseError(
-                                request_info=response.request_info,
-                                history=response.history,
-                                status=response.status,
-                                message=(f"HTTP {response.status} for {endpoint}: {body.strip()}"),
-                            )
+                            msg = f"HTTP {response.status} for {endpoint}: {body.strip()}"
+                            raise _DeterministicClientError(msg)
 
                         if expect_json:
                             try:
@@ -360,6 +374,8 @@ class VioletPoolAPI:
 
         try:
             return await self._circuit_breaker.call(_execute_request)
+        except _DeterministicClientError as err:
+            raise VioletPoolAPIError(str(err)) from err
         except CircuitBreakerOpenError as err:
             msg = "Circuit breaker is open due to repeated communication failures"
             raise VioletPoolAPIError(
@@ -389,11 +405,20 @@ class VioletPoolAPI:
             return body
 
         text = (body or "").strip()
-        success = not text or "error" not in text.lower()
+        lines = text.splitlines() if text else []
+        first_line = lines[0].strip().upper() if lines else ""
+
+        # Manual section 26.2: line 1 of the response is "OK" or "ERROR".
+        # Dosing responses use "MANDOS_STARTED\nOK" instead, so fall back to
+        # a substring check when the first line is neither marker.
+        if first_line.startswith("ERROR"):
+            success = False
+        elif first_line == "OK":
+            success = True
+        else:
+            success = not text or "error" not in text.lower()
 
         result: dict[str, Any] = {"success": success, "response": text}
-
-        lines = text.splitlines() if text else []
         if len(lines) >= 2:
             result["output"] = lines[1].strip()
         if len(lines) >= 3:
@@ -946,6 +971,9 @@ class VioletPoolAPI:
         if key.startswith("DOS_"):
             return await self._trigger_dosing(key, action, duration=duration)
 
+        if key == "PVSURPLUS":
+            action = self._normalize_pv_surplus_action(action)
+
         payload = self._build_manual_command(
             key,
             action,
@@ -965,16 +993,22 @@ class VioletPoolAPI:
     ) -> dict[str, Any]:
         """Trigger or stop a manual dosing run via /triggerManualDosing.
 
+        setFunctionManually does not work for dosing outputs (confirmed by
+        PoolDigital in the support forum): neither ON nor AUTO has any
+        effect there. Starting AND stopping a manual dosing run must both
+        go through /triggerManualDosing.
+
         Args:
             key: The dosing pump key (e.g. DOS_6_FLOC).
-            action: The action (ON/START → DOSSTART, OFF/STOP → DOSSTOP).
+            action: ON/START ÔåÆ DOSSTART; OFF/STOP/AUTO ÔåÆ DOSSTOP
+                (stopping a run returns the channel to automatic mode).
             duration: Duration in seconds.
 
         Returns:
             A dictionary with the command result.
 
         Raises:
-            VioletPoolAPIError: If the dosing key is unknown.
+            VioletPoolAPIError: If the dosing key or action is unknown.
 
         """
         output_index = DOSING_OUTPUT_INDEX.get(key)
@@ -982,7 +1016,17 @@ class VioletPoolAPI:
             msg = f"Unknown dosing output key: {key}"
             raise VioletPoolAPIError(msg)
 
-        dos_action = "DOSSTOP" if action.upper() in ("OFF", "STOP") else "DOSSTART"
+        action_upper = action.strip().upper()
+        if action_upper in ("OFF", "STOP", "AUTO", "DOSSTOP"):
+            dos_action = "DOSSTOP"
+        elif action_upper in ("ON", "START", "DOSSTART"):
+            dos_action = "DOSSTART"
+        else:
+            # Never default to DOSSTART: an unexpected action must not
+            # start a chemical dosing run.
+            msg = f"Unsupported dosing action for {key}: {action}"
+            raise VioletPoolAPIError(msg)
+
         dos_duration = int(duration) if duration else 0
 
         form_data = {
@@ -1025,6 +1069,41 @@ class VioletPoolAPI:
             duration=duration,
         )
 
+    @staticmethod
+    def _normalize_pv_surplus_action(action: str) -> str:
+        """Normalize an action for the PVSURPLUS function.
+
+        Manual section 26.3 only documents ON and OFF for PVSURPLUS; there is
+        no AUTO mode (the getReadings PVSURPLUS state is 0/1/2 - off,
+        triggered by digital input, or triggered by HTTP).  Sending AUTO is
+        therefore mapped to OFF, which releases the HTTP trigger and returns
+        control to the configured digital input / controller logic.
+
+        Args:
+            action: The requested action.
+
+        Returns:
+            The spec-conform action (ON or OFF).
+
+        Raises:
+            VioletPoolAPIError: If the action cannot be mapped to ON or OFF.
+
+        """
+        normalized = (action or "").strip().upper()
+        if normalized == ACTION_AUTO:
+            _LOGGER.warning(
+                "PVSURPLUS does not support AUTO (manual section 26.3); "
+                "sending OFF to release the HTTP trigger instead",
+            )
+            return ACTION_OFF
+        if normalized not in (ACTION_ON, ACTION_OFF):
+            msg = (
+                f"Unsupported PVSURPLUS action '{action}': "
+                "manual section 26.3 only documents ON and OFF"
+            )
+            raise VioletPoolAPIError(msg)
+        return normalized
+
     async def set_pv_surplus(
         self,
         *,
@@ -1033,18 +1112,26 @@ class VioletPoolAPI:
     ) -> dict[str, Any]:
         """Enable or disable PV surplus mode.
 
+        Per manual section 26.3 the command format is
+        ``PVSURPLUS,{ON|OFF},{speed},0`` where the speed (1-3) is only
+        evaluated for variable-speed pumps.  If no speed is provided the
+        controller falls back to the speed configured in its GUI.
+
         Args:
             active: Whether to activate PV surplus mode.
-            pump_speed: An optional pump speed.
+            pump_speed: An optional pump speed (1-3).
 
         Returns:
             A dictionary with the command result.
 
         """
+        speed: int | None = None
+        if pump_speed is not None:
+            speed = max(1, min(3, int(pump_speed)))
         return await self.set_switch_state(
             "PVSURPLUS",
             ACTION_ON if active else ACTION_OFF,
-            last_value=pump_speed,
+            last_value=speed,
         )
 
     async def set_all_dmx_scenes(self, action: str) -> dict[str, Any]:
