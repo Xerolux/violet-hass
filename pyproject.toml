@@ -30,10 +30,10 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 100
 target-version = "py312"
-extend-select = ["I", "UP", "T20"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "C4", "SIM"]
+extend-select = ["T20"]
 ignore = ["E501"]
 
 [tool.mypy]

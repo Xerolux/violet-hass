@@ -1213,7 +1213,9 @@ class VioletPoolAPI:
             A dictionary with the command result.
 
         """
-        config_key = "SOLAR_maxtemp" if climate_key.upper() == "SOLAR" else f"{climate_key}_set_temp"
+        config_key = (
+            "SOLAR_maxtemp" if climate_key.upper() == "SOLAR" else f"{climate_key}_set_temp"
+        )
         return await self.set_target_value(config_key, float(temperature))
 
     async def set_ph_target(self, value: float) -> dict[str, Any]:
@@ -1305,10 +1307,7 @@ class VioletPoolAPI:
         """
         prefix = DOSING_CONFIG_PREFIX.get(dosing_type)
         if prefix is None:
-            msg = (
-                f"Unknown dosing type '{dosing_type}'. "
-                f"Valid: {list(DOSING_CONFIG_PREFIX)}"
-            )
+            msg = f"Unknown dosing type '{dosing_type}'. Valid: {list(DOSING_CONFIG_PREFIX)}"
             raise VioletPoolAPIError(msg)
 
         return await self.set_config({f"{prefix}_use": 1 if enabled else 0})
@@ -1329,10 +1328,7 @@ class VioletPoolAPI:
         """
         prefix = DOSING_CONFIG_PREFIX.get(dosing_type)
         if prefix is None:
-            msg = (
-                f"Unknown dosing type '{dosing_type}'. "
-                f"Valid: {list(DOSING_CONFIG_PREFIX)}"
-            )
+            msg = f"Unknown dosing type '{dosing_type}'. Valid: {list(DOSING_CONFIG_PREFIX)}"
             raise VioletPoolAPIError(msg)
 
         result = await self._request_json_dict(

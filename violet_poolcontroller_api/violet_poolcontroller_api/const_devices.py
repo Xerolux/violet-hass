@@ -277,10 +277,7 @@ def set_state_translation_language(language: str) -> None:
 
     """
     if language not in STATE_TRANSLATIONS:
-        msg = (
-            f"Unsupported language '{language}'. "
-            f"Available: {sorted(STATE_TRANSLATIONS)}"
-        )
+        msg = f"Unsupported language '{language}'. Available: {sorted(STATE_TRANSLATIONS)}"
         raise ValueError(msg)
     global _state_language  # noqa: PLW0603
     _state_language = language
@@ -289,6 +286,7 @@ def set_state_translation_language(language: str) -> None:
 def get_state_translation_language() -> str:
     """Return the current global default language for state display texts."""
     return _state_language
+
 
 # =============================================================================
 # HELPER FUNCTIONS and STATE CLASS

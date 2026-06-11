@@ -20,8 +20,8 @@ from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client, selector
 from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
-
 from violet_poolcontroller_api.api import VioletPoolAPI
+
 from .config_flow_support import (
     ConfigFlowSchemaMixin,
     ConfigFlowTextMixin,

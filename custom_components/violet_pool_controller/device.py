@@ -16,18 +16,18 @@ import time
 from datetime import datetime, timedelta
 from typing import Any
 
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.issue_registry import (
     IssueSeverity,
     async_create_issue,
     async_delete_issue,
 )
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-
 from violet_poolcontroller_api.api import VioletPoolAPI, VioletPoolAPIError
+
 from .config_entry_helpers import (
     extract_api_host,
     get_entry_value,
@@ -48,8 +48,8 @@ from .const import (
     CONF_VERIFY_SSL,
     DEFAULT_CONTROLLER_NAME,
     DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
-    DEFAULT_PORT,
     DEFAULT_POLLING_INTERVAL,
+    DEFAULT_PORT,
     DEFAULT_RETRY_ATTEMPTS,
     DEFAULT_TIMEOUT_DURATION,
     DEFAULT_USE_SSL,

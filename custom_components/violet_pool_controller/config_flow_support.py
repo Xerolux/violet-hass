@@ -10,6 +10,21 @@ from homeassistant import config_entries
 from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.helpers import selector
 
+from .config_flow_utils import (
+    MAX_DEVICE_ID,
+    MAX_POLLING_INTERVAL,
+    MAX_POOL_SIZE,
+    MAX_RETRIES,
+    MAX_TIMEOUT,
+    MIN_DEVICE_ID,
+    MIN_POLLING_INTERVAL,
+    MIN_POOL_SIZE,
+    MIN_RETRIES,
+    MIN_TIMEOUT,
+    constants,
+    get_grouped_sensors,
+    validators,
+)
 from .const import (
     AVAILABLE_FEATURES,
     CONF_ACTIVE_FEATURES,
@@ -43,21 +58,6 @@ from .const import (
     DEFAULT_TIMEOUT_DURATION,
     DEFAULT_USE_SSL,
     DEFAULT_VERIFY_SSL,
-)
-from .config_flow_utils import (
-    MAX_DEVICE_ID,
-    MAX_POLLING_INTERVAL,
-    MAX_POOL_SIZE,
-    MAX_RETRIES,
-    MAX_TIMEOUT,
-    MIN_DEVICE_ID,
-    MIN_POLLING_INTERVAL,
-    MIN_POOL_SIZE,
-    MIN_RETRIES,
-    MIN_TIMEOUT,
-    constants,
-    get_grouped_sensors,
-    validators,
 )
 
 _LOGGER = logging.getLogger(__name__)

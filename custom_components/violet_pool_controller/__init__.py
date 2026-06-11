@@ -14,13 +14,13 @@ from datetime import timedelta
 from typing import Any
 
 import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 
 from .config_entry_helpers import (
     extract_api_host,
@@ -43,8 +43,8 @@ from .const import (
     CONF_VERIFY_SSL,
     DEFAULT_CONTROLLER_NAME,
     DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
-    DEFAULT_PORT,
     DEFAULT_POLLING_INTERVAL,
+    DEFAULT_PORT,
     DEFAULT_RETRY_ATTEMPTS,
     DEFAULT_TIMEOUT_DURATION,
     DEFAULT_VERIFY_SSL,
@@ -119,6 +119,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Lazy imports to avoid blocking the event loop
     from violet_poolcontroller_api.api import VioletPoolAPI
+
     from .device import async_setup_device
 
     # Extract configuration

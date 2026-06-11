@@ -18,8 +18,8 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
 from violet_poolcontroller_api.api import VioletPoolAPIError
+
 from .const import (
     ACTION_AUTO,
     ACTION_OFF,
@@ -267,11 +267,7 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
             elif self._device_key in DOSING_CONFIG_KEYS:
                 dosing_info = DOSING_CONFIG_KEYS[self._device_key]
                 dosing_type = dosing_info["type"]
-                if option == MODE_AUTO:
-                    result = await self.device.api.set_dosage_enabled(
-                        dosing_type, enabled=True
-                    )
-                elif option == MODE_ON:
+                if option in (MODE_AUTO, MODE_ON):
                     result = await self.device.api.set_dosage_enabled(
                         dosing_type, enabled=True
                     )

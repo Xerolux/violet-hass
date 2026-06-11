@@ -6,7 +6,8 @@ import logging
 from datetime import datetime
 from typing import Any
 
-from homeassistant.const import ATTR_DEVICE_ID, __version__ as HA_VERSION
+from homeassistant.const import ATTR_DEVICE_ID
+from homeassistant.const import __version__ as HA_VERSION
 from homeassistant.core import ServiceCall
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import entity_registry as er

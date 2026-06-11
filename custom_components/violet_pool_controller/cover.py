@@ -21,8 +21,8 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
 from violet_poolcontroller_api.api import VioletPoolAPIError
+
 from .const import (
     ACTION_PUSH,
     CONF_ACTIVE_FEATURES,

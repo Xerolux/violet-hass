@@ -9,7 +9,6 @@ from typing import Any, cast
 from homeassistant.const import ATTR_DEVICE_ID
 from homeassistant.core import ServiceCall
 from homeassistant.exceptions import HomeAssistantError
-
 from violet_poolcontroller_api.api import VioletPoolAPIError
 from violet_poolcontroller_api.utils_sanitizer import InputSanitizer
 

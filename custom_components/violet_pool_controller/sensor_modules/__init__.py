@@ -17,6 +17,9 @@ from .base import (
     _build_sensor_description,
     should_skip_sensor,
 )
+from .energy import (
+    VioletPumpPowerSensor,
+)
 from .generic import (
     VioletSensor,
     VioletStatusSensor,
@@ -32,9 +35,6 @@ from .specialized import (
     VioletDosingStateSensor,
     VioletErrorCodeSensor,
     VioletFlowRateSensor,
-)
-from .energy import (
-    VioletPumpPowerSensor,
 )
 
 __all__ = [

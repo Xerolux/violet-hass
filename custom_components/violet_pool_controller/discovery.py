@@ -12,9 +12,8 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 from homeassistant.core import HomeAssistant, callback
-
+from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 
 _LOGGER = logging.getLogger(__name__)
 

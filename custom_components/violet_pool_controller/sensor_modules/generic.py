@@ -8,7 +8,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -17,16 +17,16 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
+from violet_poolcontroller_api.const_devices import VioletState
 
 from ..const import DOMAIN
-from violet_poolcontroller_api.const_devices import VioletState
 from ..device import VioletPoolDataUpdateCoordinator
 from ..entity import VioletPoolControllerEntity
 from .base import (
     _ALL_TEXT_SENSORS,
+    _TIME_FORMAT_KEYS,
     _TIMESTAMP_KEYS,
     _TIMESTAMP_SUFFIXES,
-    _TIME_FORMAT_KEYS,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -109,7 +109,7 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
                 # (10000000000 ms = September 2001, in seconds since 1970)
                 if timestamp > 10000000000:
                     timestamp = timestamp / 1000
-                return datetime.fromtimestamp(timestamp, tz=timezone.utc)
+                return datetime.fromtimestamp(timestamp, tz=UTC)
             except (ValueError, TypeError) as err:
                 self._logger.warning(
                     "Timestamp conversion failed for %s with value '%s': %s",

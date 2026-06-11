@@ -30,17 +30,17 @@ from homeassistant.const import (
 
 # flake8: noqa: F401, F403 - Allows central exporting of constants
 # ruff: noqa: F401, F403 - Allows central exporting of constants
-
 from violet_poolcontroller_api.const_api import *
 from violet_poolcontroller_api.const_devices import *
-from .const_features import *
-from .const_sensors import *
 
 # Explicit re-exports via assignment so that both type checkers and static
 # analysis see these names as defined and used here - the external package
 # ships no py.typed marker, so the wildcard imports above are opaque to mypy
 from violet_poolcontroller_api import const_api as _const_api
 from violet_poolcontroller_api import const_devices as _const_devices
+
+from .const_features import *
+from .const_sensors import *
 
 ACTION_ALLAUTO = _const_api.ACTION_ALLAUTO
 ACTION_ALLOFF = _const_api.ACTION_ALLOFF

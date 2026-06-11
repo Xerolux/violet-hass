@@ -91,7 +91,21 @@ def setup_homeassistant_mocks():
                 hass.config_entries = []
             hass.config_entries.append(self)
 
+    class MockConfigFlow:
+        """Mock ConfigFlow base class."""
+
+        def __init_subclass__(cls, **kwargs):
+            kwargs.pop('domain', None)
+            super().__init_subclass__(**kwargs)
+
+    class MockOptionsFlow:
+        """Mock OptionsFlow base class."""
+
     ha_module.config_entries.ConfigEntry = MockConfigEntry
+    ha_module.config_entries.ConfigFlow = MockConfigFlow
+    ha_module.config_entries.OptionsFlow = MockOptionsFlow
+    # Real HA exposes ConfigFlowResult as a typed dict; a plain dict suffices here.
+    ha_module.config_entries.ConfigFlowResult = dict
     sys.modules['homeassistant.config_entries'] = ha_module.config_entries
 
     # Mock core
@@ -151,8 +165,29 @@ def setup_homeassistant_mocks():
         """Mock string validator."""
         return str(value)
 
+    def boolean(value):
+        """Mock boolean validator."""
+        return bool(value)
+
+    def entity_ids(value):
+        """Mock entity_ids validator."""
+        if isinstance(value, str):
+            return [v.strip() for v in value.split(',')]
+        return list(value)
+
+    def has_at_least_one_key(*keys):
+        """Mock has_at_least_one_key validator."""
+        def validate(obj):
+            if not any(k in obj for k in keys):
+                raise ValueError(f'must contain at least one of {keys}')
+            return obj
+        return validate
+
     config_validation_module.config_entry_only_config_schema = config_entry_only_config_schema
     config_validation_module.string = string
+    config_validation_module.boolean = boolean
+    config_validation_module.entity_ids = entity_ids
+    config_validation_module.has_at_least_one_key = has_at_least_one_key
     helpers_module.config_validation = config_validation_module
     sys.modules['homeassistant.helpers.config_validation'] = config_validation_module
 
@@ -181,6 +216,28 @@ def setup_homeassistant_mocks():
     aiohttp_client_module._async_make_resolver = _async_make_resolver
     helpers_module.aiohttp_client = aiohttp_client_module
     sys.modules['homeassistant.helpers.aiohttp_client'] = aiohttp_client_module
+
+    # helpers.selector - any selector class is accepted via module __getattr__
+    selector_module = types.ModuleType('selector')
+
+    def _selector_getattr(name):
+        """Return a permissive stand-in for any selector class (PEP 562)."""
+        class _AnySelector:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            def __call__(self, value):
+                return value
+
+            def __class_getitem__(cls, item):
+                return cls
+
+        _AnySelector.__name__ = name
+        return _AnySelector
+
+    selector_module.__getattr__ = _selector_getattr
+    helpers_module.selector = selector_module
+    sys.modules['homeassistant.helpers.selector'] = selector_module
 
     # helpers.entity
     entity_module = types.ModuleType('entity')

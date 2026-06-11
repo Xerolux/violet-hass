@@ -25,8 +25,8 @@ from homeassistant.const import UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
 from violet_poolcontroller_api.api import VioletPoolAPIError
+
 from .const import ACTION_AUTO, ACTION_OFF, ACTION_ON, CONF_ACTIVE_FEATURES, DOMAIN
 from .const_features import SETPOINT_DEFINITIONS
 from .device import VioletPoolDataUpdateCoordinator

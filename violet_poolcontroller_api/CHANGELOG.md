@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## Unreleased
+## v0.0.27
 
 ### Fixes
 - **fix: broken lint/typing configuration** ÔÇö `tool.ruff.target-version` and `tool.mypy.python_version` contained the package version (`0.0.26`) instead of a Python version, which made `ruff` (and the `tox -e lint` CI job) fail to parse `pyproject.toml`
