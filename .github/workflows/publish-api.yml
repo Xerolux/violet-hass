@@ -78,6 +78,11 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.version.outputs.tag }}
+          # Never mark API releases as "latest": HACS serves the HA integration
+          # from this repo's latest release (zip_release asset). The integration
+          # releases (v*) own the "latest" flag; API releases are PyPI artifacts.
+          make_latest: false
+          prerelease: true
           files: violet_poolcontroller_api/dist/*
           body: |
             ## violet-poolController-api ${{ steps.version.outputs.version }}
