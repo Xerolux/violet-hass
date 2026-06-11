@@ -88,6 +88,58 @@ Die vollständige Dokumentation befindet sich im **[Wiki][wiki]**:
 
 ---
 
+## 🐍 Python-API-Paket
+
+[![PyPI](https://img.shields.io/pypi/v/violet-poolController-api?style=for-the-badge&logo=pypi)](https://pypi.org/project/violet-poolController-api/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/violet-poolController-api?style=for-the-badge&logo=python)](https://pypi.org/project/violet-poolController-api/)
+
+Der HTTP-Client hinter dieser Integration wird **in diesem Repo** entwickelt und als
+[`violet-poolController-api`](https://pypi.org/project/violet-poolController-api/) auf PyPI
+veröffentlicht — auch eigenständig ohne Home Assistant nutzbar:
+
+```bash
+pip install violet-poolController-api
+```
+
+```python
+import aiohttp
+from violet_poolcontroller_api.api import VioletPoolAPI
+
+async with aiohttp.ClientSession() as session:
+    api = VioletPoolAPI(host="192.168.1.50", session=session,
+                        username="user", password="geheim")
+    readings = await api.get_readings()          # alle ~400 Werte
+    print(readings["pH_value"], readings["orp_value"])
+    await api.manual_dosing("Chlor", 60)         # 60s manuelle Dosierung
+```
+
+**Eingebaute Sicherheit & Robustheit:** Token-Bucket-Rate-Limiting, Circuit Breaker, Retry mit
+Backoff, Input-Sanitization, SSL/TLS-Verifikation, Standalone-Dosing-Modus.
+
+📦 Vollständige API-Doku: [API-Referenz](violet_poolcontroller_api/docs/API_REFERENCE.md) ·
+[Paket-README](violet_poolcontroller_api/README.md) ·
+[Changelog](violet_poolcontroller_api/CHANGELOG.md)
+
+---
+
+## Repository-Struktur
+
+Dies ist ein **Monorepo** mit API-Client und HA-Integration:
+
+| Verzeichnis | Beschreibung |
+|-------------|--------------|
+| `violet_poolcontroller_api/` | Eigenständiger Python-API-Client ([PyPI](https://pypi.org/project/violet-poolController-api/)) |
+| `custom_components/violet_pool_controller/` | Home-Assistant-Integration ([HACS](https://hacs.xyz/)) |
+| `tests/` | HA-Integrationstests (API-Tests in `violet_poolcontroller_api/tests/`) |
+| `docs/` | Dokumentation & Wiki-Quellen |
+
+**Releases:** Die HA-Integration wird über `v*`-Tags released (HACS), das API-Paket über
+`api-v*`-Tags (automatischer PyPI-Upload + GitHub-Release).
+
+Details: [ARCHITECTURE.md](./ARCHITECTURE.md)
+
+---
+
 ## 💝 Unterstützung
 
 Diese Integration wird in meiner Freizeit entwickelt:

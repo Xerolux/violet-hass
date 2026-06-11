@@ -88,6 +88,40 @@ The full documentation is available in the **[Wiki][wiki]**:
 
 ---
 
+## 🐍 Python API Package
+
+[![PyPI](https://img.shields.io/pypi/v/violet-poolController-api?style=for-the-badge&logo=pypi)](https://pypi.org/project/violet-poolController-api/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/violet-poolController-api?style=for-the-badge&logo=python)](https://pypi.org/project/violet-poolController-api/)
+
+The HTTP client powering this integration is developed **in this repo** and published to PyPI as
+[`violet-poolController-api`](https://pypi.org/project/violet-poolController-api/) — usable standalone,
+without Home Assistant:
+
+```bash
+pip install violet-poolController-api
+```
+
+```python
+import aiohttp
+from violet_poolcontroller_api.api import VioletPoolAPI
+
+async with aiohttp.ClientSession() as session:
+    api = VioletPoolAPI(host="192.168.1.50", session=session,
+                        username="user", password="secret")
+    readings = await api.get_readings()          # all ~400 values
+    print(readings["pH_value"], readings["orp_value"])
+    await api.manual_dosing("Chlor", 60)         # 60s manual dosing run
+```
+
+**Built-in safety & robustness:** token-bucket rate limiting, circuit breaker, retry with backoff,
+input sanitization, SSL/TLS verification, standalone-dosing mode.
+
+📦 Full API docs: [API Reference](violet_poolcontroller_api/docs/API_REFERENCE.md) ·
+[Package README](violet_poolcontroller_api/README.md) ·
+[Changelog](violet_poolcontroller_api/CHANGELOG.md)
+
+---
+
 ## Repository Structure
 
 This is a **monorepo** containing both the API client and the HA integration:
@@ -96,8 +130,19 @@ This is a **monorepo** containing both the API client and the HA integration:
 |-----------|-------------|
 | `violet_poolcontroller_api/` | Standalone Python API client ([PyPI](https://pypi.org/project/violet-poolController-api/)) |
 | `custom_components/violet_pool_controller/` | Home Assistant integration ([HACS](https://hacs.xyz/)) |
-| `tests/` | HA integration tests |
-| `docs/` | Documentation |
+| `tests/` | HA integration tests (API tests live in `violet_poolcontroller_api/tests/`) |
+| `docs/` | Documentation & wiki sources |
+
+**Development setup:**
+
+```bash
+pip install -r requirements-dev.txt   # includes editable install of the API package
+pytest violet_poolcontroller_api/tests/   # API test suite
+pytest tests/                              # HA integration test suite
+```
+
+**Releases:** the HA integration is released via `v*` tags (HACS), the API package via `api-v*` tags
+(automatic PyPI publish + GitHub release).
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed structure and development guide.
 

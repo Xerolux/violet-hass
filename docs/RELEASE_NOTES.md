@@ -1,3 +1,43 @@
+## v1.2.4-beta.1 – Violet Pool Controller
+
+🧪 **BETA RELEASE**
+
+### 🐛 Critical Fixes | Kritische Fixes
+
+**Dosing / Dosierung (Flockung, Chlor, pH±):**
+- Manual dosing via switch entities now sends an explicit runtime (30s default) —
+  `POST /triggerManualDosing` requires one, `runtime=0` silently did nothing.
+  This fixes dosing switches appearing "read-only" (flipping back after a few seconds).
+  | Manuelle Dosierung über Switch-Entities sendet jetzt eine explizite Laufzeit
+  (Standard 30s) — vorher sprang der Schalter nach wenigen Sekunden zurück.
+- Requires API package **v0.0.27**: `AUTO` on a dosing channel no longer *starts*
+  a dosing run (now maps to stop/auto, verified on real hardware FW 1.1.9).
+  | Benötigt API-Paket **v0.0.27**: `AUTO` startet keine Dosierung mehr.
+- `manual_dosing(type, 0)` now stops a running dosing instead of sending a
+  zero-second start. | stoppt jetzt statt eines 0-Sekunden-Starts.
+
+**Live-verified | Live verifiziert:** DOSSTART/DOSSTOP, AUTO→Stop mapping, output
+index mapping and auth tested against a real controller (FW 1.1.9).
+
+### 🚀 Improvements | Verbesserungen
+
+- API package is now developed in this monorepo (`violet_poolcontroller_api/`) and
+  released to PyPI via `api-v*` tags | API-Paket wird jetzt im Monorepo entwickelt
+- 4xx errors fail fast and bypass the circuit breaker (wrong credentials show the
+  real HTTP error) | 4xx-Fehler schlagen sofort fehl statt den Circuit Breaker zu öffnen
+- Configurable state display language (`set_state_translation_language`)
+- CI: repaired tox packaging, API format/type checks, version sync workflow;
+  CodeQL now also scans the API package | CI repariert und erweitert
+- Docs: README/Wiki now cover the Python API package | Doku um API-Paket ergänzt
+
+### ❤️ Support | Unterstützung
+
+- 💳 **[PayPal](https://paypal.me/xerolux)**
+- ☕ **[Buy Me a Coffee](https://buymeacoffee.com/xerolux)**
+- ⭐ **[Star this repository](https://github.com/Xerolux/violet-hass)**
+
+---
+
 ## v1.2.3 – Violet Pool Controller
 
 ✅ **STABLE RELEASE**

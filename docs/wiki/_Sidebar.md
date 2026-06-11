@@ -33,11 +33,12 @@
 - [Contributing](Contributing)
 - [Testing](Testing)
 - [API Reference](API-Reference)
+- [Python API Package (PyPI)](API-Package)
 - [Changelog](Changelog)
 
 ---
 
-**Version:** 1.0.7-alpha.1
+**Version:** 1.2.4-beta.1
 **HA:** 2026.5.0+ (tested up to 2026.x)
 
 [GitHub](https://github.com/Xerolux/violet-hass) · [Issues](https://github.com/Xerolux/violet-hass/issues) · [HACS](https://hacs.xyz/)

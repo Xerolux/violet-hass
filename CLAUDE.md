@@ -17,8 +17,8 @@ This is a **monorepo** containing two components:
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.
 
-**Current HA Version**: `1.2.4-dev` (defined in `manifest.json` and `const.py`)
-**Current API Version**: `0.0.26` (defined in `violet_poolcontroller_api/pyproject.toml`)
+**Current HA Version**: `1.2.4-beta.1` (defined in `manifest.json` and `const.py`)
+**Current API Version**: `0.0.27` (defined in `violet_poolcontroller_api/pyproject.toml`)
 
 ## Development Commands
 
@@ -91,7 +91,7 @@ pytest tests/test_api.py::test_function_name -v
 
 - **`__init__.py`** - Integration entry point. Handles setup, config entry migration, platform loading, and service registration. Loads these platforms: `sensor`, `binary_sensor`, `switch`, `climate`, `cover`, `number`, `select`.
 
-- **External API package** (`violet-poolController-api>=0.0.25` on PyPI) - The HTTP client and low-level utilities are **not** in this repo; they ship as an external package. Provides:
+- **API package** (`violet-poolController-api>=0.0.27` on PyPI) - The HTTP client and low-level utilities live in this monorepo under `violet_poolcontroller_api/` and are published to PyPI (HA installs the PyPI package per `manifest.json`). Provides:
   - `VioletPoolAPI` class - rate-limited HTTP client with retry/backoff
   - `VioletPoolAPIError` exception hierarchy
   - `InputSanitizer` - XSS/injection/path-traversal protection
@@ -474,7 +474,7 @@ violet-hass/
 ├── Dashboard/                        # Dashboard YAML examples
 ├── docs/                             # Documentation (27+ files)
 ├── .github/                          # GitHub config
-│   └── workflows/                    # 15 CI/CD pipelines
+│   └── workflows/                    # 10 CI/CD pipelines
 ├── .devcontainer/                    # VS Code dev container
 ├── CLAUDE.md                         # This file
 ├── README.md                         # Project README
@@ -538,28 +538,23 @@ violet-hass/
 
 ## GitHub Workflows
 
-Located in `.github/workflows/`:
+Located in `.github/workflows/` (10 workflows):
 
 **Validation & CI:**
-- **`validate.yml`** - Code validation on push/PR (ruff, mypy, pytest; HA 2026.5.x, Python 3.14)
-- **`hassfest-validation.yml`** - Home Assistant manifest/quality validation
-- **`hacs-validation.yml`** - HACS compatibility check
+- **`validate.yml`** - Integration validation on push/PR: tox (ruff py312, pytest py314) + hassfest + HACS check
+- **`test-api.yml`** - API package CI (path-filtered): ruff check + `ruff format --check` + mypy + pytest, Python 3.12-3.14 matrix
+- **`validate-versions.yml`** - Checks manifest.json version is mentioned in CLAUDE.md
+- **`ha-dev-early-warning.yml`** - Weekly cron: test suite against HA `dev` branch
 
-**Release & Security:**
-- **`release.yml`** - Automated release creation
-- **`security.yml`** - Security scanning
-- **`update-api-dependency.yml`** - Automated `violet-poolController-api` dependency updates
+**Release:**
+- **`release.yml`** - Integration release management, triggered by `v*` tags (stable/beta/alpha/rc)
+- **`dev-release.yml`** - Dev pre-release on every main push (`v<version>-dev.<sha>` tags)
+- **`publish-api.yml`** - PyPI publish + GitHub release, triggered by `api-v*` tags (version must match API pyproject.toml)
+- **`update-api-dependency.yml`** ("Sync API Version") - Auto-bumps the manifest.json requirement when the API pyproject version changes
 
-**Code Quality & Automation:**
-- **`claude.yml`** - Claude Code integration
-- **`claude-code-review.yml`** - Automated code review
-- **`pr-management.yml`** - PR workflow management
-- **`automerge.yml`** - Automatic PR merging
-- **`auto-label-pr.yml`** - PR auto-labeling
-- **`status-check-labels.yml`** - Label-based status checks
-- **`maintenance.yml`** - Repository maintenance
-- **`stale.yml`** - Stale issue/PR management
-- **`wiki-sync.yml`** - Wiki synchronization
+**Security & Docs:**
+- **`security.yml`** - CodeQL + TruffleHog (integration + API paths, weekly cron)
+- **`wiki-sync.yml`** - Syncs `docs/wiki/` to the GitHub wiki on push
 
 ## Common Tasks for AI Assistants
 
@@ -600,7 +595,7 @@ Located in `.github/workflows/`:
 - `voluptuous>=0.16.0` - Data validation
 
 **Integration requirement** (from `manifest.json`):
-- `violet-poolController-api>=0.0.25` - API client package (installed by HA from PyPI; source is in `violet_poolcontroller_api/` locally)
+- `violet-poolController-api>=0.0.27` - API client package (installed by HA from PyPI; source is in `violet_poolcontroller_api/` locally)
 
 **Development** (from `requirements-dev.txt`):
 - `ruff>=0.15.14` - Linter and formatter

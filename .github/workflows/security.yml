@@ -5,10 +5,12 @@ on:
     branches: [main]
     paths:
       - 'custom_components/violet_pool_controller/**'
+      - 'violet_poolcontroller_api/violet_poolcontroller_api/**'
   pull_request:
     branches: [main]
     paths:
       - 'custom_components/violet_pool_controller/**'
+      - 'violet_poolcontroller_api/violet_poolcontroller_api/**'
   schedule:
     - cron: '0 2 * * MON'  # Weekly on Monday at 2 AM UTC
   workflow_dispatch:

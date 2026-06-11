@@ -124,18 +124,24 @@ Home Assistant
     ├── VioletPoolDataUpdateCoordinator (polling, 10s default)
     │       │
     │       ├── VioletPoolAPI (aiohttp, rate-limited, retry-logic, SSL)
+    │       │       │   → PyPI package "violet-poolController-api"
+    │       │       │     (developed in this monorepo, usable standalone)
     │       │       │
     │       │       └── Violet Pool Controller (HTTP/HTTPS)
     │       │               GET /getReadings?ALL
     │       │               GET /setFunctionManually?{payload}
+    │       │               POST /triggerManualDosing (dosing outputs)
     │       │               POST /setConfig
     │       │
-    │       └── Entities (sensors, switches, climate, cover, number)
+    │       └── Entities (sensors, switches, climate, cover, number, select)
     │
     ├── Services (control_pump, smart_dosing, manage_pv_surplus, ...)
     │
     └── Diagnostics (download diagnostics data via HA UI)
 ```
+
+The HTTP client is maintained in this repository under `violet_poolcontroller_api/` and
+published to PyPI — see **[Python API Package](API-Package)** for standalone usage.
 
 ### Security Features
 
