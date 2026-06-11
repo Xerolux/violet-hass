@@ -585,6 +585,10 @@ class VioletPoolControllerDevice:
 
                 return dict(self._data)
 
+        except UpdateFailed:
+            # Already counted and logged where it was raised - the generic
+            # handler below must not increment the failure counter again
+            raise
         except VioletPoolAPIError as err:
             self._last_error = str(err)
             self._consecutive_failures += 1

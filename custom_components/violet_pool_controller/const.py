@@ -36,24 +36,25 @@ from violet_poolcontroller_api.const_devices import *
 from .const_features import *
 from .const_sensors import *
 
-# Explicit re-imports so that type checkers see these names (the external
-# package ships no py.typed marker, so wildcard imports are opaque to mypy)
+# Explicit re-exports ("X as X" marks them as intentional) so that type
+# checkers see these names - the external package ships no py.typed marker,
+# so the wildcard imports above are opaque to mypy
 from violet_poolcontroller_api.const_api import (
-    ACTION_ALLAUTO,
-    ACTION_ALLOFF,
-    ACTION_ALLON,
-    ACTION_AUTO,
-    ACTION_COLOR,
-    ACTION_LOCK,
-    ACTION_MAN,
-    ACTION_OFF,
-    ACTION_ON,
-    ACTION_PUSH,
-    ACTION_UNLOCK,
+    ACTION_ALLAUTO as ACTION_ALLAUTO,
+    ACTION_ALLOFF as ACTION_ALLOFF,
+    ACTION_ALLON as ACTION_ALLON,
+    ACTION_AUTO as ACTION_AUTO,
+    ACTION_COLOR as ACTION_COLOR,
+    ACTION_LOCK as ACTION_LOCK,
+    ACTION_MAN as ACTION_MAN,
+    ACTION_OFF as ACTION_OFF,
+    ACTION_ON as ACTION_ON,
+    ACTION_PUSH as ACTION_PUSH,
+    ACTION_UNLOCK as ACTION_UNLOCK,
 )
 from violet_poolcontroller_api.const_devices import (
-    COVER_FUNCTIONS,
-    DEVICE_PARAMETERS,
+    COVER_FUNCTIONS as COVER_FUNCTIONS,
+    DEVICE_PARAMETERS as DEVICE_PARAMETERS,
 )
 
 # =============================================================================
