@@ -1,6 +1,8 @@
 # Development tools
 # Tested against Home Assistant 2026.5.x (Python 3.14)
 -r requirements.txt
+# API package (local editable install for development)
+-e ./violet_poolcontroller_api[test]
 ruff>=0.15.15
 mypy>=2.1.0
 pytest>=9.0.3
