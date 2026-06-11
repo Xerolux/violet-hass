@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## v0.0.27
 
 ### Fixes
+- **fix: `manual_dosing(type, 0)` stops instead of sending a zero-second `DOSSTART`** — `/triggerManualDosing` requires an explicit runtime; `duration <= 0` now routes to `DOSSTOP` as documented
 - **fix: broken lint/typing configuration** ÔÇö `tool.ruff.target-version` and `tool.mypy.python_version` contained the package version (`0.0.26`) instead of a Python version, which made `ruff` (and the `tox -e lint` CI job) fail to parse `pyproject.toml`
 - **fix: PVSURPLUS made spec-conform** ÔÇö manual section 26.3 only documents `ON`/`OFF` for PVSURPLUS (no `AUTO`; getReadings reports only states 0/1/2). `set_switch_state("PVSURPLUS", "AUTO")` now sends `OFF` (with a warning) instead of the undocumented `PVSURPLUS,AUTO`, other unsupported actions raise `VioletPoolAPIError`; `set_pv_surplus()` clamps `pump_speed` to the documented 1ÔÇô3 range
 - **fix: 4xx responses fail fast and bypass the circuit breaker** ÔÇö deterministic client errors (401/404, except 429) are no longer retried with backoff and no longer count as circuit breaker failures, so a misconfiguration (e.g. wrong credentials) keeps reporting the actual HTTP error instead of opening the breaker

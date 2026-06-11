@@ -573,11 +573,11 @@ await api.set_dosage_enabled("Flockmittel", True)
 await api.set_dosage_enabled("Flockmittel", False)
 enabled = await api.is_dosage_enabled("Flockmittel")
 
-# Manual dosing (start 5 min)
-await api.manual_dosing("Chlor", 5)
+# Manual dosing (start, duration in seconds)
+await api.manual_dosing("Chlor", 60)
 
-# Stop manual dosing
-await api.manual_dosing("Chlor", 0)
+# Stop manual dosing (returns the channel to automatic mode)
+await api.set_switch_state("DOS_1_CL", "OFF")
 
 # Set solar max temperature
 await api.set_device_temperature("SOLAR", 28)

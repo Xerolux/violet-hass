@@ -36,6 +36,11 @@ _LOGGER = logging.getLogger(__name__)
 # Coordinator-based platforms; HA should not throttle entity state writes
 PARALLEL_UPDATES = 0
 
+# Default runtime (seconds) for a manual dosing run started via the plain
+# switch entity. Matches the smart_dosing service default; the controller's
+# /triggerManualDosing endpoint requires an explicit runtime.
+DEFAULT_MANUAL_DOSING_DURATION = 30
+
 
 def _dosing_switch_on(raw_state: Any, use_val: Any) -> bool | None:
     """Determine ON/OFF for a dosing channel, honouring the _USE flag.
@@ -473,6 +478,18 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                     key=key,
                     action=action,
                     last_value=rpm,
+                )
+            elif key.startswith("DOS_") and action == ACTION_ON:
+                # /triggerManualDosing requires a runtime (PoolDigital, forum
+                # thread 2227); runtime=0 would not start a dosing run.
+                duration = self._validate_duration(
+                    kwargs.get("duration", DEFAULT_MANUAL_DOSING_DURATION)
+                )
+                if duration <= 0:
+                    duration = DEFAULT_MANUAL_DOSING_DURATION
+
+                result = await self.device.api.set_switch_state(
+                    key=key, action=action, duration=duration
                 )
             else:
                 result = await self.device.api.set_switch_state(key=key, action=action)

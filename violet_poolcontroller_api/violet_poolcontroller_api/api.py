@@ -1063,6 +1063,11 @@ class VioletPoolAPI:
             msg = f"Unknown dosing type: {dosing_type}"
             raise VioletPoolAPIError(msg)
 
+        # /triggerManualDosing requires an explicit runtime; duration <= 0
+        # stops a running manual dosing instead (documented behavior).
+        if duration <= 0:
+            return await self.set_switch_state(device_key, ACTION_OFF)
+
         return await self.set_switch_state(
             device_key,
             ACTION_ON,
