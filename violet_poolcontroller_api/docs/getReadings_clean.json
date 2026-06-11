@@ -1,0 +1,358 @@
+{
+  "getReadings": [
+    {
+      "VALUE NAME": null,
+      "DESCRIPTION": null,
+      "FORMAT": null,
+      "DETAILS": "Revision date: 02-08-2023"
+    },
+    {
+      "VALUE NAME": "SYSTEM INFORMATIONS",
+      "DESCRIPTION": null,
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"date\"",
+      "DESCRIPTION": "System-date (incl. time-zone offsets)",
+      "FORMAT": "STRING",
+      "DETAILS": "deliverd as TT.MM.YYYY"
+    },
+    {
+      "VALUE NAME": "   \"time\"",
+      "DESCRIPTION": "System-time (incl. time-zone offsets)",
+      "FORMAT": "STRING",
+      "DETAILS": "deliverd as HH:MM:SS"
+    },
+    {
+      "VALUE NAME": "   \"fw\"",
+      "DESCRIPTION": "System Softwareversion",
+      "FORMAT": "INT.INT.INT",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"CPU_TEMP\"",
+      "DESCRIPTION": "CPU-Temperature, system (°C)",
+      "FORMAT": "FLOAT",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"CPU_UPTIME\"",
+      "DESCRIPTION": "System uptime since last boot",
+      "FORMAT": "STRING",
+      "DETAILS": "deliverd as DD HH MM (i.e. \"143d 12h 32m\""
+    },
+    {
+      "VALUE NAME": "   \"SYSTEM_MEMORY\"",
+      "DESCRIPTION": "Overall System-memory used (mb)",
+      "FORMAT": "FLOAT",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"SYSTEM_memoryusage\"",
+      "DESCRIPTION": "System-memory used by App (mb)",
+      "FORMAT": "FLOAT",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": null,
+      "DESCRIPTION": null,
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": null,
+      "DESCRIPTION": null,
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": null,
+      "DESCRIPTION": null,
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "IMPULS INPUTS",
+      "DESCRIPTION": null,
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"IMP1_value\"",
+      "DESCRIPTION": "Reading of Impuls_Input 1 (Flow switch)",
+      "FORMAT": "FLOAT",
+      "DETAILS": "if \"Echo sensor\" is configured, it's the meassured value in cm/sec.\nif \"Proximity switch\" is configured it's 0 (sensor open) or 1 (sensor closed)"
+    },
+    {
+      "VALUE NAME": null,
+      "DESCRIPTION": null,
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": null,
+      "DESCRIPTION": null,
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "WATER PARAMETERS",
+      "DESCRIPTION": null,
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"orp_value\"",
+      "DESCRIPTION": "Current ORP reading (in mV)",
+      "FORMAT": "FLOAT",
+      "DETAILS": "1 decimal"
+    },
+    {
+      "VALUE NAME": "   \"orp_value_max\"",
+      "DESCRIPTION": "min. ORP reading of this day (resetted every night at 00:00)",
+      "FORMAT": "FLOAT",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"orp_value_min\"",
+      "DESCRIPTION": "max. ORP reading of this day (resetted every night at 00:00)",
+      "FORMAT": "FLOAT",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"pH_value\"",
+      "DESCRIPTION": "Current pH reading",
+      "FORMAT": "FLOAT",
+      "DETAILS": "2 decimals"
+    },
+    {
+      "VALUE NAME": "   \"pH_value_max\"",
+      "DESCRIPTION": "min. pH reading of this day (resetted every night at 00:00)",
+      "FORMAT": "FLOAT",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"pH_value_min\"",
+      "DESCRIPTION": "max. pH reading of this day (resetted every night at 00:00)",
+      "FORMAT": "FLOAT",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"pot_value\"",
+      "DESCRIPTION": "Current chlorine reading (in mg/l … ppm)",
+      "FORMAT": "FLOAT",
+      "DETAILS": "2 decimals"
+    },
+    {
+      "VALUE NAME": "   \"pot_value_max\"",
+      "DESCRIPTION": "min. Cl reading of this day (resetted every night at 00:00)",
+      "FORMAT": "FLOAT",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"pot_value_min\"",
+      "DESCRIPTION": "max. Cl reading of this day (resetted every night at 00:00)",
+      "FORMAT": "FLOAT",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": null,
+      "DESCRIPTION": null,
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": null,
+      "DESCRIPTION": null,
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "DOSING OPTIONS / AMOUNTS",
+      "DESCRIPTION": null,
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"DOS_1_CL\"",
+      "DESCRIPTION": "Current state of OUTPUT: CL-DOSING",
+      "FORMAT": "INTEGER",
+      "DETAILS": "0 - AUTO (not on)\n1 - AUTO (on)\n2 - AUTO (prio OFF by control rule)\n3 - AUTO (prio ON by emergencyRule)\n4 - MANUAL (ON)\n5 - OFF by emergencyRule\n6 - MANUAL (OFF)"
+    },
+    {
+      "VALUE NAME": "   \"DOS_1_CL_DAILY_DOSING_AMOUNT_ML\"",
+      "DESCRIPTION": "Todays dosing amount in ml (resetted to \"0\" at 00:00 every night)",
+      "FORMAT": "STRING",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"DOS_1_CL_LAST_CAN_RESET\"",
+      "DESCRIPTION": "Unix Epoch of last Can_Reset",
+      "FORMAT": "Unix epoch (milliseconds)",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"DOS_1_CL_LAST_OFF\"",
+      "DESCRIPTION": "Epoch of last OFF-switching",
+      "FORMAT": "Unix epoch (seconds)",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"DOS_1_CL_LAST_ON\"",
+      "DESCRIPTION": "Epoch of last ON-switching",
+      "FORMAT": "Unix epoch (seconds)",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"DOS_1_CL_RUNTIME\"",
+      "DESCRIPTION": "Daily runtime of CL_DOSING output",
+      "FORMAT": "HH:MM:SS",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"DOS_1_CL_STATE\"",
+      "DESCRIPTION": "Array of possible blockings",
+      "FORMAT": "LIST, STRING",
+      "DETAILS": "\"BLOCKED_BY_OMNI_POS\",\n\"BLOCKED_BY_MAX_AMOUNT\",\n …"
+    },
+    {
+      "VALUE NAME": "   \"DOS_1_CL_TOTAL_CAN_AMOUNT_ML\"",
+      "DESCRIPTION": "Remaining can amount in ml",
+      "FORMAT": "STRING",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"DOS_1_CL_TYPE\"",
+      "DESCRIPTION": "Indicates if the dosing controller is based on ORP only or ORP and Chlorine values",
+      "FORMAT": "STRING",
+      "DETAILS": "0 - ORP only\n1 - ORP and Cl based"
+    },
+    {
+      "VALUE NAME": "   \"DOS_1_CL_USE\"",
+      "DESCRIPTION": "Indicates if this Dosing option is activated in overall system-config or not",
+      "FORMAT": "STRING",
+      "DETAILS": "0 - not configured for this system\n1 - configured"
+    },
+    {
+      "VALUE NAME": null,
+      "DESCRIPTION": null,
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"DOS_2_ELO\"",
+      "DESCRIPTION": "Current state of OUTPUT: ELO-DOSING (relay-extension)",
+      "FORMAT": "see above",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "     …",
+      "DESCRIPTION": "all other \"DOS_2_ELO\" options are the same as DOS_1_CL ",
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": null,
+      "DESCRIPTION": null,
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"DOS_4_PHM\"",
+      "DESCRIPTION": "Current state of OUTPUT: pH- DOSING ",
+      "FORMAT": "see above",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "     …",
+      "DESCRIPTION": "all other \"DOS_4_PHM\" options are the same as DOS_1_CL ",
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": null,
+      "DESCRIPTION": null,
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"DOS_5_PHP\"",
+      "DESCRIPTION": "Current state of OUTPUT: pH+ DOSING ",
+      "FORMAT": "see above",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "     …",
+      "DESCRIPTION": "all other \"DOS_5_PHP\" options are the same as DOS_1_CL ",
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": null,
+      "DESCRIPTION": null,
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"DOS_6_FLOC\"",
+      "DESCRIPTION": "Current state of OUTPUT: FLOC DOSING ",
+      "FORMAT": "see above",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "     …",
+      "DESCRIPTION": "all other \"DOS_6_FLOC\" options are the same as DOS_1_CL ",
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": null,
+      "DESCRIPTION": null,
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": null,
+      "DESCRIPTION": null,
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "STATES / RUNTIMES OF OUTPUTS",
+      "DESCRIPTION": null,
+      "FORMAT": null,
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"PUMP\"",
+      "DESCRIPTION": "The output does not exist, but is used as indicator if IMP_1 delivers flow. ",
+      "FORMAT": "INTEGER",
+      "DETAILS": "0 - AUTO (not on)\n4 - MANUAL (ON)"
+    },
+    {
+      "VALUE NAME": "   \"PUMP_LAST_OFF\"",
+      "DESCRIPTION": "Epoch of last OFF-switching",
+      "FORMAT": "Unix epoch (seconds)",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"PUMP_LAST_ON\"",
+      "DESCRIPTION": "Epoch of last ON-switching",
+      "FORMAT": "Unix epoch (seconds)",
+      "DETAILS": null
+    },
+    {
+      "VALUE NAME": "   \"PUMP_RUNTIME\"",
+      "DESCRIPTION": "Daily runtime of this output",
+      "FORMAT": "HH MM SS",
+      "DETAILS": "i.e. delivered as \"04h 33m 12s\""
+    },
+    {
+      "VALUE NAME": null,
+      "DESCRIPTION": null,
+      "FORMAT": null,
+      "DETAILS": null
+    }
+  ]
+}
