@@ -24,23 +24,27 @@ class TestDosingUseFlagPureFunction:
 
     # --- _USE = "1" → normal STATE_MAP logic ---
 
-    def test_use_one_state_2_is_on(self):
-        """Chlor channel: state=2, _USE=1 → ON (from STATE_MAP)."""
-        assert _dosing_switch_on(2, "1") is True
+    def test_use_one_state_2_is_off(self):
+        """Chlor channel: state=2 (Auto - Priority OFF, rule blocked) → OFF."""
+        assert _dosing_switch_on(2, "1") is False
+
+    def test_use_one_state_1_is_on(self):
+        """state=1 (Auto - Active), _USE=1 → ON."""
+        assert _dosing_switch_on(1, "1") is True
 
     def test_use_one_state_0_is_off(self):
-        """pH- channel: state=0 (AUTO_OFF), _USE=1 → OFF."""
+        """pH- channel: state=0 (Auto - Standby), _USE=1 → OFF."""
         assert _dosing_switch_on(0, "1") is False
 
     def test_use_one_state_4_is_on(self):
-        """state=4 (MANUAL_ON_FORCED), _USE=1 → ON."""
+        """state=4 (Manual ON, forced), _USE=1 → ON."""
         assert _dosing_switch_on(4, "1") is True
 
     # --- _USE absent (None) → normal STATE_MAP logic ---
 
     def test_no_use_key_state_2_falls_back_to_state_map(self):
-        """No _USE key: state=2 → True per STATE_MAP."""
-        assert _dosing_switch_on(2, None) is True
+        """No _USE key: state=2 (Auto - Priority OFF, rule blocked) → False."""
+        assert _dosing_switch_on(2, None) is False
 
     def test_no_use_key_state_0_is_off(self):
         """No _USE key: state=0 → False per STATE_MAP."""
@@ -61,9 +65,9 @@ class TestDosingUseFlagPureFunction:
         assert _dosing_switch_on(2, "0") is False
 
     def test_chlor_in_use(self):
-        """DOS_1_CL: state=2, USE='1' (Chlor active) → ON."""
-        assert _dosing_switch_on(2, "1") is True
+        """DOS_1_CL: state=1 (Auto - Active), USE='1' (Chlor active) → ON."""
+        assert _dosing_switch_on(1, "1") is True
 
     def test_phm_in_use(self):
-        """DOS_4_PHM: state=2, USE='1' (pH- active) → ON."""
-        assert _dosing_switch_on(2, "1") is True
+        """DOS_4_PHM: state=1 (Auto - Active), USE='1' (pH- active) → ON."""
+        assert _dosing_switch_on(1, "1") is True

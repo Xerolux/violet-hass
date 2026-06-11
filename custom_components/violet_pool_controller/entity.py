@@ -28,23 +28,28 @@ _LOGGER = logging.getLogger(__name__)
 # =============================================================================
 
 # Boolean State Mapping (used by switches and other boolean entities)
-# States per device specifications:
-# 0 = AUTO_OFF (automatic control, currently off)
-# 1 = AUTO_ON (automatic control, currently on)
-# 2 = AUTO_ACTIVE (automatic control with timing)
-# 3 = AUTO_ACTIVE_TIMER (automatic control with timer)
-# 4 = MANUAL_ON_FORCED (manual on, forced mode)
-# 5 = AUTO_WAITING (automatic control, waiting for conditions)
-# 6 = MANUAL_OFF (manual off)
+# States per getReadings spec (Rev. 14-07-2024) and
+# violet_poolcontroller_api.const_devices.DEVICE_STATE_MAPPING:
+# 0 = Auto - Standby (off)
+# 1 = Auto - Active/Scheduled (on)
+# 2 = Auto - Priority OFF, blocked by control rule (off)
+# 3 = Auto - Priority ON by emergency rule (on)
+# 4 = Manual ON, forced (on)
+# 5 = OFF by emergency rule (off)
+# 6 = Manual OFF (off)
 STATE_MAP = {
-    0: False,  # AUTO_OFF
-    1: True,   # AUTO_ON
-    2: True,   # AUTO_ACTIVE (with timing, device is active)
-    3: True,   # AUTO_ACTIVE_TIMER (with timer, device is active)
-    4: True,   # MANUAL_ON_FORCED
-    5: False,  # AUTO_WAITING (not yet active)
-    6: False,  # MANUAL_OFF
+    0: False,  # Auto - Standby
+    1: True,   # Auto - Active (Scheduled)
+    2: False,  # Auto - Priority OFF (Rule Blocked)
+    3: True,   # Auto - Priority ON (Emergency Rule)
+    4: True,   # Manual ON (Forced)
+    5: False,  # Rule OFF (Emergency Rule)
+    6: False,  # Manual OFF
 }
+
+# PVSURPLUS does not use the 0-6 output state scheme:
+# 0 = off, 1 = on (digital input), 2 = on (HTTP request)
+PV_SURPLUS_STATE_MAP = {0: False, 1: True, 2: True}
 
 
 # Pre-compiled numeric pattern for performance
@@ -114,14 +119,16 @@ def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool | None:
         return None
 
     state_str = str(raw_state).upper().strip()
-    if state_str in ("N/A", "NONE", "UNKNOWN", "NULL"):
+    if state_str in ("N/A", "NONE", "UNKNOWN", "NULL", "---", ""):
         return None
+
+    state_map = PV_SURPLUS_STATE_MAP if key == "PVSURPLUS" else STATE_MAP
 
     # Priority 1: Check STATE_MAP first (most common)
     state_int = convert_to_int(raw_state)
     if state_int is not None:
-        if state_int in STATE_MAP:
-            return STATE_MAP[state_int]
+        if state_int in state_map:
+            return state_map[state_int]
         # Generic interpretation: 0 = False, non-zero = True
         return state_int != 0
 
@@ -133,8 +140,8 @@ def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool | None:
         status_code, _status_text = parse_composite_state(state_str)
         state_int = convert_to_int(status_code)
         if state_int is not None:
-            if state_int in STATE_MAP:
-                return STATE_MAP[state_int]
+            if state_int in state_map:
+                return state_map[state_int]
             return state_int != 0
 
     # Fast boolean string checks using pre-compiled patterns
@@ -147,8 +154,9 @@ def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool | None:
     if NUMERIC_PATTERN.match(state_str):
         return int(state_str) != 0
 
-    # Default: non-empty/valid numeric = True
-    return bool(raw_state) and raw_state != ""
+    # Unrecognized strings (e.g. "STOPPED", "MAINTENANCE") must not be
+    # guessed as ON - report unknown instead
+    return None
 
 
 # =============================================================================

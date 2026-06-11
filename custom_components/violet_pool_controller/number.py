@@ -92,13 +92,15 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
             return self._optimistic_value
 
         # Special case: pump speed — determine active level from PUMP_RPM_{i}
-        # PUMP_RPM_{i} returns status codes (0-6); values 1,2,3,4 = output ON
+        # PUMP_RPM_{i} returns status codes (0-6); 1, 3 and 4 mean output ON
+        # (2 = rule-blocked OFF). PUMP_RPM_0 is the PUMP_STOP output and lies
+        # below this entity's min value of 1, so start at level 1.
         if self._api_key == "PUMP_SPEED":
-            for level in range(4):  # levels 0-3 (PUMP_RPM_0 to PUMP_RPM_3)
+            for level in range(1, 4):  # levels 1-3 (PUMP_RPM_1 to PUMP_RPM_3)
                 rpm_val = self.get_value(f"PUMP_RPM_{level}")
                 if rpm_val is not None:
                     try:
-                        if int(rpm_val) in (1, 2, 3, 4):  # status code = ON
+                        if int(rpm_val) in (1, 3, 4):  # status code = ON
                             _LOGGER.debug(
                                 "Pump speed active: level %d (PUMP_RPM_%d=%s)",
                                 level,

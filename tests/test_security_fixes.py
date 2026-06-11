@@ -33,7 +33,7 @@ class TestSecurityFixes:
         api = VioletPoolAPI.__new__(VioletPoolAPI)
 
         # Test valid host
-        valid_url = api._build_secure_base_url("192.168.1.100", True)
+        valid_url = api._build_secure_base_url("192.168.1.100", use_ssl=True)
         assert valid_url.startswith("https://192.168.1.100")
 
         # Test SSRF attempts - should raise ValueError
@@ -45,10 +45,10 @@ class TestSecurityFixes:
         #     api._build_secure_base_url("169.254.169.254", True)
 
         with pytest.raises(ValueError, match="Invalid hostname"):
-            api._build_secure_base_url("../../../etc/passwd", True)
+            api._build_secure_base_url("../../../etc/passwd", use_ssl=True)
 
         with pytest.raises(ValueError, match="Invalid hostname"):
-            api._build_secure_base_url("', DROP TABLE users; --", True)
+            api._build_secure_base_url("', DROP TABLE users; --", use_ssl=True)
 
     def test_input_sanitization_config(self):
         """Test configuration input sanitization."""
@@ -109,11 +109,11 @@ class TestSecurityFixes:
         api = VioletPoolAPI.__new__(VioletPoolAPI)
         
         # SSL enabled
-        ssl_url = api._build_secure_base_url("example.com", True)
+        ssl_url = api._build_secure_base_url("example.com", use_ssl=True)
         assert ssl_url.startswith("https://")
         
         # SSL disabled
-        http_url = api._build_secure_base_url("example.com", False)
+        http_url = api._build_secure_base_url("example.com", use_ssl=False)
         assert http_url.startswith("http://")
 
     async def test_config_with_sanitization(self, api):
@@ -137,7 +137,7 @@ class TestSecurityFixes:
                 
                 # Get the sanitized config that was passed
                 call_args = mock_request.call_args
-                sanitized_config = call_args[1]['json_payload']
+                sanitized_config = call_args.kwargs['data']
                 
                 # Valid keys should be present
                 assert "valid_key" in sanitized_config
@@ -165,7 +165,7 @@ class TestSecurityFixes:
 
         for host in valid_hosts:
             try:
-                result = api._build_secure_base_url(host, True)
+                result = api._build_secure_base_url(host, use_ssl=True)
                 assert result is not None
                 assert result.startswith("https://")
             except ValueError:
@@ -187,4 +187,4 @@ class TestSecurityFixes:
 
         for host in invalid_hosts:
             with pytest.raises(ValueError):
-                api._build_secure_base_url(host, True)
+                api._build_secure_base_url(host, use_ssl=True)

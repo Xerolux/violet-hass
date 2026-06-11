@@ -171,13 +171,13 @@ class VioletControlServiceHandlers:
                     _LOGGER.info("Dosing %s set to AUTO (enabled)", dosing_type)
 
                 elif action == "stop":
-                    api_dosing_type = DOSING_API_MAPPING.get(
-                        dosing_type, dosing_type
+                    # DOS_* OFF is routed through /triggerManualDosing as
+                    # DOSSTOP - stops a running manual dose without
+                    # persistently disabling the channel in the config
+                    result = await coordinator.device.api.set_switch_state(
+                        key=device_key, action=ACTION_OFF
                     )
-                    result = await coordinator.device.api.set_dosage_enabled(
-                        api_dosing_type, enabled=False
-                    )
-                    _LOGGER.info("Dosing %s stopped (disabled)", dosing_type)
+                    _LOGGER.info("Dosing %s stopped (DOSSTOP)", dosing_type)
 
                 if result.get("success") is not True:
                     _LOGGER.warning(

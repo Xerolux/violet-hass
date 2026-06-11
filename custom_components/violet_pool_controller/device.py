@@ -52,6 +52,7 @@ from .const import (
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_RETRY_ATTEMPTS,
     DEFAULT_TIMEOUT_DURATION,
+    DEFAULT_USE_SSL,
     DEFAULT_VERIFY_SSL,
     DOMAIN,
 )
@@ -124,7 +125,7 @@ class VioletPoolControllerDevice:
             extract_api_host(entry_data),
             entry_data.get(CONF_PORT, DEFAULT_PORT),
         )
-        self.use_ssl = entry_data.get(CONF_USE_SSL, True)
+        self.use_ssl = entry_data.get(CONF_USE_SSL, DEFAULT_USE_SSL)
         self.device_id = entry_data.get(CONF_DEVICE_ID, 1)
         self.device_name = entry_data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
         # Prefer options (later changes) over data
@@ -418,6 +419,9 @@ class VioletPoolControllerDevice:
 
                 if not data or not isinstance(data, dict):
                     self._consecutive_failures += 1
+                    # Allow the recovery message/issue cleanup to fire again
+                    # after this new outage
+                    self._recovery_logged = False
                     if self._consecutive_failures == 1:
                         if self._available or len(self._data) > 0:
                             _LOGGER.warning(
@@ -478,8 +482,14 @@ class VioletPoolControllerDevice:
                     config_data = await self.api.get_config(config_keys)
                     if isinstance(config_data, dict):
                         data.update(config_data)
-                except VioletPoolAPIError:
-                    pass
+                except Exception as err:  # noqa: BLE001
+                    # Setpoints are an optional enrichment - a failure here
+                    # must not invalidate the successful readings poll
+                    _LOGGER.debug(
+                        "Optional getConfig fetch failed for '%s': %s",
+                        self.device_name,
+                        err,
+                    )
 
                 if self._consecutive_failures > 0 and not self._recovery_logged:
                     _LOGGER.info(
@@ -575,9 +585,14 @@ class VioletPoolControllerDevice:
 
                 return dict(self._data)
 
+        except UpdateFailed:
+            # Already counted and logged where it was raised - the generic
+            # handler below must not increment the failure counter again
+            raise
         except VioletPoolAPIError as err:
             self._last_error = str(err)
             self._consecutive_failures += 1
+            self._recovery_logged = False
             if self._consecutive_failures == 1:
                 if not self._available and len(self._data) == 0:
                     _LOGGER.debug("API error during setup of '%s': %s", self.device_name, str(err)[:200])
@@ -594,6 +609,7 @@ class VioletPoolControllerDevice:
         except Exception as err:
             self._last_error = str(err)
             self._consecutive_failures += 1
+            self._recovery_logged = False
             if self._consecutive_failures == 1:
                 if not self._available and len(self._data) == 0:
                     _LOGGER.debug("Error during setup of '%s': %s", self.device_name, err)

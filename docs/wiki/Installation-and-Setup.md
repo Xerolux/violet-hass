@@ -51,7 +51,7 @@ HACS (Home Assistant Community Store) enables easy installation and automatic up
 
 ### Step 1: Install HACS (if not already installed)
 
-If HACS is not yet installed, follow the [official HACS installation guide](https://hacs.xyz/docs/setup/download).
+If HACS is not yet installed, follow the [official HACS installation guide](https://hacs.xyz/docs/use/download/download/).
 
 ### Step 2: Add Repository
 

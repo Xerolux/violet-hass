@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import sys
 from pathlib import Path
 import threading
@@ -151,6 +152,18 @@ def _create_mock_violet_api_module():
     const_api_module.API_PRIORITY_CRITICAL = 1
     const_api_module.API_PRIORITY_HIGH = 2
     const_api_module.API_PRIORITY_NORMAL = 3
+    # Action constants (mirror violet_poolcontroller_api.const_api)
+    const_api_module.ACTION_ON = "ON"
+    const_api_module.ACTION_OFF = "OFF"
+    const_api_module.ACTION_AUTO = "AUTO"
+    const_api_module.ACTION_PUSH = "PUSH"
+    const_api_module.ACTION_MAN = "MAN"
+    const_api_module.ACTION_COLOR = "COLOR"
+    const_api_module.ACTION_ALLON = "ALLON"
+    const_api_module.ACTION_ALLOFF = "ALLOFF"
+    const_api_module.ACTION_ALLAUTO = "ALLAUTO"
+    const_api_module.ACTION_LOCK = "LOCK"
+    const_api_module.ACTION_UNLOCK = "UNLOCK"
     mock_module.const_api = const_api_module
 
     # const_devices submodule
@@ -186,6 +199,19 @@ def _create_mock_violet_api_module():
         "CLOSED": "closed",
         "CLOSING": "closing",
         "STOPPED": "stopped",
+    }
+    const_devices_module.COVER_FUNCTIONS = {
+        "OPEN": "COVER_OPEN",
+        "CLOSE": "COVER_CLOSE",
+        "STOP": "COVER_STOP",
+    }
+    # Boolean state map (mirror violet_poolcontroller_api.const_devices):
+    # 2 = Auto - Priority OFF (Rule Blocked) is OFF
+    const_devices_module.STATE_MAP = {
+        0: False, 1: True, 2: False, 3: True, 4: True, 5: False, 6: False,
+        "0": False, "1": True, "2": False, "3": True, "4": True,
+        "5": False, "6": False,
+        "ON": True, "OFF": False, "AUTO": False,
     }
     const_devices_module.DEVICE_PARAMETERS = {}
     for _mod in ("EXT1", "EXT2"):
@@ -256,7 +282,12 @@ def _create_mock_violet_api_module():
     return mock_module
 
 
-if 'violet_poolcontroller_api' not in sys.modules:
+# Stub the external API package only when it is not actually installed -
+# shadowing the real package would test against mock behavior
+if (
+    'violet_poolcontroller_api' not in sys.modules
+    and importlib.util.find_spec('violet_poolcontroller_api') is None
+):
     mock_api = _create_mock_violet_api_module()
     sys.modules['violet_poolcontroller_api'] = mock_api
     sys.modules['violet_poolcontroller_api.api'] = mock_api.api
@@ -365,28 +396,7 @@ def pytest_fixture_setup(fixturedef, request):
             pass
 
 
-@pytest.fixture
-async def hass():
-    """Fixture that provides a Home Assistant instance."""
-    from homeassistant.core import HomeAssistant
-
-    ha = HomeAssistant()
-    ha.data = {}
-    return ha
-
-
-@pytest.fixture
-def device_registry(hass):
-    """Fixture that provides a device registry."""
-    from homeassistant.helpers.device_registry import DeviceRegistry
-
-    return DeviceRegistry()
-
-
-@pytest.fixture
-def entity_registry(hass):
-    """Fixture that provides an entity registry."""
-    class EntityRegistry:
-        pass
-
-    return EntityRegistry()
+# NOTE: The hass / device_registry / entity_registry fixtures are provided by
+# pytest-homeassistant-custom-component. Do not redefine them here - a local
+# override shadows the real fixtures and breaks every test that depends on a
+# functioning HomeAssistant instance.

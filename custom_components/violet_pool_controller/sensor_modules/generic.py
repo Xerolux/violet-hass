@@ -102,6 +102,9 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
         if is_timestamp_key and key not in _TIME_FORMAT_KEYS:
             try:
                 timestamp = float(raw_value)
+                # 0 means "never" / "no timer running" - not 1970-01-01
+                if timestamp == 0:
+                    return None
                 # Handle milliseconds: if timestamp > 10000000000, it's in milliseconds
                 # (10000000000 ms = September 2001, in seconds since 1970)
                 if timestamp > 10000000000:

@@ -200,7 +200,7 @@ pytest tests/test_api.py::test_function_name -v
   - Heater control
   - Solar control
   - Dosing systems (pH-, pH+, Chlorine, Flocculant)
-  - DMX scenes (1-8)
+  - DMX scenes (1-12)
   - Extension relays (1-8)
   - Multi-state support (0-6) with automatic mode detection
 
@@ -246,7 +246,7 @@ Services defined in `services.yaml` and registered in `services.py`:
   - Integration with solar systems
 
 - **`control_dmx_scenes`** - DMX lighting control:
-  - Scene selection (1-8)
+  - Scene selection (1-12)
   - Scene activation/deactivation
 
 - **`set_light_color_pulse`** - Pool light control:
@@ -264,14 +264,18 @@ Services defined in `services.yaml` and registered in `services.py`:
 
 2. **Rate Limiting**: API requests go through a global rate limiter (provided by the external `violet-poolController-api` package) using token bucket algorithm to protect the controller from overload.
 
-3. **Multi-State Switches**: Pool devices support multiple states (0-6):
-   - `0` = AUTO_OFF (automatic control, currently off)
-   - `1` = AUTO_ON (automatic control, currently on)
-   - `2` = AUTO_ACTIVE (automatic control with timing)
-   - `3` = AUTO_ACTIVE_TIMER (automatic control with timer)
-   - `4` = MANUAL_ON_FORCED (manual on, forced mode)
-   - `5` = AUTO_WAITING (automatic control, waiting for conditions)
-   - `6` = MANUAL_OFF (manual off)
+3. **Multi-State Switches**: Pool devices support multiple states (0-6), per the
+   getReadings spec and `DEVICE_STATE_MAPPING` in the external API package:
+   - `0` = Auto - Standby (off)
+   - `1` = Auto - Active/Scheduled (on)
+   - `2` = Auto - Priority OFF, blocked by control rule (off)
+   - `3` = Auto - Priority ON by emergency rule (on)
+   - `4` = Manual ON, forced (on)
+   - `5` = OFF by emergency rule (off)
+   - `6` = Manual OFF (off)
+
+   Exception: `PVSURPLUS` uses its own scheme (0 = off, 1 = on via digital
+   input, 2 = on via HTTP request).
 
    **Important**: States may include descriptive suffixes (e.g., `"3|PUMP_ANTI_FREEZE"`) parsed as operational modes like frost protection.
 
@@ -608,11 +612,11 @@ Located in `.github/workflows/`:
 
 ## Important Notes
 
-1. **Thread Safety**: The integration uses two locks (`_api_lock`, `_recovery_lock`) with documented ordering. Always read device.py:42-58 before modifying concurrent code to prevent deadlocks.
+1. **Thread Safety**: The coordinator serializes polling with a single `_api_lock` (see device.py). Service handlers call the API directly; command serialization is handled by the external package's rate limiter.
 
 2. **State Handling**: Switches support states 0-6 with specific meanings:
-   - States 0, 5, 6 = Device OFF (different automatic/manual modes)
-   - States 1, 2, 3, 4 = Device ON (different automatic/manual modes)
+   - States 0, 2, 5, 6 = Device OFF (standby, rule-blocked, emergency rule, manual off)
+   - States 1, 3, 4 = Device ON (scheduled, emergency-rule priority, manual forced)
    - Composite states like `"3|PUMP_ANTI_FREEZE"` provide additional context about operational modes
    - All states are defined in `DEVICE_STATE_MAPPING` in `violet_poolcontroller_api/violet_poolcontroller_api/const_devices.py`
 

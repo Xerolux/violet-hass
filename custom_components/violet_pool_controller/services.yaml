@@ -247,6 +247,26 @@ export_diagnostic_logs:
       default: true
       selector:
         boolean:
+    include_config:
+      description: Include integration configuration in the export
+      default: true
+      selector:
+        boolean:
+    include_history:
+      description: Include poll/error history in the export
+      default: true
+      selector:
+        boolean:
+    include_states:
+      description: Include current entity states in the export
+      default: true
+      selector:
+        boolean:
+    include_raw_data:
+      description: Include raw controller data in the export
+      default: true
+      selector:
+        boolean:
     save_to_file:
       description: Save logs to file in /config/ directory
       default: false

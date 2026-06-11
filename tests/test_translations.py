@@ -172,12 +172,11 @@ class TestTranslationStructure:
         strings_data = load_strings_json()
         assert "services" in strings_data
 
-        # Required services
+        # Required services (must match services.yaml)
         required_services = [
-            "turn_auto",
-            "set_pv_surplus",
-            "set_temperature_target",
-            "set_ph_target",
+            "control_pump",
+            "smart_dosing",
+            "manage_pv_surplus",
             "export_diagnostic_logs",
         ]
 

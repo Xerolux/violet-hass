@@ -82,7 +82,7 @@ The full documentation is available in the **[Wiki][wiki]**:
 ## 🔑 Requirements
 
 - Home Assistant **2026.5.0+** (tested up to 2026.x)
-- HACS ([Installation guide](https://hacs.xyz/docs/setup/download))
+- HACS ([Installation guide](https://hacs.xyz/docs/use/download/download/))
 - Violet Pool Controller accessible on your local network
 - Python 3.14.2+
 
@@ -127,6 +127,14 @@ The **VIOLET Pool Controller** by [PoolDigital GmbH & Co. KG](https://www.pooldi
 - **Official Shop:** [pooldigital.de](https://www.pooldigital.de/poolsteuerungen/violet-poolsteuerung/74/violet-basis-modul-poolsteuerung-smart)
 - **Community:** [PoolDigital Forum](http://forum.pooldigital.de/)
 - **API Package:** [violet-poolController-api](https://pypi.org/project/violet-poolController-api/) on PyPI (included in this repo under `violet_poolcontroller_api/`)
+
+
+
+## **Disclaimer:**
+*This is an unofficial, community-driven project. It is not affiliated with, endorsed by, or associated with PoolDigital GmbH & Co. KG in any way. "VIOLET" and any related trademarks are the property of their respective owners.*
+
+⚠️ **WARNING - USE AT YOUR OWN RISK:**
+*This software interacts with physical hardware and automation systems that control water chemistry (pH, Chlorine/ORP) and electrical equipment (pumps, heaters). A bug, network issue, or incorrect configuration could result in hardware damage, unsafe water conditions, or other hazards. By using this software, you acknowledge and agree that you are solely responsible for any damage, injury, or loss of property that may occur. Please always monitor your pool's chemistry and hardware independently.*
 
 ---
 
