@@ -22,6 +22,7 @@ import asyncio
 import json
 import logging
 import re
+import ssl
 from typing import TYPE_CHECKING, Any, cast
 from urllib.parse import quote, urlparse, urlunparse
 
@@ -153,15 +154,13 @@ class VioletPoolAPI:
         # SSL/TLS security configuration
         self._verify_ssl = verify_ssl
         self._use_ssl = use_ssl
-        self._ssl_context = None
+        self._ssl_context: ssl.SSLContext | None = None
         if use_ssl and not verify_ssl:
             _LOGGER.warning(
                 "SSL certificate verification is DISABLED. "
                 "This is a security risk and should only be used for testing "
                 "or with self-signed certificates in trusted networks.",
             )
-            import ssl  # noqa: PLC0415
-
             self._ssl_context = ssl.create_default_context()
             self._ssl_context.check_hostname = False
             self._ssl_context.verify_mode = ssl.CERT_NONE
@@ -208,10 +207,14 @@ class VioletPoolAPI:
         return self._dosing_standalone
 
     @property
-    def _ssl_param(self) -> bool | None:
-        """Return the SSL parameter for aiohttp requests."""
+    def _ssl_param(self) -> ssl.SSLContext | bool:
+        """Return the SSL parameter for aiohttp requests.
+
+        For plain-HTTP connections the value is ignored by aiohttp, so the
+        library default (True) is returned.
+        """
         if not self._use_ssl:
-            return None
+            return True
         if self._ssl_context is not None:
             return self._ssl_context
         return True
@@ -1339,6 +1342,7 @@ class VioletPoolAPI:
         result = await self._request_json_dict(
             API_GET_CONFIG,
             query=f"{prefix}_use",
+            payload_name="getConfig",
         )
         return bool(int(result.get(f"{prefix}_use", 0)))
 
@@ -1509,9 +1513,8 @@ class VioletPoolAPI:
             SENSOR_ID, TYPE, TEXT, MAIL_STATE, etc.
 
         """
-        return await self._request(
+        return await self._request_json_dict(
             API_GET_NOTIFICATIONS,
             query="ALL",
-            expect_json=True,
-            priority=API_PRIORITY_NORMAL,
+            payload_name="getNotifications",
         )
