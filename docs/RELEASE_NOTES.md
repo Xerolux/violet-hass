@@ -1,6 +1,6 @@
-## v1.2.4-beta.1 – Violet Pool Controller
+## v1.2.4 – Violet Pool Controller
 
-🟡 **BETA RELEASE** - Testing phase, may contain bugs
+✅ **STABLE RELEASE**
 
 ### ❤️ Support | Unterstützung
 
@@ -15,10 +15,10 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
----
-
 ### ✨ New Features | Neue Funktionen
 
+- add-live-hardware-test-scripts (83c1b69)
+- test: add live hardware test scripts for real-controller verification (5e6041e)
 - chore: add local API editable install to dev requirements (997bb6c)
 - feat: monorepo migration - integrate violet-poolController-api (9a5771e)
 - Add 'violet_poolcontroller_api/' from commit '97f11a9ebad53aea478ffa85f297bbff51b90092' (04ec462)
@@ -72,6 +72,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🚀 Improvements | Verbesserungen
 
+- 📝 Release v1.2.4-beta.1 - Update changelog and version files (10fd4f2)
 - Update README.md (0c4969e)
 - Improve icons for extension, OMNI DC, and digital input rule entities (b4557d3)
 - fix: replace _api_request with _request, improve extension key filter, clean up SSL handling, optimize rate limiter stats (406bd5b)
@@ -215,6 +216,8 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🧪 Tests
 
+- add-live-hardware-test-scripts (83c1b69)
+- test: add live hardware test scripts for real-controller verification (5e6041e)
 - fix: correct device state mapping, controller mismatches, and broken test/CI setup (5fcb4d4)
 - feat: add mock server, smoke tests, and AGENTS.md (c4944d9)
 - fix: update test for form-encoded set_config, fix dev-release workflow if-condition (2937f5f)
@@ -240,7 +243,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-📋 [Full changelog: v1.2.3...v1.2.4-beta.1](https://github.com/Xerolux/violet-hass/compare/v1.2.3...v1.2.4-beta.1)
+📋 [Full changelog: v1.2.3...v1.2.4](https://github.com/Xerolux/violet-hass/compare/v1.2.3...v1.2.4)
 
 ---
 
@@ -260,4 +263,4 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-06-11 11:51:37 UTC_
+_Generated automatically by GitHub Actions on 2026-06-12 04:19:46 UTC_
