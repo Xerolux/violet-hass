@@ -7,9 +7,8 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 import logging
+from typing import Any
 
 _LOGGER = logging.getLogger(__name__)
 

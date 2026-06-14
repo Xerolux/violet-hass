@@ -51,8 +51,10 @@ def setup_homeassistant_mocks():
         SWITCH = 'switch'
         CLIMATE = 'climate'
         COVER = 'cover'
+        LIGHT = 'light'
         NUMBER = 'number'
         SELECT = 'select'
+        UPDATE = 'update'
 
     ha_module.const.Platform = Platform
     sys.modules['homeassistant.const'] = ha_module.const
@@ -144,8 +146,12 @@ def setup_homeassistant_mocks():
     class ConfigEntryNotReady(Exception):
         pass
 
+    class ConfigEntryAuthFailed(Exception):
+        pass
+
     ha_module.exceptions.HomeAssistantError = HomeAssistantError
     ha_module.exceptions.ConfigEntryNotReady = ConfigEntryNotReady
+    ha_module.exceptions.ConfigEntryAuthFailed = ConfigEntryAuthFailed
     sys.modules['homeassistant.exceptions'] = ha_module.exceptions
 
     # Mock helpers - make it a proper package
@@ -309,6 +315,10 @@ def setup_homeassistant_mocks():
             self.logger = logger
             self.name = name
             self.update_interval = update_interval
+
+        # Support generic subscript syntax: DataUpdateCoordinator[T]
+        def __class_getitem__(cls, item):
+            return cls
 
     class CoordinatorEntity:
         def __init__(self, coordinator):

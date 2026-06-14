@@ -397,16 +397,16 @@ for ext_bank in [1, 2]:
                 "entity_registry_enabled_default": False,
             }
         )
-# Dynamically add DMX scenes
+# DMX scenes are exposed as LightEntity (see light.py) instead of Switch
+DMX_LIGHTS: list[dict[str, str | bool | None]] = []
 for i in range(1, 13):
-    SWITCHES.append(
+    DMX_LIGHTS.append(
         {
             "key": f"DMX_SCENE{i}",
             "name": f"DMX Scene {i}",
             "translation_key": f"dmx_scene{i}",
             "icon": "mdi:lightbulb-multiple",
             "feature_id": "led_lighting",
-            "entity_category": EntityCategory.CONFIG,
             "entity_registry_enabled_default": False,
         }
     )

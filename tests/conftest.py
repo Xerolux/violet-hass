@@ -144,7 +144,29 @@ def _create_mock_violet_api_module():
     api_module = types.ModuleType('api')
     api_module.VioletPoolAPI = MockVioletPoolAPI
     api_module.VioletPoolAPIError = MockVioletPoolAPIError
+
+    class MockVioletAuthError(MockVioletPoolAPIError):
+        """Mock auth error."""
+
+    class MockVioletTimeoutError(MockVioletPoolAPIError):
+        """Mock timeout error."""
+
+    class MockVioletUnsafeOperationError(MockVioletPoolAPIError):
+        """Mock unsafe operation error."""
+
+    api_module.VioletAuthError = MockVioletAuthError
+    api_module.VioletTimeoutError = MockVioletTimeoutError
+    api_module.VioletUnsafeOperationError = MockVioletUnsafeOperationError
     mock_module.api = api_module
+
+    # readings submodule (VioletReadings as a simple dict-wrapper)
+    readings_module = types.ModuleType('readings')
+
+    class MockVioletReadings(dict):
+        """Minimal VioletReadings stand-in that behaves like a dict."""
+
+    readings_module.VioletReadings = MockVioletReadings
+    mock_module.readings = readings_module
 
     # const_api submodule
     const_api_module = types.ModuleType('const_api')
@@ -294,6 +316,7 @@ if (
     sys.modules['violet_poolcontroller_api.const_api'] = mock_api.const_api
     sys.modules['violet_poolcontroller_api.const_devices'] = mock_api.const_devices
     sys.modules['violet_poolcontroller_api.utils_sanitizer'] = mock_api.utils_sanitizer
+    sys.modules['violet_poolcontroller_api.readings'] = mock_api.readings
 
 # CRITICAL: Patch deprecated timezone BEFORE any imports
 # pytest-homeassistant-custom-component uses 'US/Pacific' which is deprecated

@@ -632,8 +632,8 @@ class ConfigFlow(
             CONF_USE_SSL: ui.get(CONF_USE_SSL, DEFAULT_USE_SSL),
             CONF_DEVICE_NAME: ui.get(CONF_DEVICE_NAME, "🌊 Violet Pool Controller"),
             CONF_CONTROLLER_NAME: ui.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME),
-            CONF_USERNAME: ui.get(CONF_USERNAME, ""),
-            CONF_PASSWORD: ui.get(CONF_PASSWORD, ""),
+            CONF_USERNAME: ui.get(CONF_USERNAME) or None,
+            CONF_PASSWORD: ui.get(CONF_PASSWORD) or None,
             CONF_DEVICE_ID: int(ui.get(CONF_DEVICE_ID, 1)),
             CONF_POLLING_INTERVAL: int(
                 ui.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)

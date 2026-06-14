@@ -11,8 +11,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from .hardware_config import HardwareConfig
-
 
 class EntityNameResolver:
     """Resolve entity names from hardware configuration."""
