@@ -29,11 +29,25 @@ jobs:
       - name: Install build tools
         run: pip install build twine
 
-      - name: Extract version from tag
+      - name: Extract package version
         id: version
         run: |
-          TAG="${GITHUB_REF#refs/tags/}"
-          VERSION="${TAG#api-v}"
+          TOML_VERSION=$(python3 -c "
+          import tomllib
+          with open('violet_poolcontroller_api/pyproject.toml', 'rb') as f:
+              data = tomllib.load(f)
+          print(data['project']['version'])
+          ")
+
+          if [[ "$GITHUB_REF" == refs/tags/api-v* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+            VERSION="${TAG#api-v}"
+          else
+            TAG="api-v$TOML_VERSION"
+            VERSION="$TOML_VERSION"
+            echo "No api-v* tag ref detected ($GITHUB_REF); using pyproject.toml version for workflow_dispatch."
+          fi
+
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=$TAG" >> $GITHUB_OUTPUT
           echo "Publishing violet-poolController-api version: $VERSION"
@@ -46,10 +60,10 @@ jobs:
               data = tomllib.load(f)
           print(data['project']['version'])
           ")
-          TAG_VERSION="${{ steps.version.outputs.version }}"
-          if [ "$TOML_VERSION" != "$TAG_VERSION" ]; then
-            echo "Version mismatch: pyproject.toml=$TOML_VERSION, tag=$TAG_VERSION"
-            echo "Please update violet_poolcontroller_api/pyproject.toml version to $TAG_VERSION"
+          RELEASE_VERSION="${{ steps.version.outputs.version }}"
+          if [ "$TOML_VERSION" != "$RELEASE_VERSION" ]; then
+            echo "Version mismatch: pyproject.toml=$TOML_VERSION, release=$RELEASE_VERSION"
+            echo "Please update violet_poolcontroller_api/pyproject.toml version to $RELEASE_VERSION"
             exit 1
           fi
           echo "Version check passed: $TOML_VERSION"
