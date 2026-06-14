@@ -322,6 +322,35 @@ class VioletDiagnosticServiceHandlers:
             "message": f"Retrieved calibration status for {len(calibrations)} sensors",
         }
 
+    async def handle_get_backwash_status(self, call: ServiceCall) -> dict[str, Any]:
+        """Get backwash maintenance status."""
+        from .sensor_organization import BACKWASH_STATES, BACKWASH_STEPS
+
+        coordinator = await self._get_first_coordinator(
+            as_device_id_list(call.data.get(ATTR_DEVICE_ID))
+        )
+
+        if not coordinator.data:
+            raise HomeAssistantError("No data available from controller")
+
+        backwash_state = coordinator.data.get("BACKWASH_STATE", 0)
+        backwash_step = coordinator.data.get("BACKWASH_STEP", 0)
+        last_auto_run = coordinator.data.get("BACKWASH_LAST_AUTO_RUN")
+        last_manual_run = coordinator.data.get("BACKWASH_LAST_MANUAL_RUN")
+        filter_pressure = coordinator.data.get("FILTER_PRESSURE", 0)
+
+        return {
+            "success": True,
+            "device": coordinator.device.device_name,
+            "backwash_state": BACKWASH_STATES.get(int(backwash_state), "Unknown"),
+            "backwash_step": BACKWASH_STEPS.get(int(backwash_step), "Unknown"),
+            "is_running": int(backwash_state) == 1,
+            "last_auto_run": last_auto_run,
+            "last_manual_run": last_manual_run,
+            "filter_pressure": filter_pressure,
+            "message": f"Backwash status: {BACKWASH_STATES.get(int(backwash_state), 'Unknown')}",
+        }
+
     @staticmethod
     def _read_recent_violet_log_lines(
         log_path: str, lines: int, include_timestamps: bool

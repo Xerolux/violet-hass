@@ -219,6 +219,14 @@ async def async_register_services(hass: HomeAssistant) -> None:
         supports_response=SupportsResponse.ONLY,
     )
 
+    hass.services.async_register(
+        DOMAIN,
+        "get_backwash_status",
+        handlers.handle_get_backwash_status,
+        schema=schemas.get("get_backwash_status"),
+        supports_response=SupportsResponse.ONLY,
+    )
+
     total_services = (
         len(regular_services)
         + len(http_control_services)
@@ -226,6 +234,6 @@ async def async_register_services(hass: HomeAssistant) -> None:
         + len(rule_management_services)
         + len(system_config_services)
         + len(refill_overflow_services)
-        + 8  # 7 diagnostic + 3 status services (refill, overflow, calibration)
+        + 9  # 7 diagnostic + 4 status services (refill, overflow, calibration, backwash)
     )
     _LOGGER.info("Successfully registered %d services", total_services)

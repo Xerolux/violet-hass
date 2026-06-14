@@ -508,6 +508,9 @@ def get_service_schemas() -> dict[str, vol.Schema]:
         "get_calibration_status": vol.Schema(
             {vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR}
         ),
+        "get_backwash_status": vol.Schema(
+            {vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR}
+        ),
     }
     schemas.update(get_refill_overflow_schemas())
     return schemas
