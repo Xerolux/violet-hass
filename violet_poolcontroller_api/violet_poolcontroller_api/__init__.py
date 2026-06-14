@@ -16,7 +16,17 @@
 
 """Violet Pool Controller API client library."""
 
-from .api import VioletPoolAPI, VioletPoolAPIError
+from .api import (
+    SETPOINT_RANGES,
+    VioletAuthError,
+    VioletPayloadError,
+    VioletPoolAPI,
+    VioletPoolAPIError,
+    VioletSetpointError,
+    VioletTimeoutError,
+    VioletUnsafeOperationError,
+    validate_setpoint,
+)
 from .circuit_breaker import CircuitBreaker, CircuitBreakerOpenError
 from .const_api import (  # noqa: F401
     ACTION_ALLAUTO,
@@ -39,25 +49,67 @@ from .const_devices import (  # noqa: F401
     COVER_STATE_MAP,
     DEVICE_PARAMETERS,
     STATE_TRANSLATIONS,
+    CoverState,
+    DmxSceneState,
+    OnewireState,
+    OutputState,
+    PvSurplusState,
+    RuleState,
     VioletState,
     get_state_translation_language,
     set_state_translation_language,
+)
+from .parsers import (  # noqa: F401
+    parse_epoch_milliseconds,
+    parse_epoch_seconds,
+    parse_hms_string,
+    parse_optional_seconds,
+    parse_runtime_string,
+    parse_uptime_string,
 )
 from .utils_rate_limiter import RateLimiter, get_global_rate_limiter
 from .utils_sanitizer import InputSanitizer
 
 __all__ = [
+    # Core client
     "VioletPoolAPI",
+    # Exception hierarchy
     "VioletPoolAPIError",
+    "VioletAuthError",
+    "VioletTimeoutError",
+    "VioletPayloadError",
+    "VioletSetpointError",
+    "VioletUnsafeOperationError",
+    # Setpoint validation
+    "SETPOINT_RANGES",
+    "validate_setpoint",
+    # Circuit breaker
     "CircuitBreaker",
     "CircuitBreakerOpenError",
+    # Enums
+    "OutputState",
+    "DmxSceneState",
+    "RuleState",
+    "CoverState",
+    "OnewireState",
+    "PvSurplusState",
+    # State helpers
     "VioletState",
+    "STATE_TRANSLATIONS",
+    "get_state_translation_language",
+    "set_state_translation_language",
+    # Parsers
+    "parse_runtime_string",
+    "parse_hms_string",
+    "parse_uptime_string",
+    "parse_epoch_seconds",
+    "parse_epoch_milliseconds",
+    "parse_optional_seconds",
+    # Utilities
     "InputSanitizer",
     "RateLimiter",
     "get_global_rate_limiter",
-    "get_state_translation_language",
-    "set_state_translation_language",
-    "STATE_TRANSLATIONS",
+    # Action constants
     "ACTION_ALLAUTO",
     "ACTION_ALLOFF",
     "ACTION_ALLON",
@@ -68,9 +120,11 @@ __all__ = [
     "ACTION_ON",
     "ACTION_PUSH",
     "ACTION_UNLOCK",
+    # Device constants
     "COVER_FUNCTIONS",
     "COVER_STATE_MAP",
     "DEVICE_PARAMETERS",
+    # Error codes
     "ERROR_CODES",
     "ERROR_SEVERITY_ALARM",
     "ERROR_SEVERITY_INFO",

@@ -21,6 +21,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import math
 import re
 import ssl
 from typing import TYPE_CHECKING, Any, cast
@@ -68,7 +69,7 @@ from .const_api import (
     TARGET_ORP,
     TARGET_PH,
 )
-from .const_devices import DEVICE_PARAMETERS
+from .const_devices import COVER_FUNCTIONS, DEVICE_PARAMETERS
 from .utils_rate_limiter import get_global_rate_limiter
 from .utils_sanitizer import InputSanitizer
 
@@ -81,11 +82,61 @@ _MAX_HOSTNAME_LENGTH = 253
 _HTTP_SERVER_ERROR = 500
 _HTTP_CLIENT_ERROR = 400
 _HTTP_TOO_MANY_REQUESTS = 429
+_HTTP_UNAUTHORIZED = 401
+_HTTP_FORBIDDEN = 403
 _MIN_CALIB_HISTORY_PARTS = 3
+
+# Valid setpoint ranges for each configurable target key (inclusive bounds).
+# Values outside these ranges or non-finite values are rejected before the
+# HTTP call to avoid surprising controller behaviour.
+SETPOINT_RANGES: dict[str, tuple[float, float]] = {
+    TARGET_PH: (6.0, 8.0),
+    TARGET_ORP: (500.0, 900.0),
+    TARGET_MIN_CHLORINE: (0.0, 5.0),
+    "HEATER_set_temp": (5.0, 45.0),
+    "SOLAR_maxtemp": (5.0, 55.0),
+}
+
+
+# =============================================================================
+# Exception hierarchy
+# =============================================================================
 
 
 class VioletPoolAPIError(Exception):
-    """Raised when the Violet Pool Controller API returns an error."""
+    """Base exception for all Violet Pool Controller API errors.
+
+    Callers can catch this base class to handle any API failure, or use
+    the specific subclasses for more targeted error handling.
+    """
+
+
+class VioletAuthError(VioletPoolAPIError):
+    """Raised when the controller rejects credentials (HTTP 401 or 403)."""
+
+
+class VioletTimeoutError(VioletPoolAPIError):
+    """Raised when an HTTP request to the controller exceeds the timeout."""
+
+
+class VioletPayloadError(VioletPoolAPIError):
+    """Raised when the controller returns a malformed or unparseable response."""
+
+
+class VioletSetpointError(VioletPoolAPIError, ValueError):
+    """Raised when a setpoint value is outside its documented valid range.
+
+    Inherits from both ``VioletPoolAPIError`` and ``ValueError`` so callers
+    can catch it as either.
+    """
+
+
+class VioletUnsafeOperationError(VioletPoolAPIError):
+    """Raised for potentially dangerous operations without explicit acknowledgment.
+
+    Pass ``acknowledge_unsafe=True`` to the relevant method to confirm that
+    the caller is aware of the risk (e.g. motorised cover movement).
+    """
 
 
 class _DeterministicClientError(Exception):
@@ -96,8 +147,42 @@ class _DeterministicClientError(Exception):
     circuit breaker failure count: 4xx responses are deterministic
     (bad credentials, unknown endpoint) and must not open the breaker
     that protects against a down controller or network.  It is
-    translated to VioletPoolAPIError before reaching the caller.
+    translated to the appropriate VioletPoolAPIError subclass before
+    reaching the caller.
     """
+
+    def __init__(self, msg: str, *, is_auth: bool = False) -> None:
+        super().__init__(msg)
+        self.is_auth = is_auth
+
+
+def validate_setpoint(field: str, value: float) -> None:
+    """Validate a setpoint value against documented controller ranges.
+
+    Args:
+        field: The configuration key (e.g. ``"DOSAGE_phminus_setpoint"``).
+        value: The numeric value to validate.
+
+    Raises:
+        VioletSetpointError: If ``value`` is non-finite or outside the
+            documented valid range for ``field``.  Fields with no registered
+            range are accepted without range checking.
+    """
+    if not math.isfinite(value):
+        msg = f"Invalid setpoint for '{field}': {value!r} is not a finite number"
+        raise VioletSetpointError(msg)
+
+    bounds = SETPOINT_RANGES.get(field)
+    if bounds is None:
+        return  # No documented range — accept any finite value
+
+    lo, hi = bounds
+    if not lo <= value <= hi:
+        msg = (
+            f"Setpoint '{field}' value {value} is outside the valid range "
+            f"[{lo}, {hi}]"
+        )
+        raise VioletSetpointError(msg)
 
 
 class VioletPoolAPI:
@@ -339,7 +424,11 @@ class VioletPoolAPI:
                             # deterministic - fail fast instead of retrying.
                             body = await response.text()
                             msg = f"HTTP {response.status} for {endpoint}: {body.strip()}"
-                            raise _DeterministicClientError(msg)
+                            is_auth = response.status in (
+                                _HTTP_UNAUTHORIZED,
+                                _HTTP_FORBIDDEN,
+                            )
+                            raise _DeterministicClientError(msg, is_auth=is_auth)
 
                         if expect_json:
                             try:
@@ -350,13 +439,25 @@ class VioletPoolAPI:
                             ) as err:
                                 body = await response.text()
                                 msg = f"Invalid JSON payload for {endpoint}: {body.strip()}"
-                                raise VioletPoolAPIError(
-                                    msg,
-                                ) from err
+                                raise VioletPayloadError(msg) from err
 
                         return await response.text()
 
-                except (TimeoutError, aiohttp.ClientError) as err:
+                except (TimeoutError, aiohttp.ServerTimeoutError) as err:
+                    last_error = VioletTimeoutError(
+                        f"Request to {endpoint} timed out: {err}",
+                    )
+                    _LOGGER.debug(
+                        "Attempt %d for %s timed out: %s",
+                        attempt,
+                        endpoint,
+                        err,
+                    )
+                    if attempt == self._max_retries:
+                        raise last_error from None
+                    delay = min(2.0, 0.2 * (2 ** (attempt - 1)))
+                    await asyncio.sleep(delay)
+                except aiohttp.ClientError as err:
                     last_error = VioletPoolAPIError(
                         f"Error communicating with Violet controller: {err}",
                     )
@@ -378,6 +479,8 @@ class VioletPoolAPI:
         try:
             return await self._circuit_breaker.call(_execute_request)
         except _DeterministicClientError as err:
+            if err.is_auth:
+                raise VioletAuthError(str(err)) from err
             raise VioletPoolAPIError(str(err)) from err
         except CircuitBreakerOpenError as err:
             msg = "Circuit breaker is open due to repeated communication failures"
@@ -1164,6 +1267,45 @@ class VioletPoolAPI:
 
         return await self.set_switch_state("DMX_SCENE1", action)
 
+    async def set_cover_command(
+        self,
+        action: str,
+        *,
+        acknowledge_unsafe: bool = False,
+    ) -> dict[str, Any]:
+        """Send an open, close, or stop command to the pool cover.
+
+        Cover movement is a potentially hazardous operation (motorised cover,
+        risk of entrapment).  Callers must explicitly pass
+        ``acknowledge_unsafe=True`` to confirm they are aware of the risk and
+        have taken appropriate safety precautions.
+
+        Args:
+            action: ``"OPEN"``, ``"CLOSE"``, or ``"STOP"`` (case-insensitive).
+            acknowledge_unsafe: Must be ``True`` to allow the command.
+
+        Returns:
+            A dictionary with the command result.
+
+        Raises:
+            VioletUnsafeOperationError: If ``acknowledge_unsafe`` is ``False``.
+            VioletPoolAPIError: If ``action`` is not a known cover action.
+
+        """
+        if not acknowledge_unsafe:
+            msg = (
+                "Cover movement is a potentially unsafe operation. "
+                "Pass acknowledge_unsafe=True to confirm you are aware of the risk."
+            )
+            raise VioletUnsafeOperationError(msg)
+
+        cover_key = COVER_FUNCTIONS.get(action.strip().upper())
+        if not cover_key:
+            msg = f"Unknown cover action '{action}'. Valid: {list(COVER_FUNCTIONS)}"
+            raise VioletPoolAPIError(msg)
+
+        return await self.set_switch_state(cover_key, ACTION_PUSH)
+
     async def set_light_color_pulse(self) -> dict[str, Any]:
         """Trigger the color pulse animation for the pool light.
 
@@ -1215,10 +1357,14 @@ class VioletPoolAPI:
 
         Args:
             climate_key: The climate key (HEATER or SOLAR).
-            temperature: The target temperature.
+            temperature: The target temperature in °C.
 
         Returns:
             A dictionary with the command result.
+
+        Raises:
+            VioletSetpointError: If ``temperature`` is outside the valid range
+                (5–45 °C for heater, 5–55 °C for solar).
 
         """
         config_key = (
@@ -1230,40 +1376,59 @@ class VioletPoolAPI:
         """Update the pH setpoint.
 
         Args:
-            value: The new pH target value.
+            value: The new pH target value (valid range: 6.0–8.0).
 
         Returns:
             A dictionary with the command result.
 
+        Raises:
+            VioletSetpointError: If ``value`` is outside the valid range or
+                is not a finite number.
+
         """
+        validate_setpoint(TARGET_PH, float(value))
         return await self.set_target_value(TARGET_PH, float(value))
 
     async def set_orp_target(self, value: int) -> dict[str, Any]:
         """Update the ORP setpoint.
 
         Args:
-            value: The new ORP target value.
+            value: The new ORP target value in mV (valid range: 500–900).
 
         Returns:
             A dictionary with the command result.
 
+        Raises:
+            VioletSetpointError: If ``value`` is outside the valid range or
+                is not a finite number.
+
         """
+        validate_setpoint(TARGET_ORP, float(value))
         return await self.set_target_value(TARGET_ORP, int(value))
 
     async def set_min_chlorine_level(self, value: float) -> dict[str, Any]:
         """Update the minimum chlorine level.
 
         Args:
-            value: The new minimum chlorine level.
+            value: The new minimum chlorine level in mg/L (valid range: 0.0–5.0).
 
         Returns:
             A dictionary with the command result.
 
+        Raises:
+            VioletSetpointError: If ``value`` is outside the valid range or
+                is not a finite number.
+
         """
+        validate_setpoint(TARGET_MIN_CHLORINE, float(value))
         return await self.set_target_value(TARGET_MIN_CHLORINE, float(value))
 
     async def set_target_value(self, key: str, value: float) -> dict[str, Any]:
         """Send a generic target value update to the controller.
+
+        For known setpoint keys (see ``SETPOINT_RANGES``), validation is
+        performed automatically.  Call ``validate_setpoint()`` directly for
+        keys not covered by the convenience methods.
 
         Args:
             key: The target key.
@@ -1272,7 +1437,12 @@ class VioletPoolAPI:
         Returns:
             A dictionary with the command result.
 
+        Raises:
+            VioletSetpointError: If ``value`` is non-finite or outside a
+                known valid range for ``key``.
+
         """
+        validate_setpoint(key, float(value))
         return await self.set_config({key: value})
 
     async def set_dosing_parameters(

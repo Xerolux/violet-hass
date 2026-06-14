@@ -21,12 +21,10 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from violet_poolcontroller_api.api import VioletPoolAPIError
+from violet_poolcontroller_api.api import VioletPoolAPIError, VioletUnsafeOperationError
 
 from .const import (
-    ACTION_PUSH,
     CONF_ACTIVE_FEATURES,
-    COVER_FUNCTIONS,
     COVER_STATE_MAP,
     DOMAIN,
 )
@@ -124,23 +122,16 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
         Raises:
             HomeAssistantError: On API errors.
         """
-        cover_api_key = COVER_FUNCTIONS.get(action.upper())
-
-        if not cover_api_key:
-            _LOGGER.error("Invalid cover action: %s", action)
-            raise HomeAssistantError(
-                translation_key="invalid_action",
-                translation_domain=DOMAIN,
-                translation_placeholders={"action": action},
-            )
-
         self._last_action = action
 
         try:
             _LOGGER.debug("Sending cover command: %s", action)
 
-            result = await self.device.api.set_switch_state(
-                key=cover_api_key, action=ACTION_PUSH
+            # acknowledge_unsafe=True: HA only exposes cover controls to users
+            # who have explicitly enabled the cover feature in the config flow,
+            # so the safety acknowledgment is implicitly given at setup time.
+            result = await self.device.api.set_cover_command(
+                action, acknowledge_unsafe=True
             )
 
             if result.get("success") is True:
@@ -155,6 +146,14 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
 
             # Refresh data after command
             await self.coordinator.async_request_refresh()
+
+        except VioletUnsafeOperationError as err:
+            _LOGGER.error("Cover command '%s' refused (unsafe): %s", action, err)
+            raise HomeAssistantError(
+                translation_key="api_error",
+                translation_domain=DOMAIN,
+                translation_placeholders={"detail": str(err)},
+            ) from err
 
         except VioletPoolAPIError as err:
             _LOGGER.error("API error for cover command '%s': %s", action, err)

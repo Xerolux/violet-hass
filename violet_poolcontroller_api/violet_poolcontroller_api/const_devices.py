@@ -26,7 +26,108 @@ throughout the integration.
 
 from __future__ import annotations
 
+from enum import IntEnum, StrEnum
 from typing import Any, cast
+
+# =============================================================================
+# TYPED ENUMERATIONS
+# =============================================================================
+
+
+class OutputState(IntEnum):
+    """Output state codes returned by getReadings (manual section 26.1).
+
+    These codes apply to ~30 outputs: pump, heater, solar, light, dosing
+    channels, extension relays, etc.  Use the ``is_on``, ``is_manual``, and
+    ``is_emergency`` properties instead of comparing raw integers.
+    """
+
+    AUTO_OFF = 0
+    AUTO_ON = 1
+    AUTO_PRIO_OFF = 2
+    AUTO_PRIO_ON = 3
+    MANUAL_ON = 4
+    EMERGENCY_OFF = 5
+    MANUAL_OFF = 6
+
+    @property
+    def is_on(self) -> bool:
+        """Return True when the output is currently active."""
+        return self in (OutputState.AUTO_ON, OutputState.AUTO_PRIO_ON, OutputState.MANUAL_ON)
+
+    @property
+    def is_manual(self) -> bool:
+        """Return True when the output is in manual (non-auto) mode."""
+        return self in (OutputState.MANUAL_ON, OutputState.MANUAL_OFF)
+
+    @property
+    def is_emergency(self) -> bool:
+        """Return True when an emergency rule is responsible for the state."""
+        return self in (OutputState.AUTO_PRIO_ON, OutputState.EMERGENCY_OFF)
+
+
+class DmxSceneState(IntEnum):
+    """Output state codes for DMX scenes (subset of OutputState values)."""
+
+    AUTO_OFF = 0
+    AUTO_ON = 1
+    MANUAL_ON = 4
+    MANUAL_OFF = 6
+
+    @property
+    def is_on(self) -> bool:
+        """Return True when the DMX scene is active."""
+        return self in (DmxSceneState.AUTO_ON, DmxSceneState.MANUAL_ON)
+
+
+class RuleState(IntEnum):
+    """State codes for digital-input switching rules (DIRULE_*)."""
+
+    INACTIVE = 0
+    ACTIVE = 1
+    BLOCKED_BY_RULE = 5
+    BLOCKED_MANUALLY = 6
+
+
+class CoverState(StrEnum):
+    """Pool cover motion states returned by the COVER_STATE reading."""
+
+    OPEN = "OPEN"
+    CLOSED = "CLOSED"
+    OPENING = "OPENING"
+    CLOSING = "CLOSING"
+    STOPPED = "STOPPED"
+
+
+class OnewireState(StrEnum):
+    """1-wire temperature sensor status values (OW*_state readings).
+
+    Note: The controller uses ``DATA_MISSMATCH`` (double-s) — preserved here
+    for exact string matching against the API response.
+    """
+
+    OK = "OK"
+    CRC_FAULT = "CRC_FAULT"
+    DATA_MISMATCH = "DATA_MISSMATCH"
+    NOT_CONNECTED = "NOT_CONNECTED"
+    NO_SENSOR_CONFIGURED = "NO_SENSOR_CONFIGURED"
+
+
+class PvSurplusState(IntEnum):
+    """PV surplus trigger source states returned by the PVSURPLUS reading.
+
+    Unlike other outputs, PVSURPLUS uses values 0/1/2 instead of the
+    standard 0-6 scheme (manual section 26.3).
+    """
+
+    OFF = 0
+    ON_BY_INPUT = 1
+    ON_BY_HTTP = 2
+
+    @property
+    def is_on(self) -> bool:
+        """Return True when PV surplus mode is active (regardless of source)."""
+        return self in (PvSurplusState.ON_BY_INPUT, PvSurplusState.ON_BY_HTTP)
 
 # =============================================================================
 # COVER CONTROL FUNCTIONS
