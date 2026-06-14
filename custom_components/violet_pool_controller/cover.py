@@ -52,9 +52,15 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
         self, coordinator: VioletPoolDataUpdateCoordinator, config_entry: ConfigEntry
     ) -> None:
         """Initialize the cover entity."""
+        # Apply dynamic naming from hardware config
+        name_resolver = EntityNameResolver(
+            coordinator.device.hardware_config if coordinator.device else None
+        )
+        name = name_resolver.resolve_entity_name("cover", "COVER", "Pool Cover") or "Pool Cover"
+
         entity_description = CoverEntityDescription(
             key="COVER_STATE",
-            name="Pool Cover",
+            name=name,
             icon="mdi:window-shutter",
             translation_key="pool_cover",
         )

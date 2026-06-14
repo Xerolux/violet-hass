@@ -147,8 +147,14 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         climate_type: str,
     ) -> None:
         """Initialize the climate entity."""
-        name = "Heater" if climate_type == "HEATER" else "Solar Absorber"
+        default_name = "Heater" if climate_type == "HEATER" else "Solar Absorber"
         icon = "mdi:radiator" if climate_type == "HEATER" else "mdi:solar-power"
+
+        # Apply dynamic naming from hardware config
+        name_resolver = EntityNameResolver(
+            coordinator.device.hardware_config if coordinator.device else None
+        )
+        name = name_resolver.resolve_entity_name("climate", climate_type, default_name) or default_name
 
         climate_description = ClimateEntityDescription(
             key=climate_type,
@@ -527,6 +533,13 @@ async def async_setup_entry(
     entities = []
 
     _LOGGER.debug("Climate Setup - Active features: %s", active_features)
+
+    # Get hardware configuration for dynamic naming
+    hw_config = None
+    if coordinator.device:
+        hw_config = coordinator.device.hardware_config
+
+    name_resolver = EntityNameResolver(hw_config)
 
     if coordinator.data is not None:
         _LOGGER.debug("Coordinator data keys: %d", len(coordinator.data.keys()))
