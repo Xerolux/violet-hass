@@ -1,6 +1,6 @@
-## v1.2.4-pool-control – Violet Pool Controller
+## v2.0.0-beta.1 – Violet Pool Controller
 
-✅ **STABLE RELEASE**
+🟡 **BETA RELEASE** - Testing phase, may contain bugs
 
 ### ❤️ Support | Unterstützung
 
@@ -12,6 +12,8 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 - ☕ **[Buy Me a Coffee](https://buymeacoffee.com/xerolux)**
 - 🚗 **[Tesla Referral Code](https://ts.la/sebastian564489)**
 - ⭐ **[Star this repository](https://github.com/Xerolux/violet-hass)**
+
+---
 
 ---
 
@@ -33,6 +35,8 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🚀 Improvements | Verbesserungen
 
+- 📝 Release v1.2.4-pool-control - Update changelog and version files (c5a6c5d)
+- 📝 Release v1.2.4-pool-control - Update changelog and version files (57406a7)
 - refactor: Rename HTTP control services to avoid conflicts with legacy API (387ad20)
 - chore: sync versions, fix mypy errors, and update tooling (f14f215)
 
@@ -65,7 +69,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-📋 [Full changelog: v1.2.4...v1.2.4-pool-control](https://github.com/Xerolux/violet-hass/compare/v1.2.4...v1.2.4-pool-control)
+📋 [Full changelog: v1.2.4...v2.0.0-beta.1](https://github.com/Xerolux/violet-hass/compare/v1.2.4...v2.0.0-beta.1)
 
 ---
 
@@ -85,4 +89,4 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-06-14 19:42:51 UTC_
+_Generated automatically by GitHub Actions on 2026-06-14 19:48:55 UTC_
