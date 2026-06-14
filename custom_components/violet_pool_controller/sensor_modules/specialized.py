@@ -52,7 +52,7 @@ class VioletErrorCodeSensor(VioletSensor):
             name="Last Error Code",
             icon="mdi:alert-circle",
             entity_category=EntityCategory.DIAGNOSTIC,
-            entity_registry_enabled_default=False,
+            entity_registry_enabled_default=True,
         )
         super().__init__(coordinator, config_entry, description)
 
