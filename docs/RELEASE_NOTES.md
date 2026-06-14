@@ -1,4 +1,4 @@
-## v2.0.0-beta.2 – Violet Pool Controller
+## v2.0.0-beta.3 – Violet Pool Controller
 
 🟡 **BETA RELEASE** - Testing phase, may contain bugs
 
@@ -19,6 +19,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### ✨ New Features | Neue Funktionen
 
+- feat: Add sensor organization following WebUI layout + Backwash status (93d7f0b)
 - feat: Add sensor calibration monitoring and status service (b13129a)
 - feat: Phase 6 - Complete REFILL & OVERFLOW protection services (fae5665)
 - Merge branch 'feature/complete-pool-controller-api' (41b04bc)
@@ -36,6 +37,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🚀 Improvements | Verbesserungen
 
+- 📝 Release v2.0.0-beta.2 - Update changelog and version files (9d80e73)
 - 📝 Release v2.0.0-beta.1 - Update changelog and version files (0ae3b51)
 - 📝 Release v2.0.0-beta.1 - Update changelog and version files (a4ae471)
 - 📝 Release v2.0.0-beta.1 - Update changelog and version files (873086c)
@@ -73,7 +75,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-📋 [Full changelog: v1.2.4...v2.0.0-beta.2](https://github.com/Xerolux/violet-hass/compare/v1.2.4...v2.0.0-beta.2)
+📋 [Full changelog: v1.2.4...v2.0.0-beta.3](https://github.com/Xerolux/violet-hass/compare/v1.2.4...v2.0.0-beta.3)
 
 ---
 
@@ -93,4 +95,4 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-06-14 19:55:33 UTC_
+_Generated automatically by GitHub Actions on 2026-06-14 19:58:27 UTC_
