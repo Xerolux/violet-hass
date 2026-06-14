@@ -298,6 +298,30 @@ class VioletDiagnosticServiceHandlers:
             "message": f"Cleared error history for {cleared_count} device(s)",
         }
 
+    async def handle_get_calibration_status(
+        self, call: ServiceCall
+    ) -> dict[str, Any]:
+        """Get sensor calibration status."""
+        from .calibration_helper import parse_calibration_data
+
+        coordinator = await self._get_first_coordinator(
+            as_device_id_list(call.data.get(ATTR_DEVICE_ID))
+        )
+
+        if not coordinator.data:
+            raise HomeAssistantError("No data available from controller")
+
+        calibrations = parse_calibration_data(coordinator.data)
+
+        return {
+            "success": True,
+            "device": coordinator.device.device_name,
+            "calibrations": {
+                name: status.to_dict() for name, status in calibrations.items()
+            },
+            "message": f"Retrieved calibration status for {len(calibrations)} sensors",
+        }
+
     @staticmethod
     def _read_recent_violet_log_lines(
         log_path: str, lines: int, include_timestamps: bool
