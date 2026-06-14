@@ -1,4 +1,4 @@
-## v2.0.0-beta.4 – Violet Pool Controller
+## v2.0.0-beta.5 – Violet Pool Controller
 
 🟡 **BETA RELEASE** - Testing phase, may contain bugs
 
@@ -19,6 +19,10 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### ✨ New Features | Neue Funktionen
 
+- feat: Apply dynamic naming to climate and cover platforms (92b67f1)
+- refactor: Add EntityNameResolver import to all platforms (5b80c98)
+- feat: Complete hardware configuration system - all configurable names (ab3c46b)
+- feat: Dynamic digital input configuration from hardware (eece964)
 - feat: Add firmware update entity and status service (9a35c76)
 - feat: Add sensor organization following WebUI layout + Backwash status (93d7f0b)
 - feat: Add sensor calibration monitoring and status service (b13129a)
@@ -38,6 +42,9 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🚀 Improvements | Verbesserungen
 
+- refactor: Add EntityNameResolver import to all platforms (5b80c98)
+- 📝 Release v2.0.0-beta.4 - Update changelog and version files (d0845d4)
+- 📝 Release v2.0.0-beta.4 - Update changelog and version files (b3dd1d8)
 - feat: Add firmware update entity and status service (9a35c76)
 - 📝 Release v2.0.0-beta.3 - Update changelog and version files (7baeda1)
 - 📝 Release v2.0.0-beta.3 - Update changelog and version files (0e79829)
@@ -80,7 +87,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-📋 [Full changelog: v1.2.4...v2.0.0-beta.4](https://github.com/Xerolux/violet-hass/compare/v1.2.4...v2.0.0-beta.4)
+📋 [Full changelog: v1.2.4...v2.0.0-beta.5](https://github.com/Xerolux/violet-hass/compare/v1.2.4...v2.0.0-beta.5)
 
 ---
 
@@ -100,4 +107,4 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-06-14 20:02:52 UTC_
+_Generated automatically by GitHub Actions on 2026-06-14 20:13:56 UTC_
