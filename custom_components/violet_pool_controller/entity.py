@@ -187,6 +187,48 @@ def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool | None:
     return None
 
 
+def strip_redundant_device_prefix(name: Any, *device_names: str | None) -> str | None:
+    """Strip repeated device/controller prefixes from an entity name.
+
+    Home Assistant already prepends the device name when ``has_entity_name`` is
+    true. If a controller-provided output label also starts with the same device
+    name (for example ``Violet Pool Controller Beleuchtung``), the generated
+    entity id becomes duplicated. Return only the entity-specific suffix.
+    """
+    if name is None:
+        return None
+
+    cleaned = str(name).strip()
+    if not cleaned:
+        return cleaned
+
+    prefixes = {
+        "Violet Pool Controller",
+        "violet_pool_controller",
+        "violet pool controller",
+    }
+    prefixes.update(
+        str(device_name).strip() for device_name in device_names if device_name
+    )
+
+    changed = True
+    while changed:
+        changed = False
+        for prefix in sorted(prefixes, key=len, reverse=True):
+            if not prefix:
+                continue
+            pattern = rf"^{re.escape(prefix)}(?:[\s_\-:•]+)+"
+            stripped = re.sub(
+                pattern, "", cleaned, count=1, flags=re.IGNORECASE
+            ).strip()
+            if stripped and stripped != cleaned:
+                cleaned = stripped
+                changed = True
+                break
+
+    return cleaned
+
+
 # =============================================================================
 # BASE ENTITY CLASS
 # =============================================================================
@@ -218,11 +260,18 @@ class VioletPoolControllerEntity(CoordinatorEntity):
 
         # Entity attributes
         self._attr_has_entity_name = True
-        # Do NOT set _attr_name when translation_key is present.
-        # HA skips translation_key lookup entirely when _attr_name is explicitly set,
-        # causing all entity names to display in the fallback (English) name.
-        if not getattr(entity_description, "translation_key", None):
-            self._attr_name = entity_description.name
+        translation_key = getattr(entity_description, "translation_key", None)
+        sanitized_name = strip_redundant_device_prefix(
+            getattr(entity_description, "name", None),
+            getattr(coordinator.device, "device_name", None),
+            getattr(coordinator.device, "controller_name", None),
+        )
+        if translation_key:
+            self._attr_translation_key = translation_key
+            if sanitized_name != getattr(entity_description, "name", None):
+                self._attr_name = sanitized_name
+        else:
+            self._attr_name = sanitized_name
 
         self._attr_unique_id = f"{config_entry.entry_id}_{entity_description.key}"
         self._attr_device_info = cast(DeviceInfo, coordinator.device.device_info)

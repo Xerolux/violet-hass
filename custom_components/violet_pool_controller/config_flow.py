@@ -46,6 +46,7 @@ from .const import (
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
     CONF_DISINFECTION_METHOD,
+    CONF_DOSING_STANDALONE,
     CONF_PASSWORD,
     CONF_POLLING_INTERVAL,
     CONF_POOL_SIZE,
@@ -226,13 +227,13 @@ class ConfigFlow(
                     CONF_DISINFECTION_METHOD: user_input[CONF_DISINFECTION_METHOD],
                 }
             )
-            return await self.async_step_feature_selection()
+            return await self._auto_configure_entities()
 
         return self.async_show_form(
             step_id="pool_setup",
             data_schema=self._get_pool_setup_schema(),
             description_placeholders={
-                "step_progress": "Step 2 of 4",
+                "step_progress": "Step 2 of 3",
                 "step_title": "Pool Configuration",
             },
         )
@@ -240,31 +241,8 @@ class ConfigFlow(
     async def async_step_feature_selection(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Handle the feature selection step."""
-        if user_input:
-            self._config_data[CONF_ACTIVE_FEATURES] = self._extract_active_features(
-                user_input
-            )
-            sensor_data = await self._get_grouped_sensors()
-            self._sensor_data = sensor_data
-            if not self._sensor_data:
-                _LOGGER.warning("No dynamic sensors found. Skipping sensor selection.")
-                self._config_data[CONF_SELECTED_SENSORS] = []
-                return self.async_create_entry(
-                    title=self._generate_entry_title(),
-                    data=self._config_data,
-                )
-
-            return await self.async_step_sensor_selection()
-
-        return self.async_show_form(
-            step_id="feature_selection",
-            data_schema=self._get_feature_selection_schema(),
-            description_placeholders={
-                "step_progress": "Step 3 of 4",
-                "step_title": "Feature Selection",
-            },
-        )
+        """Compatibility step: features are now detected automatically."""
+        return await self._auto_configure_entities()
 
     async def async_step_sensor_selection(
         self, user_input: dict[str, Any] | None = None
@@ -290,7 +268,7 @@ class ConfigFlow(
             step_id="sensor_selection",
             data_schema=self._get_sensor_selection_schema(),
             description_placeholders={
-                "step_progress": "Step 4 of 4",
+                "step_progress": "Step 3 of 3",
                 "step_icon": "📊",
                 "step_title": "Dynamic Sensors",
                 "step_description": (
@@ -665,6 +643,7 @@ class ConfigFlow(
                 max_retries=self._config_data[CONF_RETRY_ATTEMPTS],
             )
             await api.get_readings()
+            self._config_data[CONF_DOSING_STANDALONE] = api.dosing_standalone
             return True
         except Exception:
             return False
@@ -673,8 +652,60 @@ class ConfigFlow(
         """Fetch and group sensors."""
         return await get_grouped_sensors(self.hass, self._config_data)
 
+    async def _auto_configure_entities(self) -> ConfigFlowResult:
+        """Auto-detect available features and continue to sensor selection."""
+        sensor_data = await self._get_grouped_sensors()
+        self._sensor_data = sensor_data
+        detected_keys = {key for sensors in sensor_data.values() for key in sensors}
+        self._config_data[CONF_ACTIVE_FEATURES] = self._detect_active_features(
+            detected_keys
+        )
+
+        if not self._sensor_data:
+            _LOGGER.warning("No dynamic sensors found. Skipping sensor selection.")
+            self._config_data[CONF_SELECTED_SENSORS] = []
+            return self.async_create_entry(
+                title=self._generate_entry_title(),
+                data=self._config_data,
+            )
+
+        return await self.async_step_sensor_selection()
+
+    def _detect_active_features(self, detected_keys: set[str]) -> list[str]:
+        """Derive active features from controller data instead of user choices."""
+        feature_ids = {str(feature["id"]) for feature in AVAILABLE_FEATURES}
+        active: set[str] = set()
+
+        if not detected_keys:
+            return [str(feature["id"]) for feature in AVAILABLE_FEATURES if feature["default"]]
+
+        feature_key_map = {
+            "filter_control": ("PUMP", "PUMPSTATE", "PUMP_RUNTIME"),
+            "solar": ("SOLAR", "SOLARSTATE", "SOLAR_RUNTIME", "onewire3", "onewire4"),
+            "heating": ("HEATER", "HEATERSTATE", "HEATER_RUNTIME", "onewire5", "onewire6"),
+            "led_lighting": ("LIGHT", "LIGHT_RUNTIME", "DMX_", "DMX_SCENE"),
+            "ph_control": ("pH", "PH", "DOS_4_PHM", "DOS_5_PHP"),
+            "chlorine_control": ("orp", "ORP", "pot", "DOS_1_CL", "DOS_2_ELO"),
+            "flocculation": ("DOS_6_FLOC",),
+            "cover_control": ("COVER", "COVER_STATE"),
+            "backwash": ("BACKWASH", "BACKWASHRINSE"),
+            "pv_surplus": ("PVSURPLUS",),
+            "water_level": ("WATER_LEVEL", "LEVEL"),
+            "water_refill": ("REFILL",),
+            "digital_inputs": ("INPUT", "DIGITALINPUTRULE_STATE", "DIRULE_"),
+            "extension_outputs": ("EXT1_", "EXT2_", "OMNI_DC"),
+        }
+
+        for feature_id, markers in feature_key_map.items():
+            if feature_id in feature_ids and any(
+                key.startswith(marker) or marker in key for key in detected_keys for marker in markers
+            ):
+                active.add(feature_id)
+
+        return sorted(active)
+
     def _extract_active_features(self, ui: dict) -> list:
-        """Extract active features from user input."""
+        """Extract active features from legacy user input."""
         return [
             feature["id"]
             for feature in AVAILABLE_FEATURES

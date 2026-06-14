@@ -69,6 +69,7 @@ async def get_grouped_sensors(
         )
 
         data = await api.get_readings()
+        config_data[CONF_DOSING_STANDALONE] = api.dosing_standalone
 
         grouped: dict[str, list[str]] = {}
         for key in sorted(data.keys()):

@@ -12,6 +12,8 @@ from typing import Any
 
 _LOGGER = logging.getLogger(__name__)
 
+KNOWN_LATEST_FIRMWARE_VERSION = "1.2.0"
+
 
 class FirmwareUpdateInfo:
     """Tracks available firmware updates."""
@@ -114,7 +116,18 @@ def parse_firmware_info(raw_data: dict[str, Any]) -> FirmwareUpdateInfo:
         FirmwareUpdateInfo instance
     """
     installed = raw_data.get("SW_VERSION", "1.0.0")
-    available = raw_data.get("SW_UPDATE_AVAILABLE")
+    available = (
+        raw_data.get("SW_UPDATE_AVAILABLE")
+        or raw_data.get("SYSTEM_UPDATE_AVAILABLE_VERSION")
+        or raw_data.get("SW_LATEST_VERSION")
+        or raw_data.get("LATEST_SW_VERSION")
+    )
+    if isinstance(available, bool):
+        available = KNOWN_LATEST_FIRMWARE_VERSION if available else None
+    if not available and FirmwareUpdateInfo._compare_versions(
+        str(installed), KNOWN_LATEST_FIRMWARE_VERSION
+    ) < 0:
+        available = KNOWN_LATEST_FIRMWARE_VERSION
     carrier = raw_data.get("SW_VERSION_CARRIER")
     release_notes = raw_data.get("SW_RELEASE_NOTES")
     installed_date = raw_data.get("SW_INSTALL_DATE")
