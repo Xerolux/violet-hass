@@ -115,6 +115,20 @@ async def async_register_services(hass: HomeAssistant) -> None:
             DOMAIN, service_name, handler, schema=schemas.get(service_name)
         )
 
+    # Rule management services
+    rule_management_services = {
+        "configure_temp_rule": handlers.handle_configure_temp_rule,
+        "configure_analog_rule": handlers.handle_configure_analog_rule,
+        "configure_switching_rule": handlers.handle_configure_switching_rule,
+        "configure_timer_rule": handlers.handle_configure_timer_rule,
+        "enable_rule": handlers.handle_enable_rule,
+    }
+
+    for service_name, handler in rule_management_services.items():
+        hass.services.async_register(
+            DOMAIN, service_name, handler, schema=schemas.get(service_name)
+        )
+
     # Services returning data
     hass.services.async_register(
         DOMAIN,
@@ -156,7 +170,11 @@ async def async_register_services(hass: HomeAssistant) -> None:
         supports_response=SupportsResponse.ONLY,
     )
 
-    _LOGGER.info(
-        "Successfully registered %d services",
-        len(regular_services) + 5,  # 5 diagnostic services
+    total_services = (
+        len(regular_services)
+        + len(http_control_services)
+        + len(dosing_config_services)
+        + len(rule_management_services)
+        + 5  # 5 diagnostic services
     )
+    _LOGGER.info("Successfully registered %d services", total_services)
