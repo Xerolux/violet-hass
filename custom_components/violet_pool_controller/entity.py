@@ -21,6 +21,8 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 if TYPE_CHECKING:
     from .device import VioletPoolDataUpdateCoordinator
 
+from .state_constants import get_state_definition, get_control_source, get_priority_level
+
 _LOGGER = logging.getLogger(__name__)
 
 # =============================================================================
@@ -102,6 +104,32 @@ def parse_composite_state(raw_state: str) -> tuple[str, str]:
     status_text = parts[1].strip() if len(parts) > 1 else "UNKNOWN"
 
     return status_code, status_text
+
+
+def get_state_attributes(
+    state_code: int, german: bool = False
+) -> dict[str, str | int | bool]:
+    """Generate extended state attributes for a given state code.
+
+    Args:
+        state_code: Numeric state code (0-6).
+        german: Use German descriptions if True.
+
+    Returns:
+        Dictionary with state attributes.
+    """
+    definition = get_state_definition(state_code)
+    if not definition:
+        return {"state_code": state_code, "state_name": "Unknown"}
+
+    return {
+        "state_code": state_code,
+        "state_name": definition.name_de if german else definition.name_en,
+        "state_description": definition.description_de if german else definition.description_en,
+        "is_active": definition.is_active,
+        "priority_level": definition.priority_level,
+        "control_source": definition.control_source,
+    }
 
 
 def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool | None:

@@ -17,6 +17,9 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN, INTEGRATION_VERSION
+from .error_codes import get_error_info
+from .error_handler import get_enhanced_error_handler
+from .state_constants import get_state_definition, get_state_name
 
 # Fields redacted from config entry data (sensitive / privacy-relevant)
 _REDACT_KEYS = {"password", "username"}
@@ -63,6 +66,11 @@ async def async_get_config_entry_diagnostics(
         "last_update_success": coordinator.last_update_success,
     }
 
+    # --- Error handler statistics ---
+    error_handler = get_enhanced_error_handler()
+    error_summary = error_handler.get_error_summary()
+    recent_errors = [e.to_dict() for e in error_handler.get_recent_errors(5)]
+
     return {
         "integration": {
             "version": INTEGRATION_VERSION,
@@ -88,4 +96,15 @@ async def async_get_config_entry_diagnostics(
         "connection": connection,
         "current_data": dict(coordinator.data) if coordinator.data else {},
         "poll_statistics": poll_stats,
+        "error_statistics": error_summary,
+        "recent_errors": recent_errors,
+        "state_hierarchy_reference": {
+            "0": {"name": get_state_name(0), "description": "Auto standby/off"},
+            "1": {"name": get_state_name(1), "description": "Auto active/on"},
+            "2": {"name": get_state_name(2), "description": "Rule blocked (priority off)"},
+            "3": {"name": get_state_name(3), "description": "Emergency rule (priority on)"},
+            "4": {"name": get_state_name(4), "description": "Manual on (forced)"},
+            "5": {"name": get_state_name(5), "description": "Emergency off (safety rule)"},
+            "6": {"name": get_state_name(6), "description": "Manual off"},
+        },
     }
