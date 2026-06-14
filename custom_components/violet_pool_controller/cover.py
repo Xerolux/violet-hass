@@ -21,10 +21,20 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from violet_poolcontroller_api.api import VioletPoolAPIError, VioletUnsafeOperationError
+from violet_poolcontroller_api.api import VioletPoolAPIError
+
+try:
+    from violet_poolcontroller_api.api import VioletUnsafeOperationError
+except ImportError:
+
+    class VioletUnsafeOperationError(VioletPoolAPIError):
+        """Fallback for older violet-poolController-api releases."""
+
 
 from .const import (
+    ACTION_PUSH,
     CONF_ACTIVE_FEATURES,
+    COVER_FUNCTIONS,
     COVER_STATE_MAP,
     DOMAIN,
 )
@@ -130,9 +140,15 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
             # acknowledge_unsafe=True: HA only exposes cover controls to users
             # who have explicitly enabled the cover feature in the config flow,
             # so the safety acknowledgment is implicitly given at setup time.
-            result = await self.device.api.set_cover_command(
-                action, acknowledge_unsafe=True
-            )
+            api = self.device.api
+            if hasattr(api, "set_cover_command"):
+                result = await api.set_cover_command(action, acknowledge_unsafe=True)
+            else:
+                cover_key = COVER_FUNCTIONS.get(action.strip().upper())
+                if not cover_key:
+                    msg = f"Unknown cover action '{action}'."
+                    raise VioletPoolAPIError(msg)
+                result = await api.set_switch_state(cover_key, ACTION_PUSH)
 
             if result.get("success") is True:
                 _LOGGER.info("Cover command '%s' sent successfully", action)

@@ -11,8 +11,8 @@ from custom_components.violet_pool_controller.const import (
     DOMAIN,
 )
 from custom_components.violet_pool_controller.cover import (
-    VioletCover,
     COVER_STATE_MAP,
+    VioletCover,
 )
 
 
@@ -49,6 +49,7 @@ class MockDevice:
         self.device_name = "Test Pool"
         self.available = True
         self.api = MockAPI()
+        self.hardware_config = None
         self.device_info = {
             "identifiers": {("violet_pool_controller", "192.168.1.100_1")},
             "name": "Test Pool",
@@ -62,6 +63,10 @@ class MockAPI:
     """Mock API."""
     async def set_switch_state(self, key, action):
         """Mock set_switch_state."""
+        return {"success": True}
+
+    async def set_cover_command(self, action, *, acknowledge_unsafe=False):
+        """Mock set_cover_command."""
         return {"success": True}
 
 
