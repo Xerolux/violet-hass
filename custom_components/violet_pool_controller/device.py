@@ -120,6 +120,10 @@ class VioletPoolControllerDevice:
         # 360 samples = 1 hour of history (at default 10s polling interval)
         self._latency_history: collections.deque[float] = collections.deque(maxlen=360)
 
+        # ✅ DIGITAL INPUT CONFIGURATION: Cache DI names and functions
+        self._di_config: dict[str, Any] | None = None
+        self._di_config_loaded = False
+
         entry_data = config_entry.data
         self.api_url = with_non_default_port(
             extract_api_host(entry_data),
@@ -735,6 +739,54 @@ class VioletPoolControllerDevice:
             return 0.0
         return sum(self._latency_history) / len(self._latency_history)
 
+    @property
+    def di_config(self) -> dict[str, Any] | None:
+        """Get cached digital input configuration."""
+        return self._di_config
+
+    async def load_di_config(self) -> dict[str, Any] | None:
+        """Load digital input configuration from controller.
+
+        Reads NAMES_digitalinput1-12 and SWITCHINGRULE_prog* config keys
+        to determine DI names and functions. Caches result in _di_config.
+        """
+        if self._di_config_loaded:
+            return self._di_config
+
+        try:
+            from .digital_input_helper import DigitalInputConfig
+
+            # Request DI-related config keys
+            config_keys = ["NAMES_", "SWITCHINGRULE_"]
+            config_response = await self.api.get_config(config_keys)
+
+            if not config_response:
+                _LOGGER.warning("No DI configuration returned from controller")
+                self._di_config_loaded = True
+                return None
+
+            # Parse DI configuration
+            di_config = DigitalInputConfig(config_response)
+            self._di_config = {
+                "all": di_config.get_all_di_configs(),
+                "enabled": di_config.get_enabled_dis(),
+                "parser": di_config,
+            }
+
+            _LOGGER.debug(
+                "Loaded DI configuration: %d DIs, %d enabled",
+                len(self._di_config["all"]),
+                len(self._di_config["enabled"]),
+            )
+
+            self._di_config_loaded = True
+            return self._di_config
+
+        except Exception as err:
+            _LOGGER.error("Failed to load DI configuration: %s", err)
+            self._di_config_loaded = True
+            return None
+
 
 class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
     """Data update coordinator for the Violet Pool Controller."""
@@ -834,6 +886,9 @@ async def async_setup_device(
                 error_msg += f" Last error: {last_error}"
 
             raise ConfigEntryNotReady(error_msg)
+
+        # Load digital input configuration for dynamic entity naming
+        await device.load_di_config()
 
         polling_interval = get_entry_value(
             config_entry,

@@ -166,6 +166,10 @@ async def async_setup_entry(
 
     _LOGGER.debug("Binary Sensor Setup - Active features: %s", active_features)
 
+    # Get DI configuration for dynamic naming
+    di_config = coordinator.device.di_config if coordinator.device else None
+    di_parser = di_config.get("parser") if di_config else None
+
     # None-check for coordinator.data
     if coordinator.data is None:
         _LOGGER.warning(
@@ -188,10 +192,30 @@ async def async_setup_entry(
             _LOGGER.warning("Invalid sensor config: %s", sensor_config)
             continue
 
+        # Get entity name (may be overridden by DI config)
+        entity_name = sensor_config["name"]
+
+        # Check if this is a digital input and apply dynamic naming
+        if di_parser and sensor_config["key"].startswith("INPUT"):
+            # Extract DI number from key (INPUT1 -> 1)
+            try:
+                di_num = int(sensor_config["key"][5:])  # INPUT1 -> 1
+                if 1 <= di_num <= 12:
+                    di_info = di_parser.get_di_config(di_num)
+                    if di_info and di_info.get("name"):
+                        entity_name = di_info["name"]
+                        _LOGGER.debug(
+                            "DI %d: Using configured name '%s'",
+                            di_num,
+                            entity_name,
+                        )
+            except (ValueError, IndexError):
+                pass  # Keep default name if parsing fails
+
         # Use proper BinarySensorEntityDescription
         description = BinarySensorEntityDescription(
             key=sensor_config["key"],
-            name=sensor_config["name"],
+            name=entity_name,
             translation_key=sensor_config.get("translation_key"),
             icon=sensor_config.get("icon"),  # type: ignore[arg-type]
             device_class=sensor_config.get("device_class"),  # type: ignore[arg-type]
