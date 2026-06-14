@@ -503,6 +503,428 @@
           "description": "Save logs as text file in the /config/ directory"
         }
       }
+    },
+    "control_heater": {
+      "name": "Control Heater",
+      "description": "Control the pool heater with temperature setpoint.",
+      "fields": {
+        "action": {
+          "name": "Heater action",
+          "description": "Turn heater on or off"
+        },
+        "target_temperature": {
+          "name": "Target temperature",
+          "description": "Desired pool temperature (10-60°C)"
+        }
+      }
+    },
+    "control_solar": {
+      "name": "Control Solar",
+      "description": "Control the solar heating system.",
+      "fields": {
+        "action": {
+          "name": "Solar action",
+          "description": "Enable or disable solar heating"
+        },
+        "target_temperature": {
+          "name": "Target temperature",
+          "description": "Target temperature for solar operation (10-60°C)"
+        }
+      }
+    },
+    "control_cover": {
+      "name": "Control Cover",
+      "description": "Control the pool cover (open, close, or stop).",
+      "fields": {
+        "action": {
+          "name": "Cover action",
+          "description": "Select: open, close, or stop"
+        }
+      }
+    },
+    "control_backwash": {
+      "name": "Control Backwash",
+      "description": "Run or abort the filter backwash cycle.",
+      "fields": {
+        "action": {
+          "name": "Backwash action",
+          "description": "Start the backwash cycle or abort it"
+        }
+      }
+    },
+    "manual_dosing": {
+      "name": "Manual Dosing",
+      "description": "Manually trigger chemical dosing.\n\n**Caution:** Always verify water values before dosing!",
+      "fields": {
+        "dosing_system": {
+          "name": "Chemical system",
+          "description": "Select the chemical to dose (chlorine, electrolysis, pH-, pH+, flocculant, H₂O₂)"
+        },
+        "runtime_seconds": {
+          "name": "Runtime (seconds)",
+          "description": "How long to run the dosing pump (1-3600s)"
+        }
+      }
+    },
+    "configure_dosing": {
+      "name": "Configure Dosing",
+      "description": "Set dosing system configuration parameters.",
+      "fields": {
+        "dosing_system": {
+          "name": "Chemical system",
+          "description": "Which dosing system to configure"
+        },
+        "config_key": {
+          "name": "Configuration key",
+          "description": "The configuration parameter name"
+        },
+        "value": {
+          "name": "Configuration value",
+          "description": "The new parameter value"
+        }
+      }
+    },
+    "set_dosing_target": {
+      "name": "Set Dosing Target",
+      "description": "Set the target value for chemical dosing control.",
+      "fields": {
+        "dosing_system": {
+          "name": "Chemical system",
+          "description": "Which dosing system to configure"
+        },
+        "target_value": {
+          "name": "Target value",
+          "description": "Target value (0-100, unit depends on chemical)"
+        }
+      }
+    },
+    "set_dosing_daytime": {
+      "name": "Set Dosing Daytime",
+      "description": "Configure the daytime window for dosing operations.",
+      "fields": {
+        "dosing_system": {
+          "name": "Chemical system",
+          "description": "Which dosing system to configure"
+        },
+        "day_start": {
+          "name": "Day start time",
+          "description": "When daytime starts (HH:MM format)"
+        },
+        "day_end": {
+          "name": "Day end time",
+          "description": "When daytime ends (HH:MM format)"
+        }
+      }
+    },
+    "set_dosing_max_daily": {
+      "name": "Set Dosing Maximum Daily",
+      "description": "Set the maximum daily dosing volume.",
+      "fields": {
+        "dosing_system": {
+          "name": "Chemical system",
+          "description": "Which dosing system to configure"
+        },
+        "max_daily_ml": {
+          "name": "Maximum daily volume",
+          "description": "Maximum volume in ml per day (10-10000)"
+        }
+      }
+    },
+    "enable_dosing": {
+      "name": "Enable Dosing",
+      "description": "Enable or disable a dosing system.",
+      "fields": {
+        "dosing_system": {
+          "name": "Chemical system",
+          "description": "Which dosing system to enable/disable"
+        },
+        "enabled": {
+          "name": "Enable dosing",
+          "description": "Turn dosing system on or off"
+        }
+      }
+    },
+    "configure_temp_rule": {
+      "name": "Configure Temperature Rule",
+      "description": "Configure temperature-based automation rule (TEMPRULE_1-8).",
+      "fields": {
+        "rule_id": {
+          "name": "Rule ID",
+          "description": "Rule number 1-8"
+        },
+        "enabled": {
+          "name": "Enable rule",
+          "description": "Turn rule on or off"
+        },
+        "sensor_1": {
+          "name": "Primary sensor",
+          "description": "Primary temperature sensor (1-8)"
+        },
+        "sensor_2": {
+          "name": "Secondary sensor",
+          "description": "Secondary sensor (0=absolute value, 1-8=sensor)"
+        },
+        "logic": {
+          "name": "Comparison logic",
+          "description": "Use >= (greater than or equal) or <= (less than or equal)"
+        },
+        "diff_value": {
+          "name": "Differential value",
+          "description": "Temperature difference threshold"
+        },
+        "hyst_value": {
+          "name": "Hysteresis value",
+          "description": "Hysteresis band for debouncing"
+        },
+        "runtime_on": {
+          "name": "Runtime ON",
+          "description": "Time when rule can activate (HH:MM)"
+        },
+        "runtime_off": {
+          "name": "Runtime OFF",
+          "description": "Time when rule must deactivate (HH:MM)"
+        },
+        "output_1": {
+          "name": "Output 1",
+          "description": "First output name"
+        },
+        "output_1_state": {
+          "name": "Output 1 state",
+          "description": "State when rule activates (0-6)"
+        },
+        "output_2": {
+          "name": "Output 2",
+          "description": "Second output name"
+        },
+        "output_2_state": {
+          "name": "Output 2 state",
+          "description": "State when rule activates (0-6)"
+        },
+        "output_3": {
+          "name": "Output 3",
+          "description": "Third output name"
+        },
+        "output_3_state": {
+          "name": "Output 3 state",
+          "description": "State when rule activates (0-6)"
+        }
+      }
+    },
+    "configure_analog_rule": {
+      "name": "Configure Analog Input Rule",
+      "description": "Configure analog input threshold rule (ANALOGRULE_1-8).",
+      "fields": {
+        "rule_id": {
+          "name": "Rule ID",
+          "description": "Rule number 1-8"
+        },
+        "enabled": {
+          "name": "Enable rule",
+          "description": "Turn rule on or off"
+        },
+        "adc_input": {
+          "name": "ADC input",
+          "description": "Analog input channel (1-8)"
+        },
+        "logic": {
+          "name": "Comparison logic",
+          "description": "Use >= (greater than or equal) or <= (less than or equal)"
+        },
+        "threshold": {
+          "name": "Threshold value",
+          "description": "Trigger value for the analog input"
+        },
+        "hysteresis": {
+          "name": "Hysteresis value",
+          "description": "Hysteresis band for debouncing"
+        },
+        "runtime_on": {
+          "name": "Runtime ON",
+          "description": "Time when rule can activate (HH:MM)"
+        },
+        "runtime_off": {
+          "name": "Runtime OFF",
+          "description": "Time when rule must deactivate (HH:MM)"
+        },
+        "output_1": {
+          "name": "Output 1",
+          "description": "First output name"
+        },
+        "output_1_state": {
+          "name": "Output 1 state",
+          "description": "State when rule activates (0-6)"
+        },
+        "output_2": {
+          "name": "Output 2",
+          "description": "Second output name"
+        },
+        "output_2_state": {
+          "name": "Output 2 state",
+          "description": "State when rule activates (0-6)"
+        },
+        "output_3": {
+          "name": "Output 3",
+          "description": "Third output name"
+        },
+        "output_3_state": {
+          "name": "Output 3 state",
+          "description": "State when rule activates (0-6)"
+        }
+      }
+    },
+    "configure_switching_rule": {
+      "name": "Configure Switching Input Rule",
+      "description": "Configure digital input-based rule (SWITCHINGRULE_1-8).",
+      "fields": {
+        "rule_id": {
+          "name": "Rule ID",
+          "description": "Rule number 1-8"
+        },
+        "enabled": {
+          "name": "Enable rule",
+          "description": "Turn rule on or off"
+        },
+        "di_input": {
+          "name": "Digital input",
+          "description": "Digital input pin (1-12)"
+        },
+        "contact_type": {
+          "name": "Contact type",
+          "description": "0=Normally Open (NO), 1=Normally Closed (NC)"
+        },
+        "output": {
+          "name": "Output name",
+          "description": "Output to control"
+        },
+        "action_on": {
+          "name": "Action ON state",
+          "description": "Output state when contact closes (0-6)"
+        },
+        "action_off": {
+          "name": "Action OFF state",
+          "description": "Output state when contact opens (0-6)"
+        },
+        "timeout": {
+          "name": "Timeout",
+          "description": "Auto-reset timeout in seconds (0=disabled)"
+        }
+      }
+    },
+    "configure_timer_rule": {
+      "name": "Configure Timer Rule",
+      "description": "Configure time-based automation rule (TIMERRULE_1-8).",
+      "fields": {
+        "rule_id": {
+          "name": "Rule ID",
+          "description": "Rule number 1-8"
+        },
+        "enabled": {
+          "name": "Enable rule",
+          "description": "Turn rule on or off"
+        },
+        "on_time": {
+          "name": "ON time",
+          "description": "When to turn on (HH:MM)"
+        },
+        "off_time": {
+          "name": "OFF time",
+          "description": "When to turn off (HH:MM)"
+        },
+        "weekdays": {
+          "name": "Weekdays",
+          "description": "Bitmask for days (0-127, e.g. 127=every day)"
+        },
+        "output_1": {
+          "name": "Output 1",
+          "description": "First output name"
+        },
+        "output_1_state": {
+          "name": "Output 1 state",
+          "description": "State when rule activates (0-6)"
+        },
+        "output_2": {
+          "name": "Output 2",
+          "description": "Second output name"
+        },
+        "output_2_state": {
+          "name": "Output 2 state",
+          "description": "State when rule activates (0-6)"
+        },
+        "output_3": {
+          "name": "Output 3",
+          "description": "Third output name"
+        },
+        "output_3_state": {
+          "name": "Output 3 state",
+          "description": "State when rule activates (0-6)"
+        }
+      }
+    },
+    "enable_rule": {
+      "name": "Enable/Disable Rule",
+      "description": "Enable or disable any rule type.",
+      "fields": {
+        "rule_type": {
+          "name": "Rule type",
+          "description": "Select rule type: temprule, analogrule, switchingrule, or timerrule"
+        },
+        "rule_id": {
+          "name": "Rule ID",
+          "description": "Rule number 1-8"
+        },
+        "enabled": {
+          "name": "Enable rule",
+          "description": "Turn rule on or off"
+        }
+      }
+    },
+    "control_extension_relay": {
+      "name": "Control Extension Relay",
+      "description": "Control extension relay outputs (EXT1_1 to EXT8_8).",
+      "fields": {
+        "relay_id": {
+          "name": "Relay ID",
+          "description": "Extension relay number 1-8"
+        },
+        "action": {
+          "name": "Relay action",
+          "description": "on = Set to state 4 (manual ON), off = Set to state 6 (manual OFF), toggle = Set to state 0 (auto)"
+        },
+        "state": {
+          "name": "Direct state",
+          "description": "Direct state (0-6, overrides action if specified)"
+        },
+        "duration": {
+          "name": "Duration",
+          "description": "How long to apply the action (0 = indefinite, in seconds)"
+        }
+      }
+    },
+    "configure_sensor_calibration": {
+      "name": "Configure Sensor Calibration",
+      "description": "Configure temperature sensor calibration offsets and multipliers.",
+      "fields": {
+        "sensor_id": {
+          "name": "Sensor ID",
+          "description": "Temperature sensor number 1-12"
+        },
+        "offset": {
+          "name": "Offset",
+          "description": "Temperature offset in °C (-10 to +10)"
+        },
+        "multiplier": {
+          "name": "Multiplier",
+          "description": "Calibration multiplier (0.5 to 2.0)"
+        },
+        "min_value": {
+          "name": "Minimum value",
+          "description": "Minimum valid sensor reading"
+        },
+        "max_value": {
+          "name": "Maximum value",
+          "description": "Maximum valid sensor reading"
+        }
+      }
     }
   },
   "selector": {
