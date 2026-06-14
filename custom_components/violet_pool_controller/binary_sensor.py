@@ -23,6 +23,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import BINARY_SENSORS, CONF_ACTIVE_FEATURES, DOMAIN
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity, interpret_state_as_bool
+from .entity_names import EntityNameResolver
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -166,9 +167,12 @@ async def async_setup_entry(
 
     _LOGGER.debug("Binary Sensor Setup - Active features: %s", active_features)
 
-    # Get DI configuration for dynamic naming
-    di_config = coordinator.device.di_config if coordinator.device else None
-    di_parser = di_config.get("parser") if di_config else None
+    # Get hardware configuration for dynamic naming
+    hw_config = None
+    if coordinator.device:
+        hw_config = coordinator.device.hardware_config
+
+    name_resolver = EntityNameResolver(hw_config)
 
     # None-check for coordinator.data
     if coordinator.data is None:
@@ -192,25 +196,21 @@ async def async_setup_entry(
             _LOGGER.warning("Invalid sensor config: %s", sensor_config)
             continue
 
-        # Get entity name (may be overridden by DI config)
+        # Get entity name (may be overridden by hardware config)
         entity_name = sensor_config["name"]
+        resolved_name = name_resolver.resolve_entity_name(
+            "binary_sensor",
+            sensor_config["key"],
+            entity_name,
+        )
 
-        # Check if this is a digital input and apply dynamic naming
-        if di_parser and sensor_config["key"].startswith("INPUT"):
-            # Extract DI number from key (INPUT1 -> 1)
-            try:
-                di_num = int(sensor_config["key"][5:])  # INPUT1 -> 1
-                if 1 <= di_num <= 12:
-                    di_info = di_parser.get_di_config(di_num)
-                    if di_info and di_info.get("name"):
-                        entity_name = di_info["name"]
-                        _LOGGER.debug(
-                            "DI %d: Using configured name '%s'",
-                            di_num,
-                            entity_name,
-                        )
-            except (ValueError, IndexError):
-                pass  # Keep default name if parsing fails
+        if resolved_name and resolved_name != entity_name:
+            entity_name = resolved_name
+            _LOGGER.debug(
+                "Binary sensor %s: Using configured name '%s'",
+                sensor_config["key"],
+                entity_name,
+            )
 
         # Use proper BinarySensorEntityDescription
         description = BinarySensorEntityDescription(

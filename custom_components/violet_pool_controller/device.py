@@ -120,9 +120,9 @@ class VioletPoolControllerDevice:
         # 360 samples = 1 hour of history (at default 10s polling interval)
         self._latency_history: collections.deque[float] = collections.deque(maxlen=360)
 
-        # ✅ DIGITAL INPUT CONFIGURATION: Cache DI names and functions
-        self._di_config: dict[str, Any] | None = None
-        self._di_config_loaded = False
+        # ✅ HARDWARE CONFIGURATION: Cache all hardware configs (DI, relays, scenes, etc.)
+        self._hardware_config: dict[str, Any] | None = None
+        self._hardware_config_loaded = False
 
         entry_data = config_entry.data
         self.api_url = with_non_default_port(
@@ -740,52 +740,85 @@ class VioletPoolControllerDevice:
         return sum(self._latency_history) / len(self._latency_history)
 
     @property
-    def di_config(self) -> dict[str, Any] | None:
-        """Get cached digital input configuration."""
-        return self._di_config
+    def hardware_config(self) -> dict[str, Any] | None:
+        """Get cached complete hardware configuration."""
+        return self._hardware_config
 
-    async def load_di_config(self) -> dict[str, Any] | None:
-        """Load digital input configuration from controller.
+    async def load_hardware_config(self) -> dict[str, Any] | None:
+        """Load complete hardware configuration from controller.
 
-        Reads NAMES_digitalinput1-12 and SWITCHINGRULE_prog* config keys
-        to determine DI names and functions. Caches result in _di_config.
+        Reads ALL configurable names and parameters:
+        - Digital Inputs (DI1-12)
+        - Extension Relays (EXT1_1-8, EXT2_1-8)
+        - DMX Scenes (LIGHT_SCENE_1-12)
+        - Dosing Systems (Chlorine, pH±, Flocculant, etc.)
+        - Temperature Sensors (1-8)
+        - Analog Inputs (AI1-8)
+        - Output Parameters (Pump, Heater, Solar, etc.)
+        - Pool Configuration
+
+        Caches result in _hardware_config.
         """
-        if self._di_config_loaded:
-            return self._di_config
+        if self._hardware_config_loaded:
+            return self._hardware_config
 
         try:
-            from .digital_input_helper import DigitalInputConfig
+            from .hardware_config import HardwareConfig
 
-            # Request DI-related config keys
-            config_keys = ["NAMES_", "SWITCHINGRULE_"]
+            # Request all configuration keys (wildcard patterns)
+            config_keys = [
+                "NAMES_",           # All named elements
+                "SWITCHINGRULE_",   # Digital input rules
+                "LIGHT_prog",       # DMX scenes
+                "DOSAGE_",          # Dosing systems
+                "EXT",              # Extension relays
+                "POOL_",            # Pool config
+                "onewire",          # Temperature sensors
+                "AI",               # Analog inputs
+                "PUMP_", "HEATER_", "SOLAR_", "COVER_", "BACKWASH_",  # Outputs
+            ]
+
             config_response = await self.api.get_config(config_keys)
 
             if not config_response:
-                _LOGGER.warning("No DI configuration returned from controller")
-                self._di_config_loaded = True
+                _LOGGER.warning("No hardware configuration returned from controller")
+                self._hardware_config_loaded = True
                 return None
 
-            # Parse DI configuration
-            di_config = DigitalInputConfig(config_response)
-            self._di_config = {
-                "all": di_config.get_all_di_configs(),
-                "enabled": di_config.get_enabled_dis(),
-                "parser": di_config,
-            }
+            # Parse complete hardware configuration
+            hw_config = HardwareConfig(config_response)
+            self._hardware_config = hw_config.get_all_configs()
 
-            _LOGGER.debug(
-                "Loaded DI configuration: %d DIs, %d enabled",
-                len(self._di_config["all"]),
-                len(self._di_config["enabled"]),
+            # Log summary
+            _LOGGER.info(
+                "Loaded hardware configuration:\n%s",
+                hw_config.summary(),
             )
 
-            self._di_config_loaded = True
-            return self._di_config
+            enabled = hw_config.get_enabled_features()
+            _LOGGER.debug(
+                "Enabled features: DI=%d, Relays=%d, Dosing=%d, Scenes=%d",
+                len(enabled["digital_inputs"]),
+                len(enabled["extension_relays"]),
+                len(enabled["dosing_systems"]),
+                len(enabled["dmx_scenes"]),
+            )
+
+            self._hardware_config_loaded = True
+            return self._hardware_config
 
         except Exception as err:
-            _LOGGER.error("Failed to load DI configuration: %s", err)
-            self._di_config_loaded = True
+            _LOGGER.error("Failed to load hardware configuration: %s", err)
+            self._hardware_config_loaded = True
             return None
+
+    # Convenience property for backward compatibility
+    @property
+    def di_config(self) -> dict[str, Any] | None:
+        """Get cached digital input configuration (from hardware_config)."""
+        if self._hardware_config:
+            return self._hardware_config.get("digital_inputs")
+        return None
 
 
 class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
@@ -887,8 +920,8 @@ async def async_setup_device(
 
             raise ConfigEntryNotReady(error_msg)
 
-        # Load digital input configuration for dynamic entity naming
-        await device.load_di_config()
+        # Load complete hardware configuration for dynamic entity naming
+        await device.load_hardware_config()
 
         polling_interval = get_entry_value(
             config_entry,

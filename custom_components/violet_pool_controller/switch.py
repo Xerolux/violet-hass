@@ -31,6 +31,7 @@ from .const import (
 )
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity, get_state_attributes, interpret_state_as_bool
+from .entity_names import EntityNameResolver
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -688,6 +689,13 @@ async def async_setup_entry(
 
     _LOGGER.debug("Switch setup - active features: %s", active_features)
 
+    # Get hardware configuration for dynamic naming
+    hw_config = None
+    if coordinator.device:
+        hw_config = coordinator.device.hardware_config
+
+    name_resolver = EntityNameResolver(hw_config)
+
     if coordinator.data is not None:
         _LOGGER.debug("Coordinator data keys: %d", len(coordinator.data.keys()))
 
@@ -714,9 +722,19 @@ async def async_setup_entry(
 
     # Create switches
     for switch_config in SWITCHES:
+        # Get entity name (may be overridden by hardware config)
+        entity_name = cast(str, switch_config["name"])
+        resolved_name = name_resolver.resolve_entity_name(
+            "switch",
+            switch_config["key"],
+            entity_name,
+        )
+        if resolved_name:
+            entity_name = resolved_name
+
         description = SwitchEntityDescription(
             key=cast(str, switch_config["key"]),
-            name=cast(str, switch_config["name"]),
+            name=entity_name,
             translation_key=cast(
                 str | None,
                 switch_config.get(
