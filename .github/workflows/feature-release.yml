@@ -1,0 +1,100 @@
+name: Feature Release
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Feature branch name'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  feature-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.branch || github.ref_name }}
+
+      - name: Extract feature name
+        id: feature
+        run: |
+          BRANCH="${{ inputs.branch || github.ref_name }}"
+          FEATURE_NAME="${BRANCH#feature/}"
+          echo "name=${FEATURE_NAME}" >> $GITHUB_OUTPUT
+          echo "branch=${BRANCH}" >> $GITHUB_OUTPUT
+
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(grep -oP 'version = "\K[^"]+' custom_components/violet_pool_controller/const.py | head -1)
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+          # Remove -dev suffix if present
+          VERSION_CLEAN=${VERSION%-dev*}
+          echo "version_clean=${VERSION_CLEAN}" >> $GITHUB_OUTPUT
+
+      - name: Create feature release tag
+        id: tag
+        run: |
+          TIMESTAMP=$(date +%s)
+          COMMIT_SHORT=$(git rev-parse --short HEAD)
+          TAG="v${{ steps.version.outputs.version_clean }}-feature-${{ steps.feature.outputs.name }}-${COMMIT_SHORT}"
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+
+      - name: Generate release notes
+        id: notes
+        run: |
+          COMMIT_SHORT=$(git rev-parse --short HEAD)
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+
+          NOTES="# Feature Release: ${{ steps.feature.outputs.name }}
+
+**Branch:** \`${{ steps.feature.outputs.branch }}\`
+**Commit:** \`${COMMIT_SHORT}\`
+**Version Base:** \`${{ steps.version.outputs.version_clean }}\`
+
+## Latest Commit
+\`\`\`
+${COMMIT_MSG}
+\`\`\`
+
+---
+
+⚠️ **Pre-Release Note:** This is a feature release from a development branch. Not marked as latest stable release.
+
+✅ All ruff checks pass
+📝 Code quality validated
+🔧 Ready for testing
+
+This release includes all changes from the feature branch and can be used for testing and validation before merging to main."
+
+          echo 'notes<<EOF' >> $GITHUB_OUTPUT
+          echo "${NOTES}" >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          release_name: "Feature: ${{ steps.feature.outputs.name }} (${{ steps.version.outputs.version_clean }})"
+          body: ${{ steps.notes.outputs.notes }}
+          draft: false
+          prerelease: true
+
+      - name: Comment on feature branch
+        run: |
+          echo "✅ Feature release created: ${{ steps.tag.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📦 Release: [${{ steps.tag.outputs.tag }}](https://github.com/${{ github.repository }}/releases/tag/${{ steps.tag.outputs.tag }})" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Branch: ${{ steps.feature.outputs.branch }}" >> $GITHUB_STEP_SUMMARY
