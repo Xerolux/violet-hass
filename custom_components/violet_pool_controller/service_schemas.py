@@ -6,6 +6,7 @@ import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant.const import ATTR_DEVICE_ID, ATTR_ENTITY_ID
 
+from .refill_overflow_schemas import get_refill_overflow_schemas
 from .service_helpers import (
     DEVICE_ID_SELECTOR,
     DOSING_TYPE_MAPPING,
@@ -18,7 +19,7 @@ from .service_helpers import (
 
 def get_service_schemas() -> dict[str, vol.Schema]:
     """Get all service schemas."""
-    return {
+    schemas = {
         "smart_dosing": vol.Schema(vol.All(
             vol.Schema(
                 {
@@ -505,3 +506,5 @@ def get_service_schemas() -> dict[str, vol.Schema]:
             cv.has_at_least_one_key(ATTR_ENTITY_ID, ATTR_DEVICE_ID),
         )),
     }
+    schemas.update(get_refill_overflow_schemas())
+    return schemas

@@ -14,6 +14,7 @@ import logging
 from homeassistant.core import HomeAssistant, SupportsResponse
 
 from .const import DOMAIN
+from .refill_overflow_service import VioletRefillOverflowServiceHandlers
 from .service_control import VioletControlServiceHandlers
 from .service_diagnostics import VioletDiagnosticServiceHandlers
 from .service_manager import VioletServiceManager
@@ -28,7 +29,9 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class VioletServiceHandlers(
-    VioletControlServiceHandlers, VioletDiagnosticServiceHandlers
+    VioletControlServiceHandlers,
+    VioletDiagnosticServiceHandlers,
+    VioletRefillOverflowServiceHandlers,
 ):
     """Compose all Violet service handlers."""
 
@@ -140,6 +143,17 @@ async def async_register_services(hass: HomeAssistant) -> None:
             DOMAIN, service_name, handler, schema=schemas.get(service_name)
         )
 
+    # Refill and Overflow protection services
+    refill_overflow_services = {
+        "configure_refill": handlers.handle_configure_refill,
+        "configure_overflow": handlers.handle_configure_overflow,
+    }
+
+    for service_name, handler in refill_overflow_services.items():
+        hass.services.async_register(
+            DOMAIN, service_name, handler, schema=schemas.get(service_name)
+        )
+
     # Services returning data
     hass.services.async_register(
         DOMAIN,
@@ -181,12 +195,29 @@ async def async_register_services(hass: HomeAssistant) -> None:
         supports_response=SupportsResponse.ONLY,
     )
 
+    hass.services.async_register(
+        DOMAIN,
+        "get_refill_status",
+        handlers.handle_get_refill_status,
+        schema=schemas.get("get_refill_status"),
+        supports_response=SupportsResponse.ONLY,
+    )
+
+    hass.services.async_register(
+        DOMAIN,
+        "get_overflow_status",
+        handlers.handle_get_overflow_status,
+        schema=schemas.get("get_overflow_status"),
+        supports_response=SupportsResponse.ONLY,
+    )
+
     total_services = (
         len(regular_services)
         + len(http_control_services)
         + len(dosing_config_services)
         + len(rule_management_services)
         + len(system_config_services)
-        + 5  # 5 diagnostic services
+        + len(refill_overflow_services)
+        + 7  # 5 diagnostic + 2 status services
     )
     _LOGGER.info("Successfully registered %d services", total_services)
