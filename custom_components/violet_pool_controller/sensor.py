@@ -39,6 +39,7 @@ from .device import VioletPoolDataUpdateCoordinator
 
 # Import sensor classes from submodules
 from .sensor_modules import (
+    VioletActiveErrorsSensor,
     VioletAPIRequestRateSensor,
     VioletAverageLatencySensor,
     VioletConnectionLatencySensor,
@@ -174,6 +175,10 @@ def _create_special_sensors(
             sensors.append(VioletErrorCodeSensor(coordinator, config_entry, key))
             handled_keys.add(key)
             _LOGGER.debug("Error code sensor created for %s", key)
+
+    # Active Errors Sensor (shows all active errors at once)
+    sensors.append(VioletActiveErrorsSensor(coordinator, config_entry))
+    _LOGGER.debug("Active errors sensor created")
 
     # Flow Rate Sensor
     flow_keys_present = any(key in coordinator.data for key in _FLOW_RATE_SOURCE_KEYS)
