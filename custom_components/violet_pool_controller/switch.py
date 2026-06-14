@@ -30,7 +30,7 @@ from .const import (
     SWITCHES,
 )
 from .device import VioletPoolDataUpdateCoordinator
-from .entity import VioletPoolControllerEntity, get_state_attributes, interpret_state_as_bool
+from .entity import VioletPoolControllerEntity, interpret_state_as_bool
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -212,15 +212,6 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             "status_description": description,
             "raw_state": str(raw_state) if raw_state is not None else "None",
         }
-
-        # --- Extended state hierarchy attributes ---
-        try:
-            state_int = int(raw_state) if raw_state is not None else None
-            if state_int is not None and 0 <= state_int <= 6:
-                state_attrs = get_state_attributes(state_int, german=False)
-                attributes.update(state_attrs)
-        except (ValueError, TypeError):
-            pass  # Not a numeric state, skip hierarchy attributes
 
         # Optimistic cache indicator
         if self._optimistic_state is not None:

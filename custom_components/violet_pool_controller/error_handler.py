@@ -534,11 +534,8 @@ class EnhancedErrorHandler:
 
         return recent_auth_errors >= 2
 
-    def get_recovery_suggestion(self, german: bool = False) -> str | None:
+    def get_recovery_suggestion(self) -> str | None:
         """Get a suggested recovery action based on recent errors.
-
-        Args:
-            german: Return German translation if True.
 
         Returns:
             Human-readable recovery suggestion or None.
@@ -550,57 +547,32 @@ class EnhancedErrorHandler:
 
         if last_error.error_type == ErrorType.AUTH_ERROR:
             return (
-                "Bitte authentifizieren Sie sich erneut über Einstellungen > Geräte und Dienste > Konfigurieren"
-                if german
-                else "Please re-authenticate via Settings > Devices & Services > Configure"
+                "Please re-authenticate via Settings > Devices & Services > Configure"
             )
 
         if last_error.error_type == ErrorType.NETWORK_ERROR:
-            return (
-                "Prüfen Sie, ob der Controller eingeschaltet und mit dem Netzwerk verbunden ist"
-                if german
-                else "Check if the controller is powered on and connected to the network"
-            )
+            return "Check if the controller is powered on and connected to the network"
 
         if last_error.error_type == ErrorType.TIMEOUT_ERROR:
             return (
-                "Der Controller antwortet nicht."
-                " Überprüfen Sie die Netzwerkverbindung und den Controller-Status"
-                if german
-                else (
-                    "The controller is not responding."
-                    " Check network connectivity and controller status"
-                )
+                "The controller is not responding."
+                " Check network connectivity and controller status"
             )
 
         if last_error.error_type == ErrorType.SSL_ERROR:
             return (
-                "SSL-Zertifikatüberprüfung fehlgeschlagen."
-                " Überprüfen Sie die Zertifikatskonfiguration oder deaktivieren Sie die SSL-Überprüfung zum Testen"
-                if german
-                else (
-                    "SSL certificate verification failed."
-                    " Check certificate configuration or disable SSL verification"
-                    " for testing"
-                )
+                "SSL certificate verification failed."
+                " Check certificate configuration or disable SSL verification"
+                " for testing"
             )
 
         if last_error.error_type == ErrorType.RATE_LIMIT_ERROR:
-            return (
-                "Zu viele Anfragen. Bitte warten Sie, bevor Sie es erneut versuchen"
-                if german
-                else "Too many requests. Please wait before trying again"
-            )
+            return "Too many requests. Please wait before trying again"
 
         if last_error.error_type == ErrorType.SERVER_ERROR:
             return (
-                "Der Controller hat Probleme."
-                " Überprüfen Sie die Controller-Protokolle und den Status"
-                if german
-                else (
-                    "The controller is experiencing issues."
-                    " Check controller logs and status"
-                )
+                "The controller is experiencing issues."
+                " Check controller logs and status"
             )
 
         return None

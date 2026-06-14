@@ -86,60 +86,6 @@ async def async_register_services(hass: HomeAssistant) -> None:
             DOMAIN, service_name, handler, schema=schemas.get(service_name)
         )
 
-    # NEW HTTP-based control services (Direct setFunctionManually API)
-    http_control_services = {
-        "control_pump": handlers.handle_control_pump_http,
-        "control_heater": handlers.handle_control_heater_http,
-        "control_solar": handlers.handle_control_solar_http,
-        "control_cover": handlers.handle_control_cover_http,
-        "control_backwash": handlers.handle_control_backwash_http,
-        "manual_dosing": handlers.handle_manual_dosing_http,
-    }
-
-    for service_name, handler in http_control_services.items():
-        hass.services.async_register(
-            DOMAIN, service_name, handler, schema=schemas.get(service_name)
-        )
-
-    # Dosing configuration services
-    dosing_config_services = {
-        "configure_dosing": handlers.handle_configure_dosing,
-        "set_dosing_target": handlers.handle_set_dosing_target,
-        "set_dosing_daytime": handlers.handle_set_dosing_daytime,
-        "set_dosing_max_daily": handlers.handle_set_dosing_max_daily,
-        "enable_dosing": handlers.handle_enable_dosing,
-    }
-
-    for service_name, handler in dosing_config_services.items():
-        hass.services.async_register(
-            DOMAIN, service_name, handler, schema=schemas.get(service_name)
-        )
-
-    # Rule management services
-    rule_management_services = {
-        "configure_temp_rule": handlers.handle_configure_temp_rule,
-        "configure_analog_rule": handlers.handle_configure_analog_rule,
-        "configure_switching_rule": handlers.handle_configure_switching_rule,
-        "configure_timer_rule": handlers.handle_configure_timer_rule,
-        "enable_rule": handlers.handle_enable_rule,
-    }
-
-    for service_name, handler in rule_management_services.items():
-        hass.services.async_register(
-            DOMAIN, service_name, handler, schema=schemas.get(service_name)
-        )
-
-    # System configuration services (Phase 4)
-    system_config_services = {
-        "control_extension_relay": handlers.handle_control_extension_relay,
-        "configure_sensor_calibration": handlers.handle_configure_sensor_calibration,
-    }
-
-    for service_name, handler in system_config_services.items():
-        hass.services.async_register(
-            DOMAIN, service_name, handler, schema=schemas.get(service_name)
-        )
-
     # Services returning data
     hass.services.async_register(
         DOMAIN,
@@ -181,12 +127,7 @@ async def async_register_services(hass: HomeAssistant) -> None:
         supports_response=SupportsResponse.ONLY,
     )
 
-    total_services = (
-        len(regular_services)
-        + len(http_control_services)
-        + len(dosing_config_services)
-        + len(rule_management_services)
-        + len(system_config_services)
-        + 5  # 5 diagnostic services
+    _LOGGER.info(
+        "Successfully registered %d services",
+        len(regular_services) + 5,  # 5 diagnostic services
     )
-    _LOGGER.info("Successfully registered %d services", total_services)
