@@ -28,6 +28,7 @@ from violet_poolcontroller_api.utils_sanitizer import InputSanitizer
 from .const import CONF_ACTIVE_FEATURES, DOMAIN, SETPOINT_DEFINITIONS
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity
+from .entity_names import EntityNameResolver
 
 _LOGGER = logging.getLogger(__name__)
 

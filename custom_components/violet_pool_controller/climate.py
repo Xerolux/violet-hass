@@ -31,6 +31,7 @@ from .const import ACTION_AUTO, ACTION_OFF, ACTION_ON, CONF_ACTIVE_FEATURES, DOM
 from .const_features import SETPOINT_DEFINITIONS
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity
+from .entity_names import EntityNameResolver
 
 _LOGGER = logging.getLogger(__name__)
 
