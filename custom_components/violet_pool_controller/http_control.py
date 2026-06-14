@@ -9,7 +9,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import logging
 from typing import Any
 
@@ -51,10 +50,7 @@ class VioletControlClient:
             VioletPoolAPIError: If API communication fails.
         """
         # Build command
-        if param is not None:
-            cmd = f"{function},{action},{param}"
-        else:
-            cmd = f"{function},{action}"
+        cmd = f"{function},{action},{param}" if param is not None else f"{function},{action}"
 
         try:
             _LOGGER.debug("Executing command: setFunctionManually?%s", cmd)
@@ -92,14 +88,14 @@ class VioletControlClient:
                 err,
             )
             raise
-        except asyncio.TimeoutError:
+        except TimeoutError as err:
             _LOGGER.error(
                 "Timeout executing command %s %s", function, action
             )
             raise VioletPoolAPIError(
                 f"Timeout executing {function} {action}",
                 original_exception=err,
-            )
+            ) from err
         except Exception as err:
             _LOGGER.error(
                 "Unexpected error executing command %s %s: %s",
@@ -353,12 +349,12 @@ class VioletControlClient:
         except VioletPoolAPIError as err:
             _LOGGER.error("API error triggering dosing: %s", err)
             raise
-        except asyncio.TimeoutError:
+        except TimeoutError as err:
             _LOGGER.error("Timeout triggering manual dosing")
             raise VioletPoolAPIError(
                 "Timeout triggering manual dosing",
                 original_exception=err,
-            )
+            ) from err
 
     async def set_config(
         self,
@@ -406,9 +402,9 @@ class VioletControlClient:
         except VioletPoolAPIError as err:
             _LOGGER.error("API error updating config: %s", err)
             raise
-        except asyncio.TimeoutError:
+        except TimeoutError as err:
             _LOGGER.error("Timeout updating configuration")
             raise VioletPoolAPIError(
                 "Timeout updating configuration",
                 original_exception=err,
-            )
+            ) from err

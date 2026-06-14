@@ -17,9 +17,8 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN, INTEGRATION_VERSION
-from .error_codes import get_error_info
 from .error_handler import get_enhanced_error_handler
-from .state_constants import get_state_definition, get_state_name
+from .state_constants import get_state_name
 
 # Fields redacted from config entry data (sensitive / privacy-relevant)
 _REDACT_KEYS = {"password", "username"}

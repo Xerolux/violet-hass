@@ -21,7 +21,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 if TYPE_CHECKING:
     from .device import VioletPoolDataUpdateCoordinator
 
-from .state_constants import get_state_definition, get_control_source, get_priority_level
+from .state_constants import get_state_definition
 
 _LOGGER = logging.getLogger(__name__)
 

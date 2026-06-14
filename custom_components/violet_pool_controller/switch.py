@@ -30,8 +30,7 @@ from .const import (
     SWITCHES,
 )
 from .device import VioletPoolDataUpdateCoordinator
-from .entity import VioletPoolControllerEntity, interpret_state_as_bool, get_state_attributes
-from .state_constants import get_state_definition, get_priority_level, get_control_source
+from .entity import VioletPoolControllerEntity, get_state_attributes, interpret_state_as_bool
 
 _LOGGER = logging.getLogger(__name__)
 
