@@ -465,4 +465,43 @@ def get_service_schemas() -> dict[str, vol.Schema]:
             ),
             cv.has_at_least_one_key(ATTR_ENTITY_ID, ATTR_DEVICE_ID),
         )),
+        "control_extension_relay": vol.Schema(vol.All(
+            vol.Schema(
+                {
+                    vol.Optional(ATTR_ENTITY_ID): cv.entity_ids,
+                    vol.Optional(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
+                    vol.Required("relay_id"): vol.All(
+                        vol.Coerce(int), vol.Range(min=1, max=8)
+                    ),
+                    vol.Optional("action"): vol.In(["on", "off", "toggle"]),
+                    vol.Optional("state"): vol.All(
+                        vol.Coerce(int), vol.Range(min=0, max=6)
+                    ),
+                    vol.Optional("duration", default=0): vol.All(
+                        vol.Coerce(int), vol.Range(min=0, max=86400)
+                    ),
+                }
+            ),
+            cv.has_at_least_one_key(ATTR_ENTITY_ID, ATTR_DEVICE_ID),
+        )),
+        "configure_sensor_calibration": vol.Schema(vol.All(
+            vol.Schema(
+                {
+                    vol.Optional(ATTR_ENTITY_ID): cv.entity_ids,
+                    vol.Optional(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
+                    vol.Required("sensor_id"): vol.All(
+                        vol.Coerce(int), vol.Range(min=1, max=12)
+                    ),
+                    vol.Optional("offset"): vol.All(
+                        vol.Coerce(float), vol.Range(min=-10, max=10)
+                    ),
+                    vol.Optional("multiplier"): vol.All(
+                        vol.Coerce(float), vol.Range(min=0.5, max=2.0)
+                    ),
+                    vol.Optional("min_value"): vol.Coerce(float),
+                    vol.Optional("max_value"): vol.Coerce(float),
+                }
+            ),
+            cv.has_at_least_one_key(ATTR_ENTITY_ID, ATTR_DEVICE_ID),
+        )),
     }

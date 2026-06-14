@@ -1050,3 +1050,104 @@ class VioletControlServiceHandlers:
                 raise HomeAssistantError(
                     f"Failed to enable/disable rule: {err}"
                 )
+
+    # PHASE 4: SYSTEM CONFIGURATION SERVICES
+
+    async def handle_control_extension_relay(self, call: ServiceCall) -> None:
+        """Control extension relay outputs (EXT1_1 to EXT8_8)."""
+        coordinators = await self.manager.get_coordinators_for_call(call)
+        relay_id = call.data.get("relay_id")
+
+        if not 1 <= relay_id <= 8:
+            raise HomeAssistantError(f"Relay ID must be 1-8, got {relay_id}")
+
+        action = call.data.get("action", "on")
+        state = call.data.get("state")
+        duration = call.data.get("duration", 0)
+
+        for coordinator in coordinators:
+            try:
+                control = VioletControlClient(coordinator.device._api)
+
+                if state is not None:
+                    await control.set_function_manually(
+                        f"EXT{relay_id}_1", state, duration
+                    )
+                    _LOGGER.info(
+                        "Extension relay EXT%d_1 set to state %d on %s",
+                        relay_id,
+                        state,
+                        coordinator.device.device_name,
+                    )
+                elif action == "on":
+                    await control.set_function_manually(
+                        f"EXT{relay_id}_1", 4, duration
+                    )
+                    _LOGGER.info(
+                        "Extension relay EXT%d_1 turned ON on %s",
+                        relay_id,
+                        coordinator.device.device_name,
+                    )
+                elif action == "off":
+                    await control.set_function_manually(
+                        f"EXT{relay_id}_1", 6, duration
+                    )
+                    _LOGGER.info(
+                        "Extension relay EXT%d_1 turned OFF on %s",
+                        relay_id,
+                        coordinator.device.device_name,
+                    )
+                elif action == "toggle":
+                    await control.set_function_manually(
+                        f"EXT{relay_id}_1", 0, duration
+                    )
+                    _LOGGER.info(
+                        "Extension relay EXT%d_1 toggled on %s",
+                        relay_id,
+                        coordinator.device.device_name,
+                    )
+
+                await coordinator.async_request_refresh()
+            except Exception as err:
+                raise HomeAssistantError(
+                    f"Failed to control extension relay EXT{relay_id}_1: {err}"
+                )
+
+    async def handle_configure_sensor_calibration(
+        self, call: ServiceCall
+    ) -> None:
+        """Configure sensor calibration offsets and multipliers."""
+        coordinators = await self.manager.get_coordinators_for_call(call)
+        sensor_id = call.data.get("sensor_id")
+
+        if not 1 <= sensor_id <= 12:
+            raise HomeAssistantError(f"Sensor ID must be 1-12, got {sensor_id}")
+
+        config_updates = {}
+
+        if offset := call.data.get("offset"):
+            config_updates[f"SENSOR_{sensor_id}_offset"] = offset
+        if multiplier := call.data.get("multiplier"):
+            config_updates[f"SENSOR_{sensor_id}_multiplier"] = multiplier
+        if min_value := call.data.get("min_value"):
+            config_updates[f"SENSOR_{sensor_id}_min"] = min_value
+        if max_value := call.data.get("max_value"):
+            config_updates[f"SENSOR_{sensor_id}_max"] = max_value
+
+        if not config_updates:
+            raise HomeAssistantError("No calibration parameters specified")
+
+        for coordinator in coordinators:
+            try:
+                control = VioletControlClient(coordinator.device._api)
+                await control.set_config(config_updates)
+                _LOGGER.info(
+                    "Sensor %d calibration configured on %s",
+                    sensor_id,
+                    coordinator.device.device_name,
+                )
+                await coordinator.async_request_refresh()
+            except Exception as err:
+                raise HomeAssistantError(
+                    f"Failed to configure sensor {sensor_id} calibration: {err}"
+                )

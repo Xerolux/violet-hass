@@ -129,6 +129,17 @@ async def async_register_services(hass: HomeAssistant) -> None:
             DOMAIN, service_name, handler, schema=schemas.get(service_name)
         )
 
+    # System configuration services (Phase 4)
+    system_config_services = {
+        "control_extension_relay": handlers.handle_control_extension_relay,
+        "configure_sensor_calibration": handlers.handle_configure_sensor_calibration,
+    }
+
+    for service_name, handler in system_config_services.items():
+        hass.services.async_register(
+            DOMAIN, service_name, handler, schema=schemas.get(service_name)
+        )
+
     # Services returning data
     hass.services.async_register(
         DOMAIN,
@@ -175,6 +186,7 @@ async def async_register_services(hass: HomeAssistant) -> None:
         + len(http_control_services)
         + len(dosing_config_services)
         + len(rule_management_services)
+        + len(system_config_services)
         + 5  # 5 diagnostic services
     )
     _LOGGER.info("Successfully registered %d services", total_services)
