@@ -67,6 +67,7 @@ from .parsers import (  # noqa: F401
     parse_runtime_string,
     parse_uptime_string,
 )
+from .readings import VioletReadings
 from .utils_rate_limiter import RateLimiter, get_global_rate_limiter
 from .utils_sanitizer import InputSanitizer
 
@@ -98,6 +99,8 @@ __all__ = [
     "STATE_TRANSLATIONS",
     "get_state_translation_language",
     "set_state_translation_language",
+    # Typed readings snapshot
+    "VioletReadings",
     # Parsers
     "parse_runtime_string",
     "parse_hms_string",

@@ -70,6 +70,7 @@ from .const_api import (
     TARGET_PH,
 )
 from .const_devices import COVER_FUNCTIONS, DEVICE_PARAMETERS
+from .readings import VioletReadings
 from .utils_rate_limiter import get_global_rate_limiter
 from .utils_sanitizer import InputSanitizer
 
@@ -717,11 +718,17 @@ class VioletPoolAPI:
             readings = {k: v for k, v in readings.items() if not k.startswith("EXT2")}
         return readings
 
-    async def get_readings(self) -> dict[str, Any]:
-        """Return the complete dataset from the controller.
+    async def get_readings(self) -> VioletReadings:
+        """Return the complete dataset from the controller as a typed snapshot.
+
+        The returned :class:`~violet_poolcontroller_api.readings.VioletReadings`
+        object implements :class:`~collections.abc.Mapping`, so all existing
+        code that accesses ``data.get("KEY")`` or ``"KEY" in data`` continues
+        to work unchanged.  Typed properties (``readings.pump``,
+        ``readings.ph``, etc.) are available as an additive convenience.
 
         Returns:
-            A dictionary containing all readings.
+            A :class:`VioletReadings` instance wrapping all readings.
 
         Raises:
             VioletPoolAPIError: If the payload is unexpected.
@@ -732,7 +739,8 @@ class VioletPoolAPI:
             query="ALL",
             payload_name="getReadings",
         )
-        return self._flatten_getreadings_response(response)
+        flat = self._flatten_getreadings_response(response)
+        return VioletReadings(flat)
 
     async def get_hardware_profile(self) -> dict[str, bool]:
         """Detect connected hardware modules from the controller readings.
@@ -750,28 +758,29 @@ class VioletPoolAPI:
             query="ALL",
             payload_name="getReadings",
         )
-        readings = self._flatten_getreadings_response(response)
+        # Use flat dict directly (VioletReadings wrapping not needed here)
+        flat = self._flatten_getreadings_response(response)
 
-        has_base = not self._dosing_standalone and bool(readings)
+        has_base = not self._dosing_standalone and bool(flat)
         return {
             "base_module": has_base,
             "dosing_module": self._dosing_standalone
-            or "SYSTEM_dosagemodule_alive_count" in readings,
-            "extension_module_1": "SYSTEM_ext1module_alive_count" in readings,
-            "extension_module_2": "SYSTEM_ext2module_alive_count" in readings,
+            or "SYSTEM_dosagemodule_alive_count" in flat,
+            "extension_module_1": "SYSTEM_ext1module_alive_count" in flat,
+            "extension_module_2": "SYSTEM_ext2module_alive_count" in flat,
         }
 
     async def get_specific_readings(
         self,
         categories: list[str] | tuple[str, ...],
-    ) -> dict[str, Any]:
-        """Return a reduced dataset for the provided categories.
+    ) -> VioletReadings:
+        """Return a reduced typed snapshot for the provided categories.
 
         Args:
             categories: A list or tuple of category strings to fetch.
 
         Returns:
-            A dictionary containing the requested readings.
+            A :class:`VioletReadings` instance for the requested categories.
 
         Raises:
             VioletPoolAPIError: If no categories are provided
@@ -788,7 +797,7 @@ class VioletPoolAPI:
             query=query,
             payload_name="getReadings",
         )
-        return self._flatten_getreadings_response(response)
+        return VioletReadings(self._flatten_getreadings_response(response))
 
     async def get_history(
         self,
