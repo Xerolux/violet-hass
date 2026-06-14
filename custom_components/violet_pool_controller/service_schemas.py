@@ -129,7 +129,7 @@ def get_service_schemas() -> dict[str, vol.Schema]:
             {vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR}
         ),
         # NEW HTTP-based control services (Direct setFunctionManually API)
-        "control_pump": vol.Schema(vol.All(
+        "control_pump_http": vol.Schema(vol.All(
             vol.Schema(
                 {
                     vol.Optional(ATTR_ENTITY_ID): cv.entity_ids,
@@ -141,7 +141,7 @@ def get_service_schemas() -> dict[str, vol.Schema]:
             ),
             cv.has_at_least_one_key(ATTR_ENTITY_ID, ATTR_DEVICE_ID),
         )),
-        "control_heater": vol.Schema(vol.All(
+        "control_heater_http": vol.Schema(vol.All(
             vol.Schema(
                 {
                     vol.Optional(ATTR_ENTITY_ID): cv.entity_ids,
@@ -154,7 +154,7 @@ def get_service_schemas() -> dict[str, vol.Schema]:
             ),
             cv.has_at_least_one_key(ATTR_ENTITY_ID, ATTR_DEVICE_ID),
         )),
-        "control_solar": vol.Schema(vol.All(
+        "control_solar_http": vol.Schema(vol.All(
             vol.Schema(
                 {
                     vol.Optional(ATTR_ENTITY_ID): cv.entity_ids,
@@ -167,7 +167,7 @@ def get_service_schemas() -> dict[str, vol.Schema]:
             ),
             cv.has_at_least_one_key(ATTR_ENTITY_ID, ATTR_DEVICE_ID),
         )),
-        "control_cover": vol.Schema(vol.All(
+        "control_cover_http": vol.Schema(vol.All(
             vol.Schema(
                 {
                     vol.Optional(ATTR_ENTITY_ID): cv.entity_ids,
@@ -177,7 +177,7 @@ def get_service_schemas() -> dict[str, vol.Schema]:
             ),
             cv.has_at_least_one_key(ATTR_ENTITY_ID, ATTR_DEVICE_ID),
         )),
-        "control_backwash": vol.Schema(vol.All(
+        "control_backwash_http": vol.Schema(vol.All(
             vol.Schema(
                 {
                     vol.Optional(ATTR_ENTITY_ID): cv.entity_ids,
@@ -187,7 +187,7 @@ def get_service_schemas() -> dict[str, vol.Schema]:
             ),
             cv.has_at_least_one_key(ATTR_ENTITY_ID, ATTR_DEVICE_ID),
         )),
-        "manual_dosing": vol.Schema(vol.All(
+        "manual_dosing_http": vol.Schema(vol.All(
             vol.Schema(
                 {
                     vol.Optional(ATTR_ENTITY_ID): cv.entity_ids,

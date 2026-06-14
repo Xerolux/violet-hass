@@ -324,8 +324,8 @@ clear_error_history:
 
 # === PHASE 2: HTTP CONTROL SERVICES ===
 
-control_heater:
-  name: Control Heater
+control_heater_http:
+  name: Control Heater (HTTP)
   description: Control pool heater with temperature setpoint
   fields:
     action:
@@ -341,8 +341,8 @@ control_heater:
           max: 60
           unit_of_measurement: "°C"
 
-control_solar:
-  name: Control Solar
+control_solar_http:
+  name: Control Solar (HTTP)
   description: Control solar heating system
   fields:
     action:
@@ -358,8 +358,8 @@ control_solar:
           max: 60
           unit_of_measurement: "°C"
 
-control_cover:
-  name: Control Cover
+control_cover_http:
+  name: Control Cover (HTTP)
   description: Control pool cover (open/close/stop)
   fields:
     action:
@@ -369,8 +369,8 @@ control_cover:
         select:
           options: ["open", "close", "stop"]
 
-control_backwash:
-  name: Control Backwash
+control_backwash_http:
+  name: Control Backwash (HTTP)
   description: Run or abort backwash cycle
   fields:
     action:
@@ -380,8 +380,8 @@ control_backwash:
         select:
           options: ["run", "abort"]
 
-manual_dosing:
-  name: Manual Dosing
+manual_dosing_http:
+  name: Manual Dosing (HTTP)
   description: Manually trigger chemical dosing
   fields:
     dosing_system:

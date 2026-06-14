@@ -88,12 +88,12 @@ async def async_register_services(hass: HomeAssistant) -> None:
 
     # NEW HTTP-based control services (Direct setFunctionManually API)
     http_control_services = {
-        "control_pump": handlers.handle_control_pump_http,
-        "control_heater": handlers.handle_control_heater_http,
-        "control_solar": handlers.handle_control_solar_http,
-        "control_cover": handlers.handle_control_cover_http,
-        "control_backwash": handlers.handle_control_backwash_http,
-        "manual_dosing": handlers.handle_manual_dosing_http,
+        "control_pump_http": handlers.handle_control_pump_http,
+        "control_heater_http": handlers.handle_control_heater_http,
+        "control_solar_http": handlers.handle_control_solar_http,
+        "control_cover_http": handlers.handle_control_cover_http,
+        "control_backwash_http": handlers.handle_control_backwash_http,
+        "manual_dosing_http": handlers.handle_manual_dosing_http,
     }
 
     for service_name, handler in http_control_services.items():

@@ -52,7 +52,7 @@ class VioletErrorCodeSensor(VioletSensor):
             name="Last Error Code",
             icon="mdi:alert-circle",
             entity_category=EntityCategory.DIAGNOSTIC,
-            entity_registry_enabled_default=False,
+            entity_registry_enabled_default=True,
         )
         super().__init__(coordinator, config_entry, description)
 
@@ -80,6 +80,98 @@ class VioletErrorCodeSensor(VioletSensor):
             "type": info.get("type"),
             "severity": info.get("severity"),
             "description": info.get("description"),
+        }
+
+
+class VioletActiveErrorsSensor(VioletPoolControllerEntity, SensorEntity):
+    """Sensor that displays all active error codes as human-readable names."""
+
+    def __init__(
+        self,
+        coordinator: VioletPoolDataUpdateCoordinator,
+        config_entry: ConfigEntry,
+    ) -> None:
+        """Initialize the active errors sensor."""
+        description = SensorEntityDescription(
+            key="active_errors",
+            translation_key="active_errors",
+            name="Active Errors",
+            icon="mdi:alert-multiple",
+            entity_category=EntityCategory.DIAGNOSTIC,
+            entity_registry_enabled_default=True,
+        )
+        super().__init__(coordinator, config_entry, description)
+
+    @property
+    def native_value(self) -> str:
+        """Return all active error codes as comma-separated human-readable names."""
+        if self.coordinator.data is None:
+            return "No Error"
+
+        # Collect all error codes from the data
+        error_codes = []
+
+        # Check all error code fields (ERROR_0, ERROR_1, etc. and LAST_ERROR)
+        for i in range(10):  # Support up to 10 simultaneous errors
+            key = f"ERROR_{i}" if i > 0 else "ERROR"
+            if key in self.coordinator.data:
+                code = str(self.coordinator.data.get(key, "")).strip()
+                if code and code != "0" and code != "0000":
+                    error_codes.append(code)
+
+        # Also check LAST_ERROR if it's different
+        last_error = str(self.coordinator.data.get("LAST_ERROR", "")).strip()
+        if last_error and last_error != "0" and last_error not in error_codes:
+            error_codes.append(last_error)
+
+        if not error_codes:
+            return "No Error"
+
+        # Convert codes to names
+        error_names = []
+        for code in error_codes:
+            info = get_error_info(code)
+            error_names.append(f"{info['subject']} ({code})")
+
+        return " | ".join(error_names)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return detailed information about all active errors."""
+        if self.coordinator.data is None:
+            return {}
+
+        # Collect all error codes
+        error_codes = []
+        for i in range(10):
+            key = f"ERROR_{i}" if i > 0 else "ERROR"
+            if key in self.coordinator.data:
+                code = str(self.coordinator.data.get(key, "")).strip()
+                if code and code != "0" and code != "0000":
+                    error_codes.append(code)
+
+        last_error = str(self.coordinator.data.get("LAST_ERROR", "")).strip()
+        if last_error and last_error != "0" and last_error not in error_codes:
+            error_codes.append(last_error)
+
+        if not error_codes:
+            return {"error_count": 0, "errors": []}
+
+        # Build detailed error list
+        errors = []
+        for code in error_codes:
+            info = get_error_info(code)
+            errors.append({
+                "code": code,
+                "name": info["subject"],
+                "type": info.get("type"),
+                "severity": info.get("severity"),
+                "description": info.get("description"),
+            })
+
+        return {
+            "error_count": len(errors),
+            "errors": errors,
         }
 
 

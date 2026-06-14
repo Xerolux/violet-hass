@@ -504,8 +504,8 @@
         }
       }
     },
-    "control_heater": {
-      "name": "Control Heater",
+    "control_heater_http": {
+      "name": "Control Heater (HTTP)",
       "description": "Control the pool heater with temperature setpoint.",
       "fields": {
         "action": {
@@ -518,8 +518,8 @@
         }
       }
     },
-    "control_solar": {
-      "name": "Control Solar",
+    "control_solar_http": {
+      "name": "Control Solar (HTTP)",
       "description": "Control the solar heating system.",
       "fields": {
         "action": {
@@ -532,8 +532,8 @@
         }
       }
     },
-    "control_cover": {
-      "name": "Control Cover",
+    "control_cover_http": {
+      "name": "Control Cover (HTTP)",
       "description": "Control the pool cover (open, close, or stop).",
       "fields": {
         "action": {
@@ -542,8 +542,8 @@
         }
       }
     },
-    "control_backwash": {
-      "name": "Control Backwash",
+    "control_backwash_http": {
+      "name": "Control Backwash (HTTP)",
       "description": "Run or abort the filter backwash cycle.",
       "fields": {
         "action": {
@@ -552,8 +552,8 @@
         }
       }
     },
-    "manual_dosing": {
-      "name": "Manual Dosing",
+    "manual_dosing_http": {
+      "name": "Manual Dosing (HTTP)",
       "description": "Manually trigger chemical dosing.\n\n**Caution:** Always verify water values before dosing!",
       "fields": {
         "dosing_system": {
