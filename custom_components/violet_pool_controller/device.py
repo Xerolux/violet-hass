@@ -18,7 +18,7 @@ from typing import Any, cast
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.issue_registry import (
     IssueSeverity,
@@ -26,7 +26,8 @@ from homeassistant.helpers.issue_registry import (
     async_delete_issue,
 )
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from violet_poolcontroller_api.api import VioletPoolAPI, VioletPoolAPIError
+from violet_poolcontroller_api.api import VioletAuthError, VioletPoolAPI, VioletPoolAPIError
+from violet_poolcontroller_api.readings import VioletReadings
 
 from .config_entry_helpers import (
     extract_api_host,
@@ -317,9 +318,10 @@ class VioletPoolControllerDevice:
         which is reliable because the API filter only removes keys whose
         module is absent.
         """
-        data = await self.api.get_readings()
+        _readings = await self.api.get_readings()
+        data: dict[str, Any] = dict(_readings) if _readings is not None else {}
 
-        if isinstance(data, dict):
+        if data and isinstance(data, dict):
 
             def is_valid(val: Any) -> bool:
                 return val is not None and str(val).strip().upper() != "N/A"
@@ -593,6 +595,9 @@ class VioletPoolControllerDevice:
             # Already counted and logged where it was raised - the generic
             # handler below must not increment the failure counter again
             raise
+        except VioletAuthError:
+            # Auth errors must surface immediately so HA can trigger re-auth
+            raise
         except VioletPoolAPIError as err:
             self._last_error = str(err)
             self._consecutive_failures += 1
@@ -676,7 +681,7 @@ class VioletPoolControllerDevice:
             else "Violet Pool Controller"
         )
 
-        return {
+        info: dict[str, Any] = {
             "identifiers": {(DOMAIN, f"{self.api_url}_{self.device_id}")},
             # Uses controller_name for visual distinction in multi-controller setups
             "name": self.controller_name,
@@ -686,6 +691,12 @@ class VioletPoolControllerDevice:
             # Auto-area for multi-controller setups
             "suggested_area": self.controller_name,
         }
+        for _serial_key in ("SERIAL", "SERIAL_NUMBER", "serial", "serial_number", "HW_SERIAL"):
+            _serial_val = self._data.get(_serial_key)
+            if _serial_val:
+                info["serial_number"] = str(_serial_val)
+                break
+        return info
 
     @property
     def system_health(self) -> float:
@@ -821,7 +832,7 @@ class VioletPoolControllerDevice:
         return None
 
 
-class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
+class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator[VioletReadings]):
     """Data update coordinator for the Violet Pool Controller."""
 
     def __init__(
@@ -839,6 +850,7 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
             update_interval=timedelta(seconds=polling_interval),
         )
         self.device = device
+        self._setpoint_cache: dict[str, float] = {}
 
         _LOGGER.info(
             "Coordinator initialized for '%s' (polling every %ds)",
@@ -846,19 +858,30 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
             polling_interval,
         )
 
-    async def _async_update_data(self) -> dict[str, Any]:
+    def update_setpoint_cache(self, key: str, value: float) -> None:
+        """Cache a setpoint write and immediately notify all listeners.
+
+        This lets entities show the new value without waiting for the next
+        poll cycle. The cache entry persists until the next successful poll
+        returns the key, at which point coordinator.data takes precedence.
+        """
+        self._setpoint_cache[key] = value
+        self.async_update_listeners()
+
+    async def _async_update_data(self) -> VioletReadings:
         """
         Update data from the device.
 
-        Returns a fresh dict from the device on every call so that
+        Returns a VioletReadings snapshot on every call so that
         HA's DataUpdateCoordinator always sees a new data object and
         triggers entity listener callbacks.
 
         Returns:
-            A dictionary containing the updated data.
+            A VioletReadings snapshot of the updated data.
 
         Raises:
-            UpdateFailed: If the update fails.
+            ConfigEntryAuthFailed: On HTTP 401/403 (triggers re-auth flow).
+            UpdateFailed: If the update fails for any other reason.
         """
         try:
             data = await self.device.async_update()
@@ -866,7 +889,11 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator):
                 raise UpdateFailed(
                     f"Empty data returned for '{self.device.device_name}'"
                 )
-            return data
+            return VioletReadings(data)
+        except ConfigEntryAuthFailed:
+            raise
+        except VioletAuthError as err:
+            raise ConfigEntryAuthFailed(str(err)) from err
         except UpdateFailed:
             raise
         except VioletPoolAPIError as err:

@@ -187,7 +187,13 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
 
     def _get_target_temperature(self) -> float:
         """Return the target temperature."""
-        # Check optimistic cache first
+        # Check coordinator setpoint cache first (populated immediately after writes)
+        possible_keys = _get_setpoint_fields_for_climate_type(self.climate_type)
+        for key in possible_keys:
+            if key in self.coordinator._setpoint_cache:
+                return self.coordinator._setpoint_cache[key]
+
+        # Fall back to per-entity optimistic cache (legacy)
         if self._optimistic_target_temp is not None:
             return self._optimistic_target_temp
 
@@ -335,6 +341,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         if not self._validate_temperature(temperature):
             return
 
+        possible_keys = _get_setpoint_fields_for_climate_type(self.climate_type)
         try:
             _LOGGER.info(
                 "Setting %s temperature to %.1f°C",
@@ -349,17 +356,15 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             if result.get("success") is True:
                 _LOGGER.debug("Temperature set successfully: %s", result)
 
+                # Update coordinator cache for immediate cross-entity propagation
+                for key in possible_keys:
+                    if self.coordinator.data is None or key in self.coordinator.data:
+                        self.coordinator.update_setpoint_cache(key, temperature)
+                        break
+
                 self._optimistic_target_temp = temperature
                 self._attr_target_temperature = temperature
                 self.async_write_ha_state()
-
-                _LOGGER.debug(
-                    (
-                        "Optimistic update: %.1f°C"
-                        " (local cache, coordinator.data not mutated)"
-                    ),
-                    temperature,
-                )
 
                 task = asyncio.create_task(self._delayed_refresh())
                 task.add_done_callback(self._handle_refresh_error)
@@ -533,13 +538,6 @@ async def async_setup_entry(
     entities = []
 
     _LOGGER.debug("Climate Setup - Active features: %s", active_features)
-
-    # Get hardware configuration for dynamic naming
-    hw_config = None
-    if coordinator.device:
-        hw_config = coordinator.device.hardware_config
-
-    name_resolver = EntityNameResolver(hw_config)
 
     if coordinator.data is not None:
         _LOGGER.debug("Coordinator data keys: %d", len(coordinator.data.keys()))
