@@ -1938,5 +1938,443 @@
         }
       }
     }
+  },
+  "services": {
+    "control_pump_http": {
+      "name": "Pumpe steuern (HTTP)",
+      "description": "Direkte Pumpensteuerung über HTTP API",
+      "fields": {
+        "action": {
+          "name": "Aktion",
+          "description": "Ein oder Aus"
+        },
+        "speed": {
+          "name": "Geschwindigkeit",
+          "description": "Pumpendrehzahl (0-3)"
+        }
+      }
+    },
+    "control_heater_http": {
+      "name": "Heizer steuern (HTTP)",
+      "description": "Heizersteuerung mit Temperaturvorgabe",
+      "fields": {
+        "action": {
+          "name": "Heizeraktion",
+          "description": "Ein oder Aus"
+        },
+        "target_temperature": {
+          "name": "Zieltemperatur",
+          "description": "Gewünschte Pooltemperatur (10-60°C)"
+        }
+      }
+    },
+    "control_solar_http": {
+      "name": "Solar steuern (HTTP)",
+      "description": "Solarheizungssystem steuern",
+      "fields": {
+        "action": {
+          "name": "Solar-Aktion",
+          "description": "Aktivieren oder deaktivieren"
+        },
+        "target_temperature": {
+          "name": "Zieltemperatur",
+          "description": "Zieltemperatur für Solarbetrieb (10-60°C)"
+        }
+      }
+    },
+    "control_cover_http": {
+      "name": "Abdeckung steuern (HTTP)",
+      "description": "Poolabdeckung steuern (öffnen/schließen/stopp)",
+      "fields": {
+        "action": {
+          "name": "Abdeckungsaktion",
+          "description": "Öffnen, schließen oder stoppen"
+        }
+      }
+    },
+    "control_backwash_http": {
+      "name": "Rückspülung steuern (HTTP)",
+      "description": "Rückspülzyklus ausführen oder abbrechen",
+      "fields": {
+        "action": {
+          "name": "Rückspülaktion",
+          "description": "Rückspülzyklus starten oder abbrechen"
+        }
+      }
+    },
+    "manual_dosing_http": {
+      "name": "Manuelle Dosierung (HTTP)",
+      "description": "Chemikalien manuell dosieren\n\n⚠️ Vor dem Dosieren immer Wasserwerte überprüfen!",
+      "fields": {
+        "dosing_system": {
+          "name": "Dosiersystem",
+          "description": "Welche Chemikalie dosieren (Chlor, Elektrolyse, pH-, pH+, Flockungsmittel, H₂O₂)"
+        },
+        "runtime_seconds": {
+          "name": "Laufzeit (Sekunden)",
+          "description": "Wie lange soll die Dosierpumpe laufen (1-3600s)"
+        }
+      }
+    },
+    "configure_dosing": {
+      "name": "Dosierung konfigurieren",
+      "description": "Dosiersystem-Parameter einstellen",
+      "fields": {
+        "dosing_system": {
+          "name": "Dosiersystem",
+          "description": "Welches System konfigurieren"
+        },
+        "config_key": {
+          "name": "Konfigurationsschlüssel",
+          "description": "Parametername"
+        },
+        "value": {
+          "name": "Konfigurationswert",
+          "description": "Neuer Parameterwert"
+        }
+      }
+    },
+    "set_dosing_target": {
+      "name": "Dosiervorgabe setzen",
+      "description": "Zielwert für Dosierregelung einstellen",
+      "fields": {
+        "dosing_system": {
+          "name": "Dosiersystem",
+          "description": "Welches System konfigurieren"
+        },
+        "target_value": {
+          "name": "Zielwert",
+          "description": "Zielwert (0-100, Einheit chemikalienabhängig)"
+        }
+      }
+    },
+    "set_dosing_daytime": {
+      "name": "Dosier-Zeitfenster setzen",
+      "description": "Tageszeit für Dosierbereich konfigurieren",
+      "fields": {
+        "dosing_system": {
+          "name": "Dosiersystem",
+          "description": "Welches System konfigurieren"
+        },
+        "day_start": {
+          "name": "Tagesstart",
+          "description": "Wann beginnt die Tageszeit (HH:MM)"
+        },
+        "day_end": {
+          "name": "Tagesende",
+          "description": "Wann endet die Tageszeit (HH:MM)"
+        }
+      }
+    },
+    "set_dosing_max_daily": {
+      "name": "Max. Tagesdosis setzen",
+      "description": "Maximale Tagesdosierungsmenge festlegen",
+      "fields": {
+        "dosing_system": {
+          "name": "Dosiersystem",
+          "description": "Welches System konfigurieren"
+        },
+        "max_daily_ml": {
+          "name": "Max. Tagesvolumen",
+          "description": "Maximales Volumen pro Tag in ml (10-10000)"
+        }
+      }
+    },
+    "enable_dosing": {
+      "name": "Dosierung aktivieren/deaktivieren",
+      "description": "Dosiersystem ein- oder ausschalten",
+      "fields": {
+        "dosing_system": {
+          "name": "Dosiersystem",
+          "description": "Welches System aktivieren/deaktivieren"
+        },
+        "enabled": {
+          "name": "Dosierung aktivieren",
+          "description": "Dosiersystem ein- oder ausschalten"
+        }
+      }
+    },
+    "configure_temp_rule": {
+      "name": "Temperaturregel konfigurieren",
+      "description": "Temperaturbasierte Automatisierungsregel (TEMPRULE_1-8)",
+      "fields": {
+        "rule_id": {
+          "name": "Regel-ID",
+          "description": "Regelnummer 1-8"
+        },
+        "enabled": {
+          "name": "Regel aktivieren",
+          "description": "Regel ein- oder ausschalten"
+        },
+        "sensor_1": {
+          "name": "Primärsensor",
+          "description": "Primärer Temperatursensor (1-8)"
+        },
+        "sensor_2": {
+          "name": "Sekundärsensor",
+          "description": "Sekundärsensor (0=absoluter Wert, 1-8=Sensor)"
+        },
+        "logic": {
+          "name": "Vergleichslogik",
+          "description": "Nutze >= (größer/gleich) oder <= (kleiner/gleich)"
+        },
+        "diff_value": {
+          "name": "Differenzwert",
+          "description": "Temperaturdifferenz-Schwellenwert"
+        },
+        "hyst_value": {
+          "name": "Hysteresewert",
+          "description": "Hysteresespanne gegen Flattern"
+        },
+        "runtime_on": {
+          "name": "Laufzeit EIN",
+          "description": "Zeit wenn Regel aktiv sein kann (HH:MM)"
+        },
+        "runtime_off": {
+          "name": "Laufzeit AUS",
+          "description": "Zeit wenn Regel inaktiv sein muss (HH:MM)"
+        },
+        "output_1": {
+          "name": "Ausgang 1",
+          "description": "Name des ersten Ausgangs"
+        },
+        "output_1_state": {
+          "name": "Ausgang 1 Status",
+          "description": "Zustand beim Auslösen (0-6)"
+        },
+        "output_2": {
+          "name": "Ausgang 2",
+          "description": "Name des zweiten Ausgangs"
+        },
+        "output_2_state": {
+          "name": "Ausgang 2 Status",
+          "description": "Zustand beim Auslösen (0-6)"
+        },
+        "output_3": {
+          "name": "Ausgang 3",
+          "description": "Name des dritten Ausgangs"
+        },
+        "output_3_state": {
+          "name": "Ausgang 3 Status",
+          "description": "Zustand beim Auslösen (0-6)"
+        }
+      }
+    },
+    "configure_analog_rule": {
+      "name": "Analogeingang-Regel konfigurieren",
+      "description": "Analogeingabe-Schwellenwert-Regel (ANALOGRULE_1-8)",
+      "fields": {
+        "rule_id": {
+          "name": "Regel-ID",
+          "description": "Regelnummer 1-8"
+        },
+        "enabled": {
+          "name": "Regel aktivieren",
+          "description": "Regel ein- oder ausschalten"
+        },
+        "adc_input": {
+          "name": "ADC-Eingang",
+          "description": "Analogeingabe-Kanal (1-8)"
+        },
+        "logic": {
+          "name": "Vergleichslogik",
+          "description": "Nutze >= oder <="
+        },
+        "threshold": {
+          "name": "Schwellenwert",
+          "description": "Auslösewert für Analogeingang"
+        },
+        "hysteresis": {
+          "name": "Hysteresewert",
+          "description": "Hysteresespanne gegen Flattern"
+        },
+        "runtime_on": {
+          "name": "Laufzeit EIN",
+          "description": "Zeit wenn Regel aktiv sein kann (HH:MM)"
+        },
+        "runtime_off": {
+          "name": "Laufzeit AUS",
+          "description": "Zeit wenn Regel inaktiv sein muss (HH:MM)"
+        },
+        "output_1": {
+          "name": "Ausgang 1",
+          "description": "Name des ersten Ausgangs"
+        },
+        "output_1_state": {
+          "name": "Ausgang 1 Status",
+          "description": "Zustand beim Auslösen (0-6)"
+        },
+        "output_2": {
+          "name": "Ausgang 2",
+          "description": "Name des zweiten Ausgangs"
+        },
+        "output_2_state": {
+          "name": "Ausgang 2 Status",
+          "description": "Zustand beim Auslösen (0-6)"
+        },
+        "output_3": {
+          "name": "Ausgang 3",
+          "description": "Name des dritten Ausgangs"
+        },
+        "output_3_state": {
+          "name": "Ausgang 3 Status",
+          "description": "Zustand beim Auslösen (0-6)"
+        }
+      }
+    },
+    "configure_switching_rule": {
+      "name": "Schalteingang-Regel konfigurieren",
+      "description": "Digitaleingabe-basierte Regel (SWITCHINGRULE_1-8)",
+      "fields": {
+        "rule_id": {
+          "name": "Regel-ID",
+          "description": "Regelnummer 1-8"
+        },
+        "enabled": {
+          "name": "Regel aktivieren",
+          "description": "Regel ein- oder ausschalten"
+        },
+        "di_input": {
+          "name": "Digitaleingang",
+          "description": "Digitaler Eingabepol (1-12)"
+        },
+        "contact_type": {
+          "name": "Kontakttyp",
+          "description": "0=Öffner (NO), 1=Schließer (NC)"
+        },
+        "output": {
+          "name": "Ausgangsname",
+          "description": "Zu steuernder Ausgang"
+        },
+        "action_on": {
+          "name": "Aktion EIN Status",
+          "description": "Ausgangsstatus beim Schließen (0-6)"
+        },
+        "action_off": {
+          "name": "Aktion AUS Status",
+          "description": "Ausgangsstatus beim Öffnen (0-6)"
+        },
+        "timeout": {
+          "name": "Timeout",
+          "description": "Auto-Reset Timeout in Sekunden (0=deaktiviert)"
+        }
+      }
+    },
+    "configure_timer_rule": {
+      "name": "Timer-Regel konfigurieren",
+      "description": "Zeitbasierte Automatisierungsregel (TIMERRULE_1-8)",
+      "fields": {
+        "rule_id": {
+          "name": "Regel-ID",
+          "description": "Regelnummer 1-8"
+        },
+        "enabled": {
+          "name": "Regel aktivieren",
+          "description": "Regel ein- oder ausschalten"
+        },
+        "on_time": {
+          "name": "EIN-Zeit",
+          "description": "Einschaltzeit (HH:MM)"
+        },
+        "off_time": {
+          "name": "AUS-Zeit",
+          "description": "Ausschaltzeit (HH:MM)"
+        },
+        "weekdays": {
+          "name": "Wochentage",
+          "description": "Bitmask für Wochentage (0-127, z.B. 127=täglich)"
+        },
+        "output_1": {
+          "name": "Ausgang 1",
+          "description": "Name des ersten Ausgangs"
+        },
+        "output_1_state": {
+          "name": "Ausgang 1 Status",
+          "description": "Zustand beim Auslösen (0-6)"
+        },
+        "output_2": {
+          "name": "Ausgang 2",
+          "description": "Name des zweiten Ausgangs"
+        },
+        "output_2_state": {
+          "name": "Ausgang 2 Status",
+          "description": "Zustand beim Auslösen (0-6)"
+        },
+        "output_3": {
+          "name": "Ausgang 3",
+          "description": "Name des dritten Ausgangs"
+        },
+        "output_3_state": {
+          "name": "Ausgang 3 Status",
+          "description": "Zustand beim Auslösen (0-6)"
+        }
+      }
+    },
+    "enable_rule": {
+      "name": "Regel aktivieren/deaktivieren",
+      "description": "Beliebigen Regeltyp ein- oder ausschalten",
+      "fields": {
+        "rule_type": {
+          "name": "Regeltyp",
+          "description": "Wähle: temprule, analogrule, switchingrule oder timerrule"
+        },
+        "rule_id": {
+          "name": "Regel-ID",
+          "description": "Regelnummer 1-8"
+        },
+        "enabled": {
+          "name": "Regel aktivieren",
+          "description": "Regel ein- oder ausschalten"
+        }
+      }
+    },
+    "control_extension_relay": {
+      "name": "Erweiterungsrelais steuern",
+      "description": "Erweiterungsrelais-Ausgänge steuern (EXT1_1 bis EXT8_8)",
+      "fields": {
+        "relay_id": {
+          "name": "Relais-ID",
+          "description": "Erweiterungsrelais-Nummer 1-8"
+        },
+        "action": {
+          "name": "Relais-Aktion",
+          "description": "Ein = Status 4 (manuell EIN), Aus = Status 6 (manuell AUS), Umschalten = Status 0 (Auto)"
+        },
+        "state": {
+          "name": "Direkter Status",
+          "description": "Direkter Status (0-6, überschreibt Aktion)"
+        },
+        "duration": {
+          "name": "Dauer",
+          "description": "Wie lange die Aktion gelten soll (0 = unbegrenzt, in Sekunden)"
+        }
+      }
+    },
+    "configure_sensor_calibration": {
+      "name": "Sensorkalibrierung konfigurieren",
+      "description": "Temperatursensor-Kalibrierungsparameter einstellen",
+      "fields": {
+        "sensor_id": {
+          "name": "Sensor-ID",
+          "description": "Temperatursensor-Nummer 1-12"
+        },
+        "offset": {
+          "name": "Offset",
+          "description": "Temperatur-Offset in °C (-10 bis +10)"
+        },
+        "multiplier": {
+          "name": "Multiplikator",
+          "description": "Kalibrierungs-Multiplikator (0,5 bis 2,0)"
+        },
+        "min_value": {
+          "name": "Mindestwert",
+          "description": "Minimale gültige Sensorablesung"
+        },
+        "max_value": {
+          "name": "Maximalwert",
+          "description": "Maximale gültige Sensorablesung"
+        }
+      }
+    }
   }
 }
