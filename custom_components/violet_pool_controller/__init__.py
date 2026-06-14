@@ -62,6 +62,7 @@ PLATFORMS: list[Platform] = [
     Platform.CLIMATE,
     Platform.COVER,
     Platform.NUMBER,
+    Platform.UPDATE,
 ]
 
 # YAML configuration is deprecated

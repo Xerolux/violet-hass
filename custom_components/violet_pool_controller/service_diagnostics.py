@@ -351,6 +351,32 @@ class VioletDiagnosticServiceHandlers:
             "message": f"Backwash status: {BACKWASH_STATES.get(int(backwash_state), 'Unknown')}",
         }
 
+    async def handle_get_system_update_status(
+        self, call: ServiceCall
+    ) -> dict[str, Any]:
+        """Get system firmware update status."""
+        from .update_helper import parse_firmware_info
+
+        coordinator = await self._get_first_coordinator(
+            as_device_id_list(call.data.get(ATTR_DEVICE_ID))
+        )
+
+        if not coordinator.data:
+            raise HomeAssistantError("No data available from controller")
+
+        firmware_info = parse_firmware_info(coordinator.data)
+
+        return {
+            "success": True,
+            "device": coordinator.device.device_name,
+            "installed_version": firmware_info.installed_version,
+            "available_version": firmware_info.available_version,
+            "update_available": firmware_info.update_available,
+            "carrier_version": firmware_info.carrier_version,
+            "message": firmware_info.update_description,
+            "release_notes": firmware_info.release_notes,
+        }
+
     @staticmethod
     def _read_recent_violet_log_lines(
         log_path: str, lines: int, include_timestamps: bool
