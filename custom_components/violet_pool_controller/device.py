@@ -26,8 +26,20 @@ from homeassistant.helpers.issue_registry import (
     async_delete_issue,
 )
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from violet_poolcontroller_api.api import VioletAuthError, VioletPoolAPI, VioletPoolAPIError
-from violet_poolcontroller_api.readings import VioletReadings
+from violet_poolcontroller_api.api import VioletPoolAPI, VioletPoolAPIError
+
+try:
+    from violet_poolcontroller_api.api import VioletAuthError
+except ImportError:
+    class VioletAuthError(VioletPoolAPIError):
+        """Compatibility fallback for older violet-poolcontroller-api releases."""
+
+try:
+    from violet_poolcontroller_api.readings import VioletReadings
+except ImportError:
+    class VioletReadings(dict):
+        """Compatibility fallback for older violet-poolcontroller-api releases."""
+
 
 from .config_entry_helpers import (
     extract_api_host,
@@ -82,6 +94,7 @@ class VioletPoolControllerDevice:
         self.hass = hass
         self.config_entry = config_entry
         self.api = api
+        self._api = api
         self._available = False
         self._session = async_get_clientsession(hass)
         self._data: dict[str, Any] = {}
@@ -275,6 +288,7 @@ class VioletPoolControllerDevice:
 
             # Replace the old API with the new one
             self.api = new_api
+            self._api = new_api
 
             # Update device configuration
             self.api_url = new_api_url

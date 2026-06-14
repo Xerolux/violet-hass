@@ -63,12 +63,7 @@ class VioletPoolControllerUpdateEntity(CoordinatorEntity, UpdateEntity):
     @property
     def device_info(self) -> dict[str, Any]:
         """Return device info."""
-        return {
-            "identifiers": {(DOMAIN, self.coordinator.device.device_id)},
-            "name": self.coordinator.device.device_name,
-            "manufacturer": "PoolDigital GmbH",
-            "model": self.coordinator.device.device_model,
-        }
+        return self.coordinator.device.device_info
 
     @property
     def installed_version(self) -> str | None:
