@@ -30,7 +30,6 @@ from .const import (
 )
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity
-from .entity_names import EntityNameResolver
 
 _LOGGER = logging.getLogger(__name__)
 
