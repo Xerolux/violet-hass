@@ -147,4 +147,85 @@ def get_service_schemas() -> dict[str, vol.Schema]:
         "clear_error_history": vol.Schema(
             {vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR}
         ),
+        # NEW HTTP-based control services (Direct setFunctionManually API)
+        "control_pump": vol.Schema(vol.All(
+            vol.Schema(
+                {
+                    vol.Optional(ATTR_ENTITY_ID): cv.entity_ids,
+                    vol.Optional(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
+                    vol.Optional("speed"): vol.In([0, 1, 2, 3]),
+                    vol.Optional("action"): vol.In(["on", "off", "eco", "boost"]),
+                    vol.Optional("force_off", default=False): cv.boolean,
+                }
+            ),
+            cv.has_at_least_one_key(ATTR_ENTITY_ID, ATTR_DEVICE_ID),
+        )),
+        "control_heater": vol.Schema(vol.All(
+            vol.Schema(
+                {
+                    vol.Optional(ATTR_ENTITY_ID): cv.entity_ids,
+                    vol.Optional(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
+                    vol.Optional("action"): vol.In(["on", "off"]),
+                    vol.Optional("target_temperature"): vol.All(
+                        vol.Coerce(float), vol.Range(min=10, max=60)
+                    ),
+                }
+            ),
+            cv.has_at_least_one_key(ATTR_ENTITY_ID, ATTR_DEVICE_ID),
+        )),
+        "control_solar": vol.Schema(vol.All(
+            vol.Schema(
+                {
+                    vol.Optional(ATTR_ENTITY_ID): cv.entity_ids,
+                    vol.Optional(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
+                    vol.Optional("action"): vol.In(["on", "off"]),
+                    vol.Optional("target_temperature"): vol.All(
+                        vol.Coerce(float), vol.Range(min=10, max=60)
+                    ),
+                }
+            ),
+            cv.has_at_least_one_key(ATTR_ENTITY_ID, ATTR_DEVICE_ID),
+        )),
+        "control_cover": vol.Schema(vol.All(
+            vol.Schema(
+                {
+                    vol.Optional(ATTR_ENTITY_ID): cv.entity_ids,
+                    vol.Optional(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
+                    vol.Optional("action"): vol.In(["open", "close", "stop"]),
+                }
+            ),
+            cv.has_at_least_one_key(ATTR_ENTITY_ID, ATTR_DEVICE_ID),
+        )),
+        "control_backwash": vol.Schema(vol.All(
+            vol.Schema(
+                {
+                    vol.Optional(ATTR_ENTITY_ID): cv.entity_ids,
+                    vol.Optional(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
+                    vol.Optional("action"): vol.In(["run", "abort"]),
+                }
+            ),
+            cv.has_at_least_one_key(ATTR_ENTITY_ID, ATTR_DEVICE_ID),
+        )),
+        "manual_dosing": vol.Schema(vol.All(
+            vol.Schema(
+                {
+                    vol.Optional(ATTR_ENTITY_ID): cv.entity_ids,
+                    vol.Optional(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
+                    vol.Required("dosing_system"): vol.In(
+                        [
+                            "chlorine",
+                            "electrolysis",
+                            "ph_minus",
+                            "ph_plus",
+                            "flocculant",
+                            "h2o2",
+                        ]
+                    ),
+                    vol.Required("runtime_seconds"): vol.All(
+                        vol.Coerce(int), vol.Range(min=1, max=3600)
+                    ),
+                }
+            ),
+            cv.has_at_least_one_key(ATTR_ENTITY_ID, ATTR_DEVICE_ID),
+        )),
     }

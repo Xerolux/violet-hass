@@ -86,6 +86,21 @@ async def async_register_services(hass: HomeAssistant) -> None:
             DOMAIN, service_name, handler, schema=schemas.get(service_name)
         )
 
+    # NEW HTTP-based control services (Direct setFunctionManually API)
+    http_control_services = {
+        "control_pump": handlers.handle_control_pump_http,
+        "control_heater": handlers.handle_control_heater_http,
+        "control_solar": handlers.handle_control_solar_http,
+        "control_cover": handlers.handle_control_cover_http,
+        "control_backwash": handlers.handle_control_backwash_http,
+        "manual_dosing": handlers.handle_manual_dosing_http,
+    }
+
+    for service_name, handler in http_control_services.items():
+        hass.services.async_register(
+            DOMAIN, service_name, handler, schema=schemas.get(service_name)
+        )
+
     # Services returning data
     hass.services.async_register(
         DOMAIN,

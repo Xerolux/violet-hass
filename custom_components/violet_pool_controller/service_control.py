@@ -7,7 +7,7 @@ import logging
 from typing import Any, cast
 
 from homeassistant.const import ATTR_DEVICE_ID
-from homeassistant.core import ServiceCall
+from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import HomeAssistantError
 from violet_poolcontroller_api.api import VioletPoolAPIError
 from violet_poolcontroller_api.utils_sanitizer import InputSanitizer
@@ -20,7 +20,9 @@ from .const import (
     ACTION_OFF,
     ACTION_ON,
     DEVICE_PARAMETERS,
+    DOMAIN,
 )
+from .http_control import VioletControlClient
 from .service_helpers import (
     DEFAULT_SAFETY_INTERVAL,
     DOSING_API_MAPPING,
@@ -29,6 +31,15 @@ from .service_helpers import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+DOSING_INDEX_MAP = {
+    "chlorine": 0,
+    "electrolysis": 1,
+    "ph_minus": 2,
+    "ph_plus": 3,
+    "flocculant": 4,
+    "h2o2": 5,
+}
 
 
 class VioletControlServiceHandlers:
@@ -454,3 +465,180 @@ class VioletControlServiceHandlers:
                 raise HomeAssistantError(f"Test mode failed: {err}") from err
 
             await coordinator.async_request_refresh()
+
+    # =================================================================
+    # NEW HTTP-BASED CONTROL SERVICES (Direct setFunctionManually API)
+    # =================================================================
+
+    async def handle_control_pump_http(self, call: ServiceCall) -> None:
+        """Control pump via HTTP setFunctionManually (NEW API)."""
+        coordinators = await self.manager.get_coordinators_for_call(call)
+        speed = call.data.get("speed")
+        action = call.data.get("action")
+        force_off = call.data.get("force_off", False)
+
+        for coordinator in coordinators:
+            try:
+                control = VioletControlClient(coordinator.device._api)
+                device_name = coordinator.device.device_name
+
+                if force_off:
+                    await control.set_pump_off()
+                    _LOGGER.info("Pump forced OFF: %s", device_name)
+                elif action == "off":
+                    await control.set_pump_off()
+                    _LOGGER.info("Pump turned OFF: %s", device_name)
+                elif action == "on" or speed is not None:
+                    rpm = speed if speed is not None else 1
+                    await control.set_pump_speed(rpm)
+                    _LOGGER.info("Pump set to RPM %d: %s", rpm, device_name)
+                elif action == "eco":
+                    await control.set_pump_speed(1)
+                    _LOGGER.info("Pump ECO mode (RPM 1): %s", device_name)
+                elif action == "boost":
+                    await control.set_pump_speed(3)
+                    _LOGGER.info("Pump BOOST mode (RPM 3): %s", device_name)
+
+                await coordinator.async_request_refresh()
+
+            except Exception as err:
+                _LOGGER.error("Pump control error: %s", err)
+                raise HomeAssistantError(f"Pump control failed: {err}")
+
+    async def handle_control_heater_http(self, call: ServiceCall) -> None:
+        """Control heater via HTTP setFunctionManually (NEW API)."""
+        coordinators = await self.manager.get_coordinators_for_call(call)
+        action = call.data.get("action")
+        target_temp = call.data.get("target_temperature")
+
+        for coordinator in coordinators:
+            try:
+                control = VioletControlClient(coordinator.device._api)
+                device_name = coordinator.device.device_name
+
+                if action == "on":
+                    await control.set_heater_on()
+                    _LOGGER.info("Heater turned ON: %s", device_name)
+                elif action == "off":
+                    await control.set_heater_off()
+                    _LOGGER.info("Heater turned OFF: %s", device_name)
+
+                if target_temp is not None:
+                    await control.set_config({"HEATER_target_temp": target_temp})
+                    _LOGGER.info(
+                        "Heater target temp: %.1f°C on %s", target_temp, device_name
+                    )
+
+                await coordinator.async_request_refresh()
+
+            except Exception as err:
+                _LOGGER.error("Heater control error: %s", err)
+                raise HomeAssistantError(f"Heater control failed: {err}")
+
+    async def handle_control_solar_http(self, call: ServiceCall) -> None:
+        """Control solar via HTTP setFunctionManually (NEW API)."""
+        coordinators = await self.manager.get_coordinators_for_call(call)
+        action = call.data.get("action")
+        target_temp = call.data.get("target_temperature")
+
+        for coordinator in coordinators:
+            try:
+                control = VioletControlClient(coordinator.device._api)
+                device_name = coordinator.device.device_name
+
+                if action == "on":
+                    await control.set_solar_on()
+                    _LOGGER.info("Solar turned ON: %s", device_name)
+                elif action == "off":
+                    await control.set_solar_off()
+                    _LOGGER.info("Solar turned OFF: %s", device_name)
+
+                if target_temp is not None:
+                    await control.set_config({"SOLAR_target_temp": target_temp})
+                    _LOGGER.info(
+                        "Solar target temp: %.1f°C on %s", target_temp, device_name
+                    )
+
+                await coordinator.async_request_refresh()
+
+            except Exception as err:
+                _LOGGER.error("Solar control error: %s", err)
+                raise HomeAssistantError(f"Solar control failed: {err}")
+
+    async def handle_control_cover_http(self, call: ServiceCall) -> None:
+        """Control cover via HTTP setFunctionManually (NEW API)."""
+        coordinators = await self.manager.get_coordinators_for_call(call)
+        action = call.data.get("action", "open")
+
+        for coordinator in coordinators:
+            try:
+                control = VioletControlClient(coordinator.device._api)
+                device_name = coordinator.device.device_name
+
+                if action == "open":
+                    await control.set_cover_open()
+                    _LOGGER.info("Cover OPEN: %s", device_name)
+                elif action == "close":
+                    await control.set_cover_close()
+                    _LOGGER.info("Cover CLOSE: %s", device_name)
+                elif action == "stop":
+                    await control.set_cover_stop()
+                    _LOGGER.info("Cover STOP: %s", device_name)
+
+                await coordinator.async_request_refresh()
+
+            except Exception as err:
+                _LOGGER.error("Cover control error: %s", err)
+                raise HomeAssistantError(f"Cover control failed: {err}")
+
+    async def handle_control_backwash_http(self, call: ServiceCall) -> None:
+        """Control backwash via HTTP setFunctionManually (NEW API)."""
+        coordinators = await self.manager.get_coordinators_for_call(call)
+        action = call.data.get("action", "run")
+
+        for coordinator in coordinators:
+            try:
+                control = VioletControlClient(coordinator.device._api)
+                device_name = coordinator.device.device_name
+
+                if action == "run":
+                    await control.set_backwash_run()
+                    _LOGGER.info("Backwash RUN: %s", device_name)
+                elif action == "abort":
+                    await control.set_backwash_abort()
+                    _LOGGER.info("Backwash ABORT: %s", device_name)
+
+                await coordinator.async_request_refresh()
+
+            except Exception as err:
+                _LOGGER.error("Backwash control error: %s", err)
+                raise HomeAssistantError(f"Backwash control failed: {err}")
+
+    async def handle_manual_dosing_http(self, call: ServiceCall) -> None:
+        """Trigger manual dosing via HTTP (NEW API)."""
+        coordinators = await self.manager.get_coordinators_for_call(call)
+        dosing_system = call.data.get("dosing_system")
+        runtime = call.data.get("runtime_seconds", 30)
+
+        dosing_index = DOSING_INDEX_MAP.get(dosing_system)
+        if dosing_index is None:
+            raise HomeAssistantError(f"Unknown dosing system: {dosing_system}")
+
+        for coordinator in coordinators:
+            try:
+                control = VioletControlClient(coordinator.device._api)
+                device_name = coordinator.device.device_name
+
+                await control.trigger_manual_dosing(dosing_index, runtime)
+                _LOGGER.info(
+                    "Manual dosing: %s for %ds on %s",
+                    dosing_system,
+                    runtime,
+                    device_name,
+                )
+
+                await coordinator.async_request_refresh()
+
+            except Exception as err:
+                _LOGGER.error("Dosing control error: %s", err)
+                raise HomeAssistantError(f"Dosing control failed: {err}")
