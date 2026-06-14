@@ -101,6 +101,20 @@ async def async_register_services(hass: HomeAssistant) -> None:
             DOMAIN, service_name, handler, schema=schemas.get(service_name)
         )
 
+    # Dosing configuration services
+    dosing_config_services = {
+        "configure_dosing": handlers.handle_configure_dosing,
+        "set_dosing_target": handlers.handle_set_dosing_target,
+        "set_dosing_daytime": handlers.handle_set_dosing_daytime,
+        "set_dosing_max_daily": handlers.handle_set_dosing_max_daily,
+        "enable_dosing": handlers.handle_enable_dosing,
+    }
+
+    for service_name, handler in dosing_config_services.items():
+        hass.services.async_register(
+            DOMAIN, service_name, handler, schema=schemas.get(service_name)
+        )
+
     # Services returning data
     hass.services.async_register(
         DOMAIN,
