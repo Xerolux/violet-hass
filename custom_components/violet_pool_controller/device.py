@@ -14,7 +14,7 @@ import collections
 import logging
 import time
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, cast
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -405,7 +405,7 @@ class VioletPoolControllerDevice:
             data["HW_DIRULE_MODULE"] = has_dirule
             data["HW_STANDALONE_MODE"] = is_standalone
 
-        return data
+        return cast(dict[str, Any], data)
 
     async def async_update(self) -> dict[str, Any]:
         """Fetch and return updated device data from the controller."""

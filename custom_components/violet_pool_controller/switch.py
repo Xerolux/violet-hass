@@ -12,12 +12,13 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import logging
-from typing import Any
+from typing import Any, cast
 
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from violet_poolcontroller_api.api import VioletPoolAPIError
 
@@ -508,14 +509,14 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 )
 
                 task = asyncio.create_task(self._delayed_refresh(key))
-                task.add_done_callback(lambda t: self._handle_refresh_error(t, key))
+                task.add_done_callback(lambda t: self._handle_switch_refresh_error(t, key))
             else:
                 error_msg = result.get("response", "Unknown error")
                 _LOGGER.warning(
                     "Switch %s action %s failed: %s", key, action, error_msg
                 )
                 task = asyncio.create_task(self._delayed_refresh(key))
-                task.add_done_callback(lambda t: self._handle_refresh_error(t, key))
+                task.add_done_callback(lambda t: self._handle_switch_refresh_error(t, key))
 
         except VioletPoolAPIError as err:
             _LOGGER.error("API error setting switch %s to %s: %s", key, action, err)
@@ -564,7 +565,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                     "ON" if old_optimistic else "OFF",
                 )
 
-    def _handle_refresh_error(self, task: asyncio.Task, key: str) -> None:
+    def _handle_switch_refresh_error(self, task: asyncio.Task, key: str) -> None:
         """
         Handle errors in the refresh task.
 
@@ -705,15 +706,20 @@ async def async_setup_entry(
     # Create switches
     for switch_config in SWITCHES:
         description = SwitchEntityDescription(
-            key=switch_config["key"],
-            name=switch_config["name"],
-            translation_key=switch_config.get(
-                "translation_key", switch_config["key"].lower()
+            key=cast(str, switch_config["key"]),
+            name=cast(str, switch_config["name"]),
+            translation_key=cast(
+                str | None,
+                switch_config.get(
+                    "translation_key", cast(str, switch_config["key"]).lower()
+                ),
             ),
-            icon=switch_config.get("icon"),
-            entity_category=switch_config.get("entity_category"),
-            entity_registry_enabled_default=switch_config.get(
-                "entity_registry_enabled_default", True
+            icon=cast(str | None, switch_config.get("icon")),
+            entity_category=cast(
+                EntityCategory | None, switch_config.get("entity_category")
+            ),
+            entity_registry_enabled_default=cast(
+                bool, switch_config.get("entity_registry_enabled_default", True)
             ),
         )
 

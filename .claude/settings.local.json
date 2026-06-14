@@ -11,14 +11,16 @@
       "Bash(python3:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(PUMP_ANTI_FREEZE\" → displays \"Pump Anti Freeze\"\n- Added extra_state_attributes:\n  - numeric_state: The numeric state (0-6)\n  - detail_code: Raw detail code (e.g., \"PUMP_ANTI_FREEZE\")\n  - detail_readable: Human-readable detail\n  - raw_value: Original pipe-separated value\n- Integrated composite sensors into _create_special_sensors function\n- Reuses VioletDosingStateSensor class for both array and pipe-separated values\n\n## Live Testing Results\n\nTested against controller 192.168.178.55 (FW 1.1.8):\n\n### API Read Tests ✅\n- PUMP: 3 (AUTO - Active)\n- PUMPSTATE: \"3)",
-      "Bash(PUMP_ANTI_FREEZE\" → parsed correctly\n- HEATER: 2 (AUTO - Active)\n- HEATERSTATE: \"2)",
-      "Bash(BLOCKED_BY_OUTSIDE_TEMP\" → parsed correctly\n- SOLAR: 1 (MANUAL ON)\n- SOLARSTATE: \"0)",
       "Bash(gh run:*)",
       "Bash(pip show:*)",
       "Bash(pip index:*)",
       "Bash(grep -n \"from violet_poolcontroller_api\\\\|import violet_poolcontroller_api\" custom_components/violet_pool_controller/*.py custom_components/violet_pool_controller/**/*.py)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\basti\\\\Pictures\\\\git\" -Force)",
+      "WebFetch(domain:www.poolsteuerung.de)",
+      "WebFetch(domain:pypi.org)",
+      "PowerShell(python -m ruff check custom_components/violet_pool_controller/ 2>&1)",
+      "PowerShell(python -m ruff check violet_poolcontroller_api/violet_poolcontroller_api/ 2>&1)"
     ],
     "deny": [],
     "ask": []

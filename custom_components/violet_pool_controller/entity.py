@@ -224,9 +224,11 @@ class VioletPoolControllerEntity(CoordinatorEntity):
         """
         from .const import CONF_FORCE_UPDATE, DEFAULT_FORCE_UPDATE
 
-        return self.config_entry.options.get(
-            CONF_FORCE_UPDATE,
-            self.config_entry.data.get(CONF_FORCE_UPDATE, DEFAULT_FORCE_UPDATE),
+        return bool(
+            self.config_entry.options.get(
+                CONF_FORCE_UPDATE,
+                self.config_entry.data.get(CONF_FORCE_UPDATE, DEFAULT_FORCE_UPDATE),
+            )
         )
 
     @property

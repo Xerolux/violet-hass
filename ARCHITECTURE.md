@@ -42,14 +42,20 @@ violet_poolcontroller_api/
 
 ## Testing
 
+Requires Python 3.14.2+.
+
 ```bash
+# Create and activate a Python 3.14 venv
+python3.14 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install all dev dependencies (API package editable)
+pip install -r requirements-dev.txt
+
 # API tests only
-pip install -e "./violet_poolcontroller_api[test]"
 pytest violet_poolcontroller_api/tests/ -v
 
-# HA integration tests only
-pip install -e "./violet_poolcontroller_api[test]"
-pip install pytest-homeassistant-custom-component
+# HA integration tests only (requires Linux/WSL/macOS; HA uses Unix-only modules)
 pytest tests/ -v
 
 # Everything

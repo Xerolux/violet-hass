@@ -116,6 +116,8 @@ class ConfigFlowTextMixin:
 class ConfigFlowSchemaMixin:
     """Schema helpers for the primary config flow."""
 
+    _sensor_data: dict[str, list[str]] = {}
+
     def _get_main_menu_schema(self) -> vol.Schema:
         """Get the main menu schema."""
         return vol.Schema(

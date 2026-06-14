@@ -10,14 +10,12 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 from homeassistant.core import HomeAssistant, SupportsResponse
 
 from .const import DOMAIN
 from .service_control import VioletControlServiceHandlers
 from .service_diagnostics import VioletDiagnosticServiceHandlers
-from .service_helpers import as_device_id_list
 from .service_manager import VioletServiceManager
 from .service_schemas import get_service_schemas
 
@@ -43,19 +41,6 @@ class VioletServiceHandlers(
         """
         self.manager = manager
         self.hass = manager.hass
-
-    @staticmethod
-    def _normalize_device_ids(raw: Any) -> list[str]:
-        """
-        Normalize a raw device id payload to a list of ids.
-
-        Args:
-            raw: The raw device ID input.
-
-        Returns:
-            A list of device IDs.
-        """
-        return as_device_id_list(raw)
 
 
 # =============================================================================

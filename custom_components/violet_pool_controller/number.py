@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from typing import cast
 
 from homeassistant.components.number import NumberEntity, NumberEntityDescription
 
@@ -169,7 +170,7 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
         try:
             await self._request_coordinator_refresh(
                 delay=0.5,
-                log_context=self.entity_description.name,
+                log_context=cast(str | None, self.entity_description.name),
             )
         finally:
             self._optimistic_value = None
@@ -457,11 +458,14 @@ async def async_setup_entry(
             native_unit_of_measurement=setpoint_config.get("unit_of_measurement"),  # type: ignore[arg-type]
             device_class=setpoint_config.get("device_class"),  # type: ignore[arg-type]
             entity_category=setpoint_config.get("entity_category"),  # type: ignore[arg-type]
-            entity_registry_enabled_default=setpoint_config.get(
-                "entity_registry_enabled_default", True
+            entity_registry_enabled_default=cast(
+                bool, setpoint_config.get("entity_registry_enabled_default", True)
             ),
-            translation_key=setpoint_config.get("translation_key"),
-            mode=NumberMode.BOX if NumberMode else "box",
+            translation_key=cast(str | None, setpoint_config.get("translation_key")),
+            mode=cast(
+                "NumberMode | None",
+                NumberMode.BOX if NumberMode is not None else "box",
+            ),
         )
 
         _LOGGER.debug(

@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Any
+from typing import Any, cast
 
 from homeassistant.components.climate import (
     ClimateEntity,
@@ -96,7 +96,7 @@ def _get_setpoint_fields_for_climate_type(climate_type: str) -> list[str]:
     target_key = f"{climate_type.lower()}_target_temp"
     for definition in SETPOINT_DEFINITIONS:
         if definition.get("key") == target_key:
-            return definition.get("setpoint_fields", [])
+            return cast(list[str], definition.get("setpoint_fields", []))
 
     # Fallback if definition not found (should not happen in normal operation)
     if climate_type == "HEATER":
@@ -296,7 +296,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
 
         state = self.get_int_value(self.climate_type, STATE_OFF)
 
-        attributes = {
+        attributes: dict[str, Any] = {
             "raw_state": state,
             "hvac_mode_from_state": HEATER_HVAC_MODES.get(
                 state or STATE_OFF, "unknown"

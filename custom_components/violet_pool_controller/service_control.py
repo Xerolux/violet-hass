@@ -25,6 +25,7 @@ from .service_helpers import (
     DEFAULT_SAFETY_INTERVAL,
     DOSING_API_MAPPING,
     DOSING_TYPE_MAPPING,
+    as_device_id_list,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -234,7 +235,7 @@ class VioletControlServiceHandlers:
 
     async def handle_control_dmx_scenes(self, call: ServiceCall) -> None:
         """Handle DMX scene control service."""
-        device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
+        device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
         action = call.data["action"]
         sequence_delay = call.data.get("sequence_delay", 2)
 
@@ -371,7 +372,7 @@ class VioletControlServiceHandlers:
 
     async def handle_manage_digital_rules(self, call: ServiceCall) -> None:
         """Handle digital rules management service."""
-        device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
+        device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
         rule_key = call.data["rule_key"]
         action = call.data["action"]
 
@@ -419,7 +420,7 @@ class VioletControlServiceHandlers:
 
     async def handle_test_output(self, call: ServiceCall) -> None:
         """Handle the output test service."""
-        device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
+        device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
         output = call.data["output"]
         mode = call.data.get("mode", "SWITCH")
         duration = call.data.get("duration", 120)

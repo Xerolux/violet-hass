@@ -29,3 +29,33 @@ jobs:
           else
             echo "OK: Version $CLEAN_VERSION matches CLAUDE.md."
           fi
+
+      - name: Check integration const.py version
+        run: |
+          CONST_VERSION=$(grep -oP 'INTEGRATION_VERSION = "\K[^"]+' custom_components/violet_pool_controller/const.py)
+          if [ "$CONST_VERSION" != "${{ env.MANIFEST_VERSION }}" ]; then
+            echo "ERROR: const.py version ($CONST_VERSION) does not match manifest.json (${{ env.MANIFEST_VERSION }})!"
+            exit 1
+          else
+            echo "OK: const.py version matches manifest.json."
+          fi
+
+      - name: Check .version file
+        run: |
+          DOT_VERSION=$(cat custom_components/violet_pool_controller/.version | tr -d '[:space:]')
+          if [ "$DOT_VERSION" != "${{ env.MANIFEST_VERSION }}" ]; then
+            echo "ERROR: .version file ($DOT_VERSION) does not match manifest.json (${{ env.MANIFEST_VERSION }})!"
+            exit 1
+          else
+            echo "OK: .version file matches manifest.json."
+          fi
+
+      - name: Check root pyproject.toml version
+        run: |
+          PY_VERSION=$(grep -oP '^version = "\K[^"]+' pyproject.toml)
+          if [ "$PY_VERSION" != "${{ env.MANIFEST_VERSION }}" ]; then
+            echo "ERROR: pyproject.toml version ($PY_VERSION) does not match manifest.json (${{ env.MANIFEST_VERSION }})!"
+            exit 1
+          else
+            echo "OK: pyproject.toml version matches manifest.json."
+          fi

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, cast
 
 from homeassistant.components.sensor import (
     SensorEntity,
@@ -207,4 +207,4 @@ class VioletStatusSensor(VioletSensor):
         raw_value = self._resolve_raw_value()
         if raw_value is None:
             return super().icon
-        return VioletState(raw_value, self.entity_description.key).icon
+        return cast(str | None, VioletState(raw_value, self.entity_description.key).icon)

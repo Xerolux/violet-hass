@@ -12,7 +12,11 @@ from homeassistant.core import ServiceCall
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import entity_registry as er
 
-from .service_helpers import read_recent_violet_log_lines, write_text_file
+from .service_helpers import (
+    as_device_id_list,
+    read_recent_violet_log_lines,
+    write_text_file,
+)
 
 _LOGGER = logging.getLogger(__name__)
 _POLL_SNAPSHOT_FIELDS = (
@@ -54,7 +58,7 @@ class VioletDiagnosticServiceHandlers:
 
     async def handle_export_diagnostic_logs(self, call: ServiceCall) -> dict[str, Any]:
         """Handle the export diagnostic logs service."""
-        device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
+        device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
         lines = max(10, min(10000, int(call.data.get("lines", 100))))
         include_timestamps = call.data.get("include_timestamps", True)
         include_config = call.data.get("include_config", True)
@@ -141,7 +145,7 @@ class VioletDiagnosticServiceHandlers:
         """Handle get connection status diagnostic service."""
         from .error_handler import get_enhanced_error_handler
 
-        device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
+        device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
         results = []
 
         for device_id in device_ids:
@@ -184,7 +188,7 @@ class VioletDiagnosticServiceHandlers:
         """Handle get error summary diagnostic service."""
         from .error_handler import get_enhanced_error_handler
 
-        device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
+        device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
         include_history = call.data.get("include_history", False)
         results = []
 
@@ -193,7 +197,7 @@ class VioletDiagnosticServiceHandlers:
                 device = await self._get_device_for_id(device_id)
                 error_handler = get_enhanced_error_handler()
 
-                result = {
+                result: dict[str, Any] = {
                     "device_name": self._device_label(device),
                     "device_id": device_id,
                     "error_summary": error_handler.get_error_summary(),
@@ -220,7 +224,7 @@ class VioletDiagnosticServiceHandlers:
         """Handle test connection diagnostic service."""
         import time
 
-        device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
+        device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
         results = []
 
         for device_id in device_ids:
@@ -270,7 +274,7 @@ class VioletDiagnosticServiceHandlers:
         """Handle clear error history service."""
         from .error_handler import get_enhanced_error_handler
 
-        device_ids = self._normalize_device_ids(call.data[ATTR_DEVICE_ID])
+        device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
         cleared_count = 0
 
         for device_id in device_ids:

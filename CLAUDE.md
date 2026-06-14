@@ -17,19 +17,22 @@ This is a **monorepo** containing two components:
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.
 
-**Current HA Version**: `1.2.4-beta.1` (defined in `manifest.json` and `const.py`)
+**Current Integration Version**: `1.2.4` (defined in `manifest.json`, `const.py`, `.version`, and `pyproject.toml`)
 **Current API Version**: `0.0.27` (defined in `violet_poolcontroller_api/pyproject.toml`)
+**Minimum Home Assistant Version**: `2026.5.0` (defined in `manifest.json` and `hacs.json`)
+**Minimum Python Version**: `3.14.2`
 
 ## Development Commands
 
 ### Setup
 
 ```bash
-# Install API package in editable mode
-pip install -e "./violet_poolcontroller_api[test]"
+# Create a Python 3.14+ virtual environment
+python3.14 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Install HA integration dev deps
-pip install pytest-homeassistant-custom-component
+# Install all dev dependencies (includes editable API package)
+pip install -r requirements-dev.txt
 ```
 
 ### Code Quality & Linting
@@ -144,6 +147,34 @@ pytest tests/test_api.py::test_function_name -v
   - Service types: `_http._tcp.local.` and `_violet-controller._tcp.local.`
   - Triggers config flow when a controller is found on the network
 
+- **`config_flow_support.py`** - Support mixins for the config/options flow:
+  - `ConfigFlowTextMixin` - disclaimer/help text helpers
+  - `ConfigFlowSchemaMixin` - shared Voluptuous schemas
+  - `OptionsFlowHandler` - reconfiguration/options flow logic
+
+- **`config_entry_helpers.py`** - Config entry utility helpers for API URL extraction and migration.
+
+- **`service_manager.py`** - Central service manager:
+  - `VioletServiceManager` - resolves coordinators and devices for service calls
+
+- **`service_control.py`** - Control/action service handlers (`VioletControlServiceHandlers`):
+  - `control_pump`, `smart_dosing`, `manage_pv_surplus`, `control_dmx_scenes`,
+    `set_light_color_pulse`, `manage_digital_rules`, `test_output`
+
+- **`service_diagnostics.py`** - Diagnostic service handlers (`VioletDiagnosticServiceHandlers`):
+  - `export_diagnostic_logs`, `get_connection_status`, `get_error_summary`,
+    `clear_error_history`, `test_connection`
+
+- **`service_helpers.py`** - Shared service utilities:
+  - `as_device_id_list()` - normalizes device ID payloads
+  - dosing mappings and log/file helpers
+
+- **`service_schemas.py`** - Voluptuous schemas for all services.
+
+- **`services.py`** - Service registration and composition:
+  - `VioletServiceHandlers` composes control + diagnostic handlers
+  - Registers all services with Home Assistant
+
 #### Constants Organization (Modular)
 
 - **`const.py`** - Central hub re-exporting all constants plus integration-level config:
@@ -257,6 +288,14 @@ Services defined in `services.yaml` and registered in `services.py`:
 
 - **`test_output`** - Diagnostics:
   - Output test mode for troubleshooting
+
+- **`export_diagnostic_logs`** - Export recent integration logs for troubleshooting and support.
+
+- **`get_connection_status`** - Get detailed connection status and health metrics for troubleshooting.
+
+- **`get_error_summary`** - Retrieve error summary and recovery suggestions per device.
+
+- **`clear_error_history`** - Clear the integration error history.
 
 ### Key Design Patterns
 
@@ -418,13 +457,18 @@ violet-hass/
 │       ├── climate.py                # Climate platform
 │       ├── cover.py                  # Cover platform
 │       ├── number.py                 # Number platform
-│       ├── select.py                 # Select platform (NEW)
-│       ├── services.py               # Service handlers
+│       ├── select.py                 # Select platform
+│       ├── services.py               # Service registration & composition
 │       ├── services.yaml             # Service definitions
+│       ├── service_control.py        # Control/action service handlers
+│       ├── service_diagnostics.py    # Diagnostic service handlers
+│       ├── service_helpers.py        # Shared service utilities
+│       ├── service_manager.py        # Service manager
+│       ├── service_schemas.py        # Service Voluptuous schemas
 │       ├── error_codes.py            # Error code mappings
-│       ├── error_handler.py          # VioletErrorCodes & error utilities (NEW)
-│       ├── diagnostics.py            # HA diagnostics support (NEW)
-│       ├── discovery.py              # ZeroConf/mDNS discovery (NEW)
+│       ├── error_handler.py          # VioletErrorCodes & error utilities
+│       ├── diagnostics.py            # HA diagnostics support
+│       ├── discovery.py              # ZeroConf/mDNS discovery
 │       ├── manifest.json             # Integration manifest
 │       ├── strings.json              # UI strings
 │       ├── icons.json                # Icon mappings
@@ -541,7 +585,7 @@ violet-hass/
 Located in `.github/workflows/` (10 workflows):
 
 **Validation & CI:**
-- **`validate.yml`** - Integration validation on push/PR: tox (ruff py312, pytest py314) + hassfest + HACS check
+- **`validate.yml`** - Integration validation on push/PR: tox (ruff py314, pytest py314) + hassfest + HACS check
 - **`test-api.yml`** - API package CI (path-filtered): ruff check + `ruff format --check` + mypy + pytest, Python 3.12-3.14 matrix
 - **`validate-versions.yml`** - Checks manifest.json version is mentioned in CLAUDE.md
 - **`ha-dev-early-warning.yml`** - Weekly cron: test suite against HA `dev` branch
@@ -568,10 +612,11 @@ Located in `.github/workflows/` (10 workflows):
 ### Adding a New Service
 
 1. Define service in `services.yaml`
-2. Implement handler in `services.py`
-3. Register in `__init__.py` `async_setup_entry()`
-4. Add translation strings
-5. Write service tests
+2. Add schema in `service_schemas.py`
+3. Implement handler in `service_control.py` (action services) or `service_diagnostics.py` (diagnostic services)
+4. Register in `services.py` via `VioletServiceHandlers`
+5. Add translation strings
+6. Write service tests
 
 ### Fixing API Issues
 
@@ -598,12 +643,12 @@ Located in `.github/workflows/` (10 workflows):
 - `violet-poolController-api>=0.0.27` - API client package (installed by HA from PyPI; source is in `violet_poolcontroller_api/` locally)
 
 **Development** (from `requirements-dev.txt`):
-- `ruff>=0.15.14` - Linter and formatter
+- `ruff>=0.15.16` - Linter and formatter
 - `mypy>=2.1.0` - Static type checker
 - `pytest>=9.0.3` - Test framework
 - `pytest-cov>=7.1.0` - Coverage plugin
-- `pytest-asyncio>=1.4.0` - Async test support
-- `pytest-homeassistant-custom-component>=0.13.326` - HA test helpers
+- `pytest-asyncio>=1.3.0` - Async test support
+- `pytest-homeassistant-custom-component>=0.13.337` - HA test helpers
 
 ## Important Notes
 
@@ -623,11 +668,11 @@ Located in `.github/workflows/` (10 workflows):
 
 6. **Calibration History**: The integration parses calibration history from the controller API, handling various date formats and edge cases.
 
-7. **Version Consistency**: Keep version numbers in sync across `manifest.json`, `const.py`, and `docs/RELEASE_NOTES.md`.
+7. **Version Consistency**: Keep version numbers in sync across `manifest.json`, `const.py`, `.version`, `pyproject.toml`, and `docs/RELEASE_NOTES.md`. The `validate-versions.yml` workflow enforces this.
 
 8. **Code Quality**: Always run `ruff check --fix` before committing. The integration maintains 0 ruff errors.
 
-9. **Home Assistant Compatibility**: Integration requires HA 2026.5.0+ and is tested against HA 2026.5.x. Use modern type annotations (`X | None` not `Optional[X]`) and `collections.abc` imports.
+9. **Home Assistant Compatibility**: Integration requires HA 2026.5.0+ and Python 3.14.2+. It is tested against HA 2026.5.x/2026.6.x. Use modern type annotations (`X | None` not `Optional[X]`) and `collections.abc` imports.
 
 10. **Recovery Behavior**: When connection is lost, the integration attempts auto-recovery with exponential backoff (10s → 300s max) for up to 10 attempts. After max attempts, manual intervention is required.
 
