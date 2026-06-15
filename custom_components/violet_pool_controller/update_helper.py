@@ -67,18 +67,37 @@ class FirmwareUpdateInfo:
 def parse_firmware_info(raw_data: dict[str, Any]) -> FirmwareUpdateInfo:
     """Parse firmware info from getReadings data.
 
-    The controller exposes two relevant keys in the getReadings response:
-      SYSTEM_swversion       – currently installed version (e.g. "1.2.0")
-      SYSTEM_availableversion – version available for download (empty when
-                                up-to-date or when the controller has not yet
-                                contacted the update server)
-    """
-    installed = str(raw_data.get("SYSTEM_swversion", "") or "").strip() or "0.0.0"
+    The controller exposes firmware version information under two possible sets
+    of keys depending on firmware generation:
 
-    available_raw = str(raw_data.get("SYSTEM_availableversion", "") or "").strip()
+    Newer firmware:
+      SYSTEM_swversion        – currently installed version (e.g. "1.2.0")
+      SYSTEM_availableversion – version available for download (empty when
+                                up-to-date or when the controller hasn't yet
+                                contacted the update server)
+
+    Older / current spec firmware:
+      SW_VERSION              – currently installed version
+      SW_UPDATE_AVAILABLE     – version available for download
+      SW_VERSION_CARRIER      – carrier board firmware version
+    """
+    installed = (
+        str(raw_data.get("SYSTEM_swversion", "") or "").strip()
+        or str(raw_data.get("SW_VERSION", "") or "").strip()
+        or "0.0.0"
+    )
+
+    available_raw = (
+        str(raw_data.get("SYSTEM_availableversion", "") or "").strip()
+        or str(raw_data.get("SW_UPDATE_AVAILABLE", "") or "").strip()
+    )
     available: str | None = available_raw if available_raw and available_raw != installed else None
 
-    carrier = str(raw_data.get("SYSTEM_carrierboard_swversion", "") or "").strip() or None
+    carrier = (
+        str(raw_data.get("SYSTEM_carrierboard_swversion", "") or "").strip()
+        or str(raw_data.get("SW_VERSION_CARRIER", "") or "").strip()
+        or None
+    )
 
     return FirmwareUpdateInfo(
         installed_version=installed,
