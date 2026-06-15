@@ -4,4 +4,4 @@ homeassistant>=2026.5.0
 # HA 2026.5/2026.6 pins aiohttp==3.13.5; a higher floor makes the set unresolvable
 aiohttp>=3.13.5,<3.14
 voluptuous>=0.15.2
-violet-poolController-api>=0.0.27
+violet-poolController-api>=0.0.29
