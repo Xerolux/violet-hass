@@ -57,13 +57,12 @@ class VioletControlClient:
 
             # Send command via API
             response = await self.api._request(
-                "GET",
                 f"/setFunctionManually?{cmd}",
-                timeout=timeout,
+                method="GET",
             )
 
-            # Check response
-            if response and response.status_code == 200:
+            # Check response (non-empty text response indicates success)
+            if response:
                 _LOGGER.info(
                     "Command successful: %s %s %s",
                     function,
@@ -73,8 +72,7 @@ class VioletControlClient:
                 return True
 
             _LOGGER.warning(
-                "Command failed with status %s: %s %s",
-                response.status_code if response else "None",
+                "Command failed: %s %s",
                 function,
                 action,
             )
@@ -327,12 +325,11 @@ class VioletControlClient:
             cmd = f"?index={dosing_index}&runtime={runtime_seconds}"
 
             response = await self.api._request(
-                "GET",
                 f"/triggerManualDosing{cmd}",
-                timeout=timeout,
+                method="GET",
             )
 
-            if response and response.status_code == 200:
+            if response:
                 _LOGGER.info(
                     "Manual dosing triggered: index=%d, runtime=%ds",
                     dosing_index,
@@ -341,8 +338,7 @@ class VioletControlClient:
                 return True
 
             _LOGGER.warning(
-                "Manual dosing failed with status %s",
-                response.status_code if response else "None",
+                "Manual dosing failed",
             )
             return False
 
@@ -380,13 +376,12 @@ class VioletControlClient:
             )
 
             response = await self.api._request(
-                "POST",
                 "/setConfig",
-                json=config_updates,
-                timeout=timeout,
+                method="POST",
+                json_payload=config_updates,
             )
 
-            if response and response.status_code == 200:
+            if response:
                 _LOGGER.info(
                     "Configuration updated: %s",
                     list(config_updates.keys()),
@@ -394,8 +389,7 @@ class VioletControlClient:
                 return True
 
             _LOGGER.warning(
-                "Config update failed with status %s",
-                response.status_code if response else "None",
+                "Config update failed",
             )
             return False
 

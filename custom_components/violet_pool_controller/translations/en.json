@@ -401,52 +401,6 @@
       "name": "Clear Error History",
       "description": "Clear error history after successful recovery (use with caution)."
     },
-    "set_all_dmx_scenes_mode": {
-      "name": "Control DMX Lighting",
-      "description": "Controls all DMX light scenes simultaneously.\n\nPerfect for uniform lighting effects or complete on/off switching.",
-      "fields": {
-        "device_id": {
-          "name": "Pool Controller",
-          "description": "Violet Pool Controller with DMX output."
-        },
-        "dmx_mode": {
-          "name": "Light Mode",
-          "description": "All lights: On/Off/Automatic."
-        }
-      }
-    },
-    "set_digital_input_rule_lock_state": {
-      "name": "Lock Switching Rule",
-      "description": "Locks or unlocks digital switching rules.\n\nPrevents unwanted triggering during maintenance or faults.",
-      "fields": {
-        "device_id": {
-          "name": "Pool Controller",
-          "description": "Violet Pool Controller with digital rules."
-        },
-        "rule_key": {
-          "name": "Rule Number",
-          "description": "Number of the rule to lock (DIRULE_1 through DIRULE_7)."
-        },
-        "lock_state": {
-          "name": "Lock",
-          "description": "Lock rule (On) or release (Off)."
-        }
-      }
-    },
-    "trigger_digital_input_rule": {
-      "name": "Trigger Switching Rule",
-      "description": "Manually triggers a digital switching rule.\n\nUseful for testing automation or manual control when needed.",
-      "fields": {
-        "device_id": {
-          "name": "Pool Controller",
-          "description": "Violet Pool Controller with the rules."
-        },
-        "rule_key": {
-          "name": "Rule Number",
-          "description": "Which rule to trigger? (DIRULE_1 through DIRULE_7)"
-        }
-      }
-    },
     "export_diagnostic_logs": {
       "name": "Export Diagnostic Logs",
       "description": "Exports recent integration logs for troubleshooting and support.",
@@ -468,6 +422,74 @@
           "description": "Save logs as a text file in the /config/ directory"
         }
       }
+    },
+    "control_heater_http": {
+      "name": "Control Heater (HTTP)",
+      "description": "Control pool heater with temperature setpoint"
+    },
+    "control_solar_http": {
+      "name": "Control Solar (HTTP)",
+      "description": "Control solar heating system"
+    },
+    "control_cover_http": {
+      "name": "Control Cover (HTTP)",
+      "description": "Control pool cover (open/close/stop)"
+    },
+    "control_backwash_http": {
+      "name": "Control Backwash (HTTP)",
+      "description": "Run or abort backwash cycle"
+    },
+    "manual_dosing_http": {
+      "name": "Manual Dosing (HTTP)",
+      "description": "Manually trigger chemical dosing"
+    },
+    "configure_dosing": {
+      "name": "Configure Dosing",
+      "description": "Set dosing system configuration parameter"
+    },
+    "set_dosing_target": {
+      "name": "Set Dosing Target",
+      "description": "Set dosing target value"
+    },
+    "set_dosing_daytime": {
+      "name": "Set Dosing Daytime",
+      "description": "Set dosing daytime window (HH:MM format)"
+    },
+    "set_dosing_max_daily": {
+      "name": "Set Dosing Maximum Daily",
+      "description": "Set maximum daily dosing volume"
+    },
+    "enable_dosing": {
+      "name": "Enable Dosing",
+      "description": "Enable or disable dosing system"
+    },
+    "configure_temp_rule": {
+      "name": "Configure Temperature Rule",
+      "description": "Configure temperature-based automation rule (TEMPRULE_1-8)"
+    },
+    "configure_analog_rule": {
+      "name": "Configure Analog Input Rule",
+      "description": "Configure analog threshold-based rule (ANALOGRULE_1-8)"
+    },
+    "configure_switching_rule": {
+      "name": "Configure Switching Input Rule",
+      "description": "Configure digital input-based rule (SWITCHINGRULE_1-8)"
+    },
+    "configure_timer_rule": {
+      "name": "Configure Timer Rule",
+      "description": "Configure time-based automation rule (TIMERRULE_1-8)"
+    },
+    "enable_rule": {
+      "name": "Enable/Disable Rule",
+      "description": "Enable or disable any rule type"
+    },
+    "control_extension_relay": {
+      "name": "Control Extension Relay",
+      "description": "Control extension relay outputs (EXT1_1 to EXT8_8)"
+    },
+    "configure_sensor_calibration": {
+      "name": "Configure Sensor Calibration",
+      "description": "Configure temperature sensor calibration parameters"
     }
   },
   "selector": {
