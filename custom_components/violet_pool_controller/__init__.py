@@ -65,6 +65,7 @@ PLATFORMS: list[Platform] = [
     Platform.LIGHT,
     Platform.NUMBER,
     Platform.UPDATE,
+    Platform.BUTTON,
 ]
 
 # YAML configuration is deprecated

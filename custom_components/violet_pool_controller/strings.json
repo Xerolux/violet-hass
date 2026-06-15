@@ -1329,6 +1329,11 @@
         "name": "Hardware: Digital Rules Module"
       }
     },
+    "button": {
+      "reset_errors": {
+        "name": "Reset Error Blockings"
+      }
+    },
     "switch": {
       "pump": {
         "name": "Filter Pump"
