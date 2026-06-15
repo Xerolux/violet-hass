@@ -137,8 +137,10 @@ DMX_SCENE_COUNT = 12  # Number of DMX scenes supported by the controller
 for scene_num in range(1, DMX_SCENE_COUNT + 1):
     SWITCH_FUNCTIONS[f"DMX_SCENE{scene_num}"] = f"DMX Szene {scene_num}"
 
-# Dynamically add digital input rules
-for rule_num in range(1, 8):
+# Dynamically add digital input rules (controller exposes SWITCHINGRULE_1..8
+# internally; we surface them as DIRULE_1..8 in line with the controller's
+# DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_1..8 keys – see setFunctionManually.js).
+for rule_num in range(1, 9):
     SWITCH_FUNCTIONS[f"DIRULE_{rule_num}"] = f"Schaltregel {rule_num}"
 
 # Dynamically add Omni DC outputs
@@ -181,6 +183,11 @@ DOSING_CONFIG_PREFIX = {
 ERROR_SEVERITY_ALARM = "ALARM"
 ERROR_SEVERITY_WARNING = "WARNING"
 ERROR_SEVERITY_INFO = "INFO"
+# REMINDER is a fourth category used by the controller for non-critical,
+# user-actionable notifications (calibration due, update available, birthday
+# greeting, daily status).  It is softer than INFO and should never trigger
+# an alarm sensor in Home Assistant.
+ERROR_SEVERITY_REMINDER = "REMINDER"
 
 ERROR_CODES: dict[str, dict[str, str]] = {
     # -- System messages --
@@ -190,9 +197,16 @@ ERROR_CODES: dict[str, dict[str, str]] = {
         "severity": ERROR_SEVERITY_ALARM,
         "message": "Hardwareproblem (COM-Link zum Carrier fehlerhaft)",
     },
+    # 0003: Friendly birthday greeting from the manufacturer (REMINDER).
+    "0003": {
+        "severity": ERROR_SEVERITY_REMINDER,
+        "message": "Alles Gute zum Geburtstag!",
+    },
+    # 0005: Generic system status notification (REMINDER, not an error).
+    # Source: notifications/codelist_*.csv row "0005".
     "0005": {
-        "severity": ERROR_SEVERITY_INFO,
-        "message": "Wartungsarbeiten am Cloud-Server",
+        "severity": ERROR_SEVERITY_REMINDER,
+        "message": "Systemnachricht",
     },
     "0008": {"severity": ERROR_SEVERITY_WARNING, "message": "CPU-Temperatur hoch (> 83°C)"},
     "0009": {
@@ -200,15 +214,15 @@ ERROR_CODES: dict[str, dict[str, str]] = {
         "message": "CPU-Temperatur zu hoch (> 95°C)",
     },
     "0010": {
-        "severity": ERROR_SEVERITY_INFO,
+        "severity": ERROR_SEVERITY_REMINDER,
         "message": "Update steht zur Installation bereit. Keine Aktion erforderlich.",
     },
     "0011": {
-        "severity": ERROR_SEVERITY_INFO,
+        "severity": ERROR_SEVERITY_REMINDER,
         "message": "Update steht zur Installation bereit. Installation erforderlich.",
     },
     "0012": {
-        "severity": ERROR_SEVERITY_INFO,
+        "severity": ERROR_SEVERITY_REMINDER,
         "message": "Update steht zur Installation bereit. Installation erforderlich.",
     },
     # -- Filter / Circulation monitoring --
@@ -265,6 +279,24 @@ ERROR_CODES: dict[str, dict[str, str]] = {
     "0042": {
         "severity": ERROR_SEVERITY_INFO,
         "message": "Nachspeisung fehlgeschlagen",
+    },
+    # -- OmniTronic multi-port valve faults (BACKWASH_type == 1) --
+    # Source: controlfunction_omni.js + notifications/codelist_*.csv 0045-0049.
+    "0045": {
+        "severity": ERROR_SEVERITY_ALARM,
+        "message": "OmniTronic gibt keine Positionsrückmeldung (Rückspülen)",
+    },
+    "0046": {
+        "severity": ERROR_SEVERITY_ALARM,
+        "message": "OmniTronic gibt keine Positionsrückmeldung (Nachspülen)",
+    },
+    "0047": {
+        "severity": ERROR_SEVERITY_ALARM,
+        "message": "Fehler bei Positionierung des Omni-Antriebs (Timeout)",
+    },
+    "0049": {
+        "severity": ERROR_SEVERITY_ALARM,
+        "message": "OmniTronic-Fehler: Rückmeldekontakt z1/z2 nicht geschlossen",
     },
     # -- Skimmer water level --
     "0050": {

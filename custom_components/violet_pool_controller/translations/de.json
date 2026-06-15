@@ -219,7 +219,8 @@
           "timeout_duration": "Timeout (Sekunden)",
           "retry_attempts": "Wiederholungsversuche",
           "enable_diagnostic_logging": "Erweiterte Protokollierung",
-          "force_update": "Immer aktualisieren"
+          "force_update": "Immer aktualisieren",
+          "invert_cover": "Poolabdeckung invertieren"
         },
         "data_description": {
           "controller_name": "Anzeigename des Controllers",
@@ -227,7 +228,8 @@
           "timeout_duration": "Maximale Wartezeit pro Anfrage (5-60s)",
           "retry_attempts": "Anzahl Wiederholungsversuche bei Fehlern (1-10)",
           "enable_diagnostic_logging": "Ausführliche Logs bei jedem Update (nur für Diagnose!)",
-          "force_update": "Entities immer aktualisieren, auch wenn Wert gleich"
+          "force_update": "Entities immer aktualisieren, auch wenn Wert gleich",
+          "invert_cover": "Tauscht Offen/Geschlossen, falls die Abdeckung falsch angeschlossen ist"
         }
       }
     }

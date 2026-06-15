@@ -34,8 +34,10 @@ except ImportError:
 from .const import (
     ACTION_PUSH,
     CONF_ACTIVE_FEATURES,
+    CONF_INVERT_COVER,
     COVER_FUNCTIONS,
     COVER_STATE_MAP,
+    DEFAULT_INVERT_COVER,
     DOMAIN,
 )
 from .device import VioletPoolDataUpdateCoordinator
@@ -46,6 +48,16 @@ _LOGGER = logging.getLogger(__name__)
 
 # Coordinator-based platforms; HA should not throttle entity state writes
 PARALLEL_UPDATES = 0
+
+# Swap table for inverting cover states.
+# open <-> closed, opening <-> closing, stopped stays stopped.
+_COVER_INVERT_MAP: dict[str, str] = {
+    "open": "closed",
+    "closed": "open",
+    "opening": "closing",
+    "closing": "opening",
+    "stopped": "stopped",
+}
 
 
 class VioletCover(VioletPoolControllerEntity, CoverEntity):
@@ -76,13 +88,30 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
         self._last_action: str | None = None
         _LOGGER.debug("Cover entity initialized for %s", config_entry.title)
 
+    @property
+    def _invert_cover(self) -> bool:
+        """Return True if cover state/commands should be inverted."""
+        return bool(
+            self.config_entry.options.get(
+                CONF_INVERT_COVER,
+                self.config_entry.data.get(CONF_INVERT_COVER, DEFAULT_INVERT_COVER),
+            )
+        )
+
     def _map_cover_state(self) -> str:
-        """Map COVER_STATE to normalized value, case-insensitive."""
+        """Map COVER_STATE to normalized value, case-insensitive.
+
+        When ``invert_cover`` is enabled in the options, the resulting state
+        is swapped (open ↔ closed, opening ↔ closing) so that a cover whose
+        relays are wired backwards is shown correctly.
+        """
         raw = self.get_str_value("COVER_STATE", "") or ""
         state = COVER_STATE_MAP.get(raw)
-        if state is not None:
-            return state
-        return COVER_STATE_MAP.get(raw.upper(), "")
+        if state is None:
+            state = COVER_STATE_MAP.get(raw.upper(), "")
+        if self._invert_cover and state:
+            return _COVER_INVERT_MAP.get(state, state)
+        return state
 
     @property
     def is_closed(self) -> bool | None:
@@ -110,13 +139,15 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
 
     async def async_open_cover(self, **kwargs) -> None:
         """Open the pool cover."""
-        _LOGGER.info("Opening pool cover")
-        await self._send_cover_command("OPEN")
+        action = "CLOSE" if self._invert_cover else "OPEN"
+        _LOGGER.info("Opening pool cover (sending %s)", action)
+        await self._send_cover_command(action)
 
     async def async_close_cover(self, **kwargs) -> None:
         """Close the pool cover."""
-        _LOGGER.info("Closing pool cover")
-        await self._send_cover_command("CLOSE")
+        action = "OPEN" if self._invert_cover else "CLOSE"
+        _LOGGER.info("Closing pool cover (sending %s)", action)
+        await self._send_cover_command(action)
 
     async def async_stop_cover(self, **kwargs) -> None:
         """Stop the pool cover."""

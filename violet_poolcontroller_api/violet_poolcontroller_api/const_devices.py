@@ -221,12 +221,13 @@ for ext_bank in [1, 2]:
             "api_template": f"EXT{ext_bank}_{relay_num},{{action}},{{duration}},0",
         }
 
-# Dynamically add digital input rules
-for rule_num in range(1, 8):
+# Dynamically add digital input rules (controller exposes SWITCHINGRULE_1..8
+# internally; we mirror that with DIRULE_1..8).
+for rule_num in range(1, 9):
     key = f"DIRULE_{rule_num}"
     DEVICE_PARAMETERS[key] = {
         "supports_lock": True,
-        "api_template": f"DIRULE_{rule_num},{{action}},0,0",
+        "api_template": f"DIRULE_{{rule_num}},{{action}},0,0",
     }
 
 # Dynamically add DMX scenes

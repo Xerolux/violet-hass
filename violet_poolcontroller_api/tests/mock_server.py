@@ -84,7 +84,7 @@ for _eb in [1, 2]:
         _SWITCH_KEYS.add(f"EXT{_eb}_{_rn}")
 for _sn in range(1, 13):
     _SWITCH_KEYS.add(f"DMX_SCENE{_sn}")
-for _dn in range(1, 8):
+for _dn in range(1, 9):
     _SWITCH_KEYS.add(f"DIRULE_{_dn}")
 for _on in range(6):
     _SWITCH_KEYS.add(f"OMNI_DC{_on}")

@@ -410,8 +410,10 @@ for i in range(1, 13):
             "entity_registry_enabled_default": False,
         }
     )
-# Dynamically add digital rules (controller exposes DIRULE_1..7)
-for i in range(1, 8):
+# Dynamically add digital rules (controller exposes SWITCHINGRULE_1..8
+# internally and surfaces state as DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_1..8
+# in getReadings; we expose them as DIRULE_1..8).
+for i in range(1, 9):
     SWITCHES.append(
         {
             "key": f"DIRULE_{i}",

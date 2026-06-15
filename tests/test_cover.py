@@ -7,6 +7,7 @@ from custom_components.violet_pool_controller.const import (
     CONF_API_URL,
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
+    CONF_INVERT_COVER,
     CONF_USE_SSL,
     DOMAIN,
 )
@@ -170,3 +171,65 @@ class TestVioletCover:
         # Unknown state: is_open False, is_closed None (HA semantics)
         assert cover.is_open is False
         assert cover.is_closed is None
+
+
+@pytest.fixture
+def config_entry_inverted():
+    """Mock config entry with cover inversion enabled."""
+    return MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            CONF_API_URL: "192.168.1.100",
+            CONF_USE_SSL: False,
+            CONF_DEVICE_ID: 1,
+            CONF_DEVICE_NAME: "Test Pool",
+        },
+        options={
+            CONF_ACTIVE_FEATURES: ["cover_control"],
+            CONF_INVERT_COVER: True,
+        }
+    )
+
+
+class TestVioletCoverInverted:
+    """Test cover entity with invert_cover enabled."""
+
+    def test_inverted_open_shows_as_closed(self, mock_coordinator, config_entry_inverted):
+        """When inverted, controller 'OPEN' should appear closed in HA."""
+        mock_coordinator.data["COVER_STATE"] = "OPEN"
+        cover = VioletCover(mock_coordinator, config_entry_inverted)
+
+        assert cover.is_closed is True
+        assert cover.is_open is False
+
+    def test_inverted_closed_shows_as_open(self, mock_coordinator, config_entry_inverted):
+        """When inverted, controller 'CLOSED' should appear open in HA."""
+        mock_coordinator.data["COVER_STATE"] = "CLOSED"
+        cover = VioletCover(mock_coordinator, config_entry_inverted)
+
+        assert cover.is_open is True
+        assert cover.is_closed is False
+
+    def test_inverted_opening_shows_as_closing(self, mock_coordinator, config_entry_inverted):
+        """When inverted, 'OPENING' becomes 'closing'."""
+        mock_coordinator.data["COVER_STATE"] = "OPENING"
+        cover = VioletCover(mock_coordinator, config_entry_inverted)
+
+        assert cover.is_closing is True
+        assert cover.is_opening is False
+
+    @pytest.mark.asyncio
+    async def test_inverted_open_sends_close(self, mock_coordinator, config_entry_inverted):
+        """When inverted, pressing 'open' sends CLOSE to controller."""
+        cover = VioletCover(mock_coordinator, config_entry_inverted)
+        await cover.async_open_cover()
+
+        assert cover._last_action == "CLOSE"
+
+    @pytest.mark.asyncio
+    async def test_inverted_close_sends_open(self, mock_coordinator, config_entry_inverted):
+        """When inverted, pressing 'close' sends OPEN to controller."""
+        cover = VioletCover(mock_coordinator, config_entry_inverted)
+        await cover.async_close_cover()
+
+        assert cover._last_action == "OPEN"

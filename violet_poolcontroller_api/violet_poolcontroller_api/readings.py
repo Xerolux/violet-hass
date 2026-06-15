@@ -468,15 +468,15 @@ class VioletReadings(Mapping[str, Any]):
         }
 
     # ------------------------------------------------------------------
-    # Digital input switching rules (1-7)
+    # Digital input switching rules (1-8)
     # ------------------------------------------------------------------
 
     @cached_property
     def digital_rules(self) -> dict[int, RuleState | None]:
-        """States for digital-input switching rules 1–7."""
+        """States for digital-input switching rules 1–8."""
         return {
             i: _parse_rule_state(self._raw.get(f"DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_{i}"))
-            for i in range(1, 8)
+            for i in range(1, 9)
         }
 
     # ------------------------------------------------------------------

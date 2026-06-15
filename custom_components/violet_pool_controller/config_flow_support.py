@@ -35,6 +35,7 @@ from .const import (
     CONF_DISINFECTION_METHOD,
     CONF_ENABLE_DIAGNOSTIC_LOGGING,
     CONF_FORCE_UPDATE,
+    CONF_INVERT_COVER,
     CONF_PASSWORD,
     CONF_POLLING_INTERVAL,
     CONF_POOL_SIZE,
@@ -50,6 +51,7 @@ from .const import (
     DEFAULT_DISINFECTION_METHOD,
     DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
     DEFAULT_FORCE_UPDATE,
+    DEFAULT_INVERT_COVER,
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_POOL_SIZE,
     DEFAULT_POOL_TYPE,
@@ -464,6 +466,12 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                     CONF_FORCE_UPDATE,
                     default=self.current_config.get(
                         CONF_FORCE_UPDATE, DEFAULT_FORCE_UPDATE
+                    ),
+                ): selector.BooleanSelector(selector.BooleanSelectorConfig()),
+                vol.Optional(
+                    CONF_INVERT_COVER,
+                    default=self.current_config.get(
+                        CONF_INVERT_COVER, DEFAULT_INVERT_COVER
                     ),
                 ): selector.BooleanSelector(selector.BooleanSelectorConfig()),
             }

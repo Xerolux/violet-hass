@@ -83,6 +83,7 @@ CONF_POOL_TYPE = "pool_type"
 CONF_DISINFECTION_METHOD = "disinfection_method"
 CONF_ENABLE_DIAGNOSTIC_LOGGING = "enable_diagnostic_logging"
 CONF_DOSING_STANDALONE = "dosing_standalone"
+CONF_INVERT_COVER = "invert_cover"
 
 # ACTION_* constants come from violet_poolcontroller_api.const_api (wildcard
 # import above) - do not redefine them here, local copies drift from the API.
@@ -102,6 +103,7 @@ DEFAULT_POOL_TYPE = "outdoor"
 DEFAULT_DISINFECTION_METHOD = "chlorine"
 DEFAULT_ENABLE_DIAGNOSTIC_LOGGING = False
 DEFAULT_DOSING_STANDALONE = False
+DEFAULT_INVERT_COVER = False
 
 # =============================================================================
 # POOL CONFIGURATION
