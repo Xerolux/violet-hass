@@ -2,10 +2,10 @@
 
 from unittest.mock import MagicMock
 
-from custom_components.violet_pool_controller.entity import strip_redundant_device_prefix
 from custom_components.violet_pool_controller import (
     _migrate_duplicate_prefix_entity_ids,
 )
+from custom_components.violet_pool_controller.entity import strip_redundant_device_prefix
 
 
 def test_strip_redundant_device_prefix_from_german_light_name() -> None:
@@ -119,3 +119,19 @@ def test_migrate_duplicate_prefix_skips_when_target_taken() -> None:
     registry = _run_migration([entity], target_taken=True)
 
     registry.async_update_entity.assert_not_called()
+
+
+def test_migrate_duplicate_prefix_collapses_triple_slug() -> None:
+    """Migration collapses three or more consecutive domain slugs to one."""
+    old_id = (
+        "switch.violet_pool_controller_"
+        "violet_pool_controller_violet_pool_controller_beleuchtung"
+    )
+    entity = _make_entity_entry(old_id)
+
+    registry = _run_migration([entity])
+
+    registry.async_update_entity.assert_called_once_with(
+        old_id,
+        new_entity_id="switch.violet_pool_controller_beleuchtung",
+    )

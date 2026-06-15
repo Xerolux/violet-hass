@@ -118,7 +118,12 @@ def _migrate_duplicate_prefix_entity_ids(
         object_id = entity_id[dot + 1:]
         if not object_id.startswith(double_slug):
             continue
-        new_object_id = f"{DOMAIN}_" + object_id[len(double_slug):]
+
+        # Collapse any number of repeated domain slugs down to one.
+        new_object_id = object_id
+        while new_object_id.startswith(double_slug):
+            new_object_id = f"{DOMAIN}_" + new_object_id[len(double_slug):]
+
         new_entity_id = f"{entity_id[:dot + 1]}{new_object_id}"
         if entity_registry.async_get(new_entity_id) is not None:
             _LOGGER.debug(
