@@ -321,12 +321,21 @@ class VioletControlClient:
                 runtime_seconds,
             )
 
-            # Build command
-            cmd = f"?index={dosing_index}&runtime={runtime_seconds}"
+            runtime_formatted = (
+                f"{runtime_seconds // 60:02d}:{runtime_seconds % 60:02d}"
+            )
+            form_data = {
+                "action": "DOSSTART",
+                "output": str(dosing_index),
+                "runtime": str(runtime_seconds),
+                "from": "1",
+                "runtime_formatted": runtime_formatted,
+            }
 
             response = await self.api._request(
-                f"/triggerManualDosing{cmd}",
-                method="GET",
+                "/triggerManualDosing",
+                method="POST",
+                data=form_data,
             )
 
             if response:
@@ -375,13 +384,9 @@ class VioletControlClient:
                 list(config_updates.keys()),
             )
 
-            response = await self.api._request(
-                "/setConfig",
-                method="POST",
-                json_payload=config_updates,
-            )
+            result = await self.api.set_config(config_updates)
 
-            if response:
+            if result:
                 _LOGGER.info(
                     "Configuration updated: %s",
                     list(config_updates.keys()),
@@ -396,9 +401,3 @@ class VioletControlClient:
         except VioletPoolAPIError as err:
             _LOGGER.error("API error updating config: %s", err)
             raise
-        except TimeoutError as err:
-            _LOGGER.error("Timeout updating configuration")
-            raise VioletPoolAPIError(
-                "Timeout updating configuration",
-                original_exception=err,
-            ) from err

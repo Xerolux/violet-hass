@@ -103,17 +103,14 @@ class VioletPoolControllerUpdateEntity(CoordinatorEntity, UpdateEntity):
     ) -> None:
         """Install update."""
         try:
-            from .http_control import VioletControlClient
-
-            client = VioletControlClient(self.coordinator.device._api)
-
             _LOGGER.info(
                 "Starting firmware update on %s",
                 self.coordinator.device.device_name,
             )
 
-            # Send update command to controller
-            await client.set_config({"SYSTEM_UPDATE_TRIGGER": 1})
+            await self.coordinator.device._api.set_config(
+                {"SYSTEM_UPDATE_TRIGGER": 1}
+            )
 
             # Request refresh to update status
             await self.coordinator.async_request_refresh()

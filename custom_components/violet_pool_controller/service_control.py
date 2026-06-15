@@ -32,12 +32,11 @@ from .service_helpers import (
 _LOGGER = logging.getLogger(__name__)
 
 DOSING_INDEX_MAP = {
-    "chlorine": 0,
-    "electrolysis": 1,
-    "ph_minus": 2,
-    "ph_plus": 3,
-    "flocculant": 4,
-    "h2o2": 5,
+    "chlorine": 0,      # DOS_1_CL
+    "electrolysis": 1,  # DOS_2_ELO
+    "ph_minus": 3,      # DOS_4_PHM (index 2 is unused in firmware)
+    "ph_plus": 4,       # DOS_5_PHP
+    "flocculant": 5,    # DOS_6_FLOC
 }
 
 DOSING_SYSTEMS = {
