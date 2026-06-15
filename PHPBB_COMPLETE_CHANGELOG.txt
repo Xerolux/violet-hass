@@ -1,0 +1,335 @@
+[center][size=125][b]🌊 Violet Pool Controller - Kompletter Changelog[/b][/size]
+[size=110]Version 1.2.4 → 2.0.0-beta.9[/size][/center]
+
+[hr]
+
+[size=120][b]HIGHLIGHTS DER MAJOR CHANGES[/b][/size]
+
+Seit Version 1.2.4 gab es 88 Commits mit massiven Verbesserungen:
+
+[b]🔴 KRITISCHE FIXES:[/b]
+[list]
+[*]Entity-ID Duplizierungsproblem an der Quelle behoben
+[*]Firmware Update Entity zeigt jetzt korrekt die Controller-Version (nicht mehr "aktuell" wenn 1.1.9)
+[*]API Version Compatibility verbessert (violet-poolController-api >= 0.0.31)
+[/list]
+
+[b]✨ MAJOR FEATURES:[/b]
+[list]
+[*]Vollständiges Service-System mit 20+ Services
+[*]Reset Error Blockings Button (direkt auf Device)
+[*]Hardware-Konfiguration mit dynamischen Namen
+[*]Firmware Update Detection & Installation
+[*]Error Management mit prominenten Sensoren
+[*]Button Platform für direktes Pool-Control
+[/list]
+
+[b]📊 API & SENSOR ÜBERHAUL:[/b]
+[list]
+[*]+50 neue Sensoren für erweiterte Überwachung
+[*]H2O2 Dosing System Unterstützung
+[*]Electrolysis Polarity Tracking
+[*]OmniTronic Valve Status Sensoren
+[*]Dosing Statistics & Monitoring
+[*]Temperature Sensor Calibration Sensoren
+[*]Digital Input Rules mit Stopwatch
+[/list]
+
+[hr]
+
+[size=120][b]DETAILLIERTER CHANGELOG[/b][/size]
+
+[b]→ Version 2.0.0-beta.9 (AKTUELL)[/b]
+[list]
+[*][b]🔨 KRITISCH:[/b] Entity-ID Duplizierung bei Neuinstallationen behoben
+  [list]
+  [*]Default Device-Name von "🌊 Violet Pool Controller" zu "Pool Controller" geändert
+  [*]Hardcodierte Entity-ID-Präfixe entfernt
+  [*]Entity-Migrations-Logik verbessert mit besseren Logs
+  [/list]
+[*][b]✨ NEU:[/b] Reset Error Blockings Button für direkte Fehlerbehandlung
+[*][b]✨ NEU:[/b] Button Platform für Pool-Control-Aktionen
+[*][b]🎯 VERBESSERT:[/b] Error-Sensoren jetzt prominent (nicht im Diagnostic Drawer)
+[*][b]🔧 VERBESSERT:[/b] Service-Dokumentation in services.yaml
+[/list]
+
+[b]→ Version 2.0.0-beta.8[/b]
+[list]
+[*][b]✨ 15 Firmware-Discovery Improvements[/b]
+  [list]
+  [*]Bessere Hardware-Modul-Erkennung
+  [*]Erweiterte Sensor-Discovery
+  [*]Firmware-Update Detection sichtbar
+  [/list]
+[*][b]📦 API Upgrade[/b] auf 0.0.31
+[/list]
+
+[b]→ Version 2.0.0-beta.7[/b]
+[list]
+[*][b]🔨 Entity-Präfix-Migration[/b] für alte Installationen
+[*][b]🔄 Firmware Update Entity[/b] jetzt immer sichtbar
+[*][b]📝 Neue Sensoren:[/b] Firmware Version, Update Availability
+[*][b]🔧 Verbessert:[/b] Firmware-Version-Erkennung (dual keys)
+[/list]
+
+[b]→ Version 2.0.0-beta.6[/b]
+[list]
+[*][b]🎨 UI/UX Verbesserungen[/b] in Config Flow
+[*][b]📡 Robustere Fehlerbehandlung[/b] für Netzwerkausfälle
+[*][b]🔐 SSL/TLS Sicherheitsverbesserungen[/b]
+[/list]
+
+[b]→ Version 2.0.0-beta.5[/b]
+[list]
+[*][b]🌍 Multi-Language Support[/b] (10 Sprachen)
+  [list]
+  [*]Deutsch, Englisch, Spanisch, Französisch, Italienisch
+  [*]Niederländisch, Polnisch, Portugiesisch, Russisch, Chinesisch
+  [/list]
+[*][b]🔐 Security Updates[/b] und Input Sanitization
+[*][b]📊 Erweiterte Sensor-Konfiguration[/b]
+[*][b]🎯 Hardware Configuration System[/b] mit allen Namen
+[*][b]✨ Climate & Cover Platform[/b] mit dynamischen Namen
+[/list]
+
+[b]→ Version 2.0.0-beta.4[/b]
+[list]
+[*][b]📊 Firmware Update Entity[/b] für Versionstracking
+[*][b]🔧 Status Services[/b] für Pool-Diagnostics
+[*][b]📝 Sensor Calibration Monitoring[/b]
+[/list]
+
+[b]→ Version 2.0.0-beta.3[/b]
+[list]
+[*][b]📊 Sensor-Reorganisation[/b] nach WebUI-Layout
+[*][b]✨ Backwash Status Sensor[/b] hinzugefügt
+[*][b]🔄 Bessere Koordinations-Logik[/b]
+[/list]
+
+[b]→ Version 2.0.0-beta.2[/b]
+[list]
+[*][b]🔧 Error Handling Services[/b]
+[*][b]📝 Sensor Calibration Services[/b]
+[*][b]🎯 Diagnostics Output[/b]
+[/list]
+
+[b]→ Version 2.0.0-beta.1[/b]
+[list]
+[*][b]🚀 Complete Refactor[/b] von 1.x zu 2.0 Architektur
+[*][b]📦 Monorepo Setup[/b] mit separatem API Package
+[*][b]🌊 Home Assistant 2026.5+ Unterstützung[/b]
+[*][b]⚡ Performance Optimierungen[/b] mit Coordinator Pattern
+[*][b]20+ Control Services[/b] für Pool-Management
+[/list]
+
+[hr]
+
+[size=120][b]NEUE SENSOREN & FEATURES[/b][/size]
+
+[b]Dosing Systems (erweitert):[/b]
+[list]
+[*]H2O2 (Wasserstoffperoxid) Dosing System
+[*]Dosing Statistics pro System (täglich, gesamt)
+[*]Dosing Remaining Range Tracking
+[*]Canister Fill Level Management
+[/list]
+
+[b]Monitoring & Diagnostics:[/b]
+[list]
+[*]Active Errors Sensor (alle Fehler in Klartext)
+[*]Pool Health Aggregation Sensor
+[*]Last Error Code mit Beschreibung
+[*]Connection Status & Latency Tracking
+[*]System Health Percentage
+[*]API Request Rate Monitoring
+[/list]
+
+[b]Hardware Detection:[/b]
+[list]
+[*]Dosing Module Presence Detection
+[*]Extension Modules (EXT1, EXT2) Detection
+[*]DMX Module Detection
+[*]Digital Rules Module Detection
+[*]OmniTronic Valve State Tracking
+[/list]
+
+[b]Advanced Sensors:[/b]
+[list]
+[*]Electrolysis Polarity Tracking
+[*]Temperature Sensor Calibration History
+[*]Digital Input Rule Stopwatch
+[*]RS485 Pump Power Consumption
+[*]Filter Pressure Monitoring
+[*]Flow Rate Sensors (4-20mA & Impulse)
+[/list]
+
+[hr]
+
+[size=120][b]SERVICES (20+ verfügbar)[/b][/size]
+
+[b]Error Management:[/b]
+[list]
+[*]reset_blocking - Fehler-Blockierungen zurücksetzen
+[*]clear_error_history - Fehlerhistorie löschen
+[*]get_error_summary - Error Report abrufen
+[*]get_connection_status - Verbindungsstatus
+[/list]
+
+[b]Pool Control:[/b]
+[list]
+[*]control_pump - Pumpensteuerung (Speed, Eco, Boost)
+[*]smart_dosing - Dosiersteuerung (manuell/auto)
+[*]manage_pv_surplus - PV-Überschuss-Modus
+[*]control_dmx_scenes - LED-Szenen-Steuerung
+[*]set_light_color_pulse - Farbpuls-Steuerung
+[*]test_output - Output-Testmodus
+[/list]
+
+[b]Configuration:[/b]
+[list]
+[*]configure_dosing - Dosier-Konfiguration
+[*]set_dosing_target - Zielwert setzen
+[*]set_dosing_max_daily - Max. Tagesmenge
+[*]enable_dosing - Dosierung aktivieren
+[*]set_can_amount - Kanister-Menge aktualisieren
+[*]control_extension_relay - Relais-Steuerung
+[*]configure_sensor_calibration - Sensor-Kalibrierung
+[*]set_system_service - System-Services (FTP, SSH, etc.)
+[/list]
+
+[b]Automation Rules:[/b]
+[list]
+[*]configure_temp_rule - Temperatur-Regel
+[*]configure_analog_rule - Analog-Eingang Regel
+[*]configure_switching_rule - Digital-Input Regel
+[*]configure_timer_rule - Timer-Regel
+[/list]
+
+[hr]
+
+[size=120][b]BUG FIXES & STABILITY[/b][/size]
+
+[b]Wichtige Fixes:[/b]
+[list]
+[*]✅ Entity-ID Duplizierung (violet_pool_controller_violet_pool_controller_...)
+[*]✅ Firmware Version zeigt korrekt (nicht "aktuell" bei 1.1.9)
+[*]✅ SSL/TLS Default (off → sicherer)
+[*]✅ API Kompatibilität (violet-poolController-api 0.0.29 → 0.0.31)
+[*]✅ JSON Parse Fehler bei Controller-Responses
+[*]✅ Cover Steuerung (API Kompatibilität)
+[*]✅ Firmware Update Detection (dual key support)
+[*]✅ Device Prefix in Entity Names (automatic cleanup)
+[*]✅ Sensor Key Name Korrektionen (SYSTEM_* keys)
+[*]✅ Dosing Response Error Handling
+[/list]
+
+[b]Code Quality:[/b]
+[list]
+[*]Mypy Type Checking Fixes
+[*]Ruff Linting auto-fixes
+[*]Import Optimization
+[*]Code Style Standardisierung
+[/list]
+
+[hr]
+
+[size=120][b]DEPENDENCIES & REQUIREMENTS[/b][/size]
+
+[b]Home Assistant:[/b]
+[list]
+[*]Minimum: HA 2026.5.0
+[*]Maximum Python: 3.14+
+[/list]
+
+[b]Python Packages:[/b]
+[list]
+[*]violet-poolController-api >= 0.0.31 (NEU im Monorepo)
+[*]aiohttp >= 3.14.1
+[*]voluptuous >= 0.16.0
+[/list]
+
+[b]Development:[/b]
+[list]
+[*]ruff >= 0.15.16 (Linting & Formatting)
+[*]mypy >= 2.1.0 (Type Checking)
+[*]pytest >= 9.0.3 (Testing)
+[*]pytest-asyncio >= 1.3.0
+[*]pytest-homeassistant-custom-component >= 0.13.337
+[/list]
+
+[hr]
+
+[size=120][b]INSTALLATION & MIGRATION[/b][/size]
+
+[b]Für Nutzer von 1.2.4:[/b]
+[list=1]
+[*]Installation über HACS oder direkter Download
+[*]Home Assistant neustarten
+[*]Entity-Migration läuft automatisch (alte doppelte IDs werden bereinigt)
+[*]Neue Error-Sensoren überprüfen
+[*]Firmware Update Entity zeigt korrekt (nicht mehr "aktuell")
+[/list]
+
+[b]Abwärtskompatibilität:[/b]
+[list]
+[*]✅ Vollständig abwärtskompatibel zu 1.2.4
+[*]✅ Keine Neukonfiguration notwendig
+[*]✅ Automationen funktionieren unverändert
+[*]✅ Bestehende Scripts/Szenen funktionieren
+[/list]
+
+[hr]
+
+[size=120][b]PERFORMANCE IMPROVEMENTS[/b][/size]
+
+[list]
+[*]⚡ Coordinator Pattern für effiziente Datenaktualisierung
+[*]⚡ Rate Limiting (Token Bucket Algorithm)
+[*]⚡ Circuit Breaker Pattern für Ausfallschutz
+[*]⚡ Connection Pooling & Caching
+[*]⚡ Async/Await für nicht-blockierende Operationen
+[*]⚡ Batch Sensor Updates
+[/list]
+
+[hr]
+
+[size=120][b]TESTING & QUALITY[/b][/size]
+
+[list]
+[*]✅ 21 Test-Dateien (Sensors, Services, Integration, Security)
+[*]✅ MyPy Type Checking (0 Errors)
+[*]✅ Ruff Linting (0 Issues)
+[*]✅ HomeAssistant Integration Tests
+[*]✅ Mock Controller Environment
+[*]✅ Security Testing
+[/list]
+
+[hr]
+
+[size=120][b]KNOWN ISSUES & SOLUTIONS[/b][/size]
+
+[b]Q: Doppelte Entity-IDs nach Update?[/b]
+A: Das ist normal - Migration läuft beim Startup. Automatisch behoben in beta.9+.
+
+[b]Q: Firmware Update zeigt "aktuell" obwohl Controller 1.1.9 hat?[/b]
+A: Bug in beta.8 und älter. BEHOBEN in beta.9! Update Entity zeigt jetzt korrekt "1.1.9".
+
+[b]Q: Alte Entity-ID (mit doppeltem Prefix) in Statistics?[/b]
+A: Harmlos. Kann gelöscht werden (Settings → Geräte & Services → Entitäten → Löschen).
+
+[hr]
+
+[size=110][b]📥 Download & Weitere Infos[/b][/size]
+
+[b]HACS Installation:[/b]
+Home Assistant → HACS → Integrations → Violet Pool Controller
+
+[b]GitHub:[/b]
+[url=https://github.com/Xerolux/violet-hass]Hauptrepository[/url]
+
+[b]Release Download:[/b]
+[url=https://github.com/Xerolux/violet-hass/releases/tag/v2.0.0-beta.9]v2.0.0-beta.9[/url]
+
+[hr]
+
+[right][i]Das war eine große Reise von 1.2.4 zu 2.0.0-beta.9! 🎉[/i][/right]

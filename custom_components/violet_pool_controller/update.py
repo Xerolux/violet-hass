@@ -92,17 +92,23 @@ class VioletPoolControllerUpdateEntity(CoordinatorEntity, UpdateEntity):
 
     @property
     def latest_version(self) -> str | None:
-        """Return latest available version, or installed version when up-to-date."""
+        """Return latest available version.
+
+        When no update is available, return the installed version (system is up-to-date).
+        When an update is available, return the available version.
+        """
         if not self.coordinator.data:
             return None
         info = parse_firmware_info(self.coordinator.data)
-        latest = info.available_version or info.installed_version
+        # If there's an available update, show that version; otherwise show installed
+        latest = info.available_version if info.update_available else info.installed_version
         _LOGGER.debug(
-            "Firmware latest version for %s: %s (available=%s, installed=%s)",
+            "Firmware latest version for %s: %s (available=%s, installed=%s, update_available=%s)",
             self.coordinator.device.device_name,
             latest,
             info.available_version,
             info.installed_version,
+            info.update_available,
         )
         return latest
 
