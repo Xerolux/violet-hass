@@ -110,6 +110,8 @@ def _migrate_duplicate_prefix_entity_ids(
     so that automations and dashboards referencing the new names work correctly.
     """
     double_slug = f"{DOMAIN}_{DOMAIN}_"
+    migrated_count = 0
+
     for entity_entry in er.async_entries_for_config_entry(entity_registry, config_entry_id):
         entity_id = entity_entry.entity_id
         dot = entity_id.find(".")
@@ -137,7 +139,23 @@ def _migrate_duplicate_prefix_entity_ids(
             entity_id,
             new_entity_id,
         )
-        entity_registry.async_update_entity(entity_id, new_entity_id=new_entity_id)
+        try:
+            entity_registry.async_update_entity(entity_id, new_entity_id=new_entity_id)
+            migrated_count += 1
+        except Exception as err:
+            _LOGGER.error(
+                "Failed to migrate entity_id '%s' → '%s': %s",
+                entity_id,
+                new_entity_id,
+                err,
+            )
+
+    if migrated_count > 0:
+        _LOGGER.info(
+            "Entity migration complete: %d duplicate prefixes removed for config_entry %s",
+            migrated_count,
+            config_entry_id,
+        )
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

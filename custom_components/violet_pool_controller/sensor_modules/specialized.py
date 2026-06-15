@@ -52,7 +52,7 @@ class VioletErrorCodeSensor(VioletSensor):
             translation_key="last_error_code",
             name="Last Error Code",
             icon="mdi:alert-circle",
-            entity_category=EntityCategory.DIAGNOSTIC,
+            entity_category=None,
             entity_registry_enabled_default=True,
         )
         super().__init__(coordinator, config_entry, description)
@@ -243,7 +243,7 @@ class VioletActiveErrorsSensor(VioletPoolControllerEntity, SensorEntity):
             translation_key="active_errors",
             name="Active Errors",
             icon="mdi:alert-multiple",
-            entity_category=EntityCategory.DIAGNOSTIC,
+            entity_category=None,
             entity_registry_enabled_default=True,
         )
         super().__init__(coordinator, config_entry, description)

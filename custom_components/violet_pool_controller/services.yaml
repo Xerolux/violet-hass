@@ -10,10 +10,19 @@
 # ---------------------------------------------------------------------------
 # GROUP: DIAGNOSTICS & ERROR MANAGEMENT
 # ---------------------------------------------------------------------------
-# Use these together with the "Pool Health" sensor and the per-issue
-# binary sensors (CIRCULATION_STATE, ELECTRODE_FLOW_STATE,
-# PRESSURE_STATE, CAN_RANGE_STATE, OVERFLOW_*_STATE) to detect,
-# investigate, and clear controller-side faults.
+# Start with these sensors to see active problems:
+#   • **Pool Health** — overall status (ok/warning/error/offline)
+#   • **Active Errors** — all current error codes in human-readable format
+#   • **Last Error Code** — most recent error with details and attributes
+#
+# Then use these services to investigate and fix:
+#   • **Get Error Summary** — detailed error report with recovery suggestions
+#   • **Get Connection Status** — connection health metrics
+#   • **Get Live Trace Snapshot** — raw controller readings
+#
+# When fixed, clear the controller blockings and history:
+#   • **Reset Fault Blockings** — clears dosing/output blockings (like the web UI Reset button)
+#   • **Clear Error History** — wipes the error log after successful recovery
 # ---------------------------------------------------------------------------
 
 clear_error_history:
