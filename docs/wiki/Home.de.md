@@ -10,28 +10,37 @@
 
 ---
 
-## 📢 Letzte Änderungen (März 2026)
+## 📢 Letzte Änderungen (v2.0.0-beta.7)
 
 ### ✨ Neue Funktionen & Verbesserungen
 
-#### 🔒 Sicherheit & Haftung (NEU!)
-- **Umfassender Disclaimer**: Haftungsausschluss für Sicherheit und Nutzung
-- **Deutsch & Englisch**: Vollständige Sicherheitshinweise in beiden Sprachen
-- **Setup-Integration**: Verbindlicher Haftungsausschluss im Konfigurationsprozess
-- 📖 [Konfigurationshilfe (DE)](https://github.com/Xerolux/violet-hass/blob/main/docs/help/configuration-guide.de.md)
-- 📖 [Konfigurationshilfe (EN)](https://github.com/Xerolux/violet-hass/blob/main/docs/help/configuration-guide.en.md)
+#### 🧪 H2O2-Dosierung
+- **H2O2-Unterstützung**: Teilt den `DOS_1_CL`-Ausgang mit Chlor (Auswahl über `from=3`).
+- Neue Service-Option `h2o2` bei `manual_dosing_http`, `configure_dosing`, `set_dosing_target`, `set_dosing_daytime`, `set_dosing_max_daily`, `enable_dosing`.
+- Entsprechende Fehlercodes `0142`–`0145` hinterlegt.
 
-#### 🎨 Icon-Optimierung (NEU!)
-- **68+ Icons optimiert**: Alle Entities jetzt mit konsistenten, professionellen MDI-Icons
-- **Bessere Erkennbarkeit**: Spezielle Icons statt generischer Symbole
-- **Beispiele**:
-  - pH-Wert: `mdi:ph` statt `mdi:flask`
-  - Beckenwasser: `mdi:pool`
-  - Überlaufbehälter: `mdi:water-sync`
-  - Wärmetauscher: `mdi:radiator`
-  - Rückspülung: `mdi:autorenew`
-  - Flockung: `mdi:water`
-- 📖 [Icon-Referenz](Icon-Reference) | 📊 [Alle Icons](https://github.com/Xerolux/violet-hass/blob/main/ICON_UPGRADE_SUMMARY.md)
+#### ⚡ Omni-DC-Ausgänge
+- 6 neue schaltbare Ausgänge (`OMNI_DC0`–`OMNI_DC5`) als Switches, Select-Steuerung und Runtime-Sensoren.
+
+#### 🧰 OMNI DC + DIRULE-Switches
+- `DIRULE_1`–`DIRULE_8` Digitalregel-Schalter jetzt im UI verfügbar.
+- Alle Erweiterungsrelais (`EXT1_1`–`EXT2_8`) über Select-Entities konfigurierbar.
+
+#### 🧯 Korrigierte State-Zuordnung
+- **Korrektur**: State `2` (`AUTO_PRIO_OFF`) wird jetzt korrekt als **AUS** erkannt (zuvor fälschlich AN).
+- **Korrektur**: Alle Auto-States werden im Select korrekt auf `AUTO` abgebildet.
+- Siehe [Gerätezustände](Device-States.de) für die korrigierte Tabelle.
+
+#### 📊 Neue Sensor-Kategorien
+- **Laufzeit-Sensoren**: Tägliche Laufzeiten pro Ausgang für Pumpe, Solar, Heizung, Licht, Rückspülung, Refill, ECO, Dosierkanäle, Erweiterungsrelais, OMNI-DC-Motoren, Pumpen-RPM-Stufen.
+- **Dosierstatistik**: Tägliche Dosiermenge (ml) und verbleibende Kanistermenge (ml) für jeden Dosierkanal.
+- **Composite-State-Sensoren**: `PUMPSTATE`, `HEATERSTATE`, `SOLARSTATE` tragen den vollen `BLOCKED_BY_*`- / `WAITING_FOR_*`-Detail-String.
+- **Hardware-Binary-Sensoren**: Basismodul, Dosiermodul, beide Erweiterungsmodule, Standalone-Modus, DMX-Modul, Digitalregel-Modul.
+- **Overflow/Rückspül/Bad-AI-Binary-Sensoren**: Überfüllung, Trockenlauf, Refill, Rückspül-Verzögerung, Bad-AI-Überwachung.
+
+#### 🔧 HTTP-Control- & Regel-Service (Phase 2–4)
+- Neue Services: `control_heater_http`, `control_solar_http`, `control_cover_http`, `control_backwash_http`, `manual_dosing_http`, `configure_dosing`, `set_dosing_target`, `set_dosing_daytime`, `set_dosing_max_daily`, `enable_dosing`, `configure_temp_rule`, `configure_analog_rule`, `configure_switching_rule`, `configure_timer_rule`, `enable_rule`, `control_extension_relay`, `configure_sensor_calibration`.
+- Siehe [Services](Services.de) für die vollständige Referenz.
 
 ---
 
@@ -43,10 +52,12 @@ Das **Violet Pool Controller Home Assistant Integration** verbindet [Home Assist
 |---------|---------|
 | **Protokoll** | HTTP/HTTPS, lokales Polling |
 | **HA-Mindestversion** | 2026.5.0 |
-| **Getestet bis** | 2026.x (aktuell) |
+| **Getestet bis** | 2026.5.x / 2026.6.x |
 | **Python** | 3.14.2+ |
-| **Version** | 1.0.5 |
-| **Lizenz** | MIT |
+| **Integration-Version** | 2.0.0-beta.7 |
+| **API-Paket** | violet-poolController-api ≥ 0.0.29 (PyPI) |
+| **Lizenz** | AGPL-3.0-or-later |
+| **Quality Scale** | Platinum |
 | **Sprachen** | DE, EN, ES, FR, IT, NL, PL, PT, RU, ZH |
 
 ---
@@ -55,13 +66,15 @@ Das **Violet Pool Controller Home Assistant Integration** verbindet [Home Assist
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│              VIOLET POOL CONTROLLER ADDON               │
+│              VIOLET POOL CONTROLLER ADDON                │
 ├──────────────┬──────────────┬──────────────┬────────────┤
 │   Pumpe      │   Heizung    │   Solar      │ Dosierung  │
-│  (3 Stufen)  │ (Thermostat) │ (PV-Surplus) │ pH/Cl/ORP  │
+│ (3 Stufen)   │ (Thermostat) │ (PV-Surplus) │ pH/Cl/ORP  │
 ├──────────────┼──────────────┼──────────────┼────────────┤
-│   Beleucht.  │   Abdeckung  │  Digit. I/O  │ Diagnose   │
-│ (DMX 1-8)   │  (Cover)     │  (DI1-DI8)   │ Download   │
+│  Beleucht.   │  Abdeckung   │  Digit. I/O  │ Diagnose   │
+│ (DMX 1-12)   │  (Cover)     │  (DI1-DI12)  │ Download   │
+├──────────────┼──────────────┼──────────────┼────────────┤
+│ EXT1.1-2.8   │ OMNI_DC0-5   │ DIRULE_1-8   │ H2O2-Dos.  │
 ├──────────────┴──────────────┴──────────────┴────────────┤
 │  100% lokal · Multi-Controller · SSL/TLS · Rate Limiting │
 └─────────────────────────────────────────────────────────┘
@@ -71,12 +84,14 @@ Das **Violet Pool Controller Home Assistant Integration** verbindet [Home Assist
 
 | Plattform | Entities | Beispiele |
 |-----------|----------|-----------|
-| **Sensor** | Temperaturen, pH, ORP, Chlor, Leitfähigkeit, AI1–AI8, Fehler-Codes | `sensor.violet_water_temperature` |
-| **Binary Sensor** | Digitale Eingänge DI1–DI8, Alarme, Verbindungsstatus | `binary_sensor.violet_di1` |
-| **Switch** | Pumpe, Heizer, Solar, pH±, Chlor, Flockmittel, DMX 1–8, Relais 1–8 | `switch.violet_pump` |
-| **Climate** | Poolheizung (Thermostat), Solar-Heizung | `climate.violet_heater` |
-| **Cover** | Poolabdeckung | `cover.violet_cover` |
-| **Number** | Temperatursollwerte, pH-Ziel, ORP-Ziel, Dosierparameter | `number.violet_target_ph` |
+| **Sensor** | Temperaturen (1-Wire 1-12), pH, ORP, Chlor, Analog (ADC1-5, IMP1-2), Laufzeiten, Dosierstatistik, Composite-States, System | `sensor.violet_pool_controller_onewire1_value` |
+| **Binary Sensor** | Kern-States (PUMP/SOLAR/HEATER/...), Digitaleingänge DI1-DI12, CE1-CE4, Hardware-Module, Overflow/Rückspül/Bad-AI | `binary_sensor.violet_pool_controller_pump` |
+| **Switch** | Pumpe, Heizung, Solar, pH±, Chlor, Elektrolyse, Flockung, Licht, Rückspülung, Spülung, Refill, ECO, PV-Surplus, EXT1.1-2.8, OMNI_DC0-5, DIRULE_1-8 | `switch.violet_pool_controller_pump` |
+| **Light** | DMX-Szenen 1–12 (als `LightEntity`) | `light.violet_pool_controller_dmx_scene1` |
+| **Climate** | Poolheizung (Thermostat), Solar-Heizung | `climate.violet_pool_controller_heater` |
+| **Cover** | Poolabdeckung | `cover.violet_pool_controller_cover` |
+| **Number** | Temperatursollwerte, pH/ORP/Chlor-Ziel, Pumpengeschwindigkeit, Kanistervolumen | `number.violet_pool_controller_ph_setpoint` |
+| **Select** | Modus-Select (Off/On/Auto) für alle Switches, Regeln, Erweiterungen und OMNI-Ausgänge | `select.violet_pool_controller_pump_mode` |
 
 ---
 
@@ -158,19 +173,22 @@ eigenständige Nutzung.
 
 | Feature | Aktivierbar im Setup | Beschreibung |
 |---------|---------------------|--------------|
-| Pumpensteuerung | Immer | 3-Stufen-Pumpe mit Automatik |
-| Heizung | Optional | Thermostat mit Solltemperatur |
-| Standalone Dosierung | Optional | Isoliert Dosier-Features, blockiert Haupt-Geräte |
-| Solar | Optional | Solarkollektor + PV-Überschuss |
-| pH-Dosierung | Optional | pH- und pH+ Dosierpumpen |
-| Chlor-Dosierung | Optional | Chlor-Dosierpumpe |
-| Flockmittel | Optional | Flockungsmittel-Dosierung |
-| DMX-Beleuchtung | Optional | 8 Szenen steuerbar |
-| Digitale Eingänge | Optional | DI1–DI8 für Sensoren/Schalter |
-| Abdeckung | Optional | Pool-Cover mit Position |
-| Erweiterungs-Relais | Optional | 8 zusätzliche Relais |
-| Rückspülung | Optional | Automatische Rückspülung |
-| PV-Überschuss | Optional | Solaranlage nutzen |
+| Filterpumpe (`filter_control`) | Immer | 3-Stufen-Pumpe mit Automatik |
+| Heizung (`heating`) | Optional, Default AN | Thermostat mit Solltemperatur |
+| Solarkollektor (`solar`) | Optional, Default AN | Solar + PV-Überschuss |
+| pH-Kontrolle (`ph_control`) | Optional, Default AN | pH- und pH+ Dosierpumpen |
+| Chlor-Kontrolle (`chlorine_control`) | Optional, Default AN | Chlor-Dosierung, Elektrolyse, H2O2 |
+| Flockung (`flocculation`) | Optional, Default AN | Flockungsmittel-Dosierung |
+| Cover-Steuerung (`cover_control`) | Optional, Default AN | Pool-Abdeckung mit Auf/Zu/Stopp |
+| Rückspülung (`backwash`) | Optional, Default AN | Automatische Rückspülung + Spülung |
+| PV-Überschuss (`pv_surplus`) | Optional, Default AN | Solar-Überschuss nutzen |
+| LED-Beleuchtung (`led_lighting`) | Optional, Default AN | DMX-Szenen 1–12 |
+| Wasserstand (`water_level`) | Optional, Default AUS | Skimmer / Füllstandsüberwachung |
+| Wasser-Nachspeisung (`water_refill`) | Optional, Default AUS | Automatische Nachspeisung |
+| Digitale Eingänge (`digital_inputs`) | Optional, Default AUS | DI1-DI12 + CE1-CE4 + Regeln |
+| Erweiterungs-Ausgänge (`extension_outputs`) | Optional, Default AUS | EXT1.1-2.8 + OMNI_DC0-5 |
+
+> 💡 **Standalone-Dosierung**-Modus lässt sich im Setup aktivieren, um die Dosier-Features zu isolieren, wenn der Controller ohne Basismodul betrieben wird.
 
 ---
 
@@ -215,5 +233,5 @@ Diese Integration ist vollständig mit Home Assistant 2026.x kompatibel:
 
 ---
 
-*Diese Wiki dokumentiert Version **1.0.5** des Violet Pool Controller Addons.*
-*Zuletzt aktualisiert: 2026-04-01*
+*Diese Wiki dokumentiert Version **2.0.0-beta.7** der Violet Pool Controller Integration.*
+*Zuletzt aktualisiert: 2026-06-15*

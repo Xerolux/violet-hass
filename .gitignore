@@ -207,3 +207,40 @@ config/blueprints/ (local edits)
 .env.local
 .env.test
 *.log
+
+# === Internal documentation (kept local, not published) ===
+# Decision 2026-06-15: Documentation is private knowledge.
+# Only the GitHub community MDs and docs/wiki/ (synced to public GitHub Wiki)
+# remain tracked. All other MDs stay local only.
+#
+# Whitelisted (still tracked):
+#   - CLAUDE.md, README.md, README.de.md, SECURITY.md, CODE_OF_CONDUCT.md, CONTRIBUTING.md
+#   - .github/**/*.md (issue/PR templates)
+#   - docs/wiki/** (synced to GitHub Wiki via wiki-sync.yml)
+#   - violet_poolcontroller_api/{README,CHANGELOG,SECURITY,CODE_OF_CONDUCT}.md (PyPI package)
+
+# Root-level internal docs
+/ARCHITECTURE.md
+/WIKI.md
+/CONTROL_IMPLEMENTATION_ROADMAP.md
+
+# All standalone guides & references in docs/ (wiki/ stays tracked for wiki-sync)
+/docs/*.md
+/docs/help/
+/docs/public/
+
+# Dashboard & blueprint internal docs
+/Dashboard/*.md
+/blueprints/README.md
+/blueprints/automation/README.md
+
+# Devcontainer internal doc
+/.devcontainer/README.md
+
+# Test artifacts / internal test docs
+/tests/docker/*.md
+
+# API package internal docs (PyPI README/CHANGELOG/SECURITY/CODE_OF_CONDUCT stay tracked)
+/violet_poolcontroller_api/AGENTS.md
+/violet_poolcontroller_api/RELEASE_NOTES_*.md
+/violet_poolcontroller_api/docs/

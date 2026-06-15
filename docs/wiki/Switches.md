@@ -10,19 +10,19 @@
 
 ## Overview
 
-All switches on the Violet Pool Controller are **3-state switches**: they support not only `On` and `Off`, but also `Automatic`. The actual operating state is stored as **State 0–6**.
+All switches on the Violet Pool Controller are **3-state switches**: they support not only `On` and `Off`, but also `Automatic`. The actual operating state is stored as **State 0–6** (see [Device States](Device-States) for the full reference).
 
-| State | Meaning | Switch Display |
-|-------|---------|----------------|
-| `0` – AUTO_OFF | Automatic, currently off | `off` |
-| `1` – MANUAL_ON | Manually turned on | `on` |
-| `2` – AUTO_ON | Automatic, currently on | `on` |
-| `3` – AUTO_TIMER | Automatic with timer, on | `on` |
-| `4` – FORCED_ON | Forced on | `on` |
-| `5` – AUTO_WAITING | Automatic, waiting for condition | `off` |
-| `6` – MANUAL_OFF | Manually turned off | `off` |
+| State | Constant        | Switch Display | Description |
+|-------|-----------------|----------------|-------------|
+| `0`   | `AUTO_OFF`      | `off`          | Auto mode, standby |
+| `1`   | `AUTO_ON`       | `on`           | Auto mode, scheduled / running |
+| `2`   | `AUTO_PRIO_OFF` | `off`          | Auto mode, blocked by control rule |
+| `3`   | `AUTO_PRIO_ON`  | `on`           | Auto mode, forced ON by emergency rule |
+| `4`   | `MANUAL_ON`     | `on`           | Manual ON (forced) |
+| `5`   | `EMERGENCY_OFF` | `off`          | Switched OFF by emergency rule |
+| `6`   | `MANUAL_OFF`    | `off`          | Manual OFF |
 
-> Detailed state explanation: [Device States](Device-States)
+> ⚠️ **Older wiki versions had these states wrong**. The mapping above is the only correct one and is enforced by the `OutputState` enum in `violet_poolcontroller_api/const_devices.py`.
 
 ---
 
@@ -94,12 +94,13 @@ automation:
 
 | Entity | Description |
 |--------|-------------|
-| `switch.violet_ph_minus` | pH reducer dosing pump |
-| `switch.violet_ph_plus` | pH increaser dosing pump |
-| `switch.violet_chlorine` | Chlorine dosing pump |
-| `switch.violet_flocculant` | Flocculant dosing pump |
+| `switch.violet_pool_controller_dos_4_phm` | pH- reducer dosing pump |
+| `switch.violet_pool_controller_dos_5_php` | pH+ increaser dosing pump |
+| `switch.violet_pool_controller_dos_1_cl` | Chlorine dosing pump |
+| `switch.violet_pool_controller_dos_2_elo` | Electrolysis dosing |
+| `switch.violet_pool_controller_dos_6_floc` | Flocculant dosing pump |
 
-> **Safety note:** Controlling dosing pumps directly via switch is possible, but for precise dosing use the [`smart_dosing` service](Services#-service-smart_dosing).
+> **Safety note:** Controlling dosing pumps directly via switch is possible, but for precise dosing use the [`smart_dosing` service](Services#-service-smart_dosing) or the [`manual_dosing_http` service](Services#-service-manual_dosing_http). Dosing outputs use `POST /triggerManualDosing`, not `/setFunctionManually`.
 
 ```yaml
 # Recommended: Service with time control
@@ -114,16 +115,13 @@ data:
 
 ### DMX Lighting
 
+DMX scenes 1–12 are exposed as **light entities** (not switches):
+
 | Entity | Description |
 |--------|-------------|
-| `switch.violet_dmx_scene_1` | DMX Scene 1 |
-| `switch.violet_dmx_scene_2` | DMX Scene 2 |
-| `switch.violet_dmx_scene_3` | DMX Scene 3 |
-| `switch.violet_dmx_scene_4` | DMX Scene 4 |
-| `switch.violet_dmx_scene_5` | DMX Scene 5 |
-| `switch.violet_dmx_scene_6` | DMX Scene 6 |
-| `switch.violet_dmx_scene_7` | DMX Scene 7 |
-| `switch.violet_dmx_scene_8` | DMX Scene 8 |
+| `light.violet_pool_controller_dmx_scene1` … `light.violet_pool_controller_dmx_scene12` | DMX Scene 1–12 |
+
+Use the standard light domain to control them:
 
 ```yaml
 # Turn on lighting at sunset
@@ -134,10 +132,22 @@ automation:
         event: sunset
         offset: "-00:30:00"
     action:
-      - service: switch.turn_on
+      - service: light.turn_on
         target:
-          entity_id: switch.violet_dmx_scene_1
+          entity_id: light.violet_pool_controller_dmx_scene1
 ```
+
+For coordinated scene control use the [`control_dmx_scenes` service](Services#-service-control_dmx_scenes) (all_on / all_off / all_auto / sequence / party_mode).
+
+### Other Core Switches
+
+| Entity | Description |
+|--------|-------------|
+| `switch.violet_pool_controller_pvsurplus` | PV surplus output (uses 0–2 scheme, see [Device States](Device-States#pvsurplus-exception)) |
+| `switch.violet_pool_controller_backwash` | Backwash cycle |
+| `switch.violet_pool_controller_backwashrinse` | Rinse cycle |
+| `switch.violet_pool_controller_refill` | Water refill |
+| `switch.violet_pool_controller_eco` | ECO mode |
 
 ---
 
@@ -145,7 +155,10 @@ automation:
 
 | Entity | Description |
 |--------|-------------|
-| `switch.violet_relay_1` to `switch.violet_relay_8` | Freely configurable relays |
+| `switch.violet_pool_controller_ext1_1` to `switch.violet_pool_controller_ext1_8` | Extension module 1, relays 1–8 |
+| `switch.violet_pool_controller_ext2_1` to `switch.violet_pool_controller_ext2_8` | Extension module 2, relays 1–8 |
+
+> **Feature:** requires "Extension Outputs" to be enabled.
 
 Extension relays can be used for various devices:
 - Waterfall pump
@@ -159,13 +172,29 @@ automation:
   - alias: "Waterfall with Pump"
     trigger:
       - platform: state
-        entity_id: switch.violet_pump
+        entity_id: switch.violet_pool_controller_pump
         to: "on"
     action:
       - service: switch.turn_on
         target:
-          entity_id: switch.violet_relay_1
+          entity_id: switch.violet_pool_controller_ext1_1
 ```
+
+### OMNI DC Outputs (6)
+
+| Entity | Description |
+|--------|-------------|
+| `switch.violet_pool_controller_omni_dc0` … `switch.violet_pool_controller_omni_dc5` | OMNI DC motor outputs 0–5 |
+
+OMNI DC outputs are typically used for OmniTronic multi-port valve positions or DC motor control.
+
+### Digital Input Rule Switches (8)
+
+| Entity | Description |
+|--------|-------------|
+| `switch.violet_pool_controller_dirule_1` … `switch.violet_pool_controller_dirule_8` | Switching rules 1–8 |
+
+> **Feature:** requires "Digital Inputs" to be enabled. Use [`manage_digital_rules`](Services#-service-manage_digital_rules) or the dedicated rule services ([`configure_switching_rule`](Services#-service-configure_switching_rule), [`enable_rule`](Services#-service-enable_rule)) for full control.
 
 ---
 
@@ -174,15 +203,15 @@ automation:
 ### 3-State Toggle
 
 In the Home Assistant UI, each switch shows:
-- **Green (ON)**: Device active (states 1, 2, 3, 4)
-- **Gray (OFF)**: Device inactive (states 0, 5, 6)
+- **Green (ON)**: Device active — states `1`, `3`, `4`
+- **Gray (OFF)**: Device inactive — states `0`, `2`, `5`, `6`
 
-Clicking toggles between manual-ON and Automatic mode.
+For full Off/On/Auto control use the matching `select.*_mode` entity (e.g. `select.violet_pool_controller_pump_mode`).
 
 ### View State Details
 
 Click on the entity → **Attributes** to view:
-- `raw_state`: The numeric state 0–6
+- `violet_state`: The raw state `0`–`6` (or composite like `"3|PUMP_ANTI_FREEZE"`)
 - `mode`: Current operating mode
 - `last_changed`: Last state change
 

@@ -4,167 +4,189 @@
 
 # Sensoren & Messwerte
 
-> Vollständige Dokumentation aller Sensor-Entities – von Wasserchemie bis Systemdiagnose.
+> Vollständige Dokumentation aller Sensor-Entities – von der Wasserchemie bis zur Systemdiagnose.
+
+> Entity-IDs verwenden den Präfix `violet_pool_controller` (bzw. `violet_pool_controller_<device_id>` bei Multi-Controller). Die folgenden Suffixe werden an diesen Präfix angehängt.
 
 ---
 
-## Sensor-Übersicht
+## Sensor-Überblick
 
-Die Integration erstellt automatisch Sensor-Entities basierend auf den aktivierten Features und den verfügbaren Daten des Controllers.
+Die Integration erzeugt Sensor-Entities dynamisch basierend auf den aktivierten Features und den von `/getReadings` gemeldeten Werten. Siehe [Entitäten](Entities.de) für die vollständige Suffix-Liste.
 
 ### Wasserchemie-Sensoren
 
-| Entity-ID | Name | Einheit | Bereich | Beschreibung |
-|-----------|------|---------|---------|--------------|
-| `sensor.violet_ph_value` | pH-Wert | – | 6.0–8.0 | Aktueller pH-Wert des Poolwassers |
-| `sensor.violet_orp_value` | ORP/Redox | mV | 200–900 | Oxidations-Reduktions-Potential |
-| `sensor.violet_chlorine` | Freies Chlor | mg/L | 0.1–3.0 | Freier Chlorgehalt |
-| `sensor.violet_conductivity` | Leitfähigkeit | µS/cm | – | Elektrische Leitfähigkeit (Salzgehalt) |
+| Suffix | Name | Einheit | Typischer Bereich |
+|--------|------|---------|-------------------|
+| `pH_value` | pH-Wert | pH | 6.0–8.0 |
+| `orp_value` | ORP / Redox | mV | 200–900 |
+| `pot_value` | Freies Chlor | mg/l | 0.1–3.0 |
 
 **Optimale Wasserwerte:**
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│                  IDEALE POOL-WASSERWERTE                │
+│                IDEALE POOL-WASSERWERTE                  │
 ├─────────────────┬──────────┬──────────┬────────────────┤
 │ Parameter       │ Minimum  │ Optimal  │ Maximum        │
 ├─────────────────┼──────────┼──────────┼────────────────┤
 │ pH              │ 7.0      │ 7.2–7.4  │ 7.6            │
 │ ORP/Redox       │ 600 mV   │ 650–750  │ 800 mV         │
 │ Freies Chlor    │ 0.2 mg/L │ 0.5–1.0  │ 2.0 mg/L       │
-│ Leitfähigkeit   │ –        │ Boden-   │ –              │
-│                 │          │ abhängig │                │
 └─────────────────┴──────────┴──────────┴────────────────┘
 ```
 
-### Temperatur-Sensoren
+### Temperatur-Sensoren (1-Wire 1–12)
 
-| Entity-ID | Name | Einheit | Beschreibung |
-|-----------|------|---------|--------------|
-| `sensor.violet_water_temperature` | Wassertemperatur | °C | Pool-Wassertemperatur |
-| `sensor.violet_solar_temperature` | Solar-Temperatur | °C | Temperatur des Solarkollektors |
-| `sensor.violet_ambient_temperature` | Außentemperatur | °C | Umgebungstemperatur |
-| `sensor.violet_heater_temperature` | Heizer-Temperatur | °C | Wärmetauscher-Temperatur |
+| Suffix | Name | Einheit | Feature |
+|--------|------|---------|---------|
+| `onewire1_value` | Beckenwasser | °C | immer |
+| `onewire2_value` | Außentemperatur | °C | immer |
+| `onewire3_value` | Solarkollektor | °C | solar |
+| `onewire4_value` | Absorber-Rücklauf | °C | solar |
+| `onewire5_value` | Wärmetauscher | °C | heating |
+| `onewire6_value` | Heizungs-Speicher | °C | heating |
+| `onewire7_value` … `onewire12_value` | Temperatursensor 7–12 | °C | immer |
 
-### Analoge Eingänge (AI1–AI8)
+### Analoge Sensoren
 
-| Entity-ID | Beschreibung |
-|-----------|--------------|
-| `sensor.violet_ai1` | Analogeingang 1 (konfigurierbar) |
-| `sensor.violet_ai2` | Analogeingang 2 (konfigurierbar) |
-| ... | ... |
-| `sensor.violet_ai8` | Analogeingang 8 (konfigurierbar) |
+| Suffix | Name | Einheit |
+|--------|------|---------|
+| `ADC1_value` | Filterdruck | bar |
+| `ADC2_value` | Überlaufbehälter | cm |
+| `ADC3_value` | Durchflussmesser (4-20 mA) | m³/h |
+| `ADC4_value` | Analoger Sensor 4 (4-20 mA) | – |
+| `ADC5_value` | Analoger Sensor 5 (0-10 V) | V |
+| `IMP1_value` | Dosier-Zulauf | cm/s |
+| `IMP2_value` | Pumpen-Durchfluss | m³/h |
 
-Analoge Eingänge können für externe Sensoren verwendet werden (Drucksensor, Durchflussmesser, etc.). Die Einheit hängt vom angeschlossenen Sensor ab.
-
----
-
-## System-Sensoren
-
-### Diagnose & Status
-
-| Entity-ID | Name | Typ | Beschreibung |
-|-----------|------|-----|--------------|
-| `sensor.violet_system_error_codes` | Fehler-Codes | String | Aktuelle Fehlercodes (leer = kein Fehler) |
-| `sensor.violet_pump_runtime` | Pumpen-Laufzeit | h | Gesamte Betriebsstunden der Pumpe |
-| `sensor.violet_filter_runtime` | Filter-Laufzeit | h | Betriebsstunden seit letzter Rückspülung |
-| `sensor.violet_last_calibration` | Letzte Kalibrierung | Datum | Datum der letzten Sensor-Kalibrierung |
-| `sensor.violet_firmware_version` | Firmware-Version | String | Controller-Firmware-Version |
-
-### Kalibrierungshistorie
-
-Die Integration parst automatisch die Kalibrierungshistorie vom Controller:
-
-| Entity-ID | Beschreibung |
-|-----------|--------------|
-| `sensor.violet_ph_calibration_date` | Letztes pH-Kalibrierungsdatum |
-| `sensor.violet_orp_calibration_date` | Letztes ORP-Kalibrierungsdatum |
-| `sensor.violet_chlorine_calibration_date` | Letztes Chlor-Kalibrierungsdatum |
+Analog-Eingänge können mit externen Sensoren verbunden werden (Druckaufnehmer, Durchflussmesser, Füllstandssonde, …). Die Einheit hängt vom angeschlossenen Sensor ab.
 
 ---
 
-## Sensor-Kalibrierung
+## System- & Diagnose-Sensoren
 
-### Kalibrierungsintervalle
+### System-Sensoren
 
-| Sensor | Empfohlenes Intervall | Methode |
-|--------|----------------------|---------|
+| Suffix | Name | Einheit |
+|--------|------|---------|
+| `SYSTEM_cpu_temperature` | CPU-Temperatur | °C |
+| `SYSTEM_carrier_cpu_temperature` | Carrier-CPU-Temperatur | °C |
+| `SYSTEM_dosagemodule_cpu_temperature` | Dosiermodul-CPU-Temperatur | °C |
+| `SYSTEM_memoryusage` | Systemspeicher-Auslastung | – |
+| `CPU_UPTIME` | Geräte-Laufzeit | – |
+| `LOAD_AVG` | CPU-Last-Durchschnitt | – |
+| `pump_rs485_pwr` | RS485-Pumpenleistung | W |
+
+### Status-Sensoren
+
+`PUMP`, `HEATER`, `SOLAR`, `BACKWASH`, `BACKWASHRINSE`, `LIGHT`, `REFILL`, `ECO`, `PVSURPLUS`, `FW` – jeweils den lesbaren Status des zugehörigen Ausgangs.
+
+### Composite-State-Sensoren (mit Detail-Codes)
+
+`PUMPSTATE`, `HEATERSTATE`, `SOLARSTATE` tragen den vollen zusammengesetzten Wert wie `"3|PUMP_ANTI_FREEZE"` oder `"2|BLOCKED_BY_OUTSIDE_TEMP"`. Siehe [Gerätezustände](Device-States.de#zusammengesetzte--pipe-getrennte-zustände) für die vollständige Liste der Detail-Codes.
+
+### Dosier-Status-Sensoren
+
+`DOS_1_CL_STATE`, `DOS_2_ELO_STATE`, `DOS_4_PHM_STATE`, `DOS_5_PHP_STATE`, `DOS_6_FLOC_STATE`.
+
+---
+
+## Laufzeiten & Statistik
+
+### Laufzeit-Sensoren pro Ausgang
+
+Jeder Ausgang hat einen `*_RUNTIME`-Sensor mit der heutigen Laufzeit:
+
+- `PUMP_RUNTIME`, `SOLAR_RUNTIME`, `HEATER_RUNTIME`, `LIGHT_RUNTIME`
+- `BACKWASH_RUNTIME`, `BACKWASHRINSE_RUNTIME`, `ECO_RUNTIME`, `REFILL_RUNTIME`
+- `DOS_1_CL_RUNTIME`, `DOS_2_ELO_RUNTIME`, `DOS_3_ELO_REV_RUNTIME`, `DOS_4_PHM_RUNTIME`, `DOS_5_PHP_RUNTIME`, `DOS_6_FLOC_RUNTIME`
+- `EXT1_1_RUNTIME`–`EXT2_8_RUNTIME` (16 Erweiterungsrelais)
+- `OMNI_DC0_RUNTIME`–`OMNI_DC5_RUNTIME` (6 OMNI-Motoren)
+- `PUMP_RPM_0_RUNTIME`–`PUMP_RPM_3_RUNTIME` (4 RPM-Stufen)
+
+### Dosierstatistik
+
+Für jeden Dosierkanal:
+
+| Suffix | Beschreibung | Einheit |
+|--------|--------------|---------|
+| `*_DAILY_DOSING_AMOUNT_ML` | Tagesverbrauch | ml |
+| `*_TOTAL_CAN_AMOUNT_ML`    | Verbleibende Kanistermenge | ml |
+
+### Pumpen-RPM-Sensoren
+
+| Suffix | Beschreibung | Einheit |
+|--------|--------------|---------|
+| `PUMP_RPM_0`–`PUMP_RPM_3` | RPM-Stufen-Statuscode (0-6) | – |
+| `PUMP_RPM_0_VALUE`–`PUMP_RPM_3_VALUE` | Gemessene Drehzahl | RPM |
+
+### Digitalregel-Stoppuhr
+
+`DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_STOPWATCH1..8` – verbleibende Timer (Sekunden) für jede Schaltregel.
+
+---
+
+## Sensorkalibrierung
+
+### Empfohlene Kalibrierintervalle
+
+| Sensor | Intervall | Methode |
+|--------|-----------|---------|
 | **pH** | Monatlich | Pufferlösung pH 7.0 & pH 4.0 |
-| **ORP/Redox** | Mit pH-Kalibrierung | ORP-Referenzlösung |
-| **Freies Chlor** | Wöchentlich prüfen | Fotometer/Teststreifen |
+| **ORP/Redox** | Zusammen mit pH | ORP-Referenzlösung |
+| **Freies Chlor** | Wöchentlich prüfen | Photometer / Teststreifen |
 | **Temperaturen** | Jährlich | Referenzthermometer |
 
-### Kalibrierung fehlerhafter Werte erkennen
+### Kalibrierung per Service
+
+Die Integration stellt `configure_sensor_calibration` bereit (Sensor-ID 1–12, Offset, Multiplikator, min/max). Siehe [Services](Services.de#-service-configure_sensor_calibration).
+
+### Kalibrierungsdrift erkennen
 
 ```yaml
-# Automatisierung: Benachrichtigung wenn pH außer Bereich
 automation:
   - alias: "pH-Warnung"
     trigger:
       - platform: numeric_state
-        entity_id: sensor.violet_ph_value
+        entity_id: sensor.violet_pool_controller_ph_value
         above: 7.6
-        for:
-          minutes: 15
+        for: "00:15:00"
       - platform: numeric_state
-        entity_id: sensor.violet_ph_value
+        entity_id: sensor.violet_pool_controller_ph_value
         below: 7.0
-        for:
-          minutes: 15
+        for: "00:15:00"
     action:
       - service: notify.mobile_app
         data:
           title: "Pool-Warnung"
-          message: "pH-Wert außer Bereich: {{ states('sensor.violet_ph_value') }}"
-```
-
----
-
-## Sensor-Attribute
-
-Jeder Sensor enthält zusätzliche Attribute:
-
-```yaml
-# Beispiel: sensor.violet_ph_value Attribute
-state: "7.3"
-attributes:
-  unit_of_measurement: ""
-  device_class: null
-  friendly_name: "pH-Wert"
-  last_update: "2026-02-22T10:30:00+00:00"
-  controller_ip: "192.168.1.100"
-  raw_value: 7.3
+          message: "pH außerhalb des Bereichs: {{ states('sensor.violet_pool_controller_ph_value') }}"
 ```
 
 ---
 
 ## Sensoren in Automatisierungen
 
-### Wasserchemie überwachen
+### Komplette Wasserchemie-Überwachung
 
 ```yaml
-# Vollständige Wasserchemie-Überwachung
 automation:
-  - alias: "Pool Wasserchemie Monitor"
+  - alias: "Pool-Wasserchemie-Monitor"
     trigger:
-      # pH zu niedrig
       - platform: numeric_state
-        entity_id: sensor.violet_ph_value
+        entity_id: sensor.violet_pool_controller_ph_value
         below: 7.0
         id: ph_low
-      # pH zu hoch
       - platform: numeric_state
-        entity_id: sensor.violet_ph_value
+        entity_id: sensor.violet_pool_controller_ph_value
         above: 7.6
         id: ph_high
-      # Chlor zu niedrig
       - platform: numeric_state
-        entity_id: sensor.violet_chlorine
+        entity_id: sensor.violet_pool_controller_pot_value
         below: 0.3
         id: chlorine_low
-      # ORP zu niedrig
       - platform: numeric_state
-        entity_id: sensor.violet_orp_value
+        entity_id: sensor.violet_pool_controller_orp_value
         below: 600
         id: orp_low
     action:
@@ -172,78 +194,44 @@ automation:
         data:
           title: "Pool-Alarm"
           message: >
-            {% if trigger.id == 'ph_low' %}
-              pH zu niedrig: {{ states('sensor.violet_ph_value') }} (Soll: 7.0–7.4)
-            {% elif trigger.id == 'ph_high' %}
-              pH zu hoch: {{ states('sensor.violet_ph_value') }} (Soll: 7.0–7.4)
-            {% elif trigger.id == 'chlorine_low' %}
-              Chlor zu niedrig: {{ states('sensor.violet_chlorine') }} mg/L
-            {% elif trigger.id == 'orp_low' %}
-              ORP zu niedrig: {{ states('sensor.violet_orp_value') }} mV
+            {% if trigger.id == 'ph_low' %}pH zu niedrig: {{ states('sensor.violet_pool_controller_ph_value') }}
+            {% elif trigger.id == 'ph_high' %}pH zu hoch: {{ states('sensor.violet_pool_controller_ph_value') }}
+            {% elif trigger.id == 'chlorine_low' %}Chlor zu niedrig: {{ states('sensor.violet_pool_controller_pot_value') }} mg/l
+            {% elif trigger.id == 'orp_low' %}ORP zu niedrig: {{ states('sensor.violet_pool_controller_orp_value') }} mV
             {% endif %}
 ```
 
-### Temperatur-basierte Heizungssteuerung
+### Solarsteuerung nach Temperaturdifferenz
 
 ```yaml
 automation:
-  - alias: "Pool Heizung bei Temperaturabfall"
-    trigger:
-      - platform: numeric_state
-        entity_id: sensor.violet_water_temperature
-        below: 26.0
-    condition:
-      - condition: time
-        after: "08:00:00"
-        before: "20:00:00"
-    action:
-      - service: climate.set_hvac_mode
-        target:
-          entity_id: climate.violet_heater
-        data:
-          hvac_mode: heat
-```
-
-### Solar-Steuerung nach Temperaturdifferenz
-
-```yaml
-automation:
-  - alias: "Solar starten wenn Kollektor wärmer als Pool"
+  - alias: "Solar starten, wenn Kollektor wärmer als Becken"
     trigger:
       - platform: template
         value_template: >
-          {{
-            (states('sensor.violet_solar_temperature') | float) -
-            (states('sensor.violet_water_temperature') | float) > 5
-          }}
+          {{ (states('sensor.violet_pool_controller_onewire3_value') | float(0)) -
+             (states('sensor.violet_pool_controller_onewire1_value') | float(0)) > 5 }}
     action:
       - service: switch.turn_on
         target:
-          entity_id: switch.violet_solar
+          entity_id: switch.violet_pool_controller_solar
 ```
 
 ---
 
 ## Template-Sensoren
 
-Du kannst eigene Template-Sensoren erstellen, um Daten zu kombinieren:
-
 ```yaml
-# configuration.yaml oder templates.yaml
 template:
   - sensor:
-      - name: "Pool Hygienestatus"
+      - name: "Pool-Hygienestatus"
         state: >
-          {% set ph = states('sensor.violet_ph_value') | float(0) %}
-          {% set chlor = states('sensor.violet_chlorine') | float(0) %}
-          {% set orp = states('sensor.violet_orp_value') | float(0) %}
-          {% if 7.0 <= ph <= 7.4 and chlor >= 0.3 and orp >= 650 %}
-            Optimal
-          {% elif 6.8 <= ph <= 7.6 and chlor >= 0.2 %}
-            Akzeptabel
-          {% else %}
-            Handlungsbedarf
-          {% endif %}
+          {% set ph = states('sensor.violet_pool_controller_ph_value') | float(0) %}
+          {% set chlor = states('sensor.violet_pool_controller_pot_value') | float(0) %}
+          {% set orp = states('sensor.violet_pool_controller_orp_value') | float(0) %}
+          {% if 7.0 <= ph <= 7.4 and chlor >= 0.3 and orp >= 650 %}Optimal
+          {% elif 6.8 <= ph <= 7.6 and chlor >= 0.2 %}Akzeptabel
+          {% else %}Handeln erforderlich{% endif %}
         icon: >
           {% if this.state == 'Optimal' %}mdi:check-circle
           {% elif this.state == 'Akzeptabel' %}mdi:alert-circle
@@ -252,22 +240,23 @@ template:
       - name: "Pool Temperaturdifferenz Solar"
         unit_of_measurement: "°C"
         state: >
-          {{ (states('sensor.violet_solar_temperature') | float(0)) -
-             (states('sensor.violet_water_temperature') | float(0)) | round(1) }}
+          {{ ((states('sensor.violet_pool_controller_onewire3_value') | float(0)) -
+              (states('sensor.violet_pool_controller_onewire1_value') | float(0))) | round(1) }}
 ```
 
 ---
 
-## Sensor-Probleme beheben
+## Sensorprobleme beheben
 
 | Problem | Mögliche Ursache | Lösung |
-|---------|-----------------|--------|
+|---------|------------------|--------|
 | Sensor zeigt `unavailable` | Controller nicht erreichbar | Verbindung prüfen |
-| Sensor zeigt `unknown` | Sensor am Controller nicht vorhanden/aktiviert | Feature im Setup aktivieren |
+| Sensor zeigt `unknown` | Sensor nicht vorhanden / Feature deaktiviert | Feature im Setup aktivieren |
 | Falscher Wert | Sensor nicht kalibriert | Kalibrierung durchführen |
-| Wert springt unkontrolliert | Sensor verschmutzt | Sensor reinigen |
-| Negativer Wert | Sensor-Kabel defekt | Kabel/Sensor prüfen |
+| Wert schwankt | Sensor verschmutzt / Messrauschen | Sensor reinigen, Hysterese erhöhen |
+| Negativer Wert | Sensorkabel defekt | Kabel/Sensor prüfen |
+| `DOS_2_ELO_*` fehlt | Kein Elektrolyse-Modul verbaut | Hardware prüfen |
 
 ---
 
-**Weiter:** [Schalter & Steuerung](Switches) | [Klima & Heizung](Climate) | [Services](Services)
+**Weiter:** [Schalter & Steuerung](Switches.de) | [Klima & Heizung](Climate.de) | [Services](Services.de)

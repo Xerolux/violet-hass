@@ -8,16 +8,58 @@ All available services for advanced automation of your pool.
 
 ## Service Overview
 
+The integration registers **30+ services** across four phases:
+
+### Phase 1 — Core Control & Diagnostics
 | Service | Function | Parameters |
 |---------|----------|------------|
-| **control_pump** | Pump control | action, speed, duration |
-| **smart_dosing** | Chemical dosing | dosing_type, action, duration |
-| **manage_pv_surplus** | Solar surplus | mode, pump_speed |
-| **control_dmx_scenes** | Light scenes | action, sequence_delay |
-| **set_light_color_pulse** | Color pulses | pulse_count, pulse_interval |
-| **manage_digital_rules** | Digital input rules | rule_key, action |
-| **test_output** | Diagnostics | output, mode, duration |
-| **export_diagnostic_logs** | Log export | device_id, lines, include_timestamps |
+| `control_pump` | Pump control | action, speed, duration |
+| `smart_dosing` | Chemical dosing | dosing_type, action, duration, safety_override |
+| `manage_pv_surplus` | PV surplus | mode, pump_speed |
+| `control_dmx_scenes` | Light scenes | device_id, action, sequence_delay |
+| `set_light_color_pulse` | Color pulses | pulse_count, pulse_interval |
+| `manage_digital_rules` | Digital input rules | rule_key, action |
+| `test_output` | Diagnostics | device_id, output, mode, duration |
+| `export_diagnostic_logs` | Log export | device_id, lines, include_* |
+| `get_connection_status` | Connection health | device_id |
+| `get_error_summary` | Error summary | device_id, include_history |
+| `test_connection` | Test connection | device_id |
+| `clear_error_history` | Reset errors | device_id |
+
+### Phase 2 — HTTP Control Services
+| Service | Function |
+|---------|----------|
+| `control_heater_http` | Control heater with setpoint (on/off + target_temperature) |
+| `control_solar_http` | Control solar system |
+| `control_cover_http` | open / close / stop |
+| `control_backwash_http` | run / abort |
+| `manual_dosing_http` | Manually trigger dosing (chlorine / electrolysis / ph_minus / ph_plus / flocculant / **h2o2**), runtime 1–3600 s |
+
+### Phase 2.5 — Dosing Configuration
+| Service | Function |
+|---------|----------|
+| `configure_dosing` | Set arbitrary dosing config parameter |
+| `set_dosing_target` | Set dosing target value (0–100) |
+| `set_dosing_daytime` | Set daytime window (HH:MM) |
+| `set_dosing_max_daily` | Max daily volume (10–10000 ml) |
+| `enable_dosing` | Enable / disable a dosing system |
+
+### Phase 3 — Rule Management
+| Service | Function |
+|---------|----------|
+| `configure_temp_rule` | Configure temperature rule (TEMPRULE_1–8) |
+| `configure_analog_rule` | Configure analog threshold rule (ANALOGRULE_1–8) |
+| `configure_switching_rule` | Configure digital input rule (SWITCHINGRULE_1–8) |
+| `configure_timer_rule` | Configure time-based rule (TIMERRULE_1–8) |
+| `enable_rule` | Enable / disable any rule type |
+
+### Phase 4 — System Configuration
+| Service | Function |
+|---------|----------|
+| `control_extension_relay` | Control extension relay (relay_id 1–8, action, state, duration) |
+| `configure_sensor_calibration` | Sensor calibration (sensor_id 1–12, offset, multiplier, min/max) |
+
+> **Dosing systems** supported by Phase 2/2.5 services: `chlorine`, `electrolysis`, `ph_minus`, `ph_plus`, `flocculant`, `h2o2`.
 
 ---
 
@@ -75,10 +117,10 @@ data:
 
 | Parameter | Type | Range | Description |
 |-----------|------|-------|-------------|
-| `dosing_type` | Text | pH-, pH+, Chlorine, Flocculant | Which chemical? |
+| `dosing_type` | Text | pH-, pH+, Chlorine, Electrolysis, Flocculant | Which chemical? |
 | `action` | Text | manual_dose, auto, stop | Action |
 | `duration` | Number | 5-300 | Seconds |
-| `safety_override` | Boolean | true/false | Ignore safety? |
+| `safety_override` | Boolean | true/false | Ignore safety interval |
 
 ### Examples
 
@@ -213,7 +255,7 @@ data:
 
 | Parameter | Values | Description |
 |-----------|--------|-------------|
-| `rule_key` | DIRULE_1 to DIRULE_7 | Which rule? |
+| `rule_key` | DIRULE_1 to DIRULE_8 | Which rule? |
 | `action` | trigger, lock, unlock | Action to execute |
 
 ### Examples
@@ -292,6 +334,249 @@ data:
   lines: 500
   include_timestamps: true
   save_to_file: true
+```
+
+---
+
+## 🌐 Service: control_heater_http - Heater via HTTP
+
+**Description**: Control pool heater with a target temperature via direct HTTP command.
+
+```yaml
+service: violet_pool_controller.control_heater_http
+data:
+  action: "on"
+  target_temperature: 28
+```
+
+| Parameter | Range | Description |
+|-----------|-------|-------------|
+| `action` | on, off | Heater action |
+| `target_temperature` | 10–60 °C | Target temperature |
+
+---
+
+## ☀️ Service: control_solar_http - Solar via HTTP
+
+```yaml
+service: violet_pool_controller.control_solar_http
+data:
+  action: "on"
+  target_temperature: 30
+```
+
+Same parameter structure as `control_heater_http`.
+
+---
+
+## 🏊 Service: control_cover_http - Cover Control
+
+```yaml
+service: violet_pool_controller.control_cover_http
+data:
+  action: open   # open | close | stop
+```
+
+---
+
+## 🔄 Service: control_backwash_http - Backwash via HTTP
+
+```yaml
+service: violet_pool_controller.control_backwash_http
+data:
+  action: run    # run | abort
+```
+
+---
+
+## 🧪 Service: manual_dosing_http - Manual Dosing via HTTP
+
+**Description**: Manually trigger a dosing pump via `POST /triggerManualDosing`. Supports **all six dosing systems** including H2O2.
+
+```yaml
+service: violet_pool_controller.manual_dosing_http
+data:
+  dosing_system: chlorine
+  runtime_seconds: 30
+```
+
+| Parameter | Values | Description |
+|-----------|--------|-------------|
+| `dosing_system` | chlorine, electrolysis, ph_minus, ph_plus, flocculant, **h2o2** | Required |
+| `runtime_seconds` | 1–3600 | Required |
+
+---
+
+## ⚙️ Service: configure_dosing - Dosing Configuration
+
+Set any dosing config parameter (`config_key`) to a `value`:
+
+```yaml
+service: violet_pool_controller.configure_dosing
+data:
+  dosing_system: ph_minus
+  config_key: DOSAGE_phminus_setpoint
+  value: "7.2"
+```
+
+---
+
+## 🎯 Service: set_dosing_target - Dosing Target
+
+```yaml
+service: violet_pool_controller.set_dosing_target
+data:
+  dosing_system: chlorine
+  target_value: 75
+```
+
+`target_value` range: 0–100.
+
+---
+
+## 🕐 Service: set_dosing_daytime - Daytime Window
+
+```yaml
+service: violet_pool_controller.set_dosing_daytime
+data:
+  dosing_system: ph_minus
+  day_start: "07:00"
+  day_end: "22:00"
+```
+
+---
+
+## 📏 Service: set_dosing_max_daily - Max Daily Volume
+
+```yaml
+service: violet_pool_controller.set_dosing_max_daily
+data:
+  dosing_system: chlorine
+  max_daily_ml: 500
+```
+
+`max_daily_ml` range: 10–10000 ml.
+
+---
+
+## 🔌 Service: enable_dosing - Enable / Disable Dosing
+
+```yaml
+service: violet_pool_controller.enable_dosing
+data:
+  dosing_system: electrolysis
+  enabled: true
+```
+
+---
+
+## 🌡️ Service: configure_temp_rule - Temperature Rule (1–8)
+
+Configure a temperature-based automation rule (manual section 8.1). Each rule can drive up to three outputs (`output_1..3` + `output_*_state` 0–6).
+
+```yaml
+service: violet_pool_controller.configure_temp_rule
+data:
+  rule_id: 1
+  enabled: true
+  sensor_1: 1            # 1–8
+  sensor_2: 0            # 0=absolute, 1–8=sensor
+  logic: ">="
+  diff_value: 5
+  hyst_value: 1
+  runtime_on:  "07:00"
+  runtime_off: "22:00"
+  output_1: "PUMP"
+  output_1_state: 1
+```
+
+---
+
+## 📊 Service: configure_analog_rule - Analog Input Rule (1–8)
+
+```yaml
+service: violet_pool_controller.configure_analog_rule
+data:
+  rule_id: 1
+  enabled: true
+  adc_input: 1
+  logic: ">="
+  threshold: 1.5
+  hysteresis: 0.1
+  output_1: "BACKWASH"
+  output_1_state: 1
+```
+
+---
+
+## 🔀 Service: configure_switching_rule - Digital Input Rule (1–8)
+
+```yaml
+service: violet_pool_controller.configure_switching_rule
+data:
+  rule_id: 1
+  enabled: true
+  di_input: 1            # 1–12
+  contact_type: 0        # 0 = NO, 1 = NC
+  output: "EXT1_1"
+  action_on: 4
+  action_off: 6
+  timeout: 60
+```
+
+---
+
+## ⏰ Service: configure_timer_rule - Timer Rule (1–8)
+
+```yaml
+service: violet_pool_controller.configure_timer_rule
+data:
+  rule_id: 1
+  enabled: true
+  on_time: "08:00"
+  off_time: "22:00"
+  weekdays: 127          # bitmask 0–127 (Mo-Su)
+  output_1: "LIGHT"
+  output_1_state: 4
+```
+
+---
+
+## 🔧 Service: enable_rule - Enable / Disable Any Rule
+
+```yaml
+service: violet_pool_controller.enable_rule
+data:
+  rule_type: temprule    # temprule | analogrule | switchingrule | timerrule
+  rule_id: 1
+  enabled: false
+```
+
+---
+
+## 🔌 Service: control_extension_relay - Extension Relay
+
+```yaml
+service: violet_pool_controller.control_extension_relay
+data:
+  relay_id: 1            # 1–8
+  action: "on"           # on | off | toggle
+  # state: 4             # optional direct 0–6 (overrides action)
+  # duration: 3600       # optional seconds
+```
+
+---
+
+## 🌡️ Service: configure_sensor_calibration - Sensor Calibration
+
+```yaml
+service: violet_pool_controller.configure_sensor_calibration
+data:
+  sensor_id: 1           # 1–12
+  offset: -0.3           # -10 to +10 °C
+  multiplier: 1.0        # 0.5–2.0
+  min_value: 0
+  max_value: 100
 ```
 
 ---

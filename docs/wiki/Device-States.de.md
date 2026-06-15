@@ -2,361 +2,272 @@
 
 ---
 
-# Device States (0–6)
+# Gerätezustände (0–6)
 
-> Das **wichtigste Konzept** der Integration! Hier lernst du, was die 7 Device States bedeuten und wie du sie in Automatisierungen nutzt.
+> Das **wichtigste Konzept** der Integration! Jeder steuerbare Ausgang (Pumpe, Heizung, Solar, Licht, Dosierkanäle, Erweiterungsrelais, DMX-Szenen, …) meldet über `/getReadings` einen von 7 numerischen Zustandscodes. Hier ist erklärt, was sie bedeuten und wie man sie in Automatisierungen verwendet.
 
----
-
-## Die 7 Device States
-
-Der Violet Controller unterscheidet 7 Betriebszustände für jedes steuerbare Gerät:
-
-| State | Konstante | Status | Typ | Beschreibung |
-|-------|-----------|--------|-----|--------------|
-| **0** | `AUTO_OFF` | OFF | Automatik | Automatik aktiv – Gerät läuft nicht (Bedingungen nicht erfüllt) |
-| **1** | `MANUAL_ON` | ON | Manuell | Benutzer hat manuell eingeschaltet |
-| **2** | `AUTO_ON` | ON | Automatik | Automatik aktiv – Gerät läuft (Bedingungen erfüllt) |
-| **3** | `AUTO_TIMER` | ON | Automatik | Automatik mit Zeitsteuerung – Gerät läuft gerade |
-| **4** | `MANUAL_FORCED` | ON | Manuell | Manuell erzwungen – ignoriert alle Automatik-Regeln |
-| **5** | `AUTO_WAITING` | OFF | Automatik | Automatik aktiv – wartet auf Bedingungen (z.B. Sicherheitsintervall) |
-| **6** | `MANUAL_OFF` | OFF | Manuell | Benutzer hat manuell ausgeschaltet |
+> Quelle: `OutputState`-Enum in `violet_poolcontroller_api/const_devices.py` (Handbuch-Kapitel 26.1).
 
 ---
 
-## State-Gruppen
+## Die 7 Ausgangs-Zustandscodes
 
-### Geräte-Status (ON/OFF)
+| Code | Enum-Konstante       | AN/AUS | Modus    | Beschreibung |
+|------|-----------------------|--------|----------|--------------|
+| **0** | `AUTO_OFF`           | AUS    | Auto     | Automatik aktiv, Gerät im Standby (Bedingungen nicht erfüllt) |
+| **1** | `AUTO_ON`            | AN     | Auto     | Automatik aktiv, Gerät läuft (Zeitplan / Bedingungen erfüllt) |
+| **2** | `AUTO_PRIO_OFF`      | AUS    | Auto     | Automatik, aber durch Regel blockiert (Priorität AUS) |
+| **3** | `AUTO_PRIO_ON`       | AN     | Auto     | Automatik, durch Notfallregel erzwungen (Priorität AN) |
+| **4** | `MANUAL_ON`          | AN     | Manuell  | Benutzer hat den Ausgang manuell AN geschaltet (erzwungen) |
+| **5** | `EMERGENCY_OFF`      | AUS    | Auto     | Durch Notfall-Regel abgeschaltet |
+| **6** | `MANUAL_OFF`         | AUS    | Manuell  | Benutzer hat den Ausgang manuell AUS geschaltet |
 
-```
-┌──────────────────────────────────────────┐
-│             GERÄT LÄUFT (ON)             │
-│  State 1 (MANUAL_ON)                     │
-│  State 2 (AUTO_ON)                       │
-│  State 3 (AUTO_TIMER)                    │
-│  State 4 (MANUAL_FORCED)                 │
-├──────────────────────────────────────────┤
-│          GERÄT LÄUFT NICHT (OFF)         │
-│  State 0 (AUTO_OFF)                      │
-│  State 5 (AUTO_WAITING)                  │
-│  State 6 (MANUAL_OFF)                    │
-└──────────────────────────────────────────┘
-```
+> ⚠️ **Ältere Wiki-Versionen hatten diese States falsch zugeordnet** (z. B. State 1 als `MANUAL_ON`). Die obige Tabelle ist die einzig korrekte und wird durch das `OutputState`-Enum im gesamten Code erzwungen.
 
-### Steuerungstyp (Automatik vs. Manuell)
+---
+
+## Boolesche Vereinfachung
 
 ```
 ┌──────────────────────────────────────────┐
-│          AUTOMATIK-MODUS                 │
-│  State 0 – Bereit, wartet               │
-│  State 2 – Läuft nach Programm          │
-│  State 3 – Läuft nach Zeitplan          │
-│  State 5 – Wartet auf Bedingungen       │
+│             GERÄT LÄUFT (AN)             │
+│   State 1  – AUTO_ON                     │
+│   State 3  – AUTO_PRIO_ON (Notfall)      │
+│   State 4  – MANUAL_ON (erzwungen)       │
 ├──────────────────────────────────────────┤
-│          MANUELL-MODUS                   │
-│  State 1 – Manuell ein                  │
-│  State 4 – Erzwungen ein                │
-│  State 6 – Manuell aus                  │
+│           GERÄT LÄUFT NICHT (AUS)        │
+│   State 0  – AUTO_OFF (Standby)          │
+│   State 2  – AUTO_PRIO_OFF (Regelblock)  │
+│   State 5  – EMERGENCY_OFF (Notfall)     │
+│   State 6  – MANUAL_OFF                  │
 └──────────────────────────────────────────┘
+```
+
+Das ist der Wert, den `OutputState.is_on` zurückgibt und den `switch`-/`binary_sensor`-Entitäten als primären `on`/`off`-Zustand exponieren.
+
+---
+
+## Modus-Klassifizierung
+
+| Modus        | States  | Bedeutung |
+|--------------|---------|-----------|
+| **Auto**     | 0, 1, 2, 3, 5 | Der Controller entscheidet auf Basis von Regeln/Zeitplänen |
+| **Manuell**  | 4, 6          | Benutzer-Override – Automatikregeln ausgesetzt |
+| **Notfall**  | 3, 5          | Eine Notfall-Regel ist gerade aktiv |
+
+Verwenden Sie die Helper-Eigenschaften `is_on`, `is_manual`, `is_emergency` (oder die Klasse `VioletState`) statt die Zahlen direkt zu vergleichen.
+
+---
+
+## PVSURPLUS-Ausnahme
+
+Der `PVSURPLUS`-Ausgang verwendet ein eigenes 0–2-Schema (Handbuch 26.3), **nicht** 0–6:
+
+| Code | Enum-Konstante   | AN/AUS | Bedeutung |
+|------|-------------------|--------|-----------|
+| **0** | `OFF`            | AUS    | PV-Überschuss-Modus inaktiv |
+| **1** | `ON_BY_INPUT`    | AN     | Durch Digitaleingang aktiviert |
+| **2** | `ON_BY_HTTP`     | AN     | Per HTTP-Anforderung aktiviert |
+
+---
+
+## DMX-Szenen
+
+DMX-Szenen verwenden nur eine Teilmenge der 0–6-Codes (Enum `DmxSceneState`):
+
+| Code | Bedeutung |
+|------|-----------|
+| 0 | `AUTO_OFF` – Szene inaktiv |
+| 1 | `AUTO_ON` – Szene per Zeitplan aktiv |
+| 4 | `MANUAL_ON` – Szene manuell an |
+| 6 | `MANUAL_OFF` – Szene manuell aus |
+
+---
+
+## Digitaleingangs-Regeln (DIRULE_1..8)
+
+Zustandscodes für `DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_n` (Enum `RuleState`):
+
+| Code | Konstante               | Bedeutung |
+|------|--------------------------|-----------|
+| 0    | `INACTIVE`              | Regel inaktiv |
+| 1    | `ACTIVE`                | Regel gerade aktiv |
+| 5    | `BLOCKED_BY_RULE`       | Durch andere Regel blockiert |
+| 6    | `BLOCKED_MANUALLY`      | Manuell blockiert |
+
+---
+
+## Zusammengesetzte / Pipe-getrennte Zustände
+
+Einige Readings (z. B. `PUMPSTATE`, `HEATERSTATE`, `SOLARSTATE`) liefern zusammengesetzte Werte mit `|`-Trenner. Der numerische Präfix ist der State-Code aus der Tabelle oben; der Suffix trägt zusätzlichen Kontext.
+
+| Beispiel                          | Numeric state | Kontext |
+|-----------------------------------|---------------|---------|
+| `"3\|PUMP_ANTI_FREEZE"`           | 3 (AUTO_PRIO_ON) | Frostschutz aktiv |
+| `"2\|BLOCKED_BY_OUTSIDE_TEMP"`    | 2 (AUTO_PRIO_OFF) | Durch Außentemperatur-Regel blockiert |
+| `"5\|BLOCKED_BY_PUMP_OFF"`        | 5 (EMERGENCY_OFF) | Dosierung pausiert, Pumpe aus |
+
+Die Integration extrahiert den numerischen Präfix automatisch; der Suffix bleibt im Entitäts-Attribut erhalten und taucht im Composite-State-Sensor (`PUMPSTATE`, `HEATERSTATE`, `SOLARSTATE`) auf.
+
+### Vollständige Liste der Detail-Codes
+
+Die Integration kennt diese Block/Warte-Gründe (definiert in `DOSING_STATE_DESCRIPTIONS`):
+
+- **Frost**: `PUMP_ANTI_FREEZE`
+- **Schwellwerte**: `BLOCKED_BY_TRESHOLDS`, `BLOCKED_BY_THRESHOLDS`, `BLOCKED_BY_CL_TRESHOLDS`, `BLOCKED_BY_CL_THRESHOLDS`, `THRESHOLDS_REACHED`, `THRESHOLDS_REACHED_CL`
+- **Pumpenabhängigkeit**: `BLOCKED_BY_PUMP`, `BLOCKED_BY_PUMP_OFF`, `BLOCKED_BY_PUMP_DELAY`, `BLOCKED_BY_START_DELAY`, `BLOCKED_BY_POSTRUN`, `BLOCKED_BY_HEATER_OFF_DELAY`
+- **Durchfluss/Zirkulation**: `BLOCKED_BY_FLOW`, `BLOCKED_BY_MISSING_FLOW`, `BLOCKED_BY_MISSING_CIRCULATION`, `WAITING_FOR_PUMP`, `WAITING_FOR_FLOW`
+- **Andere Subsysteme**: `BLOCKED_BY_SOLAR`, `BLOCKED_BY_HEATER`, `BLOCKED_BY_BACKWASH`, `BLOCKED_BY_OUTSIDE_TEMP`, `BLOCKED_BY_MAXTEMP`, `BLOCKED_BY_BOILER_TEMP`, `BLOCKED_BY_MAX_AMOUNT`
+- **Hardware**: `BLOCKED_BY_MISSING_MODULE`, `BLOCKED_BY_SENSOR_FAULT`
+- **Regeln/Overrides**: `BLOCKED_BY_EMERGENCY_CONTROL_RULE`, `BLOCKED_BY_ESC`, `BLOCKED_BY_MANUAL_OFF`, `BLOCKED_BY_UPDATE`, `BLOCKED_BY_RULE`
+- **OmniTronic Mehrwegeventil**: `BLOCKED_BY_OMNI`, `BLOCKED_BY_OMIN` (Firmware-Typo), `BLOCKED_BY_OMNI_POS`, `BLOCKED_BY_Z1Z2`
+- **Elektrolyse**: `BLOCKED_BY_POLEREVERSAL` (Firmware-Typo)
+- **Wartezustände**: `WAITING_FOR_DOSAGECONTROLLERS`, `WAITING_FOR_HEATER_POSTRUN`, `WAITING_FOR_PREFILL`, `WAITING_FOR_STARTTIME`
+- **Aktive Dosierung**: `DOSING`, `DOSING_PAUSED`, `MANUAL_DOSING`
+
+---
+
+## States in Home Assistant verwenden
+
+### Rohzustand auslesen
+
+```yaml
+{{ states('switch.violet_pool_controller_pump') }}                       # "on" / "off"
+{{ state_attr('switch.violet_pool_controller_pump', 'violet_state') }}   # "2" oder "3|PUMP_ANTI_FREEZE"
+```
+
+### State-Gruppen prüfen
+
+```yaml
+# Gerät AN (States 1, 3, 4)
+condition:
+  - condition: template
+    value_template: >
+      {{ state_attr('switch.violet_pool_controller_pump', 'violet_state')
+         | regex_replace('\|.*', '') | int(default=-1) in [1, 3, 4] }}
+
+# Gerät im MANUELL-Modus (States 4, 6)
+condition:
+  - condition: template
+    value_template: >
+      {{ state_attr('switch.violet_pool_controller_pump', 'violet_state')
+         | regex_replace('\|.*', '') | int(default=-1) in [4, 6] }}
+
+# Gerät unter NOTFALL-Regel (States 3, 5)
+condition:
+  - condition: template
+    value_template: >
+      {{ state_attr('switch.violet_pool_controller_pump', 'violet_state')
+         | regex_replace('\|.*', '') | int(default=-1) in [3, 5] }}
+```
+
+### Benachrichtigung bei manuellem Eingriff
+
+```yaml
+automation:
+  - alias: "Pumpe im manuellen Modus"
+    trigger:
+      - platform: template
+        value_template: >
+          {{ state_attr('switch.violet_pool_controller_pump', 'violet_state')
+             | regex_replace('\|.*', '') | int(default=-1) in [4, 6] }}
+        for: "00:05:00"
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "Pool"
+          message: "Die Pumpe wurde in den manuellen Modus geschaltet"
+```
+
+### Frostschutz erkennen
+
+```yaml
+automation:
+  - alias: "Pumpen-Frostschutz aktiv"
+    trigger:
+      - platform: template
+        value_template: >
+          {{ 'PUMP_ANTI_FREEZE' in
+             (state_attr('switch.violet_pool_controller_pump', 'violet_state') | string) }}
+    action:
+      - service: notify.mobile_app
+        data:
+          message: "Frostschutz aktiviviert – Pumpe läuft automatisch"
 ```
 
 ---
 
 ## Visualisierung in Home Assistant
 
-| State | Icon-Farbe | Bedeutung |
-|-------|-----------|-----------|
-| 0 (AUTO_OFF) | Blau | Bereit im Automatik-Modus |
-| 1 (MANUAL_ON) | Orange | Manuell eingeschaltet |
-| 2 (AUTO_ON) | Grün | Läuft automatisch |
-| 3 (AUTO_TIMER) | Grün | Läuft per Zeitplan |
-| 4 (MANUAL_FORCED) | Orange | Erzwungen eingeschaltet |
-| 5 (AUTO_WAITING) | Blau | Automatik wartet |
-| 6 (MANUAL_OFF) | Rot | Manuell ausgeschaltet |
+| State | Icon-Farbe | Übersetzungsschlüssel |
+|-------|-----------|------------------------|
+| 0 (AUTO_OFF)         | Blau    | `auto_inactive` |
+| 1 (AUTO_ON)          | Grün    | `auto_active` |
+| 2 (AUTO_PRIO_OFF)    | Blau    | `auto_inactive` |
+| 3 (AUTO_PRIO_ON)     | Cyan    | `frost_protection` (bei `PUMP_ANTI_FREEZE`) / `auto_active` |
+| 4 (MANUAL_ON)        | Orange  | `manual_on` |
+| 5 (EMERGENCY_OFF)    | Lila    | `error` |
+| 6 (MANUAL_OFF)       | Rot     | `manual_off` |
+
+Quelle: `STATE_ICONS`, `STATE_COLORS`, `STATE_TRANSLATIONS` in `const_devices.py`.
 
 ---
 
-## Detaillierte Erklärung jedes States
+## Typische State-Folgen
 
-### State 0 – AUTO_OFF (Automatik, Bereit)
-
-Der Controller läuft im **Automatik-Modus**, aber das Gerät ist aktuell **nicht aktiv** – weil die Bedingungen (Temperatur, Zeit, etc.) noch nicht erfüllt sind.
+### Täglicher Pumpenzeitplan
 
 ```
-Beispiel Pumpe: Tagesprogramm läuft, aber geplante Zeit noch nicht erreicht.
-→ Gerät startet automatisch, wenn Bedingung erfüllt.
+06:00  [0] AUTO_OFF       – Zeitplan noch nicht aktiv
+08:00  [1] AUTO_ON        – Zeitplan startet Pumpe
+12:00  [0] AUTO_OFF       – Zeitplan endet, Standby
+16:00  [1] AUTO_ON        – Temperaturbedingung erfüllt
+18:00  [0] AUTO_OFF       – Sollwert erreicht
 ```
 
-**In HA**: Schalter zeigt `off`, Attribut `violet_state = "0"`
-
----
-
-### State 1 – MANUAL_ON (Manuell An)
-
-Der Benutzer hat das Gerät **manuell eingeschaltet**. Automatik-Regeln sind übersteuert.
+### Manueller Eingriff
 
 ```
-Beispiel: Benutzer schaltet Pumpe manuell ein für Poolreinigung.
-→ Läuft bis manuell ausgeschaltet oder auf AUTO zurückgestellt.
+[1] AUTO_ON       – Laufet per Zeitplan
+[4] MANUAL_ON     – Benutzer erzwingt AN
+[6] MANUAL_OFF    – Benutzer schaltet AUS
+[1] AUTO_ON       – Über select-Entität zurück auf AUTO
 ```
 
-**In HA**: Schalter zeigt `on`, Attribut `violet_state = "1"`
-
----
-
-### State 2 – AUTO_ON (Automatik, An)
-
-Der Controller läuft im Automatik-Modus und das Gerät ist **aktiv** – weil alle Bedingungen erfüllt sind.
+### Chlor-Dosierung mit Sicherheitsintervall
 
 ```
-Beispiel Heizung: Pool-Temperatur < Sollwert → Heizung läuft automatisch.
-→ Hört automatisch auf, wenn Sollwert erreicht.
-```
-
-**In HA**: Schalter zeigt `on`, Attribut `violet_state = "2"`
-
----
-
-### State 3 – AUTO_TIMER (Automatik, Timer)
-
-Gerät läuft automatisch aufgrund einer **Zeitsteuerung** im Controller.
-
-```
-Beispiel: Pumpe läuft täglich 08:00–12:00 Uhr per Timer-Programm.
-→ Stoppt automatisch am Zeitplan-Ende.
-```
-
-**In HA**: Schalter zeigt `on`, Attribut `violet_state = "3"`
-
----
-
-### State 4 – MANUAL_FORCED (Manuell, Erzwungen)
-
-Das Gerät wurde **erzwungen eingeschaltet** und ignoriert alle Sicherheits- und Automatik-Einschränkungen.
-
-```
-Beispiel: Heizung wird trotz Temperaturgrenzen forciert eingeschaltet.
-→ Nur für Wartung/Tests! Vorsichtig verwenden!
-```
-
-**In HA**: Schalter zeigt `on`, Attribut `violet_state = "4"`
-
-> **Warnung**: State 4 kann Sicherheitsprüfungen überspringen. Nur für autorisierte Wartungsarbeiten verwenden!
-
----
-
-### State 5 – AUTO_WAITING (Automatik, Wartend)
-
-Der Controller möchte das Gerät einschalten, **wartet aber** auf eine Bedingung:
-- Sicherheitsintervall (z.B. 5 Minuten nach Dosierung)
-- Fehler muss behoben werden
-- Andere Abhängigkeit nicht erfüllt
-
-```
-Beispiel Dosierung: Chlor wurde dosiert, Controller wartet
-Sicherheitsintervall ab bevor er wieder startet.
-```
-
-**In HA**: Schalter zeigt `off`, Attribut `violet_state = "5"`
-
----
-
-### State 6 – MANUAL_OFF (Manuell, Aus)
-
-Der Benutzer hat das Gerät **manuell ausgeschaltet**. Automatik-Regeln sind übersteuert.
-
-```
-Beispiel: Pool wird für Winter-Pause ausgeschaltet.
-→ Gerät startet nicht automatisch bis zurück auf AUTO.
-```
-
-**In HA**: Schalter zeigt `off`, Attribut `violet_state = "6"`
-
----
-
-## Composite States (States mit Zusatzinfo)
-
-Manche States enthalten einen **Pipe-Separator (`|`)** mit zusätzlichem Kontext:
-
-```
-Format: {STATE_ZAHL}|{BESCHREIBUNG}
-
-Beispiele:
-  "3|PUMP_ANTI_FREEZE"        → State 3, Frostschutz aktiv
-  "2|BLOCKED_BY_TEMP"         → State 2, aber durch Temperatur blockiert
-  "5|SAFETY_INTERVAL"         → State 5, Sicherheitsintervall läuft
-  "1|HIGH_PRESSURE_WARNING"   → State 1, Hochdruckwarnung
-```
-
-**Wichtig**: Die **Zahl vor dem `|`** bestimmt den State! Der Text dahinter ist nur Kontext-Information.
-
-In Home Assistant wird der vollständige String als Entity-State gespeichert:
-```yaml
-# Beispiel Entity-Attribut
-violet_state: "3|PUMP_ANTI_FREEZE"
-# Der Binary-Status (on/off) basiert auf der Zahl: 3 → ON
+[0] AUTO_OFF       – Bereit
+[1] AUTO_ON        – Chlor niedrig → Dosierung
+[5] EMERGENCY_OFF  – Sicherheitsintervall / blockiert weil Pumpe aus
+[2] AUTO_PRIO_OFF  – Max. Tagesmenge erreicht
+[0] AUTO_OFF       – Wieder bereit
 ```
 
 ---
 
-## States in Home Assistant nutzen
+## State-Probleme beheben
 
-### State-Wert lesen
+### State bleibt auf `6` (MANUAL_OFF)
 
-```yaml
-# Template: Aktuellen State lesen
-{{ states('switch.violet_pump') }}        # → "on" oder "off"
-{{ state_attr('switch.violet_pump', 'violet_state') }}  # → "2" oder "3|PUMP_ANTI_FREEZE"
-```
+**Ursache:** Ausgang wurde manuell abgeschaltet; Automatikregeln ist umgangen.
+**Lösung:** Die passende `select.*_mode`-Entität zurück auf `Auto` stellen oder den Switch-Service aufrufen.
 
-### Auf State-Änderungen reagieren
+### State wechselt schnell zwischen 0 und 1
 
-```yaml
-automation:
-  - alias: "Benachrichtigung bei manueller Pumpen-Steuerung"
-    trigger:
-      - platform: template
-        value_template: >
-          {{ state_attr('switch.violet_pump', 'violet_state') in ['1', '4', '6'] }}
-    action:
-      - service: notify.mobile_app_mein_handy
-        data:
-          title: "Pool"
-          message: "Pumpe ist im manuellen Modus!"
-```
+**Ursache:** Eine Regelbedingung oszilliert am Schwellwert.
+**Lösung:** Hysterese der Regel am Controller erhöhen oder Polling-Interval vergrößern.
 
-### State-Gruppen in Kondition prüfen
+### State bleibt lange auf `5` (EMERGENCY_OFF)
 
-```yaml
-# Prüfen ob Gerät ON ist (States 1,2,3,4)
-condition:
-  - condition: template
-    value_template: >
-      {{ state_attr('switch.violet_pump', 'violet_state') | int(default=0) in [1, 2, 3, 4] }}
+**Ursache:** Offener Fehler oder nicht erfüllte Abhängigkeit (z. B. Pumpe aus, Durchfluss fehlt, Max. Tagesmenge erreicht).
+**Lösung:** `sensor.violet_pool_controller_*_state` und Seite [Fehlercodes](Error-Codes.de) prüfen.
 
-# Prüfen ob Gerät im Automatik-Modus ist (States 0,2,3,5)
-condition:
-  - condition: template
-    value_template: >
-      {{ state_attr('switch.violet_pump', 'violet_state') | int(default=0) in [0, 2, 3, 5] }}
+### State bleibt auf `2` (AUTO_PRIO_OFF)
 
-# Prüfen ob Gerät manuell gesteuert wird (States 1,4,6)
-condition:
-  - condition: template
-    value_template: >
-      {{ state_attr('switch.violet_pump', 'violet_state') | int(default=0) in [1, 4, 6] }}
-```
+**Ursache:** Eine höher priorisierte Regel blockiert den Ausgang (z. B. Außentemperatur, Pumpe aus).
+**Lösung:** Den `*STATE`-Composite-Sensor auf `BLOCKED_BY_*`-Suffix prüfen.
 
 ---
 
-## Typische State-Verläufe
-
-### Normaler Tagesbetrieb (Pumpe)
-
-```
-06:00  [0] AUTO_OFF    – Automatik läuft, Pumpe wartet
-08:00  [3] AUTO_TIMER  – Timer startet, Pumpe läuft
-12:00  [0] AUTO_OFF    – Timer Ende, Pumpe stoppt
-16:00  [2] AUTO_ON     – Temperatur-Bedingung erfüllt, Pumpe läuft
-18:00  [0] AUTO_OFF    – Temperatur erreicht, Pumpe stoppt
-```
-
-### Manuelles Eingreifen
-
-```
-[2] AUTO_ON     – Pumpe läuft automatisch
-[1] MANUAL_ON   – Benutzer schaltet manuell ein (Test/Reinigung)
-[0] AUTO_OFF    – Benutzer gibt Kontrolle zurück ("AUTO" klicken)
-[2] AUTO_ON     – Automatik übernimmt wieder
-```
-
-### Dosierungs-Ablauf
-
-```
-[0] AUTO_OFF    – Dosierung bereit
-[2] AUTO_ON     – Chlor-Level niedrig → Dosierung startet
-[5] AUTO_WAITING– Dosierung fertig, Sicherheitsintervall läuft (5 Min)
-[0] AUTO_OFF    – Sicherheitsintervall vorbei, bereit für nächste Dosierung
-```
-
-### Fehlerfall (Heizung)
-
-```
-[2] AUTO_ON     – Heizung läuft
-[5] AUTO_WAITING– Fehler erkannt, Heizung pausiert
-[0] AUTO_OFF    – Fehler behoben, wartet auf nächste Bedingung
-[2] AUTO_ON     – Normalzustand wiederhergestellt
-```
-
----
-
-## State-Debugging
-
-### Über Developer Tools
-
-1. **Entwicklerwerkzeuge → Zustände**
-2. Nach `switch.violet_pump` suchen
-3. State und Attribute prüfen
-
-### Template-Konsole
-
-```
-Entwicklerwerkzeuge → Vorlage
-```
-
-```yaml
-# Alle State-Infos auf einmal
-Pumpe State: {{ states('switch.violet_pump') }}
-Violet State: {{ state_attr('switch.violet_pump', 'violet_state') }}
-Modus: {{ 'MANUELL' if state_attr('switch.violet_pump', 'violet_state') | int(0) in [1,4,6] else 'AUTOMATIK' }}
-Läuft: {{ 'JA' if state_attr('switch.violet_pump', 'violet_state') | int(0) in [1,2,3,4] else 'NEIN' }}
-```
-
-### Logs prüfen
-
-```bash
-tail -f /config/home-assistant.log | grep violet_pool_controller
-```
-
----
-
-## Häufige State-Probleme
-
-### Problem: State bleibt dauerhaft bei "6" (MANUAL_OFF)
-
-**Ursache**: Gerät wurde manuell ausgeschaltet und auf "Manuell" belassen.
-
-**Lösung**: In HA auf "AUTO" klicken, oder:
-```yaml
-service: switch.turn_on
-target:
-  entity_id: switch.violet_pump
-# Schaltet auf Automatik zurück
-```
-
----
-
-### Problem: State wechselt ständig zwischen 0 und 2
-
-**Ursache**: Automatik-Bedingungen pendeln am Grenzwert (z.B. Temperatur ±0.1°C).
-
-**Lösung**:
-- Hysterese im Controller erhöhen
-- Abfrageintervall erhöhen (um Messrauschen zu reduzieren)
-
----
-
-### Problem: State 5 (WAITING) dauert sehr lange
-
-**Ursache**:
-- Sicherheitsintervall nach Dosierung (5–10 Minuten normal)
-- Fehler-Code am Controller
-
-**Lösung**:
-- Fehler-Codes prüfen: `sensor.violet_system_error_codes`
-- Abwarten (Sicherheitsintervall ist beabsichtigt)
-- Falls >30 Minuten: Controller neu starten
-
----
-
-**Weiter:** [Sensoren](Sensors) | [Schalter](Switches) | [Services](Services)
+**Weiter:** [Sensoren](Sensors.de) | [Schalter](Switches.de) | [Services](Services.de)

@@ -4,21 +4,9 @@
 
 # 🎛️ Entities - Violet Pool Controller
 
-## Overview of All Available Entities
+Complete reference of every entity the integration can create. Entities are created dynamically based on the features you enable during setup and the data the controller reports.
 
-This page lists all entities created by the Violet Pool Controller integration. All icons were **optimized in March 2026** and now use consistent, professional MDI icons.
-
----
-
-## 📊 Statistics
-
-| Metric | Value |
-|--------|-------|
-| **Total Entities** | 150+ |
-| **Categories** | 8 |
-| **Icons Optimized** | 68+ |
-| **Icon Set** | Material Design Icons (MDI) |
-| **Status** | All verified & working |
+> Source of truth: `const_features.py`, `const_sensors.py`, `const_devices.py`. Entity IDs use the prefix `violet_pool_controller` (or `violet_pool_controller_<device_id>` for multi-controller setups — see [Multi-Controller](Multi-Controller)).
 
 ---
 
@@ -27,282 +15,311 @@ This page lists all entities created by the Violet Pool Controller integration. 
 1. [Sensors](#-sensors)
 2. [Binary Sensors](#-binary-sensors)
 3. [Switches](#-switches)
-4. [Select Controls](#-select-controls)
-5. [Number Entities (Setpoints)](#-number-entities-setpoints)
-6. [Climate Entities](#-climate-entities)
-7. [Entity Naming Convention](#-entity-naming-convention)
-8. [Multi-Controller](#-multi-controller)
+4. [Light Entities (DMX)](#-light-entities-dmx)
+5. [Select Controls](#-select-controls)
+6. [Number Entities (Setpoints)](#-number-entities-setpoints)
+7. [Climate Entities](#-climate-entities)
+8. [Cover Entity](#-cover-entity)
+9. [Entity Naming Convention](#-entity-naming-convention)
 
 ---
 
 ## 🌡️ Sensors
 
-### Temperature Sensors (6 Entities)
+All sensor definitions live in `const_sensors.py`. Sensors are created automatically when the corresponding reading is present in `/getReadings` and the feature is enabled.
 
-| Entity ID | Name | Icon | Unit | Description |
-|-----------|------|------|------|-------------|
-| `sensor.violet_pool_controller_onewire1_value` | Pool Water | 🏊 `mdi:pool` | °C | Pool water temperature |
-| `sensor.violet_pool_controller_onewire2_value` | Outdoor Temperature | 🌡️ `mdi:thermometer` | °C | Outdoor air temperature |
-| `sensor.violet_pool_controller_onewire3_value` | Solar Absorber | ☀️ `mdi:solar-power` | °C | Solar collector temperature |
-| `sensor.violet_pool_controller_onewire4_value` | Absorber Return | 🔧 `mdi:pipe-valve` | °C | Return temperature with valve |
-| `sensor.violet_pool_controller_onewire5_value` | Heat Exchanger | ♨️ `mdi:radiator` | °C | Heat exchanger temperature |
-| `sensor.violet_pool_controller_onewire6_value` | Heating Storage | 🚿 `mdi:water-boiler` | °C | Storage temperature |
+### Temperature Sensors (1-Wire 1–12)
 
-**Feature Dependency:**
-- `onewire1_value`, `onewire2_value`: Always available
-- `onewire3_value`, `onewire4_value`: Requires feature **"Solar Absorber"**
-- `onewire5_value`, `onewire6_value`: Requires feature **"Heater"**
+| Entity ID suffix | Name | Unit | Feature |
+|------------------|------|------|---------|
+| `onewire1_value` | Pool Water | °C | always |
+| `onewire2_value` | Outside Temperature | °C | always |
+| `onewire3_value` | Solar Absorber | °C | solar |
+| `onewire4_value` | Absorber Return | °C | solar |
+| `onewire5_value` | Heat Exchanger | °C | heating |
+| `onewire6_value` | Heater Storage | °C | heating |
+| `onewire7_value` – `onewire12_value` | Temperature Sensor 7–12 | °C | always |
 
-### Water Chemistry Sensors (3 Entities)
+### Water Chemistry Sensors
 
-| Entity ID | Name | Icon | Unit | Description |
-|-----------|------|------|------|-------------|
-| `sensor.violet_pool_controller_ph_value` | pH Value | ⚗️ `mdi:ph` | pH | **Dedicated pH icon!** |
-| `sensor.violet_pool_controller_orp_value` | Redox Potential | ⚡ `mdi:lightning-bolt-circle` | mV | Redox potential with circle |
-| `sensor.violet_pool_controller_pot_value` | Chlorine Level | 🧪 `mdi:water-plus` | mg/l | Chlorine level in water |
+| Entity ID suffix | Name | Unit | Feature |
+|------------------|------|------|---------|
+| `pH_value` | pH Value | pH | ph_control |
+| `orp_value` | ORP Value | mV | chlorine_control |
+| `pot_value` | Chlorine Level | mg/l | chlorine_control |
 
-**Feature Dependency:**
-- `pH_value`: Requires feature **"pH Control"**
-- `orp_value`, `pot_value`: Requires feature **"Chlorine Control"**
+### Analog Sensors (ADC / IMP)
 
-### Analog Sensors (7 Entities)
+| Entity ID suffix | Name | Unit |
+|------------------|------|------|
+| `ADC1_value` | Filter Pressure | bar |
+| `ADC2_value` | Overflow Tank | cm |
+| `ADC3_value` | Flow Meter (4-20 mA) | m³/h |
+| `ADC4_value` | Analog Sensor 4 (4-20 mA) | – |
+| `ADC5_value` | Analog Sensor 5 (0-10 V) | V |
+| `IMP1_value` | Dosing Inflow | cm/s |
+| `IMP2_value` | Pump Flow Rate | m³/h |
 
-| Entity ID | Name | Icon | Unit | Description |
-|-----------|------|------|------|-------------|
-| `sensor.violet_pool_controller_adc1_value` | Filter Pressure | 🌡️ `mdi:gauge` | bar | Pressure gauge |
-| `sensor.violet_pool_controller_adc2_value` | Overflow Tank | 💧 `mdi:water-sync` | cm | Overflow water level |
-| `sensor.violet_pool_controller_adc3_value` | Flow Meter | ↔️ `mdi:swap-horizontal` | m³/h | Flow arrows |
-| `sensor.violet_pool_controller_adc4_value` | Analog Sensor 4 | 📊 `mdi:gauge` | - | Universal sensor (4-20mA) |
-| `sensor.violet_pool_controller_adc5_value` | Analog Sensor 5 | 〰️ `mdi:sine-wave` | V | Universal sensor (0-10V) |
-| `sensor.violet_pool_controller_imp1_value` | Flow Switch | 🔧 `mdi:pipe-valve` | cm/s | Flow switch |
-| `sensor.violet_pool_controller_imp2_value` | Pump Flow Rate | 💧 `mdi:water-pump` | m³/h | Volume flow |
+### System Sensors
 
-**Feature Dependency:** All analog sensors are created automatically when data is available.
+| Entity ID suffix | Name | Unit |
+|------------------|------|------|
+| `SYSTEM_cpu_temperature` | CPU Temperature | °C |
+| `SYSTEM_carrier_cpu_temperature` | Carrier CPU Temperature | °C |
+| `SYSTEM_dosagemodule_cpu_temperature` | Dosing Module CPU Temperature | °C |
+| `SYSTEM_memoryusage` | System Memory Usage | – |
+| `CPU_UPTIME` | Device Uptime | – |
+| `LOAD_AVG` | CPU Load Average | – |
+| `pump_rs485_pwr` | RS485 Pump Power | W |
+| `DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_STOPWATCH1..8` | DI Rule Remaining Time | s |
 
-### System Sensors (7 Entities)
+### Status Sensors
 
-| Entity ID | Name | Icon | Unit | Description |
-|-----------|------|------|------|-------------|
-| `sensor.violet_pool_controller_cpu_temp` | CPU Temperature | 🔥 `mdi:thermometer-alert` | °C | Temperature with warning |
-| `sensor.violet_pool_controller_cpu_temp_carrier` | Carrier Board | 🖥️ `mdi:motherboard` | °C | Main board |
-| `sensor.violet_pool_controller_cpu_uptime` | System Uptime | ⏰ `mdi:clock-time-eight` | - | Clock display |
-| `sensor.violet_pool_controller_system_cpu_temperature` | System CPU | 🌡️ `mdi:thermometer-check` | °C | Temperature check |
-| `sensor.violet_pool_controller_system_carrier_cpu_temperature` | Carrier CPU | 💾 `mdi:memory` | °C | Memory chip |
-| `sensor.violet_pool_controller_system_dosagemodule_cpu_temperature` | Dosing Module CPU | 💾 `mdi:memory-lan` | °C | LAN memory |
-| `sensor.violet_pool_controller_system_memoryusage` | Memory Usage | 💾 `mdi:memory-lan` | % | Memory utilization |
+| Entity ID suffix | Name | Feature |
+|------------------|------|---------|
+| `PUMP` | Pump Status | filter_control |
+| `HEATER` | Heater Status | heating |
+| `SOLAR` | Solar Status | solar |
+| `BACKWASH` | Backwash Status | backwash |
+| `BACKWASHRINSE` | Backwash Rinse Status | backwash |
+| `LIGHT` | Lighting Status | led_lighting |
+| `REFILL` | Refill Status | water_refill |
+| `ECO` | ECO Status | – |
+| `PVSURPLUS` | PV Surplus Status | pv_surplus |
+| `FW` | Firmware Version | – |
 
-**Feature Dependency:** Always available.
+### Composite State Sensors
 
-### Status Sensors (7 Entities)
+These carry the full `"3|PUMP_ANTI_FREEZE"` style string with `BLOCKED_BY_*` / `WAITING_FOR_*` detail codes (see [Device States](Device-States)).
 
-| Entity ID | Name | Icon | Unit | Description |
-|-----------|------|------|------|-------------|
-| `sensor.violet_pool_controller_pump` | Pump Status | ⚙️ `mdi:pump` | - | Pump status |
-| `sensor.violet_pool_controller_heater` | Heater Status | ♨️ `mdi:radiator` | - | Heater status |
-| `sensor.violet_pool_controller_solar` | Solar Status | ☀️ `mdi:solar-power` | - | Solar status |
-| `sensor.violet_pool_controller_backwash` | Backwash Status | 🔄 `mdi:autorenew` | - | Auto-renew cycle |
-| `sensor.violet_pool_controller_light` | Light Status | 💡 `mdi:lightbulb` | - | Light status |
-| `sensor.violet_pool_controller_pvsurplus` | PV Surplus | ☀️ `mdi:solar-power` | - | PV surplus |
-| `sensor.violet_pool_controller_fw` | Firmware | 📦 `mdi:package-variant` | - | Firmware version |
+| Entity ID suffix | Name | Feature |
+|------------------|------|---------|
+| `PUMPSTATE` | Pump Detail Status | filter_control |
+| `HEATERSTATE` | Heater Detail Status | heating |
+| `SOLARSTATE` | Solar Detail Status | solar |
 
-**Feature Dependency:**
-- `heater`: Requires feature **"Heater"**
-- `solar`: Requires feature **"Solar Absorber"**
-- `backwash`: Requires feature **"Backwash"**
-- `light`: Requires feature **"LED Lighting"**
-- `pvsurplus`: Requires feature **"PV Surplus"**
+### Dosing State Sensors
 
-### Dosing Sensors (5 Entities)
+| Entity ID suffix | Name | Feature |
+|------------------|------|---------|
+| `DOS_1_CL_STATE` | Chlorine Dosing Status | chlorine_control |
+| `DOS_2_ELO_STATE` | Electrolysis Status | chlorine_control |
+| `DOS_4_PHM_STATE` | pH- Dosing Status | ph_control |
+| `DOS_5_PHP_STATE` | pH+ Dosing Status | ph_control |
+| `DOS_6_FLOC_STATE` | Flocculation Status | flocculation |
 
-| Entity ID | Name | Icon | Unit | Description |
-|-----------|------|------|------|-------------|
-| `sensor.violet_pool_controller_dos_1_cl_state` | Chlorine Status | 🧪 `mdi:flask-outline` | - | Chlorine dosing |
-| `sensor.violet_pool_controller_dos_2_elo_state` | Electrolysis | ⚡ `mdi:lightning-bolt` | - | Electrolysis status |
-| `sensor.violet_pool_controller_dos_4_phm_state` | pH- Status | 🧪 `mdi:flask-minus` | - | pH minus dosing |
-| `sensor.violet_pool_controller_dos_5_php_state` | pH+ Status | 🧪 `mdi:flask-plus` | - | pH plus dosing |
-| `sensor.violet_pool_controller_dos_6_floc_state` | Flocculant | 💧 `mdi:water` | - | Flocculant status |
+### Runtime Sensors (per-output daily runtime)
 
-**Feature Dependency:**
-- `DOS_1_CL_STATE`, `DOS_2_ELO_STATE`: Requires feature **"Chlorine Control"**
-- `DOS_4_PHM_STATE`, `DOS_5_PHP_STATE`: Requires feature **"pH Control"**
-- `DOS_6_FLOC_STATE`: Requires feature **"Flocculant Dosing"**
+Each output exposes a `*_RUNTIME` sensor carrying today's runtime (no unit). The integration creates these for:
+
+`PUMP`, `SOLAR`, `HEATER`, `LIGHT`, `BACKWASH`, `BACKWASHRINSE`, `ECO`, `REFILL`,
+`DOS_1_CL`, `DOS_2_ELO`, `DOS_3_ELO_REV`, `DOS_4_PHM`, `DOS_5_PHP`, `DOS_6_FLOC`,
+`EXT1_1`–`EXT1_8`, `EXT2_1`–`EXT2_8` (16 extension relays),
+`OMNI_DC0`–`OMNI_DC5` (6 OMNI motors),
+`PUMP_RPM_0`–`PUMP_RPM_3` (4 RPM level runtimes).
+
+### Dosing Statistics Sensors
+
+For every dosing channel (`DOS_1_CL`, `DOS_2_ELO`, `DOS_4_PHM`, `DOS_5_PHP`, `DOS_6_FLOC`) the integration exposes:
+
+| Entity ID suffix | Description | Unit |
+|------------------|-------------|------|
+| `*_DAILY_DOSING_AMOUNT_ML` | Daily dosing consumption | ml |
+| `*_TOTAL_CAN_AMOUNT_ML`    | Remaining canister amount | ml |
+
+### Pump RPM Sensors
+
+| Entity ID suffix | Description | Unit |
+|------------------|-------------|------|
+| `PUMP_RPM_0`–`PUMP_RPM_3` | RPM level state code (0-6) | – |
+| `PUMP_RPM_0_VALUE`–`PUMP_RPM_3_VALUE` | Measured RPM | RPM |
 
 ---
 
 ## 📊 Binary Sensors
 
-### Core Operational States (7 Entities)
+### Core Operational States
 
-| Entity ID | Name | Icon | Device Class | Description |
-|-----------|------|------|--------------|-------------|
-| `binary_sensor.violet_pool_controller_pump` | Pump State | 💧 `mdi:water-pump` | running | Pump running |
-| `binary_sensor.violet_pool_controller_solar` | Solar State | ☀️ `mdi:solar-power` | running | Solar active |
-| `binary_sensor.violet_pool_controller_heater` | Heater State | ♨️ `mdi:radiator` | running | Heater active |
-| `binary_sensor.violet_pool_controller_light` | Light State | 💡 `mdi:lightbulb` | - | Light on |
-| `binary_sensor.violet_pool_controller_backwash` | Backwash State | 🔄 `mdi:autorenew` | running | Backwash running |
-| `binary_sensor.violet_pool_controller_refill` | Refill State | 💧 `mdi:water` | running | Refill active |
-| `binary_sensor.violet_pool_controller_pvsurplus` | PV Surplus | ☀️ `mdi:solar-power` | - | PV surplus |
+| Entity ID suffix | Name | Device Class | Feature |
+|------------------|------|--------------|---------|
+| `PUMP` | Pump State | running | filter_control |
+| `SOLAR` | Solar State | running | solar |
+| `HEATER` | Heater State | running | heating |
+| `LIGHT` | Light State | – | led_lighting |
+| `BACKWASH` | Backwash State | running | backwash |
+| `REFILL` | Refill State | running | water_refill |
+| `ECO` | ECO Mode | – | – |
+| `PVSURPLUS` | PV Surplus | – | pv_surplus |
 
-### Diagnostic Problem Sensors (5 Entities)
+### Diagnostic Problem Sensors
 
-| Entity ID | Name | Icon | Device Class | Description |
-|-----------|------|------|--------------|-------------|
-| `binary_sensor.violet_pool_controller_circulation_state` | Circulation Issue | ⚠️ `mdi:water-alert` | problem | Circulation problem |
-| `binary_sensor.violet_pool_controller_electrode_flow_state` | Electrode Flow Issue | ✅ `mdi:water-check` | problem | Electrode flow |
-| `binary_sensor.violet_pool_controller_pressure_state` | Pressure Issue | 🌡️ `mdi:gauge` | problem | Pressure problem |
-| `binary_sensor.violet_pool_controller_can_range_state` | Can Range Issue | 🍾 `mdi:bottle-tonic` | problem | Canister problem |
+| Entity ID suffix | Name | Device Class |
+|------------------|------|--------------|
+| `CIRCULATION_STATE` | Circulation Issue | problem |
+| `ELECTRODE_FLOW_STATE` | Electrode Flow Issue | problem |
+| `PRESSURE_STATE` | Pressure Issue | problem |
+| `CAN_RANGE_STATE` | Can Range Issue | problem |
 
-### Additional Binary Sensors
+### Hardware Module Sensors
 
-| Entity ID | Name | Icon | Device Class | Description |
-|-----------|------|------|--------------|-------------|
-| `binary_sensor.violet_pool_controller_eco` | ECO Mode | 🍃 `mdi:leaf` | - | Eco mode active |
-| `binary_sensor.violet_pool_controller_input_{1-12}` | Digital Input {1-12} | 🔌 `mdi:electric-switch` | - | Digital inputs |
-| `binary_sensor.violet_pool_controller_input_ce{1-4}` | Digital Input CE{1-4} | 🔌 `mdi:electric-switch` | - | Digital inputs CE |
+| Entity ID suffix | Name |
+|------------------|------|
+| `HW_BASE_MODULE` | Hardware: Base Module |
+| `HW_DOSING_MODULE` | Hardware: Dosing Module |
+| `HW_EXTENSION_MODULE_1` | Hardware: Extension Module 1 |
+| `HW_EXTENSION_MODULE_2` | Hardware: Extension Module 2 |
+| `HW_STANDALONE_MODE` | Hardware: Standalone Dosing Unit |
+| `HW_DMX_MODULE` | Hardware: DMX Module |
+| `HW_DIRULE_MODULE` | Hardware: Digital Rules Module |
 
-**Feature Dependency:**
-- `INPUT_{1-12}`, `INPUT_CE{1-4}`: Requires feature **"Digital Inputs"**
+### Overflow / Backwash / Bathing AI
+
+| Entity ID suffix | Name | Device Class |
+|------------------|------|--------------|
+| `OVERFLOW_OVERFILL_STATE` | Overflow Overfill | problem |
+| `OVERFLOW_DRYRUN_STATE` | Overflow Dry Run | problem |
+| `OVERFLOW_REFILL_STATE` | Overflow Refill | – |
+| `BACKWASH_DELAY_RUNNING` | Backwash Delay Active | – |
+| `BATHING_AI_SURVEILLANCE_STATE` | Bathing AI Surveillance | – |
+
+### Digital Inputs
+
+| Entity ID suffix | Name | Feature |
+|------------------|------|---------|
+| `INPUT1`–`INPUT12` | Digital Input 1–12 | digital_inputs |
+| `INPUT_CE1`–`INPUT_CE4` | Digital Input CE1–CE4 | digital_inputs |
 
 ---
 
 ## 🔌 Switches
 
-### Main Control Switches (11 Entities)
+> All switches are 3-state (Off / On / Auto). See [Device States](Device-States) for the underlying 0-6 codes.
 
-| Entity ID | Name | Icon | Description |
-|-----------|------|------|-------------|
-| `switch.violet_pool_controller_pump` | Filter Pump | 💧 `mdi:water-pump` | Pump on/off |
-| `switch.violet_pool_controller_solar` | Solar Absorber | ☀️ `mdi:solar-power` | Solar on/off |
-| `switch.violet_pool_controller_heater` | Heater | ♨️ `mdi:radiator` | Heater on/off |
-| `switch.violet_pool_controller_light` | Lighting | 💡 `mdi:lightbulb` | Light on/off |
-| `switch.violet_pool_controller_dos_5_php` | Dosing pH+ | 🧪 `mdi:flask-plus` | Dose pH+ |
-| `switch.violet_pool_controller_dos_4_phm` | Dosing pH- | 🧪 `mdi:flask-minus` | Dose pH- |
-| `switch.violet_pool_controller_dos_1_cl` | Chlorine Dosing | 🧪 `mdi:flask-outline` | Dose chlorine |
-| `switch.violet_pool_controller_dos_6_floc` | Flocculant | 💧 `mdi:water` | Dose flocculant |
-| `switch.violet_pool_controller_pvsurplus` | PV Surplus | ☀️ `mdi:solar-power` | PV mode |
-| `switch.violet_pool_controller_backwash` | Backwash | 🔄 `mdi:autorenew` | Start backwash |
-| `switch.violet_pool_controller_backwashrinse` | Rinse | 🔄 `mdi:autorenew` | Start rinse |
+### Core Switches
 
-### DMX Scene Switches (12 Entities)
+| Entity ID suffix | Name | Feature |
+|------------------|------|---------|
+| `PUMP` | Filter Pump | filter_control |
+| `SOLAR` | Solar Absorber | solar |
+| `HEATER` | Heater | heating |
+| `LIGHT` | Lighting | led_lighting |
+| `DOS_5_PHP` | Dosing pH+ | ph_control |
+| `DOS_4_PHM` | Dosing pH- | ph_control |
+| `DOS_1_CL` | Chlorine Dosing | chlorine_control |
+| `DOS_2_ELO` | Electrolysis Dosing | chlorine_control |
+| `DOS_6_FLOC` | Flocculant | flocculation |
+| `PVSURPLUS` | PV Surplus | pv_surplus |
+| `BACKWASH` | Backwash | backwash |
+| `BACKWASHRINSE` | Rinse | backwash |
+| `REFILL` | Water Refill | water_refill |
+| `ECO` | ECO Mode | – |
 
-| Entity ID | Name | Icon | Description |
-|-----------|------|------|-------------|
-| `switch.violet_pool_controller_dmx_scene{1-12}` | DMX Scene {1-12} | 💡 `mdi:lightbulb-multiple` | Control light scenes |
+### Extension Relay Switches (16)
 
-**Feature Dependency:** Requires feature **"LED Lighting"**
+| Entity ID suffix | Name | Feature |
+|------------------|------|---------|
+| `EXT1_1`–`EXT1_8` | Extension 1.1–1.8 | extension_outputs |
+| `EXT2_1`–`EXT2_8` | Extension 2.1–2.8 | extension_outputs |
 
-### Extension Switches (16 Entities)
+### Digital Input Rule Switches (8)
 
-| Entity ID | Name | Icon | Description |
-|-----------|------|------|-------------|
-| `switch.violet_pool_controller_ext1_{1-8}` | Extension 1.{1-8} | 🔌 `mdi:toggle-switch-outline` | Extension 1 |
-| `switch.violet_pool_controller_ext2_{1-8}` | Extension 2.{1-8} | 🔌 `mdi:toggle-switch-outline` | Extension 2 |
+| Entity ID suffix | Name | Feature |
+|------------------|------|---------|
+| `DIRULE_1`–`DIRULE_8` | Switching Rule 1–8 | digital_inputs |
 
-**Feature Dependency:** Requires feature **"Extension Outputs"**
+### OMNI DC Output Switches (6)
 
-### Digital Rule Switches (7 Entities)
+| Entity ID suffix | Name | Feature |
+|------------------|------|---------|
+| `OMNI_DC0`–`OMNI_DC5` | Omni DC0–DC5 | extension_outputs |
 
-| Entity ID | Name | Icon | Description |
-|-----------|------|------|-------------|
-| `switch.violet_pool_controller_dirule_{1-7}` | Switching Rule {1-7} | 📜 `mdi:script-text` | Control switching rules |
+---
 
-**Feature Dependency:** Requires feature **"Digital Inputs"**
+## 💡 Light Entities (DMX)
+
+The 12 DMX scenes are exposed as **LightEntity** (not switches) so they integrate cleanly with HA dashboards and the light domain.
+
+| Entity ID suffix | Name | Feature |
+|------------------|------|---------|
+| `DMX_SCENE1`–`DMX_SCENE12` | DMX Scene 1–12 | led_lighting |
 
 ---
 
 ## 🎛️ Select Controls
 
-### Mode Selects (8 Entities)
+Each controllable output has a matching `*_mode` select entity with the options **Off / On / Auto** (or **Off / Manual / Auto** for dosing channels).
 
-| Entity ID | Name | Icon | Options | Description |
-|-----------|------|------|---------|-------------|
-| `select.violet_pool_controller_pump_mode` | Pump Mode | 💧 `mdi:water-pump` | Off/On/Auto | Pump: Off/On/Auto |
-| `select.violet_pool_controller_heater_mode` | Heater Mode | ♨️ `mdi:radiator` | Off/On/Auto | Heater: Off/On/Auto |
-| `select.violet_pool_controller_solar_mode` | Solar Mode | ☀️ `mdi:solar-power` | Off/On/Auto | Solar: Off/On/Auto |
-| `select.violet_pool_controller_light_mode` | Light Mode | 💡 `mdi:lightbulb` | Off/On/Auto | Light: Off/On/Auto |
-| `select.violet_pool_controller_dos_cl_mode` | Chlorine Mode | 🧪 `mdi:flask-outline` | Off/Manual/Auto | Chlorine dosing |
-| `select.violet_pool_controller_dos_phm_mode` | pH- Mode | 🧪 `mdi:flask-minus` | Off/Manual/Auto | pH minus dosing |
-| `select.violet_pool_controller_dos_php_mode` | pH+ Mode | 🧪 `mdi:flask-plus` | Off/Manual/Auto | pH plus dosing |
-| `select.violet_pool_controller_pvsurplus_mode` | PV Mode | ☀️ `mdi:solar-power` | Off/On/Auto | PV surplus mode |
-
-**Feature Dependency:**
-- `pump_mode`: Requires feature **"Filter Pump"**
-- `heater_mode`: Requires feature **"Heater"**
-- `solar_mode`: Requires feature **"Solar Absorber"**
-- `light_mode`: Requires feature **"LED Lighting"**
-- `dos_cl_mode`: Requires feature **"Chlorine Control"**
-- `dos_phm_mode`, `dos_php_mode`: Requires feature **"pH Control"**
-- `pvsurplus_mode`: Requires feature **"PV Surplus"**
+| Entity ID suffix | Name | Backed output |
+|------------------|------|---------------|
+| `pump_mode` | Pump Mode | PUMP |
+| `heater_mode` | Heater Mode | HEATER |
+| `solar_mode` | Solar Mode | SOLAR |
+| `light_mode` | Light Mode | LIGHT |
+| `dos_cl_mode` | Chlorine Dosing Mode | DOS_1_CL |
+| `dos_elo_mode` | Electrolysis Dosing Mode | DOS_2_ELO |
+| `dos_phm_mode` | pH- Dosing Mode | DOS_4_PHM |
+| `dos_php_mode` | pH+ Dosing Mode | DOS_5_PHP |
+| `dos_floc_mode` | Flocculant Mode | DOS_6_FLOC |
+| `pvsurplus_mode` | PV Surplus Mode | PVSURPLUS |
+| `backwash_mode` | Backwash Mode | BACKWASH |
+| `backwashrinse_mode` | Rinse Mode | BACKWASHRINSE |
+| `refill_mode` | Refill Mode | REFILL |
+| `eco_mode` | ECO Mode (read-only) | ECO |
+| `ext1_1_mode`–`ext2_8_mode` | Extension 1.1–2.8 Mode (16) | EXT*_* |
+| `omni_dc0_mode`–`omni_dc5_mode` | Omni DC0–DC5 Mode (6) | OMNI_DC* |
 
 ---
 
 ## 🔢 Number Entities (Setpoints)
 
-### Chemistry Setpoints (3 Entities)
+### Chemistry Setpoints
 
-| Entity ID | Name | Icon | Min | Max | Step | Default | Unit |
-|-----------|------|------|-----|-----|------|---------|------|
-| `number.violet_pool_controller_ph_setpoint` | pH Setpoint | ⚗️ `mdi:ph` | 6.8 | 7.8 | 0.1 | 7.2 | pH |
-| `number.violet_pool_controller_orp_setpoint` | Redox Setpoint | ⚡ `mdi:lightning-bolt-circle` | 600 | 800 | 10 | 700 | mV |
-| `number.violet_pool_controller_chlorine_setpoint` | Chlorine Setpoint | 🧪 `mdi:water-plus` | 0.2 | 2.0 | 0.1 | 0.6 | mg/l |
+| Entity ID suffix | Name | Min | Max | Step | Default | Unit |
+|------------------|------|-----|-----|------|---------|------|
+| `ph_setpoint` | pH Setpoint | 6.8 | 7.8 | 0.1 | 7.2 | pH |
+| `orp_setpoint` | ORP Setpoint | 400 | 900 | 5 | 700 | mV |
+| `chlorine_setpoint` | Chlorine Setpoint | 0.05 | 5.0 | 0.05 | 0.6 | mg/l |
 
-**Feature Dependency:**
-- `ph_setpoint`: Requires feature **"pH Control"**
-- `orp_setpoint`, `chlorine_setpoint`: Requires feature **"Chlorine Control"**
+### Temperature Setpoints
 
-### Temperature Setpoints (2 Entities)
+| Entity ID suffix | Name | Min | Max | Step | Default | Unit |
+|------------------|------|-----|-----|------|---------|------|
+| `heater_target_temp` | Heater Target Temperature | 20.0 | 35.0 | 0.5 | 28.0 | °C |
+| `solar_target_temp` | Solar Target Temperature | 20.0 | 40.0 | 0.5 | 30.0 | °C |
 
-| Entity ID | Name | Icon | Min | Max | Step | Default | Unit |
-|-----------|------|------|-----|-----|------|---------|------|
-| `number.violet_pool_controller_heater_target_temp` | Heater Target Temperature | ♨️ `mdi:radiator` | 20.0 | 35.0 | 0.5 | 28.0 | °C |
-| `number.violet_pool_controller_solar_target_temp` | Solar Target Temperature | ☀️ `mdi:solar-power` | 20.0 | 40.0 | 0.5 | 30.0 | °C |
+### Pump Speed
 
-**Feature Dependency:**
-- `heater_target_temp`: Requires feature **"Heater"**
-- `solar_target_temp`: Requires feature **"Solar Absorber"**
+| Entity ID suffix | Name | Min | Max | Step | Default |
+|------------------|------|-----|-----|------|---------|
+| `pump_speed` | Pump Speed | 1 | 3 | 1 | 2 |
 
-### Pump Speed (1 Entity)
+### Canister Volumes
 
-| Entity ID | Name | Icon | Min | Max | Step | Default | Unit |
-|-----------|------|------|-----|-----|------|---------|------|
-| `number.violet_pool_controller_pump_speed` | Pump Speed | ⚙️ `mdi:pump` | 1 | 3 | 1 | 2 | - |
-
-**Feature Dependency:** Requires feature **"Filter Pump"**
-
-### Canister Volumes (4 Entities)
-
-| Entity ID | Name | Icon | Min | Max | Step | Default | Unit |
-|-----------|------|------|-----|-----|------|---------|------|
-| `number.violet_pool_controller_chlorine_canister_volume` | Chlorine Canister Volume | 🛢️ `mdi:barrel` | 100 | 50000 | 100 | 10000 | ml |
-| `number.violet_pool_controller_ph_minus_canister_volume` | pH- Canister Volume | 🛢️ `mdi:barrel` | 100 | 50000 | 100 | 10000 | ml |
-| `number.violet_pool_controller_ph_plus_canister_volume` | pH+ Canister Volume | 🛢️ `mdi:barrel` | 100 | 50000 | 100 | 20000 | ml |
-| `number.violet_pool_controller_flocculant_canister_volume` | Flocculant Canister Volume | 🛢️ `mdi:barrel` | 100 | 50000 | 100 | 20000 | ml |
-
-**Feature Dependency:**
-- `chlorine_canister_volume`: Requires feature **"Chlorine Control"**
-- `ph_minus_canister_volume`, `ph_plus_canister_volume`: Requires feature **"pH Control"**
-- `flocculant_canister_volume`: Requires feature **"Flocculant Dosing"**
+| Entity ID suffix | Name | Min | Max | Step | Default | Unit |
+|------------------|------|-----|-----|------|---------|------|
+| `chlorine_canister_volume` | Chlorine Canister Volume | 100 | 50000 | 100 | 10000 | ml |
+| `ph_minus_canister_volume` | pH- Canister Volume | 100 | 50000 | 100 | 10000 | ml |
+| `ph_plus_canister_volume` | pH+ Canister Volume | 100 | 50000 | 100 | 20000 | ml |
+| `flocculant_canister_volume` | Flocculant Canister Volume | 100 | 50000 | 100 | 20000 | ml |
 
 ---
 
 ## 🌡️ Climate Entities
 
-### Thermostats (2 Entities)
+| Entity ID suffix | Name | Feature | HVAC Modes |
+|------------------|------|---------|------------|
+| `heater` | Heater | heating | off, heat, auto |
+| `solar` | Solar | solar | off, heat, auto |
 
-| Entity ID | Name | Icon | Description |
-|-----------|------|------|-------------|
-| `climate.violet_pool_controller_heater` | Heater | ♨️ `mdi:radiator` | Heater thermostat |
-| `climate.violet_pool_controller_solar` | Solar | ☀️ `mdi:solar-power` | Solar thermostat |
+---
 
-**Feature Dependency:**
-- `heater`: Requires feature **"Heater"**
-- `solar`: Requires feature **"Solar Absorber"**
+## 🏊 Cover Entity
 
-**Features:**
-- Set temperature
-- Select mode (Off/Heat)
-- Use schedules
-- Create automations
+| Entity ID suffix | Name | Feature | Commands |
+|------------------|------|---------|----------|
+| `cover` | Pool Cover | cover_control | open, close, stop |
+
+The cover entity reads `COVER_STATE` and reports `OPEN`, `OPENING`, `CLOSED`, `CLOSING`, `STOPPED` (see `CoverState` enum).
 
 ---
 
@@ -314,74 +331,23 @@ This page lists all entities created by the Violet Pool Controller integration. 
 {entity_type}.violet_pool_controller_{device_key}
 ```
 
-**Examples:**
-- `sensor.violet_pool_controller_pH_value`
+Examples:
+- `sensor.violet_pool_controller_ph_value`
 - `switch.violet_pool_controller_pump`
 - `climate.violet_pool_controller_heater`
+- `light.violet_pool_controller_dmx_scene1`
+- `select.violet_pool_controller_pump_mode`
+- `number.violet_pool_controller_ph_setpoint`
 
 ### Multi-Controller
 
-With multiple controllers, the device ID is inserted:
+When several controllers are configured, the per-controller unique id (`{api_url}_{device_id}`) is appended:
 
 ```
 {entity_type}.violet_pool_controller_{device_id}_{device_key}
 ```
 
-**Examples:**
-- `sensor.violet_pool_controller_1_ph_value` (Controller 1)
-- `sensor.violet_pool_controller_2_ph_value` (Controller 2)
-- `switch.violet_pool_controller_1_pump` (Controller 1)
-- `switch.violet_pool_controller_2_pump` (Controller 2)
-
-### Change Device ID
-
-You can change the device ID in the integration:
-
-1. Settings → Devices & Services
-2. Violet Pool Controller → "..."
-3. Change configuration
-4. Adjust device ID
-5. Restart
-
-⚠️ **Note:** Changing the device ID creates new entities! The old entities remain in the registry.
-
----
-
-## 🎨 Icon Optimizations (March 2026)
-
-### Top 10 Improvements
-
-| Rank | Icon Change | Reason |
-|------|-------------|--------|
-| 🥇 | `mdi:flask` → **`mdi:ph`** | Dedicated pH icon instead of flask |
-| 🥈 | `mdi:water-percent` → **`mdi:water-sync`** | Overflow instead of percentage |
-| 🥉 | `mdi:refresh` → **`mdi:autorenew`** | Auto-renew for cycle |
-| 4 | `mdi:pump-on` → **`mdi:water-pump`** | Water pump exists |
-| 5 | `mdi:radiator-disabled` → **`mdi:radiator`** | Simpler heater icon |
-| 6 | `mdi:lightbulb-on` → **`mdi:lightbulb`** | Standard lightbulb |
-| 7 | `mdi:heat-exchange` → **`mdi:radiator`** | Clearer heat exchanger |
-| 8 | `mdi:pool-thermometer` → **`mdi:pool`** | Simpler pool icon |
-| 9 | `mdi:water-opacity` → **`mdi:water`** | Water instead of turbidity |
-| 10 | `mdi:gauge-full` → **`mdi:gauge`** | Standard gauge display |
-
-### All Icon Changes
-
-- **68+ icons optimized**
-- **All changed to MDI**
-- **Consistent icon set**
-- **No broken icons**
-
-📖 **Details:** [Icon Reference](Icon-Reference)
-
----
-
-## 📖 Next Steps
-
-Now that you know all entities:
-
-1. 🤖 **Create automations**: [Services Guide](Services)
-2. 🎨 **Set up dashboard**: [Dashboard Guide](Home)
-3. 🐛 **Solve problems**: [Troubleshooting](Troubleshooting)
+See [Multi-Controller Guide](Multi-Controller) for details.
 
 ---
 
@@ -389,49 +355,17 @@ Now that you know all entities:
 
 ### Missing entities?
 
-1. **Check feature:**
-   - Settings → Devices & Services → Violet Pool Controller
-   - "..." → Change configuration
-   - Enable feature
-
-2. **Restart Home Assistant:**
-   - Settings → System → Restart
-
-3. **Clear browser cache:**
-   - Ctrl + Shift + Delete
-
-### Missing icon?
-
-1. **Clear browser cache:**
-   - Ctrl + Shift + Delete
-
-2. **Restart Home Assistant:**
-   - Settings → System → Restart
-
-3. **Check entity registry:**
-   - Settings → Devices & Services → Entities
-   - Search for entity
+1. **Enable the feature**: Settings → Devices & Services → Violet Pool Controller → "..." → Change configuration → enable feature.
+2. **Restart Home Assistant**: Settings → System → Restart.
+3. **Wait one polling cycle** (default: 10 s) for sensors to populate.
+4. **Check controller**: Some sensors only appear when the controller reports the corresponding reading (e.g. `DOS_2_ELO_*` requires an electrolysis module).
 
 ### Rename an entity?
 
-1. Settings → Devices & Services → Entities
-2. Search for entity
-3. "..." → Rename entity
-4. Enter new name
+Settings → Devices & Services → Entities → search → "..." → Rename entity.
 
-⚠️ **Note:** Renaming affects automations!
+> ⚠️ Renaming affects existing automations.
 
 ---
 
-## 🔗 Useful Links
-
-- 🎨 [Icon Reference](Icon-Reference) - All icons in detail
-- 📖 [Configuration Guide](https://github.com/Xerolux/violet-hass/blob/main/docs/help/configuration-guide.de.md)
-- 🐛 [Troubleshooting](Troubleshooting)
-- 🤖 [Services Guide](Services)
-
----
-
-**🎉 You now know all entities!**
-
-Good luck creating automations and dashboards!
+**Next:** [Sensors](Sensors) | [Switches](Switches) | [Device States](Device-States) | [Services](Services)
