@@ -376,10 +376,7 @@ class VioletReadings(Mapping[str, Any]):
         Keys are sensor indices 1–12.  A value of ``None`` means no sensor is
         configured for that slot or the reading is unavailable.
         """
-        return {
-            i: _opt_float(self._raw.get(f"onewire{i}_value"))
-            for i in range(1, 13)
-        }
+        return {i: _opt_float(self._raw.get(f"onewire{i}_value")) for i in range(1, 13)}
 
     @cached_property
     def onewire_states(self) -> dict[int, OnewireState | None]:
@@ -387,10 +384,7 @@ class VioletReadings(Mapping[str, Any]):
 
         Keys are sensor indices 1–12.
         """
-        return {
-            i: _parse_onewire_state(self._raw.get(f"onewire{i}_state"))
-            for i in range(1, 13)
-        }
+        return {i: _parse_onewire_state(self._raw.get(f"onewire{i}_state")) for i in range(1, 13)}
 
     # ------------------------------------------------------------------
     # Analog / impulse inputs
@@ -402,18 +396,12 @@ class VioletReadings(Mapping[str, Any]):
 
         Keys are input indices 1–6.
         """
-        return {
-            i: _opt_float(self._raw.get(f"ADC{i}_value"))
-            for i in range(1, 7)
-        }
+        return {i: _opt_float(self._raw.get(f"ADC{i}_value")) for i in range(1, 7)}
 
     @cached_property
     def impulse_inputs(self) -> dict[int, float | None]:
         """Current readings for impulse inputs IMP1–IMP2."""
-        return {
-            i: _opt_float(self._raw.get(f"IMP{i}_value"))
-            for i in range(1, 3)
-        }
+        return {i: _opt_float(self._raw.get(f"IMP{i}_value")) for i in range(1, 3)}
 
     @cached_property
     def digital_inputs(self) -> dict[int, bool]:
@@ -422,10 +410,7 @@ class VioletReadings(Mapping[str, Any]):
         ``True`` means the input is closed (logic 1), ``False`` means open (0).
         Absent inputs default to ``False``.
         """
-        return {
-            i: bool(int(self._raw.get(f"INPUT{i}", 0) or 0))
-            for i in range(1, 13)
-        }
+        return {i: bool(int(self._raw.get(f"INPUT{i}", 0) or 0)) for i in range(1, 13)}
 
     # ------------------------------------------------------------------
     # Dosing channel output states
@@ -462,10 +447,7 @@ class VioletReadings(Mapping[str, Any]):
 
         Keys are scene indices 1–12.
         """
-        return {
-            i: _parse_dmx_state(self._raw.get(f"DMX_SCENE{i}"))
-            for i in range(1, 13)
-        }
+        return {i: _parse_dmx_state(self._raw.get(f"DMX_SCENE{i}")) for i in range(1, 13)}
 
     # ------------------------------------------------------------------
     # Extension relay banks (EXT1 and EXT2, 8 relays each)
@@ -480,9 +462,7 @@ class VioletReadings(Mapping[str, Any]):
         included (they will be ``None``).
         """
         return {
-            f"EXT{bank}_{relay}": _parse_output_state(
-                self._raw.get(f"EXT{bank}_{relay}")
-            )
+            f"EXT{bank}_{relay}": _parse_output_state(self._raw.get(f"EXT{bank}_{relay}"))
             for bank in (1, 2)
             for relay in range(1, 9)
         }
@@ -495,9 +475,7 @@ class VioletReadings(Mapping[str, Any]):
     def digital_rules(self) -> dict[int, RuleState | None]:
         """States for digital-input switching rules 1–7."""
         return {
-            i: _parse_rule_state(
-                self._raw.get(f"DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_{i}")
-            )
+            i: _parse_rule_state(self._raw.get(f"DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_{i}"))
             for i in range(1, 8)
         }
 
@@ -509,7 +487,4 @@ class VioletReadings(Mapping[str, Any]):
         pump_s = self.pump.name if self.pump is not None else "?"
         ph_s = f"{self.ph:.2f}" if self.ph is not None else "?"
         orp_s = f"{self.orp:.0f}" if self.orp is not None else "?"
-        return (
-            f"VioletReadings(keys={len(self._raw)}, "
-            f"pump={pump_s}, pH={ph_s}, ORP={orp_s})"
-        )
+        return f"VioletReadings(keys={len(self._raw)}, pump={pump_s}, pH={ph_s}, ORP={orp_s})"

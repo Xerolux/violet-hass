@@ -129,6 +129,7 @@ class PvSurplusState(IntEnum):
         """Return True when PV surplus mode is active (regardless of source)."""
         return self in (PvSurplusState.ON_BY_INPUT, PvSurplusState.ON_BY_HTTP)
 
+
 # =============================================================================
 # COVER CONTROL FUNCTIONS
 # =============================================================================
