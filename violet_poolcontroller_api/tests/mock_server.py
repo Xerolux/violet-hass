@@ -23,10 +23,17 @@ Usage:
     python tests/mock_server.py --standalone                       # dosing-standalone mode
     python tests/mock_server.py --delay 0.3                        # simulate 300ms latency
 
+Auth model (matches real controller):
+    /getReadings         → no auth required
+    all other endpoints  → Basic Auth (when --user is set)
+
 Control endpoints (not on real controller):
-    GET /mock/state           → current internal state as JSON
-    GET /mock/error?code=500  → force next N requests to return this error
-    GET /mock/reset           → reset all state to defaults
+    GET /mock/state                                  → current internal state as JSON
+    GET /mock/error?code=500                         → force next N requests to return this error
+    GET /mock/reset                                  → reset all state to defaults
+    GET /mock/firmware?available=1.2.0               → simulate a firmware update being available
+    GET /mock/firmware?available=                    → clear firmware update (up to date)
+    GET /mock/firmware?installed=1.2.0               → change installed firmware version
 
 The server prints all incoming requests so you can verify what the client sends.
 """
@@ -132,6 +139,14 @@ class MockController:
         self.request_count: int = 0
         self.start_time: float = time.monotonic()
 
+        # Firmware versions — keys match the real controller's getReadings output.
+        # The real controller sends ``SW_VERSION`` and lowercase ``fw``; carrier
+        # board info arrives as ``SW_VERSION_CARRIER`` / ``HW_VERSION_CARRIER``.
+        # The available-version key only appears when an update exists.
+        self.fw_installed = "1.1.9"
+        self.fw_carrier = "1.0.1"
+        self.fw_available: str | None = None  # None = up to date
+
         self.last_on_off: dict[str, int] = {
             "PUMP_LAST_ON": now - 600, "PUMP_LAST_OFF": now - 7200,
         }
@@ -205,15 +220,33 @@ class MockController:
         readings: dict[str, Any] = {
             "date": datetime.now(tz=UTC).strftime("%d.%m.%Y"),
             "time": datetime.now(tz=UTC).strftime("%H:%M:%S"),
-            "fw": "1.1.9",
+            "CURRENT_TIME_UNIX": now,
+            "CONFIGCHANGEMARKER": 0,
+            # Firmware — the real controller sends BOTH ``fw`` and ``SW_VERSION``
+            "fw": self.fw_installed,
+            "SW_VERSION": self.fw_installed,
+            "SW_VERSION_CARRIER": self.fw_carrier,
+            "HW_VERSION_CARRIER": "1.0.0",
+            "HW_SERIAL_CARRIER": "4",
+            # Available update — only included when self.fw_available is set
+            **({"SW_UPDATE_AVAILABLE": self.fw_available} if self.fw_available else {}),
             "CPU_TEMP": self.sensor_drift["CPU_TEMP"],
+            "CPU_TEMP_CARRIER": round(self.sensor_drift["CPU_TEMP"] - 10.0, 1),
             "CPU_UPTIME": f"{days}d {hours}h {minutes}m",
-            "SYSTEM_MEMORY": 128.4,
+            "LOAD_AVG": "1.8",
+            "MEMORY_USED": "38.52",
+            "SYSTEM_MEMORY": 175.2,
             "SYSTEM_memoryusage": 42.1,
+            "SYSTEM_cpu_temperature": self.sensor_drift["CPU_TEMP"],
+            "SYSTEM_carrier_cpu_temperature": self.sensor_drift["CPU_TEMP"] - 10.0,
             "SYSTEM_dosagemodule_alive_count": "20392243",
             "SYSTEM_dosagemodule_cpu_temperature": self.sensor_drift["CPU_TEMP"] - 0.4,
             "SYSTEM_ext1module_alive_count": "52443888",
             "IMP1_value": round(1.23 + random.uniform(-0.1, 0.1), 2),
+            "IMP2_value": round(12.47 + random.uniform(-0.1, 0.1), 2),
+            "ADC1_value": 0.48,
+            "ADC2_value": 58,
+            "ADC3_value": 62.8,
             "orp_value": self.sensor_drift["orp_value"],
             "orp_value_max": round(self.sensor_drift["orp_value"] + 27.0, 1),
             "orp_value_min": round(self.sensor_drift["orp_value"] - 27.0, 1),
@@ -223,6 +256,12 @@ class MockController:
             "pot_value": self.sensor_drift["pot_value"],
             "pot_value_max": round(self.sensor_drift["pot_value"] + 0.23, 2),
             "pot_value_min": round(self.sensor_drift["pot_value"] - 0.21, 2),
+            # One-wire temperature sensors (pool, solar, ambient, etc.)
+            **{f"onewire{n}_value": round(25.0 + random.uniform(-5, 7), 1) for n in range(1, 11)},
+            **{f"onewire{n}_value_min": round(24.0, 1) for n in range(1, 11)},
+            **{f"onewire{n}_value_max": round(26.0, 1) for n in range(1, 11)},
+            **{f"onewire{n}_state": "OK" for n in range(1, 11)},
+            "onewire1_romcode": "28121883321901A9",
             "PUMPSTATE": str(self.outputs["PUMP"]),
             "PUMPPRIOSTATE": str(self.outputs["PUMP"]),
             "SOLARSTATE": str(self.outputs["SOLAR"]),
@@ -233,6 +272,21 @@ class MockController:
             "PUMP_LAST_ON": self.last_on_off.get("PUMP_LAST_ON", now - 600),
             "PUMP_LAST_OFF": self.last_on_off.get("PUMP_LAST_OFF", now - 7200),
             "PUMP_RUNTIME": "04h 33m 12s",
+            "PUMP_RPM_0": 0,
+            "PUMP_RPM_1": 0,
+            "PUMP_RPM_2": 1,
+            "PUMP_RPM_3": 0,
+            # Cover and refill state
+            "COVER_STATE": "OPEN",
+            "REFILL_STATE": "OFF",
+            "OVERFLOW_REFILL_STATE": "OFF",
+            "BACKWASH_STATE": "NEXT_BW_IN 6 BW_DAY5",
+            "BACKWASH_STEP": 0,
+            "BACKWASH_DELAY_RUNNING": "NO",
+            # Digital inputs
+            **{f"INPUT{n}": 0 for n in range(1, 13)},
+            "INPUTz1z2": 1,
+            "INPUT_CE1": 0, "INPUT_CE2": 0, "INPUT_CE3": 0, "INPUT_CE4": 0,
             "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": "12.5",
             "DOS_1_CL_LAST_CAN_RESET": "1700000000000",
             "DOS_1_CL_LAST_OFF": str(now - 300),
@@ -540,6 +594,33 @@ async def handle_get_notifications(request: web.Request) -> web.Response:
     return web.json_response(_ctrl.notifications)
 
 
+async def handle_set_target_values(request: web.Request) -> web.Response:
+    """GET /setTargetValues?target=KEY&value=VAL — set a target value."""
+    _log_request(request)
+    await _maybe_delay()
+    if (err := _check_error_mode()) is not None:
+        return err
+    target = request.query.get("target", "")
+    value = request.query.get("value", "")
+    if target:
+        _ctrl.config[target] = value
+        _LOGGER.info("  -> setTargetValues: %s = %s", target, value)
+    return web.json_response({"ok": True})
+
+
+async def handle_set_dosing_parameters(request: web.Request) -> web.Response:
+    """POST /setDosingParameters — merge JSON into dosing parameters."""
+    _log_request(request)
+    await _maybe_delay()
+    if (err := _check_error_mode()) is not None:
+        return err
+    data = await request.post()
+    for key, value in data.items():
+        _ctrl.config[str(key)] = value
+        _LOGGER.debug("  -> dosing param: %s = %s", key, value)
+    return web.json_response({"ok": True})
+
+
 # ---------------------------------------------------------------------------
 # Mock control endpoints (NOT part of the real controller API)
 # ---------------------------------------------------------------------------
@@ -554,6 +635,11 @@ async def handle_mock_state(request: web.Request) -> web.Response:
         "dosing_state": _ctrl.dosing_state,
         "sensor_drift": _ctrl.sensor_drift,
         "config": _ctrl.config,
+        "firmware": {
+            "installed": _ctrl.fw_installed,
+            "available": _ctrl.fw_available,
+            "carrier": _ctrl.fw_carrier,
+        },
         "error_mode": _ctrl.error_mode,
         "error_count_remaining": _ctrl.error_count,
         "log_entries_count": len(_ctrl.log_entries),
@@ -575,12 +661,47 @@ async def handle_mock_reset(request: web.Request) -> web.Response:
     return web.json_response({"status": "ok", "message": "State reset to defaults"})
 
 
+async def handle_mock_firmware(request: web.Request) -> web.Response:
+    """Simulate a manufacturer firmware update being available.
+
+    GET /mock/firmware?available=1.2.0   → SW_UPDATE_AVAILABLE will be "1.2.0"
+    GET /mock/firmware?available=        → no update (up to date)
+    GET /mock/firmware?installed=1.2.0   → change the installed version
+    GET /mock/firmware                   → just read current state
+    """
+    installed = request.query.get("installed")
+    available = request.query.get("available")
+
+    if installed is not None:
+        _ctrl.fw_installed = installed.strip() or "0.0.0"
+    if available is not None:
+        stripped = available.strip()
+        _ctrl.fw_available = stripped or None
+
+    _LOGGER.info(
+        "Firmware mock: installed=%s available=%s",
+        _ctrl.fw_installed,
+        _ctrl.fw_available or "(none)",
+    )
+    return web.json_response({
+        "installed": _ctrl.fw_installed,
+        "available": _ctrl.fw_available,
+        "carrier": _ctrl.fw_carrier,
+        "update_available": _ctrl.fw_available is not None,
+    })
+
+
 @web.middleware
 async def auth_middleware(
     request: web.Request,
     handler: Any,  # noqa: ANN401
 ) -> web.Response:
-    if _AUTH_CREDENTIALS is not None and not request.path.startswith("/mock/"):
+    # The real Violet controller does not require auth for /getReadings.
+    # Mock control endpoints (/mock/*) are never authenticated either.
+    if request.path == "/getReadings" or request.path.startswith("/mock/"):
+        return await handler(request)
+
+    if _AUTH_CREDENTIALS is not None:
         auth_header = request.headers.get("Authorization", "")
         if not auth_header.startswith("Basic "):
             _LOGGER.warning("AUTH REJECT: missing/invalid Authorization header from %s", request.remote)
@@ -617,6 +738,8 @@ def create_app() -> web.Application:
     app.router.add_get("/getConfig", handle_get_config)
     app.router.add_post("/setConfig", handle_set_config)
     app.router.add_get("/setFunctionManually", handle_set_function_manually)
+    app.router.add_get("/setTargetValues", handle_set_target_values)
+    app.router.add_post("/setDosingParameters", handle_set_dosing_parameters)
     app.router.add_post("/triggerManualDosing", handle_trigger_manual_dosing)
     app.router.add_get("/getHistory", handle_get_history)
     app.router.add_get("/getWeatherdata", handle_get_weatherdata)
@@ -632,6 +755,7 @@ def create_app() -> web.Application:
     app.router.add_get("/mock/state", handle_mock_state)
     app.router.add_get("/mock/error", handle_mock_error)
     app.router.add_get("/mock/reset", handle_mock_reset)
+    app.router.add_get("/mock/firmware", handle_mock_firmware)
 
     return app
 
@@ -644,9 +768,11 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""\
 Control endpoints (not on real controller):
-  GET /mock/state           -> current internal state as JSON
-  GET /mock/error?code=500&count=3  -> force next 3 requests to return HTTP 500
-  GET /mock/reset           -> reset all state to defaults
+  GET /mock/state                          -> current internal state as JSON
+  GET /mock/error?code=500&count=3         -> force next 3 requests to return HTTP 500
+  GET /mock/reset                          -> reset all state to defaults
+  GET /mock/firmware?available=1.2.0       -> simulate firmware update available
+  GET /mock/firmware?available=            -> clear firmware update (up to date)
 
 Examples:
   python tests/mock_server.py --user admin --password secret
