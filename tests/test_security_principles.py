@@ -43,9 +43,8 @@ class TestSecurityPrinciple_InputValidation:
 
     def test_credentials_strength_validation(self) -> None:
         """Verify credentials strength validation is available."""
-        # Function should be callable
-        result = validate_credentials_strength("user", "password")
-        assert result is None  # Returns None when validation passes
+        # Function should be callable and returns None (validation passes)
+        validate_credentials_strength("user", "password")
 
 
 class TestSecurityPrinciple_StateConstants:
@@ -76,11 +75,9 @@ class TestSecurityPrinciple_PassiveReadOnly:
 
     def test_action_constants_limited(self) -> None:
         """Verify only ON/OFF actions are available (no auto-recovery actions)."""
-        # These should exist for explicit user actions
-        import custom_components.violet_pool_controller.const as const
-
-        assert hasattr(const, "ACTION_ON")
-        assert hasattr(const, "ACTION_OFF")
+        # ACTION_ON and ACTION_OFF are already imported at module level
+        assert ACTION_ON is not None
+        assert ACTION_OFF is not None
 
 
 class TestSecurityPrinciple_Documentation:
