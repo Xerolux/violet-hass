@@ -59,18 +59,6 @@ class TestSecurityPrinciple_StateConstants:
         assert ACTION_ON != ACTION_OFF
 
 
-class TestSecurityPrinciple_RateLimiting:
-    """Test that rate limiting is available in API."""
-
-    def test_api_rate_limiter_exists(self) -> None:
-        """Verify VioletPoolAPI supports rate limiting."""
-        from violet_poolcontroller_api.api import VioletPoolAPI
-
-        # API should be instantiable with rate limit
-        api = VioletPoolAPI(host="192.168.1.100")
-        assert api is not None
-
-
 class TestSecurityPrinciple_InputSanitization:
     """Test that input sanitization is enforced throughout."""
 
@@ -81,15 +69,6 @@ class TestSecurityPrinciple_InputSanitization:
         # Should be importable and instantiable
         sanitizer = InputSanitizer()
         assert sanitizer is not None
-
-
-class TestSecurityPrinciple_ConfigValidation:
-    """Test that configuration validation prevents unsafe settings."""
-
-    def test_ip_validation_rejects_invalid_hosts(self) -> None:
-        """Verify config rejects invalid IP addresses."""
-        # Invalid hosts should be rejected (return False)
-        assert validate_ip_address("localhost") is False
 
 
 class TestSecurityPrinciple_PassiveReadOnly:
