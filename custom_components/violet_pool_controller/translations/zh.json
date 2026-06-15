@@ -603,7 +603,7 @@
         "name": "载板温度"
       },
       "cpu_uptime": {
-        "name": "运行时间"
+        "name": "设备运行时间"
       },
       "system_cpu_temperature": {
         "name": "系统CPU温度"
@@ -721,6 +721,39 @@
       },
       "ext2_8": {
         "name": "Extension 2.8"
+      },
+      "pump_rs485_pwr": {
+        "name": "RS485水泵功率"
+      },
+      "load_avg": {
+        "name": "CPU平均负载"
+      },
+      "dos_2_elo_daily": {
+        "name": "电解日剂量（毫升）"
+      },
+      "di_rule_1_stopwatch": {
+        "name": "DI规则1剩余时间"
+      },
+      "di_rule_2_stopwatch": {
+        "name": "DI规则2剩余时间"
+      },
+      "di_rule_3_stopwatch": {
+        "name": "DI规则3剩余时间"
+      },
+      "di_rule_4_stopwatch": {
+        "name": "DI规则4剩余时间"
+      },
+      "di_rule_5_stopwatch": {
+        "name": "DI规则5剩余时间"
+      },
+      "di_rule_6_stopwatch": {
+        "name": "DI规则6剩余时间"
+      },
+      "di_rule_7_stopwatch": {
+        "name": "DI规则7剩余时间"
+      },
+      "di_rule_8_stopwatch": {
+        "name": "DI规则8剩余时间"
       }
     },
     "binary_sensor": {

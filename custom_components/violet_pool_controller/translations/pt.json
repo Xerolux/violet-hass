@@ -600,7 +600,7 @@
         "name": "Temperatura da placa carrier"
       },
       "cpu_uptime": {
-        "name": "Tempo de atividade do sistema"
+        "name": "Tempo de atividade"
       },
       "system_cpu_temperature": {
         "name": "Temperatura CPU do sistema"
@@ -721,6 +721,39 @@
       },
       "pump_estimated_power": {
         "name": "Potência da bomba (est.)"
+      },
+      "pump_rs485_pwr": {
+        "name": "Potência da bomba RS485"
+      },
+      "load_avg": {
+        "name": "Carga média da CPU"
+      },
+      "dos_2_elo_daily": {
+        "name": "Dose diária de eletrólise (ml)"
+      },
+      "di_rule_1_stopwatch": {
+        "name": "Tempo restante regra DI 1"
+      },
+      "di_rule_2_stopwatch": {
+        "name": "Tempo restante regra DI 2"
+      },
+      "di_rule_3_stopwatch": {
+        "name": "Tempo restante regra DI 3"
+      },
+      "di_rule_4_stopwatch": {
+        "name": "Tempo restante regra DI 4"
+      },
+      "di_rule_5_stopwatch": {
+        "name": "Tempo restante regra DI 5"
+      },
+      "di_rule_6_stopwatch": {
+        "name": "Tempo restante regra DI 6"
+      },
+      "di_rule_7_stopwatch": {
+        "name": "Tempo restante regra DI 7"
+      },
+      "di_rule_8_stopwatch": {
+        "name": "Tempo restante regra DI 8"
       }
     },
     "binary_sensor": {

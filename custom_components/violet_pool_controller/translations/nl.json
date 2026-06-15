@@ -600,7 +600,7 @@
         "name": "Carrier-boardtemperatuur"
       },
       "cpu_uptime": {
-        "name": "Bedrijfstijd"
+        "name": "Apparaat uptime"
       },
       "system_cpu_temperature": {
         "name": "Systeem CPU-temperatuur"
@@ -721,6 +721,39 @@
       },
       "pump_estimated_power": {
         "name": "Pompprestaties (geschat)"
+      },
+      "pump_rs485_pwr": {
+        "name": "RS485 pompvermogen"
+      },
+      "load_avg": {
+        "name": "Gemiddelde CPU-belasting"
+      },
+      "dos_2_elo_daily": {
+        "name": "Dagelijkse elektrolysedosering (ml)"
+      },
+      "di_rule_1_stopwatch": {
+        "name": "Resterende tijd DI-regel 1"
+      },
+      "di_rule_2_stopwatch": {
+        "name": "Resterende tijd DI-regel 2"
+      },
+      "di_rule_3_stopwatch": {
+        "name": "Resterende tijd DI-regel 3"
+      },
+      "di_rule_4_stopwatch": {
+        "name": "Resterende tijd DI-regel 4"
+      },
+      "di_rule_5_stopwatch": {
+        "name": "Resterende tijd DI-regel 5"
+      },
+      "di_rule_6_stopwatch": {
+        "name": "Resterende tijd DI-regel 6"
+      },
+      "di_rule_7_stopwatch": {
+        "name": "Resterende tijd DI-regel 7"
+      },
+      "di_rule_8_stopwatch": {
+        "name": "Resterende tijd DI-regel 8"
       }
     },
     "binary_sensor": {

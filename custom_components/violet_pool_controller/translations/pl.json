@@ -600,7 +600,7 @@
         "name": "Temperatura płyty głównej"
       },
       "cpu_uptime": {
-        "name": "Czas działania systemu"
+        "name": "Czas działania urządzenia"
       },
       "system_cpu_temperature": {
         "name": "Temperatura CPU systemu"
@@ -721,6 +721,39 @@
       },
       "pump_estimated_power": {
         "name": "Moc pompy (szac.)"
+      },
+      "pump_rs485_pwr": {
+        "name": "Moc pompy RS485"
+      },
+      "load_avg": {
+        "name": "Średnie obciążenie CPU"
+      },
+      "dos_2_elo_daily": {
+        "name": "Dzienna dawka elektrolizy (ml)"
+      },
+      "di_rule_1_stopwatch": {
+        "name": "Pozostały czas reguły DI 1"
+      },
+      "di_rule_2_stopwatch": {
+        "name": "Pozostały czas reguły DI 2"
+      },
+      "di_rule_3_stopwatch": {
+        "name": "Pozostały czas reguły DI 3"
+      },
+      "di_rule_4_stopwatch": {
+        "name": "Pozostały czas reguły DI 4"
+      },
+      "di_rule_5_stopwatch": {
+        "name": "Pozostały czas reguły DI 5"
+      },
+      "di_rule_6_stopwatch": {
+        "name": "Pozostały czas reguły DI 6"
+      },
+      "di_rule_7_stopwatch": {
+        "name": "Pozostały czas reguły DI 7"
+      },
+      "di_rule_8_stopwatch": {
+        "name": "Pozostały czas reguły DI 8"
       }
     },
     "binary_sensor": {

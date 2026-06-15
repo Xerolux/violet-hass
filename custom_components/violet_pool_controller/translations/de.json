@@ -872,7 +872,7 @@
         "name": "Carrier-Board Temperatur"
       },
       "cpu_uptime": {
-        "name": "System-Laufzeit"
+        "name": "Gerätebetriebszeit"
       },
       "system_cpu_temperature": {
         "name": "System CPU-Temperatur"
@@ -1689,6 +1689,39 @@
       },
       "input_ce4": {
         "name": "Kanister-Leersensor 4"
+      },
+      "pump_rs485_pwr": {
+        "name": "RS485-Pumpenleistung"
+      },
+      "load_avg": {
+        "name": "CPU-Auslastung"
+      },
+      "dos_2_elo_daily": {
+        "name": "Elektrolyse Tagesdosiermenge (ml)"
+      },
+      "di_rule_1_stopwatch": {
+        "name": "DI-Regel 1 Restzeit"
+      },
+      "di_rule_2_stopwatch": {
+        "name": "DI-Regel 2 Restzeit"
+      },
+      "di_rule_3_stopwatch": {
+        "name": "DI-Regel 3 Restzeit"
+      },
+      "di_rule_4_stopwatch": {
+        "name": "DI-Regel 4 Restzeit"
+      },
+      "di_rule_5_stopwatch": {
+        "name": "DI-Regel 5 Restzeit"
+      },
+      "di_rule_6_stopwatch": {
+        "name": "DI-Regel 6 Restzeit"
+      },
+      "di_rule_7_stopwatch": {
+        "name": "DI-Regel 7 Restzeit"
+      },
+      "di_rule_8_stopwatch": {
+        "name": "DI-Regel 8 Restzeit"
       }
     },
     "binary_sensor": {

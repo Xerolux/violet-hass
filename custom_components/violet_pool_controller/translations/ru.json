@@ -603,7 +603,7 @@
         "name": "Температура несущей платы"
       },
       "cpu_uptime": {
-        "name": "Время работы системы"
+        "name": "Время работы устройства"
       },
       "system_cpu_temperature": {
         "name": "Температура CPU системы"
@@ -721,6 +721,39 @@
       },
       "ext2_8": {
         "name": "Extension 2.8"
+      },
+      "pump_rs485_pwr": {
+        "name": "Мощность насоса RS485"
+      },
+      "load_avg": {
+        "name": "Средняя нагрузка ЦП"
+      },
+      "dos_2_elo_daily": {
+        "name": "Суточная доза электролиза (мл)"
+      },
+      "di_rule_1_stopwatch": {
+        "name": "Оставшееся время правила DI 1"
+      },
+      "di_rule_2_stopwatch": {
+        "name": "Оставшееся время правила DI 2"
+      },
+      "di_rule_3_stopwatch": {
+        "name": "Оставшееся время правила DI 3"
+      },
+      "di_rule_4_stopwatch": {
+        "name": "Оставшееся время правила DI 4"
+      },
+      "di_rule_5_stopwatch": {
+        "name": "Оставшееся время правила DI 5"
+      },
+      "di_rule_6_stopwatch": {
+        "name": "Оставшееся время правила DI 6"
+      },
+      "di_rule_7_stopwatch": {
+        "name": "Оставшееся время правила DI 7"
+      },
+      "di_rule_8_stopwatch": {
+        "name": "Оставшееся время правила DI 8"
       }
     },
     "binary_sensor": {

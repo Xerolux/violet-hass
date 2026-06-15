@@ -598,7 +598,7 @@
         "name": "Carrier Board"
       },
       "cpu_uptime": {
-        "name": "System Uptime"
+        "name": "Device Uptime"
       },
       "system_cpu_temperature": {
         "name": "System CPU Temperature"
@@ -1445,6 +1445,39 @@
       },
       "input_ce4": {
         "name": "Can Empty Sensor 4"
+      },
+      "pump_rs485_pwr": {
+        "name": "RS485 Pump Power"
+      },
+      "load_avg": {
+        "name": "CPU Load Average"
+      },
+      "dos_2_elo_daily": {
+        "name": "Electrolysis Daily Amount (ml)"
+      },
+      "di_rule_1_stopwatch": {
+        "name": "DI Rule 1 Remaining Time"
+      },
+      "di_rule_2_stopwatch": {
+        "name": "DI Rule 2 Remaining Time"
+      },
+      "di_rule_3_stopwatch": {
+        "name": "DI Rule 3 Remaining Time"
+      },
+      "di_rule_4_stopwatch": {
+        "name": "DI Rule 4 Remaining Time"
+      },
+      "di_rule_5_stopwatch": {
+        "name": "DI Rule 5 Remaining Time"
+      },
+      "di_rule_6_stopwatch": {
+        "name": "DI Rule 6 Remaining Time"
+      },
+      "di_rule_7_stopwatch": {
+        "name": "DI Rule 7 Remaining Time"
+      },
+      "di_rule_8_stopwatch": {
+        "name": "DI Rule 8 Remaining Time"
       }
     },
     "binary_sensor": {
