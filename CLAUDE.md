@@ -15,7 +15,8 @@ This is a **monorepo** containing two components:
    - Exposes pool sensors, switches, climate, covers, etc. to HA
    - Depends on `violet_poolcontroller_api` for hardware communication
 
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.  
+**🔒 Security Model**: See [SECURITY.md](./SECURITY.md) for detailed security architecture and compliance.
 
 **Current Integration Version**: `2.0.0-beta.9` (defined in `manifest.json`, `const.py`, `.version`, and `pyproject.toml`)
 **Current API Version**: `0.0.31` (defined in `violet_poolcontroller_api/pyproject.toml`)
@@ -681,3 +682,12 @@ Located in `.github/workflows/` (10 workflows):
 12. **Diagnostics**: The integration supports Home Assistant's built-in diagnostics download (`diagnostics.py`). Sensitive fields are redacted automatically. Access via HA UI → Devices → Download diagnostics.
 
 13. **ZeroConf Discovery**: Controllers are auto-discovered on the local network via `discovery.py`. Manually adding a controller via the config flow remains supported.
+
+14. **🔒 Security Architecture** (CRITICAL): This integration follows a **strict passive-first, read-only security model**:
+    - **Never assumes device state** — always reads actual state from controller
+    - **Never restores state on startup** — no "device was on, turn it back on" logic
+    - **Only acts on explicit user commands** — all state changes require conscious user action
+    - **All inputs validated** — XSS, injection, path-traversal protection via `InputSanitizer`
+    - **Rate limited** — token bucket algorithm prevents API flooding
+    - See [SECURITY.md](./SECURITY.md) for full architecture documentation and security checklist
+    - Run security tests: `pytest tests/test_security_principles.py -v`

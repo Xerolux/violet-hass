@@ -435,7 +435,22 @@ class VioletControlClient:
                 list(config_updates.keys()),
             )
 
-            result = await self.api.set_config(config_updates)
+            # Normalize boolean/binary config values to 0 or 1 (not 0.0 or 1.0)
+            # This ensures config keys like *_use, *_enabled, etc. are sent as
+            # integers, matching controller expectations
+            normalized_updates = {}
+            for key, value in config_updates.items():
+                if isinstance(value, bool):
+                    # Convert bool to int: True->1, False->0
+                    normalized_updates[key] = int(value)
+                elif isinstance(value, (int, float)) and key.endswith(("_use", "_enabled")):
+                    # For *_use and *_enabled keys, ensure integer 0 or 1
+                    normalized_updates[key] = int(bool(value))
+                else:
+                    # All other values pass through unchanged
+                    normalized_updates[key] = value
+
+            result = await self.api.set_config(normalized_updates)
 
             if result:
                 _LOGGER.info(
