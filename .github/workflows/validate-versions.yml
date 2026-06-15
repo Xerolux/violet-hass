@@ -23,8 +23,9 @@ jobs:
       - name: Check if version exists in CLAUDE.md
         run: |
           CLEAN_VERSION=$(echo ${{ env.MANIFEST_VERSION }} | sed 's/-dev//g')
-          if ! grep -q "$CLEAN_VERSION" CLAUDE.md; then
+          if ! grep -q "Current Integration Version.*$CLEAN_VERSION" CLAUDE.md; then
             echo "ERROR: Version $CLEAN_VERSION from manifest.json was not found in CLAUDE.md!"
+            echo "Expected format: **Current Integration Version**: \`$CLEAN_VERSION\`"
             exit 1
           else
             echo "OK: Version $CLEAN_VERSION matches CLAUDE.md."
