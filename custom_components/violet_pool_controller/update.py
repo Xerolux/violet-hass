@@ -10,7 +10,11 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from homeassistant.components.update import UpdateEntity, UpdateEntityFeature
+from homeassistant.components.update import (
+    UpdateDeviceClass,
+    UpdateEntity,
+    UpdateEntityFeature,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -48,6 +52,10 @@ class VioletPoolControllerUpdateEntity(CoordinatorEntity, UpdateEntity):
 
     _attr_supported_features = UpdateEntityFeature.INSTALL | UpdateEntityFeature.RELEASE_NOTES
     _attr_icon = "mdi:update"
+    _attr_device_class = UpdateDeviceClass.FIRMWARE
+    # Show the update entity in the main device view instead of hiding it under
+    # the "Configuration" section, so users can actually find it.
+    _attr_entity_category = None
 
     def __init__(
         self,
@@ -72,7 +80,15 @@ class VioletPoolControllerUpdateEntity(CoordinatorEntity, UpdateEntity):
         """Return installed firmware version."""
         if not self.coordinator.data:
             return None
-        return parse_firmware_info(self.coordinator.data).installed_version
+        info = parse_firmware_info(self.coordinator.data)
+        _LOGGER.debug(
+            "Firmware installed version for %s: %s (raw keys: SYSTEM_swversion=%s, SW_VERSION=%s)",
+            self.coordinator.device.device_name,
+            info.installed_version,
+            self.coordinator.data.get("SYSTEM_swversion"),
+            self.coordinator.data.get("SW_VERSION"),
+        )
+        return info.installed_version
 
     @property
     def latest_version(self) -> str | None:
@@ -80,7 +96,15 @@ class VioletPoolControllerUpdateEntity(CoordinatorEntity, UpdateEntity):
         if not self.coordinator.data:
             return None
         info = parse_firmware_info(self.coordinator.data)
-        return info.available_version or info.installed_version
+        latest = info.available_version or info.installed_version
+        _LOGGER.debug(
+            "Firmware latest version for %s: %s (available=%s, installed=%s)",
+            self.coordinator.device.device_name,
+            latest,
+            info.available_version,
+            info.installed_version,
+        )
+        return latest
 
     @property
     def release_summary(self) -> str | None:

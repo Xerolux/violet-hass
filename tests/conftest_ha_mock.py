@@ -520,6 +520,27 @@ def setup_homeassistant_mocks():
     components_module.sensor = sensor_module
     sys.modules['homeassistant.components.sensor'] = sensor_module
 
+    # components.update
+    update_module = types.ModuleType('update')
+
+    class UpdateDeviceClass:
+        FIRMWARE = 'firmware'
+
+    class UpdateEntityFeature:
+        INSTALL = 1
+        RELEASE_NOTES = 2
+
+    class UpdateEntity:
+        @property
+        def device_class(self):
+            return getattr(self, "_attr_device_class", None)
+
+    update_module.UpdateDeviceClass = UpdateDeviceClass
+    update_module.UpdateEntityFeature = UpdateEntityFeature
+    update_module.UpdateEntity = UpdateEntity
+    components_module.update = update_module
+    sys.modules['homeassistant.components.update'] = update_module
+
     sys.modules['homeassistant.helpers'] = ha_module.helpers
 
 

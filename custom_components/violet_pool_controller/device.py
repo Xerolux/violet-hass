@@ -544,12 +544,14 @@ class VioletPoolControllerDevice:
                 self._system_health = 100.0
 
                 fw_candidates = [
+                    data.get("SYSTEM_swversion"),
                     data.get("FW"),
                     data.get("fw"),
                     data.get("SW_VERSION"),
                     data.get("sw_version"),
                     data.get("VERSION"),
                     data.get("version"),
+                    data.get("SYSTEM_carrierboard_swversion"),
                     data.get("SW_VERSION_CARRIER"),
                     data.get("FIRMWARE_VERSION"),
                     data.get("firmware_version"),
