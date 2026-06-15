@@ -494,9 +494,10 @@ class VioletPoolControllerDevice:
                     )
                     return dict(self._data) if self._data else {}
 
-                # Fetch config-based setpoints NOT in getReadings
+                # Fetch config-based setpoints and firmware update info NOT in getReadings
                 try:
                     config_keys = [
+                        # Setpoints
                         "HEATER_set_temp",
                         "SOLAR_maxtemp",
                         "DOSAGE_phminus_setpoint",
@@ -507,13 +508,17 @@ class VioletPoolControllerDevice:
                         "DOSAGE_phminus_use",
                         "DOSAGE_phplus_use",
                         "DOSAGE_floc_use",
+                        # Firmware version and update info (controller exposes via getConfig, not getReadings)
+                        "SYSTEM_swversion",
+                        "SYSTEM_availableversion",
+                        "SYSTEM_updateavailable",
                     ]
                     config_data = await self.api.get_config(config_keys)
                     if isinstance(config_data, dict):
                         data.update(config_data)
                 except Exception as err:  # noqa: BLE001
-                    # Setpoints are an optional enrichment - a failure here
-                    # must not invalidate the successful readings poll
+                    # Config enrichment is optional - a failure here must not
+                    # invalidate the successful readings poll
                     _LOGGER.debug(
                         "Optional getConfig fetch failed for '%s': %s",
                         self.device_name,
