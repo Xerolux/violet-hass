@@ -47,6 +47,12 @@ Seit Version 1.2.4 gab es 88 Commits mit massiven Verbesserungen:
   [*]Hardcodierte Entity-ID-Präfixe entfernt
   [*]Entity-Migrations-Logik verbessert mit besseren Logs
   [/list]
+[*][b]🔨 KRITISCH:[/b] Firmware Update Entity zeigt jetzt korrekte Versionen (getConfig Integration)
+  [list]
+  [*]Coordinator lädt jetzt SYSTEM_swversion, SYSTEM_availableversion vom getConfig Endpoint
+  [*]Update Entity zeigt 1.2.0 korrekt wenn verfügbar (nicht mehr "aktuell" bei 1.1.9)
+  [*]Funktioniert jetzt mit allen Controller-Firmware-Versionen
+  [/list]
 [*][b]✨ NEU:[/b] Reset Error Blockings Button für direkte Fehlerbehandlung
 [*][b]✨ NEU:[/b] Button Platform für Pool-Control-Aktionen
 [*][b]🎯 VERBESSERT:[/b] Error-Sensoren jetzt prominent (nicht im Diagnostic Drawer)
