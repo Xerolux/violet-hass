@@ -1,4 +1,154 @@
+# =============================================================================
 # Services for Violet Pool Controller
+# =============================================================================
+# Services are grouped by function.  Group 1 (Diagnostics & Error
+# Management) is your first stop when the "Pool Health" sensor shows
+# anything other than OK.  All services take a device_id selector and
+# most diagnostics services return data (supports_response=ONLY).
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# GROUP: DIAGNOSTICS & ERROR MANAGEMENT
+# ---------------------------------------------------------------------------
+# Use these together with the "Pool Health" sensor and the per-issue
+# binary sensors (CIRCULATION_STATE, ELECTRODE_FLOW_STATE,
+# PRESSURE_STATE, CAN_RANGE_STATE, OVERFLOW_*_STATE) to detect,
+# investigate, and clear controller-side faults.
+# ---------------------------------------------------------------------------
+
+clear_error_history:
+  name: Clear Error History
+  description: Clear error history after successful recovery (use with caution)
+  fields:
+    device_id:
+      description: Target device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
+
+get_error_summary:
+  name: Get Error Summary
+  description: Get summary of recent errors and recovery suggestions
+  fields:
+    device_id:
+      description: Target device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
+    include_history:
+      description: Include detailed error history
+      default: false
+      selector:
+        boolean: null
+
+reset_blocking:
+  name: Reset fault blockings
+  description: Clears fault-induced blockings on the controller (e.g. BLOCKED_BY_ESC raised by empty-canister
+    alarms). Useful after fixing the underlying issue so dosing and other outputs resume without a controller
+    reboot. Equivalent to the "Reset" button on the controller's web UI error page.
+  fields:
+    device_id:
+      description: Controller device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
+
+test_connection:
+  name: Test Connection
+  description: Test connection to the controller and return diagnostic information
+  fields:
+    device_id:
+      description: Target device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
+
+export_diagnostic_logs:
+  name: Export Diagnostic Logs
+  description: Export recent integration logs for troubleshooting and support
+  fields:
+    device_id:
+      description: Target device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
+    lines:
+      description: 'Number of recent log lines to export (default: 100, max: 10000)'
+      default: 100
+      selector:
+        number:
+          min: 10
+          max: 10000
+          step: 10
+          unit_of_measurement: lines
+    include_timestamps:
+      description: Include timestamps in exported log
+      default: true
+      selector:
+        boolean: null
+    include_config:
+      description: Include integration configuration in the export
+      default: true
+      selector:
+        boolean: null
+    include_history:
+      description: Include poll/error history in the export
+      default: true
+      selector:
+        boolean: null
+    include_states:
+      description: Include current entity states in the export
+      default: true
+      selector:
+        boolean: null
+    include_raw_data:
+      description: Include raw controller data in the export
+      default: true
+      selector:
+        boolean: null
+    save_to_file:
+      description: Save logs to file in /config/ directory
+      default: false
+      selector:
+        boolean: null
+
+get_connection_status:
+  name: Get Connection Status
+  description: Get detailed connection status and health metrics for troubleshooting
+  fields:
+    device_id:
+      description: Target device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
+
+get_live_trace_snapshot:
+  name: Get live trace snapshot
+  description: Return a single-row snapshot of every controller reading (temperatures, chemistry, all
+    outputs, inputs, OmniTronic state, cover state, CPU temperatures) as a flat dict.  Useful for ad-hoc
+    troubleshooting or custom dashboards.  Not meant for regular polling – the controller does not document
+    /getLiveTrace as a stable endpoint.
+  fields:
+    device_id:
+      description: Controller device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
+
+# ---------------------------------------------------------------------------
+# GROUP: POOL CONTROL
+# ---------------------------------------------------------------------------
+# Direct, action-oriented services for the pump, heater, solar,
+# lighting, cover, backwash, dosing, and PV-surplus subsystems.
+# ---------------------------------------------------------------------------
+
 control_pump:
   name: Pump Control
   description: Control the pool pump with advanced options
@@ -13,11 +163,11 @@ control_pump:
       selector:
         select:
           options:
-            - speed_control
-            - force_off
-            - eco_mode
-            - boost_mode
-            - auto
+          - speed_control
+          - force_off
+          - eco_mode
+          - boost_mode
+          - auto
     speed:
       description: Pump speed (1-3)
       default: 2
@@ -49,20 +199,20 @@ smart_dosing:
       selector:
         select:
           options:
-            - "pH-"
-            - "pH+"
-            - Chlorine
-            - Electrolysis
-            - Flocculant
+          - pH-
+          - pH+
+          - Chlorine
+          - Electrolysis
+          - Flocculant
     action:
       description: Dosing action
       required: true
       selector:
         select:
           options:
-            - manual_dose
-            - auto
-            - stop
+          - manual_dose
+          - auto
+          - stop
     duration:
       description: Dosing duration in seconds
       default: 30
@@ -75,7 +225,7 @@ smart_dosing:
       description: Override safety interval between dosing cycles
       default: false
       selector:
-        boolean:
+        boolean: null
 
 manage_pv_surplus:
   name: PV Surplus Management
@@ -91,9 +241,9 @@ manage_pv_surplus:
       selector:
         select:
           options:
-            - activate
-            - deactivate
-            - auto
+          - activate
+          - deactivate
+          - auto
     pump_speed:
       description: Pump speed for PV mode (1-3)
       default: 2
@@ -119,11 +269,11 @@ control_dmx_scenes:
       selector:
         select:
           options:
-            - all_on
-            - all_off
-            - all_auto
-            - sequence
-            - party_mode
+          - all_on
+          - all_off
+          - all_auto
+          - sequence
+          - party_mode
     sequence_delay:
       description: Delay between scenes in sequence mode (seconds)
       default: 2
@@ -173,22 +323,22 @@ manage_digital_rules:
       selector:
         select:
           options:
-            - DIRULE_1
-            - DIRULE_2
-            - DIRULE_3
-            - DIRULE_4
-            - DIRULE_5
-            - DIRULE_6
-            - DIRULE_7
+          - DIRULE_1
+          - DIRULE_2
+          - DIRULE_3
+          - DIRULE_4
+          - DIRULE_5
+          - DIRULE_6
+          - DIRULE_7
     action:
       description: Rule action
       required: true
       selector:
         select:
           options:
-            - trigger
-            - lock
-            - unlock
+          - trigger
+          - lock
+          - unlock
 
 test_output:
   name: Output Test Mode
@@ -201,19 +351,19 @@ test_output:
         device:
           integration: violet_pool_controller
     output:
-      description: "Output identifier (e.g. PUMP, HEATER, SOLAR)"
+      description: Output identifier (e.g. PUMP, HEATER, SOLAR)
       required: true
       selector:
-        text:
+        text: null
     mode:
-      description: "Test mode: SWITCH toggles, ON forces on, OFF forces off"
+      description: 'Test mode: SWITCH toggles, ON forces on, OFF forces off'
       default: SWITCH
       selector:
         select:
           options:
-            - SWITCH
-            - "ON"
-            - "OFF"
+          - SWITCH
+          - 'ON'
+          - 'OFF'
     duration:
       description: Test duration in seconds
       default: 120
@@ -223,107 +373,6 @@ test_output:
           max: 900
           unit_of_measurement: s
 
-export_diagnostic_logs:
-  name: Export Diagnostic Logs
-  description: Export recent integration logs for troubleshooting and support
-  fields:
-    device_id:
-      description: Target device
-      required: true
-      selector:
-        device:
-          integration: violet_pool_controller
-    lines:
-      description: "Number of recent log lines to export (default: 100, max: 10000)"
-      default: 100
-      selector:
-        number:
-          min: 10
-          max: 10000
-          step: 10
-          unit_of_measurement: lines
-    include_timestamps:
-      description: Include timestamps in exported log
-      default: true
-      selector:
-        boolean:
-    include_config:
-      description: Include integration configuration in the export
-      default: true
-      selector:
-        boolean:
-    include_history:
-      description: Include poll/error history in the export
-      default: true
-      selector:
-        boolean:
-    include_states:
-      description: Include current entity states in the export
-      default: true
-      selector:
-        boolean:
-    include_raw_data:
-      description: Include raw controller data in the export
-      default: true
-      selector:
-        boolean:
-    save_to_file:
-      description: Save logs to file in /config/ directory
-      default: false
-      selector:
-        boolean:
-
-get_connection_status:
-  name: Get Connection Status
-  description: Get detailed connection status and health metrics for troubleshooting
-  fields:
-    device_id:
-      description: Target device
-      required: true
-      selector:
-        device:
-          integration: violet_pool_controller
-
-get_error_summary:
-  name: Get Error Summary
-  description: Get summary of recent errors and recovery suggestions
-  fields:
-    device_id:
-      description: Target device
-      required: true
-      selector:
-        device:
-          integration: violet_pool_controller
-    include_history:
-      description: Include detailed error history
-      default: false
-      selector:
-        boolean:
-
-test_connection:
-  name: Test Connection
-  description: Test connection to the controller and return diagnostic information
-  fields:
-    device_id:
-      description: Target device
-      required: true
-      selector:
-        device:
-          integration: violet_pool_controller
-
-clear_error_history:
-  name: Clear Error History
-  description: Clear error history after successful recovery (use with caution)
-  fields:
-    device_id:
-      description: Target device
-      required: true
-      selector:
-        device:
-          integration: violet_pool_controller
-
-# === PHASE 2: HTTP CONTROL SERVICES ===
-
 control_heater_http:
   name: Control Heater (HTTP)
   description: Control pool heater with temperature setpoint
@@ -332,14 +381,16 @@ control_heater_http:
       description: Heater action (on/off)
       selector:
         select:
-          options: ["on", "off"]
+          options:
+          - 'on'
+          - 'off'
     target_temperature:
       description: Target temperature (10-60°C)
       selector:
         number:
           min: 10
           max: 60
-          unit_of_measurement: "°C"
+          unit_of_measurement: °C
 
 control_solar_http:
   name: Control Solar (HTTP)
@@ -349,14 +400,16 @@ control_solar_http:
       description: Solar action (on/off)
       selector:
         select:
-          options: ["on", "off"]
+          options:
+          - 'on'
+          - 'off'
     target_temperature:
       description: Target temperature (10-60°C)
       selector:
         number:
           min: 10
           max: 60
-          unit_of_measurement: "°C"
+          unit_of_measurement: °C
 
 control_cover_http:
   name: Control Cover (HTTP)
@@ -367,7 +420,10 @@ control_cover_http:
       required: true
       selector:
         select:
-          options: ["open", "close", "stop"]
+          options:
+          - open
+          - close
+          - stop
 
 control_backwash_http:
   name: Control Backwash (HTTP)
@@ -378,7 +434,9 @@ control_backwash_http:
       required: true
       selector:
         select:
-          options: ["run", "abort"]
+          options:
+          - run
+          - abort
 
 manual_dosing_http:
   name: Manual Dosing (HTTP)
@@ -390,12 +448,12 @@ manual_dosing_http:
       selector:
         select:
           options:
-            - chlorine
-            - electrolysis
-            - ph_minus
-            - ph_plus
-            - flocculant
-            - h2o2
+          - chlorine
+          - electrolysis
+          - ph_minus
+          - ph_plus
+          - flocculant
+          - h2o2
     runtime_seconds:
       description: Runtime in seconds (1-3600)
       required: true
@@ -405,7 +463,37 @@ manual_dosing_http:
           max: 3600
           unit_of_measurement: s
 
-# === PHASE 2.5: DOSING CONFIGURATION ===
+set_omni_position:
+  name: Set OmniTronic valve position
+  description: Drive the OmniTronic multi-port valve to a fixed position.  Position 0 (Filtration) also
+    clears the BACKWASH_RULE and returns the controller to automatic mode.  Positions 1-5 correspond to
+    the valve's other physical ports (backwash, rinse, waste, etc.) – the exact physical meaning depends
+    on the valve's plumbing. The pump (and dependent outputs like heater/solar/dosing) are blocked while
+    the valve is moving (~3 s per step).
+  fields:
+    device_id:
+      description: Controller device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
+    position:
+      description: Target valve position (0=Filtration/AUTO, 1-5=other ports)
+      required: true
+      example: 0
+      selector:
+        number:
+          min: 0
+          max: 5
+          step: 1
+          mode: box
+
+# ---------------------------------------------------------------------------
+# GROUP: DOSING & CHEMISTRY CONFIGURATION
+# ---------------------------------------------------------------------------
+# Persistent configuration of the dosing channels (setpoints, daily
+# limits, enable/disable) and canister-refill accounting.
+# ---------------------------------------------------------------------------
 
 configure_dosing:
   name: Configure Dosing
@@ -417,22 +505,22 @@ configure_dosing:
       selector:
         select:
           options:
-            - chlorine
-            - electrolysis
-            - ph_minus
-            - ph_plus
-            - flocculant
-            - h2o2
+          - chlorine
+          - electrolysis
+          - ph_minus
+          - ph_plus
+          - flocculant
+          - h2o2
     config_key:
       description: Configuration key
       required: true
       selector:
-        text:
+        text: null
     value:
       description: Parameter value
       required: true
       selector:
-        text:
+        text: null
 
 set_dosing_target:
   name: Set Dosing Target
@@ -444,12 +532,12 @@ set_dosing_target:
       selector:
         select:
           options:
-            - chlorine
-            - electrolysis
-            - ph_minus
-            - ph_plus
-            - flocculant
-            - h2o2
+          - chlorine
+          - electrolysis
+          - ph_minus
+          - ph_plus
+          - flocculant
+          - h2o2
     target_value:
       description: Target value (0-100)
       required: true
@@ -468,20 +556,20 @@ set_dosing_daytime:
       selector:
         select:
           options:
-            - chlorine
-            - electrolysis
-            - ph_minus
-            - ph_plus
-            - flocculant
-            - h2o2
+          - chlorine
+          - electrolysis
+          - ph_minus
+          - ph_plus
+          - flocculant
+          - h2o2
     day_start:
       description: Day start time (HH:MM)
       selector:
-        time:
+        time: null
     day_end:
       description: Day end time (HH:MM)
       selector:
-        time:
+        time: null
 
 set_dosing_max_daily:
   name: Set Dosing Maximum Daily
@@ -493,12 +581,12 @@ set_dosing_max_daily:
       selector:
         select:
           options:
-            - chlorine
-            - electrolysis
-            - ph_minus
-            - ph_plus
-            - flocculant
-            - h2o2
+          - chlorine
+          - electrolysis
+          - ph_minus
+          - ph_plus
+          - flocculant
+          - h2o2
     max_daily_ml:
       description: Maximum daily volume (10-10000 ml)
       required: true
@@ -518,19 +606,70 @@ enable_dosing:
       selector:
         select:
           options:
-            - chlorine
-            - electrolysis
-            - ph_minus
-            - ph_plus
-            - flocculant
-            - h2o2
+          - chlorine
+          - electrolysis
+          - ph_minus
+          - ph_plus
+          - flocculant
+          - h2o2
     enabled:
       description: Enable dosing
       required: true
       selector:
-        boolean:
+        boolean: null
 
-# === PHASE 3: RULE MANAGEMENT ===
+set_can_amount:
+  name: Set canister fill level
+  description: Update the canister fill level for a dosing channel after refilling or replacing a chemical
+    canister, so the controller's remaining-range calculation is accurate. With action=reset the daily-dosing
+    counter and the "last reset" timestamp are also cleared.
+  fields:
+    device_id:
+      description: Controller device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
+    dosing_key:
+      description: Dosing channel to update
+      required: true
+      example: DOS_1_CL
+      selector:
+        select:
+          options:
+          - DOS_1_CL
+          - DOS_2_ELO
+          - DOS_4_PHM
+          - DOS_5_PHP
+          - DOS_6_FLOC
+    amount_ml:
+      description: New fill level in millilitres
+      required: true
+      example: 25000
+      selector:
+        number:
+          min: 1
+          max: 100000
+          step: 100
+          unit_of_measurement: ml
+    action:
+      description: adjust = only update the fill level; reset = also clear the daily counter and "last
+        reset" timestamp
+      required: false
+      default: adjust
+      selector:
+        select:
+          options:
+          - adjust
+          - reset
+
+# ---------------------------------------------------------------------------
+# GROUP: AUTOMATION RULES
+# ---------------------------------------------------------------------------
+# Configure the controller-side analog/temperature/switching/timer
+# rules.  These run on the controller itself - they keep working
+# even when Home Assistant is offline.
+# ---------------------------------------------------------------------------
 
 configure_temp_rule:
   name: Configure Temperature Rule
@@ -547,7 +686,7 @@ configure_temp_rule:
       description: Enable rule
       default: true
       selector:
-        boolean:
+        boolean: null
     sensor_1:
       description: Primary sensor (1-8)
       selector:
@@ -564,27 +703,29 @@ configure_temp_rule:
       description: Comparison logic
       selector:
         select:
-          options: [">=", "<="]
+          options:
+          - '>='
+          - <=
     diff_value:
       description: Differential value
       selector:
-        number:
+        number: null
     hyst_value:
       description: Hysteresis value
       selector:
-        number:
+        number: null
     runtime_on:
       description: Runtime ON (HH:MM)
       selector:
-        time:
+        time: null
     runtime_off:
       description: Runtime OFF (HH:MM)
       selector:
-        time:
+        time: null
     output_1:
       description: Output 1 name
       selector:
-        text:
+        text: null
     output_1_state:
       description: Output 1 state (0-6)
       selector:
@@ -594,7 +735,7 @@ configure_temp_rule:
     output_2:
       description: Output 2 name
       selector:
-        text:
+        text: null
     output_2_state:
       description: Output 2 state (0-6)
       selector:
@@ -604,7 +745,7 @@ configure_temp_rule:
     output_3:
       description: Output 3 name
       selector:
-        text:
+        text: null
     output_3_state:
       description: Output 3 state (0-6)
       selector:
@@ -627,7 +768,7 @@ configure_analog_rule:
       description: Enable rule
       default: true
       selector:
-        boolean:
+        boolean: null
     adc_input:
       description: ADC input (1-8)
       selector:
@@ -638,27 +779,29 @@ configure_analog_rule:
       description: Comparison logic
       selector:
         select:
-          options: [">=", "<="]
+          options:
+          - '>='
+          - <=
     threshold:
       description: Threshold value
       selector:
-        number:
+        number: null
     hysteresis:
       description: Hysteresis value
       selector:
-        number:
+        number: null
     runtime_on:
       description: Runtime ON (HH:MM)
       selector:
-        time:
+        time: null
     runtime_off:
       description: Runtime OFF (HH:MM)
       selector:
-        time:
+        time: null
     output_1:
       description: Output 1 name
       selector:
-        text:
+        text: null
     output_1_state:
       description: Output 1 state (0-6)
       selector:
@@ -668,7 +811,7 @@ configure_analog_rule:
     output_2:
       description: Output 2 name
       selector:
-        text:
+        text: null
     output_2_state:
       description: Output 2 state (0-6)
       selector:
@@ -678,7 +821,7 @@ configure_analog_rule:
     output_3:
       description: Output 3 name
       selector:
-        text:
+        text: null
     output_3_state:
       description: Output 3 state (0-6)
       selector:
@@ -701,7 +844,7 @@ configure_switching_rule:
       description: Enable rule
       default: true
       selector:
-        boolean:
+        boolean: null
     di_input:
       description: Digital input (1-12)
       selector:
@@ -717,7 +860,7 @@ configure_switching_rule:
     output:
       description: Output name
       selector:
-        text:
+        text: null
     action_on:
       description: Action ON state (0-6)
       selector:
@@ -753,15 +896,15 @@ configure_timer_rule:
       description: Enable rule
       default: true
       selector:
-        boolean:
+        boolean: null
     on_time:
       description: ON time (HH:MM)
       selector:
-        time:
+        time: null
     off_time:
       description: OFF time (HH:MM)
       selector:
-        time:
+        time: null
     weekdays:
       description: Weekdays bitmask (0-127)
       selector:
@@ -771,7 +914,7 @@ configure_timer_rule:
     output_1:
       description: Output 1 name
       selector:
-        text:
+        text: null
     output_1_state:
       description: Output 1 state (0-6)
       selector:
@@ -781,7 +924,7 @@ configure_timer_rule:
     output_2:
       description: Output 2 name
       selector:
-        text:
+        text: null
     output_2_state:
       description: Output 2 state (0-6)
       selector:
@@ -791,7 +934,7 @@ configure_timer_rule:
     output_3:
       description: Output 3 name
       selector:
-        text:
+        text: null
     output_3_state:
       description: Output 3 state (0-6)
       selector:
@@ -809,10 +952,10 @@ enable_rule:
       selector:
         select:
           options:
-            - temprule
-            - analogrule
-            - switchingrule
-            - timerrule
+          - temprule
+          - analogrule
+          - switchingrule
+          - timerrule
     rule_id:
       description: Rule ID (1-8)
       required: true
@@ -824,9 +967,15 @@ enable_rule:
       description: Enable rule
       required: true
       selector:
-        boolean:
+        boolean: null
 
-# === PHASE 4: SYSTEM CONFIGURATION ===
+# ---------------------------------------------------------------------------
+# GROUP: SYSTEM & HARDWARE
+# ---------------------------------------------------------------------------
+# Hardware-extension relays, sensor-calibration offsets, and
+# controller-side system services (FTP/Samba/SSH/AirPlay/HomeKit/
+# Alexa/tunnels).
+# ---------------------------------------------------------------------------
 
 control_extension_relay:
   name: Control Extension Relay
@@ -841,10 +990,13 @@ control_extension_relay:
           max: 8
     action:
       description: Control action
-      default: "on"
+      default: 'on'
       selector:
         select:
-          options: ["on", "off", "toggle"]
+          options:
+          - 'on'
+          - 'off'
+          - toggle
     state:
       description: Direct state (0-6, overrides action)
       selector:
@@ -878,7 +1030,7 @@ configure_sensor_calibration:
           min: -10
           max: 10
           step: 0.1
-          unit_of_measurement: "°C"
+          unit_of_measurement: °C
     multiplier:
       description: Calibration multiplier (0.5 to 2.0)
       selector:
@@ -889,9 +1041,62 @@ configure_sensor_calibration:
     min_value:
       description: Minimum valid value
       selector:
-        number:
+        number: null
     max_value:
       description: Maximum valid value
       selector:
-        number:
+        number: null
 
+set_system_service:
+  name: Toggle controller system service
+  description: Enable or disable a system service running on the controller itself (FTP, Samba, SSH, AirPlay,
+    HomeKit bridge, Alexa, cloud tunnel, support tunnel). Useful for security-hardening automation (e.g.
+    disable SSH/FTP when not needed) or to enable the support tunnel on demand for remote troubleshooting.
+  fields:
+    device_id:
+      description: Controller device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
+    service:
+      description: Service identifier
+      required: true
+      example: ssh
+      selector:
+        select:
+          options:
+          - label: FTP server
+            value: ftp
+          - label: Samba (Windows share)
+            value: samba
+          - label: SSH server
+            value: ssh
+          - label: AirPlay (Shairport)
+            value: shairport
+          - label: HomeKit bridge (Homebridge)
+            value: homebridge
+          - label: Amazon Alexa
+            value: alexa
+          - label: Cloud tunnel
+            value: tunnel
+          - label: Support tunnel
+            value: support_tunnel
+    enabled:
+      description: true to enable, false to disable
+      required: true
+      example: false
+      selector:
+        boolean: null
+
+get_system_services_status:
+  name: Get system service states
+  description: Return the live state of all controller-side system services as a dict (service key ->
+    boolean enabled).
+  fields:
+    device_id:
+      description: Controller device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller

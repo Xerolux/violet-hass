@@ -42,6 +42,7 @@ from .const_api import (  # noqa: F401
     ERROR_CODES,
     ERROR_SEVERITY_ALARM,
     ERROR_SEVERITY_INFO,
+    ERROR_SEVERITY_REMINDER,
     ERROR_SEVERITY_WARNING,
 )
 from .const_devices import (  # noqa: F401
@@ -131,5 +132,6 @@ __all__ = [
     "ERROR_CODES",
     "ERROR_SEVERITY_ALARM",
     "ERROR_SEVERITY_INFO",
+    "ERROR_SEVERITY_REMINDER",
     "ERROR_SEVERITY_WARNING",
 ]

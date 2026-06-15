@@ -413,6 +413,19 @@ def _build_sensor_description(
     if "contact" in key.lower():
         state_class = None
 
+    # Entity category: DIAGNOSTIC for system/internal sensors, otherwise
+    # allow the predefined dict to override (e.g. for extra diagnostic
+    # sensors that don't start with SYSTEM_).
+    predefined_category = (predefined_info or {}).get("entity_category")
+    if predefined_category == "diagnostic":
+        category: EntityCategory | None = EntityCategory.DIAGNOSTIC
+    elif predefined_category == "config":
+        category = EntityCategory.CONFIG
+    elif key.startswith("SYSTEM_"):
+        category = EntityCategory.DIAGNOSTIC
+    else:
+        category = None
+
     return SensorEntityDescription(
         key=key,
         name=name,
@@ -420,9 +433,7 @@ def _build_sensor_description(
         native_unit_of_measurement=unit,
         device_class=determine_device_class(key, unit, raw_value),
         state_class=state_class,
-        entity_category=EntityCategory.DIAGNOSTIC
-        if key.startswith("SYSTEM_")
-        else None,
+        entity_category=category,
         translation_key=translation_key,
         entity_registry_enabled_default=_should_enable_by_default(key),
         suggested_display_precision=_PRECISION_MAP.get(unit) if unit else None,

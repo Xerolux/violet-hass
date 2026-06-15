@@ -27,6 +27,7 @@ from .const import (
     ACTION_ON,
     CONF_ACTIVE_FEATURES,
     DOMAIN,
+    DOSING_STATE_DESCRIPTIONS,
     SWITCHES,
 )
 from .device import VioletPoolDataUpdateCoordinator
@@ -261,21 +262,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         6: "Manual OFF",
     }
 
-    _DETAIL_DESCRIPTIONS: dict[str, str] = {
-        "PUMP_ANTI_FREEZE": "Frost Protection",
-        "BLOCKED_BY_OUTSIDE_TEMP": "Blocked (Outside Temperature)",
-        "BLOCKED_BY_TRESHOLDS": "Blocked (Thresholds)",
-        "TRESHOLDS_REACHED": "Thresholds Reached",
-        "BLOCKED_BY_PUMP": "Blocked (Pump Off)",
-        "BLOCKED_BY_FLOW": "Blocked (Flow)",
-        "BLOCKED_BY_SOLAR": "Blocked (Solar)",
-        "BLOCKED_BY_HEATER": "Blocked (Heater)",
-        "WAITING_FOR_PUMP": "Waiting for Pump",
-        "WAITING_FOR_FLOW": "Waiting for Flow",
-        "DOSING": "Dosing",
-        "DOSING_PAUSED": "Dosing Paused",
-        "MANUAL_DOSING": "Manual Dosing",
-    }
+    _DETAIL_DESCRIPTIONS: dict[str, str] = DOSING_STATE_DESCRIPTIONS
 
     def _get_mode_and_description(self, key: str, raw_state: Any) -> tuple[str, str]:
         """

@@ -259,6 +259,95 @@ DOSING_STATE_SENSORS = {
     },
 }
 
+# Extra diagnostic sensors that surface useful controller state previously
+# dropped on the floor.  Source: shm/READINGS.json snapshot (fw 1.0.9).
+EXTRA_DIAGNOSTIC_SENSORS = {
+    # Last error code pushed by the controller (kept as raw int).
+    "last_error_id": {
+        "name": "Last Error ID",
+        "translation_key": "last_error_id",
+        "icon": "mdi:alert-circle-outline",
+        "entity_category": "diagnostic",
+    },
+    # Electrolysis cell polarity (0 or 1) – flips regularly to prevent
+    # scaling; useful for lifetime tracking.
+    "DOS_2_CURRENT_POLARITY": {
+        "name": "Electrolysis Polarity",
+        "translation_key": "dos_2_current_polarity",
+        "icon": "mdi:battery-positive",
+        "entity_category": "diagnostic",
+    },
+    # OmniTronic multi-port valve state string (e.g. "OK",
+    # "BLOCKED_BY_Z1Z2") and motion flag.
+    "BACKWASH_OMNI_STATE": {
+        "name": "OmniTronic Valve State",
+        "translation_key": "backwash_omni_state",
+        "icon": "mdi:valve",
+        "entity_category": "diagnostic",
+    },
+    "BACKWASH_OMNI_MOVING": {
+        "name": "OmniTronic Moving",
+        "translation_key": "backwash_omni_moving",
+        "icon": "mdi:arrow-oscillating",
+        "entity_category": "diagnostic",
+    },
+    # Separate "last run" timestamps for auto-triggered vs manually
+    # triggered backwash – useful to detect missed cycles.
+    "BACKWASH_LAST_AUTO_RUN": {
+        "name": "Backwash Last Auto Run",
+        "translation_key": "backwash_last_auto_run",
+        "icon": "mdi:clock-time-twelve",
+        "entity_category": "diagnostic",
+    },
+    "BACKWASH_LAST_MANUAL_RUN": {
+        "name": "Backwash Last Manual Run",
+        "translation_key": "backwash_last_manual_run",
+        "icon": "mdi:hand-clock",
+        "entity_category": "diagnostic",
+    },
+    # Remaining-range strings delivered by the controller for each dosing
+    # channel (e.g. ">99d").  No unit – it's already formatted.
+    **{
+        f"DOS_{prefix}_REMAINING_RANGE": {
+            "name": f"{label} Remaining Range",
+            "translation_key": f"{prefix.lower()}_remaining_range",
+            "icon": "mdi:gauge",
+            "entity_category": "diagnostic",
+        }
+        for prefix, label in (
+            ("1_CL", "Chlorine"),
+            ("2_ELO", "Electrolysis"),
+            ("4_PHM", "pH-"),
+            ("5_PHP", "pH+"),
+            ("6_FLOC", "Flocculant"),
+        )
+    },
+}
+
+# Analog and temperature switching-rule state sensors.
+# Source: shm/ANALOGRULE_STATE.states + shm/TEMPRULE_STATE.states (fw 1.0.9).
+# Each rule is a 0/1 active flag (1 = rule currently triggered and driving an
+# output).  Mirrors the existing DIGITALINPUTRULE_STATE handling.
+ANALOG_RULE_SENSORS = {
+    f"ANALOGRULE_{i}": {
+        "name": f"Analog Rule {i}",
+        "translation_key": f"analogrule_{i}",
+        "icon": "mdi:chart-line",
+        "entity_category": "diagnostic",
+    }
+    for i in range(1, 9)
+}
+
+TEMP_RULE_SENSORS = {
+    f"TEMPRULE_{i}": {
+        "name": f"Temperature Rule {i}",
+        "translation_key": f"temprule_{i}",
+        "icon": "mdi:thermometer-lines",
+        "entity_category": "diagnostic",
+    }
+    for i in range(1, 9)
+}
+
 RUNTIME_SENSORS = {
     "PUMP_RUNTIME": {
         "name": "Pump Runtime Today",
@@ -527,6 +616,17 @@ NO_UNIT_SENSORS = {
     *(f"OMNI_DC{i}_RUNTIME" for i in range(6)),
     # Pump RPM level runtimes
     *(f"PUMP_RPM_{i}_RUNTIME" for i in range(4)),
+    # Extra diagnostic sensors (no meaningful unit)
+    "last_error_id",
+    "DOS_2_CURRENT_POLARITY",
+    "BACKWASH_OMNI_STATE",
+    "BACKWASH_OMNI_MOVING",
+    "BACKWASH_LAST_AUTO_RUN",
+    "BACKWASH_LAST_MANUAL_RUN",
+    *(f"DOS_{p}_REMAINING_RANGE" for p in ("1_CL", "2_ELO", "4_PHM", "5_PHP", "6_FLOC")),
+    # Analog/Temp rule state flags (0/1)
+    *(f"ANALOGRULE_{i}" for i in range(1, 9)),
+    *(f"TEMPRULE_{i}" for i in range(1, 9)),
 }
 
 # =============================================================================

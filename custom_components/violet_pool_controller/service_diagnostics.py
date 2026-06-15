@@ -678,3 +678,220 @@ Lines: {len(log_entries)}
 {"=" * 80}
 """
         return export_header + "\n".join(log_entries)
+
+    # ------------------------------------------------------------------
+    # Maintenance: fault-blocking + canister management
+    # ------------------------------------------------------------------
+
+    async def handle_reset_blocking(self, call: ServiceCall) -> dict[str, Any]:
+        """Clear fault-induced blockings on the controller.
+
+        Useful after fixing the underlying issue (e.g. refilling an empty
+        canister) so dosing and other outputs resume without a controller
+        reboot.  Equivalent to the "Reset" button on the controller's web UI
+        error page.
+        """
+        from .error_handler import get_enhanced_error_handler
+
+        device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
+        cleared_count = 0
+
+        for device_id in device_ids:
+            try:
+                device = await self._get_device_for_id(device_id)
+                await device.api.reset_blocking()
+                # Also clear our local error history so stale alarms disappear.
+                get_enhanced_error_handler().clear_history()
+                cleared_count += 1
+            except Exception as err:
+                _LOGGER.error("reset_blocking error for %s: %s", device_id, err)
+                raise HomeAssistantError(
+                    f"Failed to clear blockings: {err}"
+                ) from err
+
+        _LOGGER.info("Cleared blockings on %d device(s)", cleared_count)
+        return {
+            "success": True,
+            "cleared_count": cleared_count,
+            "message": f"Cleared fault blockings on {cleared_count} device(s)",
+        }
+
+    async def handle_set_can_amount(self, call: ServiceCall) -> dict[str, Any]:
+        """Update the canister fill level for a dosing channel.
+
+        Called after refilling or replacing a chemical canister so the
+        controller's remaining-range calculation is accurate.  With
+        ``action=reset`` the daily-dosing counter and "last reset" timestamp
+        are also cleared (firmware action RESET); ``action=adjust``
+        (default) only updates the fill level.
+        """
+        device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
+        dosing_key = call.data["dosing_key"]
+        amount_ml = int(call.data["amount_ml"])
+        reset = call.data.get("action", "adjust") == "reset"
+
+        updated_count = 0
+        for device_id in device_ids:
+            try:
+                device = await self._get_device_for_id(device_id)
+                await device.api.set_can_amount(
+                    dosing_key, amount_ml, reset=reset
+                )
+                updated_count += 1
+                # Ask the coordinator to refresh so sensors reflect the new
+                # value without waiting for the next scheduled poll.
+                coordinator = await self.manager.get_coordinator_for_device(
+                    device_id
+                )
+                if coordinator:
+                    await coordinator.async_request_refresh()
+            except Exception as err:
+                _LOGGER.error("set_can_amount error for %s: %s", device_id, err)
+                raise HomeAssistantError(
+                    f"Failed to set canister amount: {err}"
+                ) from err
+
+        _LOGGER.info(
+            "Set %s canister to %d ml (reset=%s) on %d device(s)",
+            dosing_key,
+            amount_ml,
+            reset,
+            updated_count,
+        )
+        return {
+            "success": True,
+            "updated_count": updated_count,
+            "dosing_key": dosing_key,
+            "amount_ml": amount_ml,
+            "reset": reset,
+        }
+
+    # ------------------------------------------------------------------
+    # System service management (FTP, Samba, SSH, AirPlay, HomeKit, ...)
+    # ------------------------------------------------------------------
+
+    async def handle_set_system_service(self, call: ServiceCall) -> dict[str, Any]:
+        """Enable or disable a controller-side system service."""
+        device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
+        service = call.data["service"]
+        enabled = bool(call.data["enabled"])
+
+        updated_count = 0
+        for device_id in device_ids:
+            try:
+                device = await self._get_device_for_id(device_id)
+                await device.api.set_system_service(service, enabled=enabled)
+                updated_count += 1
+            except Exception as err:
+                _LOGGER.error(
+                    "set_system_service(%s=%s) error for %s: %s",
+                    service,
+                    enabled,
+                    device_id,
+                    err,
+                )
+                raise HomeAssistantError(
+                    f"Failed to toggle system service: {err}"
+                ) from err
+
+        action = "enabled" if enabled else "disabled"
+        _LOGGER.info(
+            "System service '%s' %s on %d device(s)",
+            service,
+            action,
+            updated_count,
+        )
+        return {
+            "success": True,
+            "service": service,
+            "enabled": enabled,
+            "updated_count": updated_count,
+        }
+
+    async def handle_get_system_services_status(
+        self, call: ServiceCall
+    ) -> dict[str, Any]:
+        """Return the live state of all controller system services."""
+        device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
+        coordinator = await self._get_first_coordinator(device_ids)
+        if not coordinator or not hasattr(coordinator, "device"):
+            raise HomeAssistantError(
+                f"Device not found: {device_ids[0]}"
+            )
+        try:
+            states = await coordinator.device.api.get_system_services()
+        except Exception as err:
+            _LOGGER.error("get_system_services_status error: %s", err)
+            raise HomeAssistantError(
+                f"Failed to fetch system services: {err}"
+            ) from err
+        return {"success": True, "services": states}
+
+    # ------------------------------------------------------------------
+    # OmniTronic valve + live trace (P12 + P15)
+    # ------------------------------------------------------------------
+
+    async def handle_set_omni_position(self, call: ServiceCall) -> dict[str, Any]:
+        """Drive the OmniTronic multi-port valve to a fixed position.
+
+        Position 0 = Filtration (also returns the controller to AUTO mode),
+        positions 1-5 = other physical ports (backwash/rinse/waste/...).
+        """
+        device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
+        position = int(call.data["position"])
+
+        updated_count = 0
+        for device_id in device_ids:
+            try:
+                device = await self._get_device_for_id(device_id)
+                await device.api.set_omni_position(position)
+                updated_count += 1
+                coordinator = await self.manager.get_coordinator_for_device(
+                    device_id
+                )
+                if coordinator:
+                    await coordinator.async_request_refresh()
+            except Exception as err:
+                _LOGGER.error(
+                    "set_omni_position(%d) error for %s: %s",
+                    position,
+                    device_id,
+                    err,
+                )
+                raise HomeAssistantError(
+                    f"Failed to set OmniTronic position: {err}"
+                ) from err
+
+        _LOGGER.info(
+            "OmniTronic valve set to position %d on %d device(s)",
+            position,
+            updated_count,
+        )
+        return {
+            "success": True,
+            "position": position,
+            "updated_count": updated_count,
+        }
+
+    async def handle_get_live_trace_snapshot(
+        self, call: ServiceCall
+    ) -> dict[str, Any]:
+        """Return a single-row snapshot of every controller reading.
+
+        Wraps ``GET /getLiveTrace`` (3-line CSV → dict).  Useful for
+        ad-hoc troubleshooting; not meant for regular polling.
+        """
+        device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
+        coordinator = await self._get_first_coordinator(device_ids)
+        if not coordinator or not hasattr(coordinator, "device"):
+            raise HomeAssistantError(
+                f"Device not found: {device_ids[0]}"
+            )
+        try:
+            snapshot = await coordinator.device.api.get_live_trace()
+        except Exception as err:
+            _LOGGER.error("get_live_trace error: %s", err)
+            raise HomeAssistantError(
+                f"Failed to fetch live trace: {err}"
+            ) from err
+        return {"success": True, "snapshot": snapshot, "field_count": len(snapshot)}

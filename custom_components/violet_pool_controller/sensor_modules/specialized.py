@@ -19,6 +19,7 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity import EntityCategory
 
+from ..const import DIAGNOSTIC_PROBLEM_KEYS, DOSING_STATE_DESCRIPTIONS, OMNI_FAULTY_STATES
 from ..device import VioletPoolDataUpdateCoordinator
 from ..entity import VioletPoolControllerEntity
 from ..error_codes import get_error_info
@@ -80,6 +81,151 @@ class VioletErrorCodeSensor(VioletSensor):
             "type": info.get("type"),
             "severity": info.get("severity"),
             "description": info.get("description"),
+        }
+
+
+class VioletHealthSensor(VioletPoolControllerEntity, SensorEntity):
+    """Aggregate pool health sensor — one-glance status of every problem source.
+
+    Native state (filtered by translation):
+        ``ok``       – no problems detected, controller reachable.
+        ``warning``  – at least one non-critical problem (e.g. dry-run
+                       protection triggered, OmniTronic valve blocked).
+        ``error``    – hardware issue, active controller error code, or
+                       any binary-sensor problem flag is on.
+        ``offline``  – coordinator data missing (controller unreachable).
+
+    The sensor aggregates every key listed in
+    :data:`~custom_components.violet_pool_controller.const.DIAGNOSTIC_PROBLEM_KEYS`
+    plus the OmniTronic valve state and the controller's ``last_error_id``
+    field.  Active items are exposed via ``extra_state_attributes`` so users
+    can see at a glance which subsystem is reporting the issue.
+    """
+
+    def __init__(
+        self,
+        coordinator: VioletPoolDataUpdateCoordinator,
+        config_entry: ConfigEntry,
+    ) -> None:
+        """Initialize the health sensor."""
+        description = SensorEntityDescription(
+            key="pool_health",
+            translation_key="pool_health",
+            name="Pool Health",
+            icon="mdi:heart-pulse",
+            entity_category=None,  # prominent — not in the diagnostic drawer
+            entity_registry_enabled_default=True,
+        )
+        super().__init__(coordinator, config_entry, description)
+
+    # ------------------------------------------------------------------
+    # State aggregation
+    # ------------------------------------------------------------------
+
+    def _collect_problems(self) -> tuple[list[str], list[str], list[str]]:
+        """Return (errors, warnings, info) lists of human-readable labels."""
+        data = self.coordinator.data or {}
+        errors: list[str] = []
+        warnings: list[str] = []
+        info: list[str] = []
+
+        for key, spec in DIAGNOSTIC_PROBLEM_KEYS.items():
+            if key not in data:
+                continue
+            value = data.get(key)
+            label = spec["label"]
+            kind = spec["type"]
+
+            if kind == "hardware":
+                # Hardware-module sensor: True = present, False = missing.
+                # Treat False as an ERROR (the module is physically gone).
+                if not self._is_truthy(value):
+                    errors.append(f"{label} missing")
+            elif kind == "problem" and self._is_truthy(value):
+                # Binary PROBLEM sensor: True = problem.
+                errors.append(label)
+
+        # OmniTronic multi-port valve state (string).
+        omni_state = str(data.get("BACKWASH_OMNI_STATE", "")).upper().strip()
+        if omni_state and any(
+            fault in omni_state for fault in OMNI_FAULTY_STATES
+        ):
+            errors.append(f"OmniTronic valve: {omni_state}")
+        elif omni_state == "BLOCKED_BY_OMNI_MOVING":
+            info.append("OmniTronic valve moving")
+
+        # OmniTronic motion flag (YES/NO).
+        if str(data.get("BACKWASH_OMNI_MOVING", "")).upper() == "YES":
+            info.append("OmniTronic valve moving")
+
+        # Controller-side last_error_id (0 = no error recorded).
+        last_err = data.get("last_error_id")
+        if last_err is not None:
+            try:
+                err_code = int(last_err)
+            except (TypeError, ValueError):
+                err_code = 0
+            if err_code > 0:
+                code_str = f"{err_code:04d}"
+                info_err = get_error_info(code_str)
+                severity = info_err.get("severity", "").upper()
+                label = info_err.get("subject") or f"Error {code_str}"
+                if severity in ("ALARM", "ERROR"):
+                    errors.append(f"Controller error {code_str}: {label}")
+                elif severity == "WARNING":
+                    warnings.append(f"Controller warning {code_str}: {label}")
+                else:
+                    info.append(f"Controller notice {code_str}: {label}")
+
+        # Overflow refill/dryrun states (strings like "OFF" / "ON").
+        overflow_state = str(data.get("OVERFLOW_REFILL_STATE", "")).upper()
+        if overflow_state == "ON":
+            info.append("Overflow refill active")
+
+        return errors, warnings, info
+
+    @staticmethod
+    def _is_truthy(value: Any) -> bool:  # noqa: ANN401
+        """Best-effort boolean conversion for problem/hardware flags."""
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, (int, float)):
+            return value != 0
+        text = str(value).strip().upper()
+        return text in ("1", "YES", "ON", "TRUE", "OK", "PRESENT")
+
+    # ------------------------------------------------------------------
+    # Entity interface
+    # ------------------------------------------------------------------
+
+    @property
+    def native_value(self) -> str:
+        """Return the aggregate health state: ok / warning / error / offline."""
+        if self.coordinator.data is None or not self.coordinator.last_update_success:
+            return "offline"
+
+        errors, warnings, _ = self._collect_problems()
+        if errors:
+            return "error"
+        if warnings:
+            return "warning"
+        return "ok"
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return detailed lists of active problems and warnings."""
+        if self.coordinator.data is None:
+            return {"state": "offline"}
+
+        errors, warnings, info = self._collect_problems()
+        return {
+            "error_count": len(errors),
+            "warning_count": len(warnings),
+            "info_count": len(info),
+            "errors": errors,
+            "warnings": warnings,
+            "info": info,
+            "checked_sensors": sorted(DIAGNOSTIC_PROBLEM_KEYS.keys()),
         }
 
 
@@ -178,21 +324,8 @@ class VioletActiveErrorsSensor(VioletPoolControllerEntity, SensorEntity):
 class VioletDosingStateSensor(VioletPoolControllerEntity, SensorEntity):
     """Sensor for dosing system state arrays (DOS_*_STATE) and composite states."""
 
-    _DETAIL_DESCRIPTIONS: dict[str, str] = {
-        "PUMP_ANTI_FREEZE": "Frost Protection",
-        "BLOCKED_BY_OUTSIDE_TEMP": "Blocked (Outside Temperature)",
-        "BLOCKED_BY_TRESHOLDS": "Blocked (Thresholds)",
-        "TRESHOLDS_REACHED": "Thresholds Reached",
-        "BLOCKED_BY_PUMP": "Blocked (Pump Off)",
-        "BLOCKED_BY_FLOW": "Blocked (Flow)",
-        "BLOCKED_BY_SOLAR": "Blocked (Solar)",
-        "BLOCKED_BY_HEATER": "Blocked (Heater)",
-        "WAITING_FOR_PUMP": "Waiting for Pump",
-        "WAITING_FOR_FLOW": "Waiting for Flow",
-        "DOSING": "Dosing",
-        "DOSING_PAUSED": "Dosing Paused",
-        "MANUAL_DOSING": "Manual Dosing",
-    }
+    # Shared label table; see const.DOSING_STATE_DESCRIPTIONS for full source.
+    _DETAIL_DESCRIPTIONS: dict[str, str] = DOSING_STATE_DESCRIPTIONS
 
     def __init__(
         self,

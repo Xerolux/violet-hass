@@ -100,6 +100,72 @@ vol.Required("rule_key"): vol.In([f"DIRULE_{i}" for i in range(1, 9)]),
                 ),
             }
         ),
+        # reset_blocking clears fault-induced blockings on the controller
+        # (e.g. BLOCKED_BY_ESC after an empty-canister alarm was acknowledged).
+        # Useful after fixing the underlying issue so dosing/control resumes.
+        "reset_blocking": vol.Schema(
+            {
+                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
+            }
+        ),
+        # set_can_amount updates a dosing canister fill level after refill.
+        # action=adjust just sets the new level; action=reset also clears the
+        # daily counter and "last reset" timestamp.
+        "set_can_amount": vol.Schema(
+            {
+                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
+                vol.Required("dosing_key"): vol.In([
+                    "DOS_1_CL",   # Chlorine
+                    "DOS_2_ELO",  # Electrolysis
+                    "DOS_4_PHM",  # pH-
+                    "DOS_5_PHP",  # pH+
+                    "DOS_6_FLOC", # Flocculant
+                ]),
+                vol.Required("amount_ml"): vol.All(
+                    vol.Coerce(int), vol.Range(min=1, max=100000)
+                ),
+                vol.Optional("action", default="adjust"): vol.In(
+                    ["adjust", "reset"]
+                ),
+            }
+        ),
+        # set_system_service enables/disables a controller-side system
+        # service (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, tunnels).
+        "set_system_service": vol.Schema(
+            {
+                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
+                vol.Required("service"): vol.In([
+                    "ftp", "samba", "ssh", "shairport",
+                    "homebridge", "alexa", "tunnel", "support_tunnel",
+                ]),
+                vol.Required("enabled"): cv.boolean,
+            }
+        ),
+        # get_system_services_status returns the live state of all
+        # controller-side services as a dict.
+        "get_system_services_status": vol.Schema(
+            {
+                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
+            }
+        ),
+        # set_omni_position drives the OmniTronic multi-port valve to a
+        # fixed position.  Position 0 (Filtration) also returns the
+        # controller to automatic mode.
+        "set_omni_position": vol.Schema(
+            {
+                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
+                vol.Required("position"): vol.All(
+                    vol.Coerce(int), vol.Range(min=0, max=5)
+                ),
+            }
+        ),
+        # get_live_trace_snapshot returns a single-row snapshot of every
+        # controller reading (CSV→dict) for ad-hoc troubleshooting.
+        "get_live_trace_snapshot": vol.Schema(
+            {
+                vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
+            }
+        ),
         "export_diagnostic_logs": vol.Schema(
             {
                 vol.Required(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,

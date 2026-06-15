@@ -153,6 +153,35 @@ class MockController:
 
         self.log_entries: list[str] = []
         self.notifications: dict[str, dict[str, str]] = {}
+        # Canister fill levels tracked for /setCanAmount (ml).  Mirrors
+        # OVERALL_DOSING.<key>.TOTAL_CAN_AMOUNT_ML on the real controller.
+        self.can_amounts: dict[str, int] = {
+            "DOS_1_CL": 20000,
+            "DOS_2_ELO": 3000,
+            "DOS_4_PHM": 20000,
+            "DOS_5_PHP": 20000,
+            "DOS_6_FLOC": 20000,
+        }
+        # Records each /resetBlocking call (for test assertions).
+        self.reset_blocking_calls: int = 0
+        # Live state of /getServiceStates responses.  Keys mirror the real
+        # controller: proftpd/shairport/samba/sshd/homekit/tunnel_state/
+        # support_tunnel_state.  Alexa state is not exposed by the controller.
+        self.services: dict[str, int] = {
+            "proftpd": 0,
+            "shairport": 0,
+            "samba": 0,
+            "sshd": 1,
+            "homekit": 0,
+            "tunnel_state": 0,
+            "support_tunnel_state": 0,
+        }
+        # OmniTronic multi-port valve position (0-5, default 0=Filtration).
+        self.omni_position: int = 0
+        # RS485 live-control session state.
+        self.rs485_live_active: bool = False
+        self.rs485_live_mode: str = ""
+        self.rs485_live_level: str = ""
         self._init_defaults()
 
     def _init_defaults(self) -> None:
@@ -594,6 +623,170 @@ async def handle_get_notifications(request: web.Request) -> web.Response:
     return web.json_response(_ctrl.notifications)
 
 
+async def handle_reset_blocking(request: web.Request) -> web.Response:
+    """GET /resetBlocking — clear fault blockings (e.g. BLOCKED_BY_ESC)."""
+    _log_request(request)
+    await _maybe_delay()
+    _ctrl.reset_blocking_calls += 1
+    # Mirror the real controller: clear BLOCKED_BY_ESC on every dosing output.
+    for key in _ctrl.dosing_state:
+        _ctrl.dosing_state[key] = "stopped"
+    return web.Response(text="OK\nBLOCKINGS_CLEARED")
+
+
+async def handle_set_can_amount(request: web.Request) -> web.Response:
+    """POST /setCanAmount — update canister fill level after refill."""
+    _log_request(request)
+    await _maybe_delay()
+    if (err := _check_error_mode()) is not None:
+        return err
+    data = await request.post()
+    action = str(data.get("action", "ADJUST")).upper()
+    which = str(data.get("which", ""))
+    cid = str(data.get("cid", ""))
+    try:
+        amount = int(data.get("amount", "0"))
+    except ValueError:
+        return web.Response(text="ERROR\nINVALID_AMOUNT", status=400)
+
+    if which not in _ctrl.can_amounts:
+        return web.Response(text=f"ERROR\nUNKNOWN_KEY:{which}", status=400)
+
+    _ctrl.can_amounts[which] = amount
+    _LOGGER.info(
+        "  -> setCanAmount: action=%s which=%s cid=%s amount=%d",
+        action,
+        which,
+        cid,
+        amount,
+    )
+    return web.Response(text=f"OK\n{which}\n{amount}")
+
+
+# Map service name -> handler state field on _ctrl.services.
+_SERVICE_ENDPOINT_MAP = {
+    "/enableFTP": ("ftp", True),
+    "/disableFTP": ("ftp", False),
+    "/enableSAMBA": ("samba", True),
+    "/disableSAMBA": ("samba", False),
+    "/enableSSH": ("ssh", True),
+    "/disableSSH": ("ssh", False),
+    "/enableSHAIRPORT": ("shairport", True),
+    "/disableSHAIRPORT": ("shairport", False),
+    "/enableHOMEBRIDGE": ("homekit", True),
+    "/disableHOMEBRIDGE": ("homekit", False),
+    "/enableALEXA": ("alexa", True),
+    "/disableALEXA": ("alexa", False),
+    "/enableTUNNEL": ("tunnel_state", True),
+    "/disableTUNNEL": ("tunnel_state", False),
+    "/enableSUPPORTTUNNEL": ("support_tunnel_state", True),
+    "/disableSUPPORTTUNNEL": ("support_tunnel_state", False),
+}
+
+
+async def handle_toggle_service(request: web.Request) -> web.Response:
+    """GET /enable* or /disable* — flip a controller system service."""
+    _log_request(request)
+    await _maybe_delay()
+    info = _SERVICE_ENDPOINT_MAP.get(request.path)
+    if info is None:
+        return web.Response(text="ERROR\nUNKNOWN_ENDPOINT", status=404)
+    state_key, new_value = info
+    _ctrl.services[state_key] = 1 if new_value else 0
+    _LOGGER.info("  -> %s: %s=%d", request.path, state_key, _ctrl.services[state_key])
+    return web.Response(text="OK\n" + request.path.lstrip("/"))
+
+
+async def handle_get_service_states(request: web.Request) -> web.Response:
+    """GET /getServiceStates — JSON dict of system service flags."""
+    _log_request(request)
+    await _maybe_delay()
+    now = datetime.now(tz=UTC)
+    return web.json_response({
+        **_ctrl.services,
+        "date": now.strftime("%d.%m.%Y"),
+        "time": now.strftime("%H:%M:%S"),
+    })
+
+
+# OmniTronic multi-port valve state — driven by /setFunctionManually?OMNI,OMNI_DC<N>.
+async def handle_set_omni_position(request: web.Request) -> web.Response:
+    """GET /setFunctionManually?OMNI,OMNI_DC<N> — drive the multi-port valve."""
+    _log_request(request)
+    await _maybe_delay()
+    query = request.url.query.get("query", "") or request.url.path_qs.split("?", 1)[-1]
+    # Parse "OMNI,OMNI_DC<N>,0,0"
+    parts = query.split(",")
+    if len(parts) < 2 or parts[0] != "OMNI":
+        return web.Response(text="ERROR\nINVALID_QUERY", status=400)
+    state = parts[1]
+    if not state.startswith("OMNI_DC"):
+        return web.Response(text=f"ERROR\nINVALID_STATE:{state}", status=400)
+    try:
+        pos = int(state.removeprefix("OMNI_DC"))
+    except ValueError:
+        return web.Response(text=f"ERROR\nINVALID_STATE:{state}", status=400)
+    if not 0 <= pos <= 5:
+        return web.Response(text=f"ERROR\nPOS_OUT_OF_RANGE:{pos}", status=400)
+    _ctrl.omni_position = pos
+    _LOGGER.info("  -> OMNI position set to %d", pos)
+    return web.Response(text=f"OK\nOMNITRONIC\n{state}\n")
+
+
+async def handle_get_rs485_pump_data(request: web.Request) -> web.Response:
+    """GET /getRS485PumpData?<PUMP_NAME> — return pump live data + registers."""
+    _log_request(request)
+    await _maybe_delay()
+    pump_name = request.url.query_string.split(",")[0] if request.url.query_string else ""
+    # Pump configs are static; we synthesise a minimal valid response.
+    if pump_name not in ("BADU_ECO_DRIVE_II", "BADU_ECO_FLEX", "BADU_PRIME_NEO_VS"):
+        return web.Response(text=f'ERROR\nUNKNOWN_PUMP:{pump_name}', status=400)
+    return web.json_response({
+        "BRAND": "BADU",
+        "NAME": pump_name.removeprefix("BADU_").replace("_", " "),
+        "pump_rs485_pwr": 450,
+        "pump_rs485_units": "W",
+        "FLOW_value": -1,
+        "PUMP_blocked": "NO",
+        "BACKWASH_STEP": 0,
+        "SLAVE_PRESENT": "YES",
+        "MOTIONCONTROLMODE_VALIDMODES": "HZ",
+        "SETTARGET_HZ_VALIDMIN": 5,
+        "SETTARGET_HZ_VALIDMAX": 50,
+    })
+
+
+async def handle_set_rs485_live(request: web.Request) -> web.Response:
+    """GET /setRS485Live?<pump>,<slave>,<mode>,<level>  OR  ?DONE."""
+    _log_request(request)
+    await _maybe_delay()
+    qs = request.url.query_string
+    if qs.upper() == "DONE":
+        _ctrl.rs485_live_active = False
+        return web.Response(text='"DONE"')
+    parts = qs.split(",")
+    if len(parts) != 4:
+        return web.Response(text='"INVALID. Query too short."', status=400)
+    pump_name, slave_id, mode, level = parts
+    if pump_name not in ("BADU_ECO_DRIVE_II", "BADU_ECO_FLEX", "BADU_PRIME_NEO_VS"):
+        return web.Response(text='"INVALID. Unknown pump."')
+    _ctrl.rs485_live_active = True
+    _ctrl.rs485_live_mode = mode
+    _ctrl.rs485_live_level = level
+    return web.Response(text=f'"{slave_id}|0,0|2,{level}"')
+
+
+async def handle_get_live_trace(request: web.Request) -> web.Response:
+    """GET /getLiveTrace — 3-line CSV (header; units; values)."""
+    _log_request(request)
+    await _maybe_delay()
+    header = "epoch;date;time;onewire1_value;pH_value;orp_value;pot_value;PUMP;HEATER"
+    units = "ms;;;°C; ;mV;mg/l; ; "
+    values = "1709234445000;29.02.2024;19:50:02;7.30;7.3;770;0.6;1;0"
+    body = "\n".join((header, units, values))
+    return web.Response(text=body, content_type="text/plain")
+
+
 async def handle_set_target_values(request: web.Request) -> web.Response:
     """GET /setTargetValues?target=KEY&value=VAL — set a target value."""
     _log_request(request)
@@ -751,6 +944,17 @@ def create_app() -> web.Application:
     app.router.add_get("/setOutputTestmode", handle_set_output_testmode)
     app.router.add_get("/getLog", handle_get_log)
     app.router.add_get("/getNotifications", handle_get_notifications)
+    app.router.add_get("/resetBlocking", handle_reset_blocking)
+    app.router.add_post("/setCanAmount", handle_set_can_amount)
+    app.router.add_get("/getServiceStates", handle_get_service_states)
+    # System service toggles – one route per enable/disable endpoint.
+    for endpoint in _SERVICE_ENDPOINT_MAP:
+        app.router.add_get(endpoint, handle_toggle_service)
+    # RS485 pump endpoints.
+    app.router.add_get("/getRS485PumpData", handle_get_rs485_pump_data)
+    app.router.add_get("/setRS485Live", handle_set_rs485_live)
+    # Live trace (single-row snapshot of every reading).
+    app.router.add_get("/getLiveTrace", handle_get_live_trace)
 
     app.router.add_get("/mock/state", handle_mock_state)
     app.router.add_get("/mock/error", handle_mock_error)

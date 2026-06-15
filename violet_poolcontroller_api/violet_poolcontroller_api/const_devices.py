@@ -227,7 +227,7 @@ for rule_num in range(1, 9):
     key = f"DIRULE_{rule_num}"
     DEVICE_PARAMETERS[key] = {
         "supports_lock": True,
-        "api_template": f"DIRULE_{{rule_num}},{{action}},0,0",
+        "api_template": f"DIRULE_{rule_num},{{action}},0,0",
     }
 
 # Dynamically add DMX scenes

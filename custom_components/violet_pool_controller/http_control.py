@@ -292,16 +292,33 @@ class VioletControlClient:
         dosing_index: int,
         runtime_seconds: int,
         from_param: int = 1,
+        action: str = "DOSSTART",
         timeout: float = 10.0,
     ) -> bool:
-        """Trigger manual dosing for a system.
+        """Trigger or stop a manual dosing run for a system.
+
+        Wraps ``POST /triggerManualDosing``.  The controller firmware
+        (``includes/triggerManualDosing.js``) accepts two actions:
+
+        * ``DOSSTART`` – start a manual dosing run for ``runtime_seconds``.
+          Requires the filter pump to be ON and no backwash in progress,
+          otherwise the controller returns ``PUMP_OFF_ERROR`` /
+          ``BACKWASH_ERROR``.
+        * ``DOSSTOP`` – cancel a running manual dosing run and return the
+          channel to automatic mode.  ``runtime_seconds`` is ignored by
+          the firmware and may be ``0``.
 
         Args:
-            dosing_index: Dosing system index (0-5). 0=Chlorine/H2O2, 1=Electrolysis,
-                3=pH-, 4=pH+, 5=Flocculant.
-            runtime_seconds: Runtime in seconds.
-            from_param: Source identifier. 1=normal dosing, 3=H2O2 (shares DOS_1_CL
-                physical output with Chlorine but uses different firmware path).
+            dosing_index: Dosing system index (0-5). 0=Chlorine/H2O2,
+                1=Electrolysis, 3=pH-, 4=pH+, 5=Flocculant.
+                (Index 2 is reserved for H2O2 via ``from_param=3`` and
+                reuses the Chlorine physical output.)
+            runtime_seconds: Runtime in seconds.  Required for DOSSTART;
+                ignored for DOSSTOP (pass ``0``).
+            from_param: Source identifier. 1=normal dosing, 3=H2O2
+                (shares DOS_1_CL physical output with Chlorine but uses
+                a different firmware path).
+            action: Either ``"DOSSTART"`` (default) or ``"DOSSTOP"``.
             timeout: Request timeout in seconds.
 
         Returns:
@@ -309,18 +326,25 @@ class VioletControlClient:
 
         Raises:
             VioletPoolAPIError: If API communication fails.
-            ValueError: If parameters out of range.
+            ValueError: If parameters out of range or action is unknown.
+
         """
+        action_upper = action.strip().upper()
+        if action_upper not in ("DOSSTART", "DOSSTOP"):
+            raise ValueError(
+                f"action must be 'DOSSTART' or 'DOSSTOP', got {action!r}"
+            )
         if not 0 <= dosing_index <= 5:
             raise ValueError(f"Dosing index must be 0-5, got {dosing_index}")
-        if runtime_seconds <= 0:
+        if action_upper == "DOSSTART" and runtime_seconds <= 0:
             raise ValueError(
-                f"Runtime must be > 0, got {runtime_seconds}"
+                f"Runtime must be > 0 for DOSSTART, got {runtime_seconds}"
             )
 
         try:
             _LOGGER.debug(
-                "Triggering manual dosing: index=%d, runtime=%ds, from=%d",
+                "Triggering manual dosing: action=%s index=%d, runtime=%ds, from=%d",
+                action_upper,
                 dosing_index,
                 runtime_seconds,
                 from_param,
@@ -330,7 +354,7 @@ class VioletControlClient:
                 f"{runtime_seconds // 60:02d}:{runtime_seconds % 60:02d}"
             )
             form_data = {
-                "action": "DOSSTART",
+                "action": action_upper,
                 "output": str(dosing_index),
                 "runtime": str(runtime_seconds),
                 "from": str(from_param),
@@ -353,24 +377,38 @@ class VioletControlClient:
                 _LOGGER.warning("Manual dosing blocked: backwash in progress")
                 return False
 
-            if "\nOK" in response_text or "MANDOS_STARTED" in response_text:
+            success_token = (
+                "MANDOS_STARTED" if action_upper == "DOSSTART" else "MANDOS_STOPPED"
+            )
+            if "\nOK" in response_text or success_token in response_text:
                 _LOGGER.info(
-                    "Manual dosing triggered: index=%d, runtime=%ds",
+                    "Manual dosing %s: index=%d, runtime=%ds",
+                    action_upper,
                     dosing_index,
                     runtime_seconds,
                 )
                 return True
 
-            _LOGGER.warning("Manual dosing unexpected response: %s", response_text)
+            _LOGGER.warning(
+                "Manual dosing unexpected response (%s): %s",
+                action_upper,
+                response_text,
+            )
             return False
 
         except VioletPoolAPIError as err:
-            _LOGGER.error("API error triggering dosing: %s", err)
+            _LOGGER.error(
+                "API error triggering dosing (%s): %s",
+                action_upper,
+                err,
+            )
             raise
         except TimeoutError as err:
-            _LOGGER.error("Timeout triggering manual dosing")
+            _LOGGER.error(
+                "Timeout triggering manual dosing (%s)", action_upper
+            )
             raise VioletPoolAPIError(
-                "Timeout triggering manual dosing",
+                f"Timeout triggering manual dosing ({action_upper})",
                 original_exception=err,
             ) from err
 

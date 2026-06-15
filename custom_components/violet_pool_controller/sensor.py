@@ -22,6 +22,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import (
+    ANALOG_RULE_SENSORS,
     ANALOG_SENSORS,
     COMPOSITE_STATE_SENSORS,
     CONF_ACTIVE_FEATURES,
@@ -29,10 +30,12 @@ from .const import (
     DOMAIN,
     DOSING_STATE_SENSORS,
     DOSING_STATS_SENSORS,
+    EXTRA_DIAGNOSTIC_SENSORS,
     RUNTIME_SENSORS,
     SENSOR_FEATURE_MAP,
     STATUS_SENSORS,
     SYSTEM_SENSORS,
+    TEMP_RULE_SENSORS,
     TEMP_SENSORS,
     WATER_CHEM_SENSORS,
 )
@@ -47,6 +50,7 @@ from .sensor_modules import (
     VioletDosingStateSensor,
     VioletErrorCodeSensor,
     VioletFlowRateSensor,
+    VioletHealthSensor,
     VioletLastEventAgeSensor,
     VioletPumpPowerSensor,
     VioletSensor,
@@ -181,6 +185,10 @@ def _create_special_sensors(
     sensors.append(VioletActiveErrorsSensor(coordinator, config_entry))
     _LOGGER.debug("Active errors sensor created")
 
+    # Pool Health Sensor (aggregate state: ok / warning / error / offline)
+    sensors.append(VioletHealthSensor(coordinator, config_entry))
+    _LOGGER.debug("Pool health sensor created")
+
     # Flow Rate Sensor
     flow_keys_present = any(key in coordinator.data for key in _FLOW_RATE_SOURCE_KEYS)
     flow_selected = (
@@ -297,6 +305,54 @@ def _create_special_sensors(
             )
             handled_keys.add(key)
             _LOGGER.debug("Dosing stats sensor created for %s", key)
+
+    # Extra Diagnostic Sensors (POLARITY, REMAINING_RANGE, last_error_id,
+    # OmniTronic valve state, backwash last-run timestamps, etc.)
+    for key, sensor_config in EXTRA_DIAGNOSTIC_SENSORS.items():
+        if key in coordinator.data:
+            feature_id = SENSOR_FEATURE_MAP.get(key)
+            if feature_id and feature_id not in config["active_features"]:
+                continue
+            if not config["create_all"] and key not in config["selected_sensors"]:
+                continue
+
+            sensors.append(
+                VioletSensor(
+                    coordinator,
+                    config_entry,
+                    _build_sensor_description(
+                        key,
+                        coordinator.data.get(key),
+                        EXTRA_DIAGNOSTIC_SENSORS,
+                        translation_key=sensor_config.get(
+                            "translation_key", key.lower()
+                        ),
+                    ),
+                )
+            )
+            handled_keys.add(key)
+            _LOGGER.debug("Extra diagnostic sensor created for %s", key)
+
+    # Analog + Temperature switching-rule states (0/1 active flag per rule)
+    for source in (ANALOG_RULE_SENSORS, TEMP_RULE_SENSORS):
+        for key, sensor_config in source.items():
+            if key not in coordinator.data:
+                continue
+            sensors.append(
+                VioletSensor(
+                    coordinator,
+                    config_entry,
+                    _build_sensor_description(
+                        key,
+                        coordinator.data.get(key),
+                        source,
+                        translation_key=sensor_config.get(
+                            "translation_key", key.lower()
+                        ),
+                    ),
+                )
+            )
+            handled_keys.add(key)
 
     return sensors, handled_keys
 

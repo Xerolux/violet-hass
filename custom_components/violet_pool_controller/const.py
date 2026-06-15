@@ -19,6 +19,8 @@ version, and manufacturer details, as well as configuration keys and default val
 
 from __future__ import annotations
 
+from typing import Any
+
 from homeassistant.const import (
     CONF_DEVICE_ID,
     CONF_HOST,
@@ -61,7 +63,7 @@ DEVICE_PARAMETERS = _const_devices.DEVICE_PARAMETERS
 # =============================================================================
 
 DOMAIN = "violet_pool_controller"
-INTEGRATION_VERSION = "2.0.0-beta.7"
+INTEGRATION_VERSION = "2.0.0-beta.8"
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 
 # =============================================================================
@@ -156,3 +158,116 @@ VERSION_INFO = {
         "Updated API dependency to violet-poolController-api 0.0.24",
     ],
 }
+
+# =============================================================================
+# DOSING / OUTPUT DETAIL STATE DESCRIPTIONS
+# =============================================================================
+# Human-readable English labels for the BLOCKED_BY_*/WAITING_FOR_*/etc. detail
+# codes that the controller returns inside DOS_*_STATE arrays (e.g.
+# ``["BLOCKED_BY_PUMP_OFF", "BLOCKED_BY_MISSING_MODULE"]``) and inside
+# composite PUMPSTATE/HEATERSTATE/SOLARSTATE values (e.g. ``"3|PUMP_ANTI_FREEZE"``).
+# Source: firmware includes/controlfunction_*.js + includes/dosage_controller_*.js
+# + sample READINGS.json from controller snapshot 1.0.9.
+DOSING_STATE_DESCRIPTIONS: dict[str, str] = {
+    # -- Frost / anti-freeze modes (PUMPSTATE composite key) --
+    "PUMP_ANTI_FREEZE": "Frost Protection",
+    # -- Generic thresholds (firmware uses both spellings "TRESHOLDS" and
+    # "THRESHOLDS"; keep both for safety) --
+    "BLOCKED_BY_TRESHOLDS": "Blocked (Thresholds)",
+    "BLOCKED_BY_THRESHOLDS": "Blocked (Thresholds)",
+    "BLOCKED_BY_CL_TRESHOLDS": "Blocked (Chlorine Thresholds)",
+    "BLOCKED_BY_CL_THRESHOLDS": "Blocked (Chlorine Thresholds)",
+    "TRESHOLDS_REACHED": "Thresholds Reached",
+    "THRESHOLDS_REACHED": "Thresholds Reached",
+    "TRESHOLDS_REACHED_CL": "Chlorine Thresholds Reached",
+    "THRESHOLDS_REACHED_CL": "Chlorine Thresholds Reached",
+    # -- Block by pump state --
+    "BLOCKED_BY_PUMP": "Blocked (Pump Off)",
+    "BLOCKED_BY_PUMP_OFF": "Blocked (Pump Off)",
+    "BLOCKED_BY_PUMP_DELAY": "Blocked (Pump Start Delay)",
+    "BLOCKED_BY_START_DELAY": "Blocked (Start Delay)",
+    "BLOCKED_BY_POSTRUN": "Blocked (Post-Run)",
+    "BLOCKED_BY_HEATER_OFF_DELAY": "Blocked (Heater Off Delay)",
+    # -- Block by flow / circulation --
+    "BLOCKED_BY_FLOW": "Blocked (Flow)",
+    "BLOCKED_BY_MISSING_FLOW": "Blocked (Missing Flow)",
+    "BLOCKED_BY_MISSING_CIRCULATION": "Blocked (Missing Circulation)",
+    "WAITING_FOR_PUMP": "Waiting for Pump",
+    "WAITING_FOR_FLOW": "Waiting for Flow",
+    # -- Block by other subsystems --
+    "BLOCKED_BY_SOLAR": "Blocked (Solar)",
+    "BLOCKED_BY_HEATER": "Blocked (Heater)",
+    "BLOCKED_BY_BACKWASH": "Blocked (Backwash)",
+    "BLOCKED_BY_OUTSIDE_TEMP": "Blocked (Outside Temperature)",
+    "BLOCKED_BY_MAXTEMP": "Blocked (Max Temperature)",
+    "BLOCKED_BY_BOILER_TEMP": "Blocked (Boiler Temperature)",
+    "BLOCKED_BY_MAX_AMOUNT": "Blocked (Max Daily Amount)",
+    # -- Hardware / module issues --
+    "BLOCKED_BY_MISSING_MODULE": "Blocked (Missing Module)",
+    "BLOCKED_BY_SENSOR_FAULT": "Blocked (Sensor Fault)",
+    # -- Rules / overrides --
+    "BLOCKED_BY_EMERGENCY_CONTROL_RULE": "Blocked (Emergency Rule)",
+    "BLOCKED_BY_ESC": "Blocked (Emergency Stop)",
+    "BLOCKED_BY_MANUAL_OFF": "Blocked (Manual Off)",
+    "BLOCKED_BY_UPDATE": "Blocked (Update)",
+    "BLOCKED_BY_RULE": "Blocked (Rule)",
+    # -- OmniTronic multi-port valve states --
+    "BLOCKED_BY_OMNI": "Blocked (OmniTronic)",
+    "BLOCKED_BY_OMIN": "Blocked (OmniTronic)",  # firmware typo, kept for safety
+    "BLOCKED_BY_OMNI_POS": "Blocked (OmniTronic Positioning)",
+    "BLOCKED_BY_Z1Z2": "Blocked (OmniTronic Z1/Z2 Contact)",
+    # -- Electrolysis specific --
+    "BLOCKED_BY_POLEREVERSAL": "Blocked (Polarity Reversal)",  # firmware typo
+    # -- Waiting states --
+    "WAITING_FOR_DOSAGECONTROLLERS": "Waiting for Dosing Controllers",
+    "WAITING_FOR_HEATER_POSTRUN": "Waiting for Heater Post-Run",
+    "WAITING_FOR_PREFILL": "Waiting for Pre-Fill",
+    "WAITING_FOR_STARTTIME": "Waiting for Start Time",
+    # -- Active dosing states --
+    "DOSING": "Dosing",
+    "DOSING_PAUSED": "Dosing Paused",
+    "MANUAL_DOSING": "Manual Dosing",
+}
+
+# =============================================================================
+# DIAGNOSTIC PROBLEM KEYS
+# =============================================================================
+# Sensor keys whose value indicates an active fault or hardware-issue state.
+# Used by VioletHealthSensor to aggregate all problems into one summary.
+#
+# Conventions:
+#   * Binary-sensor keys are True == problem.
+#   * Hardware-module keys (HW_*) are True == module PRESENT (so the sensor
+#     being False indicates a hardware problem).
+#   * State-string keys (e.g. BACKWASH_OMNI_STATE) use a denylist of bad
+#     substrings rather than a simple boolean check.
+DIAGNOSTIC_PROBLEM_KEYS: dict[str, dict[str, Any]] = {
+    # Binary problem sensors (device_class=PROBLEM)
+    "CIRCULATION_STATE": {"label": "Circulation Issue", "type": "problem"},
+    "ELECTRODE_FLOW_STATE": {"label": "Electrode Flow Issue", "type": "problem"},
+    "PRESSURE_STATE": {"label": "Pressure Issue", "type": "problem"},
+    "CAN_RANGE_STATE": {"label": "Can Range Issue", "type": "problem"},
+    "OVERFLOW_OVERFILL_STATE": {"label": "Overflow Overfill", "type": "problem"},
+    "OVERFLOW_DRYRUN_STATE": {"label": "Overflow Dry Run", "type": "problem"},
+    # Hardware-module presence sensors (False == missing/disconnected).
+    # Inverted in the health check.
+    "HW_BASE_MODULE": {"label": "Base Module", "type": "hardware"},
+    "HW_DOSING_MODULE": {"label": "Dosing Module", "type": "hardware"},
+    "HW_EXTENSION_MODULE_1": {"label": "Extension Module 1", "type": "hardware"},
+    "HW_EXTENSION_MODULE_2": {"label": "Extension Module 2", "type": "hardware"},
+    "HW_DMX_MODULE": {"label": "DMX Module", "type": "hardware"},
+    "HW_DIRULE_MODULE": {"label": "Digital Rules Module", "type": "hardware"},
+}
+
+# OmniTronic / backwash state strings that indicate an active fault.
+# Matched case-insensitively against BACKWASH_OMNI_STATE.
+OMNI_FAULTY_STATES: tuple[str, ...] = (
+    "BLOCKED_BY_Z1Z2",
+    "BLOCKED_BY_OMNI",
+    "BLOCKED_BY_OMIN",  # firmware typo
+    "POS_FAILURE",
+    "POS_FAILURE_FILTRATION",
+    "POS_FAILURE_RINSE",
+    "Z1Z2_CONTACT_FAILURE",
+    "OMNI_Z1Z2_CONTACT_FAILURE",
+)

@@ -925,6 +925,63 @@
           "description": "Maximum valid sensor reading"
         }
       }
+    },
+    "reset_blocking": {
+      "name": "Reset fault blockings",
+      "description": "Clears fault-induced blockings on the controller (e.g. BLOCKED_BY_ESC after empty-canister alarm). Useful after fixing the underlying issue.",
+      "fields": {}
+    },
+    "set_can_amount": {
+      "name": "Set canister fill level",
+      "description": "Update the canister fill level for a dosing channel after refilling. With action=reset the daily-dosing counter is also cleared.",
+      "fields": {
+        "dosing_key": {
+          "name": "Dosing channel",
+          "description": "Dosing channel key (DOS_1_CL, DOS_2_ELO, DOS_4_PHM, DOS_5_PHP, DOS_6_FLOC)"
+        },
+        "amount_ml": {
+          "name": "Amount",
+          "description": "New fill level in millilitres"
+        },
+        "action": {
+          "name": "Action",
+          "description": "adjust = only update fill level; reset = also clear daily counter"
+        }
+      }
+    },
+    "set_system_service": {
+      "name": "Toggle controller system service",
+      "description": "Enable or disable a system service on the controller (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, tunnels).",
+      "fields": {
+        "service": {
+          "name": "Service",
+          "description": "Service identifier (ftp, samba, ssh, shairport, homebridge, alexa, tunnel, support_tunnel)"
+        },
+        "enabled": {
+          "name": "Enabled",
+          "description": "true to enable, false to disable"
+        }
+      }
+    },
+    "get_system_services_status": {
+      "name": "Get system service states",
+      "description": "Return the live state of all controller-side system services.",
+      "fields": {}
+    },
+    "set_omni_position": {
+      "name": "Set OmniTronic valve position",
+      "description": "Drive the OmniTronic multi-port valve to a fixed position (0-5). Position 0 returns to AUTO mode.",
+      "fields": {
+        "position": {
+          "name": "Position",
+          "description": "Target valve position (0=Filtration/AUTO, 1-5=other ports)"
+        }
+      }
+    },
+    "get_live_trace_snapshot": {
+      "name": "Get live trace snapshot",
+      "description": "Return a single-row snapshot of every controller reading.",
+      "fields": {}
     }
   },
   "selector": {
@@ -1073,6 +1130,96 @@
       },
       "pump_estimated_power": {
         "name": "Pump Power (est.)"
+      },
+      "last_error_id": {
+        "name": "Last Error ID"
+      },
+      "dos_2_current_polarity": {
+        "name": "Electrolysis Polarity"
+      },
+      "backwash_omni_state": {
+        "name": "OmniTronic Valve State"
+      },
+      "backwash_omni_moving": {
+        "name": "OmniTronic Moving"
+      },
+      "backwash_last_auto_run": {
+        "name": "Backwash Last Auto Run"
+      },
+      "backwash_last_manual_run": {
+        "name": "Backwash Last Manual Run"
+      },
+      "dos_1_cl_remaining_range": {
+        "name": "Chlorine Remaining Range"
+      },
+      "dos_2_elo_remaining_range": {
+        "name": "Electrolysis Remaining Range"
+      },
+      "dos_4_phm_remaining_range": {
+        "name": "pH- Remaining Range"
+      },
+      "dos_5_php_remaining_range": {
+        "name": "pH+ Remaining Range"
+      },
+      "dos_6_floc_remaining_range": {
+        "name": "Flocculant Remaining Range"
+      },
+      "analogrule_1": {
+        "name": "Analog Rule 1"
+      },
+      "temprule_1": {
+        "name": "Temperature Rule 1"
+      },
+      "analogrule_2": {
+        "name": "Analog Rule 2"
+      },
+      "temprule_2": {
+        "name": "Temperature Rule 2"
+      },
+      "analogrule_3": {
+        "name": "Analog Rule 3"
+      },
+      "temprule_3": {
+        "name": "Temperature Rule 3"
+      },
+      "analogrule_4": {
+        "name": "Analog Rule 4"
+      },
+      "temprule_4": {
+        "name": "Temperature Rule 4"
+      },
+      "analogrule_5": {
+        "name": "Analog Rule 5"
+      },
+      "temprule_5": {
+        "name": "Temperature Rule 5"
+      },
+      "analogrule_6": {
+        "name": "Analog Rule 6"
+      },
+      "temprule_6": {
+        "name": "Temperature Rule 6"
+      },
+      "analogrule_7": {
+        "name": "Analog Rule 7"
+      },
+      "temprule_7": {
+        "name": "Temperature Rule 7"
+      },
+      "analogrule_8": {
+        "name": "Analog Rule 8"
+      },
+      "temprule_8": {
+        "name": "Temperature Rule 8"
+      },
+      "pool_health": {
+        "name": "Pool Health",
+        "state": {
+          "ok": "OK",
+          "warning": "Warning",
+          "error": "Error",
+          "offline": "Offline"
+        }
       }
     },
     "binary_sensor": {

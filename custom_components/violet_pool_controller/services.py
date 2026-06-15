@@ -235,6 +235,57 @@ async def async_register_services(hass: HomeAssistant) -> None:
         supports_response=SupportsResponse.ONLY,
     )
 
+    # Maintenance services: fault-blocking clear + canister refill accounting
+    hass.services.async_register(
+        DOMAIN,
+        "reset_blocking",
+        handlers.handle_reset_blocking,
+        schema=schemas.get("reset_blocking"),
+        supports_response=SupportsResponse.ONLY,
+    )
+
+    hass.services.async_register(
+        DOMAIN,
+        "set_can_amount",
+        handlers.handle_set_can_amount,
+        schema=schemas.get("set_can_amount"),
+        supports_response=SupportsResponse.ONLY,
+    )
+
+    # System service management (FTP/Samba/SSH/Shairport/HomeKit/Alexa/Tunnels)
+    hass.services.async_register(
+        DOMAIN,
+        "set_system_service",
+        handlers.handle_set_system_service,
+        schema=schemas.get("set_system_service"),
+        supports_response=SupportsResponse.ONLY,
+    )
+
+    hass.services.async_register(
+        DOMAIN,
+        "get_system_services_status",
+        handlers.handle_get_system_services_status,
+        schema=schemas.get("get_system_services_status"),
+        supports_response=SupportsResponse.ONLY,
+    )
+
+    # OmniTronic multi-port valve + live-trace diagnostic
+    hass.services.async_register(
+        DOMAIN,
+        "set_omni_position",
+        handlers.handle_set_omni_position,
+        schema=schemas.get("set_omni_position"),
+        supports_response=SupportsResponse.ONLY,
+    )
+
+    hass.services.async_register(
+        DOMAIN,
+        "get_live_trace_snapshot",
+        handlers.handle_get_live_trace_snapshot,
+        schema=schemas.get("get_live_trace_snapshot"),
+        supports_response=SupportsResponse.ONLY,
+    )
+
     total_services = (
         len(regular_services)
         + len(http_control_services)
@@ -242,6 +293,6 @@ async def async_register_services(hass: HomeAssistant) -> None:
         + len(rule_management_services)
         + len(system_config_services)
         + len(refill_overflow_services)
-        + 10  # 7 diagnostic + 5 status services (refill, overflow, calibration, backwash, update)
+        + 16  # diagnostic + status + maintenance services (see registrations above)
     )
     _LOGGER.info("Successfully registered %d services", total_services)
