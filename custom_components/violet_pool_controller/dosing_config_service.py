@@ -47,10 +47,6 @@ class DosingConfigServiceHandlers:
         prefix = DOSING_SYSTEMS[dosing_system]
         full_key = f"{prefix}_{config_key}"
 
-        # Ensure _use keys send integers (0 or 1), not floats
-        if config_key.endswith("_use"):
-            value = int(bool(value))
-
         for coordinator in coordinators:
             try:
                 control = VioletControlClient(coordinator.device._api)
