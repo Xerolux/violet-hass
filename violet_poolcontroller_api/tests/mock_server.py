@@ -143,8 +143,8 @@ class MockController:
         # The real controller sends ``SW_VERSION`` and lowercase ``fw``; carrier
         # board info arrives as ``SW_VERSION_CARRIER`` / ``HW_VERSION_CARRIER``.
         # The available-version key only appears when an update exists.
-        self.fw_installed = "1.1.9"
-        self.fw_carrier = "1.0.1"
+        self.fw_installed = "1.2.4"
+        self.fw_carrier = "2.0.3"
         self.fw_available: str | None = None  # None = up to date
 
         self.last_on_off: dict[str, int] = {
@@ -226,27 +226,27 @@ class MockController:
             "fw": self.fw_installed,
             "SW_VERSION": self.fw_installed,
             "SW_VERSION_CARRIER": self.fw_carrier,
-            "HW_VERSION_CARRIER": "1.0.0",
-            "HW_SERIAL_CARRIER": "4",
+            "HW_VERSION_CARRIER": "2.1.0",
+            "HW_SERIAL_CARRIER": "7",
             # Available update — only included when self.fw_available is set
             **({"SW_UPDATE_AVAILABLE": self.fw_available} if self.fw_available else {}),
             "CPU_TEMP": self.sensor_drift["CPU_TEMP"],
             "CPU_TEMP_CARRIER": round(self.sensor_drift["CPU_TEMP"] - 10.0, 1),
             "CPU_UPTIME": f"{days}d {hours}h {minutes}m",
-            "LOAD_AVG": "1.8",
-            "MEMORY_USED": "38.52",
-            "SYSTEM_MEMORY": 175.2,
-            "SYSTEM_memoryusage": 42.1,
+            "LOAD_AVG": "0.42",
+            "MEMORY_USED": "54.7",
+            "SYSTEM_MEMORY": 162.8,
+            "SYSTEM_memoryusage": 38.4,
             "SYSTEM_cpu_temperature": self.sensor_drift["CPU_TEMP"],
             "SYSTEM_carrier_cpu_temperature": self.sensor_drift["CPU_TEMP"] - 10.0,
-            "SYSTEM_dosagemodule_alive_count": "20392243",
+            "SYSTEM_dosagemodule_alive_count": "18934721",
             "SYSTEM_dosagemodule_cpu_temperature": self.sensor_drift["CPU_TEMP"] - 0.4,
-            "SYSTEM_ext1module_alive_count": "52443888",
+            "SYSTEM_ext1module_alive_count": "47291033",
             "IMP1_value": round(1.23 + random.uniform(-0.1, 0.1), 2),
-            "IMP2_value": round(12.47 + random.uniform(-0.1, 0.1), 2),
-            "ADC1_value": 0.48,
-            "ADC2_value": 58,
-            "ADC3_value": 62.8,
+            "IMP2_value": round(8.64 + random.uniform(-0.1, 0.1), 2),
+            "ADC1_value": 0.31,
+            "ADC2_value": 42,
+            "ADC3_value": 27.3,
             "orp_value": self.sensor_drift["orp_value"],
             "orp_value_max": round(self.sensor_drift["orp_value"] + 27.0, 1),
             "orp_value_min": round(self.sensor_drift["orp_value"] - 27.0, 1),

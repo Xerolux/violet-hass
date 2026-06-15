@@ -20,6 +20,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Never
 
 import aiohttp
@@ -90,8 +91,8 @@ async def test_get_readings_success(
 
     result = await api_client.get_readings()
 
-    assert isinstance(result, dict)
-    assert result == mock_data
+    assert isinstance(result, Mapping)
+    assert dict(result) == mock_data
 
 
 @pytest.mark.asyncio
@@ -289,8 +290,8 @@ async def test_get_readings_standalone_list_format(
 
     result = await api_client.get_readings()
 
-    assert isinstance(result, dict)
-    assert result == {"date": "12.04.2023", "CPU_TEMP": 45.5}
+    assert isinstance(result, Mapping)
+    assert dict(result) == {"date": "12.04.2023", "CPU_TEMP": 45.5}
     assert api_client.dosing_standalone is True
 
 
@@ -313,7 +314,7 @@ async def test_dosing_standalone_detection_dict_format(
 
     result = await standalone_api_client.get_readings()
 
-    assert isinstance(result, dict)
+    assert isinstance(result, Mapping)
     assert standalone_api_client.dosing_standalone is False
 
 
