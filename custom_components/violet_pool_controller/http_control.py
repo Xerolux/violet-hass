@@ -291,13 +291,17 @@ class VioletControlClient:
         self,
         dosing_index: int,
         runtime_seconds: int,
+        from_param: int = 1,
         timeout: float = 10.0,
     ) -> bool:
         """Trigger manual dosing for a system.
 
         Args:
-            dosing_index: Dosing system index (0-5).
+            dosing_index: Dosing system index (0-5). 0=Chlorine/H2O2, 1=Electrolysis,
+                3=pH-, 4=pH+, 5=Flocculant.
             runtime_seconds: Runtime in seconds.
+            from_param: Source identifier. 1=normal dosing, 3=H2O2 (shares DOS_1_CL
+                physical output with Chlorine but uses different firmware path).
             timeout: Request timeout in seconds.
 
         Returns:
@@ -316,9 +320,10 @@ class VioletControlClient:
 
         try:
             _LOGGER.debug(
-                "Triggering manual dosing: index=%d, runtime=%ds",
+                "Triggering manual dosing: index=%d, runtime=%ds, from=%d",
                 dosing_index,
                 runtime_seconds,
+                from_param,
             )
 
             runtime_formatted = (
@@ -328,7 +333,7 @@ class VioletControlClient:
                 "action": "DOSSTART",
                 "output": str(dosing_index),
                 "runtime": str(runtime_seconds),
-                "from": "1",
+                "from": str(from_param),
                 "runtime_formatted": runtime_formatted,
             }
 

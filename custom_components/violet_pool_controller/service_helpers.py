@@ -27,6 +27,7 @@ DOSING_TYPE_MAPPING = {
     "Chlorine": "DOS_1_CL",
     "Electrolysis": "DOS_2_ELO",
     "Flocculant": "DOS_6_FLOC",
+    "H2O2": "DOS_1_CL",
 }
 
 DOSING_API_MAPPING = {
@@ -35,6 +36,7 @@ DOSING_API_MAPPING = {
     "Chlorine": "Chlor",
     "Electrolysis": "Elektrolyse",
     "Flocculant": "Flockmittel",
+    "H2O2": "H2O2",
 }
 
 DOSING_CONFIG_PREFIX_MAPPING = {
@@ -44,6 +46,10 @@ DOSING_CONFIG_PREFIX_MAPPING = {
     "DOS_5_PHP": "DOSAGE_phplus",
     "DOS_6_FLOC": "DOSAGE_floc",
 }
+
+# H2O2 shares the DOS_1_CL physical output but uses `from=3` instead of `from=1`
+DOSING_H2O2_FROM_PARAM = 3
+DOSING_DEFAULT_FROM_PARAM = 1
 
 MIN_DOSING_DURATION = 5
 MAX_DOSING_DURATION = 300

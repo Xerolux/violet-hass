@@ -157,6 +157,29 @@ SYSTEM_SENSORS = {
         "translation_key": "system_dosagemodule_cpu_temperature",
         "icon": "mdi:memory-lan",
     },
+    "CPU_UPTIME": {
+        "name": "Device Uptime",
+        "translation_key": "cpu_uptime",
+        "icon": "mdi:timer-outline",
+    },
+    "LOAD_AVG": {
+        "name": "CPU Load Average",
+        "translation_key": "load_avg",
+        "icon": "mdi:speedometer",
+    },
+    "pump_rs485_pwr": {
+        "name": "RS485 Pump Power",
+        "translation_key": "pump_rs485_pwr",
+        "icon": "mdi:lightning-bolt",
+    },
+    **{
+        f"DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_STOPWATCH{k}": {
+            "name": f"DI Rule {k} Remaining Time",
+            "translation_key": f"di_rule_{k}_stopwatch",
+            "icon": "mdi:timer-sand",
+        }
+        for k in range(1, 9)
+    },
 }
 
 STATUS_SENSORS = {
@@ -333,6 +356,11 @@ DOSING_STATS_SENSORS = {
         "translation_key": "dos_1_cl_daily",
         "icon": "mdi:beaker",
     },
+    "DOS_2_ELO_DAILY_DOSING_AMOUNT_ML": {
+        "name": "Electrolysis Daily Dosing",
+        "translation_key": "dos_2_elo_daily",
+        "icon": "mdi:lightning-bolt",
+    },
     "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML": {
         "name": "pH- Daily Dosing",
         "translation_key": "dos_4_phm_daily",
@@ -346,6 +374,31 @@ DOSING_STATS_SENSORS = {
     "DOS_6_FLOC_DAILY_DOSING_AMOUNT_ML": {
         "name": "Flocculant Daily Dosing",
         "translation_key": "dos_6_floc_daily",
+        "icon": "mdi:beaker-outline",
+    },
+    "DOS_1_CL_TOTAL_CAN_AMOUNT_ML": {
+        "name": "Chlorine Can Amount",
+        "translation_key": "dos_1_cl_total_can",
+        "icon": "mdi:beaker",
+    },
+    "DOS_2_ELO_TOTAL_CAN_AMOUNT_ML": {
+        "name": "Electrolysis Can Amount",
+        "translation_key": "dos_2_elo_total_can",
+        "icon": "mdi:lightning-bolt",
+    },
+    "DOS_4_PHM_TOTAL_CAN_AMOUNT_ML": {
+        "name": "pH- Can Amount",
+        "translation_key": "dos_4_phm_total_can",
+        "icon": "mdi:beaker-minus",
+    },
+    "DOS_5_PHP_TOTAL_CAN_AMOUNT_ML": {
+        "name": "pH+ Can Amount",
+        "translation_key": "dos_5_php_total_can",
+        "icon": "mdi:beaker-plus",
+    },
+    "DOS_6_FLOC_TOTAL_CAN_AMOUNT_ML": {
+        "name": "Flocculant Can Amount",
+        "translation_key": "dos_6_floc_total_can",
         "icon": "mdi:beaker-outline",
     },
 }
@@ -395,6 +448,8 @@ UNIT_MAP = {
     "onewire10_value": "°C",
     "onewire11_value": "°C",
     "onewire12_value": "°C",
+    "SYSTEM_cpu_temperature": "°C",
+    "SYSTEM_carrier_cpu_temperature": "°C",
     "CPU_TEMP": "°C",
     "CPU_TEMP_CARRIER": "°C",
     # Water Chemistry
@@ -410,11 +465,22 @@ UNIT_MAP = {
     # Pump RPMs - only _VALUE sensors carry actual RPM measurements
     # PUMP_RPM_{i} (without _VALUE) returns a state code (0-6), not a speed in RPM
     **{f"PUMP_RPM_{i}_VALUE": "RPM" for i in range(4)},
-    # Dosing Statistics
+    # RS485 pump power consumption
+    "pump_rs485_pwr": "W",
+    # Dosing Statistics — daily consumption
     "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": "ml",
+    "DOS_2_ELO_DAILY_DOSING_AMOUNT_ML": "ml",
     "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML": "ml",
     "DOS_5_PHP_DAILY_DOSING_AMOUNT_ML": "ml",
     "DOS_6_FLOC_DAILY_DOSING_AMOUNT_ML": "ml",
+    # Dosing Statistics — remaining can amount
+    "DOS_1_CL_TOTAL_CAN_AMOUNT_ML": "ml",
+    "DOS_2_ELO_TOTAL_CAN_AMOUNT_ML": "ml",
+    "DOS_4_PHM_TOTAL_CAN_AMOUNT_ML": "ml",
+    "DOS_5_PHP_TOTAL_CAN_AMOUNT_ML": "ml",
+    "DOS_6_FLOC_TOTAL_CAN_AMOUNT_ML": "ml",
+    # DI-Rule Stopwatch — remaining timer in seconds
+    **{f"DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_STOPWATCH{k}": "s" for k in range(1, 9)},
 }
 
 # Sensors that should explicitly have no unit.
@@ -503,7 +569,14 @@ SENSOR_FEATURE_MAP = {
     "LIGHT_RUNTIME": "led_lighting",
     "BACKWASH_RUNTIME": "backwash",
     "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": "chlorine_control",
+    "DOS_2_ELO_DAILY_DOSING_AMOUNT_ML": "chlorine_control",
     "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML": "ph_control",
     "DOS_5_PHP_DAILY_DOSING_AMOUNT_ML": "ph_control",
     "DOS_6_FLOC_DAILY_DOSING_AMOUNT_ML": "flocculation",
+    "DOS_1_CL_TOTAL_CAN_AMOUNT_ML": "chlorine_control",
+    "DOS_2_ELO_TOTAL_CAN_AMOUNT_ML": "chlorine_control",
+    "DOS_4_PHM_TOTAL_CAN_AMOUNT_ML": "ph_control",
+    "DOS_5_PHP_TOTAL_CAN_AMOUNT_ML": "ph_control",
+    "DOS_6_FLOC_TOTAL_CAN_AMOUNT_ML": "flocculation",
+    "pump_rs485_pwr": "filter_control",
 }

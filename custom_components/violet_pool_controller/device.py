@@ -335,6 +335,15 @@ class VioletPoolControllerDevice:
         _readings = await self.api.get_readings()
         data: dict[str, Any] = dict(_readings) if _readings is not None else {}
 
+        try:
+            runtimes = await self.api.get_output_runtimes()
+            if runtimes:
+                for key, value in runtimes.items():
+                    if key not in data:
+                        data[key] = value
+        except Exception:  # noqa: BLE001
+            pass
+
         if data and isinstance(data, dict):
 
             def is_valid(val: Any) -> bool:

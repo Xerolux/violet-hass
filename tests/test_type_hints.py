@@ -34,6 +34,7 @@ class TestTypeHints:
 
         class MockDevice:
             device_name = "Test"
+            hardware_config = None
             device_info = {
                 "identifiers": {("violet_pool_controller", "192.168.1.100_1")},
                 "name": "Test",

@@ -37,6 +37,11 @@ DOSING_INDEX_MAP = {
     "ph_minus": 3,      # DOS_4_PHM (index 2 is unused in firmware)
     "ph_plus": 4,       # DOS_5_PHP
     "flocculant": 5,    # DOS_6_FLOC
+    "h2o2": 0,          # shares DOS_1_CL physical output, from_param=3 distinguishes it
+}
+
+DOSING_FROM_PARAM_MAP = {
+    "h2o2": 3,          # H2O2 uses from=3; all others default to from=1
 }
 
 DOSING_SYSTEMS = {
@@ -631,12 +636,14 @@ class VioletControlServiceHandlers:
         if dosing_index is None:
             raise HomeAssistantError(f"Unknown dosing system: {dosing_system}")
 
+        from_param = DOSING_FROM_PARAM_MAP.get(dosing_system, 1)
+
         for coordinator in coordinators:
             try:
                 control = VioletControlClient(coordinator.device._api)
                 device_name = coordinator.device.device_name
 
-                await control.trigger_manual_dosing(dosing_index, runtime)
+                await control.trigger_manual_dosing(dosing_index, runtime, from_param=from_param)
                 _LOGGER.info(
                     "Manual dosing: %s for %ds on %s",
                     dosing_system,

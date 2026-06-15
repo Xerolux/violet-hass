@@ -32,6 +32,7 @@ from .const import (
     RUNTIME_SENSORS,
     SENSOR_FEATURE_MAP,
     STATUS_SENSORS,
+    SYSTEM_SENSORS,
     TEMP_SENSORS,
     WATER_CHEM_SENSORS,
 )
@@ -315,6 +316,7 @@ def _create_standard_sensors(
         **STATUS_SENSORS,
         **RUNTIME_SENSORS,
         **DOSING_STATS_SENSORS,
+        **SYSTEM_SENSORS,
     }
 
     for key in sorted(coordinator.data.keys()):

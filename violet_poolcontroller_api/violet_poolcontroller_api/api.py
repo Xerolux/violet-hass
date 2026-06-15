@@ -47,6 +47,7 @@ from .const_api import (
     API_GET_HISTORY,
     API_GET_LOG,
     API_GET_NOTIFICATIONS,
+    API_GET_OUTPUT_RUNTIMES,
     API_GET_OUTPUT_STATES,
     API_GET_OVERALL_DOSING,
     API_GET_UPDATE_HISTORY,
@@ -182,10 +183,7 @@ def validate_setpoint(field: str, value: float) -> None:
 
     lo, hi = bounds
     if not lo <= value <= hi:
-        msg = (
-            f"Setpoint '{field}' value {value} is outside the valid range "
-            f"[{lo}, {hi}]"
-        )
+        msg = f"Setpoint '{field}' value {value} is outside the valid range [{lo}, {hi}]"
         raise VioletSetpointError(msg)
 
 
@@ -767,8 +765,7 @@ class VioletPoolAPI:
         has_base = not self._dosing_standalone and bool(flat)
         return {
             "base_module": has_base,
-            "dosing_module": self._dosing_standalone
-            or "SYSTEM_dosagemodule_alive_count" in flat,
+            "dosing_module": self._dosing_standalone or "SYSTEM_dosagemodule_alive_count" in flat,
             "extension_module_1": "SYSTEM_ext1module_alive_count" in flat,
             "extension_module_2": "SYSTEM_ext2module_alive_count" in flat,
         }
@@ -1760,3 +1757,28 @@ class VioletPoolAPI:
             priority=API_PRIORITY_NORMAL,
         )
         return str(resp).strip() if resp else ""
+
+    async def get_output_runtimes(self) -> dict[str, Any]:
+        """Fetch output runtime statistics from the controller.
+
+        Returns a flat dict with runtime (HH:MM:SS format) and last-on/off
+        (ISO datetime strings) for all outputs: PUMP, SOLAR, HEATER, BACKWASH,
+        REFILL, LIGHT, ECO, all dosing outputs, OMNI_DC channels, and extension
+        relay channels.  Also includes CPU_UPTIME, LOAD_AVG, and version fields.
+
+        Returns:
+            Dict with runtime/timestamp strings for all outputs, or empty dict
+            on error.
+
+        Raises:
+            VioletPoolAPIError: If the API call fails.
+
+        """
+        resp = await self._request(
+            API_GET_OUTPUT_RUNTIMES,
+            method="GET",
+            priority=API_PRIORITY_NORMAL,
+        )
+        if isinstance(resp, dict):
+            return resp
+        return {}
