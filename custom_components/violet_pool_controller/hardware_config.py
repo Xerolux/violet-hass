@@ -248,7 +248,8 @@ class HardwareConfig:
                 "name": name,
                 "icon": icon,
                 "enabled": bool(enabled),
-                "entity_id": f"switch.violet_pool_controller_{output_key.lower()}",
+                # Don't hardcode domain prefix - let HA handle it via device info
+                "entity_id": f"switch.{output_key.lower()}",
             }
 
         return outputs

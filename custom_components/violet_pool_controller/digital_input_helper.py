@@ -161,7 +161,8 @@ class DigitalInputConfig:
         di_config = self._di_configs[di_num]
         # Use friendly name or fallback to number
         name_suffix = di_config["name"].lower().replace(" ", "_")[:20]
-        return f"{prefix}.violet_pool_controller_{name_suffix}"
+        # Don't hardcode domain prefix - let HA handle it via device info
+        return f"{prefix}.{name_suffix}"
 
     def get_di_friendly_name(self, di_num: int) -> str:
         """Get friendly name for display in HA.
