@@ -58,6 +58,7 @@ class VioletPoolControllerUpdateEntity(CoordinatorEntity, UpdateEntity):
         super().__init__(coordinator)
         self.config_entry = config_entry
         self._attr_unique_id = f"{config_entry.entry_id}_firmware_update"
+        self._attr_has_entity_name = True
         self._attr_name = "System Update"
         self._release_notes_cache: str = ""
 

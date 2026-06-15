@@ -17,7 +17,7 @@ This is a **monorepo** containing two components:
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.
 
-**Current Integration Version**: `1.2.4` (defined in `manifest.json`, `const.py`, `.version`, and `pyproject.toml`)
+**Current Integration Version**: `2.0.0-beta.7` (defined in `manifest.json`, `const.py`, `.version`, and `pyproject.toml`)
 **Current API Version**: `0.0.27` (defined in `violet_poolcontroller_api/pyproject.toml`)
 **Minimum Home Assistant Version**: `2026.5.0` (defined in `hacs.json`)
 **Minimum Python Version**: `3.14.2`
