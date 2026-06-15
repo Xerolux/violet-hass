@@ -338,7 +338,17 @@ class VioletControlClient:
                 data=form_data,
             )
 
-            if response:
+            response_text = str(response).strip() if response else ""
+
+            if "PUMP_OFF_ERROR" in response_text:
+                _LOGGER.warning("Manual dosing blocked: pump is OFF")
+                return False
+
+            if "BACKWASH_ERROR" in response_text:
+                _LOGGER.warning("Manual dosing blocked: backwash in progress")
+                return False
+
+            if "\nOK" in response_text or "MANDOS_STARTED" in response_text:
                 _LOGGER.info(
                     "Manual dosing triggered: index=%d, runtime=%ds",
                     dosing_index,
@@ -346,9 +356,7 @@ class VioletControlClient:
                 )
                 return True
 
-            _LOGGER.warning(
-                "Manual dosing failed",
-            )
+            _LOGGER.warning("Manual dosing unexpected response: %s", response_text)
             return False
 
         except VioletPoolAPIError as err:

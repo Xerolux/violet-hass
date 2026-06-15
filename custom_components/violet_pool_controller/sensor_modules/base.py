@@ -42,9 +42,6 @@ _PRECISION_MAP: dict[str, int] = {
 
 _KEYS_DISABLED_BY_DEFAULT: frozenset[str] = frozenset(
     {
-        "CPU_TEMP",
-        "CPU_TEMP_CARRIER",
-        "CPU_UPTIME",
         "FW",
         "CURRENT_TIME_UNIX",
     }
@@ -131,7 +128,6 @@ _TIME_FORMAT_KEYS = (
     {
         "HEATER_POSTRUN_TIME",
         "SOLAR_POSTRUN_TIME",
-        "CPU_UPTIME",
         "DEVICE_UPTIME",
     }
     | {f"PUMP_RPM_{i}_LAST_ON" for i in range(4)}

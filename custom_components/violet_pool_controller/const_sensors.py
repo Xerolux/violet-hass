@@ -135,40 +135,26 @@ ANALOG_SENSORS = {
 }
 
 SYSTEM_SENSORS = {
-    "CPU_TEMP": {
+    # Keys match exactly what READINGS object exposes in getReadings response
+    # (verified against firmware source generateReadings.js)
+    "SYSTEM_cpu_temperature": {
         "name": "CPU Temperature",
-        "translation_key": "cpu_temp",
+        "translation_key": "system_cpu_temperature",
         "icon": "mdi:thermometer-alert",
     },
-    "CPU_TEMP_CARRIER": {
-        "name": "Carrier Board",
-        "translation_key": "cpu_temp_carrier",
-        "icon": "mdi:motherboard",
-    },
-    "CPU_UPTIME": {
-        "name": "System Uptime",
-        "translation_key": "cpu_uptime",
-        "icon": "mdi:clock-time-eight",
-    },
-    "SYSTEM_CPU_TEMPERATURE": {
-        "name": "System CPU Temperature",
-        "translation_key": "system_cpu_temperature",
-        "icon": "mdi:thermometer-check",
-    },
-    "SYSTEM_CARRIER_CPU_TEMPERATURE": {
+    "SYSTEM_carrier_cpu_temperature": {
         "name": "Carrier CPU Temperature",
         "translation_key": "system_carrier_cpu_temperature",
-        "icon": "mdi:memory",
-    },
-    # Spec key is lowercase: SYSTEM_dosagemodule_cpu_temperature
-    "SYSTEM_dosagemodule_cpu_temperature": {
-        "name": "Dosing Module CPU Temperature",
-        "translation_key": "system_dosagemodule_cpu_temperature",
-        "icon": "mdi:memory-lan",
+        "icon": "mdi:motherboard",
     },
     "SYSTEM_memoryusage": {
         "name": "System Memory Usage",
         "translation_key": "system_memoryusage",
+        "icon": "mdi:memory",
+    },
+    "SYSTEM_dosagemodule_cpu_temperature": {
+        "name": "Dosing Module CPU Temperature",
+        "translation_key": "system_dosagemodule_cpu_temperature",
         "icon": "mdi:memory-lan",
     },
 }
