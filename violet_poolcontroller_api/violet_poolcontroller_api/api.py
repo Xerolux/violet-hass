@@ -49,7 +49,10 @@ from .const_api import (
     API_GET_NOTIFICATIONS,
     API_GET_OUTPUT_STATES,
     API_GET_OVERALL_DOSING,
+    API_GET_UPDATE_HISTORY,
+    API_GET_UPDATE_STATE,
     API_GET_WEATHER_DATA,
+    API_INIT_UPDATE,
     API_PRIORITY_CRITICAL,
     API_PRIORITY_NORMAL,
     API_READINGS,
@@ -1697,3 +1700,63 @@ class VioletPoolAPI:
             query="ALL",
             payload_name="getNotifications",
         )
+
+    async def init_update(self) -> str:
+        """Trigger firmware update installation on the controller.
+
+        The controller downloads and installs the update, then restarts
+        (takes ~30 seconds). Returns "STARTING" on success.
+
+        Returns:
+            Response string from the controller (e.g. "STARTING").
+
+        Raises:
+            VioletPoolAPIError: If the API call fails or auth is rejected.
+
+        """
+        resp = await self._request(
+            API_INIT_UPDATE,
+            method="GET",
+            priority=API_PRIORITY_CRITICAL,
+        )
+        return str(resp).strip() if resp else ""
+
+    async def get_update_state(self) -> str:
+        """Fetch the current firmware update progress log.
+
+        The controller writes progress to /home/violet/log/update.log
+        during an active update. Returns "STANDBY" when no update is running.
+
+        Returns:
+            Raw update log string or "STANDBY".
+
+        Raises:
+            VioletPoolAPIError: If the API call fails.
+
+        """
+        resp = await self._request(
+            API_GET_UPDATE_STATE,
+            method="GET",
+            priority=API_PRIORITY_NORMAL,
+        )
+        return str(resp).strip() if resp else "STANDBY"
+
+    async def get_update_history(self) -> str:
+        """Fetch formatted release notes for recent firmware versions.
+
+        The controller fetches notes from the PoolDigital update server and
+        returns them pre-formatted with HTML bullet points.
+
+        Returns:
+            HTML-formatted release notes string, or empty string on error.
+
+        Raises:
+            VioletPoolAPIError: If the API call fails.
+
+        """
+        resp = await self._request(
+            API_GET_UPDATE_HISTORY,
+            method="GET",
+            priority=API_PRIORITY_NORMAL,
+        )
+        return str(resp).strip() if resp else ""

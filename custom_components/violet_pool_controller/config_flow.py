@@ -653,23 +653,19 @@ class ConfigFlow(
         return await get_grouped_sensors(self.hass, self._config_data)
 
     async def _auto_configure_entities(self) -> ConfigFlowResult:
-        """Auto-detect available features and continue to sensor selection."""
+        """Auto-detect available features and sensors, then create entry."""
         sensor_data = await self._get_grouped_sensors()
         self._sensor_data = sensor_data
         detected_keys = {key for sensors in sensor_data.values() for key in sensors}
         self._config_data[CONF_ACTIVE_FEATURES] = self._detect_active_features(
             detected_keys
         )
+        self._config_data[CONF_SELECTED_SENSORS] = list(detected_keys)
 
-        if not self._sensor_data:
-            _LOGGER.warning("No dynamic sensors found. Skipping sensor selection.")
-            self._config_data[CONF_SELECTED_SENSORS] = []
-            return self.async_create_entry(
-                title=self._generate_entry_title(),
-                data=self._config_data,
-            )
-
-        return await self.async_step_sensor_selection()
+        return self.async_create_entry(
+            title=self._generate_entry_title(),
+            data=self._config_data,
+        )
 
     def _detect_active_features(self, detected_keys: set[str]) -> list[str]:
         """Derive active features from controller data instead of user choices."""

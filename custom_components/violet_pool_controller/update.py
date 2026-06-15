@@ -46,7 +46,8 @@ async def async_setup_entry(
 class VioletPoolControllerUpdateEntity(CoordinatorEntity, UpdateEntity):
     """Violet Pool Controller firmware update entity."""
 
-    _attr_supported_features = UpdateEntityFeature.INSTALL
+    _attr_supported_features = UpdateEntityFeature.INSTALL | UpdateEntityFeature.RELEASE_NOTES
+    _attr_icon = "mdi:update"
 
     def __init__(
         self,
@@ -58,7 +59,7 @@ class VioletPoolControllerUpdateEntity(CoordinatorEntity, UpdateEntity):
         self.config_entry = config_entry
         self._attr_unique_id = f"{config_entry.entry_id}_firmware_update"
         self._attr_name = "System Update"
-        self._attr_icon = "mdi:update"
+        self._release_notes_cache: str = ""
 
     @property
     def device_info(self) -> dict[str, Any]:
@@ -67,60 +68,76 @@ class VioletPoolControllerUpdateEntity(CoordinatorEntity, UpdateEntity):
 
     @property
     def installed_version(self) -> str | None:
-        """Return installed version."""
+        """Return installed firmware version."""
         if not self.coordinator.data:
             return None
-        firmware_info = parse_firmware_info(self.coordinator.data)
-        return firmware_info.installed_version
+        return parse_firmware_info(self.coordinator.data).installed_version
 
     @property
     def latest_version(self) -> str | None:
-        """Return latest available version."""
+        """Return latest available version, or installed version when up-to-date."""
         if not self.coordinator.data:
             return None
-        firmware_info = parse_firmware_info(self.coordinator.data)
-        return firmware_info.available_version or firmware_info.installed_version
+        info = parse_firmware_info(self.coordinator.data)
+        return info.available_version or info.installed_version
 
     @property
     def release_summary(self) -> str | None:
-        """Return release summary/notes."""
+        """Return brief update status (release notes are in async_release_notes)."""
         if not self.coordinator.data:
             return None
-        firmware_info = parse_firmware_info(self.coordinator.data)
-        if firmware_info.update_available:
-            return f"Update v{firmware_info.available_version} available\n\n{firmware_info.release_notes_html}"
-        return f"System is up to date (v{firmware_info.installed_version})"
+        info = parse_firmware_info(self.coordinator.data)
+        return info.update_description
 
     @property
     def in_progress(self) -> bool:
-        """Return True if update is in progress."""
+        """Return True while an update is being installed."""
         if not self.coordinator.data:
             return False
-        return self.coordinator.data.get("SYSTEM_UPDATE_IN_PROGRESS", False)
+        return bool(self.coordinator.data.get("SYSTEM_UPDATE_IN_PROGRESS", False))
+
+    async def async_release_notes(self) -> str | None:
+        """Fetch and return HTML release notes from the controller."""
+        try:
+            notes = await self.coordinator.device._api.get_update_history()
+            if notes:
+                self._release_notes_cache = notes
+        except Exception as err:  # noqa: BLE001
+            _LOGGER.debug("Could not fetch release notes: %s", err)
+
+        return self._release_notes_cache or None
 
     async def async_install(
         self, version: str | None = None, backup: bool | None = None
     ) -> None:
-        """Install update."""
+        """Trigger firmware update on the controller.
+
+        The controller downloads and installs the update via
+        GET /initUpdate and then restarts (~30 seconds offline).
+        """
         try:
             _LOGGER.info(
-                "Starting firmware update on %s",
+                "Triggering firmware update on %s",
                 self.coordinator.device.device_name,
             )
 
-            await self.coordinator.device._api.set_config(
-                {"SYSTEM_UPDATE_TRIGGER": 1}
-            )
+            response = await self.coordinator.device._api.init_update()
 
-            # Request refresh to update status
-            await self.coordinator.async_request_refresh()
+            if response and response != "STARTING":
+                _LOGGER.warning(
+                    "Unexpected update response: %s", response
+                )
 
             _LOGGER.info(
-                "Firmware update initiated on %s. Device will restart in ~30 seconds.",
+                "Firmware update initiated on %s."
+                " Device will restart in ~30 seconds.",
                 self.coordinator.device.device_name,
             )
+
+            await self.coordinator.async_request_refresh()
+
         except Exception as err:
-            _LOGGER.error("Failed to install firmware update: %s", err)
+            _LOGGER.error("Failed to initiate firmware update: %s", err)
             raise
 
     @callback

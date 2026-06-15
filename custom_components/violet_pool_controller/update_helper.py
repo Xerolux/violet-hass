@@ -3,7 +3,7 @@
 # Copyright © 2026 Xerolux
 # =============================================================================
 
-"""Firmware update checking and installation for Violet Pool Controller."""
+"""Firmware update checking helpers for Violet Pool Controller."""
 
 from __future__ import annotations
 
@@ -11,8 +11,6 @@ import logging
 from typing import Any
 
 _LOGGER = logging.getLogger(__name__)
-
-KNOWN_LATEST_FIRMWARE_VERSION = "1.2.0"
 
 
 class FirmwareUpdateInfo:
@@ -24,81 +22,42 @@ class FirmwareUpdateInfo:
         available_version: str | None = None,
         carrier_version: str | None = None,
         release_notes: str | None = None,
-        installed_date: str | None = None,
     ):
-        """
-        Initialize firmware update info.
-
-        Args:
-            installed_version: Currently installed version (e.g., "1.1.9")
-            available_version: Available version for update (e.g., "1.2.0")
-            carrier_version: Carrier firmware version
-            release_notes: Release notes/changelog
-            installed_date: Installation date of current version
-        """
         self.installed_version = installed_version
         self.available_version = available_version
         self.carrier_version = carrier_version
         self.release_notes = release_notes
-        self.installed_date = installed_date
 
     @property
     def update_available(self) -> bool:
-        """Check if update is available."""
+        """Return True when a newer version is available."""
         if not self.available_version:
             return False
         return self._compare_versions(self.installed_version, self.available_version) < 0
 
     @property
     def update_description(self) -> str:
-        """Get human-readable update description."""
+        """Human-readable update status line."""
         if not self.update_available:
             return f"System is up to date (v{self.installed_version})"
-        return f"Update available: v{self.available_version} (Installed: v{self.installed_version})"
-
-    @property
-    def release_notes_html(self) -> str:
-        """Format release notes for HA."""
-        if not self.release_notes:
-            return "No release notes available"
-        # Format markdown-like text from controller
-        lines = []
-        for line in self.release_notes.split("\n"):
-            line = line.strip()
-            if line.startswith("•"):
-                # Bullet point
-                lines.append(f"• {line[1:].strip()}")
-            elif line.startswith("FIXES:"):
-                lines.append("**FIXES:**")
-            elif line.startswith("FEATURES:"):
-                lines.append("**FEATURES:**")
-            elif line:
-                lines.append(line)
-        return "\n".join(lines)
+        return (
+            f"Update available: v{self.available_version}"
+            f" (installed: v{self.installed_version})"
+        )
 
     @staticmethod
     def _compare_versions(current: str, available: str) -> int:
-        """
-        Compare semantic versions.
-
-        Returns:
-            -1 if current < available
-            0 if current == available
-            1 if current > available
-        """
+        """Return -1/0/1 for current < / == / > available."""
         try:
-            current_parts = [int(x) for x in current.split(".")]
-            available_parts = [int(x) for x in available.split(".")]
-
-            # Pad with zeros if lengths differ
-            max_len = max(len(current_parts), len(available_parts))
-            current_parts += [0] * (max_len - len(current_parts))
-            available_parts += [0] * (max_len - len(available_parts))
-
-            for c, a in zip(current_parts, available_parts):
+            cp = [int(x) for x in current.split(".")]
+            ap = [int(x) for x in available.split(".")]
+            n = max(len(cp), len(ap))
+            cp += [0] * (n - len(cp))
+            ap += [0] * (n - len(ap))
+            for c, a in zip(cp, ap):
                 if c < a:
                     return -1
-                elif c > a:
+                if c > a:
                     return 1
             return 0
         except (ValueError, AttributeError):
@@ -106,36 +65,23 @@ class FirmwareUpdateInfo:
 
 
 def parse_firmware_info(raw_data: dict[str, Any]) -> FirmwareUpdateInfo:
-    """
-    Parse firmware update info from controller response.
+    """Parse firmware info from getReadings data.
 
-    Args:
-        raw_data: Raw data from controller
-
-    Returns:
-        FirmwareUpdateInfo instance
+    The controller exposes two relevant keys in the getReadings response:
+      SYSTEM_swversion       – currently installed version (e.g. "1.2.0")
+      SYSTEM_availableversion – version available for download (empty when
+                                up-to-date or when the controller has not yet
+                                contacted the update server)
     """
-    installed = raw_data.get("SW_VERSION", "1.0.0")
-    available = (
-        raw_data.get("SW_UPDATE_AVAILABLE")
-        or raw_data.get("SYSTEM_UPDATE_AVAILABLE_VERSION")
-        or raw_data.get("SW_LATEST_VERSION")
-        or raw_data.get("LATEST_SW_VERSION")
-    )
-    if isinstance(available, bool):
-        available = KNOWN_LATEST_FIRMWARE_VERSION if available else None
-    if not available and FirmwareUpdateInfo._compare_versions(
-        str(installed), KNOWN_LATEST_FIRMWARE_VERSION
-    ) < 0:
-        available = KNOWN_LATEST_FIRMWARE_VERSION
-    carrier = raw_data.get("SW_VERSION_CARRIER")
-    release_notes = raw_data.get("SW_RELEASE_NOTES")
-    installed_date = raw_data.get("SW_INSTALL_DATE")
+    installed = str(raw_data.get("SYSTEM_swversion", "") or "").strip() or "0.0.0"
+
+    available_raw = str(raw_data.get("SYSTEM_availableversion", "") or "").strip()
+    available: str | None = available_raw if available_raw and available_raw != installed else None
+
+    carrier = str(raw_data.get("SYSTEM_carrierboard_swversion", "") or "").strip() or None
 
     return FirmwareUpdateInfo(
         installed_version=installed,
         available_version=available,
         carrier_version=carrier,
-        release_notes=release_notes,
-        installed_date=installed_date,
     )
