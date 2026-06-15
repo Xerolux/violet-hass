@@ -16,7 +16,7 @@
   "requirements": [
     "violet-poolController-api>=0.0.29"
   ],
-  "version": "2.0.0-beta.6",
+  "version": "2.0.0-beta.7",
   "zeroconf": [
     {
       "type": "_http._tcp.local.",
