@@ -20,6 +20,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 
 from .config_entry_helpers import (
@@ -97,6 +98,43 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) ->
     return False
 
 
+def _migrate_duplicate_prefix_entity_ids(
+    entity_registry: er.EntityRegistry,
+    config_entry_id: str,
+) -> None:
+    """Rename entity_ids that contain a duplicated domain slug.
+
+    Entities registered before the strip_redundant_device_prefix fix may have
+    entity_ids like ``switch.violet_pool_controller_violet_pool_controller_beleuchtung``.
+    This migration renames them to ``switch.violet_pool_controller_beleuchtung``
+    so that automations and dashboards referencing the new names work correctly.
+    """
+    double_slug = f"{DOMAIN}_{DOMAIN}_"
+    for entity_entry in er.async_entries_for_config_entry(entity_registry, config_entry_id):
+        entity_id = entity_entry.entity_id
+        dot = entity_id.find(".")
+        if dot == -1:
+            continue
+        object_id = entity_id[dot + 1:]
+        if not object_id.startswith(double_slug):
+            continue
+        new_object_id = f"{DOMAIN}_" + object_id[len(double_slug):]
+        new_entity_id = f"{entity_id[:dot + 1]}{new_object_id}"
+        if entity_registry.async_get(new_entity_id) is not None:
+            _LOGGER.debug(
+                "Skipping migration %s → %s: target already exists",
+                entity_id,
+                new_entity_id,
+            )
+            continue
+        _LOGGER.info(
+            "Migrating entity_id '%s' → '%s' (duplicate device prefix removed)",
+            entity_id,
+            new_entity_id,
+        )
+        entity_registry.async_update_entity(entity_id, new_entity_id=new_entity_id)
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Violet Pool Controller from a config entry.
 
@@ -163,6 +201,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data.setdefault(DOMAIN, {})
         hass.data[DOMAIN][entry.entry_id] = coordinator
 
+        # Migrate entity_ids that have the duplicate device prefix (e.g.
+        # switch.violet_pool_controller_violet_pool_controller_beleuchtung →
+        # switch.violet_pool_controller_beleuchtung).  Must run before
+        # platforms are loaded so that the registry already contains the
+        # corrected entity_ids when entities re-register themselves.
+        _migrate_duplicate_prefix_entity_ids(er.async_get(hass), entry.entry_id)
+
         # Load platforms
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
@@ -181,8 +226,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # present in the coordinator data (e.g. hardware module removed).
         # Entity unique_ids are formatted as "{entry_id}_{key}" (see entity.py).
         if coordinator.data:
-            import homeassistant.helpers.entity_registry as er
-
             ent_reg = er.async_get(hass)
             entities = er.async_entries_for_config_entry(ent_reg, entry.entry_id)
             static_keys = {

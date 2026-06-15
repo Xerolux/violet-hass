@@ -258,6 +258,19 @@ def setup_homeassistant_mocks():
 
     # helpers.entity_registry
     entity_registry_module = types.ModuleType('entity_registry')
+
+    class EntityRegistry:
+        pass
+
+    def async_get(hass):
+        return EntityRegistry()
+
+    def async_entries_for_config_entry(registry, config_entry_id):
+        return []
+
+    entity_registry_module.EntityRegistry = EntityRegistry
+    entity_registry_module.async_get = async_get
+    entity_registry_module.async_entries_for_config_entry = async_entries_for_config_entry
     helpers_module.entity_registry = entity_registry_module
     sys.modules['homeassistant.helpers.entity_registry'] = entity_registry_module
 
