@@ -1,0 +1,173 @@
+[center][size=150][b]🌊 Violet Pool Controller Integration für Home Assistant[/b][/size]
+[size=110]Version 2.0.0-beta.9[/size][/center]
+
+[hr]
+
+[size=120][b]✨ Was ist neu in Beta.9?[/b][/size]
+
+Das wichtigste Update zu Beta.9 sind große Verbesserungen bei der Fehlerbehandlung und die Behebung kritischer Entity-ID-Duplizierungsprobleme, die bei Neuinstallationen auftraten.
+
+[b]🔴 KRITISCHE BUGFIXES:[/b]
+
+[list]
+[*][b]Behoben: Doppelte Entity-Namen[/b]
+   Die berüchtigten doppelten Entity-Namen wie „sensor.violet_pool_controller_violet_pool_controller_..." gehören jetzt der Vergangenheit an! Das Problem trat bei jeder Neuinstallation auf und wurde jetzt an der Quelle behoben.
+   [list]
+   [*]Default-Device-Name vereinfacht (von „🌊 Violet Pool Controller" zu „Pool Controller")
+   [*]Hardcodierte Entity-ID-Präfixe entfernt
+   [*]Automatische Migration für alte Installations (beim nächsten HA-Neustart)
+   [/list]
+
+[*][b]Behoben: Fehler-Blockierungen Management[/b]
+   Error-Managements Sensoren waren zu versteckt. Jetzt sind sie prominent sichtbar:
+   [list]
+   [*]„Pool Health" Sensor – Overall Status auf einen Blick (OK/Warning/Error/Offline)
+   [*]„Active Errors" Sensor – ALLE aktuellen Fehler in lesbarem Text (z.B. „Circulation pump stopped (0042)")
+   [*]„Last Error Code" Sensor – Detaillierte Fehlerinformationen mit Beschreibung
+   [/list]
+[/list]
+
+[b]✅ NEUE FEATURES:[/b]
+
+[list]
+[*][b]🔘 Reset Error Blockings Button[/b]
+   Ein praktischer Button direkt auf der Device-Karte für sofortiges Zurücksetzen von Fehler-Blockierungen. Äquivalent zum „Reset"-Button auf dem Pool-Controller Web-UI. Nutze ihn, nachdem du ein Problem (z.B. leere Kartusche) behoben hast.
+
+[*][b]🎯 Bessere Fehlerservice-Dokumentation[/b]
+   Services sind jetzt mit klarer Beschreibung dokumentiert:
+   [list]
+   [*]reset_blocking – Fehler-Blockierungen zurücksetzen (Web-UI Reset equivalent)
+   [*]clear_error_history – Fehler-Historie löschen
+   [*]get_error_summary – Detaillierter Error-Report
+   [/list]
+[/list]
+
+[b]🔧 TECHNISCHE VERBESSERUNGEN:[/b]
+
+[list]
+[*]Robustere Entity-Migrations-Logik mit verbessertem Error-Handling
+[*]Entity-Namen-Auflösung vereinfacht (keine hardgecodeten Präfixe mehr)
+[*]Neue Button-Plattform für direkte Pool-Control-Aktionen
+[/list]
+
+[hr]
+
+[size=120][b]📋 Vollständiger Changelog seit v1.2.4[/b][/size]
+
+[b]Version 2.0.0-beta.9 (NEUESTE)[/b]
+[list]
+[*]🔨 [KRITISCH] Behoben: Doppelte Entity-ID-Präfixe bei Neuinstallationen
+[*]✨ Neu: Reset Error Blockings Button (direkt auf Device-Karte)
+[*]🎯 Verbessert: Error-Sensoren jetzt prominent und in Klartext
+[*]🔧 Verbessert: Entity-Migrations-Logik mit besseren Logs
+[/list]
+
+[b]Version 2.0.0-beta.8[/b]
+[list]
+[*]✨ 15 Firmware-Discovery Improvements
+[*]🔄 Firmware Update Entity sichtbar gemacht
+[*]📊 Verbesserte Controller-Erkennung
+[/list]
+
+[b]Version 2.0.0-beta.7[/b]
+[list]
+[*]🔨 Entity-Präfix-Migration für alte Installationen
+[*]✅ Firmware Update Detection
+[*]📝 Neue Sensoren hinzugefügt
+[/list]
+
+[b]Version 2.0.0-beta.6</b]
+[list]
+[*]🎨 UI/UX Verbesserungen
+[*]📡 Bessere Netzwerk-Fehlerbehandlung
+[/list]
+
+[b]Version 2.0.0-beta.5[/b]
+[list]
+[*]🔐 Sicherheits-Updates
+[*]🌍 Multi-Language Support (10 Sprachen)
+[*]📊 Erweiterte Sensor-Konfiguration
+[/list]
+
+[b]Version 2.0.0-beta.1 bis beta.4[/b]
+[list]
+[*]🎯 Grundlegende Features & Stabilisierung
+[*]💻 Config Flow Optimierungen
+[*]📱 Home Assistant 2026.5+ Kompatibilität
+[/list]
+
+[hr]
+
+[size=120][b]📥 Download & Installation[/b][/size]
+
+[b]Installation über HACS (Empfohlen):[/b]
+[list]
+[*]Öffne Home Assistant → [b]HACS[/b]
+[*]Gehe zu [b]Integrations[/b] → Klick das [b]Drei-Punkte-Menü[/b]
+[*]Wähle [b]Custom Repositories[/b]
+[*]Füge ein: [b]https://github.com/Xerolux/violet-hass[/b] (Category: Integration)
+[*]Suche nach [b]Violet Pool Controller[/b] und installiere Beta.9
+[/list]
+
+[b]Direkter Download:[/b]
+[url=https://github.com/Xerolux/violet-hass/releases/tag/v2.0.0-beta.9]⬇️ Download v2.0.0-beta.9 auf GitHub[/url]
+
+[hr]
+
+[size=120][b]⚙️ Was nach der Installation zu tun ist[/b][/size]
+
+[list=1]
+[*][b]Home Assistant neustarten[/b] – Damit die Entity-Migration läuft und alte doppelte Namen automatisch korrigiert werden
+[*][b]Integration neu laden[/b] (falls HA nicht komplett neu gestartet werden soll):
+   Einstellungen → Geräte & Services → [Drei-Punkte-Menü] → YAML → Integrations neu laden
+[*][b]Alte doppelte Entity-IDs bereinigen[/b] (falls noch vorhanden):
+   Einstellungen → Geräte & Services → Entitäten → Suche nach „violet_pool_controller_violet_pool_controller" → Löschen
+[*][b]Neue Error-Sensoren sehen[/b]:
+   Entwicklertools → Zustände → Suche nach „pool_health" und „active_errors"
+[/list]
+
+[hr]
+
+[size=120][b]🐛 Bekannte Probleme & Lösungen[/b][/size]
+
+[b]"Fehler: Statistiken können nicht erstellt werden"[/b]
+[list]
+[*][b]Ursache:[/b] Alte Entity-IDs mit doppeltem Präfix noch vorhanden
+[*][b]Lösung:[/b] Klick auf „Ja" in der Warnung und starte HA neu
+[/list]
+
+[b]"Entitäten doppelt nach Update"[/b]
+[list]
+[*][b]Ursache:[/b] Die Migration läuft beim Startup
+[*][b]Lösung:[/b] HA Neustart → Migration läuft automatisch → Nach wenigen Sekunden sind die alten Entity-IDs weg
+[/list]
+
+[hr]
+
+[size=120][b]❓ Häufig gestellte Fragen[/b][/size]
+
+[b]F: Ist Beta.9 stabil für den Produktiveinsatz?[/b]
+A: Ja! Beta.9 ist stabil und kann ohne Bedenken installiert werden. Das „Beta" in der Bezeichnung bedeutet nur, dass noch kleine Verbesserungen geplant sind, bevor wir zu v2.0.0 final gehen.
+
+[b]F: Muss ich meine ganze Konfiguration von vorne machen?[/b]
+A: Nein! Beta.9 ist vollständig abwärtskompatibel. Einfach updaten und HA neustarten – fertig!
+
+[b]F: Warum sind die doppelten Entity-Namen plötzlich weg?[/b]
+A: Beta.9 behebt die Root-Cause des Problems (vereinfachter Default-Name + Entfernung hardcodierter Präfixe) und migriert automatisch alte doppelte Namen beim Startup.
+
+[b]F: Wie kann ich helfen?[/b]
+A: [url=https://github.com/Xerolux/violet-hass/issues]Öffne ein Issue auf GitHub[/url] wenn du Bugs findest oder Verbesserungsvorschläge hast!
+
+[hr]
+
+[size=110][b]📞 Support & Kontakt[/b][/size]
+
+[list]
+[*][url=https://github.com/Xerolux/violet-hass]GitHub Repository[/url]
+[*][url=https://github.com/Xerolux/violet-hass/issues]Issue Tracker[/url]
+[*][url=https://github.com/Xerolux/violet-hass/discussions]Diskussionen[/url]
+[/list]
+
+[hr]
+
+[right][i]Danke für die Nutzung von Violet Pool Controller! 🎉[/i][/right]
