@@ -26,6 +26,9 @@ jobs:
           - python-version: "3.12"
             tox-env: "py312"
             allow-prereleases: false
+          - python-version: "3.13"
+            tox-env: "py313"
+            allow-prereleases: false
           - python-version: "3.14"
             tox-env: "py314"
             allow-prereleases: true
