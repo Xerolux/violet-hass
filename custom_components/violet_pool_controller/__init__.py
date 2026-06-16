@@ -246,7 +246,7 @@ def _disable_unsafe_switches(
             continue
 
         # Skip if already disabled
-        if not entity_entry.enabled:
+        if entity_entry.disabled:
             continue
 
         # Disable the entity
