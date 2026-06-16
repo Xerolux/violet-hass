@@ -1257,55 +1257,55 @@
         "name": "Zużycie Elektrolizy"
       },
       "dos_4_phm_daily_dosing_amount_ml": {
-        "name": "pH- Tagesdosierung (ml)"
+        "name": "Dzienna Dawka pH- (ml)"
       },
       "dos_4_phm_last_can_reset": {
-        "name": "pH- Letzter Kanister-Reset"
+        "name": "Ostatni Reset Kanistra pH-"
       },
       "dos_4_phm_last_off": {
-        "name": "pH--Dosierung Zuletzt Aus"
+        "name": "Dozowanie pH- Ostatnio Wyłączone"
       },
       "dos_4_phm_last_on": {
-        "name": "pH--Dosierung Zuletzt Ein"
+        "name": "Dozowanie pH- Ostatnio Włączone"
       },
       "dos_4_phm_runtime": {
-        "name": "pH--Dosierlaufzeit"
+        "name": "Czas Pracy Dozowania pH-"
       },
       "dos_4_phm_total_can_amount_ml": {
-        "name": "pH- Kanisterinhalt (ml)"
+        "name": "Zawartość Kanistra pH- (ml)"
       },
       "dos_4_phm_type": {
-        "name": "pH- Dosiertyp"
+        "name": "Typ Dozowania pH-"
       },
       "dos_4_phm_use": {
-        "name": "pH- Verbrauch"
+        "name": "Zużycie pH-"
       },
       "dos_5_php_daily_dosing_amount_ml": {
-        "name": "pH+ Tagesdosierung (ml)"
+        "name": "Dzienna Dawka pH+ (ml)"
       },
       "dos_5_php_last_can_reset": {
-        "name": "pH+ Letzter Kanister-Reset"
+        "name": "Ostatni Reset Kanistra pH+"
       },
       "dos_5_php_last_off": {
-        "name": "pH+-Dosierung Zuletzt Aus"
+        "name": "Dozowanie pH+ Ostatnio Wyłączone"
       },
       "dos_5_php_last_on": {
-        "name": "pH+-Dosierung Zuletzt Ein"
+        "name": "Dozowanie pH+ Ostatnio Włączone"
       },
       "dos_5_php_runtime": {
-        "name": "pH+-Dosierlaufzeit"
+        "name": "Czas Pracy Dozowania pH+"
       },
       "dos_5_php_total_can_amount_ml": {
-        "name": "pH+ Kanisterinhalt (ml)"
+        "name": "Zawartość Kanistra pH+ (ml)"
       },
       "dos_5_php_type": {
-        "name": "pH+ Dosiertyp"
+        "name": "Typ Dozowania pH+"
       },
       "dos_5_php_use": {
-        "name": "pH+ Verbrauch"
+        "name": "Zużycie pH+"
       },
       "dos_6_floc_daily_dosing_amount_ml": {
-        "name": "Flockmittel Tagesdosierung (ml)"
+        "name": "Dzienna Dawka Flokkulantu (ml)"
       },
       "dos_6_floc_last_can_reset": {
         "name": "Flockmittel Letzter Kanister-Reset"

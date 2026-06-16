@@ -1623,37 +1623,37 @@
     },
     "switch": {
       "pump": {
-        "name": "Filterpumpe"
+        "name": "Filter Pump"
       },
       "solar": {
-        "name": "Solar Collector"
+        "name": "Solar Absorber"
       },
       "heater": {
         "name": "Heater"
       },
       "light": {
-        "name": "Light"
+        "name": "Lighting"
       },
       "dos_5_php": {
-        "name": "pH+ Dosing"
+        "name": "Dosing pH+"
       },
       "dos_4_phm": {
-        "name": "pH- Dosing"
+        "name": "Dosing pH-"
       },
       "dos_1_cl": {
         "name": "Chlorine Dosing"
       },
       "dos_6_floc": {
-        "name": "Flockungsmittel"
+        "name": "Flocculant"
       },
       "pvsurplus": {
-        "name": "PV-Überschuss"
+        "name": "PV Surplus"
       },
       "backwash": {
-        "name": "Rückspülung"
+        "name": "Backwash"
       },
       "backwashrinse": {
-        "name": "Spülung"
+        "name": "Rinse"
       },
       "ext1_1": {
         "name": "Extension 1.1"
@@ -1766,135 +1766,135 @@
     },
     "climate": {
       "heater": {
-        "name": "Pool-Heizer"
+        "name": "Pool Heater"
       },
       "solar": {
-        "name": "Solar-Heizer"
+        "name": "Solar Heater"
       }
     },
     "cover": {
       "pool_cover": {
-        "name": "Pool-Abdeckung"
+        "name": "Pool Cover"
       }
     },
     "number": {
       "ph_setpoint": {
-        "name": "pH-Sollwert"
+        "name": "pH Setpoint"
       },
       "orp_setpoint": {
-        "name": "ORP-Sollwert"
+        "name": "ORP Setpoint"
       },
       "chlorine_setpoint": {
-        "name": "Chlor-Sollwert"
+        "name": "Chlorine Setpoint"
       },
       "heater_target_temp": {
-        "name": "Zieltemperatur Heizer"
+        "name": "Heater Target Temperature"
       },
       "solar_target_temp": {
-        "name": "Zieltemperatur Solar"
+        "name": "Solar Target Temperature"
       },
       "pump_speed": {
-        "name": "Pumpendrehzahl"
+        "name": "Pump Speed"
       },
       "chlorine_canister_volume": {
-        "name": "Chlorbehälter-Volumen"
+        "name": "Chlorine Canister Volume"
       },
       "ph_minus_canister_volume": {
-        "name": "pH--Behälter-Volumen"
+        "name": "pH- Canister Volume"
       },
       "ph_plus_canister_volume": {
-        "name": "pH+-Behälter-Volumen"
+        "name": "pH+ Canister Volume"
       },
       "flocculant_canister_volume": {
-        "name": "Flockungsmittel-Behälter-Volumen"
+        "name": "Flocculant Canister Volume"
       }
     },
     "select": {
       "pump_mode": {
-        "name": "Pumpenmodus",
+        "name": "Pump Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
+          "off": "Off",
+          "on": "On",
           "auto": "Auto"
         }
       },
       "heater_mode": {
-        "name": "Heizer-Modus",
+        "name": "Heater Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
+          "off": "Off",
+          "on": "On",
           "auto": "Auto"
         }
       },
       "solar_mode": {
-        "name": "Solar-Modus",
+        "name": "Solar Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
+          "off": "Off",
+          "on": "On",
           "auto": "Auto"
         }
       },
       "light_mode": {
-        "name": "Beleuchtungs-Modus",
+        "name": "Light Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
+          "off": "Off",
+          "on": "On",
           "auto": "Auto"
         }
       },
       "dos_cl_mode": {
-        "name": "Chlordosier-Modus",
+        "name": "Chlorine Dosing Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
+          "off": "Off",
+          "on": "On",
           "auto": "Auto"
         }
       },
       "dos_phm_mode": {
-        "name": "pH--Dosier-Modus",
+        "name": "pH- Dosing Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
+          "off": "Off",
+          "on": "On",
           "auto": "Auto"
         }
       },
       "dos_php_mode": {
-        "name": "pH+-Dosier-Modus",
+        "name": "pH+ Dosing Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
+          "off": "Off",
+          "on": "On",
           "auto": "Auto"
         }
       },
       "pvsurplus_mode": {
-        "name": "PV-Überschuss-Modus",
+        "name": "PV Surplus Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
+          "off": "Off",
+          "on": "On",
           "auto": "Auto"
         }
       },
       "backwash_mode": {
-        "name": "Rückspül-Modus",
+        "name": "Backwash Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
+          "off": "Off",
+          "on": "On",
           "auto": "Auto"
         }
       },
       "backwashrinse_mode": {
-        "name": "Spül-Modus",
+        "name": "Rinse Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
+          "off": "Off",
+          "on": "On",
           "auto": "Auto"
         }
       },
       "dos_floc_mode": {
-        "name": "Flockungsmittel-Modus",
+        "name": "Flocculant Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
+          "off": "Off",
+          "on": "On",
           "auto": "Auto"
         }
       },
