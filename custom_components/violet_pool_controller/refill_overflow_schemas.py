@@ -19,6 +19,20 @@ from .service_helpers import DEVICE_ID_SELECTOR
 def get_refill_overflow_schemas() -> dict[str, vol.Schema]:
     """Get refill and overflow control schemas."""
     return {
+        "control_refill_http": vol.Schema(vol.All(
+            vol.Schema(
+                {
+                    vol.Optional(ATTR_ENTITY_ID): cv.entity_ids,
+                    vol.Optional(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
+                    vol.Required("action"): vol.In(["fill", "stop"]),
+                    vol.Required("duration_seconds"): vol.All(
+                        vol.Coerce(int),
+                        vol.Range(min=10, max=3600),
+                    ),
+                }
+            ),
+            cv.has_at_least_one_key(ATTR_ENTITY_ID, ATTR_DEVICE_ID),
+        )),
         "configure_refill": vol.Schema(vol.All(
             vol.Schema(
                 {

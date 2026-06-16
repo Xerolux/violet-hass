@@ -689,6 +689,61 @@ class VioletControlServiceHandlers:
                 _LOGGER.error("Dosing control error: %s", err)
                 raise HomeAssistantError(f"Dosing control failed: {err}")
 
+    async def handle_control_refill_http(self, call: ServiceCall) -> None:
+        """Control water refill via HTTP setFunctionManually (NEW API).
+
+        For 'fill' action: automatically stops after specified duration.
+        Duration is REQUIRED for safety - prevents flooding/tank overflow.
+        """
+        coordinators = await self.manager.get_coordinators_for_call(call)
+        action = call.data.get("action")
+        duration_seconds = call.data.get("duration_seconds")
+
+        if action == "fill" and duration_seconds is None:
+            raise HomeAssistantError(
+                "Refill duration is REQUIRED for safety to prevent flooding! "
+                "Specify duration_seconds (10-3600 seconds)"
+            )
+
+        for coordinator in coordinators:
+            try:
+                control = VioletControlClient(coordinator.device._api)
+                device_name = coordinator.device.device_name
+
+                if action == "fill":
+                    await control.set_function_manually("REFILL", "ON")
+                    _LOGGER.critical(
+                        "🚨 WATER REFILL STARTED on %s - WILL AUTO-STOP after %ds",
+                        device_name,
+                        duration_seconds,
+                    )
+
+                    # Auto-stop refill after specified duration for CRITICAL SAFETY
+                    async def auto_stop_refill() -> None:
+                        await asyncio.sleep(duration_seconds)
+                        try:
+                            await control.set_function_manually("REFILL", "OFF")
+                            _LOGGER.critical(
+                                "🚨 WATER REFILL AUTO-STOPPED on %s after %ds (OVERFLOW PREVENTED)",
+                                device_name,
+                                duration_seconds,
+                            )
+                            await coordinator.async_request_refresh()
+                        except Exception as err:
+                            _LOGGER.error("CRITICAL: Refill auto-stop FAILED: %s", err)
+
+                    # Schedule background task (don't await - let it run in background)
+                    asyncio.create_task(auto_stop_refill())
+
+                elif action == "stop":
+                    await control.set_function_manually("REFILL", "OFF")
+                    _LOGGER.critical("WATER REFILL STOPPED on %s (manual)", device_name)
+                    await coordinator.async_request_refresh()
+
+            except Exception as err:
+                _LOGGER.error("CRITICAL: Refill control error: %s", err)
+                raise HomeAssistantError(f"Refill control FAILED (FLOODING RISK): {err}")
+
     # =================================================================
     # DOSING SYSTEM CONFIGURATION SERVICES
     # =================================================================
