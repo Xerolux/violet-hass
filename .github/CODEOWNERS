@@ -1,0 +1,14 @@
+# GitHub CODEOWNERS file
+# Auto-request reviews from code owners
+
+# Integration and API package ownership
+* @xerolux
+
+# Critical security files
+SECURITY.md @xerolux
+.github/workflows/ @xerolux
+
+# Configuration and CI/CD
+hacs.json @xerolux
+manifest.json @xerolux
+requirements.txt @xerolux
