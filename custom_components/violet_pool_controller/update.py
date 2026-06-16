@@ -130,7 +130,7 @@ class VioletPoolControllerUpdateEntity(CoordinatorEntity, UpdateEntity):
     async def async_release_notes(self) -> str | None:
         """Fetch and return HTML release notes from the controller."""
         try:
-            notes = await self.coordinator.device._api.get_update_history()
+            notes = await self.coordinator.device.api.get_update_history()
             if notes:
                 self._release_notes_cache = notes
         except Exception as err:  # noqa: BLE001
@@ -152,7 +152,7 @@ class VioletPoolControllerUpdateEntity(CoordinatorEntity, UpdateEntity):
                 self.coordinator.device.device_name,
             )
 
-            response = await self.coordinator.device._api.init_update()
+            response = await self.coordinator.device.api.init_update()
 
             if response and response != "STARTING":
                 _LOGGER.warning(
