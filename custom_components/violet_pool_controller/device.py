@@ -699,7 +699,7 @@ class VioletPoolControllerDevice:
             """Check if any valid keys start with the given prefix."""
             return any(
                 k.startswith(prefix) and self._data.get(k) is not None
-                for k in self._data.keys()
+                for k in self._data
             )
 
         # Check standalone mode vs dosing module
