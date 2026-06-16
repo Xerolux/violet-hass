@@ -422,4 +422,4 @@ pytest -v
 ---
 
 **Last Updated**: 2026-06-16  
-**Version**: 2.0.0 (Integration) + 0.0.31 (API)
+**Version**: 2.0.0 (Integration) + 0.0.32 (API)
