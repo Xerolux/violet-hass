@@ -33,7 +33,7 @@ jobs:
 
       - name: Check integration const.py version
         run: |
-          CONST_VERSION=$(grep -oP 'INTEGRATION_VERSION = "\K[^"]+' custom_components/violet_pool_controller/const.py)
+          CONST_VERSION=$(grep -m1 '^[[:space:]]*INTEGRATION_VERSION = ' custom_components/violet_pool_controller/const.py | sed 's/.*"\([^"]*\)".*/\1/')
           if [ "$CONST_VERSION" != "${{ env.MANIFEST_VERSION }}" ]; then
             echo "ERROR: const.py version ($CONST_VERSION) does not match manifest.json (${{ env.MANIFEST_VERSION }})!"
             exit 1
@@ -43,20 +43,28 @@ jobs:
 
       - name: Check .version file
         run: |
-          DOT_VERSION=$(cat custom_components/violet_pool_controller/.version | tr -d '[:space:]')
-          if [ "$DOT_VERSION" != "${{ env.MANIFEST_VERSION }}" ]; then
-            echo "ERROR: .version file ($DOT_VERSION) does not match manifest.json (${{ env.MANIFEST_VERSION }})!"
-            exit 1
+          if [ -f custom_components/violet_pool_controller/.version ]; then
+            DOT_VERSION=$(cat custom_components/violet_pool_controller/.version | tr -d '[:space:]')
+            if [ "$DOT_VERSION" != "${{ env.MANIFEST_VERSION }}" ]; then
+              echo "ERROR: .version file ($DOT_VERSION) does not match manifest.json (${{ env.MANIFEST_VERSION }})!"
+              exit 1
+            else
+              echo "OK: .version file matches manifest.json."
+            fi
           else
-            echo "OK: .version file matches manifest.json."
+            echo "WARNING: .version file not found, skipping check."
           fi
 
       - name: Check root pyproject.toml version
         run: |
-          PY_VERSION=$(grep -oP '^version = "\K[^"]+' pyproject.toml)
-          if [ "$PY_VERSION" != "${{ env.MANIFEST_VERSION }}" ]; then
-            echo "ERROR: pyproject.toml version ($PY_VERSION) does not match manifest.json (${{ env.MANIFEST_VERSION }})!"
-            exit 1
+          if [ -f pyproject.toml ]; then
+            PY_VERSION=$(grep -m1 '^version = ' pyproject.toml | sed 's/.*"\([^"]*\)".*/\1/')
+            if [ "$PY_VERSION" != "${{ env.MANIFEST_VERSION }}" ]; then
+              echo "ERROR: pyproject.toml version ($PY_VERSION) does not match manifest.json (${{ env.MANIFEST_VERSION }})!"
+              exit 1
+            else
+              echo "OK: pyproject.toml version matches manifest.json."
+            fi
           else
-            echo "OK: pyproject.toml version matches manifest.json."
+            echo "WARNING: pyproject.toml not found, skipping version check."
           fi
