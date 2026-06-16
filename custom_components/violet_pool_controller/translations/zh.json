@@ -234,34 +234,34 @@
   },
   "exceptions": {
     "api_error": {
-      "message": "API 通信错误：{detail}"
+      "message": "API-Kommunikationsfehler: {detail}"
     },
     "invalid_value": {
-      "message": "无效值：{detail}"
+      "message": "Ungültiger Wert: {detail}"
     },
     "value_out_of_range": {
-      "message": "值 {value} 超出有效范围 ({min}–{max})"
+      "message": "Wert {value} liegt außerhalb des gültigen Bereichs ({min}–{max})"
     },
     "failed_to_set_value": {
-      "message": "无法设置值：{detail}"
+      "message": "Wert konnte nicht gesetzt werden: {detail}"
     },
     "no_api_key": {
-      "message": "没有为实体 {entity} 配置 API 密钥"
+      "message": "Kein API-Schlüssel für Entität {entity} konfiguriert"
     },
     "invalid_action": {
-      "message": "无效操作：{action}"
+      "message": "Ungültige Aktion: {action}"
     },
     "unexpected_error": {
-      "message": "意外错误：{detail}"
+      "message": "Unerwarteter Fehler: {detail}"
     },
     "controller_unavailable": {
-      "message": "池控制器 {name} 在 {failures} 连续失败后不可用"
+      "message": "Pool-Controller {name} ist nach {failures} aufeinanderfolgenden Fehlern nicht erreichbar"
     }
   },
   "issues": {
     "controller_unavailable": {
-      "title": "池控制器不可用",
-      "description": "池控制器 **{name}** 在 {failures} 连续轮询周期内无法访问。\n\n请检查：\n- 控制器是否已通电？\n- 网络连接是否正常？\n- IP 地址仍然正确吗？\n\n一旦控制器再次可用，此问题将自动解决。"
+      "title": "Pool-Controller nicht erreichbar",
+      "description": "Der Pool-Controller **{name}** ist seit {failures} aufeinanderfolgenden Abrufzyklen nicht erreichbar.\n\nBitte prüfe:\n- Ist der Controller eingeschaltet?\n- Ist die Netzwerkverbindung in Ordnung?\n- Ist die IP-Adresse noch korrekt?\n\nSobald der Controller wieder erreichbar ist, wird dieses Problem automatisch behoben."
     }
   },
   "services": {
@@ -501,22 +501,22 @@
   "entity": {
     "sensor": {
       "onewire1_value": {
-        "name": "水温"
+        "name": "池水"
       },
       "onewire2_value": {
-        "name": "室外温度"
+        "name": "外部温度"
       },
       "onewire3_value": {
         "name": "太阳能集热器"
       },
       "onewire4_value": {
-        "name": "集热器回水"
+        "name": "集热器回流"
       },
       "onewire5_value": {
-        "name": "热交换器进水"
+        "name": "换热器"
       },
       "onewire6_value": {
-        "name": "热交换器出水"
+        "name": "热存储"
       },
       "onewire7_value": {
         "name": "温度传感器 7"
@@ -558,13 +558,13 @@
         "name": "模拟输入 8"
       },
       "system_health": {
-        "name": "系统健康"
+        "name": "系统状态"
       },
       "connection_latency": {
-        "name": "延迟"
+        "name": "连接延迟"
       },
       "last_event_age": {
-        "name": "上次事件时间"
+        "name": "最后事件年龄"
       },
       "api_request_rate": {
         "name": "API请求率"
@@ -576,91 +576,97 @@
         "name": "恢复成功率"
       },
       "pump_estimated_power": {
-        "name": "水泵功率（估算）"
+        "name": "泵功率（估计）"
       },
       "flow_rate": {
-        "name": "流量"
+        "name": "流速"
       },
       "last_error_code": {
-        "name": "错误代码"
+        "name": "最后错误代码"
       },
       "dos_1_cl_state": {
-        "name": "氯投加状态"
+        "name": "Chlordosier-Status"
       },
       "dos_4_phm_state": {
-        "name": "pH- 投加状态"
+        "name": "pH--Dosier-Status"
       },
       "dos_5_php_state": {
-        "name": "pH+ 投加状态"
+        "name": "pH+-Dosier-Status"
+      },
+      "dos_2_elo_state": {
+        "name": "Elektrolyse-Dosierstatus"
       },
       "dos_6_floc_state": {
-        "name": "絮凝剂投加状态"
+        "name": "Flockungsstatus"
       },
       "cpu_temp": {
-        "name": "CPU温度"
+        "name": "CPU-Temperatur"
       },
       "cpu_temp_carrier": {
-        "name": "载板温度"
+        "name": "Träger-Platine"
       },
       "cpu_uptime": {
-        "name": "设备运行时间"
+        "name": "System-Betriebszeit"
       },
       "system_cpu_temperature": {
-        "name": "系统CPU温度"
+        "name": "System CPU-Temperatur"
       },
       "system_carrier_cpu_temperature": {
-        "name": "载板CPU温度"
+        "name": "Träger-CPU-Temperatur"
       },
       "system_dosagemodule_cpu_temperature": {
-        "name": "投加模块CPU温度"
+        "name": "Dosier-Modul CPU-Temperatur"
       },
       "system_memoryusage": {
-        "name": "内存使用"
+        "name": "Speichernutzung"
       },
       "system_safety_timer_active": {
-        "name": "安全计时器激活"
+        "name": "Sicherheitstimer aktiv"
       },
       "system_relais_status": {
-        "name": "继电器状态"
+        "name": "Relais-Status"
       },
       "fw": {
-        "name": "固件"
+        "name": "Firmware-Version"
       },
       "pump": {
-        "name": "过滤泵状态"
+        "name": "Pumpen-Status"
       },
       "heater": {
-        "name": "加热器状态"
+        "name": "Heizungs-Status"
       },
       "solar": {
-        "name": "太阳能状态"
+        "name": "Solar-Status"
       },
       "backwash": {
-        "name": "反冲洗状态"
+        "name": "Rückspül-Status"
+      },
+      "light": {
+        "name": "Beleuchtungs-Status"
       },
       "pvsurplus": {
-        "name": "光伏余量状态"
+        "name": "PV-Überschuss Status"
       },
       "refill": {
-        "name": "补水状态"
+        "name": "Nachfüll-Status"
       },
       "pumpstate": {
-        "name": "过滤泵详情"
+        "name": "Pumpen Detail-Status"
       },
       "heaterstate": {
-        "name": "加热器详情"
+        "name": "Heizung Detail-Status"
       },
       "solarstate": {
-        "name": "太阳能详情"
+        "name": "Solar Detail-Status"
       },
       "adc1_value": {
-        "name": "Filter Pressure"
+        "name": "过滤压力"
       },
       "adc2_value": {
-        "name": "Overflow Tank"
+        "name": "溢流罐"
       },
       "adc3_value": {
-        "name": "Flow Meter (4-20mA)"
+        "name": "流量计（4-20mA）"
       },
       "adc4_value": {
         "name": "Analog Sensor 4 (4-20mA)"
@@ -669,233 +675,961 @@
         "name": "Analog Sensor 5 (0-10V)"
       },
       "imp1_value": {
-        "name": "Dosing Inflow"
+        "name": "给药进口"
       },
       "imp2_value": {
-        "name": "Pump Flow Rate"
+        "name": "泵流量"
       },
       "ext1_1": {
-        "name": "Extension 1.1"
+        "name": "扩展 1.1"
       },
       "ext1_2": {
-        "name": "Extension 1.2"
+        "name": "扩展 1.2"
       },
       "ext1_3": {
-        "name": "Extension 1.3"
+        "name": "扩展 1.3"
       },
       "ext1_4": {
-        "name": "Extension 1.4"
+        "name": "扩展 1.4"
       },
       "ext1_5": {
-        "name": "Extension 1.5"
+        "name": "扩展 1.5"
       },
       "ext1_6": {
-        "name": "Extension 1.6"
+        "name": "扩展 1.6"
       },
       "ext1_7": {
-        "name": "Extension 1.7"
+        "name": "扩展 1.7"
       },
       "ext1_8": {
-        "name": "Extension 1.8"
+        "name": "扩展 1.8"
       },
       "ext2_1": {
-        "name": "Extension 2.1"
+        "name": "扩展 2.1"
       },
       "ext2_2": {
-        "name": "Extension 2.2"
+        "name": "扩展 2.2"
       },
       "ext2_3": {
-        "name": "Extension 2.3"
+        "name": "扩展 2.3"
       },
       "ext2_4": {
-        "name": "Extension 2.4"
+        "name": "扩展 2.4"
       },
       "ext2_5": {
-        "name": "Extension 2.5"
+        "name": "扩展 2.5"
       },
       "ext2_6": {
-        "name": "Extension 2.6"
+        "name": "扩展 2.6"
       },
       "ext2_7": {
-        "name": "Extension 2.7"
+        "name": "扩展 2.7"
       },
       "ext2_8": {
-        "name": "Extension 2.8"
+        "name": "扩展 2.8"
       },
-      "pump_rs485_pwr": {
-        "name": "RS485水泵功率"
+      "backwashrinse": {
+        "name": "Nachspül-Status"
       },
-      "load_avg": {
-        "name": "CPU平均负载"
+      "backwash_delay_running": {
+        "name": "Rückspül-Verzögerung aktiv"
+      },
+      "backwash_delay_timestamp": {
+        "name": "Rückspül-Verzögerung Zeitstempel"
+      },
+      "backwash_last_auto_run": {
+        "name": "Letzte automatische Rückspülung"
+      },
+      "backwash_last_manual_run": {
+        "name": "Letzte manuelle Rückspülung"
+      },
+      "backwash_last_off": {
+        "name": "Rückspülung Zuletzt Aus"
+      },
+      "backwash_last_on": {
+        "name": "Rückspülung Zuletzt Ein"
+      },
+      "backwash_omni_moving": {
+        "name": "OmniTronic bewegt sich"
+      },
+      "backwash_omni_state": {
+        "name": "OmniTronic-Ventilstatus"
+      },
+      "backwash_runtime": {
+        "name": "Rückspül-Laufzeit"
+      },
+      "backwash_state": {
+        "name": "Rückspül-Zustand"
+      },
+      "backwash_step": {
+        "name": "Rückspülschritt"
+      },
+      "backwashrinse_last_off": {
+        "name": "Nachspülung Zuletzt Aus"
+      },
+      "backwashrinse_last_on": {
+        "name": "Nachspülung Zuletzt Ein"
+      },
+      "backwashrinse_runtime": {
+        "name": "Nachspül-Laufzeit"
+      },
+      "pump_runtime": {
+        "name": "Pumpen-Laufzeit"
+      },
+      "pump_last_on": {
+        "name": "Pumpe Zuletzt Ein"
+      },
+      "pump_last_off": {
+        "name": "Pumpe Zuletzt Aus"
+      },
+      "heater_runtime": {
+        "name": "Heizungs-Laufzeit"
+      },
+      "heater_last_on": {
+        "name": "Heizung Zuletzt Ein"
+      },
+      "heater_last_off": {
+        "name": "Heizung Zuletzt Aus"
+      },
+      "heater_postrun_time": {
+        "name": "Heizung Nachlaufzeit"
+      },
+      "solar_runtime": {
+        "name": "Solar-Laufzeit"
+      },
+      "solar_last_on": {
+        "name": "Solar Zuletzt Ein"
+      },
+      "solar_last_off": {
+        "name": "Solar Zuletzt Aus"
+      },
+      "light_runtime": {
+        "name": "Beleuchtungs-Laufzeit"
+      },
+      "light_last_on": {
+        "name": "Beleuchtung Zuletzt Ein"
+      },
+      "light_last_off": {
+        "name": "Beleuchtung Zuletzt Aus"
+      },
+      "eco": {
+        "name": "Eco-Modus Status"
+      },
+      "eco_runtime": {
+        "name": "Eco-Laufzeit"
+      },
+      "eco_last_on": {
+        "name": "Eco Zuletzt Ein"
+      },
+      "eco_last_off": {
+        "name": "Eco Zuletzt Aus"
+      },
+      "dos_1_cl": {
+        "name": "Chlor-Dosiersystem"
+      },
+      "dos_1_cl_daily": {
+        "name": "Chlor Tagesdosierung (ml)"
+      },
+      "dos_1_cl_total_can": {
+        "name": "Chlor Kanisterinhalt (ml)"
+      },
+      "dos_1_cl_runtime": {
+        "name": "Chlor-Dosierlaufzeit"
+      },
+      "dos_1_cl_last_on": {
+        "name": "Chlor-Dosierung Zuletzt Ein"
+      },
+      "dos_1_cl_last_off": {
+        "name": "Chlor-Dosierung Zuletzt Aus"
+      },
+      "dos_1_cl_daily_dosing_amount_ml": {
+        "name": "Chlor Tagesdosierung (ml)"
+      },
+      "dos_1_cl_total_can_amount_ml": {
+        "name": "Chlor Kanisterinhalt (ml)"
+      },
+      "dos_1_cl_type": {
+        "name": "Chlor Dosiertyp"
+      },
+      "dos_1_cl_use": {
+        "name": "Chlor Verbrauch"
+      },
+      "dos_1_cl_last_can_reset": {
+        "name": "Chlor Letzter Kanister-Reset"
+      },
+      "dos_2_elo": {
+        "name": "Elektrolyse-Dosiersystem"
       },
       "dos_2_elo_daily": {
-        "name": "电解日剂量（毫升）"
+        "name": "Elektrolyse Tagesdosiermenge (ml)"
+      },
+      "dos_2_elo_total_can": {
+        "name": "Elektrolyse Kanisterinhalt (ml)"
+      },
+      "dos_4_phm": {
+        "name": "pH- Dosiersystem"
+      },
+      "dos_4_phm_daily": {
+        "name": "pH- Tagesdosierung (ml)"
+      },
+      "dos_4_phm_total_can": {
+        "name": "pH- Kanisterinhalt (ml)"
+      },
+      "dos_5_php": {
+        "name": "pH+ Dosiersystem"
+      },
+      "dos_5_php_daily": {
+        "name": "pH+ Tagesdosierung (ml)"
+      },
+      "dos_5_php_total_can": {
+        "name": "pH+ Kanisterinhalt (ml)"
+      },
+      "dos_6_floc": {
+        "name": "Flockmittel-Dosiersystem"
+      },
+      "dos_6_floc_daily": {
+        "name": "Flockmittel Tagesdosierung (ml)"
+      },
+      "dos_6_floc_total_can": {
+        "name": "Flockmittel Kanisterinhalt (ml)"
+      },
+      "refill_runtime": {
+        "name": "Nachfüll-Laufzeit"
+      },
+      "refill_last_on": {
+        "name": "Nachfüllung Zuletzt Ein"
+      },
+      "refill_last_off": {
+        "name": "Nachfüllung Zuletzt Aus"
+      },
+      "overflow_dryrun_state": {
+        "name": "Überlauf Trockenlauf-Status"
+      },
+      "overflow_overfill_state": {
+        "name": "Überfüllungs-Status"
+      },
+      "overflow_refill_state": {
+        "name": "Überlauf Nachfüll-Status"
+      },
+      "bathing_ai_last_level": {
+        "name": "Bade-KI Letzter Füllstand"
+      },
+      "bathing_ai_pump_state": {
+        "name": "Bade-KI Pumpenstatus"
+      },
+      "bathing_ai_pump_timestamp": {
+        "name": "Bade-KI Pumpen-Zeitstempel"
+      },
+      "bathing_ai_start_level": {
+        "name": "Bade-KI Startfüllstand"
+      },
+      "bathing_ai_surveillance_state": {
+        "name": "Bade-KI Überwachungsstatus"
+      },
+      "pump_rpm_0": {
+        "name": "Pumpen-Stufe 0"
+      },
+      "pump_rpm_1": {
+        "name": "Pumpen-Stufe 1"
+      },
+      "pump_rpm_2": {
+        "name": "Pumpen-Stufe 2"
+      },
+      "pump_rpm_3": {
+        "name": "Pumpen-Stufe 3"
+      },
+      "pump_rpm_0_last_off": {
+        "name": "Pumpen-Stufe 0 Zuletzt Aus"
+      },
+      "pump_rpm_1_last_off": {
+        "name": "Pumpen-Stufe 1 Zuletzt Aus"
+      },
+      "pump_rpm_2_last_off": {
+        "name": "Pumpen-Stufe 2 Zuletzt Aus"
+      },
+      "pump_rpm_3_last_off": {
+        "name": "Pumpen-Stufe 3 Zuletzt Aus"
+      },
+      "pump_rpm_0_runtime": {
+        "name": "Pumpen-Stufe 0 Laufzeit"
+      },
+      "pump_rpm_1_runtime": {
+        "name": "Pumpen-Stufe 1 Laufzeit"
+      },
+      "pump_rpm_2_runtime": {
+        "name": "Pumpen-Stufe 2 Laufzeit"
+      },
+      "pump_rpm_3_runtime": {
+        "name": "Pumpen-Stufe 3 Laufzeit"
+      },
+      "sw_version": {
+        "name": "Software-Version"
+      },
+      "sw_version_carrier": {
+        "name": "Carrier Software-Version"
+      },
+      "system_memory": {
+        "name": "Systemspeicher"
+      },
+      "cover_state": {
+        "name": "Abdeckungs-Zustand"
+      },
+      "onewire12_value": {
+        "name": "温度传感器 12"
+      },
+      "onewire12_value_max": {
+        "name": "温度传感器 12 Maximum"
+      },
+      "onewire12_value_min": {
+        "name": "温度传感器 12 Minimum"
+      },
+      "onewire1_value_max": {
+        "name": "Wassertemperatur Maximum"
+      },
+      "onewire1_value_min": {
+        "name": "Wassertemperatur Minimum"
+      },
+      "orp_value_max": {
+        "name": "Redoxpotential Maximum"
+      },
+      "orp_value_min": {
+        "name": "Redoxpotential Minimum"
+      },
+      "ph_value_max": {
+        "name": "pH值 Maximum"
+      },
+      "ph_value_min": {
+        "name": "pH值 Minimum"
+      },
+      "pot_value_max": {
+        "name": "氯含量 Maximum"
+      },
+      "pot_value_min": {
+        "name": "氯含量 Minimum"
+      },
+      "ext1_1_last_on": {
+        "name": "扩展 1.1 Zuletzt Ein"
+      },
+      "ext1_1_last_off": {
+        "name": "扩展 1.1 Zuletzt Aus"
+      },
+      "ext1_1_runtime": {
+        "name": "扩展 1.1 Laufzeit"
+      },
+      "ext1_2_last_on": {
+        "name": "扩展 1.2 Zuletzt Ein"
+      },
+      "ext1_2_last_off": {
+        "name": "扩展 1.2 Zuletzt Aus"
+      },
+      "ext1_2_runtime": {
+        "name": "扩展 1.2 Laufzeit"
+      },
+      "ext1_3_last_on": {
+        "name": "扩展 1.3 Zuletzt Ein"
+      },
+      "ext1_3_last_off": {
+        "name": "扩展 1.3 Zuletzt Aus"
+      },
+      "ext1_3_runtime": {
+        "name": "扩展 1.3 Laufzeit"
+      },
+      "ext1_4_last_on": {
+        "name": "扩展 1.4 Zuletzt Ein"
+      },
+      "ext1_4_last_off": {
+        "name": "扩展 1.4 Zuletzt Aus"
+      },
+      "ext1_4_runtime": {
+        "name": "扩展 1.4 Laufzeit"
+      },
+      "ext1_5_last_on": {
+        "name": "扩展 1.5 Zuletzt Ein"
+      },
+      "ext1_5_last_off": {
+        "name": "扩展 1.5 Zuletzt Aus"
+      },
+      "ext1_5_runtime": {
+        "name": "扩展 1.5 Laufzeit"
+      },
+      "ext1_6_last_on": {
+        "name": "扩展 1.6 Zuletzt Ein"
+      },
+      "ext1_6_last_off": {
+        "name": "扩展 1.6 Zuletzt Aus"
+      },
+      "ext1_6_runtime": {
+        "name": "扩展 1.6 Laufzeit"
+      },
+      "ext1_7_last_on": {
+        "name": "扩展 1.7 Zuletzt Ein"
+      },
+      "ext1_7_last_off": {
+        "name": "扩展 1.7 Zuletzt Aus"
+      },
+      "ext1_7_runtime": {
+        "name": "扩展 1.7 Laufzeit"
+      },
+      "ext1_8_last_on": {
+        "name": "扩展 1.8 Zuletzt Ein"
+      },
+      "ext1_8_last_off": {
+        "name": "扩展 1.8 Zuletzt Aus"
+      },
+      "ext1_8_runtime": {
+        "name": "扩展 1.8 Laufzeit"
+      },
+      "ext2_1_last_on": {
+        "name": "扩展 2.1 Zuletzt Ein"
+      },
+      "ext2_1_last_off": {
+        "name": "扩展 2.1 Zuletzt Aus"
+      },
+      "ext2_1_runtime": {
+        "name": "扩展 2.1 Laufzeit"
+      },
+      "ext2_2_last_on": {
+        "name": "扩展 2.2 Zuletzt Ein"
+      },
+      "ext2_2_last_off": {
+        "name": "扩展 2.2 Zuletzt Aus"
+      },
+      "ext2_2_runtime": {
+        "name": "扩展 2.2 Laufzeit"
+      },
+      "ext2_3_last_on": {
+        "name": "扩展 2.3 Zuletzt Ein"
+      },
+      "ext2_3_last_off": {
+        "name": "扩展 2.3 Zuletzt Aus"
+      },
+      "ext2_3_runtime": {
+        "name": "扩展 2.3 Laufzeit"
+      },
+      "ext2_4_last_on": {
+        "name": "扩展 2.4 Zuletzt Ein"
+      },
+      "ext2_4_last_off": {
+        "name": "扩展 2.4 Zuletzt Aus"
+      },
+      "ext2_4_runtime": {
+        "name": "扩展 2.4 Laufzeit"
+      },
+      "ext2_5_last_on": {
+        "name": "扩展 2.5 Zuletzt Ein"
+      },
+      "ext2_5_last_off": {
+        "name": "扩展 2.5 Zuletzt Aus"
+      },
+      "ext2_5_runtime": {
+        "name": "扩展 2.5 Laufzeit"
+      },
+      "ext2_6_last_on": {
+        "name": "扩展 2.6 Zuletzt Ein"
+      },
+      "ext2_6_last_off": {
+        "name": "扩展 2.6 Zuletzt Aus"
+      },
+      "ext2_6_runtime": {
+        "name": "扩展 2.6 Laufzeit"
+      },
+      "ext2_7_last_on": {
+        "name": "扩展 2.7 Zuletzt Ein"
+      },
+      "ext2_7_last_off": {
+        "name": "扩展 2.7 Zuletzt Aus"
+      },
+      "ext2_7_runtime": {
+        "name": "扩展 2.7 Laufzeit"
+      },
+      "ext2_8_last_on": {
+        "name": "扩展 2.8 Zuletzt Ein"
+      },
+      "ext2_8_last_off": {
+        "name": "扩展 2.8 Zuletzt Aus"
+      },
+      "ext2_8_runtime": {
+        "name": "扩展 2.8 Laufzeit"
+      },
+      "onewire2_value_max": {
+        "name": "外部温度 Maximum"
+      },
+      "onewire2_value_min": {
+        "name": "外部温度 Minimum"
+      },
+      "onewire3_value_max": {
+        "name": "太阳能吸收器 Maximum"
+      },
+      "onewire3_value_min": {
+        "name": "太阳能吸收器 Minimum"
+      },
+      "onewire4_value_max": {
+        "name": "吸收器回流 Maximum"
+      },
+      "onewire4_value_min": {
+        "name": "吸收器回流 Minimum"
+      },
+      "onewire5_value_max": {
+        "name": "换热器进口 Maximum"
+      },
+      "onewire5_value_min": {
+        "name": "换热器进口 Minimum"
+      },
+      "onewire6_value_max": {
+        "name": "换热器出口 Maximum"
+      },
+      "onewire6_value_min": {
+        "name": "换热器出口 Minimum"
+      },
+      "onewire7_value_max": {
+        "name": "温度传感器 7 Maximum"
+      },
+      "onewire7_value_min": {
+        "name": "温度传感器 7 Minimum"
+      },
+      "onewire8_value_max": {
+        "name": "温度传感器 8 Maximum"
+      },
+      "onewire8_value_min": {
+        "name": "温度传感器 8 Minimum"
+      },
+      "onewire9_value": {
+        "name": "温度传感器 9"
+      },
+      "onewire9_value_max": {
+        "name": "温度传感器 9 Maximum"
+      },
+      "onewire9_value_min": {
+        "name": "温度传感器 9 Minimum"
+      },
+      "onewire10_value": {
+        "name": "温度传感器 10"
+      },
+      "onewire10_value_max": {
+        "name": "温度传感器 10 Maximum"
+      },
+      "onewire10_value_min": {
+        "name": "温度传感器 10 Minimum"
+      },
+      "onewire11_value": {
+        "name": "温度传感器 11"
+      },
+      "onewire11_value_max": {
+        "name": "温度传感器 11 Maximum"
+      },
+      "onewire11_value_min": {
+        "name": "温度传感器 11 Minimum"
+      },
+      "pump_rpm_0_last_on": {
+        "name": "Pumpen-Stufe 0 Zuletzt Ein"
+      },
+      "pump_rpm_1_last_on": {
+        "name": "Pumpen-Stufe 1 Zuletzt Ein"
+      },
+      "pump_rpm_2_last_on": {
+        "name": "Pumpen-Stufe 2 Zuletzt Ein"
+      },
+      "pump_rpm_3_last_on": {
+        "name": "Pumpen-Stufe 3 Zuletzt Ein"
+      },
+      "dos_2_elo_daily_dosing_amount_ml": {
+        "name": "Elektrolyse Tagesdosierung (ml)"
+      },
+      "dos_2_elo_last_can_reset": {
+        "name": "Elektrolyse Letzter Kanister-Reset"
+      },
+      "dos_2_elo_last_off": {
+        "name": "Elektrolyse-Dosierung Zuletzt Aus"
+      },
+      "dos_2_elo_last_on": {
+        "name": "Elektrolyse-Dosierung Zuletzt Ein"
+      },
+      "dos_2_elo_runtime": {
+        "name": "Elektrolyse-Dosierlaufzeit"
+      },
+      "dos_2_elo_total_can_amount_ml": {
+        "name": "Elektrolyse Kanisterinhalt (ml)"
+      },
+      "dos_2_elo_type": {
+        "name": "Elektrolyse Dosiertyp"
+      },
+      "dos_2_elo_use": {
+        "name": "Elektrolyse Verbrauch"
+      },
+      "dos_4_phm_daily_dosing_amount_ml": {
+        "name": "pH- Tagesdosierung (ml)"
+      },
+      "dos_4_phm_last_can_reset": {
+        "name": "pH- Letzter Kanister-Reset"
+      },
+      "dos_4_phm_last_off": {
+        "name": "pH--Dosierung Zuletzt Aus"
+      },
+      "dos_4_phm_last_on": {
+        "name": "pH--Dosierung Zuletzt Ein"
+      },
+      "dos_4_phm_runtime": {
+        "name": "pH--Dosierlaufzeit"
+      },
+      "dos_4_phm_total_can_amount_ml": {
+        "name": "pH- Kanisterinhalt (ml)"
+      },
+      "dos_4_phm_type": {
+        "name": "pH- Dosiertyp"
+      },
+      "dos_4_phm_use": {
+        "name": "pH- Verbrauch"
+      },
+      "dos_5_php_daily_dosing_amount_ml": {
+        "name": "pH+ Tagesdosierung (ml)"
+      },
+      "dos_5_php_last_can_reset": {
+        "name": "pH+ Letzter Kanister-Reset"
+      },
+      "dos_5_php_last_off": {
+        "name": "pH+-Dosierung Zuletzt Aus"
+      },
+      "dos_5_php_last_on": {
+        "name": "pH+-Dosierung Zuletzt Ein"
+      },
+      "dos_5_php_runtime": {
+        "name": "pH+-Dosierlaufzeit"
+      },
+      "dos_5_php_total_can_amount_ml": {
+        "name": "pH+ Kanisterinhalt (ml)"
+      },
+      "dos_5_php_type": {
+        "name": "pH+ Dosiertyp"
+      },
+      "dos_5_php_use": {
+        "name": "pH+ Verbrauch"
+      },
+      "dos_6_floc_daily_dosing_amount_ml": {
+        "name": "Flockmittel Tagesdosierung (ml)"
+      },
+      "dos_6_floc_last_can_reset": {
+        "name": "Flockmittel Letzter Kanister-Reset"
+      },
+      "dos_6_floc_last_off": {
+        "name": "Flockmittel-Dosierung Zuletzt Aus"
+      },
+      "dos_6_floc_last_on": {
+        "name": "Flockmittel-Dosierung Zuletzt Ein"
+      },
+      "dos_6_floc_runtime": {
+        "name": "Flockmittel-Dosierlaufzeit"
+      },
+      "dos_6_floc_total_can_amount_ml": {
+        "name": "Flockmittel Kanisterinhalt (ml)"
+      },
+      "dos_6_floc_type": {
+        "name": "Flockmittel Dosiertyp"
+      },
+      "dos_6_floc_use": {
+        "name": "Flockmittel Verbrauch"
+      },
+      "dmx_scene1": {
+        "name": "DMX-Lichtszene 1"
+      },
+      "dmx_scene2": {
+        "name": "DMX-Lichtszene 2"
+      },
+      "dmx_scene3": {
+        "name": "DMX-Lichtszene 3"
+      },
+      "dmx_scene4": {
+        "name": "DMX-Lichtszene 4"
+      },
+      "dmx_scene5": {
+        "name": "DMX-Lichtszene 5"
+      },
+      "dmx_scene6": {
+        "name": "DMX-Lichtszene 6"
+      },
+      "dmx_scene7": {
+        "name": "DMX-Lichtszene 7"
+      },
+      "dmx_scene8": {
+        "name": "DMX-Lichtszene 8"
+      },
+      "dmx_scene9": {
+        "name": "DMX-Lichtszene 9"
+      },
+      "dmx_scene10": {
+        "name": "DMX-Lichtszene 10"
+      },
+      "dmx_scene11": {
+        "name": "DMX-Lichtszene 11"
+      },
+      "dmx_scene12": {
+        "name": "DMX-Lichtszene 12"
+      },
+      "digitalinputrule_state_digitalinput_rule_1": {
+        "name": "Schaltregeln Zustand 1"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch1": {
+        "name": "Schaltregeln Stoppuhr 1"
+      },
+      "digitalinputrule_state_digitalinput_rule_2": {
+        "name": "Schaltregeln Zustand 2"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch2": {
+        "name": "Schaltregeln Stoppuhr 2"
+      },
+      "digitalinputrule_state_digitalinput_rule_3": {
+        "name": "Schaltregeln Zustand 3"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch3": {
+        "name": "Schaltregeln Stoppuhr 3"
+      },
+      "digitalinputrule_state_digitalinput_rule_4": {
+        "name": "Schaltregeln Zustand 4"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch4": {
+        "name": "Schaltregeln Stoppuhr 4"
+      },
+      "digitalinputrule_state_digitalinput_rule_5": {
+        "name": "Schaltregeln Zustand 5"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch5": {
+        "name": "Schaltregeln Stoppuhr 5"
+      },
+      "digitalinputrule_state_digitalinput_rule_6": {
+        "name": "Schaltregeln Zustand 6"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch6": {
+        "name": "Schaltregeln Stoppuhr 6"
+      },
+      "digitalinputrule_state_digitalinput_rule_7": {
+        "name": "Schaltregeln Zustand 7"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch7": {
+        "name": "Schaltregeln Stoppuhr 7"
+      },
+      "input1": {
+        "name": "Digitaleingang 1"
+      },
+      "input2": {
+        "name": "Digitaleingang 2"
+      },
+      "input3": {
+        "name": "Digitaleingang 3"
+      },
+      "input4": {
+        "name": "Digitaleingang 4"
+      },
+      "input5": {
+        "name": "Digitaleingang 5"
+      },
+      "input6": {
+        "name": "Digitaleingang 6"
+      },
+      "input7": {
+        "name": "Digitaleingang 7"
+      },
+      "input8": {
+        "name": "Digitaleingang 8"
+      },
+      "input9": {
+        "name": "Digitaleingang 9"
+      },
+      "input10": {
+        "name": "Digitaleingang 10"
+      },
+      "input11": {
+        "name": "Digitaleingang 11"
+      },
+      "input12": {
+        "name": "Digitaleingang 12"
+      },
+      "input_ce1": {
+        "name": "Kanister-Leersensor 1"
+      },
+      "input_ce2": {
+        "name": "Kanister-Leersensor 2"
+      },
+      "input_ce3": {
+        "name": "Kanister-Leersensor 3"
+      },
+      "input_ce4": {
+        "name": "Kanister-Leersensor 4"
+      },
+      "pump_rs485_pwr": {
+        "name": "RS485-Pumpenleistung"
+      },
+      "load_avg": {
+        "name": "CPU-Auslastung"
       },
       "di_rule_1_stopwatch": {
-        "name": "DI规则1剩余时间"
+        "name": "DI-Regel 1 Restzeit"
       },
       "di_rule_2_stopwatch": {
-        "name": "DI规则2剩余时间"
+        "name": "DI-Regel 2 Restzeit"
       },
       "di_rule_3_stopwatch": {
-        "name": "DI规则3剩余时间"
+        "name": "DI-Regel 3 Restzeit"
       },
       "di_rule_4_stopwatch": {
-        "name": "DI规则4剩余时间"
+        "name": "DI-Regel 4 Restzeit"
       },
       "di_rule_5_stopwatch": {
-        "name": "DI规则5剩余时间"
+        "name": "DI-Regel 5 Restzeit"
       },
       "di_rule_6_stopwatch": {
-        "name": "DI规则6剩余时间"
+        "name": "DI-Regel 6 Restzeit"
       },
       "di_rule_7_stopwatch": {
-        "name": "DI规则7剩余时间"
+        "name": "DI-Regel 7 Restzeit"
       },
       "di_rule_8_stopwatch": {
-        "name": "DI规则8剩余时间"
+        "name": "DI-Regel 8 Restzeit"
       }
     },
     "binary_sensor": {
       "pump": {
-        "name": "过滤泵"
+        "name": "Pumpenstatus"
       },
       "solar": {
-        "name": "太阳能集热器"
+        "name": "Solarstatus"
       },
       "heater": {
-        "name": "加热器"
+        "name": "Heizerstatus"
       },
       "light": {
-        "name": "照明"
+        "name": "Beleuchtungsstatus"
       },
       "backwash": {
-        "name": "反冲洗"
+        "name": "Rückspülstatus"
       },
       "refill": {
-        "name": "补水"
+        "name": "Nachfüllstatus"
       },
       "eco": {
-        "name": "节能模式"
+        "name": "Eco-Modus"
       },
       "pvsurplus": {
-        "name": "光伏余量"
+        "name": "PV-Überschuss"
       },
       "circulation_state": {
-        "name": "循环状态"
+        "name": "Zirkulationsproblem"
       },
       "electrode_flow_state": {
-        "name": "电极流量"
+        "name": "Elektrodendurchfluss-Problem"
       },
       "pressure_state": {
-        "name": "压力状态"
+        "name": "Druckproblem"
       },
       "can_range_state": {
-        "name": "CAN范围"
+        "name": "Behälter-Bereichs-Problem"
       },
       "input1": {
-        "name": "数字输入 1"
+        "name": "Digitaler Eingang 1"
       },
       "input2": {
-        "name": "数字输入 2"
+        "name": "Digitaler Eingang 2"
       },
       "input3": {
-        "name": "数字输入 3"
+        "name": "Digitaler Eingang 3"
       },
       "input4": {
-        "name": "数字输入 4"
+        "name": "Digitaler Eingang 4"
       },
       "input5": {
-        "name": "数字输入 5"
+        "name": "Digitaler Eingang 5"
       },
       "input6": {
-        "name": "数字输入 6"
+        "name": "Digitaler Eingang 6"
       },
       "input7": {
-        "name": "数字输入 7"
+        "name": "Digitaler Eingang 7"
       },
       "input8": {
-        "name": "数字输入 8"
+        "name": "Digitaler Eingang 8"
       },
       "input9": {
-        "name": "数字输入 9"
+        "name": "Digitaler Eingang 9"
       },
       "input10": {
-        "name": "数字输入 10"
+        "name": "Digitaler Eingang 10"
       },
       "input11": {
-        "name": "数字输入 11"
+        "name": "Digitaler Eingang 11"
       },
       "input12": {
-        "name": "数字输入 12"
+        "name": "Digitaler Eingang 12"
       },
       "input_ce1": {
-        "name": "CE输入 1"
+        "name": "CE-Eingang 1"
       },
       "input_ce2": {
-        "name": "CE输入 2"
+        "name": "CE-Eingang 2"
       },
       "input_ce3": {
-        "name": "CE输入 3"
+        "name": "CE-Eingang 3"
       },
       "input_ce4": {
-        "name": "CE输入 4"
+        "name": "CE-Eingang 4"
       },
       "hw_base_module": {
-        "name": "基础模块"
+        "name": "Hardware: Basismodul"
       },
       "hw_dosing_module": {
-        "name": "投加模块"
+        "name": "Hardware: Dosiermodul"
       },
       "hw_extension_module_1": {
-        "name": "扩展模块 1"
+        "name": "Hardware: 扩展smodul 1"
       },
       "hw_extension_module_2": {
-        "name": "扩展模块 2"
+        "name": "Hardware: 扩展smodul 2"
       },
       "hw_standalone_mode": {
-        "name": "独立投加模式"
+        "name": "Hardware: Eigenständige Dosiereinheit"
       },
       "hw_dmx_module": {
-        "name": "DMX模块"
+        "name": "Hardware: DMX-Modul"
       },
       "hw_dirule_module": {
-        "name": "数字规则模块"
+        "name": "Hardware: Digital Rules Module"
+      }
+    },
+    "button": {
+      "reset_errors": {
+        "name": "重置错误块"
       }
     },
     "switch": {
       "pump": {
-        "name": "过滤泵"
+        "name": "Filterpumpe"
       },
       "solar": {
         "name": "太阳能集热器"
       },
       "heater": {
-        "name": "加热器"
+        "name": "Heizer"
       },
       "light": {
-        "name": "照明"
+        "name": "Beleuchtung"
       },
       "dos_5_php": {
-        "name": "pH+ 投加"
+        "name": "pH+给药"
       },
       "dos_4_phm": {
-        "name": "pH- 投加"
+        "name": "pH-给药"
       },
       "dos_1_cl": {
-        "name": "氯投加"
+        "name": "氯给药"
       },
       "dos_6_floc": {
-        "name": "絮凝剂投加"
+        "name": "Flockungsmittel"
       },
       "pvsurplus": {
-        "name": "光伏余量"
+        "name": "PV-Überschuss"
       },
       "backwash": {
-        "name": "反冲洗"
+        "name": "Rückspülung"
       },
       "backwashrinse": {
-        "name": "冲洗"
+        "name": "Spülung"
       },
       "ext1_1": {
         "name": "扩展 1.1"
@@ -946,192 +1680,327 @@
         "name": "扩展 2.8"
       },
       "dmx_scene1": {
-        "name": "DMX场景 1"
+        "name": "DMX Szene 1"
       },
       "dmx_scene2": {
-        "name": "DMX场景 2"
+        "name": "DMX Szene 2"
       },
       "dmx_scene3": {
-        "name": "DMX场景 3"
+        "name": "DMX Szene 3"
       },
       "dmx_scene4": {
-        "name": "DMX场景 4"
+        "name": "DMX Szene 4"
       },
       "dmx_scene5": {
-        "name": "DMX场景 5"
+        "name": "DMX Szene 5"
       },
       "dmx_scene6": {
-        "name": "DMX场景 6"
+        "name": "DMX Szene 6"
       },
       "dmx_scene7": {
-        "name": "DMX场景 7"
+        "name": "DMX Szene 7"
       },
       "dmx_scene8": {
-        "name": "DMX场景 8"
+        "name": "DMX Szene 8"
       },
       "dmx_scene9": {
-        "name": "DMX场景 9"
+        "name": "DMX Szene 9"
       },
       "dmx_scene10": {
-        "name": "DMX场景 10"
+        "name": "DMX Szene 10"
       },
       "dmx_scene11": {
-        "name": "DMX场景 11"
+        "name": "DMX Szene 11"
       },
       "dmx_scene12": {
-        "name": "DMX场景 12"
+        "name": "DMX Szene 12"
       },
       "dirule_1": {
-        "name": "切换规则 1"
+        "name": "Schaltregel 1"
       },
       "dirule_2": {
-        "name": "切换规则 2"
+        "name": "Schaltregel 2"
       },
       "dirule_3": {
-        "name": "切换规则 3"
+        "name": "Schaltregel 3"
       },
       "dirule_4": {
-        "name": "切换规则 4"
+        "name": "Schaltregel 4"
       },
       "dirule_5": {
-        "name": "切换规则 5"
+        "name": "Schaltregel 5"
       },
       "dirule_6": {
-        "name": "切换规则 6"
+        "name": "Schaltregel 6"
       },
       "dirule_7": {
-        "name": "切换规则 7"
+        "name": "Schaltregel 7"
       },
       "dirule_8": {
-        "name": "切换规则 8"
+        "name": "Schaltregel 8"
       }
     },
     "climate": {
       "heater": {
-        "name": "泳池加热器"
+        "name": "Pool-Heizer"
       },
       "solar": {
-        "name": "太阳能加热器"
+        "name": "Solar-Heizer"
       }
     },
     "cover": {
       "pool_cover": {
-        "name": "泳池盖"
+        "name": "Pool-Abdeckung"
       }
     },
     "number": {
       "ph_setpoint": {
-        "name": "pH设定值"
+        "name": "pH-Sollwert"
       },
       "orp_setpoint": {
-        "name": "ORP设定值"
+        "name": "ORP-Sollwert"
       },
       "chlorine_setpoint": {
-        "name": "氯设定值"
+        "name": "Chlor-Sollwert"
       },
       "heater_target_temp": {
-        "name": "加热器目标温度"
+        "name": "Zieltemperatur Heizer"
       },
       "solar_target_temp": {
-        "name": "太阳能目标温度"
+        "name": "Zieltemperatur Solar"
       },
       "pump_speed": {
-        "name": "泵速"
+        "name": "Pumpendrehzahl"
       },
       "chlorine_canister_volume": {
-        "name": "氯药桶容量"
+        "name": "Chlorbehälter-Volumen"
       },
       "ph_minus_canister_volume": {
-        "name": "pH- 药桶容量"
+        "name": "pH--Behälter-Volumen"
       },
       "ph_plus_canister_volume": {
-        "name": "pH+ 药桶容量"
+        "name": "pH+-Behälter-Volumen"
       },
       "flocculant_canister_volume": {
-        "name": "絮凝剂药桶容量"
+        "name": "Flockungsmittel-Behälter-Volumen"
       }
     },
     "select": {
       "pump_mode": {
-        "name": "过滤泵模式"
+        "name": "Pumpenmodus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "heater_mode": {
-        "name": "加热器模式"
+        "name": "Heizer-Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "solar_mode": {
-        "name": "太阳能模式"
+        "name": "Solar-Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "light_mode": {
-        "name": "照明模式"
+        "name": "Beleuchtungs-Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "dos_cl_mode": {
-        "name": "氯模式"
+        "name": "Chlordosier-Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "dos_phm_mode": {
-        "name": "pH- 模式"
+        "name": "pH--Dosier-Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "dos_php_mode": {
-        "name": "pH+ 模式"
+        "name": "pH+-Dosier-Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "pvsurplus_mode": {
-        "name": "光伏余量模式"
+        "name": "PV-Überschuss-Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "backwash_mode": {
-        "name": "反冲洗模式"
+        "name": "Rückspül-Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "backwashrinse_mode": {
-        "name": "冲洗模式"
+        "name": "Spül-Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "dos_floc_mode": {
-        "name": "絮凝剂模式"
+        "name": "Flockungsmittel-Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "ext1_1_mode": {
-        "name": "扩展 1.1 模式"
+        "name": "扩展 1.1 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "ext1_2_mode": {
-        "name": "扩展 1.2 模式"
+        "name": "扩展 1.2 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "ext1_3_mode": {
-        "name": "扩展 1.3 模式"
+        "name": "扩展 1.3 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "ext1_4_mode": {
-        "name": "扩展 1.4 模式"
+        "name": "扩展 1.4 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "ext1_5_mode": {
-        "name": "扩展 1.5 模式"
+        "name": "扩展 1.5 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "ext1_6_mode": {
-        "name": "扩展 1.6 模式"
+        "name": "扩展 1.6 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "ext1_7_mode": {
-        "name": "扩展 1.7 模式"
+        "name": "扩展 1.7 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "ext1_8_mode": {
-        "name": "扩展 1.8 模式"
+        "name": "扩展 1.8 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "ext2_1_mode": {
-        "name": "扩展 2.1 模式"
+        "name": "扩展 2.1 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "ext2_2_mode": {
-        "name": "扩展 2.2 模式"
+        "name": "扩展 2.2 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "ext2_3_mode": {
-        "name": "扩展 2.3 模式"
+        "name": "扩展 2.3 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "ext2_4_mode": {
-        "name": "扩展 2.4 模式"
+        "name": "扩展 2.4 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "ext2_5_mode": {
-        "name": "扩展 2.5 模式"
+        "name": "扩展 2.5 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "ext2_6_mode": {
-        "name": "扩展 2.6 模式"
+        "name": "扩展 2.6 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "ext2_7_mode": {
-        "name": "扩展 2.7 模式"
+        "name": "扩展 2.7 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       },
       "ext2_8_mode": {
-        "name": "扩展 2.8 模式"
+        "name": "扩展 2.8 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
       }
     }
   }

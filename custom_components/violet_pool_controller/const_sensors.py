@@ -21,76 +21,139 @@ from __future__ import annotations
 
 TEMP_SENSORS = {
     "onewire1_value": {
-        "name": "Pool Water",
+        "name": "Poolwasser",
         "translation_key": "onewire1_value",
         "icon": "mdi:pool",
     },
     "onewire2_value": {
-        "name": "Outside Temperature",
+        "name": "Außentemperatur",
         "translation_key": "onewire2_value",
         "icon": "mdi:thermometer",
     },
     "onewire3_value": {
-        "name": "Solar Absorber",
+        "name": "Sonnenkollektor",
         "translation_key": "onewire3_value",
         "icon": "mdi:solar-power",
     },
     "onewire4_value": {
-        "name": "Absorber Return",
+        "name": "Kollektor-Rücklauf",
         "translation_key": "onewire4_value",
         "icon": "mdi:pipe-valve",
     },
     "onewire5_value": {
-        "name": "Heat Exchanger",
+        "name": "Wärmetauscher",
         "translation_key": "onewire5_value",
         "icon": "mdi:radiator",
     },
     "onewire6_value": {
-        "name": "Heater Storage",
+        "name": "Wärmespeicher",
         "translation_key": "onewire6_value",
         "icon": "mdi:water-boiler",
     },
     "onewire7_value": {
-        "name": "Temperature Sensor 7",
+        "name": "Temperatursensor 7",
         "translation_key": "onewire7_value",
         "icon": "mdi:thermometer",
     },
     "onewire8_value": {
-        "name": "Temperature Sensor 8",
+        "name": "Temperatursensor 8",
         "translation_key": "onewire8_value",
         "icon": "mdi:thermometer",
     },
     "onewire9_value": {
-        "name": "Temperature Sensor 9",
+        "name": "Temperatursensor 9",
         "translation_key": "onewire9_value",
         "icon": "mdi:thermometer",
     },
     "onewire10_value": {
-        "name": "Temperature Sensor 10",
+        "name": "Temperatursensor 10",
         "translation_key": "onewire10_value",
         "icon": "mdi:thermometer",
     },
     "onewire11_value": {
-        "name": "Temperature Sensor 11",
+        "name": "Temperatursensor 11",
         "translation_key": "onewire11_value",
         "icon": "mdi:thermometer",
     },
     "onewire12_value": {
-        "name": "Temperature Sensor 12",
+        "name": "Temperatursensor 12",
         "translation_key": "onewire12_value",
         "icon": "mdi:thermometer",
     },
 }
 
+ONEWIRE_ROMCODE_SENSORS = {
+    "onewire1_romcode": {
+        "name": "OneWire-ROM-Code 1",
+        "translation_key": "onewire1_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire2_romcode": {
+        "name": "OneWire-ROM-Code 2",
+        "translation_key": "onewire2_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire3_romcode": {
+        "name": "OneWire-ROM-Code 3",
+        "translation_key": "onewire3_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire4_romcode": {
+        "name": "OneWire-ROM-Code 4",
+        "translation_key": "onewire4_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire5_romcode": {
+        "name": "OneWire-ROM-Code 5",
+        "translation_key": "onewire5_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire6_romcode": {
+        "name": "OneWire-ROM-Code 6",
+        "translation_key": "onewire6_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire7_romcode": {
+        "name": "OneWire-ROM-Code 7",
+        "translation_key": "onewire7_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire8_romcode": {
+        "name": "OneWire-ROM-Code 8",
+        "translation_key": "onewire8_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire9_romcode": {
+        "name": "OneWire-ROM-Code 9",
+        "translation_key": "onewire9_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire10_romcode": {
+        "name": "OneWire-ROM-Code 10",
+        "translation_key": "onewire10_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire11_romcode": {
+        "name": "OneWire-ROM-Code 11",
+        "translation_key": "onewire11_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire12_romcode": {
+        "name": "OneWire-ROM-Code 12",
+        "translation_key": "onewire12_romcode",
+        "icon": "mdi:identifier",
+    },
+}
+
 WATER_CHEM_SENSORS = {
-    "pH_value": {"name": "pH Value", "translation_key": "ph_value", "icon": "mdi:ph"},
+    "pH_value": {"name": "pH-Wert", "translation_key": "ph_value", "icon": "mdi:ph"},
     "orp_value": {
-        "name": "ORP Value",
+        "name": "ORP-Wert",
         "translation_key": "orp_value",
         "icon": "mdi:lightning-bolt-circle",
     },
     "pot_value": {
-        "name": "Chlorine Level",
+        "name": "Chlorgehalt",
         "translation_key": "pot_value",
         "icon": "mdi:water-plus",
     },
@@ -98,37 +161,37 @@ WATER_CHEM_SENSORS = {
 
 ANALOG_SENSORS = {
     "ADC1_value": {
-        "name": "Filter Pressure",
+        "name": "Filterdruck",
         "translation_key": "adc1_value",
         "icon": "mdi:gauge",
     },
     "ADC2_value": {
-        "name": "Overflow Tank",
+        "name": "Ausgleichstank",
         "translation_key": "adc2_value",
         "icon": "mdi:water-sync",
     },
     "ADC3_value": {
-        "name": "Flow Meter (4-20mA)",
+        "name": "Durchflussmesser (4-20mA)",
         "translation_key": "adc3_value",
         "icon": "mdi:swap-horizontal",
     },
     "ADC4_value": {
-        "name": "Analog Sensor 4 (4-20mA)",
+        "name": "Analogsensor 4 (4-20mA)",
         "translation_key": "adc4_value",
         "icon": "mdi:gauge",
     },
     "ADC5_value": {
-        "name": "Analog Sensor 5 (0-10V)",
+        "name": "Analogsensor 5 (0-10V)",
         "translation_key": "adc5_value",
         "icon": "mdi:sine-wave",
     },
     "IMP1_value": {
-        "name": "Dosing Inflow",
+        "name": "Dosiereingang",
         "translation_key": "imp1_value",
         "icon": "mdi:pipe-valve",
     },
     "IMP2_value": {
-        "name": "Pump Flow Rate",
+        "name": "Pumpendurchfluss",
         "translation_key": "imp2_value",
         "icon": "mdi:water-pump",
     },
@@ -138,43 +201,43 @@ SYSTEM_SENSORS = {
     # Keys match exactly what READINGS object exposes in getReadings response
     # (verified against firmware source generateReadings.js)
     "SYSTEM_cpu_temperature": {
-        "name": "CPU Temperature",
+        "name": "CPU-Temperatur",
         "translation_key": "system_cpu_temperature",
         "icon": "mdi:thermometer-alert",
     },
     "SYSTEM_carrier_cpu_temperature": {
-        "name": "Carrier CPU Temperature",
+        "name": "Träger-CPU-Temperatur",
         "translation_key": "system_carrier_cpu_temperature",
         "icon": "mdi:motherboard",
     },
     "SYSTEM_memoryusage": {
-        "name": "System Memory Usage",
+        "name": "Speichernutzung",
         "translation_key": "system_memoryusage",
         "icon": "mdi:memory",
     },
     "SYSTEM_dosagemodule_cpu_temperature": {
-        "name": "Dosing Module CPU Temperature",
+        "name": "Dosier-Modul CPU-Temperatur",
         "translation_key": "system_dosagemodule_cpu_temperature",
         "icon": "mdi:memory-lan",
     },
     "CPU_UPTIME": {
-        "name": "Device Uptime",
+        "name": "Betriebszeit des Geräts",
         "translation_key": "cpu_uptime",
         "icon": "mdi:timer-outline",
     },
     "LOAD_AVG": {
-        "name": "CPU Load Average",
+        "name": "CPU-Auslastung",
         "translation_key": "load_avg",
         "icon": "mdi:speedometer",
     },
     "pump_rs485_pwr": {
-        "name": "RS485 Pump Power",
+        "name": "RS485-Pumpenleistung",
         "translation_key": "pump_rs485_pwr",
         "icon": "mdi:lightning-bolt",
     },
     **{
         f"DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_STOPWATCH{k}": {
-            "name": f"DI Rule {k} Remaining Time",
+            "name": f"DI-Regel {k} verbleibende Zeit",
             "translation_key": f"di_rule_{k}_stopwatch",
             "icon": "mdi:timer-sand",
         }
@@ -183,49 +246,49 @@ SYSTEM_SENSORS = {
 }
 
 STATUS_SENSORS = {
-    "PUMP": {"name": "Pump Status", "translation_key": "pump", "icon": "mdi:pump"},
+    "PUMP": {"name": "Pumpenstatus", "translation_key": "pump", "icon": "mdi:pump"},
     "HEATER": {
-        "name": "Heater Status",
+        "name": "Heizerstatus",
         "translation_key": "heater",
         "icon": "mdi:radiator",
     },
     "SOLAR": {
-        "name": "Solar Status",
+        "name": "Solarstatus",
         "translation_key": "solar",
         "icon": "mdi:solar-power",
     },
     "BACKWASH": {
-        "name": "Backwash Status",
+        "name": "Rückspülstatus",
         "translation_key": "backwash",
         "icon": "mdi:autorenew",
     },
     "BACKWASHRINSE": {
-        "name": "Backwash Rinse Status",
+        "name": "Nachspülstatus",
         "translation_key": "backwashrinse",
         "icon": "mdi:water-opacity",
     },
     "LIGHT": {
-        "name": "Lighting Status",
+        "name": "Beleuchtungsstatus",
         "translation_key": "light",
         "icon": "mdi:lightbulb",
     },
     "REFILL": {
-        "name": "Refill Status",
+        "name": "Nachfüllstatus",
         "translation_key": "refill",
         "icon": "mdi:water",
     },
     "ECO": {
-        "name": "ECO Status",
+        "name": "Eco-Modus Status",
         "translation_key": "eco",
         "icon": "mdi:leaf",
     },
     "PVSURPLUS": {
-        "name": "PV Surplus Status",
+        "name": "PV-Überschuss Status",
         "translation_key": "pvsurplus",
         "icon": "mdi:solar-power",
     },
     "FW": {
-        "name": "Firmware Version",
+        "name": "Firmware-Version",
         "translation_key": "fw",
         "icon": "mdi:package-variant",
     },
@@ -233,27 +296,27 @@ STATUS_SENSORS = {
 
 DOSING_STATE_SENSORS = {
     "DOS_1_CL_STATE": {
-        "name": "Chlorine Dosing Status",
+        "name": "Chlordosier-Status",
         "translation_key": "dos_1_cl_state",
         "icon": "mdi:flask-outline",
     },
     "DOS_2_ELO_STATE": {
-        "name": "Electrolysis Status",
+        "name": "Elektrolysestatus",
         "translation_key": "dos_2_elo_state",
         "icon": "mdi:lightning-bolt",
     },
     "DOS_4_PHM_STATE": {
-        "name": "pH- Dosing Status",
+        "name": "pH--Dosier-Status",
         "translation_key": "dos_4_phm_state",
         "icon": "mdi:flask-minus",
     },
     "DOS_5_PHP_STATE": {
-        "name": "pH+ Dosing Status",
+        "name": "pH+-Dosier-Status",
         "translation_key": "dos_5_php_state",
         "icon": "mdi:flask-plus",
     },
     "DOS_6_FLOC_STATE": {
-        "name": "Flocculation Status",
+        "name": "Flockungsstatus",
         "translation_key": "dos_6_floc_state",
         "icon": "mdi:water",
     },
@@ -264,7 +327,7 @@ DOSING_STATE_SENSORS = {
 EXTRA_DIAGNOSTIC_SENSORS = {
     # Last error code pushed by the controller (kept as raw int).
     "last_error_id": {
-        "name": "Last Error ID",
+        "name": "Letzte Fehler-ID",
         "translation_key": "last_error_id",
         "icon": "mdi:alert-circle-outline",
         "entity_category": "diagnostic",
@@ -272,7 +335,7 @@ EXTRA_DIAGNOSTIC_SENSORS = {
     # Electrolysis cell polarity (0 or 1) – flips regularly to prevent
     # scaling; useful for lifetime tracking.
     "DOS_2_CURRENT_POLARITY": {
-        "name": "Electrolysis Polarity",
+        "name": "Elektrolyse-Polarität",
         "translation_key": "dos_2_current_polarity",
         "icon": "mdi:battery-positive",
         "entity_category": "diagnostic",
@@ -280,13 +343,13 @@ EXTRA_DIAGNOSTIC_SENSORS = {
     # OmniTronic multi-port valve state string (e.g. "OK",
     # "BLOCKED_BY_Z1Z2") and motion flag.
     "BACKWASH_OMNI_STATE": {
-        "name": "OmniTronic Valve State",
+        "name": "OmniTronic-Ventilstatus",
         "translation_key": "backwash_omni_state",
         "icon": "mdi:valve",
         "entity_category": "diagnostic",
     },
     "BACKWASH_OMNI_MOVING": {
-        "name": "OmniTronic Moving",
+        "name": "OmniTronic bewegt sich",
         "translation_key": "backwash_omni_moving",
         "icon": "mdi:arrow-oscillating",
         "entity_category": "diagnostic",
@@ -294,13 +357,13 @@ EXTRA_DIAGNOSTIC_SENSORS = {
     # Separate "last run" timestamps for auto-triggered vs manually
     # triggered backwash – useful to detect missed cycles.
     "BACKWASH_LAST_AUTO_RUN": {
-        "name": "Backwash Last Auto Run",
+        "name": "Letzte automatische Rückspülung",
         "translation_key": "backwash_last_auto_run",
         "icon": "mdi:clock-time-twelve",
         "entity_category": "diagnostic",
     },
     "BACKWASH_LAST_MANUAL_RUN": {
-        "name": "Backwash Last Manual Run",
+        "name": "Letzte manuelle Rückspülung",
         "translation_key": "backwash_last_manual_run",
         "icon": "mdi:hand-clock",
         "entity_category": "diagnostic",
@@ -309,17 +372,17 @@ EXTRA_DIAGNOSTIC_SENSORS = {
     # channel (e.g. ">99d").  No unit – it's already formatted.
     **{
         f"DOS_{prefix}_REMAINING_RANGE": {
-            "name": f"{label} Remaining Range",
+            "name": f"{label} verbleibende Reichweite",
             "translation_key": f"{prefix.lower()}_remaining_range",
             "icon": "mdi:gauge",
             "entity_category": "diagnostic",
         }
         for prefix, label in (
-            ("1_CL", "Chlorine"),
-            ("2_ELO", "Electrolysis"),
+            ("1_CL", "Chlor"),
+            ("2_ELO", "Elektrolyse"),
             ("4_PHM", "pH-"),
             ("5_PHP", "pH+"),
-            ("6_FLOC", "Flocculant"),
+            ("6_FLOC", "Flockungsmittel"),
         )
     },
 }
@@ -330,7 +393,7 @@ EXTRA_DIAGNOSTIC_SENSORS = {
 # output).  Mirrors the existing DIGITALINPUTRULE_STATE handling.
 ANALOG_RULE_SENSORS = {
     f"ANALOGRULE_{i}": {
-        "name": f"Analog Rule {i}",
+        "name": f"Analogregel {i}",
         "translation_key": f"analogrule_{i}",
         "icon": "mdi:chart-line",
         "entity_category": "diagnostic",
@@ -340,7 +403,7 @@ ANALOG_RULE_SENSORS = {
 
 TEMP_RULE_SENSORS = {
     f"TEMPRULE_{i}": {
-        "name": f"Temperature Rule {i}",
+        "name": f"Temperaturregel {i}",
         "translation_key": f"temprule_{i}",
         "icon": "mdi:thermometer-lines",
         "entity_category": "diagnostic",
@@ -350,90 +413,90 @@ TEMP_RULE_SENSORS = {
 
 RUNTIME_SENSORS = {
     "PUMP_RUNTIME": {
-        "name": "Pump Runtime Today",
+        "name": "Pumpenlaufzeit heute",
         "translation_key": "pump_runtime",
         "icon": "mdi:clock-outline",
     },
     "SOLAR_RUNTIME": {
-        "name": "Solar Runtime Today",
+        "name": "Solaranlage-Laufzeit heute",
         "translation_key": "solar_runtime",
         "icon": "mdi:clock-outline",
     },
     "HEATER_RUNTIME": {
-        "name": "Heater Runtime Today",
+        "name": "Heizer-Laufzeit heute",
         "translation_key": "heater_runtime",
         "icon": "mdi:clock-outline",
     },
     "LIGHT_RUNTIME": {
-        "name": "Light Runtime Today",
+        "name": "Beleuchtungs-Laufzeit heute",
         "translation_key": "light_runtime",
         "icon": "mdi:clock-outline",
     },
     "BACKWASH_RUNTIME": {
-        "name": "Backwash Runtime",
+        "name": "Rückspül-Laufzeit",
         "translation_key": "backwash_runtime",
         "icon": "mdi:clock-outline",
     },
     "BACKWASHRINSE_RUNTIME": {
-        "name": "Backwash Rinse Runtime",
+        "name": "Nachspül-Laufzeit",
         "translation_key": "backwashrinse_runtime",
         "icon": "mdi:clock-outline",
     },
     "ECO_RUNTIME": {
-        "name": "ECO Runtime",
+        "name": "Eco-Modus Laufzeit",
         "translation_key": "eco_runtime",
         "icon": "mdi:clock-outline",
     },
     "DOS_1_CL_RUNTIME": {
-        "name": "Chlorine Dosing Runtime",
+        "name": "Chlordosier-Laufzeit",
         "translation_key": "dos_1_cl_runtime",
         "icon": "mdi:clock-outline",
     },
     "DOS_2_ELO_RUNTIME": {
-        "name": "Electrolysis Runtime",
+        "name": "Elektrolyse-Laufzeit",
         "translation_key": "dos_2_elo_runtime",
         "icon": "mdi:clock-outline",
     },
     "DOS_3_ELO_REV_RUNTIME": {
-        "name": "Electrolysis Reverse Runtime",
+        "name": "Elektrolyse Umkehr-Laufzeit",
         "translation_key": "dos_3_elo_rev_runtime",
         "icon": "mdi:clock-outline",
     },
     "DOS_4_PHM_RUNTIME": {
-        "name": "pH- Dosing Runtime",
+        "name": "pH--Dosier-Laufzeit",
         "translation_key": "dos_4_phm_runtime",
         "icon": "mdi:clock-outline",
     },
     "DOS_5_PHP_RUNTIME": {
-        "name": "pH+ Dosing Runtime",
+        "name": "pH+-Dosier-Laufzeit",
         "translation_key": "dos_5_php_runtime",
         "icon": "mdi:clock-outline",
     },
     "DOS_6_FLOC_RUNTIME": {
-        "name": "Flocculation Runtime",
+        "name": "Flockung-Laufzeit",
         "translation_key": "dos_6_floc_runtime",
         "icon": "mdi:clock-outline",
     },
     "REFILL_RUNTIME": {
-        "name": "Refill Runtime",
+        "name": "Nachfüll-Laufzeit",
         "translation_key": "refill_runtime",
         "icon": "mdi:clock-outline",
     },
     # Extension relay runtimes (EXT1/EXT2 modules)
     **{f"EXT{i}_{j}_RUNTIME": {
-        "name": f"Extension {i} Relay {j} Runtime",
+        "name": f"Erweiterung {i} Relais {j} Laufzeit",
         "translation_key": f"ext{i}_{j}_runtime",
         "icon": "mdi:clock-outline",
     } for i in (1, 2) for j in range(1, 9)},
     # OMNI module runtimes
     **{f"OMNI_DC{i}_RUNTIME": {
-        "name": f"OMNI DC Motor {i} Runtime",
+        "name": f"OMNI-Gleichstrommotor {i} Laufzeit",
         "translation_key": f"omni_dc{i}_runtime",
         "icon": "mdi:clock-outline",
     } for i in range(6)},
     # Pump RPM level runtimes
     **{f"PUMP_RPM_{i}_RUNTIME": {
-        "name": f"Pump RPM Level {i} Runtime",
+        "name": f"Pumpe RPM-Stufe {i} Laufzeit",
         "translation_key": f"pump_rpm_{i}_runtime",
         "icon": "mdi:clock-outline",
     } for i in range(4)},
@@ -441,52 +504,52 @@ RUNTIME_SENSORS = {
 
 DOSING_STATS_SENSORS = {
     "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": {
-        "name": "Chlorine Daily Dosing",
+        "name": "Tägliche Chlordosierung",
         "translation_key": "dos_1_cl_daily",
         "icon": "mdi:beaker",
     },
     "DOS_2_ELO_DAILY_DOSING_AMOUNT_ML": {
-        "name": "Electrolysis Daily Dosing",
+        "name": "Tägliche Elektrolysedosierung",
         "translation_key": "dos_2_elo_daily",
         "icon": "mdi:lightning-bolt",
     },
     "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML": {
-        "name": "pH- Daily Dosing",
+        "name": "Tägliche pH--Dosierung",
         "translation_key": "dos_4_phm_daily",
         "icon": "mdi:beaker-minus",
     },
     "DOS_5_PHP_DAILY_DOSING_AMOUNT_ML": {
-        "name": "pH+ Daily Dosing",
+        "name": "Tägliche pH+-Dosierung",
         "translation_key": "dos_5_php_daily",
         "icon": "mdi:beaker-plus",
     },
     "DOS_6_FLOC_DAILY_DOSING_AMOUNT_ML": {
-        "name": "Flocculant Daily Dosing",
+        "name": "Tägliche Flockungsdosierung",
         "translation_key": "dos_6_floc_daily",
         "icon": "mdi:beaker-outline",
     },
     "DOS_1_CL_TOTAL_CAN_AMOUNT_ML": {
-        "name": "Chlorine Can Amount",
+        "name": "Chlorbehälter-Volumen",
         "translation_key": "dos_1_cl_total_can",
         "icon": "mdi:beaker",
     },
     "DOS_2_ELO_TOTAL_CAN_AMOUNT_ML": {
-        "name": "Electrolysis Can Amount",
+        "name": "Elektrolysebehälter-Volumen",
         "translation_key": "dos_2_elo_total_can",
         "icon": "mdi:lightning-bolt",
     },
     "DOS_4_PHM_TOTAL_CAN_AMOUNT_ML": {
-        "name": "pH- Can Amount",
+        "name": "pH--Behälter-Volumen",
         "translation_key": "dos_4_phm_total_can",
         "icon": "mdi:beaker-minus",
     },
     "DOS_5_PHP_TOTAL_CAN_AMOUNT_ML": {
-        "name": "pH+ Can Amount",
+        "name": "pH+-Behälter-Volumen",
         "translation_key": "dos_5_php_total_can",
         "icon": "mdi:beaker-plus",
     },
     "DOS_6_FLOC_TOTAL_CAN_AMOUNT_ML": {
-        "name": "Flocculant Can Amount",
+        "name": "Flockungsmittel-Behälter-Volumen",
         "translation_key": "dos_6_floc_total_can",
         "icon": "mdi:beaker-outline",
     },
@@ -494,17 +557,17 @@ DOSING_STATS_SENSORS = {
 
 COMPOSITE_STATE_SENSORS = {
     "PUMPSTATE": {
-        "name": "Pump Detail Status",
+        "name": "Pumpen-Detailstatus",
         "translation_key": "pumpstate",
         "icon": "mdi:water-pump",
     },
     "HEATERSTATE": {
-        "name": "Heater Detail Status",
+        "name": "Heizer-Detailstatus",
         "translation_key": "heaterstate",
         "icon": "mdi:radiator",
     },
     "SOLARSTATE": {
-        "name": "Solar Detail Status",
+        "name": "Solar-Detailstatus",
         "translation_key": "solarstate",
         "icon": "mdi:solar-power-variant",
     },

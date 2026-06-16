@@ -269,11 +269,11 @@
   "services": {
     "control_heater_http": {
       "name": "Heizer steuern (HTTP)",
-      "description": "Heizersteuerung mit Temperaturvorgabe",
+      "description": "Steuern Sie den Pool-Heizer mit Temperatur-Sollwert.",
       "fields": {
         "action": {
-          "name": "Heizeraktion",
-          "description": "Ein oder Aus"
+          "name": "Heizer-Aktion",
+          "description": "Heizer ein- oder ausschalten"
         },
         "target_temperature": {
           "name": "Zieltemperatur",
@@ -283,49 +283,49 @@
     },
     "control_solar_http": {
       "name": "Solar steuern (HTTP)",
-      "description": "Solarheizungssystem steuern",
+      "description": "Steuern Sie das Solarheizungssystem.",
       "fields": {
         "action": {
           "name": "Solar-Aktion",
-          "description": "Aktivieren oder deaktivieren"
+          "description": "Solarheizung aktivieren oder deaktivieren"
         },
         "target_temperature": {
           "name": "Zieltemperatur",
-          "description": "Zieltemperatur für Solarbetrieb (10-60°C)"
+          "description": "Zieltemperatur für Solar-Betrieb (10-60°C)"
         }
       }
     },
     "control_cover_http": {
       "name": "Abdeckung steuern (HTTP)",
-      "description": "Poolabdeckung steuern (öffnen/schließen/stopp)",
+      "description": "Steuern Sie die Pool-Abdeckung (öffnen, schließen oder stoppen).",
       "fields": {
         "action": {
-          "name": "Abdeckungsaktion",
-          "description": "Öffnen, schließen oder stoppen"
+          "name": "Abdeckungs-Aktion",
+          "description": "Wählen Sie: open, close oder stop"
         }
       }
     },
     "control_backwash_http": {
       "name": "Rückspülung steuern (HTTP)",
-      "description": "Rückspülzyklus ausführen oder abbrechen",
+      "description": "Führen Sie den Filter-Rückspülzyklus aus oder brechen Sie ihn ab.",
       "fields": {
         "action": {
-          "name": "Rückspülaktion",
-          "description": "Rückspülzyklus starten oder abbrechen"
+          "name": "Rückspül-Aktion",
+          "description": "Starten oder unterbrechen Sie den Rückspülzyklus"
         }
       }
     },
     "manual_dosing_http": {
       "name": "Manuelle Dosierung (HTTP)",
-      "description": "Chemikalien manuell dosieren\n\n⚠️ Vor dem Dosieren immer Wasserwerte überprüfen!",
+      "description": "Lösen Sie die chemische Dosierung manuell aus.\n\nVorsicht: Überprüfen Sie immer die Wasserwerte vor der Dosierung!",
       "fields": {
         "dosing_system": {
-          "name": "Dosiersystem",
-          "description": "Welche Chemikalie dosieren (Chlor, Elektrolyse, pH-, pH+, Flockungsmittel, H₂O₂)"
+          "name": "Chemisches System",
+          "description": "Wählen Sie das zu dosierende Chemikaliensystem (Chlor, Elektrolyse, pH-, pH+, Flockungsmittel, H₂O₂)"
         },
         "runtime_seconds": {
           "name": "Laufzeit (Sekunden)",
-          "description": "Wie lange soll die Dosierpumpe laufen (1-3600s)"
+          "description": "Wie lange die Dosier-Pumpe laufen soll (1-3600 Sekunden)"
         }
       }
     },
@@ -691,51 +691,51 @@
     },
     "control_pump": {
       "name": "Pumpensteuerung",
-      "description": "Steuere die Poolpumpe mit erweiterten Optionen"
+      "description": "Steuern Sie die Poolpumpe mit erweiterten Optionen wie Geschwindigkeit, Eco-Modus oder Boost-Modus."
     },
     "smart_dosing": {
       "name": "Intelligente Dosierung",
-      "description": "Manuelle oder automatische Dosierungskontrolle"
+      "description": "Manuelle oder automatische Dosierungssteuerung für pH, Chlor und Flockungsmittel.\n\nVorsicht: Überdosierung vermeiden! Überprüfen Sie immer vorher die Wasserwerte."
     },
     "manage_pv_surplus": {
-      "name": "PV-Uberschussmanagement",
-      "description": "Steuere den PV-Uberschussmodus"
+      "name": "PV-Überschuss-Verwaltung",
+      "description": "Steuern Sie den PV-Überschussmodus für optimale Solarenergienutzung.\n\nPoolgeräte werden automatisch mit überschüssiger Solarenergie betrieben."
     },
     "control_dmx_scenes": {
-      "name": "DMX-Szenensteuerung",
-      "description": "Steuere DMX-Beleuchtungsszenen"
+      "name": "DMX-Szenen-Steuerung",
+      "description": "Steuern Sie DMX-Beleuchtungsszenen für die Poolbeleuchtung."
     },
     "set_light_color_pulse": {
-      "name": "Licht-Farbimpuls",
-      "description": "Sende Farbimpulsbefehl an die Poolbeleuchtung"
+      "name": "Farbpuls der Beleuchtung",
+      "description": "Senden Sie Farbpulsbefehle an die Poolbeleuchtung."
     },
     "manage_digital_rules": {
-      "name": "Digitale Regeln verwalten",
-      "description": "Verwalte Automatisierungsregeln fur digitale Eingange"
+      "name": "Verwaltung digitaler Regeln",
+      "description": "Verwalten Sie Automatisierungsregeln für digitale Eingänge des Steuergeräts."
     },
     "test_output": {
-      "name": "Ausgang testen",
-      "description": "Aktiviere voruebergehend einen Controller-Ausgang zur Diagnose"
+      "name": "Ausgabe-Testmodus",
+      "description": "Aktiviert vorübergehend eine Steuergeräte-Ausgabe für Diagnose. Stellen Sie sicher, dass keine Personen oder Ausrüstung gefährdet sind, während die Ausgabe erzwungen wird."
     },
     "export_diagnostic_logs": {
       "name": "Diagnoseprotokolle exportieren",
-      "description": "Exportiere aktuelle Integrationsprotokolle zur Fehlerbehebung und zum Support"
+      "description": "Exportiert die Integrationsprotokolle für Fehlerbehebung und Support.\n\nSammelt relevante Protokolleinträge und ermöglicht Download oder Dateispeicherung.\n\nTipp: Nützlich bei Problemen oder beim Senden von Protokollen an den Support!"
     },
     "get_connection_status": {
       "name": "Verbindungsstatus abrufen",
-      "description": "Hole detaillierten Verbindungsstatus und Integritatskennzahlen zur Fehlerbehebung"
+      "description": "Erhalten Sie detaillierte Verbindungsstatus und Gesundheitsmetriken zur Fehlerbehebung."
     },
     "get_error_summary": {
-      "name": "Fehlersummary abrufen",
-      "description": "Hole eine Zusammenfassung letzter Fehler und Wiederherstellungsvorschlage"
+      "name": "Fehlerzusammenfassung abrufen",
+      "description": "Erhalten Sie eine Zusammenfassung der letzten Fehler und Wiederherstellungsvorschläge."
     },
     "test_connection": {
       "name": "Verbindung testen",
-      "description": "Teste die Verbindung zum Controller und gebe Diagnose-Informationen zuruck"
+      "description": "Testen Sie die Verbindung zum Steuergerät und erhalten Diagnoseinformationen."
     },
     "clear_error_history": {
-      "name": "Fehlerhistorie loschen",
-      "description": "Lose die Fehlerhistorie nach erfolgreicher Wiederherstellung (mit Vorsicht verwenden)"
+      "name": "Fehlerhistorie löschen",
+      "description": "Fehlerhistorie nach erfolgreicher Wiederherstellung löschen (mit Vorsicht verwenden)."
     }
   },
   "selector": {
@@ -769,22 +769,22 @@
   "entity": {
     "sensor": {
       "onewire1_value": {
-        "name": "Wassertemperatur"
+        "name": "Poolwasser"
       },
       "onewire2_value": {
         "name": "Außentemperatur"
       },
       "onewire3_value": {
-        "name": "Solarabsorber"
+        "name": "Sonnenkollektor"
       },
       "onewire4_value": {
-        "name": "Absorber-Rücklauf"
+        "name": "Kollektor-Rücklauf"
       },
       "onewire5_value": {
-        "name": "Wärmetauscher Einlauf"
+        "name": "Wärmetauscher"
       },
       "onewire6_value": {
-        "name": "Wärmetauscher Auslauf"
+        "name": "Wärmespeicher"
       },
       "onewire7_value": {
         "name": "Temperatursensor 7"
@@ -796,52 +796,52 @@
         "name": "pH-Wert"
       },
       "orp_value": {
-        "name": "Redoxpotential"
+        "name": "ORP-Wert"
       },
       "pot_value": {
         "name": "Chlorgehalt"
       },
       "ai1_value": {
-        "name": "Analogeingang 1"
+        "name": "Analoge Eingabe 1"
       },
       "ai2_value": {
-        "name": "Analogeingang 2"
+        "name": "Analoge Eingabe 2"
       },
       "ai3_value": {
-        "name": "Analogeingang 3"
+        "name": "Analoge Eingabe 3"
       },
       "ai4_value": {
-        "name": "Analogeingang 4"
+        "name": "Analoge Eingabe 4"
       },
       "ai5_value": {
-        "name": "Analogeingang 5"
+        "name": "Analoge Eingabe 5"
       },
       "ai6_value": {
-        "name": "Analogeingang 6"
+        "name": "Analoge Eingabe 6"
       },
       "ai7_value": {
-        "name": "Analogeingang 7"
+        "name": "Analoge Eingabe 7"
       },
       "ai8_value": {
-        "name": "Analogeingang 8"
+        "name": "Analoge Eingabe 8"
       },
       "system_health": {
-        "name": "Systemgesundheit"
+        "name": "System-Zustand"
       },
       "connection_latency": {
         "name": "Verbindungslatenz"
       },
       "last_event_age": {
-        "name": "Letztes Event-Alter"
+        "name": "Alter des letzten Ereignisses"
       },
       "api_request_rate": {
         "name": "API-Anfragerate"
       },
       "average_latency": {
-        "name": "Durchschnittslatenz"
+        "name": "Durchschnittliche Latenz"
       },
       "recovery_success_rate": {
-        "name": "Wiederherstellungsrate"
+        "name": "Wiederherstellungs-Erfolgsrate"
       },
       "pump_estimated_power": {
         "name": "Pumpenleistung (geschätzt)"
@@ -853,43 +853,43 @@
         "name": "Letzter Fehlercode"
       },
       "dos_1_cl_state": {
-        "name": "Chlor-Dosierstatus"
+        "name": "Chlordosier-Status"
       },
       "dos_4_phm_state": {
-        "name": "pH- Dosierstatus"
+        "name": "pH--Dosier-Status"
       },
       "dos_5_php_state": {
-        "name": "pH+ Dosierstatus"
+        "name": "pH+-Dosier-Status"
       },
       "dos_2_elo_state": {
         "name": "Elektrolyse-Dosierstatus"
       },
       "dos_6_floc_state": {
-        "name": "Flockmittel-Dosierstatus"
+        "name": "Flockungsstatus"
       },
       "cpu_temp": {
         "name": "CPU-Temperatur"
       },
       "cpu_temp_carrier": {
-        "name": "Carrier-Board Temperatur"
+        "name": "Träger-Platine"
       },
       "cpu_uptime": {
-        "name": "Gerätebetriebszeit"
+        "name": "System-Betriebszeit"
       },
       "system_cpu_temperature": {
         "name": "System CPU-Temperatur"
       },
       "system_carrier_cpu_temperature": {
-        "name": "Carrier CPU-Temperatur"
+        "name": "Träger-CPU-Temperatur"
       },
       "system_dosagemodule_cpu_temperature": {
-        "name": "Dosiermodul CPU-Temperatur"
+        "name": "Dosier-Modul CPU-Temperatur"
       },
       "system_memoryusage": {
         "name": "Speichernutzung"
       },
       "system_safety_timer_active": {
-        "name": "Sicherheitstimer Aktiv"
+        "name": "Sicherheitstimer aktiv"
       },
       "system_relais_status": {
         "name": "Relais-Status"
@@ -1006,10 +1006,10 @@
         "name": "Rückspül-Verzögerung Zeitstempel"
       },
       "backwash_last_auto_run": {
-        "name": "Rückspülung Letzter Auto-Lauf"
+        "name": "Letzte automatische Rückspülung"
       },
       "backwash_last_manual_run": {
-        "name": "Rückspülung Letzter Manueller Lauf"
+        "name": "Letzte manuelle Rückspülung"
       },
       "backwash_last_off": {
         "name": "Rückspülung Zuletzt Aus"
@@ -1018,10 +1018,10 @@
         "name": "Rückspülung Zuletzt Ein"
       },
       "backwash_omni_moving": {
-        "name": "Rückspülventil in Bewegung"
+        "name": "OmniTronic bewegt sich"
       },
       "backwash_omni_state": {
-        "name": "Rückspülventil Zustand"
+        "name": "OmniTronic-Ventilstatus"
       },
       "backwash_runtime": {
         "name": "Rückspül-Laufzeit"
@@ -1129,7 +1129,7 @@
         "name": "Elektrolyse-Dosiersystem"
       },
       "dos_2_elo_daily": {
-        "name": "Elektrolyse Tagesdosierung (ml)"
+        "name": "Elektrolyse Tagesdosiermenge (ml)"
       },
       "dos_2_elo_total_can": {
         "name": "Elektrolyse Kanisterinhalt (ml)"
@@ -1728,9 +1728,6 @@
       "load_avg": {
         "name": "CPU-Auslastung"
       },
-      "dos_2_elo_daily": {
-        "name": "Elektrolyse Tagesdosiermenge (ml)"
-      },
       "di_rule_1_stopwatch": {
         "name": "DI-Regel 1 Restzeit"
       },
@@ -1758,22 +1755,22 @@
     },
     "binary_sensor": {
       "pump": {
-        "name": "Filterpumpe"
+        "name": "Pumpenstatus"
       },
       "solar": {
-        "name": "Solar"
+        "name": "Solarstatus"
       },
       "heater": {
-        "name": "Heizung"
+        "name": "Heizerstatus"
       },
       "light": {
-        "name": "Beleuchtung"
+        "name": "Beleuchtungsstatus"
       },
       "backwash": {
-        "name": "Rückspülung"
+        "name": "Rückspülstatus"
       },
       "refill": {
-        "name": "Nachfüllung"
+        "name": "Nachfüllstatus"
       },
       "eco": {
         "name": "Eco-Modus"
@@ -1782,16 +1779,16 @@
         "name": "PV-Überschuss"
       },
       "circulation_state": {
-        "name": "Zirkulationsstatus"
+        "name": "Zirkulationsproblem"
       },
       "electrode_flow_state": {
-        "name": "Elektroden-Durchfluss"
+        "name": "Elektrodendurchfluss-Problem"
       },
       "pressure_state": {
-        "name": "Druckstatus"
+        "name": "Druckproblem"
       },
       "can_range_state": {
-        "name": "CAN-Reichweite"
+        "name": "Behälter-Bereichs-Problem"
       },
       "input1": {
         "name": "Digitaler Eingang 1"
@@ -1842,25 +1839,25 @@
         "name": "CE-Eingang 4"
       },
       "hw_base_module": {
-        "name": "Basismodul"
+        "name": "Hardware: Basismodul"
       },
       "hw_dosing_module": {
-        "name": "Dosiermodul"
+        "name": "Hardware: Dosiermodul"
       },
       "hw_extension_module_1": {
-        "name": "Erweiterungsmodul 1"
+        "name": "Hardware: Erweiterungsmodul 1"
       },
       "hw_extension_module_2": {
-        "name": "Erweiterungsmodul 2"
+        "name": "Hardware: Erweiterungsmodul 2"
       },
       "hw_standalone_mode": {
-        "name": "Standalone-Dosieranlage"
+        "name": "Hardware: Eigenständige Dosiereinheit"
       },
       "hw_dmx_module": {
-        "name": "DMX-Modul"
+        "name": "Hardware: DMX-Modul"
       },
       "hw_dirule_module": {
-        "name": "Digitalregel-Modul"
+        "name": "Hardware: Digital Rules Module"
       }
     },
     "button": {
@@ -1873,25 +1870,25 @@
         "name": "Filterpumpe"
       },
       "solar": {
-        "name": "Solarabsorber"
+        "name": "Sonnenkollektor"
       },
       "heater": {
-        "name": "Heizung"
+        "name": "Heizer"
       },
       "light": {
         "name": "Beleuchtung"
       },
       "dos_5_php": {
-        "name": "pH+ Dosierung"
+        "name": "Dosierung pH+"
       },
       "dos_4_phm": {
-        "name": "pH- Dosierung"
+        "name": "Dosierung pH-"
       },
       "dos_1_cl": {
-        "name": "Chlor-Dosierung"
+        "name": "Chlordosierung"
       },
       "dos_6_floc": {
-        "name": "Flockmittel-Dosierung"
+        "name": "Flockungsmittel"
       },
       "pvsurplus": {
         "name": "PV-Überschuss"
@@ -2013,15 +2010,15 @@
     },
     "climate": {
       "heater": {
-        "name": "Pool-Heizung"
+        "name": "Pool-Heizer"
       },
       "solar": {
-        "name": "Solarheizung"
+        "name": "Solar-Heizer"
       }
     },
     "cover": {
       "pool_cover": {
-        "name": "Poolabdeckung"
+        "name": "Pool-Abdeckung"
       }
     },
     "number": {
@@ -2029,36 +2026,36 @@
         "name": "pH-Sollwert"
       },
       "orp_setpoint": {
-        "name": "Redox-Sollwert"
+        "name": "ORP-Sollwert"
       },
       "chlorine_setpoint": {
         "name": "Chlor-Sollwert"
       },
       "heater_target_temp": {
-        "name": "Heizung Zieltemperatur"
+        "name": "Zieltemperatur Heizer"
       },
       "solar_target_temp": {
-        "name": "Solar Zieltemperatur"
+        "name": "Zieltemperatur Solar"
       },
       "pump_speed": {
         "name": "Pumpendrehzahl"
       },
       "chlorine_canister_volume": {
-        "name": "Chlor Kanister Volumen"
+        "name": "Chlorbehälter-Volumen"
       },
       "ph_minus_canister_volume": {
-        "name": "pH- Kanister Volumen"
+        "name": "pH--Behälter-Volumen"
       },
       "ph_plus_canister_volume": {
-        "name": "pH+ Kanister Volumen"
+        "name": "pH+-Behälter-Volumen"
       },
       "flocculant_canister_volume": {
-        "name": "Flockmittel Kanister Volumen"
+        "name": "Flockungsmittel-Behälter-Volumen"
       }
     },
     "select": {
       "pump_mode": {
-        "name": "Pumpen-Modus",
+        "name": "Pumpenmodus",
         "state": {
           "off": "Aus",
           "on": "Ein",
@@ -2066,7 +2063,7 @@
         }
       },
       "heater_mode": {
-        "name": "Heizungs-Modus",
+        "name": "Heizer-Modus",
         "state": {
           "off": "Aus",
           "on": "Ein",
@@ -2090,7 +2087,7 @@
         }
       },
       "dos_cl_mode": {
-        "name": "Chlor-Modus",
+        "name": "Chlordosier-Modus",
         "state": {
           "off": "Aus",
           "on": "Ein",
@@ -2098,7 +2095,7 @@
         }
       },
       "dos_phm_mode": {
-        "name": "pH- Modus",
+        "name": "pH--Dosier-Modus",
         "state": {
           "off": "Aus",
           "on": "Ein",
@@ -2106,7 +2103,7 @@
         }
       },
       "dos_php_mode": {
-        "name": "pH+ Modus",
+        "name": "pH+-Dosier-Modus",
         "state": {
           "off": "Aus",
           "on": "Ein",
@@ -2114,7 +2111,7 @@
         }
       },
       "pvsurplus_mode": {
-        "name": "PV-Überschuss Modus",
+        "name": "PV-Überschuss-Modus",
         "state": {
           "off": "Aus",
           "on": "Ein",
@@ -2138,7 +2135,7 @@
         }
       },
       "dos_floc_mode": {
-        "name": "Flockmittel-Modus",
+        "name": "Flockungsmittel-Modus",
         "state": {
           "off": "Aus",
           "on": "Ein",
