@@ -54,14 +54,14 @@ jobs:
     name: Hassfest
     steps:
       - uses: actions/checkout@v6
-      - uses: home-assistant/actions/hassfest@master
+      - uses: home-assistant/actions/hassfest@v2
 
   hacs:
     runs-on: ubuntu-latest
     name: HACS
     steps:
       - uses: actions/checkout@v6
-      - uses: hacs/action@main
+      - uses: hacs/action@v1
         with:
           category: integration
 
