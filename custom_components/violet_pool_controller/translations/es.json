@@ -1788,7 +1788,7 @@
         "name": "Druckproblem"
       },
       "can_range_state": {
-        "name": "Behälter-Bereichs-Problem"
+        "name": "Problema de Rango de Recipiente"
       },
       "input1": {
         "name": "Digitaler Eingang 1"
@@ -2041,16 +2041,16 @@
         "name": "Pumpendrehzahl"
       },
       "chlorine_canister_volume": {
-        "name": "Chlorbehälter-Volumen"
+        "name": "Volumen de Recipiente de Cloro"
       },
       "ph_minus_canister_volume": {
-        "name": "pH--Behälter-Volumen"
+        "name": "Volumen de Recipiente de pH-"
       },
       "ph_plus_canister_volume": {
-        "name": "pH+-Behälter-Volumen"
+        "name": "Volumen de Recipiente de pH+"
       },
       "flocculant_canister_volume": {
-        "name": "Flockungsmittel-Behälter-Volumen"
+        "name": "Volumen de Recipiente de Floculante"
       }
     },
     "select": {
