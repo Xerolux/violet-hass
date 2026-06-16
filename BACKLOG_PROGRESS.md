@@ -8,7 +8,7 @@ Dieses Dokument verfolgt alle Arbeiten aus dem Plan: *Offene Punkte, Bugfixes & 
 
 ## Executive Summary
 
-### 🎉 Gesamt-Fortschritt: ✅ 100% ABGESCHLOSSEN 🚀
+### 🎉 Gesamt-Fortschritt: ✅ 100% + BONUS FEATURES ABGESCHLOSSEN 🚀
 
 **Phase 1+2 ✅ FERTIG** (PR #373)
 - **11 Commits** (Dependencies, Docs, Bugfixes)
@@ -40,6 +40,14 @@ Dieses Dokument verfolgt alle Arbeiten aus dem Plan: *Offene Punkte, Bugfixes & 
   - test_readings.py (220 Zeilen, Type Conversions)
   - test_circuit_breaker.py (240 Zeilen, State Transitions)
 - **630+ Zeilen** neuer Test-Code
+
+**Optional Backlog F ✅ FERTIG** (BONUS)
+- **2 neue Commits**:
+  - feat(F): API package enhancements (Jitter, Unicode, Optimization)
+  - fix: CodeQL warnings resolved
+- **F1**: Retry-Jitter (thundering herd prevention)
+- **F2**: Unicode normalization (NFKD)
+- **F3**: Adaptive rate-limiter wait times
 
 ### 📊 Statistiken
 - **Commits**: 16+ Gesamt
@@ -136,9 +144,20 @@ Dieses Dokument verfolgt alle Arbeiten aus dem Plan: *Offene Punkte, Bugfixes & 
 
 ---
 
-### Backlog/Optional
-- [ ] **F**: API-Paket-Verbesserungen (Retry-Jitter, Sanitizer, Rate-Limiter)
-  - Größere Refaktorierungen, nur bei Bedarf
+### Backlog/Optional: ✅ COMPLETE
+- [x] **F**: API-Paket-Verbesserungen ✅
+  - [x] **F1**: Retry-Jitter (api.py) – Add jitter zu exponential backoff
+  - [x] **F2**: Sanitizer Unicode (utils_sanitizer.py) – NFKD normalization
+  - [x] **F3**: Rate-Limiter (utils_rate_limiter.py) – Adaptive wait calculation
+
+**Commits**: 2 Commits
+  1. feat(F): API package performance & security enhancements
+  2. fix: Resolve CodeQL warnings in test files
+
+**Details**:
+- F1: Prevents thundering herd, adds 0-10% jitter to retries
+- F2: Defense-in-depth unicode normalization (NFKD)
+- F3: Adaptive wait calculation instead of fixed retry_after
 
 ---
 
