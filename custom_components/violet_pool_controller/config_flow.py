@@ -420,7 +420,8 @@ class ConfigFlow(
                     CONF_USE_SSL, DEFAULT_USE_SSL
                 )
                 updated_data[CONF_VERIFY_SSL] = user_input.get(
-                    CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL
+                    CONF_VERIFY_SSL,
+                    reconfigure_entry.data.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL),
                 )
                 updated_data[CONF_USERNAME] = user_input.get(
                     CONF_USERNAME, reconfigure_entry.data.get(CONF_USERNAME, "")
