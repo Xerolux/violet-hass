@@ -221,7 +221,6 @@ config/blueprints/ (local edits)
 #   - violet_poolcontroller_api/{README,CHANGELOG,SECURITY,CODE_OF_CONDUCT}.md (PyPI package)
 
 # Root-level internal docs
-/ARCHITECTURE.md
 /WIKI.md
 /CONTROL_IMPLEMENTATION_ROADMAP.md
 
