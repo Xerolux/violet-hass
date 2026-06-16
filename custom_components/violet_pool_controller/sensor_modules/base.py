@@ -224,8 +224,14 @@ _TEXT_VALUE_KEYS = {
     "ERROR_CONTACT",
 }
 
+_ROMCODE_SENSORS = {
+    f"onewire{i}_{suffix}"
+    for i in range(1, 13)
+    for suffix in ("rcode", "romcode")
+}
+
 _ALL_TEXT_SENSORS = (
-    _TEXT_VALUE_KEYS | _RUNTIME_KEYS | _BOOLEAN_VALUE_KEYS | _TIME_FORMAT_KEYS
+    _TEXT_VALUE_KEYS | _RUNTIME_KEYS | _BOOLEAN_VALUE_KEYS | _TIME_FORMAT_KEYS | _ROMCODE_SENSORS
 )
 
 _NON_TEMPERATURE_ONEWIRE_KEYS = {

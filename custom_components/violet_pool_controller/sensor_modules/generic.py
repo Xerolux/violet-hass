@@ -141,6 +141,7 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
             # Temperature sensors (all onewire, CPU temps) - 2 decimal places
             # IMPORTANT: Exclude freezecount, faultcount -
             # these are counters, NOT temperatures!
+            # ROM-code sensors are excluded via _ALL_TEXT_SENSORS early return above.
             if (
                 ("temp" in key.lower() or "onewire" in key.lower())
                 and "freezecount" not in key.lower()
