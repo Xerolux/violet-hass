@@ -1308,13 +1308,13 @@
         "name": "Dzienna Dawka Flokkulantu (ml)"
       },
       "dos_6_floc_last_can_reset": {
-        "name": "Flockmittel Letzter Kanister-Reset"
+        "name": "Ostatni Reset Kanistra Flokkulantu"
       },
       "dos_6_floc_last_off": {
-        "name": "Flockmittel-Dosierung Zuletzt Aus"
+        "name": "Dozowanie Flokkulantu Ostatnio Wyłączone"
       },
       "dos_6_floc_last_on": {
-        "name": "Flockmittel-Dosierung Zuletzt Ein"
+        "name": "Dozowanie Flokkulantu Ostatnio Włączone"
       },
       "dos_6_floc_runtime": {
         "name": "Flockmittel-Dosierlaufzeit"

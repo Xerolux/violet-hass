@@ -2,662 +2,939 @@
   "config": {
     "step": {
       "user": {
-        "title": "Violette zwembadconfiguratieassistent",
-        "description": "Kies of u de configuratiewizard direct wilt starten of eerst de uitgebreide documentatie wilt openen.\n\nDocumentatie: [Configuratiehandleiding]({docs_en})\n\nOndersteuning en feedback: {issues_url}",
+        "title": "Violet Pool Setup-Assistent",
+        "description": "Wähle aus, ob du direkt mit der Einrichtung starten möchtest oder zuerst die ausführliche Dokumentation lesen willst.\n\nDokumentation: [Konfigurationshilfe]({docs_en})\n\nSupport & Feedback: {issues_url}",
         "data": {
-          "action": "Selecteer actie"
+          "action": "Aktion auswählen"
         },
         "data_description": {
-          "action": "Open de documentatie of start direct de installatie."
+          "action": "Öffne die Dokumentation oder starte direkt mit dem Setup."
         }
       },
       "disclaimer": {
-        "title": "Veiligheids- en aansprakelijkheidsmededeling",
-        "description": "**Veiligheidswaarschuwing**\n\nDeze integratie biedt afstandsbediening voor pompen, verwarmingen, verlichting en doseersystemen. Een onjuiste configuratie kan schade aan de apparatuur, persoonlijk letsel of een overdosis chemicaliën veroorzaken. Zorg ervoor dat u alle veiligheidsfuncties begrijpt en dat handmatige overschrijvingen toegankelijk zijn.\n\nRaadpleeg de [Configuratiehandleiding]({docs_en}) voordat u doorgaat.",
+        "title": "Sicherheits- und Haftungshinweise",
+        "description": "**Sicherheitswarnung**\n\nDiese Integration kann Pumpen, Heizungen, Beleuchtung und Dosieranlagen deines Pools fernsteuern. Falsche Einstellungen können zu Sachschäden, Verletzungen oder Überdosierungen führen. Stelle sicher, dass du alle Schutzmechanismen verstehst und jederzeit manuell eingreifen kannst.\n\nLies vor der Nutzung unbedingt die Hinweise in der [Konfigurationshilfe]({docs_en}).",
         "data": {
-          "agreement": "Ik accepteer alle risico's en heb de volledige disclaimer gelezen."
+          "agreement": "Ich akzeptiere alle Risiken und habe die Hinweise vollständig gelesen."
         }
       },
       "help": {
-        "title": "Hulp & Documentatie",
-        "description": "Lees de [Configuratiehandleiding]({docs_en}) voor stapsgewijze instructies, veiligheidsopmerkingen en uitleg van functies.\n\nHeeft u hulp nodig of wilt u feedback delen? Open een probleem op {issues_url}.\n\nProjectopslagplaats: {github_url}\n\nKlik op **Volgende** om terug te keren naar het hoofdmenu."
+        "title": "Hilfe & Dokumentation",
+        "description": "Lies die [Konfigurationshilfe]({docs_en}) für Schritt-für-Schritt-Anleitungen, Sicherheits-Checklisten und Funktionsübersichten.\n\nUnterstützung oder Ideen? Erstelle ein Ticket unter {issues_url}.\n\nProjekt-Repository: {github_url}\n\nKlicke auf **Weiter**, um zum Hauptmenü zurückzukehren."
       },
       "connection": {
-        "title": "Controller-aansluiting",
-        "description": "Verbind uw Violet Pool Controller met Home Assistant. Zorg ervoor dat de controller hetzelfde netwerk deelt en dat de API bereikbaar is.\n\nAanvullende documentatie: [Configuratiehandleiding]({docs_en})",
+        "title": "Controller-Verbindung",
+        "description": "Verbinde deinen Violet Pool Controller mit Home Assistant. Stelle sicher, dass sich der Controller im selben Netzwerk befindet und die API erreichbar ist.\n\nWeitere Hinweise: [Konfigurationshilfe]({docs_en})",
         "data": {
-          "host": "IP-adres of hostnaam",
-          "port": "TCP-poort",
-          "username": "Gebruikersnaam (optioneel)",
-          "password": "Wachtwoord (optioneel)",
-          "use_ssl": "Gebruik SSL/HTTPS",
-          "verify_ssl": "SSL-certificaat verifiëren",
-          "device_name": "Apparaatnaam",
-          "controller_name": "Naam van controller",
-          "device_id": "Apparaat-ID",
-          "polling_interval": "Polling-interval (seconden)",
-          "timeout_duration": "Time-out (seconden)",
-          "retry_attempts": "Probeer pogingen opnieuw"
+          "host": "IP-Adresse oder Hostname",
+          "port": "TCP-Port",
+          "username": "Benutzername (optional)",
+          "password": "Passwort (optional)",
+          "use_ssl": "SSL/HTTPS verwenden",
+          "verify_ssl": "SSL-Zertifikat überprüfen",
+          "device_name": "Gerätename",
+          "controller_name": "Controller-Name",
+          "device_id": "Geräte-ID",
+          "polling_interval": "Abrufintervall (Sekunden)",
+          "timeout_duration": "Timeout (Sekunden)",
+          "retry_attempts": "Wiederholungsversuche"
         },
         "data_description": {
-          "host": "IP- of DNS-naam van controller",
-          "port": "TCP-poort (laat op 80 tenzij u een aangepaste proxy gebruikt)",
-          "username": "Optionele gebruikersnaam als authenticatie is ingeschakeld",
-          "password": "Wachtwoord indien vereist",
-          "use_ssl": "Schakel HTTPS in indien ondersteund",
-          "verify_ssl": "Verifieer het SSL-certificaat van de controller (uitschakelen voor self-signed certificaten).",
-          "device_name": "Beschrijvende naam weergegeven in Home Assistant",
-          "controller_name": "Weergavenaam van controller",
-          "device_id": "Unieke ID als er meerdere controllers bestaan",
-          "polling_interval": "Interval voor gegevensopvragen (10-3600s)",
-          "timeout_duration": "Maximale wachttijd per aanvraag",
-          "retry_attempts": "Aantal nieuwe pogingen"
+          "host": "IP oder DNS-Name des Controllers",
+          "port": "TCP-Port (Auf 80 belassen, außer bei Nutzung eines Proxys)",
+          "username": "Nur falls Authentifizierung aktiv",
+          "password": "Passwort eingeben, falls benötigt",
+          "use_ssl": "HTTPS aktivieren, falls konfiguriert",
+          "verify_ssl": "SSL-Zertifikat des Controllers überprüfen (für selbstsignierte Zertifikate deaktivieren)",
+          "device_name": "Anzeigename in Home Assistant",
+          "controller_name": "Name des Controllers für die Anzeige",
+          "device_id": "Eindeutige ID bei mehreren Controllern",
+          "polling_interval": "Intervall für Datenabrufe (10-3600s)",
+          "timeout_duration": "Maximale Wartezeit pro Anfrage",
+          "retry_attempts": "Anzahl Wiederholungsversuche"
         }
       },
       "pool_setup": {
-        "title": "Zwembadconfiguratie",
-        "description": "Geef de grootte, het type en de desinfectiemethode van het zwembad op. Deze waarden worden gebruikt voor runtime-optimalisatie, energiemanagement en doseringsberekeningen.",
+        "title": "Pool-Konfiguration",
+        "description": "Lege Pool-Größe, Typ und Desinfektionsmethode fest. Diese Werte werden für Laufzeiten, Energieoptimierung und Dosierberechnungen genutzt.",
         "data": {
-          "pool_size": "Zwembadgrootte (m³)",
-          "pool_type": "Zwembadtype",
-          "disinfection_method": "Desinfectiemethode"
+          "pool_size": "Pool-Größe (m³)",
+          "pool_type": "Pool-Typ",
+          "disinfection_method": "Desinfektionsmethode"
         },
         "data_description": {
-          "pool_size": "Watervolume in kubieke meter",
-          "pool_type": "Beïnvloedt het verwarmings- en zonnegedrag",
-          "disinfection_method": "Primaire waterbehandelingsmethode"
+          "pool_size": "Wasservolumen in Kubikmetern",
+          "pool_type": "Beeinflusst Strategien für Heizung & Solar",
+          "disinfection_method": "Hauptmethode der Wasserpflege"
         }
       },
       "feature_selection": {
-        "title": "Schakel slimme functies in",
-        "description": "Schakel alleen de functies in die uw zwembadinstallatie daadwerkelijk gebruikt. Dit houdt het bronnengebruik laag en de gebruikersinterface overzichtelijk. U kunt de selectie op elk gewenst moment aanpassen in de opties.",
+        "title": "Smart-Features aktivieren",
+        "description": "Aktiviere nur die Funktionen, die dein Pool-Setup wirklich benötigt. Das reduziert Ressourcenverbrauch und hält die Oberfläche übersichtlich. Du kannst die Auswahl jederzeit in den Optionen anpassen.",
         "data": {
-          "enable_heating": "Verwarmingscontrole",
-          "enable_solar": "Zonne-absorber",
-          "enable_ph_control": "pH-automatisering",
-          "enable_chlorine_control": "Chloorbeheer",
-          "enable_cover_control": "Dekkingscontrole",
-          "enable_backwash": "Terugspoelautomatisering",
-          "enable_pv_surplus": "PV-overschot",
-          "enable_filter_control": "Filterpomp",
-          "enable_water_level": "Waterniveaumonitor",
-          "enable_water_refill": "Automatisch water bijvullen",
-          "enable_led_lighting": "LED-verlichting",
-          "enable_digital_inputs": "Digitale ingangen",
-          "enable_extension_outputs": "Uitbreidingsmodules"
+          "enable_heating": "Heizungssteuerung",
+          "enable_solar": "Solarabsorber",
+          "enable_ph_control": "pH-Automatik",
+          "enable_chlorine_control": "Chlor-Management",
+          "enable_cover_control": "Abdeckungssteuerung",
+          "enable_backwash": "Rückspül-Automatik",
+          "enable_pv_surplus": "PV-Überschuss",
+          "enable_filter_control": "Filterpumpe",
+          "enable_water_level": "Füllstand-Monitor",
+          "enable_water_refill": "Auto-Nachfüllung",
+          "enable_led_lighting": "LED-Beleuchtung",
+          "enable_digital_inputs": "Digitale Eingänge",
+          "enable_extension_outputs": "Erweiterungsmodule"
         },
         "data_description": {
-          "enable_heating": "Geautomatiseerde verwarmingsregeling",
-          "enable_solar": "Slimme regeling van de zonne-absorber",
-          "enable_ph_control": "Geautomatiseerde pH-controle",
-          "enable_chlorine_control": "Chloor-/redoxbeheer",
-          "enable_cover_control": "Bedien de zwembadafdekking",
-          "enable_backwash": "Geautomatiseerde terugspoelcycli",
-          "enable_pv_surplus": "Maak slim gebruik van het fotovoltaïsche overschot",
-          "enable_filter_control": "Bedien de filterpomp op aanvraag",
-          "enable_water_level": "Houd het waterniveau in de gaten",
-          "enable_water_refill": "Automatische waterbijvulling",
-          "enable_led_lighting": "LED-verlichtingsscènes",
-          "enable_digital_inputs": "Integreer externe sensoren en schakelaars",
-          "enable_extension_outputs": "Gebruik uitbreidingsmodules"
+          "enable_heating": "Automatische Heizungslogik",
+          "enable_solar": "Solarabsorber intelligent nutzen",
+          "enable_ph_control": "pH-Regelung und Überwachung",
+          "enable_chlorine_control": "Chlor-/Redox-Management",
+          "enable_cover_control": "Poolabdeckung steuern",
+          "enable_backwash": "Automatische Rückspülprogramme",
+          "enable_pv_surplus": "PV-Überschuss intelligent nutzen",
+          "enable_filter_control": "Filterpumpe bedarfsgerecht steuern",
+          "enable_water_level": "Wasserstand überwachen",
+          "enable_water_refill": "Automatisches Nachfüllen",
+          "enable_led_lighting": "LED-Lichtshows & Szenen",
+          "enable_digital_inputs": "Externe Sensoren/Schalter integrieren",
+          "enable_extension_outputs": "Erweiterungsmodule nutzen"
         }
       },
       "sensor_selection": {
-        "title": "Selecteer Sensoren",
-        "description": "Kies welke sensoren je wilt zien in Home Assistant. Schakel individuele sensoren in of uit om uw dashboard schoon en gefocust te houden.\n\nStandaard zijn alle beschikbare sensoren geselecteerd. U kunt deze selectie op elk gewenst moment aanpassen in de opties."
+        "title": "Sensoren auswählen",
+        "description": "Wähle die Sensoren aus, die du in Home Assistant sehen möchtest. Du kannst einzelne Sensoren aktivieren oder deaktivieren, um die Übersicht zu verbessern.\n\nStandardmäßig sind alle verfügbaren Sensoren ausgewählt. Du kannst diese Auswahl jederzeit in den Optionen anpassen."
       },
       "reauth_confirm": {
-        "title": "Authenticeer de controller opnieuw",
-        "description": "De controllerreferenties moeten worden bijgewerkt. Voer uw nieuwe gebruikersnaam en wachtwoord in.\n\nBeheerder: **{controller_name}**\nIP-adres: **{api_url}**",
+        "title": "Controller erneut authentifizieren",
+        "description": "Die Anmeldedaten des Controllers müssen aktualisiert werden. Bitte gib deinen neuen Benutzernamen und dein neues Passwort ein.\n\nController: **{controller_name}**\nIP-Adresse: **{api_url}**",
         "data": {
-          "username": "Gebruikersnaam",
-          "password": "Wachtwoord"
+          "username": "Benutzername",
+          "password": "Passwort"
         },
         "data_description": {
-          "username": "Nieuwe gebruikersnaam voor authenticatie",
-          "password": "Nieuw wachtwoord voor authenticatie"
+          "username": "Neuer Benutzername für die Authentifizierung",
+          "password": "Neues Passwort für die Authentifizierung"
         }
       },
       "reconfigure": {
-        "title": "Configureer de verbinding opnieuw",
-        "description": "Update de verbindingsinstellingen voor uw controller. Dit is handig als het IP-adres van de controller of de netwerkinstellingen zijn gewijzigd.\n\nBeheerder: **{controller_name}**",
+        "title": "Verbindung neu konfigurieren",
+        "description": "Aktualisiere die Verbindungseinstellungen für deinen Controller. Dies ist nützlich, wenn sich die IP-Adresse oder die Netzwerkeinstellungen des Controllers geändert haben.\n\nController: **{controller_name}**",
         "data": {
-          "host": "IP-adres of hostnaam",
-          "port": "TCP-poort",
-          "use_ssl": "Gebruik SSL/HTTPS",
-          "polling_interval": "Polling-interval (seconden)",
-          "timeout_duration": "Time-out (seconden)",
-          "retry_attempts": "Probeer pogingen opnieuw"
+          "host": "IP-Adresse oder Hostname",
+          "port": "TCP-Port",
+          "use_ssl": "SSL/HTTPS verwenden",
+          "polling_interval": "Abrufintervall (Sekunden)",
+          "timeout_duration": "Timeout (Sekunden)",
+          "retry_attempts": "Wiederholungsversuche"
         },
         "data_description": {
-          "host": "Nieuwe controller-IP of DNS-naam",
-          "port": "TCP-poort (laat op 80 tenzij u een aangepaste proxy gebruikt)",
-          "use_ssl": "Schakel HTTPS in indien ondersteund",
-          "polling_interval": "Interval voor gegevensopvragen (10-3600s)",
-          "timeout_duration": "Maximale wachttijd per aanvraag",
-          "retry_attempts": "Aantal nieuwe pogingen"
+          "host": "Neue Controller-IP oder DNS-Name",
+          "port": "TCP-Port (Auf 80 belassen, außer bei Nutzung eines Proxys)",
+          "use_ssl": "HTTPS aktivieren, falls unterstützt",
+          "polling_interval": "Datenabruf-Intervall (10-3600s)",
+          "timeout_duration": "Maximale Wartezeit pro Anfrage",
+          "retry_attempts": "Anzahl Wiederholungsversuche"
         }
       },
       "repair": {
-        "title": "Controllerverbinding herstellen",
-        "description": "De controller **{controller_name}** reageert niet.\n\nControleer of de controller is ingeschakeld en verbonden met het netwerk, en werk de verbindingsinstellingen bij.",
+        "title": "Controller-Verbindung reparieren",
+        "description": "Der Controller **{controller_name}** antwortet nicht.\n\nStellen Sie sicher, dass der Controller eingeschaltet und mit dem Netzwerk verbunden ist, und aktualisieren Sie die Verbindungseinstellungen.",
         "data": {
-          "host": "IP-adres",
-          "port": "TCP-poort",
-          "username": "Gebruikersnaam",
-          "password": "Wachtwoord"
+          "host": "IP-Adresse",
+          "port": "TCP-Port",
+          "username": "Benutzername",
+          "password": "Passwort"
         },
         "data_description": {
-          "host": "IP-adres of hostnaam van de controller",
-          "port": "TCP-poort (standaard: 80)",
-          "username": "Gebruikersnaam als verificatie is ingeschakeld",
-          "password": "Wachtwoord indien nodig"
+          "host": "IP-Adresse oder Hostname des Controllers",
+          "port": "TCP-Port (Standard: 80)",
+          "username": "Benutzername, falls Authentifizierung aktiviert",
+          "password": "Passwort, falls erforderlich"
         }
       },
       "zeroconf_confirm": {
-        "title": "Violette zwembadcontroller gevonden",
-        "description": "Er is een Violet Pool Controller op het netwerk ontdekt.\n\nNaam: **{name}**\nIP-adres: **{host}**\n\nWil je deze controller nu instellen?"
+        "title": "Violet Pool Controller gefunden",
+        "description": "Ein Violet Pool Controller wurde im Netzwerk entdeckt.\n\nName: **{name}**\nIP-Adresse: **{host}**\n\nMöchtest du diesen Controller jetzt einrichten?"
       }
     },
     "error": {
-      "invalid_ip_address": "Ongeldig IP-adres\n\nVoer een geldig IP-adres in (bijvoorbeeld 192.168.1.100)",
-      "cannot_connect": "Verbinding mislukt\n\nBeheerder niet bereikbaar. Controleer:\n• Is het IP-adres correct?\n• Is de controller ingeschakeld?\n• Is de netwerkverbinding in orde?",
-      "invalid_auth": "Authenticatie mislukt\n\nGebruikersnaam of wachtwoord onjuist. Laat velden leeg als authenticatie is uitgeschakeld.",
-      "timeout_connection": "Time-out voor verbinding\n\nController reageert niet. Mogelijk overbelast of onbereikbaar.",
-      "authentication_error": "Authenticatie vereist\n\nDe controller heeft inloggegevens nodig. Voer gebruikersnaam en wachtwoord in.",
-      "api_endpoint_not_found": "API-eindpunt niet gevonden\n\nDe controllerfirmware is mogelijk verouderd of de URL is onjuist.",
-      "invalid_pool_size": "Invalid Pool Size\n\nWaarde moet tussen 0,1 en 1000 m³ liggen.",
-      "invalid_configuration": "Configuratiefout\n\nEen of meer invoer is ongeldig. Controleer dit alstublieft.",
-      "api_response_error": "Ongeldige controllerreactie\n\nController verzendt onverwachte gegevens. Firmware-update nodig?",
-      "firmware_data_missing": "Firmware-informatie ontbreekt\n\nFirmwareversie van controller kan niet worden bepaald.",
-      "invalid_firmware_version": "Firmware-probleem\n\nControllerfirmware lijkt verouderd. Update alstublieft.",
-      "connection_error": "Netwerkfout\n\nAlgemene verbindingsfout. Controleer netwerkinstellingen.",
-      "already_configured": "Al geconfigureerd\n\nEr is al een controller met dit IP-adres ingesteld.",
-      "agreement_declined": "Installatie afgebroken\n\nDe installatie is afgebroken omdat de veiligheidsdisclaimer niet werd geaccepteerd.",
-      "unknown": "Onbekende fout\n\nEr heeft zich een onverwacht probleem voorgedaan. Neem contact op met de ondersteuning als het probleem zich blijft voordoen."
+      "invalid_ip_address": "Ungültige IP-Adresse\n\nBitte gib eine gültige IP-Adresse ein (z.B. 192.168.1.100)",
+      "cannot_connect": "Verbindung fehlgeschlagen\n\nController nicht erreichbar. Prüfe:\n• IP-Adresse korrekt?\n• Controller eingeschaltet?\n• Netzwerkverbindung OK?",
+      "invalid_auth": "Anmeldung fehlgeschlagen\n\nBenutzername oder Passwort falsch. Bei deaktivierter Authentifizierung Felder leer lassen.",
+      "timeout_connection": "Verbindungs-Timeout\n\nController antwortet nicht. Möglicherweise überlastet oder nicht erreichbar.",
+      "authentication_error": "Authentifizierung erforderlich\n\nController benötigt Anmeldedaten. Bitte Username und Passwort eingeben.",
+      "api_endpoint_not_found": "API-Endpunkt nicht gefunden\n\nController-Firmware möglicherweise veraltet oder URL falsch.",
+      "invalid_pool_size": "Ungültige Pool-Größe\n\nWert muss zwischen 0.1 und 1000 m³ liegen.",
+      "invalid_configuration": "Konfigurationsfehler\n\nEine oder mehrere Eingaben sind ungültig. Bitte überprüfen.",
+      "api_response_error": "Ungültige Controller-Antwort\n\nController sendet unerwartete Daten. Firmware-Update nötig?",
+      "firmware_data_missing": "Firmware-Info fehlt\n\nController-Firmware-Version konnte nicht ermittelt werden.",
+      "invalid_firmware_version": "Firmware-Problem\n\nController-Firmware scheint veraltet. Bitte aktualisieren.",
+      "connection_error": "Netzwerkfehler\n\nAllgemeiner Verbindungsfehler. Netzwerk-Einstellungen prüfen.",
+      "already_configured": "Bereits konfiguriert\n\nEin Controller mit dieser IP-Adresse ist bereits eingerichtet.",
+      "agreement_declined": "Setup abgebrochen\n\nDie Einrichtung wurde abgebrochen, da die Sicherheitshinweise nicht akzeptiert wurden.",
+      "unknown": "Unbekannter Fehler\n\nEin unerwartetes Problem ist aufgetreten. Bei Wiederholung Support kontaktieren."
     },
     "abort": {
-      "already_configured": "Controller al geconfigureerd",
-      "cannot_connect": "Verbinding mislukt",
-      "invalid_auth": "Ongeldige inloggegevens",
-      "agreement_declined": "Veiligheidsdisclaimer niet geaccepteerd",
-      "reauth_successful": "Herauthenticatie succesvol",
-      "reauth_failed": "Opnieuw verifiëren is mislukt",
-      "reconfigure_successful": "Herconfiguratie succesvol",
-      "repair_successful": "Reparatie geslaagd – controller is weer online",
-      "repair_failed": "Reparatie mislukt",
-      "already_in_progress": "Het instellen wordt al uitgevoerd",
-      "unknown": "Onbekende fout"
+      "already_configured": "Controller bereits eingerichtet",
+      "cannot_connect": "Verbindung fehlgeschlagen",
+      "invalid_auth": "Ungültige Anmeldedaten",
+      "agreement_declined": "Sicherheitshinweise nicht akzeptiert",
+      "reauth_successful": "Reauthentifizierung erfolgreich",
+      "reauth_failed": "Reauthentifizierung fehlgeschlagen",
+      "reconfigure_successful": "Neukonfiguration erfolgreich",
+      "repair_successful": "Reparatur erfolgreich – Controller ist wieder online",
+      "repair_failed": "Reparatur fehlgeschlagen",
+      "already_in_progress": "Einrichtung läuft bereits",
+      "unknown": "Unbekannter Fehler"
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Pas zwembadinstellingen aan",
-        "description": "Wat wilt u configureren?\n\nFuncties in-/uitschakelen\nSelecteer sensoren\nWijzig instellingen\n\nU kunt altijd terugkeren naar deze selectie.",
+        "title": "Pool-Einstellungen anpassen",
+        "description": "Was möchtest du konfigurieren?\n\nFeatures aktivieren/deaktivieren\nSensoren auswählen\nEinstellungen ändern\n\nDu kannst jederzeit zurück zu dieser Auswahl kommen.",
         "data": {
-          "config_option": "Selecteer configuratiegebied"
+          "config_option": "Konfigurationsbereich auswählen"
         },
         "data_description": {
-          "config_option": "Kies wat je wilt aanpassen"
+          "config_option": "Wähle aus, was du anpassen möchtest"
         }
       },
       "features": {
-        "title": "Functies in-/uitschakelen",
-        "description": "Kies de functies die u wilt gebruiken\n\nIngeschakelde functies worden weergegeven in Home Assistant\nUitgeschakelde functies worden verborgen\n\nSchakel alleen in wat u echt nodig heeft - houdt de interface schoon!"
+        "title": "Features aktivieren/deaktivieren",
+        "description": "Wähle die Features, die du nutzen möchtest\n\nAktivierte Features werden in Home Assistant angezeigt\nDeaktivierte Features werden ausgeblendet\n\nAktiviere nur, was du wirklich brauchst - das hält die Oberfläche übersichtlich!"
       },
       "sensors": {
-        "title": "Selecteer Sensoren",
-        "description": "Kies welke sensoren moeten worden weergegeven\n\nAlleen geselecteerde sensoren worden weergegeven in Home Assistant\nWijzigingen zijn onmiddellijk van kracht\n\nSelecteer alleen de sensoren die u echt wilt monitoren!"
+        "title": "Sensoren auswählen",
+        "description": "Wähle die Sensoren, die angezeigt werden sollen\n\nNur ausgewählte Sensoren werden in Home Assistant angezeigt\nÄnderungen werden sofort übernommen\n\nWähle nur die Sensoren aus, die du wirklich überwachen möchtest!"
       },
       "settings": {
-        "title": "Algemene instellingen",
-        "description": "Pas de technische parameters aan\n\nPollinginterval: hoe vaak gegevens worden opgehaald\nTime-out: maximale wachttijd voor reacties\nNieuwe pogingen: aantal nieuwe pogingen\n\nStandaardwaarden werken voor de meeste instellingen!",
+        "title": "Allgemeine Einstellungen",
+        "description": "Passe die technischen Parameter an\n\nPolling-Intervall: Wie oft Daten abgerufen werden\nTimeout: Maximale Wartezeit für Antworten\nWiederholungen: Anzahl Retry-Versuche\n\nStandard-Werte funktionieren für die meisten Setups!",
         "data": {
-          "controller_name": "Controller-naam",
-          "polling_interval": "Poll-interval (seconden)",
-          "timeout_duration": "Time-out (seconden)",
-          "retry_attempts": "Herpogingen",
-          "enable_diagnostic_logging": "Uitgebreide logging",
-          "force_update": "Altijd bijwerken"
+          "controller_name": "Controller-Name",
+          "polling_interval": "Abrufintervall (Sekunden)",
+          "timeout_duration": "Timeout (Sekunden)",
+          "retry_attempts": "Wiederholungsversuche",
+          "enable_diagnostic_logging": "Erweiterte Protokollierung",
+          "force_update": "Immer aktualisieren",
+          "invert_cover": "Poolabdeckung invertieren"
         },
         "data_description": {
-          "controller_name": "Weergavenaam van de controller",
-          "polling_interval": "Data-poll-interval (5-300s)",
-          "timeout_duration": "Maximale wachttijd per verzoek (5-60s)",
-          "retry_attempts": "Aantal herpogingen bij fout (1-10)",
-          "enable_diagnostic_logging": "Uitgebreide logs bij elke update (alleen diagnostiek!)",
-          "force_update": "Entiteiten altijd bijwerken, ook als waarde ongewijzigd is"
+          "controller_name": "Anzeigename des Controllers",
+          "polling_interval": "Intervall für Datenabrufe (5-300s)",
+          "timeout_duration": "Maximale Wartezeit pro Anfrage (5-60s)",
+          "retry_attempts": "Anzahl Wiederholungsversuche bei Fehlern (1-10)",
+          "enable_diagnostic_logging": "Ausführliche Logs bei jedem Update (nur für Diagnose!)",
+          "force_update": "Entities immer aktualisieren, auch wenn Wert gleich",
+          "invert_cover": "Tauscht Offen/Geschlossen, falls die Abdeckung falsch angeschlossen ist"
         }
       }
     }
   },
   "exceptions": {
     "api_error": {
-      "message": "API-communicatiefout: {detail}"
+      "message": "API-Kommunikationsfehler: {detail}"
     },
     "invalid_value": {
-      "message": "Ongeldige waarde: {detail}"
+      "message": "Ungültiger Wert: {detail}"
     },
     "value_out_of_range": {
-      "message": "Waarde {value} ligt buiten het geldige bereik ({min}–{max})"
+      "message": "Wert {value} liegt außerhalb des gültigen Bereichs ({min}–{max})"
     },
     "failed_to_set_value": {
-      "message": "Kan waarde niet instellen: {detail}"
+      "message": "Wert konnte nicht gesetzt werden: {detail}"
     },
     "no_api_key": {
-      "message": "Geen API-sleutel geconfigureerd voor entiteit {entity}"
+      "message": "Kein API-Schlüssel für Entität {entity} konfiguriert"
     },
     "invalid_action": {
-      "message": "Ongeldige actie: {action}"
+      "message": "Ungültige Aktion: {action}"
     },
     "unexpected_error": {
-      "message": "Onverwachte fout: {detail}"
+      "message": "Unerwarteter Fehler: {detail}"
     },
     "controller_unavailable": {
-      "message": "Zwembadcontroller {name} is niet beschikbaar na {failures} opeenvolgende fouten"
+      "message": "Pool-Controller {name} ist nach {failures} aufeinanderfolgenden Fehlern nicht erreichbar"
     }
   },
   "issues": {
     "controller_unavailable": {
-      "title": "Zwembadcontroller niet beschikbaar",
-      "description": "De zwembadcontroller **{name}** is gedurende {failures} opeenvolgende pollingcycli onbereikbaar geweest.\n\nControleer:\n- Is de controller ingeschakeld?\n- Is de netwerkverbinding in orde?\n- Klopt het IP-adres nog?\n\nZodra de controller weer bereikbaar is, wordt dit probleem automatisch opgelost."
+      "title": "Pool-Controller nicht erreichbar",
+      "description": "Der Pool-Controller **{name}** ist seit {failures} aufeinanderfolgenden Abrufzyklen nicht erreichbar.\n\nBitte prüfe:\n- Ist der Controller eingeschaltet?\n- Ist die Netzwerkverbindung in Ordnung?\n- Ist die IP-Adresse noch korrekt?\n\nSobald der Controller wieder erreichbar ist, wird dieses Problem automatisch behoben."
     }
   },
   "services": {
-    "control_pump": {
-      "name": "Pompregeling",
-      "description": "Bestuur de zwembadpomp met geavanceerde opties zoals snelheid, eco-modus of boost-modus.",
+    "control_heater_http": {
+      "name": "Heizer steuern (HTTP)",
+      "description": "Steuern Sie den Pool-Heizer mit Temperatur-Sollwert.",
       "fields": {
         "action": {
-          "name": "Besturingsactie",
-          "description": "Selecteer: speed_control, force_off, eco_mode, boost_mode of auto."
+          "name": "Heizer-Aktion",
+          "description": "Heizer ein- oder ausschalten"
         },
-        "speed": {
-          "name": "Pompsnelheid",
-          "description": "Pompsnelheidsniveau (1-3)."
-        },
-        "duration": {
-          "name": "Duur (seconden)",
-          "description": "Hoe lang de actie toepassen (0 = onbeperkt)."
+        "target_temperature": {
+          "name": "Zieltemperatur",
+          "description": "Gewünschte Pooltemperatur (10-60°C)"
         }
       }
+    },
+    "control_solar_http": {
+      "name": "Solar steuern (HTTP)",
+      "description": "Steuern Sie das Solarheizungssystem.",
+      "fields": {
+        "action": {
+          "name": "Solar-Aktion",
+          "description": "Solarheizung aktivieren oder deaktivieren"
+        },
+        "target_temperature": {
+          "name": "Zieltemperatur",
+          "description": "Zieltemperatur für Solar-Betrieb (10-60°C)"
+        }
+      }
+    },
+    "control_cover_http": {
+      "name": "Abdeckung steuern (HTTP)",
+      "description": "Steuern Sie die Pool-Abdeckung (öffnen, schließen oder stoppen).",
+      "fields": {
+        "action": {
+          "name": "Abdeckungs-Aktion",
+          "description": "Wählen Sie: open, close oder stop"
+        }
+      }
+    },
+    "control_backwash_http": {
+      "name": "Rückspülung steuern (HTTP)",
+      "description": "Führen Sie den Filter-Rückspülzyklus aus oder brechen Sie ihn ab.",
+      "fields": {
+        "action": {
+          "name": "Rückspül-Aktion",
+          "description": "Starten oder unterbrechen Sie den Rückspülzyklus"
+        }
+      }
+    },
+    "manual_dosing_http": {
+      "name": "Manuelle Dosierung (HTTP)",
+      "description": "Lösen Sie die chemische Dosierung manuell aus.\n\nVorsicht: Überprüfen Sie immer die Wasserwerte vor der Dosierung!",
+      "fields": {
+        "dosing_system": {
+          "name": "Chemisches System",
+          "description": "Wählen Sie das zu dosierende Chemikaliensystem (Chlor, Elektrolyse, pH-, pH+, Flockungsmittel, H₂O₂)"
+        },
+        "runtime_seconds": {
+          "name": "Laufzeit (Sekunden)",
+          "description": "Wie lange die Dosier-Pumpe laufen soll (1-3600 Sekunden)"
+        }
+      }
+    },
+    "configure_dosing": {
+      "name": "Dosierung konfigurieren",
+      "description": "Dosiersystem-Parameter einstellen",
+      "fields": {
+        "dosing_system": {
+          "name": "Dosiersystem",
+          "description": "Welches System konfigurieren"
+        },
+        "config_key": {
+          "name": "Konfigurationsschlüssel",
+          "description": "Parametername"
+        },
+        "value": {
+          "name": "Konfigurationswert",
+          "description": "Neuer Parameterwert"
+        }
+      }
+    },
+    "set_dosing_target": {
+      "name": "Dosiervorgabe setzen",
+      "description": "Zielwert für Dosierregelung einstellen",
+      "fields": {
+        "dosing_system": {
+          "name": "Dosiersystem",
+          "description": "Welches System konfigurieren"
+        },
+        "target_value": {
+          "name": "Zielwert",
+          "description": "Zielwert (0-100, Einheit chemikalienabhängig)"
+        }
+      }
+    },
+    "set_dosing_daytime": {
+      "name": "Dosier-Zeitfenster setzen",
+      "description": "Tageszeit für Dosierbereich konfigurieren",
+      "fields": {
+        "dosing_system": {
+          "name": "Dosiersystem",
+          "description": "Welches System konfigurieren"
+        },
+        "day_start": {
+          "name": "Tagesstart",
+          "description": "Wann beginnt die Tageszeit (HH:MM)"
+        },
+        "day_end": {
+          "name": "Tagesende",
+          "description": "Wann endet die Tageszeit (HH:MM)"
+        }
+      }
+    },
+    "set_dosing_max_daily": {
+      "name": "Max. Tagesdosis setzen",
+      "description": "Maximale Tagesdosierungsmenge festlegen",
+      "fields": {
+        "dosing_system": {
+          "name": "Dosiersystem",
+          "description": "Welches System konfigurieren"
+        },
+        "max_daily_ml": {
+          "name": "Max. Tagesvolumen",
+          "description": "Maximales Volumen pro Tag in ml (10-10000)"
+        }
+      }
+    },
+    "enable_dosing": {
+      "name": "Dosierung aktivieren/deaktivieren",
+      "description": "Dosiersystem ein- oder ausschalten",
+      "fields": {
+        "dosing_system": {
+          "name": "Dosiersystem",
+          "description": "Welches System aktivieren/deaktivieren"
+        },
+        "enabled": {
+          "name": "Dosierung aktivieren",
+          "description": "Dosiersystem ein- oder ausschalten"
+        }
+      }
+    },
+    "configure_temp_rule": {
+      "name": "Temperaturregel konfigurieren",
+      "description": "Temperaturbasierte Automatisierungsregel (TEMPRULE_1-8)",
+      "fields": {
+        "rule_id": {
+          "name": "Regel-ID",
+          "description": "Regelnummer 1-8"
+        },
+        "enabled": {
+          "name": "Regel aktivieren",
+          "description": "Regel ein- oder ausschalten"
+        },
+        "sensor_1": {
+          "name": "Primärsensor",
+          "description": "Primärer Temperatursensor (1-8)"
+        },
+        "sensor_2": {
+          "name": "Sekundärsensor",
+          "description": "Sekundärsensor (0=absoluter Wert, 1-8=Sensor)"
+        },
+        "logic": {
+          "name": "Vergleichslogik",
+          "description": "Nutze >= (größer/gleich) oder <= (kleiner/gleich)"
+        },
+        "diff_value": {
+          "name": "Differenzwert",
+          "description": "Temperaturdifferenz-Schwellenwert"
+        },
+        "hyst_value": {
+          "name": "Hysteresewert",
+          "description": "Hysteresespanne gegen Flattern"
+        },
+        "runtime_on": {
+          "name": "Laufzeit EIN",
+          "description": "Zeit wenn Regel aktiv sein kann (HH:MM)"
+        },
+        "runtime_off": {
+          "name": "Laufzeit AUS",
+          "description": "Zeit wenn Regel inaktiv sein muss (HH:MM)"
+        },
+        "output_1": {
+          "name": "Ausgang 1",
+          "description": "Name des ersten Ausgangs"
+        },
+        "output_1_state": {
+          "name": "Ausgang 1 Status",
+          "description": "Zustand beim Auslösen (0-6)"
+        },
+        "output_2": {
+          "name": "Ausgang 2",
+          "description": "Name des zweiten Ausgangs"
+        },
+        "output_2_state": {
+          "name": "Ausgang 2 Status",
+          "description": "Zustand beim Auslösen (0-6)"
+        },
+        "output_3": {
+          "name": "Ausgang 3",
+          "description": "Name des dritten Ausgangs"
+        },
+        "output_3_state": {
+          "name": "Ausgang 3 Status",
+          "description": "Zustand beim Auslösen (0-6)"
+        }
+      }
+    },
+    "configure_analog_rule": {
+      "name": "Analogeingang-Regel konfigurieren",
+      "description": "Analogeingabe-Schwellenwert-Regel (ANALOGRULE_1-8)",
+      "fields": {
+        "rule_id": {
+          "name": "Regel-ID",
+          "description": "Regelnummer 1-8"
+        },
+        "enabled": {
+          "name": "Regel aktivieren",
+          "description": "Regel ein- oder ausschalten"
+        },
+        "adc_input": {
+          "name": "ADC-Eingang",
+          "description": "Analogeingabe-Kanal (1-8)"
+        },
+        "logic": {
+          "name": "Vergleichslogik",
+          "description": "Nutze >= oder <="
+        },
+        "threshold": {
+          "name": "Schwellenwert",
+          "description": "Auslösewert für Analogeingang"
+        },
+        "hysteresis": {
+          "name": "Hysteresewert",
+          "description": "Hysteresespanne gegen Flattern"
+        },
+        "runtime_on": {
+          "name": "Laufzeit EIN",
+          "description": "Zeit wenn Regel aktiv sein kann (HH:MM)"
+        },
+        "runtime_off": {
+          "name": "Laufzeit AUS",
+          "description": "Zeit wenn Regel inaktiv sein muss (HH:MM)"
+        },
+        "output_1": {
+          "name": "Ausgang 1",
+          "description": "Name des ersten Ausgangs"
+        },
+        "output_1_state": {
+          "name": "Ausgang 1 Status",
+          "description": "Zustand beim Auslösen (0-6)"
+        },
+        "output_2": {
+          "name": "Ausgang 2",
+          "description": "Name des zweiten Ausgangs"
+        },
+        "output_2_state": {
+          "name": "Ausgang 2 Status",
+          "description": "Zustand beim Auslösen (0-6)"
+        },
+        "output_3": {
+          "name": "Ausgang 3",
+          "description": "Name des dritten Ausgangs"
+        },
+        "output_3_state": {
+          "name": "Ausgang 3 Status",
+          "description": "Zustand beim Auslösen (0-6)"
+        }
+      }
+    },
+    "configure_switching_rule": {
+      "name": "Schalteingang-Regel konfigurieren",
+      "description": "Digitaleingabe-basierte Regel (SWITCHINGRULE_1-8)",
+      "fields": {
+        "rule_id": {
+          "name": "Regel-ID",
+          "description": "Regelnummer 1-8"
+        },
+        "enabled": {
+          "name": "Regel aktivieren",
+          "description": "Regel ein- oder ausschalten"
+        },
+        "di_input": {
+          "name": "Digitaleingang",
+          "description": "Digitaler Eingabepol (1-12)"
+        },
+        "contact_type": {
+          "name": "Kontakttyp",
+          "description": "0=Öffner (NO), 1=Schließer (NC)"
+        },
+        "output": {
+          "name": "Ausgangsname",
+          "description": "Zu steuernder Ausgang"
+        },
+        "action_on": {
+          "name": "Aktion EIN Status",
+          "description": "Ausgangsstatus beim Schließen (0-6)"
+        },
+        "action_off": {
+          "name": "Aktion AUS Status",
+          "description": "Ausgangsstatus beim Öffnen (0-6)"
+        },
+        "timeout": {
+          "name": "Timeout",
+          "description": "Auto-Reset Timeout in Sekunden (0=deaktiviert)"
+        }
+      }
+    },
+    "configure_timer_rule": {
+      "name": "Timer-Regel konfigurieren",
+      "description": "Zeitbasierte Automatisierungsregel (TIMERRULE_1-8)",
+      "fields": {
+        "rule_id": {
+          "name": "Regel-ID",
+          "description": "Regelnummer 1-8"
+        },
+        "enabled": {
+          "name": "Regel aktivieren",
+          "description": "Regel ein- oder ausschalten"
+        },
+        "on_time": {
+          "name": "EIN-Zeit",
+          "description": "Einschaltzeit (HH:MM)"
+        },
+        "off_time": {
+          "name": "AUS-Zeit",
+          "description": "Ausschaltzeit (HH:MM)"
+        },
+        "weekdays": {
+          "name": "Wochentage",
+          "description": "Bitmask für Wochentage (0-127, z.B. 127=täglich)"
+        },
+        "output_1": {
+          "name": "Ausgang 1",
+          "description": "Name des ersten Ausgangs"
+        },
+        "output_1_state": {
+          "name": "Ausgang 1 Status",
+          "description": "Zustand beim Auslösen (0-6)"
+        },
+        "output_2": {
+          "name": "Ausgang 2",
+          "description": "Name des zweiten Ausgangs"
+        },
+        "output_2_state": {
+          "name": "Ausgang 2 Status",
+          "description": "Zustand beim Auslösen (0-6)"
+        },
+        "output_3": {
+          "name": "Ausgang 3",
+          "description": "Name des dritten Ausgangs"
+        },
+        "output_3_state": {
+          "name": "Ausgang 3 Status",
+          "description": "Zustand beim Auslösen (0-6)"
+        }
+      }
+    },
+    "enable_rule": {
+      "name": "Regel aktivieren/deaktivieren",
+      "description": "Beliebigen Regeltyp ein- oder ausschalten",
+      "fields": {
+        "rule_type": {
+          "name": "Regeltyp",
+          "description": "Wähle: temprule, analogrule, switchingrule oder timerrule"
+        },
+        "rule_id": {
+          "name": "Regel-ID",
+          "description": "Regelnummer 1-8"
+        },
+        "enabled": {
+          "name": "Regel aktivieren",
+          "description": "Regel ein- oder ausschalten"
+        }
+      }
+    },
+    "control_extension_relay": {
+      "name": "Erweiterungsrelais steuern",
+      "description": "Erweiterungsrelais-Ausgänge steuern (EXT1_1 bis EXT8_8)",
+      "fields": {
+        "relay_id": {
+          "name": "Relais-ID",
+          "description": "Erweiterungsrelais-Nummer 1-8"
+        },
+        "action": {
+          "name": "Relais-Aktion",
+          "description": "Ein = Status 4 (manuell EIN), Aus = Status 6 (manuell AUS), Umschalten = Status 0 (Auto)"
+        },
+        "state": {
+          "name": "Direkter Status",
+          "description": "Direkter Status (0-6, überschreibt Aktion)"
+        },
+        "duration": {
+          "name": "Dauer",
+          "description": "Wie lange die Aktion gelten soll (0 = unbegrenzt, in Sekunden)"
+        }
+      }
+    },
+    "configure_sensor_calibration": {
+      "name": "Sensorkalibrierung konfigurieren",
+      "description": "Temperatursensor-Kalibrierungsparameter einstellen",
+      "fields": {
+        "sensor_id": {
+          "name": "Sensor-ID",
+          "description": "Temperatursensor-Nummer 1-12"
+        },
+        "offset": {
+          "name": "Offset",
+          "description": "Temperatur-Offset in °C (-10 bis +10)"
+        },
+        "multiplier": {
+          "name": "Multiplikator",
+          "description": "Kalibrierungs-Multiplikator (0,5 bis 2,0)"
+        },
+        "min_value": {
+          "name": "Mindestwert",
+          "description": "Minimale gültige Sensorablesung"
+        },
+        "max_value": {
+          "name": "Maximalwert",
+          "description": "Maximale gültige Sensorablesung"
+        }
+      }
+    },
+    "control_pump": {
+      "name": "Pumpensteuerung",
+      "description": "Steuern Sie die Poolpumpe mit erweiterten Optionen wie Geschwindigkeit, Eco-Modus oder Boost-Modus."
     },
     "smart_dosing": {
-      "name": "Intelligente Dosering",
-      "description": "Handmatige of automatische doseringscontrole voor pH, chloor en vlokkenmiddel.\n\n**Let op:** Vermijd overdosering! Controleer altijd eerst de waterwaarden.",
-      "fields": {
-        "dosing_type": {
-          "name": "Doseringschemicaal",
-          "description": "Selecteer het type chemisch middel (pH-, pH+, Chloor, Vlokkenmiddel)."
-        },
-        "action": {
-          "name": "Doseringsactie",
-          "description": "Selecteer: manual_dose, auto of stop."
-        },
-        "duration": {
-          "name": "Doseringsduur (seconden)",
-          "description": "Hoe lang moet de dosering duren? (5-300s)."
-        },
-        "safety_override": {
-          "name": "Veiligheidsinterval overslaan",
-          "description": "Sla het veiligheidsinterval tussen doseringscycli over."
-        }
-      }
+      "name": "Intelligente Dosierung",
+      "description": "Manuelle oder automatische Dosierungssteuerung für pH, Chlor und Flockungsmittel.\n\nVorsicht: Überdosierung vermeiden! Überprüfen Sie immer vorher die Wasserwerte."
     },
     "manage_pv_surplus": {
-      "name": "PV-Overschot Beheer",
-      "description": "Stuurt de fotovoltaïsche overschotmodus voor optimaal zonne-energiegebruik.\n\nZwembadapparaten worden automatisch aangedreven met overtollige zonne-energie.",
-      "fields": {
-        "mode": {
-          "name": "PV-overschotmodus",
-          "description": "Selecteer: activate, deactivate of auto."
-        },
-        "pump_speed": {
-          "name": "Pompsnelheid",
-          "description": "Gewenst pompvermogen voor PV-modus (1=Eco, 2=Normaal, 3=Maximum)."
-        }
-      }
+      "name": "PV-Überschuss-Verwaltung",
+      "description": "Steuern Sie den PV-Überschussmodus für optimale Solarenergienutzung.\n\nPoolgeräte werden automatisch mit überschüssiger Solarenergie betrieben."
     },
     "control_dmx_scenes": {
-      "name": "DMX-Scènebesturing",
-      "description": "Bestuur DMX-verlichtingsscènes voor zwembadverlichting.",
-      "fields": {
-        "action": {
-          "name": "DMX-actie",
-          "description": "Selecteer: all_on, all_off, all_auto, sequence of party_mode."
-        },
-        "sequence_delay": {
-          "name": "Scène-vertraging (seconden)",
-          "description": "Vertraging tussen scènes in sequentiemodus (1-60s)."
-        }
-      }
+      "name": "DMX-Szenen-Steuerung",
+      "description": "Steuern Sie DMX-Beleuchtungsszenen für die Poolbeleuchtung."
     },
     "set_light_color_pulse": {
-      "name": "Licht-kleurenpuls",
-      "description": "Stuur kleurenpulscommando's naar de zwembadverlichting.",
-      "fields": {
-        "pulse_count": {
-          "name": "Aantal pulsen",
-          "description": "Hoeveel kleurenpulsen verzenden (1-10)."
-        },
-        "pulse_interval": {
-          "name": "Pulsinterval (ms)",
-          "description": "Tijd tussen pulsen in milliseconden (100-2000ms)."
-        }
-      }
+      "name": "Farbpuls der Beleuchtung",
+      "description": "Senden Sie Farbpulsbefehle an die Poolbeleuchtung."
     },
     "manage_digital_rules": {
-      "name": "Digitale regels beheren",
-      "description": "Beheer digitale ingangsautomatiseringsregels voor controller-ingangen.",
-      "fields": {
-        "rule_key": {
-          "name": "Te beheren regel",
-          "description": "Selecteer de digitale regel (DIRULE_1 tot en met DIRULE_7)."
-        },
-        "action": {
-          "name": "Regelactie",
-          "description": "Selecteer: trigger, lock of unlock."
-        }
-      }
+      "name": "Verwaltung digitaler Regeln",
+      "description": "Verwalten Sie Automatisierungsregeln für digitale Eingänge des Steuergeräts."
     },
     "test_output": {
-      "name": "Uitgangstestmodus",
-      "description": "Activeert tijdelijk een controlleruitgang voor diagnose. Zorg ervoor dat er geen mensen of apparatuur in gevaar komen terwijl de uitvoer wordt geforceerd.",
-      "fields": {
-        "output": {
-          "name": "Uitgangsidentificatie",
-          "description": "Identificatie zoals PUMP, HEATER of SOLAR."
-        },
-        "mode": {
-          "name": "Testmodus",
-          "description": "SCHAKELAAR=schakelen, AAN=geforceerd aan, UIT=geforceerd uit."
-        },
-        "duration": {
-          "name": "Testduur (seconden)",
-          "description": "Duur tussen 1 en 900 seconden."
-        }
-      }
-    },
-    "get_connection_status": {
-      "name": "Verbindingsstatus ophalen",
-      "description": "Gedetailleerde verbindingsstatus en gezondheidsstatistieken ophalen voor probleemoplossing."
-    },
-    "get_error_summary": {
-      "name": "Foutoverzicht ophalen",
-      "description": "Overzicht van recente fouten en herstelsuggesties ophalen.",
-      "fields": {
-        "include_history": {
-          "name": "Geschiedenis toevoegen",
-          "description": "Gedetailleerde foutgeschiedenis toevoegen."
-        }
-      }
-    },
-    "test_connection": {
-      "name": "Verbinding testen",
-      "description": "Test de verbinding met de controller en retourneer diagnostische informatie."
-    },
-    "clear_error_history": {
-      "name": "Foutgeschiedenis wissen",
-      "description": "Foutgeschiedenis wissen na succesvol herstel (voorzichtig gebruiken)."
-    },
-    "set_all_dmx_scenes_mode": {
-      "name": "Bedien DMX-verlichting",
-      "description": "Bestuurt alle DMX-lichtscènes tegelijkertijd.\n\nPerfect voor uniforme lichteffecten of volledige aan/uit-schakeling.",
-      "fields": {
-        "device_id": {
-          "name": "Zwembadcontroleur",
-          "description": "Violet Pool Controller met DMX-uitgang."
-        },
-        "dmx_mode": {
-          "name": "Lichtmodus",
-          "description": "Alle lichten: Aan/Uit/Automatisch."
-        }
-      }
-    },
-    "set_digital_input_rule_lock_state": {
-      "name": "Schakelregel vergrendelen",
-      "description": "Vergrendelt of ontgrendelt digitale schakelregels.\n\nVoorkomt ongewenste activering tijdens onderhoud of storingen.",
-      "fields": {
-        "device_id": {
-          "name": "Zwembadcontroleur",
-          "description": "Violet Pool Controller met digitale regels."
-        },
-        "rule_key": {
-          "name": "Regel nummer",
-          "description": "Nummer van de regel die moet worden vergrendeld (DIRULE_1 tot en met DIRULE_7)."
-        },
-        "lock_state": {
-          "name": "Vergrendeling",
-          "description": "Regel vergrendelen (Aan) of ontgrendelen (Uit)."
-        }
-      }
-    },
-    "trigger_digital_input_rule": {
-      "name": "Schakelregel activeren",
-      "description": "Activeert handmatig een digitale schakelregel.\n\nHandig voor het testen van automatisering of handmatige bediening wanneer dat nodig is.",
-      "fields": {
-        "device_id": {
-          "name": "Zwembadcontroleur",
-          "description": "Violet Pool Controller met de regels."
-        },
-        "rule_key": {
-          "name": "Regel nummer",
-          "description": "Welke regel activeren? (DIRULE_1 tot en met DIRULE_7)"
-        }
-      }
+      "name": "Ausgabe-Testmodus",
+      "description": "Aktiviert vorübergehend eine Steuergeräte-Ausgabe für Diagnose. Stellen Sie sicher, dass keine Personen oder Ausrüstung gefährdet sind, während die Ausgabe erzwungen wird."
     },
     "export_diagnostic_logs": {
-      "name": "Diagnostische logs exporteren",
-      "description": "Exporteert recente integratielogs voor probleemoplossing en ondersteuning.\n\nVerzamelt relevante logvermeldingen en maakt download of bestandsopslag mogelijk.\n\n**Tip:** Handig bij problemen of bij het verzenden van logs naar support!",
-      "fields": {
-        "device_id": {
-          "name": "Zwembadcontroleur",
-          "description": "Violet Pool Controller voor de export"
-        },
-        "lines": {
-          "name": "Aantal regels",
-          "description": "Hoeveel recente logregels exporteren? (10-1000)"
-        },
-        "include_timestamps": {
-          "name": "Tijdstempels opnemen",
-          "description": "Tijdstempels opnemen in de geëxporteerde logs"
-        },
-        "save_to_file": {
-          "name": "Opslaan als bestand",
-          "description": "Logs opslaan als tekstbestand in de /config/ map"
-        }
-      }
+      "name": "Diagnoseprotokolle exportieren",
+      "description": "Exportiert die Integrationsprotokolle für Fehlerbehebung und Support.\n\nSammelt relevante Protokolleinträge und ermöglicht Download oder Dateispeicherung.\n\nTipp: Nützlich bei Problemen oder beim Senden von Protokollen an den Support!"
+    },
+    "get_connection_status": {
+      "name": "Verbindungsstatus abrufen",
+      "description": "Erhalten Sie detaillierte Verbindungsstatus und Gesundheitsmetriken zur Fehlerbehebung."
+    },
+    "get_error_summary": {
+      "name": "Fehlerzusammenfassung abrufen",
+      "description": "Erhalten Sie eine Zusammenfassung der letzten Fehler und Wiederherstellungsvorschläge."
+    },
+    "test_connection": {
+      "name": "Verbindung testen",
+      "description": "Testen Sie die Verbindung zum Steuergerät und erhalten Diagnoseinformationen."
+    },
+    "clear_error_history": {
+      "name": "Fehlerhistorie löschen",
+      "description": "Fehlerhistorie nach erfolgreicher Wiederherstellung löschen (mit Vorsicht verwenden)."
     }
   },
   "selector": {
     "pool_type": {
       "options": {
-        "outdoor": "Buitenzwembad",
-        "indoor": "Overdekt zwembad",
-        "whirlpool": "Bubbelbad/spa",
-        "natural": "Natuurlijk zwembad/vijver",
-        "combination": "Combinatie/Hybride"
+        "outdoor": "Freibad (Outdoor)",
+        "indoor": "Hallenbad (Indoor)",
+        "whirlpool": "Whirlpool/Spa",
+        "natural": "Naturpool/Schwimmteich",
+        "combination": "Kombination/Hybrid"
       }
     },
     "disinfection_method": {
       "options": {
-        "chlorine": "Chloor (vloeistof/tabletten)",
-        "salt": "Zoutwaterelektrolyse",
-        "bromine": "Broom Desinfectie",
-        "active_oxygen": "Actieve zuurstof/H₂O₂",
-        "uv": "UV-C-desinfectie",
-        "ozone": "Ozonbehandeling"
+        "chlorine": "Chlor (Flüssig/Tabletten)",
+        "salt": "Salzelektrolyse",
+        "bromine": "Brom-Desinfektion",
+        "active_oxygen": "Aktivsauerstoff/H₂O₂",
+        "uv": "UV-C Desinfektion",
+        "ozone": "Ozon-Behandlung"
       }
     },
     "dmx_mode": {
       "options": {
-        "allon": "Alle lichten aan",
-        "alloff": "Alle lichten uit",
-        "allauto": "Alle lichten Auto"
+        "allon": "Alle Lichter einschalten",
+        "alloff": "Alle Lichter ausschalten",
+        "allauto": "Alle Lichter auf Automatik"
       }
     }
   },
   "entity": {
     "sensor": {
       "onewire1_value": {
-        "name": "Zwembadwater"
+        "name": "Poolwasser"
       },
       "onewire2_value": {
-        "name": "Buitentemperatuur"
+        "name": "Außentemperatur"
       },
       "onewire3_value": {
-        "name": "Zonnecollector"
+        "name": "Sonnenkollektor"
       },
       "onewire4_value": {
-        "name": "Terugleidingen Zonnecollector"
+        "name": "Kollektor-Rücklauf"
       },
       "onewire5_value": {
-        "name": "Warmtewisselaar"
+        "name": "Wärmetauscher"
       },
       "onewire6_value": {
-        "name": "Warmteopslag"
+        "name": "Wärmespeicher"
       },
       "onewire7_value": {
-        "name": "Temperatuursensor 7"
+        "name": "Temperatursensor 7"
       },
       "onewire8_value": {
-        "name": "Temperatuursensor 8"
+        "name": "Temperatursensor 8"
       },
       "ph_value": {
-        "name": "pH-waarde"
+        "name": "pH-Wert"
       },
       "orp_value": {
-        "name": "ORP-waarde"
+        "name": "ORP-Wert"
       },
       "pot_value": {
-        "name": "Chloorgehalte"
+        "name": "Chlorgehalt"
       },
       "ai1_value": {
-        "name": "Analoge ingang 1"
+        "name": "Analoge Eingabe 1"
       },
       "ai2_value": {
-        "name": "Analoge ingang 2"
+        "name": "Analoge Eingabe 2"
       },
       "ai3_value": {
-        "name": "Analoge ingang 3"
+        "name": "Analoge Eingabe 3"
       },
       "ai4_value": {
-        "name": "Analoge ingang 4"
+        "name": "Analoge Eingabe 4"
       },
       "ai5_value": {
-        "name": "Analoge ingang 5"
+        "name": "Analoge Eingabe 5"
       },
       "ai6_value": {
-        "name": "Analoge ingang 6"
+        "name": "Analoge Eingabe 6"
       },
       "ai7_value": {
-        "name": "Analoge ingang 7"
+        "name": "Analoge Eingabe 7"
       },
       "ai8_value": {
-        "name": "Analoge ingang 8"
+        "name": "Analoge Eingabe 8"
       },
       "system_health": {
-        "name": "Systeemstatus"
+        "name": "System-Zustand"
       },
       "connection_latency": {
-        "name": "Verbindingslatentie"
+        "name": "Verbindungslatenz"
       },
       "last_event_age": {
-        "name": "Laatste gebeurtenisleeftijd"
+        "name": "Alter des letzten Ereignisses"
       },
       "api_request_rate": {
-        "name": "API-aanvraagfrequentie"
+        "name": "API-Anfragerate"
       },
       "average_latency": {
-        "name": "Gemiddelde latentie"
+        "name": "Durchschnittliche Latenz"
       },
       "recovery_success_rate": {
-        "name": "Herstelsuccespercentage"
+        "name": "Wiederherstellungs-Erfolgsrate"
+      },
+      "pump_estimated_power": {
+        "name": "Pumpenleistung (geschätzt)"
       },
       "flow_rate": {
-        "name": "Doorstroomsnelheid"
+        "name": "Durchflussmenge"
       },
       "last_error_code": {
-        "name": "Laatste foutcode"
+        "name": "Letzter Fehlercode"
       },
       "dos_1_cl_state": {
-        "name": "Chloordoseringstatus"
+        "name": "Chlordosier-Status"
       },
       "dos_4_phm_state": {
-        "name": "pH- doseringsstatus"
+        "name": "pH--Dosier-Status"
       },
       "dos_5_php_state": {
-        "name": "pH+ doseringsstatus"
+        "name": "pH+-Dosier-Status"
+      },
+      "dos_2_elo_state": {
+        "name": "Elektrolyse-Dosierstatus"
       },
       "dos_6_floc_state": {
-        "name": "Vlokkenmiddeldoseringsstatus"
+        "name": "Flockungsstatus"
       },
       "cpu_temp": {
-        "name": "CPU-temperatuur"
+        "name": "CPU-Temperatur"
       },
       "cpu_temp_carrier": {
-        "name": "Carrier-boardtemperatuur"
+        "name": "Träger-Platine"
       },
       "cpu_uptime": {
-        "name": "Apparaat uptime"
+        "name": "System-Betriebszeit"
       },
       "system_cpu_temperature": {
-        "name": "Systeem CPU-temperatuur"
+        "name": "System CPU-Temperatur"
       },
       "system_carrier_cpu_temperature": {
-        "name": "Carrier CPU-temperatuur"
+        "name": "Träger-CPU-Temperatur"
       },
       "system_dosagemodule_cpu_temperature": {
-        "name": "Doseringsmodule CPU-temperatuur"
+        "name": "Dosier-Modul CPU-Temperatur"
       },
       "system_memoryusage": {
-        "name": "Geheugengebruik"
+        "name": "Speichernutzung"
       },
       "system_safety_timer_active": {
-        "name": "Veiligheidstimer actief"
+        "name": "Sicherheitstimer aktiv"
       },
       "system_relais_status": {
-        "name": "Relaisstatus"
+        "name": "Relais-Status"
       },
       "fw": {
-        "name": "Firmwareversie"
+        "name": "Firmware-Version"
       },
       "pump": {
-        "name": "Filterpompstatus"
+        "name": "Pumpen-Status"
       },
       "heater": {
-        "name": "Verwarmerstatus"
+        "name": "Heizungs-Status"
       },
       "solar": {
-        "name": "Zonne-absorberstatus"
+        "name": "Solar-Status"
       },
       "backwash": {
-        "name": "Status Terugspoeling"
+        "name": "Rückspül-Status"
+      },
+      "light": {
+        "name": "Beleuchtungs-Status"
       },
       "pvsurplus": {
-        "name": "PV-Overschot Status"
+        "name": "PV-Überschuss Status"
       },
       "refill": {
-        "name": "Status Navulling"
+        "name": "Nachfüll-Status"
       },
       "pumpstate": {
-        "name": "Pompdetailstatus"
+        "name": "Pumpen Detail-Status"
       },
       "heaterstate": {
-        "name": "Verwarmerdetailstatus"
+        "name": "Heizung Detail-Status"
       },
       "solarstate": {
-        "name": "Zonne-absorberdetailstatus"
+        "name": "Solar Detail-Status"
       },
       "adc1_value": {
-        "name": "Filterdruk"
+        "name": "Filterdruck"
       },
       "adc2_value": {
-        "name": "Overloopbak"
+        "name": "Überlaufbehälter"
       },
       "adc3_value": {
-        "name": "Flowmeter (4-20mA)"
+        "name": "Durchflussmesser (4-20mA)"
       },
       "adc4_value": {
         "name": "Analog Sensor 4 (4-20mA)"
@@ -666,606 +943,1331 @@
         "name": "Analog Sensor 5 (0-10V)"
       },
       "imp1_value": {
-        "name": "Dosing Inflow"
+        "name": "Dosieranströmung"
       },
       "imp2_value": {
-        "name": "Pump Flow Rate"
+        "name": "Pumpen-Durchfluss"
       },
       "ext1_1": {
-        "name": "Extension 1.1"
+        "name": "Erweiterung 1.1"
       },
       "ext1_2": {
-        "name": "Extension 1.2"
+        "name": "Erweiterung 1.2"
       },
       "ext1_3": {
-        "name": "Extension 1.3"
+        "name": "Erweiterung 1.3"
       },
       "ext1_4": {
-        "name": "Extension 1.4"
+        "name": "Erweiterung 1.4"
       },
       "ext1_5": {
-        "name": "Extension 1.5"
+        "name": "Erweiterung 1.5"
       },
       "ext1_6": {
-        "name": "Extension 1.6"
+        "name": "Erweiterung 1.6"
       },
       "ext1_7": {
-        "name": "Extension 1.7"
+        "name": "Erweiterung 1.7"
       },
       "ext1_8": {
-        "name": "Extension 1.8"
+        "name": "Erweiterung 1.8"
       },
       "ext2_1": {
-        "name": "Extension 2.1"
+        "name": "Erweiterung 2.1"
       },
       "ext2_2": {
-        "name": "Extension 2.2"
+        "name": "Erweiterung 2.2"
       },
       "ext2_3": {
-        "name": "Extension 2.3"
+        "name": "Erweiterung 2.3"
       },
       "ext2_4": {
-        "name": "Extension 2.4"
+        "name": "Erweiterung 2.4"
       },
       "ext2_5": {
-        "name": "Extension 2.5"
+        "name": "Erweiterung 2.5"
       },
       "ext2_6": {
-        "name": "Extension 2.6"
+        "name": "Erweiterung 2.6"
       },
       "ext2_7": {
-        "name": "Extension 2.7"
+        "name": "Erweiterung 2.7"
       },
       "ext2_8": {
-        "name": "Extension 2.8"
+        "name": "Erweiterung 2.8"
       },
-      "pump_estimated_power": {
-        "name": "Pompprestaties (geschat)"
+      "backwashrinse": {
+        "name": "Nachspül-Status"
       },
-      "pump_rs485_pwr": {
-        "name": "RS485 pompvermogen"
+      "backwash_delay_running": {
+        "name": "Rückspül-Verzögerung aktiv"
       },
-      "load_avg": {
-        "name": "Gemiddelde CPU-belasting"
+      "backwash_delay_timestamp": {
+        "name": "Rückspül-Verzögerung Zeitstempel"
+      },
+      "backwash_last_auto_run": {
+        "name": "Letzte automatische Rückspülung"
+      },
+      "backwash_last_manual_run": {
+        "name": "Letzte manuelle Rückspülung"
+      },
+      "backwash_last_off": {
+        "name": "Rückspülung Zuletzt Aus"
+      },
+      "backwash_last_on": {
+        "name": "Rückspülung Zuletzt Ein"
+      },
+      "backwash_omni_moving": {
+        "name": "OmniTronic bewegt sich"
+      },
+      "backwash_omni_state": {
+        "name": "OmniTronic-Ventilstatus"
+      },
+      "backwash_runtime": {
+        "name": "Rückspül-Laufzeit"
+      },
+      "backwash_state": {
+        "name": "Rückspül-Zustand"
+      },
+      "backwash_step": {
+        "name": "Rückspülschritt"
+      },
+      "backwashrinse_last_off": {
+        "name": "Nachspülung Zuletzt Aus"
+      },
+      "backwashrinse_last_on": {
+        "name": "Nachspülung Zuletzt Ein"
+      },
+      "backwashrinse_runtime": {
+        "name": "Nachspül-Laufzeit"
+      },
+      "pump_runtime": {
+        "name": "Pumpen-Laufzeit"
+      },
+      "pump_last_on": {
+        "name": "Pumpe Zuletzt Ein"
+      },
+      "pump_last_off": {
+        "name": "Pumpe Zuletzt Aus"
+      },
+      "heater_runtime": {
+        "name": "Heizungs-Laufzeit"
+      },
+      "heater_last_on": {
+        "name": "Heizung Zuletzt Ein"
+      },
+      "heater_last_off": {
+        "name": "Heizung Zuletzt Aus"
+      },
+      "heater_postrun_time": {
+        "name": "Heizung Nachlaufzeit"
+      },
+      "solar_runtime": {
+        "name": "Solar-Laufzeit"
+      },
+      "solar_last_on": {
+        "name": "Solar Zuletzt Ein"
+      },
+      "solar_last_off": {
+        "name": "Solar Zuletzt Aus"
+      },
+      "light_runtime": {
+        "name": "Beleuchtungs-Laufzeit"
+      },
+      "light_last_on": {
+        "name": "Beleuchtung Zuletzt Ein"
+      },
+      "light_last_off": {
+        "name": "Beleuchtung Zuletzt Aus"
+      },
+      "eco": {
+        "name": "Eco-Modus Status"
+      },
+      "eco_runtime": {
+        "name": "Eco-Laufzeit"
+      },
+      "eco_last_on": {
+        "name": "Eco Zuletzt Ein"
+      },
+      "eco_last_off": {
+        "name": "Eco Zuletzt Aus"
+      },
+      "dos_1_cl": {
+        "name": "Chlor-Dosiersystem"
+      },
+      "dos_1_cl_daily": {
+        "name": "Chlor Tagesdosierung (ml)"
+      },
+      "dos_1_cl_total_can": {
+        "name": "Chlor Kanisterinhalt (ml)"
+      },
+      "dos_1_cl_runtime": {
+        "name": "Chlor-Dosierlaufzeit"
+      },
+      "dos_1_cl_last_on": {
+        "name": "Chlor-Dosierung Zuletzt Ein"
+      },
+      "dos_1_cl_last_off": {
+        "name": "Chlor-Dosierung Zuletzt Aus"
+      },
+      "dos_1_cl_daily_dosing_amount_ml": {
+        "name": "Chlor Tagesdosierung (ml)"
+      },
+      "dos_1_cl_total_can_amount_ml": {
+        "name": "Chlor Kanisterinhalt (ml)"
+      },
+      "dos_1_cl_type": {
+        "name": "Chlor Dosiertyp"
+      },
+      "dos_1_cl_use": {
+        "name": "Chlor Verbrauch"
+      },
+      "dos_1_cl_last_can_reset": {
+        "name": "Chlor Letzter Kanister-Reset"
+      },
+      "dos_2_elo": {
+        "name": "Elektrolyse-Dosiersystem"
       },
       "dos_2_elo_daily": {
-        "name": "Dagelijkse elektrolysedosering (ml)"
+        "name": "Elektrolyse Tagesdosiermenge (ml)"
+      },
+      "dos_2_elo_total_can": {
+        "name": "Elektrolyse Kanisterinhalt (ml)"
+      },
+      "dos_4_phm": {
+        "name": "pH- Dosiersystem"
+      },
+      "dos_4_phm_daily": {
+        "name": "pH- Tagesdosierung (ml)"
+      },
+      "dos_4_phm_total_can": {
+        "name": "pH- Kanisterinhalt (ml)"
+      },
+      "dos_5_php": {
+        "name": "pH+ Dosiersystem"
+      },
+      "dos_5_php_daily": {
+        "name": "pH+ Tagesdosierung (ml)"
+      },
+      "dos_5_php_total_can": {
+        "name": "pH+ Kanisterinhalt (ml)"
+      },
+      "dos_6_floc": {
+        "name": "Flockmittel-Dosiersystem"
+      },
+      "dos_6_floc_daily": {
+        "name": "Flockmittel Tagesdosierung (ml)"
+      },
+      "dos_6_floc_total_can": {
+        "name": "Flockmittel Kanisterinhalt (ml)"
+      },
+      "refill_runtime": {
+        "name": "Nachfüll-Laufzeit"
+      },
+      "refill_last_on": {
+        "name": "Nachfüllung Zuletzt Ein"
+      },
+      "refill_last_off": {
+        "name": "Nachfüllung Zuletzt Aus"
+      },
+      "overflow_dryrun_state": {
+        "name": "Überlauf Trockenlauf-Status"
+      },
+      "overflow_overfill_state": {
+        "name": "Überfüllungs-Status"
+      },
+      "overflow_refill_state": {
+        "name": "Überlauf Nachfüll-Status"
+      },
+      "bathing_ai_last_level": {
+        "name": "Bade-KI Letzter Füllstand"
+      },
+      "bathing_ai_pump_state": {
+        "name": "Bade-KI Pumpenstatus"
+      },
+      "bathing_ai_pump_timestamp": {
+        "name": "Bade-KI Pumpen-Zeitstempel"
+      },
+      "bathing_ai_start_level": {
+        "name": "Bade-KI Startfüllstand"
+      },
+      "bathing_ai_surveillance_state": {
+        "name": "Bade-KI Überwachungsstatus"
+      },
+      "pump_rpm_0": {
+        "name": "Pumpen-Stufe 0"
+      },
+      "pump_rpm_1": {
+        "name": "Pumpen-Stufe 1"
+      },
+      "pump_rpm_2": {
+        "name": "Pumpen-Stufe 2"
+      },
+      "pump_rpm_3": {
+        "name": "Pumpen-Stufe 3"
+      },
+      "pump_rpm_0_last_off": {
+        "name": "Pumpen-Stufe 0 Zuletzt Aus"
+      },
+      "pump_rpm_1_last_off": {
+        "name": "Pumpen-Stufe 1 Zuletzt Aus"
+      },
+      "pump_rpm_2_last_off": {
+        "name": "Pumpen-Stufe 2 Zuletzt Aus"
+      },
+      "pump_rpm_3_last_off": {
+        "name": "Pumpen-Stufe 3 Zuletzt Aus"
+      },
+      "pump_rpm_0_runtime": {
+        "name": "Pumpen-Stufe 0 Laufzeit"
+      },
+      "pump_rpm_1_runtime": {
+        "name": "Pumpen-Stufe 1 Laufzeit"
+      },
+      "pump_rpm_2_runtime": {
+        "name": "Pumpen-Stufe 2 Laufzeit"
+      },
+      "pump_rpm_3_runtime": {
+        "name": "Pumpen-Stufe 3 Laufzeit"
+      },
+      "sw_version": {
+        "name": "Software-Version"
+      },
+      "sw_version_carrier": {
+        "name": "Carrier Software-Version"
+      },
+      "system_memory": {
+        "name": "Systemspeicher"
+      },
+      "cover_state": {
+        "name": "Abdeckungs-Zustand"
+      },
+      "onewire12_value": {
+        "name": "Temperatursensor 12"
+      },
+      "onewire12_value_max": {
+        "name": "Temperatursensor 12 Maximum"
+      },
+      "onewire12_value_min": {
+        "name": "Temperatursensor 12 Minimum"
+      },
+      "onewire1_value_max": {
+        "name": "Wassertemperatur Maximum"
+      },
+      "onewire1_value_min": {
+        "name": "Wassertemperatur Minimum"
+      },
+      "orp_value_max": {
+        "name": "Redoxpotential Maximum"
+      },
+      "orp_value_min": {
+        "name": "Redoxpotential Minimum"
+      },
+      "ph_value_max": {
+        "name": "pH-Wert Maximum"
+      },
+      "ph_value_min": {
+        "name": "pH-Wert Minimum"
+      },
+      "pot_value_max": {
+        "name": "Chlorgehalt Maximum"
+      },
+      "pot_value_min": {
+        "name": "Chlorgehalt Minimum"
+      },
+      "ext1_1_last_on": {
+        "name": "Erweiterung 1.1 Zuletzt Ein"
+      },
+      "ext1_1_last_off": {
+        "name": "Erweiterung 1.1 Zuletzt Aus"
+      },
+      "ext1_1_runtime": {
+        "name": "Erweiterung 1.1 Laufzeit"
+      },
+      "ext1_2_last_on": {
+        "name": "Erweiterung 1.2 Zuletzt Ein"
+      },
+      "ext1_2_last_off": {
+        "name": "Erweiterung 1.2 Zuletzt Aus"
+      },
+      "ext1_2_runtime": {
+        "name": "Erweiterung 1.2 Laufzeit"
+      },
+      "ext1_3_last_on": {
+        "name": "Erweiterung 1.3 Zuletzt Ein"
+      },
+      "ext1_3_last_off": {
+        "name": "Erweiterung 1.3 Zuletzt Aus"
+      },
+      "ext1_3_runtime": {
+        "name": "Erweiterung 1.3 Laufzeit"
+      },
+      "ext1_4_last_on": {
+        "name": "Erweiterung 1.4 Zuletzt Ein"
+      },
+      "ext1_4_last_off": {
+        "name": "Erweiterung 1.4 Zuletzt Aus"
+      },
+      "ext1_4_runtime": {
+        "name": "Erweiterung 1.4 Laufzeit"
+      },
+      "ext1_5_last_on": {
+        "name": "Erweiterung 1.5 Zuletzt Ein"
+      },
+      "ext1_5_last_off": {
+        "name": "Erweiterung 1.5 Zuletzt Aus"
+      },
+      "ext1_5_runtime": {
+        "name": "Erweiterung 1.5 Laufzeit"
+      },
+      "ext1_6_last_on": {
+        "name": "Erweiterung 1.6 Zuletzt Ein"
+      },
+      "ext1_6_last_off": {
+        "name": "Erweiterung 1.6 Zuletzt Aus"
+      },
+      "ext1_6_runtime": {
+        "name": "Erweiterung 1.6 Laufzeit"
+      },
+      "ext1_7_last_on": {
+        "name": "Erweiterung 1.7 Zuletzt Ein"
+      },
+      "ext1_7_last_off": {
+        "name": "Erweiterung 1.7 Zuletzt Aus"
+      },
+      "ext1_7_runtime": {
+        "name": "Erweiterung 1.7 Laufzeit"
+      },
+      "ext1_8_last_on": {
+        "name": "Erweiterung 1.8 Zuletzt Ein"
+      },
+      "ext1_8_last_off": {
+        "name": "Erweiterung 1.8 Zuletzt Aus"
+      },
+      "ext1_8_runtime": {
+        "name": "Erweiterung 1.8 Laufzeit"
+      },
+      "ext2_1_last_on": {
+        "name": "Erweiterung 2.1 Zuletzt Ein"
+      },
+      "ext2_1_last_off": {
+        "name": "Erweiterung 2.1 Zuletzt Aus"
+      },
+      "ext2_1_runtime": {
+        "name": "Erweiterung 2.1 Laufzeit"
+      },
+      "ext2_2_last_on": {
+        "name": "Erweiterung 2.2 Zuletzt Ein"
+      },
+      "ext2_2_last_off": {
+        "name": "Erweiterung 2.2 Zuletzt Aus"
+      },
+      "ext2_2_runtime": {
+        "name": "Erweiterung 2.2 Laufzeit"
+      },
+      "ext2_3_last_on": {
+        "name": "Erweiterung 2.3 Zuletzt Ein"
+      },
+      "ext2_3_last_off": {
+        "name": "Erweiterung 2.3 Zuletzt Aus"
+      },
+      "ext2_3_runtime": {
+        "name": "Erweiterung 2.3 Laufzeit"
+      },
+      "ext2_4_last_on": {
+        "name": "Erweiterung 2.4 Zuletzt Ein"
+      },
+      "ext2_4_last_off": {
+        "name": "Erweiterung 2.4 Zuletzt Aus"
+      },
+      "ext2_4_runtime": {
+        "name": "Erweiterung 2.4 Laufzeit"
+      },
+      "ext2_5_last_on": {
+        "name": "Erweiterung 2.5 Zuletzt Ein"
+      },
+      "ext2_5_last_off": {
+        "name": "Erweiterung 2.5 Zuletzt Aus"
+      },
+      "ext2_5_runtime": {
+        "name": "Erweiterung 2.5 Laufzeit"
+      },
+      "ext2_6_last_on": {
+        "name": "Erweiterung 2.6 Zuletzt Ein"
+      },
+      "ext2_6_last_off": {
+        "name": "Erweiterung 2.6 Zuletzt Aus"
+      },
+      "ext2_6_runtime": {
+        "name": "Erweiterung 2.6 Laufzeit"
+      },
+      "ext2_7_last_on": {
+        "name": "Erweiterung 2.7 Zuletzt Ein"
+      },
+      "ext2_7_last_off": {
+        "name": "Erweiterung 2.7 Zuletzt Aus"
+      },
+      "ext2_7_runtime": {
+        "name": "Erweiterung 2.7 Laufzeit"
+      },
+      "ext2_8_last_on": {
+        "name": "Erweiterung 2.8 Zuletzt Ein"
+      },
+      "ext2_8_last_off": {
+        "name": "Erweiterung 2.8 Zuletzt Aus"
+      },
+      "ext2_8_runtime": {
+        "name": "Erweiterung 2.8 Laufzeit"
+      },
+      "onewire2_value_max": {
+        "name": "Außentemperatur Maximum"
+      },
+      "onewire2_value_min": {
+        "name": "Außentemperatur Minimum"
+      },
+      "onewire3_value_max": {
+        "name": "Solarabsorber Maximum"
+      },
+      "onewire3_value_min": {
+        "name": "Solarabsorber Minimum"
+      },
+      "onewire4_value_max": {
+        "name": "Absorber-Rücklauf Maximum"
+      },
+      "onewire4_value_min": {
+        "name": "Absorber-Rücklauf Minimum"
+      },
+      "onewire5_value_max": {
+        "name": "Wärmetauscher Einlauf Maximum"
+      },
+      "onewire5_value_min": {
+        "name": "Wärmetauscher Einlauf Minimum"
+      },
+      "onewire6_value_max": {
+        "name": "Wärmetauscher Auslauf Maximum"
+      },
+      "onewire6_value_min": {
+        "name": "Wärmetauscher Auslauf Minimum"
+      },
+      "onewire7_value_max": {
+        "name": "Temperatursensor 7 Maximum"
+      },
+      "onewire7_value_min": {
+        "name": "Temperatursensor 7 Minimum"
+      },
+      "onewire8_value_max": {
+        "name": "Temperatursensor 8 Maximum"
+      },
+      "onewire8_value_min": {
+        "name": "Temperatursensor 8 Minimum"
+      },
+      "onewire9_value": {
+        "name": "Temperatursensor 9"
+      },
+      "onewire9_value_max": {
+        "name": "Temperatursensor 9 Maximum"
+      },
+      "onewire9_value_min": {
+        "name": "Temperatursensor 9 Minimum"
+      },
+      "onewire10_value": {
+        "name": "Temperatursensor 10"
+      },
+      "onewire10_value_max": {
+        "name": "Temperatursensor 10 Maximum"
+      },
+      "onewire10_value_min": {
+        "name": "Temperatursensor 10 Minimum"
+      },
+      "onewire11_value": {
+        "name": "Temperatursensor 11"
+      },
+      "onewire11_value_max": {
+        "name": "Temperatursensor 11 Maximum"
+      },
+      "onewire11_value_min": {
+        "name": "Temperatursensor 11 Minimum"
+      },
+      "pump_rpm_0_last_on": {
+        "name": "Pumpen-Stufe 0 Zuletzt Ein"
+      },
+      "pump_rpm_1_last_on": {
+        "name": "Pumpen-Stufe 1 Zuletzt Ein"
+      },
+      "pump_rpm_2_last_on": {
+        "name": "Pumpen-Stufe 2 Zuletzt Ein"
+      },
+      "pump_rpm_3_last_on": {
+        "name": "Pumpen-Stufe 3 Zuletzt Ein"
+      },
+      "dos_2_elo_daily_dosing_amount_ml": {
+        "name": "Elektrolyse Tagesdosierung (ml)"
+      },
+      "dos_2_elo_last_can_reset": {
+        "name": "Elektrolyse Letzter Kanister-Reset"
+      },
+      "dos_2_elo_last_off": {
+        "name": "Elektrolyse-Dosierung Zuletzt Aus"
+      },
+      "dos_2_elo_last_on": {
+        "name": "Elektrolyse-Dosierung Zuletzt Ein"
+      },
+      "dos_2_elo_runtime": {
+        "name": "Elektrolyse-Dosierlaufzeit"
+      },
+      "dos_2_elo_total_can_amount_ml": {
+        "name": "Elektrolyse Kanisterinhalt (ml)"
+      },
+      "dos_2_elo_type": {
+        "name": "Elektrolyse Dosiertyp"
+      },
+      "dos_2_elo_use": {
+        "name": "Elektrolyse Verbrauch"
+      },
+      "dos_4_phm_daily_dosing_amount_ml": {
+        "name": "pH- Tagesdosierung (ml)"
+      },
+      "dos_4_phm_last_can_reset": {
+        "name": "pH- Letzter Kanister-Reset"
+      },
+      "dos_4_phm_last_off": {
+        "name": "pH--Dosierung Zuletzt Aus"
+      },
+      "dos_4_phm_last_on": {
+        "name": "pH--Dosierung Zuletzt Ein"
+      },
+      "dos_4_phm_runtime": {
+        "name": "pH--Dosierlaufzeit"
+      },
+      "dos_4_phm_total_can_amount_ml": {
+        "name": "pH- Kanisterinhalt (ml)"
+      },
+      "dos_4_phm_type": {
+        "name": "pH- Dosiertyp"
+      },
+      "dos_4_phm_use": {
+        "name": "pH- Verbrauch"
+      },
+      "dos_5_php_daily_dosing_amount_ml": {
+        "name": "pH+ Tagesdosierung (ml)"
+      },
+      "dos_5_php_last_can_reset": {
+        "name": "pH+ Letzter Kanister-Reset"
+      },
+      "dos_5_php_last_off": {
+        "name": "pH+-Dosierung Zuletzt Aus"
+      },
+      "dos_5_php_last_on": {
+        "name": "pH+-Dosierung Zuletzt Ein"
+      },
+      "dos_5_php_runtime": {
+        "name": "pH+-Dosierlaufzeit"
+      },
+      "dos_5_php_total_can_amount_ml": {
+        "name": "pH+ Kanisterinhalt (ml)"
+      },
+      "dos_5_php_type": {
+        "name": "pH+ Dosiertyp"
+      },
+      "dos_5_php_use": {
+        "name": "pH+ Verbrauch"
+      },
+      "dos_6_floc_daily_dosing_amount_ml": {
+        "name": "Flockmittel Tagesdosierung (ml)"
+      },
+      "dos_6_floc_last_can_reset": {
+        "name": "Flockmittel Letzter Kanister-Reset"
+      },
+      "dos_6_floc_last_off": {
+        "name": "Flockmittel-Dosierung Zuletzt Aus"
+      },
+      "dos_6_floc_last_on": {
+        "name": "Flockmittel-Dosierung Zuletzt Ein"
+      },
+      "dos_6_floc_runtime": {
+        "name": "Flockmittel-Dosierlaufzeit"
+      },
+      "dos_6_floc_total_can_amount_ml": {
+        "name": "Flockmittel Kanisterinhalt (ml)"
+      },
+      "dos_6_floc_type": {
+        "name": "Flockmittel Dosiertyp"
+      },
+      "dos_6_floc_use": {
+        "name": "Flockmittel Verbrauch"
+      },
+      "dmx_scene1": {
+        "name": "DMX-Lichtszene 1"
+      },
+      "dmx_scene2": {
+        "name": "DMX-Lichtszene 2"
+      },
+      "dmx_scene3": {
+        "name": "DMX-Lichtszene 3"
+      },
+      "dmx_scene4": {
+        "name": "DMX-Lichtszene 4"
+      },
+      "dmx_scene5": {
+        "name": "DMX-Lichtszene 5"
+      },
+      "dmx_scene6": {
+        "name": "DMX-Lichtszene 6"
+      },
+      "dmx_scene7": {
+        "name": "DMX-Lichtszene 7"
+      },
+      "dmx_scene8": {
+        "name": "DMX-Lichtszene 8"
+      },
+      "dmx_scene9": {
+        "name": "DMX-Lichtszene 9"
+      },
+      "dmx_scene10": {
+        "name": "DMX-Lichtszene 10"
+      },
+      "dmx_scene11": {
+        "name": "DMX-Lichtszene 11"
+      },
+      "dmx_scene12": {
+        "name": "DMX-Lichtszene 12"
+      },
+      "digitalinputrule_state_digitalinput_rule_1": {
+        "name": "Schaltregeln Zustand 1"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch1": {
+        "name": "Schaltregeln Stoppuhr 1"
+      },
+      "digitalinputrule_state_digitalinput_rule_2": {
+        "name": "Schaltregeln Zustand 2"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch2": {
+        "name": "Schaltregeln Stoppuhr 2"
+      },
+      "digitalinputrule_state_digitalinput_rule_3": {
+        "name": "Schaltregeln Zustand 3"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch3": {
+        "name": "Schaltregeln Stoppuhr 3"
+      },
+      "digitalinputrule_state_digitalinput_rule_4": {
+        "name": "Schaltregeln Zustand 4"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch4": {
+        "name": "Schaltregeln Stoppuhr 4"
+      },
+      "digitalinputrule_state_digitalinput_rule_5": {
+        "name": "Schaltregeln Zustand 5"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch5": {
+        "name": "Schaltregeln Stoppuhr 5"
+      },
+      "digitalinputrule_state_digitalinput_rule_6": {
+        "name": "Schaltregeln Zustand 6"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch6": {
+        "name": "Schaltregeln Stoppuhr 6"
+      },
+      "digitalinputrule_state_digitalinput_rule_7": {
+        "name": "Schaltregeln Zustand 7"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch7": {
+        "name": "Schaltregeln Stoppuhr 7"
+      },
+      "input1": {
+        "name": "Digitaleingang 1"
+      },
+      "input2": {
+        "name": "Digitaleingang 2"
+      },
+      "input3": {
+        "name": "Digitaleingang 3"
+      },
+      "input4": {
+        "name": "Digitaleingang 4"
+      },
+      "input5": {
+        "name": "Digitaleingang 5"
+      },
+      "input6": {
+        "name": "Digitaleingang 6"
+      },
+      "input7": {
+        "name": "Digitaleingang 7"
+      },
+      "input8": {
+        "name": "Digitaleingang 8"
+      },
+      "input9": {
+        "name": "Digitaleingang 9"
+      },
+      "input10": {
+        "name": "Digitaleingang 10"
+      },
+      "input11": {
+        "name": "Digitaleingang 11"
+      },
+      "input12": {
+        "name": "Digitaleingang 12"
+      },
+      "input_ce1": {
+        "name": "Kanister-Leersensor 1"
+      },
+      "input_ce2": {
+        "name": "Kanister-Leersensor 2"
+      },
+      "input_ce3": {
+        "name": "Kanister-Leersensor 3"
+      },
+      "input_ce4": {
+        "name": "Kanister-Leersensor 4"
+      },
+      "pump_rs485_pwr": {
+        "name": "RS485-Pumpenleistung"
+      },
+      "load_avg": {
+        "name": "CPU-Auslastung"
       },
       "di_rule_1_stopwatch": {
-        "name": "Resterende tijd DI-regel 1"
+        "name": "DI-Regel 1 Restzeit"
       },
       "di_rule_2_stopwatch": {
-        "name": "Resterende tijd DI-regel 2"
+        "name": "DI-Regel 2 Restzeit"
       },
       "di_rule_3_stopwatch": {
-        "name": "Resterende tijd DI-regel 3"
+        "name": "DI-Regel 3 Restzeit"
       },
       "di_rule_4_stopwatch": {
-        "name": "Resterende tijd DI-regel 4"
+        "name": "DI-Regel 4 Restzeit"
       },
       "di_rule_5_stopwatch": {
-        "name": "Resterende tijd DI-regel 5"
+        "name": "DI-Regel 5 Restzeit"
       },
       "di_rule_6_stopwatch": {
-        "name": "Resterende tijd DI-regel 6"
+        "name": "DI-Regel 6 Restzeit"
       },
       "di_rule_7_stopwatch": {
-        "name": "Resterende tijd DI-regel 7"
+        "name": "DI-Regel 7 Restzeit"
       },
       "di_rule_8_stopwatch": {
-        "name": "Resterende tijd DI-regel 8"
+        "name": "DI-Regel 8 Restzeit"
       }
     },
     "binary_sensor": {
       "pump": {
-        "name": "Filterpomp"
+        "name": "Pumpenstatus"
       },
       "solar": {
-        "name": "Zonne-absorber"
+        "name": "Solarstatus"
       },
       "heater": {
-        "name": "Verwarmer"
+        "name": "Heizerstatus"
       },
       "light": {
-        "name": "Verlichting"
+        "name": "Beleuchtungsstatus"
       },
       "backwash": {
-        "name": "Tegenspoelen"
+        "name": "Rückspülstatus"
       },
       "refill": {
-        "name": "Bijvulling"
+        "name": "Nachfüllstatus"
       },
       "eco": {
-        "name": "Eco-modus"
+        "name": "Eco-Modus"
       },
       "pvsurplus": {
-        "name": "PV-overschot"
+        "name": "PV-Überschuss"
       },
       "circulation_state": {
-        "name": "Circulatiestatus"
+        "name": "Zirkulationsproblem"
       },
       "electrode_flow_state": {
-        "name": "Elektrodedoorstroom"
+        "name": "Elektrodendurchfluss-Problem"
       },
       "pressure_state": {
-        "name": "Drukstatus"
+        "name": "Druckproblem"
       },
       "can_range_state": {
-        "name": "CAN-bereik"
+        "name": "Behälter-Bereichs-Problem"
       },
       "input1": {
-        "name": "Digitale ingang 1"
+        "name": "Digitaler Eingang 1"
       },
       "input2": {
-        "name": "Digitale ingang 2"
+        "name": "Digitaler Eingang 2"
       },
       "input3": {
-        "name": "Digitale ingang 3"
+        "name": "Digitaler Eingang 3"
       },
       "input4": {
-        "name": "Digitale ingang 4"
+        "name": "Digitaler Eingang 4"
       },
       "input5": {
-        "name": "Digitale ingang 5"
+        "name": "Digitaler Eingang 5"
       },
       "input6": {
-        "name": "Digitale ingang 6"
+        "name": "Digitaler Eingang 6"
       },
       "input7": {
-        "name": "Digitale ingang 7"
+        "name": "Digitaler Eingang 7"
       },
       "input8": {
-        "name": "Digitale ingang 8"
+        "name": "Digitaler Eingang 8"
       },
       "input9": {
-        "name": "Digitale ingang 9"
+        "name": "Digitaler Eingang 9"
       },
       "input10": {
-        "name": "Digitale ingang 10"
+        "name": "Digitaler Eingang 10"
       },
       "input11": {
-        "name": "Digitale ingang 11"
+        "name": "Digitaler Eingang 11"
       },
       "input12": {
-        "name": "Digitale ingang 12"
+        "name": "Digitaler Eingang 12"
       },
       "input_ce1": {
-        "name": "CE-ingang 1"
+        "name": "CE-Eingang 1"
       },
       "input_ce2": {
-        "name": "CE-ingang 2"
+        "name": "CE-Eingang 2"
       },
       "input_ce3": {
-        "name": "CE-ingang 3"
+        "name": "CE-Eingang 3"
       },
       "input_ce4": {
-        "name": "CE-ingang 4"
+        "name": "CE-Eingang 4"
       },
       "hw_base_module": {
-        "name": "Basismodule"
+        "name": "Hardware: Basismodul"
       },
       "hw_dosing_module": {
-        "name": "Doseringsmodule"
+        "name": "Hardware: Dosiermodul"
       },
       "hw_extension_module_1": {
-        "name": "Uitbreidingsmodule 1"
+        "name": "Hardware: Erweiterungsmodul 1"
       },
       "hw_extension_module_2": {
-        "name": "Uitbreidingsmodule 2"
+        "name": "Hardware: Erweiterungsmodul 2"
       },
       "hw_standalone_mode": {
-        "name": "Zelfstandige doseerinrichting"
+        "name": "Hardware: Eigenständige Dosiereinheit"
       },
       "hw_dmx_module": {
-        "name": "DMX-module"
+        "name": "Hardware: DMX-Modul"
       },
       "hw_dirule_module": {
-        "name": "Digitale regelmodule"
+        "name": "Hardware: Digital Rules Module"
+      }
+    },
+    "button": {
+      "reset_errors": {
+        "name": "Fehler-Blockierungen zurücksetzen"
       }
     },
     "switch": {
       "pump": {
-        "name": "Filterpomp"
+        "name": "Filterpumpe"
       },
       "solar": {
-        "name": "Zonne-absorber"
+        "name": "Sonnenkollektor"
       },
       "heater": {
-        "name": "Verwarmer"
+        "name": "Heizer"
       },
       "light": {
-        "name": "Verlichting"
+        "name": "Beleuchtung"
       },
       "dos_5_php": {
-        "name": "pH+ dosering"
+        "name": "Dosierung pH+"
       },
       "dos_4_phm": {
-        "name": "pH- dosering"
+        "name": "Dosierung pH-"
       },
       "dos_1_cl": {
-        "name": "Chloordosering"
+        "name": "Chlordosierung"
       },
       "dos_6_floc": {
-        "name": "Vlokkenmiddeldosering"
+        "name": "Flockungsmittel"
       },
       "pvsurplus": {
-        "name": "PV-overschot"
+        "name": "PV-Überschuss"
       },
       "backwash": {
-        "name": "Tegenspoelen"
+        "name": "Rückspülung"
       },
       "backwashrinse": {
-        "name": "Spoeling"
+        "name": "Spülung"
       },
       "ext1_1": {
-        "name": "Uitbreiding 1.1"
+        "name": "Erweiterung 1.1"
       },
       "ext1_2": {
-        "name": "Uitbreiding 1.2"
+        "name": "Erweiterung 1.2"
       },
       "ext1_3": {
-        "name": "Uitbreiding 1.3"
+        "name": "Erweiterung 1.3"
       },
       "ext1_4": {
-        "name": "Uitbreiding 1.4"
+        "name": "Erweiterung 1.4"
       },
       "ext1_5": {
-        "name": "Uitbreiding 1.5"
+        "name": "Erweiterung 1.5"
       },
       "ext1_6": {
-        "name": "Uitbreiding 1.6"
+        "name": "Erweiterung 1.6"
       },
       "ext1_7": {
-        "name": "Uitbreiding 1.7"
+        "name": "Erweiterung 1.7"
       },
       "ext1_8": {
-        "name": "Uitbreiding 1.8"
+        "name": "Erweiterung 1.8"
       },
       "ext2_1": {
-        "name": "Uitbreiding 2.1"
+        "name": "Erweiterung 2.1"
       },
       "ext2_2": {
-        "name": "Uitbreiding 2.2"
+        "name": "Erweiterung 2.2"
       },
       "ext2_3": {
-        "name": "Uitbreiding 2.3"
+        "name": "Erweiterung 2.3"
       },
       "ext2_4": {
-        "name": "Uitbreiding 2.4"
+        "name": "Erweiterung 2.4"
       },
       "ext2_5": {
-        "name": "Uitbreiding 2.5"
+        "name": "Erweiterung 2.5"
       },
       "ext2_6": {
-        "name": "Uitbreiding 2.6"
+        "name": "Erweiterung 2.6"
       },
       "ext2_7": {
-        "name": "Uitbreiding 2.7"
+        "name": "Erweiterung 2.7"
       },
       "ext2_8": {
-        "name": "Uitbreiding 2.8"
+        "name": "Erweiterung 2.8"
       },
       "dmx_scene1": {
-        "name": "DMX-scène 1"
+        "name": "DMX Szene 1"
       },
       "dmx_scene2": {
-        "name": "DMX-scène 2"
+        "name": "DMX Szene 2"
       },
       "dmx_scene3": {
-        "name": "DMX-scène 3"
+        "name": "DMX Szene 3"
       },
       "dmx_scene4": {
-        "name": "DMX-scène 4"
+        "name": "DMX Szene 4"
       },
       "dmx_scene5": {
-        "name": "DMX-scène 5"
+        "name": "DMX Szene 5"
       },
       "dmx_scene6": {
-        "name": "DMX-scène 6"
+        "name": "DMX Szene 6"
       },
       "dmx_scene7": {
-        "name": "DMX-scène 7"
+        "name": "DMX Szene 7"
       },
       "dmx_scene8": {
-        "name": "DMX-scène 8"
+        "name": "DMX Szene 8"
       },
       "dmx_scene9": {
-        "name": "DMX-scène 9"
+        "name": "DMX Szene 9"
       },
       "dmx_scene10": {
-        "name": "DMX-scène 10"
+        "name": "DMX Szene 10"
       },
       "dmx_scene11": {
-        "name": "DMX-scène 11"
+        "name": "DMX Szene 11"
       },
       "dmx_scene12": {
-        "name": "DMX-scène 12"
+        "name": "DMX Szene 12"
       },
       "dirule_1": {
-        "name": "Schakelregel 1"
+        "name": "Schaltregel 1"
       },
       "dirule_2": {
-        "name": "Schakelregel 2"
+        "name": "Schaltregel 2"
       },
       "dirule_3": {
-        "name": "Schakelregel 3"
+        "name": "Schaltregel 3"
       },
       "dirule_4": {
-        "name": "Schakelregel 4"
+        "name": "Schaltregel 4"
       },
       "dirule_5": {
-        "name": "Schakelregel 5"
+        "name": "Schaltregel 5"
       },
       "dirule_6": {
-        "name": "Schakelregel 6"
+        "name": "Schaltregel 6"
       },
       "dirule_7": {
-        "name": "Schakelregel 7"
+        "name": "Schaltregel 7"
       },
       "dirule_8": {
-        "name": "Schakelregel 8"
+        "name": "Schaltregel 8"
       }
     },
     "climate": {
       "heater": {
-        "name": "Zwembadverwarmer"
+        "name": "Pool-Heizer"
       },
       "solar": {
-        "name": "Zonneverwarmer"
+        "name": "Solar-Heizer"
       }
     },
     "cover": {
       "pool_cover": {
-        "name": "Zwembadafdekking"
+        "name": "Pool-Abdeckung"
       }
     },
     "number": {
       "ph_setpoint": {
-        "name": "pH-instelpunt"
+        "name": "pH-Sollwert"
       },
       "orp_setpoint": {
-        "name": "ORP-instelpunt"
+        "name": "ORP-Sollwert"
       },
       "chlorine_setpoint": {
-        "name": "Chloorinstelpunt"
+        "name": "Chlor-Sollwert"
       },
       "heater_target_temp": {
-        "name": "Verwarmingsdoeltemperatuur"
+        "name": "Zieltemperatur Heizer"
       },
       "solar_target_temp": {
-        "name": "Zonne-doeltemperatuur"
+        "name": "Zieltemperatur Solar"
       },
       "pump_speed": {
-        "name": "Pompsnelheid"
+        "name": "Pumpendrehzahl"
       },
       "chlorine_canister_volume": {
-        "name": "Chloor kanistervolume"
+        "name": "Chlorbehälter-Volumen"
       },
       "ph_minus_canister_volume": {
-        "name": "pH- kanistervolume"
+        "name": "pH--Behälter-Volumen"
       },
       "ph_plus_canister_volume": {
-        "name": "pH+ kanistervolume"
+        "name": "pH+-Behälter-Volumen"
       },
       "flocculant_canister_volume": {
-        "name": "Vlokkenmiddel kanistervolume"
+        "name": "Flockungsmittel-Behälter-Volumen"
       }
     },
     "select": {
       "pump_mode": {
-        "name": "Pompstand",
+        "name": "Pumpenmodus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "heater_mode": {
-        "name": "Verwarmingsstand",
+        "name": "Heizer-Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "solar_mode": {
-        "name": "Zonnestand",
+        "name": "Solar-Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "light_mode": {
-        "name": "Verlichting Modus",
+        "name": "Beleuchtungs-Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "dos_cl_mode": {
-        "name": "Chloordosering Modus",
+        "name": "Chlordosier-Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "dos_phm_mode": {
-        "name": "pH- Dosering Modus",
+        "name": "pH--Dosier-Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "dos_php_mode": {
-        "name": "pH+ Dosering Modus",
+        "name": "pH+-Dosier-Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "pvsurplus_mode": {
-        "name": "PV Overschot Modus",
+        "name": "PV-Überschuss-Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "backwash_mode": {
-        "name": "Terugspoeling Modus",
+        "name": "Rückspül-Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "backwashrinse_mode": {
-        "name": "Spoeling Modus",
+        "name": "Spül-Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "dos_floc_mode": {
-        "name": "Flocculant Dosering Modus",
+        "name": "Flockungsmittel-Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "ext1_1_mode": {
-        "name": "Extensie 1.1 Modus",
+        "name": "Erweiterung 1.1 Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "ext1_2_mode": {
-        "name": "Extensie 1.2 Modus",
+        "name": "Erweiterung 1.2 Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "ext1_3_mode": {
-        "name": "Extensie 1.3 Modus",
+        "name": "Erweiterung 1.3 Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "ext1_4_mode": {
-        "name": "Extensie 1.4 Modus",
+        "name": "Erweiterung 1.4 Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "ext1_5_mode": {
-        "name": "Extensie 1.5 Modus",
+        "name": "Erweiterung 1.5 Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "ext1_6_mode": {
-        "name": "Extensie 1.6 Modus",
+        "name": "Erweiterung 1.6 Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "ext1_7_mode": {
-        "name": "Extensie 1.7 Modus",
+        "name": "Erweiterung 1.7 Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "ext1_8_mode": {
-        "name": "Extensie 1.8 Modus",
+        "name": "Erweiterung 1.8 Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "ext2_1_mode": {
-        "name": "Extensie 2.1 Modus",
+        "name": "Erweiterung 2.1 Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "ext2_2_mode": {
-        "name": "Extensie 2.2 Modus",
+        "name": "Erweiterung 2.2 Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "ext2_3_mode": {
-        "name": "Extensie 2.3 Modus",
+        "name": "Erweiterung 2.3 Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "ext2_4_mode": {
-        "name": "Extensie 2.4 Modus",
+        "name": "Erweiterung 2.4 Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "ext2_5_mode": {
-        "name": "Extensie 2.5 Modus",
+        "name": "Erweiterung 2.5 Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "ext2_6_mode": {
-        "name": "Extensie 2.6 Modus",
+        "name": "Erweiterung 2.6 Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "ext2_7_mode": {
-        "name": "Extensie 2.7 Modus",
+        "name": "Erweiterung 2.7 Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       },
       "ext2_8_mode": {
-        "name": "Extensie 2.8 Modus",
+        "name": "Erweiterung 2.8 Modus",
         "state": {
-          "off": "Uit",
-          "on": "Aan",
-          "auto": "Automatisch"
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
         }
       }
     }
