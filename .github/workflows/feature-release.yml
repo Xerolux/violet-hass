@@ -34,7 +34,7 @@ jobs:
       - name: Get version
         id: version
         run: |
-          VERSION=$(grep -oP 'version = "\K[^"]+' custom_components/violet_pool_controller/const.py | head -1)
+          VERSION=$(grep 'INTEGRATION_VERSION = ' custom_components/violet_pool_controller/const.py | sed 's/.*"\([^"]*\)".*/\1/')
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
           # Remove -dev suffix if present

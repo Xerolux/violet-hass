@@ -193,8 +193,8 @@ jobs:
           fi
 
           # Update versions
-          sed -i "s|\"version\": \"[^\"]*\"|\"version\": \"$VERSION\"|" "$MANIFEST_FILE"
-          sed -i "s|^INTEGRATION_VERSION = .*|INTEGRATION_VERSION = \"$VERSION\"|" "$CONST_FILE"
+          sed -i "s|\"version\": \"[^\"]*\"|\"version\": \"${VERSION}\"|" "$MANIFEST_FILE"
+          sed -i "s|^INTEGRATION_VERSION = .*|INTEGRATION_VERSION = \"${VERSION}\"|" "$CONST_FILE"
 
           # Update CLAUDE.md if it exists
           if [ -f "$CLAUDE_FILE" ]; then
@@ -466,8 +466,8 @@ jobs:
           CLAUDE_FILE="CLAUDE.md"
 
           # Update manifest.json and const.py
-          sed -i "s|\"version\": \"[^\"]*\"|\"version\": \"$VERSION\"|" "$MANIFEST_FILE"
-          sed -i "s|^INTEGRATION_VERSION = .*|INTEGRATION_VERSION = \"$VERSION\"|" "$CONST_FILE"
+          sed -i "s|\"version\": \"[^\"]*\"|\"version\": \"${VERSION}\"|" "$MANIFEST_FILE"
+          sed -i "s|^INTEGRATION_VERSION = .*|INTEGRATION_VERSION = \"${VERSION}\"|" "$CONST_FILE"
 
           # Update CLAUDE.md if it exists
           if [ -f "$CLAUDE_FILE" ]; then
