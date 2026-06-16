@@ -20,7 +20,11 @@ from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client, selector
 from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
-from violet_poolcontroller_api.api import VioletPoolAPI
+from violet_poolcontroller_api import (
+    VioletAuthError,
+    VioletPoolAPIError,
+    VioletPoolAPI,
+)
 
 from .config_flow_support import (
     ConfigFlowSchemaMixin,
@@ -747,7 +751,17 @@ class ConfigFlow(
             await api.get_readings()
             self._config_data[CONF_DOSING_STANDALONE] = api.dosing_standalone
             return True
-        except Exception:
+        except VioletAuthError as err:
+            _LOGGER.debug("Connection test failed: authentication error: %s", err)
+            return False
+        except VioletPoolAPIError as err:
+            _LOGGER.debug("Connection test failed: API error: %s", err)
+            return False
+        except TimeoutError as err:
+            _LOGGER.debug("Connection test failed: timeout: %s", err)
+            return False
+        except Exception as err:
+            _LOGGER.debug("Connection test failed: unexpected error: %s", err)
             return False
 
     async def _get_grouped_sensors(self) -> dict[str, list[str]]:

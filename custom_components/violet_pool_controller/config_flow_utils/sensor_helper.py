@@ -14,7 +14,11 @@ from typing import Any
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import aiohttp_client
-from violet_poolcontroller_api.api import VioletPoolAPI
+from violet_poolcontroller_api import (
+    VioletAuthError,
+    VioletPoolAPIError,
+    VioletPoolAPI,
+)
 
 from ..const import (
     CONF_API_URL,
@@ -80,5 +84,15 @@ async def get_grouped_sensors(
             grouped[group].append(key)
         return grouped
 
-    except Exception:
+    except VioletAuthError as err:
+        _LOGGER.warning("Failed to get grouped sensors: authentication error: %s", err)
+        return {}
+    except VioletPoolAPIError as err:
+        _LOGGER.warning("Failed to get grouped sensors: API error: %s", err)
+        return {}
+    except TimeoutError as err:
+        _LOGGER.warning("Failed to get grouped sensors: timeout: %s", err)
+        return {}
+    except Exception as err:
+        _LOGGER.error("Failed to get grouped sensors: unexpected error: %s", err)
         return {}

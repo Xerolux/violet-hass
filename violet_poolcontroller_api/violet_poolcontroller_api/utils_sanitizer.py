@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import logging
 import re
+import unicodedata
 from html import escape
 from typing import Any
 
@@ -82,6 +83,10 @@ class InputSanitizer:
 
         # Konvertiere zu String
         str_value = str(value).strip()
+
+        # Unicode-Normalisierung (NFKD für Defense-in-Depth)
+        # Normalized Form Compatibility Decomposition
+        str_value = unicodedata.normalize("NFKD", str_value)
 
         # Längen-Validierung
         if len(str_value) > max_length:

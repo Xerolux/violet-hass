@@ -22,6 +22,7 @@ import asyncio
 import json
 import logging
 import math
+import random
 import re
 import ssl
 from typing import TYPE_CHECKING, Any, cast
@@ -470,7 +471,8 @@ class VioletPoolAPI:
                     if attempt == self._max_retries:
                         raise last_error from None
                     delay = min(2.0, 0.2 * (2 ** (attempt - 1)))
-                    await asyncio.sleep(delay)
+                    jitter = random.uniform(0, delay * 0.1)  # Add 0-10% jitter
+                    await asyncio.sleep(delay + jitter)
                 except aiohttp.ClientError as err:
                     last_error = VioletPoolAPIError(
                         f"Error communicating with Violet controller: {err}",
@@ -485,7 +487,8 @@ class VioletPoolAPI:
                         raise last_error from None
                     # Exponential backoff with jitter
                     delay = min(2.0, 0.2 * (2 ** (attempt - 1)))
-                    await asyncio.sleep(delay)
+                    jitter = random.uniform(0, delay * 0.1)  # Add 0-10% jitter
+                    await asyncio.sleep(delay + jitter)
 
             msg = "All retry attempts exhausted"
             raise VioletPoolAPIError(msg)

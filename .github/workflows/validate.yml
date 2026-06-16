@@ -26,6 +26,9 @@ jobs:
           - python-version: "3.12"
             tox-env: "py312"
             allow-prereleases: false
+          - python-version: "3.13"
+            tox-env: "py313"
+            allow-prereleases: false
           - python-version: "3.14"
             tox-env: "py314"
             allow-prereleases: true
@@ -51,14 +54,14 @@ jobs:
     name: Hassfest
     steps:
       - uses: actions/checkout@v6
-      - uses: home-assistant/actions/hassfest@master
+      - uses: home-assistant/actions/hassfest@v1.1.0
 
   hacs:
     runs-on: ubuntu-latest
     name: HACS
     steps:
       - uses: actions/checkout@v6
-      - uses: hacs/action@main
+      - uses: hacs/action@22.10.5
         with:
           category: integration
 

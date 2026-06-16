@@ -19,7 +19,7 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.
 **🔒 Security Model**: See [SECURITY.md](./SECURITY.md) for detailed security architecture and compliance.
 
 **Current Integration Version**: `2.0.0` (defined in `manifest.json`, `const.py`, `pyproject.toml`, and optionally `.version`)
-**Current API Version**: `0.0.31` (defined in `violet_poolcontroller_api/pyproject.toml`)
+**Current API Version**: `0.0.32` (defined in `violet_poolcontroller_api/pyproject.toml`)
 **Minimum Home Assistant Version**: `2026.5.0` (defined in `hacs.json`)
 **Minimum Python Version**: `3.14.2`
 
@@ -93,9 +93,9 @@ pytest tests/test_api.py::test_function_name -v
 
 #### Main Components
 
-- **`__init__.py`** - Integration entry point. Handles setup, config entry migration, platform loading, and service registration. Loads these platforms: `sensor`, `binary_sensor`, `switch`, `climate`, `cover`, `number`, `select`.
+- **`__init__.py`** - Integration entry point. Handles setup, config entry migration, platform loading, and service registration. Loads these 10 platforms: `sensor`, `binary_sensor`, `switch`, `climate`, `cover`, `number`, `select`, `light`, `update`, `button`.
 
-- **API package** (`violet-poolController-api>=0.0.31` on PyPI) - The HTTP client and low-level utilities live in this monorepo under `violet_poolcontroller_api/` and are published to PyPI (HA installs the PyPI package per `manifest.json`). Provides:
+- **API package** (`violet-poolController-api>=0.0.32` on PyPI) - The HTTP client and low-level utilities live in this monorepo under `violet_poolcontroller_api/` and are published to PyPI (HA installs the PyPI package per `manifest.json`). Provides:
   - `VioletPoolAPI` class - rate-limited HTTP client with retry/backoff
   - `VioletPoolAPIError` exception hierarchy
   - `InputSanitizer` - XSS/injection/path-traversal protection
@@ -213,22 +213,22 @@ pytest tests/test_api.py::test_function_name -v
   - `specialized.py` - Specialized sensors (dosing, error codes, flow rate)
   - `__init__.py` - Module exports
 
-#### Entity Platforms
+#### Entity Platforms (10 Platforms)
 
-- **`sensor.py`** - Sensor entities:
+- **`sensor.py`** - Sensor entities (40+ sensors):
   - Temperature sensors (pool, solar, ambient)
   - Water chemistry (pH, ORP, chlorine, conductivity)
   - Analog inputs (AI1-AI8)
   - System diagnostics (runtime, error codes)
   - Calibration history
 
-- **`binary_sensor.py`** - Binary sensor entities:
+- **`binary_sensor.py`** - Binary sensor entities (20+ sensors):
   - Digital input states (DI1-DI8)
   - System alarms
   - Connection status
 
-- **`switch.py`** - 3-state switch entities (ON/OFF/AUTO):
-  - Pump control
+- **`switch.py`** - Switch entities with multi-state support (30+ switches):
+  - Pump control (speed levels 0-3)
   - Heater control
   - Solar control
   - Dosing systems (pH-, pH+, Chlorine, Flocculant)
@@ -236,25 +236,43 @@ pytest tests/test_api.py::test_function_name -v
   - Extension relays (1-8)
   - Multi-state support (0-6) with automatic mode detection
 
-- **`climate.py`** - Thermostat entities:
+- **`climate.py`** - Thermostat entities (2 thermostats):
   - Pool heater control with temperature setpoints
   - Solar heater control
   - HVAC mode support (off, heat, auto)
 
-- **`cover.py`** - Cover entities:
+- **`cover.py`** - Cover entities (pool covers):
   - Pool cover control with string-state handling
   - Open/close/stop commands
   - Position tracking
 
-- **`number.py`** - Number input entities:
+- **`number.py`** - Number input entities (10+ inputs):
   - Temperature setpoints (pool, solar)
   - pH target values
   - ORP target values
   - Dosing parameters
 
-- **`select.py`** - Select entities for mode selection:
+- **`select.py`** - Select entities for mode selection (5+ modes):
   - Dropdown controls using `SELECT_CONTROLS` constant
   - Mode selection for devices that expose enumerated options
+
+- **`light.py`** - Light entities for RGB/DMX lighting (5+ lights):
+  - DMX scene lighting control
+  - RGB color support
+  - Brightness control
+  - Light scene management
+
+- **`update.py`** - Firmware update entity (1 entity):
+  - Firmware version tracking
+  - Update availability detection
+  - Update installation trigger
+  - Update history (release notes)
+
+- **`button.py`** - Action button entities (5+ buttons):
+  - Manual action triggers
+  - Error clearing buttons
+  - Test/diagnostic actions
+  - Device state reset buttons
 
 #### Services
 
@@ -641,7 +659,7 @@ Located in `.github/workflows/` (10 workflows):
 - `voluptuous>=0.16.0` - Data validation
 
 **Integration requirement** (from `manifest.json`):
-- `violet-poolController-api>=0.0.31` - API client package (installed by HA from PyPI; source is in `violet_poolcontroller_api/` locally)
+- `violet-poolController-api>=0.0.32` - API client package (installed by HA from PyPI; source is in `violet_poolcontroller_api/` locally)
 
 **Development** (from `requirements-dev.txt`):
 - `ruff>=0.15.16` - Linter and formatter

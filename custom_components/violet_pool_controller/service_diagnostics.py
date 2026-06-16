@@ -442,8 +442,8 @@ class VioletDiagnosticServiceHandlers:
                 log_entries.append(
                     "To see more details, enable debug logging for this integration."
                 )
-        except Exception:
-            pass
+        except Exception as err:
+            _LOGGER.debug("Failed to check debug logging status: %s", err)
 
     def _append_system_info(self, log_entries: list[str]) -> None:
         """Append generic Home Assistant system information."""

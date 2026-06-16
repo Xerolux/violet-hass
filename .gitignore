@@ -221,7 +221,6 @@ config/blueprints/ (local edits)
 #   - violet_poolcontroller_api/{README,CHANGELOG,SECURITY,CODE_OF_CONDUCT}.md (PyPI package)
 
 # Root-level internal docs
-/ARCHITECTURE.md
 /WIKI.md
 /CONTROL_IMPLEMENTATION_ROADMAP.md
 
@@ -232,6 +231,8 @@ config/blueprints/ (local edits)
 # Whitelist these files
 !/docs/CHANGELOG.md
 !/docs/RELEASE_NOTES.md
+!/docs/HA_QUALITY_SCALE_PROGRESS.md
+!/docs/CI_CD_ACTION_PINNING.md
 
 # Dashboard & blueprint internal docs
 /Dashboard/*.md

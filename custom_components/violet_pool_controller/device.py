@@ -944,6 +944,13 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator[VioletReadings]):
                 raise UpdateFailed(
                     f"Empty data returned for '{self.device.device_name}'"
                 )
+
+            # Invalidate setpoint cache entries that now exist in fresh data.
+            # This ensures: after writes show cached values, but polls restore live data.
+            for key in list(self._setpoint_cache.keys()):
+                if key in data:
+                    del self._setpoint_cache[key]
+
             return VioletReadings(data)
         except ConfigEntryAuthFailed:
             raise
