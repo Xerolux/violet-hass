@@ -13,8 +13,7 @@ class TestCircuitBreakerStates:
         """Create circuit breaker instance."""
         return CircuitBreaker(
             failure_threshold=3,
-            recovery_timeout=1,
-            name="test_breaker"
+            recovery_timeout=1
         )
 
     def test_initial_state_closed(self, circuit_breaker):
@@ -95,7 +94,6 @@ class TestCircuitBreakerBehavior:
 
     def test_failure_count_tracking(self, breaker):
         """Track failure count accurately."""
-        initial_failures = breaker.failure_count if hasattr(breaker, 'failure_count') else 0
         breaker.record_failure()
         # Failure count should increase (or state should reflect it)
         assert breaker.state is not None
@@ -126,9 +124,9 @@ class TestCircuitBreakerConfiguration:
         for _ in range(2):
             cb.record_failure()
 
-    def test_named_circuit_breaker(self):
-        """Create named circuit breaker."""
-        cb = CircuitBreaker(failure_threshold=2, name="my_breaker")
+    def test_custom_circuit_breaker(self):
+        """Create custom circuit breaker."""
+        cb = CircuitBreaker(failure_threshold=2, recovery_timeout=1)
         assert cb is not None
 
 

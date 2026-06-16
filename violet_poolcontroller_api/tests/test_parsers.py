@@ -1,7 +1,5 @@
 """Tests for violet_poolcontroller_api.parsers module."""
 
-import pytest
-
 from violet_poolcontroller_api.parsers import (
     parse_epoch_milliseconds,
     parse_epoch_seconds,
