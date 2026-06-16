@@ -444,13 +444,13 @@ class ConfigFlow(
             return self.async_abort(reason="reconfigure_failed")
 
         if user_input is not None:
-            updated_data = dict(reconfigure_entry.data)
-            updated_data[CONF_ALLOW_UNSAFE_SWITCHES] = user_input.get(
+            updated_options = dict(reconfigure_entry.options)
+            updated_options[CONF_ALLOW_UNSAFE_SWITCHES] = user_input.get(
                 CONF_ALLOW_UNSAFE_SWITCHES, DEFAULT_ALLOW_UNSAFE_SWITCHES
             )
             self.hass.config_entries.async_update_entry(
                 reconfigure_entry,
-                data=updated_data,
+                options=updated_options,
             )
             await self.hass.config_entries.async_reload(reconfigure_entry.entry_id)
             return self.async_abort(reason="reconfigure_successful")
@@ -461,9 +461,12 @@ class ConfigFlow(
                 {
                     vol.Optional(
                         CONF_ALLOW_UNSAFE_SWITCHES,
-                        default=reconfigure_entry.data.get(
+                        default=reconfigure_entry.options.get(
                             CONF_ALLOW_UNSAFE_SWITCHES,
-                            DEFAULT_ALLOW_UNSAFE_SWITCHES,
+                            reconfigure_entry.data.get(
+                                CONF_ALLOW_UNSAFE_SWITCHES,
+                                DEFAULT_ALLOW_UNSAFE_SWITCHES,
+                            ),
                         ),
                     ): selector.BooleanSelector(selector.BooleanSelectorConfig()),
                 }

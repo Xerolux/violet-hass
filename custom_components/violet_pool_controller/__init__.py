@@ -182,14 +182,6 @@ def _disable_unsafe_switches(
         entry.data.get(CONF_ALLOW_UNSAFE_SWITCHES, DEFAULT_ALLOW_UNSAFE_SWITCHES),
     )
 
-    # If user explicitly allowed unsafe switches, don't disable them
-    if allow_unsafe:
-        _LOGGER.warning(
-            "⚠️ SAFETY WARNING: Unsafe switches are ENABLED for '%s'. "
-            "User accepts full responsibility for risks (equipment damage, chemical overdose, flooding)",
-            config_entry_id,
-        )
-        return
     # Keys of switches that should be disabled for safety
     unsafe_switch_keys = {
         "DOS_1_CL",     # Chlorine dosing
@@ -202,9 +194,42 @@ def _disable_unsafe_switches(
         "REFILL",       # Water refill
     }
 
-    disabled_count = 0
     prefix = f"{config_entry_id}_"
 
+    if allow_unsafe:
+        # If user explicitly allowed unsafe switches, re-enable any previously disabled ones
+        _LOGGER.warning(
+            "⚠️ SAFETY WARNING: Unsafe switches are ENABLED for '%s'. "
+            "User accepts full responsibility for risks (equipment damage, chemical overdose, flooding)",
+            config_entry_id,
+        )
+        re_enabled_count = 0
+        for entity_entry in er.async_entries_for_config_entry(entity_registry, config_entry_id):
+            if entity_entry.domain != "switch":
+                continue
+            if not entity_entry.unique_id.startswith(prefix):
+                continue
+            key = entity_entry.unique_id[len(prefix):]
+            if key not in unsafe_switch_keys:
+                continue
+            if entity_entry.disabled_by != er.RegistryEntryDisabler.INTEGRATION:
+                continue
+            _LOGGER.info("Re-enabling unsafe switch '%s' (%s)", entity_entry.entity_id, key)
+            try:
+                entity_registry.async_update_entity(entity_entry.entity_id, disabled_by=None)
+                re_enabled_count += 1
+            except Exception as err:
+                _LOGGER.error(
+                    "Failed to re-enable unsafe switch '%s': %s",
+                    entity_entry.entity_id,
+                    err,
+                )
+        if re_enabled_count > 0:
+            _LOGGER.info("Re-enabled %d unsafe switches for '%s'", re_enabled_count, config_entry_id)
+        return
+
+    # Disable unsafe switches for safety
+    disabled_count = 0
     for entity_entry in er.async_entries_for_config_entry(entity_registry, config_entry_id):
         # Only process switches
         if entity_entry.domain != "switch":
