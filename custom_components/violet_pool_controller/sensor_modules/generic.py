@@ -139,10 +139,10 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
                 return round(num_value, 2)
 
             # Temperature sensors (all onewire, CPU temps) - 2 decimal places
-            # IMPORTANT: Exclude freezecount, faultcount -
-            # these are counters, NOT temperatures!
+            # IMPORTANT: Exclude freezecount, faultcount, romcode, rcode, and state -
+            # these are counters, non-temperature properties, or status values!
             if (
-                ("temp" in key.lower() or "onewire" in key.lower())
+                ("temp" in key.lower() or ("onewire" in key.lower() and "romcode" not in key.lower() and "rcode" not in key.lower() and "state" not in key.lower()))
                 and "freezecount" not in key.lower()
                 and "faultcount" not in key.lower()
             ):
