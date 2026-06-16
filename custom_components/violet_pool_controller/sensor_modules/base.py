@@ -429,12 +429,13 @@ def _build_sensor_description(
                 ):
                     unit = UNIT_MAP[base_key]
                     break
-        # Default temperature unit for onewire/temp sensors (but not for counters!)
+        # Default temperature unit for onewire/temp sensors (but not for counters or non-temp keys!)
         if (
             unit is None
             and ("temp" in key.lower() or "onewire" in key.lower())
             and "freezecount" not in key.lower()
             and "faultcount" not in key.lower()
+            and key not in _NON_TEMPERATURE_ONEWIRE_KEYS
         ):
             unit = "°C"
 
