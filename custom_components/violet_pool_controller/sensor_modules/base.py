@@ -239,6 +239,7 @@ _NON_TEMPERATURE_ONEWIRE_KEYS = {
     for i in range(1, 13)
     for suffix in ("rcode", "romcode", "state")
 }
+_SKIPPED_ONEWIRE_SENSOR_KEYS = {f"onewire{i}_state" for i in range(1, 13)}
 _FLOW_RATE_SOURCE_KEYS = {"ADC3_value", "IMP2_value"}
 _ERROR_CODE_KEYS = {"LAST_ERROR_CODE", "ERROR_CODE", "LAST_ERROR"}
 
@@ -389,7 +390,7 @@ def should_skip_sensor(key: str, raw_value: Any) -> bool:
     return (
         raw_value is None
         or str(raw_value).strip() in ("[]", "{}", "")
-        or key in _NON_TEMPERATURE_ONEWIRE_KEYS
+        or key in _SKIPPED_ONEWIRE_SENSOR_KEYS
         or key.startswith("_")
     )
 

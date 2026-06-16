@@ -390,6 +390,8 @@ def _create_standard_sensors(
 
         predefined_info = all_predefined.get(key)
         tk = predefined_info.get("translation_key") if predefined_info else key.lower()
+        if key in ONEWIRE_ROMCODE_SENSORS:
+            tk = None
 
         description = _build_sensor_description(
             key,
