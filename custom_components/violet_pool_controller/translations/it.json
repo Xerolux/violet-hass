@@ -507,10 +507,10 @@
         "name": "Temperatura Esterna"
       },
       "onewire3_value": {
-        "name": "Collettore Solare"
+        "name": "Assorbitore Solare"
       },
       "onewire4_value": {
-        "name": "Ritorno del Collettore"
+        "name": "Ritorno dell'Assorbitore"
       },
       "onewire5_value": {
         "name": "Scambiatore di Calore"
@@ -525,10 +525,10 @@
         "name": "Sensore di Temperatura 8"
       },
       "ph_value": {
-        "name": "Valore di pH"
+        "name": "Valore del pH"
       },
       "orp_value": {
-        "name": "Valore di ORP"
+        "name": "Valore ORP"
       },
       "pot_value": {
         "name": "Contenuto di Cloro"
@@ -648,7 +648,7 @@
         "name": "Stato di Eccedenza PV"
       },
       "refill": {
-        "name": "Nachfüll-Status"
+        "name": "Stato di Riempimento"
       },
       "pumpstate": {
         "name": "Pumpen Detail-Status"
@@ -996,10 +996,10 @@
         "name": "Redoxpotential Minimum"
       },
       "ph_value_max": {
-        "name": "Valore di pH Maximum"
+        "name": "Valore del pH Maximum"
       },
       "ph_value_min": {
-        "name": "Valore di pH Minimum"
+        "name": "Valore del pH Minimum"
       },
       "pot_value_max": {
         "name": "Contenuto di Cloro Maximum"

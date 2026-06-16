@@ -234,129 +234,129 @@
   },
   "exceptions": {
     "api_error": {
-      "message": "API-Kommunikationsfehler: {detail}"
+      "message": "Ошибка взаимодействия с API: {detail}"
     },
     "invalid_value": {
-      "message": "Ungültiger Wert: {detail}"
+      "message": "Неверное значение: {detail}"
     },
     "value_out_of_range": {
-      "message": "Wert {value} liegt außerhalb des gültigen Bereichs ({min}–{max})"
+      "message": "Значение {value} находится вне допустимого диапазона ({min}–{max})"
     },
     "failed_to_set_value": {
-      "message": "Wert konnte nicht gesetzt werden: {detail}"
+      "message": "Не удалось установить значение: {detail}"
     },
     "no_api_key": {
-      "message": "Kein API-Schlüssel für Entität {entity} konfiguriert"
+      "message": "Ключ API не сконфигурирован для сущности {entity}"
     },
     "invalid_action": {
-      "message": "Ungültige Aktion: {action}"
+      "message": "Неверное действие: {action}"
     },
     "unexpected_error": {
-      "message": "Unerwarteter Fehler: {detail}"
+      "message": "Непредвиденная ошибка: {detail}"
     },
     "controller_unavailable": {
-      "message": "Pool-Controller {name} ist nach {failures} aufeinanderfolgenden Fehlern nicht erreichbar"
+      "message": "Контроллер Violet Pool {name} недоступен после {failures} последовательных ошибок"
     }
   },
   "issues": {
     "controller_unavailable": {
-      "title": "Pool-Controller nicht erreichbar",
-      "description": "Der Pool-Controller **{name}** ist seit {failures} aufeinanderfolgenden Abrufzyklen nicht erreichbar.\n\nBitte prüfe:\n- Ist der Controller eingeschaltet?\n- Ist die Netzwerkverbindung in Ordnung?\n- Ist die IP-Adresse noch korrekt?\n\nSobald der Controller wieder erreichbar ist, wird dieses Problem automatisch behoben."
+      "title": "Контроллер недоступен",
+      "description": "Контроллер **{name}** недоступен в течение {failures} циклов опроса.\n\nПожалуйста, проверьте:\n- Включен ли контроллер?\n- Нормально ли работает сетевое соединение?\n- Правильно ли указан IP-адрес?\n\nКогда контроллер снова станет доступен, проблема будет автоматически разрешена."
     }
   },
   "services": {
     "control_pump": {
       "name": "Управление насосом",
-      "description": "Управление насосом бассейна с расширенными параметрами: скорость, эко-режим или форсирование.",
+      "description": "Продвинутое управление циркуляционным насосом: регулировка скорости, эко-режим или режим интенсификации.",
       "fields": {
         "action": {
           "name": "Действие управления",
           "description": "Выберите: speed_control, force_off, eco_mode, boost_mode или auto."
         },
         "speed": {
-          "name": "Скорость насоса",
-          "description": "Уровень скорости насоса (1-3)."
+          "name": "Уровень скорости",
+          "description": "Уровень производительности насоса (1-3)."
         },
         "duration": {
-          "name": "Продолжительность (секунды)",
-          "description": "Как долго применять действие (0 = бессрочно)."
+          "name": "Длительность (сек)",
+          "description": "Продолжительность действия (0 = неограниченно)."
         }
       }
     },
     "smart_dosing": {
       "name": "Умное дозирование",
-      "description": "Ручное или автоматическое управление дозированием pH, хлора и коагулянта.\n\nВнимание: избегайте передозировки! Всегда сначала проверяйте показатели воды.",
+      "description": "Управление химическим дозированием: pH-минус, pH-плюс, хлор и флокулянт вручную или автоматически.\n\nВНИМАНИЕ: Избегайте передозировки! Проверяйте параметры воды перед дозированием.",
       "fields": {
         "dosing_type": {
-          "name": "Химикат для дозирования",
-          "description": "Выберите тип химиката (pH-, pH+, хлор, коагулянт)."
+          "name": "Тип реагента",
+          "description": "Выберите: pH-, pH+, хлор или флокулянт."
         },
         "action": {
-          "name": "Действие дозирования",
+          "name": "Режим дозирования",
           "description": "Выберите: manual_dose, auto или stop."
         },
         "duration": {
-          "name": "Продолжительность дозирования (секунды)",
-          "description": "Как долго должно продолжаться дозирование? (5-300 с)."
+          "name": "Длительность (сек)",
+          "description": "Время дозирования (5-300 сек)."
         },
         "safety_override": {
-          "name": "Обойти интервал безопасности",
-          "description": "Пропустить интервал безопасности между циклами дозирования."
+          "name": "Пропустить безопасный интервал",
+          "description": "Игнорировать минимальный интервал между дозированиями."
         }
       }
     },
     "manage_pv_surplus": {
-      "name": "Управление избытком ФЭ",
-      "description": "Управление режимом фотоэлектрического избытка для оптимального использования солнечной энергии.\n\nУстройства бассейна автоматически работают при избытке солнечной энергии.",
+      "name": "Управление излишком ФЭ",
+      "description": "Управление режимом автоматического использования излишков фотоэлектрической энергии.\n\nОборудование бассейна работает при наличии излишков солнечной энергии.",
       "fields": {
         "mode": {
-          "name": "Режим ФЭ избытка",
+          "name": "Режим ФЭ излишка",
           "description": "Выберите: activate, deactivate или auto."
         },
         "pump_speed": {
           "name": "Скорость насоса",
-          "description": "Желаемая мощность насоса для режима ФЭ (1=Эко, 2=Нормальная, 3=Максимальная)."
+          "description": "Производительность насоса (1=Эко, 2=Нормальная, 3=Максимальная)."
         }
       }
     },
     "control_dmx_scenes": {
       "name": "Управление сценами DMX",
-      "description": "Управление сценами освещения DMX для освещения зоны бассейна.",
+      "description": "Управление сценами DMX-освещения для бассейна.",
       "fields": {
         "action": {
           "name": "Действие DMX",
           "description": "Выберите: all_on, all_off, all_auto, sequence или party_mode."
         },
         "sequence_delay": {
-          "name": "Задержка последовательности (секунды)",
-          "description": "Задержка между сценами в режиме последовательности (1-60 с)."
+          "name": "Задержка переходов (сек)",
+          "description": "Время между сценами в режиме последовательности (1-60 сек)."
         }
       }
     },
     "set_light_color_pulse": {
-      "name": "Цветовая пульсация света",
-      "description": "Отправка команд цветовой пульсации на освещение бассейна.",
+      "name": "Цветовая пульсация",
+      "description": "Отправка команд цветовой пульсации на систему освещения бассейна.",
       "fields": {
         "pulse_count": {
-          "name": "Количество импульсов",
-          "description": "Сколько цветовых импульсов отправить (1-10)."
+          "name": "Количество пульсов",
+          "description": "Число цветовых пульсов (1-10)."
         },
         "pulse_interval": {
-          "name": "Интервал импульсов (мс)",
-          "description": "Время между импульсами в миллисекундах (100-2000 мс)."
+          "name": "Интервал между пульсами (мс)",
+          "description": "Промежуток между пульсами (100-2000 мс)."
         }
       }
     },
     "manage_digital_rules": {
-      "name": "Управление цифровыми правилами",
-      "description": "Управление правилами автоматизации цифровых входов контроллера.",
+      "name": "Управление правилами",
+      "description": "Управление автоматизацией на основе цифровых входов контроллера.",
       "fields": {
         "rule_key": {
-          "name": "Правило для управления",
-          "description": "Выберите цифровое правило (от DIRULE_1 до DIRULE_7)."
+          "name": "Номер правила",
+          "description": "Выберите правило (DIRULE_1 - DIRULE_7)."
         },
         "action": {
-          "name": "Действие правила",
+          "name": "Действие",
           "description": "Выберите: trigger, lock или unlock."
         }
       }

@@ -825,154 +825,154 @@
         "name": "Tryb Eco Ostatnio Wyłączony"
       },
       "dos_1_cl": {
-        "name": "Chlor-Dosiersystem"
+        "name": "System Dozowania Chloru"
       },
       "dos_1_cl_daily": {
-        "name": "Chlor Tagesdosierung (ml)"
+        "name": "Dzienna Dawka Chloru (ml)"
       },
       "dos_1_cl_total_can": {
-        "name": "Chlor Kanisterinhalt (ml)"
+        "name": "Zawartość Kanistra Chloru (ml)"
       },
       "dos_1_cl_runtime": {
-        "name": "Chlor-Dosierlaufzeit"
+        "name": "Czas Pracy Dozowania Chloru"
       },
       "dos_1_cl_last_on": {
-        "name": "Chlor-Dosierung Zuletzt Ein"
+        "name": "Dozowanie Chloru Ostatnio Włączone"
       },
       "dos_1_cl_last_off": {
-        "name": "Chlor-Dosierung Zuletzt Aus"
+        "name": "Dozowanie Chloru Ostatnio Wyłączone"
       },
       "dos_1_cl_daily_dosing_amount_ml": {
-        "name": "Chlor Tagesdosierung (ml)"
+        "name": "Dzienna Dawka Chloru (ml)"
       },
       "dos_1_cl_total_can_amount_ml": {
-        "name": "Chlor Kanisterinhalt (ml)"
+        "name": "Zawartość Kanistra Chloru (ml)"
       },
       "dos_1_cl_type": {
-        "name": "Chlor Dosiertyp"
+        "name": "Typ Dozowania Chloru"
       },
       "dos_1_cl_use": {
-        "name": "Chlor Verbrauch"
+        "name": "Zużycie Chloru"
       },
       "dos_1_cl_last_can_reset": {
-        "name": "Chlor Letzter Kanister-Reset"
+        "name": "Ostatni Reset Kanistra Chloru"
       },
       "dos_2_elo": {
-        "name": "Elektrolyse-Dosiersystem"
+        "name": "System Dozowania Elektrolizy"
       },
       "dos_2_elo_daily": {
-        "name": "Elektrolyse Tagesdosiermenge (ml)"
+        "name": "Dzienna Dawka Elektrolizy (ml)"
       },
       "dos_2_elo_total_can": {
-        "name": "Elektrolyse Kanisterinhalt (ml)"
+        "name": "Zawartość Kanistra Elektrolizy (ml)"
       },
       "dos_4_phm": {
-        "name": "pH- Dosiersystem"
+        "name": "System Dozowania pH-"
       },
       "dos_4_phm_daily": {
-        "name": "pH- Tagesdosierung (ml)"
+        "name": "Dzienna Dawka pH- (ml)"
       },
       "dos_4_phm_total_can": {
-        "name": "pH- Kanisterinhalt (ml)"
+        "name": "Zawartość Kanistra pH- (ml)"
       },
       "dos_5_php": {
-        "name": "pH+ Dosiersystem"
+        "name": "System Dozowania pH+"
       },
       "dos_5_php_daily": {
-        "name": "pH+ Tagesdosierung (ml)"
+        "name": "Dzienna Dawka pH+ (ml)"
       },
       "dos_5_php_total_can": {
-        "name": "pH+ Kanisterinhalt (ml)"
+        "name": "Zawartość Kanistra pH+ (ml)"
       },
       "dos_6_floc": {
-        "name": "Flockmittel-Dosiersystem"
+        "name": "System Dozowania Flokkulantu"
       },
       "dos_6_floc_daily": {
-        "name": "Flockmittel Tagesdosierung (ml)"
+        "name": "Dzienna Dawka Flokkulantu (ml)"
       },
       "dos_6_floc_total_can": {
-        "name": "Flockmittel Kanisterinhalt (ml)"
+        "name": "Zawartość Kanistra Flokkulantu (ml)"
       },
       "refill_runtime": {
-        "name": "Nachfüll-Laufzeit"
+        "name": "Czas Pracy Uzupełniania"
       },
       "refill_last_on": {
-        "name": "Nachfüllung Zuletzt Ein"
+        "name": "Uzupełnianie Ostatnio Włączone"
       },
       "refill_last_off": {
-        "name": "Nachfüllung Zuletzt Aus"
+        "name": "Uzupełnianie Ostatnio Wyłączone"
       },
       "overflow_dryrun_state": {
-        "name": "Überlauf Trockenlauf-Status"
+        "name": "Stan Przepływu Bez Wody"
       },
       "overflow_overfill_state": {
-        "name": "Überfüllungs-Status"
+        "name": "Stan Przepełnienia"
       },
       "overflow_refill_state": {
-        "name": "Überlauf Nachfüll-Status"
+        "name": "Stan Przepływu Uzupełniania"
       },
       "bathing_ai_last_level": {
-        "name": "Bade-KI Letzter Füllstand"
+        "name": "Inteligencja Kąpielowa Ostatni Poziom"
       },
       "bathing_ai_pump_state": {
-        "name": "Bade-KI Pumpenstatus"
+        "name": "Stan Pompy Inteligencji Kąpielowej"
       },
       "bathing_ai_pump_timestamp": {
-        "name": "Bade-KI Pumpen-Zeitstempel"
+        "name": "Znacznik Czasu Pompy Inteligencji Kąpielowej"
       },
       "bathing_ai_start_level": {
-        "name": "Bade-KI Startfüllstand"
+        "name": "Inteligencja Kąpielowa Poziom Początkowy"
       },
       "bathing_ai_surveillance_state": {
-        "name": "Bade-KI Überwachungsstatus"
+        "name": "Stan Monitorowania Inteligencji Kąpielowej"
       },
       "pump_rpm_0": {
-        "name": "Pumpen-Stufe 0"
+        "name": "Poziom Pompy 0"
       },
       "pump_rpm_1": {
-        "name": "Pumpen-Stufe 1"
+        "name": "Poziom Pompy 1"
       },
       "pump_rpm_2": {
-        "name": "Pumpen-Stufe 2"
+        "name": "Poziom Pompy 2"
       },
       "pump_rpm_3": {
-        "name": "Pumpen-Stufe 3"
+        "name": "Poziom Pompy 3"
       },
       "pump_rpm_0_last_off": {
-        "name": "Pumpen-Stufe 0 Zuletzt Aus"
+        "name": "Poziom Pompy 0 Ostatnio Wyłączony"
       },
       "pump_rpm_1_last_off": {
-        "name": "Pumpen-Stufe 1 Zuletzt Aus"
+        "name": "Poziom Pompy 1 Ostatnio Wyłączony"
       },
       "pump_rpm_2_last_off": {
-        "name": "Pumpen-Stufe 2 Zuletzt Aus"
+        "name": "Poziom Pompy 2 Ostatnio Wyłączony"
       },
       "pump_rpm_3_last_off": {
-        "name": "Pumpen-Stufe 3 Zuletzt Aus"
+        "name": "Poziom Pompy 3 Ostatnio Wyłączony"
       },
       "pump_rpm_0_runtime": {
-        "name": "Pumpen-Stufe 0 Laufzeit"
+        "name": "Czas Pracy Poziomu Pompy 0"
       },
       "pump_rpm_1_runtime": {
-        "name": "Pumpen-Stufe 1 Laufzeit"
+        "name": "Czas Pracy Poziomu Pompy 1"
       },
       "pump_rpm_2_runtime": {
-        "name": "Pumpen-Stufe 2 Laufzeit"
+        "name": "Czas Pracy Poziomu Pompy 2"
       },
       "pump_rpm_3_runtime": {
-        "name": "Pumpen-Stufe 3 Laufzeit"
+        "name": "Czas Pracy Poziomu Pompy 3"
       },
       "sw_version": {
-        "name": "Software-Version"
+        "name": "Wersja Oprogramowania"
       },
       "sw_version_carrier": {
-        "name": "Carrier Software-Version"
+        "name": "Wersja Oprogramowania Nośnika"
       },
       "system_memory": {
-        "name": "Systemspeicher"
+        "name": "Pamięć Systemu"
       },
       "cover_state": {
-        "name": "Abdeckungs-Zustand"
+        "name": "Stan Pokrywy"
       },
       "onewire12_value": {
         "name": "Czujnik Temperatury 12"
@@ -984,214 +984,214 @@
         "name": "Czujnik Temperatury 12 Minimum"
       },
       "onewire1_value_max": {
-        "name": "Wassertemperatur Maximum"
+        "name": "Maksymalna Temperatura Wody"
       },
       "onewire1_value_min": {
-        "name": "Wassertemperatur Minimum"
+        "name": "Minimalna Temperatura Wody"
       },
       "orp_value_max": {
-        "name": "Redoxpotential Maximum"
+        "name": "Maksymalny Potencjał Redoks"
       },
       "orp_value_min": {
-        "name": "Redoxpotential Minimum"
+        "name": "Minimalny Potencjał Redoks"
       },
       "ph_value_max": {
-        "name": "Wartość pH Maximum"
+        "name": "Maksymalna Wartość pH"
       },
       "ph_value_min": {
-        "name": "Wartość pH Minimum"
+        "name": "Minimalna Wartość pH"
       },
       "pot_value_max": {
-        "name": "Zawartość Chloru Maximum"
+        "name": "Maksymalna Zawartość Chloru"
       },
       "pot_value_min": {
-        "name": "Zawartość Chloru Minimum"
+        "name": "Minimalna Zawartość Chloru"
       },
       "ext1_1_last_on": {
-        "name": "Rozszerzenie 1.1 Zuletzt Ein"
+        "name": "Rozszerzenie 1.1 Ostatnio Włączone"
       },
       "ext1_1_last_off": {
-        "name": "Rozszerzenie 1.1 Zuletzt Aus"
+        "name": "Rozszerzenie 1.1 Ostatnio Wyłączone"
       },
       "ext1_1_runtime": {
-        "name": "Rozszerzenie 1.1 Laufzeit"
+        "name": "Czas Pracy Rozszerzenia 1.1"
       },
       "ext1_2_last_on": {
-        "name": "Rozszerzenie 1.2 Zuletzt Ein"
+        "name": "Rozszerzenie 1.2 Ostatnio Włączone"
       },
       "ext1_2_last_off": {
-        "name": "Rozszerzenie 1.2 Zuletzt Aus"
+        "name": "Rozszerzenie 1.2 Ostatnio Wyłączone"
       },
       "ext1_2_runtime": {
-        "name": "Rozszerzenie 1.2 Laufzeit"
+        "name": "Czas Pracy Rozszerzenia 1.2"
       },
       "ext1_3_last_on": {
-        "name": "Rozszerzenie 1.3 Zuletzt Ein"
+        "name": "Rozszerzenie 1.3 Ostatnio Włączone"
       },
       "ext1_3_last_off": {
-        "name": "Rozszerzenie 1.3 Zuletzt Aus"
+        "name": "Rozszerzenie 1.3 Ostatnio Wyłączone"
       },
       "ext1_3_runtime": {
-        "name": "Rozszerzenie 1.3 Laufzeit"
+        "name": "Czas Pracy Rozszerzenia 1.3"
       },
       "ext1_4_last_on": {
-        "name": "Rozszerzenie 1.4 Zuletzt Ein"
+        "name": "Rozszerzenie 1.4 Ostatnio Włączone"
       },
       "ext1_4_last_off": {
-        "name": "Rozszerzenie 1.4 Zuletzt Aus"
+        "name": "Rozszerzenie 1.4 Ostatnio Wyłączone"
       },
       "ext1_4_runtime": {
-        "name": "Rozszerzenie 1.4 Laufzeit"
+        "name": "Czas Pracy Rozszerzenia 1.4"
       },
       "ext1_5_last_on": {
-        "name": "Rozszerzenie 1.5 Zuletzt Ein"
+        "name": "Rozszerzenie 1.5 Ostatnio Włączone"
       },
       "ext1_5_last_off": {
-        "name": "Rozszerzenie 1.5 Zuletzt Aus"
+        "name": "Rozszerzenie 1.5 Ostatnio Wyłączone"
       },
       "ext1_5_runtime": {
-        "name": "Rozszerzenie 1.5 Laufzeit"
+        "name": "Czas Pracy Rozszerzenia 1.5"
       },
       "ext1_6_last_on": {
-        "name": "Rozszerzenie 1.6 Zuletzt Ein"
+        "name": "Rozszerzenie 1.6 Ostatnio Włączone"
       },
       "ext1_6_last_off": {
-        "name": "Rozszerzenie 1.6 Zuletzt Aus"
+        "name": "Rozszerzenie 1.6 Ostatnio Wyłączone"
       },
       "ext1_6_runtime": {
-        "name": "Rozszerzenie 1.6 Laufzeit"
+        "name": "Czas Pracy Rozszerzenia 1.6"
       },
       "ext1_7_last_on": {
-        "name": "Rozszerzenie 1.7 Zuletzt Ein"
+        "name": "Rozszerzenie 1.7 Ostatnio Włączone"
       },
       "ext1_7_last_off": {
-        "name": "Rozszerzenie 1.7 Zuletzt Aus"
+        "name": "Rozszerzenie 1.7 Ostatnio Wyłączone"
       },
       "ext1_7_runtime": {
-        "name": "Rozszerzenie 1.7 Laufzeit"
+        "name": "Czas Pracy Rozszerzenia 1.7"
       },
       "ext1_8_last_on": {
-        "name": "Rozszerzenie 1.8 Zuletzt Ein"
+        "name": "Rozszerzenie 1.8 Ostatnio Włączone"
       },
       "ext1_8_last_off": {
-        "name": "Rozszerzenie 1.8 Zuletzt Aus"
+        "name": "Rozszerzenie 1.8 Ostatnio Wyłączone"
       },
       "ext1_8_runtime": {
-        "name": "Rozszerzenie 1.8 Laufzeit"
+        "name": "Czas Pracy Rozszerzenia 1.8"
       },
       "ext2_1_last_on": {
-        "name": "Rozszerzenie 2.1 Zuletzt Ein"
+        "name": "Rozszerzenie 2.1 Ostatnio Włączone"
       },
       "ext2_1_last_off": {
-        "name": "Rozszerzenie 2.1 Zuletzt Aus"
+        "name": "Rozszerzenie 2.1 Ostatnio Wyłączone"
       },
       "ext2_1_runtime": {
-        "name": "Rozszerzenie 2.1 Laufzeit"
+        "name": "Czas Pracy Rozszerzenia 2.1"
       },
       "ext2_2_last_on": {
-        "name": "Rozszerzenie 2.2 Zuletzt Ein"
+        "name": "Rozszerzenie 2.2 Ostatnio Włączone"
       },
       "ext2_2_last_off": {
-        "name": "Rozszerzenie 2.2 Zuletzt Aus"
+        "name": "Rozszerzenie 2.2 Ostatnio Wyłączone"
       },
       "ext2_2_runtime": {
-        "name": "Rozszerzenie 2.2 Laufzeit"
+        "name": "Czas Pracy Rozszerzenia 2.2"
       },
       "ext2_3_last_on": {
-        "name": "Rozszerzenie 2.3 Zuletzt Ein"
+        "name": "Rozszerzenie 2.3 Ostatnio Włączone"
       },
       "ext2_3_last_off": {
-        "name": "Rozszerzenie 2.3 Zuletzt Aus"
+        "name": "Rozszerzenie 2.3 Ostatnio Wyłączone"
       },
       "ext2_3_runtime": {
-        "name": "Rozszerzenie 2.3 Laufzeit"
+        "name": "Czas Pracy Rozszerzenia 2.3"
       },
       "ext2_4_last_on": {
-        "name": "Rozszerzenie 2.4 Zuletzt Ein"
+        "name": "Rozszerzenie 2.4 Ostatnio Włączone"
       },
       "ext2_4_last_off": {
-        "name": "Rozszerzenie 2.4 Zuletzt Aus"
+        "name": "Rozszerzenie 2.4 Ostatnio Wyłączone"
       },
       "ext2_4_runtime": {
-        "name": "Rozszerzenie 2.4 Laufzeit"
+        "name": "Czas Pracy Rozszerzenia 2.4"
       },
       "ext2_5_last_on": {
-        "name": "Rozszerzenie 2.5 Zuletzt Ein"
+        "name": "Rozszerzenie 2.5 Ostatnio Włączone"
       },
       "ext2_5_last_off": {
-        "name": "Rozszerzenie 2.5 Zuletzt Aus"
+        "name": "Rozszerzenie 2.5 Ostatnio Wyłączone"
       },
       "ext2_5_runtime": {
-        "name": "Rozszerzenie 2.5 Laufzeit"
+        "name": "Czas Pracy Rozszerzenia 2.5"
       },
       "ext2_6_last_on": {
-        "name": "Rozszerzenie 2.6 Zuletzt Ein"
+        "name": "Rozszerzenie 2.6 Ostatnio Włączone"
       },
       "ext2_6_last_off": {
-        "name": "Rozszerzenie 2.6 Zuletzt Aus"
+        "name": "Rozszerzenie 2.6 Ostatnio Wyłączone"
       },
       "ext2_6_runtime": {
-        "name": "Rozszerzenie 2.6 Laufzeit"
+        "name": "Czas Pracy Rozszerzenia 2.6"
       },
       "ext2_7_last_on": {
-        "name": "Rozszerzenie 2.7 Zuletzt Ein"
+        "name": "Rozszerzenie 2.7 Ostatnio Włączone"
       },
       "ext2_7_last_off": {
-        "name": "Rozszerzenie 2.7 Zuletzt Aus"
+        "name": "Rozszerzenie 2.7 Ostatnio Wyłączone"
       },
       "ext2_7_runtime": {
-        "name": "Rozszerzenie 2.7 Laufzeit"
+        "name": "Czas Pracy Rozszerzenia 2.7"
       },
       "ext2_8_last_on": {
-        "name": "Rozszerzenie 2.8 Zuletzt Ein"
+        "name": "Rozszerzenie 2.8 Ostatnio Włączone"
       },
       "ext2_8_last_off": {
-        "name": "Rozszerzenie 2.8 Zuletzt Aus"
+        "name": "Rozszerzenie 2.8 Ostatnio Wyłączone"
       },
       "ext2_8_runtime": {
-        "name": "Rozszerzenie 2.8 Laufzeit"
+        "name": "Czas Pracy Rozszerzenia 2.8"
       },
       "onewire2_value_max": {
-        "name": "Temperatura Zewnętrzna Maximum"
+        "name": "Maksymalna Temperatura Zewnętrzna"
       },
       "onewire2_value_min": {
-        "name": "Temperatura Zewnętrzna Minimum"
+        "name": "Minimalna Temperatura Zewnętrzna"
       },
       "onewire3_value_max": {
-        "name": "Absorber Słoneczny Maximum"
+        "name": "Maksymalna Temperatura Absorbera Słonecznego"
       },
       "onewire3_value_min": {
-        "name": "Absorber Słoneczny Minimum"
+        "name": "Minimalna Temperatura Absorbera Słonecznego"
       },
       "onewire4_value_max": {
-        "name": "Powrót Absorbera Maximum"
+        "name": "Maksymalna Temperatura Powrotu Absorbera"
       },
       "onewire4_value_min": {
-        "name": "Powrót Absorbera Minimum"
+        "name": "Minimalna Temperatura Powrotu Absorbera"
       },
       "onewire5_value_max": {
-        "name": "Wejście Wymiennika Maximum"
+        "name": "Maksymalna Temperatura Wejścia Wymiennika"
       },
       "onewire5_value_min": {
-        "name": "Wejście Wymiennika Minimum"
+        "name": "Minimalna Temperatura Wejścia Wymiennika"
       },
       "onewire6_value_max": {
-        "name": "Wyjście Wymiennika Maximum"
+        "name": "Maksymalna Temperatura Wyjścia Wymiennika"
       },
       "onewire6_value_min": {
-        "name": "Wyjście Wymiennika Minimum"
+        "name": "Minimalna Temperatura Wyjścia Wymiennika"
       },
       "onewire7_value_max": {
-        "name": "Czujnik Temperatury 7 Maximum"
+        "name": "Maksymalna Temperatura Czujnika 7"
       },
       "onewire7_value_min": {
-        "name": "Czujnik Temperatury 7 Minimum"
+        "name": "Minimalna Temperatura Czujnika 7"
       },
       "onewire8_value_max": {
-        "name": "Czujnik Temperatury 8 Maximum"
+        "name": "Maksymalna Temperatura Czujnika 8"
       },
       "onewire8_value_min": {
-        "name": "Czujnik Temperatury 8 Minimum"
+        "name": "Minimalna Temperatura Czujnika 8"
       },
       "onewire9_value": {
         "name": "Czujnik Temperatury 9"
