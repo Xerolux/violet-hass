@@ -33,7 +33,7 @@ Project maintainers are responsible for clarifying and enforcing our standards o
 
 ## Reporting Issues
 
-If you experience or witness unacceptable behavior, please report it by contacting the project maintainers at [grok@blueml.eu](mailto:grok@blueml.eu).
+If you experience or witness unacceptable behavior, please report it by contacting the project maintainers at [git@xerolux.de](mailto:git@xerolux.de).
 
 All reports will be:
 - Handled confidentially
