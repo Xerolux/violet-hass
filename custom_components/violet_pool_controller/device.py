@@ -724,6 +724,7 @@ class VioletPoolControllerDevice:
 
         return extra_modules
 
+    @property
     def device_info(self) -> dict[str, Any]:
         """Return device information for Home Assistant."""
         # Build a readable model string from currently detected hardware modules.
