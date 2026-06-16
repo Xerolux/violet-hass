@@ -442,7 +442,7 @@ def _build_sensor_description(
         # Default temperature unit for onewire/temp sensors (but not for counters or non-temp keys!)
         if (
             unit is None
-            and ("temp" in key.lower() or ("onewire" in key.lower() and "romcode" not in key.lower() and "rcode" not in key.lower() and "state" not in key.lower()))
+            and ("temp" in key.lower() or "onewire" in key.lower())
             and "freezecount" not in key.lower()
             and "faultcount" not in key.lower()
             and key.lower() not in _NON_TEMPERATURE_ONEWIRE_KEYS
