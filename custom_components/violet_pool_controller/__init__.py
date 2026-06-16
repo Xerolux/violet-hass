@@ -159,6 +159,74 @@ def _migrate_duplicate_prefix_entity_ids(
         )
 
 
+def _disable_unsafe_switches(
+    entity_registry: er.EntityRegistry,
+    config_entry_id: str,
+) -> None:
+    """Auto-disable unsafe manual control switches for safety.
+
+    Switches like dosing, backwash, and refill should use Services instead
+    because they require mandatory time limits to prevent equipment damage,
+    chemical overdose, and flooding.
+    """
+    # Keys of switches that should be disabled for safety
+    unsafe_switch_keys = {
+        "DOS_1_CL",     # Chlorine dosing
+        "DOS_2_ELO",    # Electrolysis dosing
+        "DOS_4_PHM",    # pH- dosing
+        "DOS_5_PHP",    # pH+ dosing
+        "DOS_6_FLOC",   # Flocculant
+        "BACKWASH",     # Backwash
+        "BACKWASHRINSE", # Backwash rinse
+        "REFILL",       # Water refill
+    }
+
+    disabled_count = 0
+    prefix = f"{config_entry_id}_"
+
+    for entity_entry in er.async_entries_for_config_entry(entity_registry, config_entry_id):
+        # Only process switches
+        if entity_entry.domain != "switch":
+            continue
+
+        # Extract key from unique_id (format: "{entry_id}_{key}")
+        if not entity_entry.unique_id.startswith(prefix):
+            continue
+
+        key = entity_entry.unique_id[len(prefix):]
+
+        # Check if this is an unsafe switch
+        if key not in unsafe_switch_keys:
+            continue
+
+        # Skip if already disabled
+        if not entity_entry.enabled:
+            continue
+
+        # Disable the entity
+        _LOGGER.warning(
+            "🚨 SAFETY: Auto-disabling unsafe switch '%s' (%s). Use Services instead!",
+            entity_entry.entity_id,
+            key,
+        )
+        try:
+            entity_registry.async_update_entity(entity_entry.entity_id, disabled_by=er.RegistryEntryDisabler.INTEGRATION)
+            disabled_count += 1
+        except Exception as err:
+            _LOGGER.error(
+                "Failed to disable unsafe switch '%s': %s",
+                entity_entry.entity_id,
+                err,
+            )
+
+    if disabled_count > 0:
+        _LOGGER.warning(
+            "🚨 SAFETY: Disabled %d unsafe switches for '%s'. Use Services with time limits instead!",
+            disabled_count,
+            config_entry_id,
+        )
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Violet Pool Controller from a config entry.
 
@@ -231,6 +299,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # platforms are loaded so that the registry already contains the
         # corrected entity_ids when entities re-register themselves.
         _migrate_duplicate_prefix_entity_ids(er.async_get(hass), entry.entry_id)
+
+        # Auto-disable unsafe switches (dosing, backwash, refill) that require
+        # mandatory time limits via Services instead of switches
+        _disable_unsafe_switches(er.async_get(hass), entry.entry_id)
 
         # Load platforms
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
