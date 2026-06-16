@@ -14,10 +14,10 @@ from typing import Any
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import aiohttp_client
-from violet_poolcontroller_api.api import VioletPoolAPI
-from violet_poolcontroller_api.exceptions import (
+from violet_poolcontroller_api import (
     VioletAuthError,
     VioletPoolAPIError,
+    VioletPoolAPI,
 )
 
 from ..const import (
