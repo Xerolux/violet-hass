@@ -19,7 +19,7 @@ See [GitHub Releases](https://github.com/xerolux/violet-hass/releases) for the c
 - **Integration Version**: See `manifest.json:version`
 - **API Package Version**: See `violet_poolcontroller_api/pyproject.toml:version` (published to PyPI as `violet-poolController-api`)
 - **Minimum Home Assistant**: `2026.5.0` (see `hacs.json`)
-- **Minimum Python**: `3.14.2` (see `pyproject.toml`)
+- **API package Python support**: `>=3.12` (see `violet_poolcontroller_api/pyproject.toml`)
 
 ---
 

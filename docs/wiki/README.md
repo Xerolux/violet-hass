@@ -51,21 +51,20 @@ Here you will find everything you need - from installation to uninstallation, wi
 
 ---
 
-## 📊 Wiki Statistics
+## 📊 Wiki Scope
 
-- **5 main documentation pages**
-- **1,357 lines** of documentation
-- **60+ code examples**
-- **40+ FAQ questions**
-- **Fully in English**
+- Complete English and German documentation set
+- Installation, configuration, entities, services, diagnostics, security, testing, and API references
+- Copy-paste automation examples and troubleshooting workflows
+- Synchronized from `docs/wiki/` via the repository wiki-sync workflow
 
 ---
 
 ## 🔄 Up to Date
 
-This wiki documents **version 1.0.5** of the Violet Pool Controller Home Assistant add-on.
+This wiki documents **version 2.0.0** of the Violet Pool Controller Home Assistant integration.
 
-Last updated: **2026-04-01**
+Last updated: **2026-06-16**
 
 ---
 

@@ -313,8 +313,12 @@ class VioletPoolControllerDevice:
                 for key, value in runtimes.items():
                     if key not in data:
                         data[key] = value
-        except Exception:  # noqa: BLE001
-            pass
+        except Exception as err:  # noqa: BLE001
+            _LOGGER.debug(
+                "Optional getOutputRuntimes fetch failed for '%s': %s",
+                self.device_name,
+                err,
+            )
 
         if data and isinstance(data, dict):
 

@@ -20,6 +20,7 @@ from .const import (
     ACTION_OFF,
     ACTION_ON,
     DEVICE_PARAMETERS,
+    DOMAIN,
 )
 from .http_control import VioletControlClient
 from .service_helpers import (
@@ -646,8 +647,11 @@ class VioletControlServiceHandlers:
                         except Exception as err:
                             _LOGGER.error("Backwash auto-stop failed: %s", err)
 
-                    # Schedule background task (don't await - let it run in background)
-                    asyncio.create_task(auto_stop_backwash())
+                    # Schedule through Home Assistant so the task is tracked by HA.
+                    self.hass.async_create_task(
+                        auto_stop_backwash(),
+                        name=f"{DOMAIN}_auto_stop_backwash",
+                    )
 
                 elif action == "abort":
                     await control.set_backwash_abort()
@@ -732,8 +736,11 @@ class VioletControlServiceHandlers:
                         except Exception as err:
                             _LOGGER.error("CRITICAL: Refill auto-stop FAILED: %s", err)
 
-                    # Schedule background task (don't await - let it run in background)
-                    asyncio.create_task(auto_stop_refill())
+                    # Schedule through Home Assistant so the task is tracked by HA.
+                    self.hass.async_create_task(
+                        auto_stop_refill(),
+                        name=f"{DOMAIN}_auto_stop_refill",
+                    )
 
                 elif action == "stop":
                     await control.set_function_manually("REFILL", "OFF")

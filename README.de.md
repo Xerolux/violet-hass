@@ -84,7 +84,8 @@ Die vollständige Dokumentation befindet sich im **[Wiki][wiki]**:
 - Home Assistant **2026.5.0+** (getestet bis 2026.x)
 - HACS ([Installationsanleitung](https://hacs.xyz/docs/use/download/download/))
 - Violet Pool Controller im lokalen Netzwerk erreichbar
-- Python 3.14.2+
+- Python-Laufzeit wird von Home Assistant 2026.5.0+ bereitgestellt
+- Standalone-API-Paket unterstützt Python 3.12+
 
 ---
 

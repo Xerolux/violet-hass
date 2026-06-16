@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import asyncio
+import ipaddress
 import json
 import logging
 import math
@@ -331,18 +332,63 @@ class VioletPoolAPI:
             parsed = urlparse(host)
             host = parsed.netloc
 
-        # Validate hostname format (allowing optional port)
-        if not re.match(r"^[a-zA-Z0-9.-]+(?::[0-9]{1,5})?$", host):
+        try:
+            literal_ip = ipaddress.ip_address(host)
+        except ValueError:
+            literal_ip = None
+        if literal_ip is not None and literal_ip.version == 6:
+            protocol = "https" if use_ssl else "http"
+            return urlunparse((protocol, f"[{host}]", "", "", "", ""))
+
+        try:
+            parsed_host = urlparse(f"//{host}")
+        except ValueError as err:
+            msg = f"Invalid hostname format: {host}"
+            raise ValueError(msg) from err
+
+        if parsed_host.username or parsed_host.password:
+            msg = f"Invalid hostname format: {host}"
+            raise ValueError(msg)
+        if parsed_host.path or parsed_host.query or parsed_host.fragment:
+            msg = f"Invalid hostname format: {host}"
+            raise ValueError(msg)
+
+        hostname = parsed_host.hostname
+        if not hostname:
+            msg = f"Invalid hostname format: {host}"
+            raise ValueError(msg)
+
+        try:
+            port = parsed_host.port
+        except ValueError as err:
+            msg = f"Invalid port in hostname: {host}"
+            raise ValueError(msg) from err
+
+        if port is not None and not 1 <= port <= 65535:
+            msg = f"Invalid port in hostname: {host}"
+            raise ValueError(msg)
+
+        try:
+            ipaddress.ip_address(hostname)
+            is_ip_literal = True
+        except ValueError:
+            is_ip_literal = False
+
+        if not is_ip_literal and not re.match(r"^[a-zA-Z0-9.-]+$", hostname):
             msg = f"Invalid hostname format: {host}"
             raise ValueError(msg)
 
         # Additional validation
-        if len(host) > _MAX_HOSTNAME_LENGTH or ".." in host or "//" in host:
+        if len(hostname) > _MAX_HOSTNAME_LENGTH or ".." in hostname or "//" in host:
             msg = f"Invalid hostname: {host}"
             raise ValueError(msg)
 
+        netloc = f"[{hostname}]" if ":" in hostname else hostname
+        if port is not None:
+            netloc = f"{netloc}:{port}"
+
         protocol = "https" if use_ssl else "http"
-        return urlunparse((protocol, host, "", "", "", ""))
+        return urlunparse((protocol, netloc, "", "", "", ""))
 
     def _build_url(self, endpoint: str) -> str:
         """Construct the full URL for a given endpoint.

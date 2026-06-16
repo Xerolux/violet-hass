@@ -19,17 +19,17 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.
 **🔒 Security Model**: See [SECURITY.md](./SECURITY.md) for detailed security architecture and compliance.
 
 **Current Integration Version**: `2.0.0` (defined in `manifest.json`, `const.py`, `pyproject.toml`, and optionally `.version`)
-**Current API Version**: `0.0.32` (defined in `violet_poolcontroller_api/pyproject.toml`)
+**Current API Version**: `0.0.33` (defined in `violet_poolcontroller_api/pyproject.toml`)
 **Minimum Home Assistant Version**: `2026.5.0` (defined in `hacs.json`)
-**Minimum Python Version**: `3.14.2`
+**Minimum Python Version**: Home Assistant runtime is managed by HA 2026.5.0+; standalone API package supports `>=3.12`
 
 ## Development Commands
 
 ### Setup
 
 ```bash
-# Create a Python 3.14+ virtual environment
-python3.14 -m venv .venv
+# Create a Python 3.12+ virtual environment for local tooling/API work
+python3 -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install all dev dependencies (includes editable API package)
@@ -95,7 +95,7 @@ pytest tests/test_api.py::test_function_name -v
 
 - **`__init__.py`** - Integration entry point. Handles setup, config entry migration, platform loading, and service registration. Loads these 10 platforms: `sensor`, `binary_sensor`, `switch`, `climate`, `cover`, `number`, `select`, `light`, `update`, `button`.
 
-- **API package** (`violet-poolController-api>=0.0.32` on PyPI) - The HTTP client and low-level utilities live in this monorepo under `violet_poolcontroller_api/` and are published to PyPI (HA installs the PyPI package per `manifest.json`). Provides:
+- **API package** (`violet-poolController-api>=0.0.33` on PyPI) - The HTTP client and low-level utilities live in this monorepo under `violet_poolcontroller_api/` and are published to PyPI (HA installs the PyPI package per `manifest.json`). Provides:
   - `VioletPoolAPI` class - rate-limited HTTP client with retry/backoff
   - `VioletPoolAPIError` exception hierarchy
   - `InputSanitizer` - XSS/injection/path-traversal protection
@@ -429,7 +429,7 @@ GitHub workflow `.github/workflows/validate.yml` runs:
 - Mypy type checking
 - Full test suite with pytest
 - Tests against Home Assistant 2026.5.x
-- Python 3.14 environment
+- configured Home Assistant/Python test environment
 
 ## Translation Files
 
@@ -561,7 +561,7 @@ violet-hass/
   - New Home Assistant version is released
   - New Python version is released
   - CI/CD pipeline fails due to compatibility issues
-- **Current version:** `>=0.13.109` (Python 3.14+ compatible)
+- **Current version:** `>=0.13.337`
 - **Update command:** `pip install --upgrade pytest-homeassistant-custom-component`
 
 ### Code Style
@@ -659,7 +659,7 @@ Located in `.github/workflows/` (10 workflows):
 - `voluptuous>=0.16.0` - Data validation
 
 **Integration requirement** (from `manifest.json`):
-- `violet-poolController-api>=0.0.32` - API client package (installed by HA from PyPI; source is in `violet_poolcontroller_api/` locally)
+- `violet-poolController-api>=0.0.33` - API client package (installed by HA from PyPI; source is in `violet_poolcontroller_api/` locally)
 
 **Development** (from `requirements-dev.txt`):
 - `ruff>=0.15.16` - Linter and formatter
@@ -691,7 +691,7 @@ Located in `.github/workflows/` (10 workflows):
 
 8. **Code Quality**: Always run `ruff check --fix` before committing. The integration maintains 0 ruff errors.
 
-9. **Home Assistant Compatibility**: Integration requires HA 2026.5.0+ and Python 3.14.2+. It is tested against HA 2026.5.x/2026.6.x. Use modern type annotations (`X | None` not `Optional[X]`) and `collections.abc` imports.
+9. **Home Assistant Compatibility**: Integration requires HA 2026.5.0+. The HA runtime Python version is managed by Home Assistant; the standalone API package supports Python 3.12+. Use modern type annotations (`X | None` not `Optional[X]`) and `collections.abc` imports.
 
 10. **Recovery Behavior**: When connection is lost, the integration attempts auto-recovery with exponential backoff (10s → 300s max) for up to 10 attempts. After max attempts, manual intervention is required.
 

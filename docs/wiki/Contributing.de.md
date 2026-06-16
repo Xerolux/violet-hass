@@ -41,9 +41,9 @@ Beiträge sind herzlich willkommen – egal ob Bug-Reports, Feature-Requests, Do
 
 2. ENVIRONMENT
    - Home Assistant Version: 2026.x.x (Minimum: 2026.5.0)
-   - Integration Version: 1.0.5
+   - Integration Version: 2.0.0
    - Controller Firmware: x.x.x
-   - Python Version: 3.14.2+
+   - Python-Laufzeit: wird von Home Assistant 2026.5.0+ bereitgestellt
 
 3. SCHRITTE ZUM REPRODUZIEREN
    1. Integration hinzufügen mit ...
@@ -252,7 +252,7 @@ pytest tests/ -vv --tb=long
 
 ### Test-Kriterien für PR-Merge
 
-- [ ] Alle 53+ bestehenden Tests bestehen
+- [ ] Alle bestehenden Tests bestehen
 - [ ] Neue Funktionen haben Tests
 - [ ] Coverage > 80%
 - [ ] Ruff: 0 Fehler
