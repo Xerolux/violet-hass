@@ -327,6 +327,10 @@ def determine_state_class(key: str) -> SensorStateClass | None:
     if key.endswith("_REMAINING_RANGE"):
         return None
 
+    # DI-Rule stopwatch sensors return formatted strings like "1d 2h 30m 45s"
+    if "DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_STOPWATCH" in key:
+        return None
+
     if key in _ALL_TEXT_SENSORS or is_timestamp_key or key in NO_UNIT_SENSORS:
         return None
     # Handle contact sensors (e.g., CLOSE_CONTACT) which return
