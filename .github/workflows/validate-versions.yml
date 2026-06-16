@@ -33,7 +33,7 @@ jobs:
 
       - name: Check integration const.py version
         run: |
-          CONST_VERSION=$(grep 'INTEGRATION_VERSION = ' custom_components/violet_pool_controller/const.py | sed 's/.*"\([^"]*\)".*/\1/')
+          CONST_VERSION=$(grep -m1 '^[[:space:]]*INTEGRATION_VERSION = ' custom_components/violet_pool_controller/const.py | sed 's/.*"\([^"]*\)".*/\1/')
           if [ "$CONST_VERSION" != "${{ env.MANIFEST_VERSION }}" ]; then
             echo "ERROR: const.py version ($CONST_VERSION) does not match manifest.json (${{ env.MANIFEST_VERSION }})!"
             exit 1
@@ -58,7 +58,7 @@ jobs:
       - name: Check root pyproject.toml version
         run: |
           if [ -f pyproject.toml ]; then
-            PY_VERSION=$(grep 'version = ' pyproject.toml | head -1 | sed 's/.*"\([^"]*\)".*/\1/')
+            PY_VERSION=$(grep -m1 '^version = ' pyproject.toml | sed 's/.*"\([^"]*\)".*/\1/')
             if [ "$PY_VERSION" != "${{ env.MANIFEST_VERSION }}" ]; then
               echo "ERROR: pyproject.toml version ($PY_VERSION) does not match manifest.json (${{ env.MANIFEST_VERSION }})!"
               exit 1

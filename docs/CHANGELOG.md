@@ -11,7 +11,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### ✨ New Features
 
 - **Security-First Architecture**: Passive-first, read-only security model with no state assumption on startup
-- **Advanced Error Management**: Reset Error Blockings button for direct error code management
+- **Advanced Error Management**: Reset blocking errors button for direct error code management
 - **Multi-State Switch Support**: Full support for device states 0-6 with operational mode indicators
 - **Firmware Update Detection**: Real-time firmware version checking and update notifications
 - **Enhanced Diagnostics Services**: New diagnostic services for connection testing and error analysis
