@@ -16,8 +16,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import aiohttp_client
 from violet_poolcontroller_api import (
     VioletAuthError,
-    VioletPoolAPIError,
     VioletPoolAPI,
+    VioletPoolAPIError,
 )
 
 from ..const import (

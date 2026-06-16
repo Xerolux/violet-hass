@@ -22,8 +22,8 @@ from homeassistant.helpers import aiohttp_client, selector
 from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 from violet_poolcontroller_api import (
     VioletAuthError,
-    VioletPoolAPIError,
     VioletPoolAPI,
+    VioletPoolAPIError,
 )
 
 from .config_flow_support import (
