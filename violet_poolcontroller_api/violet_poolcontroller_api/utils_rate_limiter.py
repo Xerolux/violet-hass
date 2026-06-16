@@ -171,8 +171,17 @@ class RateLimiter:
                 msg = f"Rate Limiter timeout nach {elapsed:.1f}s"
                 raise TimeoutError(msg)
 
-            # Warte auf Token-Refill
-            await asyncio.sleep(self.retry_after)
+            # Adaptive Wartezeit: Berechne basierend auf Refill-Rate
+            # Statt fest retry_after zu warten, berechne optimale Wartezeit
+            refill_rate = self.max_requests / self.time_window
+            needed_tokens = 1.0 - self.tokens  # Wieviele Tokens fehlen
+            if refill_rate > 0:
+                optimal_wait = needed_tokens / refill_rate
+                wait_time = min(optimal_wait, self.retry_after)
+            else:
+                wait_time = self.retry_after
+
+            await asyncio.sleep(wait_time)
 
     def _refill_tokens(self, current_time: float) -> None:
         """Fülle Token-Bucket basierend auf verstrichener Zeit."""
