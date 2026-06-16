@@ -1,5 +1,7 @@
 # Changelog - Violet Pool Controller
 
+> **Language Note:** This changelog is available in German. For English release notes, see the GitHub releases page.
+
 ## ⚠️ BREAKING CHANGES - Version 2.0.0-beta.10
 
 ### 🚨 **SICHERHEIT: Automatische Deaktivierung kritischer Schalter**
@@ -11,7 +13,7 @@
 - **Wassernachfüllung** (Refill)
 
 **Grund:** Diese Operationen können zu schweren Schäden führen, wenn sie ohne Zeitlimit laufen:
-- ⚠️ **Chemische Überdosierung** → Poolwasser beschädigt, Gesundheitsrisiko
+- ⚠️ **Chemische Überdosierung** → Wasserqualität beeinträchtigt, Gesundheitsrisiko
 - ⚠️ **Ausrüstungsschaden** → Pumpen, Filter, Ventile zerstört
 - ⚠️ **Überflutung** → Tank überläuft, Wasserschaden im Haus
 
@@ -32,9 +34,10 @@
 **Wie nutze ich diese Schalter weiterhin?**
 
 Nutze die **Services** stattdessen - sie erfordern eine Zeitangabe:
-- `violet_pool_controller.smart_dosing` - für Dosierung
+- `violet_pool_controller.smart_dosing` - für Dosierungen (pH-, pH+, Chlor, Flockmittel)
 - `violet_pool_controller.control_pump` - für Pumpensteuerung
-- Weitere Services für Rückspülung, Nachfüllung, etc.
+- `violet_pool_controller.manage_pv_surplus` - für PV-Überschuss-Steuerung
+- Zusätzliche Services: `control_dmx_scenes`, `set_light_color_pulse`, `manage_digital_rules`, `test_output`
 
 **Oder: Schalter manuell aktivieren (Experten)**
 
@@ -57,12 +60,12 @@ Wenn du die Risiken kennst und akzeptierst, kannst du die unsicheren Schalter ak
 
 - Behobener AttributeError bei `RegistryEntry.enabled` (sollte `disabled` sein)
 - Korrekte Speicherung von Sicherheitseinstellungen in Config-Optionen
-- Re-Enable-Logik für Schalter wenn Sicherheitsüberschreibung aktiviert wird
+- Re-Enable-Logik für Schalter, wenn Sicherheitsüberschreibung aktiviert wird
 
 ### 🔧 Technische Verbesserungen
 
 - Sicherheitseinstellungen jetzt in `options` statt `data` gespeichert
-- Fallback-Checking (options → data) für Rückwärtskompatibilität
+- Fallback-Prüfung (options → data) für Rückwärtskompatibilität
 - Separate Reconfigure-Flows für Verbindung und Sicherheit
 - SSL-Verifikation im Reconfigure-Flow konfigurierbar
 
@@ -72,14 +75,14 @@ Wenn du die Risiken kennst und akzeptierst, kannst du die unsicheren Schalter ak
 
 ### ✨ Neue Funktionen
 
-- Onewire ROM-Code Sensorunterstützung (zeigt Adresse statt °C)
-- DI-Rule Verbleibzeit-Anzeige in humanlesbarem Format (1d 2h 30m 45s)
+- OneWire-ROM-Code-Sensorunterstützung (zeigt Adresse statt °C)
+- DI-Rule Verbleibzeit-Anzeige in lesbarem Format (1d 2h 30m 45s)
 - Verbesserte Hardware-Modul-Erkennung (aktuell statt cached)
 
 ### 🐛 Bugfixes
 
-- Onewire Romcode zeigt jetzt korrekt Adresse statt Temperatur
-- DI-Rule Stopwatch als Text-Sensor (nicht numerisch)
+- OneWire-ROM-Code zeigt jetzt korrekt Adresse statt Temperatur
+- DI-Rule-Stoppuhr als Text-Sensor (nicht numerisch)
 - Hardware-Module werden basierend auf aktuellen Daten erkannt
 
 ### 📦 Dependencies
@@ -88,14 +91,17 @@ Wenn du die Risiken kennst und akzeptierst, kannst du die unsicheren Schalter ak
 
 ---
 
-## Hinweise zur Sicherheit
+## Sicherheitsrichtlinie
 
-Diese Integration kontrolliert kritische Poolausrüstung. Sicherheit steht an erster Stelle:
+Diese Integration kontrolliert kritische Poolausrüstung mit strikter Sicherheit:
 
-- ✅ Alle manuellen Steuerschalter für kritische Operationen sind standardmäßig deaktiviert
+**Siehe auch:** [⚠️ BREAKING CHANGES - Version 2.0.0-beta.10](#breaking-changes---version-200-0-beta10) für vollständige Informationen zur Sicherheitsimplementierung, automatischen Deaktivierung kritischer Schalter und erforderlichen Services mit Zeitlimits.
+
+**Sicherheitsmerkmale:**
+- ✅ Automatische Deaktivierung unsicherer Schalter (standardmäßig)
 - ✅ Services erfordern obligatorische Zeitangaben
-- ✅ Ausführliches Logging bei kritischen Operationen
-- ✅ Benutzer müssen Risiken explizit akzeptieren
+- ✅ Explizite Benutzer-Opt-in für manuelle Kontrolle (mit Warnungen)
+- ✅ Umfassendes Logging bei kritischen Operationen
 
 **Kontakt & Support:**
 - GitHub Issues: https://github.com/Xerolux/violet-hass/issues
