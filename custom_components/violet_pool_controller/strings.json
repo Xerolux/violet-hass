@@ -121,12 +121,20 @@
         "description": "A Violet Pool Controller was discovered on the network.\n\nName: **{name}**\nIP: **{host}**\n\nWould you like to set up this controller now?"
       },
       "reconfigure": {
-        "title": "Reconfigure Connection",
+        "title": "Reconfigure Violet Pool Controller",
+        "description": "What would you like to reconfigure?\n\nController: **{controller_name}**",
+        "data": {
+          "reconfigure_option": "Select what to reconfigure"
+        }
+      },
+      "reconfigure_connection": {
+        "title": "Reconfigure Connection Settings",
         "description": "Update the connection settings for your controller.\n\nController: **{controller_name}**",
         "data": {
           "host": "IP Address",
           "port": "TCP Port",
           "use_ssl": "Use SSL/HTTPS",
+          "verify_ssl": "Verify SSL Certificate",
           "polling_interval": "Polling Interval (s)",
           "timeout_duration": "Timeout (s)",
           "retry_attempts": "Retry Attempts"
@@ -135,9 +143,20 @@
           "host": "New controller IP or DNS name",
           "port": "TCP port (default 80)",
           "use_ssl": "Enable HTTPS",
+          "verify_ssl": "Verify the SSL certificate. Disable for self-signed certificates.",
           "polling_interval": "Data polling interval (10–3600s)",
           "timeout_duration": "Maximum wait time per request",
           "retry_attempts": "Number of retry attempts"
+        }
+      },
+      "reconfigure_safety": {
+        "title": "🚨 Safety Settings",
+        "description": "{warning}",
+        "data": {
+          "allow_unsafe_switches": "Allow manual safety-critical switches"
+        },
+        "data_description": {
+          "allow_unsafe_switches": "Enable direct control of dosing, backwash & refill (requires mandatory time limits via Services)"
         }
       },
       "repair": {
