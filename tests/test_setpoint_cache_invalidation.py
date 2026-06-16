@@ -16,7 +16,6 @@ from custom_components.violet_pool_controller.device import (
     VioletPoolControllerDevice,
     VioletPoolDataUpdateCoordinator,
 )
-from violet_poolcontroller_api.readings import VioletReadings
 
 
 class TestSetpointCacheInvalidation:
