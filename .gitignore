@@ -232,6 +232,7 @@ config/blueprints/ (local edits)
 !/docs/CHANGELOG.md
 !/docs/RELEASE_NOTES.md
 !/docs/HA_QUALITY_SCALE_PROGRESS.md
+!/docs/CI_CD_ACTION_PINNING.md
 
 # Dashboard & blueprint internal docs
 /Dashboard/*.md
