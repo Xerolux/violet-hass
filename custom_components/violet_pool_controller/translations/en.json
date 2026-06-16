@@ -531,16 +531,16 @@
         "name": "Outside Temperature"
       },
       "onewire3_value": {
-        "name": "Solar Absorber"
+        "name": "Solar Collector"
       },
       "onewire4_value": {
-        "name": "Absorber Return"
+        "name": "Collector Return"
       },
       "onewire5_value": {
         "name": "Heat Exchanger"
       },
       "onewire6_value": {
-        "name": "Heater Storage"
+        "name": "Heat Storage"
       },
       "onewire7_value": {
         "name": "Temperature Sensor 7"
@@ -555,7 +555,7 @@
         "name": "ORP Value"
       },
       "pot_value": {
-        "name": "Chlorine Level"
+        "name": "Chlorine Content"
       },
       "ai1_value": {
         "name": "Analog Input 1"
@@ -581,47 +581,8 @@
       "ai8_value": {
         "name": "Analog Input 8"
       },
-      "dos_1_cl_state": {
-        "name": "Chlorine Dosing State"
-      },
-      "dos_4_phm_state": {
-        "name": "pH- Dosing State"
-      },
-      "dos_5_php_state": {
-        "name": "pH+ Dosing State"
-      },
-      "dos_6_floc_state": {
-        "name": "Flocculant Dosing State"
-      },
-      "cpu_temp": {
-        "name": "CPU Temperature"
-      },
-      "cpu_temp_carrier": {
-        "name": "Carrier Board"
-      },
-      "cpu_uptime": {
-        "name": "Device Uptime"
-      },
-      "system_cpu_temperature": {
-        "name": "System CPU Temperature"
-      },
-      "system_carrier_cpu_temperature": {
-        "name": "Carrier CPU Temperature"
-      },
-      "system_dosagemodule_cpu_temperature": {
-        "name": "Dosing Module CPU Temperature"
-      },
-      "system_memoryusage": {
-        "name": "System Memory Usage"
-      },
       "system_health": {
         "name": "System Health"
-      },
-      "system_safety_timer_active": {
-        "name": "Safety Timer Active"
-      },
-      "system_relais_status": {
-        "name": "Relay Status"
       },
       "connection_latency": {
         "name": "Connection Latency"
@@ -639,43 +600,88 @@
         "name": "Recovery Success Rate"
       },
       "pump_estimated_power": {
-        "name": "Pump Power (est.)"
-      },
-      "last_error_code": {
-        "name": "Last Error Code"
+        "name": "Pump Estimated Power"
       },
       "flow_rate": {
         "name": "Flow Rate"
       },
+      "last_error_code": {
+        "name": "Last Error Code"
+      },
+      "dos_1_cl_state": {
+        "name": "Chlordosier-Status"
+      },
+      "dos_4_phm_state": {
+        "name": "pH--Dosier-Status"
+      },
+      "dos_5_php_state": {
+        "name": "pH+-Dosier-Status"
+      },
+      "dos_2_elo_state": {
+        "name": "Elektrolyse-Dosierstatus"
+      },
+      "dos_6_floc_state": {
+        "name": "Flockungsstatus"
+      },
+      "cpu_temp": {
+        "name": "CPU-Temperatur"
+      },
+      "cpu_temp_carrier": {
+        "name": "Träger-Platine"
+      },
+      "cpu_uptime": {
+        "name": "System-Betriebszeit"
+      },
+      "system_cpu_temperature": {
+        "name": "System CPU-Temperatur"
+      },
+      "system_carrier_cpu_temperature": {
+        "name": "Träger-CPU-Temperatur"
+      },
+      "system_dosagemodule_cpu_temperature": {
+        "name": "Dosier-Modul CPU-Temperatur"
+      },
+      "system_memoryusage": {
+        "name": "Speichernutzung"
+      },
+      "system_safety_timer_active": {
+        "name": "Sicherheitstimer aktiv"
+      },
+      "system_relais_status": {
+        "name": "Relais-Status"
+      },
       "fw": {
-        "name": "Firmware Version"
+        "name": "Firmware-Version"
       },
       "pump": {
-        "name": "Pump Status"
+        "name": "Pumpen-Status"
       },
       "heater": {
-        "name": "Heater Status"
+        "name": "Heizungs-Status"
       },
       "solar": {
-        "name": "Solar Status"
+        "name": "Solar-Status"
       },
       "backwash": {
-        "name": "Backwash Status"
+        "name": "Rückspül-Status"
+      },
+      "light": {
+        "name": "Beleuchtungs-Status"
       },
       "pvsurplus": {
-        "name": "PV Surplus Status"
+        "name": "PV-Überschuss Status"
       },
       "refill": {
-        "name": "Refill Status"
+        "name": "Nachfüll-Status"
       },
       "pumpstate": {
-        "name": "Pump Detail Status"
+        "name": "Pumpen Detail-Status"
       },
       "heaterstate": {
-        "name": "Heater Detail Status"
+        "name": "Heizung Detail-Status"
       },
       "solarstate": {
-        "name": "Solar Detail Status"
+        "name": "Solar Detail-Status"
       },
       "adc1_value": {
         "name": "Filter Pressure"
@@ -693,10 +699,10 @@
         "name": "Analog Sensor 5 (0-10V)"
       },
       "imp1_value": {
-        "name": "Dosing Inflow"
+        "name": "Dosing Inlet"
       },
       "imp2_value": {
-        "name": "Pump Flow Rate"
+        "name": "Pump Flow"
       },
       "ext1_1": {
         "name": "Extension 1.1"
@@ -746,882 +752,908 @@
       "ext2_8": {
         "name": "Extension 2.8"
       },
-      "light": {
-        "name": "Lighting Status"
-      },
-      "dos_2_elo_state": {
-        "name": "Electrolysis Status"
-      },
       "backwashrinse": {
-        "name": "Backwash Rinse Status"
+        "name": "Nachspül-Status"
       },
       "backwash_delay_running": {
-        "name": "Backwash Delay Active"
+        "name": "Rückspül-Verzögerung aktiv"
       },
       "backwash_delay_timestamp": {
-        "name": "Backwash Delay Timestamp"
+        "name": "Rückspül-Verzögerung Zeitstempel"
       },
       "backwash_last_auto_run": {
-        "name": "Backwash Last Auto Run"
+        "name": "Letzte automatische Rückspülung"
       },
       "backwash_last_manual_run": {
-        "name": "Backwash Last Manual Run"
+        "name": "Letzte manuelle Rückspülung"
       },
       "backwash_last_off": {
-        "name": "Backwash Last Off"
+        "name": "Rückspülung Zuletzt Aus"
       },
       "backwash_last_on": {
-        "name": "Backwash Last On"
+        "name": "Rückspülung Zuletzt Ein"
       },
       "backwash_omni_moving": {
-        "name": "Backwash Valve Moving"
+        "name": "OmniTronic bewegt sich"
       },
       "backwash_omni_state": {
-        "name": "Backwash Valve State"
+        "name": "OmniTronic-Ventilstatus"
       },
       "backwash_runtime": {
-        "name": "Backwash Runtime"
+        "name": "Rückspül-Laufzeit"
       },
       "backwash_state": {
-        "name": "Backwash State"
+        "name": "Rückspül-Zustand"
       },
       "backwash_step": {
-        "name": "Backwash Step"
+        "name": "Rückspülschritt"
       },
       "backwashrinse_last_off": {
-        "name": "Backwash Rinse Last Off"
+        "name": "Nachspülung Zuletzt Aus"
       },
       "backwashrinse_last_on": {
-        "name": "Backwash Rinse Last On"
+        "name": "Nachspülung Zuletzt Ein"
       },
       "backwashrinse_runtime": {
-        "name": "Backwash Rinse Runtime"
+        "name": "Nachspül-Laufzeit"
       },
       "pump_runtime": {
-        "name": "Pump Runtime"
+        "name": "Pumpen-Laufzeit"
       },
       "pump_last_on": {
-        "name": "Pump Last On"
+        "name": "Pumpe Zuletzt Ein"
       },
       "pump_last_off": {
-        "name": "Pump Last Off"
+        "name": "Pumpe Zuletzt Aus"
       },
       "heater_runtime": {
-        "name": "Heater Runtime"
+        "name": "Heizungs-Laufzeit"
       },
       "heater_last_on": {
-        "name": "Heater Last On"
+        "name": "Heizung Zuletzt Ein"
       },
       "heater_last_off": {
-        "name": "Heater Last Off"
+        "name": "Heizung Zuletzt Aus"
       },
       "heater_postrun_time": {
-        "name": "Heater Post-Run Time"
+        "name": "Heizung Nachlaufzeit"
       },
       "solar_runtime": {
-        "name": "Solar Runtime"
+        "name": "Solar-Laufzeit"
       },
       "solar_last_on": {
-        "name": "Solar Last On"
+        "name": "Solar Zuletzt Ein"
       },
       "solar_last_off": {
-        "name": "Solar Last Off"
+        "name": "Solar Zuletzt Aus"
       },
       "light_runtime": {
-        "name": "Lighting Runtime"
+        "name": "Beleuchtungs-Laufzeit"
       },
       "light_last_on": {
-        "name": "Lighting Last On"
+        "name": "Beleuchtung Zuletzt Ein"
       },
       "light_last_off": {
-        "name": "Lighting Last Off"
+        "name": "Beleuchtung Zuletzt Aus"
       },
       "eco": {
-        "name": "Eco Mode Status"
+        "name": "Eco-Modus Status"
       },
       "eco_runtime": {
-        "name": "Eco Runtime"
+        "name": "Eco-Laufzeit"
       },
       "eco_last_on": {
-        "name": "Eco Last On"
+        "name": "Eco Zuletzt Ein"
       },
       "eco_last_off": {
-        "name": "Eco Last Off"
+        "name": "Eco Zuletzt Aus"
       },
       "dos_1_cl": {
-        "name": "Chlorine Dosing System"
+        "name": "Chlor-Dosiersystem"
+      },
+      "dos_1_cl_daily": {
+        "name": "Chlor Tagesdosierung (ml)"
+      },
+      "dos_1_cl_total_can": {
+        "name": "Chlor Kanisterinhalt (ml)"
       },
       "dos_1_cl_runtime": {
-        "name": "Chlorine Dosing Runtime"
+        "name": "Chlor-Dosierlaufzeit"
       },
       "dos_1_cl_last_on": {
-        "name": "Chlorine Dosing Last On"
+        "name": "Chlor-Dosierung Zuletzt Ein"
       },
       "dos_1_cl_last_off": {
-        "name": "Chlorine Dosing Last Off"
+        "name": "Chlor-Dosierung Zuletzt Aus"
       },
       "dos_1_cl_daily_dosing_amount_ml": {
-        "name": "Chlorine Daily Amount (ml)"
+        "name": "Chlor Tagesdosierung (ml)"
       },
       "dos_1_cl_total_can_amount_ml": {
-        "name": "Chlorine Canister Amount (ml)"
+        "name": "Chlor Kanisterinhalt (ml)"
       },
       "dos_1_cl_type": {
-        "name": "Chlorine Dosing Type"
+        "name": "Chlor Dosiertyp"
       },
       "dos_1_cl_use": {
-        "name": "Chlorine Usage"
+        "name": "Chlor Verbrauch"
       },
       "dos_1_cl_last_can_reset": {
-        "name": "Chlorine Last Canister Reset"
+        "name": "Chlor Letzter Kanister-Reset"
       },
       "dos_2_elo": {
-        "name": "Electrolysis System"
+        "name": "Elektrolyse-Dosiersystem"
+      },
+      "dos_2_elo_daily": {
+        "name": "Elektrolyse Tagesdosiermenge (ml)"
+      },
+      "dos_2_elo_total_can": {
+        "name": "Elektrolyse Kanisterinhalt (ml)"
       },
       "dos_4_phm": {
-        "name": "pH- Dosing System"
+        "name": "pH- Dosiersystem"
+      },
+      "dos_4_phm_daily": {
+        "name": "pH- Tagesdosierung (ml)"
+      },
+      "dos_4_phm_total_can": {
+        "name": "pH- Kanisterinhalt (ml)"
       },
       "dos_5_php": {
-        "name": "pH+ Dosing System"
+        "name": "pH+ Dosiersystem"
+      },
+      "dos_5_php_daily": {
+        "name": "pH+ Tagesdosierung (ml)"
+      },
+      "dos_5_php_total_can": {
+        "name": "pH+ Kanisterinhalt (ml)"
       },
       "dos_6_floc": {
-        "name": "Flocculant Dosing System"
+        "name": "Flockmittel-Dosiersystem"
+      },
+      "dos_6_floc_daily": {
+        "name": "Flockmittel Tagesdosierung (ml)"
+      },
+      "dos_6_floc_total_can": {
+        "name": "Flockmittel Kanisterinhalt (ml)"
       },
       "refill_runtime": {
-        "name": "Refill Runtime"
+        "name": "Nachfüll-Laufzeit"
       },
       "refill_last_on": {
-        "name": "Refill Last On"
+        "name": "Nachfüllung Zuletzt Ein"
       },
       "refill_last_off": {
-        "name": "Refill Last Off"
+        "name": "Nachfüllung Zuletzt Aus"
       },
       "overflow_dryrun_state": {
-        "name": "Overflow Dry Run State"
+        "name": "Überlauf Trockenlauf-Status"
       },
       "overflow_overfill_state": {
-        "name": "Overflow Overfill State"
+        "name": "Überfüllungs-Status"
       },
       "overflow_refill_state": {
-        "name": "Overflow Refill State"
+        "name": "Überlauf Nachfüll-Status"
       },
       "bathing_ai_last_level": {
-        "name": "Bathing AI Last Level"
+        "name": "Bade-KI Letzter Füllstand"
       },
       "bathing_ai_pump_state": {
-        "name": "Bathing AI Pump State"
+        "name": "Bade-KI Pumpenstatus"
       },
       "bathing_ai_pump_timestamp": {
-        "name": "Bathing AI Pump Timestamp"
+        "name": "Bade-KI Pumpen-Zeitstempel"
       },
       "bathing_ai_start_level": {
-        "name": "Bathing AI Start Level"
+        "name": "Bade-KI Startfüllstand"
       },
       "bathing_ai_surveillance_state": {
-        "name": "Bathing AI Surveillance State"
+        "name": "Bade-KI Überwachungsstatus"
       },
       "pump_rpm_0": {
-        "name": "Pump Speed 0"
+        "name": "Pumpen-Stufe 0"
       },
       "pump_rpm_1": {
-        "name": "Pump Speed 1"
+        "name": "Pumpen-Stufe 1"
       },
       "pump_rpm_2": {
-        "name": "Pump Speed 2"
+        "name": "Pumpen-Stufe 2"
       },
       "pump_rpm_3": {
-        "name": "Pump Speed 3"
+        "name": "Pumpen-Stufe 3"
       },
       "pump_rpm_0_last_off": {
-        "name": "Pump Speed 0 Last Off"
+        "name": "Pumpen-Stufe 0 Zuletzt Aus"
       },
       "pump_rpm_1_last_off": {
-        "name": "Pump Speed 1 Last Off"
+        "name": "Pumpen-Stufe 1 Zuletzt Aus"
       },
       "pump_rpm_2_last_off": {
-        "name": "Pump Speed 2 Last Off"
+        "name": "Pumpen-Stufe 2 Zuletzt Aus"
       },
       "pump_rpm_3_last_off": {
-        "name": "Pump Speed 3 Last Off"
+        "name": "Pumpen-Stufe 3 Zuletzt Aus"
       },
       "pump_rpm_0_runtime": {
-        "name": "Pump Speed 0 Runtime"
+        "name": "Pumpen-Stufe 0 Laufzeit"
       },
       "pump_rpm_1_runtime": {
-        "name": "Pump Speed 1 Runtime"
+        "name": "Pumpen-Stufe 1 Laufzeit"
       },
       "pump_rpm_2_runtime": {
-        "name": "Pump Speed 2 Runtime"
+        "name": "Pumpen-Stufe 2 Laufzeit"
       },
       "pump_rpm_3_runtime": {
-        "name": "Pump Speed 3 Runtime"
+        "name": "Pumpen-Stufe 3 Laufzeit"
       },
       "sw_version": {
-        "name": "Software Version"
+        "name": "Software-Version"
       },
       "sw_version_carrier": {
-        "name": "Carrier Software Version"
+        "name": "Carrier Software-Version"
       },
       "system_memory": {
-        "name": "System Memory"
+        "name": "Systemspeicher"
       },
       "cover_state": {
-        "name": "Cover State"
+        "name": "Abdeckungs-Zustand"
       },
       "onewire12_value": {
         "name": "Temperature Sensor 12"
       },
       "onewire12_value_max": {
-        "name": "Temperature Sensor 12 Max"
+        "name": "Temperature Sensor 12 Maximum"
       },
       "onewire12_value_min": {
-        "name": "Temperature Sensor 12 Min"
+        "name": "Temperature Sensor 12 Minimum"
       },
       "onewire1_value_max": {
-        "name": "Water Temperature Max"
+        "name": "Wassertemperatur Maximum"
       },
       "onewire1_value_min": {
-        "name": "Water Temperature Min"
+        "name": "Wassertemperatur Minimum"
       },
       "orp_value_max": {
-        "name": "ORP Max"
+        "name": "Redoxpotential Maximum"
       },
       "orp_value_min": {
-        "name": "ORP Min"
+        "name": "Redoxpotential Minimum"
       },
       "ph_value_max": {
-        "name": "pH Max"
+        "name": "pH Value Maximum"
       },
       "ph_value_min": {
-        "name": "pH Min"
+        "name": "pH Value Minimum"
       },
       "pot_value_max": {
-        "name": "Chlorine Max"
+        "name": "Chlorine Content Maximum"
       },
       "pot_value_min": {
-        "name": "Chlorine Min"
+        "name": "Chlorine Content Minimum"
       },
       "ext1_1_last_on": {
-        "name": "Extension 1.1 Last On"
+        "name": "Extension 1.1 Zuletzt Ein"
       },
       "ext1_1_last_off": {
-        "name": "Extension 1.1 Last Off"
+        "name": "Extension 1.1 Zuletzt Aus"
       },
       "ext1_1_runtime": {
-        "name": "Extension 1.1 Runtime"
+        "name": "Extension 1.1 Laufzeit"
       },
       "ext1_2_last_on": {
-        "name": "Extension 1.2 Last On"
+        "name": "Extension 1.2 Zuletzt Ein"
       },
       "ext1_2_last_off": {
-        "name": "Extension 1.2 Last Off"
+        "name": "Extension 1.2 Zuletzt Aus"
       },
       "ext1_2_runtime": {
-        "name": "Extension 1.2 Runtime"
+        "name": "Extension 1.2 Laufzeit"
       },
       "ext1_3_last_on": {
-        "name": "Extension 1.3 Last On"
+        "name": "Extension 1.3 Zuletzt Ein"
       },
       "ext1_3_last_off": {
-        "name": "Extension 1.3 Last Off"
+        "name": "Extension 1.3 Zuletzt Aus"
       },
       "ext1_3_runtime": {
-        "name": "Extension 1.3 Runtime"
+        "name": "Extension 1.3 Laufzeit"
       },
       "ext1_4_last_on": {
-        "name": "Extension 1.4 Last On"
+        "name": "Extension 1.4 Zuletzt Ein"
       },
       "ext1_4_last_off": {
-        "name": "Extension 1.4 Last Off"
+        "name": "Extension 1.4 Zuletzt Aus"
       },
       "ext1_4_runtime": {
-        "name": "Extension 1.4 Runtime"
+        "name": "Extension 1.4 Laufzeit"
       },
       "ext1_5_last_on": {
-        "name": "Extension 1.5 Last On"
+        "name": "Extension 1.5 Zuletzt Ein"
       },
       "ext1_5_last_off": {
-        "name": "Extension 1.5 Last Off"
+        "name": "Extension 1.5 Zuletzt Aus"
       },
       "ext1_5_runtime": {
-        "name": "Extension 1.5 Runtime"
+        "name": "Extension 1.5 Laufzeit"
       },
       "ext1_6_last_on": {
-        "name": "Extension 1.6 Last On"
+        "name": "Extension 1.6 Zuletzt Ein"
       },
       "ext1_6_last_off": {
-        "name": "Extension 1.6 Last Off"
+        "name": "Extension 1.6 Zuletzt Aus"
       },
       "ext1_6_runtime": {
-        "name": "Extension 1.6 Runtime"
+        "name": "Extension 1.6 Laufzeit"
       },
       "ext1_7_last_on": {
-        "name": "Extension 1.7 Last On"
+        "name": "Extension 1.7 Zuletzt Ein"
       },
       "ext1_7_last_off": {
-        "name": "Extension 1.7 Last Off"
+        "name": "Extension 1.7 Zuletzt Aus"
       },
       "ext1_7_runtime": {
-        "name": "Extension 1.7 Runtime"
+        "name": "Extension 1.7 Laufzeit"
       },
       "ext1_8_last_on": {
-        "name": "Extension 1.8 Last On"
+        "name": "Extension 1.8 Zuletzt Ein"
       },
       "ext1_8_last_off": {
-        "name": "Extension 1.8 Last Off"
+        "name": "Extension 1.8 Zuletzt Aus"
       },
       "ext1_8_runtime": {
-        "name": "Extension 1.8 Runtime"
+        "name": "Extension 1.8 Laufzeit"
       },
       "ext2_1_last_on": {
-        "name": "Extension 2.1 Last On"
+        "name": "Extension 2.1 Zuletzt Ein"
       },
       "ext2_1_last_off": {
-        "name": "Extension 2.1 Last Off"
+        "name": "Extension 2.1 Zuletzt Aus"
       },
       "ext2_1_runtime": {
-        "name": "Extension 2.1 Runtime"
+        "name": "Extension 2.1 Laufzeit"
       },
       "ext2_2_last_on": {
-        "name": "Extension 2.2 Last On"
+        "name": "Extension 2.2 Zuletzt Ein"
       },
       "ext2_2_last_off": {
-        "name": "Extension 2.2 Last Off"
+        "name": "Extension 2.2 Zuletzt Aus"
       },
       "ext2_2_runtime": {
-        "name": "Extension 2.2 Runtime"
+        "name": "Extension 2.2 Laufzeit"
       },
       "ext2_3_last_on": {
-        "name": "Extension 2.3 Last On"
+        "name": "Extension 2.3 Zuletzt Ein"
       },
       "ext2_3_last_off": {
-        "name": "Extension 2.3 Last Off"
+        "name": "Extension 2.3 Zuletzt Aus"
       },
       "ext2_3_runtime": {
-        "name": "Extension 2.3 Runtime"
+        "name": "Extension 2.3 Laufzeit"
       },
       "ext2_4_last_on": {
-        "name": "Extension 2.4 Last On"
+        "name": "Extension 2.4 Zuletzt Ein"
       },
       "ext2_4_last_off": {
-        "name": "Extension 2.4 Last Off"
+        "name": "Extension 2.4 Zuletzt Aus"
       },
       "ext2_4_runtime": {
-        "name": "Extension 2.4 Runtime"
+        "name": "Extension 2.4 Laufzeit"
       },
       "ext2_5_last_on": {
-        "name": "Extension 2.5 Last On"
+        "name": "Extension 2.5 Zuletzt Ein"
       },
       "ext2_5_last_off": {
-        "name": "Extension 2.5 Last Off"
+        "name": "Extension 2.5 Zuletzt Aus"
       },
       "ext2_5_runtime": {
-        "name": "Extension 2.5 Runtime"
+        "name": "Extension 2.5 Laufzeit"
       },
       "ext2_6_last_on": {
-        "name": "Extension 2.6 Last On"
+        "name": "Extension 2.6 Zuletzt Ein"
       },
       "ext2_6_last_off": {
-        "name": "Extension 2.6 Last Off"
+        "name": "Extension 2.6 Zuletzt Aus"
       },
       "ext2_6_runtime": {
-        "name": "Extension 2.6 Runtime"
+        "name": "Extension 2.6 Laufzeit"
       },
       "ext2_7_last_on": {
-        "name": "Extension 2.7 Last On"
+        "name": "Extension 2.7 Zuletzt Ein"
       },
       "ext2_7_last_off": {
-        "name": "Extension 2.7 Last Off"
+        "name": "Extension 2.7 Zuletzt Aus"
       },
       "ext2_7_runtime": {
-        "name": "Extension 2.7 Runtime"
+        "name": "Extension 2.7 Laufzeit"
       },
       "ext2_8_last_on": {
-        "name": "Extension 2.8 Last On"
+        "name": "Extension 2.8 Zuletzt Ein"
       },
       "ext2_8_last_off": {
-        "name": "Extension 2.8 Last Off"
+        "name": "Extension 2.8 Zuletzt Aus"
       },
       "ext2_8_runtime": {
-        "name": "Extension 2.8 Runtime"
+        "name": "Extension 2.8 Laufzeit"
       },
       "onewire2_value_max": {
-        "name": "Outside Temperature Max"
+        "name": "Outside Temperature Maximum"
       },
       "onewire2_value_min": {
-        "name": "Outside Temperature Min"
+        "name": "Outside Temperature Minimum"
       },
       "onewire3_value_max": {
-        "name": "Solar Absorber Max"
+        "name": "Solar Absorber Maximum"
       },
       "onewire3_value_min": {
-        "name": "Solar Absorber Min"
+        "name": "Solar Absorber Minimum"
       },
       "onewire4_value_max": {
-        "name": "Absorber Return Max"
+        "name": "Absorber Return Maximum"
       },
       "onewire4_value_min": {
-        "name": "Absorber Return Min"
+        "name": "Absorber Return Minimum"
       },
       "onewire5_value_max": {
-        "name": "Heat Exchanger Inlet Max"
+        "name": "Heat Exchanger Einlauf Maximum"
       },
       "onewire5_value_min": {
-        "name": "Heat Exchanger Inlet Min"
+        "name": "Heat Exchanger Einlauf Minimum"
       },
       "onewire6_value_max": {
-        "name": "Heat Exchanger Outlet Max"
+        "name": "Heat Exchanger Auslauf Maximum"
       },
       "onewire6_value_min": {
-        "name": "Heat Exchanger Outlet Min"
+        "name": "Heat Exchanger Auslauf Minimum"
       },
       "onewire7_value_max": {
-        "name": "Temperature Sensor 7 Max"
+        "name": "Temperature Sensor 7 Maximum"
       },
       "onewire7_value_min": {
-        "name": "Temperature Sensor 7 Min"
+        "name": "Temperature Sensor 7 Minimum"
       },
       "onewire8_value_max": {
-        "name": "Temperature Sensor 8 Max"
+        "name": "Temperature Sensor 8 Maximum"
       },
       "onewire8_value_min": {
-        "name": "Temperature Sensor 8 Min"
+        "name": "Temperature Sensor 8 Minimum"
       },
       "onewire9_value": {
         "name": "Temperature Sensor 9"
       },
       "onewire9_value_max": {
-        "name": "Temperature Sensor 9 Max"
+        "name": "Temperature Sensor 9 Maximum"
       },
       "onewire9_value_min": {
-        "name": "Temperature Sensor 9 Min"
+        "name": "Temperature Sensor 9 Minimum"
       },
       "onewire10_value": {
         "name": "Temperature Sensor 10"
       },
       "onewire10_value_max": {
-        "name": "Temperature Sensor 10 Max"
+        "name": "Temperature Sensor 10 Maximum"
       },
       "onewire10_value_min": {
-        "name": "Temperature Sensor 10 Min"
+        "name": "Temperature Sensor 10 Minimum"
       },
       "onewire11_value": {
         "name": "Temperature Sensor 11"
       },
       "onewire11_value_max": {
-        "name": "Temperature Sensor 11 Max"
+        "name": "Temperature Sensor 11 Maximum"
       },
       "onewire11_value_min": {
-        "name": "Temperature Sensor 11 Min"
+        "name": "Temperature Sensor 11 Minimum"
       },
       "pump_rpm_0_last_on": {
-        "name": "Pump Speed 0 Last On"
+        "name": "Pumpen-Stufe 0 Zuletzt Ein"
       },
       "pump_rpm_1_last_on": {
-        "name": "Pump Speed 1 Last On"
+        "name": "Pumpen-Stufe 1 Zuletzt Ein"
       },
       "pump_rpm_2_last_on": {
-        "name": "Pump Speed 2 Last On"
+        "name": "Pumpen-Stufe 2 Zuletzt Ein"
       },
       "pump_rpm_3_last_on": {
-        "name": "Pump Speed 3 Last On"
+        "name": "Pumpen-Stufe 3 Zuletzt Ein"
       },
       "dos_2_elo_daily_dosing_amount_ml": {
-        "name": "Electrolysis Daily Amount (ml)"
+        "name": "Elektrolyse Tagesdosierung (ml)"
       },
       "dos_2_elo_last_can_reset": {
-        "name": "Electrolysis Last Canister Reset"
+        "name": "Elektrolyse Letzter Kanister-Reset"
       },
       "dos_2_elo_last_off": {
-        "name": "Electrolysis Dosing Last Off"
+        "name": "Elektrolyse-Dosierung Zuletzt Aus"
       },
       "dos_2_elo_last_on": {
-        "name": "Electrolysis Dosing Last On"
+        "name": "Elektrolyse-Dosierung Zuletzt Ein"
       },
       "dos_2_elo_runtime": {
-        "name": "Electrolysis Dosing Runtime"
+        "name": "Elektrolyse-Dosierlaufzeit"
       },
       "dos_2_elo_total_can_amount_ml": {
-        "name": "Electrolysis Canister Amount (ml)"
+        "name": "Elektrolyse Kanisterinhalt (ml)"
       },
       "dos_2_elo_type": {
-        "name": "Electrolysis Dosing Type"
+        "name": "Elektrolyse Dosiertyp"
       },
       "dos_2_elo_use": {
-        "name": "Electrolysis Usage"
+        "name": "Elektrolyse Verbrauch"
       },
       "dos_4_phm_daily_dosing_amount_ml": {
-        "name": "pH- Daily Amount (ml)"
+        "name": "pH- Tagesdosierung (ml)"
       },
       "dos_4_phm_last_can_reset": {
-        "name": "pH- Last Canister Reset"
+        "name": "pH- Letzter Kanister-Reset"
       },
       "dos_4_phm_last_off": {
-        "name": "pH- Dosing Last Off"
+        "name": "pH--Dosierung Zuletzt Aus"
       },
       "dos_4_phm_last_on": {
-        "name": "pH- Dosing Last On"
+        "name": "pH--Dosierung Zuletzt Ein"
       },
       "dos_4_phm_runtime": {
-        "name": "pH- Dosing Runtime"
+        "name": "pH--Dosierlaufzeit"
       },
       "dos_4_phm_total_can_amount_ml": {
-        "name": "pH- Canister Amount (ml)"
+        "name": "pH- Kanisterinhalt (ml)"
       },
       "dos_4_phm_type": {
-        "name": "pH- Dosing Type"
+        "name": "pH- Dosiertyp"
       },
       "dos_4_phm_use": {
-        "name": "pH- Usage"
+        "name": "pH- Verbrauch"
       },
       "dos_5_php_daily_dosing_amount_ml": {
-        "name": "pH+ Daily Amount (ml)"
+        "name": "pH+ Tagesdosierung (ml)"
       },
       "dos_5_php_last_can_reset": {
-        "name": "pH+ Last Canister Reset"
+        "name": "pH+ Letzter Kanister-Reset"
       },
       "dos_5_php_last_off": {
-        "name": "pH+ Dosing Last Off"
+        "name": "pH+-Dosierung Zuletzt Aus"
       },
       "dos_5_php_last_on": {
-        "name": "pH+ Dosing Last On"
+        "name": "pH+-Dosierung Zuletzt Ein"
       },
       "dos_5_php_runtime": {
-        "name": "pH+ Dosing Runtime"
+        "name": "pH+-Dosierlaufzeit"
       },
       "dos_5_php_total_can_amount_ml": {
-        "name": "pH+ Canister Amount (ml)"
+        "name": "pH+ Kanisterinhalt (ml)"
       },
       "dos_5_php_type": {
-        "name": "pH+ Dosing Type"
+        "name": "pH+ Dosiertyp"
       },
       "dos_5_php_use": {
-        "name": "pH+ Usage"
+        "name": "pH+ Verbrauch"
       },
       "dos_6_floc_daily_dosing_amount_ml": {
-        "name": "Flocculant Daily Amount (ml)"
+        "name": "Flockmittel Tagesdosierung (ml)"
       },
       "dos_6_floc_last_can_reset": {
-        "name": "Flocculant Last Canister Reset"
+        "name": "Flockmittel Letzter Kanister-Reset"
       },
       "dos_6_floc_last_off": {
-        "name": "Flocculant Dosing Last Off"
+        "name": "Flockmittel-Dosierung Zuletzt Aus"
       },
       "dos_6_floc_last_on": {
-        "name": "Flocculant Dosing Last On"
+        "name": "Flockmittel-Dosierung Zuletzt Ein"
       },
       "dos_6_floc_runtime": {
-        "name": "Flocculant Dosing Runtime"
+        "name": "Flockmittel-Dosierlaufzeit"
       },
       "dos_6_floc_total_can_amount_ml": {
-        "name": "Flocculant Canister Amount (ml)"
+        "name": "Flockmittel Kanisterinhalt (ml)"
       },
       "dos_6_floc_type": {
-        "name": "Flocculant Dosing Type"
+        "name": "Flockmittel Dosiertyp"
       },
       "dos_6_floc_use": {
-        "name": "Flocculant Usage"
+        "name": "Flockmittel Verbrauch"
       },
       "dmx_scene1": {
-        "name": "DMX Light Scene 1"
+        "name": "DMX-Lichtszene 1"
       },
       "dmx_scene2": {
-        "name": "DMX Light Scene 2"
+        "name": "DMX-Lichtszene 2"
       },
       "dmx_scene3": {
-        "name": "DMX Light Scene 3"
+        "name": "DMX-Lichtszene 3"
       },
       "dmx_scene4": {
-        "name": "DMX Light Scene 4"
+        "name": "DMX-Lichtszene 4"
       },
       "dmx_scene5": {
-        "name": "DMX Light Scene 5"
+        "name": "DMX-Lichtszene 5"
       },
       "dmx_scene6": {
-        "name": "DMX Light Scene 6"
+        "name": "DMX-Lichtszene 6"
       },
       "dmx_scene7": {
-        "name": "DMX Light Scene 7"
+        "name": "DMX-Lichtszene 7"
       },
       "dmx_scene8": {
-        "name": "DMX Light Scene 8"
+        "name": "DMX-Lichtszene 8"
       },
       "dmx_scene9": {
-        "name": "DMX Light Scene 9"
+        "name": "DMX-Lichtszene 9"
       },
       "dmx_scene10": {
-        "name": "DMX Light Scene 10"
+        "name": "DMX-Lichtszene 10"
       },
       "dmx_scene11": {
-        "name": "DMX Light Scene 11"
+        "name": "DMX-Lichtszene 11"
       },
       "dmx_scene12": {
-        "name": "DMX Light Scene 12"
+        "name": "DMX-Lichtszene 12"
       },
       "digitalinputrule_state_digitalinput_rule_1": {
-        "name": "Digital Input Rule State 1"
+        "name": "Schaltregeln Zustand 1"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch1": {
-        "name": "Digital Input Rule Stopwatch 1"
+        "name": "Schaltregeln Stoppuhr 1"
       },
       "digitalinputrule_state_digitalinput_rule_2": {
-        "name": "Digital Input Rule State 2"
+        "name": "Schaltregeln Zustand 2"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch2": {
-        "name": "Digital Input Rule Stopwatch 2"
+        "name": "Schaltregeln Stoppuhr 2"
       },
       "digitalinputrule_state_digitalinput_rule_3": {
-        "name": "Digital Input Rule State 3"
+        "name": "Schaltregeln Zustand 3"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch3": {
-        "name": "Digital Input Rule Stopwatch 3"
+        "name": "Schaltregeln Stoppuhr 3"
       },
       "digitalinputrule_state_digitalinput_rule_4": {
-        "name": "Digital Input Rule State 4"
+        "name": "Schaltregeln Zustand 4"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch4": {
-        "name": "Digital Input Rule Stopwatch 4"
+        "name": "Schaltregeln Stoppuhr 4"
       },
       "digitalinputrule_state_digitalinput_rule_5": {
-        "name": "Digital Input Rule State 5"
+        "name": "Schaltregeln Zustand 5"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch5": {
-        "name": "Digital Input Rule Stopwatch 5"
+        "name": "Schaltregeln Stoppuhr 5"
       },
       "digitalinputrule_state_digitalinput_rule_6": {
-        "name": "Digital Input Rule State 6"
+        "name": "Schaltregeln Zustand 6"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch6": {
-        "name": "Digital Input Rule Stopwatch 6"
+        "name": "Schaltregeln Stoppuhr 6"
       },
       "digitalinputrule_state_digitalinput_rule_7": {
-        "name": "Digital Input Rule State 7"
+        "name": "Schaltregeln Zustand 7"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch7": {
-        "name": "Digital Input Rule Stopwatch 7"
+        "name": "Schaltregeln Stoppuhr 7"
       },
       "input1": {
-        "name": "Digital Input 1"
+        "name": "Digitaleingang 1"
       },
       "input2": {
-        "name": "Digital Input 2"
+        "name": "Digitaleingang 2"
       },
       "input3": {
-        "name": "Digital Input 3"
+        "name": "Digitaleingang 3"
       },
       "input4": {
-        "name": "Digital Input 4"
+        "name": "Digitaleingang 4"
       },
       "input5": {
-        "name": "Digital Input 5"
+        "name": "Digitaleingang 5"
       },
       "input6": {
-        "name": "Digital Input 6"
+        "name": "Digitaleingang 6"
       },
       "input7": {
-        "name": "Digital Input 7"
+        "name": "Digitaleingang 7"
       },
       "input8": {
-        "name": "Digital Input 8"
+        "name": "Digitaleingang 8"
       },
       "input9": {
-        "name": "Digital Input 9"
+        "name": "Digitaleingang 9"
       },
       "input10": {
-        "name": "Digital Input 10"
+        "name": "Digitaleingang 10"
       },
       "input11": {
-        "name": "Digital Input 11"
+        "name": "Digitaleingang 11"
       },
       "input12": {
-        "name": "Digital Input 12"
+        "name": "Digitaleingang 12"
       },
       "input_ce1": {
-        "name": "Can Empty Sensor 1"
+        "name": "Kanister-Leersensor 1"
       },
       "input_ce2": {
-        "name": "Can Empty Sensor 2"
+        "name": "Kanister-Leersensor 2"
       },
       "input_ce3": {
-        "name": "Can Empty Sensor 3"
+        "name": "Kanister-Leersensor 3"
       },
       "input_ce4": {
-        "name": "Can Empty Sensor 4"
+        "name": "Kanister-Leersensor 4"
       },
       "pump_rs485_pwr": {
-        "name": "RS485 Pump Power"
+        "name": "RS485-Pumpenleistung"
       },
       "load_avg": {
-        "name": "CPU Load Average"
-      },
-      "dos_2_elo_daily": {
-        "name": "Electrolysis Daily Amount (ml)"
+        "name": "CPU-Auslastung"
       },
       "di_rule_1_stopwatch": {
-        "name": "DI Rule 1 Remaining Time"
+        "name": "DI-Regel 1 Restzeit"
       },
       "di_rule_2_stopwatch": {
-        "name": "DI Rule 2 Remaining Time"
+        "name": "DI-Regel 2 Restzeit"
       },
       "di_rule_3_stopwatch": {
-        "name": "DI Rule 3 Remaining Time"
+        "name": "DI-Regel 3 Restzeit"
       },
       "di_rule_4_stopwatch": {
-        "name": "DI Rule 4 Remaining Time"
+        "name": "DI-Regel 4 Restzeit"
       },
       "di_rule_5_stopwatch": {
-        "name": "DI Rule 5 Remaining Time"
+        "name": "DI-Regel 5 Restzeit"
       },
       "di_rule_6_stopwatch": {
-        "name": "DI Rule 6 Remaining Time"
+        "name": "DI-Regel 6 Restzeit"
       },
       "di_rule_7_stopwatch": {
-        "name": "DI Rule 7 Remaining Time"
+        "name": "DI-Regel 7 Restzeit"
       },
       "di_rule_8_stopwatch": {
-        "name": "DI Rule 8 Remaining Time"
+        "name": "DI-Regel 8 Restzeit"
       }
     },
     "binary_sensor": {
       "pump": {
-        "name": "Pump State"
+        "name": "Pumpenstatus"
       },
       "solar": {
-        "name": "Solar State"
+        "name": "Solarstatus"
       },
       "heater": {
-        "name": "Heater State"
+        "name": "Heizerstatus"
       },
       "light": {
-        "name": "Light State"
+        "name": "Beleuchtungsstatus"
       },
       "backwash": {
-        "name": "Backwash State"
+        "name": "Rückspülstatus"
       },
       "refill": {
-        "name": "Refill State"
+        "name": "Nachfüllstatus"
       },
       "eco": {
-        "name": "ECO Mode"
+        "name": "Eco-Modus"
       },
       "pvsurplus": {
-        "name": "PV Surplus"
+        "name": "PV-Überschuss"
       },
       "circulation_state": {
-        "name": "Circulation Issue"
+        "name": "Zirkulationsproblem"
       },
       "electrode_flow_state": {
-        "name": "Electrode Flow Issue"
+        "name": "Elektrodendurchfluss-Problem"
       },
       "pressure_state": {
-        "name": "Pressure Issue"
+        "name": "Druckproblem"
       },
       "can_range_state": {
-        "name": "Can Range Issue"
+        "name": "Behälter-Bereichs-Problem"
       },
       "input1": {
-        "name": "Digital Input 1"
+        "name": "Digitaler Eingang 1"
       },
       "input2": {
-        "name": "Digital Input 2"
+        "name": "Digitaler Eingang 2"
       },
       "input3": {
-        "name": "Digital Input 3"
+        "name": "Digitaler Eingang 3"
       },
       "input4": {
-        "name": "Digital Input 4"
+        "name": "Digitaler Eingang 4"
       },
       "input5": {
-        "name": "Digital Input 5"
+        "name": "Digitaler Eingang 5"
       },
       "input6": {
-        "name": "Digital Input 6"
+        "name": "Digitaler Eingang 6"
       },
       "input7": {
-        "name": "Digital Input 7"
+        "name": "Digitaler Eingang 7"
       },
       "input8": {
-        "name": "Digital Input 8"
+        "name": "Digitaler Eingang 8"
       },
       "input9": {
-        "name": "Digital Input 9"
+        "name": "Digitaler Eingang 9"
       },
       "input10": {
-        "name": "Digital Input 10"
+        "name": "Digitaler Eingang 10"
       },
       "input11": {
-        "name": "Digital Input 11"
+        "name": "Digitaler Eingang 11"
       },
       "input12": {
-        "name": "Digital Input 12"
+        "name": "Digitaler Eingang 12"
       },
       "input_ce1": {
-        "name": "Digital Input CE1"
+        "name": "CE-Eingang 1"
       },
       "input_ce2": {
-        "name": "Digital Input CE2"
+        "name": "CE-Eingang 2"
       },
       "input_ce3": {
-        "name": "Digital Input CE3"
+        "name": "CE-Eingang 3"
       },
       "input_ce4": {
-        "name": "Digital Input CE4"
+        "name": "CE-Eingang 4"
       },
       "hw_base_module": {
-        "name": "Hardware: Base Module"
+        "name": "Hardware: Basismodul"
       },
       "hw_dosing_module": {
-        "name": "Hardware: Dosing Module"
+        "name": "Hardware: Dosiermodul"
       },
       "hw_extension_module_1": {
-        "name": "Hardware: Extension Module 1"
+        "name": "Hardware: Extensionsmodul 1"
       },
       "hw_extension_module_2": {
-        "name": "Hardware: Extension Module 2"
+        "name": "Hardware: Extensionsmodul 2"
       },
       "hw_standalone_mode": {
-        "name": "Hardware: Standalone Dosing Unit"
+        "name": "Hardware: Eigenständige Dosiereinheit"
       },
       "hw_dmx_module": {
-        "name": "Hardware: DMX Module"
+        "name": "Hardware: DMX-Modul"
       },
       "hw_dirule_module": {
         "name": "Hardware: Digital Rules Module"
       }
     },
+    "button": {
+      "reset_errors": {
+        "name": "Reset Error Blocks"
+      }
+    },
     "switch": {
       "pump": {
-        "name": "Filter Pump"
+        "name": "Filterpumpe"
       },
       "solar": {
-        "name": "Solar Absorber"
+        "name": "Solar Collector"
       },
       "heater": {
         "name": "Heater"
       },
       "light": {
-        "name": "Lighting"
+        "name": "Light"
       },
       "dos_5_php": {
-        "name": "Dosing pH+"
+        "name": "pH+ Dosing"
       },
       "dos_4_phm": {
-        "name": "Dosing pH-"
+        "name": "pH- Dosing"
       },
       "dos_1_cl": {
         "name": "Chlorine Dosing"
       },
       "dos_6_floc": {
-        "name": "Flocculant"
+        "name": "Flockungsmittel"
       },
       "pvsurplus": {
-        "name": "PV Surplus"
+        "name": "PV-Überschuss"
       },
       "backwash": {
-        "name": "Backwash"
+        "name": "Rückspülung"
       },
       "backwashrinse": {
-        "name": "Rinse"
+        "name": "Spülung"
       },
       "ext1_1": {
         "name": "Extension 1.1"
@@ -1672,325 +1704,325 @@
         "name": "Extension 2.8"
       },
       "dmx_scene1": {
-        "name": "DMX Scene 1"
+        "name": "DMX Szene 1"
       },
       "dmx_scene2": {
-        "name": "DMX Scene 2"
+        "name": "DMX Szene 2"
       },
       "dmx_scene3": {
-        "name": "DMX Scene 3"
+        "name": "DMX Szene 3"
       },
       "dmx_scene4": {
-        "name": "DMX Scene 4"
+        "name": "DMX Szene 4"
       },
       "dmx_scene5": {
-        "name": "DMX Scene 5"
+        "name": "DMX Szene 5"
       },
       "dmx_scene6": {
-        "name": "DMX Scene 6"
+        "name": "DMX Szene 6"
       },
       "dmx_scene7": {
-        "name": "DMX Scene 7"
+        "name": "DMX Szene 7"
       },
       "dmx_scene8": {
-        "name": "DMX Scene 8"
+        "name": "DMX Szene 8"
       },
       "dmx_scene9": {
-        "name": "DMX Scene 9"
+        "name": "DMX Szene 9"
       },
       "dmx_scene10": {
-        "name": "DMX Scene 10"
+        "name": "DMX Szene 10"
       },
       "dmx_scene11": {
-        "name": "DMX Scene 11"
+        "name": "DMX Szene 11"
       },
       "dmx_scene12": {
-        "name": "DMX Scene 12"
+        "name": "DMX Szene 12"
       },
       "dirule_1": {
-        "name": "Switching Rule 1"
+        "name": "Schaltregel 1"
       },
       "dirule_2": {
-        "name": "Switching Rule 2"
+        "name": "Schaltregel 2"
       },
       "dirule_3": {
-        "name": "Switching Rule 3"
+        "name": "Schaltregel 3"
       },
       "dirule_4": {
-        "name": "Switching Rule 4"
+        "name": "Schaltregel 4"
       },
       "dirule_5": {
-        "name": "Switching Rule 5"
+        "name": "Schaltregel 5"
       },
       "dirule_6": {
-        "name": "Switching Rule 6"
+        "name": "Schaltregel 6"
       },
       "dirule_7": {
-        "name": "Switching Rule 7"
+        "name": "Schaltregel 7"
       },
       "dirule_8": {
-        "name": "Switching Rule 8"
+        "name": "Schaltregel 8"
       }
     },
     "climate": {
       "heater": {
-        "name": "Pool Heater"
+        "name": "Pool-Heizer"
       },
       "solar": {
-        "name": "Solar Heater"
+        "name": "Solar-Heizer"
       }
     },
     "cover": {
       "pool_cover": {
-        "name": "Pool Cover"
+        "name": "Pool-Abdeckung"
       }
     },
     "number": {
       "ph_setpoint": {
-        "name": "pH Setpoint"
+        "name": "pH-Sollwert"
       },
       "orp_setpoint": {
-        "name": "ORP Setpoint"
+        "name": "ORP-Sollwert"
       },
       "chlorine_setpoint": {
-        "name": "Chlorine Setpoint"
+        "name": "Chlor-Sollwert"
       },
       "heater_target_temp": {
-        "name": "Heater Target Temperature"
+        "name": "Zieltemperatur Heizer"
       },
       "solar_target_temp": {
-        "name": "Solar Target Temperature"
+        "name": "Zieltemperatur Solar"
       },
       "pump_speed": {
-        "name": "Pump Speed"
+        "name": "Pumpendrehzahl"
       },
       "chlorine_canister_volume": {
-        "name": "Chlorine Canister Volume"
+        "name": "Chlorbehälter-Volumen"
       },
       "ph_minus_canister_volume": {
-        "name": "pH- Canister Volume"
+        "name": "pH--Behälter-Volumen"
       },
       "ph_plus_canister_volume": {
-        "name": "pH+ Canister Volume"
+        "name": "pH+-Behälter-Volumen"
       },
       "flocculant_canister_volume": {
-        "name": "Flocculant Canister Volume"
+        "name": "Flockungsmittel-Behälter-Volumen"
       }
     },
     "select": {
       "pump_mode": {
-        "name": "Pump Mode",
+        "name": "Pumpenmodus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "heater_mode": {
-        "name": "Heater Mode",
+        "name": "Heizer-Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "solar_mode": {
-        "name": "Solar Mode",
+        "name": "Solar-Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "light_mode": {
-        "name": "Light Mode",
+        "name": "Beleuchtungs-Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "dos_cl_mode": {
-        "name": "Chlorine Dosing Mode",
+        "name": "Chlordosier-Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "dos_phm_mode": {
-        "name": "pH- Dosing Mode",
+        "name": "pH--Dosier-Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "dos_php_mode": {
-        "name": "pH+ Dosing Mode",
+        "name": "pH+-Dosier-Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "pvsurplus_mode": {
-        "name": "PV Surplus Mode",
+        "name": "PV-Überschuss-Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "backwash_mode": {
-        "name": "Backwash Mode",
+        "name": "Rückspül-Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "backwashrinse_mode": {
-        "name": "Rinse Mode",
+        "name": "Spül-Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "dos_floc_mode": {
-        "name": "Flocculant Mode",
+        "name": "Flockungsmittel-Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "ext1_1_mode": {
-        "name": "Extension 1.1 Mode",
+        "name": "Extension 1.1 Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "ext1_2_mode": {
-        "name": "Extension 1.2 Mode",
+        "name": "Extension 1.2 Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "ext1_3_mode": {
-        "name": "Extension 1.3 Mode",
+        "name": "Extension 1.3 Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "ext1_4_mode": {
-        "name": "Extension 1.4 Mode",
+        "name": "Extension 1.4 Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "ext1_5_mode": {
-        "name": "Extension 1.5 Mode",
+        "name": "Extension 1.5 Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "ext1_6_mode": {
-        "name": "Extension 1.6 Mode",
+        "name": "Extension 1.6 Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "ext1_7_mode": {
-        "name": "Extension 1.7 Mode",
+        "name": "Extension 1.7 Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "ext1_8_mode": {
-        "name": "Extension 1.8 Mode",
+        "name": "Extension 1.8 Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "ext2_1_mode": {
-        "name": "Extension 2.1 Mode",
+        "name": "Extension 2.1 Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "ext2_2_mode": {
-        "name": "Extension 2.2 Mode",
+        "name": "Extension 2.2 Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "ext2_3_mode": {
-        "name": "Extension 2.3 Mode",
+        "name": "Extension 2.3 Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "ext2_4_mode": {
-        "name": "Extension 2.4 Mode",
+        "name": "Extension 2.4 Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "ext2_5_mode": {
-        "name": "Extension 2.5 Mode",
+        "name": "Extension 2.5 Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "ext2_6_mode": {
-        "name": "Extension 2.6 Mode",
+        "name": "Extension 2.6 Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "ext2_7_mode": {
-        "name": "Extension 2.7 Mode",
+        "name": "Extension 2.7 Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       },
       "ext2_8_mode": {
-        "name": "Extension 2.8 Mode",
+        "name": "Extension 2.8 Modus",
         "state": {
-          "off": "Off",
-          "on": "On",
+          "off": "Aus",
+          "on": "Ein",
           "auto": "Auto"
         }
       }

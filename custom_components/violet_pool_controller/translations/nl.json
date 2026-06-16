@@ -266,7 +266,7 @@
   },
   "services": {
     "control_pump": {
-      "name": "Pompenbesturing",
+      "name": "Pompregeling",
       "description": "Bestuur de zwembadpomp met geavanceerde opties zoals snelheid, eco-modus of boost-modus.",
       "fields": {
         "action": {
@@ -284,7 +284,7 @@
       }
     },
     "smart_dosing": {
-      "name": "Slimme dosering",
+      "name": "Intelligente Dosering",
       "description": "Handmatige of automatische doseringscontrole voor pH, chloor en vlokkenmiddel.\n\n**Let op:** Vermijd overdosering! Controleer altijd eerst de waterwaarden.",
       "fields": {
         "dosing_type": {
@@ -306,7 +306,7 @@
       }
     },
     "manage_pv_surplus": {
-      "name": "PV-overschot beheren",
+      "name": "PV-Overschot Beheer",
       "description": "Stuurt de fotovoltaïsche overschotmodus voor optimaal zonne-energiegebruik.\n\nZwembadapparaten worden automatisch aangedreven met overtollige zonne-energie.",
       "fields": {
         "mode": {
@@ -320,7 +320,7 @@
       }
     },
     "control_dmx_scenes": {
-      "name": "DMX-scènebesturing",
+      "name": "DMX-Scènebesturing",
       "description": "Bestuur DMX-verlichtingsscènes voor zwembadverlichting.",
       "fields": {
         "action": {
@@ -501,22 +501,22 @@
   "entity": {
     "sensor": {
       "onewire1_value": {
-        "name": "Watertemperatuur"
+        "name": "Zwembadwater"
       },
       "onewire2_value": {
         "name": "Buitentemperatuur"
       },
       "onewire3_value": {
-        "name": "Zonne-absorber"
+        "name": "Zonnecollector"
       },
       "onewire4_value": {
-        "name": "Absorber-retour"
+        "name": "Terugleidingen Zonnecollector"
       },
       "onewire5_value": {
-        "name": "Warmtewisselaar inlaat"
+        "name": "Warmtewisselaar"
       },
       "onewire6_value": {
-        "name": "Warmtewisselaar uitlaat"
+        "name": "Warmteopslag"
       },
       "onewire7_value": {
         "name": "Temperatuursensor 7"
@@ -528,7 +528,7 @@
         "name": "pH-waarde"
       },
       "orp_value": {
-        "name": "Redoxpotentieel"
+        "name": "ORP-waarde"
       },
       "pot_value": {
         "name": "Chloorgehalte"
@@ -633,13 +633,13 @@
         "name": "Zonne-absorberstatus"
       },
       "backwash": {
-        "name": "Tegenspoelstatus"
+        "name": "Status Terugspoeling"
       },
       "pvsurplus": {
-        "name": "PV-overschotstatus"
+        "name": "PV-Overschot Status"
       },
       "refill": {
-        "name": "Bijvulstatus"
+        "name": "Status Navulling"
       },
       "pumpstate": {
         "name": "Pompdetailstatus"
@@ -651,13 +651,13 @@
         "name": "Zonne-absorberdetailstatus"
       },
       "adc1_value": {
-        "name": "Filter Pressure"
+        "name": "Filterdruk"
       },
       "adc2_value": {
-        "name": "Overflow Tank"
+        "name": "Overloopbak"
       },
       "adc3_value": {
-        "name": "Flow Meter (4-20mA)"
+        "name": "Flowmeter (4-20mA)"
       },
       "adc4_value": {
         "name": "Analog Sensor 4 (4-20mA)"
