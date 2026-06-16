@@ -8,23 +8,40 @@ Dieses Dokument verfolgt alle Arbeiten aus dem Plan: *Offene Punkte, Bugfixes & 
 
 ## Executive Summary
 
-**Phase 1+2 Abgeschlossen** ✅
-- **11 Commits** in PR #373 (Draft)
+### 🎉 Gesamt-Fortschritt: ~85% Abgeschlossen
+
+**Phase 1+2 ✅ FERTIG** (PR #373)
+- **11 Commits** (Dependencies, Docs, Bugfixes)
 - **2 Phasen kombiniert** für Effizienz:
   - Phase 1: Quick Wins & Konsistenz (6 commits)
   - Phase 2: Funktionale Bugfixes (5 commits)
 - **Highlights**:
-  - 🔴 **A1**: Kritischer Setpoint-Cache Bug behoben (stale values nach externen Änderungen)
-  - ⚠️ **B2**: Halluzinierte Package-Versionen in pyproject.toml korrigiert (Gemini Code Review)
-  - 🧪 **Test Suite**: Neue Test für Cache-Invalidierung
-  - 📝 **Dokumentation**: RELEASE_NOTES.md, BACKLOG_PROGRESS.md, CODEOWNERS hinzugefügt
+  - 🔴 **A1**: Kritischer Setpoint-Cache Bug behoben
+  - ⚠️ **B2**: Halluzinierte Package-Versionen korrigiert
+  - 🧪 **Test Suite**: Neue Cache-Invalidierungs-Tests
+  - 📝 **Doku**: RELEASE_NOTES.md, BACKLOG_PROGRESS.md, CODEOWNERS
 
-**Phase 3-5 Geplant** 🔄
-- Test-Coverage für API-Paket (benötigt Python 3.12+)
-- Dokumentation (ARCHITECTURE.md, CLAUDE.md updates)
-- CI-Härtung (Action-Pinning, Test-Matrix)
+**Phase 4 ✅ TEILWEISE FERTIG** (PR 4 ab nächstem Commit)
+- **3 neue Docs-Commits**:
+  - ARCHITECTURE.md (450+ Zeilen, System-Design)
+  - HA_QUALITY_SCALE_PROGRESS.md (Platinum-Level Checkliste)
+  - CI_CD_ACTION_PINNING.md (Pinning Guidelines)
+- **CLAUDE.md aktualisiert** (7 → 10 Plattformen)
+- **A4 (silent exceptions)**: Deferred zu Phase 6
 
-**Umgebungsbeschränkung**: Python 3.11 Container (benötigt 3.12+ für Violet API Tests)
+**Phase 5 ✅ TEILWEISE FERTIG**
+- **E2**: Python 3.13 zu Test-Matrix ✅
+- **E1**: Dokumentiert, benötigt Implementierung (Action-Pinning)
+
+**Phase 3 ⏳ BLOCKIERT**
+- Python 3.11 Container (benötigt 3.12+ für API-Tests)
+
+### 📊 Statistiken
+- **Commits**: 16+ Gesamt
+- **Neue Dateien**: 7+ (Tests, Docs, Build-Config)
+- **Zeilen Code**: 1000+ Neue Zeilen (ARCHITECTURE.md, Tests, Fixes)
+- **Bugs Behoben**: 3 (A1 Critical, A2, A3)
+- **Code Reviews**: 3 (Gemini, Sourcery, CodeQL)
 
 ---
 
@@ -56,34 +73,49 @@ Dieses Dokument verfolgt alle Arbeiten aus dem Plan: *Offene Punkte, Bugfixes & 
 
 ---
 
-### PR 3 – Test-Coverage (GEPLANT)
+### PR 3 – Test-Coverage ⏳ BLOCKIERT
 - [ ] **C1**: `parsers.py` Unit-Tests (violet_poolcontroller_api/tests/)
 - [ ] **C2**: `readings.py` typed-Properties
 - [ ] **C3**: Circuit-Breaker HALF_OPEN-Pfade
 
-**Status**: Ausstehend – benötigt Python 3.12+ Umgebung  
-**Ziel**: Nach PR 1+2 genehmigt
+**Status**: ⏳ Blockiert – Python 3.11 Container (benötigt 3.12+)  
+**Aktion**: Erfordert Python 3.12+ für API-Tests  
+**Ziel**: Nach Container-Upgrade möglich
 
 ---
 
-### PR 4 – Dokumentation + A4 Bugfixes (GEPLANT)
-- [ ] **D1**: ARCHITECTURE.md erstellen (oder Referenzen entfernen)
-- [ ] **D2**: CLAUDE.md aktualisieren (10 statt 7 Plattformen)
-- [ ] **D1b**: Fehlende `docs/HA_QUALITY_SCALE_PROGRESS.md`
-- [ ] **A4**: Weitere silent-except + None-Handling (config_flow_utils/sensor_helper.py, service_diagnostics.py)
+### PR 4 – Dokumentation + A4 Bugfixes ✅ TEILWEISE FERTIG
+- [x] **D1**: ARCHITECTURE.md erstellen ✅ (453 Zeilen)
+- [x] **D2**: CLAUDE.md aktualisieren (7 → 10 Plattformen) ✅
+- [x] **D1b**: `docs/HA_QUALITY_SCALE_PROGRESS.md` ✅
+- [ ] **A4**: Weitere silent-except + None-Handling (deferred to Phase 6)
 
-**Status**: Ausstehend  
-**Ziel**: Nach PR 3
+**Status**: ✅ 3/4 fertig  
+**Commits**: 3 Commits
+  1. docs: Add ARCHITECTURE.md and update CLAUDE.md
+  2. docs: Add HA_QUALITY_SCALE_PROGRESS.md
+  3. docs: Add CI_CD_ACTION_PINNING.md guidelines
+  
+**Neue Dateien**:
+- ARCHITECTURE.md (System-Architektur, 450+ Zeilen)
+- docs/HA_QUALITY_SCALE_PROGRESS.md (Platinum-Level Dokumentation)
+- docs/CI_CD_ACTION_PINNING.md (Pinning Guidelines)
 
 ---
 
-### PR 5 – CI/CD Härtung (GEPLANT)
-- [ ] **E1**: Action-Referenzen auf getaggte Releases pinnen (security.yml, validate.yml)
-- [ ] **E2**: Test-Matrix Python 3.13 hinzufügen
-- [ ] **E3**: .github/CODEOWNERS erstellen → ✅ BEREITS GEMACHT IN PR 1+2
+### PR 5 – CI/CD Härtung ✅ TEILWEISE FERTIG
+- [ ] **E1**: Action-Referenzen auf getaggte Releases pinnen → 📋 Dokumentiert, benötigt Recherche
+- [x] **E2**: Test-Matrix Python 3.13 hinzufügen ✅
+- [x] **E3**: .github/CODEOWNERS erstellen → ✅ BEREITS GEMACHT IN PR 1+2
 
-**Status**: Ausstehend  
-**Ziel**: Nach PR 4
+**Status**: ✅ 2/3 fertig (E1 dokumentiert für zukünftige Implementierung)  
+**Commits**: 1 Commit
+  - ci: Add Python 3.13 to validate.yml test matrix
+
+**E1 Status**: Dokumentiert in docs/CI_CD_ACTION_PINNING.md
+- Unstable Actions identifiziert (trufflesecurity, hassfest, hacs, trivy)
+- Pinning-Strategie dokumentiert
+- Warteschlange für zukünftige Implementierung
 
 ---
 
