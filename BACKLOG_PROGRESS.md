@@ -8,28 +8,40 @@ Dieses Dokument verfolgt alle Arbeiten aus dem Plan: *Offene Punkte, Bugfixes & 
 
 ## PR-Phasen Übersicht
 
-### PR 1 – Quick Wins & Konsistenz (geplant)
-- [ ] **B1**: API-Versionsanforderung (`requirements.txt` → `>=0.0.31`)
-- [ ] **B2**: Dev-Dependency Mismatch (pyproject.toml ↔ requirements-dev.txt)
-- [ ] **D3**: CONTRIBUTING.md: Python/HA-Versionen aktualisieren (3.13→3.14.2, 2025.12→2026.5.0)
-- [ ] **E3**: .github/CODEOWNERS erstellen, `hacs.json` Formatierung
-- [ ] **A5**: Lint-Issues (PEP 8, Leerzeilen, bare except)
-- [ ] **D1**: `docs/RELEASE_NOTES.md` Platzhalter
+### PR 1 – Quick Wins & Konsistenz ✅ DONE
+- [x] **B1**: API-Versionsanforderung (`requirements.txt` → `>=0.0.31`)
+- [x] **B2**: Dev-Dependency Mismatch (pyproject.toml ↔ requirements-dev.txt)
+- [x] **D3**: CONTRIBUTING.md: Python/HA-Versionen aktualisieren (3.13→3.14.2, 2025.12→2026.5.0)
+- [x] **E3**: .github/CODEOWNERS erstellen, `hacs.json` Formatierung
+- [x] **A5**: Lint-Issues (PEP 8, Leerzeilen, bare except)
+- [x] **D1**: `docs/RELEASE_NOTES.md` Platzhalter
 
-**PR-Link**: *ausstehend*  
+**PR-Link**: https://github.com/xerolux/violet-hass/pull/373  
 **Verantwortlicher**: Claude  
-**Ziel**: 2-3 Tage
+**Status**: Draft, awaiting CI + review  
+**Commits**: 5 commits
+  1. fix(deps): Update violet-poolController-api requirement to >=0.0.31
+  2. fix(deps): Align dev dependencies in pyproject.toml
+  3. docs: Update CONTRIBUTING.md with current version requirements
+  4. build: Add CODEOWNERS file and fix hacs.json formatting
+  5. docs: Add RELEASE_NOTES.md placeholder and BACKLOG_PROGRESS.md
 
 ---
 
-### PR 2 – Funktionale Bugfixes (ausstehend)
-- [ ] **A1**: Setpoint-Cache invalidierung (device.py:908,916-924 + climate.py + Test)
-- [ ] **A2**: Verbindungstest-Logging (config_flow.py:750-751)
-- [ ] **A3**: Privat→Öffentlich API (update.py)
-- [ ] **A4**: Weitere silent-except + None-Handling
+### PR 2 – Funktionale Bugfixes ✅ IN PROGRESS
+- [x] **A1**: Setpoint-Cache invalidierung (device.py:908,916-924 + climate.py + Test) ✅
+- [x] **A2**: Verbindungstest-Logging (config_flow.py:750-751) ✅
+- [x] **A3**: Privat→Öffentlich API (update.py) ✅
+- [ ] **A4**: Weitere silent-except + None-Handling (deferred to PR 5)
 
-**PR-Link**: *ausstehend*  
-**Ziel**: nach PR 1
+**PR-Link**: *preparing draft*  
+**Status**: 3/4 Fixes done, CodeQL warning resolved  
+**Commits**: 
+  1. fix(A1): Invalidate setpoint cache after successful poll
+  2. fix(B2): Correct hallucinated package versions [PART OF PR1]
+  3. fix(A2): Add logging to connection test exception handling
+  4. fix(A3): Use public API property instead of private _api
+  5. fix: Remove unused VioletReadings import
 
 ---
 
