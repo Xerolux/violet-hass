@@ -1095,6 +1095,12 @@
       "dos_1_cl": {
         "name": "Chlor-Dosiersystem"
       },
+      "dos_1_cl_daily": {
+        "name": "Chlor Tagesdosierung (ml)"
+      },
+      "dos_1_cl_total_can": {
+        "name": "Chlor Kanisterinhalt (ml)"
+      },
       "dos_1_cl_runtime": {
         "name": "Chlor-Dosierlaufzeit"
       },
@@ -1122,14 +1128,38 @@
       "dos_2_elo": {
         "name": "Elektrolyse-Dosiersystem"
       },
+      "dos_2_elo_daily": {
+        "name": "Elektrolyse Tagesdosierung (ml)"
+      },
+      "dos_2_elo_total_can": {
+        "name": "Elektrolyse Kanisterinhalt (ml)"
+      },
       "dos_4_phm": {
         "name": "pH- Dosiersystem"
+      },
+      "dos_4_phm_daily": {
+        "name": "pH- Tagesdosierung (ml)"
+      },
+      "dos_4_phm_total_can": {
+        "name": "pH- Kanisterinhalt (ml)"
       },
       "dos_5_php": {
         "name": "pH+ Dosiersystem"
       },
+      "dos_5_php_daily": {
+        "name": "pH+ Tagesdosierung (ml)"
+      },
+      "dos_5_php_total_can": {
+        "name": "pH+ Kanisterinhalt (ml)"
+      },
       "dos_6_floc": {
         "name": "Flockmittel-Dosiersystem"
+      },
+      "dos_6_floc_daily": {
+        "name": "Flockmittel Tagesdosierung (ml)"
+      },
+      "dos_6_floc_total_can": {
+        "name": "Flockmittel Kanisterinhalt (ml)"
       },
       "refill_runtime": {
         "name": "Nachfüll-Laufzeit"

@@ -29,7 +29,7 @@ def get_service_schemas() -> dict[str, vol.Schema]:
                         list(DOSING_TYPE_MAPPING.keys())
                     ),
                     vol.Required("action"): vol.In(["manual_dose", "auto", "stop"]),
-                    vol.Optional("duration", default=30): vol.All(
+                    vol.Required("duration"): vol.All(
                         vol.Coerce(int),
                         vol.Range(min=MIN_DOSING_DURATION, max=MAX_DOSING_DURATION),
                     ),
@@ -249,7 +249,11 @@ vol.Required("rule_key"): vol.In([f"DIRULE_{i}" for i in range(1, 9)]),
                 {
                     vol.Optional(ATTR_ENTITY_ID): cv.entity_ids,
                     vol.Optional(ATTR_DEVICE_ID): DEVICE_ID_SELECTOR,
-                    vol.Optional("action"): vol.In(["run", "abort"]),
+                    vol.Required("action"): vol.In(["run", "abort"]),
+                    vol.Required("duration_seconds"): vol.All(
+                        vol.Coerce(int),
+                        vol.Range(min=10, max=3600),
+                    ),
                 }
             ),
             cv.has_at_least_one_key(ATTR_ENTITY_ID, ATTR_DEVICE_ID),

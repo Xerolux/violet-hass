@@ -97,6 +97,7 @@ async def async_register_services(hass: HomeAssistant) -> None:
         "control_cover_http": handlers.handle_control_cover_http,
         "control_backwash_http": handlers.handle_control_backwash_http,
         "manual_dosing_http": handlers.handle_manual_dosing_http,
+        "control_refill_http": handlers.handle_control_refill_http,
     }
 
     for service_name, handler in http_control_services.items():

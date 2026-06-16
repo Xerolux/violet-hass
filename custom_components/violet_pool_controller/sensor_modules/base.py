@@ -251,6 +251,33 @@ def _is_boolean_value(value: Any) -> bool:
     )
 
 
+def format_seconds_to_readable(seconds: float) -> str:
+    """Convert seconds to readable format (e.g., '1d 2h 30m 45s')."""
+    try:
+        total_seconds = int(seconds)
+        if total_seconds < 0:
+            return "0s"
+
+        days = total_seconds // 86400
+        hours = (total_seconds % 86400) // 3600
+        minutes = (total_seconds % 3600) // 60
+        secs = total_seconds % 60
+
+        parts = []
+        if days > 0:
+            parts.append(f"{days}d")
+        if hours > 0:
+            parts.append(f"{hours}h")
+        if minutes > 0:
+            parts.append(f"{minutes}m")
+        if secs > 0 or not parts:
+            parts.append(f"{secs}s")
+
+        return " ".join(parts)
+    except (ValueError, TypeError):
+        return "0s"
+
+
 def determine_device_class(
     key: str, unit: str | None, raw_value: Any
 ) -> SensorDeviceClass | None:
@@ -381,6 +408,10 @@ def _build_sensor_description(
     if "freezecount" in key.lower() or "faultcount" in key.lower():
         unit = None
 
+    # Force no unit for DI-Rule stopwatch (formatted value includes time units)
+    if "DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_STOPWATCH" in key:
+        unit = None
+
     if unit is None and key not in NO_UNIT_SENSORS:
         for suffix in [
             "_min",
@@ -398,12 +429,13 @@ def _build_sensor_description(
                 ):
                     unit = UNIT_MAP[base_key]
                     break
-        # Default temperature unit for onewire/temp sensors (but not for counters!)
+        # Default temperature unit for onewire/temp sensors (but not for counters or non-temp keys!)
         if (
             unit is None
             and ("temp" in key.lower() or "onewire" in key.lower())
             and "freezecount" not in key.lower()
             and "faultcount" not in key.lower()
+            and key not in _NON_TEMPERATURE_ONEWIRE_KEYS
         ):
             unit = "°C"
 
