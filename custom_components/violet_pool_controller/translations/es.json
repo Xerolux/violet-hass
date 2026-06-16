@@ -1597,40 +1597,40 @@
         "name": "Flockmittel Verbrauch"
       },
       "dmx_scene1": {
-        "name": "DMX-Lichtszene 1"
+        "name": "Escena DMX de Luz 1"
       },
       "dmx_scene2": {
-        "name": "DMX-Lichtszene 2"
+        "name": "Escena DMX de Luz 2"
       },
       "dmx_scene3": {
-        "name": "DMX-Lichtszene 3"
+        "name": "Escena DMX de Luz 3"
       },
       "dmx_scene4": {
-        "name": "DMX-Lichtszene 4"
+        "name": "Escena DMX de Luz 4"
       },
       "dmx_scene5": {
-        "name": "DMX-Lichtszene 5"
+        "name": "Escena DMX de Luz 5"
       },
       "dmx_scene6": {
-        "name": "DMX-Lichtszene 6"
+        "name": "Escena DMX de Luz 6"
       },
       "dmx_scene7": {
-        "name": "DMX-Lichtszene 7"
+        "name": "Escena DMX de Luz 7"
       },
       "dmx_scene8": {
-        "name": "DMX-Lichtszene 8"
+        "name": "Escena DMX de Luz 8"
       },
       "dmx_scene9": {
-        "name": "DMX-Lichtszene 9"
+        "name": "Escena DMX de Luz 9"
       },
       "dmx_scene10": {
-        "name": "DMX-Lichtszene 10"
+        "name": "Escena DMX de Luz 10"
       },
       "dmx_scene11": {
-        "name": "DMX-Lichtszene 11"
+        "name": "Escena DMX de Luz 11"
       },
       "dmx_scene12": {
-        "name": "DMX-Lichtszene 12"
+        "name": "Escena DMX de Luz 12"
       },
       "digitalinputrule_state_digitalinput_rule_1": {
         "name": "Schaltregeln Zustand 1"
@@ -2055,219 +2055,219 @@
     },
     "select": {
       "pump_mode": {
-        "name": "Pumpenmodus",
+        "name": "Modo de Bomba",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "heater_mode": {
-        "name": "Modo Calentador",
+        "name": "Modo de Calentador",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "solar_mode": {
-        "name": "Modo Solar",
+        "name": "Modo de Solar",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "light_mode": {
-        "name": "Modo de Iluminación",
+        "name": "Modo de Luz",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "dos_cl_mode": {
-        "name": "Modo de Dosificación de Cloro",
+        "name": "Modo Dosificación de Cloro",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "dos_phm_mode": {
-        "name": "Modo de Dosificación de pH-",
+        "name": "Modo Dosificación de pH-",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "dos_php_mode": {
-        "name": "Modo de Dosificación de pH+",
+        "name": "Modo Dosificación de pH+",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "pvsurplus_mode": {
         "name": "Modo de Excedente PV",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "backwash_mode": {
         "name": "Modo de Retrolavado",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "backwashrinse_mode": {
         "name": "Modo de Enjuague",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "dos_floc_mode": {
-        "name": "Modo de Floculante",
+        "name": "Modo Dosificación de Floculante",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "ext1_1_mode": {
         "name": "Extensión 1.1 Modo",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "ext1_2_mode": {
         "name": "Extensión 1.2 Modo",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "ext1_3_mode": {
         "name": "Extensión 1.3 Modo",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "ext1_4_mode": {
         "name": "Extensión 1.4 Modo",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "ext1_5_mode": {
         "name": "Extensión 1.5 Modo",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "ext1_6_mode": {
         "name": "Extensión 1.6 Modo",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "ext1_7_mode": {
         "name": "Extensión 1.7 Modo",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "ext1_8_mode": {
         "name": "Extensión 1.8 Modo",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "ext2_1_mode": {
         "name": "Extensión 2.1 Modo",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "ext2_2_mode": {
         "name": "Extensión 2.2 Modo",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "ext2_3_mode": {
         "name": "Extensión 2.3 Modo",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "ext2_4_mode": {
         "name": "Extensión 2.4 Modo",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "ext2_5_mode": {
         "name": "Extensión 2.5 Modo",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "ext2_6_mode": {
         "name": "Extensión 2.6 Modo",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "ext2_7_mode": {
         "name": "Extensión 2.7 Modo",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       },
       "ext2_8_mode": {
         "name": "Extensión 2.8 Modo",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Apagado",
+          "on": "Encendido",
+          "auto": "Automático"
         }
       }
     }

@@ -1787,219 +1787,219 @@
     },
     "select": {
       "pump_mode": {
-        "name": "Pumpenmodus",
+        "name": "Modalità Pompa",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "heater_mode": {
-        "name": "Heizer-Modus",
+        "name": "Modalità Riscaldatore",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "solar_mode": {
-        "name": "Solar-Modus",
+        "name": "Modalità Solare",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "light_mode": {
-        "name": "Beleuchtungs-Modus",
+        "name": "Modalità Illuminazione",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "dos_cl_mode": {
-        "name": "Chlordosier-Modus",
+        "name": "Modalità Dosaggio Cloro",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "dos_phm_mode": {
-        "name": "pH--Dosier-Modus",
+        "name": "Modalità Dosaggio pH-",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "dos_php_mode": {
-        "name": "pH+-Dosier-Modus",
+        "name": "Modalità Dosaggio pH+",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "pvsurplus_mode": {
-        "name": "PV-Überschuss-Modus",
+        "name": "Modalità Surplus PV",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "backwash_mode": {
-        "name": "Rückspül-Modus",
+        "name": "Modalità Risciacquo all'indietro",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "backwashrinse_mode": {
-        "name": "Spül-Modus",
+        "name": "Modalità Risciacquo",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "dos_floc_mode": {
-        "name": "Flockungsmittel-Modus",
+        "name": "Modalità Dosaggio Flocculante",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "ext1_1_mode": {
-        "name": "Estensione 1.1 Modus",
+        "name": "Estensione 1.1 Modalità",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "ext1_2_mode": {
-        "name": "Estensione 1.2 Modus",
+        "name": "Estensione 1.2 Modalità",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "ext1_3_mode": {
-        "name": "Estensione 1.3 Modus",
+        "name": "Estensione 1.3 Modalità",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "ext1_4_mode": {
-        "name": "Estensione 1.4 Modus",
+        "name": "Estensione 1.4 Modalità",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "ext1_5_mode": {
-        "name": "Estensione 1.5 Modus",
+        "name": "Estensione 1.5 Modalità",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "ext1_6_mode": {
-        "name": "Estensione 1.6 Modus",
+        "name": "Estensione 1.6 Modalità",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "ext1_7_mode": {
-        "name": "Estensione 1.7 Modus",
+        "name": "Estensione 1.7 Modalità",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "ext1_8_mode": {
-        "name": "Estensione 1.8 Modus",
+        "name": "Estensione 1.8 Modalità",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "ext2_1_mode": {
-        "name": "Estensione 2.1 Modus",
+        "name": "Estensione 2.1 Modalità",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "ext2_2_mode": {
-        "name": "Estensione 2.2 Modus",
+        "name": "Estensione 2.2 Modalità",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "ext2_3_mode": {
-        "name": "Estensione 2.3 Modus",
+        "name": "Estensione 2.3 Modalità",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "ext2_4_mode": {
-        "name": "Estensione 2.4 Modus",
+        "name": "Estensione 2.4 Modalità",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "ext2_5_mode": {
-        "name": "Estensione 2.5 Modus",
+        "name": "Estensione 2.5 Modalità",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "ext2_6_mode": {
-        "name": "Estensione 2.6 Modus",
+        "name": "Estensione 2.6 Modalità",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "ext2_7_mode": {
-        "name": "Estensione 2.7 Modus",
+        "name": "Estensione 2.7 Modalità",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       },
       "ext2_8_mode": {
-        "name": "Estensione 2.8 Modus",
+        "name": "Estensione 2.8 Modalità",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
         }
       }
     }

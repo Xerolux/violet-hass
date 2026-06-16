@@ -416,20 +416,20 @@
       }
     },
     "set_digital_input_rule_lock_state": {
-      "name": "Правило переключения блокировки",
-      "description": "Блокирует или разблокирует правила цифрового переключения.\n\nПредотвращает нежелательное срабатывание во время технического обслуживания или неисправностей.",
+      "name": "Блокировка правил",
+      "description": "Блокировка или разблокировка правил автоматизации.\n\nПредотвращает непредвиденное срабатывание при техническом обслуживании.",
       "fields": {
         "device_id": {
-          "name": "Контроллер бассейна",
-          "description": "Фиолетовый контроллер бассейна с цифровыми правилами."
+          "name": "Контроллер",
+          "description": "Контроллер Violet Pool с правилами автоматизации."
         },
         "rule_key": {
           "name": "Номер правила",
-          "description": "Номер правила для блокировки (с DIRULE_1 по DIRULE_7)."
+          "description": "Правило для блокировки (DIRULE_1 - DIRULE_7)."
         },
         "lock_state": {
-          "name": "Замок",
-          "description": "Правило блокировки (Вкл.) или отключение (Выкл.)."
+          "name": "Блокировка",
+          "description": "Включить (Вкл.) или отключить (Выкл.) блокировку."
         }
       }
     },
@@ -1787,219 +1787,219 @@
     },
     "select": {
       "pump_mode": {
-        "name": "Pumpenmodus",
+        "name": "Режим насоса",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "heater_mode": {
-        "name": "Heizer-Modus",
+        "name": "Режим Обогревателя",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "solar_mode": {
-        "name": "Solar-Modus",
+        "name": "Режим Солнца",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "light_mode": {
-        "name": "Beleuchtungs-Modus",
+        "name": "Режим Освещения",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "dos_cl_mode": {
-        "name": "Chlordosier-Modus",
+        "name": "Режим Дозирования Хлора",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "dos_phm_mode": {
-        "name": "pH--Dosier-Modus",
+        "name": "Режим Дозирования pH-",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "dos_php_mode": {
-        "name": "pH+-Dosier-Modus",
+        "name": "Режим Дозирования pH+",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "pvsurplus_mode": {
-        "name": "PV-Überschuss-Modus",
+        "name": "Режим Избытка PV",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "backwash_mode": {
-        "name": "Rückspül-Modus",
+        "name": "Режим обратной промывки",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "backwashrinse_mode": {
-        "name": "Spül-Modus",
+        "name": "Режим Ополаскивания",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "dos_floc_mode": {
-        "name": "Flockungsmittel-Modus",
+        "name": "Режим Дозирования Флокулянта",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "ext1_1_mode": {
-        "name": "Расширение 1.1 Modus",
+        "name": "Расширение 1.1 Режим",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "ext1_2_mode": {
-        "name": "Расширение 1.2 Modus",
+        "name": "Расширение 1.2 Режим",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "ext1_3_mode": {
-        "name": "Расширение 1.3 Modus",
+        "name": "Расширение 1.3 Режим",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "ext1_4_mode": {
-        "name": "Расширение 1.4 Modus",
+        "name": "Расширение 1.4 Режим",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "ext1_5_mode": {
-        "name": "Расширение 1.5 Modus",
+        "name": "Расширение 1.5 Режим",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "ext1_6_mode": {
-        "name": "Расширение 1.6 Modus",
+        "name": "Расширение 1.6 Режим",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "ext1_7_mode": {
-        "name": "Расширение 1.7 Modus",
+        "name": "Расширение 1.7 Режим",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "ext1_8_mode": {
-        "name": "Расширение 1.8 Modus",
+        "name": "Расширение 1.8 Режим",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "ext2_1_mode": {
-        "name": "Расширение 2.1 Modus",
+        "name": "Расширение 2.1 Режим",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "ext2_2_mode": {
-        "name": "Расширение 2.2 Modus",
+        "name": "Расширение 2.2 Режим",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "ext2_3_mode": {
-        "name": "Расширение 2.3 Modus",
+        "name": "Расширение 2.3 Режим",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "ext2_4_mode": {
-        "name": "Расширение 2.4 Modus",
+        "name": "Расширение 2.4 Режим",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "ext2_5_mode": {
-        "name": "Расширение 2.5 Modus",
+        "name": "Расширение 2.5 Режим",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "ext2_6_mode": {
-        "name": "Расширение 2.6 Modus",
+        "name": "Расширение 2.6 Режим",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "ext2_7_mode": {
-        "name": "Расширение 2.7 Modus",
+        "name": "Расширение 2.7 Режим",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       },
       "ext2_8_mode": {
-        "name": "Расширение 2.8 Modus",
+        "name": "Расширение 2.8 Режим",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
         }
       }
     }

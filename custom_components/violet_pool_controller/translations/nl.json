@@ -1053,85 +1053,220 @@
     },
     "select": {
       "pump_mode": {
-        "name": "Pompmodus"
+        "name": "Pompstand",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "heater_mode": {
-        "name": "Verwarmingsmodus"
+        "name": "Verwarmingsstand",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "solar_mode": {
-        "name": "Zonne-absorbermodus"
+        "name": "Zonnestand",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "light_mode": {
-        "name": "Verlichtingsmodus"
+        "name": "Verlichting Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "dos_cl_mode": {
-        "name": "Chloormodus"
+        "name": "Chloordosering Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "dos_phm_mode": {
-        "name": "pH- modus"
+        "name": "pH- Dosering Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "dos_php_mode": {
-        "name": "pH+ modus"
+        "name": "pH+ Dosering Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "pvsurplus_mode": {
-        "name": "PV-overschotmodus"
+        "name": "PV Overschot Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "backwash_mode": {
-        "name": "Tegenspoelmodus"
+        "name": "Terugspoeling Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "backwashrinse_mode": {
-        "name": "Spoelmodus"
+        "name": "Spoeling Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "dos_floc_mode": {
-        "name": "Vlokkenmiddelmodus"
+        "name": "Flocculant Dosering Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "ext1_1_mode": {
-        "name": "Uitbreiding 1.1 modus"
+        "name": "Extensie 1.1 Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "ext1_2_mode": {
-        "name": "Uitbreiding 1.2 modus"
+        "name": "Extensie 1.2 Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "ext1_3_mode": {
-        "name": "Uitbreiding 1.3 modus"
+        "name": "Extensie 1.3 Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "ext1_4_mode": {
-        "name": "Uitbreiding 1.4 modus"
+        "name": "Extensie 1.4 Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "ext1_5_mode": {
-        "name": "Uitbreiding 1.5 modus"
+        "name": "Extensie 1.5 Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "ext1_6_mode": {
-        "name": "Uitbreiding 1.6 modus"
+        "name": "Extensie 1.6 Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "ext1_7_mode": {
-        "name": "Uitbreiding 1.7 modus"
+        "name": "Extensie 1.7 Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "ext1_8_mode": {
-        "name": "Uitbreiding 1.8 modus"
+        "name": "Extensie 1.8 Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "ext2_1_mode": {
-        "name": "Uitbreiding 2.1 modus"
+        "name": "Extensie 2.1 Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "ext2_2_mode": {
-        "name": "Uitbreiding 2.2 modus"
+        "name": "Extensie 2.2 Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "ext2_3_mode": {
-        "name": "Uitbreiding 2.3 modus"
+        "name": "Extensie 2.3 Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "ext2_4_mode": {
-        "name": "Uitbreiding 2.4 modus"
+        "name": "Extensie 2.4 Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "ext2_5_mode": {
-        "name": "Uitbreiding 2.5 modus"
+        "name": "Extensie 2.5 Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "ext2_6_mode": {
-        "name": "Uitbreiding 2.6 modus"
+        "name": "Extensie 2.6 Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "ext2_7_mode": {
-        "name": "Uitbreiding 2.7 modus"
+        "name": "Extensie 2.7 Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       },
       "ext2_8_mode": {
-        "name": "Uitbreiding 2.8 modus"
+        "name": "Extensie 2.8 Modus",
+        "state": {
+          "off": "Uit",
+          "on": "Aan",
+          "auto": "Automatisch"
+        }
       }
     }
   }

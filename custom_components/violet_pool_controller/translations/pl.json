@@ -1233,28 +1233,28 @@
         "name": "Pumpen-Stufe 3 Zuletzt Ein"
       },
       "dos_2_elo_daily_dosing_amount_ml": {
-        "name": "Elektrolyse Tagesdosierung (ml)"
+        "name": "Dzienna Dawka Elektrolizy (ml)"
       },
       "dos_2_elo_last_can_reset": {
-        "name": "Elektrolyse Letzter Kanister-Reset"
+        "name": "Ostatni Reset Kanistra Elektrolizy"
       },
       "dos_2_elo_last_off": {
-        "name": "Elektrolyse-Dosierung Zuletzt Aus"
+        "name": "Dozowanie Elektrolizy Ostatnio Wyłączone"
       },
       "dos_2_elo_last_on": {
-        "name": "Elektrolyse-Dosierung Zuletzt Ein"
+        "name": "Dozowanie Elektrolizy Ostatnio Włączone"
       },
       "dos_2_elo_runtime": {
-        "name": "Elektrolyse-Dosierlaufzeit"
+        "name": "Czas Pracy Dozowania Elektrolizy"
       },
       "dos_2_elo_total_can_amount_ml": {
-        "name": "Elektrolyse Kanisterinhalt (ml)"
+        "name": "Zawartość Kanistra Elektrolizy (ml)"
       },
       "dos_2_elo_type": {
-        "name": "Elektrolyse Dosiertyp"
+        "name": "Typ Dozowania Elektrolizy"
       },
       "dos_2_elo_use": {
-        "name": "Elektrolyse Verbrauch"
+        "name": "Zużycie Elektrolizy"
       },
       "dos_4_phm_daily_dosing_amount_ml": {
         "name": "pH- Tagesdosierung (ml)"
@@ -1787,219 +1787,219 @@
     },
     "select": {
       "pump_mode": {
-        "name": "Pumpenmodus",
+        "name": "Tryb Pompy",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "heater_mode": {
-        "name": "Heizer-Modus",
+        "name": "Tryb Grzałki",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "solar_mode": {
-        "name": "Solar-Modus",
+        "name": "Tryb Słoneczny",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "light_mode": {
-        "name": "Beleuchtungs-Modus",
+        "name": "Tryb Oświetlenia",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "dos_cl_mode": {
-        "name": "Chlordosier-Modus",
+        "name": "Tryb Dozowania Chloru",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "dos_phm_mode": {
-        "name": "pH--Dosier-Modus",
+        "name": "Tryb Dozowania pH-",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "dos_php_mode": {
-        "name": "pH+-Dosier-Modus",
+        "name": "Tryb Dozowania pH+",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "pvsurplus_mode": {
-        "name": "PV-Überschuss-Modus",
+        "name": "Tryb Nadmiaru PV",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "backwash_mode": {
-        "name": "Rückspül-Modus",
+        "name": "Tryb Wstecznego Płukania",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "backwashrinse_mode": {
-        "name": "Spül-Modus",
+        "name": "Tryb Płukania",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "dos_floc_mode": {
-        "name": "Flockungsmittel-Modus",
+        "name": "Tryb Dozowania Flokulanta",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "ext1_1_mode": {
-        "name": "Rozszerzenie 1.1 Modus",
+        "name": "Rozszerzenie 1.1 Tryb",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "ext1_2_mode": {
-        "name": "Rozszerzenie 1.2 Modus",
+        "name": "Rozszerzenie 1.2 Tryb",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "ext1_3_mode": {
-        "name": "Rozszerzenie 1.3 Modus",
+        "name": "Rozszerzenie 1.3 Tryb",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "ext1_4_mode": {
-        "name": "Rozszerzenie 1.4 Modus",
+        "name": "Rozszerzenie 1.4 Tryb",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "ext1_5_mode": {
-        "name": "Rozszerzenie 1.5 Modus",
+        "name": "Rozszerzenie 1.5 Tryb",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "ext1_6_mode": {
-        "name": "Rozszerzenie 1.6 Modus",
+        "name": "Rozszerzenie 1.6 Tryb",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "ext1_7_mode": {
-        "name": "Rozszerzenie 1.7 Modus",
+        "name": "Rozszerzenie 1.7 Tryb",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "ext1_8_mode": {
-        "name": "Rozszerzenie 1.8 Modus",
+        "name": "Rozszerzenie 1.8 Tryb",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "ext2_1_mode": {
-        "name": "Rozszerzenie 2.1 Modus",
+        "name": "Rozszerzenie 2.1 Tryb",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "ext2_2_mode": {
-        "name": "Rozszerzenie 2.2 Modus",
+        "name": "Rozszerzenie 2.2 Tryb",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "ext2_3_mode": {
-        "name": "Rozszerzenie 2.3 Modus",
+        "name": "Rozszerzenie 2.3 Tryb",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "ext2_4_mode": {
-        "name": "Rozszerzenie 2.4 Modus",
+        "name": "Rozszerzenie 2.4 Tryb",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "ext2_5_mode": {
-        "name": "Rozszerzenie 2.5 Modus",
+        "name": "Rozszerzenie 2.5 Tryb",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "ext2_6_mode": {
-        "name": "Rozszerzenie 2.6 Modus",
+        "name": "Rozszerzenie 2.6 Tryb",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "ext2_7_mode": {
-        "name": "Rozszerzenie 2.7 Modus",
+        "name": "Rozszerzenie 2.7 Tryb",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       },
       "ext2_8_mode": {
-        "name": "Rozszerzenie 2.8 Modus",
+        "name": "Rozszerzenie 2.8 Tryb",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Wyłączony",
+          "on": "Włączony",
+          "auto": "Automatyczny"
         }
       }
     }

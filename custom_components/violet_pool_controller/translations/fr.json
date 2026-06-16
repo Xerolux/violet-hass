@@ -1787,219 +1787,219 @@
     },
     "select": {
       "pump_mode": {
-        "name": "Pumpenmodus",
+        "name": "Mode Pompe",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "heater_mode": {
-        "name": "Heizer-Modus",
+        "name": "Mode Chauffage",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "solar_mode": {
-        "name": "Solar-Modus",
+        "name": "Mode Solaire",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "light_mode": {
-        "name": "Beleuchtungs-Modus",
+        "name": "Mode Éclairage",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "dos_cl_mode": {
-        "name": "Chlordosier-Modus",
+        "name": "Mode Dosage Chlore",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "dos_phm_mode": {
-        "name": "pH--Dosier-Modus",
+        "name": "Mode Dosage pH-",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "dos_php_mode": {
-        "name": "pH+-Dosier-Modus",
+        "name": "Mode Dosage pH+",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "pvsurplus_mode": {
-        "name": "PV-Überschuss-Modus",
+        "name": "Mode Surplus PV",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "backwash_mode": {
-        "name": "Rückspül-Modus",
+        "name": "Mode Rétrolavage",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "backwashrinse_mode": {
-        "name": "Spül-Modus",
+        "name": "Mode Rinçage",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "dos_floc_mode": {
-        "name": "Flockungsmittel-Modus",
+        "name": "Mode Dosage Floculant",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "ext1_1_mode": {
-        "name": "Extension 1.1 Modus",
+        "name": "Extension 1.1 Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "ext1_2_mode": {
-        "name": "Extension 1.2 Modus",
+        "name": "Extension 1.2 Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "ext1_3_mode": {
-        "name": "Extension 1.3 Modus",
+        "name": "Extension 1.3 Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "ext1_4_mode": {
-        "name": "Extension 1.4 Modus",
+        "name": "Extension 1.4 Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "ext1_5_mode": {
-        "name": "Extension 1.5 Modus",
+        "name": "Extension 1.5 Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "ext1_6_mode": {
-        "name": "Extension 1.6 Modus",
+        "name": "Extension 1.6 Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "ext1_7_mode": {
-        "name": "Extension 1.7 Modus",
+        "name": "Extension 1.7 Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "ext1_8_mode": {
-        "name": "Extension 1.8 Modus",
+        "name": "Extension 1.8 Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "ext2_1_mode": {
-        "name": "Extension 2.1 Modus",
+        "name": "Extension 2.1 Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "ext2_2_mode": {
-        "name": "Extension 2.2 Modus",
+        "name": "Extension 2.2 Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "ext2_3_mode": {
-        "name": "Extension 2.3 Modus",
+        "name": "Extension 2.3 Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "ext2_4_mode": {
-        "name": "Extension 2.4 Modus",
+        "name": "Extension 2.4 Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "ext2_5_mode": {
-        "name": "Extension 2.5 Modus",
+        "name": "Extension 2.5 Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "ext2_6_mode": {
-        "name": "Extension 2.6 Modus",
+        "name": "Extension 2.6 Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "ext2_7_mode": {
-        "name": "Extension 2.7 Modus",
+        "name": "Extension 2.7 Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       },
       "ext2_8_mode": {
-        "name": "Extension 2.8 Modus",
+        "name": "Extension 2.8 Mode",
         "state": {
-          "off": "Aus",
-          "on": "Ein",
-          "auto": "Auto"
+          "off": "Arrêt",
+          "on": "Marche",
+          "auto": "Automatique"
         }
       }
     }
