@@ -318,6 +318,7 @@ SWITCHES: list[dict[str, str | bool | None]] = [
         "translation_key": "dos_5_php",
         "icon": "mdi:flask-plus",
         "feature_id": "ph_control",
+        "entity_registry_enabled_default": False,
     },
     {
         "key": "DOS_4_PHM",
@@ -325,6 +326,7 @@ SWITCHES: list[dict[str, str | bool | None]] = [
         "translation_key": "dos_4_phm",
         "icon": "mdi:flask-minus",
         "feature_id": "ph_control",
+        "entity_registry_enabled_default": False,
     },
     {
         "key": "DOS_1_CL",
@@ -332,6 +334,7 @@ SWITCHES: list[dict[str, str | bool | None]] = [
         "translation_key": "dos_1_cl",
         "icon": "mdi:flask-outline",
         "feature_id": "chlorine_control",
+        "entity_registry_enabled_default": False,
     },
     {
         "key": "DOS_2_ELO",
@@ -339,6 +342,7 @@ SWITCHES: list[dict[str, str | bool | None]] = [
         "translation_key": "dos_2_elo",
         "icon": "mdi:lightning-bolt",
         "feature_id": "chlorine_control",
+        "entity_registry_enabled_default": False,
     },
     {
         "key": "DOS_6_FLOC",
@@ -346,6 +350,7 @@ SWITCHES: list[dict[str, str | bool | None]] = [
         "translation_key": "dos_6_floc",
         "icon": "mdi:water",
         "feature_id": "flocculation",
+        "entity_registry_enabled_default": False,
     },
     {
         "key": "PVSURPLUS",
@@ -360,6 +365,7 @@ SWITCHES: list[dict[str, str | bool | None]] = [
         "translation_key": "backwash",
         "icon": "mdi:autorenew",
         "feature_id": "backwash",
+        "entity_registry_enabled_default": False,
     },
     {
         "key": "BACKWASHRINSE",
@@ -367,6 +373,7 @@ SWITCHES: list[dict[str, str | bool | None]] = [
         "translation_key": "backwashrinse",
         "icon": "mdi:autorenew",
         "feature_id": "backwash",
+        "entity_registry_enabled_default": False,
     },
     {
         "key": "REFILL",
@@ -374,6 +381,7 @@ SWITCHES: list[dict[str, str | bool | None]] = [
         "translation_key": "refill",
         "icon": "mdi:water",
         "feature_id": "water_refill",
+        "entity_registry_enabled_default": False,
     },
     {
         "key": "ECO",
