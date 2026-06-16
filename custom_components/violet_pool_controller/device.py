@@ -686,7 +686,6 @@ class VioletPoolControllerDevice:
         """Return the number of consecutive failures."""
         return self._consecutive_failures
 
-    @property
     def _detect_current_hardware_modules(self) -> list[str]:
         """Detect currently present hardware modules from API data (not cached).
 
