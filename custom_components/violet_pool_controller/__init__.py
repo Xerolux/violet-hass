@@ -160,6 +160,7 @@ def _migrate_duplicate_prefix_entity_ids(
 
 
 def _disable_unsafe_switches(
+    hass: HomeAssistant,
     entity_registry: er.EntityRegistry,
     config_entry_id: str,
 ) -> None:
@@ -169,6 +170,26 @@ def _disable_unsafe_switches(
     because they require mandatory time limits to prevent equipment damage,
     chemical overdose, and flooding.
     """
+    from .const import CONF_ALLOW_UNSAFE_SWITCHES, DEFAULT_ALLOW_UNSAFE_SWITCHES
+
+    # Get the config entry to check the allow_unsafe_switches setting
+    entry = hass.config_entries.async_get_entry(config_entry_id)
+    if not entry:
+        return
+
+    allow_unsafe = entry.options.get(
+        CONF_ALLOW_UNSAFE_SWITCHES,
+        entry.data.get(CONF_ALLOW_UNSAFE_SWITCHES, DEFAULT_ALLOW_UNSAFE_SWITCHES),
+    )
+
+    # If user explicitly allowed unsafe switches, don't disable them
+    if allow_unsafe:
+        _LOGGER.warning(
+            "⚠️ SAFETY WARNING: Unsafe switches are ENABLED for '%s'. "
+            "User accepts full responsibility for risks (equipment damage, chemical overdose, flooding)",
+            config_entry_id,
+        )
+        return
     # Keys of switches that should be disabled for safety
     unsafe_switch_keys = {
         "DOS_1_CL",     # Chlorine dosing
@@ -302,7 +323,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         # Auto-disable unsafe switches (dosing, backwash, refill) that require
         # mandatory time limits via Services instead of switches
-        _disable_unsafe_switches(er.async_get(hass), entry.entry_id)
+        _disable_unsafe_switches(hass, er.async_get(hass), entry.entry_id)
 
         # Load platforms
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)

@@ -192,7 +192,7 @@
     "step": {
       "init": {
         "title": "Adjust Pool Settings",
-        "description": "**What would you like to configure?**\n\nEnable/disable features\nSelect sensors\nChange settings\n\n**Tip:** You can return to this selection at any time.",
+        "description": "**What would you like to configure?**\n\nEnable/disable features\nSelect sensors\n🚨 Safety settings\nChange settings\n\n**Tip:** You can return to this selection at any time.",
         "data": {
           "config_option": "Select configuration area"
         },
@@ -207,6 +207,16 @@
       "sensors": {
         "title": "Select Sensors",
         "description": "**Choose which sensors to display**\n\nOnly selected sensors are shown in Home Assistant\nChanges take effect immediately\n\n**Tip:** Only select the sensors you actually want to monitor!"
+      },
+      "safety": {
+        "title": "🚨 Safety Settings",
+        "description": "{warning}",
+        "data": {
+          "allow_unsafe_switches": "Allow manual safety-critical switches"
+        },
+        "data_description": {
+          "allow_unsafe_switches": "Enable direct control of dosing, backwash & refill (requires mandatory time limits via Services)"
+        }
       },
       "settings": {
         "title": "General Settings",
