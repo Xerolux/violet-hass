@@ -190,3 +190,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 Earlier versions prior to 1.2.3 are not documented in this changelog.
 For detailed history, see git commit log.
+
+---
+
+<!-- Link References for direct GitHub navigation -->
+[2.0.0]: https://github.com/Xerolux/violet-hass/compare/v2.0.0-beta.9...v2.0.0
+[2.0.0-beta.9]: https://github.com/Xerolux/violet-hass/compare/v2.0.0-beta.8...v2.0.0-beta.9
+[2.0.0-beta.8]: https://github.com/Xerolux/violet-hass/compare/v2.0.0-beta.7...v2.0.0-beta.8
+[2.0.0-beta.7]: https://github.com/Xerolux/violet-hass/compare/v2.0.0-beta.6...v2.0.0-beta.7
+[2.0.0-beta.6]: https://github.com/Xerolux/violet-hass/compare/v2.0.0-beta.5...v2.0.0-beta.6
+[2.0.0-beta.5]: https://github.com/Xerolux/violet-hass/compare/v2.0.0-beta.1...v2.0.0-beta.5
+[2.0.0-beta.1 through beta.4]: https://github.com/Xerolux/violet-hass/compare/v1.2.4...v2.0.0-beta.1
+[1.2.4]: https://github.com/Xerolux/violet-hass/compare/v1.2.3...v1.2.4
