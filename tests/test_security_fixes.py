@@ -158,6 +158,8 @@ class TestSecurityFixes:
         # Valid hostnames
         valid_hosts = [
             "192.168.1.100",
+            "2001:db8::1",
+            "[2001:db8::1]:8443",
             "pool-controller.local",
             "violet.example.com",
             "192.0.2.1"
@@ -180,6 +182,8 @@ class TestSecurityFixes:
             # "localhost", # Localhost is now allowed
             "evil.com@internal",
             "user:pass@192.168.1.1",
+            "192.168.1.1:99999",
+            "pool-controller.local/path",
             "../etc/passwd",
             "' OR 1=1 --",
             "''; DROP TABLE users; --"

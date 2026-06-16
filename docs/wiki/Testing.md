@@ -17,7 +17,7 @@
 # Run tests
 ./scripts/run-tests.sh
 
-# Expected result: 53+ tests, all passing ✓
+# Expected result: all tests passing ✓
 ```
 
 ---
@@ -31,7 +31,7 @@
 ```
 
 The script handles:
-- Checking Python 3.14
+- Checking the configured Home Assistant/Python test environment
 - Creating virtual environment `.venv-ha-test/`
 - Installing dependencies from `requirements-dev.txt`
 - Installing pytest and dependencies
@@ -323,7 +323,7 @@ GitHub Actions runs automatically on push/PR:
 - Ruff Linting
 - MyPy Type Checking
 - pytest (HA 2026.5.x)
-- Python 3.14
+- Python runtime compatible with the configured Home Assistant test target
 ```
 
 ---

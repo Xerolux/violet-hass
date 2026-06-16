@@ -10,7 +10,7 @@
 
 ---
 
-## 📢 Latest Changes (v2.0.0-beta.7)
+## 📢 Latest Changes (v2.0.0)
 
 ### ✨ New Features & Improvements
 
@@ -53,9 +53,9 @@ The **Violet Pool Controller Home Assistant Integration** connects [Home Assista
 | **Protocol** | HTTP/HTTPS, local polling |
 | **HA Minimum Version** | 2026.5.0 |
 | **Tested up to** | 2026.5.x / 2026.6.x |
-| **Python** | 3.14.2+ |
-| **Integration Version** | 2.0.0-beta.7 |
-| **API Package** | violet-poolController-api ≥ 0.0.29 (PyPI) |
+| **Python** | Managed by Home Assistant 2026.5.0+ |
+| **Integration Version** | 2.0.0 |
+| **API Package** | violet-poolController-api ≥ 0.0.32 (PyPI) |
 | **License** | AGPL-3.0-or-later |
 | **Quality Scale** | Platinum |
 | **Languages** | DE, EN, ES, FR, IT, NL, PL, PT, RU, ZH |
@@ -232,5 +232,5 @@ This integration is fully compatible with Home Assistant 2026.x:
 
 ---
 
-*This wiki documents version **2.0.0-beta.7** of the Violet Pool Controller integration.*
+*This wiki documents version **2.0.0** of the Violet Pool Controller integration.*
 *Last updated: 2026-06-15*

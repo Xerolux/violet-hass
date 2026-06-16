@@ -351,6 +351,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # Load platforms
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
+        # Run again after platforms are loaded so freshly created switch
+        # registry entries are enforced on first setup too.
+        _disable_unsafe_switches(hass, er.async_get(hass), entry.entry_id)
+
         # Register update listener for config changes (e.g., polling_interval)
         entry.async_on_unload(entry.add_update_listener(async_update_listener))
 

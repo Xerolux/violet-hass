@@ -17,7 +17,7 @@
 # Tests ausführen
 ./scripts/run-tests.sh
 
-# Erwartetes Ergebnis: 53+ Tests, alle grün ✓
+# Erwartetes Ergebnis: alle Tests grün ✓
 ```
 
 ---
@@ -31,7 +31,7 @@
 ```
 
 Das Script erledigt:
-- Python 3.14 prüfen
+- Konfigurierte Home-Assistant-/Python-Testumgebung prüfen
 - Virtuelle Umgebung `.venv-ha-test/` erstellen
 - Abhängigkeiten aus `requirements-dev.txt` installieren
 - pytest und Abhängigkeiten installieren
@@ -323,7 +323,7 @@ GitHub Actions läuft automatisch bei Push/PR:
 - Ruff Linting
 - MyPy Type Checking
 - pytest (HA 2026.5.x)
-- Python 3.14
+- Python-Laufzeit kompatibel mit dem konfigurierten Home-Assistant-Testziel
 ```
 
 ---

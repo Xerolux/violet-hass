@@ -26,6 +26,8 @@ from .const import (
     ACTION_OFF,
     ACTION_ON,
     CONF_ACTIVE_FEATURES,
+    CONF_ALLOW_UNSAFE_SWITCHES,
+    DEFAULT_ALLOW_UNSAFE_SWITCHES,
     DOMAIN,
     DOSING_STATE_DESCRIPTIONS,
     SWITCHES,
@@ -83,6 +85,17 @@ REFRESH_DELAY = 0.3
 # Extension module relays may need more time for the controller to update LAST_ON
 # after a command, so that the next get_readings() call can detect the module.
 REFRESH_DELAY_EXT = 1.5
+
+UNSAFE_SWITCH_KEYS = {
+    "DOS_1_CL",
+    "DOS_2_ELO",
+    "DOS_4_PHM",
+    "DOS_5_PHP",
+    "DOS_6_FLOC",
+    "BACKWASH",
+    "BACKWASHRINSE",
+    "REFILL",
+}
 
 
 class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
@@ -672,6 +685,10 @@ async def async_setup_entry(
     active_features = config_entry.options.get(
         CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
     )
+    allow_unsafe_switches = config_entry.options.get(
+        CONF_ALLOW_UNSAFE_SWITCHES,
+        config_entry.data.get(CONF_ALLOW_UNSAFE_SWITCHES, DEFAULT_ALLOW_UNSAFE_SWITCHES),
+    )
     entities: list[SwitchEntity] = []
 
     _LOGGER.debug("Switch setup - active features: %s", active_features)
@@ -719,6 +736,12 @@ async def async_setup_entry(
         if resolved_name:
             entity_name = resolved_name
 
+        entity_enabled_default = cast(
+            bool, switch_config.get("entity_registry_enabled_default", True)
+        )
+        if switch_config["key"] in UNSAFE_SWITCH_KEYS:
+            entity_enabled_default = bool(allow_unsafe_switches)
+
         description = SwitchEntityDescription(
             key=cast(str, switch_config["key"]),
             name=entity_name,
@@ -732,9 +755,7 @@ async def async_setup_entry(
             entity_category=cast(
                 EntityCategory | None, switch_config.get("entity_category")
             ),
-            entity_registry_enabled_default=cast(
-                bool, switch_config.get("entity_registry_enabled_default", True)
-            ),
+            entity_registry_enabled_default=entity_enabled_default,
         )
 
         feature_id = switch_config.get("feature_id")
