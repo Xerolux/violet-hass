@@ -168,7 +168,7 @@ SYSTEM_SENSORS = {
         "icon": "mdi:speedometer",
     },
     "pump_rs485_pwr": {
-        "name": "RS485-Pumpenstrom",
+        "name": "RS485-Pumpenleistung",
         "translation_key": "pump_rs485_pwr",
         "icon": "mdi:lightning-bolt",
     },
@@ -200,7 +200,7 @@ STATUS_SENSORS = {
         "icon": "mdi:autorenew",
     },
     "BACKWASHRINSE": {
-        "name": "Rückspülspülstatus",
+        "name": "Nachspülstatus",
         "translation_key": "backwashrinse",
         "icon": "mdi:water-opacity",
     },
@@ -340,7 +340,7 @@ ANALOG_RULE_SENSORS = {
 
 TEMP_RULE_SENSORS = {
     f"TEMPRULE_{i}": {
-        "name": f"Temperaturegel {i}",
+        "name": f"Temperaturregel {i}",
         "translation_key": f"temprule_{i}",
         "icon": "mdi:thermometer-lines",
         "entity_category": "diagnostic",
@@ -375,7 +375,7 @@ RUNTIME_SENSORS = {
         "icon": "mdi:clock-outline",
     },
     "BACKWASHRINSE_RUNTIME": {
-        "name": "Rückspülspül-Laufzeit",
+        "name": "Nachspül-Laufzeit",
         "translation_key": "backwashrinse_runtime",
         "icon": "mdi:clock-outline",
     },
