@@ -82,6 +82,69 @@ TEMP_SENSORS = {
     },
 }
 
+ONEWIRE_ROMCODE_SENSORS = {
+    "onewire1_romcode": {
+        "name": "OneWire-ROM-Code 1",
+        "translation_key": "onewire1_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire2_romcode": {
+        "name": "OneWire-ROM-Code 2",
+        "translation_key": "onewire2_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire3_romcode": {
+        "name": "OneWire-ROM-Code 3",
+        "translation_key": "onewire3_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire4_romcode": {
+        "name": "OneWire-ROM-Code 4",
+        "translation_key": "onewire4_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire5_romcode": {
+        "name": "OneWire-ROM-Code 5",
+        "translation_key": "onewire5_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire6_romcode": {
+        "name": "OneWire-ROM-Code 6",
+        "translation_key": "onewire6_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire7_romcode": {
+        "name": "OneWire-ROM-Code 7",
+        "translation_key": "onewire7_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire8_romcode": {
+        "name": "OneWire-ROM-Code 8",
+        "translation_key": "onewire8_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire9_romcode": {
+        "name": "OneWire-ROM-Code 9",
+        "translation_key": "onewire9_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire10_romcode": {
+        "name": "OneWire-ROM-Code 10",
+        "translation_key": "onewire10_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire11_romcode": {
+        "name": "OneWire-ROM-Code 11",
+        "translation_key": "onewire11_romcode",
+        "icon": "mdi:identifier",
+    },
+    "onewire12_romcode": {
+        "name": "OneWire-ROM-Code 12",
+        "translation_key": "onewire12_romcode",
+        "icon": "mdi:identifier",
+    },
+}
+
 WATER_CHEM_SENSORS = {
     "pH_value": {"name": "pH-Wert", "translation_key": "ph_value", "icon": "mdi:ph"},
     "orp_value": {

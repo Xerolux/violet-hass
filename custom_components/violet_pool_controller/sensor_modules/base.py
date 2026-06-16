@@ -439,7 +439,7 @@ def _build_sensor_description(
             and ("temp" in key.lower() or "onewire" in key.lower())
             and "freezecount" not in key.lower()
             and "faultcount" not in key.lower()
-            and key not in _NON_TEMPERATURE_ONEWIRE_KEYS
+            and key.lower() not in _NON_TEMPERATURE_ONEWIRE_KEYS
         ):
             unit = "°C"
 

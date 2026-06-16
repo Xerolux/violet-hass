@@ -31,6 +31,7 @@ from .const import (
     DOSING_STATE_SENSORS,
     DOSING_STATS_SENSORS,
     EXTRA_DIAGNOSTIC_SENSORS,
+    ONEWIRE_ROMCODE_SENSORS,
     RUNTIME_SENSORS,
     SENSOR_FEATURE_MAP,
     STATUS_SENSORS,
@@ -368,6 +369,7 @@ def _create_standard_sensors(
     all_predefined = {
         **TEMP_SENSORS,
         **WATER_CHEM_SENSORS,
+        **ONEWIRE_ROMCODE_SENSORS,
         **ANALOG_SENSORS,
         **STATUS_SENSORS,
         **RUNTIME_SENSORS,
