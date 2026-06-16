@@ -33,7 +33,6 @@ from .const import (
     CONF_CONTROLLER_NAME,
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
-    CONF_ENABLE_DIAGNOSTIC_LOGGING,
     CONF_PASSWORD,
     CONF_POLLING_INTERVAL,
     CONF_PORT,
@@ -43,7 +42,6 @@ from .const import (
     CONF_USERNAME,
     CONF_VERIFY_SSL,
     DEFAULT_CONTROLLER_NAME,
-    DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_PORT,
     DEFAULT_RETRY_ATTEMPTS,
@@ -353,9 +351,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # Load platforms
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-        # Apply logging configuration
-        _apply_logging_config(entry)
-
         # Register update listener for config changes (e.g., polling_interval)
         entry.async_on_unload(entry.add_update_listener(async_update_listener))
 
@@ -532,9 +527,6 @@ async def async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None
         if api_updated:
             settings_updated = True
 
-    # 3. Apply logging configuration
-    _apply_logging_config(entry)
-
     # Log summary
     if settings_updated:
         _LOGGER.info(
@@ -551,39 +543,6 @@ async def async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None
 # =============================================================================
 # HELPER FUNCTIONS
 # =============================================================================
-
-
-def _apply_logging_config(entry: ConfigEntry) -> None:
-    """Apply logging configuration based on settings.
-
-    Args:
-        entry: The config entry.
-    """
-    enable_diagnostic = get_entry_value(
-        entry,
-        CONF_ENABLE_DIAGNOSTIC_LOGGING,
-        DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
-    )
-
-    logger = logging.getLogger(__package__)
-
-    if enable_diagnostic:
-        # User wants extended/diagnostic logging
-        # We also enable DEBUG level for this package
-        if logger.getEffectiveLevel() > logging.DEBUG:
-            logger.setLevel(logging.DEBUG)
-            _LOGGER.info(
-                "Diagnostic logging enabled: Log level set to DEBUG for %s", __package__
-            )
-    else:
-        # Revert to default behavior (inherit from parent)
-        # Note: We can't easily 'reset' to previous state without tracking it,
-        # but setting to NOTSET usually causes it to inherit from parent (root)
-        if logger.level == logging.DEBUG:
-            logger.setLevel(logging.NOTSET)
-            _LOGGER.info(
-                "Diagnostic logging disabled: Log level reset for %s", __package__
-            )
 
 
 def _extract_config(entry: ConfigEntry) -> dict[str, Any]:

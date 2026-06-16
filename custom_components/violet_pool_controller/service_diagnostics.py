@@ -487,7 +487,6 @@ class VioletDiagnosticServiceHandlers:
         from .const import (
             CONF_ACTIVE_FEATURES,
             CONF_DISINFECTION_METHOD,
-            CONF_FORCE_UPDATE,
             CONF_POLLING_INTERVAL,
             CONF_POOL_SIZE,
             CONF_POOL_TYPE,
@@ -506,7 +505,6 @@ class VioletDiagnosticServiceHandlers:
             "Polling Interval": CONF_POLLING_INTERVAL,
             "Timeout": CONF_TIMEOUT_DURATION,
             "Retries": CONF_RETRY_ATTEMPTS,
-            "Force Update": CONF_FORCE_UPDATE,
             "Use SSL": CONF_USE_SSL,
             "Verify SSL": CONF_VERIFY_SSL,
             "Pool Size": CONF_POOL_SIZE,

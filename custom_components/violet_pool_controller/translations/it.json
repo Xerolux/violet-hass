@@ -217,17 +217,13 @@
           "controller_name": "Nome del controller",
           "polling_interval": "Intervallo di polling (secondi)",
           "timeout_duration": "Timeout (secondi)",
-          "retry_attempts": "Tentativi di ripetizione",
-          "enable_diagnostic_logging": "Registrazione estesa",
-          "force_update": "Aggiorna sempre"
+          "retry_attempts": "Tentativi di ripetizione"
         },
         "data_description": {
           "controller_name": "Nome visualizzato del controller",
           "polling_interval": "Intervallo di polling dati (5-300s)",
           "timeout_duration": "Tempo massimo di attesa per richiesta (5-60s)",
-          "retry_attempts": "Numero di tentativi di ripetizione in caso di errore (1-10)",
-          "enable_diagnostic_logging": "Log dettagliati ad ogni aggiornamento (solo diagnostica!)",
-          "force_update": "Aggiorna sempre le entità anche se il valore non cambia"
+          "retry_attempts": "Numero di tentativi di ripetizione in caso di errore (1-10)"
         }
       }
     }

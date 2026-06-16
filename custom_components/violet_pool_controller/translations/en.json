@@ -218,8 +218,6 @@
           "polling_interval": "Polling Interval (seconds)",
           "timeout_duration": "Timeout (seconds)",
           "retry_attempts": "Retry Attempts",
-          "enable_diagnostic_logging": "Extended Logging",
-          "force_update": "Always Update",
           "invert_cover": "Invert Pool Cover"
         },
         "data_description": {
@@ -227,8 +225,6 @@
           "polling_interval": "Data polling interval (5-300s)",
           "timeout_duration": "Maximum wait time per request (5-60s)",
           "retry_attempts": "Number of retry attempts on failure (1-10)",
-          "enable_diagnostic_logging": "Verbose logs on every update (diagnostics only!)",
-          "force_update": "Always update entities even if value unchanged",
           "invert_cover": "Swaps open/closed if the cover relays are wired backwards"
         }
       }
