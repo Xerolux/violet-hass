@@ -687,23 +687,48 @@ class VioletPoolControllerDevice:
         return self._consecutive_failures
 
     @property
-    def device_info(self) -> dict[str, Any]:
-        """Return device information for Home Assistant."""
-        # Build a readable model string from detected hardware modules.
-        # "Base" is omitted when it is the only module to avoid redundancy.
+    def _detect_current_hardware_modules(self) -> list[str]:
+        """Detect currently present hardware modules from API data (not cached).
+
+        Returns list of module names based on actual API keys present,
+        not on historical detections.
+        """
         extra_modules = []
+
+        def has_keys(prefix: str) -> bool:
+            """Check if any valid keys start with the given prefix."""
+            return any(
+                k.startswith(prefix) and self._data.get(k) is not None
+                for k in self._data.keys()
+            )
+
+        # Check standalone mode vs dosing module
         if self._data.get("HW_STANDALONE_MODE"):
             extra_modules.append("Dosing-Standalone")
-        elif self._data.get("HW_DOSING_MODULE"):
+        elif has_keys("DOS_"):
             extra_modules.append("Dosing")
-        if self._data.get("HW_EXTENSION_MODULE_1"):
+
+        # Check extension modules
+        if has_keys("EXT1_"):
             extra_modules.append("Ext1")
-        if self._data.get("HW_EXTENSION_MODULE_2"):
+        if has_keys("EXT2_"):
             extra_modules.append("Ext2")
-        if self._data.get("HW_DMX_MODULE"):
+
+        # Check DMX module
+        if has_keys("DMX_"):
             extra_modules.append("DMX")
-        if self._data.get("HW_DIRULE_MODULE"):
+
+        # Check Digital Input Rules module
+        if has_keys("DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_"):
             extra_modules.append("DiRule")
+
+        return extra_modules
+
+    def device_info(self) -> dict[str, Any]:
+        """Return device information for Home Assistant."""
+        # Build a readable model string from currently detected hardware modules.
+        # "Base" is omitted when it is the only module to avoid redundancy.
+        extra_modules = self._detect_current_hardware_modules()
 
         model_str = (
             "Violet Pool Controller (" + ", ".join(extra_modules) + ")"
