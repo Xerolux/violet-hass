@@ -604,9 +604,20 @@ class VioletControlServiceHandlers:
                 raise HomeAssistantError(f"Cover control failed: {err}")
 
     async def handle_control_backwash_http(self, call: ServiceCall) -> None:
-        """Control backwash via HTTP setFunctionManually (NEW API)."""
+        """Control backwash via HTTP setFunctionManually (NEW API).
+
+        For 'run' action: automatically stops after specified duration.
+        Duration is required for safety - prevents indefinite backwash.
+        """
         coordinators = await self.manager.get_coordinators_for_call(call)
-        action = call.data.get("action", "run")
+        action = call.data.get("action")
+        duration_seconds = call.data.get("duration_seconds")
+
+        if action == "run" and duration_seconds is None:
+            raise HomeAssistantError(
+                "Backwash duration is required for safety. "
+                "Specify duration_seconds (10-3600 seconds)"
+            )
 
         for coordinator in coordinators:
             try:
@@ -615,12 +626,33 @@ class VioletControlServiceHandlers:
 
                 if action == "run":
                     await control.set_backwash_run()
-                    _LOGGER.info("Backwash RUN: %s", device_name)
+                    _LOGGER.info(
+                        "Backwash started on %s with %ds timeout",
+                        device_name,
+                        duration_seconds,
+                    )
+
+                    # Auto-stop backwash after specified duration for safety
+                    async def auto_stop_backwash() -> None:
+                        await asyncio.sleep(duration_seconds)
+                        try:
+                            await control.set_backwash_abort()
+                            _LOGGER.info(
+                                "Backwash auto-stopped on %s after %ds",
+                                device_name,
+                                duration_seconds,
+                            )
+                            await coordinator.async_request_refresh()
+                        except Exception as err:
+                            _LOGGER.error("Backwash auto-stop failed: %s", err)
+
+                    # Schedule background task (don't await - let it run in background)
+                    asyncio.create_task(auto_stop_backwash())
+
                 elif action == "abort":
                     await control.set_backwash_abort()
-                    _LOGGER.info("Backwash ABORT: %s", device_name)
-
-                await coordinator.async_request_refresh()
+                    _LOGGER.info("Backwash aborted on %s", device_name)
+                    await coordinator.async_request_refresh()
 
             except Exception as err:
                 _LOGGER.error("Backwash control error: %s", err)
