@@ -27,6 +27,7 @@ from .base import (
     _TIME_FORMAT_KEYS,
     _TIMESTAMP_KEYS,
     _TIMESTAMP_SUFFIXES,
+    format_seconds_to_readable,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -121,6 +122,13 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
 
         if key in _ALL_TEXT_SENSORS:
             return str(raw_value)
+
+        # Format DI-Rule stopwatch remaining time (seconds) to readable format
+        if "DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_STOPWATCH" in key:
+            try:
+                return format_seconds_to_readable(float(raw_value))
+            except (ValueError, TypeError):
+                return str(raw_value)
 
         try:
             num_value = float(raw_value)
