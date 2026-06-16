@@ -34,9 +34,9 @@ These values were verified against code/config files, not just docs:
 
 - Home Assistant domain: `violet_pool_controller`.
 - Integration version: `2.0.0` in `manifest.json`, `const.py`, and root `pyproject.toml`.
-- API package version: `0.0.32` in `violet_poolcontroller_api/pyproject.toml`.
+- API package version: `0.0.33` in `violet_poolcontroller_api/pyproject.toml`.
 - HACS minimum Home Assistant version: `2026.5.0` in `hacs.json`.
-- Integration manifest requirement: `violet-poolController-api>=0.0.32`.
+- Integration manifest requirement: `violet-poolController-api>=0.0.33`.
 - Runtime requirements include `homeassistant>=2026.5.0`, `aiohttp>=3.11.0,<3.14`,
   `voluptuous>=0.15.2`, and the API package.
 - Root package tooling currently targets Python `>=3.12` after local cleanup, while
@@ -346,7 +346,7 @@ Version consistency matters across:
   publishing.
 - Some docs mention old test counts such as `53+`; actual test inventory is larger.
 - `docs/API_PACKAGE_CONTRACT.md` references old exact pinning to `0.0.24`; live
-  manifest currently uses `violet-poolController-api>=0.0.32`.
+  manifest currently uses `violet-poolController-api>=0.0.33`.
 - Wiki pages may mention beta versions while manifest is `2.0.0`.
 - README links to `violet_poolcontroller_api/docs/API_REFERENCE.md`, but the local
   `rg --files` markdown index did not show that exact path. Verify before release.

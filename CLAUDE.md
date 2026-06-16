@@ -19,7 +19,7 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.
 **🔒 Security Model**: See [SECURITY.md](./SECURITY.md) for detailed security architecture and compliance.
 
 **Current Integration Version**: `2.0.0` (defined in `manifest.json`, `const.py`, `pyproject.toml`, and optionally `.version`)
-**Current API Version**: `0.0.32` (defined in `violet_poolcontroller_api/pyproject.toml`)
+**Current API Version**: `0.0.33` (defined in `violet_poolcontroller_api/pyproject.toml`)
 **Minimum Home Assistant Version**: `2026.5.0` (defined in `hacs.json`)
 **Minimum Python Version**: Home Assistant runtime is managed by HA 2026.5.0+; standalone API package supports `>=3.12`
 
@@ -95,7 +95,7 @@ pytest tests/test_api.py::test_function_name -v
 
 - **`__init__.py`** - Integration entry point. Handles setup, config entry migration, platform loading, and service registration. Loads these 10 platforms: `sensor`, `binary_sensor`, `switch`, `climate`, `cover`, `number`, `select`, `light`, `update`, `button`.
 
-- **API package** (`violet-poolController-api>=0.0.32` on PyPI) - The HTTP client and low-level utilities live in this monorepo under `violet_poolcontroller_api/` and are published to PyPI (HA installs the PyPI package per `manifest.json`). Provides:
+- **API package** (`violet-poolController-api>=0.0.33` on PyPI) - The HTTP client and low-level utilities live in this monorepo under `violet_poolcontroller_api/` and are published to PyPI (HA installs the PyPI package per `manifest.json`). Provides:
   - `VioletPoolAPI` class - rate-limited HTTP client with retry/backoff
   - `VioletPoolAPIError` exception hierarchy
   - `InputSanitizer` - XSS/injection/path-traversal protection
@@ -659,7 +659,7 @@ Located in `.github/workflows/` (10 workflows):
 - `voluptuous>=0.16.0` - Data validation
 
 **Integration requirement** (from `manifest.json`):
-- `violet-poolController-api>=0.0.32` - API client package (installed by HA from PyPI; source is in `violet_poolcontroller_api/` locally)
+- `violet-poolController-api>=0.0.33` - API client package (installed by HA from PyPI; source is in `violet_poolcontroller_api/` locally)
 
 **Development** (from `requirements-dev.txt`):
 - `ruff>=0.15.16` - Linter and formatter

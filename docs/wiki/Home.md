@@ -55,7 +55,7 @@ The **Violet Pool Controller Home Assistant Integration** connects [Home Assista
 | **Tested up to** | 2026.5.x / 2026.6.x |
 | **Python** | Managed by Home Assistant 2026.5.0+ |
 | **Integration Version** | 2.0.0 |
-| **API Package** | violet-poolController-api ≥ 0.0.32 (PyPI) |
+| **API Package** | violet-poolController-api ≥ 0.0.33 (PyPI) |
 | **License** | AGPL-3.0-or-later |
 | **Quality Scale** | Platinum |
 | **Languages** | DE, EN, ES, FR, IT, NL, PL, PT, RU, ZH |
