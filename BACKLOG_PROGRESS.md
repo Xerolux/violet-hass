@@ -8,7 +8,7 @@ Dieses Dokument verfolgt alle Arbeiten aus dem Plan: *Offene Punkte, Bugfixes & 
 
 ## Executive Summary
 
-### 🎉 Gesamt-Fortschritt: ~85% Abgeschlossen
+### 🎉 Gesamt-Fortschritt: ✅ 95%+ ABGESCHLOSSEN
 
 **Phase 1+2 ✅ FERTIG** (PR #373)
 - **11 Commits** (Dependencies, Docs, Bugfixes)
@@ -21,17 +21,18 @@ Dieses Dokument verfolgt alle Arbeiten aus dem Plan: *Offene Punkte, Bugfixes & 
   - 🧪 **Test Suite**: Neue Cache-Invalidierungs-Tests
   - 📝 **Doku**: RELEASE_NOTES.md, BACKLOG_PROGRESS.md, CODEOWNERS
 
-**Phase 4 ✅ TEILWEISE FERTIG** (PR 4 ab nächstem Commit)
-- **3 neue Docs-Commits**:
+**Phase 4 ✅ FERTIG** (PR 4)
+- **4 neue Commits**:
   - ARCHITECTURE.md (450+ Zeilen, System-Design)
   - HA_QUALITY_SCALE_PROGRESS.md (Platinum-Level Checkliste)
   - CI_CD_ACTION_PINNING.md (Pinning Guidelines)
+  - fix(A4): Logging für silent exceptions
 - **CLAUDE.md aktualisiert** (7 → 10 Plattformen)
-- **A4 (silent exceptions)**: Deferred zu Phase 6
+- **A4 (silent exceptions)**: COMPLETE ✅
 
-**Phase 5 ✅ TEILWEISE FERTIG**
+**Phase 5 ✅ FERTIG** (PR 5)
 - **E2**: Python 3.13 zu Test-Matrix ✅
-- **E1**: Dokumentiert, benötigt Implementierung (Action-Pinning)
+- **E1**: GitHub Actions auf Major Versions gepinnt ✅
 
 **Phase 3 ⏳ BLOCKIERT**
 - Python 3.11 Container (benötigt 3.12+ für API-Tests)
@@ -84,17 +85,18 @@ Dieses Dokument verfolgt alle Arbeiten aus dem Plan: *Offene Punkte, Bugfixes & 
 
 ---
 
-### PR 4 – Dokumentation + A4 Bugfixes ✅ TEILWEISE FERTIG
+### PR 4 – Dokumentation + A4 Bugfixes ✅ 100% FERTIG
 - [x] **D1**: ARCHITECTURE.md erstellen ✅ (453 Zeilen)
 - [x] **D2**: CLAUDE.md aktualisieren (7 → 10 Plattformen) ✅
 - [x] **D1b**: `docs/HA_QUALITY_SCALE_PROGRESS.md` ✅
-- [ ] **A4**: Weitere silent-except + None-Handling (deferred to Phase 6)
+- [x] **A4**: Weitere silent-except + None-Handling ✅
 
-**Status**: ✅ 3/4 fertig  
-**Commits**: 3 Commits
+**Status**: ✅ 4/4 COMPLETE  
+**Commits**: 4 Commits
   1. docs: Add ARCHITECTURE.md and update CLAUDE.md
   2. docs: Add HA_QUALITY_SCALE_PROGRESS.md
   3. docs: Add CI_CD_ACTION_PINNING.md guidelines
+  4. fix(A4): Add logging to silent exception handlers
   
 **Neue Dateien**:
 - ARCHITECTURE.md (System-Architektur, 450+ Zeilen)
@@ -103,19 +105,24 @@ Dieses Dokument verfolgt alle Arbeiten aus dem Plan: *Offene Punkte, Bugfixes & 
 
 ---
 
-### PR 5 – CI/CD Härtung ✅ TEILWEISE FERTIG
-- [ ] **E1**: Action-Referenzen auf getaggte Releases pinnen → 📋 Dokumentiert, benötigt Recherche
+### PR 5 – CI/CD Härtung ✅ 100% FERTIG
+- [x] **E1**: Action-Referenzen auf getaggte Releases pinnen ✅
+  - trufflesecurity/trufflehog@main → @v3
+  - aquasecurity/trivy-action@master → @v0
+  - home-assistant/actions/hassfest@master → @v2
+  - hacs/action@main → @v1
 - [x] **E2**: Test-Matrix Python 3.13 hinzufügen ✅
 - [x] **E3**: .github/CODEOWNERS erstellen → ✅ BEREITS GEMACHT IN PR 1+2
 
-**Status**: ✅ 2/3 fertig (E1 dokumentiert für zukünftige Implementierung)  
-**Commits**: 1 Commit
-  - ci: Add Python 3.13 to validate.yml test matrix
+**Status**: ✅ 3/3 COMPLETE  
+**Commits**: 2 Commits
+  1. ci: Add Python 3.13 to validate.yml test matrix
+  2. ci(E1): Pin GitHub Actions to major versions
 
-**E1 Status**: Dokumentiert in docs/CI_CD_ACTION_PINNING.md
-- Unstable Actions identifiziert (trufflesecurity, hassfest, hacs, trivy)
-- Pinning-Strategie dokumentiert
-- Warteschlange für zukünftige Implementierung
+**Action-Pinning Details**:
+- Pinned to major versions (v0, v1, v2, v3) for stability
+- Allows patch-level security updates
+- Improves CI reliability
 
 ---
 
