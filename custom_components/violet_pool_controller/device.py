@@ -50,7 +50,6 @@ from .const import (
     CONF_CONTROLLER_NAME,
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
-    CONF_ENABLE_DIAGNOSTIC_LOGGING,
     CONF_PASSWORD,
     CONF_POLLING_INTERVAL,
     CONF_PORT,
@@ -60,7 +59,6 @@ from .const import (
     CONF_USERNAME,
     CONF_VERIFY_SSL,
     DEFAULT_CONTROLLER_NAME,
-    DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_PORT,
     DEFAULT_RETRY_ATTEMPTS,
@@ -152,13 +150,6 @@ class VioletPoolControllerDevice:
             CONF_CONTROLLER_NAME,
             DEFAULT_CONTROLLER_NAME,
         )
-        # ✅ DIAGNOSTIC LOGGING: Read from options (priority), then data, then default
-        self._enable_diagnostic_logging = get_entry_value(
-            config_entry,
-            CONF_ENABLE_DIAGNOSTIC_LOGGING,
-            DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
-        )
-
         _LOGGER.info(
             "Device initialized: '%s' (Controller: %s, URL: %s, SSL: %s, "
             "Device-ID: %d)",
@@ -206,16 +197,6 @@ class VioletPoolControllerDevice:
                 DEFAULT_RETRY_ATTEMPTS,
             )
 
-            # ✅ DIAGNOSTIC LOGGING: Check if setting changed
-            new_diagnostic_logging = get_entry_value(
-                new_config_entry,
-                CONF_ENABLE_DIAGNOSTIC_LOGGING,
-                DEFAULT_ENABLE_DIAGNOSTIC_LOGGING,
-            )
-            diagnostic_logging_changed = (
-                new_diagnostic_logging != self._enable_diagnostic_logging
-            )
-
             # Check if connection settings changed by comparing with current values
             # Note: We compare with device settings, using public API properties
             connection_changed = (
@@ -234,15 +215,6 @@ class VioletPoolControllerDevice:
             )
             if auth_in_options:
                 connection_changed = True
-
-            # ✅ DIAGNOSTIC LOGGING: Apply change if detected
-            if diagnostic_logging_changed:
-                self._enable_diagnostic_logging = new_diagnostic_logging
-                _LOGGER.info(
-                    "Diagnostic logging %s",
-                    "ENABLED 📊" if new_diagnostic_logging else "DISABLED",
-                )
-                return True
 
             if not connection_changed:
                 _LOGGER.debug("API configuration unchanged, no update needed")
@@ -540,7 +512,6 @@ class VioletPoolControllerDevice:
                         f"controller_unavailable_{self.config_entry.entry_id}",
                     )
 
-                previous_data = self._data
                 self._data = dict(data)
                 self._available = True
                 self._consecutive_failures = 0
@@ -600,24 +571,6 @@ class VioletPoolControllerDevice:
                     len(data),
                     self._connection_latency / 1000,
                 )
-
-                if self._enable_diagnostic_logging and previous_data:
-                    previous_data_keys = set(previous_data.keys()) if previous_data else set()
-                    changed_keys = set(data.keys()) - previous_data_keys
-                    changed_values = {
-                        k
-                        for k in data.keys() & previous_data_keys
-                        if data.get(k) != previous_data.get(k)
-                    }
-                    all_changes = changed_keys | changed_values
-                    if all_changes:
-                        _LOGGER.info(
-                            "Update #%d: %d new/changed keys: %s%s",
-                            self._update_counter,
-                            len(all_changes),
-                            ", ".join(sorted(all_changes)[:20]),
-                            "..." if len(all_changes) > 20 else "",
-                        )
 
                 return dict(self._data)
 

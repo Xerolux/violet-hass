@@ -217,17 +217,13 @@
           "controller_name": "Nazwa kontrolera",
           "polling_interval": "Interwał odpytywania (sekundy)",
           "timeout_duration": "Limit czasu (sekundy)",
-          "retry_attempts": "Próby ponowienia",
-          "enable_diagnostic_logging": "Rozszerzone logowanie",
-          "force_update": "Zawsze aktualizuj"
+          "retry_attempts": "Próby ponowienia"
         },
         "data_description": {
           "controller_name": "Wyświetlana nazwa kontrolera",
           "polling_interval": "Interwał odpytywania danych (5-300s)",
           "timeout_duration": "Maksymalny czas oczekiwania na żądanie (5-60s)",
-          "retry_attempts": "Liczba prób ponowienia przy błędzie (1-10)",
-          "enable_diagnostic_logging": "Szczegółowe logi przy każdej aktualizacji (tylko diagnostyka!)",
-          "force_update": "Zawsze aktualizuj encje, nawet jeśli wartość się nie zmieniła"
+          "retry_attempts": "Liczba prób ponowienia przy błędzie (1-10)"
         }
       }
     }

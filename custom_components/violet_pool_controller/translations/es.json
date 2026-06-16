@@ -218,8 +218,6 @@
           "polling_interval": "Intervalo de Sondeo (segundos)",
           "timeout_duration": "Tiempo de Espera (segundos)",
           "retry_attempts": "Intentos de Reintento",
-          "enable_diagnostic_logging": "Registro Extendido",
-          "force_update": "Actualizar Siempre",
           "invert_cover": "Invertir Cubierta de Piscina"
         },
         "data_description": {
@@ -227,8 +225,6 @@
           "polling_interval": "Intervalo de sondeo de datos (5-300s)",
           "timeout_duration": "Tiempo máximo de espera por solicitud (5-60s)",
           "retry_attempts": "Número de intentos de reintento en caso de fallo (1-10)",
-          "enable_diagnostic_logging": "Registros detallados en cada actualización (solo para diagnóstico)",
-          "force_update": "Actualizar entidades siempre aunque el valor no cambie",
           "invert_cover": "Intercambia Abierto/Cerrado si la cubierta está conectada incorrectamente"
         }
       }

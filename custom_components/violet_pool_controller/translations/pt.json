@@ -217,17 +217,13 @@
           "controller_name": "Nome do Controlador",
           "polling_interval": "Intervalo de Polling (segundos)",
           "timeout_duration": "Tempo Limite (segundos)",
-          "retry_attempts": "Tentativas de Repetição",
-          "enable_diagnostic_logging": "Registro Estendido",
-          "force_update": "Sempre Atualizar"
+          "retry_attempts": "Tentativas de Repetição"
         },
         "data_description": {
           "controller_name": "Nome de exibição do controlador",
           "polling_interval": "Intervalo de polling de dados (5-300s)",
           "timeout_duration": "Tempo máximo de espera por solicitação (5-60s)",
-          "retry_attempts": "Número de tentativas de repetição em caso de falha (1-10)",
-          "enable_diagnostic_logging": "Registros detalhados em cada atualização (apenas diagnóstico!)",
-          "force_update": "Sempre atualizar entidades, mesmo que o valor não mude"
+          "retry_attempts": "Número de tentativas de repetição em caso de falha (1-10)"
         }
       }
     }
@@ -500,66 +496,186 @@
   },
   "entity": {
     "sensor": {
-      "onewire1_value": {"name": "Água da Piscina"},
-      "onewire2_value": {"name": "Temperatura Exterior"},
-      "onewire3_value": {"name": "Coletor Solar"},
-      "onewire4_value": {"name": "Retorno do Coletor"},
-      "onewire5_value": {"name": "Trocador de Calor"},
-      "onewire6_value": {"name": "Armazenamento Térmico"},
-      "onewire7_value": {"name": "Sensor de Temperatura 7"},
-      "onewire8_value": {"name": "Sensor de Temperatura 8"},
-      "ph_value": {"name": "Valor de pH"},
-      "orp_value": {"name": "Valor ORP"},
-      "pot_value": {"name": "Teor de Cloro"},
-      "ai1_value": {"name": "Entrada Analógica 1"},
-      "ai2_value": {"name": "Entrada Analógica 2"},
-      "ai3_value": {"name": "Entrada Analógica 3"},
-      "ai4_value": {"name": "Entrada Analógica 4"},
-      "ai5_value": {"name": "Entrada Analógica 5"},
-      "ai6_value": {"name": "Entrada Analógica 6"},
-      "ai7_value": {"name": "Entrada Analógica 7"},
-      "ai8_value": {"name": "Entrada Analógica 8"},
-      "system_health": {"name": "Estado do Sistema"},
-      "connection_latency": {"name": "Latência de Conexão"},
-      "last_event_age": {"name": "Idade do Último Evento"},
-      "api_request_rate": {"name": "Taxa de Solicitação da API"},
-      "average_latency": {"name": "Latência Média"},
-      "recovery_success_rate": {"name": "Taxa de Sucesso de Recuperação"},
-      "pump_estimated_power": {"name": "Potência Estimada da Bomba"},
-      "flow_rate": {"name": "Medidor de Vazão (4-20mA)"},
-      "last_error_code": {"name": "Código de Erro Anterior"},
-      "dos_1_cl_state": {"name": "Status de Dosagem de Cloro"},
-      "dos_4_phm_state": {"name": "Status de Retrolavagem"},
-      "dos_5_php_state": {"name": "Status de Reabastecimento"},
-      "dos_2_elo_state": {"name": "Status de Dosagem de Eletrólise"},
-      "dos_6_floc_state": {"name": "Status de Dosagem de Floculante"},
-      "cpu_temp": {"name": "Temperatura da CPU"},
-      "cpu_temp_carrier": {"name": "Placa Portadora"},
-      "cpu_uptime": {"name": "Tempo de Atividade do Sistema"},
-      "system_cpu_temperature": {"name": "Temperatura da CPU do Sistema"},
-      "system_carrier_cpu_temperature": {"name": "Temperatura da CPU da Portadora"},
-      "system_dosagemodule_cpu_temperature": {"name": "Temperatura da CPU do Módulo de Dosagem"},
-      "system_memoryusage": {"name": "Uso de Memória"},
-      "system_safety_timer_active": {"name": "Temporizador de Segurança Ativo"},
-      "system_relais_status": {"name": "Status de Relés"},
-      "fw": {"name": "Versão do Firmware"},
-      "pump": {"name": "Status da Bomba"},
-      "heater": {"name": "Status de Aquecimento"},
-      "solar": {"name": "Status Solar"},
-      "backwash": {"name": "Status de Retrolavagem"},
-      "light": {"name": "Status de Iluminação"},
-      "pvsurplus": {"name": "Status de Excedente PV"},
-      "refill": {"name": "Status de Reabastecimento"},
-      "pumpstate": {"name": "Status Detalhado da Bomba"},
-      "heaterstate": {"name": "Status Detalhado de Aquecimento"},
-      "solarstate": {"name": "Status Detalhado Solar"},
-      "adc1_value": {"name": "Pressão do Filtro"},
-      "adc2_value": {"name": "Tanque de Overflow"},
-      "adc3_value": {"name": "Medidor de Vazão (4-20mA)"},
-      "adc4_value": {"name": "Sensor Analógico 4 (4-20mA)"},
-      "adc5_value": {"name": "Sensor Analógico 5 (0-10V)"},
-      "imp1_value": {"name": "Fluxo de Dosagem"},
-      "imp2_value": {"name": "Vazão da Bomba"}
+      "onewire1_value": {
+        "name": "Água da Piscina"
+      },
+      "onewire2_value": {
+        "name": "Temperatura Exterior"
+      },
+      "onewire3_value": {
+        "name": "Coletor Solar"
+      },
+      "onewire4_value": {
+        "name": "Retorno do Coletor"
+      },
+      "onewire5_value": {
+        "name": "Trocador de Calor"
+      },
+      "onewire6_value": {
+        "name": "Armazenamento Térmico"
+      },
+      "onewire7_value": {
+        "name": "Sensor de Temperatura 7"
+      },
+      "onewire8_value": {
+        "name": "Sensor de Temperatura 8"
+      },
+      "ph_value": {
+        "name": "Valor de pH"
+      },
+      "orp_value": {
+        "name": "Valor ORP"
+      },
+      "pot_value": {
+        "name": "Teor de Cloro"
+      },
+      "ai1_value": {
+        "name": "Entrada Analógica 1"
+      },
+      "ai2_value": {
+        "name": "Entrada Analógica 2"
+      },
+      "ai3_value": {
+        "name": "Entrada Analógica 3"
+      },
+      "ai4_value": {
+        "name": "Entrada Analógica 4"
+      },
+      "ai5_value": {
+        "name": "Entrada Analógica 5"
+      },
+      "ai6_value": {
+        "name": "Entrada Analógica 6"
+      },
+      "ai7_value": {
+        "name": "Entrada Analógica 7"
+      },
+      "ai8_value": {
+        "name": "Entrada Analógica 8"
+      },
+      "system_health": {
+        "name": "Estado do Sistema"
+      },
+      "connection_latency": {
+        "name": "Latência de Conexão"
+      },
+      "last_event_age": {
+        "name": "Idade do Último Evento"
+      },
+      "api_request_rate": {
+        "name": "Taxa de Solicitação da API"
+      },
+      "average_latency": {
+        "name": "Latência Média"
+      },
+      "recovery_success_rate": {
+        "name": "Taxa de Sucesso de Recuperação"
+      },
+      "pump_estimated_power": {
+        "name": "Potência Estimada da Bomba"
+      },
+      "flow_rate": {
+        "name": "Medidor de Vazão (4-20mA)"
+      },
+      "last_error_code": {
+        "name": "Código de Erro Anterior"
+      },
+      "dos_1_cl_state": {
+        "name": "Status de Dosagem de Cloro"
+      },
+      "dos_4_phm_state": {
+        "name": "Status de Retrolavagem"
+      },
+      "dos_5_php_state": {
+        "name": "Status de Reabastecimento"
+      },
+      "dos_2_elo_state": {
+        "name": "Status de Dosagem de Eletrólise"
+      },
+      "dos_6_floc_state": {
+        "name": "Status de Dosagem de Floculante"
+      },
+      "cpu_temp": {
+        "name": "Temperatura da CPU"
+      },
+      "cpu_temp_carrier": {
+        "name": "Placa Portadora"
+      },
+      "cpu_uptime": {
+        "name": "Tempo de Atividade do Sistema"
+      },
+      "system_cpu_temperature": {
+        "name": "Temperatura da CPU do Sistema"
+      },
+      "system_carrier_cpu_temperature": {
+        "name": "Temperatura da CPU da Portadora"
+      },
+      "system_dosagemodule_cpu_temperature": {
+        "name": "Temperatura da CPU do Módulo de Dosagem"
+      },
+      "system_memoryusage": {
+        "name": "Uso de Memória"
+      },
+      "system_safety_timer_active": {
+        "name": "Temporizador de Segurança Ativo"
+      },
+      "system_relais_status": {
+        "name": "Status de Relés"
+      },
+      "fw": {
+        "name": "Versão do Firmware"
+      },
+      "pump": {
+        "name": "Status da Bomba"
+      },
+      "heater": {
+        "name": "Status de Aquecimento"
+      },
+      "solar": {
+        "name": "Status Solar"
+      },
+      "backwash": {
+        "name": "Status de Retrolavagem"
+      },
+      "light": {
+        "name": "Status de Iluminação"
+      },
+      "pvsurplus": {
+        "name": "Status de Excedente PV"
+      },
+      "refill": {
+        "name": "Status de Reabastecimento"
+      },
+      "pumpstate": {
+        "name": "Status Detalhado da Bomba"
+      },
+      "heaterstate": {
+        "name": "Status Detalhado de Aquecimento"
+      },
+      "solarstate": {
+        "name": "Status Detalhado Solar"
+      },
+      "adc1_value": {
+        "name": "Pressão do Filtro"
+      },
+      "adc2_value": {
+        "name": "Tanque de Overflow"
+      },
+      "adc3_value": {
+        "name": "Medidor de Vazão (4-20mA)"
+      },
+      "adc4_value": {
+        "name": "Sensor Analógico 4 (4-20mA)"
+      },
+      "adc5_value": {
+        "name": "Sensor Analógico 5 (0-10V)"
+      },
+      "imp1_value": {
+        "name": "Fluxo de Dosagem"
+      },
+      "imp2_value": {
+        "name": "Vazão da Bomba"
+      }
     }
   }
 }

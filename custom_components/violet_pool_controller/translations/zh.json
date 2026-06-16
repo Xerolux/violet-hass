@@ -217,17 +217,13 @@
           "controller_name": "控制器名称",
           "polling_interval": "轮询间隔（秒）",
           "timeout_duration": "超时（秒）",
-          "retry_attempts": "重试次数",
-          "enable_diagnostic_logging": "扩展日志记录",
-          "force_update": "始终更新"
+          "retry_attempts": "重试次数"
         },
         "data_description": {
           "controller_name": "控制器显示名称",
           "polling_interval": "数据轮询间隔（5-300秒）",
           "timeout_duration": "每次请求最长等待时间（5-60秒）",
-          "retry_attempts": "失败时的重试次数（1-10）",
-          "enable_diagnostic_logging": "每次更新时的详细日志（仅用于诊断！）",
-          "force_update": "始终更新实体，即使值未更改"
+          "retry_attempts": "失败时的重试次数（1-10）"
         }
       }
     }
