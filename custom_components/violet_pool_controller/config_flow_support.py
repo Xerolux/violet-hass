@@ -284,6 +284,8 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 return await self.async_step_features()
             if choice == "sensors":
                 return await self.async_step_sensors()
+            if choice == "safety":
+                return await self.async_step_safety()
             return await self.async_step_settings()
 
         return self.async_show_form(
@@ -301,6 +303,9 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                                 ),
                                 selector.SelectOptionDict(
                                     value="sensors", label="📊 Select sensors"
+                                ),
+                                selector.SelectOptionDict(
+                                    value="safety", label="🚨 Safety settings"
                                 ),
                                 selector.SelectOptionDict(
                                     value="settings", label="⚙️ Change settings"
@@ -386,6 +391,44 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         return self.async_show_form(
             step_id="sensors",
             data_schema=self._get_sensor_schema(),
+        )
+
+    async def async_step_safety(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle safety settings in options flow."""
+        from .const import CONF_ALLOW_UNSAFE_SWITCHES, DEFAULT_ALLOW_UNSAFE_SWITCHES
+
+        if user_input is not None:
+            self._updated_options.update(user_input)
+            final_options = {**self.current_config, **self._updated_options}
+            return self.async_create_entry(title="", data=final_options)
+
+        return self.async_show_form(
+            step_id="safety",
+            data_schema=vol.Schema(
+                {
+                    vol.Optional(
+                        CONF_ALLOW_UNSAFE_SWITCHES,
+                        default=self.current_config.get(
+                            CONF_ALLOW_UNSAFE_SWITCHES,
+                            DEFAULT_ALLOW_UNSAFE_SWITCHES,
+                        ),
+                    ): selector.BooleanSelector(selector.BooleanSelectorConfig()),
+                }
+            ),
+            description_placeholders={
+                "warning": (
+                    "🚨 CRITICAL SAFETY WARNING 🚨\n\n"
+                    "Enabling unsafe switches allows direct manual control of:\n"
+                    "• Dosing systems (chemical overdose risk)\n"
+                    "• Backwash/Rinse (equipment damage risk)\n"
+                    "• Water Refill (flooding/overflow risk)\n\n"
+                    "These operations can run INDEFINITELY without time limits!\n\n"
+                    "SAFE ALTERNATIVE: Use Services instead - they require mandatory time limits.\n\n"
+                    "⚠️ Only enable this if you fully understand and accept the risks!"
+                ),
+            },
         )
 
     async def async_step_settings(

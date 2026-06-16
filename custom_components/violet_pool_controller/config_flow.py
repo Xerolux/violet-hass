@@ -396,6 +396,98 @@ class ConfigFlow(
     async def async_step_reconfigure(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
+        """Handle reconfiguration menu - choose what to reconfigure."""
+        if user_input is not None:
+            choice = user_input.get("reconfigure_option", "connection")
+            if choice == "safety":
+                return await self.async_step_reconfigure_safety()
+            return await self.async_step_reconfigure_connection()
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        "reconfigure_option", default="connection"
+                    ): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=[
+                                selector.SelectOptionDict(
+                                    value="connection",
+                                    label="🌐 Connection settings",
+                                ),
+                                selector.SelectOptionDict(
+                                    value="safety",
+                                    label="🚨 Safety settings",
+                                ),
+                            ],
+                            mode=selector.SelectSelectorMode.LIST,
+                        )
+                    ),
+                }
+            ),
+            description_placeholders={
+                "info": "What would you like to reconfigure?",
+            },
+        )
+
+    async def async_step_reconfigure_safety(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Handle reconfiguration of safety settings."""
+        from .const import CONF_ALLOW_UNSAFE_SWITCHES, DEFAULT_ALLOW_UNSAFE_SWITCHES
+
+        reconfigure_entry = self.hass.config_entries.async_get_entry(
+            self.context["entry_id"]
+        )
+        if reconfigure_entry is None:
+            return self.async_abort(reason="reconfigure_failed")
+
+        if user_input is not None:
+            updated_options = dict(reconfigure_entry.options)
+            updated_options[CONF_ALLOW_UNSAFE_SWITCHES] = user_input.get(
+                CONF_ALLOW_UNSAFE_SWITCHES, DEFAULT_ALLOW_UNSAFE_SWITCHES
+            )
+            self.hass.config_entries.async_update_entry(
+                reconfigure_entry,
+                options=updated_options,
+            )
+            await self.hass.config_entries.async_reload(reconfigure_entry.entry_id)
+            return self.async_abort(reason="reconfigure_successful")
+
+        return self.async_show_form(
+            step_id="reconfigure_safety",
+            data_schema=vol.Schema(
+                {
+                    vol.Optional(
+                        CONF_ALLOW_UNSAFE_SWITCHES,
+                        default=reconfigure_entry.options.get(
+                            CONF_ALLOW_UNSAFE_SWITCHES,
+                            reconfigure_entry.data.get(
+                                CONF_ALLOW_UNSAFE_SWITCHES,
+                                DEFAULT_ALLOW_UNSAFE_SWITCHES,
+                            ),
+                        ),
+                    ): selector.BooleanSelector(selector.BooleanSelectorConfig()),
+                }
+            ),
+            description_placeholders={
+                "warning": (
+                    "🚨 CRITICAL SAFETY WARNING 🚨\n\n"
+                    "Enabling unsafe switches allows direct manual control of:\n"
+                    "• Dosing systems (chemical overdose risk)\n"
+                    "• Backwash/Rinse (equipment damage risk)\n"
+                    "• Water Refill (flooding/overflow risk)\n\n"
+                    "These operations can run INDEFINITELY without time limits!\n\n"
+                    "SAFE ALTERNATIVE: Use Services instead - they require mandatory time limits.\n\n"
+                    "⚠️ Only enable this if you fully understand and accept the risks!"
+                ),
+            },
+        )
+
+    async def async_step_reconfigure_connection(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
         """Handle reconfiguration of connection settings."""
         errors = {}
         reconfigure_entry = self.hass.config_entries.async_get_entry(
@@ -453,7 +545,7 @@ class ConfigFlow(
                 errors["base"] = constants.ERROR_CANNOT_CONNECT
 
         return self.async_show_form(
-            step_id="reconfigure",
+            step_id="reconfigure_connection",
             data_schema=vol.Schema(
                 {
                     vol.Required(
