@@ -1,12 +1,18 @@
 
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.violet_pool_controller.const import DOMAIN
-from custom_components.violet_pool_controller.services import async_register_services, VioletServiceHandlers, VioletServiceManager
+from custom_components.violet_pool_controller.services import (
+    VioletServiceHandlers,
+    VioletServiceManager,
+    async_register_services,
+)
+
 
 @pytest.mark.asyncio
 async def test_export_diagnostic_logs_failure(hass: HomeAssistant, device_registry: dr.DeviceRegistry):

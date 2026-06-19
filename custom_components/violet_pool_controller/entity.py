@@ -300,7 +300,9 @@ class VioletPoolControllerEntity(CoordinatorEntity):
         Returns:
             True if available, False otherwise.
         """
-        is_available = self.coordinator.last_update_success and self.device.available
+        is_available = bool(
+            self.coordinator.last_update_success and self.device.available
+        )
 
         if not is_available:
             _LOGGER.debug(
@@ -424,7 +426,7 @@ class VioletPoolControllerEntity(CoordinatorEntity):
         try:
             await asyncio.sleep(delay)
             await self.coordinator.async_request_refresh()
-            return self.coordinator.last_update_success
+            return bool(self.coordinator.last_update_success)
         except asyncio.CancelledError:
             raise  # Never swallow CancelledError - propagate task cancellation
         except Exception as err:

@@ -1,11 +1,10 @@
 """Tests for Violet Pool Controller API with Rate Limiting."""
-import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import aiohttp
 import pytest
-
 from violet_poolcontroller_api.api import VioletPoolAPI, VioletPoolAPIError
+
 from custom_components.violet_pool_controller.const import (
     API_PRIORITY_CRITICAL,
     API_PRIORITY_HIGH,
@@ -102,7 +101,7 @@ class TestVioletPoolAPI:
         with patch.object(
             api._rate_limiter,
             'wait_if_needed',
-            side_effect=asyncio.TimeoutError("Rate limiter timeout")
+            side_effect=TimeoutError("Rate limiter timeout")
         ):
             # Request sollte trotzdem durchgehen (nur Warning)
             result = await api._request("/test")
@@ -118,7 +117,7 @@ class TestVioletPoolAPI:
         # Ensure raise_for_status raises an exception (sync method)
         mock_response.raise_for_status = MagicMock()
         mock_response.raise_for_status.side_effect = aiohttp.ClientResponseError(
-             request_info=MagicMock(), history=tuple(), status=500, message="Server Error"
+             request_info=MagicMock(), history=(), status=500, message="Server Error"
         )
 
         mock_response.__aenter__ = AsyncMock(return_value=mock_response)
@@ -126,13 +125,15 @@ class TestVioletPoolAPI:
 
         mock_session.request = MagicMock(return_value=mock_response)
 
-        with patch.object(api._rate_limiter, 'wait_if_needed', new_callable=AsyncMock):
+        with (
+            patch.object(api._rate_limiter, 'wait_if_needed', new_callable=AsyncMock),
+            pytest.raises(VioletPoolAPIError),
+        ):
             # Sollte VioletPoolAPIError werfen (nach Retries)
             # Hinweis: Der retry loop fängt aiohttp.ClientError (Basis von ClientResponseError)
             # und wirft am Ende VioletPoolAPIError.
             # Da wir raise_for_status gemockt haben, wird der Retry Loop ausgelöst.
-            with pytest.raises(VioletPoolAPIError):
-                await api._request("/error")
+            await api._request("/error")
 
     async def test_json_parsing_error_handling(self, api, mock_session):
         """Test dass JSON-Parsing-Fehler korrekt behandelt werden."""
@@ -149,10 +150,12 @@ class TestVioletPoolAPI:
 
         mock_session.request = MagicMock(return_value=mock_response)
 
-        with patch.object(api._rate_limiter, 'wait_if_needed', new_callable=AsyncMock):
+        with (
+            patch.object(api._rate_limiter, 'wait_if_needed', new_callable=AsyncMock),
+            pytest.raises(VioletPoolAPIError, match="Invalid JSON"),
+        ):
             # Sollte VioletPoolAPIError werfen
-            with pytest.raises(VioletPoolAPIError, match="Invalid JSON"):
-                await api._request("/test", expect_json=True)
+            await api._request("/test", expect_json=True)
 
     async def test_set_all_dmx_scenes_sends_single_global_command(
         self, api: VioletPoolAPI

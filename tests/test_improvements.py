@@ -5,23 +5,23 @@ import time
 
 class TestSecurityFixes:
     """Test critical security fixes."""
-    
+
     def test_url_validation_patterns(self):
         """Test URL validation regex patterns."""
         import re
-        
+
         # Valid patterns
         valid_pattern = r'^[a-zA-Z0-9.-]+$'
-        
+
         valid_hosts = [
             "192.168.1.100",
             "pool.local",
             "192.0.2.1",
         ]
-        
+
         for host in valid_hosts:
             assert re.match(valid_pattern, host), f"Valid host rejected: {host}"
-        
+
         print("✅ URL validation patterns working")
 
     def test_input_sanitization_basics(self):
@@ -36,21 +36,19 @@ class TestSecurityFixes:
             # Basic sanitization: remove dangerous characters
             sanitized = input_val.strip()
             assert sanitized == expected, f"Basic sanitization failed: {input_val}"
-        
+
         print("✅ Input sanitization basics working")
 
     def test_ssl_context_logic(self):
         """Test SSL context logic."""
         # Mock SSL context creation
         def create_ssl_context(use_ssl: bool) -> bool:
-            if not use_ssl:
-                return False
-            return True
-        
+            return use_ssl
+
         # Test SSL enabled
         assert create_ssl_context(True) is True
         print("✅ SSL context enabled")
-        
+
         # Test SSL disabled
         assert create_ssl_context(False) is False
         print("✅ SSL context disabled")
@@ -65,16 +63,14 @@ class TestSecurityFixes:
                 return False
             if not any(c.islower() for c in password):
                 return False
-            if not any(c.isdigit() for c in password):
-                return False
-            return True
-        
+            return any(c.isdigit() for c in password)
+
         # Test weak passwords
         weak_passwords = ["pass", "123", "test", "admin"]
         for password in weak_passwords:
             assert not validate_password(password), f"Weak password accepted: {password}"
         print(f"✅ Weak password rejected: {password}")
-        
+
         # Test strong password
         strong_password = "StrongP@ss123"
         assert validate_password(strong_password), "Strong password rejected"
@@ -83,7 +79,7 @@ class TestSecurityFixes:
 
 class TestPerformanceImprovements:
     """Test performance optimizations."""
-    
+
     def test_async_timing_functions(self):
         """Test that async timing functions are used."""
         # Mock async loop timing
@@ -96,7 +92,7 @@ class TestPerformanceImprovements:
                 # Fallback to time.time() if no event loop
                 import time
                 return time.time()
-        
+
         # Test that we get a float
         time_val = get_event_loop_time()
         assert isinstance(time_val, float), "Timing function doesn't return float"
@@ -109,33 +105,33 @@ class TestPerformanceImprovements:
                 self.cache = {}
                 self.timestamp = 0
                 self.ttl = 1.0
-            
+
             def get(self, key: str, fetch_fn):
                 current_time = time.time()
-                
+
                 # Check cache validity
                 if current_time - self.timestamp > self.ttl:
                     self.cache.clear()
                     self.timestamp = current_time
-                
+
                 # Return cached or fetch
                 if key not in self.cache:
                     self.cache[key] = fetch_fn(key)
-                
+
                 return self.cache[key]
-        
+
         cache = MockCache()
-        
+
         # First call - should fetch
         result1 = cache.get("test_key", lambda k: f"value_{k}")
         assert result1 == "value_test_key"
         print("✅ First call fetched from source")
-        
+
         # Second call - should hit cache
         result2 = cache.get("test_key", lambda k: f"value_{k}")
         assert result2 == "value_test_key"
         print("✅ Second call hit cache")
-        
+
         # Third call - should hit cache
         result3 = cache.get("test_key", lambda k: f"value_{k}")
         assert result3 == "value_test_key"
@@ -144,27 +140,27 @@ class TestPerformanceImprovements:
     def test_precompiled_regex_performance(self):
         """Test precompiled regex performance."""
         import re
-        
+
         # Precompiled pattern
         NUMERIC_PATTERN = re.compile(r'^-?\d+$')
-        
+
         # Inline pattern
         test_strings = ["123", "-456", "abc", "789"]
-        
+
         # Performance test with precompiled
         start_precompiled = time.perf_counter()
         for _ in range(1000):
             for s in test_strings:
                 NUMERIC_PATTERN.match(s)
         time_precompiled = time.perf_counter() - start_precompiled
-        
+
         # Performance test with inline
         start_inline = time.perf_counter()
         for _ in range(1000):
             for s in test_strings:
                 re.match(r'^-?\d+$', s)
         time_inline = time.perf_counter() - start_inline
-        
+
         # Precompiled should be faster or similar
         # Allow some variance
         assert time_precompiled <= time_inline * 1.2, "Precompiled regex not faster"
@@ -173,38 +169,36 @@ class TestPerformanceImprovements:
 
 class TestCircuitBreaker:
     """Test circuit breaker functionality."""
-    
+
     def test_circuit_breaker_states(self):
         """Test circuit breaker state constants."""
         # Mock circuit breaker states
         CLOSED = "CLOSED"
         OPEN = "OPEN"
         HALF_OPEN = "HALF_OPEN"
-        
+
         # Test state constants
         assert CLOSED != OPEN != HALF_OPEN
         print("✅ Circuit breaker states defined")
-        
+
         # Test state transitions
         state = CLOSED
-        failure_count = 0
         threshold = 3
-        
+
         # Simulate failures
-        for i in range(5):
-            failure_count += 1
+        for failure_count in range(1, 6):
             if failure_count >= threshold:
                 state = OPEN
                 assert state == OPEN, f"Circuit should be OPEN after {failure_count} failures"
                 print(f"✅ Circuit OPEN after {failure_count} failures")
                 break
-        
+
         # Simulate recovery
         if state == OPEN:
             state = HALF_OPEN
             assert state == HALF_OPEN
             print("✅ Circuit in HALF_OPEN for recovery")
-            
+
             # Success should close circuit
             state = CLOSED
             failure_count = 0
@@ -223,7 +217,7 @@ class TestCircuitBreaker:
                 self.timeout = 60.0
                 self.recovery_timeout = 300.0
                 self.last_failure_time = 0.0
-            
+
             def get_stats(self):
                 return {
                     "state": self.state,
@@ -233,10 +227,10 @@ class TestCircuitBreaker:
                     "recovery_timeout": self.recovery_timeout,
                     "last_failure_time": self.last_failure_time,
                 }
-        
+
         breaker = MockCircuitBreaker()
         stats = breaker.get_stats()
-        
+
         # Verify all fields present
         assert "state" in stats
         assert "failure_count" in stats
@@ -247,7 +241,7 @@ class TestCircuitBreaker:
 
 class TestErrorHandling:
     """Test error handling consistency."""
-    
+
     def test_error_code_mapping(self):
         """Test error code mapping."""
         # Mock error codes
@@ -258,7 +252,7 @@ class TestErrorHandling:
             "CONFIG_INVALID_PARAMETER": "CONFIG_INVALID_PARAMETER",
             "CIRCUIT_BREAKER_OPEN": "CIRCUIT_BREAKER_OPEN",
         }
-        
+
         # Verify all codes exist
         for category, code in error_codes.items():
             assert code is not None
@@ -273,13 +267,13 @@ class TestErrorHandling:
                 self.message = message
                 self.code = code
                 super().__init__(message)
-            
+
             def __str__(self):
                 return f"[{self.code}] {self.message}"
-        
+
         error = MockError("Test error message", "TEST_ERROR")
         error_str = str(error)
-        
+
         assert "[TEST_ERROR]" in error_str
         assert "Test error message" in error_str
         print("✅ Error message format correct")
@@ -293,11 +287,11 @@ class TestErrorHandling:
             "parameter": "test_param",
             "value": "test_value",
         }
-        
+
         # Verify details can be serialized
         import json
         serialized = json.dumps(error_details)
-        
+
         # Deserialize and verify
         deserialized = json.loads(serialized)
         assert deserialized == error_details
@@ -309,11 +303,11 @@ def run_all_tests():
     print("\n" + "=" * 60)
     print("VIOLET POOL CONTROLLER - IMPROVEMENT TESTS")
     print("=" * 60 + "\n")
-    
+
     # Security tests
     print("🔒 Running Security Tests...\n")
     security_tests = TestSecurityFixes()
-    
+
     try:
         security_tests.test_url_validation_patterns()
         security_tests.test_input_sanitization_basics()
@@ -324,11 +318,11 @@ def run_all_tests():
         print(f"\n❌ Security test failed: {e}\n")
     except Exception as e:
         print(f"\n❌ Security test error: {e}\n")
-    
+
     # Performance tests
     print("⚡ Running Performance Tests...\n")
     performance_tests = TestPerformanceImprovements()
-    
+
     try:
         performance_tests.test_async_timing_functions()
         performance_tests.test_entity_caching_logic()
@@ -338,11 +332,11 @@ def run_all_tests():
         print(f"\n❌ Performance test failed: {e}\n")
     except Exception as e:
         print(f"\n❌ Performance test error: {e}\n")
-    
+
     # Circuit breaker tests
     print("🔄 Running Circuit Breaker Tests...\n")
     circuit_tests = TestCircuitBreaker()
-    
+
     try:
         circuit_tests.test_circuit_breaker_states()
         circuit_tests.test_circuit_breaker_statistics()
@@ -351,11 +345,11 @@ def run_all_tests():
         print(f"\n❌ Circuit breaker test failed: {e}\n")
     except Exception as e:
         print(f"\n❌ Circuit breaker test error: {e}\n")
-    
+
     # Error handling tests
     print("🛠️ Running Error Handling Tests...\n")
     error_tests = TestErrorHandling()
-    
+
     try:
         error_tests.test_error_code_mapping()
         error_tests.test_error_message_format()
@@ -365,7 +359,7 @@ def run_all_tests():
         print(f"\n❌ Error handling test failed: {e}\n")
     except Exception as e:
         print(f"\n❌ Error handling test error: {e}\n")
-    
+
     print("=" * 60)
     print("🎉 ALL TESTS COMPLETED SUCCESSFULLY!")
     print("=" * 60)

@@ -58,18 +58,20 @@ class CalibrationStatus:
     @property
     def is_expired(self) -> bool:
         """Check if calibration is expired."""
-        if not self.last_calibration:
+        days = self.days_since_calibration
+        if days is None:
             return True
         interval = CALIBRATION_INTERVALS.get(self.sensor_type, 90)
-        return self.days_since_calibration > interval
+        return days > interval
 
     @property
     def is_warning(self) -> bool:
         """Check if calibration is approaching expiration."""
-        if not self.last_calibration:
+        days = self.days_since_calibration
+        if days is None:
             return True
         interval = CALIBRATION_INTERVALS.get(self.sensor_type, 90)
-        days_left = interval - self.days_since_calibration
+        days_left = interval - days
         return 0 < days_left <= CALIBRATION_WARNING_DAYS
 
     @property

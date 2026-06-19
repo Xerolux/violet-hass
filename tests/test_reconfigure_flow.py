@@ -9,8 +9,13 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 
+from custom_components.violet_pool_controller.const import (
+    CONF_API_URL,
+    CONF_PASSWORD,
+    CONF_USE_SSL,
+    CONF_USERNAME,
+)
 
-from custom_components.violet_pool_controller.const import CONF_API_URL, CONF_USERNAME, CONF_PASSWORD, CONF_USE_SSL
 
 class TestReconfigureFlow:
     """Test the reconfiguration flow."""
@@ -98,7 +103,9 @@ class TestReconfigureFlow:
             }
 
             # Call reconfigure with input
-            result = await config_flow.async_step_reconfigure(user_input=user_input)
+            result = await config_flow.async_step_reconfigure_connection(
+                user_input=user_input
+            )
 
             # Verify entry was updated
             hass.config_entries.async_update_entry.assert_called_once()
@@ -138,11 +145,13 @@ class TestReconfigureFlow:
             "retry_attempts": 3,
         }
 
-        result = await config_flow.async_step_reconfigure(user_input=user_input)
+        result = await config_flow.async_step_reconfigure_connection(
+            user_input=user_input
+        )
 
         # Verify form is shown with errors
         assert result["type"] == FlowResultType.FORM
-        assert result["step_id"] == "reconfigure"
+        assert result["step_id"] == "reconfigure_connection"
         assert "errors" in result
 
         # Invalid host input should be mapped to the API URL field.
@@ -177,11 +186,13 @@ class TestReconfigureFlow:
                 "retry_attempts": 3,
             }
 
-            result = await config_flow.async_step_reconfigure(user_input=user_input)
+            result = await config_flow.async_step_reconfigure_connection(
+                user_input=user_input
+            )
 
             # Verify form is shown with connection error
             assert result["type"] == FlowResultType.FORM
-            assert result["step_id"] == "reconfigure"
+            assert result["step_id"] == "reconfigure_connection"
             assert "errors" in result
             assert "base" in result["errors"]
             assert result["errors"]["base"] == "cannot_connect"
@@ -214,7 +225,9 @@ class TestReconfigureFlow:
                 "retry_attempts": 3,  # Same
             }
 
-            result = await config_flow.async_step_reconfigure(user_input=user_input)
+            result = await config_flow.async_step_reconfigure_connection(
+                user_input=user_input
+            )
 
             # Verify entry was updated
             hass.config_entries.async_update_entry.assert_called_once()
@@ -240,7 +253,7 @@ class TestReconfigureFlow:
 
         config_flow.context = {"entry_id": "non_existent_entry"}
 
-        result = await config_flow.async_step_reconfigure(user_input=None)
+        result = await config_flow.async_step_reconfigure_connection(user_input=None)
 
         # Should abort with error
         assert result["type"] == FlowResultType.ABORT
@@ -276,7 +289,9 @@ class TestReconfigureFlow:
                 "retry_attempts": 3,
             }
 
-            result = await config_flow.async_step_reconfigure(user_input=user_input)
+            result = await config_flow.async_step_reconfigure_connection(
+                user_input=user_input
+            )
 
             # Verify credentials were updated
             call_args = hass.config_entries.async_update_entry.call_args
@@ -316,7 +331,7 @@ class TestReconfigureFlow:
                 "retry_attempts": 3,
             }
 
-            await config_flow.async_step_reconfigure(
+            await config_flow.async_step_reconfigure_connection(
                 user_input=user_input_http
             )
 
@@ -335,7 +350,7 @@ class TestReconfigureFlow:
                 "retry_attempts": 3,
             }
 
-            await config_flow.async_step_reconfigure(
+            await config_flow.async_step_reconfigure_connection(
                 user_input=user_input_https
             )
 
@@ -394,7 +409,9 @@ class TestReconfigureIntegrationScenarios:
                 "retry_attempts": 3,
             }
 
-            result = await flow.async_step_reconfigure(user_input=user_input)
+            result = await flow.async_step_reconfigure_connection(
+                user_input=user_input
+            )
 
             # Should succeed
             assert result["reason"] == "reconfigure_successful"
@@ -442,7 +459,9 @@ class TestReconfigureIntegrationScenarios:
                 "retry_attempts": 5,  # More retries for unreliable network
             }
 
-            result = await flow.async_step_reconfigure(user_input=user_input)
+            result = await flow.async_step_reconfigure_connection(
+                user_input=user_input
+            )
 
             assert result["reason"] == "reconfigure_successful"
 
@@ -482,7 +501,9 @@ class TestReconfigureIntegrationScenarios:
                 "retry_attempts": 3,
             }
 
-            result = await flow.async_step_reconfigure(user_input=user_input)
+            result = await flow.async_step_reconfigure_connection(
+                user_input=user_input
+            )
 
             assert result["reason"] == "reconfigure_successful"
 

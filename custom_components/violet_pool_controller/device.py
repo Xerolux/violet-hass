@@ -31,13 +31,13 @@ from violet_poolcontroller_api.api import VioletPoolAPI, VioletPoolAPIError
 try:
     from violet_poolcontroller_api.api import VioletAuthError
 except ImportError:
-    class VioletAuthError(VioletPoolAPIError):
+    class VioletAuthError(VioletPoolAPIError):  # type: ignore[no-redef]
         """Compatibility fallback for older violet-poolcontroller-api releases."""
 
 try:
     from violet_poolcontroller_api.readings import VioletReadings
 except ImportError:
-    class VioletReadings(dict):
+    class VioletReadings(dict):  # type: ignore[no-redef]
         """Compatibility fallback for older violet-poolcontroller-api releases."""
 
 

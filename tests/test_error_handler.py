@@ -1,17 +1,17 @@
 """Tests for enhanced error handler."""
+
 import pytest
-import asyncio
 
 from custom_components.violet_pool_controller.error_handler import (
-    ErrorType,
-    ErrorSeverity,
-    IntegrationError,
-    EnhancedErrorHandler,
-    get_enhanced_error_handler,
-    VioletErrorCodes,
-    NetworkError,
-    AuthenticationError,
     APIError,
+    AuthenticationError,
+    EnhancedErrorHandler,
+    ErrorSeverity,
+    ErrorType,
+    IntegrationError,
+    NetworkError,
+    VioletErrorCodes,
+    get_enhanced_error_handler,
 )
 
 
@@ -87,7 +87,7 @@ class TestEnhancedErrorHandler:
         """Test classification of timeout errors."""
         handler = EnhancedErrorHandler()
 
-        error = asyncio.TimeoutError("Connection timed out")
+        error = TimeoutError("Connection timed out")
         result = handler.classify_error(error)
 
         assert result.error_type == ErrorType.TIMEOUT_ERROR

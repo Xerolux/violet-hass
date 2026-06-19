@@ -5,8 +5,8 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 import pytest
-from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 
 
 class TestVioletPoolControllerDiscovery:
@@ -15,12 +15,11 @@ class TestVioletPoolControllerDiscovery:
     @pytest.fixture
     def discovery_handler(self):
         """Create a fresh discovery handler instance."""
+        # Clear any existing singleton state
+        import custom_components.violet_pool_controller.discovery as discovery_module
         from custom_components.violet_pool_controller.discovery import (
             VioletPoolControllerDiscovery,
         )
-
-        # Clear any existing singleton state
-        import custom_components.violet_pool_controller.discovery as discovery_module
 
         discovery_module._discovery_handler = None
 
@@ -142,12 +141,11 @@ class TestDiscoverySingleton:
 
     def test_get_discovery_handler_singleton(self):
         """Test that get_discovery_handler returns the same instance."""
+        # Clear any existing singleton
+        import custom_components.violet_pool_controller.discovery as discovery_module
         from custom_components.violet_pool_controller.discovery import (
             get_discovery_handler,
         )
-
-        # Clear any existing singleton
-        import custom_components.violet_pool_controller.discovery as discovery_module
 
         discovery_module._discovery_handler = None
 
@@ -160,13 +158,12 @@ class TestDiscoverySingleton:
 
     def test_get_discovery_handler_creates_new_instance(self):
         """Test that get_discovery_handler creates a new instance if needed."""
-        from custom_components.violet_pool_controller.discovery import (
-            get_discovery_handler,
-            VioletPoolControllerDiscovery,
-        )
-
         # Clear any existing singleton
         import custom_components.violet_pool_controller.discovery as discovery_module
+        from custom_components.violet_pool_controller.discovery import (
+            VioletPoolControllerDiscovery,
+            get_discovery_handler,
+        )
 
         discovery_module._discovery_handler = None
 
@@ -246,12 +243,11 @@ class TestDiscoveryErrorHandling:
     @pytest.fixture
     def discovery_handler(self):
         """Create a fresh discovery handler instance."""
+        # Clear any existing singleton state
+        import custom_components.violet_pool_controller.discovery as discovery_module
         from custom_components.violet_pool_controller.discovery import (
             VioletPoolControllerDiscovery,
         )
-
-        # Clear any existing singleton state
-        import custom_components.violet_pool_controller.discovery as discovery_module
 
         discovery_module._discovery_handler = None
 
@@ -308,12 +304,11 @@ class TestDiscoveryMultipleDevices:
     @pytest.fixture
     def discovery_handler(self):
         """Create a fresh discovery handler instance."""
+        # Clear any existing singleton state
+        import custom_components.violet_pool_controller.discovery as discovery_module
         from custom_components.violet_pool_controller.discovery import (
             VioletPoolControllerDiscovery,
         )
-
-        # Clear any existing singleton state
-        import custom_components.violet_pool_controller.discovery as discovery_module
 
         discovery_module._discovery_handler = None
 

@@ -8,7 +8,7 @@
 from __future__ import annotations
 
 # Sensor grouping following WebUI CID (Control ID) structure
-SENSOR_GROUPS = {
+SENSOR_GROUPS: dict[str, dict[str, str | list[str]]] = {
     # CID=1: Pump Control - Circulation & Water Movement
     "pump": {
         "category": "Circulation",
@@ -152,7 +152,7 @@ BACKWASH_STEPS = {
 }
 
 # Sensor organization helper for UI rendering
-def get_sensors_by_group(group: str) -> dict[str, list[str]]:
+def get_sensors_by_group(group: str) -> dict[str, str | list[str]]:
     """Get all sensors for a group."""
     if group in SENSOR_GROUPS:
         return {

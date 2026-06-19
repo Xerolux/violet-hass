@@ -1,29 +1,28 @@
 """Tests for platform error handling."""
-import pytest
-from unittest.mock import Mock, MagicMock
+from unittest.mock import MagicMock
 
-from homeassistant.components.switch import SwitchEntityDescription
+import pytest
 from homeassistant.components.number import NumberEntityDescription
 from homeassistant.components.select import SelectEntityDescription
-
+from homeassistant.components.switch import SwitchEntityDescription
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.violet_pool_controller import (
     async_setup_entry,
 )
+from custom_components.violet_pool_controller.climate import VioletClimateEntity
 from custom_components.violet_pool_controller.const import (
-    CONF_API_URL,
     CONF_ACTIVE_FEATURES,
+    CONF_API_URL,
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
     CONF_USE_SSL,
     DOMAIN,
 )
-from custom_components.violet_pool_controller.climate import VioletClimateEntity
 from custom_components.violet_pool_controller.cover import VioletCover
-from custom_components.violet_pool_controller.switch import VioletSwitch
 from custom_components.violet_pool_controller.number import VioletNumber
 from custom_components.violet_pool_controller.select import VioletSelect
+from custom_components.violet_pool_controller.switch import VioletSwitch
 
 
 def _make_mock_coordinator(data=None):

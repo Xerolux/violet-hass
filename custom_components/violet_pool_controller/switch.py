@@ -730,7 +730,7 @@ async def async_setup_entry(
         entity_name = cast(str, switch_config["name"])
         resolved_name = name_resolver.resolve_entity_name(
             "switch",
-            switch_config["key"],
+            str(switch_config["key"]),
             entity_name,
         )
         if resolved_name:

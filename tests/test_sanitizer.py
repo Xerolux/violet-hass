@@ -1,6 +1,5 @@
 """Tests for Input Sanitization."""
 import pytest
-
 from violet_poolcontroller_api.utils_sanitizer import InputSanitizer
 
 

@@ -31,11 +31,19 @@ select = ["E", "F", "W", "I", "UP", "C4", "SIM"]
 extend-select = ["T20"]
 ignore = ["E501"]
 
+[tool.ruff.lint.per-file-ignores]
+# Live hardware check scripts use print() for CLI output
+"tests/live_*_check.py" = ["T201"]
+# Diagnostic test output uses print() for progress markers
+"tests/test_improvements.py" = ["T201"]
+
 [tool.mypy]
 python_version = "3.12"
 warn_return_any = true
 disallow_untyped_defs = false
 warn_unused_configs = true
+mypy_path = "violet_poolcontroller_api"
+explicit_package_bases = true
 
 [[tool.mypy.overrides]]
 module = "violet_poolcontroller_api.*"

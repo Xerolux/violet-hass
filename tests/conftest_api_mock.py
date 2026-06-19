@@ -2,6 +2,7 @@
 
 import sys
 
+
 # Create mock module structure
 class MockVioletPoolAPIError(Exception):
     """Mock API error."""

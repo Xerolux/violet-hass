@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, cast
 
 from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
@@ -92,7 +92,7 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
         Returns:
             The icon string.
         """
-        base_icon = self.entity_description.icon
+        base_icon = cast(str | None, self.entity_description.icon)
 
         if not base_icon:
             return None
@@ -107,7 +107,7 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
         if self.is_on is False and not base_icon.endswith("-off"):
             return f"{base_icon}-off"
 
-        return base_icon
+        return str(base_icon)
 
     def _get_sensor_state(self) -> bool | None:
         """

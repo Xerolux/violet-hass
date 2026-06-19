@@ -59,6 +59,7 @@ class VioletControlServiceHandlers:
     """Handlers for control and action-oriented services."""
 
     manager: Any
+    hass: Any
 
     async def handle_control_pump(self, call: ServiceCall) -> None:
         """Handle pump control service."""
@@ -1171,7 +1172,7 @@ class VioletControlServiceHandlers:
 
                 if state is not None:
                     await control.set_function_manually(
-                        f"EXT{relay_id}_1", state, duration
+                        f"EXT{relay_id}_1", str(state), duration
                     )
                     _LOGGER.info(
                         "Extension relay EXT%d_1 set to state %d on %s",
@@ -1181,7 +1182,7 @@ class VioletControlServiceHandlers:
                     )
                 elif action == "on":
                     await control.set_function_manually(
-                        f"EXT{relay_id}_1", 4, duration
+                        f"EXT{relay_id}_1", "4", duration
                     )
                     _LOGGER.info(
                         "Extension relay EXT%d_1 turned ON on %s",
@@ -1190,7 +1191,7 @@ class VioletControlServiceHandlers:
                     )
                 elif action == "off":
                     await control.set_function_manually(
-                        f"EXT{relay_id}_1", 6, duration
+                        f"EXT{relay_id}_1", "6", duration
                     )
                     _LOGGER.info(
                         "Extension relay EXT%d_1 turned OFF on %s",
@@ -1199,7 +1200,7 @@ class VioletControlServiceHandlers:
                     )
                 elif action == "toggle":
                     await control.set_function_manually(
-                        f"EXT{relay_id}_1", 0, duration
+                        f"EXT{relay_id}_1", "0", duration
                     )
                     _LOGGER.info(
                         "Extension relay EXT%d_1 toggled on %s",

@@ -1,7 +1,8 @@
 """Tests for type hints and mypy compliance."""
 import pytest
-from custom_components.violet_pool_controller.cover import VioletCover
 from violet_poolcontroller_api.const_devices import COVER_STATE_MAP
+
+from custom_components.violet_pool_controller.cover import VioletCover
 
 
 class TestTypeHints:

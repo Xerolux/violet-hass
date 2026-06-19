@@ -5,8 +5,10 @@ from __future__ import annotations
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+import violet_poolcontroller_api.api as api_module
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.violet_pool_controller import (
     PLATFORMS,
@@ -14,7 +16,6 @@ from custom_components.violet_pool_controller import (
     async_setup_entry,
     async_unload_entry,
 )
-import violet_poolcontroller_api.api as api_module
 from custom_components.violet_pool_controller import device as device_module
 from custom_components.violet_pool_controller.const import (
     CONF_ACTIVE_FEATURES,
@@ -30,8 +31,6 @@ from custom_components.violet_pool_controller.const import (
 from custom_components.violet_pool_controller.services import (
     async_register_services,
 )
-from pytest_homeassistant_custom_component.common import MockConfigEntry
-
 
 # ---------------------------------------------------------------------------
 # Test fixtures
@@ -122,9 +121,8 @@ async def test_async_setup_entry_missing_host(hass: HomeAssistant) -> None:
         device_module,
         "async_setup_device",
         new=AsyncMock(),
-    ):
-        with pytest.raises(HomeAssistantError):
-             await async_setup_entry(hass, entry)
+    ), pytest.raises(HomeAssistantError):
+         await async_setup_entry(hass, entry)
 
 
 async def test_async_setup_entry_device_error(hass: HomeAssistant, config_entry: MockConfigEntry) -> None:
@@ -136,9 +134,8 @@ async def test_async_setup_entry_device_error(hass: HomeAssistant, config_entry:
         api_module,
         "VioletPoolAPI",
         autospec=True,
-    ):
-        with pytest.raises(HomeAssistantError):
-            await async_setup_entry(hass, config_entry)
+    ), pytest.raises(HomeAssistantError):
+        await async_setup_entry(hass, config_entry)
 
 
 async def test_async_unload_entry_success(hass: HomeAssistant, config_entry: MockConfigEntry, coordinator: MagicMock) -> None:

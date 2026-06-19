@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import contextlib
 import importlib.util
 import sys
-from pathlib import Path
 import threading
 import types
+from pathlib import Path
 
 # CRITICAL: Setup mocks BEFORE any local imports
 # This allows tests to run on Python versions < 3.12 where external deps are unavailable
@@ -16,7 +17,8 @@ if str(_test_dir) not in sys.path:
 
 # Setup Home Assistant mocks first
 # Import as a module to ensure proper execution context
-import conftest_ha_mock  # noqa: F401
+import conftest_ha_mock  # noqa: F401,E402
+
 # Use the module to satisfy linters (setup happens at import time)
 _ = conftest_ha_mock
 
@@ -72,7 +74,6 @@ def _create_mock_violet_api_module():
 
         def _build_secure_base_url(self, host, use_ssl):
             """Build secure base URL with validation."""
-            import re
 
             # Validate hostname for common injection attacks
             if not host or not isinstance(host, str):
@@ -305,11 +306,20 @@ def _create_mock_violet_api_module():
 
 
 # Stub the external API package only when it is not actually installed -
-# shadowing the real package would test against mock behavior
-if (
-    'violet_poolcontroller_api' not in sys.modules
-    and importlib.util.find_spec('violet_poolcontroller_api') is None
-):
+# shadowing the real package would test against mock behavior.
+# Note: find_spec() returns a (namespace) spec even for the outer monorepo
+# directory, so we additionally verify the real package imports successfully.
+_api_available = False
+if 'violet_poolcontroller_api' not in sys.modules:
+    _spec = importlib.util.find_spec('violet_poolcontroller_api')
+    if _spec is not None and _spec.origin and _spec.origin.endswith('__init__.py'):
+        try:
+            import violet_poolcontroller_api as _probe  # noqa: F811
+            _api_available = hasattr(_probe, 'VioletPoolAPI')
+        except ImportError:
+            _api_available = False
+
+if not _api_available and 'violet_poolcontroller_api' not in sys.modules:
     mock_api = _create_mock_violet_api_module()
     sys.modules['violet_poolcontroller_api'] = mock_api
     sys.modules['violet_poolcontroller_api.api'] = mock_api.api
@@ -324,18 +334,18 @@ if (
 try:
     import homeassistant.util.dt as dt_util
     _original_get_time_zone = dt_util.get_time_zone
-    
+
     def _patched_get_time_zone(time_zone_str):
         """Accept US/Pacific and map to Europe/Berlin."""
         if time_zone_str == "US/Pacific":
             time_zone_str = "Europe/Berlin"
         return _original_get_time_zone(time_zone_str)
-    
+
     dt_util.get_time_zone = _patched_get_time_zone
 except Exception:
     pass
 
-import pytest
+import pytest  # noqa: E402
 
 # Add project root to Python path for imports
 project_root = Path(__file__).parent.parent
@@ -347,10 +357,8 @@ def pytest_configure(config):
     """Configure pytest with custom settings."""
     # Disable socket blocking - needed for Home Assistant imports
     # pytest-homeassistant-custom-component includes pytest-socket which blocks all sockets by default
-    try:
+    with contextlib.suppress(AttributeError):
         config.option.socket_enabled = False
-    except AttributeError:
-        pass
 
     # Try to disable socket plugin completely
     try:

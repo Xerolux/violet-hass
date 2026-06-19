@@ -211,9 +211,9 @@ class VioletStatusSensor(VioletSensor):
     def icon(self) -> str | None:
         """Return the icon corresponding to the current status."""
         if self.coordinator.data is None:
-            return super().icon
+            return cast(str | None, super().icon)
 
         raw_value = self._resolve_raw_value()
         if raw_value is None:
-            return super().icon
+            return cast(str | None, super().icon)
         return cast(str | None, VioletState(raw_value, self.entity_description.key).icon)

@@ -1,7 +1,7 @@
 """Tests for security fixes validation."""
-import pytest
 from unittest.mock import MagicMock, patch
 
+import pytest
 from violet_poolcontroller_api.api import VioletPoolAPI
 from violet_poolcontroller_api.utils_sanitizer import InputSanitizer
 
@@ -59,7 +59,7 @@ class TestSecurityFixes:
             "valid_key": "valid_value",
             "numeric_test": 123.45,
         }
-        
+
         # Test InputSanitizer directly
         sanitized_config = {}
         for key, value in malicious_config.items():
@@ -75,17 +75,17 @@ class TestSecurityFixes:
             except ValueError:
                 # Malicious keys should be rejected
                 pass
-        
+
         # Valid key should pass through
         assert "valid_key" in sanitized_config
         assert sanitized_config["valid_key"] == "valid_value"
         assert "numeric_test" in sanitized_config
         assert sanitized_config["numeric_test"] == 123.45
-        
+
         # Malicious keys should be rejected
-        assert not any("DROP TABLE" in key for key in sanitized_config.keys())
-        assert not any("../" in key for key in sanitized_config.keys())
-        assert not any("<script>" in key for key in sanitized_config.keys())
+        assert not any("DROP TABLE" in key for key in sanitized_config)
+        assert not any("../" in key for key in sanitized_config)
+        assert not any("<script>" in key for key in sanitized_config)
 
     def test_numeric_sanitization(self):
         """Test numeric sanitization function."""
@@ -95,7 +95,7 @@ class TestSecurityFixes:
         assert InputSanitizer.sanitize_numeric("123") == 123.0
         assert InputSanitizer.sanitize_numeric("45.67") == 45.67
         assert InputSanitizer.sanitize_numeric("-123.45") == -123.45
-        
+
         # Invalid inputs
         assert InputSanitizer.sanitize_numeric("abc") == 0.0
         assert InputSanitizer.sanitize_numeric("") == 0.0
@@ -107,11 +107,11 @@ class TestSecurityFixes:
         # Test SSL context creation would be in config_flow
         # For now, test that URL construction respects SSL flag
         api = VioletPoolAPI.__new__(VioletPoolAPI)
-        
+
         # SSL enabled
         ssl_url = api._build_secure_base_url("example.com", use_ssl=True)
         assert ssl_url.startswith("https://")
-        
+
         # SSL disabled
         http_url = api._build_secure_base_url("example.com", use_ssl=False)
         assert http_url.startswith("http://")
@@ -124,29 +124,29 @@ class TestSecurityFixes:
             "numeric_key": 42,
             "another_valid": "test123"
         }
-        
+
         # Mock the request to avoid actual API calls
         with patch.object(api, '_request') as mock_request:
             mock_request.return_value = {"status": "ok"}
-            
+
             try:
                 await api.set_config(malicious_config)
-                
+
                 # Check that _request was called
                 mock_request.assert_called_once()
-                
+
                 # Get the sanitized config that was passed
                 call_args = mock_request.call_args
                 sanitized_config = call_args.kwargs['data']
-                
+
                 # Valid keys should be present
                 assert "valid_key" in sanitized_config
                 assert "numeric_key" in sanitized_config
                 assert sanitized_config["numeric_key"] == 42.0
-                
+
                 # Malicious keys should be rejected or sanitized
-                assert not any(";" in key for key in sanitized_config.keys())
-                
+                assert not any(";" in key for key in sanitized_config)
+
             except Exception as e:
                 # Expected for malicious input
                 assert "Invalid configuration parameter" in str(e)

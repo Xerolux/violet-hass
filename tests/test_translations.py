@@ -16,21 +16,21 @@ def get_component_dir():
 def load_strings_json():
     """Load strings.json data."""
     strings_path = get_component_dir() / "strings.json"
-    with open(strings_path, "r", encoding="utf-8") as f:
+    with open(strings_path, encoding="utf-8") as f:
         return json.load(f)
 
 
 def load_german_translation():
     """Load German translation data."""
     de_path = get_component_dir() / "translations" / "de.json"
-    with open(de_path, "r", encoding="utf-8") as f:
+    with open(de_path, encoding="utf-8") as f:
         return json.load(f)
 
 
 def load_english_translation():
     """Load English translation data."""
     en_path = get_component_dir() / "translations" / "en.json"
-    with open(en_path, "r", encoding="utf-8") as f:
+    with open(en_path, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -66,7 +66,7 @@ class TestTranslationFiles:
         """Test that strings.json is valid JSON."""
         strings_path = self.component_dir / "strings.json"
 
-        with open(strings_path, "r", encoding="utf-8") as f:
+        with open(strings_path, encoding="utf-8") as f:
             data = json.load(f)
 
         assert isinstance(data, dict), "strings.json must be a dictionary"
@@ -76,7 +76,7 @@ class TestTranslationFiles:
         """Test that German translation is valid JSON."""
         de_path = self.component_dir / "translations" / "de.json"
 
-        with open(de_path, "r", encoding="utf-8") as f:
+        with open(de_path, encoding="utf-8") as f:
             data = json.load(f)
 
         assert isinstance(data, dict), "de.json must be a dictionary"
@@ -86,7 +86,7 @@ class TestTranslationFiles:
         """Test that English translation is valid JSON."""
         en_path = self.component_dir / "translations" / "en.json"
 
-        with open(en_path, "r", encoding="utf-8") as f:
+        with open(en_path, encoding="utf-8") as f:
             data = json.load(f)
 
         assert isinstance(data, dict), "en.json must be a dictionary"
@@ -213,7 +213,7 @@ class TestGermanTranslationContent:
             / "de.json"
         )
 
-        with open(de_path, "r", encoding="utf-8") as f:
+        with open(de_path, encoding="utf-8") as f:
             return json.load(f)
 
     def test_german_config_steps(self, german_data):
@@ -260,7 +260,7 @@ class TestEnglishTranslationContent:
             / "en.json"
         )
 
-        with open(en_path, "r", encoding="utf-8") as f:
+        with open(en_path, encoding="utf-8") as f:
             return json.load(f)
 
     def test_english_config_steps(self, english_data):
@@ -306,7 +306,7 @@ class TestTranslationCompleteness:
             / "strings.json"
         )
 
-        with open(strings_path, "r", encoding="utf-8") as f:
+        with open(strings_path, encoding="utf-8") as f:
             return json.load(f)
 
     @pytest.fixture
@@ -320,7 +320,7 @@ class TestTranslationCompleteness:
             / "de.json"
         )
 
-        with open(de_path, "r", encoding="utf-8") as f:
+        with open(de_path, encoding="utf-8") as f:
             return json.load(f)
 
     @pytest.fixture
@@ -334,7 +334,7 @@ class TestTranslationCompleteness:
             / "en.json"
         )
 
-        with open(en_path, "r", encoding="utf-8") as f:
+        with open(en_path, encoding="utf-8") as f:
             return json.load(f)
 
     def test_config_steps_match_between_de_and_en(self, german_data, english_data):
@@ -419,7 +419,7 @@ class TestTranslationPlaceholders:
             / "strings.json"
         )
 
-        with open(strings_path, "r", encoding="utf-8") as f:
+        with open(strings_path, encoding="utf-8") as f:
             return json.load(f)
 
     def test_help_step_placeholders(self, strings_data):
@@ -471,7 +471,7 @@ class TestBilingualSupport:
             / "strings.json"
         )
 
-        with open(strings_path, "r", encoding="utf-8") as f:
+        with open(strings_path, encoding="utf-8") as f:
             return json.load(f)
 
     def test_strings_json_contains_bilingual_text(self, strings_data):
