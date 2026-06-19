@@ -1,13 +1,13 @@
 """Tests for diagnostic services."""
-import pytest
-from unittest.mock import Mock, AsyncMock
+from unittest.mock import AsyncMock, Mock
 
+import pytest
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 
 from custom_components.violet_pool_controller.services import (
-    VioletServiceManager,
     VioletServiceHandlers,
+    VioletServiceManager,
 )
 
 

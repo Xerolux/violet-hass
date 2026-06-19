@@ -27,7 +27,7 @@ try:
     from violet_poolcontroller_api.api import VioletUnsafeOperationError
 except ImportError:
 
-    class VioletUnsafeOperationError(VioletPoolAPIError):
+    class VioletUnsafeOperationError(VioletPoolAPIError):  # type: ignore[no-redef]
         """Fallback for older violet-poolController-api releases."""
 
 

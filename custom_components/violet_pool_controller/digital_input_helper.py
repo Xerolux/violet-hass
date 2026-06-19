@@ -175,7 +175,7 @@ class DigitalInputConfig:
         """
         if not 1 <= di_num <= 12:
             return f"Digital Input {di_num}"
-        return self._di_configs[di_num]["name"]
+        return str(self._di_configs[di_num]["name"])
 
     def should_expose_di(self, di_num: int) -> bool:
         """Determine if DI should be exposed as HA entity.
@@ -192,7 +192,7 @@ class DigitalInputConfig:
             return False
 
         di_config = self._di_configs[di_num]
-        return di_config["enabled"]
+        return bool(di_config["enabled"])
 
     @staticmethod
     def parse_digital_input_state(state_str: str | int | None) -> bool:

@@ -30,7 +30,7 @@ class HardwareConfig:
     def __init__(self, config_data: dict[str, Any]):
         """Initialize with config data from getConfig."""
         self.config = config_data
-        self._parsed_configs = {}
+        self._parsed_configs: dict[str, Any] = {}
         self._parse_all_configs()
 
     def _parse_all_configs(self) -> None:
@@ -271,21 +271,22 @@ class HardwareConfig:
         """Get specific digital input configuration."""
         parser = self._parsed_configs["digital_inputs"].get("parser")
         if parser:
-            return parser.get_di_config(di_num)
+            result = parser.get_di_config(di_num)
+            return result if isinstance(result, dict) else None
         return None
 
     def get_di_friendly_name(self, di_num: int) -> str:
         """Get friendly name for digital input."""
         parser = self._parsed_configs["digital_inputs"].get("parser")
         if parser:
-            return parser.get_di_friendly_name(di_num)
+            return str(parser.get_di_friendly_name(di_num))
         return f"Digital Input {di_num}"
 
     def get_extension_relay_name(self, relay_key: str) -> str:
         """Get friendly name for extension relay (e.g., 'EXT1_1')."""
         relays = self._parsed_configs["extension_relays"]
         if relay_key in relays:
-            return relays[relay_key]["name"]
+            return str(relays[relay_key]["name"])
         return relay_key
 
     def get_dmx_scene_name(self, scene_num: int) -> str:
@@ -293,14 +294,14 @@ class HardwareConfig:
         scenes = self._parsed_configs["dmx_scenes"]
         scene_key = f"LIGHT_SCENE_{scene_num}"
         if scene_key in scenes:
-            return scenes[scene_key]["name"]
+            return str(scenes[scene_key]["name"])
         return f"Scene {scene_num}"
 
     def get_dosing_system_name(self, system_short: str) -> str:
         """Get friendly name for dosing system (e.g., 'CL', 'PHM')."""
         systems = self._parsed_configs["dosing_systems"]
         if system_short in systems:
-            return systems[system_short]["name"]
+            return str(systems[system_short]["name"])
         return system_short
 
     def get_temp_sensor_name(self, sensor_num: int) -> str:
@@ -308,7 +309,7 @@ class HardwareConfig:
         sensors = self._parsed_configs["temperature_sensors"]
         sensor_key = f"TEMP_{sensor_num}"
         if sensor_key in sensors:
-            return sensors[sensor_key]["name"]
+            return str(sensors[sensor_key]["name"])
         return f"Temperature {sensor_num}"
 
     def get_analog_input_name(self, ai_num: int) -> str:
@@ -316,14 +317,14 @@ class HardwareConfig:
         inputs = self._parsed_configs["analog_inputs"]
         ai_key = f"AI{ai_num}"
         if ai_key in inputs:
-            return inputs[ai_key]["name"]
+            return str(inputs[ai_key]["name"])
         return f"Analog Input {ai_num}"
 
     def get_output_name(self, output_key: str) -> str:
         """Get friendly name for output (e.g., 'PUMP', 'HEATER')."""
         outputs = self._parsed_configs["outputs"]
         if output_key in outputs:
-            return outputs[output_key]["name"]
+            return str(outputs[output_key]["name"])
         return output_key
 
     def get_enabled_features(self) -> dict[str, list[str]]:

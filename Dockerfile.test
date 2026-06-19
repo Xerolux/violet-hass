@@ -1,0 +1,19 @@
+FROM python:3.14-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /workspace
+
+COPY requirements.txt ./
+COPY violet_poolcontroller_api/ ./violet_poolcontroller_api/
+COPY requirements-dev.txt pyproject.toml pytest.ini tox.ini ./
+
+RUN pip install --upgrade pip && pip install -r requirements-dev.txt
+
+COPY custom_components/ ./custom_components/
+COPY tests/ ./tests/
+
+CMD ["pytest", "tests/", "-v", "--tb=short"]

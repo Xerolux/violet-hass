@@ -22,11 +22,11 @@ from __future__ import annotations
 
 import pytest
 
-from custom_components.violet_pool_controller.const import ACTION_OFF, ACTION_ON
 from custom_components.violet_pool_controller.config_flow_utils.validators import (
     validate_credentials_strength,
     validate_ip_address,
 )
+from custom_components.violet_pool_controller.const import ACTION_OFF, ACTION_ON
 
 
 class TestSecurityPrinciple_InputValidation:

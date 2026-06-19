@@ -2,6 +2,7 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.violet_pool_controller.const import (
@@ -20,13 +21,6 @@ from custom_components.violet_pool_controller.device import (
 
 class TestSetpointCacheInvalidation:
     """Test setpoint cache invalidation after polls."""
-
-    @pytest.fixture
-    def mock_hass(self):
-        """Create mock Home Assistant instance."""
-        hass = MagicMock()
-        hass.data = {}
-        return hass
 
     @pytest.fixture
     def mock_api(self):
@@ -57,25 +51,26 @@ class TestSetpointCacheInvalidation:
         )
 
     @pytest.fixture
-    def device(self, mock_hass, config_entry, mock_api):
+    def device(self, hass: HomeAssistant, config_entry, mock_api):
         """Create device instance."""
         with patch(
             "custom_components.violet_pool_controller.device.async_get_clientsession",
             return_value=MagicMock(),
         ):
             device = VioletPoolControllerDevice(
-                hass=mock_hass,
+                hass=hass,
                 config_entry=config_entry,
                 api=mock_api,
             )
             return device
 
     @pytest.fixture
-    def coordinator(self, device):
+    def coordinator(self, hass: HomeAssistant, device):
         """Create coordinator instance."""
         coordinator = VioletPoolDataUpdateCoordinator(
-            hass=MagicMock(),
+            hass=hass,
             device=device,
+            name="test_coordinator",
             polling_interval=30,
         )
         return coordinator

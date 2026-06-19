@@ -1,11 +1,9 @@
 """Tests für interpret_state_as_bool Utility."""
 
-from pathlib import Path
 import sys
-import types
+from pathlib import Path
 
 import pytest
-
 
 # Ensure repository root is on the import path (mirrors other tests)
 ROOT = Path(__file__).resolve().parents[1]

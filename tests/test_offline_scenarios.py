@@ -1,12 +1,12 @@
 """Tests for offline scenario handling."""
-import pytest
 import asyncio
-from unittest.mock import Mock, AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
+import pytest
 from homeassistant.helpers.update_coordinator import UpdateFailed
+from violet_poolcontroller_api.api import VioletPoolAPIError
 
 from custom_components.violet_pool_controller.device import VioletPoolControllerDevice
-from violet_poolcontroller_api.api import VioletPoolAPIError
 
 
 @pytest.fixture
@@ -77,7 +77,7 @@ class TestOfflineScenarios:
         stale data and does NOT raise UpdateFailed.
         """
         mock_api.get_readings = AsyncMock(
-            side_effect=asyncio.TimeoutError("Connection timeout")
+            side_effect=TimeoutError("Connection timeout")
         )
 
         device._available = True
@@ -137,7 +137,7 @@ class TestOfflineScenarios:
         and marks the device unavailable.
         """
         mock_api.get_readings = AsyncMock(
-            side_effect=asyncio.TimeoutError("Timeout")
+            side_effect=TimeoutError("Timeout")
         )
 
         device._available = True
@@ -162,7 +162,7 @@ class TestOfflineScenarios:
     async def test_recovery_after_failures(self, device, mock_api):
         """Test successful recovery after failures."""
         mock_api.get_readings = AsyncMock(
-            side_effect=asyncio.TimeoutError("Timeout")
+            side_effect=TimeoutError("Timeout")
         )
 
         device._available = True
@@ -193,7 +193,7 @@ class TestOfflineScenarios:
     async def test_throttled_logging(self, device, mock_api):
         """Test that repeated errors are logged with throttling."""
         mock_api.get_readings = AsyncMock(
-            side_effect=asyncio.TimeoutError("Timeout")
+            side_effect=TimeoutError("Timeout")
         )
 
         device._available = True
@@ -295,7 +295,7 @@ class TestOfflineErrorHandling:
         device._data = {"test": "data"}
 
         mock_api.get_readings = AsyncMock(
-            side_effect=asyncio.TimeoutError("Timeout")
+            side_effect=TimeoutError("Timeout")
         )
 
         device._available = True
@@ -319,7 +319,7 @@ class TestOfflineErrorHandling:
         handler = get_enhanced_error_handler()
 
         mock_api.get_readings = AsyncMock(
-            side_effect=asyncio.TimeoutError("Timeout")
+            side_effect=TimeoutError("Timeout")
         )
 
         device._available = True
@@ -345,7 +345,7 @@ class TestRecoveryScenarios:
 
         # Fail (below threshold — no raise)
         mock_api.get_readings = AsyncMock(
-            side_effect=asyncio.TimeoutError("Timeout")
+            side_effect=TimeoutError("Timeout")
         )
         await device.async_update()
         assert device._consecutive_failures == 1
@@ -358,7 +358,7 @@ class TestRecoveryScenarios:
 
         # Fail again (below threshold — no raise)
         mock_api.get_readings = AsyncMock(
-            side_effect=asyncio.TimeoutError("Timeout")
+            side_effect=TimeoutError("Timeout")
         )
         await device.async_update()
         assert device._consecutive_failures == 1
@@ -373,7 +373,7 @@ class TestRecoveryScenarios:
     async def test_persistent_offline_recovery(self, device, mock_api):
         """Test recovery after persistent offline state."""
         mock_api.get_readings = AsyncMock(
-            side_effect=asyncio.TimeoutError("Timeout")
+            side_effect=TimeoutError("Timeout")
         )
 
         device._available = True

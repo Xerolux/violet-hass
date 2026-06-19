@@ -55,6 +55,7 @@ def setup_homeassistant_mocks():
         NUMBER = 'number'
         SELECT = 'select'
         UPDATE = 'update'
+        BUTTON = 'button'
 
     ha_module.const.Platform = Platform
     sys.modules['homeassistant.const'] = ha_module.const
@@ -512,6 +513,15 @@ def setup_homeassistant_mocks():
         def __init__(self, key, name=None, **kwargs):
             self.key = key
             self.name = name
+            self.icon = None
+            self.translation_key = None
+            self.device_class = None
+            self.state_class = None
+            self.native_unit_of_measurement = None
+            self.entity_category = None
+            self.entity_registry_enabled_default = True
+            for k, v in kwargs.items():
+                setattr(self, k, v)
 
     sensor_module.SensorDeviceClass = SensorDeviceClass
     sensor_module.SensorStateClass = SensorStateClass

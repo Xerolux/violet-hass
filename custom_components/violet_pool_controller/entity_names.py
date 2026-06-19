@@ -40,29 +40,29 @@ class EntityNameResolver:
                 if 1 <= di_num <= 12:
                     di_parser = self.hw_config.get("digital_inputs", {}).get("parser")
                     if di_parser:
-                        return di_parser.get_di_friendly_name(di_num)
+                        return str(di_parser.get_di_friendly_name(di_num))
             except (ValueError, IndexError):
                 pass
 
         # Extension relays
         if key.startswith("EXT"):
-            return self._resolve_relay_name(key)
+            return self._resolve_relay_name(key) or default_name
 
         # DMX scenes
         if key.startswith("LIGHT_SCENE"):
             try:
                 scene_num = int(key.split("_")[-1])
-                return self._resolve_dmx_scene_name(scene_num)
+                return self._resolve_dmx_scene_name(scene_num) or default_name
             except (ValueError, IndexError):
                 pass
 
         # Dosing systems
         if key in ["DOS_1_CL", "DOS_2_ELO", "DOS_4_PHM", "DOS_5_PHP", "DOS_6_FLOC"]:
-            return self._resolve_dosing_name(key)
+            return self._resolve_dosing_name(key) or default_name
 
         # Main outputs
         if key in ["PUMP", "HEATER", "SOLAR", "COVER", "BACKWASH", "REFILL", "OVERFLOW", "LIGHT", "PVSURPLUS"]:
-            return self._resolve_output_name(key)
+            return self._resolve_output_name(key) or default_name
 
         return default_name
 
@@ -73,7 +73,8 @@ class EntityNameResolver:
 
         relays = self.hw_config.get("extension_relays", {})
         if key in relays:
-            return relays[key]["name"]
+            name = relays[key]["name"]
+            return str(name) if name is not None else None
         return None
 
     def _resolve_dmx_scene_name(self, scene_num: int) -> str | None:
@@ -84,7 +85,8 @@ class EntityNameResolver:
         scenes = self.hw_config.get("dmx_scenes", {})
         scene_key = f"LIGHT_SCENE_{scene_num}"
         if scene_key in scenes:
-            return scenes[scene_key]["name"]
+            name = scenes[scene_key]["name"]
+            return str(name) if name is not None else None
         return None
 
     def _resolve_dosing_name(self, key: str) -> str | None:
@@ -107,7 +109,8 @@ class EntityNameResolver:
 
         systems = self.hw_config.get("dosing_systems", {})
         if short_name in systems:
-            return systems[short_name]["name"]
+            name = systems[short_name]["name"]
+            return str(name) if name is not None else None
         return None
 
     def _resolve_output_name(self, key: str) -> str | None:
@@ -117,7 +120,8 @@ class EntityNameResolver:
 
         outputs = self.hw_config.get("outputs", {})
         if key in outputs:
-            return outputs[key]["name"]
+            name = outputs[key]["name"]
+            return str(name) if name is not None else None
         return None
 
     def get_resolver(self, coordinator) -> EntityNameResolver:
@@ -149,7 +153,7 @@ def apply_hardware_names(
     for config in entity_configs:
         updated_config = config.copy()
         key = config.get("key")
-        default_name = config.get("name", key)
+        default_name = str(config.get("name", key or ""))
 
         if key:
             resolved_name = resolver.resolve_entity_name(entity_type, key, default_name)

@@ -122,20 +122,8 @@ DISINFECTION_METHODS = ["chlorine", "salt", "bromine", "active_oxygen", "uv", "o
 # COVER_FUNCTIONS and DEVICE_PARAMETERS come from
 # violet_poolcontroller_api.const_devices (wildcard import above).
 
-# Maps the controller's numeric COVER_STATE values to the high-level cover
-# states consumed by cover.py (is_open / is_closed / is_opening / is_closing).
-COVER_STATE_MAP: dict[str, str] = {
-    "0": "open",
-    "1": "opening",
-    "2": "closed",
-    "3": "closing",
-    "4": "stopped",
-    "OPEN": "open",
-    "OPENING": "opening",
-    "CLOSED": "closed",
-    "CLOSING": "closing",
-    "STOPPED": "stopped",
-}
+# COVER_STATE_MAP is also provided by violet_poolcontroller_api.const_devices
+# (wildcard import above) — no local override needed.
 
 # =============================================================================
 # VERSION INFO

@@ -12,6 +12,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
+from violet_poolcontroller_api.const_devices import DEVICE_PARAMETERS
 
 from custom_components.violet_pool_controller.const import (
     CONF_API_URL,
@@ -26,7 +27,6 @@ from custom_components.violet_pool_controller.switch import (
     REFRESH_DELAY,
     REFRESH_DELAY_EXT,
 )
-from violet_poolcontroller_api.const_devices import DEVICE_PARAMETERS
 
 
 @pytest.fixture

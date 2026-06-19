@@ -91,8 +91,7 @@ class VioletControlClient:
                 "Timeout executing command %s %s", function, action
             )
             raise VioletPoolAPIError(
-                f"Timeout executing {function} {action}",
-                original_exception=err,
+                f"Timeout executing {function} {action}"
             ) from err
         except Exception as err:
             _LOGGER.error(
@@ -102,9 +101,8 @@ class VioletControlClient:
                 err,
             )
             raise VioletPoolAPIError(
-                f"Error executing {function} {action}: {err}",
-                original_exception=err,
-            )
+                f"Error executing {function} {action}: {err}"
+            ) from err
 
     async def set_pump_speed(
         self, rpm_level: int, timeout: float = 10.0
@@ -408,8 +406,7 @@ class VioletControlClient:
                 "Timeout triggering manual dosing (%s)", action_upper
             )
             raise VioletPoolAPIError(
-                f"Timeout triggering manual dosing ({action_upper})",
-                original_exception=err,
+                f"Timeout triggering manual dosing ({action_upper})"
             ) from err
 
     async def set_config(
