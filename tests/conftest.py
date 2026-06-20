@@ -15,6 +15,16 @@ _test_dir = Path(__file__).parent
 if str(_test_dir) not in sys.path:
     sys.path.insert(0, str(_test_dir))
 
+# Prefer the REAL violet_poolcontroller_api package over the stale mock below.
+# The outer monorepo directory (violet_poolcontroller_api/) has no __init__.py,
+# so Python treats it as a namespace package and shadows the installed wheel /
+# the inner real package (violet_poolcontroller_api/violet_poolcontroller_api/).
+# By inserting the outer source directory at sys.path[0], the inner real package
+# is discovered first and the detection logic below correctly skips the mock.
+_api_src_dir = _test_dir.parent / "violet_poolcontroller_api"
+if _api_src_dir.is_dir() and str(_api_src_dir) not in sys.path:
+    sys.path.insert(0, str(_api_src_dir))
+
 # Setup Home Assistant mocks first
 # Import as a module to ensure proper execution context
 import conftest_ha_mock  # noqa: F401,E402
@@ -302,6 +312,16 @@ def _create_mock_violet_api_module():
     sanitizer_module.InputSanitizer = InputSanitizer
     mock_module.utils_sanitizer = sanitizer_module
 
+    # Mirror the real package's top-level public API so that imports like
+    # ``from violet_poolcontroller_api import VioletAuthError`` work even when
+    # tests fall back to this mock (real package unavailable).
+    mock_module.VioletPoolAPI = api_module.VioletPoolAPI
+    mock_module.VioletPoolAPIError = api_module.VioletPoolAPIError
+    mock_module.VioletAuthError = api_module.VioletAuthError
+    mock_module.VioletTimeoutError = api_module.VioletTimeoutError
+    mock_module.VioletUnsafeOperationError = api_module.VioletUnsafeOperationError
+    mock_module.InputSanitizer = InputSanitizer
+
     return mock_module
 
 
@@ -368,6 +388,24 @@ def pytest_configure(config):
     except Exception:
         pass
 
+    # Windows-only: pytest-homeassistant-custom-component calls
+    # ``pytest_socket.disable_socket(allow_unix_socket=True)`` from its
+    # ``pytest_runtest_setup`` hook. On Windows AF_UNIX is unavailable, so
+    # asyncio's ProactorEventLoop cannot create its self-pipe and every test
+    # errors out during setup. Neutralise disable_socket on Windows so the loop
+    # can be created; Linux CI keeps strict socket blocking (AF_UNIX allowed).
+    if sys.platform == "win32":
+        try:
+            import pytest_socket
+
+            def _no_op_disable_socket(*_args, **_kwargs):
+                pass
+
+            pytest_socket.disable_socket = _no_op_disable_socket
+            pytest_socket.enable_socket()
+        except Exception:
+            pass
+
     # Patch the thread check in pytest-homeassistant-custom-component
     # to allow newer Home Assistant thread names
     try:
@@ -408,23 +446,32 @@ def pytest_configure(config):
 
 @pytest.hookimpl(tryfirst=True)
 def pytest_fixture_setup(fixturedef, request):
-    """Enable sockets before event_loop fixture is set up.
+    """Enable sockets before fixtures need them (Windows-only workaround).
 
     On Windows, asyncio's ProactorEventLoop needs socket.socketpair() to create
     its internal IPC pipe. pytest-homeassistant-custom-component disables ALL
     socket creation on Windows (since AF_UNIX is not available there), which
     prevents the event loop from being created at all.
 
-    This hook intercepts event_loop fixture setup specifically and temporarily
-    re-enables sockets so the loop can be created. The sockets are re-disabled
-    by pytest-hacc's pytest_runtest_setup hook for the actual test body.
+    Newer pytest-asyncio versions provision the event loop from different
+    fixtures than ``event_loop``, so on Windows we re-enable sockets for every
+    fixture setup. Linux CI is unaffected (sockets stay disabled there because
+    AF_UNIX is allowed and the loop never needs an AF_INET socketpair).
     """
+    if sys.platform != "win32":
+        return
     if fixturedef.argname == "event_loop":
         try:
             import pytest_socket
             pytest_socket.enable_socket()
         except Exception:
             pass
+        return
+    try:
+        import pytest_socket
+        pytest_socket.enable_socket()
+    except Exception:
+        pass
 
 
 # NOTE: The hass / device_registry / entity_registry fixtures are provided by

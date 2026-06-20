@@ -172,8 +172,29 @@ pytest tests/test_api.py::test_function_name -v
 
 - **`service_schemas.py`** - Voluptuous schemas for all services.
 
+- **`refill_overflow_service.py`** - Refill & overflow protection service handlers (`VioletRefillOverflowServiceHandlers`):
+  - `configure_refill`, `configure_overflow`, `get_refill_status`, `get_overflow_status`
+
+- **`refill_overflow_schemas.py`** - Voluptuous schemas for the refill/overflow services.
+
+- **`http_control.py`** - Direct HTTP control layer (`VioletControlClient`) wrapping the API's `setFunctionManually` endpoint for the `*_http` service family (`control_pump_http`, `control_heater_http`, `manual_dosing_http`, etc.).
+
+- **`hardware_config.py`** - Hardware configuration discovery/caching (digital inputs, extension relays, dosing-standalone detection).
+
+- **`calibration_helper.py`** - Sensor calibration history parsing and date-format handling.
+
+- **`digital_input_helper.py`** - Digital input rule/state interpretation helpers.
+
+- **`entity_names.py`** - Centralized entity naming/label resolution.
+
+- **`sensor_organization.py`** - Sensor grouping and organization helpers.
+
+- **`update_helper.py`** - Firmware info parsing for the update entity (`parse_firmware_info`).
+
+- **`state_constants.py`** - Internal state interpretation constants.
+
 - **`services.py`** - Service registration and composition:
-  - `VioletServiceHandlers` composes control + diagnostic handlers
+  - `VioletServiceHandlers` composes control + diagnostic + refill/overflow handlers
   - Registers all services with Home Assistant
 
 #### Constants Organization (Modular)
@@ -484,6 +505,18 @@ violet-hass/
 │       ├── service_helpers.py        # Shared service utilities
 │       ├── service_manager.py        # Service manager
 │       ├── service_schemas.py        # Service Voluptuous schemas
+│       ├── refill_overflow_service.py # Refill/overflow service handlers
+│       ├── refill_overflow_schemas.py # Refill/overflow schemas
+│       ├── http_control.py           # Direct setFunctionManually HTTP layer
+│       ├── hardware_config.py        # Hardware config discovery/caching
+│       ├── calibration_helper.py     # Calibration history parsing
+│       ├── digital_input_helper.py   # Digital input rule helpers
+│       ├── entity_names.py           # Entity naming/label resolution
+│       ├── sensor_organization.py    # Sensor grouping helpers
+│       ├── update_helper.py          # Firmware info parsing
+│       ├── state_constants.py        # State interpretation constants
+│       ├── config_flow_support.py    # Config/options flow mixins
+│       ├── config_entry_helpers.py   # Config entry URL/migration helpers
 │       ├── error_codes.py            # Error code mappings
 │       ├── error_handler.py          # VioletErrorCodes & error utilities
 │       ├── diagnostics.py            # HA diagnostics support

@@ -193,6 +193,11 @@ config/.test_token
 # Debug scripts with credentials
 scripts/debug_tools/
 
+# Local live hardware test scripts (use env vars in tracked live_*_check.py instead).
+# Never commit hardcoded controller credentials/IPs.
+tests/live_integration_check.py
+tests/live_*_local.py
+
 # Docker volumes (config directory with sensitive data)
 config/.storage/
 config/home-assistant.log*

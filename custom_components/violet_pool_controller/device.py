@@ -860,6 +860,7 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator[VioletReadings]):
             _LOGGER,
             name=name,
             update_interval=timedelta(seconds=polling_interval),
+            config_entry=device.config_entry,
         )
         self.device = device
         self._setpoint_cache: dict[str, float] = {}

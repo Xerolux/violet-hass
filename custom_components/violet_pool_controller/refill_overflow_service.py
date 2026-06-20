@@ -28,7 +28,7 @@ class VioletRefillOverflowServiceHandlers:
     async def handle_configure_refill(self, call: ServiceCall) -> None:
         """Configure water refill system."""
         coordinators = await self.manager.get_coordinators_for_call(call)
-        refill_type = call.data.get("refill_type")
+        refill_type = int(call.data.get("refill_type", 0))
 
         if not 1 <= refill_type <= 3:
             raise HomeAssistantError(f"Refill type must be 1-3, got {refill_type}")
