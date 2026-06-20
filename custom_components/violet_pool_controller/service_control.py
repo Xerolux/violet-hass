@@ -620,6 +620,7 @@ class VioletControlServiceHandlers:
                 "Backwash duration is required for safety. "
                 "Specify duration_seconds (10-3600 seconds)"
             )
+        backwash_seconds = float(duration_seconds or 0)
 
         for coordinator in coordinators:
             try:
@@ -629,20 +630,20 @@ class VioletControlServiceHandlers:
                 if action == "run":
                     await control.set_backwash_run()
                     _LOGGER.info(
-                        "Backwash started on %s with %ds timeout",
+                        "Backwash started on %s with %ss timeout",
                         device_name,
-                        duration_seconds,
+                        backwash_seconds,
                     )
 
                     # Auto-stop backwash after specified duration for safety
                     async def auto_stop_backwash() -> None:
-                        await asyncio.sleep(duration_seconds)
+                        await asyncio.sleep(backwash_seconds)
                         try:
                             await control.set_backwash_abort()
                             _LOGGER.info(
-                                "Backwash auto-stopped on %s after %ds",
+                                "Backwash auto-stopped on %s after %ss",
                                 device_name,
-                                duration_seconds,
+                                backwash_seconds,
                             )
                             await coordinator.async_request_refresh()
                         except Exception as err:
@@ -666,7 +667,7 @@ class VioletControlServiceHandlers:
     async def handle_manual_dosing_http(self, call: ServiceCall) -> None:
         """Trigger manual dosing via HTTP (NEW API)."""
         coordinators = await self.manager.get_coordinators_for_call(call)
-        dosing_system = call.data.get("dosing_system")
+        dosing_system = str(call.data.get("dosing_system", ""))
         runtime = call.data.get("runtime_seconds", 30)
 
         dosing_index = DOSING_INDEX_MAP.get(dosing_system)
@@ -709,6 +710,7 @@ class VioletControlServiceHandlers:
                 "Refill duration is REQUIRED for safety to prevent flooding! "
                 "Specify duration_seconds (10-3600 seconds)"
             )
+        refill_seconds = float(duration_seconds or 0)
 
         for coordinator in coordinators:
             try:
@@ -718,20 +720,20 @@ class VioletControlServiceHandlers:
                 if action == "fill":
                     await control.set_function_manually("REFILL", "ON")
                     _LOGGER.critical(
-                        "🚨 WATER REFILL STARTED on %s - WILL AUTO-STOP after %ds",
+                        "🚨 WATER REFILL STARTED on %s - WILL AUTO-STOP after %ss",
                         device_name,
-                        duration_seconds,
+                        refill_seconds,
                     )
 
                     # Auto-stop refill after specified duration for CRITICAL SAFETY
                     async def auto_stop_refill() -> None:
-                        await asyncio.sleep(duration_seconds)
+                        await asyncio.sleep(refill_seconds)
                         try:
                             await control.set_function_manually("REFILL", "OFF")
                             _LOGGER.critical(
-                                "🚨 WATER REFILL AUTO-STOPPED on %s after %ds (OVERFLOW PREVENTED)",
+                                "🚨 WATER REFILL AUTO-STOPPED on %s after %ss (OVERFLOW PREVENTED)",
                                 device_name,
-                                duration_seconds,
+                                refill_seconds,
                             )
                             await coordinator.async_request_refresh()
                         except Exception as err:
@@ -932,7 +934,7 @@ class VioletControlServiceHandlers:
     async def handle_configure_temp_rule(self, call: ServiceCall) -> None:
         """Configure temperature rule (TEMPRULE_1-8)."""
         coordinators = await self.manager.get_coordinators_for_call(call)
-        rule_id = call.data.get("rule_id")  # 1-8
+        rule_id = int(call.data.get("rule_id", 0))  # 1-8
         enabled = call.data.get("enabled", True)
 
         if not 1 <= rule_id <= 8:
@@ -982,7 +984,7 @@ class VioletControlServiceHandlers:
     async def handle_configure_analog_rule(self, call: ServiceCall) -> None:
         """Configure analog input rule (ANALOGRULE_1-8)."""
         coordinators = await self.manager.get_coordinators_for_call(call)
-        rule_id = call.data.get("rule_id")
+        rule_id = int(call.data.get("rule_id", 0))
         enabled = call.data.get("enabled", True)
 
         if not 1 <= rule_id <= 8:
@@ -1032,7 +1034,7 @@ class VioletControlServiceHandlers:
     ) -> None:
         """Configure switching input rule (SWITCHINGRULE_1-8)."""
         coordinators = await self.manager.get_coordinators_for_call(call)
-        rule_id = call.data.get("rule_id")
+        rule_id = int(call.data.get("rule_id", 0))
         enabled = call.data.get("enabled", True)
 
         if not 1 <= rule_id <= 8:
@@ -1074,7 +1076,7 @@ class VioletControlServiceHandlers:
     async def handle_configure_timer_rule(self, call: ServiceCall) -> None:
         """Configure timer rule (TIMERRULE_1-8)."""
         coordinators = await self.manager.get_coordinators_for_call(call)
-        rule_id = call.data.get("rule_id")
+        rule_id = int(call.data.get("rule_id", 0))
         enabled = call.data.get("enabled", True)
 
         if not 1 <= rule_id <= 8:
@@ -1117,7 +1119,7 @@ class VioletControlServiceHandlers:
         """Enable/disable any rule type."""
         coordinators = await self.manager.get_coordinators_for_call(call)
         rule_type = call.data.get("rule_type")
-        rule_id = call.data.get("rule_id")
+        rule_id = int(call.data.get("rule_id", 0))
         enabled = call.data.get("enabled", True)
 
         valid_types = [
@@ -1157,7 +1159,7 @@ class VioletControlServiceHandlers:
     async def handle_control_extension_relay(self, call: ServiceCall) -> None:
         """Control extension relay outputs (EXT1_1 to EXT8_8)."""
         coordinators = await self.manager.get_coordinators_for_call(call)
-        relay_id = call.data.get("relay_id")
+        relay_id = int(call.data.get("relay_id", 0))
 
         if not 1 <= relay_id <= 8:
             raise HomeAssistantError(f"Relay ID must be 1-8, got {relay_id}")
@@ -1219,7 +1221,7 @@ class VioletControlServiceHandlers:
     ) -> None:
         """Configure sensor calibration offsets and multipliers."""
         coordinators = await self.manager.get_coordinators_for_call(call)
-        sensor_id = call.data.get("sensor_id")
+        sensor_id = int(call.data.get("sensor_id", 0))
 
         if not 1 <= sensor_id <= 12:
             raise HomeAssistantError(f"Sensor ID must be 1-12, got {sensor_id}")
