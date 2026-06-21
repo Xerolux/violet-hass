@@ -26,7 +26,7 @@ from enum import StrEnum
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Awaitable, Callable
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -86,7 +86,7 @@ class CircuitBreaker:
             recovery_timeout,
         )
 
-    async def call(self, func: Callable, *args: Any, **kwargs: Any) -> Any:  # noqa: ANN401
+    async def call(self, func: Callable[..., Awaitable[Any]], *args: Any, **kwargs: Any) -> Any:  # noqa: ANN401
         """Execute function with circuit breaker protection.
 
         Args:
@@ -116,14 +116,15 @@ class CircuitBreaker:
                     "Circuit breaker entering HALF_OPEN state for recovery test",
                 )
 
-            # Check if half-open timeout exceeded
+            # Check if half-open timeout exceeded — but ONLY transition to CLOSED
+            # when a call actually succeeds (see the try block below).
             if (
                 self.state == CircuitBreakerState.HALF_OPEN
                 and current_time - self.half_open_start_time > self.recovery_timeout
             ):
-                self.state = CircuitBreakerState.CLOSED
-                self.failure_count = 0
-                _LOGGER.info("Circuit breaker recovered to CLOSED state")
+                _LOGGER.info(
+                    "Circuit breaker HALF_OPEN timeout — will close on next success"
+                )
 
             # Fail fast if circuit is open
             if self.state == CircuitBreakerState.OPEN:
@@ -164,7 +165,7 @@ class CircuitBreaker:
 
         except Exception:
             # Unexpected exception - don't count for circuit breaker
-            _LOGGER.exception("Unexpected error in circuit breaker")
+            _LOGGER.exception("Unhandled exception escaped circuit breaker")
             raise
 
         else:
@@ -180,7 +181,9 @@ class CircuitBreaker:
             return result
 
     def get_stats(self) -> dict[str, Any]:
-        """Get circuit breaker statistics."""
+        """Get circuit breaker statistics (thread-safe snapshot)."""
+        if self._lock.locked():
+            return {"state": self.state, "note": "lock held, stats may be stale"}
         return {
             "state": self.state,
             "failure_count": self.failure_count,

@@ -67,20 +67,6 @@ def _dosing_switch_on(raw_state: Any, use_val: Any) -> bool | None:
 # - 1: Auto - Active (Scheduled) (ON)
 # - 2: Auto - Priority OFF / Rule Blocked (OFF)
 # - 3: Auto - Priority ON / Emergency Rule (ON)
-# - 4: Manual ON (Forced) (ON)
-# - 5: Auto - Rule OFF / Emergency Rule (OFF)
-# - 6: Manual OFF (OFF)
-STATE_OFF = 0
-STATE_AUTO_ON = 1
-STATE_MANUAL_ON = 4
-STATE_AUTO_OFF = 5
-STATE_MANUAL_OFF = 6
-
-# ON_STATES: All states where the device is active
-ON_STATES = {1, 3, 4}
-# OFF_STATES: All states where the device is inactive
-OFF_STATES = {0, 2, 5, 6}
-
 REFRESH_DELAY = 0.3
 # Extension module relays may need more time for the controller to update LAST_ON
 # after a command, so that the next get_readings() call can detect the module.
@@ -525,8 +511,11 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 _LOGGER.warning(
                     "Switch %s action %s failed: %s", key, action, error_msg
                 )
-                task = asyncio.create_task(self._delayed_refresh(key))
-                task.add_done_callback(lambda t: self._handle_switch_refresh_error(t, key))
+                raise HomeAssistantError(
+                    translation_key="failed_to_set_value",
+                    translation_domain=DOMAIN,
+                    translation_placeholders={"detail": str(error_msg)},
+                )
 
         except VioletPoolAPIError as err:
             _LOGGER.error("API error setting switch %s to %s: %s", key, action, err)
@@ -565,7 +554,6 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 new_state = self.coordinator.data.get(key, "UNKNOWN")
                 _LOGGER.debug("State after refresh: %s = %s", key, new_state)
         finally:
-            # Always clear optimistic cache — even on CancelledError during HA reload
             old_optimistic = self._optimistic_state
             self._optimistic_state = None
             if old_optimistic is not None:
@@ -574,6 +562,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                     key,
                     "ON" if old_optimistic else "OFF",
                 )
+        self.async_write_ha_state()
 
     def _handle_switch_refresh_error(self, task: asyncio.Task, key: str) -> None:
         """
@@ -713,9 +702,9 @@ async def async_setup_entry(
                         state_int = None
                     expected = (
                         "ON"
-                        if state_int in ON_STATES
+                        if state_int in {1, 3, 4}
                         else "OFF"
-                        if state_int in OFF_STATES
+                        if state_int in {0, 2, 5, 6}
                         else "UNKNOWN"
                     )
                     _LOGGER.debug("%s: raw=%s → %s", key, value, expected)

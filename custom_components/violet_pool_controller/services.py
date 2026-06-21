@@ -294,6 +294,5 @@ async def async_register_services(hass: HomeAssistant) -> None:
         + len(rule_management_services)
         + len(system_config_services)
         + len(refill_overflow_services)
-        + 16  # diagnostic + status + maintenance services (see registrations above)
     )
-    _LOGGER.info("Successfully registered %d services", total_services)
+    _LOGGER.info("Successfully registered %d+ services", total_services)

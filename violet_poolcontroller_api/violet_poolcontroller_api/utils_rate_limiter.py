@@ -65,9 +65,10 @@ class RateLimiter:
         self.last_refill = time.monotonic()
 
         # Optimized request history with size and time limits
-        self.request_history: deque = deque(maxlen=500)  # Reduced from 1000
+        self.request_history: deque = deque(maxlen=500)
         self.blocked_requests = 0
         self.total_requests = 0
+        self._last_known_tokens = 0.0
         self.history_cleanup_interval = 300  # 5 minutes
         self.last_cleanup_time = time.monotonic()
 
@@ -126,6 +127,7 @@ class RateLimiter:
             # Track failures efficiently
             self.blocked_requests += 1
             self._recent_stats["blocked_last_minute"] += 1
+            self._last_known_tokens = self.tokens
             return False
 
     def _cleanup_history(self, current_time: float) -> None:
@@ -171,10 +173,8 @@ class RateLimiter:
                 msg = f"Rate Limiter timeout nach {elapsed:.1f}s"
                 raise TimeoutError(msg)
 
-            # Adaptive Wartezeit: Berechne basierend auf Refill-Rate
-            # Statt fest retry_after zu warten, berechne optimale Wartezeit
             refill_rate = self.max_requests / self.time_window
-            needed_tokens = 1.0 - self.tokens  # Wieviele Tokens fehlen
+            needed_tokens = 1.0 - self._last_known_tokens
             if refill_rate > 0:
                 optimal_wait = needed_tokens / refill_rate
                 wait_time = min(optimal_wait, self.retry_after)
@@ -220,6 +220,8 @@ class RateLimiter:
         self.blocked_requests = 0
         self.total_requests = 0
         self.request_history.clear()
+        self._recent_stats["requests_last_minute"] = 0
+        self._recent_stats["blocked_last_minute"] = 0
         _LOGGER.debug("Rate Limiter zurückgesetzt")
 
 

@@ -65,6 +65,7 @@ from .const import (
     CONF_VERIFY_SSL,
     DEFAULT_CONTROLLER_NAME,
     DEFAULT_POLLING_INTERVAL,
+    DEFAULT_POOL_SIZE,
     DEFAULT_PORT,
     DEFAULT_RETRY_ATTEMPTS,
     DEFAULT_TIMEOUT_DURATION,
@@ -225,9 +226,13 @@ class ConfigFlow(
     ) -> ConfigFlowResult:
         """Handle the pool configuration step."""
         if user_input:
+            try:
+                pool_size = float(user_input[CONF_POOL_SIZE])
+            except (ValueError, TypeError):
+                pool_size = float(DEFAULT_POOL_SIZE)
             self._config_data.update(
                 {
-                    CONF_POOL_SIZE: float(user_input[CONF_POOL_SIZE]),
+                    CONF_POOL_SIZE: pool_size,
                     CONF_POOL_TYPE: user_input[CONF_POOL_TYPE],
                     CONF_DISINFECTION_METHOD: user_input[CONF_DISINFECTION_METHOD],
                 }
@@ -361,6 +366,7 @@ class ConfigFlow(
             CONF_API_URL: host,
             CONF_PORT: port,
             CONF_USE_SSL: DEFAULT_USE_SSL,
+            CONF_VERIFY_SSL: DEFAULT_VERIFY_SSL,
             CONF_DEVICE_NAME: name.split(".")[0] if "." in name else name,
             CONF_CONTROLLER_NAME: DEFAULT_CONTROLLER_NAME,
             CONF_USERNAME: "",
@@ -715,6 +721,7 @@ class ConfigFlow(
             CONF_API_URL: ui[CONF_API_URL],
             CONF_PORT: int(ui.get(CONF_PORT, DEFAULT_PORT)),
             CONF_USE_SSL: ui.get(CONF_USE_SSL, DEFAULT_USE_SSL),
+            CONF_VERIFY_SSL: ui.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL),
             CONF_DEVICE_NAME: ui.get(CONF_DEVICE_NAME, "Pool Controller"),
             CONF_CONTROLLER_NAME: ui.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME),
             CONF_USERNAME: ui.get(CONF_USERNAME) or None,
@@ -830,5 +837,5 @@ class ConfigFlow(
         controller_name = self._config_data.get(
             CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME
         )
-        pool_size = self._config_data.get(CONF_POOL_SIZE)
+        pool_size = self._config_data.get(CONF_POOL_SIZE) or DEFAULT_POOL_SIZE
         return f"{controller_name} • {pool_size}m³"

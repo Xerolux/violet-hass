@@ -46,7 +46,7 @@ class VioletRefillOverflowServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device._api)
+                control = VioletControlClient(coordinator.device.api)
                 await control.set_config(config_updates)
                 _LOGGER.info(
                     "Refill system type %d configured on %s",
@@ -57,7 +57,7 @@ class VioletRefillOverflowServiceHandlers:
             except Exception as err:
                 raise HomeAssistantError(
                     f"Failed to configure refill system: {err}"
-                )
+                ) from err
 
     async def handle_configure_overflow(self, call: ServiceCall) -> None:
         """Configure overflow protection system."""
@@ -96,7 +96,7 @@ class VioletRefillOverflowServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device._api)
+                control = VioletControlClient(coordinator.device.api)
                 await control.set_config(config_updates)
                 _LOGGER.info(
                     "Overflow protection configured on %s",
@@ -105,8 +105,8 @@ class VioletRefillOverflowServiceHandlers:
                 await coordinator.async_request_refresh()
             except Exception as err:
                 raise HomeAssistantError(
-                    f"Failed to configure overflow protection: {err}"
-                )
+                    f"Failed to configure overflow system: {err}"
+                ) from err
 
     async def handle_get_refill_status(self, call: ServiceCall) -> dict[str, Any]:
         """Get refill system status."""
@@ -115,17 +115,21 @@ class VioletRefillOverflowServiceHandlers:
         if not coordinators:
             raise HomeAssistantError("No coordinators found for device")
 
-        coordinator = coordinators[0]
-        if coordinator.data is None:
-            raise HomeAssistantError("No data available")
+        results = []
+        for coordinator in coordinators:
+            if coordinator.data is None:
+                continue
+            results.append({
+                "refill_enabled": coordinator.data.get("REFILL_use", 0) == 1,
+                "refill_type": coordinator.data.get("REFILL_type", 0),
+                "water_level": coordinator.data.get("ADC2_value"),
+                "refill_active": coordinator.data.get("REFILL_state", 0) > 0,
+                "error_code": coordinator.data.get("REFILL_error"),
+            })
 
-        return {
-            "refill_enabled": coordinator.data.get("REFILL_use", 0) == 1,
-            "refill_type": coordinator.data.get("REFILL_type", 0),
-            "water_level": coordinator.data.get("ADC2_value"),
-            "refill_active": coordinator.data.get("REFILL_state", 0) > 0,
-            "error_code": coordinator.data.get("REFILL_error"),
-        }
+        if not results:
+            raise HomeAssistantError("No data available")
+        return results[0] if len(results) == 1 else {"devices": results}
 
     async def handle_get_overflow_status(
         self, call: ServiceCall
@@ -136,20 +140,32 @@ class VioletRefillOverflowServiceHandlers:
         if not coordinators:
             raise HomeAssistantError("No coordinators found for device")
 
-        coordinator = coordinators[0]
-        if coordinator.data is None:
+        results = []
+        for coordinator in coordinators:
+            if coordinator.data is None:
+                continue
+            water_level = coordinator.data.get("ADC2_value")
+            dryrun_level = coordinator.data.get("OVERFLOW_dryrun_level")
+            overflow_level = coordinator.data.get("OVERFLOW_overflow_level")
+
+            results.append({
+                "overflow_enabled": coordinator.data.get("OVERFLOW_use", 0) == 1,
+                "water_level": water_level,
+                "dryrun_active": (
+                    water_level is not None
+                    and dryrun_level is not None
+                    and water_level <= dryrun_level
+                ),
+                "overflow_active": (
+                    water_level is not None
+                    and overflow_level is not None
+                    and water_level >= overflow_level
+                ),
+                "bathing_detected": coordinator.data.get("OVERFLOW_bathing_state", 0) > 0,
+                "dryrun_error": coordinator.data.get("OVERFLOW_dryrun_error"),
+                "overflow_error": coordinator.data.get("OVERFLOW_overflow_error"),
+            })
+
+        if not results:
             raise HomeAssistantError("No data available")
-
-        water_level = coordinator.data.get("ADC2_value", 0)
-        dryrun_level = coordinator.data.get("OVERFLOW_dryrun_level", 0)
-        overflow_level = coordinator.data.get("OVERFLOW_overflow_level", 100)
-
-        return {
-            "overflow_enabled": coordinator.data.get("OVERFLOW_use", 0) == 1,
-            "water_level": water_level,
-            "dryrun_active": water_level <= dryrun_level,
-            "overflow_active": water_level >= overflow_level,
-            "bathing_detected": coordinator.data.get("OVERFLOW_bathing_state", 0) > 0,
-            "dryrun_error": coordinator.data.get("OVERFLOW_dryrun_error"),
-            "overflow_error": coordinator.data.get("OVERFLOW_overflow_error"),
-        }
+        return results[0] if len(results) == 1 else {"devices": results}

@@ -20,6 +20,7 @@
 from __future__ import annotations
 
 import logging
+import math
 import re
 import unicodedata
 from html import escape
@@ -98,20 +99,16 @@ class InputSanitizer:
             )
             str_value = str_value[:max_length]
 
-        # Wenn keine Sonderzeichen erlaubt sind, entfernen wir sie ZUERST.
         if not allow_special_chars:
-            # Entferne gefährliche Zeichen
             original = str_value
-            str_value = re.sub(r"[^a-zA-Z0-9_-]", "", str_value)
+            str_value = re.sub(r"[^a-zA-Z0-9 _-]", "", str_value)
             if str_value != original:
                 _LOGGER.warning(
                     "Gefährliche Zeichen entfernt: '%s' → '%s'",
                     original,
                     str_value,
                 )
-        # HTML-Escape nur wenn Sonderzeichen erlaubt sind
-        # (sonst sind < und > bereits durch Regex entfernt)
-        elif escape_html:
+        if escape_html:
             str_value = escape(str_value)
 
         return str_value
@@ -129,18 +126,22 @@ class InputSanitizer:
         """
         try:
             if isinstance(value, (int, float)):
+                if not math.isfinite(float(value)):
+                    _LOGGER.warning("Unendlicher/NaN-Wert: %s", value)
+                    return 0.0
                 return float(value)
 
-            # Konvertiere String zu Zahl
             str_value = str(value).strip()
-            # Entferne alle Zeichen außer Zahlen, Minus und Punkt
-            cleaned = re.sub(r"[^0-9.-]", "", str_value)
+            has_minus = str_value.startswith("-")
+            cleaned = re.sub(r"[^0-9.]", "", str_value)
+            if has_minus and cleaned:
+                cleaned = "-" + cleaned
 
             if not cleaned:
                 return 0.0
 
             return float(cleaned)
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, OverflowError):
             _LOGGER.warning("Ungültiger numerischer Wert: %s", value)
             return 0.0
 
@@ -166,7 +167,7 @@ class InputSanitizer:
         try:
             try:
                 int_value = int(value)
-            except (ValueError, TypeError):
+            except (ValueError, TypeError, OverflowError):
                 int_value = int(float(value))
 
             # Range-Validierung
@@ -466,7 +467,7 @@ class InputSanitizer:
         """
         return InputSanitizer.sanitize_integer(
             orp,
-            min_value=400,
+            min_value=500,
             max_value=900,
             default=700,
         )

@@ -49,8 +49,9 @@ class VioletControlClient:
         Raises:
             VioletPoolAPIError: If API communication fails.
         """
-        # Build command
-        cmd = f"{function},{action},{param}" if param is not None else f"{function},{action}"
+        from urllib.parse import quote
+
+        cmd = f"{function},{action},{quote(str(param), safe=',')}" if param is not None else f"{function},{action}"
 
         try:
             _LOGGER.debug("Executing command: setFunctionManually?%s", cmd)
@@ -62,7 +63,14 @@ class VioletControlClient:
             )
 
             # Check response (non-empty text response indicates success)
-            if response:
+            if isinstance(response, dict):
+                success = response.get("success") is True
+            elif isinstance(response, str) and response.strip():
+                success = True
+            else:
+                success = False
+
+            if success:
                 _LOGGER.info(
                     "Command successful: %s %s %s",
                     function,
@@ -334,10 +342,15 @@ class VioletControlClient:
             )
         if not 0 <= dosing_index <= 5:
             raise ValueError(f"Dosing index must be 0-5, got {dosing_index}")
-        if action_upper == "DOSSTART" and runtime_seconds <= 0:
-            raise ValueError(
-                f"Runtime must be > 0 for DOSSTART, got {runtime_seconds}"
-            )
+        if action_upper == "DOSSTART":
+            if runtime_seconds <= 0:
+                raise ValueError(
+                    f"Runtime must be > 0 for DOSSTART, got {runtime_seconds}"
+                )
+            if runtime_seconds > 3600:
+                raise ValueError(
+                    f"Runtime must be <= 3600s (1 hour) for safety, got {runtime_seconds}"
+                )
 
         try:
             _LOGGER.debug(
@@ -440,8 +453,7 @@ class VioletControlClient:
                 if isinstance(value, bool):
                     # Convert bool to int: True->1, False->0
                     normalized_updates[key] = int(value)
-                elif isinstance(value, (int, float)) and key.endswith(("_use", "_enabled")):
-                    # For *_use and *_enabled keys, ensure integer 0 or 1
+                elif isinstance(value, (int, float)) and key.endswith(("_use", "_enabled")) and not key.endswith("_count"):
                     normalized_updates[key] = int(bool(value))
                 else:
                     # All other values pass through unchanged

@@ -197,10 +197,10 @@ async def async_setup_entry(
             continue
 
         # Get entity name (may be overridden by hardware config)
-        entity_name = sensor_config["name"]
+        entity_name = str(sensor_config.get("name") or sensor_config.get("key") or "Unknown")
         resolved_name = name_resolver.resolve_entity_name(
             "binary_sensor",
-            sensor_config["key"],
+            str(sensor_config.get("key") or ""),
             entity_name,
         )
 

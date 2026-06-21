@@ -115,14 +115,14 @@ class VioletServiceManager:
         """Check if device has active safety lock."""
         if device_key not in self._safety_locks:
             return False
-        return time.time() < self._safety_locks[device_key]
+        return time.monotonic() < self._safety_locks[device_key]
 
     def set_safety_lock(self, device_key: str, duration: int) -> None:
         """Set safety lock for device."""
-        self._safety_locks[device_key] = time.time() + duration
+        self._safety_locks[device_key] = time.monotonic() + duration
 
     def get_remaining_lock_time(self, device_key: str) -> int:
         """Get remaining lock time in seconds."""
         if not self.check_safety_lock(device_key):
             return 0
-        return int(self._safety_locks[device_key] - time.time())
+        return int(self._safety_locks[device_key] - time.monotonic())

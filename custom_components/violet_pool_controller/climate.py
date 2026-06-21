@@ -358,9 +358,12 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
 
                 # Update coordinator cache for immediate cross-entity propagation
                 for key in possible_keys:
-                    if self.coordinator.data is None or key in self.coordinator.data:
+                    if self.coordinator.data is not None and key in self.coordinator.data:
                         self.coordinator.update_setpoint_cache(key, temperature)
                         break
+                if self.coordinator.data is None:
+                    for key in possible_keys:
+                        self.coordinator.update_setpoint_cache(key, temperature)
 
                 self._optimistic_target_temp = temperature
                 self._attr_target_temperature = temperature

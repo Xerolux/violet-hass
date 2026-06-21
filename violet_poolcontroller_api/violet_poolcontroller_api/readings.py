@@ -71,7 +71,7 @@ def _opt_float(raw: Any) -> float | None:  # noqa: ANN401
         return None
     try:
         return float(raw)
-    except (ValueError, TypeError):
+    except (ValueError, TypeError, OverflowError):
         return None
 
 
@@ -410,7 +410,14 @@ class VioletReadings(Mapping[str, Any]):
         ``True`` means the input is closed (logic 1), ``False`` means open (0).
         Absent inputs default to ``False``.
         """
-        return {i: bool(int(self._raw.get(f"INPUT{i}", 0) or 0)) for i in range(1, 13)}
+        result: dict[int, bool] = {}
+        for i in range(1, 13):
+            raw = self._raw.get(f"INPUT{i}", 0)
+            try:
+                result[i] = bool(int(raw or 0))
+            except (ValueError, TypeError):
+                result[i] = False
+        return result
 
     # ------------------------------------------------------------------
     # Dosing channel output states
@@ -428,14 +435,17 @@ class VioletReadings(Mapping[str, Any]):
     @cached_property
     def dosing_daily_amounts_ml(self) -> dict[str, int | None]:
         """Today's dosing amounts in mL for each dosing channel."""
-        return {
-            key: (
-                int(v)
-                if (v := self._raw.get(f"{key}_DAILY_DOSING_AMOUNT_ML")) is not None
-                else None
-            )
-            for key in _DOSING_KEYS
-        }
+        result: dict[str, int | None] = {}
+        for key in _DOSING_KEYS:
+            v = self._raw.get(f"{key}_DAILY_DOSING_AMOUNT_ML")
+            if v is None:
+                result[key] = None
+            else:
+                try:
+                    result[key] = int(v)
+                except (ValueError, TypeError):
+                    result[key] = None
+        return result
 
     # ------------------------------------------------------------------
     # DMX light scenes (1-12)

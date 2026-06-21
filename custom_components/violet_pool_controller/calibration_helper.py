@@ -69,7 +69,7 @@ class CalibrationStatus:
         """Check if calibration is approaching expiration."""
         days = self.days_since_calibration
         if days is None:
-            return True
+            return False
         interval = CALIBRATION_INTERVALS.get(self.sensor_type, 90)
         days_left = interval - days
         return 0 < days_left <= CALIBRATION_WARNING_DAYS

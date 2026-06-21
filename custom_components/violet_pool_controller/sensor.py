@@ -402,7 +402,7 @@ def _create_standard_sensors(
 
         SensorClass = (
             VioletStatusSensor
-            if key in STATUS_SENSORS and key not in ["fw", "FW"]
+            if key in STATUS_SENSORS and key not in {"fw", "FW"}
             else VioletSensor
         )
         sensors.append(SensorClass(coordinator, config_entry, description))

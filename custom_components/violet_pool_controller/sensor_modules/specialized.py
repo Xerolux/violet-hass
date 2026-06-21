@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -162,7 +163,7 @@ class VioletHealthSensor(VioletPoolControllerEntity, SensorEntity):
         last_err = data.get("last_error_id")
         if last_err is not None:
             try:
-                err_code = int(last_err)
+                err_code = int(float(last_err))
             except (TypeError, ValueError):
                 err_code = 0
             if err_code > 0:
@@ -257,13 +258,11 @@ class VioletActiveErrorsSensor(VioletPoolControllerEntity, SensorEntity):
         # Collect all error codes from the data
         error_codes = []
 
-        # Check all error code fields (ERROR_0, ERROR_1, etc. and LAST_ERROR)
-        for i in range(10):  # Support up to 10 simultaneous errors
-            key = f"ERROR_{i}" if i > 0 else "ERROR"
-            if key in self.coordinator.data:
-                code = str(self.coordinator.data.get(key, "")).strip()
-                if code and code != "0" and code != "0000":
-                    error_codes.append(code)
+        error_keys = [k for k in self.coordinator.data if re.match(r'^ERROR(_\d+)?$', k)]
+        for key in sorted(error_keys):
+            code = str(self.coordinator.data.get(key, "")).strip()
+            if code and code != "0" and code != "0000":
+                error_codes.append(code)
 
         # Also check LAST_ERROR if it's different
         last_error = str(self.coordinator.data.get("LAST_ERROR", "")).strip()

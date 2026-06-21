@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import logging
+import threading
 from typing import Any
 
 from homeassistant.core import HomeAssistant, callback
@@ -96,8 +97,11 @@ class VioletPoolControllerDiscovery:
         self._discovered_devices.clear()
 
 
-# Global discovery instance
+
+
+# Global discovery instance with thread-safety lock
 _discovery_handler: VioletPoolControllerDiscovery | None = None
+_discovery_lock = threading.Lock()
 
 
 def get_discovery_handler() -> VioletPoolControllerDiscovery:
@@ -108,5 +112,7 @@ def get_discovery_handler() -> VioletPoolControllerDiscovery:
     """
     global _discovery_handler
     if _discovery_handler is None:
-        _discovery_handler = VioletPoolControllerDiscovery()
+        with _discovery_lock:
+            if _discovery_handler is None:
+                _discovery_handler = VioletPoolControllerDiscovery()
     return _discovery_handler

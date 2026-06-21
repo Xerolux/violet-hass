@@ -34,6 +34,8 @@ _LOGGER = logging.getLogger(__name__)
 # Coordinator-based platforms; HA should not throttle entity state writes
 PARALLEL_UPDATES = 0
 
+PUMP_SPEED_LEVELS = range(1, 5)
+
 
 class VioletNumber(VioletPoolControllerEntity, NumberEntity):
     """Representation of a Violet Pool number entity (setpoint)."""
@@ -98,7 +100,7 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
         # (2 = rule-blocked OFF). PUMP_RPM_0 is the PUMP_STOP output and lies
         # below this entity's min value of 1, so start at level 1.
         if self._api_key == "PUMP_SPEED":
-            for level in range(1, 4):  # levels 1-3 (PUMP_RPM_1 to PUMP_RPM_3)
+            for level in PUMP_SPEED_LEVELS:
                 rpm_val = self.get_value(f"PUMP_RPM_{level}")
                 if rpm_val is not None:
                     try:
@@ -131,7 +133,15 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
             self.entity_description.name,
             self._default_value,
         )
-        return float(self._default_value)
+        try:
+            return float(self._default_value)
+        except (ValueError, TypeError):
+            _LOGGER.debug(
+                "Invalid default value for %s: %s, falling back to 0.0",
+                self.entity_description.name,
+                self._default_value,
+            )
+            return 0.0
 
     @property
     def available(self) -> bool:
@@ -333,7 +343,7 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                     unit,
                 )
 
-                self._optimistic_value = value
+                self._optimistic_value = sanitized_value
                 _LOGGER.debug(
                     "Optimistic cache for '%s' set to %.2f",
                     self.entity_description.name,
@@ -370,6 +380,9 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                 translation_domain=DOMAIN,
                 translation_placeholders={"detail": str(err)},
             ) from err
+
+        except HomeAssistantError:
+            raise
 
         except Exception as err:
             _LOGGER.exception(

@@ -492,10 +492,10 @@ class VioletPoolControllerDevice:
                     config_data = await self.api.get_config(config_keys)
                     if isinstance(config_data, dict):
                         data.update(config_data)
+                except asyncio.CancelledError:
+                    raise
                 except Exception as err:  # noqa: BLE001
-                    # Config enrichment is optional - a failure here must not
-                    # invalidate the successful readings poll
-                    _LOGGER.debug(
+                    _LOGGER.warning(
                         "Optional getConfig fetch failed for '%s': %s",
                         self.device_name,
                         err,
@@ -618,6 +618,7 @@ class VioletPoolControllerDevice:
             elif self._should_log_failure():
                 _LOGGER.warning("Persistent issues for '%s': %s (%d/%d failures)", self.device_name, type(err).__name__, self._consecutive_failures, self._max_consecutive_failures)
             return dict(self._data) if self._data else {}
+
     @property
     def available(self) -> bool:
         """Return the availability status."""

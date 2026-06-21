@@ -201,11 +201,17 @@ class VioletStatusSensor(VioletSensor):
             return None
 
         raw_value = self._resolve_raw_value()
-        return (
-            VioletState(raw_value, self.entity_description.key).display_mode
-            if raw_value is not None
-            else None
-        )
+        if raw_value is None:
+            return None
+        try:
+            return VioletState(raw_value, self.entity_description.key).display_mode
+        except Exception:
+            _LOGGER.warning(
+                "VioletState failed for key=%s raw=%s",
+                self.entity_description.key,
+                raw_value,
+            )
+            return str(raw_value)
 
     @property
     def icon(self) -> str | None:

@@ -135,7 +135,10 @@ def parse_epoch_seconds(value: int | float | str) -> datetime | None:
         return None
     if not math.isfinite(ts) or ts == 0:
         return None
-    return datetime.fromtimestamp(ts, tz=UTC)
+    try:
+        return datetime.fromtimestamp(ts, tz=UTC)
+    except (OSError, OverflowError):
+        return None
 
 
 def parse_epoch_milliseconds(value: int | float | str) -> datetime | None:
@@ -157,7 +160,10 @@ def parse_epoch_milliseconds(value: int | float | str) -> datetime | None:
         return None
     if not math.isfinite(ts_ms) or ts_ms == 0:
         return None
-    return datetime.fromtimestamp(ts_ms / 1000.0, tz=UTC)
+    try:
+        return datetime.fromtimestamp(ts_ms / 1000.0, tz=UTC)
+    except (OSError, OverflowError):
+        return None
 
 
 def parse_optional_seconds(value: str | float | int) -> timedelta | None:

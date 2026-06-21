@@ -85,7 +85,7 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                result = {"success": True}
+                result: dict[str, Any] = {"success": False}
 
                 if action == "speed_control":
                     result = await coordinator.device.api.set_switch_state(
@@ -167,7 +167,7 @@ class VioletControlServiceHandlers:
                         f"Safety interval active: {remaining}s remaining"
                     )
 
-                result = {"success": True}
+                result: dict[str, Any] = {"success": False}
 
                 if action == "manual_dose":
                     api_dosing_type = DOSING_API_MAPPING.get(
@@ -227,7 +227,7 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                result = {"success": True}
+                result: dict[str, Any] = {"success": False}
 
                 if mode == "activate":
                     result = await coordinator.device.api.set_pv_surplus(
@@ -296,36 +296,48 @@ class VioletControlServiceHandlers:
                         device_id,
                     )
 
-                    failed_scenes: list[str] = []
-                    for scene in scenes:
-                        r_on = await coordinator.device.api.set_switch_state(
-                            key=scene, action=ACTION_ON
-                        )
-                        if r_on.get("success") is not True:
-                            _LOGGER.warning(
-                                "DMX scene %s ON failed: %s",
-                                scene,
-                                r_on.get("response"),
-                            )
-                            failed_scenes.append(scene)
-                        await asyncio.sleep(sequence_delay)
-                        r_off = await coordinator.device.api.set_switch_state(
-                            key=scene, action=ACTION_OFF
-                        )
-                        if r_off.get("success") is not True:
-                            _LOGGER.warning(
-                                "DMX scene %s OFF failed: %s",
-                                scene,
-                                r_off.get("response"),
-                            )
+                    async def _run_sequence() -> None:
+                        try:
+                            failed: list[str] = []
+                            for scene in scenes:
+                                try:
+                                    r_on = await coordinator.device.api.set_switch_state(
+                                        key=scene, action=ACTION_ON
+                                    )
+                                    if r_on.get("success") is not True:
+                                        _LOGGER.warning(
+                                            "DMX scene %s ON failed: %s",
+                                            scene,
+                                            r_on.get("response"),
+                                        )
+                                        failed.append(scene)
+                                    await asyncio.sleep(sequence_delay)
+                                    r_off = await coordinator.device.api.set_switch_state(
+                                        key=scene, action=ACTION_OFF
+                                    )
+                                    if r_off.get("success") is not True:
+                                        _LOGGER.warning(
+                                            "DMX scene %s OFF failed: %s",
+                                            scene,
+                                            r_off.get("response"),
+                                        )
+                                except VioletPoolAPIError as exc:
+                                    _LOGGER.warning("DMX scene %s error: %s", scene, exc)
+                                    failed.append(scene)
+                            if failed:
+                                _LOGGER.warning(
+                                    "DMX sequence completed with failures: %s",
+                                    ", ".join(failed),
+                                )
+                            else:
+                                _LOGGER.info("DMX sequence completed successfully")
+                        except Exception as exc:
+                            _LOGGER.error("DMX sequence background task crashed: %s", exc)
 
-                    if failed_scenes:
-                        result = {
-                            "success": False,
-                            "response": f"Sequence failed for: {', '.join(failed_scenes)}",
-                        }
-                    else:
-                        result = {"success": True, "response": "Sequence completed"}
+                    self.hass.async_create_background_task(
+                        _run_sequence(), f"violet_dmx_sequence_{device_id}"
+                    )
+                    result = {"success": True, "response": "Sequence started"}
 
                 elif action == "party_mode":
                     _LOGGER.info("Party mode activated! (device %s)", device_id)
@@ -493,7 +505,7 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device._api)
+                control = VioletControlClient(coordinator.device.api)
                 device_name = coordinator.device.device_name
 
                 if force_off:
@@ -502,16 +514,16 @@ class VioletControlServiceHandlers:
                 elif action == "off":
                     await control.set_pump_off()
                     _LOGGER.info("Pump turned OFF: %s", device_name)
-                elif action == "on" or speed is not None:
-                    rpm = speed if speed is not None else 1
-                    await control.set_pump_speed(rpm)
-                    _LOGGER.info("Pump set to RPM %d: %s", rpm, device_name)
                 elif action == "eco":
                     await control.set_pump_speed(1)
                     _LOGGER.info("Pump ECO mode (RPM 1): %s", device_name)
                 elif action == "boost":
                     await control.set_pump_speed(3)
                     _LOGGER.info("Pump BOOST mode (RPM 3): %s", device_name)
+                elif action == "on" or speed is not None:
+                    rpm = speed if speed is not None else 1
+                    await control.set_pump_speed(rpm)
+                    _LOGGER.info("Pump set to RPM %d: %s", rpm, device_name)
 
                 await coordinator.async_request_refresh()
 
@@ -527,7 +539,7 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device._api)
+                control = VioletControlClient(coordinator.device.api)
                 device_name = coordinator.device.device_name
 
                 if action == "on":
@@ -557,7 +569,7 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device._api)
+                control = VioletControlClient(coordinator.device.api)
                 device_name = coordinator.device.device_name
 
                 if action == "on":
@@ -586,7 +598,7 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device._api)
+                control = VioletControlClient(coordinator.device.api)
                 device_name = coordinator.device.device_name
 
                 if action == "open":
@@ -615,7 +627,9 @@ class VioletControlServiceHandlers:
         action = call.data.get("action")
         duration_seconds = call.data.get("duration_seconds")
 
-        if action == "run" and duration_seconds is None:
+        if action == "run" and (
+            duration_seconds is None or float(duration_seconds) <= 0
+        ):
             raise HomeAssistantError(
                 "Backwash duration is required for safety. "
                 "Specify duration_seconds (10-3600 seconds)"
@@ -624,7 +638,7 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device._api)
+                control = VioletControlClient(coordinator.device.api)
                 device_name = coordinator.device.device_name
 
                 if action == "run":
@@ -649,10 +663,9 @@ class VioletControlServiceHandlers:
                         except Exception as err:
                             _LOGGER.error("Backwash auto-stop failed: %s", err)
 
-                    # Schedule through Home Assistant so the task is tracked by HA.
-                    self.hass.async_create_task(
+                    self.hass.async_create_background_task(
                         auto_stop_backwash(),
-                        name=f"{DOMAIN}_auto_stop_backwash",
+                        f"{DOMAIN}_auto_stop_backwash",
                     )
 
                 elif action == "abort":
@@ -678,7 +691,7 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device._api)
+                control = VioletControlClient(coordinator.device.api)
                 device_name = coordinator.device.device_name
 
                 await control.trigger_manual_dosing(dosing_index, runtime, from_param=from_param)
@@ -705,7 +718,9 @@ class VioletControlServiceHandlers:
         action = call.data.get("action")
         duration_seconds = call.data.get("duration_seconds")
 
-        if action == "fill" and duration_seconds is None:
+        if action == "fill" and (
+            duration_seconds is None or float(duration_seconds) <= 0
+        ):
             raise HomeAssistantError(
                 "Refill duration is REQUIRED for safety to prevent flooding! "
                 "Specify duration_seconds (10-3600 seconds)"
@@ -714,13 +729,13 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device._api)
+                control = VioletControlClient(coordinator.device.api)
                 device_name = coordinator.device.device_name
 
                 if action == "fill":
                     await control.set_function_manually("REFILL", "ON")
-                    _LOGGER.critical(
-                        "🚨 WATER REFILL STARTED on %s - WILL AUTO-STOP after %ss",
+                    _LOGGER.warning(
+                        "WATER REFILL STARTED on %s - WILL AUTO-STOP after %ss",
                         device_name,
                         refill_seconds,
                     )
@@ -730,24 +745,23 @@ class VioletControlServiceHandlers:
                         await asyncio.sleep(refill_seconds)
                         try:
                             await control.set_function_manually("REFILL", "OFF")
-                            _LOGGER.critical(
-                                "🚨 WATER REFILL AUTO-STOPPED on %s after %ss (OVERFLOW PREVENTED)",
+                            _LOGGER.warning(
+                                "WATER REFILL AUTO-STOPPED on %s after %ss (OVERFLOW PREVENTED)",
                                 device_name,
                                 refill_seconds,
                             )
                             await coordinator.async_request_refresh()
                         except Exception as err:
-                            _LOGGER.error("CRITICAL: Refill auto-stop FAILED: %s", err)
+                            _LOGGER.error("Refill auto-stop FAILED: %s", err)
 
-                    # Schedule through Home Assistant so the task is tracked by HA.
-                    self.hass.async_create_task(
+                    self.hass.async_create_background_task(
                         auto_stop_refill(),
-                        name=f"{DOMAIN}_auto_stop_refill",
+                        f"{DOMAIN}_auto_stop_refill",
                     )
 
                 elif action == "stop":
                     await control.set_function_manually("REFILL", "OFF")
-                    _LOGGER.critical("WATER REFILL STOPPED on %s (manual)", device_name)
+                    _LOGGER.warning("WATER REFILL STOPPED on %s (manual)", device_name)
                     await coordinator.async_request_refresh()
 
             except Exception as err:
@@ -773,7 +787,7 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device._api)
+                control = VioletControlClient(coordinator.device.api)
                 device_name = coordinator.device.device_name
 
                 await control.set_config({full_key: value})
@@ -808,7 +822,7 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device._api)
+                control = VioletControlClient(coordinator.device.api)
                 device_name = coordinator.device.device_name
 
                 await control.set_config({key: target_value})
@@ -845,7 +859,7 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device._api)
+                control = VioletControlClient(coordinator.device.api)
                 device_name = coordinator.device.device_name
 
                 await control.set_config(config_updates)
@@ -877,7 +891,7 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device._api)
+                control = VioletControlClient(coordinator.device.api)
                 device_name = coordinator.device.device_name
 
                 await control.set_config({key: max_ml})
@@ -909,7 +923,7 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device._api)
+                control = VioletControlClient(coordinator.device.api)
                 device_name = coordinator.device.device_name
 
                 await control.set_config({key: value})
@@ -968,7 +982,7 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device._api)
+                control = VioletControlClient(coordinator.device.api)
                 await control.set_config(config_updates)
                 _LOGGER.info(
                     "Temperature rule %d configured on %s",
@@ -1016,7 +1030,7 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device._api)
+                control = VioletControlClient(coordinator.device.api)
                 await control.set_config(config_updates)
                 _LOGGER.info(
                     "Analog rule %d configured on %s",
@@ -1060,7 +1074,7 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device._api)
+                control = VioletControlClient(coordinator.device.api)
                 await control.set_config(config_updates)
                 _LOGGER.info(
                     "Switching rule %d configured on %s",
@@ -1102,7 +1116,7 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device._api)
+                control = VioletControlClient(coordinator.device.api)
                 await control.set_config(config_updates)
                 _LOGGER.info(
                     "Timer rule %d configured on %s",
@@ -1138,7 +1152,7 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device._api)
+                control = VioletControlClient(coordinator.device.api)
                 await control.set_config({key: value})
                 state = "enabled" if enabled else "disabled"
                 _LOGGER.info(
@@ -1170,7 +1184,7 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device._api)
+                control = VioletControlClient(coordinator.device.api)
 
                 if state is not None:
                     await control.set_function_manually(
@@ -1242,7 +1256,7 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device._api)
+                control = VioletControlClient(coordinator.device.api)
                 await control.set_config(config_updates)
                 _LOGGER.info(
                     "Sensor %d calibration configured on %s",

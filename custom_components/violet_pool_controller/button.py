@@ -9,6 +9,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 
 from homeassistant.components.button import (
@@ -74,6 +75,8 @@ class VioletResetBlockingButton(VioletPoolControllerEntity, ButtonEntity):
             )
 
             await self.coordinator.async_request_refresh()
+        except asyncio.CancelledError:
+            raise
         except Exception as err:
             _LOGGER.error("Failed to reset error blockings: %s", err)
             raise HomeAssistantError(f"Reset failed: {err}") from err

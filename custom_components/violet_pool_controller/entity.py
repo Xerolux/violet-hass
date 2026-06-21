@@ -152,18 +152,12 @@ def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool | None:
 
     state_map = PV_SURPLUS_STATE_MAP if key == "PVSURPLUS" else STATE_MAP
 
-    # Priority 1: Check STATE_MAP first (most common)
     state_int = convert_to_int(raw_state)
     if state_int is not None:
         if state_int in state_map:
             return state_map[state_int]
-        # Generic interpretation: 0 = False, non-zero = True
         return state_int != 0
 
-    # Optimized string interpretation with pre-compiled patterns
-    state_str = str(raw_state).upper().strip()
-
-    # Handle composite states like "5|AUTO_WAIT" or "3|PUMP_ANTI_FREEZE|NEW_FLAG"
     if "|" in state_str:
         status_code, _status_text = parse_composite_state(state_str)
         state_int = convert_to_int(status_code)

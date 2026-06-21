@@ -9,6 +9,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 
 from homeassistant.components.cover import (
@@ -45,6 +46,8 @@ from .entity import VioletPoolControllerEntity
 from .entity_names import EntityNameResolver
 
 _LOGGER = logging.getLogger(__name__)
+
+COVER_REFRESH_DELAY = 0.5
 
 # Coordinator-based platforms; HA should not throttle entity state writes
 PARALLEL_UPDATES = 0
@@ -191,7 +194,7 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
                     error_msg,
                 )
 
-            # Refresh data after command
+            await asyncio.sleep(COVER_REFRESH_DELAY)
             await self.coordinator.async_request_refresh()
 
         except VioletUnsafeOperationError as err:

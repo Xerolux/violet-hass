@@ -17,8 +17,11 @@ from homeassistant.components.update import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
+from violet_poolcontroller_api import VioletPoolAPIError
 
 from .const import DOMAIN
 from .device import VioletPoolDataUpdateCoordinator
@@ -101,7 +104,7 @@ class VioletPoolControllerUpdateEntity(CoordinatorEntity, UpdateEntity):
             return None
         info = parse_firmware_info(self.coordinator.data)
         # If there's an available update, show that version; otherwise show installed
-        latest = info.available_version if info.update_available else info.installed_version
+        latest = info.available_version or info.installed_version
         _LOGGER.debug(
             "Firmware latest version for %s: %s (available=%s, installed=%s, update_available=%s)",
             self.coordinator.device.device_name,
@@ -133,7 +136,7 @@ class VioletPoolControllerUpdateEntity(CoordinatorEntity, UpdateEntity):
             notes = await self.coordinator.device.api.get_update_history()
             if notes:
                 self._release_notes_cache = notes
-        except Exception as err:  # noqa: BLE001
+        except (VioletPoolAPIError, TimeoutError) as err:
             _LOGGER.debug("Could not fetch release notes: %s", err)
 
         return self._release_notes_cache or None
@@ -169,7 +172,7 @@ class VioletPoolControllerUpdateEntity(CoordinatorEntity, UpdateEntity):
 
         except Exception as err:
             _LOGGER.error("Failed to initiate firmware update: %s", err)
-            raise
+            raise HomeAssistantError(f"Firmware update failed: {err}") from err
 
     @callback
     def _handle_coordinator_update(self) -> None:

@@ -22,7 +22,7 @@ class TestCalibrationStatus:
         status = CalibrationStatus("pH")
         assert status.status == "Unknown"
         assert status.is_expired is True
-        assert status.is_warning is True
+        assert status.is_warning is False
         assert status.days_since_calibration is None
         assert status.next_calibration_date is None
 

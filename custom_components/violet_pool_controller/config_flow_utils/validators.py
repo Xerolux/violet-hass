@@ -63,9 +63,14 @@ def validate_credentials_strength(username: str | None, password: str | None) ->
         username: The username.
         password: The password.
 
-    Note:
-        This is a basic check. In production, implement proper password validation.
+    Raises:
+        ValueError: If credentials are too weak.
     """
-    # It's okay to have no auth, but if username is present, password should be checked
-    # For now, just a placeholder.
-    pass
+    if not username and not password:
+        return
+    if username and (not password or len(password) < 4):
+        raise ValueError("Password must be at least 4 characters")
+    if password and len(password) < 4:
+        raise ValueError("Password must be at least 4 characters")
+    if password and password.lower() in ("admin", "password", "1234", "0000"):
+        raise ValueError("Password is too common - please choose a stronger password")

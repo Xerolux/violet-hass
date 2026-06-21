@@ -836,4 +836,6 @@ def get_error_entry(code: str) -> ErrorCodeEntry | None:
     Returns:
         ErrorCodeEntry or None if not found.
     """
+    if code is None:
+        return None
     return _CODE_ENTRIES.get(str(code).strip())

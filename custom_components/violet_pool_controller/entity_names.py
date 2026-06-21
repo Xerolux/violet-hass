@@ -124,7 +124,8 @@ class EntityNameResolver:
             return str(name) if name is not None else None
         return None
 
-    def get_resolver(self, coordinator) -> EntityNameResolver:
+    @staticmethod
+    def get_resolver(coordinator) -> EntityNameResolver:
         """Create resolver from coordinator (convenience method)."""
         hw_config = None
         if hasattr(coordinator, "device") and coordinator.device:

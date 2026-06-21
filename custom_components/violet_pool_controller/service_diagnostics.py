@@ -86,15 +86,14 @@ class VioletDiagnosticServiceHandlers:
             except Exception as err:
                 _LOGGER.warning("Could not read log file: %s", err)
 
-            if not log_entries:
-                self._append_system_snapshot(
-                    log_entries,
-                    coordinator,
-                    include_config=include_config,
-                    include_history=include_history,
-                    include_states=include_states,
-                    include_raw_data=include_raw_data,
-                )
+            self._append_system_snapshot(
+                log_entries,
+                coordinator,
+                include_config=include_config,
+                include_history=include_history,
+                include_states=include_states,
+                include_raw_data=include_raw_data,
+            )
 
             export_text = self._build_export_text(device_name, log_entries)
 
@@ -102,7 +101,7 @@ class VioletDiagnosticServiceHandlers:
                 filename = (
                     f"violet_diagnostic_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
                 )
-                filepath = f"/config/{filename}"
+                filepath = self.hass.config.path(filename)
 
                 try:
                     await self.hass.async_add_executor_job(
@@ -275,27 +274,22 @@ class VioletDiagnosticServiceHandlers:
         from .error_handler import get_enhanced_error_handler
 
         device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
-        cleared_count = 0
+        error_handler = get_enhanced_error_handler()
+        error_handler.clear_history()
 
         for device_id in device_ids:
             try:
                 await self._get_device_for_id(device_id)
-
-                error_handler = get_enhanced_error_handler()
-                error_handler.clear_history()
-                cleared_count += 1
-
             except Exception as err:
                 _LOGGER.error("Clear error history error: %s", err)
                 raise HomeAssistantError(
                     f"Failed to clear error history: {err}"
                 ) from err
 
-        _LOGGER.info("Cleared error history for %d device(s)", cleared_count)
+        _LOGGER.info("Cleared error history")
         return {
             "success": True,
-            "cleared_count": cleared_count,
-            "message": f"Cleared error history for {cleared_count} device(s)",
+            "message": "Cleared error history",
         }
 
     async def handle_get_calibration_status(

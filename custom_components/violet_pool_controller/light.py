@@ -84,6 +84,11 @@ class VioletDmxLight(VioletPoolControllerEntity, LightEntity):
                 _LOGGER.info("DMX %s %s succeeded", key, action)
             else:
                 _LOGGER.warning("DMX %s %s: %s", key, action, result.get("response", result))
+                raise HomeAssistantError(
+                    translation_key="api_error",
+                    translation_domain=DOMAIN,
+                    translation_placeholders={"detail": str(result.get("response", "Command failed"))},
+                )
             await self.coordinator.async_request_refresh()
         except VioletPoolAPIError as err:
             _LOGGER.error("API error for DMX %s %s: %s", key, action, err)
@@ -92,6 +97,8 @@ class VioletDmxLight(VioletPoolControllerEntity, LightEntity):
                 translation_domain=DOMAIN,
                 translation_placeholders={"detail": str(err)},
             ) from err
+        except HomeAssistantError:
+            raise
         except Exception as err:
             _LOGGER.exception("Unexpected error for DMX %s %s: %s", key, action, err)
             raise HomeAssistantError(

@@ -210,20 +210,18 @@ def handle_exception(
         return err
 
     # Categorize and wrap exception
-    error_type = type(err).__name__
 
-    # Network errors
-    if "Timeout" in error_type or "Connection" in error_type:
+    # Network errors - check exception class hierarchy, not string names
+    if isinstance(err, (asyncio.TimeoutError, aiohttp.ClientConnectorError,
+                        aiohttp.ClientOSError, aiohttp.ServerTimeoutError)):
         return NetworkError(
             f"Network error in {context}: {err}", original_exception=err
         )
-    # Authentication errors
-    elif "Auth" in error_type or "Credential" in error_type:
-        return AuthenticationError(
-            f"Authentication error in {context}: {err}", original_exception=err
-        )
+    # Authentication errors - check via isinstance, not string matching
+    if isinstance(err, AuthenticationError):
+        return err
     # Circuit breaker errors
-    elif "Circuit" in error_type:
+    if isinstance(err, (CircuitBreakerError,)):
         return CircuitBreakerError(
             f"Circuit breaker error in {context}: {err}",
             state="OPEN",
@@ -238,7 +236,7 @@ def handle_exception(
 
 
 # =============================================================================
-# ENHANCED ERROR HANDLING (Silver Level)
+# ENHANCED ERROR HANDLING
 # =============================================================================
 
 
@@ -287,7 +285,7 @@ class IntegrationError:
         self.message = message
         self.recoverable = recoverable
         self.retry_after = retry_after
-        self.timestamp = time.time()
+        self.timestamp = time.monotonic()
 
     def to_dict(self) -> dict[str, Any]:
         """Convert error to dictionary for logging/sensors.
@@ -448,7 +446,7 @@ class EnhancedErrorHandler:
             self._error_history.pop(0)
 
         # Update consecutive error counter
-        now = time.time()
+        now = time.monotonic()
         if now - self._last_error_time < 60:  # Errors within 60 seconds
             self._consecutive_errors += 1
         else:
@@ -474,6 +472,16 @@ class EnhancedErrorHandler:
         # Track auth errors
         if error_info.error_type == ErrorType.AUTH_ERROR:
             self._auth_errors += 1
+
+    def record_success(self) -> None:
+        """Record a successful operation, clearing offline status."""
+        if self._offline_since is not None:
+            offline_duration = time.monotonic() - self._offline_since
+            _LOGGER.info(
+                "Controller back ONLINE (was offline for %.0fs)", offline_duration
+            )
+            self._offline_since = None
+            self._consecutive_errors = 0
 
     def get_recent_errors(self, count: int = 10) -> list[IntegrationError]:
         """Get the most recent errors.

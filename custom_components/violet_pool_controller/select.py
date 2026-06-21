@@ -124,11 +124,12 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
     @property
     def current_option(self) -> str | None:
         """Return the current selected option."""
+        if self.coordinator.data is None:
+            self._optimistic_mode = None
+            return None
+
         if self._optimistic_mode is not None:
             return self._optimistic_mode
-
-        if self.coordinator.data is None:
-            return None
 
         # Dosing keys: check DOSAGE_*_use config value
         if self._device_key in DOSING_CONFIG_KEYS:
@@ -275,10 +276,6 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
                     result = await self.device.api.set_dosage_enabled(
                         dosing_type, enabled=False
                     )
-                else:
-                    result = await self.device.api.set_switch_state(
-                        key=self._device_key, action=action
-                    )
             else:
                 result = await self.device.api.set_switch_state(
                     key=self._device_key, action=action
@@ -304,8 +301,11 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
                     option,
                     error_msg,
                 )
-                task = asyncio.create_task(self._delayed_refresh())
-                task.add_done_callback(lambda t: self._handle_refresh_error(t))
+                raise HomeAssistantError(
+                    translation_key="failed_to_set_value",
+                    translation_domain=DOMAIN,
+                    translation_placeholders={"detail": str(error_msg)},
+                )
 
         except VioletPoolAPIError as err:
             _LOGGER.error(
@@ -442,4 +442,4 @@ async def async_setup_entry(
         async_add_entities(entities)
         _LOGGER.debug("%d select entities set up", len(entities))
     else:
-        _LOGGER.warning("⚠ No select entities set up")
+        _LOGGER.warning("No select entities set up")

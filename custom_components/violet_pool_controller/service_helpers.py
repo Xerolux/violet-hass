@@ -16,6 +16,8 @@ def as_device_id_list(value: Any) -> list[str]:
         return [value]
     if isinstance(value, Iterable) and not isinstance(value, (bytes, bytearray)):
         return [str(item) for item in value]
+    if isinstance(value, (bytes, bytearray)):
+        return [value.decode("utf-8")]
     return [str(value)]
 
 
@@ -62,6 +64,18 @@ MAX_PH = 7.8
 DEFAULT_SAFETY_INTERVAL = 300
 
 
+def _tail_file(file_handle, line_count: int) -> list[str]:
+    """Read only the tail of a file without loading the entire file."""
+    file_handle.seek(0, os.SEEK_END)
+    file_size = file_handle.tell()
+    buffer_size = min(file_size, max(8192, line_count * 200))
+    file_handle.seek(max(0, file_size - buffer_size))
+    lines = file_handle.readlines()
+    if file_size > buffer_size:
+        lines = lines[-line_count:]
+    return lines
+
+
 def read_recent_violet_log_lines(
     log_path: str,
     lines: int,
@@ -72,10 +86,10 @@ def read_recent_violet_log_lines(
         return []
 
     with open(log_path, encoding="utf-8", errors="ignore") as log_file:
-        all_lines = log_file.readlines()
+        tail_lines = _tail_file(log_file, lines * 10)
 
     violet_lines = [
-        line for line in all_lines if "violet_pool_controller" in line.lower()
+        line for line in tail_lines if "violet_pool_controller" in line.lower()
     ]
     recent_lines = violet_lines[-lines:] if len(violet_lines) > lines else violet_lines
 
