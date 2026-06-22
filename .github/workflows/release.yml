@@ -70,7 +70,7 @@ jobs:
       bugfixes: ${{ steps.commits.outputs.bug-fixes }}
       previous-tag: ${{ steps.commits.outputs.previous-tag }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -452,7 +452,7 @@ jobs:
     runs-on: ubuntu-latest
     if: needs.prepare-release.outputs.is_draft != 'true'
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
@@ -632,7 +632,7 @@ jobs:
       needs.prepare-release.outputs.is_draft != 'true' &&
       inputs.post_to_forum == true
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - name: Set up Python
         uses: actions/setup-python@v6
