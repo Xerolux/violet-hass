@@ -1,6 +1,6 @@
 ## v2.0.1 – Violet Pool Controller
 
-🟡 **BETA RELEASE** - Testing phase, may contain bugs
+✅ **STABLE RELEASE**
 
 ### ❤️ Support | Unterstützung
 
@@ -15,22 +15,29 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
----
-
 ### ✨ New Features | Neue Funktionen
 
-- Enhanced Violet Pool Controller functionality
+- docs: add missing modules to CLAUDE.md reference (ccc72da)
 
 ### 🚀 Improvements | Verbesserungen
 
+- build(deps): update aiohttp requirement (6f639ee)
+- 📝 Release v2.0.1 - Update changelog and version files (ad1ca9f)
 - refactor: code quality, type safety, dead code removal, and test coverage (0a1de8b)
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
-- Minor bug fixes and stability improvements
+- Fix test suite (green), HA 2026.8 config_entry deprecation, and code cleanup (6a5b390)
+- fix: make test suite green and resolve HA 2026.8 config_entry deprecation (bcc23f5)
+
+### 📚 Documentation | Dokumentation
+
+- docs: add missing modules to CLAUDE.md reference (ccc72da)
 
 ### 🧪 Tests
 
+- Fix test suite (green), HA 2026.8 config_entry deprecation, and code cleanup (6a5b390)
+- fix: make test suite green and resolve HA 2026.8 config_entry deprecation (bcc23f5)
 - refactor: code quality, type safety, dead code removal, and test coverage (0a1de8b)
 
 ---
@@ -69,4 +76,4 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-06-20 11:25:38 UTC_
+_Generated automatically by GitHub Actions on 2026-06-23 09:17:25 UTC_
