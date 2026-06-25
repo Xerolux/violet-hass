@@ -10,7 +10,7 @@ violet_poolcontroller_api = ["py.typed"]
 
 [project]
 name = "violet-poolController-api"
-version = "0.0.34"
+version = "0.0.35"
 authors = [
   { name="Basti (Xerolux)", email="git@xerolux.de" },
 ]

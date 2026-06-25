@@ -2205,23 +2205,18 @@ class VioletPoolAPI:
 
         Returns a flat dict with runtime (HH:MM:SS format) and last-on/off
         (ISO datetime strings) for all outputs: PUMP, SOLAR, HEATER, BACKWASH,
-        REFILL, LIGHT, ECO, all dosing outputs, OMNI_DC channels, and extension
+        REFILL, LIGHT, ECO, all dosing outputs, OMNIDC channels, and extension
         relay channels.  Also includes CPU_UPTIME, LOAD_AVG, and version fields.
 
         Returns:
-            Dict with runtime/timestamp strings for all outputs, or empty dict
-            on error.
+            Dict with runtime/timestamp strings for all outputs.
 
         Raises:
-            VioletPoolAPIError: If the API call fails.
+            VioletPoolAPIError: If the API call fails or the response is not a
+                JSON object.
 
         """
-        resp = await self._request(
+        return await self._request_json_dict(
             API_GET_OUTPUT_RUNTIMES,
-            method="GET",
-            priority=API_PRIORITY_NORMAL,
+            payload_name="getOutputruntimes",
         )
-        if isinstance(resp, dict):
-            return resp
-        _LOGGER.warning("Unexpected non-dict response for get_output_runtimes: %s", type(resp).__name__)
-        return {}

@@ -547,6 +547,32 @@ async def handle_get_overall_dosing(request: web.Request) -> web.Response:
     })
 
 
+async def handle_get_output_runtimes(request: web.Request) -> web.Response:
+    """GET /getOutputruntimes — JSON dict of runtime/timestamp stats per output."""
+    _log_request(request)
+    await _maybe_delay()
+    now = int(time.time())
+    uptime_start = time.monotonic() - _ctrl.start_time
+    days = int(uptime_start // 86400)
+    hours = int((uptime_start % 86400) // 3600)
+    minutes = int((uptime_start % 3600) // 60)
+    return web.json_response({
+        "PUMP_RUNTIME": "04h 33m 12s",
+        "PUMP_LAST_ON": now - 600,
+        "PUMP_LAST_OFF": now - 7200,
+        "SOLAR_RUNTIME": "01h 02m 03s",
+        "SOLAR_LAST_ON": now - 1800,
+        "SOLAR_LAST_OFF": now - 5400,
+        "HEATER_RUNTIME": "00h 00m 00s",
+        "HEATER_LAST_ON": 0,
+        "HEATER_LAST_OFF": 0,
+        "CPU_UPTIME": f"{days}d {hours}h {minutes}m",
+        "LOAD_AVG": "0.42",
+        "fw": _ctrl.fw_installed,
+        "SW_VERSION": _ctrl.fw_installed,
+    })
+
+
 async def handle_get_outputstates(request: web.Request) -> web.Response:
     _log_request(request)
     await _maybe_delay()
@@ -938,6 +964,7 @@ def create_app() -> web.Application:
     app.router.add_get("/getWeatherdata", handle_get_weatherdata)
     app.router.add_get("/getOverallDosing", handle_get_overall_dosing)
     app.router.add_get("/getOutputstates", handle_get_outputstates)
+    app.router.add_get("/getOutputruntimes", handle_get_output_runtimes)
     app.router.add_get("/getCalibRawValues", handle_get_calib_raw_values)
     app.router.add_get("/getCalibHistory", handle_get_calib_history)
     app.router.add_post("/restoreOldCalib", handle_restore_old_calib)

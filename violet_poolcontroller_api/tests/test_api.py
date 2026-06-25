@@ -97,6 +97,47 @@ async def test_get_readings_success(
 
 
 @pytest.mark.asyncio
+async def test_get_output_runtimes_success(
+    mock_aioresponse: aioresponses,
+    api_client: VioletPoolAPI,
+) -> None:
+    """Test get_output_runtimes parses a JSON dict response.
+
+    Regression: previously the endpoint was requested without expect_json,
+    so the raw text body was returned and the method logged a warning
+    ("Unexpected non-dict response for get_output_runtimes: str") and
+    returned an empty dict.
+    """
+    url = "http://192.168.1.100/getOutputruntimes"
+    mock_data = {
+        "PUMP_RUNTIME": "04h 33m 12s",
+        "PUMP_LAST_ON": 1700000000,
+        "PUMP_LAST_OFF": 1699996800,
+        "CPU_UPTIME": "12d 4h 30m",
+        "LOAD_AVG": "0.42",
+    }
+    mock_aioresponse.get(url, payload=mock_data, status=200)
+
+    result = await api_client.get_output_runtimes()
+
+    assert isinstance(result, dict)
+    assert result == mock_data
+
+
+@pytest.mark.asyncio
+async def test_get_output_runtimes_non_dict_raises(
+    mock_aioresponse: aioresponses,
+    api_client: VioletPoolAPI,
+) -> None:
+    """Test get_output_runtimes raises when the controller returns a non-dict."""
+    url = "http://192.168.1.100/getOutputruntimes"
+    mock_aioresponse.get(url, body="not-json", status=200)
+
+    with pytest.raises(VioletPoolAPIError):
+        await api_client.get_output_runtimes()
+
+
+@pytest.mark.asyncio
 async def test_set_pump_speed_success(
     mock_aioresponse: aioresponses,
     api_client: VioletPoolAPI,

@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.0.35
+
+### Fixes
+- **fix: `get_output_runtimes()` returned empty dict** — the method called `_request()` without `expect_json=True`, so the controller's JSON body was returned as a raw `str`. The `isinstance(resp, dict)` check therefore always failed, logging `Unexpected non-dict response for get_output_runtimes: str` and discarding all runtime/timestamp data (PUMP, SOLAR, HEATER, CPU_UPTIME, etc.). Switched to `_request_json_dict()` (same path used by `get_readings()`), which parses the JSON and enforces a dict response. Non-JSON or non-dict responses now raise `VioletPoolAPIError` instead of being silently swallowed.
+
+### Installation
+```bash
+pip install violet-poolController-api==0.0.35
+```
+
+---
+
 ## v0.0.34
 
 ### Fixes
