@@ -10,7 +10,7 @@ violet_poolcontroller_api = ["py.typed"]
 
 [project]
 name = "violet-poolController-api"
-version = "0.0.33"
+version = "0.0.34"
 authors = [
   { name="Basti (Xerolux)", email="git@xerolux.de" },
 ]
@@ -30,7 +30,7 @@ classifiers = [
     "Topic :: Home Automation",
 ]
 dependencies = [
-    "aiohttp>=3.11.0,<3.14",
+    "aiohttp>=3.11.0,<3.15",
 ]
 
 [project.optional-dependencies]

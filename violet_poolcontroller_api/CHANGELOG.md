@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.0.34
+
+### Fixes
+- **fix: widen aiohttp upper bound from `<3.14` to `<3.15`** — Home Assistant 2026.5.0 ships with aiohttp 3.14.1, which was excluded by the previous constraint `>=3.11.0,<3.14`. This caused pip to fail resolving `violet-poolController-api>=0.0.33` at HA startup. The new constraint `>=3.11.0,<3.15` allows aiohttp 3.14.x while remaining compatible with existing installations.
+
+### Installation
+```bash
+pip install violet-poolController-api==0.0.34
+```
+
+---
+
 ## v0.0.31
 
 ### Fixes
