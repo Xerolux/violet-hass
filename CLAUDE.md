@@ -18,7 +18,7 @@ This is a **monorepo** containing two components:
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.  
 **🔒 Security Model**: See [SECURITY.md](./SECURITY.md) for detailed security architecture and compliance.
 
-**Current Integration Version**: `2.0.1` (defined in `manifest.json`, `const.py`, `pyproject.toml`, and optionally `.version`)
+**Current Integration Version**: `2.0.2` (defined in `manifest.json`, `const.py`, `pyproject.toml`, and optionally `.version`)
 **Current API Version**: `0.0.33` (defined in `violet_poolcontroller_api/pyproject.toml`)
 **Minimum Home Assistant Version**: `2026.5.0` (defined in `hacs.json`)
 **Minimum Python Version**: Home Assistant runtime is managed by HA 2026.5.0+; standalone API package supports `>=3.12`
