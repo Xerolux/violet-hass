@@ -17,6 +17,9 @@
     "violet-poolController-api>=0.0.35"
   ],
   "version": "2.0.2",
+  "brands": {
+    "url": "https://brands.home-assistant.io"
+  },
   "zeroconf": [
     {
       "type": "_http._tcp.local.",
