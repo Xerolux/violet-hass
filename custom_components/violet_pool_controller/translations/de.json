@@ -119,6 +119,16 @@
         }
       },
       "reconfigure": {
+        "title": "Konfiguration anpassen",
+        "description": "Was möchtest du neu konfigurieren?\n\nController: **{controller_name}**",
+        "data": {
+          "reconfigure_option": "Was soll neu konfiguriert werden"
+        },
+        "data_description": {
+          "reconfigure_option": "Wähle die Einstellungen, die du aktualisieren möchtest"
+        }
+      },
+      "reconfigure_connection": {
         "title": "Verbindung neu konfigurieren",
         "description": "Aktualisiere die Verbindungseinstellungen für deinen Controller. Dies ist nützlich, wenn sich die IP-Adresse oder die Netzwerkeinstellungen des Controllers geändert haben.\n\nController: **{controller_name}**",
         "data": {
@@ -136,6 +146,16 @@
           "polling_interval": "Datenabruf-Intervall (10-3600s)",
           "timeout_duration": "Maximale Wartezeit pro Anfrage",
           "retry_attempts": "Anzahl Wiederholungsversuche"
+        }
+      },
+      "reconfigure_safety": {
+        "title": "🚨 Sicherheitseinstellungen",
+        "description": "🚨 **KRITISCHE SICHERHEITSWARNUNG** 🚨\n\nUnsichere Schalter aktivieren ermöglicht direkte Manualsteuerung von:\n• Dosieranlagen (Risiko von Überdosierung)\n• Rückspülung/Spülung (Ausrüstungsschadenrisiko)\n• Wassernachfüllung (Hochwasser-/Überflutungsrisiko)\n\nDiese Vorgänge können UNBEGRENZT ohne Zeitlimit laufen!\n\n**SICHERE ALTERNATIVE**: Verwenden Sie stattdessen Dienste - diese erfordern obligatorische Zeitlimits.\n\n⚠️ Aktivieren Sie dies nur, wenn Sie die Risiken vollständig verstehen und akzeptieren!",
+        "data": {
+          "allow_unsafe_switches": "Unsichere Schalter zulassen"
+        },
+        "data_description": {
+          "allow_unsafe_switches": "Direktsteuerung von Dosierung, Rückspülung & Nachfüllung aktivieren (erfordert obligatorische Zeitlimits via Dienste)"
         }
       },
       "repair": {
@@ -759,6 +779,12 @@
         "allon": "Alle Lichter einschalten",
         "alloff": "Alle Lichter ausschalten",
         "allauto": "Alle Lichter auf Automatik"
+      }
+    },
+    "reconfigure_option": {
+      "options": {
+        "connection": "🌐 Verbindungseinstellungen",
+        "safety": "🚨 Sicherheitseinstellungen"
       }
     }
   },
@@ -2266,35 +2292,6 @@
           "auto": "Auto"
         }
       }
-    }
-  },
-  "placeholders": {
-    "error_hints": {
-      "already_configured": "Dieser Controller ist bereits konfiguriert. Bitte überprüfen Sie Ihre Integrationsliste.",
-      "invalid_ip": "Bitte geben Sie eine gültige IP-Adresse (z.B. 192.168.1.100) oder einen Hostnamen ein.",
-      "cannot_connect": "Verbindung zum Controller fehlgeschlagen. Bitte überprüfen Sie:\n• Ist der Controller eingeschaltet und verbunden?\n• Ist die IP-Adresse korrekt?\n• Sind Benutzername/Passwort korrekt (falls Authentifizierung aktiviert)?\n• Können Sie den Controller von diesem Gerät aus anpingen?"
-    },
-    "step_progress": {
-      "connection": "Schritt 1 von 4",
-      "pool_setup": "Schritt 2 von 3",
-      "sensor_selection": "Schritt 3 von 3"
-    },
-    "step_title": {
-      "connection": "Verbindungseinstellungen",
-      "pool_setup": "Pool-Konfiguration",
-      "sensor_selection": "Dynamische Sensoren"
-    },
-    "step_description": {
-      "sensor_selection": "Wählen Sie die Sensoren, die Sie in Home Assistant sehen möchten."
-    },
-    "reconfigure": {
-      "connection_label": "🌐 Verbindungseinstellungen",
-      "safety_label": "🚨 Sicherheitseinstellungen",
-      "info": "Was möchten Sie neu konfigurieren?"
-    },
-    "safety_warning": {
-      "title": "🚨 KRITISCHE SICHERHEITSWARNUNG 🚨",
-      "body": "Unsichere Schalter aktivieren ermöglicht direkte Manualsteuerung von:\n• Dosieranlagen (Risiko von Überdosierung)\n• Rückspülung/Spülung (Ausrüstungsschadenrisiko)\n• Wassernachfüllung (Hochwasser-/Überflutungsrisiko)\n\nDiese Vorgänge können UNBEGRENZT ohne Zeitlimit laufen!\n\nSICHERE ALTERNATIVE: Verwenden Sie stattdessen Dienste - diese erfordern obligatorische Zeitlimits.\n\n⚠️ Aktivieren Sie dies nur, wenn Sie die Risiken vollständig verstehen und akzeptieren!"
     }
   }
 }

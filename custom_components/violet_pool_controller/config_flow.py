@@ -95,74 +95,6 @@ class ConfigFlow(
         self._reauth_entry: config_entries.ConfigEntry | None = None
         _LOGGER.debug("Violet Pool Controller setup started")
 
-    def _get_language(self) -> str:
-        """Get the current Home Assistant language."""
-        return self.hass.config.language or "en"
-
-    def _get_translated_error(self, key: str, default: str) -> str:
-        """Get translated error message."""
-        language = self._get_language()
-        if language == "de":
-            translations = {
-                "already_configured": "Dieser Controller ist bereits konfiguriert. Bitte überprüfen Sie Ihre Integrationsliste.",
-                "invalid_ip": "Bitte geben Sie eine gültige IP-Adresse (z.B. 192.168.1.100) oder einen Hostnamen ein.",
-                "cannot_connect": "Verbindung zum Controller fehlgeschlagen. Bitte überprüfen Sie:\n• Ist der Controller eingeschaltet und verbunden?\n• Ist die IP-Adresse korrekt?\n• Sind Benutzername/Passwort korrekt (falls Authentifizierung aktiviert)?\n• Können Sie den Controller von diesem Gerät aus anpingen?",
-            }
-            return translations.get(key, default)
-        return default
-
-    def _get_translated_text(self, section: str, key: str, default: str) -> str:
-        """Get translated text for a section."""
-        language = self._get_language()
-        if language == "de":
-            translations = {
-                "connection": {
-                    "connection": "Schritt 1 von 4",
-                    "title": "Verbindungseinstellungen",
-                },
-                "pool_setup": {
-                    "progress": "Schritt 2 von 3",
-                    "title": "Pool-Konfiguration",
-                },
-                "sensor_selection": {
-                    "progress": "Schritt 3 von 3",
-                    "title": "Dynamische Sensoren",
-                    "description": "Wählen Sie die Sensoren, die Sie in Home Assistant sehen möchten.",
-                },
-                "reconfigure": {
-                    "connection": "🌐 Verbindungseinstellungen",
-                    "safety": "🚨 Sicherheitseinstellungen",
-                    "info": "Was möchten Sie neu konfigurieren?",
-                },
-            }
-            return translations.get(section, {}).get(key, default)
-        return default
-
-    def _get_safety_warning(self) -> str:
-        """Get safety warning message in the appropriate language."""
-        language = self._get_language()
-        if language == "de":
-            return (
-                "🚨 KRITISCHE SICHERHEITSWARNUNG 🚨\n\n"
-                "Unsichere Schalter aktivieren ermöglicht direkte Manualsteuerung von:\n"
-                "• Dosieranlagen (Risiko von Überdosierung)\n"
-                "• Rückspülung/Spülung (Ausrüstungsschadenrisiko)\n"
-                "• Wassernachfüllung (Hochwasser-/Überflutungsrisiko)\n\n"
-                "Diese Vorgänge können UNBEGRENZT ohne Zeitlimit laufen!\n\n"
-                "SICHERE ALTERNATIVE: Verwenden Sie stattdessen Dienste - diese erfordern obligatorische Zeitlimits.\n\n"
-                "⚠️ Aktivieren Sie dies nur, wenn Sie die Risiken vollständig verstehen und akzeptieren!"
-            )
-        return (
-            "🚨 CRITICAL SAFETY WARNING 🚨\n\n"
-            "Enabling unsafe switches allows direct manual control of:\n"
-            "• Dosing systems (chemical overdose risk)\n"
-            "• Backwash/Rinse (equipment damage risk)\n"
-            "• Water Refill (flooding/overflow risk)\n\n"
-            "These operations can run INDEFINITELY without time limits!\n\n"
-            "SAFE ALTERNATIVE: Use Services instead - they require mandatory time limits.\n\n"
-            "⚠️ Only enable this if you fully understand and accept the risks!"
-        )
-
     @staticmethod
     def _build_unique_id(host: str, device_id: int | str) -> str:
         """Build a stable unique ID shared by manual and zeroconf setup."""
@@ -237,7 +169,6 @@ class ConfigFlow(
     ) -> ConfigFlowResult:
         """Handle the controller connection step."""
         errors = {}
-        error_hints = {}
 
         if user_input:
             port = user_input.get(CONF_PORT, DEFAULT_PORT)
@@ -245,12 +176,8 @@ class ConfigFlow(
                 user_input[CONF_API_URL], port, int(user_input.get(CONF_DEVICE_ID, 1))
             ):
                 errors["base"] = constants.ERROR_ALREADY_CONFIGURED
-                error_hints["base"] = self._get_translated_error("already_configured",
-                    "This controller is already configured. Please check your integrations list.")
             elif not validators.validate_ip_address(user_input[CONF_API_URL]):
                 errors[CONF_API_URL] = constants.ERROR_INVALID_IP
-                error_hints[CONF_API_URL] = self._get_translated_error("invalid_ip",
-                    "Please enter a valid IP address (e.g., 192.168.1.100) or hostname.")
             else:
                 self._config_data = self._build_config_data(user_input)
                 await self.async_set_unique_id(
@@ -263,26 +190,12 @@ class ConfigFlow(
                 if await self._test_connection():
                     return await self.async_step_pool_setup()
                 errors["base"] = constants.ERROR_CANNOT_CONNECT
-                error_hints["base"] = self._get_translated_error("cannot_connect",
-                    "Cannot connect to the controller. Please check:\n"
-                    "• Is the controller powered on and connected?\n"
-                    "• Is the IP address correct?\n"
-                    "• Are username/password correct (if auth enabled)?\n"
-                    "• Can you ping the controller from this device?")
-
-        placeholders = {
-            **self._get_help_links(),
-            "step_progress": self._get_translated_text("connection", "connection", "Step 1 of 4"),
-            "step_title": self._get_translated_text("connection", "title", "Connection Settings"),
-        }
-        if error_hints:
-            placeholders["error_hint"] = "\n".join(error_hints.values())
 
         return self.async_show_form(
             step_id="connection",
             data_schema=self._get_connection_schema(),
             errors=errors,
-            description_placeholders=placeholders,
+            description_placeholders=self._get_help_links(),
         )
 
     async def async_step_pool_setup(
@@ -306,10 +219,6 @@ class ConfigFlow(
         return self.async_show_form(
             step_id="pool_setup",
             data_schema=self._get_pool_setup_schema(),
-            description_placeholders={
-                "step_progress": self._get_translated_text("pool_setup", "progress", "Step 2 of 3"),
-                "step_title": self._get_translated_text("pool_setup", "title", "Pool Configuration"),
-            },
         )
 
     async def async_step_feature_selection(
@@ -341,12 +250,6 @@ class ConfigFlow(
         return self.async_show_form(
             step_id="sensor_selection",
             data_schema=self._get_sensor_selection_schema(),
-            description_placeholders={
-                "step_progress": self._get_translated_text("sensor_selection", "progress", "Step 3 of 3"),
-                "step_icon": "📊",
-                "step_title": self._get_translated_text("sensor_selection", "title", "Dynamic Sensors"),
-                "step_description": self._get_translated_text("sensor_selection", "description", "Select the sensors you want to see in Home Assistant."),
-            },
         )
 
     async def async_step_reauth(
@@ -487,11 +390,11 @@ class ConfigFlow(
                             options=[
                                 selector.SelectOptionDict(
                                     value="connection",
-                                    label=self._get_translated_text("reconfigure", "connection", "🌐 Connection settings"),
+                                    label="🌐 Connection settings",
                                 ),
                                 selector.SelectOptionDict(
                                     value="safety",
-                                    label=self._get_translated_text("reconfigure", "safety", "🚨 Safety settings"),
+                                    label="🚨 Safety settings",
                                 ),
                             ],
                             mode=selector.SelectSelectorMode.LIST,
@@ -499,9 +402,6 @@ class ConfigFlow(
                     ),
                 }
             ),
-            description_placeholders={
-                "info": self._get_translated_text("reconfigure", "info", "What would you like to reconfigure?"),
-            },
         )
 
     async def async_step_reconfigure_safety(
@@ -544,9 +444,6 @@ class ConfigFlow(
                     ): selector.BooleanSelector(selector.BooleanSelectorConfig()),
                 }
             ),
-            description_placeholders={
-                "warning": self._get_safety_warning(),
-            },
         )
 
     async def async_step_reconfigure_connection(
