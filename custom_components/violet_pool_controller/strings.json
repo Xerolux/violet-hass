@@ -125,6 +125,9 @@
         "description": "What would you like to reconfigure?\n\nController: **{controller_name}**",
         "data": {
           "reconfigure_option": "Select what to reconfigure"
+        },
+        "data_description": {
+          "reconfigure_option": "Choose the settings you want to update"
         }
       },
       "reconfigure_connection": {
@@ -151,7 +154,7 @@
       },
       "reconfigure_safety": {
         "title": "🚨 Safety Settings",
-        "description": "{warning}",
+        "description": "🚨 **CRITICAL SAFETY WARNING** 🚨\n\nEnabling unsafe switches allows direct manual control of:\n• Dosing systems (chemical overdose risk)\n• Backwash/Rinse (equipment damage risk)\n• Water Refill (flooding/overflow risk)\n\nThese operations can run INDEFINITELY without time limits!\n\n**SAFE ALTERNATIVE**: Use Services instead - they require mandatory time limits.\n\n⚠️ Only enable this if you fully understand and accept the risks!",
         "data": {
           "allow_unsafe_switches": "Allow manual safety-critical switches"
         },
@@ -1034,6 +1037,12 @@
         "allon": "Turn all lights on",
         "alloff": "Turn all lights off",
         "allauto": "Set all lights to auto"
+      }
+    },
+    "reconfigure_option": {
+      "options": {
+        "connection": "🌐 Connection settings",
+        "safety": "🚨 Safety settings"
       }
     }
   },

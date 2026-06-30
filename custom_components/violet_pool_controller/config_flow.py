@@ -169,7 +169,6 @@ class ConfigFlow(
     ) -> ConfigFlowResult:
         """Handle the controller connection step."""
         errors = {}
-        error_hints = {}
 
         if user_input:
             port = user_input.get(CONF_PORT, DEFAULT_PORT)
@@ -177,15 +176,8 @@ class ConfigFlow(
                 user_input[CONF_API_URL], port, int(user_input.get(CONF_DEVICE_ID, 1))
             ):
                 errors["base"] = constants.ERROR_ALREADY_CONFIGURED
-                error_hints["base"] = (
-                    "This controller is already configured."
-                    " Please check your integrations list."
-                )
             elif not validators.validate_ip_address(user_input[CONF_API_URL]):
                 errors[CONF_API_URL] = constants.ERROR_INVALID_IP
-                error_hints[CONF_API_URL] = (
-                    "Please enter a valid IP address (e.g., 192.168.1.100) or hostname."
-                )
             else:
                 self._config_data = self._build_config_data(user_input)
                 await self.async_set_unique_id(
@@ -198,27 +190,12 @@ class ConfigFlow(
                 if await self._test_connection():
                     return await self.async_step_pool_setup()
                 errors["base"] = constants.ERROR_CANNOT_CONNECT
-                error_hints["base"] = (
-                    "Cannot connect to the controller. Please check:\n"
-                    "• Is the controller powered on and connected?\n"
-                    "• Is the IP address correct?\n"
-                    "• Are username/password correct (if auth enabled)?\n"
-                    "• Can you ping the controller from this device?"
-                )
-
-        placeholders = {
-            **self._get_help_links(),
-            "step_progress": "Step 1 of 4",
-            "step_title": "Connection Settings",
-        }
-        if error_hints:
-            placeholders["error_hint"] = "\n".join(error_hints.values())
 
         return self.async_show_form(
             step_id="connection",
             data_schema=self._get_connection_schema(),
             errors=errors,
-            description_placeholders=placeholders,
+            description_placeholders=self._get_help_links(),
         )
 
     async def async_step_pool_setup(
@@ -242,10 +219,6 @@ class ConfigFlow(
         return self.async_show_form(
             step_id="pool_setup",
             data_schema=self._get_pool_setup_schema(),
-            description_placeholders={
-                "step_progress": "Step 2 of 3",
-                "step_title": "Pool Configuration",
-            },
         )
 
     async def async_step_feature_selection(
@@ -277,14 +250,6 @@ class ConfigFlow(
         return self.async_show_form(
             step_id="sensor_selection",
             data_schema=self._get_sensor_selection_schema(),
-            description_placeholders={
-                "step_progress": "Step 3 of 3",
-                "step_icon": "📊",
-                "step_title": "Dynamic Sensors",
-                "step_description": (
-                    "Select the sensors you want to see in Home Assistant."
-                ),
-            },
         )
 
     async def async_step_reauth(
@@ -437,9 +402,6 @@ class ConfigFlow(
                     ),
                 }
             ),
-            description_placeholders={
-                "info": "What would you like to reconfigure?",
-            },
         )
 
     async def async_step_reconfigure_safety(
@@ -482,18 +444,6 @@ class ConfigFlow(
                     ): selector.BooleanSelector(selector.BooleanSelectorConfig()),
                 }
             ),
-            description_placeholders={
-                "warning": (
-                    "🚨 CRITICAL SAFETY WARNING 🚨\n\n"
-                    "Enabling unsafe switches allows direct manual control of:\n"
-                    "• Dosing systems (chemical overdose risk)\n"
-                    "• Backwash/Rinse (equipment damage risk)\n"
-                    "• Water Refill (flooding/overflow risk)\n\n"
-                    "These operations can run INDEFINITELY without time limits!\n\n"
-                    "SAFE ALTERNATIVE: Use Services instead - they require mandatory time limits.\n\n"
-                    "⚠️ Only enable this if you fully understand and accept the risks!"
-                ),
-            },
         )
 
     async def async_step_reconfigure_connection(
