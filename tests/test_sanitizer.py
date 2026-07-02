@@ -60,9 +60,9 @@ class TestInputSanitizer:
 
     def test_validate_orp_value(self):
         """Test dass ORP-Werte korrekt validiert werden."""
-        # Valid range: 400-900 mV
+        # Valid range: 500-900 mV
         assert InputSanitizer.validate_orp_value(700) == 700
-        assert InputSanitizer.validate_orp_value(300) == 400  # Too low
+        assert InputSanitizer.validate_orp_value(300) == 500  # Too low
         assert InputSanitizer.validate_orp_value(1000) == 900  # Too high
         assert InputSanitizer.validate_orp_value("invalid") == 700  # Default
 

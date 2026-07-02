@@ -25,7 +25,7 @@ class TestVioletReadingsBasic:
         """Create VioletReadings from dict."""
         readings = VioletReadings(sample_data)
         assert readings is not None
-        assert isinstance(readings, dict)  # VioletReadings is dict-like
+        assert len(readings) == len(sample_data)
 
     def test_readings_value_access(self, sample_data):
         """Access values from VioletReadings."""
@@ -178,7 +178,7 @@ class TestVioletReadingsIntegration:
             "DO2": "1",
         }
         readings = VioletReadings(realistic_data)
-        assert len(readings) == 20
+        assert len(readings) == len(realistic_data)
         assert readings.get("POOL_TEMP") == 24.5
         assert readings.get("DI1") == "0"
 

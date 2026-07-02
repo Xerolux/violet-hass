@@ -27,14 +27,14 @@ from violet_poolcontroller_api.api import VioletPoolAPI, VioletPoolAPIError
 
 
 @dataclasses.dataclass
-class TestResult:
+class SmokeResult:
     name: str
     status: str  # "PASS" | "FAIL" | "SKIP"
     detail: str = ""
     duration_ms: float = 0.0
 
 
-_results: list[TestResult] = []
+_results: list[SmokeResult] = []
 
 
 async def _run(
@@ -53,7 +53,7 @@ async def _run(
             error_msg = check(result)
 
         if error_msg:
-            _results.append(TestResult(name, "FAIL", error_msg, elapsed))
+            _results.append(SmokeResult(name, "FAIL", error_msg, elapsed))
         else:
             detail = ""
             if isinstance(result, dict):
@@ -67,16 +67,16 @@ async def _run(
                 detail = f"{len(result)} entries"
             elif isinstance(result, bool):
                 detail = str(result)
-            _results.append(TestResult(name, "PASS", detail, elapsed))
+            _results.append(SmokeResult(name, "PASS", detail, elapsed))
         return result
     except VioletPoolAPIError as exc:
         elapsed = (time.monotonic() - start) * 1000
-        _results.append(TestResult(name, "FAIL", f"VioletPoolAPIError: {exc}", elapsed))
+        _results.append(SmokeResult(name, "FAIL", f"VioletPoolAPIError: {exc}", elapsed))
         return None
     except Exception as exc:
         elapsed = (time.monotonic() - start) * 1000
         tb = traceback.format_exc()
-        _results.append(TestResult(name, "FAIL", f"{type(exc).__name__}: {exc}\n{tb}", elapsed))
+        _results.append(SmokeResult(name, "FAIL", f"{type(exc).__name__}: {exc}\n{tb}", elapsed))
         return None
 
 
@@ -90,21 +90,21 @@ async def _expect_error(
     try:
         result = await coro
         elapsed = (time.monotonic() - start) * 1000
-        _results.append(TestResult(name, "FAIL", f"Expected error but got success: {result}", elapsed))
+        _results.append(SmokeResult(name, "FAIL", f"Expected error but got success: {result}", elapsed))
     except VioletPoolAPIError as exc:
         elapsed = (time.monotonic() - start) * 1000
         msg = str(exc)
         if error_contains and error_contains not in msg:
-            _results.append(TestResult(name, "FAIL", f"Error message mismatch: '{msg}' does not contain '{error_contains}'", elapsed))
+            _results.append(SmokeResult(name, "FAIL", f"Error message mismatch: '{msg}' does not contain '{error_contains}'", elapsed))
         else:
-            _results.append(TestResult(name, "PASS", f"Correctly raised: {msg}", elapsed))
+            _results.append(SmokeResult(name, "PASS", f"Correctly raised: {msg}", elapsed))
     except Exception as exc:
         elapsed = (time.monotonic() - start) * 1000
-        _results.append(TestResult(name, "FAIL", f"Unexpected {type(exc).__name__}: {exc}", elapsed))
+        _results.append(SmokeResult(name, "FAIL", f"Unexpected {type(exc).__name__}: {exc}", elapsed))
 
 
 def _skip(name: str, reason: str) -> None:
-    _results.append(TestResult(name, "SKIP", reason))
+    _results.append(SmokeResult(name, "SKIP", reason))
 
 
 async def run_all_tests(api: VioletPoolAPI) -> None:

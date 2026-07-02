@@ -43,8 +43,10 @@ class TestSecurityPrinciple_InputValidation:
 
     def test_credentials_strength_validation(self) -> None:
         """Verify credentials strength validation is available."""
-        # Function should be callable and returns None (validation passes)
-        validate_credentials_strength("user", "password")
+        validate_credentials_strength("user", "s3cure-pool-password")
+
+        with pytest.raises(ValueError, match="too common"):
+            validate_credentials_strength("user", "password")
 
 
 class TestSecurityPrinciple_StateConstants:

@@ -277,7 +277,7 @@ Each controllable output has a matching `*_mode` select entity with the options 
 | Entity ID suffix | Name | Min | Max | Step | Default | Unit |
 |------------------|------|-----|-----|------|---------|------|
 | `ph_setpoint` | pH Setpoint | 6.8 | 7.8 | 0.1 | 7.2 | pH |
-| `orp_setpoint` | ORP Setpoint | 400 | 900 | 5 | 700 | mV |
+| `orp_setpoint` | ORP Setpoint | 500 | 900 | 5 | 700 | mV |
 | `chlorine_setpoint` | Chlorine Setpoint | 0.05 | 5.0 | 0.05 | 0.6 | mg/l |
 
 ### Temperature Setpoints

@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Mapping
 from typing import Any
 
 _LOGGER = logging.getLogger(__name__)
@@ -64,7 +65,7 @@ class FirmwareUpdateInfo:
             return 0
 
 
-def parse_firmware_info(raw_data: dict[str, Any]) -> FirmwareUpdateInfo:
+def parse_firmware_info(raw_data: Mapping[str, Any]) -> FirmwareUpdateInfo:
     """Parse firmware info from getReadings data.
 
     The controller exposes firmware version information under two possible sets

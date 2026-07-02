@@ -479,9 +479,9 @@ SETPOINT_DEFINITIONS = [
         "name": "ORP Setpoint",
         "translation_key": "orp_setpoint",
         "api_key": "ORP",
-        # InputSanitizer.validate_orp_value clamps writes to 400-900 mV;
+        # InputSanitizer.validate_orp_value clamps writes to 500-900 mV;
         # a wider UI range would be silently rewritten on save
-        "min_value": 400,
+        "min_value": 500,
         "max_value": 900,
         "step": 5,
         "default_value": 700,

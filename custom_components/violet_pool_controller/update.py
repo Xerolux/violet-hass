@@ -18,6 +18,7 @@ from homeassistant.components.update import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -50,7 +51,9 @@ async def async_setup_entry(
     )
 
 
-class VioletPoolControllerUpdateEntity(CoordinatorEntity, UpdateEntity):
+class VioletPoolControllerUpdateEntity(
+    CoordinatorEntity[VioletPoolDataUpdateCoordinator], UpdateEntity
+):
     """Violet Pool Controller firmware update entity."""
 
     _attr_supported_features = UpdateEntityFeature.INSTALL | UpdateEntityFeature.RELEASE_NOTES
@@ -74,9 +77,9 @@ class VioletPoolControllerUpdateEntity(CoordinatorEntity, UpdateEntity):
         self._release_notes_cache: str = ""
 
     @property
-    def device_info(self) -> dict[str, Any]:
+    def device_info(self) -> DeviceInfo:
         """Return device info."""
-        return dict(self.coordinator.device.device_info)
+        return self.coordinator.device.device_info
 
     @property
     def installed_version(self) -> str | None:
@@ -142,7 +145,7 @@ class VioletPoolControllerUpdateEntity(CoordinatorEntity, UpdateEntity):
         return self._release_notes_cache or None
 
     async def async_install(
-        self, version: str | None = None, backup: bool | None = None
+        self, version: str | None, backup: bool, **kwargs: Any
     ) -> None:
         """Trigger firmware update on the controller.
 

@@ -34,6 +34,11 @@ def make_coordinator(
     return coordinator
 
 
+def close_background_coroutine(coroutine, _name):
+    """Close a mocked background coroutine without executing its delay."""
+    coroutine.close()
+
+
 class TestHandleControlPump:
     """Test the handle_control_pump service handler."""
 
@@ -366,7 +371,9 @@ class TestHandleControlPumpHttp:
         h = VioletControlServiceHandlers()
         h.manager = MagicMock()
         h.hass = MagicMock()
-        h.hass.async_create_task = MagicMock()
+        h.hass.async_create_background_task = MagicMock(
+            side_effect=close_background_coroutine
+        )
         return h
 
     async def test_pump_on(self, handlers):
@@ -586,7 +593,9 @@ class TestHandleControlBackwashHttp:
         h = VioletControlServiceHandlers()
         h.manager = MagicMock()
         h.hass = MagicMock()
-        h.hass.async_create_task = MagicMock()
+        h.hass.async_create_background_task = MagicMock(
+            side_effect=close_background_coroutine
+        )
         return h
 
     async def test_backwash_abort(self, handlers):
@@ -634,7 +643,9 @@ class TestHandleControlRefillHttp:
         h = VioletControlServiceHandlers()
         h.manager = MagicMock()
         h.hass = MagicMock()
-        h.hass.async_create_task = MagicMock()
+        h.hass.async_create_background_task = MagicMock(
+            side_effect=close_background_coroutine
+        )
         return h
 
     async def test_refill_stop(self, handlers):

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 from collections.abc import Iterable
-from typing import Any
+from typing import Any, TextIO
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
@@ -64,7 +64,7 @@ MAX_PH = 7.8
 DEFAULT_SAFETY_INTERVAL = 300
 
 
-def _tail_file(file_handle, line_count: int) -> list[str]:
+def _tail_file(file_handle: TextIO, line_count: int) -> list[str]:
     """Read only the tail of a file without loading the entire file."""
     file_handle.seek(0, os.SEEK_END)
     file_size = file_handle.tell()

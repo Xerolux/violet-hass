@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import re
+from collections.abc import Mapping
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -125,7 +126,7 @@ class VioletHealthSensor(VioletPoolControllerEntity, SensorEntity):
 
     def _collect_problems(self) -> tuple[list[str], list[str], list[str]]:
         """Return (errors, warnings, info) lists of human-readable labels."""
-        data = self.coordinator.data or {}
+        data: Mapping[str, Any] = self.coordinator.data or {}
         errors: list[str] = []
         warnings: list[str] = []
         info: list[str] = []

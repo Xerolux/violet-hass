@@ -112,7 +112,7 @@ TARGET_PH=7.2&TARGET_ORP=720
 | Parameter | Typ | Bereich | Beschreibung |
 |-----------|-----|---------|-------------|
 | `TARGET_PH` | float | 6.0–8.0 | pH-Sollwert |
-| `TARGET_ORP` | int | 200–900 | ORP-Sollwert in mV |
+| `TARGET_ORP` | int | 500–900 | ORP-Sollwert in mV |
 | `TARGET_MIN_CHLORINE` | float | 0.1–5.0 | Mindest-Chlorgehalt mg/l |
 | `TARGET_POOL_TEMP` | float | 10–40 | Pool-Solltemperatur °C |
 | `TARGET_SOLAR_TEMP` | float | 20–60 | Solar-Maximaltemperatur °C |

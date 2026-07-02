@@ -20,6 +20,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.issue_registry import (
     IssueSeverity,
     async_create_issue,
@@ -682,7 +683,7 @@ class VioletPoolControllerDevice:
         return extra_modules
 
     @property
-    def device_info(self) -> dict[str, Any]:
+    def device_info(self) -> DeviceInfo:
         """Return device information for Home Assistant."""
         # Build a readable model string from currently detected hardware modules.
         # "Base" is omitted when it is the only module to avoid redundancy.
@@ -694,16 +695,14 @@ class VioletPoolControllerDevice:
             else "Violet Pool Controller"
         )
 
-        info: dict[str, Any] = {
-            "identifiers": {(DOMAIN, f"{self.api_url}_{self.device_id}")},
-            # Uses controller_name for visual distinction in multi-controller setups
-            "name": self.controller_name,
-            "manufacturer": "PoolDigital GmbH & Co. KG",
-            "model": model_str,
-            "sw_version": self._firmware_version or "Unknown",
-            # Auto-area for multi-controller setups
-            "suggested_area": self.controller_name,
-        }
+        info = DeviceInfo(
+            identifiers={(DOMAIN, f"{self.api_url}_{self.device_id}")},
+            name=self.controller_name,
+            manufacturer="PoolDigital GmbH & Co. KG",
+            model=model_str,
+            sw_version=self._firmware_version or "Unknown",
+            suggested_area=self.controller_name,
+        )
         for _serial_key in ("SERIAL", "SERIAL_NUMBER", "serial", "serial_number", "HW_SERIAL"):
             _serial_val = self._data.get(_serial_key)
             if _serial_val:

@@ -90,7 +90,7 @@ class TestCircuitBreakerConfiguration:
         cb = CircuitBreaker(failure_threshold=5, recovery_timeout=2)
         assert cb.failure_threshold == 5
 
-    def test_zero_failure_threshold(self):
+    async def test_zero_failure_threshold(self):
         """Zero failure threshold opens on first failure."""
         cb = CircuitBreaker(failure_threshold=0, recovery_timeout=1)
 
@@ -98,7 +98,8 @@ class TestCircuitBreakerConfiguration:
             raise ValueError("fail")
 
         with pytest.raises(ValueError):
-            cb.call(failing)  # no await needed — fails before reaching callable
+            await cb.call(failing)
+        assert cb.state.name == "OPEN"
 
     def test_negative_recovery_timeout(self):
         """Negative timeout handled gracefully."""
@@ -133,6 +134,6 @@ class TestCircuitBreakerMetrics:
                 await cb.call(failing)
 
         assert cb.state.name == "OPEN"
-        cb.reset()
+        await cb.reset()
         assert cb.state.name == "CLOSED"
         assert cb.failure_count == 0

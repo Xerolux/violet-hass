@@ -289,6 +289,7 @@ class VioletDiagnosticServiceHandlers:
         _LOGGER.info("Cleared error history")
         return {
             "success": True,
+            "cleared_count": len(device_ids),
             "message": "Cleared error history",
         }
 

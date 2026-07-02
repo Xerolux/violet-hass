@@ -462,7 +462,7 @@ class InputSanitizer:
             orp: ORP-Wert in mV
 
         Returns:
-            Validierter ORP-Wert (400-900 mV)
+            Validierter ORP-Wert (500-900 mV)
 
         """
         return InputSanitizer.sanitize_integer(

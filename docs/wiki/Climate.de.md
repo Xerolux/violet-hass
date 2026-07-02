@@ -73,7 +73,7 @@ data:
 | `number.violet_target_pool_temperature` | Pool-Solltemperatur | 10–40°C |
 | `number.violet_target_solar_temperature` | Solar-Maximaltemperatur | 20–60°C |
 | `number.violet_target_ph` | pH-Sollwert | 6.0–8.0 |
-| `number.violet_target_orp` | ORP-Sollwert | 200–900 mV |
+| `number.violet_target_orp` | ORP-Sollwert | 500–900 mV |
 
 ---
 
