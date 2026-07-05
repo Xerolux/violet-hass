@@ -1,6 +1,6 @@
-## v2.0.2 – Violet Pool Controller
+## v2.2.3-beta.1 – Violet Pool Controller
 
-✅ **STABLE RELEASE**
+🟡 **BETA RELEASE** - Testing phase, may contain bugs
 
 ### ❤️ Support | Unterstützung
 
@@ -15,17 +15,26 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
+---
+
 ### ✨ New Features | Neue Funktionen
 
-- Enhanced Violet Pool Controller functionality
+- Add complete German translations for config flow (Reconfiguration, Error messages, Step titles) (d0bbaa7)
+- feat: Add Brands Proxy API support (HA 2026.3.0+) (f54a3ac)
 
 ### 🚀 Improvements | Verbesserungen
 
-- 📝 Release v2.0.2 - Update changelog and version files (db3f461)
+- Refactor to use Home Assistant native translation system (0cb4750)
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
-- Minor bug fixes and stability improvements
+- fix(runtime): resolve CoordinatorEntity subscriptability, secure HTTP control, and clean audit findings (9110581)
+- fix: resolve audit findings and stale test contracts (a238478)
+- fix(api): get_output_runtimes returned empty dict; bump API to v0.0.35 (37ee8a9)
+
+### 🧪 Tests
+
+- fix: resolve audit findings and stale test contracts (a238478)
 
 ---
 
@@ -43,7 +52,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-📋 [Full changelog: v2.0.1...v2.0.2](https://github.com/Xerolux/violet-hass/compare/v2.0.1...v2.0.2)
+📋 [Full changelog: v2.0.2...v2.2.3-beta.1](https://github.com/Xerolux/violet-hass/compare/v2.0.2...v2.2.3-beta.1)
 
 ---
 
@@ -63,4 +72,4 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-06-25 08:21:17 UTC_
+_Generated automatically by GitHub Actions on 2026-07-05 16:28:09 UTC_
