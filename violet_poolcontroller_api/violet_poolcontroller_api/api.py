@@ -515,7 +515,7 @@ class VioletPoolAPI:
                     if attempt == self._max_retries:
                         raise last_error from None
                     delay = min(300.0, 10.0 * (2 ** (attempt - 1)))
-                    jitter = random.uniform(0, delay * 0.1)
+                    jitter = random.uniform(0, delay * 0.1)  # nosec B311
                     await asyncio.sleep(delay + jitter)
                 except aiohttp.ClientError as err:
                     last_error = VioletPoolAPIError(
@@ -530,7 +530,7 @@ class VioletPoolAPI:
                     if attempt == self._max_retries:
                         raise last_error from None
                     delay = min(300.0, 10.0 * (2 ** (attempt - 1)))
-                    jitter = random.uniform(0, delay * 0.1)
+                    jitter = random.uniform(0, delay * 0.1)  # nosec B311
                     await asyncio.sleep(delay + jitter)
 
             msg = "All retry attempts exhausted"

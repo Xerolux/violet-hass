@@ -24,7 +24,8 @@ dev = [
 
 [tool.ruff]
 line-length = 100
-target-version = "py312"
+# Home Assistant 2026.5.x runs on Python 3.14; target its syntax for the integration.
+target-version = "py314"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "C4", "SIM"]
@@ -38,7 +39,9 @@ ignore = ["E501"]
 "tests/test_improvements.py" = ["T201"]
 
 [tool.mypy]
-python_version = "3.12"
+# Home Assistant 2026.5.x uses Python 3.14 syntax (e.g. except expressions without
+# parentheses). Set the integration check target to 3.14 so mypy can parse HA.
+python_version = "3.14"
 warn_return_any = true
 disallow_untyped_defs = false
 warn_unused_configs = true
@@ -46,5 +49,7 @@ mypy_path = "violet_poolcontroller_api"
 explicit_package_bases = true
 
 [[tool.mypy.overrides]]
+# The standalone API package still supports Python 3.12+; run mypy on it from
+# its own directory so its pyproject.toml (target 3.12) takes effect.
 module = "violet_poolcontroller_api.*"
 ignore_missing_imports = true

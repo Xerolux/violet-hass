@@ -48,6 +48,10 @@ test = [
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+# Disable the Home Assistant test plugin for the standalone API package tests.
+# The plugin auto-loads when installed and blocks sockets on Windows, which
+# breaks the API tests that need a real asyncio event loop.
+addopts = "-p no:homeassistant"
 
 [tool.ruff]
 line-length = 100

@@ -73,7 +73,7 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
         self._optimistic_value: float | None = None
 
         _LOGGER.info(
-            "Number entity initialized: %s (range: %.1f-%.1f, step: %.1f, API key: %s)",
+            "Number entity initialized: %s (range: %.1f-%.1f, step: %.1f, parameter key: %s)",
             description.name,
             self._attr_native_min_value,
             self._attr_native_max_value,
@@ -218,7 +218,7 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
         """
         if not self._api_key:
             _LOGGER.error(
-                "No API key defined for %s - cannot set value",
+                "No parameter key defined for %s - cannot set value",
                 self.entity_description.name,
             )
             raise HomeAssistantError(

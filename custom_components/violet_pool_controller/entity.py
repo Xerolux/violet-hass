@@ -12,7 +12,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import re
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.device_registry import DeviceInfo
@@ -20,6 +20,12 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .device import VioletPoolDataUpdateCoordinator
 from .state_constants import get_state_definition
+
+# CoordinatorEntity is generic in the type stubs but not subscriptable at runtime.
+if TYPE_CHECKING:
+    _VioletCoordinatorEntity = CoordinatorEntity[VioletPoolDataUpdateCoordinator]
+else:
+    _VioletCoordinatorEntity = CoordinatorEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -226,7 +232,7 @@ def strip_redundant_device_prefix(name: Any, *device_names: str | None) -> str |
 # =============================================================================
 
 
-class VioletPoolControllerEntity(CoordinatorEntity[VioletPoolDataUpdateCoordinator]):
+class VioletPoolControllerEntity(_VioletCoordinatorEntity):
     """Base entity class for all Violet Pool Controller entities."""
 
     coordinator: VioletPoolDataUpdateCoordinator

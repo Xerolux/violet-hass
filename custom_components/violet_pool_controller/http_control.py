@@ -13,6 +13,7 @@ import logging
 from typing import Any
 
 from violet_poolcontroller_api.api import VioletPoolAPI, VioletPoolAPIError
+from violet_poolcontroller_api.utils_sanitizer import InputSanitizer
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -50,6 +51,9 @@ class VioletControlClient:
             VioletPoolAPIError: If API communication fails.
         """
         from urllib.parse import quote
+
+        function = InputSanitizer.validate_api_parameter(function)
+        action = InputSanitizer.validate_api_parameter(action)
 
         cmd = f"{function},{action},{quote(str(param), safe=',')}" if param is not None else f"{function},{action}"
 

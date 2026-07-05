@@ -205,7 +205,7 @@ class VioletStatusSensor(VioletSensor):
             return None
         try:
             return VioletState(raw_value, self.entity_description.key).display_mode
-        except Exception:
+        except (ValueError, KeyError, TypeError, AttributeError):
             _LOGGER.warning(
                 "VioletState failed for key=%s raw=%s",
                 self.entity_description.key,

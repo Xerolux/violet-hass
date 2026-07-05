@@ -93,7 +93,6 @@ class VioletPoolControllerDevice:
         self.hass = hass
         self.config_entry = config_entry
         self.api = api
-        self._api = api
         self._available = False
         self._session = async_get_clientsession(hass)
         self._data: dict[str, Any] = {}
@@ -261,7 +260,6 @@ class VioletPoolControllerDevice:
 
             # Replace the old API with the new one
             self.api = new_api
-            self._api = new_api
 
             # Update device configuration
             self.api_url = new_api_url

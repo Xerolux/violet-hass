@@ -19,7 +19,7 @@ import pytest
 
 from violet_poolcontroller_api.api import VioletPoolAPI, VioletPoolAPIError
 
-HOST = "localhost"
+HOST = "127.0.0.1"
 PORT = 8499
 USER = "admin"
 PASS = "secret"

@@ -8,7 +8,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.update import (
     UpdateDeviceClass,
@@ -27,6 +27,12 @@ from violet_poolcontroller_api import VioletPoolAPIError
 from .const import DOMAIN
 from .device import VioletPoolDataUpdateCoordinator
 from .update_helper import parse_firmware_info
+
+# CoordinatorEntity is generic in the type stubs but not subscriptable at runtime.
+if TYPE_CHECKING:
+    _VioletCoordinatorEntity = CoordinatorEntity[VioletPoolDataUpdateCoordinator]
+else:
+    _VioletCoordinatorEntity = CoordinatorEntity
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -51,9 +57,7 @@ async def async_setup_entry(
     )
 
 
-class VioletPoolControllerUpdateEntity(
-    CoordinatorEntity[VioletPoolDataUpdateCoordinator], UpdateEntity
-):
+class VioletPoolControllerUpdateEntity(_VioletCoordinatorEntity, UpdateEntity):
     """Violet Pool Controller firmware update entity."""
 
     _attr_supported_features = UpdateEntityFeature.INSTALL | UpdateEntityFeature.RELEASE_NOTES
