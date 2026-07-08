@@ -297,14 +297,10 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                 _LOGGER.debug("Using set_orp_target (sanitized: %.1f)", sanitized_value)
                 result = await self.device.api.set_orp_target(sanitized_value)
             elif api_key == "MinChlorine":
-                _LOGGER.debug(
-                    "Using set_min_chlorine_level (sanitized: %.2f)", sanitized_value
-                )
+                _LOGGER.debug("Using set_min_chlorine_level (sanitized: %.2f)", sanitized_value)
                 result = await self.device.api.set_min_chlorine_level(sanitized_value)
             elif api_key == "PUMP_SPEED":
-                _LOGGER.debug(
-                    "Using set_pump_speed (sanitized: %d)", int(sanitized_value)
-                )
+                _LOGGER.debug("Using set_pump_speed (sanitized: %d)", int(sanitized_value))
                 result = await self.device.api.set_pump_speed(int(sanitized_value))
             elif api_key in ("HEATER_TARGET_TEMP", "SOLAR_TARGET_TEMP"):
                 _LOGGER.debug(
@@ -313,9 +309,7 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                     sanitized_value,
                 )
                 climate_key = api_key.replace("_TARGET_TEMP", "")
-                result = await self.device.api.set_device_temperature(
-                    climate_key, sanitized_value
-                )
+                result = await self.device.api.set_device_temperature(climate_key, sanitized_value)
             elif api_key.endswith("_TOTAL_CAN_AMOUNT_ML"):
                 _LOGGER.debug(
                     "Using set_dosing_parameters for %s (sanitized: %.0f ml)",
@@ -331,9 +325,7 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                     api_key,
                     sanitized_value,
                 )
-                result = await self.device.api.set_target_value(
-                    api_key, sanitized_value
-                )
+                result = await self.device.api.set_target_value(api_key, sanitized_value)
 
             if result.get("success") is True:
                 _LOGGER.info(
@@ -414,9 +406,7 @@ async def async_setup_entry(
         config_entry: The config entry.
         async_add_entities: Callback to add entities.
     """
-    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][
-        config_entry.entry_id
-    ]
+    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
 
     active_features = config_entry.options.get(
         CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
@@ -452,9 +442,7 @@ async def async_setup_entry(
 
         indicator_fields = setpoint_config.get("indicator_fields", [])
         if isinstance(indicator_fields, list):
-            has_indicators = any(
-                field in coordinator.data for field in indicator_fields
-            )
+            has_indicators = any(field in coordinator.data for field in indicator_fields)
 
             if not has_indicators:
                 _LOGGER.debug(
@@ -481,13 +469,9 @@ async def async_setup_entry(
             ),
         )
 
-        _LOGGER.debug(
-            "Creating number entity for '%s' (key: %s)", setpoint_name, setpoint_key
-        )
+        _LOGGER.debug("Creating number entity for '%s' (key: %s)", setpoint_name, setpoint_key)
 
-        entities.append(
-            VioletNumber(coordinator, config_entry, description, setpoint_config)
-        )
+        entities.append(VioletNumber(coordinator, config_entry, description, setpoint_config))
 
     if entities:
         async_add_entities(entities)

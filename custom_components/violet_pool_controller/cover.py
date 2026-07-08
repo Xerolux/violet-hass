@@ -214,9 +214,7 @@ class VioletCover(VioletPoolControllerEntity, CoverEntity):
             ) from err
 
         except Exception as err:
-            _LOGGER.exception(
-                "Unexpected error for cover command '%s': %s", action, err
-            )
+            _LOGGER.exception("Unexpected error for cover command '%s': %s", action, err)
             raise HomeAssistantError(
                 translation_key="unexpected_error",
                 translation_domain=DOMAIN,
@@ -230,9 +228,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up cover entity from a config entry."""
-    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][
-        config_entry.entry_id
-    ]
+    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
 
     # Get features from options or data
     active_features = config_entry.options.get(

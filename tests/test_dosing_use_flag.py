@@ -3,6 +3,7 @@
 The core logic lives in switch._dosing_switch_on(), a pure function that can be
 tested without any Home Assistant infrastructure (mirrors test_entity_state.py).
 """
+
 import pytest
 
 from custom_components.violet_pool_controller.switch import _dosing_switch_on

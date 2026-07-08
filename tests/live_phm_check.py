@@ -26,13 +26,17 @@ async def main() -> None:
 
         await asyncio.sleep(1.5)
         readings = await api.get_readings()
-        print(f"  during run: DOS_4_PHM = {readings.get('DOS_4_PHM')} "
-              f"STATE={readings.get('DOS_4_PHM_STATE')}")
+        print(
+            f"  during run: DOS_4_PHM = {readings.get('DOS_4_PHM')} "
+            f"STATE={readings.get('DOS_4_PHM_STATE')}"
+        )
 
         await asyncio.sleep(8)
         readings = await api.get_readings()
-        print(f"  after run:  DOS_4_PHM = {readings.get('DOS_4_PHM')} "
-              f"STATE={readings.get('DOS_4_PHM_STATE')}")
+        print(
+            f"  after run:  DOS_4_PHM = {readings.get('DOS_4_PHM')} "
+            f"STATE={readings.get('DOS_4_PHM_STATE')}"
+        )
 
         result = await api.set_switch_state("DOS_4_PHM", "OFF")
         print(f"  cleanup DOSSTOP: {result}")

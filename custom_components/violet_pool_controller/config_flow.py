@@ -117,9 +117,7 @@ class ConfigFlow(
         """Return the options flow handler."""
         return OptionsFlowHandler()
 
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Handle the user-initiated setup start step."""
         if user_input:
             action = user_input.get("action", constants.MENU_ACTION_START)
@@ -151,9 +149,7 @@ class ConfigFlow(
             },
         )
 
-    async def async_step_help(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
+    async def async_step_help(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Display additional help."""
         if user_input is not None:
             return await self.async_step_user()
@@ -252,13 +248,9 @@ class ConfigFlow(
             data_schema=self._get_sensor_selection_schema(),
         )
 
-    async def async_step_reauth(
-        self, entry_data: Mapping[str, Any]
-    ) -> ConfigFlowResult:
+    async def async_step_reauth(self, entry_data: Mapping[str, Any]) -> ConfigFlowResult:
         """Handle reauthentication when credentials have changed or expired."""
-        self._reauth_entry = self.hass.config_entries.async_get_entry(
-            self.context["entry_id"]
-        )
+        self._reauth_entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
         if self._reauth_entry is None:
             return self.async_abort(reason="reauth_failed")
         return await self.async_step_reauth_confirm()
@@ -308,16 +300,12 @@ class ConfigFlow(
             },
         )
 
-    async def async_step_zeroconf(
-        self, discovery_info: ZeroconfServiceInfo
-    ) -> ConfigFlowResult:
+    async def async_step_zeroconf(self, discovery_info: ZeroconfServiceInfo) -> ConfigFlowResult:
         """Handle zeroconf discovery of a Violet Pool Controller."""
         host = str(discovery_info.ip_address)
         name = discovery_info.name
 
-        _LOGGER.info(
-            "Zeroconf discovery: Violet Pool Controller '%s' at %s", name, host
-        )
+        _LOGGER.info("Zeroconf discovery: Violet Pool Controller '%s' at %s", name, host)
 
         port = discovery_info.port or DEFAULT_PORT
         device_id = 1
@@ -352,9 +340,7 @@ class ConfigFlow(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Confirm zeroconf discovered Violet Pool Controller."""
-        placeholders = self._title_placeholders or dict(
-            self.context.get("title_placeholders", {})
-        )
+        placeholders = self._title_placeholders or dict(self.context.get("title_placeholders", {}))
         if user_input is not None:
             if await self._test_connection():
                 return await self.async_step_pool_setup()
@@ -410,9 +396,7 @@ class ConfigFlow(
         """Handle reconfiguration of safety settings."""
         from .const import CONF_ALLOW_UNSAFE_SWITCHES, DEFAULT_ALLOW_UNSAFE_SWITCHES
 
-        reconfigure_entry = self.hass.config_entries.async_get_entry(
-            self.context["entry_id"]
-        )
+        reconfigure_entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
         if reconfigure_entry is None:
             return self.async_abort(reason="reconfigure_failed")
 
@@ -451,9 +435,7 @@ class ConfigFlow(
     ) -> ConfigFlowResult:
         """Handle reconfiguration of connection settings."""
         errors = {}
-        reconfigure_entry = self.hass.config_entries.async_get_entry(
-            self.context["entry_id"]
-        )
+        reconfigure_entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
         if reconfigure_entry is None:
             return self.async_abort(reason="reconfigure_failed")
 
@@ -469,9 +451,7 @@ class ConfigFlow(
                 updated_data = dict(reconfigure_entry.data)
                 updated_data[CONF_API_URL] = api_url
                 updated_data[CONF_PORT] = int(user_input.get(CONF_PORT, DEFAULT_PORT))
-                updated_data[CONF_USE_SSL] = user_input.get(
-                    CONF_USE_SSL, DEFAULT_USE_SSL
-                )
+                updated_data[CONF_USE_SSL] = user_input.get(CONF_USE_SSL, DEFAULT_USE_SSL)
                 updated_data[CONF_VERIFY_SSL] = user_input.get(
                     CONF_VERIFY_SSL,
                     reconfigure_entry.data.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL),
@@ -498,9 +478,7 @@ class ConfigFlow(
                         reconfigure_entry,
                         data=updated_data,
                     )
-                    await self.hass.config_entries.async_reload(
-                        reconfigure_entry.entry_id
-                    )
+                    await self.hass.config_entries.async_reload(reconfigure_entry.entry_id)
                     return self.async_abort(reason="reconfigure_successful")
 
                 errors["base"] = constants.ERROR_CANNOT_CONNECT
@@ -534,15 +512,11 @@ class ConfigFlow(
                     ): str,
                     vol.Required(
                         CONF_USE_SSL,
-                        default=reconfigure_entry.data.get(
-                            CONF_USE_SSL, DEFAULT_USE_SSL
-                        ),
+                        default=reconfigure_entry.data.get(CONF_USE_SSL, DEFAULT_USE_SSL),
                     ): bool,
                     vol.Required(
                         CONF_VERIFY_SSL,
-                        default=reconfigure_entry.data.get(
-                            CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL
-                        ),
+                        default=reconfigure_entry.data.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL),
                     ): bool,
                     vol.Required(
                         CONF_POLLING_INTERVAL,
@@ -593,14 +567,10 @@ class ConfigFlow(
             },
         )
 
-    async def async_step_repair(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
+    async def async_step_repair(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Handle repair flow for controller_unavailable issue."""
         errors: dict[str, str] = {}
-        repair_entry = self.hass.config_entries.async_get_entry(
-            self.context["entry_id"]
-        )
+        repair_entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
         if repair_entry is None:
             return self.async_abort(reason="repair_failed")
 
@@ -612,9 +582,7 @@ class ConfigFlow(
             updated_data[CONF_PASSWORD] = user_input.get(CONF_PASSWORD, "")
             self._config_data = updated_data
             if await self._test_connection():
-                self.hass.config_entries.async_update_entry(
-                    repair_entry, data=updated_data
-                )
+                self.hass.config_entries.async_update_entry(repair_entry, data=updated_data)
                 await self.hass.config_entries.async_reload(repair_entry.entry_id)
                 return self.async_abort(reason="repair_successful")
             errors["base"] = constants.ERROR_CANNOT_CONNECT
@@ -677,15 +645,9 @@ class ConfigFlow(
             CONF_USERNAME: ui.get(CONF_USERNAME) or None,
             CONF_PASSWORD: ui.get(CONF_PASSWORD) or None,
             CONF_DEVICE_ID: int(ui.get(CONF_DEVICE_ID, 1)),
-            CONF_POLLING_INTERVAL: int(
-                ui.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
-            ),
-            CONF_TIMEOUT_DURATION: int(
-                ui.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)
-            ),
-            CONF_RETRY_ATTEMPTS: int(
-                ui.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)
-            ),
+            CONF_POLLING_INTERVAL: int(ui.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)),
+            CONF_TIMEOUT_DURATION: int(ui.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION)),
+            CONF_RETRY_ATTEMPTS: int(ui.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS)),
         }
         return config_data
 
@@ -731,9 +693,7 @@ class ConfigFlow(
         sensor_data = await self._get_grouped_sensors()
         self._sensor_data = sensor_data
         detected_keys = {key for sensors in sensor_data.values() for key in sensors}
-        self._config_data[CONF_ACTIVE_FEATURES] = self._detect_active_features(
-            detected_keys
-        )
+        self._config_data[CONF_ACTIVE_FEATURES] = self._detect_active_features(detected_keys)
         self._config_data[CONF_SELECTED_SENSORS] = list(detected_keys)
 
         return self.async_create_entry(
@@ -768,7 +728,9 @@ class ConfigFlow(
 
         for feature_id, markers in feature_key_map.items():
             if feature_id in feature_ids and any(
-                key.startswith(marker) or marker in key for key in detected_keys for marker in markers
+                key.startswith(marker) or marker in key
+                for key in detected_keys
+                for marker in markers
             ):
                 active.add(feature_id)
 
@@ -784,8 +746,6 @@ class ConfigFlow(
 
     def _generate_entry_title(self) -> str:
         """Generate the title for the config entry."""
-        controller_name = self._config_data.get(
-            CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME
-        )
+        controller_name = self._config_data.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME)
         pool_size = self._config_data.get(CONF_POOL_SIZE) or DEFAULT_POOL_SIZE
         return f"{controller_name} • {pool_size}m³"

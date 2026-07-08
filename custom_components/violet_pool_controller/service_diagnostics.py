@@ -98,15 +98,11 @@ class VioletDiagnosticServiceHandlers:
             export_text = self._build_export_text(device_name, log_entries)
 
             if save_to_file:
-                filename = (
-                    f"violet_diagnostic_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-                )
+                filename = f"violet_diagnostic_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
                 filepath = self.hass.config.path(filename)
 
                 try:
-                    await self.hass.async_add_executor_job(
-                        write_text_file, filepath, export_text
-                    )
+                    await self.hass.async_add_executor_job(write_text_file, filepath, export_text)
                 except Exception as err:
                     _LOGGER.error("Failed to save log file: %s", err)
                     raise HomeAssistantError(f"Failed to save log file: {err}") from err
@@ -158,13 +154,9 @@ class VioletDiagnosticServiceHandlers:
                         "device_id": device_id,
                         "available": getattr(device, "_available", False),
                         "last_update": getattr(device, "_last_update_time", 0),
-                        "connection_latency_ms": getattr(
-                            device, "_connection_latency", 0
-                        ),
+                        "connection_latency_ms": getattr(device, "_connection_latency", 0),
                         "system_health": getattr(device, "_system_health", 0),
-                        "consecutive_failures": getattr(
-                            device, "_consecutive_failures", 0
-                        ),
+                        "consecutive_failures": getattr(device, "_consecutive_failures", 0),
                         "api_url": getattr(device, "api_url", "Unknown"),
                         "use_ssl": getattr(device, "use_ssl", False),
                         "error_summary": error_handler.get_error_summary(),
@@ -173,9 +165,7 @@ class VioletDiagnosticServiceHandlers:
 
             except Exception as err:
                 _LOGGER.error("Get connection status error: %s", err)
-                raise HomeAssistantError(
-                    f"Failed to get connection status: {err}"
-                ) from err
+                raise HomeAssistantError(f"Failed to get connection status: {err}") from err
 
         return {
             "success": True,
@@ -243,9 +233,7 @@ class VioletDiagnosticServiceHandlers:
                         "device_id": device_id,
                         "success": True,
                         "latency_ms": round(latency_ms, 2),
-                        "keys_received": len(readings)
-                        if isinstance(readings, dict)
-                        else 0,
+                        "keys_received": len(readings) if isinstance(readings, dict) else 0,
                         "message": "Connection successful",
                     }
                 except Exception as api_err:
@@ -282,9 +270,7 @@ class VioletDiagnosticServiceHandlers:
                 await self._get_device_for_id(device_id)
             except Exception as err:
                 _LOGGER.error("Clear error history error: %s", err)
-                raise HomeAssistantError(
-                    f"Failed to clear error history: {err}"
-                ) from err
+                raise HomeAssistantError(f"Failed to clear error history: {err}") from err
 
         _LOGGER.info("Cleared error history")
         return {
@@ -293,9 +279,7 @@ class VioletDiagnosticServiceHandlers:
             "message": "Cleared error history",
         }
 
-    async def handle_get_calibration_status(
-        self, call: ServiceCall
-    ) -> dict[str, Any]:
+    async def handle_get_calibration_status(self, call: ServiceCall) -> dict[str, Any]:
         """Get sensor calibration status."""
         from .calibration_helper import parse_calibration_data
 
@@ -311,9 +295,7 @@ class VioletDiagnosticServiceHandlers:
         return {
             "success": True,
             "device": coordinator.device.device_name,
-            "calibrations": {
-                name: status.to_dict() for name, status in calibrations.items()
-            },
+            "calibrations": {name: status.to_dict() for name, status in calibrations.items()},
             "message": f"Retrieved calibration status for {len(calibrations)} sensors",
         }
 
@@ -346,9 +328,7 @@ class VioletDiagnosticServiceHandlers:
             "message": f"Backwash status: {BACKWASH_STATES.get(int(backwash_state), 'Unknown')}",
         }
 
-    async def handle_get_system_update_status(
-        self, call: ServiceCall
-    ) -> dict[str, Any]:
+    async def handle_get_system_update_status(self, call: ServiceCall) -> dict[str, Any]:
         """Get system firmware update status."""
         from .update_helper import parse_firmware_info
 
@@ -399,20 +379,12 @@ class VioletDiagnosticServiceHandlers:
         log_entries.append(f"  API URL: {coordinator.device.api_url}")
         log_entries.append(f"  Device ID: {coordinator.device.device_id}")
         log_entries.append(f"  Available: {coordinator.device.available}")
-        log_entries.append(
-            f"  Firmware: {coordinator.device.firmware_version or 'Unknown'}"
-        )
-        log_entries.append(
-            f"  Last Update: {coordinator.device.last_event_age:.1f}s ago"
-        )
-        log_entries.append(
-            f"  Connection Latency: {coordinator.device.connection_latency:.1f}ms"
-        )
+        log_entries.append(f"  Firmware: {coordinator.device.firmware_version or 'Unknown'}")
+        log_entries.append(f"  Last Update: {coordinator.device.last_event_age:.1f}s ago")
+        log_entries.append(f"  Connection Latency: {coordinator.device.connection_latency:.1f}ms")
         log_entries.append(f"  System Health: {coordinator.device.system_health:.0f}%")
         log_entries.append(f"  Update Counter: {coordinator.device._update_counter}")
-        log_entries.append(
-            f"  Consecutive Failures: {coordinator.device.consecutive_failures}"
-        )
+        log_entries.append(f"  Consecutive Failures: {coordinator.device.consecutive_failures}")
         log_entries.append("")
 
         self._append_system_info(log_entries)
@@ -454,9 +426,7 @@ class VioletDiagnosticServiceHandlers:
                 log_entries.append(f"  HACS: {hacs_version}")
 
             if "hassio" in self.hass.config.components:
-                log_entries.append(
-                    "  Installation Type: Home Assistant OS / Supervised"
-                )
+                log_entries.append("  Installation Type: Home Assistant OS / Supervised")
             else:
                 log_entries.append("  Installation Type: Core / Container (likely)")
 
@@ -511,9 +481,7 @@ class VioletDiagnosticServiceHandlers:
             if key in config:
                 log_entries.append(f"  {label}: {config[key]}")
 
-        if CONF_ACTIVE_FEATURES in config and isinstance(
-            config[CONF_ACTIVE_FEATURES], list
-        ):
+        if CONF_ACTIVE_FEATURES in config and isinstance(config[CONF_ACTIVE_FEATURES], list):
             features = config[CONF_ACTIVE_FEATURES]
             enabled_features: list[str] = []
             disabled_features: list[str] = []
@@ -526,17 +494,11 @@ class VioletDiagnosticServiceHandlers:
 
             log_entries.append(f"  Active Features: {len(enabled_features)} enabled")
             if enabled_features:
-                log_entries.append(
-                    f"    Enabled: {', '.join(sorted(enabled_features))}"
-                )
+                log_entries.append(f"    Enabled: {', '.join(sorted(enabled_features))}")
             if disabled_features:
-                log_entries.append(
-                    f"    Disabled: {', '.join(sorted(disabled_features))}"
-                )
+                log_entries.append(f"    Disabled: {', '.join(sorted(disabled_features))}")
 
-        if CONF_SELECTED_SENSORS in config and isinstance(
-            config[CONF_SELECTED_SENSORS], list
-        ):
+        if CONF_SELECTED_SENSORS in config and isinstance(config[CONF_SELECTED_SENSORS], list):
             sensors = config[CONF_SELECTED_SENSORS]
             log_entries.append(f"  Selected Sensors: {len(sensors)} enabled")
 
@@ -545,22 +507,15 @@ class VioletDiagnosticServiceHandlers:
     @staticmethod
     def _append_poll_history(log_entries: list[str], coordinator: Any) -> None:
         """Append recent polling history when available."""
-        if (
-            not hasattr(coordinator.device, "_first_poll")
-            or not coordinator.device._first_poll
-        ):
+        if not hasattr(coordinator.device, "_first_poll") or not coordinator.device._first_poll:
             return
 
         log_entries.append("Polling History:")
         log_entries.append(
-            f"  First Poll:"
-            f" {coordinator.device._first_poll.strftime('%Y-%m-%d %H:%M:%S')}"
+            f"  First Poll: {coordinator.device._first_poll.strftime('%Y-%m-%d %H:%M:%S')}"
         )
 
-        if (
-            hasattr(coordinator.device, "_poll_history")
-            and coordinator.device._poll_history
-        ):
+        if hasattr(coordinator.device, "_poll_history") and coordinator.device._poll_history:
             history = coordinator.device._poll_history
             log_entries.append(f"  Last {len(history)} Polls:")
             for item in history:
@@ -584,8 +539,7 @@ class VioletDiagnosticServiceHandlers:
                 else:
                     timestamp, count, latency = item
                     log_entries.append(
-                        f"    - {timestamp.strftime('%H:%M:%S')}:"
-                        f" {count} items ({latency:.1f}ms)"
+                        f"    - {timestamp.strftime('%H:%M:%S')}: {count} items ({latency:.1f}ms)"
                     )
         else:
             log_entries.append("  No history available.")
@@ -616,9 +570,7 @@ class VioletDiagnosticServiceHandlers:
                     if len(attr_str) > 200:
                         attr_str = attr_str[:197] + "..."
 
-                    log_entries.append(
-                        f"  - {entity.entity_id}: {state.state} (attrs: {attr_str})"
-                    )
+                    log_entries.append(f"  - {entity.entity_id}: {state.state} (attrs: {attr_str})")
                 else:
                     log_entries.append(f"  - {entity.entity_id}: <No State>")
 
@@ -649,9 +601,7 @@ class VioletDiagnosticServiceHandlers:
                 else:
                     redacted_data[key] = value
 
-            log_entries.append(
-                json.dumps(redacted_data, indent=2, default=str, sort_keys=True)
-            )
+            log_entries.append(json.dumps(redacted_data, indent=2, default=str, sort_keys=True))
             log_entries.append("")
         except Exception as err:
             _LOGGER.warning("Could not dump raw data: %s", err)
@@ -698,9 +648,7 @@ Lines: {len(log_entries)}
                 cleared_count += 1
             except Exception as err:
                 _LOGGER.error("reset_blocking error for %s: %s", device_id, err)
-                raise HomeAssistantError(
-                    f"Failed to clear blockings: {err}"
-                ) from err
+                raise HomeAssistantError(f"Failed to clear blockings: {err}") from err
 
         _LOGGER.info("Cleared blockings on %d device(s)", cleared_count)
         return {
@@ -727,22 +675,16 @@ Lines: {len(log_entries)}
         for device_id in device_ids:
             try:
                 device = await self._get_device_for_id(device_id)
-                await device.api.set_can_amount(
-                    dosing_key, amount_ml, reset=reset
-                )
+                await device.api.set_can_amount(dosing_key, amount_ml, reset=reset)
                 updated_count += 1
                 # Ask the coordinator to refresh so sensors reflect the new
                 # value without waiting for the next scheduled poll.
-                coordinator = await self.manager.get_coordinator_for_device(
-                    device_id
-                )
+                coordinator = await self.manager.get_coordinator_for_device(device_id)
                 if coordinator:
                     await coordinator.async_request_refresh()
             except Exception as err:
                 _LOGGER.error("set_can_amount error for %s: %s", device_id, err)
-                raise HomeAssistantError(
-                    f"Failed to set canister amount: {err}"
-                ) from err
+                raise HomeAssistantError(f"Failed to set canister amount: {err}") from err
 
         _LOGGER.info(
             "Set %s canister to %d ml (reset=%s) on %d device(s)",
@@ -783,9 +725,7 @@ Lines: {len(log_entries)}
                     device_id,
                     err,
                 )
-                raise HomeAssistantError(
-                    f"Failed to toggle system service: {err}"
-                ) from err
+                raise HomeAssistantError(f"Failed to toggle system service: {err}") from err
 
         action = "enabled" if enabled else "disabled"
         _LOGGER.info(
@@ -801,23 +741,17 @@ Lines: {len(log_entries)}
             "updated_count": updated_count,
         }
 
-    async def handle_get_system_services_status(
-        self, call: ServiceCall
-    ) -> dict[str, Any]:
+    async def handle_get_system_services_status(self, call: ServiceCall) -> dict[str, Any]:
         """Return the live state of all controller system services."""
         device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
         coordinator = await self._get_first_coordinator(device_ids)
         if not coordinator or not hasattr(coordinator, "device"):
-            raise HomeAssistantError(
-                f"Device not found: {device_ids[0]}"
-            )
+            raise HomeAssistantError(f"Device not found: {device_ids[0]}")
         try:
             states = await coordinator.device.api.get_system_services()
         except Exception as err:
             _LOGGER.error("get_system_services_status error: %s", err)
-            raise HomeAssistantError(
-                f"Failed to fetch system services: {err}"
-            ) from err
+            raise HomeAssistantError(f"Failed to fetch system services: {err}") from err
         return {"success": True, "services": states}
 
     # ------------------------------------------------------------------
@@ -839,9 +773,7 @@ Lines: {len(log_entries)}
                 device = await self._get_device_for_id(device_id)
                 await device.api.set_omni_position(position)
                 updated_count += 1
-                coordinator = await self.manager.get_coordinator_for_device(
-                    device_id
-                )
+                coordinator = await self.manager.get_coordinator_for_device(device_id)
                 if coordinator:
                     await coordinator.async_request_refresh()
             except Exception as err:
@@ -851,9 +783,7 @@ Lines: {len(log_entries)}
                     device_id,
                     err,
                 )
-                raise HomeAssistantError(
-                    f"Failed to set OmniTronic position: {err}"
-                ) from err
+                raise HomeAssistantError(f"Failed to set OmniTronic position: {err}") from err
 
         _LOGGER.info(
             "OmniTronic valve set to position %d on %d device(s)",
@@ -866,9 +796,7 @@ Lines: {len(log_entries)}
             "updated_count": updated_count,
         }
 
-    async def handle_get_live_trace_snapshot(
-        self, call: ServiceCall
-    ) -> dict[str, Any]:
+    async def handle_get_live_trace_snapshot(self, call: ServiceCall) -> dict[str, Any]:
         """Return a single-row snapshot of every controller reading.
 
         Wraps ``GET /getLiveTrace`` (3-line CSV → dict).  Useful for
@@ -877,14 +805,10 @@ Lines: {len(log_entries)}
         device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
         coordinator = await self._get_first_coordinator(device_ids)
         if not coordinator or not hasattr(coordinator, "device"):
-            raise HomeAssistantError(
-                f"Device not found: {device_ids[0]}"
-            )
+            raise HomeAssistantError(f"Device not found: {device_ids[0]}")
         try:
             snapshot = await coordinator.device.api.get_live_trace()
         except Exception as err:
             _LOGGER.error("get_live_trace error: %s", err)
-            raise HomeAssistantError(
-                f"Failed to fetch live trace: {err}"
-            ) from err
+            raise HomeAssistantError(f"Failed to fetch live trace: {err}") from err
         return {"success": True, "snapshot": snapshot, "field_count": len(snapshot)}

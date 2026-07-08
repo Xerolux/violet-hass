@@ -88,9 +88,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the Violet Pool Controller error management buttons."""
-    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][
-        config_entry.entry_id
-    ]
+    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
 
     buttons = [
         VioletResetBlockingButton(coordinator, config_entry),

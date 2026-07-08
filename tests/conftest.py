@@ -35,11 +35,12 @@ _ = conftest_ha_mock
 
 def _create_mock_violet_api_module():
     """Create a mock violet_poolcontroller_api module for testing."""
-    mock_module = types.ModuleType('violet_poolcontroller_api')
+    mock_module = types.ModuleType("violet_poolcontroller_api")
 
     # Create API error class
     class MockVioletPoolAPIError(Exception):
         """Mock Violet Pool API Error."""
+
         pass
 
     # Create rate limiter mock
@@ -58,8 +59,16 @@ def _create_mock_violet_api_module():
     class MockVioletPoolAPI:
         """Mock Violet Pool Controller API."""
 
-        def __init__(self, host, session=None, username=None, password=None,
-                     use_ssl=True, timeout=10, max_retries=3):
+        def __init__(
+            self,
+            host,
+            session=None,
+            username=None,
+            password=None,
+            use_ssl=True,
+            timeout=10,
+            max_retries=3,
+        ):
             self.host = host
             self.session = session
             self.username = username
@@ -141,18 +150,11 @@ def _create_mock_violet_api_module():
             # Return aggregated result
             response_text = "; ".join(results)
             if errors:
-                return {
-                    "success": False,
-                    "response": response_text,
-                    "errors": errors
-                }
-            return {
-                "success": True,
-                "response": response_text
-            }
+                return {"success": False, "response": response_text, "errors": errors}
+            return {"success": True, "response": response_text}
 
     # api submodule
-    api_module = types.ModuleType('api')
+    api_module = types.ModuleType("api")
     api_module.VioletPoolAPI = MockVioletPoolAPI
     api_module.VioletPoolAPIError = MockVioletPoolAPIError
 
@@ -171,7 +173,7 @@ def _create_mock_violet_api_module():
     mock_module.api = api_module
 
     # readings submodule (VioletReadings as a simple dict-wrapper)
-    readings_module = types.ModuleType('readings')
+    readings_module = types.ModuleType("readings")
 
     class MockVioletReadings(dict):
         """Minimal VioletReadings stand-in that behaves like a dict."""
@@ -180,7 +182,7 @@ def _create_mock_violet_api_module():
     mock_module.readings = readings_module
 
     # const_api submodule
-    const_api_module = types.ModuleType('const_api')
+    const_api_module = types.ModuleType("const_api")
     const_api_module.API_TIMEOUT = 10
     const_api_module.API_PRIORITY_CRITICAL = 1
     const_api_module.API_PRIORITY_HIGH = 2
@@ -200,7 +202,7 @@ def _create_mock_violet_api_module():
     mock_module.const_api = const_api_module
 
     # const_devices submodule
-    const_devices_module = types.ModuleType('const_devices')
+    const_devices_module = types.ModuleType("const_devices")
 
     class VioletState:
         AUTO_OFF = "AUTO_OFF"
@@ -241,10 +243,23 @@ def _create_mock_violet_api_module():
     # Boolean state map (mirror violet_poolcontroller_api.const_devices):
     # 2 = Auto - Priority OFF (Rule Blocked) is OFF
     const_devices_module.STATE_MAP = {
-        0: False, 1: True, 2: False, 3: True, 4: True, 5: False, 6: False,
-        "0": False, "1": True, "2": False, "3": True, "4": True,
-        "5": False, "6": False,
-        "ON": True, "OFF": False, "AUTO": False,
+        0: False,
+        1: True,
+        2: False,
+        3: True,
+        4: True,
+        5: False,
+        6: False,
+        "0": False,
+        "1": True,
+        "2": False,
+        "3": True,
+        "4": True,
+        "5": False,
+        "6": False,
+        "ON": True,
+        "OFF": False,
+        "AUTO": False,
     }
     const_devices_module.DEVICE_PARAMETERS = {}
     for _mod in ("EXT1", "EXT2"):
@@ -257,7 +272,7 @@ def _create_mock_violet_api_module():
     mock_module.const_devices = const_devices_module
 
     # utils_sanitizer submodule
-    sanitizer_module = types.ModuleType('utils_sanitizer')
+    sanitizer_module = types.ModuleType("utils_sanitizer")
 
     class InputSanitizer:
         @staticmethod
@@ -299,6 +314,7 @@ def _create_mock_violet_api_module():
                     return 0.0
                 # Try to extract numeric part
                 import re
+
                 # Extract number with optional negative sign and decimals
                 match = re.search(r"-?\d+(?:\.\d+)?", value)
                 if match:
@@ -330,29 +346,31 @@ def _create_mock_violet_api_module():
 # Note: find_spec() returns a (namespace) spec even for the outer monorepo
 # directory, so we additionally verify the real package imports successfully.
 _api_available = False
-if 'violet_poolcontroller_api' not in sys.modules:
-    _spec = importlib.util.find_spec('violet_poolcontroller_api')
-    if _spec is not None and _spec.origin and _spec.origin.endswith('__init__.py'):
+if "violet_poolcontroller_api" not in sys.modules:
+    _spec = importlib.util.find_spec("violet_poolcontroller_api")
+    if _spec is not None and _spec.origin and _spec.origin.endswith("__init__.py"):
         try:
             import violet_poolcontroller_api as _probe  # noqa: F811
-            _api_available = hasattr(_probe, 'VioletPoolAPI')
+
+            _api_available = hasattr(_probe, "VioletPoolAPI")
         except ImportError:
             _api_available = False
 
-if not _api_available and 'violet_poolcontroller_api' not in sys.modules:
+if not _api_available and "violet_poolcontroller_api" not in sys.modules:
     mock_api = _create_mock_violet_api_module()
-    sys.modules['violet_poolcontroller_api'] = mock_api
-    sys.modules['violet_poolcontroller_api.api'] = mock_api.api
-    sys.modules['violet_poolcontroller_api.const_api'] = mock_api.const_api
-    sys.modules['violet_poolcontroller_api.const_devices'] = mock_api.const_devices
-    sys.modules['violet_poolcontroller_api.utils_sanitizer'] = mock_api.utils_sanitizer
-    sys.modules['violet_poolcontroller_api.readings'] = mock_api.readings
+    sys.modules["violet_poolcontroller_api"] = mock_api
+    sys.modules["violet_poolcontroller_api.api"] = mock_api.api
+    sys.modules["violet_poolcontroller_api.const_api"] = mock_api.const_api
+    sys.modules["violet_poolcontroller_api.const_devices"] = mock_api.const_devices
+    sys.modules["violet_poolcontroller_api.utils_sanitizer"] = mock_api.utils_sanitizer
+    sys.modules["violet_poolcontroller_api.readings"] = mock_api.readings
 
 # CRITICAL: Patch deprecated timezone BEFORE any imports
 # pytest-homeassistant-custom-component uses 'US/Pacific' which is deprecated
 # This must happen before pytest or homeassistant is imported
 try:
     import homeassistant.util.dt as dt_util
+
     _original_get_time_zone = dt_util.get_time_zone
 
     def _patched_get_time_zone(time_zone_str):
@@ -382,7 +400,7 @@ def pytest_configure(config):
 
     # Try to disable socket plugin completely
     try:
-        plugin = config.pluginmanager.get_plugin('socket')
+        plugin = config.pluginmanager.get_plugin("socket")
         if plugin:
             config.pluginmanager.unregister(plugin)
     except Exception:
@@ -412,7 +430,7 @@ def pytest_configure(config):
         import pytest_homeassistant_custom_component.plugins as plugins_module
 
         # Store original thread validation logic
-        original_code = plugins_module.__dict__.get('__thread_check_original__')
+        original_code = plugins_module.__dict__.get("__thread_check_original__")
 
         if not original_code:
             # Monkey patch by modifying the module code to accept new thread names
@@ -426,22 +444,21 @@ def pytest_configure(config):
                 """Filter out Home Assistant's safe shutdown threads from enumeration."""
                 threads = original_enumerate()
                 return [
-                    t for t in threads
-                    if not (hasattr(t, 'name') and '_run_safe_shutdown_loop' in t.name)
+                    t
+                    for t in threads
+                    if not (hasattr(t, "name") and "_run_safe_shutdown_loop" in t.name)
                 ]
 
             # Apply the patch at module load time
             threading.enumerate = patched_enumerate
-            plugins_module.__dict__['__thread_check_original__'] = True
+            plugins_module.__dict__["__thread_check_original__"] = True
 
     except (ImportError, AttributeError):
         # Plugin not installed or structure changed, skip patching
         pass
 
     # Add custom markers
-    config.addinivalue_line(
-        "markers", "thread_safe: mark test as thread-safe"
-    )
+    config.addinivalue_line("markers", "thread_safe: mark test as thread-safe")
 
 
 @pytest.hookimpl(tryfirst=True)
@@ -463,12 +480,14 @@ def pytest_fixture_setup(fixturedef, request):
     if fixturedef.argname == "event_loop":
         try:
             import pytest_socket
+
             pytest_socket.enable_socket()
         except Exception:
             pass
         return
     try:
         import pytest_socket
+
         pytest_socket.enable_socket()
     except Exception:
         pass

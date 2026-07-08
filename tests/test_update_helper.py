@@ -46,9 +46,7 @@ def test_parse_firmware_info_empty_available_version() -> None:
 
 def test_parse_firmware_info_legacy_sw_version_keys() -> None:
     """Older firmware / getReadings spec uses SW_VERSION and SW_UPDATE_AVAILABLE."""
-    firmware_info = parse_firmware_info(
-        {"SW_VERSION": "1.1.9", "SW_UPDATE_AVAILABLE": "1.2.0"}
-    )
+    firmware_info = parse_firmware_info({"SW_VERSION": "1.1.9", "SW_UPDATE_AVAILABLE": "1.2.0"})
 
     assert firmware_info.installed_version == "1.1.9"
     assert firmware_info.available_version == "1.2.0"
@@ -57,9 +55,7 @@ def test_parse_firmware_info_legacy_sw_version_keys() -> None:
 
 def test_parse_firmware_info_legacy_sw_version_carrier() -> None:
     """SW_VERSION_CARRIER is read when SYSTEM_carrierboard_swversion is absent."""
-    firmware_info = parse_firmware_info(
-        {"SW_VERSION": "1.2.0", "SW_VERSION_CARRIER": "2.3.0"}
-    )
+    firmware_info = parse_firmware_info({"SW_VERSION": "1.2.0", "SW_VERSION_CARRIER": "2.3.0"})
 
     assert firmware_info.installed_version == "1.2.0"
     assert firmware_info.carrier_version == "2.3.0"

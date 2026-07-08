@@ -1,4 +1,5 @@
 """Tests for Violet Pool Controller API with Rate Limiting."""
+
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import aiohttp
@@ -54,7 +55,7 @@ class TestVioletPoolAPI:
         mock_session.request = MagicMock(return_value=mock_response)
 
         # Mock Rate Limiter
-        with patch.object(api._rate_limiter, 'wait_if_needed', new_callable=AsyncMock) as mock_wait:
+        with patch.object(api._rate_limiter, "wait_if_needed", new_callable=AsyncMock) as mock_wait:
             # Führe Request aus
             result = await api._request("/test", expect_json=True)
 
@@ -73,7 +74,7 @@ class TestVioletPoolAPI:
 
         mock_session.request = MagicMock(return_value=mock_response)
 
-        with patch.object(api._rate_limiter, 'wait_if_needed', new_callable=AsyncMock) as mock_wait:
+        with patch.object(api._rate_limiter, "wait_if_needed", new_callable=AsyncMock) as mock_wait:
             # Test Critical Priority
             await api._request("/critical", priority=API_PRIORITY_CRITICAL)
             mock_wait.assert_called_with(priority=API_PRIORITY_CRITICAL, timeout=10.0)
@@ -99,9 +100,7 @@ class TestVioletPoolAPI:
 
         # Simuliere Rate Limiter Timeout
         with patch.object(
-            api._rate_limiter,
-            'wait_if_needed',
-            side_effect=TimeoutError("Rate limiter timeout")
+            api._rate_limiter, "wait_if_needed", side_effect=TimeoutError("Rate limiter timeout")
         ):
             # Request sollte trotzdem durchgehen (nur Warning)
             result = await api._request("/test")
@@ -117,7 +116,7 @@ class TestVioletPoolAPI:
         # Ensure raise_for_status raises an exception (sync method)
         mock_response.raise_for_status = MagicMock()
         mock_response.raise_for_status.side_effect = aiohttp.ClientResponseError(
-             request_info=MagicMock(), history=(), status=500, message="Server Error"
+            request_info=MagicMock(), history=(), status=500, message="Server Error"
         )
 
         mock_response.__aenter__ = AsyncMock(return_value=mock_response)
@@ -126,7 +125,7 @@ class TestVioletPoolAPI:
         mock_session.request = MagicMock(return_value=mock_response)
 
         with (
-            patch.object(api._rate_limiter, 'wait_if_needed', new_callable=AsyncMock),
+            patch.object(api._rate_limiter, "wait_if_needed", new_callable=AsyncMock),
             pytest.raises(VioletPoolAPIError),
         ):
             # Sollte VioletPoolAPIError werfen (nach Retries)
@@ -141,9 +140,9 @@ class TestVioletPoolAPI:
         mock_response = AsyncMock()
         mock_response.status = 200
         mock_response.text = AsyncMock(return_value="Invalid JSON")
-        mock_response.json = AsyncMock(side_effect=aiohttp.ContentTypeError(
-            MagicMock(), MagicMock()
-        ))
+        mock_response.json = AsyncMock(
+            side_effect=aiohttp.ContentTypeError(MagicMock(), MagicMock())
+        )
 
         mock_response.__aenter__ = AsyncMock(return_value=mock_response)
         mock_response.__aexit__ = AsyncMock(return_value=None)
@@ -151,19 +150,15 @@ class TestVioletPoolAPI:
         mock_session.request = MagicMock(return_value=mock_response)
 
         with (
-            patch.object(api._rate_limiter, 'wait_if_needed', new_callable=AsyncMock),
+            patch.object(api._rate_limiter, "wait_if_needed", new_callable=AsyncMock),
             pytest.raises(VioletPoolAPIError, match="Invalid JSON"),
         ):
             # Sollte VioletPoolAPIError werfen
             await api._request("/test", expect_json=True)
 
-    async def test_set_all_dmx_scenes_sends_single_global_command(
-        self, api: VioletPoolAPI
-    ) -> None:
+    async def test_set_all_dmx_scenes_sends_single_global_command(self, api: VioletPoolAPI) -> None:
         """ALLON/ALLOFF/ALLAUTO are global: one request switches all scenes."""
-        with patch.object(
-            api, "set_switch_state", new_callable=AsyncMock
-        ) as mock_set_switch_state:
+        with patch.object(api, "set_switch_state", new_callable=AsyncMock) as mock_set_switch_state:
             mock_set_switch_state.return_value = {
                 "success": True,
                 "response": "DMX_SCENE1 OK",
@@ -174,9 +169,7 @@ class TestVioletPoolAPI:
             mock_set_switch_state.assert_awaited_once_with("DMX_SCENE1", "ALLON")
             assert result["success"] is True
 
-    async def test_set_all_dmx_scenes_rejects_unknown_action(
-        self, api: VioletPoolAPI
-    ) -> None:
+    async def test_set_all_dmx_scenes_rejects_unknown_action(self, api: VioletPoolAPI) -> None:
         """Unsupported DMX actions must raise instead of hitting the API."""
         with pytest.raises(VioletPoolAPIError, match="Unsupported DMX action"):
             await api.set_all_dmx_scenes("EXPLODE")

@@ -45,10 +45,10 @@ _LOGGER = logging.getLogger(__name__)
 # 6 = Manual OFF (off)
 STATE_MAP = {
     0: False,  # Auto - Standby
-    1: True,   # Auto - Active (Scheduled)
+    1: True,  # Auto - Active (Scheduled)
     2: False,  # Auto - Priority OFF (Rule Blocked)
-    3: True,   # Auto - Priority ON (Emergency Rule)
-    4: True,   # Manual ON (Forced)
+    3: True,  # Auto - Priority ON (Emergency Rule)
+    4: True,  # Manual ON (Forced)
     5: False,  # Rule OFF (Emergency Rule)
     6: False,  # Manual OFF
 }
@@ -110,9 +110,7 @@ def parse_composite_state(raw_state: str) -> tuple[str, str]:
     return status_code, status_text
 
 
-def get_state_attributes(
-    state_code: int, german: bool = False
-) -> dict[str, str | int | bool]:
+def get_state_attributes(state_code: int, german: bool = False) -> dict[str, str | int | bool]:
     """Generate extended state attributes for a given state code.
 
     Args:
@@ -205,9 +203,7 @@ def strip_redundant_device_prefix(name: Any, *device_names: str | None) -> str |
         "violet_pool_controller",
         "violet pool controller",
     }
-    prefixes.update(
-        str(device_name).strip() for device_name in device_names if device_name
-    )
+    prefixes.update(str(device_name).strip() for device_name in device_names if device_name)
 
     changed = True
     while changed:
@@ -216,9 +212,7 @@ def strip_redundant_device_prefix(name: Any, *device_names: str | None) -> str |
             if not prefix:
                 continue
             pattern = rf"^{re.escape(prefix)}(?:[\s_\-:•]+)+"
-            stripped = re.sub(
-                pattern, "", cleaned, count=1, flags=re.IGNORECASE
-            ).strip()
+            stripped = re.sub(pattern, "", cleaned, count=1, flags=re.IGNORECASE).strip()
             if stripped and stripped != cleaned:
                 cleaned = stripped
                 changed = True
@@ -298,16 +292,11 @@ class VioletPoolControllerEntity(_VioletCoordinatorEntity):
         Returns:
             True if available, False otherwise.
         """
-        is_available = bool(
-            self.coordinator.last_update_success and self.device.available
-        )
+        is_available = bool(self.coordinator.last_update_success and self.device.available)
 
         if not is_available:
             _LOGGER.debug(
-                (
-                    "Entity '%s' not available"
-                    " (coordinator_success: %s, device_available: %s)"
-                ),
+                ("Entity '%s' not available (coordinator_success: %s, device_available: %s)"),
                 getattr(self, "name", None) or self.entity_description.key,
                 self.coordinator.last_update_success,
                 self.device.available,

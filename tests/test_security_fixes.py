@@ -1,4 +1,5 @@
 """Tests for security fixes validation."""
+
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -122,11 +123,11 @@ class TestSecurityFixes:
             "malicious;key": "value1",
             "valid_key": "valid_value",
             "numeric_key": 42,
-            "another_valid": "test123"
+            "another_valid": "test123",
         }
 
         # Mock the request to avoid actual API calls
-        with patch.object(api, '_request') as mock_request:
+        with patch.object(api, "_request") as mock_request:
             mock_request.return_value = {"status": "ok"}
 
             try:
@@ -137,7 +138,7 @@ class TestSecurityFixes:
 
                 # Get the sanitized config that was passed
                 call_args = mock_request.call_args
-                sanitized_config = call_args.kwargs['data']
+                sanitized_config = call_args.kwargs["data"]
 
                 # Valid keys should be present
                 assert "valid_key" in sanitized_config
@@ -162,7 +163,7 @@ class TestSecurityFixes:
             "[2001:db8::1]:8443",
             "pool-controller.local",
             "violet.example.com",
-            "192.0.2.1"
+            "192.0.2.1",
         ]
 
         for host in valid_hosts:
@@ -186,7 +187,7 @@ class TestSecurityFixes:
             "pool-controller.local/path",
             "../etc/passwd",
             "' OR 1=1 --",
-            "''; DROP TABLE users; --"
+            "''; DROP TABLE users; --",
         ]
 
         for host in invalid_hosts:

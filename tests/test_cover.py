@@ -1,4 +1,5 @@
 """Tests for Cover platform."""
+
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -20,6 +21,7 @@ from custom_components.violet_pool_controller.cover import (
 @pytest.fixture
 def mock_coordinator():
     """Mock coordinator."""
+
     class MockCoordinator:
         def __init__(self):
             self.data = {
@@ -46,6 +48,7 @@ def mock_coordinator():
 
 class MockDevice:
     """Mock device."""
+
     def __init__(self):
         self.device_name = "Test Pool"
         self.available = True
@@ -62,6 +65,7 @@ class MockDevice:
 
 class MockAPI:
     """Mock API."""
+
     async def set_switch_state(self, key, action):
         """Mock set_switch_state."""
         return {"success": True}
@@ -84,7 +88,7 @@ def config_entry():
         },
         options={
             CONF_ACTIVE_FEATURES: ["cover_control"],
-        }
+        },
     )
 
 
@@ -187,7 +191,7 @@ def config_entry_inverted():
         options={
             CONF_ACTIVE_FEATURES: ["cover_control"],
             CONF_INVERT_COVER: True,
-        }
+        },
     )
 
 

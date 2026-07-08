@@ -86,9 +86,7 @@ class TestExt1HardwareDetection:
 
     async def test_ext1_detected_via_data_keys(self, device, mock_api):
         """EXT1_* keys in the (already-filtered) data signal module presence."""
-        mock_api.get_readings = AsyncMock(
-            return_value={"PUMP": 1, "EXT1_1": 4, "EXT1_2": 0}
-        )
+        mock_api.get_readings = AsyncMock(return_value={"PUMP": 1, "EXT1_1": 4, "EXT1_2": 0})
         data = await device._fetch_controller_data()
         assert data["HW_EXTENSION_MODULE_1"] is True
         assert "EXT1" in device._hw_detected
@@ -157,18 +155,14 @@ class TestExt1ApiCommandFormat:
     def test_ext1_2_command_template(self):
         """EXT1_2 has the expected comma-separated command template."""
         tmpl = DEVICE_PARAMETERS.get("EXT1_2", {}).get("api_template", "")
-        assert tmpl == "EXT1_2,{action},{duration},0", (
-            f"Unexpected template: {tmpl!r}"
-        )
+        assert tmpl == "EXT1_2,{action},{duration},0", f"Unexpected template: {tmpl!r}"
 
     def test_all_ext1_relays_have_templates(self):
         """All 8 EXT1 relay keys must have an api_template."""
         for i in range(1, 9):
             key = f"EXT1_{i}"
             assert key in DEVICE_PARAMETERS, f"{key} missing from DEVICE_PARAMETERS"
-            assert "api_template" in DEVICE_PARAMETERS[key], (
-                f"{key} missing api_template"
-            )
+            assert "api_template" in DEVICE_PARAMETERS[key], f"{key} missing api_template"
 
     def test_ext1_template_action_placeholder(self):
         """Template contains {action} placeholder for ON/OFF/AUTO."""
@@ -189,9 +183,7 @@ class TestExt1ApiCommandFormat:
         """Template always ends with ,0 (no speed/value parameter for relays)."""
         for i in range(1, 9):
             tmpl = DEVICE_PARAMETERS[f"EXT1_{i}"]["api_template"]
-            assert tmpl.endswith(",0"), (
-                f"EXT1_{i} template should end with ',0': {tmpl!r}"
-            )
+            assert tmpl.endswith(",0"), f"EXT1_{i} template should end with ',0': {tmpl!r}"
 
 
 # ===========================================================================
@@ -204,12 +196,8 @@ class TestExt1RefreshDelay:
 
     def test_ext_delay_longer_than_default(self):
         """REFRESH_DELAY_EXT must be strictly greater than REFRESH_DELAY."""
-        assert REFRESH_DELAY_EXT > REFRESH_DELAY, (
-            "EXT refresh delay should be longer than default"
-        )
+        assert REFRESH_DELAY_EXT > REFRESH_DELAY, "EXT refresh delay should be longer than default"
 
     def test_ext_delay_at_least_one_second(self):
         """EXT refresh delay should be at least 1 second for controller timing."""
-        assert REFRESH_DELAY_EXT >= 1.0, (
-            "EXT refresh delay should be at least 1 second"
-        )
+        assert REFRESH_DELAY_EXT >= 1.0, "EXT refresh delay should be at least 1 second"

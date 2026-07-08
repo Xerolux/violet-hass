@@ -1,4 +1,5 @@
 """Tests for type hints and mypy compliance."""
+
 import pytest
 from violet_poolcontroller_api.const_devices import COVER_STATE_MAP
 
@@ -75,6 +76,7 @@ class TestTypeHints:
 
     def test_optional_string_handling(self):
         """Test optional string handling with or fallback."""
+
         def get_value() -> str | None:
             return None
 

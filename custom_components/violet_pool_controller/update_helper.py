@@ -41,10 +41,7 @@ class FirmwareUpdateInfo:
         """Human-readable update status line."""
         if not self.update_available:
             return f"System is up to date (v{self.installed_version})"
-        return (
-            f"Update available: v{self.available_version}"
-            f" (installed: v{self.installed_version})"
-        )
+        return f"Update available: v{self.available_version} (installed: v{self.installed_version})"
 
     @staticmethod
     def _compare_versions(current: str, available: str) -> int:

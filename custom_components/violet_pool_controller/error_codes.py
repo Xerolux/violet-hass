@@ -813,17 +813,9 @@ def get_error_info(code: str, german: bool = False) -> dict[str, str]:
 
     return {
         "type": "UNKNOWN",
-        "subject": (
-            f"Unbekannter Code: {code_str}"
-            if german
-            else f"Unknown code: {code_str}"
-        ),
+        "subject": (f"Unbekannter Code: {code_str}" if german else f"Unknown code: {code_str}"),
         "severity": "info",
-        "description": (
-            "Keine Beschreibung verfügbar"
-            if german
-            else "No description available"
-        ),
+        "description": ("Keine Beschreibung verfügbar" if german else "No description available"),
     }
 
 

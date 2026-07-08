@@ -20,13 +20,13 @@ from typing import Final
 # overrides automatic scheduling.
 
 # State Codes
-STATE_AUTO_STANDBY: Final = 0          # Auto mode: device off/standby
-STATE_AUTO_ACTIVE: Final = 1           # Auto mode: active/scheduled on
-STATE_AUTO_PRIORITY_OFF: Final = 2     # Auto mode: blocked by control rule
-STATE_AUTO_PRIORITY_ON: Final = 3      # Auto mode: priority on (emergency rule)
-STATE_MANUAL_ON: Final = 4             # Manual mode: forced on
-STATE_EMERGENCY_OFF: Final = 5         # Emergency mode: off (emergency rule)
-STATE_MANUAL_OFF: Final = 6            # Manual mode: forced off
+STATE_AUTO_STANDBY: Final = 0  # Auto mode: device off/standby
+STATE_AUTO_ACTIVE: Final = 1  # Auto mode: active/scheduled on
+STATE_AUTO_PRIORITY_OFF: Final = 2  # Auto mode: blocked by control rule
+STATE_AUTO_PRIORITY_ON: Final = 3  # Auto mode: priority on (emergency rule)
+STATE_MANUAL_ON: Final = 4  # Manual mode: forced on
+STATE_EMERGENCY_OFF: Final = 5  # Emergency mode: off (emergency rule)
+STATE_MANUAL_OFF: Final = 6  # Manual mode: forced off
 
 # State Groups
 AUTO_OFF_STATES: Final[set[int]] = {
@@ -53,10 +53,10 @@ OFF_STATES: Final[set[int]] = {
 }
 
 # Priority Levels (inverted: higher number = higher priority)
-PRIORITY_AUTO: Final = 0               # Automatic scheduling (lowest priority)
-PRIORITY_RULE_BLOCKED: Final = 1       # Blocked by control rule
-PRIORITY_EMERGENCY: Final = 2          # Emergency/safety rule override
-PRIORITY_MANUAL: Final = 3             # Manual control (highest priority)
+PRIORITY_AUTO: Final = 0  # Automatic scheduling (lowest priority)
+PRIORITY_RULE_BLOCKED: Final = 1  # Blocked by control rule
+PRIORITY_EMERGENCY: Final = 2  # Emergency/safety rule override
+PRIORITY_MANUAL: Final = 3  # Manual control (highest priority)
 
 
 @dataclass(frozen=True)

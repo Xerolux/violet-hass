@@ -55,7 +55,11 @@ class VioletControlClient:
         function = InputSanitizer.validate_api_parameter(function)
         action = InputSanitizer.validate_api_parameter(action)
 
-        cmd = f"{function},{action},{quote(str(param), safe=',')}" if param is not None else f"{function},{action}"
+        cmd = (
+            f"{function},{action},{quote(str(param), safe=',')}"
+            if param is not None
+            else f"{function},{action}"
+        )
 
         try:
             _LOGGER.debug("Executing command: setFunctionManually?%s", cmd)
@@ -99,12 +103,8 @@ class VioletControlClient:
             )
             raise
         except TimeoutError as err:
-            _LOGGER.error(
-                "Timeout executing command %s %s", function, action
-            )
-            raise VioletPoolAPIError(
-                f"Timeout executing {function} {action}"
-            ) from err
+            _LOGGER.error("Timeout executing command %s %s", function, action)
+            raise VioletPoolAPIError(f"Timeout executing {function} {action}") from err
         except Exception as err:
             _LOGGER.error(
                 "Unexpected error executing command %s %s: %s",
@@ -112,13 +112,9 @@ class VioletControlClient:
                 action,
                 err,
             )
-            raise VioletPoolAPIError(
-                f"Error executing {function} {action}: {err}"
-            ) from err
+            raise VioletPoolAPIError(f"Error executing {function} {action}: {err}") from err
 
-    async def set_pump_speed(
-        self, rpm_level: int, timeout: float = 10.0
-    ) -> bool:
+    async def set_pump_speed(self, rpm_level: int, timeout: float = 10.0) -> bool:
         """Set pump speed via manual control.
 
         Args:
@@ -135,9 +131,7 @@ class VioletControlClient:
         if not 0 <= rpm_level <= 3:
             raise ValueError(f"RPM level must be 0-3, got {rpm_level}")
 
-        return await self.set_function_manually(
-            "PUMP", "ON", rpm_level, timeout
-        )
+        return await self.set_function_manually("PUMP", "ON", rpm_level, timeout)
 
     async def set_pump_off(self, timeout: float = 10.0) -> bool:
         """Turn pump off.
@@ -165,9 +159,7 @@ class VioletControlClient:
         Raises:
             VioletPoolAPIError: If API communication fails.
         """
-        return await self.set_function_manually(
-            "HEATER", "ON", timeout=timeout
-        )
+        return await self.set_function_manually("HEATER", "ON", timeout=timeout)
 
     async def set_heater_off(self, timeout: float = 10.0) -> bool:
         """Turn heater off.
@@ -181,9 +173,7 @@ class VioletControlClient:
         Raises:
             VioletPoolAPIError: If API communication fails.
         """
-        return await self.set_function_manually(
-            "HEATER", "OFF", timeout=timeout
-        )
+        return await self.set_function_manually("HEATER", "OFF", timeout=timeout)
 
     async def set_solar_on(self, timeout: float = 10.0) -> bool:
         """Turn solar on.
@@ -197,9 +187,7 @@ class VioletControlClient:
         Raises:
             VioletPoolAPIError: If API communication fails.
         """
-        return await self.set_function_manually(
-            "SOLAR", "ON", timeout=timeout
-        )
+        return await self.set_function_manually("SOLAR", "ON", timeout=timeout)
 
     async def set_solar_off(self, timeout: float = 10.0) -> bool:
         """Turn solar off.
@@ -213,9 +201,7 @@ class VioletControlClient:
         Raises:
             VioletPoolAPIError: If API communication fails.
         """
-        return await self.set_function_manually(
-            "SOLAR", "OFF", timeout=timeout
-        )
+        return await self.set_function_manually("SOLAR", "OFF", timeout=timeout)
 
     async def set_cover_open(self, timeout: float = 10.0) -> bool:
         """Open cover.
@@ -229,9 +215,7 @@ class VioletControlClient:
         Raises:
             VioletPoolAPIError: If API communication fails.
         """
-        return await self.set_function_manually(
-            "COVER", "OPEN", timeout=timeout
-        )
+        return await self.set_function_manually("COVER", "OPEN", timeout=timeout)
 
     async def set_cover_close(self, timeout: float = 10.0) -> bool:
         """Close cover.
@@ -245,9 +229,7 @@ class VioletControlClient:
         Raises:
             VioletPoolAPIError: If API communication fails.
         """
-        return await self.set_function_manually(
-            "COVER", "CLOSE", timeout=timeout
-        )
+        return await self.set_function_manually("COVER", "CLOSE", timeout=timeout)
 
     async def set_cover_stop(self, timeout: float = 10.0) -> bool:
         """Stop cover movement.
@@ -261,9 +243,7 @@ class VioletControlClient:
         Raises:
             VioletPoolAPIError: If API communication fails.
         """
-        return await self.set_function_manually(
-            "COVER", "STOP", timeout=timeout
-        )
+        return await self.set_function_manually("COVER", "STOP", timeout=timeout)
 
     async def set_backwash_run(self, timeout: float = 10.0) -> bool:
         """Start backwash cycle.
@@ -277,9 +257,7 @@ class VioletControlClient:
         Raises:
             VioletPoolAPIError: If API communication fails.
         """
-        return await self.set_function_manually(
-            "BACKWASH", "RUN", timeout=timeout
-        )
+        return await self.set_function_manually("BACKWASH", "RUN", timeout=timeout)
 
     async def set_backwash_abort(self, timeout: float = 10.0) -> bool:
         """Abort backwash cycle.
@@ -293,9 +271,7 @@ class VioletControlClient:
         Raises:
             VioletPoolAPIError: If API communication fails.
         """
-        return await self.set_function_manually(
-            "BACKWASH", "ABORT", timeout=timeout
-        )
+        return await self.set_function_manually("BACKWASH", "ABORT", timeout=timeout)
 
     async def trigger_manual_dosing(
         self,
@@ -341,16 +317,12 @@ class VioletControlClient:
         """
         action_upper = action.strip().upper()
         if action_upper not in ("DOSSTART", "DOSSTOP"):
-            raise ValueError(
-                f"action must be 'DOSSTART' or 'DOSSTOP', got {action!r}"
-            )
+            raise ValueError(f"action must be 'DOSSTART' or 'DOSSTOP', got {action!r}")
         if not 0 <= dosing_index <= 5:
             raise ValueError(f"Dosing index must be 0-5, got {dosing_index}")
         if action_upper == "DOSSTART":
             if runtime_seconds <= 0:
-                raise ValueError(
-                    f"Runtime must be > 0 for DOSSTART, got {runtime_seconds}"
-                )
+                raise ValueError(f"Runtime must be > 0 for DOSSTART, got {runtime_seconds}")
             if runtime_seconds > 3600:
                 raise ValueError(
                     f"Runtime must be <= 3600s (1 hour) for safety, got {runtime_seconds}"
@@ -365,9 +337,7 @@ class VioletControlClient:
                 from_param,
             )
 
-            runtime_formatted = (
-                f"{runtime_seconds // 60:02d}:{runtime_seconds % 60:02d}"
-            )
+            runtime_formatted = f"{runtime_seconds // 60:02d}:{runtime_seconds % 60:02d}"
             form_data = {
                 "action": action_upper,
                 "output": str(dosing_index),
@@ -392,9 +362,7 @@ class VioletControlClient:
                 _LOGGER.warning("Manual dosing blocked: backwash in progress")
                 return False
 
-            success_token = (
-                "MANDOS_STARTED" if action_upper == "DOSSTART" else "MANDOS_STOPPED"
-            )
+            success_token = "MANDOS_STARTED" if action_upper == "DOSSTART" else "MANDOS_STOPPED"
             if "\nOK" in response_text or success_token in response_text:
                 _LOGGER.info(
                     "Manual dosing %s: index=%d, runtime=%ds",
@@ -419,12 +387,8 @@ class VioletControlClient:
             )
             raise
         except TimeoutError as err:
-            _LOGGER.error(
-                "Timeout triggering manual dosing (%s)", action_upper
-            )
-            raise VioletPoolAPIError(
-                f"Timeout triggering manual dosing ({action_upper})"
-            ) from err
+            _LOGGER.error("Timeout triggering manual dosing (%s)", action_upper)
+            raise VioletPoolAPIError(f"Timeout triggering manual dosing ({action_upper})") from err
 
     async def set_config(
         self,
@@ -457,7 +421,11 @@ class VioletControlClient:
                 if isinstance(value, bool):
                     # Convert bool to int: True->1, False->0
                     normalized_updates[key] = int(value)
-                elif isinstance(value, (int, float)) and key.endswith(("_use", "_enabled")) and not key.endswith("_count"):
+                elif (
+                    isinstance(value, (int, float))
+                    and key.endswith(("_use", "_enabled"))
+                    and not key.endswith("_count")
+                ):
                     normalized_updates[key] = int(bool(value))
                 else:
                     # All other values pass through unchanged

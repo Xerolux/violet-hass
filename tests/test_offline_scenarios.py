@@ -1,4 +1,5 @@
 """Tests for offline scenario handling."""
+
 import asyncio
 from unittest.mock import AsyncMock, Mock, patch
 
@@ -55,12 +56,8 @@ def device(mock_hass, mock_config_entry, mock_api):
             "custom_components.violet_pool_controller.device.async_get_clientsession",
             return_value=Mock(),
         ),
-        patch(
-            "custom_components.violet_pool_controller.device.async_create_issue"
-        ),
-        patch(
-            "custom_components.violet_pool_controller.device.async_delete_issue"
-        ),
+        patch("custom_components.violet_pool_controller.device.async_create_issue"),
+        patch("custom_components.violet_pool_controller.device.async_delete_issue"),
     ):
         dev = VioletPoolControllerDevice(mock_hass, mock_config_entry, mock_api)
         yield dev
@@ -76,9 +73,7 @@ class TestOfflineScenarios:
         A single failure is below the threshold (5) — async_update returns
         stale data and does NOT raise UpdateFailed.
         """
-        mock_api.get_readings = AsyncMock(
-            side_effect=TimeoutError("Connection timeout")
-        )
+        mock_api.get_readings = AsyncMock(side_effect=TimeoutError("Connection timeout"))
 
         device._available = True
         device._data = {"test": "data"}
@@ -92,9 +87,7 @@ class TestOfflineScenarios:
     @pytest.mark.asyncio
     async def test_connection_refused_error(self, device, mock_api):
         """Test handling of connection refused errors."""
-        mock_api.get_readings = AsyncMock(
-            side_effect=ConnectionRefusedError("Connection refused")
-        )
+        mock_api.get_readings = AsyncMock(side_effect=ConnectionRefusedError("Connection refused"))
 
         device._available = True
         device._data = {}
@@ -136,9 +129,7 @@ class TestOfflineScenarios:
         The first (max-1) calls return stale data; the Nth call raises UpdateFailed
         and marks the device unavailable.
         """
-        mock_api.get_readings = AsyncMock(
-            side_effect=TimeoutError("Timeout")
-        )
+        mock_api.get_readings = AsyncMock(side_effect=TimeoutError("Timeout"))
 
         device._available = True
         device._max_consecutive_failures = 5
@@ -161,9 +152,7 @@ class TestOfflineScenarios:
     @pytest.mark.asyncio
     async def test_recovery_after_failures(self, device, mock_api):
         """Test successful recovery after failures."""
-        mock_api.get_readings = AsyncMock(
-            side_effect=TimeoutError("Timeout")
-        )
+        mock_api.get_readings = AsyncMock(side_effect=TimeoutError("Timeout"))
 
         device._available = True
         device._consecutive_failures = 2
@@ -175,9 +164,7 @@ class TestOfflineScenarios:
         assert device._consecutive_failures == 3
 
         # Now recover with valid data
-        mock_api.get_readings = AsyncMock(
-            return_value={"test": "data", "value": 123}
-        )
+        mock_api.get_readings = AsyncMock(return_value={"test": "data", "value": 123})
         mock_api.dosing_standalone = False
 
         result = await device.async_update()
@@ -192,9 +179,7 @@ class TestOfflineScenarios:
     @pytest.mark.asyncio
     async def test_throttled_logging(self, device, mock_api):
         """Test that repeated errors are logged with throttling."""
-        mock_api.get_readings = AsyncMock(
-            side_effect=TimeoutError("Timeout")
-        )
+        mock_api.get_readings = AsyncMock(side_effect=TimeoutError("Timeout"))
 
         device._available = True
         device._data = {"test": "data"}
@@ -209,9 +194,7 @@ class TestOfflineScenarios:
     @pytest.mark.asyncio
     async def test_api_error_handling(self, device, mock_api):
         """Test VioletPoolAPIError handling."""
-        mock_api.get_readings = AsyncMock(
-            side_effect=VioletPoolAPIError("API request failed")
-        )
+        mock_api.get_readings = AsyncMock(side_effect=VioletPoolAPIError("API request failed"))
 
         device._available = True
         device._data = {"test": "data"}
@@ -257,9 +240,7 @@ class TestOfflineMetrics:
         await device.async_update()
 
         # Now recover
-        mock_api.get_readings = AsyncMock(
-            return_value={"test": "data"}
-        )
+        mock_api.get_readings = AsyncMock(return_value={"test": "data"})
 
         await device.async_update()
 
@@ -269,6 +250,7 @@ class TestOfflineMetrics:
     @pytest.mark.asyncio
     async def test_connection_latency_tracking(self, device, mock_api):
         """Test connection latency is tracked."""
+
         async def slow_request():
             await asyncio.sleep(0.1)  # 100ms delay
             return {"test": "data"}
@@ -294,9 +276,7 @@ class TestOfflineErrorHandling:
         device._consecutive_failures = device._max_consecutive_failures - 1
         device._data = {"test": "data"}
 
-        mock_api.get_readings = AsyncMock(
-            side_effect=TimeoutError("Timeout")
-        )
+        mock_api.get_readings = AsyncMock(side_effect=TimeoutError("Timeout"))
 
         device._available = True
 
@@ -318,9 +298,7 @@ class TestOfflineErrorHandling:
 
         handler = get_enhanced_error_handler()
 
-        mock_api.get_readings = AsyncMock(
-            side_effect=TimeoutError("Timeout")
-        )
+        mock_api.get_readings = AsyncMock(side_effect=TimeoutError("Timeout"))
 
         device._available = True
         device._data = {}
@@ -344,9 +322,7 @@ class TestRecoveryScenarios:
         device._data = {}
 
         # Fail (below threshold — no raise)
-        mock_api.get_readings = AsyncMock(
-            side_effect=TimeoutError("Timeout")
-        )
+        mock_api.get_readings = AsyncMock(side_effect=TimeoutError("Timeout"))
         await device.async_update()
         assert device._consecutive_failures == 1
 
@@ -357,9 +333,7 @@ class TestRecoveryScenarios:
         assert device._consecutive_failures == 0
 
         # Fail again (below threshold — no raise)
-        mock_api.get_readings = AsyncMock(
-            side_effect=TimeoutError("Timeout")
-        )
+        mock_api.get_readings = AsyncMock(side_effect=TimeoutError("Timeout"))
         await device.async_update()
         assert device._consecutive_failures == 1
 
@@ -372,9 +346,7 @@ class TestRecoveryScenarios:
     @pytest.mark.asyncio
     async def test_persistent_offline_recovery(self, device, mock_api):
         """Test recovery after persistent offline state."""
-        mock_api.get_readings = AsyncMock(
-            side_effect=TimeoutError("Timeout")
-        )
+        mock_api.get_readings = AsyncMock(side_effect=TimeoutError("Timeout"))
 
         device._available = True
         device._data = {}

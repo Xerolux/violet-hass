@@ -35,6 +35,7 @@ from .const import (
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity, get_state_attributes, interpret_state_as_bool
 from .entity_names import EntityNameResolver
+from .service_helpers import MAX_DOSING_DURATION
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -62,6 +63,7 @@ def _dosing_switch_on(raw_state: Any, use_val: Any) -> bool | None:
         return False
     return interpret_state_as_bool(raw_state)
 
+
 # State Constants (matches DEVICE_STATE_MAPPING from API library)
 # - 0: Auto - Standby (OFF)
 # - 1: Auto - Active (Scheduled) (ON)
@@ -81,6 +83,21 @@ UNSAFE_SWITCH_KEYS = {
     "BACKWASH",
     "BACKWASHRINSE",
     "REFILL",
+}
+
+# Maximum safe runtime (seconds) for unsafe switches toggled via the plain
+# switch entity.  Dosing channels are capped at MAX_DOSING_DURATION (300s);
+# backwash/refill require an explicit duration service and are therefore
+# rejected when toggled ON without one.
+MAX_DURATION_FOR_KEY: dict[str, int | None] = {
+    "DOS_1_CL": MAX_DOSING_DURATION,
+    "DOS_2_ELO": MAX_DOSING_DURATION,
+    "DOS_4_PHM": MAX_DOSING_DURATION,
+    "DOS_5_PHP": MAX_DOSING_DURATION,
+    "DOS_6_FLOC": MAX_DOSING_DURATION,
+    "BACKWASH": None,  # requires explicit duration -> reject bare ON
+    "BACKWASHRINSE": None,  # requires explicit duration -> reject bare ON
+    "REFILL": None,  # requires explicit duration -> reject bare ON
 }
 
 
@@ -341,9 +358,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                     if int(rpm_val) > 0:
                         active_speed = level
                 except (ValueError, TypeError) as err:
-                    _LOGGER.debug(
-                        "Invalid RPM value for %s: %s (%s)", rpm_key, rpm_val, err
-                    )
+                    _LOGGER.debug("Invalid RPM value for %s: %s (%s)", rpm_key, rpm_val, err)
 
         if active_speed is not None:
             attributes["pump_speed_level"] = active_speed
@@ -455,6 +470,14 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         try:
             _LOGGER.info("Setting switch %s to %s", key, action)
 
+            # Safety gate: unsafe keys (dosing/backwash/refill) must pass
+            # through the SafetyGuard so the cooldown is enforced even when
+            # the switch entity is enabled via allow_unsafe_switches.
+            if key in UNSAFE_SWITCH_KEYS and action == ACTION_ON:
+                safety_guard = self._get_safety_guard()
+                if safety_guard is not None:
+                    await safety_guard.enforce(key)
+
             if key.startswith("DIRULE_"):
                 # Rules are lock-controlled: ON = unlock, OFF = lock.
                 # Plain ON/OFF actions are not valid for DIRULE keys.
@@ -479,12 +502,30 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             elif key.startswith("DOS_") and action == ACTION_ON:
                 # /triggerManualDosing requires a runtime (PoolDigital, forum
                 # thread 2227); runtime=0 would not start a dosing run.
+                # Duration is capped at MAX_DOSING_DURATION for safety.
                 duration = self._validate_duration(
-                    kwargs.get("duration", DEFAULT_MANUAL_DOSING_DURATION)
+                    kwargs.get("duration", DEFAULT_MANUAL_DOSING_DURATION),
+                    max_sec=MAX_DOSING_DURATION,
                 )
                 if duration <= 0:
                     duration = DEFAULT_MANUAL_DOSING_DURATION
 
+                result = await self.device.api.set_switch_state(
+                    key=key, action=action, duration=duration
+                )
+            elif key in ("BACKWASH", "BACKWASHRINSE", "REFILL") and action == ACTION_ON:
+                # These operations can cause flooding/equipment damage if run
+                # indefinitely.  Toggling ON via the bare switch entity is only
+                # allowed when an explicit bounded duration is provided; users
+                # should use the *_http services otherwise.
+                duration = kwargs.get("duration")
+                if duration is None:
+                    raise HomeAssistantError(
+                        f"{key} cannot be turned ON without a duration. "
+                        f"Use the {key.lower()}_http service with "
+                        f"duration_seconds instead."
+                    )
+                duration = self._validate_duration(duration, max_sec=3600)
                 result = await self.device.api.set_switch_state(
                     key=key, action=action, duration=duration
                 )
@@ -498,8 +539,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 self.async_write_ha_state()
 
                 _LOGGER.debug(
-                    "Optimistic update: %s = %s"
-                    " (local cache, coordinator.data not mutated)",
+                    "Optimistic update: %s = %s (local cache, coordinator.data not mutated)",
                     key,
                     "ON" if self._optimistic_state else "OFF",
                 )
@@ -508,9 +548,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 task.add_done_callback(lambda t: self._handle_switch_refresh_error(t, key))
             else:
                 error_msg = result.get("response", "Unknown error")
-                _LOGGER.warning(
-                    "Switch %s action %s failed: %s", key, action, error_msg
-                )
+                _LOGGER.warning("Switch %s action %s failed: %s", key, action, error_msg)
                 raise HomeAssistantError(
                     translation_key="failed_to_set_value",
                     translation_domain=DOMAIN,
@@ -546,9 +584,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             # EXT*_LAST_ON before the next get_readings() call, which is required
             # for the API package's hardware detection to recognise the module.
             delay = REFRESH_DELAY_EXT if key.startswith("EXT") else REFRESH_DELAY
-            success = await self._request_coordinator_refresh(
-                delay=delay, log_context=key
-            )
+            success = await self._request_coordinator_refresh(delay=delay, log_context=key)
 
             if success and self.coordinator.data is not None:
                 new_state = self.coordinator.data.get(key, "UNKNOWN")
@@ -598,33 +634,41 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             # Controller supports speeds 0-3 (PUMP_RPM_0 to PUMP_RPM_3)
             if 0 <= speed_int <= 3:
                 return speed_int
-            _LOGGER.warning(
-                "Invalid speed value %s (allowed: 0-3), using default 2", speed
-            )
+            _LOGGER.warning("Invalid speed value %s (allowed: 0-3), using default 2", speed)
             return 2
         except (ValueError, TypeError):
             _LOGGER.warning("Invalid speed type %s, using default 2", type(speed))
             return 2
 
-    def _validate_duration(self, duration: Any) -> int:
+    def _validate_duration(self, duration: Any, max_sec: int | None = None) -> int:
         """
         Validate the duration parameter.
 
         Args:
             duration: The duration value.
+            max_sec: Optional upper bound.  Values above this are clamped so
+                that unsafe switches (dosing/backwash/refill) cannot be driven
+                beyond their safe runtime via the plain switch entity.
 
         Returns:
             The validated duration integer.
         """
         try:
             duration_int = int(duration)
-            if duration_int >= 0:
-                return duration_int
-            _LOGGER.warning("Negative duration %s, using 0", duration)
-            return 0
         except (ValueError, TypeError):
             _LOGGER.warning("Invalid duration type %s, using 0", type(duration))
             return 0
+        if duration_int < 0:
+            _LOGGER.warning("Negative duration %s, using 0", duration)
+            return 0
+        if max_sec is not None and duration_int > max_sec:
+            _LOGGER.warning(
+                "Duration %ss exceeds safe maximum %ss for unsafe switch; clamping",
+                duration_int,
+                max_sec,
+            )
+            return max_sec
+        return duration_int
 
     def _validate_pv_rpm(self, rpm: Any | None) -> int:
         """
@@ -650,6 +694,19 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         _LOGGER.debug("PV Surplus RPM %s out of valid range, using default 2", rpm)
         return 2
 
+    def _get_safety_guard(self) -> Any:
+        """Return the integration's SafetyGuard, or None if unavailable.
+
+        The SafetyGuard is a singleton living on the service manager which is
+        created during service registration.  It is not directly attached to
+        the coordinator, so we look it up via hass.data.
+        """
+        from .safety_guard import SafetyGuard  # local import to avoid cycles
+
+        manager = getattr(self.hass.data.get(DOMAIN, {}), "service_manager", None)
+        guard = getattr(manager, "safety_guard", None)
+        return guard if isinstance(guard, SafetyGuard) else None
+
     async def async_added_to_hass(self) -> None:
         """Called when the entity is added to Home Assistant."""
         await super().async_added_to_hass()
@@ -668,9 +725,7 @@ async def async_setup_entry(
         config_entry: The config entry.
         async_add_entities: Callback to add entities.
     """
-    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][
-        config_entry.entry_id
-    ]
+    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     active_features = config_entry.options.get(
         CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
     )
@@ -736,14 +791,10 @@ async def async_setup_entry(
             name=entity_name,
             translation_key=cast(
                 str | None,
-                switch_config.get(
-                    "translation_key", cast(str, switch_config["key"]).lower()
-                ),
+                switch_config.get("translation_key", cast(str, switch_config["key"]).lower()),
             ),
             icon=cast(str | None, switch_config.get("icon")),
-            entity_category=cast(
-                EntityCategory | None, switch_config.get("entity_category")
-            ),
+            entity_category=cast(EntityCategory | None, switch_config.get("entity_category")),
             entity_registry_enabled_default=entity_enabled_default,
         )
 

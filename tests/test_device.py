@@ -1,4 +1,5 @@
 """Tests for Violet Pool Controller Device."""
+
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -51,7 +52,10 @@ class TestVioletPoolControllerDevice:
     @pytest.fixture
     def device(self, mock_hass, config_entry, mock_api):
         """Create device instance."""
-        with patch("custom_components.violet_pool_controller.device.async_get_clientsession", return_value=MagicMock()):
+        with patch(
+            "custom_components.violet_pool_controller.device.async_get_clientsession",
+            return_value=MagicMock(),
+        ):
             device = VioletPoolControllerDevice(
                 hass=mock_hass,
                 config_entry=config_entry,
@@ -64,7 +68,9 @@ class TestVioletPoolControllerDevice:
         device_info = device.device_info
 
         assert device_info["name"] == "Test Pool", "device_info sollte Controller-Name verwenden"
-        assert device_info["suggested_area"] == "Test Pool", "suggested_area sollte Controller-Name sein"
+        assert device_info["suggested_area"] == "Test Pool", (
+            "suggested_area sollte Controller-Name sein"
+        )
 
     async def test_device_info_dynamic_updates(self, device):
         """Test dass device_info bei Options-Änderung aktualisiert wird."""

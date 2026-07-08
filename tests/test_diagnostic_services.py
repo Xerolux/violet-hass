@@ -1,4 +1,5 @@
 """Tests for diagnostic services."""
+
 from unittest.mock import AsyncMock, Mock
 
 import pytest

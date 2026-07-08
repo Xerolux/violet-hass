@@ -1,4 +1,5 @@
 """Tests for platform error handling."""
+
 from unittest.mock import MagicMock
 
 import pytest
@@ -95,7 +96,7 @@ def config_entry():
         },
         options={
             CONF_ACTIVE_FEATURES: ["cover_control", "climate_control"],
-        }
+        },
     )
 
 
@@ -162,7 +163,9 @@ class TestClimateErrorHandling:
         temp = climate.current_temperature
         assert temp is None or temp == 0
 
-    def test_climate_target_temperature_with_lowercase_field(self, mock_coordinator_error, config_entry):
+    def test_climate_target_temperature_with_lowercase_field(
+        self, mock_coordinator_error, config_entry
+    ):
         """Test climate reads target temperature from lowercase field (issue: Stefan's 28°C bug).
 
         Stefan reported that climate-card shows 28°C instead of Violet's 25°C.
@@ -182,10 +185,13 @@ class TestClimateErrorHandling:
         )
 
         # Should read 25.0°C from lowercase field, not fallback to default 28.0°C
-        assert climate.target_temperature == 25.0, \
+        assert climate.target_temperature == 25.0, (
             f"Expected 25.0°C from heater_target_temp, got {climate.target_temperature}°C"
+        )
 
-    def test_climate_target_temperature_with_uppercase_field(self, mock_coordinator_error, config_entry):
+    def test_climate_target_temperature_with_uppercase_field(
+        self, mock_coordinator_error, config_entry
+    ):
         """Test climate reads target temperature from uppercase field."""
         mock_coordinator_error.data = {
             "HEATER_TARGET_TEMP": 26.0,  # uppercase version
@@ -201,7 +207,9 @@ class TestClimateErrorHandling:
 
         assert climate.target_temperature == 26.0
 
-    def test_climate_target_temperature_fallback_to_set_temp(self, mock_coordinator_error, config_entry):
+    def test_climate_target_temperature_fallback_to_set_temp(
+        self, mock_coordinator_error, config_entry
+    ):
         """Test climate falls back to HEATER_set_temp if primary fields missing."""
         mock_coordinator_error.data = {
             "HEATER_set_temp": 27.0,  # fallback field
@@ -217,7 +225,9 @@ class TestClimateErrorHandling:
 
         assert climate.target_temperature == 27.0
 
-    def test_climate_target_temperature_uses_default_when_all_missing(self, mock_coordinator_error, config_entry):
+    def test_climate_target_temperature_uses_default_when_all_missing(
+        self, mock_coordinator_error, config_entry
+    ):
         """Test climate uses default 28.0°C only when NO target temp field exists."""
         mock_coordinator_error.data = {
             "onewire1_value": 22.5,
@@ -289,9 +299,13 @@ class TestNumberErrorHandling:
             native_max_value=8.0,
         )
         _setpoint_config = {
-            "min_value": 6.0, "max_value": 8.0, "step": 0.1,
-            "setpoint_fields": [], "indicator_fields": [],
-            "default_value": 7.2, "api_key": "PH_TARGET",
+            "min_value": 6.0,
+            "max_value": 8.0,
+            "step": 0.1,
+            "setpoint_fields": [],
+            "indicator_fields": [],
+            "default_value": 7.2,
+            "api_key": "PH_TARGET",
         }
         number = VioletNumber(mock_coordinator_error, config_entry, desc, _setpoint_config)
 
@@ -312,9 +326,13 @@ class TestNumberErrorHandling:
             native_max_value=8.0,
         )
         _setpoint_config = {
-            "min_value": 6.0, "max_value": 8.0, "step": 0.1,
-            "setpoint_fields": [], "indicator_fields": [],
-            "default_value": 7.2, "api_key": "PH_TARGET",
+            "min_value": 6.0,
+            "max_value": 8.0,
+            "step": 0.1,
+            "setpoint_fields": [],
+            "indicator_fields": [],
+            "default_value": 7.2,
+            "api_key": "PH_TARGET",
         }
         number = VioletNumber(mock_coordinator_error, config_entry, desc, _setpoint_config)
 
@@ -465,4 +483,6 @@ class TestEntityErrorStates:
         # Should handle None values gracefully
         assert cover.is_open is False  # Safe default
         # target_temperature falls back to DEFAULT_TARGET_TEMP (28.0) when key is null
-        assert climate.target_temperature is None or isinstance(climate.target_temperature, (int, float))
+        assert climate.target_temperature is None or isinstance(
+            climate.target_temperature, (int, float)
+        )

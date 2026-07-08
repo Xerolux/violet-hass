@@ -1,4 +1,5 @@
 """Tests for HardwareConfig and DigitalInputConfig parsers."""
+
 import pytest
 
 from custom_components.violet_pool_controller.digital_input_helper import (

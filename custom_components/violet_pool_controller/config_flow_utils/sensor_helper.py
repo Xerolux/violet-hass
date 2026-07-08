@@ -68,9 +68,7 @@ async def get_grouped_sensors(
             verify_ssl=True,
             timeout=config_data.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION),
             max_retries=config_data.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS),
-            dosing_standalone=config_data.get(
-                CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE
-            ),
+            dosing_standalone=config_data.get(CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE),
         )
 
         data = await api.get_readings()

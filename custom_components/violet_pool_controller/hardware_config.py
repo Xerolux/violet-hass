@@ -331,35 +331,31 @@ class HardwareConfig:
         """Get all enabled features grouped by type."""
         enabled = {
             "digital_inputs": [
-                f"DI{k['number']}" for k in
-                self._parsed_configs["digital_inputs"]["enabled"].values()
+                f"DI{k['number']}"
+                for k in self._parsed_configs["digital_inputs"]["enabled"].values()
             ],
             "extension_relays": [
-                k for k, v in self._parsed_configs["extension_relays"].items()
-                if v["enabled"]
+                k for k, v in self._parsed_configs["extension_relays"].items() if v["enabled"]
             ],
             "dmx_scenes": [
-                f"Scene {v['number']}" for v in
-                self._parsed_configs["dmx_scenes"].values()
+                f"Scene {v['number']}"
+                for v in self._parsed_configs["dmx_scenes"].values()
                 if v["enabled"]
             ],
             "dosing_systems": [
-                v["name"] for v in
-                self._parsed_configs["dosing_systems"].values()
-                if v["enabled"]
+                v["name"] for v in self._parsed_configs["dosing_systems"].values() if v["enabled"]
             ],
-            "outputs": [
-                k for k, v in self._parsed_configs["outputs"].items()
-                if v["enabled"]
-            ],
+            "outputs": [k for k, v in self._parsed_configs["outputs"].items() if v["enabled"]],
         }
         return enabled
 
     def summary(self) -> str:
         """Get human-readable summary of hardware configuration."""
         lines = []
-        lines.append(f"Pool: {self._parsed_configs['pool_config']['pool_size']}m³ "
-                    f"({self._parsed_configs['pool_config']['pool_type']})")
+        lines.append(
+            f"Pool: {self._parsed_configs['pool_config']['pool_size']}m³ "
+            f"({self._parsed_configs['pool_config']['pool_type']})"
+        )
 
         enabled = self.get_enabled_features()
 

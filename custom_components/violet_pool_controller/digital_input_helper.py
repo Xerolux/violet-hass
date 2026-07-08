@@ -143,9 +143,7 @@ class DigitalInputConfig:
                 return di_config
         return None
 
-    def get_di_entity_id(
-        self, di_num: int, prefix: str = "binary_sensor"
-    ) -> str:
+    def get_di_entity_id(self, di_num: int, prefix: str = "binary_sensor") -> str:
         """Generate HA entity ID for a DI.
 
         Args:

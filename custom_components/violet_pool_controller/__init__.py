@@ -116,16 +116,16 @@ def _migrate_duplicate_prefix_entity_ids(
         dot = entity_id.find(".")
         if dot == -1:
             continue
-        object_id = entity_id[dot + 1:]
+        object_id = entity_id[dot + 1 :]
         if not object_id.startswith(double_slug):
             continue
 
         # Collapse any number of repeated domain slugs down to one.
         new_object_id = object_id
         while new_object_id.startswith(double_slug):
-            new_object_id = f"{DOMAIN}_" + new_object_id[len(double_slug):]
+            new_object_id = f"{DOMAIN}_" + new_object_id[len(double_slug) :]
 
-        new_entity_id = f"{entity_id[:dot + 1]}{new_object_id}"
+        new_entity_id = f"{entity_id[: dot + 1]}{new_object_id}"
         if entity_registry.async_get(new_entity_id) is not None:
             _LOGGER.debug(
                 "Skipping migration %s → %s: target already exists",
@@ -182,14 +182,14 @@ def _disable_unsafe_switches(
 
     # Keys of switches that should be disabled for safety
     unsafe_switch_keys = {
-        "DOS_1_CL",     # Chlorine dosing
-        "DOS_2_ELO",    # Electrolysis dosing
-        "DOS_4_PHM",    # pH- dosing
-        "DOS_5_PHP",    # pH+ dosing
-        "DOS_6_FLOC",   # Flocculant
-        "BACKWASH",     # Backwash
-        "BACKWASHRINSE", # Backwash rinse
-        "REFILL",       # Water refill
+        "DOS_1_CL",  # Chlorine dosing
+        "DOS_2_ELO",  # Electrolysis dosing
+        "DOS_4_PHM",  # pH- dosing
+        "DOS_5_PHP",  # pH+ dosing
+        "DOS_6_FLOC",  # Flocculant
+        "BACKWASH",  # Backwash
+        "BACKWASHRINSE",  # Backwash rinse
+        "REFILL",  # Water refill
     }
 
     prefix = f"{config_entry_id}_"
@@ -207,7 +207,7 @@ def _disable_unsafe_switches(
                 continue
             if not entity_entry.unique_id.startswith(prefix):
                 continue
-            key = entity_entry.unique_id[len(prefix):]
+            key = entity_entry.unique_id[len(prefix) :]
             if key not in unsafe_switch_keys:
                 continue
             if entity_entry.disabled_by != er.RegistryEntryDisabler.INTEGRATION:
@@ -223,7 +223,9 @@ def _disable_unsafe_switches(
                     err,
                 )
         if re_enabled_count > 0:
-            _LOGGER.info("Re-enabled %d unsafe switches for '%s'", re_enabled_count, config_entry_id)
+            _LOGGER.info(
+                "Re-enabled %d unsafe switches for '%s'", re_enabled_count, config_entry_id
+            )
         return
 
     # Disable unsafe switches for safety
@@ -237,7 +239,7 @@ def _disable_unsafe_switches(
         if not entity_entry.unique_id.startswith(prefix):
             continue
 
-        key = entity_entry.unique_id[len(prefix):]
+        key = entity_entry.unique_id[len(prefix) :]
 
         # Check if this is an unsafe switch
         if key not in unsafe_switch_keys:
@@ -254,7 +256,9 @@ def _disable_unsafe_switches(
             key,
         )
         try:
-            entity_registry.async_update_entity(entity_entry.entity_id, disabled_by=er.RegistryEntryDisabler.INTEGRATION)
+            entity_registry.async_update_entity(
+                entity_entry.entity_id, disabled_by=er.RegistryEntryDisabler.INTEGRATION
+            )
             disabled_count += 1
         except Exception as err:
             _LOGGER.error(
@@ -288,9 +292,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _LOGGER.info(
         "Setting up Violet Pool Controller (entry_id=%s, controller=%s)",
         entry.entry_id,
-        entry.data.get(
-            CONF_CONTROLLER_NAME, entry.data.get(CONF_DEVICE_NAME, "Unknown")
-        ),
+        entry.data.get(CONF_CONTROLLER_NAME, entry.data.get(CONF_DEVICE_NAME, "Unknown")),
     )
 
     # Lazy imports to avoid blocking the event loop
@@ -310,9 +312,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # Create API instance
         from .const import CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE
 
-        dosing_standalone = entry.data.get(
-            CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE
-        )
+        dosing_standalone = entry.data.get(CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE)
 
         api = VioletPoolAPI(
             host=host,
@@ -409,9 +409,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         raise
 
     except Exception as err:
-        _LOGGER.exception(
-            "Unexpected error during setup (entry_id=%s): %s", entry.entry_id, err
-        )
+        _LOGGER.exception("Unexpected error during setup (entry_id=%s): %s", entry.entry_id, err)
         raise ConfigEntryNotReady(f"Setup error: {err}") from err
 
 
@@ -430,9 +428,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     try:
         # Unload platforms first
-        unload_ok = bool(
-            await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-        )
+        unload_ok = bool(await hass.config_entries.async_unload_platforms(entry, PLATFORMS))
 
         if unload_ok:
             # Get coordinator for cleanup
@@ -441,18 +437,14 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 # NOTE: Do NOT close the aiohttp session - it's managed by
                 # Home Assistant! The session is created by HA via
                 # async_get_clientsession() and should only be closed by HA
-                _LOGGER.debug(
-                    "API object reference released for entry_id=%s", entry.entry_id
-                )
+                _LOGGER.debug("API object reference released for entry_id=%s", entry.entry_id)
 
             # Remove coordinator from hass.data
             if entry.entry_id in hass.data.get(DOMAIN, {}):
                 hass.data[DOMAIN].pop(entry.entry_id)
                 _LOGGER.debug("Coordinator removed for entry_id=%s", entry.entry_id)
 
-            _LOGGER.info(
-                "Successfully unloaded '%s' (entry_id=%s)", device_name, entry.entry_id
-            )
+            _LOGGER.info("Successfully unloaded '%s' (entry_id=%s)", device_name, entry.entry_id)
         else:
             _LOGGER.warning(
                 "Failed to unload platforms for '%s' (entry_id=%s)",
@@ -586,9 +578,7 @@ def _extract_config(entry: ConfigEntry) -> dict[str, Any]:
         "username": entry.data.get(CONF_USERNAME, ""),
         "password": entry.data.get(CONF_PASSWORD, ""),
         "device_name": entry.data.get(CONF_DEVICE_NAME, "Violet Pool Controller"),
-        "controller_name": entry.data.get(
-            CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME
-        ),
+        "controller_name": entry.data.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME),
         "polling_interval": get_entry_value(
             entry,
             CONF_POLLING_INTERVAL,

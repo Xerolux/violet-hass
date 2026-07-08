@@ -1,4 +1,5 @@
 """Tests for calibration helper and entity name resolution."""
+
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock
 
@@ -64,9 +65,7 @@ class TestCalibrationStatus:
     def test_to_dict(self):
         """to_dict returns all fields."""
         cal_date = datetime.now() - timedelta(days=10)
-        status = CalibrationStatus(
-            "pH", last_calibration=cal_date, offset=0.5, multiplier=1.1
-        )
+        status = CalibrationStatus("pH", last_calibration=cal_date, offset=0.5, multiplier=1.1)
         d = status.to_dict()
         assert d["sensor_type"] == "pH"
         assert d["days_since"] == 10
@@ -94,9 +93,7 @@ class TestCalibrationStatus:
     def test_critical_threshold(self):
         """Calibration critical days after interval."""
         ph_interval = CALIBRATION_INTERVALS["pH"]
-        critical_date = datetime.now() - timedelta(
-            days=ph_interval + CALIBRATION_CRITICAL_DAYS + 1
-        )
+        critical_date = datetime.now() - timedelta(days=ph_interval + CALIBRATION_CRITICAL_DAYS + 1)
         status = CalibrationStatus("pH", last_calibration=critical_date)
         assert status.is_expired is True
 
@@ -261,9 +258,7 @@ class TestApplyHardwareNames:
 
     def test_applies_resolved_names(self):
         """Resolved names are applied to configs."""
-        resolver = EntityNameResolver({
-            "outputs": {"PUMP": {"name": "Custom Pump"}}
-        })
+        resolver = EntityNameResolver({"outputs": {"PUMP": {"name": "Custom Pump"}}})
         configs = [
             {"key": "PUMP", "name": "Default Pump"},
             {"key": "HEATER", "name": "Default Heater"},

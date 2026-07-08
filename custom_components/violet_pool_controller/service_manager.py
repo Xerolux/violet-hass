@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import time
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.const import ATTR_DEVICE_ID, ATTR_ENTITY_ID
@@ -10,6 +9,7 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
 from .const import DOMAIN
+from .safety_guard import SafetyGuard, create_safety_guard
 
 if TYPE_CHECKING:
     from homeassistant.core import ServiceCall
@@ -21,7 +21,13 @@ class VioletServiceManager:
     def __init__(self, hass):
         """Initialize the service manager."""
         self.hass = hass
-        self._safety_locks: dict[str, float] = {}
+        # Centralised safety enforcement (cooldown locks + restart-safe
+        # auto-stop timers).  Replaces the former _safety_locks dict.
+        self.safety_guard: SafetyGuard = create_safety_guard(hass)
+
+    async def async_setup_safety(self) -> None:
+        """Load persisted safety deadlines and re-arm active timers."""
+        await self.safety_guard.async_setup()
 
     async def get_coordinator_for_device(self, device_id: str):
         """Get coordinator for device ID."""
@@ -41,11 +47,7 @@ class VioletServiceManager:
         if device:
             for config_entry_id in device.config_entries:
                 coordinator = domain_data.get(config_entry_id)
-                if (
-                    coordinator
-                    and hasattr(coordinator, "device")
-                    and coordinator.device
-                ):
+                if coordinator and hasattr(coordinator, "device") and coordinator.device:
                     return coordinator
 
         return None
@@ -65,9 +67,7 @@ class VioletServiceManager:
 
         return coordinators
 
-    async def get_coordinators_for_call(
-        self, call: ServiceCall
-    ) -> list[Any]:
+    async def get_coordinators_for_call(self, call: ServiceCall) -> list[Any]:
         """Get coordinators from a service call (entity_id or device_id)."""
         coordinators: list[Any] = []
         entity_reg = er.async_get(self.hass)
@@ -99,30 +99,22 @@ class VioletServiceManager:
         if not entity_id or not isinstance(entity_id, str):
             raise ValueError(f"Invalid entity_id: {entity_id}")
         if "." not in entity_id:
-            raise ValueError(
-                f"Entity ID must contain domain separator '.': {entity_id}"
-            )
+            raise ValueError(f"Entity ID must contain domain separator '.': {entity_id}")
 
         parts = entity_id.split(".")[-1].split("_")
         parts = [part for part in parts if part not in ("violet", "pool")]
         if not parts:
-            raise ValueError(
-                f"Cannot extract device key from {entity_id}: no parts remaining"
-            )
+            raise ValueError(f"Cannot extract device key from {entity_id}: no parts remaining")
         return "_".join(parts).upper()
 
     def check_safety_lock(self, device_key: str) -> bool:
-        """Check if device has active safety lock."""
-        if device_key not in self._safety_locks:
-            return False
-        return time.monotonic() < self._safety_locks[device_key]
+        """Check if device has active safety lock (delegates to SafetyGuard)."""
+        return self.safety_guard.check_lock(device_key)
 
     def set_safety_lock(self, device_key: str, duration: int) -> None:
-        """Set safety lock for device."""
-        self._safety_locks[device_key] = time.monotonic() + duration
+        """Set safety lock for device (delegates to SafetyGuard)."""
+        self.safety_guard.set_lock(device_key, duration)
 
     def get_remaining_lock_time(self, device_key: str) -> int:
-        """Get remaining lock time in seconds."""
-        if not self.check_safety_lock(device_key):
-            return 0
-        return int(self._safety_locks[device_key] - time.monotonic())
+        """Get remaining lock time in seconds (delegates to SafetyGuard)."""
+        return self.safety_guard.remaining_lock_time(device_key)

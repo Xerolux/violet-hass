@@ -99,9 +99,7 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
 
         # Handle outline icons
         if base_icon.endswith("-outline"):
-            return (
-                base_icon.replace("-outline", "") if self.is_on is True else base_icon
-            )
+            return base_icon.replace("-outline", "") if self.is_on is True else base_icon
 
         # Add -off suffix for inactive state
         if self.is_on is False and not base_icon.endswith("-off"):
@@ -157,9 +155,7 @@ async def async_setup_entry(
         config_entry: The config entry.
         async_add_entities: Callback to add entities.
     """
-    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][
-        config_entry.entry_id
-    ]
+    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     active_features = config_entry.options.get(
         CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
     )

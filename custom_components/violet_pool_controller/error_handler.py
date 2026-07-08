@@ -212,11 +212,16 @@ def handle_exception(
     # Categorize and wrap exception
 
     # Network errors - check exception class hierarchy, not string names
-    if isinstance(err, (asyncio.TimeoutError, aiohttp.ClientConnectorError,
-                        aiohttp.ClientOSError, aiohttp.ServerTimeoutError)):
-        return NetworkError(
-            f"Network error in {context}: {err}", original_exception=err
-        )
+    if isinstance(
+        err,
+        (
+            asyncio.TimeoutError,
+            aiohttp.ClientConnectorError,
+            aiohttp.ClientOSError,
+            aiohttp.ServerTimeoutError,
+        ),
+    ):
+        return NetworkError(f"Network error in {context}: {err}", original_exception=err)
     # Authentication errors - check via isinstance, not string matching
     if isinstance(err, AuthenticationError):
         return err
@@ -230,9 +235,7 @@ def handle_exception(
         )
     # Generic API error
     else:
-        return APIError(
-            f"API error in {context}: {err}", endpoint=context, original_exception=err
-        )
+        return APIError(f"API error in {context}: {err}", endpoint=context, original_exception=err)
 
 
 # =============================================================================
@@ -465,9 +468,7 @@ class EnhancedErrorHandler:
             and self._offline_since is None
         ):
             self._offline_since = now
-            _LOGGER.warning(
-                "Controller marked as OFFLINE (error: %s)", error_info.message
-            )
+            _LOGGER.warning("Controller marked as OFFLINE (error: %s)", error_info.message)
 
         # Track auth errors
         if error_info.error_type == ErrorType.AUTH_ERROR:
@@ -477,9 +478,7 @@ class EnhancedErrorHandler:
         """Record a successful operation, clearing offline status."""
         if self._offline_since is not None:
             offline_duration = time.monotonic() - self._offline_since
-            _LOGGER.info(
-                "Controller back ONLINE (was offline for %.0fs)", offline_duration
-            )
+            _LOGGER.info("Controller back ONLINE (was offline for %.0fs)", offline_duration)
             self._offline_since = None
             self._consecutive_errors = 0
 
@@ -517,9 +516,7 @@ class EnhancedErrorHandler:
             "offline_duration_seconds": offline_duration,
             "is_offline": self._offline_since is not None,
             "error_counts": {k.value: v for k, v in error_counts.items()},
-            "last_error": (
-                self._error_history[-1].to_dict() if self._error_history else None
-            ),
+            "last_error": (self._error_history[-1].to_dict() if self._error_history else None),
         }
 
     def clear_history(self) -> None:
@@ -605,10 +602,7 @@ class EnhancedErrorHandler:
                 "Der Controller hat Probleme."
                 " Überprüfen Sie die Controller-Protokolle und den Status"
                 if german
-                else (
-                    "The controller is experiencing issues."
-                    " Check controller logs and status"
-                )
+                else ("The controller is experiencing issues. Check controller logs and status")
             )
 
         return None

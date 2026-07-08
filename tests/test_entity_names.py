@@ -124,8 +124,7 @@ def test_migrate_duplicate_prefix_skips_when_target_taken() -> None:
 def test_migrate_duplicate_prefix_collapses_triple_slug() -> None:
     """Migration collapses three or more consecutive domain slugs to one."""
     old_id = (
-        "switch.violet_pool_controller_"
-        "violet_pool_controller_violet_pool_controller_beleuchtung"
+        "switch.violet_pool_controller_violet_pool_controller_violet_pool_controller_beleuchtung"
     )
     entity = _make_entity_entry(old_id)
 

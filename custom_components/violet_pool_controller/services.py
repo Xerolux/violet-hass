@@ -65,8 +65,18 @@ async def async_register_services(hass: HomeAssistant) -> None:
 
     _LOGGER.info("Registering Violet Pool services")
 
-    # Create service manager
+    # Create service manager and expose it on hass.data so other components
+    # (e.g. the switch entity's safety gate) can reach the SafetyGuard.
     manager = VioletServiceManager(hass)
+    hass.data.setdefault(DOMAIN, {})
+    if not isinstance(hass.data[DOMAIN], dict):
+        hass.data[DOMAIN] = {}
+    hass.data[DOMAIN]["service_manager"] = manager
+
+    # Re-arm any persisted safety deadlines (e.g. a refill that was running
+    # when HA last restarted).
+    await manager.async_setup_safety()
+
     handlers = VioletServiceHandlers(manager)
 
     # Get schemas

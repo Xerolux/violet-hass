@@ -1,4 +1,5 @@
 """Tests for setpoint cache invalidation after successful polls."""
+
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest

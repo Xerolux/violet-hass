@@ -87,7 +87,9 @@ class VioletDmxLight(VioletPoolControllerEntity, LightEntity):
                 raise HomeAssistantError(
                     translation_key="api_error",
                     translation_domain=DOMAIN,
-                    translation_placeholders={"detail": str(result.get("response", "Command failed"))},
+                    translation_placeholders={
+                        "detail": str(result.get("response", "Command failed"))
+                    },
                 )
             await self.coordinator.async_request_refresh()
         except VioletPoolAPIError as err:
@@ -114,9 +116,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up DMX light entities from a config entry."""
-    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][
-        config_entry.entry_id
-    ]
+    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
 
     active_features = config_entry.options.get(
         CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])

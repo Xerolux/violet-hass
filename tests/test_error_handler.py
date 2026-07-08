@@ -71,6 +71,7 @@ class TestEnhancedErrorHandler:
     async def test_classify_network_error(self):
         """Test classification of network errors."""
         import aiohttp as aiohttp_module
+
         handler = EnhancedErrorHandler()
 
         # Use real aiohttp.ClientError to avoid patching issues with isinstance()
@@ -115,6 +116,7 @@ class TestEnhancedErrorHandler:
     async def test_classify_ssl_error(self):
         """Test classification of SSL errors."""
         import aiohttp as aiohttp_module
+
         handler = EnhancedErrorHandler()
 
         # Use real aiohttp.ClientError to avoid patching issues with isinstance()

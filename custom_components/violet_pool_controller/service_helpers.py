@@ -88,9 +88,7 @@ def read_recent_violet_log_lines(
     with open(log_path, encoding="utf-8", errors="ignore") as log_file:
         tail_lines = _tail_file(log_file, lines * 10)
 
-    violet_lines = [
-        line for line in tail_lines if "violet_pool_controller" in line.lower()
-    ]
+    violet_lines = [line for line in tail_lines if "violet_pool_controller" in line.lower()]
     recent_lines = violet_lines[-lines:] if len(violet_lines) > lines else violet_lines
 
     if include_timestamps:
@@ -98,10 +96,7 @@ def read_recent_violet_log_lines(
 
     import re
 
-    return [
-        re.sub(r"^\[?\d{4}-\d{2}-\d{2}[^]]*\]?\s*", "", line).rstrip()
-        for line in recent_lines
-    ]
+    return [re.sub(r"^\[?\d{4}-\d{2}-\d{2}[^]]*\]?\s*", "", line).rstrip() for line in recent_lines]
 
 
 def write_text_file(filepath: str, content: str) -> None:

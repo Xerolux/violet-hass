@@ -1,4 +1,5 @@
 """Tests for generic sensor modules."""
+
 import logging
 from unittest.mock import MagicMock
 
@@ -27,15 +28,12 @@ def test_violet_sensor_state_class_log_spam(caplog):
     # Mock config entry
     config_entry = MagicMock()
     config_entry.entry_id = "test_entry_id"
-    config_entry.options.get.return_value = False # FORCE_UPDATE default
-    config_entry.data.get.return_value = False # fallback
+    config_entry.options.get.return_value = False  # FORCE_UPDATE default
+    config_entry.data.get.return_value = False  # fallback
 
     # Create description for a contact sensor
     description = SensorEntityDescription(
-        key="CLOSE_CONTACT",
-        name="Close Contact",
-        state_class=None,
-        translation_key=None
+        key="CLOSE_CONTACT", name="Close Contact", state_class=None, translation_key=None
     )
 
     # Instantiate sensor
@@ -47,7 +45,10 @@ def test_violet_sensor_state_class_log_spam(caplog):
         _ = sensor.state_class
 
     log_messages = [r.message for r in caplog.records]
-    log_present = any("Overriding state_class to None for contact sensor: CLOSE_CONTACT" in msg for msg in log_messages)
+    log_present = any(
+        "Overriding state_class to None for contact sensor: CLOSE_CONTACT" in msg
+        for msg in log_messages
+    )
 
     assert not log_present, "Log spam should be gone when state_class is already None"
 
@@ -56,7 +57,7 @@ def test_violet_sensor_state_class_log_spam(caplog):
         key="CLOSE_CONTACT_BAD",
         name="Close Contact Bad",
         state_class=SensorStateClass.MEASUREMENT,
-        translation_key=None
+        translation_key=None,
     )
     sensor_bad = VioletSensor(coordinator, config_entry, description_bad)
 
@@ -65,7 +66,10 @@ def test_violet_sensor_state_class_log_spam(caplog):
         _ = sensor_bad.state_class
 
     log_messages_bad = [r.message for r in caplog.records]
-    log_present_bad = any("Overriding state_class to None for contact sensor: CLOSE_CONTACT_BAD" in msg for msg in log_messages_bad)
+    log_present_bad = any(
+        "Overriding state_class to None for contact sensor: CLOSE_CONTACT_BAD" in msg
+        for msg in log_messages_bad
+    )
 
     assert log_present_bad, "Log should appear when safeguard overrides an incorrect state_class"
 

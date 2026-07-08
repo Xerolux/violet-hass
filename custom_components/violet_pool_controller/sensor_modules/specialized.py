@@ -149,9 +149,7 @@ class VioletHealthSensor(VioletPoolControllerEntity, SensorEntity):
 
         # OmniTronic multi-port valve state (string).
         omni_state = str(data.get("BACKWASH_OMNI_STATE", "")).upper().strip()
-        if omni_state and any(
-            fault in omni_state for fault in OMNI_FAULTY_STATES
-        ):
+        if omni_state and any(fault in omni_state for fault in OMNI_FAULTY_STATES):
             errors.append(f"OmniTronic valve: {omni_state}")
         elif omni_state == "BLOCKED_BY_OMNI_MOVING":
             info.append("OmniTronic valve moving")
@@ -259,7 +257,7 @@ class VioletActiveErrorsSensor(VioletPoolControllerEntity, SensorEntity):
         # Collect all error codes from the data
         error_codes = []
 
-        error_keys = [k for k in self.coordinator.data if re.match(r'^ERROR(_\d+)?$', k)]
+        error_keys = [k for k in self.coordinator.data if re.match(r"^ERROR(_\d+)?$", k)]
         for key in sorted(error_keys):
             code = str(self.coordinator.data.get(key, "")).strip()
             if code and code != "0" and code != "0000":
@@ -307,13 +305,15 @@ class VioletActiveErrorsSensor(VioletPoolControllerEntity, SensorEntity):
         errors = []
         for code in error_codes:
             info = get_error_info(code)
-            errors.append({
-                "code": code,
-                "name": info["subject"],
-                "type": info.get("type"),
-                "severity": info.get("severity"),
-                "description": info.get("description"),
-            })
+            errors.append(
+                {
+                    "code": code,
+                    "name": info["subject"],
+                    "type": info.get("type"),
+                    "severity": info.get("severity"),
+                    "description": info.get("description"),
+                }
+            )
 
         return {
             "error_count": len(errors),

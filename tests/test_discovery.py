@@ -43,9 +43,7 @@ class TestVioletPoolControllerDiscovery:
         assert len(discovery_handler._discovered_devices) == 0
 
     @pytest.mark.asyncio
-    async def test_async_discover_service(
-        self, discovery_handler, mock_zeroconf_info
-    ):
+    async def test_async_discover_service(self, discovery_handler, mock_zeroconf_info):
         """Test discovering a service."""
         from custom_components.violet_pool_controller.discovery import (
             VioletPoolControllerDiscovery,
@@ -74,9 +72,7 @@ class TestVioletPoolControllerDiscovery:
         assert device_info["type"] == mock_zeroconf_info.type
 
     @pytest.mark.asyncio
-    async def test_async_get_discovered_devices(
-        self, discovery_handler, mock_zeroconf_info
-    ):
+    async def test_async_get_discovered_devices(self, discovery_handler, mock_zeroconf_info):
         """Test getting list of discovered devices."""
         from custom_components.violet_pool_controller.discovery import (
             VioletPoolControllerDiscovery,
@@ -202,9 +198,7 @@ class TestZeroConfIntegration:
         mock_hass = MagicMock(spec=HomeAssistant)
 
         # Call the function
-        result = async_zeroconf_get_service_info(
-            mock_hass, mock_zeroconf_info, "_http._tcp.local."
-        )
+        result = async_zeroconf_get_service_info(mock_hass, mock_zeroconf_info, "_http._tcp.local.")
 
         # Verify function returns None (stores info for later use)
         assert result is None
@@ -231,10 +225,9 @@ class TestDiscoveryServiceTypes:
 
         for service_type in SERVICE_TYPES:
             # mDNS service types should end with ._tcp.local. or ._udp.local.
-            assert (
-                service_type.endswith("._tcp.local.")
-                or service_type.endswith("._udp.local.")
-            ), f"Invalid service type format: {service_type}"
+            assert service_type.endswith("._tcp.local.") or service_type.endswith("._udp.local."), (
+                f"Invalid service type format: {service_type}"
+            )
 
 
 class TestDiscoveryErrorHandling:
@@ -354,8 +347,12 @@ class TestDiscoveryMultipleDevices:
         result = handler.async_get_discovered_devices()
 
         assert len(result) == 2
-        assert result[device1.name]["host"] == "192.168.178.55" or isinstance(result[device1.name]["host"], MagicMock)
-        assert result[device2.name]["host"] == "192.168.178.56" or isinstance(result[device2.name]["host"], MagicMock)
+        assert result[device1.name]["host"] == "192.168.178.55" or isinstance(
+            result[device1.name]["host"], MagicMock
+        )
+        assert result[device2.name]["host"] == "192.168.178.56" or isinstance(
+            result[device2.name]["host"], MagicMock
+        )
 
     @pytest.mark.asyncio
     async def test_discover_duplicate_device(self, discovery_handler):

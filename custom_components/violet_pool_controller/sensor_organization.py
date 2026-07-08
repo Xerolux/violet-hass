@@ -151,6 +151,7 @@ BACKWASH_STEPS = {
     7: "Completed",
 }
 
+
 # Sensor organization helper for UI rendering
 def get_sensors_by_group(group: str) -> dict[str, str | list[str]]:
     """Get all sensors for a group."""

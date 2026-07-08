@@ -36,6 +36,7 @@ from custom_components.violet_pool_controller.services import (
 # Test fixtures
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def config_entry(hass: HomeAssistant) -> MockConfigEntry:
     entry = MockConfigEntry(
@@ -72,20 +73,25 @@ def coordinator() -> MagicMock:
 # ---------------------------------------------------------------------------
 
 
-async def test_async_setup_entry_success(hass: HomeAssistant, config_entry: MockConfigEntry, coordinator: MagicMock) -> None:
+async def test_async_setup_entry_success(
+    hass: HomeAssistant, config_entry: MockConfigEntry, coordinator: MagicMock
+) -> None:
     # Mock hass.config_entries.async_forward_entry_setups
     # In some HA versions/test setups this might be needed or it's an async method
     hass.config_entries.async_forward_entry_setups = AsyncMock()
 
-    with patch.object(
-        device_module,
-        "async_setup_device",
-        new=AsyncMock(return_value=coordinator),
-    ), patch.object(
-        api_module,
-        "VioletPoolAPI",
-        autospec=True,
-    ) as api_cls:
+    with (
+        patch.object(
+            device_module,
+            "async_setup_device",
+            new=AsyncMock(return_value=coordinator),
+        ),
+        patch.object(
+            api_module,
+            "VioletPoolAPI",
+            autospec=True,
+        ) as api_cls,
+    ):
         result = await async_setup_entry(hass, config_entry)
 
     assert result is True
@@ -113,32 +119,44 @@ async def test_async_setup_entry_missing_host(hass: HomeAssistant) -> None:
     )
     entry.add_to_hass(hass)
 
-    with patch.object(
-        api_module,
-        "VioletPoolAPI",
-        autospec=True,
-    ), patch.object(
-        device_module,
-        "async_setup_device",
-        new=AsyncMock(),
-    ), pytest.raises(HomeAssistantError):
-         await async_setup_entry(hass, entry)
+    with (
+        patch.object(
+            api_module,
+            "VioletPoolAPI",
+            autospec=True,
+        ),
+        patch.object(
+            device_module,
+            "async_setup_device",
+            new=AsyncMock(),
+        ),
+        pytest.raises(HomeAssistantError),
+    ):
+        await async_setup_entry(hass, entry)
 
 
-async def test_async_setup_entry_device_error(hass: HomeAssistant, config_entry: MockConfigEntry) -> None:
-    with patch.object(
-        device_module,
-        "async_setup_device",
-        new=AsyncMock(side_effect=HomeAssistantError("boom")),
-    ), patch.object(
-        api_module,
-        "VioletPoolAPI",
-        autospec=True,
-    ), pytest.raises(HomeAssistantError):
+async def test_async_setup_entry_device_error(
+    hass: HomeAssistant, config_entry: MockConfigEntry
+) -> None:
+    with (
+        patch.object(
+            device_module,
+            "async_setup_device",
+            new=AsyncMock(side_effect=HomeAssistantError("boom")),
+        ),
+        patch.object(
+            api_module,
+            "VioletPoolAPI",
+            autospec=True,
+        ),
+        pytest.raises(HomeAssistantError),
+    ):
         await async_setup_entry(hass, config_entry)
 
 
-async def test_async_unload_entry_success(hass: HomeAssistant, config_entry: MockConfigEntry, coordinator: MagicMock) -> None:
+async def test_async_unload_entry_success(
+    hass: HomeAssistant, config_entry: MockConfigEntry, coordinator: MagicMock
+) -> None:
     # Setup coordinator mock with api mock
     coordinator.device.api._session.close = AsyncMock()
 
@@ -155,7 +173,9 @@ async def test_async_unload_entry_success(hass: HomeAssistant, config_entry: Moc
     assert config_entry.entry_id not in hass.data[DOMAIN]
 
 
-async def test_async_unload_entry_failure(hass: HomeAssistant, config_entry: MockConfigEntry) -> None:
+async def test_async_unload_entry_failure(
+    hass: HomeAssistant, config_entry: MockConfigEntry
+) -> None:
     # We need to make sure the entry is in hass.data
     hass.data.setdefault(DOMAIN, {})[config_entry.entry_id] = MagicMock()
 

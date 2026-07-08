@@ -1,4 +1,5 @@
 """Tests for Violet Pool Controller config flow."""
+
 from unittest.mock import AsyncMock, MagicMock
 
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -41,16 +42,19 @@ class TestConfigFlow:
 
         flow = VioletDeviceConfigFlow()
         flow.hass = hass
-        flow.handler = DOMAIN # Set handler (domain) so _async_current_entries works
+        flow.handler = DOMAIN  # Set handler (domain) so _async_current_entries works
 
         # Sollte NICHT als Duplikat erkannt werden
         is_duplicate = flow._is_duplicate_entry("192.168.178.55", 80, device_id=2)
-        assert not is_duplicate, "Controller mit gleicher IP aber unterschiedlicher Device-ID sollte erlaubt sein"
+        assert not is_duplicate, (
+            "Controller mit gleicher IP aber unterschiedlicher Device-ID sollte erlaubt sein"
+        )
 
         # Sollte als Duplikat erkannt werden (gleiche IP + Device-ID)
         is_duplicate = flow._is_duplicate_entry("192.168.178.55", 80, device_id=1)
-        assert is_duplicate, "Controller mit gleicher IP UND Device-ID sollte als Duplikat erkannt werden"
-
+        assert is_duplicate, (
+            "Controller mit gleicher IP UND Device-ID sollte als Duplikat erkannt werden"
+        )
 
     async def test_duplicate_check_different_ips(self, hass):
         """Test dass Controller mit unterschiedlichen IPs immer erlaubt sind."""
@@ -78,7 +82,6 @@ class TestConfigFlow:
         is_duplicate = flow._is_duplicate_entry("192.168.178.56", 80, device_id=1)
         assert not is_duplicate, "Controller mit unterschiedlicher IP sollte erlaubt sein"
 
-
     async def test_duplicate_check_empty_entries(self, hass):
         """Test dass Duplicate-Check mit leeren Entries funktioniert."""
         # Keine Entries hinzufügen
@@ -95,7 +98,6 @@ class TestConfigFlow:
         is_duplicate = flow._is_duplicate_entry("192.168.178.55", 80, device_id=1)
         assert not is_duplicate, "Bei leeren Entries sollte nichts als Duplikat erkannt werden"
 
-
     async def test_controller_name_in_entry_title(self, hass):
         """Test dass Controller-Name im Entry-Title verwendet wird."""
         from custom_components.violet_pool_controller.config_flow import (
@@ -111,7 +113,6 @@ class TestConfigFlow:
 
         title = flow._generate_entry_title()
         assert title == "Außenpool • 75m³", f"Expected 'Außenpool • 75m³' but got '{title}'"
-
 
     async def test_controller_name_fallback(self, hass):
         """Test dass Fallback auf Default-Name funktioniert."""

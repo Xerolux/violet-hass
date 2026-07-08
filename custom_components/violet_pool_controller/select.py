@@ -118,7 +118,9 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
         self._optimistic_mode: str | None = None
 
         _LOGGER.debug(
-            "Select entity initialized: %s (Device: %s)", getattr(self, "entity_id", description.key), device_key
+            "Select entity initialized: %s (Device: %s)",
+            getattr(self, "entity_id", description.key),
+            device_key,
         )
 
     @property
@@ -255,36 +257,24 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
         action = MODE_TO_ACTION[option]
 
         try:
-            _LOGGER.info(
-                "Setting %s to mode '%s' (action: %s)", self._device_key, option, action
-            )
+            _LOGGER.info("Setting %s to mode '%s' (action: %s)", self._device_key, option, action)
 
             if self._is_binary and self._device_key in BINARY_DOSING_CONFIG_KEYS:
                 config_key = BINARY_DOSING_CONFIG_KEYS[self._device_key]
                 config_val = "1" if option == MODE_ON else "0"
-                result = await self.device.api.set_config(
-                    {config_key: config_val}
-                )
+                result = await self.device.api.set_config({config_key: config_val})
             elif self._device_key in DOSING_CONFIG_KEYS:
                 dosing_info = DOSING_CONFIG_KEYS[self._device_key]
                 dosing_type = dosing_info["type"]
                 if option in (MODE_AUTO, MODE_ON):
-                    result = await self.device.api.set_dosage_enabled(
-                        dosing_type, enabled=True
-                    )
+                    result = await self.device.api.set_dosage_enabled(dosing_type, enabled=True)
                 elif option == MODE_OFF:
-                    result = await self.device.api.set_dosage_enabled(
-                        dosing_type, enabled=False
-                    )
+                    result = await self.device.api.set_dosage_enabled(dosing_type, enabled=False)
             else:
-                result = await self.device.api.set_switch_state(
-                    key=self._device_key, action=action
-                )
+                result = await self.device.api.set_switch_state(key=self._device_key, action=action)
 
             if result.get("success") is True:
-                _LOGGER.debug(
-                    "%s successfully set to mode '%s'", self._device_key, option
-                )
+                _LOGGER.debug("%s successfully set to mode '%s'", self._device_key, option)
 
                 # Optimistic update
                 self._optimistic_mode = option
@@ -341,13 +331,9 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
         ✅ SHARED CODE: Uses base _request_coordinator_refresh method.
         """
         # ✅ SHARED CODE: Use base refresh method
-        delay = (
-            REFRESH_DELAY_EXT if self._device_key.startswith("EXT") else REFRESH_DELAY
-        )
+        delay = REFRESH_DELAY_EXT if self._device_key.startswith("EXT") else REFRESH_DELAY
         try:
-            await self._request_coordinator_refresh(
-                delay=delay, log_context=self._device_key
-            )
+            await self._request_coordinator_refresh(delay=delay, log_context=self._device_key)
         finally:
             # Always clear optimistic cache — even on CancelledError during HA reload
             old_mode = self._optimistic_mode
@@ -370,15 +356,11 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
             if not task.cancelled():
                 exc = task.exception()
                 if exc is not None:
-                    _LOGGER.debug(
-                        "Refresh task failed for %s: %s", self._device_key, exc
-                    )
+                    _LOGGER.debug("Refresh task failed for %s: %s", self._device_key, exc)
         except (asyncio.CancelledError, asyncio.InvalidStateError):
             pass
         except Exception as err:
-            _LOGGER.debug(
-                "Error handling refresh task for %s: %s", self._device_key, err
-            )
+            _LOGGER.debug("Error handling refresh task for %s: %s", self._device_key, err)
 
 
 async def async_setup_entry(
@@ -394,9 +376,7 @@ async def async_setup_entry(
         config_entry: The config entry.
         async_add_entities: Callback to add entities.
     """
-    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][
-        config_entry.entry_id
-    ]
+    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     active_features = config_entry.options.get(
         CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
     )

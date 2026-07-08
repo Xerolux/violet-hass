@@ -6,6 +6,7 @@ on:
     tags: ['v*']
     paths:
       - 'custom_components/violet_pool_controller/**'
+      - 'tests/**'
       - '.github/workflows/validate.yml'
       - 'requirements*.txt'
       - 'pyproject.toml'
@@ -15,6 +16,9 @@ on:
   release:
     types: [published, prereleased]
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   validate:

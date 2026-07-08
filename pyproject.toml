@@ -35,8 +35,6 @@ ignore = ["E501"]
 [tool.ruff.lint.per-file-ignores]
 # Live hardware check scripts use print() for CLI output
 "tests/live_*_check.py" = ["T201"]
-# Diagnostic test output uses print() for progress markers
-"tests/test_improvements.py" = ["T201"]
 
 [tool.mypy]
 # Home Assistant 2026.5.x uses Python 3.14 syntax (e.g. except expressions without
@@ -53,3 +51,16 @@ explicit_package_bases = true
 # its own directory so its pyproject.toml (target 3.12) takes effect.
 module = "violet_poolcontroller_api.*"
 ignore_missing_imports = true
+
+[tool.coverage.run]
+source = ["custom_components/violet_pool_controller"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 60
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]

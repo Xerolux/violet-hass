@@ -104,6 +104,7 @@ def _get_setpoint_fields_for_climate_type(climate_type: str) -> list[str]:
         return ["HEATER_TARGET_TEMP", "heater_target_temp", "HEATER_set_temp"]
     return ["SOLAR_TARGET_TEMP", "solar_target_temp", "SOLAR_maxtemp"]
 
+
 WATER_TEMP_SENSORS = [
     "onewire1_value",
     "water_temp",
@@ -154,7 +155,9 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         name_resolver = EntityNameResolver(
             coordinator.device.hardware_config if coordinator.device else None
         )
-        name = name_resolver.resolve_entity_name("climate", climate_type, default_name) or default_name
+        name = (
+            name_resolver.resolve_entity_name("climate", climate_type, default_name) or default_name
+        )
 
         climate_description = ClimateEntityDescription(
             key=climate_type,
@@ -311,12 +314,8 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
 
         attributes: dict[str, Any] = {
             "raw_state": state,
-            "hvac_mode_from_state": HEATER_HVAC_MODES.get(
-                state or STATE_OFF, "unknown"
-            ),
-            "hvac_action_from_state": HEATER_HVAC_ACTIONS.get(
-                state or STATE_OFF, "unknown"
-            ),
+            "hvac_mode_from_state": HEATER_HVAC_MODES.get(state or STATE_OFF, "unknown"),
+            "hvac_action_from_state": HEATER_HVAC_ACTIONS.get(state or STATE_OFF, "unknown"),
         }
 
         # Show optimistic cache status
@@ -349,9 +348,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                 temperature,
             )
 
-            result = await self.device.api.set_device_temperature(
-                self.climate_type, temperature
-            )
+            result = await self.device.api.set_device_temperature(self.climate_type, temperature)
 
             if result.get("success") is True:
                 _LOGGER.debug("Temperature set successfully: %s", result)
@@ -416,9 +413,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                 api_action,
             )
 
-            result = await self.device.api.set_switch_state(
-                self.climate_type, api_action
-            )
+            result = await self.device.api.set_switch_state(self.climate_type, api_action)
 
             if result.get("success") is True:
                 _LOGGER.debug("HVAC mode set successfully: %s", result)
@@ -491,9 +486,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                     "State after refresh: %s=%s, target=%s",
                     self.climate_type,
                     self.coordinator.data.get(self.climate_type, "UNKNOWN"),
-                    self.coordinator.data.get(
-                        f"{self.climate_type}_TARGET_TEMP", "UNKNOWN"
-                    ),
+                    self.coordinator.data.get(f"{self.climate_type}_TARGET_TEMP", "UNKNOWN"),
                 )
         finally:
             # Always clear optimistic caches — even on CancelledError during HA reload
@@ -519,9 +512,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             if not task.cancelled():
                 exc = task.exception()
                 if exc is not None:
-                    _LOGGER.debug(
-                        "Refresh task failed for %s: %s", self.climate_type, exc
-                    )
+                    _LOGGER.debug("Refresh task failed for %s: %s", self.climate_type, exc)
         except (asyncio.CancelledError, asyncio.InvalidStateError):
             pass  # Normal during HA reload, no log needed
 
@@ -532,9 +523,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up climate entities from a config entry."""
-    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][
-        config_entry.entry_id
-    ]
+    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     active_features = config_entry.options.get(
         CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
     )
@@ -580,6 +569,4 @@ async def async_setup_entry(
             [e.name for e in entities],
         )
     else:
-        _LOGGER.debug(
-            "No climate entities set up (no features active or no data available)"
-        )
+        _LOGGER.debug("No climate entities set up (no features active or no data available)")

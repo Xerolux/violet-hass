@@ -220,14 +220,14 @@ BINARY_SENSORS.extend(
             "entity_category": EntityCategory.DIAGNOSTIC,
             "entity_registry_enabled_default": False,
         },
-    {
-        "key": "HW_DIRULE_MODULE",
-        "name": "Hardware: Digital Rules Module",
-        "translation_key": "hw_dirule_module",
-        "icon": "mdi:script-text",
-        "entity_category": EntityCategory.DIAGNOSTIC,
-        "entity_registry_enabled_default": False,
-    },
+        {
+            "key": "HW_DIRULE_MODULE",
+            "name": "Hardware: Digital Rules Module",
+            "translation_key": "hw_dirule_module",
+            "icon": "mdi:script-text",
+            "entity_category": EntityCategory.DIAGNOSTIC,
+            "entity_registry_enabled_default": False,
+        },
     ]
 )
 

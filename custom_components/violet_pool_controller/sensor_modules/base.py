@@ -79,9 +79,7 @@ _TIMESTAMP_SUFFIXES = (
     "_TIMESTAMP",
 )
 _TIMESTAMP_KEYS = {"CURRENT_TIME_UNIX"} | {
-    key
-    for key in UNIT_MAP
-    if any(key.upper().endswith(suffix) for suffix in _TIMESTAMP_SUFFIXES)
+    key for key in UNIT_MAP if any(key.upper().endswith(suffix) for suffix in _TIMESTAMP_SUFFIXES)
 }
 
 _BOOLEAN_VALUE_KEYS = {
@@ -224,20 +222,14 @@ _TEXT_VALUE_KEYS = {
     "ERROR_CONTACT",
 }
 
-_ROMCODE_SENSORS = {
-    f"onewire{i}_{suffix}"
-    for i in range(1, 13)
-    for suffix in ("rcode", "romcode")
-}
+_ROMCODE_SENSORS = {f"onewire{i}_{suffix}" for i in range(1, 13) for suffix in ("rcode", "romcode")}
 
 _ALL_TEXT_SENSORS = (
     _TEXT_VALUE_KEYS | _RUNTIME_KEYS | _BOOLEAN_VALUE_KEYS | _TIME_FORMAT_KEYS | _ROMCODE_SENSORS
 )
 
 _NON_TEMPERATURE_ONEWIRE_KEYS = {
-    f"onewire{i}_{suffix}"
-    for i in range(1, 13)
-    for suffix in ("rcode", "romcode", "state")
+    f"onewire{i}_{suffix}" for i in range(1, 13) for suffix in ("rcode", "romcode", "state")
 }
 _SKIPPED_ONEWIRE_SENSOR_KEYS = {f"onewire{i}_state" for i in range(1, 13)}
 _FLOW_RATE_SOURCE_KEYS = {"ADC3_value", "IMP2_value"}
@@ -285,13 +277,9 @@ def format_seconds_to_readable(seconds: float) -> str:
         return "0s"
 
 
-def determine_device_class(
-    key: str, unit: str | None, raw_value: Any
-) -> SensorDeviceClass | None:
+def determine_device_class(key: str, unit: str | None, raw_value: Any) -> SensorDeviceClass | None:
     """Determines the appropriate device class for a sensor."""
-    if key in _BOOLEAN_VALUE_KEYS or (
-        _is_boolean_value(raw_value) and key not in UNIT_MAP
-    ):
+    if key in _BOOLEAN_VALUE_KEYS or (_is_boolean_value(raw_value) and key not in UNIT_MAP):
         return None
     if key == "pH_value":
         return SensorDeviceClass.PH
@@ -366,9 +354,7 @@ def get_icon(key: str, unit: str | None, raw_value: Any) -> str:
         return "mdi:script-text"
     if key.startswith("PUMP_RPM_") and key.endswith(("_LAST_ON", "_LAST_OFF")) is False:
         return "mdi:speedometer"
-    if key in _BOOLEAN_VALUE_KEYS or (
-        _is_boolean_value(raw_value) and key not in UNIT_MAP
-    ):
+    if key in _BOOLEAN_VALUE_KEYS or (_is_boolean_value(raw_value) and key not in UNIT_MAP):
         return "mdi:toggle-switch"
     if key == "pH_value":
         return "mdi:flask"
@@ -435,9 +421,7 @@ def _build_sensor_description(
             if key.endswith(suffix):
                 base_key = key[: -len(suffix)]
                 # IMPORTANT: Don't inherit unit for count/fault sensors
-                if suffix not in ["_faultcount", "_freezecount"] and UNIT_MAP.get(
-                    base_key
-                ):
+                if suffix not in ["_faultcount", "_freezecount"] and UNIT_MAP.get(base_key):
                     unit = UNIT_MAP[base_key]
                     break
         # Default temperature unit for onewire/temp sensors (but not for counters or non-temp keys!)

@@ -6,19 +6,29 @@ import sys
 # Create mock module structure
 class MockVioletPoolAPIError(Exception):
     """Mock API error."""
+
     pass
 
 
 class MockRateLimiter:
     """Mock rate limiter."""
+
     pass
 
 
 class MockVioletPoolAPI:
     """Mock Violet Pool Controller API."""
 
-    def __init__(self, host, session=None, username=None, password=None,
-                 use_ssl=True, timeout=10, max_retries=3):
+    def __init__(
+        self,
+        host,
+        session=None,
+        username=None,
+        password=None,
+        use_ssl=True,
+        timeout=10,
+        max_retries=3,
+    ):
         self.host = host
         self.session = session
         self.username = username
@@ -54,17 +64,17 @@ def create_mock_violet_api_module():
     """Create a mock violet_poolcontroller_api module."""
     import types
 
-    mock_module = types.ModuleType('violet_poolcontroller_api')
+    mock_module = types.ModuleType("violet_poolcontroller_api")
 
     # API submodule
-    api_module = types.ModuleType('api')
+    api_module = types.ModuleType("api")
     api_module.VioletPoolAPI = MockVioletPoolAPI
     api_module.VioletPoolAPIError = MockVioletPoolAPIError
 
     mock_module.api = api_module
 
     # const_api submodule
-    const_api_module = types.ModuleType('const_api')
+    const_api_module = types.ModuleType("const_api")
     const_api_module.API_TIMEOUT = 10
     const_api_module.API_PRIORITY_CRITICAL = 1
     const_api_module.API_PRIORITY_HIGH = 2
@@ -73,7 +83,7 @@ def create_mock_violet_api_module():
     mock_module.const_api = const_api_module
 
     # const_devices submodule
-    const_devices_module = types.ModuleType('const_devices')
+    const_devices_module = types.ModuleType("const_devices")
     const_devices_module.DEVICE_STATE_MAPPING = {
         0: "AUTO_OFF",
         1: "AUTO_ON",
@@ -93,11 +103,13 @@ def create_mock_violet_api_module():
     mock_module.const_devices = const_devices_module
 
     # utils_sanitizer submodule
-    sanitizer_module = types.ModuleType('utils_sanitizer')
+    sanitizer_module = types.ModuleType("utils_sanitizer")
+
     class InputSanitizer:
         @staticmethod
         def sanitize(value):
             return value
+
     sanitizer_module.InputSanitizer = InputSanitizer
 
     mock_module.utils_sanitizer = sanitizer_module
@@ -106,9 +118,15 @@ def create_mock_violet_api_module():
 
 
 # Register mock module
-if 'violet_poolcontroller_api' not in sys.modules:
-    sys.modules['violet_poolcontroller_api'] = create_mock_violet_api_module()
-    sys.modules['violet_poolcontroller_api.api'] = sys.modules['violet_poolcontroller_api'].api
-    sys.modules['violet_poolcontroller_api.const_api'] = sys.modules['violet_poolcontroller_api'].const_api
-    sys.modules['violet_poolcontroller_api.const_devices'] = sys.modules['violet_poolcontroller_api'].const_devices
-    sys.modules['violet_poolcontroller_api.utils_sanitizer'] = sys.modules['violet_poolcontroller_api'].utils_sanitizer
+if "violet_poolcontroller_api" not in sys.modules:
+    sys.modules["violet_poolcontroller_api"] = create_mock_violet_api_module()
+    sys.modules["violet_poolcontroller_api.api"] = sys.modules["violet_poolcontroller_api"].api
+    sys.modules["violet_poolcontroller_api.const_api"] = sys.modules[
+        "violet_poolcontroller_api"
+    ].const_api
+    sys.modules["violet_poolcontroller_api.const_devices"] = sys.modules[
+        "violet_poolcontroller_api"
+    ].const_devices
+    sys.modules["violet_poolcontroller_api.utils_sanitizer"] = sys.modules[
+        "violet_poolcontroller_api"
+    ].utils_sanitizer

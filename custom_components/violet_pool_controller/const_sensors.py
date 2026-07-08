@@ -543,23 +543,33 @@ RUNTIME_SENSORS = {
         "icon": "mdi:clock-outline",
     },
     # Extension relay runtimes (EXT1/EXT2 modules)
-    **{f"EXT{i}_{j}_RUNTIME": {
-        "name": f"Erweiterung {i} Relais {j} Laufzeit",
-        "translation_key": f"ext{i}_{j}_runtime",
-        "icon": "mdi:clock-outline",
-    } for i in (1, 2) for j in range(1, 9)},
+    **{
+        f"EXT{i}_{j}_RUNTIME": {
+            "name": f"Erweiterung {i} Relais {j} Laufzeit",
+            "translation_key": f"ext{i}_{j}_runtime",
+            "icon": "mdi:clock-outline",
+        }
+        for i in (1, 2)
+        for j in range(1, 9)
+    },
     # OMNI module runtimes
-    **{f"OMNI_DC{i}_RUNTIME": {
-        "name": f"OMNI-Gleichstrommotor {i} Laufzeit",
-        "translation_key": f"omni_dc{i}_runtime",
-        "icon": "mdi:clock-outline",
-    } for i in range(6)},
+    **{
+        f"OMNI_DC{i}_RUNTIME": {
+            "name": f"OMNI-Gleichstrommotor {i} Laufzeit",
+            "translation_key": f"omni_dc{i}_runtime",
+            "icon": "mdi:clock-outline",
+        }
+        for i in range(6)
+    },
     # Pump RPM level runtimes
-    **{f"PUMP_RPM_{i}_RUNTIME": {
-        "name": f"Pumpe RPM-Stufe {i} Laufzeit",
-        "translation_key": f"pump_rpm_{i}_runtime",
-        "icon": "mdi:clock-outline",
-    } for i in range(4)},
+    **{
+        f"PUMP_RPM_{i}_RUNTIME": {
+            "name": f"Pumpe RPM-Stufe {i} Laufzeit",
+            "translation_key": f"pump_rpm_{i}_runtime",
+            "icon": "mdi:clock-outline",
+        }
+        for i in range(4)
+    },
 }
 
 DOSING_STATS_SENSORS = {

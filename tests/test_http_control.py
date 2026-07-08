@@ -1,4 +1,5 @@
 """Tests for VioletControlClient HTTP control layer."""
+
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest

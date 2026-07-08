@@ -61,7 +61,17 @@ class EntityNameResolver:
             return self._resolve_dosing_name(key) or default_name
 
         # Main outputs
-        if key in ["PUMP", "HEATER", "SOLAR", "COVER", "BACKWASH", "REFILL", "OVERFLOW", "LIGHT", "PVSURPLUS"]:
+        if key in [
+            "PUMP",
+            "HEATER",
+            "SOLAR",
+            "COVER",
+            "BACKWASH",
+            "REFILL",
+            "OVERFLOW",
+            "LIGHT",
+            "PVSURPLUS",
+        ]:
             return self._resolve_output_name(key) or default_name
 
         return default_name

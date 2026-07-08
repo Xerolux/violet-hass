@@ -194,12 +194,8 @@ class ConfigFlowSchemaMixin:
                         mode=selector.NumberSelectorMode.BOX,
                     )
                 ),
-                vol.Optional(
-                    CONF_DEVICE_NAME, default="🌊 Violet Pool Controller"
-                ): str,
-                vol.Optional(
-                    CONF_CONTROLLER_NAME, default=DEFAULT_CONTROLLER_NAME
-                ): str,
+                vol.Optional(CONF_DEVICE_NAME, default="🌊 Violet Pool Controller"): str,
+                vol.Optional(CONF_CONTROLLER_NAME, default=DEFAULT_CONTROLLER_NAME): str,
             }
         )
 
@@ -207,9 +203,7 @@ class ConfigFlowSchemaMixin:
         """Get the pool setup schema."""
         return vol.Schema(
             {
-                vol.Required(
-                    CONF_POOL_SIZE, default=DEFAULT_POOL_SIZE
-                ): selector.NumberSelector(
+                vol.Required(CONF_POOL_SIZE, default=DEFAULT_POOL_SIZE): selector.NumberSelector(
                     selector.NumberSelectorConfig(
                         min=MIN_POOL_SIZE,
                         max=MAX_POOL_SIZE,
@@ -221,9 +215,9 @@ class ConfigFlowSchemaMixin:
                 vol.Required(CONF_POOL_TYPE, default=DEFAULT_POOL_TYPE): vol.In(
                     constants.POOL_TYPE_OPTIONS
                 ),
-                vol.Required(
-                    CONF_DISINFECTION_METHOD, default=DEFAULT_DISINFECTION_METHOD
-                ): vol.In(constants.DISINFECTION_OPTIONS),
+                vol.Required(CONF_DISINFECTION_METHOD, default=DEFAULT_DISINFECTION_METHOD): vol.In(
+                    constants.DISINFECTION_OPTIONS
+                ),
             }
         )
 
@@ -270,9 +264,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         """Get current configuration merged from data and options."""
         return {**self.config_entry.data, **self.config_entry.options}
 
-    async def async_step_init(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Handle the initial options menu."""
         if user_input is not None:
             choice = user_input.get("config_option", "settings")
@@ -288,9 +280,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             step_id="init",
             data_schema=vol.Schema(
                 {
-                    vol.Required(
-                        "config_option", default="settings"
-                    ): selector.SelectSelector(
+                    vol.Required("config_option", default="settings"): selector.SelectSelector(
                         selector.SelectSelectorConfig(
                             options=[
                                 selector.SelectOptionDict(
@@ -321,9 +311,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         if user_input is not None:
             selected_features = user_input.get(CONF_ACTIVE_FEATURES, [])
             self._updated_options[CONF_ACTIVE_FEATURES] = selected_features
-            _LOGGER.info(
-                "Features updated in options: %s", ", ".join(selected_features)
-            )
+            _LOGGER.info("Features updated in options: %s", ", ".join(selected_features))
             final_options = {**self.current_config, **self._updated_options}
             return self.async_create_entry(title="", data=final_options)
 
@@ -336,9 +324,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 label = f"{info['icon']} {info['name']}"
             else:
                 label = str(feature["name"])
-            feature_options.append(
-                selector.SelectOptionDict(value=feature_id, label=label)
-            )
+            feature_options.append(selector.SelectOptionDict(value=feature_id, label=label))
 
         return self.async_show_form(
             step_id="features",
@@ -357,10 +343,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 }
             ),
             description_placeholders={
-                "info": (
-                    "Select the features you want to use."
-                    " Disabled features will be hidden."
-                ),
+                "info": ("Select the features you want to use. Disabled features will be hidden."),
             },
         )
 
@@ -389,9 +372,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             data_schema=self._get_sensor_schema(),
         )
 
-    async def async_step_safety(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
+    async def async_step_safety(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Handle safety settings in options flow."""
         from .const import CONF_ALLOW_UNSAFE_SWITCHES, DEFAULT_ALLOW_UNSAFE_SWITCHES
 
@@ -451,9 +432,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             {
                 vol.Optional(
                     CONF_CONTROLLER_NAME,
-                    default=self.current_config.get(
-                        CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME
-                    ),
+                    default=self.current_config.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME),
                 ): str,
                 vol.Optional(
                     CONF_POLLING_INTERVAL,
@@ -483,9 +462,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 ),
                 vol.Optional(
                     CONF_RETRY_ATTEMPTS,
-                    default=self.current_config.get(
-                        CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS
-                    ),
+                    default=self.current_config.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS),
                 ): selector.NumberSelector(
                     selector.NumberSelectorConfig(
                         min=MIN_RETRIES,
@@ -496,9 +473,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 ),
                 vol.Optional(
                     CONF_INVERT_COVER,
-                    default=self.current_config.get(
-                        CONF_INVERT_COVER, DEFAULT_INVERT_COVER
-                    ),
+                    default=self.current_config.get(CONF_INVERT_COVER, DEFAULT_INVERT_COVER),
                 ): selector.BooleanSelector(selector.BooleanSelectorConfig()),
             }
         )
@@ -522,18 +497,14 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 default_selection = sensors
             else:
                 default_selection = [
-                    sensor
-                    for sensor in sensors
-                    if stored_sensors and sensor in stored_sensors
+                    sensor for sensor in sensors if stored_sensors and sensor in stored_sensors
                 ]
 
-            schema[vol.Optional(group, default=default_selection)] = (
-                selector.SelectSelector(
-                    selector.SelectSelectorConfig(
-                        options=options,
-                        multiple=True,
-                        mode=selector.SelectSelectorMode.DROPDOWN,
-                    )
+            schema[vol.Optional(group, default=default_selection)] = selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=options,
+                    multiple=True,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
                 )
             )
 

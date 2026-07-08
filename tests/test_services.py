@@ -1,4 +1,3 @@
-
 from unittest.mock import MagicMock
 
 import pytest
@@ -15,7 +14,9 @@ from custom_components.violet_pool_controller.services import (
 
 
 @pytest.mark.asyncio
-async def test_export_diagnostic_logs_failure(hass: HomeAssistant, device_registry: dr.DeviceRegistry):
+async def test_export_diagnostic_logs_failure(
+    hass: HomeAssistant, device_registry: dr.DeviceRegistry
+):
     """Test to reproduce the issue where device_id from registry is not found."""
 
     # 1. Setup Config Entry
@@ -26,7 +27,7 @@ async def test_export_diagnostic_logs_failure(hass: HomeAssistant, device_regist
     device = device_registry.async_get_or_create(
         config_entry_id=config_entry.entry_id,
         identifiers={(DOMAIN, "unique_device_id")},
-        name="Test Device"
+        name="Test Device",
     )
 
     # 3. Mock Coordinator and attach to hass.data
@@ -46,9 +47,7 @@ async def test_export_diagnostic_logs_failure(hass: HomeAssistant, device_regist
     mock_coordinator.device._update_counter = 100
     mock_coordinator.device.consecutive_failures = 0
 
-    hass.data[DOMAIN] = {
-        config_entry.entry_id: mock_coordinator
-    }
+    hass.data[DOMAIN] = {config_entry.entry_id: mock_coordinator}
 
     # 4. Register Services
     await async_register_services(hass)
@@ -60,9 +59,9 @@ async def test_export_diagnostic_logs_failure(hass: HomeAssistant, device_regist
     response = await hass.services.async_call(
         DOMAIN,
         "export_diagnostic_logs",
-        {"device_id": device.id}, # device.id is the registry ID
+        {"device_id": device.id},  # device.id is the registry ID
         blocking=True,
-        return_response=True
+        return_response=True,
     )
 
     # Assert success
@@ -79,6 +78,7 @@ class RealConfig:
 
     def path(self, *args):
         return "/config/home-assistant.log"
+
 
 @pytest.mark.asyncio
 async def test_reproduce_config_version_error(hass):
@@ -126,7 +126,9 @@ async def test_reproduce_config_version_error(hass):
     assert "Error retrieving system info" not in logs
     # HA Version should be present
     from homeassistant.const import __version__ as HA_VERSION
+
     assert f"Home Assistant: {HA_VERSION}" in logs
+
 
 @pytest.mark.asyncio
 async def test_hacs_version_display(hass):

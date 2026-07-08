@@ -20,7 +20,6 @@ from .const import (
     ACTION_OFF,
     ACTION_ON,
     DEVICE_PARAMETERS,
-    DOMAIN,
 )
 from .http_control import VioletControlClient
 from .service_helpers import (
@@ -33,16 +32,16 @@ from .service_helpers import (
 _LOGGER = logging.getLogger(__name__)
 
 DOSING_INDEX_MAP = {
-    "chlorine": 0,      # DOS_1_CL
+    "chlorine": 0,  # DOS_1_CL
     "electrolysis": 1,  # DOS_2_ELO
-    "ph_minus": 3,      # DOS_4_PHM (index 2 is unused in firmware)
-    "ph_plus": 4,       # DOS_5_PHP
-    "flocculant": 5,    # DOS_6_FLOC
-    "h2o2": 0,          # shares DOS_1_CL physical output, from_param=3 distinguishes it
+    "ph_minus": 3,  # DOS_4_PHM (index 2 is unused in firmware)
+    "ph_plus": 4,  # DOS_5_PHP
+    "flocculant": 5,  # DOS_6_FLOC
+    "h2o2": 0,  # shares DOS_1_CL physical output, from_param=3 distinguishes it
 }
 
 DOSING_FROM_PARAM_MAP = {
-    "h2o2": 3,          # H2O2 uses from=3; all others default to from=1
+    "h2o2": 3,  # H2O2 uses from=3; all others default to from=1
 }
 
 DOSING_SYSTEMS = {
@@ -52,6 +51,17 @@ DOSING_SYSTEMS = {
     "ph_plus": "DOSAGE_phplus",
     "flocculant": "DOSAGE_floc",
     "h2o2": "DOSAGE_h2o2",
+}
+
+# Maps dosing-system slug -> physical controller switch key, used to key the
+# SafetyGuard cooldown for the *_http dosing services.
+DOSING_SYSTEM_TO_KEY = {
+    "chlorine": "DOS_1_CL",
+    "electrolysis": "DOS_2_ELO",
+    "ph_minus": "DOS_4_PHM",
+    "ph_plus": "DOS_5_PHP",
+    "flocculant": "DOS_6_FLOC",
+    "h2o2": "DOS_1_CL",
 }
 
 
@@ -70,9 +80,7 @@ class VioletControlServiceHandlers:
         duration_raw = call.data.get("duration", 0)
 
         speed = InputSanitizer.validate_speed(speed_raw, min_speed=1, max_speed=3)
-        duration = InputSanitizer.validate_duration(
-            duration_raw, min_sec=0, max_sec=86400
-        )
+        duration = InputSanitizer.validate_duration(duration_raw, min_sec=0, max_sec=86400)
 
         _LOGGER.debug(
             "Pump control: action=%s, speed=%d (raw: %s), duration=%d (raw: %s)",
@@ -122,9 +130,7 @@ class VioletControlServiceHandlers:
                     _LOGGER.info("Pump set to AUTO")
 
                 if result.get("success") is not True:
-                    _LOGGER.warning(
-                        "Pump action failed: %s", result.get("response", result)
-                    )
+                    _LOGGER.warning("Pump action failed: %s", result.get("response", result))
 
             except VioletPoolAPIError as err:
                 _LOGGER.error("Pump control error: %s", err)
@@ -139,15 +145,12 @@ class VioletControlServiceHandlers:
         action = call.data["action"]
 
         duration_raw = call.data.get("duration", 30)
-        duration = InputSanitizer.validate_duration(
-            duration_raw, min_sec=5, max_sec=300
-        )
+        duration = InputSanitizer.validate_duration(duration_raw, min_sec=5, max_sec=300)
 
         safety_override = call.data.get("safety_override", False)
 
         _LOGGER.debug(
-            "Smart dosing: type=%s, action=%s, duration=%d"
-            " (raw: %s), safety_override=%s",
+            "Smart dosing: type=%s, action=%s, duration=%d (raw: %s), safety_override=%s",
             dosing_type,
             action,
             duration,
@@ -161,21 +164,16 @@ class VioletControlServiceHandlers:
 
         for coordinator in coordinators:
             try:
-                if not safety_override and self.manager.check_safety_lock(device_key):
-                    remaining = self.manager.get_remaining_lock_time(device_key)
-                    raise HomeAssistantError(
-                        f"Safety interval active: {remaining}s remaining"
-                    )
+                # Enforce cooldown via central SafetyGuard.  ``enforce`` raises
+                # HomeAssistantError when the lock is active and is bypassed
+                # (with a WARNING audit log) when safety_override=True.
+                await self.manager.safety_guard.enforce(device_key, safety_override=safety_override)
 
                 result: dict[str, Any] = {"success": False}
 
                 if action == "manual_dose":
-                    api_dosing_type = DOSING_API_MAPPING.get(
-                        dosing_type, dosing_type
-                    )
-                    result = await coordinator.device.api.manual_dosing(
-                        api_dosing_type, duration
-                    )
+                    api_dosing_type = DOSING_API_MAPPING.get(dosing_type, dosing_type)
+                    result = await coordinator.device.api.manual_dosing(api_dosing_type, duration)
 
                     if not safety_override:
                         safety_interval = cast(
@@ -187,9 +185,7 @@ class VioletControlServiceHandlers:
                         self.manager.set_safety_lock(device_key, safety_interval)
 
                 elif action == "auto":
-                    api_dosing_type = DOSING_API_MAPPING.get(
-                        dosing_type, dosing_type
-                    )
+                    api_dosing_type = DOSING_API_MAPPING.get(dosing_type, dosing_type)
                     result = await coordinator.device.api.set_dosage_enabled(
                         api_dosing_type, enabled=True
                     )
@@ -198,16 +194,17 @@ class VioletControlServiceHandlers:
                 elif action == "stop":
                     # DOS_* OFF is routed through /triggerManualDosing as
                     # DOSSTOP - stops a running manual dose without
-                    # persistently disabling the channel in the config
+                    # persistently disabling the channel in the config.
                     result = await coordinator.device.api.set_switch_state(
                         key=device_key, action=ACTION_OFF
                     )
+                    # Clear any active cooldown when the user explicitly stops
+                    # a dose, so a follow-on dose is not wrongly blocked.
+                    self.manager.safety_guard.clear_lock(device_key)
                     _LOGGER.info("Dosing %s stopped (DOSSTOP)", dosing_type)
 
                 if result.get("success") is not True:
-                    _LOGGER.warning(
-                        "Dosing action failed: %s", result.get("response", result)
-                    )
+                    _LOGGER.warning("Dosing action failed: %s", result.get("response", result))
 
             except VioletPoolAPIError as err:
                 _LOGGER.error("Smart dosing error: %s", err)
@@ -248,9 +245,7 @@ class VioletControlServiceHandlers:
                     _LOGGER.info("PV surplus set to AUTO")
 
                 if result.get("success") is not True:
-                    _LOGGER.warning(
-                        "PV surplus action failed: %s", result.get("response", result)
-                    )
+                    _LOGGER.warning("PV surplus action failed: %s", result.get("response", result))
 
             except VioletPoolAPIError as err:
                 _LOGGER.error("PV surplus error: %s", err)
@@ -271,21 +266,15 @@ class VioletControlServiceHandlers:
 
             try:
                 if action == "all_on":
-                    result = await coordinator.device.api.set_all_dmx_scenes(
-                        ACTION_ALLON
-                    )
+                    result = await coordinator.device.api.set_all_dmx_scenes(ACTION_ALLON)
                     _LOGGER.info("All DMX scenes ON (device %s)", device_id)
 
                 elif action == "all_off":
-                    result = await coordinator.device.api.set_all_dmx_scenes(
-                        ACTION_ALLOFF
-                    )
+                    result = await coordinator.device.api.set_all_dmx_scenes(ACTION_ALLOFF)
                     _LOGGER.info("All DMX scenes OFF (device %s)", device_id)
 
                 elif action == "all_auto":
-                    result = await coordinator.device.api.set_all_dmx_scenes(
-                        ACTION_ALLAUTO
-                    )
+                    result = await coordinator.device.api.set_all_dmx_scenes(ACTION_ALLAUTO)
                     _LOGGER.info("All DMX scenes AUTO (device %s)", device_id)
 
                 elif action == "sequence":
@@ -420,9 +409,7 @@ class VioletControlServiceHandlers:
 
             try:
                 if action == "trigger":
-                    result = await coordinator.device.api.trigger_digital_input_rule(
-                        rule_key
-                    )
+                    result = await coordinator.device.api.trigger_digital_input_rule(rule_key)
                     _LOGGER.info("Rule %s triggered (device %s)", rule_key, device_id)
 
                 elif action == "lock":
@@ -438,9 +425,7 @@ class VioletControlServiceHandlers:
                     _LOGGER.info("Rule %s unlocked (device %s)", rule_key, device_id)
 
                 else:
-                    raise HomeAssistantError(
-                        f"Unsupported digital rule action: {action}"
-                    )
+                    raise HomeAssistantError(f"Unsupported digital rule action: {action}")
 
                 if result.get("success") is not True:
                     _LOGGER.warning(
@@ -551,9 +536,7 @@ class VioletControlServiceHandlers:
 
                 if target_temp is not None:
                     await control.set_config({"HEATER_target_temp": target_temp})
-                    _LOGGER.info(
-                        "Heater target temp: %.1f°C on %s", target_temp, device_name
-                    )
+                    _LOGGER.info("Heater target temp: %.1f°C on %s", target_temp, device_name)
 
                 await coordinator.async_request_refresh()
 
@@ -581,9 +564,7 @@ class VioletControlServiceHandlers:
 
                 if target_temp is not None:
                     await control.set_config({"SOLAR_target_temp": target_temp})
-                    _LOGGER.info(
-                        "Solar target temp: %.1f°C on %s", target_temp, device_name
-                    )
+                    _LOGGER.info("Solar target temp: %.1f°C on %s", target_temp, device_name)
 
                 await coordinator.async_request_refresh()
 
@@ -622,14 +603,14 @@ class VioletControlServiceHandlers:
 
         For 'run' action: automatically stops after specified duration.
         Duration is required for safety - prevents indefinite backwash.
+        The auto-stop timer is persisted so it survives a HA restart.
         """
         coordinators = await self.manager.get_coordinators_for_call(call)
         action = call.data.get("action")
         duration_seconds = call.data.get("duration_seconds")
+        safety_override = bool(call.data.get("safety_override", False))
 
-        if action == "run" and (
-            duration_seconds is None or float(duration_seconds) <= 0
-        ):
+        if action == "run" and (duration_seconds is None or float(duration_seconds) <= 0):
             raise HomeAssistantError(
                 "Backwash duration is required for safety. "
                 "Specify duration_seconds (10-3600 seconds)"
@@ -642,6 +623,11 @@ class VioletControlServiceHandlers:
                 device_name = coordinator.device.device_name
 
                 if action == "run":
+                    # Enforce cooldown before starting backwash.
+                    await self.manager.safety_guard.enforce(
+                        "BACKWASH", safety_override=safety_override
+                    )
+
                     await control.set_backwash_run()
                     _LOGGER.info(
                         "Backwash started on %s with %ss timeout",
@@ -649,50 +635,57 @@ class VioletControlServiceHandlers:
                         backwash_seconds,
                     )
 
-                    # Auto-stop backwash after specified duration for safety
-                    async def auto_stop_backwash() -> None:
-                        await asyncio.sleep(backwash_seconds)
-                        try:
-                            await control.set_backwash_abort()
-                            _LOGGER.info(
-                                "Backwash auto-stopped on %s after %ss",
-                                device_name,
-                                backwash_seconds,
-                            )
-                            await coordinator.async_request_refresh()
-                        except Exception as err:
-                            _LOGGER.error("Backwash auto-stop failed: %s", err)
-
-                    self.hass.async_create_background_task(
-                        auto_stop_backwash(),
-                        f"{DOMAIN}_auto_stop_backwash",
+                    # Restart-safe auto-stop: persists deadline so the backwash
+                    # is aborted even if HA restarts mid-run.
+                    await self.manager.safety_guard.arm_auto_stop(
+                        "BACKWASH",
+                        duration_seconds=backwash_seconds,
+                        stop_target={
+                            "method": "set_function_manually",
+                            "args": ["BACKWASH", "OFF"],
+                        },
                     )
+                    if not safety_override:
+                        self.manager.set_safety_lock("BACKWASH", DEFAULT_SAFETY_INTERVAL)
 
                 elif action == "abort":
                     await control.set_backwash_abort()
+                    # Cancel any pending auto-stop and clear the cooldown.
+                    self.manager.safety_guard.cancel_auto_stop("BACKWASH")
+                    self.manager.safety_guard.clear_lock("BACKWASH")
                     _LOGGER.info("Backwash aborted on %s", device_name)
                     await coordinator.async_request_refresh()
 
+            except VioletPoolAPIError as err:
+                _LOGGER.error("Backwash control error: %s", err)
+                raise HomeAssistantError(f"Backwash control failed: {err}") from err
+            except HomeAssistantError:
+                raise
             except Exception as err:
                 _LOGGER.error("Backwash control error: %s", err)
-                raise HomeAssistantError(f"Backwash control failed: {err}")
+                raise HomeAssistantError(f"Backwash control failed: {err}") from err
 
     async def handle_manual_dosing_http(self, call: ServiceCall) -> None:
         """Trigger manual dosing via HTTP (NEW API)."""
         coordinators = await self.manager.get_coordinators_for_call(call)
         dosing_system = str(call.data.get("dosing_system", ""))
         runtime = call.data.get("runtime_seconds", 30)
+        safety_override = bool(call.data.get("safety_override", False))
 
         dosing_index = DOSING_INDEX_MAP.get(dosing_system)
         if dosing_index is None:
             raise HomeAssistantError(f"Unknown dosing system: {dosing_system}")
 
         from_param = DOSING_FROM_PARAM_MAP.get(dosing_system, 1)
+        device_key = DOSING_SYSTEM_TO_KEY.get(dosing_system, dosing_system)
 
         for coordinator in coordinators:
             try:
                 control = VioletControlClient(coordinator.device.api)
                 device_name = coordinator.device.device_name
+
+                # Enforce the cooldown before dispatching any dosing command.
+                await self.manager.safety_guard.enforce(device_key, safety_override=safety_override)
 
                 await control.trigger_manual_dosing(dosing_index, runtime, from_param=from_param)
                 _LOGGER.info(
@@ -702,25 +695,51 @@ class VioletControlServiceHandlers:
                     device_name,
                 )
 
+                # Arm a cooldown equal to the runtime so back-to-back doses are
+                # spaced, and arm a restart-safe auto-stop (dosing runs that
+                # outlive a restart should be stopped).
+                if not safety_override:
+                    safety_interval = cast(
+                        int,
+                        DEVICE_PARAMETERS.get(device_key, {}).get(
+                            "safety_interval", DEFAULT_SAFETY_INTERVAL
+                        ),
+                    )
+                    self.manager.set_safety_lock(device_key, safety_interval)
+                await self.manager.safety_guard.arm_auto_stop(
+                    device_key,
+                    duration_seconds=float(runtime),
+                    stop_target={
+                        "method": "set_switch_state",
+                        "args": [device_key],
+                        "kwargs": {"action": ACTION_OFF},
+                    },
+                )
+
                 await coordinator.async_request_refresh()
 
+            except VioletPoolAPIError as err:
+                _LOGGER.error("Dosing control error: %s", err)
+                raise HomeAssistantError(f"Dosing control failed: {err}") from err
+            except HomeAssistantError:
+                raise
             except Exception as err:
                 _LOGGER.error("Dosing control error: %s", err)
-                raise HomeAssistantError(f"Dosing control failed: {err}")
+                raise HomeAssistantError(f"Dosing control failed: {err}") from err
 
     async def handle_control_refill_http(self, call: ServiceCall) -> None:
         """Control water refill via HTTP setFunctionManually (NEW API).
 
         For 'fill' action: automatically stops after specified duration.
         Duration is REQUIRED for safety - prevents flooding/tank overflow.
+        The auto-stop timer is persisted so it survives a HA restart.
         """
         coordinators = await self.manager.get_coordinators_for_call(call)
         action = call.data.get("action")
         duration_seconds = call.data.get("duration_seconds")
+        safety_override = bool(call.data.get("safety_override", False))
 
-        if action == "fill" and (
-            duration_seconds is None or float(duration_seconds) <= 0
-        ):
+        if action == "fill" and (duration_seconds is None or float(duration_seconds) <= 0):
             raise HomeAssistantError(
                 "Refill duration is REQUIRED for safety to prevent flooding! "
                 "Specify duration_seconds (10-3600 seconds)"
@@ -733,6 +752,11 @@ class VioletControlServiceHandlers:
                 device_name = coordinator.device.device_name
 
                 if action == "fill":
+                    # Enforce cooldown before starting a refill.
+                    await self.manager.safety_guard.enforce(
+                        "REFILL", safety_override=safety_override
+                    )
+
                     await control.set_function_manually("REFILL", "ON")
                     _LOGGER.warning(
                         "WATER REFILL STARTED on %s - WILL AUTO-STOP after %ss",
@@ -740,33 +764,35 @@ class VioletControlServiceHandlers:
                         refill_seconds,
                     )
 
-                    # Auto-stop refill after specified duration for CRITICAL SAFETY
-                    async def auto_stop_refill() -> None:
-                        await asyncio.sleep(refill_seconds)
-                        try:
-                            await control.set_function_manually("REFILL", "OFF")
-                            _LOGGER.warning(
-                                "WATER REFILL AUTO-STOPPED on %s after %ss (OVERFLOW PREVENTED)",
-                                device_name,
-                                refill_seconds,
-                            )
-                            await coordinator.async_request_refresh()
-                        except Exception as err:
-                            _LOGGER.error("Refill auto-stop FAILED: %s", err)
-
-                    self.hass.async_create_background_task(
-                        auto_stop_refill(),
-                        f"{DOMAIN}_auto_stop_refill",
+                    # Restart-safe auto-stop: persists deadline so the refill
+                    # is stopped even if HA restarts mid-run (flood prevention).
+                    await self.manager.safety_guard.arm_auto_stop(
+                        "REFILL",
+                        duration_seconds=refill_seconds,
+                        stop_target={
+                            "method": "set_function_manually",
+                            "args": ["REFILL", "OFF"],
+                        },
                     )
+                    if not safety_override:
+                        self.manager.set_safety_lock("REFILL", DEFAULT_SAFETY_INTERVAL)
 
                 elif action == "stop":
                     await control.set_function_manually("REFILL", "OFF")
+                    # Cancel any pending auto-stop and clear the cooldown.
+                    self.manager.safety_guard.cancel_auto_stop("REFILL")
+                    self.manager.safety_guard.clear_lock("REFILL")
                     _LOGGER.warning("WATER REFILL STOPPED on %s (manual)", device_name)
                     await coordinator.async_request_refresh()
 
+            except VioletPoolAPIError as err:
+                _LOGGER.error("CRITICAL: Refill control error: %s", err)
+                raise HomeAssistantError(f"Refill control FAILED (FLOODING RISK): {err}") from err
+            except HomeAssistantError:
+                raise
             except Exception as err:
                 _LOGGER.error("CRITICAL: Refill control error: %s", err)
-                raise HomeAssistantError(f"Refill control FAILED (FLOODING RISK): {err}")
+                raise HomeAssistantError(f"Refill control FAILED (FLOODING RISK): {err}") from err
 
     # =================================================================
     # DOSING SYSTEM CONFIGURATION SERVICES
@@ -991,9 +1017,7 @@ class VioletControlServiceHandlers:
                 )
                 await coordinator.async_request_refresh()
             except Exception as err:
-                raise HomeAssistantError(
-                    f"Failed to configure temperature rule {rule_id}: {err}"
-                )
+                raise HomeAssistantError(f"Failed to configure temperature rule {rule_id}: {err}")
 
     async def handle_configure_analog_rule(self, call: ServiceCall) -> None:
         """Configure analog input rule (ANALOGRULE_1-8)."""
@@ -1039,13 +1063,9 @@ class VioletControlServiceHandlers:
                 )
                 await coordinator.async_request_refresh()
             except Exception as err:
-                raise HomeAssistantError(
-                    f"Failed to configure analog rule {rule_id}: {err}"
-                )
+                raise HomeAssistantError(f"Failed to configure analog rule {rule_id}: {err}")
 
-    async def handle_configure_switching_rule(
-        self, call: ServiceCall
-    ) -> None:
+    async def handle_configure_switching_rule(self, call: ServiceCall) -> None:
         """Configure switching input rule (SWITCHINGRULE_1-8)."""
         coordinators = await self.manager.get_coordinators_for_call(call)
         rule_id = int(call.data.get("rule_id", 0))
@@ -1083,9 +1103,7 @@ class VioletControlServiceHandlers:
                 )
                 await coordinator.async_request_refresh()
             except Exception as err:
-                raise HomeAssistantError(
-                    f"Failed to configure switching rule {rule_id}: {err}"
-                )
+                raise HomeAssistantError(f"Failed to configure switching rule {rule_id}: {err}")
 
     async def handle_configure_timer_rule(self, call: ServiceCall) -> None:
         """Configure timer rule (TIMERRULE_1-8)."""
@@ -1125,9 +1143,7 @@ class VioletControlServiceHandlers:
                 )
                 await coordinator.async_request_refresh()
             except Exception as err:
-                raise HomeAssistantError(
-                    f"Failed to configure timer rule {rule_id}: {err}"
-                )
+                raise HomeAssistantError(f"Failed to configure timer rule {rule_id}: {err}")
 
     async def handle_enable_rule(self, call: ServiceCall) -> None:
         """Enable/disable any rule type."""
@@ -1164,9 +1180,7 @@ class VioletControlServiceHandlers:
                 )
                 await coordinator.async_request_refresh()
             except Exception as err:
-                raise HomeAssistantError(
-                    f"Failed to enable/disable rule: {err}"
-                )
+                raise HomeAssistantError(f"Failed to enable/disable rule: {err}")
 
     # PHASE 4: SYSTEM CONFIGURATION SERVICES
 
@@ -1187,9 +1201,7 @@ class VioletControlServiceHandlers:
                 control = VioletControlClient(coordinator.device.api)
 
                 if state is not None:
-                    await control.set_function_manually(
-                        f"EXT{relay_id}_1", str(state), duration
-                    )
+                    await control.set_function_manually(f"EXT{relay_id}_1", str(state), duration)
                     _LOGGER.info(
                         "Extension relay EXT%d_1 set to state %d on %s",
                         relay_id,
@@ -1197,27 +1209,21 @@ class VioletControlServiceHandlers:
                         coordinator.device.device_name,
                     )
                 elif action == "on":
-                    await control.set_function_manually(
-                        f"EXT{relay_id}_1", "4", duration
-                    )
+                    await control.set_function_manually(f"EXT{relay_id}_1", "4", duration)
                     _LOGGER.info(
                         "Extension relay EXT%d_1 turned ON on %s",
                         relay_id,
                         coordinator.device.device_name,
                     )
                 elif action == "off":
-                    await control.set_function_manually(
-                        f"EXT{relay_id}_1", "6", duration
-                    )
+                    await control.set_function_manually(f"EXT{relay_id}_1", "6", duration)
                     _LOGGER.info(
                         "Extension relay EXT%d_1 turned OFF on %s",
                         relay_id,
                         coordinator.device.device_name,
                     )
                 elif action == "toggle":
-                    await control.set_function_manually(
-                        f"EXT{relay_id}_1", "0", duration
-                    )
+                    await control.set_function_manually(f"EXT{relay_id}_1", "0", duration)
                     _LOGGER.info(
                         "Extension relay EXT%d_1 toggled on %s",
                         relay_id,
@@ -1230,9 +1236,7 @@ class VioletControlServiceHandlers:
                     f"Failed to control extension relay EXT{relay_id}_1: {err}"
                 )
 
-    async def handle_configure_sensor_calibration(
-        self, call: ServiceCall
-    ) -> None:
+    async def handle_configure_sensor_calibration(self, call: ServiceCall) -> None:
         """Configure sensor calibration offsets and multipliers."""
         coordinators = await self.manager.get_coordinators_for_call(call)
         sensor_id = int(call.data.get("sensor_id", 0))

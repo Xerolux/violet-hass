@@ -371,6 +371,7 @@ class TestTranslationCompleteness:
 
     def test_no_empty_translations_in_german(self, german_data):
         """Test that German translations don't have empty strings."""
+
         def check_empty(data, path=""):
             empty = []
             for key, value in data.items():
@@ -383,12 +384,13 @@ class TestTranslationCompleteness:
 
         empty_translations = check_empty(german_data)
 
-        assert (
-            len(empty_translations) == 0
-        ), f"Empty German translations found: {empty_translations}"
+        assert len(empty_translations) == 0, (
+            f"Empty German translations found: {empty_translations}"
+        )
 
     def test_no_empty_translations_in_english(self, english_data):
         """Test that English translations don't have empty strings."""
+
         def check_empty(data, path=""):
             empty = []
             for key, value in data.items():
@@ -401,9 +403,9 @@ class TestTranslationCompleteness:
 
         empty_translations = check_empty(english_data)
 
-        assert (
-            len(empty_translations) == 0
-        ), f"Empty English translations found: {empty_translations}"
+        assert len(empty_translations) == 0, (
+            f"Empty English translations found: {empty_translations}"
+        )
 
 
 class TestTranslationPlaceholders:

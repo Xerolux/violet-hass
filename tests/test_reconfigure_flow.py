@@ -103,9 +103,7 @@ class TestReconfigureFlow:
             }
 
             # Call reconfigure with input
-            result = await config_flow.async_step_reconfigure_connection(
-                user_input=user_input
-            )
+            result = await config_flow.async_step_reconfigure_connection(user_input=user_input)
 
             # Verify entry was updated
             hass.config_entries.async_update_entry.assert_called_once()
@@ -120,9 +118,7 @@ class TestReconfigureFlow:
             assert updated_data["retry_attempts"] == 5
 
             # Verify reload was triggered
-            hass.config_entries.async_reload.assert_called_once_with(
-                mock_config_entry.entry_id
-            )
+            hass.config_entries.async_reload.assert_called_once_with(mock_config_entry.entry_id)
 
             # Verify flow is aborted with success
             assert result["type"] == FlowResultType.ABORT
@@ -145,9 +141,7 @@ class TestReconfigureFlow:
             "retry_attempts": 3,
         }
 
-        result = await config_flow.async_step_reconfigure_connection(
-            user_input=user_input
-        )
+        result = await config_flow.async_step_reconfigure_connection(user_input=user_input)
 
         # Verify form is shown with errors
         assert result["type"] == FlowResultType.FORM
@@ -186,9 +180,7 @@ class TestReconfigureFlow:
                 "retry_attempts": 3,
             }
 
-            result = await config_flow.async_step_reconfigure_connection(
-                user_input=user_input
-            )
+            result = await config_flow.async_step_reconfigure_connection(user_input=user_input)
 
             # Verify form is shown with connection error
             assert result["type"] == FlowResultType.FORM
@@ -225,9 +217,7 @@ class TestReconfigureFlow:
                 "retry_attempts": 3,  # Same
             }
 
-            result = await config_flow.async_step_reconfigure_connection(
-                user_input=user_input
-            )
+            result = await config_flow.async_step_reconfigure_connection(user_input=user_input)
 
             # Verify entry was updated
             hass.config_entries.async_update_entry.assert_called_once()
@@ -244,9 +234,7 @@ class TestReconfigureFlow:
             assert result["reason"] == "reconfigure_successful"
 
     @pytest.mark.asyncio
-    async def test_async_step_reconfigure_missing_entry(
-        self, hass: HomeAssistant, config_flow
-    ):
+    async def test_async_step_reconfigure_missing_entry(self, hass: HomeAssistant, config_flow):
         """Test reconfigure when entry doesn't exist."""
         # Mock that entry doesn't exist
         hass.config_entries.async_get_entry = MagicMock(return_value=None)
@@ -289,9 +277,7 @@ class TestReconfigureFlow:
                 "retry_attempts": 3,
             }
 
-            result = await config_flow.async_step_reconfigure_connection(
-                user_input=user_input
-            )
+            result = await config_flow.async_step_reconfigure_connection(user_input=user_input)
 
             # Verify credentials were updated
             call_args = hass.config_entries.async_update_entry.call_args
@@ -331,9 +317,7 @@ class TestReconfigureFlow:
                 "retry_attempts": 3,
             }
 
-            await config_flow.async_step_reconfigure_connection(
-                user_input=user_input_http
-            )
+            await config_flow.async_step_reconfigure_connection(user_input=user_input_http)
 
             call_args = hass.config_entries.async_update_entry.call_args
             updated_data = call_args[1]["data"]
@@ -350,9 +334,7 @@ class TestReconfigureFlow:
                 "retry_attempts": 3,
             }
 
-            await config_flow.async_step_reconfigure_connection(
-                user_input=user_input_https
-            )
+            await config_flow.async_step_reconfigure_connection(user_input=user_input_https)
 
             call_args = hass.config_entries.async_update_entry.call_args
             updated_data = call_args[1]["data"]
@@ -377,9 +359,7 @@ class TestReconfigureIntegrationScenarios:
         return entry
 
     @pytest.mark.asyncio
-    async def test_reconfigure_after_network_change(
-        self, hass: HomeAssistant, mock_config_entry
-    ):
+    async def test_reconfigure_after_network_change(self, hass: HomeAssistant, mock_config_entry):
         """Test reconfiguring after router assigns new IP."""
         from custom_components.violet_pool_controller.config_flow import ConfigFlow
 
@@ -409,9 +389,7 @@ class TestReconfigureIntegrationScenarios:
                 "retry_attempts": 3,
             }
 
-            result = await flow.async_step_reconfigure_connection(
-                user_input=user_input
-            )
+            result = await flow.async_step_reconfigure_connection(user_input=user_input)
 
             # Should succeed
             assert result["reason"] == "reconfigure_successful"
@@ -459,9 +437,7 @@ class TestReconfigureIntegrationScenarios:
                 "retry_attempts": 5,  # More retries for unreliable network
             }
 
-            result = await flow.async_step_reconfigure_connection(
-                user_input=user_input
-            )
+            result = await flow.async_step_reconfigure_connection(user_input=user_input)
 
             assert result["reason"] == "reconfigure_successful"
 
@@ -470,9 +446,7 @@ class TestReconfigureIntegrationScenarios:
             assert updated_data["retry_attempts"] == 5
 
     @pytest.mark.asyncio
-    async def test_reconfigure_faster_polling(
-        self, hass: HomeAssistant, mock_config_entry
-    ):
+    async def test_reconfigure_faster_polling(self, hass: HomeAssistant, mock_config_entry):
         """Test decreasing polling interval for faster updates."""
         from custom_components.violet_pool_controller.config_flow import ConfigFlow
 
@@ -501,9 +475,7 @@ class TestReconfigureIntegrationScenarios:
                 "retry_attempts": 3,
             }
 
-            result = await flow.async_step_reconfigure_connection(
-                user_input=user_input
-            )
+            result = await flow.async_step_reconfigure_connection(user_input=user_input)
 
             assert result["reason"] == "reconfigure_successful"
 

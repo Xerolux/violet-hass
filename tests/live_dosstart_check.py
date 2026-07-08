@@ -33,14 +33,18 @@ async def main() -> None:
 
         await asyncio.sleep(1.5)
         readings = await api.get_readings()
-        print(f"  during run: DOS_1_CL = {readings.get('DOS_1_CL')} "
-              f"STATE={readings.get('DOS_1_CL_STATE')}")
+        print(
+            f"  during run: DOS_1_CL = {readings.get('DOS_1_CL')} "
+            f"STATE={readings.get('DOS_1_CL_STATE')}"
+        )
 
         print(f"  waiting {RUNTIME_S + 3}s for the run to finish...")
         await asyncio.sleep(RUNTIME_S + 3)
         readings = await api.get_readings()
-        print(f"  after run: DOS_1_CL = {readings.get('DOS_1_CL')} "
-              f"STATE={readings.get('DOS_1_CL_STATE')}")
+        print(
+            f"  after run: DOS_1_CL = {readings.get('DOS_1_CL')} "
+            f"STATE={readings.get('DOS_1_CL_STATE')}"
+        )
 
         print("=== Cleanup: DOSSTOP ===")
         result = await api.set_switch_state("DOS_1_CL", "OFF")

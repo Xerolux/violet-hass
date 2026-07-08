@@ -32,12 +32,15 @@ from violet_poolcontroller_api.api import VioletPoolAPI, VioletPoolAPIError
 try:
     from violet_poolcontroller_api.api import VioletAuthError
 except ImportError:
+
     class VioletAuthError(VioletPoolAPIError):  # type: ignore[no-redef]
         """Compatibility fallback for older violet-poolcontroller-api releases."""
+
 
 try:
     from violet_poolcontroller_api.readings import VioletReadings
 except ImportError:
+
     class VioletReadings(dict):  # type: ignore[no-redef]
         """Compatibility fallback for older violet-poolcontroller-api releases."""
 
@@ -86,9 +89,7 @@ POLL_SNAPSHOT_FIELDS = (
 class VioletPoolControllerDevice:
     """Violet Pool Controller Device - SMART LOGGING + AUTO RECOVERY."""
 
-    def __init__(
-        self, hass: HomeAssistant, config_entry: ConfigEntry, api: VioletPoolAPI
-    ) -> None:
+    def __init__(self, hass: HomeAssistant, config_entry: ConfigEntry, api: VioletPoolAPI) -> None:
         """Initialize the device instance."""
         self.hass = hass
         self.config_entry = config_entry
@@ -103,9 +104,9 @@ class VioletPoolControllerDevice:
         self._max_consecutive_failures = 5
         self._update_counter = 0
         # Store poll snapshots as fixed-position tuples to reduce per-entry overhead.
-        self._poll_history: collections.deque[
-            tuple[datetime, int, float, tuple[Any, ...]]
-        ] = collections.deque(maxlen=1000)
+        self._poll_history: collections.deque[tuple[datetime, int, float, tuple[Any, ...]]] = (
+            collections.deque(maxlen=1000)
+        )
         self._first_poll: datetime | None = None
 
         self._last_failure_log = 0.0  # Timestamp for throttling
@@ -151,8 +152,7 @@ class VioletPoolControllerDevice:
             DEFAULT_CONTROLLER_NAME,
         )
         _LOGGER.info(
-            "Device initialized: '%s' (Controller: %s, URL: %s, SSL: %s, "
-            "Device-ID: %d)",
+            "Device initialized: '%s' (Controller: %s, URL: %s, SSL: %s, Device-ID: %d)",
             self.device_name,
             self.controller_name,
             self.api_url,
@@ -265,9 +265,7 @@ class VioletPoolControllerDevice:
             self.api_url = new_api_url
             self.use_ssl = new_use_ssl
 
-            _LOGGER.info(
-                "API configuration updated successfully (new API instance created)"
-            )
+            _LOGGER.info("API configuration updated successfully (new API instance created)")
             return True
 
         except Exception as err:
@@ -334,9 +332,9 @@ class VioletPoolControllerDevice:
                     return False
 
             # --- Dosing module ---
-            has_dosing_now = is_valid(
-                data.get("SYSTEM_dosagemodule_cpu_temperature")
-            ) or any(k.startswith("DOS_") and is_valid(v) for k, v in data.items())
+            has_dosing_now = is_valid(data.get("SYSTEM_dosagemodule_cpu_temperature")) or any(
+                k.startswith("DOS_") and is_valid(v) for k, v in data.items()
+            )
             if self.api.dosing_standalone or has_dosing_now:
                 self._hw_detected.add("DOSING")
             has_dosing = "DOSING" in self._hw_detected or self.api.dosing_standalone
@@ -358,17 +356,14 @@ class VioletPoolControllerDevice:
             has_ext2 = "EXT2" in self._hw_detected
 
             # --- DMX lighting module ---
-            has_dmx_now = any(
-                k.startswith("DMX_") and is_valid(v) for k, v in data.items()
-            )
+            has_dmx_now = any(k.startswith("DMX_") and is_valid(v) for k, v in data.items())
             if has_dmx_now:
                 self._hw_detected.add("DMX")
             has_dmx = "DMX" in self._hw_detected
 
             # --- Digital input rules ---
             has_dirule_now = any(
-                k.startswith("DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_")
-                and is_valid(v)
+                k.startswith("DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_") and is_valid(v)
                 for k, v in data.items()
             )
             if has_dirule_now:
@@ -464,9 +459,7 @@ class VioletPoolControllerDevice:
                             self._consecutive_failures,
                             self._max_consecutive_failures,
                         )
-                    self._system_health = max(
-                        0.0, 100.0 - (self._consecutive_failures * 20.0)
-                    )
+                    self._system_health = max(0.0, 100.0 - (self._consecutive_failures * 20.0))
                     return dict(self._data) if self._data else {}
 
                 # Fetch config-based setpoints and firmware update info NOT in getReadings
@@ -563,9 +556,7 @@ class VioletPoolControllerDevice:
                     flow_value,
                     data.get("IMP1_value"),
                 )
-                self._poll_history.append(
-                    (now_dt, len(data), self._connection_latency, snapshot)
-                )
+                self._poll_history.append((now_dt, len(data), self._connection_latency, snapshot))
 
                 _LOGGER.debug(
                     "Update #%d for '%s': %d keys fetched in %.3fs",
@@ -590,15 +581,28 @@ class VioletPoolControllerDevice:
             self._recovery_logged = False
             if self._consecutive_failures == 1:
                 if not self._available and len(self._data) == 0:
-                    _LOGGER.debug("API error during setup of '%s': %s", self.device_name, str(err)[:200])
+                    _LOGGER.debug(
+                        "API error during setup of '%s': %s", self.device_name, str(err)[:200]
+                    )
                 else:
-                    _LOGGER.error("API error during update of '%s': %s", self.device_name, str(err)[:200])
+                    _LOGGER.error(
+                        "API error during update of '%s': %s", self.device_name, str(err)[:200]
+                    )
             elif self._consecutive_failures >= self._max_consecutive_failures:
-                _LOGGER.error("Controller '%s' unavailable after %d API failures", self.device_name, self._consecutive_failures)
+                _LOGGER.error(
+                    "Controller '%s' unavailable after %d API failures",
+                    self.device_name,
+                    self._consecutive_failures,
+                )
                 self._available = False
                 raise UpdateFailed(f"Controller unreachable: {err}") from err
             elif self._should_log_failure():
-                _LOGGER.warning("Persistent API issues for '%s' (%d/%d failures)", self.device_name, self._consecutive_failures, self._max_consecutive_failures)
+                _LOGGER.warning(
+                    "Persistent API issues for '%s' (%d/%d failures)",
+                    self.device_name,
+                    self._consecutive_failures,
+                    self._max_consecutive_failures,
+                )
             return dict(self._data) if self._data else {}
 
         except Exception as err:
@@ -611,11 +615,21 @@ class VioletPoolControllerDevice:
                 else:
                     _LOGGER.exception("Unexpected error during update of '%s'", self.device_name)
             elif self._consecutive_failures >= self._max_consecutive_failures:
-                _LOGGER.error("Controller '%s' unavailable after %d unexpected failures", self.device_name, self._consecutive_failures)
+                _LOGGER.error(
+                    "Controller '%s' unavailable after %d unexpected failures",
+                    self.device_name,
+                    self._consecutive_failures,
+                )
                 self._available = False
                 raise UpdateFailed(f"Update error: {err}") from err
             elif self._should_log_failure():
-                _LOGGER.warning("Persistent issues for '%s': %s (%d/%d failures)", self.device_name, type(err).__name__, self._consecutive_failures, self._max_consecutive_failures)
+                _LOGGER.warning(
+                    "Persistent issues for '%s': %s (%d/%d failures)",
+                    self.device_name,
+                    type(err).__name__,
+                    self._consecutive_failures,
+                    self._max_consecutive_failures,
+                )
             return dict(self._data) if self._data else {}
 
     @property
@@ -653,10 +667,7 @@ class VioletPoolControllerDevice:
 
         def has_keys(prefix: str) -> bool:
             """Check if any valid keys start with the given prefix."""
-            return any(
-                k.startswith(prefix) and self._data.get(k) is not None
-                for k in self._data
-            )
+            return any(k.startswith(prefix) and self._data.get(k) is not None for k in self._data)
 
         # Check standalone mode vs dosing module
         if self._data.get("HW_STANDALONE_MODE"):
@@ -788,15 +799,19 @@ class VioletPoolControllerDevice:
 
             # Request all configuration keys (wildcard patterns)
             config_keys = [
-                "NAMES_",           # All named elements
-                "SWITCHINGRULE_",   # Digital input rules
-                "LIGHT_prog",       # DMX scenes
-                "DOSAGE_",          # Dosing systems
-                "EXT",              # Extension relays
-                "POOL_",            # Pool config
-                "onewire",          # Temperature sensors
-                "AI",               # Analog inputs
-                "PUMP_", "HEATER_", "SOLAR_", "COVER_", "BACKWASH_",  # Outputs
+                "NAMES_",  # All named elements
+                "SWITCHINGRULE_",  # Digital input rules
+                "LIGHT_prog",  # DMX scenes
+                "DOSAGE_",  # Dosing systems
+                "EXT",  # Extension relays
+                "POOL_",  # Pool config
+                "onewire",  # Temperature sensors
+                "AI",  # Analog inputs
+                "PUMP_",
+                "HEATER_",
+                "SOLAR_",
+                "COVER_",
+                "BACKWASH_",  # Outputs
             ]
 
             config_response = await self.api.get_config(config_keys)
@@ -897,9 +912,7 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator[VioletReadings]):
         try:
             data = await self.device.async_update()
             if not data:
-                raise UpdateFailed(
-                    f"Empty data returned for '{self.device.device_name}'"
-                )
+                raise UpdateFailed(f"Empty data returned for '{self.device.device_name}'")
 
             # Invalidate setpoint cache entries that now exist in fresh data.
             # This ensures: after writes show cached values, but polls restore live data.

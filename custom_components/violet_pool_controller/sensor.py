@@ -77,9 +77,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Sets up the Violet Pool Controller sensors from a config entry."""
-    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][
-        config_entry.entry_id
-    ]
+    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
 
     # None-check for coordinator.data
     if coordinator.data is None:
@@ -94,15 +92,11 @@ async def async_setup_entry(
     sensors: list[SensorEntity] = []
     handled_keys: set[str] = set()
 
-    special_sensors, special_keys = _create_special_sensors(
-        coordinator, config_entry, config
-    )
+    special_sensors, special_keys = _create_special_sensors(coordinator, config_entry, config)
     sensors.extend(special_sensors)
     handled_keys.update(special_keys)
 
-    standard_sensors = _create_standard_sensors(
-        coordinator, config_entry, config, handled_keys
-    )
+    standard_sensors = _create_standard_sensors(coordinator, config_entry, config, handled_keys)
     sensors.extend(standard_sensors)
 
     if sensors:
@@ -110,8 +104,7 @@ async def async_setup_entry(
         _LOGGER.debug("%d sensors added for '%s'", len(sensors), config_entry.title)
     else:
         _LOGGER.warning(
-            "No sensors were added for '%s'. "
-            "Check the sensor selection in the configuration menu.",
+            "No sensors were added for '%s'. Check the sensor selection in the configuration menu.",
             config_entry.title,
         )
 
@@ -127,9 +120,7 @@ def _get_sensor_config(config_entry: ConfigEntry) -> dict[str, Any]:
     create_all = selected_sensors_raw is None
 
     if create_all:
-        _LOGGER.debug(
-            "No sensor selection found (legacy config). Creating all available sensors."
-        )
+        _LOGGER.debug("No sensor selection found (legacy config). Creating all available sensors.")
     else:
         _LOGGER.debug("Creating %d selected sensors.", len(selected_sensors_raw or []))
 
@@ -175,9 +166,7 @@ def _create_special_sensors(
 
     # Error Code Sensors
     for key in _ERROR_CODE_KEYS:
-        if key in coordinator.data and (
-            config["create_all"] or key in config["selected_sensors"]
-        ):
+        if key in coordinator.data and (config["create_all"] or key in config["selected_sensors"]):
             sensors.append(VioletErrorCodeSensor(coordinator, config_entry, key))
             handled_keys.add(key)
             _LOGGER.debug("Error code sensor created for %s", key)
@@ -192,9 +181,7 @@ def _create_special_sensors(
 
     # Flow Rate Sensor
     flow_keys_present = any(key in coordinator.data for key in _FLOW_RATE_SOURCE_KEYS)
-    flow_selected = (
-        config["create_all"] or "flow_rate_adc3_priority" in config["selected_sensors"]
-    )
+    flow_selected = config["create_all"] or "flow_rate_adc3_priority" in config["selected_sensors"]
     if flow_keys_present and flow_selected:
         sensors.append(VioletFlowRateSensor(coordinator, config_entry))
         handled_keys.update(_FLOW_RATE_SOURCE_KEYS)
@@ -272,9 +259,7 @@ def _create_special_sensors(
                         key,
                         coordinator.data.get(key),
                         RUNTIME_SENSORS,
-                        translation_key=sensor_config.get(
-                            "translation_key", key.lower()
-                        ),
+                        translation_key=sensor_config.get("translation_key", key.lower()),
                     ),
                 )
             )
@@ -298,9 +283,7 @@ def _create_special_sensors(
                         key,
                         coordinator.data.get(key),
                         DOSING_STATS_SENSORS,
-                        translation_key=sensor_config.get(
-                            "translation_key", key.lower()
-                        ),
+                        translation_key=sensor_config.get("translation_key", key.lower()),
                     ),
                 )
             )
@@ -325,9 +308,7 @@ def _create_special_sensors(
                         key,
                         coordinator.data.get(key),
                         EXTRA_DIAGNOSTIC_SENSORS,
-                        translation_key=sensor_config.get(
-                            "translation_key", key.lower()
-                        ),
+                        translation_key=sensor_config.get("translation_key", key.lower()),
                     ),
                 )
             )
@@ -347,9 +328,7 @@ def _create_special_sensors(
                         key,
                         coordinator.data.get(key),
                         source,
-                        translation_key=sensor_config.get(
-                            "translation_key", key.lower()
-                        ),
+                        translation_key=sensor_config.get("translation_key", key.lower()),
                     ),
                 )
             )

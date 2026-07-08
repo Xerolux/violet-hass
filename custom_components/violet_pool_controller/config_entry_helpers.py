@@ -17,11 +17,7 @@ def get_entry_value(entry: ConfigEntry, key: str, default: Any) -> Any:
 
 def extract_api_host(entry_data: Mapping[str, Any]) -> str:
     """Extract and normalize API host from current and legacy keys."""
-    host = (
-        entry_data.get(CONF_API_URL)
-        or entry_data.get("host")
-        or entry_data.get("base_ip")
-    )
+    host = entry_data.get(CONF_API_URL) or entry_data.get("host") or entry_data.get("base_ip")
     if not host:
         raise ValueError("No IP address found in config entry")
     if not isinstance(host, str):

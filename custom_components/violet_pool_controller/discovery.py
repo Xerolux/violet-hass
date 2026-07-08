@@ -50,15 +50,9 @@ class VioletPoolControllerDiscovery:
         """
         addresses = []
         if getattr(service_info, "ip_addresses", None):
-            addresses = [
-                getattr(ip, "exploded", str(ip)) for ip in service_info.ip_addresses
-            ]
+            addresses = [getattr(ip, "exploded", str(ip)) for ip in service_info.ip_addresses]
         elif getattr(service_info, "ip_address", None):
-            addresses = [
-                getattr(
-                    service_info.ip_address, "exploded", str(service_info.ip_address)
-                )
-            ]
+            addresses = [getattr(service_info.ip_address, "exploded", str(service_info.ip_address))]
         elif hasattr(service_info, "parsed_addresses"):
             addresses = (
                 service_info.parsed_addresses()
@@ -95,8 +89,6 @@ class VioletPoolControllerDiscovery:
     def clear_discovered_devices(self) -> None:
         """Clear all discovered devices."""
         self._discovered_devices.clear()
-
-
 
 
 # Global discovery instance with thread-safety lock

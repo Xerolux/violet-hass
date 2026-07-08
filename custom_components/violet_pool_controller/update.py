@@ -43,9 +43,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up update entity from config entry."""
-    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][
-        config_entry.entry_id
-    ]
+    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
 
     async_add_entities(
         [
@@ -148,9 +146,7 @@ class VioletPoolControllerUpdateEntity(_VioletCoordinatorEntity, UpdateEntity):
 
         return self._release_notes_cache or None
 
-    async def async_install(
-        self, version: str | None, backup: bool, **kwargs: Any
-    ) -> None:
+    async def async_install(self, version: str | None, backup: bool, **kwargs: Any) -> None:
         """Trigger firmware update on the controller.
 
         The controller downloads and installs the update via
@@ -165,13 +161,10 @@ class VioletPoolControllerUpdateEntity(_VioletCoordinatorEntity, UpdateEntity):
             response = await self.coordinator.device.api.init_update()
 
             if response and response != "STARTING":
-                _LOGGER.warning(
-                    "Unexpected update response: %s", response
-                )
+                _LOGGER.warning("Unexpected update response: %s", response)
 
             _LOGGER.info(
-                "Firmware update initiated on %s."
-                " Device will restart in ~30 seconds.",
+                "Firmware update initiated on %s. Device will restart in ~30 seconds.",
                 self.coordinator.device.device_name,
             )
 
