@@ -1,4 +1,4 @@
-## v2.2.3-beta.1 – Violet Pool Controller
+## v2.3.0-beta.1 – Violet Pool Controller
 
 🟡 **BETA RELEASE** - Testing phase, may contain bugs
 
@@ -24,16 +24,26 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ### 🚀 Improvements | Verbesserungen
 
+- Refactor service_control.py into modular mixins, update tests, fix dependencies (8d7eb85)
+- 📝 Release v2.2.3-beta.1 - Update changelog and version files (48cb8a1)
 - Refactor to use Home Assistant native translation system (0cb4750)
 
 ### 🔧 Bug Fixes | Fehlerbehebungen
 
+- Refactor service_control.py into modular mixins, update tests, fix dependencies (8d7eb85)
+- fix(security): centralize safety enforcement + close CI test gap (cc36644)
 - fix(runtime): resolve CoordinatorEntity subscriptability, secure HTTP control, and clean audit findings (9110581)
 - fix: resolve audit findings and stale test contracts (a238478)
 - fix(api): get_output_runtimes returned empty dict; bump API to v0.0.35 (37ee8a9)
 
+### 📚 Documentation | Dokumentation
+
+- docs(spec): security hardening + CI-gap-closing design (cdbb340)
+
 ### 🧪 Tests
 
+- Refactor service_control.py into modular mixins, update tests, fix dependencies (8d7eb85)
+- fix(security): centralize safety enforcement + close CI test gap (cc36644)
 - fix: resolve audit findings and stale test contracts (a238478)
 
 ---
@@ -52,7 +62,7 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-📋 [Full changelog: v2.0.2...v2.2.3-beta.1](https://github.com/Xerolux/violet-hass/compare/v2.0.2...v2.2.3-beta.1)
+📋 [Full changelog: v2.0.2...v2.3.0-beta.1](https://github.com/Xerolux/violet-hass/compare/v2.0.2...v2.3.0-beta.1)
 
 ---
 
@@ -72,4 +82,4 @@ Jeder kleine Beitrag hilft, die Motivation hochzuhalten, um das Projekt weiter z
 
 ---
 
-_Generated automatically by GitHub Actions on 2026-07-05 16:28:09 UTC_
+_Generated automatically by GitHub Actions on 2026-07-13 17:24:34 UTC_

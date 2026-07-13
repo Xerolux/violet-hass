@@ -63,7 +63,7 @@ DEVICE_PARAMETERS = _const_devices.DEVICE_PARAMETERS
 # =============================================================================
 
 DOMAIN = "violet_pool_controller"
-INTEGRATION_VERSION = "2.2.3-beta.1"
+INTEGRATION_VERSION = "2.3.0-beta.1"
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 
 # =============================================================================
