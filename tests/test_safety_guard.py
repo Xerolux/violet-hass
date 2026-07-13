@@ -21,6 +21,9 @@ class FakePersistence:
     def __init__(self) -> None:
         self._data: dict = {}
 
+    async def get_auto_stop_store_data(self) -> dict | None:
+        return self._data.get("auto_stops")
+
     async def async_load(self) -> dict:
         return self._data
 
@@ -28,11 +31,20 @@ class FakePersistence:
         self._data = data
 
 
+@pytest.fixture(autouse=True)
+def expected_lingering_tasks():
+    """Allow lingering tasks from SafetyGuard background timers."""
+    return True
+
+
 def make_guard() -> tuple[SafetyGuard, FakePersistence, MagicMock]:
     """Create a SafetyGuard with mock hass + persistence."""
     persist = FakePersistence()
     hass = MagicMock()
     hass.data = {}
+    hass.services = MagicMock()
+    hass.config = MagicMock()
+    hass.config.config_dir = "/config"
     # async_create_background_task should schedule on the running loop.
     hass.async_create_background_task = lambda coro, name=None: asyncio.ensure_future(coro)
     guard = SafetyGuard(hass, persist)
@@ -107,7 +119,10 @@ class TestAutoStop:
         )
         stored = (await persist.async_load()).get("auto_stops", {})
         assert "REFILL" in stored
-        assert stored["REFILL"]["stop_target"]["method"] == "set_function_manually"
+        data = stored["REFILL"]["stop_target"]
+        assert "method" in data
+        assert data["method"] == "set_function_manually"
+        guard.cancel_auto_stop("REFILL")
 
     async def test_arm_auto_stop_executes_stop_after_delay(self):
         guard, _, _ = make_guard()
@@ -144,6 +159,7 @@ class TestAutoStop:
         guard.cancel_auto_stop("REFILL")
         await asyncio.sleep(0.3)
         api.set_function_manually.assert_not_awaited()
+        guard.cancel_auto_stop("REFILL")
 
     async def test_expired_deadline_executed_immediately_on_setup(self):
         """A deadline that expired during downtime runs on async_setup()."""

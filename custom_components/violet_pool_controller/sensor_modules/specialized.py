@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import re
+import math
 from collections.abc import Mapping
 from typing import Any
 
@@ -461,3 +462,70 @@ class VioletFlowRateSensor(VioletPoolControllerEntity, SensorEntity):
         return super().available and any(
             self.coordinator.data.get(key) is not None for key in _FLOW_RATE_SOURCE_KEYS
         )
+
+
+class VioletLSISensor(VioletPoolControllerEntity, SensorEntity):
+    """A specialized sensor for calculating the Langelier Saturation Index (LSI)."""
+
+    def __init__(
+        self,
+        coordinator: VioletPoolDataUpdateCoordinator,
+        config_entry: ConfigEntry,
+    ) -> None:
+        """Initializes the LSI sensor."""
+        description = SensorEntityDescription(
+            key="lsi_calculator",
+            translation_key="lsi_index",
+            name="LSI Index",
+            icon="mdi:water-percent",
+            device_class=SensorDeviceClass.AQI, # or None
+            state_class=SensorStateClass.MEASUREMENT,
+        )
+        super().__init__(coordinator, config_entry, description)
+
+    @property
+    def native_value(self) -> float | None:
+        """Calculate and return the LSI value."""
+        if self.coordinator.data is None:
+            return None
+
+        try:
+            ph_raw = self.coordinator.data.get("PH") or self.coordinator.data.get("pH_value")
+            temp_raw = self.coordinator.data.get("onewire1_value")  # Pool water temp
+
+            if ph_raw is None or temp_raw is None:
+                return None
+                
+            ph = float(ph_raw)
+            temp_c = float(temp_raw)
+            
+            # Simplified LSI constants if not provided by user config yet
+            tds = 1000.0
+            calcium_hardness = 200.0
+            total_alkalinity = 100.0
+            
+            # LSI Formula
+            # LSI = pH - pHs
+            # pHs = (9.3 + A + B) - (C + D)
+            a = (math.log10(tds) - 1.0) / 10.0
+            b = -13.12 * math.log10(temp_c + 273.15) + 34.55
+            c = math.log10(calcium_hardness) - 0.4
+            d = math.log10(total_alkalinity)
+            
+            phs = (9.3 + a + b) - (c + d)
+            lsi = ph - phs
+            
+            return round(lsi, 2)
+            
+        except (ValueError, TypeError):
+            return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, str]:
+        """Return the constants used for LSI calculation."""
+        return {
+            "tds_ppm": "1000",
+            "calcium_hardness_ppm": "200",
+            "total_alkalinity_ppm": "100",
+            "note": "Constants are currently hardcoded. Future versions will allow configuration.",
+        }

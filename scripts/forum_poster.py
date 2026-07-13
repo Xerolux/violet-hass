@@ -27,20 +27,20 @@ class PhpBBPoster:
     def login(self) -> bool:
         """Authenticate with the phpBB forum."""
         login_url = f"{self.base_url}/ucp.php?mode=login"
-        
+
         try:
             response = self.session.get(login_url, timeout=self.timeout)
             response.raise_for_status()
-            
+
             sid_match = re.search(r'name="sid"\s+value="([a-f0-9]+)"', response.text)
             sid = sid_match.group(1) if sid_match else ""
-            
+
             creation_time_match = re.search(r'name="creation_time"\s+value="(\d+)"', response.text)
             creation_time = creation_time_match.group(1) if creation_time_match else ""
-            
+
             form_token_match = re.search(r'name="form_token"\s+value="([a-f0-9]+)"', response.text)
             form_token = form_token_match.group(1) if form_token_match else ""
-            
+
             login_data = {
                 "username": self.username,
                 "password": self.password,
@@ -50,7 +50,7 @@ class PhpBBPoster:
                 "creation_time": creation_time,
                 "form_token": form_token,
             }
-            
+
             response = self.session.post(
                 login_url,
                 data=login_data,
@@ -58,7 +58,7 @@ class PhpBBPoster:
                 allow_redirects=True
             )
             response.raise_for_status()
-            
+
             # Check for common logout/sign-out link text in various languages
             logout_indicators = [
                 "Abmelden", "Logout", "Log out", "Sign out",
@@ -80,7 +80,7 @@ class PhpBBPoster:
 
             print("Login may have failed - no successful login indicator found")
             return False
-            
+
         except requests.RequestException as e:
             print(f"Login error: {e}")
             return False
@@ -88,11 +88,11 @@ class PhpBBPoster:
     def get_topic_info(self, topic_id: int) -> dict | None:
         """Get topic information including forum_id for posting."""
         topic_url = f"{self.base_url}/viewtopic.php?t={topic_id}"
-        
+
         try:
             response = self.session.get(topic_url, timeout=self.timeout)
             response.raise_for_status()
-            
+
             forum_match = re.search(r'f=(\d+)', response.text)
             if forum_match:
                 return {
@@ -100,9 +100,9 @@ class PhpBBPoster:
                     "forum_id": int(forum_match.group(1)),
                     "url": topic_url
                 }
-            
+
             return None
-            
+
         except requests.RequestException as e:
             print(f"Error getting topic info: {e}")
             return None
@@ -110,23 +110,23 @@ class PhpBBPoster:
     def post_reply(self, topic_id: int, forum_id: int, message: str) -> bool:
         """Post a reply to an existing topic."""
         posting_url = f"{self.base_url}/posting.php?mode=reply&f={forum_id}&t={topic_id}"
-        
+
         try:
             response = self.session.get(posting_url, timeout=self.timeout)
             response.raise_for_status()
-            
+
             sid_match = re.search(r'name="sid"\s+value="([a-f0-9]+)"', response.text)
             sid = sid_match.group(1) if sid_match else ""
-            
+
             creation_time_match = re.search(r'name="creation_time"\s+value="(\d+)"', response.text)
             creation_time = creation_time_match.group(1) if creation_time_match else ""
-            
+
             form_token_match = re.search(r'name="form_token"\s+value="([a-f0-9]+)"', response.text)
             form_token = form_token_match.group(1) if form_token_match else ""
-            
+
             last_click_match = re.search(r'name="lastclick"\s+value="(\d+)"', response.text)
             last_click = last_click_match.group(1) if last_click_match else ""
-            
+
             post_data = {
                 "message": message,
                 "subject": "Re: Release Announcement",
@@ -140,7 +140,7 @@ class PhpBBPoster:
                 "attach_sig": "on",
                 "notify": "on",
             }
-            
+
             response = self.session.post(
                 posting_url,
                 data=post_data,
@@ -148,18 +148,18 @@ class PhpBBPoster:
                 allow_redirects=True
             )
             response.raise_for_status()
-            
+
             if "wurde erfolgreich" in response.text or "successfully" in response.text.lower():
                 print("Post successfully submitted!")
                 return True
-            
+
             if "viewtopic.php" in response.url:
                 print("Post likely successful (redirected to topic)")
                 return True
-            
+
             print("Post status unclear - check the forum manually")
             return False
-            
+
         except requests.RequestException as e:
             print(f"Error posting reply: {e}")
             return False
@@ -177,16 +177,16 @@ def format_bbcode_release_post(
     bugfixes: str = "",
 ) -> str:
     """Format release announcement as BBCode for phpBB forums."""
-    
+
     type_labels = {
         "stable": ("[color=#008000]✅ STABILE VERSION[/color]", "Stable Release"),
         "alpha": ("[color=#FF0000]🔴 ALPHA VERSION[/color] - Experimentell", "Alpha Release"),
         "beta": ("[color=#FFA500]🟡 BETA VERSION[/color] - Testphase", "Beta Release"),
         "rc": ("[color=#0000FF]🟢 RELEASE CANDIDATE[/color]", "Release Candidate"),
     }
-    
+
     type_label, _ = type_labels.get(release_type, ("[color=#808080]Release[/color]", "Release"))
-    
+
     changelog_section = ""
     if features.strip():
         feature_list = "\n".join(f"[*]{line.strip()}" for line in features.strip().split("\n") if line.strip())
@@ -197,7 +197,7 @@ def format_bbcode_release_post(
 [/quote]
 
 """
-    
+
     if improvements.strip():
         improvement_list = "\n".join(f"[*]{line.strip()}" for line in improvements.strip().split("\n") if line.strip())
         changelog_section += f"""[quote="[b]🚀 Verbesserungen[/b]"]
@@ -207,7 +207,7 @@ def format_bbcode_release_post(
 [/quote]
 
 """
-    
+
     if bugfixes.strip():
         bugfix_list = "\n".join(f"[*]{line.strip()}" for line in bugfixes.strip().split("\n") if line.strip())
         changelog_section += f"""[quote="[b]🔧 Bug Fixes[/b]"]
@@ -217,7 +217,7 @@ def format_bbcode_release_post(
 [/quote]
 
 """
-    
+
     post = f"""[b][size=180]🎉 Violet Pool Controller v{version}[/size][/b]
 
 {type_label}
@@ -266,7 +266,7 @@ Bei Fragen oder Problemen gerne im [url=https://github.com/Xerolux/violet-hass/w
 
 [size=85][i]Entwickelt von [url=https://github.com/Xerolux]Xerolux[/url] | [url=https://github.com/Xerolux/violet-hass/blob/main/LICENSE]MIT License[/url] | [url=https://github.com/Xerolux/violet-hass]GitHub[/url][/i][/size]
 """
-    
+
     return post
 
 
@@ -287,9 +287,9 @@ def main():
     parser.add_argument("--bugfixes", default="", help="Bug fixes (markdown)")
     parser.add_argument("--dry-run", action="store_true", help="Print post without submitting")
     parser.add_argument("--timeout", type=int, default=30, help="Request timeout in seconds")
-    
+
     args = parser.parse_args()
-    
+
     message = format_bbcode_release_post(
         version=args.version,
         tag=args.tag,
@@ -301,7 +301,7 @@ def main():
         improvements=args.improvements,
         bugfixes=args.bugfixes,
     )
-    
+
     if args.dry_run:
         print("=" * 60)
         print("DRY RUN - Post content:")
@@ -309,25 +309,25 @@ def main():
         print(message)
         print("=" * 60)
         return 0
-    
+
     poster = PhpBBPoster(
         base_url=args.forum_url,
         username=args.username,
         password=args.password,
         timeout=args.timeout
     )
-    
+
     print(f"Logging in to {args.forum_url}...")
     if not poster.login():
         print("Failed to login to forum")
         return 1
-    
+
     print(f"Getting topic info for topic {args.topic_id}...")
     topic_info = poster.get_topic_info(args.topic_id)
     if not topic_info:
         print("Failed to get topic information")
         return 1
-    
+
     print(f"Posting reply to topic {args.topic_id}...")
     if not poster.post_reply(
         topic_id=topic_info["topic_id"],
@@ -336,7 +336,7 @@ def main():
     ):
         print("Failed to post reply")
         return 1
-    
+
     print("Successfully posted release announcement!")
     print(f"View topic: {topic_info['url']}")
     return 0

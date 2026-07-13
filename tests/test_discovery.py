@@ -6,7 +6,10 @@ from unittest.mock import MagicMock
 
 import pytest
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
+try:
+    from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
+except ImportError:
+    from homeassistant.components.zeroconf import ZeroconfServiceInfo
 
 
 class TestVioletPoolControllerDiscovery:

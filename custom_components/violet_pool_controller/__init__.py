@@ -21,7 +21,10 @@ from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
-from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
+try:
+    from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
+except ImportError:
+    from homeassistant.components.zeroconf import ZeroconfServiceInfo
 
 from .config_entry_helpers import (
     extract_api_host,

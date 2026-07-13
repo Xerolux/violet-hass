@@ -18,6 +18,8 @@ def hass():
     hass = Mock(spec=HomeAssistant)
     hass.data = {}
     hass.services = Mock()
+    hass.config = Mock()
+    hass.config.config_dir = "/config"
     hass.states = Mock()
     return hass
 

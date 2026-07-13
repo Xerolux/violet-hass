@@ -12,4 +12,5 @@ pytest-asyncio>=0.24.0
 # IMPORTANT: Always use latest version from https://github.com/MatthewFlamm/pytest-homeassistant-custom-component
 # Check for updates when new HA or Python versions are released
 # Bumped for Python 3.14 compatibility
-pytest-homeassistant-custom-component>=0.14.0
+pytest-homeassistant-custom-component>=0.13.1
+zeroconf

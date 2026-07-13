@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Quick integration import test - checks if all modules load correctly."""
+# ruff: noqa: T201
 
-import sys
 import os
+import sys
 
 # Add project root to path
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -87,7 +88,7 @@ try:
         project_root,
         "custom_components/violet_pool_controller/config_flow.py"
     )
-    with open(config_flow_path, 'r') as f:
+    with open(config_flow_path) as f:
         content = f.read()
 
     # Check for ProCon.IP references

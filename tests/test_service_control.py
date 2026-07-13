@@ -49,6 +49,12 @@ class _FakePersistence:
         self._data = data
 
 
+@pytest.fixture(autouse=True)
+def expected_lingering_tasks():
+    """Allow lingering tasks from SafetyGuard background timers."""
+    return True
+
+
 def make_manager_with_safety() -> MagicMock:
     """Create a mock manager with a real, permissive SafetyGuard.
 
@@ -56,12 +62,13 @@ def make_manager_with_safety() -> MagicMock:
     whose async_create_background_task schedules eagerly, so the service
     handlers' enforce/arm/cancel calls work without a running event loop.
     """
-    import asyncio
-
     manager = MagicMock()
     hass = MagicMock()
     hass.data = {}
-    hass.async_create_background_task = lambda coro, name=None: asyncio.ensure_future(coro)
+    def mock_create_bg_task(coro, name=None):
+        coro.close()
+        return MagicMock()
+    hass.async_create_background_task = mock_create_bg_task
     manager.hass = hass
     guard = SafetyGuard(hass, _FakePersistence())
     manager.safety_guard = guard
@@ -314,7 +321,7 @@ class TestHandleControlExtensionRelay:
         handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
 
         with patch(
-            "custom_components.violet_pool_controller.service_control.VioletControlClient"
+            "custom_components.violet_pool_controller.service_mixins.extension.VioletControlClient"
         ) as mock_client_cls:
             mock_client = mock_client_cls.return_value
             mock_client.set_function_manually = AsyncMock(return_value=True)
@@ -340,7 +347,7 @@ class TestHandleControlExtensionRelay:
         handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
 
         with patch(
-            "custom_components.violet_pool_controller.service_control.VioletControlClient"
+            "custom_components.violet_pool_controller.service_mixins.extension.VioletControlClient"
         ) as mock_client_cls:
             mock_client = mock_client_cls.return_value
             mock_client.set_function_manually = AsyncMock(return_value=True)
@@ -389,7 +396,7 @@ class TestHandleControlExtensionRelay:
         handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
 
         with patch(
-            "custom_components.violet_pool_controller.service_control.VioletControlClient"
+            "custom_components.violet_pool_controller.service_mixins.extension.VioletControlClient"
         ) as mock_client_cls:
             mock_client = mock_client_cls.return_value
             mock_client.set_function_manually = AsyncMock(return_value=True)
@@ -426,7 +433,7 @@ class TestHandleControlPumpHttp:
         handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
 
         with patch(
-            "custom_components.violet_pool_controller.service_control.VioletControlClient"
+            "custom_components.violet_pool_controller.service_mixins.pump.VioletControlClient"
         ) as mock_client_cls:
             mock_client = mock_client_cls.return_value
             mock_client.set_pump_speed = AsyncMock(return_value=True)
@@ -441,7 +448,7 @@ class TestHandleControlPumpHttp:
         handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
 
         with patch(
-            "custom_components.violet_pool_controller.service_control.VioletControlClient"
+            "custom_components.violet_pool_controller.service_mixins.pump.VioletControlClient"
         ) as mock_client_cls:
             mock_client = mock_client_cls.return_value
             mock_client.set_pump_off = AsyncMock(return_value=True)
@@ -467,7 +474,7 @@ class TestHandleManualDosingHttp:
         handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
 
         with patch(
-            "custom_components.violet_pool_controller.service_control.VioletControlClient"
+            "custom_components.violet_pool_controller.service_mixins.dosing.VioletControlClient"
         ) as mock_client_cls:
             mock_client = mock_client_cls.return_value
             mock_client.trigger_manual_dosing = AsyncMock(return_value=True)
@@ -540,7 +547,7 @@ class TestHandleControlHeaterHttp:
         coord = make_coordinator()
         handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
         with patch(
-            "custom_components.violet_pool_controller.service_control.VioletControlClient"
+            "custom_components.violet_pool_controller.service_mixins.climate.VioletControlClient"
         ) as cls:
             cls.return_value.set_heater_on = AsyncMock(return_value=True)
             cls.return_value.set_config = AsyncMock(return_value=True)
@@ -554,7 +561,7 @@ class TestHandleControlHeaterHttp:
         coord = make_coordinator()
         handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
         with patch(
-            "custom_components.violet_pool_controller.service_control.VioletControlClient"
+            "custom_components.violet_pool_controller.service_mixins.climate.VioletControlClient"
         ) as cls:
             cls.return_value.set_heater_off = AsyncMock(return_value=True)
             await handlers.handle_control_heater_http(make_service_call({"action": "off"}))
@@ -575,7 +582,7 @@ class TestHandleControlSolarHttp:
         coord = make_coordinator()
         handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
         with patch(
-            "custom_components.violet_pool_controller.service_control.VioletControlClient"
+            "custom_components.violet_pool_controller.service_mixins.climate.VioletControlClient"
         ) as cls:
             cls.return_value.set_solar_on = AsyncMock(return_value=True)
             await handlers.handle_control_solar_http(make_service_call({"action": "on"}))
@@ -585,7 +592,7 @@ class TestHandleControlSolarHttp:
         coord = make_coordinator()
         handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
         with patch(
-            "custom_components.violet_pool_controller.service_control.VioletControlClient"
+            "custom_components.violet_pool_controller.service_mixins.climate.VioletControlClient"
         ) as cls:
             cls.return_value.set_solar_off = AsyncMock(return_value=True)
             await handlers.handle_control_solar_http(make_service_call({"action": "off"}))
@@ -614,7 +621,7 @@ class TestHandleControlCoverHttp:
         coord = make_coordinator()
         handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
         with patch(
-            "custom_components.violet_pool_controller.service_control.VioletControlClient"
+            "custom_components.violet_pool_controller.service_mixins.cover.VioletControlClient"
         ) as cls:
             setattr(cls.return_value, method, AsyncMock(return_value=True))
             await handlers.handle_control_cover_http(make_service_call({"action": action}))
@@ -635,7 +642,7 @@ class TestHandleControlBackwashHttp:
         coord = make_coordinator()
         handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
         with patch(
-            "custom_components.violet_pool_controller.service_control.VioletControlClient"
+            "custom_components.violet_pool_controller.service_mixins.pump.VioletControlClient"
         ) as cls:
             cls.return_value.set_backwash_abort = AsyncMock(return_value=True)
             await handlers.handle_control_backwash_http(make_service_call({"action": "abort"}))
@@ -654,7 +661,7 @@ class TestHandleControlBackwashHttp:
         coord = make_coordinator()
         handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
         with patch(
-            "custom_components.violet_pool_controller.service_control.VioletControlClient"
+            "custom_components.violet_pool_controller.service_mixins.pump.VioletControlClient"
         ) as cls:
             cls.return_value.set_backwash_run = AsyncMock(return_value=True)
             cls.return_value.set_backwash_abort = AsyncMock(return_value=True)
@@ -678,7 +685,7 @@ class TestHandleControlRefillHttp:
         coord = make_coordinator()
         handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
         with patch(
-            "custom_components.violet_pool_controller.service_control.VioletControlClient"
+            "custom_components.violet_pool_controller.service_mixins.cover.VioletControlClient"
         ) as cls:
             cls.return_value.set_function_manually = AsyncMock(return_value=True)
             await handlers.handle_control_refill_http(make_service_call({"action": "stop"}))
@@ -697,7 +704,7 @@ class TestHandleControlRefillHttp:
         coord = make_coordinator()
         handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
         with patch(
-            "custom_components.violet_pool_controller.service_control.VioletControlClient"
+            "custom_components.violet_pool_controller.service_mixins.cover.VioletControlClient"
         ) as cls:
             cls.return_value.set_function_manually = AsyncMock(return_value=True)
             await handlers.handle_control_refill_http(

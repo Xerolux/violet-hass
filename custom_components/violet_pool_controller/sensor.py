@@ -52,6 +52,7 @@ from .sensor_modules import (
     VioletErrorCodeSensor,
     VioletFlowRateSensor,
     VioletHealthSensor,
+    VioletLSISensor,
     VioletLastEventAgeSensor,
     VioletPumpPowerSensor,
     VioletSensor,
@@ -178,6 +179,10 @@ def _create_special_sensors(
     # Pool Health Sensor (aggregate state: ok / warning / error / offline)
     sensors.append(VioletHealthSensor(coordinator, config_entry))
     _LOGGER.debug("Pool health sensor created")
+    
+    # LSI Calculator
+    sensors.append(VioletLSISensor(coordinator, config_entry))
+    _LOGGER.debug("LSI Calculator sensor created")
 
     # Flow Rate Sensor
     flow_keys_present = any(key in coordinator.data for key in _FLOW_RATE_SOURCE_KEYS)
