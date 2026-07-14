@@ -4,22 +4,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **monorepo** containing two components:
+This repository contains the Home Assistant custom integration for the Violet Pool Controller.
+It depends on a separate API client package.
 
-1. **`violet_poolcontroller_api/`** - Standalone Python API client (PyPI: `violet-poolController-api`)
+1. **`violet-poolController-api`** - Standalone Python API client (external dependency, [PyPI](https://pypi.org/project/violet-poolController-api/), [GitHub](https://github.com/Xerolux/violet-poolController-api))
    - Async HTTP client for Violet Pool Controller hardware
    - Rate limiting, circuit breaker, input sanitization
    - No HA dependencies, usable standalone
+   - Installed via `requirements.txt` (`violet-poolController-api>=0.0.35`)
 
 2. **`custom_components/violet_pool_controller/`** - Home Assistant custom integration (HACS)
    - Exposes pool sensors, switches, climate, covers, etc. to HA
-   - Depends on `violet_poolcontroller_api` for hardware communication
+   - Depends on `violet-poolController-api` for hardware communication
 
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.  
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.
 **🔒 Security Model**: See [SECURITY.md](./SECURITY.md) for detailed security architecture and compliance.
 
 **Current Integration Version**: `2.3.0-beta.1` (defined in `manifest.json`, `const.py`, `pyproject.toml`, and optionally `.version`)
-**Current API Version**: `0.0.35` (defined in `violet_poolcontroller_api/pyproject.toml`)
+**Current API Version**: `0.0.35` (defined in the [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository, pinned in `requirements.txt`)
 **Minimum Home Assistant Version**: `2026.5.0` (defined in `hacs.json`)
 **Minimum Python Version**: Home Assistant runtime is managed by HA 2026.5.0+; standalone API package supports `>=3.12`
 
@@ -42,26 +44,21 @@ pip install -r requirements-dev.txt
 # Run ruff linter (HA integration)
 python -m ruff check custom_components/violet_pool_controller/
 
-# Run ruff linter (API)
-python -m ruff check violet_poolcontroller_api/violet_poolcontroller_api/
-
 # Auto-fix all ruff issues (preferred method)
 python -m ruff check custom_components/violet_pool_controller/ --fix
-python -m ruff check violet_poolcontroller_api/violet_poolcontroller_api/ --fix
 
 # Type checking with mypy
 python -m mypy custom_components/violet_pool_controller/
-python -m mypy violet_poolcontroller_api/violet_poolcontroller_api/
 ```
+
+> **Note:** The API package (`violet-poolController-api`) is linted/tested in its own
+> repository, [Xerolux/violet-poolController-api](https://github.com/Xerolux/violet-poolController-api).
 
 ### Running Tests
 
 ```bash
-# Run HA integration tests
+# Run HA integration tests (the API package is imported from the installed wheel)
 pytest tests/ -v
-
-# Run API tests
-pytest violet_poolcontroller_api/tests/ -v
 
 # Run all tests
 pytest -v
@@ -95,7 +92,7 @@ pytest tests/test_api.py::test_function_name -v
 
 - **`__init__.py`** - Integration entry point. Handles setup, config entry migration, platform loading, and service registration. Loads these 10 platforms: `sensor`, `binary_sensor`, `switch`, `climate`, `cover`, `number`, `select`, `light`, `update`, `button`.
 
-- **API package** (`violet-poolController-api>=0.0.35` on PyPI) - The HTTP client and low-level utilities live in this monorepo under `violet_poolcontroller_api/` and are published to PyPI (HA installs the PyPI package per `manifest.json`). Provides:
+- **API package** (`violet-poolController-api>=0.0.35` on PyPI) - The HTTP client and low-level utilities live in the standalone repo [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) and are published to PyPI (HA installs the PyPI package per `requirements.txt`). Provides:
   - `VioletPoolAPI` class - rate-limited HTTP client with retry/backoff
   - `VioletPoolAPIError` exception hierarchy
   - `InputSanitizer` - XSS/injection/path-traversal protection
@@ -217,7 +214,7 @@ pytest tests/test_api.py::test_function_name -v
   - Feature groupings for UI
   - Feature dependencies
 
-**Note**: `const_api.py` and `const_devices.py` are part of the `violet_poolcontroller_api/` subdirectory in this monorepo. Import from `violet_poolcontroller_api.*`. They are also published to PyPI as `violet-poolController-api` for HACS users.
+**Note**: `const_api.py` and `const_devices.py` belong to the external `violet-poolController-api` package ([GitHub](https://github.com/Xerolux/violet-poolController-api)). Import from `violet_poolcontroller_api.*` (installed via `requirements.txt`).
 
 #### Subdirectories
 
@@ -469,19 +466,6 @@ Translation files cover:
 
 ```
 violet-hass/
-├── violet_poolcontroller_api/          # API client (PyPI: violet-poolController-api)
-│   ├── violet_poolcontroller_api/
-│   │   ├── __init__.py
-│   │   ├── api.py                      # VioletPoolAPI client class
-│   │   ├── const_api.py                # API endpoints, actions, error codes
-│   │   ├── const_devices.py            # Device params, state mappings, VioletState
-│   │   ├── circuit_breaker.py          # Circuit breaker pattern
-│   │   ├── utils_rate_limiter.py       # Token bucket rate limiter
-│   │   └── utils_sanitizer.py          # Input sanitization
-│   ├── tests/                          # API test suite
-│   ├── pyproject.toml                  # API build config
-│   ├── CHANGELOG.md                    # API changelog
-│   └── README.md                       # API documentation
 ├── custom_components/
 │   └── violet_pool_controller/      # Main integration code
 │       ├── __init__.py               # Entry point (loads 7 platforms)
@@ -672,9 +656,9 @@ Located in `.github/workflows/` (10 workflows):
 
 ### Fixing API Issues
 
-1. API client source is in `violet_poolcontroller_api/violet_poolcontroller_api/` (local to this monorepo)
+1. API client source is in the external [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository (not in this repo). API-side fixes belong there and ship as a new PyPI release, then the pin in `requirements.txt` is bumped.
 2. Local error handling is in `error_handler.py` (`VioletErrorCodes`)
-3. Test with `violet_poolcontroller_api/tests/` for API tests and `tests/test_api.py` for HA integration API tests
+3. Test with `tests/test_api.py` for HA-integration-side API tests
 4. Check retry/backoff logic in `device.py`
 
 ### Updating Constants
@@ -691,8 +675,8 @@ Located in `.github/workflows/` (10 workflows):
 - `aiohttp>=3.13.5` - Async HTTP client
 - `voluptuous>=0.16.0` - Data validation
 
-**Integration requirement** (from `manifest.json`):
-- `violet-poolController-api>=0.0.35` - API client package (installed by HA from PyPI; source is in `violet_poolcontroller_api/` locally)
+**Integration requirement** (from `requirements.txt`):
+- `violet-poolController-api>=0.0.35` - API client package (installed from PyPI; source in the [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository)
 
 **Development** (from `requirements-dev.txt`):
 - `ruff>=0.15.16` - Linter and formatter
@@ -710,7 +694,7 @@ Located in `.github/workflows/` (10 workflows):
    - States 0, 2, 5, 6 = Device OFF (standby, rule-blocked, emergency rule, manual off)
    - States 1, 3, 4 = Device ON (scheduled, emergency-rule priority, manual forced)
    - Composite states like `"3|PUMP_ANTI_FREEZE"` provide additional context about operational modes
-   - All states are defined in `DEVICE_STATE_MAPPING` in `violet_poolcontroller_api/violet_poolcontroller_api/const_devices.py`
+   - All states are defined in `DEVICE_STATE_MAPPING` in the `violet_poolcontroller_api` package (`const_devices.py`)
 
 3. **Multi-Controller**: The integration supports multiple pool controllers on the same Home Assistant instance. Each gets unique entity IDs based on the API URL.
 
@@ -728,7 +712,7 @@ Located in `.github/workflows/` (10 workflows):
 
 10. **Recovery Behavior**: When connection is lost, the integration attempts auto-recovery with exponential backoff (10s → 300s max) for up to 10 attempts. After max attempts, manual intervention is required.
 
-11. **API Package (Monorepo)**: `api.py`, `utils_rate_limiter.py`, `utils_sanitizer.py`, `const_api.py`, and `const_devices.py` are in `violet_poolcontroller_api/violet_poolcontroller_api/`. They are also published to PyPI as `violet-poolController-api`. For local development, use `pip install -e ./violet_poolcontroller_api`. Import from `violet_poolcontroller_api.*`.
+11. **API Package (external dependency)**: `api.py`, `utils_rate_limiter.py`, `utils_sanitizer.py`, `const_api.py`, and `const_devices.py` live in the standalone [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository and are published to PyPI as `violet-poolController-api`. For local development, `pip install violet-poolController-api`. Import from `violet_poolcontroller_api.*`.
 
 12. **Diagnostics**: The integration supports Home Assistant's built-in diagnostics download (`diagnostics.py`). Sensitive fields are redacted automatically. Access via HA UI → Devices → Download diagnostics.
 

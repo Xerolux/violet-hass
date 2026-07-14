@@ -119,25 +119,26 @@ async with aiohttp.ClientSession() as session:
 **Eingebaute Sicherheit & Robustheit:** Token-Bucket-Rate-Limiting, Circuit Breaker, Retry mit
 Backoff, Input-Sanitization, SSL/TLS-Verifikation, Standalone-Dosing-Modus.
 
-📦 Vollständige API-Doku: [API-Referenz](violet_poolcontroller_api/docs/API_REFERENCE.md) ·
-[Paket-README](violet_poolcontroller_api/README.md) ·
-[Changelog](violet_poolcontroller_api/CHANGELOG.md)
+📦 Vollständige API-Doku: [API-Referenz](https://github.com/Xerolux/violet-poolController-api/blob/main/docs/API_REFERENCE.md) ·
+[Paket-README](https://github.com/Xerolux/violet-poolController-api/blob/main/README.md) ·
+[Changelog](https://github.com/Xerolux/violet-poolController-api/blob/main/CHANGELOG.md)
 
 ---
 
 ## Repository-Struktur
 
-Dies ist ein **Monorepo** mit API-Client und HA-Integration:
+Dieses Repository enthält die Home-Assistant-Integration. Der API-Client liegt in einem
+eigenen Repository ([`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api),
+veröffentlicht auf [PyPI](https://pypi.org/project/violet-poolController-api/)) und wird als Abhängigkeit installiert.
 
 | Verzeichnis | Beschreibung |
 |-------------|--------------|
-| `violet_poolcontroller_api/` | Eigenständiger Python-API-Client ([PyPI](https://pypi.org/project/violet-poolController-api/)) |
 | `custom_components/violet_pool_controller/` | Home-Assistant-Integration ([HACS](https://hacs.xyz/)) |
-| `tests/` | HA-Integrationstests (API-Tests in `violet_poolcontroller_api/tests/`) |
+| `tests/` | HA-Integrationstests |
 | `docs/` | Dokumentation & Wiki-Quellen |
 
-**Releases:** Die HA-Integration wird über `v*`-Tags released (HACS), das API-Paket über
-`api-v*`-Tags (automatischer PyPI-Upload + GitHub-Release).
+**Releases:** Die HA-Integration wird über `v*`-Tags released (HACS). Das API-Paket wird
+unabhängig im eigenen Repository über `api-v*`-Tags released (automatischer PyPI-Upload + GitHub-Release).
 
 Details: [ARCHITECTURE.md](./ARCHITECTURE.md)
 

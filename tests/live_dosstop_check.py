@@ -7,13 +7,9 @@ auth and the AUTO->DOSSTOP safety mapping (v0.0.27).
 
 import asyncio
 import os
-import sys
 
 import aiohttp
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "violet_poolcontroller_api"))
-
-from violet_poolcontroller_api.api import VioletPoolAPI  # noqa: E402
+from violet_poolcontroller_api.api import VioletPoolAPI
 
 
 async def main() -> None:

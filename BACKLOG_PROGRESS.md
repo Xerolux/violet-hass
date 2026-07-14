@@ -87,7 +87,7 @@ Dieses Dokument verfolgt alle Arbeiten aus dem Plan: *Offene Punkte, Bugfixes & 
 ---
 
 ### PR 3 – Test-Coverage ✅ 100% FERTIG
-- [x] **C1**: `parsers.py` Unit-Tests (violet_poolcontroller_api/tests/) ✅ (170 lines)
+- [x] **C1**: `parsers.py` Unit-Tests (tests/) ✅ (170 lines)
 - [x] **C2**: `readings.py` typed-Properties ✅ (220 lines)
 - [x] **C3**: Circuit-Breaker HALF_OPEN-Pfade ✅ (240 lines)
 
@@ -164,9 +164,7 @@ Dieses Dokument verfolgt alle Arbeiten aus dem Plan: *Offene Punkte, Bugfixes & 
 ## Verifizierungs-Checkliste
 
 - [ ] `ruff check custom_components/violet_pool_controller/ --fix` → 0 Fehler
-- [ ] `ruff check violet_poolcontroller_api/ --fix` → 0 Fehler
 - [ ] `mypy custom_components/violet_pool_controller/` → 0 Fehler
-- [ ] `mypy violet_poolcontroller_api/` → 0 Fehler
 - [ ] `pytest -v` (alle Tests grün)
 - [ ] `pip install -r requirements-dev.txt` (keine Konflikte, B2 resolved)
 - [ ] Keine toten Links in Doku (ARCHITECTURE.md, RELEASE_NOTES.md)

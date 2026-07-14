@@ -4,9 +4,9 @@
 
 [![PyPI](https://img.shields.io/pypi/v/violet-poolController-api?logo=pypi)](https://pypi.org/project/violet-poolController-api/)
 
-The HTTP client used by the Home Assistant integration is developed in the
-[violet-hass monorepo](https://github.com/Xerolux/violet-hass) under
-`violet_poolcontroller_api/` and published to PyPI as
+The HTTP client used by the Home Assistant integration is developed in its own
+repository, [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api),
+and published to PyPI as
 [`violet-poolController-api`](https://pypi.org/project/violet-poolController-api/).
 It has **no Home Assistant dependencies** and can be used in any Python project.
 
@@ -77,16 +77,16 @@ asyncio.run(main())
 
 ## Versioning & Releases
 
-- Source of truth: `violet_poolcontroller_api/pyproject.toml` in the monorepo
+- Source of truth: [`pyproject.toml`](https://github.com/Xerolux/violet-poolController-api/blob/main/pyproject.toml) in the [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository
 - A git tag `api-v<version>` triggers the automated PyPI publish and GitHub release
-- The HA integration pins its minimum version in `manifest.json`
-  (kept in sync automatically by the *Sync API Version* workflow)
+- The HA integration pins its minimum version in `requirements.txt`
+  (`violet-poolController-api>=<version>`)
 
 ## Links
 
 - 📦 [PyPI](https://pypi.org/project/violet-poolController-api/)
-- 📚 [Full API Reference](https://github.com/Xerolux/violet-hass/blob/main/violet_poolcontroller_api/docs/API_REFERENCE.md)
-- 📝 [Changelog](https://github.com/Xerolux/violet-hass/blob/main/violet_poolcontroller_api/CHANGELOG.md)
-- 🧪 [Test Suite](https://github.com/Xerolux/violet-hass/tree/main/violet_poolcontroller_api/tests)
+- 📚 [Full API Reference](https://github.com/Xerolux/violet-poolController-api/blob/main/docs/API_REFERENCE.md)
+- 📝 [Changelog](https://github.com/Xerolux/violet-poolController-api/blob/main/CHANGELOG.md)
+- 🧪 [Test Suite](https://github.com/Xerolux/violet-poolController-api/tree/main/tests)
 
 See also: [API Reference (HTTP endpoints)](API-Reference)

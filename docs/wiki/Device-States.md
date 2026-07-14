@@ -6,7 +6,7 @@
 
 > The **most important concept** of the integration! Each controllable output (pump, heater, solar, light, dosing channels, extension relays, DMX scenes, …) reports one of 7 numeric state codes via `/getReadings`. Learn what they mean and how to use them in automations.
 
-> Source of truth: `OutputState` enum in `violet_poolcontroller_api/const_devices.py` (manual section 26.1).
+> Source of truth: `OutputState` enum in the `violet_poolcontroller_api` package ([`const_devices.py`](https://github.com/Xerolux/violet-poolController-api/blob/main/violet_poolcontroller_api/const_devices.py), manual section 26.1).
 
 ---
 

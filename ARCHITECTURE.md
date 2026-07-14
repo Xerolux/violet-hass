@@ -1,6 +1,10 @@
 # Architecture Overview
 
-**Violet Pool Controller** – Home Assistant Integration + API Client (Monorepo)
+**Violet Pool Controller** – Home Assistant Integration
+
+> The API client is developed in its own repository
+> [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api)
+> and installed as a dependency via PyPI (`violet-poolController-api>=0.0.35`).
 
 ---
 
@@ -8,19 +12,6 @@
 
 ```
 violet-hass/
-├── violet_poolcontroller_api/          # API Package (published to PyPI)
-│   └── violet_poolcontroller_api/
-│       ├── api.py                      # VioletPoolAPI HTTP client
-│       ├── circuit_breaker.py          # Fault tolerance pattern
-│       ├── exceptions.py               # VioletPoolAPIError hierarchy
-│       ├── parsers.py                  # Data parsing utilities
-│       ├── readings.py                 # VioletReadings data class
-│       ├── const_api.py                # API endpoints, actions
-│       ├── const_devices.py            # Device state mappings
-│       ├── utils_rate_limiter.py       # Token bucket rate limiter
-│       ├── utils_sanitizer.py          # Input sanitization
-│       └── pyproject.toml              # API package build config
-│
 ├── custom_components/violet_pool_controller/    # HA Integration
 │   ├── __init__.py                     # Integration entry point
 │   ├── device.py                       # Device + Coordinator
@@ -187,13 +178,13 @@ Next poll returns 28°C (cache invalidated, live data wins)
 
 ---
 
-## API Package (Monorepo Dependency)
+## API Package (External Dependency)
 
 ### Design
 - **Published to PyPI** as `violet-poolController-api`
-- **Installed by HA** from PyPI (see `manifest.json`)
-- **Source** in this repo under `violet_poolcontroller_api/`
-- **Development**: Use `pip install -e ./violet_poolcontroller_api`
+- **Installed by HA** from PyPI (see `requirements.txt`)
+- **Source**: standalone repository [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api)
+- **Development**: `pip install violet-poolController-api` (or clone the standalone repo)
 
 ### Key Components
 

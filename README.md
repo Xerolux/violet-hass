@@ -119,33 +119,33 @@ async with aiohttp.ClientSession() as session:
 **Built-in safety & robustness:** token-bucket rate limiting, circuit breaker, retry with backoff,
 input sanitization, SSL/TLS verification, standalone-dosing mode.
 
-📦 Full API docs: [API Reference](violet_poolcontroller_api/docs/API_REFERENCE.md) ·
-[Package README](violet_poolcontroller_api/README.md) ·
-[Changelog](violet_poolcontroller_api/CHANGELOG.md)
+📦 Full API docs: [API Reference](https://github.com/Xerolux/violet-poolController-api/blob/main/docs/API_REFERENCE.md) ·
+[Package README](https://github.com/Xerolux/violet-poolController-api/blob/main/README.md) ·
+[Changelog](https://github.com/Xerolux/violet-poolController-api/blob/main/CHANGELOG.md)
 
 ---
 
 ## Repository Structure
 
-This is a **monorepo** containing both the API client and the HA integration:
+This repository contains the Home Assistant integration. The API client lives in
+its own repository ([`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api),
+published to [PyPI](https://pypi.org/project/violet-poolController-api/)) and is installed as a dependency.
 
 | Directory | Description |
 |-----------|-------------|
-| `violet_poolcontroller_api/` | Standalone Python API client ([PyPI](https://pypi.org/project/violet-poolController-api/)) |
 | `custom_components/violet_pool_controller/` | Home Assistant integration ([HACS](https://hacs.xyz/)) |
-| `tests/` | HA integration tests (API tests live in `violet_poolcontroller_api/tests/`) |
+| `tests/` | HA integration tests |
 | `docs/` | Documentation & wiki sources |
 
 **Development setup:**
 
 ```bash
-pip install -r requirements-dev.txt   # includes editable install of the API package
-pytest violet_poolcontroller_api/tests/   # API test suite
-pytest tests/                              # HA integration test suite
+pip install -r requirements-dev.txt   # installs HA + the violet-poolController-api package
+pytest tests/                         # HA integration test suite
 ```
 
-**Releases:** the HA integration is released via `v*` tags (HACS), the API package via `api-v*` tags
-(automatic PyPI publish + GitHub release).
+**Releases:** the HA integration is released via `v*` tags (HACS). The API package is released
+independently in its own repository via `api-v*` tags (automatic PyPI publish + GitHub release).
 
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed structure and development guide.
 
@@ -174,7 +174,7 @@ The **VIOLET Pool Controller** by [PoolDigital GmbH & Co. KG](https://www.pooldi
 
 - **Official Shop:** [pooldigital.de](https://www.pooldigital.de/poolsteuerungen/violet-poolsteuerung/74/violet-basis-modul-poolsteuerung-smart)
 - **Community:** [PoolDigital Forum](http://forum.pooldigital.de/)
-- **API Package:** [violet-poolController-api](https://pypi.org/project/violet-poolController-api/) on PyPI (included in this repo under `violet_poolcontroller_api/`)
+- **API Package:** [violet-poolController-api](https://github.com/Xerolux/violet-poolController-api) on PyPI (separate repository, installed as a dependency)
 
 
 

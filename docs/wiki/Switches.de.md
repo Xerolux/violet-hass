@@ -22,7 +22,7 @@ Alle Schalter des Violet Pool Controllers sind **3-State Switches**: Sie kennen 
 | `5`   | `EMERGENCY_OFF` | `off`          | Durch Notfall-Regel abgeschaltet |
 | `6`   | `MANUAL_OFF`    | `off`          | Manuell AUS |
 
-> ⚠️ **Ältere Wiki-Versionen hatten diese States falsch zugeordnet**. Die obige Tabelle ist die einzig korrekte und wird durch das `OutputState`-Enum in `violet_poolcontroller_api/const_devices.py` erzwungen.
+> ⚠️ **Ältere Wiki-Versionen hatten diese States falsch zugeordnet**. Die obige Tabelle ist die einzig korrekte und wird durch das `OutputState`-Enum im `violet_poolcontroller_api`-Paket (`const_devices.py`) erzwungen.
 
 ---
 

@@ -9,13 +9,9 @@ Performs ONLY GET requests (getReadings, getConfig, getLog) - no writes.
 
 import asyncio
 import os
-import sys
 
 import aiohttp
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "violet_poolcontroller_api"))
-
-from violet_poolcontroller_api.api import VioletPoolAPI  # noqa: E402
+from violet_poolcontroller_api.api import VioletPoolAPI
 
 HOST = os.environ["VIOLET_HOST"]
 USER = os.environ["VIOLET_USER"]

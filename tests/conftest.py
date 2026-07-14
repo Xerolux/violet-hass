@@ -15,16 +15,6 @@ _test_dir = Path(__file__).parent
 if str(_test_dir) not in sys.path:
     sys.path.insert(0, str(_test_dir))
 
-# Prefer the REAL violet_poolcontroller_api package over the stale mock below.
-# The outer monorepo directory (violet_poolcontroller_api/) has no __init__.py,
-# so Python treats it as a namespace package and shadows the installed wheel /
-# the inner real package (violet_poolcontroller_api/violet_poolcontroller_api/).
-# By inserting the outer source directory at sys.path[0], the inner real package
-# is discovered first and the detection logic below correctly skips the mock.
-_api_src_dir = _test_dir.parent / "violet_poolcontroller_api"
-if _api_src_dir.is_dir() and str(_api_src_dir) not in sys.path:
-    sys.path.insert(0, str(_api_src_dir))
-
 # Setup Home Assistant mocks first
 # Import as a module to ensure proper execution context
 import conftest_ha_mock  # noqa: F401,E402

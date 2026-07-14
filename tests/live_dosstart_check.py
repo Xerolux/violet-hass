@@ -7,13 +7,9 @@ sends a DOSSTOP as cleanup and prints the controller action log.
 
 import asyncio
 import os
-import sys
 
 import aiohttp
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "violet_poolcontroller_api"))
-
-from violet_poolcontroller_api.api import VioletPoolAPI  # noqa: E402
+from violet_poolcontroller_api.api import VioletPoolAPI
 
 RUNTIME_S = 5
 

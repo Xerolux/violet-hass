@@ -43,14 +43,6 @@ python_version = "3.14"
 warn_return_any = true
 disallow_untyped_defs = false
 warn_unused_configs = true
-mypy_path = "violet_poolcontroller_api"
-explicit_package_bases = true
-
-[[tool.mypy.overrides]]
-# The standalone API package still supports Python 3.12+; run mypy on it from
-# its own directory so its pyproject.toml (target 3.12) takes effect.
-module = "violet_poolcontroller_api.*"
-ignore_missing_imports = true
 
 [tool.coverage.run]
 source = ["custom_components/violet_pool_controller"]

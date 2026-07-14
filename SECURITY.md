@@ -249,7 +249,7 @@ async def _fetch_controller_data(self) -> dict[str, Any]:
         self._hw_detected.add("DOSING")  # Sticky detection only
 ```
 
-### 5. Input Sanitization (`violet_poolcontroller_api/utils_sanitizer.py`)
+### 5. Input Sanitization (`violet_poolcontroller_api/utils_sanitizer.py`, in the [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) package)
 
 **Threat Model**: Injection attacks (XSS, path traversal, command injection)
 

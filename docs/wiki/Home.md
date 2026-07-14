@@ -155,7 +155,8 @@ Home Assistant
     └── Diagnostics (download diagnostics data via HA UI)
 ```
 
-The HTTP client is maintained in this repository under `violet_poolcontroller_api/` and
+The HTTP client is maintained in the separate repository
+[`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) and
 published to PyPI — see **[Python API Package](API-Package)** for standalone usage.
 
 ### Security Features

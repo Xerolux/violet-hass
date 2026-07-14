@@ -6,7 +6,7 @@
 
 > Das **wichtigste Konzept** der Integration! Jeder steuerbare Ausgang (Pumpe, Heizung, Solar, Licht, Dosierkanäle, Erweiterungsrelais, DMX-Szenen, …) meldet über `/getReadings` einen von 7 numerischen Zustandscodes. Hier ist erklärt, was sie bedeuten und wie man sie in Automatisierungen verwendet.
 
-> Quelle: `OutputState`-Enum in `violet_poolcontroller_api/const_devices.py` (Handbuch-Kapitel 26.1).
+> Quelle: `OutputState`-Enum im `violet_poolcontroller_api`-Paket ([`const_devices.py`](https://github.com/Xerolux/violet-poolController-api/blob/main/violet_poolcontroller_api/const_devices.py), Handbuch-Kapitel 26.1).
 
 ---
 

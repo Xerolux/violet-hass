@@ -6,21 +6,22 @@ Source coverage:
 - Indexed all Markdown files found by `rg --files -g '*.md'`: 113 files, about 40k lines.
 - Deep-read high-signal project docs: `README.md`, `ARCHITECTURE.md`, `CLAUDE.md`,
   `docs/API_PACKAGE_CONTRACT.md`, `docs/TESTING.md`, `docs/wiki/Services.md`,
-  `violet_poolcontroller_api/README.md`, plus manifest/requirements/pyproject files
-  for current live version facts.
+  plus manifest/requirements/pyproject files for current live version facts.
+  The API package README lives in its own repository
+  ([`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api)).
 - Wiki and translated docs are mirrored heavily across English/German pages; treat this
   file as a compact working map, not a replacement for exact source docs.
 
 ## Project Identity
 
-`violet-hass` is a monorepo for the Violet Pool Controller ecosystem:
+`violet-hass` is the Home Assistant custom integration for the Violet Pool Controller:
 
 - `custom_components/violet_pool_controller/`: Home Assistant custom integration
   distributed through HACS.
-- `violet_poolcontroller_api/`: standalone async Python API client published as
-  `violet-poolController-api` on PyPI.
+- The API client (`violet-poolController-api` on PyPI) is developed in a separate
+  repository, [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api),
+  and installed as a dependency.
 - `tests/`: Home Assistant integration tests.
-- `violet_poolcontroller_api/tests/`: API package tests and mock server.
 - `docs/wiki/`: source for the GitHub wiki, with English and German pages.
 - `Dashboard/` and `blueprints/`: example Lovelace dashboards and HA blueprints.
 
@@ -33,11 +34,13 @@ convenience.
 These values were verified against code/config files, not just docs:
 
 - Home Assistant domain: `violet_pool_controller`.
-- Integration version: `2.0.0` in `manifest.json`, `const.py`, and root `pyproject.toml`.
-- API package version: `0.0.33` in `violet_poolcontroller_api/pyproject.toml`.
+- Integration version: `2.2.3-beta.1` in `manifest.json`, `const.py`, and root `pyproject.toml`.
+- API package version: `0.0.35`, defined in the
+  [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository.
 - HACS minimum Home Assistant version: `2026.5.0` in `hacs.json`.
-- Integration manifest requirement: `violet-poolController-api>=0.0.33`.
-- Runtime requirements include `homeassistant>=2026.5.0`, `aiohttp>=3.11.0,<3.14`,
+- Integration requirement (from `requirements.txt`): `violet-poolController-api>=0.0.35`.
+- Runtime requirements include `homeassistant>=2024.1.0`,
+  `aiohttp>=3.11.0,<3.15` (widened for HA 2026.5 / aiohttp 3.14.x),
   `voluptuous>=0.15.2`, and the API package.
 - Root package tooling currently targets Python `>=3.12` after local cleanup, while
   several user/developer docs still mention HA/Python 3.14.2. Verify before changing
@@ -243,13 +246,12 @@ Common direct commands:
 
 ```bash
 pytest tests/ -v
-pytest violet_poolcontroller_api/tests/ -v
-pytest -v
 python -m ruff check custom_components/violet_pool_controller/
-python -m ruff check violet_poolcontroller_api/violet_poolcontroller_api/
 python -m mypy custom_components/violet_pool_controller/
-python -m mypy violet_poolcontroller_api/violet_poolcontroller_api/
 ```
+
+> The API package is linted/tested in its own repository,
+> [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api).
 
 Important local caveats:
 
@@ -259,12 +261,12 @@ Important local caveats:
   for `_run_safe_shutdown_loop` and timezone/deprecation handling.
 - `pytest.ini` uses `asyncio_mode = auto` and function-scoped loops.
 - If imports fail in ad-hoc local scripts, set `PYTHONPATH` or install the API package
-  editable with `pip install -e ./violet_poolcontroller_api[test]`.
+  editable with `pip install violet-poolController-api  # from https://github.com/Xerolux/violet-poolController-api`.
 
 Useful verification after edits:
 
 ```bash
-python -m compileall -q custom_components/violet_pool_controller violet_poolcontroller_api/violet_poolcontroller_api
+python -m compileall -q custom_components/violet_pool_controller
 git diff --check
 ```
 
@@ -310,12 +312,13 @@ Dashboards and blueprints:
 - `blueprints/`: helper setup and automation blueprints for temperature, pH,
   cover, and backwash control.
 
-API package docs:
+API package docs (in the separate
+[`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository):
 
-- `violet_poolcontroller_api/README.md`: standalone API usage and mock server.
-- `violet_poolcontroller_api/CHANGELOG.md`: API release history.
-- `violet_poolcontroller_api/RELEASE_NOTES_v*.md`: version-specific notes.
-- `violet_poolcontroller_api/AGENTS.md`: agent instructions for API package work.
+- `README.md`: standalone API usage and mock server.
+- `CHANGELOG.md`: API release history.
+- `RELEASE_NOTES_v*.md`: version-specific notes.
+- `AGENTS.md`: agent instructions for API package work.
 
 ## CI/CD And Release
 
@@ -336,7 +339,7 @@ Version consistency matters across:
 - root `pyproject.toml`
 - `.version` if present
 - release notes/changelog
-- API version in `violet_poolcontroller_api/pyproject.toml`
+- API version in `https://github.com/Xerolux/violet-poolController-api/blob/main/pyproject.toml`
 
 ## Known Drift And Things To Recheck
 
@@ -345,11 +348,13 @@ Version consistency matters across:
   docs may still correctly require Python 3.14 for HA 2026.5. Reconcile before
   publishing.
 - Some docs mention old test counts such as `53+`; actual test inventory is larger.
-- `docs/API_PACKAGE_CONTRACT.md` references old exact pinning to `0.0.24`; live
-  manifest currently uses `violet-poolController-api>=0.0.33`.
-- Wiki pages may mention beta versions while manifest is `2.0.0`.
-- README links to `violet_poolcontroller_api/docs/API_REFERENCE.md`, but the local
-  `rg --files` markdown index did not show that exact path. Verify before release.
+- `docs/API_PACKAGE_CONTRACT.md` may reference old exact pinning; live
+  `requirements.txt` currently uses `violet-poolController-api>=0.0.35`.
+- Wiki pages may mention beta versions while manifest is `2.2.3-beta.1`.
+- The API package now lives in its own repository
+  ([`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api));
+  the former local `violet_poolcontroller_api/` directory has been removed from this repo.
+  API Reference etc. are linked to the standalone repo.
 
 ## Recent Local Work In This Thread
 
@@ -361,7 +366,7 @@ Files modified before this memory file:
 - `custom_components/violet_pool_controller/switch.py`
 - `pyproject.toml`
 - `tests/test_security_fixes.py`
-- `violet_poolcontroller_api/violet_poolcontroller_api/api.py`
+- `violet_poolcontroller_api/api.py` (now in the [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository)
 
 Intent of those changes:
 
@@ -374,7 +379,7 @@ Intent of those changes:
 
 Verification performed:
 
-- `python -m compileall -q custom_components/violet_pool_controller violet_poolcontroller_api/violet_poolcontroller_api tests/test_security_fixes.py`
+- `python -m compileall -q custom_components/violet_pool_controller tests/test_security_fixes.py`
 - targeted URL parser snippet with local dummy `aiohttp` when deps were missing
 - `git diff --check`
 
