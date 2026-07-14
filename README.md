@@ -2,6 +2,8 @@
 
 **English** | **[Deutsch](README.de.md)**
 
+**[Project website](https://xerolux.github.io/violet-hass/)** · **[Documentation](https://xerolux.github.io/violet-hass/docs/#/home)** · **[Releases](https://github.com/Xerolux/violet-hass/releases)**
+
 [![GitHub Release][releases-shield]][releases]
 [![Downloads][downloads-shield]][releases]
 [![GitHub Activity][commits-shield]][commits]
@@ -195,25 +197,25 @@ The **VIOLET Pool Controller** by [PoolDigital GmbH & Co. KG](https://www.pooldi
 ---
 
 <!-- Wiki Links -->
-[wiki]: https://github.com/Xerolux/violet-hass/wiki
-[wiki-install]: https://github.com/Xerolux/violet-hass/wiki/Installation-and-Setup
-[wiki-config]: https://github.com/Xerolux/violet-hass/wiki/Configuration
-[wiki-multi]: https://github.com/Xerolux/violet-hass/wiki/Multi-Controller
-[wiki-sensors]: https://github.com/Xerolux/violet-hass/wiki/Sensors
-[wiki-switches]: https://github.com/Xerolux/violet-hass/wiki/Switches
-[wiki-climate]: https://github.com/Xerolux/violet-hass/wiki/Climate
-[wiki-states]: https://github.com/Xerolux/violet-hass/wiki/Device-States
-[wiki-services]: https://github.com/Xerolux/violet-hass/wiki/Services
-[wiki-automations]: https://github.com/Xerolux/violet-hass/wiki/Automations
-[wiki-trouble]: https://github.com/Xerolux/violet-hass/wiki/Troubleshooting
-[wiki-diag]: https://github.com/Xerolux/violet-hass/wiki/Diagnostics
-[wiki-errors]: https://github.com/Xerolux/violet-hass/wiki/Error-Codes
-[wiki-faq]: https://github.com/Xerolux/violet-hass/wiki/FAQ
-[wiki-security]: https://github.com/Xerolux/violet-hass/wiki/Security
-[wiki-logging]: https://github.com/Xerolux/violet-hass/wiki/Erweiterte-Protokollierung
-[wiki-contributing]: https://github.com/Xerolux/violet-hass/wiki/Contributing
-[wiki-api]: https://github.com/Xerolux/violet-hass/wiki/API-Reference
-[wiki-changelog]: https://github.com/Xerolux/violet-hass/wiki/Changelog
+[wiki]: https://xerolux.github.io/violet-hass/docs/#/home
+[wiki-install]: https://xerolux.github.io/violet-hass/docs/#/installation
+[wiki-config]: https://xerolux.github.io/violet-hass/docs/#/configuration
+[wiki-multi]: https://xerolux.github.io/violet-hass/docs/#/multi-controller
+[wiki-sensors]: https://xerolux.github.io/violet-hass/docs/#/sensors
+[wiki-switches]: https://xerolux.github.io/violet-hass/docs/#/switches
+[wiki-climate]: https://xerolux.github.io/violet-hass/docs/#/climate
+[wiki-states]: https://xerolux.github.io/violet-hass/docs/#/states
+[wiki-services]: https://xerolux.github.io/violet-hass/docs/#/services
+[wiki-automations]: https://xerolux.github.io/violet-hass/docs/#/automations
+[wiki-trouble]: https://xerolux.github.io/violet-hass/docs/#/troubleshooting
+[wiki-diag]: https://xerolux.github.io/violet-hass/docs/#/diagnostics
+[wiki-errors]: https://xerolux.github.io/violet-hass/docs/#/error-codes
+[wiki-faq]: https://xerolux.github.io/violet-hass/docs/#/faq
+[wiki-security]: https://xerolux.github.io/violet-hass/docs/#/security
+[wiki-logging]: https://xerolux.github.io/violet-hass/docs/#/logging
+[wiki-contributing]: https://xerolux.github.io/violet-hass/docs/#/contributing
+[wiki-api]: https://xerolux.github.io/violet-hass/docs/#/api
+[wiki-changelog]: https://xerolux.github.io/violet-hass/docs/#/changelog
 
 <!-- Badge Links -->
 [releases-shield]: https://img.shields.io/github/release/xerolux/violet-hass.svg?style=for-the-badge
