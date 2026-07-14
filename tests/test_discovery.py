@@ -6,6 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from homeassistant.core import HomeAssistant
+
 try:
     from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 except ImportError:

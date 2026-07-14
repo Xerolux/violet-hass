@@ -14,6 +14,7 @@ import threading
 from typing import Any
 
 from homeassistant.core import HomeAssistant, callback
+
 try:
     from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 except ImportError:

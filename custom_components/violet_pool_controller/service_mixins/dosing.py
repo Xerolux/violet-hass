@@ -2,23 +2,16 @@
 
 from __future__ import annotations
 
-import asyncio
 import logging
 from typing import Any, cast
 
-from homeassistant.const import ATTR_DEVICE_ID
 from homeassistant.core import ServiceCall
 from homeassistant.exceptions import HomeAssistantError
 from violet_poolcontroller_api.api import VioletPoolAPIError
 from violet_poolcontroller_api.utils_sanitizer import InputSanitizer
 
 from ..const import (
-    ACTION_ALLAUTO,
-    ACTION_ALLOFF,
-    ACTION_ALLON,
-    ACTION_AUTO,
     ACTION_OFF,
-    ACTION_ON,
     DEVICE_PARAMETERS,
 )
 from ..http_control import VioletControlClient
@@ -26,7 +19,6 @@ from ..service_helpers import (
     DEFAULT_SAFETY_INTERVAL,
     DOSING_API_MAPPING,
     DOSING_TYPE_MAPPING,
-    as_device_id_list,
 )
 
 _LOGGER = logging.getLogger(__name__)

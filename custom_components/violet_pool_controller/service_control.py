@@ -14,7 +14,6 @@ from .service_mixins import (
     RulesServiceHandlersMixin,
     SystemServiceHandlersMixin,
 )
-from .http_control import VioletControlClient
 
 _LOGGER = logging.getLogger(__name__)
 

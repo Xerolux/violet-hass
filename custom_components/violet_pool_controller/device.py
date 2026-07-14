@@ -918,23 +918,23 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator[VioletReadings]):
             pump_state = data.get("PUMP", 0)
             # Dosing keys that indicate active chemical injection
             dosing_active = any(data.get(k, 0) > 0 for k in ["DOS_1_CL", "DOS_2_ELO", "DOS_4_PHM", "DOS_5_PHP"])
-            
+
             # Use configured interval or default
             default_interval = self.config_entry.data.get(
                 CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL
             )
-            
+
             if pump_state > 0 or dosing_active:
                 # Poll faster if pump is running or dosing is active (half interval, min 5s)
                 fast_interval = max(5, default_interval // 2)
                 new_interval = timedelta(seconds=fast_interval)
             else:
                 new_interval = timedelta(seconds=default_interval)
-                
+
             if self.update_interval != new_interval:
                 self.update_interval = new_interval
                 _LOGGER.debug(
-                    "Dynamic polling interval changed to %s seconds (pump: %s, dosing: %s)", 
+                    "Dynamic polling interval changed to %s seconds (pump: %s, dosing: %s)",
                     self.update_interval.total_seconds(),
                     pump_state > 0,
                     dosing_active
