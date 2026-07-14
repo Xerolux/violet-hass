@@ -1773,6 +1773,12 @@
       },
       "di_rule_8_stopwatch": {
         "name": "DI-Regel 8 Restzeit"
+      },
+      "lsi_index": {
+        "name": "LSI Ergebnis"
+      },
+      "csi_index": {
+        "name": "CSI Ergebnis"
       }
     },
     "binary_sensor": {
@@ -2073,6 +2079,36 @@
       },
       "flocculant_canister_volume": {
         "name": "Flockungsmittel-Behälter-Volumen"
+      },
+      "lsi_ph": {
+        "name": "LSI pH-Wert"
+      },
+      "lsi_temperature": {
+        "name": "LSI Temperatur"
+      },
+      "lsi_tds": {
+        "name": "LSI TDS"
+      },
+      "lsi_calcium": {
+        "name": "LSI Calciumhärte"
+      },
+      "lsi_alkalinity": {
+        "name": "LSI Carbonathärte / Carbonat-Alkalität"
+      },
+      "csi_ph": {
+        "name": "CSI pH-Wert"
+      },
+      "csi_temperature": {
+        "name": "CSI Temperatur"
+      },
+      "csi_tds": {
+        "name": "CSI TDS"
+      },
+      "csi_calcium": {
+        "name": "CSI Calciumhärte"
+      },
+      "csi_alkalinity": {
+        "name": "CSI Carbonathärte / Carbonat-Alkalität"
       }
     },
     "select": {

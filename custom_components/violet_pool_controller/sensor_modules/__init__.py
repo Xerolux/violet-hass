@@ -33,6 +33,7 @@ from .monitoring import (
 )
 from .specialized import (
     VioletActiveErrorsSensor,
+    VioletCSISensor,
     VioletDosingStateSensor,
     VioletErrorCodeSensor,
     VioletFlowRateSensor,
@@ -59,6 +60,7 @@ __all__ = [
     "VioletSystemHealthSensor",
     # Specialized
     "VioletActiveErrorsSensor",
+    "VioletCSISensor",
     "VioletDosingStateSensor",
     "VioletErrorCodeSensor",
     "VioletFlowRateSensor",
