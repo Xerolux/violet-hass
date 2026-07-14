@@ -194,7 +194,7 @@ Not required for Platinum, but possible improvements:
 | Task | Frequency | Owner |
 |------|-----------|-------|
 | Dependency updates | Monthly | GitHub Dependabot |
-| HA compatibility check | With HA releases | CI/CD (ha-dev-early-warning.yml) |
+| HA compatibility check | Every PR and main push | CI/CD (`validate.yml`, Python 3.12-3.14) |
 | Security scanning | Weekly | GitHub Security |
 | Translations | As needed | Community + maintainer |
 | Release management | As needed | Maintainer |

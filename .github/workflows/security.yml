@@ -5,10 +5,18 @@ on:
     branches: [main]
     paths:
       - 'custom_components/violet_pool_controller/**'
+      - 'scripts/**'
+      - 'requirements*.txt'
+      - 'pyproject.toml'
+      - '.github/workflows/security.yml'
   pull_request:
     branches: [main]
     paths:
       - 'custom_components/violet_pool_controller/**'
+      - 'scripts/**'
+      - 'requirements*.txt'
+      - 'pyproject.toml'
+      - '.github/workflows/security.yml'
   schedule:
     - cron: '0 2 * * MON'  # Weekly on Monday at 2 AM UTC
   workflow_dispatch:
@@ -18,9 +26,14 @@ permissions:
   contents: read
   security-events: write
 
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   codeql:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       actions: read
       contents: read
@@ -42,6 +55,7 @@ jobs:
         
   trufflehog:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -72,6 +86,7 @@ jobs:
 
   dependency-scan:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -83,11 +98,12 @@ jobs:
           scan-ref: '.'
           format: 'sarif'
           output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH,MEDIUM'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
           
       - name: Upload Trivy results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v4
-        if: always()
+        if: always() && hashFiles('trivy-results.sarif') != ''
         with:
           sarif_file: 'trivy-results.sarif'
 
@@ -107,10 +123,10 @@ jobs:
           echo "| Dependency Scan | ${{ needs.dependency-scan.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          if [[ "${{ needs.codeql.result }}" == "failure" ]] || \
-             [[ "${{ needs.trufflehog.result }}" == "failure" ]] || \
-             [[ "${{ needs.dependency-scan.result }}" == "failure" ]]; then
-            echo "⚠️ **Some security checks failed. Please review the results above.**" >> $GITHUB_STEP_SUMMARY
-          else
+          if [[ "${{ needs.codeql.result }}" == "success" ]] && \
+             [[ "${{ needs.trufflehog.result }}" == "success" ]] && \
+             [[ "${{ needs.dependency-scan.result }}" == "success" ]]; then
             echo "✅ **All security checks passed successfully!**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **At least one security check failed, was cancelled, or was skipped.**" >> $GITHUB_STEP_SUMMARY
           fi

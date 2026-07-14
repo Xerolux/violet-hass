@@ -304,7 +304,7 @@ Wiki directory:
   Climate, Services, Automations, Troubleshooting, Diagnostics, Error Codes,
   Security, Multi-Controller, Testing, API Reference, API Package, FAQ, etc.
 - `docs/wiki/_Sidebar*.md` controls wiki navigation.
-- `wiki-sync.yml` syncs this tree to GitHub wiki.
+- The `wiki` job in `.github/workflows/docs.yml` syncs this tree to the GitHub Wiki.
 
 Dashboards and blueprints:
 

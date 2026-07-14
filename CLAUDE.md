@@ -618,23 +618,17 @@ violet-hass/
 
 ## GitHub Workflows
 
-Located in `.github/workflows/` (10 workflows):
+Located in `.github/workflows/` (4 workflows):
 
 **Validation & CI:**
-- **`validate.yml`** - Integration validation on push/PR: tox (ruff py314, pytest py314) + hassfest + HACS check
-- **`test-api.yml`** - API package CI (path-filtered): ruff check + `ruff format --check` + mypy + pytest, Python 3.12-3.14 matrix
-- **`validate-versions.yml`** - Checks manifest.json version is mentioned in CLAUDE.md
-- **`ha-dev-early-warning.yml`** - Weekly cron: test suite against HA `dev` branch
+- **`validate.yml`** - Reusable quality gate: version consistency, tox on Python 3.12-3.14, Hassfest, and HACS; successful main pushes publish one rolling dev pre-release
 
 **Release:**
-- **`release.yml`** - Integration release management, triggered by `v*` tags (stable/beta/alpha/rc)
-- **`dev-release.yml`** - Dev pre-release on every main push (`v<version>-dev.<sha>` tags)
-- **`publish-api.yml`** - PyPI publish + GitHub release, triggered by `api-v*` tags (version must match API pyproject.toml)
-- **`update-api-dependency.yml`** ("Sync API Version") - Auto-bumps the manifest.json requirement when the API pyproject version changes
+- **`release.yml`** - Validates the repository through the reusable quality gate, checks tag/version consistency, then publishes an immutable stable or pre-release package
 
 **Security & Docs:**
-- **`security.yml`** - CodeQL + TruffleHog (integration + API paths, weekly cron)
-- **`wiki-sync.yml`** - Syncs `docs/wiki/` to the GitHub wiki on push
+- **`security.yml`** - CodeQL, TruffleHog, and Trivy on relevant changes plus a weekly scan
+- **`docs.yml`** - Deploys GitHub Pages and synchronizes changed `docs/wiki/` pages to the GitHub Wiki
 
 ## Common Tasks for AI Assistants
 
@@ -704,7 +698,7 @@ Located in `.github/workflows/` (10 workflows):
 
 6. **Calibration History**: The integration parses calibration history from the controller API, handling various date formats and edge cases.
 
-7. **Version Consistency**: Keep version numbers in sync across `manifest.json`, `const.py`, `.version`, `pyproject.toml`, and `docs/RELEASE_NOTES.md`. The `validate-versions.yml` workflow enforces this.
+7. **Version Consistency**: Keep version numbers in sync across `manifest.json`, `const.py`, `.version`, and `pyproject.toml`. The `versions` job in `validate.yml` enforces this, and releases require the tag to match.
 
 8. **Code Quality**: Always run `ruff check --fix` before committing. The integration maintains 0 ruff errors.
 
