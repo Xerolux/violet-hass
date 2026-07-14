@@ -10,7 +10,7 @@
 
 ---
 
-## 📢 Letzte Änderungen (v2.0.0)
+## 📢 Highlights & Funktionsumfang
 
 ### ✨ Neue Funktionen & Verbesserungen
 
@@ -234,4 +234,4 @@ Diese Integration ist vollständig mit Home Assistant 2026.x kompatibel:
 ---
 
 *Diese Wiki dokumentiert Version **2.0.0** der Violet Pool Controller Integration.*
-*Zuletzt aktualisiert: 2026-06-15*
+**Zuletzt aktualisiert: 2026-07-14*
