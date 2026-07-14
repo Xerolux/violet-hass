@@ -17,7 +17,8 @@ dev = [
     "pytest>=8.3.0",
     "pytest-asyncio>=0.24.0",
     "pytest-cov>=6.0.0",
-    "pytest-homeassistant-custom-component>=0.13.337",
+    "pytest-homeassistant-custom-component>=0.13.1,<0.13.317; python_version < '3.14'",
+    "pytest-homeassistant-custom-component>=0.13.337; python_version >= '3.14'",
     "ruff>=0.9.0",
     "mypy>=1.0.0",
 ]
