@@ -448,6 +448,98 @@ for i in range(6):
     )
 
 # =============================================================================
+# LOCAL LSI CALCULATOR INPUTS
+# =============================================================================
+
+LSI_INPUT_DEFINITIONS = [
+    {
+        "key": "lsi_ph",
+        "name": "LSI pH Value",
+        "translation_key": "lsi_ph",
+        "min_value": 0.0,
+        "max_value": 14.0,
+        "step": 0.01,
+        "default_value": None,
+        "icon": "mdi:ph",
+        "unit_of_measurement": "pH",
+        "device_class": NumberDeviceClass.PH,
+        "entity_category": EntityCategory.CONFIG,
+    },
+    {
+        "key": "lsi_temperature",
+        "name": "LSI Temperature",
+        "translation_key": "lsi_temperature",
+        "min_value": 0.0,
+        "max_value": 60.0,
+        "step": 0.1,
+        "default_value": None,
+        "icon": "mdi:thermometer-water",
+        "unit_of_measurement": "°C",
+        "device_class": None,
+        "entity_category": EntityCategory.CONFIG,
+    },
+    {
+        "key": "lsi_tds",
+        "name": "LSI TDS",
+        "translation_key": "lsi_tds",
+        "min_value": 1.0,
+        "max_value": 10000.0,
+        "step": 10.0,
+        "default_value": None,
+        "icon": "mdi:water-opacity",
+        "unit_of_measurement": "mg/l",
+        "device_class": None,
+        "entity_category": EntityCategory.CONFIG,
+    },
+    {
+        "key": "lsi_calcium",
+        "name": "LSI Calcium Hardness",
+        "translation_key": "lsi_calcium",
+        "min_value": 1.0,
+        "max_value": 2000.0,
+        "step": 1.0,
+        "default_value": None,
+        "icon": "mdi:water-hardness",
+        "unit_of_measurement": "mg/l",
+        "device_class": None,
+        "entity_category": EntityCategory.CONFIG,
+    },
+    {
+        "key": "lsi_alkalinity",
+        "name": "LSI Carbonate Alkalinity",
+        "translation_key": "lsi_alkalinity",
+        "min_value": 1.0,
+        "max_value": 500.0,
+        "step": 1.0,
+        "default_value": None,
+        "icon": "mdi:flask-outline",
+        "unit_of_measurement": "mg/l",
+        "device_class": None,
+        "entity_category": EntityCategory.CONFIG,
+    },
+]
+
+CSI_INPUT_DEFINITIONS = [
+    {
+        **definition,
+        "key": definition["key"].replace("lsi_", "csi_"),
+        "name": definition["name"].replace("LSI", "CSI"),
+        "translation_key": definition["translation_key"].replace("lsi_", "csi_"),
+    }
+    for definition in LSI_INPUT_DEFINITIONS
+]
+
+# Controller readings that can satisfy saturation-index inputs automatically.
+# Inputs without source fields must be provided manually before an LSI/CSI value is shown.
+SATURATION_INDEX_SOURCE_FIELDS = {
+    "ph": ("PH", "pH_value"),
+    "temperature_c": ("onewire1_value",),
+    "tds_mg_l": (),
+    "calcium_hardness_mg_l_as_caco3": (),
+    "carbonate_alkalinity_mg_l_as_caco3": (),
+}
+
+# =============================================================================
 # NUMBER ENTITIES (SETPOINTS)
 # =============================================================================
 

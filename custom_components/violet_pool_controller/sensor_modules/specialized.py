@@ -8,8 +8,8 @@
 from __future__ import annotations
 
 import logging
-import re
 import math
+import re
 from collections.abc import Mapping
 from typing import Any
 
@@ -20,9 +20,16 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity import EntityCategory
 
-from ..const import DIAGNOSTIC_PROBLEM_KEYS, DOSING_STATE_DESCRIPTIONS, OMNI_FAULTY_STATES
+from ..const import (
+    DIAGNOSTIC_PROBLEM_KEYS,
+    DOMAIN,
+    DOSING_STATE_DESCRIPTIONS,
+    OMNI_FAULTY_STATES,
+    SATURATION_INDEX_SOURCE_FIELDS,
+)
 from ..device import VioletPoolDataUpdateCoordinator
 from ..entity import VioletPoolControllerEntity
 from ..error_codes import get_error_info
@@ -464,7 +471,182 @@ class VioletFlowRateSensor(VioletPoolControllerEntity, SensorEntity):
         )
 
 
-class VioletLSISensor(VioletPoolControllerEntity, SensorEntity):
+def _as_optional_float(value: object) -> float | None:
+    """Convert a value to float while treating missing HA states as absent."""
+    if value in (None, "", "unknown", "unavailable", "N/A"):
+        return None
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return None
+
+
+def _interpret_saturation_index(value: float | None) -> tuple[str, str, bool]:
+    """Return interpretation, warning level, and warning flag for LSI/CSI values."""
+    if value is None:
+        return "unknown", "unknown", False
+    if value < -0.5:
+        return "strongly corrosive / aggressive", "warning", True
+    if value < 0:
+        return "slightly corrosive", "notice", False
+    if value <= 0.3:
+        return "balanced", "ok", False
+    if value <= 0.5:
+        return "slight scaling tendency", "notice", False
+    return "strong scaling tendency", "warning", True
+
+
+class VioletSaturationIndexSensor(VioletPoolControllerEntity, SensorEntity):
+    """Base sensor for calculating pool saturation indexes."""
+
+    def __init__(
+        self,
+        coordinator: VioletPoolDataUpdateCoordinator,
+        config_entry: ConfigEntry,
+        *,
+        key: str,
+        translation_key: str,
+        name: str,
+        store_key: str,
+        input_prefix: str,
+    ) -> None:
+        """Initialize the saturation index sensor."""
+        self.config_entry = config_entry
+        self._store_key = store_key
+        self._input_prefix = input_prefix
+        description = SensorEntityDescription(
+            key=key,
+            translation_key=translation_key,
+            name=name,
+            icon="mdi:water-percent",
+            device_class=SensorDeviceClass.AQI,  # or None
+            state_class=SensorStateClass.MEASUREMENT,
+        )
+        super().__init__(coordinator, config_entry, description)
+
+    async def async_added_to_hass(self) -> None:
+        """Update immediately when local saturation index input numbers change."""
+        await super().async_added_to_hass()
+        self.async_on_remove(
+            async_dispatcher_connect(
+                self.hass,
+                f"{DOMAIN}_{self.config_entry.entry_id}_{self._store_key}_updated",
+                self.async_write_ha_state,
+            )
+        )
+
+    def _get_inputs(self) -> dict[str, float | None]:
+        """Return calculator inputs using controller values first, then manual values."""
+        inputs = self.hass.data.get(DOMAIN, {}).get(
+            f"{self.config_entry.entry_id}_{self._store_key}", {}
+        )
+        prefix = self._input_prefix
+        coordinator_data = self.coordinator.data or {}
+        manual_input_keys = {
+            "ph": f"{prefix}_ph",
+            "temperature_c": f"{prefix}_temperature",
+            "tds_mg_l": f"{prefix}_tds",
+            "calcium_hardness_mg_l_as_caco3": f"{prefix}_calcium",
+            "carbonate_alkalinity_mg_l_as_caco3": f"{prefix}_alkalinity",
+        }
+
+        values: dict[str, float | None] = {}
+        for input_name, source_fields in SATURATION_INDEX_SOURCE_FIELDS.items():
+            controller_value = next(
+                (
+                    parsed_value
+                    for source_field in source_fields
+                    if (parsed_value := _as_optional_float(coordinator_data.get(source_field)))
+                    is not None
+                ),
+                None,
+            )
+            values[input_name] = controller_value or _as_optional_float(
+                inputs.get(manual_input_keys[input_name])
+            )
+
+        return values
+
+    @staticmethod
+    def _missing_inputs(values: dict[str, float | None]) -> list[str]:
+        """Return names of inputs required before the result can be calculated."""
+        return [key for key, value in values.items() if value is None]
+
+    @property
+    def native_value(self) -> float | None:
+        """Calculate and return the saturation index value."""
+        if self.coordinator.data is None:
+            return None
+
+        try:
+            values = self._get_inputs()
+            if self._missing_inputs(values):
+                return None
+
+            ph = values["ph"]
+            temperature_c = values["temperature_c"]
+            tds = values["tds_mg_l"]
+            calcium_hardness = values["calcium_hardness_mg_l_as_caco3"]
+            carbonate_alkalinity = values["carbonate_alkalinity_mg_l_as_caco3"]
+
+            if (
+                ph is None
+                or temperature_c is None
+                or tds is None
+                or calcium_hardness is None
+                or carbonate_alkalinity is None
+                or min(tds, calcium_hardness, carbonate_alkalinity) <= 0
+            ):
+                return None
+
+            # Saturation index formula (LSI/CSI without cyanuric-acid correction):
+            # index = pH - pHs
+            # pHs = 9.3 + A + B - C - D
+            a = (math.log10(tds) - 1.0) / 10.0
+            b = -13.12 * math.log10(temperature_c + 273.15) + 34.55
+            c = math.log10(calcium_hardness) - 0.4
+            d = math.log10(carbonate_alkalinity)
+
+            phs = 9.3 + a + b - c - d
+            saturation_index = ph - phs
+
+            return round(saturation_index, 2)
+
+        except (ValueError, TypeError):
+            return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, str | float | bool]:
+        """Return the input values, interpretation and warning state."""
+        try:
+            values = self._get_inputs()
+            attributes: dict[str, str | float | bool] = {
+                key: value for key, value in values.items() if value is not None
+            }
+            missing_inputs = self._missing_inputs(values)
+        except (ValueError, TypeError):
+            attributes = {}
+            missing_inputs = []
+
+        value = self.native_value
+        interpretation, warning_level, warning = _interpret_saturation_index(value)
+        attributes.update(
+            {
+                "interpretation": interpretation,
+                "warning_level": warning_level,
+                "warning": warning,
+                "missing_inputs": ", ".join(missing_inputs),
+                "cyanuric_acid_correction": "not_applied",
+                "alkalinity_note": (
+                    "Use carbonate alkalinity / carbonate hardness for best results; "
+                    "total alkalinity can be misleading with softeners."
+                ),
+            }
+        )
+        return attributes
+
+
+class VioletLSISensor(VioletSaturationIndexSensor):
     """A specialized sensor for calculating the Langelier Saturation Index (LSI)."""
 
     def __init__(
@@ -472,60 +654,33 @@ class VioletLSISensor(VioletPoolControllerEntity, SensorEntity):
         coordinator: VioletPoolDataUpdateCoordinator,
         config_entry: ConfigEntry,
     ) -> None:
-        """Initializes the LSI sensor."""
-        description = SensorEntityDescription(
+        """Initialize the LSI sensor."""
+        super().__init__(
+            coordinator,
+            config_entry,
             key="lsi_calculator",
             translation_key="lsi_index",
             name="LSI Index",
-            icon="mdi:water-percent",
-            device_class=SensorDeviceClass.AQI, # or None
-            state_class=SensorStateClass.MEASUREMENT,
+            store_key="lsi_inputs",
+            input_prefix="lsi",
         )
-        super().__init__(coordinator, config_entry, description)
 
-    @property
-    def native_value(self) -> float | None:
-        """Calculate and return the LSI value."""
-        if self.coordinator.data is None:
-            return None
 
-        try:
-            ph_raw = self.coordinator.data.get("PH") or self.coordinator.data.get("pH_value")
-            temp_raw = self.coordinator.data.get("onewire1_value")  # Pool water temp
+class VioletCSISensor(VioletSaturationIndexSensor):
+    """A specialized sensor for calculating the Calcite Saturation Index (CSI)."""
 
-            if ph_raw is None or temp_raw is None:
-                return None
-                
-            ph = float(ph_raw)
-            temp_c = float(temp_raw)
-            
-            # Simplified LSI constants if not provided by user config yet
-            tds = 1000.0
-            calcium_hardness = 200.0
-            total_alkalinity = 100.0
-            
-            # LSI Formula
-            # LSI = pH - pHs
-            # pHs = (9.3 + A + B) - (C + D)
-            a = (math.log10(tds) - 1.0) / 10.0
-            b = -13.12 * math.log10(temp_c + 273.15) + 34.55
-            c = math.log10(calcium_hardness) - 0.4
-            d = math.log10(total_alkalinity)
-            
-            phs = (9.3 + a + b) - (c + d)
-            lsi = ph - phs
-            
-            return round(lsi, 2)
-            
-        except (ValueError, TypeError):
-            return None
-
-    @property
-    def extra_state_attributes(self) -> dict[str, str]:
-        """Return the constants used for LSI calculation."""
-        return {
-            "tds_ppm": "1000",
-            "calcium_hardness_ppm": "200",
-            "total_alkalinity_ppm": "100",
-            "note": "Constants are currently hardcoded. Future versions will allow configuration.",
-        }
+    def __init__(
+        self,
+        coordinator: VioletPoolDataUpdateCoordinator,
+        config_entry: ConfigEntry,
+    ) -> None:
+        """Initialize the CSI sensor."""
+        super().__init__(
+            coordinator,
+            config_entry,
+            key="csi_calculator",
+            translation_key="csi_index",
+            name="CSI Index",
+            store_key="csi_inputs",
+            input_prefix="csi",
+        )

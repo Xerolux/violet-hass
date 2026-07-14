@@ -1254,6 +1254,12 @@
           "error": "Error",
           "offline": "Offline"
         }
+      },
+      "lsi_index": {
+        "name": "LSI Result"
+      },
+      "csi_index": {
+        "name": "CSI Result"
       }
     },
     "binary_sensor": {
@@ -1554,6 +1560,36 @@
       },
       "flocculant_canister_volume": {
         "name": "Flocculant Canister Volume"
+      },
+      "lsi_ph": {
+        "name": "LSI pH Value"
+      },
+      "lsi_temperature": {
+        "name": "LSI Temperature"
+      },
+      "lsi_tds": {
+        "name": "LSI TDS"
+      },
+      "lsi_calcium": {
+        "name": "LSI Calcium Hardness"
+      },
+      "lsi_alkalinity": {
+        "name": "LSI Carbonate Alkalinity"
+      },
+      "csi_ph": {
+        "name": "CSI pH Value"
+      },
+      "csi_temperature": {
+        "name": "CSI Temperature"
+      },
+      "csi_tds": {
+        "name": "CSI TDS"
+      },
+      "csi_calcium": {
+        "name": "CSI Calcium Hardness"
+      },
+      "csi_alkalinity": {
+        "name": "CSI Carbonate Alkalinity"
       }
     },
     "select": {

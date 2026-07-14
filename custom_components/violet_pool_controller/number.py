@@ -12,6 +12,7 @@ import logging
 from typing import cast
 
 from homeassistant.components.number import NumberEntity, NumberEntityDescription
+from homeassistant.helpers.restore_state import RestoreEntity
 
 try:
     from homeassistant.components.number import NumberMode
@@ -21,11 +22,18 @@ except ImportError:
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from violet_poolcontroller_api.api import VioletPoolAPIError
 from violet_poolcontroller_api.utils_sanitizer import InputSanitizer
 
-from .const import CONF_ACTIVE_FEATURES, DOMAIN, SETPOINT_DEFINITIONS
+from .const import (
+    CONF_ACTIVE_FEATURES,
+    CSI_INPUT_DEFINITIONS,
+    DOMAIN,
+    LSI_INPUT_DEFINITIONS,
+    SETPOINT_DEFINITIONS,
+)
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity
 
@@ -390,6 +398,86 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
             ) from err
 
 
+class VioletSaturationIndexInputNumber(VioletPoolControllerEntity, NumberEntity, RestoreEntity):
+    """Local number entity used as an input for saturation index calculators."""
+
+    entity_description: NumberEntityDescription
+
+    def __init__(
+        self,
+        coordinator: VioletPoolDataUpdateCoordinator,
+        config_entry: ConfigEntry,
+        description: NumberEntityDescription,
+        input_config: dict,
+    ) -> None:
+        """Initialize the local saturation index input number."""
+        super().__init__(coordinator, config_entry, description)
+        self._input_key = str(input_config["key"])
+        self._store_key = str(input_config.get("store_key", "lsi_inputs"))
+        default_value = input_config.get("default_value")
+        self._default_value = float(default_value) if default_value is not None else None
+        self._attr_native_min_value = input_config["min_value"]
+        self._attr_native_max_value = input_config["max_value"]
+        self._attr_native_step = input_config["step"]
+        self._attr_entity_category = input_config.get("entity_category")
+        self._value: float | None = None
+
+    async def async_added_to_hass(self) -> None:
+        """Restore the last input value and publish it to the calculator value store."""
+        await super().async_added_to_hass()
+        last_state = await self.async_get_last_state()
+        if last_state is not None and last_state.state not in {"unknown", "unavailable"}:
+            try:
+                self._value = float(last_state.state)
+            except (ValueError, TypeError):
+                self._value = None
+        if self._value is None:
+            self._value = self._default_value
+        self._update_saturation_index_store(self._value)
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the current local input value."""
+        return self._value
+
+    async def async_set_native_value(self, value: float) -> None:
+        """Set the local input value without writing to the controller API."""
+        try:
+            new_value = float(value)
+        except (ValueError, TypeError) as err:
+            raise HomeAssistantError(
+                translation_key="invalid_value",
+                translation_domain=DOMAIN,
+                translation_placeholders={"detail": str(err)},
+            ) from err
+
+        if new_value < self._attr_native_min_value or new_value > self._attr_native_max_value:
+            raise HomeAssistantError(
+                translation_key="value_out_of_range",
+                translation_domain=DOMAIN,
+                translation_placeholders={
+                    "value": str(new_value),
+                    "min": str(self._attr_native_min_value),
+                    "max": str(self._attr_native_max_value),
+                },
+            )
+
+        self._value = new_value
+        self._update_saturation_index_store(new_value)
+        self.async_write_ha_state()
+
+    def _update_saturation_index_store(self, value: float | None) -> None:
+        """Store the input value in hass.data for the matching result sensor."""
+        domain_data = self.hass.data.setdefault(DOMAIN, {})
+        entry_store = domain_data.setdefault(f"{self.config_entry.entry_id}_{self._store_key}", {})
+        entry_store[self._input_key] = value
+        if hasattr(self, "hass"):
+            async_dispatcher_send(
+                self.hass,
+                f"{DOMAIN}_{self.config_entry.entry_id}_{self._store_key}_updated",
+            )
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: ConfigEntry,
@@ -426,6 +514,38 @@ async def async_setup_entry(
         return
 
     entities: list[NumberEntity] = []
+
+    if "ph_control" in active_features:
+        for store_key, input_definitions in (
+            ("lsi_inputs", LSI_INPUT_DEFINITIONS),
+            ("csi_inputs", CSI_INPUT_DEFINITIONS),
+        ):
+            input_store = hass.data.setdefault(DOMAIN, {}).setdefault(
+                f"{config_entry.entry_id}_{store_key}", {}
+            )
+            for input_config in input_definitions:
+                input_config = {**input_config, "store_key": store_key}
+                input_store.setdefault(str(input_config["key"]), input_config.get("default_value"))
+                description = NumberEntityDescription(
+                    key=str(input_config["key"]),
+                    name=str(input_config["name"]),
+                    icon=input_config.get("icon"),  # type: ignore[arg-type]
+                    native_unit_of_measurement=(
+                        input_config.get("unit_of_measurement")
+                    ),  # type: ignore[arg-type]
+                    device_class=input_config.get("device_class"),  # type: ignore[arg-type]
+                    entity_category=input_config.get("entity_category"),  # type: ignore[arg-type]
+                    translation_key=cast(str | None, input_config.get("translation_key")),
+                    mode=cast(
+                        "NumberMode | None",
+                        NumberMode.BOX if NumberMode is not None else "box",
+                    ),
+                )
+                entities.append(
+                    VioletSaturationIndexInputNumber(
+                        coordinator, config_entry, description, input_config
+                    )
+                )
 
     for setpoint_config in SETPOINT_DEFINITIONS:
         setpoint_name = str(setpoint_config["name"])
