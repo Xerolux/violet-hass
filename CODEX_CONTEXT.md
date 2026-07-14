@@ -34,7 +34,7 @@ convenience.
 These values were verified against code/config files, not just docs:
 
 - Home Assistant domain: `violet_pool_controller`.
-- Integration version: `2.2.3-beta.1` in `manifest.json`, `const.py`, and root `pyproject.toml`.
+- Integration version: `2.3.0-beta.1` in `manifest.json`, `const.py`, and root `pyproject.toml`.
 - API package version: `0.0.35`, defined in the
   [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository.
 - HACS minimum Home Assistant version: `2026.5.0` in `hacs.json`.
@@ -350,7 +350,7 @@ Version consistency matters across:
 - Some docs mention old test counts such as `53+`; actual test inventory is larger.
 - `docs/API_PACKAGE_CONTRACT.md` may reference old exact pinning; live
   `requirements.txt` currently uses `violet-poolController-api>=0.0.35`.
-- Wiki pages may mention beta versions while manifest is `2.2.3-beta.1`.
+- Wiki pages may mention beta versions while manifest is `2.3.0-beta.1`.
 - The API package now lives in its own repository
   ([`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api));
   the former local `violet_poolcontroller_api/` directory has been removed from this repo.
