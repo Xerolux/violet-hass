@@ -175,6 +175,62 @@ class VioletPoolControllerUpdateEntity(_VioletCoordinatorEntity, UpdateEntity):
         """
         return self._update_in_progress
 
+    async def _poll_update_state(self) -> None:
+        """Poll the controller for live update status until STANDBY or timeout.
+
+        Runs as a background task after async_install or after startup detection.
+        Updates _update_in_progress, _update_progress, and _update_status_text
+        and writes HA state on each iteration. Resilient to transient errors.
+        """
+        interval = self._UPDATE_POLL_INTERVAL
+        elapsed = 0
+
+        while elapsed <= self._UPDATE_MAX_LIFETIME:
+            try:
+                state = await self.coordinator.device.api.get_update_state()
+            except asyncio.CancelledError:
+                raise
+            except Exception as err:  # noqa: BLE001
+                # Controller is briefly unreachable during its restart — keep polling.
+                _LOGGER.debug(
+                    "Transient error polling update state on %s: %s",
+                    self.coordinator.device.device_name,
+                    err,
+                )
+                await asyncio.sleep(interval)
+                elapsed += interval
+                continue
+
+            normalized = (state or "").strip()
+            if normalized.upper() == "STANDBY":
+                self._update_in_progress = False
+                self._update_progress = None
+                self._update_status_text = None
+                self.async_write_ha_state()
+                await self.coordinator.async_request_refresh()
+                return
+
+            self._update_in_progress = True
+            self._update_progress = _parse_update_progress(normalized)
+            self._update_status_text = normalized
+            self.async_write_ha_state()
+
+            await asyncio.sleep(interval)
+            elapsed += interval
+
+        # Safety net: exceeded max lifetime without reaching STANDBY.
+        _LOGGER.error(
+            "Firmware update on %s did not reach STANDBY within %d seconds; "
+            "aborting progress tracking",
+            self.coordinator.device.device_name,
+            self._UPDATE_MAX_LIFETIME,
+        )
+        self._update_in_progress = False
+        self._update_progress = None
+        self._update_status_text = None
+        self.async_write_ha_state()
+        await self.coordinator.async_request_refresh()
+
     async def async_release_notes(self) -> str | None:
         """Fetch and return HTML release notes from the controller."""
         try:
@@ -191,8 +247,33 @@ class VioletPoolControllerUpdateEntity(_VioletCoordinatorEntity, UpdateEntity):
 
         The controller downloads and installs the update via
         GET /initUpdate and then restarts (~30 seconds offline).
+        Refuses to start a second install while one is already running.
         """
+        # Guard 1: already tracking a local install.
+        if self._update_in_progress:
+            raise HomeAssistantError(
+                "Update läuft bereits auf der Steuerung"
+            )
+
         try:
+            # Guard 2: an update may have been started externally (another client,
+            # a previous crashed task). Probe the controller before triggering.
+            current_state = await self.coordinator.device.api.get_update_state()
+            if (current_state or "").strip().upper() != "STANDBY":
+                _LOGGER.warning(
+                    "Update on %s already in progress (state=%s); starting progress tracking",
+                    self.coordinator.device.device_name,
+                    current_state,
+                )
+                self._update_in_progress = True
+                self._update_status_text = (current_state or "").strip()
+                self._update_progress = _parse_update_progress(self._update_status_text or "")
+                self.async_write_ha_state()
+                self._update_task = asyncio.create_task(self._poll_update_state())
+                raise HomeAssistantError(
+                    "Update läuft bereits auf der Steuerung"
+                )
+
             _LOGGER.info(
                 "Triggering firmware update on %s",
                 self.coordinator.device.device_name,
@@ -208,8 +289,16 @@ class VioletPoolControllerUpdateEntity(_VioletCoordinatorEntity, UpdateEntity):
                 self.coordinator.device.device_name,
             )
 
+            self._update_in_progress = True
+            self._update_status_text = "initiiert"
+            self._update_progress = None
+            self.async_write_ha_state()
+            self._update_task = asyncio.create_task(self._poll_update_state())
+
             await self.coordinator.async_request_refresh()
 
+        except HomeAssistantError:
+            raise
         except Exception as err:
             _LOGGER.error("Failed to initiate firmware update: %s", err)
             raise HomeAssistantError(f"Firmware update failed: {err}") from err
