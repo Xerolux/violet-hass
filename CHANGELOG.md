@@ -2,6 +2,12 @@
 
 > **Language Note:** This changelog is available in German. For English release notes, see the GitHub releases page.
 
+## [Unreleased]
+
+### ✨ Neue Funktionen
+
+- **Live-Status beim Firmware-Update** - Der "Aktualisieren"-Button wird während des 2–3 minütigen Updates sofort deaktiviert und zeigt den Live-Fortschritt der Steuerung an (via `getUpdateState`). Mehrfaches Klicken wird zuverlässig verhindert; der Status überlebt einen HA-Neustart oder Reload mitten im Update.
+
 ## ⚠️ BREAKING CHANGES - Version 2.0.0-beta.10
 
 ### 🚨 **SICHERHEIT: Automatische Deaktivierung kritischer Schalter**
