@@ -568,6 +568,40 @@ violet-hass/
 
 ## Development Best Practices
 
+### Release Workflow (PRs, not local merges)
+
+**Policy:** Every change that should appear in a release must land on `main`
+via a **GitHub Pull Request**, not a local `git merge --no-ff` and push.
+
+**Why:** The release workflow (`/.github/workflows/release.yml`) uses
+GitHub's `generate_release_notes: true`, which builds the release body from
+**merged PRs** (with `@author` attribution). Local merge commits without a
+PR number are invisible to that generator, so the resulting release notes
+silently omit the work. This happened on v2.3.1: the entire session
+(server-load reduction, repo cleanup, API migration) was merged locally and
+showed up as "no changes" — only an old PR from the previous beta cycle
+appeared.
+
+**Procedure for any change destined for a release:**
+
+1. Branch off `main` (`feat/...`, `fix/...`, `chore/...`, `docs/...`).
+2. Commit your work in small, reviewable units.
+3. Open a PR: `gh pr create --base main --head <branch> --title "<conventional commit>" --body "<description>"`.
+4. Let CI (validate.yml) run green; merge the PR via the GitHub UI or
+   `gh pr merge --squash`/`--merge`.
+5. Only then is the change eligible for the next release tag.
+
+**Direct `git merge` + `git push origin main` is reserved for** trivial doc
+fixes that are explicitly *not* meant to show up in release notes (typo
+fixes, internal-agent memory files, etc.). When in doubt, use a PR.
+
+**Versioning & release tagging** is then driven by the maintainer: bump
+`manifest.json` / `const.py` / `pyproject.toml` / `.version` / `CLAUDE.md`
+consistently (the CI's `Compare all version sources` step enforces this),
+push to `main`, then `git tag -a vX.Y.Z` and `git push origin vX.Y.Z`. The
+`release.yml` workflow builds the ZIP and publishes the GitHub release with
+auto-generated notes from the merged PRs.
+
 ### Dependency Management
 
 **pytest-homeassistant-custom-component**
