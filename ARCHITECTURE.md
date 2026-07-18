@@ -41,7 +41,6 @@ violet-hass/
 ├── ARCHITECTURE.md                     # This file
 ├── CONTRIBUTING.md                     # Contribution guidelines
 ├── README.md                           # Project overview
-├── BACKLOG_PROGRESS.md                 # Implementation progress
 └── [CI/CD, config files]
 ```
 

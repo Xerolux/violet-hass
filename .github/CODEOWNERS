@@ -1,14 +1,52 @@
 # GitHub CODEOWNERS file
-# Auto-request reviews from code owners
+# Auto-request reviews from code owners.
+#
+# This is the canonical CODEOWNERS location GitHub reads. The previous
+# root-level CODEOWNERS duplicate was removed during repo cleanup; all rules
+# are consolidated here. Single-maintainer project: every path -> @Xerolux.
 
-# Integration and API package ownership
-* @xerolux
+# Global catch-all
+* @Xerolux
 
-# Critical security files
-SECURITY.md @xerolux
-.github/workflows/ @xerolux
+# Critical security / CI files
+SECURITY.md @Xerolux
+.github/workflows/ @Xerolux
 
-# Configuration and CI/CD
-hacs.json @xerolux
-manifest.json @xerolux
-requirements.txt @xerolux
+# Project metadata & dependencies
+hacs.json @Xerolux
+manifest.json @Xerolux
+requirements.txt @Xerolux
+requirements-dev.txt @Xerolux
+pyproject.toml @Xerolux
+
+# Documentation
+*.md @Xerolux
+docs/** @Xerolux
+
+# Core integration
+custom_components/violet_pool_controller/__init__.py @Xerolux
+custom_components/violet_pool_controller/manifest.json @Xerolux
+custom_components/violet_pool_controller/const.py @Xerolux
+custom_components/violet_pool_controller/device.py @Xerolux
+custom_components/violet_pool_controller/error_handler.py @Xerolux
+
+# Platform implementations
+custom_components/violet_pool_controller/sensor.py @Xerolux
+custom_components/violet_pool_controller/switch.py @Xerolux
+custom_components/violet_pool_controller/binary_sensor.py @Xerolux
+custom_components/violet_pool_controller/climate.py @Xerolux
+custom_components/violet_pool_controller/cover.py @Xerolux
+custom_components/violet_pool_controller/number.py @Xerolux
+custom_components/violet_pool_controller/select.py @Xerolux
+
+# Configuration and setup
+custom_components/violet_pool_controller/config_flow.py @Xerolux
+custom_components/violet_pool_controller/config_flow_utils.py @Xerolux
+custom_components/violet_pool_controller/services.yaml @Xerolux
+custom_components/violet_pool_controller/services.py @Xerolux
+
+# Translations
+custom_components/violet_pool_controller/translations/** @Xerolux
+
+# Tests
+tests/** @Xerolux
