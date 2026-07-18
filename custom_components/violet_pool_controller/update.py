@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import TYPE_CHECKING, Any
 
@@ -57,12 +58,20 @@ async def async_setup_entry(
 class VioletPoolControllerUpdateEntity(_VioletCoordinatorEntity, UpdateEntity):
     """Violet Pool Controller firmware update entity."""
 
-    _attr_supported_features = UpdateEntityFeature.INSTALL | UpdateEntityFeature.RELEASE_NOTES
+    _attr_supported_features = (
+        UpdateEntityFeature.INSTALL
+        | UpdateEntityFeature.RELEASE_NOTES
+        | UpdateEntityFeature.PROGRESS
+    )
     _attr_icon = "mdi:update"
     _attr_device_class = UpdateDeviceClass.FIRMWARE
     # Show the update entity in the main device view instead of hiding it under
     # the "Configuration" section, so users can actually find it.
     _attr_entity_category = None
+    # Update-state polling cadence (seconds) and maximum task lifetime before
+    # the safety net aborts. Exposed as class constants so tests can shrink them.
+    _UPDATE_POLL_INTERVAL = 5
+    _UPDATE_MAX_LIFETIME = 600  # 10 minutes
 
     def __init__(
         self,
@@ -76,6 +85,11 @@ class VioletPoolControllerUpdateEntity(_VioletCoordinatorEntity, UpdateEntity):
         self._attr_has_entity_name = True
         self._attr_name = "System Update"
         self._release_notes_cache: str = ""
+        # Live update state — driven by the polling task in _poll_update_state.
+        self._update_in_progress: bool = False
+        self._update_progress: int | None = None
+        self._update_status_text: str | None = None
+        self._update_task: asyncio.Task[None] | None = None
 
     @property
     def device_info(self) -> DeviceInfo:
