@@ -62,3 +62,33 @@ def test_update_entity_firmware_device_class() -> None:
     entity = VioletPoolControllerUpdateEntity(coordinator, _make_config_entry())
 
     assert entity.device_class == "firmware"
+
+
+def test_in_progress_reflects_local_flag() -> None:
+    """in_progress tracks _update_in_progress, not coordinator data."""
+    coordinator = _make_coordinator({"SYSTEM_swversion": "1.2.0"})
+    entity = VioletPoolControllerUpdateEntity(coordinator, _make_config_entry())
+
+    # Default: not in progress.
+    assert entity.in_progress is False
+
+    # Set the local flag — even with stale coordinator data, in_progress follows it.
+    entity._update_in_progress = True
+    assert entity.in_progress is True
+
+
+def test_release_summary_shows_live_status_while_updating() -> None:
+    """release_summary returns the live status while an update is running."""
+    coordinator = _make_coordinator(
+        {"SYSTEM_swversion": "1.1.9", "SYSTEM_availableversion": "1.2.0"}
+    )
+    entity = VioletPoolControllerUpdateEntity(coordinator, _make_config_entry())
+
+    # Idle: shows the normal update_description (no "läuft" marker).
+    idle_summary = entity.release_summary
+    assert idle_summary is None or "läuft" not in (idle_summary or "")
+
+    # While updating: status text takes precedence.
+    entity._update_in_progress = True
+    entity._update_status_text = "downloading package (42%)"
+    assert entity.release_summary == "Update läuft: downloading package (42%)"

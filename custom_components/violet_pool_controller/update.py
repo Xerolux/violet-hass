@@ -135,7 +135,14 @@ class VioletPoolControllerUpdateEntity(_VioletCoordinatorEntity, UpdateEntity):
 
     @property
     def release_summary(self) -> str | None:
-        """Return brief update status (release notes are in async_release_notes)."""
+        """Return brief update status.
+
+        While a firmware update is in progress, return the live status text
+        from the controller. Otherwise return the update description (release
+        notes are fetched on demand in async_release_notes).
+        """
+        if self._update_in_progress and self._update_status_text:
+            return f"Update läuft: {self._update_status_text}"
         if not self.coordinator.data:
             return None
         info = parse_firmware_info(self.coordinator.data)
@@ -143,10 +150,12 @@ class VioletPoolControllerUpdateEntity(_VioletCoordinatorEntity, UpdateEntity):
 
     @property
     def in_progress(self) -> bool:
-        """Return True while an update is being installed."""
-        if not self.coordinator.data:
-            return False
-        return bool(self.coordinator.data.get("SYSTEM_UPDATE_IN_PROGRESS", False))
+        """Return True while a firmware update is being installed.
+
+        Driven by the entity-local _update_in_progress flag, which is set by
+        async_install and refreshed by the _poll_update_state task.
+        """
+        return self._update_in_progress
 
     async def async_release_notes(self) -> str | None:
         """Fetch and return HTML release notes from the controller."""
