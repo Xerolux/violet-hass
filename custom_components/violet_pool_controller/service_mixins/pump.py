@@ -8,7 +8,6 @@ from typing import Any
 from homeassistant.core import ServiceCall
 from homeassistant.exceptions import HomeAssistantError
 from violet_poolcontroller_api.api import VioletPoolAPIError
-from violet_poolcontroller_api.utils_sanitizer import InputSanitizer
 
 from ..const import (
     ACTION_AUTO,
@@ -19,6 +18,7 @@ from ..http_control import VioletControlClient
 from ..service_helpers import (
     DEFAULT_SAFETY_INTERVAL,
 )
+from ._validation import _validate_duration_seconds, _validate_speed
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -68,8 +68,8 @@ class PumpServiceHandlersMixin:
         speed_raw = call.data.get("speed", 2)
         duration_raw = call.data.get("duration", 0)
 
-        speed = InputSanitizer.validate_speed(speed_raw, min_speed=1, max_speed=3)
-        duration = InputSanitizer.validate_duration(duration_raw, min_sec=0, max_sec=86400)
+        speed = _validate_speed(speed_raw, min_speed=1, max_speed=3, default=2)
+        duration = _validate_duration_seconds(duration_raw, minimum=0, maximum=86400)
 
         _LOGGER.debug(
             "Pump control: action=%s, speed=%d (raw: %s), duration=%d (raw: %s)",

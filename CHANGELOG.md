@@ -8,6 +8,10 @@
 
 - **Reduzierte Server-Last beim Firmware-Update-Check** - Die Integration fragt `SYSTEM_updateavailable` (löste bisher alle 10 Sekunden einen Live-Server-Check aus, Wert wurde nicht verwendet) gar nicht mehr ab und holt `SYSTEM_availableversion` nur noch stündlich statt alle 10 Sekunden. Die Update-Verfügbarkeit wird weiterhin zuverlässig über Versionsvergleich ermittelt. Entlastet das Violet-Backend bei vielen Geräten deutlich.
 
+### 📦 Dependencies
+
+- **API-Client auf v0.0.36 angehoben** - `violet-poolController-api>=0.0.36` (war `>=0.0.35`). Die neue API-Version entfernt die fehlerhaften Duplikate `InputSanitizer.validate_speed` / `InputSanitizer.validate_duration` (clampeden still statt zu validieren). Die Integration nutzt jetzt die kanonische Modulfunktion `validate_duration` und eine eigene kleine `_validate_speed`-Hilfe. Ungültige Service-Eingaben (z.B. Duration außerhalb des erlaubten Bereichs) erzeugen nun eine saubere Home-Assistant-Fehlermeldung statt still korrigiert zu werden.
+
 ### 🧹 Repository-Aufräum
 
 - **Verwaiste Dateien entfernt** - `BACKLOG_PROGRESS.md` (abgeschlossene Phase-1+2-Tracker), `CODEX_CONTEXT.md` (Agent-Memory eines nicht mehr genutzten Tools), `PHPBB_COMPLETE_CHANGELOG.txt` (statisches Forum-Artifact), `Dockerfile.test` (referenzierte ein nicht mehr existierendes Verzeichnis und war damit kaputt), `scripts/start-docker-test.ps1` (verwaist, Windows-only, hing von ignorierten Dateien ab) sowie 10 ungenutzte Screenshots wurden gelöscht.

@@ -8,7 +8,6 @@ from typing import Any, cast
 from homeassistant.core import ServiceCall
 from homeassistant.exceptions import HomeAssistantError
 from violet_poolcontroller_api.api import VioletPoolAPIError
-from violet_poolcontroller_api.utils_sanitizer import InputSanitizer
 
 from ..const import (
     ACTION_OFF,
@@ -20,6 +19,7 @@ from ..service_helpers import (
     DOSING_API_MAPPING,
     DOSING_TYPE_MAPPING,
 )
+from ._validation import _validate_duration_seconds
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ class DosingServiceHandlersMixin:
         action = call.data["action"]
 
         duration_raw = call.data.get("duration", 30)
-        duration = InputSanitizer.validate_duration(duration_raw, min_sec=5, max_sec=300)
+        duration = _validate_duration_seconds(duration_raw, minimum=5, maximum=300)
 
         safety_override = call.data.get("safety_override", False)
 
