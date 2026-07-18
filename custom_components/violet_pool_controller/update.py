@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
 import re
 from typing import TYPE_CHECKING, Any
@@ -230,6 +231,49 @@ class VioletPoolControllerUpdateEntity(_VioletCoordinatorEntity, UpdateEntity):
         self._update_status_text = None
         self.async_write_ha_state()
         await self.coordinator.async_request_refresh()
+
+    async def async_added_to_hass(self) -> None:
+        """Run when entity is added to HA.
+
+        Probe the controller once: if an update is already in progress (e.g.
+        after an HA restart or integration reload mid-update), start polling.
+        """
+        await super().async_added_to_hass()
+        try:
+            state = await self.coordinator.device.api.get_update_state()
+        except asyncio.CancelledError:
+            raise
+        except Exception as err:  # noqa: BLE001
+            _LOGGER.debug(
+                "Could not probe update state at startup for %s: %s",
+                self.coordinator.device.device_name,
+                err,
+            )
+            return
+
+        normalized = (state or "").strip()
+        if normalized.upper() != "STANDBY":
+            _LOGGER.info(
+                "Detected in-progress firmware update on %s at startup (state=%s); "
+                "resuming progress tracking",
+                self.coordinator.device.device_name,
+                normalized,
+            )
+            self._update_in_progress = True
+            self._update_status_text = normalized
+            self._update_progress = _parse_update_progress(normalized)
+            self.async_write_ha_state()
+            self._update_task = asyncio.create_task(self._poll_update_state())
+
+    async def async_will_remove_from_hass(self) -> None:
+        """Run when entity is removed from HA. Cancel any running polling task."""
+        task = self._update_task
+        if task is not None and not task.done():
+            task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await task
+        self._update_in_progress = False
+        await super().async_will_remove_from_hass()
 
     async def async_release_notes(self) -> str | None:
         """Fetch and return HTML release notes from the controller."""

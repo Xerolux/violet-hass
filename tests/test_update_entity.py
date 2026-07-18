@@ -353,3 +353,127 @@ async def test_async_install_starts_polling_on_success(monkeypatch: pytest.Monke
     # Let the task run to STANDBY and finish.
     await entity._update_task
     assert entity._update_in_progress is False
+
+
+async def _run_added_to_hass(entity: VioletPoolControllerUpdateEntity) -> None:
+    """Call async_added_to_hass while bypassing the CoordinatorEntity super() call.
+
+    CoordinatorEntity.async_added_to_hass requires a real hass runtime; the
+    bypass lets us exercise our override's startup-detection logic in isolation.
+    """
+    from custom_components.violet_pool_controller import update as update_mod
+
+    captured = {}
+
+    async def fake_super_added(self: object) -> None:
+        captured["called"] = True
+
+    monkey_target = update_mod.CoordinatorEntity
+    original = monkey_target.async_added_to_hass
+    monkey_target.async_added_to_hass = fake_super_added  # type: ignore[assignment]
+    try:
+        await entity.async_added_to_hass()
+    finally:
+        monkey_target.async_added_to_hass = original  # type: ignore[assignment]
+    assert captured.get("called") is True
+
+
+@pytest.mark.asyncio
+async def test_startup_detects_running_update() -> None:
+    """async_added_to_hass starts polling if the controller is mid-update."""
+    coordinator = _make_coordinator({"SYSTEM_swversion": "1.1.9"})
+
+    async def fake_get_update_state() -> str:
+        return "installing modules (60%)"
+
+    coordinator.device.api.get_update_state = fake_get_update_state
+    coordinator.async_request_refresh = AsyncMock()
+
+    entity = VioletPoolControllerUpdateEntity(coordinator, _make_config_entry())
+    _stub_entity_for_async(entity)
+
+    await _run_added_to_hass(entity)
+
+    assert entity._update_in_progress is True
+    assert entity._update_status_text == "installing modules (60%)"
+    assert entity._update_progress == 60
+    assert entity._update_task is not None
+    entity._update_task.cancel()
+    with contextlib.suppress(asyncio.CancelledError):
+        await entity._update_task
+
+
+@pytest.mark.asyncio
+async def test_startup_idle_when_standby() -> None:
+    """async_added_to_hass does not start a task when the controller is idle."""
+    coordinator = _make_coordinator({"SYSTEM_swversion": "1.1.9"})
+
+    async def fake_get_update_state() -> str:
+        return "STANDBY"
+
+    coordinator.device.api.get_update_state = fake_get_update_state
+
+    entity = VioletPoolControllerUpdateEntity(coordinator, _make_config_entry())
+    _stub_entity_for_async(entity)
+
+    await _run_added_to_hass(entity)
+
+    assert entity._update_in_progress is False
+    assert entity._update_task is None
+
+
+@pytest.mark.asyncio
+async def test_startup_probes_silently_fail() -> None:
+    """A probe error at startup does not break entity setup."""
+    coordinator = _make_coordinator({"SYSTEM_swversion": "1.1.9"})
+
+    async def fake_get_update_state() -> str:
+        raise VioletPoolAPIError("controller unreachable at startup")
+
+    coordinator.device.api.get_update_state = fake_get_update_state
+
+    entity = VioletPoolControllerUpdateEntity(coordinator, _make_config_entry())
+    _stub_entity_for_async(entity)
+
+    await _run_added_to_hass(entity)  # must not raise
+
+    assert entity._update_in_progress is False
+    assert entity._update_task is None
+
+
+@pytest.mark.asyncio
+async def test_will_remove_cancels_polling_task() -> None:
+    """async_will_remove_from_hass cancels a running polling task."""
+    coordinator = _make_coordinator({"SYSTEM_swversion": "1.1.9"})
+
+    async def fake_get_update_state() -> str:
+        await asyncio.sleep(30)  # never returns during the test
+        return "STANDBY"
+
+    coordinator.device.api.get_update_state = fake_get_update_state
+    coordinator.async_request_refresh = AsyncMock()
+
+    entity = VioletPoolControllerUpdateEntity(coordinator, _make_config_entry())
+    _stub_entity_for_async(entity)
+    entity._update_in_progress = True
+    entity._update_task = asyncio.create_task(entity._poll_update_state())
+
+    # Let the loop enter the first get_update_state call.
+    await asyncio.sleep(0)
+
+    # Bypass the CoordinatorEntity super() for the will-remove path too.
+    from custom_components.violet_pool_controller import update as update_mod
+
+    async def _noop_will_remove(self: object) -> None:
+        return None
+
+    original = update_mod.CoordinatorEntity.async_will_remove_from_hass
+    update_mod.CoordinatorEntity.async_will_remove_from_hass = _noop_will_remove  # type: ignore[assignment]
+    try:
+        await entity.async_will_remove_from_hass()
+    finally:
+        update_mod.CoordinatorEntity.async_will_remove_from_hass = original  # type: ignore[assignment]
+
+    assert entity._update_task is not None
+    assert entity._update_task.cancelled() is True
+    assert entity._update_in_progress is False
