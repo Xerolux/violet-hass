@@ -91,6 +91,12 @@ CONF_ALLOW_UNSAFE_SWITCHES = "allow_unsafe_switches"
 
 # Default Values
 DEFAULT_POLLING_INTERVAL = 10
+# How often (in poll cycles) to fetch SYSTEM_availableversion from the
+# controller. The controller refreshes this server-side value, and fetching it
+# every poll causes avoidable backend load (the controller otherwise only
+# checks for updates every ~12h or on manual invocation). At the default 10s
+# polling interval, 360 = once per hour.
+FIRMWARE_VERSION_REFRESH_POLLS = 360
 DEFAULT_TIMEOUT_DURATION = 10
 DEFAULT_RETRY_ATTEMPTS = 3
 DEFAULT_USE_SSL = False

@@ -70,6 +70,7 @@ from .const import (
     DEFAULT_USE_SSL,
     DEFAULT_VERIFY_SSL,
     DOMAIN,
+    FIRMWARE_VERSION_REFRESH_POLLS,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -103,6 +104,9 @@ class VioletPoolControllerDevice:
         self._consecutive_failures = 0
         self._max_consecutive_failures = 5
         self._update_counter = 0
+        # Poll-cycle counter for throttling SYSTEM_availableversion fetches
+        # (see _build_config_keys). Resets on every coordinator reload.
+        self._firmware_version_poll_counter: int = 0
         # Store poll snapshots as fixed-position tuples to reduce per-entry overhead.
         self._poll_history: collections.deque[tuple[datetime, int, float, tuple[Any, ...]]] = (
             collections.deque(maxlen=1000)
@@ -406,6 +410,38 @@ class VioletPoolControllerDevice:
 
         return cast(dict[str, Any], data)
 
+    def _build_config_keys(self) -> list[str]:
+        """Build the getConfig key list for the current poll cycle.
+
+        Always includes the setpoint keys and SYSTEM_swversion (the latter is a
+        local cached value used for device-registry resolution). SYSTEM_availableversion
+        is appended only on the first poll and then once every
+        FIRMWARE_VERSION_REFRESH_POLLS cycles, because fetching it triggers a
+        server-side refresh on the controller. SYSTEM_updateavailable is NEVER
+        requested: it forces a live backend check and its value is discarded —
+        the update-available decision is made by numeric version comparison in
+        update_helper.py.
+        """
+        keys = [
+            # Setpoints (controller exposes these via getConfig, not getReadings)
+            "HEATER_set_temp",
+            "SOLAR_maxtemp",
+            "DOSAGE_phminus_setpoint",
+            "DOSAGE_chlorine_setpoint_orp",
+            "DOSAGE_chlorine_lowerval_cl",
+            "DOSAGE_chlorine_use",
+            "DOSAGE_electrolysis_use",
+            "DOSAGE_phminus_use",
+            "DOSAGE_phplus_use",
+            "DOSAGE_floc_use",
+            # Firmware version (local cached value, cheap to read every poll)
+            "SYSTEM_swversion",
+        ]
+        if self._firmware_version_poll_counter % FIRMWARE_VERSION_REFRESH_POLLS == 0:
+            keys.append("SYSTEM_availableversion")
+        self._firmware_version_poll_counter += 1
+        return keys
+
     async def async_update(self) -> dict[str, Any]:
         """Fetch and return updated device data from the controller."""
         try:
@@ -462,25 +498,12 @@ class VioletPoolControllerDevice:
                     self._system_health = max(0.0, 100.0 - (self._consecutive_failures * 20.0))
                     return dict(self._data) if self._data else {}
 
-                # Fetch config-based setpoints and firmware update info NOT in getReadings
+                # Fetch config-based setpoints and firmware version. The list is
+                # built dynamically by _build_config_keys, which throttles
+                # SYSTEM_availableversion and omits SYSTEM_updateavailable entirely
+                # (both were causing avoidable backend server load).
                 try:
-                    config_keys = [
-                        # Setpoints
-                        "HEATER_set_temp",
-                        "SOLAR_maxtemp",
-                        "DOSAGE_phminus_setpoint",
-                        "DOSAGE_chlorine_setpoint_orp",
-                        "DOSAGE_chlorine_lowerval_cl",
-                        "DOSAGE_chlorine_use",
-                        "DOSAGE_electrolysis_use",
-                        "DOSAGE_phminus_use",
-                        "DOSAGE_phplus_use",
-                        "DOSAGE_floc_use",
-                        # Firmware version and update info (controller exposes via getConfig, not getReadings)
-                        "SYSTEM_swversion",
-                        "SYSTEM_availableversion",
-                        "SYSTEM_updateavailable",
-                    ]
+                    config_keys = self._build_config_keys()
                     config_data = await self.api.get_config(config_keys)
                     if isinstance(config_data, dict):
                         data.update(config_data)
