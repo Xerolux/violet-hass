@@ -2,7 +2,7 @@
 
 > **Language Note:** This changelog is available in German. For English release notes, see the GitHub releases page.
 
-## [Unreleased]
+## Version 2.3.0 (2026-07-18)
 
 ### ✨ Neue Funktionen
 
