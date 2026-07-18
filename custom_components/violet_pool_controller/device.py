@@ -103,6 +103,9 @@ class VioletPoolControllerDevice:
         self._consecutive_failures = 0
         self._max_consecutive_failures = 5
         self._update_counter = 0
+        # Poll-cycle counter for throttling SYSTEM_availableversion fetches
+        # (see _build_config_keys). Resets on every coordinator reload.
+        self._firmware_version_poll_counter: int = 0
         # Store poll snapshots as fixed-position tuples to reduce per-entry overhead.
         self._poll_history: collections.deque[tuple[datetime, int, float, tuple[Any, ...]]] = (
             collections.deque(maxlen=1000)
