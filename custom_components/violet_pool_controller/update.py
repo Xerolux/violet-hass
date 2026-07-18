@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.update import (
@@ -35,6 +36,23 @@ else:
     _VioletCoordinatorEntity = CoordinatorEntity
 
 _LOGGER = logging.getLogger(__name__)
+
+_PROGRESS_RE = re.compile(r"(\d+)\s*%")
+
+
+def _parse_update_progress(state: str) -> int | None:
+    """Extract a best-effort percentage from an update-state string.
+
+    The controller writes progress lines to /home/violet/log/update.log.
+    Returns an int in [0, 100] if a percentage is found, else None.
+    """
+    match = _PROGRESS_RE.search(state)
+    if not match:
+        return None
+    value = int(match.group(1))
+    if value > 100:
+        return 100
+    return value
 
 
 async def async_setup_entry(

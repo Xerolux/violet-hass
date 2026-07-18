@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 
 from custom_components.violet_pool_controller.update import (
     VioletPoolControllerUpdateEntity,
+    _parse_update_progress,
 )
 
 
@@ -92,3 +93,23 @@ def test_release_summary_shows_live_status_while_updating() -> None:
     entity._update_in_progress = True
     entity._update_status_text = "downloading package (42%)"
     assert entity.release_summary == "Update läuft: downloading package (42%)"
+
+
+def test_parse_update_progress_extracts_percentage() -> None:
+    """A percentage in parentheses is extracted."""
+    assert _parse_update_progress("downloading package (42%)") == 42
+
+
+def test_parse_update_progress_extracts_bare_percentage() -> None:
+    """A bare percentage token is extracted."""
+    assert _parse_update_progress("progress: 88%") == 88
+
+
+def test_parse_update_progress_no_percentage_returns_none() -> None:
+    """No percentage present returns None (best-effort)."""
+    assert _parse_update_progress("installing modules") is None
+
+
+def test_parse_update_progress_clamps_above_100() -> None:
+    """Values above 100 are clamped to 100."""
+    assert _parse_update_progress("done (150%)") == 100
