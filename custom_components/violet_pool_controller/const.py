@@ -63,7 +63,7 @@ DEVICE_PARAMETERS = _const_devices.DEVICE_PARAMETERS
 # =============================================================================
 
 DOMAIN = "violet_pool_controller"
-INTEGRATION_VERSION = "2.3.0"
+INTEGRATION_VERSION = "2.3.1"
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 
 # =============================================================================
@@ -137,7 +137,7 @@ DISINFECTION_METHODS = ["chlorine", "salt", "bromine", "active_oxygen", "uv", "o
 
 VERSION_INFO = {
     "version": INTEGRATION_VERSION,
-    "release_date": "2026-07-18",
+    "release_date": "2026-07-19",
     "major_features": [
         "Fixed state 2 mapping: Auto-Priority OFF is now correctly OFF (was ON)",
         "Fixed select mode mapping: all auto states map to AUTO mode",
