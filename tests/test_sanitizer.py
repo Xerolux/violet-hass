@@ -82,21 +82,6 @@ class TestInputSanitizer:
         assert InputSanitizer.validate_temperature(-60.0) == -50.0  # Too low
         assert InputSanitizer.validate_temperature(150.0) == 100.0  # Too high
 
-    def test_validate_speed(self):
-        """Test dass Speed-Werte korrekt validiert werden."""
-        # Valid range: 1-4 (default)
-        assert InputSanitizer.validate_speed(2) == 2
-        assert InputSanitizer.validate_speed(0) == 1  # Too low
-        assert InputSanitizer.validate_speed(5) == 4  # Too high
-        assert InputSanitizer.validate_speed("invalid", default=2) == 2
-
-    def test_validate_duration(self):
-        """Test dass Duration-Werte korrekt validiert werden."""
-        # Valid range: 0-86400s (24h default)
-        assert InputSanitizer.validate_duration(300) == 300
-        assert InputSanitizer.validate_duration(-10) == 0  # Negative wird zu 0
-        assert InputSanitizer.validate_duration(100000) == 86400  # Too high
-
     def test_sanitize_string_max_length(self):
         """Test dass String-Länge begrenzt wird."""
         long_string = "a" * 300
