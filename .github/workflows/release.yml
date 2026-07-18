@@ -42,8 +42,12 @@ jobs:
   quality:
     name: Release quality gate
     uses: ./.github/workflows/validate.yml
+    # The reusable validate.yml declares jobs that require contents: write
+    # (dev-release via softprops/action-gh-release). GitHub requires the
+    # caller to grant permissions at least as permissive as the callee, or
+    # the workflow fails with startup_failure before any job runs.
     permissions:
-      contents: read
+      contents: write
 
   publish:
     name: Publish release
