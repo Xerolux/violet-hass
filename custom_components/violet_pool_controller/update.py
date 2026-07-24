@@ -56,6 +56,38 @@ def _parse_update_progress(state: str) -> int | None:
     return value
 
 
+# Substrings (lowercased) that indicate an actively-running update log.
+# Stale completed logs ("Update complete.", "Rebooting.") are intentionally
+# absent so a leftover update.log is not mistaken for a running update.
+_ACTIVE_UPDATE_KEYWORDS = (
+    "download",
+    "install",
+    "extract",
+    "unpack",
+    "verify",
+    "flash",
+    "writing",
+    "updating",
+    "preparing",
+    "fetching",
+)
+
+
+def _looks_like_active_update(state: str) -> bool:
+    """Heuristic: does this update-state string indicate an active update?
+
+    Returns True when the state contains a progress percentage or a recognized
+    active-update keyword. Used to avoid mistaking a stale completed update log
+    (or any non-STANDBY idle response) for an in-progress update at startup.
+    """
+    if not state:
+        return False
+    if _parse_update_progress(state) is not None:
+        return True
+    lowered = state.lower()
+    return any(keyword in lowered for keyword in _ACTIVE_UPDATE_KEYWORDS)
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: ConfigEntry,
@@ -91,6 +123,10 @@ class VioletPoolControllerUpdateEntity(_VioletCoordinatorEntity, UpdateEntity):
     # the safety net aborts. Exposed as class constants so tests can shrink them.
     _UPDATE_POLL_INTERVAL = 5
     _UPDATE_MAX_LIFETIME = 600  # 10 minutes
+    # Abort progress tracking if the reported state is byte-identical for this
+    # many consecutive polls — a static state means the update log is either
+    # leftover from a previous run or the update is genuinely stuck.
+    _UPDATE_STALE_LIMIT = 12
 
     def __init__(
         self,
@@ -185,6 +221,8 @@ class VioletPoolControllerUpdateEntity(_VioletCoordinatorEntity, UpdateEntity):
         """
         interval = self._UPDATE_POLL_INTERVAL
         elapsed = 0
+        last_state: str | None = None
+        unchanged = 0
 
         while elapsed <= self._UPDATE_MAX_LIFETIME:
             try:
@@ -211,6 +249,31 @@ class VioletPoolControllerUpdateEntity(_VioletCoordinatorEntity, UpdateEntity):
                 await self.coordinator.async_request_refresh()
                 return
 
+            # Stale detection: a static, never-changing state means the update
+            # log is either leftover from a previous run or genuinely stuck.
+            # Stop tracking early instead of polling for the full lifetime.
+            if normalized == last_state:
+                unchanged += 1
+                if unchanged >= self._UPDATE_STALE_LIMIT:
+                    _LOGGER.info(
+                        "Update state on %s unchanged for %d polls (%ds); "
+                        "assuming stale or finished, stopping progress tracking "
+                        "(last state: %r)",
+                        self.coordinator.device.device_name,
+                        unchanged,
+                        unchanged * interval,
+                        (last_state or "")[:120],
+                    )
+                    self._update_in_progress = False
+                    self._update_progress = None
+                    self._update_status_text = None
+                    self.async_write_ha_state()
+                    await self.coordinator.async_request_refresh()
+                    return
+            else:
+                unchanged = 0
+
+            last_state = normalized
             self._update_in_progress = True
             self._update_progress = _parse_update_progress(normalized)
             self._update_status_text = normalized
@@ -220,11 +283,12 @@ class VioletPoolControllerUpdateEntity(_VioletCoordinatorEntity, UpdateEntity):
             elapsed += interval
 
         # Safety net: exceeded max lifetime without reaching STANDBY.
-        _LOGGER.error(
+        _LOGGER.warning(
             "Firmware update on %s did not reach STANDBY within %d seconds; "
-            "aborting progress tracking",
+            "aborting progress tracking (last state: %r)",
             self.coordinator.device.device_name,
             self._UPDATE_MAX_LIFETIME,
+            (last_state or "")[:120],
         )
         self._update_in_progress = False
         self._update_progress = None
@@ -252,18 +316,33 @@ class VioletPoolControllerUpdateEntity(_VioletCoordinatorEntity, UpdateEntity):
             return
 
         normalized = (state or "").strip()
-        if normalized.upper() != "STANDBY":
-            _LOGGER.info(
-                "Detected in-progress firmware update on %s at startup (state=%s); "
-                "resuming progress tracking",
+        if normalized.upper() == "STANDBY":
+            return
+
+        if not _looks_like_active_update(normalized):
+            # Non-STANDBY but no progress percentage or active keyword — most
+            # likely a stale log from a previous update (the controller did not
+            # clear /home/violet/log/update.log) or an unexpected idle response.
+            # Do NOT start 10 minutes of pointless polling.
+            _LOGGER.debug(
+                "Update state on %s is non-STANDBY (%s) but does not look like "
+                "an active update; treating as idle (likely a stale log)",
                 self.coordinator.device.device_name,
-                normalized,
+                normalized[:120],
             )
-            self._update_in_progress = True
-            self._update_status_text = normalized
-            self._update_progress = _parse_update_progress(normalized)
-            self.async_write_ha_state()
-            self._update_task = asyncio.create_task(self._poll_update_state())
+            return
+
+        _LOGGER.info(
+            "Detected in-progress firmware update on %s at startup (state=%s); "
+            "resuming progress tracking",
+            self.coordinator.device.device_name,
+            normalized,
+        )
+        self._update_in_progress = True
+        self._update_status_text = normalized
+        self._update_progress = _parse_update_progress(normalized)
+        self.async_write_ha_state()
+        self._update_task = asyncio.create_task(self._poll_update_state())
 
     async def async_will_remove_from_hass(self) -> None:
         """Run when entity is removed from HA. Cancel any running polling task."""
