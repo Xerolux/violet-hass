@@ -10,6 +10,7 @@ from violet_poolcontroller_api import VioletPoolAPIError
 
 from custom_components.violet_pool_controller.update import (
     VioletPoolControllerUpdateEntity,
+    _looks_like_active_update,
     _parse_update_progress,
 )
 
@@ -119,6 +120,26 @@ def test_parse_update_progress_no_percentage_returns_none() -> None:
 def test_parse_update_progress_clamps_above_100() -> None:
     """Values above 100 are clamped to 100."""
     assert _parse_update_progress("done (150%)") == 100
+
+
+def test_looks_like_active_update_detects_percentage() -> None:
+    """A percentage anywhere in the state signals an active update."""
+    assert _looks_like_active_update("downloading package (42%)") is True
+
+
+def test_looks_like_active_update_detects_keywords() -> None:
+    """Known active-update keywords signal an active update."""
+    assert _looks_like_active_update("Installing modules") is True
+    assert _looks_like_active_update("flashing firmware") is True
+    assert _looks_like_active_update("Verifying image") is True
+
+
+def test_looks_like_active_update_rejects_stale_logs() -> None:
+    """Stale completed logs and idle responses are not treated as active."""
+    assert _looks_like_active_update("Update complete. Rebooting.") is False
+    assert _looks_like_active_update("STANDBY") is False
+    assert _looks_like_active_update("") is False
+    assert _looks_like_active_update("OK") is False
 
 
 def _stub_entity_for_async(entity: VioletPoolControllerUpdateEntity) -> None:
@@ -439,6 +460,62 @@ async def test_startup_probes_silently_fail() -> None:
 
     assert entity._update_in_progress is False
     assert entity._update_task is None
+
+
+@pytest.mark.asyncio
+async def test_startup_ignores_stale_non_active_state() -> None:
+    """A stale non-STANDBY log at startup does not start progress tracking.
+
+    Regression guard: the controller returns leftover update.log content (not
+    'STANDBY') even though no update is running. This must not trigger 10
+    minutes of pointless polling.
+    """
+    coordinator = _make_coordinator({"SYSTEM_swversion": "1.1.9"})
+
+    async def fake_get_update_state() -> str:
+        return "Update complete. Rebooting."  # stale, no percentage/keyword
+
+    coordinator.device.api.get_update_state = fake_get_update_state
+
+    entity = VioletPoolControllerUpdateEntity(coordinator, _make_config_entry())
+    _stub_entity_for_async(entity)
+
+    await _run_added_to_hass(entity)
+
+    assert entity._update_in_progress is False
+    assert entity._update_task is None
+
+
+@pytest.mark.asyncio
+async def test_poll_aborts_on_unchanged_stale_state(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A never-changing non-STANDBY state is treated as stale and aborts early."""
+    coordinator = _make_coordinator({"SYSTEM_swversion": "1.1.9"})
+
+    async def fake_get_update_state() -> str:
+        return "Update complete. Rebooting."  # never STANDBY, never changes
+
+    coordinator.device.api.get_update_state = fake_get_update_state
+    coordinator.async_request_refresh = AsyncMock()
+
+    entity = VioletPoolControllerUpdateEntity(coordinator, _make_config_entry())
+    _stub_entity_for_async(entity)
+    entity._update_in_progress = True
+
+    async def fast_sleep(_seconds: float) -> None:
+        return None
+
+    import custom_components.violet_pool_controller.update as update_mod
+
+    monkeypatch.setattr(update_mod.asyncio, "sleep", fast_sleep)
+    # Shrink the stale limit so the test exits after a few iterations.
+    monkeypatch.setattr(entity, "_UPDATE_STALE_LIMIT", 3)
+
+    await entity._poll_update_state()
+
+    assert entity._update_in_progress is False  # reset by stale detection
+    assert entity._update_progress is None
+    assert entity._update_status_text is None
+    coordinator.async_request_refresh.assert_awaited()
 
 
 @pytest.mark.asyncio
