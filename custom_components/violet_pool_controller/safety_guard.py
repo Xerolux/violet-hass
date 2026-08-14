@@ -65,7 +65,7 @@ class _HassStorageBackend:
     def __init__(self, hass: HomeAssistant) -> None:
         from homeassistant.helpers.storage import Store
 
-        self._store = Store(hass, STORAGE_VERSION, STORAGE_KEY)
+        self._store: Store[dict[str, Any]] = Store(hass, STORAGE_VERSION, STORAGE_KEY)
 
     async def async_load(self) -> dict[str, Any]:
         data = await self._store.async_load()

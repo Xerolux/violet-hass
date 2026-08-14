@@ -50,6 +50,7 @@ from .config_flow_utils import (
 from .const import (
     AVAILABLE_FEATURES,
     CONF_ACTIVE_FEATURES,
+    CONF_ALLOW_UNSAFE_SWITCHES,
     CONF_API_URL,
     CONF_CONTROLLER_NAME,
     CONF_DEVICE_ID,
@@ -67,6 +68,7 @@ from .const import (
     CONF_USE_SSL,
     CONF_USERNAME,
     CONF_VERIFY_SSL,
+    DEFAULT_ALLOW_UNSAFE_SWITCHES,
     DEFAULT_CONTROLLER_NAME,
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_POOL_SIZE,
@@ -398,8 +400,6 @@ class ConfigFlow(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Handle reconfiguration of safety settings."""
-        from .const import CONF_ALLOW_UNSAFE_SWITCHES, DEFAULT_ALLOW_UNSAFE_SWITCHES
-
         reconfigure_entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
         if reconfigure_entry is None:
             return self.async_abort(reason="reconfigure_failed")
@@ -739,14 +739,6 @@ class ConfigFlow(
                 active.add(feature_id)
 
         return sorted(active)
-
-    def _extract_active_features(self, ui: dict) -> list:
-        """Extract active features from legacy user input."""
-        return [
-            feature["id"]
-            for feature in AVAILABLE_FEATURES
-            if ui.get(f"enable_{feature['id']}", feature["default"])
-        ]
 
     def _generate_entry_title(self) -> str:
         """Generate the title for the config entry."""

@@ -530,9 +530,9 @@ async def async_setup_entry(
                     key=str(input_config["key"]),
                     name=str(input_config["name"]),
                     icon=input_config.get("icon"),  # type: ignore[arg-type]
-                    native_unit_of_measurement=(
-                        input_config.get("unit_of_measurement")
-                    ),  # type: ignore[arg-type]
+                    native_unit_of_measurement=input_config.get(  # type: ignore[arg-type]
+                        "unit_of_measurement"
+                    ),
                     device_class=input_config.get("device_class"),  # type: ignore[arg-type]
                     entity_category=input_config.get("entity_category"),  # type: ignore[arg-type]
                     translation_key=cast(str | None, input_config.get("translation_key")),

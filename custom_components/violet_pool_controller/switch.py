@@ -518,14 +518,14 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 # indefinitely.  Toggling ON via the bare switch entity is only
                 # allowed when an explicit bounded duration is provided; users
                 # should use the *_http services otherwise.
-                duration = kwargs.get("duration")
-                if duration is None:
+                raw_duration = kwargs.get("duration")
+                if raw_duration is None:
                     raise HomeAssistantError(
                         f"{key} cannot be turned ON without a duration. "
                         f"Use the {key.lower()}_http service with "
                         f"duration_seconds instead."
                     )
-                duration = self._validate_duration(duration, max_sec=3600)
+                duration = self._validate_duration(raw_duration, max_sec=3600)
                 result = await self.device.api.set_switch_state(
                     key=key, action=action, duration=duration
                 )

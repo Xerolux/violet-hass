@@ -61,6 +61,8 @@ DOSING_SYSTEM_TO_KEY = {
 class DosingServiceHandlersMixin:
     """Mixin for dosing services."""
 
+    manager: Any
+
     async def handle_smart_dosing(self, call: ServiceCall) -> None:
         """Handle smart dosing service."""
         coordinators = await self.manager.get_coordinators_for_call(call)
