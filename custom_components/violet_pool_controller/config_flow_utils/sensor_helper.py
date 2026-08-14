@@ -27,8 +27,10 @@ from ..const import (
     CONF_TIMEOUT_DURATION,
     CONF_USE_SSL,
     CONF_USERNAME,
+    CONF_VERIFY_SSL,
     DEFAULT_RETRY_ATTEMPTS,
     DEFAULT_TIMEOUT_DURATION,
+    DEFAULT_VERIFY_SSL,
 )
 from .validators import validate_credentials_strength
 
@@ -64,7 +66,7 @@ async def get_grouped_sensors(
             username=username,
             password=password,
             use_ssl=config_data.get(CONF_USE_SSL, False),
-            verify_ssl=True,
+            verify_ssl=config_data.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL),
             timeout=config_data.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION),
             max_retries=config_data.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS),
             dosing_standalone=config_data.get(CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE),

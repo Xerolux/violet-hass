@@ -28,6 +28,7 @@ from .config_flow_utils import (
 from .const import (
     AVAILABLE_FEATURES,
     CONF_ACTIVE_FEATURES,
+    CONF_ALLOW_UNSAFE_SWITCHES,
     CONF_API_URL,
     CONF_CONTROLLER_NAME,
     CONF_DEVICE_ID,
@@ -45,6 +46,7 @@ from .const import (
     CONF_USE_SSL,
     CONF_USERNAME,
     CONF_VERIFY_SSL,
+    DEFAULT_ALLOW_UNSAFE_SWITCHES,
     DEFAULT_CONTROLLER_NAME,
     DEFAULT_DISINFECTION_METHOD,
     DEFAULT_INVERT_COVER,
@@ -374,8 +376,6 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
     async def async_step_safety(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Handle safety settings in options flow."""
-        from .const import CONF_ALLOW_UNSAFE_SWITCHES, DEFAULT_ALLOW_UNSAFE_SWITCHES
-
         if user_input is not None:
             self._updated_options.update(user_input)
             final_options = {**self.current_config, **self._updated_options}

@@ -1,6 +1,6 @@
 """Tests for Violet Pool Controller config flow."""
 
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -11,6 +11,7 @@ from custom_components.violet_pool_controller.const import (
     CONF_DEVICE_NAME,
     CONF_POOL_SIZE,
     CONF_POOL_TYPE,
+    CONF_VERIFY_SSL,
     DOMAIN,
 )
 
@@ -167,3 +168,33 @@ class TestConfigFlow:
         assert VioletDeviceConfigFlow._is_ip_literal("2001:db8::1")
         assert not VioletDeviceConfigFlow._is_ip_literal("pool-controller")
         assert not VioletDeviceConfigFlow._is_ip_literal("pool.local")
+
+    async def test_get_grouped_sensors_honors_verify_ssl_false(self, hass):
+        """Sensor auto-detection must not force verify_ssl=True.
+
+        Regression test: get_grouped_sensors() used to hardcode
+        verify_ssl=True, so a controller configured with a self-signed
+        certificate (verify_ssl=False) would pass the connection test step
+        but then fail SSL verification during sensor auto-detection.
+        """
+        from custom_components.violet_pool_controller.config_flow_utils.sensor_helper import (
+            get_grouped_sensors,
+        )
+
+        mock_api_instance = MagicMock()
+        mock_api_instance.get_readings = AsyncMock(return_value={"PUMP": 1})
+        mock_api_instance.dosing_standalone = False
+        mock_api_class = MagicMock(return_value=mock_api_instance)
+
+        config_data = {
+            CONF_API_URL: "192.168.178.55",
+            CONF_VERIFY_SSL: False,
+        }
+
+        with patch(
+            "custom_components.violet_pool_controller.config_flow_utils.sensor_helper.VioletPoolAPI",
+            mock_api_class,
+        ):
+            await get_grouped_sensors(hass, config_data)
+
+        assert mock_api_class.call_args.kwargs["verify_ssl"] is False
