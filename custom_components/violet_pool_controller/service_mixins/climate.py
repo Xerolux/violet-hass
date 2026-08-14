@@ -54,6 +54,8 @@ DOSING_SYSTEM_TO_KEY = {
 class ClimateServiceHandlersMixin:
     """Mixin for climate services."""
 
+    manager: Any
+
     async def handle_manage_pv_surplus(self, call: ServiceCall) -> None:
         """Handle PV surplus management service."""
         coordinators = await self.manager.get_coordinators_for_call(call)

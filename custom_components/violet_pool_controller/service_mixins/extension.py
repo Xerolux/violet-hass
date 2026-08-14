@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from typing import Any
 
 from homeassistant.const import ATTR_DEVICE_ID
 from homeassistant.core import ServiceCall
@@ -61,6 +62,9 @@ DOSING_SYSTEM_TO_KEY = {
 
 class ExtensionServiceHandlersMixin:
     """Mixin for extension services."""
+
+    manager: Any
+    hass: Any
 
     async def handle_control_dmx_scenes(self, call: ServiceCall) -> None:
         """Handle DMX scene control service."""

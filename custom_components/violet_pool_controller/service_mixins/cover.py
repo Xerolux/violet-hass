@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 from homeassistant.core import ServiceCall
 from homeassistant.exceptions import HomeAssistantError
@@ -52,6 +53,8 @@ DOSING_SYSTEM_TO_KEY = {
 
 class CoverServiceHandlersMixin:
     """Mixin for cover services."""
+
+    manager: Any
 
     async def handle_control_cover_http(self, call: ServiceCall) -> None:
         """Control cover via HTTP setFunctionManually (NEW API)."""

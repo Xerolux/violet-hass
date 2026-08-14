@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 from homeassistant.const import ATTR_DEVICE_ID
 from homeassistant.core import ServiceCall
@@ -53,6 +54,8 @@ DOSING_SYSTEM_TO_KEY = {
 
 class SystemServiceHandlersMixin:
     """Mixin for system services."""
+
+    manager: Any
 
     async def handle_test_output(self, call: ServiceCall) -> None:
         """Handle the output test service."""

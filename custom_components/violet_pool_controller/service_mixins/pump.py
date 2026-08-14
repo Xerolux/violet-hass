@@ -60,6 +60,8 @@ DOSING_SYSTEM_TO_KEY = {
 class PumpServiceHandlersMixin:
     """Mixin for pump services."""
 
+    manager: Any
+
     async def handle_control_pump(self, call: ServiceCall) -> None:
         """Handle pump control service."""
         coordinators = await self.manager.get_coordinators_for_call(call)

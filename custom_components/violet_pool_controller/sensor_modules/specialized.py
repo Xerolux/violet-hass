@@ -476,7 +476,7 @@ def _as_optional_float(value: object) -> float | None:
     if value in (None, "", "unknown", "unavailable", "N/A"):
         return None
     try:
-        return float(value)
+        return float(value)  # type: ignore[arg-type]
     except (ValueError, TypeError):
         return None
 
@@ -541,7 +541,7 @@ class VioletSaturationIndexSensor(VioletPoolControllerEntity, SensorEntity):
             f"{self.config_entry.entry_id}_{self._store_key}", {}
         )
         prefix = self._input_prefix
-        coordinator_data = self.coordinator.data or {}
+        coordinator_data: Mapping[str, Any] = self.coordinator.data or {}
         manual_input_keys = {
             "ph": f"{prefix}_ph",
             "temperature_c": f"{prefix}_temperature",
