@@ -2,6 +2,93 @@
 
 > **Language Note:** This changelog is available in German. For English release notes, see the GitHub releases page.
 
+## Version 2.3.4 (2026-08-16)
+
+Diese Version behebt drei Punkte aus dem Nutzer-Feedback im
+[poolsteuerung.de-Forum](https://www.poolsteuerung.de/viewtopic.php?t=2227):
+die Feature-Auswahl blieb wirkungslos, die mitgelieferten Dashboards
+funktionierten auf deutschen Installationen nicht, und die Pool-Karte war
+nicht auffindbar.
+
+### 🎛️ Feature- und Sensorauswahl wirkt jetzt wirklich
+
+Wer bei der Einrichtung Features abwählte (z. B. sämtliche DMX-/LED-Beleuchtung),
+sah trotzdem alle zugehörigen Entitäten. Dahinter steckten drei unabhängige
+Fehler, alle behoben:
+
+- **Kein Reload nach Änderung der Auswahl.** Die Entitätsliste entsteht beim
+  Start der Plattformen aus der Auswahl — ohne Reload lief die Integration also
+  unverändert weiter, bis Home Assistant das nächste Mal neu startete. Änderungen
+  an Features, Sensorauswahl und unsicheren Schaltern starten die Integration
+  jetzt automatisch neu. Alle übrigen Einstellungen (Polling-Intervall, Timeout,
+  Zugangsdaten) werden weiterhin im laufenden Betrieb übernommen, ohne Reload.
+- **Alte Entitäten blieben stehen.** Nicht mehr erzeugte Entitäten verharrten als
+  dauerhaft nicht verfügbare "wiederhergestellte" Einträge im Entitätsregister.
+  Jede Plattform meldet jetzt, welche Entitäten sie tatsächlich anlegt; alles
+  andere wird beim Setup entfernt. Vom Benutzer deaktivierte und standardmäßig
+  deaktivierte Entitäten bleiben dabei ausdrücklich erhalten.
+- **DMX-Sensoren ignorierten das Feature.** Die rohen `DMX_SCENE*`-Messwerte
+  hatten keine Feature-Zuordnung und wurden deshalb auch bei abgeschalteter
+  Beleuchtung als Sensoren angelegt. Gleiches galt für `LIGHT_*`, Abdeckung,
+  Rückspülung und PV-Überschuss. Alle sind jetzt korrekt zugeordnet.
+
+### 🔤 Dashboards funktionieren jetzt auch auf Deutsch
+
+Home Assistant bildet Entity-IDs aus dem **übersetzten** Namen der Entität — für
+Deutsch und einige weitere Sprachen. Auf einer deutschen Installation entstand
+dadurch `sensor.violet_pool_controller_wassertemperatur`, auf einer englischen
+`sensor.violet_pool_controller_pool_temperature` — für dieselbe Entität. Jedes
+geteilte Dashboard, jeder Forenschnipsel und alle Beispiele im `Dashboard/`-Ordner
+waren damit sprachgebunden.
+
+Neue Entitäten bekommen jetzt **immer die englische Entity-ID**, unabhängig von
+der Sprache von Home Assistant. Die angezeigten Namen bleiben übersetzt — nur die
+technische ID ist überall gleich.
+
+**Bestehende Entitäten behalten ihre ID.** Ein automatisches Umbenennen würde
+vorhandene Automationen, Skripte und Dashboards zerstören. Die
+Migrationsmöglichkeiten stehen in der neuen
+[Dashboards-Wiki-Seite](https://xerolux.github.io/violet-hass/docs/#/dashboards).
+
+### 📖 Dokumentation
+
+- **Neue Wiki-Seite "Dashboards & Pool-Karten"** (DE/EN) — welche Karte aus dem
+  `Dashboard/`-Ordner wofür geeignet ist, wie man sie einbindet, welche
+  HACS-Karten sie benötigt und wie man die Entity-IDs anpasst. Verlinkt aus
+  README, Wiki-Sidebar und Doku-Navigation; zusätzlich liegt jetzt eine
+  `Dashboard/README.md` direkt im Ordner.
+- **Violet Pool Card dokumentiert** — die
+  [Violet Pool Card](https://github.com/Xerolux/violet-pool-card) ist ein
+  eigenständiges Projekt und wird **nicht** zusammen mit der Integration
+  installiert. Das stand bisher nirgends. Die Wiki-Seite erklärt jetzt die
+  Installation über HACS → Eigene Repositories. `VIOLET_CARD_EXAMPLES.yaml`
+  bezeichnete die Karte fälschlich als "hypothetisch" und verweist nun auf das
+  echte Repository.
+
+### 🔧 Technisch
+
+- **Testumgebung auf Home Assistant 2026.8.2 aktualisiert.** Die Testmatrix lief
+  bislang gegen **HA 2025.1.4** — `tox.ini` pinnte
+  `pytest-homeassistant-custom-component<0.13.317`, weil neuere Releases Python
+  3.14 voraussetzen. Validiert wurde damit gegen eine über ein Jahr alte
+  Core-Version. Die Tests laufen jetzt unter Python 3.14 gegen HA 2026.8.2;
+  Linting zusätzlich weiterhin auf Python 3.12 und 3.13.
+- **Mindestversion auf Home Assistant 2026.1.0 gesenkt** (war 2026.5.0). Der
+  bisherige Wert stammte aus der Annahme, `ZeroconfServiceInfo` sei aus
+  `homeassistant.components.zeroconf` entfernt worden — der Import hat aber
+  längst einen `try`/`except`-Fallback auf
+  `homeassistant.helpers.service_info.zeroconf`, sodass beide Varianten
+  funktionieren. Die vollständige Testsuite läuft gegen HA 2026.1.3 durch.
+- **`requirements.txt` beschreibt jetzt die Entwicklungs-/Testumgebung.** Die
+  Datei wird ausschließlich von `tox` genutzt; die Laufzeitanforderungen der
+  Integration stehen in `manifest.json`, die Mindestversion für Nutzer in
+  `hacs.json`.
+- **`test_validate_ph_value` an den echten Sollwertbereich angepasst.** Der Test
+  erwartete eine obere pH-Grenze von 9.0; `violet-poolController-api` 0.0.37 hat
+  sie bewusst auf 8.0 gesenkt, passend zu dem vom Controller akzeptierten
+  Bereich. Der Test liest die Grenzen jetzt aus `SETPOINT_RANGES` des API-Pakets,
+  statt sie fest zu verdrahten.
+
 ## Version 2.3.1 (2026-07-19)
 
 ### 🔧 Technische Verbesserungen

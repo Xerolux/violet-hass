@@ -14,6 +14,7 @@ from typing import Any, cast
 
 from homeassistant.components.light import ColorMode, LightEntity, LightEntityDescription
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -28,6 +29,7 @@ from .const import (
 )
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity
+from .entity_cleanup import track_provided_entities
 from .entity_names import EntityNameResolver
 
 _LOGGER = logging.getLogger(__name__)
@@ -124,10 +126,12 @@ async def async_setup_entry(
 
     if "led_lighting" not in active_features:
         _LOGGER.debug("LED lighting feature not enabled; skipping DMX lights")
+        track_provided_entities(hass, config_entry, Platform.LIGHT, [])
         return
 
     if coordinator.data is None:
         _LOGGER.warning("Coordinator data is None; skipping DMX light setup")
+        track_provided_entities(hass, config_entry, Platform.LIGHT, [])
         return
 
     hw_config = coordinator.device.hardware_config if coordinator.device else None
@@ -151,6 +155,8 @@ async def async_setup_entry(
             icon=cast(str | None, light_config.get("icon")),
         )
         entities.append(VioletDmxLight(coordinator, config_entry, description))
+
+    track_provided_entities(hass, config_entry, Platform.LIGHT, entities)
 
     if entities:
         async_add_entities(entities)

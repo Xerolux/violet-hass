@@ -115,7 +115,7 @@ jobs:
             allow-prereleases: false
           - python-version: '3.14'
             tox-env: py314
-            allow-prereleases: true
+            allow-prereleases: false
 
     steps:
       - uses: actions/checkout@v7

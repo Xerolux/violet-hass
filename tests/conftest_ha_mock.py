@@ -29,7 +29,7 @@ def setup_homeassistant_mocks():
     ha_module.const.CONF_VERIFY_SSL = "verify_ssl"
     ha_module.const.ATTR_DEVICE_ID = "device_id"
     ha_module.const.ATTR_ENTITY_ID = "entity_id"
-    ha_module.const.__version__ = "2026.5.0"
+    ha_module.const.__version__ = "2026.1.0"
 
     # Mock UnitOfTemperature
     class UnitOfTemperature:

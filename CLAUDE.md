@@ -20,10 +20,10 @@ It depends on a separate API client package.
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.
 **🔒 Security Model**: See [SECURITY.md](./SECURITY.md) for detailed security architecture and compliance.
 
-**Current Integration Version**: `2.3.3` (defined in `manifest.json`, `const.py`, `pyproject.toml`, and optionally `.version`)
+**Current Integration Version**: `2.3.4` (defined in `manifest.json`, `const.py`, `pyproject.toml`, and optionally `.version`)
 **Current API Version**: `0.0.36` (defined in the [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository, pinned in `requirements.txt`)
-**Minimum Home Assistant Version**: `2026.5.0` (defined in `hacs.json`)
-**Minimum Python Version**: Home Assistant runtime is managed by HA 2026.5.0+; standalone API package supports `>=3.12`
+**Minimum Home Assistant Version**: `2026.1.0` (defined in `hacs.json`)
+**Minimum Python Version**: Home Assistant runtime is managed by HA 2026.1.0+; standalone API package supports `>=3.12`
 
 ## Development Commands
 
@@ -699,7 +699,7 @@ Located in `.github/workflows/` (4 workflows):
 ## Dependencies
 
 **Runtime** (from `requirements.txt`):
-- `homeassistant>=2026.5.0` - Minimum Home Assistant version
+- `homeassistant>=2026.1.0` - Minimum Home Assistant version
 - `aiohttp>=3.13.5` - Async HTTP client
 - `voluptuous>=0.16.0` - Data validation
 
@@ -736,7 +736,7 @@ Located in `.github/workflows/` (4 workflows):
 
 8. **Code Quality**: Always run `ruff check --fix` before committing. The integration maintains 0 ruff errors.
 
-9. **Home Assistant Compatibility**: Integration requires HA 2026.5.0+. The HA runtime Python version is managed by Home Assistant; the standalone API package supports Python 3.12+. Use modern type annotations (`X | None` not `Optional[X]`) and `collections.abc` imports.
+9. **Home Assistant Compatibility**: Integration requires HA 2026.1.0+. The HA runtime Python version is managed by Home Assistant; the standalone API package supports Python 3.12+. Use modern type annotations (`X | None` not `Optional[X]`) and `collections.abc` imports.
 
 10. **Recovery Behavior**: When connection is lost, the integration attempts auto-recovery with exponential backoff (10s → 300s max) for up to 10 attempts. After max attempts, manual intervention is required.
 

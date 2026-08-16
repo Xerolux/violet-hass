@@ -812,4 +812,20 @@ SENSOR_FEATURE_MAP = {
     "DOS_5_PHP_TOTAL_CAN_AMOUNT_ML": "ph_control",
     "DOS_6_FLOC_TOTAL_CAN_AMOUNT_ML": "flocculation",
     "pump_rs485_pwr": "filter_control",
+    # Lighting / DMX. Without these entries the raw DMX_SCENE* readings would
+    # still be turned into sensors after the LED lighting feature was disabled.
+    "LIGHT": "led_lighting",
+    "LIGHT_MODE": "led_lighting",
+    "DMX_MODE": "led_lighting",
+    **{f"DMX_SCENE{i}": "led_lighting" for i in range(1, 13)},
+    **{f"LIGHT_SCENE_{i}": "led_lighting" for i in range(1, 13)},
+    # Cover
+    "COVER_STATE": "cover_control",
+    "COVER_DIRECTION": "cover_control",
+    "COVER_RUNTIME": "cover_control",
+    # Backwash
+    "BACKWASH": "backwash",
+    "BACKWASHRINSE_RUNTIME": "backwash",
+    # PV surplus
+    "PVSURPLUS": "pv_surplus",
 }

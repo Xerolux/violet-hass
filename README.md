@@ -74,6 +74,7 @@ The full documentation is available in the **[Wiki][wiki]**:
 |---------|-------|
 | 🚀 **Getting Started** | [Installation & Setup][wiki-install] · [Configuration][wiki-config] · [Multi-Controller][wiki-multi] |
 | 📊 **Entities** | [Sensors][wiki-sensors] · [Switches][wiki-switches] · [Climate][wiki-climate] · [Device States][wiki-states] |
+| 🎨 **Dashboards** | [Dashboards & Pool Cards][wiki-dashboards] |
 | ⚙️ **Automation** | [Services Reference][wiki-services] · [Automation Examples][wiki-automations] |
 | 🔧 **Operation** | [Troubleshooting][wiki-trouble] · [Diagnostics][wiki-diag] · [Error Codes][wiki-errors] · [FAQ][wiki-faq] |
 | 🔐 **Security** | [Security & SSL][wiki-security] · [Advanced Logging][wiki-logging] |
@@ -83,10 +84,10 @@ The full documentation is available in the **[Wiki][wiki]**:
 
 ## 🔑 Requirements
 
-- Home Assistant **2026.5.0+** (tested up to 2026.x)
+- Home Assistant **2026.1.0+** (tested up to 2026.x)
 - HACS ([Installation guide](https://hacs.xyz/docs/use/download/download/))
 - Violet Pool Controller accessible on your local network
-- Python runtime managed by Home Assistant 2026.5.0+
+- Python runtime managed by Home Assistant 2026.1.0+
 - Standalone API package supports Python 3.12+
 
 ---
@@ -136,6 +137,7 @@ published to [PyPI](https://pypi.org/project/violet-poolController-api/)) and is
 | `custom_components/violet_pool_controller/` | Home Assistant integration ([HACS](https://hacs.xyz/)) |
 | `tests/` | HA integration tests |
 | `docs/` | Documentation & wiki sources |
+| `Dashboard/` | Ready-made Lovelace dashboards & cards ([guide][wiki-dashboards]) |
 
 **Development setup:**
 
@@ -201,6 +203,7 @@ The **VIOLET Pool Controller** by [PoolDigital GmbH & Co. KG](https://www.pooldi
 [wiki-install]: https://xerolux.github.io/violet-hass/docs/#/installation
 [wiki-config]: https://xerolux.github.io/violet-hass/docs/#/configuration
 [wiki-multi]: https://xerolux.github.io/violet-hass/docs/#/multi-controller
+[wiki-dashboards]: https://xerolux.github.io/violet-hass/docs/#/dashboards
 [wiki-sensors]: https://xerolux.github.io/violet-hass/docs/#/sensors
 [wiki-switches]: https://xerolux.github.io/violet-hass/docs/#/switches
 [wiki-climate]: https://xerolux.github.io/violet-hass/docs/#/climate

@@ -16,6 +16,7 @@
 - [Klima & Heizung](Climate.de)
 - [Device States (0–6)](Device-States.de)
 - [Icon Referenz](Icon-Reference.de)
+- [Dashboards & Pool-Karten](Dashboards.de)
 
 ## ⚙️ Automatisierung
 - [Services Referenz](Services.de)
@@ -39,6 +40,6 @@
 ---
 
 **Version:** 2.3.0-beta.1
-**HA:** 2026.5.0+ (getestet bis 2026.x)
+**HA:** 2026.1.0+ (getestet bis 2026.x)
 
 [Website](https://xerolux.github.io/violet-hass/) · [Docs](https://xerolux.github.io/violet-hass/docs/#/home) · [GitHub](https://github.com/Xerolux/violet-hass) · [Issues](https://github.com/Xerolux/violet-hass/issues) · [HACS](https://hacs.xyz/)

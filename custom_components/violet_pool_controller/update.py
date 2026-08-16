@@ -19,6 +19,7 @@ from homeassistant.components.update import (
     UpdateEntityFeature,
 )
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.device_registry import DeviceInfo
@@ -28,6 +29,7 @@ from violet_poolcontroller_api import VioletPoolAPIError
 
 from .const import DOMAIN
 from .device import VioletPoolDataUpdateCoordinator
+from .entity_cleanup import track_provided_entities
 from .update_helper import parse_firmware_info
 
 # CoordinatorEntity is generic in the type stubs but not subscriptable at runtime.
@@ -96,14 +98,15 @@ async def async_setup_entry(
     """Set up update entity from config entry."""
     coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
 
-    async_add_entities(
-        [
-            VioletPoolControllerUpdateEntity(
-                coordinator=coordinator,
-                config_entry=config_entry,
-            )
-        ]
-    )
+    entities = [
+        VioletPoolControllerUpdateEntity(
+            coordinator=coordinator,
+            config_entry=config_entry,
+        )
+    ]
+
+    track_provided_entities(hass, config_entry, Platform.UPDATE, entities)
+    async_add_entities(entities)
 
 
 class VioletPoolControllerUpdateEntity(_VioletCoordinatorEntity, UpdateEntity):

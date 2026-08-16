@@ -16,6 +16,7 @@ from typing import Any, cast
 
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity import EntityCategory
@@ -34,6 +35,7 @@ from .const import (
 )
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity, get_state_attributes, interpret_state_as_bool
+from .entity_cleanup import track_provided_entities
 from .entity_names import EntityNameResolver
 from .service_helpers import MAX_DOSING_DURATION
 
@@ -809,6 +811,8 @@ async def async_setup_entry(
             continue
 
         entities.append(VioletSwitch(coordinator, config_entry, description))
+
+    track_provided_entities(hass, config_entry, Platform.SWITCH, entities)
 
     if entities:
         async_add_entities(entities)

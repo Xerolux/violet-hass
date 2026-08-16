@@ -15,6 +15,7 @@ from typing import Any
 
 from homeassistant.components.select import SelectEntity, SelectEntityDescription
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -30,6 +31,7 @@ from .const import (
 )
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity
+from .entity_cleanup import track_provided_entities
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -417,6 +419,8 @@ async def async_setup_entry(
                 is_read_only=select_config.get("is_read_only", False),
             )
         )
+
+    track_provided_entities(hass, config_entry, Platform.SELECT, entities)
 
     if entities:
         async_add_entities(entities)

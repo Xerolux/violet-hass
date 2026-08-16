@@ -1,9 +1,14 @@
 # Violet Pool Card - Dashboard Beispiele
 # Diese Datei zeigt verschiedene Konfigurationsbeispiele für die Violet Pool Card
 #
-# HINWEIS: 
-# - Diese Beispiele verwenden eine hypothetische "violet-pool-card" Custom Card
-# - Falls Sie diese Custom Card noch nicht haben, verwenden Sie die Standard-Dashboards
+# HINWEIS:
+# - Diese Beispiele benoetigen die "Violet Pool Card" - eine eigenstaendige
+#   Lovelace-Karte, die NICHT Teil dieser Integration ist:
+#   https://github.com/Xerolux/violet-pool-card
+#   Installation ueber HACS -> Frontend -> Eigene Repositories
+#   (Kategorie "Dashboard"), siehe Wiki-Seite "Dashboards & Pool-Karten".
+# - Ohne die Karte verwenden Sie die uebrigen Dashboards in diesem Ordner,
+#   die nur Standard-Karten benoetigen.
 # - Ersetzen Sie "violet_pool_controller" durch Ihren Device-Namen
 #
 # VERSION: 1.0.5 (2026-04-22)

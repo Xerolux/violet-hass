@@ -1,6 +1,7 @@
 """Tests for Input Sanitization."""
 
 import pytest
+from violet_poolcontroller_api import SETPOINT_RANGES
 from violet_poolcontroller_api.utils_sanitizer import InputSanitizer
 
 
@@ -52,11 +53,18 @@ class TestInputSanitizer:
         assert InputSanitizer.sanitize_integer(None, default=10) == 10
 
     def test_validate_ph_value(self):
-        """Test dass pH-Werte korrekt validiert werden."""
-        # Valid range: 6.0-9.0
+        """Test dass pH-Werte korrekt validiert werden.
+
+        The bounds are taken from the API package's own ``SETPOINT_RANGES``
+        instead of being hard-coded: the accepted range mirrors what the
+        controller allows as a setpoint and has been narrowed before (the
+        upper bound went from 9.0 to 8.0 in violet-poolController-api 0.0.37).
+        """
+        ph_min, ph_max = SETPOINT_RANGES["DOSAGE_phminus_setpoint"]
+
         assert InputSanitizer.validate_ph_value(7.2) == 7.2
-        assert InputSanitizer.validate_ph_value(5.0) == 6.0  # Too low
-        assert InputSanitizer.validate_ph_value(10.0) == 9.0  # Too high
+        assert InputSanitizer.validate_ph_value(ph_min - 1.0) == ph_min  # Too low
+        assert InputSanitizer.validate_ph_value(ph_max + 1.0) == ph_max  # Too high
         assert InputSanitizer.validate_ph_value("invalid") == 7.2  # Default
 
     def test_validate_orp_value(self):

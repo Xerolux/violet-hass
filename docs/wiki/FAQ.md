@@ -18,7 +18,7 @@ A: Yes! Multi-controller is fully supported. Simply add multiple integrations.
 A: Yes! Local communication with SSL/TLS options and input sanitization against injection attacks.
 
 **Q: Which Home Assistant version?**
-A: Minimum 2026.5.0. Tested on 2026.x.
+A: Minimum 2026.1.0. Tested on 2026.x.
 
 ---
 
