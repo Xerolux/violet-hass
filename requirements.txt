@@ -1,4 +1,12 @@
 # requirements.txt
-# Minimum supported Home Assistant; the test matrix runs against 2026.8.x
-homeassistant>=2026.1.0
+#
+# Development/test environment only - Home Assistant installs the integration's
+# runtime requirements from manifest.json, not from this file.
+#
+# The floor is the Home Assistant release the test matrix runs against, not the
+# minimum version users may run: that one lives in hacs.json (2026.1.0).
+# Kept at 2026.6.0+ because Home Assistant Core below that is affected by
+# CVE-2026-64824 (path traversal to RCE via backup restore, CVSS 9.3), and a
+# development environment should not pull in a vulnerable release.
+homeassistant>=2026.8.0
 violet-poolController-api>=0.0.36
