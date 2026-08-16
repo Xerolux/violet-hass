@@ -13,10 +13,10 @@
 
 - **Entity-IDs sind nicht mehr sprachabhängig** - Home Assistant bildet Entity-IDs aus dem *übersetzten* Namen; auf einer deutschen Installation entstand daher `sensor.violet_pool_controller_wassertemperatur`, auf einer englischen `sensor.violet_pool_controller_pool_temperature`. Dadurch funktionierten geteilte Dashboards (u.a. die Beispiele in `Dashboard/`) nur auf englischen Installationen. Neue Entitäten erhalten jetzt immer die englische ID, die angezeigten Namen bleiben übersetzt. **Bestehende Entitäten behalten ihre ID**, damit vorhandene Automationen und Dashboards nicht brechen — siehe [Dashboards-Wiki](https://xerolux.github.io/violet-hass/docs/#/dashboards) für die Migrationsmöglichkeiten.
 
-### ⬆️ Home Assistant 2026.8
+### ⬆️ Home Assistant
 
-- **Mindestversion auf Home Assistant 2026.8.0 angehoben** (war 2026.5.0) - `hacs.json`, `requirements.txt` und die Dokumentation nennen jetzt einheitlich 2026.8.
 - **Testumgebung auf HA 2026.8.2 aktualisiert** - Die Testmatrix lief bislang gegen **Home Assistant 2025.1.4**: `tox.ini` pinnte `pytest-homeassistant-custom-component<0.13.317`, weil neuere Releases Python 3.14 voraussetzen. Getestet wurde damit eine über ein Jahr alte Core-Version. Die Tests laufen jetzt unter Python 3.14 gegen `pytest-homeassistant-custom-component>=0.13.356` (HA 2026.8.2); Linting läuft weiterhin zusätzlich auf 3.12 und 3.13.
+- **Mindestversion auf Home Assistant 2026.1.0 gesenkt** (war 2026.5.0) - Der bisherige Wert stammte aus der Annahme, dass `ZeroconfServiceInfo` aus `homeassistant.components.zeroconf` entfernt wurde; der Import hat aber längst einen `try`/`except`-Fallback auf `homeassistant.helpers.service_info.zeroconf`, sodass beide Varianten funktionieren. Die vollständige Testsuite läuft gegen HA 2026.1.3 durch, also gilt jetzt 2026.1.0 als Untergrenze in `hacs.json`, `requirements.txt` und der Dokumentation. Nutzer auf 2026.1–2026.7 können die Integration damit weiterhin installieren, obwohl die CI gegen 2026.8 testet.
 
 ### 🧪 Tests
 

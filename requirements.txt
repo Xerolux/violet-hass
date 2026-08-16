@@ -1,4 +1,4 @@
 # requirements.txt
-# Tested against Home Assistant 2026.8.x (Python 3.14)
-homeassistant>=2026.8.0
+# Minimum supported Home Assistant; the test matrix runs against 2026.8.x
+homeassistant>=2026.1.0
 violet-poolController-api>=0.0.36

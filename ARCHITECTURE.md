@@ -351,7 +351,7 @@ See [SECURITY.md](./SECURITY.md) for full architecture.
 ## Deployment
 
 ### Home Assistant Integration
-- **Minimum HA**: 2026.8.0 (Python 3.14.2)
+- **Minimum HA**: 2026.1.0 (Python 3.14.2)
 - **Distribution**: HACS + GitHub releases
 - **Installation**: Custom Components → Add repository → Install
 
