@@ -292,20 +292,33 @@ class VioletPoolControllerEntity(_VioletCoordinatorEntity):
         identical on all installations. The displayed name is unaffected and
         stays translated, and existing entities keep their registered
         entity_id — only newly created entities are affected.
+
+        Home Assistant prefixes the returned value with the device name, so the
+        ``violet_pool_controller_`` prefix is preserved either way.
         """
-        translations = getattr(
-            self.platform_data, "default_language_platform_translations", None
-        )
+        # Home Assistant 2026.x exposes the platform translations via
+        # ``platform_data``; older releases use ``platform``.
+        platform_data = getattr(self, "platform_data", None) or getattr(self, "platform", None)
+        translations = getattr(platform_data, "default_language_platform_translations", None)
+
         if translations is None:
             # Entity not added to a platform yet, or a Home Assistant release
             # without default-language translations: use the English name from
             # the entity description.
-            return getattr(self, "_attr_name", None) or getattr(
-                self.entity_description, "name", None
-            )
+            return self._english_fallback_object_id()
 
-        name = self._name_internal(self._object_id_device_class_name, translations)
+        try:
+            name = self._name_internal(self._object_id_device_class_name, translations)
+        except AttributeError:  # pragma: no cover - defensive across HA versions
+            return self._english_fallback_object_id()
+
         return None if name is UNDEFINED else name
+
+    def _english_fallback_object_id(self) -> str | None:
+        """Return the untranslated name defined in the entity description."""
+        return getattr(self, "_attr_name", None) or getattr(
+            self.entity_description, "name", None
+        )
 
     @property
     def device(self) -> Any:

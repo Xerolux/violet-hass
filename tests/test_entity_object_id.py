@@ -39,6 +39,16 @@ def _platform_data(language_name: str) -> MagicMock:
     return platform_data
 
 
+def _attach(entity: VioletPoolControllerEntity, platform_data: MagicMock | None) -> None:
+    """Attach stub platform data under both the new and the old HA attribute.
+
+    Home Assistant 2026.x exposes the platform translations via
+    ``Entity.platform_data``; releases before that use ``Entity.platform``.
+    """
+    entity.platform_data = platform_data
+    entity.platform = platform_data
+
+
 @pytest.fixture
 def entity() -> VioletPoolControllerEntity:
     """Create a base entity with a translated sensor description."""
@@ -60,7 +70,7 @@ def entity() -> VioletPoolControllerEntity:
 
 def test_object_id_stays_english_for_translated_entity(entity):
     """The German name is displayed, but the entity_id is derived in English."""
-    entity.platform_data = _platform_data("Wassertemperatur")
+    _attach(entity, _platform_data("Wassertemperatur"))
 
     assert entity.name == "Wassertemperatur"
     assert entity.suggested_object_id == "Pool Temperature"
@@ -68,7 +78,7 @@ def test_object_id_stays_english_for_translated_entity(entity):
 
 def test_object_id_matches_name_on_english_installs(entity):
     """English installations are unaffected by the override."""
-    entity.platform_data = _platform_data("Pool Temperature")
+    _attach(entity, _platform_data("Pool Temperature"))
 
     assert entity.name == "Pool Temperature"
     assert entity.suggested_object_id == "Pool Temperature"
@@ -80,13 +90,13 @@ def test_untranslated_entity_falls_back_to_description_name(entity):
     platform_data.platform_translations = {}
     platform_data.object_id_platform_translations = {}
     platform_data.default_language_platform_translations = {}
-    entity.platform_data = platform_data
+    _attach(entity, platform_data)
 
     assert entity.suggested_object_id == "Pool Temperature"
 
 
 def test_no_platform_data_does_not_raise(entity):
     """Before the entity is added to a platform the override must not blow up."""
-    entity.platform_data = None
+    _attach(entity, None)
 
     assert entity.suggested_object_id == "Pool Temperature"
