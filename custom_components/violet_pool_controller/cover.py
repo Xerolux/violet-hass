@@ -19,6 +19,7 @@ from homeassistant.components.cover import (
     CoverEntityFeature,
 )
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -43,6 +44,7 @@ from .const import (
 )
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity
+from .entity_cleanup import track_provided_entities
 from .entity_names import EntityNameResolver
 
 _LOGGER = logging.getLogger(__name__)
@@ -235,23 +237,26 @@ async def async_setup_entry(
         CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
     )
 
-    # Check if cover control is enabled and data is available
-    if "cover_control" in active_features:
-        # None-check for coordinator.data
-        if coordinator.data is None:
-            _LOGGER.warning(
-                "Cover control enabled but coordinator data is None. "
-                "Cover entity will not be created."
-            )
-            return
+    entities: list[VioletCover] = []
 
-        if "COVER_STATE" in coordinator.data:
-            async_add_entities([VioletCover(coordinator, config_entry)])
-            _LOGGER.info("Cover entity added for '%s'", config_entry.title)
-        else:
-            _LOGGER.info(
-                "Cover control enabled but controller provides no COVER_STATE data. "
-                "This is normal when no cover is configured."
-            )
-    else:
+    # Check if cover control is enabled and data is available
+    if "cover_control" not in active_features:
         _LOGGER.debug("Cover control not enabled")
+    elif coordinator.data is None:
+        # None-check for coordinator.data
+        _LOGGER.warning(
+            "Cover control enabled but coordinator data is None. Cover entity will not be created."
+        )
+    elif "COVER_STATE" in coordinator.data:
+        entities.append(VioletCover(coordinator, config_entry))
+    else:
+        _LOGGER.info(
+            "Cover control enabled but controller provides no COVER_STATE data. "
+            "This is normal when no cover is configured."
+        )
+
+    track_provided_entities(hass, config_entry, Platform.COVER, entities)
+
+    if entities:
+        async_add_entities(entities)
+        _LOGGER.info("Cover entity added for '%s'", config_entry.title)

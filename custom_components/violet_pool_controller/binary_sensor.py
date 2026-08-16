@@ -17,12 +17,14 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import BINARY_SENSORS, CONF_ACTIVE_FEATURES, DOMAIN
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity, interpret_state_as_bool
+from .entity_cleanup import track_provided_entities
 from .entity_names import EntityNameResolver
 
 _LOGGER = logging.getLogger(__name__)
@@ -176,6 +178,7 @@ async def async_setup_entry(
             "Coordinator data is None for '%s'. Binary sensors will not be created.",
             config_entry.title,
         )
+        track_provided_entities(hass, config_entry, Platform.BINARY_SENSOR, [])
         return
 
     # Diagnostics for available data
@@ -248,6 +251,8 @@ async def async_setup_entry(
 
         _LOGGER.debug("Creating binary sensor: %s", description.name)
         entities.append(VioletBinarySensor(coordinator, config_entry, description))
+
+    track_provided_entities(hass, config_entry, Platform.BINARY_SENSOR, entities)
 
     if entities:
         async_add_entities(entities)

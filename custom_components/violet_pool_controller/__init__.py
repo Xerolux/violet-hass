@@ -34,6 +34,7 @@ from .config_entry_helpers import (
 )
 from .const import (
     CONF_ACTIVE_FEATURES,
+    CONF_ALLOW_UNSAFE_SWITCHES,
     CONF_CONTROLLER_NAME,
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
@@ -41,6 +42,7 @@ from .const import (
     CONF_POLLING_INTERVAL,
     CONF_PORT,
     CONF_RETRY_ATTEMPTS,
+    CONF_SELECTED_SENSORS,
     CONF_TIMEOUT_DURATION,
     CONF_USE_SSL,
     CONF_USERNAME,
@@ -53,6 +55,7 @@ from .const import (
     DEFAULT_VERIFY_SSL,
     DOMAIN,
 )
+from .entity_cleanup import async_remove_orphaned_entities, discard_provided_entities
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -341,6 +344,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data.setdefault(DOMAIN, {})
         hass.data[DOMAIN][entry.entry_id] = coordinator
 
+        # Remember which options the created entities are based on, so the
+        # update listener can tell a structural change (features, sensors)
+        # apart from a setting that can be applied without a reload.
+        hass.data[DOMAIN][_structural_options_key(entry)] = _structural_options(entry)
+
         # Migrate entity_ids that have the duplicate device prefix (e.g.
         # switch.violet_pool_controller_violet_pool_controller_beleuchtung →
         # switch.violet_pool_controller_beleuchtung).  Must run before
@@ -367,34 +375,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         await async_register_services(hass)
 
-        # Clean up sensor/binary_sensor entities whose data key is no longer
-        # present in the coordinator data (e.g. hardware module removed).
-        # Entity unique_ids are formatted as "{entry_id}_{key}" (see entity.py).
-        if coordinator.data:
-            ent_reg = er.async_get(hass)
-            entities = er.async_entries_for_config_entry(ent_reg, entry.entry_id)
-            static_keys = {
-                "system_health",
-                "connection_latency",
-                "last_event_age",
-                "api_request_rate",
-                "average_latency",
-            }
-
-            prefix = f"{entry.entry_id}_"
-            for entity in entities:
-                if entity.domain in (
-                    "sensor",
-                    "binary_sensor",
-                ) and entity.unique_id.startswith(prefix):
-                    key = entity.unique_id[len(prefix) :]
-                    if key not in coordinator.data and key not in static_keys:
-                        _LOGGER.debug(
-                            "Removing unsupported entity %s (key=%s)",
-                            entity.entity_id,
-                            key,
-                        )
-                        ent_reg.async_remove(entity.entity_id)
+        # Drop registry entries the platforms no longer provide, so disabling a
+        # feature, deselecting a sensor or removing a hardware module actually
+        # makes the matching entities disappear instead of leaving them behind
+        # as permanently unavailable "restored" entries.
+        async_remove_orphaned_entities(hass, entry, PLATFORMS)
 
         _LOGGER.info(
             "Setup completed successfully for '%s' (entry_id=%s)",
@@ -448,6 +433,10 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 hass.data[DOMAIN].pop(entry.entry_id)
                 _LOGGER.debug("Coordinator removed for entry_id=%s", entry.entry_id)
 
+            # Drop the per-entry bookkeeping so the next setup starts clean
+            hass.data.get(DOMAIN, {}).pop(_structural_options_key(entry), None)
+            discard_provided_entities(hass, entry)
+
             _LOGGER.info("Successfully unloaded '%s' (entry_id=%s)", device_name, entry.entry_id)
         else:
             _LOGGER.warning(
@@ -463,11 +452,36 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         return False
 
 
+def _structural_options_key(entry: ConfigEntry) -> str:
+    """Return the ``hass.data`` key holding the applied structural options."""
+    return f"{entry.entry_id}_structural_options"
+
+
+def _structural_options(entry: ConfigEntry) -> dict[str, Any]:
+    """Return the options that decide *which* entities are created.
+
+    Changing any of these requires re-running the platform setups, because the
+    entity list is built from them. Everything else (polling interval, timeout,
+    credentials, ...) is applied on the running coordinator instead.
+    """
+    options: dict[str, Any] = {}
+
+    for option in (CONF_ACTIVE_FEATURES, CONF_SELECTED_SENSORS, CONF_ALLOW_UNSAFE_SWITCHES):
+        value = entry.options.get(option, entry.data.get(option))
+        # Feature/sensor selections are order-insensitive lists.
+        options[option] = sorted(value) if isinstance(value, list) else value
+
+    return options
+
+
 async def async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Handle config entry updates (e.g., polling_interval, timeout, retry changes).
 
     This function is called when the user modifies integration options.
-    It updates ALL settings dynamically without requiring a reload.
+
+    Changes to the enabled features or the sensor selection decide which
+    entities exist and therefore require a reload of the config entry. All
+    other settings are applied dynamically on the running coordinator.
 
     Args:
         hass: The Home Assistant instance.
@@ -483,6 +497,19 @@ async def async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None
     coordinator = hass.data.get(DOMAIN, {}).get(entry.entry_id)
     if not coordinator:
         _LOGGER.warning("Coordinator not found for entry_id=%s", entry.entry_id)
+        return
+
+    # Reload when the feature/sensor selection changed - the entities are
+    # created from it, so it can only take effect by re-running the platforms.
+    applied_options = hass.data.get(DOMAIN, {}).get(_structural_options_key(entry))
+    current_options = _structural_options(entry)
+
+    if applied_options != current_options:
+        _LOGGER.info(
+            "Feature/sensor selection changed for entry_id=%s, reloading integration",
+            entry.entry_id,
+        )
+        hass.config_entries.async_schedule_reload(entry.entry_id)
         return
 
     # Track if any setting was updated

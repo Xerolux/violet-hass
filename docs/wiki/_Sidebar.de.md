@@ -16,6 +16,7 @@
 - [Klima & Heizung](Climate.de)
 - [Device States (0–6)](Device-States.de)
 - [Icon Referenz](Icon-Reference.de)
+- [Dashboards & Pool-Karten](Dashboards.de)
 
 ## ⚙️ Automatisierung
 - [Services Referenz](Services.de)

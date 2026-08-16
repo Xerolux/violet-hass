@@ -20,6 +20,7 @@ except ImportError:
     NumberMode = None  # type: ignore[assignment,misc]
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.dispatcher import async_dispatcher_send
@@ -36,6 +37,7 @@ from .const import (
 )
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity
+from .entity_cleanup import track_provided_entities
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -511,6 +513,7 @@ async def async_setup_entry(
             "Coordinator data is None for '%s'. Number entities will not be created.",
             config_entry.title,
         )
+        track_provided_entities(hass, config_entry, Platform.NUMBER, [])
         return
 
     entities: list[NumberEntity] = []
@@ -592,6 +595,8 @@ async def async_setup_entry(
         _LOGGER.debug("Creating number entity for '%s' (key: %s)", setpoint_name, setpoint_key)
 
         entities.append(VioletNumber(coordinator, config_entry, description, setpoint_config))
+
+    track_provided_entities(hass, config_entry, Platform.NUMBER, entities)
 
     if entities:
         async_add_entities(entities)

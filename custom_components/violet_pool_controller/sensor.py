@@ -18,6 +18,7 @@ from typing import Any
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -41,6 +42,7 @@ from .const import (
     WATER_CHEM_SENSORS,
 )
 from .device import VioletPoolDataUpdateCoordinator
+from .entity_cleanup import track_provided_entities
 
 # Import sensor classes from submodules
 from .sensor_modules import (
@@ -87,6 +89,7 @@ async def async_setup_entry(
             "Coordinator data is None for '%s'. Sensors will not be created.",
             config_entry.title,
         )
+        track_provided_entities(hass, config_entry, Platform.SENSOR, [])
         return
 
     config = _get_sensor_config(config_entry)
@@ -100,6 +103,8 @@ async def async_setup_entry(
 
     standard_sensors = _create_standard_sensors(coordinator, config_entry, config, handled_keys)
     sensors.extend(standard_sensors)
+
+    track_provided_entities(hass, config_entry, Platform.SENSOR, sensors)
 
     if sensors:
         async_add_entities(sensors)

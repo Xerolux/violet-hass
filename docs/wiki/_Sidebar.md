@@ -16,6 +16,7 @@
 - [Climate & Heating](Climate)
 - [Device States (0–6)](Device-States)
 - [Icon Reference](Icon-Reference)
+- [Dashboards & Pool Cards](Dashboards)
 
 ## ⚙️ Automation
 - [Services Reference](Services)

@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.typing import UNDEFINED
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .device import VioletPoolDataUpdateCoordinator
@@ -274,6 +275,37 @@ class VioletPoolControllerEntity(_VioletCoordinatorEntity):
             entity_description.key,
             self._attr_unique_id,
         )
+
+    @property
+    def suggested_object_id(self) -> str | None:
+        """Return an English, language-independent suggestion for the entity_id.
+
+        Home Assistant derives the entity_id from the *translated* entity name
+        for every language listed in ``NATIVE_ENTITY_IDS`` (German among them).
+        A German installation therefore ends up with
+        ``sensor.violet_pool_controller_wassertemperatur`` while an English one
+        gets ``sensor.violet_pool_controller_water_temperature`` — for the very
+        same entity. That makes every shared dashboard, blueprint and automation
+        snippet language-specific.
+
+        Deriving the object id from the English name instead keeps entity_ids
+        identical on all installations. The displayed name is unaffected and
+        stays translated, and existing entities keep their registered
+        entity_id — only newly created entities are affected.
+        """
+        translations = getattr(
+            self.platform_data, "default_language_platform_translations", None
+        )
+        if translations is None:
+            # Entity not added to a platform yet, or a Home Assistant release
+            # without default-language translations: use the English name from
+            # the entity description.
+            return getattr(self, "_attr_name", None) or getattr(
+                self.entity_description, "name", None
+            )
+
+        name = self._name_internal(self._object_id_device_class_name, translations)
+        return None if name is UNDEFINED else name
 
     @property
     def device(self) -> Any:

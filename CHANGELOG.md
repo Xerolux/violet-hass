@@ -2,6 +2,21 @@
 
 > **Language Note:** This changelog is available in German. For English release notes, see the GitHub releases page.
 
+## Version 2.3.4
+
+### 🐛 Fehlerbehebungen
+
+- **Feature- und Sensorauswahl wirkt sich jetzt tatsächlich aus** - Bisher blieben deaktivierte Features (z.B. DMX/LED-Beleuchtung) und abgewählte Sensoren als Entitäten sichtbar. Zwei Ursachen waren dafür verantwortlich, beide sind behoben:
+  - Eine Änderung der Auswahl in den Optionen löste **keinen Reload** der Integration aus, die Plattformen liefen also nie mit der neuen Auswahl. Strukturelle Optionen (Features, Sensorauswahl, unsichere Schalter) starten die Integration jetzt automatisch neu; alle übrigen Einstellungen (Polling-Intervall, Timeout, Zugangsdaten) werden weiterhin ohne Reload übernommen.
+  - Nicht mehr erzeugte Entitäten blieben als dauerhaft nicht verfügbare "wiederhergestellte" Einträge im Entitätsregister stehen. Sie werden jetzt beim Setup entfernt. Vom Benutzer oder standardmäßig deaktivierte Entitäten bleiben dabei erhalten.
+- **DMX/Beleuchtungs-Sensoren respektieren das Feature** - Die rohen `DMX_SCENE*`-, `LIGHT_*`-, Cover-, Rückspül- und PV-Überschuss-Messwerte wurden unabhängig vom zugehörigen Feature als Sensoren angelegt. Sie sind jetzt korrekt zugeordnet.
+
+- **Entity-IDs sind nicht mehr sprachabhängig** - Home Assistant bildet Entity-IDs aus dem *übersetzten* Namen; auf einer deutschen Installation entstand daher `sensor.violet_pool_controller_wassertemperatur`, auf einer englischen `sensor.violet_pool_controller_pool_temperature`. Dadurch funktionierten geteilte Dashboards (u.a. die Beispiele in `Dashboard/`) nur auf englischen Installationen. Neue Entitäten erhalten jetzt immer die englische ID, die angezeigten Namen bleiben übersetzt. **Bestehende Entitäten behalten ihre ID**, damit vorhandene Automationen und Dashboards nicht brechen — siehe [Dashboards-Wiki](https://xerolux.github.io/violet-hass/docs/#/dashboards) für die Migrationsmöglichkeiten.
+
+### 📖 Dokumentation
+
+- **Neue Wiki-Seite "Dashboards & Pool-Karten"** (DE/EN) - Erklärt, welche Karte aus dem `Dashboard/`-Ordner wofür geeignet ist, wie man sie einbindet, welche HACS-Karten benötigt werden und wie man die Entity-IDs anpasst. Verlinkt aus README, Wiki-Sidebar und Doku-Navigation; zusätzlich liegt jetzt eine `Dashboard/README.md` direkt im Ordner.
+
 ## Version 2.3.1 (2026-07-19)
 
 ### 🔧 Technische Verbesserungen

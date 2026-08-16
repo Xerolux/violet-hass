@@ -21,7 +21,7 @@ from homeassistant.components.climate import (
     HVACMode,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfTemperature
+from homeassistant.const import Platform, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -31,6 +31,7 @@ from .const import ACTION_AUTO, ACTION_OFF, ACTION_ON, CONF_ACTIVE_FEATURES, DOM
 from .const_features import SETPOINT_DEFINITIONS
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity
+from .entity_cleanup import track_provided_entities
 from .entity_names import EntityNameResolver
 
 _LOGGER = logging.getLogger(__name__)
@@ -560,6 +561,8 @@ async def async_setup_entry(
 
         _LOGGER.debug("Creating %s entity: feature '%s' active", climate_type, feature)
         entities.append(VioletClimateEntity(coordinator, config_entry, climate_type))
+
+    track_provided_entities(hass, config_entry, Platform.CLIMATE, entities)
 
     if entities:
         async_add_entities(entities)

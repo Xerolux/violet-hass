@@ -74,6 +74,7 @@ Die vollständige Dokumentation befindet sich im **[Wiki][wiki]**:
 |---------|--------|
 | 🚀 **Erste Schritte** | [Installation & Setup][wiki-install] · [Konfiguration][wiki-config] · [Multi-Controller][wiki-multi] |
 | 📊 **Entities** | [Sensoren][wiki-sensors] · [Schalter][wiki-switches] · [Klima][wiki-climate] · [Device States][wiki-states] |
+| 🎨 **Dashboards** | [Dashboards & Pool-Karten][wiki-dashboards] |
 | ⚙️ **Automatisierung** | [Services Referenz][wiki-services] · [Automatisierungs-Beispiele][wiki-automations] |
 | 🔧 **Betrieb** | [Troubleshooting][wiki-trouble] · [Diagnosedaten][wiki-diag] · [Fehler-Codes][wiki-errors] · [FAQ][wiki-faq] |
 | 🔐 **Sicherheit** | [Security & SSL][wiki-security] · [Erweiterte Protokollierung][wiki-logging] |
@@ -136,6 +137,7 @@ veröffentlicht auf [PyPI](https://pypi.org/project/violet-poolController-api/))
 | `custom_components/violet_pool_controller/` | Home-Assistant-Integration ([HACS](https://hacs.xyz/)) |
 | `tests/` | HA-Integrationstests |
 | `docs/` | Dokumentation & Wiki-Quellen |
+| `Dashboard/` | Fertige Lovelace-Dashboards & -Karten ([Anleitung][wiki-dashboards]) |
 
 **Releases:** Die HA-Integration wird über `v*`-Tags released (HACS). Das API-Paket wird
 unabhängig im eigenen Repository über `api-v*`-Tags released (automatischer PyPI-Upload + GitHub-Release).
@@ -186,6 +188,7 @@ Der **VIOLET Pool Controller** von [PoolDigital GmbH & Co. KG](https://www.poold
 [wiki-install]: https://xerolux.github.io/violet-hass/docs/#/installation
 [wiki-config]: https://xerolux.github.io/violet-hass/docs/#/configuration
 [wiki-multi]: https://xerolux.github.io/violet-hass/docs/#/multi-controller
+[wiki-dashboards]: https://xerolux.github.io/violet-hass/docs/#/dashboards
 [wiki-sensors]: https://xerolux.github.io/violet-hass/docs/#/sensors
 [wiki-switches]: https://xerolux.github.io/violet-hass/docs/#/switches
 [wiki-climate]: https://xerolux.github.io/violet-hass/docs/#/climate

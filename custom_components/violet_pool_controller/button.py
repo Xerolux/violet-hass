@@ -18,6 +18,7 @@ from homeassistant.components.button import (
     ButtonEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity import EntityCategory
@@ -26,6 +27,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import DOMAIN
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity
+from .entity_cleanup import track_provided_entities
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -94,5 +96,6 @@ async def async_setup_entry(
         VioletResetBlockingButton(coordinator, config_entry),
     ]
 
+    track_provided_entities(hass, config_entry, Platform.BUTTON, buttons)
     async_add_entities(buttons)
     _LOGGER.debug("Error management buttons added for '%s'", config_entry.title)
