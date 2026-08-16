@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.device_registry import DeviceInfo
-from homeassistant.helpers.typing import UNDEFINED
+from homeassistant.helpers.typing import UNDEFINED, UndefinedType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .device import VioletPoolDataUpdateCoordinator
@@ -184,16 +184,24 @@ def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool | None:
     return None
 
 
-def strip_redundant_device_prefix(name: Any, *device_names: str | None) -> str | None:
+def strip_redundant_device_prefix(
+    name: Any, *device_names: str | None
+) -> str | UndefinedType | None:
     """Strip repeated device/controller prefixes from an entity name.
 
     Home Assistant already prepends the device name when ``has_entity_name`` is
     true. If a controller-provided output label also starts with the same device
     name (for example ``Violet Pool Controller Beleuchtung``), the generated
     entity id becomes duplicated. Return only the entity-specific suffix.
+
+    ``None`` and ``UNDEFINED`` are passed through untouched. ``UNDEFINED`` is
+    Home Assistant's "no name set" sentinel and is the default of
+    ``EntityDescription.name``; stringifying it would name the entity
+    "UndefinedType._singleton" instead of letting Home Assistant fall back to
+    the device name.
     """
-    if name is None:
-        return None
+    if name is None or name is UNDEFINED:
+        return name
 
     cleaned = str(name).strip()
     if not cleaned:
