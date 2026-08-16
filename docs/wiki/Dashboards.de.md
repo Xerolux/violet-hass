@@ -13,12 +13,48 @@ dein Dashboard.
 
 ## 📋 Inhaltsverzeichnis
 
-1. [Welche Karte soll ich nehmen?](#-welche-karte-soll-ich-nehmen)
-2. [Karte einbinden](#-karte-einbinden)
-3. [Komplettes Dashboard importieren](#-komplettes-dashboard-importieren)
-4. [Benötigte Custom Cards (HACS)](#-benötigte-custom-cards-hacs)
-5. [Entity-IDs anpassen](#-entity-ids-anpassen)
-6. [Fehlerbehebung](#-fehlerbehebung)
+1. [Die Violet Pool Card](#-die-violet-pool-card)
+2. [Welche Karte soll ich nehmen?](#-welche-karte-soll-ich-nehmen)
+3. [Karte einbinden](#-karte-einbinden)
+4. [Komplettes Dashboard importieren](#-komplettes-dashboard-importieren)
+5. [Benötigte Custom Cards (HACS)](#-benötigte-custom-cards-hacs)
+6. [Entity-IDs anpassen](#-entity-ids-anpassen)
+7. [Fehlerbehebung](#-fehlerbehebung)
+
+---
+
+## 💎 Die Violet Pool Card
+
+Neben den YAML-Beispielen in diesem Repository gibt es eine **eigens für diese
+Integration entwickelte Lovelace-Karte**:
+
+**➡️ [Xerolux/violet-pool-card](https://github.com/Xerolux/violet-pool-card)**
+
+Sie bietet 28 Kartentypen (Pumpe, Heizung, Solar, Dosierung, Abdeckung, Licht,
+Filter, Chemie, Rückspülung, Nachfüllung, Durchfluss, Digital Rules,
+Diagnostics und mehr), sieben Themes, einen grafischen Editor und automatische
+Entity-Erkennung.
+
+> **Wichtig:** Die Karte ist ein **eigenständiges Projekt** mit eigenem
+> Repository und eigenem Release-Zyklus. Sie wird **nicht** zusammen mit der
+> Integration installiert — du musst sie in HACS selbst hinzufügen.
+
+### Installation
+
+1. Die Violet-Pool-Controller-Integration (dieses Repository) installieren und einrichten.
+2. **HACS → Frontend → ⋮ (Drei-Punkte-Menü) → Eigene Repositories**
+3. Repository: `https://github.com/Xerolux/violet-pool-card`
+   Kategorie: **Dashboard** → **Hinzufügen**
+4. Nach **Violet Pool Card** suchen und herunterladen.
+5. **Home Assistant neu starten** und den Browser hart neu laden (Strg/Cmd + Umschalt + R).
+6. Im Dashboard eine Karte hinzufügen und **Violet Pool Card** auswählen.
+
+Konfigurationsbeispiele stehen in
+[`Dashboard/VIOLET_CARD_EXAMPLES.yaml`](https://github.com/Xerolux/violet-hass/blob/main/Dashboard/VIOLET_CARD_EXAMPLES.yaml)
+und in der README der Karte.
+
+> Du willst nichts zusätzlich installieren? Alle übrigen Dateien in `Dashboard/`
+> funktionieren mit den Standardkarten von Home Assistant — siehe Tabelle unten.
 
 ---
 
@@ -32,7 +68,7 @@ dein Dashboard.
 | [`pool_control_status.yaml`](https://github.com/Xerolux/violet-hass/blob/main/Dashboard/pool_control_status.yaml) | Schalter mit Modus, Laufzeit und Drehzahl darunter | ⚠️ `secondaryinfo-entity-row` (optional) |
 | [`pool_control_ultimate.yaml`](https://github.com/Xerolux/violet-hass/blob/main/Dashboard/pool_control_ultimate.yaml) | Alle Steuerungen für jedes Gerät auf einen Blick | ✅ Mushroom, Slider Entity Row, Card Mod |
 | [`pool-dashboard.yaml`](https://github.com/Xerolux/violet-hass/blob/main/Dashboard/pool-dashboard.yaml) | Komplettes Dashboard mit mehreren Ansichten | ⚠️ Siehe Dateikopf |
-| [`VIOLET_CARD_EXAMPLES.yaml`](https://github.com/Xerolux/violet-hass/blob/main/Dashboard/VIOLET_CARD_EXAMPLES.yaml) | Bausteine zum Kopieren in eigene Karten | ⚠️ Siehe Dateikopf |
+| [`VIOLET_CARD_EXAMPLES.yaml`](https://github.com/Xerolux/violet-hass/blob/main/Dashboard/VIOLET_CARD_EXAMPLES.yaml) | Konfigurationen für die Violet Pool Card | ✅ [Violet Pool Card](#-die-violet-pool-card) |
 
 > **Zum ersten Mal dabei?** Fang mit `pool_control_simple_blocks.yaml` an. Die
 > Karte funktioniert ohne Zusatzinstallationen.
@@ -75,6 +111,7 @@ Browser neu laden (Strg/Cmd + Umschalt + R):
 | Slider Entity Row | `Slider Entity Row` | `pool_control_ultimate.yaml` |
 | Card Mod | `card-mod` | `pool_control_ultimate.yaml` |
 | Secondary Info Entity Row | `secondaryinfo-entity-row` | `pool_control_status.yaml` (optional) |
+| Violet Pool Card | eigenes Repository, siehe [oben](#-die-violet-pool-card) | `VIOLET_CARD_EXAMPLES.yaml` |
 
 Eine fehlende Custom Card erscheint als roter Kasten
 `Custom element doesn't exist: mushroom-template-card`.

@@ -13,9 +13,19 @@
 
 - **Entity-IDs sind nicht mehr sprachabhängig** - Home Assistant bildet Entity-IDs aus dem *übersetzten* Namen; auf einer deutschen Installation entstand daher `sensor.violet_pool_controller_wassertemperatur`, auf einer englischen `sensor.violet_pool_controller_pool_temperature`. Dadurch funktionierten geteilte Dashboards (u.a. die Beispiele in `Dashboard/`) nur auf englischen Installationen. Neue Entitäten erhalten jetzt immer die englische ID, die angezeigten Namen bleiben übersetzt. **Bestehende Entitäten behalten ihre ID**, damit vorhandene Automationen und Dashboards nicht brechen — siehe [Dashboards-Wiki](https://xerolux.github.io/violet-hass/docs/#/dashboards) für die Migrationsmöglichkeiten.
 
+### ⬆️ Home Assistant 2026.8
+
+- **Mindestversion auf Home Assistant 2026.8.0 angehoben** (war 2026.5.0) - `hacs.json`, `requirements.txt` und die Dokumentation nennen jetzt einheitlich 2026.8.
+- **Testumgebung auf HA 2026.8.2 aktualisiert** - Die Testmatrix lief bislang gegen **Home Assistant 2025.1.4**: `tox.ini` pinnte `pytest-homeassistant-custom-component<0.13.317`, weil neuere Releases Python 3.14 voraussetzen. Getestet wurde damit eine über ein Jahr alte Core-Version. Die Tests laufen jetzt unter Python 3.14 gegen `pytest-homeassistant-custom-component>=0.13.356` (HA 2026.8.2); Linting läuft weiterhin zusätzlich auf 3.12 und 3.13.
+
+### 🧪 Tests
+
+- **`test_validate_ph_value` an den tatsächlichen Sollwertbereich angepasst** - Der Test erwartete eine obere pH-Grenze von 9.0; `violet-poolController-api` 0.0.37 hat sie bewusst auf 8.0 gesenkt, passend zu dem vom Controller akzeptierten Sollwertbereich. Der Test liest die Grenzen jetzt aus `SETPOINT_RANGES` des API-Pakets, statt sie fest zu verdrahten.
+
 ### 📖 Dokumentation
 
 - **Neue Wiki-Seite "Dashboards & Pool-Karten"** (DE/EN) - Erklärt, welche Karte aus dem `Dashboard/`-Ordner wofür geeignet ist, wie man sie einbindet, welche HACS-Karten benötigt werden und wie man die Entity-IDs anpasst. Verlinkt aus README, Wiki-Sidebar und Doku-Navigation; zusätzlich liegt jetzt eine `Dashboard/README.md` direkt im Ordner.
+- **Violet Pool Card dokumentiert** - Die [Violet Pool Card](https://github.com/Xerolux/violet-pool-card) ist ein eigenständiges Projekt und wird nicht mit der Integration installiert; das war bisher nirgends beschrieben. Die Wiki-Seite erklärt jetzt die Installation über HACS → Eigene Repositories. `VIOLET_CARD_EXAMPLES.yaml` bezeichnete die Karte fälschlich als "hypothetisch" und verweist nun auf das echte Repository.
 
 ## Version 2.3.1 (2026-07-19)
 

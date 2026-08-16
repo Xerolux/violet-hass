@@ -35,8 +35,8 @@
 
 | Requirement | Minimum | Recommended |
 |-------------|---------|-------------|
-| Home Assistant | 2026.5.0 | 2026.x (current) |
-| Python | Provided by Home Assistant 2026.5.0+ | Managed by Home Assistant |
+| Home Assistant | 2026.8.0 | 2026.x (current) |
+| Python | Provided by Home Assistant 2026.8.0+ | Managed by Home Assistant |
 | Network | Controller reachable via HTTP | Static IP address (DHCP reservation) |
 | HACS | Optional | Recommended for easy updates |
 | Storage | <10 MB | – |
