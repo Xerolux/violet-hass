@@ -217,13 +217,15 @@
           "controller_name": "控制器名称",
           "polling_interval": "轮询间隔（秒）",
           "timeout_duration": "超时（秒）",
-          "retry_attempts": "重试次数"
+          "retry_attempts": "重试次数",
+          "group_entities": "Group entities into sub-devices"
         },
         "data_description": {
           "controller_name": "控制器显示名称",
           "polling_interval": "数据轮询间隔（5-300秒）",
           "timeout_duration": "每次请求最长等待时间（5-60秒）",
-          "retry_attempts": "失败时的重试次数（1-10）"
+          "retry_attempts": "失败时的重试次数（1-10）",
+          "group_entities": "Split the controller's entities across sub-devices (pump, heating, dosing, ...) instead of listing all of them under one device. Entity IDs are not affected."
         }
       }
     }
@@ -1998,6 +2000,44 @@
           "auto": "Auto"
         }
       }
+    }
+  },
+  "device": {
+    "filter_pump": {
+      "name": "Filter Pump"
+    },
+    "heating": {
+      "name": "Heating"
+    },
+    "solar": {
+      "name": "Solar Absorber"
+    },
+    "dosing": {
+      "name": "Dosing & Water Chemistry"
+    },
+    "lighting": {
+      "name": "Lighting & DMX"
+    },
+    "cover": {
+      "name": "Pool Cover"
+    },
+    "backwash": {
+      "name": "Backwash"
+    },
+    "water_refill": {
+      "name": "Water Refill"
+    },
+    "pv_surplus": {
+      "name": "PV Surplus"
+    },
+    "digital_io": {
+      "name": "Digital Inputs & Rules"
+    },
+    "extensions": {
+      "name": "Extension Modules"
+    },
+    "system": {
+      "name": "System & Diagnostics"
     }
   }
 }

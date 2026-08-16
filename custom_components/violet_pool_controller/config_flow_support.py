@@ -34,6 +34,7 @@ from .const import (
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
     CONF_DISINFECTION_METHOD,
+    CONF_GROUP_ENTITIES,
     CONF_INVERT_COVER,
     CONF_PASSWORD,
     CONF_POLLING_INTERVAL,
@@ -49,6 +50,7 @@ from .const import (
     DEFAULT_ALLOW_UNSAFE_SWITCHES,
     DEFAULT_CONTROLLER_NAME,
     DEFAULT_DISINFECTION_METHOD,
+    DEFAULT_GROUP_ENTITIES,
     DEFAULT_INVERT_COVER,
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_POOL_SIZE,
@@ -434,6 +436,10 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                     CONF_CONTROLLER_NAME,
                     default=self.current_config.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME),
                 ): str,
+                vol.Optional(
+                    CONF_GROUP_ENTITIES,
+                    default=self.current_config.get(CONF_GROUP_ENTITIES, DEFAULT_GROUP_ENTITIES),
+                ): selector.BooleanSelector(selector.BooleanSelectorConfig()),
                 vol.Optional(
                     CONF_POLLING_INTERVAL,
                     default=self.current_config.get(

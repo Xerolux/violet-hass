@@ -2,6 +2,42 @@
 
 > **Language Note:** This changelog is available in German. For English release notes, see the GitHub releases page.
 
+## Version 2.3.5 (2026-08-16)
+
+### 🗂️ Entitäten sind jetzt in Untergeräte gruppiert
+
+Ein Controller liefert mehrere hundert Werte, die bisher alle unter einem
+einzigen Gerät hingen — die Geräteseite war damit praktisch unbenutzbar. Die
+Entitäten verteilen sich jetzt auf **12 Untergeräte**, die unterhalb des
+Controllers hängen: Filterpumpe, Heizung, Solarabsorber, Dosierung &
+Wasserchemie, Beleuchtung & DMX, Abdeckung, Rückspülung, Wassernachfüllung,
+PV-Überschuss, Digitale Eingänge & Regeln, Erweiterungsmodule sowie System &
+Diagnose.
+
+Die Gruppen entsprechen den Features, die im Config-Flow an- und abgewählt
+werden — die Geräteseite bildet also die gewählte Konfiguration ab. Untergeräte,
+die leer bleiben (Hardware-Modul nicht vorhanden oder Feature deaktiviert),
+werden automatisch entfernt. Gerätenamen sind auf Deutsch und Englisch übersetzt.
+
+> **Entity-IDs bleiben unverändert.** Home Assistant leitet die Entity-ID aus dem
+> Gerät ab, zu dem eine Entität gehört — die Gruppierung allein hätte neu
+> angelegte Entitäten zu `sensor.filterpumpe_...` umbenannt und damit erneut die
+> Dashboards zerschossen, deren Sprachabhängigkeit in 2.3.4 gerade beseitigt
+> wurde. Die Entity-IDs sind deshalb fest an den Controller-Namen gebunden;
+> `sensor.violet_pool_controller_pump_runtime` bleibt gültig.
+
+Abschaltbar über **Konfigurieren → Einstellungen ändern → Entitäten in
+Untergeräte gruppieren**; dann landen alle Entitäten wieder auf einem Gerät.
+
+### 🐛 Fehlerbehebungen
+
+- **`UNDEFINED`-Sentinel wird nicht mehr zu Text** - `strip_redundant_device_prefix()` prüfte nur auf `None`. `EntityDescription.name` hat als Standardwert aber `UNDEFINED` ("diese Entität hat keinen eigenen Namen"), was durch `str()` zu `"UndefinedType._singleton"` wurde und als Entitätsname gelandet wäre. In keiner veröffentlichten Version erreichbar, da jede Description einen Namen setzt — aber ein vergessenes `name=` davon entfernt.
+
+### 🔧 Technisch
+
+- **Eltern-Verknüpfung versionsabhängig** - `DeviceInfo.via_device` ist seit Home Assistant 2026.8 zugunsten von `via_device_id` deprecated (Entfernung angekündigt für 2027.8), beide gleichzeitig zu übergeben wirft einen Fehler. Da die Integration ab 2026.1 unterstützt wird, wo `via_device_id` noch nicht existiert, wird das passende Feld zur Laufzeit gewählt.
+- **Geräte werden vorab angelegt** - Plattformen werden in unbestimmter Reihenfolge geladen; ohne vorab erzeugte Geräte fände die erste Entität ihr Elterngerät unter Umständen nicht. Haupt- und Untergeräte werden deshalb vor dem Laden der Plattformen erzeugt und ihre Registry-IDs zwischengespeichert.
+
 ## Version 2.3.4 (2026-08-16)
 
 Diese Version behebt drei Punkte aus dem Nutzer-Feedback im

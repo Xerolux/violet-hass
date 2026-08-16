@@ -238,14 +238,16 @@
           "polling_interval": "Abrufintervall (Sekunden)",
           "timeout_duration": "Timeout (Sekunden)",
           "retry_attempts": "Wiederholungsversuche",
-          "invert_cover": "Poolabdeckung invertieren"
+          "invert_cover": "Poolabdeckung invertieren",
+          "group_entities": "Entitäten in Untergeräte gruppieren"
         },
         "data_description": {
           "controller_name": "Anzeigename des Controllers",
           "polling_interval": "Intervall für Datenabrufe (5-300s)",
           "timeout_duration": "Maximale Wartezeit pro Anfrage (5-60s)",
           "retry_attempts": "Anzahl Wiederholungsversuche bei Fehlern (1-10)",
-          "invert_cover": "Tauscht Offen/Geschlossen, falls die Abdeckung falsch angeschlossen ist"
+          "invert_cover": "Tauscht Offen/Geschlossen, falls die Abdeckung falsch angeschlossen ist",
+          "group_entities": "Verteilt die Entitäten des Controllers auf Untergeräte (Pumpe, Heizung, Dosierung, ...), statt alle unter einem Gerät aufzulisten. Entity-IDs bleiben unverändert."
         }
       }
     }
@@ -2328,6 +2330,44 @@
           "auto": "Auto"
         }
       }
+    }
+  },
+  "device": {
+    "filter_pump": {
+      "name": "Filterpumpe"
+    },
+    "heating": {
+      "name": "Heizung"
+    },
+    "solar": {
+      "name": "Solarabsorber"
+    },
+    "dosing": {
+      "name": "Dosierung & Wasserchemie"
+    },
+    "lighting": {
+      "name": "Beleuchtung & DMX"
+    },
+    "cover": {
+      "name": "Abdeckung"
+    },
+    "backwash": {
+      "name": "Rückspülung"
+    },
+    "water_refill": {
+      "name": "Wassernachfüllung"
+    },
+    "pv_surplus": {
+      "name": "PV-Überschuss"
+    },
+    "digital_io": {
+      "name": "Digitale Eingänge & Regeln"
+    },
+    "extensions": {
+      "name": "Erweiterungsmodule"
+    },
+    "system": {
+      "name": "System & Diagnose"
     }
   }
 }

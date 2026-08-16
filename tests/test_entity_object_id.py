@@ -160,3 +160,42 @@ def test_name_sanitizer_still_strips_the_device_prefix():
         )
         == "Beleuchtung"
     )
+
+
+def test_entity_id_is_pinned_to_the_controller(entity):
+    """Grouping must not change entity ids.
+
+    Home Assistant composes entity ids from the device an entity belongs to, so
+    moving entities onto sub-devices would rename them to
+    ``sensor.filter_pump_pool_temperature``. The base entity pins the id to the
+    controller name instead, so shared dashboards keep working.
+    """
+    _attach(entity, _platform_data("Wassertemperatur"))
+    platform = MagicMock()
+    platform.domain = "sensor"
+
+    assert entity._pinned_entity_id(platform) == (
+        "sensor.violet_pool_controller_pool_temperature"
+    )
+
+
+def test_pinned_entity_id_is_language_independent(entity):
+    """The pinned id uses the English name, like suggested_object_id does."""
+    platform = MagicMock()
+    platform.domain = "sensor"
+
+    _attach(entity, _platform_data("Wassertemperatur"))
+    german_install = entity._pinned_entity_id(platform)
+    _attach(entity, _platform_data("Pool Temperature"))
+    english_install = entity._pinned_entity_id(platform)
+
+    assert german_install == english_install
+
+
+def test_nameless_entity_is_not_pinned(unnamed_entity):
+    """Without a name there is nothing to pin; let Home Assistant decide."""
+    platform = MagicMock()
+    platform.domain = "sensor"
+    _attach(unnamed_entity, None)
+
+    assert unnamed_entity._pinned_entity_id(platform) is None
