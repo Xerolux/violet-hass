@@ -24,6 +24,44 @@ Complete reference of every entity the integration can create. Entities are crea
 
 ---
 
+## 🗂️ Device Grouping
+
+A controller reports several hundred values. Listing them all under a single
+device makes the device page unusable, so the integration splits its entities
+across **12 sub-devices** that hang below the controller:
+
+| Sub-device | Contains |
+|------------|----------|
+| Filter Pump | Pump states, speeds, runtimes, filter pressure |
+| Heating | Heater state, runtime, setpoints, heater probes |
+| Solar Absorber | Solar state, runtime, absorber probes |
+| Dosing & Water Chemistry | pH, ORP, chlorine, all dosing channels and canisters |
+| Lighting & DMX | Light state, runtime, DMX scenes |
+| Pool Cover | Cover state and position |
+| Backwash | Backwash and rinse states and runtimes |
+| Water Refill | Refill state, runtime, water level |
+| PV Surplus | Photovoltaic surplus mode |
+| Digital Inputs & Rules | Digital inputs, switching rules, analog and impulse inputs |
+| Extension Modules | Extension relays EXT1_x and EXT2_x |
+| System & Diagnostics | Firmware, CPU, error codes, connection health |
+
+The groups mirror the features you enable and disable during setup, so the
+device page reflects the configuration you chose. Sub-devices that stay empty —
+because the hardware module is absent or the feature is disabled — are removed
+automatically.
+
+> **Entity IDs are not affected.** Home Assistant normally derives the entity ID
+> from the device an entity belongs to, which would have renamed everything to
+> `sensor.filter_pump_...`. The integration pins entity IDs to the controller
+> name instead, so `sensor.violet_pool_controller_pump_runtime` stays valid and
+> shared dashboards keep working.
+
+**Turning it off:** Settings → Devices & Services → Violet Pool Controller →
+**Configure → Change settings → Group entities into sub-devices**. With the
+option off, every entity returns to the single controller device.
+
+---
+
 ## 🌡️ Sensors
 
 All sensor definitions live in `const_sensors.py`. Sensors are created automatically when the corresponding reading is present in `/getReadings` and the feature is enabled.

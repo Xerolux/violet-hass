@@ -218,14 +218,16 @@
           "polling_interval": "Intervalo de Sondeo (segundos)",
           "timeout_duration": "Tiempo de Espera (segundos)",
           "retry_attempts": "Intentos de Reintento",
-          "invert_cover": "Invertir Cubierta de Piscina"
+          "invert_cover": "Invertir Cubierta de Piscina",
+          "group_entities": "Group entities into sub-devices"
         },
         "data_description": {
           "controller_name": "Nombre de visualización del controlador",
           "polling_interval": "Intervalo de sondeo de datos (5-300s)",
           "timeout_duration": "Tiempo máximo de espera por solicitud (5-60s)",
           "retry_attempts": "Número de intentos de reintento en caso de fallo (1-10)",
-          "invert_cover": "Intercambia Abierto/Cerrado si la cubierta está conectada incorrectamente"
+          "invert_cover": "Intercambia Abierto/Cerrado si la cubierta está conectada incorrectamente",
+          "group_entities": "Split the controller's entities across sub-devices (pump, heating, dosing, ...) instead of listing all of them under one device. Entity IDs are not affected."
         }
       }
     }
@@ -2266,6 +2268,44 @@
           "auto": "Automático"
         }
       }
+    }
+  },
+  "device": {
+    "filter_pump": {
+      "name": "Filter Pump"
+    },
+    "heating": {
+      "name": "Heating"
+    },
+    "solar": {
+      "name": "Solar Absorber"
+    },
+    "dosing": {
+      "name": "Dosing & Water Chemistry"
+    },
+    "lighting": {
+      "name": "Lighting & DMX"
+    },
+    "cover": {
+      "name": "Pool Cover"
+    },
+    "backwash": {
+      "name": "Backwash"
+    },
+    "water_refill": {
+      "name": "Water Refill"
+    },
+    "pv_surplus": {
+      "name": "PV Surplus"
+    },
+    "digital_io": {
+      "name": "Digital Inputs & Rules"
+    },
+    "extensions": {
+      "name": "Extension Modules"
+    },
+    "system": {
+      "name": "System & Diagnostics"
     }
   }
 }

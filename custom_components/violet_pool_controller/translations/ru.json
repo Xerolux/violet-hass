@@ -217,13 +217,15 @@
           "controller_name": "Имя контроллера",
           "polling_interval": "Интервал опроса (секунды)",
           "timeout_duration": "Тайм-аут (секунды)",
-          "retry_attempts": "Попытки повтора"
+          "retry_attempts": "Попытки повтора",
+          "group_entities": "Group entities into sub-devices"
         },
         "data_description": {
           "controller_name": "Отображаемое имя контроллера",
           "polling_interval": "Интервал опроса данных (5-300s)",
           "timeout_duration": "Максимальное время ожидания запроса (5-60s)",
-          "retry_attempts": "Количество попыток повтора при ошибке (1-10)"
+          "retry_attempts": "Количество попыток повтора при ошибке (1-10)",
+          "group_entities": "Split the controller's entities across sub-devices (pump, heating, dosing, ...) instead of listing all of them under one device. Entity IDs are not affected."
         }
       }
     }
@@ -1998,6 +2000,44 @@
           "auto": "Авто"
         }
       }
+    }
+  },
+  "device": {
+    "filter_pump": {
+      "name": "Filter Pump"
+    },
+    "heating": {
+      "name": "Heating"
+    },
+    "solar": {
+      "name": "Solar Absorber"
+    },
+    "dosing": {
+      "name": "Dosing & Water Chemistry"
+    },
+    "lighting": {
+      "name": "Lighting & DMX"
+    },
+    "cover": {
+      "name": "Pool Cover"
+    },
+    "backwash": {
+      "name": "Backwash"
+    },
+    "water_refill": {
+      "name": "Water Refill"
+    },
+    "pv_surplus": {
+      "name": "PV Surplus"
+    },
+    "digital_io": {
+      "name": "Digital Inputs & Rules"
+    },
+    "extensions": {
+      "name": "Extension Modules"
+    },
+    "system": {
+      "name": "System & Diagnostics"
     }
   }
 }

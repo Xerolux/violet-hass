@@ -38,6 +38,7 @@ from .const import (
     CONF_CONTROLLER_NAME,
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
+    CONF_GROUP_ENTITIES,
     CONF_PASSWORD,
     CONF_POLLING_INTERVAL,
     CONF_PORT,
@@ -54,6 +55,11 @@ from .const import (
     DEFAULT_TIMEOUT_DURATION,
     DEFAULT_VERIFY_SSL,
     DOMAIN,
+)
+from .device_hierarchy import (
+    async_cleanup_sub_devices,
+    async_precreate_devices,
+    discard_device_ids,
 )
 from .entity_cleanup import async_remove_orphaned_entities, discard_provided_entities
 
@@ -360,6 +366,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # mandatory time limits via Services instead of switches
         _disable_unsafe_switches(hass, er.async_get(hass), entry.entry_id)
 
+        # Create the controller device and its sub-devices before the platforms
+        # run, so every entity finds its parent regardless of platform order.
+        async_precreate_devices(hass, entry, coordinator)
+
         # Load platforms
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
@@ -380,6 +390,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # makes the matching entities disappear instead of leaving them behind
         # as permanently unavailable "restored" entries.
         async_remove_orphaned_entities(hass, entry, PLATFORMS)
+
+        # Drop sub-devices that ended up empty (hardware module absent, feature
+        # disabled) and every sub-device when grouping is switched off.
+        async_cleanup_sub_devices(hass, entry)
 
         _LOGGER.info(
             "Setup completed successfully for '%s' (entry_id=%s)",
@@ -436,6 +450,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             # Drop the per-entry bookkeeping so the next setup starts clean
             hass.data.get(DOMAIN, {}).pop(_structural_options_key(entry), None)
             discard_provided_entities(hass, entry)
+            discard_device_ids(hass, entry)
 
             _LOGGER.info("Successfully unloaded '%s' (entry_id=%s)", device_name, entry.entry_id)
         else:
@@ -466,7 +481,12 @@ def _structural_options(entry: ConfigEntry) -> dict[str, Any]:
     """
     options: dict[str, Any] = {}
 
-    for option in (CONF_ACTIVE_FEATURES, CONF_SELECTED_SENSORS, CONF_ALLOW_UNSAFE_SWITCHES):
+    for option in (
+        CONF_ACTIVE_FEATURES,
+        CONF_SELECTED_SENSORS,
+        CONF_ALLOW_UNSAFE_SWITCHES,
+        CONF_GROUP_ENTITIES,
+    ):
         value = entry.options.get(option, entry.data.get(option))
         # Feature/sensor selections are order-insensitive lists.
         options[option] = sorted(value) if isinstance(value, list) else value

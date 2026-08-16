@@ -63,7 +63,7 @@ DEVICE_PARAMETERS = _const_devices.DEVICE_PARAMETERS
 # =============================================================================
 
 DOMAIN = "violet_pool_controller"
-INTEGRATION_VERSION = "2.3.4"
+INTEGRATION_VERSION = "2.3.5"
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 
 # =============================================================================
@@ -84,6 +84,9 @@ CONF_POOL_TYPE = "pool_type"
 CONF_DISINFECTION_METHOD = "disinfection_method"
 CONF_DOSING_STANDALONE = "dosing_standalone"
 CONF_INVERT_COVER = "invert_cover"
+# Split the controller's entities across sub-devices instead of listing all of
+# them under a single device (see device_hierarchy.py).
+CONF_GROUP_ENTITIES = "group_entities"
 CONF_ALLOW_UNSAFE_SWITCHES = "allow_unsafe_switches"
 
 # ACTION_* constants come from violet_poolcontroller_api.const_api (wildcard
@@ -109,6 +112,7 @@ DEFAULT_POOL_TYPE = "outdoor"
 DEFAULT_DISINFECTION_METHOD = "chlorine"
 DEFAULT_DOSING_STANDALONE = False
 DEFAULT_INVERT_COVER = False
+DEFAULT_GROUP_ENTITIES = True
 DEFAULT_ALLOW_UNSAFE_SWITCHES = False
 
 # =============================================================================

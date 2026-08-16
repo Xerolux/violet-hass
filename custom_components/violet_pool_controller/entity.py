@@ -15,11 +15,14 @@ import re
 from typing import TYPE_CHECKING, Any, cast
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.typing import UNDEFINED, UndefinedType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import slugify
 
 from .device import VioletPoolDataUpdateCoordinator
+from .device_hierarchy import build_device_info
 from .state_constants import get_state_definition
 
 # CoordinatorEntity is generic in the type stubs but not subscriptable at runtime.
@@ -267,7 +270,13 @@ class VioletPoolControllerEntity(_VioletCoordinatorEntity):
             getattr(coordinator.device, "device_name", None),
             getattr(coordinator.device, "controller_name", None),
         )
-        if translation_key:
+        # UNDEFINED means the description carries no name. Leaving _attr_name
+        # unset then lets Home Assistant resolve the name normally (translation,
+        # device class, device name) instead of pinning it to the sentinel.
+        if sanitized_name is UNDEFINED:
+            if translation_key:
+                self._attr_translation_key = translation_key
+        elif translation_key:
             self._attr_translation_key = translation_key
             if sanitized_name != getattr(entity_description, "name", None):
                 self._attr_name = sanitized_name
@@ -276,6 +285,8 @@ class VioletPoolControllerEntity(_VioletCoordinatorEntity):
 
         self._attr_unique_id = f"{config_entry.entry_id}_{entity_description.key}"
         self._attr_device_info = cast(DeviceInfo, coordinator.device.device_info)
+        # Replaced with the sub-device in add_to_platform_start(), where hass is
+        # available; the controller device is the correct fallback until then.
 
         _LOGGER.debug(
             "Entity initialized: %s (Key: %s, ID: %s)",
@@ -283,6 +294,55 @@ class VioletPoolControllerEntity(_VioletCoordinatorEntity):
             entity_description.key,
             self._attr_unique_id,
         )
+
+    @callback
+    def add_to_platform_start(self, hass, platform, parallel_updates) -> None:
+        """Attach the entity to its sub-device and pin its entity id.
+
+        Runs before Home Assistant reads ``device_info`` and before it derives
+        the entity id, which is the only point where both the platform domain
+        and ``hass`` are available.
+
+        Two things happen here:
+
+        * The entity is moved onto the sub-device that matches its key, so the
+          device page groups a few hundred values into functional blocks.
+        * The entity id is pinned to the *controller* name. Home Assistant
+          composes entity ids from the owning device, so grouping alone would
+          rename new entities to ``sensor.filter_pump_pump_runtime``. Pinning
+          keeps them at ``sensor.violet_pool_controller_pump_runtime`` on every
+          installation, which is what shared dashboards reference. Existing
+          entities are unaffected either way — the registry keeps their id.
+        """
+        super().add_to_platform_start(hass, platform, parallel_updates)
+
+        try:
+            self._attr_device_info = build_device_info(
+                hass,
+                self.config_entry,
+                self.coordinator,
+                self.entity_description.key,
+            )
+        except Exception:  # noqa: BLE001 - grouping must never break setup
+            _LOGGER.exception(
+                "Could not resolve the sub-device for %s; using the controller device",
+                self.entity_description.key,
+            )
+
+        if self.entity_id is None:
+            self.entity_id = self._pinned_entity_id(platform)
+
+    def _pinned_entity_id(self, platform) -> str | None:
+        """Return the controller-based entity id, or None to let HA decide."""
+        object_name = self.suggested_object_id
+        if not object_name:
+            return None
+
+        controller_name = getattr(self.coordinator.device, "controller_name", None)
+        if not controller_name:
+            return None
+
+        return f"{platform.domain}.{slugify(f'{controller_name} {object_name}')}"
 
     @property
     def suggested_object_id(self) -> str | None:
@@ -323,10 +383,13 @@ class VioletPoolControllerEntity(_VioletCoordinatorEntity):
         return None if name is UNDEFINED else name
 
     def _english_fallback_object_id(self) -> str | None:
-        """Return the untranslated name defined in the entity description."""
-        return getattr(self, "_attr_name", None) or getattr(
-            self.entity_description, "name", None
-        )
+        """Return the untranslated name defined in the entity description.
+
+        ``UNDEFINED`` means the entity has no name of its own, so it maps to
+        ``None`` rather than being stringified into the object id.
+        """
+        name = getattr(self, "_attr_name", None) or getattr(self.entity_description, "name", None)
+        return None if name is UNDEFINED else name
 
     @property
     def device(self) -> Any:

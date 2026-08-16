@@ -217,13 +217,15 @@
           "controller_name": "Nome do Controlador",
           "polling_interval": "Intervalo de Polling (segundos)",
           "timeout_duration": "Tempo Limite (segundos)",
-          "retry_attempts": "Tentativas de Repetição"
+          "retry_attempts": "Tentativas de Repetição",
+          "group_entities": "Group entities into sub-devices"
         },
         "data_description": {
           "controller_name": "Nome de exibição do controlador",
           "polling_interval": "Intervalo de polling de dados (5-300s)",
           "timeout_duration": "Tempo máximo de espera por solicitação (5-60s)",
-          "retry_attempts": "Número de tentativas de repetição em caso de falha (1-10)"
+          "retry_attempts": "Número de tentativas de repetição em caso de falha (1-10)",
+          "group_entities": "Split the controller's entities across sub-devices (pump, heating, dosing, ...) instead of listing all of them under one device. Entity IDs are not affected."
         }
       }
     }
@@ -676,6 +678,44 @@
       "imp2_value": {
         "name": "Vazão da Bomba"
       }
+    }
+  },
+  "device": {
+    "filter_pump": {
+      "name": "Filter Pump"
+    },
+    "heating": {
+      "name": "Heating"
+    },
+    "solar": {
+      "name": "Solar Absorber"
+    },
+    "dosing": {
+      "name": "Dosing & Water Chemistry"
+    },
+    "lighting": {
+      "name": "Lighting & DMX"
+    },
+    "cover": {
+      "name": "Pool Cover"
+    },
+    "backwash": {
+      "name": "Backwash"
+    },
+    "water_refill": {
+      "name": "Water Refill"
+    },
+    "pv_surplus": {
+      "name": "PV Surplus"
+    },
+    "digital_io": {
+      "name": "Digital Inputs & Rules"
+    },
+    "extensions": {
+      "name": "Extension Modules"
+    },
+    "system": {
+      "name": "System & Diagnostics"
     }
   }
 }

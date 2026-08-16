@@ -24,6 +24,46 @@ Vollständige Referenz aller Entitäten, die die Integration erzeugen kann. Enti
 
 ---
 
+## 🗂️ Geräte-Gruppierung
+
+Ein Controller liefert mehrere hundert Werte. Alle unter einem einzigen Gerät
+aufzulisten macht die Geräteseite unbrauchbar — die Integration verteilt ihre
+Entitäten deshalb auf **12 Untergeräte**, die unterhalb des Controllers hängen:
+
+| Untergerät | Enthält |
+|------------|---------|
+| Filterpumpe | Pumpenzustände, Drehzahlen, Laufzeiten, Filterdruck |
+| Heizung | Heizungszustand, Laufzeit, Sollwerte, Heizungsfühler |
+| Solarabsorber | Solarzustand, Laufzeit, Absorberfühler |
+| Dosierung & Wasserchemie | pH, ORP, Chlor, alle Dosierkanäle und Kanister |
+| Beleuchtung & DMX | Lichtzustand, Laufzeit, DMX-Szenen |
+| Abdeckung | Zustand und Position der Abdeckung |
+| Rückspülung | Rückspül- und Spülzustände sowie Laufzeiten |
+| Wassernachfüllung | Nachfüllzustand, Laufzeit, Wasserstand |
+| PV-Überschuss | Photovoltaik-Überschussmodus |
+| Digitale Eingänge & Regeln | Digitale Eingänge, Schaltregeln, Analog- und Impulseingänge |
+| Erweiterungsmodule | Erweiterungsrelais EXT1_x und EXT2_x |
+| System & Diagnose | Firmware, CPU, Fehlercodes, Verbindungsqualität |
+
+Die Gruppen entsprechen den Features, die du bei der Einrichtung an- und
+abwählst — die Geräteseite bildet also genau deine Konfiguration ab.
+Untergeräte, die leer bleiben (Hardware-Modul nicht vorhanden oder Feature
+deaktiviert), werden automatisch entfernt.
+
+> **Entity-IDs bleiben unverändert.** Home Assistant leitet die Entity-ID
+> normalerweise aus dem Gerät ab, zu dem eine Entität gehört — damit wäre alles
+> zu `sensor.filterpumpe_...` umbenannt worden. Die Integration bindet die
+> Entity-IDs stattdessen an den Controller-Namen, sodass
+> `sensor.violet_pool_controller_pump_runtime` gültig bleibt und geteilte
+> Dashboards weiter funktionieren.
+
+**Abschalten:** Einstellungen → Geräte & Dienste → Violet Pool Controller →
+**Konfigurieren → Einstellungen ändern → Entitäten in Untergeräte gruppieren**.
+Mit deaktivierter Option landen alle Entitäten wieder auf dem einen
+Controller-Gerät.
+
+---
+
 ## 🌡️ Sensoren
 
 Alle Sensor-Definitionen liegen in `const_sensors.py`. Sensoren werden automatisch erstellt, wenn das entsprechende Reading in `/getReadings` vorhanden und das Feature aktiviert ist.
