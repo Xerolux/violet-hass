@@ -1,0 +1,290 @@
+blueprint:
+  name: Violet Pool - Heat Pump Heating & Cooling
+  description: |
+    Regulates the pool temperature in BOTH directions with a heat pump that can
+    heat and cool.
+
+    Why this blueprint exists: the Violet Pool Controller has no cooling
+    function - its API only knows the HEATER and SOLAR outputs, both of which
+    heat. Its climate entities therefore never offer a "cool" mode. A heat pump
+    that can cool is controlled through its own integration, so the two are
+    tied together here in an automation instead of inside the Violet
+    integration.
+
+    What it does:
+    - One target temperature (an input_number helper) is the single source of
+      truth. Every change is written through to the heat pump, so the value you
+      see in Home Assistant is the value the heat pump regulates to.
+    - Pool warmer than target + hysteresis  -> heat pump to "cool"
+    - Pool colder than target - hysteresis  -> heat pump to "heat"
+    - Inside the deadband                   -> configurable idle mode
+    - Optionally holds the Violet heater setpoint at a high release temperature
+      so the controller keeps the valve open and the heat pump sees flow. This
+      replaces the manual workaround of leaving a misleading high setpoint in
+      the Violet UI.
+
+    REQUIRED:
+    - input_number helper for the target temperature
+      (Settings -> Devices & Services -> Helpers -> Number)
+
+    VERSION: 1.0.0 (2026-08-17)
+  domain: automation
+  source_url: https://github.com/xerolux/violet-hass/blob/main/blueprints/automation/pool_heatpump_cooling.yaml
+  homeassistant:
+    min_version: "2026.1.0"
+  input:
+    pool_temperature_sensor:
+      name: Pool Temperature Sensor
+      description: Sensor for the current pool temperature
+      selector:
+        entity:
+          filter:
+            - integration: violet_pool_controller
+            - domain: sensor
+            - device_class: temperature
+    heat_pump:
+      name: Heat Pump
+      description: >
+        Climate entity of the heat pump (from its own integration, not from the
+        Violet controller). It must support the heat and cool modes.
+      selector:
+        entity:
+          filter:
+            - domain: climate
+    target_temperature_helper:
+      name: Target Temperature Helper
+      description: >
+        input_number helper holding the desired pool temperature. Put this on
+        your dashboard - it is the only place you set the temperature.
+      selector:
+        entity:
+          filter:
+            - domain: input_number
+    hysteresis:
+      name: Hysteresis
+      description: >
+        How far the pool may drift from the target before heating or cooling
+        starts. Too small a value makes the heat pump switch direction
+        constantly.
+      default: 0.5
+      selector:
+        number:
+          min: 0.2
+          max: 3.0
+          step: 0.1
+          unit_of_measurement: °C
+          mode: slider
+    cooling_enabled:
+      name: Allow Cooling
+      description: Turn off to use this automation for heating only
+      default: true
+      selector:
+        boolean:
+    idle_mode:
+      name: Mode Inside the Deadband
+      description: >
+        What the heat pump should do once the target is reached. "unchanged"
+        leaves whatever mode it is in.
+      default: "auto"
+      selector:
+        select:
+          options:
+            - "auto"
+            - "heat_cool"
+            - "off"
+            - "unchanged"
+    violet_heater:
+      name: Violet Heater (Optional)
+      description: >
+        Climate entity of the Violet heater. When set, its setpoint is held at
+        the release temperature below so the controller enables the flow the
+        heat pump needs. Leave empty if your installation does not need it.
+      default: ""
+      selector:
+        entity:
+          filter:
+            - integration: violet_pool_controller
+            - domain: climate
+          multiple: false
+    release_temperature:
+      name: Release Temperature
+      description: >
+        Setpoint written to the Violet heater so it keeps the valve open. Only
+        used when a Violet heater is selected above.
+      default: 40
+      selector:
+        number:
+          min: 20
+          max: 40
+          step: 0.5
+          unit_of_measurement: °C
+          mode: slider
+    enable_switch:
+      name: Enable Switch (Optional)
+      description: Automation only runs while this switch is on
+      default: ""
+      selector:
+        entity:
+          filter:
+            - domain:
+                - input_boolean
+                - switch
+          multiple: false
+    notification_entity:
+      name: Notification Service (Optional)
+      description: Service for notifications (e.g. notify.mobile_app_phone)
+      default: ""
+      selector:
+        text:
+
+variables:
+  pool_temp_sensor: !input pool_temperature_sensor
+  heat_pump_entity: !input heat_pump
+  target_helper: !input target_temperature_helper
+  hysteresis_value: !input hysteresis
+  cooling_allowed: !input cooling_enabled
+  idle_hvac_mode: !input idle_mode
+  violet_heater_entity: !input violet_heater
+  release_temp: !input release_temperature
+  gate_entity: !input enable_switch
+  notify_service: !input notification_entity
+
+  current_temp: "{{ states(pool_temp_sensor) | float(0) }}"
+  target_temp: "{{ states(target_helper) | float(0) }}"
+
+  # Modes the heat pump actually advertises - never send one it does not have.
+  supported_modes: "{{ state_attr(heat_pump_entity, 'hvac_modes') | default([], true) }}"
+  can_cool: "{{ cooling_allowed and 'cool' in supported_modes }}"
+
+  # The heat pump's own setpoint, so it is only rewritten when it differs.
+  pump_target: "{{ state_attr(heat_pump_entity, 'temperature') | float(-999) }}"
+  target_needs_sync: "{{ (pump_target - target_temp) | abs > 0.05 }}"
+
+  wants_cooling: "{{ current_temp > (target_temp + hysteresis_value) }}"
+  wants_heating: "{{ current_temp < (target_temp - hysteresis_value) }}"
+
+triggers:
+  - trigger: state
+    entity_id: !input pool_temperature_sensor
+    for:
+      minutes: 2
+    id: pool_temp
+    not_to:
+      - "unavailable"
+      - "unknown"
+  - trigger: state
+    entity_id: !input target_temperature_helper
+    id: target_changed
+  - trigger: time_pattern
+    minutes: /15
+    id: periodic_check
+  - trigger: homeassistant
+    event: start
+    id: ha_start
+
+conditions:
+  # Gate switch off -> do nothing at all.
+  - condition: template
+    value_template: >
+      {{ gate_entity in [none, ''] or is_state(gate_entity, 'on') }}
+  # Never act on stale readings; a wrong value would send the pump the wrong way.
+  - condition: template
+    value_template: >
+      {{ states(pool_temp_sensor) not in ['unavailable', 'unknown', 'none', ''] and
+         states(target_helper) not in ['unavailable', 'unknown', 'none', ''] and
+         states(heat_pump_entity) not in ['unavailable', 'unknown'] }}
+
+actions:
+  # --- 1. The target temperature in Home Assistant IS the heat pump's target ---
+  - if:
+      - condition: template
+        value_template: "{{ target_needs_sync }}"
+    then:
+      - action: climate.set_temperature
+        target:
+          entity_id: !input heat_pump
+        data:
+          temperature: "{{ target_temp }}"
+
+  # --- 2. Keep the Violet controller's valve open, if configured ---
+  - if:
+      - condition: template
+        value_template: >
+          {{ violet_heater_entity not in [none, ''] and
+             (state_attr(violet_heater_entity, 'temperature') | float(-999) - release_temp) | abs > 0.05 }}
+    then:
+      - action: climate.set_temperature
+        target:
+          entity_id: "{{ violet_heater_entity }}"
+        data:
+          temperature: "{{ release_temp }}"
+
+  # --- 3. Decide the direction ---
+  - choose:
+      # Too warm -> cool
+      - conditions:
+          - condition: template
+            value_template: "{{ wants_cooling and can_cool }}"
+        sequence:
+          - if:
+              - condition: template
+                value_template: "{{ not is_state(heat_pump_entity, 'cool') }}"
+            then:
+              - action: climate.set_hvac_mode
+                target:
+                  entity_id: !input heat_pump
+                data:
+                  hvac_mode: cool
+              - if:
+                  - condition: template
+                    value_template: "{{ notify_service != '' }}"
+                then:
+                  - action: "{{ notify_service }}"
+                    data:
+                      title: "❄️ Pool Cooling"
+                      message: >
+                        {{ current_temp }}°C is above the target of
+                        {{ target_temp }}°C - heat pump set to cooling.
+
+      # Too cold -> heat
+      - conditions:
+          - condition: template
+            value_template: "{{ wants_heating and 'heat' in supported_modes }}"
+        sequence:
+          - if:
+              - condition: template
+                value_template: "{{ not is_state(heat_pump_entity, 'heat') }}"
+            then:
+              - action: climate.set_hvac_mode
+                target:
+                  entity_id: !input heat_pump
+                data:
+                  hvac_mode: heat
+              - if:
+                  - condition: template
+                    value_template: "{{ notify_service != '' }}"
+                then:
+                  - action: "{{ notify_service }}"
+                    data:
+                      title: "🔥 Pool Heating"
+                      message: >
+                        {{ current_temp }}°C is below the target of
+                        {{ target_temp }}°C - heat pump set to heating.
+
+    # Inside the deadband -> idle mode
+    default:
+      - if:
+          - condition: template
+            value_template: >
+              {{ idle_hvac_mode != 'unchanged' and
+                 idle_hvac_mode in supported_modes and
+                 not is_state(heat_pump_entity, idle_hvac_mode) }}
+        then:
+          - action: climate.set_hvac_mode
+            target:
+              entity_id: !input heat_pump
+            data:
+              hvac_mode: "{{ idle_hvac_mode }}"
+
+mode: single
+max_exceeded: silent
