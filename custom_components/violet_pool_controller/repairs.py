@@ -27,6 +27,7 @@ from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import issue_registry as ir
 
 from .const import DOMAIN
+from .runtime_data import async_get_coordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -80,7 +81,7 @@ class ControllerUnavailableRepairFlow(_ConfirmRepairFlowBase):
         _LOGGER.debug("Repair flow: reloading config entry %s", self._entry_id)
         await self.hass.config_entries.async_reload(self._entry_id)
 
-        coordinator = self.hass.data.get(DOMAIN, {}).get(self._entry_id)
+        coordinator = async_get_coordinator(self.hass, self._entry_id)
         if coordinator is None or not coordinator.device.available:
             return self.async_abort(reason="still_unavailable")
 

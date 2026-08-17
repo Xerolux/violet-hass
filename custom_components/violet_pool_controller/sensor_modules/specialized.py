@@ -33,6 +33,7 @@ from ..const import (
 from ..device import VioletPoolDataUpdateCoordinator
 from ..entity import VioletPoolControllerEntity
 from ..error_codes import get_error_info
+from ..runtime_data import get_runtime_data
 from .generic import VioletSensor
 
 _LOGGER = logging.getLogger(__name__)
@@ -537,9 +538,8 @@ class VioletSaturationIndexSensor(VioletPoolControllerEntity, SensorEntity):
 
     def _get_inputs(self) -> dict[str, float | None]:
         """Return calculator inputs using controller values first, then manual values."""
-        inputs = self.hass.data.get(DOMAIN, {}).get(
-            f"{self.config_entry.entry_id}_{self._store_key}", {}
-        )
+        runtime_data = get_runtime_data(self.config_entry)
+        inputs = runtime_data.calculator_inputs.get(self._store_key, {}) if runtime_data else {}
         prefix = self._input_prefix
         coordinator_data: Mapping[str, Any] = self.coordinator.data or {}
         manual_input_keys = {

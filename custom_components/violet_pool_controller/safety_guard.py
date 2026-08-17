@@ -103,8 +103,8 @@ class SafetyGuard:
     async def async_setup(self) -> None:
         """Load persisted deadlines and re-arm active auto-stop timers.
 
-        Must be called once during integration setup, after coordinators are
-        available in ``hass.data[DOMAIN]``.
+        Must be called once during integration setup, after the config entry's
+        runtime data (and with it the coordinator) exists.
         """
         data = await self._persistence.async_load()
         persisted: dict[str, Any] = data.get("auto_stops", {})
@@ -332,15 +332,11 @@ class SafetyGuard:
             _LOGGER.error("SafetyGuard: auto-stop for %s FAILED: %s", device_key, err)
 
     def _resolve_api(self) -> Any:
-        """Find a device API from the registered coordinators.
+        """Find a device API from the loaded config entries."""
+        from .runtime_data import async_all_coordinators
 
-        Skips non-coordinator entries (e.g. the ``service_manager`` key).
-        """
-        for value in self._hass.data.get(DOMAIN, {}).values():
-            # Coordinators expose a ``device`` attribute with an ``api``;
-            # the service_manager and other non-coordinator values do not.
-            device = getattr(value, "device", None)
-            api = getattr(device, "api", None)
+        for coordinator in async_all_coordinators(self._hass):
+            api = getattr(coordinator.device, "api", None)
             if api is not None:
                 return api
         return None

@@ -19,6 +19,7 @@ from custom_components.violet_pool_controller.repairs import (
     _DismissRepairFlow,
     async_create_fix_flow,
 )
+from custom_components.violet_pool_controller.runtime_data import VioletRuntimeData
 
 
 @pytest.fixture
@@ -63,8 +64,9 @@ class TestControllerUnavailableRepairFlow:
         """A controller that answers again resolves the issue."""
         coordinator = MagicMock()
         coordinator.device.available = True
-        hass.data[DOMAIN] = {entry_id: coordinator}
-        hass.config_entries.async_get_entry = MagicMock(return_value=MagicMock())
+        entry = MagicMock()
+        entry.runtime_data = VioletRuntimeData(coordinator=coordinator)
+        hass.config_entries.async_get_entry = MagicMock(return_value=entry)
         hass.config_entries.async_reload = AsyncMock()
 
         flow = ControllerUnavailableRepairFlow(entry_id)
@@ -81,8 +83,9 @@ class TestControllerUnavailableRepairFlow:
         """A controller that stays silent tells the user so."""
         coordinator = MagicMock()
         coordinator.device.available = False
-        hass.data[DOMAIN] = {entry_id: coordinator}
-        hass.config_entries.async_get_entry = MagicMock(return_value=MagicMock())
+        entry = MagicMock()
+        entry.runtime_data = VioletRuntimeData(coordinator=coordinator)
+        hass.config_entries.async_get_entry = MagicMock(return_value=entry)
         hass.config_entries.async_reload = AsyncMock()
 
         flow = ControllerUnavailableRepairFlow(entry_id)

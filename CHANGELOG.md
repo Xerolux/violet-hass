@@ -30,6 +30,10 @@
   nicht erreichbar" ist als behebbar gemeldet, es gab aber keinen zugehörigen
   Reparatur-Flow. Der Flow lädt die Integration jetzt neu und meldet zurück, ob
   der Controller wieder antwortet.
+- **Sicherheits-Cooldown griff bei Schaltern nicht** - `_get_safety_guard()`
+  suchte den Service-Manager mit `getattr()` in einem Dictionary, was einen
+  Schlüssel niemals findet. Die SafetyGuard-Sperre war beim Schalten der
+  Dosier-, Rückspül- und Nachfüll-Schalter damit immer wirkungslos.
 
 ### ✨ Neu
 
@@ -38,6 +42,30 @@
   und Nachfüllung aus sind, wird das Intervall verdreifacht (maximal 60 s). Das
   entlastet den Webserver des Controllers in den Stunden ohne Aktivität; sobald
   ein Ausgang läuft, gilt wieder das konfigurierte Intervall.
+
+### 🔧 Technisch
+
+- **Setpoints werden nicht mehr bei jedem Poll geholt** - die Werte hinter
+  `getConfig` (Heiz-/Solar-Sollwerte, Dosier-Sollwerte, Firmware-Version)
+  kosten eine zweite HTTP-Anfrage pro Zyklus, ändern sich aber nur beim
+  Schreiben. Sie werden jetzt höchstens alle 60 s neu gelesen — beim
+  Standardintervall von 10 s entfallen damit fünf von sechs Anfragen. Ein
+  Schreibvorgang aus Home Assistant erzwingt das Nachlesen im nächsten Poll,
+  eine fehlgeschlagene Abfrage behält die letzten bekannten Werte.
+- **Laufzeitdaten liegen am Config-Entry** - Coordinator, Options-Snapshot,
+  vorab angelegte Geräte-IDs, gemeldete Unique-IDs und die manuellen
+  Sättigungsindex-Eingaben liegen jetzt in `entry.runtime_data` statt unter
+  String-Schlüsseln in `hass.data[DOMAIN]`. Home Assistant räumt sie beim
+  Entladen selbst weg, und per-Entry-Daten können nicht mehr mit
+  integrationsweiten Objekten wie dem Service-Manager verwechselt werden.
+- **mypy ist jetzt Teil der CI** - die zehn bestehenden Typfehler sind behoben
+  (tote Zeroconf-Import-Fallbacks entfernt, Definitionslisten annotiert,
+  `state_class` auf das Enum eingegrenzt); `tox -e py314` führt mypy aus.
+- **Doppelter Registry-Durchlauf entfernt** - `_disable_unsafe_switches` lief
+  pro Setup zweimal über die gesamte Entity-Registry. Der zweite Durchlauf war
+  überflüssig, weil die Switch-Plattform `entity_registry_enabled_default` aus
+  derselben Option ableitet. Die Liste der unsicheren Schalter stand zudem an
+  zwei Stellen und liegt jetzt zentral in `const.py`.
 
 ## Version 2.3.5 (2026-08-16)
 

@@ -62,12 +62,9 @@ from .const import (
     MIN_SUPPORTED_POLLING_INTERVAL,
     UNSAFE_SWITCH_KEYS,
 )
-from .device_hierarchy import (
-    async_cleanup_sub_devices,
-    async_precreate_devices,
-    discard_device_ids,
-)
-from .entity_cleanup import async_remove_orphaned_entities, discard_provided_entities
+from .device_hierarchy import async_cleanup_sub_devices, async_precreate_devices
+from .entity_cleanup import async_remove_orphaned_entities
+from .runtime_data import VioletRuntimeData, get_runtime_data
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -342,14 +339,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             _LOGGER.error("Failed to set up coordinator for %s", config["device_name"])
             raise ConfigEntryNotReady("Coordinator setup failed")
 
-        # Store coordinator in hass.data
-        hass.data.setdefault(DOMAIN, {})
-        hass.data[DOMAIN][entry.entry_id] = coordinator
-
-        # Remember which options the created entities are based on, so the
-        # update listener can tell a structural change (features, sensors)
-        # apart from a setting that can be applied without a reload.
-        hass.data[DOMAIN][_structural_options_key(entry)] = _structural_options(entry)
+        # Everything this entry needs at runtime lives on the entry itself.
+        # structural_options records which options the created entities are
+        # based on, so the update listener can tell a structural change
+        # (features, sensors) apart from a setting that can be applied without
+        # a reload.
+        entry.runtime_data = VioletRuntimeData(
+            coordinator=coordinator,
+            structural_options=_structural_options(entry),
+        )
 
         # Migrate entity_ids that have the duplicate device prefix (e.g.
         # switch.violet_pool_controller_violet_pool_controller_beleuchtung →
@@ -429,24 +427,10 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         unload_ok = bool(await hass.config_entries.async_unload_platforms(entry, PLATFORMS))
 
         if unload_ok:
-            # Get coordinator for cleanup
-            coordinator = hass.data.get(DOMAIN, {}).get(entry.entry_id)
-            if coordinator and hasattr(coordinator.device, "api"):
-                # NOTE: Do NOT close the aiohttp session - it's managed by
-                # Home Assistant! The session is created by HA via
-                # async_get_clientsession() and should only be closed by HA
-                _LOGGER.debug("API object reference released for entry_id=%s", entry.entry_id)
-
-            # Remove coordinator from hass.data
-            if entry.entry_id in hass.data.get(DOMAIN, {}):
-                hass.data[DOMAIN].pop(entry.entry_id)
-                _LOGGER.debug("Coordinator removed for entry_id=%s", entry.entry_id)
-
-            # Drop the per-entry bookkeeping so the next setup starts clean
-            hass.data.get(DOMAIN, {}).pop(_structural_options_key(entry), None)
-            discard_provided_entities(hass, entry)
-            discard_device_ids(hass, entry)
-
+            # NOTE: Do NOT close the aiohttp session - it is managed by Home
+            # Assistant (created via async_get_clientsession) and must only be
+            # closed by it. Everything else lives on entry.runtime_data, which
+            # Home Assistant drops as part of the unload.
             _LOGGER.info("Successfully unloaded '%s' (entry_id=%s)", device_name, entry.entry_id)
         else:
             _LOGGER.warning(
@@ -460,11 +444,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     except Exception as err:
         _LOGGER.exception("Error during unload of '%s': %s", device_name, err)
         return False
-
-
-def _structural_options_key(entry: ConfigEntry) -> str:
-    """Return the ``hass.data`` key holding the applied structural options."""
-    return f"{entry.entry_id}_structural_options"
 
 
 def _structural_options(entry: ConfigEntry) -> dict[str, Any]:
@@ -508,18 +487,18 @@ async def async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None
         entry.entry_id,
     )
 
-    # Get coordinator
-    coordinator = hass.data.get(DOMAIN, {}).get(entry.entry_id)
-    if not coordinator:
+    runtime_data = get_runtime_data(entry)
+    if runtime_data is None:
         _LOGGER.warning("Coordinator not found for entry_id=%s", entry.entry_id)
         return
 
+    coordinator = runtime_data.coordinator
+
     # Reload when the feature/sensor selection changed - the entities are
     # created from it, so it can only take effect by re-running the platforms.
-    applied_options = hass.data.get(DOMAIN, {}).get(_structural_options_key(entry))
     current_options = _structural_options(entry)
 
-    if applied_options != current_options:
+    if runtime_data.structural_options != current_options:
         _LOGGER.info(
             "Feature/sensor selection changed for entry_id=%s, reloading integration",
             entry.entry_id,

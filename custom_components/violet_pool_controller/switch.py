@@ -38,6 +38,7 @@ from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity, get_state_attributes, interpret_state_as_bool
 from .entity_cleanup import track_provided_entities
 from .entity_names import EntityNameResolver
+from .runtime_data import SERVICE_MANAGER_KEY
 from .service_helpers import MAX_DOSING_DURATION
 
 _LOGGER = logging.getLogger(__name__)
@@ -695,7 +696,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         """
         from .safety_guard import SafetyGuard  # local import to avoid cycles
 
-        manager = self.hass.data.get(DOMAIN, {}).get("service_manager")
+        manager = self.hass.data.get(DOMAIN, {}).get(SERVICE_MANAGER_KEY)
         guard = getattr(manager, "safety_guard", None)
         return guard if isinstance(guard, SafetyGuard) else None
 
@@ -717,7 +718,7 @@ async def async_setup_entry(
         config_entry: The config entry.
         async_add_entities: Callback to add entities.
     """
-    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
+    coordinator = config_entry.runtime_data.coordinator
     active_features = config_entry.options.get(
         CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
     )

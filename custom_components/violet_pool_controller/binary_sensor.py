@@ -21,7 +21,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import BINARY_SENSORS, CONF_ACTIVE_FEATURES, DOMAIN
+from .const import BINARY_SENSORS, CONF_ACTIVE_FEATURES
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity, interpret_state_as_bool
 from .entity_cleanup import track_provided_entities
@@ -157,7 +157,7 @@ async def async_setup_entry(
         config_entry: The config entry.
         async_add_entities: Callback to add entities.
     """
-    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
+    coordinator = config_entry.runtime_data.coordinator
     active_features = config_entry.options.get(
         CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
     )

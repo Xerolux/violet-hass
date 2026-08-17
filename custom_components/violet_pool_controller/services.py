@@ -15,6 +15,7 @@ from homeassistant.core import HomeAssistant, SupportsResponse
 
 from .const import DOMAIN
 from .refill_overflow_service import VioletRefillOverflowServiceHandlers
+from .runtime_data import SERVICE_MANAGER_KEY
 from .service_control import VioletControlServiceHandlers
 from .service_diagnostics import VioletDiagnosticServiceHandlers
 from .service_manager import VioletServiceManager
@@ -65,13 +66,12 @@ async def async_register_services(hass: HomeAssistant) -> None:
 
     _LOGGER.info("Registering Violet Pool services")
 
-    # Create service manager and expose it on hass.data so other components
-    # (e.g. the switch entity's safety gate) can reach the SafetyGuard.
+    # The service manager is integration-wide rather than per config entry, so
+    # it stays in hass.data (per-entry state lives on entry.runtime_data). Other
+    # components - e.g. the switch entity's safety gate - reach the SafetyGuard
+    # through it.
     manager = VioletServiceManager(hass)
-    hass.data.setdefault(DOMAIN, {})
-    if not isinstance(hass.data[DOMAIN], dict):
-        hass.data[DOMAIN] = {}
-    hass.data[DOMAIN]["service_manager"] = manager
+    hass.data.setdefault(DOMAIN, {})[SERVICE_MANAGER_KEY] = manager
 
     # Re-arm any persisted safety deadlines (e.g. a refill that was running
     # when HA last restarted).

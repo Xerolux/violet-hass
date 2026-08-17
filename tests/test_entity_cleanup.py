@@ -15,11 +15,7 @@ from homeassistant.const import Platform
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.violet_pool_controller import (
-    _structural_options,
-    _structural_options_key,
-    async_update_listener,
-)
+from custom_components.violet_pool_controller import _structural_options, async_update_listener
 from custom_components.violet_pool_controller.const import (
     CONF_ACTIVE_FEATURES,
     CONF_API_URL,
@@ -33,6 +29,7 @@ from custom_components.violet_pool_controller.entity_cleanup import (
     discard_provided_entities,
     track_provided_entities,
 )
+from custom_components.violet_pool_controller.runtime_data import VioletRuntimeData
 
 ALL_PLATFORMS = [Platform.SENSOR, Platform.LIGHT]
 
@@ -57,6 +54,13 @@ def config_entry(hass):
         },
     )
     entry.add_to_hass(hass)
+    # Platforms and the update listener read their state from runtime_data,
+    # which normally gets attached during async_setup_entry.
+    coordinator = MagicMock()
+    coordinator.async_request_refresh = AsyncMock()
+    coordinator.device.update_api_config = AsyncMock(return_value=False)
+    coordinator.apply_polling_options = MagicMock(return_value=False)
+    entry.runtime_data = VioletRuntimeData(coordinator=coordinator)
     return entry
 
 
@@ -138,12 +142,8 @@ class TestStructuralOptionReload:
 
     @pytest.fixture
     def hass_with_coordinator(self, hass, config_entry):
-        """Register a coordinator plus the applied structural options."""
-        coordinator = MagicMock()
-        coordinator.async_request_refresh = AsyncMock()
-        coordinator.device.update_api_config = AsyncMock(return_value=False)
-        hass.data.setdefault(DOMAIN, {})[config_entry.entry_id] = coordinator
-        hass.data[DOMAIN][_structural_options_key(config_entry)] = _structural_options(config_entry)
+        """Record the structural options the entities were created from."""
+        config_entry.runtime_data.structural_options = _structural_options(config_entry)
         return hass
 
     async def test_feature_change_triggers_reload(self, hass_with_coordinator, config_entry):

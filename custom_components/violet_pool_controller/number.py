@@ -38,6 +38,7 @@ from .const import (
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity
 from .entity_cleanup import track_provided_entities
+from .runtime_data import get_runtime_data
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -469,9 +470,12 @@ class VioletSaturationIndexInputNumber(VioletPoolControllerEntity, NumberEntity,
         self.async_write_ha_state()
 
     def _update_saturation_index_store(self, value: float | None) -> None:
-        """Store the input value in hass.data for the matching result sensor."""
-        domain_data = self.hass.data.setdefault(DOMAIN, {})
-        entry_store = domain_data.setdefault(f"{self.config_entry.entry_id}_{self._store_key}", {})
+        """Store the input value for the matching result sensor."""
+        runtime_data = get_runtime_data(self.config_entry)
+        if runtime_data is None:
+            return
+
+        entry_store = runtime_data.calculator_inputs.setdefault(self._store_key, {})
         entry_store[self._input_key] = value
         if hasattr(self, "hass"):
             async_dispatcher_send(
@@ -496,7 +500,7 @@ async def async_setup_entry(
         config_entry: The config entry.
         async_add_entities: Callback to add entities.
     """
-    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
+    coordinator = config_entry.runtime_data.coordinator
 
     active_features = config_entry.options.get(
         CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
@@ -523,9 +527,7 @@ async def async_setup_entry(
             ("lsi_inputs", LSI_INPUT_DEFINITIONS),
             ("csi_inputs", CSI_INPUT_DEFINITIONS),
         ):
-            input_store = hass.data.setdefault(DOMAIN, {}).setdefault(
-                f"{config_entry.entry_id}_{store_key}", {}
-            )
+            input_store = config_entry.runtime_data.calculator_inputs.setdefault(store_key, {})
             for input_config in input_definitions:
                 input_config = {**input_config, "store_key": store_key}
                 input_store.setdefault(str(input_config["key"]), input_config.get("default_value"))
