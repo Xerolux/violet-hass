@@ -240,7 +240,7 @@
       },
       "sensors": {
         "title": "Select Sensors",
-        "description": "**Choose which sensors to display**\n\nOnly selected sensors are shown in Home Assistant\nChanges take effect immediately\n\n**Note:** This affects sensor entities only — switches, lights and other controls belong to \"Features\".\n\n**Tip:** Only select the sensors you actually want to monitor!"
+        "description": "**Choose which datapoints to use**\n\nEvery entity built from a datapoint follows this selection — sensors, switches, lights and controls alike\nChanges take effect immediately\n\n**Tip:** Only select what you actually want to see!"
       },
       "settings": {
         "title": "General Settings",

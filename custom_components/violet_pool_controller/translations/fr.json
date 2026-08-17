@@ -208,7 +208,7 @@
       },
       "sensors": {
         "title": "Sélectionnez les capteurs",
-        "description": "Choisissez quels capteurs doivent être affichés\n\nSeuls les capteurs sélectionnés seront affichés dans Home Assistant\nLes modifications prennent effet immédiatement\n\nSélectionnez uniquement les capteurs que vous souhaitez réellement surveiller !\n\n**Remarque :** Cela ne concerne que les entités de capteur. Les interrupteurs, lumières et autres commandes s'activent dans « Fonctionnalités »."
+        "description": "Choisissez quels capteurs doivent être affichés\n\nSeuls les capteurs sélectionnés seront affichés dans Home Assistant\nLes modifications prennent effet immédiatement\n\nSélectionnez uniquement les capteurs que vous souhaitez réellement surveiller !"
       },
       "settings": {
         "title": "Paramètres généraux",

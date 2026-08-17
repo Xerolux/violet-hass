@@ -208,7 +208,7 @@
       },
       "sensors": {
         "title": "Seleziona Sensori",
-        "description": "Scegli quali sensori devono essere visualizzati\n\nSolo i sensori selezionati verranno visualizzati in Home Assistant\nLe modifiche hanno effetto immediato\n\nSeleziona solo i sensori che vuoi veramente monitorare!\n\n**Nota:** Riguarda solo le entità sensore. Interruttori, luci e altri controlli si attivano in «Funzionalità»."
+        "description": "Scegli quali sensori devono essere visualizzati\n\nSolo i sensori selezionati verranno visualizzati in Home Assistant\nLe modifiche hanno effetto immediato\n\nSeleziona solo i sensori che vuoi veramente monitorare!"
       },
       "settings": {
         "title": "Impostazioni generali",

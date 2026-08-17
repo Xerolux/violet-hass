@@ -228,7 +228,7 @@
       },
       "sensors": {
         "title": "Sensoren auswählen",
-        "description": "**Wähle aus, welche Sensoren angezeigt werden**\n\nNur ausgewählte Sensoren erscheinen in Home Assistant\nÄnderungen wirken sofort\n\n**Hinweis:** Das betrifft nur Sensor-Entitäten — Schalter, Lichter und andere Bedienelemente gehören zu „Features“.\n\n**Tipp:** Wähle nur die Sensoren, die du wirklich beobachten willst!"
+        "description": "**Wähle aus, welche Datenpunkte genutzt werden**\n\nJede Entität, die aus einem Datenpunkt entsteht, folgt dieser Auswahl — Sensoren, Schalter, Lichter und Bedienelemente gleichermaßen\nÄnderungen wirken sofort\n\n**Tipp:** Wähle nur, was du wirklich sehen willst!"
       },
       "settings": {
         "title": "Allgemeine Einstellungen",

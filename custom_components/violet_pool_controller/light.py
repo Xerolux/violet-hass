@@ -31,6 +31,7 @@ from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity
 from .entity_cleanup import track_provided_entities
 from .entity_names import EntityNameResolver
+from .entity_selection import async_get_selection
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -120,6 +121,7 @@ async def async_setup_entry(
     """Set up DMX light entities from a config entry."""
     coordinator = config_entry.runtime_data.coordinator
 
+    selection = async_get_selection(config_entry)
     active_features = config_entry.options.get(
         CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
     )
@@ -141,6 +143,10 @@ async def async_setup_entry(
     for light_config in DMX_LIGHTS:
         key = cast(str, light_config["key"])
         if key not in coordinator.data:
+            continue
+
+        if not selection.allows(key):
+            _LOGGER.debug("Skipping light %s: datapoint not selected", key)
             continue
 
         entity_name = cast(str, light_config["name"])

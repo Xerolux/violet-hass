@@ -208,7 +208,7 @@
       },
       "sensors": {
         "title": "Wybierz Czujniki",
-        "description": "Wybierz, które czujniki mają być wyświetlane\n\nW Home Assistant zostaną pokazane tylko wybrane czujniki\nZmiany wchodzą w życie natychmiast\n\nWybierz tylko te czujniki, które naprawdę chcesz monitorować!\n\n**Uwaga:** Dotyczy wyłącznie encji sensorów. Przełączniki, światła i inne elementy sterujące włącza się w sekcji „Funkcje”."
+        "description": "Wybierz, które czujniki mają być wyświetlane\n\nW Home Assistant zostaną pokazane tylko wybrane czujniki\nZmiany wchodzą w życie natychmiast\n\nWybierz tylko te czujniki, które naprawdę chcesz monitorować!"
       },
       "settings": {
         "title": "Ustawienia ogólne",

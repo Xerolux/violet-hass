@@ -16,6 +16,57 @@ steht, erfährt also auch niemand dort.
 
 > **Language Note:** This changelog is written in German.
 
+## Version 2.5.0 (unveröffentlicht)
+
+Minor-Release: die Datenpunkt-Auswahl gilt jetzt für **alle** Plattformen, nicht
+mehr nur für Sensoren. Damit tut der Auswahlschritt endlich das, wonach er seit
+jeher aussieht. **Kein Entitätsverlust durch das Update** — eine Migration auf
+Config-Entry-Version 3 friert den heutigen Stand ein; das Ausmisten bleibt
+danach deine Entscheidung. Entity-IDs, Unique IDs und die API-Paarung bleiben
+unverändert.
+
+### ✨ Neu
+
+- **Die Auswahl gilt für Schalter, Binärsensoren, Auswahl-Entitäten und
+  Lichter.** Bis 2.4.1 wurde `selected_sensors` ausschließlich von der
+  Sensor-Plattform gelesen, obwohl der Auswahlschritt die rohen Controller-Keys
+  auflistet (`ECO`, `PUMP`, `DMX_SCENE1`, …). Wer `ECO` abwählte, verlor den
+  ECO-Sensor und behielt Schalter, Binärsensor und Auswahl — der in 2.4.1
+  gemeldete Fehler. Jede Entität, die aus einem Controller-Key entsteht, folgt
+  jetzt derselben Auswahl. Entitäten **ohne** Controller-Key bleiben bewusst
+  außen vor: Systemzustand, Verbindungslatenz, Firmware-Update und die
+  Sättigungsindex-Rechner tauchen in `getReadings` gar nicht auf, können also
+  auch nicht in der Liste stehen.
+- **Ohne gespeicherte Auswahl bleibt alles.** Eine Config Entry, die den
+  Auswahlschritt nie durchlaufen hat, verliert nichts — „nichts gespeichert“
+  heißt weiterhin „alles anzeigen“. Eine *leere* Auswahl ist dagegen eine
+  bewusste Entscheidung und wird als solche behandelt.
+
+### 🔧 Technisch
+
+- **Migration auf Config-Entry-Version 3.** Bestehende Auswahlen wurden
+  getroffen, als sie nur über Sensoren entschieden: wer `PUMP` abwählte, um den
+  rohen Messwert loszuwerden, wollte damit nicht seinen Pumpen-Schalter
+  verlieren. Die Migration ergänzt deshalb einmalig die Keys aller
+  Nicht-Sensor-Entitäten. Hinzufügen kann eine Entität nur erhalten, nie
+  entfernen — Feature-Gates und die Prüfung „Key ist in der Controller-Antwort
+  vorhanden“ greifen unverändert darüber.
+- **Migrationskette repariert.** Die 2.4.1-Migration setzte die Version direkt
+  auf den Endstand statt auf ihr eigenes Ziel. Bei einem Sprung von Version 1
+  auf 3 wäre der zweite Schritt dadurch übersprungen worden. Jeder Schritt
+  zählt jetzt einzeln hoch; ein Test deckt genau diesen Sprung ab.
+- **Auswahlschritt-Text wieder angeglichen** (alle zehn Sprachen): der in 2.4.1
+  ergänzte Hinweis „betrifft nur Sensor-Entitäten“ stimmt nicht mehr und ist
+  entfernt. Dort steht jetzt, dass jede aus einem Datenpunkt entstehende
+  Entität der Auswahl folgt.
+
+### 🧪 Tests
+
+- 16 neue Tests: Semantik der Auswahl (nichts gespeichert, leere Auswahl,
+  Optionen schlagen Daten, synthetische Entitäten), Abdeckung aller vier
+  Steuer-Plattformen und sechs Migrationsfälle — darunter der Sprung von
+  Version 1 direkt auf 3.
+
 ## Version 2.4.1 (2026-08-17)
 
 Patch-Release: ein aus dem Forum gemeldeter Fehler, bei dem abgewählte

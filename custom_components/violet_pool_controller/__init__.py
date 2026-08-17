@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Sequence
 from typing import Any
 
 import homeassistant.helpers.config_validation as cv
@@ -116,6 +117,9 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) ->
     if config_entry.version < 2:
         _migrate_v1_to_v2(hass, config_entry)
 
+    if config_entry.version < 3:
+        _migrate_v2_to_v3(hass, config_entry)
+
     _LOGGER.debug("Config entry migrated to version %s", CONFIG_ENTRY_VERSION)
     return True
 
@@ -154,14 +158,65 @@ def _migrate_v1_to_v2(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
                 container[CONF_ACTIVE_FEATURES] = upgraded
                 changed = True
 
-    hass.config_entries.async_update_entry(
-        config_entry, data=data, options=options, version=CONFIG_ENTRY_VERSION
-    )
+    hass.config_entries.async_update_entry(config_entry, data=data, options=options, version=2)
     if changed:
         _LOGGER.info(
             "Config entry %s: added the eco_mode/dmx_scenes features to the "
             "stored selection so the existing entities are kept",
             config_entry.entry_id,
+        )
+
+
+def _migrate_v2_to_v3(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
+    """Widen a sensor-only selection to the platforms it now governs.
+
+    The stored selection was made when it only decided which *sensors* exist,
+    so a user who unticked ``PUMP`` to hide the raw reading never meant to lose
+    their pump switch. Now that every platform honours the selection, those
+    entries would disappear on update.
+
+    The keys of all non-sensor entity definitions are therefore added once, at
+    migration time: the entity set stays exactly as it is today, and pruning it
+    becomes the user's decision. Adding a key can only keep an entity - the
+    feature gates and "key present in the controller response" checks still
+    apply on top.
+    """
+    from .const_features import BINARY_SENSORS, DMX_LIGHTS, SELECT_CONTROLS, SWITCHES
+
+    tables: tuple[tuple[Sequence[Any], str], ...] = (
+        (SWITCHES, "key"),
+        (BINARY_SENSORS, "key"),
+        (SELECT_CONTROLS, "device_key"),
+        (DMX_LIGHTS, "key"),
+    )
+    control_keys: set[str] = set()
+    for table, field in tables:
+        for definition in table:
+            key = definition.get(field) if isinstance(definition, dict) else None
+            if key:
+                control_keys.add(str(key))
+
+    data = dict(config_entry.data)
+    options = dict(config_entry.options)
+    added = 0
+
+    for container in (data, options):
+        selection = container.get(CONF_SELECTED_SENSORS)
+        # No stored selection means "everything" - nothing to widen.
+        if not isinstance(selection, list):
+            continue
+        missing = sorted(control_keys - set(selection))
+        if missing:
+            container[CONF_SELECTED_SENSORS] = list(selection) + missing
+            added = max(added, len(missing))
+
+    hass.config_entries.async_update_entry(config_entry, data=data, options=options, version=3)
+    if added:
+        _LOGGER.info(
+            "Config entry %s: kept %d control datapoints that the selection now "
+            "governs - deselect them in the options if you do not want them",
+            config_entry.entry_id,
+            added,
         )
 
 

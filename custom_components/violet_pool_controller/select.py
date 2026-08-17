@@ -32,6 +32,7 @@ from .const import (
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity
 from .entity_cleanup import track_provided_entities
+from .entity_selection import async_get_selection
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -379,6 +380,7 @@ async def async_setup_entry(
         async_add_entities: Callback to add entities.
     """
     coordinator = config_entry.runtime_data.coordinator
+    selection = async_get_selection(config_entry)
     active_features = config_entry.options.get(
         CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
     )
@@ -388,6 +390,11 @@ async def async_setup_entry(
 
     # Create select entities
     for select_config in SELECT_CONTROLS:
+        # Selects are named after the control, but they read a controller key.
+        if not selection.allows(str(select_config.get("device_key") or "")):
+            _LOGGER.debug("Skipping select %s: datapoint not selected", select_config["key"])
+            continue
+
         feature_id = select_config.get("feature_id")
 
         if feature_id and feature_id not in active_features:
