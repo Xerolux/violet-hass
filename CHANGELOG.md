@@ -1,6 +1,118 @@
 # Changelog - Violet Pool Controller
 
-> **Language Note:** This changelog is available in German. For English release notes, see the GitHub releases page.
+> **Diese Integration entsteht in meiner Freizeit — und ist komplett kostenlos.**
+> Wenn sie dir das Leben mit deinem Pool leichter macht und du die Entwicklung
+> unterstützen möchtest, freue ich mich riesig. Kein Muss, aber mega
+> motivierend! 😊☕
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Spendier%20mir%20einen%20Kaffee!-yellow?logo=buy-me-a-coffee&style=for-the-badge)](https://buymeacoffee.com/xerolux)
+[![PayPal](https://img.shields.io/badge/PayPal-Danke%20f%C3%BCr%20deine%20Unterst%C3%BCtzung!-blue?logo=paypal&style=for-the-badge)](https://paypal.me/xerolux)
+
+---
+
+Dieser Changelog ist auf Deutsch. Der Abschnitt zur jeweiligen Version wird
+beim Release automatisch zum Text der GitHub-Release-Seite — was hier nicht
+steht, erfährt also auch niemand dort.
+
+> **Language Note:** This changelog is written in German.
+
+## Version 2.4.1 (2026-08-17)
+
+Patch-Release: ein aus dem Forum gemeldeter Fehler, bei dem abgewählte
+Entitäten sichtbar blieben, dazu ein neuer Blueprint für kühlfähige
+Wärmepumpen. **Vollständig abwärtskompatibel** — eine Migration der Config
+Entry auf Version 2 sorgt dafür, dass keine bestehende Installation durch das
+Update eine Entität verliert. Entity-IDs, Unique IDs und die API-Paarung
+(`violet-poolController-api>=0.0.36`) bleiben unverändert.
+
+### 🐛 Behoben
+
+- **Abgewählte ECO- und DMX-Entitäten blieben sichtbar.** Gemeldet im
+  [poolsteuerung.de-Forum](https://www.poolsteuerung.de/viewtopic.php?t=2227):
+  bei der Einrichtung alles rund um ECO und DMX abgewählt, nach dem
+  HA-Neustart trotzdem alles da. Ursache ist, dass die **Sensorauswahl
+  ausschließlich von der Sensor-Plattform gelesen wird** — die übrigen neun
+  Plattformen (Schalter, Binärsensoren, Auswahl, Licht, Zahl, Klima,
+  Abdeckung, Knopf, Update) richten sich allein nach der Feature-Liste. Der
+  Auswahlschritt zeigt aber die rohen Controller-Keys (`ECO`, `DMX_SCENE1`,
+  …), liest sich also wie „welche Datenpunkte will ich haben“, und deckte
+  davon nur die Sensoren ab. Was in 2.3.4 behoben wurde, war etwas
+  Benachbartes: dass die Auswahl überhaupt *wirksam* wird (Reload und
+  Entfernen verwaister Registry-Einträge). Die Reichweite der Auswahl blieb
+  unverändert.
+- **ECO ließ sich überhaupt nicht entfernen.** Schalter, Binärsensor und
+  Auswahl hatten kein Feature hinterlegt, und in der Feature-Liste gab es
+  keinen ECO-Eintrag — es existierte also keine Einstellung, die diese drei
+  Entitäten hätte abschalten können. Abwählen im Sensorschritt entfernte nur
+  `ECO` und `ECO_RUNTIME`, die zwei Sensoren. Es gibt jetzt das Feature **„ECO
+  Mode“**, das alle vier Entitäten gemeinsam schaltet. Eine Auswertung
+  sämtlicher Entitätsdefinitionen bestätigt: ECO war die einzige
+  standardmäßig aktive Entität ohne Feature. Die übrigen 16 ungegateten
+  Definitionen sind durchweg Diagnose-Entitäten, die deaktiviert ausgeliefert
+  werden und deshalb niemandem ungefragt erscheinen.
+- **Die zwölf DMX-Szenen hingen am Poollicht.** Sie waren dem Feature „LED
+  Lighting“ zugeordnet, weshalb das Abwählen der DMX-*Sensoren* sie nicht
+  berührte. Die Szenen sind jetzt das eigene Feature **„DMX Scenes“** —
+  Poollicht behalten und trotzdem zwölf Szenen-Entitäten loswerden ist damit
+  möglich. Die DMX-Sensoren folgen dem neuen Feature, das einfache `LIGHT`
+  bleibt bei „LED Lighting“.
+- **Sicherheits-Cooldown griff bei Schaltern nicht** *(bereits in 2.4.0
+  enthalten, hier nachgetragen)* — `_get_safety_guard()` suchte den
+  Service-Manager mit `getattr()` in einem Dictionary, was einen Schlüssel
+  niemals findet.
+
+### ✨ Neu
+
+- **Blueprint „Heat Pump Heating & Cooling“.** Der Violet-Controller kann nicht
+  kühlen: seine API kennt genau zwei Wärme-Ausgänge, `HEATER` und `SOLAR`,
+  beide heizend, und `setFunctionManually` hat keinen Kühlbefehl. Ein
+  `cool`-Modus an den Climate-Entitäten wäre eine Fähigkeit, die die Hardware
+  nicht ausführen kann. Wer kühlt, tut das mit einer Wärmepumpe über deren
+  eigene Integration — der neue Blueprint
+  (`blueprints/automation/pool_heatpump_cooling.yaml`) verbindet beides an der
+  Stelle, an die diese Kopplung gehört, in einer Automation: ein
+  `input_number`-Helper hält die Solltemperatur und wird auf die Wärmepumpe
+  durchgeschrieben, sodass der in Home Assistant angezeigte Wert auch der
+  geregelte ist. Pool über Soll + Hysterese → `cool`, unter Soll − Hysterese →
+  `heat`, dazwischen ein konfigurierbarer Ruhemodus. Optional wird der
+  Violet-Heizsollwert auf einer Freigabetemperatur gehalten, damit der
+  Controller das Ventil offen lässt — der verbreitete Workaround, aber
+  explizit und dokumentiert statt als stille Falle in der Oberfläche. Ein
+  Modus wird nur gesendet, wenn die Wärmepumpe ihn in `hvac_modes` meldet, und
+  solange ein Messwert `unavailable` ist, wird gar nichts geschrieben.
+
+### 🔧 Technisch
+
+- **Migration auf Config-Entry-Version 2.** Bestehende Konfigurationen kennen
+  die neuen Feature-IDs nicht, und eine unbekannte ID zählt als „aus“ — ohne
+  Migration wären ECO und die DMX-Szenen beim Update bei *allen* Nutzern still
+  verschwunden. `eco_mode` wird deshalb aktiviert (war immer an), `dmx_scenes`
+  übernimmt die bisherige Einstellung von `led_lighting`. Wer die Beleuchtung
+  abgeschaltet hatte, bekommt also nicht plötzlich zwölf Szenen dazu.
+- **Klarerer Text im Sensorschritt** (alle zehn Sprachen): dort steht jetzt,
+  dass die Auswahl nur Sensor-Entitäten betrifft und Schalter, Lichter sowie
+  übrige Bedienelemente zu den Features gehören. Die vollständige Ausweitung
+  der Auswahl auf alle Plattformen ist für 2.5.0 vorgesehen; sie braucht eine
+  eigene Migration, weil bestehende Auswahlen im Sensor-Kontext getroffen
+  wurden.
+- **Der Changelog ist jetzt der Release-Text.** Bis 2.4.0 enthielt die
+  GitHub-Release-Seite nur die automatisch erzeugte PR-Liste. Der Release-Job
+  liest jetzt den Abschnitt zur jeweiligen Version aus dieser Datei und bricht
+  ab, wenn es keinen gibt.
+
+### 🧪 Tests
+
+- **Regel gegen die Wiederkehr der Lücke:** jede standardmäßig aktive Entität
+  muss ein Feature nennen, und jedes genannte Feature muss im Config-Flow
+  existieren — für Schalter, Binärsensoren, Auswahl, Licht und die
+  Sensor-Zuordnung. Dazu sieben Migrationstests, die unter anderem absichern,
+  dass DMX bei abgeschalteter Beleuchtung *nicht* hinzukommt.
+- **Blueprints werden erstmals überhaupt geprüft.** Sie waren reines YAML, das
+  im Build nie jemand geladen hat — ein Tippfehler wäre erst beim Import durch
+  einen Nutzer aufgefallen. Alle fünf werden jetzt mit Home Assistants eigenem
+  `AUTOMATION_BLUEPRINT_SCHEMA` geparst; beim neuen werden zusätzlich die
+  eingesetzten Trigger, Bedingungen und Aktionen validiert, einmal mit
+  vollständigen und einmal ohne die optionalen Eingaben.
 
 ## Version 2.4.0 (2026-08-17)
 

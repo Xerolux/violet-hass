@@ -155,6 +155,18 @@ jobs:
               raise SystemExit(f"Tag version {expected} does not match: {details}")
 
           print(f"Release sources match {expected}")
+
+          # The changelog section IS the release text (see "Create release
+          # preamble" below). Without it the release page would carry nothing
+          # but the auto-generated pull request list.
+          heading = f"## Version {expected} "
+          changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+          if not any(line.startswith(heading) for line in changelog.splitlines()):
+              raise SystemExit(
+                  f"CHANGELOG.md has no '## Version {expected} (YYYY-MM-DD)' section. "
+                  "Add one - it becomes the release notes."
+              )
+          print(f"Changelog section for {expected} found")
           PY
 
       - name: Find previous release tag
@@ -175,19 +187,52 @@ jobs:
       - name: Create release preamble
         env:
           TAG: ${{ steps.metadata.outputs.tag }}
+          RELEASE_VERSION: ${{ steps.metadata.outputs.version }}
           RELEASE_TYPE: ${{ steps.metadata.outputs.release_type }}
         run: |
-          {
-            echo "## $TAG — Violet Pool Controller"
-            echo
-            if [ "$RELEASE_TYPE" != stable ]; then
-              echo "> **Pre-release:** This build is intended for testing before production use."
-              echo
-            fi
-            echo "Install through HACS, or download \`violet_pool_controller.zip\` for a manual installation."
-            echo
-            echo "If the integration is useful to you, consider [supporting development](https://buymeacoffee.com/xerolux)."
-          } > release-preamble.md
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          tag = os.environ["TAG"]
+          version = os.environ["RELEASE_VERSION"]
+          release_type = os.environ["RELEASE_TYPE"]
+
+          # Lift this version's section out of the changelog. It was already
+          # verified to exist, so the notes describe what actually changed
+          # instead of leaving readers with a list of pull request titles.
+          lines = Path("CHANGELOG.md").read_text(encoding="utf-8").splitlines()
+          heading = f"## Version {version} "
+          start = next(index for index, line in enumerate(lines) if line.startswith(heading))
+          end = next(
+              (index for index in range(start + 1, len(lines)) if lines[index].startswith("## ")),
+              len(lines),
+          )
+          # Drop the heading itself - the release is already titled with the tag.
+          section = "\n".join(lines[start + 1 : end]).strip()
+
+          parts = [f"## {tag} — Violet Pool Controller"]
+          if release_type != "stable":
+              parts.append(
+                  "> **Pre-release:** This build is intended for testing before production use."
+              )
+          parts.append(section)
+          parts.append(
+              "### Installation\n\n"
+              "Über HACS aktualisieren, oder `violet_pool_controller.zip` für eine "
+              "manuelle Installation herunterladen."
+          )
+          parts.append(
+              "### Unterstützung\n\n"
+              "Diese Integration entsteht in meiner Freizeit. Wenn sie dir hilft, "
+              "freue ich mich über Unterstützung:\n\n"
+              "- [Buy Me A Coffee](https://buymeacoffee.com/xerolux)\n"
+              "- [PayPal](https://paypal.me/xerolux)"
+          )
+
+          Path("release-preamble.md").write_text("\n\n".join(parts) + "\n", encoding="utf-8")
+          print(f"Release notes built from the changelog section ({len(section)} characters)")
+          PY
 
       - name: Create or update GitHub release
         uses: softprops/action-gh-release@v3

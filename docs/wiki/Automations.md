@@ -490,6 +490,30 @@ The repository contains ready-made blueprints in the `blueprints/automation/` di
 1. Copy blueprint file to `config/blueprints/automation/violet_pool/`
 2. Settings → Automations → Blueprints → Import
 
+### Cooling with a Heat Pump
+
+`pool_heatpump_cooling.yaml` regulates the pool temperature in **both**
+directions together with a heat pump that can cool.
+
+The Violet Pool Controller cannot cool: its API only knows the `HEATER` and
+`SOLAR` outputs, both of which heat. Its climate entities therefore never offer
+a `cool` mode, and they never will - a mode that the hardware cannot carry out
+would be a promise the integration cannot keep. The cooling is done by the heat
+pump through its own integration, and the blueprint ties the two together:
+
+- One `input_number` helper holds the target temperature and is written through
+  to the heat pump, so the value you set in Home Assistant is the value the
+  heat pump actually regulates to.
+- Pool above target + hysteresis → heat pump to `cool`, below target −
+  hysteresis → `heat`, inside the deadband → a configurable idle mode.
+- Optionally the Violet heater setpoint is held at a high release temperature
+  so the controller keeps the valve open and the heat pump sees flow. That
+  replaces the common workaround of leaving a misleadingly high setpoint in the
+  Violet UI while the real control happens in the heat pump.
+
+Modes are only sent when the heat pump advertises them in `hvac_modes`, and
+nothing is written while a reading is `unavailable`.
+
 ---
 
 *Back: [Services](Services) | Next: [Troubleshooting](Troubleshooting)*

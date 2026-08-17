@@ -63,6 +63,7 @@ from .const import (
     CONF_USE_SSL,
     CONF_USERNAME,
     CONF_VERIFY_SSL,
+    CONFIG_ENTRY_VERSION,
     DEFAULT_ALLOW_UNSAFE_SWITCHES,
     DEFAULT_CONTROLLER_NAME,
     DEFAULT_POLLING_INTERVAL,
@@ -86,7 +87,7 @@ class ConfigFlow(
 ):  # type: ignore[call-arg]
     """Config flow for Violet Pool Controller."""
 
-    VERSION = 1
+    VERSION = CONFIG_ENTRY_VERSION
 
     def __init__(self) -> None:
         """Initialize config flow."""

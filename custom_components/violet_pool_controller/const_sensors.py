@@ -795,7 +795,8 @@ SENSOR_FEATURE_MAP = {
     "CPU_TEMP": None,
     "CPU_UPTIME": None,
     "REFILL": "water_refill",
-    "ECO": None,
+    "ECO": "eco_mode",
+    "ECO_RUNTIME": "eco_mode",
     "PUMP_RUNTIME": "filter_control",
     "SOLAR_RUNTIME": "solar",
     "HEATER_RUNTIME": "heating",
@@ -816,8 +817,8 @@ SENSOR_FEATURE_MAP = {
     # still be turned into sensors after the LED lighting feature was disabled.
     "LIGHT": "led_lighting",
     "LIGHT_MODE": "led_lighting",
-    "DMX_MODE": "led_lighting",
-    **{f"DMX_SCENE{i}": "led_lighting" for i in range(1, 13)},
+    "DMX_MODE": "dmx_scenes",
+    **{f"DMX_SCENE{i}": "dmx_scenes" for i in range(1, 13)},
     **{f"LIGHT_SCENE_{i}": "led_lighting" for i in range(1, 13)},
     # Cover
     "COVER_STATE": "cover_control",

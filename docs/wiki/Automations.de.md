@@ -490,6 +490,32 @@ Das Repository enthält fertige Blueprints im Verzeichnis `blueprints/automation
 1. Blueprint-Datei in `config/blueprints/automation/violet_pool/` kopieren
 2. Einstellungen → Automatisierungen → Blueprints → Importieren
 
+### Kühlen mit einer Wärmepumpe
+
+`pool_heatpump_cooling.yaml` regelt die Pooltemperatur gemeinsam mit einer
+kühlfähigen Wärmepumpe in **beide** Richtungen.
+
+Der Violet Pool Controller kann nicht kühlen: seine API kennt nur die Ausgänge
+`HEATER` und `SOLAR`, beide heizen. Seine Climate-Entitäten bieten deshalb
+keinen `cool`-Modus an — und werden das auch nicht tun, denn ein Modus, den die
+Hardware nicht ausführen kann, wäre ein Versprechen, das die Integration nicht
+halten kann. Gekühlt wird von der Wärmepumpe über deren eigene Integration; der
+Blueprint verbindet beides:
+
+- Ein `input_number`-Helper hält die Solltemperatur und wird auf die Wärmepumpe
+  durchgeschrieben. Der Wert, den du in Home Assistant einstellst, ist damit
+  der Wert, auf den die Wärmepumpe tatsächlich regelt.
+- Pool über Soll + Hysterese → Wärmepumpe auf `cool`, unter Soll − Hysterese →
+  `heat`, innerhalb des Totbands → ein konfigurierbarer Ruhemodus.
+- Optional wird der Violet-Heizsollwert auf einer hohen Freigabetemperatur
+  gehalten, damit der Controller das Ventil offen lässt und die Wärmepumpe
+  Durchfluss sieht. Das ersetzt den verbreiteten Workaround, in der
+  Violet-Oberfläche einen irreführend hohen Sollwert stehen zu lassen, während
+  in Wirklichkeit die Wärmepumpe regelt.
+
+Modi werden nur gesendet, wenn die Wärmepumpe sie in `hvac_modes` meldet, und
+solange ein Messwert `unavailable` ist, wird nichts geschrieben.
+
 ---
 
 *Zurück: [Services](Services) | Weiter: [Troubleshooting](Troubleshooting)*
