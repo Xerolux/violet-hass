@@ -305,6 +305,26 @@ def async_precreate_devices(hass: HomeAssistant, entry: ConfigEntry, coordinator
 
 
 @callback
+def _main_device_id(hass: HomeAssistant, entry: ConfigEntry, coordinator) -> str | None:
+    """Return the registry id of the controller device.
+
+    Normally served from the cache filled by async_precreate_devices; falls back
+    to a registry lookup so the parent link also resolves when the cache is
+    empty (entry not fully set up, or the device was created elsewhere).
+    """
+    runtime_data = get_runtime_data(entry)
+    if runtime_data is not None and (cached := runtime_data.device_ids.get("__main__")):
+        return cached
+
+    identifiers = _main_identifiers(coordinator)
+    if not identifiers:
+        return None
+
+    device = dr.async_get(hass).async_get_device(identifiers=identifiers)
+    return device.id if device else None
+
+
+@callback
 def build_device_info(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -333,13 +353,11 @@ def build_device_info(
         translation_key=sub_device.translation_key,
     )
 
-    runtime_data = get_runtime_data(entry)
-    device_ids: dict[str, str] = runtime_data.device_ids if runtime_data else {}
     if _SUPPORTS_VIA_DEVICE_ID:
         # Home Assistant 2026.8+: identifiers are no longer unique across config
         # entries, so the parent has to be addressed by its registry id. Passing
         # both via_device and via_device_id raises, so only ever set one.
-        if (parent_id := device_ids.get("__main__")) is not None:
+        if (parent_id := _main_device_id(hass, entry, coordinator)) is not None:
             # Not in the DeviceInfo TypedDict before Home Assistant 2026.8; the
             # guard above is exactly the runtime check for its availability.
             info["via_device_id"] = parent_id  # type: ignore[typeddict-unknown-key]

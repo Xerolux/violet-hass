@@ -7,7 +7,7 @@ sub-devices that hang below the controller.
 
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 from homeassistant.helpers import device_registry as dr
@@ -19,6 +19,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 
+from custom_components.violet_pool_controller import device_hierarchy  # noqa: E402
 from custom_components.violet_pool_controller.const import (  # noqa: E402
     CONF_API_URL,
     CONF_DEVICE_NAME,
@@ -27,12 +28,16 @@ from custom_components.violet_pool_controller.const import (  # noqa: E402
 )
 from custom_components.violet_pool_controller.device_hierarchy import (  # noqa: E402
     SUB_DEVICES,
+    _main_device_id,
     async_cleanup_sub_devices,
     async_precreate_devices,
     build_device_info,
     is_grouping_enabled,
     resolve_group,
     sub_device_identifier,
+)
+from custom_components.violet_pool_controller.runtime_data import (  # noqa: E402
+    VioletRuntimeData,
 )
 
 _MAIN_IDENTIFIER = (DOMAIN, "192.168.178.55_1")
@@ -47,6 +52,7 @@ def config_entry(hass):
         data={CONF_API_URL: "192.168.178.55", CONF_DEVICE_NAME: "Test Pool Controller"},
     )
     entry.add_to_hass(hass)
+    entry.runtime_data = VioletRuntimeData(coordinator=MagicMock())
     return entry
 
 
@@ -152,6 +158,33 @@ class TestDeviceInfo:
             assert registry.async_get(info["via_device_id"]) is not None
         else:
             assert info["via_device"] == _MAIN_IDENTIFIER
+
+    def test_sub_device_links_by_registry_id_on_new_ha(self, hass, config_entry, coordinator):
+        """Home Assistant 2026.8+ links the parent by registry id.
+
+        Forced on so the branch is covered on older Home Assistant releases too,
+        where via_device is used instead.
+        """
+        async_precreate_devices(hass, config_entry, coordinator)
+
+        with patch.object(device_hierarchy, "_SUPPORTS_VIA_DEVICE_ID", True):
+            info = build_device_info(hass, config_entry, coordinator, "PUMP")
+
+        assert "via_device" not in info
+        assert dr.async_get(hass).async_get(info["via_device_id"]) is not None
+
+    def test_parent_link_resolves_without_the_cache(self, hass, config_entry, coordinator):
+        """The cached registry ids are an optimisation, not a requirement."""
+        async_precreate_devices(hass, config_entry, coordinator)
+        # Simulate a lookup before/without the pre-creation cache.
+        config_entry.runtime_data.device_ids.clear()
+
+        assert _main_device_id(hass, config_entry, coordinator) is not None
+
+        with patch.object(device_hierarchy, "_SUPPORTS_VIA_DEVICE_ID", True):
+            info = build_device_info(hass, config_entry, coordinator, "PUMP")
+
+        assert dr.async_get(hass).async_get(info["via_device_id"]) is not None
 
     def test_unknown_key_stays_on_the_controller(self, hass, config_entry, coordinator):
         """Ungrouped entities keep the controller device."""

@@ -196,8 +196,6 @@ def _disable_unsafe_switches(
         entry.data.get(CONF_ALLOW_UNSAFE_SWITCHES, DEFAULT_ALLOW_UNSAFE_SWITCHES),
     )
 
-    unsafe_switch_keys = UNSAFE_SWITCH_KEYS
-
     prefix = f"{config_entry_id}_"
 
     if allow_unsafe:
@@ -214,7 +212,7 @@ def _disable_unsafe_switches(
             if not entity_entry.unique_id.startswith(prefix):
                 continue
             key = entity_entry.unique_id[len(prefix) :]
-            if key not in unsafe_switch_keys:
+            if key not in UNSAFE_SWITCH_KEYS:
                 continue
             if entity_entry.disabled_by != er.RegistryEntryDisabler.INTEGRATION:
                 continue
@@ -248,7 +246,7 @@ def _disable_unsafe_switches(
         key = entity_entry.unique_id[len(prefix) :]
 
         # Check if this is an unsafe switch
-        if key not in unsafe_switch_keys:
+        if key not in UNSAFE_SWITCH_KEYS:
             continue
 
         # Skip if already disabled
