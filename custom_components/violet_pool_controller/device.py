@@ -67,6 +67,7 @@ from .const import (
     CONF_USE_SSL,
     CONF_USERNAME,
     CONF_VERIFY_SSL,
+    CONFIG_REFRESH_INTERVAL,
     DEFAULT_ADAPTIVE_POLLING,
     DEFAULT_CONTROLLER_NAME,
     DEFAULT_POLLING_INTERVAL,
@@ -126,9 +127,15 @@ class VioletPoolControllerDevice:
         self._consecutive_failures = 0
         self._max_consecutive_failures = 5
         self._update_counter = 0
-        # Poll-cycle counter for throttling SYSTEM_availableversion fetches
-        # (see _build_config_keys). Resets on every coordinator reload.
+        # Counter for throttling SYSTEM_availableversion fetches (see
+        # _build_config_keys). Resets on every coordinator reload.
         self._firmware_version_poll_counter: int = 0
+        # Last values read via getConfig, plus when they were read. Setpoints
+        # only change on a write, so they are refreshed on a timer rather than
+        # on every poll (see _fetch_config_values).
+        self._config_cache: dict[str, Any] = {}
+        self._last_config_fetch = 0.0
+        self._force_config_fetch = False
         # Store poll snapshots as fixed-position tuples to reduce per-entry overhead.
         self._poll_history: collections.deque[tuple[datetime, int, float, tuple[Any, ...]]] = (
             collections.deque(maxlen=1000)
@@ -438,7 +445,7 @@ class VioletPoolControllerDevice:
         Always includes the setpoint keys and SYSTEM_swversion (the latter is a
         local cached value used for device-registry resolution). SYSTEM_availableversion
         is appended only on the first poll and then once every
-        FIRMWARE_VERSION_REFRESH_POLLS cycles, because fetching it triggers a
+        FIRMWARE_VERSION_REFRESH_POLLS fetches, because fetching it triggers a
         server-side refresh on the controller. SYSTEM_updateavailable is NEVER
         requested: it forces a live backend check and its value is discarded —
         the update-available decision is made by numeric version comparison in
@@ -456,13 +463,62 @@ class VioletPoolControllerDevice:
             "DOSAGE_phminus_use",
             "DOSAGE_phplus_use",
             "DOSAGE_floc_use",
-            # Firmware version (local cached value, cheap to read every poll)
+            # Firmware version (local cached value, cheap to read)
             "SYSTEM_swversion",
         ]
         if self._firmware_version_poll_counter % FIRMWARE_VERSION_REFRESH_POLLS == 0:
             keys.append("SYSTEM_availableversion")
         self._firmware_version_poll_counter += 1
         return keys
+
+    def request_config_refresh(self) -> None:
+        """Force the next poll to re-read the setpoints from the controller.
+
+        Called after a setpoint write so the value the controller actually
+        stored is confirmed on the following poll instead of after the regular
+        refresh interval.
+        """
+        self._force_config_fetch = True
+
+    def _config_fetch_due(self) -> bool:
+        """Return True if the setpoints should be re-read on this poll."""
+        if self._force_config_fetch or not self._config_cache:
+            return True
+        return (time.monotonic() - self._last_config_fetch) >= CONFIG_REFRESH_INTERVAL
+
+    async def _fetch_config_values(self) -> dict[str, Any]:
+        """Return the setpoint/firmware values, refreshing them when due.
+
+        These values live behind a second HTTP request and only change when
+        somebody writes them, so they are re-read at most every
+        CONFIG_REFRESH_INTERVAL seconds. In between, the previously fetched
+        values are reused, which removes one request per poll cycle - at the
+        default 10s interval that is five of every six requests.
+        """
+        if not self._config_fetch_due():
+            return dict(self._config_cache)
+
+        try:
+            config_data = await self.api.get_config(self._build_config_keys())
+        except asyncio.CancelledError:
+            raise
+        except Exception as err:  # noqa: BLE001
+            _LOGGER.warning(
+                "Optional getConfig fetch failed for '%s': %s",
+                self.device_name,
+                err,
+            )
+            # Keep serving the last known values instead of dropping the keys.
+            return dict(self._config_cache)
+
+        self._last_config_fetch = time.monotonic()
+        self._force_config_fetch = False
+        if isinstance(config_data, dict):
+            # Merge instead of replace: SYSTEM_availableversion is only part of
+            # some fetches and must survive the cycles that omit it.
+            self._config_cache.update(config_data)
+
+        return dict(self._config_cache)
 
     async def async_update(self) -> dict[str, Any]:
         """Fetch and return updated device data from the controller."""
@@ -520,23 +576,11 @@ class VioletPoolControllerDevice:
                     self._system_health = max(0.0, 100.0 - (self._consecutive_failures * 20.0))
                     return dict(self._data) if self._data else {}
 
-                # Fetch config-based setpoints and firmware version. The list is
-                # built dynamically by _build_config_keys, which throttles
-                # SYSTEM_availableversion and omits SYSTEM_updateavailable entirely
-                # (both were causing avoidable backend server load).
-                try:
-                    config_keys = self._build_config_keys()
-                    config_data = await self.api.get_config(config_keys)
-                    if isinstance(config_data, dict):
-                        data.update(config_data)
-                except asyncio.CancelledError:
-                    raise
-                except Exception as err:  # noqa: BLE001
-                    _LOGGER.warning(
-                        "Optional getConfig fetch failed for '%s': %s",
-                        self.device_name,
-                        err,
-                    )
+                # Merge the config-based setpoints and the firmware version.
+                # They are re-read only every CONFIG_REFRESH_INTERVAL seconds
+                # (see _fetch_config_values) because each read is a second HTTP
+                # request and the values only change on a write.
+                data.update(await self._fetch_config_values())
 
                 if self._consecutive_failures > 0 and not self._recovery_logged:
                     _LOGGER.info(
@@ -1000,6 +1044,8 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator[VioletReadings]):
         returns the key, at which point coordinator.data takes precedence.
         """
         self._setpoint_cache[key] = value
+        # Setpoints are read on a timer; confirm this write on the next poll.
+        self.device.request_config_refresh()
         self.async_update_listeners()
 
     async def _async_update_data(self) -> VioletReadings:

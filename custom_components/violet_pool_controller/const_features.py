@@ -451,7 +451,7 @@ for i in range(6):
 # LOCAL LSI CALCULATOR INPUTS
 # =============================================================================
 
-LSI_INPUT_DEFINITIONS = [
+LSI_INPUT_DEFINITIONS: list[dict[str, Any]] = [
     {
         "key": "lsi_ph",
         "name": "LSI pH Value",
@@ -519,12 +519,12 @@ LSI_INPUT_DEFINITIONS = [
     },
 ]
 
-CSI_INPUT_DEFINITIONS = [
+CSI_INPUT_DEFINITIONS: list[dict[str, Any]] = [
     {
         **definition,
-        "key": definition["key"].replace("lsi_", "csi_"),
-        "name": definition["name"].replace("LSI", "CSI"),
-        "translation_key": definition["translation_key"].replace("lsi_", "csi_"),
+        "key": str(definition["key"]).replace("lsi_", "csi_"),
+        "name": str(definition["name"]).replace("LSI", "CSI"),
+        "translation_key": str(definition["translation_key"]).replace("lsi_", "csi_"),
     }
     for definition in LSI_INPUT_DEFINITIONS
 ]

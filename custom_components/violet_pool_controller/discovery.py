@@ -14,11 +14,7 @@ import threading
 from typing import Any
 
 from homeassistant.core import HomeAssistant, callback
-
-try:
-    from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
-except ImportError:
-    from homeassistant.components.zeroconf import ZeroconfServiceInfo
+from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 
 _LOGGER = logging.getLogger(__name__)
 

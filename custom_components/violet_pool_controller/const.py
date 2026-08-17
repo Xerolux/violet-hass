@@ -102,6 +102,12 @@ DEFAULT_POLLING_INTERVAL = 10
 # checks for updates every ~12h or on manual invocation). At the default 10s
 # polling interval, 360 = once per hour.
 FIRMWARE_VERSION_REFRESH_POLLS = 360
+# How often (in seconds) the setpoints behind getConfig are re-read. They sit
+# behind a second HTTP request per poll and only change when somebody writes
+# them, so polling them at the readings interval is wasted controller load.
+# A write from Home Assistant refreshes them on the next poll regardless
+# (see VioletPoolControllerDevice.request_config_refresh).
+CONFIG_REFRESH_INTERVAL = 60
 DEFAULT_TIMEOUT_DURATION = 10
 DEFAULT_RETRY_ATTEMPTS = 3
 DEFAULT_USE_SSL = False
@@ -117,6 +123,26 @@ DEFAULT_INVERT_COVER = False
 DEFAULT_GROUP_ENTITIES = True
 DEFAULT_ALLOW_UNSAFE_SWITCHES = False
 DEFAULT_ADAPTIVE_POLLING = True
+
+# =============================================================================
+# SAFETY
+# =============================================================================
+# Outputs that must not be driven by a plain switch without a time limit:
+# dosing overdoses the pool, backwash and refill can flood. They are created
+# disabled unless CONF_ALLOW_UNSAFE_SWITCHES is set, and the services with
+# mandatory durations are the supported way to control them.
+UNSAFE_SWITCH_KEYS: frozenset[str] = frozenset(
+    {
+        "DOS_1_CL",  # Chlorine dosing
+        "DOS_2_ELO",  # Electrolysis dosing
+        "DOS_4_PHM",  # pH- dosing
+        "DOS_5_PHP",  # pH+ dosing
+        "DOS_6_FLOC",  # Flocculant
+        "BACKWASH",  # Backwash
+        "BACKWASHRINSE",  # Backwash rinse
+        "REFILL",  # Water refill
+    }
+)
 
 # =============================================================================
 # ADAPTIVE POLLING

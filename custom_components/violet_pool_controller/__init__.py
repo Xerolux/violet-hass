@@ -20,11 +20,7 @@ from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
-
-try:
-    from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
-except ImportError:
-    from homeassistant.components.zeroconf import ZeroconfServiceInfo
+from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 
 from .config_entry_helpers import (
     extract_api_host,
@@ -64,6 +60,7 @@ from .const import (
     DEFAULT_VERIFY_SSL,
     DOMAIN,
     MIN_SUPPORTED_POLLING_INTERVAL,
+    UNSAFE_SWITCH_KEYS,
 )
 from .device_hierarchy import (
     async_cleanup_sub_devices,
@@ -202,17 +199,7 @@ def _disable_unsafe_switches(
         entry.data.get(CONF_ALLOW_UNSAFE_SWITCHES, DEFAULT_ALLOW_UNSAFE_SWITCHES),
     )
 
-    # Keys of switches that should be disabled for safety
-    unsafe_switch_keys = {
-        "DOS_1_CL",  # Chlorine dosing
-        "DOS_2_ELO",  # Electrolysis dosing
-        "DOS_4_PHM",  # pH- dosing
-        "DOS_5_PHP",  # pH+ dosing
-        "DOS_6_FLOC",  # Flocculant
-        "BACKWASH",  # Backwash
-        "BACKWASHRINSE",  # Backwash rinse
-        "REFILL",  # Water refill
-    }
+    unsafe_switch_keys = UNSAFE_SWITCH_KEYS
 
     prefix = f"{config_entry_id}_"
 
@@ -379,12 +366,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # run, so every entity finds its parent regardless of platform order.
         async_precreate_devices(hass, entry, coordinator)
 
-        # Load platforms
+        # Load platforms. A second enforcement pass afterwards is not needed:
+        # the switch platform creates every UNSAFE_SWITCH_KEYS entity with
+        # entity_registry_enabled_default derived from the same option, so
+        # registry entries created during this setup are already disabled.
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
-        # Run again after platforms are loaded so freshly created switch
-        # registry entries are enforced on first setup too.
-        _disable_unsafe_switches(hass, er.async_get(hass), entry.entry_id)
 
         # Register update listener for config changes (e.g., polling_interval)
         entry.async_on_unload(entry.add_update_listener(async_update_listener))

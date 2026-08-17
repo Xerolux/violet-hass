@@ -80,7 +80,9 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
                     self.entity_description.key,
                 )
             return None
-        return self.entity_description.state_class
+        # EntityDescription types state_class as SensorStateClass | str | None;
+        # every description in this integration uses the enum.
+        return cast(SensorStateClass | None, self.entity_description.state_class)
 
     @property
     def native_value(self) -> str | int | float | datetime | None:
