@@ -32,11 +32,13 @@ from .const import (
     DOMAIN,
     DOSING_STATE_DESCRIPTIONS,
     SWITCHES,
+    UNSAFE_SWITCH_KEYS,
 )
 from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity, get_state_attributes, interpret_state_as_bool
 from .entity_cleanup import track_provided_entities
 from .entity_names import EntityNameResolver
+from .runtime_data import SERVICE_MANAGER_KEY
 from .service_helpers import MAX_DOSING_DURATION
 
 _LOGGER = logging.getLogger(__name__)
@@ -75,17 +77,6 @@ REFRESH_DELAY = 0.3
 # Extension module relays may need more time for the controller to update LAST_ON
 # after a command, so that the next get_readings() call can detect the module.
 REFRESH_DELAY_EXT = 1.5
-
-UNSAFE_SWITCH_KEYS = {
-    "DOS_1_CL",
-    "DOS_2_ELO",
-    "DOS_4_PHM",
-    "DOS_5_PHP",
-    "DOS_6_FLOC",
-    "BACKWASH",
-    "BACKWASHRINSE",
-    "REFILL",
-}
 
 # Maximum safe runtime (seconds) for unsafe switches toggled via the plain
 # switch entity.  Dosing channels are capped at MAX_DOSING_DURATION (300s);
@@ -705,7 +696,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         """
         from .safety_guard import SafetyGuard  # local import to avoid cycles
 
-        manager = getattr(self.hass.data.get(DOMAIN, {}), "service_manager", None)
+        manager = self.hass.data.get(DOMAIN, {}).get(SERVICE_MANAGER_KEY)
         guard = getattr(manager, "safety_guard", None)
         return guard if isinstance(guard, SafetyGuard) else None
 
@@ -727,7 +718,7 @@ async def async_setup_entry(
         config_entry: The config entry.
         async_add_entities: Callback to add entities.
     """
-    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
+    coordinator = config_entry.runtime_data.coordinator
     active_features = config_entry.options.get(
         CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
     )

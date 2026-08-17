@@ -10,7 +10,6 @@
 from __future__ import annotations
 
 import logging
-from datetime import timedelta
 from typing import Any
 
 import homeassistant.helpers.config_validation as cv
@@ -21,19 +20,23 @@ from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
-
-try:
-    from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
-except ImportError:
-    from homeassistant.components.zeroconf import ZeroconfServiceInfo
+from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 
 from .config_entry_helpers import (
     extract_api_host,
     get_entry_value,
     with_non_default_port,
 )
+from .config_flow_utils.constants import (
+    MAX_POLLING_INTERVAL,
+    MAX_RETRIES,
+    MAX_TIMEOUT,
+    MIN_RETRIES,
+    MIN_TIMEOUT,
+)
 from .const import (
     CONF_ACTIVE_FEATURES,
+    CONF_ADAPTIVE_POLLING,
     CONF_ALLOW_UNSAFE_SWITCHES,
     CONF_CONTROLLER_NAME,
     CONF_DEVICE_ID,
@@ -48,6 +51,7 @@ from .const import (
     CONF_USE_SSL,
     CONF_USERNAME,
     CONF_VERIFY_SSL,
+    DEFAULT_ADAPTIVE_POLLING,
     DEFAULT_CONTROLLER_NAME,
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_PORT,
@@ -55,13 +59,12 @@ from .const import (
     DEFAULT_TIMEOUT_DURATION,
     DEFAULT_VERIFY_SSL,
     DOMAIN,
+    MIN_SUPPORTED_POLLING_INTERVAL,
+    UNSAFE_SWITCH_KEYS,
 )
-from .device_hierarchy import (
-    async_cleanup_sub_devices,
-    async_precreate_devices,
-    discard_device_ids,
-)
-from .entity_cleanup import async_remove_orphaned_entities, discard_provided_entities
+from .device_hierarchy import async_cleanup_sub_devices, async_precreate_devices
+from .entity_cleanup import async_remove_orphaned_entities
+from .runtime_data import VioletRuntimeData, get_runtime_data
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -193,18 +196,6 @@ def _disable_unsafe_switches(
         entry.data.get(CONF_ALLOW_UNSAFE_SWITCHES, DEFAULT_ALLOW_UNSAFE_SWITCHES),
     )
 
-    # Keys of switches that should be disabled for safety
-    unsafe_switch_keys = {
-        "DOS_1_CL",  # Chlorine dosing
-        "DOS_2_ELO",  # Electrolysis dosing
-        "DOS_4_PHM",  # pH- dosing
-        "DOS_5_PHP",  # pH+ dosing
-        "DOS_6_FLOC",  # Flocculant
-        "BACKWASH",  # Backwash
-        "BACKWASHRINSE",  # Backwash rinse
-        "REFILL",  # Water refill
-    }
-
     prefix = f"{config_entry_id}_"
 
     if allow_unsafe:
@@ -221,7 +212,7 @@ def _disable_unsafe_switches(
             if not entity_entry.unique_id.startswith(prefix):
                 continue
             key = entity_entry.unique_id[len(prefix) :]
-            if key not in unsafe_switch_keys:
+            if key not in UNSAFE_SWITCH_KEYS:
                 continue
             if entity_entry.disabled_by != er.RegistryEntryDisabler.INTEGRATION:
                 continue
@@ -255,7 +246,7 @@ def _disable_unsafe_switches(
         key = entity_entry.unique_id[len(prefix) :]
 
         # Check if this is an unsafe switch
-        if key not in unsafe_switch_keys:
+        if key not in UNSAFE_SWITCH_KEYS:
             continue
 
         # Skip if already disabled
@@ -346,14 +337,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             _LOGGER.error("Failed to set up coordinator for %s", config["device_name"])
             raise ConfigEntryNotReady("Coordinator setup failed")
 
-        # Store coordinator in hass.data
-        hass.data.setdefault(DOMAIN, {})
-        hass.data[DOMAIN][entry.entry_id] = coordinator
-
-        # Remember which options the created entities are based on, so the
-        # update listener can tell a structural change (features, sensors)
-        # apart from a setting that can be applied without a reload.
-        hass.data[DOMAIN][_structural_options_key(entry)] = _structural_options(entry)
+        # Everything this entry needs at runtime lives on the entry itself.
+        # structural_options records which options the created entities are
+        # based on, so the update listener can tell a structural change
+        # (features, sensors) apart from a setting that can be applied without
+        # a reload.
+        entry.runtime_data = VioletRuntimeData(
+            coordinator=coordinator,
+            structural_options=_structural_options(entry),
+        )
 
         # Migrate entity_ids that have the duplicate device prefix (e.g.
         # switch.violet_pool_controller_violet_pool_controller_beleuchtung →
@@ -370,12 +362,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # run, so every entity finds its parent regardless of platform order.
         async_precreate_devices(hass, entry, coordinator)
 
-        # Load platforms
+        # Load platforms. A second enforcement pass afterwards is not needed:
+        # the switch platform creates every UNSAFE_SWITCH_KEYS entity with
+        # entity_registry_enabled_default derived from the same option, so
+        # registry entries created during this setup are already disabled.
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
-        # Run again after platforms are loaded so freshly created switch
-        # registry entries are enforced on first setup too.
-        _disable_unsafe_switches(hass, er.async_get(hass), entry.entry_id)
 
         # Register update listener for config changes (e.g., polling_interval)
         entry.async_on_unload(entry.add_update_listener(async_update_listener))
@@ -434,24 +425,10 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         unload_ok = bool(await hass.config_entries.async_unload_platforms(entry, PLATFORMS))
 
         if unload_ok:
-            # Get coordinator for cleanup
-            coordinator = hass.data.get(DOMAIN, {}).get(entry.entry_id)
-            if coordinator and hasattr(coordinator.device, "api"):
-                # NOTE: Do NOT close the aiohttp session - it's managed by
-                # Home Assistant! The session is created by HA via
-                # async_get_clientsession() and should only be closed by HA
-                _LOGGER.debug("API object reference released for entry_id=%s", entry.entry_id)
-
-            # Remove coordinator from hass.data
-            if entry.entry_id in hass.data.get(DOMAIN, {}):
-                hass.data[DOMAIN].pop(entry.entry_id)
-                _LOGGER.debug("Coordinator removed for entry_id=%s", entry.entry_id)
-
-            # Drop the per-entry bookkeeping so the next setup starts clean
-            hass.data.get(DOMAIN, {}).pop(_structural_options_key(entry), None)
-            discard_provided_entities(hass, entry)
-            discard_device_ids(hass, entry)
-
+            # NOTE: Do NOT close the aiohttp session - it is managed by Home
+            # Assistant (created via async_get_clientsession) and must only be
+            # closed by it. Everything else lives on entry.runtime_data, which
+            # Home Assistant drops as part of the unload.
             _LOGGER.info("Successfully unloaded '%s' (entry_id=%s)", device_name, entry.entry_id)
         else:
             _LOGGER.warning(
@@ -465,11 +442,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     except Exception as err:
         _LOGGER.exception("Error during unload of '%s': %s", device_name, err)
         return False
-
-
-def _structural_options_key(entry: ConfigEntry) -> str:
-    """Return the ``hass.data`` key holding the applied structural options."""
-    return f"{entry.entry_id}_structural_options"
 
 
 def _structural_options(entry: ConfigEntry) -> dict[str, Any]:
@@ -513,18 +485,18 @@ async def async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None
         entry.entry_id,
     )
 
-    # Get coordinator
-    coordinator = hass.data.get(DOMAIN, {}).get(entry.entry_id)
-    if not coordinator:
+    runtime_data = get_runtime_data(entry)
+    if runtime_data is None:
         _LOGGER.warning("Coordinator not found for entry_id=%s", entry.entry_id)
         return
 
+    coordinator = runtime_data.coordinator
+
     # Reload when the feature/sensor selection changed - the entities are
     # created from it, so it can only take effect by re-running the platforms.
-    applied_options = hass.data.get(DOMAIN, {}).get(_structural_options_key(entry))
     current_options = _structural_options(entry)
 
-    if applied_options != current_options:
+    if runtime_data.structural_options != current_options:
         _LOGGER.info(
             "Feature/sensor selection changed for entry_id=%s, reloading integration",
             entry.entry_id,
@@ -535,37 +507,35 @@ async def async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None
     # Track if any setting was updated
     settings_updated = False
 
-    # 1. Update polling interval if changed
+    # 1. Update polling settings if changed. Compare against the coordinator's
+    # configured (base) interval, not update_interval - the latter is stretched
+    # while the controller is idle and would otherwise look like a change on
+    # every options save.
     new_polling_interval = get_entry_value(
         entry,
         CONF_POLLING_INTERVAL,
         DEFAULT_POLLING_INTERVAL,
     )
+    new_adaptive_polling = get_entry_value(
+        entry,
+        CONF_ADAPTIVE_POLLING,
+        DEFAULT_ADAPTIVE_POLLING,
+    )
 
-    current_interval = coordinator.update_interval.total_seconds()
-
-    if new_polling_interval != current_interval:
+    if coordinator.apply_polling_options(new_polling_interval, new_adaptive_polling):
         _LOGGER.info(
-            "Updating polling interval from %ds to %ds (entry_id=%s)",
-            current_interval,
+            "Polling settings updated to %ds (adaptive: %s, entry_id=%s)",
             new_polling_interval,
+            new_adaptive_polling,
             entry.entry_id,
         )
-
-        coordinator.update_interval = timedelta(seconds=new_polling_interval)
 
         # Force an immediate refresh so the new interval takes effect now
         await coordinator.async_request_refresh()
-
-        _LOGGER.info(
-            "Polling interval updated successfully to %ds (entry_id=%s)",
-            new_polling_interval,
-            entry.entry_id,
-        )
         settings_updated = True
     else:
         _LOGGER.debug(
-            "Polling interval unchanged at %ds (entry_id=%s)",
+            "Polling settings unchanged at %ds (entry_id=%s)",
             new_polling_interval,
             entry.entry_id,
         )
@@ -619,6 +589,12 @@ def _extract_config(entry: ConfigEntry) -> dict[str, Any]:
 
     port = entry.data.get(CONF_PORT, DEFAULT_PORT)
 
+    # Numeric settings are clamped to the range the integration supports.
+    # The config/options flow and this module used to disagree about the
+    # allowed ranges, so a value the UI happily accepted (e.g. a 600s polling
+    # interval or a 3s timeout) made the next setup fail outright. Clamping
+    # keeps such an entry working instead of leaving the user with a
+    # permanently broken integration.
     # Build the configuration dictionary with defaults
     return {
         "ip_address": ip_address.strip(),
@@ -630,20 +606,29 @@ def _extract_config(entry: ConfigEntry) -> dict[str, Any]:
         "password": entry.data.get(CONF_PASSWORD, ""),
         "device_name": entry.data.get(CONF_DEVICE_NAME, "Violet Pool Controller"),
         "controller_name": entry.data.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME),
-        "polling_interval": get_entry_value(
+        "polling_interval": _clamped_setting(
             entry,
             CONF_POLLING_INTERVAL,
             DEFAULT_POLLING_INTERVAL,
+            MIN_SUPPORTED_POLLING_INTERVAL,
+            MAX_POLLING_INTERVAL,
         ),
-        "timeout_duration": get_entry_value(
+        "timeout_duration": _clamped_setting(
             entry,
             CONF_TIMEOUT_DURATION,
             DEFAULT_TIMEOUT_DURATION,
+            MIN_TIMEOUT,
+            MAX_TIMEOUT,
         ),
-        "retry_attempts": get_entry_value(
+        "retry_attempts": _clamped_setting(
             entry,
             CONF_RETRY_ATTEMPTS,
             DEFAULT_RETRY_ATTEMPTS,
+            MIN_RETRIES,
+            MAX_RETRIES,
+        ),
+        "adaptive_polling": bool(
+            get_entry_value(entry, CONF_ADAPTIVE_POLLING, DEFAULT_ADAPTIVE_POLLING)
         ),
         "active_features": get_entry_value(
             entry,
@@ -651,6 +636,37 @@ def _extract_config(entry: ConfigEntry) -> dict[str, Any]:
             [],
         ),
     }
+
+
+def _clamped_setting(
+    entry: ConfigEntry,
+    key: str,
+    default: int,
+    minimum: int,
+    maximum: int,
+) -> int:
+    """Return a numeric entry setting clamped into its supported range.
+
+    Falls back to ``default`` for values that are not numeric at all.
+    """
+    raw = get_entry_value(entry, key, default)
+    try:
+        value = int(float(raw))
+    except (TypeError, ValueError):
+        _LOGGER.warning("Invalid value for '%s': %r - using default %s", key, raw, default)
+        return default
+
+    clamped = max(minimum, min(maximum, value))
+    if clamped != value:
+        _LOGGER.warning(
+            "Value for '%s' (%s) is outside the supported range %s-%s - using %s",
+            key,
+            value,
+            minimum,
+            maximum,
+            clamped,
+        )
+    return clamped
 
 
 def _validate_config(config: dict[str, Any]) -> bool:
@@ -672,27 +688,24 @@ def _validate_config(config: dict[str, Any]) -> bool:
             _LOGGER.error("Missing required configuration key: %s", key)
             return False
 
-    # Validate numeric ranges
-    if not 5 <= config["polling_interval"] <= 300:
-        _LOGGER.error(
-            "Invalid polling_interval: %s (must be between 5 and 300)",
-            config["polling_interval"],
-        )
-        return False
-
-    if not 5 <= config["timeout_duration"] <= 60:
-        _LOGGER.error(
-            "Invalid timeout_duration: %s (must be between 5 and 60)",
-            config["timeout_duration"],
-        )
-        return False
-
-    if not 1 <= config["retry_attempts"] <= 10:
-        _LOGGER.error(
-            "Invalid retry_attempts: %s (must be between 1 and 10)",
-            config["retry_attempts"],
-        )
-        return False
+    # Numeric ranges use the same limits as the config/options flow. The values
+    # are already clamped by _extract_config, so this only catches programming
+    # errors, never a user-supplied setting.
+    numeric_ranges = (
+        ("polling_interval", MIN_SUPPORTED_POLLING_INTERVAL, MAX_POLLING_INTERVAL),
+        ("timeout_duration", MIN_TIMEOUT, MAX_TIMEOUT),
+        ("retry_attempts", MIN_RETRIES, MAX_RETRIES),
+    )
+    for key, minimum, maximum in numeric_ranges:
+        if not minimum <= config[key] <= maximum:
+            _LOGGER.error(
+                "Invalid %s: %s (must be between %s and %s)",
+                key,
+                config[key],
+                minimum,
+                maximum,
+            )
+            return False
 
     _LOGGER.debug("Configuration validated successfully.")
     return True

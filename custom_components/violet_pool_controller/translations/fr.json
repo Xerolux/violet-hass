@@ -216,14 +216,16 @@
         "data": {
           "controller_name": "Nom du contrôleur",
           "polling_interval": "Intervalle d'interrogation (secondes)",
+          "adaptive_polling": "Réduire l'interrogation au repos",
           "timeout_duration": "Délai d'attente (secondes)",
           "retry_attempts": "Tentatives de réessai",
           "group_entities": "Group entities into sub-devices"
         },
         "data_description": {
           "controller_name": "Nom d'affichage du contrôleur",
-          "polling_interval": "Intervalle d'interrogation des données (5-300s)",
-          "timeout_duration": "Temps d'attente maximum par requête (5-60s)",
+          "polling_interval": "Intervalle d'interrogation des données (10-3600s)",
+          "adaptive_polling": "Interroge le contrôleur moins souvent lorsque la pompe, le chauffage et le dosage sont à l'arrêt. L'intervalle ci-dessus reste la fréquence maximale.",
+          "timeout_duration": "Temps d'attente maximum par requête (1-60s)",
           "retry_attempts": "Nombre de tentatives de réessai en cas d'échec (1-10)",
           "group_entities": "Split the controller's entities across sub-devices (pump, heating, dosing, ...) instead of listing all of them under one device. Entity IDs are not affected."
         }
@@ -259,7 +261,17 @@
   "issues": {
     "controller_unavailable": {
       "title": "Pool-Controller nicht erreichbar",
-      "description": "Der Pool-Controller **{name}** ist seit {failures} aufeinanderfolgenden Abrufzyklen nicht erreichbar.\n\nBitte prüfe:\n- Ist der Controller eingeschaltet?\n- Ist die Netzwerkverbindung in Ordnung?\n- Ist die IP-Adresse noch korrekt?\n\nSobald der Controller wieder erreichbar ist, wird dieses Problem automatisch behoben."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Réessayer la connexion",
+            "description": "Der Pool-Controller **{name}** ist seit {failures} aufeinanderfolgenden Abrufzyklen nicht erreichbar.\n\nBitte prüfe:\n- Ist der Controller eingeschaltet?\n- Ist die Netzwerkverbindung in Ordnung?\n- Ist die IP-Adresse noch korrekt?\n\nSobald der Controller wieder erreichbar ist, wird dieses Problem automatisch behoben.\n\nEn continuant, l'intégration est rechargée et le contrôleur est contacté à nouveau."
+          }
+        },
+        "abort": {
+          "still_unavailable": "Le contrôleur ne répond toujours pas. Vérifiez l'alimentation, le réseau et l'adresse IP, puis réessayez."
+        }
+      }
     }
   },
   "services": {

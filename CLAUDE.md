@@ -20,7 +20,7 @@ It depends on a separate API client package.
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.
 **🔒 Security Model**: See [SECURITY.md](./SECURITY.md) for detailed security architecture and compliance.
 
-**Current Integration Version**: `2.3.5` (defined in `manifest.json`, `const.py`, `pyproject.toml`, and optionally `.version`)
+**Current Integration Version**: `2.4.0` (defined in `manifest.json`, `const.py`, `pyproject.toml` and `custom_components/violet_pool_controller/.version`)
 **Current API Version**: `0.0.36` (defined in the [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository, pinned in `requirements.txt`)
 **Minimum Home Assistant Version**: `2026.1.0` (defined in `hacs.json`)
 **Minimum Python Version**: Home Assistant runtime is managed by HA 2026.1.0+; standalone API package supports `>=3.12`
@@ -47,7 +47,7 @@ python -m ruff check custom_components/violet_pool_controller/
 # Auto-fix all ruff issues (preferred method)
 python -m ruff check custom_components/violet_pool_controller/ --fix
 
-# Type checking with mypy
+# Type checking with mypy (also enforced by CI via tox -e py314)
 python -m mypy custom_components/violet_pool_controller/
 ```
 
@@ -151,6 +151,14 @@ pytest tests/test_api.py::test_function_name -v
   - `OptionsFlowHandler` - reconfiguration/options flow logic
 
 - **`config_entry_helpers.py`** - Config entry utility helpers for API URL extraction and migration.
+
+- **`runtime_data.py`** - Per-config-entry runtime state (`entry.runtime_data`):
+  - `VioletRuntimeData` - coordinator, applied structural options, pre-created
+    device ids, unique ids reported per platform, manual calculator inputs
+  - `get_runtime_data()`, `async_get_coordinator()`, `async_all_coordinators()`,
+    `async_loaded_entries()` - lookups across config entries
+  - Only the integration-wide service manager stays in `hass.data[DOMAIN]`
+    (`SERVICE_MANAGER_KEY`); everything per entry lives on the entry itself.
 
 - **`service_manager.py`** - Central service manager:
   - `VioletServiceManager` - resolves coordinators and devices for service calls
@@ -501,6 +509,8 @@ violet-hass/
 │       ├── state_constants.py        # State interpretation constants
 │       ├── config_flow_support.py    # Config/options flow mixins
 │       ├── config_entry_helpers.py   # Config entry URL/migration helpers
+│       ├── runtime_data.py           # Per-entry runtime state (entry.runtime_data)
+│       ├── repairs.py                # Repair flows for fixable issues
 │       ├── error_codes.py            # Error code mappings
 │       ├── error_handler.py          # VioletErrorCodes & error utilities
 │       ├── diagnostics.py            # HA diagnostics support
@@ -655,7 +665,7 @@ auto-generated notes from the merged PRs.
 Located in `.github/workflows/` (4 workflows):
 
 **Validation & CI:**
-- **`validate.yml`** - Reusable quality gate: version consistency, tox on Python 3.12-3.14, Hassfest, and HACS; successful main pushes publish one rolling dev pre-release
+- **`validate.yml`** - Reusable quality gate: version consistency, tox on Python 3.12-3.14 (ruff everywhere, mypy + pytest on 3.14), Hassfest, and HACS; successful main pushes publish one rolling dev pre-release
 
 **Release:**
 - **`release.yml`** - Validates the repository through the reusable quality gate, checks tag/version consistency, then publishes an immutable stable or pre-release package
@@ -734,7 +744,7 @@ Located in `.github/workflows/` (4 workflows):
 
 7. **Version Consistency**: Keep version numbers in sync across `manifest.json`, `const.py`, `.version`, and `pyproject.toml`. The `versions` job in `validate.yml` enforces this, and releases require the tag to match.
 
-8. **Code Quality**: Always run `ruff check --fix` before committing. The integration maintains 0 ruff errors.
+8. **Code Quality**: Always run `ruff check --fix` before committing. The integration maintains 0 ruff errors and 0 mypy errors; both are enforced by CI.
 
 9. **Home Assistant Compatibility**: Integration requires HA 2026.1.0+. The HA runtime Python version is managed by Home Assistant; the standalone API package supports Python 3.12+. Use modern type annotations (`X | None` not `Optional[X]`) and `collections.abc` imports.
 

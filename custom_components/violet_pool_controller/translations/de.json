@@ -236,6 +236,7 @@
         "data": {
           "controller_name": "Controller-Name",
           "polling_interval": "Abrufintervall (Sekunden)",
+          "adaptive_polling": "Abfrage im Ruhezustand reduzieren",
           "timeout_duration": "Timeout (Sekunden)",
           "retry_attempts": "Wiederholungsversuche",
           "invert_cover": "Poolabdeckung invertieren",
@@ -243,8 +244,9 @@
         },
         "data_description": {
           "controller_name": "Anzeigename des Controllers",
-          "polling_interval": "Intervall für Datenabrufe (5-300s)",
-          "timeout_duration": "Maximale Wartezeit pro Anfrage (5-60s)",
+          "polling_interval": "Intervall für Datenabrufe (10-3600s)",
+          "adaptive_polling": "Fragt den Controller seltener ab, solange Pumpe, Heizung und Dosierung aus sind. Das Intervall oben bleibt die schnellste Rate.",
+          "timeout_duration": "Maximale Wartezeit pro Anfrage (1-60s)",
           "retry_attempts": "Anzahl Wiederholungsversuche bei Fehlern (1-10)",
           "invert_cover": "Tauscht Offen/Geschlossen, falls die Abdeckung falsch angeschlossen ist",
           "group_entities": "Verteilt die Entitäten des Controllers auf Untergeräte (Pumpe, Heizung, Dosierung, ...), statt alle unter einem Gerät aufzulisten. Entity-IDs bleiben unverändert."
@@ -281,7 +283,17 @@
   "issues": {
     "controller_unavailable": {
       "title": "Pool-Controller nicht erreichbar",
-      "description": "Der Pool-Controller **{name}** ist seit {failures} aufeinanderfolgenden Abrufzyklen nicht erreichbar.\n\nBitte prüfe:\n- Ist der Controller eingeschaltet?\n- Ist die Netzwerkverbindung in Ordnung?\n- Ist die IP-Adresse noch korrekt?\n\nSobald der Controller wieder erreichbar ist, wird dieses Problem automatisch behoben."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Verbindung erneut versuchen",
+            "description": "Der Pool-Controller **{name}** ist seit {failures} aufeinanderfolgenden Abrufzyklen nicht erreichbar.\n\nBitte prüfe:\n- Ist der Controller eingeschaltet?\n- Ist die Netzwerkverbindung in Ordnung?\n- Ist die IP-Adresse noch korrekt?\n\nSobald der Controller wieder erreichbar ist, wird dieses Problem automatisch behoben.\n\nBeim Fortfahren wird die Integration neu geladen und der Controller erneut kontaktiert."
+          }
+        },
+        "abort": {
+          "still_unavailable": "Der Controller antwortet weiterhin nicht. Prüfe Stromversorgung, Netzwerk und IP-Adresse und versuche es erneut."
+        }
+      }
     }
   },
   "services": {

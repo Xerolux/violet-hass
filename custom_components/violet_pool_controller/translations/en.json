@@ -248,6 +248,7 @@
         "data": {
           "controller_name": "Controller Name",
           "polling_interval": "Polling Interval (seconds)",
+          "adaptive_polling": "Reduce polling while idle",
           "timeout_duration": "Timeout (seconds)",
           "retry_attempts": "Retry Attempts",
           "invert_cover": "Invert Pool Cover",
@@ -255,8 +256,9 @@
         },
         "data_description": {
           "controller_name": "Controller display name",
-          "polling_interval": "Data polling interval (5-300s)",
-          "timeout_duration": "Maximum wait time per request (5-60s)",
+          "polling_interval": "Data polling interval (10-3600s)",
+          "adaptive_polling": "Poll the controller less often while pump, heating and dosing are all off. The interval above stays the fastest rate.",
+          "timeout_duration": "Maximum wait time per request (1-60s)",
           "retry_attempts": "Number of retry attempts on failure (1-10)",
           "invert_cover": "Swaps open/closed if the cover relays are wired backwards",
           "group_entities": "Split the controller's entities across sub-devices (pump, heating, dosing, ...) instead of listing all of them under one device. Entity IDs are not affected."
@@ -293,7 +295,17 @@
   "issues": {
     "controller_unavailable": {
       "title": "Pool Controller Unavailable",
-      "description": "The pool controller **{name}** has been unreachable for {failures} consecutive polling cycles.\n\nPlease check:\n- Is the controller powered on?\n- Is the network connection OK?\n- Is the IP address still correct?\n\nOnce the controller is reachable again, this issue will be resolved automatically."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Retry the connection",
+            "description": "The pool controller **{name}** has been unreachable for {failures} consecutive polling cycles.\n\nPlease check:\n- Is the controller powered on?\n- Is the network connection OK?\n- Is the IP address still correct?\n\nOnce the controller is reachable again, this issue will be resolved automatically.\n\nContinuing reloads the integration and contacts the controller again."
+          }
+        },
+        "abort": {
+          "still_unavailable": "The controller is still not responding. Check power, network and IP address, then try again."
+        }
+      }
     }
   },
   "services": {

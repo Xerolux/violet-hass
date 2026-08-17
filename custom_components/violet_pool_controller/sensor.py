@@ -28,7 +28,6 @@ from .const import (
     COMPOSITE_STATE_SENSORS,
     CONF_ACTIVE_FEATURES,
     CONF_SELECTED_SENSORS,
-    DOMAIN,
     DOSING_STATE_SENSORS,
     DOSING_STATS_SENSORS,
     EXTRA_DIAGNOSTIC_SENSORS,
@@ -81,7 +80,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Sets up the Violet Pool Controller sensors from a config entry."""
-    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
+    coordinator = config_entry.runtime_data.coordinator
 
     # None-check for coordinator.data
     if coordinator.data is None:

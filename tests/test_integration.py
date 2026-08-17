@@ -28,6 +28,7 @@ from custom_components.violet_pool_controller.const import (
     CONF_USE_SSL,
     DOMAIN,
 )
+from custom_components.violet_pool_controller.runtime_data import VioletRuntimeData
 from custom_components.violet_pool_controller.services import (
     async_register_services,
 )
@@ -97,7 +98,7 @@ async def test_async_setup_entry_success(
     assert result is True
     hass.config_entries.async_forward_entry_setups.assert_awaited_once_with(config_entry, PLATFORMS)
     api_cls.assert_called_once()
-    assert hass.data[DOMAIN][config_entry.entry_id] is coordinator
+    assert config_entry.runtime_data.coordinator is coordinator
 
 
 async def test_async_setup_entry_missing_host(hass: HomeAssistant) -> None:
@@ -160,7 +161,7 @@ async def test_async_unload_entry_success(
     # Setup coordinator mock with api mock
     coordinator.device.api._session.close = AsyncMock()
 
-    hass.data.setdefault(DOMAIN, {})[config_entry.entry_id] = coordinator
+    config_entry.runtime_data = VioletRuntimeData(coordinator=coordinator)
 
     # Mock async_unload_platforms on the instance
     hass.config_entries.async_unload_platforms = AsyncMock(return_value=True)
@@ -169,15 +170,12 @@ async def test_async_unload_entry_success(
 
     assert result is True
     hass.config_entries.async_unload_platforms.assert_awaited_once()
-    # async_unload_entry pops the entry from hass.data if successful
-    assert config_entry.entry_id not in hass.data[DOMAIN]
 
 
 async def test_async_unload_entry_failure(
     hass: HomeAssistant, config_entry: MockConfigEntry
 ) -> None:
-    # We need to make sure the entry is in hass.data
-    hass.data.setdefault(DOMAIN, {})[config_entry.entry_id] = MagicMock()
+    config_entry.runtime_data = VioletRuntimeData(coordinator=MagicMock())
 
     hass.config_entries.async_unload_platforms = AsyncMock(return_value=False)
 

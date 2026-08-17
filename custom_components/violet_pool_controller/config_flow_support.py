@@ -28,6 +28,7 @@ from .config_flow_utils import (
 from .const import (
     AVAILABLE_FEATURES,
     CONF_ACTIVE_FEATURES,
+    CONF_ADAPTIVE_POLLING,
     CONF_ALLOW_UNSAFE_SWITCHES,
     CONF_API_URL,
     CONF_CONTROLLER_NAME,
@@ -47,6 +48,7 @@ from .const import (
     CONF_USE_SSL,
     CONF_USERNAME,
     CONF_VERIFY_SSL,
+    DEFAULT_ADAPTIVE_POLLING,
     DEFAULT_ALLOW_UNSAFE_SWITCHES,
     DEFAULT_CONTROLLER_NAME,
     DEFAULT_DISINFECTION_METHOD,
@@ -453,6 +455,12 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                         mode=selector.NumberSelectorMode.BOX,
                     )
                 ),
+                vol.Optional(
+                    CONF_ADAPTIVE_POLLING,
+                    default=self.current_config.get(
+                        CONF_ADAPTIVE_POLLING, DEFAULT_ADAPTIVE_POLLING
+                    ),
+                ): selector.BooleanSelector(selector.BooleanSelectorConfig()),
                 vol.Optional(
                     CONF_TIMEOUT_DURATION,
                     default=self.current_config.get(

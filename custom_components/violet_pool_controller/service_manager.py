@@ -8,7 +8,7 @@ from homeassistant.const import ATTR_DEVICE_ID, ATTR_ENTITY_ID
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
-from .const import DOMAIN
+from .runtime_data import async_get_coordinator
 from .safety_guard import SafetyGuard, create_safety_guard
 
 if TYPE_CHECKING:
@@ -30,24 +30,20 @@ class VioletServiceManager:
         await self.safety_guard.async_setup()
 
     async def get_coordinator_for_device(self, device_id: str):
-        """Get coordinator for device ID."""
-        domain_data = self.hass.data.get(DOMAIN, {})
+        """Get coordinator for device ID.
 
-        for coordinator in domain_data.values():
-            if (
-                hasattr(coordinator, "device")
-                and coordinator.device
-                and str(coordinator.config_entry.entry_id) == device_id
-            ):
-                return coordinator
+        ``device_id`` is either a config entry id or a device registry id.
+        """
+        if (coordinator := async_get_coordinator(self.hass, device_id)) is not None:
+            return coordinator
 
         dev_reg = dr.async_get(self.hass)
         device = dev_reg.async_get(device_id)
 
         if device:
             for config_entry_id in device.config_entries:
-                coordinator = domain_data.get(config_entry_id)
-                if coordinator and hasattr(coordinator, "device") and coordinator.device:
+                coordinator = async_get_coordinator(self.hass, config_entry_id)
+                if coordinator is not None:
                     return coordinator
 
         return None
@@ -60,8 +56,7 @@ class VioletServiceManager:
         for entity_id in entity_ids:
             entity = entity_reg.async_get(entity_id)
             if entity and entity.config_entry_id:
-                domain_data = self.hass.data.get(DOMAIN, {})
-                coordinator = domain_data.get(entity.config_entry_id)
+                coordinator = async_get_coordinator(self.hass, entity.config_entry_id)
                 if coordinator and coordinator not in coordinators:
                     coordinators.append(coordinator)
 
@@ -72,7 +67,6 @@ class VioletServiceManager:
         coordinators: list[Any] = []
         entity_reg = er.async_get(self.hass)
         device_reg = dr.async_get(self.hass)
-        domain_data = self.hass.data.get(DOMAIN, {})
 
         entity_ids: list[str] = call.data.get(ATTR_ENTITY_ID, [])
         device_ids: list[str] = call.data.get(ATTR_DEVICE_ID, [])
@@ -80,7 +74,7 @@ class VioletServiceManager:
         for eid in entity_ids:
             entity = entity_reg.async_get(eid)
             if entity and entity.config_entry_id:
-                coord = domain_data.get(entity.config_entry_id)
+                coord = async_get_coordinator(self.hass, entity.config_entry_id)
                 if coord and coord not in coordinators:
                     coordinators.append(coord)
 
@@ -88,7 +82,7 @@ class VioletServiceManager:
             device = device_reg.async_get(did)
             if device and device.config_entries:
                 for entry_id in device.config_entries:
-                    coord = domain_data.get(entry_id)
+                    coord = async_get_coordinator(self.hass, entry_id)
                     if coord and coord not in coordinators:
                         coordinators.append(coord)
 

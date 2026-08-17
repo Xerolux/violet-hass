@@ -50,7 +50,12 @@ from .config_entry_helpers import (
     get_entry_value,
     with_non_default_port,
 )
+from .config_flow_utils.constants import MAX_POLLING_INTERVAL
 from .const import (
+    ADAPTIVE_ACTIVITY_KEYS,
+    ADAPTIVE_IDLE_FACTOR,
+    ADAPTIVE_IDLE_MAX_INTERVAL,
+    CONF_ADAPTIVE_POLLING,
     CONF_CONTROLLER_NAME,
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
@@ -62,6 +67,8 @@ from .const import (
     CONF_USE_SSL,
     CONF_USERNAME,
     CONF_VERIFY_SSL,
+    CONFIG_REFRESH_INTERVAL,
+    DEFAULT_ADAPTIVE_POLLING,
     DEFAULT_CONTROLLER_NAME,
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_PORT,
@@ -71,11 +78,27 @@ from .const import (
     DEFAULT_VERIFY_SSL,
     DOMAIN,
     FIRMWARE_VERSION_REFRESH_POLLS,
+    MIN_SUPPORTED_POLLING_INTERVAL,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 FAILURE_LOG_INTERVAL = 300  # Log repeated failures at most every 5 minutes
+
+
+def _clamp_polling_interval(seconds: Any) -> int:
+    """Return a polling interval inside the supported range.
+
+    Guards the coordinator against out-of-range or non-numeric values stored in
+    a config entry, so a bad setting can never turn into a hot polling loop.
+    """
+    try:
+        value = int(float(seconds))
+    except (TypeError, ValueError):
+        return DEFAULT_POLLING_INTERVAL
+    return max(MIN_SUPPORTED_POLLING_INTERVAL, min(MAX_POLLING_INTERVAL, value))
+
+
 POLL_SNAPSHOT_FIELDS = (
     "Pool Temp",
     "Redox",
@@ -104,9 +127,15 @@ class VioletPoolControllerDevice:
         self._consecutive_failures = 0
         self._max_consecutive_failures = 5
         self._update_counter = 0
-        # Poll-cycle counter for throttling SYSTEM_availableversion fetches
-        # (see _build_config_keys). Resets on every coordinator reload.
+        # Counter for throttling SYSTEM_availableversion fetches (see
+        # _build_config_keys). Resets on every coordinator reload.
         self._firmware_version_poll_counter: int = 0
+        # Last values read via getConfig, plus when they were read. Setpoints
+        # only change on a write, so they are refreshed on a timer rather than
+        # on every poll (see _fetch_config_values).
+        self._config_cache: dict[str, Any] = {}
+        self._last_config_fetch = 0.0
+        self._force_config_fetch = False
         # Store poll snapshots as fixed-position tuples to reduce per-entry overhead.
         self._poll_history: collections.deque[tuple[datetime, int, float, tuple[Any, ...]]] = (
             collections.deque(maxlen=1000)
@@ -416,7 +445,7 @@ class VioletPoolControllerDevice:
         Always includes the setpoint keys and SYSTEM_swversion (the latter is a
         local cached value used for device-registry resolution). SYSTEM_availableversion
         is appended only on the first poll and then once every
-        FIRMWARE_VERSION_REFRESH_POLLS cycles, because fetching it triggers a
+        FIRMWARE_VERSION_REFRESH_POLLS fetches, because fetching it triggers a
         server-side refresh on the controller. SYSTEM_updateavailable is NEVER
         requested: it forces a live backend check and its value is discarded —
         the update-available decision is made by numeric version comparison in
@@ -434,13 +463,62 @@ class VioletPoolControllerDevice:
             "DOSAGE_phminus_use",
             "DOSAGE_phplus_use",
             "DOSAGE_floc_use",
-            # Firmware version (local cached value, cheap to read every poll)
+            # Firmware version (local cached value, cheap to read)
             "SYSTEM_swversion",
         ]
         if self._firmware_version_poll_counter % FIRMWARE_VERSION_REFRESH_POLLS == 0:
             keys.append("SYSTEM_availableversion")
         self._firmware_version_poll_counter += 1
         return keys
+
+    def request_config_refresh(self) -> None:
+        """Force the next poll to re-read the setpoints from the controller.
+
+        Called after a setpoint write so the value the controller actually
+        stored is confirmed on the following poll instead of after the regular
+        refresh interval.
+        """
+        self._force_config_fetch = True
+
+    def _config_fetch_due(self) -> bool:
+        """Return True if the setpoints should be re-read on this poll."""
+        if self._force_config_fetch or not self._config_cache:
+            return True
+        return (time.monotonic() - self._last_config_fetch) >= CONFIG_REFRESH_INTERVAL
+
+    async def _fetch_config_values(self) -> dict[str, Any]:
+        """Return the setpoint/firmware values, refreshing them when due.
+
+        These values live behind a second HTTP request and only change when
+        somebody writes them, so they are re-read at most every
+        CONFIG_REFRESH_INTERVAL seconds. In between, the previously fetched
+        values are reused, which removes one request per poll cycle - at the
+        default 10s interval that is five of every six requests.
+        """
+        if not self._config_fetch_due():
+            return dict(self._config_cache)
+
+        try:
+            config_data = await self.api.get_config(self._build_config_keys())
+        except asyncio.CancelledError:
+            raise
+        except Exception as err:  # noqa: BLE001
+            _LOGGER.warning(
+                "Optional getConfig fetch failed for '%s': %s",
+                self.device_name,
+                err,
+            )
+            # Keep serving the last known values instead of dropping the keys.
+            return dict(self._config_cache)
+
+        self._last_config_fetch = time.monotonic()
+        self._force_config_fetch = False
+        if isinstance(config_data, dict):
+            # Merge instead of replace: SYSTEM_availableversion is only part of
+            # some fetches and must survive the cycles that omit it.
+            self._config_cache.update(config_data)
+
+        return dict(self._config_cache)
 
     async def async_update(self) -> dict[str, Any]:
         """Fetch and return updated device data from the controller."""
@@ -498,23 +576,11 @@ class VioletPoolControllerDevice:
                     self._system_health = max(0.0, 100.0 - (self._consecutive_failures * 20.0))
                     return dict(self._data) if self._data else {}
 
-                # Fetch config-based setpoints and firmware version. The list is
-                # built dynamically by _build_config_keys, which throttles
-                # SYSTEM_availableversion and omits SYSTEM_updateavailable entirely
-                # (both were causing avoidable backend server load).
-                try:
-                    config_keys = self._build_config_keys()
-                    config_data = await self.api.get_config(config_keys)
-                    if isinstance(config_data, dict):
-                        data.update(config_data)
-                except asyncio.CancelledError:
-                    raise
-                except Exception as err:  # noqa: BLE001
-                    _LOGGER.warning(
-                        "Optional getConfig fetch failed for '%s': %s",
-                        self.device_name,
-                        err,
-                    )
+                # Merge the config-based setpoints and the firmware version.
+                # They are re-read only every CONFIG_REFRESH_INTERVAL seconds
+                # (see _fetch_config_values) because each read is a second HTTP
+                # request and the values only change on a write.
+                data.update(await self._fetch_config_values())
 
                 if self._consecutive_failures > 0 and not self._recovery_logged:
                     _LOGGER.info(
@@ -889,6 +955,7 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator[VioletReadings]):
         device: VioletPoolControllerDevice,
         name: str,
         polling_interval: int = DEFAULT_POLLING_INTERVAL,
+        adaptive_polling: bool = DEFAULT_ADAPTIVE_POLLING,
     ) -> None:
         """Initialize the coordinator."""
         super().__init__(
@@ -900,12 +967,74 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator[VioletReadings]):
         )
         self.device = device
         self._setpoint_cache: dict[str, float] = {}
+        # The configured interval. update_interval may be stretched beyond it
+        # while the controller is idle, but never falls below it.
+        self._base_interval = _clamp_polling_interval(polling_interval)
+        self._adaptive_polling = bool(adaptive_polling)
 
         _LOGGER.info(
-            "Coordinator initialized for '%s' (polling every %ds)",
+            "Coordinator initialized for '%s' (polling every %ds, adaptive: %s)",
             name,
-            polling_interval,
+            self._base_interval,
+            self._adaptive_polling,
         )
+
+    @property
+    def base_interval(self) -> int:
+        """Return the configured polling interval in seconds.
+
+        ``update_interval`` can be larger than this while the controller is
+        idle, so this is the value to compare configuration changes against.
+        """
+        return self._base_interval
+
+    @property
+    def adaptive_polling(self) -> bool:
+        """Return whether idle back-off is enabled."""
+        return self._adaptive_polling
+
+    def apply_polling_options(self, polling_interval: int, adaptive_polling: bool) -> bool:
+        """Apply changed polling options to the running coordinator.
+
+        Returns:
+            True if anything changed, False otherwise.
+        """
+        new_interval = _clamp_polling_interval(polling_interval)
+        changed = (
+            new_interval != self._base_interval
+            or bool(adaptive_polling) != self._adaptive_polling
+        )
+        if not changed:
+            return False
+
+        self._base_interval = new_interval
+        self._adaptive_polling = bool(adaptive_polling)
+        # Take effect right away; the next poll re-evaluates the idle back-off.
+        self.update_interval = timedelta(seconds=new_interval)
+        return True
+
+    def _is_controller_active(self, data: dict[str, Any]) -> bool:
+        """Return True if any pool output is currently running.
+
+        Values arrive as ints, numeric strings or composite strings such as
+        ``"3|PUMP_ANTI_FREEZE"``, so they are interpreted with the same helper
+        the switch entities use instead of being compared numerically.
+        """
+        from .entity import interpret_state_as_bool
+
+        return any(interpret_state_as_bool(data.get(key), key) for key in ADAPTIVE_ACTIVITY_KEYS)
+
+    def _resolve_update_interval(self, is_active: bool) -> timedelta:
+        """Return the interval to use until the next poll.
+
+        The configured interval is the fastest rate; while nothing is running
+        the controller is polled less often to keep load off its web server.
+        """
+        if not self._adaptive_polling or is_active:
+            return timedelta(seconds=self._base_interval)
+
+        idle_interval = min(self._base_interval * ADAPTIVE_IDLE_FACTOR, ADAPTIVE_IDLE_MAX_INTERVAL)
+        return timedelta(seconds=max(self._base_interval, idle_interval))
 
     def update_setpoint_cache(self, key: str, value: float) -> None:
         """Cache a setpoint write and immediately notify all listeners.
@@ -915,6 +1044,8 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator[VioletReadings]):
         returns the key, at which point coordinator.data takes precedence.
         """
         self._setpoint_cache[key] = value
+        # Setpoints are read on a timer; confirm this write on the next poll.
+        self.device.request_config_refresh()
         self.async_update_listeners()
 
     async def _async_update_data(self) -> VioletReadings:
@@ -937,30 +1068,17 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator[VioletReadings]):
             if not data:
                 raise UpdateFailed(f"Empty data returned for '{self.device.device_name}'")
 
-            # Dynamic polling behavior based on active state (pump or dosing)
-            pump_state = data.get("PUMP", 0)
-            # Dosing keys that indicate active chemical injection
-            dosing_active = any(data.get(k, 0) > 0 for k in ["DOS_1_CL", "DOS_2_ELO", "DOS_4_PHM", "DOS_5_PHP"])
-
-            # Use configured interval or default
-            default_interval = self.config_entry.data.get(
-                CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL
-            )
-
-            if pump_state > 0 or dosing_active:
-                # Poll faster if pump is running or dosing is active (half interval, min 5s)
-                fast_interval = max(5, default_interval // 2)
-                new_interval = timedelta(seconds=fast_interval)
-            else:
-                new_interval = timedelta(seconds=default_interval)
-
+            # Stretch the interval while the pool equipment is idle. Never
+            # polls faster than the interval the user configured.
+            is_active = self._is_controller_active(data)
+            new_interval = self._resolve_update_interval(is_active)
             if self.update_interval != new_interval:
                 self.update_interval = new_interval
                 _LOGGER.debug(
-                    "Dynamic polling interval changed to %s seconds (pump: %s, dosing: %s)",
-                    self.update_interval.total_seconds(),
-                    pump_state > 0,
-                    dosing_active
+                    "Polling interval changed to %ds (configured: %ds, active: %s)",
+                    new_interval.total_seconds(),
+                    self._base_interval,
+                    is_active,
                 )
 
             # Invalidate setpoint cache entries that now exist in fresh data.
@@ -1035,12 +1153,18 @@ async def async_setup_device(
             CONF_POLLING_INTERVAL,
             DEFAULT_POLLING_INTERVAL,
         )
+        adaptive_polling = get_entry_value(
+            config_entry,
+            CONF_ADAPTIVE_POLLING,
+            DEFAULT_ADAPTIVE_POLLING,
+        )
 
         coordinator = VioletPoolDataUpdateCoordinator(
             hass,
             device,
             config_entry.data.get(CONF_DEVICE_NAME, "Violet Pool Controller"),
             polling_interval,
+            adaptive_polling,
         )
 
         await coordinator.async_config_entry_first_refresh()

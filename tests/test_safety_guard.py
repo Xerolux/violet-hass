@@ -12,6 +12,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from custom_components.violet_pool_controller.const import DOMAIN
+from custom_components.violet_pool_controller.runtime_data import VioletRuntimeData
 from custom_components.violet_pool_controller.safety_guard import SafetyGuard
 
 
@@ -47,8 +49,22 @@ def make_guard() -> tuple[SafetyGuard, FakePersistence, MagicMock]:
     hass.config.config_dir = "/config"
     # async_create_background_task should schedule on the running loop.
     hass.async_create_background_task = lambda coro, name=None: asyncio.ensure_future(coro)
+    hass.config_entries.async_entries.return_value = []
     guard = SafetyGuard(hass, persist)
     return guard, persist, hass
+
+
+def seed_coordinator(hass: MagicMock, coordinator: MagicMock) -> MagicMock:
+    """Expose a coordinator the way a loaded config entry would.
+
+    The guard resolves the API through the loaded config entries, so the mock
+    hass has to answer async_entries with an entry carrying runtime data.
+    """
+    entry = MagicMock()
+    entry.domain = DOMAIN
+    entry.runtime_data = VioletRuntimeData(coordinator=coordinator)
+    hass.config_entries.async_entries.return_value = [entry]
+    return entry
 
 
 class TestSafetyLock:
@@ -131,7 +147,7 @@ class TestAutoStop:
         coordinator = MagicMock()
         coordinator.device = MagicMock()
         coordinator.device.api = api
-        guard._hass.data = {"violet_pool_controller": {None: coordinator}}
+        seed_coordinator(guard._hass, coordinator)
 
         await guard.arm_auto_stop(
             "REFILL",
@@ -149,7 +165,7 @@ class TestAutoStop:
         coordinator = MagicMock()
         coordinator.device = MagicMock()
         coordinator.device.api = api
-        guard._hass.data = {"violet_pool_controller": {None: coordinator}}
+        seed_coordinator(guard._hass, coordinator)
 
         await guard.arm_auto_stop(
             "REFILL",
@@ -182,7 +198,7 @@ class TestAutoStop:
         coordinator = MagicMock()
         coordinator.device = MagicMock()
         coordinator.device.api = api
-        hass.data = {"violet_pool_controller": {None: coordinator}}
+        seed_coordinator(hass, coordinator)
 
         guard = SafetyGuard(hass, persist)
         await guard.async_setup()
@@ -214,7 +230,7 @@ class TestAutoStop:
         coordinator = MagicMock()
         coordinator.device = MagicMock()
         coordinator.device.api = api
-        hass.data = {"violet_pool_controller": {None: coordinator}}
+        seed_coordinator(hass, coordinator)
 
         guard = SafetyGuard(hass, persist)
         await guard.async_setup()
@@ -235,10 +251,10 @@ class TestResolveApi:
         coordinator = MagicMock()
         coordinator.device = MagicMock()
         coordinator.device.api = api
-        guard._hass.data = {"violet_pool_controller": {None: coordinator}}
+        seed_coordinator(guard._hass, coordinator)
         assert guard._resolve_api() is api
 
     async def test_resolve_api_returns_none_when_no_coordinators(self):
         guard, _, _ = make_guard()
-        guard._hass.data = {"violet_pool_controller": {}}
+        guard._hass.config_entries.async_entries.return_value = []
         assert guard._resolve_api() is None

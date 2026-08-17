@@ -216,14 +216,16 @@
         "data": {
           "controller_name": "Nome del controller",
           "polling_interval": "Intervallo di polling (secondi)",
+          "adaptive_polling": "Riduci il polling a riposo",
           "timeout_duration": "Timeout (secondi)",
           "retry_attempts": "Tentativi di ripetizione",
           "group_entities": "Group entities into sub-devices"
         },
         "data_description": {
           "controller_name": "Nome visualizzato del controller",
-          "polling_interval": "Intervallo di polling dati (5-300s)",
-          "timeout_duration": "Tempo massimo di attesa per richiesta (5-60s)",
+          "polling_interval": "Intervallo di polling dati (10-3600s)",
+          "adaptive_polling": "Interroga il controller meno spesso quando pompa, riscaldamento e dosaggio sono spenti. L'intervallo sopra resta la frequenza massima.",
+          "timeout_duration": "Tempo massimo di attesa per richiesta (1-60s)",
           "retry_attempts": "Numero di tentativi di ripetizione in caso di errore (1-10)",
           "group_entities": "Split the controller's entities across sub-devices (pump, heating, dosing, ...) instead of listing all of them under one device. Entity IDs are not affected."
         }
@@ -259,7 +261,17 @@
   "issues": {
     "controller_unavailable": {
       "title": "Controllore della piscina non raggiungibile",
-      "description": "Il controllore della piscina **{name}** non è raggiungibile da {failures} cicli di polling consecutivi.\n\nVerifica:\n- Il controller è acceso?\n- La connessione di rete è OK?\n- L'indirizzo IP è ancora corretto?\n\nAppena il controller tornerà raggiungibile, questo problema sarà risolto automaticamente."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Riprova la connessione",
+            "description": "Il controllore della piscina **{name}** non è raggiungibile da {failures} cicli di polling consecutivi.\n\nVerifica:\n- Il controller è acceso?\n- La connessione di rete è OK?\n- L'indirizzo IP è ancora corretto?\n\nAppena il controller tornerà raggiungibile, questo problema sarà risolto automaticamente.\n\nContinuando, l'integrazione viene ricaricata e il controller viene contattato di nuovo."
+          }
+        },
+        "abort": {
+          "still_unavailable": "Il controller continua a non rispondere. Controlla alimentazione, rete e indirizzo IP, poi riprova."
+        }
+      }
     }
   },
   "services": {

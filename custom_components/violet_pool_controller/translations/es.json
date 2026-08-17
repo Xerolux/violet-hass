@@ -216,6 +216,7 @@
         "data": {
           "controller_name": "Nombre del Controlador",
           "polling_interval": "Intervalo de Sondeo (segundos)",
+          "adaptive_polling": "Reducir el sondeo en reposo",
           "timeout_duration": "Tiempo de Espera (segundos)",
           "retry_attempts": "Intentos de Reintento",
           "invert_cover": "Invertir Cubierta de Piscina",
@@ -223,8 +224,9 @@
         },
         "data_description": {
           "controller_name": "Nombre de visualización del controlador",
-          "polling_interval": "Intervalo de sondeo de datos (5-300s)",
-          "timeout_duration": "Tiempo máximo de espera por solicitud (5-60s)",
+          "polling_interval": "Intervalo de sondeo de datos (10-3600s)",
+          "adaptive_polling": "Consulta el controlador con menos frecuencia mientras la bomba, la calefacción y la dosificación están apagadas. El intervalo anterior sigue siendo la frecuencia máxima.",
+          "timeout_duration": "Tiempo máximo de espera por solicitud (1-60s)",
           "retry_attempts": "Número de intentos de reintento en caso de fallo (1-10)",
           "invert_cover": "Intercambia Abierto/Cerrado si la cubierta está conectada incorrectamente",
           "group_entities": "Split the controller's entities across sub-devices (pump, heating, dosing, ...) instead of listing all of them under one device. Entity IDs are not affected."
@@ -261,7 +263,17 @@
   "issues": {
     "controller_unavailable": {
       "title": "Controlador de piscina no disponible",
-      "description": "El controlador de piscina **{name}** no está disponible desde {failures} ciclos de sondeo consecutivos.\n\nVerifique:\n- ¿Está encendido el controlador?\n- ¿Está bien la conexión de red?\n- ¿Es correcta la dirección IP?\n\nCuando el controlador vuelva a estar disponible, este problema se resolverá automáticamente."
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Reintentar la conexión",
+            "description": "El controlador de piscina **{name}** no está disponible desde {failures} ciclos de sondeo consecutivos.\n\nVerifique:\n- ¿Está encendido el controlador?\n- ¿Está bien la conexión de red?\n- ¿Es correcta la dirección IP?\n\nCuando el controlador vuelva a estar disponible, este problema se resolverá automáticamente.\n\nAl continuar se recarga la integración y se contacta de nuevo con el controlador."
+          }
+        },
+        "abort": {
+          "still_unavailable": "El controlador sigue sin responder. Comprueba la alimentación, la red y la dirección IP, y vuelve a intentarlo."
+        }
+      }
     }
   },
   "services": {

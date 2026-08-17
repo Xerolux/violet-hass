@@ -27,7 +27,6 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from violet_poolcontroller_api import VioletPoolAPIError
 
-from .const import DOMAIN
 from .device import VioletPoolDataUpdateCoordinator
 from .entity_cleanup import track_provided_entities
 from .update_helper import parse_firmware_info
@@ -39,6 +38,9 @@ else:
     _VioletCoordinatorEntity = CoordinatorEntity
 
 _LOGGER = logging.getLogger(__name__)
+
+# Entity updates are driven by the coordinator, so no per-entity throttling.
+PARALLEL_UPDATES = 0
 
 _PROGRESS_RE = re.compile(r"(\d+)\s*%")
 
@@ -96,7 +98,7 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up update entity from config entry."""
-    coordinator: VioletPoolDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
+    coordinator = config_entry.runtime_data.coordinator
 
     entities = [
         VioletPoolControllerUpdateEntity(

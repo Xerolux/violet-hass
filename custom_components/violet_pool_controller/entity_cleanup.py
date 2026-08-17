@@ -32,7 +32,7 @@ from typing import TYPE_CHECKING
 from homeassistant.core import callback
 from homeassistant.helpers import entity_registry as er
 
-from .const import DOMAIN
+from .runtime_data import get_runtime_data
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -43,14 +43,6 @@ if TYPE_CHECKING:
     from homeassistant.helpers.entity import Entity
 
 _LOGGER = logging.getLogger(__name__)
-
-_STORE_SUFFIX = "_provided_unique_ids"
-
-
-def _store_key(entry: ConfigEntry) -> str:
-    """Return the ``hass.data`` key holding the reported unique ids."""
-    return f"{entry.entry_id}{_STORE_SUFFIX}"
-
 
 @callback
 def track_provided_entities(
@@ -71,8 +63,12 @@ def track_provided_entities(
         platform: The platform domain reporting its entities.
         entities: The entities handed to ``async_add_entities`` (may be empty).
     """
-    store: dict[str, set[str]] = hass.data.setdefault(DOMAIN, {}).setdefault(_store_key(entry), {})
-    store[str(platform)] = {
+    runtime_data = get_runtime_data(entry)
+    if runtime_data is None:
+        # Entry not (or no longer) loaded - nothing to track against.
+        return
+
+    runtime_data.provided_unique_ids[str(platform)] = {
         unique_id for entity in entities if (unique_id := entity.unique_id) is not None
     }
 
@@ -93,7 +89,8 @@ def async_remove_orphaned_entities(
     Returns:
         The number of removed registry entries.
     """
-    store: dict[str, set[str]] = hass.data.get(DOMAIN, {}).get(_store_key(entry), {})
+    runtime_data = get_runtime_data(entry)
+    store: dict[str, set[str]] = runtime_data.provided_unique_ids if runtime_data else {}
 
     missing = [str(platform) for platform in platforms if str(platform) not in store]
     if missing:
@@ -142,5 +139,11 @@ def async_remove_orphaned_entities(
 
 @callback
 def discard_provided_entities(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Drop the reported unique ids of a config entry (called on unload)."""
-    hass.data.get(DOMAIN, {}).pop(_store_key(entry), None)
+    """Drop the reported unique ids of a config entry.
+
+    Home Assistant deletes ``runtime_data`` on unload, so this is only needed
+    when the tracking has to be reset while the entry stays loaded.
+    """
+    runtime_data = get_runtime_data(entry)
+    if runtime_data is not None:
+        runtime_data.provided_unique_ids.clear()

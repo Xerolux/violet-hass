@@ -43,6 +43,7 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device_registry import DeviceInfo
 
 from .const import CONF_GROUP_ENTITIES, DEFAULT_GROUP_ENTITIES, DOMAIN, MANUFACTURER
+from .runtime_data import get_runtime_data
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
@@ -54,7 +55,6 @@ _LOGGER = logging.getLogger(__name__)
 # via_device_id. Detect once; the integration supports both releases.
 _SUPPORTS_VIA_DEVICE_ID = "via_device_id" in DeviceInfo.__annotations__
 
-_DEVICE_IDS_KEY_SUFFIX = "_hierarchy_device_ids"
 
 
 @dataclass(frozen=True)
@@ -244,11 +244,6 @@ def sub_device_identifier(entry: ConfigEntry, group: str) -> tuple[str, str]:
     return DOMAIN, f"{entry.entry_id}_group_{group}"
 
 
-def _device_ids_key(entry: ConfigEntry) -> str:
-    """Return the ``hass.data`` key caching pre-created registry device ids."""
-    return f"{entry.entry_id}{_DEVICE_IDS_KEY_SUFFIX}"
-
-
 def _main_identifiers(coordinator) -> set[tuple[str, str]]:
     """Return the controller device's identifiers, or an empty set."""
     try:
@@ -269,8 +264,10 @@ def async_precreate_devices(hass: HomeAssistant, entry: ConfigEntry, coordinator
     them here — and caching their registry ids — guarantees that every parent
     link resolves, whichever platform happens to run first.
     """
+    runtime_data = get_runtime_data(entry)
     if not is_grouping_enabled(entry):
-        hass.data.setdefault(DOMAIN, {}).pop(_device_ids_key(entry), None)
+        if runtime_data is not None:
+            runtime_data.device_ids.clear()
         return
 
     main_identifiers = _main_identifiers(coordinator)
@@ -298,12 +295,33 @@ def async_precreate_devices(hass: HomeAssistant, entry: ConfigEntry, coordinator
         )
         device_ids[sub_device.id] = device.id
 
-    hass.data.setdefault(DOMAIN, {})[_device_ids_key(entry)] = device_ids
+    if runtime_data is not None:
+        runtime_data.device_ids = device_ids
     _LOGGER.debug(
         "Pre-created %d sub-devices for entry_id=%s",
         len(SUB_DEVICES),
         entry.entry_id,
     )
+
+
+@callback
+def _main_device_id(hass: HomeAssistant, entry: ConfigEntry, coordinator) -> str | None:
+    """Return the registry id of the controller device.
+
+    Normally served from the cache filled by async_precreate_devices; falls back
+    to a registry lookup so the parent link also resolves when the cache is
+    empty (entry not fully set up, or the device was created elsewhere).
+    """
+    runtime_data = get_runtime_data(entry)
+    if runtime_data is not None and (cached := runtime_data.device_ids.get("__main__")):
+        return cached
+
+    identifiers = _main_identifiers(coordinator)
+    if not identifiers:
+        return None
+
+    device = dr.async_get(hass).async_get_device(identifiers=identifiers)
+    return device.id if device else None
 
 
 @callback
@@ -335,12 +353,11 @@ def build_device_info(
         translation_key=sub_device.translation_key,
     )
 
-    device_ids: dict[str, str] = hass.data.get(DOMAIN, {}).get(_device_ids_key(entry), {})
     if _SUPPORTS_VIA_DEVICE_ID:
         # Home Assistant 2026.8+: identifiers are no longer unique across config
         # entries, so the parent has to be addressed by its registry id. Passing
         # both via_device and via_device_id raises, so only ever set one.
-        if (parent_id := device_ids.get("__main__")) is not None:
+        if (parent_id := _main_device_id(hass, entry, coordinator)) is not None:
             # Not in the DeviceInfo TypedDict before Home Assistant 2026.8; the
             # guard above is exactly the runtime check for its availability.
             info["via_device_id"] = parent_id  # type: ignore[typeddict-unknown-key]
@@ -397,5 +414,11 @@ def async_cleanup_sub_devices(hass: HomeAssistant, entry: ConfigEntry) -> int:
 
 @callback
 def discard_device_ids(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Drop the cached registry ids of a config entry (called on unload)."""
-    hass.data.get(DOMAIN, {}).pop(_device_ids_key(entry), None)
+    """Drop the cached registry ids of a config entry.
+
+    Home Assistant deletes ``runtime_data`` on unload, so this is only needed
+    when the cache has to be reset while the entry stays loaded.
+    """
+    runtime_data = get_runtime_data(entry)
+    if runtime_data is not None:
+        runtime_data.device_ids.clear()

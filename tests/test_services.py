@@ -6,6 +6,7 @@ from homeassistant.helpers import device_registry as dr
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.violet_pool_controller.const import DOMAIN
+from custom_components.violet_pool_controller.runtime_data import VioletRuntimeData
 from custom_components.violet_pool_controller.services import (
     VioletServiceHandlers,
     VioletServiceManager,
@@ -47,7 +48,7 @@ async def test_export_diagnostic_logs_failure(
     mock_coordinator.device._update_counter = 100
     mock_coordinator.device.consecutive_failures = 0
 
-    hass.data[DOMAIN] = {config_entry.entry_id: mock_coordinator}
+    config_entry.runtime_data = VioletRuntimeData(coordinator=mock_coordinator)
 
     # 4. Register Services
     await async_register_services(hass)
