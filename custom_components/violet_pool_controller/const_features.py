@@ -40,6 +40,8 @@ AVAILABLE_FEATURES = [
     {"id": "water_level", "name": "Water Level", "default": False},
     {"id": "water_refill", "name": "Water Refill", "default": False},
     {"id": "led_lighting", "name": "LED Lighting", "default": True},
+    {"id": "dmx_scenes", "name": "DMX Scenes", "default": True},
+    {"id": "eco_mode", "name": "ECO Mode", "default": True},
     {"id": "digital_inputs", "name": "Digital Inputs", "default": False},
     {"id": "extension_outputs", "name": "Extension Outputs", "default": False},
 ]
@@ -97,7 +99,13 @@ BINARY_SENSORS = [
         "device_class": BinarySensorDeviceClass.RUNNING,
         "feature_id": "water_refill",
     },
-    {"key": "ECO", "name": "ECO Mode", "translation_key": "eco", "icon": "mdi:leaf"},
+    {
+        "key": "ECO",
+        "name": "ECO Mode",
+        "translation_key": "eco",
+        "icon": "mdi:leaf",
+        "feature_id": "eco_mode",
+    },
     {
         "key": "PVSURPLUS",
         "name": "PV Surplus",
@@ -388,6 +396,7 @@ SWITCHES: list[dict[str, str | bool | None]] = [
         "name": "ECO Mode",
         "translation_key": "eco",
         "icon": "mdi:leaf",
+        "feature_id": "eco_mode",
     },
 ]
 
@@ -414,7 +423,7 @@ for i in range(1, 13):
             "name": f"DMX Scene {i}",
             "translation_key": f"dmx_scene{i}",
             "icon": "mdi:lightbulb-multiple",
-            "feature_id": "led_lighting",
+            "feature_id": "dmx_scenes",
             "entity_registry_enabled_default": False,
         }
     )
@@ -864,6 +873,7 @@ SELECT_CONTROLS: list[dict[str, Any]] = [
         "translation_key": "eco_mode",
         "device_key": "ECO",
         "icon": "mdi:leaf",
+        "feature_id": "eco_mode",
         "entity_category": _ENTITY_CATEGORY_CONFIG,
         "is_read_only": True,
     },

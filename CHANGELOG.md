@@ -2,6 +2,44 @@
 
 > **Language Note:** This changelog is available in German. For English release notes, see the GitHub releases page.
 
+## Version 2.4.1 (2026-08-17)
+
+### 🐛 Abgewählte Entitäten blieben sichtbar
+
+Gemeldet nach 2.4.0 im
+[poolsteuerung.de-Forum](https://www.poolsteuerung.de/viewtopic.php?t=2227):
+alles rund um ECO und DMX abgewählt — nach dem HA-Neustart trotzdem da.
+
+Ursache: die **Sensorauswahl wird ausschließlich von der Sensor-Plattform
+gelesen**. Die anderen neun Plattformen (Schalter, Binärsensoren, Auswahl,
+Licht, Zahl, Klima, Abdeckung, Knopf, Update) richten sich allein nach der
+Feature-Liste. Der Auswahlschritt listet aber die rohen Controller-Keys
+(`ECO`, `DMX_SCENE1`, …) — er liest sich also wie „welche Datenpunkte will ich
+haben“, deckt aber nur Sensoren ab.
+
+- **ECO ließ sich überhaupt nicht entfernen.** Schalter, Binärsensor und
+  Auswahl hatten kein Feature hinterlegt, und in der Feature-Liste gab es
+  keinen ECO-Eintrag. Abwählen im Sensorschritt entfernte nur die zwei
+  ECO-Sensoren. Es gibt jetzt das Feature **„ECO Mode“**, das alle vier
+  Entitäten gemeinsam schaltet. ECO war die einzige standardmäßig aktive
+  Entität ohne Feature — die übrigen ungegateten Definitionen sind
+  Diagnose-Entitäten, die ohnehin deaktiviert ausgeliefert werden.
+- **DMX-Szenen hingen an „LED Lighting“.** Wer `DMX_SCENE*` im Sensorschritt
+  abwählte, verlor die DMX-Sensoren, nicht die zwölf Szenen-Lichter. Die Szenen
+  sind jetzt das eigene Feature **„DMX Scenes“**, getrennt vom Poollicht.
+- **Migration inklusive.** Bestehende Konfigurationen kennen die neuen
+  Feature-IDs nicht, und eine unbekannte ID zählt als „aus“ — ohne Migration
+  wären die Entitäten beim Update stillschweigend verschwunden. Die Config
+  Entry steigt auf Version 2: `eco_mode` wird aktiviert (war immer an),
+  `dmx_scenes` übernimmt die bisherige Einstellung von `led_lighting`.
+- **Klarerer Text im Sensorschritt** (alle 10 Sprachen): dort steht jetzt, dass
+  die Auswahl nur Sensor-Entitäten betrifft und Schalter, Lichter und übrige
+  Bedienelemente zu den Features gehören.
+
+Ein neuer Test hält die Lücke künftig zu: jede standardmäßig aktive Entität
+muss ein Feature nennen, und jedes genannte Feature muss im Config-Flow
+existieren.
+
 ## Version 2.4.0 (2026-08-17)
 
 ### 🐛 Fehlerbehebungen

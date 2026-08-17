@@ -51,6 +51,7 @@ from .const import (
     CONF_USE_SSL,
     CONF_USERNAME,
     CONF_VERIFY_SSL,
+    CONFIG_ENTRY_VERSION,
     DEFAULT_ADAPTIVE_POLLING,
     DEFAULT_CONTROLLER_NAME,
     DEFAULT_POLLING_INTERVAL,
@@ -103,14 +104,65 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) ->
     """
     _LOGGER.debug("Migrating config entry from version %s", config_entry.version)
 
-    if config_entry.version == 1:
-        # Version 1 requires no migration
-        _LOGGER.debug("Config entry already at version 1, no migration needed")
-        return True
+    if config_entry.version > CONFIG_ENTRY_VERSION:
+        # Downgrade: the entry was written by a newer version of the integration.
+        _LOGGER.error(
+            "Config entry version %s is newer than this integration supports (%s)",
+            config_entry.version,
+            CONFIG_ENTRY_VERSION,
+        )
+        return False
 
-    # Add future migrations here
-    _LOGGER.warning("Unknown config entry version: %s", config_entry.version)
-    return False
+    if config_entry.version < 2:
+        _migrate_v1_to_v2(hass, config_entry)
+
+    _LOGGER.debug("Config entry migrated to version %s", CONFIG_ENTRY_VERSION)
+    return True
+
+
+def _migrate_v1_to_v2(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
+    """Add the features that ECO and the DMX scenes were split into.
+
+    Both used to be ungated (ECO) or part of ``led_lighting`` (DMX scenes).
+    A stored feature list never mentions the new ids, and an unknown id counts
+    as disabled - so without this migration the entities would silently vanish
+    on update. The new ids therefore inherit the behaviour the entry had:
+    ``eco_mode`` was always on, ``dmx_scenes`` follows ``led_lighting``.
+    """
+    inherited = {"eco_mode": True, "dmx_scenes": None}
+
+    def _upgrade(features: list[str]) -> list[str]:
+        upgraded = list(features)
+        for feature_id, enabled in inherited.items():
+            if feature_id in upgraded:
+                continue
+            keep = enabled if enabled is not None else "led_lighting" in upgraded
+            if keep:
+                upgraded.append(feature_id)
+        return upgraded
+
+    data = dict(config_entry.data)
+    options = dict(config_entry.options)
+    changed = False
+
+    for container in (data, options):
+        features = container.get(CONF_ACTIVE_FEATURES)
+        # Only touch a list that is actually stored; absent means "everything".
+        if isinstance(features, list):
+            upgraded = _upgrade(features)
+            if upgraded != features:
+                container[CONF_ACTIVE_FEATURES] = upgraded
+                changed = True
+
+    hass.config_entries.async_update_entry(
+        config_entry, data=data, options=options, version=CONFIG_ENTRY_VERSION
+    )
+    if changed:
+        _LOGGER.info(
+            "Config entry %s: added the eco_mode/dmx_scenes features to the "
+            "stored selection so the existing entities are kept",
+            config_entry.entry_id,
+        )
 
 
 def _migrate_duplicate_prefix_entity_ids(
