@@ -10,7 +10,6 @@
 from __future__ import annotations
 
 import logging
-from datetime import timedelta
 from typing import Any
 
 import homeassistant.helpers.config_validation as cv
@@ -32,8 +31,16 @@ from .config_entry_helpers import (
     get_entry_value,
     with_non_default_port,
 )
+from .config_flow_utils.constants import (
+    MAX_POLLING_INTERVAL,
+    MAX_RETRIES,
+    MAX_TIMEOUT,
+    MIN_RETRIES,
+    MIN_TIMEOUT,
+)
 from .const import (
     CONF_ACTIVE_FEATURES,
+    CONF_ADAPTIVE_POLLING,
     CONF_ALLOW_UNSAFE_SWITCHES,
     CONF_CONTROLLER_NAME,
     CONF_DEVICE_ID,
@@ -48,6 +55,7 @@ from .const import (
     CONF_USE_SSL,
     CONF_USERNAME,
     CONF_VERIFY_SSL,
+    DEFAULT_ADAPTIVE_POLLING,
     DEFAULT_CONTROLLER_NAME,
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_PORT,
@@ -55,6 +63,7 @@ from .const import (
     DEFAULT_TIMEOUT_DURATION,
     DEFAULT_VERIFY_SSL,
     DOMAIN,
+    MIN_SUPPORTED_POLLING_INTERVAL,
 )
 from .device_hierarchy import (
     async_cleanup_sub_devices,
@@ -535,37 +544,35 @@ async def async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None
     # Track if any setting was updated
     settings_updated = False
 
-    # 1. Update polling interval if changed
+    # 1. Update polling settings if changed. Compare against the coordinator's
+    # configured (base) interval, not update_interval - the latter is stretched
+    # while the controller is idle and would otherwise look like a change on
+    # every options save.
     new_polling_interval = get_entry_value(
         entry,
         CONF_POLLING_INTERVAL,
         DEFAULT_POLLING_INTERVAL,
     )
+    new_adaptive_polling = get_entry_value(
+        entry,
+        CONF_ADAPTIVE_POLLING,
+        DEFAULT_ADAPTIVE_POLLING,
+    )
 
-    current_interval = coordinator.update_interval.total_seconds()
-
-    if new_polling_interval != current_interval:
+    if coordinator.apply_polling_options(new_polling_interval, new_adaptive_polling):
         _LOGGER.info(
-            "Updating polling interval from %ds to %ds (entry_id=%s)",
-            current_interval,
+            "Polling settings updated to %ds (adaptive: %s, entry_id=%s)",
             new_polling_interval,
+            new_adaptive_polling,
             entry.entry_id,
         )
-
-        coordinator.update_interval = timedelta(seconds=new_polling_interval)
 
         # Force an immediate refresh so the new interval takes effect now
         await coordinator.async_request_refresh()
-
-        _LOGGER.info(
-            "Polling interval updated successfully to %ds (entry_id=%s)",
-            new_polling_interval,
-            entry.entry_id,
-        )
         settings_updated = True
     else:
         _LOGGER.debug(
-            "Polling interval unchanged at %ds (entry_id=%s)",
+            "Polling settings unchanged at %ds (entry_id=%s)",
             new_polling_interval,
             entry.entry_id,
         )
@@ -619,6 +626,12 @@ def _extract_config(entry: ConfigEntry) -> dict[str, Any]:
 
     port = entry.data.get(CONF_PORT, DEFAULT_PORT)
 
+    # Numeric settings are clamped to the range the integration supports.
+    # The config/options flow and this module used to disagree about the
+    # allowed ranges, so a value the UI happily accepted (e.g. a 600s polling
+    # interval or a 3s timeout) made the next setup fail outright. Clamping
+    # keeps such an entry working instead of leaving the user with a
+    # permanently broken integration.
     # Build the configuration dictionary with defaults
     return {
         "ip_address": ip_address.strip(),
@@ -630,20 +643,29 @@ def _extract_config(entry: ConfigEntry) -> dict[str, Any]:
         "password": entry.data.get(CONF_PASSWORD, ""),
         "device_name": entry.data.get(CONF_DEVICE_NAME, "Violet Pool Controller"),
         "controller_name": entry.data.get(CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME),
-        "polling_interval": get_entry_value(
+        "polling_interval": _clamped_setting(
             entry,
             CONF_POLLING_INTERVAL,
             DEFAULT_POLLING_INTERVAL,
+            MIN_SUPPORTED_POLLING_INTERVAL,
+            MAX_POLLING_INTERVAL,
         ),
-        "timeout_duration": get_entry_value(
+        "timeout_duration": _clamped_setting(
             entry,
             CONF_TIMEOUT_DURATION,
             DEFAULT_TIMEOUT_DURATION,
+            MIN_TIMEOUT,
+            MAX_TIMEOUT,
         ),
-        "retry_attempts": get_entry_value(
+        "retry_attempts": _clamped_setting(
             entry,
             CONF_RETRY_ATTEMPTS,
             DEFAULT_RETRY_ATTEMPTS,
+            MIN_RETRIES,
+            MAX_RETRIES,
+        ),
+        "adaptive_polling": bool(
+            get_entry_value(entry, CONF_ADAPTIVE_POLLING, DEFAULT_ADAPTIVE_POLLING)
         ),
         "active_features": get_entry_value(
             entry,
@@ -651,6 +673,37 @@ def _extract_config(entry: ConfigEntry) -> dict[str, Any]:
             [],
         ),
     }
+
+
+def _clamped_setting(
+    entry: ConfigEntry,
+    key: str,
+    default: int,
+    minimum: int,
+    maximum: int,
+) -> int:
+    """Return a numeric entry setting clamped into its supported range.
+
+    Falls back to ``default`` for values that are not numeric at all.
+    """
+    raw = get_entry_value(entry, key, default)
+    try:
+        value = int(float(raw))
+    except (TypeError, ValueError):
+        _LOGGER.warning("Invalid value for '%s': %r - using default %s", key, raw, default)
+        return default
+
+    clamped = max(minimum, min(maximum, value))
+    if clamped != value:
+        _LOGGER.warning(
+            "Value for '%s' (%s) is outside the supported range %s-%s - using %s",
+            key,
+            value,
+            minimum,
+            maximum,
+            clamped,
+        )
+    return clamped
 
 
 def _validate_config(config: dict[str, Any]) -> bool:
@@ -672,27 +725,24 @@ def _validate_config(config: dict[str, Any]) -> bool:
             _LOGGER.error("Missing required configuration key: %s", key)
             return False
 
-    # Validate numeric ranges
-    if not 5 <= config["polling_interval"] <= 300:
-        _LOGGER.error(
-            "Invalid polling_interval: %s (must be between 5 and 300)",
-            config["polling_interval"],
-        )
-        return False
-
-    if not 5 <= config["timeout_duration"] <= 60:
-        _LOGGER.error(
-            "Invalid timeout_duration: %s (must be between 5 and 60)",
-            config["timeout_duration"],
-        )
-        return False
-
-    if not 1 <= config["retry_attempts"] <= 10:
-        _LOGGER.error(
-            "Invalid retry_attempts: %s (must be between 1 and 10)",
-            config["retry_attempts"],
-        )
-        return False
+    # Numeric ranges use the same limits as the config/options flow. The values
+    # are already clamped by _extract_config, so this only catches programming
+    # errors, never a user-supplied setting.
+    numeric_ranges = (
+        ("polling_interval", MIN_SUPPORTED_POLLING_INTERVAL, MAX_POLLING_INTERVAL),
+        ("timeout_duration", MIN_TIMEOUT, MAX_TIMEOUT),
+        ("retry_attempts", MIN_RETRIES, MAX_RETRIES),
+    )
+    for key, minimum, maximum in numeric_ranges:
+        if not minimum <= config[key] <= maximum:
+            _LOGGER.error(
+                "Invalid %s: %s (must be between %s and %s)",
+                key,
+                config[key],
+                minimum,
+                maximum,
+            )
+            return False
 
     _LOGGER.debug("Configuration validated successfully.")
     return True

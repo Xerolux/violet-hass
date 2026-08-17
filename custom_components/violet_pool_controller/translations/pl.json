@@ -216,14 +216,16 @@
         "data": {
           "controller_name": "Nazwa kontrolera",
           "polling_interval": "Interwał odpytywania (sekundy)",
+          "adaptive_polling": "Ogranicz odpytywanie w bezczynności",
           "timeout_duration": "Limit czasu (sekundy)",
           "retry_attempts": "Próby ponowienia",
           "group_entities": "Group entities into sub-devices"
         },
         "data_description": {
           "controller_name": "Wyświetlana nazwa kontrolera",
-          "polling_interval": "Interwał odpytywania danych (5-300s)",
-          "timeout_duration": "Maksymalny czas oczekiwania na żądanie (5-60s)",
+          "polling_interval": "Interwał odpytywania danych (10-3600s)",
+          "adaptive_polling": "Rzadziej odpytuje sterownik, gdy pompa, ogrzewanie i dozowanie są wyłączone. Powyższy interwał pozostaje najszybszą częstotliwością.",
+          "timeout_duration": "Maksymalny czas oczekiwania na żądanie (1-60s)",
           "retry_attempts": "Liczba prób ponowienia przy błędzie (1-10)",
           "group_entities": "Split the controller's entities across sub-devices (pump, heating, dosing, ...) instead of listing all of them under one device. Entity IDs are not affected."
         }
@@ -259,7 +261,18 @@
   "issues": {
     "controller_unavailable": {
       "title": "Kontroler basenu jest niedostępny",
-      "description": "Kontroler basenu **{name}** jest niedostępny od {failures} kolejnych cykli pobierania.\n\nProszę sprawdzić:\n- Czy kontroler jest włączony?\n- Czy połączenie sieciowe jest prawidłowe?\n- Czy adres IP jest nadal prawidłowy?\n\nKiedy kontroler będzie ponownie dostępny, ten problem zostanie automatycznie rozwiązany."
+      "description": "Kontroler basenu **{name}** jest niedostępny od {failures} kolejnych cykli pobierania.\n\nProszę sprawdzić:\n- Czy kontroler jest włączony?\n- Czy połączenie sieciowe jest prawidłowe?\n- Czy adres IP jest nadal prawidłowy?\n\nKiedy kontroler będzie ponownie dostępny, ten problem zostanie automatycznie rozwiązany.",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Ponów połączenie",
+            "description": "Home Assistant przeładuje integrację i ponownie połączy się ze sterownikiem.\n\nZanim przejdziesz dalej, sprawdź, czy sterownik jest włączony, podłączony do sieci i nadal dostępny pod skonfigurowanym adresem."
+          }
+        },
+        "abort": {
+          "still_unavailable": "Sterownik nadal nie odpowiada. Sprawdź zasilanie, sieć i adres IP, a następnie spróbuj ponownie."
+        }
+      }
     }
   },
   "services": {

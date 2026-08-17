@@ -40,6 +40,9 @@ else:
 
 _LOGGER = logging.getLogger(__name__)
 
+# Entity updates are driven by the coordinator, so no per-entity throttling.
+PARALLEL_UPDATES = 0
+
 _PROGRESS_RE = re.compile(r"(\d+)\s*%")
 
 

@@ -2,6 +2,43 @@
 
 > **Language Note:** This changelog is available in German. For English release notes, see the GitHub releases page.
 
+## Unveröffentlicht
+
+### 🐛 Fehlerbehebungen
+
+- **Abfragen schlugen bei textuellen Zuständen komplett fehl** - die dynamische
+  Intervallanpassung verglich `PUMP` und die `DOS_*`-Ausgänge direkt mit `0`.
+  Liefert der Controller diese Werte als Text (`"1"`) oder als zusammengesetzten
+  Zustand (`"3|PUMP_ANTI_FREEZE"`), warf der Vergleich einen `TypeError` — jeder
+  Abrufzyklus endete in `UpdateFailed` und die Integration blieb dauerhaft nicht
+  verfügbar. Die Zustände werden jetzt mit demselben Helfer interpretiert wie in
+  den Switch-Entitäten.
+- **Abrufintervall aus den Optionen wurde ignoriert** - das Intervall wurde bei
+  jedem Poll erneut aus `config_entry.data` gelesen. Ein über *Konfigurieren →
+  Einstellungen* gesetzter Wert galt damit nur bis zum ersten Abruf und fiel
+  danach still auf den Wert der Ersteinrichtung zurück.
+- **Nie schneller als konfiguriert** - lief die Pumpe, wurde das Intervall
+  halbiert (mindestens 5 s). Der eingestellte Wert ist jetzt die schnellste
+  Rate und wird nicht mehr unterschritten.
+- **Gültige Einstellungen konnten die Einrichtung blockieren** - Config-Flow und
+  Setup-Validierung waren sich über die erlaubten Bereiche uneinig (Intervall
+  10-3600 s vs. 5-300 s, Timeout 1-60 s vs. 5-60 s). Ein in der Oberfläche
+  angebotener Wert wie 600 s ließ die Integration beim nächsten Start mit
+  „Invalid configuration" scheitern. Werte werden jetzt in den unterstützten
+  Bereich geklemmt statt die Einrichtung abzubrechen.
+- **„Reparieren"-Schaltfläche ohne Funktion** - das Problem „Pool-Controller
+  nicht erreichbar" ist als behebbar gemeldet, es gab aber keinen zugehörigen
+  Reparatur-Flow. Der Flow lädt die Integration jetzt neu und meldet zurück, ob
+  der Controller wieder antwortet.
+
+### ✨ Neu
+
+- **Abfrage im Ruhezustand reduzieren** (*Konfigurieren → Einstellungen ändern*,
+  standardmäßig aktiv) - solange Pumpe, Heizung, Solar, Dosierung, Rückspülung
+  und Nachfüllung aus sind, wird das Intervall verdreifacht (maximal 60 s). Das
+  entlastet den Webserver des Controllers in den Stunden ohne Aktivität; sobald
+  ein Ausgang läuft, gilt wieder das konfigurierte Intervall.
+
 ## Version 2.3.5 (2026-08-16)
 
 ### 🗂️ Entitäten sind jetzt in Untergeräte gruppiert

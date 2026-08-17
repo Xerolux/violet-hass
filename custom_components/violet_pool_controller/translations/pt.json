@@ -216,14 +216,16 @@
         "data": {
           "controller_name": "Nome do Controlador",
           "polling_interval": "Intervalo de Polling (segundos)",
+          "adaptive_polling": "Reduzir a consulta em repouso",
           "timeout_duration": "Tempo Limite (segundos)",
           "retry_attempts": "Tentativas de Repetição",
           "group_entities": "Group entities into sub-devices"
         },
         "data_description": {
           "controller_name": "Nome de exibição do controlador",
-          "polling_interval": "Intervalo de polling de dados (5-300s)",
-          "timeout_duration": "Tempo máximo de espera por solicitação (5-60s)",
+          "polling_interval": "Intervalo de polling de dados (10-3600s)",
+          "adaptive_polling": "Consulta o controlador com menos frequência enquanto bomba, aquecimento e doseamento estão desligados. O intervalo acima continua a ser a taxa máxima.",
+          "timeout_duration": "Tempo máximo de espera por solicitação (1-60s)",
           "retry_attempts": "Número de tentativas de repetição em caso de falha (1-10)",
           "group_entities": "Split the controller's entities across sub-devices (pump, heating, dosing, ...) instead of listing all of them under one device. Entity IDs are not affected."
         }
@@ -259,7 +261,18 @@
   "issues": {
     "controller_unavailable": {
       "title": "Controlador de Piscina Inacessível",
-      "description": "O Controlador de Piscina **{name}** está inacessível há {failures} ciclos de polling consecutivos.\n\nPor favor, verifique:\n- O controlador está ligado?\n- A conexão de rede está OK?\n- O endereço IP ainda está correto?\n\nAssim que o controlador ficar acessível novamente, este problema será resolvido automaticamente."
+      "description": "O Controlador de Piscina **{name}** está inacessível há {failures} ciclos de polling consecutivos.\n\nPor favor, verifique:\n- O controlador está ligado?\n- A conexão de rede está OK?\n- O endereço IP ainda está correto?\n\nAssim que o controlador ficar acessível novamente, este problema será resolvido automaticamente.",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Tentar ligar novamente",
+            "description": "O Home Assistant vai recarregar a integração e contactar novamente o controlador.\n\nAntes de continuar, verifique se o controlador está ligado, na rede e ainda acessível no endereço configurado."
+          }
+        },
+        "abort": {
+          "still_unavailable": "O controlador continua sem responder. Verifique a alimentação, a rede e o endereço IP e tente novamente."
+        }
+      }
     }
   },
   "services": {

@@ -88,6 +88,8 @@ CONF_INVERT_COVER = "invert_cover"
 # them under a single device (see device_hierarchy.py).
 CONF_GROUP_ENTITIES = "group_entities"
 CONF_ALLOW_UNSAFE_SWITCHES = "allow_unsafe_switches"
+# Slow the polling down while the pool equipment is idle (see device.py).
+CONF_ADAPTIVE_POLLING = "adaptive_polling"
 
 # ACTION_* constants come from violet_poolcontroller_api.const_api (wildcard
 # import above) - do not redefine them here, local copies drift from the API.
@@ -114,6 +116,38 @@ DEFAULT_DOSING_STANDALONE = False
 DEFAULT_INVERT_COVER = False
 DEFAULT_GROUP_ENTITIES = True
 DEFAULT_ALLOW_UNSAFE_SWITCHES = False
+DEFAULT_ADAPTIVE_POLLING = True
+
+# =============================================================================
+# ADAPTIVE POLLING
+# =============================================================================
+# The configured polling interval is the *fastest* rate the coordinator ever
+# uses. While none of the outputs below is active, nothing on the controller
+# changes on its own, so the interval is stretched by ADAPTIVE_IDLE_FACTOR (up
+# to ADAPTIVE_IDLE_MAX_INTERVAL seconds) to keep load off the controller. The
+# moment any output turns on, polling returns to the configured interval.
+
+# Outputs whose "on" state means the controller is actively doing something.
+ADAPTIVE_ACTIVITY_KEYS: tuple[str, ...] = (
+    "PUMP",
+    "SOLAR",
+    "HEATER",
+    "BACKWASH",
+    "BACKWASHRINSE",
+    "REFILL",
+    "DOS_1_CL",
+    "DOS_2_ELO",
+    "DOS_4_PHM",
+    "DOS_5_PHP",
+    "DOS_6_FLOC",
+)
+ADAPTIVE_IDLE_FACTOR = 3
+ADAPTIVE_IDLE_MAX_INTERVAL = 60
+
+# Lowest polling interval the integration still accepts. The config flow offers
+# 10s as its minimum; this lower floor exists so entries created by older
+# versions (which allowed 5s) keep working instead of being clamped upwards.
+MIN_SUPPORTED_POLLING_INTERVAL = 5
 
 # =============================================================================
 # POOL CONFIGURATION

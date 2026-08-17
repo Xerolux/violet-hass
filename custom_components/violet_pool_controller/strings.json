@@ -246,14 +246,16 @@
         "data": {
           "controller_name": "Controller name",
           "polling_interval": "Polling interval (seconds)",
+          "adaptive_polling": "Reduce polling while idle",
           "timeout_duration": "Timeout (seconds)",
           "retry_attempts": "Retry attempts",
           "group_entities": "Group entities into sub-devices"
         },
         "data_description": {
           "controller_name": "Controller display name",
-          "polling_interval": "Data polling interval (5-300s)",
-          "timeout_duration": "Maximum wait time per request (5-60s)",
+          "polling_interval": "Data polling interval (10-3600s)",
+          "adaptive_polling": "Poll the controller less often while pump, heating and dosing are all off. The interval above stays the fastest rate.",
+          "timeout_duration": "Maximum wait time per request (1-60s)",
           "retry_attempts": "Number of retry attempts on failure (1-10)",
           "group_entities": "Split the controller's entities across sub-devices (pump, heating, dosing, ...) instead of listing all of them under one device. Entity IDs are not affected."
         }
@@ -292,7 +294,18 @@
   "issues": {
     "controller_unavailable": {
       "title": "Pool Controller Unavailable",
-      "description": "The pool controller **{name}** has been unreachable for {failures} consecutive polling cycles.\n\nPlease check:\n- Is the controller powered on?\n- Is the network connection OK?\n- Is the IP address still correct?\n\nOnce the controller is reachable again, this issue will be resolved automatically."
+      "description": "The pool controller **{name}** has been unreachable for {failures} consecutive polling cycles.\n\nPlease check:\n- Is the controller powered on?\n- Is the network connection OK?\n- Is the IP address still correct?\n\nOnce the controller is reachable again, this issue will be resolved automatically.",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Retry the connection",
+            "description": "Home Assistant will reload the integration and contact the controller again.\n\nBefore continuing, check that the controller is powered on, connected to the network and still reachable under the configured address."
+          }
+        },
+        "abort": {
+          "still_unavailable": "The controller is still not responding. Check power, network and IP address, then try again."
+        }
+      }
     }
   },
   "services": {
