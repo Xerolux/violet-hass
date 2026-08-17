@@ -261,12 +261,11 @@
   "issues": {
     "controller_unavailable": {
       "title": "Controllore della piscina non raggiungibile",
-      "description": "Il controllore della piscina **{name}** non è raggiungibile da {failures} cicli di polling consecutivi.\n\nVerifica:\n- Il controller è acceso?\n- La connessione di rete è OK?\n- L'indirizzo IP è ancora corretto?\n\nAppena il controller tornerà raggiungibile, questo problema sarà risolto automaticamente.",
       "fix_flow": {
         "step": {
           "confirm": {
             "title": "Riprova la connessione",
-            "description": "Home Assistant ricaricherà l'integrazione e contatterà nuovamente il controller.\n\nPrima di continuare, verifica che il controller sia acceso, collegato alla rete e ancora raggiungibile all'indirizzo configurato."
+            "description": "Il controllore della piscina **{name}** non è raggiungibile da {failures} cicli di polling consecutivi.\n\nVerifica:\n- Il controller è acceso?\n- La connessione di rete è OK?\n- L'indirizzo IP è ancora corretto?\n\nAppena il controller tornerà raggiungibile, questo problema sarà risolto automaticamente.\n\nContinuando, l'integrazione viene ricaricata e il controller viene contattato di nuovo."
           }
         },
         "abort": {

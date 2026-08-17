@@ -263,12 +263,11 @@
   "issues": {
     "controller_unavailable": {
       "title": "Controlador de piscina no disponible",
-      "description": "El controlador de piscina **{name}** no está disponible desde {failures} ciclos de sondeo consecutivos.\n\nVerifique:\n- ¿Está encendido el controlador?\n- ¿Está bien la conexión de red?\n- ¿Es correcta la dirección IP?\n\nCuando el controlador vuelva a estar disponible, este problema se resolverá automáticamente.",
       "fix_flow": {
         "step": {
           "confirm": {
             "title": "Reintentar la conexión",
-            "description": "Home Assistant recargará la integración y volverá a contactar con el controlador.\n\nAntes de continuar, comprueba que el controlador esté encendido, conectado a la red y accesible en la dirección configurada."
+            "description": "El controlador de piscina **{name}** no está disponible desde {failures} ciclos de sondeo consecutivos.\n\nVerifique:\n- ¿Está encendido el controlador?\n- ¿Está bien la conexión de red?\n- ¿Es correcta la dirección IP?\n\nCuando el controlador vuelva a estar disponible, este problema se resolverá automáticamente.\n\nAl continuar se recarga la integración y se contacta de nuevo con el controlador."
           }
         },
         "abort": {

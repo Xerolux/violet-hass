@@ -261,12 +261,11 @@
   "issues": {
     "controller_unavailable": {
       "title": "Pool-Controller nicht erreichbar",
-      "description": "Der Pool-Controller **{name}** ist seit {failures} aufeinanderfolgenden Abrufzyklen nicht erreichbar.\n\nBitte prüfe:\n- Ist der Controller eingeschaltet?\n- Ist die Netzwerkverbindung in Ordnung?\n- Ist die IP-Adresse noch korrekt?\n\nSobald der Controller wieder erreichbar ist, wird dieses Problem automatisch behoben.",
       "fix_flow": {
         "step": {
           "confirm": {
             "title": "重试连接",
-            "description": "Home Assistant 将重新加载此集成并再次连接控制器。\n\n继续之前，请确认控制器已通电、已接入网络，并且仍可通过所配置的地址访问。"
+            "description": "Der Pool-Controller **{name}** ist seit {failures} aufeinanderfolgenden Abrufzyklen nicht erreichbar.\n\nBitte prüfe:\n- Ist der Controller eingeschaltet?\n- Ist die Netzwerkverbindung in Ordnung?\n- Ist die IP-Adresse noch korrekt?\n\nSobald der Controller wieder erreichbar ist, wird dieses Problem automatisch behoben.\n\n继续将重新加载此集成并再次连接控制器。"
           }
         },
         "abort": {

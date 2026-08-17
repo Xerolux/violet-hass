@@ -261,12 +261,11 @@
   "issues": {
     "controller_unavailable": {
       "title": "Controlador de Piscina Inacessível",
-      "description": "O Controlador de Piscina **{name}** está inacessível há {failures} ciclos de polling consecutivos.\n\nPor favor, verifique:\n- O controlador está ligado?\n- A conexão de rede está OK?\n- O endereço IP ainda está correto?\n\nAssim que o controlador ficar acessível novamente, este problema será resolvido automaticamente.",
       "fix_flow": {
         "step": {
           "confirm": {
             "title": "Tentar ligar novamente",
-            "description": "O Home Assistant vai recarregar a integração e contactar novamente o controlador.\n\nAntes de continuar, verifique se o controlador está ligado, na rede e ainda acessível no endereço configurado."
+            "description": "O Controlador de Piscina **{name}** está inacessível há {failures} ciclos de polling consecutivos.\n\nPor favor, verifique:\n- O controlador está ligado?\n- A conexão de rede está OK?\n- O endereço IP ainda está correto?\n\nAssim que o controlador ficar acessível novamente, este problema será resolvido automaticamente.\n\nAo continuar, a integração é recarregada e o controlador é contactado novamente."
           }
         },
         "abort": {

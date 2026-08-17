@@ -261,12 +261,11 @@
   "issues": {
     "controller_unavailable": {
       "title": "Kontroler basenu jest niedostępny",
-      "description": "Kontroler basenu **{name}** jest niedostępny od {failures} kolejnych cykli pobierania.\n\nProszę sprawdzić:\n- Czy kontroler jest włączony?\n- Czy połączenie sieciowe jest prawidłowe?\n- Czy adres IP jest nadal prawidłowy?\n\nKiedy kontroler będzie ponownie dostępny, ten problem zostanie automatycznie rozwiązany.",
       "fix_flow": {
         "step": {
           "confirm": {
             "title": "Ponów połączenie",
-            "description": "Home Assistant przeładuje integrację i ponownie połączy się ze sterownikiem.\n\nZanim przejdziesz dalej, sprawdź, czy sterownik jest włączony, podłączony do sieci i nadal dostępny pod skonfigurowanym adresem."
+            "description": "Kontroler basenu **{name}** jest niedostępny od {failures} kolejnych cykli pobierania.\n\nProszę sprawdzić:\n- Czy kontroler jest włączony?\n- Czy połączenie sieciowe jest prawidłowe?\n- Czy adres IP jest nadal prawidłowy?\n\nKiedy kontroler będzie ponownie dostępny, ten problem zostanie automatycznie rozwiązany.\n\nKontynuacja przeładuje integrację i ponownie połączy się ze sterownikiem."
           }
         },
         "abort": {

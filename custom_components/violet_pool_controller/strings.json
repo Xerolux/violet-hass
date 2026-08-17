@@ -294,12 +294,11 @@
   "issues": {
     "controller_unavailable": {
       "title": "Pool Controller Unavailable",
-      "description": "The pool controller **{name}** has been unreachable for {failures} consecutive polling cycles.\n\nPlease check:\n- Is the controller powered on?\n- Is the network connection OK?\n- Is the IP address still correct?\n\nOnce the controller is reachable again, this issue will be resolved automatically.",
       "fix_flow": {
         "step": {
           "confirm": {
             "title": "Retry the connection",
-            "description": "Home Assistant will reload the integration and contact the controller again.\n\nBefore continuing, check that the controller is powered on, connected to the network and still reachable under the configured address."
+            "description": "The pool controller **{name}** has been unreachable for {failures} consecutive polling cycles.\n\nPlease check:\n- Is the controller powered on?\n- Is the network connection OK?\n- Is the IP address still correct?\n\nOnce the controller is reachable again, this issue will be resolved automatically.\n\nContinuing reloads the integration and contacts the controller again."
           }
         },
         "abort": {
