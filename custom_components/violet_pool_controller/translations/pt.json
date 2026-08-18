@@ -613,7 +613,7 @@
         "name": "Temperatura da CPU"
       },
       "cpu_temp_carrier": {
-        "name": "Placa Portadora"
+        "name": "Temperatura da CPU da Placa Portadora"
       },
       "cpu_uptime": {
         "name": "Tempo de Atividade do Sistema"
@@ -689,6 +689,278 @@
       },
       "imp2_value": {
         "name": "Vazão da Bomba"
+      },
+      "dos_2_elo_total_can": {
+        "name": "Tempo Restante da Célula de Eletrólise"
+      },
+      "dos_2_elo_daily": {
+        "name": "Produção Diária de Eletrólise"
+      },
+      "dos_2_elo_last_can_reset": {
+        "name": "Último Reinício da Célula de Eletrólise"
+      },
+      "dos_1_cl_use": {
+        "name": "Doseamento de Cloro Configurado"
+      },
+      "dos_2_elo_use": {
+        "name": "Eletrólise Configurada"
+      },
+      "dos_4_phm_use": {
+        "name": "Doseamento pH- Configurado"
+      },
+      "dos_5_php_use": {
+        "name": "Doseamento pH+ Configurado"
+      },
+      "dos_6_floc_use": {
+        "name": "Doseamento de Floculante Configurado"
+      },
+      "dos_2_current_polarity": {
+        "name": "Polaridade da Eletrólise"
+      },
+      "dos_3_elo_rev_runtime": {
+        "name": "Tempo de Inversão da Eletrólise"
+      },
+      "last_error_id": {
+        "name": "Último ID de Erro"
+      },
+      "dos_1_cl_remaining_range": {
+        "name": "Autonomia Restante de Cloro"
+      },
+      "dos_2_elo_remaining_range": {
+        "name": "Autonomia Restante da Eletrólise"
+      },
+      "dos_4_phm_remaining_range": {
+        "name": "Autonomia Restante de pH-"
+      },
+      "dos_5_php_remaining_range": {
+        "name": "Autonomia Restante de pH+"
+      },
+      "dos_6_floc_remaining_range": {
+        "name": "Autonomia Restante de Floculante"
+      },
+      "analogrule_1": {
+        "name": "Regra Analógica 1"
+      },
+      "analogrule_2": {
+        "name": "Regra Analógica 2"
+      },
+      "analogrule_3": {
+        "name": "Regra Analógica 3"
+      },
+      "analogrule_4": {
+        "name": "Regra Analógica 4"
+      },
+      "analogrule_5": {
+        "name": "Regra Analógica 5"
+      },
+      "analogrule_6": {
+        "name": "Regra Analógica 6"
+      },
+      "analogrule_7": {
+        "name": "Regra Analógica 7"
+      },
+      "analogrule_8": {
+        "name": "Regra Analógica 8"
+      },
+      "temprule_1": {
+        "name": "Regra de Temperatura 1"
+      },
+      "temprule_2": {
+        "name": "Regra de Temperatura 2"
+      },
+      "temprule_3": {
+        "name": "Regra de Temperatura 3"
+      },
+      "temprule_4": {
+        "name": "Regra de Temperatura 4"
+      },
+      "temprule_5": {
+        "name": "Regra de Temperatura 5"
+      },
+      "temprule_6": {
+        "name": "Regra de Temperatura 6"
+      },
+      "temprule_7": {
+        "name": "Regra de Temperatura 7"
+      },
+      "temprule_8": {
+        "name": "Regra de Temperatura 8"
+      },
+      "omni_dc0_runtime": {
+        "name": "Tempo de Funcionamento do Motor CC OMNI 0"
+      },
+      "omni_dc1_runtime": {
+        "name": "Tempo de Funcionamento do Motor CC OMNI 1"
+      },
+      "omni_dc2_runtime": {
+        "name": "Tempo de Funcionamento do Motor CC OMNI 2"
+      },
+      "omni_dc3_runtime": {
+        "name": "Tempo de Funcionamento do Motor CC OMNI 3"
+      },
+      "omni_dc4_runtime": {
+        "name": "Tempo de Funcionamento do Motor CC OMNI 4"
+      },
+      "omni_dc5_runtime": {
+        "name": "Tempo de Funcionamento do Motor CC OMNI 5"
+      }
+    },
+    "binary_sensor": {
+      "overflow_overfill": {
+        "name": "Sobreenchimento do Tanque de Transbordo"
+      },
+      "overflow_dryrun": {
+        "name": "Funcionamento a Seco do Tanque de Transbordo"
+      },
+      "overflow_refill": {
+        "name": "Reabastecimento do Tanque de Transbordo"
+      },
+      "backwash_delay": {
+        "name": "Atraso de Retrolavagem Ativo"
+      },
+      "bathing_ai_surveillance": {
+        "name": "Vigilância IA de Banho"
+      }
+    },
+    "select": {
+      "dos_elo_mode": {
+        "name": "Modo de Doseamento da Eletrólise",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
+      },
+      "refill_mode": {
+        "name": "Modo de Reabastecimento",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
+      },
+      "eco_mode": {
+        "name": "Modo ECO",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc0_mode": {
+        "name": "Modo OMNI DC0",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc1_mode": {
+        "name": "Modo OMNI DC1",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc2_mode": {
+        "name": "Modo OMNI DC2",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc3_mode": {
+        "name": "Modo OMNI DC3",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc4_mode": {
+        "name": "Modo OMNI DC4",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc5_mode": {
+        "name": "Modo OMNI DC5",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
+      }
+    },
+    "switch": {
+      "dos_2_elo": {
+        "name": "Doseamento por Eletrólise"
+      },
+      "eco": {
+        "name": "Modo ECO"
+      },
+      "refill": {
+        "name": "Reabastecimento de Água"
+      },
+      "omni_dc0": {
+        "name": "OMNI DC0"
+      },
+      "omni_dc1": {
+        "name": "OMNI DC1"
+      },
+      "omni_dc2": {
+        "name": "OMNI DC2"
+      },
+      "omni_dc3": {
+        "name": "OMNI DC3"
+      },
+      "omni_dc4": {
+        "name": "OMNI DC4"
+      },
+      "omni_dc5": {
+        "name": "OMNI DC5"
+      }
+    },
+    "light": {
+      "dmx_scene1": {
+        "name": "Cena DMX 1"
+      },
+      "dmx_scene2": {
+        "name": "Cena DMX 2"
+      },
+      "dmx_scene3": {
+        "name": "Cena DMX 3"
+      },
+      "dmx_scene4": {
+        "name": "Cena DMX 4"
+      },
+      "dmx_scene5": {
+        "name": "Cena DMX 5"
+      },
+      "dmx_scene6": {
+        "name": "Cena DMX 6"
+      },
+      "dmx_scene7": {
+        "name": "Cena DMX 7"
+      },
+      "dmx_scene8": {
+        "name": "Cena DMX 8"
+      },
+      "dmx_scene9": {
+        "name": "Cena DMX 9"
+      },
+      "dmx_scene10": {
+        "name": "Cena DMX 10"
+      },
+      "dmx_scene11": {
+        "name": "Cena DMX 11"
+      },
+      "dmx_scene12": {
+        "name": "Cena DMX 12"
       }
     }
   },

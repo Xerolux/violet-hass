@@ -907,7 +907,7 @@
         "name": "CPU-Temperatur"
       },
       "cpu_temp_carrier": {
-        "name": "Träger-Platine"
+        "name": "Träger-Platine CPU-Temperatur"
       },
       "cpu_uptime": {
         "name": "System-Betriebszeit"
@@ -1156,7 +1156,7 @@
         "name": "Chlor Dosiertyp"
       },
       "dos_1_cl_use": {
-        "name": "Chlor Verbrauch"
+        "name": "Chlordosierung konfiguriert"
       },
       "dos_1_cl_last_can_reset": {
         "name": "Chlor Letzter Kanister-Reset"
@@ -1165,10 +1165,10 @@
         "name": "Elektrolyse-Dosiersystem"
       },
       "dos_2_elo_daily": {
-        "name": "Elektrolyse Tagesdosiermenge (ml)"
+        "name": "Elektrolyse-Tagesproduktion"
       },
       "dos_2_elo_total_can": {
-        "name": "Elektrolyse Kanisterinhalt (ml)"
+        "name": "Elektrolysezelle Restlaufzeit"
       },
       "dos_4_phm": {
         "name": "pH- Dosiersystem"
@@ -1537,10 +1537,10 @@
         "name": "Pumpen-Stufe 3 Zuletzt Ein"
       },
       "dos_2_elo_daily_dosing_amount_ml": {
-        "name": "Elektrolyse Tagesdosierung (ml)"
+        "name": "Elektrolyse-Tagesproduktion"
       },
       "dos_2_elo_last_can_reset": {
-        "name": "Elektrolyse Letzter Kanister-Reset"
+        "name": "Elektrolysezelle Letzter Reset"
       },
       "dos_2_elo_last_off": {
         "name": "Elektrolyse-Dosierung Zuletzt Aus"
@@ -1552,13 +1552,13 @@
         "name": "Elektrolyse-Dosierlaufzeit"
       },
       "dos_2_elo_total_can_amount_ml": {
-        "name": "Elektrolyse Kanisterinhalt (ml)"
+        "name": "Elektrolysezelle Restlaufzeit"
       },
       "dos_2_elo_type": {
         "name": "Elektrolyse Dosiertyp"
       },
       "dos_2_elo_use": {
-        "name": "Elektrolyse Verbrauch"
+        "name": "Elektrolyse konfiguriert"
       },
       "dos_4_phm_daily_dosing_amount_ml": {
         "name": "pH- Tagesdosierung (ml)"
@@ -1582,7 +1582,7 @@
         "name": "pH- Dosiertyp"
       },
       "dos_4_phm_use": {
-        "name": "pH- Verbrauch"
+        "name": "pH--Dosierung konfiguriert"
       },
       "dos_5_php_daily_dosing_amount_ml": {
         "name": "pH+ Tagesdosierung (ml)"
@@ -1606,7 +1606,7 @@
         "name": "pH+ Dosiertyp"
       },
       "dos_5_php_use": {
-        "name": "pH+ Verbrauch"
+        "name": "pH+-Dosierung konfiguriert"
       },
       "dos_6_floc_daily_dosing_amount_ml": {
         "name": "Flockmittel Tagesdosierung (ml)"
@@ -1630,7 +1630,7 @@
         "name": "Flockmittel Dosiertyp"
       },
       "dos_6_floc_use": {
-        "name": "Flockmittel Verbrauch"
+        "name": "Flockmitteldosierung konfiguriert"
       },
       "dmx_scene1": {
         "name": "DMX-Lichtszene 1"
@@ -1793,6 +1793,96 @@
       },
       "csi_index": {
         "name": "CSI Ergebnis"
+      },
+      "dos_2_current_polarity": {
+        "name": "Elektrolyse-Polarität"
+      },
+      "dos_3_elo_rev_runtime": {
+        "name": "Elektrolyse Umkehr-Laufzeit"
+      },
+      "last_error_id": {
+        "name": "Letzte Fehler-ID"
+      },
+      "dos_1_cl_remaining_range": {
+        "name": "Chlor verbleibende Reichweite"
+      },
+      "dos_2_elo_remaining_range": {
+        "name": "Elektrolyse verbleibende Reichweite"
+      },
+      "dos_4_phm_remaining_range": {
+        "name": "pH- verbleibende Reichweite"
+      },
+      "dos_5_php_remaining_range": {
+        "name": "pH+ verbleibende Reichweite"
+      },
+      "dos_6_floc_remaining_range": {
+        "name": "Flockungsmittel verbleibende Reichweite"
+      },
+      "analogrule_1": {
+        "name": "Analogregel 1"
+      },
+      "analogrule_2": {
+        "name": "Analogregel 2"
+      },
+      "analogrule_3": {
+        "name": "Analogregel 3"
+      },
+      "analogrule_4": {
+        "name": "Analogregel 4"
+      },
+      "analogrule_5": {
+        "name": "Analogregel 5"
+      },
+      "analogrule_6": {
+        "name": "Analogregel 6"
+      },
+      "analogrule_7": {
+        "name": "Analogregel 7"
+      },
+      "analogrule_8": {
+        "name": "Analogregel 8"
+      },
+      "temprule_1": {
+        "name": "Temperaturregel 1"
+      },
+      "temprule_2": {
+        "name": "Temperaturregel 2"
+      },
+      "temprule_3": {
+        "name": "Temperaturregel 3"
+      },
+      "temprule_4": {
+        "name": "Temperaturregel 4"
+      },
+      "temprule_5": {
+        "name": "Temperaturregel 5"
+      },
+      "temprule_6": {
+        "name": "Temperaturregel 6"
+      },
+      "temprule_7": {
+        "name": "Temperaturregel 7"
+      },
+      "temprule_8": {
+        "name": "Temperaturregel 8"
+      },
+      "omni_dc0_runtime": {
+        "name": "OMNI-Gleichstrommotor 0 Laufzeit"
+      },
+      "omni_dc1_runtime": {
+        "name": "OMNI-Gleichstrommotor 1 Laufzeit"
+      },
+      "omni_dc2_runtime": {
+        "name": "OMNI-Gleichstrommotor 2 Laufzeit"
+      },
+      "omni_dc3_runtime": {
+        "name": "OMNI-Gleichstrommotor 3 Laufzeit"
+      },
+      "omni_dc4_runtime": {
+        "name": "OMNI-Gleichstrommotor 4 Laufzeit"
+      },
+      "omni_dc5_runtime": {
+        "name": "OMNI-Gleichstrommotor 5 Laufzeit"
       }
     },
     "binary_sensor": {
@@ -1900,6 +1990,21 @@
       },
       "hw_dirule_module": {
         "name": "Hardware: Digital Rules Module"
+      },
+      "overflow_overfill": {
+        "name": "Überfüllungs-Status"
+      },
+      "overflow_dryrun": {
+        "name": "Überlauf Trockenlauf"
+      },
+      "overflow_refill": {
+        "name": "Überlauf Nachfüllung"
+      },
+      "backwash_delay": {
+        "name": "Rückspül-Verzögerung aktiv"
+      },
+      "bathing_ai_surveillance": {
+        "name": "Bade-KI Überwachung"
       }
     },
     "button": {
@@ -2048,6 +2153,33 @@
       },
       "dirule_8": {
         "name": "Schaltregel 8"
+      },
+      "dos_2_elo": {
+        "name": "Elektrolyse-Dosierung"
+      },
+      "eco": {
+        "name": "ECO-Modus"
+      },
+      "refill": {
+        "name": "Wassernachfüllung"
+      },
+      "omni_dc0": {
+        "name": "OMNI DC0"
+      },
+      "omni_dc1": {
+        "name": "OMNI DC1"
+      },
+      "omni_dc2": {
+        "name": "OMNI DC2"
+      },
+      "omni_dc3": {
+        "name": "OMNI DC3"
+      },
+      "omni_dc4": {
+        "name": "OMNI DC4"
+      },
+      "omni_dc5": {
+        "name": "OMNI DC5"
       }
     },
     "climate": {
@@ -2341,6 +2473,116 @@
           "on": "Ein",
           "auto": "Auto"
         }
+      },
+      "dos_elo_mode": {
+        "name": "Elektrolyse-Dosiermodus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
+      },
+      "refill_mode": {
+        "name": "Nachfüll-Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
+      },
+      "eco_mode": {
+        "name": "ECO-Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc0_mode": {
+        "name": "OMNI DC0 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc1_mode": {
+        "name": "OMNI DC1 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc2_mode": {
+        "name": "OMNI DC2 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc3_mode": {
+        "name": "OMNI DC3 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc4_mode": {
+        "name": "OMNI DC4 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc5_mode": {
+        "name": "OMNI DC5 Modus",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
+      }
+    },
+    "light": {
+      "dmx_scene1": {
+        "name": "DMX-Szene 1"
+      },
+      "dmx_scene2": {
+        "name": "DMX-Szene 2"
+      },
+      "dmx_scene3": {
+        "name": "DMX-Szene 3"
+      },
+      "dmx_scene4": {
+        "name": "DMX-Szene 4"
+      },
+      "dmx_scene5": {
+        "name": "DMX-Szene 5"
+      },
+      "dmx_scene6": {
+        "name": "DMX-Szene 6"
+      },
+      "dmx_scene7": {
+        "name": "DMX-Szene 7"
+      },
+      "dmx_scene8": {
+        "name": "DMX-Szene 8"
+      },
+      "dmx_scene9": {
+        "name": "DMX-Szene 9"
+      },
+      "dmx_scene10": {
+        "name": "DMX-Szene 10"
+      },
+      "dmx_scene11": {
+        "name": "DMX-Szene 11"
+      },
+      "dmx_scene12": {
+        "name": "DMX-Szene 12"
       }
     }
   },

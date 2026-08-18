@@ -114,6 +114,11 @@ For every dosing channel:
 | `*_DAILY_DOSING_AMOUNT_ML` | Daily dosing consumption | ml |
 | `*_TOTAL_CAN_AMOUNT_ML`    | Remaining canister amount | ml |
 
+> **Electrolysis is the exception.** `DOS_2_ELO` drives a cell, not a canister.
+> The controller reuses the same two fields for cell figures: `_TOTAL_CAN_AMOUNT_ML`
+> carries the cell's remaining runtime in **hours**, and `_DAILY_DOSING_AMOUNT_ML`
+> its production for the day — neither is a volume in millilitres.
+
 ### Pump RPM Sensors
 
 | Suffix | Description | Unit |

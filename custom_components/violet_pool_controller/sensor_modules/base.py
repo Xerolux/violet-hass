@@ -40,6 +40,7 @@ _PRECISION_MAP: dict[str, int] = {
     "W": 0,
     "ml": 0,
     "s": 0,
+    "h": 0,
 }
 
 _KEYS_DISABLED_BY_DEFAULT: frozenset[str] = frozenset(
@@ -298,7 +299,7 @@ def determine_device_class(key: str, unit: str | None, raw_value: Any) -> Sensor
         return SensorDeviceClass.VOLTAGE
     if unit == "W":
         return SensorDeviceClass.POWER
-    if unit == "s":
+    if unit in {"s", "min", "h"}:
         return SensorDeviceClass.DURATION
     # Check if key indicates a timestamp sensor
     # (by suffix or membership in _TIMESTAMP_KEYS)

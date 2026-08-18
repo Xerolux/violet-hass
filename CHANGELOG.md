@@ -18,12 +18,50 @@ steht, erfährt also auch niemand dort.
 
 ## Version 2.5.0 (unveröffentlicht)
 
-Minor-Release: die Datenpunkt-Auswahl gilt jetzt für **alle** Plattformen, nicht
-mehr nur für Sensoren. Damit tut der Auswahlschritt endlich das, wonach er seit
-jeher aussieht. **Kein Entitätsverlust durch das Update** — eine Migration auf
-Config-Entry-Version 3 friert den heutigen Stand ein; das Ausmisten bleibt
-danach deine Entscheidung. Entity-IDs, Unique IDs und die API-Paarung bleiben
-unverändert.
+Minor-Release mit zwei Schwerpunkten: die Datenpunkt-Auswahl gilt jetzt für
+**alle** Plattformen statt nur für Sensoren, und eine Reihe von Entitäten trägt
+endlich den Namen, der zu ihrem Messwert passt — angefangen bei der
+Elektrolyse, die nie einen Kanister hatte. **Kein Entitätsverlust durch das
+Update** — eine Migration auf Config-Entry-Version 3 friert den heutigen Stand
+ein; das Ausmisten bleibt danach deine Entscheidung. Entity-IDs, Unique IDs und
+die API-Paarung bleiben unverändert.
+
+### 🐛 Behoben
+
+- **Elektrolyse: „Kanisterinhalt (ml)" war die falsche Bezeichnung.** Aus dem
+  Forum gemeldet: der Wert hinter diesem Sensor ist die **Restlaufzeit der
+  Elektrolysezelle in Stunden**, nicht der Füllstand eines Kanisters — die
+  Elektrolyse hat gar keinen. Der Controller belegt bei `DOS_2_ELO` dieselben
+  zwei Felder des Dosiercontrollers mit Zellenwerten; die Firmware überwacht
+  genau diese Zahl mit den Fehlercodes 133 („Elektrolyse Restlaufzeit") und 134
+  („max. Betriebszeit Elektrolyse-Zelle"). Der Sensor heißt jetzt
+  **Elektrolysezelle Restlaufzeit**, zählt in Stunden und ist als Dauer
+  gekennzeichnet. Aus demselben Grund heißt der Tageswert jetzt
+  **Elektrolyse-Tagesproduktion** und trägt keine Milliliter-Einheit mehr, und
+  der Kanister-Reset wurde zum **Zellen-Reset**. Die Milliliter bleiben dort,
+  wo tatsächlich aus einem Kanister dosiert wird: Chlor, pH-, pH+ und Flockung.
+  *Hinweis:* Home Assistant meldet für die beiden Elektrolyse-Sensoren einen
+  Einheitenwechsel und bietet an, die Langzeitstatistik anzupassen oder zu
+  verwerfen — die alten Werte waren in der falschen Einheit erfasst.
+- **`DOS_*_USE` hieß „Verbrauch", ist aber ein Konfigurations-Flag.** Der Wert
+  ist 0/1 und sagt nur, ob der Dosierkanal in der Anlagenkonfiguration
+  aktiviert ist — mit Verbrauch hat er nichts zu tun. Heißt jetzt
+  „… konfiguriert" (alle fünf Kanäle, alle zehn Sprachen).
+- **`CPU_TEMP_CARRIER` hieß „Träger-Platine".** Der Sensor liefert deren
+  CPU-Temperatur und heißt jetzt auch so.
+- **27 Entitäten zeigten allen Nutzern den deutschen Namen.** Die zwölf
+  DMX-Szenen, die sechs OMNI-DC-Ausgänge samt Modus-Auswahl, der
+  Elektrolyse-Schalter, ECO und die Wassernachfüllung hatten in keiner Sprache
+  eine Übersetzung — Home Assistant fällt in dem Fall auf den fest im Code
+  hinterlegten deutschen Namen zurück. Dazu kamen 30 Sensoren im selben
+  Zustand (Analog- und Temperaturregeln, OMNI-Laufzeiten, Elektrolyse-Polarität
+  und -Umkehrlaufzeit, letzte Fehler-ID). Alle sind jetzt in allen zehn
+  Sprachen benannt; die neuen Auswahl-Entitäten haben zusätzlich übersetzte
+  Optionen statt roher `off`/`on`/`auto`-Werte.
+- **Die fünf „verbleibende Reichweite"-Sensoren fanden ihre Übersetzung nie.**
+  Der Schlüssel wurde als `1_cl_remaining_range` erzeugt, hinterlegt war
+  `dos_1_cl_remaining_range` — ein fehlendes Präfix, das die vorhandene
+  Übersetzung für alle Kanäle unerreichbar machte.
 
 ### ✨ Neu
 
@@ -62,10 +100,16 @@ unverändert.
 
 ### 🧪 Tests
 
-- 16 neue Tests: Semantik der Auswahl (nichts gespeichert, leere Auswahl,
-  Optionen schlagen Daten, synthetische Entitäten), Abdeckung aller vier
-  Steuer-Plattformen und sechs Migrationsfälle — darunter der Sprung von
+- 48 neue Tests (665 → 713). 16 zur Auswahl-Semantik (nichts gespeichert, leere
+  Auswahl, Optionen schlagen Daten, synthetische Entitäten), Abdeckung aller
+  vier Steuer-Plattformen und sechs Migrationsfälle — darunter der Sprung von
   Version 1 direkt auf 3.
+- 32 zu den Bezeichnungen: jeder Übersetzungsschlüssel jeder Entitätsdefinition
+  muss in `de.json` und `en.json` auflösbar sein — genau das war die Ursache
+  der deutschen Namen und der ins Leere laufenden Reichweiten-Schlüssel. Dazu
+  Prüfungen, dass auf dem Elektrolyse-Kanal nirgends mehr „Kanister" steht, die
+  Milliliter auf den Flüssigkeits-Kanälen bleiben und kein `_USE`-Sensor als
+  Verbrauch auftritt.
 
 ## Version 2.4.1 (2026-08-17)
 
