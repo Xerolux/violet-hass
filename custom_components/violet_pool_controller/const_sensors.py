@@ -559,8 +559,8 @@ DOSING_STATS_SENSORS = {
     },
     # The electrolysis channel has no canister: the controller reuses the two
     # "amount" fields of the dosing controller for cell figures instead. The
-    # daily field carries the cell's production for the day, not millilitres,
-    # so it is deliberately left without a unit (see UNIT_MAP).
+    # daily field carries the chlorine the cell produced that day (see
+    # UNIT_MAP), not a dosed volume.
     "DOS_2_ELO_DAILY_DOSING_AMOUNT_ML": {
         "name": "Elektrolyse-Tagesproduktion",
         "translation_key": "dos_2_elo_daily",
@@ -678,8 +678,11 @@ UNIT_MAP = {
     "pump_rs485_pwr": "W",
     # Dosing Statistics — daily consumption
     "DOS_1_CL_DAILY_DOSING_AMOUNT_ML": "ml",
-    # DOS_2_ELO_DAILY_DOSING_AMOUNT_ML is intentionally absent: the
-    # electrolysis channel reports a cell figure here, not millilitres.
+    # The electrolysis cell produces chlorine instead of dosing a liquid, so
+    # this counter is a mass, not a volume. Cells are rated in grams of
+    # chlorine per hour; the controller counts in milligrams. Home Assistant
+    # converts to grams on request because the sensor is a weight.
+    "DOS_2_ELO_DAILY_DOSING_AMOUNT_ML": "mg",
     "DOS_4_PHM_DAILY_DOSING_AMOUNT_ML": "ml",
     "DOS_5_PHP_DAILY_DOSING_AMOUNT_ML": "ml",
     "DOS_6_FLOC_DAILY_DOSING_AMOUNT_ML": "ml",

@@ -16,6 +16,31 @@ steht, erfährt also auch niemand dort.
 
 > **Language Note:** This changelog is written in German.
 
+## Version 2.5.1 (2026-08-18)
+
+Patch-Release direkt hinter 2.5.0: die Elektrolyse-Tagesproduktion bekommt die
+Einheit, die 2.5.0 offengelassen hat. **Keine Migration nötig**, Entity-IDs,
+Unique IDs und die API-Paarung bleiben unverändert.
+
+### 🐛 Behoben
+
+- **Elektrolyse-Tagesproduktion zählt Chlor, jetzt auch mit Einheit.** In 2.5.0
+  hatte der Sensor keine Einheit mehr, weil Milliliter für eine Zelle sicher
+  falsch sind — was er stattdessen zählt, war offen. Geklärt: eine
+  Salzwasser-Elektrolyse wird in **Gramm Chlor pro Stunde** ausgelegt (Faustregel
+  Pool-Volumen in m³ ÷ 4, ein 50-m³-Pool also rund 12 g/h), der Controller
+  zählt in **Milligramm**. Der Sensor trägt jetzt `mg` und ist als Gewicht
+  gekennzeichnet — damit bietet Home Assistant die Umrechnung auf Gramm direkt
+  in den Entitätseinstellungen an, ohne Template-Sensor.
+  *Hinweis:* Wer 2.5.0 schon installiert hat, bekommt für diesen Sensor noch
+  einmal den Hinweis auf einen Einheitenwechsel.
+
+### 🧪 Tests
+
+- Der Test zur Tagesproduktion prüft jetzt Milligramm und die Gewichts-Device-Class
+  statt „keine Einheit"; die Zuordnung Masse-Einheit → Device Class deckt
+  `mg`, `g` und `kg` ab.
+
 ## Version 2.5.0 (2026-08-18)
 
 Minor-Release mit zwei Schwerpunkten: die Datenpunkt-Auswahl gilt jetzt für

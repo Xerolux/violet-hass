@@ -20,7 +20,7 @@ It depends on a separate API client package.
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.
 **🔒 Security Model**: See [SECURITY.md](./SECURITY.md) for detailed security architecture and compliance.
 
-**Current Integration Version**: `2.5.0` (defined in `manifest.json`, `const.py`, `pyproject.toml` and `custom_components/violet_pool_controller/.version`)
+**Current Integration Version**: `2.5.1` (defined in `manifest.json`, `const.py`, `pyproject.toml` and `custom_components/violet_pool_controller/.version`)
 **Current API Version**: `0.0.36` (defined in the [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository, pinned in `requirements.txt`)
 **Minimum Home Assistant Version**: `2026.1.0` (defined in `hacs.json`)
 **Minimum Python Version**: Home Assistant runtime is managed by HA 2026.1.0+; standalone API package supports `>=3.12`
