@@ -16,6 +16,47 @@ steht, erfährt also auch niemand dort.
 
 > **Language Note:** This changelog is written in German.
 
+## Version 2.5.3 (2026-08-18)
+
+Patch-Release: die beiden pH-Kanäle stritten sich um dieselbe Entity-ID.
+**Bestehende Entity-IDs bleiben, wie sie sind** — die Korrektur wirkt auf neu
+angelegte Entitäten. Keine Migration nötig.
+
+### 🐛 Behoben
+
+- **pH- und pH+ beanspruchten dieselbe Entity-ID.** `slugify` macht aus beidem
+  `ph`, also blieb von `Dosing pH-` und `Dosing pH+` nur ein
+  `switch.violet_pool_controller_dosing_ph` übrig; der zweite bekam von Home
+  Assistant ein `_2` angehängt — und welcher der beiden das war, hing an der
+  Reihenfolge, in der die Plattform sie gerade anlegte. Betroffen waren 16
+  Paare: der Dosierschalter, die Modus-Auswahl, der Kanister-Sollwert und 13
+  Sensoren (Status, Laufzeit, Tagesmenge, Kanisterinhalt, Reichweite,
+  Dosiertyp, Zeitstempel, Kanister-Reset). Die englischen Namen schreiben das
+  Vorzeichen jetzt aus („pH Minus" / „pH Plus"), damit jede Entität ihre eigene
+  ID bekommt. **Die deutschen Anzeigenamen bleiben unverändert** bei „pH-" und
+  „pH+".
+- **Zehn tote Übersetzungsschlüssel entfernt.** Zu jedem
+  Dosierstatistik-Sensor gab es eine zweite Schreibweise
+  (`dos_1_cl_total_can_amount_ml` neben `dos_1_cl_total_can`), die nie
+  angezeigt wurde, aber dieselbe ID beanspruchte und beim Aufräumen jedes Mal
+  als Konflikt auftauchte.
+
+### 🔧 Technisch
+
+- **Automatisches Forum-Posting aus dem Release-Workflow entfernt.** Die Option
+  wurde nie benutzt; damit entfallen auch die vier Forum-Zugangsdaten als
+  Secrets im Release-Pfad. Releases werden weiterhin wie bisher gebaut und
+  veröffentlicht.
+
+### 🧪 Tests
+
+- 5 neue Tests (723 → 728): keine zwei englischen Entitätsnamen dürfen
+  innerhalb einer Plattform auf dieselbe Object-ID verschleifen — das prüft
+  `strings.json` und `en.json` vollständig, nicht nur die pH-Paare. Dazu ein
+  Test, der die einzige verbleibende Doppelung dokumentiert: `onewireN_rcode`
+  und `onewireN_romcode` sind zwei Schreibweisen derselben Firmware-Angabe, von
+  denen ein Controller immer nur eine liefert.
+
 ## Version 2.5.2 (2026-08-18)
 
 Patch-Release: neun Entity-IDs, die noch die in 2.5.0/2.5.1 korrigierte falsche

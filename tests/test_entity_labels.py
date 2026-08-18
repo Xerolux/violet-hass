@@ -202,3 +202,68 @@ class TestCorrectedLabelsReachTheEntityId:
         plus = slugify(english["dos_5_php_use"]["name"])
 
         assert minus != plus, f"both pH channels would claim {minus}"
+
+
+class TestEntityIdsAreUnique:
+    """Two entities that want the same id leave one with a "_2" suffix.
+
+    Home Assistant appends a counter when an object id is taken, so whichever
+    entity happens to be created second ends up at
+    ``switch.violet_pool_controller_dosing_ph_2`` - and which of the two that
+    is depends on the order the platform happens to set them up in. The names
+    below are what the object ids are built from, so they have to differ.
+    """
+
+    @pytest.mark.parametrize("filename", ["strings.json", "translations/en.json"])
+    def test_no_two_english_names_share_an_object_id(self, filename: str) -> None:
+        """Object ids come from the English name, so those must be distinct."""
+        data = json.loads((COMPONENT_DIR / filename).read_text(encoding="utf-8"))
+        clashes = {}
+        for platform, entries in data.get("entity", {}).items():
+            slugs: dict[str, list[str]] = {}
+            for key, entry in entries.items():
+                slugs.setdefault(slugify(entry["name"]), []).append(key)
+            clashes.update(
+                {f"{platform}.{slug}": keys for slug, keys in slugs.items() if len(keys) > 1}
+            )
+
+        assert not clashes, f"{filename} entities claiming one object id: {clashes}"
+
+    def test_the_two_ph_channels_are_told_apart(self) -> None:
+        """"pH-" and "pH+" both slugify to "ph"; the names spell the sign out."""
+        english = load("en")
+        pairs = (
+            ("sensor", "dos_4_phm", "dos_5_php"),
+            ("switch", "dos_4_phm", "dos_5_php"),
+            ("select", "dos_phm_mode", "dos_php_mode"),
+            ("number", "ph_minus_canister_volume", "ph_plus_canister_volume"),
+        )
+        for platform, minus, plus in pairs:
+            assert slugify(english[platform][minus]["name"]) != slugify(
+                english[platform][plus]["name"]
+            ), f"{platform}: both pH channels claim one object id"
+
+    def test_the_dosing_statistics_keys_have_no_second_spelling(self) -> None:
+        """The long "..._amount_ml" variants shadowed the keys actually used."""
+        english = load("en")["sensor"]
+        for channel in ("1_cl", "2_elo", "4_phm", "5_php", "6_floc"):
+            assert f"dos_{channel}_total_can" in english
+            assert f"dos_{channel}_total_can_amount_ml" not in english
+            assert f"dos_{channel}_daily_dosing_amount_ml" not in english
+
+    def test_the_only_remaining_duplicate_is_the_rom_code_spelling(self) -> None:
+        """The firmware spells this one reading two ways.
+
+        ``getReadings`` documents ``onewireN_rcode``; ``onewireN_romcode`` is
+        the older spelling the integration still accepts. A controller reports
+        one or the other, never both, so the shared name cannot collide in
+        practice - and naming them differently would put a spelling variant in
+        front of the user for no reason.
+        """
+        names: dict[str, list[str]] = {}
+        for key, entry in const_sensors.ONEWIRE_ROMCODE_SENSORS.items():
+            names.setdefault(entry["name"], []).append(key)
+
+        for name, keys in names.items():
+            assert len(keys) == 2, name
+            assert {key.split("_")[-1] for key in keys} == {"rcode", "romcode"}

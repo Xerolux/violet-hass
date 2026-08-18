@@ -20,16 +20,6 @@ on:
         required: false
         type: boolean
         default: true
-      post_to_forum:
-        description: 'Post the release announcement to poolsteuerung.de'
-        required: false
-        type: boolean
-        default: false
-      forum_dry_run:
-        description: 'Print the forum post without submitting it'
-        required: false
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -264,53 +254,3 @@ jobs:
             echo "| Latest | ${{ steps.metadata.outputs.make_latest }} |"
             echo "| Release | [Open](${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ steps.metadata.outputs.tag }}) |"
           } >> "$GITHUB_STEP_SUMMARY"
-
-  forum:
-    name: Forum announcement
-    needs: publish
-    if: inputs.post_to_forum == true
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-python@v6
-        with:
-          python-version: '3.14'
-          cache: pip
-
-      - name: Install forum client dependency
-        run: python -m pip install requests
-
-      - name: Create forum announcement
-        env:
-          FORUM_URL: ${{ secrets.FORUM_URL }}
-          FORUM_USERNAME: ${{ secrets.FORUM_USERNAME }}
-          FORUM_PASSWORD: ${{ secrets.FORUM_PASSWORD }}
-          FORUM_TOPIC_ID: ${{ secrets.FORUM_TOPIC_ID }}
-          VERSION: ${{ needs.publish.outputs.version }}
-          TAG: ${{ needs.publish.outputs.tag }}
-          RELEASE_TYPE: ${{ needs.publish.outputs.release_type }}
-          PREVIOUS_TAG: ${{ needs.publish.outputs.previous_tag }}
-        run: |
-          CHANGELOG_BASE="$PREVIOUS_TAG"
-          if [ -z "$CHANGELOG_BASE" ]; then
-            CHANGELOG_BASE="$TAG"
-          fi
-
-          ARGS=(
-            --forum-url "$FORUM_URL"
-            --username "$FORUM_USERNAME"
-            --password "$FORUM_PASSWORD"
-            --topic-id "$FORUM_TOPIC_ID"
-            --version "$VERSION"
-            --tag "$TAG"
-            --release-type "$RELEASE_TYPE"
-            --release-url "${{ github.server_url }}/${{ github.repository }}/releases/tag/$TAG"
-            --changelog-url "${{ github.server_url }}/${{ github.repository }}/compare/$CHANGELOG_BASE...$TAG"
-            --download-url "${{ github.server_url }}/${{ github.repository }}/releases/download/$TAG/violet_pool_controller.zip"
-          )
-          if [ "${{ inputs.forum_dry_run }}" = true ]; then
-            ARGS+=(--dry-run)
-          fi
-          python scripts/forum_poster.py "${ARGS[@]}"

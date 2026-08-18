@@ -1123,10 +1123,10 @@
         "name": "Chlorine Dosing State"
       },
       "dos_4_phm_state": {
-        "name": "pH- Dosing State"
+        "name": "pH Minus Dosing State"
       },
       "dos_5_php_state": {
-        "name": "pH+ Dosing State"
+        "name": "pH Plus Dosing State"
       },
       "dos_6_floc_state": {
         "name": "Flocculant Dosing State"
@@ -1204,10 +1204,10 @@
         "name": "Electrolysis Remaining Range"
       },
       "dos_4_phm_remaining_range": {
-        "name": "pH- Remaining Range"
+        "name": "pH Minus Remaining Range"
       },
       "dos_5_php_remaining_range": {
-        "name": "pH+ Remaining Range"
+        "name": "pH Plus Remaining Range"
       },
       "dos_6_floc_remaining_range": {
         "name": "Flocculant Remaining Range"
@@ -1462,10 +1462,10 @@
         "name": "Lighting"
       },
       "dos_5_php": {
-        "name": "Dosing pH+"
+        "name": "Dosing pH Plus"
       },
       "dos_4_phm": {
-        "name": "Dosing pH-"
+        "name": "Dosing pH Minus"
       },
       "dos_1_cl": {
         "name": "Chlorine Dosing"
@@ -1654,10 +1654,10 @@
         "name": "Chlorine Canister Volume"
       },
       "ph_minus_canister_volume": {
-        "name": "pH- Canister Volume"
+        "name": "pH Minus Canister Volume"
       },
       "ph_plus_canister_volume": {
-        "name": "pH+ Canister Volume"
+        "name": "pH Plus Canister Volume"
       },
       "flocculant_canister_volume": {
         "name": "Flocculant Canister Volume"
@@ -1735,7 +1735,7 @@
         }
       },
       "dos_phm_mode": {
-        "name": "pH- Dosing Mode",
+        "name": "pH Minus Dosing Mode",
         "state": {
           "off": "Off",
           "on": "On",
@@ -1743,7 +1743,7 @@
         }
       },
       "dos_php_mode": {
-        "name": "pH+ Dosing Mode",
+        "name": "pH Plus Dosing Mode",
         "state": {
           "off": "Off",
           "on": "On",

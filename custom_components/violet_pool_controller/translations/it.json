@@ -852,12 +852,6 @@
       "dos_1_cl_last_off": {
         "name": "Chlor-Dosierung Zuletzt Aus"
       },
-      "dos_1_cl_daily_dosing_amount_ml": {
-        "name": "Chlor Tagesdosierung (ml)"
-      },
-      "dos_1_cl_total_can_amount_ml": {
-        "name": "Chlor Kanisterinhalt (ml)"
-      },
       "dos_1_cl_type": {
         "name": "Chlor Dosiertyp"
       },
@@ -1242,9 +1236,6 @@
       "pump_rpm_3_last_on": {
         "name": "Pumpen-Stufe 3 Zuletzt Ein"
       },
-      "dos_2_elo_daily_dosing_amount_ml": {
-        "name": "Produzione giornaliera di elettrolisi"
-      },
       "dos_2_elo_last_can_reset": {
         "name": "Ultimo reset della cella di elettrolisi"
       },
@@ -1257,17 +1248,11 @@
       "dos_2_elo_runtime": {
         "name": "Tempo Esecuzione Dosaggio Elettrolisi"
       },
-      "dos_2_elo_total_can_amount_ml": {
-        "name": "Durata residua della cella di elettrolisi"
-      },
       "dos_2_elo_type": {
         "name": "Tipo Dosaggio Elettrolisi"
       },
       "dos_2_elo_use": {
         "name": "Elettrolisi configurata"
-      },
-      "dos_4_phm_daily_dosing_amount_ml": {
-        "name": "Dosaggio pH- Giornaliero (ml)"
       },
       "dos_4_phm_last_can_reset": {
         "name": "Ultimo Reset Tanica pH-"
@@ -1281,17 +1266,11 @@
       "dos_4_phm_runtime": {
         "name": "Tempo Esecuzione Dosaggio pH-"
       },
-      "dos_4_phm_total_can_amount_ml": {
-        "name": "Contenuto Tanica pH- (ml)"
-      },
       "dos_4_phm_type": {
         "name": "Tipo Dosaggio pH-"
       },
       "dos_4_phm_use": {
         "name": "Dosaggio pH- configurato"
-      },
-      "dos_5_php_daily_dosing_amount_ml": {
-        "name": "Dosaggio pH+ Giornaliero (ml)"
       },
       "dos_5_php_last_can_reset": {
         "name": "Ultimo Reset Tanica pH+"
@@ -1305,17 +1284,11 @@
       "dos_5_php_runtime": {
         "name": "Tempo Esecuzione Dosaggio pH+"
       },
-      "dos_5_php_total_can_amount_ml": {
-        "name": "Contenuto Tanica pH+ (ml)"
-      },
       "dos_5_php_type": {
         "name": "Tipo Dosaggio pH+"
       },
       "dos_5_php_use": {
         "name": "Dosaggio pH+ configurato"
-      },
-      "dos_6_floc_daily_dosing_amount_ml": {
-        "name": "Dosaggio Flocculante Giornaliero (ml)"
       },
       "dos_6_floc_last_can_reset": {
         "name": "Ultimo Reset Tanica Flocculante"
@@ -1328,9 +1301,6 @@
       },
       "dos_6_floc_runtime": {
         "name": "Tempo Esecuzione Dosaggio Flocculante"
-      },
-      "dos_6_floc_total_can_amount_ml": {
-        "name": "Contenuto Tanica Flocculante (ml)"
       },
       "dos_6_floc_type": {
         "name": "Tipo Dosaggio Flocculante"
