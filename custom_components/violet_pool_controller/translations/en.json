@@ -550,10 +550,10 @@
         "name": "Chlorine Dosing State"
       },
       "dos_4_phm_state": {
-        "name": "pH- Dosing State"
+        "name": "pH Minus Dosing State"
       },
       "dos_5_php_state": {
-        "name": "pH+ Dosing State"
+        "name": "pH Plus Dosing State"
       },
       "dos_2_elo_state": {
         "name": "Electrolysis Status"
@@ -804,12 +804,6 @@
       "dos_1_cl_last_off": {
         "name": "Chlorine Dosing Last Off"
       },
-      "dos_1_cl_daily_dosing_amount_ml": {
-        "name": "Chlorine Daily Amount (ml)"
-      },
-      "dos_1_cl_total_can_amount_ml": {
-        "name": "Chlorine Canister Amount (ml)"
-      },
       "dos_1_cl_type": {
         "name": "Chlorine Dosing Type"
       },
@@ -829,22 +823,22 @@
         "name": "Electrolysis Cell Remaining Runtime"
       },
       "dos_4_phm": {
-        "name": "pH- Dosing System"
+        "name": "pH Minus Dosing System"
       },
       "dos_4_phm_daily": {
-        "name": "pH- Daily Amount (ml)"
+        "name": "pH Minus Daily Amount (ml)"
       },
       "dos_4_phm_total_can": {
-        "name": "pH- Canister Amount (ml)"
+        "name": "pH Minus Canister Amount (ml)"
       },
       "dos_5_php": {
-        "name": "pH+ Dosing System"
+        "name": "pH Plus Dosing System"
       },
       "dos_5_php_daily": {
-        "name": "pH+ Daily Amount (ml)"
+        "name": "pH Plus Daily Amount (ml)"
       },
       "dos_5_php_total_can": {
-        "name": "pH+ Canister Amount (ml)"
+        "name": "pH Plus Canister Amount (ml)"
       },
       "dos_6_floc": {
         "name": "Flocculant Dosing System"
@@ -1194,9 +1188,6 @@
       "pump_rpm_3_last_on": {
         "name": "Pump Speed 3 Last On"
       },
-      "dos_2_elo_daily_dosing_amount_ml": {
-        "name": "Electrolysis Daily Production"
-      },
       "dos_2_elo_last_can_reset": {
         "name": "Electrolysis Cell Last Reset"
       },
@@ -1209,65 +1200,47 @@
       "dos_2_elo_runtime": {
         "name": "Electrolysis Dosing Runtime"
       },
-      "dos_2_elo_total_can_amount_ml": {
-        "name": "Electrolysis Cell Remaining Runtime"
-      },
       "dos_2_elo_type": {
         "name": "Electrolysis Dosing Type"
       },
       "dos_2_elo_use": {
         "name": "Electrolysis Configured"
       },
-      "dos_4_phm_daily_dosing_amount_ml": {
-        "name": "pH- Daily Amount (ml)"
-      },
       "dos_4_phm_last_can_reset": {
-        "name": "pH- Last Canister Reset"
+        "name": "pH Minus Last Canister Reset"
       },
       "dos_4_phm_last_off": {
-        "name": "pH- Dosing Last Off"
+        "name": "pH Minus Dosing Last Off"
       },
       "dos_4_phm_last_on": {
-        "name": "pH- Dosing Last On"
+        "name": "pH Minus Dosing Last On"
       },
       "dos_4_phm_runtime": {
-        "name": "pH- Dosing Runtime"
-      },
-      "dos_4_phm_total_can_amount_ml": {
-        "name": "pH- Canister Amount (ml)"
+        "name": "pH Minus Dosing Runtime"
       },
       "dos_4_phm_type": {
-        "name": "pH- Dosing Type"
+        "name": "pH Minus Dosing Type"
       },
       "dos_4_phm_use": {
         "name": "pH Minus Dosing Configured"
       },
-      "dos_5_php_daily_dosing_amount_ml": {
-        "name": "pH+ Daily Amount (ml)"
-      },
       "dos_5_php_last_can_reset": {
-        "name": "pH+ Last Canister Reset"
+        "name": "pH Plus Last Canister Reset"
       },
       "dos_5_php_last_off": {
-        "name": "pH+ Dosing Last Off"
+        "name": "pH Plus Dosing Last Off"
       },
       "dos_5_php_last_on": {
-        "name": "pH+ Dosing Last On"
+        "name": "pH Plus Dosing Last On"
       },
       "dos_5_php_runtime": {
-        "name": "pH+ Dosing Runtime"
-      },
-      "dos_5_php_total_can_amount_ml": {
-        "name": "pH+ Canister Amount (ml)"
+        "name": "pH Plus Dosing Runtime"
       },
       "dos_5_php_type": {
-        "name": "pH+ Dosing Type"
+        "name": "pH Plus Dosing Type"
       },
       "dos_5_php_use": {
         "name": "pH Plus Dosing Configured"
-      },
-      "dos_6_floc_daily_dosing_amount_ml": {
-        "name": "Flocculant Daily Amount (ml)"
       },
       "dos_6_floc_last_can_reset": {
         "name": "Flocculant Last Canister Reset"
@@ -1280,9 +1253,6 @@
       },
       "dos_6_floc_runtime": {
         "name": "Flocculant Dosing Runtime"
-      },
-      "dos_6_floc_total_can_amount_ml": {
-        "name": "Flocculant Canister Amount (ml)"
       },
       "dos_6_floc_type": {
         "name": "Flocculant Dosing Type"
@@ -1462,10 +1432,10 @@
         "name": "Electrolysis Remaining Range"
       },
       "dos_4_phm_remaining_range": {
-        "name": "pH- Remaining Range"
+        "name": "pH Minus Remaining Range"
       },
       "dos_5_php_remaining_range": {
-        "name": "pH+ Remaining Range"
+        "name": "pH Plus Remaining Range"
       },
       "dos_6_floc_remaining_range": {
         "name": "Flocculant Remaining Range"
@@ -1678,10 +1648,10 @@
         "name": "Lighting"
       },
       "dos_5_php": {
-        "name": "Dosing pH+"
+        "name": "Dosing pH Plus"
       },
       "dos_4_phm": {
-        "name": "Dosing pH-"
+        "name": "Dosing pH Minus"
       },
       "dos_1_cl": {
         "name": "Chlorine Dosing"
@@ -1870,10 +1840,10 @@
         "name": "Chlorine Canister Volume"
       },
       "ph_minus_canister_volume": {
-        "name": "pH- Canister Volume"
+        "name": "pH Minus Canister Volume"
       },
       "ph_plus_canister_volume": {
-        "name": "pH+ Canister Volume"
+        "name": "pH Plus Canister Volume"
       },
       "flocculant_canister_volume": {
         "name": "Flocculant Canister Volume"
@@ -1951,7 +1921,7 @@
         }
       },
       "dos_phm_mode": {
-        "name": "pH- Dosing Mode",
+        "name": "pH Minus Dosing Mode",
         "state": {
           "off": "Off",
           "on": "On",
@@ -1959,7 +1929,7 @@
         }
       },
       "dos_php_mode": {
-        "name": "pH+ Dosing Mode",
+        "name": "pH Plus Dosing Mode",
         "state": {
           "off": "Off",
           "on": "On",

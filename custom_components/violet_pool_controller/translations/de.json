@@ -1146,12 +1146,6 @@
       "dos_1_cl_last_off": {
         "name": "Chlor-Dosierung Zuletzt Aus"
       },
-      "dos_1_cl_daily_dosing_amount_ml": {
-        "name": "Chlor Tagesdosierung (ml)"
-      },
-      "dos_1_cl_total_can_amount_ml": {
-        "name": "Chlor Kanisterinhalt (ml)"
-      },
       "dos_1_cl_type": {
         "name": "Chlor Dosiertyp"
       },
@@ -1536,9 +1530,6 @@
       "pump_rpm_3_last_on": {
         "name": "Pumpen-Stufe 3 Zuletzt Ein"
       },
-      "dos_2_elo_daily_dosing_amount_ml": {
-        "name": "Elektrolyse-Tagesproduktion"
-      },
       "dos_2_elo_last_can_reset": {
         "name": "Elektrolysezelle Letzter Reset"
       },
@@ -1551,17 +1542,11 @@
       "dos_2_elo_runtime": {
         "name": "Elektrolyse-Dosierlaufzeit"
       },
-      "dos_2_elo_total_can_amount_ml": {
-        "name": "Elektrolysezelle Restlaufzeit"
-      },
       "dos_2_elo_type": {
         "name": "Elektrolyse Dosiertyp"
       },
       "dos_2_elo_use": {
         "name": "Elektrolyse konfiguriert"
-      },
-      "dos_4_phm_daily_dosing_amount_ml": {
-        "name": "pH- Tagesdosierung (ml)"
       },
       "dos_4_phm_last_can_reset": {
         "name": "pH- Letzter Kanister-Reset"
@@ -1575,17 +1560,11 @@
       "dos_4_phm_runtime": {
         "name": "pH--Dosierlaufzeit"
       },
-      "dos_4_phm_total_can_amount_ml": {
-        "name": "pH- Kanisterinhalt (ml)"
-      },
       "dos_4_phm_type": {
         "name": "pH- Dosiertyp"
       },
       "dos_4_phm_use": {
         "name": "pH--Dosierung konfiguriert"
-      },
-      "dos_5_php_daily_dosing_amount_ml": {
-        "name": "pH+ Tagesdosierung (ml)"
       },
       "dos_5_php_last_can_reset": {
         "name": "pH+ Letzter Kanister-Reset"
@@ -1599,17 +1578,11 @@
       "dos_5_php_runtime": {
         "name": "pH+-Dosierlaufzeit"
       },
-      "dos_5_php_total_can_amount_ml": {
-        "name": "pH+ Kanisterinhalt (ml)"
-      },
       "dos_5_php_type": {
         "name": "pH+ Dosiertyp"
       },
       "dos_5_php_use": {
         "name": "pH+-Dosierung konfiguriert"
-      },
-      "dos_6_floc_daily_dosing_amount_ml": {
-        "name": "Flockmittel Tagesdosierung (ml)"
       },
       "dos_6_floc_last_can_reset": {
         "name": "Flockmittel Letzter Kanister-Reset"
@@ -1622,9 +1595,6 @@
       },
       "dos_6_floc_runtime": {
         "name": "Flockmittel-Dosierlaufzeit"
-      },
-      "dos_6_floc_total_can_amount_ml": {
-        "name": "Flockmittel Kanisterinhalt (ml)"
       },
       "dos_6_floc_type": {
         "name": "Flockmittel Dosiertyp"
