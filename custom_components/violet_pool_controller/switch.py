@@ -38,6 +38,7 @@ from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity, get_state_attributes, interpret_state_as_bool
 from .entity_cleanup import track_provided_entities
 from .entity_names import EntityNameResolver
+from .entity_selection import async_get_selection
 from .runtime_data import SERVICE_MANAGER_KEY
 from .service_helpers import MAX_DOSING_DURATION
 
@@ -719,6 +720,7 @@ async def async_setup_entry(
         async_add_entities: Callback to add entities.
     """
     coordinator = config_entry.runtime_data.coordinator
+    selection = async_get_selection(config_entry)
     active_features = config_entry.options.get(
         CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
     )
@@ -763,6 +765,11 @@ async def async_setup_entry(
 
     # Create switches
     for switch_config in SWITCHES:
+        # The datapoint selection covers every platform, not just sensors.
+        if not selection.allows(str(switch_config["key"])):
+            _LOGGER.debug("Skipping switch %s: datapoint not selected", switch_config["key"])
+            continue
+
         # Get entity name (may be overridden by hardware config)
         entity_name = cast(str, switch_config["name"])
         resolved_name = name_resolver.resolve_entity_name(

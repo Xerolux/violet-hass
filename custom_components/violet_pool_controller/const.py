@@ -65,8 +65,8 @@ DEVICE_PARAMETERS = _const_devices.DEVICE_PARAMETERS
 DOMAIN = "violet_pool_controller"
 # Schema version of a config entry. Bumped whenever async_migrate_entry needs
 # to rewrite stored data or options.
-CONFIG_ENTRY_VERSION = 2
-INTEGRATION_VERSION = "2.4.1"
+CONFIG_ENTRY_VERSION = 3
+INTEGRATION_VERSION = "2.5.0"
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 
 # =============================================================================

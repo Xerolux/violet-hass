@@ -16,6 +16,101 @@ steht, erfährt also auch niemand dort.
 
 > **Language Note:** This changelog is written in German.
 
+## Version 2.5.0 (unveröffentlicht)
+
+Minor-Release mit zwei Schwerpunkten: die Datenpunkt-Auswahl gilt jetzt für
+**alle** Plattformen statt nur für Sensoren, und eine Reihe von Entitäten trägt
+endlich den Namen, der zu ihrem Messwert passt — angefangen bei der
+Elektrolyse, die nie einen Kanister hatte. **Kein Entitätsverlust durch das
+Update** — eine Migration auf Config-Entry-Version 3 friert den heutigen Stand
+ein; das Ausmisten bleibt danach deine Entscheidung. Entity-IDs, Unique IDs und
+die API-Paarung bleiben unverändert.
+
+### 🐛 Behoben
+
+- **Elektrolyse: „Kanisterinhalt (ml)" war die falsche Bezeichnung.** Aus dem
+  Forum gemeldet: der Wert hinter diesem Sensor ist die **Restlaufzeit der
+  Elektrolysezelle in Stunden**, nicht der Füllstand eines Kanisters — die
+  Elektrolyse hat gar keinen. Der Controller belegt bei `DOS_2_ELO` dieselben
+  zwei Felder des Dosiercontrollers mit Zellenwerten; die Firmware überwacht
+  genau diese Zahl mit den Fehlercodes 133 („Elektrolyse Restlaufzeit") und 134
+  („max. Betriebszeit Elektrolyse-Zelle"). Der Sensor heißt jetzt
+  **Elektrolysezelle Restlaufzeit**, zählt in Stunden und ist als Dauer
+  gekennzeichnet. Aus demselben Grund heißt der Tageswert jetzt
+  **Elektrolyse-Tagesproduktion** und trägt keine Milliliter-Einheit mehr, und
+  der Kanister-Reset wurde zum **Zellen-Reset**. Die Milliliter bleiben dort,
+  wo tatsächlich aus einem Kanister dosiert wird: Chlor, pH-, pH+ und Flockung.
+  *Hinweis:* Home Assistant meldet für die beiden Elektrolyse-Sensoren einen
+  Einheitenwechsel und bietet an, die Langzeitstatistik anzupassen oder zu
+  verwerfen — die alten Werte waren in der falschen Einheit erfasst.
+- **`DOS_*_USE` hieß „Verbrauch", ist aber ein Konfigurations-Flag.** Der Wert
+  ist 0/1 und sagt nur, ob der Dosierkanal in der Anlagenkonfiguration
+  aktiviert ist — mit Verbrauch hat er nichts zu tun. Heißt jetzt
+  „… konfiguriert" (alle fünf Kanäle, alle zehn Sprachen).
+- **`CPU_TEMP_CARRIER` hieß „Träger-Platine".** Der Sensor liefert deren
+  CPU-Temperatur und heißt jetzt auch so.
+- **27 Entitäten zeigten allen Nutzern den deutschen Namen.** Die zwölf
+  DMX-Szenen, die sechs OMNI-DC-Ausgänge samt Modus-Auswahl, der
+  Elektrolyse-Schalter, ECO und die Wassernachfüllung hatten in keiner Sprache
+  eine Übersetzung — Home Assistant fällt in dem Fall auf den fest im Code
+  hinterlegten deutschen Namen zurück. Dazu kamen 30 Sensoren im selben
+  Zustand (Analog- und Temperaturregeln, OMNI-Laufzeiten, Elektrolyse-Polarität
+  und -Umkehrlaufzeit, letzte Fehler-ID). Alle sind jetzt in allen zehn
+  Sprachen benannt; die neuen Auswahl-Entitäten haben zusätzlich übersetzte
+  Optionen statt roher `off`/`on`/`auto`-Werte.
+- **Die fünf „verbleibende Reichweite"-Sensoren fanden ihre Übersetzung nie.**
+  Der Schlüssel wurde als `1_cl_remaining_range` erzeugt, hinterlegt war
+  `dos_1_cl_remaining_range` — ein fehlendes Präfix, das die vorhandene
+  Übersetzung für alle Kanäle unerreichbar machte.
+
+### ✨ Neu
+
+- **Die Auswahl gilt für Schalter, Binärsensoren, Auswahl-Entitäten und
+  Lichter.** Bis 2.4.1 wurde `selected_sensors` ausschließlich von der
+  Sensor-Plattform gelesen, obwohl der Auswahlschritt die rohen Controller-Keys
+  auflistet (`ECO`, `PUMP`, `DMX_SCENE1`, …). Wer `ECO` abwählte, verlor den
+  ECO-Sensor und behielt Schalter, Binärsensor und Auswahl — der in 2.4.1
+  gemeldete Fehler. Jede Entität, die aus einem Controller-Key entsteht, folgt
+  jetzt derselben Auswahl. Entitäten **ohne** Controller-Key bleiben bewusst
+  außen vor: Systemzustand, Verbindungslatenz, Firmware-Update und die
+  Sättigungsindex-Rechner tauchen in `getReadings` gar nicht auf, können also
+  auch nicht in der Liste stehen.
+- **Ohne gespeicherte Auswahl bleibt alles.** Eine Config Entry, die den
+  Auswahlschritt nie durchlaufen hat, verliert nichts — „nichts gespeichert“
+  heißt weiterhin „alles anzeigen“. Eine *leere* Auswahl ist dagegen eine
+  bewusste Entscheidung und wird als solche behandelt.
+
+### 🔧 Technisch
+
+- **Migration auf Config-Entry-Version 3.** Bestehende Auswahlen wurden
+  getroffen, als sie nur über Sensoren entschieden: wer `PUMP` abwählte, um den
+  rohen Messwert loszuwerden, wollte damit nicht seinen Pumpen-Schalter
+  verlieren. Die Migration ergänzt deshalb einmalig die Keys aller
+  Nicht-Sensor-Entitäten. Hinzufügen kann eine Entität nur erhalten, nie
+  entfernen — Feature-Gates und die Prüfung „Key ist in der Controller-Antwort
+  vorhanden“ greifen unverändert darüber.
+- **Migrationskette repariert.** Die 2.4.1-Migration setzte die Version direkt
+  auf den Endstand statt auf ihr eigenes Ziel. Bei einem Sprung von Version 1
+  auf 3 wäre der zweite Schritt dadurch übersprungen worden. Jeder Schritt
+  zählt jetzt einzeln hoch; ein Test deckt genau diesen Sprung ab.
+- **Auswahlschritt-Text wieder angeglichen** (alle zehn Sprachen): der in 2.4.1
+  ergänzte Hinweis „betrifft nur Sensor-Entitäten“ stimmt nicht mehr und ist
+  entfernt. Dort steht jetzt, dass jede aus einem Datenpunkt entstehende
+  Entität der Auswahl folgt.
+
+### 🧪 Tests
+
+- 48 neue Tests (665 → 713). 16 zur Auswahl-Semantik (nichts gespeichert, leere
+  Auswahl, Optionen schlagen Daten, synthetische Entitäten), Abdeckung aller
+  vier Steuer-Plattformen und sechs Migrationsfälle — darunter der Sprung von
+  Version 1 direkt auf 3.
+- 32 zu den Bezeichnungen: jeder Übersetzungsschlüssel jeder Entitätsdefinition
+  muss in `de.json` und `en.json` auflösbar sein — genau das war die Ursache
+  der deutschen Namen und der ins Leere laufenden Reichweiten-Schlüssel. Dazu
+  Prüfungen, dass auf dem Elektrolyse-Kanal nirgends mehr „Kanister" steht, die
+  Milliliter auf den Flüssigkeits-Kanälen bleiben und kein `_USE`-Sensor als
+  Verbrauch auftritt.
+
 ## Version 2.4.1 (2026-08-17)
 
 Patch-Release: ein aus dem Forum gemeldeter Fehler, bei dem abgewählte

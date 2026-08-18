@@ -228,7 +228,7 @@
       },
       "sensors": {
         "title": "Select Sensors",
-        "description": "**Choose which sensors to display**\n\nOnly selected sensors are shown in Home Assistant\nChanges take effect immediately\n\n**Note:** This affects sensor entities only — switches, lights and other controls belong to \"Features\".\n\n**Tip:** Only select the sensors you actually want to monitor!"
+        "description": "**Choose which datapoints to use**\n\nEvery entity built from a datapoint follows this selection — sensors, switches, lights and controls alike\nChanges take effect immediately\n\n**Tip:** Only select what you actually want to see!"
       },
       "safety": {
         "title": "🚨 Safety Settings",
@@ -1135,7 +1135,7 @@
         "name": "CPU Temperature"
       },
       "cpu_temp_carrier": {
-        "name": "Carrier Board"
+        "name": "Carrier Board CPU Temperature"
       },
       "cpu_uptime": {
         "name": "System Uptime"
@@ -1274,6 +1274,51 @@
       },
       "csi_index": {
         "name": "CSI Result"
+      },
+      "dos_2_elo_total_can": {
+        "name": "Electrolysis Cell Remaining Runtime"
+      },
+      "dos_2_elo_daily": {
+        "name": "Electrolysis Daily Production"
+      },
+      "dos_2_elo_last_can_reset": {
+        "name": "Electrolysis Cell Last Reset"
+      },
+      "dos_1_cl_use": {
+        "name": "Chlorine Dosing Configured"
+      },
+      "dos_2_elo_use": {
+        "name": "Electrolysis Configured"
+      },
+      "dos_4_phm_use": {
+        "name": "pH- Dosing Configured"
+      },
+      "dos_5_php_use": {
+        "name": "pH+ Dosing Configured"
+      },
+      "dos_6_floc_use": {
+        "name": "Flocculant Dosing Configured"
+      },
+      "dos_3_elo_rev_runtime": {
+        "name": "Electrolysis Reversal Runtime"
+      },
+      "omni_dc0_runtime": {
+        "name": "OMNI DC Motor 0 Runtime"
+      },
+      "omni_dc1_runtime": {
+        "name": "OMNI DC Motor 1 Runtime"
+      },
+      "omni_dc2_runtime": {
+        "name": "OMNI DC Motor 2 Runtime"
+      },
+      "omni_dc3_runtime": {
+        "name": "OMNI DC Motor 3 Runtime"
+      },
+      "omni_dc4_runtime": {
+        "name": "OMNI DC Motor 4 Runtime"
+      },
+      "omni_dc5_runtime": {
+        "name": "OMNI DC Motor 5 Runtime"
       }
     },
     "binary_sensor": {
@@ -1381,6 +1426,21 @@
       },
       "hw_dirule_module": {
         "name": "Hardware: Digital Rules Module"
+      },
+      "overflow_overfill": {
+        "name": "Overflow Overfill"
+      },
+      "overflow_dryrun": {
+        "name": "Overflow Dry Run"
+      },
+      "overflow_refill": {
+        "name": "Overflow Refill"
+      },
+      "backwash_delay": {
+        "name": "Backwash Delay Active"
+      },
+      "bathing_ai_surveillance": {
+        "name": "Bathing AI Surveillance"
       }
     },
     "button": {
@@ -1529,6 +1589,33 @@
       },
       "dirule_8": {
         "name": "Switching Rule 8"
+      },
+      "dos_2_elo": {
+        "name": "Electrolysis Dosing"
+      },
+      "eco": {
+        "name": "ECO Mode"
+      },
+      "refill": {
+        "name": "Water Refill"
+      },
+      "omni_dc0": {
+        "name": "OMNI DC0"
+      },
+      "omni_dc1": {
+        "name": "OMNI DC1"
+      },
+      "omni_dc2": {
+        "name": "OMNI DC2"
+      },
+      "omni_dc3": {
+        "name": "OMNI DC3"
+      },
+      "omni_dc4": {
+        "name": "OMNI DC4"
+      },
+      "omni_dc5": {
+        "name": "OMNI DC5"
       }
     },
     "climate": {
@@ -1822,6 +1909,116 @@
           "on": "On",
           "auto": "Auto"
         }
+      },
+      "dos_elo_mode": {
+        "name": "Electrolysis Dosing Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
+      },
+      "refill_mode": {
+        "name": "Refill Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
+      },
+      "eco_mode": {
+        "name": "ECO Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc0_mode": {
+        "name": "OMNI DC0 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc1_mode": {
+        "name": "OMNI DC1 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc2_mode": {
+        "name": "OMNI DC2 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc3_mode": {
+        "name": "OMNI DC3 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc4_mode": {
+        "name": "OMNI DC4 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc5_mode": {
+        "name": "OMNI DC5 Mode",
+        "state": {
+          "off": "Off",
+          "on": "On",
+          "auto": "Auto"
+        }
+      }
+    },
+    "light": {
+      "dmx_scene1": {
+        "name": "DMX Scene 1"
+      },
+      "dmx_scene2": {
+        "name": "DMX Scene 2"
+      },
+      "dmx_scene3": {
+        "name": "DMX Scene 3"
+      },
+      "dmx_scene4": {
+        "name": "DMX Scene 4"
+      },
+      "dmx_scene5": {
+        "name": "DMX Scene 5"
+      },
+      "dmx_scene6": {
+        "name": "DMX Scene 6"
+      },
+      "dmx_scene7": {
+        "name": "DMX Scene 7"
+      },
+      "dmx_scene8": {
+        "name": "DMX Scene 8"
+      },
+      "dmx_scene9": {
+        "name": "DMX Scene 9"
+      },
+      "dmx_scene10": {
+        "name": "DMX Scene 10"
+      },
+      "dmx_scene11": {
+        "name": "DMX Scene 11"
+      },
+      "dmx_scene12": {
+        "name": "DMX Scene 12"
       }
     }
   },

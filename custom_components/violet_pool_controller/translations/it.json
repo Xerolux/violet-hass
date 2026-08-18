@@ -208,7 +208,7 @@
       },
       "sensors": {
         "title": "Seleziona Sensori",
-        "description": "Scegli quali sensori devono essere visualizzati\n\nSolo i sensori selezionati verranno visualizzati in Home Assistant\nLe modifiche hanno effetto immediato\n\nSeleziona solo i sensori che vuoi veramente monitorare!\n\n**Nota:** Riguarda solo le entità sensore. Interruttori, luci e altri controlli si attivano in «Funzionalità»."
+        "description": "Scegli quali sensori devono essere visualizzati\n\nSolo i sensori selezionati verranno visualizzati in Home Assistant\nLe modifiche hanno effetto immediato\n\nSeleziona solo i sensori che vuoi veramente monitorare!"
       },
       "settings": {
         "title": "Impostazioni generali",
@@ -613,7 +613,7 @@
         "name": "CPU-Temperatur"
       },
       "cpu_temp_carrier": {
-        "name": "Träger-Platine"
+        "name": "Temperatura CPU della scheda carrier"
       },
       "cpu_uptime": {
         "name": "System-Betriebszeit"
@@ -862,7 +862,7 @@
         "name": "Chlor Dosiertyp"
       },
       "dos_1_cl_use": {
-        "name": "Chlor Verbrauch"
+        "name": "Dosaggio cloro configurato"
       },
       "dos_1_cl_last_can_reset": {
         "name": "Chlor Letzter Kanister-Reset"
@@ -871,10 +871,10 @@
         "name": "Sistema Dosaggio Elettrolisi"
       },
       "dos_2_elo_daily": {
-        "name": "Dosaggio Elettrolisi Giornaliero (ml)"
+        "name": "Produzione giornaliera di elettrolisi"
       },
       "dos_2_elo_total_can": {
-        "name": "Contenuto Tanica Elettrolisi (ml)"
+        "name": "Durata residua della cella di elettrolisi"
       },
       "dos_4_phm": {
         "name": "pH- Dosiersystem"
@@ -1243,10 +1243,10 @@
         "name": "Pumpen-Stufe 3 Zuletzt Ein"
       },
       "dos_2_elo_daily_dosing_amount_ml": {
-        "name": "Dosaggio Elettrolisi Giornaliero (ml)"
+        "name": "Produzione giornaliera di elettrolisi"
       },
       "dos_2_elo_last_can_reset": {
-        "name": "Ultimo Reset Tanica Elettrolisi"
+        "name": "Ultimo reset della cella di elettrolisi"
       },
       "dos_2_elo_last_off": {
         "name": "Dosaggio Elettrolisi Ultimo Spento"
@@ -1258,13 +1258,13 @@
         "name": "Tempo Esecuzione Dosaggio Elettrolisi"
       },
       "dos_2_elo_total_can_amount_ml": {
-        "name": "Contenuto Tanica Elettrolisi (ml)"
+        "name": "Durata residua della cella di elettrolisi"
       },
       "dos_2_elo_type": {
         "name": "Tipo Dosaggio Elettrolisi"
       },
       "dos_2_elo_use": {
-        "name": "Consumo Elettrolisi"
+        "name": "Elettrolisi configurata"
       },
       "dos_4_phm_daily_dosing_amount_ml": {
         "name": "Dosaggio pH- Giornaliero (ml)"
@@ -1288,7 +1288,7 @@
         "name": "Tipo Dosaggio pH-"
       },
       "dos_4_phm_use": {
-        "name": "Consumo pH-"
+        "name": "Dosaggio pH- configurato"
       },
       "dos_5_php_daily_dosing_amount_ml": {
         "name": "Dosaggio pH+ Giornaliero (ml)"
@@ -1312,7 +1312,7 @@
         "name": "Tipo Dosaggio pH+"
       },
       "dos_5_php_use": {
-        "name": "Consumo pH+"
+        "name": "Dosaggio pH+ configurato"
       },
       "dos_6_floc_daily_dosing_amount_ml": {
         "name": "Dosaggio Flocculante Giornaliero (ml)"
@@ -1336,7 +1336,7 @@
         "name": "Tipo Dosaggio Flocculante"
       },
       "dos_6_floc_use": {
-        "name": "Consumo Flocculante"
+        "name": "Dosaggio flocculante configurato"
       },
       "dmx_scene1": {
         "name": "DMX-Lichtszene 1"
@@ -1493,6 +1493,96 @@
       },
       "di_rule_8_stopwatch": {
         "name": "DI-Regel 8 Restzeit"
+      },
+      "dos_2_current_polarity": {
+        "name": "Polarità dell'elettrolisi"
+      },
+      "dos_3_elo_rev_runtime": {
+        "name": "Tempo di inversione dell'elettrolisi"
+      },
+      "last_error_id": {
+        "name": "Ultimo ID errore"
+      },
+      "dos_1_cl_remaining_range": {
+        "name": "Autonomia residua cloro"
+      },
+      "dos_2_elo_remaining_range": {
+        "name": "Autonomia residua elettrolisi"
+      },
+      "dos_4_phm_remaining_range": {
+        "name": "Autonomia residua pH-"
+      },
+      "dos_5_php_remaining_range": {
+        "name": "Autonomia residua pH+"
+      },
+      "dos_6_floc_remaining_range": {
+        "name": "Autonomia residua flocculante"
+      },
+      "analogrule_1": {
+        "name": "Regola analogica 1"
+      },
+      "analogrule_2": {
+        "name": "Regola analogica 2"
+      },
+      "analogrule_3": {
+        "name": "Regola analogica 3"
+      },
+      "analogrule_4": {
+        "name": "Regola analogica 4"
+      },
+      "analogrule_5": {
+        "name": "Regola analogica 5"
+      },
+      "analogrule_6": {
+        "name": "Regola analogica 6"
+      },
+      "analogrule_7": {
+        "name": "Regola analogica 7"
+      },
+      "analogrule_8": {
+        "name": "Regola analogica 8"
+      },
+      "temprule_1": {
+        "name": "Regola di temperatura 1"
+      },
+      "temprule_2": {
+        "name": "Regola di temperatura 2"
+      },
+      "temprule_3": {
+        "name": "Regola di temperatura 3"
+      },
+      "temprule_4": {
+        "name": "Regola di temperatura 4"
+      },
+      "temprule_5": {
+        "name": "Regola di temperatura 5"
+      },
+      "temprule_6": {
+        "name": "Regola di temperatura 6"
+      },
+      "temprule_7": {
+        "name": "Regola di temperatura 7"
+      },
+      "temprule_8": {
+        "name": "Regola di temperatura 8"
+      },
+      "omni_dc0_runtime": {
+        "name": "Tempo di funzionamento motore CC OMNI 0"
+      },
+      "omni_dc1_runtime": {
+        "name": "Tempo di funzionamento motore CC OMNI 1"
+      },
+      "omni_dc2_runtime": {
+        "name": "Tempo di funzionamento motore CC OMNI 2"
+      },
+      "omni_dc3_runtime": {
+        "name": "Tempo di funzionamento motore CC OMNI 3"
+      },
+      "omni_dc4_runtime": {
+        "name": "Tempo di funzionamento motore CC OMNI 4"
+      },
+      "omni_dc5_runtime": {
+        "name": "Tempo di funzionamento motore CC OMNI 5"
       }
     },
     "binary_sensor": {
@@ -1600,6 +1690,21 @@
       },
       "hw_dirule_module": {
         "name": "Hardware: Digital Rules Module"
+      },
+      "overflow_overfill": {
+        "name": "Sovrariempimento vasca di troppopieno"
+      },
+      "overflow_dryrun": {
+        "name": "Funzionamento a secco vasca di troppopieno"
+      },
+      "overflow_refill": {
+        "name": "Rabbocco vasca di troppopieno"
+      },
+      "backwash_delay": {
+        "name": "Ritardo controlavaggio attivo"
+      },
+      "bathing_ai_surveillance": {
+        "name": "Sorveglianza IA balneazione"
       }
     },
     "button": {
@@ -1748,6 +1853,33 @@
       },
       "dirule_8": {
         "name": "Regola di Commutazione 8"
+      },
+      "dos_2_elo": {
+        "name": "Dosaggio per elettrolisi"
+      },
+      "eco": {
+        "name": "Modalità ECO"
+      },
+      "refill": {
+        "name": "Rabbocco acqua"
+      },
+      "omni_dc0": {
+        "name": "OMNI DC0"
+      },
+      "omni_dc1": {
+        "name": "OMNI DC1"
+      },
+      "omni_dc2": {
+        "name": "OMNI DC2"
+      },
+      "omni_dc3": {
+        "name": "OMNI DC3"
+      },
+      "omni_dc4": {
+        "name": "OMNI DC4"
+      },
+      "omni_dc5": {
+        "name": "OMNI DC5"
       }
     },
     "climate": {
@@ -2011,6 +2143,116 @@
           "on": "Acceso",
           "auto": "Automatico"
         }
+      },
+      "dos_elo_mode": {
+        "name": "Modalità dosaggio elettrolisi",
+        "state": {
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
+        }
+      },
+      "refill_mode": {
+        "name": "Modalità rabbocco",
+        "state": {
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
+        }
+      },
+      "eco_mode": {
+        "name": "Modalità ECO",
+        "state": {
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
+        }
+      },
+      "omni_dc0_mode": {
+        "name": "Modalità OMNI DC0",
+        "state": {
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
+        }
+      },
+      "omni_dc1_mode": {
+        "name": "Modalità OMNI DC1",
+        "state": {
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
+        }
+      },
+      "omni_dc2_mode": {
+        "name": "Modalità OMNI DC2",
+        "state": {
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
+        }
+      },
+      "omni_dc3_mode": {
+        "name": "Modalità OMNI DC3",
+        "state": {
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
+        }
+      },
+      "omni_dc4_mode": {
+        "name": "Modalità OMNI DC4",
+        "state": {
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
+        }
+      },
+      "omni_dc5_mode": {
+        "name": "Modalità OMNI DC5",
+        "state": {
+          "off": "Spento",
+          "on": "Acceso",
+          "auto": "Automatico"
+        }
+      }
+    },
+    "light": {
+      "dmx_scene1": {
+        "name": "Scena DMX 1"
+      },
+      "dmx_scene2": {
+        "name": "Scena DMX 2"
+      },
+      "dmx_scene3": {
+        "name": "Scena DMX 3"
+      },
+      "dmx_scene4": {
+        "name": "Scena DMX 4"
+      },
+      "dmx_scene5": {
+        "name": "Scena DMX 5"
+      },
+      "dmx_scene6": {
+        "name": "Scena DMX 6"
+      },
+      "dmx_scene7": {
+        "name": "Scena DMX 7"
+      },
+      "dmx_scene8": {
+        "name": "Scena DMX 8"
+      },
+      "dmx_scene9": {
+        "name": "Scena DMX 9"
+      },
+      "dmx_scene10": {
+        "name": "Scena DMX 10"
+      },
+      "dmx_scene11": {
+        "name": "Scena DMX 11"
+      },
+      "dmx_scene12": {
+        "name": "Scena DMX 12"
       }
     }
   },

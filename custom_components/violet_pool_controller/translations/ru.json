@@ -208,7 +208,7 @@
       },
       "sensors": {
         "title": "Выберите датчики",
-        "description": "Выберите, какие датчики должны отображаться\n\nВ Home Assistant будут отображаться только выбранные датчики.\nИзменения вступают в силу немедленно\n\nВыбирайте только те датчики, которые действительно хотите контролировать!\n\n**Примечание:** Это касается только сенсорных сущностей. Переключатели, освещение и другие элементы управления включаются в разделе «Функции»."
+        "description": "Выберите, какие датчики должны отображаться\n\nВ Home Assistant будут отображаться только выбранные датчики.\nИзменения вступают в силу немедленно\n\nВыбирайте только те датчики, которые действительно хотите контролировать!"
       },
       "settings": {
         "title": "Общие настройки",
@@ -613,7 +613,7 @@
         "name": "CPU-Temperatur"
       },
       "cpu_temp_carrier": {
-        "name": "Träger-Platine"
+        "name": "Температура ЦП несущей платы"
       },
       "cpu_uptime": {
         "name": "System-Betriebszeit"
@@ -862,7 +862,7 @@
         "name": "Chlor Dosiertyp"
       },
       "dos_1_cl_use": {
-        "name": "Chlor Verbrauch"
+        "name": "Дозирование хлора настроено"
       },
       "dos_1_cl_last_can_reset": {
         "name": "Chlor Letzter Kanister-Reset"
@@ -871,10 +871,10 @@
         "name": "Elektrolyse-Dosiersystem"
       },
       "dos_2_elo_daily": {
-        "name": "Elektrolyse Tagesdosiermenge (ml)"
+        "name": "Суточная выработка электролиза"
       },
       "dos_2_elo_total_can": {
-        "name": "Elektrolyse Kanisterinhalt (ml)"
+        "name": "Оставшийся ресурс электролизной ячейки"
       },
       "dos_4_phm": {
         "name": "pH- Dosiersystem"
@@ -1243,10 +1243,10 @@
         "name": "Pumpen-Stufe 3 Zuletzt Ein"
       },
       "dos_2_elo_daily_dosing_amount_ml": {
-        "name": "Elektrolyse Tagesdosierung (ml)"
+        "name": "Суточная выработка электролиза"
       },
       "dos_2_elo_last_can_reset": {
-        "name": "Elektrolyse Letzter Kanister-Reset"
+        "name": "Последний сброс электролизной ячейки"
       },
       "dos_2_elo_last_off": {
         "name": "Elektrolyse-Dosierung Zuletzt Aus"
@@ -1258,13 +1258,13 @@
         "name": "Elektrolyse-Dosierlaufzeit"
       },
       "dos_2_elo_total_can_amount_ml": {
-        "name": "Elektrolyse Kanisterinhalt (ml)"
+        "name": "Оставшийся ресурс электролизной ячейки"
       },
       "dos_2_elo_type": {
         "name": "Elektrolyse Dosiertyp"
       },
       "dos_2_elo_use": {
-        "name": "Elektrolyse Verbrauch"
+        "name": "Электролиз настроен"
       },
       "dos_4_phm_daily_dosing_amount_ml": {
         "name": "pH- Tagesdosierung (ml)"
@@ -1288,7 +1288,7 @@
         "name": "pH- Dosiertyp"
       },
       "dos_4_phm_use": {
-        "name": "pH- Verbrauch"
+        "name": "Дозирование pH- настроено"
       },
       "dos_5_php_daily_dosing_amount_ml": {
         "name": "pH+ Tagesdosierung (ml)"
@@ -1312,7 +1312,7 @@
         "name": "pH+ Dosiertyp"
       },
       "dos_5_php_use": {
-        "name": "pH+ Verbrauch"
+        "name": "Дозирование pH+ настроено"
       },
       "dos_6_floc_daily_dosing_amount_ml": {
         "name": "Flockmittel Tagesdosierung (ml)"
@@ -1336,7 +1336,7 @@
         "name": "Flockmittel Dosiertyp"
       },
       "dos_6_floc_use": {
-        "name": "Flockmittel Verbrauch"
+        "name": "Дозирование флокулянта настроено"
       },
       "dmx_scene1": {
         "name": "DMX-Lichtszene 1"
@@ -1493,6 +1493,96 @@
       },
       "di_rule_8_stopwatch": {
         "name": "DI-Regel 8 Restzeit"
+      },
+      "dos_2_current_polarity": {
+        "name": "Полярность электролиза"
+      },
+      "dos_3_elo_rev_runtime": {
+        "name": "Время работы реверса электролиза"
+      },
+      "last_error_id": {
+        "name": "Последний идентификатор ошибки"
+      },
+      "dos_1_cl_remaining_range": {
+        "name": "Остаток хлора"
+      },
+      "dos_2_elo_remaining_range": {
+        "name": "Остаток ресурса электролиза"
+      },
+      "dos_4_phm_remaining_range": {
+        "name": "Остаток pH-"
+      },
+      "dos_5_php_remaining_range": {
+        "name": "Остаток pH+"
+      },
+      "dos_6_floc_remaining_range": {
+        "name": "Остаток флокулянта"
+      },
+      "analogrule_1": {
+        "name": "Аналоговое правило 1"
+      },
+      "analogrule_2": {
+        "name": "Аналоговое правило 2"
+      },
+      "analogrule_3": {
+        "name": "Аналоговое правило 3"
+      },
+      "analogrule_4": {
+        "name": "Аналоговое правило 4"
+      },
+      "analogrule_5": {
+        "name": "Аналоговое правило 5"
+      },
+      "analogrule_6": {
+        "name": "Аналоговое правило 6"
+      },
+      "analogrule_7": {
+        "name": "Аналоговое правило 7"
+      },
+      "analogrule_8": {
+        "name": "Аналоговое правило 8"
+      },
+      "temprule_1": {
+        "name": "Температурное правило 1"
+      },
+      "temprule_2": {
+        "name": "Температурное правило 2"
+      },
+      "temprule_3": {
+        "name": "Температурное правило 3"
+      },
+      "temprule_4": {
+        "name": "Температурное правило 4"
+      },
+      "temprule_5": {
+        "name": "Температурное правило 5"
+      },
+      "temprule_6": {
+        "name": "Температурное правило 6"
+      },
+      "temprule_7": {
+        "name": "Температурное правило 7"
+      },
+      "temprule_8": {
+        "name": "Температурное правило 8"
+      },
+      "omni_dc0_runtime": {
+        "name": "Время работы двигателя постоянного тока OMNI 0"
+      },
+      "omni_dc1_runtime": {
+        "name": "Время работы двигателя постоянного тока OMNI 1"
+      },
+      "omni_dc2_runtime": {
+        "name": "Время работы двигателя постоянного тока OMNI 2"
+      },
+      "omni_dc3_runtime": {
+        "name": "Время работы двигателя постоянного тока OMNI 3"
+      },
+      "omni_dc4_runtime": {
+        "name": "Время работы двигателя постоянного тока OMNI 4"
+      },
+      "omni_dc5_runtime": {
+        "name": "Время работы двигателя постоянного тока OMNI 5"
       }
     },
     "binary_sensor": {
@@ -1600,6 +1690,21 @@
       },
       "hw_dirule_module": {
         "name": "Hardware: Digital Rules Module"
+      },
+      "overflow_overfill": {
+        "name": "Переполнение переливной ёмкости"
+      },
+      "overflow_dryrun": {
+        "name": "Сухой ход переливной ёмкости"
+      },
+      "overflow_refill": {
+        "name": "Долив переливной ёмкости"
+      },
+      "backwash_delay": {
+        "name": "Задержка обратной промывки активна"
+      },
+      "bathing_ai_surveillance": {
+        "name": "ИИ-наблюдение за купанием"
       }
     },
     "button": {
@@ -1748,6 +1853,33 @@
       },
       "dirule_8": {
         "name": "Schaltregel 8"
+      },
+      "dos_2_elo": {
+        "name": "Дозирование электролизом"
+      },
+      "eco": {
+        "name": "Режим ECO"
+      },
+      "refill": {
+        "name": "Долив воды"
+      },
+      "omni_dc0": {
+        "name": "OMNI DC0"
+      },
+      "omni_dc1": {
+        "name": "OMNI DC1"
+      },
+      "omni_dc2": {
+        "name": "OMNI DC2"
+      },
+      "omni_dc3": {
+        "name": "OMNI DC3"
+      },
+      "omni_dc4": {
+        "name": "OMNI DC4"
+      },
+      "omni_dc5": {
+        "name": "OMNI DC5"
       }
     },
     "climate": {
@@ -2011,6 +2143,116 @@
           "on": "Вкл",
           "auto": "Авто"
         }
+      },
+      "dos_elo_mode": {
+        "name": "Режим дозирования электролиза",
+        "state": {
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
+        }
+      },
+      "refill_mode": {
+        "name": "Режим долива",
+        "state": {
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
+        }
+      },
+      "eco_mode": {
+        "name": "Режим ECO",
+        "state": {
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
+        }
+      },
+      "omni_dc0_mode": {
+        "name": "Режим OMNI DC0",
+        "state": {
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
+        }
+      },
+      "omni_dc1_mode": {
+        "name": "Режим OMNI DC1",
+        "state": {
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
+        }
+      },
+      "omni_dc2_mode": {
+        "name": "Режим OMNI DC2",
+        "state": {
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
+        }
+      },
+      "omni_dc3_mode": {
+        "name": "Режим OMNI DC3",
+        "state": {
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
+        }
+      },
+      "omni_dc4_mode": {
+        "name": "Режим OMNI DC4",
+        "state": {
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
+        }
+      },
+      "omni_dc5_mode": {
+        "name": "Режим OMNI DC5",
+        "state": {
+          "off": "Выкл",
+          "on": "Вкл",
+          "auto": "Авто"
+        }
+      }
+    },
+    "light": {
+      "dmx_scene1": {
+        "name": "DMX-сцена 1"
+      },
+      "dmx_scene2": {
+        "name": "DMX-сцена 2"
+      },
+      "dmx_scene3": {
+        "name": "DMX-сцена 3"
+      },
+      "dmx_scene4": {
+        "name": "DMX-сцена 4"
+      },
+      "dmx_scene5": {
+        "name": "DMX-сцена 5"
+      },
+      "dmx_scene6": {
+        "name": "DMX-сцена 6"
+      },
+      "dmx_scene7": {
+        "name": "DMX-сцена 7"
+      },
+      "dmx_scene8": {
+        "name": "DMX-сцена 8"
+      },
+      "dmx_scene9": {
+        "name": "DMX-сцена 9"
+      },
+      "dmx_scene10": {
+        "name": "DMX-сцена 10"
+      },
+      "dmx_scene11": {
+        "name": "DMX-сцена 11"
+      },
+      "dmx_scene12": {
+        "name": "DMX-сцена 12"
       }
     }
   },

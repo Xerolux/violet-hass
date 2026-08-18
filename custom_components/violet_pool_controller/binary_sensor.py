@@ -26,6 +26,7 @@ from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity, interpret_state_as_bool
 from .entity_cleanup import track_provided_entities
 from .entity_names import EntityNameResolver
+from .entity_selection import async_get_selection
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -158,6 +159,7 @@ async def async_setup_entry(
         async_add_entities: Callback to add entities.
     """
     coordinator = config_entry.runtime_data.coordinator
+    selection = async_get_selection(config_entry)
     active_features = config_entry.options.get(
         CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
     )
@@ -193,6 +195,12 @@ async def async_setup_entry(
     for sensor_config in BINARY_SENSORS:
         if not isinstance(sensor_config, dict):
             _LOGGER.warning("Invalid sensor config: %s", sensor_config)
+            continue
+
+        if not selection.allows(str(sensor_config.get("key"))):
+            _LOGGER.debug(
+                "Skipping binary sensor %s: datapoint not selected", sensor_config.get("key")
+            )
             continue
 
         # Get entity name (may be overridden by hardware config)

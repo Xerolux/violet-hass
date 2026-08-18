@@ -208,7 +208,7 @@
       },
       "sensors": {
         "title": "选择传感器",
-        "description": "选择应显示哪些传感器\n\n只有选定的传感器才会显示在 Home Assistant 中\n更改立即生效\n\n仅选择您真正想要监控的传感器！\n\n**注意：** 这仅影响传感器实体。开关、灯光等控制项请在“功能”中启用或禁用。"
+        "description": "选择应显示哪些传感器\n\n只有选定的传感器才会显示在 Home Assistant 中\n更改立即生效\n\n仅选择您真正想要监控的传感器！"
       },
       "settings": {
         "title": "常规设置",
@@ -613,7 +613,7 @@
         "name": "CPU-Temperatur"
       },
       "cpu_temp_carrier": {
-        "name": "Träger-Platine"
+        "name": "载板 CPU 温度"
       },
       "cpu_uptime": {
         "name": "System-Betriebszeit"
@@ -862,7 +862,7 @@
         "name": "Chlor Dosiertyp"
       },
       "dos_1_cl_use": {
-        "name": "Chlor Verbrauch"
+        "name": "氯剂量投加已配置"
       },
       "dos_1_cl_last_can_reset": {
         "name": "Chlor Letzter Kanister-Reset"
@@ -871,10 +871,10 @@
         "name": "Elektrolyse-Dosiersystem"
       },
       "dos_2_elo_daily": {
-        "name": "Elektrolyse Tagesdosiermenge (ml)"
+        "name": "电解每日产量"
       },
       "dos_2_elo_total_can": {
-        "name": "Elektrolyse Kanisterinhalt (ml)"
+        "name": "电解槽剩余运行时间"
       },
       "dos_4_phm": {
         "name": "pH- Dosiersystem"
@@ -1243,10 +1243,10 @@
         "name": "Pumpen-Stufe 3 Zuletzt Ein"
       },
       "dos_2_elo_daily_dosing_amount_ml": {
-        "name": "Elektrolyse Tagesdosierung (ml)"
+        "name": "电解每日产量"
       },
       "dos_2_elo_last_can_reset": {
-        "name": "Elektrolyse Letzter Kanister-Reset"
+        "name": "电解槽上次重置"
       },
       "dos_2_elo_last_off": {
         "name": "Elektrolyse-Dosierung Zuletzt Aus"
@@ -1258,13 +1258,13 @@
         "name": "Elektrolyse-Dosierlaufzeit"
       },
       "dos_2_elo_total_can_amount_ml": {
-        "name": "Elektrolyse Kanisterinhalt (ml)"
+        "name": "电解槽剩余运行时间"
       },
       "dos_2_elo_type": {
         "name": "Elektrolyse Dosiertyp"
       },
       "dos_2_elo_use": {
-        "name": "Elektrolyse Verbrauch"
+        "name": "电解已配置"
       },
       "dos_4_phm_daily_dosing_amount_ml": {
         "name": "pH- Tagesdosierung (ml)"
@@ -1288,7 +1288,7 @@
         "name": "pH- Dosiertyp"
       },
       "dos_4_phm_use": {
-        "name": "pH- Verbrauch"
+        "name": "pH- 投加已配置"
       },
       "dos_5_php_daily_dosing_amount_ml": {
         "name": "pH+ Tagesdosierung (ml)"
@@ -1312,7 +1312,7 @@
         "name": "pH+ Dosiertyp"
       },
       "dos_5_php_use": {
-        "name": "pH+ Verbrauch"
+        "name": "pH+ 投加已配置"
       },
       "dos_6_floc_daily_dosing_amount_ml": {
         "name": "Flockmittel Tagesdosierung (ml)"
@@ -1336,7 +1336,7 @@
         "name": "Flockmittel Dosiertyp"
       },
       "dos_6_floc_use": {
-        "name": "Flockmittel Verbrauch"
+        "name": "絮凝剂投加已配置"
       },
       "dmx_scene1": {
         "name": "DMX-Lichtszene 1"
@@ -1493,6 +1493,96 @@
       },
       "di_rule_8_stopwatch": {
         "name": "DI-Regel 8 Restzeit"
+      },
+      "dos_2_current_polarity": {
+        "name": "电解极性"
+      },
+      "dos_3_elo_rev_runtime": {
+        "name": "电解换向运行时间"
+      },
+      "last_error_id": {
+        "name": "最后错误 ID"
+      },
+      "dos_1_cl_remaining_range": {
+        "name": "余氯可用量"
+      },
+      "dos_2_elo_remaining_range": {
+        "name": "电解剩余可用量"
+      },
+      "dos_4_phm_remaining_range": {
+        "name": "pH- 剩余可用量"
+      },
+      "dos_5_php_remaining_range": {
+        "name": "pH+ 剩余可用量"
+      },
+      "dos_6_floc_remaining_range": {
+        "name": "絮凝剂剩余可用量"
+      },
+      "analogrule_1": {
+        "name": "模拟规则 1"
+      },
+      "analogrule_2": {
+        "name": "模拟规则 2"
+      },
+      "analogrule_3": {
+        "name": "模拟规则 3"
+      },
+      "analogrule_4": {
+        "name": "模拟规则 4"
+      },
+      "analogrule_5": {
+        "name": "模拟规则 5"
+      },
+      "analogrule_6": {
+        "name": "模拟规则 6"
+      },
+      "analogrule_7": {
+        "name": "模拟规则 7"
+      },
+      "analogrule_8": {
+        "name": "模拟规则 8"
+      },
+      "temprule_1": {
+        "name": "温度规则 1"
+      },
+      "temprule_2": {
+        "name": "温度规则 2"
+      },
+      "temprule_3": {
+        "name": "温度规则 3"
+      },
+      "temprule_4": {
+        "name": "温度规则 4"
+      },
+      "temprule_5": {
+        "name": "温度规则 5"
+      },
+      "temprule_6": {
+        "name": "温度规则 6"
+      },
+      "temprule_7": {
+        "name": "温度规则 7"
+      },
+      "temprule_8": {
+        "name": "温度规则 8"
+      },
+      "omni_dc0_runtime": {
+        "name": "OMNI 直流电机 0 运行时间"
+      },
+      "omni_dc1_runtime": {
+        "name": "OMNI 直流电机 1 运行时间"
+      },
+      "omni_dc2_runtime": {
+        "name": "OMNI 直流电机 2 运行时间"
+      },
+      "omni_dc3_runtime": {
+        "name": "OMNI 直流电机 3 运行时间"
+      },
+      "omni_dc4_runtime": {
+        "name": "OMNI 直流电机 4 运行时间"
+      },
+      "omni_dc5_runtime": {
+        "name": "OMNI 直流电机 5 运行时间"
       }
     },
     "binary_sensor": {
@@ -1600,6 +1690,21 @@
       },
       "hw_dirule_module": {
         "name": "Hardware: Digital Rules Module"
+      },
+      "overflow_overfill": {
+        "name": "溢流箱过量注水"
+      },
+      "overflow_dryrun": {
+        "name": "溢流箱缺水运行"
+      },
+      "overflow_refill": {
+        "name": "溢流箱补水"
+      },
+      "backwash_delay": {
+        "name": "反冲洗延迟已激活"
+      },
+      "bathing_ai_surveillance": {
+        "name": "泳池 AI 监测"
       }
     },
     "button": {
@@ -1748,6 +1853,33 @@
       },
       "dirule_8": {
         "name": "Schaltregel 8"
+      },
+      "dos_2_elo": {
+        "name": "电解投加"
+      },
+      "eco": {
+        "name": "ECO 模式"
+      },
+      "refill": {
+        "name": "补水"
+      },
+      "omni_dc0": {
+        "name": "OMNI DC0"
+      },
+      "omni_dc1": {
+        "name": "OMNI DC1"
+      },
+      "omni_dc2": {
+        "name": "OMNI DC2"
+      },
+      "omni_dc3": {
+        "name": "OMNI DC3"
+      },
+      "omni_dc4": {
+        "name": "OMNI DC4"
+      },
+      "omni_dc5": {
+        "name": "OMNI DC5"
       }
     },
     "climate": {
@@ -2011,6 +2143,116 @@
           "on": "Ein",
           "auto": "Auto"
         }
+      },
+      "dos_elo_mode": {
+        "name": "电解投加模式",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
+      },
+      "refill_mode": {
+        "name": "补水模式",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
+      },
+      "eco_mode": {
+        "name": "ECO 模式",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc0_mode": {
+        "name": "OMNI DC0 模式",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc1_mode": {
+        "name": "OMNI DC1 模式",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc2_mode": {
+        "name": "OMNI DC2 模式",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc3_mode": {
+        "name": "OMNI DC3 模式",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc4_mode": {
+        "name": "OMNI DC4 模式",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
+      },
+      "omni_dc5_mode": {
+        "name": "OMNI DC5 模式",
+        "state": {
+          "off": "Aus",
+          "on": "Ein",
+          "auto": "Auto"
+        }
+      }
+    },
+    "light": {
+      "dmx_scene1": {
+        "name": "DMX 场景 1"
+      },
+      "dmx_scene2": {
+        "name": "DMX 场景 2"
+      },
+      "dmx_scene3": {
+        "name": "DMX 场景 3"
+      },
+      "dmx_scene4": {
+        "name": "DMX 场景 4"
+      },
+      "dmx_scene5": {
+        "name": "DMX 场景 5"
+      },
+      "dmx_scene6": {
+        "name": "DMX 场景 6"
+      },
+      "dmx_scene7": {
+        "name": "DMX 场景 7"
+      },
+      "dmx_scene8": {
+        "name": "DMX 场景 8"
+      },
+      "dmx_scene9": {
+        "name": "DMX 场景 9"
+      },
+      "dmx_scene10": {
+        "name": "DMX 场景 10"
+      },
+      "dmx_scene11": {
+        "name": "DMX 场景 11"
+      },
+      "dmx_scene12": {
+        "name": "DMX 场景 12"
       }
     }
   },
