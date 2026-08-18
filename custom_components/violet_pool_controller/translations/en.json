@@ -1240,7 +1240,7 @@
         "name": "pH- Dosing Type"
       },
       "dos_4_phm_use": {
-        "name": "pH- Dosing Configured"
+        "name": "pH Minus Dosing Configured"
       },
       "dos_5_php_daily_dosing_amount_ml": {
         "name": "pH+ Daily Amount (ml)"
@@ -1264,7 +1264,7 @@
         "name": "pH+ Dosing Type"
       },
       "dos_5_php_use": {
-        "name": "pH+ Dosing Configured"
+        "name": "pH Plus Dosing Configured"
       },
       "dos_6_floc_daily_dosing_amount_ml": {
         "name": "Flocculant Daily Amount (ml)"

@@ -199,3 +199,136 @@ def test_nameless_entity_is_not_pinned(unnamed_entity):
     _attach(unnamed_entity, None)
 
     assert unnamed_entity._pinned_entity_id(platform) is None
+
+
+# ---------------------------------------------------------------------------
+# Renaming ids that spell out a label we corrected
+# ---------------------------------------------------------------------------
+
+_ELO_KEY = "DOS_2_ELO_TOTAL_CAN_AMOUNT_ML"
+_ELO_TRANSLATION = "component.violet_pool_controller.entity.sensor.dos_2_elo_total_can.name"
+_OLD_ID = "sensor.violet_pool_controller_elektrolyse_kanisterinhalt_ml"
+_NEW_ID = "sensor.violet_pool_controller_electrolysis_cell_remaining_runtime"
+
+
+def _elo_platform_data() -> MagicMock:
+    """Platform data for the electrolysis cell sensor, German UI, English ids."""
+    platform_data = MagicMock()
+    platform_data.domain = "sensor"
+    platform_data.platform_name = "violet_pool_controller"
+    names = {_ELO_TRANSLATION: "Elektrolysezelle Restlaufzeit"}
+    platform_data.platform_translations = names
+    platform_data.object_id_platform_translations = names
+    platform_data.default_language_platform_translations = {
+        _ELO_TRANSLATION: "Electrolysis Cell Remaining Runtime"
+    }
+    platform_data.component_translations = {}
+    platform_data.object_id_component_translations = {}
+    return platform_data
+
+
+def _elo_entity() -> VioletPoolControllerEntity:
+    """The sensor whose old id claims to be a canister level in millilitres."""
+    entity = _make_entity(
+        SensorEntityDescription(
+            key=_ELO_KEY,
+            name="Elektrolysezelle Restlaufzeit",
+            translation_key="dos_2_elo_total_can",
+        )
+    )
+    _attach(entity, _elo_platform_data())
+    return entity
+
+
+def _register(hass, entity: VioletPoolControllerEntity, object_id: str):
+    """Put the entity in the registry under an id an older release produced."""
+    from homeassistant.helpers import entity_registry as er
+
+    registry = er.async_get(hass)
+    registry.async_get_or_create(
+        "sensor",
+        "violet_pool_controller",
+        entity._attr_unique_id,
+        suggested_object_id=object_id,
+    )
+    return registry
+
+
+async def test_old_id_naming_a_canister_is_renamed(hass) -> None:
+    """The reported case: a runtime in hours sitting at "kanisterinhalt_ml"."""
+    entity = _elo_entity()
+    registry = _register(hass, entity, "violet_pool_controller_elektrolyse_kanisterinhalt_ml")
+    assert registry.async_get(_OLD_ID) is not None
+
+    entity._rename_relabelled_entity(hass, entity.platform_data)
+
+    assert registry.async_get(_OLD_ID) is None
+    assert registry.async_get(_NEW_ID) is not None
+
+
+async def test_renaming_is_idempotent(hass) -> None:
+    """A second start must not rename again, or the id would keep moving."""
+    entity = _elo_entity()
+    registry = _register(hass, entity, "violet_pool_controller_elektrolyse_kanisterinhalt_ml")
+
+    entity._rename_relabelled_entity(hass, entity.platform_data)
+    entity._rename_relabelled_entity(hass, entity.platform_data)
+
+    assert registry.async_get(_NEW_ID) is not None
+    assert len(list(registry.entities)) == 1
+
+
+async def test_an_id_the_user_chose_is_left_alone(hass) -> None:
+    """Only ids that still spell out the wrong label are touched."""
+    entity = _elo_entity()
+    registry = _register(hass, entity, "pool_zelle_restlaufzeit")
+
+    entity._rename_relabelled_entity(hass, entity.platform_data)
+
+    assert registry.async_get("sensor.pool_zelle_restlaufzeit") is not None
+    assert registry.async_get(_NEW_ID) is None
+
+
+async def test_an_occupied_target_id_is_not_stolen(hass) -> None:
+    """Renaming onto an existing entity would break two entities, not one."""
+    entity = _elo_entity()
+    registry = _register(hass, entity, "violet_pool_controller_elektrolyse_kanisterinhalt_ml")
+    registry.async_get_or_create(
+        "sensor",
+        "violet_pool_controller",
+        "someone_elses_unique_id",
+        suggested_object_id="violet_pool_controller_electrolysis_cell_remaining_runtime",
+    )
+
+    entity._rename_relabelled_entity(hass, entity.platform_data)
+
+    assert registry.async_get(_OLD_ID) is not None
+
+
+async def test_entities_outside_the_table_are_never_renamed(hass) -> None:
+    """Everything a dashboard references keeps its id."""
+    entity = _make_entity(
+        SensorEntityDescription(
+            key="onewire1_value",
+            name="Pool Temperature",
+            translation_key="pool_temperature",
+        )
+    )
+    _attach(entity, _platform_data("Wassertemperatur"))
+    registry = _register(hass, entity, "violet_pool_controller_wassertemperatur")
+
+    entity._rename_relabelled_entity(hass, entity.platform_data)
+
+    assert registry.async_get("sensor.violet_pool_controller_wassertemperatur") is not None
+
+
+async def test_an_unregistered_entity_is_left_to_home_assistant(hass) -> None:
+    """A first run has nothing to rename; the id is built from the fixed name."""
+    from homeassistant.helpers import entity_registry as er
+
+    entity = _elo_entity()
+    registry = er.async_get(hass)
+
+    entity._rename_relabelled_entity(hass, entity.platform_data)
+
+    assert not list(registry.entities)

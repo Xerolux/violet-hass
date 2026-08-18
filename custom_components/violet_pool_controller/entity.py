@@ -16,11 +16,13 @@ from typing import TYPE_CHECKING, Any, cast
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import callback
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.typing import UNDEFINED, UndefinedType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
 
+from .const import RELABELLED_ENTITY_IDS
 from .device import VioletPoolDataUpdateCoordinator
 from .device_hierarchy import build_device_info
 from .state_constants import get_state_definition
@@ -329,8 +331,56 @@ class VioletPoolControllerEntity(_VioletCoordinatorEntity):
                 self.entity_description.key,
             )
 
+        try:
+            self._rename_relabelled_entity(hass, platform)
+        except Exception:  # noqa: BLE001 - a stale id must never break setup
+            _LOGGER.exception(
+                "Could not rename the entity id for %s; keeping the existing one",
+                self.entity_description.key,
+            )
+
         if self.entity_id is None:
             self.entity_id = self._pinned_entity_id(platform)
+
+    @callback
+    def _rename_relabelled_entity(self, hass, platform) -> None:
+        """Move an entity id that still spells out a label we corrected.
+
+        Home Assistant derives an entity id once and never rewrites it, so an
+        installation that registered these entities before their label was
+        fixed keeps an id naming something the value is not. Only the keys in
+        ``RELABELLED_ENTITY_IDS`` are considered, and only while their id still
+        contains the wrong word - an entity the user renamed themselves is left
+        alone, as is one that already sits at the corrected id.
+        """
+        wrong_words = RELABELLED_ENTITY_IDS.get(self.entity_description.key)
+        if not wrong_words or not self._attr_unique_id:
+            return
+
+        registry = er.async_get(hass)
+        current = registry.async_get_entity_id(
+            platform.domain, platform.platform_name, self._attr_unique_id
+        )
+        if current is None:
+            # Never registered: this is a first run, so the id is built from
+            # the corrected name anyway.
+            return
+
+        object_id = current.partition(".")[2]
+        if not any(word in object_id for word in wrong_words):
+            return
+
+        target = self._pinned_entity_id(platform)
+        if not target or target == current or registry.async_get(target) is not None:
+            return
+
+        registry.async_update_entity(current, new_entity_id=target)
+        _LOGGER.warning(
+            "Renamed %s to %s because the old entity id named the value wrongly. "
+            "Dashboards and automations referencing the old id need updating",
+            current,
+            target,
+        )
 
     def _pinned_entity_id(self, platform) -> str | None:
         """Return the controller-based entity id, or None to let HA decide."""

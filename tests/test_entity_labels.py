@@ -15,8 +15,9 @@ import json
 from pathlib import Path
 
 import pytest
+from homeassistant.util import slugify
 
-from custom_components.violet_pool_controller import const_features, const_sensors
+from custom_components.violet_pool_controller import const, const_features, const_sensors
 from custom_components.violet_pool_controller.sensor_modules.base import (
     _build_sensor_description,
 )
@@ -157,3 +158,47 @@ class TestNamesMatchTheReading:
         name = load(language)["sensor"]["cpu_temp_carrier"]["name"].lower()
 
         assert "temperatur" in name or "temperature" in name
+
+
+class TestCorrectedLabelsReachTheEntityId:
+    """A corrected name does not move the entity id on its own.
+
+    Home Assistant derives an entity id once, at registration, and never
+    rewrites it. The installation that reported the electrolysis label was
+    therefore left with `sensor..._elektrolyse_kanisterinhalt_ml` for a runtime
+    in hours even after the name was fixed.
+    """
+
+    def test_every_relabelled_key_is_a_real_sensor(self) -> None:
+        """A typo in the table would silently rename nothing."""
+        known = {key for table in SENSOR_TABLES.values() for key in table}
+        # DOS_*_USE and DOS_2_ELO_LAST_CAN_RESET have no predefined entry; they
+        # are built from the controller response, so only check the ones that do.
+        declared = set(const.RELABELLED_ENTITY_IDS) & known
+
+        assert declared, "no relabelled key matches a sensor definition"
+        for key in declared:
+            assert key in const_sensors.DOSING_STATS_SENSORS or key in known
+
+    def test_wrong_words_actually_describe_the_old_labels(self) -> None:
+        """The guard only fires on ids that spell out the wrong label."""
+        assert "kanisterinhalt" in const.RELABELLED_ENTITY_IDS["DOS_2_ELO_TOTAL_CAN_AMOUNT_ML"]
+        assert "verbrauch" in const.RELABELLED_ENTITY_IDS["DOS_1_CL_USE"]
+
+    def test_corrected_names_are_gone_from_the_wrong_word_lists(self) -> None:
+        """A corrected id must not match its own guard, or it renames forever."""
+        english = load("en")["sensor"]
+        for key, translation_key in (
+            ("DOS_2_ELO_TOTAL_CAN_AMOUNT_ML", "dos_2_elo_total_can"),
+            ("DOS_1_CL_USE", "dos_1_cl_use"),
+        ):
+            slug = english[translation_key]["name"].lower().replace(" ", "_")
+            assert not any(word in slug for word in const.RELABELLED_ENTITY_IDS[key])
+
+    def test_the_two_ph_channels_get_distinct_ids(self) -> None:
+        """"pH-" and "pH+" both slugify to "ph", which would collide."""
+        english = load("en")["sensor"]
+        minus = slugify(english["dos_4_phm_use"]["name"])
+        plus = slugify(english["dos_5_php_use"]["name"])
+
+        assert minus != plus, f"both pH channels would claim {minus}"
