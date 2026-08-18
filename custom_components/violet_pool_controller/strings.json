@@ -1291,10 +1291,10 @@
         "name": "Electrolysis Configured"
       },
       "dos_4_phm_use": {
-        "name": "pH- Dosing Configured"
+        "name": "pH Minus Dosing Configured"
       },
       "dos_5_php_use": {
-        "name": "pH+ Dosing Configured"
+        "name": "pH Plus Dosing Configured"
       },
       "dos_6_floc_use": {
         "name": "Flocculant Dosing Configured"

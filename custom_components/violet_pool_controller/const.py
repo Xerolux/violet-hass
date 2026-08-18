@@ -66,7 +66,7 @@ DOMAIN = "violet_pool_controller"
 # Schema version of a config entry. Bumped whenever async_migrate_entry needs
 # to rewrite stored data or options.
 CONFIG_ENTRY_VERSION = 3
-INTEGRATION_VERSION = "2.5.1"
+INTEGRATION_VERSION = "2.5.2"
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 
 # =============================================================================
@@ -146,6 +146,32 @@ UNSAFE_SWITCH_KEYS: frozenset[str] = frozenset(
         "REFILL",  # Water refill
     }
 )
+
+# =============================================================================
+# CORRECTED LABELS
+# =============================================================================
+# Entity ids are derived from the entity name when the entity is first
+# registered, and Home Assistant never rewrites them afterwards. The labels
+# below were corrected in 2.5.0/2.5.1 because they named something the value is
+# not, which leaves older installations with ids that still spell out the wrong
+# label - an electrolysis runtime in hours sitting at
+# "..._elektrolyse_kanisterinhalt_ml", for example.
+#
+# Each entry maps a controller key to the words its *wrong* id contains. An id
+# is only rewritten when one of those words is actually in it, so a user who
+# renamed the entity themselves keeps their choice, and everything outside this
+# table keeps the id its dashboards reference.
+RELABELLED_ENTITY_IDS: dict[str, tuple[str, ...]] = {
+    "DOS_2_ELO_TOTAL_CAN_AMOUNT_ML": ("kanisterinhalt", "canister", "behalter"),
+    "DOS_2_ELO_DAILY_DOSING_AMOUNT_ML": ("dosier", "dosing_amount"),
+    "DOS_2_ELO_LAST_CAN_RESET": ("kanister", "can_reset"),
+    "DOS_1_CL_USE": ("verbrauch", "usage"),
+    "DOS_2_ELO_USE": ("verbrauch", "usage"),
+    "DOS_4_PHM_USE": ("verbrauch", "usage"),
+    "DOS_5_PHP_USE": ("verbrauch", "usage"),
+    "DOS_6_FLOC_USE": ("verbrauch", "usage"),
+    "CPU_TEMP_CARRIER": ("trager_platine", "traeger_platine", "carrier_board"),
+}
 
 # =============================================================================
 # ADAPTIVE POLLING

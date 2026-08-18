@@ -16,6 +16,49 @@ steht, erfährt also auch niemand dort.
 
 > **Language Note:** This changelog is written in German.
 
+## Version 2.5.2 (2026-08-18)
+
+Patch-Release: neun Entity-IDs, die noch die in 2.5.0/2.5.1 korrigierte falsche
+Bezeichnung im Namen tragen, werden einmalig umbenannt. **Achtung: Entity-IDs
+ändern sich** — Dashboards und Automationen, die genau diese neun IDs
+referenzieren, müssen angepasst werden. Alle anderen Entitäten bleiben
+unangetastet.
+
+### 🐛 Behoben
+
+- **Die Entity-ID blieb auf der falschen Bezeichnung stehen.** Home Assistant
+  bildet eine Entity-ID einmalig bei der Registrierung und schreibt sie danach
+  nie wieder um. Ein korrigierter Anzeigename half also nichts: die
+  Elektrolyse-Restlaufzeit hing weiter unter
+  `sensor.violet_pool_controller_elektrolyse_kanisterinhalt_ml` — eine Laufzeit
+  in Stunden, deren ID einen Kanisterfüllstand in Millilitern behauptet.
+  Betroffen sind genau die neun Entitäten, deren Bezeichnung in 2.5.0/2.5.1
+  falsch war: die drei Elektrolyse-Sensoren, die fünf `DOS_*_USE`-Flags und
+  `CPU_TEMP_CARRIER`. Sie wandern jetzt beim nächsten Start auf die ID, die
+  eine Neuinstallation ohnehin vergeben würde, und jede Umbenennung steht als
+  Warnung im Log.
+- **Umbenannt wird nur, was die falsche Bezeichnung wirklich enthält.** Wer
+  eine dieser Entitäten selbst umbenannt hat, behält seine ID. Ist die
+  Ziel-ID schon belegt, passiert ebenfalls nichts — zwei kaputte Entitäten
+  wären schlimmer als eine unschöne ID. Beim ersten Start einer neuen
+  Installation gibt es nichts umzubenennen.
+
+### 🔧 Technisch
+
+- **Die beiden pH-Kanäle bekommen unterscheidbare IDs.** „pH-" und „pH+"
+  werden beide zu `ph` verschliffen, die zwei `_USE`-Sensoren hätten sich also
+  dieselbe ID geteilt. Die englischen Namen heißen deshalb „pH Minus Dosing
+  Configured" und „pH Plus Dosing Configured"; die deutschen Anzeigenamen
+  bleiben wie sie sind.
+
+### 🧪 Tests
+
+- 10 neue Tests (713 → 723): die gemeldete Umbenennung selbst, Idempotenz über
+  mehrere Starts, eine vom Nutzer gewählte ID bleibt stehen, eine belegte
+  Ziel-ID wird nicht überschrieben, Entitäten außerhalb der Tabelle werden nie
+  angefasst, und eine korrigierte Bezeichnung darf nie wieder auf ihre eigene
+  Wortliste passen — sonst würde die ID bei jedem Start weiterwandern.
+
 ## Version 2.5.1 (2026-08-18)
 
 Patch-Release direkt hinter 2.5.0: die Elektrolyse-Tagesproduktion bekommt die
