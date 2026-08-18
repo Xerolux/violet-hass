@@ -170,7 +170,9 @@ Für jeden Dosierkanal (`DOS_1_CL`, `DOS_2_ELO`, `DOS_4_PHM`, `DOS_5_PHP`, `DOS_
 > **Die Elektrolyse ist die Ausnahme.** `DOS_2_ELO` steuert eine Zelle, keinen
 > Kanister. Der Controller verwendet dieselben zwei Felder für Zellenwerte:
 > `_TOTAL_CAN_AMOUNT_ML` enthält die Restlaufzeit der Zelle in **Stunden**,
-> `_DAILY_DOSING_AMOUNT_ML` ihre Tagesproduktion — beides keine Milliliter.
+> `_DAILY_DOSING_AMOUNT_ML` das an diesem Tag produzierte Chlor in
+> **Milligramm** — Zellen werden in Gramm Chlor pro Stunde angegeben, und Home
+> Assistant rechnet auf Wunsch in Gramm um. Milliliter sind beides nicht.
 
 ### Pumpen-RPM-Sensoren
 

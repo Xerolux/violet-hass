@@ -109,9 +109,18 @@ class TestElectrolysisCellIsNotACanister:
         for channel in ("DOS_1_CL", "DOS_4_PHM", "DOS_5_PHP", "DOS_6_FLOC"):
             assert const_sensors.UNIT_MAP[f"{channel}_TOTAL_CAN_AMOUNT_ML"] == "ml"
 
-    def test_daily_electrolysis_figure_claims_no_unit(self) -> None:
-        """It is a cell figure, not millilitres of liquid."""
-        assert "DOS_2_ELO_DAILY_DOSING_AMOUNT_ML" not in const_sensors.UNIT_MAP
+    def test_daily_production_is_a_mass_not_a_volume(self) -> None:
+        """The cell produces chlorine; cells are rated in grams per hour."""
+        description = _build_sensor_description(
+            "DOS_2_ELO_DAILY_DOSING_AMOUNT_ML",
+            96000,
+            const_sensors.DOSING_STATS_SENSORS,
+            translation_key="dos_2_elo_daily",
+        )
+
+        assert description.native_unit_of_measurement == "mg"
+        # A weight lets Home Assistant offer grams for a day's production.
+        assert description.device_class == "weight"
 
     @pytest.mark.parametrize("language", COMPLETE_LANGUAGES)
     @pytest.mark.parametrize(

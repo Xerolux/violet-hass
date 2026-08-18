@@ -168,7 +168,9 @@ For every dosing channel (`DOS_1_CL`, `DOS_2_ELO`, `DOS_4_PHM`, `DOS_5_PHP`, `DO
 > **Electrolysis is the exception.** `DOS_2_ELO` drives a cell, not a canister.
 > The controller reuses the same two fields for cell figures: `_TOTAL_CAN_AMOUNT_ML`
 > carries the cell's remaining runtime in **hours**, and `_DAILY_DOSING_AMOUNT_ML`
-> its production for the day — neither is a volume in millilitres.
+> the chlorine it produced that day in **milligrams** — cells are rated in grams
+> of chlorine per hour, and Home Assistant will show grams if you ask it to.
+> Neither is a volume in millilitres.
 
 ### Pump RPM Sensors
 

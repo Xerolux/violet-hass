@@ -41,6 +41,7 @@ _PRECISION_MAP: dict[str, int] = {
     "ml": 0,
     "s": 0,
     "h": 0,
+    "mg": 0,
 }
 
 _KEYS_DISABLED_BY_DEFAULT: frozenset[str] = frozenset(
@@ -301,6 +302,11 @@ def determine_device_class(key: str, unit: str | None, raw_value: Any) -> Sensor
         return SensorDeviceClass.POWER
     if unit in {"s", "min", "h"}:
         return SensorDeviceClass.DURATION
+    # Chlorine produced by an electrolysis cell is a mass. Declaring the device
+    # class lets Home Assistant show grams instead of the milligrams the
+    # controller counts in.
+    if unit in {"mg", "g", "kg"}:
+        return SensorDeviceClass.WEIGHT
     # Check if key indicates a timestamp sensor
     # (by suffix or membership in _TIMESTAMP_KEYS)
     is_timestamp_key = key in _TIMESTAMP_KEYS or any(
