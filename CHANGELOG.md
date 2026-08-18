@@ -16,7 +16,7 @@ steht, erfährt also auch niemand dort.
 
 > **Language Note:** This changelog is written in German.
 
-## Version 2.5.0 (unveröffentlicht)
+## Version 2.5.0 (2026-08-18)
 
 Minor-Release mit zwei Schwerpunkten: die Datenpunkt-Auswahl gilt jetzt für
 **alle** Plattformen statt nur für Sensoren, und eine Reihe von Entitäten trägt
