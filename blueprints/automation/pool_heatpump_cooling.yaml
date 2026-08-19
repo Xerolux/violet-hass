@@ -27,7 +27,12 @@ blueprint:
     - input_number helper for the target temperature
       (Settings -> Devices & Services -> Helpers -> Number)
 
-    VERSION: 1.0.0 (2026-08-17)
+    ON THE DASHBOARD: this blueprint creates an automation, not a climate
+    entity - the automation entity is only its on/off switch. Put the
+    input_number helper on the dashboard to set the temperature, next to the
+    pool temperature sensor and the heat pump's own climate entity.
+
+    VERSION: 1.1.0 (2026-08-19)
   domain: automation
   source_url: https://github.com/xerolux/violet-hass/blob/main/blueprints/automation/pool_heatpump_cooling.yaml
   homeassistant:

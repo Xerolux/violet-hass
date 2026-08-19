@@ -514,6 +514,34 @@ pump through its own integration, and the blueprint ties the two together:
 Modes are only sent when the heat pump advertises them in `hvac_modes`, and
 nothing is written while a reading is `unavailable`.
 
+**After importing: what belongs on the dashboard**
+
+The blueprint creates an *automation*. The entity that shows up afterwards
+(`automation.violet_pool_heat_pump_heating_cooling`) is its on/off switch and
+nothing more. You set the target temperature on the `input_number` helper; the
+blueprint does not create a climate entity of its own, because the missing
+`cool` mode on the controller is the very reason the blueprint exists. The
+regulating is done through the heat pump's own climate entity.
+
+A card that fits — adjust the entity ids to your installation:
+
+```yaml
+type: entities
+title: Pool Temperature
+entities:
+  - entity: input_number.pool_target_temperature   # this is where you set it
+    name: Target
+  - entity: sensor.violet_pool_controller_pool_water
+    name: Current
+  - entity: climate.heat_pump
+    name: Heat pump
+  - entity: automation.violet_pool_heat_pump_heating_cooling
+    name: Control active
+```
+
+Every change on the helper is written through to the heat pump, so the value in
+the helper is the value the heat pump actually regulates to.
+
 ---
 
 *Back: [Services](Services) | Next: [Troubleshooting](Troubleshooting)*
