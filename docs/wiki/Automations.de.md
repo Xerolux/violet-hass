@@ -516,6 +516,34 @@ Blueprint verbindet beides:
 Modi werden nur gesendet, wenn die Wärmepumpe sie in `hvac_modes` meldet, und
 solange ein Messwert `unavailable` ist, wird nichts geschrieben.
 
+**Nach dem Import: was aufs Dashboard gehört**
+
+Der Blueprint erzeugt eine *Automatisierung*. Die Entität, die danach im
+Dashboard auftaucht (`automation.violet_pool_heat_pump_heating_cooling`), ist
+deren Ein/Aus-Schalter — mehr zeigt sie nicht an. Die Solltemperatur stellst du
+am `input_number`-Helper ein; ein eigenes Climate-Objekt legt der Blueprint
+nicht an, denn genau weil der Controller keinen `cool`-Modus hat, gibt es den
+Blueprint überhaupt. Geregelt wird über die Climate-Entität der Wärmepumpe.
+
+Eine passende Karte — Entity-IDs an die eigene Anlage anpassen:
+
+```yaml
+type: entities
+title: Pool-Temperatur
+entities:
+  - entity: input_number.pool_solltemperatur   # hier wird die Temperatur eingestellt
+    name: Solltemperatur
+  - entity: sensor.violet_pool_controller_poolwasser
+    name: Ist-Temperatur
+  - entity: climate.waermepumpe
+    name: Wärmepumpe
+  - entity: automation.violet_pool_heat_pump_heating_cooling
+    name: Regelung aktiv
+```
+
+Der Blueprint schreibt jede Änderung am Helper auf die Wärmepumpe durch: der
+Wert im Helper ist damit der Wert, auf den die Wärmepumpe tatsächlich regelt.
+
 ---
 
 *Zurück: [Services](Services) | Weiter: [Troubleshooting](Troubleshooting)*
