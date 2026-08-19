@@ -15,9 +15,13 @@ values – a controller configured to 710 mV showed up as the chlorine channel's
 untouched 770 mV in Home Assistant.
 
 Which channel is in charge is decided by the enable flags: ``DOSAGE_*_use``
-from ``getConfig`` and the matching ``DOS_*_USE`` readings. Only a setup that
-runs electrolysis *without* chlorine dosing switches over; anything else keeps
-the chlorine channel, which is what the integration has always used.
+from ``getConfig`` and the matching ``DOS_*_USE`` readings.
+
+Both channels can be enabled at the same time - an electrolysis cell and a
+liquid chlorine pump on one pool. The controller then keeps two independent
+setpoints, so there is no single channel that "owns" them and picking one
+would hide the other. ``active_dosing_channels`` reports every enabled
+channel; the number platform gives each one its own entity.
 """
 
 from __future__ import annotations
@@ -55,6 +59,30 @@ def _is_enabled(data: Mapping[str, Any], keys: tuple[str, ...]) -> bool:
     return False
 
 
+def active_dosing_channels(data: Mapping[str, Any] | None) -> tuple[str, ...]:
+    """Return every dosing channel the controller has enabled.
+
+    Args:
+        data: The merged coordinator data (readings plus config values);
+            a ``VioletReadings`` view or a plain mapping.
+
+    Returns:
+        The enabled channels in a stable order. A pool running an electrolysis
+        cell alongside a chlorine pump reports both - each keeps its own
+        setpoint. Falls back to the chlorine channel when nothing is flagged,
+        which is what the integration used before the flags were read at all.
+    """
+    if not data:
+        return (CHANNEL_CHLORINE,)
+
+    channels = tuple(
+        channel
+        for channel in (CHANNEL_CHLORINE, CHANNEL_ELECTROLYSIS)
+        if _is_enabled(data, _CHANNEL_ENABLE_KEYS[channel])
+    )
+    return channels or (CHANNEL_CHLORINE,)
+
+
 def active_dosing_channel(data: Mapping[str, Any] | None) -> str:
     """Return the dosing channel that owns the ORP/chlorine setpoints.
 
@@ -64,14 +92,11 @@ def active_dosing_channel(data: Mapping[str, Any] | None) -> str:
 
     Returns:
         ``"electrolysis"`` for a pool dosing via electrolysis only, otherwise
-        ``"chlorine"``.
+        ``"chlorine"``. With both channels enabled the chlorine channel is the
+        primary one; the electrolysis setpoint gets its own entity rather than
+        replacing this one.
     """
-    if not data:
-        return CHANNEL_CHLORINE
-
-    chlorine = _is_enabled(data, _CHANNEL_ENABLE_KEYS[CHANNEL_CHLORINE])
-    electrolysis = _is_enabled(data, _CHANNEL_ENABLE_KEYS[CHANNEL_ELECTROLYSIS])
-
-    if electrolysis and not chlorine:
+    channels = active_dosing_channels(data)
+    if channels == (CHANNEL_ELECTROLYSIS,):
         return CHANNEL_ELECTROLYSIS
     return CHANNEL_CHLORINE

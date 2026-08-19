@@ -16,6 +16,38 @@ steht, erfährt also auch niemand dort.
 
 > **Language Note:** This changelog is written in German.
 
+## Version 2.5.7 (2026-08-19)
+
+Patch-Release: Wer Elektrolyse **und** Chlordosierung gleichzeitig betreibt, kam
+an einen seiner beiden Sollwerte gar nicht heran.
+
+### 🐛 Behoben
+
+- **Bei zwei aktiven Dosierkanälen war ein Sollwert unerreichbar.** Die
+  Steuerung führt Redox- und Chlor-Sollwert **pro Kanal** — die Chlordosierung
+  unter `DOSAGE_chlorine_*`, die Elektrolyse unter `DOSAGE_electrolysis_*`. Seit
+  2.5.4 liest die Integration den Kanal, der regelt, statt immer den
+  Chlor-Kanal. Dabei blieb aber offen, dass **beide Kanäle gleichzeitig** laufen
+  können: eine Elektrolysezelle neben einer Chlorpumpe. In dem Fall entschied
+  sich die Integration für den Chlor-Kanal — der Elektrolyse-Sollwert war dann
+  in Home Assistant weder sichtbar noch änderbar, obwohl die Steuerung ihn
+  aktiv regelt.
+
+  Sind beide Kanäle eingeschaltet, entsteht jetzt für jeden Sollwert eine
+  **zweite Entität**: „Redox-Sollwert (Elektrolyse)" und „Chlor-Sollwert
+  (Elektrolyse)". Sie liest und schreibt ausschließlich den Elektrolyse-Kanal,
+  die bestehende Entität bleibt unverändert beim Chlor-Kanal. Anlagen mit nur
+  einem Kanal ändern sich nicht — weder in der Anzahl der Entitäten noch in
+  ihren IDs.
+
+### 🧪 Tests
+
+- 15 neue Tests: beide Kanäle aktiv, jeder für sich, keiner gesetzt und
+  fehlende Daten; dass die zweite Entität eine eigene Unique-ID bekommt und
+  ihren Schreibzugriff auf dem Elektrolyse-Schlüssel landet statt über den
+  ORP-Helfer der API; und dass beide neuen Namen auf Deutsch und Englisch
+  übersetzt sind.
+
 ## Version 2.5.6 (2026-08-19)
 
 Patch-Release: der Wärmepumpen-Blueprint schrieb eine Freigabetemperatur, die
