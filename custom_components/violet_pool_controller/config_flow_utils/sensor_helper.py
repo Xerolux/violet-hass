@@ -35,6 +35,7 @@ from ..const import (
     DEFAULT_VERIFY_SSL,
 )
 from ..feature_keys import is_key_feature_active
+from ..sensor_modules.base import romcode_key_rank, romcode_sensor_index
 from .validators import validate_credentials_strength
 
 _LOGGER = logging.getLogger(__name__)
@@ -56,15 +57,42 @@ def group_sensor_keys(
         end up empty are omitted.
     """
     features = None if active_features is None else set(active_features)
+    offered = _drop_duplicate_romcode_spellings(keys)
 
     grouped: dict[str, list[str]] = {}
-    for key in sorted(keys):
+    for key in sorted(offered):
         if features is not None and not is_key_feature_active(key, features):
             continue
         # Simple grouping by prefix
         group = key.split("_")[0]
         grouped.setdefault(group, []).append(key)
     return grouped
+
+
+def _drop_duplicate_romcode_spellings(keys: Iterable[str]) -> list[str]:
+    """Return the keys with only one ROM-code spelling per OneWire probe.
+
+    A controller may report the same ROM code as ``onewire1_rcode`` and
+    ``onewire1romcode``; offering both would ask the user to pick between two
+    entries for one value (the sensor platform publishes only one of them).
+
+    Args:
+        keys: The raw controller keys.
+
+    Returns:
+        The keys to offer, in no particular order.
+    """
+    best: dict[int, str] = {}
+    others: list[str] = []
+    for key in keys:
+        index = romcode_sensor_index(key)
+        if index is None:
+            others.append(key)
+            continue
+        current = best.get(index)
+        if current is None or romcode_key_rank(key, "") > romcode_key_rank(current, ""):
+            best[index] = key
+    return others + list(best.values())
 
 
 async def get_grouped_sensors(

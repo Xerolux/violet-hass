@@ -251,19 +251,26 @@ class TestEntityIdsAreUnique:
             assert f"dos_{channel}_total_can_amount_ml" not in english
             assert f"dos_{channel}_daily_dosing_amount_ml" not in english
 
-    def test_the_only_remaining_duplicate_is_the_rom_code_spelling(self) -> None:
-        """The firmware spells this one reading two ways.
+    def test_every_rom_code_spelling_shares_one_translation_key(self) -> None:
+        """The firmware spells this one reading several ways.
 
-        ``getReadings`` documents ``onewireN_rcode``; ``onewireN_romcode`` is
-        the older spelling the integration still accepts. A controller reports
-        one or the other, never both, so the shared name cannot collide in
-        practice - and naming them differently would put a spelling variant in
-        front of the user for no reason.
+        ``getReadings`` documents ``onewireN_rcode``; ``onewireN_romcode`` and
+        ``onewireNromcode`` turn up on other builds, and a controller can
+        report more than one of them at once - which is how a ROM code ended up
+        in Home Assistant twice, the second time as a temperature reading of
+        0.0 °C (forum report on 2.5.4). Every spelling therefore resolves to the
+        same probe, and the sensor platform publishes only one of them.
         """
-        names: dict[str, list[str]] = {}
+        keys_by_translation: dict[str, list[str]] = {}
         for key, entry in const_sensors.ONEWIRE_ROMCODE_SENSORS.items():
-            names.setdefault(entry["name"], []).append(key)
+            keys_by_translation.setdefault(entry["translation_key"], []).append(key)
 
-        for name, keys in names.items():
-            assert len(keys) == 2, name
+        for translation_key, keys in keys_by_translation.items():
+            assert len(keys) == 2, translation_key
             assert {key.split("_")[-1] for key in keys} == {"rcode", "romcode"}
+            index = translation_key.removeprefix("onewire").removesuffix("_romcode")
+            assert all(key.startswith(f"onewire{index}_") for key in keys)
+
+        english = load("en")["sensor"]
+        for translation_key in keys_by_translation:
+            assert translation_key in english, f"{translation_key} has no English name"

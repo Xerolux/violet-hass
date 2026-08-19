@@ -15,6 +15,9 @@ from .base import (
     _TIMESTAMP_KEYS,
     _TIMESTAMP_SUFFIXES,
     _build_sensor_description,
+    is_text_sensor,
+    romcode_key_rank,
+    romcode_sensor_index,
     should_skip_sensor,
 )
 from .energy import (
@@ -48,6 +51,9 @@ __all__ = [
     "_TIMESTAMP_KEYS",
     "_TIMESTAMP_SUFFIXES",
     "_build_sensor_description",
+    "is_text_sensor",
+    "romcode_key_rank",
+    "romcode_sensor_index",
     "should_skip_sensor",
     # Generic
     "VioletSensor",

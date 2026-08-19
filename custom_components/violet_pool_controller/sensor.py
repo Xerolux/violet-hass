@@ -14,6 +14,7 @@ Sensor classes are split into submodules for better organization.
 from __future__ import annotations
 
 import logging
+from collections.abc import Mapping
 from typing import Any
 
 from homeassistant.components.sensor import SensorEntity
@@ -61,6 +62,8 @@ from .sensor_modules import (
     VioletStatusSensor,
     VioletSystemHealthSensor,
     _build_sensor_description,
+    romcode_key_rank,
+    romcode_sensor_index,
     should_skip_sensor,
 )
 
@@ -352,6 +355,58 @@ def _create_special_sensors(
     return sensors, handled_keys
 
 
+# Hardware-detection flags the coordinator synthesises from the payload. They
+# are published as diagnostic binary sensors, so turning them into a second,
+# text-valued sensor only added an untranslated duplicate ("Hw Base Module").
+_HARDWARE_FLAG_KEYS = frozenset(
+    {
+        "HW_BASE_MODULE",
+        "HW_DOSING_MODULE",
+        "HW_EXTENSION_MODULE_1",
+        "HW_EXTENSION_MODULE_2",
+        "HW_DMX_MODULE",
+        "HW_DIRULE_MODULE",
+        "HW_STANDALONE_MODE",
+    }
+)
+
+
+def _romcode_spellings(data: Mapping[str, Any]) -> dict[int, set[str]]:
+    """Return every ROM-code key the payload carries, grouped by probe.
+
+    Args:
+        data: The coordinator data.
+
+    Returns:
+        A mapping of probe number to all keys spelling out its ROM code.
+    """
+    groups: dict[int, set[str]] = {}
+    for key in data:
+        index = romcode_sensor_index(key)
+        if index is not None:
+            groups.setdefault(index, set()).add(key)
+    return groups
+
+
+def _select_romcode_keys(data: Mapping[str, Any]) -> dict[int, str]:
+    """Return the ROM-code key to publish per OneWire probe.
+
+    A controller may report the same ROM code under several spellings
+    (``onewire1_rcode``, ``onewire1_romcode``, ``onewire1romcode``). Only the
+    best one becomes an entity; the rest would duplicate it.
+
+    Args:
+        data: The coordinator data.
+
+    Returns:
+        A mapping of probe number to the key that should carry its ROM code.
+    """
+    return {
+        index: max(keys, key=lambda key: (romcode_key_rank(key, data[key]), key))
+        for index, keys in _romcode_spellings(data).items()
+    }
+
+
 def _create_standard_sensors(
     coordinator: VioletPoolDataUpdateCoordinator,
     config_entry: ConfigEntry,
@@ -371,21 +426,39 @@ def _create_standard_sensors(
         **SYSTEM_SENSORS,
     }
 
+    # One ROM code per probe, whichever spelling the firmware uses for it.
+    romcode_spellings = _romcode_spellings(coordinator.data)
+    romcode_keys = _select_romcode_keys(coordinator.data)
+
     for key in sorted(coordinator.data.keys()):
         if key in handled_keys or should_skip_sensor(key, coordinator.data.get(key)):
+            continue
+
+        if key in _HARDWARE_FLAG_KEYS:
+            # Already a binary sensor; see _HARDWARE_FLAG_KEYS.
             continue
 
         feature_id = feature_for_key(key)
         if feature_id and feature_id not in config["active_features"]:
             continue
 
-        if not config["create_all"] and key not in config["selected_sensors"]:
-            continue
-
         predefined_info = all_predefined.get(key)
         tk = predefined_info.get("translation_key") if predefined_info else key.lower()
-        if key in ONEWIRE_ROMCODE_SENSORS:
-            tk = None
+
+        romcode_index = romcode_sensor_index(key)
+        if romcode_index is not None:
+            if romcode_keys.get(romcode_index) != key:
+                # A second spelling of a ROM code this loop already published.
+                continue
+            # The selection was stored per spelling, so a user who picked the
+            # spelling that lost keeps his ROM code.
+            if not config["create_all"] and not (
+                romcode_spellings[romcode_index] & config["selected_sensors"]
+            ):
+                continue
+            tk = f"onewire{romcode_index}_romcode"
+        elif not config["create_all"] and key not in config["selected_sensors"]:
+            continue
 
         description = _build_sensor_description(
             key,

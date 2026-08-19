@@ -16,6 +16,53 @@ steht, erfährt also auch niemand dort.
 
 > **Language Note:** This changelog is written in German.
 
+## Version 2.5.5 (2026-08-19)
+
+Patch-Release: drei Punkte aus dem Forum. Der OneWire-ROM-Code stand doppelt in
+der Liste, einmal davon als Temperatur, und ein Teil der Entitätsnamen blieb
+bei deutschem Home Assistant englisch.
+
+### 🐛 Behoben
+
+- **OneWire-ROM-Code doppelt, einmal als 0,0 °C.** Die Steuerung meldet
+  denselben ROM-Code unter mehreren Schreibweisen (`onewire1_rcode`,
+  `onewire1_romcode`, `onewire1romcode`). Erkannt wurde nur die dokumentierte;
+  jede andere landete in der Regel „alles mit *onewire* im Schlüssel ist eine
+  Temperatur" und erschien als zweite Entität mit 0,0 °C neben der richtigen.
+  ROM-Codes werden jetzt anhand ihrer Form erkannt — unabhängig von der
+  Schreibweise, immer als Text, nie mit Einheit — und pro Fühler wird nur noch
+  **eine** Entität angelegt. Welche das ist, entscheidet der Wert: die
+  Schreibweise mit echtem ROM-Code gewinnt. Die überzähligen Entitäten
+  verschwinden beim Neustart von selbst; die richtige behält ihre Entity-ID.
+- **Entitätsnamen teilweise englisch.** 63 Werte hatten keinen Übersetzungs-
+  eintrag und fielen damit auf einen aus dem Schlüssel gebauten Namen zurück —
+  aus `MEMORY_USED` wurde „Memory Used", aus `onewire1romcode`
+  „Onewire1Romcode". Sie heißen jetzt auf Deutsch und Englisch, was sie sind
+  (u. a. Speicher, Konfigurationsstand, Trägerplatinen-Infos, Lebenszeichen der
+  Module, Lichtszenen, Pumpenstufen, Abdeckungs-Kontakte, Fehlercodes).
+- **Hardware-Erkennung doppelt angelegt.** Die intern erzeugten `HW_*`-Marker
+  („Basismodul erkannt" & Co.) gibt es als diagnostische Binärsensoren. Zu
+  jedem davon entstand zusätzlich ein Textsensor mit englischem Namen
+  („Hw Base Module"); dieser Doppelgänger entfällt.
+
+### 📖 Dokumentation
+
+- **Was die „Bade-KI" ist**, steht jetzt im Wiki (Entities): Es ist die
+  Badebetriebs-Erkennung über den Überlaufbehälter — steigt dessen Füllstand
+  innerhalb der eingestellten Zeit um den eingestellten Betrag, war jemand im
+  Becken, und die Steuerung schaltet die Filterpumpe ein. Die deutschen Namen
+  der fünf Entitäten sagen das jetzt auch: statt „Bade-KI Letzter Füllstand"
+  heißt es „Bade-KI: Füllstand Überlaufbehälter". **Entity-IDs ändern sich
+  dadurch nicht** — die werden aus den englischen Namen gebildet.
+
+### 🧪 Tests
+
+- 29 neue Tests (770 → 799): Erkennung aller ROM-Code-Schreibweisen, genau eine
+  Entität pro Fühler samt Auswahl-Logik, kein Temperatur-Fallback mehr, keine
+  Doppelung der Hardware-Marker — sowie eine Übersetzungsabdeckung, die für
+  jeden dokumentierten Controller-Wert einen deutschen **und** englischen Namen
+  verlangt.
+
 ## Version 2.5.4 (2026-08-19)
 
 Patch-Release: zwei Meldungen aus dem Forum. Der ORP-Sollwert zeigte auf

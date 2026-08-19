@@ -1210,19 +1210,19 @@
         "name": "Überlauf Nachfüll-Status"
       },
       "bathing_ai_last_level": {
-        "name": "Bade-KI Letzter Füllstand"
+        "name": "Bade-KI: Füllstand Überlaufbehälter"
       },
       "bathing_ai_pump_state": {
-        "name": "Bade-KI Pumpenstatus"
+        "name": "Bade-KI: Pumpe eingeschaltet"
       },
       "bathing_ai_pump_timestamp": {
-        "name": "Bade-KI Pumpen-Zeitstempel"
+        "name": "Bade-KI: Pumpenstart"
       },
       "bathing_ai_start_level": {
-        "name": "Bade-KI Startfüllstand"
+        "name": "Bade-KI: Startfüllstand Überlaufbehälter"
       },
       "bathing_ai_surveillance_state": {
-        "name": "Bade-KI Überwachungsstatus"
+        "name": "Bade-KI: Überwachungsstatus"
       },
       "pump_rpm_0": {
         "name": "Pumpen-Stufe 0"
@@ -1853,6 +1853,195 @@
       },
       "omni_dc5_runtime": {
         "name": "OMNI-Gleichstrommotor 5 Laufzeit"
+      },
+      "onewire1_romcode": {
+        "name": "OneWire-ROM-Code 1"
+      },
+      "onewire2_romcode": {
+        "name": "OneWire-ROM-Code 2"
+      },
+      "onewire3_romcode": {
+        "name": "OneWire-ROM-Code 3"
+      },
+      "onewire4_romcode": {
+        "name": "OneWire-ROM-Code 4"
+      },
+      "onewire5_romcode": {
+        "name": "OneWire-ROM-Code 5"
+      },
+      "onewire6_romcode": {
+        "name": "OneWire-ROM-Code 6"
+      },
+      "onewire7_romcode": {
+        "name": "OneWire-ROM-Code 7"
+      },
+      "onewire8_romcode": {
+        "name": "OneWire-ROM-Code 8"
+      },
+      "onewire9_romcode": {
+        "name": "OneWire-ROM-Code 9"
+      },
+      "onewire10_romcode": {
+        "name": "OneWire-ROM-Code 10"
+      },
+      "onewire11_romcode": {
+        "name": "OneWire-ROM-Code 11"
+      },
+      "onewire12_romcode": {
+        "name": "OneWire-ROM-Code 12"
+      },
+      "memory_used": {
+        "name": "Belegter Arbeitsspeicher"
+      },
+      "configchangemarker": {
+        "name": "Konfigurationsstand"
+      },
+      "checksum": {
+        "name": "Konfigurations-Prüfsumme"
+      },
+      "cpu_gov": {
+        "name": "CPU-Regler"
+      },
+      "date": {
+        "name": "Systemdatum"
+      },
+      "time": {
+        "name": "Systemzeit"
+      },
+      "current_time": {
+        "name": "Controller-Uhrzeit"
+      },
+      "current_time_unix": {
+        "name": "Controller-Uhrzeit (Unix)"
+      },
+      "sw_update_available": {
+        "name": "Software-Update verfügbar"
+      },
+      "hw_serial_carrier": {
+        "name": "Seriennummer Trägerplatine"
+      },
+      "hw_version_carrier": {
+        "name": "Hardware-Version Trägerplatine"
+      },
+      "system_carrier_alive_count": {
+        "name": "Lebenszeichen Trägerplatine"
+      },
+      "system_carrier_alive_faultcount": {
+        "name": "Lebenszeichen-Fehler Trägerplatine"
+      },
+      "system_dosagemodule_alive_count": {
+        "name": "Lebenszeichen Dosiermodul"
+      },
+      "system_dosagemodule_alive_faultcount": {
+        "name": "Lebenszeichen-Fehler Dosiermodul"
+      },
+      "system_ext1module_alive_count": {
+        "name": "Lebenszeichen Erweiterungsmodul 1"
+      },
+      "system_ext1module_alive_faultcount": {
+        "name": "Lebenszeichen-Fehler Erweiterungsmodul 1"
+      },
+      "heater_set_temp": {
+        "name": "Heizung Sollwert (Controller)"
+      },
+      "solar_maxtemp": {
+        "name": "Solar Maximaltemperatur"
+      },
+      "lightstate": {
+        "name": "Beleuchtung Detail-Status"
+      },
+      "pumppriostate": {
+        "name": "Pumpen-Prioritätsstatus"
+      },
+      "backwashstate": {
+        "name": "Rückspülung Detail-Status"
+      },
+      "refill_state": {
+        "name": "Nachspeisung Detail-Status"
+      },
+      "light_mode": {
+        "name": "Beleuchtungsmodus"
+      },
+      "dmx_mode": {
+        "name": "DMX-Modus"
+      },
+      "light_scene_1": {
+        "name": "Lichtszene 1"
+      },
+      "light_scene_2": {
+        "name": "Lichtszene 2"
+      },
+      "light_scene_3": {
+        "name": "Lichtszene 3"
+      },
+      "light_scene_4": {
+        "name": "Lichtszene 4"
+      },
+      "light_scene_5": {
+        "name": "Lichtszene 5"
+      },
+      "light_scene_6": {
+        "name": "Lichtszene 6"
+      },
+      "light_scene_7": {
+        "name": "Lichtszene 7"
+      },
+      "light_scene_8": {
+        "name": "Lichtszene 8"
+      },
+      "light_scene_9": {
+        "name": "Lichtszene 9"
+      },
+      "light_scene_10": {
+        "name": "Lichtszene 10"
+      },
+      "light_scene_11": {
+        "name": "Lichtszene 11"
+      },
+      "light_scene_12": {
+        "name": "Lichtszene 12"
+      },
+      "pump_rpm_0_value": {
+        "name": "Pumpenstufe 0 Wert"
+      },
+      "pump_rpm_1_value": {
+        "name": "Pumpenstufe 1 Wert"
+      },
+      "pump_rpm_2_value": {
+        "name": "Pumpenstufe 2 Wert"
+      },
+      "pump_rpm_3_value": {
+        "name": "Pumpenstufe 3 Wert"
+      },
+      "cover_direction": {
+        "name": "Abdeckung Fahrtrichtung"
+      },
+      "cover_runtime": {
+        "name": "Abdeckung Laufzeit"
+      },
+      "last_moving_direction": {
+        "name": "Abdeckung Letzte Fahrtrichtung"
+      },
+      "close_contact": {
+        "name": "Abdeckung Endschalter Zu"
+      },
+      "open_contact": {
+        "name": "Abdeckung Endschalter Auf"
+      },
+      "error_contact": {
+        "name": "Abdeckung Fehlerkontakt"
+      },
+      "error_code": {
+        "name": "Fehlercode"
+      },
+      "last_error": {
+        "name": "Letzter Fehler"
+      },
+      "dos_3_elo_rev_remaining_range": {
+        "name": "Elektrolyse (Umpolung) Reichweite"
+      },
+      "inputz1z2": {
+        "name": "Digitaleingänge Z1/Z2"
       }
     },
     "binary_sensor": {
@@ -1974,7 +2163,7 @@
         "name": "Rückspül-Verzögerung aktiv"
       },
       "bathing_ai_surveillance": {
-        "name": "Bade-KI Überwachung"
+        "name": "Bade-KI: Überwachung läuft"
       }
     },
     "button": {

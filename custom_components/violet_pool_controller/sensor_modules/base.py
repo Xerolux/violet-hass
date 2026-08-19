@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -226,9 +227,68 @@ _TEXT_VALUE_KEYS = {
 
 _ROMCODE_SENSORS = {f"onewire{i}_{suffix}" for i in range(1, 13) for suffix in ("rcode", "romcode")}
 
+# The firmware spells the OneWire ROM code in more than one way: the documented
+# ``onewire1_rcode``, plus ``onewire1_romcode`` and ``onewire1romcode`` on other
+# builds - and a controller can report several of them at once. Matching by
+# shape instead of by an explicit list keeps every spelling out of the
+# "anything with onewire in its key must be a temperature" default further
+# down, which used to publish a ROM code as a second sensor reading 0.0 °C
+# beside the real one (reported on the forum for 2.5.4).
+_ROMCODE_PATTERN = re.compile(r"^onewire[\s_]*(\d{1,2})[\s_]*r(?:om)?code$", re.IGNORECASE)
+
+# A ROM code is 16 hex characters; anything else (empty, "0") means the
+# controller has nothing stored under that spelling.
+_ROMCODE_VALUE_PATTERN = re.compile(r"^[0-9A-Fa-f]{8,32}$")
+
+
+def romcode_sensor_index(key: str) -> int | None:
+    """Return the OneWire sensor number a ROM-code key belongs to.
+
+    Args:
+        key: The raw controller key.
+
+    Returns:
+        The sensor number (1-12), or ``None`` when the key is not a ROM code.
+    """
+    match = _ROMCODE_PATTERN.match(key.strip())
+    if match is None:
+        return None
+    index = int(match.group(1))
+    return index if 1 <= index <= 12 else None
+
+
+def romcode_key_rank(key: str, raw_value: Any) -> tuple[int, int]:
+    """Rank one ROM-code spelling against the other spellings of the same probe.
+
+    Args:
+        key: The raw controller key.
+        raw_value: The value the controller reports for it.
+
+    Returns:
+        A sort key; the highest-ranked spelling is the one to publish. A key
+        carrying an actual ROM code always wins, and the documented ``_rcode``
+        spelling breaks the tie.
+    """
+    has_code = 1 if _ROMCODE_VALUE_PATTERN.match(str(raw_value).strip()) else 0
+    lowered = key.lower()
+    if lowered.endswith("_rcode"):
+        spelling = 2
+    elif lowered.endswith("_romcode"):
+        spelling = 1
+    else:
+        spelling = 0
+    return (has_code, spelling)
+
+
 _ALL_TEXT_SENSORS = (
     _TEXT_VALUE_KEYS | _RUNTIME_KEYS | _BOOLEAN_VALUE_KEYS | _TIME_FORMAT_KEYS | _ROMCODE_SENSORS
 )
+
+
+def is_text_sensor(key: str) -> bool:
+    """Return whether a sensor carries text rather than a number."""
+    return key in _ALL_TEXT_SENSORS or romcode_sensor_index(key) is not None
+
 
 _NON_TEMPERATURE_ONEWIRE_KEYS = {
     f"onewire{i}_{suffix}" for i in range(1, 13) for suffix in ("rcode", "romcode", "state")
@@ -333,7 +393,7 @@ def determine_state_class(key: str) -> SensorStateClass | None:
     if "DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_STOPWATCH" in key:
         return None
 
-    if key in _ALL_TEXT_SENSORS or is_timestamp_key or key in NO_UNIT_SENSORS:
+    if is_text_sensor(key) or is_timestamp_key or key in NO_UNIT_SENSORS:
         return None
     # Handle contact sensors (e.g., CLOSE_CONTACT) which return
     # string values like "RELEASED"/"TRIGGERED"
@@ -404,7 +464,17 @@ def _build_sensor_description(
     name = predefined_info["name"] if predefined_info else key.replace("_", " ").title()
     icon = predefined_info.get("icon") if predefined_info else None
 
-    unit = UNIT_MAP.get(key) if key not in NO_UNIT_SENSORS else None
+    # A ROM code identifies the probe, it is not a reading. Every spelling the
+    # firmware uses gets the same name and no unit, so none of them can end up
+    # as a temperature.
+    romcode_index = romcode_sensor_index(key)
+    if romcode_index is not None:
+        name = f"OneWire ROM Code {romcode_index}"
+        icon = "mdi:identifier"
+
+    unit = None if romcode_index is not None else UNIT_MAP.get(key)
+    if key in NO_UNIT_SENSORS:
+        unit = None
     if _is_boolean_value(raw_value) and key not in UNIT_MAP:
         unit = None
 
@@ -416,7 +486,7 @@ def _build_sensor_description(
     if "DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_STOPWATCH" in key:
         unit = None
 
-    if unit is None and key not in NO_UNIT_SENSORS:
+    if unit is None and key not in NO_UNIT_SENSORS and romcode_index is None:
         for suffix in [
             "_min",
             "_max",
