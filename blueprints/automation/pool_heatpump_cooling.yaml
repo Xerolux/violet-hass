@@ -23,16 +23,25 @@ blueprint:
       replaces the manual workaround of leaving a misleading high setpoint in
       the Violet UI.
 
-    REQUIRED:
-    - input_number helper for the target temperature
-      (Settings -> Devices & Services -> Helpers -> Number)
+    BEFORE YOU IMPORT: create the target temperature helper. A blueprint
+    cannot create one, and without it this automation has nothing to regulate
+    against.
+
+    Settings -> Devices & Services -> Helpers -> + Create helper -> Number
+      Name:     Pool target temperature   (any name you like)
+      Minimum:  20        Maximum: 32
+      Step:     0.5       Unit:    °C
+      Display:  input field or slider, whichever you prefer
 
     ON THE DASHBOARD: this blueprint creates an automation, not a climate
     entity - the automation entity is only its on/off switch. Put the
     input_number helper on the dashboard to set the temperature, next to the
-    pool temperature sensor and the heat pump's own climate entity.
+    pool temperature sensor and the heat pump's own climate entity. Set the
+    temperature only there: the automation writes the helper through to the
+    heat pump, so a value typed into the heat pump's own card is overwritten on
+    the next run.
 
-    VERSION: 1.1.0 (2026-08-19)
+    VERSION: 1.2.0 (2026-08-19)
   domain: automation
   source_url: https://github.com/xerolux/violet-hass/blob/main/blueprints/automation/pool_heatpump_cooling.yaml
   homeassistant:
@@ -115,12 +124,14 @@ blueprint:
       name: Release Temperature
       description: >
         Setpoint written to the Violet heater so it keeps the valve open. Only
-        used when a Violet heater is selected above.
-      default: 40
+        used when a Violet heater is selected above. The controller's heater
+        accepts 20-35 °C and ignores anything above, so 35 is the highest value
+        that has an effect.
+      default: 35
       selector:
         number:
           min: 20
-          max: 40
+          max: 35
           step: 0.5
           unit_of_measurement: °C
           mode: slider
