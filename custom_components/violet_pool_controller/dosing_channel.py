@@ -22,6 +22,7 @@ the chlorine channel, which is what the integration has always used.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any
 
 CHANNEL_CHLORINE = "chlorine"
@@ -36,7 +37,7 @@ _CHANNEL_ENABLE_KEYS: dict[str, tuple[str, ...]] = {
 }
 
 
-def _is_enabled(data: dict[str, Any], keys: tuple[str, ...]) -> bool:
+def _is_enabled(data: Mapping[str, Any], keys: tuple[str, ...]) -> bool:
     """Return whether any of the given enable flags is set."""
     for key in keys:
         value = data.get(key)
@@ -54,11 +55,12 @@ def _is_enabled(data: dict[str, Any], keys: tuple[str, ...]) -> bool:
     return False
 
 
-def active_dosing_channel(data: dict[str, Any] | None) -> str:
+def active_dosing_channel(data: Mapping[str, Any] | None) -> str:
     """Return the dosing channel that owns the ORP/chlorine setpoints.
 
     Args:
-        data: The merged coordinator data (readings plus config values).
+        data: The merged coordinator data (readings plus config values);
+            a ``VioletReadings`` view or a plain mapping.
 
     Returns:
         ``"electrolysis"`` for a pool dosing via electrolysis only, otherwise
