@@ -516,6 +516,28 @@ Blueprint verbindet beides:
 Modi werden nur gesendet, wenn die Wärmepumpe sie in `hvac_modes` meldet, und
 solange ein Messwert `unavailable` ist, wird nichts geschrieben.
 
+**Vorbereitung: den Helper anlegen**
+
+Ein Blueprint kann keine Helfer anlegen — das ist der eine Schritt, der von
+Hand passieren muss. Ohne ihn hat die Automatisierung nichts, wogegen sie
+regeln könnte.
+
+Einstellungen → Geräte & Dienste → **Helfer** → *+ Helfer erstellen* → **Zahl**
+
+| Feld | Wert |
+|------|------|
+| Name | z. B. `Pool Solltemperatur` (frei wählbar) |
+| Minimum | `20` |
+| Maximum | `32` |
+| Schrittweite | `0.5` |
+| Maßeinheit | `°C` |
+| Anzeigemodus | Eingabefeld oder Schieberegler, wie du magst |
+
+Danach den Blueprint importieren (Einstellungen → Automatisierungen & Szenen →
+**Blueprints** → *Blueprint importieren*, URL der Datei einfügen), eine
+Automatisierung daraus anlegen und die Entitäten zuweisen: Pool-Sensor,
+Wärmepumpe, und der eben angelegte Helper.
+
 **Nach dem Import: was aufs Dashboard gehört**
 
 Der Blueprint erzeugt eine *Automatisierung*. Die Entität, die danach im
@@ -533,7 +555,7 @@ title: Pool-Temperatur
 entities:
   - entity: input_number.pool_solltemperatur   # hier wird die Temperatur eingestellt
     name: Solltemperatur
-  - entity: sensor.violet_pool_controller_poolwasser
+  - entity: sensor.violet_pool_controller_pool_water   # ältere Installationen: ..._poolwasser
     name: Ist-Temperatur
   - entity: climate.waermepumpe
     name: Wärmepumpe
@@ -543,6 +565,11 @@ entities:
 
 Der Blueprint schreibt jede Änderung am Helper auf die Wärmepumpe durch: der
 Wert im Helper ist damit der Wert, auf den die Wärmepumpe tatsächlich regelt.
+Stell die Temperatur deshalb **nur dort** ein — was du direkt an der Karte der
+Wärmepumpe eintippst, wird beim nächsten Lauf wieder überschrieben.
+
+Die optionale Freigabetemperatur für den Violet-Heizer nimmt Werte von 20 bis
+35 °C; darüber lehnt der Controller den Sollwert ab, und das Ventil bliebe zu.
 
 ---
 

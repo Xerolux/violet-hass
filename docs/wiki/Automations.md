@@ -514,6 +514,26 @@ pump through its own integration, and the blueprint ties the two together:
 Modes are only sent when the heat pump advertises them in `hvac_modes`, and
 nothing is written while a reading is `unavailable`.
 
+**Before you import: create the helper**
+
+A blueprint cannot create helpers — this is the one step that has to happen by
+hand. Without it the automation has nothing to regulate against.
+
+Settings → Devices & Services → **Helpers** → *+ Create helper* → **Number**
+
+| Field | Value |
+|-------|-------|
+| Name | e.g. `Pool target temperature` (any name you like) |
+| Minimum | `20` |
+| Maximum | `32` |
+| Step size | `0.5` |
+| Unit of measurement | `°C` |
+| Display mode | input field or slider, whichever you prefer |
+
+Then import the blueprint (Settings → Automations & Scenes → **Blueprints** →
+*Import blueprint*, paste the file URL), create an automation from it and
+assign the entities: pool sensor, heat pump, and the helper you just created.
+
 **After importing: what belongs on the dashboard**
 
 The blueprint creates an *automation*. The entity that shows up afterwards
@@ -540,7 +560,12 @@ entities:
 ```
 
 Every change on the helper is written through to the heat pump, so the value in
-the helper is the value the heat pump actually regulates to.
+the helper is the value the heat pump actually regulates to. Set the
+temperature **there only** — anything typed into the heat pump's own card is
+overwritten on the next run.
+
+The optional release temperature for the Violet heater takes 20 to 35 °C; above
+that the controller rejects the setpoint and the valve would stay closed.
 
 ---
 

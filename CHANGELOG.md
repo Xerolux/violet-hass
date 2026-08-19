@@ -16,6 +16,45 @@ steht, erfährt also auch niemand dort.
 
 > **Language Note:** This changelog is written in German.
 
+## Version 2.5.6 (2026-08-19)
+
+Patch-Release: der Wärmepumpen-Blueprint schrieb eine Freigabetemperatur, die
+der Controller gar nicht annimmt — und die Anleitung ließ den einen Schritt
+offen, den ein Blueprint nicht selbst erledigen kann.
+
+### 🐛 Behoben
+
+- **Freigabetemperatur lag außerhalb dessen, was der Heizer annimmt.** Die
+  optionale Funktion hält den Violet-Heizsollwert hoch, damit der Controller
+  das Ventil offen lässt und die Wärmepumpe Durchfluss sieht. Voreingestellt
+  waren **40 °C**, die Climate-Entität des Heizers nimmt aber nur **20–35 °C**:
+  Sie verwirft den Wert mit einer Log-Warnung, statt einen Fehler zu werfen —
+  die Freigabe lief also bei jedem Durchlauf ins Leere, ohne dass es auffiel.
+  Der Regler geht jetzt bis 35 °C und ist auf 35 voreingestellt. Wer die
+  Funktion bisher mit dem Standardwert genutzt hat, muss die Automatisierung
+  einmal neu speichern (oder den Wert auf 35 ziehen), damit sie wirkt.
+
+### 📖 Dokumentation
+
+- **Der Helper wird jetzt Schritt für Schritt erklärt.** Ein Blueprint kann
+  keine Helfer anlegen — das ist der eine Schritt, der von Hand passieren muss,
+  und ohne ihn hat die Automatisierung nichts, wogegen sie regeln könnte. Wiki
+  (DE/EN) und Blueprint-Beschreibung nennen jetzt den Klickpfad und die
+  konkreten Werte (Zahl-Helper, 20–32 °C, Schrittweite 0,5, Einheit °C).
+- **„Die Temperatur nur am Helper einstellen"** steht jetzt dort, wo es zählt:
+  Der Blueprint schreibt den Helper auf die Wärmepumpe durch, ein direkt an
+  deren Karte eingetippter Wert wird beim nächsten Lauf überschrieben.
+- Die Beispielkarte nennt die heutige Entity-ID des Poolwasser-Sensors
+  (`..._pool_water`) und weist auf die ältere deutsche Schreibweise hin.
+- Blueprint-`VERSION` auf 1.2.0.
+
+### 🧪 Tests
+
+- 2 neue Tests (799 → 801): Die Freigabetemperatur des Blueprints muss
+  innerhalb der Grenzen liegen, die `climate.py` für den Heizer setzt — der
+  Test liest beide Seiten und schlägt an, wenn eine davon wandert. Dazu ein
+  Test, dass die Blueprint-Beschreibung die Helper-Anleitung wirklich enthält.
+
 ## Version 2.5.5 (2026-08-19)
 
 Patch-Release: drei Punkte aus dem Forum. Der OneWire-ROM-Code stand doppelt in

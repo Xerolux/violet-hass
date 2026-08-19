@@ -18,6 +18,11 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
 from homeassistant.util.yaml import loader
 
+from custom_components.violet_pool_controller.climate import (
+    DEFAULT_MAX_TEMP,
+    DEFAULT_MIN_TEMP,
+)
+
 BLUEPRINT_DIR = Path(__file__).parent.parent / "blueprints" / "automation"
 HEAT_PUMP_BLUEPRINT = BLUEPRINT_DIR / "pool_heatpump_cooling.yaml"
 
@@ -30,7 +35,7 @@ HEAT_PUMP_INPUTS = {
     "cooling_enabled": True,
     "idle_mode": "auto",
     "violet_heater": "climate.violet_heater",
-    "release_temperature": 40,
+    "release_temperature": 35,
     "enable_switch": "input_boolean.pool_control",
     "notification_entity": "notify.mobile_app_phone",
 }
@@ -97,6 +102,35 @@ class TestHeatPumpBlueprint:
     def test_actions_are_valid(self, substituted) -> None:
         """Actions must pass Home Assistant's script schema."""
         cv.SCRIPT_SCHEMA(substituted["actions"])
+
+
+    def test_the_release_temperature_stays_inside_the_heater_range(self) -> None:
+        """A release temperature the heater rejects would do nothing.
+
+        ``VioletClimateEntity`` drops a setpoint outside its range with a log
+        warning instead of raising, so a default above the maximum would leave
+        the "hold the valve open" step silently ineffective on every run
+        (the default used to be 40 °C against a heater that accepts 20-35 °C).
+        """
+        blueprint = load_blueprint(HEAT_PUMP_BLUEPRINT)
+        release = blueprint.metadata["input"]["release_temperature"]
+        bounds = release["selector"]["number"]
+
+        assert DEFAULT_MIN_TEMP <= release["default"] <= DEFAULT_MAX_TEMP
+        assert bounds["min"] >= DEFAULT_MIN_TEMP
+        assert bounds["max"] <= DEFAULT_MAX_TEMP
+
+    def test_the_helper_setup_is_spelled_out(self) -> None:
+        """A blueprint cannot create the helper, so it must say how to.
+
+        The forum report that prompted this: helper created, blueprint
+        imported, automation on the dashboard - and then the question where the
+        target temperature is actually set.
+        """
+        description = load_blueprint(HEAT_PUMP_BLUEPRINT).metadata["description"]
+
+        assert "Create helper" in description
+        assert "ON THE DASHBOARD" in description
 
     def test_optional_inputs_may_be_omitted(self, hass: HomeAssistant) -> None:
         """The blueprint must also work without the optional entities."""
