@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterable
 from typing import Any
 
 from homeassistant.core import HomeAssistant
@@ -21,6 +22,7 @@ from violet_poolcontroller_api import (
 )
 
 from ..const import (
+    CONF_ACTIVE_FEATURES,
     CONF_API_URL,
     CONF_PASSWORD,
     CONF_RETRY_ATTEMPTS,
@@ -32,9 +34,37 @@ from ..const import (
     DEFAULT_TIMEOUT_DURATION,
     DEFAULT_VERIFY_SSL,
 )
+from ..feature_keys import is_key_feature_active
 from .validators import validate_credentials_strength
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def group_sensor_keys(
+    keys: Iterable[str],
+    active_features: Iterable[str] | None = None,
+) -> dict[str, list[str]]:
+    """Group controller keys by prefix, dropping keys of disabled features.
+
+    Args:
+        keys: The raw controller keys.
+        active_features: The features enabled for the config entry. ``None``
+            (legacy entries without a feature list) disables the filter.
+
+    Returns:
+        A dictionary mapping group names to lists of sensor keys. Groups that
+        end up empty are omitted.
+    """
+    features = None if active_features is None else set(active_features)
+
+    grouped: dict[str, list[str]] = {}
+    for key in sorted(keys):
+        if features is not None and not is_key_feature_active(key, features):
+            continue
+        # Simple grouping by prefix
+        group = key.split("_")[0]
+        grouped.setdefault(group, []).append(key)
+    return grouped
 
 
 async def get_grouped_sensors(
@@ -75,14 +105,7 @@ async def get_grouped_sensors(
         data = await api.get_readings()
         config_data[CONF_DOSING_STANDALONE] = api.dosing_standalone
 
-        grouped: dict[str, list[str]] = {}
-        for key in sorted(data.keys()):
-            # Simple grouping by prefix
-            group = key.split("_")[0]
-            if group not in grouped:
-                grouped[group] = []
-            grouped[group].append(key)
-        return grouped
+        return group_sensor_keys(data.keys(), config_data.get(CONF_ACTIVE_FEATURES))
 
     except VioletAuthError as err:
         _LOGGER.warning("Failed to get grouped sensors: authentication error: %s", err)

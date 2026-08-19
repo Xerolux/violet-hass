@@ -20,7 +20,7 @@ It depends on a separate API client package.
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.
 **🔒 Security Model**: See [SECURITY.md](./SECURITY.md) for detailed security architecture and compliance.
 
-**Current Integration Version**: `2.5.3` (defined in `manifest.json`, `const.py`, `pyproject.toml` and `custom_components/violet_pool_controller/.version`)
+**Current Integration Version**: `2.5.4` (defined in `manifest.json`, `const.py`, `pyproject.toml` and `custom_components/violet_pool_controller/.version`)
 **Current API Version**: `0.0.36` (defined in the [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository, pinned in `requirements.txt`)
 **Minimum Home Assistant Version**: `2026.1.0` (defined in `hacs.json`)
 **Minimum Python Version**: Home Assistant runtime is managed by HA 2026.1.0+; standalone API package supports `>=3.12`
@@ -197,6 +197,10 @@ pytest tests/test_api.py::test_function_name -v
 - **`update_helper.py`** - Firmware info parsing for the update entity (`parse_firmware_info`).
 
 - **`state_constants.py`** - Internal state interpretation constants.
+
+- **`feature_keys.py`** - Resolves which configurable feature a raw controller key belongs to (`SENSOR_FEATURE_MAP` plus prefix patterns). Used to gate sensor creation and to hide keys of disabled features in the sensor selection step.
+
+- **`dosing_channel.py`** - Detects which dosing channel owns the ORP/chlorine setpoints (`DOSAGE_chlorine_*` vs. `DOSAGE_electrolysis_*`), based on the `DOSAGE_*_use` / `DOS_*_USE` flags.
 
 - **`services.py`** - Service registration and composition:
   - `VioletServiceHandlers` composes control + diagnostic + refill/overflow handlers
@@ -507,6 +511,8 @@ violet-hass/
 │       ├── sensor_organization.py    # Sensor grouping helpers
 │       ├── update_helper.py          # Firmware info parsing
 │       ├── state_constants.py        # State interpretation constants
+│       ├── feature_keys.py           # Controller key → feature resolution
+│       ├── dosing_channel.py         # Active dosing channel for setpoints
 │       ├── config_flow_support.py    # Config/options flow mixins
 │       ├── config_entry_helpers.py   # Config entry URL/migration helpers
 │       ├── runtime_data.py           # Per-entry runtime state (entry.runtime_data)

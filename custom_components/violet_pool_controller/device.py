@@ -458,6 +458,11 @@ class VioletPoolControllerDevice:
             "DOSAGE_phminus_setpoint",
             "DOSAGE_chlorine_setpoint_orp",
             "DOSAGE_chlorine_lowerval_cl",
+            # Electrolysis keeps its own copies of the ORP/chlorine setpoints;
+            # they are the ones in charge on a pool without a chlorine pump
+            # (see dosing_channel.py).
+            "DOSAGE_electrolysis_setpoint_orp",
+            "DOSAGE_electrolysis_setpoint_chlorine",
             "DOSAGE_chlorine_use",
             "DOSAGE_electrolysis_use",
             "DOSAGE_phminus_use",

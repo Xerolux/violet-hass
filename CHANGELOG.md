@@ -16,6 +16,42 @@ steht, erfährt also auch niemand dort.
 
 > **Language Note:** This changelog is written in German.
 
+## Version 2.5.4 (2026-08-19)
+
+Patch-Release: zwei Meldungen aus dem Forum. Der ORP-Sollwert zeigte auf
+Elektrolyse-Pools einen fremden Wert an, und abgewählte Features boten ihre
+Sensoren in der Sensor-Auswahl weiterhin an.
+
+### 🐛 Behoben
+
+- **ORP- und Chlor-Sollwert kamen vom falschen Dosierkanal.** Der Controller
+  führt die Sollwerte pro Kanal: die Chlordosierung unter
+  `DOSAGE_chlorine_*`, die Salzelektrolyse unter `DOSAGE_electrolysis_*`.
+  Beide Schlüssel existieren immer, gelesen wurde aber nur der Chlor-Kanal —
+  auf einem Pool, der über Elektrolyse dosiert, also ein Wert, den niemand
+  pflegt. Aus 710 mV am Gerät wurden so 770 mV in Home Assistant, beim
+  Chlor-Sollwert dasselbe Bild. Läuft die Elektrolyse ohne Chlordosierung,
+  liest und schreibt die Integration jetzt den Elektrolyse-Kanal; Pools mit
+  Chlorpumpe bleiben unverändert. Fehlen die Elektrolyse-Schlüssel (ältere
+  Firmware), gilt weiterhin der Chlor-Kanal.
+- **Abgewählte Features boten ihre Sensoren weiter zur Auswahl an.** Wer unter
+  „Features aktivieren/deaktivieren" Solar abwählte, fand sämtliche
+  `SOLAR*`-Werte anschließend trotzdem unter „Sensoren auswählen" und musste
+  sie dort ein zweites Mal abwählen. Grund: nur die rund 60 kuratierten
+  Schlüssel trugen eine Feature-Zuordnung, der Rest des Schlüsselraums galt als
+  feature-unabhängig. Präfix-Regeln schließen die Lücke jetzt für alle
+  Features — allgemeine Eingänge (`ADC*`, `IMP*`, `INPUT*`) bleiben bewusst
+  ungebunden, weil sie unabhängig von Features nützlich sind. Wird ein Feature
+  später wieder aktiviert, kommen die vorher ausgewählten Sensoren von selbst
+  zurück: die Auswahl bleibt gespeichert, auch solange sie ausgeblendet ist.
+
+### 🧪 Tests
+
+- 42 neue Tests (728 → 770): Kanal-Erkennung aus den `DOSAGE_*_use`- und
+  `DOS_*_USE`-Flags, Lesen und Schreiben beider Sollwerte je Kanal inklusive
+  Fallback auf den Chlor-Kanal, sowie die Feature-Zuordnung des Schlüsselraums
+  und die gefilterte Sensor-Auswahl.
+
 ## Version 2.5.3 (2026-08-18)
 
 Patch-Release: die beiden pH-Kanäle stritten sich um dieselbe Entity-ID.

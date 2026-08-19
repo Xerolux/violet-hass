@@ -597,7 +597,11 @@ SETPOINT_DEFINITIONS = [
             "ORP_target",
             "DOSAGE_chlorine_setpoint_orp",
         ],
-        "indicator_fields": ["orp_value", "ORP_VALUE", "DOS_1_CL"],
+        # A pool that produces its chlorine in an electrolysis cell keeps the
+        # setpoint in the electrolysis channel; the chlorine keys then hold an
+        # unused value (see dosing_channel.py).
+        "electrolysis_key": "DOSAGE_electrolysis_setpoint_orp",
+        "indicator_fields": ["orp_value", "ORP_VALUE", "DOS_1_CL", "DOS_2_ELO"],
     },
     {
         "key": "chlorine_setpoint",
@@ -619,7 +623,8 @@ SETPOINT_DEFINITIONS = [
             "pot_setpoint",
             "DOSAGE_chlorine_lowerval_cl",
         ],
-        "indicator_fields": ["pot_value", "POT_VALUE", "DOS_1_CL"],
+        "electrolysis_key": "DOSAGE_electrolysis_setpoint_chlorine",
+        "indicator_fields": ["pot_value", "POT_VALUE", "DOS_1_CL", "DOS_2_ELO"],
     },
     {
         "key": "heater_target_temp",
