@@ -36,7 +36,7 @@ from .constants import (
     POOL_TYPE_OPTIONS,
     SUPPORT_URL,
 )
-from .sensor_helper import get_grouped_sensors
+from .sensor_helper import get_grouped_sensors, group_sensor_keys
 from .validators import (
     get_sensor_label,
     validate_credentials_strength,
@@ -73,6 +73,7 @@ __all__ = [
     # Helper Functions
     "get_grouped_sensors",
     "get_sensor_label",
+    "group_sensor_keys",
     "validate_credentials_strength",
     "validate_ip_address",
 ]

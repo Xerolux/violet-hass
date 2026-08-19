@@ -36,6 +36,7 @@ from .const import (
     SETPOINT_DEFINITIONS,
 )
 from .device import VioletPoolDataUpdateCoordinator
+from .dosing_channel import CHANNEL_ELECTROLYSIS, active_dosing_channel
 from .entity import VioletPoolControllerEntity
 from .entity_cleanup import track_provided_entities
 from .runtime_data import get_runtime_data
@@ -79,6 +80,9 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
         self._indicator_fields = setpoint_config["indicator_fields"]
         self._default_value = setpoint_config["default_value"]
         self._api_key = setpoint_config["api_key"]
+        # Config key holding this setpoint when the pool doses via electrolysis
+        # instead of a chlorine pump (see dosing_channel.py).
+        self._electrolysis_key: str | None = setpoint_config.get("electrolysis_key")
 
         # Local cache variable for thread-safe optimistic updates
         self._optimistic_value: float | None = None
@@ -91,6 +95,20 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
             self._attr_native_step,
             self._api_key,
         )
+
+    @property
+    def _active_electrolysis_key(self) -> str | None:
+        """Return the electrolysis config key when that channel is in charge.
+
+        Returns:
+            The ``DOSAGE_electrolysis_*`` key for this setpoint, or ``None``
+            when the entity has none or the chlorine channel is active.
+        """
+        if not self._electrolysis_key:
+            return None
+        if active_dosing_channel(self.coordinator.data) != CHANNEL_ELECTROLYSIS:
+            return None
+        return self._electrolysis_key
 
     @property
     def native_value(self) -> float | None:
@@ -125,6 +143,19 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                             return float(level)
                     except (ValueError, TypeError):
                         pass
+
+        # An electrolysis pool stores the setpoint in its own channel; the
+        # chlorine keys still exist but hold a value nobody maintains.
+        if (electrolysis_key := self._active_electrolysis_key) is not None:
+            value = self.get_float_value(electrolysis_key)
+            if value is not None:
+                _LOGGER.debug(
+                    "Setpoint for %s from electrolysis field '%s': %.2f",
+                    self.entity_description.name,
+                    electrolysis_key,
+                    value,
+                )
+                return value
 
         if self._setpoint_fields:
             for field in self._setpoint_fields:
@@ -300,8 +331,19 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
             )
 
             api_key = self._api_key
+            electrolysis_key = self._active_electrolysis_key
 
-            if api_key == "pH":
+            if electrolysis_key is not None:
+                _LOGGER.debug(
+                    "Using set_target_value for electrolysis key %s (sanitized: %.2f)",
+                    electrolysis_key,
+                    sanitized_value,
+                )
+                result = await self.device.api.set_target_value(
+                    electrolysis_key,
+                    int(sanitized_value) if api_key == "ORP" else sanitized_value,
+                )
+            elif api_key == "pH":
                 _LOGGER.debug("Using set_ph_target (sanitized: %.2f)", sanitized_value)
                 result = await self.device.api.set_ph_target(sanitized_value)
             elif api_key == "ORP":

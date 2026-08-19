@@ -363,6 +363,13 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                 if key in self._sensor_data and isinstance(value, list) and value:
                     selected_sensors.extend(value)
 
+            # Keys belonging to disabled features are not offered in this step.
+            # Keep their previous selection so re-enabling the feature brings
+            # the sensors back instead of silently dropping them for good.
+            offered = {key for keys in self._sensor_data.values() for key in keys}
+            previous = self.current_config.get(CONF_SELECTED_SENSORS) or []
+            selected_sensors.extend(key for key in previous if key not in offered)
+
             self._updated_options[CONF_SELECTED_SENSORS] = selected_sensors
             if selected_sensors:
                 _LOGGER.info("%d sensors saved in options", len(selected_sensors))

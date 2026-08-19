@@ -33,7 +33,6 @@ from .const import (
     EXTRA_DIAGNOSTIC_SENSORS,
     ONEWIRE_ROMCODE_SENSORS,
     RUNTIME_SENSORS,
-    SENSOR_FEATURE_MAP,
     STATUS_SENSORS,
     SYSTEM_SENSORS,
     TEMP_RULE_SENSORS,
@@ -42,6 +41,7 @@ from .const import (
 )
 from .device import VioletPoolDataUpdateCoordinator
 from .entity_cleanup import track_provided_entities
+from .feature_keys import feature_for_key
 
 # Import sensor classes from submodules
 from .sensor_modules import (
@@ -211,7 +211,7 @@ def _create_special_sensors(
     for key, sensor_config in DOSING_STATE_SENSORS.items():
         if key in coordinator.data:
             # Check if feature is enabled
-            feature_id = SENSOR_FEATURE_MAP.get(key)
+            feature_id = feature_for_key(key)
             if feature_id and feature_id not in config["active_features"]:
                 continue
 
@@ -236,7 +236,7 @@ def _create_special_sensors(
     for key, sensor_config in COMPOSITE_STATE_SENSORS.items():
         if key in coordinator.data:
             # Check if feature is enabled
-            feature_id = SENSOR_FEATURE_MAP.get(key)
+            feature_id = feature_for_key(key)
             if feature_id and feature_id not in config["active_features"]:
                 continue
 
@@ -260,7 +260,7 @@ def _create_special_sensors(
     # Runtime Sensors (PUMP_RUNTIME, SOLAR_RUNTIME, etc.)
     for key, sensor_config in RUNTIME_SENSORS.items():
         if key in coordinator.data:
-            feature_id = SENSOR_FEATURE_MAP.get(key)
+            feature_id = feature_for_key(key)
             if feature_id and feature_id not in config["active_features"]:
                 continue
             if not config["create_all"] and key not in config["selected_sensors"]:
@@ -284,7 +284,7 @@ def _create_special_sensors(
     # Dosing Statistics Sensors
     for key, sensor_config in DOSING_STATS_SENSORS.items():
         if key in coordinator.data:
-            feature_id = SENSOR_FEATURE_MAP.get(key)
+            feature_id = feature_for_key(key)
             if feature_id and feature_id not in config["active_features"]:
                 continue
             if not config["create_all"] and key not in config["selected_sensors"]:
@@ -309,7 +309,7 @@ def _create_special_sensors(
     # OmniTronic valve state, backwash last-run timestamps, etc.)
     for key, sensor_config in EXTRA_DIAGNOSTIC_SENSORS.items():
         if key in coordinator.data:
-            feature_id = SENSOR_FEATURE_MAP.get(key)
+            feature_id = feature_for_key(key)
             if feature_id and feature_id not in config["active_features"]:
                 continue
             if not config["create_all"] and key not in config["selected_sensors"]:
@@ -375,7 +375,7 @@ def _create_standard_sensors(
         if key in handled_keys or should_skip_sensor(key, coordinator.data.get(key)):
             continue
 
-        feature_id = SENSOR_FEATURE_MAP.get(key)
+        feature_id = feature_for_key(key)
         if feature_id and feature_id not in config["active_features"]:
             continue
 
