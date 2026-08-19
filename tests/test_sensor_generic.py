@@ -104,8 +104,8 @@ def test_onewire_rcode_sensor_keeps_text_value():
     assert sensor.native_value == "28121883321901A9"
 
 
-def test_onewire_rcode_sensor_uses_explicit_name_without_translation():
-    """OneWire ROM-code sensors should rely on their explicit name, not missing translations."""
+def test_onewire_rcode_sensor_is_translated():
+    """OneWire ROM-code sensors carry the shared translation key of their probe."""
 
     coordinator = MagicMock()
     coordinator.data = {"onewire1_rcode": "28121883321901A9"}
@@ -135,5 +135,7 @@ def test_onewire_rcode_sensor_uses_explicit_name_without_translation():
     rom_sensor = next(
         sensor for sensor in sensors if sensor.entity_description.key == "onewire1_rcode"
     )
-    assert rom_sensor.entity_description.translation_key is None
-    assert getattr(rom_sensor, "_attr_name", None) == "OneWire-ROM-Code 1"
+    assert rom_sensor.entity_description.translation_key == "onewire1_romcode"
+    # The English name stays on the description: it is what the entity_id is
+    # derived from, while the displayed name comes from the translation.
+    assert rom_sensor.entity_description.name == "OneWire ROM Code 1"

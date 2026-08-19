@@ -1505,6 +1505,195 @@
       },
       "omni_dc5_runtime": {
         "name": "OMNI DC Motor 5 Runtime"
+      },
+      "onewire1_romcode": {
+        "name": "OneWire ROM Code 1"
+      },
+      "onewire2_romcode": {
+        "name": "OneWire ROM Code 2"
+      },
+      "onewire3_romcode": {
+        "name": "OneWire ROM Code 3"
+      },
+      "onewire4_romcode": {
+        "name": "OneWire ROM Code 4"
+      },
+      "onewire5_romcode": {
+        "name": "OneWire ROM Code 5"
+      },
+      "onewire6_romcode": {
+        "name": "OneWire ROM Code 6"
+      },
+      "onewire7_romcode": {
+        "name": "OneWire ROM Code 7"
+      },
+      "onewire8_romcode": {
+        "name": "OneWire ROM Code 8"
+      },
+      "onewire9_romcode": {
+        "name": "OneWire ROM Code 9"
+      },
+      "onewire10_romcode": {
+        "name": "OneWire ROM Code 10"
+      },
+      "onewire11_romcode": {
+        "name": "OneWire ROM Code 11"
+      },
+      "onewire12_romcode": {
+        "name": "OneWire ROM Code 12"
+      },
+      "memory_used": {
+        "name": "Memory Used"
+      },
+      "configchangemarker": {
+        "name": "Configuration Change Marker"
+      },
+      "checksum": {
+        "name": "Configuration Checksum"
+      },
+      "cpu_gov": {
+        "name": "CPU Governor"
+      },
+      "date": {
+        "name": "System Date"
+      },
+      "time": {
+        "name": "System Time"
+      },
+      "current_time": {
+        "name": "Controller Time"
+      },
+      "current_time_unix": {
+        "name": "Controller Time (Unix)"
+      },
+      "sw_update_available": {
+        "name": "Software Update Available"
+      },
+      "hw_serial_carrier": {
+        "name": "Carrier Board Serial Number"
+      },
+      "hw_version_carrier": {
+        "name": "Carrier Board Hardware Version"
+      },
+      "system_carrier_alive_count": {
+        "name": "Carrier Board Heartbeats"
+      },
+      "system_carrier_alive_faultcount": {
+        "name": "Carrier Board Heartbeat Faults"
+      },
+      "system_dosagemodule_alive_count": {
+        "name": "Dosing Module Heartbeats"
+      },
+      "system_dosagemodule_alive_faultcount": {
+        "name": "Dosing Module Heartbeat Faults"
+      },
+      "system_ext1module_alive_count": {
+        "name": "Extension Module 1 Heartbeats"
+      },
+      "system_ext1module_alive_faultcount": {
+        "name": "Extension Module 1 Heartbeat Faults"
+      },
+      "heater_set_temp": {
+        "name": "Heater Setpoint (Controller)"
+      },
+      "solar_maxtemp": {
+        "name": "Solar Maximum Temperature"
+      },
+      "lightstate": {
+        "name": "Light Detail Status"
+      },
+      "pumppriostate": {
+        "name": "Pump Priority Status"
+      },
+      "backwashstate": {
+        "name": "Backwash Detail Status"
+      },
+      "refill_state": {
+        "name": "Refill Detail Status"
+      },
+      "light_mode": {
+        "name": "Light Mode"
+      },
+      "dmx_mode": {
+        "name": "DMX Mode"
+      },
+      "light_scene_1": {
+        "name": "Light Scene 1"
+      },
+      "light_scene_2": {
+        "name": "Light Scene 2"
+      },
+      "light_scene_3": {
+        "name": "Light Scene 3"
+      },
+      "light_scene_4": {
+        "name": "Light Scene 4"
+      },
+      "light_scene_5": {
+        "name": "Light Scene 5"
+      },
+      "light_scene_6": {
+        "name": "Light Scene 6"
+      },
+      "light_scene_7": {
+        "name": "Light Scene 7"
+      },
+      "light_scene_8": {
+        "name": "Light Scene 8"
+      },
+      "light_scene_9": {
+        "name": "Light Scene 9"
+      },
+      "light_scene_10": {
+        "name": "Light Scene 10"
+      },
+      "light_scene_11": {
+        "name": "Light Scene 11"
+      },
+      "light_scene_12": {
+        "name": "Light Scene 12"
+      },
+      "pump_rpm_0_value": {
+        "name": "Pump Speed 0 Value"
+      },
+      "pump_rpm_1_value": {
+        "name": "Pump Speed 1 Value"
+      },
+      "pump_rpm_2_value": {
+        "name": "Pump Speed 2 Value"
+      },
+      "pump_rpm_3_value": {
+        "name": "Pump Speed 3 Value"
+      },
+      "cover_direction": {
+        "name": "Cover Direction"
+      },
+      "cover_runtime": {
+        "name": "Cover Runtime"
+      },
+      "last_moving_direction": {
+        "name": "Cover Last Direction"
+      },
+      "close_contact": {
+        "name": "Cover Closed Contact"
+      },
+      "open_contact": {
+        "name": "Cover Open Contact"
+      },
+      "error_contact": {
+        "name": "Cover Error Contact"
+      },
+      "error_code": {
+        "name": "Error Code"
+      },
+      "last_error": {
+        "name": "Last Error"
+      },
+      "dos_3_elo_rev_remaining_range": {
+        "name": "Electrolysis (Reversed) Remaining Range"
+      },
+      "inputz1z2": {
+        "name": "Digital Inputs Z1/Z2"
       }
     },
     "binary_sensor": {

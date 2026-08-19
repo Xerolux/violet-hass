@@ -82,104 +82,129 @@ TEMP_SENSORS = {
     },
 }
 
-# ROM codes are hardware identifiers, not readings. The sensor platform
-# deliberately creates them without a translation key (see sensor.py), so the
-# names below are the ones Home Assistant shows.
+# ROM codes are hardware identifiers, not readings. A controller may report the
+# same code under several spellings (``onewire1_rcode``, ``onewire1_romcode``,
+# ``onewire1romcode``); the sensor platform matches them by shape and publishes
+# only one entity per probe, under the translation key listed here.
 ONEWIRE_ROMCODE_SENSORS = {
     "onewire1_rcode": {
         "name": "OneWire-ROM-Code 1",
+        "translation_key": "onewire1_romcode",
         "icon": "mdi:identifier",
     },
     "onewire1_romcode": {
         "name": "OneWire-ROM-Code 1",
+        "translation_key": "onewire1_romcode",
         "icon": "mdi:identifier",
     },
     "onewire2_rcode": {
         "name": "OneWire-ROM-Code 2",
+        "translation_key": "onewire2_romcode",
         "icon": "mdi:identifier",
     },
     "onewire2_romcode": {
         "name": "OneWire-ROM-Code 2",
+        "translation_key": "onewire2_romcode",
         "icon": "mdi:identifier",
     },
     "onewire3_rcode": {
         "name": "OneWire-ROM-Code 3",
+        "translation_key": "onewire3_romcode",
         "icon": "mdi:identifier",
     },
     "onewire3_romcode": {
         "name": "OneWire-ROM-Code 3",
+        "translation_key": "onewire3_romcode",
         "icon": "mdi:identifier",
     },
     "onewire4_rcode": {
         "name": "OneWire-ROM-Code 4",
+        "translation_key": "onewire4_romcode",
         "icon": "mdi:identifier",
     },
     "onewire4_romcode": {
         "name": "OneWire-ROM-Code 4",
+        "translation_key": "onewire4_romcode",
         "icon": "mdi:identifier",
     },
     "onewire5_rcode": {
         "name": "OneWire-ROM-Code 5",
+        "translation_key": "onewire5_romcode",
         "icon": "mdi:identifier",
     },
     "onewire5_romcode": {
         "name": "OneWire-ROM-Code 5",
+        "translation_key": "onewire5_romcode",
         "icon": "mdi:identifier",
     },
     "onewire6_rcode": {
         "name": "OneWire-ROM-Code 6",
+        "translation_key": "onewire6_romcode",
         "icon": "mdi:identifier",
     },
     "onewire6_romcode": {
         "name": "OneWire-ROM-Code 6",
+        "translation_key": "onewire6_romcode",
         "icon": "mdi:identifier",
     },
     "onewire7_rcode": {
         "name": "OneWire-ROM-Code 7",
+        "translation_key": "onewire7_romcode",
         "icon": "mdi:identifier",
     },
     "onewire7_romcode": {
         "name": "OneWire-ROM-Code 7",
+        "translation_key": "onewire7_romcode",
         "icon": "mdi:identifier",
     },
     "onewire8_rcode": {
         "name": "OneWire-ROM-Code 8",
+        "translation_key": "onewire8_romcode",
         "icon": "mdi:identifier",
     },
     "onewire8_romcode": {
         "name": "OneWire-ROM-Code 8",
+        "translation_key": "onewire8_romcode",
         "icon": "mdi:identifier",
     },
     "onewire9_rcode": {
         "name": "OneWire-ROM-Code 9",
+        "translation_key": "onewire9_romcode",
         "icon": "mdi:identifier",
     },
     "onewire9_romcode": {
         "name": "OneWire-ROM-Code 9",
+        "translation_key": "onewire9_romcode",
         "icon": "mdi:identifier",
     },
     "onewire10_rcode": {
         "name": "OneWire-ROM-Code 10",
+        "translation_key": "onewire10_romcode",
         "icon": "mdi:identifier",
     },
     "onewire10_romcode": {
         "name": "OneWire-ROM-Code 10",
+        "translation_key": "onewire10_romcode",
         "icon": "mdi:identifier",
     },
     "onewire11_rcode": {
         "name": "OneWire-ROM-Code 11",
+        "translation_key": "onewire11_romcode",
         "icon": "mdi:identifier",
     },
     "onewire11_romcode": {
         "name": "OneWire-ROM-Code 11",
+        "translation_key": "onewire11_romcode",
         "icon": "mdi:identifier",
     },
     "onewire12_rcode": {
         "name": "OneWire-ROM-Code 12",
+        "translation_key": "onewire12_romcode",
         "icon": "mdi:identifier",
     },
     "onewire12_romcode": {
         "name": "OneWire-ROM-Code 12",
+        "translation_key": "onewire12_romcode",
         "icon": "mdi:identifier",
     },
 }

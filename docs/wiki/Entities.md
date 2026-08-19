@@ -227,6 +227,22 @@ For every dosing channel (`DOS_1_CL`, `DOS_2_ELO`, `DOS_4_PHM`, `DOS_5_PHP`, `DO
 | `BACKWASH_DELAY_RUNNING` | Backwash Delay Active | – |
 | `BATHING_AI_SURVEILLANCE_STATE` | Bathing AI Surveillance | – |
 
+#### What "Bathing AI" means
+
+It is the controller's **bather detection through the overflow tank**: when the
+level in the overflow tank rises by the configured amount within the configured
+time, somebody displaced water by getting into the pool — and the controller
+switches the filter pump on. A pool without an overflow tank still reports the
+values, but nothing acts on them.
+
+| Entity ID suffix | Meaning |
+|------------------|---------|
+| `BATHING_AI_SURVEILLANCE_STATE` | Surveillance is running and comparing the level (`YES`/`NO`) |
+| `BATHING_AI_START_LEVEL` | Overflow tank level the comparison started from |
+| `BATHING_AI_LAST_LEVEL` | Current level in the overflow tank |
+| `BATHING_AI_PUMP_STATE` | Whether the detection switched the pump on |
+| `BATHING_AI_PUMP_TIMESTAMP` | When it switched the pump on |
+
 ### Digital Inputs
 
 | Entity ID suffix | Name | Feature |

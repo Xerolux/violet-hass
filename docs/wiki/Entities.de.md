@@ -219,7 +219,7 @@ Für jeden Dosierkanal (`DOS_1_CL`, `DOS_2_ELO`, `DOS_4_PHM`, `DOS_5_PHP`, `DOS_
 | `HW_DMX_MODULE` | Hardware: DMX-Modul |
 | `HW_DIRULE_MODULE` | Hardware: Digitalregel-Modul |
 
-### Überlauf / Rückspülung / Bad-AI
+### Überlauf / Rückspülung / Bade-KI
 
 | Entity-ID-Suffix | Name | Device Class |
 |------------------|------|--------------|
@@ -227,7 +227,23 @@ Für jeden Dosierkanal (`DOS_1_CL`, `DOS_2_ELO`, `DOS_4_PHM`, `DOS_5_PHP`, `DOS_
 | `OVERFLOW_DRYRUN_STATE` | Überlauf Trockenlauf | problem |
 | `OVERFLOW_REFILL_STATE` | Überlauf Nachspeisung | – |
 | `BACKWASH_DELAY_RUNNING` | Rückspülverzögerung aktiv | – |
-| `BATHING_AI_SURVEILLANCE_STATE` | Bad-AI-Überwachung | – |
+| `BATHING_AI_SURVEILLANCE_STATE` | Bade-KI: Überwachung läuft | – |
+
+#### Was ist die „Bade-KI"?
+
+Die VIOLET nennt so ihre **Badebetriebs-Erkennung über den Überlaufbehälter**:
+Steigt der Füllstand im Überlaufbehälter innerhalb der eingestellten Zeit um
+den eingestellten Betrag, war jemand im Becken (verdrängtes Wasser läuft über)
+— und die Steuerung schaltet die Filterpumpe ein. Ohne Überlaufbehälter liefert
+die Steuerung diese Werte zwar, sie bleiben aber ohne Funktion.
+
+| Entity-ID-Suffix | Bedeutung |
+|------------------|-----------|
+| `BATHING_AI_SURVEILLANCE_STATE` | Überwachung läuft gerade und vergleicht den Füllstand (`YES`/`NO`) |
+| `BATHING_AI_START_LEVEL` | Füllstand im Überlaufbehälter, gegen den verglichen wird |
+| `BATHING_AI_LAST_LEVEL` | Aktueller Füllstand im Überlaufbehälter |
+| `BATHING_AI_PUMP_STATE` | Ob die Erkennung die Pumpe eingeschaltet hat |
+| `BATHING_AI_PUMP_TIMESTAMP` | Wann sie die Pumpe eingeschaltet hat |
 
 ### Digitale Eingänge
 

@@ -23,11 +23,11 @@ from ..const import DOMAIN
 from ..device import VioletPoolDataUpdateCoordinator
 from ..entity import VioletPoolControllerEntity
 from .base import (
-    _ALL_TEXT_SENSORS,
     _TIME_FORMAT_KEYS,
     _TIMESTAMP_KEYS,
     _TIMESTAMP_SUFFIXES,
     format_seconds_to_readable,
+    is_text_sensor,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -122,7 +122,7 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
                 )
                 return None
 
-        if key in _ALL_TEXT_SENSORS:
+        if is_text_sensor(key):
             return str(raw_value)
 
         # Format DI-Rule stopwatch remaining time (seconds) to readable format
@@ -143,7 +143,7 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
             # Temperature sensors (all onewire, CPU temps) - 2 decimal places
             # IMPORTANT: Exclude freezecount, faultcount -
             # these are counters, NOT temperatures!
-            # ROM-code sensors are excluded via _ALL_TEXT_SENSORS early return above.
+            # ROM-code sensors are excluded via the is_text_sensor() return above.
             if (
                 ("temp" in key.lower() or "onewire" in key.lower())
                 and "freezecount" not in key.lower()
