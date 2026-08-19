@@ -9,7 +9,9 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import cast
+from collections.abc import Mapping
+from dataclasses import replace
+from typing import Any, cast
 
 from homeassistant.components.number import NumberEntity, NumberEntityDescription
 from homeassistant.helpers.restore_state import RestoreEntity
@@ -36,7 +38,12 @@ from .const import (
     SETPOINT_DEFINITIONS,
 )
 from .device import VioletPoolDataUpdateCoordinator
-from .dosing_channel import CHANNEL_ELECTROLYSIS, active_dosing_channel
+from .dosing_channel import (
+    CHANNEL_CHLORINE,
+    CHANNEL_ELECTROLYSIS,
+    active_dosing_channel,
+    active_dosing_channels,
+)
 from .entity import VioletPoolControllerEntity
 from .entity_cleanup import track_provided_entities
 from .runtime_data import get_runtime_data
@@ -83,6 +90,9 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
         # Config key holding this setpoint when the pool doses via electrolysis
         # instead of a chlorine pump (see dosing_channel.py).
         self._electrolysis_key: str | None = setpoint_config.get("electrolysis_key")
+        # Set on the second entity a dual-dosing pool gets: it always reads and
+        # writes the electrolysis channel, whatever the enable flags say.
+        self._pinned_to_electrolysis: bool = bool(setpoint_config.get("pinned_to_electrolysis"))
 
         # Local cache variable for thread-safe optimistic updates
         self._optimistic_value: float | None = None
@@ -102,10 +112,14 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
 
         Returns:
             The ``DOSAGE_electrolysis_*`` key for this setpoint, or ``None``
-            when the entity has none or the chlorine channel is active.
+            when the entity has none or the chlorine channel is active. The
+            second entity of a dual-dosing pool is pinned to the electrolysis
+            channel and always returns its key.
         """
         if not self._electrolysis_key:
             return None
+        if self._pinned_to_electrolysis:
+            return self._electrolysis_key
         if active_dosing_channel(self.coordinator.data) != CHANNEL_ELECTROLYSIS:
             return None
         return self._electrolysis_key
@@ -526,6 +540,41 @@ class VioletSaturationIndexInputNumber(VioletPoolControllerEntity, NumberEntity,
             )
 
 
+def electrolysis_twin(
+    setpoint_config: dict,
+    data: Mapping[str, Any] | None,
+) -> dict | None:
+    """Return the second setpoint config a dual-dosing pool needs.
+
+    A pool can run an electrolysis cell and a chlorine pump at the same time.
+    The controller then keeps one setpoint per channel, and a single entity
+    would leave the electrolysis one unreachable - nothing in Home Assistant
+    would read or write it.
+
+    Args:
+        setpoint_config: The setpoint definition the primary entity was built
+            from.
+        data: The merged coordinator data.
+
+    Returns:
+        A copy of the setpoint config pinned to the electrolysis channel, or
+        ``None`` when this setpoint has no electrolysis counterpart or only one
+        channel is enabled.
+    """
+    electrolysis_key = setpoint_config.get("electrolysis_key")
+    if not electrolysis_key:
+        return None
+    if set(active_dosing_channels(data)) != {CHANNEL_CHLORINE, CHANNEL_ELECTROLYSIS}:
+        return None
+    return {
+        **setpoint_config,
+        "key": f"{setpoint_config['key']}_electrolysis",
+        "name": f"{setpoint_config['name']} (Electrolysis)",
+        "translation_key": f"{setpoint_config['translation_key']}_electrolysis",
+        "pinned_to_electrolysis": True,
+    }
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: ConfigEntry,
@@ -639,6 +688,27 @@ async def async_setup_entry(
         _LOGGER.debug("Creating number entity for '%s' (key: %s)", setpoint_name, setpoint_key)
 
         entities.append(VioletNumber(coordinator, config_entry, description, setpoint_config))
+
+        twin = electrolysis_twin(setpoint_config, coordinator.data)
+        if twin is not None:
+            entities.append(
+                VioletNumber(
+                    coordinator,
+                    config_entry,
+                    replace(
+                        description,
+                        key=str(twin["key"]),
+                        name=str(twin["name"]),
+                        translation_key=str(twin["translation_key"]),
+                    ),
+                    twin,
+                )
+            )
+            _LOGGER.debug(
+                "Both dosing channels active - added '%s' for %s",
+                twin["name"],
+                twin["electrolysis_key"],
+            )
 
     track_provided_entities(hass, config_entry, Platform.NUMBER, entities)
 

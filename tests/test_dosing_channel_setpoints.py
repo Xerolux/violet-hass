@@ -20,8 +20,9 @@ from custom_components.violet_pool_controller.dosing_channel import (
     CHANNEL_CHLORINE,
     CHANNEL_ELECTROLYSIS,
     active_dosing_channel,
+    active_dosing_channels,
 )
-from custom_components.violet_pool_controller.number import VioletNumber
+from custom_components.violet_pool_controller.number import VioletNumber, electrolysis_twin
 
 ORP_SETPOINT = next(item for item in SETPOINT_DEFINITIONS if item["key"] == "orp_setpoint")
 CHLORINE_SETPOINT = next(
@@ -73,8 +74,9 @@ class TestActiveDosingChannel:
         [
             {},
             {"DOSAGE_chlorine_use": "1", "DOSAGE_electrolysis_use": "0"},
-            # Both channels in use: the chlorine keys stay authoritative,
-            # which is what the integration has always done.
+            # Both channels in use: the chlorine channel stays the primary
+            # one - the electrolysis setpoint gets a second entity instead of
+            # replacing this one (see TestBothChannelsActive).
             {"DOSAGE_chlorine_use": "1", "DOSAGE_electrolysis_use": "1"},
         ],
     )
@@ -184,3 +186,159 @@ class TestSetpointWriting:
         await asyncio.sleep(0)  # let the follow-up refresh task finish
 
         api.set_orp_target.assert_awaited_once_with(720.0)
+
+
+class TestBothChannelsActive:
+    """An electrolysis cell and a chlorine pump on the same pool.
+
+    Raised on the forum for 2.5.4: "es können aber auch beide Optionen
+    simultan benutzt werden". The controller then keeps two independent
+    setpoints. Reporting a single channel would leave one of them unreachable
+    in Home Assistant - there is no entity that reads or writes it.
+    """
+
+    BOTH = {"DOSAGE_chlorine_use": "1", "DOSAGE_electrolysis_use": "1"}
+
+    def test_both_channels_are_reported(self) -> None:
+        """Neither channel may be dropped when both are enabled."""
+        assert active_dosing_channels(self.BOTH) == (CHANNEL_CHLORINE, CHANNEL_ELECTROLYSIS)
+
+    @pytest.mark.parametrize(
+        ("data", "expected"),
+        [
+            ({"DOSAGE_chlorine_use": "1", "DOSAGE_electrolysis_use": "0"}, (CHANNEL_CHLORINE,)),
+            (
+                {"DOSAGE_chlorine_use": "0", "DOSAGE_electrolysis_use": "1"},
+                (CHANNEL_ELECTROLYSIS,),
+            ),
+            # Nothing flagged - the chlorine channel is what the integration
+            # used before the flags were read at all.
+            ({}, (CHANNEL_CHLORINE,)),
+            ({"DOSAGE_chlorine_use": "0", "DOSAGE_electrolysis_use": "0"}, (CHANNEL_CHLORINE,)),
+        ],
+    )
+    def test_single_channel_setups_are_unchanged(self, data: dict, expected: tuple) -> None:
+        """One channel enabled must still report exactly that one."""
+        assert active_dosing_channels(data) == expected
+
+    def test_missing_data(self) -> None:
+        """No data at all must not raise."""
+        assert active_dosing_channels(None) == (CHANNEL_CHLORINE,)
+
+    def test_the_primary_entity_keeps_the_chlorine_setpoint(self) -> None:
+        """The entity that already exists must not change what it shows."""
+        number = _make_number(
+            ORP_SETPOINT,
+            {
+                **self.BOTH,
+                "DOSAGE_chlorine_setpoint_orp": 770,
+                "DOSAGE_electrolysis_setpoint_orp": 710,
+            },
+        )
+        assert number.native_value == 770
+
+    def test_the_second_entity_reads_the_electrolysis_setpoint(self) -> None:
+        """The pinned entity always reports its own channel."""
+        number = _make_number(
+            {**ORP_SETPOINT, "pinned_to_electrolysis": True},
+            {
+                **self.BOTH,
+                "DOSAGE_chlorine_setpoint_orp": 770,
+                "DOSAGE_electrolysis_setpoint_orp": 710,
+            },
+        )
+        assert number.native_value == 710
+
+    async def test_the_second_entity_writes_the_electrolysis_key(self) -> None:
+        """A write from the second entity must not land on the chlorine key."""
+        number = _make_number(
+            {**ORP_SETPOINT, "pinned_to_electrolysis": True},
+            {**self.BOTH, "DOSAGE_electrolysis_setpoint_orp": 710},
+        )
+        api = number.device.api
+        api.set_target_value = AsyncMock(return_value={"success": True})
+        api.set_orp_target = AsyncMock(return_value={"success": True})
+        number._delayed_refresh = AsyncMock()
+        number.async_write_ha_state = MagicMock()
+
+        await number.async_set_native_value(720)
+        await asyncio.sleep(0)
+
+        api.set_target_value.assert_awaited_once_with("DOSAGE_electrolysis_setpoint_orp", 720)
+        api.set_orp_target.assert_not_awaited()
+
+    def test_the_chlorine_setpoint_gets_a_second_entity_too(self) -> None:
+        """Both setpoints are per channel, not just the ORP one."""
+        number = _make_number(
+            {**CHLORINE_SETPOINT, "pinned_to_electrolysis": True},
+            {
+                **self.BOTH,
+                "DOSAGE_chlorine_lowerval_cl": 0.1,
+                "DOSAGE_electrolysis_setpoint_chlorine": 0.6,
+            },
+        )
+        assert number.native_value == 0.6
+
+
+class TestElectrolysisTwin:
+    """electrolysis_twin() - whether the second entity gets created at all."""
+
+    BOTH = {"DOSAGE_chlorine_use": "1", "DOSAGE_electrolysis_use": "1"}
+
+    def test_dual_dosing_produces_a_twin(self) -> None:
+        """Both channels enabled: the setpoint needs a second entity."""
+        twin = electrolysis_twin(ORP_SETPOINT, self.BOTH)
+
+        assert twin is not None
+        assert twin["key"] == "orp_setpoint_electrolysis"
+        assert twin["translation_key"] == "orp_setpoint_electrolysis"
+        assert twin["pinned_to_electrolysis"] is True
+        # The twin must keep the range and unit of the setpoint it copies.
+        assert twin["min_value"] == ORP_SETPOINT["min_value"]
+        assert twin["max_value"] == ORP_SETPOINT["max_value"]
+
+    def test_the_twin_has_its_own_unique_id(self) -> None:
+        """Two entities sharing a key would collide in the registry."""
+        twin = electrolysis_twin(ORP_SETPOINT, self.BOTH)
+
+        assert twin is not None
+        assert twin["key"] != ORP_SETPOINT["key"]
+
+    @pytest.mark.parametrize(
+        "data",
+        [
+            {"DOSAGE_chlorine_use": "1", "DOSAGE_electrolysis_use": "0"},
+            {"DOSAGE_chlorine_use": "0", "DOSAGE_electrolysis_use": "1"},
+            {},
+            None,
+        ],
+    )
+    def test_a_single_channel_gets_no_twin(self, data: dict | None) -> None:
+        """One channel is served by the entity that already exists."""
+        assert electrolysis_twin(ORP_SETPOINT, data) is None
+
+    def test_setpoints_without_a_counterpart_get_no_twin(self) -> None:
+        """The pH setpoint is not kept per dosing channel."""
+        ph = next(item for item in SETPOINT_DEFINITIONS if item["key"] == "ph_setpoint")
+
+        assert electrolysis_twin(ph, self.BOTH) is None
+
+    @pytest.mark.parametrize("language", ["de", "en"])
+    def test_the_twin_names_are_translated(self, language: str) -> None:
+        """An untranslated key falls back to a name built from the key."""
+        import json
+        from pathlib import Path
+
+        path = (
+            Path(__file__).parent.parent
+            / "custom_components"
+            / "violet_pool_controller"
+            / "translations"
+            / f"{language}.json"
+        )
+        names = json.loads(path.read_text(encoding="utf-8"))["entity"]["number"]
+
+        for setpoint in (ORP_SETPOINT, CHLORINE_SETPOINT):
+            twin = electrolysis_twin(setpoint, self.BOTH)
+            assert twin is not None
+            assert twin["translation_key"] in names
