@@ -1,20 +1,21 @@
 # Changelog - Violet Pool Controller
 
-> **Diese Integration entsteht in meiner Freizeit — und ist komplett kostenlos.**
-> Wenn sie dir das Leben mit deinem Pool leichter macht und du die Entwicklung
-> unterstützen möchtest, freue ich mich riesig. Kein Muss, aber mega
-> motivierend! 😊☕
+> **This integration is built in my spare time — and it is completely free.**
+> If it makes life with your pool easier and you would like to support the
+> development, I would be delighted. No obligation, but hugely motivating! 😊☕
 
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Spendier%20mir%20einen%20Kaffee!-yellow?logo=buy-me-a-coffee&style=for-the-badge)](https://buymeacoffee.com/xerolux)
 [![PayPal](https://img.shields.io/badge/PayPal-Danke%20f%C3%BCr%20deine%20Unterst%C3%BCtzung!-blue?logo=paypal&style=for-the-badge)](https://paypal.me/xerolux)
 
 ---
 
-Dieser Changelog ist auf Deutsch. Der Abschnitt zur jeweiligen Version wird
-beim Release automatisch zum Text der GitHub-Release-Seite — was hier nicht
-steht, erfährt also auch niemand dort.
+This changelog is written in English (see the language policy in
+[CLAUDE.md](./CLAUDE.md)). The section for a version becomes the text of its
+GitHub release page automatically — what is not written here is not told to
+anyone there either.
 
-> **Language Note:** This changelog is written in German.
+> **Historical note:** entries up to and including 2.5.7 were written in German,
+> before the language policy existed. They are kept as they were published.
 
 ## Version 2.5.7 (2026-08-19)
 
