@@ -17,6 +17,38 @@ anyone there either.
 > **Historical note:** entries up to and including 2.5.7 were written in German,
 > before the language policy existed. They are kept as they were published.
 
+## Version 2.5.8 (2026-08-20)
+
+The first release written under the language policy: English, because this
+section becomes the release page every HACS user reads.
+
+### 📖 Documentation
+
+- **English is now binding for everything written into this repository.**
+  `release.yml` lifts a version's changelog section verbatim onto the GitHub
+  release page, so the language of `CHANGELOG.md` was never an internal
+  detail - every release page this project had published was German, on an
+  integration distributed through HACS and read by people who do not speak it.
+  `CLAUDE.md` now states the rule as a table covering the changelog, release
+  notes, commit messages, branch names, pull request titles and bodies, code
+  comments, docstrings, log and exception text, the top-level documents,
+  workflow files and test names.
+- **Two exceptions, both language by definition:** `translations/*.json` - that
+  *is* the localisation - and the `.de.md` half of the bilingual wiki, where
+  the English page is written first and the German one translates it.
+- The changelog header, which declared itself German, and the installation and
+  support blocks `release.yml` appends to every release page are now English.
+  Entries up to and including 2.5.7 stay German: they are already published as
+  release pages, and rewriting them would change the record without changing
+  what anyone saw.
+
+### 🧪 Tests
+
+- 8 new tests: the current version must have a changelog section, no entry
+  after 2.5.7 may use a German section heading, the header must not declare
+  itself German again, the workflow boilerplate must stay English, and
+  `CLAUDE.md` must actually carry the policy.
+
 ## Version 2.5.7 (2026-08-19)
 
 Patch-Release: Wer Elektrolyse **und** Chlordosierung gleichzeitig betreibt, kam
