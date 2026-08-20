@@ -9,4 +9,4 @@
 # CVE-2026-64824 (path traversal to RCE via backup restore, CVSS 9.3), and a
 # development environment should not pull in a vulnerable release.
 homeassistant>=2026.8.0
-violet-poolController-api>=0.0.36
+violet-poolController-api>=0.0.38

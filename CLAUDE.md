@@ -11,7 +11,7 @@ It depends on a separate API client package.
    - Async HTTP client for Violet Pool Controller hardware
    - Rate limiting, circuit breaker, input sanitization
    - No HA dependencies, usable standalone
-   - Installed via `requirements.txt` (`violet-poolController-api>=0.0.35`)
+   - Installed via `requirements.txt` (`violet-poolController-api>=0.0.38`)
 
 2. **`custom_components/violet_pool_controller/`** - Home Assistant custom integration (HACS)
    - Exposes pool sensors, switches, climate, covers, etc. to HA
@@ -20,8 +20,8 @@ It depends on a separate API client package.
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.
 **🔒 Security Model**: See [SECURITY.md](./SECURITY.md) for detailed security architecture and compliance.
 
-**Current Integration Version**: `2.5.8` (defined in `manifest.json`, `const.py`, `pyproject.toml` and `custom_components/violet_pool_controller/.version`)
-**Current API Version**: `0.0.36` (defined in the [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository, pinned in `requirements.txt`)
+**Current Integration Version**: `2.5.9` (defined in `manifest.json`, `const.py`, `pyproject.toml` and `custom_components/violet_pool_controller/.version`)
+**Current API Version**: `0.0.38` (defined in the [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository, pinned in `requirements.txt`)
 **Minimum Home Assistant Version**: `2026.1.0` (defined in `hacs.json`)
 **Minimum Python Version**: Home Assistant runtime is managed by HA 2026.1.0+; standalone API package supports `>=3.12`
 
@@ -92,7 +92,7 @@ pytest tests/test_api.py::test_function_name -v
 
 - **`__init__.py`** - Integration entry point. Handles setup, config entry migration, platform loading, and service registration. Loads these 10 platforms: `sensor`, `binary_sensor`, `switch`, `climate`, `cover`, `number`, `select`, `light`, `update`, `button`.
 
-- **API package** (`violet-poolController-api>=0.0.35` on PyPI) - The HTTP client and low-level utilities live in the standalone repo [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) and are published to PyPI (HA installs the PyPI package per `requirements.txt`). Provides:
+- **API package** (`violet-poolController-api>=0.0.38` on PyPI) - The HTTP client and low-level utilities live in the standalone repo [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) and are published to PyPI (HA installs the PyPI package per `requirements.txt`). Provides:
   - `VioletPoolAPI` class - rate-limited HTTP client with retry/backoff
   - `VioletPoolAPIError` exception hierarchy
   - `InputSanitizer` - XSS/injection/path-traversal protection
@@ -757,7 +757,7 @@ Located in `.github/workflows/` (4 workflows):
 - `voluptuous>=0.16.0` - Data validation
 
 **Integration requirement** (from `requirements.txt`):
-- `violet-poolController-api>=0.0.35` - API client package (installed from PyPI; source in the [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository)
+- `violet-poolController-api>=0.0.38` - API client package (installed from PyPI; source in the [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository)
 
 **Development** (from `requirements-dev.txt`):
 - `ruff>=0.15.16` - Linter and formatter
