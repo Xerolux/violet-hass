@@ -209,13 +209,13 @@ jobs:
           parts.append(section)
           parts.append(
               "### Installation\n\n"
-              "Über HACS aktualisieren, oder `violet_pool_controller.zip` für eine "
-              "manuelle Installation herunterladen."
+              "Update through HACS, or download `violet_pool_controller.zip` for a "
+              "manual installation."
           )
           parts.append(
-              "### Unterstützung\n\n"
-              "Diese Integration entsteht in meiner Freizeit. Wenn sie dir hilft, "
-              "freue ich mich über Unterstützung:\n\n"
+              "### Support\n\n"
+              "This integration is built in my spare time. If it helps you, "
+              "support is very welcome:\n\n"
               "- [Buy Me A Coffee](https://buymeacoffee.com/xerolux)\n"
               "- [PayPal](https://paypal.me/xerolux)"
           )

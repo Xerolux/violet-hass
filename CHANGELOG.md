@@ -1,20 +1,53 @@
 # Changelog - Violet Pool Controller
 
-> **Diese Integration entsteht in meiner Freizeit — und ist komplett kostenlos.**
-> Wenn sie dir das Leben mit deinem Pool leichter macht und du die Entwicklung
-> unterstützen möchtest, freue ich mich riesig. Kein Muss, aber mega
-> motivierend! 😊☕
+> **This integration is built in my spare time — and it is completely free.**
+> If it makes life with your pool easier and you would like to support the
+> development, I would be delighted. No obligation, but hugely motivating! 😊☕
 
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Spendier%20mir%20einen%20Kaffee!-yellow?logo=buy-me-a-coffee&style=for-the-badge)](https://buymeacoffee.com/xerolux)
 [![PayPal](https://img.shields.io/badge/PayPal-Danke%20f%C3%BCr%20deine%20Unterst%C3%BCtzung!-blue?logo=paypal&style=for-the-badge)](https://paypal.me/xerolux)
 
 ---
 
-Dieser Changelog ist auf Deutsch. Der Abschnitt zur jeweiligen Version wird
-beim Release automatisch zum Text der GitHub-Release-Seite — was hier nicht
-steht, erfährt also auch niemand dort.
+This changelog is written in English (see the language policy in
+[CLAUDE.md](./CLAUDE.md)). The section for a version becomes the text of its
+GitHub release page automatically — what is not written here is not told to
+anyone there either.
 
-> **Language Note:** This changelog is written in German.
+> **Historical note:** entries up to and including 2.5.7 were written in German,
+> before the language policy existed. They are kept as they were published.
+
+## Version 2.5.8 (2026-08-20)
+
+The first release written under the language policy: English, because this
+section becomes the release page every HACS user reads.
+
+### 📖 Documentation
+
+- **English is now binding for everything written into this repository.**
+  `release.yml` lifts a version's changelog section verbatim onto the GitHub
+  release page, so the language of `CHANGELOG.md` was never an internal
+  detail - every release page this project had published was German, on an
+  integration distributed through HACS and read by people who do not speak it.
+  `CLAUDE.md` now states the rule as a table covering the changelog, release
+  notes, commit messages, branch names, pull request titles and bodies, code
+  comments, docstrings, log and exception text, the top-level documents,
+  workflow files and test names.
+- **Two exceptions, both language by definition:** `translations/*.json` - that
+  *is* the localisation - and the `.de.md` half of the bilingual wiki, where
+  the English page is written first and the German one translates it.
+- The changelog header, which declared itself German, and the installation and
+  support blocks `release.yml` appends to every release page are now English.
+  Entries up to and including 2.5.7 stay German: they are already published as
+  release pages, and rewriting them would change the record without changing
+  what anyone saw.
+
+### 🧪 Tests
+
+- 8 new tests: the current version must have a changelog section, no entry
+  after 2.5.7 may use a German section heading, the header must not declare
+  itself German again, the workflow boilerplate must stay English, and
+  `CLAUDE.md` must actually carry the policy.
 
 ## Version 2.5.7 (2026-08-19)
 

@@ -20,7 +20,7 @@ It depends on a separate API client package.
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.
 **🔒 Security Model**: See [SECURITY.md](./SECURITY.md) for detailed security architecture and compliance.
 
-**Current Integration Version**: `2.5.7` (defined in `manifest.json`, `const.py`, `pyproject.toml` and `custom_components/violet_pool_controller/.version`)
+**Current Integration Version**: `2.5.8` (defined in `manifest.json`, `const.py`, `pyproject.toml` and `custom_components/violet_pool_controller/.version`)
 **Current API Version**: `0.0.36` (defined in the [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository, pinned in `requirements.txt`)
 **Minimum Home Assistant Version**: `2026.1.0` (defined in `hacs.json`)
 **Minimum Python Version**: Home Assistant runtime is managed by HA 2026.1.0+; standalone API package supports `>=3.12`
@@ -581,6 +581,43 @@ violet-hass/
 ├── requirements-dev.txt              # Development dependencies
 └── pytest.ini                        # Pytest configuration
 ```
+
+## Language Policy
+
+**Everything written into this repository is English.** This is binding, not a
+preference — it applies to anything a contributor or a reader of the project
+sees:
+
+| Artifact | Language |
+|---|---|
+| `CHANGELOG.md` — including the section that becomes the release page | **English** |
+| Release notes and any text the release workflows emit | **English** |
+| Commit messages, branch names, PR titles and PR bodies | **English** |
+| Code comments, docstrings, log messages, exception text | **English** |
+| `README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `ARCHITECTURE.md` | **English** |
+| Workflow files, issue and PR templates | **English** |
+| Test names and test docstrings | **English** |
+
+**The two deliberate exceptions:**
+
+1. **`translations/*.json`** — these *are* the localisation. Each file carries
+   its own language; `de.json` is German by definition.
+2. **`docs/wiki/*.de.md`** — the wiki is published bilingually. A page exists
+   twice: `Automations.md` (English) and `Automations.de.md` (German). The
+   German file is a translation of the English one, never the other way round;
+   write the English page first.
+
+Anything not on that exception list is English, including files that used to be
+German. The changelog entries up to and including **2.5.7** were written in
+German before this policy existed and are left as historical record; every
+entry from 2.5.8 onwards is English.
+
+**Why it is written down:** the project is published on HACS and read by
+people who do not speak German. A German changelog turns straight into a
+German release page — `release.yml` lifts the version's changelog section
+verbatim — so the language choice in `CHANGELOG.md` is not an internal detail,
+it is what every user sees on the release. Mixing languages also makes the
+repository hard to review for anyone outside the maintainer.
 
 ## Development Best Practices
 
