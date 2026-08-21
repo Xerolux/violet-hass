@@ -102,3 +102,29 @@ def test_the_policy_is_written_down() -> None:
     claude_md = (REPO / "CLAUDE.md").read_text(encoding="utf-8")
 
     assert "## Language Policy" in claude_md
+
+def test_no_second_changelog() -> None:
+    """One changelog, and it is the one the release lifts its notes from.
+
+    ``docs/CHANGELOG.md`` was a stale German copy that stopped at 2.3.0-beta.1
+    while the real file was at 2.5.9 - and the pull request template told
+    contributors to write into it, while the wiki linked to it as the complete
+    changelog. A reader following either was six weeks behind.
+    """
+    strays = [path.name for path in (REPO / "docs").glob("*.md")
+              if path.name in {"CHANGELOG.md", "RELEASE_NOTES.md"}]
+
+    assert not strays, f"docs/ holds a second changelog: {strays}"
+
+
+def test_the_changelog_links_point_at_the_real_file() -> None:
+    """A link to the old copy sends readers to a changelog that stopped."""
+    skip = {".git", ".tox", ".venv", "node_modules", "__pycache__"}
+    offenders = [
+        str(path.relative_to(REPO))
+        for path in list(REPO.rglob("*.md")) + list(REPO.rglob("*.yml"))
+        if not skip & set(path.parts)
+        and "docs/CHANGELOG.md" in path.read_text(encoding="utf-8")
+    ]
+
+    assert not offenders, f"still pointing at docs/CHANGELOG.md: {offenders}"
