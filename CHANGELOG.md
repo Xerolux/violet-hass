@@ -17,6 +17,20 @@ anyone there either.
 > **Historical note:** entries up to and including 2.5.7 were written in German,
 > before the language policy existed. They are kept as they were published.
 
+## Version 2.5.9 (2026-08-20)
+
+### 🔧 Changed
+
+- **The API client requirement moves to `>=0.0.38`.** The manifest is what
+  Home Assistant installs from, so the fixes in that release only reach users
+  through this bump. 0.0.38 turns two exception messages the library raised in
+  German into English - `sanitize_device_key()` and `sanitize_api_parameter()`
+  reported `"Device-Key darf nicht leer sein"` and `"API-Parameter darf nicht
+  leer sein"` to their callers - and translates the comments, docstrings and
+  log messages of the sanitizer and rate limiter. The controller's own error
+  strings stay German on purpose: they reproduce what the hardware reports,
+  and a test now asserts they are not "cleaned up".
+
 ## Version 2.5.8 (2026-08-20)
 
 The first release written under the language policy: English, because this
