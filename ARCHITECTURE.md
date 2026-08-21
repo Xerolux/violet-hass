@@ -34,7 +34,7 @@ violet-hass/
 │   └── getReadings_spec.json           # API mock data
 │
 ├── docs/                               # Documentation
-│   ├── RELEASE_NOTES.md               # Release changelog
+│   ├── wiki/                          # Bilingual wiki pages
 │   └── [other docs]
 │
 ├── CLAUDE.md                           # Developer instructions (you are here)

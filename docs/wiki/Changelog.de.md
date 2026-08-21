@@ -587,7 +587,7 @@ rm -rf violet_pool_controller
 ## Links
 
 - [GitHub Releases](https://github.com/Xerolux/violet-hass/releases)
-- [Vollständiger Changelog auf GitHub](https://github.com/Xerolux/violet-hass/blob/main/docs/CHANGELOG.md)
+- [Vollständiger Changelog auf GitHub](https://github.com/Xerolux/violet-hass/blob/main/CHANGELOG.md)
 - [Bug melden](https://github.com/Xerolux/violet-hass/issues/new?template=bug_report.md)
 - [Feature anfragen](https://github.com/Xerolux/violet-hass/issues/new?template=feature_request.md)
 
