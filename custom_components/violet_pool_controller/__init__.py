@@ -393,8 +393,8 @@ def _backfill_unique_id(hass: HomeAssistant, entry: ConfigEntry) -> None:
     Entries created before the config flow set a unique id carry ``None``.
     ``_abort_if_unique_id_configured()`` has nothing to compare such an entry
     against, so zeroconf offers the very same controller as a new discovery
-    again and again - reported on the forum as "HA findet regelmässig neue
-    Violet Pool Controller".
+    again and again - reported on the forum as Home Assistant regularly
+    finding "new" Violet Pool Controllers.
 
     Runs on every setup rather than in ``async_migrate_entry``: the affected
     entries are already at the current version, so a version-gated migration
