@@ -66,7 +66,7 @@ DOMAIN = "violet_pool_controller"
 # Schema version of a config entry. Bumped whenever async_migrate_entry needs
 # to rewrite stored data or options.
 CONFIG_ENTRY_VERSION = 3
-INTEGRATION_VERSION = "2.5.9"
+INTEGRATION_VERSION = "2.5.10"
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 
 # =============================================================================

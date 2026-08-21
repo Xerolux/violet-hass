@@ -17,6 +17,29 @@ anyone there either.
 > **Historical note:** entries up to and including 2.5.7 were written in German,
 > before the language policy existed. They are kept as they were published.
 
+## Version 2.5.10 (2026-08-21)
+
+### 🐛 Fixed
+
+- **Home Assistant kept offering an already configured controller as a new
+  discovery.** Reported on the forum: *"Home Assistant still keeps finding new
+  Violet Pool Controllers and offering to install them"*. The config flow aborts
+  a zeroconf discovery by comparing unique ids - but an entry created before the
+  flow assigned one carries `None`, so nothing ever matched and the same
+  controller came back on every announcement. Entries without a unique id are
+  given one at setup, and zeroconf now also aborts when any entry already points
+  at that host, whichever key it is stored under (`host`, or the legacy
+  `base_ip`) and whatever device id it uses. A genuinely new controller is still
+  discovered.
+
+### 🧪 Tests
+
+- 12 new tests: the backfill assigns the id, leaves an existing one alone,
+  understands the legacy key, keeps the device id part of the id, and does not
+  raise on an entry that names no host; the host check recognises a configured
+  controller even without a unique id and still lets a different address
+  through.
+
 ## Version 2.5.9 (2026-08-20)
 
 ### 🔧 Changed

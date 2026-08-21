@@ -317,6 +317,15 @@ class ConfigFlow(
             reload_on_update=True,
         )
 
+        # The unique id alone is not enough. An entry set up before the flow
+        # assigned one carries `None`, and one configured with a different
+        # device id builds a different id - neither matches, so the same
+        # controller was offered as a new discovery over and over. If any entry
+        # already points at this host, it is this controller.
+        if self._host_already_configured(host):
+            _LOGGER.debug("Zeroconf: %s is already configured, ignoring", host)
+            return self.async_abort(reason="already_configured")
+
         self._config_data = {
             CONF_API_URL: host,
             CONF_PORT: port,
@@ -623,6 +632,22 @@ class ConfigFlow(
                 ),
             },
         )
+
+    def _host_already_configured(self, host: str) -> bool:
+        """Return whether any entry already points at this host."""
+        return any(
+            self._entry_host(entry) == host for entry in self._async_current_entries()
+        )
+
+    @staticmethod
+    def _entry_host(entry: config_entries.ConfigEntry) -> str | None:
+        """Return the host an entry points at, across current and legacy keys."""
+        raw = (
+            entry.data.get(CONF_API_URL)
+            or entry.data.get("host")
+            or entry.data.get("base_ip")
+        )
+        return raw.strip() if isinstance(raw, str) else None
 
     def _is_duplicate_entry(self, ip: str, port: int, device_id: int = 1) -> bool:
         """Check if the IP + Port + Device ID combination already exists."""
