@@ -386,6 +386,44 @@ def _disable_unsafe_switches(
         )
 
 
+
+def _backfill_unique_id(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Give an entry the unique id discovery matches against.
+
+    Entries created before the config flow set a unique id carry ``None``.
+    ``_abort_if_unique_id_configured()`` has nothing to compare such an entry
+    against, so zeroconf offers the very same controller as a new discovery
+    again and again - reported on the forum as "HA findet regelmässig neue
+    Violet Pool Controller".
+
+    Runs on every setup rather than in ``async_migrate_entry``: the affected
+    entries are already at the current version, so a version-gated migration
+    would never reach them.
+    """
+    if entry.unique_id:
+        return
+
+    # extract_api_host also understands the legacy `host` / `base_ip` keys,
+    # which is a second reason an old entry never matched. It raises when the
+    # entry names no host at all - there is nothing to build an id from then.
+    try:
+        host = extract_api_host(entry.data)
+    except ValueError:
+        return
+
+    try:
+        device_id = int(entry.data.get(CONF_DEVICE_ID, 1))
+    except (TypeError, ValueError):
+        device_id = 1
+
+    unique_id = f"{host}-{device_id}"
+    hass.config_entries.async_update_entry(entry, unique_id=unique_id)
+    _LOGGER.info(
+        "Assigned unique id %s to an entry that had none; discovery will stop "
+        "offering this controller as new",
+        unique_id,
+    )
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Violet Pool Controller from a config entry.
 
@@ -405,6 +443,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         entry.entry_id,
         entry.data.get(CONF_CONTROLLER_NAME, entry.data.get(CONF_DEVICE_NAME, "Unknown")),
     )
+
+    _backfill_unique_id(hass, entry)
 
     # Lazy imports to avoid blocking the event loop
     from violet_poolcontroller_api.api import VioletPoolAPI
