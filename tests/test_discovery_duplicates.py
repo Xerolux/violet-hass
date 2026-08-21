@@ -16,7 +16,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock
 
 from custom_components.violet_pool_controller import _backfill_unique_id
-from custom_components.violet_pool_controller.config_flow import VioletPoolConfigFlow
+from custom_components.violet_pool_controller.config_flow import ConfigFlow
 
 
 def _entry(data: dict, unique_id: str | None = None) -> MagicMock:
@@ -91,8 +91,8 @@ class TestBackfillUniqueId:
 class TestHostAlreadyConfigured:
     """The second guard: match on the host, whatever the unique id says."""
 
-    def _flow(self, entries: list) -> VioletPoolConfigFlow:
-        flow = VioletPoolConfigFlow()
+    def _flow(self, entries: list) -> ConfigFlow:
+        flow = ConfigFlow()
         flow._async_current_entries = lambda: entries  # type: ignore[method-assign]
         return flow
 
