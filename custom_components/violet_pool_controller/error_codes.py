@@ -792,8 +792,13 @@ ERROR_CODES: dict[str, dict[str, str]] = {}
 _CODE_ENTRIES: dict[str, ErrorCodeEntry] = {}
 
 for entry in _ERROR_DATABASE:
-    ERROR_CODES[entry.code] = entry.to_dict(german=False)
+    dict_repr = entry.to_dict(german=False)
+    ERROR_CODES[entry.code] = dict_repr
     _CODE_ENTRIES[entry.code] = entry
+    if entry.code.isdigit():
+        padded = f"{int(entry.code):04d}"
+        ERROR_CODES[padded] = dict_repr
+        _CODE_ENTRIES[padded] = entry
 
 
 def get_error_info(code: str, german: bool = False) -> dict[str, str]:
@@ -810,6 +815,15 @@ def get_error_info(code: str, german: bool = False) -> dict[str, str]:
 
     if code_str in _CODE_ENTRIES:
         return _CODE_ENTRIES[code_str].to_dict(german=german)
+
+    stripped = code_str.lstrip("0") or "0"
+    if stripped in _CODE_ENTRIES:
+        return _CODE_ENTRIES[stripped].to_dict(german=german)
+
+    if code_str.isdigit():
+        padded = f"{int(code_str):04d}"
+        if padded in _CODE_ENTRIES:
+            return _CODE_ENTRIES[padded].to_dict(german=german)
 
     return {
         "type": "UNKNOWN",
@@ -830,4 +844,14 @@ def get_error_entry(code: str) -> ErrorCodeEntry | None:
     """
     if code is None:
         return None
-    return _CODE_ENTRIES.get(str(code).strip())
+    code_str = str(code).strip()
+    if code_str in _CODE_ENTRIES:
+        return _CODE_ENTRIES[code_str]
+    stripped = code_str.lstrip("0") or "0"
+    if stripped in _CODE_ENTRIES:
+        return _CODE_ENTRIES[stripped]
+    if code_str.isdigit():
+        padded = f"{int(code_str):04d}"
+        if padded in _CODE_ENTRIES:
+            return _CODE_ENTRIES[padded]
+    return None

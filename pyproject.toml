@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "violet-hass"
-version = "2.5.10"
+version = "2.5.11"
 description = "Home Assistant integration + API client for Violet pool controllers"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -41,6 +41,7 @@ ignore = ["E501"]
 # Home Assistant 2026.5.x uses Python 3.14 syntax (e.g. except expressions without
 # parentheses). Set the integration check target to 3.14 so mypy can parse HA.
 python_version = "3.14"
+mypy_path = ["../violet-poolController-api"]
 warn_return_any = true
 disallow_untyped_defs = false
 warn_unused_configs = true

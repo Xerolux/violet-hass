@@ -26,6 +26,7 @@ from violet_poolcontroller_api import (
     VioletPoolAPIError,
 )
 
+from .config_entry_helpers import normalize_host
 from .config_flow_support import (
     ConfigFlowSchemaMixin,
     ConfigFlowTextMixin,
@@ -100,7 +101,8 @@ class ConfigFlow(
     @staticmethod
     def _build_unique_id(host: str, device_id: int | str) -> str:
         """Build a stable unique ID shared by manual and zeroconf setup."""
-        return f"{host}-{int(device_id)}"
+        norm_host = normalize_host(host) or str(host).strip()
+        return f"{norm_host}-{int(device_id)}"
 
     @staticmethod
     def _is_ip_literal(host: str) -> bool:
@@ -322,8 +324,8 @@ class ConfigFlow(
         # device id builds a different id - neither matches, so the same
         # controller was offered as a new discovery over and over. If any entry
         # already points at this host, it is this controller.
-        if self._host_already_configured(host):
-            _LOGGER.debug("Zeroconf: %s is already configured, ignoring", host)
+        if self._host_already_configured(discovery_info):
+            _LOGGER.debug("Zeroconf: %s (%s) is already configured, ignoring", host, name)
             return self.async_abort(reason="already_configured")
 
         self._config_data = {
@@ -633,30 +635,90 @@ class ConfigFlow(
             },
         )
 
-    def _host_already_configured(self, host: str) -> bool:
-        """Return whether any entry already points at this host."""
-        return any(
-            self._entry_host(entry) == host for entry in self._async_current_entries()
-        )
+    @classmethod
+    def _candidate_hosts(cls, host_str: str | None) -> set[str]:
+        """Extract normalized candidate tokens for a given host or URL string."""
+        norm = normalize_host(host_str)
+        if not norm:
+            return set()
+        candidates = {norm}
+        # Only split non-IP hostnames (e.g. 'violet.local' -> 'violet')
+        if not cls._is_ip_literal(norm) and "." in norm:
+            base = norm.split(".")[0].strip()
+            if base:
+                candidates.add(base)
+        return candidates
 
-    @staticmethod
-    def _entry_host(entry: config_entries.ConfigEntry) -> str | None:
-        """Return the host an entry points at, across current and legacy keys."""
-        raw = (
-            entry.data.get(CONF_API_URL)
-            or entry.data.get("host")
-            or entry.data.get("base_ip")
+    @classmethod
+    def _entry_hosts(cls, entry: config_entries.ConfigEntry) -> set[str]:
+        """Return all possible host tokens an entry points at."""
+        hosts: set[str] = set()
+        for key in (CONF_API_URL, "host", "base_ip"):
+            val = entry.data.get(key)
+            if isinstance(val, str):
+                hosts.update(cls._candidate_hosts(val))
+
+        # Also check unique_id (format: host-device_id)
+        if entry.unique_id and "-" in entry.unique_id:
+            uid_host = entry.unique_id.rsplit("-", 1)[0]
+            hosts.update(cls._candidate_hosts(uid_host))
+
+        return hosts
+
+    @classmethod
+    def _discovery_hosts(cls, host_or_discovery: ZeroconfServiceInfo | str) -> set[str]:
+        """Return all possible host tokens from a zeroconf discovery or string."""
+        if isinstance(host_or_discovery, str):
+            return cls._candidate_hosts(host_or_discovery)
+
+        hosts: set[str] = set()
+        # IP address
+        if getattr(host_or_discovery, "ip_address", None):
+            hosts.update(cls._candidate_hosts(str(host_or_discovery.ip_address)))
+        # All IP addresses (IPv4 & IPv6)
+        if getattr(host_or_discovery, "ip_addresses", None):
+            for ip in host_or_discovery.ip_addresses:
+                hosts.update(cls._candidate_hosts(str(ip)))
+
+        # Hostname (e.g. violet.local.)
+        if getattr(host_or_discovery, "hostname", None):
+            hosts.update(cls._candidate_hosts(str(host_or_discovery.hostname)))
+
+        # Service name (e.g. violet ._http._tcp.local. or violet._violet-controller._tcp.local.)
+        if getattr(host_or_discovery, "name", None):
+            svc_name = str(host_or_discovery.name).split("._")[0].strip()
+            hosts.update(cls._candidate_hosts(svc_name))
+
+        return hosts
+
+    def _host_already_configured(self, host_or_discovery: ZeroconfServiceInfo | str) -> bool:
+        """Return whether any entry already points at this host or discovery target."""
+        discovered = self._discovery_hosts(host_or_discovery)
+        if not discovered:
+            return False
+        return any(
+            bool(discovered & self._entry_hosts(entry))
+            for entry in self._async_current_entries()
         )
-        return raw.strip() if isinstance(raw, str) else None
 
     def _is_duplicate_entry(self, ip: str, port: int, device_id: int = 1) -> bool:
         """Check if the IP + Port + Device ID combination already exists."""
-        return any(
-            entry.data.get(CONF_API_URL) == ip
-            and entry.data.get(CONF_PORT, DEFAULT_PORT) == port
-            and entry.data.get(CONF_DEVICE_ID, 1) == device_id
-            for entry in self._async_current_entries()
-        )
+        norm_ip = normalize_host(ip)
+        for entry in self._async_current_entries():
+            entry_host = normalize_host(
+                entry.data.get(CONF_API_URL)
+                or entry.data.get("host")
+                or entry.data.get("base_ip")
+            )
+            entry_port = int(entry.data.get(CONF_PORT, DEFAULT_PORT))
+            entry_dev_id = int(entry.data.get(CONF_DEVICE_ID, 1))
+            if (
+                entry_host == norm_ip
+                and entry_port == port
+                and entry_dev_id == device_id
+            ):
+                return True
+        return False
 
     def _build_config_data(self, ui: dict) -> dict:
         """Build the configuration data dictionary."""

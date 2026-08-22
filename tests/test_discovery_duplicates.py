@@ -1,19 +1,24 @@
 """A controller that is already set up must not be offered again.
 
-Reported on the forum for 2.5.8: even with the current version installed,
+Reported on the forum: even with the current version installed,
 Home Assistant keeps discovering "new" Violet Pool Controllers and offering to
 set them up again.
 
 The config flow aborts a zeroconf discovery through
-``_abort_if_unique_id_configured()``. That compares against the unique id of
-the existing entries - and an entry created before the flow assigned one
-carries ``None``, so nothing ever matched and the same controller kept coming
-back.
+``_abort_if_unique_id_configured()`` and ``_host_already_configured()``.
+These checks handle:
+- missing or legacy unique_ids
+- url schemes (http://, https://) and ports
+- hostnames vs IP addresses
+- ZeroconfServiceInfo objects with hostname, name, and ip_addresses
 """
 
 from __future__ import annotations
 
+import ipaddress
 from unittest.mock import MagicMock
+
+from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 
 from custom_components.violet_pool_controller import _backfill_unique_id
 from custom_components.violet_pool_controller.config_flow import ConfigFlow
@@ -34,6 +39,16 @@ class TestBackfillUniqueId:
     def test_an_entry_without_one_gets_it(self) -> None:
         hass = MagicMock()
         entry = _entry({CONF_API_URL: "192.168.1.50", CONF_DEVICE_ID: 1})
+
+        _backfill_unique_id(hass, entry)
+
+        hass.config_entries.async_update_entry.assert_called_once_with(
+            entry, unique_id="192.168.1.50-1"
+        )
+
+    def test_an_entry_with_url_gets_normalized_id(self) -> None:
+        hass = MagicMock()
+        entry = _entry({CONF_API_URL: "http://192.168.1.50:80", CONF_DEVICE_ID: 1})
 
         _backfill_unique_id(hass, entry)
 
@@ -101,6 +116,11 @@ class TestHostAlreadyConfigured:
 
         assert flow._host_already_configured("192.168.1.50")
 
+    def test_recognised_with_http_prefix(self) -> None:
+        flow = self._flow([_entry({CONF_API_URL: "http://192.168.1.50:80/"})])
+
+        assert flow._host_already_configured("192.168.1.50")
+
     def test_recognised_even_without_a_unique_id(self) -> None:
         """This is the case the unique id check cannot see."""
         flow = self._flow([_entry({CONF_API_URL: "192.168.1.50"}, unique_id=None)])
@@ -116,6 +136,54 @@ class TestHostAlreadyConfigured:
         flow = self._flow([_entry({CONF_API_URL: " 192.168.1.50 "})])
 
         assert flow._host_already_configured("192.168.1.50")
+
+    def test_hostname_matching(self) -> None:
+        flow = self._flow([_entry({CONF_API_URL: "violet.local"})])
+
+        assert flow._host_already_configured("violet.local")
+        assert flow._host_already_configured("violet")
+
+    def test_zeroconf_service_info_matching_by_ip(self) -> None:
+        flow = self._flow([_entry({CONF_API_URL: "192.168.1.50"})])
+
+        info = ZeroconfServiceInfo(
+            ip_address=ipaddress.ip_address("192.168.1.50"),
+            ip_addresses=[ipaddress.ip_address("192.168.1.50")],
+            port=80,
+            hostname="violet.local.",
+            name="violet ._http._tcp.local.",
+            type="_http._tcp.local.",
+            properties={},
+        )
+        assert flow._host_already_configured(info)
+
+    def test_zeroconf_service_info_matching_by_hostname(self) -> None:
+        flow = self._flow([_entry({CONF_API_URL: "violet.local"})])
+
+        info = ZeroconfServiceInfo(
+            ip_address=ipaddress.ip_address("192.168.1.99"),  # DHCP IP changed
+            ip_addresses=[ipaddress.ip_address("192.168.1.99")],
+            port=80,
+            hostname="violet.local.",
+            name="violet ._http._tcp.local.",
+            type="_http._tcp.local.",
+            properties={},
+        )
+        assert flow._host_already_configured(info)
+
+    def test_zeroconf_service_info_matching_by_service_name(self) -> None:
+        flow = self._flow([_entry({CONF_API_URL: "violet"})])
+
+        info = ZeroconfServiceInfo(
+            ip_address=ipaddress.ip_address("192.168.1.99"),
+            ip_addresses=[ipaddress.ip_address("192.168.1.99")],
+            port=80,
+            hostname="poolcontroller.local.",
+            name="violet ._http._tcp.local.",
+            type="_http._tcp.local.",
+            properties={},
+        )
+        assert flow._host_already_configured(info)
 
     def test_a_different_host_is_still_offered(self) -> None:
         """A genuinely new controller must still be discoverable."""

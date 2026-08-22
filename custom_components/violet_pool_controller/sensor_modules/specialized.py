@@ -167,24 +167,27 @@ class VioletHealthSensor(VioletPoolControllerEntity, SensorEntity):
         if str(data.get("BACKWASH_OMNI_MOVING", "")).upper() == "YES":
             info.append("OmniTronic valve moving")
 
-        # Controller-side last_error_id (0 = no error recorded).
-        last_err = data.get("last_error_id")
-        if last_err is not None:
-            try:
-                err_code = int(float(last_err))
-            except (TypeError, ValueError):
-                err_code = 0
-            if err_code > 0:
-                code_str = f"{err_code:04d}"
-                info_err = get_error_info(code_str)
-                severity = info_err.get("severity", "").upper()
-                label = info_err.get("subject") or f"Error {code_str}"
-                if severity in ("ALARM", "ERROR"):
-                    errors.append(f"Controller error {code_str}: {label}")
-                elif severity == "WARNING":
-                    warnings.append(f"Controller warning {code_str}: {label}")
-                else:
-                    info.append(f"Controller notice {code_str}: {label}")
+        # Controller-side active errors (ERROR, ERROR_0..9, LAST_ERROR).
+        checked_error_codes: list[str] = []
+        for key in sorted(k for k in data if re.match(r"^ERROR(_\d+)?$", k)):
+            code = str(data.get(key, "")).strip()
+            if code and code not in ("0", "0000", "NONE") and code not in checked_error_codes:
+                checked_error_codes.append(code)
+
+        last_error = str(data.get("LAST_ERROR", "")).strip()
+        if last_error and last_error not in ("0", "0000", "NONE") and last_error not in checked_error_codes:
+            checked_error_codes.append(last_error)
+
+        for code in checked_error_codes:
+            info_err = get_error_info(code)
+            severity = info_err.get("severity", "").upper()
+            label = info_err.get("subject") or f"Error {code}"
+            if severity in ("ALARM", "ERROR", "CRITICAL"):
+                errors.append(f"Controller error {code}: {label}")
+            elif severity == "WARNING":
+                warnings.append(f"Controller warning {code}: {label}")
+            else:
+                info.append(f"Controller notice {code}: {label}")
 
         # Overflow refill/dryrun states (strings like "OFF" / "ON").
         overflow_state = str(data.get("OVERFLOW_REFILL_STATE", "")).upper()

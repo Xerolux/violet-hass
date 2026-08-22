@@ -17,6 +17,23 @@ anyone there either.
 > **Historical note:** entries up to and including 2.5.7 were written in German,
 > before the language policy existed. They are kept as they were published.
 
+## Version 2.5.11 (2026-08-22)
+
+### 🐛 Fixed
+
+- **Persistent Zeroconf rediscovery for configured controllers:**
+  The duplicate discovery check has been improved with canonical host/URL normalization (`normalize_host`) and multi-attribute discovery matching. Entries configured with URL schemes (`http://`, `https://`), explicit ports (`:80`), hostnames (`violet.local`, `violet`), or secondary/IPv6 addresses are now reliably recognized across all Zeroconf announcements, preventing repeated "New device discovered" notifications.
+- **`VioletHealthSensor` notification counter confusion:**
+  `last_error_id` in `/getReadings` is an incrementing notification log sequence ID (e.g. `904`), not a 4-digit error code. The health sensor now inspects actual active error keys (`ERROR`, `ERROR_1`..`ERROR_9`, `LAST_ERROR`) rather than misreporting harmless update notices as `Unknown code: 0904`.
+- **Error code zero-padding resolution:**
+  `error_codes.py` now resolves both zero-padded (`0002`, `0010`, `0120`) and unpadded (`2`, `10`, `120`) error codes consistently.
+
+### 🧪 Tests & Quality
+
+- Added comprehensive tests for zeroconf discovery duplicate matching (`ZeroconfServiceInfo`, URL formats, hostnames, and IP changes).
+- Added unit tests for error code lookups and `VioletHealthSensor` problem collection.
+- Configured mypy path mapping in `pyproject.toml` for seamless static type checking across the integration.
+
 ## Version 2.5.10 (2026-08-21)
 
 ### 🐛 Fixed

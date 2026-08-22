@@ -26,6 +26,7 @@ from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 from .config_entry_helpers import (
     extract_api_host,
     get_entry_value,
+    normalize_host,
     with_non_default_port,
 )
 from .config_flow_utils.constants import (
@@ -411,12 +412,14 @@ def _backfill_unique_id(hass: HomeAssistant, entry: ConfigEntry) -> None:
     except ValueError:
         return
 
+    norm_host = normalize_host(host) or host.strip()
+
     try:
         device_id = int(entry.data.get(CONF_DEVICE_ID, 1))
     except (TypeError, ValueError):
         device_id = 1
 
-    unique_id = f"{host}-{device_id}"
+    unique_id = f"{norm_host}-{device_id}"
     hass.config_entries.async_update_entry(entry, unique_id=unique_id)
     _LOGGER.info(
         "Assigned unique id %s to an entry that had none; discovery will stop "
