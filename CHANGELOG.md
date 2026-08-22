@@ -17,6 +17,34 @@ anyone there either.
 > **Historical note:** entries up to and including 2.5.7 were written in German,
 > before the language policy existed. They are kept as they were published.
 
+## Version 2.5.12 (2026-08-22)
+
+### 🐛 Fixed
+
+- **Firmware updates were reported as failed even though they had succeeded.**
+  Some controllers never return to `STANDBY` after rebooting into the new
+  firmware and keep serving the final contents of `/home/violet/log/update.log`.
+  Progress tracking then ran until the ten-minute safety net expired and logged
+  an error for an update that had actually completed.
+  The update entity now records the installed and target firmware version when
+  tracking starts and re-reads them every 30 seconds while polling. A changed
+  installed version — or one that reached the target — ends tracking as a
+  success no matter what the state string still reports, and the safety net
+  performs one final version check before declaring failure.
+- **A leftover update log no longer starts pointless progress tracking.**
+  When the controller advertises an available version that already matches the
+  installed one, there is nothing left to install, so a lingering non-`STANDBY`
+  state is treated as leftover output: neither the startup probe nor
+  `async_install` begins tracking for it. An empty available version is
+  deliberately *not* treated as stale, so a genuine update on a controller that
+  has not yet reached the update server is still tracked.
+
+### 🔧 Maintenance
+
+- Updated the GitHub Actions used by the workflows: `actions/setup-python` 6 → 7,
+  `actions/configure-pages` 5 → 6, `actions/deploy-pages` 4 → 5,
+  `actions/upload-pages-artifact` 4 → 5, and `github/codeql-action` 4 → 4.37.4.
+
 ## Version 2.5.11 (2026-08-22)
 
 ### 🐛 Fixed
