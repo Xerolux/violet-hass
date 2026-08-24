@@ -30,6 +30,22 @@ CHLORINE_SETPOINT = next(
 )
 
 
+@pytest.mark.parametrize(
+    "setpoint_key",
+    [
+        "chlorine_canister_volume",
+        "ph_minus_canister_volume",
+        "ph_plus_canister_volume",
+        "flocculant_canister_volume",
+    ],
+)
+def test_canister_volume_uses_its_own_reading_as_presence_indicator(setpoint_key: str) -> None:
+    """Standalone payloads can expose a canister value without an output state."""
+    setpoint = next(item for item in SETPOINT_DEFINITIONS if item["key"] == setpoint_key)
+
+    assert setpoint["api_key"] in setpoint["indicator_fields"]
+
+
 def _make_number(setpoint_config: dict, data: dict) -> VioletNumber:
     """Build a number entity on top of a mocked coordinator."""
     coordinator = MagicMock()

@@ -8,7 +8,8 @@
 from __future__ import annotations
 
 import logging
-from datetime import UTC, datetime
+from collections.abc import Mapping
+from datetime import UTC, datetime, timedelta
 from typing import Any, cast
 
 from homeassistant.components.sensor import (
@@ -17,6 +18,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.util import dt as dt_util
 from violet_poolcontroller_api.const_devices import VioletState
 
 from ..const import DOMAIN
@@ -31,6 +33,87 @@ from .base import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+_MILLISECONDS_THRESHOLD = 10_000_000_000
+_MAX_FUTURE_EVENT_SKEW = timedelta(minutes=5)
+_PAST_EVENT_SUFFIXES = (
+    "_LAST_ON",
+    "_LAST_OFF",
+    "_LAST_AUTO_RUN",
+    "_LAST_MANUAL_RUN",
+    "_LAST_CAN_RESET",
+)
+
+
+def _timestamp_seconds(raw_value: Any) -> float:
+    """Return a controller timestamp in seconds.
+
+    The firmware mixes seconds and milliseconds depending on the field.
+    """
+    timestamp = float(raw_value)
+    if timestamp > _MILLISECONDS_THRESHOLD:
+        timestamp /= 1000
+    return timestamp
+
+
+def _local_wall_epoch_to_utc(timestamp: float) -> datetime:
+    """Decode a Unix-shaped value that actually contains local wall time.
+
+    Violet firmware writes e.g. 15:00 local as if 15:00 were UTC.  Attaching
+    Home Assistant's configured timezone to those clock components recovers
+    the real instant and also applies the offset valid on the event date.
+    """
+    wall_time = datetime.fromtimestamp(timestamp, tz=UTC).replace(tzinfo=None)
+    return wall_time.replace(tzinfo=dt_util.DEFAULT_TIME_ZONE).astimezone(UTC)
+
+
+def _controller_uses_local_wall_epoch(data: Mapping[str, Any]) -> bool:
+    """Detect whether this controller reports local wall-clock epochs."""
+    raw_current = data.get("CURRENT_TIME_UNIX")
+    if raw_current is None:
+        # This is the format used by current Violet firmware.  The live clock
+        # field normally makes the decision below explicit; keep the known
+        # firmware convention as the fallback for reduced payloads.
+        return dt_util.DEFAULT_TIME_ZONE is not UTC
+
+    try:
+        timestamp = _timestamp_seconds(raw_current)
+        if timestamp <= 0:
+            return dt_util.DEFAULT_TIME_ZONE is not UTC
+        as_epoch = datetime.fromtimestamp(timestamp, tz=UTC)
+        as_local_wall = _local_wall_epoch_to_utc(timestamp)
+    except (ValueError, TypeError, OverflowError, OSError):
+        return dt_util.DEFAULT_TIME_ZONE is not UTC
+
+    now = datetime.now(UTC)
+    return abs(as_local_wall - now) < abs(as_epoch - now)
+
+
+def controller_timestamp_to_datetime(
+    raw_value: Any,
+    key: str,
+    data: Mapping[str, Any],
+) -> datetime | None:
+    """Convert a Violet timestamp to a valid Home Assistant UTC datetime."""
+    timestamp = _timestamp_seconds(raw_value)
+    # Zero and negative values are firmware sentinels for "never".
+    if timestamp <= 0:
+        return None
+
+    value = (
+        _local_wall_epoch_to_utc(timestamp)
+        if _controller_uses_local_wall_epoch(data)
+        else datetime.fromtimestamp(timestamp, tz=UTC)
+    )
+
+    # LAST_* values describe completed events.  Uninitialised firmware fields
+    # can contain far-future sentinels (observed as "in 474 years" in HA).
+    if key.upper().endswith(_PAST_EVENT_SUFFIXES) and (
+        value > datetime.now(UTC) + _MAX_FUTURE_EVENT_SKEW
+    ):
+        return None
+
+    return value
 
 
 class VioletSensor(VioletPoolControllerEntity, SensorEntity):
@@ -104,16 +187,8 @@ class VioletSensor(VioletPoolControllerEntity, SensorEntity):
 
         if is_timestamp_key and key not in _TIME_FORMAT_KEYS:
             try:
-                timestamp = float(raw_value)
-                # 0 means "never" / "no timer running" - not 1970-01-01
-                if timestamp == 0:
-                    return None
-                # Handle milliseconds: if timestamp > 10000000000, it's in milliseconds
-                # (10000000000 ms = September 2001, in seconds since 1970)
-                if timestamp > 10000000000:
-                    timestamp = timestamp / 1000
-                return datetime.fromtimestamp(timestamp, tz=UTC)
-            except (ValueError, TypeError) as err:
+                return controller_timestamp_to_datetime(raw_value, key, self.coordinator.data)
+            except (ValueError, TypeError, OverflowError, OSError) as err:
                 self._logger.warning(
                     "Timestamp conversion failed for %s with value '%s': %s",
                     key,

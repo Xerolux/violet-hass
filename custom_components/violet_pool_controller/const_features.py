@@ -701,7 +701,11 @@ SETPOINT_DEFINITIONS = [
         "entity_category": EntityCategory.CONFIG,
         "entity_registry_enabled_default": False,
         "setpoint_fields": ["DOS_1_CL_TOTAL_CAN_AMOUNT_ML"],
-        "indicator_fields": ["DOS_1_CL", "DOS_1_CL_STATE"],
+        "indicator_fields": [
+            "DOS_1_CL_TOTAL_CAN_AMOUNT_ML",
+            "DOS_1_CL",
+            "DOS_1_CL_STATE",
+        ],
     },
     {
         "key": "ph_minus_canister_volume",
@@ -719,7 +723,11 @@ SETPOINT_DEFINITIONS = [
         "entity_category": EntityCategory.CONFIG,
         "entity_registry_enabled_default": False,
         "setpoint_fields": ["DOS_4_PHM_TOTAL_CAN_AMOUNT_ML"],
-        "indicator_fields": ["DOS_4_PHM", "DOS_4_PHM_STATE"],
+        "indicator_fields": [
+            "DOS_4_PHM_TOTAL_CAN_AMOUNT_ML",
+            "DOS_4_PHM",
+            "DOS_4_PHM_STATE",
+        ],
     },
     {
         "key": "ph_plus_canister_volume",
@@ -737,7 +745,11 @@ SETPOINT_DEFINITIONS = [
         "entity_category": EntityCategory.CONFIG,
         "entity_registry_enabled_default": False,
         "setpoint_fields": ["DOS_5_PHP_TOTAL_CAN_AMOUNT_ML"],
-        "indicator_fields": ["DOS_5_PHP", "DOS_5_PHP_STATE"],
+        "indicator_fields": [
+            "DOS_5_PHP_TOTAL_CAN_AMOUNT_ML",
+            "DOS_5_PHP",
+            "DOS_5_PHP_STATE",
+        ],
     },
     {
         "key": "flocculant_canister_volume",
@@ -755,7 +767,11 @@ SETPOINT_DEFINITIONS = [
         "entity_category": EntityCategory.CONFIG,
         "entity_registry_enabled_default": False,
         "setpoint_fields": ["DOS_6_FLOC_TOTAL_CAN_AMOUNT_ML"],
-        "indicator_fields": ["DOS_6_FLOC", "DOS_6_FLOC_STATE"],
+        "indicator_fields": [
+            "DOS_6_FLOC_TOTAL_CAN_AMOUNT_ML",
+            "DOS_6_FLOC",
+            "DOS_6_FLOC_STATE",
+        ],
     },
 ]
 

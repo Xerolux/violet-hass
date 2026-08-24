@@ -17,6 +17,29 @@ anyone there either.
 > **Historical note:** entries up to and including 2.5.7 were written in German,
 > before the language policy existed. They are kept as they were published.
 
+## Version 2.5.13 (2026-08-24)
+
+### 🐛 Fixed
+
+- **Dosing timestamps no longer appear in the future.** Violet firmware can
+  encode local wall-clock time in Unix-shaped fields, which made Home Assistant
+  apply the timezone offset a second time. The integration now detects the
+  controller's timestamp convention from `CURRENT_TIME_UNIX`, converts local
+  wall-clock epochs with the Home Assistant timezone (including daylight-saving
+  time), and keeps compatibility with controllers that report real Unix epochs.
+- **Uninitialised “last canister reset” values no longer show dates centuries
+  ahead.** Invalid future sentinels in completed-event fields are now exposed as
+  unknown, matching their actual “never occurred” meaning.
+- **Chlorine canister volume is offered on standalone dosing modules.** Each
+  canister control now uses its own reported volume as a presence indicator, so
+  it remains available even when the standalone payload omits the corresponding
+  output-state fields.
+
+### 🧪 Tests & Quality
+
+- Added regression coverage for local wall-clock epochs, real Unix epochs,
+  millisecond future sentinels, and standalone canister presence detection.
+
 ## Version 2.5.12 (2026-08-22)
 
 ### 🐛 Fixed

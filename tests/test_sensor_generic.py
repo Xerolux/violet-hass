@@ -1,7 +1,9 @@
 """Tests for generic sensor modules."""
 
 import logging
+from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock
+from zoneinfo import ZoneInfo
 
 from homeassistant.components.sensor import SensorEntityDescription, SensorStateClass
 
@@ -9,9 +11,36 @@ from custom_components.violet_pool_controller.const_sensors import ONEWIRE_ROMCO
 from custom_components.violet_pool_controller.sensor import _create_standard_sensors
 from custom_components.violet_pool_controller.sensor_modules import (
     _build_sensor_description,
+    generic,
     should_skip_sensor,
 )
 from custom_components.violet_pool_controller.sensor_modules.generic import VioletSensor
+
+
+def _make_generic_sensor(key: str, data: dict) -> VioletSensor:
+    """Build a generic sensor on top of a mocked coordinator."""
+    coordinator = MagicMock()
+    coordinator.data = data
+    coordinator.device.available = True
+    coordinator.last_update_success = True
+    coordinator.device.device_info = {}
+
+    config_entry = MagicMock()
+    config_entry.entry_id = "test_entry_id"
+    config_entry.options.get.return_value = False
+    config_entry.data.get.return_value = False
+
+    return VioletSensor(
+        coordinator,
+        config_entry,
+        SensorEntityDescription(key=key, name=key, device_class="timestamp"),
+    )
+
+
+def _as_local_wall_epoch(value: datetime, timezone: ZoneInfo) -> float:
+    """Encode a real instant the same way Violet's local-epoch fields do."""
+    local = value.astimezone(timezone)
+    return local.replace(tzinfo=UTC).timestamp()
 
 
 def test_violet_sensor_state_class_log_spam(caplog):
@@ -139,3 +168,55 @@ def test_onewire_rcode_sensor_is_translated():
     # The English name stays on the description: it is what the entity_id is
     # derived from, while the displayed name comes from the translation.
     assert rom_sensor.entity_description.name == "OneWire ROM Code 1"
+
+
+def test_timestamp_local_wall_epoch_is_converted_to_real_utc(monkeypatch):
+    """Controller-local epoch fields must not appear two hours in the future."""
+    timezone = ZoneInfo("Europe/Berlin")
+    now = datetime.now(UTC).replace(microsecond=0)
+    event = now - timedelta(minutes=4)
+    data = {
+        "CURRENT_TIME_UNIX": _as_local_wall_epoch(now, timezone),
+        "DOS_1_CL_LAST_ON": _as_local_wall_epoch(event, timezone),
+    }
+
+    # Restore HA's global timezone before its cleanup fixture runs.
+    with monkeypatch.context() as patch:
+        patch.setattr(generic.dt_util, "DEFAULT_TIME_ZONE", timezone)
+        sensor = _make_generic_sensor("DOS_1_CL_LAST_ON", data)
+
+        assert sensor.native_value == event
+
+
+def test_timestamp_real_unix_epoch_is_kept(monkeypatch):
+    """Controllers that already return real Unix epochs remain compatible."""
+    timezone = ZoneInfo("Europe/Berlin")
+    now = datetime.now(UTC).replace(microsecond=0)
+    event = now - timedelta(hours=5)
+    data = {
+        "CURRENT_TIME_UNIX": now.timestamp(),
+        "DOS_4_PHM_LAST_OFF": event.timestamp(),
+    }
+
+    with monkeypatch.context() as patch:
+        patch.setattr(generic.dt_util, "DEFAULT_TIME_ZONE", timezone)
+        sensor = _make_generic_sensor("DOS_4_PHM_LAST_OFF", data)
+
+        assert sensor.native_value == event
+
+
+def test_uninitialised_future_last_event_is_unknown(monkeypatch):
+    """A far-future firmware sentinel means "never", not "in 474 years"."""
+    timezone = ZoneInfo("Europe/Berlin")
+    now = datetime.now(UTC).replace(microsecond=0)
+    future = now + timedelta(days=474 * 365)
+    data = {
+        "CURRENT_TIME_UNIX": _as_local_wall_epoch(now, timezone),
+        "DOS_1_CL_LAST_CAN_RESET": _as_local_wall_epoch(future, timezone) * 1000,
+    }
+
+    with monkeypatch.context() as patch:
+        patch.setattr(generic.dt_util, "DEFAULT_TIME_ZONE", timezone)
+        sensor = _make_generic_sensor("DOS_1_CL_LAST_CAN_RESET", data)
+
+        assert sensor.native_value is None
