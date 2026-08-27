@@ -20,7 +20,7 @@ It depends on a separate API client package.
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.
 **🔒 Security Model**: See [SECURITY.md](./SECURITY.md) for detailed security architecture and compliance.
 
-**Current Integration Version**: `2.5.13` (defined in `manifest.json`, `const.py`, `pyproject.toml` and `custom_components/violet_pool_controller/.version`)
+**Current Integration Version**: `2.5.14-beta.1` (defined in `manifest.json`, `const.py`, `pyproject.toml` and `custom_components/violet_pool_controller/.version`)
 **Current API Version**: `0.0.38` (defined in the [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository, pinned in `requirements.txt`)
 **Minimum Home Assistant Version**: `2026.1.0` (defined in `hacs.json`)
 **Minimum Python Version**: Home Assistant runtime is managed by HA 2026.1.0+; standalone API package supports `>=3.12`
@@ -665,7 +665,7 @@ auto-generated notes from the merged PRs.
   - New Home Assistant version is released
   - New Python version is released
   - CI/CD pipeline fails due to compatibility issues
-- **Current version:** `>=0.13.337`
+- **Current version:** `>=0.13.357` (pins Home Assistant 2026.8.3)
 - **Update command:** `pip install --upgrade pytest-homeassistant-custom-component`
 
 ### Code Style
@@ -765,7 +765,7 @@ Located in `.github/workflows/` (4 workflows):
 - `pytest>=9.0.3` - Test framework
 - `pytest-cov>=7.1.0` - Coverage plugin
 - `pytest-asyncio>=1.3.0` - Async test support
-- `pytest-homeassistant-custom-component>=0.13.337` - HA test helpers
+- `pytest-homeassistant-custom-component>=0.13.357` - HA test helpers
 
 ## Important Notes
 

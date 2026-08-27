@@ -15,6 +15,25 @@ if TYPE_CHECKING:
     from homeassistant.core import ServiceCall
 
 
+def _config_entry_ids(device: object) -> tuple[str, ...]:
+    """Return the config entry ids a device belongs to.
+
+    Home Assistant 2026.8 restricted a device to a single config entry and
+    deprecated ``DeviceEntry.config_entries`` in favour of
+    ``DeviceEntry.config_entry_id``; 2026.9 warns about the old attribute. The
+    integration supports Home Assistant from 2026.1, so read whichever the
+    running release provides.
+
+    The parameter is untyped on purpose: a registry lookup returns a plain
+    ``DeviceEntry`` before 2026.9 and ``DeviceEntry | ChildDeviceEntry`` from
+    2026.9 on, and only the two attributes read below are needed from either.
+    """
+    entry_id = getattr(device, "config_entry_id", None)
+    if entry_id is not None:
+        return (entry_id,)
+    return tuple(getattr(device, "config_entries", ()))
+
+
 class VioletServiceManager:
     """Manages all Violet Pool Controller services."""
 
@@ -41,7 +60,7 @@ class VioletServiceManager:
         device = dev_reg.async_get(device_id)
 
         if device:
-            for config_entry_id in device.config_entries:
+            for config_entry_id in _config_entry_ids(device):
                 coordinator = async_get_coordinator(self.hass, config_entry_id)
                 if coordinator is not None:
                     return coordinator
@@ -80,8 +99,8 @@ class VioletServiceManager:
 
         for did in device_ids:
             device = device_reg.async_get(did)
-            if device and device.config_entries:
-                for entry_id in device.config_entries:
+            if device:
+                for entry_id in _config_entry_ids(device):
                     coord = async_get_coordinator(self.hass, entry_id)
                     if coord and coord not in coordinators:
                         coordinators.append(coord)
