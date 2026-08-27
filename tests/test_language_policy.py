@@ -36,10 +36,30 @@ GERMAN_HEADINGS = (
     "Bekannte Probleme",
 )
 
-_VERSION_HEADING = re.compile(r"^## Version (\d+)\.(\d+)\.(\d+)")
+# A version is three numbers plus an optional pre-release suffix, so that a beta
+# such as 2.5.14-beta.1 is recognised as its own release with its own changelog
+# section - the release workflow lifts that section onto the release page.
+_VERSION = re.compile(r"^(\d+)\.(\d+)\.(\d+)(\S*)$")
+_VERSION_HEADING = re.compile(r"^## Version (\d+\.\d+\.\d+\S*)")
+
+# (major, minor, patch, pre-release suffix); the suffix is "" for a stable release.
+Release = tuple[int, int, int, str]
 
 
-def _sections() -> list[tuple[tuple[int, int, int], str]]:
+def _parse(version: str) -> Release:
+    """Return a version string as (major, minor, patch, suffix)."""
+    match = _VERSION.match(version.strip())
+    assert match is not None, f"Unparsable version: {version!r}"
+    return (int(match[1]), int(match[2]), int(match[3]), match[4])
+
+
+def _label(release: Release) -> str:
+    """Return a release tuple in the form it is written in the changelog."""
+    major, minor, patch, suffix = release
+    return f"{major}.{minor}.{patch}{suffix}"
+
+
+def _sections() -> list[tuple[Release, str]]:
     """Return every changelog entry as (version, body)."""
     lines = CHANGELOG.read_text(encoding="utf-8").splitlines()
     starts = [i for i, line in enumerate(lines) if _VERSION_HEADING.match(line)]
@@ -48,15 +68,14 @@ def _sections() -> list[tuple[tuple[int, int, int], str]]:
         end = starts[index + 1] if index + 1 < len(starts) else len(lines)
         match = _VERSION_HEADING.match(lines[start])
         assert match is not None
-        version = (int(match.group(1)), int(match.group(2)), int(match.group(3)))
-        entries.append((version, "\n".join(lines[start + 1 : end])))
+        entries.append((_parse(match[1]), "\n".join(lines[start + 1 : end])))
     return entries
 
 
-def _current_version() -> tuple[int, int, int]:
+def _current_version() -> Release:
     """Return the version the integration currently reports."""
     text = (REPO / "custom_components" / "violet_pool_controller" / ".version").read_text()
-    return tuple(int(part) for part in text.strip().split("."))  # type: ignore[return-value]
+    return _parse(text)
 
 
 def test_the_changelog_lists_the_current_version() -> None:
@@ -70,15 +89,30 @@ def test_the_changelog_lists_the_current_version() -> None:
 def test_new_entries_use_english_headings(heading: str) -> None:
     """A German entry turns straight into a German release page."""
     offenders = sorted(
-        ".".join(str(part) for part in version)
+        _label(version)
         for version, body in _sections()
-        if version > GRANDFATHERED_THROUGH and f"### {heading}" in body
+        if version[:3] > GRANDFATHERED_THROUGH and f"### {heading}" in body
     )
 
     assert not offenders, (
         f"Changelog entries {offenders} use the German heading '{heading}'. "
         "Everything from 2.5.8 onwards is English - see CLAUDE.md."
     )
+
+
+def test_a_prerelease_gets_its_own_changelog_section() -> None:
+    """A beta publishes a release page too, so it needs a section of its own.
+
+    The heading and .version parsing used to accept three numbers only, which
+    made every pre-release look like a version without a changelog entry.
+    """
+    assert _parse("2.5.14-beta.1") == (2, 5, 14, "-beta.1")
+    assert _parse("2.5.14") == (2, 5, 14, "")
+    assert _label(_parse("2.5.14-beta.1")) == "2.5.14-beta.1"
+
+    # A pre-release is newer than the grandfathered German entries, so its
+    # section is held to the English policy like any other.
+    assert _parse("2.5.8-beta.1")[:3] > GRANDFATHERED_THROUGH
 
 
 def test_the_changelog_does_not_declare_itself_german() -> None:

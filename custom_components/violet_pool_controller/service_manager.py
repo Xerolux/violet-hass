@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from homeassistant.core import ServiceCall
 
 
-def _config_entry_ids(device: dr.DeviceEntry) -> tuple[str, ...]:
+def _config_entry_ids(device: object) -> tuple[str, ...]:
     """Return the config entry ids a device belongs to.
 
     Home Assistant 2026.8 restricted a device to a single config entry and
@@ -23,6 +23,10 @@ def _config_entry_ids(device: dr.DeviceEntry) -> tuple[str, ...]:
     ``DeviceEntry.config_entry_id``; 2026.9 warns about the old attribute. The
     integration supports Home Assistant from 2026.1, so read whichever the
     running release provides.
+
+    The parameter is untyped on purpose: a registry lookup returns a plain
+    ``DeviceEntry`` before 2026.9 and ``DeviceEntry | ChildDeviceEntry`` from
+    2026.9 on, and only the two attributes read below are needed from either.
     """
     entry_id = getattr(device, "config_entry_id", None)
     if entry_id is not None:

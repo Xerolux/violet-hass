@@ -377,7 +377,10 @@ def build_device_info(
             # guard above is exactly the runtime check for its availability.
             info["via_device_id"] = parent_id  # type: ignore[typeddict-unknown-key]
     elif identifiers := _main_identifiers(coordinator):
-        info["via_device"] = next(iter(identifiers))
+        # Home Assistant 2026.9 dropped via_device from the DeviceInfo TypedDict
+        # (the runtime still accepts it until Core 2027.8). The branch only runs
+        # on releases that predate via_device_id, so the key is set untyped.
+        info["via_device"] = next(iter(identifiers))  # type: ignore[typeddict-unknown-key]
 
     return info
 

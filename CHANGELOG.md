@@ -17,28 +17,35 @@ anyone there either.
 > **Historical note:** entries up to and including 2.5.7 were written in German,
 > before the language policy existed. They are kept as they were published.
 
-## Version 2.5.14 (2026-08-27)
+## Version 2.5.14-beta.1 (2026-08-27)
+
+> **Pre-release.** This build exists to try the Home Assistant 2026.9 changes
+> before 2026.9 is out. Please report anything odd — the stable 2.5.14 follows
+> once the feedback is in.
 
 ### 🏠 Home Assistant 2026.9
 
 Home Assistant 2026.9 continues the device registry rework that started in
-2026.8 and deprecates two more calls this integration still made. Nothing
-breaks in 2026.9 — the deprecated calls keep working until Core 2027.8 — but
-they log a warning on every use, so they are replaced now.
+2026.8. Nothing in the integration breaks on 2026.9 — every affected call keeps
+working until Core 2027.8 — but three of them were still on the old API, and one
+of them logs a warning on every use. All three are migrated:
 
 - **Device lookups are scoped to the config entry.** The sub-device hierarchy
-  resolved the controller device with the deprecated
-  `DeviceRegistry.async_get_device()`. It now uses
-  `async_get_device_by_identifier()`, which matches the 2026.8 rule that
-  identifiers are unique per config entry rather than globally.
+  resolved the controller device with `DeviceRegistry.async_get_device()`, which
+  2026.9 reports as deprecated on every call. It now uses
+  `async_get_device_by_identifier()`, matching the 2026.8 rule that identifiers
+  are unique per config entry rather than globally.
 - **Service targets read the owning config entry directly.** Resolving a
-  coordinator from a `device_id` used the deprecated
-  `DeviceEntry.config_entries` collection; it now reads
-  `DeviceEntry.config_entry_id`, the single owner a device has since 2026.8.
+  coordinator from a `device_id` went through the `DeviceEntry.config_entries`
+  compatibility shim; it now reads `DeviceEntry.config_entry_id`, the single
+  owner a device has since 2026.8. The lookup also accepts the child device
+  entries that 2026.9 can return.
+- **The parent link type-checks again.** 2026.9 removed the deprecated
+  `via_device` key from the `DeviceInfo` type, which the pre-2026.8 fallback
+  branch still set.
 
-Both call sites keep a fallback for Home Assistant 2026.1 - 2026.7, which is
-still the supported floor, so the integration behaves identically on older
-releases.
+Both migrated call sites keep their fallback for Home Assistant 2026.1 - 2026.7,
+which remains the supported floor, so older releases behave exactly as before.
 
 Nothing else in 2026.9 affects this integration: the removed `battery_level`
 vacuum property, the domain-prefixed LLM tool names and the changed
@@ -48,8 +55,17 @@ permission change, the update entity itself is unaffected.
 
 ### 🧪 Tests & Quality
 
+- The full suite (865 tests) and `mypy` were run against **Home Assistant
+  2026.9.0b0** as well as 2026.8.3; both are clean, and the suite produces no
+  deprecation warnings on 2026.9.
 - The device hierarchy tests use the same config-entry-scoped lookup as the
-  integration, so the suite stays free of deprecation warnings on 2026.9.
+  integration, so they stay warning-free too.
+- The test harness floor moved to `pytest-homeassistant-custom-component`
+  0.13.357 (Home Assistant 2026.8.3) and stays open-ended, so CI picks up the
+  first harness release built against 2026.9 on its own.
+- The changelog policy check understands pre-release versions. It accepted
+  three numbers only, so a beta looked like a version with no changelog section
+  — and a release page is built from exactly that section.
 
 ## Version 2.5.13 (2026-08-24)
 
