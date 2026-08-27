@@ -55,6 +55,13 @@ _LOGGER = logging.getLogger(__name__)
 # via_device_id. Detect once; the integration supports both releases.
 _SUPPORTS_VIA_DEVICE_ID = "via_device_id" in DeviceInfo.__annotations__
 
+# The same release scoped identifiers to the owning config entry and deprecated
+# DeviceRegistry.async_get_device() in favour of async_get_device_by_identifier().
+# Home Assistant 2026.9 started warning about the deprecated call, so use the new
+# lookup where it exists and keep the old one for 2026.1 - 2026.7.
+_SUPPORTS_LOOKUP_BY_IDENTIFIER = hasattr(
+    dr.DeviceRegistry, "async_get_device_by_identifier"
+)
 
 
 @dataclass(frozen=True)
@@ -320,7 +327,15 @@ def _main_device_id(hass: HomeAssistant, entry: ConfigEntry, coordinator) -> str
     if not identifiers:
         return None
 
-    device = dr.async_get(hass).async_get_device(identifiers=identifiers)
+    registry = dr.async_get(hass)
+    if _SUPPORTS_LOOKUP_BY_IDENTIFIER:
+        # Identifiers are unique per config entry, so one of them is enough to
+        # address the controller device unambiguously.
+        device = registry.async_get_device_by_identifier(
+            next(iter(identifiers)), entry.entry_id
+        )
+    else:
+        device = registry.async_get_device(identifiers=identifiers)
     return device.id if device else None
 
 

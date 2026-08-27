@@ -43,6 +43,19 @@ from custom_components.violet_pool_controller.runtime_data import (  # noqa: E40
 _MAIN_IDENTIFIER = (DOMAIN, "192.168.178.55_1")
 
 
+def _device_by_identifier(hass, entry, identifier):
+    """Look up a device by one identifier, scoped to its config entry.
+
+    Home Assistant 2026.8 scoped identifiers to the owning config entry and
+    deprecated ``async_get_device``; 2026.9 warns about it. Mirror what the
+    integration does and use the scoped lookup where the running release has it.
+    """
+    registry = dr.async_get(hass)
+    if hasattr(registry, "async_get_device_by_identifier"):
+        return registry.async_get_device_by_identifier(identifier, entry.entry_id)
+    return registry.async_get_device(identifiers={identifier})
+
+
 @pytest.fixture
 def config_entry(hass):
     """Add a config entry with grouping enabled."""
@@ -215,19 +228,17 @@ class TestPrecreateAndCleanup:
         """Platform order must not decide whether a parent link resolves."""
         async_precreate_devices(hass, config_entry, coordinator)
 
-        registry = dr.async_get(hass)
         for sub_device in SUB_DEVICES:
             identifier = sub_device_identifier(config_entry, sub_device.id)
-            assert registry.async_get_device(identifiers={identifier}) is not None
+            assert _device_by_identifier(hass, config_entry, identifier) is not None
 
     def test_empty_sub_devices_are_removed(self, hass, config_entry, coordinator):
         """A controller without a DMX module must not keep a lighting device."""
         async_precreate_devices(hass, config_entry, coordinator)
 
         # Give exactly one sub-device an entity.
-        registry = dr.async_get(hass)
-        pump_device = registry.async_get_device(
-            identifiers={sub_device_identifier(config_entry, "filter_pump")}
+        pump_device = _device_by_identifier(
+            hass, config_entry, sub_device_identifier(config_entry, "filter_pump")
         )
         er.async_get(hass).async_get_or_create(
             "sensor",
@@ -241,14 +252,14 @@ class TestPrecreateAndCleanup:
 
         assert removed == len(SUB_DEVICES) - 1
         assert (
-            registry.async_get_device(
-                identifiers={sub_device_identifier(config_entry, "filter_pump")}
+            _device_by_identifier(
+                hass, config_entry, sub_device_identifier(config_entry, "filter_pump")
             )
             is not None
         )
         assert (
-            registry.async_get_device(
-                identifiers={sub_device_identifier(config_entry, "lighting")}
+            _device_by_identifier(
+                hass, config_entry, sub_device_identifier(config_entry, "lighting")
             )
             is None
         )
@@ -258,8 +269,7 @@ class TestPrecreateAndCleanup:
         async_precreate_devices(hass, config_entry, coordinator)
         async_cleanup_sub_devices(hass, config_entry)
 
-        registry = dr.async_get(hass)
-        assert registry.async_get_device(identifiers={_MAIN_IDENTIFIER}) is not None
+        assert _device_by_identifier(hass, config_entry, _MAIN_IDENTIFIER) is not None
 
     def test_switching_grouping_off_removes_every_sub_device(
         self, hass, config_entry, coordinator
@@ -273,5 +283,4 @@ class TestPrecreateAndCleanup:
         removed = async_cleanup_sub_devices(hass, config_entry)
 
         assert removed == len(SUB_DEVICES)
-        registry = dr.async_get(hass)
-        assert registry.async_get_device(identifiers={_MAIN_IDENTIFIER}) is not None
+        assert _device_by_identifier(hass, config_entry, _MAIN_IDENTIFIER) is not None

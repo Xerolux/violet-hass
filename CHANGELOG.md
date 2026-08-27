@@ -17,6 +17,40 @@ anyone there either.
 > **Historical note:** entries up to and including 2.5.7 were written in German,
 > before the language policy existed. They are kept as they were published.
 
+## Version 2.5.14 (2026-08-27)
+
+### 🏠 Home Assistant 2026.9
+
+Home Assistant 2026.9 continues the device registry rework that started in
+2026.8 and deprecates two more calls this integration still made. Nothing
+breaks in 2026.9 — the deprecated calls keep working until Core 2027.8 — but
+they log a warning on every use, so they are replaced now.
+
+- **Device lookups are scoped to the config entry.** The sub-device hierarchy
+  resolved the controller device with the deprecated
+  `DeviceRegistry.async_get_device()`. It now uses
+  `async_get_device_by_identifier()`, which matches the 2026.8 rule that
+  identifiers are unique per config entry rather than globally.
+- **Service targets read the owning config entry directly.** Resolving a
+  coordinator from a `device_id` used the deprecated
+  `DeviceEntry.config_entries` collection; it now reads
+  `DeviceEntry.config_entry_id`, the single owner a device has since 2026.8.
+
+Both call sites keep a fallback for Home Assistant 2026.1 - 2026.7, which is
+still the supported floor, so the integration behaves identically on older
+releases.
+
+Nothing else in 2026.9 affects this integration: the removed `battery_level`
+vacuum property, the domain-prefixed LLM tool names and the changed
+`persistent_notification` event type are all unused here. Firmware updates now
+require an administrator account to install or skip — that is a Home Assistant
+permission change, the update entity itself is unaffected.
+
+### 🧪 Tests & Quality
+
+- The device hierarchy tests use the same config-entry-scoped lookup as the
+  integration, so the suite stays free of deprecation warnings on 2026.9.
+
 ## Version 2.5.13 (2026-08-24)
 
 ### 🐛 Fixed
