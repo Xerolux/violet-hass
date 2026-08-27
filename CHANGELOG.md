@@ -17,6 +17,55 @@ anyone there either.
 > **Historical note:** entries up to and including 2.5.7 were written in German,
 > before the language policy existed. They are kept as they were published.
 
+## Version 2.6.0-beta.1 (2026-08-27)
+
+> **Pre-release.** Two structural changes that want testing before they become
+> stable: the minimum Home Assistant version moves up, and the sub-devices
+> become child devices. Please report anything odd.
+
+### ⚠️ Home Assistant 2026.8 is now the minimum
+
+`hacs.json` declared 2026.1.0 while the test suite has run against 2026.8 for
+some time, and the device registry code carried a second code path purely to
+keep 2026.1 - 2026.7 working. **The floor is now 2026.8.0.** If you run an older
+Home Assistant, HACS will keep you on 2.5.x until you upgrade.
+
+What this buys: 2026.8 scoped device identifiers to the owning config entry,
+replaced `via_device` with `via_device_id`, and gave a device a single
+`config_entry_id`. All three fallbacks are gone, so the registry code now
+targets one API instead of guessing at runtime which one it is talking to.
+
+### 🧩 Sub-devices are child devices on Home Assistant 2026.9
+
+Home Assistant 2026.9 introduced **child devices**: a device that models a
+logical part of one physical product. That is exactly what the twelve
+sub-devices (Filter Pump, Heating, Dosing, …) are — while `via_device_id`, which
+they used until now, has come to mean the opposite: connectivity between two
+*separate* products, such as a hub and the devices behind it.
+
+From 2026.9 the sub-devices are therefore registered as child devices of the
+controller. On 2026.8 they stay as they were.
+
+**Nothing is renumbered.** Registering a sub-device with the identifiers it
+already has converts it in place and keeps its registry id, so entities stay
+attached and every device-targeted automation keeps working. Home Assistant also
+expands a parent device to its children when it resolves an action target, so an
+automation aimed at the controller still reaches every entity below it.
+
+What changes visibly: a child device carries no hardware identity of its own —
+no manufacturer, model or firmware version — because those belong to the
+controller it is part of. A child also inherits the controller's area unless you
+give it one, which makes assigning a single sub-device to a room work properly.
+
+### 🧪 Tests & Quality
+
+- The suite runs against **both** supported models: 868 tests on Home Assistant
+  2026.9.0b0 (child devices) and 867 + 1 skipped on 2026.8.3 (`via_device_id`),
+  with `mypy` and `ruff` clean on each.
+- A dedicated regression test covers the in-place migration: a sub-device
+  registered the old way keeps its registry id and its entities when it becomes
+  a child device.
+
 ## Version 2.5.14-beta.1 (2026-08-27)
 
 > **Pre-release.** This build exists to try the Home Assistant 2026.9 changes
