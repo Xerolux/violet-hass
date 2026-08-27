@@ -25,6 +25,7 @@ from custom_components.violet_pool_controller.const import (  # noqa: E402
     CONF_DEVICE_NAME,
     CONF_GROUP_ENTITIES,
     DOMAIN,
+    MANUFACTURER,
 )
 from custom_components.violet_pool_controller.device_hierarchy import (  # noqa: E402
     SUB_DEVICES,
@@ -44,16 +45,18 @@ _MAIN_IDENTIFIER = (DOMAIN, "192.168.178.55_1")
 
 
 def _device_by_identifier(hass, entry, identifier):
-    """Look up a device by one identifier, scoped to its config entry.
+    """Look up a device or child device by one identifier, scoped to its entry.
 
-    Home Assistant 2026.8 scoped identifiers to the owning config entry and
-    deprecated ``async_get_device``; 2026.9 warns about it. Mirror what the
-    integration does and use the scoped lookup where the running release has it.
+    Identifiers are unique per config entry since Home Assistant 2026.8. From
+    2026.9 the sub-devices are child devices, which the main-device lookup does
+    not return, so both collections are searched.
     """
     registry = dr.async_get(hass)
-    if hasattr(registry, "async_get_device_by_identifier"):
-        return registry.async_get_device_by_identifier(identifier, entry.entry_id)
-    return registry.async_get_device(identifiers={identifier})
+    if device := registry.async_get_device_by_identifier(identifier, entry.entry_id):
+        return device
+    if device_hierarchy._SUPPORTS_CHILD_DEVICES:
+        return registry.async_get_child_device_by_identifier(identifier, entry.entry_id)
+    return None
 
 
 @pytest.fixture
@@ -164,27 +167,33 @@ class TestDeviceInfo:
         async_precreate_devices(hass, config_entry, coordinator)
         info = build_device_info(hass, config_entry, coordinator, "PUMP")
 
-        # via_device_id on HA 2026.8+, via_device before that - exactly one.
-        assert ("via_device_id" in info) != ("via_device" in info)
-        if "via_device_id" in info:
-            registry = dr.async_get(hass)
-            assert registry.async_get(info["via_device_id"]) is not None
-        else:
-            assert info["via_device"] == _MAIN_IDENTIFIER
+        parent_key = (
+            "parent_device_id" if device_hierarchy._SUPPORTS_CHILD_DEVICES else "via_device_id"
+        )
+        assert dr.async_get(hass).async_get(info[parent_key]) is not None
+        # The deprecated identifier-tuple link is never written any more.
+        assert "via_device" not in info
 
-    def test_sub_device_links_by_registry_id_on_new_ha(self, hass, config_entry, coordinator):
-        """Home Assistant 2026.8+ links the parent by registry id.
+    def test_a_child_device_carries_no_hardware_identity(
+        self, hass, config_entry, coordinator
+    ):
+        """A child device is a logical part; the hardware belongs to the parent.
 
-        Forced on so the branch is covered on older Home Assistant releases too,
-        where via_device is used instead.
+        Before Home Assistant 2026.9 the sub-device is a device of its own and
+        does carry manufacturer and model, so the two models are asserted apart.
         """
         async_precreate_devices(hass, config_entry, coordinator)
+        info = build_device_info(hass, config_entry, coordinator, "PUMP")
 
-        with patch.object(device_hierarchy, "_SUPPORTS_VIA_DEVICE_ID", True):
-            info = build_device_info(hass, config_entry, coordinator, "PUMP")
-
-        assert "via_device" not in info
-        assert dr.async_get(hass).async_get(info["via_device_id"]) is not None
+        if device_hierarchy._SUPPORTS_CHILD_DEVICES:
+            assert "manufacturer" not in info
+            assert "model" not in info
+            assert "via_device_id" not in info
+            assert info["parent_device_id"]
+        else:
+            assert info["manufacturer"] == MANUFACTURER
+            assert info["model"]
+            assert "parent_device_id" not in info
 
     def test_parent_link_resolves_without_the_cache(self, hass, config_entry, coordinator):
         """The cached registry ids are an optimisation, not a requirement."""
@@ -194,10 +203,29 @@ class TestDeviceInfo:
 
         assert _main_device_id(hass, config_entry, coordinator) is not None
 
-        with patch.object(device_hierarchy, "_SUPPORTS_VIA_DEVICE_ID", True):
+        info = build_device_info(hass, config_entry, coordinator, "PUMP")
+        parent_key = (
+            "parent_device_id" if device_hierarchy._SUPPORTS_CHILD_DEVICES else "via_device_id"
+        )
+        assert dr.async_get(hass).async_get(info[parent_key]) is not None
+
+    def test_an_entity_stays_on_the_controller_without_a_parent(
+        self, hass, config_entry, coordinator
+    ):
+        """A child device needs a registered parent; without one there is none.
+
+        The controller device is normally created by async_precreate_devices, so
+        this only happens if an entity is added before it - and then the entity
+        belongs on the controller rather than on a device that cannot exist.
+        """
+        with patch.object(device_hierarchy, "_main_device_id", return_value=None):
             info = build_device_info(hass, config_entry, coordinator, "PUMP")
 
-        assert dr.async_get(hass).async_get(info["via_device_id"]) is not None
+        if device_hierarchy._SUPPORTS_CHILD_DEVICES:
+            assert info["identifiers"] == {_MAIN_IDENTIFIER}
+        else:
+            assert info["identifiers"] == {sub_device_identifier(config_entry, "filter_pump")}
+            assert "via_device_id" not in info
 
     def test_unknown_key_stays_on_the_controller(self, hass, config_entry, coordinator):
         """Ungrouped entities keep the controller device."""
@@ -231,6 +259,55 @@ class TestPrecreateAndCleanup:
         for sub_device in SUB_DEVICES:
             identifier = sub_device_identifier(config_entry, sub_device.id)
             assert _device_by_identifier(hass, config_entry, identifier) is not None
+
+    def test_an_existing_sub_device_is_converted_in_place(
+        self, hass, config_entry, coordinator
+    ):
+        """Upgrading to Home Assistant 2026.9 must not renumber a single device.
+
+        An installation set up before 2026.9 has its sub-devices registered as
+        full devices linked by via_device_id. Pre-creation turns them into child
+        devices, and their registry ids have to survive that: the ids are what
+        entities are attached to and what device-targeted automations name.
+        """
+        if not device_hierarchy._SUPPORTS_CHILD_DEVICES:
+            pytest.skip("Child devices require Home Assistant 2026.9 or newer")
+
+        registry = dr.async_get(hass)
+        main = registry.async_get_or_create(
+            config_entry_id=config_entry.entry_id, identifiers={_MAIN_IDENTIFIER}
+        )
+        # The pre-2026.9 shape: a device of its own, hanging off the controller.
+        legacy = registry.async_get_or_create(
+            config_entry_id=config_entry.entry_id,
+            identifiers={sub_device_identifier(config_entry, "filter_pump")},
+            manufacturer=MANUFACTURER,
+            model="Circulation",
+            via_device_id=main.id,
+        )
+        entity = er.async_get(hass).async_get_or_create(
+            "sensor",
+            DOMAIN,
+            f"{config_entry.entry_id}_PUMP",
+            config_entry=config_entry,
+            device_id=legacy.id,
+        )
+        # Home Assistant refuses to convert a device that the same config entry
+        # registered as a full device during the current load. A real upgrade
+        # restores those devices from storage instead, so drop the live set to
+        # reproduce the state a restart leaves behind.
+        registry.async_config_entry_unloaded(config_entry.entry_id)
+
+        async_precreate_devices(hass, config_entry, coordinator)
+
+        child = registry.async_get_child_device_by_identifier(
+            sub_device_identifier(config_entry, "filter_pump"), config_entry.entry_id
+        )
+        assert child is not None
+        assert child.id == legacy.id
+        assert child.parent_device_id == main.id
+        # The entity followed its device rather than being orphaned.
+        assert er.async_get(hass).async_get(entity.entity_id).device_id == legacy.id
 
     def test_empty_sub_devices_are_removed(self, hass, config_entry, coordinator):
         """A controller without a DMX module must not keep a lighting device."""

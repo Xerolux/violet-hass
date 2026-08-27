@@ -18,11 +18,18 @@ page is the structure they configured.
 
 Two Home Assistant details shape this module:
 
-* **Parent links.** ``DeviceInfo.via_device`` (an identifier tuple) is
-  deprecated since Home Assistant 2026.8 in favour of ``via_device_id`` (the
-  parent's registry id), and passing both raises. The integration supports
-  Home Assistant from 2026.1, where ``via_device_id`` does not exist yet, so
-  the field is chosen at runtime.
+* **Parent links.** Home Assistant 2026.9 introduced *child devices*: a device
+  that models a logical part of one physical product. That is exactly what these
+  sub-devices are, and ``via_device_id`` now means the opposite — connectivity
+  between two separate products, such as a hub and the devices behind it. From
+  2026.9 the sub-devices are therefore registered as child devices, and on
+  2026.8 they stay linked by ``via_device_id``.
+
+  The migration costs nothing: registering a sub-device with the identifiers it
+  already has converts it to a child device *in place*, keeping its registry id,
+  so entities stay attached and device-targeted automations keep working. Home
+  Assistant also expands a parent to its children when resolving an action
+  target, so an automation aimed at the controller still reaches every entity.
 * **Entity ids.** With ``has_entity_name`` the entity id is derived from the
   *device* an entity belongs to, so moving entities onto sub-devices would turn
   ``sensor.violet_pool_controller_pump_runtime`` into
@@ -36,7 +43,7 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 from homeassistant.core import callback
 from homeassistant.helpers import device_registry as dr
@@ -51,17 +58,11 @@ if TYPE_CHECKING:
 
 _LOGGER = logging.getLogger(__name__)
 
-# Home Assistant 2026.8 replaced the deprecated via_device identifier tuple with
-# via_device_id. Detect once; the integration supports both releases.
-_SUPPORTS_VIA_DEVICE_ID = "via_device_id" in DeviceInfo.__annotations__
-
-# The same release scoped identifiers to the owning config entry and deprecated
-# DeviceRegistry.async_get_device() in favour of async_get_device_by_identifier().
-# Home Assistant 2026.9 started warning about the deprecated call, so use the new
-# lookup where it exists and keep the old one for 2026.1 - 2026.7.
-_SUPPORTS_LOOKUP_BY_IDENTIFIER = hasattr(
-    dr.DeviceRegistry, "async_get_device_by_identifier"
-)
+# Child devices arrived in Home Assistant 2026.9. The minimum supported release
+# is 2026.8, so the sub-devices are registered as child devices where the running
+# release has them and stay via_device_id-linked devices where it does not.
+# Detect the capability once, rather than comparing version numbers.
+_SUPPORTS_CHILD_DEVICES = hasattr(dr.DeviceRegistry, "async_get_or_create_child")
 
 
 @dataclass(frozen=True)
@@ -270,6 +271,12 @@ def async_precreate_devices(hass: HomeAssistant, entry: ConfigEntry, coordinator
     well belong to a sub-device whose parent does not exist yet. Creating all of
     them here — and caching their registry ids — guarantees that every parent
     link resolves, whichever platform happens to run first.
+
+    It is also where an installation from before Home Assistant 2026.9 migrates
+    to child devices. Home Assistant only converts a device that the config entry
+    has not already registered as a full device during the current load, which
+    holds precisely because this runs before any platform: nothing else in the
+    integration touches a sub-device identifier first.
     """
     runtime_data = get_runtime_data(entry)
     if not is_grouping_enabled(entry):
@@ -295,12 +302,29 @@ def async_precreate_devices(hass: HomeAssistant, entry: ConfigEntry, coordinator
     )
     device_ids["__main__"] = main_device.id
 
+    # Resolved by name because the method does not exist before 2026.9, where
+    # naming it directly would not type-check.
+    create_child = (
+        getattr(registry, "async_get_or_create_child") if _SUPPORTS_CHILD_DEVICES else None
+    )
+
     for sub_device in SUB_DEVICES:
-        device = registry.async_get_or_create(
-            config_entry_id=entry.entry_id,
-            identifiers={sub_device_identifier(entry, sub_device.id)},
-        )
-        device_ids[sub_device.id] = device.id
+        identifiers = {sub_device_identifier(entry, sub_device.id)}
+        if create_child is not None:
+            # Home Assistant 2026.9+. A sub-device that already exists as a full
+            # device is converted in place and keeps its registry id, so this is
+            # also the migration path for installations set up before 2026.9.
+            device_id: str = create_child(
+                config_entry_id=entry.entry_id,
+                parent_device_id=main_device.id,
+                identifiers=identifiers,
+            ).id
+        else:
+            device_id = registry.async_get_or_create(
+                config_entry_id=entry.entry_id,
+                identifiers=identifiers,
+            ).id
+        device_ids[sub_device.id] = device_id
 
     if runtime_data is not None:
         runtime_data.device_ids = device_ids
@@ -327,15 +351,11 @@ def _main_device_id(hass: HomeAssistant, entry: ConfigEntry, coordinator) -> str
     if not identifiers:
         return None
 
-    registry = dr.async_get(hass)
-    if _SUPPORTS_LOOKUP_BY_IDENTIFIER:
-        # Identifiers are unique per config entry, so one of them is enough to
-        # address the controller device unambiguously.
-        device = registry.async_get_device_by_identifier(
-            next(iter(identifiers)), entry.entry_id
-        )
-    else:
-        device = registry.async_get_device(identifiers=identifiers)
+    # Identifiers are unique per config entry, so one of them is enough to
+    # address the controller device unambiguously.
+    device = dr.async_get(hass).async_get_device_by_identifier(
+        next(iter(identifiers)), entry.entry_id
+    )
     return device.id if device else None
 
 
@@ -360,27 +380,36 @@ def build_device_info(
     if group is None or (sub_device := SUB_DEVICES_BY_ID.get(group)) is None:
         return main_info
 
+    identifiers = {sub_device_identifier(entry, sub_device.id)}
+    name = f"{coordinator.device.controller_name} {sub_device.name}"
+    parent_id = _main_device_id(hass, entry, coordinator)
+
+    if _SUPPORTS_CHILD_DEVICES:
+        # Home Assistant 2026.9+. A child device carries no hardware identity of
+        # its own - no manufacturer, model, firmware or connections; those belong
+        # to the controller it is part of. Without a resolvable parent there is
+        # no child to describe, so the entity stays on the controller.
+        if parent_id is None:
+            return main_info
+        child_info: dict[str, Any] = {
+            "identifiers": identifiers,
+            "name": name,
+            "parent_device_id": parent_id,
+            "translation_key": sub_device.translation_key,
+        }
+        # ChildDeviceInfo does not exist before 2026.9, so the dict is built
+        # untyped and cast: an entity's device_info accepts either shape.
+        return cast("DeviceInfo", child_info)
+
     info = DeviceInfo(
-        identifiers={sub_device_identifier(entry, sub_device.id)},
-        name=f"{coordinator.device.controller_name} {sub_device.name}",
+        identifiers=identifiers,
+        name=name,
         manufacturer=MANUFACTURER,
         model=sub_device.model,
         translation_key=sub_device.translation_key,
     )
-
-    if _SUPPORTS_VIA_DEVICE_ID:
-        # Home Assistant 2026.8+: identifiers are no longer unique across config
-        # entries, so the parent has to be addressed by its registry id. Passing
-        # both via_device and via_device_id raises, so only ever set one.
-        if (parent_id := _main_device_id(hass, entry, coordinator)) is not None:
-            # Not in the DeviceInfo TypedDict before Home Assistant 2026.8; the
-            # guard above is exactly the runtime check for its availability.
-            info["via_device_id"] = parent_id  # type: ignore[typeddict-unknown-key]
-    elif identifiers := _main_identifiers(coordinator):
-        # Home Assistant 2026.9 dropped via_device from the DeviceInfo TypedDict
-        # (the runtime still accepts it until Core 2027.8). The branch only runs
-        # on releases that predate via_device_id, so the key is set untyped.
-        info["via_device"] = next(iter(identifiers))  # type: ignore[typeddict-unknown-key]
+    if parent_id is not None:
+        info["via_device_id"] = parent_id
 
     return info
 
@@ -405,7 +434,16 @@ def async_cleanup_sub_devices(hass: HomeAssistant, entry: ConfigEntry) -> int:
     prefix = f"{entry.entry_id}_group_"
     removed = 0
 
-    for device in dr.async_entries_for_config_entry(device_registry, entry.entry_id):
+    devices: list[Any] = list(
+        dr.async_entries_for_config_entry(device_registry, entry.entry_id)
+    )
+    if _SUPPORTS_CHILD_DEVICES:
+        # Child devices are a separate collection; the call above returns only
+        # main devices, so without this the sub-devices would never be cleaned up.
+        child_entries_for = getattr(dr, "async_child_entries_for_config_entry")
+        devices.extend(child_entries_for(device_registry, entry.entry_id))
+
+    for device in devices:
         is_sub_device = any(
             domain == DOMAIN and value.startswith(prefix) for domain, value in device.identifiers
         )
