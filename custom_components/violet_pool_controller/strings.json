@@ -2107,7 +2107,7 @@
       "name": "Digital Inputs & Rules"
     },
     "extensions": {
-      "name": "Extension Modules"
+      "name": "Relay Extension"
     },
     "system": {
       "name": "System & Diagnostics"

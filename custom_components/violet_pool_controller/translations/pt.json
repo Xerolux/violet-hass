@@ -1055,7 +1055,7 @@
       "name": "Digital Inputs & Rules"
     },
     "extensions": {
-      "name": "Extension Modules"
+      "name": "Extensão de relés"
     },
     "system": {
       "name": "System & Diagnostics"

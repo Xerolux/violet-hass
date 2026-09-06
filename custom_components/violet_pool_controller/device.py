@@ -360,35 +360,27 @@ class VioletPoolControllerDevice:
             def is_valid(val: Any) -> bool:
                 return val is not None and str(val).strip().upper() != "N/A"
 
-            def is_alive_count(key: str) -> bool:
-                val = data.get(key)
-                if val is None:
-                    return False
-                try:
-                    return float(str(val).strip()) > 0
-                except (ValueError, TypeError):
-                    return False
-
             # --- Dosing module ---
-            has_dosing_now = is_valid(data.get("SYSTEM_dosagemodule_cpu_temperature")) or any(
-                k.startswith("DOS_") and is_valid(v) for k, v in data.items()
+            has_dosing_now = (
+                "SYSTEM_dosagemodule_alive_count" in data
+                or is_valid(data.get("SYSTEM_dosagemodule_cpu_temperature"))
+                or any(k.startswith("DOS_") and is_valid(v) for k, v in data.items())
             )
             if self.api.dosing_standalone or has_dosing_now:
                 self._hw_detected.add("DOSING")
             has_dosing = "DOSING" in self._hw_detected or self.api.dosing_standalone
 
-            # --- Extension module 1 ---
-            has_ext1_now = is_alive_count("SYSTEM_ext1module_alive_count") or any(
-                k.startswith("EXT1_") and is_valid(v) for k, v in data.items()
-            )
+            # --- Relay extensions ---
+            # Presence follows the alive-count keys: the carrier reports every
+            # EXT*_ key with stale values even for modules that are not
+            # connected, and the runtimes merge above re-imports them, so
+            # prefix matching reported a second extension that does not exist.
+            has_ext1_now = "SYSTEM_ext1module_alive_count" in data
             if has_ext1_now:
                 self._hw_detected.add("EXT1")
             has_ext1 = "EXT1" in self._hw_detected
 
-            # --- Extension module 2 ---
-            has_ext2_now = is_alive_count("SYSTEM_ext2module_alive_count") or any(
-                k.startswith("EXT2_") and is_valid(v) for k, v in data.items()
-            )
+            has_ext2_now = "SYSTEM_ext2module_alive_count" in data
             if has_ext2_now:
                 self._hw_detected.add("EXT2")
             has_ext2 = "EXT2" in self._hw_detected
@@ -760,7 +752,8 @@ class VioletPoolControllerDevice:
         """Detect currently present hardware modules from API data (not cached).
 
         Returns list of module names based on actual API keys present,
-        not on historical detections.
+        not on historical detections. Module names follow the products
+        PoolDigital sells (Basis-Modul, Dosier-Modul, Relais-Erweiterung).
         """
         extra_modules = []
 
@@ -768,21 +761,31 @@ class VioletPoolControllerDevice:
             """Check if any valid keys start with the given prefix."""
             return any(k.startswith(prefix) and self._data.get(k) is not None for k in self._data)
 
-        # Check standalone mode vs dosing module
-        if self._data.get("HW_STANDALONE_MODE"):
-            extra_modules.append("Dosing-Standalone")
-        elif has_keys("DOS_"):
-            extra_modules.append("Dosing")
+        # Relay extensions: the firmware reports every EXT*_ key - with
+        # stale values for relays of modules that are not connected - so
+        # presence follows the alive-count keys, which the carrier only
+        # sends for attached modules (same rule the API package applies
+        # to getReadings).
+        extensions = [
+            index
+            for index in (1, 2)
+            if f"SYSTEM_ext{index}module_alive_count" in self._data
+        ]
+        if len(extensions) == 1:
+            extra_modules.append("Relais-Erweiterung")
+        elif len(extensions) == 2:
+            extra_modules.extend(("Relais-Erweiterung 1", "Relais-Erweiterung 2"))
 
-        # Check extension modules
-        if has_keys("EXT1_"):
-            extra_modules.append("Ext1")
-        if has_keys("EXT2_"):
-            extra_modules.append("Ext2")
+        # Dosing module (integrated dosing on the base module is a
+        # function, not the plug-in Dosier-Modul).
+        if self._data.get("HW_STANDALONE_MODE"):
+            extra_modules.append("Dosier-Funktion")
+        elif "SYSTEM_dosagemodule_alive_count" in self._data or has_keys("DOS_"):
+            extra_modules.append("Dosier-Modul")
 
         # Check DMX module
         if has_keys("DMX_"):
-            extra_modules.append("DMX")
+            extra_modules.append("DMX-Modul")
 
         # Check Digital Input Rules module
         if has_keys("DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_"):

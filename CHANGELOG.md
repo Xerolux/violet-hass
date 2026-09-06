@@ -17,6 +17,27 @@ anyone there either.
 > **Historical note:** entries up to and including 2.5.7 were written in German,
 > before the language policy existed. They are kept as they were published.
 
+## Version 2.6.1 (2026-09-06)
+
+### 🔌 Only the modules that are really there
+
+The firmware reports every relay of both extension slots - with stale
+values for modules that are not connected - so the controller device
+claimed an "Ext2" that was never installed. Module presence now follows
+the `SYSTEM_ext*module_alive_count` keys, the same signal the API
+package already filters `getReadings` by; zombie relay keys that the
+output-runtimes merge re-imports no longer register a module.
+
+The module list also uses the names PoolDigital sells:
+
+- `Ext1`/`Ext2` → **Relais-Erweiterung** (numbered only when two are attached)
+- `Dosing` → **Dosier-Modul**; dosing integrated in the base module reads **Dosier-Funktion**
+- `DMX` → **DMX-Modul**
+
+The "Extension Modules" sub-device is renamed to **Relay Extension** in
+all ten languages, and six new regression tests replay the live payload
+that reported the phantom module.
+
 ## Version 2.6.0 (2026-09-06)
 
 Two structural changes that spent a release cycle as 2.6.0-beta.1 and have

@@ -84,12 +84,17 @@ class TestExt1HardwareDetection:
         assert data["HW_EXTENSION_MODULE_1"] is True
         assert "EXT1" in device._hw_detected
 
-    async def test_ext1_detected_via_data_keys(self, device, mock_api):
-        """EXT1_* keys in the (already-filtered) data signal module presence."""
+    async def test_ext1_keys_without_alive_count_are_ignored(self, device, mock_api):
+        """Bare EXT1_* keys (runtimes merge of a missing module) signal nothing.
+
+        The firmware reports every EXT*_ key - with stale values - even for
+        modules that are not connected, and get_output_runtimes re-imports
+        them after the API filter. Only the alive-count key counts.
+        """
         mock_api.get_readings = AsyncMock(return_value={"PUMP": 1, "EXT1_1": 4, "EXT1_2": 0})
         data = await device._fetch_controller_data()
-        assert data["HW_EXTENSION_MODULE_1"] is True
-        assert "EXT1" in device._hw_detected
+        assert data["HW_EXTENSION_MODULE_1"] is False
+        assert "EXT1" not in device._hw_detected
 
     async def test_ext1_not_detected_when_absent(self, device, mock_api):
         """Module absent: alive count not present, no EXT1 keys."""
@@ -99,9 +104,9 @@ class TestExt1HardwareDetection:
         assert "EXT1" not in device._hw_detected
 
     async def test_ext1_sticky_once_detected(self, device, mock_api):
-        """Once EXT1 detected, it stays True even if keys later disappear."""
+        """Once EXT1 detected, it stays True even if the alive key later disappears."""
         mock_api.get_readings = AsyncMock(
-            return_value={"PUMP": 1, "EXT1_2": 4, "EXT1_2_LAST_ON": 1_700_000_000}
+            return_value={"PUMP": 1, "SYSTEM_ext1module_alive_count": 5, "EXT1_2": 4}
         )
         await device._fetch_controller_data()
         assert "EXT1" in device._hw_detected
@@ -114,14 +119,19 @@ class TestExt1HardwareDetection:
         )
 
     async def test_ext1_stale_values_restored_when_filtered(self, device, mock_api):
-        """Previous EXT1 state values are restored when the API filter removes them."""
+        """Previous EXT1 state values are restored when the alive key flickers."""
         mock_api.get_readings = AsyncMock(
-            return_value={"PUMP": 1, "EXT1_2": 4, "EXT1_2_LAST_ON": 1_700_000_000}
+            return_value={
+                "PUMP": 1,
+                "SYSTEM_ext1module_alive_count": 5,
+                "EXT1_2": 4,
+                "EXT1_2_LAST_ON": 1_700_000_000,
+            }
         )
         data1 = await device._fetch_controller_data()
         device._data = data1  # simulate coordinator persisting result
 
-        # Second poll: API removed EXT1 keys (module detection dropped in filter)
+        # Second poll: alive count and EXT1 keys missing from the payload
         mock_api.get_readings = AsyncMock(return_value={"PUMP": 0})
         data2 = await device._fetch_controller_data()
         assert "EXT1_2" in data2, "EXT1_2 must be restored from previous data"
@@ -130,7 +140,11 @@ class TestExt1HardwareDetection:
     async def test_ext2_sticky_once_detected(self, device, mock_api):
         """Same sticky logic applies to EXT2."""
         mock_api.get_readings = AsyncMock(
-            return_value={"PUMP": 1, "EXT2_1": 1, "EXT2_1_LAST_ON": 1_700_000_000}
+            return_value={
+                "PUMP": 1,
+                "SYSTEM_ext2module_alive_count": 7,
+                "EXT2_1": 1,
+            }
         )
         await device._fetch_controller_data()
         assert "EXT2" in device._hw_detected
