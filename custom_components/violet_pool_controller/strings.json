@@ -323,7 +323,7 @@
     },
     "controller_requires_auth": {
       "title": "Controller requires a login",
-      "description": "The controller '{name}' rejected a command because authentication is missing or wrong. This happens when the integration was set up without username and password. Enter the controller's login data to fix it."
+      "description": "The controller {name} rejected a command because authentication is missing or wrong. This happens when the integration was set up without username and password. Enter the controller's login data to fix it."
     }
   },
   "services": {

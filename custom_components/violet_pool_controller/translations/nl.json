@@ -292,7 +292,7 @@
     },
     "controller_requires_auth": {
       "title": "Controller vereist inloggegevens",
-      "description": "De controller '{name}' heeft een opdracht geweigerd omdat de authenticatie ontbreekt of onjuist is. Dit gebeurt wanneer de integratie zonder gebruikersnaam en wachtwoord is ingesteld. Voer de inloggegevens van de controller in om dit op te lossen."
+      "description": "De controller {name} heeft een opdracht geweigerd omdat de authenticatie ontbreekt of onjuist is. Dit gebeurt wanneer de integratie zonder gebruikersnaam en wachtwoord is ingesteld. Voer de inloggegevens van de controller in om dit op te lossen."
     }
   },
   "services": {
