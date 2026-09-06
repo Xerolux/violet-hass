@@ -17,11 +17,13 @@ anyone there either.
 > **Historical note:** entries up to and including 2.5.7 were written in German,
 > before the language policy existed. They are kept as they were published.
 
-## Version 2.6.0-beta.1 (2026-08-27)
+## Version 2.6.0 (2026-09-06)
 
-> **Pre-release.** Two structural changes that want testing before they become
-> stable: the minimum Home Assistant version moves up, and the sub-devices
-> become child devices. Please report anything odd.
+Two structural changes that spent a release cycle as 2.6.0-beta.1 and have
+been verified against a live controller on Home Assistant 2026.9: the minimum
+Home Assistant version moves up, and the sub-devices become child devices.
+This release adds the discovery, translation and authentication repairs on
+top.
 
 ### ⚠️ Home Assistant 2026.8 is now the minimum
 
@@ -57,14 +59,60 @@ no manufacturer, model or firmware version — because those belong to the
 controller it is part of. A child also inherits the controller's area unless you
 give it one, which makes assigning a single sub-device to a room work properly.
 
+### 🔍 Discovered controllers ask for their login
+
+The zeroconf flow confirmed a discovered controller with a bare form that had
+**no fields at all**: the entry was created with empty username and password,
+and a controller that required authentication left you in a
+"cannot connect" loop with no way to type credentials. The confirm step now
+shows username and password fields (leave them empty if the controller runs
+without a login), keeps the username when the test fails, and reports rejected
+credentials as an authentication error instead of hinting at a network problem.
+
+### 🚨 Rejected commands now explain themselves
+
+A controller that asks for a login while its readings stay open - the exact
+combination a discovery-created entry produces - failed every switch and
+service call with a generic API error, and the first support request about
+"cannot switch, auth?" has already arrived. Control commands now run through
+an auth guard:
+
+- the first rejected command raises a persistent, fixable **repair issue**
+  ("Controller requires a login") instead of failing silently,
+- its *Fix it* form asks for username and password, stores them and reloads
+  the entry,
+- the first command that goes through clears the issue on its own, so fixing
+  the credentials any other way (reconfigure, options) heals it too,
+- read failures stay on the coordinator path and keep triggering Home
+  Assistant's native re-authentication prompt.
+
+### 🌍 The setup dialogs follow your language again
+
+Two things leaked English (or raw errors) into a German — or Spanish, French,
+… — installation:
+
+- The reconfigure menu showed **`Translation [formatjs Error:
+  MISSING_VALUE] … controller_name`** instead of its description, and its radio
+  labels ("Connection settings") were hardcoded English. The placeholder is now
+  provided and the labels translate via `selector` entries.
+- Main menu, options menu, pool type, disinfection method and the feature list
+  used inline English labels; the pool type and disinfection translations even
+  existed in the files but were never wired up. All of them now use
+  `translation_key` with translations in all ten languages, and the English
+  flow no longer references a missing `{docs_de}` link variable.
+
 ### 🧪 Tests & Quality
 
-- The suite runs against **both** supported models: 868 tests on Home Assistant
-  2026.9.0b0 (child devices) and 867 + 1 skipped on 2026.8.3 (`via_device_id`),
-  with `mypy` and `ruff` clean on each.
+- The suite runs against **both** supported models: Home Assistant 2026.9.0b0
+  (child devices) and 2026.8.3 (`via_device_id`), with `mypy` and `ruff` clean
+  on each.
 - A dedicated regression test covers the in-place migration: a sub-device
   registered the old way keeps its registry id and its entities when it becomes
   a child device.
+- Twenty new tests cover the credential prompt in the discovery flow, the
+  auth guard (issue raised on a rejected command, cleared on the next success,
+  reads left to the coordinator), the credential repair flow and the
+  translation wiring.
 
 ## Version 2.5.14-beta.1 (2026-08-27)
 

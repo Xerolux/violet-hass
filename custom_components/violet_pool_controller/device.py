@@ -45,6 +45,7 @@ except ImportError:
         """Compatibility fallback for older violet-poolcontroller-api releases."""
 
 
+from .auth_guard import AuthReportingAPI
 from .config_entry_helpers import (
     extract_api_host,
     get_entry_value,
@@ -117,7 +118,9 @@ class VioletPoolControllerDevice:
         """Initialize the device instance."""
         self.hass = hass
         self.config_entry = config_entry
-        self.api = api
+        # Guarded so a command rejected for missing credentials surfaces as a
+        # repair issue instead of a generic API error (see auth_guard.py).
+        self.api = AuthReportingAPI(api, hass, config_entry)  # type: ignore[assignment]
         self._available = False
         self._session = async_get_clientsession(hass)
         self._data: dict[str, Any] = {}
@@ -292,7 +295,9 @@ class VioletPoolControllerDevice:
             )
 
             # Replace the old API with the new one
-            self.api = new_api
+            self.api = AuthReportingAPI(  # type: ignore[assignment]
+                new_api, self.hass, self.config_entry
+            )
 
             # Update device configuration
             self.api_url = new_api_url

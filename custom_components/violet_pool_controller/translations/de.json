@@ -176,7 +176,19 @@
       },
       "zeroconf_confirm": {
         "title": "Violet Pool Controller gefunden",
-        "description": "Ein Violet Pool Controller wurde im Netzwerk entdeckt.\n\nName: **{name}**\nIP-Adresse: **{host}**\n\nMöchtest du diesen Controller jetzt einrichten?"
+        "description": "Ein Violet Pool Controller wurde im Netzwerk entdeckt.\n\nName: **{name}**\nIP-Adresse: **{host}**\n\nMöchtest du diesen Controller jetzt einrichten?\n\nGib bei Bedarf Benutzername und Passwort ein. Lasse die Felder leer, wenn der Controller keine Anmeldung erfordert.",
+        "data": {
+          "username": "Benutzername",
+          "password": "Passwort"
+        }
+      },
+      "controller_auth": {
+        "title": "Controller-Anmeldung eingeben",
+        "description": "Der Controller **{controller_name}** akzeptiert Befehle nur mit gültigen Zugangsdaten. Gib Benutzername und Passwort des Controllers ein – lasse beide leer, wenn er wirklich ohne Anmeldung läuft.",
+        "data": {
+          "username": "Benutzername",
+          "password": "Passwort"
+        }
       }
     },
     "error": {
@@ -224,7 +236,10 @@
       },
       "features": {
         "title": "Features aktivieren/deaktivieren",
-        "description": "Wähle die Features, die du nutzen möchtest\n\nAktivierte Features werden in Home Assistant angezeigt\nDeaktivierte Features werden ausgeblendet\n\nAktiviere nur, was du wirklich brauchst - das hält die Oberfläche übersichtlich!"
+        "description": "Wähle die Features, die du nutzen möchtest\n\nAktivierte Features werden in Home Assistant angezeigt\nDeaktivierte Features werden ausgeblendet\n\nAktiviere nur, was du wirklich brauchst - das hält die Oberfläche übersichtlich!",
+        "data": {
+          "active_features": "Aktive Funktionen"
+        }
       },
       "sensors": {
         "title": "Sensoren auswählen",
@@ -294,6 +309,10 @@
           "still_unavailable": "Der Controller antwortet weiterhin nicht. Prüfe Stromversorgung, Netzwerk und IP-Adresse und versuche es erneut."
         }
       }
+    },
+    "controller_requires_auth": {
+      "title": "Controller erfordert eine Anmeldung",
+      "description": "Der Controller „{name}“ hat einen Befehl abgelehnt, weil die Anmeldung fehlt oder falsch ist. Das passiert, wenn die Integration ohne Benutzername und Passwort eingerichtet wurde. Gib die Zugangsdaten des Controllers ein, um das Problem zu beheben."
     }
   },
   "services": {
@@ -799,6 +818,40 @@
       "options": {
         "connection": "🌐 Verbindungseinstellungen",
         "safety": "🚨 Sicherheitseinstellungen"
+      }
+    },
+    "main_menu": {
+      "options": {
+        "start_setup": "Einrichtung starten",
+        "open_help": "Hilfe & Dokumentation"
+      }
+    },
+    "options_menu": {
+      "options": {
+        "features": "Funktionen aktivieren/deaktivieren",
+        "sensors": "Sensoren auswählen",
+        "safety": "Sicherheitseinstellungen",
+        "settings": "Einstellungen ändern"
+      }
+    },
+    "features": {
+      "options": {
+        "heating": "Heizung",
+        "solar": "Solarabsorber",
+        "ph_control": "pH-Regelung",
+        "chlorine_control": "Chlor-Regelung",
+        "flocculation": "Flockungsmitteldosierung",
+        "cover_control": "Abdeckungssteuerung",
+        "backwash": "Rückspülung",
+        "pv_surplus": "PV-Überschuss",
+        "filter_control": "Filterpumpe",
+        "water_level": "Wasserstand",
+        "water_refill": "Wassernachfüllung",
+        "led_lighting": "LED-Beleuchtung",
+        "dmx_scenes": "DMX-Szenen",
+        "eco_mode": "ECO-Modus",
+        "digital_inputs": "Digitale Eingänge",
+        "extension_outputs": "Erweiterungsmodule"
       }
     }
   },

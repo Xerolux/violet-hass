@@ -156,7 +156,19 @@
       },
       "zeroconf_confirm": {
         "title": "Controlador de piscina violeta encontrado",
-        "description": "Se descubrió un Violet Pool Controller en la red.\n\nNombre: **{name}**\nDirección IP: **{host}**\n\n¿Quieres configurar este controlador ahora?"
+        "description": "Se descubrió un Violet Pool Controller en la red.\n\nNombre: **{name}**\nDirección IP: **{host}**\n\n¿Quieres configurar este controlador ahora?\n\nIntroduce usuario y contraseña si son necesarios. Deja los campos vacíos si el controlador no requiere inicio de sesión.",
+        "data": {
+          "username": "Usuario",
+          "password": "Contraseña"
+        }
+      },
+      "controller_auth": {
+        "title": "Introducir datos de acceso",
+        "description": "El controlador **{controller_name}** solo acepta comandos con datos de acceso válidos. Introduce el usuario y la contraseña del controlador; deja ambos vacíos si realmente funciona sin inicio de sesión.",
+        "data": {
+          "username": "Usuario",
+          "password": "Contraseña"
+        }
       }
     },
     "error": {
@@ -204,7 +216,10 @@
       },
       "features": {
         "title": "Activar/desactivar funciones",
-        "description": "Elija las funciones que desea utilizar\n\nLas funciones habilitadas se mostrarán en Home Assistant\nLas funciones deshabilitadas se ocultarán\n\nHabilite sólo lo que realmente necesita: ¡mantiene la interfaz limpia!"
+        "description": "Elija las funciones que desea utilizar\n\nLas funciones habilitadas se mostrarán en Home Assistant\nLas funciones deshabilitadas se ocultarán\n\nHabilite sólo lo que realmente necesita: ¡mantiene la interfaz limpia!",
+        "data": {
+          "active_features": "Funciones activas"
+        }
       },
       "sensors": {
         "title": "Seleccionar sensores",
@@ -274,6 +289,10 @@
           "still_unavailable": "El controlador sigue sin responder. Comprueba la alimentación, la red y la dirección IP, y vuelve a intentarlo."
         }
       }
+    },
+    "controller_requires_auth": {
+      "title": "El controlador requiere inicio de sesión",
+      "description": "El controlador «{name}» rechazó un comando porque falta la autenticación o es incorrecta. Esto ocurre cuando la integración se configuró sin usuario y contraseña. Introduce los datos de acceso del controlador para solucionarlo."
     }
   },
   "services": {
@@ -773,6 +792,46 @@
         "allon": "Todas las luces encendidas",
         "alloff": "Todas las luces apagadas",
         "allauto": "Todas las luces automáticas"
+      }
+    },
+    "main_menu": {
+      "options": {
+        "start_setup": "Iniciar configuración",
+        "open_help": "Ayuda y documentación"
+      }
+    },
+    "options_menu": {
+      "options": {
+        "features": "Activar/desactivar funciones",
+        "sensors": "Seleccionar sensores",
+        "safety": "Ajustes de seguridad",
+        "settings": "Cambiar ajustes"
+      }
+    },
+    "features": {
+      "options": {
+        "heating": "Calefacción",
+        "solar": "Absorbedor solar",
+        "ph_control": "Control de pH",
+        "chlorine_control": "Control de cloro",
+        "flocculation": "Dosificación de floculante",
+        "cover_control": "Control de cubierta",
+        "backwash": "Lavado a contracorriente",
+        "pv_surplus": "Excedente fotovoltaico",
+        "filter_control": "Bomba de filtración",
+        "water_level": "Nivel de agua",
+        "water_refill": "Rellenado de agua",
+        "led_lighting": "Iluminación LED",
+        "dmx_scenes": "Escenas DMX",
+        "eco_mode": "Modo ECO",
+        "digital_inputs": "Entradas digitales",
+        "extension_outputs": "Módulos de extensión"
+      }
+    },
+    "reconfigure_option": {
+      "options": {
+        "connection": "🌐 Ajustes de conexión",
+        "safety": "🚨 Ajustes de seguridad"
       }
     }
   },

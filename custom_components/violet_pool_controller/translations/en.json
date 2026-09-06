@@ -189,6 +189,14 @@
       "zeroconf_confirm": {
         "title": "Violet Pool Controller Found",
         "description": "A Violet Pool Controller was discovered on the network.\n\nName: **{name}**\nIP Address: **{host}**\n\nDo you want to set up this controller now?"
+      },
+      "controller_auth": {
+        "title": "Enter controller login",
+        "description": "The controller **{controller_name}** only accepts commands with valid login data. Enter the username and password of the controller - leave both empty if it really runs without a login.",
+        "data": {
+          "username": "Username",
+          "password": "Password"
+        }
       }
     },
     "error": {
@@ -306,6 +314,10 @@
           "still_unavailable": "The controller is still not responding. Check power, network and IP address, then try again."
         }
       }
+    },
+    "controller_requires_auth": {
+      "title": "Controller requires a login",
+      "description": "The controller '{name}' rejected a command because authentication is missing or wrong. This happens when the integration was set up without username and password. Enter the controller's login data to fix it."
     }
   },
   "services": {

@@ -109,8 +109,13 @@ class ConfigFlowTextMixin:
         return template.format(**self._get_help_links())
 
     def _get_help_links(self) -> dict[str, str]:
-        """Get helper links."""
+        """Get helper links.
+
+        Includes the German doc link because step descriptions in some
+        languages reference ``{docs_de}``.
+        """
         return {
+            "docs_de": constants.HELP_DOC_DE_URL,
             "docs_en": constants.HELP_DOC_EN_URL,
             "github_url": constants.GITHUB_BASE_URL,
             "issues_url": constants.SUPPORT_URL,
@@ -121,6 +126,23 @@ class ConfigFlowSchemaMixin:
     """Schema helpers for the primary config flow."""
 
     _sensor_data: dict[str, list[str]] = {}
+    _config_data: dict[str, Any] = {}
+
+    def _get_zeroconf_credentials_schema(self) -> vol.Schema:
+        """Credentials shown when confirming a discovered controller.
+
+        The username default keeps a previously entered value when the
+        connection test fails, so a typo does not wipe the form.
+        """
+        return vol.Schema(
+            {
+                vol.Optional(
+                    CONF_USERNAME,
+                    default=self._config_data.get(CONF_USERNAME, "") or "",
+                ): str,
+                vol.Optional(CONF_PASSWORD): str,
+            }
+        )
 
     def _get_main_menu_schema(self) -> vol.Schema:
         """Get the main menu schema."""
@@ -139,7 +161,8 @@ class ConfigFlowSchemaMixin:
                                 value=constants.MENU_ACTION_HELP,
                                 label="📘 Help & documentation",
                             ),
-                        ]
+                        ],
+                        translation_key="main_menu",
                     )
                 )
             }
@@ -218,11 +241,25 @@ class ConfigFlowSchemaMixin:
                         unit_of_measurement="m³",
                     )
                 ),
-                vol.Required(CONF_POOL_TYPE, default=DEFAULT_POOL_TYPE): vol.In(
-                    constants.POOL_TYPE_OPTIONS
+                vol.Required(CONF_POOL_TYPE, default=DEFAULT_POOL_TYPE): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=[
+                            selector.SelectOptionDict(value=value, label=label)
+                            for value, label in constants.POOL_TYPE_OPTIONS.items()
+                        ],
+                        translation_key="pool_type",
+                    )
                 ),
-                vol.Required(CONF_DISINFECTION_METHOD, default=DEFAULT_DISINFECTION_METHOD): vol.In(
-                    constants.DISINFECTION_OPTIONS
+                vol.Required(
+                    CONF_DISINFECTION_METHOD, default=DEFAULT_DISINFECTION_METHOD
+                ): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=[
+                            selector.SelectOptionDict(value=value, label=label)
+                            for value, label in constants.DISINFECTION_OPTIONS.items()
+                        ],
+                        translation_key="disinfection_method",
+                    )
                 ),
             }
         )
@@ -304,6 +341,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                                 ),
                             ],
                             mode=selector.SelectSelectorMode.LIST,
+                            translation_key="options_menu",
                         )
                     ),
                 }
@@ -344,6 +382,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                             options=feature_options,
                             multiple=True,
                             mode=selector.SelectSelectorMode.LIST,
+                            translation_key="features",
                         )
                     ),
                 }

@@ -156,7 +156,19 @@
       },
       "zeroconf_confirm": {
         "title": "Contrôleur de pool violet trouvé",
-        "description": "Un contrôleur Violet Pool a été découvert sur le réseau.\n\nNom : **{name}**\nAdresse IP : **{host}**\n\nVoulez-vous configurer ce contrôleur maintenant ?"
+        "description": "Un contrôleur Violet Pool a été découvert sur le réseau.\n\nNom : **{name}**\nAdresse IP : **{host}**\n\nVoulez-vous configurer ce contrôleur maintenant ?\n\nSaisissez le nom d'utilisateur et le mot de passe si nécessaire. Laissez les champs vides si le contrôleur n'exige pas d'authentification.",
+        "data": {
+          "username": "Nom d'utilisateur",
+          "password": "Mot de passe"
+        }
+      },
+      "controller_auth": {
+        "title": "Saisir les identifiants du contrôleur",
+        "description": "Le contrôleur **{controller_name}** n'accepte les commandes qu'avec des identifiants valides. Saisissez le nom d'utilisateur et le mot de passe du contrôleur ; laissez les deux vides s'il fonctionne réellement sans authentification.",
+        "data": {
+          "username": "Nom d'utilisateur",
+          "password": "Mot de passe"
+        }
       }
     },
     "error": {
@@ -204,7 +216,10 @@
       },
       "features": {
         "title": "Activer/Désactiver les fonctionnalités",
-        "description": "Choisissez les fonctionnalités que vous souhaitez utiliser\n\nLes fonctionnalités activées seront affichées dans Home Assistant\nLes fonctionnalités désactivées seront masquées\n\nActivez uniquement ce dont vous avez vraiment besoin - gardez l'interface propre !"
+        "description": "Choisissez les fonctionnalités que vous souhaitez utiliser\n\nLes fonctionnalités activées seront affichées dans Home Assistant\nLes fonctionnalités désactivées seront masquées\n\nActivez uniquement ce dont vous avez vraiment besoin - gardez l'interface propre !",
+        "data": {
+          "active_features": "Fonctions actives"
+        }
       },
       "sensors": {
         "title": "Sélectionnez les capteurs",
@@ -272,6 +287,10 @@
           "still_unavailable": "Le contrôleur ne répond toujours pas. Vérifiez l'alimentation, le réseau et l'adresse IP, puis réessayez."
         }
       }
+    },
+    "controller_requires_auth": {
+      "title": "Le contrôleur exige une authentification",
+      "description": "Le contrôleur « {name} » a refusé une commande car l'authentification est absente ou incorrecte. Cela arrive lorsque l'intégration a été configurée sans nom d'utilisateur ni mot de passe. Saisissez les identifiants du contrôleur pour corriger le problème."
     }
   },
   "services": {
@@ -505,6 +524,46 @@
         "allon": "Toutes les lumières allumées",
         "alloff": "Toutes les lumières éteintes",
         "allauto": "Toutes les lumières automatiques"
+      }
+    },
+    "main_menu": {
+      "options": {
+        "start_setup": "Démarrer la configuration",
+        "open_help": "Aide et documentation"
+      }
+    },
+    "options_menu": {
+      "options": {
+        "features": "Activer/désactiver des fonctions",
+        "sensors": "Sélectionner des capteurs",
+        "safety": "Paramètres de sécurité",
+        "settings": "Modifier les paramètres"
+      }
+    },
+    "features": {
+      "options": {
+        "heating": "Chauffage",
+        "solar": "Absorbeur solaire",
+        "ph_control": "Régulation du pH",
+        "chlorine_control": "Régulation du chlore",
+        "flocculation": "Dosage de floculant",
+        "cover_control": "Contrôle de la couverture",
+        "backwash": "Contre-lavage",
+        "pv_surplus": "Surplus photovoltaïque",
+        "filter_control": "Pompe de filtration",
+        "water_level": "Niveau d'eau",
+        "water_refill": "Remplissage d'eau",
+        "led_lighting": "Éclairage LED",
+        "dmx_scenes": "Scènes DMX",
+        "eco_mode": "Mode ECO",
+        "digital_inputs": "Entrées numériques",
+        "extension_outputs": "Modules d'extension"
+      }
+    },
+    "reconfigure_option": {
+      "options": {
+        "connection": "🌐 Paramètres de connexion",
+        "safety": "🚨 Paramètres de sécurité"
       }
     }
   },

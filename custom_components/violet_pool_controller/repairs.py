@@ -7,12 +7,15 @@
 """Repair flows for the Violet Pool Controller integration.
 
 ``device.py`` raises a fixable repair issue when the controller has been
-unreachable for several polling cycles. Home Assistant shows a "Fix" button for
-fixable issues and calls :func:`async_create_fix_flow` when the user presses it;
-without this platform the button ends in an error dialog.
+unreachable for several polling cycles, and ``auth_guard.py`` raises one when
+the controller rejects commands because credentials are missing or wrong.
+Home Assistant shows a "Fix" button for fixable issues and calls
+:func:`async_create_fix_flow` when the user presses it; without this platform
+the button ends in an error dialog.
 
-The flow re-tests the connection: on success the config entry is reloaded and
-the issue disappears, otherwise the user is shown the failure and can retry.
+The unavailable flow re-tests the connection: on success the config entry is
+reloaded and the issue disappears, otherwise the user is shown the failure and
+can retry. The auth flow collects the missing credentials.
 """
 
 from __future__ import annotations
@@ -26,12 +29,19 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import issue_registry as ir
 
-from .const import DOMAIN
+from .const import (
+    CONF_CONTROLLER_NAME,
+    CONF_PASSWORD,
+    CONF_USERNAME,
+    DEFAULT_CONTROLLER_NAME,
+    DOMAIN,
+)
 from .runtime_data import async_get_coordinator
 
 _LOGGER = logging.getLogger(__name__)
 
 ISSUE_PREFIX_CONTROLLER_UNAVAILABLE = "controller_unavailable_"
+ISSUE_PREFIX_CONTROLLER_REQUIRES_AUTH = "controller_requires_auth_"
 
 
 class _ConfirmRepairFlowBase(RepairsFlow):
@@ -88,6 +98,57 @@ class ControllerUnavailableRepairFlow(_ConfirmRepairFlowBase):
         return self.async_create_entry(data={})
 
 
+class ControllerAuthRepairFlow(RepairsFlow):
+    """Enter the credentials a controller demands before it accepts commands."""
+
+    def __init__(self, entry_id: str) -> None:
+        """Store the config entry the issue belongs to."""
+        self._entry_id = entry_id
+
+    async def async_step_init(self, user_input: dict[str, str] | None = None) -> FlowResult:
+        """Show the credential form or apply what was entered."""
+        entry = self.hass.config_entries.async_get_entry(self._entry_id)
+        if entry is None:
+            # The entry was removed in the meantime - nothing left to repair.
+            return self.async_abort(reason="repair_failed")
+
+        if user_input is None:
+            return self.async_show_form(
+                step_id="controller_auth",
+                data_schema=vol.Schema(
+                    {
+                        vol.Optional(
+                            CONF_USERNAME,
+                            default=entry.data.get(CONF_USERNAME, "") or "",
+                        ): str,
+                        vol.Optional(CONF_PASSWORD): str,
+                    }
+                ),
+                description_placeholders={
+                    "controller_name": entry.data.get(
+                        CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME
+                    ),
+                },
+            )
+
+        updated_data = dict(entry.data)
+        updated_data[CONF_USERNAME] = user_input.get(CONF_USERNAME) or ""
+        updated_data[CONF_PASSWORD] = user_input.get(CONF_PASSWORD) or ""
+        self.hass.config_entries.async_update_entry(entry, data=updated_data)
+
+        _LOGGER.debug("Auth repair flow: reloading config entry %s", self._entry_id)
+        await self.hass.config_entries.async_reload(self._entry_id)
+
+        # A later command clears the issue on success; delete it here already
+        # so the repairs list does not keep a stale entry after fixing.
+        ir.async_delete_issue(
+            self.hass,
+            DOMAIN,
+            f"{ISSUE_PREFIX_CONTROLLER_REQUIRES_AUTH}{self._entry_id}",
+        )
+        return self.async_create_entry(data={})
+
+
 class _DismissRepairFlow(_ConfirmRepairFlowBase):
     """Fallback flow that just deletes the issue after confirmation."""
 
@@ -117,6 +178,10 @@ async def async_create_fix_flow(
     if issue_id.startswith(ISSUE_PREFIX_CONTROLLER_UNAVAILABLE):
         entry_id = issue_id[len(ISSUE_PREFIX_CONTROLLER_UNAVAILABLE) :]
         return ControllerUnavailableRepairFlow(entry_id)
+
+    if issue_id.startswith(ISSUE_PREFIX_CONTROLLER_REQUIRES_AUTH):
+        entry_id = issue_id[len(ISSUE_PREFIX_CONTROLLER_REQUIRES_AUTH) :]
+        return ControllerAuthRepairFlow(entry_id)
 
     # Unknown issue: confirming simply acknowledges and dismisses it.
     return _DismissRepairFlow(issue_id)

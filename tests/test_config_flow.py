@@ -3,14 +3,20 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from pytest_homeassistant_custom_component.common import MockConfigEntry
+from violet_poolcontroller_api import VioletAuthError, VioletPoolAPIError
 
 from custom_components.violet_pool_controller.const import (
     CONF_API_URL,
     CONF_CONTROLLER_NAME,
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
+    CONF_PASSWORD,
     CONF_POOL_SIZE,
     CONF_POOL_TYPE,
+    CONF_RETRY_ATTEMPTS,
+    CONF_TIMEOUT_DURATION,
+    CONF_USE_SSL,
+    CONF_USERNAME,
     CONF_VERIFY_SSL,
     DOMAIN,
 )
@@ -198,3 +204,163 @@ class TestConfigFlow:
             await get_grouped_sensors(hass, config_data)
 
         assert mock_api_class.call_args.kwargs["verify_ssl"] is False
+
+
+class TestZeroconfCredentialEntry:
+    """Zeroconf discovery must collect credentials before an entry is created.
+
+    Regression tests: the zeroconf confirm step used to be a bare form without
+    any fields, so entries were created with empty username/password, and a
+    controller that required authentication left the user stuck in a
+    "cannot_connect" loop with no way to enter credentials.
+    """
+
+    def _make_flow(self, hass):
+        """Create a config flow primed with zeroconf discovery data."""
+        from custom_components.violet_pool_controller.config_flow import (
+            ConfigFlow as VioletDeviceConfigFlow,
+        )
+
+        flow = VioletDeviceConfigFlow()
+        flow.hass = hass
+        flow.handler = DOMAIN
+        flow._title_placeholders = {"name": "violet", "host": "192.168.178.55"}
+        flow._config_data = {
+            CONF_API_URL: "192.168.178.55",
+            CONF_USERNAME: "",
+            CONF_PASSWORD: "",
+        }
+        return flow
+
+    @staticmethod
+    def _schema_keys(result):
+        """Extract plain key names from a voluptuous form schema."""
+        return {getattr(key, "schema", key) for key in result["data_schema"].schema}
+
+    async def test_zeroconf_confirm_shows_credential_fields(self, hass):
+        """Der Bestätigungsschritt muss Felder für Benutzername und Passwort zeigen."""
+        flow = self._make_flow(hass)
+
+        result = await flow.async_step_zeroconf_confirm(None)
+
+        assert result["type"] == "form"
+        assert result["step_id"] == "zeroconf_confirm"
+        keys = self._schema_keys(result)
+        assert CONF_USERNAME in keys, "zeroconf_confirm muss ein Benutzername-Feld haben"
+        assert CONF_PASSWORD in keys, "zeroconf_confirm muss ein Passwort-Feld haben"
+
+    async def test_pool_setup_schema_accepts_known_values(self, hass):
+        """Pool-Typ und Desinfektion müssen weiterhin die gespeicherten Werte akzeptieren."""
+        flow = self._make_flow(hass)
+
+        schema = flow._get_pool_setup_schema()
+        validated = schema(
+            {
+                "pool_size": 50,
+                "pool_type": "outdoor",
+                "disinfection_method": "chlorine",
+            }
+        )
+
+        assert validated["pool_type"] == "outdoor"
+        assert validated["disinfection_method"] == "chlorine"
+
+    async def test_zeroconf_confirm_stores_credentials_and_proceeds(self, hass):
+        """Eingegebene Zugangsdaten müssen im Config-Entry landen."""
+        flow = self._make_flow(hass)
+        flow._test_connection = AsyncMock(return_value=True)
+
+        result = await flow.async_step_zeroconf_confirm(
+            {CONF_USERNAME: "admin", CONF_PASSWORD: "secret"}
+        )
+
+        assert result["type"] == "form"
+        assert result["step_id"] == "pool_setup"
+        assert flow._config_data[CONF_USERNAME] == "admin"
+        assert flow._config_data[CONF_PASSWORD] == "secret"
+
+    async def test_zeroconf_confirm_keeps_empty_credentials_without_auth(self, hass):
+        """Controller ohne Anmeldung: leere Felder müssen weiterhin durchreichen."""
+        flow = self._make_flow(hass)
+        flow._test_connection = AsyncMock(return_value=True)
+
+        result = await flow.async_step_zeroconf_confirm({})
+
+        assert result["step_id"] == "pool_setup"
+        assert flow._config_data[CONF_USERNAME] == ""
+
+    async def test_zeroconf_confirm_auth_error_keeps_username(self, hass):
+        """Falsche Zugangsdaten: Formular mit invalid_auth, Benutzername bleibt stehen."""
+        flow = self._make_flow(hass)
+        flow._test_connection = AsyncMock(return_value=False)
+        flow._last_connection_error = "invalid_auth"
+
+        result = await flow.async_step_zeroconf_confirm(
+            {CONF_USERNAME: "admin", CONF_PASSWORD: "wrong"}
+        )
+
+        assert result["type"] == "form"
+        assert result["step_id"] == "zeroconf_confirm"
+        assert result["errors"]["base"] == "invalid_auth"
+        assert CONF_USERNAME in self._schema_keys(result)
+
+    async def test_zeroconf_confirm_connect_error_uses_cannot_connect(self, hass):
+        """Nicht erreichbarer Controller: cannot_connect statt invalid_auth."""
+        flow = self._make_flow(hass)
+        flow._test_connection = AsyncMock(return_value=False)
+        flow._last_connection_error = "cannot_connect"
+
+        result = await flow.async_step_zeroconf_confirm(
+            {CONF_USERNAME: "admin", CONF_PASSWORD: "secret"}
+        )
+
+        assert result["type"] == "form"
+        assert result["errors"]["base"] == "cannot_connect"
+
+    async def test_test_connection_classifies_auth_error(self, hass):
+        """_test_connection muss Auth-Fehler von Verbindungsfehlern unterscheiden."""
+        flow = self._make_flow(hass)
+        flow._config_data = {
+            CONF_API_URL: "192.168.178.55",
+            CONF_USERNAME: "admin",
+            CONF_PASSWORD: "wrong",
+            CONF_USE_SSL: False,
+            CONF_VERIFY_SSL: False,
+            CONF_TIMEOUT_DURATION: 5,
+            CONF_RETRY_ATTEMPTS: 1,
+        }
+
+        with patch(
+            "custom_components.violet_pool_controller.config_flow.VioletPoolAPI"
+        ) as api_class:
+            api_class.return_value.get_readings = AsyncMock(
+                side_effect=VioletAuthError("401")
+            )
+            ok = await flow._test_connection()
+
+        assert ok is False
+        assert flow._last_connection_error == "invalid_auth"
+
+    async def test_test_connection_classifies_api_error(self, hass):
+        """Allgemeine API-Fehler müssen auf cannot_connect mappen."""
+        flow = self._make_flow(hass)
+        flow._config_data = {
+            CONF_API_URL: "192.168.178.55",
+            CONF_USERNAME: "admin",
+            CONF_PASSWORD: "secret",
+            CONF_USE_SSL: False,
+            CONF_VERIFY_SSL: False,
+            CONF_TIMEOUT_DURATION: 5,
+            CONF_RETRY_ATTEMPTS: 1,
+        }
+
+        with patch(
+            "custom_components.violet_pool_controller.config_flow.VioletPoolAPI"
+        ) as api_class:
+            api_class.return_value.get_readings = AsyncMock(
+                side_effect=VioletPoolAPIError("unreachable")
+            )
+            ok = await flow._test_connection()
+
+        assert ok is False
+        assert flow._last_connection_error == "cannot_connect"

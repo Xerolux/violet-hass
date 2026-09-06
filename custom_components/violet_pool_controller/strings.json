@@ -118,7 +118,11 @@
       },
       "zeroconf_confirm": {
         "title": "Violet Pool Controller Found",
-        "description": "A Violet Pool Controller was discovered on the network.\n\nName: **{name}**\nIP: **{host}**\n\nWould you like to set up this controller now?"
+        "description": "A Violet Pool Controller was discovered on the network.\n\nName: **{name}**\nIP: **{host}**\n\nWould you like to set up this controller now?\n\nEnter username and password if the controller requires a login. Leave the fields empty if it does not.",
+        "data": {
+          "username": "Username",
+          "password": "Password"
+        }
       },
       "reconfigure": {
         "title": "Reconfigure Violet Pool Controller",
@@ -177,6 +181,14 @@
           "username": "Username if authentication is enabled",
           "password": "Password if required"
         }
+      },
+      "controller_auth": {
+        "title": "Enter controller login",
+        "description": "The controller **{controller_name}** only accepts commands with valid login data. Enter the username and password of the controller - leave both empty if it really runs without a login.",
+        "data": {
+          "username": "Username",
+          "password": "Password"
+        }
       }
     },
     "error": {
@@ -224,7 +236,10 @@
       },
       "features": {
         "title": "Enable/Disable Features",
-        "description": "**Select the features you want to use**\n\nEnabled features are shown in Home Assistant\nDisabled features are hidden\n\n**Tip:** Only enable what you really need — this keeps the interface clean!"
+        "description": "**Select the features you want to use**\n\nEnabled features are shown in Home Assistant\nDisabled features are hidden\n\n**Tip:** Only enable what you really need — this keeps the interface clean!",
+        "data": {
+          "active_features": "Active features"
+        }
       },
       "sensors": {
         "title": "Select Sensors",
@@ -305,6 +320,10 @@
           "still_unavailable": "The controller is still not responding. Check power, network and IP address, then try again."
         }
       }
+    },
+    "controller_requires_auth": {
+      "title": "Controller requires a login",
+      "description": "The controller '{name}' rejected a command because authentication is missing or wrong. This happens when the integration was set up without username and password. Enter the controller's login data to fix it."
     }
   },
   "services": {
@@ -1057,6 +1076,40 @@
       "options": {
         "connection": "🌐 Connection settings",
         "safety": "🚨 Safety settings"
+      }
+    },
+    "main_menu": {
+      "options": {
+        "start_setup": "Start setup",
+        "open_help": "Help & documentation"
+      }
+    },
+    "options_menu": {
+      "options": {
+        "features": "Enable/disable features",
+        "sensors": "Select sensors",
+        "safety": "Safety settings",
+        "settings": "Change settings"
+      }
+    },
+    "features": {
+      "options": {
+        "heating": "Heating",
+        "solar": "Solar Absorber",
+        "ph_control": "pH Control",
+        "chlorine_control": "Chlorine Control",
+        "flocculation": "Flocculant Dosing",
+        "cover_control": "Cover Control",
+        "backwash": "Backwash",
+        "pv_surplus": "PV Surplus",
+        "filter_control": "Filter Pump",
+        "water_level": "Water Level",
+        "water_refill": "Water Refill",
+        "led_lighting": "LED Lighting",
+        "dmx_scenes": "DMX Scenes",
+        "eco_mode": "ECO Mode",
+        "digital_inputs": "Digital Inputs",
+        "extension_outputs": "Extension Outputs"
       }
     }
   },

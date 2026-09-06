@@ -156,7 +156,19 @@
       },
       "zeroconf_confirm": {
         "title": "Znaleziono kontroler puli Violet",
-        "description": "W sieci wykryto kontroler puli Violet.\n\nImię: **{name}**\nAdres IP: **{host}**\n\nCzy chcesz teraz skonfigurować ten kontroler?"
+        "description": "W sieci wykryto kontroler puli Violet.\n\nImię: **{name}**\nAdres IP: **{host}**\n\nCzy chcesz teraz skonfigurować ten kontroler?\n\nW razie potrzeby wprowadź nazwę użytkownika i hasło. Pozostaw pola puste, jeśli kontroler nie wymaga logowania.",
+        "data": {
+          "username": "Nazwa użytkownika",
+          "password": "Hasło"
+        }
+      },
+      "controller_auth": {
+        "title": "Wprowadź dane logowania kontrolera",
+        "description": "Kontroler **{controller_name}** przyjmuje polecenia tylko z prawidłowymi danymi logowania. Wprowadź nazwę użytkownika i hasło kontrolera; pozostaw oba pola puste, jeśli naprawdę działa bez logowania.",
+        "data": {
+          "username": "Nazwa użytkownika",
+          "password": "Hasło"
+        }
       }
     },
     "error": {
@@ -204,7 +216,10 @@
       },
       "features": {
         "title": "Włącz/wyłącz funkcje",
-        "description": "Wybierz funkcje, z których chcesz skorzystać\n\nWłączone funkcje zostaną pokazane w Home Assistant\nWyłączone funkcje zostaną ukryte\n\nWłącz tylko to, czego naprawdę potrzebujesz - utrzymuje interfejs w czystości!"
+        "description": "Wybierz funkcje, z których chcesz skorzystać\n\nWłączone funkcje zostaną pokazane w Home Assistant\nWyłączone funkcje zostaną ukryte\n\nWłącz tylko to, czego naprawdę potrzebujesz - utrzymuje interfejs w czystości!",
+        "data": {
+          "active_features": "Aktywne funkcje"
+        }
       },
       "sensors": {
         "title": "Wybierz Czujniki",
@@ -272,6 +287,10 @@
           "still_unavailable": "Sterownik nadal nie odpowiada. Sprawdź zasilanie, sieć i adres IP, a następnie spróbuj ponownie."
         }
       }
+    },
+    "controller_requires_auth": {
+      "title": "Kontroler wymaga logowania",
+      "description": "Kontroler „{name}” odrzucił polecenie, ponieważ brakuje uwierzytelnienia lub jest ono nieprawidłowe. Dzieje się tak, gdy integracja została skonfigurowana bez nazwy użytkownika i hasła. Wprowadź dane logowania kontrolera, aby to naprawić."
     }
   },
   "services": {
@@ -505,6 +524,46 @@
         "allon": "Wszystkie światła włączone",
         "alloff": "Wszystkie światła wyłączone",
         "allauto": "Wszystkie światła automatyczne"
+      }
+    },
+    "main_menu": {
+      "options": {
+        "start_setup": "Rozpocznij konfigurację",
+        "open_help": "Pomoc i dokumentacja"
+      }
+    },
+    "options_menu": {
+      "options": {
+        "features": "Włącz/wyłącz funkcje",
+        "sensors": "Wybierz czujniki",
+        "safety": "Ustawienia bezpieczeństwa",
+        "settings": "Zmień ustawienia"
+      }
+    },
+    "features": {
+      "options": {
+        "heating": "Ogrzewanie",
+        "solar": "Kolektor solarny",
+        "ph_control": "Regulacja pH",
+        "chlorine_control": "Regulacja chloru",
+        "flocculation": "Dozowanie flockulantów",
+        "cover_control": "Sterowanie osłoną",
+        "backwash": "Płukanie wsteczne",
+        "pv_surplus": "Nadwyżka PV",
+        "filter_control": "Pompa filtrująca",
+        "water_level": "Poziom wody",
+        "water_refill": "Uzupełnianie wody",
+        "led_lighting": "Oświetlenie LED",
+        "dmx_scenes": "Sceny DMX",
+        "eco_mode": "Tryb ECO",
+        "digital_inputs": "Wejścia cyfrowe",
+        "extension_outputs": "Moduły rozszerzeń"
+      }
+    },
+    "reconfigure_option": {
+      "options": {
+        "connection": "🌐 Ustawienia połączenia",
+        "safety": "🚨 Ustawienia bezpieczeństwa"
       }
     }
   },

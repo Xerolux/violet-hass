@@ -41,6 +41,7 @@ ERROR_ALREADY_CONFIGURED: Final = "already_configured"
 ERROR_INVALID_IP: Final = "invalid_ip_address"
 ERROR_CANNOT_CONNECT: Final = "cannot_connect"
 ERROR_AGREEMENT_DECLINED: Final = "agreement_declined"
+ERROR_INVALID_AUTH: Final = "invalid_auth"
 
 # =============================================================================
 # POOL & DISINFECTION OPTIONS

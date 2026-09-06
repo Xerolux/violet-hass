@@ -156,7 +156,19 @@
       },
       "zeroconf_confirm": {
         "title": "Violet Pool Controller gefunden",
-        "description": "Ein Violet Pool Controller wurde im Netzwerk entdeckt.\n\nName: **{name}**\nIP-Adresse: **{host}**\n\nMöchtest du diesen Controller jetzt einrichten?"
+        "description": "Ein Violet Pool Controller wurde im Netzwerk entdeckt.\n\nName: **{name}**\nIP-Adresse: **{host}**\n\nMöchtest du diesen Controller jetzt einrichten?\n\nVoer indien nodig gebruikersnaam en wachtwoord in. Laat de velden leeg als de controller geen inloggegevens vereist.",
+        "data": {
+          "username": "Gebruikersnaam",
+          "password": "Wachtwoord"
+        }
+      },
+      "controller_auth": {
+        "title": "Inloggegevens van de controller invoeren",
+        "description": "De controller **{controller_name}** accepteert opdrachten alleen met geldige inloggegevens. Voer de gebruikersnaam en het wachtwoord van de controller in; laat beide leeg als hij echt zonder inloggegevens werkt.",
+        "data": {
+          "username": "Gebruikersnaam",
+          "password": "Wachtwoord"
+        }
       }
     },
     "error": {
@@ -204,7 +216,10 @@
       },
       "features": {
         "title": "Features aktivieren/deaktivieren",
-        "description": "Wähle die Features, die du nutzen möchtest\n\nAktivierte Features werden in Home Assistant angezeigt\nDeaktivierte Features werden ausgeblendet\n\nAktiviere nur, was du wirklich brauchst - das hält die Oberfläche übersichtlich!"
+        "description": "Wähle die Features, die du nutzen möchtest\n\nAktivierte Features werden in Home Assistant angezeigt\nDeaktivierte Features werden ausgeblendet\n\nAktiviere nur, was du wirklich brauchst - das hält die Oberfläche übersichtlich!",
+        "data": {
+          "active_features": "Actieve functies"
+        }
       },
       "sensors": {
         "title": "Sensoren auswählen",
@@ -274,6 +289,10 @@
           "still_unavailable": "De controller reageert nog steeds niet. Controleer voeding, netwerk en IP-adres en probeer het opnieuw."
         }
       }
+    },
+    "controller_requires_auth": {
+      "title": "Controller vereist inloggegevens",
+      "description": "De controller '{name}' heeft een opdracht geweigerd omdat de authenticatie ontbreekt of onjuist is. Dit gebeurt wanneer de integratie zonder gebruikersnaam en wachtwoord is ingesteld. Voer de inloggegevens van de controller in om dit op te lossen."
     }
   },
   "services": {
@@ -773,6 +792,46 @@
         "allon": "Alle Lichter einschalten",
         "alloff": "Alle Lichter ausschalten",
         "allauto": "Alle Lichter auf Automatik"
+      }
+    },
+    "main_menu": {
+      "options": {
+        "start_setup": "Installatie starten",
+        "open_help": "Hulp en documentatie"
+      }
+    },
+    "options_menu": {
+      "options": {
+        "features": "Functies in-/uitschakelen",
+        "sensors": "Sensoren selecteren",
+        "safety": "Veiligheidsinstellingen",
+        "settings": "Instellingen wijzigen"
+      }
+    },
+    "features": {
+      "options": {
+        "heating": "Verwarming",
+        "solar": "Solarabsorber",
+        "ph_control": "pH-regeling",
+        "chlorine_control": "Chloorregeling",
+        "flocculation": "Flocculantdosering",
+        "cover_control": "Bediening afdekking",
+        "backwash": "Tegenspoeling",
+        "pv_surplus": "PV-overschot",
+        "filter_control": "Filterpomp",
+        "water_level": "Waterniveau",
+        "water_refill": "Water bijvullen",
+        "led_lighting": "LED-verlichting",
+        "dmx_scenes": "DMX-scènes",
+        "eco_mode": "ECO-modus",
+        "digital_inputs": "Digitale ingangen",
+        "extension_outputs": "Uitbreidingsmodules"
+      }
+    },
+    "reconfigure_option": {
+      "options": {
+        "connection": "🌐 Verbindingsinstellingen",
+        "safety": "🚨 Veiligheidsinstellingen"
       }
     }
   },

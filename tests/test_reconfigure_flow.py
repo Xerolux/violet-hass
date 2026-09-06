@@ -71,6 +71,23 @@ class TestReconfigureFlow:
         assert data_schema is not None
 
     @pytest.mark.asyncio
+    async def test_reconfigure_description_gets_controller_name(
+        self, hass: HomeAssistant, config_flow, mock_config_entry
+    ):
+        """Regression: {controller_name} placeholder must be provided.
+
+        The step description references {controller_name}; without the
+        placeholder Home Assistant renders a formatjs MISSING_VALUE error
+        instead of the text.
+        """
+        hass.config_entries.async_get_entry = MagicMock(return_value=mock_config_entry)
+        config_flow.context = {"entry_id": mock_config_entry.entry_id}
+
+        result = await config_flow.async_step_reconfigure(user_input=None)
+
+        assert result["description_placeholders"]["controller_name"] == "Violet"
+
+    @pytest.mark.asyncio
     async def test_async_step_reconfigure_with_valid_input(
         self, hass: HomeAssistant, config_flow, mock_config_entry
     ):

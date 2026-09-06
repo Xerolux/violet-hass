@@ -140,7 +140,11 @@
       },
       "zeroconf_confirm": {
         "title": "发现紫池控制器",
-        "description": "在网络上发现紫池控制器。\n\n名称：**{name}**\nIP 地址：**{host}**\n\n您想现在设置该控制器吗？"
+        "description": "在网络上发现紫池控制器。\n\n名称：**{name}**\nIP 地址：**{host}**\n\n您想现在设置该控制器吗？\n\n如控制器需要登录，请输入用户名和密码；无需登录时请将字段留空。",
+        "data": {
+          "username": "用户名",
+          "password": "密码"
+        }
       },
       "repair": {
         "title": "修复控制器连接",
@@ -156,6 +160,14 @@
           "port": "TCP 端口（默认：80）",
           "username": "如果启用了身份验证，请输入用户名",
           "password": "如果需要，请输入密码"
+        }
+      },
+      "controller_auth": {
+        "title": "输入控制器登录信息",
+        "description": "控制器 **{controller_name}** 仅接受带有有效登录信息的指令。请输入控制器的用户名和密码；如果它确实无需登录即可运行，请将两项都留空。",
+        "data": {
+          "username": "用户名",
+          "password": "密码"
         }
       }
     },
@@ -204,7 +216,10 @@
       },
       "features": {
         "title": "启用/禁用功能",
-        "description": "选择您要使用的功能\n\n启用的功能将显示在 Home Assistant 中\n禁用的功能将被隐藏\n\n仅启用您真正需要的内容 - 保持界面干净！"
+        "description": "选择您要使用的功能\n\n启用的功能将显示在 Home Assistant 中\n禁用的功能将被隐藏\n\n仅启用您真正需要的内容 - 保持界面干净！",
+        "data": {
+          "active_features": "启用的功能"
+        }
       },
       "sensors": {
         "title": "选择传感器",
@@ -272,6 +287,10 @@
           "still_unavailable": "控制器仍无响应。请检查电源、网络和 IP 地址后重试。"
         }
       }
+    },
+    "controller_requires_auth": {
+      "title": "控制器需要登录",
+      "description": "控制器“{name}”拒绝了指令，因为缺少身份验证或验证错误。集成在未填写用户名和密码的情况下完成设置时就会出现这种情况。请输入控制器的登录信息以修复此问题。"
     }
   },
   "services": {
@@ -505,6 +524,46 @@
         "allon": "所有灯都亮",
         "alloff": "所有灯都关闭",
         "allauto": "所有灯自动"
+      }
+    },
+    "main_menu": {
+      "options": {
+        "start_setup": "开始设置",
+        "open_help": "帮助与文档"
+      }
+    },
+    "options_menu": {
+      "options": {
+        "features": "启用/禁用功能",
+        "sensors": "选择传感器",
+        "safety": "安全设置",
+        "settings": "更改设置"
+      }
+    },
+    "features": {
+      "options": {
+        "heating": "加热",
+        "solar": "太阳能吸热板",
+        "ph_control": "pH 控制",
+        "chlorine_control": "氯控制",
+        "flocculation": "絮凝剂投加",
+        "cover_control": "池盖控制",
+        "backwash": "反冲洗",
+        "pv_surplus": "光伏余量",
+        "filter_control": "过滤水泵",
+        "water_level": "水位",
+        "water_refill": "自动补水",
+        "led_lighting": "LED 照明",
+        "dmx_scenes": "DMX 场景",
+        "eco_mode": "ECO 模式",
+        "digital_inputs": "数字输入",
+        "extension_outputs": "扩展模块"
+      }
+    },
+    "reconfigure_option": {
+      "options": {
+        "connection": "🌐 连接设置",
+        "safety": "🚨 安全设置"
       }
     }
   },

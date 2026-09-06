@@ -13,8 +13,14 @@ import pytest
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import issue_registry as ir
 
-from custom_components.violet_pool_controller.const import DOMAIN
+from custom_components.violet_pool_controller.const import (
+    CONF_CONTROLLER_NAME,
+    CONF_PASSWORD,
+    CONF_USERNAME,
+    DOMAIN,
+)
 from custom_components.violet_pool_controller.repairs import (
+    ControllerAuthRepairFlow,
     ControllerUnavailableRepairFlow,
     _DismissRepairFlow,
     async_create_fix_flow,
@@ -43,6 +49,13 @@ class TestFixFlowSelection:
         flow = await async_create_fix_flow(hass, "something_else", None)
 
         assert isinstance(flow, _DismissRepairFlow)
+
+    async def test_controller_requires_auth_issue(self, hass: HomeAssistant, entry_id) -> None:
+        """The auth issue maps to the credential flow, entry id included."""
+        flow = await async_create_fix_flow(hass, f"controller_requires_auth_{entry_id}", None)
+
+        assert isinstance(flow, ControllerAuthRepairFlow)
+        assert flow._entry_id == entry_id
 
 
 class TestControllerUnavailableRepairFlow:
@@ -108,6 +121,84 @@ class TestControllerUnavailableRepairFlow:
 
         hass.config_entries.async_reload.assert_not_awaited()
         assert result["type"] == "create_entry"
+
+
+class TestControllerAuthRepairFlow:
+    """The credential flow behind the "requires auth" issue."""
+
+    def _entry(self) -> MagicMock:
+        entry = MagicMock()
+        entry.data = {
+            CONF_CONTROLLER_NAME: "Pool",
+            CONF_USERNAME: "",
+            CONF_PASSWORD: "",
+            "host": "192.168.178.55",
+        }
+        return entry
+
+    async def test_form_shows_credential_fields(self, hass: HomeAssistant, entry_id) -> None:
+        """The fix flow asks for username and password."""
+        hass.config_entries.async_get_entry = MagicMock(return_value=self._entry())
+
+        flow = ControllerAuthRepairFlow(entry_id)
+        flow.hass = hass
+
+        result = await flow.async_step_init()
+
+        assert result["type"] == "form"
+        assert result["step_id"] == "controller_auth"
+        keys = {getattr(key, "schema", key) for key in result["data_schema"].schema}
+        assert CONF_USERNAME in keys
+        assert CONF_PASSWORD in keys
+
+    async def test_submitting_credentials_updates_entry_and_clears_issue(
+        self, hass: HomeAssistant, entry_id
+    ) -> None:
+        """Credentials land in the entry, the entry reloads, the issue goes away."""
+        entry = self._entry()
+        hass.config_entries.async_get_entry = MagicMock(return_value=entry)
+        hass.config_entries.async_update_entry = MagicMock()
+        hass.config_entries.async_reload = AsyncMock()
+        ir.async_create_issue(
+            hass,
+            DOMAIN,
+            f"controller_requires_auth_{entry_id}",
+            is_fixable=True,
+            is_persistent=True,
+            severity=ir.IssueSeverity.ERROR,
+            translation_key="controller_requires_auth",
+        )
+
+        flow = ControllerAuthRepairFlow(entry_id)
+        flow.hass = hass
+
+        result = await flow.async_step_init(
+            {CONF_USERNAME: "admin", CONF_PASSWORD: "secret"}
+        )
+
+        hass.config_entries.async_update_entry.assert_called_once()
+        updated_data = hass.config_entries.async_update_entry.call_args.kwargs["data"]
+        assert updated_data[CONF_USERNAME] == "admin"
+        assert updated_data[CONF_PASSWORD] == "secret"
+        hass.config_entries.async_reload.assert_awaited_once_with(entry_id)
+        assert (
+            ir.async_get(hass).async_get_issue(
+                DOMAIN, f"controller_requires_auth_{entry_id}"
+            )
+            is None
+        )
+        assert result["type"] == "create_entry"
+
+    async def test_removed_entry_aborts(self, hass: HomeAssistant, entry_id) -> None:
+        """An entry deleted in the meantime aborts the flow."""
+        hass.config_entries.async_get_entry = MagicMock(return_value=None)
+
+        flow = ControllerAuthRepairFlow(entry_id)
+        flow.hass = hass
+
+        result = await flow.async_step_init()
+
+        assert result["type"] == "abort"
 
 
 class TestDismissRepairFlow:

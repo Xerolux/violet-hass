@@ -96,6 +96,7 @@ class ConfigFlow(
         self._sensor_data: dict[str, list[str]] = {}
         self._title_placeholders: dict[str, str] = {}
         self._reauth_entry: config_entries.ConfigEntry | None = None
+        self._last_connection_error: str | None = None
         _LOGGER.debug("Violet Pool Controller setup started")
 
     @staticmethod
@@ -352,19 +353,31 @@ class ConfigFlow(
     async def async_step_zeroconf_confirm(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Confirm zeroconf discovered Violet Pool Controller."""
+        """Confirm zeroconf discovered Violet Pool Controller and enter credentials.
+
+        The discovered host is fixed, but credentials must come from the user:
+        without this form the entry would be created with empty username and
+        password, and a controller requiring authentication had no way to
+        receive them.
+        """
         placeholders = self._title_placeholders or dict(self.context.get("title_placeholders", {}))
         if user_input is not None:
+            self._config_data[CONF_USERNAME] = user_input.get(CONF_USERNAME) or ""
+            self._config_data[CONF_PASSWORD] = user_input.get(CONF_PASSWORD) or ""
             if await self._test_connection():
                 return await self.async_step_pool_setup()
             return self.async_show_form(
                 step_id="zeroconf_confirm",
+                data_schema=self._get_zeroconf_credentials_schema(),
                 description_placeholders=placeholders,
-                errors={"base": constants.ERROR_CANNOT_CONNECT},
+                errors={
+                    "base": self._last_connection_error or constants.ERROR_CANNOT_CONNECT
+                },
             )
 
         return self.async_show_form(
             step_id="zeroconf_confirm",
+            data_schema=self._get_zeroconf_credentials_schema(),
             description_placeholders=placeholders,
         )
 
@@ -372,6 +385,10 @@ class ConfigFlow(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Handle reconfiguration menu - choose what to reconfigure."""
+        reconfigure_entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
+        if reconfigure_entry is None:
+            return self.async_abort(reason="reconfigure_failed")
+
         if user_input is not None:
             choice = user_input.get("reconfigure_option", "connection")
             if choice == "safety":
@@ -397,10 +414,16 @@ class ConfigFlow(
                                 ),
                             ],
                             mode=selector.SelectSelectorMode.LIST,
+                            translation_key="reconfigure_option",
                         )
                     ),
                 }
             ),
+            description_placeholders={
+                "controller_name": reconfigure_entry.data.get(
+                    CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME
+                ),
+            },
         )
 
     async def async_step_reconfigure_safety(
@@ -739,7 +762,12 @@ class ConfigFlow(
         return config_data
 
     async def _test_connection(self) -> bool:
-        """Test the connection to the controller."""
+        """Test the connection to the controller.
+
+        On failure the reason is exposed via ``_last_connection_error`` so
+        steps can tell the user their credentials were rejected instead of
+        hinting at a network problem.
+        """
         try:
             host = self._config_data[CONF_API_URL]
             port = self._config_data.get(CONF_PORT, DEFAULT_PORT)
@@ -757,18 +785,19 @@ class ConfigFlow(
             )
             await api.get_readings()
             self._config_data[CONF_DOSING_STANDALONE] = api.dosing_standalone
+            self._last_connection_error = None
             return True
         except VioletAuthError as err:
             _LOGGER.debug("Connection test failed: authentication error: %s", err)
+            self._last_connection_error = constants.ERROR_INVALID_AUTH
             return False
-        except VioletPoolAPIError as err:
-            _LOGGER.debug("Connection test failed: API error: %s", err)
-            return False
-        except TimeoutError as err:
-            _LOGGER.debug("Connection test failed: timeout: %s", err)
+        except (VioletPoolAPIError, TimeoutError) as err:
+            _LOGGER.debug("Connection test failed: %s", err)
+            self._last_connection_error = constants.ERROR_CANNOT_CONNECT
             return False
         except Exception as err:
             _LOGGER.debug("Connection test failed: unexpected error: %s", err)
+            self._last_connection_error = constants.ERROR_CANNOT_CONNECT
             return False
 
     async def _get_grouped_sensors(self) -> dict[str, list[str]]:
