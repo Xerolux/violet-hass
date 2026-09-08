@@ -319,23 +319,18 @@ class TestStableDeviceIdentifier:
         assert before == after
 
 
-class TestConnectionSettingsChanged:
-    """Connection settings can only be applied by rebuilding the API client."""
+class TestConnectionSettings:
+    """Connection settings can only be applied by rebuilding the API client.
 
-    @staticmethod
-    def _device(entry):
-        hass = MagicMock()
-        hass.data = {}
-        with patch(
-            "custom_components.violet_pool_controller.device.async_get_clientsession",
-            return_value=MagicMock(),
-        ):
-            return VioletPoolControllerDevice(
-                hass=hass, config_entry=entry, api=MagicMock()
-            )
+    ``connection_settings()`` is the snapshot ``_structural_options`` compares,
+    so anything listed here forces a reload of the config entry when it
+    changes, and anything missing from it does not.
+    """
 
     @staticmethod
     def _entry(**overrides):
+        from custom_components.violet_pool_controller.device import connection_settings
+
         data = {
             CONF_API_URL: "192.168.178.55",
             "port": 80,
@@ -347,12 +342,13 @@ class TestConnectionSettingsChanged:
             CONF_DEVICE_NAME: "Test Pool Controller",
         }
         data.update(overrides)
-        return MockConfigEntry(domain=DOMAIN, data=data)
+        return connection_settings(MockConfigEntry(domain=DOMAIN, data=data))
 
-    def test_unchanged_entry_needs_no_reload(self):
-        device = self._device(self._entry())
+    def test_unchanged_entry_is_equal(self):
+        assert self._entry() == self._entry()
 
-        assert device.connection_settings_changed(self._entry()) is False
+    def test_port_is_part_of_the_host(self):
+        assert self._entry(port=8080)["host"] == "192.168.178.55:8080"
 
     @pytest.mark.parametrize(
         ("key", "value"),
@@ -365,21 +361,23 @@ class TestConnectionSettingsChanged:
             ("password", "another-secret"),
             ("timeout_duration", 30),
             ("retry_attempts", 7),
+            ("dosing_standalone", True),
         ],
     )
-    def test_changed_connection_field_requires_a_reload(self, key, value):
-        """Every setting the API client is built from triggers a reload."""
-        device = self._device(self._entry())
+    def test_changed_connection_field_is_detected(self, key, value):
+        """Every setting the API client is built from is part of the snapshot."""
+        assert self._entry() != self._entry(**{key: value})
 
-        assert device.connection_settings_changed(self._entry(**{key: value})) is True
-
-    def test_polling_options_do_not_require_a_reload(self):
+    def test_polling_options_are_not_part_of_it(self):
         """Polling settings are applied on the running coordinator."""
-        device = self._device(self._entry())
+        assert self._entry() == self._entry(polling_interval=60, adaptive_polling=False)
 
-        assert (
-            device.connection_settings_changed(self._entry(polling_interval=60)) is False
-        )
+    def test_out_of_range_values_are_clamped(self):
+        """A stored value outside the supported range cannot cause a reload loop."""
+        assert self._entry(timeout_duration=99999)["timeout"] == self._entry(
+            timeout_duration=60
+        )["timeout"]
+        assert self._entry(retry_attempts="not-a-number")["retries"] == 3
 
 
 class TestSetupClearsStaleRepairIssue:

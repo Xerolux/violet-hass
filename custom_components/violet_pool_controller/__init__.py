@@ -75,7 +75,7 @@ from .const import (
     MIN_SUPPORTED_POLLING_INTERVAL,
     UNSAFE_SWITCH_KEYS,
 )
-from .device import async_setup_device
+from .device import async_setup_device, connection_settings
 from .device_hierarchy import async_cleanup_sub_devices, async_precreate_devices
 from .entity_cleanup import async_remove_orphaned_entities
 from .runtime_data import VioletRuntimeData, get_runtime_data
@@ -700,11 +700,16 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 def _structural_options(entry: ConfigEntry) -> dict[str, Any]:
-    """Return the options that decide *which* entities are created.
+    """Return the entry state the running setup is built on.
 
-    Changing any of these requires re-running the platform setups, because the
-    entity list is built from them. Everything else (polling interval, timeout,
-    credentials, ...) is applied on the running coordinator instead.
+    Two parts, both of which can only take effect by re-running the setup:
+
+    * the selections that decide *which* entities are created, and
+    * the connection settings, which are baked into the API client when it is
+      constructed.
+
+    Everything else (polling interval, adaptive polling, ...) is applied on the
+    running coordinator instead.
     """
     options: dict[str, Any] = {}
 
@@ -717,6 +722,12 @@ def _structural_options(entry: ConfigEntry) -> dict[str, Any]:
         value = entry.options.get(option, entry.data.get(option))
         # Feature/sensor selections are order-insensitive lists.
         options[option] = sorted(value) if isinstance(value, list) else value
+
+    try:
+        options["connection"] = connection_settings(entry)
+    except ValueError:
+        # No host in the entry at all - nothing to compare against.
+        options["connection"] = None
 
     return options
 
@@ -753,18 +764,8 @@ async def async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None
 
     if runtime_data.structural_options != current_options:
         _LOGGER.info(
-            "Feature/sensor selection changed for entry_id=%s, reloading integration",
-            entry.entry_id,
-        )
-        hass.config_entries.async_schedule_reload(entry.entry_id)
-        return
-
-    # Host, credentials, SSL and the timeout/retry settings are baked into the
-    # API client when it is built, so they can only be applied by building a
-    # new one - which is exactly what a reload does.
-    if coordinator.device.connection_settings_changed(entry):
-        _LOGGER.info(
-            "Connection settings changed for entry_id=%s, reloading integration",
+            "Entity selection or connection settings changed for entry_id=%s, "
+            "reloading integration",
             entry.entry_id,
         )
         hass.config_entries.async_schedule_reload(entry.entry_id)

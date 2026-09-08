@@ -6,6 +6,19 @@
 
 > All configuration options explained – from basic setup to advanced settings.
 
+> **Entity ids in this wiki are examples.** An entity id is derived from the
+> name you gave the controller in the config flow, so a controller called
+> "Pool" produces `switch.pool_pump`, not `switch.violet_pool_controller_pump`.
+> Home Assistant also never rewrites an id after first registration, so an
+> older installation may still carry a differently-spelled id. **Look yours up
+> in Developer Tools → States** and search for your controller's name before
+> copying an automation.
+>
+> Ranges and option labels shown here are likewise the current defaults, not a
+> contract. The authoritative values live in the code
+> (`climate.py`'s `temperature_range()`, `const_sensors.py`, `select.py`) and
+> in the entity's own attributes in Developer Tools.
+
 ---
 
 ## 🚨 SAFETY & LIABILITY (PLEASE READ FIRST!)
@@ -214,13 +227,13 @@ Home Assistant automatically creates an area based on the controller name. All e
 type: entities
 title: Pool Water Chemistry
 entities:
-  - entity: sensor.violet_water_temperature
+  - entity: sensor.violet_pool_controller_pool_temperature
     name: Water Temperature
-  - entity: sensor.violet_ph_value
+  - entity: sensor.violet_pool_controller_ph_value
     name: pH Value
-  - entity: sensor.violet_orp_value
+  - entity: sensor.violet_pool_controller_orp_value
     name: ORP/Redox
-  - entity: sensor.violet_chlorine
+  - entity: sensor.violet_pool_controller_chlorine_level
     name: Chlorine Level
 ```
 
@@ -229,20 +242,20 @@ entities:
 type: glance
 title: Pool Control
 entities:
-  - entity: switch.violet_pump
+  - entity: switch.violet_pool_controller_pump
     name: Pump
-  - entity: switch.violet_heater
+  - entity: switch.violet_pool_controller_heater
     name: Heating
-  - entity: switch.violet_solar
+  - entity: switch.violet_pool_controller_solar
     name: Solar
-  - entity: cover.violet_cover
+  - entity: cover.violet_pool_controller_cover
     name: Cover
 ```
 
 **Thermostat Card:**
 ```yaml
 type: thermostat
-entity: climate.violet_heater
+entity: climate.violet_pool_controller_heater
 name: Pool Heating
 ```
 

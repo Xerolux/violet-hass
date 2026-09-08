@@ -148,7 +148,7 @@ tail -f /config/home-assistant.log | grep violet_pool_controller
 
 3. **Controller prüfen:**
    - Error-Codes anschauen
-   - `sensor.violet_system_error_codes` prüfen
+   - `sensor.violet_pool_controller_error_code` prüfen
 
 ## Debug-Modus aktivieren
 
@@ -221,7 +221,7 @@ Dies speichert die Logs in `/config/` zur späteren Analyse oder zum Support-Tic
 
 ## Fehler-Codes vom Controller
 
-Diese Codes sieht du in `sensor.violet_system_error_codes`:
+Diese Codes sieht du in `sensor.violet_pool_controller_error_code`:
 
 | Code | Fehler | Lösung |
 |------|--------|--------|

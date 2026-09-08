@@ -243,7 +243,7 @@ A: Ja mit Climate-Entities:
 ```yaml
 service: climate.set_temperature
 target:
-  entity_id: climate.violet_heater
+  entity_id: climate.violet_pool_controller_heater
 data:
   temperature: 28
   hvac_mode: heat

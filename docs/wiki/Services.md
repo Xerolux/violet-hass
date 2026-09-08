@@ -8,58 +8,94 @@ All available services for advanced automation of your pool.
 
 ## Service Overview
 
-The integration registers **30+ services** across four phases:
+The integration registers **44 services**. `services.yaml` in
+`custom_components/violet_pool_controller/` is the authoritative list; the
+tables below mirror it, and **Developer Tools → Actions** in Home Assistant
+shows every field with its live selector.
 
-### Phase 1 — Core Control & Diagnostics
+### Core control & diagnostics
 | Service | Function | Parameters |
 |---------|----------|------------|
 | `control_pump` | Pump control | action, speed, duration |
 | `smart_dosing` | Chemical dosing | dosing_type, action, duration, safety_override |
 | `manage_pv_surplus` | PV surplus | mode, pump_speed |
 | `control_dmx_scenes` | Light scenes | device_id, action, sequence_delay |
-| `set_light_color_pulse` | Color pulses | pulse_count, pulse_interval |
+| `set_light_color_pulse` | Colour pulses | pulse_count, pulse_interval |
 | `manage_digital_rules` | Digital input rules | rule_key, action |
 | `test_output` | Diagnostics | device_id, output, mode, duration |
-| `export_diagnostic_logs` | Log export | device_id, lines, include_* |
-| `get_connection_status` | Connection health | device_id |
-| `get_error_summary` | Error summary | device_id, include_history |
-| `test_connection` | Test connection | device_id |
-| `clear_error_history` | Reset errors | device_id |
 
-### Phase 2 — HTTP Control Services
+### Direct HTTP control (`setFunctionManually`)
 | Service | Function |
 |---------|----------|
-| `control_heater_http` | Control heater with setpoint (on/off + target_temperature) |
-| `control_solar_http` | Control solar system |
+| `control_pump_http` | Filter pump; speed 1-3 switches to manual ON at that speed |
+| `control_heater_http` | Heater, with setpoint (on/off + target_temperature) |
+| `control_solar_http` | Solar circuit |
 | `control_cover_http` | open / close / stop |
 | `control_backwash_http` | run / abort |
-| `manual_dosing_http` | Manually trigger dosing (chlorine / electrolysis / ph_minus / ph_plus / flocculant / **h2o2**), runtime 1–3600 s |
+| `manual_dosing_http` | Trigger dosing manually (chlorine / electrolysis / ph_minus / ph_plus / flocculant / **h2o2**), runtime 1-3600 s |
+| `control_refill_http` | Start or stop a manual refill. **A duration is mandatory** so the valve cannot stay open |
 
-### Phase 2.5 — Dosing Configuration
+> Dosing, backwash and refill are `UNSAFE_SWITCH_KEYS`. These services, with
+> their mandatory durations, are the supported way to drive them - see
+> [Security](Security).
+
+### Dosing configuration
 | Service | Function |
 |---------|----------|
-| `configure_dosing` | Set arbitrary dosing config parameter |
-| `set_dosing_target` | Set dosing target value (0–100) |
-| `set_dosing_daytime` | Set daytime window (HH:MM) |
-| `set_dosing_max_daily` | Max daily volume (10–10000 ml) |
+| `configure_dosing` | Set an arbitrary dosing config parameter |
+| `set_dosing_target` | Set the dosing target value |
+| `set_dosing_daytime` | Set the daytime window (HH:MM) |
+| `set_dosing_max_daily` | Maximum daily volume |
 | `enable_dosing` | Enable / disable a dosing system |
+| `set_can_amount` | Update a canister's fill level after a refill or replacement |
 
-### Phase 3 — Rule Management
+### Rule management
 | Service | Function |
 |---------|----------|
-| `configure_temp_rule` | Configure temperature rule (TEMPRULE_1–8) |
-| `configure_analog_rule` | Configure analog threshold rule (ANALOGRULE_1–8) |
-| `configure_switching_rule` | Configure digital input rule (SWITCHINGRULE_1–8) |
-| `configure_timer_rule` | Configure time-based rule (TIMERRULE_1–8) |
+| `configure_temp_rule` | Temperature rule (TEMPRULE_1-8) |
+| `configure_analog_rule` | Analog threshold rule (ANALOGRULE_1-8) |
+| `configure_switching_rule` | Digital input rule (SWITCHINGRULE_1-8) |
+| `configure_timer_rule` | Time-based rule (TIMERRULE_1-8) |
 | `enable_rule` | Enable / disable any rule type |
 
-### Phase 4 — System Configuration
+### Water level: refill & overflow
 | Service | Function |
 |---------|----------|
-| `control_extension_relay` | Control extension relay (relay_id 1–8, action, state, duration) |
-| `configure_sensor_calibration` | Sensor calibration (sensor_id 1–12, offset, multiplier, min/max) |
+| `configure_refill` | Configure the automatic water refill system |
+| `configure_overflow` | Configure overflow, dry-run and bathing-detection protection |
+| `get_refill_status` | Refill configuration and live state |
+| `get_overflow_status` | Overflow protection configuration and live state |
 
-> **Dosing systems** supported by Phase 2/2.5 services: `chlorine`, `electrolysis`, `ph_minus`, `ph_plus`, `flocculant`, `h2o2`.
+### System configuration
+| Service | Function |
+|---------|----------|
+| `control_extension_relay` | Extension relay (relay_id 1-8, action, state, duration) |
+| `configure_sensor_calibration` | Sensor calibration (sensor_id 1-12, offset, multiplier, min/max) |
+| `set_omni_position` | Drive the OmniTronic multi-port valve to a fixed position |
+| `set_system_service` | Enable/disable a controller-side service (FTP, Samba, SSH, AirPlay, …) |
+
+### Status and diagnostics (these return data)
+| Service | Function |
+|---------|----------|
+| `get_connection_status` | Connection health metrics |
+| `get_error_summary` | Error summary and recovery suggestions |
+| `get_backwash_status` | Backwash state, current step, filter pressure |
+| `get_calibration_status` | Calibration state of every calibrated sensor |
+| `get_refill_status` / `get_overflow_status` | See *Water level* above |
+| `get_system_services_status` | Live state of every controller-side system service |
+| `get_system_update_status` | Installed and available controller firmware |
+| `get_live_trace_snapshot` | One-row snapshot of every controller reading |
+| `export_diagnostic_logs` | Export recent logs (see [Extended Logging](Erweiterte-Protokollierung)) |
+| `test_connection` | Test the connection to the controller |
+| `clear_error_history` | Clear the integration's error history |
+| `reset_blocking` | Clear fault-induced blockings (e.g. `BLOCKED_BY_ESC` after an empty canister) |
+
+> **Dosing systems** accepted by the dosing services: `chlorine`,
+> `electrolysis`, `ph_minus`, `ph_plus`, `flocculant`, `h2o2`.
+
+> The detailed sections below cover the most-used services. Anything not
+> documented in detail is still fully described by its own selectors in
+> **Developer Tools → Actions**.
 
 ---
 
@@ -80,7 +116,7 @@ The integration registers **30+ services** across four phases:
 ```yaml
 service: violet_pool_controller.control_pump
 target:
-  entity_id: switch.violet_pump
+  entity_id: switch.violet_pool_controller_pump
 data:
   action: speed_control
   speed: 2
@@ -91,7 +127,7 @@ data:
 ```yaml
 service: violet_pool_controller.control_pump
 target:
-  entity_id: switch.violet_pump
+  entity_id: switch.violet_pool_controller_pump
 data:
   action: eco_mode
   duration: 1800
@@ -101,7 +137,7 @@ data:
 ```yaml
 service: violet_pool_controller.control_pump
 target:
-  entity_id: switch.violet_pump
+  entity_id: switch.violet_pool_controller_pump
 data:
   action: boost_mode
   duration: 600  # 10 minutes

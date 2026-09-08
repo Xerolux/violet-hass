@@ -6,6 +6,19 @@
 
 > Complete documentation of all switch entities for the Violet Pool Controller.
 
+> **Entity ids in this wiki are examples.** An entity id is derived from the
+> name you gave the controller in the config flow, so a controller called
+> "Pool" produces `switch.pool_pump`, not `switch.violet_pool_controller_pump`.
+> Home Assistant also never rewrites an id after first registration, so an
+> older installation may still carry a differently-spelled id. **Look yours up
+> in Developer Tools → States** and search for your controller's name before
+> copying an automation.
+>
+> Ranges and option labels shown here are likewise the current defaults, not a
+> contract. The authoritative values live in the code
+> (`climate.py`'s `temperature_range()`, `const_sensors.py`, `select.py`) and
+> in the entity's own attributes in Developer Tools.
+
 ---
 
 ## Overview
@@ -32,7 +45,7 @@ All switches on the Violet Pool Controller are **3-state switches**: they suppor
 
 | Entity | Description |
 |--------|-------------|
-| `switch.violet_pump` | Main filter pump (3 speed levels) |
+| `switch.violet_pool_controller_pump` | Main filter pump (3 speed levels) |
 
 **Note:** The pump supports 4 speed levels (0–3). For speed control, use the [`control_pump` service](Services#-service-control_pump).
 
@@ -40,7 +53,7 @@ All switches on the Violet Pool Controller are **3-state switches**: they suppor
 # Simple on/off
 service: switch.turn_on
 target:
-  entity_id: switch.violet_pump
+  entity_id: switch.violet_pool_controller_pump
 
 # Speed with service
 service: violet_pool_controller.control_pump
@@ -56,14 +69,14 @@ data:
 
 | Entity | Description |
 |--------|-------------|
-| `switch.violet_heater` | Pool heater |
+| `switch.violet_pool_controller_heater` | Pool heater |
 
 > For thermostat control with target temperature: [Climate Entities](Climate)
 
 ```yaml
 service: switch.turn_on
 target:
-  entity_id: switch.violet_heater
+  entity_id: switch.violet_pool_controller_heater
 ```
 
 ---
@@ -72,7 +85,7 @@ target:
 
 | Entity | Description |
 |--------|-------------|
-| `switch.violet_solar` | Solar collector |
+| `switch.violet_pool_controller_solar` | Solar collector |
 
 ```yaml
 # Only turn on when solar temperature > pool water
@@ -80,12 +93,12 @@ automation:
   trigger:
     platform: template
     value_template: >
-      {{ states('sensor.violet_solar_temperature') | float(0) >
-         states('sensor.violet_water_temperature') | float(0) + 3 }}
+      {{ states('sensor.violet_pool_controller_solar_temperature') | float(0) >
+         states('sensor.violet_pool_controller_pool_temperature') | float(0) + 3 }}
   action:
     service: switch.turn_on
     target:
-      entity_id: switch.violet_solar
+      entity_id: switch.violet_pool_controller_solar
 ```
 
 ---
@@ -210,10 +223,22 @@ For full Off/On/Auto control use the matching `select.*_mode` entity (e.g. `sele
 
 ### View State Details
 
-Click on the entity → **Attributes** to view:
-- `violet_state`: The raw state `0`–`6` (or composite like `"3|PUMP_ANTI_FREEZE"`)
-- `mode`: Current operating mode
-- `last_changed`: Last state change
+Click on the entity → **Attributes**. A switch exposes:
+
+| Attribute | Meaning |
+|---|---|
+| `raw_state` | The controller's raw state, e.g. `"3"` or a composite like `"3\|PUMP_ANTI_FREEZE"` |
+| `mode` | Human-readable operating mode |
+| `status_description` | Human-readable description of the current state |
+| `runtime` | Runtime, when the controller reports `<KEY>_RUNTIME` |
+| `pending_update` | Present while an optimistic value is waiting for the next poll |
+
+Pump, heater, solar, dosing and backwash switches add device-specific
+attributes on top of those (speed, canister level, remaining range, and so on).
+
+> There is no `violet_state` attribute — the raw value is `raw_state` — and
+> `last_changed` is a Home Assistant state property, not an attribute of this
+> integration.
 
 ---
 
@@ -251,35 +276,47 @@ template:
   - sensor:
       - name: "Pump Mode"
         state: >
-          {% set state = states('switch.violet_pump') %}
-          {% set raw = state_attr('switch.violet_pump', 'raw_state') | int(-1) %}
-          {% if raw == 0 %} Auto off
-          {% elif raw == 1 %} Manual on
-          {% elif raw == 2 %} Auto on
-          {% elif raw == 3 %} Timer active
-          {% elif raw == 4 %} Forced on
-          {% elif raw == 5 %} Waiting
+          {% set state = states('switch.violet_pool_controller_pump') %}
+          {% set raw = state_attr('switch.violet_pool_controller_pump', 'raw_state') | int(-1) %}
+          {% if raw == 0 %} Auto - standby
+          {% elif raw == 1 %} Auto - active
+          {% elif raw == 2 %} Auto - blocked by a rule
+          {% elif raw == 3 %} Auto - forced on by an emergency rule
+          {% elif raw == 4 %} Manual on
+          {% elif raw == 5 %} Off by an emergency rule
           {% elif raw == 6 %} Manual off
           {% else %} Unknown
           {% endif %}
 ```
 
-### Set All Switches to Automatic
+### Returning a switch to automatic
+
+> **`switch.turn_off` does NOT return a device to automatic.** It sends
+> **Manual OFF (state 6)**, which pins the device off and keeps the
+> controller's own schedule and rules from ever switching it on again. A
+> script that "sets everything to automatic" with `switch.turn_off` silently
+> disables the pool.
+
+Use the mode select entity instead — it is the only control that can reach
+`AUTO`:
 
 ```yaml
 script:
   all_automatic:
-    alias: "Set All Switches to Automatic"
+    alias: "Return every device to automatic"
     sequence:
-      - service: switch.turn_off
+      - action: select.select_option
         target:
           entity_id:
-            - switch.violet_pump
-            - switch.violet_heater
-            - switch.violet_solar
-            - switch.violet_ph_minus
-            - switch.violet_chlorine
+            - select.violet_pool_controller_pump_mode
+            - select.violet_pool_controller_heater_mode
+            - select.violet_pool_controller_solar_mode
+        data:
+          option: auto
 ```
+
+Check the exact option label in **Developer Tools → States** first: it comes
+from the translation of your Home Assistant language.
 
 ---
 
@@ -302,7 +339,7 @@ The second segment indicates an operational mode.
 condition:
   - condition: template
     value_template: >
-      {{ 'PUMP_ANTI_FREEZE' in state_attr('switch.violet_pump', 'raw_state') | string }}
+      {{ 'PUMP_ANTI_FREEZE' in state_attr('switch.violet_pool_controller_pump', 'raw_state') | string }}
 ```
 
 ---

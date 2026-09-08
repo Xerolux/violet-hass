@@ -5,18 +5,17 @@ from __future__ import annotations
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-import violet_poolcontroller_api.api as api_module
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
+import custom_components.violet_pool_controller as integration
 from custom_components.violet_pool_controller import (
     PLATFORMS,
     async_migrate_entry,
     async_setup_entry,
     async_unload_entry,
 )
-from custom_components.violet_pool_controller import device as device_module
 from custom_components.violet_pool_controller.const import (
     CONF_ACTIVE_FEATURES,
     CONF_API_URL,
@@ -81,14 +80,16 @@ async def test_async_setup_entry_success(
     # In some HA versions/test setups this might be needed or it's an async method
     hass.config_entries.async_forward_entry_setups = AsyncMock()
 
+    # Both names are bound in the integration package at import time, so the
+    # patches have to target that module, not their source modules.
     with (
         patch.object(
-            device_module,
+            integration,
             "async_setup_device",
             new=AsyncMock(return_value=coordinator),
         ),
         patch.object(
-            api_module,
+            integration,
             "VioletPoolAPI",
             autospec=True,
         ) as api_cls,
@@ -122,12 +123,12 @@ async def test_async_setup_entry_missing_host(hass: HomeAssistant) -> None:
 
     with (
         patch.object(
-            api_module,
+            integration,
             "VioletPoolAPI",
             autospec=True,
         ),
         patch.object(
-            device_module,
+            integration,
             "async_setup_device",
             new=AsyncMock(),
         ),
@@ -141,12 +142,12 @@ async def test_async_setup_entry_device_error(
 ) -> None:
     with (
         patch.object(
-            device_module,
+            integration,
             "async_setup_device",
             new=AsyncMock(side_effect=HomeAssistantError("boom")),
         ),
         patch.object(
-            api_module,
+            integration,
             "VioletPoolAPI",
             autospec=True,
         ),

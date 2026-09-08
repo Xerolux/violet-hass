@@ -61,7 +61,9 @@ class TestEnhancedErrorHandler:
         """Test error handler initialization."""
         handler = EnhancedErrorHandler()
 
-        assert handler._max_history == 100
+        assert handler.MAX_HISTORY == 100
+        # A deque bounds the history itself; the old list + pop(0) is gone.
+        assert handler._error_history.maxlen == 100
         assert handler._consecutive_errors == 0
         assert handler._auth_errors == 0
         assert handler._offline_since is None

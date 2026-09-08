@@ -228,10 +228,6 @@ class VioletPoolControllerDevice:
             entry_data.get(CONF_PORT, DEFAULT_PORT),
         )
         self.use_ssl = entry_data.get(CONF_USE_SSL, DEFAULT_USE_SSL)
-        # Settings the API client above was built from. Compared in
-        # connection_settings_changed() to decide whether an options save
-        # needs a reload (see __init__.async_update_listener).
-        self._connection_settings = connection_settings(config_entry)
         self.device_id = entry_data.get(CONF_DEVICE_ID, 1)
         self.device_name = entry_data.get(CONF_DEVICE_NAME, "Violet Pool Controller")
         # Prefer options (later changes) over data
@@ -248,26 +244,6 @@ class VioletPoolControllerDevice:
             self.use_ssl,
             self.device_id,
         )
-
-    def connection_settings_changed(self, config_entry: ConfigEntry) -> bool:
-        """Return True when the entry no longer matches the running API client.
-
-        Credentials, host, port, SSL and the timeout/retry settings are baked
-        into the API client at construction time, so they can only be applied
-        by rebuilding it - which is what a reload of the config entry does.
-
-        Args:
-            config_entry: The updated config entry.
-
-        Returns:
-            True if the entry has to be reloaded.
-        """
-        try:
-            current = connection_settings(config_entry)
-        except ValueError:
-            # No host at all - leave the running client alone.
-            return False
-        return current != self._connection_settings
 
     def _should_log_failure(self) -> bool:
         """

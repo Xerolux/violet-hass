@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from homeassistant.const import ATTR_DEVICE_ID, ATTR_ENTITY_ID
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import device_registry as dr
-from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.service import async_extract_config_entry_ids
 
 from .runtime_data import async_get_coordinator
 from .safety_guard import SafetyGuard, create_safety_guard
@@ -67,58 +67,30 @@ class VioletServiceManager:
 
         return None
 
-    async def get_coordinators_for_entities(self, entity_ids: list[str]) -> list[Any]:
-        """Get coordinators for entity IDs."""
-        coordinators = []
-        entity_reg = er.async_get(self.hass)
-
-        for entity_id in entity_ids:
-            entity = entity_reg.async_get(entity_id)
-            if entity and entity.config_entry_id:
-                coordinator = async_get_coordinator(self.hass, entity.config_entry_id)
-                if coordinator and coordinator not in coordinators:
-                    coordinators.append(coordinator)
-
-        return coordinators
-
     async def get_coordinators_for_call(self, call: ServiceCall) -> list[Any]:
-        """Get coordinators from a service call (entity_id or device_id)."""
+        """Return the coordinators a service call addresses.
+
+        Resolution is delegated to Home Assistant's own target extraction, so
+        every target kind the schemas accept actually reaches a controller:
+        entity, device, area, floor and label.  The hand-rolled lookup this
+        replaces read only ``entity_id`` and ``device_id``, so an
+        area-targeted call matched nothing and the handler reported success
+        without having done anything.
+        """
+        try:
+            entry_ids = await async_extract_config_entry_ids(call)
+        except HomeAssistantError:
+            # Raised for an unknown or ambiguous target; treat it as "nothing
+            # matched" so the caller reports it uniformly.
+            entry_ids = set()
+
         coordinators: list[Any] = []
-        entity_reg = er.async_get(self.hass)
-        device_reg = dr.async_get(self.hass)
-
-        entity_ids: list[str] = call.data.get(ATTR_ENTITY_ID, [])
-        device_ids: list[str] = call.data.get(ATTR_DEVICE_ID, [])
-
-        for eid in entity_ids:
-            entity = entity_reg.async_get(eid)
-            if entity and entity.config_entry_id:
-                coord = async_get_coordinator(self.hass, entity.config_entry_id)
-                if coord and coord not in coordinators:
-                    coordinators.append(coord)
-
-        for did in device_ids:
-            device = device_reg.async_get(did)
-            if device:
-                for entry_id in _config_entry_ids(device):
-                    coord = async_get_coordinator(self.hass, entry_id)
-                    if coord and coord not in coordinators:
-                        coordinators.append(coord)
+        for entry_id in entry_ids:
+            coordinator = async_get_coordinator(self.hass, entry_id)
+            if coordinator is not None and coordinator not in coordinators:
+                coordinators.append(coordinator)
 
         return coordinators
-
-    def extract_device_key(self, entity_id: str) -> str:
-        """Extract device key from entity ID."""
-        if not entity_id or not isinstance(entity_id, str):
-            raise ValueError(f"Invalid entity_id: {entity_id}")
-        if "." not in entity_id:
-            raise ValueError(f"Entity ID must contain domain separator '.': {entity_id}")
-
-        parts = entity_id.split(".")[-1].split("_")
-        parts = [part for part in parts if part not in ("violet", "pool")]
-        if not parts:
-            raise ValueError(f"Cannot extract device key from {entity_id}: no parts remaining")
-        return "_".join(parts).upper()
 
     def set_safety_lock(self, entry_id: str, device_key: str, duration: int) -> None:
         """Set safety lock for a device on one controller (delegates to SafetyGuard)."""

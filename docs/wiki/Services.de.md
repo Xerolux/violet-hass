@@ -80,7 +80,7 @@ Die Integration registriert **30+ Services** in vier Phasen:
 ```yaml
 service: violet_pool_controller.control_pump
 target:
-  entity_id: switch.violet_pump
+  entity_id: switch.violet_pool_controller_pump
 data:
   action: speed_control
   speed: 2
@@ -91,7 +91,7 @@ data:
 ```yaml
 service: violet_pool_controller.control_pump
 target:
-  entity_id: switch.violet_pump
+  entity_id: switch.violet_pool_controller_pump
 data:
   action: eco_mode
   duration: 1800
@@ -101,7 +101,7 @@ data:
 ```yaml
 service: violet_pool_controller.control_pump
 target:
-  entity_id: switch.violet_pump
+  entity_id: switch.violet_pool_controller_pump
 data:
   action: boost_mode
   duration: 600  # 10 Minuten

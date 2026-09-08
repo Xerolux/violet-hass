@@ -8,6 +8,20 @@ Vollständige Referenz aller Entitäten, die die Integration erzeugen kann. Enti
 
 > Quelle: `const_features.py`, `const_sensors.py`, `const_devices.py`. Entity-IDs verwenden den Präfix `violet_pool_controller` (bzw. `violet_pool_controller_<device_id>` bei Multi-Controller — siehe [Multi-Controller](Multi-Controller.de)).
 
+> **Die Entity-IDs in dieser Wiki sind Beispiele.** Eine Entity-ID leitet sich
+> aus dem Namen ab, den du dem Controller im Config-Flow gegeben hast: ein
+> Controller namens „Pool" erzeugt `switch.pool_pump`, nicht
+> `switch.violet_pool_controller_pump`. Home Assistant schreibt eine ID nach
+> der ersten Registrierung außerdem nie um, ältere Installationen tragen also
+> möglicherweise noch anders geschriebene IDs. **Sieh deine eigenen in
+> Entwicklerwerkzeuge → Zustände nach**, bevor du eine Automatisierung
+> kopierst.
+>
+> Auch die hier gezeigten Wertebereiche und Options-Bezeichnungen sind die
+> aktuellen Standardwerte, keine Zusage. Maßgeblich sind der Code
+> (`temperature_range()` in `climate.py`, `const_sensors.py`, `select.py`) und
+> die Attribute der Entität in den Entwicklerwerkzeugen.
+
 ---
 
 ## 📋 Inhaltsverzeichnis

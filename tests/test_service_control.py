@@ -325,7 +325,14 @@ class TestHandleSmartDosing:
 
 
 class TestHandleControlExtensionRelay:
-    """Test extension relay control handler."""
+    """Test extension relay control handler.
+
+    Until 2.7.0 this handler built the key as ``EXT<relay_id>_1``, so relay 3
+    became ``EXT3_1`` - a key the controller does not have; it only has
+    ``EXT1_1..EXT1_8`` and ``EXT2_1..EXT2_8``. It also sent the read state
+    codes ``"4"``, ``"6"`` and ``"0"`` where the command grammar expects
+    ``ON``/``OFF``/``AUTO``. Both are asserted here.
+    """
 
     @pytest.fixture
     def handlers(self):
@@ -334,100 +341,61 @@ class TestHandleControlExtensionRelay:
         h.manager = make_manager_with_safety(coordinator)
         h.hass = h.manager.hass
         h.manager.get_coordinators_for_call = AsyncMock(return_value=[coordinator])
-        # The guard resolves the controller through this entry, so tests must
-        # act on the same coordinator the manager was wired to.
         h.test_coordinator = coordinator
         return h
 
-    async def test_relay_on(self, handlers):
-        """Turning relay on sends state 4 (manual on)."""
+    @pytest.mark.parametrize(
+        ("action", "expected"),
+        [("on", "ON"), ("off", "OFF"), ("auto", "AUTO")],
+    )
+    async def test_relay_action_is_a_command_not_a_state_code(
+        self, handlers, action, expected
+    ):
+        coord = handlers.test_coordinator
 
-        with patch(
-            "custom_components.violet_pool_controller.service_mixins.extension.VioletControlClient"
-        ) as mock_client_cls:
-            mock_client = mock_client_cls.return_value
-            mock_client.set_function_manually = AsyncMock(return_value=True)
+        await handlers.handle_control_extension_relay(
+            make_service_call({"bank": 1, "relay": 1, "action": action, "duration": 0})
+        )
 
+        coord.device.api.set_switch_state.assert_awaited_once_with(
+            "EXT1_1", expected, duration=None
+        )
+
+    async def test_relay_addresses_the_second_bank(self, handlers):
+        """Relay 5 of bank 2 is EXT2_5, not EXT5_1."""
+        coord = handlers.test_coordinator
+
+        await handlers.handle_control_extension_relay(
+            make_service_call({"bank": 2, "relay": 5, "action": "on", "duration": 0})
+        )
+
+        coord.device.api.set_switch_state.assert_awaited_once_with(
+            "EXT2_5", "ON", duration=None
+        )
+
+    async def test_relay_duration_is_forwarded(self, handlers):
+        coord = handlers.test_coordinator
+
+        await handlers.handle_control_extension_relay(
+            make_service_call({"bank": 1, "relay": 4, "action": "on", "duration": 120})
+        )
+
+        coord.device.api.set_switch_state.assert_awaited_once_with(
+            "EXT1_4", "ON", duration=120
+        )
+
+    async def test_relay_unknown_action_is_a_validation_error(self, handlers):
+        """Range checks are the schema's job; an unknown action is still ours."""
+        from homeassistant.exceptions import ServiceValidationError
+
+        coord = handlers.test_coordinator
+
+        with pytest.raises(ServiceValidationError):
             await handlers.handle_control_extension_relay(
-                make_service_call(
-                    {
-                        "relay_id": 1,
-                        "action": "on",
-                        "duration": 0,
-                    }
-                )
+                make_service_call({"bank": 1, "relay": 1, "action": "toggle"})
             )
 
-            mock_client.set_function_manually.assert_awaited_once()
-            args = mock_client.set_function_manually.call_args[0]
-            assert args[0] == "EXT1_1"
-            assert args[1] == "4"
-
-    async def test_relay_off(self, handlers):
-        """Turning relay off sends state 6 (manual off)."""
-
-        with patch(
-            "custom_components.violet_pool_controller.service_mixins.extension.VioletControlClient"
-        ) as mock_client_cls:
-            mock_client = mock_client_cls.return_value
-            mock_client.set_function_manually = AsyncMock(return_value=True)
-
-            await handlers.handle_control_extension_relay(
-                make_service_call(
-                    {
-                        "relay_id": 3,
-                        "action": "off",
-                        "duration": 0,
-                    }
-                )
-            )
-
-            args = mock_client.set_function_manually.call_args[0]
-            assert args[0] == "EXT3_1"
-            assert args[1] == "6"
-
-    async def test_relay_invalid_id_high(self, handlers):
-        """Relay ID > 8 raises HomeAssistantError."""
-        from homeassistant.exceptions import HomeAssistantError
-
-
-        with pytest.raises(HomeAssistantError, match="1-8"):
-            await handlers.handle_control_extension_relay(
-                make_service_call({"relay_id": 9, "action": "on"})
-            )
-
-    async def test_relay_invalid_id_low(self, handlers):
-        """Relay ID < 1 raises HomeAssistantError."""
-        from homeassistant.exceptions import HomeAssistantError
-
-
-        with pytest.raises(HomeAssistantError, match="1-8"):
-            await handlers.handle_control_extension_relay(
-                make_service_call({"relay_id": 0, "action": "on"})
-            )
-
-    async def test_relay_explicit_state(self, handlers):
-        """Explicit state value is passed through."""
-
-        with patch(
-            "custom_components.violet_pool_controller.service_mixins.extension.VioletControlClient"
-        ) as mock_client_cls:
-            mock_client = mock_client_cls.return_value
-            mock_client.set_function_manually = AsyncMock(return_value=True)
-
-            await handlers.handle_control_extension_relay(
-                make_service_call(
-                    {
-                        "relay_id": 2,
-                        "state": 1,
-                        "duration": 0,
-                    }
-                )
-            )
-
-            args = mock_client.set_function_manually.call_args[0]
-            assert args[0] == "EXT2_1"
-            assert args[1] == "1"
+        coord.device.api.set_switch_state.assert_not_awaited()
 
 
 class TestHandleControlPumpHttp:

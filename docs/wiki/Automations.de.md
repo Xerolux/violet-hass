@@ -90,12 +90,12 @@ automation:
         below: 3
     condition:
       - condition: state
-        entity_id: switch.violet_pump
+        entity_id: switch.violet_pool_controller_pump
         state: "off"
     action:
       - service: switch.turn_on
         target:
-          entity_id: switch.violet_pump
+          entity_id: switch.violet_pool_controller_pump
       - service: notify.mobile_app_phone
         data:
           title: "Frost-Alarm"
@@ -114,13 +114,13 @@ automation:
     description: "pH+ dosieren wenn pH unter 7.1 fällt"
     trigger:
       - platform: numeric_state
-        entity_id: sensor.violet_ph_value
+        entity_id: sensor.violet_pool_controller_ph_value
         below: 7.1
         for:
           minutes: 15
     condition:
       - condition: state
-        entity_id: switch.violet_pump
+        entity_id: switch.violet_pool_controller_pump
         state: "on"
     action:
       - service: violet_pool_controller.smart_dosing
@@ -133,19 +133,19 @@ automation:
       - service: notify.mobile_app_phone
         data:
           title: "Pool pH-Alarm"
-          message: "pH war zu niedrig ({{ states('sensor.violet_ph_value') }}). pH+ wurde dosiert."
+          message: "pH war zu niedrig ({{ states('sensor.violet_pool_controller_ph_value') }}). pH+ wurde dosiert."
 
   - alias: "Pool: pH zu hoch – pH- dosieren"
     description: "pH- dosieren wenn pH über 7.6 steigt"
     trigger:
       - platform: numeric_state
-        entity_id: sensor.violet_ph_value
+        entity_id: sensor.violet_pool_controller_ph_value
         above: 7.6
         for:
           minutes: 15
     condition:
       - condition: state
-        entity_id: switch.violet_pump
+        entity_id: switch.violet_pool_controller_pump
         state: "on"
     action:
       - service: violet_pool_controller.smart_dosing
@@ -163,13 +163,13 @@ automation:
     description: "Chlor dosieren wenn ORP unter 650 mV fällt"
     trigger:
       - platform: numeric_state
-        entity_id: sensor.violet_orp_value
+        entity_id: sensor.violet_pool_controller_orp_value
         below: 650
         for:
           minutes: 30
     condition:
       - condition: state
-        entity_id: switch.violet_pump
+        entity_id: switch.violet_pool_controller_pump
         state: "on"
       - condition: time
         after: "10:00:00"
@@ -229,7 +229,7 @@ automation:
     action:
       - service: climate.set_temperature
         target:
-          entity_id: climate.violet_heater
+          entity_id: climate.violet_pool_controller_heater
         data:
           temperature: 30
           hvac_mode: heat
@@ -248,7 +248,7 @@ automation:
     action:
       - service: climate.set_temperature
         target:
-          entity_id: climate.violet_heater
+          entity_id: climate.violet_pool_controller_heater
         data:
           temperature: 26
           hvac_mode: auto
@@ -262,7 +262,7 @@ automation:
     description: "Info wenn Pool Badetemeratur erreicht"
     trigger:
       - platform: numeric_state
-        entity_id: sensor.violet_water_temperature
+        entity_id: sensor.violet_pool_controller_pool_temperature
         above: 27
     condition:
       - condition: time
@@ -273,9 +273,9 @@ automation:
         data:
           title: "Pool ist warm!"
           message: >
-            Wassertemperatur: {{ states('sensor.violet_water_temperature') }}°C
-            pH: {{ states('sensor.violet_ph_value') }}
-            ORP: {{ states('sensor.violet_orp_value') }} mV
+            Wassertemperatur: {{ states('sensor.violet_pool_controller_pool_temperature') }}°C
+            pH: {{ states('sensor.violet_pool_controller_ph_value') }}
+            ORP: {{ states('sensor.violet_pool_controller_orp_value') }} mV
 ```
 
 ---
@@ -298,12 +298,12 @@ automation:
     action:
       - service: switch.turn_on
         target:
-          entity_id: switch.violet_dmx_scene_1
+          entity_id: light.violet_pool_controller_dmx_scene_1
       - delay:
           hours: 3
       - service: switch.turn_off
         target:
-          entity_id: switch.violet_dmx_scene_1
+          entity_id: light.violet_pool_controller_dmx_scene_1
 
   - alias: "Pool: Beleuchtung aus bei Sonnenaufgang"
     trigger:
@@ -313,8 +313,8 @@ automation:
       - service: switch.turn_off
         target:
           entity_id:
-            - switch.violet_dmx_scene_1
-            - switch.violet_dmx_scene_2
+            - light.violet_pool_controller_dmx_scene_1
+            - light.violet_pool_controller_dmx_scene_2
 ```
 
 ### Party-Modus
@@ -336,7 +336,7 @@ automation:
           speed: 2
       - service: climate.set_temperature
         target:
-          entity_id: climate.violet_heater
+          entity_id: climate.violet_pool_controller_heater
         data:
           temperature: 30
           hvac_mode: heat
@@ -367,12 +367,12 @@ automation:
         to: "rainy"
     condition:
       - condition: state
-        entity_id: cover.violet_cover
+        entity_id: cover.violet_pool_controller_cover
         state: "open"
     action:
       - service: cover.close_cover
         target:
-          entity_id: cover.violet_cover
+          entity_id: cover.violet_pool_controller_cover
       - service: notify.mobile_app_phone
         data:
           message: "Pool-Abdeckung automatisch geschlossen (Regen)"
@@ -388,7 +388,7 @@ automation:
     action:
       - service: cover.open_cover
         target:
-          entity_id: cover.violet_cover
+          entity_id: cover.violet_pool_controller_cover
 ```
 
 ---
@@ -437,12 +437,12 @@ automation:
         data:
           title: "Pool Wochencheck"
           message: >
-            Wasser: {{ states('sensor.violet_water_temperature') }}°C
-            pH: {{ states('sensor.violet_ph_value') }}
-            ORP: {{ states('sensor.violet_orp_value') }} mV
-            Chlor: {{ states('sensor.violet_chlorine') }} mg/l
-            Pumpe: {{ states('switch.violet_pump') }}
-            Heizung: {{ states('climate.violet_heater') }}
+            Wasser: {{ states('sensor.violet_pool_controller_pool_temperature') }}°C
+            pH: {{ states('sensor.violet_pool_controller_ph_value') }}
+            ORP: {{ states('sensor.violet_pool_controller_orp_value') }} mV
+            Chlor: {{ states('sensor.violet_pool_controller_chlorine_level') }} mg/l
+            Pumpe: {{ states('switch.violet_pool_controller_pump') }}
+            Heizung: {{ states('climate.violet_pool_controller_heater') }}
 ```
 
 ---
@@ -456,20 +456,20 @@ automation:
   - alias: "Pool: Kritischer pH-Alarm"
     trigger:
       - platform: numeric_state
-        entity_id: sensor.violet_ph_value
+        entity_id: sensor.violet_pool_controller_ph_value
         below: 6.8
     action:
       - service: notify.mobile_app_phone
         data:
           title: "ALARM: Pool pH kritisch!"
           message: >
-            pH-Wert: {{ states('sensor.violet_ph_value') }}
+            pH-Wert: {{ states('sensor.violet_pool_controller_ph_value') }}
             Sofort pH+ dosieren!
 
   - alias: "Pool: Temperaturfühler-Alarm"
     trigger:
       - platform: state
-        entity_id: sensor.violet_water_temperature
+        entity_id: sensor.violet_pool_controller_pool_temperature
         to: "unavailable"
         for:
           minutes: 5
