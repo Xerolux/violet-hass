@@ -66,10 +66,11 @@ jobs:
 
       - name: Build static site
         run: |
-          mkdir -p _site/docs _site/custom_components/violet_pool_controller/brand
+          mkdir -p _site/custom_components/violet_pool_controller/brand
           cp index.html site.css site.js .nojekyll _site/
-          cp docs/index.html docs/app.js docs/docs.css _site/docs/
-          cp -R docs/wiki _site/docs/wiki
+          # Copy the whole docs tree: a hand-picked file list silently 404s
+          # every asset that is added later.
+          cp -R docs _site/docs
           cp custom_components/violet_pool_controller/brand/icon.png \
             _site/custom_components/violet_pool_controller/brand/icon.png
 

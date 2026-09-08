@@ -7,6 +7,7 @@ from typing import Any
 
 from homeassistant.core import ServiceCall
 from homeassistant.exceptions import HomeAssistantError
+from violet_poolcontroller_api import ACTION_OFF, ACTION_ON
 from violet_poolcontroller_api.api import VioletPoolAPIError
 
 from ..http_control import VioletControlClient
@@ -103,16 +104,24 @@ class CoverServiceHandlersMixin:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device.api)
                 device_name = coordinator.device.device_name
+                entry_id = coordinator.config_entry.entry_id
 
                 if action == "fill":
                     # Enforce cooldown before starting a refill.
                     await self.manager.safety_guard.enforce(
-                        "REFILL", safety_override=safety_override
+                        entry_id, "REFILL", safety_override=safety_override
                     )
 
-                    await control.set_function_manually("REFILL", "ON")
+                    # The duration goes to the controller, so the valve closes
+                    # on its own even if Home Assistant dies right after this
+                    # line.  The HA-side timer below is the second line of
+                    # defence, not the only one.
+                    await coordinator.device.api.set_switch_state(
+                        "REFILL",
+                        ACTION_ON,
+                        duration=int(refill_seconds),
+                    )
                     _LOGGER.warning(
                         "WATER REFILL STARTED on %s - WILL AUTO-STOP after %ss",
                         device_name,
@@ -122,21 +131,25 @@ class CoverServiceHandlersMixin:
                     # Restart-safe auto-stop: persists deadline so the refill
                     # is stopped even if HA restarts mid-run (flood prevention).
                     await self.manager.safety_guard.arm_auto_stop(
+                        entry_id,
                         "REFILL",
                         duration_seconds=refill_seconds,
                         stop_target={
-                            "method": "set_function_manually",
-                            "args": ["REFILL", "OFF"],
+                            "method": "set_switch_state",
+                            "args": ["REFILL"],
+                            "kwargs": {"action": ACTION_OFF},
                         },
                     )
                     if not safety_override:
-                        self.manager.set_safety_lock("REFILL", DEFAULT_SAFETY_INTERVAL)
+                        self.manager.set_safety_lock(
+                            entry_id, "REFILL", DEFAULT_SAFETY_INTERVAL
+                        )
 
                 elif action == "stop":
-                    await control.set_function_manually("REFILL", "OFF")
+                    await coordinator.device.api.set_switch_state("REFILL", ACTION_OFF)
                     # Cancel any pending auto-stop and clear the cooldown.
-                    self.manager.safety_guard.cancel_auto_stop("REFILL")
-                    self.manager.safety_guard.clear_lock("REFILL")
+                    await self.manager.safety_guard.cancel_auto_stop(entry_id, "REFILL")
+                    self.manager.safety_guard.clear_lock(entry_id, "REFILL")
                     _LOGGER.warning("WATER REFILL STOPPED on %s (manual)", device_name)
                     await coordinator.async_request_refresh()
 

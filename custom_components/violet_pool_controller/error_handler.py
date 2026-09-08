@@ -12,10 +12,12 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
+from collections import deque
 from enum import Enum
 from typing import Any
 
 import aiohttp
+from violet_poolcontroller_api.api import VioletAuthError, VioletPoolAPIError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -309,10 +311,12 @@ class IntegrationError:
 class EnhancedErrorHandler:
     """Enhanced error handling with offline resilience and auto-recovery."""
 
+    #: How many errors are kept for the statistics.
+    MAX_HISTORY = 100
+
     def __init__(self) -> None:
         """Initialize enhanced error handler."""
-        self._error_history: list[IntegrationError] = []
-        self._max_history = 100
+        self._error_history: deque[IntegrationError] = deque(maxlen=self.MAX_HISTORY)
         self._consecutive_errors = 0
         self._last_error_time = 0.0
         self._offline_since: float | None = None
@@ -392,6 +396,34 @@ class EnhancedErrorHandler:
                 retry_after=5.0,  # Suggest 5s retry
             )
 
+        # The API package's own exceptions
+        if isinstance(error, VioletAuthError):
+            self._auth_errors += 1
+            return IntegrationError(
+                error_type=ErrorType.AUTH_ERROR,
+                severity=ErrorSeverity.HIGH,
+                message=f"API authentication failed: {error}",
+                recoverable=False,
+                retry_after=None,
+            )
+
+        if isinstance(error, VioletPoolAPIError):
+            if "timeout" in str(error).lower():
+                return IntegrationError(
+                    error_type=ErrorType.TIMEOUT_ERROR,
+                    severity=ErrorSeverity.MEDIUM,
+                    message=f"API timeout: {error}",
+                    recoverable=True,
+                    retry_after=10.0,
+                )
+            return IntegrationError(
+                error_type=ErrorType.SERVER_ERROR,
+                severity=ErrorSeverity.MEDIUM,
+                message=f"API error: {error}",
+                recoverable=True,
+                retry_after=5.0,
+            )
+
         # Our own API errors
         if isinstance(error, VioletPoolControllerError):
             error_str = str(error).lower()
@@ -442,11 +474,8 @@ class EnhancedErrorHandler:
         Args:
             error_info: The error to record.
         """
+        # The deque drops the oldest entry itself once MAX_HISTORY is reached.
         self._error_history.append(error_info)
-
-        # Keep history at max size
-        if len(self._error_history) > self._max_history:
-            self._error_history.pop(0)
 
         # Update consecutive error counter
         now = time.monotonic()
@@ -491,7 +520,9 @@ class EnhancedErrorHandler:
         Returns:
             List of recent errors.
         """
-        return self._error_history[-count:]
+        if count <= 0:
+            return []
+        return list(self._error_history)[-count:]
 
     def get_error_summary(self) -> dict[str, Any]:
         """Get a summary of error statistics.
@@ -504,10 +535,13 @@ class EnhancedErrorHandler:
         for error in self._error_history:
             error_counts[error.error_type] = error_counts.get(error.error_type, 0) + 1
 
-        # Calculate offline duration
+        # Calculate offline duration. _offline_since is a monotonic timestamp,
+        # so it must be compared against the monotonic clock - subtracting it
+        # from the wall clock produced offline durations of ~1.7 billion
+        # seconds.
         offline_duration = 0.0
-        if self._offline_since:
-            offline_duration = time.time() - self._offline_since
+        if self._offline_since is not None:
+            offline_duration = time.monotonic() - self._offline_since
 
         return {
             "total_errors": len(self._error_history),
@@ -523,6 +557,7 @@ class EnhancedErrorHandler:
         """Clear error history (e.g., after successful recovery)."""
         self._error_history.clear()
         self._consecutive_errors = 0
+        self._auth_errors = 0
         self._offline_since = None
         _LOGGER.debug("Error history cleared")
 
@@ -534,7 +569,7 @@ class EnhancedErrorHandler:
         """
         # Trigger if we've had multiple recent auth errors
         recent_auth_errors = sum(
-            1 for e in self._error_history[-10:] if e.error_type == ErrorType.AUTH_ERROR
+            1 for e in self.get_recent_errors(10) if e.error_type == ErrorType.AUTH_ERROR
         )
 
         return recent_auth_errors >= 2

@@ -35,12 +35,18 @@ from .const import (
     UNSAFE_SWITCH_KEYS,
 )
 from .device import VioletPoolDataUpdateCoordinator
-from .entity import VioletPoolControllerEntity, get_state_attributes, interpret_state_as_bool
+from .entity import (
+    VioletPoolControllerEntity,
+    get_state_attributes,
+    interpret_state_as_bool,
+    parse_state_code,
+)
 from .entity_cleanup import track_provided_entities
 from .entity_names import EntityNameResolver
 from .entity_selection import async_get_selection
 from .runtime_data import SERVICE_MANAGER_KEY
 from .service_helpers import MAX_DOSING_DURATION
+from .state_constants import get_state_definition
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -69,11 +75,6 @@ def _dosing_switch_on(raw_state: Any, use_val: Any) -> bool | None:
     return interpret_state_as_bool(raw_state)
 
 
-# State Constants (matches DEVICE_STATE_MAPPING from API library)
-# - 0: Auto - Standby (OFF)
-# - 1: Auto - Active (Scheduled) (ON)
-# - 2: Auto - Priority OFF / Rule Blocked (OFF)
-# - 3: Auto - Priority ON / Emergency Rule (ON)
 REFRESH_DELAY = 0.3
 # Extension module relays may need more time for the controller to update LAST_ON
 # after a command, so that the next get_readings() call can detect the module.
@@ -170,21 +171,22 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             # Use shared utility function
             result = interpret_state_as_bool(raw_state, key)
 
-        # Change-Only Logging
+        # Change-only logging. The very first read is not a state change but
+        # the entity learning what the controller reports, so it stays at DEBUG
+        # instead of announcing "INIT → ON" for every switch on every start.
         if result != self._last_logged_state or raw_state != self._last_logged_raw:
             new_state_str = "UNKNOWN" if result is None else "ON" if result else "OFF"
 
-            _LOGGER.info(
-                "Switch %s: %s → %s (raw: %s)",
-                key,
-                "ON"
-                if self._last_logged_state
-                else "OFF"
-                if self._last_logged_state is not None
-                else "INIT",
-                new_state_str,
-                raw_state,
-            )
+            if self._last_logged_raw is None and self._last_logged_state is None:
+                _LOGGER.debug("Switch %s initial state: %s (raw: %s)", key, new_state_str, raw_state)
+            else:
+                _LOGGER.info(
+                    "Switch %s: %s → %s (raw: %s)",
+                    key,
+                    "ON" if self._last_logged_state else "OFF",
+                    new_state_str,
+                    raw_state,
+                )
             self._last_logged_state = result
             self._last_logged_raw = raw_state
 
@@ -226,13 +228,12 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         }
 
         # --- Extended state hierarchy attributes ---
-        try:
-            state_int = int(raw_state) if raw_state is not None else None
-            if state_int is not None and 0 <= state_int <= 6:
-                state_attrs = get_state_attributes(state_int, german=False)
-                attributes.update(state_attrs)
-        except (ValueError, TypeError):
-            pass  # Not a numeric state, skip hierarchy attributes
+        # Composite values such as "3|PUMP_ANTI_FREEZE" carry the state code in
+        # their leading part; int() on the whole string dropped the hierarchy
+        # attributes for exactly the states that carry extra context.
+        state_int = parse_state_code(raw_state)
+        if state_int is not None and 0 <= state_int <= 6:
+            attributes.update(get_state_attributes(state_int, german=False))
 
         # Optimistic cache indicator
         if self._optimistic_state is not None:
@@ -261,16 +262,6 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
     # -----------------------------------------------------------------
     # State description helpers
     # -----------------------------------------------------------------
-
-    _STATE_DESCRIPTIONS: dict[int, str] = {
-        0: "Auto – Standby",
-        1: "Auto – Active (Scheduled)",
-        2: "Auto – Priority OFF (Rule Blocked)",
-        3: "Auto – Priority ON (Emergency Rule)",
-        4: "Manual ON (Forced)",
-        5: "Auto – Rule OFF (Emergency Rule)",
-        6: "Manual OFF",
-    }
 
     _DETAIL_DESCRIPTIONS: dict[str, str] = DOSING_STATE_DESCRIPTIONS
 
@@ -332,7 +323,8 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 6: "Manual",
             }
             mode = mode_map.get(state_num, "Unknown")
-            desc = self._STATE_DESCRIPTIONS.get(state_num, f"State {state_num}")
+            definition = get_state_definition(state_num)
+            desc = definition.name_en if definition else f"State {state_num}"
 
         # Append extra detail from *STATE field
         if extra_detail:
@@ -342,17 +334,10 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
 
     def _enrich_pump_attributes(self, attributes: dict[str, Any]) -> None:
         """Add pump-specific attributes: speed, RPM level, last on/off."""
-        # Determine active RPM level
-        active_speed = None
-        for level in range(4):
-            rpm_key = f"PUMP_RPM_{level}"
-            rpm_val = self.get_value(rpm_key)
-            if rpm_val is not None:
-                try:
-                    if int(rpm_val) > 0:
-                        active_speed = level
-                except (ValueError, TypeError) as err:
-                    _LOGGER.debug("Invalid RPM value for %s: %s (%s)", rpm_key, rpm_val, err)
+        # PUMP_RPM_n reports a state code, not an RPM value: 2, 5 and 6 all
+        # mean the output is off, so ">0" reported a running speed for a pump
+        # that was rule-blocked or manually switched off.
+        active_speed = self.get_active_pump_speed()
 
         if active_speed is not None:
             attributes["pump_speed_level"] = active_speed
@@ -360,7 +345,9 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
 
     def _enrich_heater_attributes(self, attributes: dict[str, Any]) -> None:
         """Add heater-specific attributes: target temp, postrun."""
-        target = self.get_value("HEATER_TARGET_TEMP")
+        # HEATER_TARGET_TEMP is not a key the controller reports; the real
+        # setpoint lives in HEATER_set_temp.
+        target = self.get_value("HEATER_set_temp")
         if target is not None:
             attributes["target_temperature"] = target
         postrun = self.get_value("HEATER_POSTRUN_TIME")
@@ -369,7 +356,8 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
 
     def _enrich_solar_attributes(self, attributes: dict[str, Any]) -> None:
         """Add solar-specific attributes: target temp."""
-        target = self.get_value("SOLAR_TARGET_TEMP")
+        # The controller reports the solar setpoint as SOLAR_maxtemp.
+        target = self.get_value("SOLAR_maxtemp")
         if target is not None:
             attributes["target_temperature"] = target
 
@@ -469,8 +457,9 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             # the switch entity is enabled via allow_unsafe_switches.
             if key in UNSAFE_SWITCH_KEYS and action == ACTION_ON:
                 safety_guard = self._get_safety_guard()
-                if safety_guard is not None:
-                    await safety_guard.enforce(key)
+                config_entry = self.coordinator.config_entry
+                if safety_guard is not None and config_entry is not None:
+                    await safety_guard.enforce(config_entry.entry_id, key)
 
             if key.startswith("DIRULE_"):
                 # Rules are lock-controlled: ON = unlock, OFF = lock.
@@ -557,6 +546,11 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 translation_domain=DOMAIN,
                 translation_placeholders={"detail": str(err)},
             ) from err
+        except HomeAssistantError:
+            # Already a translated, user-facing message - keep it as it is
+            # instead of re-wrapping it as an "unexpected error".
+            self._optimistic_state = None
+            raise
         except Exception as err:
             _LOGGER.error("Unexpected error setting switch %s: %s", key, err)
             self._optimistic_state = None
@@ -701,10 +695,6 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         guard = getattr(manager, "safety_guard", None)
         return guard if isinstance(guard, SafetyGuard) else None
 
-    async def async_added_to_hass(self) -> None:
-        """Called when the entity is added to Home Assistant."""
-        await super().async_added_to_hass()
-
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -741,25 +731,6 @@ async def async_setup_entry(
 
     if coordinator.data is not None:
         _LOGGER.debug("Coordinator data keys: %d", len(coordinator.data.keys()))
-
-        for key in ["PUMP", "SOLAR", "HEATER"]:
-            if key in coordinator.data:
-                try:
-                    value = coordinator.data[key]
-                    try:
-                        state_int = int(float(value)) if value is not None else None
-                    except (ValueError, TypeError):
-                        state_int = None
-                    expected = (
-                        "ON"
-                        if state_int in {1, 3, 4}
-                        else "OFF"
-                        if state_int in {0, 2, 5, 6}
-                        else "UNKNOWN"
-                    )
-                    _LOGGER.debug("%s: raw=%s → %s", key, value, expected)
-                except (ValueError, KeyError, TypeError) as err:
-                    _LOGGER.debug("Diagnostic error for %s: %s", key, err)
     else:
         _LOGGER.warning("Coordinator data is None during switch setup")
 
@@ -815,26 +786,5 @@ async def async_setup_entry(
     if entities:
         async_add_entities(entities)
         _LOGGER.debug("%d switches added", len(entities))
-
-        if coordinator.data is not None:
-            for entity in entities:
-                key = entity.entity_description.key
-                if key in ["PUMP", "SOLAR", "HEATER"] and key in coordinator.data:
-                    try:
-                        raw_state = coordinator.data[key]
-                        should_be_on = entity._get_switch_state()  # type: ignore[attr-defined]
-                        if should_be_on is None:
-                            disp = "UNKNOWN"
-                        else:
-                            disp = "ON" if should_be_on else "OFF"
-
-                        _LOGGER.debug(
-                            "Final check %s: raw=%s → display=%s",
-                            key,
-                            raw_state,
-                            disp,
-                        )
-                    except (ValueError, KeyError, TypeError, AttributeError) as err:
-                        _LOGGER.debug("Final check error for %s: %s", key, err)
     else:
         _LOGGER.warning("No switches were set up")

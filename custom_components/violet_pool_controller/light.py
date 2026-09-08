@@ -61,13 +61,12 @@ class VioletDmxLight(VioletPoolControllerEntity, LightEntity):
     @property
     def is_on(self) -> bool | None:
         """Return True when the DMX scene is active."""
-        raw = self.get_value(self.entity_description.key)
-        if raw is None:
+        # Composite values such as "4|DMX_SCENE_MANUAL" carry the state code in
+        # their leading part.
+        code = self.get_state_code(self.entity_description.key)
+        if code is None:
             return None
-        try:
-            return int(raw) in _DMX_ON_STATES
-        except (ValueError, TypeError):
-            return None
+        return code in _DMX_ON_STATES
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Activate the DMX scene."""
@@ -126,11 +125,6 @@ async def async_setup_entry(
         CONF_ACTIVE_FEATURES, config_entry.data.get(CONF_ACTIVE_FEATURES, [])
     )
 
-    if "led_lighting" not in active_features:
-        _LOGGER.debug("LED lighting feature not enabled; skipping DMX lights")
-        track_provided_entities(hass, config_entry, Platform.LIGHT, [])
-        return
-
     if coordinator.data is None:
         _LOGGER.warning("Coordinator data is None; skipping DMX light setup")
         track_provided_entities(hass, config_entry, Platform.LIGHT, [])
@@ -143,6 +137,15 @@ async def async_setup_entry(
     for light_config in DMX_LIGHTS:
         key = cast(str, light_config["key"])
         if key not in coordinator.data:
+            continue
+
+        # Each scene declares the feature it belongs to ("dmx_scenes"). The
+        # platform used to gate on "led_lighting" instead, so turning the DMX
+        # scenes off left twelve lights in place and turning the pool light off
+        # removed them.
+        feature_id = light_config.get("feature_id")
+        if feature_id and feature_id not in active_features:
+            _LOGGER.debug("Skipping light %s: feature %s not active", key, feature_id)
             continue
 
         if not selection.allows(key):

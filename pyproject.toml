@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "violet-hass"
-version = "2.6.1"
+version = "2.7.0"
 description = "Home Assistant integration + API client for Violet pool controllers"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -12,20 +12,13 @@ license = { text = "AGPL-3.0-or-later" }
 
 [project.optional-dependencies]
 api = ["violet-poolController-api"]
-dev = [
-    "violet-poolController-api[test]",
-    "pytest>=8.3.0",
-    "pytest-asyncio>=0.24.0",
-    "pytest-cov>=6.0.0",
-    "pytest-homeassistant-custom-component>=0.13.1,<0.13.317; python_version < '3.14'",
-    "pytest-homeassistant-custom-component>=0.13.337; python_version >= '3.14'",
-    "ruff>=0.9.0",
-    "mypy>=1.0.0",
-]
+# No "dev" extra on purpose: tox sets `package = skip`, so an extra declared
+# here would never be installed. requirements-dev.txt is the single source of
+# truth for dev-tool version floors.
 
 [tool.ruff]
 line-length = 100
-# Home Assistant 2026.5.x runs on Python 3.14; target its syntax for the integration.
+# Home Assistant 2026.8+ runs on Python 3.14; target its syntax for the integration.
 target-version = "py314"
 
 [tool.ruff.lint]
@@ -38,10 +31,12 @@ ignore = ["E501"]
 "tests/live_*_check.py" = ["T201"]
 
 [tool.mypy]
-# Home Assistant 2026.5.x uses Python 3.14 syntax (e.g. except expressions without
+# Home Assistant 2026.8+ uses Python 3.14 syntax (e.g. except expressions without
 # parentheses). Set the integration check target to 3.14 so mypy can parse HA.
 python_version = "3.14"
-mypy_path = ["../violet-poolController-api"]
+# No mypy_path: the API package is resolved from the installed distribution,
+# which ships py.typed. Pointing mypy at a sibling checkout made CI and local
+# runs type-check different code.
 warn_return_any = true
 disallow_untyped_defs = false
 warn_unused_configs = true

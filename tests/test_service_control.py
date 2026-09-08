@@ -3,12 +3,16 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from violet_poolcontroller_api.api import VioletPoolAPI
 
+from custom_components.violet_pool_controller.runtime_data import VioletRuntimeData
 from custom_components.violet_pool_controller.safety_guard import SafetyGuard
 from custom_components.violet_pool_controller.service_control import (
-    DOSING_INDEX_MAP,
     VioletControlServiceHandlers,
 )
+from custom_components.violet_pool_controller.service_helpers import DOSING_INDEX_MAP
+
+ENTRY_ID = "test_entry"
 
 
 def make_service_call(data: dict) -> MagicMock:
@@ -21,18 +25,25 @@ def make_service_call(data: dict) -> MagicMock:
 def make_coordinator(
     api_return: dict | None = None,
     device_name: str = "Test Pool",
+    entry_id: str = ENTRY_ID,
 ) -> MagicMock:
-    """Create a mock coordinator with a device and API."""
+    """Create a mock coordinator with a device and API.
+
+    The API mock is built with ``spec=VioletPoolAPI`` on purpose: a stop target
+    naming a method the real API does not have must fail the test rather than
+    be silently accepted, which is how the refill auto-stop stayed broken.
+    """
     coordinator = MagicMock()
     coordinator.device = MagicMock()
     coordinator.device.device_name = device_name
     success = api_return or {"success": True}
-    coordinator.device.api = MagicMock()
+    coordinator.device.api = MagicMock(spec=VioletPoolAPI)
     coordinator.device.api.set_switch_state = AsyncMock(return_value=success)
     coordinator.device.api.manual_dosing = AsyncMock(return_value=success)
     coordinator.device.api.set_dosage_enabled = AsyncMock(return_value=success)
-    coordinator.device._api = MagicMock()
     coordinator.async_request_refresh = AsyncMock()
+    coordinator.config_entry = MagicMock()
+    coordinator.config_entry.entry_id = entry_id
     return coordinator
 
 
@@ -55,27 +66,39 @@ def expected_lingering_tasks():
     return True
 
 
-def make_manager_with_safety() -> MagicMock:
-    """Create a mock manager with a real, permissive SafetyGuard.
+def make_manager_with_safety(coordinator: MagicMock | None = None) -> MagicMock:
+    """Create a mock manager with a real SafetyGuard wired to *coordinator*.
 
-    The SafetyGuard uses an in-memory persistence backend and a mock hass
-    whose async_create_background_task schedules eagerly, so the service
-    handlers' enforce/arm/cancel calls work without a running event loop.
+    The guard resolves the controller through the config entry that started
+    the operation, so the mock hass has to answer ``async_get_entry`` with an
+    entry carrying that coordinator's runtime data.
     """
     manager = MagicMock()
     hass = MagicMock()
     hass.data = {}
+
     def mock_create_bg_task(coro, name=None):
         coro.close()
         return MagicMock()
+
     hass.async_create_background_task = mock_create_bg_task
+
+    if coordinator is not None:
+        entry = MagicMock()
+        entry.entry_id = coordinator.config_entry.entry_id
+        entry.runtime_data = VioletRuntimeData(coordinator=coordinator)
+        hass.config_entries.async_get_entry.side_effect = (
+            lambda entry_id: entry if entry_id == entry.entry_id else None
+        )
+        hass.config_entries.async_entries.return_value = [entry]
+    else:
+        hass.config_entries.async_get_entry.return_value = None
+        hass.config_entries.async_entries.return_value = []
+
     manager.hass = hass
     guard = SafetyGuard(hass, _FakePersistence())
     manager.safety_guard = guard
-    # Legacy delegation methods still used by some handlers.
-    manager.check_safety_lock = guard.check_lock
     manager.set_safety_lock = guard.set_lock
-    manager.get_remaining_lock_time = guard.remaining_lock_time
     return manager
 
 
@@ -89,16 +112,19 @@ class TestHandleControlPump:
 
     @pytest.fixture
     def handlers(self):
-        """Create handlers with a mock manager."""
+        coordinator = make_coordinator()
         h = VioletControlServiceHandlers()
-        h.manager = MagicMock()
-        h.hass = MagicMock()
+        h.manager = make_manager_with_safety(coordinator)
+        h.hass = h.manager.hass
+        h.manager.get_coordinators_for_call = AsyncMock(return_value=[coordinator])
+        # The guard resolves the controller through this entry, so tests must
+        # act on the same coordinator the manager was wired to.
+        h.test_coordinator = coordinator
         return h
 
     async def test_speed_control(self, handlers):
         """Speed control action calls set_switch_state with speed."""
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
+        coord = handlers.test_coordinator
 
         await handlers.handle_control_pump(
             make_service_call({"action": "speed_control", "speed": 3, "duration": 0})
@@ -112,8 +138,7 @@ class TestHandleControlPump:
 
     async def test_force_off(self, handlers):
         """Force off action sends PUMP OFF with safe duration."""
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
+        coord = handlers.test_coordinator
 
         await handlers.handle_control_pump(
             make_service_call({"action": "force_off", "duration": 0})
@@ -126,8 +151,7 @@ class TestHandleControlPump:
 
     async def test_eco_mode(self, handlers):
         """Eco mode sets speed to 1."""
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
+        coord = handlers.test_coordinator
 
         await handlers.handle_control_pump(
             make_service_call({"action": "eco_mode", "duration": 300})
@@ -138,8 +162,7 @@ class TestHandleControlPump:
 
     async def test_boost_mode(self, handlers):
         """Boost mode sets speed to 3."""
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
+        coord = handlers.test_coordinator
 
         await handlers.handle_control_pump(
             make_service_call({"action": "boost_mode", "duration": 300})
@@ -150,8 +173,7 @@ class TestHandleControlPump:
 
     async def test_auto_mode(self, handlers):
         """Auto mode sends AUTO action."""
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
+        coord = handlers.test_coordinator
 
         await handlers.handle_control_pump(make_service_call({"action": "auto"}))
 
@@ -187,15 +209,19 @@ class TestHandleSmartDosing:
 
     @pytest.fixture
     def handlers(self):
+        coordinator = make_coordinator()
         h = VioletControlServiceHandlers()
-        h.manager = make_manager_with_safety()
+        h.manager = make_manager_with_safety(coordinator)
         h.hass = h.manager.hass
+        h.manager.get_coordinators_for_call = AsyncMock(return_value=[coordinator])
+        # The guard resolves the controller through this entry, so tests must
+        # act on the same coordinator the manager was wired to.
+        h.test_coordinator = coordinator
         return h
 
     async def test_dosing_ph_minus(self, handlers):
         """pH- manual dosing calls manual_dosing API."""
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
+        coord = handlers.test_coordinator
 
         await handlers.handle_smart_dosing(
             make_service_call(
@@ -212,8 +238,7 @@ class TestHandleSmartDosing:
 
     async def test_dosing_auto(self, handlers):
         """Auto dosing calls set_dosage_enabled."""
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
+        coord = handlers.test_coordinator
 
         await handlers.handle_smart_dosing(
             make_service_call(
@@ -229,8 +254,7 @@ class TestHandleSmartDosing:
 
     async def test_dosing_stop(self, handlers):
         """Stop dosing calls set_switch_state with OFF."""
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
+        coord = handlers.test_coordinator
 
         await handlers.handle_smart_dosing(
             make_service_call(
@@ -250,10 +274,8 @@ class TestHandleSmartDosing:
         """Safety lock prevents dosing."""
         from homeassistant.exceptions import HomeAssistantError
 
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
         # Arm a real cooldown lock on the SafetyGuard.
-        handlers.manager.safety_guard.set_lock("DOS_1_CL", 120)
+        handlers.manager.safety_guard.set_lock(ENTRY_ID, "DOS_1_CL", 120)
 
         with pytest.raises(HomeAssistantError, match="Safety interval"):
             await handlers.handle_smart_dosing(
@@ -268,10 +290,9 @@ class TestHandleSmartDosing:
 
     async def test_safety_override_bypasses_lock(self, handlers):
         """Safety override flag bypasses safety lock."""
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
+        coord = handlers.test_coordinator
         # Arm a lock, but safety_override=True should bypass it.
-        handlers.manager.safety_guard.set_lock("DOS_1_CL", 120)
+        handlers.manager.safety_guard.set_lock(ENTRY_ID, "DOS_1_CL", 120)
 
         await handlers.handle_smart_dosing(
             make_service_call(
@@ -290,8 +311,6 @@ class TestHandleSmartDosing:
         """Unknown dosing type raises HomeAssistantError."""
         from homeassistant.exceptions import HomeAssistantError
 
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
 
         with pytest.raises(HomeAssistantError, match="Unknown dosing type"):
             await handlers.handle_smart_dosing(
@@ -310,15 +329,18 @@ class TestHandleControlExtensionRelay:
 
     @pytest.fixture
     def handlers(self):
+        coordinator = make_coordinator()
         h = VioletControlServiceHandlers()
-        h.manager = MagicMock()
-        h.hass = MagicMock()
+        h.manager = make_manager_with_safety(coordinator)
+        h.hass = h.manager.hass
+        h.manager.get_coordinators_for_call = AsyncMock(return_value=[coordinator])
+        # The guard resolves the controller through this entry, so tests must
+        # act on the same coordinator the manager was wired to.
+        h.test_coordinator = coordinator
         return h
 
     async def test_relay_on(self, handlers):
         """Turning relay on sends state 4 (manual on)."""
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
 
         with patch(
             "custom_components.violet_pool_controller.service_mixins.extension.VioletControlClient"
@@ -343,8 +365,6 @@ class TestHandleControlExtensionRelay:
 
     async def test_relay_off(self, handlers):
         """Turning relay off sends state 6 (manual off)."""
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
 
         with patch(
             "custom_components.violet_pool_controller.service_mixins.extension.VioletControlClient"
@@ -370,8 +390,6 @@ class TestHandleControlExtensionRelay:
         """Relay ID > 8 raises HomeAssistantError."""
         from homeassistant.exceptions import HomeAssistantError
 
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
 
         with pytest.raises(HomeAssistantError, match="1-8"):
             await handlers.handle_control_extension_relay(
@@ -382,8 +400,6 @@ class TestHandleControlExtensionRelay:
         """Relay ID < 1 raises HomeAssistantError."""
         from homeassistant.exceptions import HomeAssistantError
 
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
 
         with pytest.raises(HomeAssistantError, match="1-8"):
             await handlers.handle_control_extension_relay(
@@ -392,8 +408,6 @@ class TestHandleControlExtensionRelay:
 
     async def test_relay_explicit_state(self, handlers):
         """Explicit state value is passed through."""
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
 
         with patch(
             "custom_components.violet_pool_controller.service_mixins.extension.VioletControlClient"
@@ -421,16 +435,18 @@ class TestHandleControlPumpHttp:
 
     @pytest.fixture
     def handlers(self):
+        coordinator = make_coordinator()
         h = VioletControlServiceHandlers()
-        h.manager = MagicMock()
-        h.hass = MagicMock()
-        h.hass.async_create_background_task = MagicMock(side_effect=close_background_coroutine)
+        h.manager = make_manager_with_safety(coordinator)
+        h.hass = h.manager.hass
+        h.manager.get_coordinators_for_call = AsyncMock(return_value=[coordinator])
+        # The guard resolves the controller through this entry, so tests must
+        # act on the same coordinator the manager was wired to.
+        h.test_coordinator = coordinator
         return h
 
     async def test_pump_on(self, handlers):
         """Pump on via HTTP sends PUMP ON command."""
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
 
         with patch(
             "custom_components.violet_pool_controller.service_mixins.pump.VioletControlClient"
@@ -444,8 +460,6 @@ class TestHandleControlPumpHttp:
 
     async def test_pump_off(self, handlers):
         """Pump off via HTTP sends PUMP OFF command."""
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
 
         with patch(
             "custom_components.violet_pool_controller.service_mixins.pump.VioletControlClient"
@@ -463,15 +477,18 @@ class TestHandleManualDosingHttp:
 
     @pytest.fixture
     def handlers(self):
+        coordinator = make_coordinator()
         h = VioletControlServiceHandlers()
-        h.manager = make_manager_with_safety()
+        h.manager = make_manager_with_safety(coordinator)
         h.hass = h.manager.hass
+        h.manager.get_coordinators_for_call = AsyncMock(return_value=[coordinator])
+        # The guard resolves the controller through this entry, so tests must
+        # act on the same coordinator the manager was wired to.
+        h.test_coordinator = coordinator
         return h
 
     async def test_dosing_chlorine(self, handlers):
         """Chlorine dosing uses index 0."""
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
 
         with patch(
             "custom_components.violet_pool_controller.service_mixins.dosing.VioletControlClient"
@@ -496,8 +513,6 @@ class TestHandleManualDosingHttp:
         """Unknown dosing system raises HomeAssistantError."""
         from homeassistant.exceptions import HomeAssistantError
 
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
 
         with pytest.raises(HomeAssistantError, match="Unknown dosing system"):
             await handlers.handle_manual_dosing_http(
@@ -538,14 +553,17 @@ class TestHandleControlHeaterHttp:
 
     @pytest.fixture
     def handlers(self):
+        coordinator = make_coordinator()
         h = VioletControlServiceHandlers()
-        h.manager = MagicMock()
-        h.hass = MagicMock()
+        h.manager = make_manager_with_safety(coordinator)
+        h.hass = h.manager.hass
+        h.manager.get_coordinators_for_call = AsyncMock(return_value=[coordinator])
+        # The guard resolves the controller through this entry, so tests must
+        # act on the same coordinator the manager was wired to.
+        h.test_coordinator = coordinator
         return h
 
     async def test_heater_on(self, handlers):
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
         with patch(
             "custom_components.violet_pool_controller.service_mixins.climate.VioletControlClient"
         ) as cls:
@@ -558,8 +576,6 @@ class TestHandleControlHeaterHttp:
             cls.return_value.set_config.assert_awaited_once()
 
     async def test_heater_off(self, handlers):
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
         with patch(
             "custom_components.violet_pool_controller.service_mixins.climate.VioletControlClient"
         ) as cls:
@@ -573,14 +589,17 @@ class TestHandleControlSolarHttp:
 
     @pytest.fixture
     def handlers(self):
+        coordinator = make_coordinator()
         h = VioletControlServiceHandlers()
-        h.manager = MagicMock()
-        h.hass = MagicMock()
+        h.manager = make_manager_with_safety(coordinator)
+        h.hass = h.manager.hass
+        h.manager.get_coordinators_for_call = AsyncMock(return_value=[coordinator])
+        # The guard resolves the controller through this entry, so tests must
+        # act on the same coordinator the manager was wired to.
+        h.test_coordinator = coordinator
         return h
 
     async def test_solar_on(self, handlers):
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
         with patch(
             "custom_components.violet_pool_controller.service_mixins.climate.VioletControlClient"
         ) as cls:
@@ -589,8 +608,6 @@ class TestHandleControlSolarHttp:
             cls.return_value.set_solar_on.assert_awaited_once()
 
     async def test_solar_off(self, handlers):
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
         with patch(
             "custom_components.violet_pool_controller.service_mixins.climate.VioletControlClient"
         ) as cls:
@@ -604,9 +621,14 @@ class TestHandleControlCoverHttp:
 
     @pytest.fixture
     def handlers(self):
+        coordinator = make_coordinator()
         h = VioletControlServiceHandlers()
-        h.manager = MagicMock()
-        h.hass = MagicMock()
+        h.manager = make_manager_with_safety(coordinator)
+        h.hass = h.manager.hass
+        h.manager.get_coordinators_for_call = AsyncMock(return_value=[coordinator])
+        # The guard resolves the controller through this entry, so tests must
+        # act on the same coordinator the manager was wired to.
+        h.test_coordinator = coordinator
         return h
 
     @pytest.mark.parametrize(
@@ -618,8 +640,6 @@ class TestHandleControlCoverHttp:
         ],
     )
     async def test_cover_actions(self, handlers, action, method):
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
         with patch(
             "custom_components.violet_pool_controller.service_mixins.cover.VioletControlClient"
         ) as cls:
@@ -633,42 +653,45 @@ class TestHandleControlBackwashHttp:
 
     @pytest.fixture
     def handlers(self):
+        coordinator = make_coordinator()
         h = VioletControlServiceHandlers()
-        h.manager = make_manager_with_safety()
+        h.manager = make_manager_with_safety(coordinator)
         h.hass = h.manager.hass
+        h.manager.get_coordinators_for_call = AsyncMock(return_value=[coordinator])
+        # The guard resolves the controller through this entry, so tests must
+        # act on the same coordinator the manager was wired to.
+        h.test_coordinator = coordinator
         return h
 
     async def test_backwash_abort(self, handlers):
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
-        with patch(
-            "custom_components.violet_pool_controller.service_mixins.pump.VioletControlClient"
-        ) as cls:
-            cls.return_value.set_backwash_abort = AsyncMock(return_value=True)
-            await handlers.handle_control_backwash_http(make_service_call({"action": "abort"}))
-            cls.return_value.set_backwash_abort.assert_awaited_once()
+        coord = handlers.test_coordinator
+
+        await handlers.handle_control_backwash_http(make_service_call({"action": "abort"}))
+
+        coord.device.api.set_switch_state.assert_awaited_once_with("BACKWASH", "OFF")
 
     async def test_backwash_run_requires_duration(self, handlers):
         """Run action requires duration_seconds for safety."""
         from homeassistant.exceptions import HomeAssistantError
 
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
         with pytest.raises(HomeAssistantError, match="duration is required"):
             await handlers.handle_control_backwash_http(make_service_call({"action": "run"}))
 
-    async def test_backwash_run_with_duration(self, handlers):
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
-        with patch(
-            "custom_components.violet_pool_controller.service_mixins.pump.VioletControlClient"
-        ) as cls:
-            cls.return_value.set_backwash_run = AsyncMock(return_value=True)
-            cls.return_value.set_backwash_abort = AsyncMock(return_value=True)
-            await handlers.handle_control_backwash_http(
-                make_service_call({"action": "run", "duration_seconds": 120})
-            )
-            cls.return_value.set_backwash_run.assert_awaited_once()
+    async def test_backwash_run_passes_the_duration_to_the_controller(self, handlers):
+        """The controller has to carry the timeout, not only Home Assistant.
+
+        The start command used to be sent without a duration, so the whole
+        safety timeout depended on Home Assistant still being alive.
+        """
+        coord = handlers.test_coordinator
+
+        await handlers.handle_control_backwash_http(
+            make_service_call({"action": "run", "duration_seconds": 120})
+        )
+
+        coord.device.api.set_switch_state.assert_awaited_once_with(
+            "BACKWASH", "ON", duration=120
+        )
 
 
 class TestHandleControlRefillHttp:
@@ -676,41 +699,54 @@ class TestHandleControlRefillHttp:
 
     @pytest.fixture
     def handlers(self):
+        coordinator = make_coordinator()
         h = VioletControlServiceHandlers()
-        h.manager = make_manager_with_safety()
+        h.manager = make_manager_with_safety(coordinator)
         h.hass = h.manager.hass
+        h.manager.get_coordinators_for_call = AsyncMock(return_value=[coordinator])
+        # The guard resolves the controller through this entry, so tests must
+        # act on the same coordinator the manager was wired to.
+        h.test_coordinator = coordinator
         return h
 
     async def test_refill_stop(self, handlers):
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
-        with patch(
-            "custom_components.violet_pool_controller.service_mixins.cover.VioletControlClient"
-        ) as cls:
-            cls.return_value.set_function_manually = AsyncMock(return_value=True)
-            await handlers.handle_control_refill_http(make_service_call({"action": "stop"}))
-            cls.return_value.set_function_manually.assert_awaited_once()
+        coord = handlers.test_coordinator
+
+        await handlers.handle_control_refill_http(make_service_call({"action": "stop"}))
+
+        coord.device.api.set_switch_state.assert_awaited_once_with("REFILL", "OFF")
 
     async def test_refill_fill_requires_duration(self, handlers):
         """Fill action requires duration_seconds for safety."""
         from homeassistant.exceptions import HomeAssistantError
 
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
         with pytest.raises(HomeAssistantError, match="duration_seconds"):
             await handlers.handle_control_refill_http(make_service_call({"action": "fill"}))
 
-    async def test_refill_fill_with_duration(self, handlers):
-        coord = make_coordinator()
-        handlers.manager.get_coordinators_for_call = AsyncMock(return_value=[coord])
-        with patch(
-            "custom_components.violet_pool_controller.service_mixins.cover.VioletControlClient"
-        ) as cls:
-            cls.return_value.set_function_manually = AsyncMock(return_value=True)
-            await handlers.handle_control_refill_http(
-                make_service_call({"action": "fill", "duration_seconds": 60})
-            )
-            cls.return_value.set_function_manually.assert_awaited_once()
+    async def test_refill_fill_passes_the_duration_to_the_controller(self, handlers):
+        """The valve must close on its own if Home Assistant dies mid-refill.
+
+        The start command used to be sent without a duration, so the only
+        thing that would ever have closed it was an HA-side timer whose stop
+        command named a method the controller API does not have.
+        """
+        coord = handlers.test_coordinator
+
+        await handlers.handle_control_refill_http(
+            make_service_call({"action": "fill", "duration_seconds": 60})
+        )
+
+        coord.device.api.set_switch_state.assert_awaited_once_with("REFILL", "ON", duration=60)
+
+    async def test_refill_arms_a_stop_the_api_can_actually_dispatch(self, handlers):
+        """The persisted auto-stop must name a real method on the API."""
+        await handlers.handle_control_refill_http(
+            make_service_call({"action": "fill", "duration_seconds": 60})
+        )
+
+        stored = (await handlers.manager.safety_guard._persistence.async_load())["auto_stops"]
+        target = stored[f"{ENTRY_ID}::REFILL"]["stop_target"]
+        assert callable(getattr(handlers.test_coordinator.device.api, target["method"], None))
 
 
 class TestHandleManagePvSurplus:
@@ -718,9 +754,14 @@ class TestHandleManagePvSurplus:
 
     @pytest.fixture
     def handlers(self):
+        coordinator = make_coordinator()
         h = VioletControlServiceHandlers()
-        h.manager = MagicMock()
-        h.hass = MagicMock()
+        h.manager = make_manager_with_safety(coordinator)
+        h.hass = h.manager.hass
+        h.manager.get_coordinators_for_call = AsyncMock(return_value=[coordinator])
+        # The guard resolves the controller through this entry, so tests must
+        # act on the same coordinator the manager was wired to.
+        h.test_coordinator = coordinator
         return h
 
     async def test_activate(self, handlers):

@@ -23,8 +23,9 @@ from homeassistant.components.climate import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform, UnitOfTemperature
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from violet_poolcontroller_api import SETPOINT_RANGES
 from violet_poolcontroller_api.api import VioletPoolAPIError
 
 from .const import ACTION_AUTO, ACTION_OFF, ACTION_ON, CONF_ACTIVE_FEATURES, DOMAIN
@@ -33,49 +34,63 @@ from .device import VioletPoolDataUpdateCoordinator
 from .entity import VioletPoolControllerEntity
 from .entity_cleanup import track_provided_entities
 from .entity_names import EntityNameResolver
+from .state_constants import (
+    STATE_AUTO_ACTIVE,
+    STATE_AUTO_PRIORITY_OFF,
+    STATE_AUTO_PRIORITY_ON,
+    STATE_AUTO_STANDBY,
+    STATE_EMERGENCY_OFF,
+    STATE_MANUAL_OFF,
+    STATE_MANUAL_ON,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
 # Coordinator-based platforms; HA should not throttle entity state writes
 PARALLEL_UPDATES = 0
 
-# State Constants
-STATE_OFF = 0
-STATE_AUTO_HEATING = 1
-STATE_AUTO_IDLE = 2
-STATE_AUTO_ACTIVE = 3
-STATE_MANUAL_ON = 4
-STATE_AUTO_OFF = 5
-STATE_MANUAL_OFF = 6
+# Temperature limits.
+#
+# The bounds come from the API package, which mirrors what the controller
+# accepts per setpoint key. Declaring a narrower range here made the entity
+# refuse writes the hardware would have taken and, worse, report a fabricated
+# 28 °C whenever the controller's real setpoint fell outside it.
+_RANGE_KEY_BY_TYPE = {"HEATER": "HEATER_set_temp", "SOLAR": "SOLAR_maxtemp"}
+_FALLBACK_RANGE = (5.0, 45.0)
 
-# Temperature limits
-DEFAULT_MIN_TEMP = 20.0
-DEFAULT_MAX_TEMP = 35.0
-# Solar absorbers go up to 40 °C, matching the solar_setpoint number entity
-SOLAR_MAX_TEMP = 40.0
-DEFAULT_TARGET_TEMP = 28.0
+
+def temperature_range(climate_type: str) -> tuple[float, float]:
+    """Return the (min, max) setpoint the controller accepts for a climate type."""
+    low, high = SETPOINT_RANGES.get(
+        _RANGE_KEY_BY_TYPE.get(climate_type, ""), _FALLBACK_RANGE
+    )
+    return float(low), float(high)
+
+
+DEFAULT_MIN_TEMP, DEFAULT_MAX_TEMP = temperature_range("HEATER")
+SOLAR_MIN_TEMP, SOLAR_MAX_TEMP = temperature_range("SOLAR")
 TEMP_STEP = 0.5
 
 REFRESH_DELAY = 0.3
 
-# HVAC Mode Mapping
+# HVAC Mode Mapping (state codes per state_constants / DEVICE_STATE_MAPPING)
 HEATER_HVAC_MODES = {
-    STATE_OFF: HVACMode.AUTO,
-    STATE_AUTO_HEATING: HVACMode.AUTO,
-    STATE_AUTO_IDLE: HVACMode.AUTO,
+    STATE_AUTO_STANDBY: HVACMode.AUTO,
     STATE_AUTO_ACTIVE: HVACMode.AUTO,
+    STATE_AUTO_PRIORITY_OFF: HVACMode.AUTO,
+    STATE_AUTO_PRIORITY_ON: HVACMode.AUTO,
     STATE_MANUAL_ON: HVACMode.HEAT,
-    STATE_AUTO_OFF: HVACMode.AUTO,
+    STATE_EMERGENCY_OFF: HVACMode.AUTO,
     STATE_MANUAL_OFF: HVACMode.OFF,
 }
 
 HEATER_HVAC_ACTIONS = {
-    STATE_OFF: HVACAction.IDLE,
-    STATE_AUTO_HEATING: HVACAction.HEATING,
-    STATE_AUTO_IDLE: HVACAction.IDLE,
+    STATE_AUTO_STANDBY: HVACAction.IDLE,
     STATE_AUTO_ACTIVE: HVACAction.HEATING,
+    STATE_AUTO_PRIORITY_OFF: HVACAction.IDLE,
+    STATE_AUTO_PRIORITY_ON: HVACAction.HEATING,
     STATE_MANUAL_ON: HVACAction.HEATING,
-    STATE_AUTO_OFF: HVACAction.IDLE,
+    STATE_EMERGENCY_OFF: HVACAction.IDLE,
     STATE_MANUAL_OFF: HVACAction.OFF,
 }
 
@@ -170,10 +185,8 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         super().__init__(coordinator, config_entry, climate_description)
         self.climate_type = climate_type
 
-        # Solar absorbers allow up to 40 °C (matches the solar_setpoint
-        # number entity); heaters stay at the 35 °C default
-        if climate_type == "SOLAR":
-            self._attr_max_temp = SOLAR_MAX_TEMP
+        # Each climate type has its own accepted range on the controller.
+        self._attr_min_temp, self._attr_max_temp = temperature_range(climate_type)
 
         # FIXED: Local cache variables for optimistic updates
         self._optimistic_target_temp: float | None = None
@@ -183,16 +196,22 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         self._attr_hvac_mode = self._get_hvac_mode()
 
         _LOGGER.debug(
-            "%s initialized: target=%.1f°C, mode=%s",
+            "%s initialized: target=%s°C, mode=%s",
             name,
             self._attr_target_temperature,
             self._attr_hvac_mode,
         )
 
-    def _get_target_temperature(self) -> float:
-        """Return the target temperature."""
-        # Check coordinator setpoint cache first (populated immediately after writes)
+    def _get_target_temperature(self) -> float | None:
+        """Return the target temperature the controller actually holds.
+
+        Never fabricates a value: an unknown setpoint is reported as unknown
+        rather than as a plausible-looking default, which used to make the
+        thermostat claim 28 °C for a controller set to anything else.
+        """
         possible_keys = _get_setpoint_fields_for_climate_type(self.climate_type)
+
+        # Check coordinator setpoint cache first (populated immediately after writes)
         for key in possible_keys:
             if key in self.coordinator._setpoint_cache:
                 return self.coordinator._setpoint_cache[key]
@@ -201,18 +220,9 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         if self._optimistic_target_temp is not None:
             return self._optimistic_target_temp
 
-        # None-check before data access
         if self.coordinator.data is None:
-            _LOGGER.debug(
-                "Coordinator data is None - returning default target %.1f°C",
-                DEFAULT_TARGET_TEMP,
-            )
-            return DEFAULT_TARGET_TEMP
+            return None
 
-        # Get all possible field names from SETPOINT_DEFINITIONS for this climate type
-        possible_keys = _get_setpoint_fields_for_climate_type(self.climate_type)
-
-        target = None
         for key in possible_keys:
             target = self.get_float_value(key, None)
             if target is not None:
@@ -222,30 +232,13 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                     key,
                     target,
                 )
-                break
+                return target
 
-        # Use default if no value found
-        if target is None:
-            _LOGGER.debug(
-                "%s target temperature not found in any field, using default %.1f°C",
-                self.climate_type,
-                DEFAULT_TARGET_TEMP,
-            )
-            target = DEFAULT_TARGET_TEMP
-
-        # Validate temperature range
-        min_temp, max_temp = _get_temp_limits(self)
-        if not min_temp <= target <= max_temp:
-            _LOGGER.warning(
-                "Target temperature %.1f°C out of range (%.1f-%.1f°C), using %.1f°C",
-                target,
-                min_temp,
-                max_temp,
-                DEFAULT_TARGET_TEMP,
-            )
-            return DEFAULT_TARGET_TEMP
-
-        return target
+        _LOGGER.debug(
+            "%s target temperature not reported by the controller",
+            self.climate_type,
+        )
+        return None
 
     def _get_hvac_mode(self) -> HVACMode:
         """Return the current HVAC mode."""
@@ -257,7 +250,12 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             _LOGGER.debug("Coordinator data is None - returning OFF mode")
             return HVACMode.OFF
 
-        state = self.get_int_value(self.climate_type, STATE_OFF) or STATE_OFF
+        # Composite states such as "3|PUMP_ANTI_FREEZE" carry the code in
+        # their leading part; reading them as plain ints reported AUTO for a
+        # heater that was actively running.
+        state = self.get_state_code(self.climate_type)
+        if state is None:
+            return HVACMode.OFF
         mode = HEATER_HVAC_MODES.get(state, HVACMode.OFF)
 
         _LOGGER.debug("%s State %d → HVAC Mode %s", self.climate_type, state, mode)
@@ -275,7 +273,9 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             _LOGGER.debug("Coordinator data is None - returning IDLE action")
             return HVACAction.IDLE
 
-        state = self.get_int_value(self.climate_type, STATE_OFF) or STATE_OFF
+        state = self.get_state_code(self.climate_type)
+        if state is None:
+            return HVACAction.IDLE
         action = HEATER_HVAC_ACTIONS.get(state, HVACAction.IDLE)
 
         _LOGGER.debug("%s State %d → HVAC Action %s", self.climate_type, state, action)
@@ -311,12 +311,16 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                 "note": "Coordinator data not available",
             }
 
-        state = self.get_int_value(self.climate_type, STATE_OFF)
+        state = self.get_state_code(self.climate_type)
 
         attributes: dict[str, Any] = {
             "raw_state": state,
-            "hvac_mode_from_state": HEATER_HVAC_MODES.get(state or STATE_OFF, "unknown"),
-            "hvac_action_from_state": HEATER_HVAC_ACTIONS.get(state or STATE_OFF, "unknown"),
+            "hvac_mode_from_state": HEATER_HVAC_MODES.get(state, "unknown")
+            if state is not None
+            else "unknown",
+            "hvac_action_from_state": HEATER_HVAC_ACTIONS.get(state, "unknown")
+            if state is not None
+            else "unknown",
         }
 
         # Show optimistic cache status
@@ -338,8 +342,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
             _LOGGER.warning("No temperature provided in kwargs")
             return
 
-        if not self._validate_temperature(temperature):
-            return
+        self._validate_temperature(temperature)
 
         possible_keys = _get_setpoint_fields_for_climate_type(self.climate_type)
         try:
@@ -385,6 +388,10 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                 translation_domain=DOMAIN,
                 translation_placeholders={"detail": str(err)},
             ) from err
+        except HomeAssistantError:
+            # Already a translated, user-facing message - keep it as it is
+            # instead of re-wrapping it as an "unexpected error".
+            raise
         except Exception as err:
             _LOGGER.error("Unexpected error: %s", err)
             raise HomeAssistantError(
@@ -446,6 +453,9 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                 translation_domain=DOMAIN,
                 translation_placeholders={"detail": str(err)},
             ) from err
+        except HomeAssistantError:
+            # Already a translated, user-facing message - keep it as it is.
+            raise
         except Exception as err:
             _LOGGER.error("Unexpected error: %s", err)
             raise HomeAssistantError(
@@ -454,27 +464,23 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                 translation_placeholders={"detail": str(err)},
             ) from err
 
-    def _validate_temperature(self, temperature: float) -> bool:
-        """Validate temperature is within the allowed range."""
+    def _validate_temperature(self, temperature: float) -> None:
+        """Reject a setpoint the controller would not accept.
+
+        Silently dropping the write left the UI showing a value that was never
+        sent; the user gets a proper error instead.
+        """
         min_temp, max_temp = _get_temp_limits(self)
         if not min_temp <= temperature <= max_temp:
-            _LOGGER.warning(
-                "Temperature %.1f°C outside allowed range (%.1f-%.1f°C)",
-                temperature,
-                min_temp,
-                max_temp,
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="value_out_of_range",
+                translation_placeholders={
+                    "value": str(temperature),
+                    "min": str(min_temp),
+                    "max": str(max_temp),
+                },
             )
-            return False
-        return True
-
-    def _get_expected_state(self, action: str) -> int:
-        """Return the expected state for a given action."""
-        action_state_map = {
-            ACTION_ON: STATE_MANUAL_ON,
-            ACTION_OFF: STATE_MANUAL_OFF,
-            ACTION_AUTO: STATE_AUTO_IDLE,
-        }
-        return action_state_map.get(action, STATE_OFF)
 
     async def _delayed_refresh(self) -> None:
         """Perform a delayed coordinator refresh and clear optimistic cache."""
@@ -487,7 +493,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                     "State after refresh: %s=%s, target=%s",
                     self.climate_type,
                     self.coordinator.data.get(self.climate_type, "UNKNOWN"),
-                    self.coordinator.data.get(f"{self.climate_type}_TARGET_TEMP", "UNKNOWN"),
+                    self._get_target_temperature(),
                 )
         finally:
             # Always clear optimistic caches — even on CancelledError during HA reload
@@ -501,21 +507,6 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                     old_temp,
                     old_mode,
                 )
-
-    def _handle_refresh_error(self, task: asyncio.Task) -> None:
-        """
-        Handle errors in the refresh task.
-
-        Args:
-            task: The task object.
-        """
-        try:
-            if not task.cancelled():
-                exc = task.exception()
-                if exc is not None:
-                    _LOGGER.debug("Refresh task failed for %s: %s", self.climate_type, exc)
-        except (asyncio.CancelledError, asyncio.InvalidStateError):
-            pass  # Normal during HA reload, no log needed
 
 
 async def async_setup_entry(

@@ -1,0 +1,146 @@
+"""Parity between strings.json, the translation files and the keys code uses.
+
+Home Assistant loads a custom integration's UI strings from
+``translations/<lang>.json``; ``strings.json`` is the source the English file is
+generated from, so for a custom integration the two must be identical.  Every
+other language file is expected to carry the same key set - a key the file does
+not define falls back to English silently, which is exactly how "teilweise noch
+englisch bei deutscher HA" was reported on the forum.
+
+The code-side checks are deliberately asymmetric: a ``translation_key`` used in
+Python but missing from ``strings.json`` is a user-visible bug (Home Assistant
+renders the raw key), while a key defined in ``strings.json`` that no code path
+uses yet is only dead weight and is tolerated.
+"""
+
+from __future__ import annotations
+
+import ast
+import json
+from pathlib import Path
+
+import pytest
+
+COMPONENT_DIR = Path(__file__).parent.parent / "custom_components" / "violet_pool_controller"
+TRANSLATIONS_DIR = COMPONENT_DIR / "translations"
+
+# Modules whose ``translation_key=`` arguments name an entity of that platform.
+PLATFORM_MODULES = {
+    "binary_sensor.py": "binary_sensor",
+    "button.py": "button",
+    "climate.py": "climate",
+    "cover.py": "cover",
+    "light.py": "light",
+    "number.py": "number",
+    "select.py": "select",
+    "sensor.py": "sensor",
+    "switch.py": "switch",
+    "update.py": "update",
+}
+
+# Calls whose ``translation_key=`` names an entry outside ``entity.*``.
+EXCEPTION_CALLS = frozenset(
+    {
+        "HomeAssistantError",
+        "ServiceValidationError",
+        "ConfigEntryAuthFailed",
+        "ConfigEntryError",
+        "ConfigEntryNotReady",
+        "PlatformNotReady",
+    }
+)
+ISSUE_CALLS = frozenset({"async_create_issue", "async_create_repair_issue"})
+
+
+def _load(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _flatten(obj: object, prefix: str = "") -> set[str]:
+    """Return every dotted key path in a nested mapping."""
+    found: set[str] = set()
+    if isinstance(obj, dict):
+        for key, value in obj.items():
+            path = f"{prefix}.{key}" if prefix else str(key)
+            found.add(path)
+            found |= _flatten(value, path)
+    return found
+
+
+STRINGS = _load(COMPONENT_DIR / "strings.json")
+ENGLISH = _load(TRANSLATIONS_DIR / "en.json")
+LANGUAGE_FILES = sorted(p for p in TRANSLATIONS_DIR.glob("*.json") if p.stem != "en")
+
+
+def test_strings_json_matches_english_translation() -> None:
+    """strings.json and translations/en.json describe the same keys."""
+    missing = _flatten(STRINGS) - _flatten(ENGLISH)
+    extra = _flatten(ENGLISH) - _flatten(STRINGS)
+    assert not missing, f"in strings.json but not en.json: {sorted(missing)[:20]}"
+    assert not extra, f"in en.json but not strings.json: {sorted(extra)[:20]}"
+
+
+@pytest.mark.parametrize("path", LANGUAGE_FILES, ids=lambda p: p.name)
+def test_language_file_has_the_english_key_set(path: Path) -> None:
+    """Every language defines the same keys as English."""
+    keys = _flatten(_load(path))
+    english = _flatten(ENGLISH)
+    missing = english - keys
+    extra = keys - english
+    assert not missing, f"{path.name} is missing: {sorted(missing)[:20]}"
+    assert not extra, f"{path.name} carries stale keys: {sorted(extra)[:20]}"
+
+
+def _collect_translation_keys() -> tuple[set[str], set[tuple[str, str]]]:
+    """Return the exception keys and (platform, key) pairs the code uses."""
+    exception_keys: set[str] = set()
+    entity_keys: set[tuple[str, str]] = set()
+
+    for source in sorted(COMPONENT_DIR.rglob("*.py")):
+        platform = PLATFORM_MODULES.get(source.name)
+        tree = ast.parse(source.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            keyword = next(
+                (
+                    kw
+                    for kw in node.keywords
+                    if kw.arg == "translation_key"
+                    and isinstance(kw.value, ast.Constant)
+                    and isinstance(kw.value.value, str)
+                ),
+                None,
+            )
+            if keyword is None:
+                continue
+            value = keyword.value.value  # type: ignore[union-attr]
+            func = node.func
+            name = func.attr if isinstance(func, ast.Attribute) else getattr(func, "id", "")
+            if name in EXCEPTION_CALLS:
+                exception_keys.add(value)
+            elif name in ISSUE_CALLS:
+                continue
+            elif platform is not None:
+                entity_keys.add((platform, value))
+    return exception_keys, entity_keys
+
+
+CODE_EXCEPTION_KEYS, CODE_ENTITY_KEYS = _collect_translation_keys()
+
+
+def test_every_raised_exception_key_is_translated() -> None:
+    """``raise ...Error(translation_key=...)`` needs an ``exceptions`` entry."""
+    defined = set(STRINGS.get("exceptions", {}))
+    missing = CODE_EXCEPTION_KEYS - defined
+    assert not missing, f"exceptions.* missing from strings.json: {sorted(missing)}"
+
+
+def test_every_entity_translation_key_is_translated() -> None:
+    """A literal entity ``translation_key`` must exist under its platform."""
+    missing = {
+        f"entity.{platform}.{key}"
+        for platform, key in CODE_ENTITY_KEYS
+        if key not in STRINGS.get("entity", {}).get(platform, {})
+    }
+    assert not missing, f"missing from strings.json: {sorted(missing)}"

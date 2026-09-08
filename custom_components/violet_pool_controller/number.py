@@ -28,6 +28,11 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from violet_poolcontroller_api.api import VioletPoolAPIError
+from violet_poolcontroller_api.const_api import (
+    TARGET_MIN_CHLORINE,
+    TARGET_ORP,
+    TARGET_PH,
+)
 from violet_poolcontroller_api.utils_sanitizer import InputSanitizer
 
 from .const import (
@@ -53,7 +58,9 @@ _LOGGER = logging.getLogger(__name__)
 # Coordinator-based platforms; HA should not throttle entity state writes
 PARALLEL_UPDATES = 0
 
-PUMP_SPEED_LEVELS = range(1, 5)
+# The getConfig keys behind the two climate setpoints, mirroring what
+# VioletPoolAPI.set_device_temperature writes.
+CLIMATE_CONFIG_KEYS = {"HEATER": "HEATER_set_temp", "SOLAR": "SOLAR_maxtemp"}
 
 
 class VioletNumber(VioletPoolControllerEntity, NumberEntity):
@@ -85,7 +92,6 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
 
         self._setpoint_fields = setpoint_config["setpoint_fields"]
         self._indicator_fields = setpoint_config["indicator_fields"]
-        self._default_value = setpoint_config["default_value"]
         self._api_key = setpoint_config["api_key"]
         # Config key holding this setpoint when the pool doses via electrolysis
         # instead of a chlorine pump (see dosing_channel.py).
@@ -129,34 +135,25 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
         """
         Return the current setpoint value.
 
-        Tries to read the value from various possible fields.
-        If no value is found, returns the default value.
+        Tries to read the value from every field the controller may hold it in.
+        When none of them carries a value the setpoint is unknown - it is never
+        replaced by a plausible-looking default, because a fabricated pH of 7.2
+        or an ORP of 700 mV is indistinguishable from a real reading.
 
         Returns:
-            The current setpoint or default value.
+            The current setpoint, or None when the controller reports none.
         """
         if self._optimistic_value is not None:
             return self._optimistic_value
 
-        # Special case: pump speed — determine active level from PUMP_RPM_{i}
-        # PUMP_RPM_{i} returns status codes (0-6); 1, 3 and 4 mean output ON
-        # (2 = rule-blocked OFF). PUMP_RPM_0 is the PUMP_STOP output and lies
-        # below this entity's min value of 1, so start at level 1.
+        # Special case: pump speed - determine the active level from the
+        # PUMP_RPM_{i} state codes (0-6); PUMP_RPM_0 is the PUMP_STOP output
+        # and lies below this entity's min value of 1.
         if self._api_key == "PUMP_SPEED":
-            for level in PUMP_SPEED_LEVELS:
-                rpm_val = self.get_value(f"PUMP_RPM_{level}")
-                if rpm_val is not None:
-                    try:
-                        if int(rpm_val) in (1, 3, 4):  # status code = ON
-                            _LOGGER.debug(
-                                "Pump speed active: level %d (PUMP_RPM_%d=%s)",
-                                level,
-                                level,
-                                rpm_val,
-                            )
-                            return float(level)
-                    except (ValueError, TypeError):
-                        pass
+            level = self.get_active_pump_speed()
+            if level:
+                _LOGGER.debug("Pump speed active: level %d", level)
+                return float(level)
 
         # An electrolysis pool stores the setpoint in its own channel; the
         # chlorine keys still exist but hold a value nobody maintains.
@@ -183,50 +180,22 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                     )
                     return value
 
-        # Fallback to default value
         _LOGGER.debug(
-            "No setpoint found for %s, using default: %.2f",
+            "No setpoint reported by the controller for %s",
             self.entity_description.name,
-            self._default_value,
         )
-        try:
-            return float(self._default_value)
-        except (ValueError, TypeError):
-            _LOGGER.debug(
-                "Invalid default value for %s: %s, falling back to 0.0",
-                self.entity_description.name,
-                self._default_value,
-            )
-            return 0.0
+        return None
 
     @property
     def available(self) -> bool:
         """
         Check if the entity is available.
 
-        Entity is available if at least one indicator field
-        is present in the coordinator data.
-
         Returns:
             True if available, False otherwise.
         """
         if self.coordinator.data is None:
             return False
-
-        if self._indicator_fields:
-            for field in self._indicator_fields:
-                if field in self.coordinator.data:
-                    _LOGGER.debug(
-                        "Entity %s available (indicator '%s' found)",
-                        self.entity_description.name,
-                        field,
-                    )
-                    return super().available
-
-            _LOGGER.debug(
-                "Entity %s not available (no indicator fields found)",
-                self.entity_description.name,
-            )
 
         return super().available
 
@@ -245,20 +214,6 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                 self.entity_description.name,
             )
             self.async_write_ha_state()
-
-    def _handle_refresh_error(self, task: asyncio.Task) -> None:
-        """Handle errors in the refresh task."""
-        try:
-            if not task.cancelled():
-                exc = task.exception()
-                if exc is not None:
-                    _LOGGER.debug(
-                        "Refresh task failed for %s: %s",
-                        self.entity_description.name,
-                        exc,
-                    )
-        except (asyncio.CancelledError, asyncio.InvalidStateError):
-            pass  # Normal during HA reload
 
     async def async_set_native_value(self, value: float) -> None:
         """
@@ -346,6 +301,10 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
 
             api_key = self._api_key
             electrolysis_key = self._active_electrolysis_key
+            # The controller config key this write lands in, so the new value
+            # can be shown immediately instead of after the getConfig cache
+            # expires. None for writes that do not go through getConfig.
+            written_key: str | None = None
 
             if electrolysis_key is not None:
                 _LOGGER.debug(
@@ -353,21 +312,26 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                     electrolysis_key,
                     sanitized_value,
                 )
+                written_key = electrolysis_key
                 result = await self.device.api.set_target_value(
                     electrolysis_key,
                     int(sanitized_value) if api_key == "ORP" else sanitized_value,
                 )
             elif api_key == "pH":
                 _LOGGER.debug("Using set_ph_target (sanitized: %.2f)", sanitized_value)
+                written_key = TARGET_PH
                 result = await self.device.api.set_ph_target(sanitized_value)
             elif api_key == "ORP":
                 _LOGGER.debug("Using set_orp_target (sanitized: %.1f)", sanitized_value)
+                written_key = TARGET_ORP
                 result = await self.device.api.set_orp_target(sanitized_value)
             elif api_key == "MinChlorine":
                 _LOGGER.debug("Using set_min_chlorine_level (sanitized: %.2f)", sanitized_value)
+                written_key = TARGET_MIN_CHLORINE
                 result = await self.device.api.set_min_chlorine_level(sanitized_value)
             elif api_key == "PUMP_SPEED":
                 _LOGGER.debug("Using set_pump_speed (sanitized: %d)", int(sanitized_value))
+                # Pump speed is an output command, not a getConfig value.
                 result = await self.device.api.set_pump_speed(int(sanitized_value))
             elif api_key in ("HEATER_TARGET_TEMP", "SOLAR_TARGET_TEMP"):
                 _LOGGER.debug(
@@ -376,6 +340,7 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                     sanitized_value,
                 )
                 climate_key = api_key.replace("_TARGET_TEMP", "")
+                written_key = CLIMATE_CONFIG_KEYS[climate_key]
                 result = await self.device.api.set_device_temperature(climate_key, sanitized_value)
             elif api_key.endswith("_TOTAL_CAN_AMOUNT_ML"):
                 _LOGGER.debug(
@@ -383,6 +348,7 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                     api_key,
                     sanitized_value,
                 )
+                written_key = api_key
                 result = await self.device.api.set_dosing_parameters(
                     {api_key: int(sanitized_value)}
                 )
@@ -392,6 +358,7 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                     api_key,
                     sanitized_value,
                 )
+                written_key = api_key
                 result = await self.device.api.set_target_value(api_key, sanitized_value)
 
             if result.get("success") is True:
@@ -401,6 +368,13 @@ class VioletNumber(VioletPoolControllerEntity, NumberEntity):
                     value,
                     unit,
                 )
+
+                # getConfig values are only re-read every
+                # CONFIG_REFRESH_INTERVAL seconds, so without seeding the
+                # coordinator cache the entity fell back to the stale value on
+                # the delayed refresh and the write appeared to revert.
+                if written_key is not None:
+                    self.coordinator.update_setpoint_cache(written_key, sanitized_value)
 
                 self._optimistic_value = sanitized_value
                 _LOGGER.debug(

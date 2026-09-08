@@ -1,0 +1,151 @@
+name: Dev Release
+
+# Publishes one rolling, validated dev pre-release for main.
+#
+# This lives in its own workflow rather than inside validate.yml on purpose:
+# validate.yml is a reusable workflow called by release.yml, and GitHub requires
+# the caller to grant at least the permissions the callee declares. Keeping the
+# only `contents: write` job out of validate.yml lets release.yml call the
+# quality gate with read-only permissions.
+
+on:
+  workflow_run:
+    workflows: ['Validate Integration']
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dev-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  changes:
+    name: Detect release changes
+    # Only a green validation of a real push to main may publish. Pull request
+    # and workflow_call runs of validate.yml are ignored.
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      release: ${{ steps.paths.outputs.release }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+
+      - name: Check package paths
+        id: paths
+        run: |
+          # Compare against the newest dev tag already published (or, if there
+          # is none yet, the newest stable tag). If nothing under the shipped
+          # package changed since then, there is nothing new to publish.
+          BASE=$(git tag --list 'v*-dev.*' --sort=-creatordate | head -1 || true)
+          if [ -z "$BASE" ]; then
+            BASE=$(git tag --sort=-version:refname \
+              | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1 || true)
+          fi
+          if [ -z "$BASE" ] || git diff --name-only "$BASE" HEAD \
+               | grep -Eq '^(custom_components/violet_pool_controller/|scripts/build_release\.py$)'; then
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  dev-release:
+    name: Publish validated dev release
+    needs: changes
+    if: needs.changes.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+
+      - name: Determine dev version
+        id: release
+        run: |
+          VERSION=$(python -c "import json; print(json.load(open('custom_components/violet_pool_controller/manifest.json'))['version'])")
+          VERSION="${VERSION%%-dev*}"
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          TAG="v${VERSION}-dev.${SHORT_SHA}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Patch package version
+        env:
+          DEV_VERSION: ${{ steps.release.outputs.tag }}
+        run: |
+          DEV_VERSION="${DEV_VERSION#v}"
+          sed -i "s|\"version\": \"[^\"]*\"|\"version\": \"$DEV_VERSION\"|" custom_components/violet_pool_controller/manifest.json
+          sed -i "s|^INTEGRATION_VERSION = .*|INTEGRATION_VERSION = \"$DEV_VERSION\"|" custom_components/violet_pool_controller/const.py
+          printf '%s\n' "$DEV_VERSION" > custom_components/violet_pool_controller/.version
+
+      - name: Build package and release notes
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          python scripts/build_release.py
+
+          LAST_STABLE=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1 || true)
+          {
+            echo "## $TAG — Validated dev build"
+            echo
+            echo "> Automated test build from commit \`$HEAD_SHA\`. Not intended for production use."
+            echo
+            echo "### Changes"
+            echo
+            if [ -n "$LAST_STABLE" ]; then
+              git log "${LAST_STABLE}..HEAD" --pretty=format:'- %s (%h)'
+              echo
+            else
+              git log -30 --pretty=format:'- %s (%h)'
+              echo
+            fi
+            echo
+            echo "Install through HACS with beta releases enabled, or download \`violet_pool_controller.zip\`."
+          } > dev-release-notes.md
+
+      - name: Publish dev release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.release.outputs.tag }}
+          target_commitish: ${{ github.event.workflow_run.head_sha }}
+          prerelease: true
+          draft: false
+          make_latest: false
+          body_path: dev-release-notes.md
+          fail_on_unmatched_files: true
+          files: |
+            violet_pool_controller.zip
+            violet_pool_controller.zip.sha256
+
+      - name: Remove superseded dev releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.release.outputs.version }}
+          CURRENT_TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          git tag --list "v${VERSION}-dev.*" | while read -r old_tag; do
+            [ -z "$old_tag" ] && continue
+            [ "$old_tag" = "$CURRENT_TAG" ] && continue
+            gh release delete "$old_tag" --yes --cleanup-tag || true
+          done
+
+      - name: Add release summary
+        run: |
+          {
+            echo "## Dev release published"
+            echo
+            echo "[${{ steps.release.outputs.tag }}](${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ steps.release.outputs.tag }})"
+          } >> "$GITHUB_STEP_SUMMARY"

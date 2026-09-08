@@ -23,44 +23,82 @@ def as_device_id_list(value: Any) -> list[str]:
 
 DEVICE_ID_SELECTOR = vol.All(as_device_id_list, [cv.string])
 
+# ---------------------------------------------------------------------------
+# Dosing lookup tables
+# ---------------------------------------------------------------------------
+# H2O2 is deliberately absent from every table below: the installed API
+# package has no H2O2 dosing function, so ``manual_dosing("H2O2", ...)``
+# raised "Unknown dosing type" and ``action="stop"`` silently stopped the
+# CHLORINE channel instead.  Re-add it only once the API supports it.
+
+# smart_dosing ``dosing_type`` -> physical controller switch key.
 DOSING_TYPE_MAPPING = {
     "pH-": "DOS_4_PHM",
     "pH+": "DOS_5_PHP",
     "Chlorine": "DOS_1_CL",
     "Electrolysis": "DOS_2_ELO",
     "Flocculant": "DOS_6_FLOC",
-    "H2O2": "DOS_1_CL",
 }
 
+# smart_dosing ``dosing_type`` -> the name ``VioletPoolAPI.manual_dosing``
+# expects (the API's DOSING_FUNCTIONS keys).
 DOSING_API_MAPPING = {
     "pH-": "pH-",
     "pH+": "pH+",
     "Chlorine": "Chlor",
     "Electrolysis": "Elektrolyse",
     "Flocculant": "Flockmittel",
-    "H2O2": "H2O2",
 }
 
-DOSING_CONFIG_PREFIX_MAPPING = {
-    "DOS_1_CL": "DOSAGE_chlorine",
-    "DOS_2_ELO": "DOSAGE_electrolysis",
-    "DOS_4_PHM": "DOSAGE_phminus",
-    "DOS_5_PHP": "DOSAGE_phplus",
-    "DOS_6_FLOC": "DOSAGE_floc",
+# The ``dosing_system`` slug used by the *_http and dosing-configuration
+# services.  Shared by the schemas and the handlers so the two cannot drift.
+DOSING_SYSTEM_SLUGS = (
+    "chlorine",
+    "electrolysis",
+    "ph_minus",
+    "ph_plus",
+    "flocculant",
+    "h2o2",
+)
+
+DOSING_INDEX_MAP = {
+    "chlorine": 0,  # DOS_1_CL
+    "electrolysis": 1,  # DOS_2_ELO
+    "ph_minus": 3,  # DOS_4_PHM (index 2 is unused in firmware)
+    "ph_plus": 4,  # DOS_5_PHP
+    "flocculant": 5,  # DOS_6_FLOC
+    "h2o2": 0,  # shares DOS_1_CL physical output, from_param=3 distinguishes it
 }
 
-# H2O2 shares the DOS_1_CL physical output but uses `from=3` instead of `from=1`
-DOSING_H2O2_FROM_PARAM = 3
-DOSING_DEFAULT_FROM_PARAM = 1
+DOSING_FROM_PARAM_MAP = {
+    "h2o2": 3,  # H2O2 uses from=3; all others default to from=1
+}
+
+# Dosing-system slug -> config key prefix on the controller.
+DOSING_SYSTEMS = {
+    "chlorine": "DOSAGE_chlorine",
+    "electrolysis": "DOSAGE_electrolysis",
+    "ph_minus": "DOSAGE_phminus",
+    "ph_plus": "DOSAGE_phplus",
+    "flocculant": "DOSAGE_floc",
+    "h2o2": "DOSAGE_h2o2",
+}
+
+# Dosing-system slug -> physical controller switch key, used to key the
+# SafetyGuard cooldown for the *_http dosing services.
+DOSING_SYSTEM_TO_KEY = {
+    "chlorine": "DOS_1_CL",
+    "electrolysis": "DOS_2_ELO",
+    "ph_minus": "DOS_4_PHM",
+    "ph_plus": "DOS_5_PHP",
+    "flocculant": "DOS_6_FLOC",
+    "h2o2": "DOS_1_CL",
+}
 
 MIN_DOSING_DURATION = 5
 MAX_DOSING_DURATION = 300
 MIN_PUMP_SPEED = 1
 MAX_PUMP_SPEED = 3
-MIN_TEMPERATURE = 20.0
-MAX_TEMPERATURE = 40.0
-MIN_PH = 6.8
-MAX_PH = 7.8
 DEFAULT_SAFETY_INTERVAL = 300
 
 

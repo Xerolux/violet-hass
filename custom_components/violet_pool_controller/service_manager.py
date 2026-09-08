@@ -120,14 +120,6 @@ class VioletServiceManager:
             raise ValueError(f"Cannot extract device key from {entity_id}: no parts remaining")
         return "_".join(parts).upper()
 
-    def check_safety_lock(self, device_key: str) -> bool:
-        """Check if device has active safety lock (delegates to SafetyGuard)."""
-        return self.safety_guard.check_lock(device_key)
-
-    def set_safety_lock(self, device_key: str, duration: int) -> None:
-        """Set safety lock for device (delegates to SafetyGuard)."""
-        self.safety_guard.set_lock(device_key, duration)
-
-    def get_remaining_lock_time(self, device_key: str) -> int:
-        """Get remaining lock time in seconds (delegates to SafetyGuard)."""
-        return self.safety_guard.remaining_lock_time(device_key)
+    def set_safety_lock(self, entry_id: str, device_key: str, duration: int) -> None:
+        """Set safety lock for a device on one controller (delegates to SafetyGuard)."""
+        self.safety_guard.set_lock(entry_id, device_key, duration)

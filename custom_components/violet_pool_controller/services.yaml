@@ -252,7 +252,6 @@ manage_pv_surplus:
           options:
           - activate
           - deactivate
-          - auto
     pump_speed:
       description: Pump speed for PV mode (1-3)
       default: 2

@@ -128,9 +128,11 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# IDEs
+# IDEs and local agent state
 .vscode/
 .idea/
+.zcode/
+.claude/settings.local.json
 *.swp
 *.swo
 *~
@@ -160,8 +162,6 @@ config/
 logs/
 test_config/
 
-# Am Ende noch ergänzen:
-
 # Backup files
 *.bak
 *.backup
@@ -172,13 +172,13 @@ backups/
 *.tar
 *.gz
 
-# SSL/TLS certificates (falls verwendet)
+# SSL/TLS certificates (if used)
 *.pem
 *.key
 *.crt
 *.csr
 
-# Node.js (falls du Frontend-Entwicklung machst)
+# Node.js (if frontend development is involved)
 node_modules/
 package-lock.json
 
@@ -237,7 +237,6 @@ config/blueprints/ (local edits)
 !/docs/CHANGELOG.md
 !/docs/RELEASE_NOTES.md
 !/docs/HA_QUALITY_SCALE_PROGRESS.md
-!/docs/CI_CD_ACTION_PINNING.md
 !/docs/IMPROVEMENT_PLAN.md
 
 # Dashboard & blueprint internal docs
