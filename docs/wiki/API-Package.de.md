@@ -78,9 +78,13 @@ asyncio.run(main())
 ## Versionierung & Releases
 
 - Single Source of Truth: [`pyproject.toml`](https://github.com/Xerolux/violet-poolController-api/blob/main/pyproject.toml) im Repository [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api)
-- Ein Git-Tag `api-v<version>` löst den automatischen PyPI-Upload + GitHub-Release aus
-- Die HA-Integration pinnt ihre Mindestversion in `requirements.txt`
-  (`violet-poolController-api>=<version>`)
+- Releases entstehen in jenem Repository über einen `workflow_dispatch`-Lauf
+  und einen einfachen `v<version>`-Tag (ein `api-v*`-Schema gibt es nicht)
+- **Home Assistant installiert das Paket aus der `requirements`-Liste in der
+  `manifest.json` der Integration**, derzeit
+  `violet-poolController-api>=0.0.39`. Die `requirements.txt` im
+  Wurzelverzeichnis ist die Entwicklungskopie dieser Liste, nicht das, was
+  Home Assistant liest.
 
 ## Links
 

@@ -69,11 +69,11 @@ Mit diesem Service können Sie zwischen 10 und 1.000 aktuelle Log-Zeilen exporti
 ### Log exportieren
 
 1. Öffnen Sie **Entwickler-Tools** → **Services**
-2. Wählen Sie Service: `violet_pool_controller.log_export`
+2. Wählen Sie Service: `violet_pool_controller.export_diagnostic_logs`
 3. Geben Sie ein:
-   - `line_count: 200` (Anzahl der zu exportierenden Zeilen)
-   - `include_timestamp: true` (mit Zeitstempel)
-   - `include_system_info: true` (mit System-Infos)
+   - `lines: 200` (Anzahl der zu exportierenden Zeilen)
+   - `include_timestamps: true` (mit Zeitstempel)
+   - `save_to_file: true` schreibt den Export nach `/config/`
 4. Klicken Sie auf **Aufrufen**
 5. Finden Sie die Datei im Verzeichnis `/config/`
 
@@ -81,11 +81,11 @@ Mit diesem Service können Sie zwischen 10 und 1.000 aktuelle Log-Zeilen exporti
 
 ```yaml
 # In einer Automatisierung oder einem Skript:
-service: violet_pool_controller.log_export
+action: violet_pool_controller.export_diagnostic_logs
 data:
-  line_count: 500
-  include_timestamp: true
-  include_system_info: true
+  lines: 500
+  include_timestamps: true
+  save_to_file: true
 ```
 
 ## 🛠️ Verwendungsszenarien
@@ -139,7 +139,7 @@ data:
 - ✅ **Deaktivieren Sie Extended Logging nach dem Debugging** – Dies reduziert Log-Dateigröße und CPU-Nutzung
 - ✅ **Sammeln Sie gezielt 2–3 Minuten Logs** beim Auftreten eines Problems
 - ✅ **Exportieren Sie Logs statt sie ständig zu protokollieren**
-- ✅ **Nutzen Sie `line_count: 100–500`** für aussagekräftige Exports ohne Überfluss
+- ✅ **Nutzen Sie `lines: 100–500`** für aussagekräftige Exports ohne Überfluss
 - ✅ **Löschen Sie alte Export-Dateien** aus `/config/` regelmäßig
 
 ### ✗ Don'ts (Was Sie vermeiden sollten)
@@ -181,10 +181,10 @@ automation:
       entity_id: binary_sensor.violet_pool_controller_connection
       to: "off"
     action:
-      service: violet_pool_controller.log_export
+      action: violet_pool_controller.export_diagnostic_logs
       data:
-        line_count: 500
-        include_system_info: true
+        lines: 500
+        save_to_file: true
 ```
 
 ### Regelmäßige Diagnose-Snapshots
@@ -196,9 +196,9 @@ automation:
       platform: time
       at: "01:00:00"
     action:
-      service: violet_pool_controller.log_export
+      action: violet_pool_controller.export_diagnostic_logs
       data:
-        line_count: 200
+        lines: 200
 ```
 
 ## ❓ Häufig gestellte Fragen

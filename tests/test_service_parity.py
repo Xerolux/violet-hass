@@ -109,6 +109,26 @@ def test_service_offers_a_way_to_pick_a_target(service_name: str) -> None:
     )
 
 
+@pytest.mark.parametrize("service_name", sorted(YAML_SERVICES))
+def test_target_block_is_hassfest_valid(service_name: str) -> None:
+    """Hassfest rejects a filtered ``device:`` target on a service.
+
+    "Services do not support device filters on target, use a device selector
+    instead" - only an ``entity:`` filter or a bare ``device: {}`` passes.
+    """
+    target = YAML_SERVICES[service_name].get("target")
+    if target is None:
+        return
+    for kind, selector in target.items():
+        if kind == "device":
+            assert not selector, (
+                f"{service_name}: a device target may not carry a filter; "
+                "use an entity: filter or a bare device: {}"
+            )
+        else:
+            assert kind == "entity", f"{service_name}: unknown target kind {kind!r}"
+
+
 @pytest.mark.parametrize("service_name", sorted(REGISTERED))
 def test_yaml_fields_match_schema_keys(service_name: str) -> None:
     """The fields offered in the UI are exactly the keys the schema accepts."""

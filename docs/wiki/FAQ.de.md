@@ -18,7 +18,7 @@ A: Ja! Multi-Controller ist vollständig unterstützt. Einfach mehrere Integrati
 A: Ja! Lokale Kommunikation mit SSL/TLS-Optionen und Input-Sanitization gegen Injection-Angriffe.
 
 **F: Welche Home Assistant Version?**
-A: Minimum 2026.1.0. Getestet auf 2026.x.
+A: Minimum 2026.8.0. CI testet gegen 2026.8.3 und 2026.9.x.
 
 ---
 

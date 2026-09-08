@@ -9,9 +9,10 @@ from typing import Any
 from homeassistant.const import ATTR_DEVICE_ID
 from homeassistant.const import __version__ as HA_VERSION
 from homeassistant.core import ServiceCall
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 
+from .const import DOMAIN
 from .service_helpers import (
     as_device_id_list,
     read_recent_violet_log_lines,
@@ -64,13 +65,21 @@ class VioletDiagnosticServiceHandlers:
             coordinator = await self.manager.get_coordinator_for_device(device_id)
             if coordinator:
                 return coordinator
-        raise HomeAssistantError(f"Device not found: {device_ids[0]}")
+        raise ServiceValidationError(
+            translation_domain=DOMAIN,
+            translation_key="device_not_found",
+            translation_placeholders={"device_id": str(device_ids[0])},
+        )
 
     async def _get_device_for_id(self, device_id: str) -> Any:
         """Resolve and validate a device object for a given device id."""
         coordinator = await self.manager.get_coordinator_for_device(device_id)
         if not coordinator or not hasattr(coordinator, "device"):
-            raise HomeAssistantError(f"Device {device_id} not found")
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="device_not_found",
+                translation_placeholders={"device_id": device_id},
+            )
         return coordinator.device
 
     @staticmethod
@@ -184,6 +193,8 @@ class VioletDiagnosticServiceHandlers:
                     }
                 )
 
+            except HomeAssistantError:
+                raise
             except Exception as err:
                 _LOGGER.error("Get connection status error: %s", err)
                 raise HomeAssistantError(f"Failed to get connection status: {err}") from err
@@ -218,6 +229,8 @@ class VioletDiagnosticServiceHandlers:
 
                 results.append(result)
 
+            except HomeAssistantError:
+                raise
             except Exception as err:
                 _LOGGER.error("Get error summary error: %s", err)
                 raise HomeAssistantError(f"Failed to get error summary: {err}") from err
@@ -266,6 +279,8 @@ class VioletDiagnosticServiceHandlers:
 
                 results.append(result)
 
+            except HomeAssistantError:
+                raise
             except Exception as err:
                 _LOGGER.error("Test connection error: %s", err)
                 raise HomeAssistantError(f"Failed to test connection: {err}") from err
@@ -289,6 +304,8 @@ class VioletDiagnosticServiceHandlers:
         for device_id in device_ids:
             try:
                 devices.append(await self._get_device_for_id(device_id))
+            except HomeAssistantError:
+                raise
             except Exception as err:
                 _LOGGER.error("Clear error history error: %s", err)
                 raise HomeAssistantError(f"Failed to clear error history: {err}") from err
@@ -312,7 +329,10 @@ class VioletDiagnosticServiceHandlers:
         )
 
         if not coordinator.data:
-            raise HomeAssistantError("No data available from controller")
+            raise HomeAssistantError(
+                translation_domain=DOMAIN,
+                translation_key="no_data",
+            )
 
         calibrations = parse_calibration_data(coordinator.data)
 
@@ -332,7 +352,10 @@ class VioletDiagnosticServiceHandlers:
         )
 
         if not coordinator.data:
-            raise HomeAssistantError("No data available from controller")
+            raise HomeAssistantError(
+                translation_domain=DOMAIN,
+                translation_key="no_data",
+            )
 
         backwash_state = _as_int(coordinator.data.get("BACKWASH_STATE"))
         backwash_step = _as_int(coordinator.data.get("BACKWASH_STEP"))
@@ -361,7 +384,10 @@ class VioletDiagnosticServiceHandlers:
         )
 
         if not coordinator.data:
-            raise HomeAssistantError("No data available from controller")
+            raise HomeAssistantError(
+                translation_domain=DOMAIN,
+                translation_key="no_data",
+            )
 
         firmware_info = parse_firmware_info(coordinator.data)
 
@@ -769,7 +795,11 @@ Lines: {len(log_entries)}
         device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
         coordinator = await self._get_first_coordinator(device_ids)
         if not coordinator or not hasattr(coordinator, "device"):
-            raise HomeAssistantError(f"Device not found: {device_ids[0]}")
+            raise ServiceValidationError(
+            translation_domain=DOMAIN,
+            translation_key="device_not_found",
+            translation_placeholders={"device_id": str(device_ids[0])},
+        )
         try:
             states = await coordinator.device.api.get_system_services()
         except Exception as err:
@@ -828,7 +858,11 @@ Lines: {len(log_entries)}
         device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
         coordinator = await self._get_first_coordinator(device_ids)
         if not coordinator or not hasattr(coordinator, "device"):
-            raise HomeAssistantError(f"Device not found: {device_ids[0]}")
+            raise ServiceValidationError(
+            translation_domain=DOMAIN,
+            translation_key="device_not_found",
+            translation_placeholders={"device_id": str(device_ids[0])},
+        )
         try:
             snapshot = await coordinator.device.api.get_live_trace()
         except Exception as err:

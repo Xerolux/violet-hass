@@ -35,13 +35,15 @@
 
 | Requirement | Minimum | Recommended |
 |-------------|---------|-------------|
+| Integration | 2.7.0 | 2.7.0 (latest release) |
 | Home Assistant | 2026.8.0 | 2026.9.x (current) |
 | Python | Provided by Home Assistant 2026.8.0+ | Managed by Home Assistant |
 | Network | Controller reachable via HTTP | Static IP address (DHCP reservation) |
 | HACS | Optional | Recommended for easy updates |
 | Storage | <10 MB | – |
 
-> **Note**: HA 2026.x is fully supported and is the recommended version.
+> **Note**: Home Assistant 2026.8 is the floor because the device registry
+> API this integration targets landed there; 2026.9 is what CI runs against.
 
 ---
 

@@ -215,3 +215,26 @@ class TestExtraStateAttributes:
         entity = _select(hass, "PUMP", {"PUMP": "1", "PUMP_RPM_2": "4", "PUMP_RPM_1": "0"})
 
         assert entity.extra_state_attributes["speed"] == 2
+
+
+class TestReportedOptionIsAlwaysOffered:
+    """Home Assistant rejects a state the entity does not list in options."""
+
+    def test_manually_forced_dosing_channel_maps_onto_auto(self, hass) -> None:
+        """State 4 means "manual on", which a dosing select cannot offer."""
+        entity = _select(hass, "DOS_1_CL", {"DOS_1_CL": "4"})
+
+        assert entity.current_option in entity.options
+        assert entity.current_option == MODE_AUTO
+
+    @pytest.mark.parametrize("raw", ["0", "1", "2", "3", "4", "5", "6", "[]", "WEIRD"])
+    def test_every_raw_state_maps_onto_an_offered_option(self, hass, raw) -> None:
+        """No controller value may produce an option outside the list."""
+        for device_key, kwargs in (
+            ("DOS_1_CL", {}),
+            ("DOS_6_FLOC", {"is_binary": True}),
+            ("PUMP", {}),
+            ("PVSURPLUS", {"is_binary": True}),
+        ):
+            entity = _select(hass, device_key, {device_key: raw}, **kwargs)
+            assert entity.current_option in entity.options

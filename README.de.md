@@ -32,9 +32,9 @@
 |-----------|-------------------|
 | **🌡️ Klimasteuerung** | Heizung & Solar mit Thermostat und Zeitplanung |
 | **🧪 Chemie-Dosierung** | Automatisches pH & Chlor mit Sicherheitsgrenzen (Standalone Dosierung möglich) |
-| **💧 Filter & Pumpe** | 3-Stufen-Pumpe, automatische Rückspülung |
+| **💧 Filter & Pumpe** | Pumpenstufen 0-3, automatische Rückspülung |
 | **🏊 Abdeckung** | Wetterabhängige Cover-Automatisierung |
-| **💡 LED / DMX** | 8 steuerbare Szenen, RGB-Beleuchtung |
+| **💡 LED / DMX** | 12 steuerbare Szenen (je Szene ein/aus) |
 | **📊 Überwachung** | pH, ORP, Temperaturen, Druck, Durchfluss, Laufzeiten |
 | **⚡ Energie** | PV-Überschuss-Modus für Solarheizung |
 | **🔒 Sicherheit** | 100% lokal, SSL/TLS, Rate Limiting, Input Sanitization |
@@ -97,7 +97,8 @@ Die vollständige Dokumentation befindet sich im **[Wiki][wiki]**:
 [![PyPI](https://img.shields.io/pypi/v/violet-poolController-api?style=for-the-badge&logo=pypi)](https://pypi.org/project/violet-poolController-api/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/violet-poolController-api?style=for-the-badge&logo=python)](https://pypi.org/project/violet-poolController-api/)
 
-Der HTTP-Client hinter dieser Integration wird **in diesem Repo** entwickelt und als
+Der HTTP-Client hinter dieser Integration wird in
+[einem eigenen Repository](https://github.com/Xerolux/violet-poolController-api) entwickelt und als
 [`violet-poolController-api`](https://pypi.org/project/violet-poolController-api/) auf PyPI
 veröffentlicht — auch eigenständig ohne Home Assistant nutzbar:
 

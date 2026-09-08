@@ -29,6 +29,8 @@ custom_components/violet_pool_controller/manifest.json @Xerolux
 custom_components/violet_pool_controller/const.py @Xerolux
 custom_components/violet_pool_controller/device.py @Xerolux
 custom_components/violet_pool_controller/error_handler.py @Xerolux
+custom_components/violet_pool_controller/safety_guard.py @Xerolux
+custom_components/violet_pool_controller/auth_guard.py @Xerolux
 
 # Platform implementations
 custom_components/violet_pool_controller/sensor.py @Xerolux
@@ -38,12 +40,17 @@ custom_components/violet_pool_controller/climate.py @Xerolux
 custom_components/violet_pool_controller/cover.py @Xerolux
 custom_components/violet_pool_controller/number.py @Xerolux
 custom_components/violet_pool_controller/select.py @Xerolux
+custom_components/violet_pool_controller/light.py @Xerolux
+custom_components/violet_pool_controller/update.py @Xerolux
+custom_components/violet_pool_controller/button.py @Xerolux
 
 # Configuration and setup
 custom_components/violet_pool_controller/config_flow.py @Xerolux
-custom_components/violet_pool_controller/config_flow_utils.py @Xerolux
+custom_components/violet_pool_controller/config_flow_utils/ @Xerolux
+custom_components/violet_pool_controller/config_flow_support.py @Xerolux
 custom_components/violet_pool_controller/services.yaml @Xerolux
 custom_components/violet_pool_controller/services.py @Xerolux
+custom_components/violet_pool_controller/service_mixins/ @Xerolux
 
 # Translations
 custom_components/violet_pool_controller/translations/** @Xerolux

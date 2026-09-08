@@ -1,50 +1,68 @@
-## Pull Request Title
+## Description
 
-### Description
+- **What does this change?** Be specific. If it fixes a bug, describe the bug. If it adds a feature, describe the feature.
+- **Why is it needed?** What breaks without it, or what becomes possible with it?
+- **Anything a reviewer should know?** Links to discussions, controller firmware quirks, related pull requests.
 
-- **What issue does this solve?** (e.g., Bug fix, feature enhancement, refactoring, documentation update, etc.)  Be specific.  If it fixes a bug, describe the bug. If it adds a feature, describe the feature.
-- **Why is this change necessary?**  Explain the motivation behind the changes.  Why is this bug fix important? What benefit does this new feature provide?
-- **Additional context or background information:** Include any other relevant details that might help reviewers understand the changes.  This could include links to related discussions, design documents, or external resources.
+> The title of this pull request becomes a line in the release notes, so write
+> it as a [Conventional Commit](https://www.conventionalcommits.org/), e.g.
+> `fix(switch): stop DMX scenes fighting the light platform`.
 
-### Type of Change
+## Type of Change
 
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] Documentation update
-- [ ] Code refactor (changes that do not add functionality or fix bugs, but improve the code's structure or readability)
-- [ ] Tests (adding or modifying tests)
-- [ ] Build/CI (changes to the build system or continuous integration)
-- [ ] Chore (maintenance tasks, updating dependencies, etc.)
-- [ ] Other (please describe):
+- [ ] Breaking change (fix or feature that changes existing behaviour)
+- [ ] Documentation
+- [ ] Refactor (no behaviour change)
+- [ ] Tests
+- [ ] Build/CI
+- [ ] Chore (maintenance, dependencies)
 
-### Checklist
+## Checklist
 
-- [ ] I have tested my changes locally or in a staging environment.  *Be specific about how you tested.* (e.g., "I tested by manually controlling the pump and verifying that the state updates correctly in Home Assistant.")
-- [ ] All automated tests pass. (If applicable.  Run `scripts/lint.sh`)
-- [ ] I have added or updated necessary documentation (in the code, `README.md`, and any other relevant documentation).
-- [ ] I have reviewed my code for any security vulnerabilities.
-- [ ] My changes are backward-compatible (if applicable). If not, clearly explain why and what breaking changes are introduced.
-- [ ] I have followed the coding style and conventions of this project. (Run `black .` to format your code)
-- [ ] I have added a changelog entry in `CHANGELOG.md` (if applicable).  Use the format: `- Your change description ([#PR number](link to PR))`
-- [ ] I have updated the version number in `const.py` and `manifest.json` if this is a new release.
+- [ ] I tested this. *Say how* — e.g. "controlled the pump from the UI and confirmed the state updates after the next poll".
+- [ ] Lint is clean: `ruff check custom_components/violet_pool_controller tests`
+- [ ] Types are clean: `mypy custom_components/violet_pool_controller`
+- [ ] Tests pass: `pytest tests/ -q`
+- [ ] Tests added or updated for the behaviour I changed
+- [ ] Documentation updated (code docstrings, `README.md`, `docs/wiki/` — and the `.de.md` twin if I touched an English wiki page)
+- [ ] Everything I wrote is in English (see the Language Policy in `CLAUDE.md`)
+- [ ] No new security assumptions: nothing restores device state, nothing acts without an explicit user command (see `SECURITY.md`)
+- [ ] Changelog entry added to `CHANGELOG.md` under a `## Version X.Y.Z (YYYY-MM-DD)` heading
 
-### Related Issue(s)
+### Release checklist (maintainer only)
 
-Fixes # (issue number)  Closes # (issue number)  Related to # (issue number) ### Screenshots (if applicable)
+A version bump must move **all five** version sources plus the changelog, or
+CI's "Version consistency" job fails:
 
-| Before                                       | After                                       |
-| -------------------------------------------- | -------------------------------------------- |
-| | |
+- [ ] `custom_components/violet_pool_controller/manifest.json`
+- [ ] `custom_components/violet_pool_controller/const.py` (`INTEGRATION_VERSION`)
+- [ ] `custom_components/violet_pool_controller/.version`
+- [ ] `pyproject.toml`
+- [ ] `CLAUDE.md` ("Current Integration Version")
+- [ ] `CHANGELOG.md` section for the new version — it becomes the release page
 
-### Testing Instructions
+## Related Issue(s)
 
-1.  ...
-2.  ...
-3.  ...
+Fixes #
 
-### Notes for Reviewers
+## Screenshots
 
-*   Are there any parts of the code you'd like specific feedback on?
-*   Are there any known limitations or potential issues?
-*   Are there any alternative approaches you considered?
+Delete this section if the change is not visible in the UI.
+
+| Before | After |
+| ------ | ----- |
+|        |       |
+
+## Testing Instructions
+
+1.
+2.
+3.
+
+## Notes for Reviewers
+
+- Anything you would like specific feedback on?
+- Known limitations or follow-ups?
+- Alternatives you considered and rejected?

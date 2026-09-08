@@ -527,7 +527,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 )
 
                 task = asyncio.create_task(self._delayed_refresh(key))
-                task.add_done_callback(lambda t: self._handle_switch_refresh_error(t, key))
+                task.add_done_callback(self._handle_refresh_error)
             else:
                 error_msg = result.get("response", "Unknown error")
                 _LOGGER.warning("Switch %s action %s failed: %s", key, action, error_msg)
@@ -586,25 +586,6 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                     "ON" if old_optimistic else "OFF",
                 )
         self.async_write_ha_state()
-
-    def _handle_switch_refresh_error(self, task: asyncio.Task, key: str) -> None:
-        """
-        Handle errors in the refresh task.
-
-        Args:
-            task: The task object.
-            key: The switch key.
-        """
-        try:
-            if not task.cancelled():
-                exc = task.exception()
-                if exc is not None:
-                    # Only log for real issues
-                    _LOGGER.debug("Refresh task failed for %s: %s", key, exc)
-        except (asyncio.CancelledError, asyncio.InvalidStateError):
-            pass  # Normal, no logging needed
-        except Exception as err:
-            _LOGGER.debug("Error handling refresh task for %s: %s", key, err)
 
     def _validate_speed(self, speed: Any) -> int:
         """

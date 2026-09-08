@@ -17,8 +17,6 @@ from ..service_helpers import as_device_id_list
 _LOGGER = logging.getLogger(__name__)
 
 
-
-
 class SystemServiceHandlersMixin:
     """Mixin for system services."""
 

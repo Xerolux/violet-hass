@@ -9,6 +9,7 @@ real automation would be.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -23,7 +24,8 @@ from custom_components.violet_pool_controller.climate import (
     DEFAULT_MIN_TEMP,
 )
 
-BLUEPRINT_DIR = Path(__file__).parent.parent / "blueprints" / "automation"
+REPO = Path(__file__).parent.parent
+BLUEPRINT_DIR = REPO / "blueprints" / "automation"
 HEAT_PUMP_BLUEPRINT = BLUEPRINT_DIR / "pool_heatpump_cooling.yaml"
 
 # Inputs for the heat-pump blueprint, as a user would fill them in.
@@ -39,6 +41,11 @@ HEAT_PUMP_INPUTS = {
     "enable_switch": "input_boolean.pool_control",
     "notification_entity": "notify.mobile_app_phone",
 }
+
+
+def _minimum_home_assistant_version() -> str:
+    """Return the Home Assistant floor the integration declares."""
+    return json.loads((REPO / "hacs.json").read_text(encoding="utf-8"))["homeassistant"]
 
 
 def blueprint_paths() -> list[Path]:
@@ -70,6 +77,34 @@ def test_blueprint_matches_home_assistant_schema(path: Path) -> None:
     assert blueprint.metadata["input"], f"{path.name} declares no inputs"
     assert blueprint.metadata.get("source_url", "").endswith(path.name), (
         f"{path.name} points its source_url at a different file"
+    )
+
+
+@pytest.mark.parametrize("path", blueprint_paths(), ids=lambda path: path.name)
+def test_blueprint_requires_the_supported_home_assistant(path: Path) -> None:
+    """A blueprint must not import into a Home Assistant the integration needs.
+
+    These blueprints declared ``min_version: "2024.6.0"`` while the integration
+    requires 2026.8.0 (see hacs.json), so Home Assistant happily imported an
+    automation for entities that could never exist on that install.
+    """
+    required = _minimum_home_assistant_version()
+    declared = load_blueprint(path).metadata.get("homeassistant", {}).get("min_version")
+
+    assert declared == required, (
+        f"{path.name} declares min_version {declared!r}; the integration "
+        f"requires {required!r} (hacs.json)."
+    )
+
+
+@pytest.mark.parametrize("path", blueprint_paths(), ids=lambda path: path.name)
+def test_blueprint_does_not_link_an_unpublished_file(path: Path) -> None:
+    """``blueprints/README.md`` is gitignored, so the link 404s on GitHub."""
+    text = path.read_text(encoding="utf-8")
+
+    assert "blueprints/README.md" not in text, (
+        f"{path.name} sends users to blueprints/README.md, which is not "
+        "published. Spell the helper setup out, or link the wiki."
     )
 
 

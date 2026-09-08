@@ -69,24 +69,31 @@ This service allows you to export between 10 and 1,000 recent log lines and save
 ### Export Logs
 
 1. Open **Developer Tools** → **Services**
-2. Select service: `violet_pool_controller.log_export`
-3. Enter:
-   - `line_count: 200` (number of lines to export)
-   - `include_timestamp: true` (with timestamp)
-   - `include_system_info: true` (with system info)
-4. Click **Call Service**
+2. Select service: `violet_pool_controller.export_diagnostic_logs`
+3. Pick the controller under **Targets**, then set the fields you want:
+   - `lines: 200` (number of recent log lines, 10-10000)
+   - `include_timestamps: true`
+   - `include_config`, `include_history`, `include_states`,
+     `include_raw_data` (all default to `true`)
+   - `save_to_file: true` to write the export into `/config/`
+4. Click **Perform action**. The service returns its result in the UI; it only
+   writes a file when `save_to_file` is set.
 5. Find the file in the `/config/` directory
 
 ### YAML Example
 
 ```yaml
 # In an automation or script:
-service: violet_pool_controller.log_export
+action: violet_pool_controller.export_diagnostic_logs
+target:
+  device_id: !input violet_controller
 data:
-  line_count: 500
-  include_timestamp: true
-  include_system_info: true
+  lines: 500
+  include_timestamps: true
+  save_to_file: true
 ```
+
+> `device_id` is **required** - the service is targeted at one controller.
 
 ## 🛠️ Usage Scenarios
 
@@ -139,7 +146,7 @@ data:
 - ✅ **Disable Extended Logging after debugging** – This reduces log file size and CPU usage
 - ✅ **Collect 2–3 minutes of logs** when an issue occurs
 - ✅ **Export logs instead of continuously logging**
-- ✅ **Use `line_count: 100–500`** for meaningful exports without excess
+- ✅ **Use `lines: 100–500`** for meaningful exports without excess
 - ✅ **Delete old export files** from `/config/` regularly
 
 ### ✗ Don'ts
@@ -181,10 +188,12 @@ automation:
       entity_id: binary_sensor.violet_pool_controller_connection
       to: "off"
     action:
-      service: violet_pool_controller.log_export
+      action: violet_pool_controller.export_diagnostic_logs
+      target:
+        device_id: REPLACE_WITH_YOUR_DEVICE_ID
       data:
-        line_count: 500
-        include_system_info: true
+        lines: 500
+        save_to_file: true
 ```
 
 ### Regular Diagnostic Snapshots
@@ -196,9 +205,12 @@ automation:
       platform: time
       at: "01:00:00"
     action:
-      service: violet_pool_controller.log_export
+      action: violet_pool_controller.export_diagnostic_logs
+      target:
+        device_id: REPLACE_WITH_YOUR_DEVICE_ID
       data:
-        line_count: 200
+        lines: 200
+        save_to_file: true
 ```
 
 ## ❓ Frequently Asked Questions

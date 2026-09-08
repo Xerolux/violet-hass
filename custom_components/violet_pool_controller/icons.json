@@ -1,338 +1,799 @@
 {
-    "entity": {
-        "sensor": {
-            "ph_value": {
-                "default": "mdi:flask"
-            },
-            "orp_value": {
-                "default": "mdi:lightning-bolt"
-            },
-            "pot_value": {
-                "default": "mdi:water-check"
-            },
-            "onewire1_value": {
-                "default": "mdi:thermometer-water"
-            },
-            "onewire2_value": {
-                "default": "mdi:thermometer"
-            },
-            "firmware_version": {
-                "default": "mdi:package-up"
-            },
-            "system_health": {
-                "default": "mdi:heart-pulse"
-            },
-            "connection_latency": {
-                "default": "mdi:timer-outline"
-            },
-            "last_event_age": {
-                "default": "mdi:clock-outline"
-            },
-            "api_request_rate": {
-                "default": "mdi:chart-line"
-            },
-            "average_latency": {
-                "default": "mdi:timer-sand"
-            },
-            "recovery_success_rate": {
-                "default": "mdi:reload-alert"
-            },
-            "flow_rate": {
-                "default": "mdi:pump"
-            },
-            "dos_1_cl_state": {
-                "default": "mdi:flask-outline"
-            },
-            "dos_2_elo_state": {
-                "default": "mdi:lightning-bolt"
-            },
-            "dos_4_phm_state": {
-                "default": "mdi:flask-minus"
-            },
-            "dos_5_php_state": {
-                "default": "mdi:flask-plus"
-            },
-            "dos_6_floc_state": {
-                "default": "mdi:water"
-            },
-            "last_error_code": {
-                "default": "mdi:alert-circle"
-            }
-        },
-        "binary_sensor": {
-            "pump": {
-                "default": "mdi:pump",
-                "state": {
-                    "on": "mdi:pump",
-                    "off": "mdi:pump-off"
-                }
-            },
-            "heater": {
-                "default": "mdi:radiator",
-                "state": {
-                    "on": "mdi:radiator",
-                    "off": "mdi:radiator-off"
-                }
-            },
-            "solar": {
-                "default": "mdi:solar-power",
-                "state": {
-                    "on": "mdi:solar-power",
-                    "off": "mdi:solar-power-variant-outline"
-                }
-            },
-            "light": {
-                "default": "mdi:lightbulb",
-                "state": {
-                    "on": "mdi:lightbulb-on",
-                    "off": "mdi:lightbulb-off"
-                }
-            },
-            "backwash": {
-                "default": "mdi:autorenew",
-                "state": {
-                    "on": "mdi:autorenew",
-                    "off": "mdi:autorenew"
-                }
-            },
-            "refill": {
-                "default": "mdi:water",
-                "state": {
-                    "on": "mdi:water",
-                    "off": "mdi:water-off"
-                }
-            },
-            "pvsurplus": {
-                "default": "mdi:solar-power",
-                "state": {
-                    "on": "mdi:solar-power",
-                    "off": "mdi:solar-power-variant-outline"
-                }
-            },
-            "circulation_state": {
-                "default": "mdi:water-alert"
-            },
-            "electrode_flow_state": {
-                "default": "mdi:water-check"
-            },
-            "pressure_state": {
-                "default": "mdi:gauge"
-            },
-            "can_range_state": {
-                "default": "mdi:bottle-tonic"
-            }
-        },
-        "switch": {
-            "pump": {
-                "default": "mdi:pump",
-                "state": {
-                    "on": "mdi:pump",
-                    "off": "mdi:pump-off"
-                }
-            },
-            "heater": {
-                "default": "mdi:radiator",
-                "state": {
-                    "on": "mdi:radiator",
-                    "off": "mdi:radiator-off"
-                }
-            },
-            "solar": {
-                "default": "mdi:solar-power",
-                "state": {
-                    "on": "mdi:solar-power",
-                    "off": "mdi:solar-power-variant-outline"
-                }
-            },
-            "light": {
-                "default": "mdi:lightbulb",
-                "state": {
-                    "on": "mdi:lightbulb-on",
-                    "off": "mdi:lightbulb-off"
-                }
-            },
-            "dos_5_php": {
-                "default": "mdi:flask-plus",
-                "state": {
-                    "on": "mdi:flask-plus",
-                    "off": "mdi:flask-plus-outline"
-                }
-            },
-            "dos_4_phm": {
-                "default": "mdi:flask-minus",
-                "state": {
-                    "on": "mdi:flask-minus",
-                    "off": "mdi:flask-minus-outline"
-                }
-            },
-            "dos_1_cl": {
-                "default": "mdi:flask-outline",
-                "state": {
-                    "on": "mdi:flask",
-                    "off": "mdi:flask-outline"
-                }
-            },
-            "dos_6_floc": {
-                "default": "mdi:water",
-                "state": {
-                    "on": "mdi:water",
-                    "off": "mdi:water-outline"
-                }
-            },
-            "pvsurplus": {
-                "default": "mdi:solar-power",
-                "state": {
-                    "on": "mdi:solar-power",
-                    "off": "mdi:solar-power-variant-outline"
-                }
-            },
-            "backwash": {
-                "default": "mdi:autorenew",
-                "state": {
-                    "on": "mdi:autorenew",
-                    "off": "mdi:autorenew"
-                }
-            },
-            "backwashrinse": {
-                "default": "mdi:autorenew",
-                "state": {
-                    "on": "mdi:autorenew",
-                    "off": "mdi:autorenew"
-                }
-            }
-        },
-        "climate": {
-            "heater": {
-                "default": "mdi:radiator"
-            },
-            "solar": {
-                "default": "mdi:solar-power"
-            }
-        },
-        "cover": {
-            "pool_cover": {
-                "default": "mdi:window-shutter",
-                "state": {
-                    "open": "mdi:window-shutter-open",
-                    "closed": "mdi:window-shutter",
-                    "opening": "mdi:window-shutter-auto",
-                    "closing": "mdi:window-shutter-auto"
-                }
-            }
-        },
-        "number": {
-            "ph_setpoint": {
-                "default": "mdi:flask"
-            },
-            "orp_setpoint": {
-                "default": "mdi:lightning-bolt"
-            },
-            "chlorine_setpoint": {
-                "default": "mdi:water-check"
-            },
-            "heater_target_temp": {
-                "default": "mdi:thermometer"
-            },
-            "solar_target_temp": {
-                "default": "mdi:thermometer-sun"
-            },
-            "pump_speed": {
-                "default": "mdi:speedometer"
-            },
-            "chlorine_canister_volume": {
-                "default": "mdi:barrel"
-            },
-            "ph_minus_canister_volume": {
-                "default": "mdi:barrel"
-            },
-            "ph_plus_canister_volume": {
-                "default": "mdi:barrel"
-            },
-            "flocculant_canister_volume": {
-                "default": "mdi:barrel"
-            }
-        },
-        "select": {
-            "pump_mode": {
-                "default": "mdi:water-pump"
-            },
-            "heater_mode": {
-                "default": "mdi:radiator-disabled"
-            },
-            "solar_mode": {
-                "default": "mdi:solar-power-variant"
-            },
-            "light_mode": {
-                "default": "mdi:lightbulb-on"
-            },
-            "dos_cl_mode": {
-                "default": "mdi:flask-empty-outline"
-            },
-            "dos_phm_mode": {
-                "default": "mdi:flask-empty-minus"
-            },
-            "dos_php_mode": {
-                "default": "mdi:flask-plus"
-            },
-            "pvsurplus_mode": {
-                "default": "mdi:solar-power-variant"
-            },
-            "backwash_mode": {
-                "default": "mdi:autorenew"
-            },
-            "backwashrinse_mode": {
-                "default": "mdi:autorenew"
-            },
-            "dos_floc_mode": {
-                "default": "mdi:water"
-            }
-        }
+  "entity": {
+    "sensor": {
+      "ph_value": {
+        "default": "mdi:flask"
+      },
+      "orp_value": {
+        "default": "mdi:lightning-bolt"
+      },
+      "pot_value": {
+        "default": "mdi:water-check"
+      },
+      "onewire1_value": {
+        "default": "mdi:thermometer-water"
+      },
+      "onewire2_value": {
+        "default": "mdi:thermometer"
+      },
+      "system_health": {
+        "default": "mdi:heart-pulse"
+      },
+      "connection_latency": {
+        "default": "mdi:timer-outline"
+      },
+      "last_event_age": {
+        "default": "mdi:clock-outline"
+      },
+      "api_request_rate": {
+        "default": "mdi:chart-line"
+      },
+      "average_latency": {
+        "default": "mdi:timer-sand"
+      },
+      "flow_rate": {
+        "default": "mdi:pump"
+      },
+      "dos_1_cl_state": {
+        "default": "mdi:flask-outline"
+      },
+      "dos_2_elo_state": {
+        "default": "mdi:lightning-bolt"
+      },
+      "dos_4_phm_state": {
+        "default": "mdi:flask-minus"
+      },
+      "dos_5_php_state": {
+        "default": "mdi:flask-plus"
+      },
+      "dos_6_floc_state": {
+        "default": "mdi:water"
+      },
+      "last_error_code": {
+        "default": "mdi:alert-circle"
+      }
     },
-    "services": {
-        "control_pump": {
-            "service": "mdi:pump"
-        },
-        "smart_dosing": {
-            "service": "mdi:water-plus"
-        },
-        "manage_pv_surplus": {
-            "service": "mdi:solar-power"
-        },
-        "control_dmx_scenes": {
-            "service": "mdi:lightbulb-multiple"
-        },
-        "set_light_color_pulse": {
-            "service": "mdi:palette"
-        },
-        "manage_digital_rules": {
-            "service": "mdi:script-text"
-        },
-        "test_output": {
-            "service": "mdi:test-tube"
-        },
-        "export_diagnostic_logs": {
-            "service": "mdi:file-document-outline"
-        },
-        "get_connection_status": {
-            "service": "mdi:connection"
-        },
-        "get_error_summary": {
-            "service": "mdi:alert-circle-outline"
-        },
-        "test_connection": {
-            "service": "mdi:lan-connect"
-        },
-        "clear_error_history": {
-            "service": "mdi:delete-sweep"
-        },
-        "set_all_dmx_scenes_mode": {
-            "service": "mdi:lightbulb-group"
-        },
-        "set_digital_input_rule_lock_state": {
-            "service": "mdi:lock"
-        },
-        "trigger_digital_input_rule": {
-            "service": "mdi:flash"
+    "binary_sensor": {
+      "backwash": {
+        "default": "mdi:autorenew",
+        "state": {
+          "on": "mdi:autorenew",
+          "off": "mdi:autorenew-off"
         }
+      },
+      "backwash_delay": {
+        "default": "mdi:timer-sand",
+        "state": {
+          "on": "mdi:timer-sand",
+          "off": "mdi:timer-sand-complete"
+        }
+      },
+      "bathing_ai_surveillance": {
+        "default": "mdi:account-supervisor",
+        "state": {
+          "on": "mdi:account-supervisor",
+          "off": "mdi:account-supervisor-outline"
+        }
+      },
+      "can_range_state": {
+        "default": "mdi:bottle-tonic",
+        "state": {
+          "on": "mdi:bottle-tonic",
+          "off": "mdi:bottle-tonic-outline"
+        }
+      },
+      "circulation_state": {
+        "default": "mdi:water-alert",
+        "state": {
+          "on": "mdi:water-alert",
+          "off": "mdi:water-check"
+        }
+      },
+      "eco": {
+        "default": "mdi:leaf",
+        "state": {
+          "on": "mdi:leaf",
+          "off": "mdi:leaf-off"
+        }
+      },
+      "electrode_flow_state": {
+        "default": "mdi:water-check",
+        "state": {
+          "on": "mdi:water-check",
+          "off": "mdi:water-remove"
+        }
+      },
+      "heater": {
+        "default": "mdi:radiator",
+        "state": {
+          "on": "mdi:radiator",
+          "off": "mdi:radiator-off"
+        }
+      },
+      "hw_base_module": {
+        "default": "mdi:chip",
+        "state": {
+          "on": "mdi:chip",
+          "off": "mdi:chip"
+        }
+      },
+      "hw_dirule_module": {
+        "default": "mdi:script-text",
+        "state": {
+          "on": "mdi:script-text",
+          "off": "mdi:script-text-outline"
+        }
+      },
+      "hw_dmx_module": {
+        "default": "mdi:lightbulb-multiple",
+        "state": {
+          "on": "mdi:lightbulb-multiple",
+          "off": "mdi:lightbulb-multiple-outline"
+        }
+      },
+      "hw_dosing_module": {
+        "default": "mdi:flask",
+        "state": {
+          "on": "mdi:flask",
+          "off": "mdi:flask-outline"
+        }
+      },
+      "hw_extension_module_1": {
+        "default": "mdi:expansion-card",
+        "state": {
+          "on": "mdi:expansion-card",
+          "off": "mdi:expansion-card"
+        }
+      },
+      "hw_extension_module_2": {
+        "default": "mdi:expansion-card",
+        "state": {
+          "on": "mdi:expansion-card",
+          "off": "mdi:expansion-card"
+        }
+      },
+      "hw_standalone_mode": {
+        "default": "mdi:server-network",
+        "state": {
+          "on": "mdi:server-network",
+          "off": "mdi:server-network-off"
+        }
+      },
+      "input1": {
+        "default": "mdi:electric-switch",
+        "state": {
+          "on": "mdi:electric-switch",
+          "off": "mdi:electric-switch-closed"
+        }
+      },
+      "input10": {
+        "default": "mdi:electric-switch",
+        "state": {
+          "on": "mdi:electric-switch",
+          "off": "mdi:electric-switch-closed"
+        }
+      },
+      "input11": {
+        "default": "mdi:electric-switch",
+        "state": {
+          "on": "mdi:electric-switch",
+          "off": "mdi:electric-switch-closed"
+        }
+      },
+      "input12": {
+        "default": "mdi:electric-switch",
+        "state": {
+          "on": "mdi:electric-switch",
+          "off": "mdi:electric-switch-closed"
+        }
+      },
+      "input2": {
+        "default": "mdi:electric-switch",
+        "state": {
+          "on": "mdi:electric-switch",
+          "off": "mdi:electric-switch-closed"
+        }
+      },
+      "input3": {
+        "default": "mdi:electric-switch",
+        "state": {
+          "on": "mdi:electric-switch",
+          "off": "mdi:electric-switch-closed"
+        }
+      },
+      "input4": {
+        "default": "mdi:electric-switch",
+        "state": {
+          "on": "mdi:electric-switch",
+          "off": "mdi:electric-switch-closed"
+        }
+      },
+      "input5": {
+        "default": "mdi:electric-switch",
+        "state": {
+          "on": "mdi:electric-switch",
+          "off": "mdi:electric-switch-closed"
+        }
+      },
+      "input6": {
+        "default": "mdi:electric-switch",
+        "state": {
+          "on": "mdi:electric-switch",
+          "off": "mdi:electric-switch-closed"
+        }
+      },
+      "input7": {
+        "default": "mdi:electric-switch",
+        "state": {
+          "on": "mdi:electric-switch",
+          "off": "mdi:electric-switch-closed"
+        }
+      },
+      "input8": {
+        "default": "mdi:electric-switch",
+        "state": {
+          "on": "mdi:electric-switch",
+          "off": "mdi:electric-switch-closed"
+        }
+      },
+      "input9": {
+        "default": "mdi:electric-switch",
+        "state": {
+          "on": "mdi:electric-switch",
+          "off": "mdi:electric-switch-closed"
+        }
+      },
+      "input_ce1": {
+        "default": "mdi:electric-switch",
+        "state": {
+          "on": "mdi:electric-switch",
+          "off": "mdi:electric-switch-closed"
+        }
+      },
+      "input_ce2": {
+        "default": "mdi:electric-switch",
+        "state": {
+          "on": "mdi:electric-switch",
+          "off": "mdi:electric-switch-closed"
+        }
+      },
+      "input_ce3": {
+        "default": "mdi:electric-switch",
+        "state": {
+          "on": "mdi:electric-switch",
+          "off": "mdi:electric-switch-closed"
+        }
+      },
+      "input_ce4": {
+        "default": "mdi:electric-switch",
+        "state": {
+          "on": "mdi:electric-switch",
+          "off": "mdi:electric-switch-closed"
+        }
+      },
+      "light": {
+        "default": "mdi:lightbulb",
+        "state": {
+          "on": "mdi:lightbulb",
+          "off": "mdi:lightbulb-off"
+        }
+      },
+      "overflow_dryrun": {
+        "default": "mdi:water-off",
+        "state": {
+          "on": "mdi:water-off",
+          "off": "mdi:water-check"
+        }
+      },
+      "overflow_overfill": {
+        "default": "mdi:water-alert",
+        "state": {
+          "on": "mdi:water-alert",
+          "off": "mdi:water-check"
+        }
+      },
+      "overflow_refill": {
+        "default": "mdi:water-sync",
+        "state": {
+          "on": "mdi:water-sync",
+          "off": "mdi:water-check"
+        }
+      },
+      "pressure_state": {
+        "default": "mdi:gauge",
+        "state": {
+          "on": "mdi:gauge",
+          "off": "mdi:gauge-empty"
+        }
+      },
+      "pump": {
+        "default": "mdi:water-pump",
+        "state": {
+          "on": "mdi:water-pump",
+          "off": "mdi:water-pump-off"
+        }
+      },
+      "pvsurplus": {
+        "default": "mdi:solar-power",
+        "state": {
+          "on": "mdi:solar-power",
+          "off": "mdi:solar-power-variant-outline"
+        }
+      },
+      "refill": {
+        "default": "mdi:water",
+        "state": {
+          "on": "mdi:water",
+          "off": "mdi:water-off"
+        }
+      },
+      "solar": {
+        "default": "mdi:solar-power",
+        "state": {
+          "on": "mdi:solar-power",
+          "off": "mdi:solar-power-variant-outline"
+        }
+      }
+    },
+    "switch": {
+      "backwash": {
+        "default": "mdi:autorenew",
+        "state": {
+          "on": "mdi:autorenew",
+          "off": "mdi:autorenew"
+        }
+      },
+      "backwashrinse": {
+        "default": "mdi:autorenew",
+        "state": {
+          "on": "mdi:autorenew",
+          "off": "mdi:autorenew"
+        }
+      },
+      "dirule_1": {
+        "default": "mdi:script-text"
+      },
+      "dirule_2": {
+        "default": "mdi:script-text"
+      },
+      "dirule_3": {
+        "default": "mdi:script-text"
+      },
+      "dirule_4": {
+        "default": "mdi:script-text"
+      },
+      "dirule_5": {
+        "default": "mdi:script-text"
+      },
+      "dirule_6": {
+        "default": "mdi:script-text"
+      },
+      "dirule_7": {
+        "default": "mdi:script-text"
+      },
+      "dirule_8": {
+        "default": "mdi:script-text"
+      },
+      "dos_1_cl": {
+        "default": "mdi:flask-outline",
+        "state": {
+          "on": "mdi:flask",
+          "off": "mdi:flask-outline"
+        }
+      },
+      "dos_2_elo": {
+        "default": "mdi:lightning-bolt"
+      },
+      "dos_4_phm": {
+        "default": "mdi:flask-minus",
+        "state": {
+          "on": "mdi:flask-minus",
+          "off": "mdi:flask-minus-outline"
+        }
+      },
+      "dos_5_php": {
+        "default": "mdi:flask-plus",
+        "state": {
+          "on": "mdi:flask-plus",
+          "off": "mdi:flask-plus-outline"
+        }
+      },
+      "dos_6_floc": {
+        "default": "mdi:water",
+        "state": {
+          "on": "mdi:water",
+          "off": "mdi:water-outline"
+        }
+      },
+      "eco": {
+        "default": "mdi:leaf"
+      },
+      "ext1_1": {
+        "default": "mdi:electric-switch"
+      },
+      "ext1_2": {
+        "default": "mdi:electric-switch"
+      },
+      "ext1_3": {
+        "default": "mdi:electric-switch"
+      },
+      "ext1_4": {
+        "default": "mdi:electric-switch"
+      },
+      "ext1_5": {
+        "default": "mdi:electric-switch"
+      },
+      "ext1_6": {
+        "default": "mdi:electric-switch"
+      },
+      "ext1_7": {
+        "default": "mdi:electric-switch"
+      },
+      "ext1_8": {
+        "default": "mdi:electric-switch"
+      },
+      "ext2_1": {
+        "default": "mdi:electric-switch"
+      },
+      "ext2_2": {
+        "default": "mdi:electric-switch"
+      },
+      "ext2_3": {
+        "default": "mdi:electric-switch"
+      },
+      "ext2_4": {
+        "default": "mdi:electric-switch"
+      },
+      "ext2_5": {
+        "default": "mdi:electric-switch"
+      },
+      "ext2_6": {
+        "default": "mdi:electric-switch"
+      },
+      "ext2_7": {
+        "default": "mdi:electric-switch"
+      },
+      "ext2_8": {
+        "default": "mdi:electric-switch"
+      },
+      "heater": {
+        "default": "mdi:radiator",
+        "state": {
+          "on": "mdi:radiator",
+          "off": "mdi:radiator-off"
+        }
+      },
+      "light": {
+        "default": "mdi:lightbulb",
+        "state": {
+          "on": "mdi:lightbulb-on",
+          "off": "mdi:lightbulb-off"
+        }
+      },
+      "omni_dc0": {
+        "default": "mdi:electric-switch"
+      },
+      "omni_dc1": {
+        "default": "mdi:electric-switch"
+      },
+      "omni_dc2": {
+        "default": "mdi:electric-switch"
+      },
+      "omni_dc3": {
+        "default": "mdi:electric-switch"
+      },
+      "omni_dc4": {
+        "default": "mdi:electric-switch"
+      },
+      "omni_dc5": {
+        "default": "mdi:electric-switch"
+      },
+      "pump": {
+        "default": "mdi:pump",
+        "state": {
+          "on": "mdi:pump",
+          "off": "mdi:pump-off"
+        }
+      },
+      "pvsurplus": {
+        "default": "mdi:solar-power",
+        "state": {
+          "on": "mdi:solar-power",
+          "off": "mdi:solar-power-variant-outline"
+        }
+      },
+      "refill": {
+        "default": "mdi:water"
+      },
+      "solar": {
+        "default": "mdi:solar-power",
+        "state": {
+          "on": "mdi:solar-power",
+          "off": "mdi:solar-power-variant-outline"
+        }
+      }
+    },
+    "climate": {
+      "heater": {
+        "default": "mdi:radiator"
+      },
+      "solar": {
+        "default": "mdi:solar-power"
+      }
+    },
+    "cover": {
+      "pool_cover": {
+        "default": "mdi:window-shutter",
+        "state": {
+          "open": "mdi:window-shutter-open",
+          "closed": "mdi:window-shutter",
+          "opening": "mdi:window-shutter-auto",
+          "closing": "mdi:window-shutter-auto"
+        }
+      }
+    },
+    "number": {
+      "chlorine_canister_volume": {
+        "default": "mdi:barrel"
+      },
+      "chlorine_setpoint": {
+        "default": "mdi:water-check"
+      },
+      "chlorine_setpoint_electrolysis": {
+        "default": "mdi:water-check"
+      },
+      "csi_alkalinity": {
+        "default": "mdi:flask-outline"
+      },
+      "csi_calcium": {
+        "default": "mdi:water-opacity"
+      },
+      "csi_ph": {
+        "default": "mdi:ph"
+      },
+      "csi_tds": {
+        "default": "mdi:water-percent"
+      },
+      "csi_temperature": {
+        "default": "mdi:thermometer"
+      },
+      "flocculant_canister_volume": {
+        "default": "mdi:barrel"
+      },
+      "heater_target_temp": {
+        "default": "mdi:thermometer"
+      },
+      "lsi_alkalinity": {
+        "default": "mdi:flask-outline"
+      },
+      "lsi_calcium": {
+        "default": "mdi:water-opacity"
+      },
+      "lsi_ph": {
+        "default": "mdi:ph"
+      },
+      "lsi_tds": {
+        "default": "mdi:water-percent"
+      },
+      "lsi_temperature": {
+        "default": "mdi:thermometer"
+      },
+      "orp_setpoint": {
+        "default": "mdi:lightning-bolt"
+      },
+      "orp_setpoint_electrolysis": {
+        "default": "mdi:lightning-bolt"
+      },
+      "ph_minus_canister_volume": {
+        "default": "mdi:barrel"
+      },
+      "ph_plus_canister_volume": {
+        "default": "mdi:barrel"
+      },
+      "ph_setpoint": {
+        "default": "mdi:flask"
+      },
+      "pump_speed": {
+        "default": "mdi:speedometer"
+      },
+      "solar_target_temp": {
+        "default": "mdi:thermometer-sun"
+      }
+    },
+    "select": {
+      "backwash_mode": {
+        "default": "mdi:autorenew"
+      },
+      "backwashrinse_mode": {
+        "default": "mdi:autorenew"
+      },
+      "dos_cl_mode": {
+        "default": "mdi:flask-empty-outline"
+      },
+      "dos_elo_mode": {
+        "default": "mdi:lightning-bolt-outline"
+      },
+      "dos_floc_mode": {
+        "default": "mdi:water"
+      },
+      "dos_phm_mode": {
+        "default": "mdi:flask-empty-minus"
+      },
+      "dos_php_mode": {
+        "default": "mdi:flask-plus"
+      },
+      "eco_mode": {
+        "default": "mdi:leaf"
+      },
+      "ext1_1_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "ext1_2_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "ext1_3_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "ext1_4_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "ext1_5_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "ext1_6_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "ext1_7_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "ext1_8_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "ext2_1_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "ext2_2_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "ext2_3_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "ext2_4_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "ext2_5_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "ext2_6_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "ext2_7_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "ext2_8_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "heater_mode": {
+        "default": "mdi:radiator-disabled"
+      },
+      "light_mode": {
+        "default": "mdi:lightbulb-on"
+      },
+      "omni_dc0_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "omni_dc1_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "omni_dc2_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "omni_dc3_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "omni_dc4_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "omni_dc5_mode": {
+        "default": "mdi:electric-switch"
+      },
+      "pump_mode": {
+        "default": "mdi:water-pump"
+      },
+      "pvsurplus_mode": {
+        "default": "mdi:solar-power-variant"
+      },
+      "refill_mode": {
+        "default": "mdi:water"
+      },
+      "solar_mode": {
+        "default": "mdi:solar-power-variant"
+      }
+    },
+    "light": {
+      "dmx_scene1": {
+        "default": "mdi:lightbulb-multiple"
+      },
+      "dmx_scene10": {
+        "default": "mdi:lightbulb-multiple"
+      },
+      "dmx_scene11": {
+        "default": "mdi:lightbulb-multiple"
+      },
+      "dmx_scene12": {
+        "default": "mdi:lightbulb-multiple"
+      },
+      "dmx_scene2": {
+        "default": "mdi:lightbulb-multiple"
+      },
+      "dmx_scene3": {
+        "default": "mdi:lightbulb-multiple"
+      },
+      "dmx_scene4": {
+        "default": "mdi:lightbulb-multiple"
+      },
+      "dmx_scene5": {
+        "default": "mdi:lightbulb-multiple"
+      },
+      "dmx_scene6": {
+        "default": "mdi:lightbulb-multiple"
+      },
+      "dmx_scene7": {
+        "default": "mdi:lightbulb-multiple"
+      },
+      "dmx_scene8": {
+        "default": "mdi:lightbulb-multiple"
+      },
+      "dmx_scene9": {
+        "default": "mdi:lightbulb-multiple"
+      }
     }
+  },
+  "services": {
+    "control_pump": {
+      "service": "mdi:pump"
+    },
+    "smart_dosing": {
+      "service": "mdi:water-plus"
+    },
+    "manage_pv_surplus": {
+      "service": "mdi:solar-power"
+    },
+    "control_dmx_scenes": {
+      "service": "mdi:lightbulb-multiple"
+    },
+    "set_light_color_pulse": {
+      "service": "mdi:palette"
+    },
+    "manage_digital_rules": {
+      "service": "mdi:script-text"
+    },
+    "test_output": {
+      "service": "mdi:test-tube"
+    },
+    "export_diagnostic_logs": {
+      "service": "mdi:file-document-outline"
+    },
+    "get_connection_status": {
+      "service": "mdi:connection"
+    },
+    "get_error_summary": {
+      "service": "mdi:alert-circle-outline"
+    },
+    "test_connection": {
+      "service": "mdi:lan-connect"
+    },
+    "clear_error_history": {
+      "service": "mdi:delete-sweep"
+    },
+    "set_all_dmx_scenes_mode": {
+      "service": "mdi:lightbulb-group"
+    },
+    "set_digital_input_rule_lock_state": {
+      "service": "mdi:lock"
+    },
+    "trigger_digital_input_rule": {
+      "service": "mdi:flash"
+    }
+  }
 }

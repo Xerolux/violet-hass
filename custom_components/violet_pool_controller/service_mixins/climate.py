@@ -15,8 +15,6 @@ from ..http_control import VioletControlClient
 _LOGGER = logging.getLogger(__name__)
 
 
-
-
 class ClimateServiceHandlersMixin:
     """Mixin for climate services."""
 

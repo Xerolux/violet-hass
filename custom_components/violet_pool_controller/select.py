@@ -136,7 +136,21 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
 
     @property
     def current_option(self) -> str | None:
-        """Return the current selected option."""
+        """Return the current selected option.
+
+        The result is always one of ``options``: Home Assistant rejects a state
+        the entity does not offer, and a dosing channel whose output is
+        manually forced on still maps onto "auto" - the channel is enabled.
+        """
+        option = self._resolve_option()
+        if option is None or option in self._attr_options:
+            return option
+        if option == MODE_ON:
+            return MODE_AUTO if MODE_AUTO in self._attr_options else MODE_OFF
+        return MODE_OFF
+
+    def _resolve_option(self) -> str | None:
+        """Return the mode the controller reports, before clamping to options."""
         if self.coordinator.data is None:
             self._optimistic_mode = None
             return None

@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 
 from custom_components.violet_pool_controller.error_handler import EnhancedErrorHandler
 from custom_components.violet_pool_controller.services import (
@@ -99,15 +99,20 @@ class TestGetConnectionStatus:
 
     @pytest.mark.asyncio
     async def test_get_connection_status_device_not_found(self, service_handlers):
-        """Test connection status with device not found."""
-        # Mock coordinator as None
+        """An unknown device id is a caller mistake, not an API failure.
+
+        It therefore raises the translated ``ServiceValidationError`` rather
+        than a bare ``HomeAssistantError`` with a hand-written message.
+        """
         service_handlers.manager.get_coordinator_for_device = AsyncMock(return_value=None)
 
         call = Mock()
         call.data = {"device_id": ["invalid_device"]}
 
-        with pytest.raises(HomeAssistantError, match="Device .* not found"):
+        with pytest.raises(ServiceValidationError) as raised:
             await service_handlers.handle_get_connection_status(call)
+        assert raised.value.translation_key == "device_not_found"
+        assert raised.value.translation_placeholders == {"device_id": "invalid_device"}
 
 
 class TestGetErrorSummary:

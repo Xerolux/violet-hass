@@ -35,8 +35,9 @@
 
 | Anforderung | Mindest | Empfohlen |
 |-------------|---------|-----------|
-| Home Assistant | 2026.1.0 | 2026.x (aktuell) |
-| Python | Wird von Home Assistant 2026.1.0+ bereitgestellt | Von Home Assistant verwaltet |
+| Integration | 2.7.0 | 2.7.0 (aktuelles Release) |
+| Home Assistant | 2026.8.0 | 2026.9.x (aktuell) |
+| Python | Wird von Home Assistant 2026.8.0+ bereitgestellt | Von Home Assistant verwaltet |
 | Netzwerk | Controller per HTTP erreichbar | Feste IP-Adresse (DHCP-Reservierung) |
 | HACS | Optional | Empfohlen für einfache Updates |
 | Speicher | <10 MB | – |

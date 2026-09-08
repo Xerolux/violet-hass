@@ -4,7 +4,9 @@
 
 > The API client is developed in its own repository
 > [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api)
-> and installed as a dependency via PyPI (`violet-poolController-api>=0.0.35`).
+> and published to PyPI. Home Assistant installs it from the `requirements`
+> list in `manifest.json` (`violet-poolController-api>=0.0.39`);
+> `requirements.txt` is the development mirror of that list, not what HA reads.
 
 ---
 
@@ -30,14 +32,14 @@ violet-hass/
 │
 ├── tests/                              # Test suite
 │   ├── conftest.py                     # Pytest fixtures
-│   ├── test_*.py                       # 20+ test files
+│   ├── test_*.py                       # unit, platform and scenario tests
 │   └── getReadings_spec.json           # API mock data
 │
 ├── docs/                               # Documentation
 │   ├── wiki/                          # Bilingual wiki pages
 │   └── [other docs]
 │
-├── CLAUDE.md                           # Developer instructions (you are here)
+├── CLAUDE.md                           # Developer instructions
 ├── ARCHITECTURE.md                     # This file
 ├── CONTRIBUTING.md                     # Contribution guidelines
 ├── README.md                           # Project overview
@@ -70,13 +72,16 @@ VioletPoolControllerDevice
   ├── async_update()                    # Fetch readings from controller
   ├── available: bool                   # Connection status
   ├── device_info: dict                 # HA device metadata
-  ├── auto_recovery logic               # Exponential backoff on failures
   └── diagnostics                       # Health metrics, latency, request rate
 ```
 
 - **Encapsulates hardware communication**
-- **Auto-recovery** with exponential backoff (10s → 300s)
-- **Thread-safe** (uses locks for API access)
+- **Recovery is not implemented here.** Retries live in the API package
+  (exponential backoff capped at 30 s, `max_retries` from
+  `CONF_RETRY_ATTEMPTS`, reads only), and a failed setup is retried by Home
+  Assistant's own `ConfigEntryNotReady` handling. The integration adds no
+  recovery loop, attempt counter or backoff schedule of its own.
+- **Single `_api_lock`** serialises polling
 - **Smart logging** with throttling (5-minute intervals)
 
 ### 3. **Entity Architecture** (10 Platforms)
@@ -89,12 +94,12 @@ Each entity type extends `CoordinatorEntity` + `VioletPoolControllerEntity`:
 | **binary_sensor** | Digital inputs, alarms, status | 20+ |
 | **switch** | Multi-state device control (pump, heater, dosing) | 30+ |
 | **climate** | Thermostat (pool heater) | 2 |
-| **cover** | Pool cover control | 1 |
+| **cover** | Pool cover control (open/close/stop; no position) | 1 |
 | **number** | Setpoint inputs | 10+ |
 | **select** | Mode selection | 5+ |
-| **light** | RGB/DMX lighting | 5+ |
+| **light** | DMX scenes - **on/off only**, no RGB or brightness | 5+ |
 | **update** | Firmware updates | 1 |
-| **button** | Manual actions | 5+ |
+| **button** | Manual actions | 1 |
 
 **Key Features**:
 - **Safe data access** via `get_value()`, `get_float_value()`, etc.
@@ -113,15 +118,23 @@ All mappings in `DEVICE_STATE_MAPPING` (API package).
 ### 5. **Service Architecture** (Control & Diagnostics)
 
 ```
-VioletServiceManager
-  ├── VioletServiceHandlers
-  │   ├── VioletControlServiceHandlers     # Action services
-  │   │   └── control_pump, smart_dosing, manage_pv_surplus, etc.
-  │   │
-  │   └── VioletDiagnosticServiceHandlers  # Diagnostic services
-  │       └── export_diagnostic_logs, get_connection_status, etc.
-  │
-  └── Service schemas (Voluptuous validation)
+VioletServiceManager                       # resolves coordinators + devices
+  └── VioletServiceHandlers                # services.py composes these
+      ├── service_mixins/                  # one mixin per subject area
+      │   ├── pump.py, dosing.py, climate.py, cover.py
+      │   ├── extension.py, rules.py, system.py
+      │   └── _validation.py               # shared argument checks
+      ├── VioletControlServiceHandlers     # service_control.py
+      ├── VioletDiagnosticServiceHandlers  # service_diagnostics.py
+      ├── VioletRefillOverflowServiceHandlers  # refill_overflow_service.py
+      └── VioletControlClient              # http_control.py, the *_http family
+
+  Guards every command passes through:
+      ├── SafetyGuard      (safety_guard.py)  cooldowns + restart-safe auto-stop
+      ├── AuthReportingAPI (auth_guard.py)    turns silent auth rejects into a repair
+      └── UNSAFE_SWITCH_KEYS (const.py)       dosing/backwash/refill are opt-in
+
+  Schemas: service_schemas.py + refill_overflow_schemas.py (Voluptuous)
 ```
 
 - **Rate-limited** API calls (respects controller limits)
@@ -164,7 +177,7 @@ VioletPoolAPI.set_device_temperature(...)  [HTTP GET /setFunctionManually?...]
   ↓
 Response: {"success": true}
   ↓
-coordinator.update_setpoint_cache("POOL_TEMP_SETPOINT", 28.0)
+coordinator.update_setpoint_cache(<the setpoint key present in the readings>, 28.0)
   ↓
 async_update_listeners()  [Immediate feedback]
   ↓
@@ -191,21 +204,21 @@ Next poll returns 28°C (cache invalidated, live data wins)
 ```python
 api = VioletPoolAPI(
     host="192.168.1.100",
-    use_ssl=False,
+    use_ssl=False,       # DEFAULT_USE_SSL is False
     username="admin",
     password="password",
-    verify_ssl=True,
+    verify_ssl=False,    # DEFAULT_VERIFY_SSL is False
     timeout=10,
-    max_retries=3
+    max_retries=3,       # reads only; commands are sent exactly once
 )
-readings = await api.get_readings()  # dict[str, Any]
+readings = await api.get_readings()  # -> VioletReadings (dict-like, typed)
 response = await api.set_switch_state("PUMP", "ON")  # {"success": bool}
 ```
 
 **Rate Limiter** – Token Bucket Algorithm
 - Prevents API flooding
-- Configurable rate (default: 10 req/sec)
-- Handles retries + backoff
+- `API_RATE_LIMIT_REQUESTS = 10` per `API_RATE_LIMIT_WINDOW = 1.0 s`, burst 3
+- Applied to retries as well: a timed-out request no longer bypasses it
 
 **Circuit Breaker** – Fault Tolerance
 - States: CLOSED (normal) → OPEN (failing) → HALF_OPEN (recovery) → CLOSED
@@ -267,8 +280,11 @@ VioletErrorCodes
 
 ### Recovery Strategy
 - **Smart logging** with throttling (5-min intervals for repeated errors)
-- **Auto-recovery** with exponential backoff
-- **Max 10 attempts** before requiring manual intervention
+- **Read retries** in the API package: exponential backoff capped at 30 s,
+  `max_retries` from `CONF_RETRY_ATTEMPTS` (1-10, default 3)
+- **Commands are never retried** - a retried dosing command doses twice
+- **Failed setup** is retried by Home Assistant itself
+  (`ConfigEntryNotReady`); the integration keeps no attempt counter
 - **User-friendly messages** in UI (translated)
 
 ---
@@ -283,7 +299,9 @@ See [SECURITY.md](./SECURITY.md) for full architecture.
 3. **Explicit user actions only** – No automations that change state without user command
 4. **Input validation** – All user inputs sanitized
 5. **Rate limiting** – Prevent API abuse
-6. **SSL/TLS** – Certificate verification enabled by default
+6. **SSL/TLS** – Off by default (`DEFAULT_USE_SSL`/`DEFAULT_VERIFY_SSL` are
+   `False`, because controllers ship self-signed on a local network);
+   switch both on in the config flow where the certificate is trusted
 
 ---
 
@@ -301,10 +319,9 @@ See [SECURITY.md](./SECURITY.md) for full architecture.
 - **Mock data** – `getReadings_spec.json` (real API response example)
 
 ### Continuous Integration
-- Python 3.12-3.14 matrix
-- Ruff linting + Mypy type checking
-- Home Assistant 2026.5.x compatibility
-- Security scanning (CodeQL, TruffleHog)
+- Python 3.12-3.14 matrix: ruff on all three, mypy + pytest + coverage on 3.14
+- Home Assistant: the harness pin (currently 2026.8.3), floor 2026.8.0
+- Security scanning (CodeQL, TruffleHog, Trivy)
 
 ---
 
@@ -323,17 +340,25 @@ See [SECURITY.md](./SECURITY.md) for full architecture.
 - Automatically redacts: passwords, usernames
 
 ### Debug Logging
-- `CONF_ENABLE_DIAGNOSTIC_LOGGING` (config option)
-- Per-device logging toggle
-- Useful for troubleshooting connection issues
+Home Assistant's own per-integration debug logging, or in `configuration.yaml`:
+
+```yaml
+logger:
+  logs:
+    custom_components.violet_pool_controller: debug
+```
+
+The `get_live_trace_snapshot` and `export_diagnostic_logs` services return
+recent activity without touching the log configuration.
 
 ---
 
 ## Performance Considerations
 
 ### Polling Interval
-- Default: 10 seconds
-- Configurable: 5-300 seconds
+- Default: 10 seconds (`DEFAULT_POLLING_INTERVAL`)
+- Configurable: 10-3600 seconds (`MIN_POLLING_INTERVAL`/`MAX_POLLING_INTERVAL`
+  in `config_flow_utils/constants.py`)
 - Trades off freshness vs. API load
 
 ### Data Structures
@@ -342,16 +367,18 @@ See [SECURITY.md](./SECURITY.md) for full architecture.
 - **Cache**: Setpoint cache (invalidated per poll)
 
 ### Concurrency
-- **API lock** (`_api_lock`) – Serializes API calls
-- **No race conditions** – Coordinator ensures single update at a time
-- **Thread-safe** – Safe for multi-threaded HA environments
+- **API lock** (`_api_lock`) – the coordinator's single lock; serialises polling
+- **No race conditions** – coordinator ensures a single update at a time
+- Service handlers call the API directly; command serialisation is the API
+  package's rate limiter, not a second lock here
 
 ---
 
 ## Deployment
 
 ### Home Assistant Integration
-- **Minimum HA**: 2026.1.0 (Python 3.14.2)
+- **Minimum HA**: 2026.8.0 (declared in `hacs.json`; Python is whatever that
+  release manages)
 - **Distribution**: HACS + GitHub releases
 - **Installation**: Custom Components → Add repository → Install
 
@@ -362,12 +389,17 @@ See [SECURITY.md](./SECURITY.md) for full architecture.
 
 ### Updates
 - **Release workflow** (`.github/workflows/release.yml`)
-  - Tag `v*` → creates GH release
-  - Auto-updates manifest.json version
-- **Dev releases** (`v*-dev.*`) on every main push
-- **API releases** (tag `api-v*`)
-  - Published to PyPI
-  - Version must match `pyproject.toml`
+  - Tag `v*.*.*` → runs the quality gate, then creates the GitHub release
+  - **Verifies** that `manifest.json`, `const.py`, `pyproject.toml`,
+    `.version` and CLAUDE.md all carry the tag's version. It does not write
+    them - bump them yourself before tagging, or the release fails.
+  - Requires a `## Version X.Y.Z (YYYY-MM-DD)` section in `CHANGELOG.md`;
+    that section becomes the release page
+- **Dev releases** (`v*-dev.<sha>`) from `.github/workflows/dev-release.yml`,
+  after a green validation of a push to main
+- **API releases** happen in the
+  [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api)
+  repository, from a `workflow_dispatch` run and plain `v*` tags
 
 ---
 
@@ -379,7 +411,12 @@ See [SECURITY.md](./SECURITY.md) for full architecture.
 | `entity.py` | Base entity class |
 | `config_flow.py` | UI configuration |
 | `error_handler.py` | Error code mappings |
-| `service_*.py` | Service implementations |
+| `service_*.py`, `service_mixins/` | Service implementations |
+| `safety_guard.py` | Cooldowns + restart-safe auto-stop for unsafe outputs |
+| `auth_guard.py` | Reports silent auth rejections as a repair issue |
+| `device_hierarchy.py` | Child-device layout in the device registry |
+| `entity_cleanup.py`, `entity_selection.py` | Entity pruning and feature gating |
+| `runtime_data.py` | Per-config-entry runtime state |
 | `sensor.py`, `switch.py`, etc. | Entity platforms |
 | `manifest.json` | HA metadata + dependencies |
 | `CLAUDE.md` | Developer instructions |
@@ -411,5 +448,8 @@ pytest -v
 
 ---
 
-**Last Updated**: 2026-06-16  
-**Version**: 2.0.0 (Integration) + 0.0.33 (API)
+> This file carries no version footer on purpose. The previous one said
+> "Version 2.0.0 + 0.0.33, Last Updated 2026-06-16" while the integration was
+> at 2.6.x - a hand-maintained stamp that nothing checked. The authoritative
+> versions live in `custom_components/violet_pool_controller/manifest.json`
+> and in `manifest.json`'s `requirements` list; CI compares them on every run.

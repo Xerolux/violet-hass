@@ -17,6 +17,89 @@ anyone there either.
 > **Historical note:** entries up to and including 2.5.7 were written in German,
 > before the language policy existed. They are kept as they were published.
 
+## Version 2.7.0 (2026-09-08)
+
+### 📚 Documentation, CI and packaging cleanup
+
+The documentation had drifted far enough from the code to be actively
+misleading, and this release brings it back in line. Nothing here changes how
+the integration behaves at runtime; what changes is that the written claims
+about it are now true.
+
+**Documentation corrected against the code:**
+
+- `CLAUDE.md` claimed a `_recovery_lock`, an auto-recovery loop with a 10 s to
+  300 s backoff and a 10-attempt limit, and SSL verification "enabled by
+  default". None of those exist: there is one `_api_lock`, retries live in the
+  API package, and `DEFAULT_USE_SSL`/`DEFAULT_VERIFY_SSL` are both `False`.
+  It also listed 7 platforms in one place and 10 in another, and omitted
+  `service_mixins/`, `safety_guard.py`, `auth_guard.py`, `device_hierarchy.py`,
+  `entity_cleanup.py`, `entity_selection.py` and `sensor_modules/energy.py`.
+- `ARCHITECTURE.md` pinned the API at 0.0.35, Home Assistant at 2026.1.0, and
+  carried a hand-maintained "Version 2.0.0 + 0.0.33" footer. It documented a
+  `POOL_TEMP_SETPOINT` constant and a `CONF_ENABLE_DIAGNOSTIC_LOGGING` option
+  that do not exist, and a polling range of 5-300 s where the real range is
+  10-3600 s.
+- `SECURITY.md` named a reporting address on a domain the project does not
+  own, cited line numbers that had moved, described a "Command Queue"
+  component that was never built, and showed a test marked "(hypothetical)".
+  It now points at `tests/test_security_principles.py` and documents the
+  mechanisms that actually protect the pool: `UNSAFE_SWITCH_KEYS`,
+  `SafetyGuard` (cooldowns plus restart-safe auto-stop timers, scoped per
+  config entry) and `AuthReportingAPI`.
+- `CONTRIBUTING.md` claimed Bronze while `manifest.json` declares platinum,
+  listed an `api.py` that moved to the external package, and asked for a
+  commit format that contradicted the project's conventional commits.
+- The wiki called the integration an "add-on" on ten pages (a Home Assistant
+  add-on is a supervisor container, a different thing), documented a
+  `log_export` service whose real name is `export_diagnostic_logs`, and had
+  version strings frozen at 2.3.0-beta.1 across nine files.
+
+**Supply chain:**
+
+- Every floating GitHub Action is pinned to a commit SHA: `hassfest`,
+  `hacs/action`, `trufflehog` (three call sites) and `trivy-action`.
+- `.zcode/plans/` and `.claude/settings.local.json` were tracked in git and
+  are now removed and ignored.
+
+**CI and packaging:**
+
+- `requirements-dev.txt` is the single source of truth for dev-tool version
+  floors. `tox.ini` installs it instead of repeating the list, and the unused
+  `dev` extra is gone from `pyproject.toml`.
+- `mypy_path` no longer points at a sibling checkout, so CI and a local run
+  type-check the same installed package.
+- The dev pre-release moved out of `validate.yml` into its own
+  `dev-release.yml`, so `release.yml` no longer has to grant `contents: write`
+  to the whole quality gate.
+- `validate.yml` no longer cancels an in-flight release validation, and its
+  lint-only Python 3.12/3.13 legs are labelled as lint rather than "Tests".
+- The Pages build copies the whole `docs/` tree, so a new asset cannot
+  silently 404.
+
+**Tests:**
+
+- The ~750-line stub Home Assistant layer (`conftest_ha_mock.py`,
+  `conftest_api_mock.py`) is gone. A missing Home Assistant or API package now
+  stops the run with an actionable message instead of producing a green run
+  that tested the stubs. The obsolete `threading.enumerate` and timezone
+  monkey-patches were removed with it.
+- `tests/docker/` issued real pump ON/OFF commands against production hardware
+  from a script called "test", and referenced a compose file that does not
+  exist in this repository. Removed.
+- The live hardware check scripts moved to `scripts/live/` and read their
+  credentials inside `main()` rather than at import time.
+- `tests/test_language_policy.py` now scans Python sources for German prose
+  and checks that the published documentation names the current version.
+
+**Also:**
+
+- The API client pin moves to `violet-poolController-api>=0.0.39`, which drops
+  the `aiohttp<3.15` upper bound, stops retrying state-changing commands, and
+  no longer bypasses the rate limiter on a timeout.
+- All `Dashboard/*.yaml` headers and labels, `.gitattributes` and the badge
+  alt texts in this file are English, per the language policy.
+
 ## Version 2.6.1 (2026-09-06)
 
 ### 🔌 Only the modules that are really there

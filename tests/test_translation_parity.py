@@ -76,8 +76,12 @@ def test_strings_json_matches_english_translation() -> None:
     """strings.json and translations/en.json describe the same keys."""
     missing = _flatten(STRINGS) - _flatten(ENGLISH)
     extra = _flatten(ENGLISH) - _flatten(STRINGS)
-    assert not missing, f"in strings.json but not en.json: {sorted(missing)[:20]}"
-    assert not extra, f"in en.json but not strings.json: {sorted(extra)[:20]}"
+    hint = (
+        " - en.json is generated from strings.json; copy strings.json over "
+        "translations/en.json and add the new keys to the other languages."
+    )
+    assert not missing, f"in strings.json but not en.json: {sorted(missing)[:20]}{hint}"
+    assert not extra, f"in en.json but not strings.json: {sorted(extra)[:20]}{hint}"
 
 
 @pytest.mark.parametrize("path", LANGUAGE_FILES, ids=lambda p: p.name)
@@ -87,8 +91,14 @@ def test_language_file_has_the_english_key_set(path: Path) -> None:
     english = _flatten(ENGLISH)
     missing = english - keys
     extra = keys - english
-    assert not missing, f"{path.name} is missing: {sorted(missing)[:20]}"
-    assert not extra, f"{path.name} carries stale keys: {sorted(extra)[:20]}"
+    assert not missing, (
+        f"{path.name} is missing: {sorted(missing)[:20]} - a key a language file "
+        "does not define falls back to English without any warning"
+    )
+    assert not extra, (
+        f"{path.name} carries stale keys: {sorted(extra)[:20]} - they translate "
+        "nothing any more and should be deleted"
+    )
 
 
 def _collect_translation_keys() -> tuple[set[str], set[tuple[str, str]]]:

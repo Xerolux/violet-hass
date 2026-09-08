@@ -18,7 +18,6 @@ from .service_mixins import (
 _LOGGER = logging.getLogger(__name__)
 
 
-
 class VioletControlServiceHandlers(
     ClimateServiceHandlersMixin,
     CoverServiceHandlersMixin,
