@@ -4,7 +4,7 @@
 
 # 🏊 Violet Pool Controller - Complete Wiki
 
-Welcome to the **complete documentation** for the Violet Pool Controller Home Assistant add-on!
+Welcome to the **complete documentation** for the Violet Pool Controller Home Assistant integration!
 
 Here you will find everything you need - from installation to uninstallation, with detailed explanations of all features, states, and services.
 

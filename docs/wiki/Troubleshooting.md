@@ -312,7 +312,7 @@ If nothing helps:
 
 2. **System info:**
    - Home Assistant version
-   - Addon version
+   - Integration version
    - Controller model & firmware
 
 3. **Create an issue:**

@@ -12,7 +12,7 @@
 
 ### ⚠️ IMPORTANT SAFETY NOTICES
 
-**The Violet Pool Controller add-on controls real pool equipment:**
+**The Violet Pool Controller integration controls real pool equipment:**
 
 - ⚠️ **Pumps, heaters, and dosing systems can be remotely controlled**
 - ⚠️ **Incorrect configuration can cause property damage**

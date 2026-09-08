@@ -12,7 +12,7 @@
 
 ### ⚠️ WICHTIGE SICHERHEITSHINWEISE
 
-**Das Violet Pool Controller Addon steuert echte Poolausrüstung:**
+**Die Violet Pool Controller Integration steuert echte Poolausrüstung:**
 
 - ⚠️ **Pumpen, Heizungen, Dosieranlagen können ferngesteuert werden**
 - ⚠️ **Falsche Konfiguration kann zu Sachschäden führen**

@@ -4,7 +4,7 @@
 
 # 📦 Installation & Setup
 
-> Schritt-für-Schritt Anleitung zur Installation des Violet Pool Controller Addons in Home Assistant.
+> Schritt-für-Schritt Anleitung zur Installation der Violet Pool Controller Integration in Home Assistant.
 
 ---
 
@@ -12,7 +12,7 @@
 
 ### 🔒 Sicherheit & Haftungsausschluss
 
-**Das Violet Pool Controller Addon steuert echte Poolausrüstung:**
+**Die Violet Pool Controller Integration steuert echte Poolausrüstung:**
 
 - ⚠️ **Pumpen, Heizungen, Dosieranlagen können ferngesteuert werden**
 - ⚠️ **Falsche Konfiguration kann zu Sachschäden führen**
@@ -280,7 +280,7 @@ rm -rf /config/custom_components/violet_pool_controller
 docker restart homeassistant  # oder über HA-UI
 ```
 
-> **Hinweis**: Deine Automatisierungen und Dashboard-Konfigurationen bleiben erhalten, funktionieren aber ohne das Addon nicht mehr.
+> **Hinweis**: Deine Automatisierungen und Dashboard-Konfigurationen bleiben erhalten, funktionieren aber ohne die Integration nicht mehr.
 
 ---
 

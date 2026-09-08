@@ -4,7 +4,7 @@
 
 # Changelog – Versionshistorie
 
-> Alle wichtigen Änderungen am Violet Pool Controller Addon.
+> Alle wichtigen Änderungen an der Violet Pool Controller Integration.
 
 ---
 

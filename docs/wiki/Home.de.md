@@ -5,7 +5,7 @@
 # 🏊 Violet Pool Controller – Home Assistant Integration
 
 
-> **Die komplette Dokumentation** für das Violet Pool Controller Addon.
+> **Die komplette Dokumentation** für die Violet Pool Controller Integration.
 > Von der Installation bis zur Deinstallation – mit allen Features, States, Services und Automatisierungen.
 
 ---
@@ -44,7 +44,7 @@
 
 ---
 
-## Was ist das Violet Pool Controller Addon?
+## Was ist die Violet Pool Controller Integration?
 
 Das **Violet Pool Controller Home Assistant Integration** verbindet [Home Assistant](https://www.home-assistant.io/) mit dem [Violet Pool Controller](https://www.pooldigital.de/) von PoolDigital GmbH & Co. KG. Es ermöglicht vollständige lokale Steuerung und Überwachung deiner Poolanlage – **ohne Cloud, ohne Abonnement**.
 
