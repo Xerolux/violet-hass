@@ -12,7 +12,7 @@ from custom_components.violet_pool_controller.const import (
     CONF_DEVICE_NAME,
     CONF_USE_SSL,
     DOMAIN,
-    FIRMWARE_VERSION_REFRESH_POLLS,
+    FIRMWARE_VERSION_REFRESH_FETCHES,
 )
 from custom_components.violet_pool_controller.device import VioletPoolControllerDevice
 
@@ -90,7 +90,7 @@ class TestVioletPoolControllerDevice:
     def test_build_config_keys_always_includes_swversion_and_setpoints(self):
         """Every poll must include swversion and the setpoint keys."""
         device = VioletPoolControllerDevice.__new__(VioletPoolControllerDevice)
-        device._firmware_version_poll_counter = 0
+        device._config_fetch_counter = 0
         keys = device._build_config_keys()
 
         assert "SYSTEM_swversion" in keys
@@ -100,15 +100,15 @@ class TestVioletPoolControllerDevice:
     def test_build_config_keys_first_poll_includes_availableversion(self):
         """Counter == 0 (first poll after start) fetches availableversion immediately."""
         device = VioletPoolControllerDevice.__new__(VioletPoolControllerDevice)
-        device._firmware_version_poll_counter = 0
+        device._config_fetch_counter = 0
         keys = device._build_config_keys()
 
         assert "SYSTEM_availableversion" in keys
 
     def test_build_config_keys_throttles_availableversion(self):
-        """availableversion is fetched only every FIRMWARE_VERSION_REFRESH_POLLS cycles."""
+        """availableversion is fetched only every FIRMWARE_VERSION_REFRESH_FETCHES cycles."""
         device = VioletPoolControllerDevice.__new__(VioletPoolControllerDevice)
-        device._firmware_version_poll_counter = 1  # not a cadence boundary
+        device._config_fetch_counter = 1  # not a cadence boundary
         keys = device._build_config_keys()
 
         assert "SYSTEM_availableversion" not in keys
@@ -116,7 +116,7 @@ class TestVioletPoolControllerDevice:
     def test_build_config_keys_availableversion_again_at_cadence(self):
         """availableversion reappears exactly when counter hits a multiple of the cadence."""
         device = VioletPoolControllerDevice.__new__(VioletPoolControllerDevice)
-        device._firmware_version_poll_counter = FIRMWARE_VERSION_REFRESH_POLLS
+        device._config_fetch_counter = FIRMWARE_VERSION_REFRESH_FETCHES
         keys = device._build_config_keys()
 
         assert "SYSTEM_availableversion" in keys
@@ -125,9 +125,9 @@ class TestVioletPoolControllerDevice:
         """The live-server-trigger flag must NEVER be requested (value never consumed)."""
         device = VioletPoolControllerDevice.__new__(VioletPoolControllerDevice)
         # Sweep many cycles to be sure it never shows up regardless of counter.
-        device._firmware_version_poll_counter = 0
+        device._config_fetch_counter = 0
         seen_keys = set()
-        for _ in range(FIRMWARE_VERSION_REFRESH_POLLS + 5):
+        for _ in range(FIRMWARE_VERSION_REFRESH_FETCHES + 5):
             seen_keys.update(device._build_config_keys())
 
         assert "SYSTEM_updateavailable" not in seen_keys
@@ -135,11 +135,11 @@ class TestVioletPoolControllerDevice:
     def test_build_config_keys_increments_counter(self):
         """Each call advances the counter by exactly 1."""
         device = VioletPoolControllerDevice.__new__(VioletPoolControllerDevice)
-        device._firmware_version_poll_counter = 0
+        device._config_fetch_counter = 0
         device._build_config_keys()
         device._build_config_keys()
 
-        assert device._firmware_version_poll_counter == 2
+        assert device._config_fetch_counter == 2
 
 
 class TestHardwareModuleDetection:

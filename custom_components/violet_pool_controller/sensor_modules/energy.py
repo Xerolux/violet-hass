@@ -70,13 +70,10 @@ class VioletPumpPowerSensor(VioletPoolControllerEntity, SensorEntity):
         }
 
     def _get_active_speed(self) -> int | None:
-        for level in range(4):
-            rpm_key = f"PUMP_RPM_{level}"
-            rpm_val = self.coordinator.data.get(rpm_key) if self.coordinator.data else None
-            if rpm_val is not None:
-                try:
-                    if int(rpm_val) > 0:
-                        return level
-                except (ValueError, TypeError):
-                    continue
-        return None
+        """Return the pump speed level whose output currently reports on.
+
+        ``PUMP_RPM_n`` holds a state code, not an RPM value: 2 (rule-blocked),
+        5 (emergency off) and 6 (manual off) all mean the output is off, so the
+        previous ``> 0`` test reported power draw for a stopped pump.
+        """
+        return self.get_active_pump_speed()

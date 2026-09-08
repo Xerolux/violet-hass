@@ -281,29 +281,41 @@
     "api_error": {
       "message": "API communication error: {detail}"
     },
-    "invalid_value": {
-      "message": "Invalid value: {detail}"
+    "controller_unavailable": {
+      "message": "Pool controller {name} is unavailable after {failures} consecutive failures"
     },
-    "value_out_of_range": {
-      "message": "Value {value} is outside the valid range ({min}–{max})"
+    "device_not_found": {
+      "message": "No Violet Pool Controller found for device {device_id}"
     },
     "failed_to_set_value": {
       "message": "Failed to set value: {detail}"
     },
-    "read_only_entity": {
-      "message": "Entity {entity} is read-only and cannot be controlled manually"
+    "invalid_action": {
+      "message": "Invalid action: {action}"
+    },
+    "invalid_value": {
+      "message": "Invalid value: {detail}"
     },
     "no_api_key": {
       "message": "No API key configured for entity {entity}"
     },
-    "invalid_action": {
-      "message": "Invalid action: {action}"
+    "no_data": {
+      "message": "The controller has not delivered any data yet"
+    },
+    "no_devices": {
+      "message": "No Violet Pool Controller was selected for this service call"
+    },
+    "no_parameters": {
+      "message": "No parameters were given for {service} - nothing to change"
+    },
+    "read_only_entity": {
+      "message": "Entity {entity} is read-only and cannot be controlled manually"
     },
     "unexpected_error": {
       "message": "Unexpected error: {detail}"
     },
-    "controller_unavailable": {
-      "message": "Pool controller {name} is unavailable after {failures} consecutive failures"
+    "value_out_of_range": {
+      "message": "Value {value} is outside the valid range ({min}–{max})"
     }
   },
   "issues": {
@@ -327,166 +339,6 @@
     }
   },
   "services": {
-    "control_pump": {
-      "name": "Pump Control",
-      "description": "Control the pool pump with advanced options like speed, eco mode, or boost.",
-      "fields": {
-        "action": {
-          "name": "Control action",
-          "description": "Select: speed_control, force_off, eco_mode, boost_mode, or auto."
-        },
-        "speed": {
-          "name": "Pump speed",
-          "description": "Pump speed level (1-3)."
-        },
-        "duration": {
-          "name": "Duration (seconds)",
-          "description": "How long to apply the action (0 = indefinite)."
-        }
-      }
-    },
-    "smart_dosing": {
-      "name": "Smart Dosing",
-      "description": "Manual or automatic dosing control for pH, chlorine, and flocculant.\n\n**Caution:** Avoid overdosing! Always check water values beforehand.",
-      "fields": {
-        "dosing_type": {
-          "name": "Dosing chemical",
-          "description": "Select the chemical type (pH-, pH+, Chlorine, Flocculant)."
-        },
-        "action": {
-          "name": "Dosing action",
-          "description": "Select: manual_dose, auto, or stop."
-        },
-        "duration": {
-          "name": "Dosing duration (seconds)",
-          "description": "How long should dosing last? (5-300s)."
-        },
-        "safety_override": {
-          "name": "Override safety interval",
-          "description": "Skip the safety interval between dosing cycles."
-        }
-      }
-    },
-    "manage_pv_surplus": {
-      "name": "PV Surplus Management",
-      "description": "Control photovoltaic surplus mode for optimal solar power utilisation.\n\nPool devices are automatically powered with surplus solar energy.",
-      "fields": {
-        "mode": {
-          "name": "PV surplus mode",
-          "description": "Select: activate, deactivate, or auto."
-        },
-        "pump_speed": {
-          "name": "Pump speed",
-          "description": "Desired pump output for PV mode (1=Eco, 2=Normal, 3=Maximum)."
-        }
-      }
-    },
-    "control_dmx_scenes": {
-      "name": "DMX Scene Control",
-      "description": "Control DMX lighting scenes for pool area illumination.",
-      "fields": {
-        "device_id": {
-          "name": "Pool Controller",
-          "description": "Target Violet Pool Controller device."
-        },
-        "action": {
-          "name": "DMX action",
-          "description": "Select: all_on, all_off, all_auto, sequence, or party_mode."
-        },
-        "sequence_delay": {
-          "name": "Sequence delay (seconds)",
-          "description": "Delay between scenes in sequence mode (1-60s)."
-        }
-      }
-    },
-    "set_light_color_pulse": {
-      "name": "Light Color Pulse",
-      "description": "Send color pulse commands to pool lighting.",
-      "fields": {
-        "pulse_count": {
-          "name": "Number of pulses",
-          "description": "How many color pulses to send (1-10)."
-        },
-        "pulse_interval": {
-          "name": "Pulse interval (ms)",
-          "description": "Time between pulses in milliseconds (100-2000ms)."
-        }
-      }
-    },
-    "manage_digital_rules": {
-      "name": "Digital Rules Management",
-      "description": "Manage digital input automation rules for controller inputs.",
-      "fields": {
-        "device_id": {
-          "name": "Pool Controller",
-          "description": "Target Violet Pool Controller device."
-        },
-        "rule_key": {
-          "name": "Rule to manage",
-          "description": "Select the digital rule (DIRULE_1 through DIRULE_7)."
-        },
-        "action": {
-          "name": "Rule action",
-          "description": "Select: trigger, lock, or unlock."
-        }
-      }
-    },
-    "test_output": {
-      "name": "Output Test Mode",
-      "description": "Temporarily activates a controller output for diagnostics. Make sure no people or equipment are at risk while the output is forced.",
-      "fields": {
-        "device_id": {
-          "name": "Pool Controller",
-          "description": "Target Violet Pool Controller device."
-        },
-        "output": {
-          "name": "Output identifier",
-          "description": "Identifier such as PUMP, HEATER or SOLAR."
-        },
-        "mode": {
-          "name": "Test mode",
-          "description": "SWITCH=toggle, ON=force on, OFF=force off."
-        },
-        "duration": {
-          "name": "Test duration (seconds)",
-          "description": "Duration between 1 and 900 seconds."
-        }
-      }
-    },
-    "get_connection_status": {
-      "name": "Get Connection Status",
-      "description": "Get detailed connection status and health metrics for troubleshooting.",
-      "fields": {
-        "device_id": {
-          "name": "Pool Controller",
-          "description": "Target Violet Pool Controller device."
-        }
-      }
-    },
-    "get_error_summary": {
-      "name": "Get Error Summary",
-      "description": "Get summary of recent errors and recovery suggestions.",
-      "fields": {
-        "device_id": {
-          "name": "Pool Controller",
-          "description": "Target Violet Pool Controller device."
-        },
-        "include_history": {
-          "name": "Include history",
-          "description": "Include detailed error history."
-        }
-      }
-    },
-    "test_connection": {
-      "name": "Test Connection",
-      "description": "Test connection to the controller and return diagnostic information.",
-      "fields": {
-        "device_id": {
-          "name": "Pool Controller",
-          "description": "Target Violet Pool Controller device."
-        }
-      }
-    },
     "clear_error_history": {
       "name": "Clear Error History",
       "description": "Clear error history after successful recovery (use with caution).",
@@ -497,133 +349,65 @@
         }
       }
     },
-    "set_all_dmx_scenes_mode": {
-      "name": "Control DMX lighting",
-      "description": "Controls **all DMX light scenes** simultaneously.\n\nPerfect for uniform lighting effects or complete on/off switching.",
+    "configure_analog_rule": {
+      "name": "Configure Analog Input Rule",
+      "description": "Configure analog input threshold rule (ANALOGRULE_1-8).",
       "fields": {
-        "device_id": {
-          "name": "Pool Controller",
-          "description": "Violet Pool Controller with DMX output."
+        "rule_id": {
+          "name": "Rule ID",
+          "description": "Rule number 1-8"
         },
-        "dmx_mode": {
-          "name": "Light mode",
-          "description": "All lights: On/Off/Auto."
-        }
-      }
-    },
-    "set_digital_input_rule_lock_state": {
-      "name": "Lock switching rule",
-      "description": "Locks or unlocks **digital switching rules**.\n\nPrevents unwanted triggering during maintenance or disturbances.",
-      "fields": {
-        "device_id": {
-          "name": "Pool Controller",
-          "description": "Violet Pool Controller with digital rules."
+        "enabled": {
+          "name": "Enable rule",
+          "description": "Turn rule on or off"
         },
-        "rule_key": {
-          "name": "Rule number",
-          "description": "Number of the rule to lock (DIRULE_1 to DIRULE_7)."
+        "adc_input": {
+          "name": "ADC input",
+          "description": "Analog input channel (1-8)"
         },
-        "lock_state": {
-          "name": "Lock",
-          "description": "Lock rule (On) or release rule (Off)."
-        }
-      }
-    },
-    "trigger_digital_input_rule": {
-      "name": "Trigger switching rule",
-      "description": "Manually triggers a **digital switching rule**.\n\nUseful for testing automations or for manual control when needed.",
-      "fields": {
-        "device_id": {
-          "name": "Pool Controller",
-          "description": "Violet Pool Controller with the rules."
+        "logic": {
+          "name": "Comparison logic",
+          "description": "Use >= (greater than or equal) or <= (less than or equal)"
         },
-        "rule_key": {
-          "name": "Rule number",
-          "description": "Which rule to trigger? (DIRULE_1 to DIRULE_7)"
-        }
-      }
-    },
-    "export_diagnostic_logs": {
-      "name": "Export diagnostic logs",
-      "description": "Exports **recent integration logs** for troubleshooting and support.\n\nCollects relevant log entries and enables download or file storage.\n\n**Tip:** Useful for problems or when sending logs to support!",
-      "fields": {
-        "device_id": {
-          "name": "Pool Controller",
-          "description": "Violet Pool Controller for the export"
+        "threshold": {
+          "name": "Threshold value",
+          "description": "Trigger value for the analog input"
         },
-        "lines": {
-          "name": "Number of lines",
-          "description": "How many recent log lines to export? (10-1000)"
+        "hysteresis": {
+          "name": "Hysteresis value",
+          "description": "Hysteresis band for debouncing"
         },
-        "include_timestamps": {
-          "name": "Include timestamps",
-          "description": "Include timestamps in the exported logs"
+        "runtime_on": {
+          "name": "Runtime ON",
+          "description": "Time when rule can activate (HH:MM)"
         },
-        "save_to_file": {
-          "name": "Save as file",
-          "description": "Save logs as text file in the /config/ directory"
-        }
-      }
-    },
-    "control_heater_http": {
-      "name": "Control Heater (HTTP)",
-      "description": "Control the pool heater with temperature setpoint.",
-      "fields": {
-        "action": {
-          "name": "Heater action",
-          "description": "Turn heater on or off"
+        "runtime_off": {
+          "name": "Runtime OFF",
+          "description": "Time when rule must deactivate (HH:MM)"
         },
-        "target_temperature": {
-          "name": "Target temperature",
-          "description": "Desired pool temperature (10-60°C)"
-        }
-      }
-    },
-    "control_solar_http": {
-      "name": "Control Solar (HTTP)",
-      "description": "Control the solar heating system.",
-      "fields": {
-        "action": {
-          "name": "Solar action",
-          "description": "Enable or disable solar heating"
+        "output_1": {
+          "name": "Output 1",
+          "description": "First output name"
         },
-        "target_temperature": {
-          "name": "Target temperature",
-          "description": "Target temperature for solar operation (10-60°C)"
-        }
-      }
-    },
-    "control_cover_http": {
-      "name": "Control Cover (HTTP)",
-      "description": "Control the pool cover (open, close, or stop).",
-      "fields": {
-        "action": {
-          "name": "Cover action",
-          "description": "Select: open, close, or stop"
-        }
-      }
-    },
-    "control_backwash_http": {
-      "name": "Control Backwash (HTTP)",
-      "description": "Run or abort the filter backwash cycle.",
-      "fields": {
-        "action": {
-          "name": "Backwash action",
-          "description": "Start the backwash cycle or abort it"
-        }
-      }
-    },
-    "manual_dosing_http": {
-      "name": "Manual Dosing (HTTP)",
-      "description": "Manually trigger chemical dosing.\n\n**Caution:** Always verify water values before dosing!",
-      "fields": {
-        "dosing_system": {
-          "name": "Chemical system",
-          "description": "Select the chemical to dose (chlorine, electrolysis, pH-, pH+, flocculant, H₂O₂)"
+        "output_1_state": {
+          "name": "Output 1 state",
+          "description": "State when rule activates (0-6)"
         },
-        "runtime_seconds": {
-          "name": "Runtime (seconds)",
-          "description": "How long to run the dosing pump (1-3600s)"
+        "output_2": {
+          "name": "Output 2",
+          "description": "Second output name"
+        },
+        "output_2_state": {
+          "name": "Output 2 state",
+          "description": "State when rule activates (0-6)"
+        },
+        "output_3": {
+          "name": "Output 3",
+          "description": "Third output name"
+        },
+        "output_3_state": {
+          "name": "Output 3 state",
+          "description": "State when rule activates (0-6)"
         }
       }
     },
@@ -645,63 +429,143 @@
         }
       }
     },
-    "set_dosing_target": {
-      "name": "Set Dosing Target",
-      "description": "Set the target value for chemical dosing control.",
+    "configure_overflow": {
+      "name": "Configure Overflow Protection",
+      "description": "Configure overflow, dry-run and bathing-detection protection.\n\nOnly the fields you fill in are written to the controller, so raising the overflow level cannot switch on another protection as a side effect.",
       "fields": {
-        "dosing_system": {
-          "name": "Chemical system",
-          "description": "Which dosing system to configure"
+        "enabled": {
+          "name": "Enable overflow protection",
+          "description": "Enable or disable the overflow protection."
         },
-        "target_value": {
-          "name": "Target value",
-          "description": "Target value (0-100, unit depends on chemical)"
+        "dryrun_level": {
+          "name": "Dry-run level",
+          "description": "Water level below which dry-run protection trips, in percent."
+        },
+        "dryrun_enabled": {
+          "name": "Enable dry-run protection",
+          "description": "Enable or disable dry-run protection."
+        },
+        "overflow_level": {
+          "name": "Overflow level",
+          "description": "Water level above which overflow protection trips, in percent."
+        },
+        "overflow_rpm": {
+          "name": "Drain pump speed",
+          "description": "Pump speed used while draining an overflow (0-3)."
+        },
+        "overflow_runtime": {
+          "name": "Drain runtime",
+          "description": "Maximum drain runtime, in seconds."
+        },
+        "bathing_ai_enabled": {
+          "name": "Enable bathing detection",
+          "description": "Detect bathers from the water level and react to it."
+        },
+        "bathing_level_change": {
+          "name": "Bathing level change",
+          "description": "Level change that counts as bathing, in percent."
+        },
+        "bathing_level_time": {
+          "name": "Bathing time window",
+          "description": "Time window for that level change, in seconds."
+        },
+        "bathing_pump_rpm": {
+          "name": "Bathing pump speed",
+          "description": "Pump speed used during bathing detection (0-3)."
+        },
+        "bathing_runtime": {
+          "name": "Bathing runtime",
+          "description": "Bathing-detection runtime, in seconds."
         }
       }
     },
-    "set_dosing_daytime": {
-      "name": "Set Dosing Daytime",
-      "description": "Configure the daytime window for dosing operations.",
+    "configure_refill": {
+      "name": "Configure Water Refill",
+      "description": "Configure the automatic water refill system.\n\nOnly the fields you fill in are written to the controller.",
       "fields": {
-        "dosing_system": {
-          "name": "Chemical system",
-          "description": "Which dosing system to configure"
-        },
-        "day_start": {
-          "name": "Day start time",
-          "description": "When daytime starts (HH:MM format)"
-        },
-        "day_end": {
-          "name": "Day end time",
-          "description": "When daytime ends (HH:MM format)"
-        }
-      }
-    },
-    "set_dosing_max_daily": {
-      "name": "Set Dosing Maximum Daily",
-      "description": "Set the maximum daily dosing volume.",
-      "fields": {
-        "dosing_system": {
-          "name": "Chemical system",
-          "description": "Which dosing system to configure"
-        },
-        "max_daily_ml": {
-          "name": "Maximum daily volume",
-          "description": "Maximum volume in ml per day (10-10000)"
-        }
-      }
-    },
-    "enable_dosing": {
-      "name": "Enable Dosing",
-      "description": "Enable or disable a dosing system.",
-      "fields": {
-        "dosing_system": {
-          "name": "Chemical system",
-          "description": "Which dosing system to enable/disable"
+        "refill_type": {
+          "name": "Refill sensor type",
+          "description": "Which level sensor drives the refill (1-3)."
         },
         "enabled": {
-          "name": "Enable dosing",
-          "description": "Turn dosing system on or off"
+          "name": "Enable refill",
+          "description": "Enable or disable the automatic refill."
+        },
+        "max_fill_time": {
+          "name": "Maximum fill time",
+          "description": "Upper limit for a single refill run, in seconds."
+        },
+        "target_level": {
+          "name": "Target level",
+          "description": "Water level the refill aims for, in percent."
+        },
+        "blocks_dosing": {
+          "name": "Block dosing",
+          "description": "Suspend chemical dosing while the refill runs."
+        }
+      }
+    },
+    "configure_sensor_calibration": {
+      "name": "Configure Sensor Calibration",
+      "description": "Configure temperature sensor calibration offsets and multipliers.",
+      "fields": {
+        "sensor_id": {
+          "name": "Sensor ID",
+          "description": "Temperature sensor number 1-12"
+        },
+        "offset": {
+          "name": "Offset",
+          "description": "Temperature offset in °C (-10 to +10)"
+        },
+        "multiplier": {
+          "name": "Multiplier",
+          "description": "Calibration multiplier (0.5 to 2.0)"
+        },
+        "min_value": {
+          "name": "Minimum value",
+          "description": "Minimum valid sensor reading"
+        },
+        "max_value": {
+          "name": "Maximum value",
+          "description": "Maximum valid sensor reading"
+        }
+      }
+    },
+    "configure_switching_rule": {
+      "name": "Configure Switching Input Rule",
+      "description": "Configure digital input-based rule (SWITCHINGRULE_1-8).",
+      "fields": {
+        "rule_id": {
+          "name": "Rule ID",
+          "description": "Rule number 1-8"
+        },
+        "enabled": {
+          "name": "Enable rule",
+          "description": "Turn rule on or off"
+        },
+        "di_input": {
+          "name": "Digital input",
+          "description": "Digital input pin (1-12)"
+        },
+        "contact_type": {
+          "name": "Contact type",
+          "description": "0=Normally Open (NO), 1=Normally Closed (NC)"
+        },
+        "output": {
+          "name": "Output name",
+          "description": "Output to control"
+        },
+        "action_on": {
+          "name": "Action ON state",
+          "description": "Output state when contact closes (0-6)"
+        },
+        "action_off": {
+          "name": "Action OFF state",
+          "description": "Output state when contact opens (0-6)"
+        },
+        "timeout": {
+          "name": "Timeout",
+          "description": "Auto-reset timeout in seconds (0=disabled)"
         }
       }
     },
@@ -771,106 +635,6 @@
         }
       }
     },
-    "configure_analog_rule": {
-      "name": "Configure Analog Input Rule",
-      "description": "Configure analog input threshold rule (ANALOGRULE_1-8).",
-      "fields": {
-        "rule_id": {
-          "name": "Rule ID",
-          "description": "Rule number 1-8"
-        },
-        "enabled": {
-          "name": "Enable rule",
-          "description": "Turn rule on or off"
-        },
-        "adc_input": {
-          "name": "ADC input",
-          "description": "Analog input channel (1-8)"
-        },
-        "logic": {
-          "name": "Comparison logic",
-          "description": "Use >= (greater than or equal) or <= (less than or equal)"
-        },
-        "threshold": {
-          "name": "Threshold value",
-          "description": "Trigger value for the analog input"
-        },
-        "hysteresis": {
-          "name": "Hysteresis value",
-          "description": "Hysteresis band for debouncing"
-        },
-        "runtime_on": {
-          "name": "Runtime ON",
-          "description": "Time when rule can activate (HH:MM)"
-        },
-        "runtime_off": {
-          "name": "Runtime OFF",
-          "description": "Time when rule must deactivate (HH:MM)"
-        },
-        "output_1": {
-          "name": "Output 1",
-          "description": "First output name"
-        },
-        "output_1_state": {
-          "name": "Output 1 state",
-          "description": "State when rule activates (0-6)"
-        },
-        "output_2": {
-          "name": "Output 2",
-          "description": "Second output name"
-        },
-        "output_2_state": {
-          "name": "Output 2 state",
-          "description": "State when rule activates (0-6)"
-        },
-        "output_3": {
-          "name": "Output 3",
-          "description": "Third output name"
-        },
-        "output_3_state": {
-          "name": "Output 3 state",
-          "description": "State when rule activates (0-6)"
-        }
-      }
-    },
-    "configure_switching_rule": {
-      "name": "Configure Switching Input Rule",
-      "description": "Configure digital input-based rule (SWITCHINGRULE_1-8).",
-      "fields": {
-        "rule_id": {
-          "name": "Rule ID",
-          "description": "Rule number 1-8"
-        },
-        "enabled": {
-          "name": "Enable rule",
-          "description": "Turn rule on or off"
-        },
-        "di_input": {
-          "name": "Digital input",
-          "description": "Digital input pin (1-12)"
-        },
-        "contact_type": {
-          "name": "Contact type",
-          "description": "0=Normally Open (NO), 1=Normally Closed (NC)"
-        },
-        "output": {
-          "name": "Output name",
-          "description": "Output to control"
-        },
-        "action_on": {
-          "name": "Action ON state",
-          "description": "Output state when contact closes (0-6)"
-        },
-        "action_off": {
-          "name": "Action OFF state",
-          "description": "Output state when contact opens (0-6)"
-        },
-        "timeout": {
-          "name": "Timeout",
-          "description": "Auto-reset timeout in seconds (0=disabled)"
-        }
-      }
-    },
     "configure_timer_rule": {
       "name": "Configure Timer Rule",
       "description": "Configure time-based automation rule (TIMERRULE_1-8).",
@@ -921,6 +685,170 @@
         }
       }
     },
+    "control_backwash_http": {
+      "name": "Control Backwash (HTTP)",
+      "description": "Run or abort the filter backwash cycle.\n\n**Caution:** a duration is mandatory - the backwash is stopped automatically when it elapses.",
+      "fields": {
+        "action": {
+          "name": "Backwash action",
+          "description": "Start the backwash cycle or abort it"
+        },
+        "duration_seconds": {
+          "name": "Duration (seconds)",
+          "description": "How long the backwash may run (10-3600s). It is stopped automatically afterwards."
+        },
+        "safety_override": {
+          "name": "Override safety interval",
+          "description": "Skip the cooldown between two backwash runs."
+        }
+      }
+    },
+    "control_cover_http": {
+      "name": "Control Cover (HTTP)",
+      "description": "Control the pool cover (open, close, or stop).",
+      "fields": {
+        "action": {
+          "name": "Cover action",
+          "description": "Select: open, close, or stop"
+        }
+      }
+    },
+    "control_dmx_scenes": {
+      "name": "DMX Scene Control",
+      "description": "Control DMX lighting scenes for pool area illumination.",
+      "fields": {
+        "device_id": {
+          "name": "Pool Controller",
+          "description": "Target Violet Pool Controller device."
+        },
+        "action": {
+          "name": "DMX action",
+          "description": "Select: all_on, all_off, all_auto, sequence, or party_mode."
+        },
+        "sequence_delay": {
+          "name": "Sequence delay (seconds)",
+          "description": "Delay between scenes in sequence mode (1-60s)."
+        }
+      }
+    },
+    "control_extension_relay": {
+      "name": "Control Extension Relay",
+      "description": "Control a single extension relay output (EXT1_1 to EXT1_8 and EXT2_1 to EXT2_8).",
+      "fields": {
+        "bank": {
+          "name": "Extension module",
+          "description": "Which extension module the relay sits on (1 or 2)."
+        },
+        "relay": {
+          "name": "Relay",
+          "description": "Relay number on that module (1-8)."
+        },
+        "action": {
+          "name": "Relay action",
+          "description": "Select: on (manual ON), off (manual OFF), or auto (back to the controller's own rules)."
+        },
+        "duration": {
+          "name": "Duration",
+          "description": "How long to hold the action, in seconds (0 = until changed)."
+        }
+      }
+    },
+    "control_heater_http": {
+      "name": "Control Heater (HTTP)",
+      "description": "Control the pool heater with temperature setpoint.",
+      "fields": {
+        "action": {
+          "name": "Heater action",
+          "description": "Turn heater on or off"
+        },
+        "target_temperature": {
+          "name": "Target temperature",
+          "description": "Desired pool temperature (10-60°C)"
+        }
+      }
+    },
+    "control_pump": {
+      "name": "Pump Control",
+      "description": "Control the pool pump with advanced options like speed, eco mode, or boost.",
+      "fields": {
+        "action": {
+          "name": "Control action",
+          "description": "Select: speed_control, force_off, eco_mode, boost_mode, or auto."
+        },
+        "speed": {
+          "name": "Pump speed",
+          "description": "Pump speed level (1-3)."
+        },
+        "duration": {
+          "name": "Duration (seconds)",
+          "description": "How long to apply the action (0 = indefinite)."
+        }
+      }
+    },
+    "control_pump_http": {
+      "name": "Control Pump (HTTP)",
+      "description": "Control the filter pump directly.\n\nSpeed 1-3 switches the pump to manual ON at that speed; use action \"off\" or force_off to switch it off.",
+      "fields": {
+        "speed": {
+          "name": "Pump speed",
+          "description": "Pump speed level (1=Eco, 2=Normal, 3=Maximum)."
+        },
+        "action": {
+          "name": "Control action",
+          "description": "Select: on, off, eco, or boost."
+        },
+        "force_off": {
+          "name": "Force off",
+          "description": "Switch the pump off regardless of the other fields."
+        }
+      }
+    },
+    "control_refill_http": {
+      "name": "Control Water Refill (HTTP)",
+      "description": "Start or stop a manual water refill.\n\n**Caution:** a duration is mandatory - the valve is closed automatically when it elapses so the pool cannot overflow.",
+      "fields": {
+        "action": {
+          "name": "Refill action",
+          "description": "Select: fill to start, stop to end a running refill."
+        },
+        "duration_seconds": {
+          "name": "Duration (seconds)",
+          "description": "How long to fill (10-3600s). The refill stops automatically afterwards."
+        },
+        "safety_override": {
+          "name": "Override safety interval",
+          "description": "Skip the cooldown between two refill runs."
+        }
+      }
+    },
+    "control_solar_http": {
+      "name": "Control Solar (HTTP)",
+      "description": "Control the solar heating system.",
+      "fields": {
+        "action": {
+          "name": "Solar action",
+          "description": "Enable or disable solar heating"
+        },
+        "target_temperature": {
+          "name": "Target temperature",
+          "description": "Target temperature for solar operation (10-60°C)"
+        }
+      }
+    },
+    "enable_dosing": {
+      "name": "Enable Dosing",
+      "description": "Enable or disable a dosing system.",
+      "fields": {
+        "dosing_system": {
+          "name": "Chemical system",
+          "description": "Which dosing system to enable/disable"
+        },
+        "enabled": {
+          "name": "Enable dosing",
+          "description": "Turn dosing system on or off"
+        }
+      }
+    },
     "enable_rule": {
       "name": "Enable/Disable Rule",
       "description": "Enable or disable any rule type.",
@@ -939,58 +867,197 @@
         }
       }
     },
-    "control_extension_relay": {
-      "name": "Control Extension Relay",
-      "description": "Control extension relay outputs (EXT1_1 to EXT8_8).",
+    "export_diagnostic_logs": {
+      "name": "Export diagnostic logs",
+      "description": "Exports **recent integration logs** for troubleshooting and support.\n\nCollects relevant log entries and enables download or file storage.\n\n**Tip:** Useful for problems or when sending logs to support!",
       "fields": {
-        "relay_id": {
-          "name": "Relay ID",
-          "description": "Extension relay number 1-8"
+        "device_id": {
+          "name": "Pool Controller",
+          "description": "Violet Pool Controller for the export"
         },
-        "action": {
-          "name": "Relay action",
-          "description": "on = Set to state 4 (manual ON), off = Set to state 6 (manual OFF), toggle = Set to state 0 (auto)"
+        "lines": {
+          "name": "Number of lines",
+          "description": "How many recent log lines to export? (10-1000)"
         },
-        "state": {
-          "name": "Direct state",
-          "description": "Direct state (0-6, overrides action if specified)"
+        "include_timestamps": {
+          "name": "Include timestamps",
+          "description": "Include timestamps in the exported logs"
         },
-        "duration": {
-          "name": "Duration",
-          "description": "How long to apply the action (0 = indefinite, in seconds)"
+        "save_to_file": {
+          "name": "Save as file",
+          "description": "Save logs as text file in the /config/ directory"
+        },
+        "include_config": {
+          "name": "Include configuration",
+          "description": "Include the integration configuration in the export."
+        },
+        "include_history": {
+          "name": "Include history",
+          "description": "Include the poll and error history in the export."
+        },
+        "include_states": {
+          "name": "Include entity states",
+          "description": "Include the current entity states in the export."
+        },
+        "include_raw_data": {
+          "name": "Include raw data",
+          "description": "Include the raw controller readings in the export."
         }
       }
     },
-    "configure_sensor_calibration": {
-      "name": "Configure Sensor Calibration",
-      "description": "Configure temperature sensor calibration offsets and multipliers.",
+    "get_backwash_status": {
+      "name": "Get Backwash Status",
+      "description": "Return the backwash state, the current step and the filter pressure.",
       "fields": {
-        "sensor_id": {
-          "name": "Sensor ID",
-          "description": "Temperature sensor number 1-12"
+        "device_id": {
+          "name": "Pool Controller",
+          "description": "Target Violet Pool Controller device."
+        }
+      }
+    },
+    "get_calibration_status": {
+      "name": "Get Calibration Status",
+      "description": "Return the calibration state of every calibrated sensor.",
+      "fields": {
+        "device_id": {
+          "name": "Pool Controller",
+          "description": "Target Violet Pool Controller device."
+        }
+      }
+    },
+    "get_connection_status": {
+      "name": "Get Connection Status",
+      "description": "Get detailed connection status and health metrics for troubleshooting.",
+      "fields": {
+        "device_id": {
+          "name": "Pool Controller",
+          "description": "Target Violet Pool Controller device."
+        }
+      }
+    },
+    "get_error_summary": {
+      "name": "Get Error Summary",
+      "description": "Get summary of recent errors and recovery suggestions.",
+      "fields": {
+        "device_id": {
+          "name": "Pool Controller",
+          "description": "Target Violet Pool Controller device."
         },
-        "offset": {
-          "name": "Offset",
-          "description": "Temperature offset in °C (-10 to +10)"
+        "include_history": {
+          "name": "Include history",
+          "description": "Include detailed error history."
+        }
+      }
+    },
+    "get_live_trace_snapshot": {
+      "name": "Get live trace snapshot",
+      "description": "Return a single-row snapshot of every controller reading.",
+      "fields": {
+        "device_id": {
+          "name": "Pool Controller",
+          "description": "Target Violet Pool Controller device."
+        }
+      }
+    },
+    "get_overflow_status": {
+      "name": "Get Overflow Status",
+      "description": "Return the overflow protection's configuration and live state.",
+      "fields": {
+        "device_id": {
+          "name": "Pool Controller",
+          "description": "Target Violet Pool Controller device."
+        }
+      }
+    },
+    "get_refill_status": {
+      "name": "Get Refill Status",
+      "description": "Return the refill system's configuration and live state.",
+      "fields": {
+        "device_id": {
+          "name": "Pool Controller",
+          "description": "Target Violet Pool Controller device."
+        }
+      }
+    },
+    "get_system_services_status": {
+      "name": "Get system service states",
+      "description": "Return the live state of all controller-side system services.",
+      "fields": {
+        "device_id": {
+          "name": "Pool Controller",
+          "description": "Target Violet Pool Controller device."
+        }
+      }
+    },
+    "get_system_update_status": {
+      "name": "Get Firmware Update Status",
+      "description": "Return the installed and available controller firmware versions.",
+      "fields": {
+        "device_id": {
+          "name": "Pool Controller",
+          "description": "Target Violet Pool Controller device."
+        }
+      }
+    },
+    "manage_digital_rules": {
+      "name": "Digital Rules Management",
+      "description": "Manage digital input automation rules for controller inputs.",
+      "fields": {
+        "device_id": {
+          "name": "Pool Controller",
+          "description": "Target Violet Pool Controller device."
         },
-        "multiplier": {
-          "name": "Multiplier",
-          "description": "Calibration multiplier (0.5 to 2.0)"
+        "rule_key": {
+          "name": "Rule to manage",
+          "description": "Select the digital rule (DIRULE_1 through DIRULE_8)."
         },
-        "min_value": {
-          "name": "Minimum value",
-          "description": "Minimum valid sensor reading"
+        "action": {
+          "name": "Rule action",
+          "description": "Select: trigger, lock, or unlock."
+        }
+      }
+    },
+    "manage_pv_surplus": {
+      "name": "PV Surplus Management",
+      "description": "Control photovoltaic surplus mode for optimal solar power utilisation.\n\nPool devices are automatically powered with surplus solar energy.",
+      "fields": {
+        "mode": {
+          "name": "PV surplus mode",
+          "description": "Select: activate or deactivate. The controller knows no AUTO mode for PV surplus."
         },
-        "max_value": {
-          "name": "Maximum value",
-          "description": "Maximum valid sensor reading"
+        "pump_speed": {
+          "name": "Pump speed",
+          "description": "Desired pump output for PV mode (1=Eco, 2=Normal, 3=Maximum)."
+        }
+      }
+    },
+    "manual_dosing_http": {
+      "name": "Manual Dosing (HTTP)",
+      "description": "Manually trigger chemical dosing.\n\n**Caution:** Always verify water values before dosing!",
+      "fields": {
+        "dosing_system": {
+          "name": "Chemical system",
+          "description": "Select the chemical to dose (chlorine, electrolysis, pH-, pH+, flocculant). H₂O₂ is not offered: it shares the chlorine output and the controller API has no way to select it, so a manual run would dose chlorine."
+        },
+        "runtime_seconds": {
+          "name": "Runtime (seconds)",
+          "description": "How long to run the dosing pump (1-3600s)"
+        },
+        "safety_override": {
+          "name": "Override safety interval",
+          "description": "Skip the cooldown between two dosing runs."
         }
       }
     },
     "reset_blocking": {
       "name": "Reset fault blockings",
       "description": "Clears fault-induced blockings on the controller (e.g. BLOCKED_BY_ESC after empty-canister alarm). Useful after fixing the underlying issue.",
-      "fields": {}
+      "fields": {
+        "device_id": {
+          "name": "Pool Controller",
+          "description": "Target Violet Pool Controller device."
+        }
+      }
     },
     "set_can_amount": {
       "name": "Set canister fill level",
@@ -1007,6 +1074,84 @@
         "action": {
           "name": "Action",
           "description": "adjust = only update fill level; reset = also clear daily counter"
+        },
+        "device_id": {
+          "name": "Pool Controller",
+          "description": "Target Violet Pool Controller device."
+        }
+      }
+    },
+    "set_dosing_daytime": {
+      "name": "Set Dosing Daytime",
+      "description": "Configure the daytime window for dosing operations.",
+      "fields": {
+        "dosing_system": {
+          "name": "Chemical system",
+          "description": "Which dosing system to configure"
+        },
+        "day_start": {
+          "name": "Day start time",
+          "description": "When daytime starts (HH:MM format)"
+        },
+        "day_end": {
+          "name": "Day end time",
+          "description": "When daytime ends (HH:MM format)"
+        }
+      }
+    },
+    "set_dosing_max_daily": {
+      "name": "Set Dosing Maximum Daily",
+      "description": "Set the maximum daily dosing volume.",
+      "fields": {
+        "dosing_system": {
+          "name": "Chemical system",
+          "description": "Which dosing system to configure"
+        },
+        "max_daily_ml": {
+          "name": "Maximum daily volume",
+          "description": "Maximum volume in ml per day (10-10000)"
+        }
+      }
+    },
+    "set_dosing_target": {
+      "name": "Set Dosing Target",
+      "description": "Set the target value for chemical dosing control.",
+      "fields": {
+        "dosing_system": {
+          "name": "Chemical system",
+          "description": "Which dosing system to configure"
+        },
+        "target_value": {
+          "name": "Target value",
+          "description": "Target value (0-100, unit depends on chemical)"
+        }
+      }
+    },
+    "set_light_color_pulse": {
+      "name": "Light Color Pulse",
+      "description": "Send color pulse commands to pool lighting.",
+      "fields": {
+        "pulse_count": {
+          "name": "Number of pulses",
+          "description": "How many color pulses to send (1-10)."
+        },
+        "pulse_interval": {
+          "name": "Pulse interval (ms)",
+          "description": "Time between pulses in milliseconds (100-2000ms)."
+        }
+      }
+    },
+    "set_omni_position": {
+      "name": "Set OmniTronic valve position",
+      "description": "Drive the OmniTronic multi-port valve to a fixed position (0-5). Position 0 returns to AUTO mode.",
+      "fields": {
+        "position": {
+          "name": "Position",
+          "description": "Target valve position (0=Filtration/AUTO, 1-5=other ports)"
+        },
+        "device_id": {
+          "name": "Pool Controller",
+          "description": "Target Violet Pool Controller device."
         }
       }
     },
@@ -1021,28 +1166,66 @@
         "enabled": {
           "name": "Enabled",
           "description": "true to enable, false to disable"
+        },
+        "device_id": {
+          "name": "Pool Controller",
+          "description": "Target Violet Pool Controller device."
         }
       }
     },
-    "get_system_services_status": {
-      "name": "Get system service states",
-      "description": "Return the live state of all controller-side system services.",
-      "fields": {}
-    },
-    "set_omni_position": {
-      "name": "Set OmniTronic valve position",
-      "description": "Drive the OmniTronic multi-port valve to a fixed position (0-5). Position 0 returns to AUTO mode.",
+    "smart_dosing": {
+      "name": "Smart Dosing",
+      "description": "Manual or automatic dosing control for pH, chlorine, electrolysis and flocculant.\n\nH₂O₂ is not offered: the controller API has no H₂O₂ dosing function.\n\n**Caution:** Avoid overdosing! Always check water values beforehand.",
       "fields": {
-        "position": {
-          "name": "Position",
-          "description": "Target valve position (0=Filtration/AUTO, 1-5=other ports)"
+        "dosing_type": {
+          "name": "Dosing chemical",
+          "description": "Select the chemical type (pH-, pH+, Chlorine, Electrolysis, Flocculant)."
+        },
+        "action": {
+          "name": "Dosing action",
+          "description": "Select: manual_dose, auto, or stop."
+        },
+        "duration": {
+          "name": "Dosing duration (seconds)",
+          "description": "How long should dosing last? (5-300s)."
+        },
+        "safety_override": {
+          "name": "Override safety interval",
+          "description": "Skip the safety interval between dosing cycles."
         }
       }
     },
-    "get_live_trace_snapshot": {
-      "name": "Get live trace snapshot",
-      "description": "Return a single-row snapshot of every controller reading.",
-      "fields": {}
+    "test_connection": {
+      "name": "Test Connection",
+      "description": "Test connection to the controller and return diagnostic information.",
+      "fields": {
+        "device_id": {
+          "name": "Pool Controller",
+          "description": "Target Violet Pool Controller device."
+        }
+      }
+    },
+    "test_output": {
+      "name": "Output Test Mode",
+      "description": "Temporarily activates a controller output for diagnostics. Make sure no people or equipment are at risk while the output is forced.",
+      "fields": {
+        "device_id": {
+          "name": "Pool Controller",
+          "description": "Target Violet Pool Controller device."
+        },
+        "output": {
+          "name": "Output identifier",
+          "description": "Identifier such as PUMP, HEATER or SOLAR."
+        },
+        "mode": {
+          "name": "Test mode",
+          "description": "SWITCH=toggle, ON=force on, OFF=force off."
+        },
+        "duration": {
+          "name": "Test duration (seconds)",
+          "description": "Duration between 1 and 900 seconds."
+        }
+      }
     }
   },
   "selector": {

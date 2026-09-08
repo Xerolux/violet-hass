@@ -1,38 +1,38 @@
-# Violet Pool Card - Dashboard Beispiele
-# Diese Datei zeigt verschiedene Konfigurationsbeispiele für die Violet Pool Card
+# Violet Pool Card - dashboard examples
+# This file shows several configuration examples for the Violet Pool Card
 #
-# HINWEIS:
-# - Diese Beispiele benoetigen die "Violet Pool Card" - eine eigenstaendige
-#   Lovelace-Karte, die NICHT Teil dieser Integration ist:
+# NOTE:
+# - These examples require the "Violet Pool Card" - a standalone
+#   Lovelace card that is NOT part of this integration:
 #   https://github.com/Xerolux/violet-pool-card
-#   Installation ueber HACS -> Frontend -> Eigene Repositories
-#   (Kategorie "Dashboard"), siehe Wiki-Seite "Dashboards & Pool-Karten".
-# - Ohne die Karte verwenden Sie die uebrigen Dashboards in diesem Ordner,
-#   die nur Standard-Karten benoetigen.
-# - Ersetzen Sie "violet_pool_controller" durch Ihren Device-Namen
+#   Install through HACS -> Frontend -> Custom repositories
+#   (category "Dashboard"), see the wiki page "Dashboards & Pool Cards".
+# - Without that card, use the other dashboards in this folder,
+#   which only need built-in cards.
+# - Replace "violet_pool_controller" with your own device name
 #
 # VERSION: 1.0.5 (2026-04-22)
 # ============================================================================
 
 # ============================================================================
-# EINZELNE CARDS - Detaillierte Steuerung
+# INDIVIDUAL CARDS - detailed control
 # ============================================================================
 
-# --- Pumpe Card ---
+# --- Pump Card ---
 - type: custom:violet-pool-card
   entity: switch.violet_pool_controller_pump
   card_type: pump
-  name: Pool Pumpe
+  name: Pool pump
   show_state: true
   show_detail_status: true
   show_controls: true
   show_runtime: true
 
-# --- Heizung Card ---
+# --- Heater Card ---
 - type: custom:violet-pool-card
   entity: climate.violet_pool_controller_heater
   card_type: heater
-  name: Pool Heizung
+  name: Pool heater
   show_state: true
   show_detail_status: true
   show_controls: true
@@ -41,78 +41,78 @@
 - type: custom:violet-pool-card
   entity: climate.violet_pool_controller_solar
   card_type: solar
-  name: Solar Heizung
+  name: Solar heater
   show_state: true
   show_detail_status: true
   show_controls: true
 
-# --- Chlor Dosierung Card ---
+# --- Chlorine dosing Card ---
 - type: custom:violet-pool-card
   entity: switch.violet_pool_controller_dos_1_cl
   card_type: dosing
   dosing_type: chlorine
-  name: Chlor Dosierung
+  name: Chlorine dosing
   show_state: true
   show_detail_status: true
   show_controls: true
   show_history: true
 
-# --- pH- Dosierung Card ---
+# --- pH- Dosing Card ---
 - type: custom:violet-pool-card
   entity: switch.violet_pool_controller_dos_4_phm
   card_type: dosing
   dosing_type: ph_minus
-  name: pH- Dosierung
+  name: pH- Dosing
   show_state: true
   show_detail_status: true
   show_controls: true
 
-# --- pH+ Dosierung Card ---
+# --- pH+ Dosing Card ---
 - type: custom:violet-pool-card
   entity: switch.violet_pool_controller_dos_5_php
   card_type: dosing
   dosing_type: ph_plus
-  name: pH+ Dosierung
+  name: pH+ Dosing
   show_state: true
   show_detail_status: true
   show_controls: true
 
-# --- Flockung Card ---
+# --- Flocculation Card ---
 - type: custom:violet-pool-card
   entity: switch.violet_pool_controller_dos_6_floc
   card_type: dosing
   dosing_type: flocculant
-  name: Flockung
+  name: Flocculation
   show_state: true
   show_detail_status: true
   show_controls: true
 
 # ============================================================================
-# OVERVIEW CARD - Alles auf einen Blick
+# OVERVIEW CARD - everything at a glance
 # ============================================================================
 
 - type: custom:violet-pool-card
   card_type: overview
   entities:
-    # Hauptgeräte
+    # Main devices
     - switch.violet_pool_controller_pump
     - climate.violet_pool_controller_heater
     - climate.violet_pool_controller_solar
-    # Dosierungen
+    # Dosing channels
     - switch.violet_pool_controller_dos_1_cl
     - switch.violet_pool_controller_dos_4_phm
     - switch.violet_pool_controller_dos_5_php
-    # Sensoren
+    # Sensors
     - sensor.violet_pool_controller_pool_temperature
     - sensor.violet_pool_ph_value
     - sensor.violet_pool_orp_value
     - sensor.violet_pool_controller_chlorine_level
 
 # ============================================================================
-# COMPACT CARDS - Dashboard Übersicht
+# COMPACT CARDS - dashboard overview
 # ============================================================================
 
-# Kompakte Ansicht - alle Geräte in einer Card
+# Compact view - every device in one card
 - type: vertical-stack
   cards:
     - type: custom:violet-pool-card
@@ -141,10 +141,10 @@
       show_controls: false
 
 # ============================================================================
-# DASHBOARD LAYOUTS - Verschiedene Ansichten
+# DASHBOARD LAYOUTS - different views
 # ============================================================================
 
-# --- Layout 1: Horizontal - Hauptgeräte ---
+# --- Layout 1: horizontal - main devices ---
 - type: horizontal-stack
   cards:
     - type: custom:violet-pool-card
@@ -159,7 +159,7 @@
       entity: climate.violet_pool_controller_solar
       card_type: solar
 
-# --- Layout 2: Grid - Alle Dosierungen ---
+# --- Layout 2: grid - all dosing channels ---
 - type: grid
   columns: 2
   square: false
@@ -184,10 +184,10 @@
       card_type: dosing
       dosing_type: flocculant
 
-# --- Layout 3: Vollständiges Pool Dashboard ---
+# --- Layout 3: complete pool dashboard ---
 - type: vertical-stack
   cards:
-    # Übersicht oben
+    # Overview at the top
     - type: custom:violet-pool-card
       card_type: overview
       entities:
@@ -201,7 +201,7 @@
         - sensor.violet_pool_ph_value
         - sensor.violet_pool_orp_value
 
-    # Hauptgeräte Steuerung
+    # Main device controls
     - type: horizontal-stack
       cards:
         - type: custom:violet-pool-card
@@ -212,7 +212,7 @@
           entity: climate.violet_pool_controller_heater
           card_type: heater
 
-    # Dosierungen Grid
+    # Dosing grid
     - type: grid
       columns: 3
       cards:
@@ -232,17 +232,17 @@
           dosing_type: ph_plus
 
 # ============================================================================
-# ERWEITERTE KONFIGURATION - Custom Styling
+# ADVANCED CONFIGURATION - custom styling
 # ============================================================================
 
-# Card mit benutzerdefinierten Farben
+# Card with custom colours
 - type: custom:violet-pool-card
   entity: switch.violet_pool_controller_pump
   card_type: pump
   accent_color: "#00bcd4"  # Cyan
   icon_color: "#ff9800"    # Orange
 
-# Card mit Tap Actions
+# Card with tap actions
 - type: custom:violet-pool-card
   entity: switch.violet_pool_controller_pump
   card_type: pump
@@ -258,17 +258,17 @@
     action: toggle
 
 # ============================================================================
-# MOBILE OPTIMIERT - Kompakte Ansichten
+# MOBILE OPTIMISED - compact views
 # ============================================================================
 
-# Mobile Dashboard - Vertical Stack
+# Mobile dashboard - vertical stack
 - type: vertical-stack
   cards:
-    # Overview ganz oben
+    # Overview right at the top
     - type: custom:violet-pool-card
       card_type: overview
 
-    # Wichtigste Geräte in Compact Mode
+    # Key devices in compact mode
     - type: custom:violet-pool-card
       entity: switch.violet_pool_controller_pump
       card_type: compact
@@ -282,10 +282,10 @@
       card_type: compact
 
 # ============================================================================
-# CONDITIONAL CARDS - Nur anzeigen bei bestimmten Zuständen
+# CONDITIONAL CARDS - shown only in certain states
 # ============================================================================
 
-# Zeige Heizung Card nur wenn aktiv oder blockiert
+# Show the heater card only when active or blocked
 - type: conditional
   conditions:
     - entity: climate.violet_pool_controller_heater
@@ -295,7 +295,7 @@
     entity: climate.violet_pool_controller_heater
     card_type: heater
 
-# Zeige Warnung wenn Chlor niedrig
+# Show a warning when chlorine is low
 - type: conditional
   conditions:
     - entity: sensor.violet_pool_orp_value
@@ -307,13 +307,13 @@
     dosing_type: chlorine
 
 # ============================================================================
-# PICTURE ELEMENTS - Card in Bild eingebettet
+# PICTURE ELEMENTS - card embedded in an image
 # ============================================================================
 
 - type: picture-elements
   image: /local/pool-background.jpg
   elements:
-    # Pumpe Position
+    # Pump position
     - type: custom:violet-pool-card
       entity: switch.violet_pool_controller_pump
       card_type: compact
@@ -322,7 +322,7 @@
         left: 10%
         width: 80%
 
-    # Heizung Position
+    # Heater position
     - type: custom:violet-pool-card
       entity: climate.violet_pool_controller_heater
       card_type: compact
@@ -331,7 +331,7 @@
         left: 10%
         width: 80%
 
-    # Wasserchemie Position
+    # Water chemistry position
     - type: custom:violet-pool-card
       entity: switch.violet_pool_controller_dos_1_cl
       card_type: compact
@@ -341,28 +341,28 @@
         width: 80%
 
 # ============================================================================
-# CUSTOM THEMES - Anpassung an bestehende Themes
+# CUSTOM THEMES - fitting in with an existing theme
 # ============================================================================
 
-# Mit Google Dark Theme
+# With the Google Dark theme
 - type: custom:violet-pool-card
   entity: switch.violet_pool_controller_pump
   card_type: pump
   theme: Google Dark Theme
 
-# Mit iOS Light Theme
+# With the iOS Light theme
 - type: custom:violet-pool-card
   entity: climate.violet_pool_controller_heater
   card_type: heater
   theme: iOS Light Mode
 
 # ============================================================================
-# BADGE ANSICHT - Status Bar
+# BADGE VIEW - status bar
 # ============================================================================
 
-# Für HA Badge Section (oben im Dashboard)
-# Hinweis: Badges werden in der View-Konfiguration definiert, nicht als separate YAML
-# Beispiel für ui-lovelace.yaml:
+# For the HA badge section (top of the dashboard)
+# Note: badges are defined in the view configuration, not as separate YAML
+# Example for ui-lovelace.yaml:
 # 
 # views:
 #   - title: Pool
@@ -380,13 +380,13 @@
 #                 card_type: pump
 
 # ============================================================================
-# PANEL MODE - Vollbild Dashboard
+# PANEL MODE - full-screen dashboard
 # ============================================================================
 
-# Komplettes Pool Control Panel
+# Complete pool control panel
 - type: custom:violet-pool-card
   card_type: overview
-  title: Pool Steuerung
+  title: Pool control
   entities:
     - switch.violet_pool_controller_pump
     - climate.violet_pool_controller_heater

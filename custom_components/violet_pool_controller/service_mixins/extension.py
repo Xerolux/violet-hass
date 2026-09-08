@@ -8,24 +8,29 @@ from typing import Any
 
 from homeassistant.const import ATTR_DEVICE_ID
 from homeassistant.core import ServiceCall
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from violet_poolcontroller_api.api import VioletPoolAPIError
 
 from ..const import (
     ACTION_ALLAUTO,
     ACTION_ALLOFF,
     ACTION_ALLON,
+    ACTION_AUTO,
     ACTION_OFF,
     ACTION_ON,
+    DOMAIN,
 )
-from ..http_control import VioletControlClient
-from ..service_helpers import (
-    as_device_id_list,
-)
+from ..service_helpers import as_device_id_list
 
 _LOGGER = logging.getLogger(__name__)
 
-
+# The extension-relay service takes an action, not a state: the controller's
+# command grammar is EXT<bank>_<relay>,{ON|OFF|AUTO},<duration>,0.
+RELAY_ACTIONS = {
+    "on": ACTION_ON,
+    "off": ACTION_OFF,
+    "auto": ACTION_AUTO,
+}
 
 
 class ExtensionServiceHandlersMixin:
@@ -43,7 +48,11 @@ class ExtensionServiceHandlersMixin:
         for device_id in device_ids:
             coordinator = await self.manager.get_coordinator_for_device(device_id)
             if not coordinator:
-                raise HomeAssistantError(f"Device not found: {device_id}")
+                raise ServiceValidationError(
+                    translation_domain=DOMAIN,
+                    translation_key="device_not_found",
+                    translation_placeholders={"device_id": device_id},
+                )
 
             try:
                 if action == "all_on":
@@ -126,7 +135,11 @@ class ExtensionServiceHandlersMixin:
                         }
 
                 else:
-                    raise HomeAssistantError(f"Unsupported DMX action: {action}")
+                    raise ServiceValidationError(
+                        translation_domain=DOMAIN,
+                        translation_key="invalid_action",
+                        translation_placeholders={"action": str(action)},
+                    )
 
                 if result.get("success") is not True:
                     _LOGGER.warning(
@@ -137,95 +150,100 @@ class ExtensionServiceHandlersMixin:
 
             except VioletPoolAPIError as err:
                 _LOGGER.error("DMX control error (%s): %s", device_id, err)
-                raise HomeAssistantError(f"DMX control failed: {err}") from err
+                raise HomeAssistantError(
+                    translation_domain=DOMAIN,
+                    translation_key="api_error",
+                    translation_placeholders={"detail": f"DMX control: {err}"},
+                ) from err
 
             await coordinator.async_request_refresh()
 
     async def handle_set_light_color_pulse(self, call: ServiceCall) -> None:
-        """Handle light color pulse service."""
+        """Handle light color pulse service.
+
+        Up to ten pulses two seconds apart add up to 20 s of sleeping, which is
+        far longer than a service call may block the event loop, so the
+        sequence runs as a background task exactly like the DMX sequence does.
+        The service returns as soon as the sequence has been scheduled.
+        """
         coordinators = await self.manager.get_coordinators_for_call(call)
-        pulse_count = call.data.get("pulse_count", 1)
-        pulse_interval = call.data.get("pulse_interval", 500)
+        pulse_count = int(call.data.get("pulse_count", 1))
+        pulse_interval = int(call.data.get("pulse_interval", 500))
 
-        for coordinator in coordinators:
+        async def _run_pulses(coordinator: Any) -> None:
             try:
-                _LOGGER.info(
-                    "Starting %d color pulses (interval: %dms)",
-                    pulse_count,
-                    pulse_interval,
-                )
-
-                for i in range(pulse_count):
+                for index in range(pulse_count):
                     result = await coordinator.device.api.set_light_color_pulse()
-
                     if result.get("success") is not True:
                         _LOGGER.warning(
                             "Pulse %d/%d failed: %s",
-                            i + 1,
+                            index + 1,
                             pulse_count,
                             result.get("response", result),
                         )
-
-                    if i < pulse_count - 1:
+                    if index < pulse_count - 1:
                         await asyncio.sleep(pulse_interval / 1000)
-
                 _LOGGER.info("Color pulse sequence completed (%d pulses)", pulse_count)
-
             except VioletPoolAPIError as err:
                 _LOGGER.error("Color pulse error: %s", err)
-                raise HomeAssistantError(f"Color pulse failed: {err}") from err
-
-            await coordinator.async_request_refresh()
-
-    async def handle_control_extension_relay(self, call: ServiceCall) -> None:
-        """Control extension relay outputs (EXT1_1 to EXT8_8)."""
-        coordinators = await self.manager.get_coordinators_for_call(call)
-        relay_id = int(call.data.get("relay_id", 0))
-
-        if not 1 <= relay_id <= 8:
-            raise HomeAssistantError(f"Relay ID must be 1-8, got {relay_id}")
-
-        action = call.data.get("action", "on")
-        state = call.data.get("state")
-        duration = call.data.get("duration", 0)
+            except Exception as err:  # noqa: BLE001 - a background task must not escape
+                _LOGGER.error("Color pulse background task crashed: %s", err)
+            else:
+                await coordinator.async_request_refresh()
 
         for coordinator in coordinators:
+            _LOGGER.info(
+                "Starting %d color pulses (interval: %dms)",
+                pulse_count,
+                pulse_interval,
+            )
+            self.hass.async_create_background_task(
+                _run_pulses(coordinator),
+                f"violet_color_pulse_{coordinator.config_entry.entry_id}",
+            )
+
+    async def handle_control_extension_relay(self, call: ServiceCall) -> None:
+        """Control one extension relay output (EXT1_1..EXT1_8, EXT2_1..EXT2_8).
+
+        The controller has two extension modules of eight relays each, so a
+        relay is addressed by bank *and* relay number.  The command grammar is
+        ``EXT<bank>_<relay>,{ON|OFF|AUTO},<duration>,0`` - the 0-6 numbers the
+        readings report are *states*, not actions, and sending one as an action
+        is rejected by the controller.
+        """
+        coordinators = await self.manager.get_coordinators_for_call(call)
+        bank = int(call.data["bank"])
+        relay = int(call.data["relay"])
+        action = call.data.get("action", "on")
+        duration = int(call.data.get("duration", 0))
+
+        api_action = RELAY_ACTIONS.get(action)
+        if api_action is None:
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="invalid_action",
+                translation_placeholders={"action": str(action)},
+            )
+
+        key = f"EXT{bank}_{relay}"
+        for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device.api)
-
-                if state is not None:
-                    await control.set_function_manually(f"EXT{relay_id}_1", str(state), duration)
-                    _LOGGER.info(
-                        "Extension relay EXT%d_1 set to state %d on %s",
-                        relay_id,
-                        state,
-                        coordinator.device.device_name,
-                    )
-                elif action == "on":
-                    await control.set_function_manually(f"EXT{relay_id}_1", "4", duration)
-                    _LOGGER.info(
-                        "Extension relay EXT%d_1 turned ON on %s",
-                        relay_id,
-                        coordinator.device.device_name,
-                    )
-                elif action == "off":
-                    await control.set_function_manually(f"EXT{relay_id}_1", "6", duration)
-                    _LOGGER.info(
-                        "Extension relay EXT%d_1 turned OFF on %s",
-                        relay_id,
-                        coordinator.device.device_name,
-                    )
-                elif action == "toggle":
-                    await control.set_function_manually(f"EXT{relay_id}_1", "0", duration)
-                    _LOGGER.info(
-                        "Extension relay EXT%d_1 toggled on %s",
-                        relay_id,
-                        coordinator.device.device_name,
-                    )
-
-                await coordinator.async_request_refresh()
-            except Exception as err:
-                raise HomeAssistantError(
-                    f"Failed to control extension relay EXT{relay_id}_1: {err}"
+                await coordinator.device.api.set_switch_state(
+                    key,
+                    api_action,
+                    duration=duration or None,
                 )
-
+                _LOGGER.info(
+                    "Extension relay %s set to %s on %s",
+                    key,
+                    api_action,
+                    coordinator.device.device_name,
+                )
+                await coordinator.async_request_refresh()
+            except VioletPoolAPIError as err:
+                _LOGGER.error("Extension relay error (%s): %s", key, err)
+                raise HomeAssistantError(
+                    translation_domain=DOMAIN,
+                    translation_key="api_error",
+                    translation_placeholders={"detail": f"{key}: {err}"},
+                ) from err

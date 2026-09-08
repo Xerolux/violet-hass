@@ -7,13 +7,12 @@ from typing import Any
 
 from homeassistant.const import ATTR_DEVICE_ID
 from homeassistant.core import ServiceCall
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from violet_poolcontroller_api.api import VioletPoolAPIError
 
+from ..const import DOMAIN
 from ..http_control import VioletControlClient
-from ..service_helpers import (
-    as_device_id_list,
-)
+from ..service_helpers import as_device_id_list
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -35,7 +34,11 @@ class SystemServiceHandlersMixin:
         for device_id in device_ids:
             coordinator = await self.manager.get_coordinator_for_device(device_id)
             if not coordinator:
-                raise HomeAssistantError(f"Device not found: {device_id}")
+                raise ServiceValidationError(
+                    translation_domain=DOMAIN,
+                    translation_key="device_not_found",
+                    translation_placeholders={"device_id": device_id},
+                )
 
             try:
                 result = await coordinator.device.api.set_output_test_mode(
@@ -58,7 +61,11 @@ class SystemServiceHandlersMixin:
                     )
             except VioletPoolAPIError as err:
                 _LOGGER.error("Test mode error (%s): %s", device_id, err)
-                raise HomeAssistantError(f"Test mode failed: {err}") from err
+                raise HomeAssistantError(
+                    translation_domain=DOMAIN,
+                    translation_key="api_error",
+                    translation_placeholders={"detail": f"output test: {err}"},
+                ) from err
 
             await coordinator.async_request_refresh()
 
@@ -68,21 +75,32 @@ class SystemServiceHandlersMixin:
         sensor_id = int(call.data.get("sensor_id", 0))
 
         if not 1 <= sensor_id <= 12:
-            raise HomeAssistantError(f"Sensor ID must be 1-12, got {sensor_id}")
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="value_out_of_range",
+                translation_placeholders={"value": str(sensor_id), "min": "1", "max": "12"},
+            )
 
         config_updates = {}
 
-        if offset := call.data.get("offset"):
-            config_updates[f"SENSOR_{sensor_id}_offset"] = offset
-        if multiplier := call.data.get("multiplier"):
-            config_updates[f"SENSOR_{sensor_id}_multiplier"] = multiplier
-        if min_value := call.data.get("min_value"):
-            config_updates[f"SENSOR_{sensor_id}_min"] = min_value
-        if max_value := call.data.get("max_value"):
-            config_updates[f"SENSOR_{sensor_id}_max"] = max_value
+        # ``is not None`` rather than truthiness: an offset of 0.0 is a
+        # meaningful calibration value and used to be silently dropped.
+        for field, suffix in (
+            ("offset", "offset"),
+            ("multiplier", "multiplier"),
+            ("min_value", "min"),
+            ("max_value", "max"),
+        ):
+            value = call.data.get(field)
+            if value is not None:
+                config_updates[f"SENSOR_{sensor_id}_{suffix}"] = value
 
         if not config_updates:
-            raise HomeAssistantError("No calibration parameters specified")
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="no_parameters",
+                translation_placeholders={"service": "configure_sensor_calibration"},
+            )
 
         for coordinator in coordinators:
             try:
@@ -96,6 +114,8 @@ class SystemServiceHandlersMixin:
                 await coordinator.async_request_refresh()
             except Exception as err:
                 raise HomeAssistantError(
-                    f"Failed to configure sensor {sensor_id} calibration: {err}"
-                )
+                    translation_domain=DOMAIN,
+                    translation_key="api_error",
+                    translation_placeholders={"detail": f"sensor {sensor_id} calibration: {err}"},
+                ) from err
 

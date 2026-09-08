@@ -13,6 +13,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any, cast
 
 from homeassistant.components.sensor import (
+    SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
     SensorStateClass,
@@ -23,7 +24,16 @@ from violet_poolcontroller_api.const_devices import VioletState
 
 from ..const import DOMAIN
 from ..device import VioletPoolDataUpdateCoordinator
-from ..entity import VioletPoolControllerEntity
+from ..entity import VioletPoolControllerEntity, parse_state_code
+from ..state_constants import (
+    STATE_AUTO_ACTIVE,
+    STATE_AUTO_PRIORITY_OFF,
+    STATE_AUTO_PRIORITY_ON,
+    STATE_AUTO_STANDBY,
+    STATE_EMERGENCY_OFF,
+    STATE_MANUAL_OFF,
+    STATE_MANUAL_ON,
+)
 from .base import (
     _TIME_FORMAT_KEYS,
     _TIMESTAMP_KEYS,
@@ -114,6 +124,91 @@ def controller_timestamp_to_datetime(
         return None
 
     return value
+
+
+# ---------------------------------------------------------------------------
+# Status sensor modes
+# ---------------------------------------------------------------------------
+# The API package renders its state descriptions in German by default, and the
+# integration never selects a language, so English installations used to see
+# "Automatik (Bereit)". Status sensors therefore publish a stable, lowercase
+# mode key and let Home Assistant translate it like any other enum sensor.
+
+MODE_AUTO_ACTIVE = "auto_active"
+MODE_AUTO_INACTIVE = "auto_inactive"
+MODE_MANUAL_ON = "manual_on"
+MODE_MANUAL_OFF = "manual_off"
+MODE_FROST_PROTECTION = "frost_protection"
+MODE_ERROR = "error"
+MODE_MAINTENANCE = "maintenance"
+MODE_UNKNOWN = "unknown"
+
+STATUS_SENSOR_OPTIONS: list[str] = [
+    MODE_AUTO_ACTIVE,
+    MODE_AUTO_INACTIVE,
+    MODE_MANUAL_ON,
+    MODE_MANUAL_OFF,
+    MODE_FROST_PROTECTION,
+    MODE_ERROR,
+    MODE_MAINTENANCE,
+    MODE_UNKNOWN,
+]
+
+_STATE_CODE_MODES: dict[int, str] = {
+    STATE_AUTO_STANDBY: MODE_AUTO_INACTIVE,
+    STATE_AUTO_ACTIVE: MODE_AUTO_ACTIVE,
+    STATE_AUTO_PRIORITY_OFF: MODE_AUTO_INACTIVE,
+    STATE_AUTO_PRIORITY_ON: MODE_AUTO_ACTIVE,
+    STATE_MANUAL_ON: MODE_MANUAL_ON,
+    STATE_EMERGENCY_OFF: MODE_AUTO_INACTIVE,
+    STATE_MANUAL_OFF: MODE_MANUAL_OFF,
+}
+
+# PVSURPLUS does not use the 0-6 output scheme: 0 = off, 1 = on via digital
+# input (the controller's own decision), 2 = on via HTTP request (ours).
+_PV_SURPLUS_MODES: dict[int, str] = {
+    0: MODE_AUTO_INACTIVE,
+    1: MODE_AUTO_ACTIVE,
+    2: MODE_MANUAL_ON,
+}
+
+_TEXT_MODES: dict[str, str] = {
+    "ON": MODE_MANUAL_ON,
+    "OFF": MODE_MANUAL_OFF,
+    "STOPPED": MODE_MANUAL_OFF,
+    "ERROR": MODE_ERROR,
+    "MAINTENANCE": MODE_MAINTENANCE,
+}
+
+_FROST_MARKERS = ("ANTI_FREEZE", "FROST")
+
+
+def status_mode(raw_value: Any, key: str) -> str:
+    """Return the stable mode key for a raw status value.
+
+    Args:
+        raw_value: The value the controller reports, plain ("3") or composite
+            ("3|PUMP_ANTI_FREEZE").
+        key: The controller key, needed because PVSURPLUS has its own scheme.
+
+    Returns:
+        One of STATUS_SENSOR_OPTIONS.
+    """
+    text = str(raw_value).strip()
+    if not text or text in ("[]", "{}"):
+        return MODE_UNKNOWN
+
+    upper = text.upper()
+    if any(marker in upper for marker in _FROST_MARKERS):
+        return MODE_FROST_PROTECTION
+
+    code = parse_state_code(text)
+    if code is not None:
+        if key == "PVSURPLUS":
+            return _PV_SURPLUS_MODES.get(code, MODE_UNKNOWN)
+        return _STATE_CODE_MODES.get(code, MODE_UNKNOWN)
+
+    return _TEXT_MODES.get(upper.split("|", 1)[0].strip(), MODE_UNKNOWN)
 
 
 class VioletSensor(VioletPoolControllerEntity, SensorEntity):
@@ -271,24 +366,29 @@ class VioletStatusSensor(VioletSensor):
 
         return raw_value
 
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_options = STATUS_SENSOR_OPTIONS
+
+    @property
+    def state_class(self) -> SensorStateClass | None:
+        """An enum status is never a measurement."""
+        return None
+
+    @property
+    def native_unit_of_measurement(self) -> str | None:
+        """An enum status carries no unit."""
+        return None
+
     @property
     def native_value(self) -> str | int | float | datetime | None:
-        """Return the display string for the status."""
+        """Return the stable mode key for the current status."""
         if self.coordinator.data is None:
             return None
 
         raw_value = self._resolve_raw_value()
         if raw_value is None:
             return None
-        try:
-            return VioletState(raw_value, self.entity_description.key).display_mode
-        except (ValueError, KeyError, TypeError, AttributeError):
-            _LOGGER.warning(
-                "VioletState failed for key=%s raw=%s",
-                self.entity_description.key,
-                raw_value,
-            )
-            return str(raw_value)
+        return status_mode(raw_value, self.entity_description.key)
 
     @property
     def icon(self) -> str | None:

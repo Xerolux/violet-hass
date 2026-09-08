@@ -16,7 +16,7 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.config_entries import ConfigFlowResult
+from homeassistant.config_entries import ConfigFlowResult, UnknownEntry
 from homeassistant.core import callback
 from homeassistant.helpers import aiohttp_client, selector
 from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
@@ -28,6 +28,7 @@ from violet_poolcontroller_api import (
 
 from .config_entry_helpers import normalize_host
 from .config_flow_support import (
+    PASSWORD_SELECTOR,
     ConfigFlowSchemaMixin,
     ConfigFlowTextMixin,
     OptionsFlowHandler,
@@ -76,6 +77,7 @@ from .const import (
     DEFAULT_VERIFY_SSL,
     DOMAIN,
 )
+from .feature_keys import feature_for_key
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -93,7 +95,6 @@ class ConfigFlow(
     def __init__(self) -> None:
         """Initialize config flow."""
         self._config_data: dict[str, Any] = {}
-        self._sensor_data: dict[str, list[str]] = {}
         self._title_placeholders: dict[str, str] = {}
         self._reauth_entry: config_entries.ConfigEntry | None = None
         self._last_connection_error: str | None = None
@@ -194,7 +195,11 @@ class ConfigFlow(
 
         return self.async_show_form(
             step_id="connection",
-            data_schema=self._get_connection_schema(),
+            # Re-render with what the user typed instead of the static
+            # defaults, so a failed connection test does not wipe the form.
+            data_schema=self.add_suggested_values_to_schema(
+                self._get_connection_schema(), user_input
+            ),
             errors=errors,
             description_placeholders=self._get_help_links(),
         )
@@ -222,41 +227,11 @@ class ConfigFlow(
             data_schema=self._get_pool_setup_schema(),
         )
 
-    async def async_step_feature_selection(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
-        """Compatibility step: features are now detected automatically."""
-        return await self._auto_configure_entities()
-
-    async def async_step_sensor_selection(
-        self, user_input: dict[str, Any] | None = None
-    ) -> ConfigFlowResult:
-        """Handle the dynamic sensor selection step."""
-        if user_input:
-            selected_sensors = []
-            for key, value in user_input.items():
-                if isinstance(value, list) and value:
-                    selected_sensors.extend(value)
-
-            self._config_data[CONF_SELECTED_SENSORS] = selected_sensors
-            if selected_sensors:
-                _LOGGER.info("%d dynamic sensors selected", len(selected_sensors))
-            else:
-                _LOGGER.info("No dynamic sensors selected.")
-
-            return self.async_create_entry(
-                title=self._generate_entry_title(), data=self._config_data
-            )
-
-        return self.async_show_form(
-            step_id="sensor_selection",
-            data_schema=self._get_sensor_selection_schema(),
-        )
-
     async def async_step_reauth(self, entry_data: Mapping[str, Any]) -> ConfigFlowResult:
         """Handle reauthentication when credentials have changed or expired."""
-        self._reauth_entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
-        if self._reauth_entry is None:
+        try:
+            self._reauth_entry = self._get_reauth_entry()
+        except (ValueError, KeyError, UnknownEntry):
             return self.async_abort(reason="reauth_failed")
         return await self.async_step_reauth_confirm()
 
@@ -293,7 +268,8 @@ class ConfigFlow(
                         CONF_USERNAME,
                         default=self._reauth_entry.data.get(CONF_USERNAME, ""),
                     ): str,
-                    vol.Optional(CONF_PASSWORD): str,
+                    # Never pre-filled, and masked in the UI.
+                    vol.Optional(CONF_PASSWORD): PASSWORD_SELECTOR,
                 }
             ),
             errors=errors,
@@ -348,6 +324,9 @@ class ConfigFlow(
             "name": name,
             "host": f"{host}:{port}" if port not in (80, 443) else host,
         }
+        # Home Assistant renders the discovery card from the context, not from
+        # the attribute - without this the card shows only the integration name.
+        self.context["title_placeholders"] = self._title_placeholders
         return await self.async_step_zeroconf_confirm()
 
     async def async_step_zeroconf_confirm(
@@ -480,7 +459,9 @@ class ConfigFlow(
                 or not validators.validate_ip_address(api_url)
                 or (not self._is_ip_literal(api_url) and "." not in api_url)
             ):
-                errors[CONF_API_URL] = "invalid_ip"
+                # Must be the translated key, not a raw string - otherwise the
+                # UI shows "invalid_ip" verbatim.
+                errors[CONF_API_URL] = constants.ERROR_INVALID_IP
             else:
                 updated_data = dict(reconfigure_entry.data)
                 updated_data[CONF_API_URL] = api_url
@@ -493,8 +474,11 @@ class ConfigFlow(
                 updated_data[CONF_USERNAME] = user_input.get(
                     CONF_USERNAME, reconfigure_entry.data.get(CONF_USERNAME, "")
                 )
-                updated_data[CONF_PASSWORD] = user_input.get(
-                    CONF_PASSWORD, reconfigure_entry.data.get(CONF_PASSWORD, "")
+                # An empty field means "keep the stored password": the form
+                # never shows it, so it cannot be re-typed by accident.
+                updated_data[CONF_PASSWORD] = (
+                    user_input.get(CONF_PASSWORD)
+                    or reconfigure_entry.data.get(CONF_PASSWORD, "")
                 )
                 updated_data[CONF_POLLING_INTERVAL] = int(
                     user_input.get(CONF_POLLING_INTERVAL, DEFAULT_POLLING_INTERVAL)
@@ -508,18 +492,26 @@ class ConfigFlow(
 
                 self._config_data = updated_data
                 if await self._test_connection():
-                    self.hass.config_entries.async_update_entry(
+                    # The unique id is derived from host + device id, so it has
+                    # to follow the new host - otherwise zeroconf keeps
+                    # offering the very same controller as a new discovery.
+                    return self.async_update_reload_and_abort(
                         reconfigure_entry,
-                        data=updated_data,
+                        data_updates=updated_data,
+                        unique_id=self._build_unique_id(
+                            api_url, updated_data.get(CONF_DEVICE_ID, 1)
+                        ),
+                        reason="reconfigure_successful",
                     )
-                    await self.hass.config_entries.async_reload(reconfigure_entry.entry_id)
-                    return self.async_abort(reason="reconfigure_successful")
 
                 errors["base"] = constants.ERROR_CANNOT_CONNECT
 
         return self.async_show_form(
             step_id="reconfigure_connection",
-            data_schema=vol.Schema(
+            # Re-render with what the user typed, so a failed connection test
+            # does not throw the whole form away.
+            data_schema=self.add_suggested_values_to_schema(
+                vol.Schema(
                 {
                     vol.Required(
                         CONF_API_URL,
@@ -540,10 +532,9 @@ class ConfigFlow(
                         CONF_USERNAME,
                         default=reconfigure_entry.data.get(CONF_USERNAME, ""),
                     ): str,
-                    vol.Optional(
-                        CONF_PASSWORD,
-                        default=reconfigure_entry.data.get(CONF_PASSWORD, ""),
-                    ): str,
+                    # The stored password is never pre-filled into the form -
+                    # leaving the field empty keeps the current one.
+                    vol.Optional(CONF_PASSWORD): PASSWORD_SELECTOR,
                     vol.Required(
                         CONF_USE_SSL,
                         default=reconfigure_entry.data.get(CONF_USE_SSL, DEFAULT_USE_SSL),
@@ -592,67 +583,12 @@ class ConfigFlow(
                         )
                     ),
                 }
+                ),
+                user_input,
             ),
             errors=errors,
             description_placeholders={
                 "controller_name": reconfigure_entry.data.get(
-                    CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME
-                ),
-            },
-        )
-
-    async def async_step_repair(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        """Handle repair flow for controller_unavailable issue."""
-        errors: dict[str, str] = {}
-        repair_entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
-        if repair_entry is None:
-            return self.async_abort(reason="repair_failed")
-
-        if user_input:
-            updated_data = dict(repair_entry.data)
-            updated_data[CONF_API_URL] = user_input[CONF_API_URL]
-            updated_data[CONF_PORT] = int(user_input.get(CONF_PORT, DEFAULT_PORT))
-            updated_data[CONF_USERNAME] = user_input.get(CONF_USERNAME, "")
-            updated_data[CONF_PASSWORD] = user_input.get(CONF_PASSWORD, "")
-            self._config_data = updated_data
-            if await self._test_connection():
-                self.hass.config_entries.async_update_entry(repair_entry, data=updated_data)
-                await self.hass.config_entries.async_reload(repair_entry.entry_id)
-                return self.async_abort(reason="repair_successful")
-            errors["base"] = constants.ERROR_CANNOT_CONNECT
-
-        return self.async_show_form(
-            step_id="repair",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        CONF_API_URL,
-                        default=repair_entry.data.get(CONF_API_URL, ""),
-                    ): str,
-                    vol.Required(
-                        CONF_PORT,
-                        default=repair_entry.data.get(CONF_PORT, DEFAULT_PORT),
-                    ): selector.NumberSelector(
-                        selector.NumberSelectorConfig(
-                            min=1,
-                            max=65535,
-                            step=1,
-                            mode=selector.NumberSelectorMode.BOX,
-                        )
-                    ),
-                    vol.Optional(
-                        CONF_USERNAME,
-                        default=repair_entry.data.get(CONF_USERNAME, ""),
-                    ): str,
-                    vol.Optional(
-                        CONF_PASSWORD,
-                        default=repair_entry.data.get(CONF_PASSWORD, ""),
-                    ): str,
-                }
-            ),
-            errors=errors,
-            description_placeholders={
-                "controller_name": repair_entry.data.get(
                     CONF_CONTROLLER_NAME, DEFAULT_CONTROLLER_NAME
                 ),
             },
@@ -807,10 +743,23 @@ class ConfigFlow(
     async def _auto_configure_entities(self) -> ConfigFlowResult:
         """Auto-detect available features and sensors, then create entry."""
         sensor_data = await self._get_grouped_sensors()
-        self._sensor_data = sensor_data
         detected_keys = {key for sensors in sensor_data.values() for key in sensors}
         self._config_data[CONF_ACTIVE_FEATURES] = self._detect_active_features(detected_keys)
-        self._config_data[CONF_SELECTED_SENSORS] = list(detected_keys)
+
+        if detected_keys:
+            self._config_data[CONF_SELECTED_SENSORS] = sorted(detected_keys)
+        else:
+            # An empty list means "no entities at all" (see entity_selection.py),
+            # so it must never be stored just because the detection request
+            # failed. ``None`` means "everything the controller reports" and
+            # leaves the user with a working integration.
+            self._config_data[CONF_SELECTED_SENSORS] = None
+            _LOGGER.warning(
+                "No datapoints detected during setup of '%s'; keeping every "
+                "datapoint the controller reports instead of creating an entry "
+                "without entities",
+                self._config_data.get(CONF_API_URL, "unknown"),
+            )
 
         return self.async_create_entry(
             title=self._generate_entry_title(),
@@ -818,38 +767,23 @@ class ConfigFlow(
         )
 
     def _detect_active_features(self, detected_keys: set[str]) -> list[str]:
-        """Derive active features from controller data instead of user choices."""
-        feature_ids = {str(feature["id"]) for feature in AVAILABLE_FEATURES}
-        active: set[str] = set()
+        """Derive active features from controller data instead of user choices.
 
+        Uses the same key -> feature resolution the entity platforms apply
+        (``feature_keys.feature_for_key``). The hand-written marker table this
+        replaces knew nothing about ``dmx_scenes`` and ``eco_mode``, so a fresh
+        setup hid the DMX and ECO entities even though the controller reported
+        their keys.
+        """
         if not detected_keys:
             return [str(feature["id"]) for feature in AVAILABLE_FEATURES if feature["default"]]
 
-        feature_key_map = {
-            "filter_control": ("PUMP", "PUMPSTATE", "PUMP_RUNTIME"),
-            "solar": ("SOLAR", "SOLARSTATE", "SOLAR_RUNTIME", "onewire3", "onewire4"),
-            "heating": ("HEATER", "HEATERSTATE", "HEATER_RUNTIME", "onewire5", "onewire6"),
-            "led_lighting": ("LIGHT", "LIGHT_RUNTIME", "DMX_", "DMX_SCENE"),
-            "ph_control": ("pH", "PH", "DOS_4_PHM", "DOS_5_PHP"),
-            "chlorine_control": ("orp", "ORP", "pot", "DOS_1_CL", "DOS_2_ELO"),
-            "flocculation": ("DOS_6_FLOC",),
-            "cover_control": ("COVER", "COVER_STATE"),
-            "backwash": ("BACKWASH", "BACKWASHRINSE"),
-            "pv_surplus": ("PVSURPLUS",),
-            "water_level": ("WATER_LEVEL", "LEVEL"),
-            "water_refill": ("REFILL",),
-            "digital_inputs": ("INPUT", "DIGITALINPUTRULE_STATE", "DIRULE_"),
-            "extension_outputs": ("EXT1_", "EXT2_", "OMNI_DC"),
+        feature_ids = {str(feature["id"]) for feature in AVAILABLE_FEATURES}
+        active = {
+            feature
+            for key in detected_keys
+            if (feature := feature_for_key(key)) is not None and feature in feature_ids
         }
-
-        for feature_id, markers in feature_key_map.items():
-            if feature_id in feature_ids and any(
-                key.startswith(marker) or marker in key
-                for key in detected_keys
-                for marker in markers
-            ):
-                active.add(feature_id)
-
         return sorted(active)
 
     def _generate_entry_title(self) -> str:

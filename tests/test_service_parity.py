@@ -13,10 +13,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import homeassistant.helpers.config_validation as cv
 import pytest
 import voluptuous as vol
 import yaml
-from homeassistant.const import ATTR_DEVICE_ID, ATTR_ENTITY_ID
 
 from custom_components.violet_pool_controller.service_schemas import get_service_schemas
 
@@ -25,8 +25,13 @@ SERVICES_YAML = COMPONENT_DIR / "services.yaml"
 STRINGS_JSON = COMPONENT_DIR / "strings.json"
 SERVICES_PY = COMPONENT_DIR / "services.py"
 
-# Keys that a ``target:`` block supplies instead of a ``fields:`` entry.
-TARGET_KEYS = frozenset({ATTR_DEVICE_ID, ATTR_ENTITY_ID})
+# Keys a ``target:`` block supplies instead of a ``fields:`` entry - the five
+# entity-service fields plus the frontend's own ``metadata`` bucket.
+TARGET_KEYS = frozenset(
+    {str(key) for key in cv.ENTITY_SERVICE_FIELDS} | {"metadata"}
+)
+# The two of those a service may also expose as an ordinary field.
+PICKER_KEYS = frozenset({"device_id", "entity_id"})
 
 
 def _load_yaml() -> dict[str, dict]:
@@ -96,7 +101,7 @@ def test_service_offers_a_way_to_pick_a_target(service_name: str) -> None:
 
     entry = YAML_SERVICES[service_name]
     has_target = "target" in entry
-    has_field = bool(TARGET_KEYS & set(entry.get("fields") or {}))
+    has_field = bool(PICKER_KEYS & set(entry.get("fields") or {}))
     assert has_target or has_field, (
         f"{service_name} requires a device_id/entity_id but services.yaml offers "
         "neither a target: block nor a device_id/entity_id field, so a UI call "

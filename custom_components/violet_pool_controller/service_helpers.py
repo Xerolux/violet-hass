@@ -61,6 +61,13 @@ DOSING_SYSTEM_SLUGS = (
     "h2o2",
 )
 
+# The subset that can actually be *dosed*.  H2O2 shares the DOS_1_CL output and
+# is distinguished only by the firmware's ``from=3`` form field, which the
+# installed API exposes no way to set - dosing it would run the chlorine pump.
+# Its DOSAGE_h2o2_* configuration keys stay writable through the config
+# services above, only the manual run is withheld.
+DOSING_RUNNABLE_SLUGS = tuple(slug for slug in DOSING_SYSTEM_SLUGS if slug != "h2o2")
+
 DOSING_INDEX_MAP = {
     "chlorine": 0,  # DOS_1_CL
     "electrolysis": 1,  # DOS_2_ELO

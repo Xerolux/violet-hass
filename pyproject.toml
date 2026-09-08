@@ -28,7 +28,7 @@ ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
 # Live hardware check scripts use print() for CLI output
-"tests/live_*_check.py" = ["T201"]
+"scripts/live/*.py" = ["T201"]
 
 [tool.mypy]
 # Home Assistant 2026.8+ uses Python 3.14 syntax (e.g. except expressions without

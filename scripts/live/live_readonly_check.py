@@ -2,7 +2,7 @@
 
 Usage:
     set VIOLET_HOST / VIOLET_USER / VIOLET_PASS, then:
-    python tests/live_readonly_check.py
+    python scripts/live/live_readonly_check.py
 
 Performs ONLY GET requests (getReadings, getConfig, getLog) - no writes.
 """
@@ -12,10 +12,6 @@ import os
 
 import aiohttp
 from violet_poolcontroller_api.api import VioletPoolAPI
-
-HOST = os.environ["VIOLET_HOST"]
-USER = os.environ["VIOLET_USER"]
-PASS = os.environ["VIOLET_PASS"]
 
 DOS_KEYS = ["DOS_1_CL", "DOS_2_ELO", "DOS_4_PHM", "DOS_5_PHP", "DOS_6_FLOC"]
 USE_KEYS = [
@@ -28,8 +24,13 @@ USE_KEYS = [
 
 
 async def main() -> None:
+    # Read credentials inside main() so importing the module never raises.
+    host = os.environ["VIOLET_HOST"]
+    user = os.environ["VIOLET_USER"]
+    password = os.environ["VIOLET_PASS"]
+
     async with aiohttp.ClientSession() as session:
-        api = VioletPoolAPI(host=HOST, session=session, username=USER, password=PASS)
+        api = VioletPoolAPI(host=host, session=session, username=user, password=password)
 
         print("=== 1. getReadings?ALL (auth + data check) ===")
         readings = await api.get_readings()

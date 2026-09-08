@@ -6,12 +6,10 @@ import logging
 from typing import Any
 
 from homeassistant.core import ServiceCall
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from violet_poolcontroller_api.api import VioletPoolAPIError
 
-from ..const import (
-    ACTION_AUTO,
-)
+from ..const import DOMAIN
 from ..http_control import VioletControlClient
 
 _LOGGER = logging.getLogger(__name__)
@@ -25,7 +23,12 @@ class ClimateServiceHandlersMixin:
     manager: Any
 
     async def handle_manage_pv_surplus(self, call: ServiceCall) -> None:
-        """Handle PV surplus management service."""
+        """Handle PV surplus management service.
+
+        The controller documents ON and OFF for PVSURPLUS only (manual section
+        26.3); the API rewrites AUTO to OFF with a warning, so the service does
+        not offer an "auto" mode that would quietly do the opposite.
+        """
         coordinators = await self.manager.get_coordinators_for_call(call)
         mode = call.data["mode"]
         try:
@@ -50,18 +53,16 @@ class ClimateServiceHandlersMixin:
                     )
                     _LOGGER.info("PV surplus deactivated")
 
-                elif mode == "auto":
-                    result = await coordinator.device.api.set_switch_state(
-                        key="PVSURPLUS", action=ACTION_AUTO
-                    )
-                    _LOGGER.info("PV surplus set to AUTO")
-
                 if result.get("success") is not True:
                     _LOGGER.warning("PV surplus action failed: %s", result.get("response", result))
 
             except VioletPoolAPIError as err:
                 _LOGGER.error("PV surplus error: %s", err)
-                raise HomeAssistantError(f"PV surplus failed: {err}") from err
+                raise HomeAssistantError(
+                    translation_domain=DOMAIN,
+                    translation_key="api_error",
+                    translation_placeholders={"detail": f"PV surplus: {err}"},
+                ) from err
 
             await coordinator.async_request_refresh()
 
@@ -91,7 +92,11 @@ class ClimateServiceHandlersMixin:
 
             except Exception as err:
                 _LOGGER.error("Heater control error: %s", err)
-                raise HomeAssistantError(f"Heater control failed: {err}")
+                raise HomeAssistantError(
+                    translation_domain=DOMAIN,
+                    translation_key="api_error",
+                    translation_placeholders={"detail": f"Heater: {err}"},
+                ) from err
 
     async def handle_control_solar_http(self, call: ServiceCall) -> None:
         """Control solar via HTTP setFunctionManually (NEW API)."""
@@ -119,7 +124,11 @@ class ClimateServiceHandlersMixin:
 
             except Exception as err:
                 _LOGGER.error("Solar control error: %s", err)
-                raise HomeAssistantError(f"Solar control failed: {err}")
+                raise HomeAssistantError(
+                    translation_domain=DOMAIN,
+                    translation_key="api_error",
+                    translation_placeholders={"detail": f"Solar: {err}"},
+                ) from err
 
     async def handle_configure_temp_rule(self, call: ServiceCall) -> None:
         """Configure temperature rule (TEMPRULE_1-8)."""
@@ -128,7 +137,11 @@ class ClimateServiceHandlersMixin:
         enabled = call.data.get("enabled", True)
 
         if not 1 <= rule_id <= 8:
-            raise HomeAssistantError(f"Rule ID must be 1-8, got {rule_id}")
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="value_out_of_range",
+                translation_placeholders={"value": str(rule_id), "min": "1", "max": "8"},
+            )
 
         config_updates = {}
         prefix = f"TEMPRULE_{rule_id}_prog"
@@ -167,5 +180,9 @@ class ClimateServiceHandlersMixin:
                 )
                 await coordinator.async_request_refresh()
             except Exception as err:
-                raise HomeAssistantError(f"Failed to configure temperature rule {rule_id}: {err}")
+                raise HomeAssistantError(
+                    translation_domain=DOMAIN,
+                    translation_key="api_error",
+                    translation_placeholders={"detail": f"temperature rule {rule_id}: {err}"},
+                ) from err
 

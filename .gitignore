@@ -182,9 +182,7 @@ backups/
 node_modules/
 package-lock.json
 
-# Docker Test Environment - SENSITIVE DATA!
-tests/docker/test_credentials.txt
-tests/docker/*.local.txt
+# Docker test environment - SENSITIVE DATA!
 docker-compose.yml
 docker-compose.override.yml
 config/test_secrets.ps1
@@ -193,10 +191,10 @@ config/.test_token
 # Debug scripts with credentials
 scripts/debug_tools/
 
-# Local live hardware test scripts (use env vars in tracked live_*_check.py instead).
-# Never commit hardcoded controller credentials/IPs.
-tests/live_integration_check.py
-tests/live_*_local.py
+# Local live hardware check scripts (use env vars, as the tracked
+# scripts/live/*.py do). Never commit hardcoded controller credentials/IPs.
+scripts/live/*_local.py
+tests/live_*.py
 
 # Docker volumes (config directory with sensitive data)
 config/.storage/
@@ -246,9 +244,6 @@ config/blueprints/ (local edits)
 
 # Devcontainer internal doc
 /.devcontainer/README.md
-
-# Test artifacts / internal test docs
-/tests/docker/*.md
 
 # API package internal docs (PyPI README/CHANGELOG/SECURITY/CODE_OF_CONDUCT stay tracked)
 /violet_poolcontroller_api/AGENTS.md

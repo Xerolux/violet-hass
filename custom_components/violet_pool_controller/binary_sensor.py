@@ -230,7 +230,7 @@ async def async_setup_entry(
         _LOGGER.debug(
             "%d binary sensors added: %s",
             len(entities),
-            [e.name for e in entities],
+            [e.entity_description.key for e in entities],
         )
     else:
         _LOGGER.warning("No binary sensors were set up")

@@ -298,18 +298,35 @@ _FLOW_RATE_SOURCE_KEYS = {"ADC3_value", "IMP2_value"}
 _ERROR_CODE_KEYS = {"LAST_ERROR_CODE", "ERROR_CODE", "LAST_ERROR"}
 
 
-def _is_boolean_value(value: Any) -> bool:
-    """Checks if a value can be interpreted as a boolean."""
-    return str(value).lower().strip() in (
-        "true",
-        "false",
-        "1",
-        "0",
-        "on",
-        "off",
-        "yes",
-        "no",
+# Keys whose value is a state code rather than a measurement. Long-term
+# statistics need a stable state class, so these must never be recorded as
+# measurements.
+_STATE_CODE_KEYS: frozenset[str] = frozenset(
+    {f"INPUT{i}" for i in range(1, 13)}
+    | {f"INPUT_CE{i}" for i in range(1, 5)}
+    | {f"DMX_SCENE{i}" for i in range(1, 13)}
+)
+
+
+def is_state_code_key(key: str) -> bool:
+    """Return whether a key carries a state code instead of a measurement."""
+    return (
+        key in _STATE_CODE_KEYS
+        or key.startswith("DIGITALINPUTRULE_STATE_")
+        or (key.startswith("DOS_") and key.endswith("_USE"))
     )
+
+
+def is_boolean_key(key: str) -> bool:
+    """Return whether a key carries an on/off flag rather than a reading.
+
+    This used to be decided from the *value* sampled at setup time, so a key
+    such as ``orp_value_min`` got a different unit, device class and icon
+    depending on whether it happened to read 0 or 1 when the integration
+    started - and long-term statistics were corrupted whenever the two runs
+    disagreed. The decision now depends on the key alone, which never changes.
+    """
+    return key in _BOOLEAN_VALUE_KEYS or is_state_code_key(key)
 
 
 def format_seconds_to_readable(seconds: float) -> str:
@@ -339,9 +356,9 @@ def format_seconds_to_readable(seconds: float) -> str:
         return "0s"
 
 
-def determine_device_class(key: str, unit: str | None, raw_value: Any) -> SensorDeviceClass | None:
+def determine_device_class(key: str, unit: str | None) -> SensorDeviceClass | None:
     """Determines the appropriate device class for a sensor."""
-    if key in _BOOLEAN_VALUE_KEYS or (_is_boolean_value(raw_value) and key not in UNIT_MAP):
+    if is_boolean_key(key) and key not in UNIT_MAP:
         return None
     if key == "pH_value":
         return SensorDeviceClass.PH
@@ -395,6 +412,10 @@ def determine_state_class(key: str) -> SensorStateClass | None:
 
     if is_text_sensor(key) or is_timestamp_key or key in NO_UNIT_SENSORS:
         return None
+    # State codes (digital inputs, switching-rule states, DMX scenes, dosing
+    # enable flags) are enumerations, not measurements.
+    if is_state_code_key(key):
+        return None
     # Handle contact sensors (e.g., CLOSE_CONTACT) which return
     # string values like "RELEASED"/"TRIGGERED"
     if "contact" in key.lower():
@@ -411,8 +432,8 @@ def determine_state_class(key: str) -> SensorStateClass | None:
     return SensorStateClass.MEASUREMENT
 
 
-def get_icon(key: str, unit: str | None, raw_value: Any) -> str:
-    """Determin a sensor."""
+def get_icon(key: str, unit: str | None) -> str:
+    """Determine the icon for a sensor."""
     if key.startswith("EXT1_") or key.startswith("EXT2_"):
         return "mdi:electric-switch"
     if key.startswith("OMNI_DC"):
@@ -421,7 +442,7 @@ def get_icon(key: str, unit: str | None, raw_value: Any) -> str:
         return "mdi:script-text"
     if key.startswith("PUMP_RPM_") and key.endswith(("_LAST_ON", "_LAST_OFF")) is False:
         return "mdi:speedometer"
-    if key in _BOOLEAN_VALUE_KEYS or (_is_boolean_value(raw_value) and key not in UNIT_MAP):
+    if is_boolean_key(key) and key not in UNIT_MAP:
         return "mdi:toggle-switch"
     if key == "pH_value":
         return "mdi:flask"
@@ -455,7 +476,12 @@ def _build_sensor_description(
     *,
     translation_key: str | None = None,
 ) -> SensorEntityDescription:
-    """Builds a SensorEntityDescription for a given sensor key."""
+    """Builds a SensorEntityDescription for a given sensor key.
+
+    ``raw_value`` is only used to name ROM-code sensors; the device class,
+    state class, unit and icon are derived from the key alone so that two
+    starts of the same installation never classify a sensor differently.
+    """
     predefined_info = predefined.get(key)
     # Prefer translation key logic if implemented fully,
     # but for dynamic sensors derived from API keys, we need dynamic names.
@@ -475,7 +501,7 @@ def _build_sensor_description(
     unit = None if romcode_index is not None else UNIT_MAP.get(key)
     if key in NO_UNIT_SENSORS:
         unit = None
-    if _is_boolean_value(raw_value) and key not in UNIT_MAP:
+    if is_boolean_key(key) and key not in UNIT_MAP:
         unit = None
 
     # Force no unit for count/fault sensors (they are counters, not measurements)
@@ -533,9 +559,9 @@ def _build_sensor_description(
     return SensorEntityDescription(
         key=key,
         name=name,
-        icon=icon or get_icon(key, unit, raw_value),
+        icon=icon or get_icon(key, unit),
         native_unit_of_measurement=unit,
-        device_class=determine_device_class(key, unit, raw_value),
+        device_class=determine_device_class(key, unit),
         state_class=state_class,
         entity_category=category,
         translation_key=translation_key,

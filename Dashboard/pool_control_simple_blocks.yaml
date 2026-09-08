@@ -1,20 +1,20 @@
 # =============================================================================
-# Violet Pool Controller - SIMPLE BLOCKS (ohne Custom Cards)
+# Violet Pool Controller - SIMPLE BLOCKS (no custom cards)
 # =============================================================================
 #
-# Dieses Dashboard funktioniert OHNE zusätzliche Custom Cards!
-# Verwendet nur Standard Home Assistant Entities Card.
+# This dashboard works WITHOUT any additional custom cards.
+# Uses nothing but the built-in Home Assistant entities card.
 #
-# PERFEKT FÜR: Schneller Start, keine Abhängigkeiten, funktioniert überall
+# BEST FOR: a quick start, no dependencies, works everywhere
 # =============================================================================
 
 type: vertical-stack
 cards:
   # ============================================================================
-  # 🏊 FILTERPUMPE
+  # 🏊 FILTER PUMP
   # ============================================================================
   - type: entities
-    title: 🏊 Filterpumpe
+    title: 🏊 Filter pump
     show_header_toggle: false
     state_color: true
     entities:
@@ -22,20 +22,20 @@ cards:
         name: Status
         icon: mdi:information-outline
       - entity: switch.violet_pool_controller_filterpumpe
-        name: Modus
+        name: Mode
         icon: mdi:toggle-switch
       - entity: number.violet_pool_controller_pumpengeschwindigkeit
-        name: Geschwindigkeit (1=ECO, 2=Normal, 3=Boost)
+        name: Speed (1=ECO, 2=Normal, 3=Boost)
         icon: mdi:speedometer
       - entity: sensor.violet_pool_controller_pump_runtime
-        name: Laufzeit heute
+        name: Runtime today
         icon: mdi:timer-outline
 
   # ============================================================================
-  # 🔥 HEIZUNG
+  # 🔥 HEATER
   # ============================================================================
   - type: entities
-    title: 🔥 Heizung
+    title: 🔥 Heater
     show_header_toggle: false
     state_color: true
     entities:
@@ -43,16 +43,16 @@ cards:
         name: Status
         icon: mdi:information-outline
       - entity: switch.violet_pool_controller_heizung
-        name: Modus
+        name: Mode
         icon: mdi:toggle-switch
       - entity: number.violet_pool_controller_heizung_zieltemperatur
-        name: Zieltemperatur
+        name: Target temperature
         icon: mdi:thermometer-chevron-up
       - entity: sensor.violet_pool_controller_beckenwasser
-        name: Aktuelle Temperatur
+        name: Current temperature
         icon: mdi:thermometer-water
       - entity: sensor.violet_pool_controller_heater_runtime
-        name: Laufzeit heute
+        name: Runtime today
         icon: mdi:timer-outline
 
   # ============================================================================
@@ -67,133 +67,133 @@ cards:
         name: Status
         icon: mdi:information-outline
       - entity: switch.violet_pool_controller_solar
-        name: Modus
+        name: Mode
         icon: mdi:toggle-switch
       - entity: number.violet_pool_controller_solar_zieltemperatur
-        name: Zieltemperatur
+        name: Target temperature
         icon: mdi:thermometer-chevron-up
       - entity: sensor.violet_pool_controller_solarabsorber
-        name: Absorber Temperatur
+        name: Absorber temperature
         icon: mdi:solar-power
       - entity: sensor.violet_pool_controller_beckenwasser
-        name: Pool Temperatur
+        name: Pool temperature
         icon: mdi:thermometer-water
       - entity: sensor.violet_pool_controller_solar_runtime
-        name: Laufzeit heute
+        name: Runtime today
         icon: mdi:timer-outline
 
   # ============================================================================
-  # 💧 pH STEUERUNG
+  # 💧 pH CONTROL
   # ============================================================================
   - type: entities
-    title: 💧 pH Steuerung
+    title: 💧 pH control
     show_header_toggle: false
     state_color: true
     entities:
       - entity: sensor.violet_pool_controller_ph_wert
-        name: pH aktuell
+        name: pH now
         icon: mdi:flask
       - entity: number.violet_pool_controller_ph_sollwert
-        name: pH Sollwert
+        name: pH Setpoint
         icon: mdi:target
 
       - type: section
-        label: pH Minus (Säure)
+        label: pH minus (acid)
       - entity: switch.violet_pool_controller_ph_minus
-        name: pH- Modus
+        name: pH- mode
         icon: mdi:minus-circle
       - entity: number.violet_pool_controller_ph_minus_canister_volume
-        name: pH- Kanister Volumen (ml)
+        name: pH- canister volume (ml)
         icon: mdi:barrel
       - entity: sensor.violet_pool_controller_dos_4_phm_remaining_range
-        name: pH- Reichweite
+        name: pH- Range
         icon: mdi:calendar-clock
       - entity: sensor.violet_pool_controller_dos_4_phm_runtime
-        name: pH- Laufzeit
+        name: pH- Runtime
         icon: mdi:timer-outline
 
       - type: section
-        label: pH Plus (Base)
+        label: pH plus (base)
       - entity: switch.violet_pool_controller_ph_plus
-        name: pH+ Modus
+        name: pH+ mode
         icon: mdi:plus-circle
       - entity: number.violet_pool_controller_ph_plus_canister_volume
-        name: pH+ Kanister Volumen (ml)
+        name: pH+ canister volume (ml)
         icon: mdi:barrel
       - entity: sensor.violet_pool_controller_dos_5_php_remaining_range
-        name: pH+ Reichweite
+        name: pH+ Range
         icon: mdi:calendar-clock
       - entity: sensor.violet_pool_controller_dos_5_php_runtime
-        name: pH+ Laufzeit
+        name: pH+ Runtime
         icon: mdi:timer-outline
 
   # ============================================================================
-  # 🟢 CHLOR STEUERUNG
+  # 🟢 CHLORINE CONTROL
   # ============================================================================
   - type: entities
-    title: 🟢 Chlor Steuerung
+    title: 🟢 Chlorine control
     show_header_toggle: false
     state_color: true
     entities:
       - entity: sensor.violet_pool_controller_chlorgehalt
-        name: Chlor aktuell
+        name: Chlorine now
         icon: mdi:test-tube
       - entity: number.violet_pool_controller_chlor_sollwert
-        name: Chlor Sollwert
+        name: Chlorine setpoint
         icon: mdi:target
       - entity: sensor.violet_pool_controller_redoxpotential
-        name: Redox aktuell
+        name: ORP now
         icon: mdi:flash
       - entity: number.violet_pool_controller_orp_setpoint
-        name: Redox Sollwert
+        name: ORP Setpoint
         icon: mdi:flash-outline
 
       - type: section
-        label: Chlor Dosierung
+        label: Chlorine dosing
       - entity: switch.violet_pool_controller_chlor
-        name: Chlor Modus
+        name: Chlorine mode
         icon: mdi:toggle-switch
       - entity: number.violet_pool_controller_chlorine_canister_volume
-        name: Chlor Kanister Volumen (ml)
+        name: Chlorine canister volume (ml)
         icon: mdi:barrel
       - entity: sensor.violet_pool_controller_dos_1_cl_remaining_range
-        name: Chlor Reichweite
+        name: Chlorine range
         icon: mdi:calendar-clock
       - entity: sensor.violet_pool_controller_dos_1_cl_runtime
-        name: Chlor Laufzeit
+        name: Chlorine runtime
         icon: mdi:timer-outline
 
   # ============================================================================
-  # 🌊 FÜLLSTAND & RÜCKSPÜLUNG (optional)
+  # 🌊 WATER LEVEL & BACKWASH (optional)
   # ============================================================================
   - type: entities
-    title: 🌊 Füllstand & Rückspülung
+    title: 🌊 Water level & backwash
     show_header_toggle: false
     state_color: true
     entities:
       - entity: sensor.violet_pool_controller_ruckspul_status
-        name: Rückspül-Status
+        name: Backwash status
         icon: mdi:refresh
       - entity: switch.violet_pool_controller_ruckspulung
-        name: Rückspül-Modus
+        name: Backwash mode
         icon: mdi:toggle-switch
       - entity: sensor.violet_pool_controller_uberlaufbehalter
-        name: Füllstand
+        name: Water level
         icon: mdi:water-percent
       - entity: sensor.violet_pool_controller_filterdruck
-        name: Filterdruck
+        name: Filter pressure
         icon: mdi:gauge
 
 # =============================================================================
 # INSTALLATION:
-# 1. Home Assistant öffnen
-# 2. Übersicht → Rechts oben ⋮ → Dashboard bearbeiten
-# 3. + Karte hinzufügen → Ganz unten "Manuell"
-# 4. Diesen kompletten YAML-Code einfügen
-# 5. Speichern
+# 1. Open Home Assistant
+# 2. Overview -> top right menu -> Edit dashboard
+# 3. Add card -> "Manual" at the very bottom
+# 4. Paste this complete YAML
+# 5. Save
 #
-# HINWEISE:
-# - Passe die entity_id Namen an deine tatsächlichen Entity-IDs an
-# - Entferne Geräte, die du nicht hast (z.B. Solar, Rückspülung)
-# - Füge weitere Geräte nach dem gleichen Muster hinzu
+# NOTES:
+# - Adjust the entity_id names to your actual entity ids
+# - Remove devices you do not have (for example solar, backwash)
+# - Add further devices following the same pattern
 # =============================================================================

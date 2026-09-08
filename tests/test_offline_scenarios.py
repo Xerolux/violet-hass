@@ -1,4 +1,10 @@
-"""Tests for offline scenario handling."""
+"""Tests for offline scenario handling.
+
+Every failed poll raises ``UpdateFailed``. The coordinator keeps the last good
+data itself and marks the entities unavailable, so the device must never return
+the previous readings as if they had just been read - that used to present
+five-minute-old values as fresh.
+"""
 
 import asyncio
 from unittest.mock import AsyncMock, Mock, patch
@@ -8,6 +14,7 @@ from homeassistant.helpers.update_coordinator import UpdateFailed
 from violet_poolcontroller_api.api import VioletPoolAPIError
 
 from custom_components.violet_pool_controller.device import VioletPoolControllerDevice
+from custom_components.violet_pool_controller.error_handler import ErrorType
 
 
 @pytest.fixture
@@ -68,21 +75,19 @@ class TestOfflineScenarios:
 
     @pytest.mark.asyncio
     async def test_network_timeout_error(self, device, mock_api):
-        """Test handling of network timeout errors.
-
-        A single failure is below the threshold (5) — async_update returns
-        stale data and does NOT raise UpdateFailed.
-        """
+        """A network timeout raises instead of republishing the previous data."""
         mock_api.get_readings = AsyncMock(side_effect=TimeoutError("Connection timeout"))
 
         device._available = True
         device._data = {"test": "data"}
 
-        # Single failure → stale data returned, no exception
-        result = await device.async_update()
+        with pytest.raises(UpdateFailed):
+            await device.async_update()
 
         assert device._consecutive_failures == 1
-        assert result == {"test": "data"}
+        # The previous readings survive for the coordinator, but they were not
+        # handed out as a successful update.
+        assert device.data == {"test": "data"}
 
     @pytest.mark.asyncio
     async def test_connection_refused_error(self, device, mock_api):
@@ -92,20 +97,21 @@ class TestOfflineScenarios:
         device._available = True
         device._data = {}
 
-        await device.async_update()
+        with pytest.raises(UpdateFailed):
+            await device.async_update()
 
         assert device._consecutive_failures == 1
 
     @pytest.mark.asyncio
     async def test_empty_response_error(self, device, mock_api):
-        """Test handling of empty/invalid responses."""
+        """An empty response is a failure, not an update with stale values."""
         mock_api.get_readings = AsyncMock(return_value=None)
 
         device._available = True
         device._data = {"test": "data"}
 
-        # Single failure → stale data returned, no exception
-        await device.async_update()
+        with pytest.raises(UpdateFailed):
+            await device.async_update()
 
         assert device._consecutive_failures == 1
 
@@ -117,37 +123,54 @@ class TestOfflineScenarios:
         device._available = True
         device._data = {"test": "data"}
 
-        # Single failure → stale data returned, no exception
-        await device.async_update()
+        with pytest.raises(UpdateFailed):
+            await device.async_update()
 
         assert device._consecutive_failures == 1
 
     @pytest.mark.asyncio
     async def test_consecutive_failures_threshold(self, device, mock_api):
-        """Test reaching max consecutive failures threshold.
-
-        The first (max-1) calls return stale data; the Nth call raises UpdateFailed
-        and marks the device unavailable.
-        """
+        """The device stays 'available' until the failure threshold is reached."""
         mock_api.get_readings = AsyncMock(side_effect=TimeoutError("Timeout"))
 
         device._available = True
         device._max_consecutive_failures = 5
         device._data = {"test": "data"}
 
-        # First 4 failures: no raise
         for _ in range(4):
-            await device.async_update()
+            with pytest.raises(UpdateFailed):
+                await device.async_update()
 
         assert device._consecutive_failures == 4
         assert device._available is True  # still available
 
-        # 5th failure: raises UpdateFailed and marks unavailable
         with pytest.raises(UpdateFailed):
             await device.async_update()
 
         assert device._available is False
         assert device._consecutive_failures == 5
+
+    @pytest.mark.asyncio
+    async def test_repair_issue_raised_for_api_errors_too(self, device, mock_api):
+        """The repair issue must not be limited to the empty-data branch.
+
+        Regression: ``controller_unavailable_*`` was only created when the
+        controller answered with empty data, never for the far more common
+        ``VioletPoolAPIError``.
+        """
+        mock_api.get_readings = AsyncMock(side_effect=VioletPoolAPIError("boom"))
+        device._available = True
+        device._data = {"test": "data"}
+
+        with patch(
+            "custom_components.violet_pool_controller.device.async_create_issue"
+        ) as create_issue:
+            for _ in range(device._max_consecutive_failures):
+                with pytest.raises(UpdateFailed):
+                    await device.async_update()
+
+        assert create_issue.called
+        assert create_issue.call_args[0][2] == "controller_unavailable_test_entry"
 
     @pytest.mark.asyncio
     async def test_recovery_after_failures(self, device, mock_api):
@@ -158,8 +181,8 @@ class TestOfflineScenarios:
         device._consecutive_failures = 2
         device._data = {}
 
-        # One more failure (3 total, still below threshold) — no raise
-        await device.async_update()
+        with pytest.raises(UpdateFailed):
+            await device.async_update()
 
         assert device._consecutive_failures == 3
 
@@ -184,8 +207,8 @@ class TestOfflineScenarios:
         device._available = True
         device._data = {"test": "data"}
 
-        # First failure (below threshold — no raise)
-        await device.async_update()
+        with pytest.raises(UpdateFailed):
+            await device.async_update()
 
         # Verify _should_log_failure doesn't crash
         result = device._should_log_failure()
@@ -199,8 +222,8 @@ class TestOfflineScenarios:
         device._available = True
         device._data = {"test": "data"}
 
-        # Single API failure below threshold — no raise
-        await device.async_update()
+        with pytest.raises(UpdateFailed):
+            await device.async_update()
 
         assert device._consecutive_failures == 1
         assert "API request failed" in device._last_error
@@ -211,33 +234,29 @@ class TestOfflineMetrics:
 
     @pytest.mark.asyncio
     async def test_system_health_degradation(self, device, mock_api):
-        """Test system health degradation on errors.
-
-        Uses return_value=None so the data-check path runs, which updates
-        _system_health.  The exception path (TimeoutError) does not update health.
-        """
+        """Test system health degradation on errors."""
         mock_api.get_readings = AsyncMock(return_value=None)
 
         device._available = True
         device._system_health = 100.0
         device._data = {"test": "data"}
 
-        # Failure via bad data → health degrades
-        await device.async_update()
+        with pytest.raises(UpdateFailed):
+            await device.async_update()
 
         assert device._system_health < 100.0
 
     @pytest.mark.asyncio
     async def test_system_health_recovery(self, device, mock_api):
         """Test system health recovery."""
-        # Use None response so data-check path runs and health degrades
         mock_api.get_readings = AsyncMock(return_value=None)
 
         device._available = True
         device._system_health = 60.0
         device._data = {}
 
-        await device.async_update()
+        with pytest.raises(UpdateFailed):
+            await device.async_update()
 
         # Now recover
         mock_api.get_readings = AsyncMock(return_value={"test": "data"})
@@ -280,7 +299,6 @@ class TestOfflineErrorHandling:
 
         device._available = True
 
-        # This failure reaches the threshold → UpdateFailed + _available = False
         with pytest.raises(UpdateFailed):
             await device.async_update()
 
@@ -290,26 +308,65 @@ class TestOfflineErrorHandling:
         assert device._available is False
 
     @pytest.mark.asyncio
-    async def test_error_classification(self, device, mock_api):
-        """Test that errors are properly classified."""
-        from custom_components.violet_pool_controller.error_handler import (
-            get_enhanced_error_handler,
-        )
-
-        handler = get_enhanced_error_handler()
-
+    async def test_failed_polls_are_recorded_per_device(self, device, mock_api):
+        """Each failed poll feeds this device's own error statistics."""
         mock_api.get_readings = AsyncMock(side_effect=TimeoutError("Timeout"))
 
         device._available = True
         device._data = {}
 
-        # Single failure below threshold — no raise
+        for _ in range(3):
+            with pytest.raises(UpdateFailed):
+                await device.async_update()
+
+        summary = device.error_handler.get_error_summary()
+
+        assert summary["total_errors"] == 3
+        assert summary["consecutive_errors"] == 3
+        assert summary["error_counts"][ErrorType.TIMEOUT_ERROR.value] == 3
+        assert summary["is_offline"] is True
+        # The offline duration is a monotonic difference, not "seconds since
+        # the epoch" - it used to come out at ~1.7 billion.
+        assert 0.0 <= summary["offline_duration_seconds"] < 60.0
+
+    @pytest.mark.asyncio
+    async def test_successful_poll_clears_the_offline_state(self, device, mock_api):
+        """A successful poll records the recovery in the error statistics."""
+        mock_api.get_readings = AsyncMock(side_effect=TimeoutError("Timeout"))
+        device._available = True
+        device._data = {}
+
+        with pytest.raises(UpdateFailed):
+            await device.async_update()
+        assert device.error_handler.get_error_summary()["is_offline"] is True
+
+        mock_api.get_readings = AsyncMock(return_value={"test": "data"})
         await device.async_update()
 
-        # Error should be classifiable by handler
-        summary = handler.get_error_summary()
-        assert "total_errors" in summary
-        assert summary["total_errors"] >= 0
+        summary = device.error_handler.get_error_summary()
+        assert summary["is_offline"] is False
+        assert summary["consecutive_errors"] == 0
+        # The recorded history is kept for diagnostics.
+        assert summary["total_errors"] == 1
+
+    @pytest.mark.asyncio
+    async def test_error_handler_is_not_shared_between_devices(
+        self, device, mock_hass, mock_config_entry, mock_api
+    ):
+        """A second controller's outage must not show up in this device's stats."""
+        with patch(
+            "custom_components.violet_pool_controller.device.async_get_clientsession",
+            return_value=Mock(),
+        ):
+            other = VioletPoolControllerDevice(mock_hass, mock_config_entry, mock_api)
+
+        mock_api.get_readings = AsyncMock(side_effect=TimeoutError("Timeout"))
+        device._data = {}
+        with pytest.raises(UpdateFailed):
+            await device.async_update()
+
+        assert device.error_handler is not other.error_handler
+        assert other.error_handler.get_error_summary()["total_errors"] == 0
 
 
 class TestRecoveryScenarios:
@@ -321,20 +378,21 @@ class TestRecoveryScenarios:
         device._available = True
         device._data = {}
 
-        # Fail (below threshold — no raise)
         mock_api.get_readings = AsyncMock(side_effect=TimeoutError("Timeout"))
-        await device.async_update()
+        with pytest.raises(UpdateFailed):
+            await device.async_update()
         assert device._consecutive_failures == 1
 
         # Succeed
         mock_api.get_readings = AsyncMock(return_value={"test": "data"})
-        result = await device.async_update()
+        await device.async_update()
         assert device._available is True
         assert device._consecutive_failures == 0
 
-        # Fail again (below threshold — no raise)
+        # Fail again
         mock_api.get_readings = AsyncMock(side_effect=TimeoutError("Timeout"))
-        await device.async_update()
+        with pytest.raises(UpdateFailed):
+            await device.async_update()
         assert device._consecutive_failures == 1
 
         # Recover again
@@ -352,14 +410,13 @@ class TestRecoveryScenarios:
         device._data = {}
         # Keep default max_consecutive_failures = 5
 
-        # First 4 failures: no raise
         for _ in range(4):
-            await device.async_update()
+            with pytest.raises(UpdateFailed):
+                await device.async_update()
 
         assert device._consecutive_failures == 4
         assert device._available is True
 
-        # 5th failure: raises UpdateFailed and marks unavailable
         with pytest.raises(UpdateFailed):
             await device.async_update()
 

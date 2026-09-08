@@ -1,148 +1,78 @@
 #!/usr/bin/env python3
-"""Quick integration import test - checks if all modules load correctly."""
+"""Quick import smoke test: does every integration module still load?
+
+This is not a substitute for the test suite - it only catches the class of
+breakage that makes Home Assistant refuse to load the integration at all
+(syntax errors, renamed constants, imports of modules that moved to the
+external ``violet-poolController-api`` package).
+
+Usage:
+    python scripts/quick-import-test.py
+
+Requires the development environment (``pip install -r requirements-dev.txt``),
+because the integration imports Home Assistant.
+"""
 # ruff: noqa: T201
 
-import os
+from __future__ import annotations
+
+import importlib
 import sys
+import traceback
+from pathlib import Path
 
-# Add project root to path
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, project_root)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PACKAGE = "custom_components.violet_pool_controller"
+PACKAGE_DIR = PROJECT_ROOT / "custom_components" / "violet_pool_controller"
 
-print("=" * 60)
-print("Violet Pool Controller - Quick Import Test")
-print("=" * 60)
-print()
+sys.path.insert(0, str(PROJECT_ROOT))
 
-errors = []
-warnings = []
 
-# Test 1: Import const module
-print("📦 Testing const.py imports...")
-try:
-    from custom_components.violet_pool_controller import const
-    print("  ✅ const.py imported successfully")
-    print(f"  ℹ️  Version: {const.INTEGRATION_VERSION}")
-    print(f"  ℹ️  Domain: {const.DOMAIN}")
-except Exception as e:
-    errors.append(f"const.py: {e}")
-    print(f"  ❌ Failed: {e}")
+def module_names() -> list[str]:
+    """Every importable module inside the integration, in a stable order."""
+    names: list[str] = []
+    for path in sorted(PACKAGE_DIR.rglob("*.py")):
+        if "__pycache__" in path.parts:
+            continue
+        relative = path.relative_to(PACKAGE_DIR).with_suffix("")
+        parts = [part for part in relative.parts if part != "__init__"]
+        names.append(".".join([PACKAGE, *parts]) if parts else PACKAGE)
+    return names
 
-# Test 2: Import const_api
-print("\n📦 Testing const_api.py imports...")
-try:
-    from custom_components.violet_pool_controller import const_api
-    print("  ✅ const_api.py imported successfully")
-    print(f"  ℹ️  API Endpoints defined: {len([x for x in dir(const_api) if x.startswith('API_')])}")
-except Exception as e:
-    errors.append(f"const_api.py: {e}")
-    print(f"  ❌ Failed: {e}")
 
-# Test 3: Import const_sensors
-print("\n📦 Testing const_sensors.py imports...")
-try:
-    print("  ✅ const_sensors.py imported successfully")
-except Exception as e:
-    errors.append(f"const_sensors.py: {e}")
-    print(f"  ❌ Failed: {e}")
+def main() -> int:
+    print("=" * 60)
+    print("Violet Pool Controller - quick import test")
+    print("=" * 60)
 
-# Test 4: Import const_features
-print("\n📦 Testing const_features.py imports...")
-try:
-    print("  ✅ const_features.py imported successfully")
-except Exception as e:
-    errors.append(f"const_features.py: {e}")
-    print(f"  ❌ Failed: {e}")
+    try:
+        const = importlib.import_module(f"{PACKAGE}.const")
+    except Exception:
+        print("\nFAIL: const.py does not import\n")
+        traceback.print_exc()
+        return 1
 
-# Test 5: Import const_devices
-print("\n📦 Testing const_devices.py imports...")
-try:
-    print("  ✅ const_devices.py imported successfully")
-except Exception as e:
-    errors.append(f"const_devices.py: {e}")
-    print(f"  ❌ Failed: {e}")
+    print(f"\nDomain:  {const.DOMAIN}")
+    print(f"Version: {const.INTEGRATION_VERSION}\n")
 
-# Test 6: Check for ProCon.IP references
-print("\n🔍 Checking for ProCon.IP references...")
-try:
-    # Check if any ProCon.IP constants exist
-    proconip_refs = []
-    for module in [const, const_api]:
-        for attr in dir(module):
-            if 'PROCON' in attr.upper():
-                proconip_refs.append(f"{module.__name__}.{attr}")
+    failures: list[tuple[str, BaseException]] = []
+    names = module_names()
+    for name in names:
+        try:
+            importlib.import_module(name)
+        except Exception as err:  # noqa: BLE001 - report, do not abort
+            failures.append((name, err))
+            print(f"  FAIL {name}: {err.__class__.__name__}: {err}")
+        else:
+            print(f"  ok   {name}")
 
-    if proconip_refs:
-        warnings.append(f"Found ProCon.IP references: {', '.join(proconip_refs)}")
-        print(f"  ⚠️  Found references: {', '.join(proconip_refs)}")
-    else:
-        print("  ✅ No ProCon.IP references found")
-except Exception as e:
-    warnings.append(f"ProCon.IP check failed: {e}")
+    print("\n" + "=" * 60)
+    if failures:
+        print(f"{len(failures)} of {len(names)} modules failed to import.")
+        return 1
+    print(f"All {len(names)} modules imported successfully.")
+    return 0
 
-# Test 7: Check config flow schema validity
-print("\n📋 Testing config_flow.py structure...")
-try:
-    # Read config_flow.py to check for issues
-    config_flow_path = os.path.join(
-        project_root,
-        "custom_components/violet_pool_controller/config_flow.py"
-    )
-    with open(config_flow_path) as f:
-        content = f.read()
 
-    # Check for ProCon.IP references
-    if 'proconip' in content.lower():
-        warnings.append("config_flow.py still contains 'proconip' references")
-        print("  ⚠️  Contains 'proconip' references")
-    else:
-        print("  ✅ No ProCon.IP references in config_flow.py")
-
-    # Check for essential methods
-    required_methods = [
-        'async_step_user',
-        'async_step_disclaimer',
-        'async_step_connection',
-        'async_step_pool_setup',
-        'async_step_feature_selection'
-    ]
-
-    missing_methods = []
-    for method in required_methods:
-        if f'def {method}' not in content:
-            missing_methods.append(method)
-
-    if missing_methods:
-        errors.append(f"Missing methods: {', '.join(missing_methods)}")
-        print(f"  ❌ Missing: {', '.join(missing_methods)}")
-    else:
-        print("  ✅ All essential methods present")
-
-except Exception as e:
-    errors.append(f"config_flow.py check: {e}")
-    print(f"  ❌ Failed: {e}")
-
-# Summary
-print("\n" + "=" * 60)
-print("SUMMARY")
-print("=" * 60)
-
-if errors:
-    print(f"\n❌ ERRORS ({len(errors)}):")
-    for error in errors:
-        print(f"  • {error}")
-
-if warnings:
-    print(f"\n⚠️  WARNINGS ({len(warnings)}):")
-    for warning in warnings:
-        print(f"  • {warning}")
-
-if not errors and not warnings:
-    print("\n✅ All tests passed! Integration looks good.")
-elif not errors:
-    print("\n✅ No critical errors, but see warnings above.")
-else:
-    print("\n❌ Critical errors found. Please fix before testing with HA.")
-    sys.exit(1)
-
-print()
+if __name__ == "__main__":
+    raise SystemExit(main())

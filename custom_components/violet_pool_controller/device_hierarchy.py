@@ -43,13 +43,20 @@ from __future__ import annotations
 import logging
 import re
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import TYPE_CHECKING, Any, cast
 
 from homeassistant.core import callback
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device_registry import DeviceInfo
 
-from .const import CONF_GROUP_ENTITIES, DEFAULT_GROUP_ENTITIES, DOMAIN, MANUFACTURER
+from .const import (
+    CONF_GROUP_ENTITIES,
+    DEFAULT_GROUP_ENTITIES,
+    DOMAIN,
+    MANUFACTURER,
+    SENSOR_FEATURE_MAP,
+)
 from .runtime_data import get_runtime_data
 
 if TYPE_CHECKING:
@@ -199,8 +206,12 @@ def is_grouping_enabled(entry: ConfigEntry) -> bool:
 
 
 @callback
+@lru_cache(maxsize=1024)
 def resolve_group(key: str) -> str | None:
     """Return the sub-device id for a controller key, or None for the main device.
+
+    Cached: the answer depends only on the key, and the regex chain below runs
+    once per entity - roughly 300 times per config entry setup.
 
     Args:
         key: The raw controller key (or synthetic entity key) of an entity.
@@ -223,8 +234,6 @@ def resolve_group(key: str) -> str | None:
             return group
 
     # Fall back to the curated feature tables for keys the patterns don't cover.
-    from .const import SENSOR_FEATURE_MAP
-
     feature = SENSOR_FEATURE_MAP.get(key)
     if feature and (group := _FEATURE_TO_GROUP.get(feature)):
         return group
@@ -242,8 +251,12 @@ def group_for_feature(feature_id: str | None) -> str | None:
 
 @callback
 def main_device_identifier(coordinator) -> tuple[str, str]:
-    """Return the identifier of the controller device itself."""
-    return DOMAIN, f"{coordinator.device.api_url}_{coordinator.device.device_id}"
+    """Return the identifier of the controller device itself.
+
+    Keyed on the config entry, so moving the controller to another IP address
+    keeps the very same device instead of creating a second one.
+    """
+    return DOMAIN, coordinator.device.config_entry.entry_id
 
 
 @callback

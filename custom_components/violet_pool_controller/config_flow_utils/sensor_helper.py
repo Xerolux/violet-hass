@@ -21,22 +21,26 @@ from violet_poolcontroller_api import (
     VioletPoolAPIError,
 )
 
+from ..config_entry_helpers import extract_api_host, with_non_default_port
 from ..const import (
     CONF_ACTIVE_FEATURES,
-    CONF_API_URL,
+    CONF_DOSING_STANDALONE,
     CONF_PASSWORD,
+    CONF_PORT,
     CONF_RETRY_ATTEMPTS,
     CONF_TIMEOUT_DURATION,
     CONF_USE_SSL,
     CONF_USERNAME,
     CONF_VERIFY_SSL,
+    DEFAULT_DOSING_STANDALONE,
+    DEFAULT_PORT,
     DEFAULT_RETRY_ATTEMPTS,
     DEFAULT_TIMEOUT_DURATION,
+    DEFAULT_USE_SSL,
     DEFAULT_VERIFY_SSL,
 )
 from ..feature_keys import is_key_feature_active
 from ..sensor_modules.base import romcode_key_rank, romcode_sensor_index
-from .validators import validate_credentials_strength
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -110,20 +114,28 @@ async def get_grouped_sensors(
         A dictionary mapping groups to lists of sensor keys.
     """
     try:
-        # Validate credentials strength before using them
+        # NOTE: no credential-strength check here. The connection test in the
+        # config flow does not apply one either, so a short controller password
+        # ("1234") passed the test and then made this call raise - the
+        # exception was swallowed below and the entry was created without a
+        # single entity.
         username = config_data.get(CONF_USERNAME)
         password = config_data.get(CONF_PASSWORD)
 
-        validate_credentials_strength(username, password)
-
-        from ..const import CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE
+        # Same host+port construction as the connection test. Without the port
+        # a controller on e.g. :8080 was contacted on the default port, and
+        # discovery silently returned nothing.
+        host = with_non_default_port(
+            extract_api_host(config_data),
+            config_data.get(CONF_PORT, DEFAULT_PORT),
+        )
 
         api = VioletPoolAPI(
-            host=config_data[CONF_API_URL],
+            host=host,
             session=aiohttp_client.async_get_clientsession(hass),
             username=username,
             password=password,
-            use_ssl=config_data.get(CONF_USE_SSL, False),
+            use_ssl=config_data.get(CONF_USE_SSL, DEFAULT_USE_SSL),
             verify_ssl=config_data.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL),
             timeout=config_data.get(CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION),
             max_retries=config_data.get(CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS),

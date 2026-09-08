@@ -5,21 +5,50 @@
 # https://github.com/Xerolux/violet-hass
 # =============================================================================
 
-"""HTTP control layer for Violet Pool Controller manual commands."""
+"""Thin facade over the public API for the ``*_http`` control services.
+
+This used to be a second, parallel implementation of the controller protocol:
+it built ``FUNCTION,ACTION[,param]`` payloads by hand and posted them through
+the API client's *private* ``_request``.  Doing so bypassed everything
+``VioletPoolAPI`` does around a command - the duration validation, the routing
+of dosing outputs to ``/triggerManualDosing``, the dosing-standalone guard, the
+cover ``acknowledge_unsafe`` gate and the auth guard that raises the
+``controller_requires_auth`` repair on a 401 - and it got the command grammar
+wrong for the cover (``COVER,OPEN`` instead of the ``COVER_OPEN`` function).
+
+Every method below is now a one-line call into a public API method, so the
+services keep their convenient names while the protocol lives in exactly one
+place.
+"""
 
 from __future__ import annotations
 
 import logging
 from typing import Any
 
-from violet_poolcontroller_api.api import VioletPoolAPI, VioletPoolAPIError
-from violet_poolcontroller_api.utils_sanitizer import InputSanitizer
+from violet_poolcontroller_api.api import VioletPoolAPI
+from violet_poolcontroller_api.const_api import (
+    ACTION_OFF,
+    ACTION_ON,
+    DOSING_OUTPUT_INDEX,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
+# ``trigger_manual_dosing`` addresses a channel by the firmware's output index;
+# the public API addresses it by key, so invert the API's own table.
+DOSING_INDEX_TO_KEY = {index: key for key, index in DOSING_OUTPUT_INDEX.items()}
+
+
+def _succeeded(result: Any) -> bool:
+    """Normalise a command result into the boolean the services expect."""
+    if isinstance(result, dict):
+        return result.get("success") is True
+    return bool(result)
+
 
 class VioletControlClient:
-    """HTTP client for pool controller manual commands and configuration."""
+    """Convenience wrapper around :class:`VioletPoolAPI` for manual commands."""
 
     def __init__(self, api: VioletPoolAPI) -> None:
         """Initialize control client.
@@ -29,249 +58,92 @@ class VioletControlClient:
         """
         self.api = api
 
-    async def set_function_manually(
-        self,
-        function: str,
-        action: str,
-        param: str | int | None = None,
-        timeout: float = 10.0,
-    ) -> bool:
-        """Execute manual control command via setFunctionManually.
+    # ------------------------------------------------------------------
+    # Pump
+    # ------------------------------------------------------------------
+
+    async def set_pump_speed(self, rpm_level: int) -> bool:
+        """Switch the pump to manual ON at ``rpm_level``.
 
         Args:
-            function: Target function (PUMP, HEATER, SOLAR, COVER, etc.)
-            action: Action (ON, OFF, OPEN, CLOSE, STOP, etc.)
-            param: Optional parameter (RPM level, speed, etc.)
-            timeout: Request timeout in seconds.
-
-        Returns:
-            True if successful, False otherwise.
+            rpm_level: Speed level 1-3.  Level 0 is not a speed but "off" and
+                is rejected here - use :meth:`set_pump_off` instead.
 
         Raises:
-            VioletPoolAPIError: If API communication fails.
+            ValueError: If ``rpm_level`` is outside 1-3.
         """
-        from urllib.parse import quote
-
-        function = InputSanitizer.validate_api_parameter(function)
-        action = InputSanitizer.validate_api_parameter(action)
-
-        cmd = (
-            f"{function},{action},{quote(str(param), safe=',')}"
-            if param is not None
-            else f"{function},{action}"
+        if not 1 <= rpm_level <= 3:
+            raise ValueError(f"Pump speed must be 1-3, got {rpm_level}")
+        return _succeeded(
+            await self.api.set_switch_state("PUMP", ACTION_ON, last_value=rpm_level)
         )
 
-        try:
-            _LOGGER.debug("Executing command: setFunctionManually?%s", cmd)
+    async def set_pump_off(self) -> bool:
+        """Turn the pump off."""
+        return _succeeded(await self.api.set_switch_state("PUMP", ACTION_OFF))
 
-            # Send command via API
-            response = await self.api._request(
-                f"/setFunctionManually?{cmd}",
-                method="GET",
-            )
+    # ------------------------------------------------------------------
+    # Heater and solar
+    # ------------------------------------------------------------------
 
-            # Check response (non-empty text response indicates success)
-            if isinstance(response, dict):
-                success = response.get("success") is True
-            elif isinstance(response, str) and response.strip():
-                success = True
-            else:
-                success = False
+    async def set_heater_on(self) -> bool:
+        """Turn the heater on."""
+        return _succeeded(await self.api.set_switch_state("HEATER", ACTION_ON))
 
-            if success:
-                _LOGGER.info(
-                    "Command successful: %s %s %s",
-                    function,
-                    action,
-                    param or "",
-                )
-                return True
+    async def set_heater_off(self) -> bool:
+        """Turn the heater off."""
+        return _succeeded(await self.api.set_switch_state("HEATER", ACTION_OFF))
 
-            _LOGGER.warning(
-                "Command failed: %s %s",
-                function,
-                action,
-            )
-            return False
+    async def set_solar_on(self) -> bool:
+        """Turn solar heating on."""
+        return _succeeded(await self.api.set_switch_state("SOLAR", ACTION_ON))
 
-        except VioletPoolAPIError as err:
-            _LOGGER.error(
-                "API error executing command %s %s: %s",
-                function,
-                action,
-                err,
-            )
-            raise
-        except TimeoutError as err:
-            _LOGGER.error("Timeout executing command %s %s", function, action)
-            raise VioletPoolAPIError(f"Timeout executing {function} {action}") from err
-        except Exception as err:
-            _LOGGER.error(
-                "Unexpected error executing command %s %s: %s",
-                function,
-                action,
-                err,
-            )
-            raise VioletPoolAPIError(f"Error executing {function} {action}: {err}") from err
+    async def set_solar_off(self) -> bool:
+        """Turn solar heating off."""
+        return _succeeded(await self.api.set_switch_state("SOLAR", ACTION_OFF))
 
-    async def set_pump_speed(self, rpm_level: int, timeout: float = 10.0) -> bool:
-        """Set pump speed via manual control.
+    # ------------------------------------------------------------------
+    # Cover
+    # ------------------------------------------------------------------
 
-        Args:
-            rpm_level: Speed level 0-3.
-            timeout: Request timeout in seconds.
+    async def _cover(self, action: str) -> bool:
+        """Send a cover command through the API's guarded cover entry point.
 
-        Returns:
-            True if successful.
-
-        Raises:
-            VioletPoolAPIError: If API communication fails.
-            ValueError: If rpm_level out of range.
+        ``acknowledge_unsafe`` is passed because the caller is a service the
+        user invoked deliberately; the API's gate exists to stop *implicit*
+        cover movement, which the integration never performs.
         """
-        if not 0 <= rpm_level <= 3:
-            raise ValueError(f"RPM level must be 0-3, got {rpm_level}")
+        return _succeeded(await self.api.set_cover_command(action, acknowledge_unsafe=True))
 
-        return await self.set_function_manually("PUMP", "ON", rpm_level, timeout)
+    async def set_cover_open(self) -> bool:
+        """Open the pool cover."""
+        return await self._cover("OPEN")
 
-    async def set_pump_off(self, timeout: float = 10.0) -> bool:
-        """Turn pump off.
+    async def set_cover_close(self) -> bool:
+        """Close the pool cover."""
+        return await self._cover("CLOSE")
 
-        Args:
-            timeout: Request timeout in seconds.
+    async def set_cover_stop(self) -> bool:
+        """Stop the pool cover."""
+        return await self._cover("STOP")
 
-        Returns:
-            True if successful.
+    # ------------------------------------------------------------------
+    # Backwash
+    # ------------------------------------------------------------------
 
-        Raises:
-            VioletPoolAPIError: If API communication fails.
-        """
-        return await self.set_function_manually("PUMP", "OFF", timeout=timeout)
+    async def set_backwash_run(self, duration: int | None = None) -> bool:
+        """Start a backwash cycle, optionally bounded by ``duration`` seconds."""
+        return _succeeded(
+            await self.api.set_switch_state("BACKWASH", ACTION_ON, duration=duration)
+        )
 
-    async def set_heater_on(self, timeout: float = 10.0) -> bool:
-        """Turn heater on.
+    async def set_backwash_abort(self) -> bool:
+        """Abort a running backwash cycle."""
+        return _succeeded(await self.api.set_switch_state("BACKWASH", ACTION_OFF))
 
-        Args:
-            timeout: Request timeout in seconds.
-
-        Returns:
-            True if successful.
-
-        Raises:
-            VioletPoolAPIError: If API communication fails.
-        """
-        return await self.set_function_manually("HEATER", "ON", timeout=timeout)
-
-    async def set_heater_off(self, timeout: float = 10.0) -> bool:
-        """Turn heater off.
-
-        Args:
-            timeout: Request timeout in seconds.
-
-        Returns:
-            True if successful.
-
-        Raises:
-            VioletPoolAPIError: If API communication fails.
-        """
-        return await self.set_function_manually("HEATER", "OFF", timeout=timeout)
-
-    async def set_solar_on(self, timeout: float = 10.0) -> bool:
-        """Turn solar on.
-
-        Args:
-            timeout: Request timeout in seconds.
-
-        Returns:
-            True if successful.
-
-        Raises:
-            VioletPoolAPIError: If API communication fails.
-        """
-        return await self.set_function_manually("SOLAR", "ON", timeout=timeout)
-
-    async def set_solar_off(self, timeout: float = 10.0) -> bool:
-        """Turn solar off.
-
-        Args:
-            timeout: Request timeout in seconds.
-
-        Returns:
-            True if successful.
-
-        Raises:
-            VioletPoolAPIError: If API communication fails.
-        """
-        return await self.set_function_manually("SOLAR", "OFF", timeout=timeout)
-
-    async def set_cover_open(self, timeout: float = 10.0) -> bool:
-        """Open cover.
-
-        Args:
-            timeout: Request timeout in seconds.
-
-        Returns:
-            True if successful.
-
-        Raises:
-            VioletPoolAPIError: If API communication fails.
-        """
-        return await self.set_function_manually("COVER", "OPEN", timeout=timeout)
-
-    async def set_cover_close(self, timeout: float = 10.0) -> bool:
-        """Close cover.
-
-        Args:
-            timeout: Request timeout in seconds.
-
-        Returns:
-            True if successful.
-
-        Raises:
-            VioletPoolAPIError: If API communication fails.
-        """
-        return await self.set_function_manually("COVER", "CLOSE", timeout=timeout)
-
-    async def set_cover_stop(self, timeout: float = 10.0) -> bool:
-        """Stop cover movement.
-
-        Args:
-            timeout: Request timeout in seconds.
-
-        Returns:
-            True if successful.
-
-        Raises:
-            VioletPoolAPIError: If API communication fails.
-        """
-        return await self.set_function_manually("COVER", "STOP", timeout=timeout)
-
-    async def set_backwash_run(self, timeout: float = 10.0) -> bool:
-        """Start backwash cycle.
-
-        Args:
-            timeout: Request timeout in seconds.
-
-        Returns:
-            True if successful.
-
-        Raises:
-            VioletPoolAPIError: If API communication fails.
-        """
-        return await self.set_function_manually("BACKWASH", "RUN", timeout=timeout)
-
-    async def set_backwash_abort(self, timeout: float = 10.0) -> bool:
-        """Abort backwash cycle.
-
-        Args:
-            timeout: Request timeout in seconds.
-
-        Returns:
-            True if successful.
-
-        Raises:
-            VioletPoolAPIError: If API communication fails.
-        """
-        return await self.set_function_manually("BACKWASH", "ABORT", timeout=timeout)
+    # ------------------------------------------------------------------
+    # Dosing
+    # ------------------------------------------------------------------
 
     async def trigger_manual_dosing(
         self,
@@ -279,172 +151,84 @@ class VioletControlClient:
         runtime_seconds: int,
         from_param: int = 1,
         action: str = "DOSSTART",
-        timeout: float = 10.0,
     ) -> bool:
-        """Trigger or stop a manual dosing run for a system.
+        """Start or stop a manual dosing run for one channel.
 
-        Wraps ``POST /triggerManualDosing``.  The controller firmware
-        (``includes/triggerManualDosing.js``) accepts two actions:
-
-        * ``DOSSTART`` – start a manual dosing run for ``runtime_seconds``.
-          Requires the filter pump to be ON and no backwash in progress,
-          otherwise the controller returns ``PUMP_OFF_ERROR`` /
-          ``BACKWASH_ERROR``.
-        * ``DOSSTOP`` – cancel a running manual dosing run and return the
-          channel to automatic mode.  ``runtime_seconds`` is ignored by
-          the firmware and may be ``0``.
+        ``set_switch_state`` routes every ``DOS_*`` key to
+        ``/triggerManualDosing`` itself, so this is a key lookup plus one
+        public call.
 
         Args:
-            dosing_index: Dosing system index (0-5). 0=Chlorine/H2O2,
-                1=Electrolysis, 3=pH-, 4=pH+, 5=Flocculant.
-                (Index 2 is reserved for H2O2 via ``from_param=3`` and
-                reuses the Chlorine physical output.)
-            runtime_seconds: Runtime in seconds.  Required for DOSSTART;
-                ignored for DOSSTOP (pass ``0``).
-            from_param: Source identifier. 1=normal dosing, 3=H2O2
-                (shares DOS_1_CL physical output with Chlorine but uses
-                a different firmware path).
-            action: Either ``"DOSSTART"`` (default) or ``"DOSSTOP"``.
-            timeout: Request timeout in seconds.
-
-        Returns:
-            True if successful.
+            dosing_index: Firmware output index (0=Chlorine, 1=Electrolysis,
+                3=pH-, 4=pH+, 5=Flocculant).
+            runtime_seconds: Runtime in seconds; ignored for ``DOSSTOP``.
+            from_param: The firmware's ``from`` field, which selects the
+                chemical on a channel shared by more than one agent.  The
+                installed API exposes no way to set it, so only the default
+                (1, the channel's primary agent) is accepted - silently
+                ignoring it would dose the wrong chemical.
+            action: ``"DOSSTART"`` or ``"DOSSTOP"``.
 
         Raises:
-            VioletPoolAPIError: If API communication fails.
-            ValueError: If parameters out of range or action is unknown.
-
+            ValueError: If a parameter is out of range or unsupported.
         """
         action_upper = action.strip().upper()
         if action_upper not in ("DOSSTART", "DOSSTOP"):
             raise ValueError(f"action must be 'DOSSTART' or 'DOSSTOP', got {action!r}")
-        if not 0 <= dosing_index <= 5:
-            raise ValueError(f"Dosing index must be 0-5, got {dosing_index}")
-        if action_upper == "DOSSTART":
-            if runtime_seconds <= 0:
-                raise ValueError(f"Runtime must be > 0 for DOSSTART, got {runtime_seconds}")
-            if runtime_seconds > 3600:
-                raise ValueError(
-                    f"Runtime must be <= 3600s (1 hour) for safety, got {runtime_seconds}"
-                )
-
-        try:
-            _LOGGER.debug(
-                "Triggering manual dosing: action=%s index=%d, runtime=%ds, from=%d",
-                action_upper,
-                dosing_index,
-                runtime_seconds,
-                from_param,
+        key = DOSING_INDEX_TO_KEY.get(dosing_index)
+        if key is None:
+            raise ValueError(
+                f"Dosing index must be one of {sorted(DOSING_INDEX_TO_KEY)}, got {dosing_index}"
+            )
+        if from_param != 1:
+            raise ValueError(
+                f"Dosing source {from_param} is not supported by the installed API; "
+                "only the channel's primary agent (from=1) can be dosed"
             )
 
-            runtime_formatted = f"{runtime_seconds // 60:02d}:{runtime_seconds % 60:02d}"
-            form_data = {
-                "action": action_upper,
-                "output": str(dosing_index),
-                "runtime": str(runtime_seconds),
-                "from": str(from_param),
-                "runtime_formatted": runtime_formatted,
-            }
+        if action_upper == "DOSSTOP":
+            return _succeeded(await self.api.set_switch_state(key, ACTION_OFF))
 
-            response = await self.api._request(
-                "/triggerManualDosing",
-                method="POST",
-                data=form_data,
-            )
+        return _succeeded(
+            await self.api.set_switch_state(key, ACTION_ON, duration=runtime_seconds)
+        )
 
-            response_text = str(response).strip() if response else ""
+    # ------------------------------------------------------------------
+    # Configuration
+    # ------------------------------------------------------------------
 
-            if "PUMP_OFF_ERROR" in response_text:
-                _LOGGER.warning("Manual dosing blocked: pump is OFF")
-                return False
-
-            if "BACKWASH_ERROR" in response_text:
-                _LOGGER.warning("Manual dosing blocked: backwash in progress")
-                return False
-
-            success_token = "MANDOS_STARTED" if action_upper == "DOSSTART" else "MANDOS_STOPPED"
-            if "\nOK" in response_text or success_token in response_text:
-                _LOGGER.info(
-                    "Manual dosing %s: index=%d, runtime=%ds",
-                    action_upper,
-                    dosing_index,
-                    runtime_seconds,
-                )
-                return True
-
-            _LOGGER.warning(
-                "Manual dosing unexpected response (%s): %s",
-                action_upper,
-                response_text,
-            )
-            return False
-
-        except VioletPoolAPIError as err:
-            _LOGGER.error(
-                "API error triggering dosing (%s): %s",
-                action_upper,
-                err,
-            )
-            raise
-        except TimeoutError as err:
-            _LOGGER.error("Timeout triggering manual dosing (%s)", action_upper)
-            raise VioletPoolAPIError(f"Timeout triggering manual dosing ({action_upper})") from err
-
-    async def set_config(
-        self,
-        config_updates: dict[str, Any],
-        timeout: float = 10.0,
-    ) -> bool:
+    async def set_config(self, config_updates: dict[str, Any]) -> bool:
         """Update controller configuration.
+
+        Boolean-ish values are normalised to 0/1 first: the controller expects
+        integers for flag keys such as ``*_use``, and a Python ``True`` or a
+        float ``1.0`` would otherwise be sent verbatim.
 
         Args:
             config_updates: Dictionary of CONFIG keys and values.
-            timeout: Request timeout in seconds.
 
         Returns:
-            True if successful.
-
-        Raises:
-            VioletPoolAPIError: If API communication fails.
+            True if the controller accepted the update.
         """
-        try:
-            _LOGGER.debug(
-                "Updating config: %s",
-                list(config_updates.keys()),
-            )
+        normalized_updates: dict[str, Any] = {}
+        for key, value in config_updates.items():
+            if isinstance(value, bool):
+                normalized_updates[key] = int(value)
+            elif (
+                isinstance(value, (int, float))
+                and key.endswith(("_use", "_enabled"))
+                and not key.endswith("_count")
+            ):
+                normalized_updates[key] = int(bool(value))
+            else:
+                normalized_updates[key] = value
 
-            # Normalize boolean/binary config values to 0 or 1 (not 0.0 or 1.0)
-            # This ensures config keys like *_use, *_enabled, etc. are sent as
-            # integers, matching controller expectations
-            normalized_updates = {}
-            for key, value in config_updates.items():
-                if isinstance(value, bool):
-                    # Convert bool to int: True->1, False->0
-                    normalized_updates[key] = int(value)
-                elif (
-                    isinstance(value, (int, float))
-                    and key.endswith(("_use", "_enabled"))
-                    and not key.endswith("_count")
-                ):
-                    normalized_updates[key] = int(bool(value))
-                else:
-                    # All other values pass through unchanged
-                    normalized_updates[key] = value
+        _LOGGER.debug("Updating config: %s", list(normalized_updates))
+        result = await self.api.set_config(normalized_updates)
 
-            result = await self.api.set_config(normalized_updates)
+        if _succeeded(result):
+            _LOGGER.info("Configuration updated: %s", list(normalized_updates))
+            return True
 
-            if result:
-                _LOGGER.info(
-                    "Configuration updated: %s",
-                    list(config_updates.keys()),
-                )
-                return True
-
-            _LOGGER.warning(
-                "Config update failed",
-            )
-            return False
-
-        except VioletPoolAPIError as err:
-            _LOGGER.error("API error updating config: %s", err)
-            raise
+        _LOGGER.warning("Config update failed for: %s", list(normalized_updates))
+        return False

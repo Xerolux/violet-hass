@@ -210,11 +210,24 @@ class VioletPoolControllerUpdateEntity(_VioletCoordinatorEntity, UpdateEntity):
         notes are fetched on demand in async_release_notes).
         """
         if self._update_in_progress and self._update_status_text:
-            return f"Update läuft: {self._update_status_text}"
+            return f"Update in progress: {self._update_status_text}"
         if not self.coordinator.data:
             return None
         info = parse_firmware_info(self.coordinator.data)
         return info.update_description
+
+    @property
+    def update_percentage(self) -> int | float | None:
+        """Return the install progress in percent.
+
+        The entity advertises UpdateEntityFeature.PROGRESS, so Home Assistant
+        renders a progress bar from this value; without it the bar stayed empty
+        for the whole install. None means "running, but the controller has not
+        reported a percentage yet".
+        """
+        if not self._update_in_progress:
+            return None
+        return self._update_progress
 
     @property
     def in_progress(self) -> bool:
@@ -502,9 +515,7 @@ class VioletPoolControllerUpdateEntity(_VioletCoordinatorEntity, UpdateEntity):
         """
         # Guard 1: already tracking a local install.
         if self._update_in_progress:
-            raise HomeAssistantError(
-                "Update läuft bereits auf der Steuerung"
-            )
+            raise HomeAssistantError("An update is already running on the controller")
 
         try:
             # Guard 2: an update may have been started externally (another client,
@@ -523,9 +534,7 @@ class VioletPoolControllerUpdateEntity(_VioletCoordinatorEntity, UpdateEntity):
                 self._update_progress = _parse_update_progress(normalized_state)
                 self.async_write_ha_state()
                 self._update_task = asyncio.create_task(self._poll_update_state())
-                raise HomeAssistantError(
-                    "Update läuft bereits auf der Steuerung"
-                )
+                raise HomeAssistantError("An update is already running on the controller")
 
             if normalized_state.upper() != "STANDBY":
                 _LOGGER.debug(
@@ -551,7 +560,7 @@ class VioletPoolControllerUpdateEntity(_VioletCoordinatorEntity, UpdateEntity):
             )
 
             self._update_in_progress = True
-            self._update_status_text = "initiiert"
+            self._update_status_text = "initiated"
             self._update_progress = None
             self.async_write_ha_state()
             self._update_task = asyncio.create_task(self._poll_update_state())

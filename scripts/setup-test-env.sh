@@ -45,14 +45,21 @@ PYTHON_VERSION=$($PYTHON_CMD --version)
 echo -e "${GREEN}✓ Found $PYTHON_VERSION ($PYTHON_CMD)${NC}\n"
 
 # Create virtual environment
-VENV_DIR=".venv-ha-test"
+# One venv name for the whole project: .venv (CLAUDE.md, CONTRIBUTING.md,
+# .devcontainer and every script agree on it).
+VENV_DIR=".venv"
 echo -e "${YELLOW}Creating virtual environment in $VENV_DIR...${NC}"
 if [ -d "$VENV_DIR" ]; then
-    echo -e "${YELLOW}  Virtual environment already exists. Removing...${NC}"
-    rm -rf "$VENV_DIR"
+    if [ "$1" == "--recreate" ]; then
+        echo -e "${YELLOW}  Virtual environment exists - recreating...${NC}"
+        rm -rf "$VENV_DIR"
+    else
+        echo -e "${YELLOW}  Virtual environment exists - reusing it.${NC}"
+        echo -e "${YELLOW}  Pass --recreate to build it from scratch.${NC}"
+    fi
 fi
 
-$PYTHON_CMD -m venv "$VENV_DIR"
+[ -d "$VENV_DIR" ] || $PYTHON_CMD -m venv "$VENV_DIR"
 echo -e "${GREEN}✓ Virtual environment created${NC}\n"
 
 # Activate virtual environment
@@ -83,7 +90,7 @@ echo -e "${YELLOW}Creating activation helper script...${NC}"
 cat > activate-test-env.sh << 'EOF'
 #!/bin/bash
 # Quick activation script for test environment
-source .venv-ha-test/bin/activate
+source .venv/bin/activate
 export PYTHONPATH="$(pwd):$PYTHONPATH"
 echo "✓ Test environment activated"
 echo "  Python: $(python --version)"

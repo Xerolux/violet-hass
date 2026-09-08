@@ -61,9 +61,7 @@ _FALLBACK_RANGE = (5.0, 45.0)
 
 def temperature_range(climate_type: str) -> tuple[float, float]:
     """Return the (min, max) setpoint the controller accepts for a climate type."""
-    low, high = SETPOINT_RANGES.get(
-        _RANGE_KEY_BY_TYPE.get(climate_type, ""), _FALLBACK_RANGE
-    )
+    low, high = SETPOINT_RANGES.get(_RANGE_KEY_BY_TYPE.get(climate_type, ""), _FALLBACK_RANGE)
     return float(low), float(high)
 
 
@@ -560,7 +558,7 @@ async def async_setup_entry(
         _LOGGER.debug(
             "%d climate entities added: %s",
             len(entities),
-            [e.name for e in entities],
+            [e.entity_description.key for e in entities],
         )
     else:
         _LOGGER.debug("No climate entities set up (no features active or no data available)")

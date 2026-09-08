@@ -12,6 +12,7 @@ from homeassistant.helpers.typing import VolDictType, VolSchemaType
 from .refill_overflow_schemas import get_refill_overflow_schemas
 from .service_helpers import (
     DEVICE_ID_SELECTOR,
+    DOSING_RUNNABLE_SLUGS,
     DOSING_SYSTEM_SLUGS,
     DOSING_TYPE_MAPPING,
     MAX_DOSING_DURATION,
@@ -296,7 +297,7 @@ def get_service_schemas() -> dict[str, Any]:
         ),
         "manual_dosing_http": _targeted(
             {
-                vol.Required("dosing_system"): _dosing_system(),
+                vol.Required("dosing_system"): vol.In(list(DOSING_RUNNABLE_SLUGS)),
                 vol.Required("runtime_seconds"): vol.All(
                     vol.Coerce(int), vol.Range(min=1, max=3600)
                 ),

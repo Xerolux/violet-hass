@@ -19,6 +19,28 @@ from .service_helpers import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def _as_int(value: Any, default: int = 0) -> int:
+    """Parse a controller reading into an int without ever raising.
+
+    A reading can arrive as an int, as a numeric string, or as a composite
+    state such as ``"3|PUMP_ANTI_FREEZE"``.  Feeding either of the latter two
+    to ``int()`` used to surface as a 500 from the status services, so anything
+    unparseable falls back to ``default`` instead.
+    """
+    if isinstance(value, bool):
+        return int(value)
+    if isinstance(value, (int, float)):
+        return int(value)
+    if isinstance(value, str):
+        try:
+            return int(float(value.split("|", 1)[0].strip()))
+        except (TypeError, ValueError):
+            return default
+    return default
+
+
 _POLL_SNAPSHOT_FIELDS = (
     "Pool Temp",
     "Redox",
@@ -112,10 +134,11 @@ class VioletDiagnosticServiceHandlers:
                     filename,
                     len(log_entries),
                 )
+                # Only the file name: the absolute path of the config
+                # directory is not something a service response should leak.
                 return {
                     "success": True,
                     "filename": filename,
-                    "filepath": filepath,
                     "lines_exported": len(log_entries),
                     "message": f"Logs saved to {filename} ({len(log_entries)} lines)",
                 }
@@ -138,15 +161,13 @@ class VioletDiagnosticServiceHandlers:
 
     async def handle_get_connection_status(self, call: ServiceCall) -> dict[str, Any]:
         """Handle get connection status diagnostic service."""
-        from .error_handler import get_enhanced_error_handler
-
         device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
         results = []
 
         for device_id in device_ids:
             try:
                 device = await self._get_device_for_id(device_id)
-                error_handler = get_enhanced_error_handler()
+                error_handler = device.error_handler
 
                 results.append(
                     {
@@ -175,8 +196,6 @@ class VioletDiagnosticServiceHandlers:
 
     async def handle_get_error_summary(self, call: ServiceCall) -> dict[str, Any]:
         """Handle get error summary diagnostic service."""
-        from .error_handler import get_enhanced_error_handler
-
         device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
         include_history = call.data.get("include_history", False)
         results = []
@@ -184,7 +203,7 @@ class VioletDiagnosticServiceHandlers:
         for device_id in device_ids:
             try:
                 device = await self._get_device_for_id(device_id)
-                error_handler = get_enhanced_error_handler()
+                error_handler = device.error_handler
 
                 result: dict[str, Any] = {
                     "device_name": self._device_label(device),
@@ -258,25 +277,30 @@ class VioletDiagnosticServiceHandlers:
         }
 
     async def handle_clear_error_history(self, call: ServiceCall) -> dict[str, Any]:
-        """Handle clear error history service."""
-        from .error_handler import get_enhanced_error_handler
+        """Handle clear error history service.
 
+        Every device id is resolved before a single history is touched: the
+        service used to wipe the shared history first and validate afterwards,
+        so a typo in the device id still cleared everything.
+        """
         device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
-        error_handler = get_enhanced_error_handler()
-        error_handler.clear_history()
 
+        devices = []
         for device_id in device_ids:
             try:
-                await self._get_device_for_id(device_id)
+                devices.append(await self._get_device_for_id(device_id))
             except Exception as err:
                 _LOGGER.error("Clear error history error: %s", err)
                 raise HomeAssistantError(f"Failed to clear error history: {err}") from err
 
-        _LOGGER.info("Cleared error history")
+        for device in devices:
+            device.error_handler.clear_history()
+
+        _LOGGER.info("Cleared error history for %d device(s)", len(devices))
         return {
             "success": True,
-            "cleared_count": len(device_ids),
-            "message": "Cleared error history",
+            "cleared_count": len(devices),
+            "message": f"Cleared error history for {len(devices)} device(s)",
         }
 
     async def handle_get_calibration_status(self, call: ServiceCall) -> dict[str, Any]:
@@ -310,8 +334,8 @@ class VioletDiagnosticServiceHandlers:
         if not coordinator.data:
             raise HomeAssistantError("No data available from controller")
 
-        backwash_state = coordinator.data.get("BACKWASH_STATE", 0)
-        backwash_step = coordinator.data.get("BACKWASH_STEP", 0)
+        backwash_state = _as_int(coordinator.data.get("BACKWASH_STATE"))
+        backwash_step = _as_int(coordinator.data.get("BACKWASH_STEP"))
         last_auto_run = coordinator.data.get("BACKWASH_LAST_AUTO_RUN")
         last_manual_run = coordinator.data.get("BACKWASH_LAST_MANUAL_RUN")
         filter_pressure = coordinator.data.get("FILTER_PRESSURE", 0)
@@ -319,13 +343,13 @@ class VioletDiagnosticServiceHandlers:
         return {
             "success": True,
             "device": coordinator.device.device_name,
-            "backwash_state": BACKWASH_STATES.get(int(backwash_state), "Unknown"),
-            "backwash_step": BACKWASH_STEPS.get(int(backwash_step), "Unknown"),
-            "is_running": int(backwash_state) == 1,
+            "backwash_state": BACKWASH_STATES.get(backwash_state, "Unknown"),
+            "backwash_step": BACKWASH_STEPS.get(backwash_step, "Unknown"),
+            "is_running": backwash_state == 1,
             "last_auto_run": last_auto_run,
             "last_manual_run": last_manual_run,
             "filter_pressure": filter_pressure,
-            "message": f"Backwash status: {BACKWASH_STATES.get(int(backwash_state), 'Unknown')}",
+            "message": f"Backwash status: {BACKWASH_STATES.get(backwash_state, 'Unknown')}",
         }
 
     async def handle_get_system_update_status(self, call: ServiceCall) -> dict[str, Any]:
@@ -634,8 +658,6 @@ Lines: {len(log_entries)}
         reboot.  Equivalent to the "Reset" button on the controller's web UI
         error page.
         """
-        from .error_handler import get_enhanced_error_handler
-
         device_ids = as_device_id_list(call.data[ATTR_DEVICE_ID])
         cleared_count = 0
 
@@ -643,8 +665,9 @@ Lines: {len(log_entries)}
             try:
                 device = await self._get_device_for_id(device_id)
                 await device.api.reset_blocking()
-                # Also clear our local error history so stale alarms disappear.
-                get_enhanced_error_handler().clear_history()
+                # Also clear this controller's error history so stale alarms
+                # disappear - other controllers keep theirs.
+                device.error_handler.clear_history()
                 cleared_count += 1
             except Exception as err:
                 _LOGGER.error("reset_blocking error for %s: %s", device_id, err)

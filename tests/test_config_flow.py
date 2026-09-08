@@ -148,6 +148,9 @@ class TestConfigFlow:
         flow = VioletDeviceConfigFlow()
         flow.hass = hass
         flow.handler = DOMAIN
+        # The flow manager normally supplies a mutable context; the discovery
+        # step writes the title placeholders into it.
+        flow.context = {}
         flow.async_set_unique_id = AsyncMock()
         flow._abort_if_unique_id_configured = MagicMock()
         flow.async_step_zeroconf_confirm = AsyncMock(
@@ -364,3 +367,268 @@ class TestZeroconfCredentialEntry:
 
         assert ok is False
         assert flow._last_connection_error == "cannot_connect"
+
+
+class TestSensorAutoDetection:
+    """Auto-detection must reach the controller and never produce an empty entry."""
+
+    @staticmethod
+    def _flow(hass):
+        from custom_components.violet_pool_controller.config_flow import ConfigFlow
+
+        flow = ConfigFlow()
+        flow.hass = hass
+        flow.handler = DOMAIN
+        return flow
+
+    async def test_get_grouped_sensors_uses_the_configured_port(self, hass):
+        """The port must be part of the host, as in the connection test.
+
+        Regression: get_grouped_sensors() built the API client from the bare
+        host, so a controller on a non-default port was contacted on port 80.
+        Discovery failed, the exception was swallowed and the entry ended up
+        without a single entity.
+        """
+        from custom_components.violet_pool_controller.config_flow_utils.sensor_helper import (
+            get_grouped_sensors,
+        )
+        from custom_components.violet_pool_controller.const import CONF_PORT
+
+        api = MagicMock()
+        api.get_readings = AsyncMock(return_value={"PUMP": 1})
+        api.dosing_standalone = False
+        api_class = MagicMock(return_value=api)
+
+        with patch(
+            "custom_components.violet_pool_controller.config_flow_utils.sensor_helper.VioletPoolAPI",
+            api_class,
+        ):
+            await get_grouped_sensors(
+                hass, {CONF_API_URL: "192.168.178.55", CONF_PORT: 8080}
+            )
+
+        assert api_class.call_args.kwargs["host"] == "192.168.178.55:8080"
+
+    async def test_get_grouped_sensors_accepts_a_short_controller_password(self, hass):
+        """A short password is the controller's business, not the flow's.
+
+        Regression: get_grouped_sensors() ran a credential-strength check the
+        connection test does not, so "1234" passed the test and then silently
+        produced an entry without entities.
+        """
+        from custom_components.violet_pool_controller.config_flow_utils.sensor_helper import (
+            get_grouped_sensors,
+        )
+
+        api = MagicMock()
+        api.get_readings = AsyncMock(return_value={"PUMP": 1, "SOLAR": 0})
+        api.dosing_standalone = False
+
+        with patch(
+            "custom_components.violet_pool_controller.config_flow_utils.sensor_helper.VioletPoolAPI",
+            MagicMock(return_value=api),
+        ):
+            grouped = await get_grouped_sensors(
+                hass,
+                {
+                    CONF_API_URL: "192.168.178.55",
+                    CONF_USERNAME: "admin",
+                    CONF_PASSWORD: "1234",
+                },
+            )
+
+        assert grouped, "a short controller password must not empty the detection"
+
+    async def test_no_detected_keys_selects_everything(self, hass):
+        """An empty detection stores None ("all"), never [] ("nothing")."""
+        from custom_components.violet_pool_controller.const import CONF_SELECTED_SENSORS
+
+        flow = self._flow(hass)
+        flow._config_data = {
+            CONF_API_URL: "192.168.178.55",
+            CONF_CONTROLLER_NAME: "Test Pool",
+        }
+
+        with patch.object(flow, "_get_grouped_sensors", AsyncMock(return_value={})):
+            result = await flow._auto_configure_entities()
+
+        assert result["data"][CONF_SELECTED_SENSORS] is None
+
+    async def test_detected_keys_are_stored(self, hass):
+        """The normal case still stores the detected datapoints."""
+        from custom_components.violet_pool_controller.const import CONF_SELECTED_SENSORS
+
+        flow = self._flow(hass)
+        flow._config_data = {
+            CONF_API_URL: "192.168.178.55",
+            CONF_CONTROLLER_NAME: "Test Pool",
+        }
+
+        with patch.object(
+            flow,
+            "_get_grouped_sensors",
+            AsyncMock(return_value={"PUMP": ["PUMP"], "SOLAR": ["SOLAR"]}),
+        ):
+            result = await flow._auto_configure_entities()
+
+        assert result["data"][CONF_SELECTED_SENSORS] == ["PUMP", "SOLAR"]
+
+
+class TestFeatureAutoDetection:
+    """Feature detection must use the same key -> feature map as the platforms."""
+
+    @staticmethod
+    def _flow(hass):
+        from custom_components.violet_pool_controller.config_flow import ConfigFlow
+
+        flow = ConfigFlow()
+        flow.hass = hass
+        flow.handler = DOMAIN
+        return flow
+
+    async def test_dmx_and_eco_keys_enable_their_features(self, hass):
+        """Regression: the hand-written marker table knew neither feature.
+
+        ``dmx_scenes`` and ``eco_mode`` are part of AVAILABLE_FEATURES and
+        feature_keys.py routes DMX_*/ECO* keys to them, so a fresh setup used
+        to hide the DMX and ECO entities.
+        """
+        flow = self._flow(hass)
+
+        active = flow._detect_active_features({"DMX_SCENE1", "ECO_MODE_ACTIVE"})
+
+        assert "dmx_scenes" in active
+        assert "eco_mode" in active
+
+    async def test_known_features_are_still_detected(self, hass):
+        """The features the old table covered must keep working."""
+        flow = self._flow(hass)
+
+        active = flow._detect_active_features({"PUMP", "HEATER", "SOLAR", "COVER_STATE"})
+
+        assert "filter_control" in active
+        assert "heating" in active
+        assert "solar" in active
+        assert "cover_control" in active
+
+    async def test_no_keys_falls_back_to_the_defaults(self, hass):
+        """Without any controller data the default feature set is kept."""
+        from custom_components.violet_pool_controller.const import AVAILABLE_FEATURES
+
+        flow = self._flow(hass)
+
+        active = flow._detect_active_features(set())
+
+        assert active == [str(f["id"]) for f in AVAILABLE_FEATURES if f["default"]]
+
+
+class TestOptionsFlowStoresOnlyOptions:
+    """The options flow must never copy the connection settings into the options.
+
+    Regression: every step saved ``{**data, **options, **changed}``, so the
+    password ended up in ``entry.options`` and the options-first lookup then
+    shadowed every later reconfigure of the connection.
+    """
+
+    @staticmethod
+    async def _save(hass, entry, step, user_input):
+        from custom_components.violet_pool_controller.config_flow_support import (
+            OptionsFlowHandler,
+        )
+
+        handler = OptionsFlowHandler()
+        handler.hass = hass
+        # For an options flow the handler *is* the config entry id.
+        handler.handler = entry.entry_id
+        return await getattr(handler, step)(user_input)
+
+    def _entry(self, hass):
+        entry = MockConfigEntry(
+            domain=DOMAIN,
+            title="Test Pool",
+            data={
+                CONF_API_URL: "192.168.178.55",
+                CONF_USERNAME: "admin",
+                CONF_PASSWORD: "s3cret",
+                CONF_USE_SSL: False,
+                CONF_DEVICE_ID: 1,
+                CONF_CONTROLLER_NAME: "Test Pool",
+                CONF_TIMEOUT_DURATION: 10,
+                CONF_RETRY_ATTEMPTS: 3,
+            },
+            options={},
+        )
+        entry.add_to_hass(hass)
+        return entry
+
+    async def test_settings_save_keeps_credentials_out_of_the_options(self, hass):
+        """Saving the general settings stores those settings and nothing else."""
+        entry = self._entry(hass)
+
+        result = await self._save(
+            hass, entry, "async_step_settings", {"polling_interval": 30}
+        )
+
+        assert CONF_PASSWORD not in result["data"]
+        assert CONF_USERNAME not in result["data"]
+        assert CONF_API_URL not in result["data"]
+        assert result["data"]["polling_interval"] == 30
+
+    async def test_feature_save_keeps_credentials_out_of_the_options(self, hass):
+        """The feature step saves the feature list only."""
+        from custom_components.violet_pool_controller.const import CONF_ACTIVE_FEATURES
+
+        entry = self._entry(hass)
+
+        result = await self._save(
+            hass,
+            entry,
+            "async_step_features",
+            {CONF_ACTIVE_FEATURES: ["heating", "solar"]},
+        )
+
+        assert CONF_PASSWORD not in result["data"]
+        assert result["data"][CONF_ACTIVE_FEATURES] == ["heating", "solar"]
+
+    async def test_existing_options_survive_a_save(self, hass):
+        """Options set by an earlier step are not dropped by the next one."""
+        entry = self._entry(hass)
+        hass.config_entries.async_update_entry(entry, options={"invert_cover": True})
+
+        result = await self._save(
+            hass, entry, "async_step_settings", {"polling_interval": 30}
+        )
+
+        assert result["data"]["invert_cover"] is True
+        assert result["data"]["polling_interval"] == 30
+
+
+class TestZeroconfDiscoveryCard:
+    """The discovery card is rendered from the flow context."""
+
+    async def test_title_placeholders_reach_the_context(self, hass):
+        """Regression: only the attribute was set, so the card showed no host.
+
+        Home Assistant reads ``context["title_placeholders"]`` when it renders
+        the "discovered device" card; the private attribute is invisible to it.
+        """
+        from custom_components.violet_pool_controller.config_flow import ConfigFlow
+
+        flow = ConfigFlow()
+        flow.hass = hass
+        flow.handler = DOMAIN
+        flow.context = {}
+        flow.async_set_unique_id = AsyncMock()
+        flow._abort_if_unique_id_configured = MagicMock()
+        flow.async_step_zeroconf_confirm = AsyncMock(return_value={"type": "form"})
+
+        discovery_info = MagicMock()
+        discovery_info.ip_address = "192.168.178.55"
+        discovery_info.name = "violet-controller.local."
+        discovery_info.port = 8080
+
+        await flow.async_step_zeroconf(discovery_info)
+
+        placeholders = flow.context["title_placeholders"]
+        assert placeholders["name"] == "violet-controller.local."
+        assert placeholders["host"] == "192.168.178.55:8080"

@@ -7,13 +7,12 @@ from typing import Any
 
 from homeassistant.const import ATTR_DEVICE_ID
 from homeassistant.core import ServiceCall
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from violet_poolcontroller_api.api import VioletPoolAPIError
 
+from ..const import DOMAIN
 from ..http_control import VioletControlClient
-from ..service_helpers import (
-    as_device_id_list,
-)
+from ..service_helpers import as_device_id_list
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,7 +33,11 @@ class RulesServiceHandlersMixin:
         for device_id in device_ids:
             coordinator = await self.manager.get_coordinator_for_device(device_id)
             if not coordinator:
-                raise HomeAssistantError(f"Device not found: {device_id}")
+                raise ServiceValidationError(
+                    translation_domain=DOMAIN,
+                    translation_key="device_not_found",
+                    translation_placeholders={"device_id": device_id},
+                )
 
             try:
                 if action == "trigger":
@@ -54,7 +57,11 @@ class RulesServiceHandlersMixin:
                     _LOGGER.info("Rule %s unlocked (device %s)", rule_key, device_id)
 
                 else:
-                    raise HomeAssistantError(f"Unsupported digital rule action: {action}")
+                    raise ServiceValidationError(
+                        translation_domain=DOMAIN,
+                        translation_key="invalid_action",
+                        translation_placeholders={"action": str(action)},
+                    )
 
                 if result.get("success") is not True:
                     _LOGGER.warning(
@@ -65,7 +72,11 @@ class RulesServiceHandlersMixin:
 
             except VioletPoolAPIError as err:
                 _LOGGER.error("Digital rule error (%s): %s", device_id, err)
-                raise HomeAssistantError(f"Digital rule failed: {err}") from err
+                raise HomeAssistantError(
+                    translation_domain=DOMAIN,
+                    translation_key="api_error",
+                    translation_placeholders={"detail": f"digital rule: {err}"},
+                ) from err
 
             await coordinator.async_request_refresh()
 
@@ -76,7 +87,11 @@ class RulesServiceHandlersMixin:
         enabled = call.data.get("enabled", True)
 
         if not 1 <= rule_id <= 8:
-            raise HomeAssistantError(f"Rule ID must be 1-8, got {rule_id}")
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="value_out_of_range",
+                translation_placeholders={"value": str(rule_id), "min": "1", "max": "8"},
+            )
 
         config_updates = {}
         prefix = f"ANALOGRULE_{rule_id}_prog"
@@ -113,7 +128,11 @@ class RulesServiceHandlersMixin:
                 )
                 await coordinator.async_request_refresh()
             except Exception as err:
-                raise HomeAssistantError(f"Failed to configure analog rule {rule_id}: {err}")
+                raise HomeAssistantError(
+                    translation_domain=DOMAIN,
+                    translation_key="api_error",
+                    translation_placeholders={"detail": f"analog rule {rule_id}: {err}"},
+                ) from err
 
     async def handle_configure_switching_rule(self, call: ServiceCall) -> None:
         """Configure switching input rule (SWITCHINGRULE_1-8)."""
@@ -122,7 +141,11 @@ class RulesServiceHandlersMixin:
         enabled = call.data.get("enabled", True)
 
         if not 1 <= rule_id <= 8:
-            raise HomeAssistantError(f"Rule ID must be 1-8, got {rule_id}")
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="value_out_of_range",
+                translation_placeholders={"value": str(rule_id), "min": "1", "max": "8"},
+            )
 
         config_updates = {}
         prefix = f"SWITCHINGRULE_{rule_id}_prog"
@@ -153,7 +176,11 @@ class RulesServiceHandlersMixin:
                 )
                 await coordinator.async_request_refresh()
             except Exception as err:
-                raise HomeAssistantError(f"Failed to configure switching rule {rule_id}: {err}")
+                raise HomeAssistantError(
+                    translation_domain=DOMAIN,
+                    translation_key="api_error",
+                    translation_placeholders={"detail": f"switching rule {rule_id}: {err}"},
+                ) from err
 
     async def handle_configure_timer_rule(self, call: ServiceCall) -> None:
         """Configure timer rule (TIMERRULE_1-8)."""
@@ -162,7 +189,11 @@ class RulesServiceHandlersMixin:
         enabled = call.data.get("enabled", True)
 
         if not 1 <= rule_id <= 8:
-            raise HomeAssistantError(f"Rule ID must be 1-8, got {rule_id}")
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="value_out_of_range",
+                translation_placeholders={"value": str(rule_id), "min": "1", "max": "8"},
+            )
 
         config_updates = {}
         prefix = f"TIMERRULE_{rule_id}_prog"
@@ -193,7 +224,11 @@ class RulesServiceHandlersMixin:
                 )
                 await coordinator.async_request_refresh()
             except Exception as err:
-                raise HomeAssistantError(f"Failed to configure timer rule {rule_id}: {err}")
+                raise HomeAssistantError(
+                    translation_domain=DOMAIN,
+                    translation_key="api_error",
+                    translation_placeholders={"detail": f"timer rule {rule_id}: {err}"},
+                ) from err
 
     async def handle_enable_rule(self, call: ServiceCall) -> None:
         """Enable/disable any rule type."""
@@ -209,9 +244,17 @@ class RulesServiceHandlersMixin:
             "timerrule",
         ]
         if rule_type not in valid_types:
-            raise HomeAssistantError(f"Invalid rule type: {rule_type}")
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="invalid_value",
+                translation_placeholders={"detail": f"rule type {rule_type!r}"},
+            )
         if not 1 <= rule_id <= 8:
-            raise HomeAssistantError(f"Rule ID must be 1-8, got {rule_id}")
+            raise ServiceValidationError(
+                translation_domain=DOMAIN,
+                translation_key="value_out_of_range",
+                translation_placeholders={"value": str(rule_id), "min": "1", "max": "8"},
+            )
 
         key = f"{rule_type.upper()}_{rule_id}_prog_use"
         value = 1 if enabled else 0
@@ -230,5 +273,9 @@ class RulesServiceHandlersMixin:
                 )
                 await coordinator.async_request_refresh()
             except Exception as err:
-                raise HomeAssistantError(f"Failed to enable/disable rule: {err}")
+                raise HomeAssistantError(
+                    translation_domain=DOMAIN,
+                    translation_key="api_error",
+                    translation_placeholders={"detail": f"{rule_type}_{rule_id}: {err}"},
+                ) from err
 

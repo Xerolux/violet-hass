@@ -310,3 +310,49 @@ class TestHardwareConfig:
         assert pool["pool_type"] == "indoor"
         assert pool["pool_size"] == 40
         assert pool["controller_name"] == "My Pool Controller"
+
+
+class TestNonNumericFlags:
+    """The controller answers with strings, and with "N/A" for unknown options.
+
+    Regression: six ``int(self.config.get(...))`` sites raised ValueError for
+    ``"N/A"``, ``""`` or ``"true"``. ``device.load_hardware_config`` swallowed
+    that with a single log line, and every controller-provided name was lost.
+    """
+
+    @pytest.mark.parametrize("value", ["N/A", "", "   ", "true", None, "n/a"])
+    def test_unparsable_flag_does_not_raise(self, value):
+        """An unusable flag falls back to "disabled" instead of aborting."""
+        hw = HardwareConfig(
+            {
+                "DI1_enabled": value,
+                "EXT1_1_use": value,
+                "LIGHT_prog1_use": value,
+                "DOSAGE_chlorine_use": value,
+                "AI1_use": value,
+                "PUMP_control_use": value,
+            }
+        )
+
+        configs = hw.get_all_configs()
+        assert configs["extension_relays"]["EXT1_1"]["enabled"] is False
+        assert configs["dmx_scenes"]["LIGHT_SCENE_1"]["enabled"] is False
+        assert configs["dosing_systems"]["CL"]["enabled"] is False
+        assert configs["analog_inputs"]["AI1"]["enabled"] is False
+
+    def test_unparsable_output_flag_keeps_the_default(self):
+        """An output that defaults to enabled stays enabled for a bad flag."""
+        hw = HardwareConfig({"PUMP_control_use": "N/A", "BACKWASH_control_use": "N/A"})
+        outputs = hw.get_all_configs()["outputs"]
+
+        assert outputs["PUMP"]["enabled"] is True
+        assert outputs["BACKWASH"]["enabled"] is False
+
+    def test_numeric_strings_are_still_honoured(self):
+        """The normal case - the controller sends numbers as strings."""
+        hw = HardwareConfig({"EXT1_2_use": "1", "EXT1_3_use": "0", "EXT1_4_use": "1.0"})
+        relays = hw.get_all_configs()["extension_relays"]
+
+        assert relays["EXT1_2"]["enabled"] is True
+        assert relays["EXT1_3"]["enabled"] is False
+        assert relays["EXT1_4"]["enabled"] is True
