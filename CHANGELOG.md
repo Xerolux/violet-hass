@@ -89,6 +89,18 @@ about it are now true.
   exist in this repository. Removed.
 - The live hardware check scripts moved to `scripts/live/` and read their
   credentials inside `main()` rather than at import time.
+- **475 of 1421 tests never actually ran.** `pytest.ini` disables the
+  pytest-socket plugin, but the Home Assistant harness still calls
+  `disable_socket()` in its own per-test setup hook - and that installs its
+  guard by subclassing whatever `socket.socket` currently is. With nothing
+  left to call `enable_socket()`, the subclass chain grew one level per test
+  until, from roughly the 950th test on, every remaining test errored at setup
+  with `RecursionError`. Running the suite in halves hid it. `conftest.py` now
+  restores the socket in `pytest_runtest_teardown`, and the full suite is
+  green: **1421 passed, 0 failed, 0 errors**.
+- With the suite actually running, measured coverage is **64.48%**. The
+  `fail_under` floor moves from 40 to 60; the ">80%" claim in CLAUDE.md is
+  replaced by a pointer to the enforced number.
 - `tests/test_language_policy.py` now scans Python sources for German prose
   and checks that the published documentation names the current version.
 

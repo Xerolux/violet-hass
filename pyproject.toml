@@ -47,11 +47,12 @@ branch = true
 
 [tool.coverage.report]
 show_missing = true
-# Lowered from 60 to 40: the previous threshold was never actually enforced
-# because test collection failed (missing zeroconf, wrong pytest-hass pin) so
-# coverage was never computed. With collection fixed, actual coverage is ~48%.
-# Keep a floor to catch drastic regressions; raise again as tests are added.
-fail_under = 40
+# Measured, not guessed: a full green run (1421 tests) reports 64.48%.
+# The floor sits a little below that so an ordinary refactor does not break
+# CI, and well above the old 40 - which was set when the suite could not even
+# be collected and was never a real gate. Raise this as tests are added;
+# never lower it to make a build pass.
+fail_under = 60
 exclude_lines = [
     "pragma: no cover",
     "if TYPE_CHECKING:",

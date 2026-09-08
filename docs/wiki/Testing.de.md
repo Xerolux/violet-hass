@@ -215,7 +215,7 @@ pytest tests/ --cov=custom_components/violet_pool_controller --cov-report=term
 pytest tests/ --cov=custom_components/violet_pool_controller --cov-report=html
 # Öffnen: htmlcov/index.html
 
-# Ziel: > 80% Coverage
+# Die verbindliche Untergrenze ist fail_under in pyproject.toml
 ```
 
 ### Parallel ausführen (schneller)
@@ -276,15 +276,28 @@ Diese Einstellungen sind notwendig für:
 
 ---
 
-## conftest.py – Thread-Workaround
+## conftest.py
 
-`tests/conftest.py` enthält einen wichtigen Patch:
+`tests/conftest.py` ist bewusst minimal. Home Assistant und
+`violet-poolController-api` sind **harte Voraussetzungen**: fehlt eines davon,
+bricht der Lauf mit einem Hinweis auf `pip install -r requirements-dev.txt` ab.
 
-```python
-# Filtert Home Assistant's _run_safe_shutdown_loop Threads
-# Verhindert false-positive Thread-Leak-Warnungen
-# Notwendig für HA 2025.1+
-```
+Stubs gibt es nicht mehr: Eine Testsuite, die gegen Attrappen grün wird, sagt
+nichts aus. Mit der Stub-Schicht verschwand auch der `threading.enumerate()`-
+Patch – er versteckte *alle* verwaisten Threads vor der Leak-Prüfung des
+Harness, nicht nur die von Home Assistant. Die Zeitzonen-Umbiegung von
+`US/Pacific` wird ebenfalls nicht mehr gebraucht.
+
+Geblieben ist eine Windows-Sonderbehandlung für `pytest_socket`: dort schaltet
+das Harness Sockets ab, und asyncios `ProactorEventLoop` kommt ohne
+`socket.socketpair()` nicht zustande.
+
+### Skripte gegen echte Hardware
+
+`scripts/live/*.py` sprechen mit einem **echten Controller** und sind keine
+Tests – pytest sammelt sie nicht ein. Sie lesen `VIOLET_HOST`, `VIOLET_USER`
+und `VIOLET_PASS`. Nur `live_readonly_check.py` schreibt nichts; die anderen
+senden Dosierbefehle.
 
 ---
 
@@ -298,7 +311,7 @@ python -m mypy custom_components/violet_pool_controller/
 # 2. Alle Tests grün
 ./scripts/run-tests.sh
 
-# 3. Coverage prüfen (> 80%)
+# 3. Coverage (durch fail_under in pyproject.toml abgesichert)
 pytest tests/ --cov=custom_components/violet_pool_controller --cov-report=term
 
 # 4. Manueller Test in echter HA-Instanz
@@ -372,7 +385,7 @@ Vor jedem Merge/Release müssen erfüllt sein:
 - [ ] **100% aller Unit-Tests bestehen**
 - [ ] **Ruff Linting: 0 Fehler**
 - [ ] **MyPy: 0 Fehler** (außer `import-not-found`)
-- [ ] **Coverage: > 80%**
+- [ ] **Coverage mindestens auf dem `fail_under`-Wert in `pyproject.toml`**
 - [ ] **Kein Regression bei bestehenden Features**
 
 ---

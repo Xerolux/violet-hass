@@ -40,6 +40,37 @@ _require("pytest_homeassistant_custom_component", "pytest-homeassistant-custom-c
 _require("violet_poolcontroller_api", "The violet-poolController-api package")
 
 
+def pytest_runtest_teardown(item: pytest.Item) -> None:
+    """Undo the harness's per-test socket guard.
+
+    pytest-homeassistant-custom-component calls
+    ``pytest_socket.disable_socket(allow_unix_socket=True)`` from its own
+    ``pytest_runtest_setup`` hook. ``disable_socket`` installs a guard by
+    subclassing whatever ``socket.socket`` currently is - so every call adds
+    one level to the MRO, and ``GuardedSocket.__new__``'s ``super().__new__``
+    chain grows one frame per test.
+
+    pytest-socket normally unwinds that in its own teardown, but ``pytest.ini``
+    disables the plugin (``-p no:socket``) because Home Assistant needs to
+    manage socket blocking itself. Nothing was left to call ``enable_socket``,
+    so the chain grew until it hit Python's recursion limit: from roughly the
+    950th test onwards, every remaining test errored at setup with
+    ``RecursionError: maximum recursion depth exceeded`` - 475 of them in a
+    full run. Splitting the suite in half hid it, which is why it survived so
+    long.
+
+    Restoring the real socket after each test is exactly what the plugin would
+    do, and keeps the blocking the harness sets up for the next test intact
+    (it re-applies it in its own setup hook).
+    """
+    try:
+        import pytest_socket
+
+        pytest_socket.enable_socket()
+    except Exception:  # pragma: no cover - pytest-socket always present via the harness
+        pass
+
+
 def pytest_configure(config: pytest.Config) -> None:
     """Configure pytest with custom settings."""
     # Windows only: pytest-homeassistant-custom-component calls
