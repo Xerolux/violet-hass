@@ -386,7 +386,7 @@ control_heater_http:
   name: Control Heater (HTTP)
   description: Control pool heater with temperature setpoint
   target:
-    device:
+    entity:
       integration: violet_pool_controller
   fields:
     action:
@@ -408,7 +408,7 @@ control_solar_http:
   name: Control Solar (HTTP)
   description: Control solar heating system
   target:
-    device:
+    entity:
       integration: violet_pool_controller
   fields:
     action:
@@ -430,7 +430,7 @@ control_cover_http:
   name: Control Cover (HTTP)
   description: Control pool cover (open/close/stop)
   target:
-    device:
+    entity:
       integration: violet_pool_controller
   fields:
     action:
@@ -448,7 +448,7 @@ control_backwash_http:
   description: Run or abort backwash cycle.  A duration is mandatory so the backwash can never run
     indefinitely.
   target:
-    device:
+    entity:
       integration: violet_pool_controller
   fields:
     action:
@@ -478,7 +478,7 @@ manual_dosing_http:
   name: Manual Dosing (HTTP)
   description: Manually trigger chemical dosing
   target:
-    device:
+    entity:
       integration: violet_pool_controller
   fields:
     dosing_system:
@@ -543,7 +543,7 @@ configure_dosing:
   name: Configure Dosing
   description: Set dosing system configuration parameter
   target:
-    device:
+    entity:
       integration: violet_pool_controller
   fields:
     dosing_system:
@@ -573,7 +573,7 @@ set_dosing_target:
   name: Set Dosing Target
   description: Set dosing target value
   target:
-    device:
+    entity:
       integration: violet_pool_controller
   fields:
     dosing_system:
@@ -600,7 +600,7 @@ set_dosing_daytime:
   name: Set Dosing Daytime
   description: Set dosing daytime window (HH:MM format)
   target:
-    device:
+    entity:
       integration: violet_pool_controller
   fields:
     dosing_system:
@@ -628,7 +628,7 @@ set_dosing_max_daily:
   name: Set Dosing Maximum Daily
   description: Set maximum daily dosing volume
   target:
-    device:
+    entity:
       integration: violet_pool_controller
   fields:
     dosing_system:
@@ -656,7 +656,7 @@ enable_dosing:
   name: Enable Dosing
   description: Enable or disable dosing system
   target:
-    device:
+    entity:
       integration: violet_pool_controller
   fields:
     dosing_system:
@@ -734,7 +734,7 @@ configure_temp_rule:
   name: Configure Temperature Rule
   description: Configure temperature-based automation rule (TEMPRULE_1-8)
   target:
-    device:
+    entity:
       integration: violet_pool_controller
   fields:
     rule_id:
@@ -819,7 +819,7 @@ configure_analog_rule:
   name: Configure Analog Input Rule
   description: Configure analog threshold-based rule (ANALOGRULE_1-8)
   target:
-    device:
+    entity:
       integration: violet_pool_controller
   fields:
     rule_id:
@@ -898,7 +898,7 @@ configure_switching_rule:
   name: Configure Switching Input Rule
   description: Configure digital input-based rule (SWITCHINGRULE_1-8)
   target:
-    device:
+    entity:
       integration: violet_pool_controller
   fields:
     rule_id:
@@ -953,7 +953,7 @@ configure_timer_rule:
   name: Configure Timer Rule
   description: Configure time-based automation rule (TIMERRULE_1-8)
   target:
-    device:
+    entity:
       integration: violet_pool_controller
   fields:
     rule_id:
@@ -1017,7 +1017,7 @@ enable_rule:
   name: Enable/Disable Rule
   description: Enable or disable any rule type
   target:
-    device:
+    entity:
       integration: violet_pool_controller
   fields:
     rule_type:
@@ -1055,7 +1055,7 @@ control_extension_relay:
   name: Control Extension Relay
   description: Control an extension relay output (EXT1_1 to EXT1_8 and EXT2_1 to EXT2_8)
   target:
-    device:
+    entity:
       integration: violet_pool_controller
   fields:
     bank:
@@ -1095,7 +1095,7 @@ configure_sensor_calibration:
   name: Configure Sensor Calibration
   description: Configure temperature sensor calibration parameters
   target:
-    device:
+    entity:
       integration: violet_pool_controller
   fields:
     sensor_id:
@@ -1198,7 +1198,7 @@ control_refill_http:
   description: Start or stop a manual water refill.  A duration is mandatory so the valve can never be
     left open indefinitely.
   target:
-    device:
+    entity:
       integration: violet_pool_controller
   fields:
     action:
@@ -1228,7 +1228,7 @@ configure_refill:
   name: Configure Water Refill
   description: Configure the automatic water refill system
   target:
-    device:
+    entity:
       integration: violet_pool_controller
   fields:
     refill_type:
@@ -1268,7 +1268,7 @@ configure_overflow:
   description: Configure overflow, dry-run and bathing-detection protection.  Only the fields you fill
     in are written to the controller.
   target:
-    device:
+    entity:
       integration: violet_pool_controller
   fields:
     enabled:
@@ -1368,7 +1368,7 @@ control_pump_http:
   description: Control the filter pump directly.  Speed 1-3 switches the pump to manual ON at that
     speed; use action "off" or force_off to switch it off.
   target:
-    device:
+    entity:
       integration: violet_pool_controller
   fields:
     speed:

@@ -83,7 +83,7 @@ class TestFeatureGating:
         """Enabling the feature creates all sixteen inputs."""
         keys = await _created_keys(hass, ["digital_inputs"])
 
-        assert DIGITAL_INPUT_KEYS <= keys
+        assert keys >= DIGITAL_INPUT_KEYS
 
     async def test_pump_follows_filter_control(self, hass) -> None:
         """A feature that is off removes its binary sensor."""

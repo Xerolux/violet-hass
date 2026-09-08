@@ -74,3 +74,44 @@ def test_parse_firmware_info_system_keys_take_precedence() -> None:
 
     assert firmware_info.installed_version == "2.0.0"
     assert firmware_info.available_version == "2.1.0"
+
+
+def test_update_available_for_a_prerelease_installed_version() -> None:
+    """A suffixed version must not hide the update.
+
+    The comparison used ``int()`` on each dot-separated part, so "1.2.0-beta"
+    raised ValueError and the helper reported "equal" - which meant a
+    controller running a beta never saw the stable release that followed it.
+    """
+    firmware_info = parse_firmware_info(
+        {"SYSTEM_swversion": "1.2.0-beta", "SYSTEM_availableversion": "1.2.0"}
+    )
+
+    assert firmware_info.update_available is True
+
+
+def test_no_update_when_the_prerelease_is_the_newer_one() -> None:
+    """A beta ahead of the installed stable release is still an update."""
+    firmware_info = parse_firmware_info(
+        {"SYSTEM_swversion": "1.2.0", "SYSTEM_availableversion": "1.2.0-beta"}
+    )
+
+    assert firmware_info.update_available is False
+
+
+def test_multi_digit_version_parts_are_ordered_numerically() -> None:
+    """1.10.0 is newer than 1.9.0, not older."""
+    firmware_info = parse_firmware_info(
+        {"SYSTEM_swversion": "1.9.0", "SYSTEM_availableversion": "1.10.0"}
+    )
+
+    assert firmware_info.update_available is True
+
+
+def test_unorderable_versions_are_reported_as_an_update() -> None:
+    """The controller only advertises a version when it has one to offer."""
+    firmware_info = parse_firmware_info(
+        {"SYSTEM_swversion": "custom-build", "SYSTEM_availableversion": "factory"}
+    )
+
+    assert firmware_info.update_available is True

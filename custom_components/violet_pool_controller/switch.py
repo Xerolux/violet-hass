@@ -302,10 +302,9 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                         raw_detail, raw_detail.replace("_", " ").title()
                     )
 
-        # Fall back to the raw numeric state
+        # Fall back to the raw state, which may itself be composite
         if state_num is None and raw_state is not None:
-            with contextlib.suppress(ValueError, TypeError):
-                state_num = int(raw_state)
+            state_num = parse_state_code(raw_state)
 
         # Map numeric state to mode + description
         mode = "Unknown"

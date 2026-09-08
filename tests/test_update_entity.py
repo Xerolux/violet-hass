@@ -92,14 +92,49 @@ def test_release_summary_shows_live_status_while_updating() -> None:
     )
     entity = VioletPoolControllerUpdateEntity(coordinator, _make_config_entry())
 
-    # Idle: shows the normal update_description (no "läuft" marker).
+    # Idle: shows the normal update_description (no in-progress marker).
     idle_summary = entity.release_summary
-    assert idle_summary is None or "läuft" not in (idle_summary or "")
+    assert idle_summary is None or "in progress" not in (idle_summary or "")
 
     # While updating: status text takes precedence.
     entity._update_in_progress = True
     entity._update_status_text = "downloading package (42%)"
-    assert entity.release_summary == "Update läuft: downloading package (42%)"
+    assert entity.release_summary == "Update in progress: downloading package (42%)"
+
+
+def test_release_summary_is_english() -> None:
+    """User-facing text is English everywhere; this file used to be German."""
+    coordinator = _make_coordinator({"SYSTEM_swversion": "1.1.9"})
+    entity = VioletPoolControllerUpdateEntity(coordinator, _make_config_entry())
+    entity._update_in_progress = True
+    entity._update_status_text = "installing"
+
+    assert entity.release_summary == "Update in progress: installing"
+
+
+def test_update_percentage_follows_the_reported_progress() -> None:
+    """UpdateEntityFeature.PROGRESS is declared, so the percentage must be exposed.
+
+    Without this property Home Assistant rendered an empty progress bar for the
+    whole install.
+    """
+    coordinator = _make_coordinator({"SYSTEM_swversion": "1.1.9"})
+    entity = VioletPoolControllerUpdateEntity(coordinator, _make_config_entry())
+
+    # Idle: no progress at all.
+    assert entity.update_percentage is None
+
+    # Running, but the controller has not reported a percentage yet.
+    entity._update_in_progress = True
+    assert entity.update_percentage is None
+
+    # Running with a percentage.
+    entity._update_progress = 42
+    assert entity.update_percentage == 42
+
+    # Finished: the bar disappears again.
+    entity._update_in_progress = False
+    assert entity.update_percentage is None
 
 
 def test_parse_update_progress_extracts_percentage() -> None:

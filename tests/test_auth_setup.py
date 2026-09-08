@@ -78,9 +78,8 @@ class TestAuthFailureDuringSetup:
         with patch(
             "custom_components.violet_pool_controller.VioletPoolAPI",
             return_value=_api(VioletAuthError("HTTP 401: unauthorized")),
-        ):
-            with pytest.raises(ConfigEntryAuthFailed):
-                await async_setup_entry(hass, entry)
+        ), pytest.raises(ConfigEntryAuthFailed):
+            await async_setup_entry(hass, entry)
 
     async def test_setup_entry_does_not_downgrade_auth_to_not_ready(
         self, hass: HomeAssistant
@@ -91,9 +90,8 @@ class TestAuthFailureDuringSetup:
         with patch(
             "custom_components.violet_pool_controller.VioletPoolAPI",
             return_value=_api(VioletAuthError("HTTP 403: forbidden")),
-        ):
-            with pytest.raises(ConfigEntryAuthFailed) as raised:
-                await async_setup_entry(hass, entry)
+        ), pytest.raises(ConfigEntryAuthFailed) as raised:
+            await async_setup_entry(hass, entry)
 
         assert not isinstance(raised.value, ConfigEntryNotReady)
 
@@ -104,9 +102,8 @@ class TestAuthFailureDuringSetup:
         with patch(
             "custom_components.violet_pool_controller.VioletPoolAPI",
             return_value=_api(VioletPoolAPIError("connection refused")),
-        ):
-            with pytest.raises(ConfigEntryNotReady):
-                await async_setup_entry(hass, entry)
+        ), pytest.raises(ConfigEntryNotReady):
+            await async_setup_entry(hass, entry)
 
     async def test_setup_does_not_retry_the_request_itself(self, hass: HomeAssistant):
         """Setup makes a single attempt; Home Assistant owns the backoff.
@@ -119,8 +116,7 @@ class TestAuthFailureDuringSetup:
 
         with patch(
             "custom_components.violet_pool_controller.VioletPoolAPI", return_value=api
-        ):
-            with pytest.raises(ConfigEntryNotReady):
-                await async_setup_entry(hass, entry)
+        ), pytest.raises(ConfigEntryNotReady):
+            await async_setup_entry(hass, entry)
 
         assert api.get_readings.await_count == 1
