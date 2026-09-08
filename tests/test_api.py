@@ -87,8 +87,15 @@ class TestVioletPoolAPI:
             await api._request("/normal")
             mock_wait.assert_called_with(priority=API_PRIORITY_NORMAL, timeout=10.0)
 
-    async def test_rate_limiter_timeout_handling(self, api, mock_session):
-        """Test dass Timeout im Rate Limiter korrekt behandelt wird."""
+    async def test_rate_limiter_timeout_fails_instead_of_bypassing(self, api, mock_session):
+        """A rate-limit wait that times out must fail, not send the request.
+
+        Until API package 0.0.39 the request was logged, delayed by a second
+        and then sent WITHOUT a token, so every caller that waited out the
+        timeout hit the controller at once - the pile-up the limiter exists to
+        prevent. The integration relies on the limiter holding under load, so
+        the contract is asserted here too.
+        """
         mock_response = AsyncMock()
         mock_response.status = 200
         mock_response.text = AsyncMock(return_value="OK")
@@ -98,13 +105,17 @@ class TestVioletPoolAPI:
 
         mock_session.request = MagicMock(return_value=mock_response)
 
-        # Simuliere Rate Limiter Timeout
-        with patch.object(
-            api._rate_limiter, "wait_if_needed", side_effect=TimeoutError("Rate limiter timeout")
+        with (
+            patch.object(
+                api._rate_limiter,
+                "wait_if_needed",
+                side_effect=TimeoutError("Rate limiter timeout"),
+            ),
+            pytest.raises(VioletPoolAPIError, match="Rate limit wait"),
         ):
-            # Request sollte trotzdem durchgehen (nur Warning)
-            result = await api._request("/test")
-            assert result == "OK", "Request sollte trotz Rate Limiter Timeout durchgehen"
+            await api._request("/test")
+
+        mock_session.request.assert_not_called()
 
     async def test_api_error_handling(self, api, mock_session):
         """Test dass API-Fehler korrekt behandelt werden."""
