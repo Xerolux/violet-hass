@@ -224,3 +224,87 @@ async def test_service_registration_is_idempotent(hass: HomeAssistant) -> None:
 
     # Ensure services are still there
     assert hass.services.has_service(DOMAIN, "control_pump")
+
+
+# ---------------------------------------------------------------------------
+# Update listener: a changed connection can only be applied by a reload
+# ---------------------------------------------------------------------------
+
+
+def _listener_entry(hass: HomeAssistant) -> MockConfigEntry:
+    """Return a loaded-looking entry whose runtime data records its setup state."""
+    from custom_components.violet_pool_controller import _structural_options
+
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Test Pool",
+        data={
+            CONF_API_URL: "192.168.178.55",
+            CONF_USE_SSL: False,
+            CONF_DEVICE_ID: 1,
+            CONF_DEVICE_NAME: "Test Pool Controller",
+            "username": "admin",
+            "password": "s3cret",
+            CONF_POLLING_INTERVAL: 10,
+        },
+    )
+    entry.add_to_hass(hass)
+
+    coordinator = MagicMock()
+    coordinator.async_request_refresh = AsyncMock()
+    coordinator.apply_polling_options = MagicMock(return_value=False)
+    entry.runtime_data = VioletRuntimeData(
+        coordinator=coordinator,
+        structural_options=_structural_options(entry),
+    )
+    return entry
+
+
+async def test_changed_password_reloads_the_entry(hass: HomeAssistant) -> None:
+    """The API client is built once, so new credentials need a new client.
+
+    Regression: ``update_api_config`` compared the credentials in the options
+    while reading them from the data, so a changed password was applied to
+    nothing at all.
+    """
+    from custom_components.violet_pool_controller import async_update_listener
+
+    entry = _listener_entry(hass)
+    hass.config_entries.async_update_entry(
+        entry, data={**entry.data, "password": "a-new-secret"}
+    )
+
+    with patch.object(hass.config_entries, "async_schedule_reload") as reload_mock:
+        await async_update_listener(hass, entry)
+
+    reload_mock.assert_called_once_with(entry.entry_id)
+
+
+async def test_changed_host_reloads_the_entry(hass: HomeAssistant) -> None:
+    """A reconfigured host needs a new API client too."""
+    from custom_components.violet_pool_controller import async_update_listener
+
+    entry = _listener_entry(hass)
+    hass.config_entries.async_update_entry(
+        entry, data={**entry.data, CONF_API_URL: "10.0.0.9"}
+    )
+
+    with patch.object(hass.config_entries, "async_schedule_reload") as reload_mock:
+        await async_update_listener(hass, entry)
+
+    reload_mock.assert_called_once_with(entry.entry_id)
+
+
+async def test_polling_change_is_applied_without_a_reload(hass: HomeAssistant) -> None:
+    """Polling settings stay hot-applied on the running coordinator."""
+    from custom_components.violet_pool_controller import async_update_listener
+
+    entry = _listener_entry(hass)
+    entry.runtime_data.coordinator.apply_polling_options = MagicMock(return_value=True)
+    hass.config_entries.async_update_entry(entry, options={CONF_POLLING_INTERVAL: 60})
+
+    with patch.object(hass.config_entries, "async_schedule_reload") as reload_mock:
+        await async_update_listener(hass, entry)
+
+    reload_mock.assert_not_called()
+    entry.runtime_data.coordinator.apply_polling_options.assert_called_once()
