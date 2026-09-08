@@ -3,6 +3,7 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from homeassistant.config_entries import ConfigEntryState
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.violet_pool_controller.const import (
@@ -268,3 +269,149 @@ class TestHardwareModuleDetection:
         assert data["HW_EXTENSION_MODULE_2"] is False, (
             "EXT2-Runtime-Keys ohne alive-count duerfen das Modul nicht anmelden"
         )
+
+
+class TestStableDeviceIdentifier:
+    """The controller device must not be tied to its IP address.
+
+    Regression: the identifier was ``{host}_{device_id}``, so a reconfigure
+    that changed the IP created a brand new device and orphaned the old one -
+    together with the name and area the user had given it.
+    """
+
+    @staticmethod
+    def _device(hass, entry, api):
+        with patch(
+            "custom_components.violet_pool_controller.device.async_get_clientsession",
+            return_value=MagicMock(),
+        ):
+            return VioletPoolControllerDevice(hass=hass, config_entry=entry, api=api)
+
+    def test_identifier_is_the_config_entry(self):
+        """The identifier is (DOMAIN, entry_id)."""
+        hass = MagicMock()
+        hass.data = {}
+        entry = MockConfigEntry(
+            domain=DOMAIN,
+            data={CONF_API_URL: "192.168.178.55", CONF_DEVICE_ID: 1},
+        )
+        device = self._device(hass, entry, MagicMock())
+
+        assert device.device_info["identifiers"] == {(DOMAIN, entry.entry_id)}
+
+    def test_identifier_survives_an_ip_change(self):
+        """Two devices for the same entry share one identifier."""
+        hass = MagicMock()
+        hass.data = {}
+        entry = MockConfigEntry(
+            domain=DOMAIN,
+            data={CONF_API_URL: "192.168.178.55", CONF_DEVICE_ID: 1},
+        )
+        before = self._device(hass, entry, MagicMock()).device_info["identifiers"]
+
+        entry_moved = MockConfigEntry(
+            domain=DOMAIN,
+            data={CONF_API_URL: "10.0.0.9", CONF_DEVICE_ID: 1},
+            entry_id=entry.entry_id,
+        )
+        after = self._device(hass, entry_moved, MagicMock()).device_info["identifiers"]
+
+        assert before == after
+
+
+class TestConnectionSettingsChanged:
+    """Connection settings can only be applied by rebuilding the API client."""
+
+    @staticmethod
+    def _device(entry):
+        hass = MagicMock()
+        hass.data = {}
+        with patch(
+            "custom_components.violet_pool_controller.device.async_get_clientsession",
+            return_value=MagicMock(),
+        ):
+            return VioletPoolControllerDevice(
+                hass=hass, config_entry=entry, api=MagicMock()
+            )
+
+    @staticmethod
+    def _entry(**overrides):
+        data = {
+            CONF_API_URL: "192.168.178.55",
+            "port": 80,
+            CONF_USE_SSL: False,
+            "verify_ssl": False,
+            "username": "admin",
+            "password": "s3cret",
+            CONF_DEVICE_ID: 1,
+            CONF_DEVICE_NAME: "Test Pool Controller",
+        }
+        data.update(overrides)
+        return MockConfigEntry(domain=DOMAIN, data=data)
+
+    def test_unchanged_entry_needs_no_reload(self):
+        device = self._device(self._entry())
+
+        assert device.connection_settings_changed(self._entry()) is False
+
+    @pytest.mark.parametrize(
+        ("key", "value"),
+        [
+            (CONF_API_URL, "10.0.0.9"),
+            ("port", 8080),
+            (CONF_USE_SSL, True),
+            ("verify_ssl", True),
+            ("username", "someone-else"),
+            ("password", "another-secret"),
+            ("timeout_duration", 30),
+            ("retry_attempts", 7),
+        ],
+    )
+    def test_changed_connection_field_requires_a_reload(self, key, value):
+        """Every setting the API client is built from triggers a reload."""
+        device = self._device(self._entry())
+
+        assert device.connection_settings_changed(self._entry(**{key: value})) is True
+
+    def test_polling_options_do_not_require_a_reload(self):
+        """Polling settings are applied on the running coordinator."""
+        device = self._device(self._entry())
+
+        assert (
+            device.connection_settings_changed(self._entry(polling_interval=60)) is False
+        )
+
+
+class TestSetupClearsStaleRepairIssue:
+    """A recovered controller must not keep a repair issue from before a restart."""
+
+    async def test_first_refresh_deletes_the_unavailable_issue(self, hass):
+        """Regression: only the device that raised the issue ever removed it."""
+        from custom_components.violet_pool_controller.device import async_setup_device
+
+        entry = MockConfigEntry(
+            domain=DOMAIN,
+            data={
+                CONF_API_URL: "192.168.178.55",
+                CONF_USE_SSL: False,
+                CONF_DEVICE_ID: 1,
+                CONF_DEVICE_NAME: "Test Pool Controller",
+                CONF_CONTROLLER_NAME: "Test Pool",
+            },
+        )
+        entry.add_to_hass(hass)
+        entry.mock_state(hass, ConfigEntryState.SETUP_IN_PROGRESS)
+
+        api = MagicMock()
+        api.get_readings = AsyncMock(return_value={"PUMP": 1})
+        api.get_output_runtimes = AsyncMock(return_value={})
+        api.get_config = AsyncMock(return_value={})
+        api.dosing_standalone = False
+
+        with patch(
+            "custom_components.violet_pool_controller.device.async_delete_issue"
+        ) as delete_issue:
+            await async_setup_device(hass, entry, api)
+
+        deleted = {call.args[2] for call in delete_issue.call_args_list}
+        assert f"controller_unavailable_{entry.entry_id}" in deleted

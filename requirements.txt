@@ -10,4 +10,4 @@
 # traversal to RCE via backup restore, CVSS 9.3), so a development environment
 # should not pull in a vulnerable release either way.
 homeassistant>=2026.8.0
-violet-poolController-api>=0.0.38
+violet-poolController-api>=0.0.39
