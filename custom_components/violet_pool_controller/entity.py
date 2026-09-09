@@ -608,11 +608,16 @@ class VioletPoolControllerEntity(_VioletCoordinatorEntity):
         Request a delayed coordinator refresh with error handling.
 
         This is a shared utility method for entities that need to refresh
-        coordinator data after state changes. It handles the delay, refresh,
+        coordinator data after state changes.  It handles the delay, refresh,
         and error logging consistently.
 
+        The refresh uses ``async_refresh`` (direct) rather than
+        ``async_request_refresh`` (debounced): the debouncer batches requests
+        for up to ``REQUEST_REFRESH_DEFAULT_COOLDOWN`` (10 s), which would
+        delay the confirmation of a just-sent command by up to that cooldown.
+
         Args:
-            delay: Delay in seconds before requesting refresh (default: 2.0)
+            delay: Delay in seconds before requesting refresh (default 2.0)
             log_context: Optional context string for logging (e.g., entity name)
 
         Returns:
@@ -622,7 +627,7 @@ class VioletPoolControllerEntity(_VioletCoordinatorEntity):
         """
         try:
             await asyncio.sleep(delay)
-            await self.coordinator.async_request_refresh()
+            await self.coordinator.async_refresh()
             return bool(self.coordinator.last_update_success)
         except asyncio.CancelledError:
             raise  # Never swallow CancelledError - propagate task cancellation

@@ -36,7 +36,7 @@ Basic integration information:
 
 ```json
 "integration": {
-  "version": "2.7.1",
+  "version": "2.7.2",
   "domain": "violet_pool_controller"
 }
 ```

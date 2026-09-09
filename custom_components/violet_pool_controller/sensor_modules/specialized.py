@@ -102,8 +102,9 @@ class VioletHealthSensor(VioletPoolControllerEntity, SensorEntity):
         ``ok``       – no problems detected, controller reachable.
         ``warning``  – at least one non-critical problem (e.g. dry-run
                        protection triggered, OmniTronic valve blocked).
-        ``error``    – hardware issue, active controller error code, or
-                       any binary-sensor problem flag is on.
+        ``error``    – active controller error code, or any binary-sensor
+                       problem flag is on.  Not-installed optional modules
+                       are informational, not errors.
         ``offline``  – coordinator data missing (controller unreachable).
 
     The sensor aggregates every key listed in
@@ -148,10 +149,15 @@ class VioletHealthSensor(VioletPoolControllerEntity, SensorEntity):
             kind = spec["type"]
 
             if kind == "hardware":
-                # Hardware-module sensor: True = present, False = missing.
-                # Treat False as an ERROR (the module is physically gone).
+                # Hardware-module presence flag: True = installed, False =
+                # never detected.  Module detection latches once a module has
+                # been seen, so False can only mean the module was never
+                # installed - a valid configuration (no EXT2, standalone
+                # dosing without a base module), not a fault.  A module that
+                # disappears after being detected keeps reporting True and
+                # surfaces through its relay/readings keys going stale.
                 if not self._is_truthy(value):
-                    errors.append(f"{label} missing")
+                    info.append(f"{label} not installed")
             elif kind == "problem" and self._is_truthy(value):
                 # Binary PROBLEM sensor: True = problem.
                 errors.append(label)

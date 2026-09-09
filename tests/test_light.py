@@ -4,16 +4,24 @@ Every entry in ``DMX_LIGHTS`` carries ``feature_id: "dmx_scenes"``, but the
 light platform used to gate itself on ``led_lighting`` and never read that
 field. Turning the scenes off left twelve lights in place, and turning the
 plain pool light off removed all of them.
+
+The command tests additionally cover the confirmation behaviour the switch
+platform has: the controller can serve a stale readings snapshot for a few
+seconds after a command, so the optimistic state must be kept until the
+reported state confirms the command.
 """
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock
+import asyncio
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from homeassistant.components.light import LightEntityDescription
 from homeassistant.const import Platform
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
+import custom_components.violet_pool_controller.light as light_module
 from custom_components.violet_pool_controller.const import (
     CONF_ACTIVE_FEATURES,
     CONF_API_URL,
@@ -114,3 +122,107 @@ class TestDmxLightState:
         light = VioletDmxLight(entry.runtime_data.coordinator, entry, description)
 
         assert light.is_on is expected
+
+
+class TestDmxCommandConfirmation:
+    """A commanded scene state must stick until the controller confirms it."""
+
+    @pytest.fixture(autouse=True)
+    def _fast_delays(self, monkeypatch):
+        """Make the confirmation delays near-zero so tests run instantly."""
+        monkeypatch.setattr(light_module, "REFRESH_DELAY", 0.01)
+        monkeypatch.setattr(light_module, "REFRESH_CONFIRM_RETRY_DELAY", 0.01)
+
+    def _make_light(self, hass, initial_raw="4"):
+        """Return (light, coordinator) with a command-succeeding mock API."""
+        entry = _entry(hass, ["dmx_scenes"], data={"DMX_SCENE1": initial_raw})
+        coordinator = entry.runtime_data.coordinator
+        coordinator.device.api.set_switch_state = AsyncMock(
+            return_value={"success": True}
+        )
+        coordinator.async_refresh = AsyncMock()
+        coordinator.async_request_refresh = AsyncMock()
+        light = VioletDmxLight(
+            coordinator,
+            entry,
+            LightEntityDescription(key="DMX_SCENE1", name="DMX Scene 1"),
+        )
+        light.async_write_ha_state = MagicMock()
+        return light, coordinator
+
+    async def _run_command(self, monkeypatch, awaitable):
+        """Run a command and wait for the confirmation task it spawned."""
+        tasks: list[asyncio.Task] = []
+        real_create_task = asyncio.create_task
+
+        def tracking_create_task(coro, **kwargs):
+            task = real_create_task(coro, **kwargs)
+            tasks.append(task)
+            return task
+
+        monkeypatch.setattr(asyncio, "create_task", tracking_create_task)
+        await awaitable
+        if tasks:
+            await asyncio.gather(*tasks)
+
+    async def test_off_not_overwritten_by_stale_readings(self, hass, monkeypatch):
+        """A stale first refresh must not flip a confirmed OFF back to ON."""
+        light, coordinator = self._make_light(hass, initial_raw="4")
+        responses = [{"DMX_SCENE1": "4"}, {"DMX_SCENE1": "6"}]
+
+        async def fake_refresh():
+            coordinator.data = responses.pop(0)
+
+        coordinator.async_refresh = AsyncMock(side_effect=fake_refresh)
+
+        await self._run_command(monkeypatch, light.async_turn_off())
+
+        assert light.is_on is False
+        assert light._optimistic_state is None
+        assert coordinator.async_refresh.await_count == 2
+        coordinator.async_request_refresh.assert_not_called()
+
+    async def test_immediate_confirmation_uses_single_refresh(self, hass, monkeypatch):
+        """When the first refresh already confirms, do not retry."""
+        light, coordinator = self._make_light(hass, initial_raw="4")
+
+        async def fake_refresh():
+            coordinator.data = {"DMX_SCENE1": "6"}
+
+        coordinator.async_refresh = AsyncMock(side_effect=fake_refresh)
+
+        await self._run_command(monkeypatch, light.async_turn_off())
+
+        assert light.is_on is False
+        assert coordinator.async_refresh.await_count == 1
+
+    async def test_unconfirmed_command_falls_back_to_reported_state(
+        self, hass, monkeypatch
+    ):
+        """Retries are bounded; the reported state wins when they run out."""
+        light, coordinator = self._make_light(hass, initial_raw="4")
+
+        async def fake_refresh():
+            coordinator.data = {"DMX_SCENE1": "4"}
+
+        coordinator.async_refresh = AsyncMock(side_effect=fake_refresh)
+
+        await self._run_command(monkeypatch, light.async_turn_off())
+
+        assert coordinator.async_refresh.await_count == (
+            light_module.REFRESH_CONFIRM_ATTEMPTS
+        )
+        assert light._optimistic_state is None
+        assert light.is_on is True
+
+    async def test_superseded_task_keeps_newer_optimistic_state(self, hass):
+        """A confirmation task of an older command may not clear a newer one."""
+        light, coordinator = self._make_light(hass, initial_raw="4")
+
+        light._optimistic_state = False
+        light._optimistic_generation = 2
+
+        await light._confirm_command("DMX_SCENE1", generation=1)
+
+        assert light._optimistic_state is False
+        coordinator.async_refresh.assert_not_awaited()
