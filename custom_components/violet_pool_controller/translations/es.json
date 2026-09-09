@@ -152,21 +152,21 @@
       }
     },
     "error": {
-      "invalid_ip_address": "Dirección IP no válida\n\nIngrese una dirección IP válida (por ejemplo, 192.168.1.100)",
-      "cannot_connect": "Conexión fallida\n\nControlador no accesible. Comprobar:\n• ¿Es correcta la dirección IP?\n• ¿Está encendido el controlador?\n• ¿Está bien la conexión de red?",
-      "invalid_auth": "Error de autenticación\n\nNombre de usuario o contraseña incorrectos. Deje los campos vacíos si la autenticación está deshabilitada.",
-      "timeout_connection": "Tiempo de espera de conexión\n\nEl controlador no responde. Posiblemente sobrecargado o inalcanzable.",
-      "authentication_error": "Se requiere autenticación\n\nEl controlador requiere credenciales. Por favor ingrese nombre de usuario y contraseña.",
-      "api_endpoint_not_found": "Punto final API no encontrado\n\nEl firmware del controlador puede estar desactualizado o la URL es incorrecta.",
-      "invalid_pool_size": "Tamaño de piscina no válido\n\nEl valor debe estar entre 0,1 y 1000 m³.",
-      "invalid_configuration": "Error de configuración\n\nUna o más entradas no son válidas. Por favor, compruebe.",
-      "api_response_error": "Respuesta del controlador no válida\n\nEl controlador envía datos inesperados. ¿Necesita actualización de firmware?",
-      "firmware_data_missing": "Falta información de firmware\n\nNo se pudo determinar la versión del firmware del controlador.",
-      "invalid_firmware_version": "Problema de firmware\n\nEl firmware del controlador parece desactualizado. Por favor actualice.",
-      "connection_error": "Error de red\n\nError general de conexión. Verifique la configuración de red.",
-      "already_configured": "Ya configurado\n\nYa hay un controlador con esta dirección IP configurado.",
-      "agreement_declined": "Configuración cancelada\n\nLa instalación se canceló porque no se aceptó la exención de responsabilidad de seguridad.",
-      "unknown": "Error desconocido\n\nOcurrió un problema inesperado. Póngase en contacto con el soporte si persiste."
+      "invalid_ip_address": "**Dirección IP no válida**\n\nIntroduce una dirección IP válida (por ejemplo, 192.168.1.100)",
+      "cannot_connect": "**Conexión fallida**\n\nControlador no accesible. Comprueba:\n• ¿Es correcta la dirección IP?\n• ¿Está encendido el controlador?\n• ¿Está bien la conexión de red?",
+      "invalid_auth": "**Inicio de sesión fallido**\n\nNombre de usuario o contraseña incorrectos. Si la autenticación está desactivada, deja los campos vacíos.",
+      "timeout_connection": "**Tiempo de espera de conexión**\n\nEl controlador no responde. Puede estar sobrecargado o inaccesible.",
+      "authentication_error": "**Autenticación requerida**\n\nEl controlador requiere credenciales de acceso. Introduce el nombre de usuario y la contraseña.",
+      "api_endpoint_not_found": "**Punto final de API no encontrado**\n\nEl firmware del controlador puede estar desactualizado o la URL es incorrecta.",
+      "invalid_pool_size": "**Tamaño de piscina no válido**\n\nEl valor debe estar entre 0,1 y 1000 m³.",
+      "invalid_configuration": "**Error de configuración**\n\nUna o más entradas no son válidas. Revísalas.",
+      "api_response_error": "**Respuesta del controlador no válida**\n\nEl controlador envía datos inesperados. ¿Necesita una actualización de firmware?",
+      "firmware_data_missing": "**Falta la información del firmware**\n\nNo se pudo determinar la versión del firmware del controlador.",
+      "invalid_firmware_version": "**Problema de firmware**\n\nEl firmware del controlador parece desactualizado. Actualízalo.",
+      "connection_error": "**Error de red**\n\nError de conexión general. Comprueba la configuración de red.",
+      "already_configured": "**Ya configurado**\n\nYa hay un controlador con esta dirección IP configurado.",
+      "agreement_declined": "**Configuración cancelada**\n\nLa configuración se canceló porque no se aceptó el aviso de seguridad.",
+      "unknown": "**Error desconocido**\n\nSe produjo un problema inesperado. Si persiste, ponte en contacto con el soporte."
     },
     "abort": {
       "already_configured": "Controlador ya configurado",
@@ -186,7 +186,7 @@
     "step": {
       "init": {
         "title": "Ajustar la configuración de la piscina",
-        "description": "¿Qué te gustaría configurar?\n\nActivar/desactivar funciones\nSeleccionar sensores\nCambiar configuración\n\nSiempre podrás volver a esta selección.",
+        "description": "**¿Qué te gustaría configurar?**\n\nActivar/desactivar funciones\nSeleccionar sensores\n🚨 Ajustes de seguridad\nCambiar configuración\n\n**Consejo:** puedes volver a esta selección en cualquier momento.",
         "data": {
           "config_option": "Seleccionar área de configuración"
         },
@@ -196,14 +196,14 @@
       },
       "features": {
         "title": "Activar/desactivar funciones",
-        "description": "Elija las funciones que desea utilizar\n\nLas funciones habilitadas se mostrarán en Home Assistant\nLas funciones deshabilitadas se ocultarán\n\nHabilite sólo lo que realmente necesita: ¡mantiene la interfaz limpia!",
+        "description": "**Elige las funciones que quieres utilizar**\n\nLas funciones activadas se muestran en Home Assistant\nLas funciones desactivadas se ocultan\n\n**Consejo:** activa solo lo que realmente necesitas — ¡así la interfaz se mantiene limpia!",
         "data": {
           "active_features": "Funciones activas"
         }
       },
       "sensors": {
         "title": "Seleccionar sensores",
-        "description": "Elija qué sensores deben mostrarse\n\nSolo los sensores seleccionados se mostrarán en Home Assistant\nLos cambios entran en vigor inmediatamente\n\n¡Seleccione sólo los sensores que realmente desea monitorear!"
+        "description": "**Elige qué puntos de datos se van a utilizar**\n\nCada entidad creada a partir de un punto de datos sigue esta selección — sensores, interruptores, luces y controles por igual\nLos cambios entran en vigor inmediatamente\n\n**Consejo:** ¡selecciona solo lo que realmente quieres ver!"
       },
       "safety": {
         "title": "🚨 Ajustes de seguridad",
@@ -217,7 +217,7 @@
       },
       "settings": {
         "title": "Configuraciones Generales",
-        "description": "Ajuste los parámetros técnicos.\n\nIntervalo de sondeo: con qué frecuencia se obtienen los datos\nTiempo de espera: tiempo máximo de espera para respuestas\nReintentos: número de reintentos\n\n¡Los valores predeterminados funcionan para la mayoría de las configuraciones!",
+        "description": "**Ajusta los parámetros técnicos**\n\nIntervalo de sondeo: con qué frecuencia se obtienen los datos\nTiempo de espera: tiempo máximo de espera para las respuestas\nReintentos: número de intentos de reintento\n\n**Consejo:** ¡los valores predeterminados funcionan para la mayoría de las instalaciones!",
         "data": {
           "controller_name": "Nombre del Controlador",
           "polling_interval": "Intervalo de Sondeo (segundos)",
@@ -327,7 +327,7 @@
           "name": "Valor de histéresis"
         },
         "logic": {
-          "description": "Usar >= o <=",
+          "description": "Usa >= (mayor o igual) o <= (menor o igual)",
           "name": "Lógica de comparación"
         },
         "output_1": {
@@ -648,7 +648,7 @@
       "name": "Configurar regla de temporizador"
     },
     "control_backwash_http": {
-      "description": "Ejecute o interrumpa el ciclo de retrolavado del filtro.",
+      "description": "Ejecuta o interrumpe el ciclo de retrolavado del filtro.\n\n**Precaución:** la duración es obligatoria; el retrolavado se detiene automáticamente cuando transcurre.",
       "fields": {
         "action": {
           "description": "Inicie o interrumpa el ciclo de retrolavado",
@@ -830,7 +830,7 @@
       "name": "Activar/desactivar regla"
     },
     "export_diagnostic_logs": {
-      "description": "Exporte los registros recientes de integración para solución de problemas y soporte.\n\nRecopila entradas de registro relevantes y permite descarga o almacenamiento de archivo.\n\nConsejo: Útil si hay problemas o al enviar registros al soporte.",
+      "description": "Exporta los **registros recientes de la integración** para la solución de problemas y el soporte.\n\nRecopila las entradas de registro relevantes y permite descargarlas o guardarlas en un archivo.\n\n**Consejo:** ¡útil ante problemas o al enviar registros al soporte!",
       "fields": {
         "device_id": {
           "description": "Violet Pool Controller para la exportación",
@@ -994,10 +994,10 @@
       "name": "Gestión de Excedente PV"
     },
     "manual_dosing_http": {
-      "description": "Dispare manualmente la dosificación química.\n\nPrecaución: Siempre verifique los valores del agua antes de dosificar.",
+      "description": "Dispara manualmente la dosificación química.\n\n**Precaución:** ¡verifica siempre los valores del agua antes de dosificar!",
       "fields": {
         "dosing_system": {
-          "description": "Seleccione el sistema químico a dosificar (Cloro, Electrólisis, pH-, pH+, Floculante, H₂O₂)",
+          "description": "Selecciona el producto químico a dosificar (cloro, electrólisis, pH-, pH+, floculante). No se ofrece H₂O₂: comparte la salida del cloro y la API del controlador no permite seleccionarlo, así que una dosificación manual dosificaría cloro.",
           "name": "Sistema químico"
         },
         "runtime_seconds": {
@@ -1136,7 +1136,7 @@
       "name": "Activar o desactivar un servicio del sistema del controlador"
     },
     "smart_dosing": {
-      "description": "Control de dosificación manual o automática para pH, cloro y floculante.\n\nPrecaución: Evite sobredosis. Siempre verifique los valores del agua antes.",
+      "description": "Control de dosificación manual o automática para pH, cloro, electrólisis y floculante.\n\nNo se ofrece H₂O₂: la API del controlador no tiene función de dosificación de H₂O₂.\n\n**Precaución:** ¡evita la sobredosis! Comprueba siempre antes los valores del agua.",
       "fields": {
         "action": {
           "description": "Selecciona: manual_dose, auto o stop.",

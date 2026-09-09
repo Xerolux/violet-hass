@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Violet Pool Setup-Assistent",
-        "description": "Wähle aus, ob du direkt mit der Einrichtung starten möchtest oder zuerst die ausführliche Dokumentation lesen willst.\n\nDokumentation: [Konfigurationshilfe (DE)]({docs_de}) · [Configuration Guide (EN)]({docs_en})\n\nSupport & Feedback: {issues_url}",
+        "description": "**Willkommen!**\n\nWähle, ob du den Einrichtungsassistenten sofort starten oder zuerst die ausführliche Dokumentation öffnen möchtest.\n\n**Dokumentation**\n• [Konfigurationshilfe (DE)]({docs_de})\n• [Configuration Guide (EN)]({docs_en})\n\nSupport & Feedback: {issues_url}",
         "data": {
           "action": "Aktion auswählen"
         },
@@ -20,7 +20,7 @@
       },
       "help": {
         "title": "Hilfe & Dokumentation",
-        "description": "• Lies die [Konfigurationshilfe (DE)]({docs_de}) oder den [Configuration Guide (EN)]({docs_en}) für Schritt-für-Schritt-Anleitungen, Sicherheits-Checklisten und Funktionsübersichten.\n• Unterstützung oder Ideen? Erstelle ein Ticket unter {issues_url}.\n• Projekt-Repository: {github_url}\n\nKlicke auf **Weiter**, um zum Hauptmenü zurückzukehren."
+        "description": "• Lies die [Konfigurationshilfe (DE)]({docs_de}) für Schritt-für-Schritt-Anleitungen, Sicherheits-Checklisten und Funktionsübersichten.\n• Brauchst du Unterstützung oder hast du Ideen? Erstelle ein Ticket unter {issues_url}.\n\n• Lies den [Configuration Guide (EN)]({docs_en}) für Schritt-für-Schritt-Anleitungen, Sicherheitshinweise und Funktionserklärungen.\n• Brauchst du Hilfe oder möchtest du Feedback geben? Erstelle ein Issue unter {issues_url}.\n\nProjekt-Repository: {github_url}\n\nKlicke auf **Weiter**, um zum Hauptmenü zurückzukehren."
       },
       "connection": {
         "title": "Controller-Verbindung",
@@ -103,7 +103,7 @@
         "data_description": {
           "reconfigure_option": "Wähle die Einstellungen, die du aktualisieren möchtest",
           "host": "IP-Adresse oder DNS-Name des Controllers",
-          "port": "TCP-Port der Weboberfläche des Controllers (Standard 80, mit SSL 443)",
+          "port": "TCP-Port (auf 80 belassen – außer bei einem eigenen Proxy)",
           "use_ssl": "HTTPS aktivieren, sofern der Controller es unterstützt",
           "polling_interval": "Abstand zwischen zwei Datenabfragen (10-3600 s)",
           "timeout_duration": "Maximale Wartezeit pro Anfrage",
@@ -124,7 +124,7 @@
         },
         "data_description": {
           "host": "Neue Controller-IP oder DNS-Name",
-          "port": "TCP-Port (Auf 80 belassen, außer bei Nutzung eines Proxys)",
+          "port": "TCP-Port (Standard 80)",
           "use_ssl": "HTTPS aktivieren, falls unterstützt",
           "verify_ssl": "Das SSL-Zertifikat prüfen. Für selbstsignierte Zertifikate deaktivieren.",
           "polling_interval": "Datenabruf-Intervall (10-3600s)",
@@ -134,7 +134,7 @@
       },
       "reconfigure_safety": {
         "title": "🚨 Sicherheitseinstellungen",
-        "description": "🚨 **KRITISCHE SICHERHEITSWARNUNG** 🚨\n\nUnsichere Schalter aktivieren ermöglicht direkte Manualsteuerung von:\n• Dosieranlagen (Risiko von Überdosierung)\n• Rückspülung/Spülung (Ausrüstungsschadenrisiko)\n• Wassernachfüllung (Hochwasser-/Überflutungsrisiko)\n\nDiese Vorgänge können UNBEGRENZT ohne Zeitlimit laufen!\n\n**SICHERE ALTERNATIVE**: Verwenden Sie stattdessen Dienste - diese erfordern obligatorische Zeitlimits.\n\n⚠️ Aktivieren Sie dies nur, wenn Sie die Risiken vollständig verstehen und akzeptieren!",
+        "description": "🚨 **KRITISCHE SICHERHEITSWARNUNG** 🚨\n\nDas Aktivieren unsicherer Schalter ermöglicht die direkte manuelle Steuerung von:\n• Dosieranlagen (Risiko chemischer Überdosierung)\n• Rückspülung/Spülung (Risiko von Geräteschäden)\n• Wassernachfüllung (Überflutungs-/Überlaufrisiko)\n\nDiese Vorgänge können UNBEGRENZT ohne Zeitlimit laufen!\n\n**SICHERE ALTERNATIVE**: Nutze stattdessen die Dienste - sie erfordern verpflichtende Zeitlimits.\n\n⚠️ Aktiviere dies nur, wenn du die Risiken vollständig verstehst und akzeptierst!",
         "data": {
           "allow_unsafe_switches": "Unsichere Schalter zulassen"
         },
@@ -152,21 +152,21 @@
       }
     },
     "error": {
-      "invalid_ip_address": "Ungültige IP-Adresse\n\nBitte gib eine gültige IP-Adresse ein (z.B. 192.168.1.100)",
-      "cannot_connect": "Verbindung fehlgeschlagen\n\nController nicht erreichbar. Prüfe:\n• IP-Adresse korrekt?\n• Controller eingeschaltet?\n• Netzwerkverbindung OK?",
-      "invalid_auth": "Anmeldung fehlgeschlagen\n\nBenutzername oder Passwort falsch. Bei deaktivierter Authentifizierung Felder leer lassen.",
-      "timeout_connection": "Verbindungs-Timeout\n\nController antwortet nicht. Möglicherweise überlastet oder nicht erreichbar.",
-      "authentication_error": "Authentifizierung erforderlich\n\nController benötigt Anmeldedaten. Bitte Username und Passwort eingeben.",
-      "api_endpoint_not_found": "API-Endpunkt nicht gefunden\n\nController-Firmware möglicherweise veraltet oder URL falsch.",
-      "invalid_pool_size": "Ungültige Pool-Größe\n\nWert muss zwischen 0.1 und 1000 m³ liegen.",
-      "invalid_configuration": "Konfigurationsfehler\n\nEine oder mehrere Eingaben sind ungültig. Bitte überprüfen.",
-      "api_response_error": "Ungültige Controller-Antwort\n\nController sendet unerwartete Daten. Firmware-Update nötig?",
-      "firmware_data_missing": "Firmware-Info fehlt\n\nController-Firmware-Version konnte nicht ermittelt werden.",
-      "invalid_firmware_version": "Firmware-Problem\n\nController-Firmware scheint veraltet. Bitte aktualisieren.",
-      "connection_error": "Netzwerkfehler\n\nAllgemeiner Verbindungsfehler. Netzwerk-Einstellungen prüfen.",
-      "already_configured": "Bereits konfiguriert\n\nEin Controller mit dieser IP-Adresse ist bereits eingerichtet.",
-      "agreement_declined": "Setup abgebrochen\n\nDie Einrichtung wurde abgebrochen, da die Sicherheitshinweise nicht akzeptiert wurden.",
-      "unknown": "Unbekannter Fehler\n\nEin unerwartetes Problem ist aufgetreten. Bei Wiederholung Support kontaktieren."
+      "invalid_ip_address": "**Ungültige IP-Adresse**\n\nBitte gib eine gültige IP-Adresse ein (z.B. 192.168.1.100)",
+      "cannot_connect": "**Verbindung fehlgeschlagen**\n\nController nicht erreichbar. Prüfe:\n• Ist die IP-Adresse korrekt?\n• Ist der Controller eingeschaltet?\n• Ist die Netzwerkverbindung in Ordnung?",
+      "invalid_auth": "**Anmeldung fehlgeschlagen**\n\nBenutzername oder Passwort falsch. Wenn die Authentifizierung deaktiviert ist, lass die Felder leer.",
+      "timeout_connection": "**Verbindungs-Timeout**\n\nDer Controller antwortet nicht. Möglicherweise ist er überlastet oder nicht erreichbar.",
+      "authentication_error": "**Authentifizierung erforderlich**\n\nDer Controller benötigt Anmeldedaten. Bitte gib Benutzername und Passwort ein.",
+      "api_endpoint_not_found": "**API-Endpunkt nicht gefunden**\n\nDie Controller-Firmware ist möglicherweise veraltet oder die URL ist falsch.",
+      "invalid_pool_size": "**Ungültige Pool-Größe**\n\nDer Wert muss zwischen 0.1 und 1000 m³ liegen.",
+      "invalid_configuration": "**Konfigurationsfehler**\n\nEine oder mehrere Eingaben sind ungültig. Bitte prüfe sie.",
+      "api_response_error": "**Ungültige Controller-Antwort**\n\nDer Controller sendet unerwartete Daten. Firmware-Update nötig?",
+      "firmware_data_missing": "**Firmware-Info fehlt**\n\nDie Controller-Firmware-Version konnte nicht ermittelt werden.",
+      "invalid_firmware_version": "**Firmware-Problem**\n\nDie Controller-Firmware scheint veraltet. Bitte aktualisiere sie.",
+      "connection_error": "**Netzwerkfehler**\n\nAllgemeiner Verbindungsfehler. Prüfe die Netzwerkeinstellungen.",
+      "already_configured": "**Bereits konfiguriert**\n\nEin Controller mit dieser IP-Adresse ist bereits eingerichtet.",
+      "agreement_declined": "**Setup abgebrochen**\n\nDie Einrichtung wurde abgebrochen, weil die Sicherheitshinweise nicht akzeptiert wurden.",
+      "unknown": "**Unbekannter Fehler**\n\nEin unerwartetes Problem ist aufgetreten. Wenn es weiterhin auftritt, wende dich an den Support."
     },
     "abort": {
       "already_configured": "Controller bereits eingerichtet",
@@ -186,7 +186,7 @@
     "step": {
       "init": {
         "title": "Pool-Einstellungen anpassen",
-        "description": "Was möchtest du konfigurieren?\n\nFeatures aktivieren/deaktivieren\nSensoren auswählen\nEinstellungen ändern\n\nDu kannst jederzeit zurück zu dieser Auswahl kommen.",
+        "description": "**Was möchtest du konfigurieren?**\n\nFeatures aktivieren/deaktivieren\nSensoren auswählen\n🚨 Sicherheitseinstellungen\nEinstellungen ändern\n\n**Tipp:** Du kannst jederzeit zu dieser Auswahl zurückkehren.",
         "data": {
           "config_option": "Konfigurationsbereich auswählen"
         },
@@ -196,7 +196,7 @@
       },
       "features": {
         "title": "Features aktivieren/deaktivieren",
-        "description": "Wähle die Features, die du nutzen möchtest\n\nAktivierte Features werden in Home Assistant angezeigt\nDeaktivierte Features werden ausgeblendet\n\nAktiviere nur, was du wirklich brauchst - das hält die Oberfläche übersichtlich!",
+        "description": "**Wähle die Features, die du nutzen möchtest**\n\nAktivierte Features werden in Home Assistant angezeigt\nDeaktivierte Features werden ausgeblendet\n\n**Tipp:** Aktiviere nur, was du wirklich brauchst — das hält die Oberfläche übersichtlich!",
         "data": {
           "active_features": "Aktive Funktionen"
         }
@@ -206,18 +206,18 @@
         "description": "**Wähle aus, welche Datenpunkte genutzt werden**\n\nJede Entität, die aus einem Datenpunkt entsteht, folgt dieser Auswahl — Sensoren, Schalter, Lichter und Bedienelemente gleichermaßen\nÄnderungen wirken sofort\n\n**Tipp:** Wähle nur, was du wirklich sehen willst!"
       },
       "safety": {
-        "title": "Sicherheit",
+        "title": "🚨 Sicherheitseinstellungen",
         "description": "{warning}",
         "data": {
           "allow_unsafe_switches": "Sicherheitskritische Schalter freigeben"
         },
         "data_description": {
-          "allow_unsafe_switches": "Schalter für Rückspülung, Nachfüllung und Abdeckung in Home Assistant bedienbar machen. Nur aktivieren, wenn niemand zu Schaden kommen kann."
+          "allow_unsafe_switches": "Direktsteuerung von Dosierung, Rückspülung & Nachfüllung aktivieren (erfordert obligatorische Zeitlimits via Dienste)"
         }
       },
       "settings": {
         "title": "Allgemeine Einstellungen",
-        "description": "Passe die technischen Parameter an\n\nPolling-Intervall: Wie oft Daten abgerufen werden\nTimeout: Maximale Wartezeit für Antworten\nWiederholungen: Anzahl Retry-Versuche\n\nStandard-Werte funktionieren für die meisten Setups!",
+        "description": "**Technische Parameter anpassen**\n\nPolling-Intervall: Wie oft Daten abgerufen werden\nTimeout: Maximale Wartezeit für Antworten\nWiederholungen: Anzahl der Retry-Versuche\n\n**Tipp:** Die Standardwerte funktionieren für die meisten Setups!",
         "data": {
           "controller_name": "Controller-Name",
           "polling_interval": "Abrufintervall (Sekunden)",
@@ -327,7 +327,7 @@
           "name": "Hysteresewert"
         },
         "logic": {
-          "description": "Nutze >= oder <=",
+          "description": "Nutze >= (größer oder gleich) oder <= (kleiner oder gleich)",
           "name": "Vergleichslogik"
         },
         "output_1": {
@@ -648,10 +648,10 @@
       "name": "Timer-Regel konfigurieren"
     },
     "control_backwash_http": {
-      "description": "Führen Sie den Filter-Rückspülzyklus aus oder brechen Sie ihn ab.",
+      "description": "Führe den Filter-Rückspülzyklus aus oder brich ihn ab.\n\n**Achtung:** Eine Dauer ist Pflicht - die Rückspülung wird nach Ablauf automatisch gestoppt.",
       "fields": {
         "action": {
-          "description": "Starten oder unterbrechen Sie den Rückspülzyklus",
+          "description": "Starte den Rückspülzyklus oder brich ihn ab",
           "name": "Rückspül-Aktion"
         },
         "duration_seconds": {
@@ -666,17 +666,17 @@
       "name": "Rückspülung steuern (HTTP)"
     },
     "control_cover_http": {
-      "description": "Steuern Sie die Pool-Abdeckung (öffnen, schließen oder stoppen).",
+      "description": "Steuere die Pool-Abdeckung (öffnen, schließen oder stoppen).",
       "fields": {
         "action": {
-          "description": "Wählen Sie: open, close oder stop",
+          "description": "Wähle: open, close oder stop",
           "name": "Abdeckungs-Aktion"
         }
       },
       "name": "Abdeckung steuern (HTTP)"
     },
     "control_dmx_scenes": {
-      "description": "Steuern Sie DMX-Beleuchtungsszenen für die Poolbeleuchtung.",
+      "description": "Steuere DMX-Beleuchtungsszenen für die Poolbeleuchtung.",
       "fields": {
         "action": {
           "description": "Alle Szenen: an/aus/auto, Sequenz oder Partymodus.",
@@ -687,8 +687,8 @@
           "name": "Pool Controller"
         },
         "sequence_delay": {
-          "description": "Wartezeit zwischen zwei Szenen der Sequenz, in Sekunden.",
-          "name": "Sequenzverzögerung"
+          "description": "Wartezeit zwischen Szenen im Sequenzmodus (1-60 s).",
+          "name": "Sequenzverzögerung (Sekunden)"
         }
       },
       "name": "DMX-Szenen-Steuerung"
@@ -716,7 +716,7 @@
       "name": "Erweiterungsrelais steuern"
     },
     "control_heater_http": {
-      "description": "Steuern Sie den Pool-Heizer mit Temperatur-Sollwert.",
+      "description": "Steuere den Pool-Heizer mit Temperatur-Sollwert.",
       "fields": {
         "action": {
           "description": "Heizer ein- oder ausschalten",
@@ -730,7 +730,7 @@
       "name": "Heizer steuern (HTTP)"
     },
     "control_pump": {
-      "description": "Steuern Sie die Poolpumpe mit erweiterten Optionen wie Geschwindigkeit, Eco-Modus oder Boost-Modus.",
+      "description": "Steuere die Poolpumpe mit erweiterten Optionen wie Geschwindigkeit, Eco-Modus oder Boost-Modus.",
       "fields": {
         "action": {
           "description": "Auswahl: speed_control, force_off, eco_mode, boost_mode oder auto.",
@@ -784,7 +784,7 @@
       "name": "Wassernachfüllung steuern (HTTP)"
     },
     "control_solar_http": {
-      "description": "Steuern Sie das Solarheizungssystem.",
+      "description": "Steuere das Solarheizungssystem.",
       "fields": {
         "action": {
           "description": "Solarheizung aktivieren oder deaktivieren",
@@ -830,7 +830,7 @@
       "name": "Regel aktivieren/deaktivieren"
     },
     "export_diagnostic_logs": {
-      "description": "Exportiert die Integrationsprotokolle für Fehlerbehebung und Support.\n\nSammelt relevante Protokolleinträge und ermöglicht Download oder Dateispeicherung.\n\nTipp: Nützlich bei Problemen oder beim Senden von Protokollen an den Support!",
+      "description": "Exportiert die **aktuellen Integrationsprotokolle** für Fehlerbehebung und Support.\n\nSammelt relevante Protokolleinträge und ermöglicht Download oder Dateispeicherung.\n\n**Tipp:** Nützlich bei Problemen oder beim Senden von Protokollen an den Support!",
       "fields": {
         "device_id": {
           "description": "Ziel-Gerät (Violet Pool Controller).",
@@ -888,7 +888,7 @@
       "name": "Kalibrierstatus abfragen"
     },
     "get_connection_status": {
-      "description": "Erhalten Sie detaillierte Verbindungsstatus und Gesundheitsmetriken zur Fehlerbehebung.",
+      "description": "Rufe detaillierten Verbindungsstatus und Zustandsmetriken zur Fehlerbehebung ab.",
       "fields": {
         "device_id": {
           "description": "Ziel-Gerät (Violet Pool Controller).",
@@ -898,7 +898,7 @@
       "name": "Verbindungsstatus abrufen"
     },
     "get_error_summary": {
-      "description": "Erhalten Sie eine Zusammenfassung der letzten Fehler und Wiederherstellungsvorschläge.",
+      "description": "Rufe eine Zusammenfassung der letzten Fehler und Wiederherstellungsvorschläge ab.",
       "fields": {
         "device_id": {
           "description": "Ziel-Gerät (Violet Pool Controller).",
@@ -962,7 +962,7 @@
       "name": "Firmware-Update-Status abfragen"
     },
     "manage_digital_rules": {
-      "description": "Verwalten Sie Automatisierungsregeln für digitale Eingänge des Steuergeräts.",
+      "description": "Verwalte Automatisierungsregeln für digitale Eingänge des Steuergeräts.",
       "fields": {
         "action": {
           "description": "Auswahl: trigger, lock oder unlock.",
@@ -980,7 +980,7 @@
       "name": "Verwaltung digitaler Regeln"
     },
     "manage_pv_surplus": {
-      "description": "Steuern Sie den PV-Überschussmodus für optimale Solarenergienutzung.\n\nPoolgeräte werden automatisch mit überschüssiger Solarenergie betrieben.",
+      "description": "Steuere den PV-Überschussmodus für optimale Solarenergienutzung.\n\nPoolgeräte werden automatisch mit überschüssiger Solarenergie betrieben.",
       "fields": {
         "mode": {
           "description": "Auswahl: activate oder deactivate. Der Controller kennt für den PV-Überschuss keinen AUTO-Modus.",
@@ -994,10 +994,10 @@
       "name": "PV-Überschuss-Verwaltung"
     },
     "manual_dosing_http": {
-      "description": "Lösen Sie die chemische Dosierung manuell aus.\n\nVorsicht: Überprüfen Sie immer die Wasserwerte vor der Dosierung!",
+      "description": "Löse die chemische Dosierung manuell aus.\n\n**Achtung:** Prüfe immer die Wasserwerte vor der Dosierung!",
       "fields": {
         "dosing_system": {
-          "description": "Wählen Sie das zu dosierende Chemikaliensystem (Chlor, Elektrolyse, pH-, pH+, Flockungsmittel, H₂O₂)",
+          "description": "Wähle die zu dosierende Chemikalie (Chlor, Elektrolyse, pH-, pH+, Flockungsmittel). H₂O₂ wird nicht angeboten: Es teilt sich den Chlor-Ausgang und die Controller-API kann es nicht auswählen, ein manueller Lauf würde also Chlor dosieren.",
           "name": "Chemisches System"
         },
         "runtime_seconds": {
@@ -1037,7 +1037,7 @@
           "name": "Pool Controller"
         },
         "dosing_key": {
-          "description": "Welcher Dosierkanal nachgefüllt wurde.",
+          "description": "Schlüssel des Dosierkanals (DOS_1_CL, DOS_2_ELO, DOS_4_PHM, DOS_5_PHP, DOS_6_FLOC)",
           "name": "Dosierkanal"
         }
       },
@@ -1090,7 +1090,7 @@
       "name": "Dosiervorgabe setzen"
     },
     "set_light_color_pulse": {
-      "description": "Senden Sie Farbpulsbefehle an die Poolbeleuchtung.",
+      "description": "Sende Farbpulsbefehle an die Poolbeleuchtung.",
       "fields": {
         "pulse_count": {
           "description": "Wie oft der Farbwechsel ausgelöst wird (1-10).",
@@ -1129,21 +1129,21 @@
           "name": "Aktiviert"
         },
         "service": {
-          "description": "Welcher Systemdienst des Controllers geschaltet wird.",
+          "description": "Dienst-Kennung (ftp, samba, ssh, shairport, homebridge, alexa, tunnel, support_tunnel)",
           "name": "Dienst"
         }
       },
       "name": "Systemdienst des Controllers umschalten"
     },
     "smart_dosing": {
-      "description": "Manuelle oder automatische Dosierungssteuerung für pH, Chlor und Flockungsmittel.\n\nVorsicht: Überdosierung vermeiden! Überprüfen Sie immer vorher die Wasserwerte.",
+      "description": "Manuelle oder automatische Dosierungssteuerung für pH, Chlor, Elektrolyse und Flockungsmittel.\n\nH₂O₂ wird nicht angeboten: Die Controller-API hat keine H₂O₂-Dosierfunktion.\n\n**Achtung:** Überdosierung vermeiden! Prüfe vorher immer die Wasserwerte.",
       "fields": {
         "action": {
           "description": "Auswahl: manual_dose, auto oder stop.",
           "name": "Dosieraktion"
         },
         "dosing_type": {
-          "description": "Chemikalie auswählen (pH-, pH+, Chlorine, Electrolysis, Flocculant).",
+          "description": "Chemikalie auswählen (pH-, pH+, Chlor, Elektrolyse, Flockungsmittel).",
           "name": "Dosiermittel"
         },
         "duration": {
@@ -1158,7 +1158,7 @@
       "name": "Intelligente Dosierung"
     },
     "test_connection": {
-      "description": "Testen Sie die Verbindung zum Steuergerät und erhalten Diagnoseinformationen.",
+      "description": "Teste die Verbindung zum Steuergerät und erhalte Diagnoseinformationen.",
       "fields": {
         "device_id": {
           "description": "Ziel-Gerät (Violet Pool Controller).",
@@ -1168,7 +1168,7 @@
       "name": "Verbindung testen"
     },
     "test_output": {
-      "description": "Aktiviert vorübergehend eine Steuergeräte-Ausgabe für Diagnose. Stellen Sie sicher, dass keine Personen oder Ausrüstung gefährdet sind, während die Ausgabe erzwungen wird.",
+      "description": "Aktiviert vorübergehend eine Steuergeräte-Ausgabe für Diagnose. Stelle sicher, dass keine Personen oder Ausrüstung gefährdet sind, während die Ausgabe erzwungen wird.",
       "fields": {
         "device_id": {
           "description": "Ziel-Gerät (Violet Pool Controller).",
@@ -1183,7 +1183,7 @@
           "name": "Testmodus"
         },
         "output": {
-          "description": "Schlüssel des zu testenden Ausgangs (z. B. PUMP, EXT1_1).",
+          "description": "Kennung wie PUMP, HEATER oder SOLAR.",
           "name": "Ausgang"
         }
       },

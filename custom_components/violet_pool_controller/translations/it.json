@@ -152,21 +152,21 @@
       }
     },
     "error": {
-      "invalid_ip_address": "Indirizzo IP non valido\n\nInserisci un indirizzo IP valido (ad esempio 192.168.1.100)",
-      "cannot_connect": "Connessione non riuscita\n\nController non raggiungibile. Controlla:\n• L'indirizzo IP è corretto?\n• Il controller è acceso?\n• La connessione di rete è corretta?",
-      "invalid_auth": "Autenticazione non riuscita\n\nNome utente o password errati. Lasciare i campi vuoti se l'autenticazione è disabilitata.",
-      "timeout_connection": "Timeout della connessione\n\nIl controller non risponde. Forse sovraccarico o irraggiungibile.",
-      "authentication_error": "Autenticazione richiesta\n\nIl controller richiede credenziali. Inserisci nome utente e password.",
-      "api_endpoint_not_found": "Endpoint API non trovato\n\nIl firmware del controller potrebbe essere obsoleto o l'URL non corretto.",
-      "invalid_pool_size": "Dimensioni della piscina non valide\n\nIl valore deve essere compreso tra 0,1 e 1000 m³.",
-      "invalid_configuration": "Errore di configurazione\n\nUno o più input non sono validi. Si prega di controllare.",
-      "api_response_error": "Risposta del controller non valida\n\nIl controller invia dati imprevisti. È necessario l'aggiornamento del firmware?",
-      "firmware_data_missing": "Informazioni sul firmware mancanti\n\nNon è stato possibile determinare la versione del firmware del controller.",
-      "invalid_firmware_version": "Problema del firmware\n\nIl firmware del controller sembra obsoleto. Per favore aggiorna.",
-      "connection_error": "Errore di rete\n\nErrore generale di connessione. Controlla le impostazioni di rete.",
-      "already_configured": "Già configurato\n\nUn controller con questo indirizzo IP è già configurato.",
-      "agreement_declined": "Installazione interrotta\n\nL'installazione è stata interrotta perché la dichiarazione di non responsabilità sulla sicurezza non è stata accettata.",
-      "unknown": "Errore sconosciuto\n\nSi è verificato un problema imprevisto. Contatta l'assistenza se il problema persiste."
+      "invalid_ip_address": "**Indirizzo IP non valido**\n\nInserisci un indirizzo IP valido (ad esempio 192.168.1.100)",
+      "cannot_connect": "**Connessione non riuscita**\n\nController non raggiungibile. Controlla:\n• L'indirizzo IP è corretto?\n• Il controller è acceso?\n• La connessione di rete è corretta?",
+      "invalid_auth": "**Accesso non riuscito**\n\nNome utente o password errati. Se l'autenticazione è disabilitata, lascia i campi vuoti.",
+      "timeout_connection": "**Timeout della connessione**\n\nIl controller non risponde. Potrebbe essere sovraccarico o irraggiungibile.",
+      "authentication_error": "**Autenticazione richiesta**\n\nIl controller richiede credenziali di accesso. Inserisci nome utente e password.",
+      "api_endpoint_not_found": "**Endpoint API non trovato**\n\nIl firmware del controller potrebbe essere obsoleto oppure l'URL non è corretto.",
+      "invalid_pool_size": "**Dimensioni della piscina non valide**\n\nIl valore deve essere compreso tra 0,1 e 1000 m³.",
+      "invalid_configuration": "**Errore di configurazione**\n\nUno o più valori inseriti non sono validi. Ricontrollali.",
+      "api_response_error": "**Risposta del controller non valida**\n\nIl controller invia dati imprevisti. È necessario un aggiornamento del firmware?",
+      "firmware_data_missing": "**Informazioni sul firmware mancanti**\n\nNon è stato possibile determinare la versione del firmware del controller.",
+      "invalid_firmware_version": "**Problema del firmware**\n\nIl firmware del controller sembra obsoleto. Aggiornalo.",
+      "connection_error": "**Errore di rete**\n\nErrore generale di connessione. Controlla le impostazioni di rete.",
+      "already_configured": "**Già configurato**\n\nUn controller con questo indirizzo IP è già configurato.",
+      "agreement_declined": "**Configurazione annullata**\n\nLa configurazione è stata annullata perché la dichiarazione di non responsabilità sulla sicurezza non è stata accettata.",
+      "unknown": "**Errore sconosciuto**\n\nSi è verificato un problema imprevisto. Se persiste, contatta l'assistenza."
     },
     "abort": {
       "already_configured": "Controller già configurato",
@@ -186,7 +186,7 @@
     "step": {
       "init": {
         "title": "Regola le impostazioni della piscina",
-        "description": "Cosa vorresti configurare?\n\nAbilita/disabilita funzionalità\nSeleziona i sensori\nModificare le impostazioni\n\nPuoi sempre tornare a questa selezione.",
+        "description": "**Cosa vuoi configurare?**\n\nAbilita/disabilita funzionalità\nSeleziona i sensori\n🚨 Impostazioni di sicurezza\nModifica le impostazioni\n\n**Suggerimento:** puoi tornare a questa selezione in qualsiasi momento.",
         "data": {
           "config_option": "Seleziona l'area di configurazione"
         },
@@ -196,14 +196,14 @@
       },
       "features": {
         "title": "Abilita/Disabilita funzionalità",
-        "description": "Scegli le funzionalità che desideri utilizzare\n\nLe funzionalità abilitate verranno visualizzate in Home Assistant\nLe funzionalità disabilitate verranno nascoste\n\nAbilita solo ciò di cui hai veramente bisogno: mantiene l'interfaccia pulita!",
+        "description": "**Scegli le funzionalità che desideri utilizzare**\n\nLe funzionalità abilitate vengono mostrate in Home Assistant\nLe funzionalità disabilitate vengono nascoste\n\n**Suggerimento:** abilita solo ciò di cui hai veramente bisogno — mantiene l'interfaccia pulita!",
         "data": {
           "active_features": "Funzioni attive"
         }
       },
       "sensors": {
         "title": "Seleziona Sensori",
-        "description": "Scegli quali sensori devono essere visualizzati\n\nSolo i sensori selezionati verranno visualizzati in Home Assistant\nLe modifiche hanno effetto immediato\n\nSeleziona solo i sensori che vuoi veramente monitorare!"
+        "description": "**Scegli quali punti dati utilizzare**\n\nOgni entità creata da un punto dati segue questa selezione — sensori, interruttori, luci e controlli\nLe modifiche hanno effetto immediato\n\n**Suggerimento:** seleziona solo ciò che vuoi davvero vedere!"
       },
       "safety": {
         "title": "🚨 Impostazioni di sicurezza",
@@ -217,7 +217,7 @@
       },
       "settings": {
         "title": "Impostazioni generali",
-        "description": "Regolare i parametri tecnici\n\nIntervallo di polling: la frequenza con cui vengono recuperati i dati\nTimeout: tempo massimo di attesa per le risposte\nTentativi: numero di tentativi\n\nI valori predefiniti funzionano per la maggior parte delle configurazioni!",
+        "description": "**Regola i parametri tecnici**\n\nIntervallo di polling: la frequenza con cui vengono recuperati i dati\nTimeout: tempo massimo di attesa per le risposte\nTentativi di ripetizione: numero di tentativi di ripetizione\n\n**Suggerimento:** i valori predefiniti funzionano per la maggior parte delle configurazioni!",
         "data": {
           "controller_name": "Nome del controller",
           "polling_interval": "Intervallo di polling (secondi)",
@@ -830,7 +830,7 @@
       "name": "Abilita/disabilita regola"
     },
     "export_diagnostic_logs": {
-      "description": "Esporta i log di integrazione recenti per la risoluzione dei problemi e il supporto tecnico.",
+      "description": "Esporta i **log di integrazione recenti** per la risoluzione dei problemi e il supporto.\n\nRaccoglie le voci di log rilevanti e ne consente il download o il salvataggio su file.\n\n**Suggerimento:** utile in caso di problemi o quando invii i log all'assistenza!",
       "fields": {
         "device_id": {
           "description": "Violet Pool Controller per l'esportazione.",
@@ -1136,7 +1136,7 @@
       "name": "Attiva/disattiva un servizio di sistema del controller"
     },
     "smart_dosing": {
-      "description": "Controllo del dosaggio manuale o automatico per pH, cloro e flocculante.\n\n**Attenzione:** Evitare il sovradosaggio! Controllare sempre i valori dell'acqua prima.",
+      "description": "Controllo del dosaggio manuale o automatico per pH, cloro, elettrolisi e flocculante.\n\nH₂O₂ non è disponibile: l'API del controller non prevede una funzione di dosaggio dell'H₂O₂.\n\n**Attenzione:** evita il sovradosaggio! Controlla sempre prima i valori dell'acqua.",
       "fields": {
         "action": {
           "description": "Selezionare: dosaggio_manuale, automatico o ferma.",
