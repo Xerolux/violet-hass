@@ -54,7 +54,7 @@ Das **Violet Pool Controller Home Assistant Integration** verbindet [Home Assist
 | **HA-Mindestversion** | 2026.8.0 |
 | **Getestet bis** | 2026.5.x / 2026.6.x |
 | **Python** | Wird von Home Assistant 2026.8.0+ bereitgestellt |
-| **Integration-Version** | 2.7.1 |
+| **Integration-Version** | 2.7.2 |
 | **API-Paket** | violet-poolController-api ≥ 0.0.39 (PyPI) |
 | **Lizenz** | AGPL-3.0-or-later |
 | **Quality Scale** | Platinum |
@@ -234,5 +234,5 @@ Diese Integration ist vollständig mit Home Assistant 2026.x kompatibel:
 
 ---
 
-*Diese Wiki dokumentiert Version **2.7.1** der Violet Pool Controller Integration.*
+*Diese Wiki dokumentiert Version **2.7.2** der Violet Pool Controller Integration.*
 *Zuletzt aktualisiert: 2026-07-14*

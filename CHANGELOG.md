@@ -17,6 +17,48 @@ anyone there either.
 > **Historical note:** entries up to and including 2.5.7 were written in German,
 > before the language policy existed. They are kept as they were published.
 
+## Version 2.7.2 (2026-09-09)
+
+Three findings from a live session against a running controller: switching the
+pool light off took up to a minute to *confirm*, DMX scene toggles had the same
+weakness, and the pool-health sensor reported an error for a module that was
+never installed.
+
+### ⚡ Commands confirm immediately - in both directions
+
+Switching something **on** reflected within a second, while switching it **off**
+could show the old state for 30-60 seconds. Two causes, both fixed:
+
+- The controller sometimes serves a **stale readings snapshot** for a few
+  seconds after it applies a command. The switch used to do one refresh 0.3 s
+  after the command and then unconditionally drop its optimistic state - so a
+  stale "still on" reading overwrote the just-confirmed OFF and the entity
+  flipped back until the next poll (which adaptive idle back-off had stretched
+  to 30-60 s). The optimistic state is now kept and the refresh repeated (up
+  to three attempts, 2 s apart) until the controller data **confirms** the
+  command; only then, or when the attempts run out, does the reported state
+  win. A generation counter stops a superseded refresh task from clobbering a
+  newer command.
+- Command confirmations now use a **direct coordinator refresh** instead of
+  the debounced one, which batches requests for up to 10 seconds. This
+  benefits every entity that refreshes after a command: switches, climate,
+  select, covers.
+
+**DMX scene lights** get the same treatment: they previously had no optimistic
+state at all and even waited for the debounced refresh inside the service
+call. Scene toggles now respond immediately and confirm against fresh data.
+
+### 🩺 Pool health: not-installed modules are not faults
+
+`pool_health` reported **error** with "Extension Module 2 missing" on any
+controller without a second relay extension - a valid configuration, not a
+fault. Module detection latches once a module has been seen, so a False
+presence flag can only ever mean "never installed" (the same applies to the
+base module on standalone dosing units). Never-installed modules now surface
+as **informational** ("Extension Module 2 not installed") instead of an error;
+genuine problems (circulation, pressure, controller error codes, OmniTronic
+valve) still flag the pool as unhealthy as before.
+
 ## Version 2.7.1 (2026-09-09)
 
 Two things a running 2.7.0 installation reported: a German setup wizard that

@@ -269,7 +269,7 @@ die Steuerung diese Werte zwar, sie bleiben aber ohne Funktion.
 ### Dosierkanal konfiguriert
 
 Ob der Controller den Kanal überhaupt eingerichtet hat. Ein 0/1-Merker, und
-deshalb seit 2.7.1 ein Binärsensor — vorher war es ein numerischer Sensor, für
+deshalb seit 2.7.2 ein Binärsensor — vorher war es ein numerischer Sensor, für
 den Home Assistant Statistiken aufgezeichnet hat.
 
 | Entity-ID-Suffix | Name | Feature |

@@ -39,7 +39,7 @@
 
 ---
 
-**Version:** 2.7.1
+**Version:** 2.7.2
 **HA:** 2026.8.0+ (tested up to 2026.9.x)
 
 [Website](https://xerolux.github.io/violet-hass/) · [Docs](https://xerolux.github.io/violet-hass/docs/#/home) · [GitHub](https://github.com/Xerolux/violet-hass) · [Issues](https://github.com/Xerolux/violet-hass/issues) · [HACS](https://hacs.xyz/)

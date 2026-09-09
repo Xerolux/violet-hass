@@ -266,7 +266,7 @@ values, but nothing acts on them.
 ### Dosing Channel Configured
 
 Whether the controller has the channel set up at all. A 0/1 flag, which is why
-it is a binary sensor since 2.7.1 — it used to be a numeric sensor and Home
+it is a binary sensor since 2.7.2 — it used to be a numeric sensor and Home
 Assistant recorded statistics for it.
 
 | Entity ID suffix | Name | Feature |
