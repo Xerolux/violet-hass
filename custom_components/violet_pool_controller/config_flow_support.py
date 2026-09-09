@@ -66,6 +66,11 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
+#: Masked, never pre-filled input for password fields.
+PASSWORD_SELECTOR = selector.TextSelector(
+    selector.TextSelectorConfig(type=selector.TextSelectorType.PASSWORD)
+)
+
 
 class ConfigFlowTextMixin:
     """Shared text and link helpers for the config flow."""
@@ -125,7 +130,6 @@ class ConfigFlowTextMixin:
 class ConfigFlowSchemaMixin:
     """Schema helpers for the primary config flow."""
 
-    _sensor_data: dict[str, list[str]] = {}
     _config_data: dict[str, Any] = {}
 
     def _get_zeroconf_credentials_schema(self) -> vol.Schema:
@@ -140,7 +144,7 @@ class ConfigFlowSchemaMixin:
                     CONF_USERNAME,
                     default=self._config_data.get(CONF_USERNAME, "") or "",
                 ): str,
-                vol.Optional(CONF_PASSWORD): str,
+                vol.Optional(CONF_PASSWORD): PASSWORD_SELECTOR,
             }
         )
 
@@ -182,7 +186,7 @@ class ConfigFlowSchemaMixin:
                     )
                 ),
                 vol.Optional(CONF_USERNAME): str,
-                vol.Optional(CONF_PASSWORD): str,
+                vol.Optional(CONF_PASSWORD): PASSWORD_SELECTOR,
                 vol.Required(CONF_USE_SSL, default=DEFAULT_USE_SSL): bool,
                 vol.Required(CONF_VERIFY_SSL, default=DEFAULT_VERIFY_SSL): bool,
                 vol.Required(CONF_DEVICE_ID, default=1): selector.NumberSelector(
@@ -264,35 +268,6 @@ class ConfigFlowSchemaMixin:
             }
         )
 
-    def _get_feature_selection_schema(self) -> vol.Schema:
-        """Get the feature selection schema."""
-        return vol.Schema(
-            {
-                vol.Optional(f"enable_{f['id']}", default=f["default"]): bool
-                for f in AVAILABLE_FEATURES
-            }
-        )
-
-    def _get_sensor_selection_schema(self) -> vol.Schema:
-        """Create the sensor selection schema."""
-        schema = {}
-        for group, sensors in self._sensor_data.items():
-            options = [
-                selector.SelectOptionDict(
-                    value=sensor,
-                    label=validators.get_sensor_label(sensor),
-                )
-                for sensor in sensors
-            ]
-            schema[vol.Optional(group, default=sensors)] = selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=options,
-                    multiple=True,
-                    mode=selector.SelectSelectorMode.DROPDOWN,
-                )
-            )
-        return vol.Schema(schema)
-
 
 class OptionsFlowHandler(config_entries.OptionsFlow):
     """Options flow for Violet Pool Controller."""
@@ -304,8 +279,21 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
     @property
     def current_config(self) -> dict[str, Any]:
-        """Get current configuration merged from data and options."""
+        """Return the effective configuration, for reading form defaults only.
+
+        Never write this back into the options: it contains the connection
+        settings - the password included - which belong in ``entry.data``.
+        Copying them into the options made the options-first lookup shadow
+        every later reconfigure of the connection.
+        """
         return {**self.config_entry.data, **self.config_entry.options}
+
+    def _save_options(self) -> ConfigFlowResult:
+        """Persist the options this flow changed, and nothing else."""
+        return self.async_create_entry(
+            title="",
+            data={**self.config_entry.options, **self._updated_options},
+        )
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Handle the initial options menu."""
@@ -356,8 +344,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             selected_features = user_input.get(CONF_ACTIVE_FEATURES, [])
             self._updated_options[CONF_ACTIVE_FEATURES] = selected_features
             _LOGGER.info("Features updated in options: %s", ", ".join(selected_features))
-            final_options = {**self.current_config, **self._updated_options}
-            return self.async_create_entry(title="", data=final_options)
+            return self._save_options()
 
         current_features = self.current_config.get(CONF_ACTIVE_FEATURES, [])
         feature_options = []
@@ -415,8 +402,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             else:
                 _LOGGER.info("No sensors selected in options.")
 
-            final_options = {**self.current_config, **self._updated_options}
-            return self.async_create_entry(title="", data=final_options)
+            return self._save_options()
 
         self._sensor_data = await self._get_grouped_sensors()
         return self.async_show_form(
@@ -428,8 +414,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         """Handle safety settings in options flow."""
         if user_input is not None:
             self._updated_options.update(user_input)
-            final_options = {**self.current_config, **self._updated_options}
-            return self.async_create_entry(title="", data=final_options)
+            return self._save_options()
 
         return self.async_show_form(
             step_id="safety",
@@ -464,8 +449,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         """Handle general settings in options flow."""
         if user_input is not None:
             self._updated_options.update(user_input)
-            final_options = {**self.current_config, **self._updated_options}
-            return self.async_create_entry(title="", data=final_options)
+            return self._save_options()
 
         return self.async_show_form(
             step_id="settings",

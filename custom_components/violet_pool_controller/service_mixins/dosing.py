@@ -89,14 +89,18 @@ class DosingServiceHandlersMixin:
 
         for coordinator in coordinators:
             try:
-                # Enforce cooldown via central SafetyGuard.  ``enforce`` raises
-                # HomeAssistantError when the lock is active and is bypassed
-                # (with a WARNING audit log) when safety_override=True.
-                await self.manager.safety_guard.enforce(device_key, safety_override=safety_override)
-
+                entry_id = coordinator.config_entry.entry_id
                 result: dict[str, Any] = {"success": False}
 
                 if action == "manual_dose":
+                    # The cooldown guards *starting* a dose only.  Guarding the
+                    # whole handler meant the cooldown armed by a dose also
+                    # blocked the "stop" that was meant to interrupt it, for
+                    # five minutes, unless the caller passed safety_override.
+                    await self.manager.safety_guard.enforce(
+                        entry_id, device_key, safety_override=safety_override
+                    )
+
                     api_dosing_type = DOSING_API_MAPPING.get(dosing_type, dosing_type)
                     result = await coordinator.device.api.manual_dosing(api_dosing_type, duration)
 
@@ -107,7 +111,7 @@ class DosingServiceHandlersMixin:
                                 "safety_interval", DEFAULT_SAFETY_INTERVAL
                             ),
                         )
-                        self.manager.set_safety_lock(device_key, safety_interval)
+                        self.manager.set_safety_lock(entry_id, device_key, safety_interval)
 
                 elif action == "auto":
                     api_dosing_type = DOSING_API_MAPPING.get(dosing_type, dosing_type)
@@ -125,7 +129,8 @@ class DosingServiceHandlersMixin:
                     )
                     # Clear any active cooldown when the user explicitly stops
                     # a dose, so a follow-on dose is not wrongly blocked.
-                    self.manager.safety_guard.clear_lock(device_key)
+                    self.manager.safety_guard.clear_lock(entry_id, device_key)
+                    await self.manager.safety_guard.cancel_auto_stop(entry_id, device_key)
                     _LOGGER.info("Dosing %s stopped (DOSSTOP)", dosing_type)
 
                 if result.get("success") is not True:
@@ -155,9 +160,12 @@ class DosingServiceHandlersMixin:
             try:
                 control = VioletControlClient(coordinator.device.api)
                 device_name = coordinator.device.device_name
+                entry_id = coordinator.config_entry.entry_id
 
                 # Enforce the cooldown before dispatching any dosing command.
-                await self.manager.safety_guard.enforce(device_key, safety_override=safety_override)
+                await self.manager.safety_guard.enforce(
+                    entry_id, device_key, safety_override=safety_override
+                )
 
                 await control.trigger_manual_dosing(dosing_index, runtime, from_param=from_param)
                 _LOGGER.info(
@@ -177,8 +185,9 @@ class DosingServiceHandlersMixin:
                             "safety_interval", DEFAULT_SAFETY_INTERVAL
                         ),
                     )
-                    self.manager.set_safety_lock(device_key, safety_interval)
+                    self.manager.set_safety_lock(entry_id, device_key, safety_interval)
                 await self.manager.safety_guard.arm_auto_stop(
+                    entry_id,
                     device_key,
                     duration_seconds=float(runtime),
                     stop_target={

@@ -227,3 +227,32 @@ async def test_export_diagnostic_logs_uses_executor_for_file_io(hass):
 
     assert result["success"] is True
     assert "_read_recent_violet_log_lines" in executor_calls
+
+
+async def test_services_are_removed_with_the_last_entry(hass: HomeAssistant) -> None:
+    """The services and the manager belong to the integration, not to an entry.
+
+    Leaving them registered after the last controller went away kept the
+    SafetyGuard's armed timers running, and made a later reload skip
+    registration entirely -- ``async_register_services`` returns early when it
+    finds ``control_pump`` already there -- so the new manager was never wired
+    up and the switch entities' safety gate reached a manager with no
+    controllers.
+    """
+    from custom_components.violet_pool_controller.runtime_data import SERVICE_MANAGER_KEY
+    from custom_components.violet_pool_controller.services import async_unload_services
+
+    await async_register_services(hass)
+    assert hass.services.has_service(DOMAIN, "control_pump")
+    assert hass.data[DOMAIN][SERVICE_MANAGER_KEY] is not None
+
+    await async_unload_services(hass)
+
+    assert not hass.services.has_service(DOMAIN, "control_pump")
+    assert not hass.services.has_service(DOMAIN, "get_connection_status")
+    assert SERVICE_MANAGER_KEY not in hass.data.get(DOMAIN, {})
+
+    # Registering again must build a fresh manager rather than bail out.
+    await async_register_services(hass)
+    assert hass.services.has_service(DOMAIN, "control_pump")
+    assert hass.data[DOMAIN][SERVICE_MANAGER_KEY] is not None

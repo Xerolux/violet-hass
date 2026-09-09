@@ -4,12 +4,33 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 
+from custom_components.violet_pool_controller.error_handler import EnhancedErrorHandler
 from custom_components.violet_pool_controller.services import (
     VioletServiceHandlers,
     VioletServiceManager,
 )
+
+
+def _mock_device(name: str = "Test Pool") -> Mock:
+    """Return a mock device carrying its own error handler.
+
+    Each controller owns an ``EnhancedErrorHandler`` (device.py), so the
+    diagnostics services report per-device statistics instead of a
+    process-global mixture; the mock has to provide a real one.
+    """
+    device = Mock()
+    device.device_name = name
+    device._available = True
+    device._last_update_time = 1234567890.0
+    device._connection_latency = 125.5
+    device._system_health = 95.0
+    device._consecutive_failures = 0
+    device.api_url = "192.168.1.100"
+    device.use_ssl = False
+    device.error_handler = EnhancedErrorHandler()
+    return device
 
 
 @pytest.fixture
@@ -28,15 +49,7 @@ def hass():
 def mock_coordinator():
     """Mock coordinator with device."""
     coordinator = Mock()
-    coordinator.device = Mock()
-    coordinator.device.device_name = "Test Pool"
-    coordinator.device._available = True
-    coordinator.device._last_update_time = 1234567890.0
-    coordinator.device._connection_latency = 125.5
-    coordinator.device._system_health = 95.0
-    coordinator.device._consecutive_failures = 0
-    coordinator.device.api_url = "192.168.1.100"
-    coordinator.device.use_ssl = False
+    coordinator.device = _mock_device()
     coordinator.config_entry = Mock()
     coordinator.config_entry.entry_id = "test_entry_id"
 
@@ -51,15 +64,7 @@ def service_manager(hass):
     # Mock get_coordinator_for_device
     async def mock_get_coordinator(device_id):
         coordinator = Mock()
-        coordinator.device = Mock()
-        coordinator.device.device_name = "Test Pool"
-        coordinator.device._available = True
-        coordinator.device._last_update_time = 1234567890.0
-        coordinator.device._connection_latency = 125.5
-        coordinator.device._system_health = 95.0
-        coordinator.device._consecutive_failures = 0
-        coordinator.device.api_url = "192.168.1.100"
-        coordinator.device.use_ssl = False
+        coordinator.device = _mock_device()
         return coordinator
 
     manager.get_coordinator_for_device = AsyncMock(side_effect=mock_get_coordinator)
@@ -94,15 +99,20 @@ class TestGetConnectionStatus:
 
     @pytest.mark.asyncio
     async def test_get_connection_status_device_not_found(self, service_handlers):
-        """Test connection status with device not found."""
-        # Mock coordinator as None
+        """An unknown device id is a caller mistake, not an API failure.
+
+        It therefore raises the translated ``ServiceValidationError`` rather
+        than a bare ``HomeAssistantError`` with a hand-written message.
+        """
         service_handlers.manager.get_coordinator_for_device = AsyncMock(return_value=None)
 
         call = Mock()
         call.data = {"device_id": ["invalid_device"]}
 
-        with pytest.raises(HomeAssistantError, match="Device .* not found"):
+        with pytest.raises(ServiceValidationError) as raised:
             await service_handlers.handle_get_connection_status(call)
+        assert raised.value.translation_key == "device_not_found"
+        assert raised.value.translation_placeholders == {"device_id": "invalid_device"}
 
 
 class TestGetErrorSummary:

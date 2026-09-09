@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "violet-hass"
-version = "2.6.1"
+version = "2.7.0"
 description = "Home Assistant integration + API client for Violet pool controllers"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -12,20 +12,13 @@ license = { text = "AGPL-3.0-or-later" }
 
 [project.optional-dependencies]
 api = ["violet-poolController-api"]
-dev = [
-    "violet-poolController-api[test]",
-    "pytest>=8.3.0",
-    "pytest-asyncio>=0.24.0",
-    "pytest-cov>=6.0.0",
-    "pytest-homeassistant-custom-component>=0.13.1,<0.13.317; python_version < '3.14'",
-    "pytest-homeassistant-custom-component>=0.13.337; python_version >= '3.14'",
-    "ruff>=0.9.0",
-    "mypy>=1.0.0",
-]
+# No "dev" extra on purpose: tox sets `package = skip`, so an extra declared
+# here would never be installed. requirements-dev.txt is the single source of
+# truth for dev-tool version floors.
 
 [tool.ruff]
 line-length = 100
-# Home Assistant 2026.5.x runs on Python 3.14; target its syntax for the integration.
+# Home Assistant 2026.8+ runs on Python 3.14; target its syntax for the integration.
 target-version = "py314"
 
 [tool.ruff.lint]
@@ -35,13 +28,15 @@ ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
 # Live hardware check scripts use print() for CLI output
-"tests/live_*_check.py" = ["T201"]
+"scripts/live/*.py" = ["T201"]
 
 [tool.mypy]
-# Home Assistant 2026.5.x uses Python 3.14 syntax (e.g. except expressions without
+# Home Assistant 2026.8+ uses Python 3.14 syntax (e.g. except expressions without
 # parentheses). Set the integration check target to 3.14 so mypy can parse HA.
 python_version = "3.14"
-mypy_path = ["../violet-poolController-api"]
+# No mypy_path: the API package is resolved from the installed distribution,
+# which ships py.typed. Pointing mypy at a sibling checkout made CI and local
+# runs type-check different code.
 warn_return_any = true
 disallow_untyped_defs = false
 warn_unused_configs = true
@@ -52,11 +47,12 @@ branch = true
 
 [tool.coverage.report]
 show_missing = true
-# Lowered from 60 to 40: the previous threshold was never actually enforced
-# because test collection failed (missing zeroconf, wrong pytest-hass pin) so
-# coverage was never computed. With collection fixed, actual coverage is ~48%.
-# Keep a floor to catch drastic regressions; raise again as tests are added.
-fail_under = 40
+# Measured, not guessed: a full green run (1421 tests) reports 64.48%.
+# The floor sits a little below that so an ordinary refactor does not break
+# CI, and well above the old 40 - which was set when the suite could not even
+# be collected and was never a real gate. Raise this as tests are added;
+# never lower it to make a build pass.
+fail_under = 60
 exclude_lines = [
     "pragma: no cover",
     "if TYPE_CHECKING:",

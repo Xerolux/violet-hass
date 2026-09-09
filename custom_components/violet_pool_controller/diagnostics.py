@@ -17,11 +17,20 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN, INTEGRATION_VERSION
-from .error_handler import get_enhanced_error_handler
 from .state_constants import get_state_name
 
-# Fields redacted from config entry data (sensitive / privacy-relevant)
-_REDACT_KEYS = {"password", "username"}
+# Fields redacted everywhere in the dump: credentials, plus the identifiers
+# Home Assistant expects an integration to redact before a diagnostics file is
+# shared in a bug report. The controller reports the last four inside its
+# readings, so they have to be stripped from ``current_data`` as well.
+_REDACT_KEYS = {
+    "password",
+    "username",
+    "IP_ADDRESS",
+    "MAC_ADDRESS",
+    "SERIAL_NUMBER",
+    "HW_SERIAL_CARRIER",
+}
 
 
 async def async_get_config_entry_diagnostics(
@@ -66,7 +75,9 @@ async def async_get_config_entry_diagnostics(
     }
 
     # --- Error handler statistics ---
-    error_handler = get_enhanced_error_handler()
+    # Per device, not the process-wide singleton: a second controller's outage
+    # must not show up in this entry's diagnostics.
+    error_handler = device.error_handler
     error_summary = error_handler.get_error_summary()
     recent_errors = [e.to_dict() for e in error_handler.get_recent_errors(5)]
 
@@ -93,7 +104,9 @@ async def async_get_config_entry_diagnostics(
             "last_error": device.last_error,
         },
         "connection": connection,
-        "current_data": dict(coordinator.data) if coordinator.data else {},
+        "current_data": async_redact_data(
+            dict(coordinator.data) if coordinator.data else {}, _REDACT_KEYS
+        ),
         "poll_statistics": poll_stats,
         "error_statistics": error_summary,
         "recent_errors": recent_errors,

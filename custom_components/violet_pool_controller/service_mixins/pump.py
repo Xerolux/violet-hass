@@ -185,16 +185,23 @@ class PumpServiceHandlersMixin:
 
         for coordinator in coordinators:
             try:
-                control = VioletControlClient(coordinator.device.api)
                 device_name = coordinator.device.device_name
+                entry_id = coordinator.config_entry.entry_id
 
                 if action == "run":
                     # Enforce cooldown before starting backwash.
                     await self.manager.safety_guard.enforce(
-                        "BACKWASH", safety_override=safety_override
+                        entry_id, "BACKWASH", safety_override=safety_override
                     )
 
-                    await control.set_backwash_run()
+                    # Hand the duration to the controller so it stops the
+                    # backwash itself; the HA-side timer below only covers the
+                    # case where the controller ignores it.
+                    await coordinator.device.api.set_switch_state(
+                        "BACKWASH",
+                        ACTION_ON,
+                        duration=int(backwash_seconds),
+                    )
                     _LOGGER.info(
                         "Backwash started on %s with %ss timeout",
                         device_name,
@@ -204,21 +211,25 @@ class PumpServiceHandlersMixin:
                     # Restart-safe auto-stop: persists deadline so the backwash
                     # is aborted even if HA restarts mid-run.
                     await self.manager.safety_guard.arm_auto_stop(
+                        entry_id,
                         "BACKWASH",
                         duration_seconds=backwash_seconds,
                         stop_target={
-                            "method": "set_function_manually",
-                            "args": ["BACKWASH", "OFF"],
+                            "method": "set_switch_state",
+                            "args": ["BACKWASH"],
+                            "kwargs": {"action": ACTION_OFF},
                         },
                     )
                     if not safety_override:
-                        self.manager.set_safety_lock("BACKWASH", DEFAULT_SAFETY_INTERVAL)
+                        self.manager.set_safety_lock(
+                            entry_id, "BACKWASH", DEFAULT_SAFETY_INTERVAL
+                        )
 
                 elif action == "abort":
-                    await control.set_backwash_abort()
+                    await coordinator.device.api.set_switch_state("BACKWASH", ACTION_OFF)
                     # Cancel any pending auto-stop and clear the cooldown.
-                    self.manager.safety_guard.cancel_auto_stop("BACKWASH")
-                    self.manager.safety_guard.clear_lock("BACKWASH")
+                    await self.manager.safety_guard.cancel_auto_stop(entry_id, "BACKWASH")
+                    self.manager.safety_guard.clear_lock(entry_id, "BACKWASH")
                     _LOGGER.info("Backwash aborted on %s", device_name)
                     await coordinator.async_request_refresh()
 

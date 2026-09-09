@@ -5,6 +5,7 @@ from __future__ import annotations
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
@@ -37,6 +38,9 @@ class TestReconfigureFlow:
             "timeout_duration": 30,
             "retry_attempts": 3,
         }
+        # Set by ConfigEntry.__init__, so a spec'd MagicMock does not have it;
+        # async_update_reload_and_abort reads it.
+        entry.update_listeners = []
         return entry
 
     @pytest.fixture
@@ -95,7 +99,7 @@ class TestReconfigureFlow:
         # Mock dependencies
         hass.config_entries.async_get_entry = MagicMock(return_value=mock_config_entry)
         hass.config_entries.async_update_entry = MagicMock()
-        hass.config_entries.async_reload = AsyncMock()
+        hass.config_entries.async_schedule_reload = MagicMock()
 
         # Mock API test to succeed
         with patch(
@@ -135,7 +139,9 @@ class TestReconfigureFlow:
             assert updated_data["retry_attempts"] == 5
 
             # Verify reload was triggered
-            hass.config_entries.async_reload.assert_called_once_with(mock_config_entry.entry_id)
+            hass.config_entries.async_schedule_reload.assert_called_once_with(
+                mock_config_entry.entry_id
+            )
 
             # Verify flow is aborted with success
             assert result["type"] == FlowResultType.ABORT
@@ -166,7 +172,8 @@ class TestReconfigureFlow:
         assert "errors" in result
 
         # Invalid host input should be mapped to the API URL field.
-        assert result["errors"] == {CONF_API_URL: "invalid_ip"}
+        # Must be the key strings.json defines, not a raw string.
+        assert result["errors"] == {CONF_API_URL: "invalid_ip_address"}
 
     def test_build_unique_id_is_stable(self, config_flow):
         """Manual and zeroconf setup must share the same unique ID format."""
@@ -213,7 +220,7 @@ class TestReconfigureFlow:
         """Test reconfigure with only some fields changed."""
         hass.config_entries.async_get_entry = MagicMock(return_value=mock_config_entry)
         hass.config_entries.async_update_entry = MagicMock()
-        hass.config_entries.async_reload = AsyncMock()
+        hass.config_entries.async_schedule_reload = MagicMock()
 
         # Mock API test to succeed
         with patch(
@@ -271,7 +278,7 @@ class TestReconfigureFlow:
         """Test that reconfigure can update credentials."""
         hass.config_entries.async_get_entry = MagicMock(return_value=mock_config_entry)
         hass.config_entries.async_update_entry = MagicMock()
-        hass.config_entries.async_reload = AsyncMock()
+        hass.config_entries.async_schedule_reload = MagicMock()
 
         # Mock API test to succeed
         with patch(
@@ -313,7 +320,7 @@ class TestReconfigureFlow:
         """Test reconfigure SSL toggle between HTTP and HTTPS."""
         hass.config_entries.async_get_entry = MagicMock(return_value=mock_config_entry)
         hass.config_entries.async_update_entry = MagicMock()
-        hass.config_entries.async_reload = AsyncMock()
+        hass.config_entries.async_schedule_reload = MagicMock()
 
         # Mock API test to succeed for both HTTP and HTTPS
         with patch(
@@ -373,6 +380,7 @@ class TestReconfigureIntegrationScenarios:
             "controller_name": "Violet",
             "device_id": 1,
         }
+        entry.update_listeners = []
         return entry
 
     @pytest.mark.asyncio
@@ -385,7 +393,7 @@ class TestReconfigureIntegrationScenarios:
 
         hass.config_entries.async_get_entry = MagicMock(return_value=mock_config_entry)
         hass.config_entries.async_update_entry = MagicMock()
-        hass.config_entries.async_reload = AsyncMock()
+        hass.config_entries.async_schedule_reload = MagicMock()
 
         # Mock successful connection with new IP
         with patch(
@@ -427,7 +435,7 @@ class TestReconfigureIntegrationScenarios:
 
         hass.config_entries.async_get_entry = MagicMock(return_value=mock_config_entry)
         hass.config_entries.async_update_entry = MagicMock()
-        hass.config_entries.async_reload = AsyncMock()
+        hass.config_entries.async_schedule_reload = MagicMock()
 
         # Mock API with delay (slow network)
         async def slow_api_call():
@@ -472,7 +480,7 @@ class TestReconfigureIntegrationScenarios:
 
         hass.config_entries.async_get_entry = MagicMock(return_value=mock_config_entry)
         hass.config_entries.async_update_entry = MagicMock()
-        hass.config_entries.async_reload = AsyncMock()
+        hass.config_entries.async_schedule_reload = MagicMock()
 
         with patch(
             "custom_components.violet_pool_controller.config_flow.VioletPoolAPI"
@@ -498,3 +506,154 @@ class TestReconfigureIntegrationScenarios:
 
             updated_data = hass.config_entries.async_update_entry.call_args[1]["data"]
             assert updated_data["polling_interval"] == 5
+
+
+class TestReconfigureConnectionHardening:
+    """The reconfigure form must not lose input or leak the stored password."""
+
+    @pytest.fixture
+    def mock_config_entry(self):
+        """Create a mock config entry."""
+        entry = MagicMock(spec=ConfigEntry)
+        entry.entry_id = "test_entry_id"
+        entry.data = {
+            CONF_API_URL: "192.168.178.55",
+            CONF_USE_SSL: False,
+            "device_name": "Test Pool Controller",
+            "controller_name": "Violet",
+            CONF_USERNAME: "admin",
+            CONF_PASSWORD: "s3cret",
+            "device_id": 1,
+            "port": 80,
+            "polling_interval": 10,
+            "timeout_duration": 30,
+            "retry_attempts": 3,
+        }
+        entry.update_listeners = []
+        return entry
+
+    @pytest.fixture
+    def config_flow(self, hass: HomeAssistant):
+        """Create a ConfigFlow instance for testing."""
+        from custom_components.violet_pool_controller.config_flow import ConfigFlow
+
+        flow = ConfigFlow()
+        flow.hass = hass
+        return flow
+
+    @staticmethod
+    def _schema_defaults(result):
+        """Return {key: default} for the rendered schema."""
+        return {
+            str(marker.schema): marker.default()
+            for marker in result["data_schema"].schema
+            if marker.default is not vol.UNDEFINED
+        }
+
+    @staticmethod
+    def _suggested_values(result):
+        """Return {key: suggested_value} for the rendered schema."""
+        return {
+            str(marker.schema): (marker.description or {})["suggested_value"]
+            for marker in result["data_schema"].schema
+            if marker.description and "suggested_value" in marker.description
+        }
+
+    @pytest.mark.asyncio
+    async def test_password_is_never_prefilled(
+        self, hass: HomeAssistant, config_flow, mock_config_entry
+    ):
+        """The stored password must not be rendered back into the form."""
+        hass.config_entries.async_get_entry = MagicMock(return_value=mock_config_entry)
+        config_flow.context = {"entry_id": mock_config_entry.entry_id}
+
+        result = await config_flow.async_step_reconfigure_connection(user_input=None)
+
+        assert "s3cret" not in str(result["data_schema"].schema)
+        assert CONF_PASSWORD not in self._schema_defaults(result)
+
+    @pytest.mark.asyncio
+    async def test_empty_password_keeps_the_stored_one(
+        self, hass: HomeAssistant, config_flow, mock_config_entry
+    ):
+        """Submitting the form without a password does not wipe it."""
+        hass.config_entries.async_get_entry = MagicMock(return_value=mock_config_entry)
+        hass.config_entries.async_update_entry = MagicMock()
+        hass.config_entries.async_schedule_reload = MagicMock()
+        config_flow.context = {"entry_id": mock_config_entry.entry_id}
+
+        with patch(
+            "custom_components.violet_pool_controller.config_flow.VioletPoolAPI"
+        ) as mock_api_class:
+            mock_api_class.return_value.get_readings = AsyncMock(return_value={"ok": 1})
+
+            await config_flow.async_step_reconfigure_connection(
+                user_input={
+                    CONF_API_URL: "192.168.178.56",
+                    CONF_USERNAME: "admin",
+                    CONF_USE_SSL: False,
+                }
+            )
+
+        updated = hass.config_entries.async_update_entry.call_args[1]["data"]
+        assert updated[CONF_PASSWORD] == "s3cret"
+
+    @pytest.mark.asyncio
+    async def test_unique_id_follows_the_new_host(
+        self, hass: HomeAssistant, config_flow, mock_config_entry
+    ):
+        """Regression: the unique id kept pointing at the old IP.
+
+        Zeroconf matches discoveries against the unique id, so leaving it on
+        the old host made Home Assistant offer the very same controller as a
+        new device after every IP change.
+        """
+        hass.config_entries.async_get_entry = MagicMock(return_value=mock_config_entry)
+        hass.config_entries.async_update_entry = MagicMock()
+        hass.config_entries.async_schedule_reload = MagicMock()
+        config_flow.context = {"entry_id": mock_config_entry.entry_id}
+
+        with patch(
+            "custom_components.violet_pool_controller.config_flow.VioletPoolAPI"
+        ) as mock_api_class:
+            mock_api_class.return_value.get_readings = AsyncMock(return_value={"ok": 1})
+
+            await config_flow.async_step_reconfigure_connection(
+                user_input={
+                    CONF_API_URL: "192.168.178.99",
+                    CONF_USE_SSL: False,
+                }
+            )
+
+        assert (
+            hass.config_entries.async_update_entry.call_args[1]["unique_id"]
+            == "192.168.178.99-1"
+        )
+
+    @pytest.mark.asyncio
+    async def test_failed_connection_keeps_the_typed_values(
+        self, hass: HomeAssistant, config_flow, mock_config_entry
+    ):
+        """Regression: a failed test re-rendered the form with stale defaults."""
+        hass.config_entries.async_get_entry = MagicMock(return_value=mock_config_entry)
+        config_flow.context = {"entry_id": mock_config_entry.entry_id}
+
+        with patch(
+            "custom_components.violet_pool_controller.config_flow.VioletPoolAPI"
+        ) as mock_api_class:
+            mock_api_class.return_value.get_readings = AsyncMock(
+                side_effect=Exception("nope")
+            )
+
+            result = await config_flow.async_step_reconfigure_connection(
+                user_input={
+                    CONF_API_URL: "192.168.178.77",
+                    CONF_USE_SSL: True,
+                    "polling_interval": 42,
+                }
+            )
+
+        assert result["type"] == FlowResultType.FORM
+        suggested = self._suggested_values(result)
+        assert suggested[CONF_API_URL] == "192.168.178.77"
+        assert suggested["polling_interval"] == 42

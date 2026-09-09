@@ -1,13 +1,13 @@
 # Violet Pool Controller Lovelace Dashboard
 # ----------------------------------------
-# Importhinweis:
-# 1. Einstellungen → Dashboards → Drei Punkte → Dashboard aus YAML importieren
-# 2. Datei "Dashboard/pool-dashboard.yaml" auswählen
-# 3. Ersetze bei Bedarf die Entity-IDs (Suche nach "violet_pool_controller")
+# Import instructions:
+# 1. Settings -> Dashboards -> three-dot menu -> import dashboard from YAML
+# 2. Select the file "Dashboard/pool-dashboard.yaml"
+# 3. Replace the entity ids if needed (search for "violet_pool_controller")
 #
 title: Violet Pool
 views:
-  - title: Übersicht
+  - title: Overview
     path: violet-overview
     icon: mdi:pool
     cards:
@@ -16,61 +16,61 @@ views:
           - type: picture-entity
             entity: climate.violet_pool_controller_pool_heater
             image: /local/violet-hass/pool-dashboard.svg
-            name: Poolstatus
+            name: Pool status
           - type: grid
             columns: 2
             square: false
             cards:
               - type: gauge
                 entity: sensor.violet_pool_controller_pool_temperature
-                name: Wasser
+                name: Water
                 min: 10
                 max: 40
               - type: gauge
                 entity: sensor.violet_pool_controller_outdoor_temperature
-                name: Außen
+                name: Outdoor
                 min: -10
                 max: 40
               - type: gauge
                 entity: sensor.violet_pool_controller_ph_value
-                name: pH-Wert
+                name: pH value
                 min: 6.4
                 max: 8.0
               - type: gauge
                 entity: sensor.violet_pool_controller_orp_value
-                name: Redox
+                name: ORP
                 min: 500
                 max: 900
           - type: entities
-            title: Aktive Komponenten
+            title: Active components
             show_header_toggle: false
             entities:
               - entity: switch.violet_pool_controller_pump
-                name: Filterpumpe
+                name: Filter pump
               - entity: switch.violet_pool_controller_heater
-                name: Heizung
+                name: Heater
               - entity: switch.violet_pool_controller_solar
-                name: Solarabsorber
+                name: Solar absorber
               - entity: switch.violet_pool_controller_pv_surplus
-                name: PV-Überschuss
+                name: PV surplus
               - entity: light.violet_pool_controller_pool_light
-                name: Poolbeleuchtung
+                name: Pool light
       - type: vertical-stack
         cards:
           - type: entities
-            title: Zielwerte & Limits
+            title: Targets & limits
             show_header_toggle: false
             entities:
               - entity: number.violet_pool_controller_target_temperature
-                name: Solltemperatur
+                name: Target temperature
               - entity: number.violet_pool_controller_target_ph
-                name: pH-Ziel
+                name: pH target
               - entity: number.violet_pool_controller_target_orp
-                name: ORP-Ziel
+                name: ORP target
               - entity: number.violet_pool_controller_minimum_chlorine
-                name: Chlor Mindestwert
+                name: Chlorine minimum
           - type: history-graph
-            title: Wasserqualität (24h)
+            title: Water quality (24h)
             hours_to_show: 24
             refresh_interval: 60
             entities:
@@ -78,12 +78,12 @@ views:
               - sensor.violet_pool_controller_ph_value
               - sensor.violet_pool_controller_orp_value
           - type: statistics-graph
-            title: Laufzeiten
+            title: Runtimes
             entities:
               - entity: sensor.violet_pool_controller_pump_runtime
-                name: Pumpe
+                name: Pump
               - entity: sensor.violet_pool_controller_heater_runtime
-                name: Heizung
+                name: Heater
               - entity: sensor.violet_pool_controller_solar_runtime
                 name: Solar
             period: day
@@ -94,7 +94,7 @@ views:
     icon: mdi:tools
     cards:
       - type: entities
-        title: Wartungszustand
+        title: Maintenance state
         show_header_toggle: false
         entities:
           - binary_sensor.violet_pool_controller_backwash_required
@@ -102,16 +102,16 @@ views:
           - sensor.violet_pool_controller_water_level
           - sensor.violet_pool_controller_last_error
       - type: entities
-        title: Schnellaktionen
+        title: Quick actions
         entities:
           - entity: script.violet_pool_controller_start_backwash
-            name: Rückspülung starten
+            name: Start backwash
           - entity: script.violet_pool_controller_shock_treatment
-            name: Schockchlorung
+            name: Shock chlorination
           - entity: switch.violet_pool_controller_party_mode
-            name: Party Modus
+            name: Party mode
       - type: logbook
-        title: Letzte Ereignisse
+        title: Recent events
         entities:
           - binary_sensor.violet_pool_controller_pump
           - switch.violet_pool_controller_heater
@@ -119,7 +119,7 @@ views:
         hours_to_show: 24
       - type: markdown
         content: |
-          ### Hinweise
-          - Alle Entitäten stammen aus der Violet Pool Controller Integration.
-          - Nutze das Optionen-Menü der Integration, um Sensoren abzuwählen.
-          - Passe die Entity-IDs an deinen Gerätnamen an, falls nötig.
+          ### Notes
+          - Every entity here comes from the Violet Pool Controller integration.
+          - Use the integration's options menu to deselect sensors you do not need.
+          - Adjust the entity ids to your own device name if necessary.

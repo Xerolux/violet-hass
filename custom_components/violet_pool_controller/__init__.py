@@ -14,14 +14,18 @@ from collections.abc import Sequence
 from typing import Any
 
 import homeassistant.helpers.config_validation as cv
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant, callback
-from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
+from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import (
+    ConfigEntryAuthFailed,
+    ConfigEntryNotReady,
+    HomeAssistantError,
+)
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
-from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
+from violet_poolcontroller_api.api import VioletPoolAPI
 
 from .config_entry_helpers import (
     extract_api_host,
@@ -40,9 +44,11 @@ from .const import (
     CONF_ACTIVE_FEATURES,
     CONF_ADAPTIVE_POLLING,
     CONF_ALLOW_UNSAFE_SWITCHES,
+    CONF_API_URL,
     CONF_CONTROLLER_NAME,
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
+    CONF_DOSING_STANDALONE,
     CONF_GROUP_ENTITIES,
     CONF_PASSWORD,
     CONF_POLLING_INTERVAL,
@@ -50,24 +56,30 @@ from .const import (
     CONF_RETRY_ATTEMPTS,
     CONF_SELECTED_SENSORS,
     CONF_TIMEOUT_DURATION,
+    CONF_UNSAFE_SWITCHES_MIGRATED,
     CONF_USE_SSL,
     CONF_USERNAME,
     CONF_VERIFY_SSL,
     CONFIG_ENTRY_VERSION,
     DEFAULT_ADAPTIVE_POLLING,
+    DEFAULT_ALLOW_UNSAFE_SWITCHES,
     DEFAULT_CONTROLLER_NAME,
+    DEFAULT_DOSING_STANDALONE,
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_PORT,
     DEFAULT_RETRY_ATTEMPTS,
     DEFAULT_TIMEOUT_DURATION,
+    DEFAULT_USE_SSL,
     DEFAULT_VERIFY_SSL,
     DOMAIN,
     MIN_SUPPORTED_POLLING_INTERVAL,
     UNSAFE_SWITCH_KEYS,
 )
+from .device import async_setup_device, connection_settings
 from .device_hierarchy import async_cleanup_sub_devices, async_precreate_devices
 from .entity_cleanup import async_remove_orphaned_entities
-from .runtime_data import VioletRuntimeData, get_runtime_data
+from .runtime_data import VioletRuntimeData, async_loaded_entries, get_runtime_data
+from .services import async_register_services, async_unload_services
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -120,6 +132,9 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry) ->
 
     if config_entry.version < 3:
         _migrate_v2_to_v3(hass, config_entry)
+
+    if config_entry.version < 4:
+        _migrate_v3_to_v4(hass, config_entry)
 
     _LOGGER.debug("Config entry migrated to version %s", CONFIG_ENTRY_VERSION)
     return True
@@ -221,6 +236,87 @@ def _migrate_v2_to_v3(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
         )
 
 
+# Connection settings live in ``entry.data`` only. The options flow used to
+# copy the whole entry - password included - into ``entry.options``, where the
+# options-first lookup then shadowed every later reconfigure.
+_CONNECTION_KEYS: frozenset[str] = frozenset(
+    {
+        CONF_API_URL,
+        CONF_PORT,
+        CONF_USERNAME,
+        CONF_PASSWORD,
+        CONF_USE_SSL,
+        CONF_VERIFY_SSL,
+        CONF_DEVICE_ID,
+    }
+)
+
+
+def _migrate_v3_to_v4(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
+    """Clean the connection copy out of the options and pin the main device.
+
+    Two one-off repairs:
+
+    1. The options flow saved ``{**data, **options}``, so ``entry.options``
+       ended up holding a stale copy of the host, port and *password*. Because
+       options win over data, a later reconfigure of the connection was
+       silently overridden by that copy. The keys are removed here; the
+       authoritative values stay in ``entry.data``.
+    2. The controller device was identified by ``{host}_{device_id}``, so
+       moving the controller to a new IP created a second device and orphaned
+       the one carrying the user's name and area. The identifier is now the
+       config entry id, and the existing device is renamed onto it.
+    """
+    options = {k: v for k, v in config_entry.options.items() if k not in _CONNECTION_KEYS}
+    removed = sorted(set(config_entry.options) - set(options))
+
+    hass.config_entries.async_update_entry(config_entry, options=options, version=4)
+
+    if removed:
+        _LOGGER.info(
+            "Config entry %s: removed the stale connection copy (%s) from the options; "
+            "the connection settings in the entry data are authoritative again",
+            config_entry.entry_id,
+            ", ".join(removed),
+        )
+
+    _migrate_main_device_identifier(hass, config_entry)
+
+
+def _migrate_main_device_identifier(hass: HomeAssistant, config_entry: ConfigEntry) -> None:
+    """Move the controller device from the host-based identifier to the entry id."""
+    try:
+        host = with_non_default_port(
+            extract_api_host(config_entry.data),
+            config_entry.data.get(CONF_PORT, DEFAULT_PORT),
+        )
+    except ValueError:
+        return
+
+    old_identifier = (DOMAIN, f"{host}_{config_entry.data.get(CONF_DEVICE_ID, 1)}")
+    new_identifier = (DOMAIN, config_entry.entry_id)
+
+    registry = dr.async_get(hass)
+    device = registry.async_get_device(identifiers={old_identifier})
+    if device is None or new_identifier in device.identifiers:
+        return
+
+    identifiers = (set(device.identifiers) - {old_identifier}) | {new_identifier}
+    try:
+        registry.async_update_device(device.id, new_identifiers=identifiers)
+    except (HomeAssistantError, ValueError) as err:
+        _LOGGER.warning(
+            "Could not move device %s to the entry-based identifier: %s", device.id, err
+        )
+        return
+
+    _LOGGER.info(
+        "Config entry %s: controller device is now identified by the config entry, "
+        "so changing its IP address keeps the device, its name and its area",
+        config_entry.entry_id,
+    )
+
+
 def _migrate_duplicate_prefix_entity_ids(
     entity_registry: er.EntityRegistry,
     config_entry_id: str,
@@ -292,16 +388,13 @@ def _disable_unsafe_switches(
     because they require mandatory time limits to prevent equipment damage,
     chemical overdose, and flooding.
     """
-    from .const import CONF_ALLOW_UNSAFE_SWITCHES, DEFAULT_ALLOW_UNSAFE_SWITCHES
-
     # Get the config entry to check the allow_unsafe_switches setting
     entry = hass.config_entries.async_get_entry(config_entry_id)
     if not entry:
         return
 
-    allow_unsafe = entry.options.get(
-        CONF_ALLOW_UNSAFE_SWITCHES,
-        entry.data.get(CONF_ALLOW_UNSAFE_SWITCHES, DEFAULT_ALLOW_UNSAFE_SWITCHES),
+    allow_unsafe = get_entry_value(
+        entry, CONF_ALLOW_UNSAFE_SWITCHES, DEFAULT_ALLOW_UNSAFE_SWITCHES
     )
 
     prefix = f"{config_entry_id}_"
@@ -340,7 +433,16 @@ def _disable_unsafe_switches(
             )
         return
 
-    # Disable unsafe switches for safety
+    if entry.options.get(CONF_UNSAFE_SWITCHES_MIGRATED):
+        # The one-off pass has already run for this entry. switch.py creates
+        # every UNSAFE_SWITCH_KEYS entity with entity_registry_enabled_default
+        # derived from the same option, so newly registered entities are
+        # disabled at registration time anyway. Re-running the pass on every
+        # start would undo a switch the user deliberately re-enabled in the UI.
+        return
+
+    # One-off pass: disable unsafe switches registered before the platform
+    # defaulted them to disabled.
     disabled_count = 0
     for entity_entry in er.async_entries_for_config_entry(entity_registry, config_entry_id):
         # Only process switches
@@ -385,6 +487,13 @@ def _disable_unsafe_switches(
             disabled_count,
             config_entry_id,
         )
+
+    # Record that the pass ran, so a later re-enable by the user survives a
+    # restart. Runs before the update listener is registered, so it cannot
+    # trigger a reload.
+    hass.config_entries.async_update_entry(
+        entry, options={**entry.options, CONF_UNSAFE_SWITCHES_MIGRATED: True}
+    )
 
 
 
@@ -449,11 +558,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     _backfill_unique_id(hass, entry)
 
-    # Lazy imports to avoid blocking the event loop
-    from violet_poolcontroller_api.api import VioletPoolAPI
-
-    from .device import async_setup_device
-
     # Extract configuration
     config = _extract_config(entry)
 
@@ -463,9 +567,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     try:
         host = with_non_default_port(config["ip_address"], config["port"])
-        # Create API instance
-        from .const import CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE
-
         dosing_standalone = entry.data.get(CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE)
 
         api = VioletPoolAPI(
@@ -522,8 +623,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         entry.async_on_unload(entry.add_update_listener(async_update_listener))
 
         # Register services (only once for the entire integration)
-        from .services import async_register_services
-
         await async_register_services(hass)
 
         # Drop registry entries the platforms no longer provide, so disabling a
@@ -543,6 +642,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
 
         return True
+
+    except ConfigEntryAuthFailed:
+        # Must be re-raised untouched: turning it into ConfigEntryNotReady
+        # would retry a wrong password forever and the re-auth flow that asks
+        # the user for a new one would never start.
+        raise
 
     except ConfigEntryNotReady:
         # Re-raise ConfigEntryNotReady to allow Home Assistant to handle retries
@@ -579,6 +684,17 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             # Assistant (created via async_get_clientsession) and must only be
             # closed by it. Everything else lives on entry.runtime_data, which
             # Home Assistant drops as part of the unload.
+            #
+            # The services and the service manager are integration-wide, so
+            # they go only when the last controller does. Leaving them behind
+            # kept the SafetyGuard's timers running and made a later reload
+            # skip registration, because the services were still there.
+            remaining = [
+                loaded for loaded in async_loaded_entries(hass) if loaded.entry_id != entry.entry_id
+            ]
+            if not remaining:
+                await async_unload_services(hass)
+
             _LOGGER.info("Successfully unloaded '%s' (entry_id=%s)", device_name, entry.entry_id)
         else:
             _LOGGER.warning(
@@ -595,11 +711,16 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 
 def _structural_options(entry: ConfigEntry) -> dict[str, Any]:
-    """Return the options that decide *which* entities are created.
+    """Return the entry state the running setup is built on.
 
-    Changing any of these requires re-running the platform setups, because the
-    entity list is built from them. Everything else (polling interval, timeout,
-    credentials, ...) is applied on the running coordinator instead.
+    Two parts, both of which can only take effect by re-running the setup:
+
+    * the selections that decide *which* entities are created, and
+    * the connection settings, which are baked into the API client when it is
+      constructed.
+
+    Everything else (polling interval, adaptive polling, ...) is applied on the
+    running coordinator instead.
     """
     options: dict[str, Any] = {}
 
@@ -612,6 +733,12 @@ def _structural_options(entry: ConfigEntry) -> dict[str, Any]:
         value = entry.options.get(option, entry.data.get(option))
         # Feature/sensor selections are order-insensitive lists.
         options[option] = sorted(value) if isinstance(value, list) else value
+
+    try:
+        options["connection"] = connection_settings(entry)
+    except ValueError:
+        # No host in the entry at all - nothing to compare against.
+        options["connection"] = None
 
     return options
 
@@ -648,7 +775,8 @@ async def async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None
 
     if runtime_data.structural_options != current_options:
         _LOGGER.info(
-            "Feature/sensor selection changed for entry_id=%s, reloading integration",
+            "Entity selection or connection settings changed for entry_id=%s, "
+            "reloading integration",
             entry.entry_id,
         )
         hass.config_entries.async_schedule_reload(entry.entry_id)
@@ -689,12 +817,6 @@ async def async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None
             new_polling_interval,
             entry.entry_id,
         )
-
-    # 2. Update API connection settings if changed
-    if hasattr(coordinator.device, "update_api_config"):
-        api_updated = await coordinator.device.update_api_config(entry)
-        if api_updated:
-            settings_updated = True
 
     # Log summary
     if settings_updated:
@@ -749,7 +871,7 @@ def _extract_config(entry: ConfigEntry) -> dict[str, Any]:
     return {
         "ip_address": ip_address.strip(),
         "port": port,
-        "use_ssl": entry.data.get(CONF_USE_SSL, True),
+        "use_ssl": entry.data.get(CONF_USE_SSL, DEFAULT_USE_SSL),
         "verify_ssl": entry.data.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL),
         "device_id": entry.data.get(CONF_DEVICE_ID, 1),
         "username": entry.data.get(CONF_USERNAME, ""),
@@ -884,44 +1006,24 @@ async def async_remove_config_entry_device(
     Returns:
         True if the device can be removed, False otherwise.
     """
+    if (DOMAIN, config_entry.entry_id) in device_entry.identifiers and (
+        config_entry.state is ConfigEntryState.LOADED
+    ):
+        # The controller device itself. Removing it while the entry is loaded
+        # would only make the integration recreate it on the next entity
+        # update; deleting the integration is the way to get rid of it.
+        _LOGGER.warning(
+            "Refusing to remove the controller device of '%s' while the entry is "
+            "loaded - delete the integration entry instead",
+            config_entry.title,
+        )
+        return False
+
     _LOGGER.info(
         "Removing device entry '%s' from config entry '%s'",
         device_entry.name,
         config_entry.title,
     )
-    # Allow removal of any device entry associated with this config entry.
-    # The coordinator data will reflect the actual hardware on the next poll.
+    # Sub-devices may go: the coordinator data reflects the actual hardware on
+    # the next poll, and an empty sub-device is cleaned up anyway.
     return True
-
-
-@callback
-def async_zeroconf_get_service_info(
-    hass: HomeAssistant,
-    info: ZeroconfServiceInfo,
-    service_info_type: str,
-) -> None:
-    """Handle ZeroConf discovery of Violet Pool Controller.
-
-    This function is called by Home Assistant when a matching ZeroConf service
-    is discovered on the network. It stores the device information for later
-    use in the config flow.
-
-    Args:
-        hass: The Home Assistant instance.
-        info: The ZeroConf service info.
-        service_info_type: The service type.
-
-    Returns:
-        None. Device info is stored for later retrieval by the config flow.
-    """
-    from .discovery import get_discovery_handler
-
-    _LOGGER.info("ZeroConf discovery triggered for %s", info.name)
-
-    # Get discovery handler and store the device info
-    handler = get_discovery_handler()
-    handler.async_discover_service(hass, info)
-
-    # Note: No return value needed. Home Assistant will automatically
-    # show discovered devices in the UI and start the config flow when
-    # the user clicks "Configure".

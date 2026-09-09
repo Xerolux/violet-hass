@@ -6,6 +6,20 @@
 
 > Vollständige Dokumentation aller Switch-Entities des Violet Pool Controllers.
 
+> **Die Entity-IDs in dieser Wiki sind Beispiele.** Eine Entity-ID leitet sich
+> aus dem Namen ab, den du dem Controller im Config-Flow gegeben hast: ein
+> Controller namens „Pool" erzeugt `switch.pool_pump`, nicht
+> `switch.violet_pool_controller_pump`. Home Assistant schreibt eine ID nach
+> der ersten Registrierung außerdem nie um, ältere Installationen tragen also
+> möglicherweise noch anders geschriebene IDs. **Sieh deine eigenen in
+> Entwicklerwerkzeuge → Zustände nach**, bevor du eine Automatisierung
+> kopierst.
+>
+> Auch die hier gezeigten Wertebereiche und Options-Bezeichnungen sind die
+> aktuellen Standardwerte, keine Zusage. Maßgeblich sind der Code
+> (`temperature_range()` in `climate.py`, `const_sensors.py`, `select.py`) und
+> die Attribute der Entität in den Entwicklerwerkzeugen.
+
 ---
 
 ## Überblick
@@ -32,7 +46,7 @@ Alle Schalter des Violet Pool Controllers sind **3-State Switches**: Sie kennen 
 
 | Entity | Beschreibung |
 |--------|-------------|
-| `switch.violet_pump` | Hauptfilterpumpe (3 Geschwindigkeitsstufen) |
+| `switch.violet_pool_controller_pump` | Hauptfilterpumpe (3 Geschwindigkeitsstufen) |
 
 **Besonderheit:** Die Pumpe unterstützt 4 Geschwindigkeitsstufen (0–3). Für Geschwindigkeitssteuerung nutze den [Service `control_pump`](Services#-service-control_pump).
 
@@ -40,7 +54,7 @@ Alle Schalter des Violet Pool Controllers sind **3-State Switches**: Sie kennen 
 # Einfaches Ein/Aus
 service: switch.turn_on
 target:
-  entity_id: switch.violet_pump
+  entity_id: switch.violet_pool_controller_pump
 
 # Geschwindigkeit mit Service
 service: violet_pool_controller.control_pump
@@ -56,14 +70,14 @@ data:
 
 | Entity | Beschreibung |
 |--------|-------------|
-| `switch.violet_heater` | Pool-Heizung |
+| `switch.violet_pool_controller_heater` | Pool-Heizung |
 
 > Für Thermostat-Steuerung mit Solltemperatur: [Climate Entities](Climate)
 
 ```yaml
 service: switch.turn_on
 target:
-  entity_id: switch.violet_heater
+  entity_id: switch.violet_pool_controller_heater
 ```
 
 ---
@@ -72,7 +86,7 @@ target:
 
 | Entity | Beschreibung |
 |--------|-------------|
-| `switch.violet_solar` | Solarkollektor |
+| `switch.violet_pool_controller_solar` | Solarkollektor |
 
 ```yaml
 # Nur einschalten wenn Solartemperatur > Beckenwasser
@@ -80,12 +94,12 @@ automation:
   trigger:
     platform: template
     value_template: >
-      {{ states('sensor.violet_solar_temperature') | float(0) >
-         states('sensor.violet_water_temperature') | float(0) + 3 }}
+      {{ states('sensor.violet_pool_controller_solar_temperature') | float(0) >
+         states('sensor.violet_pool_controller_pool_temperature') | float(0) + 3 }}
   action:
     service: switch.turn_on
     target:
-      entity_id: switch.violet_solar
+      entity_id: switch.violet_pool_controller_solar
 ```
 
 ---
@@ -208,12 +222,24 @@ In der Home Assistant UI zeigt jeder Switch:
 
 Für volle Off/On/Auto-Steuerung nutze die passende `select.*_mode`-Entität (z. B. `select.violet_pool_controller_pump_mode`).
 
-### State-Details anzeigen
+### Zustandsdetails ansehen
 
-Klicke auf die Entity → **Attribute** zum Anzeigen:
-- `violet_state`: Der rohe State `0`–`6` (oder zusammengesetzt wie `"3|PUMP_ANTI_FREEZE"`)
-- `mode`: Aktueller Betriebsmodus
-- `last_changed`: Letzter Zustandswechsel
+Auf die Entität klicken → **Attribute**. Ein Schalter liefert:
+
+| Attribut | Bedeutung |
+|---|---|
+| `raw_state` | Der Rohzustand des Controllers, z. B. `"3"` oder zusammengesetzt `"3\|PUMP_ANTI_FREEZE"` |
+| `mode` | Lesbarer Betriebsmodus |
+| `status_description` | Lesbare Beschreibung des aktuellen Zustands |
+| `runtime` | Laufzeit, sofern der Controller `<KEY>_RUNTIME` meldet |
+| `pending_update` | Vorhanden, solange ein optimistischer Wert auf die nächste Abfrage wartet |
+
+Pumpe, Heizung, Solar, Dosierung und Rückspülung ergänzen gerätespezifische
+Attribute (Stufe, Kanisterfüllstand, Restreichweite und so weiter).
+
+> Ein Attribut `violet_state` gibt es nicht — der Rohwert heißt `raw_state` —
+> und `last_changed` ist eine Home-Assistant-Zustandseigenschaft, kein Attribut
+> dieser Integration.
 
 ---
 
@@ -251,35 +277,47 @@ template:
   - sensor:
       - name: "Pumpen-Modus"
         state: >
-          {% set state = states('switch.violet_pump') %}
-          {% set raw = state_attr('switch.violet_pump', 'raw_state') | int(-1) %}
-          {% if raw == 0 %} Automatik aus
-          {% elif raw == 1 %} Manuell an
-          {% elif raw == 2 %} Automatik an
-          {% elif raw == 3 %} Timer aktiv
-          {% elif raw == 4 %} Zwang an
-          {% elif raw == 5 %} Warten
+          {% set state = states('switch.violet_pool_controller_pump') %}
+          {% set raw = state_attr('switch.violet_pool_controller_pump', 'raw_state') | int(-1) %}
+          {% if raw == 0 %} Automatik - Bereitschaft
+          {% elif raw == 1 %} Automatik - aktiv
+          {% elif raw == 2 %} Automatik - durch Regel blockiert
+          {% elif raw == 3 %} Automatik - durch Notfallregel eingeschaltet
+          {% elif raw == 4 %} Manuell an
+          {% elif raw == 5 %} Durch Notfallregel aus
           {% elif raw == 6 %} Manuell aus
           {% else %} Unbekannt
           {% endif %}
 ```
 
-### Alle Schalter auf Automatik setzen
+### Ein Gerät auf Automatik zurücksetzen
+
+> **`switch.turn_off` setzt ein Gerät NICHT auf Automatik.** Es sendet
+> **Manuell AUS (Zustand 6)** und hält das Gerät damit dauerhaft aus – der
+> eigene Zeitplan und die Regeln des Controllers schalten es nie wieder ein.
+> Ein Skript, das mit `switch.turn_off` „alles auf Automatik" stellt, legt den
+> Pool still.
+
+Nutze stattdessen die Modus-Auswahl; sie ist die einzige Steuerung, die
+`AUTO` erreichen kann:
 
 ```yaml
 script:
   alle_automatik:
-    alias: "Alle Schalter auf Automatik"
+    alias: "Alle Geräte auf Automatik zurücksetzen"
     sequence:
-      - service: switch.turn_off
+      - action: select.select_option
         target:
           entity_id:
-            - switch.violet_pump
-            - switch.violet_heater
-            - switch.violet_solar
-            - switch.violet_ph_minus
-            - switch.violet_chlorine
+            - select.violet_pool_controller_pump_mode
+            - select.violet_pool_controller_heater_mode
+            - select.violet_pool_controller_solar_mode
+        data:
+          option: auto
 ```
+
+Die genaue Bezeichnung der Option zuerst in **Entwicklerwerkzeuge → Zustände**
+nachsehen: sie stammt aus der Übersetzung deiner Home-Assistant-Sprache.
 
 ---
 
@@ -302,7 +340,7 @@ Das zweite Segment gibt einen operationellen Modus an.
 condition:
   - condition: template
     value_template: >
-      {{ 'PUMP_ANTI_FREEZE' in state_attr('switch.violet_pump', 'raw_state') | string }}
+      {{ 'PUMP_ANTI_FREEZE' in state_attr('switch.violet_pool_controller_pump', 'raw_state') | string }}
 ```
 
 ---

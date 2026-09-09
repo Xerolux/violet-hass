@@ -65,8 +65,8 @@ DEVICE_PARAMETERS = _const_devices.DEVICE_PARAMETERS
 DOMAIN = "violet_pool_controller"
 # Schema version of a config entry. Bumped whenever async_migrate_entry needs
 # to rewrite stored data or options.
-CONFIG_ENTRY_VERSION = 3
-INTEGRATION_VERSION = "2.6.1"
+CONFIG_ENTRY_VERSION = 4
+INTEGRATION_VERSION = "2.7.0"
 MANUFACTURER = "PoolDigital GmbH & Co. KG"
 
 # =============================================================================
@@ -91,6 +91,10 @@ CONF_INVERT_COVER = "invert_cover"
 # them under a single device (see device_hierarchy.py).
 CONF_GROUP_ENTITIES = "group_entities"
 CONF_ALLOW_UNSAFE_SWITCHES = "allow_unsafe_switches"
+# Marks that the one-off "disable the unsafe switches" pass has run for an
+# entry. Without it the pass ran on every start and re-disabled switches the
+# user had deliberately re-enabled in the UI.
+CONF_UNSAFE_SWITCHES_MIGRATED = "unsafe_switches_migrated"
 # Slow the polling down while the pool equipment is idle (see device.py).
 CONF_ADAPTIVE_POLLING = "adaptive_polling"
 
@@ -99,12 +103,13 @@ CONF_ADAPTIVE_POLLING = "adaptive_polling"
 
 # Default Values
 DEFAULT_POLLING_INTERVAL = 10
-# How often (in poll cycles) to fetch SYSTEM_availableversion from the
-# controller. The controller refreshes this server-side value, and fetching it
-# every poll causes avoidable backend load (the controller otherwise only
-# checks for updates every ~12h or on manual invocation). At the default 10s
-# polling interval, 360 = once per hour.
-FIRMWARE_VERSION_REFRESH_POLLS = 360
+# How often (counted in getConfig fetches, not poll cycles) to ask the
+# controller for SYSTEM_availableversion. The controller refreshes this
+# server-side value, and fetching it on every request causes avoidable backend
+# load (the controller otherwise only checks for updates every ~12h or on
+# manual invocation). getConfig itself runs at most once per
+# CONFIG_REFRESH_INTERVAL seconds, so 60 fetches = roughly once per hour.
+FIRMWARE_VERSION_REFRESH_FETCHES = 60
 # How often (in seconds) the setpoints behind getConfig are re-read. They sit
 # behind a second HTTP request per poll and only change when somebody writes
 # them, so polling them at the readings interval is wasted controller load.
@@ -224,25 +229,6 @@ DISINFECTION_METHODS = ["chlorine", "salt", "bromine", "active_oxygen", "uv", "o
 # COVER_STATE_MAP is also provided by violet_poolcontroller_api.const_devices
 # (wildcard import above) — no local override needed.
 
-# =============================================================================
-# VERSION INFO
-# =============================================================================
-
-VERSION_INFO = {
-    "version": INTEGRATION_VERSION,
-    "release_date": "2026-07-19",
-    "major_features": [
-        "Fixed state 2 mapping: Auto-Priority OFF is now correctly OFF (was ON)",
-        "Fixed select mode mapping: all auto states map to AUTO mode",
-        "Updated state descriptions to match DEVICE_STATE_MAPPING",
-        "Added OMNI DC output switches (OMNI_DC0-OMNI_DC5)",
-        "Added H2O2 dosing support",
-        "Added overflow/backwash/bathing AI binary sensors",
-        "Added runtime and dosing statistics sensors",
-        "Updated setpoint config keys to match API",
-        "Updated API dependency to violet-poolController-api 0.0.24",
-    ],
-}
 
 # =============================================================================
 # DOSING / OUTPUT DETAIL STATE DESCRIPTIONS

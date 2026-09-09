@@ -22,9 +22,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  actions: read
   contents: read
-  security-events: write
 
 concurrency:
   group: security-${{ github.ref }}
@@ -56,6 +54,8 @@ jobs:
   trufflehog:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -64,7 +64,7 @@ jobs:
           
       - name: TruffleHog OSS (Pull Request)
         if: github.event_name == 'pull_request'
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@363923b901c911a9164f50b6c423f47c15372b1c  # v3.97.4
         with:
           base: ${{ github.event.pull_request.base.sha }}
           head: ${{ github.event.pull_request.head.sha }}
@@ -72,14 +72,14 @@ jobs:
           
       - name: TruffleHog OSS (Push to main)
         if: github.event_name == 'push'
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@363923b901c911a9164f50b6c423f47c15372b1c  # v3.97.4
         with:
           path: ./
           extra_args: --only-verified --max-depth=10
           
       - name: TruffleHog OSS (Scheduled/Manual)
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@363923b901c911a9164f50b6c423f47c15372b1c  # v3.97.4
         with:
           path: ./
           extra_args: --only-verified
@@ -87,12 +87,15 @@ jobs:
   dependency-scan:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
         
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -111,22 +114,23 @@ jobs:
     runs-on: ubuntu-latest
     needs: [codeql, trufflehog, dependency-scan]
     if: always()
+    timeout-minutes: 5
     steps:
       - name: Security Scan Summary
         run: |
-          echo "## 🛡️ Security Scan Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Scan Type | Status |" >> $GITHUB_STEP_SUMMARY
-          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| CodeQL | ${{ needs.codeql.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| TruffleHog | ${{ needs.trufflehog.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Dependency Scan | ${{ needs.dependency-scan.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🛡️ Security Scan Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scan Type | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-----------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| CodeQL | ${{ needs.codeql.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| TruffleHog | ${{ needs.trufflehog.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Dependency Scan | ${{ needs.dependency-scan.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
           
           if [[ "${{ needs.codeql.result }}" == "success" ]] && \
              [[ "${{ needs.trufflehog.result }}" == "success" ]] && \
              [[ "${{ needs.dependency-scan.result }}" == "success" ]]; then
-            echo "✅ **All security checks passed successfully!**" >> $GITHUB_STEP_SUMMARY
+            echo "✅ **All security checks passed successfully!**" >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "⚠️ **At least one security check failed, was cancelled, or was skipped.**" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ **At least one security check failed, was cancelled, or was skipped.**" >> "$GITHUB_STEP_SUMMARY"
           fi

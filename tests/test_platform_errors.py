@@ -225,10 +225,15 @@ class TestClimateErrorHandling:
 
         assert climate.target_temperature == 27.0
 
-    def test_climate_target_temperature_uses_default_when_all_missing(
+    def test_climate_target_temperature_is_none_when_all_missing(
         self, mock_coordinator_error, config_entry
     ):
-        """Test climate uses default 28.0°C only when NO target temp field exists."""
+        """A missing setpoint reports nothing, it does not invent 28 degrees.
+
+        Reporting a fabricated default made Home Assistant show a setpoint the
+        controller never had, which SECURITY.md rules out: the integration
+        never assumes device state.
+        """
         mock_coordinator_error.data = {
             "onewire1_value": 22.5,
             "HEATER": 1,
@@ -241,8 +246,7 @@ class TestClimateErrorHandling:
             climate_type="HEATER",
         )
 
-        # This is correct behavior - default only when truly missing
-        assert climate.target_temperature == 28.0
+        assert climate.target_temperature is None
 
     def test_climate_hvac_action_with_errors(self, mock_coordinator_error, config_entry):
         """Test climate HVAC action calculation with errors."""

@@ -10,7 +10,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, cast
+from typing import Any
 
 from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
@@ -32,23 +32,6 @@ _LOGGER = logging.getLogger(__name__)
 
 # Coordinator-based platforms; HA should not throttle entity state writes
 PARALLEL_UPDATES = 0
-
-# Feature mapping for binary sensors
-BINARY_SENSOR_FEATURE_MAP = {
-    "PUMP": "filter_control",
-    "HEATER": "heating",
-    "SOLAR": "solar",
-    "LIGHT": "led_lighting",
-    "BACKWASH": "backwash",
-    "BACKWASHRINSE": "backwash",
-    "DOS_1_CL": "chlorine_control",
-    "DOS_4_PHM": "ph_control",
-    "DOS_5_PHP": "ph_control",
-    "DOS_6_FLOC": "flocculation",
-    "REFILL": "water_refill",
-    "PVSURPLUS": "pv_surplus",
-    "ECO": None,
-}
 
 
 class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
@@ -86,29 +69,6 @@ class VioletBinarySensor(VioletPoolControllerEntity, BinarySensorEntity):
             True if on, False if off, None if unknown.
         """
         return self._get_sensor_state()
-
-    @property
-    def icon(self) -> str | None:
-        """
-        Return the icon based on state.
-
-        Returns:
-            The icon string.
-        """
-        base_icon = cast(str | None, self.entity_description.icon)
-
-        if not base_icon:
-            return None
-
-        # Handle outline icons
-        if base_icon.endswith("-outline"):
-            return base_icon.replace("-outline", "") if self.is_on is True else base_icon
-
-        # Add -off suffix for inactive state
-        if self.is_on is False and not base_icon.endswith("-off"):
-            return f"{base_icon}-off"
-
-        return str(base_icon)
 
     def _get_sensor_state(self) -> bool | None:
         """
@@ -233,7 +193,10 @@ async def async_setup_entry(
             ),
         )
 
-        feature_id = BINARY_SENSOR_FEATURE_MAP.get(description.key)
+        # Every entry carries the feature it belongs to. A second, partial
+        # table used to decide this, so the digital inputs (INPUT1..12,
+        # INPUT_CE1..4) ignored the "digital_inputs" setting entirely.
+        feature_id = sensor_config.get("feature_id")
 
         # Check if feature is active (if feature_id is specified)
         if feature_id and feature_id not in active_features:
@@ -267,7 +230,7 @@ async def async_setup_entry(
         _LOGGER.debug(
             "%d binary sensors added: %s",
             len(entities),
-            [e.name for e in entities],
+            [e.entity_description.key for e in entities],
         )
     else:
         _LOGGER.warning("No binary sensors were set up")

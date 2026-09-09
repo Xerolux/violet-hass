@@ -6,13 +6,27 @@
 
 > Alle Konfigurationsoptionen erklärt – von Basis-Setup bis zu erweiterten Einstellungen.
 
+> **Die Entity-IDs in dieser Wiki sind Beispiele.** Eine Entity-ID leitet sich
+> aus dem Namen ab, den du dem Controller im Config-Flow gegeben hast: ein
+> Controller namens „Pool" erzeugt `switch.pool_pump`, nicht
+> `switch.violet_pool_controller_pump`. Home Assistant schreibt eine ID nach
+> der ersten Registrierung außerdem nie um, ältere Installationen tragen also
+> möglicherweise noch anders geschriebene IDs. **Sieh deine eigenen in
+> Entwicklerwerkzeuge → Zustände nach**, bevor du eine Automatisierung
+> kopierst.
+>
+> Auch die hier gezeigten Wertebereiche und Options-Bezeichnungen sind die
+> aktuellen Standardwerte, keine Zusage. Maßgeblich sind der Code
+> (`temperature_range()` in `climate.py`, `const_sensors.py`, `select.py`) und
+> die Attribute der Entität in den Entwicklerwerkzeugen.
+
 ---
 
 ## 🚨 SICHERHEIT & HAFTUNG (BITTE ZUERST LESEN!)
 
 ### ⚠️ WICHTIGE SICHERHEITSHINWEISE
 
-**Das Violet Pool Controller Addon steuert echte Poolausrüstung:**
+**Die Violet Pool Controller Integration steuert echte Poolausrüstung:**
 
 - ⚠️ **Pumpen, Heizungen, Dosieranlagen können ferngesteuert werden**
 - ⚠️ **Falsche Konfiguration kann zu Sachschäden führen**
@@ -214,13 +228,13 @@ Home Assistant erstellt automatisch einen Bereich basierend auf dem Controller-N
 type: entities
 title: Pool Wasserchemie
 entities:
-  - entity: sensor.violet_water_temperature
+  - entity: sensor.violet_pool_controller_pool_temperature
     name: Wassertemperatur
-  - entity: sensor.violet_ph_value
+  - entity: sensor.violet_pool_controller_ph_value
     name: pH-Wert
-  - entity: sensor.violet_orp_value
+  - entity: sensor.violet_pool_controller_orp_value
     name: ORP/Redox
-  - entity: sensor.violet_chlorine
+  - entity: sensor.violet_pool_controller_chlorine_level
     name: Chlorgehalt
 ```
 
@@ -229,20 +243,20 @@ entities:
 type: glance
 title: Pool Steuerung
 entities:
-  - entity: switch.violet_pump
+  - entity: switch.violet_pool_controller_pump
     name: Pumpe
-  - entity: switch.violet_heater
+  - entity: switch.violet_pool_controller_heater
     name: Heizung
-  - entity: switch.violet_solar
+  - entity: switch.violet_pool_controller_solar
     name: Solar
-  - entity: cover.violet_cover
+  - entity: cover.violet_pool_controller_cover
     name: Abdeckung
 ```
 
 **Thermostat-Karte:**
 ```yaml
 type: thermostat
-entity: climate.violet_heater
+entity: climate.violet_pool_controller_heater
 name: Pool Heizung
 ```
 

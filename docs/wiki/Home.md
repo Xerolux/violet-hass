@@ -5,7 +5,7 @@
 # 🏊 Violet Pool Controller – Home Assistant Integration
 
 
-> **The complete documentation** for the Violet Pool Controller add-on.
+> **The complete documentation** for the Violet Pool Controller integration.
 > From installation to uninstallation – with all features, states, services, and automations.
 
 ---
@@ -44,18 +44,18 @@
 
 ---
 
-## What is the Violet Pool Controller Add-on?
+## What is the Violet Pool Controller integration?
 
 The **Violet Pool Controller Home Assistant Integration** connects [Home Assistant](https://www.home-assistant.io/) with the [Violet Pool Controller](https://www.pooldigital.de/) by PoolDigital GmbH & Co. KG. It enables complete local control and monitoring of your pool system – **no cloud, no subscription required**.
 
 | Feature | Details |
 |---------|---------|
 | **Protocol** | HTTP/HTTPS, local polling |
-| **HA Minimum Version** | 2026.1.0 |
+| **HA Minimum Version** | 2026.8.0 |
 | **Tested up to** | 2026.5.x / 2026.6.x |
-| **Python** | Managed by Home Assistant 2026.1.0+ |
-| **Integration Version** | 2.3.0-beta.1 |
-| **API Package** | violet-poolController-api ≥ 0.0.33 (PyPI) |
+| **Python** | Managed by Home Assistant 2026.8.0+ |
+| **Integration Version** | 2.7.0 |
+| **API Package** | violet-poolController-api ≥ 0.0.39 (PyPI) |
 | **License** | AGPL-3.0-or-later |
 | **Quality Scale** | Platinum |
 | **Languages** | DE, EN, ES, FR, IT, NL, PL, PT, RU, ZH |
@@ -233,5 +233,5 @@ This integration is fully compatible with Home Assistant 2026.x:
 
 ---
 
-*This wiki documents version **2.3.0-beta.1** of the Violet Pool Controller integration.*
+*This wiki documents version **2.7.0** of the Violet Pool Controller integration.*
 *Last updated: 2026-07-14*

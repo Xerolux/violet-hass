@@ -11,6 +11,8 @@ import logging
 from collections.abc import Mapping
 from typing import Any
 
+from awesomeversion import AwesomeVersion, AwesomeVersionException
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -45,21 +47,34 @@ class FirmwareUpdateInfo:
 
     @staticmethod
     def _compare_versions(current: str, available: str) -> int:
-        """Return -1/0/1 for current < / == / > available."""
+        """Return -1/0/1 for current < / == / > available.
+
+        Comparison goes through ``AwesomeVersion`` (shipped with Home
+        Assistant) so pre-release and suffixed firmware versions such as
+        ``1.2.0-beta`` are ordered instead of collapsing to "equal", which used
+        to hide every update involving them.
+        """
+        if current == available:
+            return 0
+
         try:
-            cp = [int(x) for x in current.split(".")]
-            ap = [int(x) for x in available.split(".")]
-            n = max(len(cp), len(ap))
-            cp += [0] * (n - len(cp))
-            ap += [0] * (n - len(ap))
-            for c, a in zip(cp, ap):
-                if c < a:
-                    return -1
-                if c > a:
-                    return 1
+            left = AwesomeVersion(current)
+            right = AwesomeVersion(available)
+            if left < right:
+                return -1
+            if left > right:
+                return 1
             return 0
-        except (ValueError, AttributeError):
-            return 0
+        except (AwesomeVersionException, AttributeError, TypeError, ValueError):
+            # Two strings that differ but cannot be ordered: the controller
+            # only advertises an available version when it has one, so report
+            # the update rather than swallowing it.
+            _LOGGER.debug(
+                "Could not compare firmware versions %r and %r; assuming an update",
+                current,
+                available,
+            )
+            return -1
 
 
 def parse_firmware_info(raw_data: Mapping[str, Any]) -> FirmwareUpdateInfo:

@@ -3,6 +3,7 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from homeassistant.config_entries import ConfigEntryState
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.violet_pool_controller.const import (
@@ -12,7 +13,7 @@ from custom_components.violet_pool_controller.const import (
     CONF_DEVICE_NAME,
     CONF_USE_SSL,
     DOMAIN,
-    FIRMWARE_VERSION_REFRESH_POLLS,
+    FIRMWARE_VERSION_REFRESH_FETCHES,
 )
 from custom_components.violet_pool_controller.device import VioletPoolControllerDevice
 
@@ -90,7 +91,7 @@ class TestVioletPoolControllerDevice:
     def test_build_config_keys_always_includes_swversion_and_setpoints(self):
         """Every poll must include swversion and the setpoint keys."""
         device = VioletPoolControllerDevice.__new__(VioletPoolControllerDevice)
-        device._firmware_version_poll_counter = 0
+        device._config_fetch_counter = 0
         keys = device._build_config_keys()
 
         assert "SYSTEM_swversion" in keys
@@ -100,15 +101,15 @@ class TestVioletPoolControllerDevice:
     def test_build_config_keys_first_poll_includes_availableversion(self):
         """Counter == 0 (first poll after start) fetches availableversion immediately."""
         device = VioletPoolControllerDevice.__new__(VioletPoolControllerDevice)
-        device._firmware_version_poll_counter = 0
+        device._config_fetch_counter = 0
         keys = device._build_config_keys()
 
         assert "SYSTEM_availableversion" in keys
 
     def test_build_config_keys_throttles_availableversion(self):
-        """availableversion is fetched only every FIRMWARE_VERSION_REFRESH_POLLS cycles."""
+        """availableversion is fetched only every FIRMWARE_VERSION_REFRESH_FETCHES cycles."""
         device = VioletPoolControllerDevice.__new__(VioletPoolControllerDevice)
-        device._firmware_version_poll_counter = 1  # not a cadence boundary
+        device._config_fetch_counter = 1  # not a cadence boundary
         keys = device._build_config_keys()
 
         assert "SYSTEM_availableversion" not in keys
@@ -116,7 +117,7 @@ class TestVioletPoolControllerDevice:
     def test_build_config_keys_availableversion_again_at_cadence(self):
         """availableversion reappears exactly when counter hits a multiple of the cadence."""
         device = VioletPoolControllerDevice.__new__(VioletPoolControllerDevice)
-        device._firmware_version_poll_counter = FIRMWARE_VERSION_REFRESH_POLLS
+        device._config_fetch_counter = FIRMWARE_VERSION_REFRESH_FETCHES
         keys = device._build_config_keys()
 
         assert "SYSTEM_availableversion" in keys
@@ -125,9 +126,9 @@ class TestVioletPoolControllerDevice:
         """The live-server-trigger flag must NEVER be requested (value never consumed)."""
         device = VioletPoolControllerDevice.__new__(VioletPoolControllerDevice)
         # Sweep many cycles to be sure it never shows up regardless of counter.
-        device._firmware_version_poll_counter = 0
+        device._config_fetch_counter = 0
         seen_keys = set()
-        for _ in range(FIRMWARE_VERSION_REFRESH_POLLS + 5):
+        for _ in range(FIRMWARE_VERSION_REFRESH_FETCHES + 5):
             seen_keys.update(device._build_config_keys())
 
         assert "SYSTEM_updateavailable" not in seen_keys
@@ -135,11 +136,11 @@ class TestVioletPoolControllerDevice:
     def test_build_config_keys_increments_counter(self):
         """Each call advances the counter by exactly 1."""
         device = VioletPoolControllerDevice.__new__(VioletPoolControllerDevice)
-        device._firmware_version_poll_counter = 0
+        device._config_fetch_counter = 0
         device._build_config_keys()
         device._build_config_keys()
 
-        assert device._firmware_version_poll_counter == 2
+        assert device._config_fetch_counter == 2
 
 
 class TestHardwareModuleDetection:
@@ -268,3 +269,147 @@ class TestHardwareModuleDetection:
         assert data["HW_EXTENSION_MODULE_2"] is False, (
             "EXT2-Runtime-Keys ohne alive-count duerfen das Modul nicht anmelden"
         )
+
+
+class TestStableDeviceIdentifier:
+    """The controller device must not be tied to its IP address.
+
+    Regression: the identifier was ``{host}_{device_id}``, so a reconfigure
+    that changed the IP created a brand new device and orphaned the old one -
+    together with the name and area the user had given it.
+    """
+
+    @staticmethod
+    def _device(hass, entry, api):
+        with patch(
+            "custom_components.violet_pool_controller.device.async_get_clientsession",
+            return_value=MagicMock(),
+        ):
+            return VioletPoolControllerDevice(hass=hass, config_entry=entry, api=api)
+
+    def test_identifier_is_the_config_entry(self):
+        """The identifier is (DOMAIN, entry_id)."""
+        hass = MagicMock()
+        hass.data = {}
+        entry = MockConfigEntry(
+            domain=DOMAIN,
+            data={CONF_API_URL: "192.168.178.55", CONF_DEVICE_ID: 1},
+        )
+        device = self._device(hass, entry, MagicMock())
+
+        assert device.device_info["identifiers"] == {(DOMAIN, entry.entry_id)}
+
+    def test_identifier_survives_an_ip_change(self):
+        """Two devices for the same entry share one identifier."""
+        hass = MagicMock()
+        hass.data = {}
+        entry = MockConfigEntry(
+            domain=DOMAIN,
+            data={CONF_API_URL: "192.168.178.55", CONF_DEVICE_ID: 1},
+        )
+        before = self._device(hass, entry, MagicMock()).device_info["identifiers"]
+
+        entry_moved = MockConfigEntry(
+            domain=DOMAIN,
+            data={CONF_API_URL: "10.0.0.9", CONF_DEVICE_ID: 1},
+            entry_id=entry.entry_id,
+        )
+        after = self._device(hass, entry_moved, MagicMock()).device_info["identifiers"]
+
+        assert before == after
+
+
+class TestConnectionSettings:
+    """Connection settings can only be applied by rebuilding the API client.
+
+    ``connection_settings()`` is the snapshot ``_structural_options`` compares,
+    so anything listed here forces a reload of the config entry when it
+    changes, and anything missing from it does not.
+    """
+
+    @staticmethod
+    def _entry(**overrides):
+        from custom_components.violet_pool_controller.device import connection_settings
+
+        data = {
+            CONF_API_URL: "192.168.178.55",
+            "port": 80,
+            CONF_USE_SSL: False,
+            "verify_ssl": False,
+            "username": "admin",
+            "password": "s3cret",
+            CONF_DEVICE_ID: 1,
+            CONF_DEVICE_NAME: "Test Pool Controller",
+        }
+        data.update(overrides)
+        return connection_settings(MockConfigEntry(domain=DOMAIN, data=data))
+
+    def test_unchanged_entry_is_equal(self):
+        assert self._entry() == self._entry()
+
+    def test_port_is_part_of_the_host(self):
+        assert self._entry(port=8080)["host"] == "192.168.178.55:8080"
+
+    @pytest.mark.parametrize(
+        ("key", "value"),
+        [
+            (CONF_API_URL, "10.0.0.9"),
+            ("port", 8080),
+            (CONF_USE_SSL, True),
+            ("verify_ssl", True),
+            ("username", "someone-else"),
+            ("password", "another-secret"),
+            ("timeout_duration", 30),
+            ("retry_attempts", 7),
+            ("dosing_standalone", True),
+        ],
+    )
+    def test_changed_connection_field_is_detected(self, key, value):
+        """Every setting the API client is built from is part of the snapshot."""
+        assert self._entry() != self._entry(**{key: value})
+
+    def test_polling_options_are_not_part_of_it(self):
+        """Polling settings are applied on the running coordinator."""
+        assert self._entry() == self._entry(polling_interval=60, adaptive_polling=False)
+
+    def test_out_of_range_values_are_clamped(self):
+        """A stored value outside the supported range cannot cause a reload loop."""
+        assert self._entry(timeout_duration=99999)["timeout"] == self._entry(
+            timeout_duration=60
+        )["timeout"]
+        assert self._entry(retry_attempts="not-a-number")["retries"] == 3
+
+
+class TestSetupClearsStaleRepairIssue:
+    """A recovered controller must not keep a repair issue from before a restart."""
+
+    async def test_first_refresh_deletes_the_unavailable_issue(self, hass):
+        """Regression: only the device that raised the issue ever removed it."""
+        from custom_components.violet_pool_controller.device import async_setup_device
+
+        entry = MockConfigEntry(
+            domain=DOMAIN,
+            data={
+                CONF_API_URL: "192.168.178.55",
+                CONF_USE_SSL: False,
+                CONF_DEVICE_ID: 1,
+                CONF_DEVICE_NAME: "Test Pool Controller",
+                CONF_CONTROLLER_NAME: "Test Pool",
+            },
+        )
+        entry.add_to_hass(hass)
+        entry.mock_state(hass, ConfigEntryState.SETUP_IN_PROGRESS)
+
+        api = MagicMock()
+        api.get_readings = AsyncMock(return_value={"PUMP": 1})
+        api.get_output_runtimes = AsyncMock(return_value={})
+        api.get_config = AsyncMock(return_value={})
+        api.dosing_standalone = False
+
+        with patch(
+            "custom_components.violet_pool_controller.device.async_delete_issue"
+        ) as delete_issue:
+            await async_setup_device(hass, entry, api)
+
+        deleted = {call.args[2] for call in delete_issue.call_args_list}
+        assert f"controller_unavailable_{entry.entry_id}" in deleted

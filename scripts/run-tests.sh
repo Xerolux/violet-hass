@@ -2,7 +2,11 @@
 # Run Tests for Violet Pool Controller
 # This script runs all tests in the proper environment
 
-set -e  # Exit on error
+# NOTE: deliberately no `set -e`. pytest's non-zero exit is an expected
+# outcome that this script reports on; `set -e` made it exit before the
+# summary banner could ever print. Failures are propagated explicitly at the
+# end via `exit $EXIT_CODE`.
+set -uo pipefail
 
 # Colors for output
 RED='\033[0;31m'
@@ -12,7 +16,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Check if virtual environment exists
-VENV_DIR=".venv-ha-test"
+VENV_DIR=".venv"
 if [ ! -d "$VENV_DIR" ]; then
     echo -e "${RED}Error: Test environment not found${NC}"
     echo -e "Run ${YELLOW}./scripts/setup-test-env.sh${NC} first"
@@ -25,7 +29,7 @@ export PYTHONPATH="$(pwd):$PYTHONPATH"
 
 # Parse command line arguments
 TEST_PATH="${1:-tests/}"
-PYTEST_ARGS="${@:2}"
+PYTEST_ARGS="${*:2}"
 
 echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}Running Tests${NC}"
@@ -40,8 +44,6 @@ echo -e ""
 
 # Run pytest with proper settings
 pytest "$TEST_PATH" -v $PYTEST_ARGS
-
-# Capture exit code
 EXIT_CODE=$?
 
 echo -e ""

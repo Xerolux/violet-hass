@@ -5,7 +5,12 @@ from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock
 from zoneinfo import ZoneInfo
 
-from homeassistant.components.sensor import SensorEntityDescription, SensorStateClass
+import pytest
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntityDescription,
+    SensorStateClass,
+)
 
 from custom_components.violet_pool_controller.const_sensors import ONEWIRE_ROMCODE_SENSORS
 from custom_components.violet_pool_controller.sensor import _create_standard_sensors
@@ -14,7 +19,13 @@ from custom_components.violet_pool_controller.sensor_modules import (
     generic,
     should_skip_sensor,
 )
-from custom_components.violet_pool_controller.sensor_modules.generic import VioletSensor
+from custom_components.violet_pool_controller.sensor_modules.energy import (
+    VioletPumpPowerSensor,
+)
+from custom_components.violet_pool_controller.sensor_modules.generic import (
+    VioletSensor,
+    VioletStatusSensor,
+)
 
 
 def _make_generic_sensor(key: str, data: dict) -> VioletSensor:
@@ -35,6 +46,39 @@ def _make_generic_sensor(key: str, data: dict) -> VioletSensor:
         config_entry,
         SensorEntityDescription(key=key, name=key, device_class="timestamp"),
     )
+
+
+def _mock_coordinator(data: dict):
+    """Return a coordinator mock carrying the given readings."""
+    coordinator = MagicMock()
+    coordinator.data = data
+    coordinator.device.available = True
+    coordinator.last_update_success = True
+    coordinator.device.device_info = {}
+    return coordinator
+
+
+def _mock_config_entry():
+    """Return a config entry mock accepted by the base entity."""
+    config_entry = MagicMock()
+    config_entry.entry_id = "test_entry_id"
+    config_entry.options.get.return_value = False
+    config_entry.data.get.return_value = False
+    return config_entry
+
+
+def _make_status_sensor(key: str, data: dict) -> VioletStatusSensor:
+    """Build a status sensor on top of a mocked coordinator."""
+    return VioletStatusSensor(
+        _mock_coordinator(data),
+        _mock_config_entry(),
+        SensorEntityDescription(key=key, name=key),
+    )
+
+
+def _make_pump_power_sensor(data: dict) -> VioletPumpPowerSensor:
+    """Build the estimated pump power sensor on a mocked coordinator."""
+    return VioletPumpPowerSensor(_mock_coordinator(data), _mock_config_entry())
 
 
 def _as_local_wall_epoch(value: datetime, timezone: ZoneInfo) -> float:
@@ -220,3 +264,123 @@ def test_uninitialised_future_last_event_is_unknown(monkeypatch):
         sensor = _make_generic_sensor("DOS_1_CL_LAST_CAN_RESET", data)
 
         assert sensor.native_value is None
+
+
+# ---------------------------------------------------------------------------
+# Sensor classification must not depend on the value sampled at setup time
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "key",
+    ["orp_value_min", "onewire7_value_min", "pH_value_max", "ADC1_value"],
+)
+def test_classification_is_stable_across_startup_values(key):
+    """A reading that happens to be 0 or 1 must not change the sensor's identity.
+
+    The device class, unit and icon used to be picked from the *value* present
+    when the integration started, so a probe reading 0.0 got a different unit
+    (and a different long-term statistics series) than the same probe reading
+    25.3.
+    """
+    boolean_looking = _build_sensor_description(key, "0", {})
+    numeric = _build_sensor_description(key, "25.3", {})
+
+    assert boolean_looking.device_class == numeric.device_class
+    assert boolean_looking.native_unit_of_measurement == numeric.native_unit_of_measurement
+    assert boolean_looking.state_class == numeric.state_class
+    assert boolean_looking.icon == numeric.icon
+
+
+@pytest.mark.parametrize(
+    "key",
+    [
+        "INPUT1",
+        "INPUT12",
+        "INPUT_CE1",
+        "DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_1",
+        "DOS_1_CL_USE",
+        "DMX_SCENE7",
+    ],
+)
+def test_state_code_keys_are_not_measurements(key):
+    """State codes are enumerations; recording them as measurements is wrong."""
+    description = _build_sensor_description(key, "1", {})
+
+    assert description.state_class is None
+
+
+# ---------------------------------------------------------------------------
+# Status sensors publish a stable mode key, not a German display string
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("0", "auto_inactive"),
+        ("1", "auto_active"),
+        ("2", "auto_inactive"),
+        ("3", "auto_active"),
+        ("4", "manual_on"),
+        ("5", "auto_inactive"),
+        ("6", "manual_off"),
+        ("3|PUMP_ANTI_FREEZE", "frost_protection"),
+        ("PUMP_ANTI_FREEZE", "frost_protection"),
+        ("ERROR", "error"),
+        ("MAINTENANCE", "maintenance"),
+        ("[]", "unknown"),
+        ("", "unknown"),
+        ("SOMETHING_NEW", "unknown"),
+    ],
+)
+def test_status_mode_is_a_stable_english_key(raw, expected):
+    """The API renders German by default and the integration never sets a language."""
+    assert generic.status_mode(raw, "PUMP") == expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [("0", "auto_inactive"), ("1", "auto_active"), ("2", "manual_on")],
+)
+def test_pv_surplus_has_its_own_state_scheme(raw, expected):
+    """0 = off, 1 = on via digital input, 2 = on via HTTP request."""
+    assert generic.status_mode(raw, "PVSURPLUS") == expected
+
+
+def test_status_sensor_declares_its_options():
+    """An enum sensor must offer every value it can report."""
+    sensor = _make_status_sensor("PUMP", {"PUMP": "4"})
+
+    assert sensor.device_class == SensorDeviceClass.ENUM
+    assert sensor.native_value in sensor.options
+    assert sensor.state_class is None
+    assert sensor.native_unit_of_measurement is None
+
+
+def test_status_sensor_prefers_the_detail_state_key():
+    """PUMPSTATE carries the operational mode; PUMP carries only the code."""
+    sensor = _make_status_sensor("PUMP", {"PUMP": "3", "PUMPSTATE": "3|PUMP_ANTI_FREEZE"})
+
+    assert sensor.native_value == "frost_protection"
+
+
+# ---------------------------------------------------------------------------
+# Estimated pump power
+# ---------------------------------------------------------------------------
+
+
+def test_pump_power_ignores_off_state_codes():
+    """PUMP_RPM_2 = "6" is "manual off", not "speed 2 running"."""
+    sensor = _make_pump_power_sensor({"PUMP_RPM_2": "6", "PUMP_RPM_1": "0"})
+
+    assert sensor.extra_state_attributes["speed_level"] is None
+    assert sensor.native_value == 0.0
+
+
+def test_pump_power_reports_the_running_level():
+    """A speed output reporting an on code drives the estimate."""
+    sensor = _make_pump_power_sensor({"PUMP_RPM_2": "4", "PUMP_RPM_1": "0"})
+
+    assert sensor.extra_state_attributes["speed_level"] == 2
+    assert sensor.native_value == 280.0

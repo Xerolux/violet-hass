@@ -1,14 +1,16 @@
 # 🔒 Security Architecture – Violet Pool Controller
 
-**Version**: 1.0  
-**Last Updated**: 2026-06-15  
-**Status**: Production Ready  
+This document describes how the integration is built to be safe around pool
+equipment, and what a contributor must not break. It carries no version or
+review date of its own: it describes the code in this repository, and the way
+to keep it honest is to change it in the same pull request as the code, not to
+stamp it.
 
 ---
 
 ## Executive Summary
 
-The **Violet Pool Controller** integration follows a **strict read-only, passive-first security model**. The add-on:
+The **Violet Pool Controller** integration follows a **strict read-only, passive-first security model**. The integration:
 
 - ✅ **Reads and displays** data from the pool controller
 - ✅ **Only acts on explicit user commands** (no autonomous state changes)
@@ -23,7 +25,10 @@ This architecture ensures **maximum safety** for critical infrastructure like po
 
 1. [Core Security Principles](#core-security-principles)
 2. [Architecture Overview](#architecture-overview)
-3. [Security by Component](#security-by-component)
+3. [Security by Component](#security-by-component) - including
+   [unsafe outputs](#7-unsafe-outputs-constpy-switchpy),
+   [SafetyGuard](#8-safetyguard-safety_guardpy) and
+   [AuthReportingAPI](#9-authreportingapi-auth_guardpy)
 4. [Control Flow & User Actions](#control-flow--user-actions)
 5. [Data Handling & Sanitization](#data-handling--sanitization)
 6. [Connection Security](#connection-security)
@@ -47,7 +52,8 @@ The integration operates in **read-only mode by default**. All state changes are
          │
          ▼
 ┌─────────────────┐
-│  Command Queue  │  (validates & queues)
+│  Validation     │  (schema + InputSanitizer; SafetyGuard for
+│  + SafetyGuard  │   dosing, backwash and refill)
 └────────┬────────┘
          │
          ▼
@@ -66,7 +72,7 @@ The integration operates in **read-only mode by default**. All state changes are
 └─────────────────┘
 ```
 
-**Never** does the add-on:
+**Never** does the integration:
 - Restore previous device states on startup
 - Assume a device state based on configuration
 - Auto-execute recovery logic without user confirmation
@@ -182,9 +188,9 @@ Every state change requires **explicit user action**:
 | **Optimistic Cache** | Temporary UI-only cache, cleared after API refresh | ✅ Active |
 | **API Confirmation** | All changes confirmed with actual read | ✅ Active |
 
-**Code Evidence**:
+**Code Evidence** (`switch.py`, `VioletSwitch.async_turn_on` /
+`async_turn_off`):
 ```python
-# From switch.py:421-441
 async def async_turn_on(self, **kwargs: Any) -> None:
     """Turn the switch on. Only executes on explicit user action."""
     await self._set_switch_state(ACTION_ON, **kwargs)
@@ -202,7 +208,7 @@ async def async_turn_off(self, **kwargs: Any) -> None:
 
 **Mitigations**:
 
-- Setpoint ranges validated (e.g., 5°C – 40°C)
+- Setpoint ranges validated against the limits in `climate.py` (do not repeat the numbers here; they change with pool type)
 - HVAC mode changes logged
 - Temperature limits enforced per pool type
 - No automatic mode switching
@@ -226,13 +232,19 @@ async def async_turn_off(self, **kwargs: Any) -> None:
 
 | Control | Details |
 |---------|---------|
-| **Rate Limiting** | Token bucket algorithm (configurable 0.5–10 req/sec) |
-| **Timeout Protection** | 10s total timeout, 8s per socket |
-| **Retry Logic** | Exponential backoff (1–8 seconds), max 3 attempts |
-| **Circuit Breaker** | Auto-pause API calls after 5 consecutive failures |
+| **Rate Limiting** | Token bucket in the API package; never bypassed, including on timeout |
+| **Timeout Protection** | `CONF_TIMEOUT_DURATION`, 1–60 s (default 10 s) |
+| **Retry Logic** | **Reads only.** Exponential backoff capped at 30 s, `CONF_RETRY_ATTEMPTS` 1–10 (default 3) |
+| **Command Retries** | **None.** A state-changing command is sent exactly once (API package ≥ 0.0.39) |
+| **Circuit Breaker** | Auto-pause API calls after repeated failures |
 | **Data Validation** | All parsed data type-checked before use |
 
-**Code Evidence** (device.py:322-400):
+Why commands are not retried: a retried `setFunctionManually` can dose twice.
+Since 0.0.39 the API package retries reads only, and the rate limiter is
+applied to the retry as well - a timeout used to skip it, which turned one
+slow controller into a burst of requests.
+
+**Code Evidence** (`device.py`, `VioletPoolControllerDevice.async_update`):
 ```python
 async def _fetch_controller_data(self) -> dict[str, Any]:
     """Fetch data with strict validation, never assume state."""
@@ -279,19 +291,98 @@ safe_duration = sanitizer.sanitize_numeric(value, min=0, max=3600)
 
 | Control | Default | Configurable |
 |---------|---------|---|
-| **SSL/TLS** | Enabled | No |
-| **Certificate Verification** | ✅ Enabled | Yes (⚠️ warn if disabled) |
-| **Cipher Strength** | Modern (TLS 1.2+) | OS-managed |
+| **SSL/TLS** | **Off** (`http://`) | Yes, per config entry |
+| **Certificate Verification** | **Off** | Yes, per config entry |
+| **Cipher Strength** | Modern (TLS 1.2+) when SSL is on | OS-managed |
 
-**Configuration**:
+**Configuration** (`const.py`):
 ```python
-# From manifest.json
-"verify_ssl": true  # Default: certificate verification ON
-
-# Config flow allows disabling only for self-signed in trusted networks
-CONF_VERIFY_SSL = "verify_ssl"
-DEFAULT_VERIFY_SSL = True
+DEFAULT_USE_SSL = False
+DEFAULT_VERIFY_SSL = False
 ```
+
+⚠️ **Both default to off, and that is a deliberate trade-off, not an
+oversight.** Violet controllers ship with a self-signed certificate on a local
+network; defaulting to verification on would make the very first setup fail
+for almost every user, and the usual reaction to that is to turn verification
+off and never look again. Enable both in the config flow if your controller
+presents a certificate your Home Assistant trusts - the traffic carries the
+controller password, so on any network you do not fully control, enabling them
+is the right call.
+
+### 7. Unsafe outputs (`const.py`, `switch.py`)
+
+**Threat Model**: A plain on/off switch left on - an overdose of chlorine, or
+a refill or backwash that floods.
+
+Three families of output cannot be made safe by a switch, because a switch has
+no time limit:
+
+```python
+# const.py
+UNSAFE_SWITCH_KEYS: frozenset[str] = frozenset(
+    {
+        "DOS_1_CL", "DOS_2_ELO", "DOS_4_PHM", "DOS_5_PHP", "DOS_6_FLOC",
+        "BACKWASH", "BACKWASHRINSE", "REFILL",
+    }
+)
+```
+
+**Mitigations**:
+
+| Control | Mechanism |
+|---|---|
+| **Disabled by default** | Entities for these keys are created with `entity_registry_enabled_default = False` unless the user opts in with `CONF_ALLOW_UNSAFE_SWITCHES` |
+| **Supported path is a service** | `manual_dosing_http`, `control_backwash_http`, `control_refill_http` and friends take a **mandatory duration** |
+| **Guarded even when enabled** | Turning one on goes through `SafetyGuard` (below), not straight to the API |
+
+### 8. SafetyGuard (`safety_guard.py`)
+
+**Threat Model**: Repeated or unattended operation of exactly those outputs -
+an automation that fires dosing back-to-back, or a Home Assistant restart in
+the middle of a refill that leaves the valve open.
+
+`SafetyGuard` is the gate every code path driving dosing, backwash or refill
+passes through. It does three things:
+
+| Mechanism | What it prevents |
+|---|---|
+| **Cooldown** (`check_lock`, `enforce`, `set_lock`) | Back-to-back operations on the same device key. A caller can pass `safety_override`, and doing so is logged as a warning. |
+| **Restart-safe auto-stop timers** (`arm_auto_stop`) | A running refill or backwash surviving a restart. Deadlines are persisted through `hass.storage`, re-armed on setup, and any deadline that expired during the downtime is executed immediately. |
+| **Stop-target validation** (`_validate_stop_target`) | A stop that fails silently at the far end of a refill. The method named by a stop target is resolved against the API object when the timer is *armed*, not only when it fires. |
+
+**Everything is scoped to a config entry.** Locks and auto-stops are keyed by
+`(entry_id, device_key)`, and a stop is dispatched to the coordinator of the
+entry that started the operation. Keying by device key alone made a
+two-controller setup unsafe: a refill started on controller B was stopped on
+whichever controller happened to load first, and a dosing cooldown on A blocked
+the same channel on B. Sending a command to a controller the user never
+addressed is exactly what this document rules out.
+
+Tested in `tests/test_safety_guard.py`.
+
+### 9. AuthReportingAPI (`auth_guard.py`)
+
+**Threat Model**: A controller that silently rejects every command.
+
+A config entry created through zeroconf discovery before credentials were
+collected carries an empty username and password. Reading the controller often
+works without a login, so the coordinator stays healthy and Home Assistant's
+native re-auth never fires - while every switch and service call is rejected.
+The first the user hears of it is a command failing.
+
+`AuthReportingAPI` is a transparent proxy around the API client that separates
+**reads** from **commands** (`set_*` plus `manual_dosing`,
+`restore_calibration`, `reset_blocking`, `init_update`, `set_system_service`):
+
+- the first rejected **command** raises the `controller_requires_auth` repair
+  issue, with a "Fix it" form that collects the credentials;
+- the first command that succeeds clears it again;
+- **reads are left alone**, because their auth failures already route to the
+  coordinator's re-auth path.
+
+Tested in `tests/test_auth_guard.py`.
+
 
 ---
 
@@ -441,43 +532,41 @@ safe_host = sanitizer.sanitize_ip_address("192.168.1.100")
 
 ### Rate Limiting
 
-**Token Bucket Algorithm**:
-- Configurable rate: 0.5 – 10 requests/sec (default: 2 req/sec)
-- Prevents API flooding
-- Circuit breaker kicks in after 5 consecutive failures
+**Token Bucket Algorithm**, implemented in the
+[`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api)
+package and applied to every request the integration makes, retries included:
 
-```python
-# Configuration
-CONF_RATE_LIMIT = 2.0  # requests per second
-DEFAULT_RATE_LIMIT = 2.0
+- Enforced at `VioletPoolAPI._rate_limiter.acquire()`.
+- A circuit breaker pauses calls after repeated consecutive failures.
+- What the integration controls is how often it *asks*:
+  `CONF_POLLING_INTERVAL`, 10–3600 s, default 10 s.
 
-# Enforced at: VioletPoolAPI._rate_limiter.acquire()
-```
+The rate limit is a property of the API package, not a config-entry option -
+there is no `CONF_RATE_LIMIT` in `const.py`.
 
 ### Timeout & Retry
 
 | Parameter | Value | Rationale |
 |-----------|-------|-----------|
-| **Connection Timeout** | 8s | Fail fast on unreachable host |
-| **Socket Timeout** | 8s | Fail fast on slow responses |
-| **Total Timeout** | 10s | Max time per request |
-| **Retry Attempts** | 3 (configurable) | Resilience to transient errors |
-| **Backoff** | Exponential: 1s, 2s, 4s | Avoid thundering herd |
+| **Total Timeout** | `CONF_TIMEOUT_DURATION`, 1–60 s, default 10 s | Max time per request |
+| **Retry Attempts (reads)** | `CONF_RETRY_ATTEMPTS`, 1–10, default 3 | Resilience to transient errors |
+| **Retry Attempts (commands)** | 0 - sent exactly once | A retried dosing command doses twice |
+| **Backoff** | Exponential, capped at 30 s | Avoid hammering a struggling controller |
 
 ### SSL/TLS Configuration
 
+`use_ssl` and `verify_ssl` come from the config entry and both default to
+`False` (see *SSL/TLS Security* above). The API client is constructed in
+`device.py`, `VioletPoolControllerDevice.__init__`:
+
 ```python
-# From device.py:277-287
 api = VioletPoolAPI(
     host=api_url,
-    use_ssl=True,                    # Always use HTTPS
-    verify_ssl=True,                 # Verify certificate by default
-    timeout=10,                      # 10s total
-    max_retries=3,
+    use_ssl=use_ssl,       # config entry, DEFAULT_USE_SSL = False
+    verify_ssl=verify_ssl, # config entry, DEFAULT_VERIFY_SSL = False
+    timeout=timeout,       # CONF_TIMEOUT_DURATION, default 10 s
+    max_retries=retries,   # CONF_RETRY_ATTEMPTS, default 3, reads only
 )
-
-# User can disable verify_ssl ONLY for self-signed certs
-# (generates warning in logs)
 ```
 
 ---
@@ -486,10 +575,10 @@ api = VioletPoolAPI(
 
 ### Connection Recovery (NOT State Recovery)
 
-The add-on **recovers the connection**, not the device state:
+The integration **recovers the connection**, not the device state:
 
 ```python
-# From device.py:528-535
+# device.py, in the coordinator's update path
 if self._consecutive_failures > 0 and not self._recovery_logged:
     _LOGGER.info(
         "Controller '%s' reachable again (after %d failure%s)",
@@ -516,7 +605,7 @@ if self._consecutive_failures > 0 and not self._recovery_logged:
 ### Throttling to Prevent Log Spam
 
 ```python
-# From device.py:306-320
+# device.py, failure-log throttling
 FAILURE_LOG_INTERVAL = 300  # 5 minutes
 
 def _should_log_failure(self) -> bool:
@@ -540,20 +629,18 @@ def _should_log_failure(self) -> bool:
 - `tests/test_config_flow.py` – Config validation
 - `tests/test_entity_state.py` – State interpretation
 - `tests/test_security_fixes.py` – Regression tests
+- `tests/test_security_principles.py` – **The principles in this document,
+  asserted against the code.** This is the file to read (and extend) rather
+  than an example invented for the documentation.
+- `tests/test_safety_guard.py` – Cooldowns, restart-safe auto-stop timers and
+  per-entry scoping of `SafetyGuard`
+- `tests/test_auth_guard.py` – `AuthReportingAPI` raising and clearing the
+  `controller_requires_auth` repair issue
 
-**Example Test** (Preventing state assumption):
-```python
-# tests/test_security_fixes.py (hypothetical)
-async def test_no_restore_on_startup():
-    """Verify pump is NOT restored to previous state on startup."""
-    config = create_config_entry(pump_was_on=True)
-    
-    coordinator = VioletPoolDataUpdateCoordinator(...)
-    await coordinator.async_config_entry_first_refresh()
-    
-    pump_state = coordinator.data.get("PUMP")
-    # Must reflect actual controller state, not config
-    assert pump_state in [0, 1, 2, 3, 4, 5, 6]  # Real states only
+Run them with:
+
+```bash
+pytest tests/test_security_principles.py tests/test_safety_guard.py tests/test_auth_guard.py -v
 ```
 
 ### Continuous Integration
@@ -617,8 +704,12 @@ When reviewing a PR:
 
 ### What to Do If a Security Issue is Found
 
-1. **Do NOT create a public issue**
-2. **Email**: security@violet-pool.dev (or maintainer)
+1. **Do NOT create a public issue.**
+2. **Report it privately**, either way:
+   - GitHub private vulnerability reporting:
+     [Report a vulnerability](https://github.com/Xerolux/violet-hass/security/advisories/new)
+     (preferred - it keeps the discussion attached to the repository)
+   - Email the maintainer: **git@xerolux.de**
 3. **Provide**:
    - Detailed description with reproduction steps
    - Impact assessment (scope, severity)
@@ -633,35 +724,6 @@ When reviewing a PR:
 | **State Assumption Bug** | Hotfix | 48h |
 | **Authentication Bypass** | Mandatory upgrade | 1 week |
 | **Information Disclosure** | Patch + audit | 2 weeks |
-
----
-
-## Security Audit Trail
-
-### Version 1.0 (2026-06-15)
-
-**Reviewed Components**:
-- ✅ Switch platform (turn_on/turn_off only on user action)
-- ✅ Climate platform (setpoint changes only on user action)
-- ✅ Number platform (value changes only on user action)
-- ✅ Input sanitization (XSS, injection, traversal protection)
-- ✅ Rate limiting (token bucket, circuit breaker)
-- ✅ Connection recovery (logs only, no state recovery)
-- ✅ Error handling (throttled logging, no silent failures)
-
-**Security Findings**: 0 critical, 0 high
-
-**Recommendations**:
-1. Continue regular security audits (quarterly)
-2. Monitor for new Home Assistant security advisories
-3. Keep `violet-poolController-api` dependency updated
-4. Run regular penetration testing
-
-### Signed Off By
-
-- **Security Reviewer**: Xerolux (Maintainer)
-- **Review Date**: 2026-06-15
-- **Next Audit**: 2026-09-15
 
 ---
 
@@ -686,13 +748,17 @@ When reviewing a PR:
 - [CWE-20: Improper Input Validation](https://cwe.mitre.org/data/definitions/20.html)
 - [CWE-95: Improper Neutralization of Directives in Dynamically Evaluated Code](https://cwe.mitre.org/data/definitions/95.html)
 
----
+---## Keeping this document true
 
-## Document History
+There is no review date and no sign-off table here on purpose: the previous
+version carried "Version 1.0 / 2026-06-15 / Next Audit: 2026-09-15", which said
+nothing about whether the code still matched, and quietly went stale.
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | 2026-06-15 | Initial security architecture document |
+Instead:
 
-**Last Updated**: 2026-06-15  
-**Next Review**: 2026-09-15
+- Change this file in the same pull request that changes the behaviour it
+  describes. A security claim without matching code is worse than no claim.
+- Cite **function and class names**, never line numbers - the previous version
+  pointed at `switch.py:421-441` and `device.py:528-535`, which had both moved.
+- If you assert a behaviour here, assert it in
+  `tests/test_security_principles.py` too.

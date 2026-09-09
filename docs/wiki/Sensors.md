@@ -8,6 +8,19 @@
 
 > Entity-IDs use the prefix `violet_pool_controller` (or `violet_pool_controller_<device_id>` for multi-controller setups). The suffixes below are appended to that prefix.
 
+> **Entity ids in this wiki are examples.** An entity id is derived from the
+> name you gave the controller in the config flow, so a controller called
+> "Pool" produces `switch.pool_pump`, not `switch.violet_pool_controller_pump`.
+> Home Assistant also never rewrites an id after first registration, so an
+> older installation may still carry a differently-spelled id. **Look yours up
+> in Developer Tools → States** and search for your controller's name before
+> copying an automation.
+>
+> Ranges and option labels shown here are likewise the current defaults, not a
+> contract. The authoritative values live in the code
+> (`climate.py`'s `temperature_range()`, `const_sensors.py`, `select.py`) and
+> in the entity's own attributes in Developer Tools.
+
 ---
 
 ## Sensor Overview

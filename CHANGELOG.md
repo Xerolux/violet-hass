@@ -4,8 +4,8 @@
 > If it makes life with your pool easier and you would like to support the
 > development, I would be delighted. No obligation, but hugely motivating! 😊☕
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Spendier%20mir%20einen%20Kaffee!-yellow?logo=buy-me-a-coffee&style=for-the-badge)](https://buymeacoffee.com/xerolux)
-[![PayPal](https://img.shields.io/badge/PayPal-Danke%20f%C3%BCr%20deine%20Unterst%C3%BCtzung!-blue?logo=paypal&style=for-the-badge)](https://paypal.me/xerolux)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Buy%20me%20a%20coffee!-yellow?logo=buy-me-a-coffee&style=for-the-badge)](https://buymeacoffee.com/xerolux)
+[![PayPal](https://img.shields.io/badge/PayPal-Thanks%20for%20your%20support!-blue?logo=paypal&style=for-the-badge)](https://paypal.me/xerolux)
 
 ---
 
@@ -16,6 +16,203 @@ anyone there either.
 
 > **Historical note:** entries up to and including 2.5.7 were written in German,
 > before the language policy existed. They are kept as they were published.
+
+## Version 2.7.0 (2026-09-08)
+
+A full audit of the integration and of the API package it depends on. Two of
+the findings could act on the pool without anyone asking, so read the first
+section even if you skip the rest.
+
+### 🚨 Safety
+
+- **The auto-stop for water refill and backwash never ran.** Both armed a stop
+  command naming `set_function_manually`, a method that exists on the
+  integration's HTTP helper but **not** on the controller API object the timer
+  resolves against. When the timer fired it found nothing to call, logged an
+  error and gave up - at the far end of a refill, which is the one moment the
+  timer exists for. The tests missed it because they used a mock that accepts
+  any method name. Three things changed: the start command now carries the
+  duration **to the controller**, so the valve closes on its own even if Home
+  Assistant dies; the stop target is checked when it is armed, not when it
+  fires; and the tests use a mock bound to the real API, so a wrong name fails
+  the suite.
+- **With two controllers, a stop could go to the wrong one.** Cooldowns and
+  auto-stop timers were keyed by device key alone, and the stop was dispatched
+  to whichever controller happened to load first. A refill started on the
+  second controller could be stopped on the first, and a dosing cooldown on
+  one blocked the same channel on the other. Everything is now keyed by
+  `(config entry, device key)` and dispatched to the controller that started
+  the operation.
+- **`smart_dosing` with `action: stop` was blocked by its own cooldown.**
+  Starting a dose armed a five-minute safety interval, and the interval was
+  enforced for the whole service - including the `stop` that was meant to
+  interrupt the dose. Stopping now always goes through.
+- **`smart_dosing` with `dosing_type: H2O2` could dose the wrong chemical.**
+  `stop` mapped H2O2 onto the chlorine channel and stopped **chlorine**, while
+  `manual_dose` failed outright. H2O2 is removed from the dosing paths until
+  the firmware mapping is confirmed; the H2O2 *configuration* services are
+  unaffected.
+- **`control_extension_relay` addressed relays that do not exist.** It built
+  the key as `EXT<relay>_1`, so relay 3 became `EXT3_1`; the controller only
+  has `EXT1_1`-`EXT1_8` and `EXT2_1`-`EXT2_8`. It also sent the numbers `4`,
+  `6` and `0` - which are *states* the controller reports - where the command
+  grammar expects `ON`, `OFF` and `AUTO`. The service now takes `bank` (1-2)
+  and `relay` (1-8). **This is a breaking change to the service's fields.**
+
+### 🐛 Fixes
+
+- **A wrong password never reached the re-authentication dialog.** It was
+  retried three times, turned into "not ready" and retried forever, so the
+  integration sat there permanently instead of asking for the password.
+- **Stale readings were presented as fresh.** The first four failed polls
+  returned the previous data as a *successful* update, so entities kept showing
+  old values as current - about five minutes' worth with adaptive polling.
+  Every failed poll now marks the update as failed and the entities go
+  unavailable, which is what Home Assistant expects.
+- **Setting a value could snap back for up to a minute.** Setpoints and dosing
+  modes are served from a configuration cache that is only re-read every 60
+  seconds, and only the thermostats forced a re-read. Number and select
+  entities now do too.
+- **Services could not be called from the user interface.** Seventeen services
+  demanded a target their definition never offered, so every call failed
+  validation, and nine more were registered without any definition at all, so
+  they appeared with no description and no fields. Calls that target an **area,
+  floor or label** now work as well - previously they matched nothing and
+  reported success anyway.
+- **The thermostats invented a setpoint.** A controller value outside 20-35 °C
+  (heater) or 20-40 °C (solar) was replaced by a fabricated 28 °C, and a write
+  outside that range was silently dropped. Both ranges came from the
+  integration, not from the controller, which accepts far more. A whirlpool at
+  38 °C showed 28 °C and could not be changed.
+- **The DMX lights were tied to the wrong feature.** Turning off "DMX Scenes"
+  kept them; turning off "LED Lighting" removed them. The digital inputs
+  ignored their feature switch entirely.
+- Sensors could pick a different unit and device class depending on the value
+  that happened to be present at startup, which corrupts long-term statistics.
+- Status sensors reported German text to everyone, and PV surplus was decoded
+  with the wrong scheme. They are proper enumerations now.
+- Setup crashed out of all controller-provided names if a single hardware flag
+  was non-numeric; the pump reported a speed and a power draw while it was in
+  manual OFF; the diagnostics download exposed IP, MAC and serial numbers
+  unredacted; a resolved-again controller kept a stale repair notice after a
+  restart; and moving a controller to a new IP created a second device and left
+  the old one behind with your name and area on it.
+- Services and their manager were never removed when the last controller was
+  unloaded, which left safety timers running and made a later reload skip
+  registration.
+
+### 🔒 The API package moves to 0.0.39
+
+The pin is now `violet-poolController-api>=0.0.39`, which fixes two problems of
+its own: a command that timed out could be **sent twice** (for the push-style
+commands - the cover and the digital-rule trigger - that undid the change or
+moved the cover again), and a request that waited out the rate limiter was sent
+**without a token**, so every caller that had been waiting hit the controller at
+once. Its `aiohttp<3.15` cap is also gone, which would have blocked
+installation inside Home Assistant as soon as core moved past that version.
+
+### 🧪 Tests
+
+**475 tests were never actually running.** Home Assistant's test harness
+re-installs its socket guard by subclassing `socket.socket` on every test, and
+with the socket plugin disabled nothing ever put the original back - so the
+subclass chain grew one level per test until everything after roughly the 950th
+failed to even start. Splitting the suite in half hid it completely, because
+each half passed. The suite now runs end to end: **1423 tests, all passing**,
+with coverage measured at 64 % and the enforced floor raised from 40 % to 60 %.
+
+### 📚 Documentation, CI and packaging cleanup
+
+The documentation had drifted far enough from the code to be actively
+misleading, and this release brings it back in line. Nothing here changes how
+the integration behaves at runtime; what changes is that the written claims
+about it are now true.
+
+**Documentation corrected against the code:**
+
+- `CLAUDE.md` claimed a `_recovery_lock`, an auto-recovery loop with a 10 s to
+  300 s backoff and a 10-attempt limit, and SSL verification "enabled by
+  default". None of those exist: there is one `_api_lock`, retries live in the
+  API package, and `DEFAULT_USE_SSL`/`DEFAULT_VERIFY_SSL` are both `False`.
+  It also listed 7 platforms in one place and 10 in another, and omitted
+  `service_mixins/`, `safety_guard.py`, `auth_guard.py`, `device_hierarchy.py`,
+  `entity_cleanup.py`, `entity_selection.py` and `sensor_modules/energy.py`.
+- `ARCHITECTURE.md` pinned the API at 0.0.35, Home Assistant at 2026.1.0, and
+  carried a hand-maintained "Version 2.0.0 + 0.0.33" footer. It documented a
+  `POOL_TEMP_SETPOINT` constant and a `CONF_ENABLE_DIAGNOSTIC_LOGGING` option
+  that do not exist, and a polling range of 5-300 s where the real range is
+  10-3600 s.
+- `SECURITY.md` named a reporting address on a domain the project does not
+  own, cited line numbers that had moved, described a "Command Queue"
+  component that was never built, and showed a test marked "(hypothetical)".
+  It now points at `tests/test_security_principles.py` and documents the
+  mechanisms that actually protect the pool: `UNSAFE_SWITCH_KEYS`,
+  `SafetyGuard` (cooldowns plus restart-safe auto-stop timers, scoped per
+  config entry) and `AuthReportingAPI`.
+- `CONTRIBUTING.md` claimed Bronze while `manifest.json` declares platinum,
+  listed an `api.py` that moved to the external package, and asked for a
+  commit format that contradicted the project's conventional commits.
+- The wiki called the integration an "add-on" on ten pages (a Home Assistant
+  add-on is a supervisor container, a different thing), documented a
+  `log_export` service whose real name is `export_diagnostic_logs`, and had
+  version strings frozen at 2.3.0-beta.1 across nine files.
+
+**Supply chain:**
+
+- Every floating GitHub Action is pinned to a commit SHA: `hassfest`,
+  `hacs/action`, `trufflehog` (three call sites) and `trivy-action`.
+- `.zcode/plans/` and `.claude/settings.local.json` were tracked in git and
+  are now removed and ignored.
+
+**CI and packaging:**
+
+- `requirements-dev.txt` is the single source of truth for dev-tool version
+  floors. `tox.ini` installs it instead of repeating the list, and the unused
+  `dev` extra is gone from `pyproject.toml`.
+- `mypy_path` no longer points at a sibling checkout, so CI and a local run
+  type-check the same installed package.
+- The dev pre-release moved out of `validate.yml` into its own
+  `dev-release.yml`, so `release.yml` no longer has to grant `contents: write`
+  to the whole quality gate.
+- `validate.yml` no longer cancels an in-flight release validation, and its
+  lint-only Python 3.12/3.13 legs are labelled as lint rather than "Tests".
+- The Pages build copies the whole `docs/` tree, so a new asset cannot
+  silently 404.
+
+**Tests:**
+
+- The ~750-line stub Home Assistant layer (`conftest_ha_mock.py`,
+  `conftest_api_mock.py`) is gone. A missing Home Assistant or API package now
+  stops the run with an actionable message instead of producing a green run
+  that tested the stubs. The obsolete `threading.enumerate` and timezone
+  monkey-patches were removed with it.
+- `tests/docker/` issued real pump ON/OFF commands against production hardware
+  from a script called "test", and referenced a compose file that does not
+  exist in this repository. Removed.
+- The live hardware check scripts moved to `scripts/live/` and read their
+  credentials inside `main()` rather than at import time.
+- **475 of 1421 tests never actually ran.** `pytest.ini` disables the
+  pytest-socket plugin, but the Home Assistant harness still calls
+  `disable_socket()` in its own per-test setup hook - and that installs its
+  guard by subclassing whatever `socket.socket` currently is. With nothing
+  left to call `enable_socket()`, the subclass chain grew one level per test
+  until, from roughly the 950th test on, every remaining test errored at setup
+  with `RecursionError`. Running the suite in halves hid it. `conftest.py` now
+  restores the socket in `pytest_runtest_teardown`, and the full suite is
+  green: **1421 passed, 0 failed, 0 errors**.
+- With the suite actually running, measured coverage is **64.48%**. The
+  `fail_under` floor moves from 40 to 60; the ">80%" claim in CLAUDE.md is
+  replaced by a pointer to the enforced number.
+- `tests/test_language_policy.py` now scans Python sources for German prose
+  and checks that the published documentation names the current version.
+
+**Also:**
+
+- The API client pin moves to `violet-poolController-api>=0.0.39`, which drops
+  the `aiohttp<3.15` upper bound, stops retrying state-changing commands, and
+  no longer bypasses the rate limiter on a timeout.
+- All `Dashboard/*.yaml` headers and labels, `.gitattributes` and the badge
+  alt texts in this file are English, per the language policy.
 
 ## Version 2.6.1 (2026-09-06)
 

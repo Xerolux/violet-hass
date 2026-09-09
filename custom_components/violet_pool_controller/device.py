@@ -27,23 +27,13 @@ from homeassistant.helpers.issue_registry import (
     async_delete_issue,
 )
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from violet_poolcontroller_api.api import VioletPoolAPI, VioletPoolAPIError
-
-try:
-    from violet_poolcontroller_api.api import VioletAuthError
-except ImportError:
-
-    class VioletAuthError(VioletPoolAPIError):  # type: ignore[no-redef]
-        """Compatibility fallback for older violet-poolcontroller-api releases."""
-
-
-try:
-    from violet_poolcontroller_api.readings import VioletReadings
-except ImportError:
-
-    class VioletReadings(dict):  # type: ignore[no-redef]
-        """Compatibility fallback for older violet-poolcontroller-api releases."""
-
+from homeassistant.util import dt as dt_util
+from violet_poolcontroller_api.api import (
+    VioletAuthError,
+    VioletPoolAPI,
+    VioletPoolAPIError,
+)
+from violet_poolcontroller_api.readings import VioletReadings
 
 from .auth_guard import AuthReportingAPI
 from .config_entry_helpers import (
@@ -51,7 +41,13 @@ from .config_entry_helpers import (
     get_entry_value,
     with_non_default_port,
 )
-from .config_flow_utils.constants import MAX_POLLING_INTERVAL
+from .config_flow_utils.constants import (
+    MAX_POLLING_INTERVAL,
+    MAX_RETRIES,
+    MAX_TIMEOUT,
+    MIN_RETRIES,
+    MIN_TIMEOUT,
+)
 from .const import (
     ADAPTIVE_ACTIVITY_KEYS,
     ADAPTIVE_IDLE_FACTOR,
@@ -60,6 +56,7 @@ from .const import (
     CONF_CONTROLLER_NAME,
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
+    CONF_DOSING_STANDALONE,
     CONF_PASSWORD,
     CONF_POLLING_INTERVAL,
     CONF_PORT,
@@ -71,6 +68,7 @@ from .const import (
     CONFIG_REFRESH_INTERVAL,
     DEFAULT_ADAPTIVE_POLLING,
     DEFAULT_CONTROLLER_NAME,
+    DEFAULT_DOSING_STANDALONE,
     DEFAULT_POLLING_INTERVAL,
     DEFAULT_PORT,
     DEFAULT_RETRY_ATTEMPTS,
@@ -78,9 +76,11 @@ from .const import (
     DEFAULT_USE_SSL,
     DEFAULT_VERIFY_SSL,
     DOMAIN,
-    FIRMWARE_VERSION_REFRESH_POLLS,
+    FIRMWARE_VERSION_REFRESH_FETCHES,
     MIN_SUPPORTED_POLLING_INTERVAL,
 )
+from .error_handler import EnhancedErrorHandler
+from .hardware_config import HardwareConfig
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -98,6 +98,50 @@ def _clamp_polling_interval(seconds: Any) -> int:
     except (TypeError, ValueError):
         return DEFAULT_POLLING_INTERVAL
     return max(MIN_SUPPORTED_POLLING_INTERVAL, min(MAX_POLLING_INTERVAL, value))
+
+
+def _clamp_int(value: Any, minimum: int, maximum: int, default: int) -> int:
+    """Return an int setting clamped into its supported range."""
+    try:
+        parsed = int(float(value))
+    except (TypeError, ValueError):
+        return default
+    return max(minimum, min(maximum, parsed))
+
+
+def connection_settings(config_entry: ConfigEntry) -> dict[str, Any]:
+    """Return every setting the API client is built from.
+
+    Two snapshots comparing equal means the running API client is still the
+    right one; any difference requires a new client, i.e. a reload of the
+    config entry.
+    """
+    entry_data = config_entry.data
+    return {
+        "host": with_non_default_port(
+            extract_api_host(entry_data),
+            entry_data.get(CONF_PORT, DEFAULT_PORT),
+        ),
+        "use_ssl": bool(entry_data.get(CONF_USE_SSL, DEFAULT_USE_SSL)),
+        "verify_ssl": bool(entry_data.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL)),
+        "username": entry_data.get(CONF_USERNAME) or None,
+        "password": entry_data.get(CONF_PASSWORD) or None,
+        "dosing_standalone": bool(
+            get_entry_value(config_entry, CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE)
+        ),
+        "timeout": _clamp_int(
+            get_entry_value(config_entry, CONF_TIMEOUT_DURATION, DEFAULT_TIMEOUT_DURATION),
+            MIN_TIMEOUT,
+            MAX_TIMEOUT,
+            DEFAULT_TIMEOUT_DURATION,
+        ),
+        "retries": _clamp_int(
+            get_entry_value(config_entry, CONF_RETRY_ATTEMPTS, DEFAULT_RETRY_ATTEMPTS),
+            MIN_RETRIES,
+            MAX_RETRIES,
+            DEFAULT_RETRY_ATTEMPTS,
+        ),
+    }
 
 
 POLL_SNAPSHOT_FIELDS = (
@@ -130,9 +174,10 @@ class VioletPoolControllerDevice:
         self._consecutive_failures = 0
         self._max_consecutive_failures = 5
         self._update_counter = 0
-        # Counter for throttling SYSTEM_availableversion fetches (see
-        # _build_config_keys). Resets on every coordinator reload.
-        self._firmware_version_poll_counter: int = 0
+        # Counts getConfig fetches (NOT poll cycles) and throttles the
+        # SYSTEM_availableversion request (see _build_config_keys). Resets on
+        # every coordinator reload.
+        self._config_fetch_counter: int = 0
         # Last values read via getConfig, plus when they were read. Setpoints
         # only change on a write, so they are refreshed on a timer rather than
         # on every poll (see _fetch_config_values).
@@ -146,9 +191,13 @@ class VioletPoolControllerDevice:
         self._first_poll: datetime | None = None
 
         self._last_failure_log = 0.0  # Timestamp for throttling
-        self._first_failure_logged = False  # Flag for first warning
         self._recovery_logged = False  # Flag for recovery message
+        self._unavailable_reported = False  # Flag for the "unavailable" error log
         self._fw_logged = False  # Flag for firmware version logging
+
+        # Per-device error statistics. One handler per controller, so a second
+        # controller's outage never shows up in this device's diagnostics.
+        self._error_handler = EnhancedErrorHandler()
 
         # ✅ DIAGNOSTIC SENSORS: Connection health monitoring
         self._last_update_time = 0.0  # Timestamp of last successful update
@@ -196,120 +245,6 @@ class VioletPoolControllerDevice:
             self.device_id,
         )
 
-    async def update_api_config(self, new_config_entry: ConfigEntry) -> bool:
-        """Update API configuration dynamically without full reload.
-
-        Args:
-            new_config_entry: The updated config entry with new settings.
-
-        Returns:
-            True if configuration was updated successfully, False otherwise.
-        """
-        from violet_poolcontroller_api.api import VioletPoolAPI
-
-        try:
-            # Extract new configuration from BOTH data and options
-            entry_data = new_config_entry.data
-            entry_options = new_config_entry.options
-
-            new_api_url = with_non_default_port(
-                extract_api_host(entry_data),
-                entry_data.get(CONF_PORT, DEFAULT_PORT),
-            )
-            new_use_ssl = entry_data.get(CONF_USE_SSL, True)
-            new_verify_ssl = entry_data.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL)
-            new_username = entry_data.get(CONF_USERNAME)
-            new_password = entry_data.get(CONF_PASSWORD)
-
-            # Check options first, then data for timeout/retries
-            new_timeout = get_entry_value(
-                new_config_entry,
-                CONF_TIMEOUT_DURATION,
-                DEFAULT_TIMEOUT_DURATION,
-            )
-            new_retries = get_entry_value(
-                new_config_entry,
-                CONF_RETRY_ATTEMPTS,
-                DEFAULT_RETRY_ATTEMPTS,
-            )
-
-            # Check if connection settings changed by comparing with current values
-            # Note: We compare with device settings, using public API properties
-            connection_changed = (
-                new_api_url != self.api_url
-                or new_use_ssl != self.use_ssl
-                or new_timeout != self.api.timeout
-                or int(new_retries) != self.api.max_retries
-            )
-
-            # Auth changes are harder to detect without storing credentials
-            # For username/password changes, we assume change if explicitly
-            # provided in options or if they differ from initial setup
-            auth_in_options = (
-                entry_options.get(CONF_USERNAME) is not None
-                or entry_options.get(CONF_PASSWORD) is not None
-            )
-            if auth_in_options:
-                connection_changed = True
-
-            if not connection_changed:
-                _LOGGER.debug("API configuration unchanged, no update needed")
-                return False
-
-            _LOGGER.info(
-                (
-                    "Updating API configuration"
-                    " (URL: %s→%s, SSL: %s→%s,"
-                    " Timeout: %s→%s, Retries: %s→%s)"
-                ),
-                self.api_url,
-                new_api_url,
-                self.use_ssl,
-                new_use_ssl,
-                self.api.timeout,
-                new_timeout,
-                self.api.max_retries,
-                int(new_retries),
-            )
-
-            # Create new API instance with updated configuration
-            # IMPORTANT: Do NOT close the session - it's managed by Home Assistant!
-            # We just create a new API object that uses the same session
-            from .const import CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE
-
-            new_dosing_standalone = entry_options.get(
-                CONF_DOSING_STANDALONE,
-                entry_data.get(CONF_DOSING_STANDALONE, DEFAULT_DOSING_STANDALONE),
-            )
-
-            new_api = VioletPoolAPI(
-                host=new_api_url,
-                session=self._session,
-                username=new_username,
-                password=new_password,
-                use_ssl=new_use_ssl,
-                verify_ssl=new_verify_ssl,
-                timeout=new_timeout,
-                max_retries=int(new_retries),
-                dosing_standalone=new_dosing_standalone,
-            )
-
-            # Replace the old API with the new one
-            self.api = AuthReportingAPI(  # type: ignore[assignment]
-                new_api, self.hass, self.config_entry
-            )
-
-            # Update device configuration
-            self.api_url = new_api_url
-            self.use_ssl = new_use_ssl
-
-            _LOGGER.info("API configuration updated successfully (new API instance created)")
-            return True
-
-        except Exception as err:
-            _LOGGER.error("Failed to update API configuration: %s", err)
-            return False
-
     def _should_log_failure(self) -> bool:
         """
         Check if failure should be logged (throttling).
@@ -340,7 +275,11 @@ class VioletPoolControllerDevice:
         module is absent.
         """
         _readings = await self.api.get_readings()
-        data: dict[str, Any] = dict(_readings) if _readings is not None else {}
+        # get_readings() hands back a fresh mapping per call, so a plain dict can
+        # be adopted as-is instead of copying ~400 keys on every poll.
+        data: dict[str, Any] = (
+            _readings if isinstance(_readings, dict) else dict(_readings or {})
+        )
 
         try:
             runtimes = await self.api.get_output_runtimes()
@@ -442,7 +381,7 @@ class VioletPoolControllerDevice:
         Always includes the setpoint keys and SYSTEM_swversion (the latter is a
         local cached value used for device-registry resolution). SYSTEM_availableversion
         is appended only on the first poll and then once every
-        FIRMWARE_VERSION_REFRESH_POLLS fetches, because fetching it triggers a
+        FIRMWARE_VERSION_REFRESH_FETCHES getConfig fetches, because fetching it triggers a
         server-side refresh on the controller. SYSTEM_updateavailable is NEVER
         requested: it forces a live backend check and its value is discarded —
         the update-available decision is made by numeric version comparison in
@@ -468,9 +407,9 @@ class VioletPoolControllerDevice:
             # Firmware version (local cached value, cheap to read)
             "SYSTEM_swversion",
         ]
-        if self._firmware_version_poll_counter % FIRMWARE_VERSION_REFRESH_POLLS == 0:
+        if self._config_fetch_counter % FIRMWARE_VERSION_REFRESH_FETCHES == 0:
             keys.append("SYSTEM_availableversion")
-        self._firmware_version_poll_counter += 1
+        self._config_fetch_counter += 1
         return keys
 
     def request_config_refresh(self) -> None:
@@ -522,8 +461,85 @@ class VioletPoolControllerDevice:
 
         return dict(self._config_cache)
 
+    def _record_failure(self, reason: str, err: Exception | None = None) -> UpdateFailed:
+        """Count one failed poll and return the UpdateFailed to raise for it.
+
+        Every failed poll must raise: the DataUpdateCoordinator already keeps
+        the last good data and flips entity availability on its own, so
+        returning the previous readings here would republish them as freshly
+        read values. The failure counter therefore only decides how loudly the
+        failure is logged and when the controller is declared unavailable.
+
+        Args:
+            reason: Short, human-readable description of what went wrong.
+            err: The originating exception, if there was one.
+
+        Returns:
+            The ``UpdateFailed`` the caller is expected to raise.
+        """
+        self._last_error = reason
+        self._consecutive_failures += 1
+        # Allow the recovery message and the issue cleanup to fire again after
+        # this new outage.
+        self._recovery_logged = False
+        self._system_health = max(0.0, 100.0 - (self._consecutive_failures * 20.0))
+        self._error_handler.record_error(self._error_handler.classify_error(err or Exception(reason)))
+
+        message = f"Controller '{self.device_name}' update failed: {reason}"
+
+        if self._consecutive_failures >= self._max_consecutive_failures:
+            if not self._unavailable_reported:
+                _LOGGER.error(
+                    "Controller '%s' marked unavailable after %d consecutive failures: %s",
+                    self.device_name,
+                    self._consecutive_failures,
+                    reason,
+                )
+                self._unavailable_reported = True
+            self._available = False
+            async_create_issue(
+                self.hass,
+                DOMAIN,
+                f"controller_unavailable_{self.config_entry.entry_id}",
+                is_fixable=True,
+                is_persistent=True,
+                severity=IssueSeverity.ERROR,
+                translation_key="controller_unavailable",
+                translation_placeholders={
+                    "name": self.device_name,
+                    "failures": str(self._consecutive_failures),
+                },
+            )
+        elif self._consecutive_failures == 1:
+            # A failure before the controller has ever answered is ordinary
+            # setup noise - Home Assistant retries the entry on its own.
+            if self._available or self._data:
+                _LOGGER.warning("%s", message)
+            else:
+                _LOGGER.debug("%s", message)
+        elif self._should_log_failure():
+            _LOGGER.warning(
+                "Controller '%s' still unreachable (%d/%d failures): %s",
+                self.device_name,
+                self._consecutive_failures,
+                self._max_consecutive_failures,
+                reason,
+            )
+
+        return UpdateFailed(message)
+
     async def async_update(self) -> dict[str, Any]:
-        """Fetch and return updated device data from the controller."""
+        """Fetch and return updated device data from the controller.
+
+        Returns:
+            The current controller data.
+
+        Raises:
+            VioletAuthError: When the controller rejects the credentials, so
+                the coordinator can start the re-auth flow.
+            UpdateFailed: On every failed poll. Stale readings are never
+                returned as a successful update.
+        """
         try:
             async with self._api_lock:
                 start_time = time.monotonic()
@@ -533,50 +549,10 @@ class VioletPoolControllerDevice:
                 self._latency_history.append(self._connection_latency)
 
                 if not data or not isinstance(data, dict):
-                    self._consecutive_failures += 1
-                    # Allow the recovery message/issue cleanup to fire again
-                    # after this new outage
-                    self._recovery_logged = False
-                    if self._consecutive_failures == 1:
-                        if self._available or len(self._data) > 0:
-                            _LOGGER.warning(
-                                "Controller '%s' returned empty/invalid data (attempt %d)",
-                                self.device_name,
-                                self._consecutive_failures,
-                            )
-                    elif self._consecutive_failures >= self._max_consecutive_failures:
-                        _LOGGER.error(
-                            "Controller '%s' marked unavailable after %d consecutive failures.",
-                            self.device_name,
-                            self._consecutive_failures,
-                        )
-                        self._available = False
-                        async_create_issue(
-                            self.hass,
-                            DOMAIN,
-                            f"controller_unavailable_{self.config_entry.entry_id}",
-                            is_fixable=True,
-                            is_persistent=True,
-                            severity=IssueSeverity.ERROR,
-                            translation_key="controller_unavailable",
-                            translation_placeholders={
-                                "name": self.device_name,
-                                "failures": str(self._consecutive_failures),
-                            },
-                        )
-                        raise UpdateFailed(
-                            f"Controller '{self.device_name}' unreachable "
-                            f"({self._consecutive_failures} failures)"
-                        )
-                    elif self._should_log_failure():
-                        _LOGGER.warning(
-                            "Controller '%s' still unreachable (%d/%d consecutive failures)",
-                            self.device_name,
-                            self._consecutive_failures,
-                            self._max_consecutive_failures,
-                        )
-                    self._system_health = max(0.0, 100.0 - (self._consecutive_failures * 20.0))
-                    return dict(self._data) if self._data else {}
+                    raise self._record_failure(
+                        "empty or invalid response",
+                        VioletPoolAPIError("Controller returned empty or invalid data"),
+                    )
 
                 # Merge the config-based setpoints and the firmware version.
                 # They are re-read only every CONFIG_REFRESH_INTERVAL seconds
@@ -592,19 +568,20 @@ class VioletPoolControllerDevice:
                         "s" if self._consecutive_failures > 1 else "",
                     )
                     self._recovery_logged = True
-                    self._first_failure_logged = False
                     async_delete_issue(
                         self.hass,
                         DOMAIN,
                         f"controller_unavailable_{self.config_entry.entry_id}",
                     )
 
-                self._data = dict(data)
+                self._data = data
                 self._available = True
                 self._consecutive_failures = 0
+                self._unavailable_reported = False
                 self._last_error = None
                 self._last_update_time = time.monotonic()
                 self._system_health = 100.0
+                self._error_handler.record_success()
 
                 fw_candidates = [
                     data.get("SYSTEM_swversion"),
@@ -629,7 +606,7 @@ class VioletPoolControllerDevice:
                     self._fw_logged = True
 
                 self._update_counter += 1
-                now_dt = datetime.now()
+                now_dt = dt_util.utcnow()
                 if self._first_poll is None:
                     self._first_poll = now_dt
 
@@ -657,71 +634,26 @@ class VioletPoolControllerDevice:
                     self._connection_latency / 1000,
                 )
 
-                return dict(self._data)
+                return self._data
 
         except UpdateFailed:
-            # Already counted and logged where it was raised - the generic
-            # handler below must not increment the failure counter again
+            # Already counted and logged by _record_failure.
             raise
         except VioletAuthError:
             # Auth errors must surface immediately so HA can trigger re-auth
             raise
         except VioletPoolAPIError as err:
-            self._last_error = str(err)
-            self._consecutive_failures += 1
-            self._recovery_logged = False
-            if self._consecutive_failures == 1:
-                if not self._available and len(self._data) == 0:
-                    _LOGGER.debug(
-                        "API error during setup of '%s': %s", self.device_name, str(err)[:200]
-                    )
-                else:
-                    _LOGGER.error(
-                        "API error during update of '%s': %s", self.device_name, str(err)[:200]
-                    )
-            elif self._consecutive_failures >= self._max_consecutive_failures:
-                _LOGGER.error(
-                    "Controller '%s' unavailable after %d API failures",
-                    self.device_name,
-                    self._consecutive_failures,
-                )
-                self._available = False
-                raise UpdateFailed(f"Controller unreachable: {err}") from err
-            elif self._should_log_failure():
-                _LOGGER.warning(
-                    "Persistent API issues for '%s' (%d/%d failures)",
-                    self.device_name,
-                    self._consecutive_failures,
-                    self._max_consecutive_failures,
-                )
-            return dict(self._data) if self._data else {}
+            raise self._record_failure(str(err)[:200], err) from err
 
         except Exception as err:
-            self._last_error = str(err)
-            self._consecutive_failures += 1
-            self._recovery_logged = False
-            if self._consecutive_failures == 1:
-                if not self._available and len(self._data) == 0:
-                    _LOGGER.debug("Error during setup of '%s': %s", self.device_name, err)
-                else:
-                    _LOGGER.exception("Unexpected error during update of '%s'", self.device_name)
-            elif self._consecutive_failures >= self._max_consecutive_failures:
-                _LOGGER.error(
-                    "Controller '%s' unavailable after %d unexpected failures",
+            if self._consecutive_failures == 0:
+                # One traceback per outage; _record_failure throttles the rest.
+                _LOGGER.debug(
+                    "Unexpected error during update of '%s'",
                     self.device_name,
-                    self._consecutive_failures,
+                    exc_info=err,
                 )
-                self._available = False
-                raise UpdateFailed(f"Update error: {err}") from err
-            elif self._should_log_failure():
-                _LOGGER.warning(
-                    "Persistent issues for '%s': %s (%d/%d failures)",
-                    self.device_name,
-                    type(err).__name__,
-                    self._consecutive_failures,
-                    self._max_consecutive_failures,
-                )
-            return dict(self._data) if self._data else {}
+            raise self._record_failure(f"{type(err).__name__}: {err}", err) from err
 
     @property
     def available(self) -> bool:
@@ -747,6 +679,16 @@ class VioletPoolControllerDevice:
     def consecutive_failures(self) -> int:
         """Return the number of consecutive failures."""
         return self._consecutive_failures
+
+    @property
+    def error_handler(self) -> EnhancedErrorHandler:
+        """Return this controller's error statistics handler.
+
+        One handler per device, fed by every failed and successful poll, so
+        diagnostics and the ``get_error_summary`` service report the errors of
+        this controller alone instead of a process-wide mixture.
+        """
+        return self._error_handler
 
     def _detect_current_hardware_modules(self) -> list[str]:
         """Detect currently present hardware modules from API data (not cached).
@@ -807,7 +749,10 @@ class VioletPoolControllerDevice:
         )
 
         info = DeviceInfo(
-            identifiers={(DOMAIN, f"{self.api_url}_{self.device_id}")},
+            # Keyed on the config entry, never on host/port: a reconfigure that
+            # moves the controller to a new IP must keep the very same device,
+            # with the name and area the user gave it.
+            identifiers={(DOMAIN, self.config_entry.entry_id)},
             name=self.controller_name,
             manufacturer="PoolDigital GmbH & Co. KG",
             model=model_str,
@@ -897,8 +842,6 @@ class VioletPoolControllerDevice:
             return self._hardware_config
 
         try:
-            from .hardware_config import HardwareConfig
-
             # Request all configuration keys (wildcard patterns)
             config_keys = [
                 "NAMES_",  # All named elements
@@ -946,8 +889,10 @@ class VioletPoolControllerDevice:
             return self._hardware_config
 
         except Exception as err:
+            # Deliberately NOT marking the config as loaded: a transient error
+            # here would otherwise cost every controller-provided name until
+            # the next restart. The next reload retries instead.
             _LOGGER.error("Failed to load hardware configuration: %s", err)
-            self._hardware_config_loaded = True
             return None
 
     # Convenience property for backward compatibility
@@ -971,18 +916,21 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator[VioletReadings]):
         adaptive_polling: bool = DEFAULT_ADAPTIVE_POLLING,
     ) -> None:
         """Initialize the coordinator."""
+        # The configured interval. update_interval may be stretched beyond it
+        # while the controller is idle, but never falls below it. Clamped
+        # before it reaches the coordinator so a bad stored value can never
+        # turn into a hot polling loop.
+        base_interval = _clamp_polling_interval(polling_interval)
         super().__init__(
             hass,
             _LOGGER,
             name=name,
-            update_interval=timedelta(seconds=polling_interval),
+            update_interval=timedelta(seconds=base_interval),
             config_entry=device.config_entry,
         )
         self.device = device
         self._setpoint_cache: dict[str, float] = {}
-        # The configured interval. update_interval may be stretched beyond it
-        # while the controller is idle, but never falls below it.
-        self._base_interval = _clamp_polling_interval(polling_interval)
+        self._base_interval = base_interval
         self._adaptive_polling = bool(adaptive_polling)
 
         _LOGGER.info(
@@ -991,6 +939,16 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator[VioletReadings]):
             self._base_interval,
             self._adaptive_polling,
         )
+
+    @property
+    def error_handler(self) -> EnhancedErrorHandler:
+        """Return this controller's error statistics handler.
+
+        Convenience passthrough to :attr:`VioletPoolControllerDevice.error_handler`
+        so a service handler that already holds a coordinator does not have to
+        reach through ``.device``.
+        """
+        return self.device.error_handler
 
     @property
     def base_interval(self) -> int:
@@ -1033,6 +991,8 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator[VioletReadings]):
         ``"3|PUMP_ANTI_FREEZE"``, so they are interpreted with the same helper
         the switch entities use instead of being compared numerically.
         """
+        # Imported here on purpose: entity.py imports this module at import
+        # time, so a module-level import would be circular.
         from .entity import interpret_state_as_bool
 
         return any(interpret_state_as_bool(data.get(key), key) for key in ADAPTIVE_ACTIVITY_KEYS)
@@ -1118,48 +1078,23 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator[VioletReadings]):
 async def async_setup_device(
     hass: HomeAssistant, config_entry: ConfigEntry, api: VioletPoolAPI
 ) -> VioletPoolDataUpdateCoordinator:
-    """Set up the Violet Pool Controller device and return a coordinator."""
+    """Set up the Violet Pool Controller device and return a coordinator.
+
+    Args:
+        hass: The Home Assistant instance.
+        config_entry: The config entry being set up.
+        api: The API client to talk to the controller with.
+
+    Returns:
+        The coordinator driving this controller.
+
+    Raises:
+        ConfigEntryAuthFailed: When the controller rejects the credentials, so
+            Home Assistant opens the re-auth flow instead of retrying forever.
+        ConfigEntryNotReady: When the controller cannot be reached.
+    """
     try:
         device = VioletPoolControllerDevice(hass, config_entry, api)
-
-        max_retries = 3
-        last_error = None
-
-        for attempt in range(1, max_retries + 1):
-            try:
-                _LOGGER.debug(
-                    "Setup attempt %d/%d for '%s'",
-                    attempt,
-                    max_retries,
-                    device.device_name,
-                )
-
-                await device.async_update()
-
-                if device.available:
-                    _LOGGER.debug("Setup attempt %d succeeded", attempt)
-                    break
-
-            except Exception as err:
-                last_error = err
-                _LOGGER.debug("Setup attempt %d failed: %s", attempt, err)
-
-            if attempt < max_retries:
-                await asyncio.sleep(2)
-
-        if not device.available:
-            error_msg = (
-                f"Controller '{device.device_name}' not reachable after "
-                f"{max_retries} attempts. "
-                f"Please check connection and controller status."
-            )
-            if last_error:
-                error_msg += f" Last error: {last_error}"
-
-            raise ConfigEntryNotReady(error_msg)
-
-        # Load complete hardware configuration for dynamic entity naming
-        await device.load_hardware_config()
 
         polling_interval = get_entry_value(
             config_entry,
@@ -1180,7 +1115,21 @@ async def async_setup_device(
             adaptive_polling,
         )
 
+        # Exactly one attempt. Home Assistant already retries
+        # ConfigEntryNotReady with an exponential backoff, so a second retry
+        # loop here would only cost four to six extra requests per start - and
+        # it used to swallow the auth failure that must reach the re-auth flow.
         await coordinator.async_config_entry_first_refresh()
+
+        # The controller answered, so a "controller unavailable" repair issue
+        # left over from an earlier outage is stale. It has to be removed here
+        # rather than only in the device that raised it: after a restart the
+        # recovering device object is a different one, and the issue would sit
+        # in the repairs list until the user clicked "Fix".
+        async_delete_issue(hass, DOMAIN, f"controller_unavailable_{config_entry.entry_id}")
+
+        # Load complete hardware configuration for dynamic entity naming
+        await device.load_hardware_config()
 
         _LOGGER.info(
             "Device setup successful: '%s' (FW: %s, %d data points)",
@@ -1191,8 +1140,16 @@ async def async_setup_device(
 
         return coordinator
 
+    except ConfigEntryAuthFailed:
+        # Must not be turned into ConfigEntryNotReady - that would retry a
+        # wrong password forever instead of asking the user for a new one.
+        raise
+
     except ConfigEntryNotReady:
         raise
+
+    except VioletAuthError as err:
+        raise ConfigEntryAuthFailed(str(err)) from err
 
     except Exception as err:
         _LOGGER.exception("Device setup failed: %s", err)

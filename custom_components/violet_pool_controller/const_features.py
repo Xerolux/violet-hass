@@ -631,8 +631,10 @@ SETPOINT_DEFINITIONS = [
         "name": "Heater Target Temperature",
         "translation_key": "heater_target_temp",
         "api_key": "HEATER_TARGET_TEMP",
-        "min_value": 20.0,
-        "max_value": 35.0,
+        # Range per SETPOINT_RANGES["HEATER_set_temp"] in the API package;
+        # a narrower range here rejected setpoints the controller accepts.
+        "min_value": 5.0,
+        "max_value": 45.0,
         "step": 0.5,
         "default_value": 28.0,
         "icon": "mdi:radiator",
@@ -652,8 +654,9 @@ SETPOINT_DEFINITIONS = [
         "name": "Solar Target Temperature",
         "translation_key": "solar_target_temp",
         "api_key": "SOLAR_TARGET_TEMP",
-        "min_value": 20.0,
-        "max_value": 40.0,
+        # Range per SETPOINT_RANGES["SOLAR_maxtemp"] in the API package.
+        "min_value": 5.0,
+        "max_value": 55.0,
         "step": 0.5,
         "default_value": 30.0,
         "icon": "mdi:solar-power",
@@ -860,6 +863,9 @@ SELECT_CONTROLS: list[dict[str, Any]] = [
         "icon": "mdi:solar-power-variant",
         "feature_id": "pv_surplus",
         "entity_category": _ENTITY_CATEGORY_CONFIG,
+        # PV surplus knows on and off only; the API rewrites AUTO to OFF, so
+        # offering "auto" produced a selection that always snapped back.
+        "binary": True,
     },
     {
         "key": "backwash_mode",

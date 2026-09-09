@@ -252,7 +252,6 @@ manage_pv_surplus:
           options:
           - activate
           - deactivate
-          - auto
     pump_speed:
       description: Pump speed for PV mode (1-3)
       default: 2
@@ -339,6 +338,7 @@ manage_digital_rules:
           - DIRULE_5
           - DIRULE_6
           - DIRULE_7
+          - DIRULE_8
     action:
       description: Rule action
       required: true
@@ -385,6 +385,9 @@ test_output:
 control_heater_http:
   name: Control Heater (HTTP)
   description: Control pool heater with temperature setpoint
+  target:
+    entity:
+      integration: violet_pool_controller
   fields:
     action:
       description: Heater action (on/off)
@@ -404,6 +407,9 @@ control_heater_http:
 control_solar_http:
   name: Control Solar (HTTP)
   description: Control solar heating system
+  target:
+    entity:
+      integration: violet_pool_controller
   fields:
     action:
       description: Solar action (on/off)
@@ -423,6 +429,9 @@ control_solar_http:
 control_cover_http:
   name: Control Cover (HTTP)
   description: Control pool cover (open/close/stop)
+  target:
+    entity:
+      integration: violet_pool_controller
   fields:
     action:
       description: Cover action
@@ -436,7 +445,11 @@ control_cover_http:
 
 control_backwash_http:
   name: Control Backwash (HTTP)
-  description: Run or abort backwash cycle
+  description: Run or abort backwash cycle.  A duration is mandatory so the backwash can never run
+    indefinitely.
+  target:
+    entity:
+      integration: violet_pool_controller
   fields:
     action:
       description: Backwash action
@@ -446,13 +459,31 @@ control_backwash_http:
           options:
           - run
           - abort
+    duration_seconds:
+      description: Backwash duration in seconds; the run is stopped automatically when it elapses
+      required: true
+      default: 120
+      selector:
+        number:
+          min: 10
+          max: 3600
+          unit_of_measurement: s
+    safety_override:
+      description: Skip the cooldown between two backwash runs
+      default: false
+      selector:
+        boolean: null
 
 manual_dosing_http:
   name: Manual Dosing (HTTP)
   description: Manually trigger chemical dosing
+  target:
+    entity:
+      integration: violet_pool_controller
   fields:
     dosing_system:
-      description: Chemical dosing system
+      description: Chemical dosing system.  H2O2 is not offered - it shares the chlorine output and the
+        controller API has no way to select it, so a manual run would dose chlorine.
       required: true
       selector:
         select:
@@ -462,7 +493,6 @@ manual_dosing_http:
           - ph_minus
           - ph_plus
           - flocculant
-          - h2o2
     runtime_seconds:
       description: Runtime in seconds (1-3600)
       required: true
@@ -471,6 +501,11 @@ manual_dosing_http:
           min: 1
           max: 3600
           unit_of_measurement: s
+    safety_override:
+      description: Skip the cooldown between two dosing runs
+      default: false
+      selector:
+        boolean: null
 
 set_omni_position:
   name: Set OmniTronic valve position
@@ -507,6 +542,9 @@ set_omni_position:
 configure_dosing:
   name: Configure Dosing
   description: Set dosing system configuration parameter
+  target:
+    entity:
+      integration: violet_pool_controller
   fields:
     dosing_system:
       description: Chemical dosing system
@@ -534,6 +572,9 @@ configure_dosing:
 set_dosing_target:
   name: Set Dosing Target
   description: Set dosing target value
+  target:
+    entity:
+      integration: violet_pool_controller
   fields:
     dosing_system:
       description: Chemical dosing system
@@ -558,6 +599,9 @@ set_dosing_target:
 set_dosing_daytime:
   name: Set Dosing Daytime
   description: Set dosing daytime window (HH:MM format)
+  target:
+    entity:
+      integration: violet_pool_controller
   fields:
     dosing_system:
       description: Chemical dosing system
@@ -583,6 +627,9 @@ set_dosing_daytime:
 set_dosing_max_daily:
   name: Set Dosing Maximum Daily
   description: Set maximum daily dosing volume
+  target:
+    entity:
+      integration: violet_pool_controller
   fields:
     dosing_system:
       description: Chemical dosing system
@@ -608,6 +655,9 @@ set_dosing_max_daily:
 enable_dosing:
   name: Enable Dosing
   description: Enable or disable dosing system
+  target:
+    entity:
+      integration: violet_pool_controller
   fields:
     dosing_system:
       description: Chemical dosing system
@@ -683,6 +733,9 @@ set_can_amount:
 configure_temp_rule:
   name: Configure Temperature Rule
   description: Configure temperature-based automation rule (TEMPRULE_1-8)
+  target:
+    entity:
+      integration: violet_pool_controller
   fields:
     rule_id:
       description: Rule ID (1-8)
@@ -765,6 +818,9 @@ configure_temp_rule:
 configure_analog_rule:
   name: Configure Analog Input Rule
   description: Configure analog threshold-based rule (ANALOGRULE_1-8)
+  target:
+    entity:
+      integration: violet_pool_controller
   fields:
     rule_id:
       description: Rule ID (1-8)
@@ -841,6 +897,9 @@ configure_analog_rule:
 configure_switching_rule:
   name: Configure Switching Input Rule
   description: Configure digital input-based rule (SWITCHINGRULE_1-8)
+  target:
+    entity:
+      integration: violet_pool_controller
   fields:
     rule_id:
       description: Rule ID (1-8)
@@ -893,6 +952,9 @@ configure_switching_rule:
 configure_timer_rule:
   name: Configure Timer Rule
   description: Configure time-based automation rule (TIMERRULE_1-8)
+  target:
+    entity:
+      integration: violet_pool_controller
   fields:
     rule_id:
       description: Rule ID (1-8)
@@ -954,6 +1016,9 @@ configure_timer_rule:
 enable_rule:
   name: Enable/Disable Rule
   description: Enable or disable any rule type
+  target:
+    entity:
+      integration: violet_pool_controller
   fields:
     rule_type:
       description: Rule type
@@ -988,10 +1053,21 @@ enable_rule:
 
 control_extension_relay:
   name: Control Extension Relay
-  description: Control extension relay outputs (EXT1_1 to EXT8_8)
+  description: Control an extension relay output (EXT1_1 to EXT1_8 and EXT2_1 to EXT2_8)
+  target:
+    entity:
+      integration: violet_pool_controller
   fields:
-    relay_id:
-      description: Relay ID (1-8)
+    bank:
+      description: Extension module (1 or 2)
+      required: true
+      default: 1
+      selector:
+        number:
+          min: 1
+          max: 2
+    relay:
+      description: Relay on that module (1-8)
       required: true
       selector:
         number:
@@ -1005,13 +1081,7 @@ control_extension_relay:
           options:
           - 'on'
           - 'off'
-          - toggle
-    state:
-      description: Direct state (0-6, overrides action)
-      selector:
-        number:
-          min: 0
-          max: 6
+          - auto
     duration:
       description: Duration in seconds
       default: 0
@@ -1024,6 +1094,9 @@ control_extension_relay:
 configure_sensor_calibration:
   name: Configure Sensor Calibration
   description: Configure temperature sensor calibration parameters
+  target:
+    entity:
+      integration: violet_pool_controller
   fields:
     sensor_id:
       description: Sensor ID (1-12)
@@ -1102,6 +1175,249 @@ get_system_services_status:
   name: Get system service states
   description: Return the live state of all controller-side system services as a dict (service key ->
     boolean enabled).
+  fields:
+    device_id:
+      description: Controller device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
+
+# ---------------------------------------------------------------------------
+# GROUP: WATER LEVEL (REFILL & OVERFLOW PROTECTION)
+# ---------------------------------------------------------------------------
+# Manual refill runs plus the persistent configuration of the automatic
+# refill, dry-run and overflow protections.  Every configuration field is
+# optional: only the fields you fill in are written to the controller, so a
+# call that raises the overflow level cannot silently switch on the dry-run
+# or bathing-detection protections as a side effect.
+# ---------------------------------------------------------------------------
+
+control_refill_http:
+  name: Control Water Refill (HTTP)
+  description: Start or stop a manual water refill.  A duration is mandatory so the valve can never be
+    left open indefinitely.
+  target:
+    entity:
+      integration: violet_pool_controller
+  fields:
+    action:
+      description: Start filling or stop an ongoing refill
+      required: true
+      selector:
+        select:
+          options:
+          - fill
+          - stop
+    duration_seconds:
+      description: Refill duration in seconds; the valve is closed automatically when it elapses
+      required: true
+      default: 60
+      selector:
+        number:
+          min: 10
+          max: 3600
+          unit_of_measurement: s
+    safety_override:
+      description: Skip the cooldown between two refill runs
+      default: false
+      selector:
+        boolean: null
+
+configure_refill:
+  name: Configure Water Refill
+  description: Configure the automatic water refill system
+  target:
+    entity:
+      integration: violet_pool_controller
+  fields:
+    refill_type:
+      description: Refill sensor type (1-3)
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 3
+    enabled:
+      description: Enable the automatic refill
+      default: true
+      selector:
+        boolean: null
+    max_fill_time:
+      description: Maximum fill time in seconds
+      selector:
+        number:
+          min: 1
+          max: 3600
+          unit_of_measurement: s
+    target_level:
+      description: Target water level in percent
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 0.1
+          unit_of_measurement: '%'
+    blocks_dosing:
+      description: Block chemical dosing while refilling
+      selector:
+        boolean: null
+
+configure_overflow:
+  name: Configure Overflow Protection
+  description: Configure overflow, dry-run and bathing-detection protection.  Only the fields you fill
+    in are written to the controller.
+  target:
+    entity:
+      integration: violet_pool_controller
+  fields:
+    enabled:
+      description: Enable overflow protection
+      selector:
+        boolean: null
+    dryrun_level:
+      description: Water level below which dry-run protection trips, in percent
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 0.1
+          unit_of_measurement: '%'
+    dryrun_enabled:
+      description: Enable dry-run protection
+      selector:
+        boolean: null
+    overflow_level:
+      description: Water level above which overflow protection trips, in percent
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 0.1
+          unit_of_measurement: '%'
+    overflow_rpm:
+      description: Pump speed used while draining an overflow (0-3)
+      selector:
+        number:
+          min: 0
+          max: 3
+    overflow_runtime:
+      description: Maximum drain runtime in seconds
+      selector:
+        number:
+          min: 1
+          max: 3600
+          unit_of_measurement: s
+    bathing_ai_enabled:
+      description: Enable bathing detection
+      selector:
+        boolean: null
+    bathing_level_change:
+      description: Level change that counts as bathing, in percent
+      selector:
+        number:
+          min: 0.1
+          max: 10
+          step: 0.1
+          unit_of_measurement: '%'
+    bathing_level_time:
+      description: Time window for that level change, in seconds
+      selector:
+        number:
+          min: 1
+          max: 600
+          unit_of_measurement: s
+    bathing_pump_rpm:
+      description: Pump speed used during bathing detection (0-3)
+      selector:
+        number:
+          min: 0
+          max: 3
+    bathing_runtime:
+      description: Bathing-detection runtime in seconds
+      selector:
+        number:
+          min: 1
+          max: 3600
+          unit_of_measurement: s
+
+get_refill_status:
+  name: Get Refill Status
+  description: Return the refill system's configuration and live state
+  fields:
+    device_id:
+      description: Controller device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
+
+get_overflow_status:
+  name: Get Overflow Status
+  description: Return the overflow protection's configuration and live state
+  fields:
+    device_id:
+      description: Controller device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
+
+control_pump_http:
+  name: Control Pump (HTTP)
+  description: Control the filter pump directly.  Speed 1-3 switches the pump to manual ON at that
+    speed; use action "off" or force_off to switch it off.
+  target:
+    entity:
+      integration: violet_pool_controller
+  fields:
+    speed:
+      description: Pump speed level (1-3)
+      selector:
+        number:
+          min: 1
+          max: 3
+          mode: slider
+    action:
+      description: Control action
+      selector:
+        select:
+          options:
+          - 'on'
+          - 'off'
+          - eco
+          - boost
+    force_off:
+      description: Force the pump off regardless of the other fields
+      default: false
+      selector:
+        boolean: null
+
+get_calibration_status:
+  name: Get Calibration Status
+  description: Return the calibration state of every calibrated sensor
+  fields:
+    device_id:
+      description: Controller device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
+
+get_backwash_status:
+  name: Get Backwash Status
+  description: Return the backwash state, current step and filter pressure
+  fields:
+    device_id:
+      description: Controller device
+      required: true
+      selector:
+        device:
+          integration: violet_pool_controller
+
+get_system_update_status:
+  name: Get Firmware Update Status
+  description: Return the installed and available controller firmware versions
   fields:
     device_id:
       description: Controller device

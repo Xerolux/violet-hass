@@ -25,7 +25,7 @@ from homeassistant.util import slugify
 from .const import RELABELLED_ENTITY_IDS
 from .device import VioletPoolDataUpdateCoordinator
 from .device_hierarchy import build_device_info
-from .state_constants import get_state_definition
+from .state_constants import ON_STATES, get_state_definition
 
 # CoordinatorEntity is generic in the type stubs but not subscriptable at runtime.
 if TYPE_CHECKING:
@@ -187,6 +187,35 @@ def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool | None:
     # Unrecognized strings (e.g. "STOPPED", "MAINTENANCE") must not be
     # guessed as ON - report unknown instead
     return None
+
+
+def parse_state_code(raw_state: Any) -> int | None:
+    """Return the numeric state code of a raw controller value.
+
+    Outputs report their state either as a plain code (``1``, ``"1"``) or as a
+    composite string that appends the operational mode
+    (``"3|PUMP_ANTI_FREEZE"``). Both describe the same 0-6 state, so the
+    leading part is what callers need.
+
+    Args:
+        raw_state: Raw value as reported by the controller.
+
+    Returns:
+        The state code, or ``None`` when the value carries none. Values that
+        are not numbers or strings (lists, dicts, ``None``) return ``None``
+        instead of raising.
+    """
+    if isinstance(raw_state, bool):
+        return int(raw_state)
+    if isinstance(raw_state, (int, float)):
+        return int(raw_state)
+    if not isinstance(raw_state, str):
+        return None
+
+    leading = raw_state.split("|", 1)[0].strip()
+    if not leading:
+        return None
+    return convert_to_int(leading)
 
 
 def strip_redundant_device_prefix(
@@ -458,17 +487,7 @@ class VioletPoolControllerEntity(_VioletCoordinatorEntity):
         Returns:
             True if available, False otherwise.
         """
-        is_available = bool(self.coordinator.last_update_success and self.device.available)
-
-        if not is_available:
-            _LOGGER.debug(
-                ("Entity '%s' not available (coordinator_success: %s, device_available: %s)"),
-                getattr(self, "name", None) or self.entity_description.key,
-                self.coordinator.last_update_success,
-                self.device.available,
-            )
-
-        return is_available
+        return bool(self.coordinator.last_update_success and self.device.available)
 
     def get_value(self, key: str, default: Any = None) -> Any:
         """
@@ -510,21 +529,21 @@ class VioletPoolControllerEntity(_VioletCoordinatorEntity):
             _LOGGER.debug("Float conversion failed for key '%s': %s", key, value)
             return float(default) if default is not None else None
 
-    def get_bool_value(self, key: str, default: Any = None) -> bool | None:
+    def get_state_code(self, key: str) -> int | None:
         """
-        Get boolean value from coordinator data.
+        Get the numeric state code (0-6) reported for a controller key.
+
+        Composite values such as ``"3|PUMP_ANTI_FREEZE"`` carry the state code
+        in their leading part; plain values such as ``"1"`` are the code
+        itself. Both forms resolve to the same integer here.
 
         Args:
             key: The data key.
-            default: Default value if key does not exist.
 
         Returns:
-            Boolean interpretation or None.
+            The state code, or None when the key is missing or carries no code.
         """
-        value = self.get_value(key, default)
-
-        # Use interpretation function
-        return interpret_state_as_bool(value, key)
+        return parse_state_code(self.get_value(key))
 
     def get_str_value(self, key: str, default: str | None = None) -> str | None:
         """
@@ -556,6 +575,23 @@ class VioletPoolControllerEntity(_VioletCoordinatorEntity):
         """
         value = self.get_value(key, default)
         return convert_to_int(value) if value is not None else default
+
+    def get_active_pump_speed(self) -> int | None:
+        """
+        Return the pump speed level (0-3) whose output is currently on.
+
+        ``PUMP_RPM_n`` carries a state code, not an RPM value: codes 2, 5 and 6
+        all mean the output is off. Treating "greater than zero" as running
+        reported a speed for a pump that was blocked or manually switched off.
+
+        Returns:
+            The active level, or None when no speed output reports an on state.
+        """
+        for level in range(4):
+            code = self.get_state_code(f"PUMP_RPM_{level}")
+            if code is not None and code in ON_STATES:
+                return level
+        return None
 
     async def _request_coordinator_refresh(
         self, delay: float = 2.0, log_context: str | None = None

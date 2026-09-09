@@ -1,71 +1,91 @@
-﻿> 🇬🇧 **English** | 🇩🇪 **[Deutsch](README.de)**
+> 🇬🇧 **English** | 🇩🇪 **[Deutsch](README.de)**
 
 ---
 
-# 🏊 Violet Pool Controller - Complete Wiki
+# 🏊 Violet Pool Controller — Wiki Index
 
-Welcome to the **complete documentation** for the Violet Pool Controller Home Assistant add-on!
-
-Here you will find everything you need - from installation to uninstallation, with detailed explanations of all features, states, and services.
-
----
-
-## 📚 Wiki Contents
-
-### 📖 Documentation
-
-1. **[Installation & Setup](Installation-and-Setup.md)** - Step-by-step installation guide
-2. **[Device States Explained](Device-States.md)** - What do states 0-6 mean?
-3. **[Services & Automation](Services.md)** - control_pump, smart_dosing & more
-4. **[Frequently Asked Questions (FAQ)](FAQ.md)** - 40+ Q&A
-5. **[Troubleshooting](Troubleshooting.md)** - Troubleshooting & solutions
+Welcome to the documentation for the Violet Pool Controller Home Assistant
+integration. Every page exists in English and German; links below point at the
+English page, and each page links to its German twin at the top.
 
 ---
 
-## ⭐ Quick Links
+## 📚 All pages
 
-| Situation | Page | Time |
-|-----------|------|------|
-| **New here?** | [Installation & Setup](Installation-and-Setup.md) | 15 Min |
-| **States confusing?** | [Device States](Device-States.md) | 15 Min |
-| **Want to automate?** | [Services](Services.md) | 20 Min |
-| **Errors?** | [Troubleshooting](Troubleshooting.md) | 10 Min |
-| **Questions?** | [FAQ](FAQ.md) | 5 Min |
+### Getting started
+
+| Page | What it covers |
+|---|---|
+| [Home](Home) | Overview, feature summary, supported hardware |
+| [Installation and Setup](Installation-and-Setup) | Step-by-step installation through HACS or manually |
+| [Configuration](Configuration) | Config flow, options, feature selection |
+| [Multi-Controller](Multi-Controller) | Running more than one controller |
+
+### Entities and devices
+
+| Page | What it covers |
+|---|---|
+| [Entities](Entities) | Every entity the integration creates |
+| [Sensors](Sensors) | Temperatures, water chemistry, analog inputs, diagnostics |
+| [Switches](Switches) | Pump, heater, solar, dosing, relays |
+| [Climate](Climate) | Heater and solar thermostats |
+| [Device States](Device-States) | What states 0-6 mean |
+| [Dashboards](Dashboards) | Dashboard and pool-card examples |
+
+### Automation
+
+| Page | What it covers |
+|---|---|
+| [Services](Services) | Every registered service and its fields |
+| [Automations](Automations) | Copy-paste automation examples |
+
+### Operation and help
+
+| Page | What it covers |
+|---|---|
+| [Troubleshooting](Troubleshooting) | Symptoms, causes, fixes |
+| [Diagnostics](Diagnostics) | The diagnostics download, field by field |
+| [Extended Logging](Erweiterte-Protokollierung) | Debug logging and `export_diagnostic_logs` |
+| [Error Codes](Error-Codes) | Controller error codes and what they mean |
+| [Security](Security) | SSL, rate limiting, the safety model |
+| [FAQ](FAQ) | Frequently asked questions |
+
+### Development
+
+| Page | What it covers |
+|---|---|
+| [API Package](API-Package) | The standalone `violet-poolController-api` client |
+| [API Reference](API-Reference) | Controller endpoints and payloads |
+| [Testing](Testing) | Running and writing the test suite |
+| [Icon Reference](Icon-Reference) | Icons used by the entities |
+| [Contributing](Contributing) | How to contribute |
+| [Changelog](Changelog) | Where the changelog actually lives |
 
 ---
 
-## 🎯 By Use Case
+## ⭐ Quick links
 
-### "I want to control my pump"
-1. [Device States](Device-States.md) - Understand the states
-2. [Services](Services.md#-service-controlpump---pumpensteuerung) - Pump control
-
-### "I want to create automations"
-1. [Services](Services.md) - Available services
-2. [FAQ](FAQ.md#services--automatisierungen) - Tips & tricks
-
-### "I have a problem"
-1. [Troubleshooting](Troubleshooting.md) - Troubleshooting
-2. [FAQ](FAQ.md) - Frequently asked questions
-3. [GitHub Issues](https://github.com/xerolux/violet-hass/issues) - Bug reports
+| Situation | Page |
+|---|---|
+| New here | [Installation and Setup](Installation-and-Setup) |
+| States are confusing | [Device States](Device-States) |
+| Want to automate | [Services](Services) |
+| Something is broken | [Troubleshooting](Troubleshooting) |
+| General questions | [FAQ](FAQ) |
+| Found a bug | [GitHub Issues](https://github.com/Xerolux/violet-hass/issues) |
 
 ---
 
-## 📊 Wiki Scope
+## 🔄 Scope and freshness
 
-- Complete English and German documentation set
-- Installation, configuration, entities, services, diagnostics, security, testing, and API references
-- Copy-paste automation examples and troubleshooting workflows
-- Synchronized from `docs/wiki/` via the repository wiki-sync workflow
-
----
-
-## 🔄 Up to Date
-
-This wiki documents **version 2.0.0** of the Violet Pool Controller Home Assistant integration.
-
-Last updated: **2026-06-16**
+- This wiki documents version **2.7.0** of the integration.
+- Pages are synchronised from `docs/wiki/` in the repository by the
+  `docs.yml` workflow — edit them there, not in the GitHub wiki UI, or the
+  next sync overwrites your change.
+- The English page is written first; the `.de.md` twin is a translation of it.
+- There is no "last updated" stamp here on purpose: it was frozen at
+  2026-06-16 while the wiki kept changing.
 
 ---
 
-**Made with ❤️ for the Home Assistant & Pool Community**
+**Made with ❤️ for the Home Assistant & pool community**

@@ -27,7 +27,6 @@
         "description": "Подключите контроллер Violet Pool к Home Assistant. Убедитесь, что контроллер находится в одной локальной сети и API доступен.\n\nДополнительная справка: [Справка по конфигурации]({docs_en})",
         "data": {
           "host": "IP-адрес или имя хоста",
-          "port": "TCP-порт",
           "username": "Имя пользователя (необязательно)",
           "password": "Пароль (необязательно)",
           "use_ssl": "Использовать SSL/HTTPS",
@@ -37,11 +36,11 @@
           "device_id": "ID устройства",
           "polling_interval": "Интервал опроса (сек)",
           "timeout_duration": "Тайм-аут (сек)",
-          "retry_attempts": "Попыток повтора"
+          "retry_attempts": "Попыток повтора",
+          "port": "TCP-порт"
         },
         "data_description": {
           "host": "IP-адрес или DNS-имя контроллера",
-          "port": "TCP-порт (оставьте 80, если не используется прокси)",
           "username": "Имя пользователя, если требуется аутентификация",
           "password": "Пароль, если требуется",
           "use_ssl": "Включить HTTPS, если поддерживается",
@@ -51,7 +50,8 @@
           "device_id": "Уникальный идентификатор при нескольких контроллерах",
           "polling_interval": "Интервал опроса данных (10-3600 сек)",
           "timeout_duration": "Максимальное время ожидания ответа",
-          "retry_attempts": "Количество повторных попыток"
+          "retry_attempts": "Количество повторных попыток",
+          "port": "TCP-порт (оставьте 80, если не используется прокси)"
         }
       },
       "pool_setup": {
@@ -68,44 +68,6 @@
           "disinfection_method": "Основной метод очистки и дезинфекции воды"
         }
       },
-      "feature_selection": {
-        "title": "Включение интеллектуальных функций",
-        "description": "Включите только те функции, которые действительно использует ваша система бассейна. Это обеспечивает оптимальное использование ресурсов и чистый интерфейс. Вы сможете изменить выбор в любое время в настройках.",
-        "data": {
-          "enable_heating": "Управление отоплением",
-          "enable_solar": "Солнечный абсорбер",
-          "enable_ph_control": "Автоматизация pH",
-          "enable_chlorine_control": "Управление хлором",
-          "enable_cover_control": "Управление покрытием",
-          "enable_backwash": "Автоматизация обратной промывки",
-          "enable_pv_surplus": "Излишек ФЭ энергии",
-          "enable_filter_control": "Фильтрующий насос",
-          "enable_water_level": "Контроль уровня воды",
-          "enable_water_refill": "Автодолив воды",
-          "enable_led_lighting": "LED-освещение",
-          "enable_digital_inputs": "Цифровые входы",
-          "enable_extension_outputs": "Модули расширения"
-        },
-        "data_description": {
-          "enable_heating": "Автоматическое управление системой отопления",
-          "enable_solar": "Интеллектуальное управление солнечным абсорбером",
-          "enable_ph_control": "Контроль и регулирование pH",
-          "enable_chlorine_control": "Управление хлором и окислительно-восстановительным потенциалом",
-          "enable_cover_control": "Управление покрытием бассейна",
-          "enable_backwash": "Автоматизированные циклы обратной промывки фильтра",
-          "enable_pv_surplus": "Интеллектуальное использование излишков ФЭ энергии",
-          "enable_filter_control": "Управление фильтрующим насосом по требованию",
-          "enable_water_level": "Контроль уровня воды в бассейне",
-          "enable_water_refill": "Автоматическое пополнение водного баланса",
-          "enable_led_lighting": "LED-сцены и световые эффекты",
-          "enable_digital_inputs": "Интеграция внешних датчиков и выключателей",
-          "enable_extension_outputs": "Использование модулей расширения"
-        }
-      },
-      "sensor_selection": {
-        "title": "Выбор датчиков",
-        "description": "Выберите, какие датчики должны отображаться в Home Assistant. Вы можете включать или отключать отдельные датчики для удобного просмотра информации.\n\nПо умолчанию выбраны все доступные датчики. Вы сможете изменить выбор в любое время в настройках."
-      },
       "reauth_confirm": {
         "title": "Повторная аутентификация контроллера",
         "description": "Требуется обновить учетные данные контроллера. Пожалуйста, введите новое имя пользователя и пароль.\n\nКонтроллер: **{controller_name}**\nIP-адрес: **{api_url}**",
@@ -118,26 +80,6 @@
           "password": "Новый пароль для входа"
         }
       },
-      "reconfigure": {
-        "title": "Переконфигурация подключения",
-        "description": "Обновите параметры подключения контроллера. Это полезно, если изменились IP-адрес или сетевые настройки контроллера.\n\nКонтроллер: **{controller_name}**",
-        "data": {
-          "host": "IP-адрес или имя хоста",
-          "port": "TCP-порт",
-          "use_ssl": "Использовать SSL/HTTPS",
-          "polling_interval": "Интервал опроса (сек)",
-          "timeout_duration": "Тайм-аут (сек)",
-          "retry_attempts": "Попыток повтора"
-        },
-        "data_description": {
-          "host": "Новый IP-адрес или DNS-имя контроллера",
-          "port": "TCP-порт (оставьте 80, если не используется прокси)",
-          "use_ssl": "Включить HTTPS, если поддерживается",
-          "polling_interval": "Интервал опроса данных (10-3600 сек)",
-          "timeout_duration": "Максимальное время ожидания ответа",
-          "retry_attempts": "Количество повторных попыток"
-        }
-      },
       "zeroconf_confirm": {
         "title": "Найден контроллер Violet Pool",
         "description": "В локальной сети обнаружен контроллер Violet Pool.\n\nИмя: **{name}**\nIP-адрес: **{host}**\n\nХотите ли вы настроить этот контроллер сейчас?\n\nПри необходимости введите имя пользователя и пароль. Оставьте поля пустыми, если контроллер не требует входа.",
@@ -146,20 +88,58 @@
           "password": "Пароль"
         }
       },
-      "repair": {
-        "title": "Восстановление подключения",
-        "description": "Контроллер **{controller_name}** не отвечает.\n\nУбедитесь, что контроллер включен и подключен к сети, затем обновите настройки соединения.",
+      "reconfigure": {
+        "title": "Переконфигурация подключения",
+        "description": "Обновите параметры подключения контроллера. Это полезно, если изменились IP-адрес или сетевые настройки контроллера.\n\nКонтроллер: **{controller_name}**",
         "data": {
-          "host": "IP-адрес",
+          "reconfigure_option": "Select what to reconfigure",
+          "host": "IP-адрес или имя хоста",
           "port": "TCP-порт",
-          "username": "Имя пользователя",
-          "password": "Пароль"
+          "use_ssl": "Использовать SSL/HTTPS",
+          "polling_interval": "Интервал опроса (сек)",
+          "timeout_duration": "Тайм-аут (сек)",
+          "retry_attempts": "Попыток повтора"
         },
         "data_description": {
-          "host": "IP-адрес или имя хоста контроллера",
-          "port": "TCP-порт (по умолчанию: 80)",
-          "username": "Имя пользователя, если требуется аутентификация",
-          "password": "Пароль, если требуется"
+          "reconfigure_option": "Choose the settings you want to update",
+          "host": "Новый IP-адрес или DNS-имя контроллера",
+          "port": "TCP-порт (оставьте 80, если не используется прокси)",
+          "use_ssl": "Включить HTTPS, если поддерживается",
+          "polling_interval": "Интервал опроса данных (10-3600 сек)",
+          "timeout_duration": "Максимальное время ожидания ответа",
+          "retry_attempts": "Количество повторных попыток"
+        }
+      },
+      "reconfigure_connection": {
+        "title": "Reconfigure Connection Settings",
+        "description": "Update the connection settings for your controller.\n\nController: **{controller_name}**",
+        "data": {
+          "host": "IP Address",
+          "port": "TCP Port",
+          "use_ssl": "Use SSL/HTTPS",
+          "verify_ssl": "Verify SSL Certificate",
+          "polling_interval": "Polling Interval (s)",
+          "timeout_duration": "Timeout (s)",
+          "retry_attempts": "Retry Attempts"
+        },
+        "data_description": {
+          "host": "New controller IP or DNS name",
+          "port": "TCP port (default 80)",
+          "use_ssl": "Enable HTTPS",
+          "verify_ssl": "Verify the SSL certificate. Disable for self-signed certificates.",
+          "polling_interval": "Data polling interval (10–3600s)",
+          "timeout_duration": "Maximum wait time per request",
+          "retry_attempts": "Number of retry attempts"
+        }
+      },
+      "reconfigure_safety": {
+        "title": "🚨 Safety Settings",
+        "description": "🚨 **CRITICAL SAFETY WARNING** 🚨\n\nEnabling unsafe switches allows direct manual control of:\n• Dosing systems (chemical overdose risk)\n• Backwash/Rinse (equipment damage risk)\n• Water Refill (flooding/overflow risk)\n\nThese operations can run INDEFINITELY without time limits!\n\n**SAFE ALTERNATIVE**: Use Services instead - they require mandatory time limits.\n\n⚠️ Only enable this if you fully understand and accept the risks!",
+        "data": {
+          "allow_unsafe_switches": "Allow manual safety-critical switches"
+        },
+        "data_description": {
+          "allow_unsafe_switches": "Enable direct control of dosing, backwash & refill (requires mandatory time limits via Services)"
         }
       },
       "controller_auth": {
@@ -225,6 +205,16 @@
         "title": "Выберите датчики",
         "description": "Выберите, какие датчики должны отображаться\n\nВ Home Assistant будут отображаться только выбранные датчики.\nИзменения вступают в силу немедленно\n\nВыбирайте только те датчики, которые действительно хотите контролировать!"
       },
+      "safety": {
+        "title": "🚨 Safety Settings",
+        "description": "{warning}",
+        "data": {
+          "allow_unsafe_switches": "Allow manual safety-critical switches"
+        },
+        "data_description": {
+          "allow_unsafe_switches": "Enable direct control of dosing, backwash & refill (requires mandatory time limits via Services)"
+        }
+      },
       "settings": {
         "title": "Общие настройки",
         "description": "Отрегулируйте технические параметры\n\nИнтервал опроса: как часто извлекаются данные\nТаймаут: максимальное время ожидания ответов.\nПовторы: количество повторных попыток.\n\nЗначения по умолчанию подходят для большинства настроек!",
@@ -234,7 +224,8 @@
           "adaptive_polling": "Реже опрашивать в простое",
           "timeout_duration": "Тайм-аут (секунды)",
           "retry_attempts": "Попытки повтора",
-          "group_entities": "Group entities into sub-devices"
+          "group_entities": "Group entities into sub-devices",
+          "invert_cover": "Invert cover direction"
         },
         "data_description": {
           "controller_name": "Отображаемое имя контроллера",
@@ -242,7 +233,8 @@
           "adaptive_polling": "Опрашивает контроллер реже, пока насос, нагрев и дозирование выключены. Интервал выше остаётся максимальной частотой.",
           "timeout_duration": "Максимальное время ожидания запроса (1-60s)",
           "retry_attempts": "Количество попыток повтора при ошибке (1-10)",
-          "group_entities": "Split the controller's entities across sub-devices (pump, heating, dosing, ...) instead of listing all of them under one device. Entity IDs are not affected."
+          "group_entities": "Split the controller's entities across sub-devices (pump, heating, dosing, ...) instead of listing all of them under one device. Entity IDs are not affected.",
+          "invert_cover": "Swap open and closed if the cover reports the opposite of what it does"
         }
       }
     }
@@ -251,313 +243,1012 @@
     "api_error": {
       "message": "Ошибка взаимодействия с API: {detail}"
     },
-    "invalid_value": {
-      "message": "Неверное значение: {detail}"
+    "controller_unavailable": {
+      "message": "Контроллер Violet Pool {name} недоступен после {failures} последовательных ошибок"
     },
-    "value_out_of_range": {
-      "message": "Значение {value} находится вне допустимого диапазона ({min}–{max})"
+    "device_not_found": {
+      "message": "No Violet Pool Controller found for device {device_id}"
     },
     "failed_to_set_value": {
       "message": "Не удалось установить значение: {detail}"
     },
+    "invalid_action": {
+      "message": "Неверное действие: {action}"
+    },
+    "invalid_value": {
+      "message": "Неверное значение: {detail}"
+    },
     "no_api_key": {
       "message": "Ключ API не сконфигурирован для сущности {entity}"
     },
-    "invalid_action": {
-      "message": "Неверное действие: {action}"
+    "no_data": {
+      "message": "The controller has not delivered any data yet"
+    },
+    "no_devices": {
+      "message": "No Violet Pool Controller was selected for this service call"
+    },
+    "no_parameters": {
+      "message": "No parameters were given for {service} - nothing to change"
+    },
+    "read_only_entity": {
+      "message": "Entity {entity} is read-only and cannot be controlled manually"
     },
     "unexpected_error": {
       "message": "Непредвиденная ошибка: {detail}"
     },
-    "controller_unavailable": {
-      "message": "Контроллер Violet Pool {name} недоступен после {failures} последовательных ошибок"
+    "value_out_of_range": {
+      "message": "Значение {value} находится вне допустимого диапазона ({min}–{max})"
     }
   },
   "issues": {
+    "controller_requires_auth": {
+      "description": "Контроллер «{name}» отклонил команду: отсутствует аутентификация или она неверна. Так бывает, когда интеграция настроена без имени пользователя и пароля. Введите данные входа контроллера, чтобы устранить проблему.",
+      "title": "Контроллеру требуется вход"
+    },
     "controller_unavailable": {
-      "title": "Контроллер недоступен",
       "fix_flow": {
-        "step": {
-          "confirm": {
-            "title": "Повторить подключение",
-            "description": "Контроллер **{name}** недоступен в течение {failures} циклов опроса.\n\nПожалуйста, проверьте:\n- Включен ли контроллер?\n- Нормально ли работает сетевое соединение?\n- Правильно ли указан IP-адрес?\n\nКогда контроллер снова станет доступен, проблема будет автоматически разрешена.\n\nПри продолжении интеграция будет перезагружена и контроллер опрошен снова."
-          }
-        },
         "abort": {
           "still_unavailable": "Контроллер по-прежнему не отвечает. Проверьте питание, сеть и IP-адрес, затем повторите попытку."
+        },
+        "step": {
+          "confirm": {
+            "description": "Контроллер **{name}** недоступен в течение {failures} циклов опроса.\n\nПожалуйста, проверьте:\n- Включен ли контроллер?\n- Нормально ли работает сетевое соединение?\n- Правильно ли указан IP-адрес?\n\nКогда контроллер снова станет доступен, проблема будет автоматически разрешена.\n\nПри продолжении интеграция будет перезагружена и контроллер опрошен снова.",
+            "title": "Повторить подключение"
+          }
         }
-      }
-    },
-    "controller_requires_auth": {
-      "title": "Контроллеру требуется вход",
-      "description": "Контроллер «{name}» отклонил команду: отсутствует аутентификация или она неверна. Так бывает, когда интеграция настроена без имени пользователя и пароля. Введите данные входа контроллера, чтобы устранить проблему."
+      },
+      "title": "Контроллер недоступен"
     }
   },
   "services": {
-    "control_pump": {
-      "name": "Управление насосом",
-      "description": "Продвинутое управление циркуляционным насосом: регулировка скорости, эко-режим или режим интенсификации.",
+    "clear_error_history": {
+      "description": "Очистить историю ошибок (используйте после успешного восстановления).",
       "fields": {
-        "action": {
-          "name": "Действие управления",
-          "description": "Выберите: speed_control, force_off, eco_mode, boost_mode или auto."
-        },
-        "speed": {
-          "name": "Уровень скорости",
-          "description": "Уровень производительности насоса (1-3)."
-        },
-        "duration": {
-          "name": "Длительность (сек)",
-          "description": "Продолжительность действия (0 = неограниченно)."
+        "device_id": {
+          "description": "Target Violet Pool Controller device.",
+          "name": "Pool Controller"
         }
-      }
+      },
+      "name": "Очистить ошибки"
     },
-    "smart_dosing": {
-      "name": "Умное дозирование",
-      "description": "Управление химическим дозированием: pH-минус, pH-плюс, хлор и флокулянт вручную или автоматически.\n\nВНИМАНИЕ: Избегайте передозировки! Проверяйте параметры воды перед дозированием.",
+    "configure_analog_rule": {
+      "description": "Configure analog input threshold rule (ANALOGRULE_1-8).",
       "fields": {
-        "dosing_type": {
-          "name": "Тип реагента",
-          "description": "Выберите: pH-, pH+, хлор или флокулянт."
+        "adc_input": {
+          "description": "Analog input channel (1-8)",
+          "name": "ADC input"
         },
+        "enabled": {
+          "description": "Turn rule on or off",
+          "name": "Enable rule"
+        },
+        "hysteresis": {
+          "description": "Hysteresis band for debouncing",
+          "name": "Hysteresis value"
+        },
+        "logic": {
+          "description": "Use >= (greater than or equal) or <= (less than or equal)",
+          "name": "Comparison logic"
+        },
+        "output_1": {
+          "description": "First output name",
+          "name": "Output 1"
+        },
+        "output_1_state": {
+          "description": "State when rule activates (0-6)",
+          "name": "Output 1 state"
+        },
+        "output_2": {
+          "description": "Second output name",
+          "name": "Output 2"
+        },
+        "output_2_state": {
+          "description": "State when rule activates (0-6)",
+          "name": "Output 2 state"
+        },
+        "output_3": {
+          "description": "Third output name",
+          "name": "Output 3"
+        },
+        "output_3_state": {
+          "description": "State when rule activates (0-6)",
+          "name": "Output 3 state"
+        },
+        "rule_id": {
+          "description": "Rule number 1-8",
+          "name": "Rule ID"
+        },
+        "runtime_off": {
+          "description": "Time when rule must deactivate (HH:MM)",
+          "name": "Runtime OFF"
+        },
+        "runtime_on": {
+          "description": "Time when rule can activate (HH:MM)",
+          "name": "Runtime ON"
+        },
+        "threshold": {
+          "description": "Trigger value for the analog input",
+          "name": "Threshold value"
+        }
+      },
+      "name": "Configure Analog Input Rule"
+    },
+    "configure_dosing": {
+      "description": "Set dosing system configuration parameters.",
+      "fields": {
+        "config_key": {
+          "description": "The configuration parameter name",
+          "name": "Configuration key"
+        },
+        "dosing_system": {
+          "description": "Which dosing system to configure",
+          "name": "Chemical system"
+        },
+        "value": {
+          "description": "The new parameter value",
+          "name": "Configuration value"
+        }
+      },
+      "name": "Configure Dosing"
+    },
+    "configure_overflow": {
+      "description": "Configure overflow, dry-run and bathing-detection protection.\n\nOnly the fields you fill in are written to the controller, so raising the overflow level cannot switch on another protection as a side effect.",
+      "fields": {
+        "bathing_ai_enabled": {
+          "description": "Detect bathers from the water level and react to it.",
+          "name": "Enable bathing detection"
+        },
+        "bathing_level_change": {
+          "description": "Level change that counts as bathing, in percent.",
+          "name": "Bathing level change"
+        },
+        "bathing_level_time": {
+          "description": "Time window for that level change, in seconds.",
+          "name": "Bathing time window"
+        },
+        "bathing_pump_rpm": {
+          "description": "Pump speed used during bathing detection (0-3).",
+          "name": "Bathing pump speed"
+        },
+        "bathing_runtime": {
+          "description": "Bathing-detection runtime, in seconds.",
+          "name": "Bathing runtime"
+        },
+        "dryrun_enabled": {
+          "description": "Enable or disable dry-run protection.",
+          "name": "Enable dry-run protection"
+        },
+        "dryrun_level": {
+          "description": "Water level below which dry-run protection trips, in percent.",
+          "name": "Dry-run level"
+        },
+        "enabled": {
+          "description": "Enable or disable the overflow protection.",
+          "name": "Enable overflow protection"
+        },
+        "overflow_level": {
+          "description": "Water level above which overflow protection trips, in percent.",
+          "name": "Overflow level"
+        },
+        "overflow_rpm": {
+          "description": "Pump speed used while draining an overflow (0-3).",
+          "name": "Drain pump speed"
+        },
+        "overflow_runtime": {
+          "description": "Maximum drain runtime, in seconds.",
+          "name": "Drain runtime"
+        }
+      },
+      "name": "Configure Overflow Protection"
+    },
+    "configure_refill": {
+      "description": "Configure the automatic water refill system.\n\nOnly the fields you fill in are written to the controller.",
+      "fields": {
+        "blocks_dosing": {
+          "description": "Suspend chemical dosing while the refill runs.",
+          "name": "Block dosing"
+        },
+        "enabled": {
+          "description": "Enable or disable the automatic refill.",
+          "name": "Enable refill"
+        },
+        "max_fill_time": {
+          "description": "Upper limit for a single refill run, in seconds.",
+          "name": "Maximum fill time"
+        },
+        "refill_type": {
+          "description": "Which level sensor drives the refill (1-3).",
+          "name": "Refill sensor type"
+        },
+        "target_level": {
+          "description": "Water level the refill aims for, in percent.",
+          "name": "Target level"
+        }
+      },
+      "name": "Configure Water Refill"
+    },
+    "configure_sensor_calibration": {
+      "description": "Configure temperature sensor calibration offsets and multipliers.",
+      "fields": {
+        "max_value": {
+          "description": "Maximum valid sensor reading",
+          "name": "Maximum value"
+        },
+        "min_value": {
+          "description": "Minimum valid sensor reading",
+          "name": "Minimum value"
+        },
+        "multiplier": {
+          "description": "Calibration multiplier (0.5 to 2.0)",
+          "name": "Multiplier"
+        },
+        "offset": {
+          "description": "Temperature offset in °C (-10 to +10)",
+          "name": "Offset"
+        },
+        "sensor_id": {
+          "description": "Temperature sensor number 1-12",
+          "name": "Sensor ID"
+        }
+      },
+      "name": "Configure Sensor Calibration"
+    },
+    "configure_switching_rule": {
+      "description": "Configure digital input-based rule (SWITCHINGRULE_1-8).",
+      "fields": {
+        "action_off": {
+          "description": "Output state when contact opens (0-6)",
+          "name": "Action OFF state"
+        },
+        "action_on": {
+          "description": "Output state when contact closes (0-6)",
+          "name": "Action ON state"
+        },
+        "contact_type": {
+          "description": "0=Normally Open (NO), 1=Normally Closed (NC)",
+          "name": "Contact type"
+        },
+        "di_input": {
+          "description": "Digital input pin (1-12)",
+          "name": "Digital input"
+        },
+        "enabled": {
+          "description": "Turn rule on or off",
+          "name": "Enable rule"
+        },
+        "output": {
+          "description": "Output to control",
+          "name": "Output name"
+        },
+        "rule_id": {
+          "description": "Rule number 1-8",
+          "name": "Rule ID"
+        },
+        "timeout": {
+          "description": "Auto-reset timeout in seconds (0=disabled)",
+          "name": "Timeout"
+        }
+      },
+      "name": "Configure Switching Input Rule"
+    },
+    "configure_temp_rule": {
+      "description": "Configure temperature-based automation rule (TEMPRULE_1-8).",
+      "fields": {
+        "diff_value": {
+          "description": "Temperature difference threshold",
+          "name": "Differential value"
+        },
+        "enabled": {
+          "description": "Turn rule on or off",
+          "name": "Enable rule"
+        },
+        "hyst_value": {
+          "description": "Hysteresis band for debouncing",
+          "name": "Hysteresis value"
+        },
+        "logic": {
+          "description": "Use >= (greater than or equal) or <= (less than or equal)",
+          "name": "Comparison logic"
+        },
+        "output_1": {
+          "description": "First output name",
+          "name": "Output 1"
+        },
+        "output_1_state": {
+          "description": "State when rule activates (0-6)",
+          "name": "Output 1 state"
+        },
+        "output_2": {
+          "description": "Second output name",
+          "name": "Output 2"
+        },
+        "output_2_state": {
+          "description": "State when rule activates (0-6)",
+          "name": "Output 2 state"
+        },
+        "output_3": {
+          "description": "Third output name",
+          "name": "Output 3"
+        },
+        "output_3_state": {
+          "description": "State when rule activates (0-6)",
+          "name": "Output 3 state"
+        },
+        "rule_id": {
+          "description": "Rule number 1-8",
+          "name": "Rule ID"
+        },
+        "runtime_off": {
+          "description": "Time when rule must deactivate (HH:MM)",
+          "name": "Runtime OFF"
+        },
+        "runtime_on": {
+          "description": "Time when rule can activate (HH:MM)",
+          "name": "Runtime ON"
+        },
+        "sensor_1": {
+          "description": "Primary temperature sensor (1-8)",
+          "name": "Primary sensor"
+        },
+        "sensor_2": {
+          "description": "Secondary sensor (0=absolute value, 1-8=sensor)",
+          "name": "Secondary sensor"
+        }
+      },
+      "name": "Configure Temperature Rule"
+    },
+    "configure_timer_rule": {
+      "description": "Configure time-based automation rule (TIMERRULE_1-8).",
+      "fields": {
+        "enabled": {
+          "description": "Turn rule on or off",
+          "name": "Enable rule"
+        },
+        "off_time": {
+          "description": "When to turn off (HH:MM)",
+          "name": "OFF time"
+        },
+        "on_time": {
+          "description": "When to turn on (HH:MM)",
+          "name": "ON time"
+        },
+        "output_1": {
+          "description": "First output name",
+          "name": "Output 1"
+        },
+        "output_1_state": {
+          "description": "State when rule activates (0-6)",
+          "name": "Output 1 state"
+        },
+        "output_2": {
+          "description": "Second output name",
+          "name": "Output 2"
+        },
+        "output_2_state": {
+          "description": "State when rule activates (0-6)",
+          "name": "Output 2 state"
+        },
+        "output_3": {
+          "description": "Third output name",
+          "name": "Output 3"
+        },
+        "output_3_state": {
+          "description": "State when rule activates (0-6)",
+          "name": "Output 3 state"
+        },
+        "rule_id": {
+          "description": "Rule number 1-8",
+          "name": "Rule ID"
+        },
+        "weekdays": {
+          "description": "Bitmask for days (0-127, e.g. 127=every day)",
+          "name": "Weekdays"
+        }
+      },
+      "name": "Configure Timer Rule"
+    },
+    "control_backwash_http": {
+      "description": "Run or abort the filter backwash cycle.\n\n**Caution:** a duration is mandatory - the backwash is stopped automatically when it elapses.",
+      "fields": {
         "action": {
-          "name": "Режим дозирования",
-          "description": "Выберите: manual_dose, auto или stop."
+          "description": "Start the backwash cycle or abort it",
+          "name": "Backwash action"
         },
-        "duration": {
-          "name": "Длительность (сек)",
-          "description": "Время дозирования (5-300 сек)."
+        "duration_seconds": {
+          "description": "How long the backwash may run (10-3600s). It is stopped automatically afterwards.",
+          "name": "Duration (seconds)"
         },
         "safety_override": {
-          "name": "Пропустить безопасный интервал",
-          "description": "Игнорировать минимальный интервал между дозированиями."
+          "description": "Skip the cooldown between two backwash runs.",
+          "name": "Override safety interval"
         }
-      }
+      },
+      "name": "Control Backwash (HTTP)"
     },
-    "manage_pv_surplus": {
-      "name": "Управление излишком ФЭ",
-      "description": "Управление режимом автоматического использования излишков фотоэлектрической энергии.\n\nОборудование бассейна работает при наличии излишков солнечной энергии.",
+    "control_cover_http": {
+      "description": "Control the pool cover (open, close, or stop).",
       "fields": {
-        "mode": {
-          "name": "Режим ФЭ излишка",
-          "description": "Выберите: activate, deactivate или auto."
-        },
-        "pump_speed": {
-          "name": "Скорость насоса",
-          "description": "Производительность насоса (1=Эко, 2=Нормальная, 3=Максимальная)."
+        "action": {
+          "description": "Select: open, close, or stop",
+          "name": "Cover action"
         }
-      }
+      },
+      "name": "Control Cover (HTTP)"
     },
     "control_dmx_scenes": {
-      "name": "Управление сценами DMX",
       "description": "Управление сценами DMX-освещения для бассейна.",
       "fields": {
         "action": {
-          "name": "Действие DMX",
-          "description": "Выберите: all_on, all_off, all_auto, sequence или party_mode."
+          "description": "Выберите: all_on, all_off, all_auto, sequence или party_mode.",
+          "name": "Действие DMX"
+        },
+        "device_id": {
+          "description": "Target Violet Pool Controller device.",
+          "name": "Pool Controller"
         },
         "sequence_delay": {
-          "name": "Задержка переходов (сек)",
-          "description": "Время между сценами в режиме последовательности (1-60 сек)."
+          "description": "Время между сценами в режиме последовательности (1-60 сек).",
+          "name": "Задержка переходов (сек)"
         }
-      }
+      },
+      "name": "Управление сценами DMX"
     },
-    "set_light_color_pulse": {
-      "name": "Цветовая пульсация",
-      "description": "Отправка команд цветовой пульсации на систему освещения бассейна.",
+    "control_extension_relay": {
+      "description": "Control a single extension relay output (EXT1_1 to EXT1_8 and EXT2_1 to EXT2_8).",
       "fields": {
-        "pulse_count": {
-          "name": "Количество пульсов",
-          "description": "Число цветовых пульсов (1-10)."
-        },
-        "pulse_interval": {
-          "name": "Интервал между пульсами (мс)",
-          "description": "Промежуток между пульсами (100-2000 мс)."
-        }
-      }
-    },
-    "manage_digital_rules": {
-      "name": "Управление правилами",
-      "description": "Управление автоматизацией на основе цифровых входов контроллера.",
-      "fields": {
-        "rule_key": {
-          "name": "Номер правила",
-          "description": "Выберите правило (DIRULE_1 - DIRULE_7)."
-        },
         "action": {
-          "name": "Действие",
-          "description": "Выберите: trigger, lock или unlock."
-        }
-      }
-    },
-    "test_output": {
-      "name": "Тестирование выходов",
-      "description": "Временно активирует выход контроллера для диагностики. ВАЖНО: убедитесь, что люди и оборудование в безопасности при тестировании!",
-      "fields": {
-        "output": {
-          "name": "Выход для теста",
-          "description": "Идентификатор выхода (например PUMP, HEATER или SOLAR)."
+          "description": "Select: on (manual ON), off (manual OFF), or auto (back to the controller's own rules).",
+          "name": "Relay action"
         },
-        "mode": {
-          "name": "Режим теста",
-          "description": "SWITCH=переключить, ON=включить, OFF=выключить."
+        "bank": {
+          "description": "Which extension module the relay sits on (1 or 2).",
+          "name": "Extension module"
         },
         "duration": {
-          "name": "Длительность (сек)",
-          "description": "Длительность теста (1-900 сек)."
-        }
-      }
-    },
-    "get_connection_status": {
-      "name": "Статус подключения",
-      "description": "Получить подробную информацию о состоянии соединения и метрики производительности."
-    },
-    "get_error_summary": {
-      "name": "Сводка ошибок",
-      "description": "Получить информацию о последних ошибках и рекомендации по устранению.",
-      "fields": {
-        "include_history": {
-          "name": "Включить историю",
-          "description": "Показать расширенную историю ошибок."
-        }
-      }
-    },
-    "test_connection": {
-      "name": "Проверка соединения",
-      "description": "Тестирование подключения к контроллеру и получение диагностической информации."
-    },
-    "clear_error_history": {
-      "name": "Очистить ошибки",
-      "description": "Очистить историю ошибок (используйте после успешного восстановления)."
-    },
-    "set_all_dmx_scenes_mode": {
-      "name": "Управление всеми DMX-сценами",
-      "description": "Одновременное управление всеми DMX-сценами.\n\nПолезно для создания однородных световых эффектов или включения/отключения всех сцен.",
-      "fields": {
-        "device_id": {
-          "name": "Контроллер",
-          "description": "Контроллер Violet Pool с поддержкой DMX."
+          "description": "How long to hold the action, in seconds (0 = until changed).",
+          "name": "Duration"
         },
-        "dmx_mode": {
-          "name": "Режим",
-          "description": "Все сцены: Вкл./Выкл./Авто."
+        "relay": {
+          "description": "Relay number on that module (1-8).",
+          "name": "Relay"
         }
-      }
+      },
+      "name": "Control Extension Relay"
     },
-    "set_digital_input_rule_lock_state": {
-      "name": "Блокировка правил",
-      "description": "Блокировка или разблокировка правил автоматизации.\n\nПредотвращает непредвиденное срабатывание при техническом обслуживании.",
+    "control_heater_http": {
+      "description": "Control the pool heater with temperature setpoint.",
       "fields": {
-        "device_id": {
-          "name": "Контроллер",
-          "description": "Контроллер Violet Pool с правилами автоматизации."
+        "action": {
+          "description": "Turn heater on or off",
+          "name": "Heater action"
         },
-        "rule_key": {
-          "name": "Номер правила",
-          "description": "Правило для блокировки (DIRULE_1 - DIRULE_7)."
-        },
-        "lock_state": {
-          "name": "Блокировка",
-          "description": "Включить (Вкл.) или отключить (Выкл.) блокировку."
+        "target_temperature": {
+          "description": "Desired pool temperature (10-60°C)",
+          "name": "Target temperature"
         }
-      }
+      },
+      "name": "Control Heater (HTTP)"
     },
-    "trigger_digital_input_rule": {
-      "name": "Активация правила",
-      "description": "Ручное срабатывание правила автоматизации.\n\nПолезно для тестирования или ручного управления при необходимости.",
+    "control_pump": {
+      "description": "Продвинутое управление циркуляционным насосом: регулировка скорости, эко-режим или режим интенсификации.",
       "fields": {
-        "device_id": {
-          "name": "Контроллер",
-          "description": "Контроллер Violet Pool с правилами."
+        "action": {
+          "description": "Выберите: speed_control, force_off, eco_mode, boost_mode или auto.",
+          "name": "Действие управления"
         },
-        "rule_key": {
-          "name": "Номер правила",
-          "description": "Активируемое правило (DIRULE_1 - DIRULE_7)."
+        "duration": {
+          "description": "Продолжительность действия (0 = неограниченно).",
+          "name": "Длительность (сек)"
+        },
+        "speed": {
+          "description": "Уровень производительности насоса (1-3).",
+          "name": "Уровень скорости"
         }
-      }
+      },
+      "name": "Управление насосом"
+    },
+    "control_pump_http": {
+      "description": "Control the filter pump directly.\n\nSpeed 1-3 switches the pump to manual ON at that speed; use action \"off\" or force_off to switch it off.",
+      "fields": {
+        "action": {
+          "description": "Select: on, off, eco, or boost.",
+          "name": "Control action"
+        },
+        "force_off": {
+          "description": "Switch the pump off regardless of the other fields.",
+          "name": "Force off"
+        },
+        "speed": {
+          "description": "Pump speed level (1=Eco, 2=Normal, 3=Maximum).",
+          "name": "Pump speed"
+        }
+      },
+      "name": "Control Pump (HTTP)"
+    },
+    "control_refill_http": {
+      "description": "Start or stop a manual water refill.\n\n**Caution:** a duration is mandatory - the valve is closed automatically when it elapses so the pool cannot overflow.",
+      "fields": {
+        "action": {
+          "description": "Select: fill to start, stop to end a running refill.",
+          "name": "Refill action"
+        },
+        "duration_seconds": {
+          "description": "How long to fill (10-3600s). The refill stops automatically afterwards.",
+          "name": "Duration (seconds)"
+        },
+        "safety_override": {
+          "description": "Skip the cooldown between two refill runs.",
+          "name": "Override safety interval"
+        }
+      },
+      "name": "Control Water Refill (HTTP)"
+    },
+    "control_solar_http": {
+      "description": "Control the solar heating system.",
+      "fields": {
+        "action": {
+          "description": "Enable or disable solar heating",
+          "name": "Solar action"
+        },
+        "target_temperature": {
+          "description": "Target temperature for solar operation (10-60°C)",
+          "name": "Target temperature"
+        }
+      },
+      "name": "Control Solar (HTTP)"
+    },
+    "enable_dosing": {
+      "description": "Enable or disable a dosing system.",
+      "fields": {
+        "dosing_system": {
+          "description": "Which dosing system to enable/disable",
+          "name": "Chemical system"
+        },
+        "enabled": {
+          "description": "Turn dosing system on or off",
+          "name": "Enable dosing"
+        }
+      },
+      "name": "Enable Dosing"
+    },
+    "enable_rule": {
+      "description": "Enable or disable any rule type.",
+      "fields": {
+        "enabled": {
+          "description": "Turn rule on or off",
+          "name": "Enable rule"
+        },
+        "rule_id": {
+          "description": "Rule number 1-8",
+          "name": "Rule ID"
+        },
+        "rule_type": {
+          "description": "Select rule type: temprule, analogrule, switchingrule, or timerrule",
+          "name": "Rule type"
+        }
+      },
+      "name": "Enable/Disable Rule"
     },
     "export_diagnostic_logs": {
-      "name": "Экспорт журналов",
       "description": "Экспорт журналов интеграции для диагностики и поддержки.\n\nСобирает записи журнала и позволяет загрузить или сохранить в файл.",
       "fields": {
         "device_id": {
-          "name": "Контроллер",
-          "description": "Контроллер Violet Pool для экспорта."
+          "description": "Контроллер Violet Pool для экспорта.",
+          "name": "Контроллер"
         },
-        "lines": {
-          "name": "Количество строк",
-          "description": "Количество последних записей (10-1000)."
+        "include_config": {
+          "description": "Include the integration configuration in the export.",
+          "name": "Include configuration"
+        },
+        "include_history": {
+          "description": "Include the poll and error history in the export.",
+          "name": "Include history"
+        },
+        "include_raw_data": {
+          "description": "Include the raw controller readings in the export.",
+          "name": "Include raw data"
+        },
+        "include_states": {
+          "description": "Include the current entity states in the export.",
+          "name": "Include entity states"
         },
         "include_timestamps": {
-          "name": "Включить временные метки",
-          "description": "Добавить временные метки к записям."
+          "description": "Добавить временные метки к записям.",
+          "name": "Включить временные метки"
+        },
+        "lines": {
+          "description": "Количество последних записей (10-1000).",
+          "name": "Количество строк"
         },
         "save_to_file": {
-          "name": "Сохранить в файл",
-          "description": "Сохранить в текстовый файл в /config/."
+          "description": "Сохранить в текстовый файл в /config/.",
+          "name": "Сохранить в файл"
         }
-      }
+      },
+      "name": "Экспорт журналов"
+    },
+    "get_backwash_status": {
+      "description": "Return the backwash state, the current step and the filter pressure.",
+      "fields": {
+        "device_id": {
+          "description": "Target Violet Pool Controller device.",
+          "name": "Pool Controller"
+        }
+      },
+      "name": "Get Backwash Status"
+    },
+    "get_calibration_status": {
+      "description": "Return the calibration state of every calibrated sensor.",
+      "fields": {
+        "device_id": {
+          "description": "Target Violet Pool Controller device.",
+          "name": "Pool Controller"
+        }
+      },
+      "name": "Get Calibration Status"
+    },
+    "get_connection_status": {
+      "description": "Получить подробную информацию о состоянии соединения и метрики производительности.",
+      "fields": {
+        "device_id": {
+          "description": "Target Violet Pool Controller device.",
+          "name": "Pool Controller"
+        }
+      },
+      "name": "Статус подключения"
+    },
+    "get_error_summary": {
+      "description": "Получить информацию о последних ошибках и рекомендации по устранению.",
+      "fields": {
+        "device_id": {
+          "description": "Target Violet Pool Controller device.",
+          "name": "Pool Controller"
+        },
+        "include_history": {
+          "description": "Показать расширенную историю ошибок.",
+          "name": "Включить историю"
+        }
+      },
+      "name": "Сводка ошибок"
+    },
+    "get_live_trace_snapshot": {
+      "description": "Return a single-row snapshot of every controller reading.",
+      "fields": {
+        "device_id": {
+          "description": "Target Violet Pool Controller device.",
+          "name": "Pool Controller"
+        }
+      },
+      "name": "Get live trace snapshot"
+    },
+    "get_overflow_status": {
+      "description": "Return the overflow protection's configuration and live state.",
+      "fields": {
+        "device_id": {
+          "description": "Target Violet Pool Controller device.",
+          "name": "Pool Controller"
+        }
+      },
+      "name": "Get Overflow Status"
+    },
+    "get_refill_status": {
+      "description": "Return the refill system's configuration and live state.",
+      "fields": {
+        "device_id": {
+          "description": "Target Violet Pool Controller device.",
+          "name": "Pool Controller"
+        }
+      },
+      "name": "Get Refill Status"
+    },
+    "get_system_services_status": {
+      "description": "Return the live state of all controller-side system services.",
+      "fields": {
+        "device_id": {
+          "description": "Target Violet Pool Controller device.",
+          "name": "Pool Controller"
+        }
+      },
+      "name": "Get system service states"
+    },
+    "get_system_update_status": {
+      "description": "Return the installed and available controller firmware versions.",
+      "fields": {
+        "device_id": {
+          "description": "Target Violet Pool Controller device.",
+          "name": "Pool Controller"
+        }
+      },
+      "name": "Get Firmware Update Status"
+    },
+    "manage_digital_rules": {
+      "description": "Управление автоматизацией на основе цифровых входов контроллера.",
+      "fields": {
+        "action": {
+          "description": "Выберите: trigger, lock или unlock.",
+          "name": "Действие"
+        },
+        "device_id": {
+          "description": "Target Violet Pool Controller device.",
+          "name": "Pool Controller"
+        },
+        "rule_key": {
+          "description": "Выберите правило (DIRULE_1 - DIRULE_7).",
+          "name": "Номер правила"
+        }
+      },
+      "name": "Управление правилами"
+    },
+    "manage_pv_surplus": {
+      "description": "Управление режимом автоматического использования излишков фотоэлектрической энергии.\n\nОборудование бассейна работает при наличии излишков солнечной энергии.",
+      "fields": {
+        "mode": {
+          "description": "Выберите: activate, deactivate или auto.",
+          "name": "Режим ФЭ излишка"
+        },
+        "pump_speed": {
+          "description": "Производительность насоса (1=Эко, 2=Нормальная, 3=Максимальная).",
+          "name": "Скорость насоса"
+        }
+      },
+      "name": "Управление излишком ФЭ"
+    },
+    "manual_dosing_http": {
+      "description": "Manually trigger chemical dosing.\n\n**Caution:** Always verify water values before dosing!",
+      "fields": {
+        "dosing_system": {
+          "description": "Select the chemical to dose (chlorine, electrolysis, pH-, pH+, flocculant). H₂O₂ is not offered: it shares the chlorine output and the controller API has no way to select it, so a manual run would dose chlorine.",
+          "name": "Chemical system"
+        },
+        "runtime_seconds": {
+          "description": "How long to run the dosing pump (1-3600s)",
+          "name": "Runtime (seconds)"
+        },
+        "safety_override": {
+          "description": "Skip the cooldown between two dosing runs.",
+          "name": "Override safety interval"
+        }
+      },
+      "name": "Manual Dosing (HTTP)"
+    },
+    "reset_blocking": {
+      "description": "Clears fault-induced blockings on the controller (e.g. BLOCKED_BY_ESC after empty-canister alarm). Useful after fixing the underlying issue.",
+      "fields": {
+        "device_id": {
+          "description": "Target Violet Pool Controller device.",
+          "name": "Pool Controller"
+        }
+      },
+      "name": "Reset fault blockings"
+    },
+    "set_can_amount": {
+      "description": "Update the canister fill level for a dosing channel after refilling. With action=reset the daily-dosing counter is also cleared.",
+      "fields": {
+        "action": {
+          "description": "adjust = only update fill level; reset = also clear daily counter",
+          "name": "Action"
+        },
+        "amount_ml": {
+          "description": "New fill level in millilitres",
+          "name": "Amount"
+        },
+        "device_id": {
+          "description": "Target Violet Pool Controller device.",
+          "name": "Pool Controller"
+        },
+        "dosing_key": {
+          "description": "Dosing channel key (DOS_1_CL, DOS_2_ELO, DOS_4_PHM, DOS_5_PHP, DOS_6_FLOC)",
+          "name": "Dosing channel"
+        }
+      },
+      "name": "Set canister fill level"
+    },
+    "set_dosing_daytime": {
+      "description": "Configure the daytime window for dosing operations.",
+      "fields": {
+        "day_end": {
+          "description": "When daytime ends (HH:MM format)",
+          "name": "Day end time"
+        },
+        "day_start": {
+          "description": "When daytime starts (HH:MM format)",
+          "name": "Day start time"
+        },
+        "dosing_system": {
+          "description": "Which dosing system to configure",
+          "name": "Chemical system"
+        }
+      },
+      "name": "Set Dosing Daytime"
+    },
+    "set_dosing_max_daily": {
+      "description": "Set the maximum daily dosing volume.",
+      "fields": {
+        "dosing_system": {
+          "description": "Which dosing system to configure",
+          "name": "Chemical system"
+        },
+        "max_daily_ml": {
+          "description": "Maximum volume in ml per day (10-10000)",
+          "name": "Maximum daily volume"
+        }
+      },
+      "name": "Set Dosing Maximum Daily"
+    },
+    "set_dosing_target": {
+      "description": "Set the target value for chemical dosing control.",
+      "fields": {
+        "dosing_system": {
+          "description": "Which dosing system to configure",
+          "name": "Chemical system"
+        },
+        "target_value": {
+          "description": "Target value (0-100, unit depends on chemical)",
+          "name": "Target value"
+        }
+      },
+      "name": "Set Dosing Target"
+    },
+    "set_light_color_pulse": {
+      "description": "Отправка команд цветовой пульсации на систему освещения бассейна.",
+      "fields": {
+        "pulse_count": {
+          "description": "Число цветовых пульсов (1-10).",
+          "name": "Количество пульсов"
+        },
+        "pulse_interval": {
+          "description": "Промежуток между пульсами (100-2000 мс).",
+          "name": "Интервал между пульсами (мс)"
+        }
+      },
+      "name": "Цветовая пульсация"
+    },
+    "set_omni_position": {
+      "description": "Drive the OmniTronic multi-port valve to a fixed position (0-5). Position 0 returns to AUTO mode.",
+      "fields": {
+        "device_id": {
+          "description": "Target Violet Pool Controller device.",
+          "name": "Pool Controller"
+        },
+        "position": {
+          "description": "Target valve position (0=Filtration/AUTO, 1-5=other ports)",
+          "name": "Position"
+        }
+      },
+      "name": "Set OmniTronic valve position"
+    },
+    "set_system_service": {
+      "description": "Enable or disable a system service on the controller (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, tunnels).",
+      "fields": {
+        "device_id": {
+          "description": "Target Violet Pool Controller device.",
+          "name": "Pool Controller"
+        },
+        "enabled": {
+          "description": "true to enable, false to disable",
+          "name": "Enabled"
+        },
+        "service": {
+          "description": "Service identifier (ftp, samba, ssh, shairport, homebridge, alexa, tunnel, support_tunnel)",
+          "name": "Service"
+        }
+      },
+      "name": "Toggle controller system service"
+    },
+    "smart_dosing": {
+      "description": "Управление химическим дозированием: pH-минус, pH-плюс, хлор и флокулянт вручную или автоматически.\n\nВНИМАНИЕ: Избегайте передозировки! Проверяйте параметры воды перед дозированием.",
+      "fields": {
+        "action": {
+          "description": "Выберите: manual_dose, auto или stop.",
+          "name": "Режим дозирования"
+        },
+        "dosing_type": {
+          "description": "Выберите: pH-, pH+, хлор или флокулянт.",
+          "name": "Тип реагента"
+        },
+        "duration": {
+          "description": "Время дозирования (5-300 сек).",
+          "name": "Длительность (сек)"
+        },
+        "safety_override": {
+          "description": "Игнорировать минимальный интервал между дозированиями.",
+          "name": "Пропустить безопасный интервал"
+        }
+      },
+      "name": "Умное дозирование"
+    },
+    "test_connection": {
+      "description": "Тестирование подключения к контроллеру и получение диагностической информации.",
+      "fields": {
+        "device_id": {
+          "description": "Target Violet Pool Controller device.",
+          "name": "Pool Controller"
+        }
+      },
+      "name": "Проверка соединения"
+    },
+    "test_output": {
+      "description": "Временно активирует выход контроллера для диагностики. ВАЖНО: убедитесь, что люди и оборудование в безопасности при тестировании!",
+      "fields": {
+        "device_id": {
+          "description": "Target Violet Pool Controller device.",
+          "name": "Pool Controller"
+        },
+        "duration": {
+          "description": "Длительность теста (1-900 сек).",
+          "name": "Длительность (сек)"
+        },
+        "mode": {
+          "description": "SWITCH=переключить, ON=включить, OFF=выключить.",
+          "name": "Режим теста"
+        },
+        "output": {
+          "description": "Идентификатор выхода (например PUMP, HEATER или SOLAR).",
+          "name": "Выход для теста"
+        }
+      },
+      "name": "Тестирование выходов"
     }
   },
   "selector": {
-    "pool_type": {
-      "options": {
-        "outdoor": "Открытый бассейн",
-        "indoor": "Крытый бассейн",
-        "whirlpool": "Джакузи/Спа",
-        "natural": "Природный бассейн/пруд",
-        "combination": "Комбинация/Гибрид"
-      }
-    },
     "disinfection_method": {
       "options": {
-        "chlorine": "Хлор (жидкость/таблетки)",
-        "salt": "Электролиз соленой воды",
-        "bromine": "Дезинфекция брома",
         "active_oxygen": "Активный кислород/H₂O₂",
-        "uv": "УФ-дезинфекция",
-        "ozone": "Озоновая обработка"
+        "bromine": "Дезинфекция брома",
+        "chlorine": "Хлор (жидкость/таблетки)",
+        "ozone": "Озоновая обработка",
+        "salt": "Электролиз соленой воды",
+        "uv": "УФ-дезинфекция"
       }
     },
     "dmx_mode": {
       "options": {
-        "allon": "Все источники света включены",
+        "allauto": "Все источники света на автоматику",
         "alloff": "Все источники света выключены",
-        "allauto": "Все источники света на автоматику"
+        "allon": "Все источники света включены"
+      }
+    },
+    "features": {
+      "options": {
+        "backwash": "Обратная промывка",
+        "chlorine_control": "Регулирование хлора",
+        "cover_control": "Управление крышкой",
+        "digital_inputs": "Цифровые входы",
+        "dmx_scenes": "Сцены DMX",
+        "eco_mode": "Режим ECO",
+        "extension_outputs": "Модули расширения",
+        "filter_control": "Фильтровальный насос",
+        "flocculation": "Дозирование коагулянта",
+        "heating": "Отопление",
+        "led_lighting": "LED-подсветка",
+        "ph_control": "Регулирование pH",
+        "pv_surplus": "Излишек солнечной энергии",
+        "solar": "Солнечный коллектор",
+        "water_level": "Уровень воды",
+        "water_refill": "Долив воды"
       }
     },
     "main_menu": {
       "options": {
-        "start_setup": "Начать настройку",
-        "open_help": "Справка и документация"
+        "open_help": "Справка и документация",
+        "start_setup": "Начать настройку"
       }
     },
     "options_menu": {
       "options": {
         "features": "Включить/отключить функции",
-        "sensors": "Выбрать датчики",
         "safety": "Настройки безопасности",
+        "sensors": "Выбрать датчики",
         "settings": "Изменить настройки"
       }
     },
-    "features": {
+    "pool_type": {
       "options": {
-        "heating": "Отопление",
-        "solar": "Солнечный коллектор",
-        "ph_control": "Регулирование pH",
-        "chlorine_control": "Регулирование хлора",
-        "flocculation": "Дозирование коагулянта",
-        "cover_control": "Управление крышкой",
-        "backwash": "Обратная промывка",
-        "pv_surplus": "Излишек солнечной энергии",
-        "filter_control": "Фильтровальный насос",
-        "water_level": "Уровень воды",
-        "water_refill": "Долив воды",
-        "led_lighting": "LED-подсветка",
-        "dmx_scenes": "Сцены DMX",
-        "eco_mode": "Режим ECO",
-        "digital_inputs": "Цифровые входы",
-        "extension_outputs": "Модули расширения"
+        "combination": "Комбинация/Гибрид",
+        "indoor": "Крытый бассейн",
+        "natural": "Природный бассейн/пруд",
+        "outdoor": "Открытый бассейн",
+        "whirlpool": "Джакузи/Спа"
       }
     },
     "reconfigure_option": {
@@ -568,39 +1259,557 @@
     }
   },
   "entity": {
+    "binary_sensor": {
+      "backwash": {
+        "name": "Rückspülstatus"
+      },
+      "backwash_delay": {
+        "name": "Задержка обратной промывки активна"
+      },
+      "bathing_ai_surveillance": {
+        "name": "ИИ-наблюдение за купанием"
+      },
+      "can_range_state": {
+        "name": "Behälter-Bereichs-Problem"
+      },
+      "circulation_state": {
+        "name": "Zirkulationsproblem"
+      },
+      "eco": {
+        "name": "Eco-Modus"
+      },
+      "electrode_flow_state": {
+        "name": "Elektrodendurchfluss-Problem"
+      },
+      "heater": {
+        "name": "Heizerstatus"
+      },
+      "hw_base_module": {
+        "name": "Hardware: Basismodul"
+      },
+      "hw_dirule_module": {
+        "name": "Hardware: Digital Rules Module"
+      },
+      "hw_dmx_module": {
+        "name": "Hardware: DMX-Modul"
+      },
+      "hw_dosing_module": {
+        "name": "Hardware: Dosiermodul"
+      },
+      "hw_extension_module_1": {
+        "name": "Hardware: Расширениеsmodul 1"
+      },
+      "hw_extension_module_2": {
+        "name": "Hardware: Расширениеsmodul 2"
+      },
+      "hw_standalone_mode": {
+        "name": "Hardware: Eigenständige Dosiereinheit"
+      },
+      "input1": {
+        "name": "Digitaler Eingang 1"
+      },
+      "input10": {
+        "name": "Digitaler Eingang 10"
+      },
+      "input11": {
+        "name": "Digitaler Eingang 11"
+      },
+      "input12": {
+        "name": "Digitaler Eingang 12"
+      },
+      "input2": {
+        "name": "Digitaler Eingang 2"
+      },
+      "input3": {
+        "name": "Digitaler Eingang 3"
+      },
+      "input4": {
+        "name": "Digitaler Eingang 4"
+      },
+      "input5": {
+        "name": "Digitaler Eingang 5"
+      },
+      "input6": {
+        "name": "Digitaler Eingang 6"
+      },
+      "input7": {
+        "name": "Digitaler Eingang 7"
+      },
+      "input8": {
+        "name": "Digitaler Eingang 8"
+      },
+      "input9": {
+        "name": "Digitaler Eingang 9"
+      },
+      "input_ce1": {
+        "name": "CE-Eingang 1"
+      },
+      "input_ce2": {
+        "name": "CE-Eingang 2"
+      },
+      "input_ce3": {
+        "name": "CE-Eingang 3"
+      },
+      "input_ce4": {
+        "name": "CE-Eingang 4"
+      },
+      "light": {
+        "name": "Beleuchtungsstatus"
+      },
+      "overflow_dryrun": {
+        "name": "Сухой ход переливной ёмкости"
+      },
+      "overflow_overfill": {
+        "name": "Переполнение переливной ёмкости"
+      },
+      "overflow_refill": {
+        "name": "Долив переливной ёмкости"
+      },
+      "pressure_state": {
+        "name": "Druckproblem"
+      },
+      "pump": {
+        "name": "Pumpenstatus"
+      },
+      "pvsurplus": {
+        "name": "PV-Überschuss"
+      },
+      "refill": {
+        "name": "Nachfüllstatus"
+      },
+      "solar": {
+        "name": "Solarstatus"
+      }
+    },
+    "button": {
+      "reset_errors": {
+        "name": "Сбросить Блокировки Ошибок"
+      }
+    },
+    "climate": {
+      "heater": {
+        "name": "Pool-Heizer"
+      },
+      "solar": {
+        "name": "Solar-Heizer"
+      }
+    },
+    "cover": {
+      "pool_cover": {
+        "name": "Pool-Abdeckung"
+      }
+    },
+    "light": {
+      "dmx_scene1": {
+        "name": "DMX-сцена 1"
+      },
+      "dmx_scene10": {
+        "name": "DMX-сцена 10"
+      },
+      "dmx_scene11": {
+        "name": "DMX-сцена 11"
+      },
+      "dmx_scene12": {
+        "name": "DMX-сцена 12"
+      },
+      "dmx_scene2": {
+        "name": "DMX-сцена 2"
+      },
+      "dmx_scene3": {
+        "name": "DMX-сцена 3"
+      },
+      "dmx_scene4": {
+        "name": "DMX-сцена 4"
+      },
+      "dmx_scene5": {
+        "name": "DMX-сцена 5"
+      },
+      "dmx_scene6": {
+        "name": "DMX-сцена 6"
+      },
+      "dmx_scene7": {
+        "name": "DMX-сцена 7"
+      },
+      "dmx_scene8": {
+        "name": "DMX-сцена 8"
+      },
+      "dmx_scene9": {
+        "name": "DMX-сцена 9"
+      }
+    },
+    "number": {
+      "chlorine_canister_volume": {
+        "name": "Chlorbehälter-Volumen"
+      },
+      "chlorine_setpoint": {
+        "name": "Chlor-Sollwert"
+      },
+      "chlorine_setpoint_electrolysis": {
+        "name": "Chlorine Setpoint (Electrolysis)"
+      },
+      "csi_alkalinity": {
+        "name": "CSI Carbonate Alkalinity"
+      },
+      "csi_calcium": {
+        "name": "CSI Calcium Hardness"
+      },
+      "csi_ph": {
+        "name": "CSI pH Value"
+      },
+      "csi_tds": {
+        "name": "CSI TDS"
+      },
+      "csi_temperature": {
+        "name": "CSI Temperature"
+      },
+      "flocculant_canister_volume": {
+        "name": "Flockungsmittel-Behälter-Volumen"
+      },
+      "heater_target_temp": {
+        "name": "Zieltemperatur Heizer"
+      },
+      "lsi_alkalinity": {
+        "name": "LSI Carbonate Alkalinity"
+      },
+      "lsi_calcium": {
+        "name": "LSI Calcium Hardness"
+      },
+      "lsi_ph": {
+        "name": "LSI pH Value"
+      },
+      "lsi_tds": {
+        "name": "LSI TDS"
+      },
+      "lsi_temperature": {
+        "name": "LSI Temperature"
+      },
+      "orp_setpoint": {
+        "name": "ORP-Sollwert"
+      },
+      "orp_setpoint_electrolysis": {
+        "name": "ORP Setpoint (Electrolysis)"
+      },
+      "ph_minus_canister_volume": {
+        "name": "pH--Behälter-Volumen"
+      },
+      "ph_plus_canister_volume": {
+        "name": "pH+-Behälter-Volumen"
+      },
+      "ph_setpoint": {
+        "name": "pH-Sollwert"
+      },
+      "pump_speed": {
+        "name": "Pumpendrehzahl"
+      },
+      "solar_target_temp": {
+        "name": "Zieltemperatur Solar"
+      }
+    },
+    "select": {
+      "backwash_mode": {
+        "name": "Режим обратной промывки",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "backwashrinse_mode": {
+        "name": "Режим Ополаскивания",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "dos_cl_mode": {
+        "name": "Режим Дозирования Хлора",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "dos_elo_mode": {
+        "name": "Режим дозирования электролиза",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "dos_floc_mode": {
+        "name": "Режим Дозирования Флокулянта",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "dos_phm_mode": {
+        "name": "Режим Дозирования pH-",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "dos_php_mode": {
+        "name": "Режим Дозирования pH+",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "eco_mode": {
+        "name": "Режим ECO",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "ext1_1_mode": {
+        "name": "Расширение 1.1 Режим",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "ext1_2_mode": {
+        "name": "Расширение 1.2 Режим",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "ext1_3_mode": {
+        "name": "Расширение 1.3 Режим",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "ext1_4_mode": {
+        "name": "Расширение 1.4 Режим",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "ext1_5_mode": {
+        "name": "Расширение 1.5 Режим",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "ext1_6_mode": {
+        "name": "Расширение 1.6 Режим",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "ext1_7_mode": {
+        "name": "Расширение 1.7 Режим",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "ext1_8_mode": {
+        "name": "Расширение 1.8 Режим",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "ext2_1_mode": {
+        "name": "Расширение 2.1 Режим",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "ext2_2_mode": {
+        "name": "Расширение 2.2 Режим",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "ext2_3_mode": {
+        "name": "Расширение 2.3 Режим",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "ext2_4_mode": {
+        "name": "Расширение 2.4 Режим",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "ext2_5_mode": {
+        "name": "Расширение 2.5 Режим",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "ext2_6_mode": {
+        "name": "Расширение 2.6 Режим",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "ext2_7_mode": {
+        "name": "Расширение 2.7 Режим",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "ext2_8_mode": {
+        "name": "Расширение 2.8 Режим",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "heater_mode": {
+        "name": "Режим Обогревателя",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "light_mode": {
+        "name": "Режим Освещения",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "omni_dc0_mode": {
+        "name": "Режим OMNI DC0",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "omni_dc1_mode": {
+        "name": "Режим OMNI DC1",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "omni_dc2_mode": {
+        "name": "Режим OMNI DC2",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "omni_dc3_mode": {
+        "name": "Режим OMNI DC3",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "omni_dc4_mode": {
+        "name": "Режим OMNI DC4",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "omni_dc5_mode": {
+        "name": "Режим OMNI DC5",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "pump_mode": {
+        "name": "Режим насоса",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "pvsurplus_mode": {
+        "name": "Режим Избытка PV",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "refill_mode": {
+        "name": "Режим долива",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      },
+      "solar_mode": {
+        "name": "Режим Солнца",
+        "state": {
+          "auto": "Авто",
+          "off": "Выкл",
+          "on": "Вкл"
+        }
+      }
+    },
     "sensor": {
-      "onewire1_value": {
-        "name": "Вода бассейна"
+      "adc1_value": {
+        "name": "Давление Фильтра"
       },
-      "onewire2_value": {
-        "name": "Внешняя температура"
+      "adc2_value": {
+        "name": "Резервуар Перелива"
       },
-      "onewire3_value": {
-        "name": "Солнечный абсорбер"
+      "adc3_value": {
+        "name": "Расходомер (4-20мА)"
       },
-      "onewire4_value": {
-        "name": "Возврат абсорбера"
+      "adc4_value": {
+        "name": "Аналоговый датчик 4 (4-20мА)"
       },
-      "onewire5_value": {
-        "name": "Теплообменник"
-      },
-      "onewire6_value": {
-        "name": "Тепловой аккумулятор"
-      },
-      "onewire7_value": {
-        "name": "Датчик температуры 7"
-      },
-      "onewire8_value": {
-        "name": "Датчик температуры 8"
-      },
-      "ph_value": {
-        "name": "Значение pH"
-      },
-      "orp_value": {
-        "name": "Значение ORP"
-      },
-      "pot_value": {
-        "name": "Содержание хлора"
+      "adc5_value": {
+        "name": "Аналоговый датчик 5 (0-10В)"
       },
       "ai1_value": {
         "name": "Аналоговый Вход 1"
@@ -626,14 +1835,29 @@
       "ai8_value": {
         "name": "Аналоговый Вход 8"
       },
-      "system_health": {
-        "name": "Состояние Системы"
+      "analogrule_1": {
+        "name": "Аналоговое правило 1"
       },
-      "connection_latency": {
-        "name": "Задержка Соединения"
+      "analogrule_2": {
+        "name": "Аналоговое правило 2"
       },
-      "last_event_age": {
-        "name": "Возраст Последнего События"
+      "analogrule_3": {
+        "name": "Аналоговое правило 3"
+      },
+      "analogrule_4": {
+        "name": "Аналоговое правило 4"
+      },
+      "analogrule_5": {
+        "name": "Аналоговое правило 5"
+      },
+      "analogrule_6": {
+        "name": "Аналоговое правило 6"
+      },
+      "analogrule_7": {
+        "name": "Аналоговое правило 7"
+      },
+      "analogrule_8": {
+        "name": "Аналоговое правило 8"
       },
       "api_request_rate": {
         "name": "Частота Запросов API"
@@ -641,164 +1865,8 @@
       "average_latency": {
         "name": "Средняя Задержка"
       },
-      "recovery_success_rate": {
-        "name": "Скорость Успешного Восстановления"
-      },
-      "pump_estimated_power": {
-        "name": "Мощность Насоса (Расчетная)"
-      },
-      "flow_rate": {
-        "name": "Расход"
-      },
-      "last_error_code": {
-        "name": "Последний Код Ошибки"
-      },
-      "dos_1_cl_state": {
-        "name": "Chlordosier-Status"
-      },
-      "dos_4_phm_state": {
-        "name": "pH--Dosier-Status"
-      },
-      "dos_5_php_state": {
-        "name": "pH+-Dosier-Status"
-      },
-      "dos_2_elo_state": {
-        "name": "Elektrolyse-Dosierstatus"
-      },
-      "dos_6_floc_state": {
-        "name": "Flockungsstatus"
-      },
-      "cpu_temp": {
-        "name": "CPU-Temperatur"
-      },
-      "cpu_temp_carrier": {
-        "name": "Температура ЦП несущей платы"
-      },
-      "cpu_uptime": {
-        "name": "System-Betriebszeit"
-      },
-      "system_cpu_temperature": {
-        "name": "System CPU-Temperatur"
-      },
-      "system_carrier_cpu_temperature": {
-        "name": "Träger-CPU-Temperatur"
-      },
-      "system_dosagemodule_cpu_temperature": {
-        "name": "Dosier-Modul CPU-Temperatur"
-      },
-      "system_memoryusage": {
-        "name": "Speichernutzung"
-      },
-      "system_safety_timer_active": {
-        "name": "Sicherheitstimer aktiv"
-      },
-      "system_relais_status": {
-        "name": "Relais-Status"
-      },
-      "fw": {
-        "name": "Firmware-Version"
-      },
-      "pump": {
-        "name": "Pumpen-Status"
-      },
-      "heater": {
-        "name": "Heizungs-Status"
-      },
-      "solar": {
-        "name": "Solar-Status"
-      },
       "backwash": {
         "name": "Rückspül-Status"
-      },
-      "light": {
-        "name": "Beleuchtungs-Status"
-      },
-      "pvsurplus": {
-        "name": "PV-Überschuss Status"
-      },
-      "refill": {
-        "name": "Nachfüll-Status"
-      },
-      "pumpstate": {
-        "name": "Pumpen Detail-Status"
-      },
-      "heaterstate": {
-        "name": "Heizung Detail-Status"
-      },
-      "solarstate": {
-        "name": "Solar Detail-Status"
-      },
-      "adc1_value": {
-        "name": "Давление Фильтра"
-      },
-      "adc2_value": {
-        "name": "Резервуар Перелива"
-      },
-      "adc3_value": {
-        "name": "Расходомер (4-20мА)"
-      },
-      "adc4_value": {
-        "name": "Аналоговый датчик 4 (4-20мА)"
-      },
-      "adc5_value": {
-        "name": "Аналоговый датчик 5 (0-10В)"
-      },
-      "imp1_value": {
-        "name": "Входной расход дозирования"
-      },
-      "imp2_value": {
-        "name": "Расход насоса"
-      },
-      "ext1_1": {
-        "name": "Расширение 1.1"
-      },
-      "ext1_2": {
-        "name": "Расширение 1.2"
-      },
-      "ext1_3": {
-        "name": "Расширение 1.3"
-      },
-      "ext1_4": {
-        "name": "Расширение 1.4"
-      },
-      "ext1_5": {
-        "name": "Расширение 1.5"
-      },
-      "ext1_6": {
-        "name": "Расширение 1.6"
-      },
-      "ext1_7": {
-        "name": "Расширение 1.7"
-      },
-      "ext1_8": {
-        "name": "Расширение 1.8"
-      },
-      "ext2_1": {
-        "name": "Расширение 2.1"
-      },
-      "ext2_2": {
-        "name": "Расширение 2.2"
-      },
-      "ext2_3": {
-        "name": "Расширение 2.3"
-      },
-      "ext2_4": {
-        "name": "Расширение 2.4"
-      },
-      "ext2_5": {
-        "name": "Расширение 2.5"
-      },
-      "ext2_6": {
-        "name": "Расширение 2.6"
-      },
-      "ext2_7": {
-        "name": "Расширение 2.7"
-      },
-      "ext2_8": {
-        "name": "Расширение 2.8"
-      },
-      "backwashrinse": {
-        "name": "Nachspül-Status"
       },
       "backwash_delay_running": {
         "name": "Rückspül-Verzögerung aktiv"
@@ -833,6 +1901,9 @@
       "backwash_step": {
         "name": "Rückspülschritt"
       },
+      "backwashrinse": {
+        "name": "Nachspül-Status"
+      },
       "backwashrinse_last_off": {
         "name": "Nachspülung Zuletzt Aus"
       },
@@ -842,137 +1913,8 @@
       "backwashrinse_runtime": {
         "name": "Nachspül-Laufzeit"
       },
-      "pump_runtime": {
-        "name": "Pumpen-Laufzeit"
-      },
-      "pump_last_on": {
-        "name": "Pumpe Zuletzt Ein"
-      },
-      "pump_last_off": {
-        "name": "Pumpe Zuletzt Aus"
-      },
-      "heater_runtime": {
-        "name": "Heizungs-Laufzeit"
-      },
-      "heater_last_on": {
-        "name": "Heizung Zuletzt Ein"
-      },
-      "heater_last_off": {
-        "name": "Heizung Zuletzt Aus"
-      },
-      "heater_postrun_time": {
-        "name": "Heizung Nachlaufzeit"
-      },
-      "solar_runtime": {
-        "name": "Solar-Laufzeit"
-      },
-      "solar_last_on": {
-        "name": "Solar Zuletzt Ein"
-      },
-      "solar_last_off": {
-        "name": "Solar Zuletzt Aus"
-      },
-      "light_runtime": {
-        "name": "Beleuchtungs-Laufzeit"
-      },
-      "light_last_on": {
-        "name": "Beleuchtung Zuletzt Ein"
-      },
-      "light_last_off": {
-        "name": "Beleuchtung Zuletzt Aus"
-      },
-      "eco": {
-        "name": "Eco-Modus Status"
-      },
-      "eco_runtime": {
-        "name": "Eco-Laufzeit"
-      },
-      "eco_last_on": {
-        "name": "Eco Zuletzt Ein"
-      },
-      "eco_last_off": {
-        "name": "Eco Zuletzt Aus"
-      },
-      "dos_1_cl": {
-        "name": "Chlor-Dosiersystem"
-      },
-      "dos_1_cl_daily": {
-        "name": "Chlor Tagesdosierung (ml)"
-      },
-      "dos_1_cl_total_can": {
-        "name": "Chlor Kanisterinhalt (ml)"
-      },
-      "dos_1_cl_runtime": {
-        "name": "Chlor-Dosierlaufzeit"
-      },
-      "dos_1_cl_last_on": {
-        "name": "Chlor-Dosierung Zuletzt Ein"
-      },
-      "dos_1_cl_last_off": {
-        "name": "Chlor-Dosierung Zuletzt Aus"
-      },
-      "dos_1_cl_type": {
-        "name": "Chlor Dosiertyp"
-      },
-      "dos_1_cl_use": {
-        "name": "Дозирование хлора настроено"
-      },
-      "dos_1_cl_last_can_reset": {
-        "name": "Chlor Letzter Kanister-Reset"
-      },
-      "dos_2_elo": {
-        "name": "Elektrolyse-Dosiersystem"
-      },
-      "dos_2_elo_daily": {
-        "name": "Суточная выработка электролиза"
-      },
-      "dos_2_elo_total_can": {
-        "name": "Оставшийся ресурс электролизной ячейки"
-      },
-      "dos_4_phm": {
-        "name": "pH- Dosiersystem"
-      },
-      "dos_4_phm_daily": {
-        "name": "pH- Tagesdosierung (ml)"
-      },
-      "dos_4_phm_total_can": {
-        "name": "pH- Kanisterinhalt (ml)"
-      },
-      "dos_5_php": {
-        "name": "pH+ Dosiersystem"
-      },
-      "dos_5_php_daily": {
-        "name": "pH+ Tagesdosierung (ml)"
-      },
-      "dos_5_php_total_can": {
-        "name": "pH+ Kanisterinhalt (ml)"
-      },
-      "dos_6_floc": {
-        "name": "Flockmittel-Dosiersystem"
-      },
-      "dos_6_floc_daily": {
-        "name": "Flockmittel Tagesdosierung (ml)"
-      },
-      "dos_6_floc_total_can": {
-        "name": "Flockmittel Kanisterinhalt (ml)"
-      },
-      "refill_runtime": {
-        "name": "Nachfüll-Laufzeit"
-      },
-      "refill_last_on": {
-        "name": "Nachfüllung Zuletzt Ein"
-      },
-      "refill_last_off": {
-        "name": "Nachfüllung Zuletzt Aus"
-      },
-      "overflow_dryrun_state": {
-        "name": "Überlauf Trockenlauf-Status"
-      },
-      "overflow_overfill_state": {
-        "name": "Überfüllungs-Status"
-      },
-      "overflow_refill_state": {
-        "name": "Überlauf Nachfüll-Status"
+      "backwashstate": {
+        "name": "Backwash Detail Status"
       },
       "bathing_ai_last_level": {
         "name": "Bade-KI Letzter Füllstand"
@@ -989,515 +1931,50 @@
       "bathing_ai_surveillance_state": {
         "name": "Bade-KI Überwachungsstatus"
       },
-      "pump_rpm_0": {
-        "name": "Pumpen-Stufe 0"
+      "checksum": {
+        "name": "Configuration Checksum"
       },
-      "pump_rpm_1": {
-        "name": "Pumpen-Stufe 1"
+      "close_contact": {
+        "name": "Cover Closed Contact"
       },
-      "pump_rpm_2": {
-        "name": "Pumpen-Stufe 2"
+      "configchangemarker": {
+        "name": "Configuration Change Marker"
       },
-      "pump_rpm_3": {
-        "name": "Pumpen-Stufe 3"
+      "connection_latency": {
+        "name": "Задержка Соединения"
       },
-      "pump_rpm_0_last_off": {
-        "name": "Pumpen-Stufe 0 Zuletzt Aus"
+      "cover_direction": {
+        "name": "Cover Direction"
       },
-      "pump_rpm_1_last_off": {
-        "name": "Pumpen-Stufe 1 Zuletzt Aus"
-      },
-      "pump_rpm_2_last_off": {
-        "name": "Pumpen-Stufe 2 Zuletzt Aus"
-      },
-      "pump_rpm_3_last_off": {
-        "name": "Pumpen-Stufe 3 Zuletzt Aus"
-      },
-      "pump_rpm_0_runtime": {
-        "name": "Pumpen-Stufe 0 Laufzeit"
-      },
-      "pump_rpm_1_runtime": {
-        "name": "Pumpen-Stufe 1 Laufzeit"
-      },
-      "pump_rpm_2_runtime": {
-        "name": "Pumpen-Stufe 2 Laufzeit"
-      },
-      "pump_rpm_3_runtime": {
-        "name": "Pumpen-Stufe 3 Laufzeit"
-      },
-      "sw_version": {
-        "name": "Software-Version"
-      },
-      "sw_version_carrier": {
-        "name": "Carrier Software-Version"
-      },
-      "system_memory": {
-        "name": "Systemspeicher"
+      "cover_runtime": {
+        "name": "Cover Runtime"
       },
       "cover_state": {
         "name": "Abdeckungs-Zustand"
       },
-      "onewire12_value": {
-        "name": "Датчик Температуры 12"
+      "cpu_gov": {
+        "name": "CPU Governor"
       },
-      "onewire12_value_max": {
-        "name": "Датчик Температуры 12 Maximum"
+      "cpu_temp": {
+        "name": "CPU-Temperatur"
       },
-      "onewire12_value_min": {
-        "name": "Датчик Температуры 12 Minimum"
+      "cpu_temp_carrier": {
+        "name": "Температура ЦП несущей платы"
       },
-      "onewire1_value_max": {
-        "name": "Wassertemperatur Maximum"
+      "cpu_uptime": {
+        "name": "System-Betriebszeit"
       },
-      "onewire1_value_min": {
-        "name": "Wassertemperatur Minimum"
+      "csi_index": {
+        "name": "CSI Result"
       },
-      "orp_value_max": {
-        "name": "Redoxpotential Maximum"
+      "current_time": {
+        "name": "Controller Time"
       },
-      "orp_value_min": {
-        "name": "Redoxpotential Minimum"
+      "current_time_unix": {
+        "name": "Controller Time (Unix)"
       },
-      "ph_value_max": {
-        "name": "Значение pH Maximum"
-      },
-      "ph_value_min": {
-        "name": "Значение pH Minimum"
-      },
-      "pot_value_max": {
-        "name": "Содержание Хлора Maximum"
-      },
-      "pot_value_min": {
-        "name": "Содержание Хлора Minimum"
-      },
-      "ext1_1_last_on": {
-        "name": "Расширение 1.1 Zuletzt Ein"
-      },
-      "ext1_1_last_off": {
-        "name": "Расширение 1.1 Zuletzt Aus"
-      },
-      "ext1_1_runtime": {
-        "name": "Расширение 1.1 Laufzeit"
-      },
-      "ext1_2_last_on": {
-        "name": "Расширение 1.2 Zuletzt Ein"
-      },
-      "ext1_2_last_off": {
-        "name": "Расширение 1.2 Zuletzt Aus"
-      },
-      "ext1_2_runtime": {
-        "name": "Расширение 1.2 Laufzeit"
-      },
-      "ext1_3_last_on": {
-        "name": "Расширение 1.3 Zuletzt Ein"
-      },
-      "ext1_3_last_off": {
-        "name": "Расширение 1.3 Zuletzt Aus"
-      },
-      "ext1_3_runtime": {
-        "name": "Расширение 1.3 Laufzeit"
-      },
-      "ext1_4_last_on": {
-        "name": "Расширение 1.4 Zuletzt Ein"
-      },
-      "ext1_4_last_off": {
-        "name": "Расширение 1.4 Zuletzt Aus"
-      },
-      "ext1_4_runtime": {
-        "name": "Расширение 1.4 Laufzeit"
-      },
-      "ext1_5_last_on": {
-        "name": "Расширение 1.5 Zuletzt Ein"
-      },
-      "ext1_5_last_off": {
-        "name": "Расширение 1.5 Zuletzt Aus"
-      },
-      "ext1_5_runtime": {
-        "name": "Расширение 1.5 Laufzeit"
-      },
-      "ext1_6_last_on": {
-        "name": "Расширение 1.6 Zuletzt Ein"
-      },
-      "ext1_6_last_off": {
-        "name": "Расширение 1.6 Zuletzt Aus"
-      },
-      "ext1_6_runtime": {
-        "name": "Расширение 1.6 Laufzeit"
-      },
-      "ext1_7_last_on": {
-        "name": "Расширение 1.7 Zuletzt Ein"
-      },
-      "ext1_7_last_off": {
-        "name": "Расширение 1.7 Zuletzt Aus"
-      },
-      "ext1_7_runtime": {
-        "name": "Расширение 1.7 Laufzeit"
-      },
-      "ext1_8_last_on": {
-        "name": "Расширение 1.8 Zuletzt Ein"
-      },
-      "ext1_8_last_off": {
-        "name": "Расширение 1.8 Zuletzt Aus"
-      },
-      "ext1_8_runtime": {
-        "name": "Расширение 1.8 Laufzeit"
-      },
-      "ext2_1_last_on": {
-        "name": "Расширение 2.1 Zuletzt Ein"
-      },
-      "ext2_1_last_off": {
-        "name": "Расширение 2.1 Zuletzt Aus"
-      },
-      "ext2_1_runtime": {
-        "name": "Расширение 2.1 Laufzeit"
-      },
-      "ext2_2_last_on": {
-        "name": "Расширение 2.2 Zuletzt Ein"
-      },
-      "ext2_2_last_off": {
-        "name": "Расширение 2.2 Zuletzt Aus"
-      },
-      "ext2_2_runtime": {
-        "name": "Расширение 2.2 Laufzeit"
-      },
-      "ext2_3_last_on": {
-        "name": "Расширение 2.3 Zuletzt Ein"
-      },
-      "ext2_3_last_off": {
-        "name": "Расширение 2.3 Zuletzt Aus"
-      },
-      "ext2_3_runtime": {
-        "name": "Расширение 2.3 Laufzeit"
-      },
-      "ext2_4_last_on": {
-        "name": "Расширение 2.4 Zuletzt Ein"
-      },
-      "ext2_4_last_off": {
-        "name": "Расширение 2.4 Zuletzt Aus"
-      },
-      "ext2_4_runtime": {
-        "name": "Расширение 2.4 Laufzeit"
-      },
-      "ext2_5_last_on": {
-        "name": "Расширение 2.5 Zuletzt Ein"
-      },
-      "ext2_5_last_off": {
-        "name": "Расширение 2.5 Zuletzt Aus"
-      },
-      "ext2_5_runtime": {
-        "name": "Расширение 2.5 Laufzeit"
-      },
-      "ext2_6_last_on": {
-        "name": "Расширение 2.6 Zuletzt Ein"
-      },
-      "ext2_6_last_off": {
-        "name": "Расширение 2.6 Zuletzt Aus"
-      },
-      "ext2_6_runtime": {
-        "name": "Расширение 2.6 Laufzeit"
-      },
-      "ext2_7_last_on": {
-        "name": "Расширение 2.7 Zuletzt Ein"
-      },
-      "ext2_7_last_off": {
-        "name": "Расширение 2.7 Zuletzt Aus"
-      },
-      "ext2_7_runtime": {
-        "name": "Расширение 2.7 Laufzeit"
-      },
-      "ext2_8_last_on": {
-        "name": "Расширение 2.8 Zuletzt Ein"
-      },
-      "ext2_8_last_off": {
-        "name": "Расширение 2.8 Zuletzt Aus"
-      },
-      "ext2_8_runtime": {
-        "name": "Расширение 2.8 Laufzeit"
-      },
-      "onewire2_value_max": {
-        "name": "Внешняя Температура Maximum"
-      },
-      "onewire2_value_min": {
-        "name": "Внешняя Температура Minimum"
-      },
-      "onewire3_value_max": {
-        "name": "Солнечный Абсорбер Maximum"
-      },
-      "onewire3_value_min": {
-        "name": "Солнечный Абсорбер Minimum"
-      },
-      "onewire4_value_max": {
-        "name": "Возврат Абсорбера Maximum"
-      },
-      "onewire4_value_min": {
-        "name": "Возврат Абсорбера Minimum"
-      },
-      "onewire5_value_max": {
-        "name": "Вход Теплообменника Maximum"
-      },
-      "onewire5_value_min": {
-        "name": "Вход Теплообменника Minimum"
-      },
-      "onewire6_value_max": {
-        "name": "Выход Теплообменника Maximum"
-      },
-      "onewire6_value_min": {
-        "name": "Выход Теплообменника Minimum"
-      },
-      "onewire7_value_max": {
-        "name": "Датчик Температуры 7 Maximum"
-      },
-      "onewire7_value_min": {
-        "name": "Датчик Температуры 7 Minimum"
-      },
-      "onewire8_value_max": {
-        "name": "Датчик Температуры 8 Maximum"
-      },
-      "onewire8_value_min": {
-        "name": "Датчик Температуры 8 Minimum"
-      },
-      "onewire9_value": {
-        "name": "Датчик Температуры 9"
-      },
-      "onewire9_value_max": {
-        "name": "Датчик Температуры 9 Maximum"
-      },
-      "onewire9_value_min": {
-        "name": "Датчик Температуры 9 Minimum"
-      },
-      "onewire10_value": {
-        "name": "Датчик Температуры 10"
-      },
-      "onewire10_value_max": {
-        "name": "Датчик Температуры 10 Maximum"
-      },
-      "onewire10_value_min": {
-        "name": "Датчик Температуры 10 Minimum"
-      },
-      "onewire11_value": {
-        "name": "Датчик Температуры 11"
-      },
-      "onewire11_value_max": {
-        "name": "Датчик Температуры 11 Maximum"
-      },
-      "onewire11_value_min": {
-        "name": "Датчик Температуры 11 Minimum"
-      },
-      "pump_rpm_0_last_on": {
-        "name": "Pumpen-Stufe 0 Zuletzt Ein"
-      },
-      "pump_rpm_1_last_on": {
-        "name": "Pumpen-Stufe 1 Zuletzt Ein"
-      },
-      "pump_rpm_2_last_on": {
-        "name": "Pumpen-Stufe 2 Zuletzt Ein"
-      },
-      "pump_rpm_3_last_on": {
-        "name": "Pumpen-Stufe 3 Zuletzt Ein"
-      },
-      "dos_2_elo_last_can_reset": {
-        "name": "Последний сброс электролизной ячейки"
-      },
-      "dos_2_elo_last_off": {
-        "name": "Elektrolyse-Dosierung Zuletzt Aus"
-      },
-      "dos_2_elo_last_on": {
-        "name": "Elektrolyse-Dosierung Zuletzt Ein"
-      },
-      "dos_2_elo_runtime": {
-        "name": "Elektrolyse-Dosierlaufzeit"
-      },
-      "dos_2_elo_type": {
-        "name": "Elektrolyse Dosiertyp"
-      },
-      "dos_2_elo_use": {
-        "name": "Электролиз настроен"
-      },
-      "dos_4_phm_last_can_reset": {
-        "name": "pH- Letzter Kanister-Reset"
-      },
-      "dos_4_phm_last_off": {
-        "name": "pH--Dosierung Zuletzt Aus"
-      },
-      "dos_4_phm_last_on": {
-        "name": "pH--Dosierung Zuletzt Ein"
-      },
-      "dos_4_phm_runtime": {
-        "name": "pH--Dosierlaufzeit"
-      },
-      "dos_4_phm_type": {
-        "name": "pH- Dosiertyp"
-      },
-      "dos_4_phm_use": {
-        "name": "Дозирование pH- настроено"
-      },
-      "dos_5_php_last_can_reset": {
-        "name": "pH+ Letzter Kanister-Reset"
-      },
-      "dos_5_php_last_off": {
-        "name": "pH+-Dosierung Zuletzt Aus"
-      },
-      "dos_5_php_last_on": {
-        "name": "pH+-Dosierung Zuletzt Ein"
-      },
-      "dos_5_php_runtime": {
-        "name": "pH+-Dosierlaufzeit"
-      },
-      "dos_5_php_type": {
-        "name": "pH+ Dosiertyp"
-      },
-      "dos_5_php_use": {
-        "name": "Дозирование pH+ настроено"
-      },
-      "dos_6_floc_last_can_reset": {
-        "name": "Flockmittel Letzter Kanister-Reset"
-      },
-      "dos_6_floc_last_off": {
-        "name": "Flockmittel-Dosierung Zuletzt Aus"
-      },
-      "dos_6_floc_last_on": {
-        "name": "Flockmittel-Dosierung Zuletzt Ein"
-      },
-      "dos_6_floc_runtime": {
-        "name": "Flockmittel-Dosierlaufzeit"
-      },
-      "dos_6_floc_type": {
-        "name": "Flockmittel Dosiertyp"
-      },
-      "dos_6_floc_use": {
-        "name": "Дозирование флокулянта настроено"
-      },
-      "dmx_scene1": {
-        "name": "DMX-Lichtszene 1"
-      },
-      "dmx_scene2": {
-        "name": "DMX-Lichtszene 2"
-      },
-      "dmx_scene3": {
-        "name": "DMX-Lichtszene 3"
-      },
-      "dmx_scene4": {
-        "name": "DMX-Lichtszene 4"
-      },
-      "dmx_scene5": {
-        "name": "DMX-Lichtszene 5"
-      },
-      "dmx_scene6": {
-        "name": "DMX-Lichtszene 6"
-      },
-      "dmx_scene7": {
-        "name": "DMX-Lichtszene 7"
-      },
-      "dmx_scene8": {
-        "name": "DMX-Lichtszene 8"
-      },
-      "dmx_scene9": {
-        "name": "DMX-Lichtszene 9"
-      },
-      "dmx_scene10": {
-        "name": "DMX-Lichtszene 10"
-      },
-      "dmx_scene11": {
-        "name": "DMX-Lichtszene 11"
-      },
-      "dmx_scene12": {
-        "name": "DMX-Lichtszene 12"
-      },
-      "digitalinputrule_state_digitalinput_rule_1": {
-        "name": "Schaltregeln Zustand 1"
-      },
-      "digitalinputrule_state_digitalinput_rule_stopwatch1": {
-        "name": "Schaltregeln Stoppuhr 1"
-      },
-      "digitalinputrule_state_digitalinput_rule_2": {
-        "name": "Schaltregeln Zustand 2"
-      },
-      "digitalinputrule_state_digitalinput_rule_stopwatch2": {
-        "name": "Schaltregeln Stoppuhr 2"
-      },
-      "digitalinputrule_state_digitalinput_rule_3": {
-        "name": "Schaltregeln Zustand 3"
-      },
-      "digitalinputrule_state_digitalinput_rule_stopwatch3": {
-        "name": "Schaltregeln Stoppuhr 3"
-      },
-      "digitalinputrule_state_digitalinput_rule_4": {
-        "name": "Schaltregeln Zustand 4"
-      },
-      "digitalinputrule_state_digitalinput_rule_stopwatch4": {
-        "name": "Schaltregeln Stoppuhr 4"
-      },
-      "digitalinputrule_state_digitalinput_rule_5": {
-        "name": "Schaltregeln Zustand 5"
-      },
-      "digitalinputrule_state_digitalinput_rule_stopwatch5": {
-        "name": "Schaltregeln Stoppuhr 5"
-      },
-      "digitalinputrule_state_digitalinput_rule_6": {
-        "name": "Schaltregeln Zustand 6"
-      },
-      "digitalinputrule_state_digitalinput_rule_stopwatch6": {
-        "name": "Schaltregeln Stoppuhr 6"
-      },
-      "digitalinputrule_state_digitalinput_rule_7": {
-        "name": "Schaltregeln Zustand 7"
-      },
-      "digitalinputrule_state_digitalinput_rule_stopwatch7": {
-        "name": "Schaltregeln Stoppuhr 7"
-      },
-      "input1": {
-        "name": "Digitaleingang 1"
-      },
-      "input2": {
-        "name": "Digitaleingang 2"
-      },
-      "input3": {
-        "name": "Digitaleingang 3"
-      },
-      "input4": {
-        "name": "Digitaleingang 4"
-      },
-      "input5": {
-        "name": "Digitaleingang 5"
-      },
-      "input6": {
-        "name": "Digitaleingang 6"
-      },
-      "input7": {
-        "name": "Digitaleingang 7"
-      },
-      "input8": {
-        "name": "Digitaleingang 8"
-      },
-      "input9": {
-        "name": "Digitaleingang 9"
-      },
-      "input10": {
-        "name": "Digitaleingang 10"
-      },
-      "input11": {
-        "name": "Digitaleingang 11"
-      },
-      "input12": {
-        "name": "Digitaleingang 12"
-      },
-      "input_ce1": {
-        "name": "Kanister-Leersensor 1"
-      },
-      "input_ce2": {
-        "name": "Kanister-Leersensor 2"
-      },
-      "input_ce3": {
-        "name": "Kanister-Leersensor 3"
-      },
-      "input_ce4": {
-        "name": "Kanister-Leersensor 4"
-      },
-      "pump_rs485_pwr": {
-        "name": "RS485-Pumpenleistung"
-      },
-      "load_avg": {
-        "name": "CPU-Auslastung"
+      "date": {
+        "name": "System Date"
       },
       "di_rule_1_stopwatch": {
         "name": "DI-Regel 1 Restzeit"
@@ -1523,53 +2000,1022 @@
       "di_rule_8_stopwatch": {
         "name": "DI-Regel 8 Restzeit"
       },
-      "dos_2_current_polarity": {
-        "name": "Полярность электролиза"
+      "digitalinputrule_state_digitalinput_rule_1": {
+        "name": "Schaltregeln Zustand 1"
       },
-      "dos_3_elo_rev_runtime": {
-        "name": "Время работы реверса электролиза"
+      "digitalinputrule_state_digitalinput_rule_2": {
+        "name": "Schaltregeln Zustand 2"
       },
-      "last_error_id": {
-        "name": "Последний идентификатор ошибки"
+      "digitalinputrule_state_digitalinput_rule_3": {
+        "name": "Schaltregeln Zustand 3"
+      },
+      "digitalinputrule_state_digitalinput_rule_4": {
+        "name": "Schaltregeln Zustand 4"
+      },
+      "digitalinputrule_state_digitalinput_rule_5": {
+        "name": "Schaltregeln Zustand 5"
+      },
+      "digitalinputrule_state_digitalinput_rule_6": {
+        "name": "Schaltregeln Zustand 6"
+      },
+      "digitalinputrule_state_digitalinput_rule_7": {
+        "name": "Schaltregeln Zustand 7"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch1": {
+        "name": "Schaltregeln Stoppuhr 1"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch2": {
+        "name": "Schaltregeln Stoppuhr 2"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch3": {
+        "name": "Schaltregeln Stoppuhr 3"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch4": {
+        "name": "Schaltregeln Stoppuhr 4"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch5": {
+        "name": "Schaltregeln Stoppuhr 5"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch6": {
+        "name": "Schaltregeln Stoppuhr 6"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch7": {
+        "name": "Schaltregeln Stoppuhr 7"
+      },
+      "dmx_mode": {
+        "name": "DMX Mode"
+      },
+      "dmx_scene1": {
+        "name": "DMX-Lichtszene 1"
+      },
+      "dmx_scene10": {
+        "name": "DMX-Lichtszene 10"
+      },
+      "dmx_scene11": {
+        "name": "DMX-Lichtszene 11"
+      },
+      "dmx_scene12": {
+        "name": "DMX-Lichtszene 12"
+      },
+      "dmx_scene2": {
+        "name": "DMX-Lichtszene 2"
+      },
+      "dmx_scene3": {
+        "name": "DMX-Lichtszene 3"
+      },
+      "dmx_scene4": {
+        "name": "DMX-Lichtszene 4"
+      },
+      "dmx_scene5": {
+        "name": "DMX-Lichtszene 5"
+      },
+      "dmx_scene6": {
+        "name": "DMX-Lichtszene 6"
+      },
+      "dmx_scene7": {
+        "name": "DMX-Lichtszene 7"
+      },
+      "dmx_scene8": {
+        "name": "DMX-Lichtszene 8"
+      },
+      "dmx_scene9": {
+        "name": "DMX-Lichtszene 9"
+      },
+      "dos_1_cl": {
+        "name": "Chlor-Dosiersystem"
+      },
+      "dos_1_cl_daily": {
+        "name": "Chlor Tagesdosierung (ml)"
+      },
+      "dos_1_cl_last_can_reset": {
+        "name": "Chlor Letzter Kanister-Reset"
+      },
+      "dos_1_cl_last_off": {
+        "name": "Chlor-Dosierung Zuletzt Aus"
+      },
+      "dos_1_cl_last_on": {
+        "name": "Chlor-Dosierung Zuletzt Ein"
       },
       "dos_1_cl_remaining_range": {
         "name": "Остаток хлора"
       },
+      "dos_1_cl_runtime": {
+        "name": "Chlor-Dosierlaufzeit"
+      },
+      "dos_1_cl_state": {
+        "name": "Chlordosier-Status"
+      },
+      "dos_1_cl_total_can": {
+        "name": "Chlor Kanisterinhalt (ml)"
+      },
+      "dos_1_cl_type": {
+        "name": "Chlor Dosiertyp"
+      },
+      "dos_1_cl_use": {
+        "name": "Дозирование хлора настроено"
+      },
+      "dos_2_current_polarity": {
+        "name": "Полярность электролиза"
+      },
+      "dos_2_elo": {
+        "name": "Elektrolyse-Dosiersystem"
+      },
+      "dos_2_elo_daily": {
+        "name": "Суточная выработка электролиза"
+      },
+      "dos_2_elo_last_can_reset": {
+        "name": "Последний сброс электролизной ячейки"
+      },
+      "dos_2_elo_last_off": {
+        "name": "Elektrolyse-Dosierung Zuletzt Aus"
+      },
+      "dos_2_elo_last_on": {
+        "name": "Elektrolyse-Dosierung Zuletzt Ein"
+      },
       "dos_2_elo_remaining_range": {
         "name": "Остаток ресурса электролиза"
+      },
+      "dos_2_elo_runtime": {
+        "name": "Elektrolyse-Dosierlaufzeit"
+      },
+      "dos_2_elo_state": {
+        "name": "Elektrolyse-Dosierstatus"
+      },
+      "dos_2_elo_total_can": {
+        "name": "Оставшийся ресурс электролизной ячейки"
+      },
+      "dos_2_elo_type": {
+        "name": "Elektrolyse Dosiertyp"
+      },
+      "dos_2_elo_use": {
+        "name": "Электролиз настроен"
+      },
+      "dos_3_elo_rev_remaining_range": {
+        "name": "Electrolysis (Reversed) Remaining Range"
+      },
+      "dos_3_elo_rev_runtime": {
+        "name": "Время работы реверса электролиза"
+      },
+      "dos_4_phm": {
+        "name": "pH- Dosiersystem"
+      },
+      "dos_4_phm_daily": {
+        "name": "pH- Tagesdosierung (ml)"
+      },
+      "dos_4_phm_last_can_reset": {
+        "name": "pH- Letzter Kanister-Reset"
+      },
+      "dos_4_phm_last_off": {
+        "name": "pH--Dosierung Zuletzt Aus"
+      },
+      "dos_4_phm_last_on": {
+        "name": "pH--Dosierung Zuletzt Ein"
       },
       "dos_4_phm_remaining_range": {
         "name": "Остаток pH-"
       },
+      "dos_4_phm_runtime": {
+        "name": "pH--Dosierlaufzeit"
+      },
+      "dos_4_phm_state": {
+        "name": "pH--Dosier-Status"
+      },
+      "dos_4_phm_total_can": {
+        "name": "pH- Kanisterinhalt (ml)"
+      },
+      "dos_4_phm_type": {
+        "name": "pH- Dosiertyp"
+      },
+      "dos_4_phm_use": {
+        "name": "Дозирование pH- настроено"
+      },
+      "dos_5_php": {
+        "name": "pH+ Dosiersystem"
+      },
+      "dos_5_php_daily": {
+        "name": "pH+ Tagesdosierung (ml)"
+      },
+      "dos_5_php_last_can_reset": {
+        "name": "pH+ Letzter Kanister-Reset"
+      },
+      "dos_5_php_last_off": {
+        "name": "pH+-Dosierung Zuletzt Aus"
+      },
+      "dos_5_php_last_on": {
+        "name": "pH+-Dosierung Zuletzt Ein"
+      },
       "dos_5_php_remaining_range": {
         "name": "Остаток pH+"
+      },
+      "dos_5_php_runtime": {
+        "name": "pH+-Dosierlaufzeit"
+      },
+      "dos_5_php_state": {
+        "name": "pH+-Dosier-Status"
+      },
+      "dos_5_php_total_can": {
+        "name": "pH+ Kanisterinhalt (ml)"
+      },
+      "dos_5_php_type": {
+        "name": "pH+ Dosiertyp"
+      },
+      "dos_5_php_use": {
+        "name": "Дозирование pH+ настроено"
+      },
+      "dos_6_floc": {
+        "name": "Flockmittel-Dosiersystem"
+      },
+      "dos_6_floc_daily": {
+        "name": "Flockmittel Tagesdosierung (ml)"
+      },
+      "dos_6_floc_last_can_reset": {
+        "name": "Flockmittel Letzter Kanister-Reset"
+      },
+      "dos_6_floc_last_off": {
+        "name": "Flockmittel-Dosierung Zuletzt Aus"
+      },
+      "dos_6_floc_last_on": {
+        "name": "Flockmittel-Dosierung Zuletzt Ein"
       },
       "dos_6_floc_remaining_range": {
         "name": "Остаток флокулянта"
       },
-      "analogrule_1": {
-        "name": "Аналоговое правило 1"
+      "dos_6_floc_runtime": {
+        "name": "Flockmittel-Dosierlaufzeit"
       },
-      "analogrule_2": {
-        "name": "Аналоговое правило 2"
+      "dos_6_floc_state": {
+        "name": "Flockungsstatus"
       },
-      "analogrule_3": {
-        "name": "Аналоговое правило 3"
+      "dos_6_floc_total_can": {
+        "name": "Flockmittel Kanisterinhalt (ml)"
       },
-      "analogrule_4": {
-        "name": "Аналоговое правило 4"
+      "dos_6_floc_type": {
+        "name": "Flockmittel Dosiertyp"
       },
-      "analogrule_5": {
-        "name": "Аналоговое правило 5"
+      "dos_6_floc_use": {
+        "name": "Дозирование флокулянта настроено"
       },
-      "analogrule_6": {
-        "name": "Аналоговое правило 6"
+      "eco": {
+        "name": "Eco-Modus Status"
       },
-      "analogrule_7": {
-        "name": "Аналоговое правило 7"
+      "eco_last_off": {
+        "name": "Eco Zuletzt Aus"
       },
-      "analogrule_8": {
-        "name": "Аналоговое правило 8"
+      "eco_last_on": {
+        "name": "Eco Zuletzt Ein"
+      },
+      "eco_runtime": {
+        "name": "Eco-Laufzeit"
+      },
+      "error_code": {
+        "name": "Error Code"
+      },
+      "error_contact": {
+        "name": "Cover Error Contact"
+      },
+      "ext1_1": {
+        "name": "Расширение 1.1"
+      },
+      "ext1_1_last_off": {
+        "name": "Расширение 1.1 Zuletzt Aus"
+      },
+      "ext1_1_last_on": {
+        "name": "Расширение 1.1 Zuletzt Ein"
+      },
+      "ext1_1_runtime": {
+        "name": "Расширение 1.1 Laufzeit"
+      },
+      "ext1_2": {
+        "name": "Расширение 1.2"
+      },
+      "ext1_2_last_off": {
+        "name": "Расширение 1.2 Zuletzt Aus"
+      },
+      "ext1_2_last_on": {
+        "name": "Расширение 1.2 Zuletzt Ein"
+      },
+      "ext1_2_runtime": {
+        "name": "Расширение 1.2 Laufzeit"
+      },
+      "ext1_3": {
+        "name": "Расширение 1.3"
+      },
+      "ext1_3_last_off": {
+        "name": "Расширение 1.3 Zuletzt Aus"
+      },
+      "ext1_3_last_on": {
+        "name": "Расширение 1.3 Zuletzt Ein"
+      },
+      "ext1_3_runtime": {
+        "name": "Расширение 1.3 Laufzeit"
+      },
+      "ext1_4": {
+        "name": "Расширение 1.4"
+      },
+      "ext1_4_last_off": {
+        "name": "Расширение 1.4 Zuletzt Aus"
+      },
+      "ext1_4_last_on": {
+        "name": "Расширение 1.4 Zuletzt Ein"
+      },
+      "ext1_4_runtime": {
+        "name": "Расширение 1.4 Laufzeit"
+      },
+      "ext1_5": {
+        "name": "Расширение 1.5"
+      },
+      "ext1_5_last_off": {
+        "name": "Расширение 1.5 Zuletzt Aus"
+      },
+      "ext1_5_last_on": {
+        "name": "Расширение 1.5 Zuletzt Ein"
+      },
+      "ext1_5_runtime": {
+        "name": "Расширение 1.5 Laufzeit"
+      },
+      "ext1_6": {
+        "name": "Расширение 1.6"
+      },
+      "ext1_6_last_off": {
+        "name": "Расширение 1.6 Zuletzt Aus"
+      },
+      "ext1_6_last_on": {
+        "name": "Расширение 1.6 Zuletzt Ein"
+      },
+      "ext1_6_runtime": {
+        "name": "Расширение 1.6 Laufzeit"
+      },
+      "ext1_7": {
+        "name": "Расширение 1.7"
+      },
+      "ext1_7_last_off": {
+        "name": "Расширение 1.7 Zuletzt Aus"
+      },
+      "ext1_7_last_on": {
+        "name": "Расширение 1.7 Zuletzt Ein"
+      },
+      "ext1_7_runtime": {
+        "name": "Расширение 1.7 Laufzeit"
+      },
+      "ext1_8": {
+        "name": "Расширение 1.8"
+      },
+      "ext1_8_last_off": {
+        "name": "Расширение 1.8 Zuletzt Aus"
+      },
+      "ext1_8_last_on": {
+        "name": "Расширение 1.8 Zuletzt Ein"
+      },
+      "ext1_8_runtime": {
+        "name": "Расширение 1.8 Laufzeit"
+      },
+      "ext2_1": {
+        "name": "Расширение 2.1"
+      },
+      "ext2_1_last_off": {
+        "name": "Расширение 2.1 Zuletzt Aus"
+      },
+      "ext2_1_last_on": {
+        "name": "Расширение 2.1 Zuletzt Ein"
+      },
+      "ext2_1_runtime": {
+        "name": "Расширение 2.1 Laufzeit"
+      },
+      "ext2_2": {
+        "name": "Расширение 2.2"
+      },
+      "ext2_2_last_off": {
+        "name": "Расширение 2.2 Zuletzt Aus"
+      },
+      "ext2_2_last_on": {
+        "name": "Расширение 2.2 Zuletzt Ein"
+      },
+      "ext2_2_runtime": {
+        "name": "Расширение 2.2 Laufzeit"
+      },
+      "ext2_3": {
+        "name": "Расширение 2.3"
+      },
+      "ext2_3_last_off": {
+        "name": "Расширение 2.3 Zuletzt Aus"
+      },
+      "ext2_3_last_on": {
+        "name": "Расширение 2.3 Zuletzt Ein"
+      },
+      "ext2_3_runtime": {
+        "name": "Расширение 2.3 Laufzeit"
+      },
+      "ext2_4": {
+        "name": "Расширение 2.4"
+      },
+      "ext2_4_last_off": {
+        "name": "Расширение 2.4 Zuletzt Aus"
+      },
+      "ext2_4_last_on": {
+        "name": "Расширение 2.4 Zuletzt Ein"
+      },
+      "ext2_4_runtime": {
+        "name": "Расширение 2.4 Laufzeit"
+      },
+      "ext2_5": {
+        "name": "Расширение 2.5"
+      },
+      "ext2_5_last_off": {
+        "name": "Расширение 2.5 Zuletzt Aus"
+      },
+      "ext2_5_last_on": {
+        "name": "Расширение 2.5 Zuletzt Ein"
+      },
+      "ext2_5_runtime": {
+        "name": "Расширение 2.5 Laufzeit"
+      },
+      "ext2_6": {
+        "name": "Расширение 2.6"
+      },
+      "ext2_6_last_off": {
+        "name": "Расширение 2.6 Zuletzt Aus"
+      },
+      "ext2_6_last_on": {
+        "name": "Расширение 2.6 Zuletzt Ein"
+      },
+      "ext2_6_runtime": {
+        "name": "Расширение 2.6 Laufzeit"
+      },
+      "ext2_7": {
+        "name": "Расширение 2.7"
+      },
+      "ext2_7_last_off": {
+        "name": "Расширение 2.7 Zuletzt Aus"
+      },
+      "ext2_7_last_on": {
+        "name": "Расширение 2.7 Zuletzt Ein"
+      },
+      "ext2_7_runtime": {
+        "name": "Расширение 2.7 Laufzeit"
+      },
+      "ext2_8": {
+        "name": "Расширение 2.8"
+      },
+      "ext2_8_last_off": {
+        "name": "Расширение 2.8 Zuletzt Aus"
+      },
+      "ext2_8_last_on": {
+        "name": "Расширение 2.8 Zuletzt Ein"
+      },
+      "ext2_8_runtime": {
+        "name": "Расширение 2.8 Laufzeit"
+      },
+      "flow_rate": {
+        "name": "Расход"
+      },
+      "fw": {
+        "name": "Firmware-Version"
+      },
+      "heater": {
+        "name": "Heizungs-Status"
+      },
+      "heater_last_off": {
+        "name": "Heizung Zuletzt Aus"
+      },
+      "heater_last_on": {
+        "name": "Heizung Zuletzt Ein"
+      },
+      "heater_postrun_time": {
+        "name": "Heizung Nachlaufzeit"
+      },
+      "heater_runtime": {
+        "name": "Heizungs-Laufzeit"
+      },
+      "heater_set_temp": {
+        "name": "Heater Setpoint (Controller)"
+      },
+      "heaterstate": {
+        "name": "Heizung Detail-Status"
+      },
+      "hw_serial_carrier": {
+        "name": "Carrier Board Serial Number"
+      },
+      "hw_version_carrier": {
+        "name": "Carrier Board Hardware Version"
+      },
+      "imp1_value": {
+        "name": "Входной расход дозирования"
+      },
+      "imp2_value": {
+        "name": "Расход насоса"
+      },
+      "input1": {
+        "name": "Digitaleingang 1"
+      },
+      "input10": {
+        "name": "Digitaleingang 10"
+      },
+      "input11": {
+        "name": "Digitaleingang 11"
+      },
+      "input12": {
+        "name": "Digitaleingang 12"
+      },
+      "input2": {
+        "name": "Digitaleingang 2"
+      },
+      "input3": {
+        "name": "Digitaleingang 3"
+      },
+      "input4": {
+        "name": "Digitaleingang 4"
+      },
+      "input5": {
+        "name": "Digitaleingang 5"
+      },
+      "input6": {
+        "name": "Digitaleingang 6"
+      },
+      "input7": {
+        "name": "Digitaleingang 7"
+      },
+      "input8": {
+        "name": "Digitaleingang 8"
+      },
+      "input9": {
+        "name": "Digitaleingang 9"
+      },
+      "input_ce1": {
+        "name": "Kanister-Leersensor 1"
+      },
+      "input_ce2": {
+        "name": "Kanister-Leersensor 2"
+      },
+      "input_ce3": {
+        "name": "Kanister-Leersensor 3"
+      },
+      "input_ce4": {
+        "name": "Kanister-Leersensor 4"
+      },
+      "inputz1z2": {
+        "name": "Digital Inputs Z1/Z2"
+      },
+      "last_error": {
+        "name": "Last Error"
+      },
+      "last_error_code": {
+        "name": "Последний Код Ошибки"
+      },
+      "last_error_id": {
+        "name": "Последний идентификатор ошибки"
+      },
+      "last_event_age": {
+        "name": "Возраст Последнего События"
+      },
+      "last_moving_direction": {
+        "name": "Cover Last Direction"
+      },
+      "light": {
+        "name": "Beleuchtungs-Status"
+      },
+      "light_last_off": {
+        "name": "Beleuchtung Zuletzt Aus"
+      },
+      "light_last_on": {
+        "name": "Beleuchtung Zuletzt Ein"
+      },
+      "light_mode": {
+        "name": "Light Mode"
+      },
+      "light_runtime": {
+        "name": "Beleuchtungs-Laufzeit"
+      },
+      "light_scene_1": {
+        "name": "Light Scene 1"
+      },
+      "light_scene_10": {
+        "name": "Light Scene 10"
+      },
+      "light_scene_11": {
+        "name": "Light Scene 11"
+      },
+      "light_scene_12": {
+        "name": "Light Scene 12"
+      },
+      "light_scene_2": {
+        "name": "Light Scene 2"
+      },
+      "light_scene_3": {
+        "name": "Light Scene 3"
+      },
+      "light_scene_4": {
+        "name": "Light Scene 4"
+      },
+      "light_scene_5": {
+        "name": "Light Scene 5"
+      },
+      "light_scene_6": {
+        "name": "Light Scene 6"
+      },
+      "light_scene_7": {
+        "name": "Light Scene 7"
+      },
+      "light_scene_8": {
+        "name": "Light Scene 8"
+      },
+      "light_scene_9": {
+        "name": "Light Scene 9"
+      },
+      "lightstate": {
+        "name": "Light Detail Status"
+      },
+      "load_avg": {
+        "name": "CPU-Auslastung"
+      },
+      "lsi_index": {
+        "name": "LSI Result"
+      },
+      "memory_used": {
+        "name": "Memory Used"
+      },
+      "omni_dc0_runtime": {
+        "name": "Время работы двигателя постоянного тока OMNI 0"
+      },
+      "omni_dc1_runtime": {
+        "name": "Время работы двигателя постоянного тока OMNI 1"
+      },
+      "omni_dc2_runtime": {
+        "name": "Время работы двигателя постоянного тока OMNI 2"
+      },
+      "omni_dc3_runtime": {
+        "name": "Время работы двигателя постоянного тока OMNI 3"
+      },
+      "omni_dc4_runtime": {
+        "name": "Время работы двигателя постоянного тока OMNI 4"
+      },
+      "omni_dc5_runtime": {
+        "name": "Время работы двигателя постоянного тока OMNI 5"
+      },
+      "onewire10_romcode": {
+        "name": "OneWire ROM Code 10"
+      },
+      "onewire10_value": {
+        "name": "Датчик Температуры 10"
+      },
+      "onewire10_value_max": {
+        "name": "Датчик Температуры 10 Maximum"
+      },
+      "onewire10_value_min": {
+        "name": "Датчик Температуры 10 Minimum"
+      },
+      "onewire11_romcode": {
+        "name": "OneWire ROM Code 11"
+      },
+      "onewire11_value": {
+        "name": "Датчик Температуры 11"
+      },
+      "onewire11_value_max": {
+        "name": "Датчик Температуры 11 Maximum"
+      },
+      "onewire11_value_min": {
+        "name": "Датчик Температуры 11 Minimum"
+      },
+      "onewire12_romcode": {
+        "name": "OneWire ROM Code 12"
+      },
+      "onewire12_value": {
+        "name": "Датчик Температуры 12"
+      },
+      "onewire12_value_max": {
+        "name": "Датчик Температуры 12 Maximum"
+      },
+      "onewire12_value_min": {
+        "name": "Датчик Температуры 12 Minimum"
+      },
+      "onewire1_romcode": {
+        "name": "OneWire ROM Code 1"
+      },
+      "onewire1_value": {
+        "name": "Вода бассейна"
+      },
+      "onewire1_value_max": {
+        "name": "Wassertemperatur Maximum"
+      },
+      "onewire1_value_min": {
+        "name": "Wassertemperatur Minimum"
+      },
+      "onewire2_romcode": {
+        "name": "OneWire ROM Code 2"
+      },
+      "onewire2_value": {
+        "name": "Внешняя температура"
+      },
+      "onewire2_value_max": {
+        "name": "Внешняя Температура Maximum"
+      },
+      "onewire2_value_min": {
+        "name": "Внешняя Температура Minimum"
+      },
+      "onewire3_romcode": {
+        "name": "OneWire ROM Code 3"
+      },
+      "onewire3_value": {
+        "name": "Солнечный абсорбер"
+      },
+      "onewire3_value_max": {
+        "name": "Солнечный Абсорбер Maximum"
+      },
+      "onewire3_value_min": {
+        "name": "Солнечный Абсорбер Minimum"
+      },
+      "onewire4_romcode": {
+        "name": "OneWire ROM Code 4"
+      },
+      "onewire4_value": {
+        "name": "Возврат абсорбера"
+      },
+      "onewire4_value_max": {
+        "name": "Возврат Абсорбера Maximum"
+      },
+      "onewire4_value_min": {
+        "name": "Возврат Абсорбера Minimum"
+      },
+      "onewire5_romcode": {
+        "name": "OneWire ROM Code 5"
+      },
+      "onewire5_value": {
+        "name": "Теплообменник"
+      },
+      "onewire5_value_max": {
+        "name": "Вход Теплообменника Maximum"
+      },
+      "onewire5_value_min": {
+        "name": "Вход Теплообменника Minimum"
+      },
+      "onewire6_romcode": {
+        "name": "OneWire ROM Code 6"
+      },
+      "onewire6_value": {
+        "name": "Тепловой аккумулятор"
+      },
+      "onewire6_value_max": {
+        "name": "Выход Теплообменника Maximum"
+      },
+      "onewire6_value_min": {
+        "name": "Выход Теплообменника Minimum"
+      },
+      "onewire7_romcode": {
+        "name": "OneWire ROM Code 7"
+      },
+      "onewire7_value": {
+        "name": "Датчик температуры 7"
+      },
+      "onewire7_value_max": {
+        "name": "Датчик Температуры 7 Maximum"
+      },
+      "onewire7_value_min": {
+        "name": "Датчик Температуры 7 Minimum"
+      },
+      "onewire8_romcode": {
+        "name": "OneWire ROM Code 8"
+      },
+      "onewire8_value": {
+        "name": "Датчик температуры 8"
+      },
+      "onewire8_value_max": {
+        "name": "Датчик Температуры 8 Maximum"
+      },
+      "onewire8_value_min": {
+        "name": "Датчик Температуры 8 Minimum"
+      },
+      "onewire9_romcode": {
+        "name": "OneWire ROM Code 9"
+      },
+      "onewire9_value": {
+        "name": "Датчик Температуры 9"
+      },
+      "onewire9_value_max": {
+        "name": "Датчик Температуры 9 Maximum"
+      },
+      "onewire9_value_min": {
+        "name": "Датчик Температуры 9 Minimum"
+      },
+      "open_contact": {
+        "name": "Cover Open Contact"
+      },
+      "orp_value": {
+        "name": "Значение ORP"
+      },
+      "orp_value_max": {
+        "name": "Redoxpotential Maximum"
+      },
+      "orp_value_min": {
+        "name": "Redoxpotential Minimum"
+      },
+      "overflow_dryrun_state": {
+        "name": "Überlauf Trockenlauf-Status"
+      },
+      "overflow_overfill_state": {
+        "name": "Überfüllungs-Status"
+      },
+      "overflow_refill_state": {
+        "name": "Überlauf Nachfüll-Status"
+      },
+      "ph_value": {
+        "name": "Значение pH"
+      },
+      "ph_value_max": {
+        "name": "Значение pH Maximum"
+      },
+      "ph_value_min": {
+        "name": "Значение pH Minimum"
+      },
+      "pool_health": {
+        "name": "Pool Health",
+        "state": {
+          "error": "Error",
+          "offline": "Offline",
+          "ok": "OK",
+          "warning": "Warning"
+        }
+      },
+      "pot_value": {
+        "name": "Содержание хлора"
+      },
+      "pot_value_max": {
+        "name": "Содержание Хлора Maximum"
+      },
+      "pot_value_min": {
+        "name": "Содержание Хлора Minimum"
+      },
+      "pump": {
+        "name": "Pumpen-Status"
+      },
+      "pump_estimated_power": {
+        "name": "Мощность Насоса (Расчетная)"
+      },
+      "pump_last_off": {
+        "name": "Pumpe Zuletzt Aus"
+      },
+      "pump_last_on": {
+        "name": "Pumpe Zuletzt Ein"
+      },
+      "pump_rpm_0": {
+        "name": "Pumpen-Stufe 0"
+      },
+      "pump_rpm_0_last_off": {
+        "name": "Pumpen-Stufe 0 Zuletzt Aus"
+      },
+      "pump_rpm_0_last_on": {
+        "name": "Pumpen-Stufe 0 Zuletzt Ein"
+      },
+      "pump_rpm_0_runtime": {
+        "name": "Pumpen-Stufe 0 Laufzeit"
+      },
+      "pump_rpm_0_value": {
+        "name": "Pump Speed 0 Value"
+      },
+      "pump_rpm_1": {
+        "name": "Pumpen-Stufe 1"
+      },
+      "pump_rpm_1_last_off": {
+        "name": "Pumpen-Stufe 1 Zuletzt Aus"
+      },
+      "pump_rpm_1_last_on": {
+        "name": "Pumpen-Stufe 1 Zuletzt Ein"
+      },
+      "pump_rpm_1_runtime": {
+        "name": "Pumpen-Stufe 1 Laufzeit"
+      },
+      "pump_rpm_1_value": {
+        "name": "Pump Speed 1 Value"
+      },
+      "pump_rpm_2": {
+        "name": "Pumpen-Stufe 2"
+      },
+      "pump_rpm_2_last_off": {
+        "name": "Pumpen-Stufe 2 Zuletzt Aus"
+      },
+      "pump_rpm_2_last_on": {
+        "name": "Pumpen-Stufe 2 Zuletzt Ein"
+      },
+      "pump_rpm_2_runtime": {
+        "name": "Pumpen-Stufe 2 Laufzeit"
+      },
+      "pump_rpm_2_value": {
+        "name": "Pump Speed 2 Value"
+      },
+      "pump_rpm_3": {
+        "name": "Pumpen-Stufe 3"
+      },
+      "pump_rpm_3_last_off": {
+        "name": "Pumpen-Stufe 3 Zuletzt Aus"
+      },
+      "pump_rpm_3_last_on": {
+        "name": "Pumpen-Stufe 3 Zuletzt Ein"
+      },
+      "pump_rpm_3_runtime": {
+        "name": "Pumpen-Stufe 3 Laufzeit"
+      },
+      "pump_rpm_3_value": {
+        "name": "Pump Speed 3 Value"
+      },
+      "pump_rs485_pwr": {
+        "name": "RS485-Pumpenleistung"
+      },
+      "pump_runtime": {
+        "name": "Pumpen-Laufzeit"
+      },
+      "pumppriostate": {
+        "name": "Pump Priority Status"
+      },
+      "pumpstate": {
+        "name": "Pumpen Detail-Status"
+      },
+      "pvsurplus": {
+        "name": "PV-Überschuss Status"
+      },
+      "recovery_success_rate": {
+        "name": "Скорость Успешного Восстановления"
+      },
+      "refill": {
+        "name": "Nachfüll-Status"
+      },
+      "refill_last_off": {
+        "name": "Nachfüllung Zuletzt Aus"
+      },
+      "refill_last_on": {
+        "name": "Nachfüllung Zuletzt Ein"
+      },
+      "refill_runtime": {
+        "name": "Nachfüll-Laufzeit"
+      },
+      "refill_state": {
+        "name": "Refill Detail Status"
+      },
+      "solar": {
+        "name": "Solar-Status"
+      },
+      "solar_last_off": {
+        "name": "Solar Zuletzt Aus"
+      },
+      "solar_last_on": {
+        "name": "Solar Zuletzt Ein"
+      },
+      "solar_maxtemp": {
+        "name": "Solar Maximum Temperature"
+      },
+      "solar_runtime": {
+        "name": "Solar-Laufzeit"
+      },
+      "solarstate": {
+        "name": "Solar Detail-Status"
+      },
+      "sw_update_available": {
+        "name": "Software Update Available"
+      },
+      "sw_version": {
+        "name": "Software-Version"
+      },
+      "sw_version_carrier": {
+        "name": "Carrier Software-Version"
+      },
+      "system_carrier_alive_count": {
+        "name": "Carrier Board Heartbeats"
+      },
+      "system_carrier_alive_faultcount": {
+        "name": "Carrier Board Heartbeat Faults"
+      },
+      "system_carrier_cpu_temperature": {
+        "name": "Träger-CPU-Temperatur"
+      },
+      "system_cpu_temperature": {
+        "name": "System CPU-Temperatur"
+      },
+      "system_dosagemodule_alive_count": {
+        "name": "Dosing Module Heartbeats"
+      },
+      "system_dosagemodule_alive_faultcount": {
+        "name": "Dosing Module Heartbeat Faults"
+      },
+      "system_dosagemodule_cpu_temperature": {
+        "name": "Dosier-Modul CPU-Temperatur"
+      },
+      "system_ext1module_alive_count": {
+        "name": "Extension Module 1 Heartbeats"
+      },
+      "system_ext1module_alive_faultcount": {
+        "name": "Extension Module 1 Heartbeat Faults"
+      },
+      "system_health": {
+        "name": "Состояние Системы"
+      },
+      "system_memory": {
+        "name": "Systemspeicher"
+      },
+      "system_memoryusage": {
+        "name": "Speichernutzung"
+      },
+      "system_relais_status": {
+        "name": "Relais-Status"
+      },
+      "system_safety_timer_active": {
+        "name": "Sicherheitstimer aktiv"
       },
       "temprule_1": {
         "name": "Температурное правило 1"
@@ -1595,185 +3041,58 @@
       "temprule_8": {
         "name": "Температурное правило 8"
       },
-      "omni_dc0_runtime": {
-        "name": "Время работы двигателя постоянного тока OMNI 0"
-      },
-      "omni_dc1_runtime": {
-        "name": "Время работы двигателя постоянного тока OMNI 1"
-      },
-      "omni_dc2_runtime": {
-        "name": "Время работы двигателя постоянного тока OMNI 2"
-      },
-      "omni_dc3_runtime": {
-        "name": "Время работы двигателя постоянного тока OMNI 3"
-      },
-      "omni_dc4_runtime": {
-        "name": "Время работы двигателя постоянного тока OMNI 4"
-      },
-      "omni_dc5_runtime": {
-        "name": "Время работы двигателя постоянного тока OMNI 5"
-      }
-    },
-    "binary_sensor": {
-      "pump": {
-        "name": "Pumpenstatus"
-      },
-      "solar": {
-        "name": "Solarstatus"
-      },
-      "heater": {
-        "name": "Heizerstatus"
-      },
-      "light": {
-        "name": "Beleuchtungsstatus"
-      },
-      "backwash": {
-        "name": "Rückspülstatus"
-      },
-      "refill": {
-        "name": "Nachfüllstatus"
-      },
-      "eco": {
-        "name": "Eco-Modus"
-      },
-      "pvsurplus": {
-        "name": "PV-Überschuss"
-      },
-      "circulation_state": {
-        "name": "Zirkulationsproblem"
-      },
-      "electrode_flow_state": {
-        "name": "Elektrodendurchfluss-Problem"
-      },
-      "pressure_state": {
-        "name": "Druckproblem"
-      },
-      "can_range_state": {
-        "name": "Behälter-Bereichs-Problem"
-      },
-      "input1": {
-        "name": "Digitaler Eingang 1"
-      },
-      "input2": {
-        "name": "Digitaler Eingang 2"
-      },
-      "input3": {
-        "name": "Digitaler Eingang 3"
-      },
-      "input4": {
-        "name": "Digitaler Eingang 4"
-      },
-      "input5": {
-        "name": "Digitaler Eingang 5"
-      },
-      "input6": {
-        "name": "Digitaler Eingang 6"
-      },
-      "input7": {
-        "name": "Digitaler Eingang 7"
-      },
-      "input8": {
-        "name": "Digitaler Eingang 8"
-      },
-      "input9": {
-        "name": "Digitaler Eingang 9"
-      },
-      "input10": {
-        "name": "Digitaler Eingang 10"
-      },
-      "input11": {
-        "name": "Digitaler Eingang 11"
-      },
-      "input12": {
-        "name": "Digitaler Eingang 12"
-      },
-      "input_ce1": {
-        "name": "CE-Eingang 1"
-      },
-      "input_ce2": {
-        "name": "CE-Eingang 2"
-      },
-      "input_ce3": {
-        "name": "CE-Eingang 3"
-      },
-      "input_ce4": {
-        "name": "CE-Eingang 4"
-      },
-      "hw_base_module": {
-        "name": "Hardware: Basismodul"
-      },
-      "hw_dosing_module": {
-        "name": "Hardware: Dosiermodul"
-      },
-      "hw_extension_module_1": {
-        "name": "Hardware: Расширениеsmodul 1"
-      },
-      "hw_extension_module_2": {
-        "name": "Hardware: Расширениеsmodul 2"
-      },
-      "hw_standalone_mode": {
-        "name": "Hardware: Eigenständige Dosiereinheit"
-      },
-      "hw_dmx_module": {
-        "name": "Hardware: DMX-Modul"
-      },
-      "hw_dirule_module": {
-        "name": "Hardware: Digital Rules Module"
-      },
-      "overflow_overfill": {
-        "name": "Переполнение переливной ёмкости"
-      },
-      "overflow_dryrun": {
-        "name": "Сухой ход переливной ёмкости"
-      },
-      "overflow_refill": {
-        "name": "Долив переливной ёмкости"
-      },
-      "backwash_delay": {
-        "name": "Задержка обратной промывки активна"
-      },
-      "bathing_ai_surveillance": {
-        "name": "ИИ-наблюдение за купанием"
-      }
-    },
-    "button": {
-      "reset_errors": {
-        "name": "Сбросить Блокировки Ошибок"
+      "time": {
+        "name": "System Time"
       }
     },
     "switch": {
-      "pump": {
-        "name": "Filterpumpe"
-      },
-      "solar": {
-        "name": "Солнечный Коллектор"
-      },
-      "heater": {
-        "name": "Heizer"
-      },
-      "light": {
-        "name": "Beleuchtung"
-      },
-      "dos_5_php": {
-        "name": "Дозирование pH+"
-      },
-      "dos_4_phm": {
-        "name": "Дозирование pH-"
-      },
-      "dos_1_cl": {
-        "name": "Дозирование Хлора"
-      },
-      "dos_6_floc": {
-        "name": "Flockungsmittel"
-      },
-      "pvsurplus": {
-        "name": "PV-Überschuss"
-      },
       "backwash": {
         "name": "Rückspülung"
       },
       "backwashrinse": {
         "name": "Spülung"
+      },
+      "dirule_1": {
+        "name": "Schaltregel 1"
+      },
+      "dirule_2": {
+        "name": "Schaltregel 2"
+      },
+      "dirule_3": {
+        "name": "Schaltregel 3"
+      },
+      "dirule_4": {
+        "name": "Schaltregel 4"
+      },
+      "dirule_5": {
+        "name": "Schaltregel 5"
+      },
+      "dirule_6": {
+        "name": "Schaltregel 6"
+      },
+      "dirule_7": {
+        "name": "Schaltregel 7"
+      },
+      "dirule_8": {
+        "name": "Schaltregel 8"
+      },
+      "dos_1_cl": {
+        "name": "Дозирование Хлора"
+      },
+      "dos_2_elo": {
+        "name": "Дозирование электролизом"
+      },
+      "dos_4_phm": {
+        "name": "Дозирование pH-"
+      },
+      "dos_5_php": {
+        "name": "Дозирование pH+"
+      },
+      "dos_6_floc": {
+        "name": "Flockungsmittel"
+      },
+      "eco": {
+        "name": "Режим ECO"
       },
       "ext1_1": {
         "name": "Расширение 1.1"
@@ -1823,74 +3142,11 @@
       "ext2_8": {
         "name": "Расширение 2.8"
       },
-      "dmx_scene1": {
-        "name": "DMX Szene 1"
+      "heater": {
+        "name": "Heizer"
       },
-      "dmx_scene2": {
-        "name": "DMX Szene 2"
-      },
-      "dmx_scene3": {
-        "name": "DMX Szene 3"
-      },
-      "dmx_scene4": {
-        "name": "DMX Szene 4"
-      },
-      "dmx_scene5": {
-        "name": "DMX Szene 5"
-      },
-      "dmx_scene6": {
-        "name": "DMX Szene 6"
-      },
-      "dmx_scene7": {
-        "name": "DMX Szene 7"
-      },
-      "dmx_scene8": {
-        "name": "DMX Szene 8"
-      },
-      "dmx_scene9": {
-        "name": "DMX Szene 9"
-      },
-      "dmx_scene10": {
-        "name": "DMX Szene 10"
-      },
-      "dmx_scene11": {
-        "name": "DMX Szene 11"
-      },
-      "dmx_scene12": {
-        "name": "DMX Szene 12"
-      },
-      "dirule_1": {
-        "name": "Schaltregel 1"
-      },
-      "dirule_2": {
-        "name": "Schaltregel 2"
-      },
-      "dirule_3": {
-        "name": "Schaltregel 3"
-      },
-      "dirule_4": {
-        "name": "Schaltregel 4"
-      },
-      "dirule_5": {
-        "name": "Schaltregel 5"
-      },
-      "dirule_6": {
-        "name": "Schaltregel 6"
-      },
-      "dirule_7": {
-        "name": "Schaltregel 7"
-      },
-      "dirule_8": {
-        "name": "Schaltregel 8"
-      },
-      "dos_2_elo": {
-        "name": "Дозирование электролизом"
-      },
-      "eco": {
-        "name": "Режим ECO"
-      },
-      "refill": {
-        "name": "Долив воды"
+      "light": {
+        "name": "Beleuchtung"
       },
       "omni_dc0": {
         "name": "OMNI DC0"
@@ -1909,379 +3165,18 @@
       },
       "omni_dc5": {
         "name": "OMNI DC5"
-      }
-    },
-    "climate": {
-      "heater": {
-        "name": "Pool-Heizer"
+      },
+      "pump": {
+        "name": "Filterpumpe"
+      },
+      "pvsurplus": {
+        "name": "PV-Überschuss"
+      },
+      "refill": {
+        "name": "Долив воды"
       },
       "solar": {
-        "name": "Solar-Heizer"
-      }
-    },
-    "cover": {
-      "pool_cover": {
-        "name": "Pool-Abdeckung"
-      }
-    },
-    "number": {
-      "ph_setpoint": {
-        "name": "pH-Sollwert"
-      },
-      "orp_setpoint": {
-        "name": "ORP-Sollwert"
-      },
-      "chlorine_setpoint": {
-        "name": "Chlor-Sollwert"
-      },
-      "heater_target_temp": {
-        "name": "Zieltemperatur Heizer"
-      },
-      "solar_target_temp": {
-        "name": "Zieltemperatur Solar"
-      },
-      "pump_speed": {
-        "name": "Pumpendrehzahl"
-      },
-      "chlorine_canister_volume": {
-        "name": "Chlorbehälter-Volumen"
-      },
-      "ph_minus_canister_volume": {
-        "name": "pH--Behälter-Volumen"
-      },
-      "ph_plus_canister_volume": {
-        "name": "pH+-Behälter-Volumen"
-      },
-      "flocculant_canister_volume": {
-        "name": "Flockungsmittel-Behälter-Volumen"
-      }
-    },
-    "select": {
-      "pump_mode": {
-        "name": "Режим насоса",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "heater_mode": {
-        "name": "Режим Обогревателя",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "solar_mode": {
-        "name": "Режим Солнца",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "light_mode": {
-        "name": "Режим Освещения",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "dos_cl_mode": {
-        "name": "Режим Дозирования Хлора",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "dos_phm_mode": {
-        "name": "Режим Дозирования pH-",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "dos_php_mode": {
-        "name": "Режим Дозирования pH+",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "pvsurplus_mode": {
-        "name": "Режим Избытка PV",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "backwash_mode": {
-        "name": "Режим обратной промывки",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "backwashrinse_mode": {
-        "name": "Режим Ополаскивания",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "dos_floc_mode": {
-        "name": "Режим Дозирования Флокулянта",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "ext1_1_mode": {
-        "name": "Расширение 1.1 Режим",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "ext1_2_mode": {
-        "name": "Расширение 1.2 Режим",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "ext1_3_mode": {
-        "name": "Расширение 1.3 Режим",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "ext1_4_mode": {
-        "name": "Расширение 1.4 Режим",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "ext1_5_mode": {
-        "name": "Расширение 1.5 Режим",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "ext1_6_mode": {
-        "name": "Расширение 1.6 Режим",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "ext1_7_mode": {
-        "name": "Расширение 1.7 Режим",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "ext1_8_mode": {
-        "name": "Расширение 1.8 Режим",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "ext2_1_mode": {
-        "name": "Расширение 2.1 Режим",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "ext2_2_mode": {
-        "name": "Расширение 2.2 Режим",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "ext2_3_mode": {
-        "name": "Расширение 2.3 Режим",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "ext2_4_mode": {
-        "name": "Расширение 2.4 Режим",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "ext2_5_mode": {
-        "name": "Расширение 2.5 Режим",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "ext2_6_mode": {
-        "name": "Расширение 2.6 Режим",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "ext2_7_mode": {
-        "name": "Расширение 2.7 Режим",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "ext2_8_mode": {
-        "name": "Расширение 2.8 Режим",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "dos_elo_mode": {
-        "name": "Режим дозирования электролиза",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "refill_mode": {
-        "name": "Режим долива",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "eco_mode": {
-        "name": "Режим ECO",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "omni_dc0_mode": {
-        "name": "Режим OMNI DC0",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "omni_dc1_mode": {
-        "name": "Режим OMNI DC1",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "omni_dc2_mode": {
-        "name": "Режим OMNI DC2",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "omni_dc3_mode": {
-        "name": "Режим OMNI DC3",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "omni_dc4_mode": {
-        "name": "Режим OMNI DC4",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      },
-      "omni_dc5_mode": {
-        "name": "Режим OMNI DC5",
-        "state": {
-          "off": "Выкл",
-          "on": "Вкл",
-          "auto": "Авто"
-        }
-      }
-    },
-    "light": {
-      "dmx_scene1": {
-        "name": "DMX-сцена 1"
-      },
-      "dmx_scene2": {
-        "name": "DMX-сцена 2"
-      },
-      "dmx_scene3": {
-        "name": "DMX-сцена 3"
-      },
-      "dmx_scene4": {
-        "name": "DMX-сцена 4"
-      },
-      "dmx_scene5": {
-        "name": "DMX-сцена 5"
-      },
-      "dmx_scene6": {
-        "name": "DMX-сцена 6"
-      },
-      "dmx_scene7": {
-        "name": "DMX-сцена 7"
-      },
-      "dmx_scene8": {
-        "name": "DMX-сцена 8"
-      },
-      "dmx_scene9": {
-        "name": "DMX-сцена 9"
-      },
-      "dmx_scene10": {
-        "name": "DMX-сцена 10"
-      },
-      "dmx_scene11": {
-        "name": "DMX-сцена 11"
-      },
-      "dmx_scene12": {
-        "name": "DMX-сцена 12"
+        "name": "Солнечный Коллектор"
       }
     }
   },

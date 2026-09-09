@@ -14,6 +14,20 @@ from typing import Any
 from .digital_input_helper import DigitalInputConfig
 
 
+def _as_int(value: Any, default: int = 0) -> int:
+    """Return a controller flag as an int, falling back to ``default``.
+
+    The controller answers ``getConfig`` with strings, and for an option it
+    does not know with ``"N/A"`` or an empty string. A bare ``int()`` on those
+    raised ValueError, which aborted the whole hardware-config parse and cost
+    every controller-provided name for a single unusable flag.
+    """
+    try:
+        return int(float(str(value).strip()))
+    except (TypeError, ValueError, AttributeError):
+        return default
+
+
 class HardwareConfig:
     """Read and parse complete hardware configuration from controller.
 
@@ -65,7 +79,7 @@ class HardwareConfig:
 
             # Check if relay is enabled
             enable_key = f"EXT1_{relay_num}_use"
-            enabled = int(self.config.get(enable_key, 0)) != 0
+            enabled = _as_int(self.config.get(enable_key, 0)) != 0
 
             relays[f"EXT1_{relay_num}"] = {
                 "number": relay_num,
@@ -81,7 +95,7 @@ class HardwareConfig:
             name = self.config.get(name_key, f"Relay EXT2-{relay_num}")
 
             enable_key = f"EXT2_{relay_num}_use"
-            enabled = int(self.config.get(enable_key, 0)) != 0
+            enabled = _as_int(self.config.get(enable_key, 0)) != 0
 
             relays[f"EXT2_{relay_num}"] = {
                 "number": relay_num,
@@ -104,7 +118,7 @@ class HardwareConfig:
 
             # Check if scene is enabled
             enable_key = f"LIGHT_prog{scene_num}_use"
-            enabled = int(self.config.get(enable_key, 0)) != 0
+            enabled = _as_int(self.config.get(enable_key, 0)) != 0
 
             scenes[f"LIGHT_SCENE_{scene_num}"] = {
                 "number": scene_num,
@@ -135,7 +149,7 @@ class HardwareConfig:
 
             # Check if enabled
             enable_key = f"DOSAGE_{config_prefix}_use"
-            enabled = int(self.config.get(enable_key, 0)) != 0
+            enabled = _as_int(self.config.get(enable_key, 0)) != 0
 
             # Get setpoint and limits
             setpoint_key = f"DOSAGE_{config_prefix}_set_value"
@@ -207,7 +221,7 @@ class HardwareConfig:
 
             # Check if enabled
             enable_key = f"AI{ai_num}_use"
-            enabled = int(self.config.get(enable_key, 0)) != 0
+            enabled = _as_int(self.config.get(enable_key, 0)) != 0
 
             inputs[f"AI{ai_num}"] = {
                 "number": ai_num,
@@ -247,7 +261,7 @@ class HardwareConfig:
             outputs[output_key] = {
                 "name": name,
                 "icon": icon,
-                "enabled": int(enabled) != 0,
+                "enabled": _as_int(enabled, 1 if default_enabled else 0) != 0,
                 # Don't hardcode domain prefix - let HA handle it via device info
                 "entity_id": f"switch.{output_key.lower()}",
             }

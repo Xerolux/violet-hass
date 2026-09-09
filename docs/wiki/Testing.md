@@ -215,7 +215,8 @@ pytest tests/ --cov=custom_components/violet_pool_controller --cov-report=term
 pytest tests/ --cov=custom_components/violet_pool_controller --cov-report=html
 # Open: htmlcov/index.html
 
-# Target: > 80% coverage
+# The enforced floor is [tool.coverage.report] fail_under in pyproject.toml.
+# `pytest --cov` reads it, so a run below the floor fails locally too.
 ```
 
 ### Run in Parallel (Faster)
@@ -276,15 +277,34 @@ These settings are required for:
 
 ---
 
-## conftest.py – Thread Workaround
+## conftest.py
 
-`tests/conftest.py` contains an important patch:
+`tests/conftest.py` is deliberately minimal. Home Assistant and
+`violet-poolController-api` are **hard requirements**: if either is missing, the
+run stops with
 
-```python
-# Filters Home Assistant's _run_safe_shutdown_loop threads
-# Prevents false-positive thread leak warnings
-# Required for HA 2025.1+
 ```
+... is required to run this test suite but could not be imported ...
+    pip install -r requirements-dev.txt
+```
+
+It does **not** substitute stubs for them. A stub layer used to live here
+(~750 lines of fake Home Assistant); a suite that passes against stubs proves
+nothing, so it was removed. The old `threading.enumerate()` patch went with it:
+it hid every leaked thread from the harness's leak check, not only Home
+Assistant's, so real leaks went unseen. The timezone remap of `US/Pacific` is
+gone too — the pinned harness does not need it.
+
+What remains is a Windows-only `pytest_socket` workaround: Home Assistant's
+harness disables sockets there, and asyncio's `ProactorEventLoop` cannot create
+its self-pipe without `socket.socketpair()`.
+
+### Live hardware scripts
+
+`scripts/live/*.py` talk to a **real controller** and are not tests — pytest
+does not collect them. They read `VIOLET_HOST`, `VIOLET_USER` and
+`VIOLET_PASS`. Only `live_readonly_check.py` performs no writes; the others
+send dosing commands.
 
 ---
 
@@ -298,7 +318,7 @@ python -m mypy custom_components/violet_pool_controller/
 # 2. All tests passing
 ./scripts/run-tests.sh
 
-# 3. Check coverage (> 80%)
+# 3. Coverage (gated by fail_under in pyproject.toml)
 pytest tests/ --cov=custom_components/violet_pool_controller --cov-report=term
 
 # 4. Manual test in real HA instance
@@ -372,7 +392,7 @@ Before every merge/release, the following must be met:
 - [ ] **100% of all unit tests pass**
 - [ ] **Ruff linting: 0 errors**
 - [ ] **MyPy: 0 errors** (except `import-not-found`)
-- [ ] **Coverage: > 80%**
+- [ ] **Coverage at or above the `fail_under` floor in `pyproject.toml`**
 - [ ] **No regression in existing features**
 
 ---

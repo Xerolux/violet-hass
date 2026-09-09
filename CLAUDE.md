@@ -11,7 +11,9 @@ It depends on a separate API client package.
    - Async HTTP client for Violet Pool Controller hardware
    - Rate limiting, circuit breaker, input sanitization
    - No HA dependencies, usable standalone
-   - Installed via `requirements.txt` (`violet-poolController-api>=0.0.38`)
+   - **Home Assistant installs it from `manifest.json`'s `requirements` list**
+     (`violet-poolController-api>=0.0.39`); `requirements.txt` is the
+     development mirror of that list, not what HA reads
 
 2. **`custom_components/violet_pool_controller/`** - Home Assistant custom integration (HACS)
    - Exposes pool sensors, switches, climate, covers, etc. to HA
@@ -20,8 +22,8 @@ It depends on a separate API client package.
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.
 **🔒 Security Model**: See [SECURITY.md](./SECURITY.md) for detailed security architecture and compliance.
 
-**Current Integration Version**: `2.6.1` (defined in `manifest.json`, `const.py`, `pyproject.toml` and `custom_components/violet_pool_controller/.version`)
-**Current API Version**: `0.0.38` (defined in the [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository, pinned in `requirements.txt`)
+**Current Integration Version**: `2.7.0` (defined in `manifest.json`, `const.py`, `pyproject.toml` and `custom_components/violet_pool_controller/.version`)
+**Current API Version**: `0.0.39` (defined in the [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository; pinned in `manifest.json`, mirrored in `requirements.txt`)
 **Minimum Home Assistant Version**: `2026.8.0` (defined in `hacs.json`)
 **Minimum Python Version**: Home Assistant runtime is managed by HA 2026.8.0+; standalone API package supports `>=3.12`
 
@@ -30,12 +32,21 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.
 ### Setup
 
 ```bash
-# Create a Python 3.12+ virtual environment for local tooling/API work
-python3 -m venv .venv
+# One venv name for the whole project: .venv (CLAUDE.md, CONTRIBUTING.md,
+# .devcontainer and scripts/ all agree on it).
+python3.14 -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Install all dev dependencies (includes editable API package)
+# requirements-dev.txt is THE single source of truth for dev-tool version
+# floors. It includes requirements.txt, so this one line is the whole setup.
 pip install -r requirements-dev.txt
+```
+
+Or let the script do it (this is what the devcontainer runs on create):
+
+```bash
+./scripts/setup-test-env.sh              # creates or reuses .venv
+./scripts/setup-test-env.sh --recreate   # rebuild from scratch
 ```
 
 ### Code Quality & Linting
@@ -82,7 +93,25 @@ pytest tests/test_api.py::test_function_name -v
 - `asyncio_mode = auto` - Automatic async/await handling
 - `asyncio_default_fixture_loop_scope = function` - Isolated event loops per test
 
-**Important**: The test suite includes a thread-safety workaround in `conftest.py` that patches `threading.enumerate()` to filter out Home Assistant's `_run_safe_shutdown_loop` threads for compatibility with newer HA versions.
+**Important**: `tests/conftest.py` is deliberately small. Home Assistant and
+`violet-poolController-api` are **hard requirements**: if either is missing the
+run stops with `pytest.exit("... pip install -r requirements-dev.txt")` rather
+than falling back to stubs. The ~750-line stub Home Assistant that used to sit
+behind that fallback produced green runs that tested the stubs and nothing
+else, so it was deleted.
+
+The old `threading.enumerate()` patch (which hid *all* leaked threads from the
+harness's leak check, not only Home Assistant's) and the `dt_util.get_time_zone`
+remap of `US/Pacific` are gone as well - neither is needed on the pinned
+harness. What remains is a Windows-only `pytest_socket` workaround, because
+Home Assistant's harness disables sockets there and asyncio's
+`ProactorEventLoop` needs `socket.socketpair()` to exist.
+
+**Live hardware scripts** live in `scripts/live/` (`live_readonly_check.py`,
+`live_phm_check.py`, `live_dosstart_check.py`, `live_dosstop_check.py`). They
+are *not* tests and are not collected by pytest. Each reads `VIOLET_HOST`,
+`VIOLET_USER` and `VIOLET_PASS` inside `main()` and talks to a real controller;
+`live_readonly_check.py` is the only one that performs no writes.
 
 ## Architecture
 
@@ -92,7 +121,7 @@ pytest tests/test_api.py::test_function_name -v
 
 - **`__init__.py`** - Integration entry point. Handles setup, config entry migration, platform loading, and service registration. Loads these 10 platforms: `sensor`, `binary_sensor`, `switch`, `climate`, `cover`, `number`, `select`, `light`, `update`, `button`.
 
-- **API package** (`violet-poolController-api>=0.0.38` on PyPI) - The HTTP client and low-level utilities live in the standalone repo [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) and are published to PyPI (HA installs the PyPI package per `requirements.txt`). Provides:
+- **API package** (`violet-poolController-api>=0.0.39` on PyPI) - The HTTP client and low-level utilities live in the standalone repo [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) and are published to PyPI. **Home Assistant installs it from the `requirements` list in `manifest.json`**; `requirements.txt` is the development mirror. Provides:
   - `VioletPoolAPI` class - rate-limited HTTP client with retry/backoff
   - `VioletPoolAPIError` exception hierarchy
   - `InputSanitizer` - XSS/injection/path-traversal protection
@@ -104,11 +133,12 @@ pytest tests/test_api.py::test_function_name -v
   - `VioletPoolControllerDevice`: Device representation with auto-recovery
   - `VioletPoolDataUpdateCoordinator`: Home Assistant's data update coordinator pattern
   - Smart failure logging with throttling (5-minute intervals)
-  - Automatic connection recovery with exponential backoff
-  - **Thread Safety**: Uses two locks with documented ordering:
-    - `_api_lock`: Protects API calls and data updates
-    - `_recovery_lock`: Protects recovery state and attempts
-    - **Never acquire locks in nested order** - see device.py:42-58 for full documentation
+  - **Thread Safety**: exactly **one** lock, `_api_lock`, which serialises the
+    coordinator's polling. There is no `_recovery_lock` and no lock-ordering
+    rule to observe. Service handlers call the API directly; command
+    serialisation is the API package's rate limiter.
+  - **No recovery loop.** Retries live in the API package; a failed setup is
+    retried by Home Assistant's own `ConfigEntryNotReady` handling.
 
 - **`entity.py`** - Base entity class `VioletPoolControllerEntity` extending `CoordinatorEntity`. Provides helper methods:
   - `get_value()` - Safe data access with fallback
@@ -163,9 +193,18 @@ pytest tests/test_api.py::test_function_name -v
 - **`service_manager.py`** - Central service manager:
   - `VioletServiceManager` - resolves coordinators and devices for service calls
 
-- **`service_control.py`** - Control/action service handlers (`VioletControlServiceHandlers`):
-  - `control_pump`, `smart_dosing`, `manage_pv_surplus`, `control_dmx_scenes`,
-    `set_light_color_pulse`, `manage_digital_rules`, `test_output`
+- **`service_mixins/`** - **Where the service handlers actually live**, one
+  mixin per subject area, composed by `VioletServiceHandlers`:
+  - `pump.py`, `dosing.py`, `climate.py`, `cover.py`, `extension.py`,
+    `rules.py`, `system.py`
+  - `_validation.py` - shared argument validation
+  - `__init__.py` - re-exports the mixins
+
+- **`service_control.py`** - Thin composition layer
+  (`VioletControlServiceHandlers`) that pulls the mixins together for the
+  action services (`control_pump`, `smart_dosing`, `manage_pv_surplus`,
+  `control_dmx_scenes`, `set_light_color_pulse`, `manage_digital_rules`,
+  `test_output`)
 
 - **`service_diagnostics.py`** - Diagnostic service handlers (`VioletDiagnosticServiceHandlers`):
   - `export_diagnostic_logs`, `get_connection_status`, `get_error_summary`,
@@ -183,6 +222,25 @@ pytest tests/test_api.py::test_function_name -v
 - **`refill_overflow_schemas.py`** - Voluptuous schemas for the refill/overflow services.
 
 - **`http_control.py`** - Direct HTTP control layer (`VioletControlClient`) wrapping the API's `setFunctionManually` endpoint for the `*_http` service family (`control_pump_http`, `control_heater_http`, `manual_dosing_http`, etc.).
+
+- **`safety_guard.py`** - `SafetyGuard`: the gate every dosing, backwash and
+  refill command passes through. Cooldowns per `(entry_id, device_key)`,
+  restart-safe auto-stop timers persisted in `hass.storage` and re-armed on
+  setup, and stop-target validation at arm time. See SECURITY.md.
+
+- **`auth_guard.py`** - `AuthReportingAPI`: transparent proxy that turns a
+  silently-rejected control command into the `controller_requires_auth` repair
+  issue, and clears it on the first command that succeeds. Reads are left
+  alone (their auth failures already route to re-auth).
+
+- **`device_hierarchy.py`** - Sub-device layout in the device registry (the
+  controller device plus child devices per module).
+
+- **`entity_cleanup.py`** - Removes registry entries for entities the current
+  options no longer produce.
+
+- **`entity_selection.py`** - Decides which entities a given feature/option
+  combination should create.
 
 - **`hardware_config.py`** - Hardware configuration discovery/caching (digital inputs, extension relays, dosing-standalone detection).
 
@@ -226,7 +284,7 @@ pytest tests/test_api.py::test_function_name -v
   - Feature groupings for UI
   - Feature dependencies
 
-**Note**: `const_api.py` and `const_devices.py` belong to the external `violet-poolController-api` package ([GitHub](https://github.com/Xerolux/violet-poolController-api)). Import from `violet_poolcontroller_api.*` (installed via `requirements.txt`).
+**Note**: `const_api.py` and `const_devices.py` belong to the external `violet-poolController-api` package ([GitHub](https://github.com/Xerolux/violet-poolController-api)). Import from `violet_poolcontroller_api.*` (Home Assistant installs it from `manifest.json`; `requirements.txt` mirrors that for development).
 
 #### Subdirectories
 
@@ -241,7 +299,11 @@ pytest tests/test_api.py::test_function_name -v
   - `generic.py` - `VioletSensor` and `VioletStatusSensor` classes
   - `monitoring.py` - Monitoring sensors (latency, system health, request rate)
   - `specialized.py` - Specialized sensors (dosing, error codes, flow rate)
+  - `energy.py` - Energy/runtime-derived sensors
   - `__init__.py` - Module exports
+
+- **`brand/`** - Integration icon and logo assets (light/dark, 1x/2x). The
+  Pages build copies `brand/icon.png` into the published site.
 
 #### Entity Platforms (10 Platforms)
 
@@ -253,7 +315,7 @@ pytest tests/test_api.py::test_function_name -v
   - Calibration history
 
 - **`binary_sensor.py`** - Binary sensor entities (20+ sensors):
-  - Digital input states (DI1-DI8)
+  - Digital input states (`INPUT1`-`INPUT12`, plus `INPUT_CE1`-`INPUT_CE4`)
   - System alarms
   - Connection status
 
@@ -261,10 +323,14 @@ pytest tests/test_api.py::test_function_name -v
   - Pump control (speed levels 0-3)
   - Heater control
   - Solar control
-  - Dosing systems (pH-, pH+, Chlorine, Flocculant)
-  - DMX scenes (1-12)
+  - Dosing systems (pH-, pH+, Chlorine, Flocculant) - these are in
+    `UNSAFE_SWITCH_KEYS` and are created **disabled** unless
+    `CONF_ALLOW_UNSAFE_SWITCHES` is set
   - Extension relays (1-8)
   - Multi-state support (0-6) with automatic mode detection
+
+  **DMX scenes are not switches** - they are `light` entities. See the light
+  platform below.
 
 - **`climate.py`** - Thermostat entities (2 thermostats):
   - Pool heater control with temperature setpoints
@@ -273,8 +339,8 @@ pytest tests/test_api.py::test_function_name -v
 
 - **`cover.py`** - Cover entities (pool covers):
   - Pool cover control with string-state handling
-  - Open/close/stop commands
-  - Position tracking
+  - `OPEN | CLOSE | STOP` only - **no position support**. The controller does
+    not report a position, so there is no `current_cover_position`.
 
 - **`number.py`** - Number input entities (10+ inputs):
   - Temperature setpoints (pool, solar)
@@ -286,11 +352,12 @@ pytest tests/test_api.py::test_function_name -v
   - Dropdown controls using `SELECT_CONTROLS` constant
   - Mode selection for devices that expose enumerated options
 
-- **`light.py`** - Light entities for RGB/DMX lighting (5+ lights):
-  - DMX scene lighting control
-  - RGB color support
-  - Brightness control
-  - Light scene management
+- **`light.py`** - Light entities for the DMX scenes:
+  - `_attr_color_mode = ColorMode.ONOFF`, `supported_color_modes = {ONOFF}`
+  - **No RGB, no brightness.** A scene is on or off; the colours belong to the
+    scene as configured on the controller.
+  - Composite states such as `"4|DMX_SCENE_MANUAL"` are parsed for the state
+    code
 
 - **`update.py`** - Firmware update entity (1 entity):
   - Firmware version tracking
@@ -298,11 +365,8 @@ pytest tests/test_api.py::test_function_name -v
   - Update installation trigger
   - Update history (release notes)
 
-- **`button.py`** - Action button entities (5+ buttons):
-  - Manual action triggers
-  - Error clearing buttons
-  - Test/diagnostic actions
-  - Device state reset buttons
+- **`button.py`** - Action button entity (**one** button):
+  - `reset_blocking` - clears the controller's fault blocking
 
 #### Services
 
@@ -346,6 +410,20 @@ Services defined in `services.yaml` and registered in `services.py`:
 
 - **`clear_error_history`** - Clear the integration error history.
 
+**These are 11 of 44 registered services.** The authoritative list is
+`services.yaml` plus the `hass.services.async_register` calls in `services.py`
+- do not treat the sample above as complete. To see the current list:
+
+```bash
+grep -c 'hass.services.async_register' custom_components/violet_pool_controller/services.py
+grep -oE '^[a-z_]+:' custom_components/violet_pool_controller/services.yaml
+```
+
+The families are: 7 action services, 7 `*_http` direct-control services,
+5 dosing-configuration services, 5 rule-management services, 2 system
+configuration services, 2 refill/overflow services, and 16 response-returning
+diagnostic/maintenance services.
+
 ### Key Design Patterns
 
 1. **Coordinator Pattern**: All entities use `VioletPoolDataUpdateCoordinator` for synchronized data updates, reducing API calls and improving efficiency.
@@ -368,15 +446,25 @@ Services defined in `services.yaml` and registered in `services.py`:
    **Important**: States may include descriptive suffixes (e.g., `"3|PUMP_ANTI_FREEZE"`) parsed as operational modes like frost protection.
 
 4. **Multi-Controller Support**:
-   - Unique identifiers use `{api_url}_{device_id}` format
-   - Dynamic device info generation
+   - **Device identifier**: `(DOMAIN, config_entry.entry_id)` - deliberately
+     not the host, so a reconfigure that moves the controller to a new IP
+     keeps the same device, name and area
+   - **Entity unique id**: `f"{config_entry.entry_id}_{entity_description.key}"`
+     (see `entity.py`)
+   - Dynamic device info generation, sub-devices via `device_hierarchy.py`
    - Separate data coordinators per controller
 
-5. **Auto-Recovery**:
-   - Automatic reconnection on connection loss
-   - Exponential backoff for retries (10s base, max 300s delay)
-   - Smart error logging with throttling (5-minute intervals)
-   - Max 10 recovery attempts before manual intervention required
+5. **Failure handling** (there is no bespoke recovery loop):
+   - **Read retries** happen inside the API package: exponential backoff
+     capped at 30 s, attempt count from `CONF_RETRY_ATTEMPTS` (1-10,
+     default 3)
+   - **Commands are never retried.** Since API 0.0.39 a state-changing call is
+     sent exactly once - a retried dosing command doses twice - and the rate
+     limiter is applied to retries too, instead of being bypassed on timeout
+   - **Setup failures** are retried by Home Assistant itself
+     (`ConfigEntryNotReady`); the integration keeps no attempt counter, no
+     backoff schedule and no "max attempts" limit
+   - Smart error logging with throttling (5-minute intervals) in `device.py`
 
 6. **Input Sanitization**:
    - All user inputs validated through `InputSanitizer`
@@ -384,8 +472,13 @@ Services defined in `services.yaml` and registered in `services.py`:
    - Safe handling of API parameters
 
 7. **SSL/TLS Security**:
-   - SSL certificate verification enabled by default (`verify_ssl=True`)
-   - Configurable for self-signed certificates (generates warning)
+   - `const.py` has `DEFAULT_USE_SSL = False` and `DEFAULT_VERIFY_SSL = False`
+     - **both are off by default.** Violet controllers ship with a self-signed
+     certificate on a local network, and defaulting to verification would make
+     first setup fail for nearly everyone.
+   - Both are per-config-entry options (`CONF_USE_SSL`, `CONF_VERIFY_SSL`) and
+     should be switched on wherever the certificate is trusted - the traffic
+     carries the controller password.
    - Proper SSL context handling in API requests
 
 ## API Communication
@@ -401,10 +494,13 @@ The Violet Pool Controller exposes a JSON-based HTTP API:
 
 ### Request Patterns
 
-- All requests are rate-limited using token bucket algorithm
-- Retry logic with exponential backoff (configurable, 3 attempts by default)
-- Timeout: 10 seconds total, with 8-second connection/socket timeouts (configurable)
-- SSL certificate verification: enabled by default, configurable
+- All requests are rate-limited using a token bucket algorithm - retries
+  included; a timed-out request no longer bypasses the limiter
+- Retry logic with exponential backoff capped at 30 s, **reads only**
+  (`CONF_RETRY_ATTEMPTS`, 1-10, default 3). Commands are sent exactly once.
+- Timeout: `CONF_TIMEOUT_DURATION`, 1-60 s, default 10 s
+- Polling interval: `CONF_POLLING_INTERVAL`, 10-3600 s, default 10 s
+- SSL and certificate verification: **off by default**, both configurable
 - Responses are JSON-formatted
 - All user inputs are sanitized through `InputSanitizer` before API calls
 
@@ -414,8 +510,12 @@ The Violet Pool Controller exposes a JSON-based HTTP API:
 
 Located in `tests/`:
 
+There are ~50 test modules; the list below names the ones worth knowing about
+rather than all of them. `ls tests/test_*.py` is the current answer.
+
 **Core Tests:**
-- **`conftest.py`** - Pytest fixtures, timezone patching, socket disabling for HA compatibility
+- **`conftest.py`** - Hard dependency check plus a Windows-only socket
+  workaround. No mocks, no monkey-patching of the harness.
 - **`test_api.py`** - API communication tests (rate limiting, timeout, error handling)
 - **`test_config_flow.py`** - Configuration flow tests (duplicate detection, validation)
 - **`test_device.py`** - Device and coordinator tests
@@ -438,7 +538,11 @@ Located in `tests/`:
 - **`test_platform_errors.py`** - Platform-level error handling
 - **`test_security_fixes.py`** - Security-related regression tests
 - **`test_offline_scenarios.py`** - Offline/connectivity loss scenarios
-- **`test_improvements.py`** - Feature improvement tests
+- **`test_security_principles.py`** - The SECURITY.md model, asserted
+- **`test_safety_guard.py`** - Cooldowns and restart-safe auto-stop timers
+- **`test_auth_guard.py`** - `AuthReportingAPI` repair issue lifecycle
+- **`test_language_policy.py`** - The Language Policy below, enforced
+- **`test_blueprints.py`** - Blueprints parsed against Home Assistant's schema
 
 **Test Data:**
 - **`getReadings_spec.json`** - Sample API response for mock fixtures
@@ -455,11 +559,22 @@ asyncio_default_fixture_loop_scope = function
 ### CI/CD Testing
 
 GitHub workflow `.github/workflows/validate.yml` runs:
-- Ruff linting
-- Mypy type checking
-- Full test suite with pytest
-- Tests against Home Assistant 2026.5.x
-- configured Home Assistant/Python test environment
+- Version consistency across the five version sources plus CLAUDE.md
+- Ruff linting on Python 3.12, 3.13 and 3.14 (the 3.12/3.13 legs are
+  lint-only - they cannot install Home Assistant, which needs 3.14)
+- Mypy type checking and the full pytest suite on Python 3.14
+- Home Assistant version: whatever `pytest-homeassistant-custom-component`
+  pins (0.13.357 pins 2026.8.3; 2026.9 is what a current checkout installs)
+- Hassfest and HACS validation
+
+**Coverage**: the floor is `[tool.coverage.report] fail_under` in
+`pyproject.toml`. Raise it as tests are added; never lower it to make a build
+pass.
+
+`ruff format --check` is **not** enabled: the ruff 0.15.x bug that motivated
+disabling it is fixed as of 0.16, but the tree has never been formatted, so
+turning the check on today fails on dozens of files. That needs its own
+formatting commit.
 
 ## Translation Files
 
@@ -480,7 +595,7 @@ Translation files cover:
 violet-hass/
 ├── custom_components/
 │   └── violet_pool_controller/      # Main integration code
-│       ├── __init__.py               # Entry point (loads 7 platforms)
+│       ├── __init__.py               # Entry point (loads the 10 platforms)
 │       ├── device.py                 # Device & coordinator
 │       ├── entity.py                 # Base entity class
 │       ├── config_flow.py            # Config flow
@@ -496,7 +611,8 @@ violet-hass/
 │       ├── select.py                 # Select platform
 │       ├── services.py               # Service registration & composition
 │       ├── services.yaml             # Service definitions
-│       ├── service_control.py        # Control/action service handlers
+│       ├── service_mixins/            # Service handlers, one mixin per area
+│       ├── service_control.py        # Composition layer for action services
 │       ├── service_diagnostics.py    # Diagnostic service handlers
 │       ├── service_helpers.py        # Shared service utilities
 │       ├── service_manager.py        # Service manager
@@ -517,6 +633,11 @@ violet-hass/
 │       ├── config_entry_helpers.py   # Config entry URL/migration helpers
 │       ├── runtime_data.py           # Per-entry runtime state (entry.runtime_data)
 │       ├── repairs.py                # Repair flows for fixable issues
+│       ├── safety_guard.py           # Cooldowns + restart-safe auto-stop
+│       ├── auth_guard.py             # Silent auth rejects -> repair issue
+│       ├── device_hierarchy.py       # Sub-devices in the device registry
+│       ├── entity_cleanup.py         # Prunes entities options no longer make
+│       ├── entity_selection.py       # Which entities a feature set produces
 │       ├── error_codes.py            # Error code mappings
 │       ├── error_handler.py          # VioletErrorCodes & error utilities
 │       ├── diagnostics.py            # HA diagnostics support
@@ -535,9 +656,11 @@ violet-hass/
 │       │   ├── base.py
 │       │   ├── generic.py
 │       │   ├── monitoring.py
-│       │   └── specialized.py
+│       │   ├── specialized.py
+│       │   └── energy.py
+│       ├── brand/                    # Icon and logo assets
 │       └── translations/             # Translations (10 languages)
-├── tests/                            # Test suite (21 files)
+├── tests/                            # Test suite
 │   ├── conftest.py                   # Pytest configuration
 │   ├── test_api.py                   # API tests
 │   ├── test_config_flow.py           # Config flow tests
@@ -554,27 +677,32 @@ violet-hass/
 │   ├── test_platform_errors.py       # Platform error tests
 │   ├── test_security_fixes.py        # Security regression tests
 │   ├── test_offline_scenarios.py     # Offline scenario tests
-│   ├── test_improvements.py          # Feature improvement tests
+│   ├── test_security_principles.py   # SECURITY.md model, asserted
+│   ├── test_safety_guard.py          # SafetyGuard cooldowns/auto-stop
+│   ├── test_auth_guard.py            # AuthReportingAPI repair issue
+│   ├── test_language_policy.py       # Language Policy, enforced
+│   ├── test_blueprints.py            # Blueprint schema validation
 │   ├── test_sensor_generic.py        # Generic sensor tests
 │   ├── test_translations.py          # Translation validation
 │   ├── test_type_hints.py            # Type hint tests
 │   └── getReadings_spec.json         # Sample API response fixture
 ├── scripts/                          # Development scripts
-│   ├── setup-test-env.sh             # Test environment setup
+│   ├── setup-test-env.sh             # Creates/reuses .venv
 │   ├── run-tests.sh                  # Test runner
 │   ├── start-ha-test.sh              # HA test instance launcher
 │   ├── check-ha-logs.sh              # Log checker
-│   └── quick-import-test.py          # Quick import test
+│   ├── build_release.py              # Builds the HACS zip
+│   ├── quick-import-test.py          # Imports every module, reports failures
+│   └── live/                         # Live hardware checks (NOT tests)
 ├── blueprints/                       # Home Assistant blueprints
-│   └── automation/                   # 4 automation templates
+│   └── automation/                   # Automation templates
 ├── Dashboard/                        # Dashboard YAML examples
-├── docs/                             # Documentation (27+ files)
+├── docs/                             # Documentation + wiki sources
 ├── .github/                          # GitHub config
-│   └── workflows/                    # 10 CI/CD pipelines
+│   └── workflows/                    # 5 CI/CD pipelines
 ├── .devcontainer/                    # VS Code dev container
 ├── CLAUDE.md                         # This file
 ├── README.md                         # Project README
-├── WIKI.md                           # Comprehensive wiki
 ├── CONTRIBUTING.md                   # Contribution guidelines
 ├── hacs.json                         # HACS integration config
 ├── requirements.txt                  # Runtime dependencies
@@ -602,10 +730,16 @@ sees:
 
 1. **`translations/*.json`** — these *are* the localisation. Each file carries
    its own language; `de.json` is German by definition.
-2. **`docs/wiki/*.de.md`** — the wiki is published bilingually. A page exists
-   twice: `Automations.md` (English) and `Automations.de.md` (German). The
-   German file is a translation of the English one, never the other way round;
-   write the English page first.
+2. **`docs/wiki/*.de.md`** and **`README.de.md`** — the documentation is
+   published bilingually. A page exists twice: `Automations.md` (English) and
+   `Automations.de.md` (German). The German file is a translation of the
+   English one, never the other way round; write the English page first.
+
+`tests/test_language_policy.py` enforces this: it scans every Python source
+for German prose and fails on anything outside the exemption list. That file
+also carries a `PENDING_TRANSLATION` list of sources that still contain German
+and have not been translated yet — **every entry on it is a debt to be paid,
+not a decision.** Remove an entry as you translate its file; never add one.
 
 Anything not on that exception list is English, including files that used to be
 German. The changelog entries up to and including **2.5.7** were written in
@@ -685,8 +819,13 @@ auto-generated notes from the merged PRs.
 ### Testing
 
 1. **Write tests first**: Follow TDD where possible
-2. **Test coverage**: Aim for >80% coverage
-3. **Mock external calls**: Use fixtures to mock API responses
+2. **Test coverage**: The enforced floor is
+   `[tool.coverage.report] fail_under` in `pyproject.toml`; check the file for
+   the current number rather than quoting one here. Raise it as you add
+   tests - never lower it to make a build pass.
+3. **Mock external calls**: Use fixtures to mock API responses. Do **not**
+   stub Home Assistant or the API package itself - `conftest.py` requires both
+   to be installed, because a suite that passes against stubs proves nothing.
 4. **Test edge cases**: Include error conditions and boundary values
 
 ### Security
@@ -705,16 +844,26 @@ auto-generated notes from the merged PRs.
 
 ## GitHub Workflows
 
-Located in `.github/workflows/` (4 workflows):
+Located in `.github/workflows/` (5 workflows):
 
 **Validation & CI:**
-- **`validate.yml`** - Reusable quality gate: version consistency, tox on Python 3.12-3.14 (ruff everywhere, mypy + pytest on 3.14), Hassfest, and HACS; successful main pushes publish one rolling dev pre-release
+- **`validate.yml`** - Reusable, **read-only** quality gate: version
+  consistency, tox on Python 3.12-3.14 (ruff everywhere, mypy + pytest on
+  3.14), Hassfest and HACS. Its `concurrency.cancel-in-progress` is disabled
+  for `workflow_call`, so a re-run cannot cancel a release's own validation.
 
 **Release:**
-- **`release.yml`** - Validates the repository through the reusable quality gate, checks tag/version consistency, then publishes an immutable stable or pre-release package
+- **`dev-release.yml`** - Publishes one rolling dev pre-release, triggered by
+  `workflow_run` after a green validation of a push to main. It lives outside
+  `validate.yml` on purpose: it is the only job needing `contents: write`, and
+  GitHub forces a caller to grant at least what a reusable workflow declares.
+- **`release.yml`** - Runs the quality gate, **verifies** (never writes) the
+  tag/version consistency and the changelog section, then publishes the
+  package
 
 **Security & Docs:**
-- **`security.yml`** - CodeQL, TruffleHog, and Trivy on relevant changes plus a weekly scan
+- **`security.yml`** - CodeQL, TruffleHog and Trivy on relevant changes plus
+  a weekly scan. Every third-party action is pinned to a commit SHA.
 - **`docs.yml`** - Deploys GitHub Pages and synchronizes changed `docs/wiki/` pages to the GitHub Wiki
 
 ## Common Tasks for AI Assistants
@@ -730,17 +879,20 @@ Located in `.github/workflows/` (4 workflows):
 
 1. Define service in `services.yaml`
 2. Add schema in `service_schemas.py`
-3. Implement handler in `service_control.py` (action services) or `service_diagnostics.py` (diagnostic services)
+3. Implement the handler in the matching `service_mixins/*.py` (pump, dosing,
+   climate, cover, extension, rules, system), or in `service_diagnostics.py`
+   for a diagnostic service
 4. Register in `services.py` via `VioletServiceHandlers`
 5. Add translation strings
 6. Write service tests
 
 ### Fixing API Issues
 
-1. API client source is in the external [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository (not in this repo). API-side fixes belong there and ship as a new PyPI release, then the pin in `requirements.txt` is bumped.
+1. API client source is in the external [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository (not in this repo). API-side fixes belong there and ship as a new PyPI release; then bump the pin in **`manifest.json`** (what HA installs) and in `requirements.txt` (the development mirror).
 2. Local error handling is in `error_handler.py` (`VioletErrorCodes`)
 3. Test with `tests/test_api.py` for HA-integration-side API tests
-4. Check retry/backoff logic in `device.py`
+4. Retry/backoff logic is in the API package, **not** in `device.py` -
+   `device.py` only polls and logs
 
 ### Updating Constants
 
@@ -751,21 +903,26 @@ Located in `.github/workflows/` (4 workflows):
 
 ## Dependencies
 
-**Runtime** (from `requirements.txt`):
-- `homeassistant>=2026.8.0` - Minimum Home Assistant version
-- `aiohttp>=3.13.5` - Async HTTP client
-- `voluptuous>=0.16.0` - Data validation
+**What Home Assistant installs** (from `custom_components/violet_pool_controller/manifest.json`,
+`requirements`):
+- `violet-poolController-api>=0.0.39` - the API client, from PyPI. `aiohttp`
+  and `voluptuous` come from Home Assistant itself and are not declared here.
 
-**Integration requirement** (from `requirements.txt`):
-- `violet-poolController-api>=0.0.38` - API client package (installed from PyPI; source in the [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository)
+**Development mirror** (`requirements.txt`, two lines - this is *not* what HA
+reads):
+- `homeassistant>=2026.8.0`
+- `violet-poolController-api>=0.0.39`
 
-**Development** (from `requirements-dev.txt`):
+**Development tools** (`requirements-dev.txt` - **the single source of truth
+for these floors**; `tox.ini` installs this file rather than repeating them,
+and `pyproject.toml` has no `dev` extra):
 - `ruff>=0.15.16` - Linter and formatter
 - `mypy>=2.1.0` - Static type checker
 - `pytest>=9.0.3` - Test framework
 - `pytest-cov>=7.1.0` - Coverage plugin
 - `pytest-asyncio>=1.3.0` - Async test support
 - `pytest-homeassistant-custom-component>=0.13.357` - HA test helpers
+- `zeroconf` - imported directly by the discovery tests
 
 ## Important Notes
 
@@ -777,23 +934,40 @@ Located in `.github/workflows/` (4 workflows):
    - Composite states like `"3|PUMP_ANTI_FREEZE"` provide additional context about operational modes
    - All states are defined in `DEVICE_STATE_MAPPING` in the `violet_poolcontroller_api` package (`const_devices.py`)
 
-3. **Multi-Controller**: The integration supports multiple pool controllers on the same Home Assistant instance. Each gets unique entity IDs based on the API URL.
+3. **Multi-Controller**: The integration supports multiple pool controllers on
+   the same Home Assistant instance. Devices are keyed on the config entry id
+   (`(DOMAIN, entry_id)`), and entity unique ids are `{entry_id}_{key}` - not
+   on the API URL, so moving a controller to a new IP keeps its entities.
 
-4. **SSL/TLS Security**: SSL certificate verification is enabled by default (`verify_ssl=True`). Only disable for self-signed certificates in trusted networks.
+4. **SSL/TLS Security**: `DEFAULT_USE_SSL` and `DEFAULT_VERIFY_SSL` are both
+   `False`. Turn them on wherever the certificate is trusted; the traffic
+   carries the controller password.
 
 5. **Fault Tolerance**: DMX scene updates and other non-critical operations are fault-tolerant and won't crash the integration if they fail.
 
 6. **Calibration History**: The integration parses calibration history from the controller API, handling various date formats and edge cases.
 
-7. **Version Consistency**: Keep version numbers in sync across `manifest.json`, `const.py`, `.version`, and `pyproject.toml`. The `versions` job in `validate.yml` enforces this, and releases require the tag to match.
+7. **Version Consistency**: Keep version numbers in sync across **five**
+   places - `manifest.json`, `const.py`, `custom_components/violet_pool_controller/.version`,
+   `pyproject.toml` and the "Current Integration Version" line in this file.
+   The `versions` job in `validate.yml` compares all five; releases
+   additionally require the tag to match and a
+   `## Version X.Y.Z (YYYY-MM-DD)` section in `CHANGELOG.md` (that section
+   becomes the release page).
 
 8. **Code Quality**: Always run `ruff check --fix` before committing. The integration maintains 0 ruff errors and 0 mypy errors; both are enforced by CI.
 
 9. **Home Assistant Compatibility**: Integration requires HA 2026.8.0+. That floor is what lets the device registry code target one API instead of branching: 2026.8 scoped identifiers to the config entry, replaced `via_device` with `via_device_id` and gave a device a single `config_entry_id`. The one remaining runtime branch is child devices, which need 2026.9. The HA runtime Python version is managed by Home Assistant; the standalone API package supports Python 3.12+. Use modern type annotations (`X | None` not `Optional[X]`) and `collections.abc` imports.
 
-10. **Recovery Behavior**: When connection is lost, the integration attempts auto-recovery with exponential backoff (10s → 300s max) for up to 10 attempts. After max attempts, manual intervention is required.
+10. **Recovery Behavior**: There is no recovery loop in this repository. Read
+    retries (exponential backoff capped at 30 s, `CONF_RETRY_ATTEMPTS`
+    attempts) happen in the API package; commands are sent exactly once; a
+    failed setup is retried by Home Assistant's `ConfigEntryNotReady`
+    handling. Do not document a backoff schedule or attempt limit here that
+    the code does not implement - the previous "10s → 300s, max 10 attempts"
+    was entirely fictional.
 
-11. **API Package (external dependency)**: `api.py`, `utils_rate_limiter.py`, `utils_sanitizer.py`, `const_api.py`, and `const_devices.py` live in the standalone [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository and are published to PyPI as `violet-poolController-api`. For local development, `pip install violet-poolController-api`. Import from `violet_poolcontroller_api.*`.
+11. **API Package (external dependency)**: `api.py`, `utils_rate_limiter.py`, `utils_sanitizer.py`, `const_api.py`, and `const_devices.py` live in the standalone [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository and are published to PyPI as `violet-poolController-api`. Import from `violet_poolcontroller_api.*`. **Do not install it editable** while working on this repo: mypy cannot follow an editable install's import hook and will report every API import as missing. `pip install -r requirements-dev.txt` installs the wheel, which ships `py.typed`.
 
 12. **Diagnostics**: The integration supports Home Assistant's built-in diagnostics download (`diagnostics.py`). Sensitive fields are redacted automatically. Access via HA UI → Devices → Download diagnostics.
 
@@ -805,5 +979,11 @@ Located in `.github/workflows/` (4 workflows):
     - **Only acts on explicit user commands** — all state changes require conscious user action
     - **All inputs validated** — XSS, injection, path-traversal protection via `InputSanitizer`
     - **Rate limited** — token bucket algorithm prevents API flooding
+    - **Unsafe outputs are opt-in** — dosing, backwash and refill
+      (`UNSAFE_SWITCH_KEYS`) are created disabled unless
+      `CONF_ALLOW_UNSAFE_SWITCHES` is set, and go through `SafetyGuard`
+      (cooldowns + restart-safe auto-stop timers, scoped per config entry)
+    - **Silent auth failures are surfaced** — `AuthReportingAPI` raises the
+      `controller_requires_auth` repair issue on the first rejected command
     - See [SECURITY.md](./SECURITY.md) for full architecture documentation and security checklist
     - Run security tests: `pytest tests/test_security_principles.py -v`

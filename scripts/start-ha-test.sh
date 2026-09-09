@@ -99,7 +99,7 @@ EOF
 fi
 
 # Check if virtual environment exists
-VENV_DIR="$PROJECT_ROOT/.venv-ha-test"
+VENV_DIR="$PROJECT_ROOT/.venv"
 if [ ! -d "$VENV_DIR" ]; then
     echo -e "${RED}Virtual environment not found!${NC}"
     echo -e "Run ${YELLOW}./scripts/setup-test-env.sh${NC} first\n"

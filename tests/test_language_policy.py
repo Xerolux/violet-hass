@@ -12,6 +12,7 @@ existed and are kept as published; everything newer must be English.
 from __future__ import annotations
 
 import re
+import tomllib
 from pathlib import Path
 
 import pytest
@@ -162,3 +163,185 @@ def test_the_changelog_links_point_at_the_real_file() -> None:
     ]
 
     assert not offenders, f"still pointing at docs/CHANGELOG.md: {offenders}"
+
+
+# ---------------------------------------------------------------------------
+# German in Python sources
+# ---------------------------------------------------------------------------
+#
+# Ported from the sibling repository (violet-poolController-api,
+# tests/test_language_policy.py::test_python_sources_are_english). A German
+# comment, docstring or log line is read by people who do not speak German, and
+# it is invisible to every reviewer outside the maintainer.
+
+# Directories that hold generated, vendored or virtual-env copies of sources.
+# Scanning them says nothing about what is written in this repository.
+GENERATED_DIRS = frozenset(
+    {".git", ".tox", ".venv", "venv", "build", "dist", "__pycache__", ".mypy_cache", ".ruff_cache"}
+)
+
+# This file has to name the German words it looks for, so it exempts itself.
+SELF = Path(__file__).name
+
+# TEMPORARY EXEMPTIONS - remove each entry as its file is translated.
+#
+# These files still carry German prose. They are listed here so the scan can be
+# switched on today instead of waiting for the translation to finish; every
+# entry is a debt, not a decision. Three groups:
+#
+#   * const_sensors.py, error_codes.py, error_handler.py - German entity names,
+#     controller error descriptions and user-facing recovery hints inside the
+#     integration. These belong in translations/*.json, not in Python.
+#   * test_api.py, test_config_flow.py, test_device.py, test_sanitizer.py,
+#     test_entity_state.py - German test docstrings and assertion messages.
+#   * test_dosing_channel_setpoints.py, test_romcode_sensors.py,
+#     test_translation_coverage.py, test_translation_parity.py - these quote
+#     German user reports verbatim inside otherwise English docstrings. If the
+#     maintainer decides quotations are legitimate, replace these four entries
+#     with a narrower rule rather than leaving them on this list.
+#
+# Anything NOT on this list must be English. Do not add to it.
+PENDING_TRANSLATION = frozenset(
+    {
+        "custom_components/violet_pool_controller/const_sensors.py",
+        "custom_components/violet_pool_controller/error_codes.py",
+        "custom_components/violet_pool_controller/error_handler.py",
+        "tests/test_api.py",
+        "tests/test_config_flow.py",
+        "tests/test_device.py",
+        "tests/test_dosing_channel_setpoints.py",
+        "tests/test_entity_state.py",
+        "tests/test_romcode_sensors.py",
+        "tests/test_sanitizer.py",
+        "tests/test_translation_coverage.py",
+        "tests/test_translation_parity.py",
+    }
+)
+
+# Words that only appear in German prose. Deliberately not "in", "die" or
+# "der": those collide with English words or with identifiers.
+GERMAN_WORDS = (
+    "für",
+    "über",
+    "nicht",
+    "wird",
+    "werden",
+    "wenn",
+    "diese",
+    "dieser",
+    "keine",
+    "sollte",
+    "und",
+    "bei",
+    "einen",
+    "eine",
+    "erlaubt",
+    "erlaubter",
+    "wert",
+    "verwende",
+    "ungültig",
+    "ungültige",
+    "ungültigen",
+    "ungültiger",
+    "verfügbar",
+    "zurück",
+    "zurückgesetzt",
+    "gefährlich",
+    "gefährliche",
+    "initialisiert",
+    "unbekannter",
+    "warte",
+)
+_GERMAN = re.compile(r"\b(" + "|".join(GERMAN_WORDS) + r")\b", re.IGNORECASE)
+
+
+def _python_sources() -> list[Path]:
+    """Return every Python file the policy applies to right now."""
+    return sorted(
+        path
+        for path in REPO.rglob("*.py")
+        if not (GENERATED_DIRS & set(path.parts))
+        and not any(part.endswith(".egg-info") for part in path.parts)
+        and path.name != SELF
+        and path.relative_to(REPO).as_posix() not in PENDING_TRANSLATION
+    )
+
+
+@pytest.mark.parametrize("path", _python_sources(), ids=lambda p: p.name)
+def test_python_sources_are_english(path: Path) -> None:
+    """A German comment is read by people who do not speak German."""
+    offenders = [
+        f"{path.relative_to(REPO).as_posix()}:{number}: {line.strip()}"
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1)
+        if _GERMAN.search(line)
+    ]
+
+    assert not offenders, (
+        "German text in a Python source - see the Language Policy in CLAUDE.md:\n"
+        + "\n".join(offenders)
+    )
+
+
+def test_the_localisation_files_are_exempt() -> None:
+    """The exemptions are the point, not an oversight - guard them too.
+
+    ``translations/*.json`` IS the localisation, ``README.de.md`` and
+    ``docs/wiki/*.de.md`` are the German half of the bilingual documentation.
+    None of them is Python, so the scan above never sees them; this test says
+    so out loud, so that nobody "fixes" the policy by translating them.
+    """
+    german_translation = REPO / "custom_components" / "violet_pool_controller"
+    german_translation = german_translation / "translations" / "de.json"
+
+    assert german_translation.exists()
+    assert not [path for path in _python_sources() if "translations" in path.parts]
+    assert (REPO / "README.de.md").exists()
+    assert list((REPO / "docs" / "wiki").glob("*.de.md"))
+
+
+# ---------------------------------------------------------------------------
+# Version strings in the published documentation
+# ---------------------------------------------------------------------------
+
+# Files that print the integration version to a reader. They were frozen at
+# 2.3.0-beta.1 for four minor releases because nothing checked them.
+VERSIONED_DOCS = (
+    "docs/wiki/_Sidebar.md",
+    "docs/wiki/_Sidebar.de.md",
+    "docs/wiki/_Footer.md",
+    "docs/wiki/_Footer.de.md",
+    "docs/wiki/Home.md",
+    "docs/wiki/Home.de.md",
+    "docs/wiki/README.md",
+    "docs/wiki/Installation-and-Setup.md",
+    "docs/wiki/Diagnostics.md",
+    "docs/index.html",
+    "index.html",
+)
+
+
+def _documented_version() -> str:
+    """Return the version the release is being cut at.
+
+    Read from pyproject.toml rather than ``.version`` on purpose: validate.yml's
+    "Version consistency" job already asserts that pyproject.toml,
+    ``manifest.json``, ``const.py``, ``.version`` and CLAUDE.md carry the same
+    string, so keying the docs to pyproject.toml checks the same number without
+    duplicating that comparison here.
+    """
+    with (REPO / "pyproject.toml").open("rb") as handle:
+        return tomllib.load(handle)["project"]["version"]
+
+
+@pytest.mark.parametrize("relative", VERSIONED_DOCS)
+def test_the_documentation_names_the_current_version(relative: str) -> None:
+    """A wiki page that names an old version is worse than one naming none."""
+    path = REPO / relative
+    version = _documented_version()
+
+    assert path.exists(), f"{relative} is listed as a versioned doc but does not exist"
+    assert version in path.read_text(encoding="utf-8"), (
+        f"{relative} does not mention version {version}. Either update it or "
+        "drop it from VERSIONED_DOCS - a stale version string is a bug report "
+        "waiting to happen."
+    )

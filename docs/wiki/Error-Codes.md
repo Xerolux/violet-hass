@@ -257,7 +257,7 @@ template:
   - sensor:
       - name: "Pool Error Text"
         state: >
-          {{ state_attr('sensor.violet_error_code', 'description') | default('No error') }}
+          {{ state_attr('sensor.violet_pool_controller_error_code', 'description') | default('No error') }}
 ```
 
 ### Automation on Critical Error
@@ -268,15 +268,15 @@ automation:
     trigger:
       - platform: template
         value_template: >
-          {{ state_attr('sensor.violet_error_code', 'severity') == 'critical' }}
+          {{ state_attr('sensor.violet_pool_controller_error_code', 'severity') == 'critical' }}
     action:
       - service: notify.mobile_app_phone
         data:
           title: "CRITICAL POOL ERROR"
           message: >
-            Code: {{ states('sensor.violet_error_code') }}
-            Problem: {{ state_attr('sensor.violet_error_code', 'subject') }}
-            Details: {{ state_attr('sensor.violet_error_code', 'description') }}
+            Code: {{ states('sensor.violet_pool_controller_error_code') }}
+            Problem: {{ state_attr('sensor.violet_pool_controller_error_code', 'subject') }}
+            Details: {{ state_attr('sensor.violet_pool_controller_error_code', 'description') }}
 ```
 
 ### Automatic Calibration Reminder
@@ -287,13 +287,13 @@ automation:
     trigger:
       - platform: template
         value_template: >
-          {{ states('sensor.violet_error_code') in ['180', '181', '182'] }}
+          {{ states('sensor.violet_pool_controller_error_code') in ['180', '181', '182'] }}
     action:
       - service: notify.mobile_app_phone
         data:
           title: "Pool: Calibration Required"
           message: >
-            {{ state_attr('sensor.violet_error_code', 'subject') }}
+            {{ state_attr('sensor.violet_pool_controller_error_code', 'subject') }}
 ```
 
 ---

@@ -2,21 +2,21 @@
 # Violet Pool Controller - Dashboard Card Configuration
 # =============================================================================
 #
-# Diese Konfiguration erstellt eine übersichtliche Dashboard-Karte für die
-# vollständige Steuerung und Überwachung Ihres Pool-Controllers.
+# This configuration builds a clear dashboard card for the
+# full control and monitoring of your pool controller.
 #
 # INSTALLATION:
-# 1. Öffnen Sie Ihr Home Assistant Dashboard im Bearbeitungsmodus
-# 2. Fügen Sie eine neue Karte hinzu (+ Karte hinzufügen)
-# 3. Wählen Sie "Manuell" oder "Code-Editor"
+# 1. Open your Home Assistant dashboard in edit mode
+# 2. Add a new card (Add card)
+# 3. Choose "Manual" or "Code editor"
 # 4. Kopieren Sie diese Konfiguration und passen Sie entity_ids an
-# 5. Speichern Sie die Karte
+# 5. Save the card
 #
-# HINWEIS: 
-# - Ersetzen Sie "violet_pool_controller" durch Ihren Device-Namen
-#   (Standard: "violet_pool_controller" → Entity-ID-Prefix)
-# - Bei mehreren Controllern oder geändertem Namen:
-#   Entwicklerwerkzeuge → Zustände → Nach "violet" suchen
+# NOTE: 
+# - Replace "violet_pool_controller" with your own device name
+#   (default: "violet_pool_controller" -> entity id prefix)
+# - With several controllers, or after renaming one:
+#   Developer tools -> States -> search for "violet"
 #
 # VERSION: 1.0.5 (2026-04-22)
 # =============================================================================
@@ -24,101 +24,101 @@
 type: vertical-stack
 cards:
   # =============================================================================
-  # HAUPT-STEUERUNG (Pumpe, Heizung, Solar)
+  # MAIN CONTROLS (pump, heater, solar)
   # =============================================================================
   - type: entities
-    title: 🏊 Pool-Steuerung
+    title: 🏊 Pool control
     show_header_toggle: false
     entities:
-      # Pumpe - Modus & Geschwindigkeit
+      # Pump - Mode & Speed
       - type: section
-        label: Filterpumpe
+        label: Filter pump
       - entity: switch.violet_pool_controller_pump
-        name: Modus
+        name: Mode
         icon: mdi:water-pump
       - entity: number.violet_pool_controller_pump_speed
-        name: Geschwindigkeit
+        name: Speed
         icon: mdi:speedometer
       - entity: sensor.violet_pool_controller_pump_runtime
-        name: Laufzeit
+        name: Runtime
         icon: mdi:clock-outline
 
-      # Heizung - Modus & Temperatur
+      # Heater - mode & temperaturee
       - type: section
-        label: Heizung
+        label: Heater
       - entity: switch.violet_pool_controller_heater
-        name: Modus
+        name: Mode
         icon: mdi:radiator
       - entity: number.violet_pool_controller_heater_target_temp
-        name: Zieltemperatur
+        name: Target temperature
         icon: mdi:thermometer
       - entity: sensor.violet_pool_controller_pool_temperature
-        name: Ist-Temperatur
+        name: Current temperature
         icon: mdi:thermometer-water
 
-      # Solar - Modus & Temperatur
+      # Solar - mode & temperaturee
       - type: section
-        label: Solarabsorber
+        label: Solar absorber
       - entity: switch.violet_pool_controller_solar
-        name: Modus
+        name: Mode
         icon: mdi:solar-power
       - entity: number.violet_pool_controller_solar_target_temp
-        name: Zieltemperatur
+        name: Target temperature
         icon: mdi:thermometer
       - entity: sensor.violet_pool_controller_solar_temperature
-        name: Kollektortemperatur
+        name: Collector temperature
         icon: mdi:thermometer-lines
 
   # =============================================================================
-  # WASSERQUALITÄT
+  # WATER QUALITY
   # =============================================================================
   - type: entities
-    title: 💧 Wasserqualität
+    title: 💧 Water quality
     show_header_toggle: false
     entities:
-      # pH-Kontrolle
+      # pH control
       - type: section
-        label: pH-Wert
+        label: pH value
       - entity: sensor.violet_pool_controller_ph_value
-        name: Aktueller pH
+        name: Current pH
         icon: mdi:flask
       - entity: number.violet_pool_controller_ph_setpoint
-        name: Sollwert
+        name: Setpoint
         icon: mdi:flask-outline
       - entity: switch.violet_pool_controller_dos_4_phm
-        name: pH- Modus
+        name: pH- mode
         icon: mdi:flask-minus
       - entity: switch.violet_pool_controller_dos_5_php
-        name: pH+ Modus
+        name: pH+ mode
         icon: mdi:flask-plus
 
-      # Chlor-Kontrolle
+      # Chlorine control
       - type: section
-        label: Desinfektion
+        label: Disinfection
       - entity: sensor.violet_pool_controller_orp_value
-        name: Redox (ORP)
+        name: ORP (redox)
         icon: mdi:flash
       - entity: number.violet_pool_controller_orp_setpoint
-        name: ORP Sollwert
+        name: ORP Setpoint
         icon: mdi:flash-outline
       - entity: sensor.violet_pool_controller_chlorine_level
-        name: Chlor
+        name: Chlorine
         icon: mdi:test-tube
       - entity: number.violet_pool_controller_chlorine_setpoint
-        name: Chlor Sollwert
+        name: Chlorine setpoint
         icon: mdi:test-tube-empty
       - entity: switch.violet_pool_controller_dos_1_cl
-        name: Chlor-Dosierung Modus
+        name: Chlorine dosing mode
         icon: mdi:test-tube
 
   # =============================================================================
-  # TEMPERATUREN ÜBERSICHT
+  # TEMPERATURE OVERVIEW
   # =============================================================================
   - type: horizontal-stack
     cards:
       - type: gauge
         entity: sensor.violet_pool_controller_pool_temperature
-        name: Becken
+        name: Pool
         min: 10
         max: 35
         severity:
@@ -140,7 +140,7 @@ cards:
 
       - type: gauge
         entity: sensor.violet_pool_controller_ambient_temperature
-        name: Außen
+        name: Outdoor
         min: -10
         max: 40
         severity:
@@ -150,44 +150,44 @@ cards:
         needle: true
 
   # =============================================================================
-  # WASSERCHEMIE GRAPH
+  # WATER CHEMISTRY GRAPH
   # =============================================================================
   - type: history-graph
-    title: 📊 Wasserchemie (24h)
+    title: 📊 Water chemistry (24h)
     hours_to_show: 24
     refresh_interval: 300
     entities:
       - entity: sensor.violet_pool_controller_ph_value
         name: pH
       - entity: sensor.violet_pool_controller_orp_value
-        name: Redox
+        name: ORP
       - entity: sensor.violet_pool_controller_chlorine_level
-        name: Chlor
+        name: Chlorine
 
   # =============================================================================
-  # ERWEITERTE STEUERUNG (Optional)
+  # ADVANCED CONTROL (optional)
   # =============================================================================
   - type: entities
-    title: ⚙️ Erweiterte Steuerung
+    title: ⚙️ Advanced control
     show_header_toggle: false
     entities:
-      # Beleuchtung
+      # Lighting
       - entity: switch.violet_pool_controller_light
-        name: Beleuchtung
+        name: Lighting
         icon: mdi:lightbulb
 
-      # PV-Überschuss
+      # PV surplus
       - entity: switch.violet_pool_controller_pvsurplus
-        name: PV-Überschuss
+        name: PV surplus
         icon: mdi:solar-power-variant
 
-      # Abdeckung (falls vorhanden)
+      # Cover (if fitted)
       - entity: cover.violet_pool_controller_cover
-        name: Abdeckung
+        name: Cover
         icon: mdi:window-shutter
 
   # =============================================================================
-  # SYSTEM-STATUS
+  # SYSTEM STATUS
   # =============================================================================
   - type: entities
     title: 🔧 System
@@ -195,11 +195,11 @@ cards:
     state_color: true
     entities:
       - entity: binary_sensor.violet_pool_controller_connection
-        name: Verbindung
+        name: Connection
         icon: mdi:lan-connect
       - entity: sensor.violet_pool_controller_error_code
-        name: Fehlerstatus
+        name: Error status
         icon: mdi:alert-circle
       - entity: sensor.violet_pool_controller_last_calibration
-        name: Letzte Kalibrierung
+        name: Last calibration
         icon: mdi:wrench-clock

@@ -30,9 +30,10 @@ from .const import (
     SELECT_CONTROLS,
 )
 from .device import VioletPoolDataUpdateCoordinator
-from .entity import VioletPoolControllerEntity
+from .entity import VioletPoolControllerEntity, parse_state_code
 from .entity_cleanup import track_provided_entities
 from .entity_selection import async_get_selection
+from .state_constants import ON_STATES
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -113,9 +114,16 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
         self._device_key = device_key
         self._is_binary = is_binary
         self._is_read_only = is_read_only
-        self._attr_options = (
-            [MODE_OFF, MODE_ON] if self._is_binary else [MODE_OFF, MODE_ON, MODE_AUTO]
-        )
+        if device_key in DOSING_CONFIG_KEYS:
+            # A dosing channel is either enabled (the controller doses on its
+            # own rules) or disabled. There is no "on" command: picking it sent
+            # the very same enable request as "auto", and the read path could
+            # never report "on", so the option snapped back on the next poll.
+            self._attr_options = [MODE_OFF, MODE_AUTO]
+        elif self._is_binary:
+            self._attr_options = [MODE_OFF, MODE_ON]
+        else:
+            self._attr_options = [MODE_OFF, MODE_ON, MODE_AUTO]
 
         # Optimistic state cache
         self._optimistic_mode: str | None = None
@@ -128,7 +136,21 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
 
     @property
     def current_option(self) -> str | None:
-        """Return the current selected option."""
+        """Return the current selected option.
+
+        The result is always one of ``options``: Home Assistant rejects a state
+        the entity does not offer, and a dosing channel whose output is
+        manually forced on still maps onto "auto" - the channel is enabled.
+        """
+        option = self._resolve_option()
+        if option is None or option in self._attr_options:
+            return option
+        if option == MODE_ON:
+            return MODE_AUTO if MODE_AUTO in self._attr_options else MODE_OFF
+        return MODE_OFF
+
+    def _resolve_option(self) -> str | None:
+        """Return the mode the controller reports, before clamping to options."""
         if self.coordinator.data is None:
             self._optimistic_mode = None
             return None
@@ -136,59 +158,50 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
         if self._optimistic_mode is not None:
             return self._optimistic_mode
 
-        # Dosing keys: check DOSAGE_*_use config value
-        if self._device_key in DOSING_CONFIG_KEYS:
-            dosing_info = DOSING_CONFIG_KEYS[self._device_key]
-            use_key = f"{dosing_info['prefix']}_use"
-            use_val = self.get_value(use_key)
-            if use_val is not None:
-                try:
-                    if int(use_val) == 1:
-                        return MODE_ON if self._is_binary else MODE_AUTO
+        # A select that writes a config flag must read that same flag back.
+        # Reading the output state instead reported "off" for an enabled but
+        # currently idle channel, e.g. flocculant between two doses.
+        config_key = self._config_read_key()
+        if config_key is not None:
+            use_code = parse_state_code(self.get_value(config_key))
+            if use_code is not None:
+                if use_code != 1:
                     return MODE_OFF
-                except (ValueError, TypeError):
-                    pass
+                return MODE_ON if self._is_binary else MODE_AUTO
 
         raw_state = self.get_value(self._device_key, "")
 
-        try:
-            if isinstance(raw_state, (int, float)) or (
-                isinstance(raw_state, str) and raw_state.isdigit()
-            ):
-                state_int = int(raw_state)
-            else:
-                state_str = str(raw_state).upper().strip()
-                if state_str in ("ON", "MANUAL", "MAN"):
-                    return MODE_ON
-                if state_str in ("OFF", "STOPPED"):
-                    return MODE_OFF
-                if state_str in ("AUTO", "AUTOMATIC"):
-                    return MODE_AUTO if not self._is_binary else MODE_ON
-                return MODE_AUTO if not self._is_binary else MODE_OFF
-
-            # PVSURPLUS uses its own scheme: 0 = off, 1/2 = on (not the
-            # 0-6 output states)
-            if self._device_key == "PVSURPLUS":
-                return MODE_ON if state_int in (1, 2) else MODE_OFF
-
-            if self._is_binary:
-                # Active states per DEVICE_STATE_MAPPING; 2 = rule-blocked OFF
-                return MODE_ON if state_int in (1, 3, 4) else MODE_OFF
-
-            mode = STATE_TO_MODE.get(state_int)
-            if mode:
-                return mode
-
-            return MODE_AUTO
-
-        except (ValueError, TypeError) as err:
-            _LOGGER.debug(
-                "Error converting state '%s' for %s: %s",
-                raw_state,
-                self._device_key,
-                err,
-            )
+        # Composite states such as "3|PUMP_ANTI_FREEZE" carry the state code in
+        # their leading part.
+        state_int = parse_state_code(raw_state)
+        if state_int is None:
+            state_str = str(raw_state).upper().strip()
+            if state_str in ("ON", "MANUAL", "MAN"):
+                return MODE_ON
+            if state_str in ("OFF", "STOPPED"):
+                return MODE_OFF
+            if state_str in ("AUTO", "AUTOMATIC"):
+                return MODE_ON if self._is_binary else MODE_AUTO
             return MODE_OFF if self._is_binary else MODE_AUTO
+
+        # PVSURPLUS uses its own scheme: 0 = off, 1/2 = on (not the
+        # 0-6 output states)
+        if self._device_key == "PVSURPLUS":
+            return MODE_ON if state_int in (1, 2) else MODE_OFF
+
+        if self._is_binary:
+            # Active states per DEVICE_STATE_MAPPING; 2 = rule-blocked OFF
+            return MODE_ON if state_int in ON_STATES else MODE_OFF
+
+        return STATE_TO_MODE.get(state_int, MODE_AUTO)
+
+    def _config_read_key(self) -> str | None:
+        """Return the config key this select reads and writes, if it has one."""
+        if self._device_key in BINARY_DOSING_CONFIG_KEYS:
+            return BINARY_DOSING_CONFIG_KEYS[self._device_key]
+        if self._device_key in DOSING_CONFIG_KEYS:
+            return f"{DOSING_CONFIG_KEYS[self._device_key]['prefix']}_use"
+        return None
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -208,26 +221,28 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
             attributes["pending_update"] = True
             attributes["target_mode"] = self._optimistic_mode
 
-        # Device-specific attributes
+        # Device-specific attributes. The keys read here are the ones the
+        # controller actually reports - HEATER_TARGET_TEMP / SOLAR_TARGET_TEMP
+        # never existed, so those attributes only ever showed their fallback.
         if self._device_key == "PUMP":
             attributes.update(
                 {
-                    "runtime": self.get_str_value("PUMP_RUNTIME", "00h 00m 00s"),
-                    "speed": self.get_value("PUMP_RPM_2", 2),
+                    "runtime": self.get_str_value("PUMP_RUNTIME"),
+                    "speed": self.get_active_pump_speed(),
                 }
             )
         elif self._device_key == "HEATER":
             attributes.update(
                 {
-                    "runtime": self.get_str_value("HEATER_RUNTIME", "00h 00m 00s"),
-                    "target_temp": self.get_value("HEATER_TARGET_TEMP", 28.0),
+                    "runtime": self.get_str_value("HEATER_RUNTIME"),
+                    "target_temp": self.get_float_value("HEATER_set_temp"),
                 }
             )
         elif self._device_key == "SOLAR":
             attributes.update(
                 {
-                    "runtime": self.get_str_value("SOLAR_RUNTIME", "00h 00m 00s"),
-                    "target_temp": self.get_value("SOLAR_TARGET_TEMP", 30.0),
+                    "runtime": self.get_str_value("SOLAR_RUNTIME"),
+                    "target_temp": self.get_float_value("SOLAR_maxtemp"),
                 }
             )
 
@@ -262,22 +277,29 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
         try:
             _LOGGER.info("Setting %s to mode '%s' (action: %s)", self._device_key, option, action)
 
+            writes_config = self._config_read_key() is not None
+
             if self._is_binary and self._device_key in BINARY_DOSING_CONFIG_KEYS:
                 config_key = BINARY_DOSING_CONFIG_KEYS[self._device_key]
                 config_val = "1" if option == MODE_ON else "0"
                 result = await self.device.api.set_config({config_key: config_val})
             elif self._device_key in DOSING_CONFIG_KEYS:
-                dosing_info = DOSING_CONFIG_KEYS[self._device_key]
-                dosing_type = dosing_info["type"]
-                if option in (MODE_AUTO, MODE_ON):
-                    result = await self.device.api.set_dosage_enabled(dosing_type, enabled=True)
-                elif option == MODE_OFF:
-                    result = await self.device.api.set_dosage_enabled(dosing_type, enabled=False)
+                dosing_type = DOSING_CONFIG_KEYS[self._device_key]["type"]
+                result = await self.device.api.set_dosage_enabled(
+                    dosing_type, enabled=option == MODE_AUTO
+                )
             else:
                 result = await self.device.api.set_switch_state(key=self._device_key, action=action)
 
             if result.get("success") is True:
                 _LOGGER.debug("%s successfully set to mode '%s'", self._device_key, option)
+
+                # Config values live behind a second request that is only
+                # re-read every CONFIG_REFRESH_INTERVAL seconds. Without this,
+                # the delayed refresh returns the stale cached flag and the
+                # selection visibly jumps back for up to a minute.
+                if writes_config:
+                    self.coordinator.device.request_config_refresh()
 
                 # Optimistic update
                 self._optimistic_mode = option
@@ -285,7 +307,7 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
 
                 # Delayed refresh
                 task = asyncio.create_task(self._delayed_refresh())
-                task.add_done_callback(lambda t: self._handle_refresh_error(t))
+                task.add_done_callback(self._handle_refresh_error)
             else:
                 error_msg = result.get("response", "Unknown error")
                 _LOGGER.warning(
@@ -313,6 +335,11 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
                 translation_domain=DOMAIN,
                 translation_placeholders={"detail": str(err)},
             ) from err
+        except HomeAssistantError:
+            # Already a translated, user-facing message - keep it as it is
+            # instead of re-wrapping it as an "unexpected error".
+            self._optimistic_mode = None
+            raise
         except Exception as err:
             _LOGGER.error(
                 "Unexpected error setting %s to mode '%s': %s",
@@ -347,23 +374,6 @@ class VioletSelect(VioletPoolControllerEntity, SelectEntity):
                     self._device_key,
                     old_mode,
                 )
-
-    def _handle_refresh_error(self, task: asyncio.Task) -> None:
-        """
-        Handle errors in the refresh task.
-
-        Args:
-            task: The task object.
-        """
-        try:
-            if not task.cancelled():
-                exc = task.exception()
-                if exc is not None:
-                    _LOGGER.debug("Refresh task failed for %s: %s", self._device_key, exc)
-        except (asyncio.CancelledError, asyncio.InvalidStateError):
-            pass
-        except Exception as err:
-            _LOGGER.debug("Error handling refresh task for %s: %s", self._device_key, err)
 
 
 async def async_setup_entry(

@@ -6,6 +6,19 @@
 
 > Thermostat control for pool heater and solar system.
 
+> **Entity ids in this wiki are examples.** An entity id is derived from the
+> name you gave the controller in the config flow, so a controller called
+> "Pool" produces `switch.pool_pump`, not `switch.violet_pool_controller_pump`.
+> Home Assistant also never rewrites an id after first registration, so an
+> older installation may still carry a differently-spelled id. **Look yours up
+> in Developer Tools → States** and search for your controller's name before
+> copying an automation.
+>
+> Ranges and option labels shown here are likewise the current defaults, not a
+> contract. The authoritative values live in the code
+> (`climate.py`'s `temperature_range()`, `const_sensors.py`, `select.py`) and
+> in the entity's own attributes in Developer Tools.
+
 ---
 
 ## Overview
@@ -20,8 +33,8 @@ The Climate entities provide a full thermostat interface for:
 
 | Entity | Description | Default Setpoint |
 |--------|-------------|------------------|
-| `climate.violet_heater` | Main pool heater | 28°C |
-| `climate.violet_solar` | Solar heating circuit | 30°C |
+| `climate.violet_pool_controller_heater` | Main pool heater | 28°C |
+| `climate.violet_pool_controller_solar` | Solar heating circuit | 30°C |
 
 ---
 
@@ -48,7 +61,7 @@ Click on the Climate entity → use the temperature slider.
 ```yaml
 service: climate.set_temperature
 target:
-  entity_id: climate.violet_heater
+  entity_id: climate.violet_pool_controller_heater
 data:
   temperature: 28
   hvac_mode: heat
@@ -59,7 +72,7 @@ data:
 ```yaml
 service: number.set_value
 target:
-  entity_id: number.violet_target_pool_temperature
+  entity_id: number.violet_pool_controller_target_temperature
 data:
   value: 28
 ```
@@ -70,10 +83,10 @@ data:
 
 | Entity | Description | Range |
 |--------|-------------|-------|
-| `number.violet_target_pool_temperature` | Pool target temperature | 10–40°C |
-| `number.violet_target_solar_temperature` | Solar max temperature | 20–60°C |
-| `number.violet_target_ph` | pH setpoint | 6.0–8.0 |
-| `number.violet_target_orp` | ORP setpoint | 500–900 mV |
+| `number.violet_pool_controller_target_temperature` | Pool target temperature | 10–40°C |
+| `number.violet_pool_controller_solar_target_temp` | Solar max temperature | 20–60°C |
+| `number.violet_pool_controller_ph_setpoint` | pH setpoint | 6.0–8.0 |
+| `number.violet_pool_controller_orp_setpoint` | ORP setpoint | 500–900 mV |
 
 ---
 
@@ -95,7 +108,7 @@ automation:
     action:
       - service: climate.set_temperature
         target:
-          entity_id: climate.violet_heater
+          entity_id: climate.violet_pool_controller_heater
         data:
           temperature: 30
           hvac_mode: heat
@@ -115,7 +128,7 @@ automation:
     action:
       - service: climate.set_temperature
         target:
-          entity_id: climate.violet_heater
+          entity_id: climate.violet_pool_controller_heater
         data:
           temperature: 26
           hvac_mode: auto
@@ -133,7 +146,7 @@ automation:
     action:
       - service: climate.set_hvac_mode
         target:
-          entity_id: climate.violet_heater
+          entity_id: climate.violet_pool_controller_heater
         data:
           hvac_mode: "off"
 ```
@@ -150,7 +163,7 @@ automation:
     action:
       - service: climate.set_hvac_mode
         target:
-          entity_id: climate.violet_heater
+          entity_id: climate.violet_pool_controller_heater
         data:
           hvac_mode: heat
       - service: violet_pool_controller.manage_pv_surplus
@@ -171,7 +184,7 @@ automation:
     action:
       - service: climate.set_temperature
         target:
-          entity_id: climate.violet_heater
+          entity_id: climate.violet_pool_controller_heater
         data:
           temperature: 28
 
@@ -183,7 +196,7 @@ automation:
     action:
       - service: climate.set_temperature
         target:
-          entity_id: climate.violet_heater
+          entity_id: climate.violet_pool_controller_heater
         data:
           temperature: 30
 ```
@@ -212,8 +225,8 @@ template:
       - name: "Solar-Pool Temperature Difference"
         unit_of_measurement: "°C"
         state: >
-          {{ (states('sensor.violet_solar_temperature') | float(0) -
-              states('sensor.violet_water_temperature') | float(0)) | round(1) }}
+          {{ (states('sensor.violet_pool_controller_solar_temperature') | float(0) -
+              states('sensor.violet_pool_controller_pool_temperature') | float(0)) | round(1) }}
 ```
 
 ---
@@ -237,22 +250,22 @@ automation:
           - conditions:
               - condition: template
                 value_template: >
-                  {{ states('sensor.violet_water_temperature') | float(0) < 30 }}
+                  {{ states('sensor.violet_pool_controller_pool_temperature') | float(0) < 30 }}
             sequence:
               - service: climate.set_temperature
                 target:
-                  entity_id: climate.violet_heater
+                  entity_id: climate.violet_pool_controller_heater
                 data:
                   temperature: 30
                   hvac_mode: heat
           - conditions:
               - condition: template
                 value_template: >
-                  {{ states('sensor.violet_water_temperature') | float(0) >= 30 }}
+                  {{ states('sensor.violet_pool_controller_pool_temperature') | float(0) >= 30 }}
             sequence:
               - service: climate.set_hvac_mode
                 target:
-                  entity_id: climate.violet_heater
+                  entity_id: climate.violet_pool_controller_heater
                 data:
                   hvac_mode: "off"
 ```
@@ -264,19 +277,19 @@ automation:
 ```yaml
 # Thermostat card for pool heater
 type: thermostat
-entity: climate.violet_heater
+entity: climate.violet_pool_controller_heater
 name: Pool Heater
 
 # Combined card with temperatures
 type: vertical-stack
 cards:
   - type: thermostat
-    entity: climate.violet_heater
+    entity: climate.violet_pool_controller_heater
   - type: entities
     title: Temperatures
     entities:
-      - sensor.violet_water_temperature
-      - sensor.violet_solar_temperature
+      - sensor.violet_pool_controller_pool_temperature
+      - sensor.violet_pool_controller_solar_temperature
       - entity: sensor.outside_temperature
         name: Outside Temperature
 ```
@@ -300,13 +313,13 @@ cards:
 
 ### Climate Shows Wrong Temperature
 
-The current temperature of the Climate entity is sourced from the water temperature sensor. Check `sensor.violet_water_temperature`.
+The current temperature of the Climate entity is sourced from the water temperature sensor. Check `sensor.violet_pool_controller_pool_temperature`.
 
 ### Heater Does Not Turn On
 
 1. Check HVAC mode (must be `heat`)
 2. Current temperature < target temperature?
-3. Check heater switch (`switch.violet_heater`)
+3. Check heater switch (`switch.violet_pool_controller_heater`)
 4. Check error codes → [Error-Codes](Error-Codes)
 
 ### Target Temperature Not Applied

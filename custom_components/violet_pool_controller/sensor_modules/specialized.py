@@ -523,7 +523,9 @@ class VioletSaturationIndexSensor(VioletPoolControllerEntity, SensorEntity):
             translation_key=translation_key,
             name=name,
             icon="mdi:water-percent",
-            device_class=SensorDeviceClass.AQI,  # or None
+            # A saturation index is a unitless water-balance figure, not an air
+            # quality index; the AQI device class made Home Assistant label and
+            # convert it as one.
             state_class=SensorStateClass.MEASUREMENT,
         )
         super().__init__(coordinator, config_entry, description)

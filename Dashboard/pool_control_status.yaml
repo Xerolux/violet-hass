@@ -1,147 +1,147 @@
 # =============================================================================
-# Violet Pool Controller - Steuerung mit Status-Anzeige
+# Violet Pool Controller - controls with status display
 # =============================================================================
 #
-# Dashboard-Karte die Switches mit Status-Beschreibungen anzeigt.
-# Zeigt Modus, Laufzeit, Geschwindigkeit und weitere Details
-# direkt unter jedem Steuerelement.
+# Dashboard card that shows switches together with their status text.
+# Shows mode, runtime, speed and further detail
+# directly underneath each control.
 #
-# HINWEIS: Für die "secondary_info: attribute" Funktion wird die
-# custom:secondaryinfo-entity-row Karte benötigt (HACS installierbar).
+# NOTE: the "secondary_info: attribute" feature needs the
+# custom:secondaryinfo-entity-row card (installable through HACS).
 #
-# Alternative ohne Custom Card: Die Status-Sensoren werden automatisch
-# auf der Geräteseite angezeigt (Pumpen-Status, Heizungs-Status, etc.)
+# Alternative without a custom card: the status sensors are shown
+# automatically on the device page (pump status, heater status, etc.)
 #
 # =============================================================================
 
-# --- Variante 1: Mit custom:secondaryinfo-entity-row (HACS) ---
-# Installieren via HACS > Frontend > "secondaryinfo-entity-row"
+# --- Variant 1: with custom:secondaryinfo-entity-row (HACS) ---
+# Install through HACS > Frontend > "secondaryinfo-entity-row"
 
 type: entities
-title: "🏊 Pool-Steuerung"
+title: "🏊 Pool control"
 show_header_toggle: false
 state_color: true
 entities:
-  # ----- Filterpumpe -----
+  # ----- Filter pump -----
   - type: section
-    label: "Filterpumpe"
+    label: "Filter pump"
   - type: custom:secondaryinfo-entity-row
     entity: switch.violet_pool_controller_filterpumpe
     secondary_info: "[[ sensor.violet_pool_controller_pumpen_status.state ]] · [[ sensor.violet_pool_controller_pumpen_detail_status.state ]]"
-    name: Filterpumpe
+    name: Filter pump
     icon: mdi:water-pump
   - entity: sensor.violet_pool_controller_pump_runtime
-    name: Laufzeit
+    name: Runtime
 
-  # ----- Heizung -----
+  # ----- Heater -----
   - type: section
-    label: "Heizung"
+    label: "Heater"
   - type: custom:secondaryinfo-entity-row
     entity: switch.violet_pool_controller_heizung
     secondary_info: "[[ sensor.violet_pool_controller_heizungs_status.state ]] · [[ sensor.violet_pool_controller_heizung_detail_status.state ]]"
-    name: Heizung
+    name: Heater
     icon: mdi:radiator
 
-  # ----- Solarabsorber -----
+  # ----- Solar absorber -----
   - type: section
-    label: "Solarabsorber"
+    label: "Solar absorber"
   - type: custom:secondaryinfo-entity-row
     entity: switch.violet_pool_controller_solarabsorber
     secondary_info: "[[ sensor.violet_pool_controller_solar_status.state ]]"
-    name: Solarabsorber
+    name: Solar absorber
     icon: mdi:solar-power
 
-  # ----- Dosierung -----
+  # ----- Dosing -----
   - type: section
-    label: "Dosierung"
+    label: "Dosing"
   - type: custom:secondaryinfo-entity-row
     entity: switch.violet_pool_controller_chlor_dosierung
     secondary_info: "[[ sensor.violet_pool_controller_chlor_dosierung_status.state ]]"
-    name: Chlor-Dosierung
+    name: Chlorine dosing
     icon: mdi:flask
   - type: custom:secondaryinfo-entity-row
     entity: switch.violet_pool_controller_dosierung_ph_
     secondary_info: "[[ sensor.violet_pool_controller_ph_dosierung_status.state ]]"
-    name: "pH- Dosierung"
+    name: "pH- Dosing"
     icon: mdi:flask-minus
   - type: custom:secondaryinfo-entity-row
     entity: switch.violet_pool_controller_flockmittel
     secondary_info: "Reichweite: [[ switch.violet_pool_controller_flockmittel.attributes.remaining_range ]]"
-    name: Flockmittel
+    name: Flocculant
     icon: mdi:flask
 
-  # ----- Rückspülung -----
+  # ----- Backwash -----
   - type: section
-    label: "Rückspülung"
+    label: "Backwash"
   - type: custom:secondaryinfo-entity-row
     entity: switch.violet_pool_controller_ruckspulung
     secondary_info: "[[ sensor.violet_pool_controller_ruckspul_status.state ]] · [[ switch.violet_pool_controller_ruckspulung.attributes.backwash_info ]]"
-    name: Rückspülung
+    name: Backwash
     icon: mdi:valve
 
-  # ----- Beleuchtung -----
+  # ----- Lighting -----
   - type: section
-    label: "Beleuchtung & PV"
+    label: "Lighting & PV"
   - type: custom:secondaryinfo-entity-row
     entity: switch.violet_pool_controller_beleuchtung
     secondary_info: "[[ sensor.violet_pool_controller_beleuchtung_status.state ]]"
-    name: Beleuchtung
+    name: Lighting
     icon: mdi:lightbulb
   - type: custom:secondaryinfo-entity-row
     entity: switch.violet_pool_controller_pv_uberschuss
     secondary_info: "[[ sensor.violet_pool_controller_pv_uberschuss_status.state ]]"
-    name: PV-Überschuss
+    name: PV surplus
     icon: mdi:solar-power-variant
 
 ---
 
-# --- Variante 2: Ohne Custom Card (nur mit Standard HA) ---
-# Zeigt Switches und Status-Sensoren untereinander
+# --- Variant 2: without a custom card (built-in HA only) ---
+# Shows switches and status sensors underneath each other
 
 # type: entities
-# title: "🏊 Pool-Steuerung"
+# title: "🏊 Pool control"
 # show_header_toggle: false
 # state_color: true
 # entities:
 #   - type: section
-#     label: "Filterpumpe"
+#     label: "Filter pump"
 #   - entity: switch.violet_pool_controller_filterpumpe
-#     name: Filterpumpe
+#     name: Filter pump
 #   - entity: sensor.violet_pool_controller_pumpen_status
 #     name: "↳ Status"
 #   - entity: sensor.violet_pool_controller_pumpen_detail_status
 #     name: "↳ Detail"
 #
 #   - type: section
-#     label: "Heizung"
+#     label: "Heater"
 #   - entity: switch.violet_pool_controller_heizung
-#     name: Heizung
+#     name: Heater
 #   - entity: sensor.violet_pool_controller_heizungs_status
 #     name: "↳ Status"
 #   - entity: sensor.violet_pool_controller_heizung_detail_status
 #     name: "↳ Detail"
 #
 #   - type: section
-#     label: "Solarabsorber"
+#     label: "Solar absorber"
 #   - entity: switch.violet_pool_controller_solarabsorber
-#     name: Solarabsorber
+#     name: Solar absorber
 #   - entity: sensor.violet_pool_controller_solar_status
 #     name: "↳ Status"
 #
 #   - type: section
-#     label: "Dosierung"
+#     label: "Dosing"
 #   - entity: switch.violet_pool_controller_chlor_dosierung
-#     name: Chlor-Dosierung
+#     name: Chlorine dosing
 #   - entity: sensor.violet_pool_controller_chlor_dosierung_status
 #     name: "↳ Status"
 #   - entity: switch.violet_pool_controller_dosierung_ph_
-#     name: "pH- Dosierung"
+#     name: "pH- Dosing"
 #   - entity: sensor.violet_pool_controller_ph_dosierung_status
 #     name: "↳ Status"
 #
 #   - type: section
-#     label: "Rückspülung"
+#     label: "Backwash"
 #   - entity: switch.violet_pool_controller_ruckspulung
-#     name: Rückspülung
+#     name: Backwash
 #   - entity: sensor.violet_pool_controller_ruckspul_status
 #     name: "↳ Status"

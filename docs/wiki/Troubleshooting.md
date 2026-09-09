@@ -148,7 +148,7 @@ tail -f /config/home-assistant.log | grep violet_pool_controller
 
 3. **Check controller:**
    - Look at error codes
-   - Check `sensor.violet_system_error_codes`
+   - Check `sensor.violet_pool_controller_error_code`
 
 ## Enabling Debug Mode
 
@@ -221,7 +221,7 @@ This saves the logs to `/config/` for later analysis or support tickets.
 
 ## Controller Error Codes
 
-These codes appear in `sensor.violet_system_error_codes`:
+These codes appear in `sensor.violet_pool_controller_error_code`:
 
 | Code | Error | Solution |
 |------|-------|----------|
@@ -312,7 +312,7 @@ If nothing helps:
 
 2. **System info:**
    - Home Assistant version
-   - Addon version
+   - Integration version
    - Controller model & firmware
 
 3. **Create an issue:**

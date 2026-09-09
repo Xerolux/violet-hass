@@ -9,16 +9,16 @@ Over 40 common questions and answers!
 ## General
 
 **Q: Do I need a cloud connection?**
-A: No! The add-on is 100% local. No cloud, no internet required.
+A: No! The integration is 100% local. No cloud, no internet required.
 
 **Q: Can I control multiple controllers?**
 A: Yes! Multi-controller is fully supported. Simply add multiple integrations.
 
-**Q: Is the add-on secure?**
+**Q: Is the integration secure?**
 A: Yes! Local communication with SSL/TLS options and input sanitization against injection attacks.
 
 **Q: Which Home Assistant version?**
-A: Minimum 2026.1.0. Tested on 2026.x.
+A: Minimum 2026.8.0. CI tests against 2026.8.3 and 2026.9.x.
 
 ---
 
@@ -139,7 +139,7 @@ logger:
     custom_components.violet_pool_controller: warning
 ```
 
-**Q: Add-on slowing down Home Assistant?**
+**Q: Integration slowing down Home Assistant?**
 A: It shouldn't. If problems occur:
 1. Increase polling interval
 2. Activate fewer sensors
@@ -177,7 +177,7 @@ A: Services are specialized:
 
 ## Updates & Maintenance
 
-**Q: How do I update the add-on?**
+**Q: How do I update the integration?**
 A: With HACS:
 1. HACS → Integrations
 2. Find "Violet Pool Controller"
@@ -207,7 +207,7 @@ git checkout v0.2.0  # example
 
 ## Uninstallation
 
-**Q: How do I uninstall the add-on?**
+**Q: How do I uninstall the integration?**
 A:
 1. Settings → Devices & Services
 2. Select Violet → ⋮ → Remove
@@ -215,7 +215,7 @@ A:
 4. Restart Home Assistant
 
 **Q: Will my automations survive uninstallation?**
-A: Yes! They are stored separately. But they won't work without the add-on.
+A: Yes! They are stored separately. But they won't work without the integration.
 
 ---
 
@@ -243,7 +243,7 @@ A: Yes, with climate entities:
 ```yaml
 service: climate.set_temperature
 target:
-  entity_id: climate.violet_heater
+  entity_id: climate.violet_pool_controller_heater
 data:
   temperature: 28
   hvac_mode: heat

@@ -1,4 +1,10 @@
-"""Tests for Input Sanitization."""
+"""Tests for the input sanitization the API package performs on our behalf.
+
+``manifest.json`` pins ``violet-poolController-api>=0.0.39``, the release in
+which key validation started rejecting an invalid name instead of silently
+rewriting it into a different, real controller setting.  These tests assert
+that contract.
+"""
 
 import pytest
 from violet_poolcontroller_api import SETPOINT_RANGES
@@ -132,43 +138,55 @@ class TestInputSanitizer:
         assert InputSanitizer.sanitize_boolean("invalid", default=True) is True
 
     def test_validate_device_key(self):
-        """Test dass Device-Keys korrekt validiert werden."""
-        # Valid keys
+        """A valid key is returned unchanged, including its case.
+
+        Controller keys are case-sensitive - ``pH_value`` and
+        ``onewire1_value`` are real keys - so the old upper-casing turned a
+        valid key into one the controller does not have.
+        """
         assert InputSanitizer.validate_device_key("PUMP") == "PUMP"
         assert InputSanitizer.validate_device_key("DOS_1_CL") == "DOS_1_CL"
+        assert InputSanitizer.validate_device_key("pH_value") == "pH_value"
+        assert InputSanitizer.validate_device_key("onewire1_value") == "onewire1_value"
 
-        # Lowercase wird uppercase
-        assert InputSanitizer.validate_device_key("pump") == "PUMP"
-
-        # Ungültige Zeichen werden entfernt
-        assert InputSanitizer.validate_device_key("PUMP-1") == "PUMP_1"
+    def test_validate_device_key_rejects_invalid_characters(self):
+        """An invalid key is an error, never a rewrite into a different key."""
+        for bad in ("PUMP-1", "PUMP 1", "PUMP<>"):
+            with pytest.raises(ValueError, match="invalid characters"):
+                InputSanitizer.validate_device_key(bad)
 
     def test_validate_device_key_too_long(self):
-        """Test dass zu lange Device-Keys abgelehnt werden."""
+        """An over-long device key is rejected."""
         long_key = "A" * 60
-        with pytest.raises(ValueError, match="zu lang"):
+        with pytest.raises(ValueError, match="too long"):
             InputSanitizer.validate_device_key(long_key)
 
     def test_validate_api_parameter(self):
-        """Test dass API-Parameter korrekt validiert werden."""
-        # Valid parameters
+        """A valid parameter name is returned unchanged."""
         assert InputSanitizer.validate_api_parameter("temperature") == "temperature"
         assert InputSanitizer.validate_api_parameter("pump_speed") == "pump_speed"
         assert InputSanitizer.validate_api_parameter("pH-value") == "pH-value"
 
-        # Ungültige Zeichen werden entfernt
-        assert InputSanitizer.validate_api_parameter("test<>") == "test"
+    def test_validate_api_parameter_rejects_invalid_characters(self):
+        """Stripping characters used to write to a different, real setting.
+
+        ``DOSAGE_ph.minus`` became ``DOSAGE_phminus`` - a typo silently
+        changed a setting the caller never named.
+        """
+        for bad in ("test<>", "DOSAGE_ph.minus", "pool mode"):
+            with pytest.raises(ValueError, match="invalid characters"):
+                InputSanitizer.validate_api_parameter(bad)
 
     def test_validate_api_parameter_path_traversal(self):
-        """Test dass Path Traversal verhindert wird."""
-        with pytest.raises(ValueError, match="Path Traversal"):
+        """Path traversal is rejected before anything else."""
+        with pytest.raises(ValueError, match="[Pp]ath traversal"):
             InputSanitizer.validate_api_parameter("../../../etc/passwd")
 
-        with pytest.raises(ValueError, match="Path Traversal"):
+        with pytest.raises(ValueError, match="[Pp]ath traversal"):
             InputSanitizer.validate_api_parameter("..\\..\\windows\\system32")
 
     def test_validate_api_parameter_too_long(self):
-        """Test dass zu lange Parameter abgelehnt werden."""
+        """An over-long parameter is rejected."""
         long_param = "a" * 150
-        with pytest.raises(ValueError, match="zu lang"):
+        with pytest.raises(ValueError, match="too long"):
             InputSanitizer.validate_api_parameter(long_param)

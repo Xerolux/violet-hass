@@ -24,10 +24,11 @@ This project adheres to the [Home Assistant Code of Conduct](https://www.home-as
 
 ### Prerequisites
 
-- Python 3.14.2 or later
-- Home Assistant 2026.1.0 or later
+- Python 3.14 or later (`scripts/setup-test-env.sh` refuses anything older,
+  because Home Assistant needs it)
+- Home Assistant 2026.8.0 or later (the floor declared in `hacs.json`)
 - Git
-- A Violet Pool Controller device (or access to simulator)
+- A Violet Pool Controller device (or access to a simulator)
 
 ### Recommended Tools
 
@@ -52,13 +53,20 @@ cd violet-hass
 ### 2. Set Up Development Environment
 
 ```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# The whole project uses one venv name: .venv
+python3.14 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Install development dependencies
-pip install -r requirements.txt
-pip install ruff mypy pytest pytest-asyncio pytest-homeassistant-custom-component
+# requirements-dev.txt is the single source of truth for tool versions.
+# It already includes requirements.txt, so this one line is the whole setup.
+pip install -r requirements-dev.txt
+```
+
+Or let the script do it, which is what the devcontainer runs on create:
+
+```bash
+./scripts/setup-test-env.sh          # creates/reuses .venv
+./scripts/setup-test-env.sh --recreate   # rebuild from scratch
 ```
 
 ### 3. Install in Home Assistant
@@ -101,35 +109,41 @@ We follow:
 
 #### Code Quality Requirements
 
-| Metric | Tool | Target (Bronze) | Target (Silver) | Target (Gold) |
-|--------|------|-----------------|-----------------|---------------|
-| Linting | Ruff | ✅ 0 errors | ✅ 0 errors | ✅ 0 errors |
-| Type Hints | mypy | ✅ 50% | ⚠️ 80% | ❌ 90% |
-| Test Coverage | pytest | ⚠️ 80% | ⚠️ 85% | ❌ 95% |
+| Metric | Tool | Gate |
+|--------|------|------|
+| Linting | Ruff | 0 errors - enforced by CI on Python 3.12, 3.13 and 3.14 |
+| Types | mypy | 0 errors - enforced by CI on Python 3.14 |
+| Test coverage | pytest-cov | Floor in `pyproject.toml` (`[tool.coverage.report] fail_under`). Raise it when you add tests; never lower it to make a build pass. |
+
+`ruff format --check` is **not** in CI yet: the tree has never been formatted,
+so enabling it would rewrite dozens of files. That needs its own commit.
 
 ### File Structure
 
 ```
 custom_components/violet_pool_controller/
-├── __init__.py              # Integration setup
-├── api.py                   # HTTP client
+├── __init__.py              # Integration setup, platform loading
 ├── device.py                # Device & coordinator
-├── error_handler.py         # Error handling
-├── manifest.json            # Integration metadata
-├── services.py              # Service handlers
-├── const.py                 # Constants
+├── entity.py                # Base entity class
+├── const.py                 # Constants hub
 ├── config_flow.py           # Setup UI
-├── config_flow_utils.py     # Config flow helpers
-├── sensor.py                # Sensor platform
-├── switch.py                # Switch platform
-├── binary_sensor.py         # Binary sensor platform
-├── climate.py               # Climate platform
-├── cover.py                 # Cover platform
-├── number.py                # Number platform
-├── select.py                # Select platform
-├── strings.json             # UI translations
-└── translations/            # Localized strings (future)
+├── config_flow_utils/       # Config flow helpers (a package, not a module)
+├── safety_guard.py          # Cooldowns + restart-safe auto-stop
+├── auth_guard.py            # Reports silent auth rejections as a repair
+├── services.py              # Service registration
+├── service_mixins/          # Service handlers, one mixin per subject area
+├── sensor.py, switch.py, binary_sensor.py, climate.py, cover.py,
+│   number.py, select.py, light.py, update.py, button.py   # the 10 platforms
+├── sensor_modules/          # Modular sensor implementations
+├── manifest.json            # Integration metadata (incl. the API dependency)
+├── strings.json             # UI strings
+└── translations/            # Localised strings (10 languages)
 ```
+
+**There is no `api.py` here.** The HTTP client lives in the standalone
+[`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api)
+package; API fixes belong in that repository and ship as a new PyPI release.
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the full module inventory.
 
 ### Naming Conventions
 
@@ -193,9 +207,12 @@ pytest tests/test_api.py
 # Run with coverage
 pytest --cov=custom_components/violet_pool_controller --cov-report=html
 
-# Run specific test
-pytest tests/test_api.py::test_get_readings
+# Run a single test
+pytest tests/test_api.py::test_rate_limiter_is_initialized
 ```
+
+Home Assistant and the API package must be installed: `tests/conftest.py`
+stops the run with an actionable message rather than falling back to stubs.
 
 ### Test Structure
 
@@ -284,31 +301,38 @@ def mock_coordinator():
 
 ### Commit Message Format
 
-Use clear, descriptive commit messages:
+**Conventional Commits.** The release notes are generated from merged pull
+request titles, so the title is what users read.
 
 ```
-[Scope] Brief description
+<type>(<optional scope>): <short description>
 
-More detailed explanatory text if needed.
+Longer explanation if it is not obvious from the diff.
 
 Refs: #issue_number
 ```
 
+Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`, `perf`.
+
 Examples:
 ```
-[API] Add timeout configuration support
+feat(api): add timeout configuration support
 
-Allows users to configure custom timeout values for API requests.
-Fixes connection issues with slow controllers.
+Lets users configure a custom timeout for API requests, which fixes
+connection failures against slow controllers.
 
 Refs: #123
 ```
 
 ```
-[Docs] Update troubleshooting guide
-
-Added section for SSL certificate errors and resolution steps.
+docs: add SSL certificate errors to the troubleshooting guide
 ```
+
+Everything written into this repository is **English** - commit messages,
+branch names, PR titles and bodies included. The two exceptions are
+`translations/*.json` and the German half of the bilingual docs
+(`README.de.md`, `docs/wiki/*.de.md`). `tests/test_language_policy.py`
+enforces this.
 
 ### Pull Request Checklist
 
@@ -317,9 +341,18 @@ Added section for SSL certificate errors and resolution steps.
 - [ ] Tests added/updated
 - [ ] Documentation updated
 - [ ] All tests pass (`pytest`)
-- [ ] No linting errors (`ruff check`)
-- [ ] No type errors (`mypy`)
-- [ ] Commit messages follow format
+- [ ] No linting errors (`ruff check custom_components/violet_pool_controller tests`)
+- [ ] No type errors (`mypy custom_components/violet_pool_controller`)
+- [ ] Commit messages follow Conventional Commits
+- [ ] Changelog entry added under a `## Version X.Y.Z (YYYY-MM-DD)` heading
+      if the change ships in a release
+
+**Releasing** (maintainer): bump the version in **all five** places -
+`custom_components/violet_pool_controller/manifest.json`, `const.py`,
+`custom_components/violet_pool_controller/.version`, `pyproject.toml` and the
+"Current Integration Version" line in `CLAUDE.md` - and add the changelog
+section. CI's "Version consistency" job fails if any of them disagree, and the
+release fails without the changelog section.
 
 ---
 
@@ -350,10 +383,11 @@ Include:
 
 This integration is following the [Home Assistant Quality Scale](https://www.home-assistant.io/docs/quality_scale/).
 
-**Current Level:** 🥉 **Bronze** (100% complete)
-**Next Target:** 🥈 **Silver** (in progress)
-
-See [HA_QUALITY_SCALE_PROGRESS.md](docs/HA_QUALITY_SCALE_PROGRESS.md) for detailed status.
+The declared level is in `custom_components/violet_pool_controller/manifest.json`
+(`"quality_scale"`), and the per-rule status is tracked in
+`custom_components/violet_pool_controller/quality_scale.yaml`. Read those two
+files rather than a prose summary - a summary of a checklist goes stale
+faster than the checklist.
 
 ---
 
@@ -368,9 +402,9 @@ See [HA_QUALITY_SCALE_PROGRESS.md](docs/HA_QUALITY_SCALE_PROGRESS.md) for detail
 
 ## Recognition
 
-Contributors will be recognized in:
-- `CONTRIBUTORS.md` file
-- Release notes
-- Integration documentation
+Contributors are credited automatically in the release notes: the release
+workflow builds them from merged pull requests, with `@author` attribution.
+That is why every change destined for a release goes in through a pull
+request rather than a local merge.
 
 Thank you for contributing! 🌊

@@ -1,10 +1,10 @@
-# Alle Dateien standardmäßig als Text behandeln mit LF Zeilenenden
+# Treat every file as text with LF line endings by default.
 * text=auto eol=lf
 
-# Explizite Definition für Python-Dateien
+# Explicit rule for Python files.
 *.py text eol=lf
 
-# Binärdateien definieren (z.B. Bilder, PDFs, ZIPs)
+# Binary files (images, PDFs, archives).
 *.png binary
 *.jpg binary
 *.jpeg binary
@@ -13,12 +13,12 @@
 *.zip binary
 *.exe binary
 
-# YAML Dateien explizit als Text definieren (für Home Assistant relevant!)
+# YAML as text - this matters for Home Assistant configuration.
 *.yaml text eol=lf
 *.yml text eol=lf
 
-# JSON-Dateien explizit definieren
+# JSON as text.
 *.json text eol=lf
 
-# Markdown-Dateien explizit als Text definieren
+# Markdown as text.
 *.md text eol=lf
