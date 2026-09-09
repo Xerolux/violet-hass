@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "紫池设置助手",
-        "description": "**Welcome!**\n\nChoose whether you want to start the configuration wizard immediately or open the detailed documentation first.\n\n**Documentation**\n• [Configuration Guide (DE)]({docs_de})\n• [Configuration Guide (EN)]({docs_en})\n\nSupport & Feedback: {issues_url}",
+        "description": "**欢迎！**\n\n请选择是立即启动配置向导，还是先打开详细文档。\n\n**文档**\n• [配置指南（DE）]({docs_de})\n• [配置指南（EN）]({docs_en})\n\n支持与反馈：{issues_url}",
         "data": {
           "action": "选择动作"
         },
@@ -13,18 +13,18 @@
       },
       "disclaimer": {
         "title": "安全与责任须知",
-        "description": "{disclaimer_text}\n\n**Learn more**\n• [Configuration Guide (DE)]({docs_de})\n• [Configuration Guide (EN)]({docs_en})",
+        "description": "{disclaimer_text}\n\n**了解更多**\n• [配置指南（DE）]({docs_de})\n• [配置指南（EN）]({docs_en})",
         "data": {
           "agreement": "我接受所有风险并已阅读完整的免责声明。"
         }
       },
       "help": {
         "title": "帮助和文档",
-        "description": "• Read the [Configuration Guide (DE)]({docs_de}) for step-by-step instructions, safety checklists and feature overviews.\n• Need support or have ideas? Open a ticket at {issues_url}.\n\n• Read the [Configuration Guide (EN)]({docs_en}) for step-by-step instructions, safety notes and feature explanations.\n• Need assistance or want to share feedback? Open an issue at {issues_url}.\n\nProject repository: {github_url}\n\nClick **Next** to return to the main menu."
+        "description": "• 阅读[配置指南（DE）]({docs_de})，其中包含分步说明、安全检查清单和功能概览。\n• 需要支持或有想法？请在 {issues_url} 提交工单。\n\n• 阅读[配置指南（EN）]({docs_en})，其中包含分步说明、安全提示和功能说明。\n• 需要帮助或想反馈意见？请在 {issues_url} 提交 issue。\n\n项目仓库：{github_url}\n\n点击**下一步**返回主菜单。"
       },
       "connection": {
         "title": "控制器连接",
-        "description": "Connect your Violet Pool Controller to Home Assistant. Ensure the controller shares the same network and the API is reachable.\n\nAdditional docs: [DE]({docs_de}) · [EN]({docs_en})",
+        "description": "将您的 Violet Pool Controller 连接到 Home Assistant。请确保控制器处于同一网络中，且 API 可访问。\n\n更多文档：[DE]({docs_de}) · [EN]({docs_en})",
         "data": {
           "host": "IP 地址或主机名",
           "username": "用户名（可选）",
@@ -92,7 +92,7 @@
         "title": "重新配置连接",
         "description": "更新控制器的连接设置。当控制器 IP 地址或网络设置发生更改时，这非常有用。\n\n控制器：**{controller_name}**",
         "data": {
-          "reconfigure_option": "Select what to reconfigure",
+          "reconfigure_option": "选择要重新配置的内容",
           "host": "IP 地址或主机名",
           "port": "TCP端口",
           "use_ssl": "使用 SSL/HTTPS",
@@ -101,7 +101,7 @@
           "retry_attempts": "重试尝试"
         },
         "data_description": {
-          "reconfigure_option": "Choose the settings you want to update",
+          "reconfigure_option": "选择要更新的设置",
           "host": "新控制器 IP 或 DNS 名称",
           "port": "TCP 端口（除非使用自定义代理，否则保留为 80）",
           "use_ssl": "支持时启用 HTTPS",
@@ -111,35 +111,35 @@
         }
       },
       "reconfigure_connection": {
-        "title": "Reconfigure Connection Settings",
-        "description": "Update the connection settings for your controller.\n\nController: **{controller_name}**",
+        "title": "重新配置连接设置",
+        "description": "更新控制器的连接设置。\n\n控制器：**{controller_name}**",
         "data": {
-          "host": "IP Address",
-          "port": "TCP Port",
-          "use_ssl": "Use SSL/HTTPS",
-          "verify_ssl": "Verify SSL Certificate",
-          "polling_interval": "Polling Interval (s)",
-          "timeout_duration": "Timeout (s)",
-          "retry_attempts": "Retry Attempts"
+          "host": "IP 地址",
+          "port": "TCP 端口",
+          "use_ssl": "使用 SSL/HTTPS",
+          "verify_ssl": "验证 SSL 证书",
+          "polling_interval": "轮询间隔（秒）",
+          "timeout_duration": "超时（秒）",
+          "retry_attempts": "重试次数"
         },
         "data_description": {
-          "host": "New controller IP or DNS name",
-          "port": "TCP port (default 80)",
-          "use_ssl": "Enable HTTPS",
-          "verify_ssl": "Verify the SSL certificate. Disable for self-signed certificates.",
-          "polling_interval": "Data polling interval (10–3600s)",
-          "timeout_duration": "Maximum wait time per request",
-          "retry_attempts": "Number of retry attempts"
+          "host": "控制器的新 IP 或 DNS 名称",
+          "port": "TCP 端口（默认 80）",
+          "use_ssl": "启用 HTTPS",
+          "verify_ssl": "验证 SSL 证书。使用自签名证书时请关闭。",
+          "polling_interval": "数据轮询间隔（10–3600 秒）",
+          "timeout_duration": "每个请求的最长等待时间",
+          "retry_attempts": "重试尝试的次数"
         }
       },
       "reconfigure_safety": {
-        "title": "🚨 Safety Settings",
-        "description": "🚨 **CRITICAL SAFETY WARNING** 🚨\n\nEnabling unsafe switches allows direct manual control of:\n• Dosing systems (chemical overdose risk)\n• Backwash/Rinse (equipment damage risk)\n• Water Refill (flooding/overflow risk)\n\nThese operations can run INDEFINITELY without time limits!\n\n**SAFE ALTERNATIVE**: Use Services instead - they require mandatory time limits.\n\n⚠️ Only enable this if you fully understand and accept the risks!",
+        "title": "🚨 安全设置",
+        "description": "🚨 **严重安全警告** 🚨\n\n启用不安全开关后，可直接手动控制：\n• 投加系统（化学品过量投加风险）\n• 反冲洗/漂洗（设备损坏风险）\n• 补水（漫溢/溢流风险）\n\n这些操作可以无限期运行，没有任何时间限制！\n\n**安全的替代方案**：改用服务——服务强制要求设置时间限制。\n\n⚠️ 只有在完全理解并接受这些风险时才可启用！",
         "data": {
-          "allow_unsafe_switches": "Allow manual safety-critical switches"
+          "allow_unsafe_switches": "允许手动操作安全关键开关"
         },
         "data_description": {
-          "allow_unsafe_switches": "Enable direct control of dosing, backwash & refill (requires mandatory time limits via Services)"
+          "allow_unsafe_switches": "启用对投加、反冲洗和补水的直接控制（通过服务强制要求设置时间限制）"
         }
       },
       "controller_auth": {
@@ -206,13 +206,13 @@
         "description": "选择应显示哪些传感器\n\n只有选定的传感器才会显示在 Home Assistant 中\n更改立即生效\n\n仅选择您真正想要监控的传感器！"
       },
       "safety": {
-        "title": "🚨 Safety Settings",
+        "title": "🚨 安全设置",
         "description": "{warning}",
         "data": {
-          "allow_unsafe_switches": "Allow manual safety-critical switches"
+          "allow_unsafe_switches": "允许手动操作安全关键开关"
         },
         "data_description": {
-          "allow_unsafe_switches": "Enable direct control of dosing, backwash & refill (requires mandatory time limits via Services)"
+          "allow_unsafe_switches": "启用对投加、反冲洗和补水的直接控制（通过服务强制要求设置时间限制）"
         }
       },
       "settings": {
@@ -224,8 +224,8 @@
           "adaptive_polling": "空闲时降低轮询频率",
           "timeout_duration": "超时（秒）",
           "retry_attempts": "重试次数",
-          "group_entities": "Group entities into sub-devices",
-          "invert_cover": "Invert cover direction"
+          "group_entities": "将实体分组到子设备",
+          "invert_cover": "反转池盖方向"
         },
         "data_description": {
           "controller_name": "控制器显示名称",
@@ -233,51 +233,51 @@
           "adaptive_polling": "当水泵、加热和加药均关闭时，降低对控制器的轮询频率。上方的间隔仍是最快的轮询速率。",
           "timeout_duration": "每次请求最长等待时间（1-60秒）",
           "retry_attempts": "失败时的重试次数（1-10）",
-          "group_entities": "Split the controller's entities across sub-devices (pump, heating, dosing, ...) instead of listing all of them under one device. Entity IDs are not affected.",
-          "invert_cover": "Swap open and closed if the cover reports the opposite of what it does"
+          "group_entities": "将控制器的实体分散到各个子设备（水泵、加热、投加等），而不是全部列在一个设备下。实体 ID 不受影响。",
+          "invert_cover": "如果池盖报告的状态与实际动作相反，则交换打开和关闭"
         }
       }
     }
   },
   "exceptions": {
     "api_error": {
-      "message": "API-Kommunikationsfehler: {detail}"
+      "message": "API 通信错误：{detail}"
     },
     "controller_unavailable": {
-      "message": "Pool-Controller {name} ist nach {failures} aufeinanderfolgenden Fehlern nicht erreichbar"
+      "message": "泳池控制器 {name} 在连续 {failures} 次失败后不可用"
     },
     "device_not_found": {
-      "message": "No Violet Pool Controller found for device {device_id}"
+      "message": "未找到设备 {device_id} 对应的 Violet Pool Controller"
     },
     "failed_to_set_value": {
-      "message": "Wert konnte nicht gesetzt werden: {detail}"
+      "message": "设置数值失败：{detail}"
     },
     "invalid_action": {
-      "message": "Ungültige Aktion: {action}"
+      "message": "无效的动作：{action}"
     },
     "invalid_value": {
-      "message": "Ungültiger Wert: {detail}"
+      "message": "无效的数值：{detail}"
     },
     "no_api_key": {
-      "message": "Kein API-Schlüssel für Entität {entity} konfiguriert"
+      "message": "实体 {entity} 未配置 API 密钥"
     },
     "no_data": {
-      "message": "The controller has not delivered any data yet"
+      "message": "控制器尚未返回任何数据"
     },
     "no_devices": {
-      "message": "No Violet Pool Controller was selected for this service call"
+      "message": "此服务调用未选择任何 Violet Pool Controller"
     },
     "no_parameters": {
-      "message": "No parameters were given for {service} - nothing to change"
+      "message": "未为 {service} 提供任何参数——没有需要更改的内容"
     },
     "read_only_entity": {
-      "message": "Entity {entity} is read-only and cannot be controlled manually"
+      "message": "实体 {entity} 为只读，无法手动控制"
     },
     "unexpected_error": {
-      "message": "Unerwarteter Fehler: {detail}"
+      "message": "意外错误：{detail}"
     },
     "value_out_of_range": {
-      "message": "Wert {value} liegt außerhalb des gültigen Bereichs ({min}–{max})"
+      "message": "数值 {value} 超出有效范围（{min}–{max}）"
     }
   },
   "issues": {
@@ -297,7 +297,7 @@
           }
         }
       },
-      "title": "Pool-Controller nicht erreichbar"
+      "title": "泳池控制器不可用"
     }
   },
   "services": {
@@ -305,375 +305,375 @@
       "description": "成功恢复后清除错误历史（谨慎使用）。",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "目标 Violet Pool Controller 设备。",
+          "name": "泳池控制器"
         }
       },
       "name": "清除错误历史"
     },
     "configure_analog_rule": {
-      "description": "Configure analog input threshold rule (ANALOGRULE_1-8).",
+      "description": "配置模拟输入的阈值规则（ANALOGRULE_1-8）。",
       "fields": {
         "adc_input": {
-          "description": "Analog input channel (1-8)",
-          "name": "ADC input"
+          "description": "模拟输入通道（1-8）",
+          "name": "ADC 输入"
         },
         "enabled": {
-          "description": "Turn rule on or off",
-          "name": "Enable rule"
+          "description": "启用或禁用规则",
+          "name": "启用规则"
         },
         "hysteresis": {
-          "description": "Hysteresis band for debouncing",
-          "name": "Hysteresis value"
+          "description": "用于防抖的迟滞带",
+          "name": "迟滞值"
         },
         "logic": {
-          "description": "Use >= (greater than or equal) or <= (less than or equal)",
-          "name": "Comparison logic"
+          "description": "使用 >=（大于或等于）或 <=（小于或等于）",
+          "name": "比较逻辑"
         },
         "output_1": {
-          "description": "First output name",
-          "name": "Output 1"
+          "description": "第一个输出的名称",
+          "name": "输出 1"
         },
         "output_1_state": {
-          "description": "State when rule activates (0-6)",
-          "name": "Output 1 state"
+          "description": "规则触发时的状态（0-6）",
+          "name": "输出 1 状态"
         },
         "output_2": {
-          "description": "Second output name",
-          "name": "Output 2"
+          "description": "第二个输出的名称",
+          "name": "输出 2"
         },
         "output_2_state": {
-          "description": "State when rule activates (0-6)",
-          "name": "Output 2 state"
+          "description": "规则触发时的状态（0-6）",
+          "name": "输出 2 状态"
         },
         "output_3": {
-          "description": "Third output name",
-          "name": "Output 3"
+          "description": "第三个输出的名称",
+          "name": "输出 3"
         },
         "output_3_state": {
-          "description": "State when rule activates (0-6)",
-          "name": "Output 3 state"
+          "description": "规则触发时的状态（0-6）",
+          "name": "输出 3 状态"
         },
         "rule_id": {
-          "description": "Rule number 1-8",
-          "name": "Rule ID"
+          "description": "规则编号 1-8",
+          "name": "规则 ID"
         },
         "runtime_off": {
-          "description": "Time when rule must deactivate (HH:MM)",
-          "name": "Runtime OFF"
+          "description": "规则必须停用的时间（HH:MM）",
+          "name": "停用时间"
         },
         "runtime_on": {
-          "description": "Time when rule can activate (HH:MM)",
-          "name": "Runtime ON"
+          "description": "规则可以启用的时间（HH:MM）",
+          "name": "启用时间"
         },
         "threshold": {
-          "description": "Trigger value for the analog input",
-          "name": "Threshold value"
+          "description": "模拟输入的触发值",
+          "name": "阈值"
         }
       },
-      "name": "Configure Analog Input Rule"
+      "name": "配置模拟输入规则"
     },
     "configure_dosing": {
-      "description": "Set dosing system configuration parameters.",
+      "description": "设置投加系统的配置参数。",
       "fields": {
         "config_key": {
-          "description": "The configuration parameter name",
-          "name": "Configuration key"
+          "description": "配置参数的名称",
+          "name": "配置键"
         },
         "dosing_system": {
-          "description": "Which dosing system to configure",
-          "name": "Chemical system"
+          "description": "要配置的投加系统",
+          "name": "化学品系统"
         },
         "value": {
-          "description": "The new parameter value",
-          "name": "Configuration value"
+          "description": "新的参数值",
+          "name": "配置值"
         }
       },
-      "name": "Configure Dosing"
+      "name": "配置投加"
     },
     "configure_overflow": {
-      "description": "Configure overflow, dry-run and bathing-detection protection.\n\nOnly the fields you fill in are written to the controller, so raising the overflow level cannot switch on another protection as a side effect.",
+      "description": "配置溢流保护、干运行保护和游泳检测。\n\n只有填写的字段才会写入控制器，因此提高溢流水位不会附带启用其他保护。",
       "fields": {
         "bathing_ai_enabled": {
-          "description": "Detect bathers from the water level and react to it.",
-          "name": "Enable bathing detection"
+          "description": "根据水位检测是否有人游泳并作出响应。",
+          "name": "启用游泳检测"
         },
         "bathing_level_change": {
-          "description": "Level change that counts as bathing, in percent.",
-          "name": "Bathing level change"
+          "description": "判定为游泳的水位变化，单位为百分比。",
+          "name": "游泳水位变化"
         },
         "bathing_level_time": {
-          "description": "Time window for that level change, in seconds.",
-          "name": "Bathing time window"
+          "description": "该水位变化的时间窗口，单位为秒。",
+          "name": "游泳时间窗口"
         },
         "bathing_pump_rpm": {
-          "description": "Pump speed used during bathing detection (0-3).",
-          "name": "Bathing pump speed"
+          "description": "游泳检测期间使用的水泵转速（0-3）。",
+          "name": "游泳时水泵转速"
         },
         "bathing_runtime": {
-          "description": "Bathing-detection runtime, in seconds.",
-          "name": "Bathing runtime"
+          "description": "游泳检测的运行时间，单位为秒。",
+          "name": "游泳检测运行时间"
         },
         "dryrun_enabled": {
-          "description": "Enable or disable dry-run protection.",
-          "name": "Enable dry-run protection"
+          "description": "启用或禁用干运行保护。",
+          "name": "启用干运行保护"
         },
         "dryrun_level": {
-          "description": "Water level below which dry-run protection trips, in percent.",
-          "name": "Dry-run level"
+          "description": "低于该水位时触发干运行保护，单位为百分比。",
+          "name": "干运行水位"
         },
         "enabled": {
-          "description": "Enable or disable the overflow protection.",
-          "name": "Enable overflow protection"
+          "description": "启用或禁用溢流保护。",
+          "name": "启用溢流保护"
         },
         "overflow_level": {
-          "description": "Water level above which overflow protection trips, in percent.",
-          "name": "Overflow level"
+          "description": "高于该水位时触发溢流保护，单位为百分比。",
+          "name": "溢流水位"
         },
         "overflow_rpm": {
-          "description": "Pump speed used while draining an overflow (0-3).",
-          "name": "Drain pump speed"
+          "description": "排放溢流水时使用的水泵转速（0-3）。",
+          "name": "排水泵转速"
         },
         "overflow_runtime": {
-          "description": "Maximum drain runtime, in seconds.",
-          "name": "Drain runtime"
+          "description": "最长排水运行时间，单位为秒。",
+          "name": "排水运行时间"
         }
       },
-      "name": "Configure Overflow Protection"
+      "name": "配置溢流保护"
     },
     "configure_refill": {
-      "description": "Configure the automatic water refill system.\n\nOnly the fields you fill in are written to the controller.",
+      "description": "配置自动补水系统。\n\n只有填写的字段才会写入控制器。",
       "fields": {
         "blocks_dosing": {
-          "description": "Suspend chemical dosing while the refill runs.",
-          "name": "Block dosing"
+          "description": "补水期间暂停化学品投加。",
+          "name": "阻止投加"
         },
         "enabled": {
-          "description": "Enable or disable the automatic refill.",
-          "name": "Enable refill"
+          "description": "启用或禁用自动补水。",
+          "name": "启用补水"
         },
         "max_fill_time": {
-          "description": "Upper limit for a single refill run, in seconds.",
-          "name": "Maximum fill time"
+          "description": "单次补水的时间上限，单位为秒。",
+          "name": "最长补水时间"
         },
         "refill_type": {
-          "description": "Which level sensor drives the refill (1-3).",
-          "name": "Refill sensor type"
+          "description": "由哪个水位传感器控制补水（1-3）。",
+          "name": "补水传感器类型"
         },
         "target_level": {
-          "description": "Water level the refill aims for, in percent.",
-          "name": "Target level"
+          "description": "补水的目标水位，单位为百分比。",
+          "name": "目标水位"
         }
       },
-      "name": "Configure Water Refill"
+      "name": "配置自动补水"
     },
     "configure_sensor_calibration": {
-      "description": "Configure temperature sensor calibration offsets and multipliers.",
+      "description": "配置温度传感器的校准偏移量和倍率。",
       "fields": {
         "max_value": {
-          "description": "Maximum valid sensor reading",
-          "name": "Maximum value"
+          "description": "传感器的最大有效读数",
+          "name": "最大值"
         },
         "min_value": {
-          "description": "Minimum valid sensor reading",
-          "name": "Minimum value"
+          "description": "传感器的最小有效读数",
+          "name": "最小值"
         },
         "multiplier": {
-          "description": "Calibration multiplier (0.5 to 2.0)",
-          "name": "Multiplier"
+          "description": "校准倍率（0.5 至 2.0）",
+          "name": "倍率"
         },
         "offset": {
-          "description": "Temperature offset in °C (-10 to +10)",
+          "description": "温度偏移量，单位 °C（-10 至 +10）",
           "name": "Offset"
         },
         "sensor_id": {
-          "description": "Temperature sensor number 1-12",
-          "name": "Sensor ID"
+          "description": "温度传感器编号 1-12",
+          "name": "传感器 ID"
         }
       },
-      "name": "Configure Sensor Calibration"
+      "name": "配置传感器校准"
     },
     "configure_switching_rule": {
-      "description": "Configure digital input-based rule (SWITCHINGRULE_1-8).",
+      "description": "配置基于数字输入的规则（SWITCHINGRULE_1-8）。",
       "fields": {
         "action_off": {
-          "description": "Output state when contact opens (0-6)",
-          "name": "Action OFF state"
+          "description": "触点断开时的输出状态（0-6）",
+          "name": "OFF 动作状态"
         },
         "action_on": {
-          "description": "Output state when contact closes (0-6)",
-          "name": "Action ON state"
+          "description": "触点闭合时的输出状态（0-6）",
+          "name": "ON 动作状态"
         },
         "contact_type": {
-          "description": "0=Normally Open (NO), 1=Normally Closed (NC)",
-          "name": "Contact type"
+          "description": "0=常开（NO），1=常闭（NC）",
+          "name": "触点类型"
         },
         "di_input": {
-          "description": "Digital input pin (1-12)",
-          "name": "Digital input"
+          "description": "数字输入引脚（1-12）",
+          "name": "数字输入"
         },
         "enabled": {
-          "description": "Turn rule on or off",
-          "name": "Enable rule"
+          "description": "启用或禁用规则",
+          "name": "启用规则"
         },
         "output": {
-          "description": "Output to control",
-          "name": "Output name"
+          "description": "要控制的输出",
+          "name": "输出名称"
         },
         "rule_id": {
-          "description": "Rule number 1-8",
-          "name": "Rule ID"
+          "description": "规则编号 1-8",
+          "name": "规则 ID"
         },
         "timeout": {
-          "description": "Auto-reset timeout in seconds (0=disabled)",
+          "description": "自动复位超时，单位为秒（0=禁用）",
           "name": "Timeout"
         }
       },
-      "name": "Configure Switching Input Rule"
+      "name": "配置开关输入规则"
     },
     "configure_temp_rule": {
-      "description": "Configure temperature-based automation rule (TEMPRULE_1-8).",
+      "description": "配置基于温度的自动化规则（TEMPRULE_1-8）。",
       "fields": {
         "diff_value": {
-          "description": "Temperature difference threshold",
-          "name": "Differential value"
+          "description": "温差阈值",
+          "name": "差值"
         },
         "enabled": {
-          "description": "Turn rule on or off",
-          "name": "Enable rule"
+          "description": "启用或禁用规则",
+          "name": "启用规则"
         },
         "hyst_value": {
-          "description": "Hysteresis band for debouncing",
-          "name": "Hysteresis value"
+          "description": "用于防抖的迟滞带",
+          "name": "迟滞值"
         },
         "logic": {
-          "description": "Use >= (greater than or equal) or <= (less than or equal)",
-          "name": "Comparison logic"
+          "description": "使用 >=（大于或等于）或 <=（小于或等于）",
+          "name": "比较逻辑"
         },
         "output_1": {
-          "description": "First output name",
-          "name": "Output 1"
+          "description": "第一个输出的名称",
+          "name": "输出 1"
         },
         "output_1_state": {
-          "description": "State when rule activates (0-6)",
-          "name": "Output 1 state"
+          "description": "规则触发时的状态（0-6）",
+          "name": "输出 1 状态"
         },
         "output_2": {
-          "description": "Second output name",
-          "name": "Output 2"
+          "description": "第二个输出的名称",
+          "name": "输出 2"
         },
         "output_2_state": {
-          "description": "State when rule activates (0-6)",
-          "name": "Output 2 state"
+          "description": "规则触发时的状态（0-6）",
+          "name": "输出 2 状态"
         },
         "output_3": {
-          "description": "Third output name",
-          "name": "Output 3"
+          "description": "第三个输出的名称",
+          "name": "输出 3"
         },
         "output_3_state": {
-          "description": "State when rule activates (0-6)",
-          "name": "Output 3 state"
+          "description": "规则触发时的状态（0-6）",
+          "name": "输出 3 状态"
         },
         "rule_id": {
-          "description": "Rule number 1-8",
-          "name": "Rule ID"
+          "description": "规则编号 1-8",
+          "name": "规则 ID"
         },
         "runtime_off": {
-          "description": "Time when rule must deactivate (HH:MM)",
-          "name": "Runtime OFF"
+          "description": "规则必须停用的时间（HH:MM）",
+          "name": "停用时间"
         },
         "runtime_on": {
-          "description": "Time when rule can activate (HH:MM)",
-          "name": "Runtime ON"
+          "description": "规则可以启用的时间（HH:MM）",
+          "name": "启用时间"
         },
         "sensor_1": {
-          "description": "Primary temperature sensor (1-8)",
-          "name": "Primary sensor"
+          "description": "主温度传感器（1-8）",
+          "name": "主传感器"
         },
         "sensor_2": {
-          "description": "Secondary sensor (0=absolute value, 1-8=sensor)",
-          "name": "Secondary sensor"
+          "description": "辅助传感器（0=绝对值，1-8=传感器）",
+          "name": "辅助传感器"
         }
       },
-      "name": "Configure Temperature Rule"
+      "name": "配置温度规则"
     },
     "configure_timer_rule": {
-      "description": "Configure time-based automation rule (TIMERRULE_1-8).",
+      "description": "配置基于时间的自动化规则（TIMERRULE_1-8）。",
       "fields": {
         "enabled": {
-          "description": "Turn rule on or off",
-          "name": "Enable rule"
+          "description": "启用或禁用规则",
+          "name": "启用规则"
         },
         "off_time": {
-          "description": "When to turn off (HH:MM)",
-          "name": "OFF time"
+          "description": "关闭时间（HH:MM）",
+          "name": "关闭时间"
         },
         "on_time": {
-          "description": "When to turn on (HH:MM)",
-          "name": "ON time"
+          "description": "开启时间（HH:MM）",
+          "name": "开启时间"
         },
         "output_1": {
-          "description": "First output name",
-          "name": "Output 1"
+          "description": "第一个输出的名称",
+          "name": "输出 1"
         },
         "output_1_state": {
-          "description": "State when rule activates (0-6)",
-          "name": "Output 1 state"
+          "description": "规则触发时的状态（0-6）",
+          "name": "输出 1 状态"
         },
         "output_2": {
-          "description": "Second output name",
-          "name": "Output 2"
+          "description": "第二个输出的名称",
+          "name": "输出 2"
         },
         "output_2_state": {
-          "description": "State when rule activates (0-6)",
-          "name": "Output 2 state"
+          "description": "规则触发时的状态（0-6）",
+          "name": "输出 2 状态"
         },
         "output_3": {
-          "description": "Third output name",
-          "name": "Output 3"
+          "description": "第三个输出的名称",
+          "name": "输出 3"
         },
         "output_3_state": {
-          "description": "State when rule activates (0-6)",
-          "name": "Output 3 state"
+          "description": "规则触发时的状态（0-6）",
+          "name": "输出 3 状态"
         },
         "rule_id": {
-          "description": "Rule number 1-8",
-          "name": "Rule ID"
+          "description": "规则编号 1-8",
+          "name": "规则 ID"
         },
         "weekdays": {
-          "description": "Bitmask for days (0-127, e.g. 127=every day)",
-          "name": "Weekdays"
+          "description": "星期的位掩码（0-127，例如 127=每天）",
+          "name": "星期"
         }
       },
-      "name": "Configure Timer Rule"
+      "name": "配置定时规则"
     },
     "control_backwash_http": {
-      "description": "Run or abort the filter backwash cycle.\n\n**Caution:** a duration is mandatory - the backwash is stopped automatically when it elapses.",
+      "description": "运行或中止过滤器反冲洗循环。\n\n**注意：**必须设置持续时间——时间到达后反冲洗会自动停止。",
       "fields": {
         "action": {
-          "description": "Start the backwash cycle or abort it",
-          "name": "Backwash action"
+          "description": "启动或中止反冲洗循环",
+          "name": "反冲洗动作"
         },
         "duration_seconds": {
-          "description": "How long the backwash may run (10-3600s). It is stopped automatically afterwards.",
-          "name": "Duration (seconds)"
+          "description": "反冲洗可运行的时长（10-3600 秒）。之后会自动停止。",
+          "name": "持续时间（秒）"
         },
         "safety_override": {
-          "description": "Skip the cooldown between two backwash runs.",
-          "name": "Override safety interval"
+          "description": "跳过两次反冲洗之间的冷却时间。",
+          "name": "跳过安全间隔"
         }
       },
-      "name": "Control Backwash (HTTP)"
+      "name": "控制反冲洗（HTTP）"
     },
     "control_cover_http": {
-      "description": "Control the pool cover (open, close, or stop).",
+      "description": "控制池盖（打开、关闭或停止）。",
       "fields": {
         "action": {
-          "description": "Select: open, close, or stop",
-          "name": "Cover action"
+          "description": "选择：open、close 或 stop",
+          "name": "池盖动作"
         }
       },
-      "name": "Control Cover (HTTP)"
+      "name": "控制池盖（HTTP）"
     },
     "control_dmx_scenes": {
       "description": "控制泳池区域的 DMX 灯光场景。",
@@ -683,8 +683,8 @@
           "name": "DMX 动作"
         },
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "目标 Violet Pool Controller 设备。",
+          "name": "泳池控制器"
         },
         "sequence_delay": {
           "description": "序列模式下场景之间的延迟（1-60 秒）。",
@@ -694,40 +694,40 @@
       "name": "DMX场景控制"
     },
     "control_extension_relay": {
-      "description": "Control a single extension relay output (EXT1_1 to EXT1_8 and EXT2_1 to EXT2_8).",
+      "description": "控制单个扩展继电器输出（EXT1_1 至 EXT1_8 以及 EXT2_1 至 EXT2_8）。",
       "fields": {
         "action": {
-          "description": "Select: on (manual ON), off (manual OFF), or auto (back to the controller's own rules).",
-          "name": "Relay action"
+          "description": "选择：on（手动开）、off（手动关）或 auto（交回控制器自身的规则）。",
+          "name": "继电器动作"
         },
         "bank": {
-          "description": "Which extension module the relay sits on (1 or 2).",
-          "name": "Extension module"
+          "description": "继电器所在的扩展模块（1 或 2）。",
+          "name": "扩展模块"
         },
         "duration": {
-          "description": "How long to hold the action, in seconds (0 = until changed).",
-          "name": "Duration"
+          "description": "保持该动作的时长，单位为秒（0 = 直到再次更改）。",
+          "name": "持续时间"
         },
         "relay": {
-          "description": "Relay number on that module (1-8).",
-          "name": "Relay"
+          "description": "该模块上的继电器编号（1-8）。",
+          "name": "继电器"
         }
       },
-      "name": "Control Extension Relay"
+      "name": "控制扩展继电器"
     },
     "control_heater_http": {
-      "description": "Control the pool heater with temperature setpoint.",
+      "description": "控制泳池加热器并设置目标温度。",
       "fields": {
         "action": {
-          "description": "Turn heater on or off",
-          "name": "Heater action"
+          "description": "开启或关闭加热器",
+          "name": "加热器动作"
         },
         "target_temperature": {
-          "description": "Desired pool temperature (10-60°C)",
-          "name": "Target temperature"
+          "description": "期望的泳池温度（10-60°C）",
+          "name": "目标温度"
         }
       },
-      "name": "Control Heater (HTTP)"
+      "name": "控制加热器（HTTP）"
     },
     "control_pump": {
       "description": "使用高级选项控制水泵，如速度、节能模式或增强模式。",
@@ -748,86 +748,86 @@
       "name": "水泵控制"
     },
     "control_pump_http": {
-      "description": "Control the filter pump directly.\n\nSpeed 1-3 switches the pump to manual ON at that speed; use action \"off\" or force_off to switch it off.",
+      "description": "直接控制过滤水泵。\n\n转速 1-3 会将水泵切换为该转速下的手动开启；使用动作 \"off\" 或 force_off 将其关闭。",
       "fields": {
         "action": {
-          "description": "Select: on, off, eco, or boost.",
-          "name": "Control action"
+          "description": "选择：on、off、eco 或 boost。",
+          "name": "控制动作"
         },
         "force_off": {
-          "description": "Switch the pump off regardless of the other fields.",
-          "name": "Force off"
+          "description": "无论其他字段如何设置，都关闭水泵。",
+          "name": "强制关闭"
         },
         "speed": {
-          "description": "Pump speed level (1=Eco, 2=Normal, 3=Maximum).",
-          "name": "Pump speed"
+          "description": "水泵转速档位（1=Eco，2=Normal，3=最大）。",
+          "name": "水泵转速"
         }
       },
-      "name": "Control Pump (HTTP)"
+      "name": "控制水泵（HTTP）"
     },
     "control_refill_http": {
-      "description": "Start or stop a manual water refill.\n\n**Caution:** a duration is mandatory - the valve is closed automatically when it elapses so the pool cannot overflow.",
+      "description": "启动或停止手动补水。\n\n**注意：**必须设置持续时间——时间到达后阀门会自动关闭，以免泳池溢流。",
       "fields": {
         "action": {
-          "description": "Select: fill to start, stop to end a running refill.",
-          "name": "Refill action"
+          "description": "选择：fill 开始补水，stop 结束正在进行的补水。",
+          "name": "补水动作"
         },
         "duration_seconds": {
-          "description": "How long to fill (10-3600s). The refill stops automatically afterwards.",
-          "name": "Duration (seconds)"
+          "description": "补水时长（10-3600 秒）。之后补水会自动停止。",
+          "name": "持续时间（秒）"
         },
         "safety_override": {
-          "description": "Skip the cooldown between two refill runs.",
-          "name": "Override safety interval"
+          "description": "跳过两次补水之间的冷却时间。",
+          "name": "跳过安全间隔"
         }
       },
-      "name": "Control Water Refill (HTTP)"
+      "name": "控制自动补水（HTTP）"
     },
     "control_solar_http": {
-      "description": "Control the solar heating system.",
+      "description": "控制太阳能加热系统。",
       "fields": {
         "action": {
-          "description": "Enable or disable solar heating",
-          "name": "Solar action"
+          "description": "启用或禁用太阳能加热",
+          "name": "太阳能动作"
         },
         "target_temperature": {
-          "description": "Target temperature for solar operation (10-60°C)",
-          "name": "Target temperature"
+          "description": "太阳能运行的目标温度（10-60°C）",
+          "name": "目标温度"
         }
       },
-      "name": "Control Solar (HTTP)"
+      "name": "控制太阳能（HTTP）"
     },
     "enable_dosing": {
-      "description": "Enable or disable a dosing system.",
+      "description": "启用或禁用某个投加系统。",
       "fields": {
         "dosing_system": {
-          "description": "Which dosing system to enable/disable",
-          "name": "Chemical system"
+          "description": "要启用/禁用的投加系统",
+          "name": "化学品系统"
         },
         "enabled": {
-          "description": "Turn dosing system on or off",
-          "name": "Enable dosing"
+          "description": "开启或关闭投加系统",
+          "name": "启用投加"
         }
       },
-      "name": "Enable Dosing"
+      "name": "启用投加"
     },
     "enable_rule": {
-      "description": "Enable or disable any rule type.",
+      "description": "启用或禁用任意类型的规则。",
       "fields": {
         "enabled": {
-          "description": "Turn rule on or off",
-          "name": "Enable rule"
+          "description": "启用或禁用规则",
+          "name": "启用规则"
         },
         "rule_id": {
-          "description": "Rule number 1-8",
-          "name": "Rule ID"
+          "description": "规则编号 1-8",
+          "name": "规则 ID"
         },
         "rule_type": {
-          "description": "Select rule type: temprule, analogrule, switchingrule, or timerrule",
-          "name": "Rule type"
+          "description": "选择规则类型：temprule、analogrule、switchingrule 或 timerrule",
+          "name": "规则类型"
         }
       },
-      "name": "Enable/Disable Rule"
+      "name": "启用/禁用规则"
     },
     "export_diagnostic_logs": {
       "description": "导出最近的集成日志，用于故障排除和支持。\n\n收集相关日志条目并支持下载或文件保存。",
@@ -837,20 +837,20 @@
           "name": "泳池控制器"
         },
         "include_config": {
-          "description": "Include the integration configuration in the export.",
-          "name": "Include configuration"
+          "description": "在导出中包含集成的配置。",
+          "name": "包含配置"
         },
         "include_history": {
-          "description": "Include the poll and error history in the export.",
-          "name": "Include history"
+          "description": "在导出中包含轮询和错误历史。",
+          "name": "包含历史记录"
         },
         "include_raw_data": {
-          "description": "Include the raw controller readings in the export.",
-          "name": "Include raw data"
+          "description": "在导出中包含控制器的原始读数。",
+          "name": "包含原始数据"
         },
         "include_states": {
-          "description": "Include the current entity states in the export.",
-          "name": "Include entity states"
+          "description": "在导出中包含实体的当前状态。",
+          "name": "包含实体状态"
         },
         "include_timestamps": {
           "description": "在导出的日志中包含时间戳。",
@@ -868,31 +868,31 @@
       "name": "导出诊断日志"
     },
     "get_backwash_status": {
-      "description": "Return the backwash state, the current step and the filter pressure.",
+      "description": "返回反冲洗状态、当前步骤和过滤器压力。",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "目标 Violet Pool Controller 设备。",
+          "name": "泳池控制器"
         }
       },
-      "name": "Get Backwash Status"
+      "name": "获取反冲洗状态"
     },
     "get_calibration_status": {
-      "description": "Return the calibration state of every calibrated sensor.",
+      "description": "返回每个已校准传感器的校准状态。",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "目标 Violet Pool Controller 设备。",
+          "name": "泳池控制器"
         }
       },
-      "name": "Get Calibration Status"
+      "name": "获取校准状态"
     },
     "get_connection_status": {
       "description": "获取详细的连接状态和健康指标，用于故障排除。",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "目标 Violet Pool Controller 设备。",
+          "name": "泳池控制器"
         }
       },
       "name": "获取连接状态"
@@ -901,8 +901,8 @@
       "description": "获取最近错误的摘要和恢复建议。",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "目标 Violet Pool Controller 设备。",
+          "name": "泳池控制器"
         },
         "include_history": {
           "description": "包含详细的错误历史记录。",
@@ -912,54 +912,54 @@
       "name": "获取错误摘要"
     },
     "get_live_trace_snapshot": {
-      "description": "Return a single-row snapshot of every controller reading.",
+      "description": "返回包含所有控制器读数的单行快照。",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "目标 Violet Pool Controller 设备。",
+          "name": "泳池控制器"
         }
       },
-      "name": "Get live trace snapshot"
+      "name": "获取实时跟踪快照"
     },
     "get_overflow_status": {
-      "description": "Return the overflow protection's configuration and live state.",
+      "description": "返回溢流保护的配置和实时状态。",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "目标 Violet Pool Controller 设备。",
+          "name": "泳池控制器"
         }
       },
-      "name": "Get Overflow Status"
+      "name": "获取溢流保护状态"
     },
     "get_refill_status": {
-      "description": "Return the refill system's configuration and live state.",
+      "description": "返回补水系统的配置和实时状态。",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "目标 Violet Pool Controller 设备。",
+          "name": "泳池控制器"
         }
       },
-      "name": "Get Refill Status"
+      "name": "获取补水状态"
     },
     "get_system_services_status": {
-      "description": "Return the live state of all controller-side system services.",
+      "description": "返回控制器端所有系统服务的实时状态。",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "目标 Violet Pool Controller 设备。",
+          "name": "泳池控制器"
         }
       },
-      "name": "Get system service states"
+      "name": "获取系统服务状态"
     },
     "get_system_update_status": {
-      "description": "Return the installed and available controller firmware versions.",
+      "description": "返回控制器已安装和可用的固件版本。",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "目标 Violet Pool Controller 设备。",
+          "name": "泳池控制器"
         }
       },
-      "name": "Get Firmware Update Status"
+      "name": "获取固件更新状态"
     },
     "manage_digital_rules": {
       "description": "管理控制器输入的数字自动化规则。",
@@ -969,8 +969,8 @@
           "name": "规则动作"
         },
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "目标 Violet Pool Controller 设备。",
+          "name": "泳池控制器"
         },
         "rule_key": {
           "description": "选择数字规则（DIRULE_1 到 DIRULE_7）。",
@@ -994,100 +994,100 @@
       "name": "光伏余量管理"
     },
     "manual_dosing_http": {
-      "description": "Manually trigger chemical dosing.\n\n**Caution:** Always verify water values before dosing!",
+      "description": "手动触发化学品投加。\n\n**注意：**投加前请务必核对水质数值！",
       "fields": {
         "dosing_system": {
-          "description": "Select the chemical to dose (chlorine, electrolysis, pH-, pH+, flocculant). H₂O₂ is not offered: it shares the chlorine output and the controller API has no way to select it, so a manual run would dose chlorine.",
-          "name": "Chemical system"
+          "description": "选择要投加的化学品（chlorine、electrolysis、pH-、pH+、flocculant）。不提供 H₂O₂：它与氯共用同一路输出，控制器 API 无法选择它，因此手动运行会投加氯。",
+          "name": "化学品系统"
         },
         "runtime_seconds": {
-          "description": "How long to run the dosing pump (1-3600s)",
-          "name": "Runtime (seconds)"
+          "description": "投加泵的运行时长（1-3600 秒）",
+          "name": "运行时间（秒）"
         },
         "safety_override": {
-          "description": "Skip the cooldown between two dosing runs.",
-          "name": "Override safety interval"
+          "description": "跳过两次投加之间的冷却时间。",
+          "name": "跳过安全间隔"
         }
       },
-      "name": "Manual Dosing (HTTP)"
+      "name": "手动投加（HTTP）"
     },
     "reset_blocking": {
-      "description": "Clears fault-induced blockings on the controller (e.g. BLOCKED_BY_ESC after empty-canister alarm). Useful after fixing the underlying issue.",
+      "description": "清除控制器上因故障产生的锁定（例如药桶空报警后的 BLOCKED_BY_ESC）。适合在排除根本问题后使用。",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "目标 Violet Pool Controller 设备。",
+          "name": "泳池控制器"
         }
       },
-      "name": "Reset fault blockings"
+      "name": "复位故障锁定"
     },
     "set_can_amount": {
-      "description": "Update the canister fill level for a dosing channel after refilling. With action=reset the daily-dosing counter is also cleared.",
+      "description": "在补充药剂后更新某个投加通道的药桶余量。使用 action=reset 时还会清除每日投加计数器。",
       "fields": {
         "action": {
-          "description": "adjust = only update fill level; reset = also clear daily counter",
-          "name": "Action"
+          "description": "adjust = 仅更新余量；reset = 同时清除每日计数器",
+          "name": "动作"
         },
         "amount_ml": {
-          "description": "New fill level in millilitres",
-          "name": "Amount"
+          "description": "新的余量，单位为毫升",
+          "name": "数量"
         },
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "目标 Violet Pool Controller 设备。",
+          "name": "泳池控制器"
         },
         "dosing_key": {
-          "description": "Dosing channel key (DOS_1_CL, DOS_2_ELO, DOS_4_PHM, DOS_5_PHP, DOS_6_FLOC)",
-          "name": "Dosing channel"
+          "description": "投加通道键（DOS_1_CL、DOS_2_ELO、DOS_4_PHM、DOS_5_PHP、DOS_6_FLOC）",
+          "name": "投加通道"
         }
       },
-      "name": "Set canister fill level"
+      "name": "设置药桶余量"
     },
     "set_dosing_daytime": {
-      "description": "Configure the daytime window for dosing operations.",
+      "description": "配置投加操作的白天时段。",
       "fields": {
         "day_end": {
-          "description": "When daytime ends (HH:MM format)",
-          "name": "Day end time"
+          "description": "白天时段结束时间（HH:MM 格式）",
+          "name": "白天结束时间"
         },
         "day_start": {
-          "description": "When daytime starts (HH:MM format)",
-          "name": "Day start time"
+          "description": "白天时段开始时间（HH:MM 格式）",
+          "name": "白天开始时间"
         },
         "dosing_system": {
-          "description": "Which dosing system to configure",
-          "name": "Chemical system"
+          "description": "要配置的投加系统",
+          "name": "化学品系统"
         }
       },
-      "name": "Set Dosing Daytime"
+      "name": "设置投加白天时段"
     },
     "set_dosing_max_daily": {
-      "description": "Set the maximum daily dosing volume.",
+      "description": "设置每日最大投加量。",
       "fields": {
         "dosing_system": {
-          "description": "Which dosing system to configure",
-          "name": "Chemical system"
+          "description": "要配置的投加系统",
+          "name": "化学品系统"
         },
         "max_daily_ml": {
-          "description": "Maximum volume in ml per day (10-10000)",
-          "name": "Maximum daily volume"
+          "description": "每天的最大投加量，单位 ml（10-10000）",
+          "name": "每日最大投加量"
         }
       },
-      "name": "Set Dosing Maximum Daily"
+      "name": "设置每日最大投加量"
     },
     "set_dosing_target": {
-      "description": "Set the target value for chemical dosing control.",
+      "description": "设置化学品投加控制的目标值。",
       "fields": {
         "dosing_system": {
-          "description": "Which dosing system to configure",
-          "name": "Chemical system"
+          "description": "要配置的投加系统",
+          "name": "化学品系统"
         },
         "target_value": {
-          "description": "Target value (0-100, unit depends on chemical)",
-          "name": "Target value"
+          "description": "目标值（0-100，单位取决于化学品）",
+          "name": "目标值"
         }
       },
-      "name": "Set Dosing Target"
+      "name": "设置投加目标值"
     },
     "set_light_color_pulse": {
       "description": "向泳池灯光发送颜色脉冲命令。",
@@ -1104,36 +1104,36 @@
       "name": "灯光颜色脉冲"
     },
     "set_omni_position": {
-      "description": "Drive the OmniTronic multi-port valve to a fixed position (0-5). Position 0 returns to AUTO mode.",
+      "description": "将 OmniTronic 多通阀转到固定位置（0-5）。位置 0 表示返回 AUTO 模式。",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "目标 Violet Pool Controller 设备。",
+          "name": "泳池控制器"
         },
         "position": {
-          "description": "Target valve position (0=Filtration/AUTO, 1-5=other ports)",
-          "name": "Position"
+          "description": "阀门目标位置（0=过滤/AUTO，1-5=其他通路）",
+          "name": "位置"
         }
       },
-      "name": "Set OmniTronic valve position"
+      "name": "设置 OmniTronic 阀门位置"
     },
     "set_system_service": {
-      "description": "Enable or disable a system service on the controller (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, tunnels).",
+      "description": "启用或禁用控制器上的系统服务（FTP、Samba、SSH、AirPlay、HomeKit、Alexa、隧道）。",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "目标 Violet Pool Controller 设备。",
+          "name": "泳池控制器"
         },
         "enabled": {
-          "description": "true to enable, false to disable",
-          "name": "Enabled"
+          "description": "true 为启用，false 为禁用",
+          "name": "已启用"
         },
         "service": {
-          "description": "Service identifier (ftp, samba, ssh, shairport, homebridge, alexa, tunnel, support_tunnel)",
-          "name": "Service"
+          "description": "服务标识符（ftp、samba、ssh、shairport、homebridge、alexa、tunnel、support_tunnel）",
+          "name": "服务"
         }
       },
-      "name": "Toggle controller system service"
+      "name": "切换控制器系统服务"
     },
     "smart_dosing": {
       "description": "手动或自动控制 pH、氯和絮凝剂的投加。\n\n注意：避免过量！务必先检查水质参数。",
@@ -1161,8 +1161,8 @@
       "description": "测试与控制器的连接并返回诊断信息。",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "目标 Violet Pool Controller 设备。",
+          "name": "泳池控制器"
         }
       },
       "name": "测试连接"
@@ -1171,8 +1171,8 @@
       "description": "暂时激活控制器输出以进行诊断。确保强制输出时没有人员或设备处于危险之中。",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "目标 Violet Pool Controller 设备。",
+          "name": "泳池控制器"
         },
         "duration": {
           "description": "持续时间介于 1 到 900 秒之间。",
@@ -1261,7 +1261,7 @@
   "entity": {
     "binary_sensor": {
       "backwash": {
-        "name": "Rückspülstatus"
+        "name": "反冲洗运行状态"
       },
       "backwash_delay": {
         "name": "反冲洗延迟已激活"
@@ -1270,31 +1270,31 @@
         "name": "泳池 AI 监测"
       },
       "can_range_state": {
-        "name": "Behälter-Bereichs-Problem"
+        "name": "药桶余量异常"
       },
       "circulation_state": {
-        "name": "Zirkulationsproblem"
+        "name": "循环异常"
       },
       "eco": {
-        "name": "Eco-Modus"
+        "name": "ECO 模式"
       },
       "electrode_flow_state": {
-        "name": "Elektrodendurchfluss-Problem"
+        "name": "电极流量异常"
       },
       "heater": {
-        "name": "Heizerstatus"
+        "name": "加热器运行状态"
       },
       "hw_base_module": {
-        "name": "Hardware: Basismodul"
+        "name": "硬件：基础模块"
       },
       "hw_dirule_module": {
-        "name": "Hardware: Digital Rules Module"
+        "name": "硬件：数字规则模块"
       },
       "hw_dmx_module": {
-        "name": "Hardware: DMX-Modul"
+        "name": "硬件：DMX 模块"
       },
       "hw_dosing_module": {
-        "name": "Hardware: Dosiermodul"
+        "name": "硬件：投加模块"
       },
       "hw_extension_module_1": {
         "name": "Hardware: 扩展smodul 1"
@@ -1303,58 +1303,58 @@
         "name": "Hardware: 扩展smodul 2"
       },
       "hw_standalone_mode": {
-        "name": "Hardware: Eigenständige Dosiereinheit"
+        "name": "硬件：独立投加装置"
       },
       "input1": {
-        "name": "Digitaler Eingang 1"
+        "name": "数字输入 1"
       },
       "input10": {
-        "name": "Digitaler Eingang 10"
+        "name": "数字输入 10"
       },
       "input11": {
-        "name": "Digitaler Eingang 11"
+        "name": "数字输入 11"
       },
       "input12": {
-        "name": "Digitaler Eingang 12"
+        "name": "数字输入 12"
       },
       "input2": {
-        "name": "Digitaler Eingang 2"
+        "name": "数字输入 2"
       },
       "input3": {
-        "name": "Digitaler Eingang 3"
+        "name": "数字输入 3"
       },
       "input4": {
-        "name": "Digitaler Eingang 4"
+        "name": "数字输入 4"
       },
       "input5": {
-        "name": "Digitaler Eingang 5"
+        "name": "数字输入 5"
       },
       "input6": {
-        "name": "Digitaler Eingang 6"
+        "name": "数字输入 6"
       },
       "input7": {
-        "name": "Digitaler Eingang 7"
+        "name": "数字输入 7"
       },
       "input8": {
-        "name": "Digitaler Eingang 8"
+        "name": "数字输入 8"
       },
       "input9": {
-        "name": "Digitaler Eingang 9"
+        "name": "数字输入 9"
       },
       "input_ce1": {
-        "name": "CE-Eingang 1"
+        "name": "数字输入 CE1"
       },
       "input_ce2": {
-        "name": "CE-Eingang 2"
+        "name": "数字输入 CE2"
       },
       "input_ce3": {
-        "name": "CE-Eingang 3"
+        "name": "数字输入 CE3"
       },
       "input_ce4": {
-        "name": "CE-Eingang 4"
+        "name": "数字输入 CE4"
       },
       "light": {
-        "name": "Beleuchtungsstatus"
+        "name": "照明运行状态"
       },
       "overflow_dryrun": {
         "name": "溢流箱缺水运行"
@@ -1366,19 +1366,19 @@
         "name": "溢流箱补水"
       },
       "pressure_state": {
-        "name": "Druckproblem"
+        "name": "压力异常"
       },
       "pump": {
-        "name": "Pumpenstatus"
+        "name": "水泵运行状态"
       },
       "pvsurplus": {
-        "name": "PV-Überschuss"
+        "name": "光伏余量"
       },
       "refill": {
-        "name": "Nachfüllstatus"
+        "name": "补水运行状态"
       },
       "solar": {
-        "name": "Solarstatus"
+        "name": "太阳能运行状态"
       }
     },
     "button": {
@@ -1388,15 +1388,15 @@
     },
     "climate": {
       "heater": {
-        "name": "Pool-Heizer"
+        "name": "泳池加热器"
       },
       "solar": {
-        "name": "Solar-Heizer"
+        "name": "太阳能加热器"
       }
     },
     "cover": {
       "pool_cover": {
-        "name": "Pool-Abdeckung"
+        "name": "池盖"
       }
     },
     "light": {
@@ -1439,359 +1439,359 @@
     },
     "number": {
       "chlorine_canister_volume": {
-        "name": "Chlorbehälter-Volumen"
+        "name": "氯药桶容量"
       },
       "chlorine_setpoint": {
-        "name": "Chlor-Sollwert"
+        "name": "氯设定值"
       },
       "chlorine_setpoint_electrolysis": {
-        "name": "Chlorine Setpoint (Electrolysis)"
+        "name": "氯设定值（电解）"
       },
       "csi_alkalinity": {
-        "name": "CSI Carbonate Alkalinity"
+        "name": "CSI 碳酸盐碱度"
       },
       "csi_calcium": {
-        "name": "CSI Calcium Hardness"
+        "name": "CSI 钙硬度"
       },
       "csi_ph": {
-        "name": "CSI pH Value"
+        "name": "CSI pH 值"
       },
       "csi_tds": {
         "name": "CSI TDS"
       },
       "csi_temperature": {
-        "name": "CSI Temperature"
+        "name": "CSI 温度"
       },
       "flocculant_canister_volume": {
-        "name": "Flockungsmittel-Behälter-Volumen"
+        "name": "絮凝剂药桶容量"
       },
       "heater_target_temp": {
-        "name": "Zieltemperatur Heizer"
+        "name": "加热器目标温度"
       },
       "lsi_alkalinity": {
-        "name": "LSI Carbonate Alkalinity"
+        "name": "LSI 碳酸盐碱度"
       },
       "lsi_calcium": {
-        "name": "LSI Calcium Hardness"
+        "name": "LSI 钙硬度"
       },
       "lsi_ph": {
-        "name": "LSI pH Value"
+        "name": "LSI pH 值"
       },
       "lsi_tds": {
         "name": "LSI TDS"
       },
       "lsi_temperature": {
-        "name": "LSI Temperature"
+        "name": "LSI 温度"
       },
       "orp_setpoint": {
-        "name": "ORP-Sollwert"
+        "name": "ORP 设定值"
       },
       "orp_setpoint_electrolysis": {
-        "name": "ORP Setpoint (Electrolysis)"
+        "name": "ORP 设定值（电解）"
       },
       "ph_minus_canister_volume": {
-        "name": "pH--Behälter-Volumen"
+        "name": "pH- 药桶容量"
       },
       "ph_plus_canister_volume": {
-        "name": "pH+-Behälter-Volumen"
+        "name": "pH+ 药桶容量"
       },
       "ph_setpoint": {
-        "name": "pH-Sollwert"
+        "name": "pH 设定值"
       },
       "pump_speed": {
-        "name": "Pumpendrehzahl"
+        "name": "水泵转速"
       },
       "solar_target_temp": {
-        "name": "Zieltemperatur Solar"
+        "name": "太阳能目标温度"
       }
     },
     "select": {
       "backwash_mode": {
-        "name": "Rückspül-Modus",
+        "name": "反冲洗模式",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "backwashrinse_mode": {
-        "name": "Spül-Modus",
+        "name": "漂洗模式",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "dos_cl_mode": {
-        "name": "Chlordosier-Modus",
+        "name": "氯投加模式",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "dos_elo_mode": {
         "name": "电解投加模式",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "dos_floc_mode": {
-        "name": "Flockungsmittel-Modus",
+        "name": "絮凝剂模式",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "dos_phm_mode": {
-        "name": "pH--Dosier-Modus",
+        "name": "pH-投加模式",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "dos_php_mode": {
-        "name": "pH+-Dosier-Modus",
+        "name": "pH+投加模式",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "eco_mode": {
         "name": "ECO 模式",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "ext1_1_mode": {
         "name": "扩展 1.1 Modus",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "ext1_2_mode": {
         "name": "扩展 1.2 Modus",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "ext1_3_mode": {
         "name": "扩展 1.3 Modus",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "ext1_4_mode": {
         "name": "扩展 1.4 Modus",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "ext1_5_mode": {
         "name": "扩展 1.5 Modus",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "ext1_6_mode": {
         "name": "扩展 1.6 Modus",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "ext1_7_mode": {
         "name": "扩展 1.7 Modus",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "ext1_8_mode": {
         "name": "扩展 1.8 Modus",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "ext2_1_mode": {
         "name": "扩展 2.1 Modus",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "ext2_2_mode": {
         "name": "扩展 2.2 Modus",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "ext2_3_mode": {
         "name": "扩展 2.3 Modus",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "ext2_4_mode": {
         "name": "扩展 2.4 Modus",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "ext2_5_mode": {
         "name": "扩展 2.5 Modus",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "ext2_6_mode": {
         "name": "扩展 2.6 Modus",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "ext2_7_mode": {
         "name": "扩展 2.7 Modus",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "ext2_8_mode": {
         "name": "扩展 2.8 Modus",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "heater_mode": {
-        "name": "Heizer-Modus",
+        "name": "加热器模式",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "light_mode": {
-        "name": "Beleuchtungs-Modus",
+        "name": "照明模式",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "omni_dc0_mode": {
         "name": "OMNI DC0 模式",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "omni_dc1_mode": {
         "name": "OMNI DC1 模式",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "omni_dc2_mode": {
         "name": "OMNI DC2 模式",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "omni_dc3_mode": {
         "name": "OMNI DC3 模式",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "omni_dc4_mode": {
         "name": "OMNI DC4 模式",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "omni_dc5_mode": {
         "name": "OMNI DC5 模式",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "pump_mode": {
-        "name": "Pumpenmodus",
+        "name": "水泵模式",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "pvsurplus_mode": {
-        "name": "PV-Überschuss-Modus",
+        "name": "光伏余量模式",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "refill_mode": {
         "name": "补水模式",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       },
       "solar_mode": {
-        "name": "Solar-Modus",
+        "name": "太阳能模式",
         "state": {
           "auto": "Auto",
-          "off": "Aus",
-          "on": "Ein"
+          "off": "关闭",
+          "on": "开启"
         }
       }
     },
@@ -1806,10 +1806,10 @@
         "name": "流量计（4-20mA）"
       },
       "adc4_value": {
-        "name": "Analog Sensor 4 (4-20mA)"
+        "name": "模拟传感器 4（4-20mA）"
       },
       "adc5_value": {
-        "name": "Analog Sensor 5 (0-10V)"
+        "name": "模拟传感器 5（0-10V）"
       },
       "ai1_value": {
         "name": "模拟输入 1"
@@ -1866,55 +1866,55 @@
         "name": "平均延迟"
       },
       "backwash": {
-        "name": "Rückspül-Status"
+        "name": "反冲洗状态"
       },
       "backwash_delay_running": {
-        "name": "Rückspül-Verzögerung aktiv"
+        "name": "反冲洗延迟已激活"
       },
       "backwash_delay_timestamp": {
-        "name": "Rückspül-Verzögerung Zeitstempel"
+        "name": "反冲洗延迟时间戳"
       },
       "backwash_last_auto_run": {
-        "name": "Letzte automatische Rückspülung"
+        "name": "上次自动反冲洗"
       },
       "backwash_last_manual_run": {
-        "name": "Letzte manuelle Rückspülung"
+        "name": "上次手动反冲洗"
       },
       "backwash_last_off": {
-        "name": "Rückspülung Zuletzt Aus"
+        "name": "反冲洗上次关闭"
       },
       "backwash_last_on": {
-        "name": "Rückspülung Zuletzt Ein"
+        "name": "反冲洗上次开启"
       },
       "backwash_omni_moving": {
-        "name": "OmniTronic bewegt sich"
+        "name": "OmniTronic 运行中"
       },
       "backwash_omni_state": {
-        "name": "OmniTronic-Ventilstatus"
+        "name": "OmniTronic 阀门状态"
       },
       "backwash_runtime": {
-        "name": "Rückspül-Laufzeit"
+        "name": "反冲洗运行时间"
       },
       "backwash_state": {
-        "name": "Rückspül-Zustand"
+        "name": "反冲洗运行状态"
       },
       "backwash_step": {
-        "name": "Rückspülschritt"
+        "name": "反冲洗步骤"
       },
       "backwashrinse": {
-        "name": "Nachspül-Status"
+        "name": "漂洗状态"
       },
       "backwashrinse_last_off": {
-        "name": "Nachspülung Zuletzt Aus"
+        "name": "漂洗上次关闭"
       },
       "backwashrinse_last_on": {
-        "name": "Nachspülung Zuletzt Ein"
+        "name": "漂洗上次开启"
       },
       "backwashrinse_runtime": {
-        "name": "Nachspül-Laufzeit"
+        "name": "漂洗运行时间"
       },
       "backwashstate": {
-        "name": "Backwash Detail Status"
+        "name": "反冲洗详细状态"
       },
       "bathing_ai_last_level": {
         "name": "Bade-KI Letzter Füllstand"
@@ -1932,184 +1932,184 @@
         "name": "Bade-KI Überwachungsstatus"
       },
       "checksum": {
-        "name": "Configuration Checksum"
+        "name": "配置校验和"
       },
       "close_contact": {
-        "name": "Cover Closed Contact"
+        "name": "池盖关闭触点"
       },
       "configchangemarker": {
-        "name": "Configuration Change Marker"
+        "name": "配置更改标记"
       },
       "connection_latency": {
         "name": "连接延迟"
       },
       "cover_direction": {
-        "name": "Cover Direction"
+        "name": "池盖运行方向"
       },
       "cover_runtime": {
-        "name": "Cover Runtime"
+        "name": "池盖运行时间"
       },
       "cover_state": {
-        "name": "Abdeckungs-Zustand"
+        "name": "池盖状态"
       },
       "cpu_gov": {
-        "name": "CPU Governor"
+        "name": "CPU 调频策略"
       },
       "cpu_temp": {
-        "name": "CPU-Temperatur"
+        "name": "CPU 温度"
       },
       "cpu_temp_carrier": {
         "name": "载板 CPU 温度"
       },
       "cpu_uptime": {
-        "name": "System-Betriebszeit"
+        "name": "系统运行时长"
       },
       "csi_index": {
-        "name": "CSI Result"
+        "name": "CSI 结果"
       },
       "current_time": {
-        "name": "Controller Time"
+        "name": "控制器时间"
       },
       "current_time_unix": {
-        "name": "Controller Time (Unix)"
+        "name": "控制器时间（Unix）"
       },
       "date": {
-        "name": "System Date"
+        "name": "系统日期"
       },
       "di_rule_1_stopwatch": {
-        "name": "DI-Regel 1 Restzeit"
+        "name": "DI 规则 1 剩余时间"
       },
       "di_rule_2_stopwatch": {
-        "name": "DI-Regel 2 Restzeit"
+        "name": "DI 规则 2 剩余时间"
       },
       "di_rule_3_stopwatch": {
-        "name": "DI-Regel 3 Restzeit"
+        "name": "DI 规则 3 剩余时间"
       },
       "di_rule_4_stopwatch": {
-        "name": "DI-Regel 4 Restzeit"
+        "name": "DI 规则 4 剩余时间"
       },
       "di_rule_5_stopwatch": {
-        "name": "DI-Regel 5 Restzeit"
+        "name": "DI 规则 5 剩余时间"
       },
       "di_rule_6_stopwatch": {
-        "name": "DI-Regel 6 Restzeit"
+        "name": "DI 规则 6 剩余时间"
       },
       "di_rule_7_stopwatch": {
-        "name": "DI-Regel 7 Restzeit"
+        "name": "DI 规则 7 剩余时间"
       },
       "di_rule_8_stopwatch": {
-        "name": "DI-Regel 8 Restzeit"
+        "name": "DI 规则 8 剩余时间"
       },
       "digitalinputrule_state_digitalinput_rule_1": {
-        "name": "Schaltregeln Zustand 1"
+        "name": "数字输入规则状态 1"
       },
       "digitalinputrule_state_digitalinput_rule_2": {
-        "name": "Schaltregeln Zustand 2"
+        "name": "数字输入规则状态 2"
       },
       "digitalinputrule_state_digitalinput_rule_3": {
-        "name": "Schaltregeln Zustand 3"
+        "name": "数字输入规则状态 3"
       },
       "digitalinputrule_state_digitalinput_rule_4": {
-        "name": "Schaltregeln Zustand 4"
+        "name": "数字输入规则状态 4"
       },
       "digitalinputrule_state_digitalinput_rule_5": {
-        "name": "Schaltregeln Zustand 5"
+        "name": "数字输入规则状态 5"
       },
       "digitalinputrule_state_digitalinput_rule_6": {
-        "name": "Schaltregeln Zustand 6"
+        "name": "数字输入规则状态 6"
       },
       "digitalinputrule_state_digitalinput_rule_7": {
-        "name": "Schaltregeln Zustand 7"
+        "name": "数字输入规则状态 7"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch1": {
-        "name": "Schaltregeln Stoppuhr 1"
+        "name": "数字输入规则计时器 1"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch2": {
-        "name": "Schaltregeln Stoppuhr 2"
+        "name": "数字输入规则计时器 2"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch3": {
-        "name": "Schaltregeln Stoppuhr 3"
+        "name": "数字输入规则计时器 3"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch4": {
-        "name": "Schaltregeln Stoppuhr 4"
+        "name": "数字输入规则计时器 4"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch5": {
-        "name": "Schaltregeln Stoppuhr 5"
+        "name": "数字输入规则计时器 5"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch6": {
-        "name": "Schaltregeln Stoppuhr 6"
+        "name": "数字输入规则计时器 6"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch7": {
-        "name": "Schaltregeln Stoppuhr 7"
+        "name": "数字输入规则计时器 7"
       },
       "dmx_mode": {
-        "name": "DMX Mode"
+        "name": "DMX 模式"
       },
       "dmx_scene1": {
-        "name": "DMX-Lichtszene 1"
+        "name": "DMX 灯光场景 1"
       },
       "dmx_scene10": {
-        "name": "DMX-Lichtszene 10"
+        "name": "DMX 灯光场景 10"
       },
       "dmx_scene11": {
-        "name": "DMX-Lichtszene 11"
+        "name": "DMX 灯光场景 11"
       },
       "dmx_scene12": {
-        "name": "DMX-Lichtszene 12"
+        "name": "DMX 灯光场景 12"
       },
       "dmx_scene2": {
-        "name": "DMX-Lichtszene 2"
+        "name": "DMX 灯光场景 2"
       },
       "dmx_scene3": {
-        "name": "DMX-Lichtszene 3"
+        "name": "DMX 灯光场景 3"
       },
       "dmx_scene4": {
-        "name": "DMX-Lichtszene 4"
+        "name": "DMX 灯光场景 4"
       },
       "dmx_scene5": {
-        "name": "DMX-Lichtszene 5"
+        "name": "DMX 灯光场景 5"
       },
       "dmx_scene6": {
-        "name": "DMX-Lichtszene 6"
+        "name": "DMX 灯光场景 6"
       },
       "dmx_scene7": {
-        "name": "DMX-Lichtszene 7"
+        "name": "DMX 灯光场景 7"
       },
       "dmx_scene8": {
-        "name": "DMX-Lichtszene 8"
+        "name": "DMX 灯光场景 8"
       },
       "dmx_scene9": {
-        "name": "DMX-Lichtszene 9"
+        "name": "DMX 灯光场景 9"
       },
       "dos_1_cl": {
-        "name": "Chlor-Dosiersystem"
+        "name": "氯投加系统"
       },
       "dos_1_cl_daily": {
-        "name": "Chlor Tagesdosierung (ml)"
+        "name": "氯每日投加量（ml）"
       },
       "dos_1_cl_last_can_reset": {
-        "name": "Chlor Letzter Kanister-Reset"
+        "name": "氯药桶上次复位"
       },
       "dos_1_cl_last_off": {
-        "name": "Chlor-Dosierung Zuletzt Aus"
+        "name": "氯投加上次关闭"
       },
       "dos_1_cl_last_on": {
-        "name": "Chlor-Dosierung Zuletzt Ein"
+        "name": "氯投加上次开启"
       },
       "dos_1_cl_remaining_range": {
         "name": "余氯可用量"
       },
       "dos_1_cl_runtime": {
-        "name": "Chlor-Dosierlaufzeit"
+        "name": "氯投加运行时间"
       },
       "dos_1_cl_state": {
-        "name": "Chlordosier-Status"
+        "name": "氯投加状态"
       },
       "dos_1_cl_total_can": {
-        "name": "Chlor Kanisterinhalt (ml)"
+        "name": "氯药桶余量（ml）"
       },
       "dos_1_cl_type": {
-        "name": "Chlor Dosiertyp"
+        "name": "氯投加类型"
       },
       "dos_1_cl_use": {
         "name": "氯剂量投加已配置"
@@ -2118,7 +2118,7 @@
         "name": "电解极性"
       },
       "dos_2_elo": {
-        "name": "Elektrolyse-Dosiersystem"
+        "name": "电解系统"
       },
       "dos_2_elo_daily": {
         "name": "电解每日产量"
@@ -2127,151 +2127,151 @@
         "name": "电解槽上次重置"
       },
       "dos_2_elo_last_off": {
-        "name": "Elektrolyse-Dosierung Zuletzt Aus"
+        "name": "电解投加上次关闭"
       },
       "dos_2_elo_last_on": {
-        "name": "Elektrolyse-Dosierung Zuletzt Ein"
+        "name": "电解投加上次开启"
       },
       "dos_2_elo_remaining_range": {
         "name": "电解剩余可用量"
       },
       "dos_2_elo_runtime": {
-        "name": "Elektrolyse-Dosierlaufzeit"
+        "name": "电解投加运行时间"
       },
       "dos_2_elo_state": {
-        "name": "Elektrolyse-Dosierstatus"
+        "name": "电解状态"
       },
       "dos_2_elo_total_can": {
         "name": "电解槽剩余运行时间"
       },
       "dos_2_elo_type": {
-        "name": "Elektrolyse Dosiertyp"
+        "name": "电解投加类型"
       },
       "dos_2_elo_use": {
         "name": "电解已配置"
       },
       "dos_3_elo_rev_remaining_range": {
-        "name": "Electrolysis (Reversed) Remaining Range"
+        "name": "电解（反向）剩余可用量"
       },
       "dos_3_elo_rev_runtime": {
         "name": "电解换向运行时间"
       },
       "dos_4_phm": {
-        "name": "pH- Dosiersystem"
+        "name": "pH-投加系统"
       },
       "dos_4_phm_daily": {
-        "name": "pH- Tagesdosierung (ml)"
+        "name": "pH-每日投加量（ml）"
       },
       "dos_4_phm_last_can_reset": {
-        "name": "pH- Letzter Kanister-Reset"
+        "name": "pH-药桶上次复位"
       },
       "dos_4_phm_last_off": {
-        "name": "pH--Dosierung Zuletzt Aus"
+        "name": "pH-投加上次关闭"
       },
       "dos_4_phm_last_on": {
-        "name": "pH--Dosierung Zuletzt Ein"
+        "name": "pH-投加上次开启"
       },
       "dos_4_phm_remaining_range": {
         "name": "pH- 剩余可用量"
       },
       "dos_4_phm_runtime": {
-        "name": "pH--Dosierlaufzeit"
+        "name": "pH-投加运行时间"
       },
       "dos_4_phm_state": {
-        "name": "pH--Dosier-Status"
+        "name": "pH-投加状态"
       },
       "dos_4_phm_total_can": {
-        "name": "pH- Kanisterinhalt (ml)"
+        "name": "pH-药桶余量（ml）"
       },
       "dos_4_phm_type": {
-        "name": "pH- Dosiertyp"
+        "name": "pH-投加类型"
       },
       "dos_4_phm_use": {
         "name": "pH- 投加已配置"
       },
       "dos_5_php": {
-        "name": "pH+ Dosiersystem"
+        "name": "pH+投加系统"
       },
       "dos_5_php_daily": {
-        "name": "pH+ Tagesdosierung (ml)"
+        "name": "pH+每日投加量（ml）"
       },
       "dos_5_php_last_can_reset": {
-        "name": "pH+ Letzter Kanister-Reset"
+        "name": "pH+药桶上次复位"
       },
       "dos_5_php_last_off": {
-        "name": "pH+-Dosierung Zuletzt Aus"
+        "name": "pH+投加上次关闭"
       },
       "dos_5_php_last_on": {
-        "name": "pH+-Dosierung Zuletzt Ein"
+        "name": "pH+投加上次开启"
       },
       "dos_5_php_remaining_range": {
         "name": "pH+ 剩余可用量"
       },
       "dos_5_php_runtime": {
-        "name": "pH+-Dosierlaufzeit"
+        "name": "pH+投加运行时间"
       },
       "dos_5_php_state": {
-        "name": "pH+-Dosier-Status"
+        "name": "pH+投加状态"
       },
       "dos_5_php_total_can": {
-        "name": "pH+ Kanisterinhalt (ml)"
+        "name": "pH+药桶余量（ml）"
       },
       "dos_5_php_type": {
-        "name": "pH+ Dosiertyp"
+        "name": "pH+投加类型"
       },
       "dos_5_php_use": {
         "name": "pH+ 投加已配置"
       },
       "dos_6_floc": {
-        "name": "Flockmittel-Dosiersystem"
+        "name": "絮凝剂投加系统"
       },
       "dos_6_floc_daily": {
-        "name": "Flockmittel Tagesdosierung (ml)"
+        "name": "絮凝剂每日投加量（ml）"
       },
       "dos_6_floc_last_can_reset": {
-        "name": "Flockmittel Letzter Kanister-Reset"
+        "name": "絮凝剂药桶上次复位"
       },
       "dos_6_floc_last_off": {
-        "name": "Flockmittel-Dosierung Zuletzt Aus"
+        "name": "絮凝剂投加上次关闭"
       },
       "dos_6_floc_last_on": {
-        "name": "Flockmittel-Dosierung Zuletzt Ein"
+        "name": "絮凝剂投加上次开启"
       },
       "dos_6_floc_remaining_range": {
         "name": "絮凝剂剩余可用量"
       },
       "dos_6_floc_runtime": {
-        "name": "Flockmittel-Dosierlaufzeit"
+        "name": "絮凝剂投加运行时间"
       },
       "dos_6_floc_state": {
-        "name": "Flockungsstatus"
+        "name": "絮凝剂投加状态"
       },
       "dos_6_floc_total_can": {
-        "name": "Flockmittel Kanisterinhalt (ml)"
+        "name": "絮凝剂药桶余量（ml）"
       },
       "dos_6_floc_type": {
-        "name": "Flockmittel Dosiertyp"
+        "name": "絮凝剂投加类型"
       },
       "dos_6_floc_use": {
         "name": "絮凝剂投加已配置"
       },
       "eco": {
-        "name": "Eco-Modus Status"
+        "name": "Eco 模式状态"
       },
       "eco_last_off": {
-        "name": "Eco Zuletzt Aus"
+        "name": "Eco 上次关闭"
       },
       "eco_last_on": {
-        "name": "Eco Zuletzt Ein"
+        "name": "Eco 上次开启"
       },
       "eco_runtime": {
-        "name": "Eco-Laufzeit"
+        "name": "Eco 运行时间"
       },
       "error_code": {
-        "name": "Error Code"
+        "name": "错误代码"
       },
       "error_contact": {
-        "name": "Cover Error Contact"
+        "name": "池盖故障触点"
       },
       "ext1_1": {
         "name": "扩展 1.1"
@@ -2469,34 +2469,34 @@
         "name": "流速"
       },
       "fw": {
-        "name": "Firmware-Version"
+        "name": "固件版本"
       },
       "heater": {
-        "name": "Heizungs-Status"
+        "name": "加热器状态"
       },
       "heater_last_off": {
-        "name": "Heizung Zuletzt Aus"
+        "name": "加热器上次关闭"
       },
       "heater_last_on": {
-        "name": "Heizung Zuletzt Ein"
+        "name": "加热器上次开启"
       },
       "heater_postrun_time": {
-        "name": "Heizung Nachlaufzeit"
+        "name": "加热器余热运行时间"
       },
       "heater_runtime": {
-        "name": "Heizungs-Laufzeit"
+        "name": "加热器运行时间"
       },
       "heater_set_temp": {
-        "name": "Heater Setpoint (Controller)"
+        "name": "加热器设定值（控制器）"
       },
       "heaterstate": {
-        "name": "Heizung Detail-Status"
+        "name": "加热器详细状态"
       },
       "hw_serial_carrier": {
-        "name": "Carrier Board Serial Number"
+        "name": "载板序列号"
       },
       "hw_version_carrier": {
-        "name": "Carrier Board Hardware Version"
+        "name": "载板硬件版本"
       },
       "imp1_value": {
         "name": "给药进口"
@@ -2505,58 +2505,58 @@
         "name": "泵流量"
       },
       "input1": {
-        "name": "Digitaleingang 1"
+        "name": "数字输入 1"
       },
       "input10": {
-        "name": "Digitaleingang 10"
+        "name": "数字输入 10"
       },
       "input11": {
-        "name": "Digitaleingang 11"
+        "name": "数字输入 11"
       },
       "input12": {
-        "name": "Digitaleingang 12"
+        "name": "数字输入 12"
       },
       "input2": {
-        "name": "Digitaleingang 2"
+        "name": "数字输入 2"
       },
       "input3": {
-        "name": "Digitaleingang 3"
+        "name": "数字输入 3"
       },
       "input4": {
-        "name": "Digitaleingang 4"
+        "name": "数字输入 4"
       },
       "input5": {
-        "name": "Digitaleingang 5"
+        "name": "数字输入 5"
       },
       "input6": {
-        "name": "Digitaleingang 6"
+        "name": "数字输入 6"
       },
       "input7": {
-        "name": "Digitaleingang 7"
+        "name": "数字输入 7"
       },
       "input8": {
-        "name": "Digitaleingang 8"
+        "name": "数字输入 8"
       },
       "input9": {
-        "name": "Digitaleingang 9"
+        "name": "数字输入 9"
       },
       "input_ce1": {
-        "name": "Kanister-Leersensor 1"
+        "name": "药桶空传感器 1"
       },
       "input_ce2": {
-        "name": "Kanister-Leersensor 2"
+        "name": "药桶空传感器 2"
       },
       "input_ce3": {
-        "name": "Kanister-Leersensor 3"
+        "name": "药桶空传感器 3"
       },
       "input_ce4": {
-        "name": "Kanister-Leersensor 4"
+        "name": "药桶空传感器 4"
       },
       "inputz1z2": {
-        "name": "Digital Inputs Z1/Z2"
+        "name": "数字输入 Z1/Z2"
       },
       "last_error": {
-        "name": "Last Error"
+        "name": "上次错误"
       },
       "last_error_code": {
         "name": "最后错误代码"
@@ -2568,70 +2568,70 @@
         "name": "最后事件年龄"
       },
       "last_moving_direction": {
-        "name": "Cover Last Direction"
+        "name": "池盖上次运行方向"
       },
       "light": {
-        "name": "Beleuchtungs-Status"
+        "name": "照明状态"
       },
       "light_last_off": {
-        "name": "Beleuchtung Zuletzt Aus"
+        "name": "照明上次关闭"
       },
       "light_last_on": {
-        "name": "Beleuchtung Zuletzt Ein"
+        "name": "照明上次开启"
       },
       "light_mode": {
-        "name": "Light Mode"
+        "name": "照明模式"
       },
       "light_runtime": {
-        "name": "Beleuchtungs-Laufzeit"
+        "name": "照明运行时间"
       },
       "light_scene_1": {
-        "name": "Light Scene 1"
+        "name": "灯光场景 1"
       },
       "light_scene_10": {
-        "name": "Light Scene 10"
+        "name": "灯光场景 10"
       },
       "light_scene_11": {
-        "name": "Light Scene 11"
+        "name": "灯光场景 11"
       },
       "light_scene_12": {
-        "name": "Light Scene 12"
+        "name": "灯光场景 12"
       },
       "light_scene_2": {
-        "name": "Light Scene 2"
+        "name": "灯光场景 2"
       },
       "light_scene_3": {
-        "name": "Light Scene 3"
+        "name": "灯光场景 3"
       },
       "light_scene_4": {
-        "name": "Light Scene 4"
+        "name": "灯光场景 4"
       },
       "light_scene_5": {
-        "name": "Light Scene 5"
+        "name": "灯光场景 5"
       },
       "light_scene_6": {
-        "name": "Light Scene 6"
+        "name": "灯光场景 6"
       },
       "light_scene_7": {
-        "name": "Light Scene 7"
+        "name": "灯光场景 7"
       },
       "light_scene_8": {
-        "name": "Light Scene 8"
+        "name": "灯光场景 8"
       },
       "light_scene_9": {
-        "name": "Light Scene 9"
+        "name": "灯光场景 9"
       },
       "lightstate": {
-        "name": "Light Detail Status"
+        "name": "照明详细状态"
       },
       "load_avg": {
-        "name": "CPU-Auslastung"
+        "name": "CPU 平均负载"
       },
       "lsi_index": {
-        "name": "LSI Result"
+        "name": "LSI 结果"
       },
       "memory_used": {
-        "name": "Memory Used"
+        "name": "已用内存"
       },
       "omni_dc0_runtime": {
         "name": "OMNI 直流电机 0 运行时间"
@@ -2652,7 +2652,7 @@
         "name": "OMNI 直流电机 5 运行时间"
       },
       "onewire10_romcode": {
-        "name": "OneWire ROM Code 10"
+        "name": "OneWire ROM 代码 10"
       },
       "onewire10_value": {
         "name": "温度传感器 10"
@@ -2664,7 +2664,7 @@
         "name": "温度传感器 10 Minimum"
       },
       "onewire11_romcode": {
-        "name": "OneWire ROM Code 11"
+        "name": "OneWire ROM 代码 11"
       },
       "onewire11_value": {
         "name": "温度传感器 11"
@@ -2676,7 +2676,7 @@
         "name": "温度传感器 11 Minimum"
       },
       "onewire12_romcode": {
-        "name": "OneWire ROM Code 12"
+        "name": "OneWire ROM 代码 12"
       },
       "onewire12_value": {
         "name": "温度传感器 12"
@@ -2688,19 +2688,19 @@
         "name": "温度传感器 12 Minimum"
       },
       "onewire1_romcode": {
-        "name": "OneWire ROM Code 1"
+        "name": "OneWire ROM 代码 1"
       },
       "onewire1_value": {
         "name": "池水"
       },
       "onewire1_value_max": {
-        "name": "Wassertemperatur Maximum"
+        "name": "水温最高值"
       },
       "onewire1_value_min": {
-        "name": "Wassertemperatur Minimum"
+        "name": "水温最低值"
       },
       "onewire2_romcode": {
-        "name": "OneWire ROM Code 2"
+        "name": "OneWire ROM 代码 2"
       },
       "onewire2_value": {
         "name": "外部温度"
@@ -2712,7 +2712,7 @@
         "name": "外部温度 Minimum"
       },
       "onewire3_romcode": {
-        "name": "OneWire ROM Code 3"
+        "name": "OneWire ROM 代码 3"
       },
       "onewire3_value": {
         "name": "太阳能集热器"
@@ -2724,7 +2724,7 @@
         "name": "太阳能吸收器 Minimum"
       },
       "onewire4_romcode": {
-        "name": "OneWire ROM Code 4"
+        "name": "OneWire ROM 代码 4"
       },
       "onewire4_value": {
         "name": "集热器回流"
@@ -2736,7 +2736,7 @@
         "name": "吸收器回流 Minimum"
       },
       "onewire5_romcode": {
-        "name": "OneWire ROM Code 5"
+        "name": "OneWire ROM 代码 5"
       },
       "onewire5_value": {
         "name": "换热器"
@@ -2748,7 +2748,7 @@
         "name": "换热器进口 Minimum"
       },
       "onewire6_romcode": {
-        "name": "OneWire ROM Code 6"
+        "name": "OneWire ROM 代码 6"
       },
       "onewire6_value": {
         "name": "热存储"
@@ -2760,7 +2760,7 @@
         "name": "换热器出口 Minimum"
       },
       "onewire7_romcode": {
-        "name": "OneWire ROM Code 7"
+        "name": "OneWire ROM 代码 7"
       },
       "onewire7_value": {
         "name": "温度传感器 7"
@@ -2772,7 +2772,7 @@
         "name": "温度传感器 7 Minimum"
       },
       "onewire8_romcode": {
-        "name": "OneWire ROM Code 8"
+        "name": "OneWire ROM 代码 8"
       },
       "onewire8_value": {
         "name": "温度传感器 8"
@@ -2784,7 +2784,7 @@
         "name": "温度传感器 8 Minimum"
       },
       "onewire9_romcode": {
-        "name": "OneWire ROM Code 9"
+        "name": "OneWire ROM 代码 9"
       },
       "onewire9_value": {
         "name": "温度传感器 9"
@@ -2796,25 +2796,25 @@
         "name": "温度传感器 9 Minimum"
       },
       "open_contact": {
-        "name": "Cover Open Contact"
+        "name": "池盖打开触点"
       },
       "orp_value": {
         "name": "ORP值"
       },
       "orp_value_max": {
-        "name": "Redoxpotential Maximum"
+        "name": "ORP 最高值"
       },
       "orp_value_min": {
-        "name": "Redoxpotential Minimum"
+        "name": "ORP 最低值"
       },
       "overflow_dryrun_state": {
-        "name": "Überlauf Trockenlauf-Status"
+        "name": "溢流干运行状态"
       },
       "overflow_overfill_state": {
-        "name": "Überfüllungs-Status"
+        "name": "溢流过满状态"
       },
       "overflow_refill_state": {
-        "name": "Überlauf Nachfüll-Status"
+        "name": "溢流补水状态"
       },
       "ph_value": {
         "name": "pH值"
@@ -2826,12 +2826,12 @@
         "name": "pH值 Minimum"
       },
       "pool_health": {
-        "name": "Pool Health",
+        "name": "泳池健康状况",
         "state": {
-          "error": "Error",
-          "offline": "Offline",
+          "error": "错误",
+          "offline": "离线",
           "ok": "OK",
-          "warning": "Warning"
+          "warning": "警告"
         }
       },
       "pot_value": {
@@ -2844,178 +2844,178 @@
         "name": "氯含量 Minimum"
       },
       "pump": {
-        "name": "Pumpen-Status"
+        "name": "水泵状态"
       },
       "pump_estimated_power": {
         "name": "泵功率（估计）"
       },
       "pump_last_off": {
-        "name": "Pumpe Zuletzt Aus"
+        "name": "水泵上次关闭"
       },
       "pump_last_on": {
-        "name": "Pumpe Zuletzt Ein"
+        "name": "水泵上次开启"
       },
       "pump_rpm_0": {
-        "name": "Pumpen-Stufe 0"
+        "name": "水泵转速 0"
       },
       "pump_rpm_0_last_off": {
-        "name": "Pumpen-Stufe 0 Zuletzt Aus"
+        "name": "水泵转速 0 上次关闭"
       },
       "pump_rpm_0_last_on": {
-        "name": "Pumpen-Stufe 0 Zuletzt Ein"
+        "name": "水泵转速 0 上次开启"
       },
       "pump_rpm_0_runtime": {
-        "name": "Pumpen-Stufe 0 Laufzeit"
+        "name": "水泵转速 0 运行时间"
       },
       "pump_rpm_0_value": {
-        "name": "Pump Speed 0 Value"
+        "name": "水泵转速 0 数值"
       },
       "pump_rpm_1": {
-        "name": "Pumpen-Stufe 1"
+        "name": "水泵转速 1"
       },
       "pump_rpm_1_last_off": {
-        "name": "Pumpen-Stufe 1 Zuletzt Aus"
+        "name": "水泵转速 1 上次关闭"
       },
       "pump_rpm_1_last_on": {
-        "name": "Pumpen-Stufe 1 Zuletzt Ein"
+        "name": "水泵转速 1 上次开启"
       },
       "pump_rpm_1_runtime": {
-        "name": "Pumpen-Stufe 1 Laufzeit"
+        "name": "水泵转速 1 运行时间"
       },
       "pump_rpm_1_value": {
-        "name": "Pump Speed 1 Value"
+        "name": "水泵转速 1 数值"
       },
       "pump_rpm_2": {
-        "name": "Pumpen-Stufe 2"
+        "name": "水泵转速 2"
       },
       "pump_rpm_2_last_off": {
-        "name": "Pumpen-Stufe 2 Zuletzt Aus"
+        "name": "水泵转速 2 上次关闭"
       },
       "pump_rpm_2_last_on": {
-        "name": "Pumpen-Stufe 2 Zuletzt Ein"
+        "name": "水泵转速 2 上次开启"
       },
       "pump_rpm_2_runtime": {
-        "name": "Pumpen-Stufe 2 Laufzeit"
+        "name": "水泵转速 2 运行时间"
       },
       "pump_rpm_2_value": {
-        "name": "Pump Speed 2 Value"
+        "name": "水泵转速 2 数值"
       },
       "pump_rpm_3": {
-        "name": "Pumpen-Stufe 3"
+        "name": "水泵转速 3"
       },
       "pump_rpm_3_last_off": {
-        "name": "Pumpen-Stufe 3 Zuletzt Aus"
+        "name": "水泵转速 3 上次关闭"
       },
       "pump_rpm_3_last_on": {
-        "name": "Pumpen-Stufe 3 Zuletzt Ein"
+        "name": "水泵转速 3 上次开启"
       },
       "pump_rpm_3_runtime": {
-        "name": "Pumpen-Stufe 3 Laufzeit"
+        "name": "水泵转速 3 运行时间"
       },
       "pump_rpm_3_value": {
-        "name": "Pump Speed 3 Value"
+        "name": "水泵转速 3 数值"
       },
       "pump_rs485_pwr": {
-        "name": "RS485-Pumpenleistung"
+        "name": "RS485 水泵功率"
       },
       "pump_runtime": {
-        "name": "Pumpen-Laufzeit"
+        "name": "水泵运行时间"
       },
       "pumppriostate": {
-        "name": "Pump Priority Status"
+        "name": "水泵优先级状态"
       },
       "pumpstate": {
-        "name": "Pumpen Detail-Status"
+        "name": "水泵详细状态"
       },
       "pvsurplus": {
-        "name": "PV-Überschuss Status"
+        "name": "光伏余量状态"
       },
       "recovery_success_rate": {
         "name": "恢复成功率"
       },
       "refill": {
-        "name": "Nachfüll-Status"
+        "name": "补水状态"
       },
       "refill_last_off": {
-        "name": "Nachfüllung Zuletzt Aus"
+        "name": "补水上次关闭"
       },
       "refill_last_on": {
-        "name": "Nachfüllung Zuletzt Ein"
+        "name": "补水上次开启"
       },
       "refill_runtime": {
-        "name": "Nachfüll-Laufzeit"
+        "name": "补水运行时间"
       },
       "refill_state": {
-        "name": "Refill Detail Status"
+        "name": "补水详细状态"
       },
       "solar": {
-        "name": "Solar-Status"
+        "name": "太阳能状态"
       },
       "solar_last_off": {
-        "name": "Solar Zuletzt Aus"
+        "name": "太阳能上次关闭"
       },
       "solar_last_on": {
-        "name": "Solar Zuletzt Ein"
+        "name": "太阳能上次开启"
       },
       "solar_maxtemp": {
-        "name": "Solar Maximum Temperature"
+        "name": "太阳能最高温度"
       },
       "solar_runtime": {
-        "name": "Solar-Laufzeit"
+        "name": "太阳能运行时间"
       },
       "solarstate": {
-        "name": "Solar Detail-Status"
+        "name": "太阳能详细状态"
       },
       "sw_update_available": {
-        "name": "Software Update Available"
+        "name": "有可用软件更新"
       },
       "sw_version": {
-        "name": "Software-Version"
+        "name": "软件版本"
       },
       "sw_version_carrier": {
-        "name": "Carrier Software-Version"
+        "name": "载板软件版本"
       },
       "system_carrier_alive_count": {
-        "name": "Carrier Board Heartbeats"
+        "name": "载板心跳次数"
       },
       "system_carrier_alive_faultcount": {
-        "name": "Carrier Board Heartbeat Faults"
+        "name": "载板心跳故障次数"
       },
       "system_carrier_cpu_temperature": {
-        "name": "Träger-CPU-Temperatur"
+        "name": "载板 CPU 温度"
       },
       "system_cpu_temperature": {
-        "name": "System CPU-Temperatur"
+        "name": "系统 CPU 温度"
       },
       "system_dosagemodule_alive_count": {
-        "name": "Dosing Module Heartbeats"
+        "name": "投加模块心跳次数"
       },
       "system_dosagemodule_alive_faultcount": {
-        "name": "Dosing Module Heartbeat Faults"
+        "name": "投加模块心跳故障次数"
       },
       "system_dosagemodule_cpu_temperature": {
-        "name": "Dosier-Modul CPU-Temperatur"
+        "name": "投加模块 CPU 温度"
       },
       "system_ext1module_alive_count": {
-        "name": "Extension Module 1 Heartbeats"
+        "name": "扩展模块 1 心跳次数"
       },
       "system_ext1module_alive_faultcount": {
-        "name": "Extension Module 1 Heartbeat Faults"
+        "name": "扩展模块 1 心跳故障次数"
       },
       "system_health": {
         "name": "系统状态"
       },
       "system_memory": {
-        "name": "Systemspeicher"
+        "name": "系统内存"
       },
       "system_memoryusage": {
-        "name": "Speichernutzung"
+        "name": "系统内存使用率"
       },
       "system_relais_status": {
-        "name": "Relais-Status"
+        "name": "继电器状态"
       },
       "system_safety_timer_active": {
-        "name": "Sicherheitstimer aktiv"
+        "name": "安全定时器已激活"
       },
       "temprule_1": {
         "name": "温度规则 1"
@@ -3042,39 +3042,39 @@
         "name": "温度规则 8"
       },
       "time": {
-        "name": "System Time"
+        "name": "系统时间"
       }
     },
     "switch": {
       "backwash": {
-        "name": "Rückspülung"
+        "name": "反冲洗"
       },
       "backwashrinse": {
-        "name": "Spülung"
+        "name": "漂洗"
       },
       "dirule_1": {
-        "name": "Schaltregel 1"
+        "name": "开关规则 1"
       },
       "dirule_2": {
-        "name": "Schaltregel 2"
+        "name": "开关规则 2"
       },
       "dirule_3": {
-        "name": "Schaltregel 3"
+        "name": "开关规则 3"
       },
       "dirule_4": {
-        "name": "Schaltregel 4"
+        "name": "开关规则 4"
       },
       "dirule_5": {
-        "name": "Schaltregel 5"
+        "name": "开关规则 5"
       },
       "dirule_6": {
-        "name": "Schaltregel 6"
+        "name": "开关规则 6"
       },
       "dirule_7": {
-        "name": "Schaltregel 7"
+        "name": "开关规则 7"
       },
       "dirule_8": {
-        "name": "Schaltregel 8"
+        "name": "开关规则 8"
       },
       "dos_1_cl": {
         "name": "氯给药"
@@ -3089,7 +3089,7 @@
         "name": "pH+给药"
       },
       "dos_6_floc": {
-        "name": "Flockungsmittel"
+        "name": "絮凝剂"
       },
       "eco": {
         "name": "ECO 模式"
@@ -3143,10 +3143,10 @@
         "name": "扩展 2.8"
       },
       "heater": {
-        "name": "Heizer"
+        "name": "加热器"
       },
       "light": {
-        "name": "Beleuchtung"
+        "name": "照明"
       },
       "omni_dc0": {
         "name": "OMNI DC0"
@@ -3167,10 +3167,10 @@
         "name": "OMNI DC5"
       },
       "pump": {
-        "name": "Filterpumpe"
+        "name": "过滤水泵"
       },
       "pvsurplus": {
-        "name": "PV-Überschuss"
+        "name": "光伏余量"
       },
       "refill": {
         "name": "补水"
@@ -3182,40 +3182,40 @@
   },
   "device": {
     "filter_pump": {
-      "name": "Filter Pump"
+      "name": "过滤水泵"
     },
     "heating": {
-      "name": "Heating"
+      "name": "加热"
     },
     "solar": {
-      "name": "Solar Absorber"
+      "name": "太阳能吸热板"
     },
     "dosing": {
-      "name": "Dosing & Water Chemistry"
+      "name": "投加与水质"
     },
     "lighting": {
-      "name": "Lighting & DMX"
+      "name": "照明与 DMX"
     },
     "cover": {
-      "name": "Pool Cover"
+      "name": "池盖"
     },
     "backwash": {
-      "name": "Backwash"
+      "name": "反冲洗"
     },
     "water_refill": {
-      "name": "Water Refill"
+      "name": "自动补水"
     },
     "pv_surplus": {
-      "name": "PV Surplus"
+      "name": "光伏余量"
     },
     "digital_io": {
-      "name": "Digital Inputs & Rules"
+      "name": "数字输入与规则"
     },
     "extensions": {
       "name": "继电器扩展模块"
     },
     "system": {
-      "name": "System & Diagnostics"
+      "name": "系统与诊断"
     }
   }
 }
