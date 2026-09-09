@@ -152,21 +152,21 @@
       }
     },
     "error": {
-      "invalid_ip_address": "IP 地址无效\n\n请输入有效的 IP 地址（例如 192.168.1.100）",
-      "cannot_connect": "连接失败\n\n无法访问控制器。检查：\n• IP 地址是否正确？\n• 控制器是否已通电？\n• 网络连接是否正常？",
-      "invalid_auth": "认证失败\n\n用户名或密码不正确。如果禁用身份验证，请将字段留空。",
-      "timeout_connection": "连接超时\n\n控制器没有响应。可能超载或无法访问。",
-      "authentication_error": "需要身份验证\n\n控制器需要凭据。请输入用户名和密码。",
-      "api_endpoint_not_found": "未找到 API 端点\n\n控制器固件可能已过时或 URL 不正确。",
-      "invalid_pool_size": "池大小无效\n\n值必须介于 0.1 到 1000 立方米之间。",
-      "invalid_configuration": "配置错误\n\n一个或多个输入无效。请检查。",
-      "api_response_error": "控制器响应无效\n\n控制器发送意外数据。需要更新固件吗？",
-      "firmware_data_missing": "固件信息丢失\n\n无法确定控制器固件版本。",
-      "invalid_firmware_version": "固件问题\n\n控制器固件似乎已过时。请更新。",
-      "connection_error": "网络错误\n\n一般连接错误。检查网络设置。",
-      "already_configured": "已配置\n\n已设置具有此 IP 地址的控制器。",
-      "agreement_declined": "安装程序中止\n\n由于不接受安全免责声明，安装被中止。",
-      "unknown": "未知错误\n\n出现了意想不到的问题。如果问题仍然存在，请联系支持人员。"
+      "invalid_ip_address": "**IP 地址无效**\n\n请输入有效的 IP 地址（例如 192.168.1.100）",
+      "cannot_connect": "**连接失败**\n\n无法访问控制器。请检查：\n• IP 地址是否正确？\n• 控制器是否已通电？\n• 网络连接是否正常？",
+      "invalid_auth": "**登录失败**\n\n用户名或密码不正确。如果已禁用身份验证，请将字段留空。",
+      "timeout_connection": "**连接超时**\n\n控制器没有响应。可能已超载或无法访问。",
+      "authentication_error": "**需要身份验证**\n\n控制器需要登录凭据。请输入用户名和密码。",
+      "api_endpoint_not_found": "**未找到 API 端点**\n\n控制器固件可能已过时，或 URL 不正确。",
+      "invalid_pool_size": "**泳池容积无效**\n\n数值必须介于 0.1 到 1000 m³ 之间。",
+      "invalid_configuration": "**配置错误**\n\n一个或多个输入无效。请检查。",
+      "api_response_error": "**控制器响应无效**\n\n控制器发送了意外数据。是否需要更新固件？",
+      "firmware_data_missing": "**固件信息缺失**\n\n无法确定控制器的固件版本。",
+      "invalid_firmware_version": "**固件问题**\n\n控制器固件似乎已过时。请更新。",
+      "connection_error": "**网络错误**\n\n一般连接错误。请检查网络设置。",
+      "already_configured": "**已配置**\n\n已设置具有此 IP 地址的控制器。",
+      "agreement_declined": "**设置已取消**\n\n由于未接受安全提示，设置已取消。",
+      "unknown": "**未知错误**\n\n出现了意外问题。如果问题仍然存在，请联系支持人员。"
     },
     "abort": {
       "already_configured": "控制器已配置",
@@ -186,7 +186,7 @@
     "step": {
       "init": {
         "title": "调整池设置",
-        "description": "您想配置什么？\n\n启用/禁用功能\n选择传感器\n更改设置\n\n您可以随时返回此选择。",
+        "description": "**您想配置什么？**\n\n启用/禁用功能\n选择传感器\n🚨 安全设置\n更改设置\n\n**提示：**您可以随时返回此选择。",
         "data": {
           "config_option": "选择配置区域"
         },
@@ -196,14 +196,14 @@
       },
       "features": {
         "title": "启用/禁用功能",
-        "description": "选择您要使用的功能\n\n启用的功能将显示在 Home Assistant 中\n禁用的功能将被隐藏\n\n仅启用您真正需要的内容 - 保持界面干净！",
+        "description": "**选择您要使用的功能**\n\n启用的功能会显示在 Home Assistant 中\n禁用的功能会被隐藏\n\n**提示：**仅启用您真正需要的功能——这样界面更清爽！",
         "data": {
           "active_features": "启用的功能"
         }
       },
       "sensors": {
         "title": "选择传感器",
-        "description": "选择应显示哪些传感器\n\n只有选定的传感器才会显示在 Home Assistant 中\n更改立即生效\n\n仅选择您真正想要监控的传感器！"
+        "description": "**选择要使用的数据点**\n\n由数据点生成的每个实体都遵循此选择——传感器、开关、灯和控件均是如此\n更改立即生效\n\n**提示：**仅选择您真正想看到的内容！"
       },
       "safety": {
         "title": "🚨 安全设置",
@@ -217,7 +217,7 @@
       },
       "settings": {
         "title": "常规设置",
-        "description": "调整技术参数\n\n轮询间隔：获取数据的频率\n超时：响应的最大等待时间\n重试次数：重试次数\n\n默认值适用于大多数设置！",
+        "description": "**调整技术参数**\n\n轮询间隔：获取数据的频率\n超时：等待响应的最长时间\n重试次数：重试尝试的次数\n\n**提示：**默认值适用于大多数配置！",
         "data": {
           "controller_name": "控制器名称",
           "polling_interval": "轮询间隔（秒）",
@@ -830,7 +830,7 @@
       "name": "启用/禁用规则"
     },
     "export_diagnostic_logs": {
-      "description": "导出最近的集成日志，用于故障排除和支持。\n\n收集相关日志条目并支持下载或文件保存。",
+      "description": "导出**最近的集成日志**，用于故障排除和支持。\n\n收集相关日志条目并支持下载或保存为文件。\n\n**提示：**在出现问题或向支持人员发送日志时很有用！",
       "fields": {
         "device_id": {
           "description": "用于导出的紫池控制器。",
@@ -1136,7 +1136,7 @@
       "name": "切换控制器系统服务"
     },
     "smart_dosing": {
-      "description": "手动或自动控制 pH、氯和絮凝剂的投加。\n\n注意：避免过量！务必先检查水质参数。",
+      "description": "手动或自动控制 pH、氯、电解和絮凝剂的投加。\n\n不提供 H₂O₂：控制器 API 没有 H₂O₂ 投加功能。\n\n**注意：**避免过量投加！投加前请务必先检查水质数值。",
       "fields": {
         "action": {
           "description": "选择：manual_dose、auto 或 stop。",
