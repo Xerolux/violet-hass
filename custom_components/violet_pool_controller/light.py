@@ -9,6 +9,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import Any, cast
 
@@ -41,6 +42,14 @@ PARALLEL_UPDATES = 0
 # States where the DMX channel is active (matches DEVICE_STATE_MAPPING)
 _DMX_ON_STATES = {1, 3, 4}
 
+REFRESH_DELAY = 0.3
+# The controller can serve a stale readings snapshot for several seconds
+# after it applies a command (same rationale as the switch platform): keep
+# refreshing (and keep the optimistic state) until the reported state
+# confirms the commanded one, or the attempts run out.
+REFRESH_CONFIRM_ATTEMPTS = 3
+REFRESH_CONFIRM_RETRY_DELAY = 2.0
+
 
 class VioletDmxLight(VioletPoolControllerEntity, LightEntity):
     """DMX scene exposed as a simple on/off light entity."""
@@ -56,11 +65,22 @@ class VioletDmxLight(VioletPoolControllerEntity, LightEntity):
     ) -> None:
         """Initialize the DMX light entity."""
         super().__init__(coordinator, config_entry, description)
+        # Optimistic command state with a generation counter, mirroring the
+        # switch platform: only the confirmation task of the most recent
+        # command may clear the optimistic state.
+        self._optimistic_state: bool | None = None
+        self._optimistic_generation: int = 0
         _LOGGER.debug("DMX light initialized: %s", description.key)
 
     @property
     def is_on(self) -> bool | None:
         """Return True when the DMX scene is active."""
+        if self._optimistic_state is not None:
+            return self._optimistic_state
+        return self._reported_state()
+
+    def _reported_state(self) -> bool | None:
+        """Interpret the coordinator data as scene active/inactive."""
         # Composite values such as "4|DMX_SCENE_MANUAL" carry the state code in
         # their leading part.
         code = self.get_state_code(self.entity_description.key)
@@ -84,7 +104,16 @@ class VioletDmxLight(VioletPoolControllerEntity, LightEntity):
             result = await self.device.api.set_switch_state(key=key, action=action)
             if result.get("success") is True:
                 _LOGGER.info("DMX %s %s succeeded", key, action)
+                self._optimistic_state = action == ACTION_ON
+                self._optimistic_generation += 1
+                self.async_write_ha_state()
+                task = asyncio.create_task(
+                    self._confirm_command(key, self._optimistic_generation)
+                )
+                task.add_done_callback(self._handle_refresh_error)
             else:
+                self._optimistic_state = None
+                self._optimistic_generation += 1
                 _LOGGER.warning("DMX %s %s: %s", key, action, result.get("response", result))
                 raise HomeAssistantError(
                     translation_key="api_error",
@@ -93,9 +122,10 @@ class VioletDmxLight(VioletPoolControllerEntity, LightEntity):
                         "detail": str(result.get("response", "Command failed"))
                     },
                 )
-            await self.coordinator.async_request_refresh()
         except VioletPoolAPIError as err:
             _LOGGER.error("API error for DMX %s %s: %s", key, action, err)
+            self._optimistic_state = None
+            self._optimistic_generation += 1
             raise HomeAssistantError(
                 translation_key="api_error",
                 translation_domain=DOMAIN,
@@ -105,11 +135,65 @@ class VioletDmxLight(VioletPoolControllerEntity, LightEntity):
             raise
         except Exception as err:
             _LOGGER.exception("Unexpected error for DMX %s %s: %s", key, action, err)
+            self._optimistic_state = None
+            self._optimistic_generation += 1
             raise HomeAssistantError(
                 translation_key="unexpected_error",
                 translation_domain=DOMAIN,
                 translation_placeholders={"detail": str(err)},
             ) from err
+
+    async def _confirm_command(self, key: str, generation: int) -> None:
+        """
+        Confirm a commanded DMX state, with retries against stale data.
+
+        The controller can serve a stale readings snapshot for several
+        seconds after applying a command, so the optimistic state is kept
+        and the refresh repeated until the reported state confirms the
+        command.  When the attempts run out, the reported state wins.
+
+        Args:
+            key: The DMX scene key.
+            generation: The optimistic generation of the commanding task; when
+                a newer command supersedes it, this task stops and may not
+                clear the newer command's optimistic state.
+        """
+        try:
+            for attempt in range(REFRESH_CONFIRM_ATTEMPTS):
+                if generation != self._optimistic_generation:
+                    _LOGGER.debug(
+                        "Refresh for %s superseded by a newer command; aborting",
+                        key,
+                    )
+                    return
+                target = self._optimistic_state
+                if target is None:
+                    return
+
+                success = await self._request_coordinator_refresh(
+                    delay=REFRESH_DELAY if attempt == 0 else REFRESH_CONFIRM_RETRY_DELAY,
+                    log_context=key,
+                )
+
+                if success and self.coordinator.data is not None:
+                    if self._reported_state() == target:
+                        _LOGGER.debug(
+                            "DMX %s confirmed as %s (attempt %d)",
+                            key,
+                            "ON" if target else "OFF",
+                            attempt + 1,
+                        )
+                        break
+                    _LOGGER.debug(
+                        "DMX command confirmation pending for %s (attempt %d/%d)",
+                        key,
+                        attempt + 1,
+                        REFRESH_CONFIRM_ATTEMPTS,
+                    )
+        finally:
+            if generation == self._optimistic_generation:
+                self._optimistic_state = None
+            self.async_write_ha_state()
 
 
 async def async_setup_entry(
