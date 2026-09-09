@@ -80,6 +80,15 @@ REFRESH_DELAY = 0.3
 # after a command, so that the next get_readings() call can detect the module.
 REFRESH_DELAY_EXT = 1.5
 
+# The controller can serve a stale readings snapshot for several seconds after
+# it applies a command, so a single refresh right after the command may still
+# report the old state.  Keep refreshing (and keep the optimistic state) until
+# the reported state confirms the commanded one, or the attempts run out and
+# the reported state wins.  Without this, a successfully commanded OFF flips
+# back to ON until the next poll cycle (30-60 s with adaptive idle back-off).
+REFRESH_CONFIRM_ATTEMPTS = 3
+REFRESH_CONFIRM_RETRY_DELAY = 2.0
+
 # Maximum safe runtime (seconds) for unsafe switches toggled via the plain
 # switch entity.  Dosing channels are capped at MAX_DOSING_DURATION (300s);
 # backwash/refill require an explicit duration service and are therefore
@@ -123,6 +132,9 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
 
         # Local cache variable for optimistic updates
         self._optimistic_state: bool | None = None
+        # Monotonic command counter.  Only the refresh task of the most recent
+        # command may clear the optimistic state; older tasks must not.
+        self._optimistic_generation: int = 0
 
         _LOGGER.debug("Switch initialized: %s", getattr(self, "entity_id", description.key))
 
@@ -151,25 +163,8 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             return self._optimistic_state
 
         key = self.entity_description.key
-
-        if key.startswith("DIRULE_"):
-            data_key = f"DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_{key[7:]}"
-        else:
-            data_key = key
-
-        raw_state = self.get_value(data_key)
-
-        # No data available for this key
-        if raw_state is None:
-            return None
-
-        # Dosing channels: delegate to _dosing_switch_on which honours _USE flag.
-        if key.startswith("DOS_"):
-            use_val = self.get_value(f"{key}_USE")
-            result = _dosing_switch_on(raw_state, use_val)
-        else:
-            # Use shared utility function
-            result = interpret_state_as_bool(raw_state, key)
+        result = self._reported_switch_state(key)
+        raw_state = self._raw_state(key)
 
         # Change-only logging. The very first read is not a state change but
         # the entity learning what the controller reports, so it stays at DEBUG
@@ -191,6 +186,44 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             self._last_logged_raw = raw_state
 
         return result
+
+    def _reported_switch_state(self, key: str) -> bool | None:
+        """
+        Interpret the coordinator data for a key as ON/OFF, without the
+        optimistic cache.
+
+        Args:
+            key: The entity description key (e.g. ``LIGHT``, ``DOS_1_CL``).
+
+        Returns:
+            The reported boolean state of the switch or None if unknown.
+        """
+        if key.startswith("DIRULE_"):
+            data_key = f"DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_{key[7:]}"
+        else:
+            data_key = key
+
+        raw_state = self.get_value(data_key)
+
+        # No data available for this key
+        if raw_state is None:
+            return None
+
+        # Dosing channels: delegate to _dosing_switch_on which honours _USE flag.
+        if key.startswith("DOS_"):
+            use_val = self.get_value(f"{key}_USE")
+            return _dosing_switch_on(raw_state, use_val)
+
+        # Use shared utility function
+        return interpret_state_as_bool(raw_state, key)
+
+    def _raw_state(self, key: str) -> Any:
+        """Return the raw controller value for a key (for logging)."""
+        if key.startswith("DIRULE_"):
+            data_key = f"DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_{key[7:]}"
+        else:
+            data_key = key
+        return self.get_value(data_key)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -518,6 +551,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                 _LOGGER.debug("Switch %s successfully set to %s", key, action)
 
                 self._optimistic_state = action == ACTION_ON
+                self._optimistic_generation += 1
                 self.async_write_ha_state()
 
                 _LOGGER.debug(
@@ -526,7 +560,9 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
                     "ON" if self._optimistic_state else "OFF",
                 )
 
-                task = asyncio.create_task(self._delayed_refresh(key))
+                task = asyncio.create_task(
+                    self._delayed_refresh(key, self._optimistic_generation)
+                )
                 task.add_done_callback(self._handle_refresh_error)
             else:
                 error_msg = result.get("response", "Unknown error")
@@ -540,6 +576,7 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
         except VioletPoolAPIError as err:
             _LOGGER.error("API error setting switch %s to %s: %s", key, action, err)
             self._optimistic_state = None
+            self._optimistic_generation += 1
             raise HomeAssistantError(
                 translation_key="api_error",
                 translation_domain=DOMAIN,
@@ -549,43 +586,90 @@ class VioletSwitch(VioletPoolControllerEntity, SwitchEntity):
             # Already a translated, user-facing message - keep it as it is
             # instead of re-wrapping it as an "unexpected error".
             self._optimistic_state = None
+            self._optimistic_generation += 1
             raise
         except Exception as err:
             _LOGGER.error("Unexpected error setting switch %s: %s", key, err)
             self._optimistic_state = None
+            self._optimistic_generation += 1
             raise HomeAssistantError(
                 translation_key="unexpected_error",
                 translation_domain=DOMAIN,
                 translation_placeholders={"detail": str(err)},
             ) from err
 
-    async def _delayed_refresh(self, key: str) -> None:
+    async def _delayed_refresh(self, key: str, generation: int) -> None:
         """
-        Perform a delayed refresh with optimistic cache reset.
+        Confirm a commanded switch state, with retries against stale data.
+
+        The controller can serve a stale readings snapshot for several seconds
+        after applying a command.  A single refresh could therefore report the
+        old state and would flip the entity back, undoing the just-confirmed
+        command in the UI.  Instead the optimistic state is kept and the
+        refresh repeated until the reported state confirms the command.  When
+        the attempts run out (command lost, or the controller keeps
+        disagreeing), the reported state wins and the optimistic cache is
+        dropped.
 
         Args:
             key: The switch key.
+            generation: The optimistic generation of the commanding task; when
+                a newer command supersedes it, this task stops and may not
+                clear the newer command's optimistic state.
         """
         try:
             # EXT switches need a longer delay so the controller can update
             # EXT*_LAST_ON before the next get_readings() call, which is required
             # for the API package's hardware detection to recognise the module.
             delay = REFRESH_DELAY_EXT if key.startswith("EXT") else REFRESH_DELAY
-            success = await self._request_coordinator_refresh(delay=delay, log_context=key)
+            for attempt in range(REFRESH_CONFIRM_ATTEMPTS):
+                if generation != self._optimistic_generation:
+                    _LOGGER.debug(
+                        "Refresh for %s superseded by a newer command; aborting",
+                        key,
+                    )
+                    return
+                target = self._optimistic_state
+                if target is None:
+                    return
 
-            if success and self.coordinator.data is not None:
-                new_state = self.coordinator.data.get(key, "UNKNOWN")
-                _LOGGER.debug("State after refresh: %s = %s", key, new_state)
-        finally:
-            old_optimistic = self._optimistic_state
-            self._optimistic_state = None
-            if old_optimistic is not None:
-                _LOGGER.debug(
-                    "Optimistic cache cleared for %s (was: %s)",
-                    key,
-                    "ON" if old_optimistic else "OFF",
+                success = await self._request_coordinator_refresh(
+                    delay=delay if attempt == 0 else REFRESH_CONFIRM_RETRY_DELAY,
+                    log_context=key,
                 )
-        self.async_write_ha_state()
+
+                if success and self.coordinator.data is not None:
+                    reported = self._reported_switch_state(key)
+                    if reported == target:
+                        _LOGGER.debug(
+                            "State after refresh: %s = %s (confirmed, attempt %d)",
+                            key,
+                            "ON" if reported else "OFF",
+                            attempt + 1,
+                        )
+                        break
+                    _LOGGER.debug(
+                        "Command confirmation pending for %s: reported %s, expected %s"
+                        " (attempt %d/%d)",
+                        key,
+                        "ON" if reported else "OFF",
+                        "ON" if target else "OFF",
+                        attempt + 1,
+                        REFRESH_CONFIRM_ATTEMPTS,
+                    )
+        finally:
+            # Only the current command's task may clear the optimistic cache;
+            # a superseded task must leave the newer command's state alone.
+            if generation == self._optimistic_generation:
+                old_optimistic = self._optimistic_state
+                self._optimistic_state = None
+                if old_optimistic is not None:
+                    _LOGGER.debug(
+                        "Optimistic cache cleared for %s (was: %s)",
+                        key,
+                        "ON" if old_optimistic else "OFF",
+                    )
+            self.async_write_ha_state()
 
     def _validate_speed(self, speed: Any) -> int:
         """
