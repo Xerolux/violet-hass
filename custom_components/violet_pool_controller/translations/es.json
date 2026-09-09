@@ -1275,6 +1275,21 @@
       "circulation_state": {
         "name": "Problema de Circulación"
       },
+      "dos_1_cl_use": {
+        "name": "Dosificación de Cloro Configurada"
+      },
+      "dos_2_elo_use": {
+        "name": "Electrólisis Configurada"
+      },
+      "dos_4_phm_use": {
+        "name": "Dosificación pH- Configurada"
+      },
+      "dos_5_php_use": {
+        "name": "Dosificación pH+ Configurada"
+      },
+      "dos_6_floc_use": {
+        "name": "Dosificación de Floculante Configurada"
+      },
       "eco": {
         "name": "Modo Eco"
       },
@@ -2000,27 +2015,6 @@
       "di_rule_8_stopwatch": {
         "name": "Tiempo Restante de Regla DI 8"
       },
-      "digitalinputrule_state_digitalinput_rule_1": {
-        "name": "Estado de Regla de Entrada Digital 1"
-      },
-      "digitalinputrule_state_digitalinput_rule_2": {
-        "name": "Estado de Regla de Entrada Digital 2"
-      },
-      "digitalinputrule_state_digitalinput_rule_3": {
-        "name": "Estado de Regla de Entrada Digital 3"
-      },
-      "digitalinputrule_state_digitalinput_rule_4": {
-        "name": "Estado de Regla de Entrada Digital 4"
-      },
-      "digitalinputrule_state_digitalinput_rule_5": {
-        "name": "Estado de Regla de Entrada Digital 5"
-      },
-      "digitalinputrule_state_digitalinput_rule_6": {
-        "name": "Estado de Regla de Entrada Digital 6"
-      },
-      "digitalinputrule_state_digitalinput_rule_7": {
-        "name": "Estado de Regla de Entrada Digital 7"
-      },
       "digitalinputrule_state_digitalinput_rule_stopwatch1": {
         "name": "Cronómetro de Regla de Entrada Digital 1"
       },
@@ -2042,44 +2036,11 @@
       "digitalinputrule_state_digitalinput_rule_stopwatch7": {
         "name": "Cronómetro de Regla de Entrada Digital 7"
       },
+      "digitalinputrule_state_digitalinput_rule_stopwatch8": {
+        "name": "Cronómetro de Regla de Entrada Digital 8"
+      },
       "dmx_mode": {
         "name": "Modo DMX"
-      },
-      "dmx_scene1": {
-        "name": "Escena DMX de Luz 1"
-      },
-      "dmx_scene10": {
-        "name": "Escena DMX de Luz 10"
-      },
-      "dmx_scene11": {
-        "name": "Escena DMX de Luz 11"
-      },
-      "dmx_scene12": {
-        "name": "Escena DMX de Luz 12"
-      },
-      "dmx_scene2": {
-        "name": "Escena DMX de Luz 2"
-      },
-      "dmx_scene3": {
-        "name": "Escena DMX de Luz 3"
-      },
-      "dmx_scene4": {
-        "name": "Escena DMX de Luz 4"
-      },
-      "dmx_scene5": {
-        "name": "Escena DMX de Luz 5"
-      },
-      "dmx_scene6": {
-        "name": "Escena DMX de Luz 6"
-      },
-      "dmx_scene7": {
-        "name": "Escena DMX de Luz 7"
-      },
-      "dmx_scene8": {
-        "name": "Escena DMX de Luz 8"
-      },
-      "dmx_scene9": {
-        "name": "Escena DMX de Luz 9"
       },
       "dos_1_cl": {
         "name": "Sistema de Dosificación de Cloro"
@@ -2110,9 +2071,6 @@
       },
       "dos_1_cl_type": {
         "name": "Tipo de Dosificación de Cloro"
-      },
-      "dos_1_cl_use": {
-        "name": "Dosificación de Cloro Configurada"
       },
       "dos_2_current_polarity": {
         "name": "Polaridad de Electrólisis"
@@ -2146,9 +2104,6 @@
       },
       "dos_2_elo_type": {
         "name": "Tipo de Dosificación de Electrólisis"
-      },
-      "dos_2_elo_use": {
-        "name": "Electrólisis Configurada"
       },
       "dos_3_elo_rev_remaining_range": {
         "name": "Autonomía Restante de Electrólisis (Invertida)"
@@ -2186,9 +2141,6 @@
       "dos_4_phm_type": {
         "name": "Tipo de Dosificación de pH-"
       },
-      "dos_4_phm_use": {
-        "name": "Dosificación pH- Configurada"
-      },
       "dos_5_php": {
         "name": "Sistema de Dosificación de pH+"
       },
@@ -2219,9 +2171,6 @@
       "dos_5_php_type": {
         "name": "Tipo de Dosificación de pH+"
       },
-      "dos_5_php_use": {
-        "name": "Dosificación pH+ Configurada"
-      },
       "dos_6_floc": {
         "name": "Sistema de Dosificación de Floculante"
       },
@@ -2251,9 +2200,6 @@
       },
       "dos_6_floc_type": {
         "name": "Tipo de Dosificación de Floculante"
-      },
-      "dos_6_floc_use": {
-        "name": "Dosificación de Floculante Configurada"
       },
       "eco": {
         "name": "Estado de Modo Eco"
@@ -2503,54 +2449,6 @@
       },
       "imp2_value": {
         "name": "Flujo de Bomba"
-      },
-      "input1": {
-        "name": "Entrada Digital 1"
-      },
-      "input10": {
-        "name": "Entrada Digital 10"
-      },
-      "input11": {
-        "name": "Entrada Digital 11"
-      },
-      "input12": {
-        "name": "Entrada Digital 12"
-      },
-      "input2": {
-        "name": "Entrada Digital 2"
-      },
-      "input3": {
-        "name": "Entrada Digital 3"
-      },
-      "input4": {
-        "name": "Entrada Digital 4"
-      },
-      "input5": {
-        "name": "Entrada Digital 5"
-      },
-      "input6": {
-        "name": "Entrada Digital 6"
-      },
-      "input7": {
-        "name": "Entrada Digital 7"
-      },
-      "input8": {
-        "name": "Entrada Digital 8"
-      },
-      "input9": {
-        "name": "Entrada Digital 9"
-      },
-      "input_ce1": {
-        "name": "Sensor de Recipiente Vacío 1"
-      },
-      "input_ce2": {
-        "name": "Sensor de Recipiente Vacío 2"
-      },
-      "input_ce3": {
-        "name": "Sensor de Recipiente Vacío 3"
-      },
-      "input_ce4": {
-        "name": "Sensor de Recipiente Vacío 4"
       },
       "inputz1z2": {
         "name": "Entradas Digitales Z1/Z2"

@@ -263,6 +263,20 @@ values, but nothing acts on them.
 | `INPUT1`–`INPUT12` | Digital Input 1–12 | digital_inputs |
 | `INPUT_CE1`–`INPUT_CE4` | Digital Input CE1–CE4 | digital_inputs |
 
+### Dosing Channel Configured
+
+Whether the controller has the channel set up at all. A 0/1 flag, which is why
+it is a binary sensor since 2.7.1 — it used to be a numeric sensor and Home
+Assistant recorded statistics for it.
+
+| Entity ID suffix | Name | Feature |
+|------------------|------|---------|
+| `DOS_1_CL_USE` | Chlorine Dosing Configured | chlorine_control |
+| `DOS_2_ELO_USE` | Electrolysis Configured | chlorine_control |
+| `DOS_4_PHM_USE` | pH Minus Dosing Configured | ph_control |
+| `DOS_5_PHP_USE` | pH Plus Dosing Configured | ph_control |
+| `DOS_6_FLOC_USE` | Flocculant Dosing Configured | flocculation |
+
 ---
 
 ## 🔌 Switches
@@ -315,7 +329,7 @@ The 12 DMX scenes are exposed as **LightEntity** (not switches) so they integrat
 
 | Entity ID suffix | Name | Feature |
 |------------------|------|---------|
-| `DMX_SCENE1`–`DMX_SCENE12` | DMX Scene 1–12 | led_lighting |
+| `DMX_SCENE1`–`DMX_SCENE12` | DMX Scene 1–12 | dmx_scenes |
 
 ---
 

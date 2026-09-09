@@ -43,6 +43,8 @@ class TestFeatureForKey:
             ("PVSURPLUS_RUNTIME", "pv_surplus"),
             ("EXT1_3", "extension_outputs"),
             ("DIRULE_4", "digital_inputs"),
+            ("INPUT7", "digital_inputs"),
+            ("INPUT_CE2", "digital_inputs"),
             ("DOS_2_ELO_RUNTIME", "chlorine_control"),
             ("DOS_5_PHP_LAST_ON", "ph_control"),
             ("DOS_6_FLOC_STATE", "flocculation"),
@@ -59,10 +61,11 @@ class TestFeatureForKey:
             "onewire1_value",
             "CPU_TEMP",
             "SYSTEM_swversion",
-            # Generic inputs stay usable no matter which features are on.
+            # Analog inputs stay usable no matter which features are on.
             "ADC1",
             "IMP1_value",
-            "INPUT1",
+            # The Z1/Z2 terminal pair is not a switchable digital input.
+            "INPUTz1z2",
             "",
         ],
     )

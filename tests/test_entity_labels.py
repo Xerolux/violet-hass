@@ -146,8 +146,12 @@ class TestNamesMatchTheReading:
         "key", ["dos_1_cl_use", "dos_2_elo_use", "dos_4_phm_use", "dos_5_php_use", "dos_6_floc_use"]
     )
     def test_use_flags_are_not_called_consumption(self, language: str, key: str) -> None:
-        """DOS_*_USE is a 0/1 "configured in the system" flag, not a consumption."""
-        name = load(language)["sensor"][key]["name"].lower()
+        """DOS_*_USE is a 0/1 "configured in the system" flag, not a consumption.
+
+        Being a flag is also why it is a binary sensor since 2.7.1, rather than
+        a numeric sensor Home Assistant then tried to average.
+        """
+        name = load(language)["binary_sensor"][key]["name"].lower()
 
         assert "verbrauch" not in name
         assert "usage" not in name
@@ -187,17 +191,17 @@ class TestCorrectedLabelsReachTheEntityId:
 
     def test_corrected_names_are_gone_from_the_wrong_word_lists(self) -> None:
         """A corrected id must not match its own guard, or it renames forever."""
-        english = load("en")["sensor"]
-        for key, translation_key in (
-            ("DOS_2_ELO_TOTAL_CAN_AMOUNT_ML", "dos_2_elo_total_can"),
-            ("DOS_1_CL_USE", "dos_1_cl_use"),
+        english = load("en")
+        for key, platform, translation_key in (
+            ("DOS_2_ELO_TOTAL_CAN_AMOUNT_ML", "sensor", "dos_2_elo_total_can"),
+            ("DOS_1_CL_USE", "binary_sensor", "dos_1_cl_use"),
         ):
-            slug = english[translation_key]["name"].lower().replace(" ", "_")
+            slug = english[platform][translation_key]["name"].lower().replace(" ", "_")
             assert not any(word in slug for word in const.RELABELLED_ENTITY_IDS[key])
 
     def test_the_two_ph_channels_get_distinct_ids(self) -> None:
         """"pH-" and "pH+" both slugify to "ph", which would collide."""
-        english = load("en")["sensor"]
+        english = load("en")["binary_sensor"]
         minus = slugify(english["dos_4_phm_use"]["name"])
         plus = slugify(english["dos_5_php_use"]["name"])
 

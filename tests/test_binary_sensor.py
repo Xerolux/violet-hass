@@ -1,9 +1,12 @@
 """The binary sensors must follow the feature each entry declares.
 
 ``BINARY_SENSORS`` carries a ``feature_id`` per entry, but the platform used to
-consult a second, hand-written map instead. That map listed neither the twelve
-digital inputs nor the four can-empty contacts, so ``INPUT1..12`` and
-``INPUT_CE1..4`` appeared regardless of the "Digital Inputs" setting.
+consult a second, hand-written map instead, so entries such as ``ECO`` were
+mapped to nothing and no setting could remove them.
+
+Since 2.7.1 these entries are also the *only* entity for the readings they
+carry: the sensor platform used to publish the same digital inputs and dosing
+flags a second time, as numeric sensors holding a state code.
 """
 
 from __future__ import annotations
@@ -84,6 +87,26 @@ class TestFeatureGating:
         keys = await _created_keys(hass, ["digital_inputs"])
 
         assert keys >= DIGITAL_INPUT_KEYS
+
+    async def test_digital_inputs_are_enabled_once_the_feature_is_on(self) -> None:
+        """A feature whose entities are all disabled looks like a broken one.
+
+        They were disabled by default while the sensor platform published the
+        same readings as enabled numeric sensors. That duplicate is gone.
+        """
+        inputs = [e for e in BINARY_SENSORS if str(e["key"]) in DIGITAL_INPUT_KEYS]
+
+        assert len(inputs) == 16
+        assert all(e["entity_registry_enabled_default"] for e in inputs)
+
+    async def test_dosing_use_flags_follow_their_chemical_feature(self, hass) -> None:
+        """DOS_*_USE says whether a channel is configured, per chemical."""
+        chlorine = await _created_keys(hass, ["chlorine_control"])
+
+        assert {"DOS_1_CL_USE", "DOS_2_ELO_USE"} <= chlorine
+        assert not ({"DOS_4_PHM_USE", "DOS_6_FLOC_USE"} & chlorine)
+        assert "DOS_4_PHM_USE" in await _created_keys(hass, ["ph_control"])
+        assert "DOS_6_FLOC_USE" in await _created_keys(hass, ["flocculation"])
 
     async def test_pump_follows_filter_control(self, hass) -> None:
         """A feature that is off removes its binary sensor."""

@@ -1275,6 +1275,21 @@
       "circulation_state": {
         "name": "Circulatieprobleem"
       },
+      "dos_1_cl_use": {
+        "name": "Chloordosering geconfigureerd"
+      },
+      "dos_2_elo_use": {
+        "name": "Elektrolyse geconfigureerd"
+      },
+      "dos_4_phm_use": {
+        "name": "pH--dosering geconfigureerd"
+      },
+      "dos_5_php_use": {
+        "name": "pH+-dosering geconfigureerd"
+      },
+      "dos_6_floc_use": {
+        "name": "Vlokmiddeldosering geconfigureerd"
+      },
       "eco": {
         "name": "ECO-modus"
       },
@@ -2000,27 +2015,6 @@
       "di_rule_8_stopwatch": {
         "name": "Resterende tijd DI-regel 8"
       },
-      "digitalinputrule_state_digitalinput_rule_1": {
-        "name": "Status digitale-ingangsregel 1"
-      },
-      "digitalinputrule_state_digitalinput_rule_2": {
-        "name": "Status digitale-ingangsregel 2"
-      },
-      "digitalinputrule_state_digitalinput_rule_3": {
-        "name": "Status digitale-ingangsregel 3"
-      },
-      "digitalinputrule_state_digitalinput_rule_4": {
-        "name": "Status digitale-ingangsregel 4"
-      },
-      "digitalinputrule_state_digitalinput_rule_5": {
-        "name": "Status digitale-ingangsregel 5"
-      },
-      "digitalinputrule_state_digitalinput_rule_6": {
-        "name": "Status digitale-ingangsregel 6"
-      },
-      "digitalinputrule_state_digitalinput_rule_7": {
-        "name": "Status digitale-ingangsregel 7"
-      },
       "digitalinputrule_state_digitalinput_rule_stopwatch1": {
         "name": "Stopwatch digitale-ingangsregel 1"
       },
@@ -2042,44 +2036,11 @@
       "digitalinputrule_state_digitalinput_rule_stopwatch7": {
         "name": "Stopwatch digitale-ingangsregel 7"
       },
+      "digitalinputrule_state_digitalinput_rule_stopwatch8": {
+        "name": "Stopwatch digitale-ingangsregel 8"
+      },
       "dmx_mode": {
         "name": "DMX-modus"
-      },
-      "dmx_scene1": {
-        "name": "DMX-lichtscène 1"
-      },
-      "dmx_scene10": {
-        "name": "DMX-lichtscène 10"
-      },
-      "dmx_scene11": {
-        "name": "DMX-lichtscène 11"
-      },
-      "dmx_scene12": {
-        "name": "DMX-lichtscène 12"
-      },
-      "dmx_scene2": {
-        "name": "DMX-lichtscène 2"
-      },
-      "dmx_scene3": {
-        "name": "DMX-lichtscène 3"
-      },
-      "dmx_scene4": {
-        "name": "DMX-lichtscène 4"
-      },
-      "dmx_scene5": {
-        "name": "DMX-lichtscène 5"
-      },
-      "dmx_scene6": {
-        "name": "DMX-lichtscène 6"
-      },
-      "dmx_scene7": {
-        "name": "DMX-lichtscène 7"
-      },
-      "dmx_scene8": {
-        "name": "DMX-lichtscène 8"
-      },
-      "dmx_scene9": {
-        "name": "DMX-lichtscène 9"
       },
       "dos_1_cl": {
         "name": "Chloordoseersysteem"
@@ -2110,9 +2071,6 @@
       },
       "dos_1_cl_type": {
         "name": "Type chloordosering"
-      },
-      "dos_1_cl_use": {
-        "name": "Chloordosering geconfigureerd"
       },
       "dos_2_current_polarity": {
         "name": "Elektrolysepolariteit"
@@ -2146,9 +2104,6 @@
       },
       "dos_2_elo_type": {
         "name": "Type elektrolysedosering"
-      },
-      "dos_2_elo_use": {
-        "name": "Elektrolyse geconfigureerd"
       },
       "dos_3_elo_rev_remaining_range": {
         "name": "Resterend bereik elektrolyse (omgepoold)"
@@ -2186,9 +2141,6 @@
       "dos_4_phm_type": {
         "name": "Type dosering pH-"
       },
-      "dos_4_phm_use": {
-        "name": "pH--dosering geconfigureerd"
-      },
       "dos_5_php": {
         "name": "Doseersysteem pH+"
       },
@@ -2219,9 +2171,6 @@
       "dos_5_php_type": {
         "name": "Type dosering pH+"
       },
-      "dos_5_php_use": {
-        "name": "pH+-dosering geconfigureerd"
-      },
       "dos_6_floc": {
         "name": "Doseersysteem vlokmiddel"
       },
@@ -2251,9 +2200,6 @@
       },
       "dos_6_floc_type": {
         "name": "Type vlokmiddeldosering"
-      },
-      "dos_6_floc_use": {
-        "name": "Vlokmiddeldosering geconfigureerd"
       },
       "eco": {
         "name": "Status ECO-modus"
@@ -2503,54 +2449,6 @@
       },
       "imp2_value": {
         "name": "Pompdebiet"
-      },
-      "input1": {
-        "name": "Digitale ingang 1"
-      },
-      "input10": {
-        "name": "Digitale ingang 10"
-      },
-      "input11": {
-        "name": "Digitale ingang 11"
-      },
-      "input12": {
-        "name": "Digitale ingang 12"
-      },
-      "input2": {
-        "name": "Digitale ingang 2"
-      },
-      "input3": {
-        "name": "Digitale ingang 3"
-      },
-      "input4": {
-        "name": "Digitale ingang 4"
-      },
-      "input5": {
-        "name": "Digitale ingang 5"
-      },
-      "input6": {
-        "name": "Digitale ingang 6"
-      },
-      "input7": {
-        "name": "Digitale ingang 7"
-      },
-      "input8": {
-        "name": "Digitale ingang 8"
-      },
-      "input9": {
-        "name": "Digitale ingang 9"
-      },
-      "input_ce1": {
-        "name": "Sensor reservoir leeg 1"
-      },
-      "input_ce2": {
-        "name": "Sensor reservoir leeg 2"
-      },
-      "input_ce3": {
-        "name": "Sensor reservoir leeg 3"
-      },
-      "input_ce4": {
-        "name": "Sensor reservoir leeg 4"
       },
       "inputz1z2": {
         "name": "Digitale ingangen Z1/Z2"

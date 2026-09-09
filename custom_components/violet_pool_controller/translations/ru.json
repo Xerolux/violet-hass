@@ -1275,6 +1275,21 @@
       "circulation_state": {
         "name": "Проблема циркуляции"
       },
+      "dos_1_cl_use": {
+        "name": "Дозирование хлора настроено"
+      },
+      "dos_2_elo_use": {
+        "name": "Электролиз настроен"
+      },
+      "dos_4_phm_use": {
+        "name": "Дозирование pH- настроено"
+      },
+      "dos_5_php_use": {
+        "name": "Дозирование pH+ настроено"
+      },
+      "dos_6_floc_use": {
+        "name": "Дозирование флокулянта настроено"
+      },
       "eco": {
         "name": "Режим ECO"
       },
@@ -2000,27 +2015,6 @@
       "di_rule_8_stopwatch": {
         "name": "Оставшееся время правила DI 8"
       },
-      "digitalinputrule_state_digitalinput_rule_1": {
-        "name": "Состояние правила цифрового входа 1"
-      },
-      "digitalinputrule_state_digitalinput_rule_2": {
-        "name": "Состояние правила цифрового входа 2"
-      },
-      "digitalinputrule_state_digitalinput_rule_3": {
-        "name": "Состояние правила цифрового входа 3"
-      },
-      "digitalinputrule_state_digitalinput_rule_4": {
-        "name": "Состояние правила цифрового входа 4"
-      },
-      "digitalinputrule_state_digitalinput_rule_5": {
-        "name": "Состояние правила цифрового входа 5"
-      },
-      "digitalinputrule_state_digitalinput_rule_6": {
-        "name": "Состояние правила цифрового входа 6"
-      },
-      "digitalinputrule_state_digitalinput_rule_7": {
-        "name": "Состояние правила цифрового входа 7"
-      },
       "digitalinputrule_state_digitalinput_rule_stopwatch1": {
         "name": "Секундомер правила цифрового входа 1"
       },
@@ -2042,44 +2036,11 @@
       "digitalinputrule_state_digitalinput_rule_stopwatch7": {
         "name": "Секундомер правила цифрового входа 7"
       },
+      "digitalinputrule_state_digitalinput_rule_stopwatch8": {
+        "name": "Секундомер правила цифрового входа 8"
+      },
       "dmx_mode": {
         "name": "Режим DMX"
-      },
-      "dmx_scene1": {
-        "name": "Световая DMX-сцена 1"
-      },
-      "dmx_scene10": {
-        "name": "Световая DMX-сцена 10"
-      },
-      "dmx_scene11": {
-        "name": "Световая DMX-сцена 11"
-      },
-      "dmx_scene12": {
-        "name": "Световая DMX-сцена 12"
-      },
-      "dmx_scene2": {
-        "name": "Световая DMX-сцена 2"
-      },
-      "dmx_scene3": {
-        "name": "Световая DMX-сцена 3"
-      },
-      "dmx_scene4": {
-        "name": "Световая DMX-сцена 4"
-      },
-      "dmx_scene5": {
-        "name": "Световая DMX-сцена 5"
-      },
-      "dmx_scene6": {
-        "name": "Световая DMX-сцена 6"
-      },
-      "dmx_scene7": {
-        "name": "Световая DMX-сцена 7"
-      },
-      "dmx_scene8": {
-        "name": "Световая DMX-сцена 8"
-      },
-      "dmx_scene9": {
-        "name": "Световая DMX-сцена 9"
       },
       "dos_1_cl": {
         "name": "Система дозирования хлора"
@@ -2110,9 +2071,6 @@
       },
       "dos_1_cl_type": {
         "name": "Тип дозирования хлора"
-      },
-      "dos_1_cl_use": {
-        "name": "Дозирование хлора настроено"
       },
       "dos_2_current_polarity": {
         "name": "Полярность электролиза"
@@ -2146,9 +2104,6 @@
       },
       "dos_2_elo_type": {
         "name": "Тип дозирования электролиза"
-      },
-      "dos_2_elo_use": {
-        "name": "Электролиз настроен"
       },
       "dos_3_elo_rev_remaining_range": {
         "name": "Остаток ресурса электролиза (реверс)"
@@ -2186,9 +2141,6 @@
       "dos_4_phm_type": {
         "name": "Тип дозирования pH-"
       },
-      "dos_4_phm_use": {
-        "name": "Дозирование pH- настроено"
-      },
       "dos_5_php": {
         "name": "Система дозирования pH+"
       },
@@ -2219,9 +2171,6 @@
       "dos_5_php_type": {
         "name": "Тип дозирования pH+"
       },
-      "dos_5_php_use": {
-        "name": "Дозирование pH+ настроено"
-      },
       "dos_6_floc": {
         "name": "Система дозирования флокулянта"
       },
@@ -2251,9 +2200,6 @@
       },
       "dos_6_floc_type": {
         "name": "Тип дозирования флокулянта"
-      },
-      "dos_6_floc_use": {
-        "name": "Дозирование флокулянта настроено"
       },
       "eco": {
         "name": "Статус режима ECO"
@@ -2503,54 +2449,6 @@
       },
       "imp2_value": {
         "name": "Расход насоса"
-      },
-      "input1": {
-        "name": "Цифровой вход 1"
-      },
-      "input10": {
-        "name": "Цифровой вход 10"
-      },
-      "input11": {
-        "name": "Цифровой вход 11"
-      },
-      "input12": {
-        "name": "Цифровой вход 12"
-      },
-      "input2": {
-        "name": "Цифровой вход 2"
-      },
-      "input3": {
-        "name": "Цифровой вход 3"
-      },
-      "input4": {
-        "name": "Цифровой вход 4"
-      },
-      "input5": {
-        "name": "Цифровой вход 5"
-      },
-      "input6": {
-        "name": "Цифровой вход 6"
-      },
-      "input7": {
-        "name": "Цифровой вход 7"
-      },
-      "input8": {
-        "name": "Цифровой вход 8"
-      },
-      "input9": {
-        "name": "Цифровой вход 9"
-      },
-      "input_ce1": {
-        "name": "Датчик пустой канистры 1"
-      },
-      "input_ce2": {
-        "name": "Датчик пустой канистры 2"
-      },
-      "input_ce3": {
-        "name": "Датчик пустой канистры 3"
-      },
-      "input_ce4": {
-        "name": "Датчик пустой канистры 4"
       },
       "inputz1z2": {
         "name": "Цифровые входы Z1/Z2"

@@ -1275,6 +1275,21 @@
       "circulation_state": {
         "name": "循环异常"
       },
+      "dos_1_cl_use": {
+        "name": "氯剂量投加已配置"
+      },
+      "dos_2_elo_use": {
+        "name": "电解已配置"
+      },
+      "dos_4_phm_use": {
+        "name": "pH- 投加已配置"
+      },
+      "dos_5_php_use": {
+        "name": "pH+ 投加已配置"
+      },
+      "dos_6_floc_use": {
+        "name": "絮凝剂投加已配置"
+      },
       "eco": {
         "name": "ECO 模式"
       },
@@ -2000,27 +2015,6 @@
       "di_rule_8_stopwatch": {
         "name": "DI 规则 8 剩余时间"
       },
-      "digitalinputrule_state_digitalinput_rule_1": {
-        "name": "数字输入规则状态 1"
-      },
-      "digitalinputrule_state_digitalinput_rule_2": {
-        "name": "数字输入规则状态 2"
-      },
-      "digitalinputrule_state_digitalinput_rule_3": {
-        "name": "数字输入规则状态 3"
-      },
-      "digitalinputrule_state_digitalinput_rule_4": {
-        "name": "数字输入规则状态 4"
-      },
-      "digitalinputrule_state_digitalinput_rule_5": {
-        "name": "数字输入规则状态 5"
-      },
-      "digitalinputrule_state_digitalinput_rule_6": {
-        "name": "数字输入规则状态 6"
-      },
-      "digitalinputrule_state_digitalinput_rule_7": {
-        "name": "数字输入规则状态 7"
-      },
       "digitalinputrule_state_digitalinput_rule_stopwatch1": {
         "name": "数字输入规则计时器 1"
       },
@@ -2042,44 +2036,11 @@
       "digitalinputrule_state_digitalinput_rule_stopwatch7": {
         "name": "数字输入规则计时器 7"
       },
+      "digitalinputrule_state_digitalinput_rule_stopwatch8": {
+        "name": "数字输入规则计时器 8"
+      },
       "dmx_mode": {
         "name": "DMX 模式"
-      },
-      "dmx_scene1": {
-        "name": "DMX 灯光场景 1"
-      },
-      "dmx_scene10": {
-        "name": "DMX 灯光场景 10"
-      },
-      "dmx_scene11": {
-        "name": "DMX 灯光场景 11"
-      },
-      "dmx_scene12": {
-        "name": "DMX 灯光场景 12"
-      },
-      "dmx_scene2": {
-        "name": "DMX 灯光场景 2"
-      },
-      "dmx_scene3": {
-        "name": "DMX 灯光场景 3"
-      },
-      "dmx_scene4": {
-        "name": "DMX 灯光场景 4"
-      },
-      "dmx_scene5": {
-        "name": "DMX 灯光场景 5"
-      },
-      "dmx_scene6": {
-        "name": "DMX 灯光场景 6"
-      },
-      "dmx_scene7": {
-        "name": "DMX 灯光场景 7"
-      },
-      "dmx_scene8": {
-        "name": "DMX 灯光场景 8"
-      },
-      "dmx_scene9": {
-        "name": "DMX 灯光场景 9"
       },
       "dos_1_cl": {
         "name": "氯投加系统"
@@ -2110,9 +2071,6 @@
       },
       "dos_1_cl_type": {
         "name": "氯投加类型"
-      },
-      "dos_1_cl_use": {
-        "name": "氯剂量投加已配置"
       },
       "dos_2_current_polarity": {
         "name": "电解极性"
@@ -2146,9 +2104,6 @@
       },
       "dos_2_elo_type": {
         "name": "电解投加类型"
-      },
-      "dos_2_elo_use": {
-        "name": "电解已配置"
       },
       "dos_3_elo_rev_remaining_range": {
         "name": "电解（反向）剩余可用量"
@@ -2186,9 +2141,6 @@
       "dos_4_phm_type": {
         "name": "pH-投加类型"
       },
-      "dos_4_phm_use": {
-        "name": "pH- 投加已配置"
-      },
       "dos_5_php": {
         "name": "pH+投加系统"
       },
@@ -2219,9 +2171,6 @@
       "dos_5_php_type": {
         "name": "pH+投加类型"
       },
-      "dos_5_php_use": {
-        "name": "pH+ 投加已配置"
-      },
       "dos_6_floc": {
         "name": "絮凝剂投加系统"
       },
@@ -2251,9 +2200,6 @@
       },
       "dos_6_floc_type": {
         "name": "絮凝剂投加类型"
-      },
-      "dos_6_floc_use": {
-        "name": "絮凝剂投加已配置"
       },
       "eco": {
         "name": "Eco 模式状态"
@@ -2503,54 +2449,6 @@
       },
       "imp2_value": {
         "name": "泵流量"
-      },
-      "input1": {
-        "name": "数字输入 1"
-      },
-      "input10": {
-        "name": "数字输入 10"
-      },
-      "input11": {
-        "name": "数字输入 11"
-      },
-      "input12": {
-        "name": "数字输入 12"
-      },
-      "input2": {
-        "name": "数字输入 2"
-      },
-      "input3": {
-        "name": "数字输入 3"
-      },
-      "input4": {
-        "name": "数字输入 4"
-      },
-      "input5": {
-        "name": "数字输入 5"
-      },
-      "input6": {
-        "name": "数字输入 6"
-      },
-      "input7": {
-        "name": "数字输入 7"
-      },
-      "input8": {
-        "name": "数字输入 8"
-      },
-      "input9": {
-        "name": "数字输入 9"
-      },
-      "input_ce1": {
-        "name": "药桶空传感器 1"
-      },
-      "input_ce2": {
-        "name": "药桶空传感器 2"
-      },
-      "input_ce3": {
-        "name": "药桶空传感器 3"
-      },
-      "input_ce4": {
-        "name": "药桶空传感器 4"
       },
       "inputz1z2": {
         "name": "数字输入 Z1/Z2"

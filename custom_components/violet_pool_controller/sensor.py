@@ -370,6 +370,32 @@ _HARDWARE_FLAG_KEYS = frozenset(
     }
 )
 
+# Readings whose value is a state code, each of which another platform already
+# publishes as an entity of the right type. A sensor holding ``3`` for "on by
+# emergency rule" is not a measurement: Home Assistant recorded long-term
+# statistics for all of them, and the mean of scene 3 and scene 7 is scene 5.
+#
+# Every key here must have its counterpart created under the same conditions,
+# or a reading disappears instead of changing platform -
+# ``tests/test_state_code_duplicates.py`` holds that pairing.
+_STATE_CODE_DUPLICATE_KEYS = frozenset(
+    # binary_sensor.input1..12 / .input_ce1..4
+    {f"INPUT{i}" for i in range(1, 13)}
+    | {f"INPUT_CE{i}" for i in range(1, 5)}
+    # light.dmx_scene1..12
+    | {f"DMX_SCENE{i}" for i in range(1, 13)}
+    # switch.dirule_1..8 (the controller spells the reading out in full)
+    | {f"DIGITALINPUTRULE_STATE_DIGITALINPUT_RULE_{i}" for i in range(1, 9)}
+    # binary_sensor.dos_*_use
+    | {
+        "DOS_1_CL_USE",
+        "DOS_2_ELO_USE",
+        "DOS_4_PHM_USE",
+        "DOS_5_PHP_USE",
+        "DOS_6_FLOC_USE",
+    }
+)
+
 
 def _romcode_spellings(data: Mapping[str, Any]) -> dict[int, set[str]]:
     """Return every ROM-code key the payload carries, grouped by probe.
@@ -436,6 +462,11 @@ def _create_standard_sensors(
 
         if key in _HARDWARE_FLAG_KEYS:
             # Already a binary sensor; see _HARDWARE_FLAG_KEYS.
+            continue
+
+        if key in _STATE_CODE_DUPLICATE_KEYS:
+            # Already an entity of the right type on another platform; see
+            # _STATE_CODE_DUPLICATE_KEYS.
             continue
 
         feature_id = feature_for_key(key)

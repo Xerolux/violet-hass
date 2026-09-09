@@ -1275,6 +1275,21 @@
       "circulation_state": {
         "name": "Zirkulationsproblem"
       },
+      "dos_1_cl_use": {
+        "name": "Chlordosierung konfiguriert"
+      },
+      "dos_2_elo_use": {
+        "name": "Elektrolyse konfiguriert"
+      },
+      "dos_4_phm_use": {
+        "name": "pH--Dosierung konfiguriert"
+      },
+      "dos_5_php_use": {
+        "name": "pH+-Dosierung konfiguriert"
+      },
+      "dos_6_floc_use": {
+        "name": "Flockmitteldosierung konfiguriert"
+      },
       "eco": {
         "name": "Eco-Modus"
       },
@@ -2000,27 +2015,6 @@
       "di_rule_8_stopwatch": {
         "name": "DI-Regel 8 Restzeit"
       },
-      "digitalinputrule_state_digitalinput_rule_1": {
-        "name": "Schaltregeln Zustand 1"
-      },
-      "digitalinputrule_state_digitalinput_rule_2": {
-        "name": "Schaltregeln Zustand 2"
-      },
-      "digitalinputrule_state_digitalinput_rule_3": {
-        "name": "Schaltregeln Zustand 3"
-      },
-      "digitalinputrule_state_digitalinput_rule_4": {
-        "name": "Schaltregeln Zustand 4"
-      },
-      "digitalinputrule_state_digitalinput_rule_5": {
-        "name": "Schaltregeln Zustand 5"
-      },
-      "digitalinputrule_state_digitalinput_rule_6": {
-        "name": "Schaltregeln Zustand 6"
-      },
-      "digitalinputrule_state_digitalinput_rule_7": {
-        "name": "Schaltregeln Zustand 7"
-      },
       "digitalinputrule_state_digitalinput_rule_stopwatch1": {
         "name": "Schaltregeln Stoppuhr 1"
       },
@@ -2042,44 +2036,11 @@
       "digitalinputrule_state_digitalinput_rule_stopwatch7": {
         "name": "Schaltregeln Stoppuhr 7"
       },
+      "digitalinputrule_state_digitalinput_rule_stopwatch8": {
+        "name": "Schaltregeln Stoppuhr 8"
+      },
       "dmx_mode": {
         "name": "DMX-Modus"
-      },
-      "dmx_scene1": {
-        "name": "DMX-Lichtszene 1"
-      },
-      "dmx_scene10": {
-        "name": "DMX-Lichtszene 10"
-      },
-      "dmx_scene11": {
-        "name": "DMX-Lichtszene 11"
-      },
-      "dmx_scene12": {
-        "name": "DMX-Lichtszene 12"
-      },
-      "dmx_scene2": {
-        "name": "DMX-Lichtszene 2"
-      },
-      "dmx_scene3": {
-        "name": "DMX-Lichtszene 3"
-      },
-      "dmx_scene4": {
-        "name": "DMX-Lichtszene 4"
-      },
-      "dmx_scene5": {
-        "name": "DMX-Lichtszene 5"
-      },
-      "dmx_scene6": {
-        "name": "DMX-Lichtszene 6"
-      },
-      "dmx_scene7": {
-        "name": "DMX-Lichtszene 7"
-      },
-      "dmx_scene8": {
-        "name": "DMX-Lichtszene 8"
-      },
-      "dmx_scene9": {
-        "name": "DMX-Lichtszene 9"
       },
       "dos_1_cl": {
         "name": "Chlor-Dosiersystem"
@@ -2110,9 +2071,6 @@
       },
       "dos_1_cl_type": {
         "name": "Chlor Dosiertyp"
-      },
-      "dos_1_cl_use": {
-        "name": "Chlordosierung konfiguriert"
       },
       "dos_2_current_polarity": {
         "name": "Elektrolyse-Polarität"
@@ -2146,9 +2104,6 @@
       },
       "dos_2_elo_type": {
         "name": "Elektrolyse Dosiertyp"
-      },
-      "dos_2_elo_use": {
-        "name": "Elektrolyse konfiguriert"
       },
       "dos_3_elo_rev_remaining_range": {
         "name": "Elektrolyse (Umpolung) Reichweite"
@@ -2186,9 +2141,6 @@
       "dos_4_phm_type": {
         "name": "pH- Dosiertyp"
       },
-      "dos_4_phm_use": {
-        "name": "pH--Dosierung konfiguriert"
-      },
       "dos_5_php": {
         "name": "pH+ Dosiersystem"
       },
@@ -2219,9 +2171,6 @@
       "dos_5_php_type": {
         "name": "pH+ Dosiertyp"
       },
-      "dos_5_php_use": {
-        "name": "pH+-Dosierung konfiguriert"
-      },
       "dos_6_floc": {
         "name": "Flockmittel-Dosiersystem"
       },
@@ -2251,9 +2200,6 @@
       },
       "dos_6_floc_type": {
         "name": "Flockmittel Dosiertyp"
-      },
-      "dos_6_floc_use": {
-        "name": "Flockmitteldosierung konfiguriert"
       },
       "eco": {
         "name": "Eco-Modus Status"
@@ -2503,54 +2449,6 @@
       },
       "imp2_value": {
         "name": "Pumpen-Durchfluss"
-      },
-      "input1": {
-        "name": "Digitaleingang 1"
-      },
-      "input10": {
-        "name": "Digitaleingang 10"
-      },
-      "input11": {
-        "name": "Digitaleingang 11"
-      },
-      "input12": {
-        "name": "Digitaleingang 12"
-      },
-      "input2": {
-        "name": "Digitaleingang 2"
-      },
-      "input3": {
-        "name": "Digitaleingang 3"
-      },
-      "input4": {
-        "name": "Digitaleingang 4"
-      },
-      "input5": {
-        "name": "Digitaleingang 5"
-      },
-      "input6": {
-        "name": "Digitaleingang 6"
-      },
-      "input7": {
-        "name": "Digitaleingang 7"
-      },
-      "input8": {
-        "name": "Digitaleingang 8"
-      },
-      "input9": {
-        "name": "Digitaleingang 9"
-      },
-      "input_ce1": {
-        "name": "Kanister-Leersensor 1"
-      },
-      "input_ce2": {
-        "name": "Kanister-Leersensor 2"
-      },
-      "input_ce3": {
-        "name": "Kanister-Leersensor 3"
-      },
-      "input_ce4": {
-        "name": "Kanister-Leersensor 4"
       },
       "inputz1z2": {
         "name": "Digitaleingänge Z1/Z2"

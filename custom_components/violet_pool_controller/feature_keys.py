@@ -15,9 +15,14 @@ selection list (reported for Solar: disabling the feature still offered every
 ``SOLAR*`` reading under "select sensors").
 
 The prefix patterns below close that gap. They only cover key spaces that
-unambiguously belong to a single feature; generic inputs (``ADC*``, ``IMP*``,
-``INPUT*``) stay unmapped on purpose, because they are useful independently of
-any feature.
+unambiguously belong to a single feature; the analog inputs (``ADC*``,
+``IMP*``) stay unmapped on purpose, because they are readings in their own
+right and belong to no feature.
+
+The numbered digital inputs are mapped, and the pattern is written out in full
+for it: ``INPUT1``-``INPUT12`` and ``INPUT_CE1``-``INPUT_CE4`` belong to
+"digital_inputs", while ``INPUTz1z2`` - the Z1/Z2 terminal pair, which is not a
+switchable input - must not match and stay available to everyone.
 """
 
 from __future__ import annotations
@@ -52,6 +57,7 @@ FEATURE_KEY_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
     # --- I/O modules ---
     (re.compile(r"^EXT\d_|^OMNI_DC"), "extension_outputs"),
     (re.compile(r"^DIRULE_|^DIGITALINPUTRULE|^SWITCHINGRULE"), "digital_inputs"),
+    (re.compile(r"^INPUT(?:_CE)?\d+$"), "digital_inputs"),
 )
 
 
