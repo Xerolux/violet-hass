@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Asystent konfiguracji basenu Violet",
-        "description": "Wybierz, czy chcesz od razu uruchomić kreator konfiguracji, czy najpierw otworzyć szczegółową dokumentację.\n\nDokumentacja: [Przewodnik konfiguracji]({docs_en})\n\nWsparcie i opinie: {issues_url}",
+        "description": "**Welcome!**\n\nChoose whether you want to start the configuration wizard immediately or open the detailed documentation first.\n\n**Documentation**\n• [Configuration Guide (DE)]({docs_de})\n• [Configuration Guide (EN)]({docs_en})\n\nSupport & Feedback: {issues_url}",
         "data": {
           "action": "Wybierz akcję"
         },
@@ -13,18 +13,18 @@
       },
       "disclaimer": {
         "title": "Informacje dotyczące bezpieczeństwa i odpowiedzialności",
-        "description": "**Ostrzeżenie dotyczące bezpieczeństwa**\n\nIntegracja ta zapewnia zdalne sterowanie pompami, grzejnikami, oświetleniem i systemami dozowania. Nieprawidłowa konfiguracja może spowodować uszkodzenie sprzętu, obrażenia ciała lub przedawkowanie środków chemicznych. Upewnij się, że rozumiesz wszystkie funkcje bezpieczeństwa i zapewnij dostępność możliwości ręcznego sterowania.\n\nZanim będziesz kontynuować, zapoznaj się z [Podręcznikiem konfiguracji]({docs_en}).",
+        "description": "{disclaimer_text}\n\n**Learn more**\n• [Configuration Guide (DE)]({docs_de})\n• [Configuration Guide (EN)]({docs_en})",
         "data": {
           "agreement": "Akceptuję wszelkie ryzyko i przeczytałem pełne zastrzeżenie."
         }
       },
       "help": {
         "title": "Pomoc i dokumentacja",
-        "description": "Przeczytaj [Przewodnik konfiguracji]({docs_en}), aby uzyskać instrukcje krok po kroku, uwagi dotyczące bezpieczeństwa i objaśnienia funkcji.\n\nPotrzebujesz pomocy lub chcesz podzielić się opinią? Otwórz problem pod adresem {issues_url}.\n\nRepozytorium projektu: {github_url}\n\nKliknij **Dalej**, aby powrócić do menu głównego."
+        "description": "• Read the [Configuration Guide (DE)]({docs_de}) for step-by-step instructions, safety checklists and feature overviews.\n• Need support or have ideas? Open a ticket at {issues_url}.\n\n• Read the [Configuration Guide (EN)]({docs_en}) for step-by-step instructions, safety notes and feature explanations.\n• Need assistance or want to share feedback? Open an issue at {issues_url}.\n\nProject repository: {github_url}\n\nClick **Next** to return to the main menu."
       },
       "connection": {
         "title": "Połączenie kontrolera",
-        "description": "Podłącz kontroler basenu Violet do Home Assistant. Upewnij się, że kontroler korzysta z tej samej sieci i że interfejs API jest dostępny.\n\nDodatkowa dokumentacja: [Podręcznik konfiguracji]({docs_en})",
+        "description": "Connect your Violet Pool Controller to Home Assistant. Ensure the controller shares the same network and the API is reachable.\n\nAdditional docs: [DE]({docs_de}) · [EN]({docs_en})",
         "data": {
           "host": "Adres IP lub nazwa hosta",
           "username": "Nazwa użytkownika (opcjonalnie)",

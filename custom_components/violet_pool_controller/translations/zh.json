@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "紫池设置助手",
-        "description": "选择是立即启动配置向导还是先打开详细文档。\n\n文档：[配置指南]({docs_en})\n\n支持与反馈：{issues_url}",
+        "description": "**Welcome!**\n\nChoose whether you want to start the configuration wizard immediately or open the detailed documentation first.\n\n**Documentation**\n• [Configuration Guide (DE)]({docs_de})\n• [Configuration Guide (EN)]({docs_en})\n\nSupport & Feedback: {issues_url}",
         "data": {
           "action": "选择动作"
         },
@@ -13,18 +13,18 @@
       },
       "disclaimer": {
         "title": "安全与责任须知",
-        "description": "**安全警告**\n\n这种集成为泵、加热器、灯和计量系统提供远程控制。不正确的配置可能会导致设备损坏、人身伤害或化学品过量。确保您了解所有安全功能并确保可以手动操作。\n\n请先查看[配置指南]({docs_en})，然后再继续。",
+        "description": "{disclaimer_text}\n\n**Learn more**\n• [Configuration Guide (DE)]({docs_de})\n• [Configuration Guide (EN)]({docs_en})",
         "data": {
           "agreement": "我接受所有风险并已阅读完整的免责声明。"
         }
       },
       "help": {
         "title": "帮助和文档",
-        "description": "请阅读[配置指南]({docs_en})，了解分步说明、安全注意事项和功能说明。\n\n需要帮助或想分享反馈？在 {issues_url} 上打开问题。\n\n项目存储库：{github_url}\n\n单击**下一步**返回主菜单。"
+        "description": "• Read the [Configuration Guide (DE)]({docs_de}) for step-by-step instructions, safety checklists and feature overviews.\n• Need support or have ideas? Open a ticket at {issues_url}.\n\n• Read the [Configuration Guide (EN)]({docs_en}) for step-by-step instructions, safety notes and feature explanations.\n• Need assistance or want to share feedback? Open an issue at {issues_url}.\n\nProject repository: {github_url}\n\nClick **Next** to return to the main menu."
       },
       "connection": {
         "title": "控制器连接",
-        "description": "将您的紫罗兰泳池控制器连接到 Home Assistant。确保控制器共享同一网络并且 API 可达。\n\n附加文档：[配置指南]({docs_en})",
+        "description": "Connect your Violet Pool Controller to Home Assistant. Ensure the controller shares the same network and the API is reachable.\n\nAdditional docs: [DE]({docs_de}) · [EN]({docs_en})",
         "data": {
           "host": "IP 地址或主机名",
           "username": "用户名（可选）",

@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Мастер установки Violet Pool",
-        "description": "Выберите, хотите ли вы сразу начать настройку или сначала ознакомиться с подробной документацией.\n\nДокументация: [Справка по конфигурации]({docs_en})\n\nПоддержка и обратная связь: {issues_url}",
+        "description": "**Welcome!**\n\nChoose whether you want to start the configuration wizard immediately or open the detailed documentation first.\n\n**Documentation**\n• [Configuration Guide (DE)]({docs_de})\n• [Configuration Guide (EN)]({docs_en})\n\nSupport & Feedback: {issues_url}",
         "data": {
           "action": "Выберите действие"
         },
@@ -13,18 +13,18 @@
       },
       "disclaimer": {
         "title": "Предупреждение о безопасности и ответственности",
-        "description": "**Предупреждение о безопасности**\n\nЭта интеграция обеспечивает дистанционное управление насосами, нагревателями, освещением и системами дозирования. Неправильная конфигурация может привести к повреждению оборудования, травмам людей или передозировке химических реагентов. Убедитесь, что вы полностью понимаете все функции безопасности и всегда имеете возможность вручную управлять устройствами.\n\nПожалуйста, ознакомьтесь с [Справкой по конфигурации]({docs_en}) перед началом работы.",
+        "description": "{disclaimer_text}\n\n**Learn more**\n• [Configuration Guide (DE)]({docs_de})\n• [Configuration Guide (EN)]({docs_en})",
         "data": {
           "agreement": "Я принимаю все риски и полностью прочитал данное предупреждение."
         }
       },
       "help": {
         "title": "Справка и документация",
-        "description": "Ознакомьтесь со [Справкой по конфигурации]({docs_en}) для пошаговых инструкций, чек-листов безопасности и описания функций.\n\nНужна помощь или хотите поделиться предложением? Создайте тикет на {issues_url}.\n\nИсходный код проекта: {github_url}\n\nНажмите **Далее**, чтобы вернуться в главное меню."
+        "description": "• Read the [Configuration Guide (DE)]({docs_de}) for step-by-step instructions, safety checklists and feature overviews.\n• Need support or have ideas? Open a ticket at {issues_url}.\n\n• Read the [Configuration Guide (EN)]({docs_en}) for step-by-step instructions, safety notes and feature explanations.\n• Need assistance or want to share feedback? Open an issue at {issues_url}.\n\nProject repository: {github_url}\n\nClick **Next** to return to the main menu."
       },
       "connection": {
         "title": "Подключение контроллера",
-        "description": "Подключите контроллер Violet Pool к Home Assistant. Убедитесь, что контроллер находится в одной локальной сети и API доступен.\n\nДополнительная справка: [Справка по конфигурации]({docs_en})",
+        "description": "Connect your Violet Pool Controller to Home Assistant. Ensure the controller shares the same network and the API is reachable.\n\nAdditional docs: [DE]({docs_de}) · [EN]({docs_en})",
         "data": {
           "host": "IP-адрес или имя хоста",
           "username": "Имя пользователя (необязательно)",

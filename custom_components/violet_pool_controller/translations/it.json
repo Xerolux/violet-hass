@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Assistente alla configurazione della piscina viola",
-        "description": "Scegli se vuoi avviare subito la procedura guidata di configurazione o aprire prima la documentazione dettagliata.\n\nDocumentazione: [Guida alla configurazione]({docs_en})\n\nSupporto e feedback: {issues_url}",
+        "description": "**Welcome!**\n\nChoose whether you want to start the configuration wizard immediately or open the detailed documentation first.\n\n**Documentation**\n• [Configuration Guide (DE)]({docs_de})\n• [Configuration Guide (EN)]({docs_en})\n\nSupport & Feedback: {issues_url}",
         "data": {
           "action": "Seleziona l'azione"
         },
@@ -13,18 +13,18 @@
       },
       "disclaimer": {
         "title": "Avviso di sicurezza e responsabilità",
-        "description": "**Avviso di sicurezza**\n\nQuesta integrazione fornisce il controllo remoto di pompe, riscaldatori, luci e sistemi di dosaggio. Una configurazione errata può causare danni all'apparecchiatura, lesioni personali o sovradosaggio di sostanze chimiche. Assicurati di comprendere tutte le funzionalità di sicurezza e di mantenere accessibili gli interventi manuali.\n\nConsulta la [Guida alla configurazione]({docs_en}) prima di continuare.",
+        "description": "{disclaimer_text}\n\n**Learn more**\n• [Configuration Guide (DE)]({docs_de})\n• [Configuration Guide (EN)]({docs_en})",
         "data": {
           "agreement": "Accetto tutti i rischi e ho letto il disclaimer completo."
         }
       },
       "help": {
         "title": "Aiuto e documentazione",
-        "description": "Leggere la [Guida alla configurazione]({docs_en}) per istruzioni dettagliate, note sulla sicurezza e spiegazioni sulle funzionalità.\n\nHai bisogno di assistenza o vuoi condividere feedback? Apri un problema su {issues_url}.\n\nArchivio del progetto: {github_url}\n\nFare clic su **Avanti** per tornare al menu principale."
+        "description": "• Read the [Configuration Guide (DE)]({docs_de}) for step-by-step instructions, safety checklists and feature overviews.\n• Need support or have ideas? Open a ticket at {issues_url}.\n\n• Read the [Configuration Guide (EN)]({docs_en}) for step-by-step instructions, safety notes and feature explanations.\n• Need assistance or want to share feedback? Open an issue at {issues_url}.\n\nProject repository: {github_url}\n\nClick **Next** to return to the main menu."
       },
       "connection": {
         "title": "Connessione al controllore",
-        "description": "Collega il tuo Violet Pool Controller a Home Assistant. Assicurati che il controller condivida la stessa rete e che l'API sia raggiungibile.\n\nDocumentazione aggiuntiva: [Guida alla configurazione]({docs_en})",
+        "description": "Connect your Violet Pool Controller to Home Assistant. Ensure the controller shares the same network and the API is reachable.\n\nAdditional docs: [DE]({docs_de}) · [EN]({docs_en})",
         "data": {
           "host": "Indirizzo IP o nome host",
           "username": "Nome utente (facoltativo)",

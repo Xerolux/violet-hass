@@ -297,7 +297,10 @@ def _migrate_main_device_identifier(hass: HomeAssistant, config_entry: ConfigEnt
     new_identifier = (DOMAIN, config_entry.entry_id)
 
     registry = dr.async_get(hass)
-    device = registry.async_get_device(identifiers={old_identifier})
+    # Scoped to this config entry on purpose: identifiers stopped being unique
+    # across entries in 2026.8, and the untyped ``async_get_device`` that
+    # ignores that is deprecated for removal in 2027.8.
+    device = registry.async_get_device_by_identifier(old_identifier, config_entry.entry_id)
     if device is None or new_identifier in device.identifiers:
         return
 

@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import ast
 import json
+import string
 from pathlib import Path
 
 import pytest
@@ -70,6 +71,25 @@ def _flatten(obj: object, prefix: str = "") -> set[str]:
 STRINGS = _load(COMPONENT_DIR / "strings.json")
 ENGLISH = _load(TRANSLATIONS_DIR / "en.json")
 LANGUAGE_FILES = sorted(p for p in TRANSLATIONS_DIR.glob("*.json") if p.stem != "en")
+
+
+
+def _placeholders(value: str) -> set[str]:
+    """Return the ``{placeholder}`` names a translation string uses."""
+    return {field for _, field, _, _ in string.Formatter().parse(value) if field is not None}
+
+
+def _strings_by_key(obj: object, prefix: str = "") -> dict[str, str]:
+    """Return every dotted key path that maps to a string."""
+    found: dict[str, str] = {}
+    if isinstance(obj, dict):
+        for key, value in obj.items():
+            path = f"{prefix}.{key}" if prefix else str(key)
+            if isinstance(value, str):
+                found[path] = value
+            else:
+                found.update(_strings_by_key(value, path))
+    return found
 
 
 def test_strings_json_matches_english_translation() -> None:
@@ -154,3 +174,30 @@ def test_every_entity_translation_key_is_translated() -> None:
         if key not in STRINGS.get("entity", {}).get(platform, {})
     }
     assert not missing, f"missing from strings.json: {sorted(missing)}"
+
+
+def test_placeholders_match_the_english_string() -> None:
+    """A translated string must use exactly the placeholders English uses.
+
+    Home Assistant compares the two sets in
+    ``helpers/translation.py::_validate_placeholders`` and, on any difference,
+    **deletes the translated string** -- the user silently gets English back.
+    That is how the German setup wizard came to show its safety step with no
+    warning in it and its disclaimer step with no disclaimer: both descriptions
+    had lost the placeholder carrying the text.
+    """
+    english = _strings_by_key(ENGLISH)
+
+    offenders: list[str] = []
+    for path in LANGUAGE_FILES:
+        for key, value in _strings_by_key(_load(path)).items():
+            if key not in english:
+                continue
+            translated = _placeholders(value)
+            native = _placeholders(english[key])
+            if translated != native:
+                offenders.append(
+                    f"{path.name}: {key} has {sorted(translated)}, needs {sorted(native)}"
+                )
+
+    assert not offenders, "Home Assistant discards these strings:\n" + "\n".join(offenders)
