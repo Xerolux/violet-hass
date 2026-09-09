@@ -292,7 +292,7 @@
         },
         "step": {
           "confirm": {
-            "description": "Der Pool-Controller **{name}** ist seit {failures} aufeinanderfolgenden Abrufzyklen nicht erreichbar.\n\nBitte prüfe:\n- Ist der Controller eingeschaltet?\n- Ist die Netzwerkverbindung in Ordnung?\n- Ist die IP-Adresse noch korrekt?\n\nSobald der Controller wieder erreichbar ist, wird dieses Problem automatisch behoben.\n\n继续将重新加载此集成并再次连接控制器。",
+            "description": "泳池控制器 **{name}** 已连续 {failures} 个轮询周期无法访问。\n\n请检查：\n- 控制器是否已通电？\n- 网络连接是否正常？\n- IP 地址是否仍然正确？\n\n控制器恢复可访问后，此问题将自动解决。\n\n继续将重新加载此集成并再次连接控制器。",
             "title": "重试连接"
           }
         }
@@ -1297,10 +1297,10 @@
         "name": "硬件：投加模块"
       },
       "hw_extension_module_1": {
-        "name": "Hardware: 扩展smodul 1"
+        "name": "硬件：扩展模块 1"
       },
       "hw_extension_module_2": {
-        "name": "Hardware: 扩展smodul 2"
+        "name": "硬件：扩展模块 2"
       },
       "hw_standalone_mode": {
         "name": "硬件：独立投加装置"
@@ -1571,7 +1571,7 @@
         }
       },
       "ext1_1_mode": {
-        "name": "扩展 1.1 Modus",
+        "name": "扩展 1.1 模式",
         "state": {
           "auto": "Auto",
           "off": "关闭",
@@ -1579,7 +1579,7 @@
         }
       },
       "ext1_2_mode": {
-        "name": "扩展 1.2 Modus",
+        "name": "扩展 1.2 模式",
         "state": {
           "auto": "Auto",
           "off": "关闭",
@@ -1587,7 +1587,7 @@
         }
       },
       "ext1_3_mode": {
-        "name": "扩展 1.3 Modus",
+        "name": "扩展 1.3 模式",
         "state": {
           "auto": "Auto",
           "off": "关闭",
@@ -1595,7 +1595,7 @@
         }
       },
       "ext1_4_mode": {
-        "name": "扩展 1.4 Modus",
+        "name": "扩展 1.4 模式",
         "state": {
           "auto": "Auto",
           "off": "关闭",
@@ -1603,7 +1603,7 @@
         }
       },
       "ext1_5_mode": {
-        "name": "扩展 1.5 Modus",
+        "name": "扩展 1.5 模式",
         "state": {
           "auto": "Auto",
           "off": "关闭",
@@ -1611,7 +1611,7 @@
         }
       },
       "ext1_6_mode": {
-        "name": "扩展 1.6 Modus",
+        "name": "扩展 1.6 模式",
         "state": {
           "auto": "Auto",
           "off": "关闭",
@@ -1619,7 +1619,7 @@
         }
       },
       "ext1_7_mode": {
-        "name": "扩展 1.7 Modus",
+        "name": "扩展 1.7 模式",
         "state": {
           "auto": "Auto",
           "off": "关闭",
@@ -1627,7 +1627,7 @@
         }
       },
       "ext1_8_mode": {
-        "name": "扩展 1.8 Modus",
+        "name": "扩展 1.8 模式",
         "state": {
           "auto": "Auto",
           "off": "关闭",
@@ -1635,7 +1635,7 @@
         }
       },
       "ext2_1_mode": {
-        "name": "扩展 2.1 Modus",
+        "name": "扩展 2.1 模式",
         "state": {
           "auto": "Auto",
           "off": "关闭",
@@ -1643,7 +1643,7 @@
         }
       },
       "ext2_2_mode": {
-        "name": "扩展 2.2 Modus",
+        "name": "扩展 2.2 模式",
         "state": {
           "auto": "Auto",
           "off": "关闭",
@@ -1651,7 +1651,7 @@
         }
       },
       "ext2_3_mode": {
-        "name": "扩展 2.3 Modus",
+        "name": "扩展 2.3 模式",
         "state": {
           "auto": "Auto",
           "off": "关闭",
@@ -1659,7 +1659,7 @@
         }
       },
       "ext2_4_mode": {
-        "name": "扩展 2.4 Modus",
+        "name": "扩展 2.4 模式",
         "state": {
           "auto": "Auto",
           "off": "关闭",
@@ -1667,7 +1667,7 @@
         }
       },
       "ext2_5_mode": {
-        "name": "扩展 2.5 Modus",
+        "name": "扩展 2.5 模式",
         "state": {
           "auto": "Auto",
           "off": "关闭",
@@ -1675,7 +1675,7 @@
         }
       },
       "ext2_6_mode": {
-        "name": "扩展 2.6 Modus",
+        "name": "扩展 2.6 模式",
         "state": {
           "auto": "Auto",
           "off": "关闭",
@@ -1683,7 +1683,7 @@
         }
       },
       "ext2_7_mode": {
-        "name": "扩展 2.7 Modus",
+        "name": "扩展 2.7 模式",
         "state": {
           "auto": "Auto",
           "off": "关闭",
@@ -1691,7 +1691,7 @@
         }
       },
       "ext2_8_mode": {
-        "name": "扩展 2.8 Modus",
+        "name": "扩展 2.8 模式",
         "state": {
           "auto": "Auto",
           "off": "关闭",
@@ -1917,19 +1917,19 @@
         "name": "反冲洗详细状态"
       },
       "bathing_ai_last_level": {
-        "name": "Bade-KI Letzter Füllstand"
+        "name": "游泳检测：上次水位"
       },
       "bathing_ai_pump_state": {
-        "name": "Bade-KI Pumpenstatus"
+        "name": "游泳检测：水泵状态"
       },
       "bathing_ai_pump_timestamp": {
-        "name": "Bade-KI Pumpen-Zeitstempel"
+        "name": "游泳检测：水泵时间戳"
       },
       "bathing_ai_start_level": {
-        "name": "Bade-KI Startfüllstand"
+        "name": "游泳检测：起始水位"
       },
       "bathing_ai_surveillance_state": {
-        "name": "Bade-KI Überwachungsstatus"
+        "name": "游泳检测：监控状态"
       },
       "checksum": {
         "name": "配置校验和"
@@ -2277,193 +2277,193 @@
         "name": "扩展 1.1"
       },
       "ext1_1_last_off": {
-        "name": "扩展 1.1 Zuletzt Aus"
+        "name": "扩展 1.1 上次关闭"
       },
       "ext1_1_last_on": {
-        "name": "扩展 1.1 Zuletzt Ein"
+        "name": "扩展 1.1 上次开启"
       },
       "ext1_1_runtime": {
-        "name": "扩展 1.1 Laufzeit"
+        "name": "扩展 1.1 运行时间"
       },
       "ext1_2": {
         "name": "扩展 1.2"
       },
       "ext1_2_last_off": {
-        "name": "扩展 1.2 Zuletzt Aus"
+        "name": "扩展 1.2 上次关闭"
       },
       "ext1_2_last_on": {
-        "name": "扩展 1.2 Zuletzt Ein"
+        "name": "扩展 1.2 上次开启"
       },
       "ext1_2_runtime": {
-        "name": "扩展 1.2 Laufzeit"
+        "name": "扩展 1.2 运行时间"
       },
       "ext1_3": {
         "name": "扩展 1.3"
       },
       "ext1_3_last_off": {
-        "name": "扩展 1.3 Zuletzt Aus"
+        "name": "扩展 1.3 上次关闭"
       },
       "ext1_3_last_on": {
-        "name": "扩展 1.3 Zuletzt Ein"
+        "name": "扩展 1.3 上次开启"
       },
       "ext1_3_runtime": {
-        "name": "扩展 1.3 Laufzeit"
+        "name": "扩展 1.3 运行时间"
       },
       "ext1_4": {
         "name": "扩展 1.4"
       },
       "ext1_4_last_off": {
-        "name": "扩展 1.4 Zuletzt Aus"
+        "name": "扩展 1.4 上次关闭"
       },
       "ext1_4_last_on": {
-        "name": "扩展 1.4 Zuletzt Ein"
+        "name": "扩展 1.4 上次开启"
       },
       "ext1_4_runtime": {
-        "name": "扩展 1.4 Laufzeit"
+        "name": "扩展 1.4 运行时间"
       },
       "ext1_5": {
         "name": "扩展 1.5"
       },
       "ext1_5_last_off": {
-        "name": "扩展 1.5 Zuletzt Aus"
+        "name": "扩展 1.5 上次关闭"
       },
       "ext1_5_last_on": {
-        "name": "扩展 1.5 Zuletzt Ein"
+        "name": "扩展 1.5 上次开启"
       },
       "ext1_5_runtime": {
-        "name": "扩展 1.5 Laufzeit"
+        "name": "扩展 1.5 运行时间"
       },
       "ext1_6": {
         "name": "扩展 1.6"
       },
       "ext1_6_last_off": {
-        "name": "扩展 1.6 Zuletzt Aus"
+        "name": "扩展 1.6 上次关闭"
       },
       "ext1_6_last_on": {
-        "name": "扩展 1.6 Zuletzt Ein"
+        "name": "扩展 1.6 上次开启"
       },
       "ext1_6_runtime": {
-        "name": "扩展 1.6 Laufzeit"
+        "name": "扩展 1.6 运行时间"
       },
       "ext1_7": {
         "name": "扩展 1.7"
       },
       "ext1_7_last_off": {
-        "name": "扩展 1.7 Zuletzt Aus"
+        "name": "扩展 1.7 上次关闭"
       },
       "ext1_7_last_on": {
-        "name": "扩展 1.7 Zuletzt Ein"
+        "name": "扩展 1.7 上次开启"
       },
       "ext1_7_runtime": {
-        "name": "扩展 1.7 Laufzeit"
+        "name": "扩展 1.7 运行时间"
       },
       "ext1_8": {
         "name": "扩展 1.8"
       },
       "ext1_8_last_off": {
-        "name": "扩展 1.8 Zuletzt Aus"
+        "name": "扩展 1.8 上次关闭"
       },
       "ext1_8_last_on": {
-        "name": "扩展 1.8 Zuletzt Ein"
+        "name": "扩展 1.8 上次开启"
       },
       "ext1_8_runtime": {
-        "name": "扩展 1.8 Laufzeit"
+        "name": "扩展 1.8 运行时间"
       },
       "ext2_1": {
         "name": "扩展 2.1"
       },
       "ext2_1_last_off": {
-        "name": "扩展 2.1 Zuletzt Aus"
+        "name": "扩展 2.1 上次关闭"
       },
       "ext2_1_last_on": {
-        "name": "扩展 2.1 Zuletzt Ein"
+        "name": "扩展 2.1 上次开启"
       },
       "ext2_1_runtime": {
-        "name": "扩展 2.1 Laufzeit"
+        "name": "扩展 2.1 运行时间"
       },
       "ext2_2": {
         "name": "扩展 2.2"
       },
       "ext2_2_last_off": {
-        "name": "扩展 2.2 Zuletzt Aus"
+        "name": "扩展 2.2 上次关闭"
       },
       "ext2_2_last_on": {
-        "name": "扩展 2.2 Zuletzt Ein"
+        "name": "扩展 2.2 上次开启"
       },
       "ext2_2_runtime": {
-        "name": "扩展 2.2 Laufzeit"
+        "name": "扩展 2.2 运行时间"
       },
       "ext2_3": {
         "name": "扩展 2.3"
       },
       "ext2_3_last_off": {
-        "name": "扩展 2.3 Zuletzt Aus"
+        "name": "扩展 2.3 上次关闭"
       },
       "ext2_3_last_on": {
-        "name": "扩展 2.3 Zuletzt Ein"
+        "name": "扩展 2.3 上次开启"
       },
       "ext2_3_runtime": {
-        "name": "扩展 2.3 Laufzeit"
+        "name": "扩展 2.3 运行时间"
       },
       "ext2_4": {
         "name": "扩展 2.4"
       },
       "ext2_4_last_off": {
-        "name": "扩展 2.4 Zuletzt Aus"
+        "name": "扩展 2.4 上次关闭"
       },
       "ext2_4_last_on": {
-        "name": "扩展 2.4 Zuletzt Ein"
+        "name": "扩展 2.4 上次开启"
       },
       "ext2_4_runtime": {
-        "name": "扩展 2.4 Laufzeit"
+        "name": "扩展 2.4 运行时间"
       },
       "ext2_5": {
         "name": "扩展 2.5"
       },
       "ext2_5_last_off": {
-        "name": "扩展 2.5 Zuletzt Aus"
+        "name": "扩展 2.5 上次关闭"
       },
       "ext2_5_last_on": {
-        "name": "扩展 2.5 Zuletzt Ein"
+        "name": "扩展 2.5 上次开启"
       },
       "ext2_5_runtime": {
-        "name": "扩展 2.5 Laufzeit"
+        "name": "扩展 2.5 运行时间"
       },
       "ext2_6": {
         "name": "扩展 2.6"
       },
       "ext2_6_last_off": {
-        "name": "扩展 2.6 Zuletzt Aus"
+        "name": "扩展 2.6 上次关闭"
       },
       "ext2_6_last_on": {
-        "name": "扩展 2.6 Zuletzt Ein"
+        "name": "扩展 2.6 上次开启"
       },
       "ext2_6_runtime": {
-        "name": "扩展 2.6 Laufzeit"
+        "name": "扩展 2.6 运行时间"
       },
       "ext2_7": {
         "name": "扩展 2.7"
       },
       "ext2_7_last_off": {
-        "name": "扩展 2.7 Zuletzt Aus"
+        "name": "扩展 2.7 上次关闭"
       },
       "ext2_7_last_on": {
-        "name": "扩展 2.7 Zuletzt Ein"
+        "name": "扩展 2.7 上次开启"
       },
       "ext2_7_runtime": {
-        "name": "扩展 2.7 Laufzeit"
+        "name": "扩展 2.7 运行时间"
       },
       "ext2_8": {
         "name": "扩展 2.8"
       },
       "ext2_8_last_off": {
-        "name": "扩展 2.8 Zuletzt Aus"
+        "name": "扩展 2.8 上次关闭"
       },
       "ext2_8_last_on": {
-        "name": "扩展 2.8 Zuletzt Ein"
+        "name": "扩展 2.8 上次开启"
       },
       "ext2_8_runtime": {
-        "name": "扩展 2.8 Laufzeit"
+        "name": "扩展 2.8 运行时间"
       },
       "flow_rate": {
         "name": "流速"
@@ -2658,10 +2658,10 @@
         "name": "温度传感器 10"
       },
       "onewire10_value_max": {
-        "name": "温度传感器 10 Maximum"
+        "name": "温度传感器 10 最高值"
       },
       "onewire10_value_min": {
-        "name": "温度传感器 10 Minimum"
+        "name": "温度传感器 10 最低值"
       },
       "onewire11_romcode": {
         "name": "OneWire ROM 代码 11"
@@ -2670,10 +2670,10 @@
         "name": "温度传感器 11"
       },
       "onewire11_value_max": {
-        "name": "温度传感器 11 Maximum"
+        "name": "温度传感器 11 最高值"
       },
       "onewire11_value_min": {
-        "name": "温度传感器 11 Minimum"
+        "name": "温度传感器 11 最低值"
       },
       "onewire12_romcode": {
         "name": "OneWire ROM 代码 12"
@@ -2682,10 +2682,10 @@
         "name": "温度传感器 12"
       },
       "onewire12_value_max": {
-        "name": "温度传感器 12 Maximum"
+        "name": "温度传感器 12 最高值"
       },
       "onewire12_value_min": {
-        "name": "温度传感器 12 Minimum"
+        "name": "温度传感器 12 最低值"
       },
       "onewire1_romcode": {
         "name": "OneWire ROM 代码 1"
@@ -2706,10 +2706,10 @@
         "name": "外部温度"
       },
       "onewire2_value_max": {
-        "name": "外部温度 Maximum"
+        "name": "外部温度最高值"
       },
       "onewire2_value_min": {
-        "name": "外部温度 Minimum"
+        "name": "外部温度最低值"
       },
       "onewire3_romcode": {
         "name": "OneWire ROM 代码 3"
@@ -2718,10 +2718,10 @@
         "name": "太阳能集热器"
       },
       "onewire3_value_max": {
-        "name": "太阳能吸收器 Maximum"
+        "name": "太阳能吸收器最高值"
       },
       "onewire3_value_min": {
-        "name": "太阳能吸收器 Minimum"
+        "name": "太阳能吸收器最低值"
       },
       "onewire4_romcode": {
         "name": "OneWire ROM 代码 4"
@@ -2730,10 +2730,10 @@
         "name": "集热器回流"
       },
       "onewire4_value_max": {
-        "name": "吸收器回流 Maximum"
+        "name": "吸收器回流最高值"
       },
       "onewire4_value_min": {
-        "name": "吸收器回流 Minimum"
+        "name": "吸收器回流最低值"
       },
       "onewire5_romcode": {
         "name": "OneWire ROM 代码 5"
@@ -2742,10 +2742,10 @@
         "name": "换热器"
       },
       "onewire5_value_max": {
-        "name": "换热器进口 Maximum"
+        "name": "换热器进口最高值"
       },
       "onewire5_value_min": {
-        "name": "换热器进口 Minimum"
+        "name": "换热器进口最低值"
       },
       "onewire6_romcode": {
         "name": "OneWire ROM 代码 6"
@@ -2754,10 +2754,10 @@
         "name": "热存储"
       },
       "onewire6_value_max": {
-        "name": "换热器出口 Maximum"
+        "name": "换热器出口最高值"
       },
       "onewire6_value_min": {
-        "name": "换热器出口 Minimum"
+        "name": "换热器出口最低值"
       },
       "onewire7_romcode": {
         "name": "OneWire ROM 代码 7"
@@ -2766,10 +2766,10 @@
         "name": "温度传感器 7"
       },
       "onewire7_value_max": {
-        "name": "温度传感器 7 Maximum"
+        "name": "温度传感器 7 最高值"
       },
       "onewire7_value_min": {
-        "name": "温度传感器 7 Minimum"
+        "name": "温度传感器 7 最低值"
       },
       "onewire8_romcode": {
         "name": "OneWire ROM 代码 8"
@@ -2778,10 +2778,10 @@
         "name": "温度传感器 8"
       },
       "onewire8_value_max": {
-        "name": "温度传感器 8 Maximum"
+        "name": "温度传感器 8 最高值"
       },
       "onewire8_value_min": {
-        "name": "温度传感器 8 Minimum"
+        "name": "温度传感器 8 最低值"
       },
       "onewire9_romcode": {
         "name": "OneWire ROM 代码 9"
@@ -2790,10 +2790,10 @@
         "name": "温度传感器 9"
       },
       "onewire9_value_max": {
-        "name": "温度传感器 9 Maximum"
+        "name": "温度传感器 9 最高值"
       },
       "onewire9_value_min": {
-        "name": "温度传感器 9 Minimum"
+        "name": "温度传感器 9 最低值"
       },
       "open_contact": {
         "name": "池盖打开触点"
@@ -2820,10 +2820,10 @@
         "name": "pH值"
       },
       "ph_value_max": {
-        "name": "pH值 Maximum"
+        "name": "pH 最高值"
       },
       "ph_value_min": {
-        "name": "pH值 Minimum"
+        "name": "pH 最低值"
       },
       "pool_health": {
         "name": "泳池健康状况",
@@ -2838,10 +2838,10 @@
         "name": "氯含量"
       },
       "pot_value_max": {
-        "name": "氯含量 Maximum"
+        "name": "氯含量最高值"
       },
       "pot_value_min": {
-        "name": "氯含量 Minimum"
+        "name": "氯含量最低值"
       },
       "pump": {
         "name": "水泵状态"

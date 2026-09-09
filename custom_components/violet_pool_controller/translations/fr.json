@@ -241,25 +241,25 @@
   },
   "exceptions": {
     "api_error": {
-      "message": "API-Kommunikationsfehler: {detail}"
+      "message": "Erreur de communication avec l'API : {detail}"
     },
     "controller_unavailable": {
-      "message": "Pool-Controller {name} ist nach {failures} aufeinanderfolgenden Fehlern nicht erreichbar"
+      "message": "Le contrôleur de piscine {name} est indisponible après {failures} échecs consécutifs"
     },
     "device_not_found": {
       "message": "Aucun Violet Pool Controller trouvé pour l'appareil {device_id}"
     },
     "failed_to_set_value": {
-      "message": "Wert konnte nicht gesetzt werden: {detail}"
+      "message": "Impossible de définir la valeur : {detail}"
     },
     "invalid_action": {
-      "message": "Ungültige Aktion: {action}"
+      "message": "Action invalide : {action}"
     },
     "invalid_value": {
-      "message": "Ungültiger Wert: {detail}"
+      "message": "Valeur invalide : {detail}"
     },
     "no_api_key": {
-      "message": "Kein API-Schlüssel für Entität {entity} konfiguriert"
+      "message": "Aucune clé API configurée pour l'entité {entity}"
     },
     "no_data": {
       "message": "Le contrôleur n'a encore transmis aucune donnée"
@@ -274,10 +274,10 @@
       "message": "L'entité {entity} est en lecture seule et ne peut pas être commandée manuellement"
     },
     "unexpected_error": {
-      "message": "Unerwarteter Fehler: {detail}"
+      "message": "Erreur inattendue : {detail}"
     },
     "value_out_of_range": {
-      "message": "Wert {value} liegt außerhalb des gültigen Bereichs ({min}–{max})"
+      "message": "La valeur {value} est en dehors de la plage valide ({min}–{max})"
     }
   },
   "issues": {
@@ -292,12 +292,12 @@
         },
         "step": {
           "confirm": {
-            "description": "Der Pool-Controller **{name}** ist seit {failures} aufeinanderfolgenden Abrufzyklen nicht erreichbar.\n\nBitte prüfe:\n- Ist der Controller eingeschaltet?\n- Ist die Netzwerkverbindung in Ordnung?\n- Ist die IP-Adresse noch korrekt?\n\nSobald der Controller wieder erreichbar ist, wird dieses Problem automatisch behoben.\n\nEn continuant, l'intégration est rechargée et le contrôleur est contacté à nouveau.",
+            "description": "Le contrôleur de piscine **{name}** est injoignable depuis {failures} cycles d'interrogation consécutifs.\n\nVeuillez vérifier :\n- Le contrôleur est-il sous tension ?\n- La connexion réseau fonctionne-t-elle ?\n- L'adresse IP est-elle toujours correcte ?\n\nDès que le contrôleur sera de nouveau joignable, ce problème sera résolu automatiquement.\n\nEn continuant, l'intégration est rechargée et le contrôleur est contacté à nouveau.",
             "title": "Réessayer la connexion"
           }
         }
       },
-      "title": "Pool-Controller nicht erreichbar"
+      "title": "Contrôleur de piscine indisponible"
     }
   },
   "services": {
@@ -710,7 +710,7 @@
         },
         "relay": {
           "description": "Numéro du relais sur ce module (1-8).",
-          "name": "Relais"
+          "name": "Numéro de relais"
         }
       },
       "name": "Contrôle d'un relais d'extension"
@@ -1261,7 +1261,7 @@
   "entity": {
     "binary_sensor": {
       "backwash": {
-        "name": "Rückspülstatus"
+        "name": "État du contre-lavage"
       },
       "backwash_delay": {
         "name": "Retard de lavage à contre-courant actif"
@@ -1270,91 +1270,91 @@
         "name": "Surveillance IA de baignade"
       },
       "can_range_state": {
-        "name": "Behälter-Bereichs-Problem"
+        "name": "Problème d'autonomie du bidon"
       },
       "circulation_state": {
-        "name": "Zirkulationsproblem"
+        "name": "Problème de circulation"
       },
       "eco": {
-        "name": "Eco-Modus"
+        "name": "Mode ECO"
       },
       "electrode_flow_state": {
-        "name": "Elektrodendurchfluss-Problem"
+        "name": "Problème de débit à l'électrode"
       },
       "heater": {
-        "name": "Heizerstatus"
+        "name": "État du chauffage"
       },
       "hw_base_module": {
-        "name": "Hardware: Basismodul"
+        "name": "Matériel : module de base"
       },
       "hw_dirule_module": {
         "name": "Matériel : module de règles numériques"
       },
       "hw_dmx_module": {
-        "name": "Hardware: DMX-Modul"
+        "name": "Matériel : module DMX"
       },
       "hw_dosing_module": {
-        "name": "Hardware: Dosiermodul"
+        "name": "Matériel : module de dosage"
       },
       "hw_extension_module_1": {
-        "name": "Hardware: Extensionsmodul 1"
+        "name": "Matériel : module d'extension 1"
       },
       "hw_extension_module_2": {
-        "name": "Hardware: Extensionsmodul 2"
+        "name": "Matériel : module d'extension 2"
       },
       "hw_standalone_mode": {
-        "name": "Hardware: Eigenständige Dosiereinheit"
+        "name": "Matériel : unité de dosage autonome"
       },
       "input1": {
-        "name": "Digitaler Eingang 1"
+        "name": "Entrée numérique 1"
       },
       "input10": {
-        "name": "Digitaler Eingang 10"
+        "name": "Entrée numérique 10"
       },
       "input11": {
-        "name": "Digitaler Eingang 11"
+        "name": "Entrée numérique 11"
       },
       "input12": {
-        "name": "Digitaler Eingang 12"
+        "name": "Entrée numérique 12"
       },
       "input2": {
-        "name": "Digitaler Eingang 2"
+        "name": "Entrée numérique 2"
       },
       "input3": {
-        "name": "Digitaler Eingang 3"
+        "name": "Entrée numérique 3"
       },
       "input4": {
-        "name": "Digitaler Eingang 4"
+        "name": "Entrée numérique 4"
       },
       "input5": {
-        "name": "Digitaler Eingang 5"
+        "name": "Entrée numérique 5"
       },
       "input6": {
-        "name": "Digitaler Eingang 6"
+        "name": "Entrée numérique 6"
       },
       "input7": {
-        "name": "Digitaler Eingang 7"
+        "name": "Entrée numérique 7"
       },
       "input8": {
-        "name": "Digitaler Eingang 8"
+        "name": "Entrée numérique 8"
       },
       "input9": {
-        "name": "Digitaler Eingang 9"
+        "name": "Entrée numérique 9"
       },
       "input_ce1": {
-        "name": "CE-Eingang 1"
+        "name": "Entrée numérique CE1"
       },
       "input_ce2": {
-        "name": "CE-Eingang 2"
+        "name": "Entrée numérique CE2"
       },
       "input_ce3": {
-        "name": "CE-Eingang 3"
+        "name": "Entrée numérique CE3"
       },
       "input_ce4": {
-        "name": "CE-Eingang 4"
+        "name": "Entrée numérique CE4"
       },
       "light": {
-        "name": "Beleuchtungsstatus"
+        "name": "État de l'éclairage"
       },
       "overflow_dryrun": {
         "name": "Marche à sec du bac de débordement"
@@ -1366,37 +1366,37 @@
         "name": "Remplissage du bac de débordement"
       },
       "pressure_state": {
-        "name": "Druckproblem"
+        "name": "Problème de pression"
       },
       "pump": {
-        "name": "Pumpenstatus"
+        "name": "État de la pompe"
       },
       "pvsurplus": {
-        "name": "PV-Überschuss"
+        "name": "Surplus photovoltaïque"
       },
       "refill": {
-        "name": "Nachfüllstatus"
+        "name": "État du remplissage"
       },
       "solar": {
-        "name": "Solarstatus"
+        "name": "État du solaire"
       }
     },
     "button": {
       "reset_errors": {
-        "name": "Fehler-Blockierungen zurücksetzen"
+        "name": "Réinitialiser les blocages d'erreur"
       }
     },
     "climate": {
       "heater": {
-        "name": "Pool-Heizer"
+        "name": "Chauffage de piscine"
       },
       "solar": {
-        "name": "Solar-Heizer"
+        "name": "Chauffage solaire"
       }
     },
     "cover": {
       "pool_cover": {
-        "name": "Pool-Abdeckung"
+        "name": "Volet de piscine"
       }
     },
     "light": {
@@ -1439,10 +1439,10 @@
     },
     "number": {
       "chlorine_canister_volume": {
-        "name": "Chlorbehälter-Volumen"
+        "name": "Volume du bidon de chlore"
       },
       "chlorine_setpoint": {
-        "name": "Chlor-Sollwert"
+        "name": "Consigne de chlore"
       },
       "chlorine_setpoint_electrolysis": {
         "name": "Consigne de chlore (électrolyse)"
@@ -1463,10 +1463,10 @@
         "name": "CSI température"
       },
       "flocculant_canister_volume": {
-        "name": "Flockungsmittel-Behälter-Volumen"
+        "name": "Volume du bidon de floculant"
       },
       "heater_target_temp": {
-        "name": "Zieltemperatur Heizer"
+        "name": "Température cible du chauffage"
       },
       "lsi_alkalinity": {
         "name": "LSI alcalinité carbonatée"
@@ -1484,25 +1484,25 @@
         "name": "LSI température"
       },
       "orp_setpoint": {
-        "name": "ORP-Sollwert"
+        "name": "Consigne ORP"
       },
       "orp_setpoint_electrolysis": {
         "name": "Consigne ORP (électrolyse)"
       },
       "ph_minus_canister_volume": {
-        "name": "pH--Behälter-Volumen"
+        "name": "Volume du bidon de pH-"
       },
       "ph_plus_canister_volume": {
-        "name": "pH+-Behälter-Volumen"
+        "name": "Volume du bidon de pH+"
       },
       "ph_setpoint": {
-        "name": "pH-Sollwert"
+        "name": "Consigne de pH"
       },
       "pump_speed": {
-        "name": "Pumpendrehzahl"
+        "name": "Vitesse de la pompe"
       },
       "solar_target_temp": {
-        "name": "Zieltemperatur Solar"
+        "name": "Température cible du solaire"
       }
     },
     "select": {
@@ -1866,70 +1866,70 @@
         "name": "Latence Moyenne"
       },
       "backwash": {
-        "name": "Rückspül-Status"
+        "name": "État du contre-lavage"
       },
       "backwash_delay_running": {
-        "name": "Rückspül-Verzögerung aktiv"
+        "name": "Retard de contre-lavage actif"
       },
       "backwash_delay_timestamp": {
-        "name": "Rückspül-Verzögerung Zeitstempel"
+        "name": "Horodatage du retard de contre-lavage"
       },
       "backwash_last_auto_run": {
-        "name": "Letzte automatische Rückspülung"
+        "name": "Dernier contre-lavage automatique"
       },
       "backwash_last_manual_run": {
-        "name": "Letzte manuelle Rückspülung"
+        "name": "Dernier contre-lavage manuel"
       },
       "backwash_last_off": {
-        "name": "Rückspülung Zuletzt Aus"
+        "name": "Dernier arrêt du contre-lavage"
       },
       "backwash_last_on": {
-        "name": "Rückspülung Zuletzt Ein"
+        "name": "Dernière mise en marche du contre-lavage"
       },
       "backwash_omni_moving": {
-        "name": "OmniTronic bewegt sich"
+        "name": "OmniTronic en mouvement"
       },
       "backwash_omni_state": {
-        "name": "OmniTronic-Ventilstatus"
+        "name": "État de la vanne OmniTronic"
       },
       "backwash_runtime": {
-        "name": "Rückspül-Laufzeit"
+        "name": "Durée de fonctionnement du contre-lavage"
       },
       "backwash_state": {
-        "name": "Rückspül-Zustand"
+        "name": "État du cycle de contre-lavage"
       },
       "backwash_step": {
-        "name": "Rückspülschritt"
+        "name": "Étape du contre-lavage"
       },
       "backwashrinse": {
-        "name": "Nachspül-Status"
+        "name": "État du rinçage"
       },
       "backwashrinse_last_off": {
-        "name": "Nachspülung Zuletzt Aus"
+        "name": "Dernier arrêt du rinçage"
       },
       "backwashrinse_last_on": {
-        "name": "Nachspülung Zuletzt Ein"
+        "name": "Dernière mise en marche du rinçage"
       },
       "backwashrinse_runtime": {
-        "name": "Nachspül-Laufzeit"
+        "name": "Durée de fonctionnement du rinçage"
       },
       "backwashstate": {
         "name": "État détaillé du contre-lavage"
       },
       "bathing_ai_last_level": {
-        "name": "Bade-KI Letzter Füllstand"
+        "name": "IA de baignade : dernier niveau"
       },
       "bathing_ai_pump_state": {
-        "name": "Bade-KI Pumpenstatus"
+        "name": "IA de baignade : état de la pompe"
       },
       "bathing_ai_pump_timestamp": {
-        "name": "Bade-KI Pumpen-Zeitstempel"
+        "name": "IA de baignade : horodatage de la pompe"
       },
       "bathing_ai_start_level": {
-        "name": "Bade-KI Startfüllstand"
+        "name": "IA de baignade : niveau de départ"
       },
       "bathing_ai_surveillance_state": {
-        "name": "Bade-KI Überwachungsstatus"
+        "name": "IA de baignade : état de la surveillance"
       },
       "checksum": {
         "name": "Somme de contrôle de la configuration"
@@ -1950,19 +1950,19 @@
         "name": "Durée de fonctionnement du volet"
       },
       "cover_state": {
-        "name": "Abdeckungs-Zustand"
+        "name": "État du volet"
       },
       "cpu_gov": {
         "name": "Gouverneur du processeur"
       },
       "cpu_temp": {
-        "name": "CPU-Temperatur"
+        "name": "Température du CPU"
       },
       "cpu_temp_carrier": {
         "name": "Température CPU de la carte porteuse"
       },
       "cpu_uptime": {
-        "name": "System-Betriebszeit"
+        "name": "Temps de fonctionnement du système"
       },
       "csi_index": {
         "name": "Résultat CSI"
@@ -1977,139 +1977,139 @@
         "name": "Date système"
       },
       "di_rule_1_stopwatch": {
-        "name": "DI-Regel 1 Restzeit"
+        "name": "Temps restant de la règle DI 1"
       },
       "di_rule_2_stopwatch": {
-        "name": "DI-Regel 2 Restzeit"
+        "name": "Temps restant de la règle DI 2"
       },
       "di_rule_3_stopwatch": {
-        "name": "DI-Regel 3 Restzeit"
+        "name": "Temps restant de la règle DI 3"
       },
       "di_rule_4_stopwatch": {
-        "name": "DI-Regel 4 Restzeit"
+        "name": "Temps restant de la règle DI 4"
       },
       "di_rule_5_stopwatch": {
-        "name": "DI-Regel 5 Restzeit"
+        "name": "Temps restant de la règle DI 5"
       },
       "di_rule_6_stopwatch": {
-        "name": "DI-Regel 6 Restzeit"
+        "name": "Temps restant de la règle DI 6"
       },
       "di_rule_7_stopwatch": {
-        "name": "DI-Regel 7 Restzeit"
+        "name": "Temps restant de la règle DI 7"
       },
       "di_rule_8_stopwatch": {
-        "name": "DI-Regel 8 Restzeit"
+        "name": "Temps restant de la règle DI 8"
       },
       "digitalinputrule_state_digitalinput_rule_1": {
-        "name": "Schaltregeln Zustand 1"
+        "name": "État de la règle d'entrée numérique 1"
       },
       "digitalinputrule_state_digitalinput_rule_2": {
-        "name": "Schaltregeln Zustand 2"
+        "name": "État de la règle d'entrée numérique 2"
       },
       "digitalinputrule_state_digitalinput_rule_3": {
-        "name": "Schaltregeln Zustand 3"
+        "name": "État de la règle d'entrée numérique 3"
       },
       "digitalinputrule_state_digitalinput_rule_4": {
-        "name": "Schaltregeln Zustand 4"
+        "name": "État de la règle d'entrée numérique 4"
       },
       "digitalinputrule_state_digitalinput_rule_5": {
-        "name": "Schaltregeln Zustand 5"
+        "name": "État de la règle d'entrée numérique 5"
       },
       "digitalinputrule_state_digitalinput_rule_6": {
-        "name": "Schaltregeln Zustand 6"
+        "name": "État de la règle d'entrée numérique 6"
       },
       "digitalinputrule_state_digitalinput_rule_7": {
-        "name": "Schaltregeln Zustand 7"
+        "name": "État de la règle d'entrée numérique 7"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch1": {
-        "name": "Schaltregeln Stoppuhr 1"
+        "name": "Chronomètre de la règle d'entrée numérique 1"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch2": {
-        "name": "Schaltregeln Stoppuhr 2"
+        "name": "Chronomètre de la règle d'entrée numérique 2"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch3": {
-        "name": "Schaltregeln Stoppuhr 3"
+        "name": "Chronomètre de la règle d'entrée numérique 3"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch4": {
-        "name": "Schaltregeln Stoppuhr 4"
+        "name": "Chronomètre de la règle d'entrée numérique 4"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch5": {
-        "name": "Schaltregeln Stoppuhr 5"
+        "name": "Chronomètre de la règle d'entrée numérique 5"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch6": {
-        "name": "Schaltregeln Stoppuhr 6"
+        "name": "Chronomètre de la règle d'entrée numérique 6"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch7": {
-        "name": "Schaltregeln Stoppuhr 7"
+        "name": "Chronomètre de la règle d'entrée numérique 7"
       },
       "dmx_mode": {
         "name": "Mode DMX"
       },
       "dmx_scene1": {
-        "name": "DMX-Lichtszene 1"
+        "name": "Scène lumineuse DMX 1"
       },
       "dmx_scene10": {
-        "name": "DMX-Lichtszene 10"
+        "name": "Scène lumineuse DMX 10"
       },
       "dmx_scene11": {
-        "name": "DMX-Lichtszene 11"
+        "name": "Scène lumineuse DMX 11"
       },
       "dmx_scene12": {
-        "name": "DMX-Lichtszene 12"
+        "name": "Scène lumineuse DMX 12"
       },
       "dmx_scene2": {
-        "name": "DMX-Lichtszene 2"
+        "name": "Scène lumineuse DMX 2"
       },
       "dmx_scene3": {
-        "name": "DMX-Lichtszene 3"
+        "name": "Scène lumineuse DMX 3"
       },
       "dmx_scene4": {
-        "name": "DMX-Lichtszene 4"
+        "name": "Scène lumineuse DMX 4"
       },
       "dmx_scene5": {
-        "name": "DMX-Lichtszene 5"
+        "name": "Scène lumineuse DMX 5"
       },
       "dmx_scene6": {
-        "name": "DMX-Lichtszene 6"
+        "name": "Scène lumineuse DMX 6"
       },
       "dmx_scene7": {
-        "name": "DMX-Lichtszene 7"
+        "name": "Scène lumineuse DMX 7"
       },
       "dmx_scene8": {
-        "name": "DMX-Lichtszene 8"
+        "name": "Scène lumineuse DMX 8"
       },
       "dmx_scene9": {
-        "name": "DMX-Lichtszene 9"
+        "name": "Scène lumineuse DMX 9"
       },
       "dos_1_cl": {
-        "name": "Chlor-Dosiersystem"
+        "name": "Système de dosage de chlore"
       },
       "dos_1_cl_daily": {
-        "name": "Chlor Tagesdosierung (ml)"
+        "name": "Dosage quotidien de chlore (ml)"
       },
       "dos_1_cl_last_can_reset": {
-        "name": "Chlor Letzter Kanister-Reset"
+        "name": "Dernière réinitialisation du bidon de chlore"
       },
       "dos_1_cl_last_off": {
-        "name": "Chlor-Dosierung Zuletzt Aus"
+        "name": "Dernier arrêt du dosage de chlore"
       },
       "dos_1_cl_last_on": {
-        "name": "Chlor-Dosierung Zuletzt Ein"
+        "name": "Dernière mise en marche du dosage de chlore"
       },
       "dos_1_cl_remaining_range": {
         "name": "Autonomie restante du chlore"
       },
       "dos_1_cl_runtime": {
-        "name": "Chlor-Dosierlaufzeit"
+        "name": "Durée de fonctionnement du dosage de chlore"
       },
       "dos_1_cl_state": {
-        "name": "Chlordosier-Status"
+        "name": "État du dosage de chlore"
       },
       "dos_1_cl_total_can": {
-        "name": "Chlor Kanisterinhalt (ml)"
+        "name": "Contenu du bidon de chlore (ml)"
       },
       "dos_1_cl_type": {
-        "name": "Chlor Dosiertyp"
+        "name": "Type de dosage de chlore"
       },
       "dos_1_cl_use": {
         "name": "Dosage de chlore configuré"
@@ -2118,7 +2118,7 @@
         "name": "Polarité de l'électrolyse"
       },
       "dos_2_elo": {
-        "name": "Elektrolyse-Dosiersystem"
+        "name": "Système d'électrolyse"
       },
       "dos_2_elo_daily": {
         "name": "Production journalière d'électrolyse"
@@ -2127,25 +2127,25 @@
         "name": "Dernière réinitialisation de la cellule d'électrolyse"
       },
       "dos_2_elo_last_off": {
-        "name": "Elektrolyse-Dosierung Zuletzt Aus"
+        "name": "Dernier arrêt du dosage par électrolyse"
       },
       "dos_2_elo_last_on": {
-        "name": "Elektrolyse-Dosierung Zuletzt Ein"
+        "name": "Dernière mise en marche du dosage par électrolyse"
       },
       "dos_2_elo_remaining_range": {
         "name": "Autonomie restante de l'électrolyse"
       },
       "dos_2_elo_runtime": {
-        "name": "Elektrolyse-Dosierlaufzeit"
+        "name": "Durée de fonctionnement du dosage par électrolyse"
       },
       "dos_2_elo_state": {
-        "name": "Elektrolyse-Dosierstatus"
+        "name": "État de l'électrolyse"
       },
       "dos_2_elo_total_can": {
         "name": "Durée restante de la cellule d'électrolyse"
       },
       "dos_2_elo_type": {
-        "name": "Elektrolyse Dosiertyp"
+        "name": "Type de dosage par électrolyse"
       },
       "dos_2_elo_use": {
         "name": "Électrolyse configurée"
@@ -2157,115 +2157,115 @@
         "name": "Durée d'inversion de l'électrolyse"
       },
       "dos_4_phm": {
-        "name": "pH- Dosiersystem"
+        "name": "Système de dosage pH-"
       },
       "dos_4_phm_daily": {
-        "name": "pH- Tagesdosierung (ml)"
+        "name": "Dosage quotidien pH- (ml)"
       },
       "dos_4_phm_last_can_reset": {
-        "name": "pH- Letzter Kanister-Reset"
+        "name": "Dernière réinitialisation du bidon pH-"
       },
       "dos_4_phm_last_off": {
-        "name": "pH--Dosierung Zuletzt Aus"
+        "name": "Dernier arrêt du dosage pH-"
       },
       "dos_4_phm_last_on": {
-        "name": "pH--Dosierung Zuletzt Ein"
+        "name": "Dernière mise en marche du dosage pH-"
       },
       "dos_4_phm_remaining_range": {
         "name": "Autonomie restante du pH-"
       },
       "dos_4_phm_runtime": {
-        "name": "pH--Dosierlaufzeit"
+        "name": "Durée de fonctionnement du dosage pH-"
       },
       "dos_4_phm_state": {
-        "name": "pH--Dosier-Status"
+        "name": "État du dosage pH-"
       },
       "dos_4_phm_total_can": {
-        "name": "pH- Kanisterinhalt (ml)"
+        "name": "Contenu du bidon pH- (ml)"
       },
       "dos_4_phm_type": {
-        "name": "pH- Dosiertyp"
+        "name": "Type de dosage pH-"
       },
       "dos_4_phm_use": {
         "name": "Dosage pH- configuré"
       },
       "dos_5_php": {
-        "name": "pH+ Dosiersystem"
+        "name": "Système de dosage pH+"
       },
       "dos_5_php_daily": {
-        "name": "pH+ Tagesdosierung (ml)"
+        "name": "Dosage quotidien pH+ (ml)"
       },
       "dos_5_php_last_can_reset": {
-        "name": "pH+ Letzter Kanister-Reset"
+        "name": "Dernière réinitialisation du bidon pH+"
       },
       "dos_5_php_last_off": {
-        "name": "pH+-Dosierung Zuletzt Aus"
+        "name": "Dernier arrêt du dosage pH+"
       },
       "dos_5_php_last_on": {
-        "name": "pH+-Dosierung Zuletzt Ein"
+        "name": "Dernière mise en marche du dosage pH+"
       },
       "dos_5_php_remaining_range": {
         "name": "Autonomie restante du pH+"
       },
       "dos_5_php_runtime": {
-        "name": "pH+-Dosierlaufzeit"
+        "name": "Durée de fonctionnement du dosage pH+"
       },
       "dos_5_php_state": {
-        "name": "pH+-Dosier-Status"
+        "name": "État du dosage pH+"
       },
       "dos_5_php_total_can": {
-        "name": "pH+ Kanisterinhalt (ml)"
+        "name": "Contenu du bidon pH+ (ml)"
       },
       "dos_5_php_type": {
-        "name": "pH+ Dosiertyp"
+        "name": "Type de dosage pH+"
       },
       "dos_5_php_use": {
         "name": "Dosage pH+ configuré"
       },
       "dos_6_floc": {
-        "name": "Flockmittel-Dosiersystem"
+        "name": "Système de dosage de floculant"
       },
       "dos_6_floc_daily": {
-        "name": "Flockmittel Tagesdosierung (ml)"
+        "name": "Dosage quotidien de floculant (ml)"
       },
       "dos_6_floc_last_can_reset": {
-        "name": "Flockmittel Letzter Kanister-Reset"
+        "name": "Dernière réinitialisation du bidon de floculant"
       },
       "dos_6_floc_last_off": {
-        "name": "Flockmittel-Dosierung Zuletzt Aus"
+        "name": "Dernier arrêt du dosage de floculant"
       },
       "dos_6_floc_last_on": {
-        "name": "Flockmittel-Dosierung Zuletzt Ein"
+        "name": "Dernière mise en marche du dosage de floculant"
       },
       "dos_6_floc_remaining_range": {
         "name": "Autonomie restante du floculant"
       },
       "dos_6_floc_runtime": {
-        "name": "Flockmittel-Dosierlaufzeit"
+        "name": "Durée de fonctionnement du dosage de floculant"
       },
       "dos_6_floc_state": {
-        "name": "Flockungsstatus"
+        "name": "État du dosage de floculant"
       },
       "dos_6_floc_total_can": {
-        "name": "Flockmittel Kanisterinhalt (ml)"
+        "name": "Contenu du bidon de floculant (ml)"
       },
       "dos_6_floc_type": {
-        "name": "Flockmittel Dosiertyp"
+        "name": "Type de dosage de floculant"
       },
       "dos_6_floc_use": {
         "name": "Dosage de floculant configuré"
       },
       "eco": {
-        "name": "Eco-Modus Status"
+        "name": "État du mode ECO"
       },
       "eco_last_off": {
-        "name": "Eco Zuletzt Aus"
+        "name": "Dernier arrêt du mode ECO"
       },
       "eco_last_on": {
-        "name": "Eco Zuletzt Ein"
+        "name": "Dernière mise en marche du mode ECO"
       },
       "eco_runtime": {
-        "name": "Eco-Laufzeit"
+        "name": "Durée de fonctionnement du mode ECO"
       },
       "error_code": {
         "name": "Code d'erreur"
@@ -2277,220 +2277,220 @@
         "name": "Extension 1.1"
       },
       "ext1_1_last_off": {
-        "name": "Extension 1.1 Zuletzt Aus"
+        "name": "Extension 1.1 : dernier arrêt"
       },
       "ext1_1_last_on": {
-        "name": "Extension 1.1 Zuletzt Ein"
+        "name": "Extension 1.1 : dernière mise en marche"
       },
       "ext1_1_runtime": {
-        "name": "Extension 1.1 Laufzeit"
+        "name": "Extension 1.1 : durée de fonctionnement"
       },
       "ext1_2": {
         "name": "Extension 1.2"
       },
       "ext1_2_last_off": {
-        "name": "Extension 1.2 Zuletzt Aus"
+        "name": "Extension 1.2 : dernier arrêt"
       },
       "ext1_2_last_on": {
-        "name": "Extension 1.2 Zuletzt Ein"
+        "name": "Extension 1.2 : dernière mise en marche"
       },
       "ext1_2_runtime": {
-        "name": "Extension 1.2 Laufzeit"
+        "name": "Extension 1.2 : durée de fonctionnement"
       },
       "ext1_3": {
         "name": "Extension 1.3"
       },
       "ext1_3_last_off": {
-        "name": "Extension 1.3 Zuletzt Aus"
+        "name": "Extension 1.3 : dernier arrêt"
       },
       "ext1_3_last_on": {
-        "name": "Extension 1.3 Zuletzt Ein"
+        "name": "Extension 1.3 : dernière mise en marche"
       },
       "ext1_3_runtime": {
-        "name": "Extension 1.3 Laufzeit"
+        "name": "Extension 1.3 : durée de fonctionnement"
       },
       "ext1_4": {
         "name": "Extension 1.4"
       },
       "ext1_4_last_off": {
-        "name": "Extension 1.4 Zuletzt Aus"
+        "name": "Extension 1.4 : dernier arrêt"
       },
       "ext1_4_last_on": {
-        "name": "Extension 1.4 Zuletzt Ein"
+        "name": "Extension 1.4 : dernière mise en marche"
       },
       "ext1_4_runtime": {
-        "name": "Extension 1.4 Laufzeit"
+        "name": "Extension 1.4 : durée de fonctionnement"
       },
       "ext1_5": {
         "name": "Extension 1.5"
       },
       "ext1_5_last_off": {
-        "name": "Extension 1.5 Zuletzt Aus"
+        "name": "Extension 1.5 : dernier arrêt"
       },
       "ext1_5_last_on": {
-        "name": "Extension 1.5 Zuletzt Ein"
+        "name": "Extension 1.5 : dernière mise en marche"
       },
       "ext1_5_runtime": {
-        "name": "Extension 1.5 Laufzeit"
+        "name": "Extension 1.5 : durée de fonctionnement"
       },
       "ext1_6": {
         "name": "Extension 1.6"
       },
       "ext1_6_last_off": {
-        "name": "Extension 1.6 Zuletzt Aus"
+        "name": "Extension 1.6 : dernier arrêt"
       },
       "ext1_6_last_on": {
-        "name": "Extension 1.6 Zuletzt Ein"
+        "name": "Extension 1.6 : dernière mise en marche"
       },
       "ext1_6_runtime": {
-        "name": "Extension 1.6 Laufzeit"
+        "name": "Extension 1.6 : durée de fonctionnement"
       },
       "ext1_7": {
         "name": "Extension 1.7"
       },
       "ext1_7_last_off": {
-        "name": "Extension 1.7 Zuletzt Aus"
+        "name": "Extension 1.7 : dernier arrêt"
       },
       "ext1_7_last_on": {
-        "name": "Extension 1.7 Zuletzt Ein"
+        "name": "Extension 1.7 : dernière mise en marche"
       },
       "ext1_7_runtime": {
-        "name": "Extension 1.7 Laufzeit"
+        "name": "Extension 1.7 : durée de fonctionnement"
       },
       "ext1_8": {
         "name": "Extension 1.8"
       },
       "ext1_8_last_off": {
-        "name": "Extension 1.8 Zuletzt Aus"
+        "name": "Extension 1.8 : dernier arrêt"
       },
       "ext1_8_last_on": {
-        "name": "Extension 1.8 Zuletzt Ein"
+        "name": "Extension 1.8 : dernière mise en marche"
       },
       "ext1_8_runtime": {
-        "name": "Extension 1.8 Laufzeit"
+        "name": "Extension 1.8 : durée de fonctionnement"
       },
       "ext2_1": {
         "name": "Extension 2.1"
       },
       "ext2_1_last_off": {
-        "name": "Extension 2.1 Zuletzt Aus"
+        "name": "Extension 2.1 : dernier arrêt"
       },
       "ext2_1_last_on": {
-        "name": "Extension 2.1 Zuletzt Ein"
+        "name": "Extension 2.1 : dernière mise en marche"
       },
       "ext2_1_runtime": {
-        "name": "Extension 2.1 Laufzeit"
+        "name": "Extension 2.1 : durée de fonctionnement"
       },
       "ext2_2": {
         "name": "Extension 2.2"
       },
       "ext2_2_last_off": {
-        "name": "Extension 2.2 Zuletzt Aus"
+        "name": "Extension 2.2 : dernier arrêt"
       },
       "ext2_2_last_on": {
-        "name": "Extension 2.2 Zuletzt Ein"
+        "name": "Extension 2.2 : dernière mise en marche"
       },
       "ext2_2_runtime": {
-        "name": "Extension 2.2 Laufzeit"
+        "name": "Extension 2.2 : durée de fonctionnement"
       },
       "ext2_3": {
         "name": "Extension 2.3"
       },
       "ext2_3_last_off": {
-        "name": "Extension 2.3 Zuletzt Aus"
+        "name": "Extension 2.3 : dernier arrêt"
       },
       "ext2_3_last_on": {
-        "name": "Extension 2.3 Zuletzt Ein"
+        "name": "Extension 2.3 : dernière mise en marche"
       },
       "ext2_3_runtime": {
-        "name": "Extension 2.3 Laufzeit"
+        "name": "Extension 2.3 : durée de fonctionnement"
       },
       "ext2_4": {
         "name": "Extension 2.4"
       },
       "ext2_4_last_off": {
-        "name": "Extension 2.4 Zuletzt Aus"
+        "name": "Extension 2.4 : dernier arrêt"
       },
       "ext2_4_last_on": {
-        "name": "Extension 2.4 Zuletzt Ein"
+        "name": "Extension 2.4 : dernière mise en marche"
       },
       "ext2_4_runtime": {
-        "name": "Extension 2.4 Laufzeit"
+        "name": "Extension 2.4 : durée de fonctionnement"
       },
       "ext2_5": {
         "name": "Extension 2.5"
       },
       "ext2_5_last_off": {
-        "name": "Extension 2.5 Zuletzt Aus"
+        "name": "Extension 2.5 : dernier arrêt"
       },
       "ext2_5_last_on": {
-        "name": "Extension 2.5 Zuletzt Ein"
+        "name": "Extension 2.5 : dernière mise en marche"
       },
       "ext2_5_runtime": {
-        "name": "Extension 2.5 Laufzeit"
+        "name": "Extension 2.5 : durée de fonctionnement"
       },
       "ext2_6": {
         "name": "Extension 2.6"
       },
       "ext2_6_last_off": {
-        "name": "Extension 2.6 Zuletzt Aus"
+        "name": "Extension 2.6 : dernier arrêt"
       },
       "ext2_6_last_on": {
-        "name": "Extension 2.6 Zuletzt Ein"
+        "name": "Extension 2.6 : dernière mise en marche"
       },
       "ext2_6_runtime": {
-        "name": "Extension 2.6 Laufzeit"
+        "name": "Extension 2.6 : durée de fonctionnement"
       },
       "ext2_7": {
         "name": "Extension 2.7"
       },
       "ext2_7_last_off": {
-        "name": "Extension 2.7 Zuletzt Aus"
+        "name": "Extension 2.7 : dernier arrêt"
       },
       "ext2_7_last_on": {
-        "name": "Extension 2.7 Zuletzt Ein"
+        "name": "Extension 2.7 : dernière mise en marche"
       },
       "ext2_7_runtime": {
-        "name": "Extension 2.7 Laufzeit"
+        "name": "Extension 2.7 : durée de fonctionnement"
       },
       "ext2_8": {
         "name": "Extension 2.8"
       },
       "ext2_8_last_off": {
-        "name": "Extension 2.8 Zuletzt Aus"
+        "name": "Extension 2.8 : dernier arrêt"
       },
       "ext2_8_last_on": {
-        "name": "Extension 2.8 Zuletzt Ein"
+        "name": "Extension 2.8 : dernière mise en marche"
       },
       "ext2_8_runtime": {
-        "name": "Extension 2.8 Laufzeit"
+        "name": "Extension 2.8 : durée de fonctionnement"
       },
       "flow_rate": {
         "name": "Débit"
       },
       "fw": {
-        "name": "Firmware-Version"
+        "name": "Version du firmware"
       },
       "heater": {
-        "name": "Heizungs-Status"
+        "name": "État du chauffage"
       },
       "heater_last_off": {
-        "name": "Heizung Zuletzt Aus"
+        "name": "Dernier arrêt du chauffage"
       },
       "heater_last_on": {
-        "name": "Heizung Zuletzt Ein"
+        "name": "Dernière mise en marche du chauffage"
       },
       "heater_postrun_time": {
-        "name": "Heizung Nachlaufzeit"
+        "name": "Temps de post-fonctionnement du chauffage"
       },
       "heater_runtime": {
-        "name": "Heizungs-Laufzeit"
+        "name": "Durée de fonctionnement du chauffage"
       },
       "heater_set_temp": {
         "name": "Consigne du chauffage (contrôleur)"
       },
       "heaterstate": {
-        "name": "Heizung Detail-Status"
+        "name": "État détaillé du chauffage"
       },
       "hw_serial_carrier": {
         "name": "Numéro de série de la carte support"
@@ -2505,52 +2505,52 @@
         "name": "Débit de Pompe"
       },
       "input1": {
-        "name": "Digitaleingang 1"
+        "name": "Entrée numérique 1"
       },
       "input10": {
-        "name": "Digitaleingang 10"
+        "name": "Entrée numérique 10"
       },
       "input11": {
-        "name": "Digitaleingang 11"
+        "name": "Entrée numérique 11"
       },
       "input12": {
-        "name": "Digitaleingang 12"
+        "name": "Entrée numérique 12"
       },
       "input2": {
-        "name": "Digitaleingang 2"
+        "name": "Entrée numérique 2"
       },
       "input3": {
-        "name": "Digitaleingang 3"
+        "name": "Entrée numérique 3"
       },
       "input4": {
-        "name": "Digitaleingang 4"
+        "name": "Entrée numérique 4"
       },
       "input5": {
-        "name": "Digitaleingang 5"
+        "name": "Entrée numérique 5"
       },
       "input6": {
-        "name": "Digitaleingang 6"
+        "name": "Entrée numérique 6"
       },
       "input7": {
-        "name": "Digitaleingang 7"
+        "name": "Entrée numérique 7"
       },
       "input8": {
-        "name": "Digitaleingang 8"
+        "name": "Entrée numérique 8"
       },
       "input9": {
-        "name": "Digitaleingang 9"
+        "name": "Entrée numérique 9"
       },
       "input_ce1": {
-        "name": "Kanister-Leersensor 1"
+        "name": "Capteur de bidon vide 1"
       },
       "input_ce2": {
-        "name": "Kanister-Leersensor 2"
+        "name": "Capteur de bidon vide 2"
       },
       "input_ce3": {
-        "name": "Kanister-Leersensor 3"
+        "name": "Capteur de bidon vide 3"
       },
       "input_ce4": {
-        "name": "Kanister-Leersensor 4"
+        "name": "Capteur de bidon vide 4"
       },
       "inputz1z2": {
         "name": "Entrées numériques Z1/Z2"
@@ -2571,19 +2571,19 @@
         "name": "Dernier sens du volet"
       },
       "light": {
-        "name": "Beleuchtungs-Status"
+        "name": "État de l'éclairage"
       },
       "light_last_off": {
-        "name": "Beleuchtung Zuletzt Aus"
+        "name": "Dernier arrêt de l'éclairage"
       },
       "light_last_on": {
-        "name": "Beleuchtung Zuletzt Ein"
+        "name": "Dernière mise en marche de l'éclairage"
       },
       "light_mode": {
         "name": "Mode d'éclairage"
       },
       "light_runtime": {
-        "name": "Beleuchtungs-Laufzeit"
+        "name": "Durée de fonctionnement de l'éclairage"
       },
       "light_scene_1": {
         "name": "Scène lumineuse 1"
@@ -2625,7 +2625,7 @@
         "name": "État détaillé de l'éclairage"
       },
       "load_avg": {
-        "name": "CPU-Auslastung"
+        "name": "Charge moyenne du processeur"
       },
       "lsi_index": {
         "name": "Résultat LSI"
@@ -2694,10 +2694,10 @@
         "name": "Eau de la Piscine"
       },
       "onewire1_value_max": {
-        "name": "Wassertemperatur Maximum"
+        "name": "Température de l'eau maximale"
       },
       "onewire1_value_min": {
-        "name": "Wassertemperatur Minimum"
+        "name": "Température de l'eau minimale"
       },
       "onewire2_romcode": {
         "name": "Code ROM OneWire 2"
@@ -2742,10 +2742,10 @@
         "name": "Échangeur Thermique"
       },
       "onewire5_value_max": {
-        "name": "Échangeur Thermique Einlauf Maximum"
+        "name": "Entrée de l'échangeur thermique maximale"
       },
       "onewire5_value_min": {
-        "name": "Échangeur Thermique Einlauf Minimum"
+        "name": "Entrée de l'échangeur thermique minimale"
       },
       "onewire6_romcode": {
         "name": "Code ROM OneWire 6"
@@ -2754,10 +2754,10 @@
         "name": "Accumulateur Thermique"
       },
       "onewire6_value_max": {
-        "name": "Échangeur Thermique Auslauf Maximum"
+        "name": "Sortie de l'échangeur thermique maximale"
       },
       "onewire6_value_min": {
-        "name": "Échangeur Thermique Auslauf Minimum"
+        "name": "Sortie de l'échangeur thermique minimale"
       },
       "onewire7_romcode": {
         "name": "Code ROM OneWire 7"
@@ -2802,19 +2802,19 @@
         "name": "Valeur de ORP"
       },
       "orp_value_max": {
-        "name": "Redoxpotential Maximum"
+        "name": "Valeur ORP maximale"
       },
       "orp_value_min": {
-        "name": "Redoxpotential Minimum"
+        "name": "Valeur ORP minimale"
       },
       "overflow_dryrun_state": {
-        "name": "Überlauf Trockenlauf-Status"
+        "name": "État de marche à sec du bac de débordement"
       },
       "overflow_overfill_state": {
-        "name": "Überfüllungs-Status"
+        "name": "État de surremplissage du bac de débordement"
       },
       "overflow_refill_state": {
-        "name": "Überlauf Nachfüll-Status"
+        "name": "État de remplissage du bac de débordement"
       },
       "ph_value": {
         "name": "Valeur de pH"
@@ -2844,136 +2844,136 @@
         "name": "Teneur en Chlore Minimum"
       },
       "pump": {
-        "name": "Pumpen-Status"
+        "name": "État de la pompe"
       },
       "pump_estimated_power": {
         "name": "Puissance de Pompe (Estimée)"
       },
       "pump_last_off": {
-        "name": "Pumpe Zuletzt Aus"
+        "name": "Dernier arrêt de la pompe"
       },
       "pump_last_on": {
-        "name": "Pumpe Zuletzt Ein"
+        "name": "Dernière mise en marche de la pompe"
       },
       "pump_rpm_0": {
-        "name": "Pumpen-Stufe 0"
+        "name": "Vitesse de pompe 0"
       },
       "pump_rpm_0_last_off": {
-        "name": "Pumpen-Stufe 0 Zuletzt Aus"
+        "name": "Dernier arrêt de la vitesse de pompe 0"
       },
       "pump_rpm_0_last_on": {
-        "name": "Pumpen-Stufe 0 Zuletzt Ein"
+        "name": "Dernière mise en marche de la vitesse de pompe 0"
       },
       "pump_rpm_0_runtime": {
-        "name": "Pumpen-Stufe 0 Laufzeit"
+        "name": "Durée de fonctionnement de la vitesse de pompe 0"
       },
       "pump_rpm_0_value": {
         "name": "Valeur de la vitesse de pompe 0"
       },
       "pump_rpm_1": {
-        "name": "Pumpen-Stufe 1"
+        "name": "Vitesse de pompe 1"
       },
       "pump_rpm_1_last_off": {
-        "name": "Pumpen-Stufe 1 Zuletzt Aus"
+        "name": "Dernier arrêt de la vitesse de pompe 1"
       },
       "pump_rpm_1_last_on": {
-        "name": "Pumpen-Stufe 1 Zuletzt Ein"
+        "name": "Dernière mise en marche de la vitesse de pompe 1"
       },
       "pump_rpm_1_runtime": {
-        "name": "Pumpen-Stufe 1 Laufzeit"
+        "name": "Durée de fonctionnement de la vitesse de pompe 1"
       },
       "pump_rpm_1_value": {
         "name": "Valeur de la vitesse de pompe 1"
       },
       "pump_rpm_2": {
-        "name": "Pumpen-Stufe 2"
+        "name": "Vitesse de pompe 2"
       },
       "pump_rpm_2_last_off": {
-        "name": "Pumpen-Stufe 2 Zuletzt Aus"
+        "name": "Dernier arrêt de la vitesse de pompe 2"
       },
       "pump_rpm_2_last_on": {
-        "name": "Pumpen-Stufe 2 Zuletzt Ein"
+        "name": "Dernière mise en marche de la vitesse de pompe 2"
       },
       "pump_rpm_2_runtime": {
-        "name": "Pumpen-Stufe 2 Laufzeit"
+        "name": "Durée de fonctionnement de la vitesse de pompe 2"
       },
       "pump_rpm_2_value": {
         "name": "Valeur de la vitesse de pompe 2"
       },
       "pump_rpm_3": {
-        "name": "Pumpen-Stufe 3"
+        "name": "Vitesse de pompe 3"
       },
       "pump_rpm_3_last_off": {
-        "name": "Pumpen-Stufe 3 Zuletzt Aus"
+        "name": "Dernier arrêt de la vitesse de pompe 3"
       },
       "pump_rpm_3_last_on": {
-        "name": "Pumpen-Stufe 3 Zuletzt Ein"
+        "name": "Dernière mise en marche de la vitesse de pompe 3"
       },
       "pump_rpm_3_runtime": {
-        "name": "Pumpen-Stufe 3 Laufzeit"
+        "name": "Durée de fonctionnement de la vitesse de pompe 3"
       },
       "pump_rpm_3_value": {
         "name": "Valeur de la vitesse de pompe 3"
       },
       "pump_rs485_pwr": {
-        "name": "RS485-Pumpenleistung"
+        "name": "Puissance de la pompe RS485"
       },
       "pump_runtime": {
-        "name": "Pumpen-Laufzeit"
+        "name": "Durée de fonctionnement de la pompe"
       },
       "pumppriostate": {
         "name": "État de priorité de la pompe"
       },
       "pumpstate": {
-        "name": "Pumpen Detail-Status"
+        "name": "État détaillé de la pompe"
       },
       "pvsurplus": {
-        "name": "PV-Überschuss Status"
+        "name": "État du surplus photovoltaïque"
       },
       "recovery_success_rate": {
         "name": "Taux de Réussite de Récupération"
       },
       "refill": {
-        "name": "Nachfüll-Status"
+        "name": "État du remplissage"
       },
       "refill_last_off": {
-        "name": "Nachfüllung Zuletzt Aus"
+        "name": "Dernier arrêt du remplissage"
       },
       "refill_last_on": {
-        "name": "Nachfüllung Zuletzt Ein"
+        "name": "Dernière mise en marche du remplissage"
       },
       "refill_runtime": {
-        "name": "Nachfüll-Laufzeit"
+        "name": "Durée de fonctionnement du remplissage"
       },
       "refill_state": {
         "name": "État détaillé du remplissage"
       },
       "solar": {
-        "name": "Solar-Status"
+        "name": "État du solaire"
       },
       "solar_last_off": {
-        "name": "Solar Zuletzt Aus"
+        "name": "Dernier arrêt du solaire"
       },
       "solar_last_on": {
-        "name": "Solar Zuletzt Ein"
+        "name": "Dernière mise en marche du solaire"
       },
       "solar_maxtemp": {
         "name": "Température maximale du solaire"
       },
       "solar_runtime": {
-        "name": "Solar-Laufzeit"
+        "name": "Durée de fonctionnement du solaire"
       },
       "solarstate": {
-        "name": "Solar Detail-Status"
+        "name": "État détaillé du solaire"
       },
       "sw_update_available": {
         "name": "Mise à jour logicielle disponible"
       },
       "sw_version": {
-        "name": "Software-Version"
+        "name": "Version du logiciel"
       },
       "sw_version_carrier": {
-        "name": "Carrier Software-Version"
+        "name": "Version du logiciel de la carte support"
       },
       "system_carrier_alive_count": {
         "name": "Battements de cœur de la carte support"
@@ -2982,10 +2982,10 @@
         "name": "Défauts de battement de cœur de la carte support"
       },
       "system_carrier_cpu_temperature": {
-        "name": "Träger-CPU-Temperatur"
+        "name": "Température CPU de la carte support"
       },
       "system_cpu_temperature": {
-        "name": "System CPU-Temperatur"
+        "name": "Température CPU du système"
       },
       "system_dosagemodule_alive_count": {
         "name": "Battements de cœur du module de dosage"
@@ -2994,7 +2994,7 @@
         "name": "Défauts de battement de cœur du module de dosage"
       },
       "system_dosagemodule_cpu_temperature": {
-        "name": "Dosier-Modul CPU-Temperatur"
+        "name": "Température CPU du module de dosage"
       },
       "system_ext1module_alive_count": {
         "name": "Battements de cœur du module d'extension 1"
@@ -3006,16 +3006,16 @@
         "name": "État du Système"
       },
       "system_memory": {
-        "name": "Systemspeicher"
+        "name": "Mémoire système"
       },
       "system_memoryusage": {
-        "name": "Speichernutzung"
+        "name": "Utilisation de la mémoire système"
       },
       "system_relais_status": {
-        "name": "Relais-Status"
+        "name": "État des relais"
       },
       "system_safety_timer_active": {
-        "name": "Sicherheitstimer aktiv"
+        "name": "Minuterie de sécurité active"
       },
       "temprule_1": {
         "name": "Règle de température 1"
@@ -3047,34 +3047,34 @@
     },
     "switch": {
       "backwash": {
-        "name": "Rückspülung"
+        "name": "Contre-lavage"
       },
       "backwashrinse": {
-        "name": "Spülung"
+        "name": "Rinçage"
       },
       "dirule_1": {
-        "name": "Schaltregel 1"
+        "name": "Règle de commutation 1"
       },
       "dirule_2": {
-        "name": "Schaltregel 2"
+        "name": "Règle de commutation 2"
       },
       "dirule_3": {
-        "name": "Schaltregel 3"
+        "name": "Règle de commutation 3"
       },
       "dirule_4": {
-        "name": "Schaltregel 4"
+        "name": "Règle de commutation 4"
       },
       "dirule_5": {
-        "name": "Schaltregel 5"
+        "name": "Règle de commutation 5"
       },
       "dirule_6": {
-        "name": "Schaltregel 6"
+        "name": "Règle de commutation 6"
       },
       "dirule_7": {
-        "name": "Schaltregel 7"
+        "name": "Règle de commutation 7"
       },
       "dirule_8": {
-        "name": "Schaltregel 8"
+        "name": "Règle de commutation 8"
       },
       "dos_1_cl": {
         "name": "Dosage de Chlore"
@@ -3089,7 +3089,7 @@
         "name": "Dosage pH+"
       },
       "dos_6_floc": {
-        "name": "Flockungsmittel"
+        "name": "Floculant"
       },
       "eco": {
         "name": "Mode ECO"
@@ -3143,10 +3143,10 @@
         "name": "Extension 2.8"
       },
       "heater": {
-        "name": "Heizer"
+        "name": "Chauffage"
       },
       "light": {
-        "name": "Beleuchtung"
+        "name": "Éclairage"
       },
       "omni_dc0": {
         "name": "OMNI DC0"
@@ -3167,10 +3167,10 @@
         "name": "OMNI DC5"
       },
       "pump": {
-        "name": "Filterpumpe"
+        "name": "Pompe de filtration"
       },
       "pvsurplus": {
-        "name": "PV-Überschuss"
+        "name": "Surplus photovoltaïque"
       },
       "refill": {
         "name": "Remplissage d'eau"

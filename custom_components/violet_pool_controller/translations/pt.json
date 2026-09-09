@@ -2178,7 +2178,7 @@
         "name": "Tempo de Funcionamento do Doseamento de pH-"
       },
       "dos_4_phm_state": {
-        "name": "Status de Retrolavagem"
+        "name": "Status de Dosagem de pH-"
       },
       "dos_4_phm_total_can": {
         "name": "Quantidade no Bidão de pH- (ml)"
@@ -2211,7 +2211,7 @@
         "name": "Tempo de Funcionamento do Doseamento de pH+"
       },
       "dos_5_php_state": {
-        "name": "Status de Reabastecimento"
+        "name": "Status de Dosagem de pH+"
       },
       "dos_5_php_total_can": {
         "name": "Quantidade no Bidão de pH+ (ml)"

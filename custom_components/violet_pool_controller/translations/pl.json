@@ -1261,7 +1261,7 @@
   "entity": {
     "binary_sensor": {
       "backwash": {
-        "name": "Rückspülstatus"
+        "name": "Stan Płukania Wstecznego"
       },
       "backwash_delay": {
         "name": "Opóźnienie płukania wstecznego aktywne"
@@ -1270,91 +1270,91 @@
         "name": "Nadzór AI kąpieli"
       },
       "can_range_state": {
-        "name": "Behälter-Bereichs-Problem"
+        "name": "Problem Zasięgu Kanistra"
       },
       "circulation_state": {
-        "name": "Zirkulationsproblem"
+        "name": "Problem z Cyrkulacją"
       },
       "eco": {
-        "name": "Eco-Modus"
+        "name": "Tryb ECO"
       },
       "electrode_flow_state": {
-        "name": "Elektrodendurchfluss-Problem"
+        "name": "Problem Przepływu przy Elektrodzie"
       },
       "heater": {
-        "name": "Heizerstatus"
+        "name": "Stan Ogrzewania"
       },
       "hw_base_module": {
-        "name": "Hardware: Basismodul"
+        "name": "Sprzęt: moduł bazowy"
       },
       "hw_dirule_module": {
         "name": "Sprzęt: moduł reguł cyfrowych"
       },
       "hw_dmx_module": {
-        "name": "Hardware: DMX-Modul"
+        "name": "Sprzęt: moduł DMX"
       },
       "hw_dosing_module": {
-        "name": "Hardware: Dosiermodul"
+        "name": "Sprzęt: moduł dozowania"
       },
       "hw_extension_module_1": {
-        "name": "Hardware: Rozszerzeniesmodul 1"
+        "name": "Sprzęt: moduł rozszerzeń 1"
       },
       "hw_extension_module_2": {
-        "name": "Hardware: Rozszerzeniesmodul 2"
+        "name": "Sprzęt: moduł rozszerzeń 2"
       },
       "hw_standalone_mode": {
-        "name": "Hardware: Eigenständige Dosiereinheit"
+        "name": "Sprzęt: samodzielna jednostka dozująca"
       },
       "input1": {
-        "name": "Digitaler Eingang 1"
+        "name": "Wejście cyfrowe 1"
       },
       "input10": {
-        "name": "Digitaler Eingang 10"
+        "name": "Wejście cyfrowe 10"
       },
       "input11": {
-        "name": "Digitaler Eingang 11"
+        "name": "Wejście cyfrowe 11"
       },
       "input12": {
-        "name": "Digitaler Eingang 12"
+        "name": "Wejście cyfrowe 12"
       },
       "input2": {
-        "name": "Digitaler Eingang 2"
+        "name": "Wejście cyfrowe 2"
       },
       "input3": {
-        "name": "Digitaler Eingang 3"
+        "name": "Wejście cyfrowe 3"
       },
       "input4": {
-        "name": "Digitaler Eingang 4"
+        "name": "Wejście cyfrowe 4"
       },
       "input5": {
-        "name": "Digitaler Eingang 5"
+        "name": "Wejście cyfrowe 5"
       },
       "input6": {
-        "name": "Digitaler Eingang 6"
+        "name": "Wejście cyfrowe 6"
       },
       "input7": {
-        "name": "Digitaler Eingang 7"
+        "name": "Wejście cyfrowe 7"
       },
       "input8": {
-        "name": "Digitaler Eingang 8"
+        "name": "Wejście cyfrowe 8"
       },
       "input9": {
-        "name": "Digitaler Eingang 9"
+        "name": "Wejście cyfrowe 9"
       },
       "input_ce1": {
-        "name": "CE-Eingang 1"
+        "name": "Wejście cyfrowe CE1"
       },
       "input_ce2": {
-        "name": "CE-Eingang 2"
+        "name": "Wejście cyfrowe CE2"
       },
       "input_ce3": {
-        "name": "CE-Eingang 3"
+        "name": "Wejście cyfrowe CE3"
       },
       "input_ce4": {
-        "name": "CE-Eingang 4"
+        "name": "Wejście cyfrowe CE4"
       },
       "light": {
-        "name": "Beleuchtungsstatus"
+        "name": "Stan Oświetlenia"
       },
       "overflow_dryrun": {
         "name": "Sucha praca zbiornika przelewowego"
@@ -1366,19 +1366,19 @@
         "name": "Uzupełnianie zbiornika przelewowego"
       },
       "pressure_state": {
-        "name": "Druckproblem"
+        "name": "Problem Ciśnienia"
       },
       "pump": {
-        "name": "Pumpenstatus"
+        "name": "Stan Pompy"
       },
       "pvsurplus": {
-        "name": "PV-Überschuss"
+        "name": "Nadwyżka PV"
       },
       "refill": {
-        "name": "Nachfüllstatus"
+        "name": "Stan Uzupełniania"
       },
       "solar": {
-        "name": "Solarstatus"
+        "name": "Stan Systemu Słonecznego"
       }
     },
     "button": {
@@ -1388,15 +1388,15 @@
     },
     "climate": {
       "heater": {
-        "name": "Pool-Heizer"
+        "name": "Ogrzewanie Basenu"
       },
       "solar": {
-        "name": "Solar-Heizer"
+        "name": "Ogrzewanie Solarne"
       }
     },
     "cover": {
       "pool_cover": {
-        "name": "Pool-Abdeckung"
+        "name": "Roleta basenowa"
       }
     },
     "light": {
@@ -1439,10 +1439,10 @@
     },
     "number": {
       "chlorine_canister_volume": {
-        "name": "Chlorbehälter-Volumen"
+        "name": "Objętość Kanistra Chloru"
       },
       "chlorine_setpoint": {
-        "name": "Chlor-Sollwert"
+        "name": "Wartość zadana chloru"
       },
       "chlorine_setpoint_electrolysis": {
         "name": "Wartość zadana chloru (elektroliza)"
@@ -1463,10 +1463,10 @@
         "name": "CSI: temperatura"
       },
       "flocculant_canister_volume": {
-        "name": "Flockungsmittel-Behälter-Volumen"
+        "name": "Objętość Kanistra Flokulantu"
       },
       "heater_target_temp": {
-        "name": "Zieltemperatur Heizer"
+        "name": "Temperatura docelowa ogrzewania"
       },
       "lsi_alkalinity": {
         "name": "LSI: zasadowość węglanowa"
@@ -1484,25 +1484,25 @@
         "name": "LSI: temperatura"
       },
       "orp_setpoint": {
-        "name": "ORP-Sollwert"
+        "name": "Wartość zadana ORP"
       },
       "orp_setpoint_electrolysis": {
         "name": "Wartość zadana ORP (elektroliza)"
       },
       "ph_minus_canister_volume": {
-        "name": "pH--Behälter-Volumen"
+        "name": "Objętość Kanistra pH-"
       },
       "ph_plus_canister_volume": {
-        "name": "pH+-Behälter-Volumen"
+        "name": "Objętość Kanistra pH+"
       },
       "ph_setpoint": {
-        "name": "pH-Sollwert"
+        "name": "Wartość zadana pH"
       },
       "pump_speed": {
-        "name": "Pumpendrehzahl"
+        "name": "Prędkość pompy"
       },
       "solar_target_temp": {
-        "name": "Zieltemperatur Solar"
+        "name": "Temperatura docelowa solaru"
       }
     },
     "select": {
@@ -1977,109 +1977,109 @@
         "name": "Data systemowa"
       },
       "di_rule_1_stopwatch": {
-        "name": "DI-Regel 1 Restzeit"
+        "name": "Pozostały czas reguły DI 1"
       },
       "di_rule_2_stopwatch": {
-        "name": "DI-Regel 2 Restzeit"
+        "name": "Pozostały czas reguły DI 2"
       },
       "di_rule_3_stopwatch": {
-        "name": "DI-Regel 3 Restzeit"
+        "name": "Pozostały czas reguły DI 3"
       },
       "di_rule_4_stopwatch": {
-        "name": "DI-Regel 4 Restzeit"
+        "name": "Pozostały czas reguły DI 4"
       },
       "di_rule_5_stopwatch": {
-        "name": "DI-Regel 5 Restzeit"
+        "name": "Pozostały czas reguły DI 5"
       },
       "di_rule_6_stopwatch": {
-        "name": "DI-Regel 6 Restzeit"
+        "name": "Pozostały czas reguły DI 6"
       },
       "di_rule_7_stopwatch": {
-        "name": "DI-Regel 7 Restzeit"
+        "name": "Pozostały czas reguły DI 7"
       },
       "di_rule_8_stopwatch": {
-        "name": "DI-Regel 8 Restzeit"
+        "name": "Pozostały czas reguły DI 8"
       },
       "digitalinputrule_state_digitalinput_rule_1": {
-        "name": "Schaltregeln Zustand 1"
+        "name": "Stan reguły wejścia cyfrowego 1"
       },
       "digitalinputrule_state_digitalinput_rule_2": {
-        "name": "Schaltregeln Zustand 2"
+        "name": "Stan reguły wejścia cyfrowego 2"
       },
       "digitalinputrule_state_digitalinput_rule_3": {
-        "name": "Schaltregeln Zustand 3"
+        "name": "Stan reguły wejścia cyfrowego 3"
       },
       "digitalinputrule_state_digitalinput_rule_4": {
-        "name": "Schaltregeln Zustand 4"
+        "name": "Stan reguły wejścia cyfrowego 4"
       },
       "digitalinputrule_state_digitalinput_rule_5": {
-        "name": "Schaltregeln Zustand 5"
+        "name": "Stan reguły wejścia cyfrowego 5"
       },
       "digitalinputrule_state_digitalinput_rule_6": {
-        "name": "Schaltregeln Zustand 6"
+        "name": "Stan reguły wejścia cyfrowego 6"
       },
       "digitalinputrule_state_digitalinput_rule_7": {
-        "name": "Schaltregeln Zustand 7"
+        "name": "Stan reguły wejścia cyfrowego 7"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch1": {
-        "name": "Schaltregeln Stoppuhr 1"
+        "name": "Stoper reguły wejścia cyfrowego 1"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch2": {
-        "name": "Schaltregeln Stoppuhr 2"
+        "name": "Stoper reguły wejścia cyfrowego 2"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch3": {
-        "name": "Schaltregeln Stoppuhr 3"
+        "name": "Stoper reguły wejścia cyfrowego 3"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch4": {
-        "name": "Schaltregeln Stoppuhr 4"
+        "name": "Stoper reguły wejścia cyfrowego 4"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch5": {
-        "name": "Schaltregeln Stoppuhr 5"
+        "name": "Stoper reguły wejścia cyfrowego 5"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch6": {
-        "name": "Schaltregeln Stoppuhr 6"
+        "name": "Stoper reguły wejścia cyfrowego 6"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch7": {
-        "name": "Schaltregeln Stoppuhr 7"
+        "name": "Stoper reguły wejścia cyfrowego 7"
       },
       "dmx_mode": {
         "name": "Tryb DMX"
       },
       "dmx_scene1": {
-        "name": "DMX-Lichtszene 1"
+        "name": "Scena świetlna DMX 1"
       },
       "dmx_scene10": {
-        "name": "DMX-Lichtszene 10"
+        "name": "Scena świetlna DMX 10"
       },
       "dmx_scene11": {
-        "name": "DMX-Lichtszene 11"
+        "name": "Scena świetlna DMX 11"
       },
       "dmx_scene12": {
-        "name": "DMX-Lichtszene 12"
+        "name": "Scena świetlna DMX 12"
       },
       "dmx_scene2": {
-        "name": "DMX-Lichtszene 2"
+        "name": "Scena świetlna DMX 2"
       },
       "dmx_scene3": {
-        "name": "DMX-Lichtszene 3"
+        "name": "Scena świetlna DMX 3"
       },
       "dmx_scene4": {
-        "name": "DMX-Lichtszene 4"
+        "name": "Scena świetlna DMX 4"
       },
       "dmx_scene5": {
-        "name": "DMX-Lichtszene 5"
+        "name": "Scena świetlna DMX 5"
       },
       "dmx_scene6": {
-        "name": "DMX-Lichtszene 6"
+        "name": "Scena świetlna DMX 6"
       },
       "dmx_scene7": {
-        "name": "DMX-Lichtszene 7"
+        "name": "Scena świetlna DMX 7"
       },
       "dmx_scene8": {
-        "name": "DMX-Lichtszene 8"
+        "name": "Scena świetlna DMX 8"
       },
       "dmx_scene9": {
-        "name": "DMX-Lichtszene 9"
+        "name": "Scena świetlna DMX 9"
       },
       "dos_1_cl": {
         "name": "System Dozowania Chloru"
@@ -2241,7 +2241,7 @@
         "name": "Pozostały zasięg flokulantu"
       },
       "dos_6_floc_runtime": {
-        "name": "Flockmittel-Dosierlaufzeit"
+        "name": "Czas Pracy Dozowania Flokulantu"
       },
       "dos_6_floc_state": {
         "name": "Status Flokkulacji"
@@ -2250,7 +2250,7 @@
         "name": "Zawartość Kanistra Flokkulantu (ml)"
       },
       "dos_6_floc_type": {
-        "name": "Flockmittel Dosiertyp"
+        "name": "Typ Dozowania Flokulantu"
       },
       "dos_6_floc_use": {
         "name": "Dozowanie flokulantu skonfigurowane"
@@ -2505,52 +2505,52 @@
         "name": "Przepływ Pompy"
       },
       "input1": {
-        "name": "Digitaleingang 1"
+        "name": "Wejście cyfrowe 1"
       },
       "input10": {
-        "name": "Digitaleingang 10"
+        "name": "Wejście cyfrowe 10"
       },
       "input11": {
-        "name": "Digitaleingang 11"
+        "name": "Wejście cyfrowe 11"
       },
       "input12": {
-        "name": "Digitaleingang 12"
+        "name": "Wejście cyfrowe 12"
       },
       "input2": {
-        "name": "Digitaleingang 2"
+        "name": "Wejście cyfrowe 2"
       },
       "input3": {
-        "name": "Digitaleingang 3"
+        "name": "Wejście cyfrowe 3"
       },
       "input4": {
-        "name": "Digitaleingang 4"
+        "name": "Wejście cyfrowe 4"
       },
       "input5": {
-        "name": "Digitaleingang 5"
+        "name": "Wejście cyfrowe 5"
       },
       "input6": {
-        "name": "Digitaleingang 6"
+        "name": "Wejście cyfrowe 6"
       },
       "input7": {
-        "name": "Digitaleingang 7"
+        "name": "Wejście cyfrowe 7"
       },
       "input8": {
-        "name": "Digitaleingang 8"
+        "name": "Wejście cyfrowe 8"
       },
       "input9": {
-        "name": "Digitaleingang 9"
+        "name": "Wejście cyfrowe 9"
       },
       "input_ce1": {
-        "name": "Kanister-Leersensor 1"
+        "name": "Czujnik Pustego Kanistra 1"
       },
       "input_ce2": {
-        "name": "Kanister-Leersensor 2"
+        "name": "Czujnik Pustego Kanistra 2"
       },
       "input_ce3": {
-        "name": "Kanister-Leersensor 3"
+        "name": "Czujnik Pustego Kanistra 3"
       },
       "input_ce4": {
-        "name": "Kanister-Leersensor 4"
+        "name": "Czujnik Pustego Kanistra 4"
       },
       "inputz1z2": {
         "name": "Wejścia cyfrowe Z1/Z2"
@@ -2625,7 +2625,7 @@
         "name": "Szczegółowy status oświetlenia"
       },
       "load_avg": {
-        "name": "CPU-Auslastung"
+        "name": "Średnie Obciążenie CPU"
       },
       "lsi_index": {
         "name": "Wynik LSI"
@@ -2658,10 +2658,10 @@
         "name": "Czujnik Temperatury 10"
       },
       "onewire10_value_max": {
-        "name": "Czujnik Temperatury 10 Maximum"
+        "name": "Maksymalna Temperatura Czujnika 10"
       },
       "onewire10_value_min": {
-        "name": "Czujnik Temperatury 10 Minimum"
+        "name": "Minimalna Temperatura Czujnika 10"
       },
       "onewire11_romcode": {
         "name": "Kod ROM OneWire 11"
@@ -2670,10 +2670,10 @@
         "name": "Czujnik Temperatury 11"
       },
       "onewire11_value_max": {
-        "name": "Czujnik Temperatury 11 Maximum"
+        "name": "Maksymalna Temperatura Czujnika 11"
       },
       "onewire11_value_min": {
-        "name": "Czujnik Temperatury 11 Minimum"
+        "name": "Minimalna Temperatura Czujnika 11"
       },
       "onewire12_romcode": {
         "name": "Kod ROM OneWire 12"
@@ -2682,10 +2682,10 @@
         "name": "Czujnik Temperatury 12"
       },
       "onewire12_value_max": {
-        "name": "Czujnik Temperatury 12 Maximum"
+        "name": "Maksymalna Temperatura Czujnika 12"
       },
       "onewire12_value_min": {
-        "name": "Czujnik Temperatury 12 Minimum"
+        "name": "Minimalna Temperatura Czujnika 12"
       },
       "onewire1_romcode": {
         "name": "Kod ROM OneWire 1"
@@ -2790,10 +2790,10 @@
         "name": "Czujnik Temperatury 9"
       },
       "onewire9_value_max": {
-        "name": "Czujnik Temperatury 9 Maximum"
+        "name": "Maksymalna Temperatura Czujnika 9"
       },
       "onewire9_value_min": {
-        "name": "Czujnik Temperatury 9 Minimum"
+        "name": "Minimalna Temperatura Czujnika 9"
       },
       "open_contact": {
         "name": "Styk otwarcia rolety"
@@ -2862,7 +2862,7 @@
         "name": "Poziom Pompy 0 Ostatnio Wyłączony"
       },
       "pump_rpm_0_last_on": {
-        "name": "Pumpen-Stufe 0 Zuletzt Ein"
+        "name": "Poziom Pompy 0 Ostatnio Włączony"
       },
       "pump_rpm_0_runtime": {
         "name": "Czas Pracy Poziomu Pompy 0"
@@ -2877,7 +2877,7 @@
         "name": "Poziom Pompy 1 Ostatnio Wyłączony"
       },
       "pump_rpm_1_last_on": {
-        "name": "Pumpen-Stufe 1 Zuletzt Ein"
+        "name": "Poziom Pompy 1 Ostatnio Włączony"
       },
       "pump_rpm_1_runtime": {
         "name": "Czas Pracy Poziomu Pompy 1"
@@ -2892,7 +2892,7 @@
         "name": "Poziom Pompy 2 Ostatnio Wyłączony"
       },
       "pump_rpm_2_last_on": {
-        "name": "Pumpen-Stufe 2 Zuletzt Ein"
+        "name": "Poziom Pompy 2 Ostatnio Włączony"
       },
       "pump_rpm_2_runtime": {
         "name": "Czas Pracy Poziomu Pompy 2"
@@ -2907,7 +2907,7 @@
         "name": "Poziom Pompy 3 Ostatnio Wyłączony"
       },
       "pump_rpm_3_last_on": {
-        "name": "Pumpen-Stufe 3 Zuletzt Ein"
+        "name": "Poziom Pompy 3 Ostatnio Włączony"
       },
       "pump_rpm_3_runtime": {
         "name": "Czas Pracy Poziomu Pompy 3"
@@ -2916,7 +2916,7 @@
         "name": "Wartość prędkości pompy 3"
       },
       "pump_rs485_pwr": {
-        "name": "RS485-Pumpenleistung"
+        "name": "Moc Pompy RS485"
       },
       "pump_runtime": {
         "name": "Czas Pracy Pompy"
@@ -3047,34 +3047,34 @@
     },
     "switch": {
       "backwash": {
-        "name": "Rückspülung"
+        "name": "Płukanie Wsteczne"
       },
       "backwashrinse": {
-        "name": "Spülung"
+        "name": "Przepłukiwanie"
       },
       "dirule_1": {
-        "name": "Schaltregel 1"
+        "name": "Reguła przełączania 1"
       },
       "dirule_2": {
-        "name": "Schaltregel 2"
+        "name": "Reguła przełączania 2"
       },
       "dirule_3": {
-        "name": "Schaltregel 3"
+        "name": "Reguła przełączania 3"
       },
       "dirule_4": {
-        "name": "Schaltregel 4"
+        "name": "Reguła przełączania 4"
       },
       "dirule_5": {
-        "name": "Schaltregel 5"
+        "name": "Reguła przełączania 5"
       },
       "dirule_6": {
-        "name": "Schaltregel 6"
+        "name": "Reguła przełączania 6"
       },
       "dirule_7": {
-        "name": "Schaltregel 7"
+        "name": "Reguła przełączania 7"
       },
       "dirule_8": {
-        "name": "Schaltregel 8"
+        "name": "Reguła przełączania 8"
       },
       "dos_1_cl": {
         "name": "Dawkowanie Chloru"
@@ -3089,7 +3089,7 @@
         "name": "Dawkowanie pH+"
       },
       "dos_6_floc": {
-        "name": "Flockungsmittel"
+        "name": "Flokulant"
       },
       "eco": {
         "name": "Tryb ECO"
@@ -3143,10 +3143,10 @@
         "name": "Rozszerzenie 2.8"
       },
       "heater": {
-        "name": "Heizer"
+        "name": "Ogrzewanie"
       },
       "light": {
-        "name": "Beleuchtung"
+        "name": "Oświetlenie"
       },
       "omni_dc0": {
         "name": "OMNI DC0"
@@ -3167,10 +3167,10 @@
         "name": "OMNI DC5"
       },
       "pump": {
-        "name": "Filterpumpe"
+        "name": "Pompa Filtracyjna"
       },
       "pvsurplus": {
-        "name": "PV-Überschuss"
+        "name": "Nadwyżka PV"
       },
       "refill": {
         "name": "Uzupełnianie wody"

@@ -1261,7 +1261,7 @@
   "entity": {
     "binary_sensor": {
       "backwash": {
-        "name": "Rückspülstatus"
+        "name": "Состояние обратной промывки"
       },
       "backwash_delay": {
         "name": "Задержка обратной промывки активна"
@@ -1270,91 +1270,91 @@
         "name": "ИИ-наблюдение за купанием"
       },
       "can_range_state": {
-        "name": "Behälter-Bereichs-Problem"
+        "name": "Проблема с остатком в канистре"
       },
       "circulation_state": {
-        "name": "Zirkulationsproblem"
+        "name": "Проблема циркуляции"
       },
       "eco": {
-        "name": "Eco-Modus"
+        "name": "Режим ECO"
       },
       "electrode_flow_state": {
-        "name": "Elektrodendurchfluss-Problem"
+        "name": "Проблема протока через электрод"
       },
       "heater": {
-        "name": "Heizerstatus"
+        "name": "Состояние нагревателя"
       },
       "hw_base_module": {
-        "name": "Hardware: Basismodul"
+        "name": "Оборудование: базовый модуль"
       },
       "hw_dirule_module": {
         "name": "Оборудование: модуль цифровых правил"
       },
       "hw_dmx_module": {
-        "name": "Hardware: DMX-Modul"
+        "name": "Оборудование: модуль DMX"
       },
       "hw_dosing_module": {
-        "name": "Hardware: Dosiermodul"
+        "name": "Оборудование: модуль дозирования"
       },
       "hw_extension_module_1": {
-        "name": "Hardware: Расширениеsmodul 1"
+        "name": "Оборудование: модуль расширения 1"
       },
       "hw_extension_module_2": {
-        "name": "Hardware: Расширениеsmodul 2"
+        "name": "Оборудование: модуль расширения 2"
       },
       "hw_standalone_mode": {
-        "name": "Hardware: Eigenständige Dosiereinheit"
+        "name": "Оборудование: автономный модуль дозирования"
       },
       "input1": {
-        "name": "Digitaler Eingang 1"
+        "name": "Цифровой вход 1"
       },
       "input10": {
-        "name": "Digitaler Eingang 10"
+        "name": "Цифровой вход 10"
       },
       "input11": {
-        "name": "Digitaler Eingang 11"
+        "name": "Цифровой вход 11"
       },
       "input12": {
-        "name": "Digitaler Eingang 12"
+        "name": "Цифровой вход 12"
       },
       "input2": {
-        "name": "Digitaler Eingang 2"
+        "name": "Цифровой вход 2"
       },
       "input3": {
-        "name": "Digitaler Eingang 3"
+        "name": "Цифровой вход 3"
       },
       "input4": {
-        "name": "Digitaler Eingang 4"
+        "name": "Цифровой вход 4"
       },
       "input5": {
-        "name": "Digitaler Eingang 5"
+        "name": "Цифровой вход 5"
       },
       "input6": {
-        "name": "Digitaler Eingang 6"
+        "name": "Цифровой вход 6"
       },
       "input7": {
-        "name": "Digitaler Eingang 7"
+        "name": "Цифровой вход 7"
       },
       "input8": {
-        "name": "Digitaler Eingang 8"
+        "name": "Цифровой вход 8"
       },
       "input9": {
-        "name": "Digitaler Eingang 9"
+        "name": "Цифровой вход 9"
       },
       "input_ce1": {
-        "name": "CE-Eingang 1"
+        "name": "Цифровой вход CE1"
       },
       "input_ce2": {
-        "name": "CE-Eingang 2"
+        "name": "Цифровой вход CE2"
       },
       "input_ce3": {
-        "name": "CE-Eingang 3"
+        "name": "Цифровой вход CE3"
       },
       "input_ce4": {
-        "name": "CE-Eingang 4"
+        "name": "Цифровой вход CE4"
       },
       "light": {
-        "name": "Beleuchtungsstatus"
+        "name": "Состояние освещения"
       },
       "overflow_dryrun": {
         "name": "Сухой ход переливной ёмкости"
@@ -1366,19 +1366,19 @@
         "name": "Долив переливной ёмкости"
       },
       "pressure_state": {
-        "name": "Druckproblem"
+        "name": "Проблема давления"
       },
       "pump": {
-        "name": "Pumpenstatus"
+        "name": "Состояние насоса"
       },
       "pvsurplus": {
-        "name": "PV-Überschuss"
+        "name": "Избыток PV"
       },
       "refill": {
-        "name": "Nachfüllstatus"
+        "name": "Состояние долива воды"
       },
       "solar": {
-        "name": "Solarstatus"
+        "name": "Состояние солнечного нагрева"
       }
     },
     "button": {
@@ -1388,15 +1388,15 @@
     },
     "climate": {
       "heater": {
-        "name": "Pool-Heizer"
+        "name": "Нагреватель бассейна"
       },
       "solar": {
-        "name": "Solar-Heizer"
+        "name": "Солнечный нагрев"
       }
     },
     "cover": {
       "pool_cover": {
-        "name": "Pool-Abdeckung"
+        "name": "Покрытие бассейна"
       }
     },
     "light": {
@@ -1439,10 +1439,10 @@
     },
     "number": {
       "chlorine_canister_volume": {
-        "name": "Chlorbehälter-Volumen"
+        "name": "Объём канистры хлора"
       },
       "chlorine_setpoint": {
-        "name": "Chlor-Sollwert"
+        "name": "Уставка хлора"
       },
       "chlorine_setpoint_electrolysis": {
         "name": "Уставка хлора (электролиз)"
@@ -1463,10 +1463,10 @@
         "name": "CSI: температура"
       },
       "flocculant_canister_volume": {
-        "name": "Flockungsmittel-Behälter-Volumen"
+        "name": "Объём канистры флокулянта"
       },
       "heater_target_temp": {
-        "name": "Zieltemperatur Heizer"
+        "name": "Целевая температура нагрева"
       },
       "lsi_alkalinity": {
         "name": "LSI: карбонатная щёлочность"
@@ -1484,25 +1484,25 @@
         "name": "LSI: температура"
       },
       "orp_setpoint": {
-        "name": "ORP-Sollwert"
+        "name": "Уставка ORP"
       },
       "orp_setpoint_electrolysis": {
         "name": "Уставка ORP (электролиз)"
       },
       "ph_minus_canister_volume": {
-        "name": "pH--Behälter-Volumen"
+        "name": "Объём канистры pH-"
       },
       "ph_plus_canister_volume": {
-        "name": "pH+-Behälter-Volumen"
+        "name": "Объём канистры pH+"
       },
       "ph_setpoint": {
-        "name": "pH-Sollwert"
+        "name": "Уставка pH"
       },
       "pump_speed": {
-        "name": "Pumpendrehzahl"
+        "name": "Скорость насоса"
       },
       "solar_target_temp": {
-        "name": "Zieltemperatur Solar"
+        "name": "Целевая температура солнечного нагрева"
       }
     },
     "select": {
@@ -1866,70 +1866,70 @@
         "name": "Средняя Задержка"
       },
       "backwash": {
-        "name": "Rückspül-Status"
+        "name": "Статус обратной промывки"
       },
       "backwash_delay_running": {
-        "name": "Rückspül-Verzögerung aktiv"
+        "name": "Задержка обратной промывки активна"
       },
       "backwash_delay_timestamp": {
-        "name": "Rückspül-Verzögerung Zeitstempel"
+        "name": "Метка времени задержки обратной промывки"
       },
       "backwash_last_auto_run": {
-        "name": "Letzte automatische Rückspülung"
+        "name": "Последний автоматический запуск обратной промывки"
       },
       "backwash_last_manual_run": {
-        "name": "Letzte manuelle Rückspülung"
+        "name": "Последний ручной запуск обратной промывки"
       },
       "backwash_last_off": {
-        "name": "Rückspülung Zuletzt Aus"
+        "name": "Последнее выключение обратной промывки"
       },
       "backwash_last_on": {
-        "name": "Rückspülung Zuletzt Ein"
+        "name": "Последнее включение обратной промывки"
       },
       "backwash_omni_moving": {
-        "name": "OmniTronic bewegt sich"
+        "name": "Движение OmniTronic"
       },
       "backwash_omni_state": {
-        "name": "OmniTronic-Ventilstatus"
+        "name": "Состояние клапана OmniTronic"
       },
       "backwash_runtime": {
-        "name": "Rückspül-Laufzeit"
+        "name": "Время работы обратной промывки"
       },
       "backwash_state": {
-        "name": "Rückspül-Zustand"
+        "name": "Состояние обратной промывки"
       },
       "backwash_step": {
-        "name": "Rückspülschritt"
+        "name": "Шаг обратной промывки"
       },
       "backwashrinse": {
-        "name": "Nachspül-Status"
+        "name": "Статус ополаскивания"
       },
       "backwashrinse_last_off": {
-        "name": "Nachspülung Zuletzt Aus"
+        "name": "Последнее выключение ополаскивания"
       },
       "backwashrinse_last_on": {
-        "name": "Nachspülung Zuletzt Ein"
+        "name": "Последнее включение ополаскивания"
       },
       "backwashrinse_runtime": {
-        "name": "Nachspül-Laufzeit"
+        "name": "Время работы ополаскивания"
       },
       "backwashstate": {
         "name": "Подробный статус обратной промывки"
       },
       "bathing_ai_last_level": {
-        "name": "Bade-KI Letzter Füllstand"
+        "name": "ИИ купания: последний уровень"
       },
       "bathing_ai_pump_state": {
-        "name": "Bade-KI Pumpenstatus"
+        "name": "ИИ купания: состояние насоса"
       },
       "bathing_ai_pump_timestamp": {
-        "name": "Bade-KI Pumpen-Zeitstempel"
+        "name": "ИИ купания: метка времени насоса"
       },
       "bathing_ai_start_level": {
-        "name": "Bade-KI Startfüllstand"
+        "name": "ИИ купания: начальный уровень"
       },
       "bathing_ai_surveillance_state": {
-        "name": "Bade-KI Überwachungsstatus"
+        "name": "ИИ купания: состояние наблюдения"
       },
       "checksum": {
         "name": "Контрольная сумма конфигурации"
@@ -1950,19 +1950,19 @@
         "name": "Время работы покрытия"
       },
       "cover_state": {
-        "name": "Abdeckungs-Zustand"
+        "name": "Состояние покрытия бассейна"
       },
       "cpu_gov": {
         "name": "Регулятор CPU"
       },
       "cpu_temp": {
-        "name": "CPU-Temperatur"
+        "name": "Температура ЦП"
       },
       "cpu_temp_carrier": {
         "name": "Температура ЦП несущей платы"
       },
       "cpu_uptime": {
-        "name": "System-Betriebszeit"
+        "name": "Время работы системы"
       },
       "csi_index": {
         "name": "Результат CSI"
@@ -1977,139 +1977,139 @@
         "name": "Системная дата"
       },
       "di_rule_1_stopwatch": {
-        "name": "DI-Regel 1 Restzeit"
+        "name": "Оставшееся время правила DI 1"
       },
       "di_rule_2_stopwatch": {
-        "name": "DI-Regel 2 Restzeit"
+        "name": "Оставшееся время правила DI 2"
       },
       "di_rule_3_stopwatch": {
-        "name": "DI-Regel 3 Restzeit"
+        "name": "Оставшееся время правила DI 3"
       },
       "di_rule_4_stopwatch": {
-        "name": "DI-Regel 4 Restzeit"
+        "name": "Оставшееся время правила DI 4"
       },
       "di_rule_5_stopwatch": {
-        "name": "DI-Regel 5 Restzeit"
+        "name": "Оставшееся время правила DI 5"
       },
       "di_rule_6_stopwatch": {
-        "name": "DI-Regel 6 Restzeit"
+        "name": "Оставшееся время правила DI 6"
       },
       "di_rule_7_stopwatch": {
-        "name": "DI-Regel 7 Restzeit"
+        "name": "Оставшееся время правила DI 7"
       },
       "di_rule_8_stopwatch": {
-        "name": "DI-Regel 8 Restzeit"
+        "name": "Оставшееся время правила DI 8"
       },
       "digitalinputrule_state_digitalinput_rule_1": {
-        "name": "Schaltregeln Zustand 1"
+        "name": "Состояние правила цифрового входа 1"
       },
       "digitalinputrule_state_digitalinput_rule_2": {
-        "name": "Schaltregeln Zustand 2"
+        "name": "Состояние правила цифрового входа 2"
       },
       "digitalinputrule_state_digitalinput_rule_3": {
-        "name": "Schaltregeln Zustand 3"
+        "name": "Состояние правила цифрового входа 3"
       },
       "digitalinputrule_state_digitalinput_rule_4": {
-        "name": "Schaltregeln Zustand 4"
+        "name": "Состояние правила цифрового входа 4"
       },
       "digitalinputrule_state_digitalinput_rule_5": {
-        "name": "Schaltregeln Zustand 5"
+        "name": "Состояние правила цифрового входа 5"
       },
       "digitalinputrule_state_digitalinput_rule_6": {
-        "name": "Schaltregeln Zustand 6"
+        "name": "Состояние правила цифрового входа 6"
       },
       "digitalinputrule_state_digitalinput_rule_7": {
-        "name": "Schaltregeln Zustand 7"
+        "name": "Состояние правила цифрового входа 7"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch1": {
-        "name": "Schaltregeln Stoppuhr 1"
+        "name": "Секундомер правила цифрового входа 1"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch2": {
-        "name": "Schaltregeln Stoppuhr 2"
+        "name": "Секундомер правила цифрового входа 2"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch3": {
-        "name": "Schaltregeln Stoppuhr 3"
+        "name": "Секундомер правила цифрового входа 3"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch4": {
-        "name": "Schaltregeln Stoppuhr 4"
+        "name": "Секундомер правила цифрового входа 4"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch5": {
-        "name": "Schaltregeln Stoppuhr 5"
+        "name": "Секундомер правила цифрового входа 5"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch6": {
-        "name": "Schaltregeln Stoppuhr 6"
+        "name": "Секундомер правила цифрового входа 6"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch7": {
-        "name": "Schaltregeln Stoppuhr 7"
+        "name": "Секундомер правила цифрового входа 7"
       },
       "dmx_mode": {
         "name": "Режим DMX"
       },
       "dmx_scene1": {
-        "name": "DMX-Lichtszene 1"
+        "name": "Световая DMX-сцена 1"
       },
       "dmx_scene10": {
-        "name": "DMX-Lichtszene 10"
+        "name": "Световая DMX-сцена 10"
       },
       "dmx_scene11": {
-        "name": "DMX-Lichtszene 11"
+        "name": "Световая DMX-сцена 11"
       },
       "dmx_scene12": {
-        "name": "DMX-Lichtszene 12"
+        "name": "Световая DMX-сцена 12"
       },
       "dmx_scene2": {
-        "name": "DMX-Lichtszene 2"
+        "name": "Световая DMX-сцена 2"
       },
       "dmx_scene3": {
-        "name": "DMX-Lichtszene 3"
+        "name": "Световая DMX-сцена 3"
       },
       "dmx_scene4": {
-        "name": "DMX-Lichtszene 4"
+        "name": "Световая DMX-сцена 4"
       },
       "dmx_scene5": {
-        "name": "DMX-Lichtszene 5"
+        "name": "Световая DMX-сцена 5"
       },
       "dmx_scene6": {
-        "name": "DMX-Lichtszene 6"
+        "name": "Световая DMX-сцена 6"
       },
       "dmx_scene7": {
-        "name": "DMX-Lichtszene 7"
+        "name": "Световая DMX-сцена 7"
       },
       "dmx_scene8": {
-        "name": "DMX-Lichtszene 8"
+        "name": "Световая DMX-сцена 8"
       },
       "dmx_scene9": {
-        "name": "DMX-Lichtszene 9"
+        "name": "Световая DMX-сцена 9"
       },
       "dos_1_cl": {
-        "name": "Chlor-Dosiersystem"
+        "name": "Система дозирования хлора"
       },
       "dos_1_cl_daily": {
-        "name": "Chlor Tagesdosierung (ml)"
+        "name": "Суточный расход хлора (мл)"
       },
       "dos_1_cl_last_can_reset": {
-        "name": "Chlor Letzter Kanister-Reset"
+        "name": "Последний сброс канистры хлора"
       },
       "dos_1_cl_last_off": {
-        "name": "Chlor-Dosierung Zuletzt Aus"
+        "name": "Последнее выключение дозирования хлора"
       },
       "dos_1_cl_last_on": {
-        "name": "Chlor-Dosierung Zuletzt Ein"
+        "name": "Последнее включение дозирования хлора"
       },
       "dos_1_cl_remaining_range": {
         "name": "Остаток хлора"
       },
       "dos_1_cl_runtime": {
-        "name": "Chlor-Dosierlaufzeit"
+        "name": "Время работы дозирования хлора"
       },
       "dos_1_cl_state": {
-        "name": "Chlordosier-Status"
+        "name": "Состояние дозирования хлора"
       },
       "dos_1_cl_total_can": {
-        "name": "Chlor Kanisterinhalt (ml)"
+        "name": "Количество хлора в канистре (мл)"
       },
       "dos_1_cl_type": {
-        "name": "Chlor Dosiertyp"
+        "name": "Тип дозирования хлора"
       },
       "dos_1_cl_use": {
         "name": "Дозирование хлора настроено"
@@ -2118,7 +2118,7 @@
         "name": "Полярность электролиза"
       },
       "dos_2_elo": {
-        "name": "Elektrolyse-Dosiersystem"
+        "name": "Система электролиза"
       },
       "dos_2_elo_daily": {
         "name": "Суточная выработка электролиза"
@@ -2127,25 +2127,25 @@
         "name": "Последний сброс электролизной ячейки"
       },
       "dos_2_elo_last_off": {
-        "name": "Elektrolyse-Dosierung Zuletzt Aus"
+        "name": "Последнее выключение электролиза"
       },
       "dos_2_elo_last_on": {
-        "name": "Elektrolyse-Dosierung Zuletzt Ein"
+        "name": "Последнее включение электролиза"
       },
       "dos_2_elo_remaining_range": {
         "name": "Остаток ресурса электролиза"
       },
       "dos_2_elo_runtime": {
-        "name": "Elektrolyse-Dosierlaufzeit"
+        "name": "Время работы электролиза"
       },
       "dos_2_elo_state": {
-        "name": "Elektrolyse-Dosierstatus"
+        "name": "Статус электролиза"
       },
       "dos_2_elo_total_can": {
         "name": "Оставшийся ресурс электролизной ячейки"
       },
       "dos_2_elo_type": {
-        "name": "Elektrolyse Dosiertyp"
+        "name": "Тип дозирования электролиза"
       },
       "dos_2_elo_use": {
         "name": "Электролиз настроен"
@@ -2157,115 +2157,115 @@
         "name": "Время работы реверса электролиза"
       },
       "dos_4_phm": {
-        "name": "pH- Dosiersystem"
+        "name": "Система дозирования pH-"
       },
       "dos_4_phm_daily": {
-        "name": "pH- Tagesdosierung (ml)"
+        "name": "Суточный расход pH- (мл)"
       },
       "dos_4_phm_last_can_reset": {
-        "name": "pH- Letzter Kanister-Reset"
+        "name": "Последний сброс канистры pH-"
       },
       "dos_4_phm_last_off": {
-        "name": "pH--Dosierung Zuletzt Aus"
+        "name": "Последнее выключение дозирования pH-"
       },
       "dos_4_phm_last_on": {
-        "name": "pH--Dosierung Zuletzt Ein"
+        "name": "Последнее включение дозирования pH-"
       },
       "dos_4_phm_remaining_range": {
         "name": "Остаток pH-"
       },
       "dos_4_phm_runtime": {
-        "name": "pH--Dosierlaufzeit"
+        "name": "Время работы дозирования pH-"
       },
       "dos_4_phm_state": {
-        "name": "pH--Dosier-Status"
+        "name": "Состояние дозирования pH-"
       },
       "dos_4_phm_total_can": {
-        "name": "pH- Kanisterinhalt (ml)"
+        "name": "Количество pH- в канистре (мл)"
       },
       "dos_4_phm_type": {
-        "name": "pH- Dosiertyp"
+        "name": "Тип дозирования pH-"
       },
       "dos_4_phm_use": {
         "name": "Дозирование pH- настроено"
       },
       "dos_5_php": {
-        "name": "pH+ Dosiersystem"
+        "name": "Система дозирования pH+"
       },
       "dos_5_php_daily": {
-        "name": "pH+ Tagesdosierung (ml)"
+        "name": "Суточный расход pH+ (мл)"
       },
       "dos_5_php_last_can_reset": {
-        "name": "pH+ Letzter Kanister-Reset"
+        "name": "Последний сброс канистры pH+"
       },
       "dos_5_php_last_off": {
-        "name": "pH+-Dosierung Zuletzt Aus"
+        "name": "Последнее выключение дозирования pH+"
       },
       "dos_5_php_last_on": {
-        "name": "pH+-Dosierung Zuletzt Ein"
+        "name": "Последнее включение дозирования pH+"
       },
       "dos_5_php_remaining_range": {
         "name": "Остаток pH+"
       },
       "dos_5_php_runtime": {
-        "name": "pH+-Dosierlaufzeit"
+        "name": "Время работы дозирования pH+"
       },
       "dos_5_php_state": {
-        "name": "pH+-Dosier-Status"
+        "name": "Состояние дозирования pH+"
       },
       "dos_5_php_total_can": {
-        "name": "pH+ Kanisterinhalt (ml)"
+        "name": "Количество pH+ в канистре (мл)"
       },
       "dos_5_php_type": {
-        "name": "pH+ Dosiertyp"
+        "name": "Тип дозирования pH+"
       },
       "dos_5_php_use": {
         "name": "Дозирование pH+ настроено"
       },
       "dos_6_floc": {
-        "name": "Flockmittel-Dosiersystem"
+        "name": "Система дозирования флокулянта"
       },
       "dos_6_floc_daily": {
-        "name": "Flockmittel Tagesdosierung (ml)"
+        "name": "Суточный расход флокулянта (мл)"
       },
       "dos_6_floc_last_can_reset": {
-        "name": "Flockmittel Letzter Kanister-Reset"
+        "name": "Последний сброс канистры флокулянта"
       },
       "dos_6_floc_last_off": {
-        "name": "Flockmittel-Dosierung Zuletzt Aus"
+        "name": "Последнее выключение дозирования флокулянта"
       },
       "dos_6_floc_last_on": {
-        "name": "Flockmittel-Dosierung Zuletzt Ein"
+        "name": "Последнее включение дозирования флокулянта"
       },
       "dos_6_floc_remaining_range": {
         "name": "Остаток флокулянта"
       },
       "dos_6_floc_runtime": {
-        "name": "Flockmittel-Dosierlaufzeit"
+        "name": "Время работы дозирования флокулянта"
       },
       "dos_6_floc_state": {
-        "name": "Flockungsstatus"
+        "name": "Состояние дозирования флокулянта"
       },
       "dos_6_floc_total_can": {
-        "name": "Flockmittel Kanisterinhalt (ml)"
+        "name": "Количество флокулянта в канистре (мл)"
       },
       "dos_6_floc_type": {
-        "name": "Flockmittel Dosiertyp"
+        "name": "Тип дозирования флокулянта"
       },
       "dos_6_floc_use": {
         "name": "Дозирование флокулянта настроено"
       },
       "eco": {
-        "name": "Eco-Modus Status"
+        "name": "Статус режима ECO"
       },
       "eco_last_off": {
-        "name": "Eco Zuletzt Aus"
+        "name": "Последнее выключение режима ECO"
       },
       "eco_last_on": {
-        "name": "Eco Zuletzt Ein"
+        "name": "Последнее включение режима ECO"
       },
       "eco_runtime": {
-        "name": "Eco-Laufzeit"
+        "name": "Время работы режима ECO"
       },
       "error_code": {
         "name": "Код ошибки"
@@ -2277,220 +2277,220 @@
         "name": "Расширение 1.1"
       },
       "ext1_1_last_off": {
-        "name": "Расширение 1.1 Zuletzt Aus"
+        "name": "Последнее выключение расширения 1.1"
       },
       "ext1_1_last_on": {
-        "name": "Расширение 1.1 Zuletzt Ein"
+        "name": "Последнее включение расширения 1.1"
       },
       "ext1_1_runtime": {
-        "name": "Расширение 1.1 Laufzeit"
+        "name": "Время работы расширения 1.1"
       },
       "ext1_2": {
         "name": "Расширение 1.2"
       },
       "ext1_2_last_off": {
-        "name": "Расширение 1.2 Zuletzt Aus"
+        "name": "Последнее выключение расширения 1.2"
       },
       "ext1_2_last_on": {
-        "name": "Расширение 1.2 Zuletzt Ein"
+        "name": "Последнее включение расширения 1.2"
       },
       "ext1_2_runtime": {
-        "name": "Расширение 1.2 Laufzeit"
+        "name": "Время работы расширения 1.2"
       },
       "ext1_3": {
         "name": "Расширение 1.3"
       },
       "ext1_3_last_off": {
-        "name": "Расширение 1.3 Zuletzt Aus"
+        "name": "Последнее выключение расширения 1.3"
       },
       "ext1_3_last_on": {
-        "name": "Расширение 1.3 Zuletzt Ein"
+        "name": "Последнее включение расширения 1.3"
       },
       "ext1_3_runtime": {
-        "name": "Расширение 1.3 Laufzeit"
+        "name": "Время работы расширения 1.3"
       },
       "ext1_4": {
         "name": "Расширение 1.4"
       },
       "ext1_4_last_off": {
-        "name": "Расширение 1.4 Zuletzt Aus"
+        "name": "Последнее выключение расширения 1.4"
       },
       "ext1_4_last_on": {
-        "name": "Расширение 1.4 Zuletzt Ein"
+        "name": "Последнее включение расширения 1.4"
       },
       "ext1_4_runtime": {
-        "name": "Расширение 1.4 Laufzeit"
+        "name": "Время работы расширения 1.4"
       },
       "ext1_5": {
         "name": "Расширение 1.5"
       },
       "ext1_5_last_off": {
-        "name": "Расширение 1.5 Zuletzt Aus"
+        "name": "Последнее выключение расширения 1.5"
       },
       "ext1_5_last_on": {
-        "name": "Расширение 1.5 Zuletzt Ein"
+        "name": "Последнее включение расширения 1.5"
       },
       "ext1_5_runtime": {
-        "name": "Расширение 1.5 Laufzeit"
+        "name": "Время работы расширения 1.5"
       },
       "ext1_6": {
         "name": "Расширение 1.6"
       },
       "ext1_6_last_off": {
-        "name": "Расширение 1.6 Zuletzt Aus"
+        "name": "Последнее выключение расширения 1.6"
       },
       "ext1_6_last_on": {
-        "name": "Расширение 1.6 Zuletzt Ein"
+        "name": "Последнее включение расширения 1.6"
       },
       "ext1_6_runtime": {
-        "name": "Расширение 1.6 Laufzeit"
+        "name": "Время работы расширения 1.6"
       },
       "ext1_7": {
         "name": "Расширение 1.7"
       },
       "ext1_7_last_off": {
-        "name": "Расширение 1.7 Zuletzt Aus"
+        "name": "Последнее выключение расширения 1.7"
       },
       "ext1_7_last_on": {
-        "name": "Расширение 1.7 Zuletzt Ein"
+        "name": "Последнее включение расширения 1.7"
       },
       "ext1_7_runtime": {
-        "name": "Расширение 1.7 Laufzeit"
+        "name": "Время работы расширения 1.7"
       },
       "ext1_8": {
         "name": "Расширение 1.8"
       },
       "ext1_8_last_off": {
-        "name": "Расширение 1.8 Zuletzt Aus"
+        "name": "Последнее выключение расширения 1.8"
       },
       "ext1_8_last_on": {
-        "name": "Расширение 1.8 Zuletzt Ein"
+        "name": "Последнее включение расширения 1.8"
       },
       "ext1_8_runtime": {
-        "name": "Расширение 1.8 Laufzeit"
+        "name": "Время работы расширения 1.8"
       },
       "ext2_1": {
         "name": "Расширение 2.1"
       },
       "ext2_1_last_off": {
-        "name": "Расширение 2.1 Zuletzt Aus"
+        "name": "Последнее выключение расширения 2.1"
       },
       "ext2_1_last_on": {
-        "name": "Расширение 2.1 Zuletzt Ein"
+        "name": "Последнее включение расширения 2.1"
       },
       "ext2_1_runtime": {
-        "name": "Расширение 2.1 Laufzeit"
+        "name": "Время работы расширения 2.1"
       },
       "ext2_2": {
         "name": "Расширение 2.2"
       },
       "ext2_2_last_off": {
-        "name": "Расширение 2.2 Zuletzt Aus"
+        "name": "Последнее выключение расширения 2.2"
       },
       "ext2_2_last_on": {
-        "name": "Расширение 2.2 Zuletzt Ein"
+        "name": "Последнее включение расширения 2.2"
       },
       "ext2_2_runtime": {
-        "name": "Расширение 2.2 Laufzeit"
+        "name": "Время работы расширения 2.2"
       },
       "ext2_3": {
         "name": "Расширение 2.3"
       },
       "ext2_3_last_off": {
-        "name": "Расширение 2.3 Zuletzt Aus"
+        "name": "Последнее выключение расширения 2.3"
       },
       "ext2_3_last_on": {
-        "name": "Расширение 2.3 Zuletzt Ein"
+        "name": "Последнее включение расширения 2.3"
       },
       "ext2_3_runtime": {
-        "name": "Расширение 2.3 Laufzeit"
+        "name": "Время работы расширения 2.3"
       },
       "ext2_4": {
         "name": "Расширение 2.4"
       },
       "ext2_4_last_off": {
-        "name": "Расширение 2.4 Zuletzt Aus"
+        "name": "Последнее выключение расширения 2.4"
       },
       "ext2_4_last_on": {
-        "name": "Расширение 2.4 Zuletzt Ein"
+        "name": "Последнее включение расширения 2.4"
       },
       "ext2_4_runtime": {
-        "name": "Расширение 2.4 Laufzeit"
+        "name": "Время работы расширения 2.4"
       },
       "ext2_5": {
         "name": "Расширение 2.5"
       },
       "ext2_5_last_off": {
-        "name": "Расширение 2.5 Zuletzt Aus"
+        "name": "Последнее выключение расширения 2.5"
       },
       "ext2_5_last_on": {
-        "name": "Расширение 2.5 Zuletzt Ein"
+        "name": "Последнее включение расширения 2.5"
       },
       "ext2_5_runtime": {
-        "name": "Расширение 2.5 Laufzeit"
+        "name": "Время работы расширения 2.5"
       },
       "ext2_6": {
         "name": "Расширение 2.6"
       },
       "ext2_6_last_off": {
-        "name": "Расширение 2.6 Zuletzt Aus"
+        "name": "Последнее выключение расширения 2.6"
       },
       "ext2_6_last_on": {
-        "name": "Расширение 2.6 Zuletzt Ein"
+        "name": "Последнее включение расширения 2.6"
       },
       "ext2_6_runtime": {
-        "name": "Расширение 2.6 Laufzeit"
+        "name": "Время работы расширения 2.6"
       },
       "ext2_7": {
         "name": "Расширение 2.7"
       },
       "ext2_7_last_off": {
-        "name": "Расширение 2.7 Zuletzt Aus"
+        "name": "Последнее выключение расширения 2.7"
       },
       "ext2_7_last_on": {
-        "name": "Расширение 2.7 Zuletzt Ein"
+        "name": "Последнее включение расширения 2.7"
       },
       "ext2_7_runtime": {
-        "name": "Расширение 2.7 Laufzeit"
+        "name": "Время работы расширения 2.7"
       },
       "ext2_8": {
         "name": "Расширение 2.8"
       },
       "ext2_8_last_off": {
-        "name": "Расширение 2.8 Zuletzt Aus"
+        "name": "Последнее выключение расширения 2.8"
       },
       "ext2_8_last_on": {
-        "name": "Расширение 2.8 Zuletzt Ein"
+        "name": "Последнее включение расширения 2.8"
       },
       "ext2_8_runtime": {
-        "name": "Расширение 2.8 Laufzeit"
+        "name": "Время работы расширения 2.8"
       },
       "flow_rate": {
         "name": "Расход"
       },
       "fw": {
-        "name": "Firmware-Version"
+        "name": "Версия прошивки"
       },
       "heater": {
-        "name": "Heizungs-Status"
+        "name": "Статус нагревателя"
       },
       "heater_last_off": {
-        "name": "Heizung Zuletzt Aus"
+        "name": "Последнее выключение нагревателя"
       },
       "heater_last_on": {
-        "name": "Heizung Zuletzt Ein"
+        "name": "Последнее включение нагревателя"
       },
       "heater_postrun_time": {
-        "name": "Heizung Nachlaufzeit"
+        "name": "Время выбега нагревателя"
       },
       "heater_runtime": {
-        "name": "Heizungs-Laufzeit"
+        "name": "Время работы нагревателя"
       },
       "heater_set_temp": {
         "name": "Уставка нагрева (контроллер)"
       },
       "heaterstate": {
-        "name": "Heizung Detail-Status"
+        "name": "Подробный статус нагревателя"
       },
       "hw_serial_carrier": {
         "name": "Серийный номер несущей платы"
@@ -2505,52 +2505,52 @@
         "name": "Расход насоса"
       },
       "input1": {
-        "name": "Digitaleingang 1"
+        "name": "Цифровой вход 1"
       },
       "input10": {
-        "name": "Digitaleingang 10"
+        "name": "Цифровой вход 10"
       },
       "input11": {
-        "name": "Digitaleingang 11"
+        "name": "Цифровой вход 11"
       },
       "input12": {
-        "name": "Digitaleingang 12"
+        "name": "Цифровой вход 12"
       },
       "input2": {
-        "name": "Digitaleingang 2"
+        "name": "Цифровой вход 2"
       },
       "input3": {
-        "name": "Digitaleingang 3"
+        "name": "Цифровой вход 3"
       },
       "input4": {
-        "name": "Digitaleingang 4"
+        "name": "Цифровой вход 4"
       },
       "input5": {
-        "name": "Digitaleingang 5"
+        "name": "Цифровой вход 5"
       },
       "input6": {
-        "name": "Digitaleingang 6"
+        "name": "Цифровой вход 6"
       },
       "input7": {
-        "name": "Digitaleingang 7"
+        "name": "Цифровой вход 7"
       },
       "input8": {
-        "name": "Digitaleingang 8"
+        "name": "Цифровой вход 8"
       },
       "input9": {
-        "name": "Digitaleingang 9"
+        "name": "Цифровой вход 9"
       },
       "input_ce1": {
-        "name": "Kanister-Leersensor 1"
+        "name": "Датчик пустой канистры 1"
       },
       "input_ce2": {
-        "name": "Kanister-Leersensor 2"
+        "name": "Датчик пустой канистры 2"
       },
       "input_ce3": {
-        "name": "Kanister-Leersensor 3"
+        "name": "Датчик пустой канистры 3"
       },
       "input_ce4": {
-        "name": "Kanister-Leersensor 4"
+        "name": "Датчик пустой канистры 4"
       },
       "inputz1z2": {
         "name": "Цифровые входы Z1/Z2"
@@ -2571,19 +2571,19 @@
         "name": "Последнее направление движения покрытия"
       },
       "light": {
-        "name": "Beleuchtungs-Status"
+        "name": "Статус освещения"
       },
       "light_last_off": {
-        "name": "Beleuchtung Zuletzt Aus"
+        "name": "Последнее выключение освещения"
       },
       "light_last_on": {
-        "name": "Beleuchtung Zuletzt Ein"
+        "name": "Последнее включение освещения"
       },
       "light_mode": {
         "name": "Режим освещения"
       },
       "light_runtime": {
-        "name": "Beleuchtungs-Laufzeit"
+        "name": "Время работы освещения"
       },
       "light_scene_1": {
         "name": "Световая сцена 1"
@@ -2625,7 +2625,7 @@
         "name": "Подробный статус освещения"
       },
       "load_avg": {
-        "name": "CPU-Auslastung"
+        "name": "Средняя загрузка ЦП"
       },
       "lsi_index": {
         "name": "Результат LSI"
@@ -2658,10 +2658,10 @@
         "name": "Датчик Температуры 10"
       },
       "onewire10_value_max": {
-        "name": "Датчик Температуры 10 Maximum"
+        "name": "Максимальная температура датчика 10"
       },
       "onewire10_value_min": {
-        "name": "Датчик Температуры 10 Minimum"
+        "name": "Минимальная температура датчика 10"
       },
       "onewire11_romcode": {
         "name": "ROM-код OneWire 11"
@@ -2670,10 +2670,10 @@
         "name": "Датчик Температуры 11"
       },
       "onewire11_value_max": {
-        "name": "Датчик Температуры 11 Maximum"
+        "name": "Максимальная температура датчика 11"
       },
       "onewire11_value_min": {
-        "name": "Датчик Температуры 11 Minimum"
+        "name": "Минимальная температура датчика 11"
       },
       "onewire12_romcode": {
         "name": "ROM-код OneWire 12"
@@ -2682,10 +2682,10 @@
         "name": "Датчик Температуры 12"
       },
       "onewire12_value_max": {
-        "name": "Датчик Температуры 12 Maximum"
+        "name": "Максимальная температура датчика 12"
       },
       "onewire12_value_min": {
-        "name": "Датчик Температуры 12 Minimum"
+        "name": "Минимальная температура датчика 12"
       },
       "onewire1_romcode": {
         "name": "ROM-код OneWire 1"
@@ -2694,10 +2694,10 @@
         "name": "Вода бассейна"
       },
       "onewire1_value_max": {
-        "name": "Wassertemperatur Maximum"
+        "name": "Максимальная температура воды"
       },
       "onewire1_value_min": {
-        "name": "Wassertemperatur Minimum"
+        "name": "Минимальная температура воды"
       },
       "onewire2_romcode": {
         "name": "ROM-код OneWire 2"
@@ -2706,10 +2706,10 @@
         "name": "Внешняя температура"
       },
       "onewire2_value_max": {
-        "name": "Внешняя Температура Maximum"
+        "name": "Максимальная внешняя температура"
       },
       "onewire2_value_min": {
-        "name": "Внешняя Температура Minimum"
+        "name": "Минимальная внешняя температура"
       },
       "onewire3_romcode": {
         "name": "ROM-код OneWire 3"
@@ -2718,10 +2718,10 @@
         "name": "Солнечный абсорбер"
       },
       "onewire3_value_max": {
-        "name": "Солнечный Абсорбер Maximum"
+        "name": "Максимальная температура солнечного абсорбера"
       },
       "onewire3_value_min": {
-        "name": "Солнечный Абсорбер Minimum"
+        "name": "Минимальная температура солнечного абсорбера"
       },
       "onewire4_romcode": {
         "name": "ROM-код OneWire 4"
@@ -2730,10 +2730,10 @@
         "name": "Возврат абсорбера"
       },
       "onewire4_value_max": {
-        "name": "Возврат Абсорбера Maximum"
+        "name": "Максимальная температура возврата абсорбера"
       },
       "onewire4_value_min": {
-        "name": "Возврат Абсорбера Minimum"
+        "name": "Минимальная температура возврата абсорбера"
       },
       "onewire5_romcode": {
         "name": "ROM-код OneWire 5"
@@ -2742,10 +2742,10 @@
         "name": "Теплообменник"
       },
       "onewire5_value_max": {
-        "name": "Вход Теплообменника Maximum"
+        "name": "Максимальная температура на входе теплообменника"
       },
       "onewire5_value_min": {
-        "name": "Вход Теплообменника Minimum"
+        "name": "Минимальная температура на входе теплообменника"
       },
       "onewire6_romcode": {
         "name": "ROM-код OneWire 6"
@@ -2754,10 +2754,10 @@
         "name": "Тепловой аккумулятор"
       },
       "onewire6_value_max": {
-        "name": "Выход Теплообменника Maximum"
+        "name": "Максимальная температура на выходе теплообменника"
       },
       "onewire6_value_min": {
-        "name": "Выход Теплообменника Minimum"
+        "name": "Минимальная температура на выходе теплообменника"
       },
       "onewire7_romcode": {
         "name": "ROM-код OneWire 7"
@@ -2766,10 +2766,10 @@
         "name": "Датчик температуры 7"
       },
       "onewire7_value_max": {
-        "name": "Датчик Температуры 7 Maximum"
+        "name": "Максимальная температура датчика 7"
       },
       "onewire7_value_min": {
-        "name": "Датчик Температуры 7 Minimum"
+        "name": "Минимальная температура датчика 7"
       },
       "onewire8_romcode": {
         "name": "ROM-код OneWire 8"
@@ -2778,10 +2778,10 @@
         "name": "Датчик температуры 8"
       },
       "onewire8_value_max": {
-        "name": "Датчик Температуры 8 Maximum"
+        "name": "Максимальная температура датчика 8"
       },
       "onewire8_value_min": {
-        "name": "Датчик Температуры 8 Minimum"
+        "name": "Минимальная температура датчика 8"
       },
       "onewire9_romcode": {
         "name": "ROM-код OneWire 9"
@@ -2790,10 +2790,10 @@
         "name": "Датчик Температуры 9"
       },
       "onewire9_value_max": {
-        "name": "Датчик Температуры 9 Maximum"
+        "name": "Максимальная температура датчика 9"
       },
       "onewire9_value_min": {
-        "name": "Датчик Температуры 9 Minimum"
+        "name": "Минимальная температура датчика 9"
       },
       "open_contact": {
         "name": "Контакт открытия покрытия"
@@ -2802,28 +2802,28 @@
         "name": "Значение ORP"
       },
       "orp_value_max": {
-        "name": "Redoxpotential Maximum"
+        "name": "Максимальное значение ORP"
       },
       "orp_value_min": {
-        "name": "Redoxpotential Minimum"
+        "name": "Минимальное значение ORP"
       },
       "overflow_dryrun_state": {
-        "name": "Überlauf Trockenlauf-Status"
+        "name": "Состояние сухого хода переливной ёмкости"
       },
       "overflow_overfill_state": {
-        "name": "Überfüllungs-Status"
+        "name": "Состояние переполнения переливной ёмкости"
       },
       "overflow_refill_state": {
-        "name": "Überlauf Nachfüll-Status"
+        "name": "Состояние долива переливной ёмкости"
       },
       "ph_value": {
         "name": "Значение pH"
       },
       "ph_value_max": {
-        "name": "Значение pH Maximum"
+        "name": "Максимальное значение pH"
       },
       "ph_value_min": {
-        "name": "Значение pH Minimum"
+        "name": "Минимальное значение pH"
       },
       "pool_health": {
         "name": "Состояние бассейна",
@@ -2838,142 +2838,142 @@
         "name": "Содержание хлора"
       },
       "pot_value_max": {
-        "name": "Содержание Хлора Maximum"
+        "name": "Максимальное содержание хлора"
       },
       "pot_value_min": {
-        "name": "Содержание Хлора Minimum"
+        "name": "Минимальное содержание хлора"
       },
       "pump": {
-        "name": "Pumpen-Status"
+        "name": "Статус насоса"
       },
       "pump_estimated_power": {
         "name": "Мощность Насоса (Расчетная)"
       },
       "pump_last_off": {
-        "name": "Pumpe Zuletzt Aus"
+        "name": "Последнее выключение насоса"
       },
       "pump_last_on": {
-        "name": "Pumpe Zuletzt Ein"
+        "name": "Последнее включение насоса"
       },
       "pump_rpm_0": {
-        "name": "Pumpen-Stufe 0"
+        "name": "Скорость насоса 0"
       },
       "pump_rpm_0_last_off": {
-        "name": "Pumpen-Stufe 0 Zuletzt Aus"
+        "name": "Последнее выключение насоса на скорости 0"
       },
       "pump_rpm_0_last_on": {
-        "name": "Pumpen-Stufe 0 Zuletzt Ein"
+        "name": "Последнее включение насоса на скорости 0"
       },
       "pump_rpm_0_runtime": {
-        "name": "Pumpen-Stufe 0 Laufzeit"
+        "name": "Время работы насоса на скорости 0"
       },
       "pump_rpm_0_value": {
         "name": "Значение скорости насоса 0"
       },
       "pump_rpm_1": {
-        "name": "Pumpen-Stufe 1"
+        "name": "Скорость насоса 1"
       },
       "pump_rpm_1_last_off": {
-        "name": "Pumpen-Stufe 1 Zuletzt Aus"
+        "name": "Последнее выключение насоса на скорости 1"
       },
       "pump_rpm_1_last_on": {
-        "name": "Pumpen-Stufe 1 Zuletzt Ein"
+        "name": "Последнее включение насоса на скорости 1"
       },
       "pump_rpm_1_runtime": {
-        "name": "Pumpen-Stufe 1 Laufzeit"
+        "name": "Время работы насоса на скорости 1"
       },
       "pump_rpm_1_value": {
         "name": "Значение скорости насоса 1"
       },
       "pump_rpm_2": {
-        "name": "Pumpen-Stufe 2"
+        "name": "Скорость насоса 2"
       },
       "pump_rpm_2_last_off": {
-        "name": "Pumpen-Stufe 2 Zuletzt Aus"
+        "name": "Последнее выключение насоса на скорости 2"
       },
       "pump_rpm_2_last_on": {
-        "name": "Pumpen-Stufe 2 Zuletzt Ein"
+        "name": "Последнее включение насоса на скорости 2"
       },
       "pump_rpm_2_runtime": {
-        "name": "Pumpen-Stufe 2 Laufzeit"
+        "name": "Время работы насоса на скорости 2"
       },
       "pump_rpm_2_value": {
         "name": "Значение скорости насоса 2"
       },
       "pump_rpm_3": {
-        "name": "Pumpen-Stufe 3"
+        "name": "Скорость насоса 3"
       },
       "pump_rpm_3_last_off": {
-        "name": "Pumpen-Stufe 3 Zuletzt Aus"
+        "name": "Последнее выключение насоса на скорости 3"
       },
       "pump_rpm_3_last_on": {
-        "name": "Pumpen-Stufe 3 Zuletzt Ein"
+        "name": "Последнее включение насоса на скорости 3"
       },
       "pump_rpm_3_runtime": {
-        "name": "Pumpen-Stufe 3 Laufzeit"
+        "name": "Время работы насоса на скорости 3"
       },
       "pump_rpm_3_value": {
         "name": "Значение скорости насоса 3"
       },
       "pump_rs485_pwr": {
-        "name": "RS485-Pumpenleistung"
+        "name": "Мощность насоса RS485"
       },
       "pump_runtime": {
-        "name": "Pumpen-Laufzeit"
+        "name": "Время работы насоса"
       },
       "pumppriostate": {
         "name": "Статус приоритета насоса"
       },
       "pumpstate": {
-        "name": "Pumpen Detail-Status"
+        "name": "Подробный статус насоса"
       },
       "pvsurplus": {
-        "name": "PV-Überschuss Status"
+        "name": "Статус избытка PV"
       },
       "recovery_success_rate": {
         "name": "Скорость Успешного Восстановления"
       },
       "refill": {
-        "name": "Nachfüll-Status"
+        "name": "Статус долива воды"
       },
       "refill_last_off": {
-        "name": "Nachfüllung Zuletzt Aus"
+        "name": "Последнее выключение долива воды"
       },
       "refill_last_on": {
-        "name": "Nachfüllung Zuletzt Ein"
+        "name": "Последнее включение долива воды"
       },
       "refill_runtime": {
-        "name": "Nachfüll-Laufzeit"
+        "name": "Время работы долива воды"
       },
       "refill_state": {
         "name": "Подробный статус долива воды"
       },
       "solar": {
-        "name": "Solar-Status"
+        "name": "Статус солнечного нагрева"
       },
       "solar_last_off": {
-        "name": "Solar Zuletzt Aus"
+        "name": "Последнее выключение солнечного нагрева"
       },
       "solar_last_on": {
-        "name": "Solar Zuletzt Ein"
+        "name": "Последнее включение солнечного нагрева"
       },
       "solar_maxtemp": {
         "name": "Максимальная температура солнечного нагрева"
       },
       "solar_runtime": {
-        "name": "Solar-Laufzeit"
+        "name": "Время работы солнечного нагрева"
       },
       "solarstate": {
-        "name": "Solar Detail-Status"
+        "name": "Подробный статус солнечного нагрева"
       },
       "sw_update_available": {
         "name": "Доступно обновление ПО"
       },
       "sw_version": {
-        "name": "Software-Version"
+        "name": "Версия ПО"
       },
       "sw_version_carrier": {
-        "name": "Carrier Software-Version"
+        "name": "Версия ПО несущей платы"
       },
       "system_carrier_alive_count": {
         "name": "Сигналы heartbeat несущей платы"
@@ -2982,10 +2982,10 @@
         "name": "Сбои сигналов heartbeat несущей платы"
       },
       "system_carrier_cpu_temperature": {
-        "name": "Träger-CPU-Temperatur"
+        "name": "Температура ЦП несущей платы"
       },
       "system_cpu_temperature": {
-        "name": "System CPU-Temperatur"
+        "name": "Температура ЦП системы"
       },
       "system_dosagemodule_alive_count": {
         "name": "Сигналы heartbeat модуля дозирования"
@@ -2994,7 +2994,7 @@
         "name": "Сбои сигналов heartbeat модуля дозирования"
       },
       "system_dosagemodule_cpu_temperature": {
-        "name": "Dosier-Modul CPU-Temperatur"
+        "name": "Температура ЦП модуля дозирования"
       },
       "system_ext1module_alive_count": {
         "name": "Сигналы heartbeat модуля расширения 1"
@@ -3006,16 +3006,16 @@
         "name": "Состояние Системы"
       },
       "system_memory": {
-        "name": "Systemspeicher"
+        "name": "Системная память"
       },
       "system_memoryusage": {
-        "name": "Speichernutzung"
+        "name": "Использование системной памяти"
       },
       "system_relais_status": {
-        "name": "Relais-Status"
+        "name": "Статус реле"
       },
       "system_safety_timer_active": {
-        "name": "Sicherheitstimer aktiv"
+        "name": "Таймер безопасности активен"
       },
       "temprule_1": {
         "name": "Температурное правило 1"
@@ -3047,34 +3047,34 @@
     },
     "switch": {
       "backwash": {
-        "name": "Rückspülung"
+        "name": "Обратная промывка"
       },
       "backwashrinse": {
-        "name": "Spülung"
+        "name": "Ополаскивание"
       },
       "dirule_1": {
-        "name": "Schaltregel 1"
+        "name": "Правило переключения 1"
       },
       "dirule_2": {
-        "name": "Schaltregel 2"
+        "name": "Правило переключения 2"
       },
       "dirule_3": {
-        "name": "Schaltregel 3"
+        "name": "Правило переключения 3"
       },
       "dirule_4": {
-        "name": "Schaltregel 4"
+        "name": "Правило переключения 4"
       },
       "dirule_5": {
-        "name": "Schaltregel 5"
+        "name": "Правило переключения 5"
       },
       "dirule_6": {
-        "name": "Schaltregel 6"
+        "name": "Правило переключения 6"
       },
       "dirule_7": {
-        "name": "Schaltregel 7"
+        "name": "Правило переключения 7"
       },
       "dirule_8": {
-        "name": "Schaltregel 8"
+        "name": "Правило переключения 8"
       },
       "dos_1_cl": {
         "name": "Дозирование Хлора"
@@ -3089,7 +3089,7 @@
         "name": "Дозирование pH+"
       },
       "dos_6_floc": {
-        "name": "Flockungsmittel"
+        "name": "Флокулянт"
       },
       "eco": {
         "name": "Режим ECO"
@@ -3143,10 +3143,10 @@
         "name": "Расширение 2.8"
       },
       "heater": {
-        "name": "Heizer"
+        "name": "Нагреватель"
       },
       "light": {
-        "name": "Beleuchtung"
+        "name": "Освещение"
       },
       "omni_dc0": {
         "name": "OMNI DC0"
@@ -3167,10 +3167,10 @@
         "name": "OMNI DC5"
       },
       "pump": {
-        "name": "Filterpumpe"
+        "name": "Фильтрационный насос"
       },
       "pvsurplus": {
-        "name": "PV-Überschuss"
+        "name": "Избыток PV"
       },
       "refill": {
         "name": "Долив воды"
