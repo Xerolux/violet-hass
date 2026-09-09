@@ -12,6 +12,7 @@ Usage:
 """
 
 import asyncio
+import logging
 import os
 import time
 from unittest.mock import MagicMock
@@ -39,6 +40,8 @@ from custom_components.violet_pool_controller.switch import VioletSwitch
 HOST = os.environ.get("VIOLET_HOST", "")
 USER = os.environ.get("VIOLET_USER", "")
 PASS = os.environ.get("VIOLET_PASS", "")
+
+_LOGGER = logging.getLogger(__name__)
 
 pytestmark = pytest.mark.skipif(
     not HOST or not USER or not PASS,
@@ -126,28 +129,28 @@ async def test_lighting_command_confirmation_live(hass):
     entity.async_write_ha_state = MagicMock()
 
     initial_raw = coordinator.data.get("LIGHT")
-    print(f"\ninitial LIGHTING raw state: {initial_raw}")
+    _LOGGER.info(f"\ninitial LIGHTING raw state: {initial_raw}")
 
     try:
         if entity.is_on:
             samples = await _run_direction(entity, "off")
             _assert_monotonic_confirmation(samples, False, "pre-test off")
 
-        print("\n-- ON direction --")
+        _LOGGER.info("\n-- ON direction --")
         on_samples = await _run_direction(entity, "on")
-        print(f"samples: {on_samples}")
+        _LOGGER.info(f"samples: {on_samples}")
         _assert_monotonic_confirmation(on_samples, True, "ON")
-        print(f"ON confirmed after {on_samples[-1][0]}s")
+        _LOGGER.info(f"ON confirmed after {on_samples[-1][0]}s")
 
-        print("\n-- OFF direction --")
+        _LOGGER.info("\n-- OFF direction --")
         off_samples = await _run_direction(entity, "off")
-        print(f"samples: {off_samples}")
+        _LOGGER.info(f"samples: {off_samples}")
         _assert_monotonic_confirmation(off_samples, False, "OFF")
-        print(f"OFF confirmed after {off_samples[-1][0]}s")
+        _LOGGER.info(f"OFF confirmed after {off_samples[-1][0]}s")
 
         # Final data must agree with the last command.
         assert entity.is_on is False
-        print(
+        _LOGGER.info(
             f"\nfinal raw state: {coordinator.data.get('LIGHT')} "
             "(controller and entity agree on OFF)"
         )

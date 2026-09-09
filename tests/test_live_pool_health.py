@@ -6,9 +6,10 @@ not errors.
 
 Usage:
     set VIOLET_HOST / VIOLET_USER / VIOLET_PASS, then:
-    pytest tests/test_live_pool_health.py -s
+    pytest tests/test_live_pool_health.py -s --log-cli-level=INFO
 """
 
+import logging
 import os
 from unittest.mock import MagicMock, patch
 
@@ -36,6 +37,8 @@ from custom_components.violet_pool_controller.sensor_modules.specialized import 
 HOST = os.environ.get("VIOLET_HOST", "")
 USER = os.environ.get("VIOLET_USER", "")
 PASS = os.environ.get("VIOLET_PASS", "")
+
+_LOGGER = logging.getLogger(__name__)
 
 pytestmark = pytest.mark.skipif(
     not HOST or not USER or not PASS,
@@ -79,10 +82,10 @@ async def test_pool_health_live(hass):
     entity.async_write_ha_state = MagicMock()
 
     attributes = entity.extra_state_attributes
-    print(f"\npool health: {entity.native_value}")
-    print(f"errors:   {attributes['errors']}")
-    print(f"warnings: {attributes['warnings']}")
-    print(f"info:     {attributes['info']}")
+    _LOGGER.info(f"\npool health: {entity.native_value}")
+    _LOGGER.info(f"errors:   {attributes['errors']}")
+    _LOGGER.info(f"warnings: {attributes['warnings']}")
+    _LOGGER.info(f"info:     {attributes['info']}")
 
     assert entity.native_value != "offline"
     # Whatever modules this controller has or lacks, none of them may be
@@ -90,6 +93,6 @@ async def test_pool_health_live(hass):
     assert not [e for e in attributes["errors"] if e.endswith("missing")]
     assert "Extension Module 2 missing" not in attributes["errors"]
     # Real problems (if any exist on the test controller) still surface.
-    print(f"HW flags: EXT1={coordinator.data.get('HW_EXTENSION_MODULE_1')} "
+    _LOGGER.info(f"HW flags: EXT1={coordinator.data.get('HW_EXTENSION_MODULE_1')} "
           f"EXT2={coordinator.data.get('HW_EXTENSION_MODULE_2')} "
           f"DMX={coordinator.data.get('HW_DMX_MODULE')}")
