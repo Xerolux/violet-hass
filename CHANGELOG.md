@@ -17,6 +17,85 @@ anyone there either.
 > **Historical note:** entries up to and including 2.5.7 were written in German,
 > before the language policy existed. They are kept as they were published.
 
+## Version 2.7.1 (2026-09-09)
+
+Two things a running 2.7.0 installation reported: a German setup wizard that
+had lost its safety warning, and 41 repair issues. Plus the eight non-German
+language files, which turn out never to have been finished.
+
+### 🚨 Safety
+
+- **The German setup wizard showed no safety warning and no disclaimer.** Five
+  descriptions in `de.json` had lost the `{placeholder}` carrying their text -
+  `{warning}`, `{disclaimer_text}`, `{docs_de}`. Home Assistant compares a
+  translated string's placeholders against English and, on any difference,
+  **deletes the string**, so the German user did not get a damaged warning:
+  they got no warning at all, silently, on the step that asks them to enable
+  the unsafe switches. All five are restored, and a test now fails on any
+  language whose placeholders diverge from English.
+
+### 🧹 41 repair issues, and the sensors behind them
+
+2.7.0 stopped declaring `state_class: measurement` on readings that are state
+codes rather than measurements - the mean of DMX scene 3 and scene 7 is scene
+5. Home Assistant had long-term statistics for all of them, so it raised one
+repair issue per entity: 41 on a fully equipped controller.
+
+Those entities are now gone entirely, because every one of them duplicated an
+entity of the right type that already existed:
+
+| Reading | Was | Is |
+|---|---|---|
+| `INPUT1`-`INPUT12`, `INPUT_CE1`-`INPUT_CE4` | 16 numeric sensors | `binary_sensor.*`, now enabled by default |
+| `DMX_SCENE1`-`DMX_SCENE12` | 12 numeric sensors | `light.*` |
+| `DIGITALINPUTRULE_STATE_..._1`-`_8` | 8 numeric sensors | `switch.dirule_1`-`_8`, now enabled by default |
+| `DOS_*_USE` (5 channels) | 5 numeric sensors | `binary_sensor.*` - a 0/1 flag was never a measurement |
+
+Dismissing the repair issues is not necessary: Home Assistant raises them for
+entities that still exist, so they clear themselves once the entities are gone.
+The old registry entries are removed automatically on the first start.
+
+**What this changes for you:** the entity ids move from `sensor.` to
+`binary_sensor.`, `light.` and `switch.`, so dashboards and automations that
+named one of these 41 need updating. Their recorded history stays under the old
+statistic id and can be deleted under **Developer tools → Statistics**.
+
+Sensors that measure something were not touched. The canister contents and the
+daily dosing amounts keep their statistics.
+
+- **Digital inputs now follow the "Digital Inputs" option.** They were the one
+  key space that ignored it, because the numeric sensors were never gated. If
+  your digital inputs disappear after the update, switch the option on in the
+  integration's settings.
+- **Added the two names that were never written:** the switching rule 8
+  stopwatch had no translation key at all and rendered as its raw key.
+
+### 🌍 Translations
+
+- **Seven language files were partly German.** They were originally filled by
+  copying `de.json`, and every key never revisited since then still showed
+  German. Dutch was the worst at 817 of 1301 keys - a Dutch user saw this
+  integration mostly in German. Also fixed: Russian 235, Chinese 327, French
+  246, Italian 183, Polish 118, Spanish 93.
+- **And partly English.** Portuguese was missing 898 translations, Chinese 468,
+  Polish and Russian 466 each, Dutch 325, Spanish 323.
+- **Half-translated strings**, which no check could see because they are neither
+  fully German nor fully English: `Расширение 1.1 Zuletzt Aus`,
+  `扩展 1.1 Modus`, `Hardware: Extensiónsmodul 1`, 26 sensors per language
+  ending in "Maximum"/"Minimum", and the controller-unreachable repair text -
+  a whole German paragraph with only its last line translated.
+- **Two Portuguese sensors named the wrong device**: the pH- dosing state read
+  "Status de Retrolavagem" (backwash) and pH+ read "Status de Reabastecimento"
+  (refill).
+- Settled terms that each file used two ways at once, among them Dutch
+  *terugspoeling* for backwash and Italian *controlavaggio*.
+
+### 🔧 Under the hood
+
+- `device_registry.async_get_device` was deprecated by Home Assistant and stops
+  working in 2027.8; replaced with `async_get_device_by_identifier`.
+- Services are unregistered when the last config entry is unloaded.
+
 ## Version 2.7.0 (2026-09-08)
 
 A full audit of the integration and of the API package it depends on. Two of

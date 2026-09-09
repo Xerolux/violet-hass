@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Asystent konfiguracji basenu Violet",
-        "description": "Wybierz, czy chcesz od razu uruchomić kreator konfiguracji, czy najpierw otworzyć szczegółową dokumentację.\n\nDokumentacja: [Przewodnik konfiguracji]({docs_en})\n\nWsparcie i opinie: {issues_url}",
+        "description": "**Witamy!**\n\nWybierz, czy chcesz od razu uruchomić kreatora konfiguracji, czy najpierw otworzyć szczegółową dokumentację.\n\n**Dokumentacja**\n• [Przewodnik konfiguracji (DE)]({docs_de})\n• [Przewodnik konfiguracji (EN)]({docs_en})\n\nPomoc i opinie: {issues_url}",
         "data": {
           "action": "Wybierz akcję"
         },
@@ -13,18 +13,18 @@
       },
       "disclaimer": {
         "title": "Informacje dotyczące bezpieczeństwa i odpowiedzialności",
-        "description": "**Ostrzeżenie dotyczące bezpieczeństwa**\n\nIntegracja ta zapewnia zdalne sterowanie pompami, grzejnikami, oświetleniem i systemami dozowania. Nieprawidłowa konfiguracja może spowodować uszkodzenie sprzętu, obrażenia ciała lub przedawkowanie środków chemicznych. Upewnij się, że rozumiesz wszystkie funkcje bezpieczeństwa i zapewnij dostępność możliwości ręcznego sterowania.\n\nZanim będziesz kontynuować, zapoznaj się z [Podręcznikiem konfiguracji]({docs_en}).",
+        "description": "{disclaimer_text}\n\n**Dowiedz się więcej**\n• [Przewodnik konfiguracji (DE)]({docs_de})\n• [Przewodnik konfiguracji (EN)]({docs_en})",
         "data": {
           "agreement": "Akceptuję wszelkie ryzyko i przeczytałem pełne zastrzeżenie."
         }
       },
       "help": {
         "title": "Pomoc i dokumentacja",
-        "description": "Przeczytaj [Przewodnik konfiguracji]({docs_en}), aby uzyskać instrukcje krok po kroku, uwagi dotyczące bezpieczeństwa i objaśnienia funkcji.\n\nPotrzebujesz pomocy lub chcesz podzielić się opinią? Otwórz problem pod adresem {issues_url}.\n\nRepozytorium projektu: {github_url}\n\nKliknij **Dalej**, aby powrócić do menu głównego."
+        "description": "• Przeczytaj [Przewodnik konfiguracji (DE)]({docs_de}), aby poznać instrukcje krok po kroku, listy kontrolne bezpieczeństwa i przegląd funkcji.\n• Potrzebujesz pomocy lub masz pomysł? Zgłoś to na {issues_url}.\n\n• Przeczytaj [Przewodnik konfiguracji (EN)]({docs_en}), aby poznać instrukcje krok po kroku, uwagi dotyczące bezpieczeństwa i opisy funkcji.\n• Potrzebujesz wsparcia lub chcesz przekazać opinię? Otwórz zgłoszenie na {issues_url}.\n\nRepozytorium projektu: {github_url}\n\nKliknij **Dalej**, aby wrócić do menu głównego."
       },
       "connection": {
         "title": "Połączenie kontrolera",
-        "description": "Podłącz kontroler basenu Violet do Home Assistant. Upewnij się, że kontroler korzysta z tej samej sieci i że interfejs API jest dostępny.\n\nDodatkowa dokumentacja: [Podręcznik konfiguracji]({docs_en})",
+        "description": "Połącz sterownik Violet Pool Controller z Home Assistant. Upewnij się, że sterownik jest w tej samej sieci, a jego API jest osiągalne.\n\nDodatkowa dokumentacja: [DE]({docs_de}) · [EN]({docs_en})",
         "data": {
           "host": "Adres IP lub nazwa hosta",
           "username": "Nazwa użytkownika (opcjonalnie)",
@@ -92,7 +92,7 @@
         "title": "Skonfiguruj ponownie połączenie",
         "description": "Zaktualizuj ustawienia połączenia kontrolera. Jest to przydatne, gdy zmienił się adres IP kontrolera lub ustawienia sieciowe.\n\nKontroler: **{controller_name}**",
         "data": {
-          "reconfigure_option": "Select what to reconfigure",
+          "reconfigure_option": "Wybierz, co skonfigurować ponownie",
           "host": "Adres IP lub nazwa hosta",
           "port": "Port TCP",
           "use_ssl": "Użyj protokołu SSL/HTTPS",
@@ -101,7 +101,7 @@
           "retry_attempts": "Ponów próby"
         },
         "data_description": {
-          "reconfigure_option": "Choose the settings you want to update",
+          "reconfigure_option": "Wybierz ustawienia, które chcesz zaktualizować",
           "host": "Nowy adres IP lub nazwa DNS kontrolera",
           "port": "Port TCP (pozostaw 80, chyba że używasz niestandardowego serwera proxy)",
           "use_ssl": "Włącz protokół HTTPS, jeśli jest obsługiwany",
@@ -111,35 +111,35 @@
         }
       },
       "reconfigure_connection": {
-        "title": "Reconfigure Connection Settings",
-        "description": "Update the connection settings for your controller.\n\nController: **{controller_name}**",
+        "title": "Ponowna konfiguracja ustawień połączenia",
+        "description": "Zaktualizuj ustawienia połączenia sterownika.\n\nSterownik: **{controller_name}**",
         "data": {
-          "host": "IP Address",
-          "port": "TCP Port",
-          "use_ssl": "Use SSL/HTTPS",
-          "verify_ssl": "Verify SSL Certificate",
-          "polling_interval": "Polling Interval (s)",
-          "timeout_duration": "Timeout (s)",
-          "retry_attempts": "Retry Attempts"
+          "host": "Adres IP",
+          "port": "Port TCP",
+          "use_ssl": "Użyj SSL/HTTPS",
+          "verify_ssl": "Weryfikuj certyfikat SSL",
+          "polling_interval": "Interwał odpytywania (s)",
+          "timeout_duration": "Limit czasu (s)",
+          "retry_attempts": "Liczba ponownych prób"
         },
         "data_description": {
-          "host": "New controller IP or DNS name",
-          "port": "TCP port (default 80)",
-          "use_ssl": "Enable HTTPS",
-          "verify_ssl": "Verify the SSL certificate. Disable for self-signed certificates.",
-          "polling_interval": "Data polling interval (10–3600s)",
-          "timeout_duration": "Maximum wait time per request",
-          "retry_attempts": "Number of retry attempts"
+          "host": "Nowy adres IP lub nazwa DNS sterownika",
+          "port": "Port TCP (domyślnie 80)",
+          "use_ssl": "Włącz HTTPS",
+          "verify_ssl": "Weryfikuj certyfikat SSL. Wyłącz w przypadku certyfikatów podpisanych samodzielnie.",
+          "polling_interval": "Interwał odpytywania danych (10–3600 s)",
+          "timeout_duration": "Maksymalny czas oczekiwania na żądanie",
+          "retry_attempts": "Liczba ponownych prób"
         }
       },
       "reconfigure_safety": {
-        "title": "🚨 Safety Settings",
-        "description": "🚨 **CRITICAL SAFETY WARNING** 🚨\n\nEnabling unsafe switches allows direct manual control of:\n• Dosing systems (chemical overdose risk)\n• Backwash/Rinse (equipment damage risk)\n• Water Refill (flooding/overflow risk)\n\nThese operations can run INDEFINITELY without time limits!\n\n**SAFE ALTERNATIVE**: Use Services instead - they require mandatory time limits.\n\n⚠️ Only enable this if you fully understand and accept the risks!",
+        "title": "🚨 Ustawienia bezpieczeństwa",
+        "description": "🚨 **KRYTYCZNE OSTRZEŻENIE BEZPIECZEŃSTWA** 🚨\n\nWłączenie niebezpiecznych przełączników umożliwia bezpośrednie ręczne sterowanie:\n• Systemami dozowania (ryzyko przedawkowania chemii)\n• Płukaniem wstecznym / płukaniem filtra (ryzyko uszkodzenia urządzeń)\n• Dopełnianiem wody (ryzyko zalania / przelania basenu)\n\nTe operacje mogą działać W NIESKOŃCZONOŚĆ, bez żadnych limitów czasu!\n\n**BEZPIECZNA ALTERNATYWA**: używaj akcji (usług) — one wymagają obowiązkowego limitu czasu.\n\n⚠️ Włącz tę opcję tylko wtedy, gdy w pełni rozumiesz i akceptujesz ryzyko!",
         "data": {
-          "allow_unsafe_switches": "Allow manual safety-critical switches"
+          "allow_unsafe_switches": "Zezwól na ręczne przełączniki krytyczne dla bezpieczeństwa"
         },
         "data_description": {
-          "allow_unsafe_switches": "Enable direct control of dosing, backwash & refill (requires mandatory time limits via Services)"
+          "allow_unsafe_switches": "Włącza bezpośrednie sterowanie dozowaniem, płukaniem wstecznym i dopełnianiem wody (przez akcje, które wymagają obowiązkowych limitów czasu)"
         }
       },
       "controller_auth": {
@@ -206,13 +206,13 @@
         "description": "Wybierz, które czujniki mają być wyświetlane\n\nW Home Assistant zostaną pokazane tylko wybrane czujniki\nZmiany wchodzą w życie natychmiast\n\nWybierz tylko te czujniki, które naprawdę chcesz monitorować!"
       },
       "safety": {
-        "title": "🚨 Safety Settings",
+        "title": "🚨 Ustawienia bezpieczeństwa",
         "description": "{warning}",
         "data": {
-          "allow_unsafe_switches": "Allow manual safety-critical switches"
+          "allow_unsafe_switches": "Zezwól na ręczne przełączniki krytyczne dla bezpieczeństwa"
         },
         "data_description": {
-          "allow_unsafe_switches": "Enable direct control of dosing, backwash & refill (requires mandatory time limits via Services)"
+          "allow_unsafe_switches": "Włącza bezpośrednie sterowanie dozowaniem, płukaniem wstecznym i dopełnianiem wody (przez akcje, które wymagają obowiązkowych limitów czasu)"
         }
       },
       "settings": {
@@ -224,8 +224,8 @@
           "adaptive_polling": "Ogranicz odpytywanie w bezczynności",
           "timeout_duration": "Limit czasu (sekundy)",
           "retry_attempts": "Próby ponowienia",
-          "group_entities": "Group entities into sub-devices",
-          "invert_cover": "Invert cover direction"
+          "group_entities": "Grupuj encje w urządzenia podrzędne",
+          "invert_cover": "Odwróć kierunek rolety"
         },
         "data_description": {
           "controller_name": "Wyświetlana nazwa kontrolera",
@@ -233,8 +233,8 @@
           "adaptive_polling": "Rzadziej odpytuje sterownik, gdy pompa, ogrzewanie i dozowanie są wyłączone. Powyższy interwał pozostaje najszybszą częstotliwością.",
           "timeout_duration": "Maksymalny czas oczekiwania na żądanie (1-60s)",
           "retry_attempts": "Liczba prób ponowienia przy błędzie (1-10)",
-          "group_entities": "Split the controller's entities across sub-devices (pump, heating, dosing, ...) instead of listing all of them under one device. Entity IDs are not affected.",
-          "invert_cover": "Swap open and closed if the cover reports the opposite of what it does"
+          "group_entities": "Rozdziela encje sterownika na urządzenia podrzędne (pompa, ogrzewanie, dozowanie, ...) zamiast wyświetlać je wszystkie w jednym urządzeniu. Nie ma to wpływu na identyfikatory encji.",
+          "invert_cover": "Zamienia stan otwarty z zamkniętym, jeśli roleta zgłasza odwrotność tego, co faktycznie robi"
         }
       }
     }
@@ -247,7 +247,7 @@
       "message": "Kontroler basenu {name} jest niedostępny po {failures} kolejnych błędach"
     },
     "device_not_found": {
-      "message": "No Violet Pool Controller found for device {device_id}"
+      "message": "Nie znaleziono sterownika Violet Pool Controller dla urządzenia {device_id}"
     },
     "failed_to_set_value": {
       "message": "Nie udało się ustawić wartości: {detail}"
@@ -262,16 +262,16 @@
       "message": "Brak klucza API skonfigurowanego dla jednostki {entity}"
     },
     "no_data": {
-      "message": "The controller has not delivered any data yet"
+      "message": "Sterownik nie dostarczył jeszcze żadnych danych"
     },
     "no_devices": {
-      "message": "No Violet Pool Controller was selected for this service call"
+      "message": "Do tego wywołania akcji nie wybrano żadnego sterownika Violet Pool Controller"
     },
     "no_parameters": {
-      "message": "No parameters were given for {service} - nothing to change"
+      "message": "Nie podano żadnych parametrów dla {service} — nie ma czego zmieniać"
     },
     "read_only_entity": {
-      "message": "Entity {entity} is read-only and cannot be controlled manually"
+      "message": "Encja {entity} jest tylko do odczytu i nie można nią sterować ręcznie"
     },
     "unexpected_error": {
       "message": "Nieoczekiwany błąd: {detail}"
@@ -305,375 +305,375 @@
       "description": "Wyczyść historię błędów po udanym odzyskiwaniu (używaj ostrożnie).",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "Docelowe urządzenie Violet Pool Controller.",
+          "name": "Sterownik basenu"
         }
       },
       "name": "Wyczyść historię błędów"
     },
     "configure_analog_rule": {
-      "description": "Configure analog input threshold rule (ANALOGRULE_1-8).",
+      "description": "Konfiguruje regułę progową wejścia analogowego (ANALOGRULE_1-8).",
       "fields": {
         "adc_input": {
-          "description": "Analog input channel (1-8)",
-          "name": "ADC input"
+          "description": "Kanał wejścia analogowego (1-8)",
+          "name": "Wejście ADC"
         },
         "enabled": {
-          "description": "Turn rule on or off",
-          "name": "Enable rule"
+          "description": "Włącza lub wyłącza regułę",
+          "name": "Włącz regułę"
         },
         "hysteresis": {
-          "description": "Hysteresis band for debouncing",
-          "name": "Hysteresis value"
+          "description": "Pasmo histerezy zapobiegające drganiu styków",
+          "name": "Wartość histerezy"
         },
         "logic": {
-          "description": "Use >= (greater than or equal) or <= (less than or equal)",
-          "name": "Comparison logic"
+          "description": "Użyj >= (większe lub równe) albo <= (mniejsze lub równe)",
+          "name": "Logika porównania"
         },
         "output_1": {
-          "description": "First output name",
-          "name": "Output 1"
+          "description": "Nazwa pierwszego wyjścia",
+          "name": "Wyjście 1"
         },
         "output_1_state": {
-          "description": "State when rule activates (0-6)",
-          "name": "Output 1 state"
+          "description": "Stan przy aktywacji reguły (0-6)",
+          "name": "Stan wyjścia 1"
         },
         "output_2": {
-          "description": "Second output name",
-          "name": "Output 2"
+          "description": "Nazwa drugiego wyjścia",
+          "name": "Wyjście 2"
         },
         "output_2_state": {
-          "description": "State when rule activates (0-6)",
-          "name": "Output 2 state"
+          "description": "Stan przy aktywacji reguły (0-6)",
+          "name": "Stan wyjścia 2"
         },
         "output_3": {
-          "description": "Third output name",
-          "name": "Output 3"
+          "description": "Nazwa trzeciego wyjścia",
+          "name": "Wyjście 3"
         },
         "output_3_state": {
-          "description": "State when rule activates (0-6)",
-          "name": "Output 3 state"
+          "description": "Stan przy aktywacji reguły (0-6)",
+          "name": "Stan wyjścia 3"
         },
         "rule_id": {
-          "description": "Rule number 1-8",
-          "name": "Rule ID"
+          "description": "Numer reguły 1-8",
+          "name": "Identyfikator reguły"
         },
         "runtime_off": {
-          "description": "Time when rule must deactivate (HH:MM)",
-          "name": "Runtime OFF"
+          "description": "Godzina, o której reguła musi zostać dezaktywowana (HH:MM)",
+          "name": "Czas wyłączenia"
         },
         "runtime_on": {
-          "description": "Time when rule can activate (HH:MM)",
-          "name": "Runtime ON"
+          "description": "Godzina, od której reguła może się aktywować (HH:MM)",
+          "name": "Czas włączenia"
         },
         "threshold": {
-          "description": "Trigger value for the analog input",
-          "name": "Threshold value"
+          "description": "Wartość wyzwalająca dla wejścia analogowego",
+          "name": "Wartość progowa"
         }
       },
-      "name": "Configure Analog Input Rule"
+      "name": "Skonfiguruj regułę wejścia analogowego"
     },
     "configure_dosing": {
-      "description": "Set dosing system configuration parameters.",
+      "description": "Ustawia parametry konfiguracyjne systemu dozowania.",
       "fields": {
         "config_key": {
-          "description": "The configuration parameter name",
-          "name": "Configuration key"
+          "description": "Nazwa parametru konfiguracyjnego",
+          "name": "Klucz konfiguracji"
         },
         "dosing_system": {
-          "description": "Which dosing system to configure",
-          "name": "Chemical system"
+          "description": "Który system dozowania skonfigurować",
+          "name": "System chemiczny"
         },
         "value": {
-          "description": "The new parameter value",
-          "name": "Configuration value"
+          "description": "Nowa wartość parametru",
+          "name": "Wartość konfiguracji"
         }
       },
-      "name": "Configure Dosing"
+      "name": "Skonfiguruj dozowanie"
     },
     "configure_overflow": {
-      "description": "Configure overflow, dry-run and bathing-detection protection.\n\nOnly the fields you fill in are written to the controller, so raising the overflow level cannot switch on another protection as a side effect.",
+      "description": "Konfiguruje zabezpieczenie przed przelaniem, zabezpieczenie przed pracą na sucho oraz wykrywanie kąpiących się.\n\nDo sterownika zapisywane są wyłącznie pola, które wypełnisz, więc podniesienie poziomu przelewu nie włączy przy okazji innego zabezpieczenia.",
       "fields": {
         "bathing_ai_enabled": {
-          "description": "Detect bathers from the water level and react to it.",
-          "name": "Enable bathing detection"
+          "description": "Rozpoznaje kąpiące się osoby na podstawie poziomu wody i reaguje na to.",
+          "name": "Włącz wykrywanie kąpieli"
         },
         "bathing_level_change": {
-          "description": "Level change that counts as bathing, in percent.",
-          "name": "Bathing level change"
+          "description": "Zmiana poziomu wody uznawana za kąpiel, w procentach.",
+          "name": "Zmiana poziomu przy kąpieli"
         },
         "bathing_level_time": {
-          "description": "Time window for that level change, in seconds.",
-          "name": "Bathing time window"
+          "description": "Okno czasowe dla tej zmiany poziomu, w sekundach.",
+          "name": "Okno czasowe kąpieli"
         },
         "bathing_pump_rpm": {
-          "description": "Pump speed used during bathing detection (0-3).",
-          "name": "Bathing pump speed"
+          "description": "Prędkość pompy używana podczas wykrywania kąpieli (0-3).",
+          "name": "Prędkość pompy przy kąpieli"
         },
         "bathing_runtime": {
-          "description": "Bathing-detection runtime, in seconds.",
-          "name": "Bathing runtime"
+          "description": "Czas pracy wykrywania kąpieli, w sekundach.",
+          "name": "Czas pracy przy kąpieli"
         },
         "dryrun_enabled": {
-          "description": "Enable or disable dry-run protection.",
-          "name": "Enable dry-run protection"
+          "description": "Włącza lub wyłącza zabezpieczenie przed pracą na sucho.",
+          "name": "Włącz zabezpieczenie przed pracą na sucho"
         },
         "dryrun_level": {
-          "description": "Water level below which dry-run protection trips, in percent.",
-          "name": "Dry-run level"
+          "description": "Poziom wody, poniżej którego zadziała zabezpieczenie przed pracą na sucho, w procentach.",
+          "name": "Poziom pracy na sucho"
         },
         "enabled": {
-          "description": "Enable or disable the overflow protection.",
-          "name": "Enable overflow protection"
+          "description": "Włącza lub wyłącza zabezpieczenie przed przelaniem.",
+          "name": "Włącz zabezpieczenie przed przelaniem"
         },
         "overflow_level": {
-          "description": "Water level above which overflow protection trips, in percent.",
-          "name": "Overflow level"
+          "description": "Poziom wody, powyżej którego zadziała zabezpieczenie przed przelaniem, w procentach.",
+          "name": "Poziom przelania"
         },
         "overflow_rpm": {
-          "description": "Pump speed used while draining an overflow (0-3).",
-          "name": "Drain pump speed"
+          "description": "Prędkość pompy używana podczas odpompowywania nadmiaru wody (0-3).",
+          "name": "Prędkość pompy odpompowującej"
         },
         "overflow_runtime": {
-          "description": "Maximum drain runtime, in seconds.",
-          "name": "Drain runtime"
+          "description": "Maksymalny czas odpompowywania, w sekundach.",
+          "name": "Czas odpompowywania"
         }
       },
-      "name": "Configure Overflow Protection"
+      "name": "Skonfiguruj zabezpieczenie przed przelaniem"
     },
     "configure_refill": {
-      "description": "Configure the automatic water refill system.\n\nOnly the fields you fill in are written to the controller.",
+      "description": "Konfiguruje system automatycznego dopełniania wody.\n\nDo sterownika zapisywane są wyłącznie pola, które wypełnisz.",
       "fields": {
         "blocks_dosing": {
-          "description": "Suspend chemical dosing while the refill runs.",
-          "name": "Block dosing"
+          "description": "Wstrzymuje dozowanie chemii na czas dopełniania wody.",
+          "name": "Blokuj dozowanie"
         },
         "enabled": {
-          "description": "Enable or disable the automatic refill.",
-          "name": "Enable refill"
+          "description": "Włącza lub wyłącza automatyczne dopełnianie wody.",
+          "name": "Włącz dopełnianie wody"
         },
         "max_fill_time": {
-          "description": "Upper limit for a single refill run, in seconds.",
-          "name": "Maximum fill time"
+          "description": "Górny limit pojedynczego dopełniania wody, w sekundach.",
+          "name": "Maksymalny czas napełniania"
         },
         "refill_type": {
-          "description": "Which level sensor drives the refill (1-3).",
-          "name": "Refill sensor type"
+          "description": "Który czujnik poziomu steruje dopełnianiem wody (1-3).",
+          "name": "Typ czujnika dopełniania"
         },
         "target_level": {
-          "description": "Water level the refill aims for, in percent.",
-          "name": "Target level"
+          "description": "Poziom wody, do którego dopełnia system, w procentach.",
+          "name": "Poziom docelowy"
         }
       },
-      "name": "Configure Water Refill"
+      "name": "Skonfiguruj dopełnianie wody"
     },
     "configure_sensor_calibration": {
-      "description": "Configure temperature sensor calibration offsets and multipliers.",
+      "description": "Konfiguruje przesunięcia i mnożniki kalibracji czujników temperatury.",
       "fields": {
         "max_value": {
-          "description": "Maximum valid sensor reading",
-          "name": "Maximum value"
+          "description": "Maksymalny prawidłowy odczyt czujnika",
+          "name": "Wartość maksymalna"
         },
         "min_value": {
-          "description": "Minimum valid sensor reading",
-          "name": "Minimum value"
+          "description": "Minimalny prawidłowy odczyt czujnika",
+          "name": "Wartość minimalna"
         },
         "multiplier": {
-          "description": "Calibration multiplier (0.5 to 2.0)",
-          "name": "Multiplier"
+          "description": "Mnożnik kalibracji (od 0,5 do 2,0)",
+          "name": "Mnożnik"
         },
         "offset": {
-          "description": "Temperature offset in °C (-10 to +10)",
+          "description": "Przesunięcie temperatury w °C (od -10 do +10)",
           "name": "Offset"
         },
         "sensor_id": {
-          "description": "Temperature sensor number 1-12",
-          "name": "Sensor ID"
+          "description": "Numer czujnika temperatury 1-12",
+          "name": "Identyfikator czujnika"
         }
       },
-      "name": "Configure Sensor Calibration"
+      "name": "Skonfiguruj kalibrację czujnika"
     },
     "configure_switching_rule": {
-      "description": "Configure digital input-based rule (SWITCHINGRULE_1-8).",
+      "description": "Konfiguruje regułę opartą na wejściu cyfrowym (SWITCHINGRULE_1-8).",
       "fields": {
         "action_off": {
-          "description": "Output state when contact opens (0-6)",
-          "name": "Action OFF state"
+          "description": "Stan wyjścia po rozwarciu styku (0-6)",
+          "name": "Stan akcji WYŁ."
         },
         "action_on": {
-          "description": "Output state when contact closes (0-6)",
-          "name": "Action ON state"
+          "description": "Stan wyjścia po zwarciu styku (0-6)",
+          "name": "Stan akcji WŁ."
         },
         "contact_type": {
-          "description": "0=Normally Open (NO), 1=Normally Closed (NC)",
-          "name": "Contact type"
+          "description": "0=zwierny (NO), 1=rozwierny (NC)",
+          "name": "Typ styku"
         },
         "di_input": {
-          "description": "Digital input pin (1-12)",
-          "name": "Digital input"
+          "description": "Pin wejścia cyfrowego (1-12)",
+          "name": "Wejście cyfrowe"
         },
         "enabled": {
-          "description": "Turn rule on or off",
-          "name": "Enable rule"
+          "description": "Włącza lub wyłącza regułę",
+          "name": "Włącz regułę"
         },
         "output": {
-          "description": "Output to control",
-          "name": "Output name"
+          "description": "Wyjście do sterowania",
+          "name": "Nazwa wyjścia"
         },
         "rule_id": {
-          "description": "Rule number 1-8",
-          "name": "Rule ID"
+          "description": "Numer reguły 1-8",
+          "name": "Identyfikator reguły"
         },
         "timeout": {
-          "description": "Auto-reset timeout in seconds (0=disabled)",
+          "description": "Czas automatycznego resetu w sekundach (0=wyłączony)",
           "name": "Timeout"
         }
       },
-      "name": "Configure Switching Input Rule"
+      "name": "Skonfiguruj regułę wejścia przełączającego"
     },
     "configure_temp_rule": {
-      "description": "Configure temperature-based automation rule (TEMPRULE_1-8).",
+      "description": "Konfiguruje regułę automatyzacji opartą na temperaturze (TEMPRULE_1-8).",
       "fields": {
         "diff_value": {
-          "description": "Temperature difference threshold",
-          "name": "Differential value"
+          "description": "Próg różnicy temperatur",
+          "name": "Wartość różnicowa"
         },
         "enabled": {
-          "description": "Turn rule on or off",
-          "name": "Enable rule"
+          "description": "Włącza lub wyłącza regułę",
+          "name": "Włącz regułę"
         },
         "hyst_value": {
-          "description": "Hysteresis band for debouncing",
-          "name": "Hysteresis value"
+          "description": "Pasmo histerezy zapobiegające drganiu styków",
+          "name": "Wartość histerezy"
         },
         "logic": {
-          "description": "Use >= (greater than or equal) or <= (less than or equal)",
-          "name": "Comparison logic"
+          "description": "Użyj >= (większe lub równe) albo <= (mniejsze lub równe)",
+          "name": "Logika porównania"
         },
         "output_1": {
-          "description": "First output name",
-          "name": "Output 1"
+          "description": "Nazwa pierwszego wyjścia",
+          "name": "Wyjście 1"
         },
         "output_1_state": {
-          "description": "State when rule activates (0-6)",
-          "name": "Output 1 state"
+          "description": "Stan przy aktywacji reguły (0-6)",
+          "name": "Stan wyjścia 1"
         },
         "output_2": {
-          "description": "Second output name",
-          "name": "Output 2"
+          "description": "Nazwa drugiego wyjścia",
+          "name": "Wyjście 2"
         },
         "output_2_state": {
-          "description": "State when rule activates (0-6)",
-          "name": "Output 2 state"
+          "description": "Stan przy aktywacji reguły (0-6)",
+          "name": "Stan wyjścia 2"
         },
         "output_3": {
-          "description": "Third output name",
-          "name": "Output 3"
+          "description": "Nazwa trzeciego wyjścia",
+          "name": "Wyjście 3"
         },
         "output_3_state": {
-          "description": "State when rule activates (0-6)",
-          "name": "Output 3 state"
+          "description": "Stan przy aktywacji reguły (0-6)",
+          "name": "Stan wyjścia 3"
         },
         "rule_id": {
-          "description": "Rule number 1-8",
-          "name": "Rule ID"
+          "description": "Numer reguły 1-8",
+          "name": "Identyfikator reguły"
         },
         "runtime_off": {
-          "description": "Time when rule must deactivate (HH:MM)",
-          "name": "Runtime OFF"
+          "description": "Godzina, o której reguła musi zostać dezaktywowana (HH:MM)",
+          "name": "Czas wyłączenia"
         },
         "runtime_on": {
-          "description": "Time when rule can activate (HH:MM)",
-          "name": "Runtime ON"
+          "description": "Godzina, od której reguła może się aktywować (HH:MM)",
+          "name": "Czas włączenia"
         },
         "sensor_1": {
-          "description": "Primary temperature sensor (1-8)",
-          "name": "Primary sensor"
+          "description": "Główny czujnik temperatury (1-8)",
+          "name": "Czujnik główny"
         },
         "sensor_2": {
-          "description": "Secondary sensor (0=absolute value, 1-8=sensor)",
-          "name": "Secondary sensor"
+          "description": "Czujnik dodatkowy (0=wartość bezwzględna, 1-8=czujnik)",
+          "name": "Czujnik dodatkowy"
         }
       },
-      "name": "Configure Temperature Rule"
+      "name": "Skonfiguruj regułę temperaturową"
     },
     "configure_timer_rule": {
-      "description": "Configure time-based automation rule (TIMERRULE_1-8).",
+      "description": "Konfiguruje regułę automatyzacji opartą na czasie (TIMERRULE_1-8).",
       "fields": {
         "enabled": {
-          "description": "Turn rule on or off",
-          "name": "Enable rule"
+          "description": "Włącza lub wyłącza regułę",
+          "name": "Włącz regułę"
         },
         "off_time": {
-          "description": "When to turn off (HH:MM)",
-          "name": "OFF time"
+          "description": "Kiedy wyłączyć (HH:MM)",
+          "name": "Godzina wyłączenia"
         },
         "on_time": {
-          "description": "When to turn on (HH:MM)",
-          "name": "ON time"
+          "description": "Kiedy włączyć (HH:MM)",
+          "name": "Godzina włączenia"
         },
         "output_1": {
-          "description": "First output name",
-          "name": "Output 1"
+          "description": "Nazwa pierwszego wyjścia",
+          "name": "Wyjście 1"
         },
         "output_1_state": {
-          "description": "State when rule activates (0-6)",
-          "name": "Output 1 state"
+          "description": "Stan przy aktywacji reguły (0-6)",
+          "name": "Stan wyjścia 1"
         },
         "output_2": {
-          "description": "Second output name",
-          "name": "Output 2"
+          "description": "Nazwa drugiego wyjścia",
+          "name": "Wyjście 2"
         },
         "output_2_state": {
-          "description": "State when rule activates (0-6)",
-          "name": "Output 2 state"
+          "description": "Stan przy aktywacji reguły (0-6)",
+          "name": "Stan wyjścia 2"
         },
         "output_3": {
-          "description": "Third output name",
-          "name": "Output 3"
+          "description": "Nazwa trzeciego wyjścia",
+          "name": "Wyjście 3"
         },
         "output_3_state": {
-          "description": "State when rule activates (0-6)",
-          "name": "Output 3 state"
+          "description": "Stan przy aktywacji reguły (0-6)",
+          "name": "Stan wyjścia 3"
         },
         "rule_id": {
-          "description": "Rule number 1-8",
-          "name": "Rule ID"
+          "description": "Numer reguły 1-8",
+          "name": "Identyfikator reguły"
         },
         "weekdays": {
-          "description": "Bitmask for days (0-127, e.g. 127=every day)",
-          "name": "Weekdays"
+          "description": "Maska bitowa dni (0-127, np. 127=codziennie)",
+          "name": "Dni tygodnia"
         }
       },
-      "name": "Configure Timer Rule"
+      "name": "Skonfiguruj regułę czasową"
     },
     "control_backwash_http": {
-      "description": "Run or abort the filter backwash cycle.\n\n**Caution:** a duration is mandatory - the backwash is stopped automatically when it elapses.",
+      "description": "Uruchamia lub przerywa cykl płukania wstecznego filtra.\n\n**Uwaga:** czas trwania jest obowiązkowy — po jego upływie płukanie zostaje automatycznie zatrzymane.",
       "fields": {
         "action": {
-          "description": "Start the backwash cycle or abort it",
-          "name": "Backwash action"
+          "description": "Rozpocznij cykl płukania wstecznego lub go przerwij",
+          "name": "Akcja płukania wstecznego"
         },
         "duration_seconds": {
-          "description": "How long the backwash may run (10-3600s). It is stopped automatically afterwards.",
-          "name": "Duration (seconds)"
+          "description": "Jak długo może trwać płukanie wsteczne (10-3600 s). Po tym czasie zostaje automatycznie zatrzymane.",
+          "name": "Czas trwania (sekundy)"
         },
         "safety_override": {
-          "description": "Skip the cooldown between two backwash runs.",
-          "name": "Override safety interval"
+          "description": "Pomija przerwę wymaganą między dwoma płukaniami wstecznymi.",
+          "name": "Pomiń interwał bezpieczeństwa"
         }
       },
-      "name": "Control Backwash (HTTP)"
+      "name": "Sterowanie płukaniem wstecznym (HTTP)"
     },
     "control_cover_http": {
-      "description": "Control the pool cover (open, close, or stop).",
+      "description": "Steruje roletą basenową (otwórz, zamknij lub zatrzymaj).",
       "fields": {
         "action": {
-          "description": "Select: open, close, or stop",
-          "name": "Cover action"
+          "description": "Wybierz: otwórz, zamknij lub zatrzymaj",
+          "name": "Akcja rolety"
         }
       },
-      "name": "Control Cover (HTTP)"
+      "name": "Sterowanie roletą (HTTP)"
     },
     "control_dmx_scenes": {
       "description": "Steruj scenami oświetlenia DMX do oświetlenia okolicy basenu.",
@@ -683,8 +683,8 @@
           "name": "Akcja DMX"
         },
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "Docelowe urządzenie Violet Pool Controller.",
+          "name": "Sterownik basenu"
         },
         "sequence_delay": {
           "description": "Opóźnienie między scenami w trybie sekwencji (1-60s).",
@@ -694,40 +694,40 @@
       "name": "Kontrola Scen DMX"
     },
     "control_extension_relay": {
-      "description": "Control a single extension relay output (EXT1_1 to EXT1_8 and EXT2_1 to EXT2_8).",
+      "description": "Steruje pojedynczym wyjściem przekaźnika modułu rozszerzeń (EXT1_1 do EXT1_8 oraz EXT2_1 do EXT2_8).",
       "fields": {
         "action": {
-          "description": "Select: on (manual ON), off (manual OFF), or auto (back to the controller's own rules).",
-          "name": "Relay action"
+          "description": "Wybierz: on (ręcznie WŁ.), off (ręcznie WYŁ.) lub auto (powrót do własnych reguł sterownika).",
+          "name": "Akcja przekaźnika"
         },
         "bank": {
-          "description": "Which extension module the relay sits on (1 or 2).",
-          "name": "Extension module"
+          "description": "Na którym module rozszerzeń znajduje się przekaźnik (1 lub 2).",
+          "name": "Moduł rozszerzeń"
         },
         "duration": {
-          "description": "How long to hold the action, in seconds (0 = until changed).",
-          "name": "Duration"
+          "description": "Jak długo utrzymać akcję, w sekundach (0 = do kolejnej zmiany).",
+          "name": "Czas trwania"
         },
         "relay": {
-          "description": "Relay number on that module (1-8).",
-          "name": "Relay"
+          "description": "Numer przekaźnika na tym module (1-8).",
+          "name": "Przekaźnik"
         }
       },
-      "name": "Control Extension Relay"
+      "name": "Sterowanie przekaźnikiem rozszerzeń"
     },
     "control_heater_http": {
-      "description": "Control the pool heater with temperature setpoint.",
+      "description": "Steruje ogrzewaniem basenu wraz z zadaną temperaturą.",
       "fields": {
         "action": {
-          "description": "Turn heater on or off",
-          "name": "Heater action"
+          "description": "Włącz lub wyłącz ogrzewanie",
+          "name": "Akcja ogrzewania"
         },
         "target_temperature": {
-          "description": "Desired pool temperature (10-60°C)",
-          "name": "Target temperature"
+          "description": "Żądana temperatura basenu (10-60°C)",
+          "name": "Temperatura docelowa"
         }
       },
-      "name": "Control Heater (HTTP)"
+      "name": "Sterowanie ogrzewaniem (HTTP)"
     },
     "control_pump": {
       "description": "Steruj pompą basenową z zaawansowanymi opcjami, takimi jak prędkość, tryb Eco lub Boost.",
@@ -748,86 +748,86 @@
       "name": "Kontrola Pompy"
     },
     "control_pump_http": {
-      "description": "Control the filter pump directly.\n\nSpeed 1-3 switches the pump to manual ON at that speed; use action \"off\" or force_off to switch it off.",
+      "description": "Steruje pompą filtracyjną bezpośrednio.\n\nPrędkość 1-3 przełącza pompę w tryb ręcznie WŁ. z tą prędkością; aby ją wyłączyć, użyj akcji \"off\" lub force_off.",
       "fields": {
         "action": {
-          "description": "Select: on, off, eco, or boost.",
-          "name": "Control action"
+          "description": "Wybierz: on, off, eco lub boost.",
+          "name": "Akcja sterowania"
         },
         "force_off": {
-          "description": "Switch the pump off regardless of the other fields.",
-          "name": "Force off"
+          "description": "Wyłącza pompę niezależnie od pozostałych pól.",
+          "name": "Wymuś wyłączenie"
         },
         "speed": {
-          "description": "Pump speed level (1=Eco, 2=Normal, 3=Maximum).",
-          "name": "Pump speed"
+          "description": "Poziom prędkości pompy (1=Eco, 2=Normalna, 3=Maksymalna).",
+          "name": "Prędkość pompy"
         }
       },
-      "name": "Control Pump (HTTP)"
+      "name": "Sterowanie pompą (HTTP)"
     },
     "control_refill_http": {
-      "description": "Start or stop a manual water refill.\n\n**Caution:** a duration is mandatory - the valve is closed automatically when it elapses so the pool cannot overflow.",
+      "description": "Rozpoczyna lub zatrzymuje ręczne dopełnianie wody.\n\n**Uwaga:** czas trwania jest obowiązkowy — po jego upływie zawór zostaje automatycznie zamknięty, aby basen nie mógł się przelać.",
       "fields": {
         "action": {
-          "description": "Select: fill to start, stop to end a running refill.",
-          "name": "Refill action"
+          "description": "Wybierz: fill, aby rozpocząć, stop, aby zakończyć trwające dopełnianie.",
+          "name": "Akcja dopełniania wody"
         },
         "duration_seconds": {
-          "description": "How long to fill (10-3600s). The refill stops automatically afterwards.",
-          "name": "Duration (seconds)"
+          "description": "Jak długo napełniać (10-3600 s). Po tym czasie dopełnianie zatrzymuje się automatycznie.",
+          "name": "Czas trwania (sekundy)"
         },
         "safety_override": {
-          "description": "Skip the cooldown between two refill runs.",
-          "name": "Override safety interval"
+          "description": "Pomija przerwę wymaganą między dwoma dopełnieniami wody.",
+          "name": "Pomiń interwał bezpieczeństwa"
         }
       },
-      "name": "Control Water Refill (HTTP)"
+      "name": "Sterowanie dopełnianiem wody (HTTP)"
     },
     "control_solar_http": {
-      "description": "Control the solar heating system.",
+      "description": "Steruje instalacją ogrzewania solarnego.",
       "fields": {
         "action": {
-          "description": "Enable or disable solar heating",
-          "name": "Solar action"
+          "description": "Włącz lub wyłącz ogrzewanie solarne",
+          "name": "Akcja solaru"
         },
         "target_temperature": {
-          "description": "Target temperature for solar operation (10-60°C)",
-          "name": "Target temperature"
+          "description": "Temperatura docelowa pracy solaru (10-60°C)",
+          "name": "Temperatura docelowa"
         }
       },
-      "name": "Control Solar (HTTP)"
+      "name": "Sterowanie solarem (HTTP)"
     },
     "enable_dosing": {
-      "description": "Enable or disable a dosing system.",
+      "description": "Włącza lub wyłącza system dozowania.",
       "fields": {
         "dosing_system": {
-          "description": "Which dosing system to enable/disable",
-          "name": "Chemical system"
+          "description": "Który system dozowania włączyć/wyłączyć",
+          "name": "System chemiczny"
         },
         "enabled": {
-          "description": "Turn dosing system on or off",
-          "name": "Enable dosing"
+          "description": "Włącza lub wyłącza system dozowania",
+          "name": "Włącz dozowanie"
         }
       },
-      "name": "Enable Dosing"
+      "name": "Włącz dozowanie"
     },
     "enable_rule": {
-      "description": "Enable or disable any rule type.",
+      "description": "Włącza lub wyłącza regułę dowolnego typu.",
       "fields": {
         "enabled": {
-          "description": "Turn rule on or off",
-          "name": "Enable rule"
+          "description": "Włącza lub wyłącza regułę",
+          "name": "Włącz regułę"
         },
         "rule_id": {
-          "description": "Rule number 1-8",
-          "name": "Rule ID"
+          "description": "Numer reguły 1-8",
+          "name": "Identyfikator reguły"
         },
         "rule_type": {
-          "description": "Select rule type: temprule, analogrule, switchingrule, or timerrule",
-          "name": "Rule type"
+          "description": "Wybierz typ reguły: temprule, analogrule, switchingrule lub timerrule",
+          "name": "Typ reguły"
         }
       },
-      "name": "Enable/Disable Rule"
+      "name": "Włącz/wyłącz regułę"
     },
     "export_diagnostic_logs": {
       "description": "Eksportuje ostatnie logi integracji do rozwiązywania problemów i wsparcia.\n\nZbiera odpowiednie wpisy logów i umożliwia pobranie lub zapis do pliku.\n\n**Wskazówka:** Przydatne przy problemach lub wysyłaniu logów do wsparcia!",
@@ -837,20 +837,20 @@
           "name": "Sterownik basenu"
         },
         "include_config": {
-          "description": "Include the integration configuration in the export.",
-          "name": "Include configuration"
+          "description": "Dołącza konfigurację integracji do eksportu.",
+          "name": "Dołącz konfigurację"
         },
         "include_history": {
-          "description": "Include the poll and error history in the export.",
-          "name": "Include history"
+          "description": "Dołącza historię odpytywania i błędów do eksportu.",
+          "name": "Dołącz historię"
         },
         "include_raw_data": {
-          "description": "Include the raw controller readings in the export.",
-          "name": "Include raw data"
+          "description": "Dołącza surowe odczyty sterownika do eksportu.",
+          "name": "Dołącz surowe dane"
         },
         "include_states": {
-          "description": "Include the current entity states in the export.",
-          "name": "Include entity states"
+          "description": "Dołącza bieżące stany encji do eksportu.",
+          "name": "Dołącz stany encji"
         },
         "include_timestamps": {
           "description": "Dołącz znaczniki czasu w eksportowanych logach",
@@ -868,31 +868,31 @@
       "name": "Eksportuj logi diagnostyczne"
     },
     "get_backwash_status": {
-      "description": "Return the backwash state, the current step and the filter pressure.",
+      "description": "Zwraca stan płukania wstecznego, bieżący krok oraz ciśnienie na filtrze.",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "Docelowe urządzenie Violet Pool Controller.",
+          "name": "Sterownik basenu"
         }
       },
-      "name": "Get Backwash Status"
+      "name": "Pobierz status płukania wstecznego"
     },
     "get_calibration_status": {
-      "description": "Return the calibration state of every calibrated sensor.",
+      "description": "Zwraca stan kalibracji każdego skalibrowanego czujnika.",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "Docelowe urządzenie Violet Pool Controller.",
+          "name": "Sterownik basenu"
         }
       },
-      "name": "Get Calibration Status"
+      "name": "Pobierz status kalibracji"
     },
     "get_connection_status": {
       "description": "Pobierz szczegółowy status połączenia i metryki zdrowia do rozwiązywania problemów.",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "Docelowe urządzenie Violet Pool Controller.",
+          "name": "Sterownik basenu"
         }
       },
       "name": "Pobierz status połączenia"
@@ -901,8 +901,8 @@
       "description": "Pobierz podsumowanie ostatnich błędów i sugestii naprawy.",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "Docelowe urządzenie Violet Pool Controller.",
+          "name": "Sterownik basenu"
         },
         "include_history": {
           "description": "Uwzględnij szczegółową historię błędów.",
@@ -912,54 +912,54 @@
       "name": "Pobierz podsumowanie błędów"
     },
     "get_live_trace_snapshot": {
-      "description": "Return a single-row snapshot of every controller reading.",
+      "description": "Zwraca jednowierszową migawkę wszystkich odczytów sterownika.",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "Docelowe urządzenie Violet Pool Controller.",
+          "name": "Sterownik basenu"
         }
       },
-      "name": "Get live trace snapshot"
+      "name": "Pobierz migawkę odczytów na żywo"
     },
     "get_overflow_status": {
-      "description": "Return the overflow protection's configuration and live state.",
+      "description": "Zwraca konfigurację i bieżący stan zabezpieczenia przed przelaniem.",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "Docelowe urządzenie Violet Pool Controller.",
+          "name": "Sterownik basenu"
         }
       },
-      "name": "Get Overflow Status"
+      "name": "Pobierz status zabezpieczenia przed przelaniem"
     },
     "get_refill_status": {
-      "description": "Return the refill system's configuration and live state.",
+      "description": "Zwraca konfigurację i bieżący stan systemu dopełniania wody.",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "Docelowe urządzenie Violet Pool Controller.",
+          "name": "Sterownik basenu"
         }
       },
-      "name": "Get Refill Status"
+      "name": "Pobierz status dopełniania wody"
     },
     "get_system_services_status": {
-      "description": "Return the live state of all controller-side system services.",
+      "description": "Zwraca bieżący stan wszystkich usług systemowych sterownika.",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "Docelowe urządzenie Violet Pool Controller.",
+          "name": "Sterownik basenu"
         }
       },
-      "name": "Get system service states"
+      "name": "Pobierz stany usług systemowych"
     },
     "get_system_update_status": {
-      "description": "Return the installed and available controller firmware versions.",
+      "description": "Zwraca zainstalowaną i dostępną wersję oprogramowania sprzętowego sterownika.",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "Docelowe urządzenie Violet Pool Controller.",
+          "name": "Sterownik basenu"
         }
       },
-      "name": "Get Firmware Update Status"
+      "name": "Pobierz status aktualizacji oprogramowania sprzętowego"
     },
     "manage_digital_rules": {
       "description": "Zarządzaj regułami automatyzacji wejść cyfrowych dla wejść sterownika.",
@@ -969,8 +969,8 @@
           "name": "Akcja reguły"
         },
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "Docelowe urządzenie Violet Pool Controller.",
+          "name": "Sterownik basenu"
         },
         "rule_key": {
           "description": "Wybierz regułę cyfrową (DIRULE_1 do DIRULE_7).",
@@ -994,100 +994,100 @@
       "name": "Zarządzanie Nadmiarem PV"
     },
     "manual_dosing_http": {
-      "description": "Manually trigger chemical dosing.\n\n**Caution:** Always verify water values before dosing!",
+      "description": "Ręcznie uruchamia dozowanie chemii.\n\n**Uwaga:** Zawsze sprawdź parametry wody przed dozowaniem!",
       "fields": {
         "dosing_system": {
-          "description": "Select the chemical to dose (chlorine, electrolysis, pH-, pH+, flocculant). H₂O₂ is not offered: it shares the chlorine output and the controller API has no way to select it, so a manual run would dose chlorine.",
-          "name": "Chemical system"
+          "description": "Wybierz środek chemiczny do dozowania (chlor, elektroliza, pH-, pH+, koagulant). H₂O₂ nie jest dostępny: korzysta z tego samego wyjścia co chlor, a API sterownika nie pozwala go wybrać, więc ręczne uruchomienie dozowałoby chlor.",
+          "name": "System chemiczny"
         },
         "runtime_seconds": {
-          "description": "How long to run the dosing pump (1-3600s)",
-          "name": "Runtime (seconds)"
+          "description": "Jak długo ma pracować pompa dozująca (1-3600 s)",
+          "name": "Czas pracy (sekundy)"
         },
         "safety_override": {
-          "description": "Skip the cooldown between two dosing runs.",
-          "name": "Override safety interval"
+          "description": "Pomija przerwę wymaganą między dwoma dozowaniami.",
+          "name": "Pomiń interwał bezpieczeństwa"
         }
       },
-      "name": "Manual Dosing (HTTP)"
+      "name": "Ręczne dozowanie (HTTP)"
     },
     "reset_blocking": {
-      "description": "Clears fault-induced blockings on the controller (e.g. BLOCKED_BY_ESC after empty-canister alarm). Useful after fixing the underlying issue.",
+      "description": "Usuwa blokady wywołane usterką w sterowniku (np. BLOCKED_BY_ESC po alarmie pustego kanistra). Przydatne po usunięciu przyczyny problemu.",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "Docelowe urządzenie Violet Pool Controller.",
+          "name": "Sterownik basenu"
         }
       },
-      "name": "Reset fault blockings"
+      "name": "Zresetuj blokady usterkowe"
     },
     "set_can_amount": {
-      "description": "Update the canister fill level for a dosing channel after refilling. With action=reset the daily-dosing counter is also cleared.",
+      "description": "Aktualizuje poziom napełnienia kanistra kanału dozowania po jego uzupełnieniu. Przy action=reset zerowany jest również dzienny licznik dozowania.",
       "fields": {
         "action": {
-          "description": "adjust = only update fill level; reset = also clear daily counter",
-          "name": "Action"
+          "description": "adjust = tylko aktualizacja poziomu napełnienia; reset = dodatkowo wyzerowanie dziennego licznika",
+          "name": "Akcja"
         },
         "amount_ml": {
-          "description": "New fill level in millilitres",
-          "name": "Amount"
+          "description": "Nowy poziom napełnienia w mililitrach",
+          "name": "Ilość"
         },
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "Docelowe urządzenie Violet Pool Controller.",
+          "name": "Sterownik basenu"
         },
         "dosing_key": {
-          "description": "Dosing channel key (DOS_1_CL, DOS_2_ELO, DOS_4_PHM, DOS_5_PHP, DOS_6_FLOC)",
-          "name": "Dosing channel"
+          "description": "Klucz kanału dozowania (DOS_1_CL, DOS_2_ELO, DOS_4_PHM, DOS_5_PHP, DOS_6_FLOC)",
+          "name": "Kanał dozowania"
         }
       },
-      "name": "Set canister fill level"
+      "name": "Ustaw poziom napełnienia kanistra"
     },
     "set_dosing_daytime": {
-      "description": "Configure the daytime window for dosing operations.",
+      "description": "Konfiguruje okno dzienne dla operacji dozowania.",
       "fields": {
         "day_end": {
-          "description": "When daytime ends (HH:MM format)",
-          "name": "Day end time"
+          "description": "Kiedy kończy się dzień (format HH:MM)",
+          "name": "Godzina końca dnia"
         },
         "day_start": {
-          "description": "When daytime starts (HH:MM format)",
-          "name": "Day start time"
+          "description": "Kiedy zaczyna się dzień (format HH:MM)",
+          "name": "Godzina początku dnia"
         },
         "dosing_system": {
-          "description": "Which dosing system to configure",
-          "name": "Chemical system"
+          "description": "Który system dozowania skonfigurować",
+          "name": "System chemiczny"
         }
       },
-      "name": "Set Dosing Daytime"
+      "name": "Ustaw okno dzienne dozowania"
     },
     "set_dosing_max_daily": {
-      "description": "Set the maximum daily dosing volume.",
+      "description": "Ustawia maksymalną dzienną objętość dozowania.",
       "fields": {
         "dosing_system": {
-          "description": "Which dosing system to configure",
-          "name": "Chemical system"
+          "description": "Który system dozowania skonfigurować",
+          "name": "System chemiczny"
         },
         "max_daily_ml": {
-          "description": "Maximum volume in ml per day (10-10000)",
-          "name": "Maximum daily volume"
+          "description": "Maksymalna objętość w ml na dobę (10-10000)",
+          "name": "Maksymalna objętość dzienna"
         }
       },
-      "name": "Set Dosing Maximum Daily"
+      "name": "Ustaw maksymalne dzienne dozowanie"
     },
     "set_dosing_target": {
-      "description": "Set the target value for chemical dosing control.",
+      "description": "Ustawia wartość zadaną dla regulacji dozowania chemii.",
       "fields": {
         "dosing_system": {
-          "description": "Which dosing system to configure",
-          "name": "Chemical system"
+          "description": "Który system dozowania skonfigurować",
+          "name": "System chemiczny"
         },
         "target_value": {
-          "description": "Target value (0-100, unit depends on chemical)",
-          "name": "Target value"
+          "description": "Wartość zadana (0-100, jednostka zależy od środka chemicznego)",
+          "name": "Wartość zadana"
         }
       },
-      "name": "Set Dosing Target"
+      "name": "Ustaw wartość zadaną dozowania"
     },
     "set_light_color_pulse": {
       "description": "Wyślij polecenia impulsu koloru do oświetlenia basenu.",
@@ -1104,36 +1104,36 @@
       "name": "Puls koloru światła"
     },
     "set_omni_position": {
-      "description": "Drive the OmniTronic multi-port valve to a fixed position (0-5). Position 0 returns to AUTO mode.",
+      "description": "Ustawia wielodrogowy zawór OmniTronic w stałej pozycji (0-5). Pozycja 0 przywraca tryb AUTO.",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "Docelowe urządzenie Violet Pool Controller.",
+          "name": "Sterownik basenu"
         },
         "position": {
-          "description": "Target valve position (0=Filtration/AUTO, 1-5=other ports)",
-          "name": "Position"
+          "description": "Docelowa pozycja zaworu (0=filtracja/AUTO, 1-5=pozostałe porty)",
+          "name": "Pozycja"
         }
       },
-      "name": "Set OmniTronic valve position"
+      "name": "Ustaw pozycję zaworu OmniTronic"
     },
     "set_system_service": {
-      "description": "Enable or disable a system service on the controller (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, tunnels).",
+      "description": "Włącza lub wyłącza usługę systemową na sterowniku (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, tunele).",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "Docelowe urządzenie Violet Pool Controller.",
+          "name": "Sterownik basenu"
         },
         "enabled": {
-          "description": "true to enable, false to disable",
-          "name": "Enabled"
+          "description": "true, aby włączyć, false, aby wyłączyć",
+          "name": "Włączona"
         },
         "service": {
-          "description": "Service identifier (ftp, samba, ssh, shairport, homebridge, alexa, tunnel, support_tunnel)",
-          "name": "Service"
+          "description": "Identyfikator usługi (ftp, samba, ssh, shairport, homebridge, alexa, tunnel, support_tunnel)",
+          "name": "Usługa"
         }
       },
-      "name": "Toggle controller system service"
+      "name": "Przełącz usługę systemową sterownika"
     },
     "smart_dosing": {
       "description": "Ręczne lub automatyczne sterowanie dozowaniem pH, chloru i koagulantu.\n\n**Uwaga:** Unikaj przedawkowania! Zawsze najpierw sprawdź parametry wody.",
@@ -1161,8 +1161,8 @@
       "description": "Przetestuj połączenie z kontrolerem i zwróć informacje diagnostyczne.",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "Docelowe urządzenie Violet Pool Controller.",
+          "name": "Sterownik basenu"
         }
       },
       "name": "Testuj połączenie"
@@ -1171,8 +1171,8 @@
       "description": "Tymczasowo aktywuje wyjście sterownika w celach diagnostycznych. Upewnij się, że podczas wymuszania wyjścia nie są zagrożone żadne osoby ani sprzęt.",
       "fields": {
         "device_id": {
-          "description": "Target Violet Pool Controller device.",
-          "name": "Pool Controller"
+          "description": "Docelowe urządzenie Violet Pool Controller.",
+          "name": "Sterownik basenu"
         },
         "duration": {
           "description": "Czas trwania od 1 do 900 sekund.",
@@ -1261,7 +1261,7 @@
   "entity": {
     "binary_sensor": {
       "backwash": {
-        "name": "Rückspülstatus"
+        "name": "Stan Płukania Wstecznego"
       },
       "backwash_delay": {
         "name": "Opóźnienie płukania wstecznego aktywne"
@@ -1270,91 +1270,106 @@
         "name": "Nadzór AI kąpieli"
       },
       "can_range_state": {
-        "name": "Behälter-Bereichs-Problem"
+        "name": "Problem Zasięgu Kanistra"
       },
       "circulation_state": {
-        "name": "Zirkulationsproblem"
+        "name": "Problem z Cyrkulacją"
+      },
+      "dos_1_cl_use": {
+        "name": "Dozowanie chloru skonfigurowane"
+      },
+      "dos_2_elo_use": {
+        "name": "Elektroliza skonfigurowana"
+      },
+      "dos_4_phm_use": {
+        "name": "Dozowanie pH- skonfigurowane"
+      },
+      "dos_5_php_use": {
+        "name": "Dozowanie pH+ skonfigurowane"
+      },
+      "dos_6_floc_use": {
+        "name": "Dozowanie flokulantu skonfigurowane"
       },
       "eco": {
-        "name": "Eco-Modus"
+        "name": "Tryb ECO"
       },
       "electrode_flow_state": {
-        "name": "Elektrodendurchfluss-Problem"
+        "name": "Problem Przepływu przy Elektrodzie"
       },
       "heater": {
-        "name": "Heizerstatus"
+        "name": "Stan Ogrzewania"
       },
       "hw_base_module": {
-        "name": "Hardware: Basismodul"
+        "name": "Sprzęt: moduł bazowy"
       },
       "hw_dirule_module": {
-        "name": "Hardware: Digital Rules Module"
+        "name": "Sprzęt: moduł reguł cyfrowych"
       },
       "hw_dmx_module": {
-        "name": "Hardware: DMX-Modul"
+        "name": "Sprzęt: moduł DMX"
       },
       "hw_dosing_module": {
-        "name": "Hardware: Dosiermodul"
+        "name": "Sprzęt: moduł dozowania"
       },
       "hw_extension_module_1": {
-        "name": "Hardware: Rozszerzeniesmodul 1"
+        "name": "Sprzęt: moduł rozszerzeń 1"
       },
       "hw_extension_module_2": {
-        "name": "Hardware: Rozszerzeniesmodul 2"
+        "name": "Sprzęt: moduł rozszerzeń 2"
       },
       "hw_standalone_mode": {
-        "name": "Hardware: Eigenständige Dosiereinheit"
+        "name": "Sprzęt: samodzielna jednostka dozująca"
       },
       "input1": {
-        "name": "Digitaler Eingang 1"
+        "name": "Wejście cyfrowe 1"
       },
       "input10": {
-        "name": "Digitaler Eingang 10"
+        "name": "Wejście cyfrowe 10"
       },
       "input11": {
-        "name": "Digitaler Eingang 11"
+        "name": "Wejście cyfrowe 11"
       },
       "input12": {
-        "name": "Digitaler Eingang 12"
+        "name": "Wejście cyfrowe 12"
       },
       "input2": {
-        "name": "Digitaler Eingang 2"
+        "name": "Wejście cyfrowe 2"
       },
       "input3": {
-        "name": "Digitaler Eingang 3"
+        "name": "Wejście cyfrowe 3"
       },
       "input4": {
-        "name": "Digitaler Eingang 4"
+        "name": "Wejście cyfrowe 4"
       },
       "input5": {
-        "name": "Digitaler Eingang 5"
+        "name": "Wejście cyfrowe 5"
       },
       "input6": {
-        "name": "Digitaler Eingang 6"
+        "name": "Wejście cyfrowe 6"
       },
       "input7": {
-        "name": "Digitaler Eingang 7"
+        "name": "Wejście cyfrowe 7"
       },
       "input8": {
-        "name": "Digitaler Eingang 8"
+        "name": "Wejście cyfrowe 8"
       },
       "input9": {
-        "name": "Digitaler Eingang 9"
+        "name": "Wejście cyfrowe 9"
       },
       "input_ce1": {
-        "name": "CE-Eingang 1"
+        "name": "Wejście cyfrowe CE1"
       },
       "input_ce2": {
-        "name": "CE-Eingang 2"
+        "name": "Wejście cyfrowe CE2"
       },
       "input_ce3": {
-        "name": "CE-Eingang 3"
+        "name": "Wejście cyfrowe CE3"
       },
       "input_ce4": {
-        "name": "CE-Eingang 4"
+        "name": "Wejście cyfrowe CE4"
       },
       "light": {
-        "name": "Beleuchtungsstatus"
+        "name": "Stan Oświetlenia"
       },
       "overflow_dryrun": {
         "name": "Sucha praca zbiornika przelewowego"
@@ -1366,19 +1381,19 @@
         "name": "Uzupełnianie zbiornika przelewowego"
       },
       "pressure_state": {
-        "name": "Druckproblem"
+        "name": "Problem Ciśnienia"
       },
       "pump": {
-        "name": "Pumpenstatus"
+        "name": "Stan Pompy"
       },
       "pvsurplus": {
-        "name": "PV-Überschuss"
+        "name": "Nadwyżka PV"
       },
       "refill": {
-        "name": "Nachfüllstatus"
+        "name": "Stan Uzupełniania"
       },
       "solar": {
-        "name": "Solarstatus"
+        "name": "Stan Systemu Słonecznego"
       }
     },
     "button": {
@@ -1388,15 +1403,15 @@
     },
     "climate": {
       "heater": {
-        "name": "Pool-Heizer"
+        "name": "Ogrzewanie Basenu"
       },
       "solar": {
-        "name": "Solar-Heizer"
+        "name": "Ogrzewanie Solarne"
       }
     },
     "cover": {
       "pool_cover": {
-        "name": "Pool-Abdeckung"
+        "name": "Roleta basenowa"
       }
     },
     "light": {
@@ -1439,70 +1454,70 @@
     },
     "number": {
       "chlorine_canister_volume": {
-        "name": "Chlorbehälter-Volumen"
+        "name": "Objętość Kanistra Chloru"
       },
       "chlorine_setpoint": {
-        "name": "Chlor-Sollwert"
+        "name": "Wartość zadana chloru"
       },
       "chlorine_setpoint_electrolysis": {
-        "name": "Chlorine Setpoint (Electrolysis)"
+        "name": "Wartość zadana chloru (elektroliza)"
       },
       "csi_alkalinity": {
-        "name": "CSI Carbonate Alkalinity"
+        "name": "CSI: zasadowość węglanowa"
       },
       "csi_calcium": {
-        "name": "CSI Calcium Hardness"
+        "name": "CSI: twardość wapniowa"
       },
       "csi_ph": {
-        "name": "CSI pH Value"
+        "name": "CSI: wartość pH"
       },
       "csi_tds": {
-        "name": "CSI TDS"
+        "name": "CSI: TDS"
       },
       "csi_temperature": {
-        "name": "CSI Temperature"
+        "name": "CSI: temperatura"
       },
       "flocculant_canister_volume": {
-        "name": "Flockungsmittel-Behälter-Volumen"
+        "name": "Objętość Kanistra Flokulantu"
       },
       "heater_target_temp": {
-        "name": "Zieltemperatur Heizer"
+        "name": "Temperatura docelowa ogrzewania"
       },
       "lsi_alkalinity": {
-        "name": "LSI Carbonate Alkalinity"
+        "name": "LSI: zasadowość węglanowa"
       },
       "lsi_calcium": {
-        "name": "LSI Calcium Hardness"
+        "name": "LSI: twardość wapniowa"
       },
       "lsi_ph": {
-        "name": "LSI pH Value"
+        "name": "LSI: wartość pH"
       },
       "lsi_tds": {
-        "name": "LSI TDS"
+        "name": "LSI: TDS"
       },
       "lsi_temperature": {
-        "name": "LSI Temperature"
+        "name": "LSI: temperatura"
       },
       "orp_setpoint": {
-        "name": "ORP-Sollwert"
+        "name": "Wartość zadana ORP"
       },
       "orp_setpoint_electrolysis": {
-        "name": "ORP Setpoint (Electrolysis)"
+        "name": "Wartość zadana ORP (elektroliza)"
       },
       "ph_minus_canister_volume": {
-        "name": "pH--Behälter-Volumen"
+        "name": "Objętość Kanistra pH-"
       },
       "ph_plus_canister_volume": {
-        "name": "pH+-Behälter-Volumen"
+        "name": "Objętość Kanistra pH+"
       },
       "ph_setpoint": {
-        "name": "pH-Sollwert"
+        "name": "Wartość zadana pH"
       },
       "pump_speed": {
-        "name": "Pumpendrehzahl"
+        "name": "Prędkość pompy"
       },
       "solar_target_temp": {
-        "name": "Zieltemperatur Solar"
+        "name": "Temperatura docelowa solaru"
       }
     },
     "select": {
@@ -1914,7 +1929,7 @@
         "name": "Czas Pracy Przepłukiwania"
       },
       "backwashstate": {
-        "name": "Backwash Detail Status"
+        "name": "Szczegółowy status płukania wstecznego"
       },
       "bathing_ai_last_level": {
         "name": "Inteligencja Kąpielowa Ostatni Poziom"
@@ -1932,28 +1947,28 @@
         "name": "Stan Monitorowania Inteligencji Kąpielowej"
       },
       "checksum": {
-        "name": "Configuration Checksum"
+        "name": "Suma kontrolna konfiguracji"
       },
       "close_contact": {
-        "name": "Cover Closed Contact"
+        "name": "Styk zamknięcia rolety"
       },
       "configchangemarker": {
-        "name": "Configuration Change Marker"
+        "name": "Znacznik zmiany konfiguracji"
       },
       "connection_latency": {
         "name": "Opóźnienie Połączenia"
       },
       "cover_direction": {
-        "name": "Cover Direction"
+        "name": "Kierunek ruchu rolety"
       },
       "cover_runtime": {
-        "name": "Cover Runtime"
+        "name": "Czas pracy rolety"
       },
       "cover_state": {
         "name": "Stan Pokrywy"
       },
       "cpu_gov": {
-        "name": "CPU Governor"
+        "name": "Regulator CPU"
       },
       "cpu_temp": {
         "name": "Temperatura CPU"
@@ -1965,121 +1980,67 @@
         "name": "Czas Pracy Systemu"
       },
       "csi_index": {
-        "name": "CSI Result"
+        "name": "Wynik CSI"
       },
       "current_time": {
-        "name": "Controller Time"
+        "name": "Czas sterownika"
       },
       "current_time_unix": {
-        "name": "Controller Time (Unix)"
+        "name": "Czas sterownika (Unix)"
       },
       "date": {
-        "name": "System Date"
+        "name": "Data systemowa"
       },
       "di_rule_1_stopwatch": {
-        "name": "DI-Regel 1 Restzeit"
+        "name": "Pozostały czas reguły DI 1"
       },
       "di_rule_2_stopwatch": {
-        "name": "DI-Regel 2 Restzeit"
+        "name": "Pozostały czas reguły DI 2"
       },
       "di_rule_3_stopwatch": {
-        "name": "DI-Regel 3 Restzeit"
+        "name": "Pozostały czas reguły DI 3"
       },
       "di_rule_4_stopwatch": {
-        "name": "DI-Regel 4 Restzeit"
+        "name": "Pozostały czas reguły DI 4"
       },
       "di_rule_5_stopwatch": {
-        "name": "DI-Regel 5 Restzeit"
+        "name": "Pozostały czas reguły DI 5"
       },
       "di_rule_6_stopwatch": {
-        "name": "DI-Regel 6 Restzeit"
+        "name": "Pozostały czas reguły DI 6"
       },
       "di_rule_7_stopwatch": {
-        "name": "DI-Regel 7 Restzeit"
+        "name": "Pozostały czas reguły DI 7"
       },
       "di_rule_8_stopwatch": {
-        "name": "DI-Regel 8 Restzeit"
-      },
-      "digitalinputrule_state_digitalinput_rule_1": {
-        "name": "Schaltregeln Zustand 1"
-      },
-      "digitalinputrule_state_digitalinput_rule_2": {
-        "name": "Schaltregeln Zustand 2"
-      },
-      "digitalinputrule_state_digitalinput_rule_3": {
-        "name": "Schaltregeln Zustand 3"
-      },
-      "digitalinputrule_state_digitalinput_rule_4": {
-        "name": "Schaltregeln Zustand 4"
-      },
-      "digitalinputrule_state_digitalinput_rule_5": {
-        "name": "Schaltregeln Zustand 5"
-      },
-      "digitalinputrule_state_digitalinput_rule_6": {
-        "name": "Schaltregeln Zustand 6"
-      },
-      "digitalinputrule_state_digitalinput_rule_7": {
-        "name": "Schaltregeln Zustand 7"
+        "name": "Pozostały czas reguły DI 8"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch1": {
-        "name": "Schaltregeln Stoppuhr 1"
+        "name": "Stoper reguły wejścia cyfrowego 1"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch2": {
-        "name": "Schaltregeln Stoppuhr 2"
+        "name": "Stoper reguły wejścia cyfrowego 2"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch3": {
-        "name": "Schaltregeln Stoppuhr 3"
+        "name": "Stoper reguły wejścia cyfrowego 3"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch4": {
-        "name": "Schaltregeln Stoppuhr 4"
+        "name": "Stoper reguły wejścia cyfrowego 4"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch5": {
-        "name": "Schaltregeln Stoppuhr 5"
+        "name": "Stoper reguły wejścia cyfrowego 5"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch6": {
-        "name": "Schaltregeln Stoppuhr 6"
+        "name": "Stoper reguły wejścia cyfrowego 6"
       },
       "digitalinputrule_state_digitalinput_rule_stopwatch7": {
-        "name": "Schaltregeln Stoppuhr 7"
+        "name": "Stoper reguły wejścia cyfrowego 7"
+      },
+      "digitalinputrule_state_digitalinput_rule_stopwatch8": {
+        "name": "Stoper reguły wejścia cyfrowego 8"
       },
       "dmx_mode": {
-        "name": "DMX Mode"
-      },
-      "dmx_scene1": {
-        "name": "DMX-Lichtszene 1"
-      },
-      "dmx_scene10": {
-        "name": "DMX-Lichtszene 10"
-      },
-      "dmx_scene11": {
-        "name": "DMX-Lichtszene 11"
-      },
-      "dmx_scene12": {
-        "name": "DMX-Lichtszene 12"
-      },
-      "dmx_scene2": {
-        "name": "DMX-Lichtszene 2"
-      },
-      "dmx_scene3": {
-        "name": "DMX-Lichtszene 3"
-      },
-      "dmx_scene4": {
-        "name": "DMX-Lichtszene 4"
-      },
-      "dmx_scene5": {
-        "name": "DMX-Lichtszene 5"
-      },
-      "dmx_scene6": {
-        "name": "DMX-Lichtszene 6"
-      },
-      "dmx_scene7": {
-        "name": "DMX-Lichtszene 7"
-      },
-      "dmx_scene8": {
-        "name": "DMX-Lichtszene 8"
-      },
-      "dmx_scene9": {
-        "name": "DMX-Lichtszene 9"
+        "name": "Tryb DMX"
       },
       "dos_1_cl": {
         "name": "System Dozowania Chloru"
@@ -2110,9 +2071,6 @@
       },
       "dos_1_cl_type": {
         "name": "Typ Dozowania Chloru"
-      },
-      "dos_1_cl_use": {
-        "name": "Dozowanie chloru skonfigurowane"
       },
       "dos_2_current_polarity": {
         "name": "Polaryzacja elektrolizy"
@@ -2147,11 +2105,8 @@
       "dos_2_elo_type": {
         "name": "Typ Dozowania Elektrolizy"
       },
-      "dos_2_elo_use": {
-        "name": "Elektroliza skonfigurowana"
-      },
       "dos_3_elo_rev_remaining_range": {
-        "name": "Electrolysis (Reversed) Remaining Range"
+        "name": "Pozostały zasięg elektrolizy (odwrócona)"
       },
       "dos_3_elo_rev_runtime": {
         "name": "Czas pracy odwrócenia elektrolizy"
@@ -2186,9 +2141,6 @@
       "dos_4_phm_type": {
         "name": "Typ Dozowania pH-"
       },
-      "dos_4_phm_use": {
-        "name": "Dozowanie pH- skonfigurowane"
-      },
       "dos_5_php": {
         "name": "System Dozowania pH+"
       },
@@ -2219,9 +2171,6 @@
       "dos_5_php_type": {
         "name": "Typ Dozowania pH+"
       },
-      "dos_5_php_use": {
-        "name": "Dozowanie pH+ skonfigurowane"
-      },
       "dos_6_floc": {
         "name": "System Dozowania Flokkulantu"
       },
@@ -2241,7 +2190,7 @@
         "name": "Pozostały zasięg flokulantu"
       },
       "dos_6_floc_runtime": {
-        "name": "Flockmittel-Dosierlaufzeit"
+        "name": "Czas Pracy Dozowania Flokulantu"
       },
       "dos_6_floc_state": {
         "name": "Status Flokkulacji"
@@ -2250,10 +2199,7 @@
         "name": "Zawartość Kanistra Flokkulantu (ml)"
       },
       "dos_6_floc_type": {
-        "name": "Flockmittel Dosiertyp"
-      },
-      "dos_6_floc_use": {
-        "name": "Dozowanie flokulantu skonfigurowane"
+        "name": "Typ Dozowania Flokulantu"
       },
       "eco": {
         "name": "Status Trybu Eco"
@@ -2268,10 +2214,10 @@
         "name": "Czas Pracy Trybu Eco"
       },
       "error_code": {
-        "name": "Error Code"
+        "name": "Kod błędu"
       },
       "error_contact": {
-        "name": "Cover Error Contact"
+        "name": "Styk błędu rolety"
       },
       "ext1_1": {
         "name": "Rozszerzenie 1.1"
@@ -2487,16 +2433,16 @@
         "name": "Czas Pracy Ogrzewania"
       },
       "heater_set_temp": {
-        "name": "Heater Setpoint (Controller)"
+        "name": "Wartość zadana ogrzewania (sterownik)"
       },
       "heaterstate": {
         "name": "Szczegółowy Status Ogrzewania"
       },
       "hw_serial_carrier": {
-        "name": "Carrier Board Serial Number"
+        "name": "Numer seryjny płyty bazowej"
       },
       "hw_version_carrier": {
-        "name": "Carrier Board Hardware Version"
+        "name": "Wersja sprzętowa płyty bazowej"
       },
       "imp1_value": {
         "name": "Wejście Dawkowania"
@@ -2504,59 +2450,11 @@
       "imp2_value": {
         "name": "Przepływ Pompy"
       },
-      "input1": {
-        "name": "Digitaleingang 1"
-      },
-      "input10": {
-        "name": "Digitaleingang 10"
-      },
-      "input11": {
-        "name": "Digitaleingang 11"
-      },
-      "input12": {
-        "name": "Digitaleingang 12"
-      },
-      "input2": {
-        "name": "Digitaleingang 2"
-      },
-      "input3": {
-        "name": "Digitaleingang 3"
-      },
-      "input4": {
-        "name": "Digitaleingang 4"
-      },
-      "input5": {
-        "name": "Digitaleingang 5"
-      },
-      "input6": {
-        "name": "Digitaleingang 6"
-      },
-      "input7": {
-        "name": "Digitaleingang 7"
-      },
-      "input8": {
-        "name": "Digitaleingang 8"
-      },
-      "input9": {
-        "name": "Digitaleingang 9"
-      },
-      "input_ce1": {
-        "name": "Kanister-Leersensor 1"
-      },
-      "input_ce2": {
-        "name": "Kanister-Leersensor 2"
-      },
-      "input_ce3": {
-        "name": "Kanister-Leersensor 3"
-      },
-      "input_ce4": {
-        "name": "Kanister-Leersensor 4"
-      },
       "inputz1z2": {
-        "name": "Digital Inputs Z1/Z2"
+        "name": "Wejścia cyfrowe Z1/Z2"
       },
       "last_error": {
-        "name": "Last Error"
+        "name": "Ostatni błąd"
       },
       "last_error_code": {
         "name": "Ostatni Kod Błędu"
@@ -2568,7 +2466,7 @@
         "name": "Wiek Ostatniego Zdarzenia"
       },
       "last_moving_direction": {
-        "name": "Cover Last Direction"
+        "name": "Ostatni kierunek ruchu rolety"
       },
       "light": {
         "name": "Status Oświetlenia"
@@ -2580,58 +2478,58 @@
         "name": "Oświetlenie Ostatnio Włączone"
       },
       "light_mode": {
-        "name": "Light Mode"
+        "name": "Tryb oświetlenia"
       },
       "light_runtime": {
         "name": "Czas Pracy Oświetlenia"
       },
       "light_scene_1": {
-        "name": "Light Scene 1"
+        "name": "Scena świetlna 1"
       },
       "light_scene_10": {
-        "name": "Light Scene 10"
+        "name": "Scena świetlna 10"
       },
       "light_scene_11": {
-        "name": "Light Scene 11"
+        "name": "Scena świetlna 11"
       },
       "light_scene_12": {
-        "name": "Light Scene 12"
+        "name": "Scena świetlna 12"
       },
       "light_scene_2": {
-        "name": "Light Scene 2"
+        "name": "Scena świetlna 2"
       },
       "light_scene_3": {
-        "name": "Light Scene 3"
+        "name": "Scena świetlna 3"
       },
       "light_scene_4": {
-        "name": "Light Scene 4"
+        "name": "Scena świetlna 4"
       },
       "light_scene_5": {
-        "name": "Light Scene 5"
+        "name": "Scena świetlna 5"
       },
       "light_scene_6": {
-        "name": "Light Scene 6"
+        "name": "Scena świetlna 6"
       },
       "light_scene_7": {
-        "name": "Light Scene 7"
+        "name": "Scena świetlna 7"
       },
       "light_scene_8": {
-        "name": "Light Scene 8"
+        "name": "Scena świetlna 8"
       },
       "light_scene_9": {
-        "name": "Light Scene 9"
+        "name": "Scena świetlna 9"
       },
       "lightstate": {
-        "name": "Light Detail Status"
+        "name": "Szczegółowy status oświetlenia"
       },
       "load_avg": {
-        "name": "CPU-Auslastung"
+        "name": "Średnie Obciążenie CPU"
       },
       "lsi_index": {
-        "name": "LSI Result"
+        "name": "Wynik LSI"
       },
       "memory_used": {
-        "name": "Memory Used"
+        "name": "Zajęta pamięć"
       },
       "omni_dc0_runtime": {
         "name": "Czas pracy silnika DC OMNI 0"
@@ -2652,43 +2550,43 @@
         "name": "Czas pracy silnika DC OMNI 5"
       },
       "onewire10_romcode": {
-        "name": "OneWire ROM Code 10"
+        "name": "Kod ROM OneWire 10"
       },
       "onewire10_value": {
         "name": "Czujnik Temperatury 10"
       },
       "onewire10_value_max": {
-        "name": "Czujnik Temperatury 10 Maximum"
+        "name": "Maksymalna Temperatura Czujnika 10"
       },
       "onewire10_value_min": {
-        "name": "Czujnik Temperatury 10 Minimum"
+        "name": "Minimalna Temperatura Czujnika 10"
       },
       "onewire11_romcode": {
-        "name": "OneWire ROM Code 11"
+        "name": "Kod ROM OneWire 11"
       },
       "onewire11_value": {
         "name": "Czujnik Temperatury 11"
       },
       "onewire11_value_max": {
-        "name": "Czujnik Temperatury 11 Maximum"
+        "name": "Maksymalna Temperatura Czujnika 11"
       },
       "onewire11_value_min": {
-        "name": "Czujnik Temperatury 11 Minimum"
+        "name": "Minimalna Temperatura Czujnika 11"
       },
       "onewire12_romcode": {
-        "name": "OneWire ROM Code 12"
+        "name": "Kod ROM OneWire 12"
       },
       "onewire12_value": {
         "name": "Czujnik Temperatury 12"
       },
       "onewire12_value_max": {
-        "name": "Czujnik Temperatury 12 Maximum"
+        "name": "Maksymalna Temperatura Czujnika 12"
       },
       "onewire12_value_min": {
-        "name": "Czujnik Temperatury 12 Minimum"
+        "name": "Minimalna Temperatura Czujnika 12"
       },
       "onewire1_romcode": {
-        "name": "OneWire ROM Code 1"
+        "name": "Kod ROM OneWire 1"
       },
       "onewire1_value": {
         "name": "Woda Basenu"
@@ -2700,7 +2598,7 @@
         "name": "Minimalna Temperatura Wody"
       },
       "onewire2_romcode": {
-        "name": "OneWire ROM Code 2"
+        "name": "Kod ROM OneWire 2"
       },
       "onewire2_value": {
         "name": "Temperatura Zewnętrzna"
@@ -2712,7 +2610,7 @@
         "name": "Minimalna Temperatura Zewnętrzna"
       },
       "onewire3_romcode": {
-        "name": "OneWire ROM Code 3"
+        "name": "Kod ROM OneWire 3"
       },
       "onewire3_value": {
         "name": "Kolektor Słoneczny"
@@ -2724,7 +2622,7 @@
         "name": "Minimalna Temperatura Absorbera Słonecznego"
       },
       "onewire4_romcode": {
-        "name": "OneWire ROM Code 4"
+        "name": "Kod ROM OneWire 4"
       },
       "onewire4_value": {
         "name": "Powrót Kolektora"
@@ -2736,7 +2634,7 @@
         "name": "Minimalna Temperatura Powrotu Absorbera"
       },
       "onewire5_romcode": {
-        "name": "OneWire ROM Code 5"
+        "name": "Kod ROM OneWire 5"
       },
       "onewire5_value": {
         "name": "Wymiennik Ciepła"
@@ -2748,7 +2646,7 @@
         "name": "Minimalna Temperatura Wejścia Wymiennika"
       },
       "onewire6_romcode": {
-        "name": "OneWire ROM Code 6"
+        "name": "Kod ROM OneWire 6"
       },
       "onewire6_value": {
         "name": "Magazyn Ciepła"
@@ -2760,7 +2658,7 @@
         "name": "Minimalna Temperatura Wyjścia Wymiennika"
       },
       "onewire7_romcode": {
-        "name": "OneWire ROM Code 7"
+        "name": "Kod ROM OneWire 7"
       },
       "onewire7_value": {
         "name": "Czujnik Temperatury 7"
@@ -2772,7 +2670,7 @@
         "name": "Minimalna Temperatura Czujnika 7"
       },
       "onewire8_romcode": {
-        "name": "OneWire ROM Code 8"
+        "name": "Kod ROM OneWire 8"
       },
       "onewire8_value": {
         "name": "Czujnik Temperatury 8"
@@ -2784,19 +2682,19 @@
         "name": "Minimalna Temperatura Czujnika 8"
       },
       "onewire9_romcode": {
-        "name": "OneWire ROM Code 9"
+        "name": "Kod ROM OneWire 9"
       },
       "onewire9_value": {
         "name": "Czujnik Temperatury 9"
       },
       "onewire9_value_max": {
-        "name": "Czujnik Temperatury 9 Maximum"
+        "name": "Maksymalna Temperatura Czujnika 9"
       },
       "onewire9_value_min": {
-        "name": "Czujnik Temperatury 9 Minimum"
+        "name": "Minimalna Temperatura Czujnika 9"
       },
       "open_contact": {
-        "name": "Cover Open Contact"
+        "name": "Styk otwarcia rolety"
       },
       "orp_value": {
         "name": "Wartość ORP"
@@ -2826,12 +2724,12 @@
         "name": "Minimalna Wartość pH"
       },
       "pool_health": {
-        "name": "Pool Health",
+        "name": "Kondycja basenu",
         "state": {
-          "error": "Error",
+          "error": "Błąd",
           "offline": "Offline",
           "ok": "OK",
-          "warning": "Warning"
+          "warning": "Ostrzeżenie"
         }
       },
       "pot_value": {
@@ -2862,13 +2760,13 @@
         "name": "Poziom Pompy 0 Ostatnio Wyłączony"
       },
       "pump_rpm_0_last_on": {
-        "name": "Pumpen-Stufe 0 Zuletzt Ein"
+        "name": "Poziom Pompy 0 Ostatnio Włączony"
       },
       "pump_rpm_0_runtime": {
         "name": "Czas Pracy Poziomu Pompy 0"
       },
       "pump_rpm_0_value": {
-        "name": "Pump Speed 0 Value"
+        "name": "Wartość prędkości pompy 0"
       },
       "pump_rpm_1": {
         "name": "Poziom Pompy 1"
@@ -2877,13 +2775,13 @@
         "name": "Poziom Pompy 1 Ostatnio Wyłączony"
       },
       "pump_rpm_1_last_on": {
-        "name": "Pumpen-Stufe 1 Zuletzt Ein"
+        "name": "Poziom Pompy 1 Ostatnio Włączony"
       },
       "pump_rpm_1_runtime": {
         "name": "Czas Pracy Poziomu Pompy 1"
       },
       "pump_rpm_1_value": {
-        "name": "Pump Speed 1 Value"
+        "name": "Wartość prędkości pompy 1"
       },
       "pump_rpm_2": {
         "name": "Poziom Pompy 2"
@@ -2892,13 +2790,13 @@
         "name": "Poziom Pompy 2 Ostatnio Wyłączony"
       },
       "pump_rpm_2_last_on": {
-        "name": "Pumpen-Stufe 2 Zuletzt Ein"
+        "name": "Poziom Pompy 2 Ostatnio Włączony"
       },
       "pump_rpm_2_runtime": {
         "name": "Czas Pracy Poziomu Pompy 2"
       },
       "pump_rpm_2_value": {
-        "name": "Pump Speed 2 Value"
+        "name": "Wartość prędkości pompy 2"
       },
       "pump_rpm_3": {
         "name": "Poziom Pompy 3"
@@ -2907,22 +2805,22 @@
         "name": "Poziom Pompy 3 Ostatnio Wyłączony"
       },
       "pump_rpm_3_last_on": {
-        "name": "Pumpen-Stufe 3 Zuletzt Ein"
+        "name": "Poziom Pompy 3 Ostatnio Włączony"
       },
       "pump_rpm_3_runtime": {
         "name": "Czas Pracy Poziomu Pompy 3"
       },
       "pump_rpm_3_value": {
-        "name": "Pump Speed 3 Value"
+        "name": "Wartość prędkości pompy 3"
       },
       "pump_rs485_pwr": {
-        "name": "RS485-Pumpenleistung"
+        "name": "Moc Pompy RS485"
       },
       "pump_runtime": {
         "name": "Czas Pracy Pompy"
       },
       "pumppriostate": {
-        "name": "Pump Priority Status"
+        "name": "Status priorytetu pompy"
       },
       "pumpstate": {
         "name": "Szczegółowy Status Pompy"
@@ -2946,7 +2844,7 @@
         "name": "Czas Pracy Uzupełniania"
       },
       "refill_state": {
-        "name": "Refill Detail Status"
+        "name": "Szczegółowy status dopełniania wody"
       },
       "solar": {
         "name": "Status Systemu Słonecznego"
@@ -2958,7 +2856,7 @@
         "name": "System Słoneczny Ostatnio Włączony"
       },
       "solar_maxtemp": {
-        "name": "Solar Maximum Temperature"
+        "name": "Maksymalna temperatura solaru"
       },
       "solar_runtime": {
         "name": "Czas Pracy Systemu Słonecznego"
@@ -2967,7 +2865,7 @@
         "name": "Szczegółowy Status Systemu Słonecznego"
       },
       "sw_update_available": {
-        "name": "Software Update Available"
+        "name": "Dostępna aktualizacja oprogramowania"
       },
       "sw_version": {
         "name": "Wersja Oprogramowania"
@@ -2976,10 +2874,10 @@
         "name": "Wersja Oprogramowania Nośnika"
       },
       "system_carrier_alive_count": {
-        "name": "Carrier Board Heartbeats"
+        "name": "Sygnały heartbeat płyty bazowej"
       },
       "system_carrier_alive_faultcount": {
-        "name": "Carrier Board Heartbeat Faults"
+        "name": "Błędy sygnałów heartbeat płyty bazowej"
       },
       "system_carrier_cpu_temperature": {
         "name": "Temperatura CPU Nośnika"
@@ -2988,19 +2886,19 @@
         "name": "Temperatura CPU Systemu"
       },
       "system_dosagemodule_alive_count": {
-        "name": "Dosing Module Heartbeats"
+        "name": "Sygnały heartbeat modułu dozowania"
       },
       "system_dosagemodule_alive_faultcount": {
-        "name": "Dosing Module Heartbeat Faults"
+        "name": "Błędy sygnałów heartbeat modułu dozowania"
       },
       "system_dosagemodule_cpu_temperature": {
         "name": "Temperatura CPU Modułu Dozowania"
       },
       "system_ext1module_alive_count": {
-        "name": "Extension Module 1 Heartbeats"
+        "name": "Sygnały heartbeat modułu rozszerzeń 1"
       },
       "system_ext1module_alive_faultcount": {
-        "name": "Extension Module 1 Heartbeat Faults"
+        "name": "Błędy sygnałów heartbeat modułu rozszerzeń 1"
       },
       "system_health": {
         "name": "Stan Systemu"
@@ -3042,39 +2940,39 @@
         "name": "Reguła temperatury 8"
       },
       "time": {
-        "name": "System Time"
+        "name": "Czas systemowy"
       }
     },
     "switch": {
       "backwash": {
-        "name": "Rückspülung"
+        "name": "Płukanie Wsteczne"
       },
       "backwashrinse": {
-        "name": "Spülung"
+        "name": "Przepłukiwanie"
       },
       "dirule_1": {
-        "name": "Schaltregel 1"
+        "name": "Reguła przełączania 1"
       },
       "dirule_2": {
-        "name": "Schaltregel 2"
+        "name": "Reguła przełączania 2"
       },
       "dirule_3": {
-        "name": "Schaltregel 3"
+        "name": "Reguła przełączania 3"
       },
       "dirule_4": {
-        "name": "Schaltregel 4"
+        "name": "Reguła przełączania 4"
       },
       "dirule_5": {
-        "name": "Schaltregel 5"
+        "name": "Reguła przełączania 5"
       },
       "dirule_6": {
-        "name": "Schaltregel 6"
+        "name": "Reguła przełączania 6"
       },
       "dirule_7": {
-        "name": "Schaltregel 7"
+        "name": "Reguła przełączania 7"
       },
       "dirule_8": {
-        "name": "Schaltregel 8"
+        "name": "Reguła przełączania 8"
       },
       "dos_1_cl": {
         "name": "Dawkowanie Chloru"
@@ -3089,7 +2987,7 @@
         "name": "Dawkowanie pH+"
       },
       "dos_6_floc": {
-        "name": "Flockungsmittel"
+        "name": "Flokulant"
       },
       "eco": {
         "name": "Tryb ECO"
@@ -3143,10 +3041,10 @@
         "name": "Rozszerzenie 2.8"
       },
       "heater": {
-        "name": "Heizer"
+        "name": "Ogrzewanie"
       },
       "light": {
-        "name": "Beleuchtung"
+        "name": "Oświetlenie"
       },
       "omni_dc0": {
         "name": "OMNI DC0"
@@ -3167,10 +3065,10 @@
         "name": "OMNI DC5"
       },
       "pump": {
-        "name": "Filterpumpe"
+        "name": "Pompa Filtracyjna"
       },
       "pvsurplus": {
-        "name": "PV-Überschuss"
+        "name": "Nadwyżka PV"
       },
       "refill": {
         "name": "Uzupełnianie wody"
@@ -3182,40 +3080,40 @@
   },
   "device": {
     "filter_pump": {
-      "name": "Filter Pump"
+      "name": "Pompa filtracyjna"
     },
     "heating": {
-      "name": "Heating"
+      "name": "Ogrzewanie"
     },
     "solar": {
-      "name": "Solar Absorber"
+      "name": "Absorber solarny"
     },
     "dosing": {
-      "name": "Dosing & Water Chemistry"
+      "name": "Dozowanie i chemia wody"
     },
     "lighting": {
-      "name": "Lighting & DMX"
+      "name": "Oświetlenie i DMX"
     },
     "cover": {
-      "name": "Pool Cover"
+      "name": "Roleta basenowa"
     },
     "backwash": {
-      "name": "Backwash"
+      "name": "Płukanie wsteczne"
     },
     "water_refill": {
-      "name": "Water Refill"
+      "name": "Dopełnianie wody"
     },
     "pv_surplus": {
-      "name": "PV Surplus"
+      "name": "Nadwyżka PV"
     },
     "digital_io": {
-      "name": "Digital Inputs & Rules"
+      "name": "Wejścia cyfrowe i reguły"
     },
     "extensions": {
       "name": "Rozszerzenie przekaźnikowe"
     },
     "system": {
-      "name": "System & Diagnostics"
+      "name": "System i diagnostyka"
     }
   }
 }

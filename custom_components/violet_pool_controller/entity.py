@@ -158,6 +158,14 @@ def interpret_state_as_bool(raw_state: Any, key: str = "") -> bool | None:
     if state_str in ("N/A", "NONE", "UNKNOWN", "NULL", "---", ""):
         return None
 
+    # DOS_*_USE says whether a dosing channel is configured at all. It is a
+    # flag, not one of the 0-6 output states, so STATE_MAP must not read a 2
+    # as "blocked by a control rule". The dosing switch decides the same way
+    # for its "dosing_configured" attribute.
+    if key.startswith("DOS_") and key.endswith("_USE"):
+        flag = convert_to_int(raw_state)
+        return None if flag is None else flag != 0
+
     state_map = PV_SURPLUS_STATE_MAP if key == "PVSURPLUS" else STATE_MAP
 
     state_int = convert_to_int(raw_state)

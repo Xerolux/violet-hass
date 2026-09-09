@@ -78,7 +78,7 @@ English page, and each page links to its German twin at the top.
 
 ## 🔄 Scope and freshness
 
-- This wiki documents version **2.7.0** of the integration.
+- This wiki documents version **2.7.1** of the integration.
 - Pages are synchronised from `docs/wiki/` in the repository by the
   `docs.yml` workflow — edit them there, not in the GitHub wiki UI, or the
   next sync overwrites your change.

@@ -15,7 +15,10 @@ from pathlib import Path
 import pytest
 
 from custom_components.violet_pool_controller import const_sensors
-from custom_components.violet_pool_controller.sensor import _HARDWARE_FLAG_KEYS
+from custom_components.violet_pool_controller.sensor import (
+    _HARDWARE_FLAG_KEYS,
+    _STATE_CODE_DUPLICATE_KEYS,
+)
 from custom_components.violet_pool_controller.sensor_modules import romcode_sensor_index
 
 COMPONENT_DIR = Path(__file__).parent.parent / "custom_components" / "violet_pool_controller"
@@ -59,8 +62,14 @@ UNDOCUMENTED_KEYS = (
     "SOLAR_maxtemp",
 )
 
-# The sensor platform never creates these.
-_SKIPPED_KEYS = frozenset({f"onewire{i}_state" for i in range(1, 13)}) | _HARDWARE_FLAG_KEYS
+# The sensor platform never creates these. The hardware flags and the state
+# codes are published by binary_sensor, light and switch instead, so their
+# names live under those platforms and not under entity.sensor.
+_SKIPPED_KEYS = (
+    frozenset({f"onewire{i}_state" for i in range(1, 13)})
+    | _HARDWARE_FLAG_KEYS
+    | _STATE_CODE_DUPLICATE_KEYS
+)
 
 
 def _predefined() -> dict[str, dict]:

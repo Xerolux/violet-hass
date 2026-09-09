@@ -1275,6 +1275,21 @@
       "circulation_state": {
         "name": "Circulation Issue"
       },
+      "dos_1_cl_use": {
+        "name": "Chlorine Dosing Configured"
+      },
+      "dos_2_elo_use": {
+        "name": "Electrolysis Configured"
+      },
+      "dos_4_phm_use": {
+        "name": "pH Minus Dosing Configured"
+      },
+      "dos_5_php_use": {
+        "name": "pH Plus Dosing Configured"
+      },
+      "dos_6_floc_use": {
+        "name": "Flocculant Dosing Configured"
+      },
       "eco": {
         "name": "ECO Mode"
       },
@@ -2000,27 +2015,6 @@
       "di_rule_8_stopwatch": {
         "name": "DI Rule 8 Remaining Time"
       },
-      "digitalinputrule_state_digitalinput_rule_1": {
-        "name": "Digital Input Rule State 1"
-      },
-      "digitalinputrule_state_digitalinput_rule_2": {
-        "name": "Digital Input Rule State 2"
-      },
-      "digitalinputrule_state_digitalinput_rule_3": {
-        "name": "Digital Input Rule State 3"
-      },
-      "digitalinputrule_state_digitalinput_rule_4": {
-        "name": "Digital Input Rule State 4"
-      },
-      "digitalinputrule_state_digitalinput_rule_5": {
-        "name": "Digital Input Rule State 5"
-      },
-      "digitalinputrule_state_digitalinput_rule_6": {
-        "name": "Digital Input Rule State 6"
-      },
-      "digitalinputrule_state_digitalinput_rule_7": {
-        "name": "Digital Input Rule State 7"
-      },
       "digitalinputrule_state_digitalinput_rule_stopwatch1": {
         "name": "Digital Input Rule Stopwatch 1"
       },
@@ -2042,44 +2036,11 @@
       "digitalinputrule_state_digitalinput_rule_stopwatch7": {
         "name": "Digital Input Rule Stopwatch 7"
       },
+      "digitalinputrule_state_digitalinput_rule_stopwatch8": {
+        "name": "Digital Input Rule Stopwatch 8"
+      },
       "dmx_mode": {
         "name": "DMX Mode"
-      },
-      "dmx_scene1": {
-        "name": "DMX Light Scene 1"
-      },
-      "dmx_scene10": {
-        "name": "DMX Light Scene 10"
-      },
-      "dmx_scene11": {
-        "name": "DMX Light Scene 11"
-      },
-      "dmx_scene12": {
-        "name": "DMX Light Scene 12"
-      },
-      "dmx_scene2": {
-        "name": "DMX Light Scene 2"
-      },
-      "dmx_scene3": {
-        "name": "DMX Light Scene 3"
-      },
-      "dmx_scene4": {
-        "name": "DMX Light Scene 4"
-      },
-      "dmx_scene5": {
-        "name": "DMX Light Scene 5"
-      },
-      "dmx_scene6": {
-        "name": "DMX Light Scene 6"
-      },
-      "dmx_scene7": {
-        "name": "DMX Light Scene 7"
-      },
-      "dmx_scene8": {
-        "name": "DMX Light Scene 8"
-      },
-      "dmx_scene9": {
-        "name": "DMX Light Scene 9"
       },
       "dos_1_cl": {
         "name": "Chlorine Dosing System"
@@ -2110,9 +2071,6 @@
       },
       "dos_1_cl_type": {
         "name": "Chlorine Dosing Type"
-      },
-      "dos_1_cl_use": {
-        "name": "Chlorine Dosing Configured"
       },
       "dos_2_current_polarity": {
         "name": "Electrolysis Polarity"
@@ -2146,9 +2104,6 @@
       },
       "dos_2_elo_type": {
         "name": "Electrolysis Dosing Type"
-      },
-      "dos_2_elo_use": {
-        "name": "Electrolysis Configured"
       },
       "dos_3_elo_rev_remaining_range": {
         "name": "Electrolysis (Reversed) Remaining Range"
@@ -2186,9 +2141,6 @@
       "dos_4_phm_type": {
         "name": "pH Minus Dosing Type"
       },
-      "dos_4_phm_use": {
-        "name": "pH Minus Dosing Configured"
-      },
       "dos_5_php": {
         "name": "pH Plus Dosing System"
       },
@@ -2219,9 +2171,6 @@
       "dos_5_php_type": {
         "name": "pH Plus Dosing Type"
       },
-      "dos_5_php_use": {
-        "name": "pH Plus Dosing Configured"
-      },
       "dos_6_floc": {
         "name": "Flocculant Dosing System"
       },
@@ -2251,9 +2200,6 @@
       },
       "dos_6_floc_type": {
         "name": "Flocculant Dosing Type"
-      },
-      "dos_6_floc_use": {
-        "name": "Flocculant Dosing Configured"
       },
       "eco": {
         "name": "Eco Mode Status"
@@ -2503,54 +2449,6 @@
       },
       "imp2_value": {
         "name": "Pump Flow Rate"
-      },
-      "input1": {
-        "name": "Digital Input 1"
-      },
-      "input10": {
-        "name": "Digital Input 10"
-      },
-      "input11": {
-        "name": "Digital Input 11"
-      },
-      "input12": {
-        "name": "Digital Input 12"
-      },
-      "input2": {
-        "name": "Digital Input 2"
-      },
-      "input3": {
-        "name": "Digital Input 3"
-      },
-      "input4": {
-        "name": "Digital Input 4"
-      },
-      "input5": {
-        "name": "Digital Input 5"
-      },
-      "input6": {
-        "name": "Digital Input 6"
-      },
-      "input7": {
-        "name": "Digital Input 7"
-      },
-      "input8": {
-        "name": "Digital Input 8"
-      },
-      "input9": {
-        "name": "Digital Input 9"
-      },
-      "input_ce1": {
-        "name": "Can Empty Sensor 1"
-      },
-      "input_ce2": {
-        "name": "Can Empty Sensor 2"
-      },
-      "input_ce3": {
-        "name": "Can Empty Sensor 3"
-      },
-      "input_ce4": {
-        "name": "Can Empty Sensor 4"
       },
       "inputz1z2": {
         "name": "Digital Inputs Z1/Z2"

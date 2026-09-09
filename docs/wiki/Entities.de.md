@@ -266,6 +266,20 @@ die Steuerung diese Werte zwar, sie bleiben aber ohne Funktion.
 | `INPUT1`–`INPUT12` | Digitaler Eingang 1–12 | digital_inputs |
 | `INPUT_CE1`–`INPUT_CE4` | Digitaler Eingang CE1–CE4 | digital_inputs |
 
+### Dosierkanal konfiguriert
+
+Ob der Controller den Kanal überhaupt eingerichtet hat. Ein 0/1-Merker, und
+deshalb seit 2.7.1 ein Binärsensor — vorher war es ein numerischer Sensor, für
+den Home Assistant Statistiken aufgezeichnet hat.
+
+| Entity-ID-Suffix | Name | Feature |
+|------------------|------|---------|
+| `DOS_1_CL_USE` | Chlordosierung konfiguriert | chlorine_control |
+| `DOS_2_ELO_USE` | Elektrolyse konfiguriert | chlorine_control |
+| `DOS_4_PHM_USE` | pH--Dosierung konfiguriert | ph_control |
+| `DOS_5_PHP_USE` | pH+-Dosierung konfiguriert | ph_control |
+| `DOS_6_FLOC_USE` | Flockmitteldosierung konfiguriert | flocculation |
+
 ---
 
 ## 🔌 Switches
@@ -318,7 +332,7 @@ Die 12 DMX-Szenen werden als **LightEntity** (nicht als Switch) bereitgestellt, 
 
 | Entity-ID-Suffix | Name | Feature |
 |------------------|------|---------|
-| `DMX_SCENE1`–`DMX_SCENE12` | DMX-Szene 1–12 | led_lighting |
+| `DMX_SCENE1`–`DMX_SCENE12` | DMX-Szene 1–12 | dmx_scenes |
 
 ---
 

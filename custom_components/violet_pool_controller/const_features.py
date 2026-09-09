@@ -152,7 +152,13 @@ BINARY_SENSORS = [
     },
 ]
 
-# Dynamically add digital inputs
+# Dynamically add digital inputs.
+#
+# Enabled by default since 2.7.1. Until then the same readings were published
+# twice: here, disabled, and by the sensor platform as an enabled numeric
+# sensor holding a state code. The sensor is gone, so this is the only entity
+# left for a digital input and a feature whose entities are all disabled looks
+# like a feature that does not work.
 for i in range(1, 13):
     BINARY_SENSORS.append(
         {
@@ -162,7 +168,7 @@ for i in range(1, 13):
             "icon": "mdi:electric-switch",
             "feature_id": "digital_inputs",
             "entity_category": EntityCategory.DIAGNOSTIC,
-            "entity_registry_enabled_default": False,
+            "entity_registry_enabled_default": True,
         }
     )
 for i in range(1, 5):
@@ -174,7 +180,31 @@ for i in range(1, 5):
             "icon": "mdi:electric-switch",
             "feature_id": "digital_inputs",
             "entity_category": EntityCategory.DIAGNOSTIC,
-            "entity_registry_enabled_default": False,
+            "entity_registry_enabled_default": True,
+        }
+    )
+
+# Whether each dosing channel is configured for use on the controller. The
+# reading is a flag, so it belongs on this platform; the matching dosing switch
+# also exposes it as its "dosing_configured" attribute, but that switch is off
+# by default (it is one of UNSAFE_SWITCH_KEYS), so it cannot be the only place
+# the flag is visible.
+for _key, _name, _translation_key, _feature in (
+    ("DOS_1_CL_USE", "Chlorine Dosing Configured", "dos_1_cl_use", "chlorine_control"),
+    ("DOS_2_ELO_USE", "Electrolysis Configured", "dos_2_elo_use", "chlorine_control"),
+    ("DOS_4_PHM_USE", "pH Minus Dosing Configured", "dos_4_phm_use", "ph_control"),
+    ("DOS_5_PHP_USE", "pH Plus Dosing Configured", "dos_5_php_use", "ph_control"),
+    ("DOS_6_FLOC_USE", "Flocculant Dosing Configured", "dos_6_floc_use", "flocculation"),
+):
+    BINARY_SENSORS.append(
+        {
+            "key": _key,
+            "name": _name,
+            "translation_key": _translation_key,
+            "icon": "mdi:flask",
+            "feature_id": _feature,
+            "entity_category": EntityCategory.DIAGNOSTIC,
+            "entity_registry_enabled_default": True,
         }
     )
 
@@ -439,7 +469,11 @@ for i in range(1, 9):
             "icon": "mdi:script-text",
             "feature_id": "digital_inputs",
             "entity_category": EntityCategory.CONFIG,
-            "entity_registry_enabled_default": False,
+            # Enabled by default since 2.7.1: this switch is the only entity
+            # carrying a switching rule's state now that the duplicate
+            # DIGITALINPUTRULE_STATE_* sensor is gone, and it only exists at
+            # all once the user has turned the "digital_inputs" feature on.
+            "entity_registry_enabled_default": True,
         }
     )
 # Dynamically add OMNI DC outputs
