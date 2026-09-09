@@ -105,6 +105,18 @@ daily dosing amounts keep their statistics.
   Also restored: bold headings and tip labels that had been dropped, the
   missing 🚨 safety line in the options menu, and the whole caution about the
   mandatory backwash duration, which German never had.
+- **The text next to the unsafe-switches option named the wrong outputs.** In
+  German it listed backwash, refill and *cover* — the cover is not one of them,
+  dosing is — and it dropped the clause saying these switches require mandatory
+  time limits through the services. Polish and Russian turned the same
+  requirement into a passing remark. This is the one option in the integration
+  that hands direct control of dosing to a dashboard, so its description is now
+  identical in meaning across all nine languages.
+- Option lists that had lost entries a third check found by counting the items
+  inside them: `smart_dosing` offered four chemicals instead of five in Russian,
+  Polish and Chinese; German named all five but left three of them in English;
+  `set_can_amount` and `set_system_service` had dropped their German option
+  lists entirely; and two German port hints had been swapped with each other.
 - **Sixteen German strings still addressed the reader as "Sie"** where the rest
   of the file says "du" — among them the critical safety warning on the
   reconfigure step. The safety step had also lost the emoji that makes it

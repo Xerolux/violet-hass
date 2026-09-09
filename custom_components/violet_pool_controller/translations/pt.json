@@ -2745,7 +2745,7 @@
         "name": "Estado da Bomba"
       },
       "pump_estimated_power": {
-        "name": "Potência Estimada da Bomba"
+        "name": "Potência da Bomba (est.)"
       },
       "pump_last_off": {
         "name": "Bomba Última Desativação"

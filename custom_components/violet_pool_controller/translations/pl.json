@@ -103,7 +103,7 @@
         "data_description": {
           "reconfigure_option": "Wybierz ustawienia, które chcesz zaktualizować",
           "host": "Nowy adres IP lub nazwa DNS kontrolera",
-          "port": "Port TCP (pozostaw 80, chyba że używasz niestandardowego serwera proxy)",
+          "port": "Port TCP (pozostaw 80 – zmień tylko przy własnym serwerze proxy)",
           "use_ssl": "Włącz protokół HTTPS, jeśli jest obsługiwany",
           "polling_interval": "Interwał odpytywania danych (10–3600 s)",
           "timeout_duration": "Maksymalny czas oczekiwania na żądanie",
@@ -134,12 +134,12 @@
       },
       "reconfigure_safety": {
         "title": "🚨 Ustawienia bezpieczeństwa",
-        "description": "🚨 **KRYTYCZNE OSTRZEŻENIE BEZPIECZEŃSTWA** 🚨\n\nWłączenie niebezpiecznych przełączników umożliwia bezpośrednie ręczne sterowanie:\n• Systemami dozowania (ryzyko przedawkowania chemii)\n• Płukaniem wstecznym / płukaniem filtra (ryzyko uszkodzenia urządzeń)\n• Dopełnianiem wody (ryzyko zalania / przelania basenu)\n\nTe operacje mogą działać W NIESKOŃCZONOŚĆ, bez żadnych limitów czasu!\n\n**BEZPIECZNA ALTERNATYWA**: używaj akcji (usług) — one wymagają obowiązkowego limitu czasu.\n\n⚠️ Włącz tę opcję tylko wtedy, gdy w pełni rozumiesz i akceptujesz ryzyko!",
+        "description": "🚨 **KRYTYCZNE OSTRZEŻENIE BEZPIECZEŃSTWA** 🚨\n\nWłączenie niebezpiecznych przełączników umożliwia bezpośrednie ręczne sterowanie:\n• Systemami dozowania (ryzyko przedawkowania chemii)\n• Płukaniem wstecznym / płukaniem filtra (ryzyko uszkodzenia urządzeń)\n• Dopełnianiem wody (ryzyko zalania / przelania basenu)\n\nTe operacje mogą działać W NIESKOŃCZONOŚĆ, bez żadnych limitów czasu!\n\n**BEZPIECZNA ALTERNATYWA**: zamiast tego używaj akcji — wymagają one obowiązkowego limitu czasu.\n\n⚠️ Włącz tę opcję tylko wtedy, gdy w pełni rozumiesz i akceptujesz ryzyko!",
         "data": {
           "allow_unsafe_switches": "Zezwól na ręczne przełączniki krytyczne dla bezpieczeństwa"
         },
         "data_description": {
-          "allow_unsafe_switches": "Włącza bezpośrednie sterowanie dozowaniem, płukaniem wstecznym i dopełnianiem wody (przez akcje, które wymagają obowiązkowych limitów czasu)"
+          "allow_unsafe_switches": "Włącza bezpośrednie sterowanie dozowaniem, płukaniem wstecznym i dopełnianiem wody (wymaga obowiązkowych limitów czasu przez akcje)"
         }
       },
       "controller_auth": {
@@ -212,7 +212,7 @@
           "allow_unsafe_switches": "Zezwól na ręczne przełączniki krytyczne dla bezpieczeństwa"
         },
         "data_description": {
-          "allow_unsafe_switches": "Włącza bezpośrednie sterowanie dozowaniem, płukaniem wstecznym i dopełnianiem wody (przez akcje, które wymagają obowiązkowych limitów czasu)"
+          "allow_unsafe_switches": "Włącza bezpośrednie sterowanie dozowaniem, płukaniem wstecznym i dopełnianiem wody (wymaga obowiązkowych limitów czasu przez akcje)"
         }
       },
       "settings": {
@@ -1143,7 +1143,7 @@
           "name": "Akcja dozowania"
         },
         "dosing_type": {
-          "description": "Wybierz rodzaj chemikaliów (pH-, pH+, Chlor, Koagulant).",
+          "description": "Wybierz rodzaj chemikaliów (pH-, pH+, chlor, elektroliza, flokulant).",
           "name": "Chemiczny środek dozujący"
         },
         "duration": {

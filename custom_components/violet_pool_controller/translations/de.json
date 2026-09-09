@@ -103,7 +103,7 @@
         "data_description": {
           "reconfigure_option": "Wähle die Einstellungen, die du aktualisieren möchtest",
           "host": "IP-Adresse oder DNS-Name des Controllers",
-          "port": "TCP-Port der Weboberfläche des Controllers (Standard 80, mit SSL 443)",
+          "port": "TCP-Port (auf 80 belassen – außer bei einem eigenen Proxy)",
           "use_ssl": "HTTPS aktivieren, sofern der Controller es unterstützt",
           "polling_interval": "Abstand zwischen zwei Datenabfragen (10-3600 s)",
           "timeout_duration": "Maximale Wartezeit pro Anfrage",
@@ -124,7 +124,7 @@
         },
         "data_description": {
           "host": "Neue Controller-IP oder DNS-Name",
-          "port": "TCP-Port (Auf 80 belassen, außer bei Nutzung eines Proxys)",
+          "port": "TCP-Port (Standard 80)",
           "use_ssl": "HTTPS aktivieren, falls unterstützt",
           "verify_ssl": "Das SSL-Zertifikat prüfen. Für selbstsignierte Zertifikate deaktivieren.",
           "polling_interval": "Datenabruf-Intervall (10-3600s)",
@@ -212,7 +212,7 @@
           "allow_unsafe_switches": "Sicherheitskritische Schalter freigeben"
         },
         "data_description": {
-          "allow_unsafe_switches": "Schalter für Rückspülung, Nachfüllung und Abdeckung in Home Assistant bedienbar machen. Nur aktivieren, wenn niemand zu Schaden kommen kann."
+          "allow_unsafe_switches": "Direktsteuerung von Dosierung, Rückspülung & Nachfüllung aktivieren (erfordert obligatorische Zeitlimits via Dienste)"
         }
       },
       "settings": {
@@ -327,7 +327,7 @@
           "name": "Hysteresewert"
         },
         "logic": {
-          "description": "Nutze >= oder <=",
+          "description": "Nutze >= (größer oder gleich) oder <= (kleiner oder gleich)",
           "name": "Vergleichslogik"
         },
         "output_1": {
@@ -687,8 +687,8 @@
           "name": "Pool Controller"
         },
         "sequence_delay": {
-          "description": "Wartezeit zwischen zwei Szenen der Sequenz, in Sekunden.",
-          "name": "Sequenzverzögerung"
+          "description": "Wartezeit zwischen Szenen im Sequenzmodus (1-60 s).",
+          "name": "Sequenzverzögerung (Sekunden)"
         }
       },
       "name": "DMX-Szenen-Steuerung"
@@ -1037,7 +1037,7 @@
           "name": "Pool Controller"
         },
         "dosing_key": {
-          "description": "Welcher Dosierkanal nachgefüllt wurde.",
+          "description": "Schlüssel des Dosierkanals (DOS_1_CL, DOS_2_ELO, DOS_4_PHM, DOS_5_PHP, DOS_6_FLOC)",
           "name": "Dosierkanal"
         }
       },
@@ -1129,7 +1129,7 @@
           "name": "Aktiviert"
         },
         "service": {
-          "description": "Welcher Systemdienst des Controllers geschaltet wird.",
+          "description": "Dienst-Kennung (ftp, samba, ssh, shairport, homebridge, alexa, tunnel, support_tunnel)",
           "name": "Dienst"
         }
       },
@@ -1143,7 +1143,7 @@
           "name": "Dosieraktion"
         },
         "dosing_type": {
-          "description": "Chemikalie auswählen (pH-, pH+, Chlorine, Electrolysis, Flocculant).",
+          "description": "Chemikalie auswählen (pH-, pH+, Chlor, Elektrolyse, Flockungsmittel).",
           "name": "Dosiermittel"
         },
         "duration": {
@@ -1183,7 +1183,7 @@
           "name": "Testmodus"
         },
         "output": {
-          "description": "Schlüssel des zu testenden Ausgangs (z. B. PUMP, EXT1_1).",
+          "description": "Kennung wie PUMP, HEATER oder SOLAR.",
           "name": "Ausgang"
         }
       },

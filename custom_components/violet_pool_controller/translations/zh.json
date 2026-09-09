@@ -63,7 +63,7 @@
           "disinfection_method": "消毒方法"
         },
         "data_description": {
-          "pool_size": "水量（立方米）",
+          "pool_size": "以立方米为单位的水量",
           "pool_type": "影响供暖和太阳能行为",
           "disinfection_method": "初级水处理方法"
         }
@@ -103,7 +103,7 @@
         "data_description": {
           "reconfigure_option": "选择要更新的设置",
           "host": "新控制器 IP 或 DNS 名称",
-          "port": "TCP 端口（除非使用自定义代理，否则保留为 80）",
+          "port": "TCP 端口（保留为 80；仅在使用自定义代理时更改）",
           "use_ssl": "支持时启用 HTTPS",
           "polling_interval": "数据轮询间隔（10-3600s）",
           "timeout_duration": "每个请求的最长等待时间",
@@ -1143,7 +1143,7 @@
           "name": "投加动作"
         },
         "dosing_type": {
-          "description": "选择化学品类型（pH-、pH+、氯、絮凝剂）。",
+          "description": "选择化学品类型（pH-、pH+、氯、电解、絮凝剂）。",
           "name": "投加化学品"
         },
         "duration": {

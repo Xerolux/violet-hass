@@ -327,7 +327,7 @@
           "name": "Valor de histéresis"
         },
         "logic": {
-          "description": "Usar >= o <=",
+          "description": "Usa >= (mayor o igual) o <= (menor o igual)",
           "name": "Lógica de comparación"
         },
         "output_1": {
