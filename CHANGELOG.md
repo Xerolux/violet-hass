@@ -19,6 +19,108 @@ anyone there either.
 
 ## Version 2.7.0 (2026-09-08)
 
+A full audit of the integration and of the API package it depends on. Two of
+the findings could act on the pool without anyone asking, so read the first
+section even if you skip the rest.
+
+### 🚨 Safety
+
+- **The auto-stop for water refill and backwash never ran.** Both armed a stop
+  command naming `set_function_manually`, a method that exists on the
+  integration's HTTP helper but **not** on the controller API object the timer
+  resolves against. When the timer fired it found nothing to call, logged an
+  error and gave up - at the far end of a refill, which is the one moment the
+  timer exists for. The tests missed it because they used a mock that accepts
+  any method name. Three things changed: the start command now carries the
+  duration **to the controller**, so the valve closes on its own even if Home
+  Assistant dies; the stop target is checked when it is armed, not when it
+  fires; and the tests use a mock bound to the real API, so a wrong name fails
+  the suite.
+- **With two controllers, a stop could go to the wrong one.** Cooldowns and
+  auto-stop timers were keyed by device key alone, and the stop was dispatched
+  to whichever controller happened to load first. A refill started on the
+  second controller could be stopped on the first, and a dosing cooldown on
+  one blocked the same channel on the other. Everything is now keyed by
+  `(config entry, device key)` and dispatched to the controller that started
+  the operation.
+- **`smart_dosing` with `action: stop` was blocked by its own cooldown.**
+  Starting a dose armed a five-minute safety interval, and the interval was
+  enforced for the whole service - including the `stop` that was meant to
+  interrupt the dose. Stopping now always goes through.
+- **`smart_dosing` with `dosing_type: H2O2` could dose the wrong chemical.**
+  `stop` mapped H2O2 onto the chlorine channel and stopped **chlorine**, while
+  `manual_dose` failed outright. H2O2 is removed from the dosing paths until
+  the firmware mapping is confirmed; the H2O2 *configuration* services are
+  unaffected.
+- **`control_extension_relay` addressed relays that do not exist.** It built
+  the key as `EXT<relay>_1`, so relay 3 became `EXT3_1`; the controller only
+  has `EXT1_1`-`EXT1_8` and `EXT2_1`-`EXT2_8`. It also sent the numbers `4`,
+  `6` and `0` - which are *states* the controller reports - where the command
+  grammar expects `ON`, `OFF` and `AUTO`. The service now takes `bank` (1-2)
+  and `relay` (1-8). **This is a breaking change to the service's fields.**
+
+### 🐛 Fixes
+
+- **A wrong password never reached the re-authentication dialog.** It was
+  retried three times, turned into "not ready" and retried forever, so the
+  integration sat there permanently instead of asking for the password.
+- **Stale readings were presented as fresh.** The first four failed polls
+  returned the previous data as a *successful* update, so entities kept showing
+  old values as current - about five minutes' worth with adaptive polling.
+  Every failed poll now marks the update as failed and the entities go
+  unavailable, which is what Home Assistant expects.
+- **Setting a value could snap back for up to a minute.** Setpoints and dosing
+  modes are served from a configuration cache that is only re-read every 60
+  seconds, and only the thermostats forced a re-read. Number and select
+  entities now do too.
+- **Services could not be called from the user interface.** Seventeen services
+  demanded a target their definition never offered, so every call failed
+  validation, and nine more were registered without any definition at all, so
+  they appeared with no description and no fields. Calls that target an **area,
+  floor or label** now work as well - previously they matched nothing and
+  reported success anyway.
+- **The thermostats invented a setpoint.** A controller value outside 20-35 °C
+  (heater) or 20-40 °C (solar) was replaced by a fabricated 28 °C, and a write
+  outside that range was silently dropped. Both ranges came from the
+  integration, not from the controller, which accepts far more. A whirlpool at
+  38 °C showed 28 °C and could not be changed.
+- **The DMX lights were tied to the wrong feature.** Turning off "DMX Scenes"
+  kept them; turning off "LED Lighting" removed them. The digital inputs
+  ignored their feature switch entirely.
+- Sensors could pick a different unit and device class depending on the value
+  that happened to be present at startup, which corrupts long-term statistics.
+- Status sensors reported German text to everyone, and PV surplus was decoded
+  with the wrong scheme. They are proper enumerations now.
+- Setup crashed out of all controller-provided names if a single hardware flag
+  was non-numeric; the pump reported a speed and a power draw while it was in
+  manual OFF; the diagnostics download exposed IP, MAC and serial numbers
+  unredacted; a resolved-again controller kept a stale repair notice after a
+  restart; and moving a controller to a new IP created a second device and left
+  the old one behind with your name and area on it.
+- Services and their manager were never removed when the last controller was
+  unloaded, which left safety timers running and made a later reload skip
+  registration.
+
+### 🔒 The API package moves to 0.0.39
+
+The pin is now `violet-poolController-api>=0.0.39`, which fixes two problems of
+its own: a command that timed out could be **sent twice** (for the push-style
+commands - the cover and the digital-rule trigger - that undid the change or
+moved the cover again), and a request that waited out the rate limiter was sent
+**without a token**, so every caller that had been waiting hit the controller at
+once. Its `aiohttp<3.15` cap is also gone, which would have blocked
+installation inside Home Assistant as soon as core moved past that version.
+
+### 🧪 Tests
+
+**475 tests were never actually running.** Home Assistant's test harness
+re-installs its socket guard by subclassing `socket.socket` on every test, and
+with the socket plugin disabled nothing ever put the original back - so the
+subclass chain grew one level per test until everything after roughly the 950th
+failed to even start. Splitting the suite in half hid it completely, because
+each half passed. The suite now runs end to end: **1423 tests, all passing**,
+with coverage measured at 64 % and the enforced floor raised from 40 % to 60 %.
+
 ### 📚 Documentation, CI and packaging cleanup
 
 The documentation had drifted far enough from the code to be actively
