@@ -201,3 +201,54 @@ def test_placeholders_match_the_english_string() -> None:
                 )
 
     assert not offenders, "Home Assistant discards these strings:\n" + "\n".join(offenders)
+
+
+def _markdown_shape(value: str) -> tuple[int, int, int, int]:
+    """Return the markdown structure of a string.
+
+    Bold markers, both bullet spellings and the number of non-empty lines. A
+    translation of the *current* English carries the same ones, so a difference
+    means the translation was written against an older wording.
+    """
+    return (
+        value.count("**"),
+        sum(1 for line in value.splitlines() if line.lstrip().startswith("- ")),
+        value.count("•"),
+        len([line for line in value.splitlines() if line.strip()]),
+    )
+
+
+def test_markdown_shape_matches_the_english_string() -> None:
+    """A translated string must be shaped like the English one.
+
+    Nothing else notices when English is rewritten and a translation is not:
+    the key is still there, the placeholders still match, the string still
+    renders. It just says what the integration used to do. Structure is the
+    one part that gives it away, because a heading or a bullet list that was
+    added to the English text has no counterpart in the stale translation.
+
+    Two that got through this way: ``options.step.sensors.description``, which
+    still promised to choose "which sensors are displayed" long after the step
+    had become a datapoint selection covering switches, lights and controls;
+    and ``services.smart_dosing.description``, which never got the paragraph
+    saying H2O2 dosing is not offered - added when 2.7.0 removed H2O2 from the
+    dosing paths for dosing the wrong chemical.
+    """
+    english = _strings_by_key(ENGLISH)
+
+    offenders: list[str] = []
+    for path in LANGUAGE_FILES:
+        for key, value in _strings_by_key(_load(path)).items():
+            if key not in english or value == english[key]:
+                continue
+            if _markdown_shape(value) != _markdown_shape(english[key]):
+                offenders.append(
+                    f"{path.name}: {key} is "
+                    f"{_markdown_shape(value)}, English is {_markdown_shape(english[key])} "
+                    "(bold markers, '- ' bullets, bullet characters, non-empty lines)"
+                )
+
+    assert not offenders, (
+        "these translations were written against an older English text:\n"
+        + "\n".join(offenders)
+    )
