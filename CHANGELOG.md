@@ -89,6 +89,37 @@ daily dosing amounts keep their statistics.
   (refill).
 - Settled terms that each file used two ways at once, among them Dutch
   *terugspoeling* for backwash and Italian *controlavaggio*.
+- **Stale translations — strings that still described what the integration used
+  to do.** They were translated once and never revisited, so nothing noticed:
+  the key is there, the placeholders match, the string renders. 173 of them
+  across eight languages, German the worst affected with 24. Two are worth
+  naming:
+  - The datapoint selection still promised to choose "which sensors are
+    displayed" in six languages, long after that step had come to decide
+    switches, lights and controls as well.
+  - `smart_dosing` named three chemicals where the controller has four, and
+    never got the paragraph explaining that H₂O₂ is not offered — added when
+    2.7.0 removed H₂O₂ for dosing the wrong chemical. **In German and Spanish
+    the manual-dosing field still listed H₂O₂ as a choice**, so the text
+    invited a user to pick an option that would have dosed chlorine.
+  Also restored: bold headings and tip labels that had been dropped, the
+  missing 🚨 safety line in the options menu, and the whole caution about the
+  mandatory backwash duration, which German never had.
+- **Sixteen German strings still addressed the reader as "Sie"** where the rest
+  of the file says "du" — among them the critical safety warning on the
+  reconfigure step. The safety step had also lost the emoji that makes it
+  stand out in the options menu.
+- **`pt.json` is European Portuguese throughout now.** It was a mix: older
+  strings said *Conexão*, *Configurações*, *Status*, *usuário*, *senha*, newer
+  ones *Ligação*, *Definições*, *Estado*, *utilizador*, *palavra-passe*. The
+  visible result was sibling entities in different registers — "Status da
+  Bomba" next to "Estado da Bomba". 100 strings normalised, orthography
+  included.
+- Errors that carried the wrong heading (three languages gave "Login failed"
+  the heading of the *next* error), a Polish "pool" that meant a pool of money,
+  and an Italian "setup cancelled" that said the installation had been aborted.
+- Two new tests hold this: one compares the markdown shape of every translated
+  string against English, the other its placeholders.
 
 ### 🔧 Under the hood
 
