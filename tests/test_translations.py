@@ -110,8 +110,6 @@ class TestTranslationStructure:
             "help",
             "connection",
             "pool_setup",
-            "feature_selection",
-            "sensor_selection",
         ]
 
         for step in required_steps:

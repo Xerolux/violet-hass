@@ -68,44 +68,6 @@
           "disinfection_method": "Primary water treatment method"
         }
       },
-      "feature_selection": {
-        "title": "Enable Smart Features",
-        "description": "Enable only the features your pool installation actually uses. This keeps resource usage low and the UI tidy. You can adjust the selection at any time in the options.",
-        "data": {
-          "enable_heating": "Heating control",
-          "enable_solar": "Solar absorber",
-          "enable_ph_control": "pH automation",
-          "enable_chlorine_control": "Chlorine management",
-          "enable_cover_control": "Cover control",
-          "enable_backwash": "Backwash automation",
-          "enable_pv_surplus": "PV surplus",
-          "enable_filter_control": "Filter pump",
-          "enable_water_level": "Water level monitor",
-          "enable_water_refill": "Auto water refill",
-          "enable_led_lighting": "LED lighting",
-          "enable_digital_inputs": "Digital inputs",
-          "enable_extension_outputs": "Extension modules"
-        },
-        "data_description": {
-          "enable_heating": "Automated heating control",
-          "enable_solar": "Smart solar absorber control",
-          "enable_ph_control": "Automated pH control",
-          "enable_chlorine_control": "Chlorine/redox management",
-          "enable_cover_control": "Control the pool cover",
-          "enable_backwash": "Automated backwash cycles",
-          "enable_pv_surplus": "Use photovoltaic surplus intelligently",
-          "enable_filter_control": "Control the filter pump on demand",
-          "enable_water_level": "Monitor water level",
-          "enable_water_refill": "Automatic water refill",
-          "enable_led_lighting": "LED lighting scenes",
-          "enable_digital_inputs": "Integrate external sensors and switches",
-          "enable_extension_outputs": "Use extension modules"
-        }
-      },
-      "sensor_selection": {
-        "title": "Select Sensors",
-        "description": "Choose which sensors you want to see in Home Assistant. Enable or disable individual sensors to keep your dashboard clean and focused.\n\n**Tip:** All available sensors are selected by default. You can adjust this selection at any time in the options."
-      },
       "reauth_confirm": {
         "title": "Reauthenticate Controller",
         "description": "The controller credentials need to be updated.\n\nController: **{controller_name}**\nIP: **{api_url}**",
@@ -178,22 +140,6 @@
         },
         "data_description": {
           "allow_unsafe_switches": "Enable direct control of dosing, backwash & refill (requires mandatory time limits via Services)"
-        }
-      },
-      "repair": {
-        "title": "Repair Controller Connection",
-        "description": "The controller **{controller_name}** is not responding.\n\nVerify the controller is powered on and connected to the network, then update the connection settings below.",
-        "data": {
-          "host": "IP Address",
-          "port": "TCP Port",
-          "username": "Username",
-          "password": "Password"
-        },
-        "data_description": {
-          "host": "Controller IP address or hostname",
-          "port": "TCP port (default 80)",
-          "username": "Username if authentication is enabled",
-          "password": "Password if required"
         }
       },
       "controller_auth": {

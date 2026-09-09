@@ -941,6 +941,16 @@ class VioletPoolDataUpdateCoordinator(DataUpdateCoordinator[VioletReadings]):
         )
 
     @property
+    def error_handler(self) -> EnhancedErrorHandler:
+        """Return this controller's error statistics handler.
+
+        Convenience passthrough to :attr:`VioletPoolControllerDevice.error_handler`
+        so a service handler that already holds a coordinator does not have to
+        reach through ``.device``.
+        """
+        return self.device.error_handler
+
+    @property
     def base_interval(self) -> int:
         """Return the configured polling interval in seconds.
 

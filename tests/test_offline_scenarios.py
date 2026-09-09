@@ -431,3 +431,20 @@ class TestRecoveryScenarios:
         assert device._available is True
         assert device._consecutive_failures == 0
         assert result["status"] == "online"
+
+
+class TestErrorHandlerAccessor:
+    """The per-device handler must be reachable from the coordinator too."""
+
+    def test_coordinator_passthrough(self, device):
+        """``coordinator.error_handler`` is the device's handler."""
+        from custom_components.violet_pool_controller.device import (
+            VioletPoolDataUpdateCoordinator,
+        )
+
+        coordinator = VioletPoolDataUpdateCoordinator.__new__(
+            VioletPoolDataUpdateCoordinator
+        )
+        coordinator.device = device
+
+        assert coordinator.error_handler is device.error_handler

@@ -68,44 +68,6 @@
           "disinfection_method": "Podstawowa metoda uzdatniania wody"
         }
       },
-      "feature_selection": {
-        "title": "Włącz inteligentne funkcje",
-        "description": "Włącz tylko te funkcje, z których faktycznie korzysta Twoja instalacja puli. Dzięki temu zużycie zasobów jest niskie, a interfejs użytkownika uporządkowany. Możesz dostosować wybór w dowolnym momencie w opcjach.",
-        "data": {
-          "enable_heating": "Sterowanie ogrzewaniem",
-          "enable_solar": "Absorber słoneczny",
-          "enable_ph_control": "Automatyzacja pH",
-          "enable_chlorine_control": "Zarządzanie chlorem",
-          "enable_cover_control": "Kontrola okładki",
-          "enable_backwash": "Automatyka płukania wstecznego",
-          "enable_pv_surplus": "Nadwyżka fotowoltaiczna",
-          "enable_filter_control": "Pompa filtrująca",
-          "enable_water_level": "Monitor poziomu wody",
-          "enable_water_refill": "Automatyczne uzupełnianie wody",
-          "enable_led_lighting": "Oświetlenie LED",
-          "enable_digital_inputs": "Wejścia cyfrowe",
-          "enable_extension_outputs": "Moduły rozszerzeń"
-        },
-        "data_description": {
-          "enable_heating": "Zautomatyzowane sterowanie ogrzewaniem",
-          "enable_solar": "Inteligentne sterowanie absorberem słonecznym",
-          "enable_ph_control": "Automatyczna kontrola pH",
-          "enable_chlorine_control": "Zarządzanie chlorem/redoksem",
-          "enable_cover_control": "Kontroluj pokrywę basenu",
-          "enable_backwash": "Automatyczne cykle płukania wstecznego",
-          "enable_pv_surplus": "Wykorzystaj nadwyżki fotowoltaiczne mądrze",
-          "enable_filter_control": "Steruj pompą filtrującą na żądanie",
-          "enable_water_level": "Monitoruj poziom wody",
-          "enable_water_refill": "Automatyczne uzupełnianie wody",
-          "enable_led_lighting": "Sceny świetlne LED",
-          "enable_digital_inputs": "Zintegruj zewnętrzne czujniki i przełączniki",
-          "enable_extension_outputs": "Użyj modułów rozszerzeń"
-        }
-      },
-      "sensor_selection": {
-        "title": "Wybierz Czujniki",
-        "description": "Wybierz, które czujniki chcesz widzieć w Home Assistant. Włącz lub wyłącz poszczególne czujniki, aby utrzymać czystość i koncentrację na desce rozdzielczej.\n\nDomyślnie zaznaczone są wszystkie dostępne czujniki. Możesz dostosować ten wybór w dowolnym momencie w opcjach."
-      },
       "reauth_confirm": {
         "title": "Ponownie uwierzytelnij kontrolera",
         "description": "Należy zaktualizować dane uwierzytelniające kontrolera. Proszę wprowadzić nową nazwę użytkownika i hasło.\n\nKontroler: **{controller_name}**\nAdres IP: **{api_url}**",
@@ -178,22 +140,6 @@
         },
         "data_description": {
           "allow_unsafe_switches": "Enable direct control of dosing, backwash & refill (requires mandatory time limits via Services)"
-        }
-      },
-      "repair": {
-        "title": "Napraw połączenie z kontrolerem",
-        "description": "Kontroler **{controller_name}** nie odpowiada.\n\nSprawdź, czy kontroler jest włączony i połączony z siecią, a następnie zaktualizuj ustawienia.",
-        "data": {
-          "host": "Adres IP",
-          "port": "Port TCP",
-          "username": "Nazwa użytkownika",
-          "password": "Hasło"
-        },
-        "data_description": {
-          "host": "Adres IP lub nazwa hosta kontrolera",
-          "port": "Port TCP (domyślny: 80)",
-          "username": "Nazwa użytkownika, jeśli uwierzytelnianie jest włączone",
-          "password": "Hasło, jeśli wymagane"
         }
       },
       "controller_auth": {

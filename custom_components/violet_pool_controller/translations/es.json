@@ -68,44 +68,6 @@
           "disinfection_method": "Método de tratamiento primario de agua."
         }
       },
-      "feature_selection": {
-        "title": "Habilitar funciones inteligentes",
-        "description": "Habilite solo las funciones que realmente utiliza la instalación de su piscina. Esto mantiene bajo el uso de recursos y la interfaz de usuario ordenada. Puede ajustar la selección en cualquier momento en las opciones.",
-        "data": {
-          "enable_heating": "Control de calefacción",
-          "enable_solar": "Absorbedor solar",
-          "enable_ph_control": "Automatización del pH",
-          "enable_chlorine_control": "Gestión del cloro",
-          "enable_cover_control": "Control de cubierta",
-          "enable_backwash": "Automatización de retrolavado",
-          "enable_pv_surplus": "Superávit fotovoltaico",
-          "enable_filter_control": "Bomba de filtro",
-          "enable_water_level": "Monitor de nivel de agua",
-          "enable_water_refill": "Recarga automática de agua",
-          "enable_led_lighting": "Iluminación LED",
-          "enable_digital_inputs": "Entradas digitales",
-          "enable_extension_outputs": "Módulos de extensión"
-        },
-        "data_description": {
-          "enable_heating": "Control de calefacción automatizado",
-          "enable_solar": "Control inteligente de absorbedores solares",
-          "enable_ph_control": "Control de pH automatizado",
-          "enable_chlorine_control": "Gestión de cloro/redox",
-          "enable_cover_control": "Controlar la cubierta de la piscina",
-          "enable_backwash": "Ciclos de retrolavado automatizados",
-          "enable_pv_surplus": "Utilizar inteligentemente el excedente fotovoltaico",
-          "enable_filter_control": "Controle la bomba de filtrado bajo demanda",
-          "enable_water_level": "Monitorear el nivel del agua",
-          "enable_water_refill": "Recarga automática de agua",
-          "enable_led_lighting": "escenas de iluminación LED",
-          "enable_digital_inputs": "Integrar sensores e interruptores externos",
-          "enable_extension_outputs": "Usar módulos de extensión"
-        }
-      },
-      "sensor_selection": {
-        "title": "Seleccionar sensores",
-        "description": "Elige qué sensores quieres ver en Home Assistant. Habilite o deshabilite sensores individuales para mantener su tablero limpio y enfocado.\n\nDe forma predeterminada, se seleccionan todos los sensores disponibles. Puede ajustar esta selección en cualquier momento en las opciones."
-      },
       "reauth_confirm": {
         "title": "Volver a autenticar el controlador",
         "description": "Es necesario actualizar las credenciales del controlador. Por favor ingrese su nuevo nombre de usuario y contraseña.\n\nControlador: **{controller_name}**\nDirección IP: **{api_url}**",
@@ -178,22 +140,6 @@
         },
         "data_description": {
           "allow_unsafe_switches": "Enable direct control of dosing, backwash & refill (requires mandatory time limits via Services)"
-        }
-      },
-      "repair": {
-        "title": "Reparar conexión del controlador",
-        "description": "El controlador **{controller_name}** no responde.\n\nVerifique que el controlador esté encendido y conectado a la red, luego actualice la configuración.",
-        "data": {
-          "host": "Dirección IP",
-          "port": "Puerto TCP",
-          "username": "Usuario",
-          "password": "Contraseña"
-        },
-        "data_description": {
-          "host": "Dirección IP o nombre del controlador",
-          "port": "Puerto TCP (predeterminado: 80)",
-          "username": "Usuario si la autenticación está activada",
-          "password": "Contraseña si es necesaria"
         }
       },
       "controller_auth": {

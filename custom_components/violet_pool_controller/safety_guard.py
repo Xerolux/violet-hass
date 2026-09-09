@@ -211,6 +211,19 @@ class SafetyGuard:
             data["auto_stops"] = remaining
             await self._persistence.async_save(data)
 
+    async def async_shutdown(self) -> None:
+        """Cancel every armed timer without touching the persisted deadlines.
+
+        Called when the last config entry unloads.  The deadlines stay on disk
+        on purpose: a refill that is still running must be stopped when the
+        integration comes back, and dropping the record here would lose that.
+        """
+        for task in list(self._auto_stop_tasks.values()):
+            if not task.done():
+                task.cancel()
+        self._auto_stop_tasks.clear()
+        self._locks.clear()
+
     # ------------------------------------------------------------------ #
     # Safety interval (cooldown between operations)
     # ------------------------------------------------------------------ #

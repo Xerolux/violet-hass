@@ -78,8 +78,8 @@ from .const import (
 from .device import async_setup_device, connection_settings
 from .device_hierarchy import async_cleanup_sub_devices, async_precreate_devices
 from .entity_cleanup import async_remove_orphaned_entities
-from .runtime_data import VioletRuntimeData, get_runtime_data
-from .services import async_register_services
+from .runtime_data import VioletRuntimeData, async_loaded_entries, get_runtime_data
+from .services import async_register_services, async_unload_services
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -684,6 +684,17 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             # Assistant (created via async_get_clientsession) and must only be
             # closed by it. Everything else lives on entry.runtime_data, which
             # Home Assistant drops as part of the unload.
+            #
+            # The services and the service manager are integration-wide, so
+            # they go only when the last controller does. Leaving them behind
+            # kept the SafetyGuard's timers running and made a later reload
+            # skip registration, because the services were still there.
+            remaining = [
+                loaded for loaded in async_loaded_entries(hass) if loaded.entry_id != entry.entry_id
+            ]
+            if not remaining:
+                await async_unload_services(hass)
+
             _LOGGER.info("Successfully unloaded '%s' (entry_id=%s)", device_name, entry.entry_id)
         else:
             _LOGGER.warning(

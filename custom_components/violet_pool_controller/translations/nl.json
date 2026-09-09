@@ -68,44 +68,6 @@
           "disinfection_method": "Hauptmethode der Wasserpflege"
         }
       },
-      "feature_selection": {
-        "title": "Smart-Features aktivieren",
-        "description": "Aktiviere nur die Funktionen, die dein Pool-Setup wirklich benötigt. Das reduziert Ressourcenverbrauch und hält die Oberfläche übersichtlich. Du kannst die Auswahl jederzeit in den Optionen anpassen.",
-        "data": {
-          "enable_heating": "Heizungssteuerung",
-          "enable_solar": "Solarabsorber",
-          "enable_ph_control": "pH-Automatik",
-          "enable_chlorine_control": "Chlor-Management",
-          "enable_cover_control": "Abdeckungssteuerung",
-          "enable_backwash": "Rückspül-Automatik",
-          "enable_pv_surplus": "PV-Überschuss",
-          "enable_filter_control": "Filterpumpe",
-          "enable_water_level": "Füllstand-Monitor",
-          "enable_water_refill": "Auto-Nachfüllung",
-          "enable_led_lighting": "LED-Beleuchtung",
-          "enable_digital_inputs": "Digitale Eingänge",
-          "enable_extension_outputs": "Erweiterungsmodule"
-        },
-        "data_description": {
-          "enable_heating": "Automatische Heizungslogik",
-          "enable_solar": "Solarabsorber intelligent nutzen",
-          "enable_ph_control": "pH-Regelung und Überwachung",
-          "enable_chlorine_control": "Chlor-/Redox-Management",
-          "enable_cover_control": "Poolabdeckung steuern",
-          "enable_backwash": "Automatische Rückspülprogramme",
-          "enable_pv_surplus": "PV-Überschuss intelligent nutzen",
-          "enable_filter_control": "Filterpumpe bedarfsgerecht steuern",
-          "enable_water_level": "Wasserstand überwachen",
-          "enable_water_refill": "Automatisches Nachfüllen",
-          "enable_led_lighting": "LED-Lichtshows & Szenen",
-          "enable_digital_inputs": "Externe Sensoren/Schalter integrieren",
-          "enable_extension_outputs": "Erweiterungsmodule nutzen"
-        }
-      },
-      "sensor_selection": {
-        "title": "Sensoren auswählen",
-        "description": "Wähle die Sensoren aus, die du in Home Assistant sehen möchtest. Du kannst einzelne Sensoren aktivieren oder deaktivieren, um die Übersicht zu verbessern.\n\nStandardmäßig sind alle verfügbaren Sensoren ausgewählt. Du kannst diese Auswahl jederzeit in den Optionen anpassen."
-      },
       "reauth_confirm": {
         "title": "Controller erneut authentifizieren",
         "description": "Die Anmeldedaten des Controllers müssen aktualisiert werden. Bitte gib deinen neuen Benutzernamen und dein neues Passwort ein.\n\nController: **{controller_name}**\nIP-Adresse: **{api_url}**",
@@ -178,22 +140,6 @@
         },
         "data_description": {
           "allow_unsafe_switches": "Enable direct control of dosing, backwash & refill (requires mandatory time limits via Services)"
-        }
-      },
-      "repair": {
-        "title": "Controller-Verbindung reparieren",
-        "description": "Der Controller **{controller_name}** antwortet nicht.\n\nStellen Sie sicher, dass der Controller eingeschaltet und mit dem Netzwerk verbunden ist, und aktualisieren Sie die Verbindungseinstellungen.",
-        "data": {
-          "host": "IP-Adresse",
-          "port": "TCP-Port",
-          "username": "Benutzername",
-          "password": "Passwort"
-        },
-        "data_description": {
-          "host": "IP-Adresse oder Hostname des Controllers",
-          "port": "TCP-Port (Standard: 80)",
-          "username": "Benutzername, falls Authentifizierung aktiviert",
-          "password": "Passwort, falls erforderlich"
         }
       },
       "controller_auth": {

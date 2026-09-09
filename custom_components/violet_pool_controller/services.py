@@ -165,3 +165,24 @@ async def async_register_services(hass: HomeAssistant) -> None:
         )
 
     _LOGGER.info("Successfully registered %d services", len(SERVICE_HANDLER_NAMES))
+
+
+async def async_unload_services(hass: HomeAssistant) -> None:
+    """Remove every service and the integration-wide service manager.
+
+    Called when the last config entry unloads.  Without this the 44 services
+    stayed registered against a manager whose controllers were gone, and the
+    SafetyGuard's armed timers kept running: reloading the integration then
+    found the services already present and skipped registration, so the new
+    manager was never wired up.
+    """
+    domain_data = hass.data.get(DOMAIN, {})
+    manager = domain_data.pop(SERVICE_MANAGER_KEY, None)
+    if manager is not None:
+        await manager.safety_guard.async_shutdown()
+
+    for service_name in SERVICE_HANDLER_NAMES:
+        if hass.services.has_service(DOMAIN, service_name):
+            hass.services.async_remove(DOMAIN, service_name)
+
+    _LOGGER.info("Removed %d services", len(SERVICE_HANDLER_NAMES))
