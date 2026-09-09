@@ -152,21 +152,21 @@
       }
     },
     "error": {
-      "invalid_ip_address": "Nieprawidłowy adres IP\n\nProszę wprowadzić prawidłowy adres IP (np. 192.168.1.100)",
-      "cannot_connect": "Połączenie nie powiodło się\n\nKontroler nieosiągalny. Sprawdź:\n• Czy adres IP jest prawidłowy?\n• Czy kontroler jest włączony?\n• Czy połączenie sieciowe jest prawidłowe?",
-      "invalid_auth": "Uwierzytelnienie nie powiodło się\n\nNieprawidłowa nazwa użytkownika lub hasło. Pozostaw pola puste, jeśli uwierzytelnianie jest wyłączone.",
-      "timeout_connection": "Limit czasu połączenia\n\nKontroler nie odpowiada. Prawdopodobnie przeciążony lub nieosiągalny.",
-      "authentication_error": "Wymagane uwierzytelnienie\n\nKontroler wymaga poświadczeń. Proszę wprowadzić nazwę użytkownika i hasło.",
-      "api_endpoint_not_found": "Nie znaleziono punktu końcowego interfejsu API\n\nOprogramowanie sprzętowe kontrolera może być nieaktualne lub adres URL jest nieprawidłowy.",
-      "invalid_pool_size": "Nieprawidłowy rozmiar puli\n\nWartość musi mieścić się w przedziale od 0,1 do 1000 m³.",
-      "invalid_configuration": "Błąd konfiguracji\n\nJedno lub więcej wejść jest nieprawidłowych. Proszę sprawdzić.",
-      "api_response_error": "Nieprawidłowa odpowiedź kontrolera\n\nKontroler wysyła nieoczekiwane dane. Potrzebna aktualizacja oprogramowania?",
-      "firmware_data_missing": "Brak informacji o oprogramowaniu sprzętowym\n\nNie można określić wersji oprogramowania sprzętowego kontrolera.",
-      "invalid_firmware_version": "Problem z oprogramowaniem sprzętowym\n\nOprogramowanie sprzętowe kontrolera wygląda na nieaktualne. Proszę zaktualizować.",
-      "connection_error": "Błąd sieci\n\nOgólny błąd połączenia. Sprawdź ustawienia sieciowe.",
-      "already_configured": "Już skonfigurowane\n\nKontroler o tym adresie IP jest już skonfigurowany.",
-      "agreement_declined": "Konfiguracja przerwana\n\nKonfiguracja została przerwana, ponieważ nie zaakceptowano zastrzeżenia dotyczącego bezpieczeństwa.",
-      "unknown": "Nieznany błąd\n\nWystąpił nieoczekiwany problem. Skontaktuj się z pomocą techniczną, jeśli problem będzie się powtarzał."
+      "invalid_ip_address": "**Nieprawidłowy adres IP**\n\nProszę wprowadzić prawidłowy adres IP (np. 192.168.1.100)",
+      "cannot_connect": "**Połączenie nie powiodło się**\n\nKontroler nieosiągalny. Sprawdź:\n• Czy adres IP jest prawidłowy?\n• Czy kontroler jest włączony?\n• Czy połączenie sieciowe jest prawidłowe?",
+      "invalid_auth": "**Logowanie nie powiodło się**\n\nNieprawidłowa nazwa użytkownika lub hasło. Jeśli uwierzytelnianie jest wyłączone, pozostaw pola puste.",
+      "timeout_connection": "**Limit czasu połączenia**\n\nKontroler nie odpowiada. Może być przeciążony lub nieosiągalny.",
+      "authentication_error": "**Wymagane uwierzytelnienie**\n\nKontroler wymaga poświadczeń logowania. Proszę wprowadzić nazwę użytkownika i hasło.",
+      "api_endpoint_not_found": "**Nie znaleziono punktu końcowego API**\n\nOprogramowanie sprzętowe kontrolera może być nieaktualne lub adres URL jest nieprawidłowy.",
+      "invalid_pool_size": "**Nieprawidłowy rozmiar basenu**\n\nWartość musi mieścić się w przedziale od 0,1 do 1000 m³.",
+      "invalid_configuration": "**Błąd konfiguracji**\n\nCo najmniej jedna z wprowadzonych wartości jest nieprawidłowa. Proszę sprawdzić.",
+      "api_response_error": "**Nieprawidłowa odpowiedź kontrolera**\n\nKontroler wysyła nieoczekiwane dane. Potrzebna aktualizacja oprogramowania sprzętowego?",
+      "firmware_data_missing": "**Brak informacji o oprogramowaniu sprzętowym**\n\nNie można określić wersji oprogramowania sprzętowego kontrolera.",
+      "invalid_firmware_version": "**Problem z oprogramowaniem sprzętowym**\n\nOprogramowanie sprzętowe kontrolera wygląda na nieaktualne. Proszę zaktualizować.",
+      "connection_error": "**Błąd sieci**\n\nOgólny błąd połączenia. Sprawdź ustawienia sieciowe.",
+      "already_configured": "**Już skonfigurowane**\n\nKontroler o tym adresie IP jest już skonfigurowany.",
+      "agreement_declined": "**Konfiguracja anulowana**\n\nKonfiguracja została anulowana, ponieważ nie zaakceptowano zastrzeżenia dotyczącego bezpieczeństwa.",
+      "unknown": "**Nieznany błąd**\n\nWystąpił nieoczekiwany problem. Jeśli będzie się powtarzać, skontaktuj się z pomocą techniczną."
     },
     "abort": {
       "already_configured": "Kontroler już skonfigurowany",
@@ -186,7 +186,7 @@
     "step": {
       "init": {
         "title": "Dostosuj ustawienia basenu",
-        "description": "Co chcesz skonfigurować?\n\nWłącz/wyłącz funkcje\nWybierz czujniki\nZmień ustawienia\n\nZawsze możesz wrócić do tego wyboru.",
+        "description": "**Co chcesz skonfigurować?**\n\nWłącz/wyłącz funkcje\nWybierz czujniki\n🚨 Ustawienia bezpieczeństwa\nZmień ustawienia\n\n**Wskazówka:** zawsze możesz wrócić do tego wyboru.",
         "data": {
           "config_option": "Wybierz obszar konfiguracji"
         },
@@ -196,14 +196,14 @@
       },
       "features": {
         "title": "Włącz/wyłącz funkcje",
-        "description": "Wybierz funkcje, z których chcesz skorzystać\n\nWłączone funkcje zostaną pokazane w Home Assistant\nWyłączone funkcje zostaną ukryte\n\nWłącz tylko to, czego naprawdę potrzebujesz - utrzymuje interfejs w czystości!",
+        "description": "**Wybierz funkcje, z których chcesz korzystać**\n\nWłączone funkcje są pokazywane w Home Assistant\nWyłączone funkcje są ukrywane\n\n**Wskazówka:** włącz tylko to, czego naprawdę potrzebujesz — dzięki temu interfejs pozostaje przejrzysty!",
         "data": {
           "active_features": "Aktywne funkcje"
         }
       },
       "sensors": {
         "title": "Wybierz Czujniki",
-        "description": "Wybierz, które czujniki mają być wyświetlane\n\nW Home Assistant zostaną pokazane tylko wybrane czujniki\nZmiany wchodzą w życie natychmiast\n\nWybierz tylko te czujniki, które naprawdę chcesz monitorować!"
+        "description": "**Wybierz, które punkty danych mają być używane**\n\nKażda encja zbudowana na podstawie punktu danych podlega temu wyborowi — czujniki, przełączniki, światła i elementy sterujące\nZmiany wchodzą w życie natychmiast\n\n**Wskazówka:** wybierz tylko to, co naprawdę chcesz widzieć!"
       },
       "safety": {
         "title": "🚨 Ustawienia bezpieczeństwa",
@@ -217,7 +217,7 @@
       },
       "settings": {
         "title": "Ustawienia ogólne",
-        "description": "Dostosuj parametry techniczne\n\nInterwał sondowania: częstotliwość pobierania danych\nLimit czasu: Maksymalny czas oczekiwania na odpowiedzi\nPonawianie prób: liczba ponownych prób\n\nWartości domyślne działają w przypadku większości konfiguracji!",
+        "description": "**Dostosuj parametry techniczne**\n\nInterwał odpytywania: częstotliwość pobierania danych\nLimit czasu: maksymalny czas oczekiwania na odpowiedzi\nPonawianie prób: liczba ponownych prób\n\n**Wskazówka:** wartości domyślne działają w przypadku większości konfiguracji!",
         "data": {
           "controller_name": "Nazwa kontrolera",
           "polling_interval": "Interwał odpytywania (sekundy)",
@@ -830,7 +830,7 @@
       "name": "Włącz/wyłącz regułę"
     },
     "export_diagnostic_logs": {
-      "description": "Eksportuje ostatnie logi integracji do rozwiązywania problemów i wsparcia.\n\nZbiera odpowiednie wpisy logów i umożliwia pobranie lub zapis do pliku.\n\n**Wskazówka:** Przydatne przy problemach lub wysyłaniu logów do wsparcia!",
+      "description": "Eksportuje **ostatnie logi integracji** do rozwiązywania problemów i wsparcia.\n\nZbiera odpowiednie wpisy logów i umożliwia pobranie lub zapis do pliku.\n\n**Wskazówka:** przydatne przy problemach lub wysyłaniu logów do wsparcia!",
       "fields": {
         "device_id": {
           "description": "Violet Pool Controller do eksportu",
@@ -1136,7 +1136,7 @@
       "name": "Przełącz usługę systemową sterownika"
     },
     "smart_dosing": {
-      "description": "Ręczne lub automatyczne sterowanie dozowaniem pH, chloru i koagulantu.\n\n**Uwaga:** Unikaj przedawkowania! Zawsze najpierw sprawdź parametry wody.",
+      "description": "Ręczne lub automatyczne sterowanie dozowaniem pH, chloru, elektrolizy i flokulantu.\n\nH₂O₂ nie jest dostępny: API sterownika nie ma funkcji dozowania H₂O₂.\n\n**Uwaga:** Unikaj przedawkowania! Zawsze najpierw sprawdź parametry wody.",
       "fields": {
         "action": {
           "description": "Wybierz: manual_dose, auto lub stop.",

@@ -152,21 +152,21 @@
       }
     },
     "error": {
-      "invalid_ip_address": "Adresse IP invalide\n\nVeuillez saisir une adresse IP valide (par exemple 192.168.1.100)",
-      "cannot_connect": "Échec de la connexion\n\nContrôleur inaccessible. Vérifiez :\n• L'adresse IP est-elle correcte ?\n• Le contrôleur est-il sous tension ?\n• La connexion réseau est-elle correcte ?",
-      "invalid_auth": "Échec de l'authentification\n\nNom d'utilisateur ou mot de passe incorrect. Laissez les champs vides si l'authentification est désactivée.",
-      "timeout_connection": "Délai de connexion\n\nLe contrôleur ne répond pas. Peut-être surchargé ou inaccessible.",
-      "authentication_error": "Authentification requise\n\nLe contrôleur nécessite des informations d'identification. Veuillez saisir votre nom d'utilisateur et votre mot de passe.",
-      "api_endpoint_not_found": "Point de terminaison de l'API introuvable\n\nLe micrologiciel du contrôleur est peut-être obsolète ou l'URL est incorrecte.",
-      "invalid_pool_size": "Taille de pool invalide\n\nLa valeur doit être comprise entre 0,1 et 1 000 m³.",
-      "invalid_configuration": "Erreur de configuration\n\nUne ou plusieurs entrées ne sont pas valides. Vérifiez s'il vous plaît.",
-      "api_response_error": "Réponse du contrôleur invalide\n\nLe contrôleur envoie des données inattendues. Mise à jour du firmware nécessaire ?",
-      "firmware_data_missing": "Informations sur le micrologiciel manquantes\n\nLa version du micrologiciel du contrôleur n'a pas pu être déterminée.",
-      "invalid_firmware_version": "Problème de micrologiciel\n\nLe micrologiciel du contrôleur semble obsolète. Veuillez mettre à jour.",
-      "connection_error": "Erreur réseau\n\nErreur de connexion générale. Vérifiez les paramètres réseau.",
-      "already_configured": "Déjà configuré\n\nUn contrôleur avec cette adresse IP est déjà configuré.",
-      "agreement_declined": "Installation abandonnée\n\nL'installation a été interrompue car la clause de non-responsabilité en matière de sécurité n'a pas été acceptée.",
-      "unknown": "Erreur inconnue\n\nUn problème inattendu s'est produit. Contactez le support si le problème persiste."
+      "invalid_ip_address": "**Adresse IP invalide**\n\nVeuillez saisir une adresse IP valide (par exemple 192.168.1.100)",
+      "cannot_connect": "**Échec de la connexion**\n\nContrôleur inaccessible. Vérifiez :\n• L'adresse IP est-elle correcte ?\n• Le contrôleur est-il sous tension ?\n• La connexion réseau est-elle correcte ?",
+      "invalid_auth": "**Échec de l'authentification**\n\nNom d'utilisateur ou mot de passe incorrect. Si l'authentification est désactivée, laissez les champs vides.",
+      "timeout_connection": "**Délai de connexion dépassé**\n\nLe contrôleur ne répond pas. Il est peut-être surchargé ou inaccessible.",
+      "authentication_error": "**Authentification requise**\n\nLe contrôleur exige des identifiants de connexion. Veuillez saisir le nom d'utilisateur et le mot de passe.",
+      "api_endpoint_not_found": "**Point de terminaison de l'API introuvable**\n\nLe micrologiciel du contrôleur est peut-être obsolète ou l'URL est incorrecte.",
+      "invalid_pool_size": "**Taille de piscine invalide**\n\nLa valeur doit être comprise entre 0,1 et 1 000 m³.",
+      "invalid_configuration": "**Erreur de configuration**\n\nUne ou plusieurs saisies ne sont pas valides. Veuillez les vérifier.",
+      "api_response_error": "**Réponse du contrôleur invalide**\n\nLe contrôleur envoie des données inattendues. Mise à jour du micrologiciel nécessaire ?",
+      "firmware_data_missing": "**Informations sur le micrologiciel manquantes**\n\nLa version du micrologiciel du contrôleur n'a pas pu être déterminée.",
+      "invalid_firmware_version": "**Problème de micrologiciel**\n\nLe micrologiciel du contrôleur semble obsolète. Veuillez le mettre à jour.",
+      "connection_error": "**Erreur réseau**\n\nErreur de connexion générale. Vérifiez les paramètres réseau.",
+      "already_configured": "**Déjà configuré**\n\nUn contrôleur avec cette adresse IP est déjà configuré.",
+      "agreement_declined": "**Configuration annulée**\n\nLa configuration a été annulée car l'avis de sécurité n'a pas été accepté.",
+      "unknown": "**Erreur inconnue**\n\nUn problème inattendu s'est produit. S'il persiste, contactez l'assistance."
     },
     "abort": {
       "already_configured": "Contrôleur déjà configuré",
@@ -186,7 +186,7 @@
     "step": {
       "init": {
         "title": "Ajuster les paramètres de la piscine",
-        "description": "Que souhaiteriez-vous configurer ?\n\nActiver/désactiver les fonctionnalités\nSélectionnez les capteurs\nModifier les paramètres\n\nVous pouvez toujours revenir sur cette sélection.",
+        "description": "**Que souhaitez-vous configurer ?**\n\nActiver/désactiver les fonctionnalités\nSélectionner les capteurs\n🚨 Paramètres de sécurité\nModifier les paramètres\n\n**Conseil :** vous pouvez revenir à cette sélection à tout moment.",
         "data": {
           "config_option": "Sélectionnez la zone de configuration"
         },
@@ -196,14 +196,14 @@
       },
       "features": {
         "title": "Activer/Désactiver les fonctionnalités",
-        "description": "Choisissez les fonctionnalités que vous souhaitez utiliser\n\nLes fonctionnalités activées seront affichées dans Home Assistant\nLes fonctionnalités désactivées seront masquées\n\nActivez uniquement ce dont vous avez vraiment besoin - gardez l'interface propre !",
+        "description": "**Sélectionnez les fonctionnalités que vous souhaitez utiliser**\n\nLes fonctionnalités activées sont affichées dans Home Assistant\nLes fonctionnalités désactivées sont masquées\n\n**Conseil :** n'activez que ce dont vous avez vraiment besoin — cela garde l'interface claire !",
         "data": {
           "active_features": "Fonctions actives"
         }
       },
       "sensors": {
         "title": "Sélectionnez les capteurs",
-        "description": "Choisissez quels capteurs doivent être affichés\n\nSeuls les capteurs sélectionnés seront affichés dans Home Assistant\nLes modifications prennent effet immédiatement\n\nSélectionnez uniquement les capteurs que vous souhaitez réellement surveiller !"
+        "description": "**Choisissez les points de données à utiliser**\n\nChaque entité issue d'un point de données suit cette sélection — capteurs, commutateurs, lumières et commandes confondus\nLes modifications prennent effet immédiatement\n\n**Conseil :** ne sélectionnez que ce que vous voulez réellement voir !"
       },
       "safety": {
         "title": "🚨 Paramètres de sécurité",
@@ -217,7 +217,7 @@
       },
       "settings": {
         "title": "Paramètres généraux",
-        "description": "Ajuster les paramètres techniques\n\nIntervalle d'interrogation : à quelle fréquence les données sont récupérées\nTimeout : temps d'attente maximum pour les réponses\nNouvelles tentatives : nombre de nouvelles tentatives\n\nLes valeurs par défaut fonctionnent pour la plupart des configurations !",
+        "description": "**Ajustez les paramètres techniques**\n\nIntervalle d'interrogation : à quelle fréquence les données sont récupérées\nDélai d'attente : temps d'attente maximum pour les réponses\nNouvelles tentatives : nombre de tentatives de réessai\n\n**Conseil :** les valeurs par défaut conviennent à la plupart des installations !",
         "data": {
           "controller_name": "Nom du contrôleur",
           "polling_interval": "Intervalle d'interrogation (secondes)",
@@ -830,7 +830,7 @@
       "name": "Activer/désactiver une règle"
     },
     "export_diagnostic_logs": {
-      "description": "Exporte les journaux d'intégration récents pour le dépannage et le support.",
+      "description": "Exporte les **journaux récents de l'intégration** pour le dépannage et l'assistance.\n\nCollecte les entrées de journal pertinentes et permet leur téléchargement ou leur enregistrement dans un fichier.\n\n**Conseil :** utile en cas de problème ou pour envoyer les journaux à l'assistance !",
       "fields": {
         "device_id": {
           "description": "Violet Pool Controller pour l'exportation.",
@@ -1136,7 +1136,7 @@
       "name": "Activer/désactiver un service système du contrôleur"
     },
     "smart_dosing": {
-      "description": "Contrôle du dosage manuel ou automatique pour le pH, le chlore et le floculant.\n\n**Attention :** Évitez le surdosage ! Vérifiez toujours les valeurs de l'eau au préalable.",
+      "description": "Contrôle du dosage manuel ou automatique pour le pH, le chlore, l'électrolyse et le floculant.\n\nH₂O₂ n'est pas proposé : l'API du contrôleur ne dispose d'aucune fonction de dosage du H₂O₂.\n\n**Attention :** évitez le surdosage ! Vérifiez toujours les valeurs de l'eau au préalable.",
       "fields": {
         "action": {
           "description": "Sélectionner : dosage_manuel, automatique ou arrêter.",
