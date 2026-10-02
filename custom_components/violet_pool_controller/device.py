@@ -264,9 +264,14 @@ class VioletPoolControllerDevice:
     async def _fetch_controller_data(self) -> dict[str, Any]:
         """Fetch all controller data.
 
-        Always uses full refresh (?ALL) because the controller returns all
-        data in a single compact response (~403 keys) and partial category
-        queries miss many important keys (PUMP, SOLAR, fw, etc.).
+        Always uses the API's full refresh (`?ALL` plus the DOSAGE, RUNTIMES,
+        PUMPPRIOSTATE, BACKWASH and SYSTEM feature-flag tokens, see API >=
+        0.0.40) because the controller returns all data in a single compact
+        response (~403 keys) and partial category queries miss many important
+        keys (PUMP, SOLAR, fw, etc.).  Plain `?ALL` alone omits the computed
+        field groups on some firmware states — the daily dosing totals ended
+        up `unknown` for users after a controller restart until the tokens
+        were added.
 
         API 0.0.11 note: get_readings() now internally builds a hardware
         profile and filters out readings for absent modules.  The HW_* flags

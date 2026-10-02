@@ -17,6 +17,38 @@ anyone there either.
 > **Historical note:** entries up to and including 2.5.7 were written in German,
 > before the language policy existed. They are kept as they were published.
 
+## Version 2.7.3 (2026-10-02)
+
+One report from the poolsteuerung.de forum, fixed at the root: after a
+controller restart/timeout the daily Chlor/pH-Minus dosing sensors turned
+`unknown` and stayed that way, because the poll request asked for
+`getReadings?ALL` and the controller only returns the computed field groups —
+daily dosing totals (`DOS_*_DAILY_DOSING_AMOUNT_ML`), canister amounts,
+remaining range — when the request explicitly carries the `DOSAGE`
+feature-flag token (the `getReadings.js` query language treats these tokens
+as feature flags, not filters; the same applies to `RUNTIMES`,
+`PUMPPRIOSTATE`, `BACKWASH` and `SYSTEM` for their respective fields).
+
+### Fixes
+
+- **fix: daily dosing sensors stay `unknown` after a controller restart.**
+  The API package now requests `ALL,DOSAGE,RUNTIMES,PUMPPRIOSTATE,BACKWASH,SYSTEM`
+  in every poll (`violet-poolController-api` 0.0.40, pinned in `manifest.json`),
+  so all computed fields come back on every firmware state. Verified against a
+  live controller on firmware 1.2.5: the extended query returns exactly the
+  same 419-key payload as plain `ALL`, so nothing changes where plain `ALL`
+  already worked. The user-facing workaround from the forum (a `rest_command`
+  plus re-query automation) is no longer needed.
+
+### Dependencies
+
+- `violet-poolController-api` >= 0.0.40 (was >= 0.0.39)
+- Dependabot refreshes: github/codeql-action 4.38.2, trufflesecurity/trufflehog
+  3.97.9, home-assistant/actions/hassfest pin, ruff >= 0.16.9, mypy >= 2.3.1,
+  pytest-asyncio >= 1.4.0. The pytest >= 9.1.1 bump was rejected: the Home
+  Assistant test harness (`pytest-homeassistant-custom-component` up to
+  0.13.368) pins `pytest==9.0.3` exactly, so 9.1.x cannot be installed.
+
 ## Version 2.7.2 (2026-09-09)
 
 Three findings from a live session against a running controller: switching the
