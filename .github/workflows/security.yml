@@ -41,13 +41,13 @@ jobs:
         uses: actions/checkout@v7
         
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4.37.9
+        uses: github/codeql-action/init@v4.38.2
         with:
           languages: python
           queries: security-extended,security-and-quality
           
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4.37.9
+        uses: github/codeql-action/analyze@v4.38.2
         with:
           category: "/language:python"
         
@@ -64,7 +64,7 @@ jobs:
           
       - name: TruffleHog OSS (Pull Request)
         if: github.event_name == 'pull_request'
-        uses: trufflesecurity/trufflehog@363923b901c911a9164f50b6c423f47c15372b1c  # v3.97.4
+        uses: trufflesecurity/trufflehog@4dd8831c5f12599465d4d45c3c447b4018a34c85  # v3.97.9
         with:
           base: ${{ github.event.pull_request.base.sha }}
           head: ${{ github.event.pull_request.head.sha }}
@@ -72,14 +72,14 @@ jobs:
           
       - name: TruffleHog OSS (Push to main)
         if: github.event_name == 'push'
-        uses: trufflesecurity/trufflehog@363923b901c911a9164f50b6c423f47c15372b1c  # v3.97.4
+        uses: trufflesecurity/trufflehog@4dd8831c5f12599465d4d45c3c447b4018a34c85  # v3.97.9
         with:
           path: ./
           extra_args: --only-verified --max-depth=10
           
       - name: TruffleHog OSS (Scheduled/Manual)
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-        uses: trufflesecurity/trufflehog@363923b901c911a9164f50b6c423f47c15372b1c  # v3.97.4
+        uses: trufflesecurity/trufflehog@4dd8831c5f12599465d4d45c3c447b4018a34c85  # v3.97.9
         with:
           path: ./
           extra_args: --only-verified
@@ -105,7 +105,7 @@ jobs:
           exit-code: '1'
           
       - name: Upload Trivy results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v4.37.9
+        uses: github/codeql-action/upload-sarif@v4.38.2
         if: always() && hashFiles('trivy-results.sarif') != ''
         with:
           sarif_file: 'trivy-results.sarif'
