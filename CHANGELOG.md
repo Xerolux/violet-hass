@@ -17,6 +17,30 @@ anyone there either.
 > **Historical note:** entries up to and including 2.5.7 were written in German,
 > before the language policy existed. They are kept as they were published.
 
+## Version 2.7.4 (2026-10-06)
+
+Follow-up to the forum report behind 2.7.3: the daily dosing values were
+present again in the controller's API response, but Home Assistant never
+showed them. Root cause in the integration: data-dependent sensor entities
+(daily dosing totals, dosing states, runtimes, composite states, extra
+diagnostics) were only created when their key was part of the **first**
+coordinator poll. When that poll ran inside a controller restart window —
+exactly when key groups go missing — the entities simply never existed, and
+no later poll could bring them back without a manual reload.
+
+### Fixes
+
+- **fix: sensors for keys that appear after the first poll now get their
+  entities.** The data-dependent sensor creation was split into an idempotent
+  helper that records handled keys, and a coordinator listener re-runs it on
+  every update: keys missing at setup (controller restart window, firmware
+  dropping a computed group) get their entity as soon as the controller
+  returns the key — without a config reload. Late entities are merged into
+  the registry-cleanup tracking so they survive the orphan sweep.
+- **fix: re-running sensor creation no longer duplicates entities.** The
+  standard-sensor loop now records the keys it created; previously a second
+  run would have re-created every standard sensor.
+
 ## Version 2.7.3 (2026-10-02)
 
 One report from the poolsteuerung.de forum, fixed at the root: after a

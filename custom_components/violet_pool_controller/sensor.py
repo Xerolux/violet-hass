@@ -20,7 +20,7 @@ from typing import Any
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import (
@@ -41,7 +41,7 @@ from .const import (
     WATER_CHEM_SENSORS,
 )
 from .device import VioletPoolDataUpdateCoordinator
-from .entity_cleanup import track_provided_entities
+from .entity_cleanup import add_provided_entities, track_provided_entities
 from .feature_keys import feature_for_key
 
 # Import sensor classes from submodules
@@ -103,6 +103,11 @@ async def async_setup_entry(
     sensors.extend(special_sensors)
     handled_keys.update(special_keys)
 
+    # Data-dependent entities run through the same helper at setup and on
+    # every coordinator update, so keys the first poll missed still get their
+    # entities (see _create_data_keyed_sensors).
+    sensors.extend(_create_data_keyed_sensors(coordinator, config_entry, config, handled_keys))
+
     standard_sensors = _create_standard_sensors(coordinator, config_entry, config, handled_keys)
     sensors.extend(standard_sensors)
 
@@ -116,6 +121,35 @@ async def async_setup_entry(
             "No sensors were added for '%s'. Check the sensor selection in the configuration menu.",
             config_entry.title,
         )
+
+    @callback
+    def _async_add_data_keyed_sensors() -> None:
+        """Create entities for keys that appeared after the first poll.
+
+        A controller response can omit whole key groups (restart window,
+        firmware dropping the computed dosing stats). Entities whose key was
+        missing at setup would then never exist, although the controller has
+        long since returned the values - the exact "present in the API, not
+        imported in Home Assistant" report. Re-running the data-dependent
+        creation closes that gap without a reload.
+        """
+        if coordinator.data is None:
+            return
+
+        late_sensors: list[SensorEntity] = [
+            *_create_data_keyed_sensors(coordinator, config_entry, config, handled_keys),
+            *_create_standard_sensors(coordinator, config_entry, config, handled_keys),
+        ]
+        if not late_sensors:
+            return
+
+        async_add_entities(late_sensors)
+        add_provided_entities(hass, config_entry, Platform.SENSOR, late_sensors)
+        _LOGGER.debug("%d late sensors added for '%s'", len(late_sensors), config_entry.title)
+
+    config_entry.async_on_unload(
+        coordinator.async_add_listener(_async_add_data_keyed_sensors)
+    )
 
 
 def _get_sensor_config(config_entry: ConfigEntry) -> dict[str, Any]:
@@ -173,13 +207,6 @@ def _create_special_sensors(
         " Last Event Age, API Request Rate, Average Latency)"
     )
 
-    # Error Code Sensors
-    for key in _ERROR_CODE_KEYS:
-        if key in coordinator.data and (config["create_all"] or key in config["selected_sensors"]):
-            sensors.append(VioletErrorCodeSensor(coordinator, config_entry, key))
-            handled_keys.add(key)
-            _LOGGER.debug("Error code sensor created for %s", key)
-
     # Active Errors Sensor (shows all active errors at once)
     sensors.append(VioletActiveErrorsSensor(coordinator, config_entry))
     _LOGGER.debug("Active errors sensor created")
@@ -197,146 +224,190 @@ def _create_special_sensors(
     )
     _LOGGER.debug("LSI and CSI calculator sensors created")
 
-    # Flow Rate Sensor
-    flow_keys_present = any(key in coordinator.data for key in _FLOW_RATE_SOURCE_KEYS)
-    flow_selected = config["create_all"] or "flow_rate_adc3_priority" in config["selected_sensors"]
-    if flow_keys_present and flow_selected:
-        sensors.append(VioletFlowRateSensor(coordinator, config_entry))
-        handled_keys.update(_FLOW_RATE_SOURCE_KEYS)
-        _LOGGER.debug("Priority flow rate sensor created.")
-
     # Pump Power Estimation Sensor
     if "filter_control" in config["active_features"] or config["create_all"]:
         sensors.append(VioletPumpPowerSensor(coordinator, config_entry))
         _LOGGER.debug("Pump power estimation sensor created.")
 
+    return sensors, handled_keys
+
+
+def _create_data_keyed_sensors(
+    coordinator: VioletPoolDataUpdateCoordinator,
+    config_entry: ConfigEntry,
+    config: dict[str, Any],
+    handled_keys: set[str],
+) -> list[SensorEntity]:
+    """Creates the sensors whose existence depends on the current poll.
+
+    Every group here is gated on its key being present in ``coordinator.data``.
+    The function is idempotent with respect to ``handled_keys``: keys that
+    already have an entity are skipped, so it can run again on every
+    coordinator update and only produces entities for keys that were missing
+    from the first poll.
+
+    Args:
+        coordinator: The data update coordinator.
+        config_entry: The config entry the sensors belong to.
+        config: The sensor configuration (features, selection, create_all).
+        handled_keys: Keys that already have an entity; updated in place.
+
+    Returns:
+        The newly created sensor entities.
+    """
+    sensors: list[SensorEntity] = []
+
+    # Error Code Sensors
+    for key in _ERROR_CODE_KEYS:
+        if (
+            key in coordinator.data
+            and key not in handled_keys
+            and (config["create_all"] or key in config["selected_sensors"])
+        ):
+            sensors.append(VioletErrorCodeSensor(coordinator, config_entry, key))
+            handled_keys.add(key)
+            _LOGGER.debug("Error code sensor created for %s", key)
+
+    # Flow Rate Sensor
+    flow_keys_present = any(key in coordinator.data for key in _FLOW_RATE_SOURCE_KEYS)
+    flow_selected = config["create_all"] or "flow_rate_adc3_priority" in config["selected_sensors"]
+    if flow_keys_present and flow_selected and not (_FLOW_RATE_SOURCE_KEYS & handled_keys):
+        sensors.append(VioletFlowRateSensor(coordinator, config_entry))
+        handled_keys.update(_FLOW_RATE_SOURCE_KEYS)
+        _LOGGER.debug("Priority flow rate sensor created.")
+
     # Dosing State Array Sensors
     for key, sensor_config in DOSING_STATE_SENSORS.items():
-        if key in coordinator.data:
-            # Check if feature is enabled
-            feature_id = feature_for_key(key)
-            if feature_id and feature_id not in config["active_features"]:
-                continue
+        if key in handled_keys or key not in coordinator.data:
+            continue
+        # Check if feature is enabled
+        feature_id = feature_for_key(key)
+        if feature_id and feature_id not in config["active_features"]:
+            continue
 
-            # Check if sensor is selected
-            if not config["create_all"] and key not in config["selected_sensors"]:
-                continue
+        # Check if sensor is selected
+        if not config["create_all"] and key not in config["selected_sensors"]:
+            continue
 
-            sensors.append(
-                VioletDosingStateSensor(
-                    coordinator,
-                    config_entry,
-                    key,
-                    sensor_config["name"],
-                    sensor_config["icon"],
-                    translation_key=sensor_config.get("translation_key"),
-                )
+        sensors.append(
+            VioletDosingStateSensor(
+                coordinator,
+                config_entry,
+                key,
+                sensor_config["name"],
+                sensor_config["icon"],
+                translation_key=sensor_config.get("translation_key"),
             )
-            handled_keys.add(key)
-            _LOGGER.debug("Dosing state sensor created for %s", key)
+        )
+        handled_keys.add(key)
+        _LOGGER.debug("Dosing state sensor created for %s", key)
 
     # Composite State Sensors (PUMPSTATE, HEATERSTATE, SOLARSTATE, etc.)
     for key, sensor_config in COMPOSITE_STATE_SENSORS.items():
-        if key in coordinator.data:
-            # Check if feature is enabled
-            feature_id = feature_for_key(key)
-            if feature_id and feature_id not in config["active_features"]:
-                continue
+        if key in handled_keys or key not in coordinator.data:
+            continue
+        # Check if feature is enabled
+        feature_id = feature_for_key(key)
+        if feature_id and feature_id not in config["active_features"]:
+            continue
 
-            # Check if sensor is selected
-            if not config["create_all"] and key not in config["selected_sensors"]:
-                continue
+        # Check if sensor is selected
+        if not config["create_all"] and key not in config["selected_sensors"]:
+            continue
 
-            sensors.append(
-                VioletDosingStateSensor(  # Reuse same class, handles both types
-                    coordinator,
-                    config_entry,
-                    key,
-                    sensor_config["name"],
-                    sensor_config["icon"],
-                    translation_key=sensor_config.get("translation_key"),
-                )
+        sensors.append(
+            VioletDosingStateSensor(  # Reuse same class, handles both types
+                coordinator,
+                config_entry,
+                key,
+                sensor_config["name"],
+                sensor_config["icon"],
+                translation_key=sensor_config.get("translation_key"),
             )
-            handled_keys.add(key)
-            _LOGGER.debug("Composite state sensor created for %s", key)
+        )
+        handled_keys.add(key)
+        _LOGGER.debug("Composite state sensor created for %s", key)
 
     # Runtime Sensors (PUMP_RUNTIME, SOLAR_RUNTIME, etc.)
     for key, sensor_config in RUNTIME_SENSORS.items():
-        if key in coordinator.data:
-            feature_id = feature_for_key(key)
-            if feature_id and feature_id not in config["active_features"]:
-                continue
-            if not config["create_all"] and key not in config["selected_sensors"]:
-                continue
+        if key in handled_keys or key not in coordinator.data:
+            continue
+        feature_id = feature_for_key(key)
+        if feature_id and feature_id not in config["active_features"]:
+            continue
+        if not config["create_all"] and key not in config["selected_sensors"]:
+            continue
 
-            sensors.append(
-                VioletSensor(
-                    coordinator,
-                    config_entry,
-                    _build_sensor_description(
-                        key,
-                        coordinator.data.get(key),
-                        RUNTIME_SENSORS,
-                        translation_key=sensor_config.get("translation_key", key.lower()),
-                    ),
-                )
+        sensors.append(
+            VioletSensor(
+                coordinator,
+                config_entry,
+                _build_sensor_description(
+                    key,
+                    coordinator.data.get(key),
+                    RUNTIME_SENSORS,
+                    translation_key=sensor_config.get("translation_key", key.lower()),
+                ),
             )
-            handled_keys.add(key)
-            _LOGGER.debug("Runtime sensor created for %s", key)
+        )
+        handled_keys.add(key)
+        _LOGGER.debug("Runtime sensor created for %s", key)
 
     # Dosing Statistics Sensors
     for key, sensor_config in DOSING_STATS_SENSORS.items():
-        if key in coordinator.data:
-            feature_id = feature_for_key(key)
-            if feature_id and feature_id not in config["active_features"]:
-                continue
-            if not config["create_all"] and key not in config["selected_sensors"]:
-                continue
+        if key in handled_keys or key not in coordinator.data:
+            continue
+        feature_id = feature_for_key(key)
+        if feature_id and feature_id not in config["active_features"]:
+            continue
+        if not config["create_all"] and key not in config["selected_sensors"]:
+            continue
 
-            sensors.append(
-                VioletSensor(
-                    coordinator,
-                    config_entry,
-                    _build_sensor_description(
-                        key,
-                        coordinator.data.get(key),
-                        DOSING_STATS_SENSORS,
-                        translation_key=sensor_config.get("translation_key", key.lower()),
-                    ),
-                )
+        sensors.append(
+            VioletSensor(
+                coordinator,
+                config_entry,
+                _build_sensor_description(
+                    key,
+                    coordinator.data.get(key),
+                    DOSING_STATS_SENSORS,
+                    translation_key=sensor_config.get("translation_key", key.lower()),
+                ),
             )
-            handled_keys.add(key)
-            _LOGGER.debug("Dosing stats sensor created for %s", key)
+        )
+        handled_keys.add(key)
+        _LOGGER.debug("Dosing stats sensor created for %s", key)
 
     # Extra Diagnostic Sensors (POLARITY, REMAINING_RANGE, last_error_id,
     # OmniTronic valve state, backwash last-run timestamps, etc.)
     for key, sensor_config in EXTRA_DIAGNOSTIC_SENSORS.items():
-        if key in coordinator.data:
-            feature_id = feature_for_key(key)
-            if feature_id and feature_id not in config["active_features"]:
-                continue
-            if not config["create_all"] and key not in config["selected_sensors"]:
-                continue
+        if key in handled_keys or key not in coordinator.data:
+            continue
+        feature_id = feature_for_key(key)
+        if feature_id and feature_id not in config["active_features"]:
+            continue
+        if not config["create_all"] and key not in config["selected_sensors"]:
+            continue
 
-            sensors.append(
-                VioletSensor(
-                    coordinator,
-                    config_entry,
-                    _build_sensor_description(
-                        key,
-                        coordinator.data.get(key),
-                        EXTRA_DIAGNOSTIC_SENSORS,
-                        translation_key=sensor_config.get("translation_key", key.lower()),
-                    ),
-                )
+        sensors.append(
+            VioletSensor(
+                coordinator,
+                config_entry,
+                _build_sensor_description(
+                    key,
+                    coordinator.data.get(key),
+                    EXTRA_DIAGNOSTIC_SENSORS,
+                    translation_key=sensor_config.get("translation_key", key.lower()),
+                ),
             )
-            handled_keys.add(key)
-            _LOGGER.debug("Extra diagnostic sensor created for %s", key)
+        )
+        handled_keys.add(key)
+        _LOGGER.debug("Extra diagnostic sensor created for %s", key)
 
     # Analog + Temperature switching-rule states (0/1 active flag per rule)
     for source in (ANALOG_RULE_SENSORS, TEMP_RULE_SENSORS):
         for key, sensor_config in source.items():
-            if key not in coordinator.data:
+            if key in handled_keys or key not in coordinator.data:
                 continue
             sensors.append(
                 VioletSensor(
@@ -352,7 +423,7 @@ def _create_special_sensors(
             )
             handled_keys.add(key)
 
-    return sensors, handled_keys
+    return sensors
 
 
 # Hardware-detection flags the coordinator synthesises from the payload. They
@@ -504,5 +575,6 @@ def _create_standard_sensors(
             else VioletSensor
         )
         sensors.append(SensorClass(coordinator, config_entry, description))
+        handled_keys.add(key)
 
     return sensors
