@@ -14,7 +14,6 @@ import logging
 from collections.abc import Mapping
 from typing import Any
 
-import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigFlowResult, UnknownEntry
 from homeassistant.core import callback
@@ -78,6 +77,7 @@ from .const import (
     DOMAIN,
 )
 from .feature_keys import feature_for_key
+from .validation import vol
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -293,7 +293,7 @@ class ConfigFlow(
         await self.async_set_unique_id(self._build_unique_id(host, device_id))
         self._abort_if_unique_id_configured(
             updates={CONF_API_URL: host, CONF_DEVICE_ID: device_id},
-            reload_on_update=True,
+            reload_on_update=False,
         )
 
         # The unique id alone is not enough. An entry set up before the flow
@@ -495,7 +495,9 @@ class ConfigFlow(
                     # The unique id is derived from host + device id, so it has
                     # to follow the new host - otherwise zeroconf keeps
                     # offering the very same controller as a new discovery.
-                    return self.async_update_reload_and_abort(
+                    # The update listener applies polling changes and schedules
+                    # one reload when connection settings have changed.
+                    return self.async_update_and_abort(
                         reconfigure_entry,
                         data_updates=updated_data,
                         unique_id=self._build_unique_id(

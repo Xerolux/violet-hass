@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Any
 
 import homeassistant.helpers.config_validation as cv
-import voluptuous as vol
 from homeassistant.const import ATTR_DEVICE_ID
 from homeassistant.helpers.typing import VolDictType, VolSchemaType
 
@@ -20,6 +19,7 @@ from .service_helpers import (
     MIN_DOSING_DURATION,
     MIN_PUMP_SPEED,
 )
+from .validation import vol
 
 # The pump accepts a duration of up to 24 hours; services.yaml, this schema and
 # the handler all have to agree on that number or a value the UI offers gets

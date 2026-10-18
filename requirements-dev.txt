@@ -4,7 +4,7 @@
 # tox.ini installs it instead of repeating the list, and CLAUDE.md documents
 # these same floors. Do not add a second copy of a floor anywhere else.
 #
-# Tested against Home Assistant 2026.8.x and 2026.9.x on Python 3.14.
+# Tested against Home Assistant 2026.8.3 and 2026.10.2 on Python 3.14.
 -r requirements.txt
 
 ruff>=0.16.9
@@ -17,9 +17,8 @@ pytest-asyncio>=1.4.0
 # IMPORTANT: Always use the latest version from
 # https://github.com/MatthewFlamm/pytest-homeassistant-custom-component
 # Check for updates when a new Home Assistant or Python version is released.
-# 0.13.357 pins homeassistant==2026.8.3. The floor is deliberately open-ended
-# so the harness follows Home Assistant: the first release built against
-# 2026.9 is picked up without a change here.
+# tox/CI constrain this to reproducible minimum and current stable HA lanes.
+# Keep this floor compatible with both lanes; update their constraints together.
 pytest-homeassistant-custom-component>=0.13.357
 
 # The discovery tests import zeroconf directly. Home Assistant pulls it in as a

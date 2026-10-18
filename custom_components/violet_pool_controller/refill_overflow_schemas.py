@@ -12,10 +12,10 @@ from __future__ import annotations
 from typing import Any
 
 import homeassistant.helpers.config_validation as cv
-import voluptuous as vol
 from homeassistant.const import ATTR_DEVICE_ID
 
 from .service_helpers import DEVICE_ID_SELECTOR
+from .validation import vol
 
 
 def get_refill_overflow_schemas() -> dict[str, Any]:
