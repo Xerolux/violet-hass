@@ -17,6 +17,41 @@ anyone there either.
 > **Historical note:** entries up to and including 2.5.7 were written in German,
 > before the language policy existed. They are kept as they were published.
 
+## Version 2.7.5 (2026-10-18)
+
+Home Assistant 2026.10 compatibility and reproducible release validation.
+
+### Fixes
+
+- **Schema type checking works with Probatio.** Home Assistant changed its
+  schema engine while preserving the `voluptuous` runtime import. Static
+  checking could not follow that alias and reported 130 errors, stopping CI
+  before the tests ran. Integration schemas now consistently use the same
+  engine, with a voluptuous fallback for older supported HA releases.
+- **Reconfiguring a controller has one reload owner.** Connection changes
+  reload through the existing update listener; the config flow no longer
+  schedules a second reload. Polling-only changes remain dynamic. Zeroconf
+  updates also leave reloading to that listener. This removes use of a
+  deprecated helper/listener combination which HA rejects from 2026.12.
+
+### Compatibility preparation
+
+- Climate entities provide native temperature properties, with legacy aliases
+  only on HA releases that require them. This prepares for HA 2026.11's API
+  change while preserving the supported 2026.8-2026.10 behavior.
+- Grouped entities construct Home Assistant's actual `ChildDeviceInfo` type;
+  controller identifiers and optional device-info fields also support the
+  dataclass representation announced for HA 2026.11. These changes prepare for
+  that release; they do not claim a complete test run against unreleased HA.
+
+### Validation
+
+- CI now runs the complete suite against fixed HA **2026.8.3** and
+  **2026.10.2** environments, and checks the installed HA version explicitly.
+  Type checking runs against current stable HA. Regression tests cover
+  reconfiguration reload ownership, native temperatures and typed child devices.
+- The minimum required HA version remains **2026.8.0**.
+
 ## Version 2.7.4 (2026-10-06)
 
 Follow-up to the forum report behind 2.7.3: the daily dosing values were

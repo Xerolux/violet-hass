@@ -7,7 +7,8 @@ from collections.abc import Iterable
 from typing import Any, TextIO
 
 import homeassistant.helpers.config_validation as cv
-import voluptuous as vol
+
+from .validation import vol
 
 
 def as_device_id_list(value: Any) -> list[str]:

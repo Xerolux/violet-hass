@@ -98,7 +98,12 @@ jobs:
             allow-prereleases: false
           - python-version: '3.14'
             tox-env: py314
-            label: Lint, types and tests
+            label: HA 2026.10.2, lint, types and tests
+            allow-prereleases: false
+
+          - python-version: '3.14'
+            tox-env: ha-min
+            label: HA 2026.8.3 tests
             allow-prereleases: false
 
     steps:
@@ -113,6 +118,8 @@ jobs:
           cache-dependency-path: |
             requirements.txt
             requirements-dev.txt
+            requirements-ha-current.txt
+            requirements-ha-min.txt
             tox.ini
 
       - name: Install tox

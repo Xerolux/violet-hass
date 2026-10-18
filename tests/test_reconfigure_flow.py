@@ -39,7 +39,7 @@ class TestReconfigureFlow:
             "retry_attempts": 3,
         }
         # Set by ConfigEntry.__init__, so a spec'd MagicMock does not have it;
-        # async_update_reload_and_abort reads it.
+        # Config flow helpers may inspect it.
         entry.update_listeners = []
         return entry
 
@@ -138,10 +138,9 @@ class TestReconfigureFlow:
             assert updated_data["timeout_duration"] == 60
             assert updated_data["retry_attempts"] == 5
 
-            # Verify reload was triggered
-            hass.config_entries.async_schedule_reload.assert_called_once_with(
-                mock_config_entry.entry_id
-            )
+            # The flow leaves reloading to the registered update listener.
+            # This mocked entry has no listener, so the helper must not reload.
+            hass.config_entries.async_schedule_reload.assert_not_called()
 
             # Verify flow is aborted with success
             assert result["type"] == FlowResultType.ABORT
@@ -657,3 +656,52 @@ class TestReconfigureConnectionHardening:
         suggested = self._suggested_values(result)
         assert suggested[CONF_API_URL] == "192.168.178.77"
         assert suggested["polling_interval"] == 42
+
+
+@pytest.mark.parametrize("new_host, expected_reloads", [("192.0.2.20", 1), ("192.0.2.10", 0)])
+async def test_reconfigure_listener_owns_reload(hass, new_host, expected_reloads):
+    """A loaded entry reloads once for a new connection, never for polling alone."""
+    from pytest_homeassistant_custom_component.common import MockConfigEntry
+
+    from custom_components.violet_pool_controller import (
+        _structural_options,
+        async_update_listener,
+    )
+    from custom_components.violet_pool_controller.config_flow import ConfigFlow
+    from custom_components.violet_pool_controller.const import DOMAIN
+    from custom_components.violet_pool_controller.runtime_data import VioletRuntimeData
+
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Test Pool",
+        unique_id="192.0.2.10_1",
+        data={CONF_API_URL: "192.0.2.10", CONF_USE_SSL: False, "device_id": 1},
+    )
+    entry.add_to_hass(hass)
+    coordinator = MagicMock()
+    coordinator.apply_polling_options.return_value = True
+    coordinator.async_request_refresh = AsyncMock()
+    entry.runtime_data = VioletRuntimeData(
+        coordinator=coordinator, structural_options=_structural_options(entry)
+    )
+    unsubscribe = entry.add_update_listener(async_update_listener)
+    flow = ConfigFlow()
+    flow.hass = hass
+    flow.context = {"entry_id": entry.entry_id, "source": "reconfigure"}
+    flow._test_connection = AsyncMock(return_value=True)
+
+    try:
+        with patch.object(hass.config_entries, "async_schedule_reload") as reload_entry:
+            result = await flow.async_step_reconfigure_connection(
+                {CONF_API_URL: new_host, CONF_USE_SSL: False, "polling_interval": 20}
+            )
+            await hass.async_block_till_done()
+            assert result["reason"] == "reconfigure_successful"
+            assert entry.data[CONF_API_URL] == new_host
+            assert reload_entry.call_count == expected_reloads
+            if expected_reloads:
+                reload_entry.assert_called_once_with(entry.entry_id)
+            else:
+                coordinator.async_request_refresh.assert_awaited_once()
+    finally:
+        unsubscribe()

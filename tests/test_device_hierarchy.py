@@ -361,3 +361,40 @@ class TestPrecreateAndCleanup:
 
         assert removed == len(SUB_DEVICES)
         assert _device_by_identifier(hass, config_entry, _MAIN_IDENTIFIER) is not None
+
+
+def test_child_info_uses_home_assistant_type(hass, config_entry, coordinator):
+    """A dataclass ChildDeviceInfo must not be replaced by a plain mapping."""
+    from dataclasses import dataclass
+
+    @dataclass
+    class ChildInfo:
+        identifiers: set[tuple[str, str]]
+        name: str
+        parent_device_id: str
+        translation_key: str
+
+    with (
+        patch.object(device_hierarchy, "_SUPPORTS_CHILD_DEVICES", True),
+        patch.object(device_hierarchy, "_main_device_id", return_value="parent-id"),
+        patch.object(dr, "ChildDeviceInfo", ChildInfo, create=True),
+    ):
+        info = build_device_info(hass, config_entry, coordinator, "PUMP")
+    assert isinstance(info, ChildInfo)
+    assert info.parent_device_id == "parent-id"
+    assert info.identifiers == {sub_device_identifier(config_entry, "filter_pump")}
+
+
+def test_main_identifiers_accept_dataclass_device_info(coordinator):
+    """Parent registration reads the typed identifiers field on newer HA."""
+    from dataclasses import dataclass
+
+    @dataclass
+    class MainInfo:
+        identifiers: set[tuple[str, str]]
+
+        def as_dict(self):
+            return {"identifiers": self.identifiers}
+
+    coordinator.device.device_info = MainInfo({_MAIN_IDENTIFIER})
+    assert device_hierarchy._main_identifiers(coordinator) == {_MAIN_IDENTIFIER}

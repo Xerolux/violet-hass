@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigFlowResult
 from homeassistant.helpers import selector
@@ -63,6 +62,7 @@ from .const import (
     DEFAULT_USE_SSL,
     DEFAULT_VERIFY_SSL,
 )
+from .validation import vol
 
 _LOGGER = logging.getLogger(__name__)
 
