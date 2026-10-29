@@ -504,7 +504,7 @@ LSI_INPUT_DEFINITIONS: list[dict[str, Any]] = [
         "step": 0.01,
         "default_value": None,
         "icon": "mdi:ph",
-        "unit_of_measurement": "pH",
+        # NumberDeviceClass.PH requires no unit of measurement; HA rejects "pH".
         "device_class": NumberDeviceClass.PH,
         "entity_category": EntityCategory.CONFIG,
     },
@@ -597,7 +597,7 @@ SETPOINT_DEFINITIONS = [
         "step": 0.1,
         "default_value": 7.2,
         "icon": "mdi:ph",
-        "unit_of_measurement": "pH",
+        # NumberDeviceClass.PH requires no unit of measurement; HA rejects "pH".
         "device_class": NumberDeviceClass.PH,
         "feature_id": "ph_control",
         "entity_category": EntityCategory.CONFIG,
