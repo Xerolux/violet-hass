@@ -22,7 +22,7 @@ It depends on a separate API client package.
 See [ARCHITECTURE.md](./ARCHITECTURE.md) for full structure overview.
 **🔒 Security Model**: See [SECURITY.md](./SECURITY.md) for detailed security architecture and compliance.
 
-**Current Integration Version**: `2.7.3` (defined in `manifest.json`, `const.py`, `pyproject.toml` and `custom_components/violet_pool_controller/.version`)
+**Current Integration Version**: `2.7.5` (defined in `manifest.json`, `const.py`, `pyproject.toml` and `custom_components/violet_pool_controller/.version`)
 **Current API Version**: `0.0.40` (defined in the [`violet-poolController-api`](https://github.com/Xerolux/violet-poolController-api) repository; pinned in `manifest.json`, mirrored in `requirements.txt`)
 **Minimum Home Assistant Version**: `2026.8.0` (defined in `hacs.json`)
 **Minimum Python Version**: Home Assistant runtime is managed by HA 2026.8.0+; standalone API package supports `>=3.12`
@@ -563,8 +563,12 @@ GitHub workflow `.github/workflows/validate.yml` runs:
 - Ruff linting on Python 3.12, 3.13 and 3.14 (the 3.12/3.13 legs are
   lint-only - they cannot install Home Assistant, which needs 3.14)
 - Mypy type checking and the full pytest suite on Python 3.14
-- Home Assistant version: whatever `pytest-homeassistant-custom-component`
-  pins (0.13.357 pins 2026.8.3; 2026.9 is what a current checkout installs)
+- Fixed Home Assistant lanes: 2026.10.2 (harness 0.13.373, lint/types/tests)
+  and 2026.8.3 (harness 0.13.357, tests), constrained by
+  `requirements-ha-current.txt` and `requirements-ha-min.txt`.
+- `tox -e py314` runs current stable; `tox -e ha-min` runs the supported floor.
+- Schema imports go through `.validation.vol`: Probatio when available,
+  voluptuous on older HA. Static types follow the current stable lane.
 - Hassfest and HACS validation
 
 **Coverage**: the floor is `[tool.coverage.report] fail_under` in
@@ -799,7 +803,7 @@ auto-generated notes from the merged PRs.
   - New Home Assistant version is released
   - New Python version is released
   - CI/CD pipeline fails due to compatibility issues
-- **Current version:** `>=0.13.357` (pins Home Assistant 2026.8.3)
+- **CI versions:** `0.13.373` (HA 2026.10.2) and `0.13.357` (HA 2026.8.3), pinned in the HA constraint files
 - **Update command:** `pip install --upgrade pytest-homeassistant-custom-component`
 
 ### Code Style
@@ -957,7 +961,7 @@ and `pyproject.toml` has no `dev` extra):
 
 8. **Code Quality**: Always run `ruff check --fix` before committing. The integration maintains 0 ruff errors and 0 mypy errors; both are enforced by CI.
 
-9. **Home Assistant Compatibility**: Integration requires HA 2026.8.0+. That floor is what lets the device registry code target one API instead of branching: 2026.8 scoped identifiers to the config entry, replaced `via_device` with `via_device_id` and gave a device a single `config_entry_id`. The one remaining runtime branch is child devices, which need 2026.9. The HA runtime Python version is managed by Home Assistant; the standalone API package supports Python 3.12+. Use modern type annotations (`X | None` not `Optional[X]`) and `collections.abc` imports.
+9. **Home Assistant Compatibility**: Integration requires HA 2026.8.0+. That floor is what lets the device registry code target one API instead of branching: 2026.8 scoped identifiers to the config entry, replaced `via_device` with `via_device_id` and gave a device a single `config_entry_id`. Compatibility branches cover child devices (2026.9+), typed device-info objects (2026.11+) and native climate temperatures (2026.11+). The HA runtime Python version is managed by Home Assistant; the standalone API package supports Python 3.12+. Use modern type annotations (`X | None` not `Optional[X]`) and `collections.abc` imports.
 
 10. **Recovery Behavior**: There is no recovery loop in this repository. Read
     retries (exponential backoff capped at 30 s, `CONF_RETRY_ATTEMPTS`

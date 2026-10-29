@@ -74,6 +74,33 @@ def track_provided_entities(
 
 
 @callback
+def add_provided_entities(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    platform: Platform | str,
+    entities: Iterable[Entity],
+) -> None:
+    """Merge entities that were added after setup into the platform's set.
+
+    The sensor platform creates data-dependent entities lazily, on the first
+    coordinator update that carries their key.  Merging them here keeps the
+    tracking complete, so a later cleanup does not treat them as orphans.
+
+    Args:
+        hass: The Home Assistant instance.
+        entry: The config entry the entities belong to.
+        platform: The platform domain reporting the entities.
+        entities: The entities handed to ``async_add_entities`` after setup.
+    """
+    runtime_data = get_runtime_data(entry)
+    if runtime_data is None:
+        return
+
+    store = runtime_data.provided_unique_ids.setdefault(str(platform), set())
+    store |= {unique_id for entity in entities if (unique_id := entity.unique_id) is not None}
+
+
+@callback
 def async_remove_orphaned_entities(
     hass: HomeAssistant,
     entry: ConfigEntry,

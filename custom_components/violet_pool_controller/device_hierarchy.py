@@ -268,7 +268,10 @@ def sub_device_identifier(entry: ConfigEntry, group: str) -> tuple[str, str]:
 def _main_identifiers(coordinator) -> set[tuple[str, str]]:
     """Return the controller device's identifiers, or an empty set."""
     try:
-        identifiers = coordinator.device.device_info.get("identifiers")
+        info = coordinator.device.device_info
+        identifiers = (
+            info.identifiers if hasattr(info, "as_dict") else info.get("identifiers")
+        )
     except (AttributeError, TypeError):
         return set()
     if not identifiers or not isinstance(identifiers, (set, frozenset)):
@@ -410,9 +413,10 @@ def build_device_info(
             "parent_device_id": parent_id,
             "translation_key": sub_device.translation_key,
         }
-        # ChildDeviceInfo does not exist before 2026.9, so the dict is built
-        # untyped and cast: an entity's device_info accepts either shape.
-        return cast("DeviceInfo", child_info)
+        # HA 2026.11 requires the concrete ChildDeviceInfo dataclass. Earlier
+        # child-device releases accept the same keyword fields as a TypedDict.
+        child_type = getattr(dr, "ChildDeviceInfo")
+        return cast("DeviceInfo", child_type(**child_info))
 
     info = DeviceInfo(
         identifiers=identifiers,
@@ -422,7 +426,10 @@ def build_device_info(
         translation_key=sub_device.translation_key,
     )
     if parent_id is not None:
-        info["via_device_id"] = parent_id
+        if hasattr(info, "as_dict"):
+            setattr(info, "via_device_id", parent_id)
+        else:
+            info["via_device_id"] = parent_id
 
     return info
 

@@ -767,7 +767,10 @@ class VioletPoolControllerDevice:
         for _serial_key in ("SERIAL", "SERIAL_NUMBER", "serial", "serial_number", "HW_SERIAL"):
             _serial_val = self._data.get(_serial_key)
             if _serial_val:
-                info["serial_number"] = str(_serial_val)
+                if hasattr(info, "as_dict"):
+                    setattr(info, "serial_number", str(_serial_val))
+                else:
+                    info["serial_number"] = str(_serial_val)
                 break
         return info
 

@@ -148,7 +148,10 @@ def _get_temp_limits(entity: VioletClimateEntity) -> tuple[float, float]:
 class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
     """Climate Entity - FULLY PROTECTED & THREAD-SAFE VERSION."""
 
-    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
+    if not hasattr(ClimateEntity, "native_current_temperature"):
+        # HA 2026.8-2026.10 needs the legacy API; 2026.11 warns on it.
+        _attr_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_supported_features = ClimateEntityFeature.TARGET_TEMPERATURE
     _attr_hvac_modes = [HVACMode.OFF, HVACMode.HEAT, HVACMode.AUTO]
     _attr_min_temp = DEFAULT_MIN_TEMP
@@ -190,13 +193,13 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         self._optimistic_target_temp: float | None = None
         self._optimistic_hvac_mode: HVACMode | None = None
 
-        self._attr_target_temperature = self._get_target_temperature()
+        self._attr_native_target_temperature = self._get_target_temperature()
         self._attr_hvac_mode = self._get_hvac_mode()
 
         _LOGGER.debug(
             "%s initialized: target=%s°C, mode=%s",
             name,
-            self._attr_target_temperature,
+            self._attr_native_target_temperature,
             self._attr_hvac_mode,
         )
 
@@ -280,7 +283,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         return action
 
     @property
-    def current_temperature(self) -> float | None:
+    def native_current_temperature(self) -> float | None:
         """Return the current water temperature."""
         if self.coordinator.data is None:
             _LOGGER.debug("Coordinator data is None - no current temperature available")
@@ -296,9 +299,13 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
         return None
 
     @property
-    def target_temperature(self) -> float | None:
+    def native_target_temperature(self) -> float | None:
         """Return target temperature."""
         return self._get_target_temperature()
+
+    if not hasattr(ClimateEntity, "native_current_temperature"):
+        current_temperature = native_current_temperature
+        target_temperature = native_target_temperature
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -365,7 +372,7 @@ class VioletClimateEntity(VioletPoolControllerEntity, ClimateEntity):
                         self.coordinator.update_setpoint_cache(key, temperature)
 
                 self._optimistic_target_temp = temperature
-                self._attr_target_temperature = temperature
+                self._attr_native_target_temperature = temperature
                 self.async_write_ha_state()
 
                 task = asyncio.create_task(self._delayed_refresh())

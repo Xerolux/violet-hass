@@ -154,3 +154,15 @@ class TestCompositeStates:
         from custom_components.violet_pool_controller import climate, state_constants
 
         assert climate.STATE_AUTO_ACTIVE == state_constants.STATE_AUTO_ACTIVE == 1
+
+
+def test_native_temperature_api_matches_controller(hass):
+    """The native API reports Celsius and the actual controller readings."""
+    from homeassistant.const import UnitOfTemperature
+
+    entity = _climate(
+        hass, "HEATER", {"HEATER": "1", "water_temp": 24.5, "HEATER_set_temp": 29}
+    )
+    assert entity.native_current_temperature == 24.5
+    assert entity.native_target_temperature == 29
+    assert entity._attr_native_temperature_unit == UnitOfTemperature.CELSIUS
