@@ -35,7 +35,7 @@
 
 | Requirement | Minimum | Recommended |
 |-------------|---------|-------------|
-| Integration | 2.7.5 | 2.7.5 (latest release) |
+| Integration | 2.7.6 | 2.7.6 (latest release) |
 | Home Assistant | 2026.8.0 | 2026.9.x (current) |
 | Python | Provided by Home Assistant 2026.8.0+ | Managed by Home Assistant |
 | Network | Controller reachable via HTTP | Static IP address (DHCP reservation) |

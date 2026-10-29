@@ -17,6 +17,19 @@ anyone there either.
 > **Historical note:** entries up to and including 2.5.7 were written in German,
 > before the language policy existed. They are kept as they were published.
 
+## Version 2.7.6 (2026-10-29)
+
+A small Home Assistant warning fix.
+
+### Fixes
+
+- **pH number entities no longer warn about their unit.** The pH setpoint and
+  the LSI/CSI pH input numbers declared the device class `ph` together with
+  the unit `pH`, which Home Assistant rejects — that device class carries no
+  unit. Home Assistant logged a warning for each of the three entities and
+  would stop accepting them in 2027.5. The redundant unit is removed; the
+  device class stays, and the entities behave exactly as before.
+
 ## Version 2.7.5 (2026-10-18)
 
 Home Assistant 2026.10 compatibility and reproducible release validation.
