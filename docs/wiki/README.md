@@ -17,7 +17,7 @@ English page, and each page links to its German twin at the top.
 | Page | What it covers |
 |---|---|
 | [Home](Home) | Overview, feature summary, supported hardware |
-| [Installation and Setup](Installation-and-Setup) | Step-by-step installation through HACS or manually |
+| [Installation and Setup](Installation-and-Setup) | Step-by-step installation through the Marketplace (HA 2026.11+), HACS, or manually |
 | [Configuration](Configuration) | Config flow, options, feature selection |
 | [Multi-Controller](Multi-Controller) | Running more than one controller |
 
@@ -78,7 +78,7 @@ English page, and each page links to its German twin at the top.
 
 ## 🔄 Scope and freshness
 
-- This wiki documents version **2.7.6** of the integration.
+- This wiki documents version **2.7.7** of the integration.
 - Pages are synchronised from `docs/wiki/` in the repository by the
   `docs.yml` workflow — edit them there, not in the GitHub wiki UI, or the
   next sync overwrites your change.

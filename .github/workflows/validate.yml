@@ -98,7 +98,7 @@ jobs:
             allow-prereleases: false
           - python-version: '3.14'
             tox-env: py314
-            label: HA 2026.10.2, lint, types and tests
+            label: HA 2026.10.4, lint, types and tests
             allow-prereleases: false
 
           - python-version: '3.14'

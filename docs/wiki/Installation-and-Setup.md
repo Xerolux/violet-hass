@@ -35,21 +35,60 @@
 
 | Requirement | Minimum | Recommended |
 |-------------|---------|-------------|
-| Integration | 2.7.6 | 2.7.6 (latest release) |
-| Home Assistant | 2026.8.0 | 2026.9.x (current) |
+| Integration | 2.7.7 | 2.7.7 (latest release) |
+| Home Assistant | 2026.8.0 | 2026.10.x (current) |
 | Python | Provided by Home Assistant 2026.8.0+ | Managed by Home Assistant |
 | Network | Controller reachable via HTTP | Static IP address (DHCP reservation) |
-| HACS | Optional | Recommended for easy updates |
+| Marketplace / HACS | Built into HA 2026.11+ | Marketplace; HACS on HA 2026.8–2026.10 |
 | Storage | <10 MB | – |
 
 > **Note**: Home Assistant 2026.8 is the floor because the device registry
-> API this integration targets landed there; 2026.9 is what CI runs against.
+> API this integration targets landed there. CI runs against 2026.8.3 and
+> 2026.10.4. From Home Assistant 2026.11, HACS is built in as the
+> **Marketplace** (**Settings → Marketplace**) and HACS itself can no longer
+> be installed.
 
 ---
 
-## Method 1: HACS (Recommended)
+## Method 1: Marketplace (Home Assistant 2026.11+, Recommended)
 
-HACS (Home Assistant Community Store) enables easy installation and automatic updates.
+From Home Assistant 2026.11 the Marketplace is part of Home Assistant – there
+is nothing to download or configure first. It uses the same catalog and the
+same `hacs.json` as HACS did.
+
+### Step 1: Add the Repository
+
+Until the repository is part of the default catalog, add it once as a link:
+
+1. Go to **Settings → Marketplace**
+2. In the upper-right corner, select **"Add from link"**
+3. Under **GitHub link**, enter `https://github.com/Xerolux/violet-hass`
+4. Select **"Add"** (connect your GitHub account if prompted)
+
+> Once the repository is listed in the catalog, you can simply search for
+> **"Violet Pool Controller"** instead.
+
+### Step 2: Install Integration
+
+1. Open the **"Violet Pool Controller"** repository page
+2. Click **"Install"** and confirm the version
+3. When asked, restart Home Assistant (a repair reminds you)
+
+### Step 3: Add Integration
+
+1. Go to **Settings → Devices & Services**
+2. Click **"+ Add Integration"**
+3. Search for **"Violet Pool Controller"**
+4. Follow the [Setup Wizard](#setup-wizard)
+
+---
+
+## Method 2: HACS (Home Assistant 2026.8–2026.10)
+
+On Home Assistant versions before 2026.11, HACS (Home Assistant Community
+Store) enables easy installation and automatic updates. Upgrading to 2026.11
+later is seamless: the Marketplace takes over automatically, installations
+and custom repositories carry over.
 
 ### Step 1: Install HACS (if not already installed)
 
@@ -92,9 +131,9 @@ docker restart homeassistant
 
 ---
 
-## Method 2: Manual Installation
+## Method 3: Manual Installation
 
-For users without HACS or developers.
+For users without Marketplace/HACS or developers.
 
 ### Option A: Via Git
 
@@ -131,7 +170,7 @@ After manual installation, Home Assistant **must** be restarted.
 
 ### Step 4: Add Integration
 
-Same as the HACS method: **Settings → Devices & Services → + Integration → "Violet Pool Controller"**
+Same as the Marketplace method: **Settings → Devices & Services → + Integration → "Violet Pool Controller"**
 
 ---
 
@@ -264,7 +303,15 @@ Or directly: **Developer Tools → States** → search for `violet_pool_controll
 
 ## Uninstallation
 
-### With HACS
+### With the Marketplace (HA 2026.11+)
+
+1. **Settings → Marketplace → Violet Pool Controller**
+2. Select the **three dots (⋮)** in the upper-right corner, then **"Uninstall"**
+3. If the integration is still configured, remove the setup when prompted
+   (**Settings → Devices & Services**)
+4. Restart Home Assistant
+
+### With HACS (HA 2026.8–2026.10)
 
 1. **HACS → Integrations → Violet Pool Controller**
 2. Click **"Remove"**
@@ -288,7 +335,14 @@ docker restart homeassistant  # or via HA UI
 
 ## Upgrading from an Older Version
 
-### With HACS (Automatic)
+### With the Marketplace (Automatic, HA 2026.11+)
+
+1. **Settings → Updates** → "Violet Pool Controller" → **"Update"**
+   (or open the repository under **Settings → Marketplace**)
+2. Restart Home Assistant (a repair reminds you)
+3. For breaking changes: check integration config
+
+### With HACS (Automatic, HA 2026.8–2026.10)
 
 1. **HACS → Integrations** → "Violet Pool Controller" → **"Update"**
 2. Restart Home Assistant

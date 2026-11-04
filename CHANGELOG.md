@@ -17,6 +17,32 @@ anyone there either.
 > **Historical note:** entries up to and including 2.5.7 were written in German,
 > before the language policy existed. They are kept as they were published.
 
+## Version 2.7.7 (2026-11-04)
+
+Review feedback from the HACS submission.
+
+### Security
+
+- **`set_system_service` now requires a Home Assistant administrator.** The
+  service enables and disables system services on the controller itself
+  (SSH, FTP, Samba, cloud tunnel, support tunnel) and therefore changes the
+  security posture of a device in the network — it is not a pool operation.
+  It is now registered through
+  `homeassistant.helpers.service.async_register_admin_service`, so Home
+  Assistant rejects calls from non-admin users with `Unauthorized` before
+  the handler runs. The schema, the response and the admin experience are
+  unchanged; `get_system_services_status` remains readable for everyone.
+
+### Docs
+
+- **Installation instructions cover the new Marketplace.** From Home
+  Assistant 2026.11, HACS is built into Home Assistant as the Marketplace
+  (Settings → Marketplace) and HACS itself can no longer be installed. The
+  README and the wiki now describe the Marketplace path first and keep the
+  HACS path for Home Assistant 2026.8–2026.10. Nothing changes for updates:
+  the Marketplace uses the same catalog (`hacs/default`) and the same
+  `hacs.json`.
+
 ## Version 2.7.6 (2026-10-29)
 
 A small Home Assistant warning fix.

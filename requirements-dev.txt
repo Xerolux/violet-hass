@@ -4,7 +4,7 @@
 # tox.ini installs it instead of repeating the list, and CLAUDE.md documents
 # these same floors. Do not add a second copy of a floor anywhere else.
 #
-# Tested against Home Assistant 2026.8.3 and 2026.10.2 on Python 3.14.
+# Tested against Home Assistant 2026.8.3 and 2026.10.4 on Python 3.14.
 -r requirements.txt
 
 ruff>=0.17.2

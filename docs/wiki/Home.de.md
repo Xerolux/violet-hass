@@ -54,7 +54,7 @@ Das **Violet Pool Controller Home Assistant Integration** verbindet [Home Assist
 | **HA-Mindestversion** | 2026.8.0 |
 | **Getestet bis** | 2026.5.x / 2026.6.x |
 | **Python** | Wird von Home Assistant 2026.8.0+ bereitgestellt |
-| **Integration-Version** | 2.7.6 |
+| **Integration-Version** | 2.7.7 |
 | **API-Paket** | violet-poolController-api ≥ 0.0.39 (PyPI) |
 | **Lizenz** | AGPL-3.0-or-later |
 | **Quality Scale** | Platinum |
@@ -99,7 +99,7 @@ Das **Violet Pool Controller Home Assistant Integration** verbindet [Home Assist
 
 ### Ich bin neu hier
 
-1. **[Installation & Setup](Installation-and-Setup)** – HACS oder manuell installieren
+1. **[Installation & Setup](Installation-and-Setup)** – Über den Marketplace (ab HA 2026.11), HACS oder manuell installieren
 2. **[Konfiguration](Configuration)** – Integration einrichten
 3. **[Entities](Entities)** – Alle Sensoren, Schalter, Klima
 4. **[Sensoren verstehen](Sensors)** – Welche Daten bekomme ich?
@@ -225,7 +225,8 @@ Diese Integration ist vollständig mit Home Assistant 2026.x kompatibel:
 |-----------|------|
 | GitHub Repository | https://github.com/Xerolux/violet-hass |
 | Issues & Bugs | https://github.com/Xerolux/violet-hass/issues |
-| HACS | https://hacs.xyz/ |
+| Marketplace | https://www.home-assistant.io/integrations/marketplace/ |
+| HACS (HA < 2026.11) | https://hacs.xyz/ |
 | Home Assistant | https://www.home-assistant.io/ |
 | PoolDigital | https://www.pooldigital.de/ |
 | Community Forum | https://community.home-assistant.io/ |
@@ -234,5 +235,5 @@ Diese Integration ist vollständig mit Home Assistant 2026.x kompatibel:
 
 ---
 
-*Diese Wiki dokumentiert Version **2.7.6** der Violet Pool Controller Integration.*
+*Diese Wiki dokumentiert Version **2.7.7** der Violet Pool Controller Integration.*
 *Zuletzt aktualisiert: 2026-07-14*
