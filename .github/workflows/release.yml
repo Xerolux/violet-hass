@@ -208,7 +208,8 @@ jobs:
           parts.append(section)
           parts.append(
               "### Installation\n\n"
-              "Update through HACS, or download `violet_pool_controller.zip` for a "
+              "Update through the Marketplace (Home Assistant 2026.11+), HACS "
+              "(2026.8–2026.10), or download `violet_pool_controller.zip` for a "
               "manual installation."
           )
           parts.append(

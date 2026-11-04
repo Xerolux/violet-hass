@@ -42,7 +42,10 @@ Entity-Erkennung.
 ### Installation
 
 1. Die Violet-Pool-Controller-Integration (dieses Repository) installieren und einrichten.
-2. **HACS → Frontend → ⋮ (Drei-Punkte-Menü) → Eigene Repositories**
+2. **Marketplace (ab HA 2026.11):** **Einstellungen → Marketplace → "Add from link"** →
+   `https://github.com/Xerolux/violet-pool-card` → **Hinzufügen** (Typ: Dashboard)
+
+   **HACS (HA 2026.8–2026.10):** **HACS → Frontend → ⋮ (Drei-Punkte-Menü) → Eigene Repositories**
 3. Repository: `https://github.com/Xerolux/violet-pool-card`
    Kategorie: **Dashboard** → **Hinzufügen**
 4. Nach **Violet Pool Card** suchen und herunterladen.
@@ -99,9 +102,12 @@ Für `pool-dashboard.yaml` mit mehreren Ansichten:
 
 ---
 
-## 📦 Benötigte Custom Cards (HACS)
+## 📦 Benötigte Custom Cards (Marketplace / HACS)
 
-Die aufwändigeren Karten nutzen Community-Karten. Installation über
+Die aufwändigeren Karten nutzen Community-Karten. Ab Home Assistant 2026.11
+werden sie über den **Marketplace** installiert (**Einstellungen →
+Marketplace**, nach der Karte suchen). Unter 2026.8–2026.10 läuft die
+Installation über
 **HACS → Frontend → ➕ Repositories durchsuchen & herunterladen**, danach den
 Browser neu laden (Strg/Cmd + Umschalt + R):
 

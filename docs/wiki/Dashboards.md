@@ -41,7 +41,10 @@ seven themes, a graphical editor and automatic entity detection.
 ### Installing it
 
 1. Install and set up the Violet Pool Controller integration (this repository).
-2. **HACS → Frontend → ⋮ (three dots) → Custom repositories**
+2. **Marketplace (HA 2026.11+):** **Settings → Marketplace → "Add from link"** →
+   `https://github.com/Xerolux/violet-pool-card` → **Add** (type: Dashboard)
+
+   **HACS (HA 2026.8–2026.10):** **HACS → Frontend → ⋮ (three dots) → Custom repositories**
 3. Repository: `https://github.com/Xerolux/violet-pool-card`
    Category: **Dashboard**  → **Add**
 4. Search for **Violet Pool Card** and download it.
@@ -98,9 +101,11 @@ For `pool-dashboard.yaml`, which contains several views:
 
 ---
 
-## 📦 Required custom cards (HACS)
+## 📦 Required custom cards (Marketplace / HACS)
 
-The richer cards use community cards. Install them via
+The richer cards use community cards. On Home Assistant 2026.11+ install them
+from the **Marketplace** (**Settings → Marketplace**, search for the card).
+On 2026.8–2026.10 install them via
 **HACS → Frontend → ➕ Explore & download repositories**, then reload your
 browser (Ctrl/Cmd + Shift + R):
 

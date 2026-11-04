@@ -44,10 +44,20 @@
 
 ## ⚡ Quick Start
 
-**1. HACS – Add Integration**
+**1. Add Integration – Marketplace (HA 2026.11+) or HACS (2026.8–2026.10)**
 
 <a href="https://my.home-assistant.io/redirect/hacs_repository/?repository=https%3A%2F%2Fgithub.com%2FXerolux%2Fviolet-hass&owner=Xerolux&category=Integration" target="_blank" rel="noopener noreferrer"><img src="https://my.home-assistant.io/badges/hacs_repository.svg" alt="Open your Home Assistant instance and open a repository inside the Home Assistant Community Store." /></a>
 
+> The button works for both: from Home Assistant 2026.11 it opens the repository in the built-in **Marketplace**; on 2026.8–2026.10 it opens HACS.
+
+**Home Assistant 2026.11 or newer – Marketplace (built in, nothing to install):**
+```
+Settings → Marketplace → "Add from link" (top right)
+GitHub link: https://github.com/Xerolux/violet-hass  →  Add
+→ open "Violet Pool Controller" → Install → Restart HA
+```
+
+**Home Assistant 2026.8 – 2026.10 – HACS:**
 ```
 HACS → Integrations → ⋮ → Custom Repositories
 URL: https://github.com/xerolux/violet-hass  |  Category: Integration
@@ -84,8 +94,9 @@ The full documentation is available in the **[Wiki][wiki]**:
 
 ## 🔑 Requirements
 
-- Home Assistant **2026.8.0+** (tested against 2026.8.3 and 2026.10.2)
-- HACS ([Installation guide](https://hacs.xyz/docs/use/download/download/))
+- Home Assistant **2026.8.0+** (tested against 2026.8.3 and 2026.10.4)
+- Installation via the built-in **Marketplace** (Home Assistant 2026.11+) or
+  [HACS](https://hacs.xyz/docs/use/download/download/) (Home Assistant 2026.8–2026.10)
 - Violet Pool Controller accessible on your local network
 - Python runtime managed by Home Assistant 2026.8.0+
 - Standalone API package supports Python 3.12+

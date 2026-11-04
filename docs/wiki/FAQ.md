@@ -178,7 +178,13 @@ A: Services are specialized:
 ## Updates & Maintenance
 
 **Q: How do I update the integration?**
-A: With HACS:
+A: With the Marketplace (Home Assistant 2026.11+):
+1. Settings → Updates
+2. Find "Violet Pool Controller"
+3. If available: "Update"
+4. Restart Home Assistant
+
+Or with HACS (Home Assistant 2026.8–2026.10):
 1. HACS → Integrations
 2. Find "Violet Pool Controller"
 3. If available: "Update"
