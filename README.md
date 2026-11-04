@@ -52,17 +52,17 @@
 
 **Home Assistant 2026.11 or newer – Marketplace (built in, nothing to install):**
 ```
-Settings → Marketplace → "Add from link" (top right)
-GitHub link: https://github.com/Xerolux/violet-hass  →  Add
-→ open "Violet Pool Controller" → Install → Restart HA
+Settings → Marketplace → search "Violet Pool Controller" → Install → Restart HA
 ```
+Fallback if it does not show up yet: **"Add from link"** (top right) →
+`https://github.com/Xerolux/violet-hass` → **Add**
 
 **Home Assistant 2026.8 – 2026.10 – HACS:**
 ```
-HACS → Integrations → ⋮ → Custom Repositories
-URL: https://github.com/xerolux/violet-hass  |  Category: Integration
-→ Download "Violet Pool Controller" → Restart HA
+HACS → search "Violet Pool Controller" → Download → Restart HA
 ```
+Fallback: HACS → Integrations → ⋮ → Custom Repositories
+URL: `https://github.com/xerolux/violet-hass`  |  Category: Integration
 
 **2. Set Up Integration**
 ```

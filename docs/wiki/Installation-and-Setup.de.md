@@ -56,18 +56,17 @@ Ab Home Assistant 2026.11 ist der Marketplace Teil von Home Assistant – es
 muss nichts mehr heruntergeladen oder eingerichtet werden. Er nutzt denselben
 Katalog und dieselbe `hacs.json` wie bisher HACS.
 
-### Schritt 1: Repository hinzufügen
-
-Solange das Repository noch nicht im Standard-Katalog steht, einmalig als
-Link hinzufügen:
+### Schritt 1: Integration finden
 
 1. Gehe zu **Einstellungen → Marketplace**
-2. Wähle oben rechts **"Add from link" / "Über Link hinzufügen"**
-3. Gib unter **GitHub-Link** `https://github.com/Xerolux/violet-hass` ein
-4. Wähle **"Hinzufügen"** (bei Aufforderung GitHub-Konto verbinden)
+2. Suche nach **"Violet Pool Controller"** und öffne die Repository-Seite
 
-> Sobald das Repository im Katalog gelistet ist, genügt die Suche nach
-> **"Violet Pool Controller"**.
+> **Noch nicht gelistet?** Der Katalog aktualisiert sich periodisch. Als
+> Fallback füge das Repository einmalig per Link hinzu: oben rechts
+> **"Add from link" / "Über Link hinzufügen"** wählen, unter **GitHub-Link**
+> `https://github.com/Xerolux/violet-hass` eintragen und **"Hinzufügen"**
+> wählen (bei Aufforderung GitHub-Konto verbinden). Danach wird es wie ein
+> normales Katalog-Repository behandelt.
 
 ### Schritt 2: Integration installieren
 
@@ -95,24 +94,18 @@ Installationen und benutzerdefinierte Repositories bleiben erhalten.
 
 Falls HACS noch nicht installiert ist, folge der [offiziellen HACS-Installationsanleitung](https://hacs.xyz/docs/use/download/download/).
 
-### Schritt 2: Repository hinzufügen
+### Schritt 2: Integration finden und installieren
 
-1. Öffne **HACS** in Home Assistant
-2. Klicke auf die **drei Punkte (⋮)** oben rechts
-3. Wähle **"Benutzerdefinierte Repositories"**
-4. Füge folgendes ein:
-   - **Repository-URL**: `https://github.com/Xerolux/violet-hass`
-   - **Kategorie**: `Integration`
-5. Klicke **"Hinzufügen"**
+1. Öffne **HACS** in Home Assistant und suche nach **"Violet Pool Controller"**
+2. Klicke auf die Karte und dann auf **"Herunterladen"**
+3. Bestätige die Installation
 
-### Schritt 3: Integration installieren
+> **Noch nicht gelistet?** Einmalig als benutzerdefiniertes Repository
+> hinzufügen: **drei Punkte (⋮)** oben rechts → **"Benutzerdefinierte
+> Repositories"** → **Repository-URL**: `https://github.com/Xerolux/violet-hass`,
+> **Kategorie**: `Integration` → **"Hinzufügen"**.
 
-1. Gehe in HACS zu **"Integrationen"**
-2. Suche nach **"Violet Pool Controller"**
-3. Klicke auf die Karte und dann auf **"Herunterladen"**
-4. Bestätige die Installation
-
-### Schritt 4: Home Assistant neu starten
+### Schritt 3: Home Assistant neu starten
 
 ```
 Einstellungen → System → Neustart → Home Assistant neu starten
@@ -123,7 +116,7 @@ Oder per Docker:
 docker restart homeassistant
 ```
 
-### Schritt 5: Integration hinzufügen
+### Schritt 4: Integration hinzufügen
 
 1. Gehe zu **Einstellungen → Geräte & Dienste**
 2. Klicke auf **"+ Integration hinzufügen"**
