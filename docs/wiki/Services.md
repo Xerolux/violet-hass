@@ -72,7 +72,7 @@ shows every field with its live selector.
 | `control_extension_relay` | Extension relay (relay_id 1-8, action, state, duration) |
 | `configure_sensor_calibration` | Sensor calibration (sensor_id 1-12, offset, multiplier, min/max) |
 | `set_omni_position` | Drive the OmniTronic multi-port valve to a fixed position |
-| `set_system_service` | Enable/disable a controller-side service (FTP, Samba, SSH, AirPlay, …) |
+| `set_system_service` | Enable/disable a controller-side service (FTP, Samba, SSH, AirPlay, …) – **admin only** |
 
 ### Status and diagnostics (these return data)
 | Service | Function |

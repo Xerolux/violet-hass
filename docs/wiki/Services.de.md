@@ -72,7 +72,7 @@ mit seinem Selektor.
 | `control_extension_relay` | Erweiterungsrelais (relay_id 1-8, action, state, duration) |
 | `configure_sensor_calibration` | Sensorkalibrierung (sensor_id 1-12, offset, multiplier, min/max) |
 | `set_omni_position` | OmniTronic-Mehrwegeventil auf eine feste Position fahren |
-| `set_system_service` | Controller-Dienst aktivieren/deaktivieren (FTP, Samba, SSH, AirPlay, …) |
+| `set_system_service` | Controller-Dienst aktivieren/deaktivieren (FTP, Samba, SSH, AirPlay, …) – **nur für Administratoren** |
 
 ### Status & Diagnose (liefern Daten zurück)
 | Service | Funktion |
