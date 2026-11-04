@@ -1118,7 +1118,7 @@
       "name": "OmniTronic-Ventilstellung setzen"
     },
     "set_system_service": {
-      "description": "Aktiviert oder deaktiviert einen auf dem Controller laufenden Systemdienst (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, Tunnel).",
+      "description": "Aktiviert oder deaktiviert einen auf dem Controller laufenden Systemdienst (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, Tunnel). Nur Home-Assistant-Administratoren können diesen Dienst aufrufen.",
       "fields": {
         "device_id": {
           "description": "Ziel-Gerät (Violet Pool Controller).",

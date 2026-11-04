@@ -1134,6 +1134,7 @@ set_system_service:
   description: Enable or disable a system service running on the controller itself (FTP, Samba, SSH, AirPlay,
     HomeKit bridge, Alexa, cloud tunnel, support tunnel). Useful for security-hardening automation (e.g.
     disable SSH/FTP when not needed) or to enable the support tunnel on demand for remote troubleshooting.
+    Only Home Assistant administrators can call this service.
   fields:
     device_id:
       description: Controller device

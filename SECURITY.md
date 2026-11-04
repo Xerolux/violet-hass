@@ -448,6 +448,18 @@ Next poll cycle reads actual state
 UI reflects actual dosing status
 ```
 
+### Admin-Only Services (`services.py`)
+
+`set_system_service` does not operate the pool — it enables and disables
+system services on the controller itself (SSH, FTP, Samba, cloud tunnel,
+support tunnel), and so changes the security posture of a device in the
+user's network. It is therefore registered through
+`homeassistant.helpers.service.async_register_admin_service`: Home Assistant
+rejects the call with `Unauthorized` before the handler runs unless the
+caller is an administrator. All other services stay registered as regular
+services, and `get_system_services_status` (read-only) remains available to
+every user.
+
 ### Critical: Never Assumes State
 
 ```python

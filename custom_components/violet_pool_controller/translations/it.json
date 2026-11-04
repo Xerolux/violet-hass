@@ -1118,7 +1118,7 @@
       "name": "Imposta la posizione della valvola OmniTronic"
     },
     "set_system_service": {
-      "description": "Abilita o disabilita un servizio di sistema sul controller (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, tunnel).",
+      "description": "Abilita o disabilita un servizio di sistema sul controller (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, tunnel). Solo gli amministratori di Home Assistant possono richiamare questo servizio.",
       "fields": {
         "device_id": {
           "description": "Dispositivo Violet Pool Controller di destinazione.",

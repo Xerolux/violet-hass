@@ -1118,7 +1118,7 @@
       "name": "Définir la position de la vanne OmniTronic"
     },
     "set_system_service": {
-      "description": "Activer ou désactiver un service système sur le contrôleur (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, tunnels).",
+      "description": "Activer ou désactiver un service système sur le contrôleur (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, tunnels). Seuls les administrateurs Home Assistant peuvent appeler ce service.",
       "fields": {
         "device_id": {
           "description": "Appareil Violet Pool Controller ciblé.",

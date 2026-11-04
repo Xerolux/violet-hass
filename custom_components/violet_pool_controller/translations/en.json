@@ -1118,7 +1118,7 @@
       "name": "Set OmniTronic valve position"
     },
     "set_system_service": {
-      "description": "Enable or disable a system service on the controller (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, tunnels).",
+      "description": "Enable or disable a system service on the controller (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, tunnels). Only Home Assistant administrators can call this service.",
       "fields": {
         "device_id": {
           "description": "Target Violet Pool Controller device.",

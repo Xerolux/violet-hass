@@ -1,9 +1,10 @@
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from homeassistant.core import HomeAssistant
+from homeassistant.core import Context, HomeAssistant
+from homeassistant.exceptions import Unauthorized
 from homeassistant.helpers import device_registry as dr
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant_custom_component.common import MockConfigEntry, MockUser
 
 from custom_components.violet_pool_controller.const import DOMAIN
 from custom_components.violet_pool_controller.runtime_data import VioletRuntimeData
@@ -256,3 +257,93 @@ async def test_services_are_removed_with_the_last_entry(hass: HomeAssistant) -> 
     await async_register_services(hass)
     assert hass.services.has_service(DOMAIN, "control_pump")
     assert hass.data[DOMAIN][SERVICE_MANAGER_KEY] is not None
+
+
+# ---------------------------------------------------------------------------
+# set_system_service is an admin-only service
+# ---------------------------------------------------------------------------
+
+
+async def _setup_system_service_target(
+    hass: HomeAssistant, device_registry: dr.DeviceRegistry
+) -> tuple[str, MagicMock]:
+    """Register a controller device whose API calls are recorded.
+
+    Returns the registry device id and the mocked coordinator, so a test can
+    assert what reached the (faked) controller API.
+    """
+    config_entry = MockConfigEntry(domain=DOMAIN, entry_id="config_entry_admin")
+    config_entry.add_to_hass(hass)
+
+    device = device_registry.async_get_or_create(
+        config_entry_id=config_entry.entry_id,
+        identifiers={(DOMAIN, "admin_test_device")},
+        name="Admin Test Device",
+    )
+
+    mock_coordinator = MagicMock()
+    mock_coordinator.config_entry = config_entry
+    mock_coordinator.device.api.set_system_service = AsyncMock(return_value=True)
+
+    config_entry.runtime_data = VioletRuntimeData(coordinator=mock_coordinator)
+
+    await async_register_services(hass)
+    return device.id, mock_coordinator
+
+
+async def test_set_system_service_rejects_non_admin_user(
+    hass: HomeAssistant, device_registry: dr.DeviceRegistry
+) -> None:
+    """A non-admin user must not toggle SSH/FTP/tunnels on the controller.
+
+    ``set_system_service`` changes the security posture of a device in the
+    user's network, so it is registered through
+    ``homeassistant.helpers.service.async_register_admin_service``. A
+    non-admin user's call has to be rejected before it reaches the handler.
+    """
+    device_id, mock_coordinator = await _setup_system_service_target(hass, device_registry)
+
+    user = MockUser().add_to_hass(hass)
+    assert user.is_admin is False
+
+    with pytest.raises(Unauthorized):
+        await hass.services.async_call(
+            DOMAIN,
+            "set_system_service",
+            {"device_id": device_id, "service": "ssh", "enabled": False},
+            context=Context(user_id=user.id),
+            blocking=True,
+            return_response=True,
+        )
+
+    # The handler never ran, so nothing reached the controller.
+    mock_coordinator.device.api.set_system_service.assert_not_awaited()
+
+
+async def test_set_system_service_allows_admin_user(
+    hass: HomeAssistant, device_registry: dr.DeviceRegistry
+) -> None:
+    """An administrator can still call the service and gets its response."""
+    device_id, mock_coordinator = await _setup_system_service_target(hass, device_registry)
+
+    admin = MockUser(is_owner=True).add_to_hass(hass)
+    assert admin.is_admin is True
+
+    response = await hass.services.async_call(
+        DOMAIN,
+        "set_system_service",
+        {"device_id": device_id, "service": "support_tunnel", "enabled": True},
+        context=Context(user_id=admin.id),
+        blocking=True,
+        return_response=True,
+    )
+
+    assert response == {
+        "success": True,
+        "service": "support_tunnel",
+        "enabled": True,
+        "updated_count": 1,
+    }
+    mock_coordinator.device.api.set_system_service.assert_awaited_once_with(
+        "support_tunnel", enabled=True
+    )

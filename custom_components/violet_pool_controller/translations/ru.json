@@ -1118,7 +1118,7 @@
       "name": "Задать позицию клапана OmniTronic"
     },
     "set_system_service": {
-      "description": "Включает или отключает системную службу на контроллере (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, туннели).",
+      "description": "Включает или отключает системную службу на контроллере (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, туннели). Вызвать этот сервис могут только администраторы Home Assistant.",
       "fields": {
         "device_id": {
           "description": "Целевое устройство Violet Pool Controller.",

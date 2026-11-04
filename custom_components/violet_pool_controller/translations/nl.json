@@ -1118,7 +1118,7 @@
       "name": "Stand van de OmniTronic-klep instellen"
     },
     "set_system_service": {
-      "description": "Schakel een systeemservice op de controller in of uit (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, tunnels).",
+      "description": "Schakel een systeemservice op de controller in of uit (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, tunnels). Alleen Home Assistant-beheerders kunnen deze service aanroepen.",
       "fields": {
         "device_id": {
           "description": "Het Violet Pool Controller-apparaat waarop dit van toepassing is.",

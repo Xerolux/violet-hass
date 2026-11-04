@@ -1118,7 +1118,7 @@
       "name": "Ustaw pozycję zaworu OmniTronic"
     },
     "set_system_service": {
-      "description": "Włącza lub wyłącza usługę systemową na sterowniku (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, tunele).",
+      "description": "Włącza lub wyłącza usługę systemową na sterowniku (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, tunele). Tylko administratorzy Home Assistant mogą wywołać tę usługę.",
       "fields": {
         "device_id": {
           "description": "Docelowe urządzenie Violet Pool Controller.",

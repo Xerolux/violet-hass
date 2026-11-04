@@ -1118,7 +1118,7 @@
       "name": "Definir posição da válvula OmniTronic"
     },
     "set_system_service": {
-      "description": "Ativa ou desativa um serviço de sistema no controlador (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, túneis).",
+      "description": "Ativa ou desativa um serviço de sistema no controlador (FTP, Samba, SSH, AirPlay, HomeKit, Alexa, túneis). Apenas administradores do Home Assistant podem chamar este serviço.",
       "fields": {
         "device_id": {
           "description": "Dispositivo Violet Pool Controller de destino.",

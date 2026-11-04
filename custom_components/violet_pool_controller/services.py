@@ -12,6 +12,7 @@ from __future__ import annotations
 import logging
 
 from homeassistant.core import HomeAssistant, SupportsResponse
+from homeassistant.helpers.service import async_register_admin_service
 
 from .const import DOMAIN
 from .refill_overflow_service import VioletRefillOverflowServiceHandlers
@@ -122,6 +123,15 @@ SERVICES_WITH_RESPONSE: tuple[str, ...] = (
 
 SERVICE_HANDLER_NAMES: tuple[str, ...] = SERVICES_WITHOUT_RESPONSE + SERVICES_WITH_RESPONSE
 
+# Services that change the security posture of the controller itself rather
+# than pool operation: ``set_system_service`` can turn SSH, FTP, Samba, the
+# cloud tunnel or the vendor support tunnel on and off. They are registered
+# through ``async_register_admin_service`` so that only Home Assistant
+# administrators can call them - a non-admin user (or an automation a
+# dashboard user can trigger) must not be able to open a support tunnel or
+# enable SSH on a device in the user's network.
+ADMIN_ONLY_SERVICES: frozenset[str] = frozenset({"set_system_service"})
+
 
 async def async_register_services(hass: HomeAssistant) -> None:
     """
@@ -152,17 +162,30 @@ async def async_register_services(hass: HomeAssistant) -> None:
     schemas = get_service_schemas()
 
     for service_name in SERVICE_HANDLER_NAMES:
-        hass.services.async_register(
-            DOMAIN,
-            service_name,
-            getattr(handlers, f"handle_{service_name}"),
-            schema=schemas.get(service_name),
-            supports_response=(
-                SupportsResponse.ONLY
-                if service_name in SERVICES_WITH_RESPONSE
-                else SupportsResponse.NONE
-            ),
+        supports_response = (
+            SupportsResponse.ONLY
+            if service_name in SERVICES_WITH_RESPONSE
+            else SupportsResponse.NONE
         )
+        if service_name in ADMIN_ONLY_SERVICES:
+            # ``async_register_admin_service`` takes no ``schema=None``; an
+            # admin-only service without a schema would be a bug anyway.
+            async_register_admin_service(
+                hass,
+                DOMAIN,
+                service_name,
+                getattr(handlers, f"handle_{service_name}"),
+                schema=schemas[service_name],
+                supports_response=supports_response,
+            )
+        else:
+            hass.services.async_register(
+                DOMAIN,
+                service_name,
+                getattr(handlers, f"handle_{service_name}"),
+                schema=schemas.get(service_name),
+                supports_response=supports_response,
+            )
 
     _LOGGER.info("Successfully registered %d services", len(SERVICE_HANDLER_NAMES))
 

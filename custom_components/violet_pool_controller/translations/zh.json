@@ -1118,7 +1118,7 @@
       "name": "设置 OmniTronic 阀门位置"
     },
     "set_system_service": {
-      "description": "启用或禁用控制器上的系统服务（FTP、Samba、SSH、AirPlay、HomeKit、Alexa、隧道）。",
+      "description": "启用或禁用控制器上的系统服务（FTP、Samba、SSH、AirPlay、HomeKit、Alexa、隧道）。只有 Home Assistant 管理员才能调用此服务。",
       "fields": {
         "device_id": {
           "description": "目标 Violet Pool Controller 设备。",
