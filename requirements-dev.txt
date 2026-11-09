@@ -12,7 +12,7 @@ mypy>=2.4.0
 
 pytest>=9.0.3
 pytest-cov>=7.1.0
-pytest-asyncio>=1.4.0
+pytest-asyncio>=1.4.1.post1
 
 # IMPORTANT: Always use the latest version from
 # https://github.com/MatthewFlamm/pytest-homeassistant-custom-component
