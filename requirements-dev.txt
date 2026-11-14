@@ -7,7 +7,7 @@
 # Tested against Home Assistant 2026.8.3 and 2026.10.4 on Python 3.14.
 -r requirements.txt
 
-ruff>=0.17.2
+ruff>=0.17.4
 mypy>=2.4.1
 
 pytest>=9.0.3
